@@ -22,6 +22,7 @@ http://...
 
 ## 调用方法
 POST
+注意: Content-Type 必须是 multipart/form-data
 
 ## 请求参数
 无
@@ -29,17 +30,22 @@ POST
 ## 返回值说明
 |字段|类型|说明|
 |:--|:--|:--|
-|id|int|-1表示识别失败, 大于等于0表示自动生成的id号|
+|id|int|内部id, -1表示识别失败, 大于等于0表示自动生成的id号|
+|role_id|int|角色id[1,20]|
+|role_name|String|角色名字|
+|rec_count|uint|识别次数|
 
 ## 返回值示例
 ### 请求成功返回示例
-	{id:0}
+	{id:"0",role_id:"1",role_name:"甄嬛",rec_count:"12" }
+
 ### 请求失败返回示例
 	{id:-1}
 
 ## 当前API特有的ERROR_MESSAGE
+无
 
 ## 通用的ERROR_MESSAGE
-
+无
 ## 调用示例
 	curl -X POST "http://localhost" -F "image_file=@0.jpg" -F "image_file=@1.jpg"
