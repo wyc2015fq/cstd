@@ -30,17 +30,27 @@ POST
 ## 返回值说明
 |字段|类型|说明|
 |:--|:--|:--|
+|result|String|返回值|
+|isnew|bool|是新的人脸|
 |id|int|内部id, -1表示识别失败, 大于等于0表示自动生成的id号|
 |role_id|int|角色id[1,20]|
 |role_name|String|角色名字|
 |rec_count|uint|识别次数|
 
+|result 值|说明|
+|:--|:--|
+|OK|识别成功|
+|ARGS_ERR|参数错误|
+|CAN_NOT_DETECT_FACE|没检测到人脸|
+|FACE_IS_NOT_FRONT|不是正脸|
+
+
 ## 返回值示例
 ### 请求成功返回示例
-	{id:"0",role_id:"1",role_name:"甄嬛",rec_count:"12" }
+	{"result":"OK","id":"3","isnew":"false","role_id":"4","username":"","rec_count":"2" }
 
 ### 请求失败返回示例
-	{id:-1}
+	{"result":"FACE_IS_NOT_FRONT","id":-1}
 
 ## 当前API特有的ERROR_MESSAGE
 无
