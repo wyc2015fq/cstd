@@ -1,0 +1,7 @@
+WEAKTYPEDEF(GEN, "gentle boost")
+WEAKTYPEDEF(LUT, "lut boost")
+//WEAKTYPEDEF(RANK, "rank boost")
+//WEAKTYPEDEF(TAN, "tan boost")
+WEAKTYPEDEF(GUS, "gus boost")
+WEAKTYPEDEF(CARTW, "cart boost")
+WEAKTYPEDEF(TREE, "tree boost")

@@ -1,0 +1,697 @@
+DrawDib函数组的使用
+
+作者：佚名    阅读人次：2636    文章来源：未知    发布时间：2006-1-3    网友评论(3)条
+ 
+
+    Microsoft的针对与设备无关位图(DIB位图)，在其WIN32 SDK的Multimedia中提供了一组绘制DIB位图的高性能函数组──DrawDib函数组。DrawDib函数组是一组不依赖于图形设备接口(GDI)函数，而直接操作显存的函数组。它们支持8位、16位、24位和32位图象深度的DIB。总的来说，DrawDib函数组类似于StretchDIBits函数，它们都提供了将图象拉伸和抖动的功能，然而，DrawDib函数组还支持图象的解压、数据流以及更多的显示适配器。在某些情况下，DrawDib函数组还具有更大的优越性。但是，在某些场合下，DrawDib函数组却不能取代StretchDIBits函数。下面就DrawDib函数组和StretchDIBits函数使用的场合加以区别和说明：
+
+颜色信息表格式。DrawDib函数组只支持颜色信息表格式为DIB_RGB_COLORS格式的图象，如果要显示以DIB_PAL_COLORS或DIB_PAL_INDICES格式的图象，则必须用StretchDIBits函数。
+光栅操作模式。DrawDib函数组只能使用SRCCOPY光栅操作模式，如果要求不仅仅使用SRCCOPY模式的话，只能用StretchDIBits函数。同样地，如果要使用其他光栅操作，例如XOR，只能用StretchDIBits函数。
+视频及动画回放的质量。DrawDib函数组支持数据流应用，诸如视频片和动画序列，它比StretchDIBits函数提供了更高的图象质量以及对回放过程的改进。
+显示适配器。DrawDib函数组比StretchDIBits函数支持更多的显示适配器。DrawDib函数组支持使用4位图象深度提供16色调色板的VGA适配器，使用8位图象深度提供256色调色板的SVGA适配器和使用16位、24位和32位图象深度提供成千上万种颜色的真彩色适配器。DrawDib函数组还使用了受限制的潜在能力提高了图象在显示适配器上的速度和质量。例如，当使用8位的显示适配器时，DrawDib函数组有效地将真彩色图象抖动为256色；同样的，使用4位的显示适配器时，它们也将8位深度的图象抖动成4位。
+图象拉伸。正如StretchDIBits一样，DrawDib函数组用源矩形和目的矩形来控制一个图象显示的部分。可以通过改变源矩形和目的矩形的位置和大小来裁剪一幅图象不需要的部分和拉伸某部分。如果显示驱动不支持图象拉伸，那么DrawDib函数组提供了比StretchDIBits函数更有效的拉伸能力。
+压缩图象。DrawDib函数组支持好几种压缩和解压方法，其中包括游程编码，JPEG,Cinepak,411YUV和Indeo&#8482;。
+DrawDib的操作
+
+    通过使用DrawDibOpen函数初始化DrawDib函数组。DrawDibOpen负责装载动态连接库(DLL)，申请内存资源，DrawDib设备环境(DC)，并且维持初始化相关的设备环境计数。DrawDibOpen同时返回一个其它DrawDib函数所需要使用的新的DC句柄。
+
+    当使用完DrawDib DC后，可以用DrawDibClose函数释放它。DrawDibClose同时减少存取DLL的应用的计数。在应用程序中，DrawDibClose函数应是最后的DrawDib操作。
+
+    可以创建任意多的DrawDib DC，也可以同时使用多个DrawDib DC来绘制几幅位图。在应用程序中可以创建多个不同性质的DrawDib DC，这样就可以选择最合适的DC设置。例如，在同一应用程序中，创建两个不同的DrawDib DC，一个用来显示图象的正常分辨率，另一个用来显示图象的放大部分。
+
+    为了更有效地运行，DrawDib函数组需要知道显示适配器及其驱动的信息。显示配置信息是在第一次使用包含DrawDib函数组的DLL时，对显示适配器通过了一系列的测试之后得到的。DrawDib函数组的所有应用都要用到这个配置信息。可以通过调用DrawDibProfileDisplay函数来强制重新进行这些测试。
+
+    通常，取得和保存显示配置是一次性的事件。如果配置信息发现在这个系统中安装了另一个显示驱动时，DrawDib则重新进行测试。
+
+　
+
+图象再现
+
+    创建了DrawDib DC后，就可以用DrawDibDraw函数将DIB绘至屏幕。当在8位深度的显示适配器上显示真彩色图象时，DrawDib将自动地抖动图象。
+
+    DrawDib也透明地支持视频压缩器。当显示压缩位图时，可通过DrawDibGetBuffer函数得到包含了解压图象数据的缓冲区。如果位图是未压缩的，则DrawDibGetBuffer返回NULL。在应用程序中应自己区分位图是否压缩。
+
+    可用DrawDibUpdate宏来刷新一幅图象的整体或一部分的显示。
+
+图象序列
+
+   当DrawDibDraw函数同DrawDibBegin函数一起运用时，可以显示相同尺寸和格式的位图序列。DrawDib通过DrawDibBegin准备绘图的DrawDib DC来提高DrawDibDraw的效率。如果，应用程序没有调用DrawDibBegin，那么DrawDibDraw会在绘图前隐含地执行DrawDibBegin。
+
+    DrawDibBegin给DrawDibDraw提供了DrawDib的DC，DC的句柄，BITMAPINFOHEADER结构的地址和源矩形及目的矩形的尺寸。当要显示一个位图序列时，DrawDibDraw要检查序列中的每幅图象的这些值。如果DrawDibDraw检测到这些值有任何变化，它将隐含地再次调用DrawDibBegin来调整DrawDib DC的设置。
+
+    当调用完DrawDibBegin后，就可以指定一个或多个适当的标志来调用DrawDibDraw绘制图象序列。只要DC句柄未改变，就可指定DDF_SAME_HDC标志；下列参数未改变，就可指定DDF_SAME_DRAW标志：BITMAPINFOHEADER结构的地址和源矩形及目的矩形的尺寸。
+
+    可以通过在DrawDibEnd后跟另一个DrawDibBegin调用来更新前一个DrawDibBegin设置的标志。DrawDibEnd清除了当前的DrawDib DC的标志和设置。后续的调用DrawDibBegin将重新初始化DrawDib DC，并重新设置适当的标志和设置。然而，只要至少改变了以下任一个当前的标志设置：BITMAPINFOHEADER结构的地址或是源矩形或目的矩形的尺寸，也可不使用DrawDibEnd而直接调用DrawDibBegin来更新一个DrawDib DC。
+
+    通过使用DrawDibStart和DrawDibStop函数，可以提高使用压缩图象的数据流操作(如回放一个视频片)的DrawDibDraw的效率。DrawDibStart通过发送一个消息告诉视频管理器(VCM)准备DrawDib DC来接受一个图象流。当流结束时，DrawDibStop发送一个消息给VCM来指示它释放申请的资源。
+
+    需要注意的是，在应用程序中必须确定源矩形和目的矩形的宽度和高度；然而却并不需要确定这些矩形的起点。应用程序可以重新DrawDibDraw中的起点坐标来使用图象的不同部分或更新显示的不同部分。
+
+    DrawDib函数组需要响应两条调色板消息：WM_QUERYNEWPALETTE和WM_PALETTECHANGED。如果应用程序未注意到调色板，就需要对这些消息都增加一个各自的消息处理。
+
+    通过使用DrawDibRealize函数可在当前DC中实现当前DrawDib的调色板。应当在响应WM_QUERYNEWPALETTE和WM_PALETTECHANGED消息时，或在用DrawDibDraw函数显示一个图象序列的准备过程中实现调色板。
+
+    可以用DrawDibSetPallette函数用另一个调色板的映射来绘一幅图象。DrawDibSetPallette强迫DrawDib DC使用指定的调色板，而这会影响到图象的质量。例如，一个注意调色板的应用程序，可能已经实现了一个调色板并需要阻止DrawDib实现它自己的调色板。应用程序可以通过DrawDibSetPalette来通知DrawDib调色板的使用。
+
+    通过使用DrawDibGetPallette函数可以获得当前前景调色板的一个句柄。如果应用程序使用了当前前景调色板，它并没有对调色板的完全使用权，另一个应用程序能够使这个调色板句柄无效。当使用完毕后，应用程序不应该释放调色板，那样会使另一个应用程序不能使用调色板。
+
+    通过使用DrawDibChangPallete函数可以为它的调色板DrawDib来接收新的颜色值。在紧跟DrawDibChangPallete的后面的代码里，可以为调色板颜色表指定新的值。当调用DrawDibChangPalette时，在DrawDib DC中未设置DDF_ANIMATE标志的话，可以通过使用DrawDibRealize来实现调色板和DrawDibDraw重绘图象来实现调色板的改变。如果DDF_ANIMATE标志在DrawDib DC中设置了，就可以通过DrawDibDraw或DrawDibRealize来实现调色板和显示着的位图颜色的动画。通过DrawDibEnd和DrawDibBegin可以DDF_ANIMATE标志。
+
+    如果释放了被选入DC的DrawDib调色板，DC使用调色板时会报告一个GDI错误。相反，应该使用DrawDibSetPalette改变DrawDib DC来使用省缺调色板后另一调色板。
+
+    由于以下函数会释放DrawDib调色板，所以，除非调色板不被DC选中不应使用：DrawDibEnd,DrawDibClose和DrawDibBegin。同样的，当使用了相同的DrawDib DC，但指定了不同的绘制参数(lpbi,dxDst,dyDst,dxSrc或dySrc)或不同格式时，DrawDibDraw也会释放调色板。
+
+时间计算
+
+    作为调试应用程序的一部分，调用DrawDibTime函数可以得到一些关于完全重复特定次数DrawDib操作所需时间。DrawDibTime返回以下操作的时间：
+
+绘制一幅位图
+解压一幅位图
+抖动一幅位图
+拉伸一幅位图
+使用BitBlt函数变换一幅位图
+使用StrecthDIBits函数变换一幅位图
+    得到返回值后，DrawDibTime重新设置每项操作的计数和值。
+
+    注意，DrawDibTime只在DrawDib函数的调试版中可用。
+
+DrawDib的使用
+
+    增加调色板消息处理
+
+    下面的例子说明了WM_PALETTECHANGED和WM_QUERYNEWPALETTE消息的处理。这个例子用了DrawDibRealize函数来进行WM_QUERYNEWPALETTE消息的处理。
+
+    应用程序应通过使目标窗口无效来让DrawDibDraw函数重绘图象来响应WM_QUERYNEWPALETTE消息。应用DrawDibRealize函数实现调色板来响应WM_PALETTECHANGED消息。
+
+        case WM_PALETTECHANGED:
+                if ((HWND) wParam == hwnd)
+                     break;
+            case WM_QUERYNEWPALETTE:
+             hdc = GetDC(hwnd);
+                f = DrawDibRealize (hdd,hdc,FALSE) > 0;
+             ReleaseDC (hwnd,hdc);
+             if (f)
+                InvalidateRect ( hwnd,NULL,TRUE);
+                break;
+
+    显示设备绘制
+
+    下面例子用DrawDibrealize函数在显示一个位图序列之前准备DrawDib DC.
+
+             hdc = GetDC(hwnd);
+            DrawDibBegin(hdd,hdc,dxDest,dyDest,lpbi,dxSrc,dySrc,NULL);
+            DrawDibRealize(hdd,hdc,fBackground);
+            DrawDibDraw(hdd,hdc,xDst,yDst,dxDst,dyDst,lpbi,lpBits,
+                xSrc,ySrc,dxSrc,dySrc,DDF_SAME_DRAW|DDF_SAME_HDC);
+            DrawDibDraw(hdd,hdc,xDst,yDst,dxDst,dyDst,lpbi,lpBits,
+                xSrc,ySrc,dxSrc,dySrc,DDF_SAME_DRAW|DDF_SAME_HDC);
+            DrawDibDraw(hdd,hdc,xDst,yDst,dxDst,dyDst,lpbi,lpBits,
+                xSrc,ySrc,dxSrc,dySrc,DDF_SAME_DRAW|DDF_SAME_HDC);
+            ReleaseDC(hwnd,hdc);
+
+    调色板动画
+
+    下面用了DrawDibRealize,DrawDibChangPalette和DrawDibDraw函数演示调色板动画。
+
+    能够用DrawDibBegin函数协同DrawDibChangepalette函数改变一幅位图的颜色。首先，在调用DrawDibBegin时指定DDF_ANIMATE标志允许调色板改变；然后，用DrawDibChangePalette函数从调色板入口设置颜色表的值。
+
+    例如，如果lppe是一个包含新颜色的PALETTEENTRY队列的地址，并且lpbi是在DrawDibBegin或DrawDibDraw中使用的LPBITMAPINFOHEADER结构，则后面的程序片段更新DIB的颜色表。
+
+             hdc = GetDC(hwnd);
+            DrawDibBegin(hdd,…,DDF_ANIMATE);
+             DrawDibRealize(hdd,hdc,fBackground);
+            DrawDibDraw(hdd,hdc,…,DDF_SAME_DRAW|DDF_SAME_HDC);
+            //改变颜色调用
+           DrawDibChangePalette(hdd,iStart,iLen,lppe);
+            ……
+            ReleaseDC(hwnd,hdc);
+
+    下面给出一个实例的关键片段加以说明：(在Visual C++ 4.2 下Windows95或Windows NT环境下通过。)
+
+        void CTestDrawDibView::OnDraw(CDC* pDC)
+
+        {
+
+            CTestDrawDibDoc* pDoc = GetDocument();//得到文档指针
+
+            ASSERT_VALID(pDoc);
+
+            // TODO: add draw code for native data here
+
+            m_DibMem = pDoc->m_Buf;//得到DIB的内存
+
+            if (m_DibMem == NULL)
+
+            {
+
+                //AfxMessageBox("Error in m_DibMem");
+
+                return;
+
+            }
+
+            UINT offset = pDoc->m_Off; //得到DIB数据的偏移
+
+            int xDst,yDst,dxDst,dyDst,xSrc,ySrc,dxSrc,dySrc;
+
+            LPBITMAPINFOHEADER lpbi;
+
+            LPVOID lpDibMem;
+
+            LPVOID lpbits=NULL;
+
+            // get the Windows width & height 得到窗口的宽高
+
+            RECT rect;
+
+            GetClientRect(&rect);
+
+            xDst = yDst = 0;
+
+            dxDst = rect.right - rect.left;
+
+            dyDst = rect.bottom - rect.top;
+
+            // Get Dib info得到DIB的信息
+
+            xSrc = ySrc =0;
+
+            lpDibMem = GlobalLock(m_DibMem);//锁定内存得到指针
+
+            lpbi = (LPBITMAPINFOHEADER)lpDibMem;//得到DIB信息
+
+            dxSrc = lpbi->biWidth;
+
+            dySrc = lpbi->biHeight;
+
+            lpbits = (LPSTR)lpDibMem + offset - sizeof(BITMAPFILEHEADER);
+
+            // Draw Dib绘DIB
+
+            HDC hdc = NULL;
+
+            hdc = pDC->m_hDC;
+
+            /*
+
+            // Using SetDIBToDevice使用SetDIBToDevice函数为对照
+
+            int line = SetDIBitsToDevice(hdc,
+                    xDst,
+                    yDst,
+                    dxSrc,
+                    dySrc,
+                    xSrc,
+                    ySrc,
+                    0,
+                    dySrc,
+                    lpdib,//lpbits,
+                    (LPBITMAPINFO)lpbi,
+                    DIB_RGB_COLORS);
+
+            if(0 == line)
+         {
+
+                AfxMessageBox("Error in SetDIBsToDevice");
+
+            }
+
+            */
+
+            /*
+
+            // Using StretchDIBits使用StretchDIBits函数为对照
+
+            int line = StretchDIBits(hdc,
+                    xDst,
+               yDst,
+               dxDst,
+                    dyDst,
+                    xSrc,
+                    ySrc,
+                    dxSrc,
+                    dySrc,
+                    lpbits,
+                    (LPBITMAPINFO)lpbi,
+                    DIB_RGB_COLORS,
+                    SRCCOPY);
+
+            if(0 == line)
+
+            {
+
+                AfxMessageBox("Error in SetDIBsToDevice");
+
+            }
+
+            */
+
+            // Using DrawDib使用DrawDib
+
+            // Set Dawing flag设置绘制标志
+
+            UINT wFlags;
+
+            //标志意义参见前面的函数参考，以下两个标志可绘出图象，
+            //其余标志在这种情况下绘不出图象。
+
+            wFlags = DDF_DONTDRAW;
+
+            //wFlags = DDF_NOTKEYFRAME;
+
+            HDRAWDIB hdd = DrawDibOpen();
+
+            if (hdd != NULL)
+
+            {
+
+                BOOL Suc = TRUE;
+
+                //具体参数请参见前面函数参考
+
+                Suc = DrawDibDraw(hdd,
+                        hdc,
+                        xDst,
+                        yDst,
+                        dxDst,
+                        dyDst,
+                        lpbi,
+                        lpbits,
+                        xSrc,
+                        ySrc,
+                        dxSrc,
+                        dySrc,
+                        wFlags);
+
+                if(Suc == FALSE) AfxMessageBox("DrawDib Failed");
+
+                /* //时间测试
+
+                DRAWDIBTIME time;
+
+                DrawDibTime(hdd ,&time);
+
+                char buf[256];
+
+                sprintf(buf,"Count %d\nDraw %d\nDecompress %d\n
+                    Dither %d\nStretch %d\nBlt %d\n SetDIBits %d\n",
+                    time.timeCount,time.timeDraw,
+                    time.timeDecompress,time.timeDither,
+                    time.timeStretch,time.timeBlt,
+                    time.timeSetDIBits);
+
+                AfxMessageBox(buf);
+
+                */
+
+                DrawDibClose(hdd);
+
+        }
+
+            else
+
+                AfxMessageBox("Error in DrawDibOpen");
+
+            GlobalUnlock(m_DibMem);//释放DIB句柄
+
+       }
+
+　
+
+附：函数参考:
+
+DrawDibBegin
+
+这个DrawDib函数改变一个DrawDib DC的参数或初始化一个新的DrawDib DC.
+
+BOOL DrawDibBegin(
+HDRAWDIB hdd,
+HDC hdc,
+int dxDest,
+int dyDest,
+LPBITMAPINFOHEADER lpbi,
+int dxSrc,
+int dySrc,
+UINT wFlags
+);
+
+参数
+
+hdd DrawDib DC的句柄
+
+hdc 绘图DC的句柄。此参数为可选。
+
+dxDst和dyDst 在MM_TEXT方式下目的矩形的宽度和高度。
+
+lpbi 包含图象格式的BITMAPINFOHEADER结构的地址。DIB颜色表紧跟图象格式，并且biHeight成员必须为一正值。
+
+dxSrc和dySrc 源矩形的宽度和高度(以象素为单位)。
+
+wFlags 函数调用的可用标志。定义了以下的值：
+
+DDF_ANIMATE 允许调色板动画。如果这个值被设置，通过在LOGPALETTE结构中设置palPalEntry成员PC_RESERVED标志，则DrawDib保存了尽可能多的入口，调用drawDibChangePalette函数就可实现调色板动画。如果应用程序用了DrawDibBegin函数协同DrawDibDraw函数，最好在DrawDibBegin中设置这个值而不在DrawDibDraw中。
+
+DDF_BACKGROUNDPAL 实现作为背景的调色板，保留当前显示所使用的调色板不变。(这个值与DDF_SAME_HDC互斥。)
+
+DDF_BUFFER 使DrawDib使用屏幕缓冲，这样DDF_UPDATE才可使用。这关闭了解压和直接绘屏。如果DrawDib不能创建一个脱屏缓冲，就解压或直接绘屏。
+
+DDF_DONTDRAW 当前图象未绘，但已解压。DDF_UPDATE能够以后被用来绘图象。这个标志取代了DDF_PREROLL标志。
+
+DDF_FULLSCREEN 不被支持。
+
+DDF_HALFTONE 不管DIB的调色板如何而把DIB抖动成标准调色板。如果应用程序用DrawDibBegin协同DrawDibDraw，在DrawDibBegin中设置这个值而不在DrawDibDraw中。
+
+DDF_JUSTDRAWIT 用GDI绘这图象。禁止DrawDib函数解压，拉伸或抖动图象。这实际上剥夺了DrawDib区别于StrechDIBits函数的能力。
+
+DDF_SAME_DRAW 让DrawDibDraw使用当前的绘制参数。只有当从使用DrawDibDraw或DrawDibBegin起，lpbi、dxDext、dyDest、dxSrc和dySrc就未改变才用这个值。这个标志取代了DDF_SAME_DIB和DDF_SAME_SIZE标志。
+
+DDF_SAME_HDC 使用当前DC句柄以及与当前句柄相关联的调色板。
+
+DDF_UPDATE 最后缓存的图象需要绘制。如果用这个值绘制失败，则缓冲的图象不在有效，并且在显示被更新前，需要指定一幅新的图象。
+
+
+返回值
+
+成功返回TRUE，否则FALSE。
+
+注 这个函数准备由lpbi指定要绘往DC的DIB。图象已经拉伸成由dxDest和dyDest所指定的大小。如果dxDest和dyDest被设置成-1，DIB则被按原比例绘制。
+
+可通过重新使用DrawDibBegin，指定新的标志和改变至少一个以下的设置：dxDest、dyDest、lpbi、dxSrc或dySrc来更新DrawDib DC的标志。
+
+如果DrawDibBegin的参数未被改变，再次调用这个函数将不起作用。
+
+DrawDibChangePalette
+
+这个函数设置绘DIB所用的调色板。
+
+BOOL DrawDibChangePalette(
+HDRAWDIB hdd,
+int iStart,
+int iLen,
+LPPALETTEENTRY lppe
+);
+
+参数：
+
+hdd DrawDib DC的句柄。
+
+iStart 调色板开始数。
+
+iLen 调色板的数目。
+
+lppe 调色板阵列的地址。
+
+返回值
+
+成功返回TRUE，否则FALSE。
+
+注 只有当当前DrawDib调色板是调用DrawDibRealize函数实现时，这个函数改变物理调色板。
+
+如果颜色表没有改变，下次没有指定DDF_SAME_DRAW的DrawDibDraw函数将隐含地调用DrawDibBegin函数。
+
+DrawDibClose
+
+这个函数关闭一个DrawDib DC并释放DrawDib申请的资源。
+
+BOOL DrawDibClose(
+HDRAWDIB hdd
+);
+
+参数
+
+hdd DrawDib DC的句柄。
+
+返回值
+
+成功返回TRUE，否则FALSE。
+
+DrawDibDraw
+
+这个函数将DIB绘至屏幕。
+
+BOOL DrawDibDraw(
+HDRAWDIB hdd,
+HDC hdc,
+int xDst,
+int yDst,
+int dxDst,
+int dyDst,
+LPBITMAPINFOHEADER lpbi,
+LPVOID lpBits,
+int xSrc,
+int ySrc,
+int dxSrc,
+int dySrc,
+UINT wFlags
+);
+
+参数
+
+hdd DrawDib DC的句柄。
+
+hdc DC的句柄。
+
+xDst和yDst 在MM_TEXT坐标系，目标矩形左上角的x和y坐标。
+
+dxDst和dyDst 在MM_TEXT坐标系下，目标矩形的宽度和高度。如果dxDst为-1，则使用位图的宽度；如果dyDst为-1，则使用位图的高度。
+
+lpbi 包含图象格式的BITMAPINFOHEADER结构的地址。DIB的颜色表紧跟着格式后，并且biHeight成员必须为正值；DrawDibDraw不能绘制倒置的DIB。
+
+lpbits 包含位图位的缓冲的地址。
+
+xSrc和ySrc 以象素为单位，源矩形左上角的x和y坐标。坐标(0，0)是位图的左上角。
+
+dxSrc和dySrc 以象素为单位，源矩形的宽度和高度。
+
+wFlags 可用的绘图标志。如下值被定义：
+
+DDF_BACKGROUNDPAL 实现作为背景的调色板，保留当前显示所使用的调色板不变。这个值只有当DDF_SAME_HDC未被设置时才有效。
+
+DDF_DONTDRAW 当前图象已解压但未绘。这个标志取代了DDF_PREROLL标志。
+
+DDF_FULLSCREEN 不被支持。
+
+DDF_HALFTONE 不管DIB的调色板如何而把DIB抖动成标准调色板。如果应用程序使用了DrawDibBegin，在DrawDibBegin中设置而不在DrawDibDraw中。
+
+DDF_HURRYUP 数据并不需要被绘(它可以被绘)并且DDF_UPDATE不用理会这个信息。DrawDib只有当需要去构建另一帧时才检查这个值；否则，这个值被忽略。
+
+这个值通常用来同步视频和音频。当同步数据时，应用程序应当用这个值发送图象以防止驱动器需要缓冲帧来解压后续帧。
+
+DDF_NOTKEYFRAME DIB数据不是关键帧。
+
+DDF_SAME_HDC 使用当前DC句柄以及与当前句柄相关联的调色板。
+
+DDF_SAME_DRAW 让DrawDibDraw使用当前的绘制参数。只有当从使用DrawDibDraw或DrawDibBegin起，lpbi、dxDext、dyDest、dxSrc和dySrc就未改变才用这个值。DrawDibDraw经常检查这些参数，如果它们改变了，DrawDibBegin则准备绘图的DrawDib DC。这个标志取代了DDF_SAME_DIB和DDF_SAME_SIZE标志。
+
+DDF_UPDATE 最后缓存的图象需要绘制。如果用这个值绘制失败，则缓冲的图象不在有效，并且在显示被更新前，需要指定一幅新的图象。
+
+返回值
+
+成功返回TRUE，否则FALSE。
+
+注 DDF_DONTDRAW使DrawDibDraw解压但不显示一幅图象。一个调用DrawDibDraw的序列是指定DDF_UPDATE来显示图象。
+
+如果DrawDib DC没有指定一个屏幕缓冲，指定DDF_DONTDRAW会造成这帧被立即绘到屏幕。序列调用DrawDibDraw指定DDF_UPDATE会失败。
+
+尽管DDF_UPDAT和DDF_DONTDRAW可以在不同时间设置，它们可以一起用来创建脱屏图象。当脱屏图象完成后，可以调用DrawDibDraw来显示图象。
+
+DrawDibEnd
+
+这个函数清除由DrawDibBegin或DrawDibDraw函数设置的标志和DrawDib DC的其它设置。
+
+BOOL DrawDibEnd(
+HDRAWDIB hdd
+);
+
+参数
+
+hdd 要释放的DrawDib DC的句柄。
+
+返回值
+
+成功返回TRUE，否则FALSE。
+
+DrawDibGetBuffer
+
+这个函数清除由DrawDib用来解压的缓冲的地址。
+
+LPVOID DrawDibGetBuffer(
+HDRAWDIB hdd,
+LPBITMAPINFOHEADER lpbi,
+DWORD dwSize,
+DWORD dwFlags
+);
+
+参数
+
+hdd 要释放的DrawDib DC的句柄。
+
+lpbi BITMAPINFO结构的地址。这个结构由BITMAPINFOHEADER结构和位图使用的256色调色板所定义的颜色表。
+
+dwSize 通过lpbi的BITMAPINFO结构所指的字节大小。
+
+dwFlags 保留，必须为0。
+
+返回值
+
+返回缓冲的地址或者如果没有用到缓冲返回NULL。如果lpbi不为NULL，它填充了一个描绘缓冲的BITMAPINFO的结构。
+
+DrawDibGetPalette
+
+这个函数清除由DrawDib DC所使用的调色板。
+
+HPALETTE DrawDibGetPalette(
+HDRAWDIB hdd
+);
+
+参数
+
+hdd 要释放的DrawDib DC的句柄。
+
+返回值
+
+成功返回一个调色板句柄，否则返回NULL。
+
+注 这个函数假设DrawDib DC包含了一个有效的调色板，隐含着这样的一个条件：对这个函数的调用必须在DrawDibDraw或DrawDibBegin函数之后。
+
+DrawDibOpen
+
+这个函数打开DrawDib库为使用和创建一个绘图的DrawDib DC作准备。
+
+HDRAWDIB DrawDibOpen(VOID);
+
+参数
+
+这个函数不需要参数。
+
+返回值
+
+成功返回一个DrawDib DC的句柄，否则为NULL。
+
+注 当同时绘多个DIB时，为同时在屏的每个图象创建一个DrawDib DC。
+
+DrawDibProfileDisplay
+
+这个函数决定了当用DrawDib函数时显示系统的设置。
+
+BOOL DrawDibProfileDisplay(
+LPBITMAPINFOHEADER lpbi
+);
+
+参数
+
+lpbi 包含位图信息的BITMAPINFOHEADER结构。可以通过指定NULL来确认配置信息是当前的。如果配置信息不是当前的，DrawDib会重新运行配置测试来得到当前设置信息。如果把这个参数设为NULL来调用DrawDibProfileDisplay返回值是没有意义的。
+
+返回值
+
+返回值指出了这个显示系统的最快绘制和拉伸能力。如果位图格式不被支持，这个值为0或一个或更多的下列值：
+
+PD_CAN_DRAW_DIB DrawDib能用这种格式绘图象。拉伸可能被支持或不被支持。
+
+PD_CAN_STRETCHDIB DrawDib能用这种格式拉伸或绘制图象。
+
+PD_STRETCHDIB _1_1_OK StretchDIBits用这种格式绘未拉伸的图象快于另一种方式。
+
+PD_STRETCHDIB _1_2_OK StretchDIBits用这种格式绘以1：2拉伸的图象快于另一种方式。
+
+PD_STRETCHDIB _1_N_OK StretchDIBits用这种格式绘以1：N拉伸的图象快于另一种方式。
+
+DrawDibRealize
+
+这个函数为用指定DC实现DrawDib DC 的调色板。
+
+UINT DrawDibRealize (
+HDRAWDIB hdd ,
+HDC hdc ,
+BOOL fBackground
+) ;
+
+参数
+
+hdd DrawDib DC　hdd DrawDib DC的句柄。
+
+hdc 包含调色板的DC的句柄。
+
+fBackground 背景调色板标志。如果此值非零，此调色板为背景调色板。如果此值为零并且DC与另一个窗口相连，当窗口拥有输入焦点时逻辑调色板变为背景调色板。(当窗口风格是CS_OWNDC或当DC是用GetDC函数得到的时，一个DC就与一个窗口相连)。
+
+返回值
+
+返回在系统调色板中映射了不同值的逻辑调色板中的入口值。如果发生了错误或没有要更新的颜色，返回0。
+
+注意
+
+用DrawDibDraw函数并指定DDF_BACKGROUNDPAL标志来选择DrawDib DC的调色板作背景调色板。
+
+DrawDibSetPalette
+
+这个函数设置绘DIB所用的调色板。
+
+BOOL DrawDibSetPalette(
+HDRAWDIB hdd ,
+HPALETTE hpal
+) ;
+
+参数
+
+hdd DrawDib DC的句柄。
+
+hpal 调色板的句柄。指定NULL则使用缺省调色板。
+
+返回值
+
+成功返回TRUE，否则返回FALSE。
+
+DrawDibStart
+
+DrawDibStart函数为流回放准备 DrawDib DC。
+
+BOOL DrawDibStart(
+HDRAWDIB hdd ,
+LONG rate
+);
+
+参数
+
+hdd DrawDib DC的句柄。
+
+rate 回放率 每帧以毫秒计。
+
+返回值
+
+成功返回TRUE，否则返回FALSE。
+
+DrawDibStop
+
+这个函数释放用于流回放的DrawDib DC所占用的资源。
+
+BOOL DrawDibStop(
+HDRAWDIB hdd
+);
+
+参数
+
+hdd DrawDib DC的句柄。
+
+返回值
+
+成功返回TRUE，否则返回FALSE。
+
+DrawDibTime
+
+这个函数得到关于绘制操作的时间和调试操作的时间信息。
+
+BOOL DrawDibTime(
+HDRAWDIB hdd，
+LPDRAWDIBTIME lpddtime
+) ;
+
+参数
+
+hdd DrawDib DC的句柄。
+
+lpddtime DrawDibTime的结构地址。
+
+返回值
+
+成功返回TRUE，否则返回FALSE。
+

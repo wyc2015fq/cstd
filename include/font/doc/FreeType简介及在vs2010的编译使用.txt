@@ -1,0 +1,190 @@
+ FreeType简介及在vs2010的编译使用
+分类： FreeType 2015-03-29 14:49 389人阅读 评论(0) 收藏 举报
+
+	FreeType库是一个开源、高质量、可扩展、可定制、可移植的字体引擎，它提供统一的接口来访问多种字体格式文件，包括点阵字、TrueType、OpenType、Type1、CID、CFF、Windows FON/FNT、X11 PCF等。
+
+	FreeType有两个License，一个是BSD-stype，它兼容GPLv3；另一个是GPLv2，在使用时可以根据需要选择其中一种。
+
+	FreeType特点：(1)、它使得客户应用程序可以方便地访问字体文件，无论字体文件存储在哪里，并且与字体格式无关；(2)、能方便地提取全局字体数据，这些数据普遍存在于一般的字体格式中(例如，全局度量标准、字符编码/字符映射表等)；(3)、能方便地提取某个字符的字形数据(例如，度量标准、图像、名字等其它任何数据)；(4)、具备访问字体格式特定的功能(例如，SFNT表、多重控制、OpenType轮廓表等)。
+         FreeType字体引擎执行流程：首先需要初始化FreeType库，然后依次根据字符的编码处理一个字符，把它转化为点阵的位图信息，最后根据字符的信息，在相应的地方把它显示出来。
+
+	字体是一组可以被显示和打印的多样的字符映像，在单个字体中共享一些共有的特性，包括外表、风格、衬线等。
+
+	字符映像叫做字形，根据书写、用法和上下文，单个字符能够有多个不同的映像，即多个字形。多个字符也可以有一个字形(例如Roman)。
+
+	每个字符映像都关联多种度量，被用来在渲染文本时，描述如何放置和管理它们。
+
+	字体轮廓的源格式是一组封闭的路径，叫做轮廓线。每个轮廓线划定字体的外部或内部区域，它们可以是线段或是Bezier曲线。
+
+	每个字形都有叫跨距和步进的距离，它们的定义是常量，但是它们的值依赖布局，同样的字形可以用来渲染横向或纵向文字。
+
+	字距调整指用来在一个文本串中调整重合字形的相对位置的特定信息。
+
+	FreeType轮廓：一个轮廓是2D平面上一系列封闭的轮廓线。每个轮廓线由一系列线段和Bezier弧组成，根据文件格式不同，曲线可以是二次和三次多项式，前者叫quadratic或conic弧，它们在TrueType格式中用到，后者叫cubic弧，多数用于Type1格式。每条弧由一系列起点、终点和控制点描述，轮廓的每个点有一个特定的标记，表示它用来描述一个线段还是一条弧。
+
+	边界框(bbox)是一个完全包含指定轮廓的矩形，所要的是最小的边界框。
+
+	控制框(cbox)是一个包含轮廓所有点的最小矩形，很明显，它包含bbox，通常它们是一样的。
+
+	一个位图和像素图通过一个叫FT_Bitmap的单一结构描述。
+
+	FreeType可以看作是一组组件，每个组件负责一部分任务，它们包括：(1)、客户应用程序一般会调用FT高层API，它的功能都在一个组件中，叫做基础层；(2)、根据上下文和环境，基础层会调用一个或多个模块进行工作，大多数情况下，客户应用程序不知道使用哪个模块；(3)、基础层还包含一组例程来进行一些共通处理，例如内存分配、列表处理、io流解析、固定点计算等，这些函数可以被模块随意调用，它们形成了一个底层基础API。
+
+	虽然FreeType是使用ANSI C编写，但是采用面向对象的思想，使这个库非常容易扩展，因此，有一些代码规约：(1)、每个对象类型/类都有一个对应的结构类型和一个对应的结构指针类型，后者称为类型/类的句柄类型；(2)、类继承通过将基类包装到一个新类中实现。
+
+	在FreeType中有若干种模块：(1)、渲染模块：用来管理可缩放的字形映像；(2)、字体驱动模块：用来支持一种或多种特定字体格式；(3)、助手模块：用来处理一些共享代码，通常被多个字体驱动，甚至是其它模块使用；(4)、autohinter模块：当一个字体驱动没有提供自己的hint引擎时，它可以在字形装载时处理各自的字形轮廓。
+
+	如果我们只希望对特定字体做简单的事情，则可以对FreeType进行裁决，有两种方式：(1)、修改/modules.cfg文件；(2)、修改/include/config/ftmodule.h文件。
+
+         下载的源代码中freetype-2.5.5，/builds/windows/vc2010目录下有配置好的vs2010工程，打开编译，将会在/objs/vc2010，Win32或x64目录里生成相应的freetype255.lib和freetype255d.lib相应静态库。由于后期可能需要对FreeType进行裁决，所以这里通过源码自己编译下：	
+
+	1.        从https://sourceforge.net/projects/freetype/files/下载最新的稳定版本ft255，解压缩；
+
+	2.        新建一个libFreeType静态库工程，将/include和/src下的.h和.c文件加入到此工程中，除/src/tools目录下的.h、.c文件，/src下的其它大部分模块，每个模块仅添加一个模块名的.c文件即可，如autofit模块，仅添加autofit.h即可，因为此文件中include了此模块中相应的.c文件，还有另外一些.c文件需添加，ftbitmap.c、ftglyph.c、ftinit.c、ftsystem.c；
+
+	3.        将/include目录添加到C/C++ --> General --> Additional Include Directories；
+
+	4.        将FT2_BUILD_LIBRARY添加到C/C++ --> Preprocessor --> Preprocessor Definitions；
+
+	5.        新建一个FreeTypetest控制台工程，验证生成库的正确性，各个文件内容为(测试代码来自于http://www.freetype.org/freetype2/docs/tutorial/step1.html)：
+
+stdafx.h:
+
+[cpp] view plaincopy在CODE上查看代码片派生到我的代码片
+
+    #pragma once  
+      
+    #include "targetver.h"  
+      
+    #include <stdio.h>  
+      
+    //It contains various macro declarations that are later used to #include the  
+    //appropriate public FreeType 2 header files.  
+    #include "ft2build.h"  
+    //FT_FREETYPE_H is a special macro defined in file ftheader.h. It contains some  
+    //installation-specific macros to name other public header files of the FreeType 2 API.  
+    #include FT_FREETYPE_H  
+      
+    #include "ftglyph.h"  
+
+
+stdafx.cpp:
+
+[plain] view plaincopy在CODE上查看代码片派生到我的代码片
+
+    #include "stdafx.h"  
+      
+    // TODO: reference any additional headers you need in STDAFX.H  
+    // and not in this file  
+    #ifdef _DEBUG  
+        #pragma comment(lib, "../../../lib/dbg/x86_vc10/libFreeType[dbg_x86_vc10].lib")  
+    #else  
+        #pragma comment(lib, "../../../lib/rel/x86_vc10/libFreeType[rel_x86_vc10].lib")  
+    #endif  
+
+
+FreeTypetest.cpp:
+
+[cpp] view plaincopy在CODE上查看代码片派生到我的代码片
+
+    #include "stdafx.h"  
+    #include <iostream>  
+      
+    using namespace std;  
+      
+    int main(int argc, char* argv[])  
+    {  
+        FT_Library library; /* handle to library */  
+        FT_Error error;    
+        FT_Face face; /* handle to face object */  
+      
+        //1. Library Initialization  
+        //To initialize the FreeType library, create a variable of type FT_Library named, and call the function FT_Init_FreeType.  
+        error = FT_Init_FreeType(&library);    
+        if (error) {    
+            cout<<"an error occurred during library initialization"<<endl;    
+            return -1;    
+        }    
+      
+        //2. Loading a Font Face  
+        //From a Font File, Create a new face object by calling FT_New_Face. A face describes a given typeface and style.  
+        char* filename = "../../../testdata/kaiu.ttf";  
+        error = FT_New_Face(library, filename, 0, &face);  
+      
+        if (error == FT_Err_Unknown_File_Format) {  
+            cout<<"the font file could be opened and read, its font format is unsupported"<<endl;  
+            return -1;  
+        } else if (error) {  
+            cout<<"the font file could not be opened or read, or that it is broken"<<endl;  
+            return -1;  
+        }  
+      
+        //3. Accessing the Face Data  
+        //A face object models all information that globally describes the face.  
+        //Usually, this data can be accessed directly by dereferencing a handle, like in face?>num_glyphs.  
+        FT_Long numGlygphs = face->num_glyphs;  
+        FT_Long numFaces = face->num_faces;  
+        FT_String* familyName = face->family_name;  
+        cout<<"num_glyphs = "<<numGlygphs<<", num_faces = "<<numFaces<<", family_name = "<<familyName<<endl;  
+      
+        //4. Setting the Current Pixel Size  
+        //FreeType 2 uses size objects to model all information related to a given character size for a given face.  
+        //error = FT_Set_Pixel_Sizes(face, 0, 16);  
+        error = FT_Set_Char_Size(face, 50 * 64, 0, 100, 0);   
+        if (error) {  
+            cout<<"an error occurs when trying to set the pixel size to a value"<<endl;  
+            return -1;  
+        }  
+      
+        //5. Loading a Glyph Image  
+        //Converting a Character Code Into a Glyph Index  
+        FT_UInt charIndex = FT_Get_Char_Index(face, 65); //65 => 'A'  
+        //Once you have a glyph index, you can load the corresponding glyph image  
+        error = FT_Load_Glyph(face, charIndex, FT_LOAD_DEFAULT);  
+        if (error) {  
+            cout<<"an error occurs when trying to load the corresponding glgyh image"<<endl;  
+            return -1;  
+        }  
+      
+        //6. Simple Text Rendering  
+        error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);  
+        if (error) {  
+            cout<<"an error occurs when trying to render glyph"<<endl;  
+            return -1;  
+        }  
+      
+        FT_Glyph glyph;  
+        error = FT_Get_Glyph(face->glyph, &glyph);  
+        if (error) {  
+            cout<<"get glyph error"<<endl;  
+            return -1;  
+        }  
+      
+        //convert glyph to bitmap with 256 gray   
+        FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1);    
+        FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;    
+        FT_Bitmap& bitmap = bitmap_glyph->bitmap;    
+        for (int  i = 0 ; i < bitmap.rows;  ++ i) {    
+            for (int  j = 0 ; j < bitmap.width;  ++ j) {    
+                //if it has gray > 0 we set show it as 1, 0 otherwise    
+                printf(" %d ", bitmap.buffer[i * bitmap.width + j] ? 1 : 0);   
+            }    
+            cout<<endl;   
+        }  
+      
+        FT_Done_Glyph(glyph);  
+        FT_Done_Face(face);  
+        FT_Done_FreeType(library);  
+      
+        cout<<"ok!"<<endl;  
+        return 0;  
+    }  
+
+
+参考文献：
+
+1.      http://wenku.baidu.com/link?url=66OQSAxrwbLGuaeylVH-fyDm1KDEe9hEvreZKzkwuJVCNlOa1Tth598tEDzskuKvW6yrpl8qcym1BbCPJFS_W4xSTsRmNu18zVFyy_Hcgcu
+
+2.      http://www.docin.com/p-595358316.html  
+
+3.      http://www.cnblogs.com/kex1n/archive/2010/11/24/2286445.html

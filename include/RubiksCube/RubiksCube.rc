@@ -1,0 +1,278 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""res\\RubiksCube.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""     // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\RubiksCube.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_RUBIKSCUBE_DIALOG DIALOGEX 0, 0, 490, 260
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Rubiks Cube Solver"
+MENU IDR_MAINMENU
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    LISTBOX         IDC_MOVELIST,382,26,101,206,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "",IDC_RED,355,27,20,18,SS_NOTIFY | WS_BORDER
+    LTEXT           "",IDC_BLUE,355,49,20,18,SS_NOTIFY | WS_BORDER
+    LTEXT           "",IDC_GREEN,355,71,20,18,SS_NOTIFY | WS_BORDER
+    LTEXT           "",IDC_WHITE,355,93,20,18,SS_NOTIFY | WS_BORDER
+    LTEXT           "",IDC_YELLOW,355,115,20,18,SS_NOTIFY | WS_BORDER
+    LTEXT           "",IDC_ORANGE,355,137,20,18,SS_NOTIFY | WS_BORDER
+    CONTROL         "",IDC_PROGRESS,"msctls_progress32",PBS_SMOOTH | WS_BORDER,7,218,337,14
+    PUSHBUTTON      "Reset",IDC_RESET,7,236,40,14
+    PUSHBUTTON      "Shuffle",IDC_SHUFFLE,50,236,40,14
+    PUSHBUTTON      "Clear",IDC_CLEAR,93,236,40,14
+    PUSHBUTTON      "Solve",IDC_SOLVE,136,236,40,14
+    PUSHBUTTON      "About...",IDC_ABOUT,179,236,40,14
+    PUSHBUTTON      "Exit",IDC_EXIT,222,236,40,14
+    PUSHBUTTON      "Previous",IDC_PREV,391,239,40,14
+    PUSHBUTTON      "Next",IDC_NEXT,438,239,40,14
+    RTEXT           "0 Moves",IDC_MOVETITLE,424,14,59,8
+    CONTROL         "",IDC_SPEED,"msctls_trackbar32",TBS_AUTOTICKS,135,14,102,11
+    CONTROL         "Animate - Speed",IDC_SPEEDTITLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,14,126,10
+    CONTROL         "3D View",IDC_3d,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,4,41,10
+    LTEXT           "",IDC_CUBE,7,27,336,184,SS_NOTIFY | WS_BORDER,WS_EX_TRANSPARENT
+    LTEXT           "Solution:",IDC_SOLUTION_STATIC,381,14,29,8
+END
+
+IDD_ABOUTDLG DIALOGEX 0, 0, 182, 58
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,102,37,50,14
+    LTEXT           "Rubik's Cube Solver v 1.0",IDC_STATIC,80,9,82,8
+    LTEXT           "Copyright © Ali Rafiee 2003",IDC_STATIC,80,22,91,8
+    CONTROL         130,IDC_STATIC,"Static",SS_BITMAP,17,6,47,44
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "TODO: <Company name>"
+            VALUE "FileDescription", "TODO: <File description>"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "RubiksCube.exe"
+            VALUE "LegalCopyright", "TODO: (c) <Company name>.  All rights reserved."
+            VALUE "OriginalFilename", "RubiksCube.exe"
+            VALUE "ProductName", "TODO: <Product name>"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_RUBIKSCUBE_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 483
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 253
+    END
+
+    IDD_ABOUTDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 175
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 51
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_CUBE                BITMAP                  "res\\bitmap1.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINMENU MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                       32771
+    END
+    POPUP "&Cube"
+    BEGIN
+        MENUITEM "Reset",                       32772
+        MENUITEM "Shuffle",                     32773
+        MENUITEM "Solve",                       32774
+    END
+    POPUP "&Side"
+    BEGIN
+        POPUP "Rotate Clockwise"
+        BEGIN
+            MENUITEM "Back\tAlt-B",                 32775
+            MENUITEM "Down\t Alt-D",                32776
+            MENUITEM "Front\t Alt-F",               32777
+            MENUITEM "Left\tAlt-L",                 32778
+            MENUITEM "Right\t Alt-R",               32779
+            MENUITEM "Top\tAlt-T",                  32780
+        END
+        POPUP "Rotate Counter-Clockwise"
+        BEGIN
+            MENUITEM "Back\tCtrl+B",                32781
+            MENUITEM "Down\tCtrl+D",                32782
+            MENUITEM "Front\tCtrl+F",               32783
+            MENUITEM "Left\tCtrl+L",                32784
+            MENUITEM "Right\tCtrl+R",               32785
+            MENUITEM "Top\t Ctrl+T",                32786
+        END
+        POPUP "Rotate 180 Degrees"
+        BEGIN
+            MENUITEM "Back\tShift+B",               32787
+            MENUITEM "Down\tShift+D",               32788
+            MENUITEM "Front\tShift+F",              32789
+            MENUITEM "Left\tShift+L",               32790
+            MENUITEM "Right\tShift+R",              32791
+            MENUITEM "Top\tShift+T",                32792
+        END
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "2D View",                     32793
+        MENUITEM "3D View",                     32794
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About...",                   32795
+    END
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\RubiksCube.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"     // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,503 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (P.R.C.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 4, 2\r\n"
+    "#pragma code_page(936)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\iseetsvc.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""l.chs\\afxres.rc""          // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\iseetsvc.ico"
+IDR_ISEETSTYPE          ICON    DISCARDABLE     "res\\iseetsvcDoc.ico"
+IDI_SHELLICON1          ICON    DISCARDABLE     "res\\shellico.ico"
+IDI_SHELLICON2          ICON    DISCARDABLE     "res\\icon2.ico"
+IDI_DISP_TRUE           ICON    DISCARDABLE     "res\\icon1.ico"
+IDI_PLUGIN_SETICO       ICON    DISCARDABLE     "res\\icon4.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP  MOVEABLE PURE   "res\\Toolbar.bmp"
+IDB_BITMAP3             BITMAP  DISCARDABLE     "res\\bitmap3.bmp"
+IDB_BITMAP1             BITMAP  DISCARDABLE     "res\\bitmap1.bmp"
+IDB_BITMAP2             BITMAP  DISCARDABLE     "res\\bitmap2.bmp"
+IDB_BITMAP5             BITMAP  DISCARDABLE     "res\\bitmap5.bmp"
+IDB_BITMAP6             BITMAP  DISCARDABLE     "res\\bitmap6.bmp"
+IDB_BITMAP7             BITMAP  DISCARDABLE     "res\\bitmap7.bmp"
+IDB_SPLASH              BITMAP  DISCARDABLE     "res\\Splsh16.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
+    SEPARATOR
+    BUTTON      ID_EDIT_CUT
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_VIEW_LARGEICON
+    BUTTON      ID_VIEW_SMALLICON
+    BUTTON      ID_VIEW_LIST
+    BUTTON      ID_VIEW_DETAILS
+    SEPARATOR
+    BUTTON      ID_APP_ABOUT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "文件(&F)"
+    BEGIN
+        MENUITEM "转换为...(&A)",               ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "退出(&X)",                    ID_APP_EXIT
+    END
+    POPUP "编辑(&E)"
+    BEGIN
+        MENUITEM "撤消(&U)\tCtrl+Z",            ID_EDIT_UNDO
+        MENUITEM SEPARATOR
+        MENUITEM "剪切(&T)\tCtrl+X",            ID_EDIT_CUT
+        MENUITEM "复制(&C)\tCtrl+C",            ID_EDIT_COPY
+        MENUITEM "粘贴(&P)\tCtrl+V",            ID_EDIT_PASTE
+    END
+    POPUP "查看(&V)"
+    BEGIN
+        MENUITEM "状态栏(&S)",                  ID_VIEW_STATUS_BAR
+        MENUITEM SEPARATOR
+        MENUITEM "自动播放",                    ID_VIEW_PLAYTYPE
+        POPUP "对齐方式"
+        BEGIN
+            MENUITEM "左上角",                      ID_VAT_LT
+            MENUITEM "左下角",                      ID_VAT_LD
+            MENUITEM "右上角",                      ID_VAT_RT
+            MENUITEM "右下角",                      ID_VAT_RD
+            MENUITEM SEPARATOR
+            MENUITEM "居中对齐",                    ID_VAT_CENTER
+        END
+        POPUP "缩放尺寸"
+        BEGIN
+            MENUITEM "自动缩放",                    ID_VRT_AUTO
+            MENUITEM SEPARATOR
+            MENUITEM "400%",                        ID_VRT_L400
+            MENUITEM "300%",                        ID_VRT_L300
+            MENUITEM "200%",                        ID_VRT_L200
+            MENUITEM SEPARATOR
+            MENUITEM "原始尺寸",                    ID_VRT_ORG
+            MENUITEM SEPARATOR
+            MENUITEM "80%",                         ID_VRT_S80
+            MENUITEM "60%",                         ID_VRT_S60
+            MENUITEM "40%",                         ID_VRT_S40
+            MENUITEM "20%",                         ID_VRT_S20
+        END
+        MENUITEM SEPARATOR
+        POPUP "列表风格"
+        BEGIN
+            MENUITEM "大图标",                      ID_VIEW_LARGEICON
+            MENUITEM "小图标",                      ID_VIEW_SMALLICON
+            MENUITEM "列表",                        ID_VIEW_LIST
+            MENUITEM "报表",                        ID_VIEW_DETAILS
+            MENUITEM "缩略图",                      ID_VIEW_THM
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "插件信息...",                 ID_VIEW_PLUGININFO
+    END
+    POPUP "帮助(&H)"
+    BEGIN
+        MENUITEM "关于 iseetsvc(&A)...",        ID_APP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "A",            ID_FILE_SAVE_AS,        VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 313, 119
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "关于 iseetsvc"
+FONT 9, "宋体"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,33,35,20,20
+    LTEXT           "iseetsvc 3.0 版",IDC_STATIC,83,27,193,8,SS_NOPREFIX
+    LTEXT           "版权所有 (C) 2003 ISee Workgroup.",IDC_STATIC,83,55,193,
+                    8
+    DEFPUSHBUTTON   "确定",IDOK,135,95,50,14,WS_GROUP
+    LTEXT           "ISee 图象读写引擎测试软件。",IDC_STATIC,83,41,193,8
+END
+
+IDD_DLG_PINFO DIALOGEX 0, 0, 348, 239
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "插件信息设置"
+FONT 9, "宋体", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确认",IDOK,256,185,76,15
+    PUSHBUTTON      "取消",IDCANCEL,256,209,76,15
+    GROUPBOX        "引擎信息：",IDC_STATIC,7,7,334,50
+    LTEXT           "ssss",IDC_PLUGIN_PATH,102,18,142,34,SS_CENTERIMAGE
+    GROUPBOX        "插件设置：",IDC_STATIC,7,67,334,164
+    CONTROL         "List2",IDC_LIST_PLUGIN,"SysListView32",LVS_REPORT | 
+                    LVS_SORTASCENDING | LVS_NOSORTHEADER | WS_TABSTOP,13,81,
+                    234,143,WS_EX_CLIENTEDGE
+    PUSHBUTTON      "启用插件",IDC_BTN_SEL,256,81,76,15,WS_DISABLED
+    PUSHBUTTON      "禁用插件",IDC_BTN_FREE,256,103,76,15,WS_DISABLED
+    PUSHBUTTON      "启用所有插件",IDC_BTN_SELALL,256,125,76,15
+    ICON            IDI_PLUGIN_SETICO,IDC_STATIC,19,23,20,20
+    LTEXT           "插件路径：",IDC_STATIC,53,27,42,17,SS_CENTERIMAGE
+    LTEXT           "引擎版本：",IDC_STATIC,257,15,39,13,SS_CENTERIMAGE
+    LTEXT           "接口版本：",IDC_STATIC,257,28,39,13,SS_CENTERIMAGE
+    LTEXT           "调试发布：",IDC_STATIC,257,41,39,13,SS_CENTERIMAGE
+    LTEXT           "",IDC_STA_ENGVER,306,15,29,12,SS_CENTERIMAGE
+    LTEXT           "",IDC_STA_PLIVER,306,28,29,12,SS_CENTERIMAGE
+    LTEXT           "",IDC_STA_DBG,306,42,29,12,SS_CENTERIMAGE
+    PUSHBUTTON      "刷新",IDC_BTN_UPDATE,256,147,76,15
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "iseetsvc Microsoft 基础类应用程序\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "iseetsvc\0"
+            VALUE "LegalCopyright", "版权所有 (C) 2003\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "iseetsvc.EXE\0"
+            VALUE "ProductName", "iseetsvc 应用程序\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 306
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 112
+    END
+
+    IDD_DLG_PINFO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 341
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 232
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_CUR_HANDFOLD        CURSOR  DISCARDABLE     "res\\hand2.cur"
+IDC_CUR_HANDFREE        CURSOR  DISCARDABLE     "res\\hand1.cur"
+IDC_CUR_PASS            CURSOR  DISCARDABLE     "res\\cursor1.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDR_MAINFRAME           "iseetsvc\n\nIseets\n\n\nIseetsvc.Document\nIseets Document"
+    IDS_PROGRESS            "完成"
+    IDS_TIMECNT             "0 毫秒"
+    IDS_IMGINFO             "0×0×0－0"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "iseetsvc"
+    AFX_IDS_IDLEMESSAGE     "就绪"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_EXT        "扩展名"
+    ID_INDICATOR_CAPS       "大写"
+    ID_INDICATOR_NUM        "数字"
+    ID_INDICATOR_SCRL       "滚动"
+    ID_INDICATOR_OVR        "改写"
+    ID_INDICATOR_REC        "记录"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_NEW             "建立新文档\n新建"
+    ID_FILE_OPEN            "打开一个现有文档\n打开"
+    ID_FILE_CLOSE           "关闭活动文档\n关闭"
+    ID_FILE_SAVE            "保存活动文档\n保存"
+    ID_FILE_SAVE_AS         "将活动文档以一个新文件名保存\n另存为"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_ABOUT            "显示程序信息，版本号和版权\n关于"
+    ID_APP_EXIT             "退出应用程序；提示保存文档\n退出"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "打开该文档"
+    ID_FILE_MRU_FILE2       "打开该文档"
+    ID_FILE_MRU_FILE3       "打开该文档"
+    ID_FILE_MRU_FILE4       "打开该文档"
+    ID_FILE_MRU_FILE5       "打开该文档"
+    ID_FILE_MRU_FILE6       "打开该文档"
+    ID_FILE_MRU_FILE7       "打开该文档"
+    ID_FILE_MRU_FILE8       "打开该文档"
+    ID_FILE_MRU_FILE9       "打开该文档"
+    ID_FILE_MRU_FILE10      "打开该文档"
+    ID_FILE_MRU_FILE11      "打开该文档"
+    ID_FILE_MRU_FILE12      "打开该文档"
+    ID_FILE_MRU_FILE13      "打开该文档"
+    ID_FILE_MRU_FILE14      "打开该文档"
+    ID_FILE_MRU_FILE15      "打开该文档"
+    ID_FILE_MRU_FILE16      "打开该文档"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_NEXT_PANE            "切换到下一个窗格\n下一窗格"
+    ID_PREV_PANE            "切换回前一个窗格\n前一窗格"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_WINDOW_SPLIT         "将活动的窗口分隔成窗格\n分隔"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_CLEAR           "删除被选对象\n删除"
+    ID_EDIT_CLEAR_ALL       "全部删除\n全部删除"
+    ID_EDIT_COPY            "复制被选对象并将其置于剪贴板上\n复制"
+    ID_EDIT_CUT             "剪切被选对象并将其置于剪贴板上\n剪切"
+    ID_EDIT_FIND            "查找指定的正文\n查找"
+    ID_EDIT_PASTE           "插入剪贴板内容\n粘贴"
+    ID_EDIT_REPEAT          "重复上一步操作\n重复"
+    ID_EDIT_REPLACE         "用不同的正文替换指定的正文\n替换"
+    ID_EDIT_SELECT_ALL      "选择整个文档\n选择全部"
+    ID_EDIT_UNDO            "撤消最后一步操作\n撤消"
+    ID_EDIT_REDO            "重新执行先前已撤消的操作\n重新执行"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "显示或隐藏工具栏\n显隐工具栏"
+    ID_VIEW_STATUS_BAR      "显示或隐藏状态栏\n显隐状态栏"
+    ID_VIEW_AUTOARRANGE     "在网格上排列图标。"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "改变窗口大小"
+    AFX_IDS_SCMOVE          "改变窗口位置"
+    AFX_IDS_SCMINIMIZE      "将窗口缩小成图标"
+    AFX_IDS_SCMAXIMIZE      "把窗口放大到最大尺寸"
+    AFX_IDS_SCNEXTWINDOW    "切换到下一个文档窗口"
+    AFX_IDS_SCPREVWINDOW    "切换到先前的文档窗口"
+    AFX_IDS_SCCLOSE         "关闭活动的窗口并提示保存所有文档"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "把窗口恢复到正常大小"
+    AFX_IDS_SCTASKLIST      "激活任务表"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_SMALLICON       "通过使用小图标显示项目。\n小图标"
+    ID_VIEW_LARGEICON       "通过使用大图标显示项目。\n大图标"
+    ID_VIEW_LIST            "在列表中显示项目。\n列表"
+    ID_VIEW_DETAILS         "显示在窗口中每个项目的信息。\n详细资料"
+    ID_VIEW_LINEUP          "在网格中排列图标。"
+    ID_VIEW_BYNAME          "按字母顺序对图标排序。"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_PLAYTYPE        "自动播放或手动播放\n自动播放"
+    ID_VAT_LT               "图象的左上角将首先被显示出来\n左上对齐"
+    ID_VAT_LD               "图象的左下角将首先被显示出来\n左下对齐"
+    ID_VAT_RT               "图象的右上角将首先被显示出来\n右上对齐"
+    ID_VAT_RD               "图象的右下角将首先被显示出来\n右下对齐"
+    ID_VAT_CENTER           "图象的中心将首先被显示出来\n居中对齐"
+    ID_VLS_LICON            "文件项将以大图标方式呈现\n大图标"
+    ID_VIEW_THM             "在列表中显示项目的缩略图。\n缩图"
+    ID_VRT_AUTO             "随显示窗口的尺寸自动缩放图象。\n自动缩放"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VRT_ORG              "按图象的原始尺寸显示图象。\n原始尺寸"
+    ID_VRT_L400             "将图象放大四倍显示。\n放大四倍"
+    ID_VRT_L200             "将图象放大两倍显示。\n放大两倍"
+    ID_VRT_L300             "将图象放大三倍显示。\n放大三倍"
+    ID_VRT_S80              "将图象缩小至原尺寸的80%显示。\n80%"
+    ID_VRT_S60              "将图象缩小至原尺寸的60%显示。\n60%"
+    ID_VRT_S40              "将图象缩小至原尺寸的40%显示。\n40%"
+    ID_VRT_S20              "将图象缩小至原尺寸的20%显示。\n20%"
+    ID_VIEW_PLUGININFO      "查看或设置插件参数。\n插件信息"
+END
+
+#endif    // Chinese (P.R.C.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE 4, 2
+#pragma code_page(936)
+#endif //_WIN32
+#include "res\iseetsvc.rc2"  // non-Microsoft Visual C++ edited resources
+#include "l.chs\afxres.rc"          // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

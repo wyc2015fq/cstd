@@ -1,0 +1,62 @@
+One point------------about the function of time group, authority and user group, which should be paid attention to: 
+    1.edit in the message box dialog and press the save button ,which only changes the memory and the information inside the database , and will not immediately be uploaded to the device. 
+    2.in the main dialog box, right-click the device list items, pop-up menus,and make the operation of uploading time group, authority and user group information  to the device. 
+    3.time group, authority and  user groups can  only be by batch uploaded to the interface.
+
+
+Two  point-------------download the user from the device. 
+    1. A interface to download a single user. 
+    2. A interface used to download according to the user ID. 
+    3. download all users, download the steps below:
+      First,   launch a command of downloading all the users to the device. 
+      Second, the device receives the command and returns the user ID collection. 
+      Third, Take apart again according to the ID set, several groups of fixed size ID set (each N users for a group), the subcontract to download. 
+      Fourth,  download  the user ID according to the ID  collection.
+
+
+Three  point-----------download records from the device. 
+    1.A interface to download alarm recording  and  a interface to download identification record . 
+    2. A interface to real-time record (including identification record and alarm record) and initiative report. 
+    3. download alarm record ID interval set, a CPM_DLRangeAlarm interface. 
+    4. download record ID identifying a set interval, there CPM_DLRangeRec interface. 
+    5. download identification record and alarm recording, call CPM_DLRecEx. 
+    6. either  an alarm recording or identification recording, which can be download by steps  as follows: 
+
+       First, launch a request of downloading the records to the  device. 
+           This step has four interfaces to implement: 
+           CPM_DLAllIdentifyRecord to download all identified records
+           CPM_DLAllAlarmRecord to download all alarm records 
+ CPM_DLRangeRec to download  N ID identification records after one of ID recorded. 
+            CPM_DLRangeAlarm to download N alarm records after one of ID recorded.
+ 
+       Second, the device receives the command, and returns a record of ID range collection. 
+
+       Third, unpacking download. 
+           1, Because our equipment's  records are returned  according to  form an interval per day, 
+              an interval number of records may exceed the maximum number limit of single download article records .Therefore  large interval need to be split into  cells. 
+           2, Interval structure is  according  to  : ID of the firt record interval + download numbers + the first record of whether to download  the interval or not. 
+              This requires that the first record ID of download interval is   ID of  the last one record which was dowloaded last time , and  the first record of the download interval don't be downloaded. 
+           3, Follwed  the second ,  Single equipment records of a single large interval between split into community, to download records need to be synchronized.
+              That must be downloaded One by one between zones. 
+           4, if the interval is less than the upper limit of a single large interval record number of downloads, you can download multiple large intervals in parallel. 
+
+       Fourth, download history according to the interval . 
+           When downloading record by the interval, the interval record can not be downloaded if the record number is 0.
+
+
+Four  point--------users upload to the device. 
+  1, there is a single user interface to upload. 
+  2, there are  user interface to   upload by bulk too. 
+  3, the device has taken the initiative to manage end load user requests. 
+     After receiving the request management through CPM_ULRealTimeUser user interface to upload to the device. 
+  4, initiate remote capture the user's command by CPM_ULRealTimeUserCap of equipment. 
+  5, upload a user information, including at least a text message.
+
+Five  point--------------device logs, change according to the download logic, and record download similar.
+
+Six  point---------------Interface to remove the device user, time group, permissions, user group, logging, which can only delete by bulk.
+Seven  point------------alarm / detection recording without deleting the interface, but the device covered by cyclic manner, covering the latest record produced originated storage records.
+
+
+           
+           

@@ -1,0 +1,312 @@
+
+  TEST_REGEXDEF_1("def(.*)", "defabcabc");
+
+if (1) {
+  TEST_REGEXDEF_1("(abc(.*)def)|(def(.*))", "defabcabc");
+  TEST_REGEXDEF_1("(.*)*", "a");
+  TEST_REGEXDEF_1("(.*)1(.*)", "1");
+
+  TEST_REGEXDEF_1("(.*)123(.*)", "abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456");
+
+
+  TEST_REGEXDEF_1("^abc$", "abc");
+  TEST_REGEXDEF_1("^a$", "a");
+  TEST_REGEXDEF_1("(a*)*", "a");
+
+  TEST_REGEXDEF_1("(a|b|c)*b*", "");
+  TEST_REGEXDEF_1("(.*)", "abc");
+  TEST_REGEXDEF_1(".*", "");
+
+  TEST_REGEXDEF_1("ab|b", "ab");
+
+  TEST_REGEXDEF_1(".*6a", "abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456a");
+
+  TEST_REGEXDEF_1("(a|b|bc)*(ca|ac)*", "bcacacaca");
+  TEST_REGEXDEF_1("(abc|123|def)*", "def123abc");
+  TEST_REGEXDEF_1("", "");
+  TEST_REGEXDEF_1("(abc)", "abc");
+  TEST_REGEXDEF_1("abc", "abc");
+  TEST_REGEXDEF_1(".", "a");
+  TEST_REGEXDEF_1("(.)", "b");
+  TEST_REGEXDEF_1("(a|b|c)", "a");
+  TEST_REGEXDEF_1("(a|b|c)", "b");
+  TEST_REGEXDEF_1("(a|b|c)", "c");
+  TEST_REGEXDEF_1("(ab|bc|cd)*", "");
+  TEST_REGEXDEF_1("(ab|bc|cd)*", "abbccd");
+  TEST_REGEXDEF_1("(a|b|c)*b", "bb");
+  TEST_REGEXDEF_1("(a|b|c)*b", "b");
+  TEST_REGEXDEF_1("(a|b|c)*b*", "b");
+  TEST_REGEXDEF_1("(a|b|c)*b*", "bbb");
+  TEST_REGEXDEF_1("(a|b|c)", "c");
+  TEST_REGEXDEF_1("a|b|c", "b");
+  TEST_REGEXDEF_1("a|b|c", "a");
+  TEST_REGEXDEF_1("(a|b|c)*", "bbbabcaa");
+  TEST_REGEXDEF_1("a|bc", "bc");
+
+  TEST_REGEXDEF_1("(abc)*", "abcabc");
+
+
+  TEST_REGEXDEF_1("a*a*", "a");
+
+  TEST_REGEXDEF_1("(a|b|c)*b*", "bbbabc");
+
+
+  TEST_REGEXDEF_1("a|b|bc", "bc");
+
+  TEST_REGEXDEF_1("a(b*)c", "abc");
+
+  TEST_REGEXDEF_1("def(.*)", "defabcabc");
+
+
+  TEST_REGEXDEF_1("a*a*", "");
+  TEST_REGEXDEF_1("a*a*", "aa");
+  TEST_REGEXDEF_1("a*a*", "aaa");
+  TEST_REGEXDEF_1("(a*)*", "");
+  TEST_REGEXDEF_1("(.*)*", "abc");
+  TEST_REGEXDEF_1(".*", "abc");
+
+  TEST_REGEXDEF_1("abc(.*)def(.*)", "abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456abc123def456");
+
+
+}
+
+
+#if 0
+
+  TEST_REGEXDEF_1("^abc$\\n^abc$", "abc\nabc");
+
+
+  TEST_REGEXDEF_1("(fo.*)-\\1", "foo-");
+  TEST_REGEXDEF_1("(fo.*)-\\1", "foo-foo");
+  TEST_REGEXDEF_1("(fo.*)-\\1", "foo-foo fo-fo fob-fob foobar-foobar");
+  TEST_REGEXDEF_1("((ab*|ac*)*|ad*)*", "");
+  TEST_REGEXDEF_1("((ab*|ac*)*|ad*)*", "a");
+
+  TEST_REGEXDEF_1("((ab*|ac*)*|ad*|ef)*", "abbacadaaefa");
+  TEST_REGEXDEF_1(".", "\n");
+
+  TEST_REGEXDEF_1("a+", "a");
+  TEST_REGEXDEF_1("(a+)", "a");
+  TEST_REGEXDEF_1("(a+)*", "a");
+  TEST_REGEXDEF_1("(a+)+", "a");
+  TEST_REGEXDEF_1("(a+)+", "aa");
+  TEST_REGEXDEF_1("(a+)+|b+", "b");
+  TEST_REGEXDEF_0("(a+)+|b+", "ba");
+
+  TEST_REGEXDEF_1("a?", "");
+  TEST_REGEXDEF_1("a?", "a");
+  TEST_REGEXDEF_0("a?", "aa");
+
+  TEST_REGEXDEF_1("(a?)", "a");
+  TEST_REGEXDEF_1("(a?)*", "a");
+  TEST_REGEXDEF_1("(a?)+", "a");
+
+  TEST_REGEXDEF_1("(ab?c|b)*", "ac");
+  TEST_REGEXDEF_1("(ab?c|b)*", "acbbbabcb");
+
+  TEST_REGEXDEF_1("(a?)*a*", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+  TEST_REGEXDEF_1("[]", "[]");
+  TEST_REGEXDEF_1("[]]", "]");
+  TEST_REGEXDEF_0("[^]]", "]");
+
+  TEST_REGEXDEF_1("[-]", "-");
+  TEST_REGEXDEF_1("[abc-]", "-");
+  TEST_REGEXDEF_1("[-abc]", "-");
+
+  TEST_REGEXDEF_1("[abc]*", "abc");
+  TEST_REGEXDEF_1("[a-ch-ij]*", "abchij");
+
+  TEST_REGEXDEF_1("[^a-ch-ij]*", "xyz");
+  TEST_REGEXDEF_0("[^a-ch-ij]*", "xyzb");
+
+  TEST_REGEXDEF_1("[[:alnum:]]*", "Az9");
+  TEST_REGEXDEF_1("[[:alpha:]]*", "Az");
+  TEST_REGEXDEF_1("[[:blank:]]*", " \t");
+  TEST_REGEXDEF_1("[[:cntrl:]]*", "\x01\x02\x7F");
+  TEST_REGEXDEF_1("[[:digit:]]*", "123");
+  TEST_REGEXDEF_1("[[:graph:]]*", "\x21\x22\x7E");
+  TEST_REGEXDEF_1("[[:lower:]]*", "abcz");
+  TEST_REGEXDEF_1("[[:print:]]*", "\x20\x21\x7E");
+  TEST_REGEXDEF_1("[[:punct:]]*", "][!\"#$%&'()*+,./:;<=>?@\\^_`{|}~-");
+  TEST_REGEXDEF_1("[[:space:]]*", " \t\r\n\v\f");
+  TEST_REGEXDEF_1("[[:upper:]]*", "ABCZ");
+  TEST_REGEXDEF_1("[[:word:]]*", "_abzABZ09_");
+  TEST_REGEXDEF_1("[[:xdigit:]]*", "0123AFaf");
+
+  TEST_REGEXDEF_1("a{", "a{");
+
+  TEST_REGEXDEF_1("a{}", "");
+  TEST_REGEXDEF_0("a{}", "a");
+
+  TEST_REGEXDEF_1("a{1}", "a");
+  TEST_REGEXDEF_0("a{1}", "aa");
+
+  TEST_REGEXDEF_1("a{1,}", "a");
+  TEST_REGEXDEF_1("a{1,}", "aa");
+
+  TEST_REGEXDEF_1("a{1,2}", "a");
+  TEST_REGEXDEF_1("a{1,2}", "aa");
+  TEST_REGEXDEF_0("a{1,2}", "aaa");
+
+  TEST_REGEXDEF_1("(a{2}){3}", "aaaaaa");
+
+  TEST_REGEXDEF_1("\\|", "|");
+  TEST_REGEXDEF_1("\\.", ".");
+  TEST_REGEXDEF_1("\\*", "*");
+  TEST_REGEXDEF_1("\\?", "?");
+  TEST_REGEXDEF_1("\\+", "+");
+  TEST_REGEXDEF_1("\\^", "^");
+  TEST_REGEXDEF_1("\\$", "$");
+  TEST_REGEXDEF_1("\\(", "(");
+  TEST_REGEXDEF_1("\\)", ")");
+  TEST_REGEXDEF_1("\\[", "[");
+  TEST_REGEXDEF_1("\\]", "]");
+  TEST_REGEXDEF_1("\\{", "{");
+  TEST_REGEXDEF_1("\\}", "}");
+  TEST_REGEXDEF_1("\\\\", "\\");
+  TEST_REGEXDEF_1("\\f", "\f");
+  TEST_REGEXDEF_1("\\n", "\n");
+  TEST_REGEXDEF_1("\\r", "\r");
+  TEST_REGEXDEF_1("\\t", "\t");
+  TEST_REGEXDEF_1("\\v", "\v");
+
+  TEST_REGEXDEF_1("\\d*", "0123456789");
+  TEST_REGEXDEF_0("\\D*", "0123456789");
+
+  TEST_REGEXDEF_1("\\s*", "\f\n\r\t\v");
+  TEST_REGEXDEF_0("\\S*", "\f\n\r\t\v");
+
+  TEST_REGEXDEF_1("\\w*", "abcXYZ012_");
+  TEST_REGEXDEF_0("\\W*", "abcXYZ012_");
+  TEST_REGEXDEF_1("(.)(.)(.).*", "xyzabcabc"));
+
+  TEST_REGEXDEF_1("abc\\z", "abcz");
+  TEST_REGEXDEF_1("abc\\", "abc");
+
+  TEST_REGEXDEF_1("abc(.*)def", "abcdefabcdef"));
+
+
+  TEST_REGEXDEF_1("abc(x|y|z)def", "abcydef");
+  TEST_REGEXDEF_1("abc(.)def|xyz(.)|(.)def|hij", "abc0def");
+  TEST_REGEXDEF_1("abc(.)def|xyz(.)|(.)def|hij", "xyz_");
+  TEST_REGEXDEF_1("abc(.)def|xyz(.)|(.)def|hij", "xdef");
+  TEST_REGEXDEF_1("abc(.)def|xyz(.)|(.)def|hij", "hij");
+  TEST_REGEXDEF_1("abc(.)def|xyz(.)|(.)def|h(x|y|z|[abc])j|hij", "haj");
+  TEST_REGEXDEF_1(".*(aac)", "aac");
+  TEST_REGEXDEF_1("([0-9]+)-([0-9]+)-([0-9]+) ([0-9]+):([0-9]+)", "2014-08-08 23:10");
+  EXPECT_TRUE(match_res[1].str() == "2014");
+  EXPECT_TRUE(match_res[2].str() == "08");
+  EXPECT_TRUE(match_res[3].str() == "08");
+  EXPECT_TRUE(match_res[4].str() == "23");
+  EXPECT_TRUE(match_res[5].str() == "10");
+}
+
+TEST_CASE(regex11)
+{
+  TEST_REGEXDEF_1(".*er\\b", "never");
+  TEST_REGEXDEF_1(".*er\\b ", "never ");
+  TEST_REGEXDEF_1(".*er\\b", "verb");
+
+  TEST_REGEXDEF_1(".*er\\Bb", "verb");
+  TEST_REGEXDEF_0(".*er\\B", "never");
+
+  std::string str;
+  match_result match_res;
+
+  str = "abcdefabc";
+  TEST_REGEXDEF_1("abc(?:def|opq)abc", str);
+  EXPECT_TRUE(match_res.size() == 1);
+
+  str = "abcopq";
+  TEST_REGEXDEF_1("abc(?:def|opq)", str);
+  EXPECT_TRUE(match_res.size() == 1);
+
+  std::string str;
+  match_result match_res;
+
+  str = "abc123";
+  TEST_REGEXDEF_1("abc(?=123|456)", str);
+  EXPECT_TRUE(match_res[0].str() == "abc");
+
+  str = "abc456";
+  TEST_REGEXDEF_1("abc(?=123|456)", str);
+  EXPECT_TRUE(match_res[0].str() == "abc");
+
+  str = "abc121";
+  TEST_REGEXDEF_0("abc(?=123|456)", str);
+
+  str = "abc123456789";
+  TEST_REGEXDEF_1("abc(?=\\d*)", str);
+  EXPECT_TRUE(match_res[0].str() == "abc");
+
+  str = "abc123456789_";
+  TEST_REGEXDEF_0("abc(?=\\d*)", str);
+
+  std::string str;
+  match_result match_res;
+
+  str = "123abc";
+  TEST_REGEXDEF_1("(?<=123|456)abc", str);
+  EXPECT_TRUE(match_res[0].str() == "abc");
+
+  str = "456abc";
+  TEST_REGEXDEF_1("(?<=123|456)abc", str);
+  EXPECT_TRUE(match_res[0].str() == "abc");
+
+  str = "455abc";
+  TEST_REGEXDEF_0("(?<=123|456)abc", str);
+
+  str = "123456789abc";
+  TEST_REGEXDEF_1("(?<=\\d*)abc", str);
+  EXPECT_TRUE(match_res[0].str() == "abc");
+
+  str = "123456789_abc";
+  TEST_REGEXDEF_0("(?<=\\d*)abc", str);
+
+  match_result match_res;
+
+  std::string str = "abcdefabcdgf";
+  auto begin = str.c_str();
+  auto end = begin + str.size();
+  regex re1("d.f");
+
+  EXPECT_TRUE(regex_search(re1, begin, end);
+  EXPECT_TRUE(match_res[0].str() == "def");
+  EXPECT_TRUE(regex_search(re1, match_res.end_pos(), end);
+  EXPECT_TRUE(match_res[0].str() == "dgf");
+  EXPECT_TRUE(!regex_search(re1, match_res.end_pos(), end);
+
+  str = "I watch three climb before it's my turn. It's a tough one.  The"
+      " guy before me tries twice.   He falls twice.    After the last"
+      " one, he comes down.     He's finished for the day.";
+
+  begin = str.c_str();
+  end = begin + str.size();
+  regex re2("(?<=\\.) {1,}(?=[A-Z])");
+
+  EXPECT_TRUE(regex_search(re2, begin, end);
+  EXPECT_TRUE(match_res[0].str() == " ");
+  EXPECT_TRUE(regex_search(re2, match_res.end_pos(), end);
+  EXPECT_TRUE(match_res[0].str() == "  ");
+  EXPECT_TRUE(regex_search(re2, match_res.end_pos(), end);
+  EXPECT_TRUE(match_res[0].str() == "   ");
+  EXPECT_TRUE(regex_search(re2, match_res.end_pos(), end);
+  EXPECT_TRUE(match_res[0].str() == "    ");
+  EXPECT_TRUE(regex_search(re2, match_res.end_pos(), end);
+  EXPECT_TRUE(match_res[0].str() == "     ");
+  EXPECT_TRUE(!regex_search(re2, match_res.end_pos(), end);
+
+  begin = str.c_str();
+  end = begin + str.size();
+  regex re3(" +[Hh](.*)\\.");
+
+  EXPECT_TRUE(regex_search(re3, begin, end);
+  EXPECT_TRUE(match_res[1].str() == "e falls twice");
+  EXPECT_TRUE(regex_search(re3, match_res.end_pos(), end);
+  EXPECT_TRUE(match_res[1].str() == "e comes down");
+  EXPECT_TRUE(regex_search(re3, match_res.end_pos(), end);
+  EXPECT_TRUE(match_res[1].str() == "e's finished for the day");
+
+
+#endif

@@ -1,0 +1,948 @@
+DrawDib函数组的使用
+
+    Microsoft的针对与设备无关位图(DIB位图)，在其WIN32 SDK的Multimedia中提供了一组绘制DIB位图的高性能函数组──DrawDib函数组。DrawDib函数组是一组不依赖于图形设备接口(GDI)函数，而直接操作显存的函数组。它们支持8位、16位、24位和32位图象深度的DIB。总的来说，DrawDib函数组类似于StretchDIBits函数，它们都提供了将图象拉伸和抖动的功能，然而，DrawDib函数组还支持图象的解压、数据流以及更多的显示适配器。在某些情况下，DrawDib函数组还具有更大的优越性。但是，在某些场合下，DrawDib函数组却不能取代StretchDIBits函数。下面就DrawDib函数组和StretchDIBits函数使用的场合加以区别和说明：
+
+    颜色信息表格式。DrawDib函数组只支持颜色信息表格式为DIB_RGB_COLORS格式的图象，如果要显示以DIB_PAL_COLORS或DIB_PAL_INDICES格式的图象，则必须用StretchDIBits函数。
+
+光栅操作模式。DrawDib函数组只能使用SRCCOPY光栅操作模式，如果要求不仅仅使用SRCCOPY模式的话，只能用StretchDIBits函数。同样地，如果要使用其他光栅操作，例如XOR，只能用StretchDIBits函数。
+
+视频及动画回放的质量。DrawDib函数组支持数据流应用，诸如视频片和动画序列，它比StretchDIBits函数提供了更高的图象质量以及对回放过程的改进。
+
+显示适配器。DrawDib函数组比StretchDIBits函数支持更多的显示适配器。DrawDib函数组支持使用4位图象深度提供16色调色板的VGA适配器，使用8位图象深度提供256色调色板的SVGA适配器和使用16位、24位和32位图象深度提供成千上万种颜色的真彩色适配器。DrawDib函数组还使用了受限制的潜在能力提高了图象在显示适配器上的速度和质量。例如，当使用8位的显示适配器时，DrawDib函数组有效地将真彩色图象抖动为256色；同样的，使用4位的显示适配器时，它们也将8位深度的图象抖动成4位。
+
+图象拉伸。正如StretchDIBits一样，DrawDib函数组用源矩形和目的矩形来控制一个图象显示的部分。可以通过改变源矩形和目的矩形的位置和大小来裁剪一幅图象不需要的部分和拉伸某部分。如果显示驱动不支持图象拉伸，那么DrawDib函数组提供了比StretchDIBits函数更有效的拉伸能力。
+
+压缩图象。DrawDib函数组支持好几种压缩和解压方法，其中包括游程编码，JPEG,Cinepak,411YUV和Indeo?。
+　
+DrawDib的操作
+
+    通过使用DrawDibOpen函数初始化DrawDib函数组。DrawDibOpen负责装载动态连接库(DLL)，申请内存资源，DrawDib设备环境(DC)，并且维持初始化相关的设备环境计数。DrawDibOpen同时返回一个其它DrawDib函数所需要使用的新的DC句柄。
+    当使用完DrawDib DC后，可以用DrawDibClose函数释放它。DrawDibClose同时减少存取DLL的应用的计数。在应用程序中，DrawDibClose函数应是最后的DrawDib操作。
+    可以创建任意多的DrawDib DC，也可以同时使用多个DrawDib DC来绘制几幅位图。在应用程序中可以创建多个不同性质的DrawDib DC，这样就可以选择最合适的DC设置。例如，在同一应用程序中，创建两个不同的DrawDib DC，一个用来显示图象的正常分辨率，另一个用来显示图象的放大部分。
+    为了更有效地运行，DrawDib函数组需要知道显示适配器及其驱动的信息。显示配置信息是在第一次使用包含DrawDib函数组的DLL时，对显示适配器通过了一系列的测试之后得到的。DrawDib函数组的所有应用都要用到这个配置信息。可以通过调用DrawDibProfileDisplay函数来强制重新进行这些测试。
+    通常，取得和保存显示配置是一次性的事件。如果配置信息发现在这个系统中安装了另一个显示驱动时，DrawDib则重新进行测试。
+　
+
+图象再现
+
+    创建了DrawDib DC后，就可以用DrawDibDraw函数将DIB绘至屏幕。当在8位深度的显示适配器上显示真彩色图象时，DrawDib将自动地抖动图象。
+
+    DrawDib也透明地支持视频压缩器。当显示压缩位图时，可通过DrawDibGetBuffer函数得到包含了解压图象数据的缓冲区。如果位图是未压缩的，则DrawDibGetBuffer返回NULL。在应用程序中应自己区分位图是否压缩。
+    可用DrawDibUpdate宏来刷新一幅图象的整体或一部分的显示。
+　
+
+图象序列
+   当DrawDibDraw函数同DrawDibBegin函数一起运用时，可以显示相同尺寸和格式的位图序列。DrawDib通过DrawDibBegin准备绘图的DrawDib DC来提高DrawDibDraw的效率。如果，应用程序没有调用DrawDibBegin，那么DrawDibDraw会在绘图前隐含地执行DrawDibBegin。
+
+    DrawDibBegin给DrawDibDraw提供了DrawDib的DC，DC的句柄，BITMAPINFOHEADER结构的地址和源矩形及目的矩形的尺寸。当要显示一个位图序列时，DrawDibDraw要检查序列中的每幅图象的这些值。如果DrawDibDraw检测到这些值有任何变化，它将隐含地再次调用DrawDibBegin来调整DrawDib DC的设置。
+    当调用完DrawDibBegin后，就可以指定一个或多个适当的标志来调用DrawDibDraw绘制图象序列。只要DC句柄未改变，就可指定DDF_SAME_HDC标志；下列参数未改变，就可指定DDF_SAME_DRAW标志：BITMAPINFOHEADER结构的地址和源矩形及目的矩形的尺寸。
+    可以通过在DrawDibEnd后跟另一个DrawDibBegin调用来更新前一个DrawDibBegin设置的标志。DrawDibEnd清除了当前的DrawDib DC的标志和设置。后续的调用DrawDibBegin将重新初始化DrawDib DC，并重新设置适当的标志和设置。然而，只要至少改变了以下任一个当前的标志设置：BITMAPINFOHEADER结构的地址或是源矩形或目的矩形的尺寸，也可不使用DrawDibEnd而直接调用DrawDibBegin来更新一个DrawDib DC。
+    通过使用DrawDibStart和DrawDibStop函数，可以提高使用压缩图象的数据流操作(如回放一个视频片)的DrawDibDraw的效率。DrawDibStart通过发送一个消息告诉视频管理器(VCM)准备DrawDib DC来接受一个图象流。当流结束时，DrawDibStop发送一个消息给VCM来指示它释放申请的资源。
+    需要注意的是，在应用程序中必须确定源矩形和目的矩形的宽度和高度；然而却并不需要确定这些矩形的起点。应用程序可以重新DrawDibDraw中的起点坐标来使用图象的不同部分或更新显示的不同部分。
+　
+调色板
+
+    DrawDib函数组需要响应两条调色板消息：WM_QUERYNEWPALETTE和WM_PALETTECHANGED。如果应用程序未注意到调色板，就需要对这些消息都增加一个各自的消息处理。
+    通过使用DrawDibRealize函数可在当前DC中实现当前DrawDib的调色板。应当在响应WM_QUERYNEWPALETTE和WM_PALETTECHANGED消息时，或在用DrawDibDraw函数显示一个图象序列的准备过程中实现调色板。
+    可以用DrawDibSetPallette函数用另一个调色板的映射来绘一幅图象。DrawDibSetPallette强迫DrawDib DC使用指定的调色板，而这会影响到图象的质量。例如，一个注意调色板的应用程序，可能已经实现了一个调色板并需要阻止DrawDib实现它自己的调色板。应用程序可以通过DrawDibSetPalette来通知DrawDib调色板的使用。
+    通过使用DrawDibGetPallette函数可以获得当前前景调色板的一个句柄。如果应用程序使用了当前前景调色板，它并没有对调色板的完全使用权，另一个应用程序能够使这个调色板句柄无效。当使用完毕后，应用程序不应该释放调色板，那样会使另一个应用程序不能使用调色板。
+    通过使用DrawDibChangPallete函数可以为它的调色板DrawDib来接收新的颜色值。在紧跟DrawDibChangPallete的后面的代码里，可以为调色板颜色表指定新的值。当调用DrawDibChangPalette时，在DrawDib DC中未设置DDF_ANIMATE标志的话，可以通过使用DrawDibRealize来实现调色板和DrawDibDraw重绘图象来实现调色板的改变。如果DDF_ANIMATE标志在DrawDib DC中设置了，就可以通过DrawDibDraw或DrawDibRealize来实现调色板和显示着的位图颜色的动画。通过DrawDibEnd和DrawDibBegin可以DDF_ANIMATE标志。
+    如果释放了被选入DC的DrawDib调色板，DC使用调色板时会报告一个GDI错误。相反，应该使用DrawDibSetPalette改变DrawDib DC来使用省缺调色板后另一调色板。
+    由于以下函数会释放DrawDib调色板，所以，除非调色板不被DC选中不应使用：DrawDibEnd,DrawDibClose和DrawDibBegin。同样的，当使用了相同的DrawDib DC，但指定了不同的绘制参数(lpbi,dxDst,dyDst,dxSrc或dySrc)或不同格式时，DrawDibDraw也会释放调色板。
+　
+
+时间计算
+
+    作为调试应用程序的一部分，调用DrawDibTime函数可以得到一些关于完全重复特定次数DrawDib操作所需时间。DrawDibTime返回以下操作的时间：
+    绘制一幅位图
+    解压一幅位图
+    抖动一幅位图
+    拉伸一幅位图
+
+    使用BitBlt函数变换一幅位图
+
+    使用StrecthDIBits函数变换一幅位图
+    得到返回值后，DrawDibTime重新设置每项操作的计数和值。
+    注意，DrawDibTime只在DrawDib函数的调试版中可用。
+　
+DrawDib的使用
+
+    增加调色板消息处理
+    下面的例子说明了WM_PALETTECHANGED和WM_QUERYNEWPALETTE消息的处理。这个例子用了DrawDibRealize函数来进行WM_QUERYNEWPALETTE消息的处理。
+    应用程序应通过使目标窗口无效来让DrawDibDraw函数重绘图象来响应WM_QUERYNEWPALETTE消息。应用DrawDibRealize函数实现调色板来响应WM_PALETTECHANGED消息。
+        case WM_PALETTECHANGED:
+                if ((HWND) wParam == hwnd)
+                     break;
+            case WM_QUERYNEWPALETTE:
+             hdc = GetDC(hwnd);
+                f = DrawDibRealize (hdd,hdc,FALSE) > 0;
+             ReleaseDC (hwnd,hdc);
+             if (f)
+                InvalidateRect ( hwnd,NULL,TRUE);
+                break;
+
+    显示设备绘制
+    下面例子用DrawDibrealize函数在显示一个位图序列之前准备DrawDib DC.
+             hdc = GetDC(hwnd);
+            DrawDibBegin(hdd,hdc,dxDest,dyDest,lpbi,dxSrc,dySrc,NULL);
+            DrawDibRealize(hdd,hdc,fBackground);
+            DrawDibDraw(hdd,hdc,xDst,yDst,dxDst,dyDst,lpbi,lpBits,
+                xSrc,ySrc,dxSrc,dySrc,DDF_SAME_DRAW|DDF_SAME_HDC);
+            DrawDibDraw(hdd,hdc,xDst,yDst,dxDst,dyDst,lpbi,lpBits,
+                xSrc,ySrc,dxSrc,dySrc,DDF_SAME_DRAW|DDF_SAME_HDC);
+            DrawDibDraw(hdd,hdc,xDst,yDst,dxDst,dyDst,lpbi,lpBits,
+                xSrc,ySrc,dxSrc,dySrc,DDF_SAME_DRAW|DDF_SAME_HDC);
+            ReleaseDC(hwnd,hdc);
+
+    调色板动画
+    下面用了DrawDibRealize,DrawDibChangPalette和DrawDibDraw函数演示调色板动画。
+    能够用DrawDibBegin函数协同DrawDibChangepalette函数改变一幅位图的颜色。首先，在调用DrawDibBegin时指定DDF_ANIMATE标志允许调色板改变；然后，用DrawDibChangePalette函数从调色板入口设置颜色表的值。
+    例如，如果lppe是一个包含新颜色的PALETTEENTRY队列的地址，并且lpbi是在DrawDibBegin或DrawDibDraw中使用的LPBITMAPINFOHEADER结构，则后面的程序片段更新DIB的颜色表。
+             hdc = GetDC(hwnd);
+            DrawDibBegin(hdd,…,DDF_ANIMATE);
+             DrawDibRealize(hdd,hdc,fBackground);
+            DrawDibDraw(hdd,hdc,…,DDF_SAME_DRAW|DDF_SAME_HDC);
+            //改变颜色调用
+            DrawDibChangePalette(hdd,iStart,iLen,lppe);
+            ……
+            ReleaseDC(hwnd,hdc);
+
+    下面给出一个实例的关键片段加以说明：(在Visual C++ 4.2 下Windows95或Windows NT环境下通过。)
+        void CTestDrawDibView::OnDraw(CDC* pDC)
+
+        {
+            CTestDrawDibDoc* pDoc = GetDocument();//得到文档指针
+            ASSERT_VALID(pDoc);
+
+            // TODO: add draw code for native data here
+
+            m_DibMem = pDoc->m_Buf;//得到DIB的内存
+            if (m_DibMem == NULL)
+            {
+                //AfxMessageBox(“Error in m_DibMem”);
+                return;
+            }
+            UINT offset = pDoc->m_Off; //得到DIB数据的偏移
+            int xDst,yDst,dxDst,dyDst,xSrc,ySrc,dxSrc,dySrc;
+
+            LPBITMAPINFOHEADER lpbi;
+            LPVOID lpDibMem;
+            LPVOID lpbits=NULL;
+
+            // get the Windows width & height 得到窗口的宽高
+            RECT rect;
+            GetClientRect(&rect);
+
+            xDst = yDst = 0;
+            dxDst = rect.right – rect.left;
+            dyDst = rect.bottom – rect.top;
+
+            // Get Dib info得到DIB的信息
+            xSrc = ySrc =0;
+
+            lpDibMem = GlobalLock(m_DibMem);//锁定内存得到指针
+            lpbi = (LPBITMAPINFOHEADER)lpDibMem;//得到DIB信息
+            dxSrc = lpbi->biWidth;
+            dySrc = lpbi->biHeight;
+            lpbits = (LPSTR)lpDibMem + offset – sizeof(BITMAPFILEHEADER);
+
+            // Draw Dib绘DIB
+
+            HDC hdc = NULL;
+
+            hdc = pDC->m_hDC;
+
+            /*
+
+            // Using SetDIBToDevice使用SetDIBToDevice函数为对照
+            int line = SetDIBitsToDevice(hdc,
+                    xDst,
+                    yDst,
+                    dxSrc,
+                    dySrc,
+                    xSrc,
+                    ySrc,
+                    0,
+                    dySrc,
+                    lpdib,//lpbits,
+                    (LPBITMAPINFO)lpbi,
+                    DIB_RGB_COLORS);
+            if(0 == line)
+            {
+
+                AfxMessageBox(“Error in SetDIBsToDevice”);
+
+            }
+            */
+            /*
+
+            // Using StretchDIBits使用StretchDIBits函数为对照
+            int line = StretchDIBits(hdc,
+                    xDst,
+               yDst,
+               dxDst,
+                    dyDst,
+                    xSrc,
+                    ySrc,
+                    dxSrc,
+                    dySrc,
+                    lpbits,
+                    (LPBITMAPINFO)lpbi,
+                    DIB_RGB_COLORS,
+                    SRCCOPY);
+
+            if(0 == line)
+            {
+                AfxMessageBox(“Error in SetDIBsToDevice”);
+            }
+            */
+
+            // Using DrawDib使用DrawDib
+
+            // Set Dawing flag设置绘制标志
+            UINT wFlags;
+
+            //标志意义参见前面的函数参考，以下两个标志可绘出图象，
+            //其余标志在这种情况下绘不出图象。
+            wFlags = DDF_DONTDRAW;
+            //wFlags = DDF_NOTKEYFRAME;
+
+            HDRAWDIB hdd = DrawDibOpen();
+
+            if (hdd != NULL)
+            {
+                BOOL Suc = TRUE;
+                //具体参数请参见前面函数参考
+                Suc = DrawDibDraw(hdd,
+                        hdc,
+                        xDst,
+                        yDst,
+                        dxDst,
+                        dyDst,
+                        lpbi,
+                        lpbits,
+                        xSrc,
+                        ySrc,
+                        dxSrc,
+                        dySrc,
+                        wFlags);
+
+                if(Suc == FALSE) AfxMessageBox(“DrawDib Failed”);
+
+                /* //时间测试
+                DRAWDIBTIME time;
+
+                DrawDibTime(hdd ,&time);
+
+                char buf[256];
+
+                sprintf(buf,"Count %d/nDraw %d/nDecompress %d/n
+                    Dither %d/nStretch %d/nBlt %d/n SetDIBits %d/n",
+                    time.timeCount,time.timeDraw,
+                    time.timeDecompress,time.timeDither,
+                    time.timeStretch,time.timeBlt,
+                    time.timeSetDIBits);
+
+                AfxMessageBox(buf);
+
+                */
+
+                DrawDibClose(hdd);
+
+        }
+            else
+                AfxMessageBox(“Error in DrawDibOpen”);
+
+            GlobalUnlock(m_DibMem);//释放DIB句柄
+       }
+　
+附：函数参考:
+DrawDibBegin
+
+这个DrawDib函数改变一个DrawDib DC的参数或初始化一个新的DrawDib DC.
+
+BOOL DrawDibBegin(
+HDRAWDIB hdd,
+HDC hdc,
+int dxDest,
+int dyDest,
+LPBITMAPINFOHEADER lpbi,
+int dxSrc,
+int dySrc,
+UINT wFlags
+参数
+dd DrawDib DC的句柄
+
+hdc 绘图DC的句柄。此参数为可选。
+
+dxDst和dyDst 在MM_TEXT方式下目的矩形的宽度和高度。
+
+lpbi 包含图象格式的BITMAPINFOHEADER结构的地址。DIB颜色表紧跟图象格式，并且biHeight成员必须为一正值。
+
+dxSrc和dySrc 源矩形的宽度和高度(以象素为单位)。
+
+wFlags 函数调用的可用标志。定义了以下的值：
+
+DDF_ANIMATE 允许调色板动画。如果这个值被设置，通过在LOGPALETTE结构中设置palPalEntry成员PC_RESERVED标志，则DrawDib保存了尽可能多的入口，调用drawDibChangePalette函数就可实现调色板动画。如果应用程序用了DrawDibBegin函数协同DrawDibDraw函数，最好在DrawDibBegin中设置这个值而不在DrawDibDraw中。
+
+DDF_BACKGROUNDPAL 实现作为背景的调色板，保留当前显示所使用的调色板不变。(这个值与DDF_SAME_HDC互斥。)
+
+DDF_BUFFER 使DrawDib使用屏幕缓冲，这样DDF_UPDATE才可使用。这关闭了解压和直接绘屏。如果DrawDib不能创建一个脱屏缓冲，就解压或直接绘屏。
+
+DDF_DONTDRAW 当前图象未绘，但已解压。DDF_UPDATE能够以后被用来绘图象。这个标志取代了DDF_PREROLL标志。
+
+DDF_FULLSCREEN 不被支持。
+
+DDF_HALFTONE 不管DIB的调色板如何而把DIB抖动成标准调色板。如果应用程序用DrawDibBegin协同DrawDibDraw，在DrawDibBegin中设置这个值而不在DrawDibDraw中。
+
+DDF_JUSTDRAWIT 用GDI绘这图象。禁止DrawDib函数解压，拉伸或抖动图象。这实际上剥夺了DrawDib区别于StrechDIBits函数的能力。
+
+DDF_SAME_DRAW 让DrawDibDraw使用当前的绘制参数。只有当从使用DrawDibDraw或DrawDibBegin起，lpbi、dxDext、dyDest、dxSrc和dySrc就未改变才用这个值。这个标志取代了DDF_SAME_DIB和DDF_SAME_SIZE标志。
+
+DDF_SAME_HDC 使用当前DC句柄以及与当前句柄相关联的调色板。
+
+DDF_UPDATE 最后缓存的图象需要绘制。如果用这个值绘制失败，则缓冲的图象不在有效，并且在显示被更新前，需要指定一幅新的图象。
+
+返回值
+成功返回TRUE，否则FALSE。
+注 这个函数准备由lpbi指定要绘往DC的DIB。图象已经拉伸成由dxDest和dyDest所指定的大小。如果dxDest和dyDest被设置成-1，DIB则被按原比例绘制。
+可通过重新使用DrawDibBegin，指定新的标志和改变至少一个以下的设置：dxDest、dyDest、lpbi、dxSrc或dySrc来更新DrawDib DC的标志。
+如果DrawDibBegin的参数未被改变，再次调用这个函数将不起作用。
+DrawDibChangePalette
+
+这个函数设置绘DIB所用的调色板。
+
+BOOL DrawDibChangePalette(
+HDRAWDIB hdd,
+int iStart,
+int iLen,
+LPPALETTEENTRY lppe
+);
+
+参数：
+hdd DrawDib DC的句柄。
+iStart 调色板开始数。
+iLen 调色板的数目。
+lppe 调色板阵列的地址。
+
+返回值
+成功返回TRUE，否则FALSE。
+注 只有当当前DrawDib调色板是调用DrawDibRealize函数实现时，这个函数改变物理调色板。
+如果颜色表没有改变，下次没有指定DDF_SAME_DRAW的DrawDibDraw函数将隐含地调用DrawDibBegin函数。
+DrawDibClose
+
+这个函数关闭一个DrawDib DC并释放DrawDib申请的资源。
+
+BOOL DrawDibClose(
+HDRAWDIB hdd
+);
+参数
+
+hdd DrawDib DC的句柄。
+返回值
+成功返回TRUE，否则FALSE。
+DrawDibDraw
+
+这个函数将DIB绘至屏幕。
+
+BOOL DrawDibDraw(
+HDRAWDIB hdd,
+HDC hdc,
+int xDst,
+int yDst,
+int dxDst,
+int dyDst,
+LPBITMAPINFOHEADER lpbi,
+LPVOID lpBits,
+int xSrc,
+int ySrc,
+int dxSrc,
+int dySrc,
+UINT wFlags
+
+参数
+
+hdd DrawDib DC的句柄。
+
+hdc DC的句柄。
+
+xDst和yDst 在MM_TEXT坐标系，目标矩形左上角的x和y坐标。
+
+dxDst和dyDst 在MM_TEXT坐标系下，目标矩形的宽度和高度。如果dxDst为-1，则使用位图的宽度；如果dyDst为-1，则使用位图的高度。
+
+lpbi 包含图象格式的BITMAPINFOHEADER结构的地址。DIB的颜色表紧跟着格式后，并且biHeight成员必须为正值；DrawDibDraw不能绘制倒置的DIB。
+
+lpbits 包含位图位的缓冲的地址。
+
+xSrc和ySrc 以象素为单位，源矩形左上角的x和y坐标。坐标(0，0)是位图的左上角。
+
+dxSrc和dySrc 以象素为单位，源矩形的宽度和高度。
+
+wFlags 可用的绘图标志。如下值被定义：
+
+DDF_BACKGROUNDPAL 实现作为背景的调色板，保留当前显示所使用的调色板不变。这个值只有当DDF_SAME_HDC未被设置时才有效。
+
+DDF_DONTDRAW 当前图象已解压但未绘。这个标志取代了DDF_PREROLL标志。
+
+DDF_FULLSCREEN 不被支持。
+
+DDF_HALFTONE 不管DIB的调色板如何而把DIB抖动成标准调色板。如果应用程序使用了DrawDibBegin，在DrawDibBegin中设置而不在DrawDibDraw中。
+
+DDF_HURRYUP 数据并不需要被绘(它可以被绘)并且DDF_UPDATE不用理会这个信息。DrawDib只有当需要去构建另一帧时才检查这个值；否则，这个值被忽略。
+这个值通常用来同步视频和音频。当同步数据时，应用程序应当用这个值发送图象以防止驱动器需要缓冲帧来解压后续帧。
+
+DDF_NOTKEYFRAME DIB数据不是关键帧。
+
+DDF_SAME_HDC 使用当前DC句柄以及与当前句柄相关联的调色板。
+
+DDF_SAME_DRAW 让DrawDibDraw使用当前的绘制参数。只有当从使用DrawDibDraw或DrawDibBegin起，lpbi、dxDext、dyDest、dxSrc和dySrc就未改变才用这个值。DrawDibDraw经常检查这些参数，如果它们改变了，DrawDibBegin则准备绘图的DrawDib DC。这个标志取代了DDF_SAME_DIB和DDF_SAME_SIZE标志。
+
+DDF_UPDATE 最后缓存的图象需要绘制。如果用这个值绘制失败，则缓冲的图象不在有效，并且在显示被更新前，需要指定一幅新的图象。
+
+返回值
+成功返回TRUE，否则FALSE。
+注 DDF_DONTDRAW使DrawDibDraw解压但不显示一幅图象。一个调用DrawDibDraw的序列是指定DDF_UPDATE来显示图象。
+如果DrawDib DC没有指定一个屏幕缓冲，指定DDF_DONTDRAW会造成这帧被立即绘到屏幕。序列调用DrawDibDraw指定DDF_UPDATE会失败。
+尽管DDF_UPDAT和DDF_DONTDRAW可以在不同时间设置，它们可以一起用来创建脱屏图象。当脱屏图象完成后，可以调用DrawDibDraw来显示图象。
+DrawDibEnd
+
+这个函数清除由DrawDibBegin或DrawDibDraw函数设置的标志和DrawDib DC的其它设置。
+
+BOOL DrawDibEnd(
+HDRAWDIB hdd
+);
+参数
+
+hdd 要释放的DrawDib DC的句柄。
+返回值
+成功返回TRUE，否则FALSE。
+DrawDibGetBuffer
+
+这个函数清除由DrawDib用来解压的缓冲的地址。
+
+LPVOID DrawDibGetBuffer(
+HDRAWDIB hdd,
+LPBITMAPINFOHEADER lpbi,
+DWORD dwSize,
+DWORD dwFlags
+);
+
+参数
+
+hdd 要释放的DrawDib DC的句柄。
+
+lpbi BITMAPINFO结构的地址。这个结构由BITMAPINFOHEADER结构和位图使用的256色调色板所定义的颜色表。
+
+dwSize 通过lpbi的BITMAPINFO结构所指的字节大小。
+
+dwFlags 保留，必须为0。
+返回值
+返回缓冲的地址或者如果没有用到缓冲返回NULL。如果lpbi不为NULL，它填充了一个描绘缓冲的BITMAPINFO的结构。
+DrawDibGetPalette
+
+这个函数清除由DrawDib DC所使用的调色板。
+
+HPALETTE DrawDibGetPalette(
+HDRAWDIB hdd
+);
+
+参数
+
+hdd 要释放的DrawDib DC的句柄。
+返回值
+成功返回一个调色板句柄，否则返回NULL。
+注 这个函数假设DrawDib DC包含了一个有效的调色板，隐含着这样的一个条件：对这个函数的调用必须在DrawDibDraw或DrawDibBegin函数之后。
+DrawDibOpen
+
+这个函数打开DrawDib库为使用和创建一个绘图的DrawDib DC作准备。
+HDRAWDIB DrawDibOpen(VOID);
+
+参数
+这个函数不需要参数。
+返回值
+成功返回一个DrawDib DC的句柄，否则为NULL。
+注 当同时绘多个DIB时，为同时在屏的每个图象创建一个DrawDib DC。
+DrawDibProfileDisplay
+
+这个函数决定了当用DrawDib函数时显示系统的设置。
+
+BOOL DrawDibProfileDisplay(
+LPBITMAPINFOHEADER lpbi
+);
+
+参数
+
+lpbi 包含位图信息的BITMAPINFOHEADER结构。可以通过指定NULL来确认配置信息是当前的。如果配置信息不是当前的，DrawDib会重新运行配置测试来得到当前设置信息。如果把这个参数设为NULL来调用DrawDibProfileDisplay返回值是没有意义的。
+返回值
+返回值指出了这个显示系统的最快绘制和拉伸能力。如果位图格式不被支持，这个值为0或一个或更多的下列值：
+
+PD_CAN_DRAW_DIB DrawDib能用这种格式绘图象。拉伸可能被支持或不被支持。
+
+PD_CAN_STRETCHDIB DrawDib能用这种格式拉伸或绘制图象。
+
+PD_STRETCHDIB _1_1_OK StretchDIBits用这种格式绘未拉伸的图象快于另一种方式。
+
+PD_STRETCHDIB _1_2_OK StretchDIBits用这种格式绘以1：2拉伸的图象快于另一种方式。
+
+PD_STRETCHDIB _1_N_OK StretchDIBits用这种格式绘以1：N拉伸的图象快于另一种方式。
+DrawDibRealize
+
+这个函数为用指定DC实现DrawDib DC 的调色板。
+UINT DrawDibRealize (
+HDRAWDIB hdd ,
+HDC hdc ,
+BOOL fBackground
+) ;
+
+参数
+
+hdd DrawDib DC　hdd DrawDib DC的句柄。
+
+hdc 包含调色板的DC的句柄。
+
+fBackground 背景调色板标志。如果此值非零，此调色板为背景调色板。如果此值为零并且DC与另一个窗口相连，当窗口拥有输入焦点时逻辑调色板变为背景调色板。(当窗口风格是CS_OWNDC或当DC是用GetDC函数得到的时，一个DC就与一个窗口相连)。
+返回值
+
+返回在系统调色板中映射了不同值的逻辑调色板中的入口值。如果发生了错误或没有要更新的颜色，返回0。
+注意
+用DrawDibDraw函数并指定DDF_BACKGROUNDPAL标志来选择DrawDib DC的调色板作背景调色板。
+DrawDibSetPalette
+
+这个函数设置绘DIB所用的调色板。
+
+BOOL DrawDibSetPalette(
+HDRAWDIB hdd ,
+HPALETTE hpal
+) ;
+参数
+
+hdd DrawDib DC的句柄。
+
+hpal 调色板的句柄。指定NULL则使用缺省调色板。
+返回值
+成功返回TRUE，否则返回FALSE。
+DrawDibStart
+
+DrawDibStart函数为流回放准备 DrawDib DC。
+
+BOOL DrawDibStart(
+
+HDRAWDIB hdd ,
+LONG rate
+);
+参数
+
+hdd DrawDib DC的句柄。
+
+rate 回放率 每帧以毫秒计。
+返回值
+成功返回TRUE，否则返回FALSE。
+DrawDibStop
+
+这个函数释放用于流回放的DrawDib DC所占用的资源。
+
+BOOL DrawDibStop(
+
+HDRAWDIB hdd
+);
+参数
+
+hdd DrawDib DC的句柄。
+返回值
+成功返回TRUE，否则返回FALSE。
+这个函数得到关于绘制操作的时间和调试操作的时间信息。
+
+DrawDibTime
+
+BOOL DrawDibTime(
+
+HDRAWDIB hdd，
+
+LPDRAWDIBTIME lpddtime
+) ;
+参数
+
+hdd DrawDib DC的句柄。
+
+lpddtime DrawDibTime的结构地址。
+返回值
+成功返回TRUE，否则返回FALSE。
+注意
+这个函数只存在于W32软件开发库的调试版本。
+
+Microsoft? Video for Windows? (VFW) 提供的函数可以让应用程序去处理视频数据。 VFW 在16位Windows的时候就被引入了。它的许多重要功能已经被DirectX取代了。 要获得更多的信息，你可以参考DirectX 的文档。
+下面讲介绍VFW的视频捕获：
+3.视频捕获
+你可以使用windows的AVICap 类轻松地完成视频捕获。AVICap 提供给应用程序一个简单的、基于消息的接口去访问视频设备和录音设备，并且可以控制处理视频流捕获。
+3.1 关于视频捕获
+AVICap支持实是视频流捕获和实时单帧图像捕获。另外，AVICap 提供了对视频源的控制(MCI媒体控制接口设备)，因此使用者可以通过应用程序控制一个视频源开始和结束的位置，并且可以加大对帧捕获的控制。
+你使用AVICap 类可以完成如下的任务:
+
+l         捕获声音和视频，并将他们写入到一个AVI文件中。
+l         动态连接和断开视频和音频的输入设备。
+l         使用覆盖或预览的方法去显示当前的视频信号。
+l         指定一个文件用于捕获，并且把这个捕获文件的内容拷贝给另一个文件。
+l         设定捕获图像速度(好多帧)。
+l         显示对话框用于控制视频源和格式。
+l         创建、保存、加载调色板。
+l         拷贝图像和调色板到剪贴板中。
+l         捕获并把图像作为一个DIB位图保存。
+
+3.1.1视频捕获：最简单的方法
+
+视频捕获将数字化一个视频流和音频数据，并且将他们保存在硬盘和其他存储设备上。
+这里将描述如何在应用程序中简单地应用视频捕获，它通过三句代码实现。它还介绍了如何通过发送消息给视频捕获窗口来结束或中断一个视频会话。
+AVICap 捕获窗口可以把捕获的音视频信息写入一个AVI文件中。你的应用程序可以自由地处理这个AVI文件、管理缓存区的音视频数据、还可以在底层访问音视频设备的驱动器。AVICap为应用程序提供了一个灵活的接口。你可以使用下面的代码，在你的应用程序中加入视频捕获：
+
+HWndC  =  capCreateCaptureWindow ( "My Own Capture Window",
+            WS_CHILD | WS_VISIBLE  ,  0 ,  0,  160,  120,  hwndParent,  nID);
+SendMessage  ( hWndC,  WM_CAP_DRIVER_CONNECT,  0 /* wIndex */,  0L);
+SendMessage  ( hWndC,  WM_CAP_SEQUENCE,  0,  0L);
+
+宏接口同样有用，你可以选择是使用宏接口还是SendMessage 函数来实现上面的功能，不过宏接口可以让你的代码更加容易理解。下面就使用了宏接口。
+
+HWndC  =  capCreateCaptureWindow (" My Own Capture Window ",
+    WS_CHILD | WS_VISIBLE ,  0,  0,  160,  120,  hwndParent,  nID);
+capDriverConnect  ( hWndC,  0);    // 宏接口
+capCaptureSequence  ( hWndC);     // 宏接口
+
+你的应用程序创建AVICap捕获窗口，并和视频设备建立连接后。你创建的这个捕获窗口就准备捕获数据了。这时，你可以通过发送WM_CAP_SEQUENCE消息(或capCaptureSequence 宏)开始对数据进行捕获。
+
+WM_CAP_SEQUENCE将使用默认设置，开始对视频和音频进行捕获，并把数据放在一个CAPTURE.AVI的文件中，捕获动作将一直持续，除非有下面的事件发生：
+l         用户按了ESC键或者鼠标的按钮。
+l         你的应用程序停止或者退出了捕获操作。
+l         磁盘写满了。
+
+在应用程序中，你可以通过发送WM_CAP_STOP命令(或capCaptureStop)给捕获窗口，让它停止向文件写数据。你还可以通过发送WM_CAP_ABORT命令(或capCaptureAbort)给捕获窗口，让它中断捕获操作。
+
+3.1.2捕获基本设置
+
+通过对定义在CAPTUREPARMS结构中的捕获参数进行修改，你可以完成：
+l         改变捕获的帧频律(帧/秒)；
+l         指定用键盘或鼠标去结束一个捕获会话；
+l         为一个捕获会话指定时间周期；
+
+捕获的帧频率
+
+捕获的帧频率表示在一个捕获会话中，每秒要捕获多少帧。你通过WM_CAP_GET_SEQUENCE_SETUP 消息(capCaptureGetSetup宏)可以得到当前捕获的帧频率。当前的帧频率被保存在CAPTUREPARMS结构的dwRequestMicroSecPerFrame 成员中。你可以对该值进行修改，从而去改变帧频率。该值为捕获一帧要用的时间(单位是微秒 1/1000000秒)，修改后，你可以发送WM_CAP_SET_SEQUENCE_SETUP消息(或capCaptureSetSetup宏)给你的捕获窗体，来刷新CAPTUREPARMS 结构。dwRequestMicroSecPerFrame 默认值是66667微秒,表示每秒15帧。(1000000/15=66667)
+
+退出数据捕获
+
+你可以让用户按这几种方法退出一个捕获会话，按键盘上的一个键或几个组合键、或者按鼠标的左键或者是右键。如果用户退出一个实时的捕获会话，那么捕获文件中的内容将被系统丢弃掉。如果用户退出一个步帧(step-frame)捕获的会话，捕获文件将保存到退出时刻前的所有数据。
+       你可以通过发WM_CAP_GET_SEQUENCE_SETUP消息(或capCaptureGetSetup宏)给捕获窗口，来获得捕获退出的设置信息。当前的退出按钮设置保存在CAPTUREPARMS结构的vKeyAbort 成员中，当前的退出鼠标设置保存在fAbortLeftMouse和 fAbortRightMouse成员中。你可以改变这几个成员，实现对当前值的修改。当你修改完成后，你可以发送WM_CAP_SET_SEQUENCE_SETUP消息(或capCaptureSetSetup宏)给你的捕获窗体，来刷新CAPTUREPARMS 结构。
+vKeyAbort 默认值是 VK_ESCAPE。在重新指定其他按键前，你必须调用RegisterHotKey 函数。fAbortLeftMouse 和 fAbortRightMouse 是TRUE。
+
+时间限定
+
+通过使用CAPTUREPARMS结构的fLimitEnabled 和wTimeLimit成员，你可以去限定一个捕获操作的时间周期。fLimitEnabled 表示是否要对捕获操作限定时间， wTimeLimit 用于指定限定时间的最大值。
+    你发WM_CAP_GET_SEQUENCE_SETUP消息(capCaptureGetSetup宏)给捕获窗口，就可以得到fLimitEnabled 和 wTimeLimit的值。 FLimitEnabled为TRUE表示要指定时间周期。WTimeLimit单位为秒。修改完成后，你可以发送WM_CAP_SET_SEQUENCE_SETUP消息(或capCaptureSetSetup宏)给你的捕获窗体，来刷新CAPTUREPARMS 结构。
+fLimitEnabled 默认值为FALSE.
+
+3.1.3捕获窗口
+
+捕获窗体类似于一个标准控件(不如按钮、列表框…)，它一般使用WS_CHILD 和 WS_VISIBLE窗口类型。.
+
+创建一个AVICap捕获窗口
+       使用capCreateCaptureWindow 函数可以创建一个AVICap的捕获窗口。这个函数返回一个窗口句柄，这个句柄就是捕获窗口的句柄，后面其他操作就是通过发送消息给该句柄来实现。你可以在一个程序中创建多个捕获窗口，并且每个窗口连接到不同的捕获设备上。
+
+建立捕获窗口到捕获设备的连接
+你可以动态地连接或断开捕获窗口与设备间的链接。通过使用WM_CAP_DRIVR_CONNECT消息(或capDriverConnect宏)，可以实现捕获窗体与设备驱动间的连接。当捕获窗体和捕获设备驱动连接后，你就可以发送针对设备的消息给该窗体了。
+如果你的系统安装了多个捕获设备，你可以通过在发送WM_CAP_DRIVER_CONNECT消息时，设置wPrarm参数(integer)。来指定捕获窗口与那个具体的视频捕获设备相连接。
+WPrarm参数是一个整数，它表示一个系统已经安装的视频捕获设备列表的索引(注册表中或这System.ini [drivers]中的信息)。该列表的索引从0开始。
+       通过capGetDriverDescription函数可以获得安装的捕获驱动程序的名称和版本。你的应用程序可以使用这个函数列举除安装的所有捕获设备，让用户可以选择其中一个去与捕获窗口相联。
+通过发送WM_CAP_DRIVER_GET_NAME消息(capDriverGetName宏)，可以获得与指定窗体连接的捕获设备的名称。通过发送WM_CAP_DRIVER_GET_VERSION消息(capDriverGetVersion宏)，可以获得与指定窗体连接的捕获设备的版本。
+通过发送WM_CAP_DRIVER_DISCONNECT消息(capDriverGetDisconnect宏)，可以断开连接。当捕获窗体销毁后，任何连接的视频捕获设备都将自动断开。
+
+父子窗体交付
+       一些系统级的消息，比如 WM_PALETTECHANGED、WM_QUERYNEWPALETTE，只被发送到顶层(top-level)和overlapped窗口。如果一个捕获窗体是一个资窗体，那它的父窗口应该来转寄这些消息。
+       同样地，假如父窗口尺寸改变了，它可能需要发送一个通知消息给捕获窗口。相反，如果捕获视频尺寸变化了，捕获窗口可能需要发一个通知消息给父窗口。最简单的管理方法是让捕获窗口的尺寸等于捕获视频流的尺寸，随时把改变的尺寸告诉给父窗口。
+
+捕获窗体状态
+
+通过发送WM_CAP_GET_STATUS消息(capGetStatus宏)，可以获得当前捕获窗口的状态。这个消息得到一个CAPSTATUS结构体的拷贝，状态信息就在这个结构体的成员中。
+CAPSTATUS 结构体包含了图形尺寸大小、滚动位置(scroll position)、是否覆盖(overlay)或者预览(preview)等信息。因为在CAPSTATUS 中的信息是动态的，你的应用程序应该随时去刷新这个结构体中的内容。
+改变捕获窗口的尺寸对实际的视频流的尺寸没有影响。
+
+3.1.4捕获和音频驱动器
+
+视频捕获可以做这几个方面的工作：访问 视频源、显示选项、格式和压缩选项。音频捕获包括指定音频格式和选择压缩方式。
+
+捕获驱动性能
+
+通过发送WM_CAP_DRIVER_GET_CAPS消息(capDriverGetCaps宏)，可以获得当前连接的捕获设备的性能。发送该消息后，会返回一个CAPDRIVERCAPS结构的对象。设备的性能信息，就在这个对象中。
+
+视频对话框(Video Dialog Boxes)
+
+每个捕获设备的驱动程序都可以为控制视频信号和捕获处理和视频压缩提供4个对话框。这些对话框中的内容都是视频捕获驱动程序定义的。
+
+视频源对话框(Video Source dialog box)用于选择视频输入通道和视频图像的动态参数。 它可以列举出当前连接视频设备的信号类型(SVHS和复合类型)，并且可以通过该对话框去修改图像的色调、亮度、饱和度。你可以通过使用WM_CAP_DLG_VIDEOSOURCE 消息 (或 capDlgVideoSource 宏)来显示和刷新这个窗口。
+
+视频格式对话框(Video Format dialog box)用于选择数字视频的框架大小和视频图像的色深，以及捕获视频图像的压缩格式。你可以通过使用WM_CAP_DLG_VIDEOFORMAT消息 (或 capDlgVideoFormat宏)来显示和刷新这个窗口。
+
+视频显示对话框(Video Display dialog box)用于控制视频外观。在该对话框上进行了修改只是对视频显示起作用，对于实际的视频数据是不会造成改变的。比如，可以改变显示的颜色，饱和度等等....。你可以通过使用WM_CAP_DLG_VIDEODISPLAY消息 (或 capDlgVideoDisplay宏)来显示和刷新这个窗口。
+
+视频压缩对话框(Video Compression dialog box)用于设置视频压缩的格式。通过使用WM_CAP_DLG_VIDEOCOMPRESSION消息 (或 capDlgVideoCompression宏)来显示和刷新这个窗口。
+
+预览和覆盖模式 (Preview and Overlay )
+
+一般，一个捕获驱动提供两种方式来观看输入的视频流：预览模式和覆盖模式。如果捕获驱动可以提供上面两种模式，那么用户就可以选择其中的模式来使用。
+
+预览模式从捕获设备硬件传输数据帧到系统的内存中，并且在捕获窗口中使用GDI函数来显示这些数据帧。当捕获窗口的父窗体失去焦点的时候，在应用程序的视频预览的数据将变慢，如果父窗体获的焦点后，将对预览显示进行加速。因为预览处理的这种处理方式将大大提高整个系统的效率。
+这里用3个消息用于控制预览操作。
+l         WM_CAP_SET_PREVIEW消息(capPreview宏)可以打开或者关闭预览模式。
+l         WM_CAP_SET_PREVIEWRATE 消息(capPreviewRate宏)可以设置预览模式下图像的帧速度。
+l         WM_CAP_SET_SCALE 消息 (capPreviewScale 宏) 打开或者关闭预览视频的缩放比例。
+当预览和缩放比例属性都打开后，那么视频将被缩放到和捕获窗口尺寸一样大。打开预览模式后，系统将自动关闭覆盖模式。
+
+覆盖模式，将不占用CPU的处理资源，直接在显示器上显示视频内容。所用的处理是有捕获设备硬件来完成。发送WM_CAP_SET_OVERLAY消息(或capOverlay宏)给捕获窗口，可以打开覆盖模式。打开覆盖模式后，将自动关闭预览格式。
+
+无论是预览模式还是覆盖模式，都可以通过发送WM_CAP_SETSCROLL消息(capSetScroollPos宏)，可以设置图像的在整个视频帧的滚动位置(scroll position)。
+
+视频格式
+
+       通过发送WM_CAP_GET_VIDEOFORMAT消息(capGetVideoFormat宏)给视频捕获窗口可以得到一个结构，在这个结构体中就包含了视频的格式、大小。
+       通过发送WM_CAP_SET_VIDEOFORMAT消息(capSetVideoFormat宏)给视频捕获窗口可以对视频格式进行修改设置。
+You can set the format of captured video data by sending the WM_CAP_SET_VIDEOFORMAT message (or the capSetVideoFormat macro) to a capture window.
+
+视频捕获设置
+
+CAPTUREPARMS 数据结构包括了视频流的控制参数。它允许完成如下的任务：
+l         指定帧速度(Frame rate)。
+l         指定为视频分配的缓存大小。
+l         关闭或者打开音频捕获。
+l         设定捕获的时间间隔。
+l         指定捕获设备(MCI设备、VCR或者影碟)。
+l         指定键盘或鼠标去控制结束捕获。
+l         指定适用的视频类型
+
+通过发送WM_CAP_GET_SEQENCE_SETUP消息(capCaptureGetSetup)给捕获窗体，可以获得一个CAPTUREPARMS数据结构的对象，当前视频捕获的设置信息就在这里面。
+
+你可以改写CAPTUREPARMS对象的成员，来实现对视频捕获信息的修改。修改后，发送WM_CAP_SET_SEQUENCE_SETUP消息(capCaptureSetSetup)给捕获窗体，并把这个CAPTUREPARMS 对象发给捕获窗体，就可以实现修改。
+
+音频格式
+
+通过发送WM_CAP_GET_AUDIOFORMAT消息(capGetAudioFormat 和capGetAudioFormatSize宏)给捕获窗体，你就可以获得当前的音频数据格式或音频数据结构的大小。默认音频捕获格式是 mono, 8-bit, 11 kHz PCM。
+当你使用WM_CAP_GET_AUDIOFORMAT消息得到音频格式后，通常会使用WAVEFORMATEX这个数据结构。
+通过发送WM_CAP_SET_AUDIOFORMAT消息(capSetAudioFormat宏)给捕获窗体，你可以设置音频数据捕获格式。当设置这个音频格式时，你可以通过一个指针指向一个WAVEFORMAT ,WAVEFORMATEX,或者PCMWAVEFORMAT数据结构。
+
+3.1.5捕获文件和缓存区
+
+捕获文件名
+
+AVICap默认，把音视频数据从捕获窗口保存到当前驱动得根目录下，文件名称为CAPTURE.AVI。发送WM_CAP_FILE_SET_CAPTURE_FILE消息(capFileSetCaptureFile)给捕获窗体，可以改变保存的文件名。这个消息指定文件名；它不实际创建文件，分配空间，也不能打开文件。通过发送WM_CAP_FILE_GET_CAPTURE_FILE消息(capFileFGetCaptureFile宏)给捕获窗口，就可以得到当前文件名。
+
+保存捕获数据到一个新文件
+
+如果用户想保存捕获数据，把数据存到另外一个文件中。可以使用WM_CAP_FILE_SAVEAS消息(capFileSaveAs宏) 。这个消息不能改变捕获文件的名称和内容。你必须去指定新建的文件名，因为捕获文件将保留原来的文件名称。
+
+为捕获文件预分配磁盘空间
+
+在捕获操作前，先在磁盘上为捕获文件建一个指定大小的文件。预分配空间将减少数据保存时的处理时间。可以通过WM_CAP_FILE_ALLOCATE消息(capFileAlloc宏)来预分配一个捕获文件。
+你要预分配足够大的磁盘空间去保存预计最大的捕获文件。预分配磁盘空间没有限定捕获文件的大小。如果捕获的数据大于了分配的空间，文件尺寸将自动变大。对一个捕获文件进行重写数据，将对文件的已经分配的磁盘空间进行重写。
+通过对捕获文件进行磁盘碎片整理可以提高捕获性能。要对文件进行碎片整理，可以使用一个碎片整理工具来完成，比如Disk Defragmenter。
+通过使用没压缩的磁盘来保存数据，同样可以提高性能。因为在捕获期间压缩数据将对磁盘的吞吐量进行限制。
+
+索引大小
+
+       在每个AVI文件中都会使用一个指定大小的索引去查找音视频数据块。在一个索引的入口定位了一个视频帧或者一个波形声音的缓存器。所以，这个索引的大小简接地限定了一个捕获文件所能保存的帧的数量上限。
+通过发送WM_CAP_GET_SEQUENCE_SETUP消息(capCaptureGetSetup宏)给捕获窗口就可以得到当前的索引大小。这个索引大小就保存在CAPTUREPARMS数据结构对象的一个成员中(dwIndexSize)。你可以在dwIndexSize中指定一个新的索引大小，并通过发送消息WM_CAP_SET_SEQUENCE_SETUP(capCaptureSetSetup宏)给捕获窗口完成信息设置。索引默认大小34,952 (允许32K 帧和想匹配的声音缓存器).
+
+音视频块的间隔尺寸(Granularity)
+
+数据块的间隔尺寸是一个AVI文件的逻辑块大小。它用于写和读音视频数据块。当向磁盘写音视频数据时， AVICap 将在每个数据块中加入一个必须的填充块(filler chunks (RIFF "JUNK" chunks)) 去填充满该数据块。
+你可以使用WM_CAP_GET_SEQUENC_SETUP消息(capCaptureGetSetup)去获得当前的块间隔尺寸(Granularity)。CAPTUREPARMS的wChunkGranularity 成员保存的是当前的块间隔尺寸信息。通过对该成员的改写，并发送WM_CAP_GET_SEQUENC_SETUP消息(capCaptureSetSetup)，可以对其进行修改。你设置该参数为零的话，那么块间隔尺寸的值就为磁盘的扇区大小。
+
+视频缓存区
+
+这个缓存区将视频数据放在内存的堆中。缓存区的大小可以改变，并且它的大小是由CAPTUREPARMS的wNumVideoRequested 成员和系统可以的内存大小来决定。
+你可以使用WM_CAP_GET_SEQUENC_SETUP消息(capCaptureGetSetup)去获得当前的视频缓存区的大小。CAPTUREPARMS的wNumVideoRequested 成员保存的是当前的缓存区尺寸。通过对该成员的改写，并发送WM_CAP_GET_SEQUENC_SETUP消息(capCaptureSetSetup)，可以对其进行修改。
+
+音频缓存区
+
+你可以使用下面三种方法来控制捕获的音频数据：
+
+l         在捕获中包含音频或者不包含音频
+l         按要求指定音频缓存区的大小
+l         Request that audio buffers be a specific size.
+
+你可以使用WM_CAP_GET_SEQUENC_SETUP消息(capCaptureGetSetup)去获得当前的音频缓存区的设置。CAPTUREPARMS的fCaptureAudio指定在这次捕获操作中是否包括对声音的捕获。WNumAudioRequested保存当前要求的音频缓存区的大小。dwAudioBufferSize 保存当前的音频缓存区的大小。
+通过对该成员的改写，并发送WM_CAP_GET_SEQUENC_SETUP消息(capCaptureSetSetup)，可以对其进行修改。
+fCaptureAudio 默认值是TRUE。The default buffer size (the value of) can contain 0.5 seconds of audio data or 10K, whichever is greater.
+
+3.1.6捕获变化
+
+除了对基于持续时间间隔的流捕获外，AVICap还支持如下的捕获：
+l         手控制帧捕获
+l         Still-image 捕获
+l         不使用磁盘存储的捕获
+l         从一个MCI设备的流捕获(real-time and step-frame)
+
+手动帧捕获
+
+如果你向指定捕获视频流中个别帧，你可以通过WM_CAP_SINGLE_FRAME_OPEN消息、WM_CAP_SINGLE_FRAME消息、WM_CAP_SINGLE_FRMAE_CLOSE消息来控制帧序列(capCaptureSingleFrameOpen、/capCaptureSingleFrame、capCaptureSigleFrameClose)。
+
+典型应用是，这些消息用于向捕获文件添加单独的帧来创建一个动画, WM_CAP_SINGLE_FRAME_OPEN 为手动捕获操作打开一个文件，WM_CAP_SINGLE_FRAME用于捕获一个单独的帧放在文件中。
+WM_CAP_SINGLE_FRMAE_CLOSE用于关闭这个捕获文件。
+
+注：  该操作支持音视频同时捕获。
+
+Still-Image捕获
+
+如果要捕获一个单独的帧作为一个静态图像，你可以使用WM_CAP_GRAB_FRAME_NOSTOP或者 WM_CAP_GRAB_FRAME 消息 ( capGrabFrameNoStop
+或capGrabFrame宏) 在一个帧缓存区中捕获一个图像。你可以通过使用下面的消息来抓获当前显示的图形WM_CAP_GRAB_FRAME ，否则，使用WM_CAP_GRAB_FRAME_NOSTOP。
+一旦开始捕获，你可以拷贝图像给其他应用程序。你可以从帧缓存区拷贝一个图像到剪贴板(使用WM_CAP_EDIT_COPY 消息或capEditCopy宏)。你还可以使用如下的消息，将缓存区的一张图像拷贝到一个DIB位图中(WM_CAP_FILE_SAVEDIB消息或capFileSaveDIB宏)。
+
+不使用磁盘存储的捕获
+
+使用WM_CAP_SEUENCE_NOFILE消息(capCaptureSequenceNoFile宏)，可以不向磁盘文件写入数据。该消息仅在配合回调函数时有用，它允许你的应用程序直接使用音视频数据。例如，在视频会议中，应用程序使用该消息区获得视频流。回调函数将传输捕获的图像传送给远程的计算机。
+
+从MCI设备进行流捕获
+MCI设备加强了实时捕获和步进帧(step-frame)捕获的处理操作。你可以指定一个MCI设备，比如一张影碟或者一盘录像带(VCR)来充当视频源。通过发送消息并指定你要选定的MCI设备的名称。消息:WM_CAP_SET_MCI_DEVICE (capSetMCIDeviceName宏)。获得当前使用的设备可以使用WM_CAP_GET_MCI_DEVICE(capGetMCIDeviceName)消息。
+在实时捕获中， the capture window synchronizes the capture operation and compensates for delays associated with positioning the MCI video source and initializing the resources (such as capture buffers) required for capturing data. The capture window expects a valid MCI video device to be installed in the system for capturing data this way.
+控制MCI设备的规格信息保存在CAPTRUEPARMS数据结构体的数据成员中。MCI兼容的视频源包括录像机(VCR)和光碟。如果fMCIControl数据成员为TRUE,捕获窗口采用MCI操作。捕获窗口使用dwMCIStartTime和dwMCIStopTime来获得开始和结束位置(毫秒)。 如果fMCIControl数据成员的值为FALSE, dwMCIStartTime和dwMCIStopTime的值将被忽略不见。
+你可以使用Media Player 去快速检查MCI设备是否正确地连接到了你的系统上，如果在视频显示显示了图像，就表示这个视频源正确连接到了捕获硬件上。
+在步进帧(step-frame)捕获情况下， the capture window synchronizes the capture operation and compensates for the delays associated with positioning the MCI video source and initializing the resources required for capturing data. In addition, the capture window ensures that no frames are dropped; it steps through the video frames individually, ensuring that the frame is captured and stored before capturing the next frame in the video stream.
+步进帧(step-frame)捕获控制的规格信息保存在CAPTRUEPARMS数据结构体的数据成员中。步进帧(step-frame)捕获除了使用视频捕获要用的数据成员外，还使用其他的数据成员：fStepMCIDevice, fStepCaptureAt2x, 和 wStepCaptureAverageFrames。如果数据成员fStepMCIDevice的值为TRUE，捕获窗口采用步进帧(step-frame)捕获。捕获窗口将使用这两个参数来指定捕获的开始和结束位置(dwMCIStartTime和dwMCIStopTime 毫秒)。捕获窗口使用fStepCaptureAt2x 来决定捕获硬件捕获的视频帧使用两个普通的分辨率。使用 wStepCaptureAverageFrames 来指定捕获时每帧图像使用的时间大小。
+       如果在一个步进帧(step-frame)捕获中，指定fStepCaptureAt2x为TRUE,那么捕获硬件将使用两个指定的解析度来进行捕获(高和宽的解析度都是双倍的)。它使用软件，在指定的解析度的基础上改写图像的象素，让其成为更高解析度的图像。如果硬件不支持基于硬件的批量处理，你也可以使用该选项。并且捕获为RGB格式。
+
+注意：  如果你的硬件步支持基于硬件的批量处理(hardware-based decimation), it can capture samples at a higher rate than specified and use these additional samples to obtain color definitions that are more consistent with the original image. The additional samples are discarded after they are used, and the hardware passes samples to the capture driver at the specified rate。
+
+如果指定了步进帧捕获， wStepCaptureAverageFrames 成员用于指定捕获一帧图像要使用的时间,它是一个采样的标准时间。以后捕获图像捕获平均时间都会基于这个时间。采用这种机制，降会减少在一个图像帧的随机数字化噪音。这个数据成员的标准值是5。
+关于MCI的信息可以查看MSDN上的信息。
+
+3.1.7高级捕获选项
+
+这节描述在一个捕获操作中，你还可以进行的其他选择。
+l         测量视频质量
+l         用户初始化捕获
+l         和调色板一起工作
+l         在AVI文件中的嵌入信息块
+l         用户数据消息(Messages)
+
+测量视频质量
+测量视频质量的一个方法是去限定在一个捕获操作期间丢掉的捕获图像帧的数字。当流捕获完成后，质量 = 丢掉的帧 / 所有的帧。如果这个数(百分数)大于wPercentDropForError的值，AVICap将发一个错误信息给错误回调函数。WPercentDropForError是CAPTUREPARMS数据结构体的一个数据成员。
+通过WM_CAP_GET_SEQUENCE_SETUP消息(capCaptureGetSetup宏)可以得到当前设定的丢掉帧的限定值。同样对wPercentDropForError进行修改，再把修改后的数据结构体发送给捕获窗体就可以完成对限定值的修改。WM_CAP_GET_SEQUENCE_SETUP消息(capCaptureSetSetup), wPercentDropForErrorm默认值10 (10％)。
+
+用户初始化捕获
+    通过WM_CAP_GET_SEQUENCE_SETUP消息(capCaptureGetSetup宏)可以得到当前用户初始化捕获的状态值。该值存放在fMakeUserHitOKToCapture中。在开始一个捕获会话前，设置该值为TRUE，可以为用户提供精确的控制。系统为所有的音视频分配好数据缓存区后，AVICap会显示一个对话框。它让用户清除因为软件初始化导致的捕获延迟。如果你的应用程序为视频数据分配的数据缓存区很小，那么这个对话框可能就没的必要了。该值的默认值是FALSE。
+
+和调色板一起工作
+       最初，如果视频捕获格式需要一个调色板，那么捕获窗口将使用捕获驱动提供的调色板来代替。这个调色板可能由灰度值，或者可选的彩色值组成。使用WM_CAP_PAL_PASTE或者WM_CAP_PAL_OPEN消息(capPalettePaste或capPaletteOpen)可以获得一个现存的调色板去替换默认的调色板。你还可以创建一个自定义的调色板去替换默认的调色板，你要使用WM_CAP_PAL_AUTOCREATE 或者 WM_CAP_PAL_MANUALCREATE消息 ( capPaletteAuto 或 capPaletteManual )。当你替换了调色板后，捕获窗体和驱动程序将使用替换后的调色板，直到你创建或打开其他的调色板为止。
+
+WM_CAP_PAL_AUTOCREATE 或者 WM_CAP_PAL_MANUALCREATE 消息将创建一个基于当前视频输入最优化的调色板。这个自定义的调色板将为视频提供一个最好的颜色逼真度，因为这个调色板的颜色是基于这个视频的。捕获窗口创建一个采样颜色的3维柱状图。它会减小真实颜色和渐近色间的值。
+
+在发送WM_CAP_PAL_AUTOCREATE消息时, 你必须指定AVICap采样的帧数以及调色板的颜色尺寸。在指定帧数时，要保证帧数足够大以保证所有的视频颜色可以被采样收集到。
+    使用WM_CAP_PAL_MANUALCREATE消息可以对当前帧进行采样。通过该消息，进行几次手动选择帧采样操作，你可以创建自己的调色板，它包含了你想要的颜色信息。
+
+一个调色板可以包含256种颜色。如果你要合并调色板，或者在视频队列中同时在显示其他视频或图像。你可以去使用一个小的颜色集合，这样不同图像或视频的颜色就可以共存了。
+使用WM_CAP_PAL_SAVE消息(capPaletteSave)，可以保促一个新的调色板。通过WM_CAP_PAL_OPEN消息还可以得到当前的调色板。你可以在调色板处理前保存一个调色板，或者为其他应用程序使用去保存一个调色板。
+
+使用WM_CAP_PAL_PASTE可以把剪贴板中的调色板粘贴到捕获窗口中。捕获窗口通过这个调色板到捕获驱动。其他程序可以拷贝调色板到剪贴板中。你也可以把调色板粘贴到剪贴板中。使用WM_CAP_ENDIT_COPY消息(capEditCopy)。它将拷贝视频缓存区(包括调色板)到剪贴区。
+
+在AVI文件中的嵌入信息块
+你可以在一个AVI文件中插入信息块，比如文本或者自定义的数据。通过使用下面的消息：WM_CAP_FILE_SET_INFOCHUNK(capFileSetInfoChunk)。可以使用这个消息还可以清除掉一个AVI文件中的信息块。
+
+用户数据消息
+       通过使用WM_CAP_GET_USER_DATA和WM_CAP_SET_USER_DATA消息可以关联数据到一个捕获窗体。(capGetUserData 和 capSetUserData宏)。使用…Get…消息可以得到一个LONG数据值，可以通过_Set_消息去设置该值。
+
+3.1.8 AVICap回调函数
+       你的应用程序可以为一个捕获窗口注册一些回调函数，它们可以告诉你的应用程序一些变化。比如捕获状态发生变化了，或者有错误发生了，音视频缓存区可使用了。下面的消息设置回调函数。
+消           息
+
+说           明
+WM_CAP_SET_CALLBACK_CAPCONTROL
+CapSetCallbackOnCapControl 宏
+
+在应用程序中指定回调函数用于控制捕获的开始和结束。
+WM_CAP_SET_CALLBACK_ERROR
+CapSetCallbackOnError宏
+
+在应用程序中指定回调函数，当出错的时候就调用它。
+WM_CAP_SET_CALLBACK_FRAME
+CapSetCallbackOnFrame宏
+
+在应用程序中指定回调函数，当预览图像帧被捕获了的时候就调用它。
+WM_CAP_SET_CALLBACK_STATUS
+CapSetCallbackOnStatus宏
+
+在应用程序中指定回调函数，当状态(status)改变的时候就调用它。
+WM_CAP_SET_CALLBACK_VIDEOSTREAM
+CapSetCallbackOnVideoStream宏
+
+在应用程序中指定回调函数，在流捕获期间，当一个新的视频缓存区可用的时候就调用它。
+WM_CAP_SET_CALLBACK_WAVESTREAM
+CapSetCallbackOnWaveStream宏
+
+在应用程序中指定回调函数，在流捕获期间，当一个新的音频缓存区可用的时候就调用它。
+WM_CAP_SET_CALLBACK_YIELD
+CapSetCallbackOnYield宏
+
+在应用程序中指定回调函数，在流捕获期间Yielding(产生?)
+
+精确捕获控制
+捕获窗口可以提供捕获回调函数，这个回调函数可以对流捕获的开始和结束时刻进行精确的控制。在捕获驱动程序(capture driver)完成所有缓存区分配和其他捕获准备后，捕获驱动程序就发送第一个消息给回调处理程序，把nState参数设置为：
+CONTROLCALLBACK_PREROLL
+这个消息告诉应用程序将要开启视频源了。(这个回调函数指定nState为它的第二个参数)回调函数将在开始时刻产生返回值。返回值为TRUE那么将继续捕获。为FALSE就中断捕获。一旦捕获开始，这个回调函数将频繁的调用，把nState设置为：
+CONTROLCALLBACK_CAPTURING
+将允许应用程序通过返回false去结束捕获。
+
+错 误
+       捕获窗口使用错误通知消息去告诉你的应用程序，发生了AVICap错误，比如磁盘空间已经用完了，尝试对一个只读文件进行写操作，不能访问硬件，掉帧太多。错误通知内容报价一个消息ID和一个格式化的文本字符(用来显示)。你的应用程序可以通过使用这个消息ID去过滤错误通报，还可以让该错误信息不显示给用户。消息ID为0表示一个新操作正在开始并且这个回调函数会清除掉所有的显示的错误信息。
+
+帧(Frame)
+       A capture window uses frame callback notification messages to notify your application when a new video frame is available. The capture window enables these callback notifications only if the preview rate is nonzero and streaming capture is not in progress.
+
+状态回调函数
+当视频捕获向磁盘写数据，或者在其他较长的操作期间，捕获窗口可以发送消息给状态回调函数通知你正在处理该操作的应用程序。状态信息包括一个消息ID和和一个格式化的文本字符(用来显示)。你的应用程序可以通过使用消息ID去过滤通报，还可以限制该信息是否显示给用户。在捕获操作期间，发给回调函数的第一个消息总是ID_CAP_GEGIN，最后一个总是ID_CAP_END。消息ID为0表示，一个新操作正在进行并且回调函数将清除当前状态。
+
+视频流
+       在流捕获期间，应用程序可以使用视频流回调函数去处理一个捕获的视频帧。视频窗体只能在每次向磁盘写数据帧前，调用视频流回调函数。
+
+音频流
+在流捕获期间，应用程序可以使用音频流回调函数去处理音频缓存区。视频窗体只能在每次向磁盘写数据帧前，调用音频流回调函数。
+
+Yield 回调函数
+应用程序在流捕获期间可以使用Yield回调函数。(Yield回调函数一般是由一个消息循环组成，可以调用PeekMessage,TranslateMessage,DispatchMessage)。捕获窗口在每次捕获视频帧时至少调用一次Yield回调函数。但是具体要调用多少次由帧率来决定。
+
+关闭回调函数
+你可以暂时或永久关闭所有的回调函数的功能，在发送消息设置回调函数的时候，用NULL替换调回调函数就可以了。
+
+void VideoCapture::SnatchImage(HWND ParentWnd, HDC DeviceDrawingContext)
+{ 
+
+    if(!Connected)
+    {
+        ConnectToVideoDriver(ParentWnd, VideoID);
+        return;
+    }
+    else
+       ISnatched  = capGrabFrameNoStop(VideoWnd);
+
+    if(ISnatched)
+    {
+        if(capEditCopy(VideoWnd))//到剪贴板
+            if(MessageBox(NULL, "已保存到系统剪贴板,显示于窗口不?/n[请在显示后再保存]", 
+                "Snatch  Succeeds", MB_YESNO | MB_ICONINFORMATION) == IDYES)
+            {
+                if(OpenClipboard(ParentWnd))
+                { 
+                  enImageShow();
+
+                  RECT windowRect;
+                  GetClientRect(ParentWnd, &windowRect);
+
+                  BmpHandle = (HBITMAP)GetClipboardData(CF_BITMAP);
+                  BmpDC = CreateCompatibleDC(DeviceDrawingContext);
+                  SelectObject(BmpDC, BmpHandle);
+                  BitBlt(DeviceDrawingContext, 10,10,windowRect.right-20, windowRect.bottom-50,BmpDC,0,0,SRCCOPY);
+                  CloseClipboard();
+
+                }
+                else
+                 MessageBox(NULL, " 剪贴板有问题 ", "Clipboard  Fails", MB_OK | MB_ICONINFORMATION);
+
+            }
+
+    }
+本文来源于ZwqXin http://www.zwqxin.com/ , 转载请注明
+原文地址：http://www.zwqxin.com/archives/image-processing/vfw-capture-try.html 

@@ -1,0 +1,8 @@
+openssl-1.1.0 
+ÍøÖ· https://www.openssl.org/source/
+dhcp-4.3.4 ÍøÖ· https://www.isc.org/downloads/dhcp/
+wpa_supplicant-2.5 
+ÍøÖ· http://www.linuxfromscratch.org/blfs/view/svn/basicnet/wpa_supplicant.html
+
+  libnl-3.2.28 ÍøÖ· http://www.linuxfromscratch.org/blfs/view/svn/basicnet/libnl.html
+  openssl-1.0.2h ÍøÖ· http://www.linuxfromscratch.org/blfs/view/svn/postlfs/openssl.html

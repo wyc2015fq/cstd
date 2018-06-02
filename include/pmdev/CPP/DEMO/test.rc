@@ -1,0 +1,740 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (P.R.C.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 4, 2\r\n"
+    "#pragma code_page(936)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\test.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""l.chs\\afxres.rc""          // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\test.ico"
+IDI_WEEKCHECKSELECT     ICON    DISCARDABLE     "res\\weekselect.ico"
+IDI_TIMEGROUP           ICON    DISCARDABLE     "res\\device.ico"
+IDI_TIMEGROUPSELECT     ICON    DISCARDABLE     "res\\deviceselect.ico"
+IDI_WEEKCHECK           ICON    DISCARDABLE     "res\\week.ico"
+IDI_RIGHT               ICON    DISCARDABLE     "res\\right.ico"
+IDI_RIGHTSELECT         ICON    DISCARDABLE     "res\\rightselect.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_TEST_DIALOG DIALOGEX 0, 0, 584, 392
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "人脸识别调试工具"
+FONT 9, "宋体"
+BEGIN
+    PUSHBUTTON      "删除",IDC_BUTTON_DEL_LOG,281,326,50,14,NOT WS_VISIBLE | 
+                    WS_DISABLED
+    CONTROL         "所有",IDC_RADIO_ALL,"Button",BS_AUTORADIOBUTTON | NOT 
+                    WS_VISIBLE | WS_DISABLED | WS_GROUP,227,308,30,10
+    CONTROL         "指定ID",IDC_RADIO_LOG_ID,"Button",BS_AUTORADIOBUTTON | 
+                    NOT WS_VISIBLE | WS_DISABLED,293,308,40,10
+    PUSHBUTTON      "下载",IDC_BUTTON_DL_IMAGE,478,194,50,14
+    CONTROL         "所有",IDC_RADIO_ALL_IMAGE,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,476,180,32,10
+    CONTROL         "指定ID",IDC_RADIO_IMAGE_ID,"Button",BS_AUTORADIOBUTTON,
+                    537,180,40,10
+    PUSHBUTTON      "搜索",IDC_BUTTON_SERCH,122,169,33,14
+    CONTROL         "List3",IDC_LIST_DEV,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,9,13,175,63
+    CONTROL         "List3",IDC_LIST_USER,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,9,288,508,56
+    GROUPBOX        "设备信息",IDC_STATIC,4,3,577,269
+    GROUPBOX        "用户信息",IDC_STATIC,4,276,576,113
+    PUSHBUTTON      "新增",IDC_BUTTON_NEW,9,348,50,14
+    PUSHBUTTON      "上传",IDC_BUTTON_UP,115,348,50,14
+    PUSHBUTTON      "下载",IDC_BUTTON_DOWN,168,348,50,14
+    CONTROL         "图片",IDC_CHECK_PIC,"Button",BS_AUTOCHECKBOX | WS_GROUP | 
+                    WS_TABSTOP,337,350,27,10
+    CONTROL         "特征数据",IDC_CHECK_FEAT,"Button",BS_AUTOCHECKBOX | 
+                    WS_GROUP | WS_TABSTOP,252,350,45,10
+    COMBOBOX        IDC_COMBO_CONDITION,299,369,105,68,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Static",IDC_STATIC_PIC,"Static",SS_LEFTNOWORDWRAP | 
+                    WS_BORDER | WS_GROUP,519,283,58,60
+    PUSHBUTTON      "删除",IDC_BUTTON_DEL,9,369,50,14
+    CONTROL         "本地",IDC_CHECK_LOCAL,"Button",BS_AUTOCHECKBOX | 
+                    WS_GROUP | WS_TABSTOP,62,371,28,10
+    CONTROL         "DSP",IDC_CHECK_DSP,"Button",BS_AUTOCHECKBOX | WS_GROUP | 
+                    WS_TABSTOP,93,371,23,10
+    PUSHBUTTON      "上传照片",IDC_BUTTON_PIC,119,369,50,14
+    GROUPBOX        "记录信息",IDC_STATIC,192,3,389,232
+    CONTROL         "List1",IDC_LIST_RECORD,"SysListView32",WS_BORDER | 
+                    WS_TABSTOP,197,13,276,119
+    LTEXT           "Static",IDC_STATIC_RECORD_PIC,483,13,84,63,WS_BORDER
+    CONTROL         "照片",IDC_CHECK_RECORD_PIC,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,477,122,26,10
+    COMBOBOX        IDC_COMBO_RECORD,487,213,80,75,CBS_DROPDOWNLIST | NOT 
+                    WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "下载",IDC_BUTTON_DLRECORD,509,120,31,14
+    PUSHBUTTON      "删除",IDC_BUTTON_DELRECORD,543,120,34,14
+    CONTROL         "DateTimePicker2",IDC_DATETIME_START_REC,
+                    "SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,511,79,
+                    62,15
+    CONTROL         "DateTimePicker2",IDC_DATETIME_END_REC,"SysDateTimePick32",
+                    DTS_RIGHTALIGN | WS_TABSTOP,511,99,62,15
+    LTEXT           "起始日期",IDC_STATIC,475,82,33,8
+    LTEXT           "终止日期",IDC_STATIC,475,103,33,8
+    CONTROL         "DateTimePicker2",IDC_DATETIME_START_USER,
+                    "SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,172,369,
+                    55,15
+    CONTROL         "DateTimePicker2",IDC_DATETIME_END_USER,
+                    "SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,230,369,
+                    62,15
+    PUSHBUTTON      "时间组",IDC_BUTTON_TIMEGROUP,414,368,50,14
+    PUSHBUTTON      "权限",IDC_BUTTON_RRIGHT,466,368,50,14
+    PUSHBUTTON      "长开门",IDC_BUTTON_OPEN_DOOR,247,255,46,14
+    PUSHBUTTON      "修改",IDC_BUTTON_EDIT,62,348,50,14
+    CONTROL         "IPAddress1",IDC_IPADDRESS_ADDR,"SysIPAddress32",
+                    WS_TABSTOP,59,150,100,15
+    PUSHBUTTON      "设置",IDC_BUTTON_SETADDR,57,169,33,14
+    LTEXT           "区域地址",IDC_STATIC,15,154,33,8
+    LTEXT           "设备地址",IDC_STATIC,15,188,33,8
+    CONTROL         "IPAddress1",IDC_IPADDRESS_ADDR2,"SysIPAddress32",
+                    WS_TABSTOP,58,186,100,15
+    PUSHBUTTON      "连接",IDC_BUTTON_CONNECT,57,204,33,14
+    PUSHBUTTON      "断开",IDC_BUTTON_DISCONNECT,122,204,33,14
+    CONTROL         "List1",IDC_LIST_LOG,"SysListView32",LVS_REPORT | NOT 
+                    WS_VISIBLE | WS_DISABLED | WS_BORDER | WS_TABSTOP,41,313,
+                    276,8
+    PUSHBUTTON      "下载",IDC_BUTTON_DL_LOG,229,326,50,14,NOT WS_VISIBLE | 
+                    WS_DISABLED
+    PUSHBUTTON      "程序更新",IDC_BUTTON_UPDATE,191,237,46,14
+    EDITTEXT        IDC_EDIT_FILE,337,312,117,14,ES_AUTOHSCROLL | NOT 
+                    WS_VISIBLE | WS_DISABLED
+    PUSHBUTTON      "动态密码",IDC_BUTTON_FILE,303,255,50,14,NOT WS_VISIBLE
+    PUSHBUTTON      "用户组",IDC_BUTTON_UG,520,368,50,14
+    CONTROL         "List1",IDC_LIST_IMAGE,"SysListView32",WS_BORDER | 
+                    WS_TABSTOP,197,136,276,94
+    PUSHBUTTON      "删除",IDC_BUTTON_DEL_IMAGE,528,194,50,14
+    LTEXT           "ID",IDC_STATIC,477,141,9,8
+    EDITTEXT        IDC_EDIT_ID,503,138,73,14,ES_AUTOHSCROLL
+    LTEXT           "下载量",IDC_STATIC,477,159,25,8
+    EDITTEXT        IDC_EDIT_COUNT,503,158,73,14,ES_AUTOHSCROLL
+    CONTROL         "IPAddress1",IDC_IPADDRESS_S,"SysIPAddress32",WS_TABSTOP,
+                    60,114,100,15
+    LTEXT           "服务器地址",IDC_STATIC,14,117,41,8
+    PUSHBUTTON      "连接",IDC_BUTTON_CN,57,132,33,14
+    PUSHBUTTON      "断开",IDC_BUTTON_DCN,122,132,33,14
+    GROUPBOX        "网络",IDC_STATIC,9,102,176,120
+    GROUPBOX        "U盘",IDC_STATIC,9,221,176,48
+    LTEXT           "数据路径",IDC_STATIC,16,236,33,8
+    CONTROL         "网络",IDC_RADIO_NET,"Button",BS_AUTORADIOBUTTON,8,85,32,
+                    10
+    CONTROL         "U盘",IDC_RADIO_UDISK,"Button",BS_AUTORADIOBUTTON,60,85,
+                    28,10
+    EDITTEXT        IDC_EDIT_UPATH,57,234,99,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "浏览",IDC_BUTTON_UPATH,158,234,24,14
+    PUSHBUTTON      "连接",IDC_BUTTON_CN_UDISK,57,251,33,14
+    PUSHBUTTON      "长关门",IDC_BUTTON_CANCLE,247,237,46,14
+    PUSHBUTTON      "远程开门",IDC_BUTTON_REMOTE,423,237,50,14
+    PUSHBUTTON      "远程关门",IDC_BUTTON_R_CLOSE,363,237,50,14
+    PUSHBUTTON      "正常",IDC_BUTTON_NOMAL,303,237,50,14
+    PUSHBUTTON      "启动视频",IDC_BUTTON_VIDEO,135,83,50,14
+    PUSHBUTTON      "采集",IDC_BUTTON_CAP,466,348,50,14
+    EDITTEXT        IDC_EDIT_ID_USER,517,348,57,14,ES_AUTOHSCROLL
+    CONTROL         "批量",IDC_CHECK_USER_EX,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,221,350,28,10
+    CONTROL         "文字信息",IDC_CHECK_TEXT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,410,350,43,10
+    EDITTEXT        IDC_EDIT_FEAT,300,348,34,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_PIC,367,348,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "重启",IDC_BUTTON_REBOOT,191,255,46,14
+END
+
+IDD_DIALOG_DEVSTATIS DIALOG DISCARDABLE  0, 0, 250, 135
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    LTEXT           "总用户数",IDC_STATIC,30,7,48,8
+    LTEXT           "记录保存天数",IDC_STATIC,30,41,51,8
+    LTEXT           "未采集用户数",IDC_STATIC,30,23,54,8
+    LTEXT           "总记录数",IDC_STATIC,30,59,48,8
+    EDITTEXT        IDC_EDIT_TOTAL_USER,115,3,94,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_REC_DATE,115,38,94,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_NO_FEAT,115,20,94,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TOTAL_REG,115,56,94,14,ES_AUTOHSCROLL
+    LTEXT           "总报警记录数",IDC_STATIC,30,77,46,8
+    LTEXT           "总操作日志数目",IDC_STATIC,30,95,53,8
+    LTEXT           "总变更注册照",IDC_STATIC,30,113,46,8
+    EDITTEXT        IDC_EDIT_TOTAL_ALARM,114,73,95,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TOTAL_LOG,114,91,95,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TOTAL_IMAGE,114,109,95,14,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_DEVSET DIALOG DISCARDABLE  0, 0, 223, 351
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    LTEXT           "基本设置",IDC_STATIC,21,7,31,8
+    LTEXT           "韦根协议设置",IDC_STATIC,21,191,46,8
+    LTEXT           "韦根协议内容",IDC_STATIC,21,220,46,8
+    CONTROL         "输出信号",IDC_CHECK_WG_A,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,190,46,10
+    CONTROL         "输出34",IDC_CHECK_WG_B,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,154,190,39,10
+    CONTROL         "输出韦根内容",IDC_CHECK_WG_C,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,203,61,10
+    EDITTEXT        IDC_EDIT_CONTENT,82,216,70,14,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "上传",IDC_BUTTON_UP,27,326,50,14
+    PUSHBUTTON      "下载",IDC_BUTTON_DOWN,147,326,50,14
+    CONTROL         "输出用户ID",IDC_CHECK_WG_D,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,154,204,54,10
+    LTEXT           "默认权限",IDC_STATIC,21,290,31,8
+    CONTROL         "无权限",IDC_RADIO_NO_RIGHT,"Button",BS_AUTORADIOBUTTON,
+                    81,290,38,10
+    CONTROL         "单一开门权限",IDC_RADIO_SINGLE_RIGHT,"Button",
+                    BS_AUTORADIOBUTTON,128,290,61,10
+    CONTROL         "保存识别失败记录",IDC_CHECK_A,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,6,75,10
+    CONTROL         "超级密码开门有效",IDC_CHECK_B,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,19,75,10
+    CONTROL         "紧急锁定",IDC_CHECK_D,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,40,46,10
+    CONTROL         "实时动态记录显示",IDC_CHECK_E,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,53,75,10
+    CONTROL         "实时人脸特征加载",IDC_CHECK_F,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,66,75,10
+    CONTROL         "采集用户同步",IDC_CHECK_G,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,79,61,10
+    CONTROL         "开启门磁检测报警",IDC_CHECK_H,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,92,75,10
+    CONTROL         "开启胁迫开门功能",IDC_CHECK_I,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,105,75,10
+    CONTROL         "硬件报警蜂鸣器开启",IDC_CHECK_C,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,82,30,83,10
+    LTEXT           "门磁延时时间",IDC_STATIC,20,237,46,8
+    EDITTEXT        IDC_EDIT_MANEGET,82,234,70,14,ES_AUTOHSCROLL
+    LTEXT           "电锁持续时间",IDC_STATIC,20,255,46,8
+    EDITTEXT        IDC_EDIT_LOCK,82,253,70,14,ES_AUTOHSCROLL
+    LTEXT           "超级密码",IDC_STATIC,20,272,31,8
+    EDITTEXT        IDC_EDIT_PWD,82,270,70,14,ES_AUTOHSCROLL
+    LTEXT           "人脸验证模式",IDC_STATIC,21,140,46,8
+    LTEXT           "刷卡验证",IDC_STATIC,21,158,31,8
+    COMBOBOX        IDC_COMBO_VALIDE,82,139,87,63,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "开启",IDC_CHECK_OPEN_A,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,173,140,31,10
+    CONTROL         "开启",IDC_CHECK_OPEN_B,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,158,31,10
+    LTEXT           "工号验证",IDC_STATIC,21,172,31,8
+    CONTROL         "开启",IDC_CHECK_OPEN_C,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,171,31,10
+    CONTROL         "远程控制采集的用户是否保存到DSP",IDC_CHECK_J,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,82,118,132,10
+END
+
+IDD_DIALOG_USER DIALOG DISCARDABLE  0, 0, 224, 225
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 9, "宋体"
+BEGIN
+    LTEXT           "ID",IDC_STATIC,34,10,9,8
+    LTEXT           "卡号",IDC_STATIC,34,30,17,8
+    LTEXT           "姓名",IDC_STATIC,34,50,17,8
+    LTEXT           "部门",IDC_STATIC,34,70,17,8
+    LTEXT           "权限",IDC_STATIC,34,90,17,8
+    LTEXT           "类型",IDC_STATIC,34,127,17,8
+    EDITTEXT        IDC_EDIT_ID,95,7,89,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CARD,95,26,89,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_NAME,95,46,89,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_DEP,95,66,89,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "保存",IDC_BUTTON_SAVE,21,200,50,14
+    PUSHBUTTON      "取消",IDC_BUTTON_CANCEL,145,200,50,14
+    LTEXT           "失效时间",IDC_STATIC,34,147,33,8
+    EDITTEXT        IDC_EDIT_INVALIDETIME,95,144,89,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_CHECK_BLACK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    193,165,16,8
+    LTEXT           "黑名单",IDC_STATIC,119,166,25,8
+    COMBOBOX        IDC_COMBO_RIGHT,95,87,89,57,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "超管",IDC_RADIO_SUPERADMIN,"Button",BS_AUTORADIOBUTTON,
+                    94,125,32,10
+    CONTROL         "普管",IDC_RADIO_ADMIN,"Button",BS_AUTORADIOBUTTON,130,
+                    125,32,10
+    CONTROL         "普通用户",IDC_RADIO_NOMAL,"Button",BS_AUTORADIOBUTTON,
+                    166,125,48,10
+    CONTROL         "",IDC_CHECK_MUTEX,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    95,166,16,8
+    LTEXT           "混合模式",IDC_STATIC,34,167,33,8
+    LTEXT           "用户组",IDC_STATIC,33,108,25,8
+    COMBOBOX        IDC_COMBO_UG,95,107,89,30,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "卡挂失",IDC_STATIC,35,185,25,8
+    CONTROL         "",IDC_CHECK_CARD_INVALIDE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,95,185,16,8
+    LTEXT           "卡失效时间不判断",IDC_STATIC,119,183,65,8
+    CONTROL         "",IDC_CHECK_IDLINE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,193,182,11,10
+END
+
+IDD_DIALOG_TIME_GROUP DIALOG DISCARDABLE  0, 0, 318, 293
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    GROUPBOX        "时间组",IDC_STATIC,6,12,109,262
+    GROUPBOX        "新建时间组",IDC_STATIC,128,12,188,263
+    PUSHBUTTON      "新建",IDC_BUTTON_NEW,11,24,30,14
+    PUSHBUTTON      "删除",IDC_BUTTON_DELETE,46,24,30,14
+    PUSHBUTTON      "保存",IDC_BUTTON_SAVE,139,24,50,14
+    PUSHBUTTON      "取消",IDC_BUTTON_CANCEL,191,24,50,14
+    CONTROL         "Tree1",IDC_TREE_TIMEGROUP,"SysTreeView32",WS_BORDER | 
+                    WS_TABSTOP,11,45,101,224
+    CONTROL         "Tree2",IDC_TREE_WEEK,"SysTreeView32",TVS_HASLINES | 
+                    TVS_CHECKBOXES | WS_BORDER | WS_TABSTOP,140,145,103,124
+    LTEXT           "名    称",IDC_STATIC,140,48,37,8
+    EDITTEXT        IDC_EDIT_NAME,186,47,56,14,ES_AUTOHSCROLL
+    LTEXT           "开始日期",IDC_STATIC,140,70,31,8
+    LTEXT           "结束日期",IDC_STATIC,140,92,31,8
+    CONTROL         "DateTimePicker1",IDC_DATETIMEPICKER_START,
+                    "SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,186,66,
+                    56,15
+    CONTROL         "DateTimePicker2",IDC_DATETIMEPICKER_END,
+                    "SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,186,90,
+                    56,15
+    CONTROL         "检测年",IDC_CHECK_YEAR,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,141,113,38,10
+    CONTROL         "检测月",IDC_CHECK_MONTH,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,180,113,38,10
+    CONTROL         "检测日",IDC_CHECK_DAY,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,219,113,38,10
+    CONTROL         "检测星期",IDC_CHECK_WEEK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,141,131,46,10
+    PUSHBUTTON      "上传",IDC_BUTTON_UPLOAD,81,24,30,14,NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT_S_HOUR,244,66,12,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_S_MINI,265,66,12,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_S_SECOND,288,66,12,14,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    LTEXT           "h",IDC_STATIC,258,68,8,8
+    LTEXT           "m",IDC_STATIC,279,68,8,8
+    LTEXT           "s",IDC_STATIC,302,68,8,8
+    EDITTEXT        IDC_EDIT_E_HOUR,244,90,12,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_E_MINI,265,90,12,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_E_SECOND,288,90,12,14,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    LTEXT           "h",IDC_STATIC,258,92,8,8
+    LTEXT           "m",IDC_STATIC,279,92,8,8
+    LTEXT           "s",IDC_STATIC,302,92,8,8
+    CONTROL         "检测时间",IDC_CHECK_TIME,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,258,113,46,10
+    CONTROL         "节假日",IDC_CHECK_HOLIDY,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,252,49,38,10
+END
+
+IDD_DIALOG_RIGHT DIALOG DISCARDABLE  0, 0, 359, 240
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    PUSHBUTTON      "新增",IDC_BUTTON_NEW,11,17,36,14
+    PUSHBUTTON      "删除",IDC_BUTTON_DELETE,51,17,36,14
+    PUSHBUTTON      "上传",IDC_BUTTON_DOWN,91,17,36,14,NOT WS_VISIBLE
+    GROUPBOX        "权限",IDC_STATIC,6,6,126,228
+    GROUPBOX        "权限编辑",IDC_STATIC,140,7,203,228
+    LTEXT           "名    称",IDC_STATIC,145,38,32,8
+    EDITTEXT        IDC_EDIT_NAME,186,35,77,14,ES_AUTOHSCROLL
+    CONTROL         "节假日有效",IDC_CHECK_HOLIDY_VALIDATE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,150,169,53,10
+    PUSHBUTTON      "保存",IDC_BUTTON_SAVE,145,17,36,14
+    CONTROL         "List1",IDC_LIST_TIMEGROUP,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,147,62,188,79
+    CONTROL         "Tree1",IDC_TREE_RIGHT,"SysTreeView32",WS_BORDER | 
+                    WS_TABSTOP,11,39,116,189
+    GROUPBOX        "时间组",IDC_STATIC,143,51,197,96
+    GROUPBOX        "配置",IDC_STATIC,143,150,197,84
+    CONTROL         "电锁输出",IDC_CHECK_MANEGT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,150,186,46,10
+    CONTROL         "电锁辅助输出",IDC_CHECK_OUT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,150,203,61,10
+END
+
+IDD_DIALOG_UDLOAD DIALOG DISCARDABLE  0, 0, 178, 168
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    CONTROL         "List1",IDC_LIST_TG,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,10,7,159,123
+    PUSHBUTTON      "上传",IDC_BUTTON_UPLOAD,9,141,50,14
+    PUSHBUTTON      "下载",IDC_BUTTON_DOWNLOAD,63,141,50,14
+    PUSHBUTTON      "删除",IDC_BUTTON_DEL,119,141,50,14
+END
+
+IDD_DIALOG_DSP_AUTH DIALOG DISCARDABLE  0, 0, 163, 96
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    DEFPUSHBUTTON   "设置",IDOK,56,74,50,14
+    LTEXT           "用户名",IDC_STATIC,18,22,23,8
+    LTEXT           "密  码",IDC_STATIC,18,46,24,8
+    EDITTEXT        IDC_EDIT_USER,62,19,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_PWS,62,44,74,14,ES_PASSWORD | ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_USERGROUP DIALOG DISCARDABLE  0, 0, 311, 221
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    GROUPBOX        "用户组",IDC_STATIC,6,6,83,209
+    GROUPBOX        "新建用户组",IDC_STATIC,94,7,215,209
+    PUSHBUTTON      "新建",IDC_BUTTON_NEW,9,20,35,14
+    PUSHBUTTON      "删除",IDC_BUTTON_DEL,51,20,35,14
+    PUSHBUTTON      "保存",IDC_BUTTON_SAVE,100,20,35,14
+    PUSHBUTTON      "取消",IDC_BUTTON_CANCEL,143,20,35,14
+    LTEXT           "名称",IDC_STATIC,99,44,16,8
+    EDITTEXT        IDC_EDIT_NAME,129,41,49,14,ES_AUTOHSCROLL
+    CONTROL         "组合有序",IDC_CHECK_ORDER,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,187,43,49,10
+    CONTROL         "List1",IDC_LIST_USER,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,97,91,69,120
+    CONTROL         "List1",IDC_LIST_SEL_USER,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,198,91,105,120
+    LTEXT           "普通有效用户",IDC_STATIC,99,60,46,8
+    LTEXT           "强制有效用户",IDC_STATIC,99,76,46,8
+    EDITTEXT        IDC_EDIT_N,160,58,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_F,160,73,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "--》",IDC_BUTTON_R,170,120,23,14
+    PUSHBUTTON      "《--",IDC_BUTTON_L,170,153,23,14
+    CONTROL         "Tree1",IDC_TREE_LIST,"SysTreeView32",WS_BORDER | 
+                    WS_TABSTOP,9,42,77,170
+END
+
+IDD_DIALOG_VIDEO DIALOG DISCARDABLE  0, 0, 539, 371
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    LISTBOX         IDC_LIST_IP,2,2,88,232,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Static",IDC_STATIC_VIDEO1,94,6,143,159,WS_BORDER
+    LTEXT           "Static",IDC_STATIC_VIDEO2,242,6,143,159,WS_BORDER
+    LTEXT           "Static",IDC_STATIC_VIDEO3,391,6,143,159,WS_BORDER
+    LTEXT           "Static",IDC_STATIC_VIDEO4,94,186,143,159,WS_BORDER
+    LTEXT           "Static",IDC_STATIC_VIDEO5,242,186,143,159,WS_BORDER
+    LTEXT           "Static",IDC_STATIC_VIDEO6,391,186,143,159,WS_BORDER
+    PUSHBUTTON      "启动",IDC_BUTTON_VIDEO1,135,168,50,14
+    PUSHBUTTON      "启动",IDC_BUTTON_VIDEO2,286,168,50,14
+    PUSHBUTTON      "启动",IDC_BUTTON_VIDEO3,438,168,50,14
+    PUSHBUTTON      "启动",IDC_BUTTON_VIDEO4,135,349,50,14
+    PUSHBUTTON      "启动",IDC_BUTTON_VIDEO6,438,349,50,14
+    PUSHBUTTON      "启动",IDC_BUTTON_VIDEO5,286,349,50,14
+END
+
+IDD_WebServiceMrg DIALOG DISCARDABLE  0, 0, 315, 289
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "网络设置"
+FONT 10, "宋体"
+BEGIN
+    LTEXT           "URL地址:",IDC_STATIC,10,119,35,8
+    EDITTEXT        IDC_WebURL1Edt,52,118,250,14,ES_AUTOHSCROLL
+    CONTROL         "加载用户",IDC_LoadChk,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,52,145,46,10
+    CONTROL         "写记录",IDC_WriteRecord,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,174,145,38,10
+    CONTROL         "写用户",IDC_WriteUserChk,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,120,145,38,10
+    CONTROL         "时间同步",IDC_SyncTimeChk,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,231,145,46,10
+    GROUPBOX        "Web服务一",IDC_STATIC,6,104,298,76
+    LTEXT           "URL地址:",IDC_STATIC,10,206,35,8
+    EDITTEXT        IDC_WebURL1Edt2,52,204,248,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CONTROL         "加载用户",IDC_LoadChk2,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,52,224,46,10
+    CONTROL         "写记录",IDC_WriteRecord2,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,176,224,38,10
+    CONTROL         "写用户",IDC_WriteUserChk2,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,120,224,38,10
+    CONTROL         "时间同步",IDC_SyncTimeChk2,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,231,224,46,10
+    GROUPBOX        "Web服务二",IDC_STATIC,6,186,298,75
+    PUSHBUTTON      "上传",IDC_OkBnt,175,263,50,14
+    PUSHBUTTON      "下载",IDC_CancelBnt,254,263,50,14
+    GROUPBOX        "网络地址",IDC_STATIC,6,7,298,89
+    LTEXT           "IP地址",IDC_STATIC,10,22,40,8
+    CONTROL         "IPAddress1",IDC_IPAdr,"SysIPAddress32",WS_TABSTOP,52,20,
+                    100,15
+    LTEXT           "网关",IDC_STATIC,10,47,40,8
+    CONTROL         "IPAddress1",IDC_GateWay,"SysIPAddress32",WS_TABSTOP,52,
+                    45,100,15
+    LTEXT           "多播地址",IDC_STATIC,10,73,41,8
+    CONTROL         "IPAddress1",IDC_MulitIP,"SysIPAddress32",WS_TABSTOP,52,
+                    73,100,15
+    LTEXT           "子网掩码",IDC_STATIC,157,47,40,8
+    CONTROL         "IPAddress1",IDC_SubMask,"SysIPAddress32",WS_TABSTOP,200,
+                    45,100,15
+    LTEXT           "DNS地址",IDC_STATIC,158,73,32,8
+    CONTROL         "IPAddress1",IDC_DnsIPs,"SysIPAddress32",WS_TABSTOP,200,
+                    73,100,15
+    CONTROL         "服务权限验证",IDC_ServiceVerifyChk,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,52,165,61,10
+    CONTROL         "只上传文字信息",IDC_OnlyUpLoadTextChk,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,120,165,68,10
+    CONTROL         "启用服务",IDC_EnaleWebServiceChk,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,231,165,46,10
+    CONTROL         "服务权限验证",IDC_ServiceVerifyChk2,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,52,243,61,10
+    CONTROL         "只上传文字信息",IDC_OnlyUpLoadTextChk2,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,120,243,68,10
+    CONTROL         "启用服务",IDC_EnaleWebServiceChk2,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,231,243,46,10
+END
+
+IDD_CreateDynamicDlg DIALOG DISCARDABLE  0, 0, 211, 107
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "动态密码"
+FONT 10, "宋体"
+BEGIN
+    EDITTEXT        IDC_TIMEPWD,38,13,165,14,ES_AUTOHSCROLL
+    CONTROL         "采用系统时间",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | NOT 
+                    WS_VISIBLE | WS_TABSTOP,148,38,55,10
+    CONTROL         "DateTimePicker2",IDC_DATETIMEPICKER2,"SysDateTimePick32",
+                    DTS_RIGHTALIGN | WS_TABSTOP,38,37,59,15
+    CONTROL         "DateTimePicker1",IDC_DATETIMEPICKER1,"SysDateTimePick32",
+                    DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,97,37,48,
+                    15
+    PUSHBUTTON      "生成",IDOK,95,85,50,14
+    PUSHBUTTON      "退出",IDCANCEL,148,85,50,14
+    LTEXT           "动态口令",IDC_STATIC,3,63,31,8
+    LTEXT           "设备序号",IDC_STATIC,3,15,33,8
+    LTEXT           "设备时间",IDC_STATIC,3,39,31,8
+    EDITTEXT        IDC_EDIT2,38,61,107,14,ES_AUTOHSCROLL | ES_READONLY
+END
+
+IDD_PassWordDlg DIALOG DISCARDABLE  0, 0, 187, 94
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "请输入密码！"
+FONT 10, "宋体"
+BEGIN
+    PUSHBUTTON      "确认",IDOK,47,54,50,14
+    PUSHBUTTON      "取消",IDCANCEL,109,54,50,14
+    EDITTEXT        IDC_EDIT1,42,27,122,14,ES_AUTOHSCROLL | ES_NUMBER
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "test Microsoft 基础类应用程序\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "test\0"
+            VALUE "LegalCopyright", "版权所有 (C) 2010\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "test.EXE\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "test 应用程序\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_TEST_DIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 583
+        BOTTOMMARGIN, 389
+    END
+
+    IDD_DIALOG_DEVSTATIS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        BOTTOMMARGIN, 134
+    END
+
+    IDD_DIALOG_UDLOAD, DIALOG
+    BEGIN
+        TOPMARGIN, 1
+    END
+
+    IDD_WebServiceMrg, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 287
+    END
+
+    IDD_PassWordDlg, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 184
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 87
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU MENU DISCARDABLE 
+BEGIN
+    POPUP "test"
+    BEGIN
+        MENUITEM "统计信息",                    IDM_DEVSTATIS
+        MENUITEM "工作属性",                    IDM_DEVSET
+        MENUITEM "网络设置",                    IDM_NETWORKSET
+        MENUITEM "时间同步",                    IDR_MENU_SYN_TIME
+        MENUITEM "时间组",                      IDR_TIMEGROUP
+        MENUITEM "权限",                        IDR_RIGHT
+        MENUITEM "用户组",                      IDR_UGROUP
+        MENUITEM "格式化",                      IDR_DEV_FORMAT
+        MENUITEM "设置验证",                    IDR_DEVAUTH
+        MENUITEM "断开连接",                    IDR_DEVCUT
+        MENUITEM SEPARATOR
+        MENUITEM "获取动态密码",                IDR_DMYPWD
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_TEST_DIALOG DLGINIT
+BEGIN
+    IDC_COMBO_CONDITION, 0x403, 9, 0
+0xf9cb, 0xc3d3, 0xc3d3, 0xa7bb, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_FOLDERS             BITMAP  DISCARDABLE     "res\\folders.bmp"
+#endif    // Chinese (P.R.C.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE 4, 2
+#pragma code_page(936)
+#endif //_WIN32
+#include "res\test.rc2"  // non-Microsoft Visual C++ edited resources
+#include "l.chs\afxres.rc"          // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

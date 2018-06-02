@@ -1,0 +1,95 @@
+Peak 1
+U' R2 U2 B2 D' R2 F2 U' R' F' U2 L' B F' R L2 F D' U' (19)
+Peak 2
+U B2 F2 D' R L U' R L D B' F' U' R L B F (17)
+Peak 3
+U' L2 D' B2 D L2 U' L' B' D U' R' B' U F D F2 R' U (19)
+Peak 4
+U' R2 D B2 R2 D R2 U' L' F2 L F R B' D' L R2 U (18)
+Peak 5
+U L2 U R2 B R' B2 L2 F D' B' L U2 B R' U B' U2 (18)
+Peak 6
+B2 F2 U B2 F2 L2 R2 U' L2 R F L' F' R B R' F D U' (19)
+Peak 7
+L2 D' F D F' R2 D' U' F' L R B D2 L' D' L U (17)
+Peak 8
+D2 L2 D U' F2 U L' F2 D' L B' R' U' F' R D B L2 R2 (19)
+Peak 9
+R2 D B2 R U' F L' R2 D U' B' R F2 L' U' B' U' (17)
+Peak 10
+B2 D B U L R' B' F' R' B' R' D U' L' U' L (16)
+Solid Slice
+F R L F U’ D’ R L F u d b u F2 B2 u D F2 B2 D (20)
+Striped Cube 1
+D' F D' L B D2 F2 U R B' U R2 F D' R F U2 (17)
+Striped Cube 2
+L U B2 L2 D2 B U B' D' R' B' F' U2 B2 U R (16)
+Striped Cube 3
+D' L' F2 L2 B F D R F L' F' R2 U2 F2 L' U' (16)
+Striped Cube 4
+B' R' D F' D2 F R2 D2 F' U2 F R' D F (14)
+Striped Cube 5
+F2 U' R2 F2 R F D2 U L B2 D2 B' D' L' (14)
+Striped Cube 6
+L' U2 R B2 R' F2 R B' F D' F' D U' B2 U2 R F2 U2 R (19)
+Striped Cube 7
+R2 B2 U' R U2 B' R B' L F D F2 L2 D' L B (16)
+Two Rings 1
+F2 D' R2 D' L' U' L' R B D' U B L F2 L U2 (16)
+Anaconda
+L B2 D R B' F D' L' R D' U F' R2 U' (14)
+Python
+U' R' F R D2 F D2 R F' R U' R2 F' U2 (14)
+Two Rings 2
+U' R2 F2 U2 L' D2 B' L2 U' L2 D2 L U2 F' U2 (15)
+2 Cubes and 6 small Cuboids
+D2 L D' B' D L' D2 U2 R' U F' U' R U2 (14)
+Four Square Cuboids 1
+R2 U' R2 F' R U R' F' L' D' B' L2 F U (14)
+Four Square Cuboids 2
+F' U' F2 L' U B' L F U' R' F' L F2 R2 (14)
+Six Square Cuboids
+F2 D F2 D2 L2 U L2 U' L2 B D2 R2 (12)
+Six Square Blocks
+F2 D F2 D2 L2 U L2 U' L2 B D2 R2 (12)
+Two colored rings
+L U' B F' L D' U' R B F' U' R (12)
+Colored Anaconda 1
+F' U' L' B' F' R' U' D B R2 U B R (13)
+Colored Anaconda 2
+F R D F2 R' U' D B L' R' F' D' R' (13)
+Colored Python 1
+D' L' R' B F D' U' L' R' B' F' U' (12)
+Colored Python 2
+D' L' R' B' F' D U L R B' F' U' (12)
+Plummer's rabbits
+U b U f R F r u B R f r F u (14)
+Meson & girdle 3-cycles
+D B2 D F d L D2 F2 D2 b L2 F U2 b D u r u (18)
+Plummer's Cs
+U2 L2 r b R2 u r D R F2 L r F D L2 U2 (16)
+Meson & Girdle 3-cycle **
+B2 U F u R2 u R B R2 b r U B2 U f u (16)
+Edge hexagon of order 2 **
+D R2 d r b F u R2 U B f R u F2 R2 u (16)
+Edge hexagon of order 3 **
+U B D R D2 U2 F D2 U2 b r d b u (14)
+Distorted off-girdle 3-cycles
+U R2 D f L D2 U2 r D2 U2 F d R2 u (14)
+Meson 
+B R2 B’ U L2 U’ B R2 B’ U L2 U’ (12)
+Girdle 3-cycle
+U B L’ U2 L B’ F U’ R2 U F’ U’ (12)
+Distorted girdle 3-cycle
+U R U D’ F2 U’ D R U’ (9)
+
+Snake: species, anaconda
+B R D’ R’ B’ F D F’ D’ U L F L’ U’ (14)
+Twisted Duck Feet
+R2 D U’ L D’ L2 R B R2 U B U R’ F’ D’ F U’ (17)
+Christmas Cross
+U F2 U2 L’ R F2 U2 F2 L R’ U’ (11)
+HX
+D U' L2 D2 U2 B' F D' U L R' F2 (12)
+Drapeau (F=bleu, U=blanc)
+L2 D' F2 L2 D' U' F' R B2 R' F2 U' F2 L R2 U' F2 R2 (18)

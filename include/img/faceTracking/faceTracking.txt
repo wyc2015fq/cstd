@@ -1,0 +1,21 @@
+			人脸跟踪模块
+
+文件：
+faceTracking.txt     - 本文件
+faceTracking.h       - 人脸跟踪头文件
+faceTracking.lib     - 人脸跟踪动态库对应的lib文件
+faceTracking.dll     - 人脸跟踪动态库
+faceTrackinglib.lib  - 人脸跟踪静态库
+test_canshift.c      - 人脸跟踪测试代码
+
+功能：
+跟踪彩色图像序列中的人脸目标，可检测到目标的出现和消失。
+
+测试：
+视频测试结果不太理想。
+
+
+日志：
+8:44 2009-1-4   暴露检测参数。但接口不变。使用时修改TRACKER::ssmin等其他参数即可。
+11:44 2008-8-15 完成跟踪模块测试基本通过，但效果还要调，有误跟和失跟问题。
+ camtrack(h, w, img, al, ai, tk, get_cascade(VIS_FACE_CASCADE), dodetect ? TK_DETECT : 0 );

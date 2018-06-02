@@ -1,0 +1,73 @@
+III_hufman_decode(is, si, ch, gr, part2_start, fr_ps)
+long int is[SBLIMIT][SSLIMIT];
+III_side_info_t *si;
+int gr, ch, part2_start;
+frame_params *fr_ps;
+{
+   int i, x, y;
+   int v, w;
+   struct huffcodetab *h;
+   int region1Start;
+   int region2Start;
+   int bt = (*si).ch[ch].gr[gr].window_switching_flag && ((*si).ch[ch].gr[gr].block_type == 2);
+
+//   initialize_huffman();
+
+   /* Find region boundary for short block case. */
+   
+   if ( ((*si).ch[ch].gr[gr].window_switching_flag) && 
+        ((*si).ch[ch].gr[gr].block_type == 2) ) { 
+   
+      /* Region2. */
+
+      region1Start = 36;  /* sfb[9/3]*3=36 */
+      region2Start = 576; /* No Region2 for short block case. */
+   }
+
+
+   else {          /* Find region boundary for long block case. */
+
+      region1Start = sfBandIndex[fr_ps->header->sampling_frequency]
+                           .l[(*si).ch[ch].gr[gr].region0_count + 1]; /* MI */
+      region2Start = sfBandIndex[fr_ps->header->sampling_frequency]
+                              .l[(*si).ch[ch].gr[gr].region0_count +
+                              (*si).ch[ch].gr[gr].region1_count + 2]; /* MI */
+      }
+
+
+   /* Read bigvalues area. */
+   for (i=0; i<(*si).ch[ch].gr[gr].big_values*2; i+=2) {
+      if      (i<region1Start) h = &ht[(*si).ch[ch].gr[gr].table_select[0]];
+      else if (i<region2Start) h = &ht[(*si).ch[ch].gr[gr].table_select[1]];
+           else                h = &ht[(*si).ch[ch].gr[gr].table_select[2]];
+      huffman_decoder(h, &x, &y, &v, &w);
+      is[i/SSLIMIT][i%SSLIMIT] = x;
+      is[(i+1)/SSLIMIT][(i+1)%SSLIMIT] = y;
+      }
+
+   /* Read count1 area. */
+   h = &ht[(*si).ch[ch].gr[gr].count1table_select+32];
+   while ((hsstell() < part2_start + (*si).ch[ch].gr[gr].part2_3_length ) &&
+     ( i < SSLIMIT*SBLIMIT )) {
+      huffman_decoder(h, &x, &y, &v, &w);
+      is[i/SSLIMIT][i%SSLIMIT] = v;
+      is[(i+1)/SSLIMIT][(i+1)%SSLIMIT] = w;
+      is[(i+2)/SSLIMIT][(i+2)%SSLIMIT] = x;
+      is[(i+3)/SSLIMIT][(i+3)%SSLIMIT] = y;
+      i += 4;
+      }
+
+   if (hsstell() > part2_start + (*si).ch[ch].gr[gr].part2_3_length)
+   {  i -=4;
+      rewindNbits(hsstell()-part2_start - (*si).ch[ch].gr[gr].part2_3_length);
+   }
+
+   /* Dismiss stuffing Bits */
+   if ( hsstell() < part2_start + (*si).ch[ch].gr[gr].part2_3_length )
+      hgetbits( part2_start + (*si).ch[ch].gr[gr].part2_3_length - hsstell());
+
+   /* Zero out rest. */
+   for (; i<SSLIMIT*SBLIMIT; i++)
+      is[i/SSLIMIT][i%SSLIMIT] = 0;
+}
+

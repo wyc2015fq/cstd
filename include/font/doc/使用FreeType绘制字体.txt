@@ -1,0 +1,390 @@
+ 使用FreeType绘制字体
+分类： 〖C/C++〗 〖FreeType〗 2013-03-13 12:55 2432人阅读 评论(0) 收藏 举报
+
+不带缓存的FreeType使用
+
+ 
+
+1、 初始化库
+
+ 
+
+FT_Init_FreeType( FT_Library  *alibrary );
+
+ 
+
+2、 通过创建一个新的 face 对象来打开一个字体文件
+
+ 
+
+FT_New_Face( FT_Library   library,
+
+               const char*  filepathname,
+
+               FT_Long      face_index,
+
+               FT_Face     *aface );
+
+ 
+
+3、 以点或者象素的形式选择一个字符大小
+
+ 
+
+  FT_Set_Char_Size( FT_Face     face,
+
+                    FT_F26Dot6  char_width,
+
+                    FT_F26Dot6  char_height,
+
+                    FT_UInt     horz_resolution,
+
+                    FT_UInt     vert_resolution );
+
+ 
+
+  FT_Set_Pixel_Sizes( FT_Face  face,
+
+                      FT_UInt  pixel_width,
+
+                      FT_UInt  pixel_height );
+
+ 
+
+ 
+
+4、 装载一个字形(glyph)图像，并把它转换为位图
+
+ 
+
+(1)把一个字符码转换为一个字形索引
+
+  FT_Get_Char_Index( FT_Face   face,
+
+                     FT_ULong  charcode );
+
+ 
+
+(2)从face中装载一个字形
+
+  FT_Load_Glyph( FT_Face   face,
+
+                 FT_UInt   glyph_index,
+
+                 FT_Int32  load_flags );
+
+ 
+
+(3)转换成bitmap位图
+
+  FT_Glyph_To_Bitmap( FT_Glyph*       the_glyph,
+
+                      FT_Render_Mode  render_mode,
+
+                      FT_Vector*      origin,
+
+                      FT_Bool         destroy );
+
+ 
+
+ 
+
+ 
+
+以上1、2步可用以下函数实现，相当于调用FT_Get_Char_Index和FT_Load_Glyph：
+
+  FT_Load_Char( FT_Face   face,
+
+                FT_ULong  char_code,
+
+                FT_Int32  load_flags );
+
+ 
+
+ 
+
+5、 渲染(可选，斜体、加粗、下划线等)并绘制
+
+FT_Set_Transform( FT_Face     face,
+
+                    FT_Matrix*  matrix,
+
+                    FT_Vector*  delta );
+
+ 
+
+ 
+
+// 示例代码
+
+FT_Library       pFTLib               =NULL;
+
+FT_Face           pFTFace           = NULL;
+
+FT_Glyph          glyph;
+
+FT_UInt   glyph_index;
+
+FT_Error  error = 0;
+
+error =FT_Init_FreeType(&pFTLib);
+
+if(error)
+
+{
+
+    printf("error");
+
+}
+
+ 
+
+error = FT_New_Face(pFTLib,ttf, 0, &pFTFace);
+
+if(error)
+
+{
+
+    printf("error");
+
+}
+
+ 
+
+if(0 !=FT_Set_Char_Size(pFTFace, 0,  16<<6, 72, 72))
+
+{
+
+         printf("error");
+
+}
+
+ 
+
+glyph_index =FT_Get_Char_Index(pFTFace, *char);
+
+FT_Load_Glyph(pFTFace,glyph_index, FT_LOAD_MONOCHROME | FT_LOAD_RENDER);
+
+error =FT_Get_Glyph(pFTFace->glyph, &glyph);
+
+ 
+
+if(!error)
+
+{
+
+    FT_Glyph_To_Bitmap(&glyph,FT_RENDER_MODE_NORMAL, 0, 0);
+
+         FT_BitmapGlyph    bitmap_glyph = (FT_BitmapGlyph)glyph;
+
+         FT_Bitmap      bitmap = bitmap_glyph->bitmap;
+
+// 把点阵数据(bitmap)绘制到具体的显示设备上去
+
+}
+
+ 
+
+ 
+
+ 
+
+带缓存的FreeType使用
+
+ 
+
+1、初始化库
+
+FT_Init_FreeType( FT_Library  *alibrary );
+
+ 
+
+ 
+
+2、创建cache manager
+
+  FTC_Manager_New( FT_Library          library,
+
+                   FT_UInt             max_faces,
+
+                   FT_UInt             max_sizes,
+
+                   FT_ULong            max_bytes,
+
+                   FTC_Face_Requester  requester,
+
+                   FT_Pointer          req_data,
+
+                   FTC_Manager        *amanager );
+
+ 
+
+3、创建charmap cache
+
+  FTC_CMapCache_New( FTC_Manager     manager,
+
+                     FTC_CMapCache  *acache );
+
+ 
+
+ 
+
+4、创建cache来存储字形位图数据
+
+  FTC_SBitCache_New( FTC_Manager     manager,
+
+                     FTC_SBitCache  *acache );
+
+ 
+
+5、使用charmap cache把字符编码转化成字形索引
+
+  FTC_CMapCache_Lookup( FTC_CMapCache  cache,
+
+                        FTC_FaceID     face_id,
+
+                        FT_Int         cmap_index,
+
+                        FT_UInt32      char_code );
+
+ 
+
+ 
+
+6、在给定的sbit cache中查找字形位图
+
+  FTC_SBitCache_LookupScaler( FTC_SBitCache  cache,
+
+                              FTC_Scaler     scaler,
+
+                              FT_ULong       load_flags,
+
+                              FT_UInt        gindex,
+
+                              FTC_SBit      *sbit,
+
+                              FTC_Node      *anode );
+
+ 
+
+ 
+
+// 示例代码
+
+FT_Library       pFTLib               =NULL;
+
+FT_Face           pFTFace           = NULL;
+
+FTC_Manager cache_manager= 0;
+
+FTC_CMapCachecmap_cache;
+
+FTC_SBitCachesbit_cache;
+
+FT_UInt glyph_idx;
+
+FTC_ScalerReccurrent_ic;
+
+FTC_Scalerselected_ic;
+
+FTC_SBit bitmap;
+
+FT_Error  err = 0;
+
+err =FT_Init_FreeType(&pFTLib);
+
+if(err)
+
+{
+
+    printf("error");
+
+}
+
+ 
+
+err = FTC_Manager_New(pFTLib,get_faces_to_allocate(), 0, 0,
+
+                   fts_face_requester,(FT_Pointer)NULL, &cache_manager);
+
+if (err)
+
+{
+
+         printf("error");
+
+}
+
+ 
+
+err =FTC_CMapCache_New(cache_manager, &cmap_cache);
+
+if (err)
+
+{
+
+         printf("error");
+
+}
+
+ 
+
+err =FTC_SBitCache_New(cache_manager, &sbit_cache);
+
+if (err)
+
+{
+
+         printf("error");
+
+}
+
+ 
+
+glyph_idx =FTC_CMapCache_Lookup(cmap_cache, current_ic.face_id, -1, char[k]);
+
+if (glyph_idx)
+
+{
+
+         selected_ic = &current_ic;
+
+}
+
+if(FTC_SBitCache_LookupScaler(sbit_cache, selected_ic, FT_LOAD_DEFAULT,
+
+                                                        glyph_idx,&bitmap, (FTC_Node*)NULL))
+
+{
+
+                   printf("error");
+
+}
+
+// 把点阵数据(bitmap)绘制到具体的显示设备上去
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+版权声明：本文为博主原创文章，未经博主允许不得转载。

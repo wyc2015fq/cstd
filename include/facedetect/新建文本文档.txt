@@ -1,0 +1,17 @@
+
+'启动telnet，注意要保证telnet.exe程序所在的路径如c:\winnt\system32在path环境变量中
+sh.Run  "putty -ssh -l ryw -pw Ryw -P 22 10.1.60.239"
+WScript.Sleep 1000
+'向telnet发送我们平时录入的命令
+sh.SendKeys "cd /work/git/rongyi_term_os{ENTER}"
+sh.SendKeys ". build/envsetup.sh{ENTER}"
+sh.SendKeys "lunch{ENTER}"
+WScript.Sleep 1000
+sh.SendKeys "1{ENTER}"
+WScript.Sleep 100
+sh.SendKeys "cd vendor/Morgan/facedetect/{ENTER}"
+sh.SendKeys "mm{ENTER}"
+WScript.Sleep 2000
+' sh.SendKeys "exit{ENTER}"
+' msgbox "asdfasdf"
+

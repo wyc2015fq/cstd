@@ -1,0 +1,932 @@
+ 语音识别之MFCC
+标签： 语音识别预加重melDCT三角滤波
+2015-03-15 01:13 2155人阅读 评论(11) 收藏 举报
+分类：
+__云计算和语音识别为什么在一起（18）
+
+版权声明：本文为博主原创文章，未经博主允许不得转载，否则将使用法律武器维护自己的权益。
+
+目录(?)[+]
+
+在进行端点处理之后，就可以得到需要处理的信号。但是要进行语音识别就必须进行一个处理：特征提取。进行特征提取我们这里采用的就是FMCC。
+
+具体的流程是怎么样的呢？
+
+那就是：
+
+
+概述:
+
+
+MFCC：Mel频率倒谱系数的缩写。Mel频率是基于人耳听觉特性提出来的，它与Hz频率成非线性对应关系。Mel频率倒谱系数(MFCC)则是利用它们之间的这种关系，计算得到的Hz频谱特征。
+
+
+应用：
+
+
+MFCC已经广泛地应用在语音识别领域。由于Mel频率与Hz频率之间非线性的对应关系，使得MFCC随着频率的提高，其计算精度随之下降。因此，在应用中常常只使用低频MFCC，而丢弃中高频MFCC。
+
+
+提取流程 :
+
+
+MFCC参数的提取包括以下几个步骤：
+
+1. 预滤波：CODEC前端带宽为300-3400Hz的抗混叠滤波器。
+
+2. A/D变换：8kHz的采样频率，12bit的线性量化精度。
+
+3. 预加重：通过一个一阶有限激励响应高通滤波器，使信号的频谱变得平坦，不易受到有限字长效应的影响。
+
+
+4. 分帧：根据语音的短时平稳特性，语音可以以帧为单位进行处理，实验中选取的语音帧长为32ms，帧叠为16ms。
+
+5. 加窗：采用哈明窗对一帧语音加窗，以减小吉布斯效应的影响。
+
+参考：
+
+以上matlab部分来自于： http://www.ee.columbia.edu/~dpwe/resources/matlab/rastamat/
+
+以及截图来自于JIE的李明老师的ppt。
+
+6. 快速傅立叶变换（Fast Fourier Transformation,FFT）：将时域信号变换成为信号的功率谱。
+
+FFT可以用IPP实现，但是用起来好复杂。我找到更简单粗暴的方法：
+
+下面给的C++代码的fft其实是有错的，需要细心的读者发现问题，参考下面两篇博客你就可以知道下面的c++代码错在哪里了。
+
+http://blog.csdn.net/hippig/article/details/8778753
+
+http://bbs.csdn.net/topics/300168593
+
+7.三角窗滤波：用一组Mel频标上线性分布的三角窗滤波器（共24个三角窗滤波器），对信号的功率谱滤波，每一个三角窗滤波器覆盖的范围都近似于人耳的一个临界带宽，以此来模拟人耳的掩蔽效应。
+
+8. 求对数：三角窗滤波器组的输出求取对数，可以得到近似于同态变换的结果。
+
+9. 离散余弦变换（Discrete Cosine Transformation,DCT）：去除各维信号之间的相关性，将信号映射到低维空间。
+
+        把信号转换到频域之后就更好处理了。在这里我们对于DFT做一些简单的介绍：离散傅立叶变化不能对非周期信号进行处理。我们把这个信号进行处理的时候看作是无限长的周期信号的一个周期。我们可以把我们要做的那部分信号进行扩展成周期性无限的信号进行处理。
+
+可以转换成：
+
+计算公式如下：
+
+
+10.谱加权：由于倒谱的低阶参数易受说话人特性、信道特性等的影响，而高阶参数的分辨能力比较低，所以需要进行谱加权，抑制其低阶和高阶参数。
+
+11. 倒谱均值减（Cepstrum Mean Subtraction,CMS）：CMS可以有效地减小语音输入信道对特征参数的影响。 
+12.差分参数：大量实验表明，在语音特征中加入表征语音动态特性的差分参数，能够提高系统的识别性能。在本系统中，我们也用到了MFCC参数的一阶差分参数和二阶差分参数。 
+13. 短时能量：语音的短时能量也是重要的特征参数，本系统中我们采用了语音的短时归一化对数能量及其一阶差分、二阶差分参数。
+
+
+流程图：
+
+
+
+代码：
+
+
+[cpp] view plain copy
+在CODE上查看代码片派生到我的代码片
+
+    //ASR.h  
+    #include <stdio.h>  
+    #include <math.h>  
+      
+    #define MAXDATA (256*400)  //一般采样数据大小,语音文件的数据不能大于该数据  
+    #define SFREMQ (8000)   //采样数据的采样频率8khz  
+      
+    typedef struct WaveStruck//wav数据结构  
+    {  
+     //data head  
+     struct HEAD{  
+      char cRiffFlag[4];  
+      int nFileLen;  
+      char cWaveFlag[4];//WAV文件标志  
+      char cFmtFlag[4];  
+      int cTransition;  
+      short nFormatTag;  
+      short nChannels;  
+      int nSamplesPerSec;//采样频率,mfcc为8khz  
+      int nAvgBytesperSec;  
+      short nBlockAlign;  
+      short nBitNumPerSample;//样本数据位数，mfcc为12bit  
+     } head;  
+      
+     //data block  
+     struct BLOCK{  
+      char cDataFlag[4];//数据标志符(data)  
+      int nAudioLength;//采样数据总数  
+     } block;  
+    } WAVE;  
+      
+      
+    typedef struct //定义实数结构  
+    {  
+      double real;  
+      double image;  
+    }complex;  
+      
+    //获取wav数据样本数据,sample数组的长度至少为MAXDATA,函数返回读入的数据的长度  
+    int getWaveData(char* file,double *sample);  
+      
+    int copyData(double *src,double *dest,int num);//实数数据复制  
+      
+    //所有mfcc操作都是基于每帧操作的,len为总长度,unitsize为采样点组成的观察单位,256||512  
+    //emp_v为欲加重因子,hanming_v为汉明窗因子,fft_v为傅里叶变化级数  
+    //filter_v为mel滤波器个数,dct_v为dct变换因子  
+    //函数返回mfcc识别后特征参数数组，数组长度存储在第0个元素中  
+    double* MFCC(double *sample,int len ,int unitsize=256,double emp_v=0.97,double hanming_v=0.46,int filter_v=20,int dct=12);  
+      
+    //MFCC欲加重,len为数组sample的长度，factor为加重因子  
+    bool _mfcc_preEmphasize(double *sample,int len,double factor=0.9);  
+      
+    //框化数据即分帧，同事在原始采样数据中插入重叠区数据  
+    //函数返回总的帧数,和分帧后的数据sample  
+    int _mfcc_Frame(double *sample,int unitsize,int len);  
+      
+    //加汉明窗,factor为汉明窗因子  
+    bool _mfcc_HanmingWindow(double *sample,int unitsize,int frames,double hanming_factor=0.46);  
+      
+    //快速傅里叶变换，输入参数sample为实数，无虚数部分,len为sample的总大小，也为傅里叶变换点数  
+    //函数返回时complex为fft变换后的频率能量复数数值,总长度为len,频率从0-SFREMQ(8khz)  
+    complex* _mfcc_FFT(double *sample,int len);  
+      
+    //功率计算,返回计算后的功率实数powersample，总长度为len,频率从0-SFREMQ(8khz)  
+    bool  _mfcc_Power(complex* fftdata,double *powersample,int len);  
+      
+    //三角滤波,len为powersample数字长度,num为mei滤波个数  
+    //函数返回mel频率下的滤波器内的对数能量double*(长度为num)  
+    double* _mfcc_filter(double *powersample,int len,int num);  
+      
+    //离散余弦变换,lnpower(长度为len)为滤波器内积对数能量,num与mel滤波器一致,dctnum为dct变换级数  
+    //函数返回时double*的长度为dctnum,代表dct变换后的倒频参数  
+    double* _mfcc_DCT(double *lnpower,int len,int dctnum);  
+      
+    //求音框1的能量+音框2的能量+....+音框frames的能量+dct参数  
+    //函数返回double *,其长度为(dctlen+1)*frames  
+    double* _mfc_Logenergy(double *powersample,int unitsize,int frames,double * dctdata,int dctlen);  
+      
+    //差量倒频谱参数,函数返回double*，数组长度为len*2  
+    double* _mfcc_differential(double *logenergy,int len);  
+      
+       
+      
+    //asp.cpp  
+    #include "stdafx.h"  
+    #include "ASR.h"  
+      
+    //获取wav数据样本数据  
+    int getWaveData(char* file,double *sample)  
+    {  
+     WAVE wave[1];  
+     FILE * f;  
+     f = fopen(file,"rb");  
+     if(!f)  
+     {  
+      printf("Cannot open %s for reading\n",file);  
+      return -1;  
+     }  
+       
+     //读取wav文件头并且分析  
+     fread(wave,1,sizeof(wave),f);  
+       
+     if(wave[0].head.cWaveFlag[0]=='W'&&wave[0].head.cWaveFlag[1]=='A'  
+      &&wave[0].head.cWaveFlag[2]=='V'&&wave[0].head.cWaveFlag[3]=='E')//判断是否是wav文件  
+     {  
+      printf("It's not .wav file\n" );  
+      return -1;  
+     }  
+     if(wave[0].head.nSamplesPerSec!=SFREMQ&&wave[1].head.nBitNumPerSample!=12)//判断是否采样频率是8khz,12bit量化  
+     {  
+      printf("It's not 8khz and 12 bit\n" );  
+      return -1;  
+     }  
+       
+     if(wave[0].block.nAudioLength>MAXDATA/2)//wav文件不能太大,为sample长度的一半  
+     {  
+      printf("wav file is to long\n" );  
+      return -1;  
+     }  
+       
+     //读取采样数据   
+     fread(sample,sizeof(char),wave[0].block.nAudioLength,f);  
+     fclose(f);  
+     return wave[0].block.nAudioLength;  
+    }  
+      
+    int copyData(double *src,double *dest,int num)  
+    {  
+     if(src==NULL||dest==NULL)  
+     {  
+      printf("src and dest are NULL\n");  
+      return -1;  
+     }  
+       
+     for(int i=0;i<num;i++)  
+     {  
+      *(dest++)=*(src++);  
+     }  
+     return i;  
+    }  
+      
+      
+    //开始mfc操作  
+    //所有mfcc操作都是基于每帧操作的,unit为采样点组成的观察单位,256||512  
+    //函数返回double*长度存储在第0个元素中  
+    double* MFCC(double *sample,int len,int unitsize,double emp_v,double hanming_v,int filter_v,int dct_v)  
+    {  
+      
+     double *mfccA=NULL;  
+      
+     //欲加重  
+     _mfcc_preEmphasize(sample,len,emp_v);   
+       
+     //框化，在原始采样数据中添加重叠区数据   
+     int frames=_mfcc_Frame(sample,unitsize,len);   
+       
+     //加汉明窗  
+     _mfcc_HanmingWindow(sample,unitsize,frames,hanming_v);  
+       
+     //fft变化  
+     complex *fftdata=_mfcc_FFT(sample,unitsize*frames);  
+       
+     //频谱的功率sample  
+     _mfcc_Power(fftdata,sample,len);  
+     if(fftdata!=NULL)  
+      delete fftdata;  
+      
+     //保存频谱能量  
+     double *power=new double(len);  
+     copyData(sample,power,len);  
+       
+     //滤波，得到filter_v个滤波器内的对数能量  
+     double *filterpower=_mfcc_filter(sample,len,filter_v);   
+       
+     //dct变换,输入filterpower为滤波器内积对数能量，输出lnpower为dct倒频谱参数  
+     double *dctpara=_mfcc_DCT(filterpower,filter_v,dct_v);  
+     if(filterpower!=NULL)  
+      delete filterpower;   
+      
+     //log对数能量logenergy,长度为frames+dct_v  
+     double *logenergy=_mfc_Logenergy(power,unitsize,frames,dctpara,dct_v);  
+      
+     //保存对数能量logenergy  
+     mfccA=new double((frames+dct_v)*3+1);  
+     mfccA[0]=(frames+dct_v)*3+1;//第0位存储数组的总长度  
+      
+     copyData(&logenergy[0],&mfccA[1],frames+dct_v);  
+     if(power!=NULL)  
+      delete power;  
+     if(dctpara!=NULL)  
+      delete dctpara;  
+       
+     //差量倒频谱运算,返回double*长度为(frames+dct_v)*2  
+     double *diff=_mfcc_differential(logenergy,frames+dct_v);  
+     copyData(&diff[0],&mfccA[frames+dct_v+1],(frames+dct_v)*2);  
+      
+     if(logenergy!=NULL)  
+      delete logenergy;  
+     if(diff!=NULL)  
+      delete diff;  
+       
+     return mfccA;  
+    }  
+      
+      
+    bool _mfcc_preEmphasize(double *sample,int len,double factor)//MFCC欲加重,factor为加重因子  
+    {  
+     //欲加重公式s2(n) = s(n) - a*s(n-1)  
+     for(int i=1;i<len/2;i++)  
+     {  
+      sample[i]=sample[i]-factor*sample[i-1];  
+     }  
+       
+     return true;  
+    }  
+      
+    //数据框化即分帧，插入重叠区的数据到sample中，返回帧的总数  
+    int _mfcc_Frame(double *sample,int unitsize,int len)  
+    {  
+     double *mirrordata=new double[len/2];  
+     copyData(&sample[0],&mirrordata[0],len/2);  
+       
+       
+     double temp[512];  
+       
+     if(unitsize>512)  
+     {  
+      printf("unitsize of mfcc is biger than 512");  
+      return false;  
+     }  
+       
+     //因为要操作附加的重叠区域，故分成三部分,第一部分数据不变  
+     //开始和结尾部分不包含附加重叠区的操作  
+       
+     //中间部分，包括附件重叠区域变换  
+       
+     int m=unitsize/2;//重叠区域的单位大小为正常区的一半  
+     int frames=2;//加上重叠区后的帧数  
+     int index=unitsize;//当前添加后的数据的排列序号  
+       
+     for(int i=unitsize;i<len-unitsize;i+=unitsize)  
+     {  
+      //重叠区域数据  
+      copyData(&mirrordata[i-m/2],&temp[0],m);  
+        
+      //添加重叠区的数据    
+      copyData(&temp[0],&sample[index],m);//写回数据  
+      index+=m;  
+      frames+=1;  
+        
+        
+      //原采样数据  
+      copyData(&mirrordata[i],&temp[0],unitsize);  
+      copyData(&temp[0],&sample[index],unitsize);//写回数据  
+      index+=unitsize;  
+      frames+=1;  
+        
+     }  
+       
+     //框化的最后一部分为尾数部分,少于或者等于unitsize大小  
+       
+     if(len%unitsize==0)//刚好等于unitsize大小  
+     {  
+      copyData(&mirrordata[i],&temp[0],unitsize);  
+      copyData(&temp[0],&sample[index],unitsize);//写回数据  
+     }else{  
+      copyData(&mirrordata[i],&sample[index],len%unitsize);  
+      copyData(&temp[0],&sample[index],len%unitsize);//写回数据  
+     }  
+     frames+=1;  
+     delete[] mirrordata;  
+       
+     return frames;  
+    }  
+      
+    //加汉明窗,factor为汉明窗因子  
+    bool _mfcc_HanmingWindow(double *sample,int unitsize,int frames,double hanming_factor)  
+    {  
+     //S'(n) = S(n)*W(n)，W(n, a) = (1 - a) - a cos(2pn/(N-1))，0≦n≦N-1，N为窗口大小  
+     if(hanming_factor>=1||hanming_factor<=0)  
+     {  
+      printf("hanming hanming_factor 0-1\n");  
+      return false;   
+     }  
+       
+     if(unitsize>512)  
+     {  
+      printf("unitsize of mfcc is biger than 512");  
+      return false;  
+     }  
+       
+       
+     int windowsize;//框化后的窗口大小  
+       
+     double HanmingWindow[512];//汉明窗口乘法因子  
+     double fDataTemp;  
+       
+     for(int i=0;i<frames;i++)  
+     {  
+      if((i+1)%2==0)  
+      {  
+       windowsize=unitsize/2;//重叠区为正常区的一半  
+      }else  
+       windowsize=unitsize;  
+        
+      for(int j=0; j<windowsize; j++)  
+      {  
+       fDataTemp = (double) 2.0 * 3.141592653589793*j/(windowsize-1);  
+       HanmingWindow[j] = (double)(1-hanming_factor)-hanming_factor*cos(fDataTemp);  
+       sample[i*frames+j]=sample[i*frames+j]*HanmingWindow[j];  
+      }  
+     }   
+       
+     return true;  
+    }  
+      
+      
+    //快速傅里叶变换，输入参数sample为实数，无虚数部分,len为sample的总大小，也为傅里叶变换点数  
+    //函数返回时complex为fft变换后的频率能量复数数值,总长度为len,频率从0-SFREMQ(8khz)  
+    complex* _mfcc_FFT(double *sample,int len)  
+    {  
+     //实数转为复数  
+     complex *TD=new complex[len];  
+     complex *FD=new complex[len];  
+       
+     int i;  
+     for(i=0;i<len;i++)  
+     {  
+      TD[i].real=sample[i];  
+      TD[i].image=0;  
+     }  
+       
+     //fft计算   
+     LONG count; // Fourier变换点数  
+     int j,k; // 循环变量  
+     int bfsize,p; // 中间变量  
+     double angle; // 角度  
+     complex *W,*X1,*X2,*X;  
+       
+     count =len; // 计算Fourier变换点数为数组的长度  
+     int r=count>>1;//变换级数  
+       
+     W = new complex[count / 2];  
+     X1 = new complex[count];  
+     X2 = new complex[count]; // 分配运算所需存储器  
+       
+     // 计算加权系数（旋转因子w的i次幂表)  
+     for(i = 0; i < count / 2; i++)  
+     {  
+      angle = -i * 3.141592653589793 * 2 / count;  
+      W[ i ].real=cos(angle);  
+      W[ i ].image=sin(angle);  
+     }  
+     // 将时域点写入X1  
+     memcpy(X1, TD, sizeof(complex) * count);  
+     // 采用蝶形算法进行快速Fourier变换  
+     for(k = 0; k < r; k++ )  
+     {  
+      for(j = 0; j < (1 << k); j++ )  
+      {  
+       bfsize = 1 << (r-k);  
+       for(i = 0; i < bfsize / 2; i++ )  
+       {  
+        p = j * bfsize;  
+        X2[i + p].real = X1[i + p].real + X1[i + p + bfsize / 2].real * W[i * (1<<k)].real;  
+        X2[i + p].image = X1[i + p].image + X1[i + p + bfsize / 2].image * W[i * (1<<k)].image;  
+          
+        X2[i + p + bfsize / 2].real = X1[i + p].real - X1[i + p + bfsize / 2].real * W[i * (1<<k)].real;  
+        X2[i + p + bfsize / 2].image = X1[i + p].image - X1[i + p + bfsize / 2].image * W[i * (1<<k)].image;  
+       }  
+      }  
+      X = X1;  
+      X1 = X2;  
+      X2 = X;  
+     }  
+     // 重新排序，转为频率f(0-count)的值  
+     for(j = 0; j < count; j++)  
+     {  
+      p = 0;  
+      for(i = 0; i < r; i++ )  
+      {  
+       if (j&(1<<i))  
+       {  
+        p =1<<(r-i-1);  
+       }  
+      }  
+      FD[j]=X1[p];  
+     }  
+     // 释放内存  
+     delete[] TD;  
+     delete W;  
+     delete X1;  
+     delete X2;  
+       
+     return FD;  
+    }  
+      
+    //对应频谱的功率  
+    bool _mfcc_Power(complex* fftdata,double *powersample,int len)  
+    {  
+     for(int i=0;i<len;i++)  
+     {  
+      powersample[i]=sqrt(fftdata[i].real*fftdata[i].real+fftdata[i].image*fftdata[i].image);  
+     }  
+       
+     return true;  
+    }  
+      
+    //三角滤波,len为powersample数字长度,num为mei滤波个数  
+    //函数返回mel频率下的对数能量double*(长度为num)  
+    double* _mfcc_filter(double *powersample,int len,int filterNum)  
+    {  
+     double* melf=new double(len);//频率--->mel频率  
+     double* lnpower=new double(filterNum);//对数能量  
+     memset(lnpower,0,filterNum);  
+       
+     double f=0;  
+     for(int i=0;i<len;i++)//求出mel频率  
+     {  
+      f=i*SFREMQ/len;//求出每个数组的相对应的频率  
+      melf[i]=2595*log10(1+f/700.0);//由频率求出mel频率  
+     }  
+       
+       
+     double filterFW=melf[len-1]/(2*filterNum);//mel频率滤波器的半宽带  
+     double filterpara;//三角滤波参数  
+     int j=1;//滤波器计数  
+       
+     for(i=0;i<len;i++)//交叉三角滤波,左半部分  
+     {   
+      j=(int)ceil(melf[i]/filterFW);//ceil大于x的最小整数,求出滤波器序号为1-n  
+      if(j>filterNum)//跳过最右边半个滤波器数据  
+       break;  
+      filterpara=1+(melf[i]-j*filterFW)/filterFW; //斜率为1，上升   
+      powersample[i]=filterpara*powersample[i];   
+      lnpower[j-1]+=powersample[i];//累计一个滤波器内的能量  
+     }  
+       
+     for(i=0;i<len;i++)//交叉三角滤波,右半部分  
+     {   
+      if(melf[i]<filterFW)//跳过最左边的半个滤波器数据  
+      {  
+       continue;  
+      }  
+        
+      j=(int)floor(melf[i]/filterFW);//floor小于x的最大整数  
+      filterpara=1-(melf[i]-j*filterFW)/filterFW; //斜率为1，下降   
+      powersample[i]=filterpara*powersample[i];  
+      lnpower[j-1]+=powersample[i];//累计一个滤波器内的能量  
+     }  
+      
+     //滤波器能量求对数,得到类似正态分布  
+     //对数能量（定义为讯号的平方和，再取以 10 为底的对数值，再乘以 10）  
+     for(j=0;j<filterNum;j++)  
+     {  
+      lnpower[j]=log10(lnpower[j])*10;  
+     }  
+     delete[] melf;  
+       
+     return lnpower;//返回对数能量  
+    }  
+      
+    //离散余弦变换,lnpower(长度为len)为滤波器内积对数能量,num与mel滤波器一致,dctnum为dct变换级数  
+    //函数返回时lnpower的长度为dctnum,代表dct变换后的倒频参数  
+    double* _mfcc_DCT(double *lnpower,int len,int dctnum)  
+    {  
+       
+     double *temp=new double(dctnum);  
+      
+     memset(&lnpower[0],0,len);  
+      
+     for(int i=1;i<=dctnum;i++)  
+     {  
+      for(int j=1;j<=len;j++)  
+      {  
+       temp[i-1]+=lnpower[j-1]*cos(i*(j-0.5)*3.141592653589793/len);  
+      }  
+     }  
+       
+     return temp;  
+    }  
+      
+    //求音框1的能量+音框2的能量+....+音框frames的能量+dct参数  
+    //函数返回double *,其长度为(dctlen+frames)  
+    double* _mfc_Logenergy(double *powersample,int unitsize,int frames,double * dctdata,int dctlen)  
+    {  
+     double *logenergy=new double((frames+dctlen));  
+      
+     for(int i=0;i<frames;i++)//求的音框的能量  
+     {  
+      logenergy[i]=0;  
+      for(int j=0;j<unitsize;j++)  
+      {  
+       logenergy[i]+=powersample[i*unitsize+j];  
+      }  
+      logenergy[i]=log10(logenergy[0])*10;//取10的对数  
+     }   
+      
+     copyData(&dctdata[0],&logenergy[i],dctlen);  
+      
+     return logenergy;  
+    }  
+      
+    //差量倒频谱参数,函数返回double*，数组长度为len*2  
+    double* _mfcc_differential(double *logenergy,int len)  
+    {  
+     int M=2;//差量倒频谱参数  
+     double suma;  
+     double sumb;  
+     double *diff=new double(len*2);  
+       
+      
+     //差量计算,△Cm(t) = [Sum(g=-M, M, Cm(t+g)g] / [Sum(g=-M, M, g^2], 这里 M 的值一般是取 2 或 3  
+     copyData(&logenergy[0],&diff[0],len);  
+     int i,j;  
+     for(i=1;i<=len;i++)  
+     {  
+      suma=0;  
+      sumb=0;  
+      for(j=-M;j<=M;j++)  
+      {  
+       suma+=diff[i-1+j]*j;  
+       sumb+=j*j;  
+      }  
+      diff[i-1]=suma/sumb;  
+     }  
+      
+     //差差量计算  
+     copyData(&diff[0],&diff[len],len);  
+     for(i=len+1;i<=2*len;i++)  
+     {  
+      suma=0;  
+      sumb=0;  
+      for(j=-M;j<=M;j++)  
+      {  
+       suma+=diff[i-1+j]*j;  
+       sumb+=j*j;  
+      }  
+      diff[i-1]=suma/sumb;  
+     }  
+       
+     return diff;  
+    }  
+      
+    void main()  
+    {  
+     double sample[MAXDATA]={0};//wave文件采样数据存放点  
+     int len=getWaveData("1.wav",sample);  
+     double *mfcca=MFCC(sample,len);  
+     len=mfcca[0];//mfcc特征量的总长度  
+    }  
+
+
+以上代码转载自：http://blog.chinaunix.net/uid-26715658-id-3256938.html
+
+
+以下是matlab代码：
+
+以下的代码用的是matlab的工具箱voice box里面的代码，可以直接使用，也可以添加到matlab的工具箱！安装做法如下：
+
+http://zhidao.baidu.com/link?url=NsLV97zR0LEyK4Cyn1rTuGpVd4qFpqJYVyaUtV53L9JJM1O7-kT-ErVWJQFXu9EQiRSVo7KWioYym3MpDLHFFa
+
+参考代码：
+
+http://blog.sina.com.cn/s/blog_4e0987310102v3sg.html
+
+http://zhidao.baidu.com/link?url=vCqDKDZRsgZlva_gSZbXFfjyak0O2sxSe_822X5qwXNgeF4YlWzRMNBP-9dhF5agrvgKIQ3dZc3xy9DhV51TRa
+
+http://www.verysource.com/code/7160767_1/mfcc.txt.html
+
+
+[cpp] view plain copy
+在CODE上查看代码片派生到我的代码片
+
+    %function ccc=mfcc(x)     
+      
+    %归一化mel滤波器组系数     
+      
+    filename=input('input filename:','s');  
+      
+    [x,fs,bits]=wavread(filename);  
+      
+    bank=melbankm(24,256,fs,0,0.5,'m');     
+      
+    bank=full(bank);     
+      
+    bank=bank/max(bank(:));     
+      
+    %T系数，12*24     
+      
+    for k=1:12     
+      
+        n=0:23;     
+      
+        dctcoef(k,:)=cos((2*n+1)*k*pi/(2*24));     
+      
+    end     
+      
+    %归一化倒谱提升窗口     
+      
+    w=1+6*sin(pi*[1:12] ./12);     
+      
+    w=w/max(w);     
+      
+    %预加重滤波器     
+      
+    xx=double(x);     
+      
+    xx=filter([1 -0.9375],1,xx);     
+      
+    %语音信号分帧     
+      
+    xx=enframe(xx,256,80);     
+      
+    %计算每帧的MFCC参数     
+      
+    for i=1:size(xx,1)     
+      
+        y=xx(i,:)     
+      
+        s=y' .*hamming(256);     
+      
+        t=abs(fft(s));     
+      
+        t=t.^2;     
+      
+        c1=dctcoef*log(bank*t(1:129));     
+      
+        c2=c1.*w';     
+      
+        m(i,:)=c2';     
+      
+    end     
+      
+    %差分参数     
+      
+    dtm=zeros(size(m));     
+      
+    for i=3:size(m,1)-2     
+      
+        dtm(i,:)=-2*m(i-2,:)-m(i-1,:)+m(i+1,:)+2*m(i+2,:);     
+      
+    end     
+      
+    dtm=dtm/3;     
+      
+    %合并mfcc参数和一阶差分mfcc参数     
+      
+    ccc=[m dtm];     
+      
+    %去除首位两帧，因为这两帧的一阶差分参数为0     
+      
+    ccc=ccc(3:size(m,1)-2,:);  
+      
+    subplot(211)  
+      
+    ccc_1=ccc(:,1);  
+      
+    plot(ccc_1);title('MFCC');  
+      
+    % ylabel('幅值');  
+      
+    % title('一维数组及其幅值的关系')  
+      
+    % [h,w]=size(ccc);  
+      
+    % A=size(ccc);  
+      
+    % subplot(212)  
+      
+    % plot([1,w],A);  
+      
+    % xlabel('维数');  
+      
+    % ylabel('幅值');  
+      
+    % title('维数于幅值的关系')  
+
+
+在最后再给出一份代码，这个是测试过很ok的：
+
+MFCC.h
+
+[cpp] view plain copy
+在CODE上查看代码片派生到我的代码片
+
+    #ifndef _MFCC_H_  
+      
+    #define FRAMES_PER_BUFFER (400)  
+    #define NOT_OVERLAP (200)  
+    #define NUM_FILTER (40)  
+    void MFCC(const short* waveData, int numSamples, int sampleRate);  
+    void FFT_Power(float *in, float *energySpectrum);  
+    void computeMel(float *mel, int sampleRate, const float *energySpectrum);  
+    void DCT(const float *mel, float *c);  
+      
+      
+    #endif  
+
+
+
+MFCC.c
+
+[cpp] view plain copy
+在CODE上查看代码片派生到我的代码片
+
+    #include "MFCC.h"  
+    #include <algorithm>  
+    #include <stdio.h>  
+    #include <math.h>  
+    #include "fftw3.h"  
+    using namespace std;  
+      
+      
+    void MFCC(const short* waveData, int numSamples, int sampleRate)  
+    {  
+        float *preemp = new float[numSamples];  
+        preemp[0] = waveData[0];  
+        for(int i = 1; i < numSamples; i++)  
+        {  
+            preemp[i] = waveData[i] - 0.95*waveData[i-1];  
+            //printf("%f ", preemp[i]);  
+        }  
+        //printf("\n");  
+        //calculate the total frames when overlaps exist  
+        int numFrames =  ceil((numSamples-FRAMES_PER_BUFFER)/NOT_OVERLAP)+1;  
+        //printf("%d\n", numFrames);  
+        float hammingWindow[FRAMES_PER_BUFFER];  
+        float afterWin[512] = {0.0};  
+        float energySpectrum[512] = {0.0};  
+        float mel[NUM_FILTER] = {0};  
+        float c[13] = {0};  
+        for(int i = 0; i< FRAMES_PER_BUFFER; i++)  
+        {  
+            hammingWindow[i] = 0.54 - 0.46*cos(2*3.14*i/(FRAMES_PER_BUFFER-1));  
+        }  
+        //handle all frames one by one  
+        for(int i = 0; i < numFrames; i++)  
+        {  
+            int j;  
+            //windowing  
+            for(j=0; j<FRAMES_PER_BUFFER&&(j+(i-1)*NOT_OVERLAP)<numSamples; j++)  
+            {  
+                afterWin[j] = preemp[j+(i-1)*NOT_OVERLAP]*hammingWindow[j];    
+            }  
+            //Zero Padding  
+            for(int k = j-1; k < 512; k++)   afterWin[k] = 0.0f;  
+            //for(int a = 0; a < 512; a++) printf("%f ", afterWin[a]);  
+            //printf("\n");  
+            //FFT + power  
+            FFT_Power(afterWin, energySpectrum);  
+            //for(int a = 0; a < 512; a++) printf("%f ", energySpectrum[a]);  
+            //printf("\n");  
+            //Warping the frequency axis + FilterBank  
+            memset(mel, 0, sizeof(float)*NUM_FILTER);  
+            computeMel(mel, sampleRate, energySpectrum);  
+            //for(int a = 0; a < NUM_FILTER; a++) printf("%f ", mel[a]);  
+            //printf("\n");  
+            //DCT  
+            memset(c, 0, sizeof(float)*13);  
+            DCT(mel, c);  
+            //for(int k = 0; k < 13; k++) printf("%f ", c[k]);  
+            //printf("\n");  
+        }  
+        delete[] preemp;  
+    }  
+      
+    void FFT_Power(float *in, float *energySpectrum)  
+    {  
+        int len = 512;  
+        fftwf_complex *out = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex) * len);  
+        fftwf_plan p = fftwf_plan_dft_r2c_1d(len, in, out, FFTW_ESTIMATE);   
+        fftwf_execute(p);   
+        for (int i = 0; i < len; i++)    
+        {    
+            energySpectrum[i] = out[i][0]*out[i][0] + out[i][1]*out[i][1];    
+        }  
+        fftwf_destroy_plan(p);  
+        fftwf_free(out);    
+    }  
+      
+    void computeMel(float *mel, const int sampleRate, const float *energySpectrum)  
+    {  
+        int fmax = sampleRate/2;  
+        float maxMelFreq = 1127*log(1+fmax/700);  
+        float melFilters[NUM_FILTER][3];  
+        float delta = maxMelFreq/(NUM_FILTER+1);  
+        float *m = new float[NUM_FILTER+2];  
+        float *h = new float[NUM_FILTER+2];  
+        float *f = new float[NUM_FILTER+2];  
+        for(int i = 0; i < NUM_FILTER+2; i++)  
+        {  
+            m[i] = i * delta;  
+            h[i] = 700 * (exp(m[i]/1127) - 1);  
+            f[i] = floor((256+1) * h[i] / sampleRate);  //*********//  
+        }  
+        //get start, peak, end point of every trigle filter  
+        for(int i = 0; i < NUM_FILTER; i++)  
+        {  
+            melFilters[i][0] = f[i];  
+            melFilters[i][1] = f[i+1];  
+            melFilters[i][2] = f[i+2];  
+        }  
+        delete[] m;  
+        delete[] h;  
+        delete[] f;  
+        //calculate the output of every trigle filter  
+        for(int i = 0; i < NUM_FILTER; i++)  
+        {  
+            for(int j = 0; j < 256; j++)  
+            {  
+                if(j>=melFilters[i][0] && j<melFilters[i][1])  
+                {  
+                    mel[i] += ((j-melFilters[i][0])/(melFilters[i][1]-melFilters[i][0])) * energySpectrum[j];   
+                }  
+                if(j>melFilters[i][1] && j<=melFilters[i][2])  
+                {  
+                    mel[i] += ((j-melFilters[i][2])/(melFilters[i][1]-melFilters[i][2])) * energySpectrum[j];  
+                }  
+            }  
+        }  
+    }  
+      
+    void DCT(const float *mel, float *c)  
+    {  
+        for(int i = 0; i < 13; i++)  
+        {  
+            for(int j = 0; j < NUM_FILTER; j++)  
+            {  
+                if(mel[j] <= -0.0001 || mel[j] >= 0.0001)  
+                    c[i] += log(mel[j])*cos(3.14*i/(2*NUM_FILTER)*(2*j+1));  
+            }  
+        }  
+    }  
+
+
+要下载那个库fftw3：
+
+http://download.csdn.net/detail/c602273091/8790239
+
+你不会呀，我教你呀~

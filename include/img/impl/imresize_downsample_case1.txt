@@ -1,0 +1,33 @@
+switch (ccw) {
+case 1: {
+enum {__cch=1};
+#define ADDX(_i)  (a0[_i+(0)*__cn]+a0[_i+(1)*__cn])
+#include "imresize_downsample_case2.txt"
+#undef ADDX
+} break;
+case 2: {
+enum {__cch=2};
+#define ADDX(_i)  (a0[_i+(0)*__cn]+a0[_i+(1)*__cn]+a0[_i+(2)*__cn]+a0[_i+(3)*__cn])
+#include "imresize_downsample_case2.txt"
+#undef ADDX
+} break;
+case 3: {
+enum {__cch=3};
+#define ADDX(_i)  (a0[_i+(0)*__cn]+a0[_i+(1)*__cn]+a0[_i+(2)*__cn]+a0[_i+(3)*__cn]+a0[_i+(4)*__cn]+a0[_i+(5)*__cn]+a0[_i+(6)*__cn]+a0[_i+(7)*__cn])
+#include "imresize_downsample_case2.txt"
+#undef ADDX
+} break;
+case 4: {
+enum {__cch=4};
+#define ADDX(_i)  (a0[_i+(0)*__cn]+a0[_i+(1)*__cn]+a0[_i+(2)*__cn]+a0[_i+(3)*__cn]+a0[_i+(4)*__cn]+a0[_i+(5)*__cn]+a0[_i+(6)*__cn]+a0[_i+(7)*__cn]+a0[_i+(8)*__cn]+a0[_i+(9)*__cn]+a0[_i+(10)*__cn]+a0[_i+(11)*__cn]+a0[_i+(12)*__cn]+a0[_i+(13)*__cn]+a0[_i+(14)*__cn]+a0[_i+(15)*__cn])
+#include "imresize_downsample_case2.txt"
+#undef ADDX
+} break;
+case 5: {
+enum {__cch=5};
+#define ADDX(_i)  (a0[_i+(0)*__cn]+a0[_i+(1)*__cn]+a0[_i+(2)*__cn]+a0[_i+(3)*__cn]+a0[_i+(4)*__cn]+a0[_i+(5)*__cn]+a0[_i+(6)*__cn]+a0[_i+(7)*__cn]+a0[_i+(8)*__cn]+a0[_i+(9)*__cn]+a0[_i+(10)*__cn]+a0[_i+(11)*__cn]+a0[_i+(12)*__cn]+a0[_i+(13)*__cn]+a0[_i+(14)*__cn]+a0[_i+(15)*__cn]+a0[_i+(16)*__cn]+a0[_i+(17)*__cn]+a0[_i+(18)*__cn]+a0[_i+(19)*__cn]+a0[_i+(20)*__cn]+a0[_i+(21)*__cn]+a0[_i+(22)*__cn]+a0[_i+(23)*__cn]+a0[_i+(24)*__cn]+a0[_i+(25)*__cn]+a0[_i+(26)*__cn]+a0[_i+(27)*__cn]+a0[_i+(28)*__cn]+a0[_i+(29)*__cn]+a0[_i+(30)*__cn]+a0[_i+(31)*__cn])
+#include "imresize_downsample_case2.txt"
+#undef ADDX
+} break;
+}
+

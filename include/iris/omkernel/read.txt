@@ -1,0 +1,7 @@
+1.ordinalfilter.m用来构造定序滤波，程序构造了240种类型，大致分为水平二极子（变化了四种delata,四种size,八种
+distance共128种）和水平三极子（变化了四种delata,四种size,七种distance共112种）
+  示例程序中保存在当前文件中ordifilter2L.mat和ordifilter3L.mat
+
+2.main.m是主程序，该函数的功能是输入是一张灰度图片，输出为该图片通过事先构造好的240种定序滤波后的定序图。
+
+

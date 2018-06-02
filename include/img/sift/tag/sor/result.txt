@@ -1,0 +1,40 @@
+纹理
+F:\tagmfc\sor\1007.jpeg 0.783173  1
+F:\tagmfc\sor\1003.jpeg 0.730681  1.07184
+F:\tagmfc\sor\1009.jpeg 0.611461  1.28082
+F:\tagmfc\sor\1001.jpeg 0.558863  1.40137
+F:\tagmfc\sor\1006.jpeg 0.462411  1.69367
+F:\tagmfc\sor\1004.jpeg 0.405671  1.93056
+F:\tagmfc\sor\1008.jpeg 0.306703  2.55352
+F:\tagmfc\sor\1002.jpeg 0.169264  4.62693
+F:\tagmfc\sor\1000.jpeg 0  46.2693
+HSV
+F:\tagmfc\sor\1001.jpeg 0.668272  1
+F:\tagmfc\sor\1009.jpeg 0.623002  1.07267
+F:\tagmfc\sor\1006.jpeg 0.596931  1.11951
+F:\tagmfc\sor\1008.jpeg 0.58849  1.13557
+F:\tagmfc\sor\1003.jpeg 0.555474  1.20307
+F:\tagmfc\sor\1004.jpeg 0.525867  1.2708
+F:\tagmfc\sor\1007.jpeg 0.458487  1.45756
+F:\tagmfc\sor\1002.jpeg 0.389289  1.71665
+F:\tagmfc\sor\1000.jpeg 3.51224e-009  1.9027e+008
+sift
+F:\tagmfc\sor\1000.jpeg 2  3
+F:\tagmfc\sor\1001.jpeg 2  3
+F:\tagmfc\sor\1002.jpeg 2  3
+F:\tagmfc\sor\1007.jpeg 2  3
+F:\tagmfc\sor\1004.jpeg 1  2
+F:\tagmfc\sor\1006.jpeg 1  2
+F:\tagmfc\sor\1003.jpeg 0  0
+F:\tagmfc\sor\1008.jpeg 0  0
+F:\tagmfc\sor\1009.jpeg 0  0
+最后结果
+F:\tagmfc\sor\1000.jpeg 1  1
+F:\tagmfc\sor\1000.jpeg 1  2
+F:\tagmfc\sor\1000.jpeg 1  3
+F:\tagmfc\sor\1002.jpeg 4.9107e-008  4
+F:\tagmfc\sor\1002.jpeg 4.9107e-008  5
+F:\tagmfc\sor\1002.jpeg 4.9107e-008  6
+F:\tagmfc\sor\1007.jpeg 2.86833e-008  7
+F:\tagmfc\sor\1007.jpeg 2.86833e-008  8
+F:\tagmfc\sor\1007.jpeg 2.86833e-008  9

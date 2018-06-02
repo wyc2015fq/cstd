@@ -1,0 +1,1 @@
+these 4 project are setted "release - multithread - use MFC in static" mode

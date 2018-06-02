@@ -1,0 +1,387 @@
+10 9
+#########
+#PKK#####
+#KBB#####
+#KBK###T#
+###K###T#
+###KKKKT#
+###KKKKK#
+##KKK#KK#
+##KKK####
+#########
+8 8
+########
+##TTKKT#
+###K#K##
+#TKB#K##
+#K#PBK##
+#KBBBK##
+#KKBKTT#
+########
+9 9
+#########
+##KKTKK##
+#TK#B#KT#
+#KKBTBKK#
+#KKBTBKK#
+###BPB###
+###K#K###
+###TKT###
+#########
+7 7
+#######
+#PK#KK#
+#KBKKK#
+#KBTKK#
+#KBT#K#
+##KTKK#
+#######
+7 7
+#######
+#KKBTK#
+#KKKKK#
+##KB#T#
+###PBK#
+####KT#
+#######
+8 6
+######
+##TK##
+##KK##
+#KKBK#
+#KKYK#
+#KKBP#
+###T##
+######
+7 6
+######
+#PKKT#
+#YBBK#
+#K#KK#
+#KKTK#
+##KK##
+######
+8 6
+######
+##KKK#
+#KT#K#
+#KTKK#
+#KKB##
+#KKBP#
+##KBT#
+######
+7 6
+######
+#TBKK#
+#PKKK#
+#YKKT#
+#KB#K#
+##KKK#
+######
+7 7
+#######
+#KKK###
+#K#KKT#
+#YBKBT#
+#KK##K#
+#KKKKP#
+#######
+7 7
+#######
+#KKYKP#
+#K#TKK#
+#KKB#K#
+###KBK#
+###KKT#
+#######
+7 6
+######
+##TKK#
+##KKB#
+#KYKT#
+#K#BK#
+#PKK##
+######
+8 6
+######
+#PKKK#
+#KT#K#
+#KBBK#
+#KYTK#
+##KKK#
+###KK#
+######7 7
+#######
+#KKKKK#
+#K#KBK#
+#TTTB##
+#KKKBK#
+###KKP#
+#######6 7
+#######
+#KKTBP#
+#KKB#K#
+#KKKYT#
+#KK####
+#######8 6
+######
+#KKKK#
+#KB#K#
+#TBPT#
+#K#B##
+#KTKK#
+##KKK#
+######7 7
+#######
+#PK#KK#
+#KBKKK#
+#KBTKK#
+##BT#K#
+##KTKK#
+#######7 7
+#######
+#KKBTK#
+#KKKKK#
+##KB#T#
+###PBK#
+####KT#
+#######6 6
+######
+#PBTK#
+#KBKK#
+#KB#T#
+#TKKK#
+######8 6
+######
+#TKK##
+#KKBK#
+##Y#K#
+#KBKK#
+#KK#K#
+#KTKP#
+######6 7
+#######
+##PKKK#
+#KY#KK#
+#KBKKK#
+#TTBKK#
+#######8 6
+######
+##KKK#
+##PKK#
+##BKK#
+#KKYK#
+#TKY##
+#KKK##
+######8 6
+######
+#KKP##
+#KBBK#
+##KBT#
+#TTKK#
+#K#KK#
+#KKK##
+######8 7
+#######
+#KKK###
+#KPBKK#
+###K#K#
+#KTBKT#
+#KK#BK#
+#KKTKK#
+#######7 7
+#######
+###KKT#
+#KBK#K#
+#KKYKK#
+#K##KK#
+#PKKYK#
+#######8 6
+######
+#KKK##
+#TTKK#
+##B#K#
+#KBPK#
+#KB#K#
+#KTKK#
+######7 6
+######
+#PBTK#
+#TBBK#
+##KKT#
+##K#K#
+##KKK#
+######7 7
+#######
+#KKYPK#
+#TKK#K#
+#TKBBK#
+#K#K###
+#KKK###
+#######7 7
+#######
+###KKK#
+##TK#B#
+##BBKK#
+#KBKTT#
+#PT####
+#######6 8
+########
+#KKKTKK#
+#KB#K#K#
+#KYKBKK#
+#PKT####
+########7 7
+#######
+##TKK##
+##KKB##
+#KTBTK#
+#K#BKK#
+#PKK###
+#######7 9
+#########
+####KKKK#
+####Y##K#
+###KYKKK#
+#KKBKKK##
+#KKT#PK##
+#########9 7
+#######
+###PKK#
+##KB#K#
+#KTBTT#
+#KKBKK#
+#KKB#T#
+###K#K#
+###KKK#
+#######8 6
+######
+##KKK#
+#PB#T#
+#KBTK#
+#TBKK#
+##KK##
+##KK##
+######8 8
+########
+#####KT#
+#####KT#
+#KKKBBK#
+#KKBTYP#
+#KKK#K##
+###KKK##
+########7 8
+########
+###KKP##
+###B#B##
+#KKTKTK#
+#KBKK#K#
+###KTKK#
+########7 6
+######
+#KKBT#
+#TTKK#
+#BBKK#
+#PB#K#
+##TKK#
+######7 6
+######
+#KKKK#
+#BKKT#
+#TBBY#
+#PK#T#
+##KKK#
+######8 6
+######
+#KKK##
+#KKK##
+##BBK#
+#KK#T#
+#KBPT#
+#KKKT#
+######8 7
+#######
+#T#####
+#KKKBP#
+#K#TBB#
+#KBK#K#
+#KBTKT#
+#KK#KT#
+#######7 9
+#########
+###KTKKK#
+##KKK##K#
+#KK#YBKK#
+#KKKKKB##
+#PKK#TK##
+#########9 7
+#######
+#KKKKT#
+#K#B#K#
+#K#KBP#
+#TBKK##
+###KKK#
+####YK#
+####TK#
+#######9 7
+#######
+#TKKKK#
+#B#KKK#
+#T#K#K#
+#TKBKT#
+##BKK##
+##KBBK#
+###TKP#
+#######8 7
+#######
+##KKK##
+##B#T##
+#KKBKK#
+#KKTTK#
+##B#K##
+##PKK##
+#######7 9
+#########
+###KKP###
+###K#K###
+#KBYBTKK#
+#K#KKK#K#
+#KKK#TKK#
+#########7 9
+#########
+####KKKK#
+####Y##K#
+###KYKKK#
+#KKBKKK##
+#KKT#PK##
+#########7 7
+#######
+##TKK##
+##KKB##
+#KTBTK#
+#K#BKK#
+#PKK###
+#######7 6
+######
+#PBTK#
+#YBKK#
+#KBKK#
+#KK#T#
+##KKT#
+######8 10
+##########
+###PKK####
+#KTB#T####
+#KYKYT#KK#
+#KYK#Y#KK#
+#KBKKKKBK#
+##KK#KKKK#
+##########8 9
+#########
+#KKK#PKK#
+#KKKBBBK#
+#KB##K#K#
+#KKT#TBK#
+#KKT#TBK#
+###T#TKK#
+#########

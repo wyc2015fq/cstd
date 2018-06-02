@@ -1,0 +1,85 @@
+
+int button_set(button_t* s, ctrl_t* li, sys_t* sys, const char* text) {
+  ctrl_set(button_proc, s, s->c, li, text, sys);
+  return 0;
+}
+typedef struct title_editctrl_t {
+  ctrl_t c[1];
+  const char* title;
+  editctrl_t edit[1];
+} title_editctrl_t;
+static int title_editctrl_set(title_editctrl_t* s, const char* title, const char* str, int fmt)
+{
+  s->title = "ip";
+  str_setstr1(s->edit->str, STR1("192.168.1.121"));
+  s->edit->fmt = TT_SINGLELINE;
+  return 0;
+}
+static int title_editctrl_calc_rect(title_editctrl_t* s, IRECT rc, const char* title, IRECT* outrc, ctrl_t* edt)
+{
+  ISIZE sz = font_text_size(s->c->fo, title, -1, 0);
+  edt->rc = *outrc = rc;
+  edt->rc.l = outrc->r = outrc->l + sz.w + 2;
+  return 0;
+}
+static char* title_editctrl_gettext(title_editctrl_t* s)
+{
+  return s->edit->str->s;
+}
+static LRESULT title_editctrl_proc(ctrl_t* sender, ctrl_t* c, HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+  title_editctrl_t* s = (title_editctrl_t*)c->x;
+  IRECT rc = c->rc;
+  int x = LOWORD(lParam), y = HIWORD(lParam);
+
+  if (WM_CTRLINIT == uMsg) {
+    ctrl_set(editctrl_proc, s->edit, s->edit->c, c, c->sys);
+    return 0;
+  }
+
+  if (WM_PAINT != uMsg && WM_SIZE != uMsg) {
+    if (s->edit->c->ctrlproc(c, s->edit->c, hwnd, uMsg, wParam, lParam)) {
+      return 0;
+    }
+  }
+
+  if (WM_CTRLFREE == uMsg) {
+    c->ctrlproc = 0;
+    return 0;
+  }
+
+  switch (uMsg) {
+  case WM_SIZE: {
+    IRECT rc0 = {0};
+    title_editctrl_calc_rect(s, rc, s->title, &rc0, s->edit->c);
+    s->edit->c->ctrlproc(c, s->edit->c, hwnd, uMsg, wParam, lParam);
+  }
+  break;
+
+  case WM_GETMINMAXINFO: {
+    MINMAXINFO* mminfo = (PMINMAXINFO)lParam;
+    ISIZE sz = font_text_size(c->fo, s->title, -1, 0);
+    mminfo->ptMinTrackSize.x += sz.w + 2;
+    mminfo->ptMinTrackSize.y = sz.h + 2;
+    //printf("WM_MOUSEMOVE\n");
+  }
+  break;
+
+  case WM_PAINT:
+    if (c->redraw) {
+      img_t* im = (img_t*)wParam;
+      IRECT rc0 = {0};
+      //{static int aaa=0; printf("edit WM_PAINT %d\n", aaa++);}
+      title_editctrl_calc_rect(s, rc, s->title, &rc0, s->edit->c);
+      //imdraw_rect(im, &rc0, rc0, rgb(1,1,1), 0, 0, 0);
+      imdraw_text(im, &rc0, rc0, s->title, -1, c->fo, _RGB(0, 0, 0), 0, TT_VCENTER | TT_CENTER);
+      s->edit->c->redraw = 1;
+      c->redraw = 0;
+    }
+
+    s->edit->c->ctrlproc(c, s->edit->c, hwnd, uMsg, wParam, lParam);
+    break;
+  }
+
+  return 0;
+}

@@ -1,0 +1,271 @@
+  // Set up pixel format descriptor with desired parameters
+  PIXELFORMATDESCRIPTOR pfd[1] = {
+    sizeof(PIXELFORMATDESCRIPTOR),             // Size Of This Pixel Format Descriptor
+      1,                                         // Version Number
+      PFD_DRAW_TO_WINDOW |                       // Format Must Support Window
+      PFD_SUPPORT_OPENGL |                       // Format Must Support OpenGL
+      (Params->Doublebuffer ? PFD_DOUBLEBUFFER : 0) | // Must Support Double Buffering
+      (Params->Stereobuffer ? PFD_STEREO : 0),    // Must Support Stereo Buffer
+      PFD_TYPE_RGBA,                             // Request An RGBA Format
+      Params->Bits,                               // Select Our Color Depth
+      0, 0, 0, 0, 0, 0,                          // Color Bits Ignored
+      0,                                         // No Alpha Buffer
+      0,                                         // Shift Bit Ignored
+      0,                                         // No Accumulation Buffer
+      0, 0, 0, 0,                                // Accumulation Bits Ignored
+      Params->ZBufferBits,                        // Z-Buffer (Depth Buffer)
+      (BYTE)(Params->Stencilbuffer ? 1 : 0),        // Stencil Buffer Depth
+      0,                                         // No Auxiliary Buffer
+      PFD_MAIN_PLANE,                            // Main Drawing Layer
+      0,                                         // Reserved
+      0, 0, 0                                    // Layer Masks Ignored
+  };
+  
+  GLuint PixelFormat;
+  int i;
+  for (i = 0; i < 6; ++i) {
+    if (i == 1) {
+      if (Params->Stencilbuffer) {
+        llogprintf(ELL_WARNING, "Cannot create a GL device with stencil buffer, disabling stencil shadows.");
+        Params->Stencilbuffer = false;
+        pfd->cStencilBits = 0;
+      }
+      else {
+        continue;
+      }
+    }
+    else if (i == 2) {
+      pfd->cDepthBits = 24;
+    }
+    else if (i == 3) {
+      if (Params->Bits != 16) {
+        pfd->cDepthBits = 16;
+      }
+      else {
+        continue;
+      }
+    }
+    else if (i == 4) {
+      // try single buffer
+      if (Params->Doublebuffer) {
+        pfd->dwFlags &= ~PFD_DOUBLEBUFFER;
+      }
+      else {
+        continue;
+      }
+    }
+    else if (i == 5) {
+      llogprintf(ELL_ERROR, "Cannot create a GL device context", "No suitable format for temporary window.");
+      ReleaseDC(s->hWnd, s->hDC);
+      return false;
+    }
+    // choose pixelformat
+    PixelFormat = ChoosePixelFormat(s->hDC, pfd);
+    if (PixelFormat) {
+      break;
+    }
+  }
+  
+  SetPixelFormat(s->hDC, PixelFormat, pfd);
+  s->hGLRC = wglCreateContext(s->hDC);
+  if (!s->hGLRC) {
+    llogprintf(ELL_ERROR, "Cannot create a temporary GL rendering context.");
+    ReleaseDC(s->hWnd, s->hDC);
+    return NULL;
+  }
+  
+  if (!wglMakeCurrent(s->hDC, s->hGLRC)) {
+    llogprintf(ELL_ERROR, "Render Context switch failed.");
+    llogprintf(ELL_ERROR, "Cannot activate a temporary GL rendering context.");
+    wglDeleteContext(s->hGLRC);
+    ReleaseDC(s->hWnd, s->hDC);
+    return false;
+  }
+  char* wglExtensions = NULL;
+#ifdef WGL_ARB_extensions_string
+  PFNWGLGETEXTENSIONSSTRINGARBPROC irrGetExtensionsString = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
+  if (irrGetExtensionsString) {
+    wglExtensions = irrGetExtensionsString(s->hDC);
+  }
+#elif defined(WGL_EXT_extensions_string)
+  PFNWGLGETEXTENSIONSSTRINGEXTPROC irrGetExtensionsString = (PFNWGLGETEXTENSIONSSTRINGEXTPROC)wglGetProcAddress("wglGetExtensionsStringEXT");
+  if (irrGetExtensionsString) {
+    wglExtensions = irrGetExtensionsString(s->hDC);
+  }
+#endif
+#ifdef WGL_ARB_pixel_format
+  const bool pixel_format_supported = (strstr(wglExtensions, "WGL_ARB_pixel_format")!=NULL);
+  const bool multi_sample_supported = ((strstr(wglExtensions, "WGL_ARB_multisample")!=NULL) ||
+      (strstr(wglExtensions, "WGL_EXT_multisample") !=NULL) || (strstr(wglExtensions, "WGL_3DFX_multisample") !=NULL));
+#ifdef _DEBUG
+  llogprintf(ELL_DEBUG, "WGL_extensions %s", wglExtensions);
+#endif
+  PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormat_ARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
+  if (pixel_format_supported && wglChoosePixelFormat_ARB) {
+    // This value determines the number of samples used for antialiasing
+    // My experience is that 8 does not show a big
+    // improvement over 4, but 4 shows a big improvement
+    // over 2.
+    if (AntiAlias > 32) {
+      AntiAlias = 32;
+    }
+    f32 fAttributes[] = {0.0, 0.0};
+    s32 iAttributes[] = {
+      WGL_DRAW_TO_WINDOW_ARB, 1,
+      WGL_SUPPORT_OPENGL_ARB, 1,
+      WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
+      WGL_COLOR_BITS_ARB, (Params->Bits == 32) ? 24 : 15,
+      WGL_ALPHA_BITS_ARB, (Params->Bits == 32) ? 8 : 1,
+      WGL_DEPTH_BITS_ARB, Params->ZBufferBits, // 10,11
+      WGL_STENCIL_BITS_ARB, Params->Stencilbuffer ? 1 : 0,
+      WGL_DOUBLE_BUFFER_ARB, Params->Doublebuffer ? 1 : 0,
+      WGL_STEREO_ARB, Params->Stereobuffer ? 1 : 0,
+      WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+#ifdef WGL_ARB_multisample
+      WGL_SAMPLES_ARB, AntiAlias, // 20,21
+      WGL_SAMPLE_BUFFERS_ARB, 1,
+#elif defined(WGL_EXT_multisample)
+      WGL_SAMPLES_EXT, AntiAlias, // 20,21
+      WGL_SAMPLE_BUFFERS_EXT, 1,
+#elif defined(WGL_3DFX_multisample)
+      WGL_SAMPLES_3DFX, AntiAlias, // 20,21
+      WGL_SAMPLE_BUFFERS_3DFX, 1,
+#endif
+#ifdef WGL_ARB_framebuffer_sRGB
+      WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB, Params->HandleSRGB ? 1 : 0,
+#elif defined(WGL_EXT_framebuffer_sRGB)
+      WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT, Params->HandleSRGB ? 1 : 0,
+#endif
+      //      WGL_DEPTH_FLOAT_EXT, 1,
+      0, 0, 0, 0
+    };
+    int iAttrSize = sizeof(iAttributes) / sizeof(int);
+    const bool framebuffer_srgb_supported = ((strstr(wglExtensions, "WGL_ARB_framebuffer_sRGB") != -1) ||
+        (strstr(wglExtensions, "WGL_EXT_framebuffer_sRGB") != -1));
+    if (!framebuffer_srgb_supported) {
+      memmove(&iAttributes[24], &iAttributes[26], sizeof(int) * (iAttrSize - 26));
+      iAttrSize -= 2;
+    }
+    if (!multi_sample_supported) {
+      memmove(&iAttributes[20], &iAttributes[24], sizeof(int) * (iAttrSize - 24));
+      iAttrSize -= 4;
+    }
+    s32 rv = 0;
+    // Try to get an acceptable pixel format
+    do {
+      int pixelFormat = 0;
+      UINT numFormats = 0;
+      const BOOL valid = wglChoosePixelFormat_ARB(s->hDC, iAttributes, fAttributes, 1, &pixelFormat, &numFormats);
+      if (valid && numFormats) {
+        rv = pixelFormat;
+      }
+      else {
+        iAttributes[21] -= 1;
+      }
+    }
+    while (rv == 0 && iAttributes[21] > 1);
+    if (rv) {
+      PixelFormat = rv;
+      s->AntiAlias = iAttributes[21];
+    }
+  }
+  else 
+#endif
+  {
+    s->AntiAlias = 0;
+  }
+  wglMakeCurrent(s->hDC, NULL);
+  wglDeleteContext(s->hGLRC);
+  ReleaseDC(s->hWnd, s->hDC);
+  // get hdc
+  s->hDC = GetDC(s->hWnd);
+  if (!s->hDC) {
+    llogprintf(ELL_ERROR, "Cannot create a GL device context.");
+    return false;
+  }
+  // search for pixel format the simple way
+  if (PixelFormat == 0 || (!SetPixelFormat(s->hDC, PixelFormat, pfd))) {
+    int i;
+    for (i = 0; i < 5; ++i) {
+      if (i == 1) {
+        if (Params->Stencilbuffer) {
+          llogprintf(ELL_WARNING, "Cannot create a GL device with stencil buffer, disabling stencil shadows.");
+          Params->Stencilbuffer = false;
+          pfd->cStencilBits = 0;
+        }
+        else {
+          continue;
+        }
+      }
+      else if (i == 2) {
+        pfd->cDepthBits = 24;
+      }
+      if (i == 3) {
+        if (Params->Bits != 16) {
+          pfd->cDepthBits = 16;
+        }
+        else {
+          continue;
+        }
+      }
+      else if (i == 4) {
+        llogprintf(ELL_ERROR, "Cannot create a GL device context", "No suitable format.");
+        return false;
+      }
+      // choose pixelformat
+      PixelFormat = ChoosePixelFormat(s->hDC, pfd);
+      if (PixelFormat) {
+        break;
+      }
+    }
+    // set pixel format
+    if (!SetPixelFormat(s->hDC, PixelFormat, pfd)) {
+      llogprintf(ELL_ERROR, "Cannot set the pixel format.");
+      return false;
+    }
+  }
+  llogprintf(ELL_DEBUG, "Pixel Format %d", PixelFormat);
+  // create rendering context
+#ifdef WGL_ARB_create_context
+  PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribs_ARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+  if (wglCreateContextAttribs_ARB) {
+    int iAttribs[] = {
+      WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+      WGL_CONTEXT_MINOR_VERSION_ARB, 1,
+      0
+    };
+    s->hGLRC = wglCreateContextAttribs_ARB(s->hDC, 0, iAttribs);
+  }
+  else
+#endif
+    s->hGLRC = wglCreateContext(s->hDC);
+  if (!s->hGLRC) {
+    llogprintf(ELL_ERROR, "Cannot create a GL rendering context.");
+    return false;
+  }
+  // activate rendering context
+  if (!wglMakeCurrent(s->hDC, s->hGLRC)) {
+    llogprintf(ELL_ERROR, "Cannot activate GL rendering context");
+    wglDeleteContext(s->hGLRC);
+    return false;
+  }
+  int pf = GetPixelFormat(s->hDC);
+  DescribePixelFormat(s->hDC, pf, sizeof(PIXELFORMATDESCRIPTOR), pfd);
+  if (pfd->cAlphaBits != 0) {
+    if (pfd->cRedBits == 8) {
+      s->ColorFormat = ECF_A8R8G8B8;
+    }
+    else {
+      s->ColorFormat = ECF_A1R5G5B5;
+    }
+  }
+  else {
+    if (pfd->cRedBits == 8) {
+      s->ColorFormat = ECF_R8G8B8;
+    }
+    else {
+      s->ColorFormat = ECF_R5G6B5;
+    }
+  }
+  //genericDriverInit();
+  //extGlSwapInterval(Params->Vsync ? 1 : 0);

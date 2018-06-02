@@ -1,0 +1,236 @@
+ Opencv距离变换distanceTransform应用——细化字符轮廓&&查找物体质心
+标签： Opencv距离变换distanceTransform轮廓细化
+2017-01-09 10:07 2240人阅读 评论(0) 收藏 举报
+分类：
+OpenCV（3）
+
+原文地址:http://blog.csdn.NET/dcrmg/article/details/52517991
+
+
+OpenCV中distanceTransform方法用于计算图像中每一个非零点距离离自己最近的零点的距离，distanceTransform的第二个Mat矩阵参数dst保存了每一个点与最近的零点的距离信息，图像上越亮的点，代表了离零点的距离越远。
+
+
+可以根据距离变换的这个性质，经过简单的运算，用于细化字符的轮廓和查找物体质心（中心）。
+
+
+一、细化轮廓
+
+
+[cpp] view plain copy
+
+    #include "core/core.hpp"  
+    #include "imgproc/imgproc.hpp"  
+    #include "highgui/highgui.hpp"  
+      
+    using namespace cv;  
+      
+    int main(int argc,char *argv[])  
+    {  
+        float maxValue=0;  //定义距离变换矩阵中的最大值  
+        CvMat image=imread(argv[1]);  
+        CvMat imageGray;  
+        cvtColor(image,imageGray,CC_RGB2GRAY);  
+        imageGray=~imageGray;  //取反  
+        GaussianBlur(imageGray,imageGray,CvSize(5,5),2); //滤波  
+        threshold(imageGray,imageGray,20,200,CC_THRESH_BINARY); //阈值  
+        imshow("s",imageGray);  
+        CvMat imageThin(imageGray.size(),CC_32FC1); //定义保存距离变换结果的Mat矩阵  
+        distanceTransform(imageGray,imageThin,CC_DIST_L2,3);  //距离变换  
+        CvMat distShow;  
+        distShow=CvMat::zeros(imageGray.size(),CC_8UC1); //定义细化后的字符轮廓  
+        for(int i=0;i<imageThin.rows;i++)  
+        {  
+            for(int j=0;j<imageThin.cols;j++)  
+            {  
+                if(imageThin.at<float>(i,j)>maxValue)  
+                {  
+                    maxValue=imageThin.at<float>(i,j);  //获取距离变换的极大值  
+                }  
+            }  
+        }  
+        for(int i=0;i<imageThin.rows;i++)  
+        {  
+            for(int j=0;j<imageThin.cols;j++)  
+            {  
+                if(imageThin.at<float>(i,j)>maxValue/1.9)  
+                {  
+                    distShow.at<uchar>(i,j)=255;   //符合距离大于最大值一定比例条件的点设为255  
+                }  
+            }  
+        }  
+        imshow("Source Image",image);  
+        imshow("Thin Image",distShow);  
+        waitKey();  
+        return 0;  
+    }  
+
+[cpp] view plain copy
+
+    #include "core/core.hpp"  
+    #include "imgproc/imgproc.hpp"  
+    #include "highgui/highgui.hpp"  
+      
+    using namespace cv;  
+      
+    int main(int argc,char *argv[])  
+    {  
+        float maxValue=0;  //定义距离变换矩阵中的最大值  
+        CvMat image=imread(argv[1]);  
+        CvMat imageGray;  
+        cvtColor(image,imageGray,CC_RGB2GRAY);  
+        imageGray=~imageGray;  //取反  
+        GaussianBlur(imageGray,imageGray,CvSize(5,5),2); //滤波  
+        threshold(imageGray,imageGray,20,200,CC_THRESH_BINARY); //阈值  
+        imshow("s",imageGray);  
+        CvMat imageThin(imageGray.size(),CC_32FC1); //定义保存距离变换结果的Mat矩阵  
+        distanceTransform(imageGray,imageThin,CC_DIST_L2,3);  //距离变换  
+        CvMat distShow;  
+        distShow=CvMat::zeros(imageGray.size(),CC_8UC1); //定义细化后的字符轮廓  
+        for(int i=0;i<imageThin.rows;i++)  
+        {  
+            for(int j=0;j<imageThin.cols;j++)  
+            {  
+                if(imageThin.at<float>(i,j)>maxValue)  
+                {  
+                    maxValue=imageThin.at<float>(i,j);  //获取距离变换的极大值  
+                }  
+            }  
+        }  
+        for(int i=0;i<imageThin.rows;i++)  
+        {  
+            for(int j=0;j<imageThin.cols;j++)  
+            {  
+                if(imageThin.at<float>(i,j)>maxValue/1.9)  
+                {  
+                    distShow.at<uchar>(i,j)=255;   //符合距离大于最大值一定比例条件的点设为255  
+                }  
+            }  
+        }  
+        imshow("Source Image",image);  
+        imshow("Thin Image",distShow);  
+        waitKey();  
+        return 0;  
+    }  
+
+
+对字母进行细化，原始图像：
+
+
+
+细化效果：
+
+
+
+对数字进行细化，原始图像：
+
+
+
+细化效果：
+
+
+
+二、查找物体质心
+
+
+[cpp] view plain copy
+
+    #include "core/core.hpp"  
+    #include "imgproc/imgproc.hpp"  
+    #include "highgui/highgui.hpp"  
+      
+    using namespace cv;  
+      
+    int main(int argc,char *argv[])  
+    {  
+        float maxValue=0;  //定义距离变换矩阵中的最大值  
+        Point Pt(0,0);  
+        CvMat image=imread(argv[1]);  
+        CvMat imageGray;  
+        cvtColor(image,imageGray,CC_RGB2GRAY);  
+        imageGray=~imageGray;  //取反  
+        GaussianBlur(imageGray,imageGray,CvSize(5,5),2); //滤波  
+        threshold(imageGray,imageGray,20,200,CC_THRESH_BINARY); //阈值化     
+        CvMat imageThin(imageGray.size(),CC_32FC1); //定义保存距离变换结果的Mat矩阵  
+        distanceTransform(imageGray,imageThin,CC_DIST_L2,3);  //距离变换  
+        CvMat distShow;  
+        distShow=CvMat::zeros(imageGray.size(),CC_8UC1); //定义细化后的字符轮廓  
+        for(int i=0;i<imageThin.rows;i++)  
+        {  
+            for(int j=0;j<imageThin.cols;j++)  
+            {  
+                distShow.at<uchar>(i,j)=imageThin.at<float>(i,j);  
+                if(imageThin.at<float>(i,j)>maxValue)  
+                {  
+                    maxValue=imageThin.at<float>(i,j);  //获取距离变换的极大值  
+                    Pt=Point(j,i);  //坐标  
+                }  
+            }  
+        }  
+        normalize(distShow,distShow,0,255,CC_MINMAX); //为了显示清晰，做了0~255归一化  
+        circle(image,Pt,maxValue,Scalar(0,0,255),3);      
+        circle(image,Pt,3,Scalar(0,255,0),3);  
+        imshow("Source Image",image);  
+        imshow("Thin Image",distShow);  
+        waitKey();  
+        return 0;  
+    }  
+
+[cpp] view plain copy
+
+    #include "core/core.hpp"  
+    #include "imgproc/imgproc.hpp"  
+    #include "highgui/highgui.hpp"  
+      
+    using namespace cv;  
+      
+    int main(int argc,char *argv[])  
+    {  
+        float maxValue=0;  //定义距离变换矩阵中的最大值  
+        Point Pt(0,0);  
+        CvMat image=imread(argv[1]);  
+        CvMat imageGray;  
+        cvtColor(image,imageGray,CC_RGB2GRAY);  
+        imageGray=~imageGray;  //取反  
+        GaussianBlur(imageGray,imageGray,CvSize(5,5),2); //滤波  
+        threshold(imageGray,imageGray,20,200,CC_THRESH_BINARY); //阈值化     
+        CvMat imageThin(imageGray.size(),CC_32FC1); //定义保存距离变换结果的Mat矩阵  
+        distanceTransform(imageGray,imageThin,CC_DIST_L2,3);  //距离变换  
+        CvMat distShow;  
+        distShow=CvMat::zeros(imageGray.size(),CC_8UC1); //定义细化后的字符轮廓  
+        for(int i=0;i<imageThin.rows;i++)  
+        {  
+            for(int j=0;j<imageThin.cols;j++)  
+            {  
+                distShow.at<uchar>(i,j)=imageThin.at<float>(i,j);  
+                if(imageThin.at<float>(i,j)>maxValue)  
+                {  
+                    maxValue=imageThin.at<float>(i,j);  //获取距离变换的极大值  
+                    Pt=Point(j,i);  //坐标  
+                }  
+            }  
+        }  
+        normalize(distShow,distShow,0,255,CC_MINMAX); //为了显示清晰，做了0~255归一化  
+        circle(image,Pt,maxValue,Scalar(0,0,255),3);      
+        circle(image,Pt,3,Scalar(0,255,0),3);  
+        imshow("Source Image",image);  
+        imshow("Thin Image",distShow);  
+        waitKey();  
+        return 0;  
+    }  
+
+
+
+原始图像：
+
+
+
+经过距离变换后距离Mat矩阵dst：
+
+
+
+上图为了显示清晰，做了0~255的归一化。可以看到，中心处最亮，说明了中心点距离零点的距离最远，而最远处就可以作为物体的质心。
+
+
+标记质心（绿色点）：
+
+

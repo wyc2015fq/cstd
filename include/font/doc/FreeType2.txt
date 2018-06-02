@@ -1,0 +1,261 @@
+ FreeType2
+
+FreeType2的简单使用: 
+FreeType2是一个简单的跨平台的字体绘制引擎.目前支持TrueType Type1 Type2等字体格式.不过目前好象还不支持OpenType. 
+使用FreeType的应用很多.著名的FTGL就是使用FreeType的.能在OpenGL高效率的绘制矢量字体. 
+FTGL我没用过.因为不想在没了解该怎么用FreeType的情况下就去用FTGL.
+
+经过一个晚上的阅读代码(我的代码阅读能力是很差的).终于知道了如何使用FreeType2了。不过是简单的使用，还不知道如何设置Bold Itainly等属性.主要是简单的演示.以后准备做成一个完善的字体引擎. 
+下面简单的介绍一下.
+
+首先当然是包含头文件了。头文件要这样包含: 
+#include [ft2build.h] 
+#include FT_FREETYPE_H 
+不知道为什么.反正就是要这么包含. 
+以下为FT2的初始化代码.和绘制以及释放的代码> 
+注意这里绘制代码接受的字符是Unicode.表示你这样旧可以绘制了 
+FT2_Obj font; 
+font.Init("SimSun.ttf",32); 
+wchat_t pText[]=L"潘李亮是一头野猪"; 
+for(int n = 0 ; n< wcslen(pText);n++) 
+{ 
+      font.DrawAUnicode(pText[n];   
+} 
+font.Free();
+
+//以下为FT2_Obj的代码. 
+//主要参考了Nehe的Lesson 43 
+class FT2_Obj 
+{ 
+       FT_Library library; 
+       int h ; 
+        FT_Face face;
+
+public: 
+      void Init(const char * fname, unsigned int h); 
+      void Free(); 
+       void DrawAUnicode(wchar_t ch)       
+}; 
+void FT2_Obj::Init(const char * fname, unsigned int h) 
+{ 
+            this->h=h;
+
+            //初始化FreeType库.. 
+            if (FT_Init_FreeType( &library ))  
+                        throw std::runtime_error("FT_Init_FreeType failed");
+
+            //加载一个字体,取默认的Face,一般为Regualer 
+            if (FT_New_Face( library, fname, 0, &face ))  
+                        throw std::runtime_error("FT_New_Face failed (there is probably a problem with your font file)");
+
+            //大小要乘64.这是规定。照做就可以了。 
+            FT_Set_Char_Size( face,h<< 6, h << 6, 96, 96); 
+            FT_Matrix     matrix;              /* transformation matrix */ 
+            FT_UInt       glyph_index; 
+            FT_Vector     pen; 
+            //给它设置个旋转矩阵 
+            float angle = -20/180.* 3.14; 
+            matrix.xx = (FT_Fixed)( cos( angle ) * 0x10000L ); 
+            matrix.xy = (FT_Fixed)(-sin( angle ) * 0x10000L ); 
+            matrix.yx = (FT_Fixed)( sin( angle ) * 0x10000L ); 
+            matrix.yy = (FT_Fixed)( cos( angle ) * 0x10000L );
+
+            FT_Set_Transform( face, &matrix, &pen ); 
+}.
+
+         /* 
+                绘制操作. 
+          */ 
+void FT2_Obj::DrawAUnicode(wchar_t ch) 
+{ 
+            if(FT_Load_Glyph( face, FT_Get_Char_Index( face, ch ), FT_LOAD_DEFAULT ))
+                        throw std::runtime_error("FT_Load_Glyph failed");
+
+            //得到字模 
+            FT_Glyph glyph; 
+            if(FT_Get_Glyph( face->glyph, &glyph )) 
+                        throw std::runtime_error("FT_Get_Glyph failed");
+
+             //转化成位图 
+            FT_Render_Glyph( face->glyph,   FT_RENDER_MODE_NORMAL  );  
+            FT_Glyph_To_Bitmap( &glyph, ft_render_mode_normal, 0, 1 ); 
+            FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;
+
+           //取道位图数据 
+            FT_Bitmap& bitmap=bitmap_glyph->bitmap;
+
+           //把位图数据拷贝自己定义的数据区里.这样旧可以画到需要的东西上面了。 
+            int width =  bitmap.width; 
+            int height =  bitmap.rows;
+
+            usigned char* expanded_data = new usigned char[ 3 * width * height];
+
+            for(int j=0; j  
+< height ; j++) 
+           { 
+                        for(int i=0; i < width; i++) 
+                        { 
+                                    expanded_data[3*(i+(height-j-1)*width)]=  
+                                    expanded_data[3*(i+(height-j-1)*width)+1] =  
+                                    expanded_data[3*(i+(height-j-1)*width)+2] = 
+                                    (i>=bitmap.width || j>=bitmap.rows) ? 
+                                                0 : bitmap.buffer[i + bitmap.width*j];
+
+                        } 
+            }
+
+} 
+}
+
+void FT2_Obj::Free() 
+{ 
+            FT_Done_Face(face); 
+            FT_Done_FreeType(library); 
+}
+
+ 
+
+ 
+
+FreeType 2 Library
+
+FAQ
+
+（当前下载地址： http://sourceforge.net/project/showfiles.php?group_id=3157 版本 2.2.1 ）
+
+1、 FreeType2 是什么？
+
+它是一个为各种应用程序提供通用的字体文件访问的软件包。尤其值得注意的以下特性：
+
+l 提供统一的字体文件访问接口。支持位图和向量格式，包括 TrueType 、 OpenType 、 Typel 、 CID 、 CFF 、 Windows FON/FNT 、 X11 PCF 。
+
+l 提供高效反走样的基于 256 灰度级的位图字形的生产。
+
+l 模块清晰，每种字体格式对于一个模块。类库的构建可以按照你需要支持的格式进行裁减以减小代码尺寸。（最小的反走样 FreeType 库 <30Kb ）
+
+2、 FreeType2 能做什么？
+
+FT2 已经易用于许多领域。例如：
+
+l 图形子系统和文本显示库
+
+l 文本排版（布局、分页、渲染）
+
+l 字体识别和转换工具
+
+一般来说，该库使得你能轻松的操纵字体文件。
+
+3、 FreeType2 不能做什么？
+
+FT2 并不包含大量丰富的高级特性，它只定位于出色的字体服务。也就是说下面的一些特性 FT2 类库并不直接提供支持，然而你可以以它为基础在上层进行实现：
+
+l 任意表面的文字渲染
+
+FT2 不是图形库所以它仅支持两种象素格式的文本渲染： 1-bit 的单色位图和 8-bit 的灰度象素。
+
+如果你需要绘制其它格式的表面（例如 24-bit RGB 象素），你就得选择其它你喜爱的图形库来做。
+
+注意：为了渲染向量轮廓文本而不是放走样的象素，应用程序可以提供自己的渲染回调以绘制或者直接组合反走样文本到任意目标表面。
+
+l 文本缓存
+
+每次从字体中请求文本图象， FT2 都要解析字体文件 / 流相关部分，通过它的字体格式进行解释。对于某些特殊格式可能会很慢包括像 TrueType （或者 Type1 ）这样的向量字体。
+
+注意：自从 2.0.1 版本开始 FT2 提供了一个 beta 版本的缓存子系统。当然你还是可以写自己的缓存来满足某种特殊需求。
+
+l 文本布局
+
+不支持文本布局操作。高级操作例如文本替换、字距调整、两端调整等都不属于字体服务本身职责。
+
+4、 FreeType2 可移植性？
+
+FT2 源码可移植性很好由于以下原因：
+
+l 代码书写遵循 ANSI C 标准
+
+l 对于各种编译警告我们都谨慎的避免。当前代码在很多编译器上编译通过且没有产生一条警告。
+
+l 库没有使用任何硬编码，是嵌入式系统开发的一个好的选择。（例如它能够直接在 ROM 中运行）
+
+同时，我们尽最大努力确保库的高效、紧凑和友好性。
+
+5、 FreeType2 与 FreeType1.x 的区别？
+
+最大的区别就是：
+
+l FT1 仅支持 TrueType 格式，而 FT2 支持很多格式。
+
+l FT2 APIs 比 FT1 APIs 简单且强大。
+
+l FT1 包括 OpenType 文本布局处理扩展，而 FT2 中则不包括而是移到独立的工程里面――FreeType Layout 。（ FT 布局目前无法获取）
+
+6、 FreeType2 是否兼容 FreeType 1.x ？
+
+FreeType2 不直接兼容 FreeType 1.x ，但是我们可以提供一个二进制兼容层使得应用程序重链接到新版本。我们最终放弃了这种想法因为两个版本可以共存在一个系统中。（没有命名冲突）
+
+FT2 API 比 1.x 简单且强大，所以我们鼓励你采用新版本，这样可以使你减少很多不必要的工作。
+
+7、 是否可以使用 FreeType2 编辑字体或者创建新字体？
+
+答案是明确的：不可以。因为该库设计明确，用较少代码和内存读取字体文件。所以我们不打算以任何方式在字体引擎里面支持编辑或者创建功能，因为这样将导致整个代码重写。这并不意味我们将来不会引入字体编辑 / 创建功能库，这取决于需求（或者说有多少人愿意为此买单）。
+
+在我们正式发布前不要在这方面进行揣测，对我们而言这个项目存在其他一些更重要的部分需要解决（像文字布局、文本缓存）。
+
+编译 & 配置
+
+1、 如何编译 FreeType2 库？
+
+可以采取多种编译方式，在 freetype2/docs/build 下有详细说明文档。
+
+这里介绍最简单的基于 VS IDE 的编译方式。 freetype\builds\win32\visualc 下有 VC6 和 VC7.1 的工作区文件。 VC6 打开后直接编译，有几个警告。 
+光看或许无法到感性认识，于是来两个demo。网上比较少，我是参考nehe教程写的。总体来说会简单使用了，如果想深入了解怕是非看他的document不可。 
+简单使用示例
+
+ FT_Library    pFTLib         =  NULL; 
+    FT_Face        pFTFace         =  NULL; 
+    FT_Error    error         = 0 ; 
+ //  Init FreeType Lib to manage memory 
+     error  =  FT_Init_FreeType( & pFTLib); 
+ if (error) 
+  { 
+        pFTLib  = 0 ; 
+        printf( " There is some error when Init Library " ); 
+ return - 1 ; 
+    } 
+ 
+ //  create font face from font file 
+     error  =  FT_New_Face(pFTLib,  " C:\\WINDOWS\\Fonts\\arial.ttf " ,  0 ,  & pFTFace); 
+ if ( ! error) 
+  { 
+        FT_Set_Char_Size(pFTFace,  16 << 6 ,  16 << 6 ,  300 ,  300 ); 
+        FT_Glyph    glyph; 
+ //  load glyph 'C' 
+         FT_Load_Glyph(pFTFace, FT_Get_Char_Index(pFTFace,  67 ), FT_LOAD_DEFAULT); 
+        error  =  FT_Get_Glyph(pFTFace -> glyph,  & glyph); 
+ if ( ! error) 
+  { 
+ //  convert glyph to bitmap with 256 gray 
+             FT_Glyph_To_Bitmap( & glyph, ft_render_mode_normal,  0 ,  1 ); 
+            FT_BitmapGlyph    bitmap_glyph  =  (FT_BitmapGlyph)glyph; 
+            FT_Bitmap &     bitmap  =  bitmap_glyph -> bitmap; 
+ for ( int  i = 0 ; i < bitmap.rows;  ++ i) 
+  { 
+ for ( int  j = 0 ; j < bitmap.width;  ++ j) 
+  { 
+ //  if it has gray>0 we set show it as 1, o otherwise 
+                     printf( " %d " , bitmap.buffer[i * bitmap.width + j] ? 1 : 0 ); 
+                } 
+                printf( " \n " ); 
+            } 
+ //  free glyph 
+             FT_Done_Glyph(glyph); 
+            glyph  =  NULL; 
+        } 
+ //  free face 
+         FT_Done_Face(pFTFace); 
+        pFTFace  =  NULL; 
+    } 
+ 
+ //  free FreeType Lib 
+     FT_Done_FreeType(pFTLib); 
+    pFTLib  =  NULL;

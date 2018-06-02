@@ -1,0 +1,11 @@
+
+FMTIMG_DEF( bmp, ".bmp|.dib" );
+FMTIMG_DEF( jpg, ".jpg|.jpe|.jpeg" );
+#ifdef _FMTPNG_INL_
+FMTIMG_DEF( png, ".png" );
+#endif
+FMTIMG_DEF( gif, ".gif" );
+FMTIMG_DEF( pxm, ".pbm|.pgm|.ppm" );
+//FMTIMG_DEF( ima, ".img" );
+FMTIMG_DEF( pcx, ".pcx" );
+//FMTIMG_DEF( tif, ".tiff|.tif" );

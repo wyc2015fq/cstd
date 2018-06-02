@@ -1,0 +1,6 @@
+ERRCODEDEF(InterpreterContinueException,"")
+ERRCODEDEF(InterpreterBreakException,"")
+ERRCODEDEF(InterpreterReturnException,"")
+ERRCODEDEF(InterpreterRetallException,"")
+ERRCODEDEF(InterpreterQuitException,"'quit' called in non-main thread")
+ERRCODEDEF(InterpreterKillException,"")

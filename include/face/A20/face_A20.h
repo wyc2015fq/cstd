@@ -1,0 +1,40 @@
+
+// 数据包(data packet)的帧结构(数据包总长度小于 65536 (1<<16) 字节)
+//   PREFIX  LEN  CKS CMD ERR SID DID DATA
+// 0xC5 0x5C L H  L H L H L H L H L H   n
+// 
+
+// 命令码 Command
+#define COMMAND_DEF_DEF(COMMAND_DEF) \
+COMMAND_DEF(CMD_TEST_CONNECTION,进行与设备的通讯测试)\
+COMMAND_DEF(CMD_SET_PARAM,设置设备参数)\
+COMMAND_DEF(CMD_GET_PARAM,获取设备参数)\
+COMMAND_DEF(CMD_GET_DEVICE_INFO,获取设备信息)\
+COMMAND_DEF(CMD_ENTER_IAP_MODE,将设备设置为IAP状态)
+
+
+enum {
+#define COMMAND_DEF(a, b) a,
+COMMAND_DEF_DEF(COMMAND_DEF)
+#undef COMMAND_DEF
+};
+
+// 错误码 Error
+#define ERROR_DEF_DEF(ERROR_DEF) \
+ERROR_DEF(ERR_SUCCESS,0x00,指令处理成功)\
+ERROR_DEF(ERR_FAIL,0x01,指令处理失败)\
+ERROR_DEF(ERR_VERIFY,0x10,与指定编号中Template的1:1比对失败)\
+ERROR_DEF(ERR_DUPLICATION_ID,0x18,该人脸已注册)\
+ERROR_DEF(ERR_BAD_QUALITY,0x19,人脸图像质量不好)\
+ERROR_DEF(ERR_MEMORY,0x1C,外部Flash烧写出错)\
+ERROR_DEF(ERR_INVALID_TMPL_NO,0x1D,指定Template编号无效)\
+ERROR_DEF(ERR_INVALID_PARAM,0x22,使用了不正确的参数)\
+ERROR_DEF(ERR_GEN_COUNT,0x25,人脸合成个数无效)\
+ERROR_DEF(ERR_INVALID_BUFFER_ID,0x26,BufferID值不正确)\
+ERROR_DEF(ERR_FP_NOT_DETECTED,0x28,采集器上没有人脸输入)
+
+enum {
+#define ERROR_DEF(a, b, c) a = b,
+  ERROR_DEF_DEF(ERROR_DEF)
+#undef ERROR_DEF
+};

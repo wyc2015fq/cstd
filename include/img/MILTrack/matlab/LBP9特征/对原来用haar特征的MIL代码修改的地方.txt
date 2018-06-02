@@ -1,0 +1,8 @@
+
+1)randomMFeatures.m文件中的所有内容，加入了防止特征位置集中在局部的图像分块
+
+2)GetOneFeatureValue_2.m文件中的所有内容，用的不是haar特征
+
+3)main_nohaar.m从M个候选弱分类器中选择K个最佳弱分类器这一步骤的主要部分都放在了文件SelectFeatures.m中，用图像分块来算
+
+4)candidateWeakClf.m,compute_reult.m,main_nohaar.m被修改的地方已在各自的文件中用%￥￥￥￥￥￥￥￥￥￥￥标记出

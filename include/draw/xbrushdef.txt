@@ -1,0 +1,11 @@
+XBRUSHDEF(solid)
+XBRUSHDEF(lut_gradient)
+XBRUSHDEF(lut_radial)
+XBRUSHDEF(lut_swirled)
+XBRUSHDEF(lut_charicature)
+XBRUSHDEF(lut_diamond)
+XBRUSHDEF(colormatrix)
+XBRUSHDEF(texture)
+XBRUSHDEF(gouraud)
+//XBRUSHDEF(gradient)
+

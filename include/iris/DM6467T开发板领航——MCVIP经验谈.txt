@@ -1,0 +1,72 @@
+DM6467T开发板领航——MCVIP经验谈
+
+有一段时间没有更新自己的博客，惭对一直关注我们发展朋友们。
+
+TI官方提供的DM6467T的MCVIP是针对DVSDK1.4和相对应的内核，俊竹科技的开发板给出的DVSDK是3.1版本。在该版本下需要对TI提供的MCVIP进行修改才可使用。
+
+首先，简单介绍一下每个目标下的分配。bin  build  drv lib  mcvip  osa   test
+
+Bin:这个目录放的编译好的可执行文件。
+Build：编译工程的makefile等文件。
+Drv：驱动及驱动的调用程序
+Mcvip：将TVP5158采集的图像（混合在一起的），分成每个通道的图像
+Osa:线程创建及其之间的通信等。
+Test:测试程序文件
+
+ 
+
+大家对整个工程有一个宏观的了解后，我看一下与编译相关的makefile等相关文件，在build目录，有以下文件：COMMON_FOOTER.MK COMMON_HEADER.MK  INCLUDES.MK  Makefile RULES.MK。
+
+1、  修改RULES.MK，这个文件主要是目录信息。编译后的目录，DVSDK的目录，根据自己的环境来设置。
+
+2、  修改INCLUDES.MK，这个文件主要描述包括的文件目录及库信息。这里需要修改的是cmem.a，可以改成cmem.a470MV，在DVSDK3.1的相对应目录下是这个名字。
+
+3、  COMMON_HEADER.MK文件不用修改。
+
+4、  Makefile文件：去掉对KO文件的编译。（内核已经固定编译了相应的驱动）
+
+
+对编译相关的修改完成后，我主要介绍一下我个人的思路。本人去掉视频输出和各个线程的创建。
+
+其实最主要是搞清楚这个结构体：
+
+typedef struct {
+  CAPTURE_Info info;
+  OSA_TskHndl tskHndl;
+  OSA_MbxHndl mbxHndl;
+  Bool saveFrame;
+  int saveFileIndex;
+  Uint8 *memVirtAddr;
+  Uint8 *memPhysAddr;
+} CAPTURE_Ctrl;
+
+ 
+
+typedef struct {
+  void *mcvipHndl;
+  MCVIP_ChList chList;
+  MCVIP_CreatePrm createPrm;
+  OSA_QueHndl displayQue[MCVIP_CHANNELS_MAX];
+} CAPTURE_Info;
+
+图像采集的流程是：
+
+1、  配置图像采集的参数，分配相应的内存buffer.
+
+2、  初始化I2C,DMA,demux，demux的主要工作，是在一个整体混合在一起的BUFFER中把多路图像解出来。这中间使用了dma,不用每行都去copy
+
+3、  初始V4L2，采集图像
+
+Getbuf
+
+Buf  ->demux
+
+Putbuf
+
+很正常的图像采集的流程。
+
+整理好的图像数据在memVirtAddr中，如果是D1图像，则是736X526的图像大小，YUV422的格式，可以使用YUVPLAYER来打开查看。
+
+         做完这些后，我感觉TI提供的结构有些复杂，最后把所有的头文件和源文件整理在一个目录，改成一个makefile，整个工程很简节，读起来也容易多了。
+
+         以上都是个人意见，难免有不当或遗漏之处，欢迎探计，指定。

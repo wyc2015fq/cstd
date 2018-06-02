@@ -1,0 +1,609 @@
+
+#if 0
+  void CreateBorderNode(MSXML2::IXMLDOMDocument* pXmlDoc,CMarkupNode* pBordersE,const Border* bdr,BSTR bstrPos)
+  {
+    const EXlLineStyle ls=bdr->get_LineStyle();
+    const CComBSTR bstrLineStyle(EXlLineStyleToString(ls));
+    if(bstrLineStyle.Length()>0){
+      CMarkupNode* pN;
+      CComBSTR sql("Border[@ss:Position=\"");sql.Append(bstrPos);sql.Append("\"]");
+      pBordersE->selectSingleNode(sql,&pN);
+      CComQIPtr<CMarkupNode> pBorderE=pN;
+      if(!pBorderE){
+        pXmlDoc->createElement("Border",&pBorderE);
+        pBordersE->appendChild(pBorderE,NULL);
+      }
+      pBorderE->setAttribute("ss:Position",CComVariant(bstrPos));
+      pBorderE->setAttribute("ss:LineStyle",CComVariant(bstrLineStyle));
+      pBorderE->setAttribute("ss:Weight",CComVariant(bdr->get_Weight()));
+      const COLORREF clr=bdr->get_Color();
+      if(clr){
+        pBorderE->setAttribute("ss:Color",CComVariant(RGBToHtmlString(bdr->get_Color())));
+      }
+      RemoveEmptyAttributeNode(pBordersE,pBorderE);
+    }
+  }
+  CMarkupNode* CreateStyleNode(MSXML2::IXMLDOMDocument* pXmlDoc,BSTR bstrStyleNodeName,CMarkupNode* pStylesE/*,CMarkupNode*& pStyleE*/)
+  {
+      CMarkupNode* _pN;
+      pStylesE->selectSingleNode(bstrStyleNodeName,&_pN);
+      CComQIPtr<CMarkupNode> pStyleE=_pN;
+      if(!pStyleE){
+        //AppendTextNode(pXmlDoc,pStylesE,L"\r\n\t\t");
+        pXmlDoc->createElement(bstrStyleNodeName,&pStyleE);  
+        pStylesE->appendChild(pStyleE,NULL);
+      }
+      return pStyleE;
+  }  
+
+  HRESULT _SaveStyles(const StyleDesc& sd,MSXML2::IXMLDOMDocument* pXmlDoc,CMarkupNode* pE,const StyleDesc* pDefStyle)
+  {
+    const EXlVAlign va=sd.Align_GetVertical();
+    const EXlHAlign ha=sd.Align_GetHorizontal();
+    const BOOL bWrapText=sd.Align_IsWrapText()?1:0;
+    const CComBSTR bstrVAlignment(EXlVAlignToStr(va));
+    const CComBSTR bstrHAlignment(EXlHAlignToStr(ha));
+    {//Alignment properties
+      CMarkupNode* _pE=CreateStyleNode(pXmlDoc,L"Alignment",pE);
+      {
+        //if(!pDefStyle || pDefStyle->Align_GetHorizontal()!=ha)
+          _pE->setAttribute("ss:Horizontal",CComVariant(bstrHAlignment));
+        //if(!pDefStyle || pDefStyle->Align_GetVertical()!=va)
+          _pE->setAttribute("ss:Vertical",CComVariant(bstrVAlignment));
+        if(!pDefStyle || pDefStyle->Align_IsWrapText()!=bWrapText)
+          _pE->setAttribute("ss:WrapText",CComVariant(bWrapText));
+      }
+      RemoveEmptyAttributeNode(pE,_pE);
+    }
+    {//<Interior ss:Color="#FFFF99" ss:Pattern="Solid"/>
+      if(sd.BKGND_HasColor()){
+        CMarkupNode* _pE=CreateStyleNode(pXmlDoc,L"Interior",pE);
+        _pE->setAttribute("ss:Color",CComVariant(RGBToHtmlString(sd.BKGND_GetColor())));
+        _pE->setAttribute("ss:Pattern",CComVariant("Solid"));
+        RemoveEmptyAttributeNode(pE,_pE);
+      }
+    }
+    {//Font properties
+      CMarkupNode* _pE=CreateStyleNode(pXmlDoc,L"Font",pE);
+      const LOGFONT& lf=sd.Font_GetLogFont();
+      const LOGFONT* lfDef=pDefStyle?&pDefStyle->Font_GetLogFont():NULL;
+      if(!lfDef || lstrcmp(lfDef->lfFaceName,lf.lfFaceName))
+        _pE->setAttribute("ss:FontName",CComVariant(lf.lfFaceName));
+      if(!lfDef || lfDef->lfCharSet!=lf.lfCharSet)
+        _pE->setAttribute("x:CharSet",CComVariant(lf.lfCharSet));
+      if(!lfDef || lfDef->lfHeight!=lf.lfHeight)
+        _pE->setAttribute("ss:Size",CComVariant(lf.lfHeight));
+      if(!lfDef || pDefStyle->Font_IsBold()!=sd.Font_IsBold())
+        _pE->setAttribute("ss:Bold",CComVariant(sd.Font_IsBold()));
+      if(!lfDef || lfDef->lfStrikeOut!=lf.lfStrikeOut)
+        _pE->setAttribute("ss:StrikeThrough",CComVariant(lf.lfStrikeOut));
+      if(!lfDef || lfDef->lfItalic!=lf.lfItalic)
+        _pE->setAttribute("ss:Italic",CComVariant(lf.lfItalic?L"1":L"0"));
+      if(!lfDef || sd.Font_GetColor()!=pDefStyle->Font_GetColor()){
+        _pE->setAttribute("ss:Color",CComVariant(RGBToHtmlString(sd.Font_GetColor())));
+      }
+      RemoveEmptyAttributeNode(pE,_pE);
+    }
+    {//Borders properties
+      CMarkupNode* _pE=CreateStyleNode(pXmlDoc,L"Borders",pE);
+      const Borders* pBdrs=sd.GetBorders();
+      if(pBdrs){
+        /*
+        const EXlLineStyle ls=pBdrs->bottom.get_LineStyle();
+        CComBSTR bstrLineStyle(EXlLineStyleToString(ls));
+        if(bstrLineStyle.Length()>0){
+          CMarkupNode* pBorderE;
+          pXmlDoc->createElement("Border",&pBorderE);
+          _pE->appendChild(pBorderE,NULL);
+          pBorderE->setAttribute("Position",CComVariant("Bottom"));
+          pBorderE->setAttribute("LineStyle",CComVariant(bstrLineStyle));
+          pBorderE->setAttribute("Weight",CComVariant(pBdrs->bottom.get_Weight()));
+          RemoveEmptyAttributeNode(_pE,pBorderE);
+        }
+        */
+        CreateBorderNode(pXmlDoc,_pE,&pBdrs->bottom,L"Bottom");
+        CreateBorderNode(pXmlDoc,_pE,&pBdrs->left,L"Left");
+        CreateBorderNode(pXmlDoc,_pE,&pBdrs->right,L"Right");
+        CreateBorderNode(pXmlDoc,_pE,&pBdrs->top,L"Top");
+        CreateBorderNode(pXmlDoc,_pE,&pBdrs->DiagonalRight,L"DiagonalRight");
+        CreateBorderNode(pXmlDoc,_pE,&pBdrs->DiagonalLeft,L"DiagonalLeft");
+      }
+      RemoveEmptyChildNode(pE,_pE);
+    }
+    return S_OK;
+  }
+  HRESULT SaveStyles(Workbook const* pWorkbook,/*const RowHeader& rh,const ColHeader& ch,*/MSXML2::IXMLDOMDocument* pXmlDoc,CMarkupNode* pNode)
+  {
+    HRESULT hr=S_OK;
+    CComQIPtr<CMarkupNode> pE=pNode;
+    const StyleStore& styles=pWorkbook->GetStyles();
+    const StyleDesc& sd=styles.get_DefStyle();
+    {
+      CMarkupNode* pN;
+      pE->selectSingleNode("Style[@ss:ID=\"Default\"]",&pN);
+      CComQIPtr<CMarkupNode> _pE=pN;
+      if(_pE)
+        hr=_SaveStyles(sd,pXmlDoc,_pE);
+    }
+
+    vector<pair<StyleID_t,const StyleDesc*> > vec;
+    styles.EnumStyles(vec);
+    //pWorkbook->Style_EnumStyles(vec);
+    for(vector<pair<StyleID_t,const StyleDesc*> >::const_iterator it=vec.begin();it!=vec.end();++it){
+      AppendTextNode(pXmlDoc,pE,L"\r\n\t\t");
+      CMarkupNode* _pE;
+      pXmlDoc->createElement("Style",&_pE);
+      CString sid;sid.Format(_T("s%d"),it->first);
+      _pE->setAttribute("ss:ID",CComVariant(sid));
+      hr=_SaveStyles(*it->second,pXmlDoc,_pE,&sd);
+      pE->appendChild(_pE,NULL);
+    }
+    if(!vec.empty())
+      AppendTextNode(pXmlDoc,pE,L"\r\n\t");
+
+    return hr;
+  }
+  void CreateRowNode(MSXML2::IXMLDOMDocument* pXmlDoc,int row,int nPreRow,bool& bRowCreated,CMarkupNode* pE,CMarkupNode** ppRowE)
+  {
+    AppendTextNode(pXmlDoc,pE,L"\r\n\t\t");
+    pXmlDoc->createElement("Row",ppRowE);
+    pE->appendChild(*ppRowE,NULL);
+    bRowCreated=true;
+    if(row && (-1==nPreRow || row-nPreRow>1)){
+      (*ppRowE)->setAttribute("ss:Index",CComVariant(row+1));
+    }
+  }
+  void CreateCellNode(MSXML2::IXMLDOMDocument* pXmlDoc,int row,int col,int nPreRow,int nPreCol,bool& bRowCreated,bool& bCellCreated,CMarkupNode* pE,CMarkupNode*& pRowE,CMarkupNode*& pCellE)
+  {
+    if(!pRowE){
+      CreateRowNode(pXmlDoc,row,nPreRow,bRowCreated,pE,&pRowE);
+    }
+    if(!pCellE){
+      AppendTextNode(pXmlDoc,pRowE,L"\n\t\t\t");
+      pXmlDoc->createElement("Cell",&pCellE);
+      pRowE->appendChild(pCellE,NULL);
+      bCellCreated=true;
+      if(nPreCol+1!=col){
+        pCellE->setAttribute("ss:Index",CComVariant(col+1));
+      }
+    }
+  }
+  HRESULT SaveWorksheetOptions(Worksheet const* pSheet,MSXML2::IXMLDOMDocument* pXmlDoc,CMarkupNode* pWorksheetOptionsE)
+  {
+    HRESULT hr=S_OK;
+    if(!pSheet->get_ShowGrid()){
+      CMarkupNode* pe;
+      pXmlDoc->createElement("DoNotDisplayGridlines",&pe);
+      pWorksheetOptionsE->appendChild(pe,NULL);
+    }
+    return hr;
+  }
+  HRESULT SaveRows(Worksheet const* pSheet,const RowHeader& rh,const ColHeader& ch,MSXML2::IXMLDOMDocument* pXmlDoc,CMarkupNode* pTableE)
+  {
+    HRESULT hr=S_OK;
+    //CComQIPtr<CMarkupNode> pE=pNode;
+    const int nDefRowHeight=rh.get_DefRowHeight();
+    const int rows=rh.get_rows();
+    const int cols=ch.get_cols();
+    //TCHAR buf[MAX_CELLTEXT];
+    int nPreRow=-1;
+    for(int row=0;row<rows;++row){
+      bool bRowCreated=false;
+      CMarkupNode* pRowE;
+
+      const StyleID_t sid=rh.Style_GetRowStyleID(row);
+      if(sid){
+        //if(!pRowE)
+        CreateRowNode(pXmlDoc,row,nPreRow,bRowCreated,pTableE,&pRowE);
+        CString str;str.Format(_T("s%d"),sid);
+        pRowE->setAttribute("ss:StyleID",CComVariant(str));
+      }
+
+      const int nRowHeight=rh.get_RowHeight(row);
+      if(nRowHeight!=nDefRowHeight){
+        if(!pRowE)
+          CreateRowNode(pXmlDoc,row,nPreRow,bRowCreated,pTableE,&pRowE);
+        pRowE->setAttribute("ss:Height",CComVariant(this->Y_Pixel2Point(nRowHeight)));
+      }
+
+      int nPreCol=-1;
+      for(int col=0;col<cols;++col){
+        const CCell cell(row,col);
+        const CCellRange* pMerge=pSheet->GetMergeCells(cell);
+        if(pMerge && !(pMerge->TopRow()==row && pMerge->LeftCol()==col))
+          continue;
+
+        bool bCellCreated=false;
+        CMarkupNode* pCellE;
+
+
+        int nMergeAcross=0;
+        //单元格合并属性
+        if(pMerge && pMerge->TopRow()==row && pMerge->LeftCol()==col){
+          nMergeAcross=pMerge->RightCol()-col;
+          const int nMergeDown=pMerge->BottomRow()-row;
+          if(nMergeAcross||nMergeDown){
+            CreateCellNode(pXmlDoc,row,col,nPreRow,nPreCol,bRowCreated,bCellCreated,pTableE,pRowE,pCellE);
+            if(nMergeAcross)
+              pCellE->setAttribute("ss:MergeAcross",CComVariant(nMergeAcross));
+            if(nMergeDown)
+              pCellE->setAttribute("ss:MergeDown",CComVariant(nMergeDown));
+          }
+        }
+
+        //风格属性
+        const StylePack sp=pSheet->GetCellStore(cell,ECSM_STYLE_VALID).GetStylePack();
+        //const pair<StyleID_t,ECellStorePosition> pr=pSheet->Style_GetCellStyleID(CCell(row,col));
+        //const StyleID_t nStyleID=pr.first;
+        if(ESP_STYLE_CELL_OWN==sp.eStorePos || ESP_STYLE_MERGE_OWN==sp.eStorePos){
+          CreateCellNode(pXmlDoc,row,col,nPreRow,nPreCol,bRowCreated,bCellCreated,pTableE,pRowE,pCellE);
+          CString sid;sid.Format(_T("s%d"),sp.nStyleID);
+          pCellE->setAttribute("ss:StyleID",CComVariant(sid));
+        }
+
+        //文本属性
+        //const int iTextLen= pSheet->GetCellText(cell,buf);
+        CComVariant vText;
+        if(pSheet->GetCellText(cell,&vText,EGCVD_NORMAL) && SUCCEEDED(vText.ChangeType(VT_BSTR))){
+          CreateCellNode(pXmlDoc,row,col,nPreRow,nPreCol,bRowCreated,bCellCreated,pTableE,pRowE,pCellE);
+          //pCellE->setAttribute("t",CComVariant(buf));
+          CMarkupNode* pDataNode;
+          pXmlDoc->createElement("Data",&pDataNode);
+          pCellE->appendChild(pDataNode,NULL);
+          pDataNode->setAttribute("ss:Type",CComVariant("String"));
+          CString strText(vText.bstrVal);
+          //strText.Replace(_T("\n"),_T("&#10;"));
+          strText.Replace(_T("\n"),_T("$#10;"));
+          pDataNode->put_text(CComBSTR(strText));
+          /*
+          CComPtr<MSXML2::IXMLDOMText> pTextNode;
+          pXmlDoc->createTextNode(CComBSTR("strText"),&pTextNode);
+          pDataNode->appendChild(pTextNode,NULL);
+          DOMNodeType nt;
+          pTextNode->get_nodeType(&nt);
+          ;
+          strText.Replace(_T("\n"),_T("#10;"));
+          pTextNode->put_nodeValue(CComVariant(strText));
+          //pDataNode->put_dataType("NODE_CDATA_SECTION");
+          //AppendTextNode(pXmlDoc,pDataNode,CComBSTR(strText));
+          */
+        }
+        //:~文本属性
+
+        if(bCellCreated){
+          if(!nMergeAcross)
+            nPreCol=col;
+          else{
+            nPreCol=col+nMergeAcross;
+          }
+        }
+      }
+      if(bRowCreated)
+        nPreRow=row;
+    }
+    return hr;
+  }
+  void CreateColumnNode(MSXML2::IXMLDOMDocument* pXmlDoc,bool& bCreated,int col,int nPreCol,CMarkupNode* pColumns,CMarkupNode** ppColE)
+  {
+    _ASSERT(NULL==*ppColE);
+    AppendTextNode(pXmlDoc,pColumns,L"\r\n\t\t");
+    //CMarkupNode* _pE;
+    pXmlDoc->createElement("Column",ppColE);
+    bCreated=true;
+    pColumns->appendChild(*ppColE,NULL);
+    if(col && (-1==nPreCol  || col-nPreCol>1)){
+      (*ppColE)->setAttribute("ss:Index",CComVariant(col+1));
+    }
+  }
+
+  HRESULT SaveColumns(Worksheet const* pSheet,const RowHeader& rh,const ColHeader& ch,MSXML2::IXMLDOMDocument* pXmlDoc,CMarkupNode* pTableE)
+  {
+    HRESULT hr=S_OK;
+    //CComQIPtr<CMarkupNode> pE=pNode;
+    const int cols=ch.get_cols();
+    const int nDefWidth=ch.get_DefColWidth();
+    int nPreCol=-1;
+    //TCHAR buf[MAX_CELLTEXT];
+    for(int col=0;col<cols;++col){
+      bool bCreated=false;
+      const int wi=ch.get_ColWidth(col);
+      CMarkupNode* _pE;
+      StyleID_t sid=ch.Style_GetColStyleID(col);
+      if(sid){
+        CreateColumnNode(pXmlDoc,bCreated,col,nPreCol,pTableE,&_pE);
+        CString str;str.Format(_T("s%d"),sid);
+        _pE->setAttribute("ss:StyleID",CComVariant(str));
+      }
+      if(nDefWidth!=wi){
+        if(!_pE)
+          CreateColumnNode(pXmlDoc,bCreated,col,nPreCol,pTableE,&_pE);
+        if(wi!=0){
+          _pE->setAttribute("ss:Width",CComVariant(this->X_Pixel2Point(wi)));
+        }else{
+          _pE->setAttribute("ss:Hidden",CComVariant(1));
+        }
+      }
+      /*
+      const StyleID_t styleid=pSheet->GetColStyleID(col);
+      if(styleid){
+        if(!_pE){
+          CreateColumnNode(pXmlDoc,bCreated,col,nPreCol,pE,&_pE);
+        }
+        CString sid;sid.Format(_T("s%d"),styleid);
+        _pE->setAttribute("sid",CComVariant(sid));
+      }
+      if(0){//导出label
+        const int len=ch.get_text(col,buf);
+        if(len>0){
+          if(!_pE){
+            CreateColumnNode(pXmlDoc,bCreated,col,nPreCol,pE,&_pE);
+          }
+          _pE->setAttribute("l",CComVariant(buf));
+        }
+      }
+      */
+      if(bCreated){
+        nPreCol=col;
+      }
+    }
+    AppendTextNode(pXmlDoc,pTableE,L"\r\n\t");
+    return hr;
+  }
+  HRESULT SaveWorksheet(const Worksheet* pWorksheet,MSXML2::IXMLDOMDocument* pXmlDoc,CMarkupNode* pSheetE)
+  {
+    HRESULT hr=S_OK;
+    const RowHeader& rh=pWorksheet->get_RowHeader();
+    const ColHeader& ch=pWorksheet->get_ColHeader();
+    int const nRows=rh.get_rows();
+    int const nCols=ch.get_cols();
+
+    CMarkupNode* pTableE;
+    pXmlDoc->createElement("Table",&pTableE);
+    pSheetE->appendChild(pTableE,NULL);
+    pTableE->setAttribute("ss:ExpandedColumnCount",CComVariant(nCols));
+    pTableE->setAttribute("ss:ExpandedRowCount",CComVariant(nRows));
+
+    pTableE->setAttribute("ss:DefaultRowHeight",CComVariant(Y_Pixel2Point(rh.get_DefRowHeight())));
+    pTableE->setAttribute("ss:DefaultColumnWidth",CComVariant(Y_Pixel2Point(ch.get_DefColWidth())));
+    const int nTableStyleID=pWorksheet->Style_GetTableStyleID();
+    if(nTableStyleID){
+      CString str;str.Format(_T("s%d"),nTableStyleID);
+      pTableE->setAttribute("ss:StyleID",CComVariant(str));
+    }
+    
+    SaveColumns(pWorksheet,rh,ch,pXmlDoc,pTableE);
+    SaveRows(pWorksheet,rh,ch,pXmlDoc,pTableE);
+
+    {
+      CMarkupNode* pOptionsE;
+      pXmlDoc->createElement("WorksheetOptions",&pOptionsE);
+      pSheetE->appendChild(pOptionsE,NULL);
+      SaveWorksheetOptions(pWorksheet,pXmlDoc,pOptionsE);
+    }
+    return hr;
+  }
+  HRESULT save(Workbook const* pWorkbook,LPCTSTR lpszFile)
+  {
+    bUserFormatted_=true;
+    CComPtr<MSXML2::IXMLDOMDocument>     pXmlDoc;
+    HRESULT hr=S_OK;
+    //try{  
+    if FAILED(hr=pXmlDoc.CoCreateInstance(MSXML2::CLSID_DOMDocument))
+      return hr;
+    if FAILED(hr=init(pXmlDoc))
+      return hr;
+    pXmlDoc->put_preserveWhiteSpace(VARIANT_FALSE);
+    CMarkupNode* pN;
+    hr=pXmlDoc->selectSingleNode("/Workbook/Styles",&pN);
+    SaveStyles(pWorkbook,/*rh,ch,*/pXmlDoc,pN);
+    const size_t nSheets=pWorkbook->Worksheet_GetSheetCount();
+    for(size_t i=0;i<nSheets;++i){
+      const Worksheet* pWorksheet=pWorkbook->Worksheet_GetSheet(i);
+
+      CMarkupNode* pRootN;
+      pXmlDoc->selectSingleNode("/Workbook",&pRootN);
+      LPCTSTR szSheetName=pWorksheet->GetName();
+      CMarkupNode* pSheetE;
+      pXmlDoc->createElement("Worksheet",&pSheetE);
+      pSheetE->setAttribute("ss:Name",CComVariant(szSheetName));
+      pRootN->appendChild(pSheetE,NULL);
+
+      SaveWorksheet(pWorksheet,pXmlDoc,pSheetE);
+    }
+    /*
+    RowHeader const& rh=pWorkbook->get_RowHeader();
+    ColHeader const& ch=pWorkbook->get_ColHeader();
+    int const nRows=rh.get_rows();
+    int const nCols=ch.get_cols();
+    CComQIPtr<CMarkupNode> pTableElement;
+    {
+      CComBSTR query("/Workbook/Worksheet");
+      CMarkupNode* pN,pN1;
+      pXmlDoc->selectSingleNode(query,&pN);
+      pN->get_firstChild(&pN1);
+      pTableElement=pN1;
+    }
+    _ASSERT(pTableElement);
+    pTableElement->setAttribute("ss:ExpandedColumnCount",CComVariant(nCols));
+    pTableElement->setAttribute("ss:ExpandedRowCount",CComVariant(nRows+1));
+
+    for(int i=0;i<1;++i){
+      CMarkupNode* pN;
+      //hr=pXmlDoc->selectSingleNode("/Workbook/Styles",&pN);
+      //if(!pN)
+      //  break;
+      //SaveStyles(pWorkbook,rh,ch,pXmlDoc,pN);
+
+      //pN.Release();
+      pXmlDoc->selectSingleNode("/Workbook/Worksheet[@ss:Name=\"Sheet1\"]/Table",&pN);
+      SaveColumns(pWorkbook,rh,ch,pXmlDoc,pN);
+
+      pN.Release();
+      pXmlDoc->selectSingleNode("/Workbook/Worksheet[@ss:Name=\"Sheet1\"]/Table",&pN);
+      SaveRows(pWorkbook,rh,ch,pXmlDoc,pN);
+    }
+    */
+    /*列宽属性设置
+    short nDefColWidth;
+    pWorkbook->get_DefaultColWidth(&nDefColWidth);
+    for(int i=0;i<nCols;i++)
+    {
+    CComPtr<_Column> pClm;
+    pWorkbook->Column(i,&pClm);
+    int nWidth;
+    pClm->get_Width(&nWidth);
+    if(nDefColWidth!=nWidth){
+    CMarkupNode* pColNode;
+    pXmlDoc->createElement("Column",&pColNode);
+    pColNode->setAttribute("ss:Index",CComVariant(i));
+    pColNode->setAttribute("ss:AutoFitWidth",CComVariant(0));
+    pColNode->setAttribute("ss:Width",CComVariant(nWidth));
+    pTableElement->appendChild(pColNode,NULL);
+    }
+    }
+    */
+    /*
+    TCHAR buf[MAX_CELLTEXT];
+    if(0){//header
+      CMarkupNode* pRow;
+      pXmlDoc->createElement("Row",&pRow);
+      for(int j=0;j<nCols;++j){
+        ch.get_text(j,buf);
+        CComBSTR bstrText(buf);
+        if(bstrText.Length()>0){
+          CMarkupNode* pCellNode;
+          pXmlDoc->createElement("Cell",&pCellNode);
+          pRow->appendChild(pCellNode,NULL);
+          CMarkupNode* pDataNode;
+          pXmlDoc->createElement("Data",&pDataNode);
+          pCellNode->appendChild(pDataNode,NULL);
+          CComVariant vtStr(bstrText);
+          pDataNode->setAttribute("ss:Type",CComVariant("String"));
+          pDataNode->put_text(bstrText);
+        }
+      }
+      //pRow->setAttribute("ss:Index",CComVariant(1));
+      pRow->removeAttribute("xmlns");
+      pTableElement->appendChild(pRow,NULL);
+    }
+    for(int i=0;i<nRows;++i)
+    {
+      CMarkupNode* pRow;
+      for(int j=0;j<nCols;++j)
+      {
+        CMarkupNode* pCellNode;
+        //RECT rMergeRange;
+        CCellRange const* pMergeCells=pWorkbook->GetMergeCells(i,j);
+        const bool isMerged=NULL!=pMergeCells;
+        if(isMerged && !(i== pMergeCells->TopRow() && j==pMergeCells->LeftCol())) 
+          continue;
+        buf[0]=_T('\0');
+        pWorkbook->GetCellText(i,j,buf);
+        CComBSTR bstrText(buf);
+        if(bstrText.Length()>0){
+          if(!pRow)
+            pXmlDoc->createElement("Row",&pRow);
+          pXmlDoc->createElement("Cell",&pCellNode);
+          pRow->appendChild(pCellNode,NULL);
+          CMarkupNode* pDataNode;
+          pXmlDoc->createElement("Data",&pDataNode);
+          pCellNode->appendChild(pDataNode,NULL);
+          CComVariant vtStr(bstrText);
+          pDataNode->setAttribute("ss:Type",CComVariant("String"));
+          pDataNode->put_text(bstrText);
+        }
+        if(isMerged){
+          if(!pCellNode){
+            if(!pRow)
+              pXmlDoc->createElement("Row",&pRow);
+            pXmlDoc->createElement("Cell",&pCellNode);
+            pRow->appendChild(pCellNode,NULL);
+            pCellNode->setAttribute("ss:Index",CComVariant(j+1));
+          }
+          if(pMergeCells->RightCol() - pMergeCells->LeftCol()>0)
+            pCellNode->setAttribute("ss:MergeAcross",CComVariant(pMergeCells->RightCol() - pMergeCells->LeftCol()));
+          if(pMergeCells->BottomRow() - pMergeCells->TopRow()>0)
+            pCellNode->setAttribute("ss:MergeDown",CComVariant(pMergeCells->BottomRow() - pMergeCells->TopRow()));
+        }
+      }
+      if(pRow){
+        pRow->removeAttribute("xmlns");
+        pTableElement->appendChild(pRow,NULL);
+      }
+    }
+    */
+
+    if FAILED(hr=pXmlDoc->save(CComVariant(lpszFile)))
+      return hr;
+
+    {
+      FILE * pFile=fopen(lpszFile,"r");
+      if (!pFile)
+        return FALSE;
+
+      fseek (pFile, 0, SEEK_END);
+      unsigned int size=ftell (pFile);
+      fseek (pFile, 0, SEEK_SET);
+
+      char* m_pBuffer= new char[size];
+      unsigned int bytesRead=0;
+      while (bytesRead<size)
+      {
+#pragma warning( disable : 4267 )
+        unsigned int blockSize=fread(m_pBuffer+bytesRead,1,size-bytesRead,pFile);
+#pragma warning( default : 4267 )
+        if (blockSize<0)
+        {
+          fclose(pFile);
+          delete []m_pBuffer;
+          return FALSE;
+        }
+        else if (blockSize==0)
+        {
+          break;
+        }
+
+        bytesRead+=blockSize;
+      }
+      fclose(pFile);
+      for(int i=0;i<int(bytesRead-10);++i)
+      {
+        if(m_pBuffer[i]=='x' && m_pBuffer[i+1]=='m'
+          && m_pBuffer[i+2]=='l' && m_pBuffer[i+3]=='n'
+          && m_pBuffer[i+4]=='s' && m_pBuffer[i+5]=='='
+          && m_pBuffer[i+6]=='"' && m_pBuffer[i+7]=='"')
+        {
+          m_pBuffer[i]=m_pBuffer[i+1]=m_pBuffer[i+2]
+          =m_pBuffer[i+3]=m_pBuffer[i+4]=m_pBuffer[i+5]
+          =m_pBuffer[i+6]=m_pBuffer[i+7]=' ';
+          i+=6;
+        }
+
+        if(m_pBuffer[i]=='$' && m_pBuffer[i+1]=='#'
+          && m_pBuffer[i+2]=='1' && m_pBuffer[i+3]=='0'
+          && m_pBuffer[i+4]==';')
+        {
+          m_pBuffer[i]='&';
+          //m_pBuffer[i+1]='#';
+          //m_pBuffer[i+2]='1';
+          //m_pBuffer[i+3]='0';
+          //m_pBuffer[i+4]=';';
+          i+=3;
+        }
+      }
+
+      DeleteFile(lpszFile);
+      //CString strFile(m_pBuffer);
+      //strFile.Replace(_T("_yxm_0_0_"),_T("&#10;"));
+      HANDLE hFile=CreateFile(lpszFile,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+      if (hFile==INVALID_HANDLE_VALUE)
+        return S_FALSE;
+      DWORD dwRead;
+      WriteFile(hFile,m_pBuffer,bytesRead,&dwRead,NULL);
+      CloseHandle(hFile);
+      delete[] m_pBuffer;    
+    }
+    return hr;
+  }
+
+#endif

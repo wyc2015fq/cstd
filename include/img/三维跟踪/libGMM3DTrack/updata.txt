@@ -1,0 +1,7 @@
+..\GMM3DTrack.h
+..\release\libGMM3DTrack.dll
+..\release\libGMM3DTrack.lib
+test_libGMM3DTrack.c
+test_libGMM3DTrack.dsp
+test_libGMM3DTrack.dsw
+.\Release\test_libGMM3DTrack.exe

@@ -1,0 +1,98 @@
+
+<app name="main" Layouts="lays1" fonts="fonts1" ctrls="ctrls1" fonts="fonts1">45</app>
+
+<fonts name="fonts1">
+<font id="default">"宋体",12</font>
+<font id="font1">"宋体",12</font>
+</fonts>
+
+<ctrls name="ctrls1">
+<button id=11>按钮1</button>
+<rbox id=12>
+dm_win2000
+dm_agg
+</rbox>
+<listbox id=13>
+按钮0
+按钮1
+按钮3
+按钮3
+按钮4
+按钮5
+按钮6
+按钮7
+按钮8
+按钮9
+按钮0
+按钮1
+按钮3
+按钮3
+按钮4
+按钮5
+按钮6
+按钮7
+按钮8
+按钮9
+按钮0
+按钮1
+按钮3
+按钮3
+按钮4
+按钮5
+按钮6
+按钮7
+按钮8
+按钮9
+</listbox>
+<button id=14>按钮4</button>
+<button id=15>按钮5</button>
+<slider id=16 min=0 max=2 step=10 value=1>test %4.2f</slider>
+<cbox id=17>test adsf</cbox>
+<edit id=18>test adsf</edit>
+<button id=19>按钮 19</button>
+<button id=20>按钮 20</button>
+
+<button id=21>按钮 21</button>
+<button id=22>按钮 22</button>
+<tab id=0>
+-1, 3, tab1
+-1, 5, tab2
+</tab>
+<combobox id=23>
+按钮0
+按钮1
+按钮3
+按钮3
+按钮4
+按钮5
+按钮6
+按钮7
+按钮8
+按钮9
+</combobox>
+
+<evalayout id=3>
+ EvaLayout, 0, 0, 2, 2
+ zzz,    X, X, X,
+   20,   16, 18, 17,
+   20,     , 23,  ,
+  100,   11, -,  12,
+    X,   13, 15,  +,
+  100,   +, 14,   -,
+</evalayout>
+
+<evalayout id=4>
+ EvaLayout, 0, 0, 2, 2
+ zzz,     X, X,
+   X,   19, 20,
+</evalayout>
+
+<evalayout id=5>
+ EvaLayout, 0, 0, 2, 2
+ zzz,     X, X,
+   X,   21, 22,
+  40,    4, - ,
+</evalayout>
+
+
+</ctrls>

@@ -1,0 +1,59 @@
+
+客户端
+1. 调用 
+
+BOOL CPMDEV_CALL CPM_ULUpdate(const char* ip, const DEV_APPUPDATE& cData, int nSeq)
+{
+  GETSOCK(ip);
+  int ret = 1, nLen = sizeof(APPUPDATE) + cData.m_Bytes;
+  if (F_PSD_CERTIFI == cData.m_Type) {
+    ret = pk12_VerifyCert(cData.m_Buf, cData.m_Bytes, cData.m_CtxInfo.m_ID);
+  }
+  if (ret) {
+    char* pbBuf = (char*)malloc(nLen);
+    memset(pbBuf, 0x0, OFFSET_SIZE + sizeof(NCMD) + sizeof(APPUPDATE));
+    //DevProUpdate update(this, cData, nSeq, pbBuf + OFFSET_SIZE, nLen);
+    APPUPDATE* pData = (APPUPDATE*)(pbBuf);
+    pData->m_Bytes = cData.m_Bytes;
+    pData->m_Type = cData.m_Type;
+    memcpy(&pData->m_CtxInfo , &cData.m_CtxInfo, sizeof(CID));
+    memcpy(&pData->m_FileName , &cData.m_FileName, sizeof(CID));
+    //memcpy(pData, &cData, sizeof(APPUPDATE));
+    memcpy(pData->m_Block, cData.m_Buf, cData.m_Bytes);
+    ret = sendNCMD(s, CMD_M_APPUPDATE, CMD_S_SET, 0, nSeq, pbBuf, nLen);
+    free(pbBuf);
+  }
+  return TRUE;
+}
+
+2. 服务器处理上面的消息。
+
+  case CMD_M_APPUPDATE: {
+    APPUPDATE* app = (APPUPDATE*)(pCmd + 1);
+    int ret = 1;
+    switch (app->m_Type) {
+    case F_PSD_CERTIFI: {
+      void* m_pSsl;
+      m_pSsl = OpenSsl_BindSrvice(s->m_sSock, app->m_Block, app->m_Bytes, app->m_CtxInfo.m_ID);
+      ret = m_pSsl != NULL;
+      sendNCMD(s, pCmd->m_MCmd, CMD_S_SET, app->m_Type, ret, 0, 0);
+      if (m_pSsl) {
+        s->m_pSsl = m_pSsl;
+      }
+    }
+    break;
+
+3. 客户端处理服务器回复。
+  case CMD_M_APPUPDATE:
+    switch (pCmd->m_CFlag) {
+    case F_PSD_CERTIFI:
+      if (pCmd->m_Param1) {
+        s->m_pSsl = OpenSsl_BindClient(s->m_sSock);
+      }
+      break;
+    default:
+      break;
+    }
+    break;
+
+4. 建立tls 连接完成。

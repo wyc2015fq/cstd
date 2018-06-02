@@ -1,0 +1,257 @@
+    FreeType的缓存子系统提供了一个高性能的管理face、size、glyph image和charmap的途径。
+
+I. Requirements and Design Goals:
+
+When dealing with fonts, caching rapidly becomes a necessity for at least the following reasons:
+
+当处理字体时，高速缓存是必要的，原因如下：
+
+l        打开字体文件是相当慢的，因为它需要加载数据到内存中。所以，尽可能地保持FT_Face对象处于打开状态是一个好主意。
+
+l        每一个FT_Face 或 FT_Size对象会占用几百KB，假设它总是很大，应该限制打开的face的个数到最小。
+
+l        每个face包含成百上千的字形，由于通常只是使用一个face中的一小部分字形，一次性加载所有的字形是完全没有必要的。应该缓存我们经常使用的字形。
+
+l        当属于给定face的所有字形已经载入内存时，对应的FT_Face对象可以被关闭已减少内存的占用。
+
+FreeType缓存子系统提供了自动完成上述任务的很好的途径。
+
+ 
+
+II. The Cache Manager:
+
+    FTC_Manager用于处理缓存中的各种数据。应首先调用FTC_Manager_New 来创建它。
+
+ 
+
+1. 通过FTC_FaceID鉴别face:
+
+FTC_Manager并不直接知晓哪些字体被安装了或者在运行期是否有效。应用程序有责任定位和鉴别face，并打开相应的字体文件。这意味着应用程序必须使用一个指针（FTC_FaceID）来唯一鉴别一个给定的有效的或已安装的face。虽然这个指针对于FTC_Manager来说并不重要，但是它们的值在程序运行期必须始终保持不变，用于关联缓存的数据和它们相应的face。
+
+应用程序也必须提供（在FTC_Manager_New期间）一个专门的回调函数FTC_Face_Requester。这个外观请求器管理从一个给定的FTC_FaceID转换到一个新FT_Face对象，这通常暗示着调用FT_New_Face 或FT_Open_Face。
+
+大多数情况下，FTC_FaceID指向一个包含着字体文件名和face index的结构。
+
+In most cases, a FTC_FaceID is a pointer to a structure that contains a file pathname and a face index, and where the face requester simply calls FT_New_Face, as illustrated by the following code:
+
+   /* define custom face identification structure */
+
+   typedef struct MyFaceRec_
+
+   {
+
+     const char*  file_path;
+
+     int          face_index;
+
+ 
+
+   } MyFaceRec, *MyFace;
+
+ 
+
+   /* our custom face requester is dead simple */
+
+   static FT_Error
+
+   my_face_requester( FTC_FaceID   face_id,
+
+                      FT_Library   library,
+
+                      FT_Pointer   request_data,
+
+                      FT_Face     *aface )
+
+   {
+
+     MyFace  face = (MyFace) face_id;   // simple typecase
+
+     return FT_New_Face( library, face->file_path, face->face_index, aface );
+
+   }
+
+   {
+
+     FTC_Manager  manager;
+
+     ...
+
+     /* initialize cache manager */
+
+     error = FTC_Manager_New(
+
+                 library,
+
+                 0,  /* use default */
+
+                 0,  /* use default */
+
+                 0,  /* use default */
+
+                 & my_face_requester,  /* use our requester */
+
+                 NULL,                 /* don't need this.  */
+
+                 &manager );
+
+   }
+
+What this code doesn't show is how the list of available/existing FTC_FaceID/MyFace handle is generated, since this is highly program or platform specific. For a more concrete example, have a look at the file ftcommon.i in the "ft2demos" package distributed by FreeType. 
+
+ 
+
+2. 缓存 FT_Face 和 FT_Size 对象:
+
+客户程序不应当直接用FT_New_Face 或 FT_Open_Face 来打开一个新的FT_Face对象，而是应该通过调用FTC_Lookup_Face接口来直接从cache manager中查询它们。因为通过一个预定义的threshold ，manager自动限制了在运行期可打开的FT_Face对象的个数。它是通过保持所有打开的face对象在一个经过most-recently-used (MRU)排序的列表中，来实现这一点的。
+
+当一个新face对象被请求，并且当这个列表已满时，最旧的FT_Face对象将自动被关闭，以为一个新对象腾出空间。每次调用FTC_Lookup_Face时，返回的总是位于列表头部的那个face。FTC_Lookup_Face通过输入的FTC_FaceID返回一个有效的FT_Face句柄。
+
+与FT_Face句柄一样，cache manager也处理一个包含了打开的FT_Size对象的列表，FT_Size描述一个给定的FTC_FaceID的字符像素尺寸。
+
+因此，应用程序不应该通过调用FT_Set_Char_Size 或FT_Set_Pixel_Sizes 设定一个face的当前字符尺寸，而是应当使用FTC_Lookup_Size 。
+
+很重要的一点是，cache manager返回的FT_Face 和 FT_Size应被看作是临时对象，因为在任何时候你都可以通过调用任何API来将它们从缓存中清除。你不可能锁住它们的任一个，以阻止它们被清除。
+
+但是，我们可以从这些项目（像glyph images、charmaps等）中取出一些数据，以一种更友好和有效的方式来缓存它们。
+
+ 
+
+II. The Cache Pool缓冲池
+
+    cache manager的最终目的是提供一个缓冲池，特定的字体数据被以一种非常有效的方式缓存在这个池里。数据被用一个抽象的缓存节点（cache "nodes"）组织。
+
+1. Cache Nodes缓存节点
+
+每个缓存节点对应着face中包含的一小段信息，例如glyph images, bitmaps or charmaps。缓存节点有以下属性：
+
+cache manager 提供了快速计算每个缓存节点的内存占用情况，保持所有节点在一个MRU列表中。 
+当缓冲池满时，manager 会销毁最旧的节点以创建一个新节点。 
+每个节点是有内部计数的，初始值是0.manager永远不会销毁一个使用计数非零的节点 ，这就把节点锁在了缓冲中。 
+  这就允许manager限制缓存节点所占用的总内存空间（而不是限制它们的数目），这样就确保了缓存数据在可控的内存空间内。这意味着，独立于所使用的face和size的数目，这些节点在内存中永远不会超过300KB。
+
+也可能使用manager 的缓冲池中的不同类型的缓存节点。
+
+缓冲池大小"pool size"是在调用FTC_Manager_New时指定的，后来不会被改变。
+
+所有这些都是自动执行的，但是cache manager不提供API来创建缓存节点，这是缓存对象的任务。
+
+ 
+
+2. Cache Objects缓存对象
+
+一个缓存对象用于管理一种独立类型的节点。它提供：
+
+一个面向客户程序的高级API，让他们查询节点 (如果查询的节点在缓冲池中不存在，这个函数会创建新节点) 
+缓存节点的简单描述 (这对客户程序是隐藏的).主要的是怎样计算一个节点的内存耗用，怎样销毁一个节点等等。
+几个缓存对象可在一个独立的manager中同时使用。一个独立的manager中最多可使用16个缓存，但是这个数目可通过在编译阶段FTC_MAX_CACHES宏定义来改变。例如，ftview例子程序中使用了三个缓存对象:
+
+a FTC_SBitCache to store small glyph bitmaps. 
+a FTC_ImageCache to store glyph outlines. 
+a FTC_CMapCache to store character code to glyph indices mappings 
+每个缓存对象有两个重要函数:
+
+     a New function, used to create a new cache object within a given manager and return its handle. This should be called only once by your application, just after FTC_Manager_New . See FTC_ImageCache_New , FTC_SBitsCache_New or FTC_CMapCache_New for examples. Note that all caches are automatically cleared and destroyed with their parent manager. 
+
+    a Lookup function, 用于在给定的缓存中查询数据，当他们在缓存中没有时会创建新节点，当缓存满时会销毁旧节点。See FTC_ImageCache_Lookup , FTC_SBitsCache_Lookup or FTC_CMapCache_Lookup for examples.
+
+要注意的是，虽然Lookup函数返回的是原始数据（如glyph images, metrics, etc.）,但是当数据被发现时也可以返回一个不透明的FTC_Node句柄来对应一个缓存节点。
+
+ 
+
+More precisely, the last parameter of some Lookup routines is a FTC_Node* pointer, i.e. the address of a variable that will receive the cache node handle. if this address is NULL, the raw data is simply returned, and the node is left unchanged (and hidden to the application).
+
+If this address is _not_ NULL, the cache node handle is written to it, and its reference-count is incremented before Lookup returns. It's then up to the caller to later call FTC_Node_Unref to decrement it back.
+
+Finally, you can also use FTC_Node_Ref to manually increment the reference count of a given cache node. You should however never forget to call FTC_Node_Unref when you don't need it anymore, in order to ensure correct behaviour of the cache manager.
+
+Leaving cache nodes "locked" in the cache leads to its saturation as well as further lookup failures.
+
+
+
+
+
+III. Designing custom cache types
+
+If you're perfectly happy and satisfied by the three cache objects provided with the standard cache manager (i.e. glyph images, small bitmaps and charmaps), I advise you to jump directly to this document's conclusion. 
+
+Indeed, this section details the sophisticated subject of providing custom cache object types in order to extend the caching sub-system. We'll see that this is not very difficult and doesn't need large amounts of code. However, its requires a good understanding of the sub-system's internals that will be explained here.. 
+
+ 
+
+1. Internals Overview
+
+First of all, you should always include the file FT_CACHE_MANAGER_H (a.k.a. <freetype/cache/ftcmanag.h> in most installations) before your custom cache code, since it contains a bunch of necessary type and functions declarations.
+
+More specifically, it provides the definition of four important types which will be treated as abstract object classes in the rest of this section:
+
+ 
+
+a. the FTC_Node class:
+
+每个缓存节点都被一个FTC_Node句柄模拟，他是一个指向FTC_NodeRec structure的指针。
+
+  typedef struct  FTC_NodeRec_
+
+  {
+
+    FTC_Node   mru_next;     /* circular mru list pointer           */
+
+    FTC_Node   mru_prev;     /* circular mru list pointer           */
+
+    FTC_Node   link;         /* used for hashing..                  */
+
+    FT_UInt32  hash;         /* used for hashing too..              */
+
+    FT_UShort  fam_index;    /* index of family the node belongs to */
+
+    FT_Short   ref_count;    /* reference count for this node..     */
+
+  } FTC_NodeRec;
+
+    
+
+It can be detailed with the following:
+
+Each node is part of a MRU-ordered global list owned by the cache manager, and thus contains two fields, named mru_prev and mru_next, for that purpose. 
+Each cache object implements a fast and dynamic hash table. As a consequence, each node also contains a 32-bit field named hash and a bucket list pointer named link 
+Finally, each node contains a 16-bit reference count (ref_count), and a 16-bit index (fam_index) into a global list of "families" (which are described below) 
+On a 32-bits system, the minimal size of a given cache node is thus of 20 bytes.
+
+You can "derive" the base FTC_Node class by defining your own structures with a FTC_NodeRec as its first field, as in:
+
+      typedef struct DummyNodeRec_
+
+      {
+
+        FTC_NodeRec   node;
+
+        ........ my node information
+
+      } DummyNodeRec, *DummyNode;
+
+    
+
+b. the FTC_Family class:
+
+All the nodes managed by a given cache can be grouped in families. Each family corresponds to a group of nodes sharing the same runtime properties. It is modeled by a FTC_Family handle.
+
+For example, both the FTC_ImageCache and FTC_SBitsCache use families to group all image/bitmap nodes belonging to the same face, size and format. More precisely, each family object they manage contain a FTC_FaceID, character pixel sizes and a glyph image format descriptor.
+
+Each family belongs to a single cache object, and it has a globally unique 16-bit index used to address it from a given cache node. If several cache nodes belong to the same family, this allows efficient sharing of information and prevent duplication of considerable amount of identical data.
+
+Just like FTC_Node, FTC_Family is an abstract class that must be derived to create "real" types.
+
+c. the FTC_Cache class:
+
+As said previously, each FTC_Cache object implements an optimized and dynamic hash table to hold all of its nodes. Additionally, the cache controls a MRU list of families for its nodes.
+
+When a lookup is performed in a cache, the latter begins by finding the family corresponding to the request (if none is available, it creates a new one). Once found, the family determines the hash value to use to lookup the node in the hash table.
+
+d. the FTC_Query class:
+
+Which leads us to the FTC_Query class, which is used exclusively within lookups to during lookups 
+
+When a cache is searched, the information relevant to select or create the right node is gathered in a type called a "query". Its base class is FTC_Query , which must be derived too for "real" queries / lookups.
+
+ 
+

@@ -1,0 +1,530 @@
+ FreeType 用法
+分类： c++ 2012-02-02 05:39 4344人阅读 评论(0) 收藏 举报
+librarymatrixtransformationvectorbufferimage
+
+目录(?)[+]
+
+Freetype是一个跨平台、开源的字体渲染器，网上很多文章介绍，本人就不啰嗦了。本文重点在于实现文章标题所属的各种效果，不是Freetype的基本使用方法介绍文档，所以对于Freetype不熟悉的同学们请先学习下Freetype的基本用法，才可以使用本文中所提及的方法。
+
+用FreeType实现矢量字体的粗体、斜体、描边、阴影效果不是一件容易的事，本人认为皆因Freetype的接口太过于底层化，Freetype没有对其进行上层包装，所以要实现这些对于软件/游戏来说的基本效果，都是件挺麻烦的事情。
+1. 加粗
+
+加粗可以使用FreeType中的一个API来实现FT_Outline_Embolden，但是这个API不支持水平垂直方向加粗量的分别设置，所以，需要参照FT_Outline_Embolden的实现重新编写一个函数，GDI++已经做了这个事情，引用它的代码：
+
+ 
+// 就是FT_Outline_Embolden
+FT_Error Old_FT_Outline_Embolden( FT_Outline*  outline, FT_Pos strength )
+{
+    FT_Vector*    points;
+    FT_Vector    v_prev, v_first, v_next, v_cur;
+    FT_Angle    rotate, angle_in, angle_out;
+    FT_Int        c, n, first;
+    FT_Int        orientation;
+
+    if ( !outline )
+        return FT_Err_Invalid_Argument;
+
+    strength /= 2;
+    if ( strength == 0 )
+        return FT_Err_Ok;
+
+    orientation = FT_Outline_Get_Orientation( outline );
+    if ( orientation == FT_ORIENTATION_NONE )
+    {
+        if ( outline->n_contours )
+            return FT_Err_Invalid_Argument;
+        else
+            return FT_Err_Ok;
+    }
+
+    if ( orientation == FT_ORIENTATION_TRUETYPE )
+        rotate = -FT_ANGLE_PI2;
+    else
+        rotate = FT_ANGLE_PI2;
+
+    points = outline->points;
+
+    first = 0;
+    for ( c = 0; c < outline->n_contours; c++ )
+    {
+        int  last = outline->contours[c];
+
+        v_first = points[first];
+        v_prev  = points[last];
+        v_cur   = v_first;
+
+        for ( n = first; n <= last; n++ )
+        {
+            FT_Vector    in, out;
+            FT_Angle    angle_diff;
+            FT_Pos        d;
+            FT_Fixed    scale;
+
+            if ( n < last )
+                v_next = points[n + 1];
+            else
+                v_next = v_first;
+
+            /* compute the in and out vectors */
+            in.x = v_cur.x - v_prev.x;
+            in.y = v_cur.y - v_prev.y;
+
+            out.x = v_next.x - v_cur.x;
+            out.y = v_next.y - v_cur.y;
+
+            angle_in   = FT_Atan2( in.x, in.y );
+            angle_out  = FT_Atan2( out.x, out.y );
+            angle_diff = FT_Angle_Diff( angle_in, angle_out );
+            scale      = FT_Cos( angle_diff / 2 );
+
+            if ( scale < 0x4000L && scale > -0x4000L )
+                in.x = in.y = 0;
+            else
+            {
+                d = FT_DivFix( strength, scale );
+
+                FT_Vector_From_Polar( &in, d, angle_in + angle_diff / 2 - rotate );
+            }
+
+            outline->points[n].x = v_cur.x + strength + in.x;
+            //伀偙傟傪僐儊儞僩傾僂僩偟偨偩偗
+            //outline->points[n].y = v_cur.y + strength + in.y;
+
+            v_prev = v_cur;
+            v_cur  = v_next;
+        }
+
+        first = last + 1;
+    }
+
+    return FT_Err_Ok;
+}
+
+// 垂直加粗
+FT_Error Vert_FT_Outline_Embolden( FT_Outline*  outline, FT_Pos strength )
+{
+    FT_Vector*    points;
+    FT_Vector    v_prev, v_first, v_next, v_cur;
+    FT_Angle    rotate, angle_in, angle_out;
+    FT_Int        c, n, first;
+    FT_Int        orientation;
+
+    if ( !outline )
+        return FT_Err_Invalid_Argument;
+
+    strength /= 2;
+    if ( strength == 0 )
+        return FT_Err_Ok;
+
+    orientation = FT_Outline_Get_Orientation( outline );
+    if ( orientation == FT_ORIENTATION_NONE )
+    {
+        if ( outline->n_contours )
+            return FT_Err_Invalid_Argument;
+        else
+            return FT_Err_Ok;
+    }
+
+    if ( orientation == FT_ORIENTATION_TRUETYPE )
+        rotate = -FT_ANGLE_PI2;
+    else
+        rotate = FT_ANGLE_PI2;
+
+    points = outline->points;
+
+    first = 0;
+    for ( c = 0; c < outline->n_contours; c++ )
+    {
+        int  last = outline->contours[c];
+
+        v_first = points[first];
+        v_prev  = points[last];
+        v_cur   = v_first;
+
+        for ( n = first; n <= last; n++ )
+        {
+            FT_Vector    in, out;
+            FT_Angle    angle_diff;
+            FT_Pos        d;
+            FT_Fixed    scale;
+
+            if ( n < last )
+                v_next = points[n + 1];
+            else
+                v_next = v_first;
+
+            /* compute the in and out vectors */
+            in.x = v_cur.x - v_prev.x;
+            in.y = v_cur.y - v_prev.y;
+
+            out.x = v_next.x - v_cur.x;
+            out.y = v_next.y - v_cur.y;
+
+            angle_in   = FT_Atan2( in.x, in.y );
+            angle_out  = FT_Atan2( out.x, out.y );
+            angle_diff = FT_Angle_Diff( angle_in, angle_out );
+            scale      = FT_Cos( angle_diff / 2 );
+
+            if ( scale < 0x4000L && scale > -0x4000L )
+                in.x = in.y = 0;
+            else
+            {
+                d = FT_DivFix( strength, scale );
+
+                FT_Vector_From_Polar( &in, d, angle_in + angle_diff / 2 - rotate );
+            }
+
+            //outline->points[n].x = v_cur.x + strength + in.x;
+            //仾偙傟傪僐儊儞僩傾僂僩偟偨偩偗
+            outline->points[n].y = v_cur.y + strength + in.y;
+
+            v_prev = v_cur;
+            v_cur  = v_next;
+        }
+
+        first = last + 1;
+    }
+
+    return FT_Err_Ok;
+}
+
+// 新的加粗函数
+FT_Error New_FT_Outline_Embolden( FT_Outline*  outline, FT_Pos str_h, FT_Pos str_v )
+{
+    if ( !outline ) return FT_Err_Invalid_Argument;
+    int orientation = FT_Outline_Get_Orientation( outline );
+    if ( orientation == FT_ORIENTATION_NONE )
+        if ( outline->n_contours ) return FT_Err_Invalid_Argument;
+    Vert_FT_Outline_Embolden( outline, str_v );
+    Old_FT_Outline_Embolden( outline, str_h );
+    return FT_Err_Ok;
+}
+
+// 让一个字体槽加粗，并且填充其他的大小属性
+void New_GlyphSlot_Embolden( FT_GlyphSlot  slot , const Vector2Float &embolden)
+{
+    if(embolden == Vector2Float::ZERO)
+        return;
+    FT_Library  library = slot->library;
+    FT_Face     face    = slot->face;
+    FT_Error    error;
+    FT_Pos      xstr = embolden.x, ystr = embolden.y;
+
+
+    if ( slot->format != FT_GLYPH_FORMAT_OUTLINE &&
+        slot->format != FT_GLYPH_FORMAT_BITMAP )
+        return;
+
+    if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
+    {
+        FT_BBox oldBox;
+        FT_Outline_Get_CBox(&slot->outline , &oldBox);
+        error = New_FT_Outline_Embolden( &slot->outline, xstr , ystr);
+        if ( error )
+            return;
+
+        FT_BBox newBox;
+        FT_Outline_Get_CBox(&slot->outline , &newBox);
+        xstr = (newBox.xMax - newBox.xMin) - (oldBox.xMax - oldBox.xMin);
+        ystr = (newBox.yMax - newBox.yMin) - (oldBox.yMax - oldBox.yMin);
+    }
+    else if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
+    {
+        xstr = FT_PIX_FLOOR( xstr );
+        if ( xstr == 0 )
+            xstr = 1 << 6;
+        ystr = FT_PIX_FLOOR( ystr );
+
+        error = FT_Bitmap_Embolden( library, &slot->bitmap, xstr, ystr );
+        if ( error )
+            return;
+    }
+
+    if ( slot->advance.x )
+        slot->advance.x += xstr;
+
+    if ( slot->advance.y )
+        slot->advance.y += ystr;
+
+    slot->metrics.width        += xstr;
+    slot->metrics.height       += ystr;
+    slot->metrics.horiBearingY += ystr;
+    slot->metrics.horiAdvance  += xstr;
+    slot->metrics.vertBearingX -= xstr / 2;
+    slot->metrics.vertBearingY += ystr;
+    slot->metrics.vertAdvance  += ystr;
+
+    if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
+        slot->bitmap_top += ystr >> 6;
+}
+
+
+加粗：对于MONO渲染方式，使用FreeType提供的FT_Bitmap_Embolden函数。如果使用Default渲染，则使用FT_Outline_Embolden加粗。
+
+   下划线：绘制下划线时，先通过face->size->metrics.y_ppem来获得该字库字符高，face是一个已经实例化的FT_Face。接着，绘制字符串时，通过bitmapinfo->root.advance.x>>16获得每个打印字符的宽，并累加，最后获得一个字符串像素长，bitmapinfo是一个FT_BitmapGlyph对象。接着就可以绘制想要的下划线了。
+
+   斜体：如果是Default渲染，可以使用FT_Set_Transform函数。但如果是MONO渲染，很不幸没有现成的API用了。所以，这里要自己变通一下了。我这里使用SetPixel为例说明一下，首先我这边给定一个字符倾斜角度为45度，那个可以得到一个线性函数y=x。下面是MONO渲染斜体伪代码：
+
+for(y=0;y<charHeight;y++)
+
+{
+
+   iItalicWidth=(charHeight-y);  //计算倾斜像素个数
+
+   for(x=0;x<charWidth;x++)
+
+    {
+
+       charData=GetCharData(x,y);
+
+       if(charData)
+
+           SetPixel(x+iItalicWidth,y,color::Black);
+
+    }
+
+}
+2 斜体
+
+斜体在FreeType中可以通过矩阵变换来实现，只要把矩阵设置成一个切边矩阵就可以了，方法如下：
+// 倾斜度，越大就越斜
+float lean = 0.5f;
+FT_Matrix matrix;
+matrix.xx = 0x10000L;
+matrix.xy = lean * 0x10000L;
+matrix.yx = 0;
+matrix.yy = 0x10000L;
+FT_Set_Transform( face, &matrix, 0 );
+
+3.  描边
+
+网上有不少文章说描边其实很简单，就是上下左右各移动一个像素渲染一次，最后在中间再渲染一次就可以了。但是，这种方法只对于位图字体有效，对于矢量字体，效果就不好了，特别是大字体，1个像素只是很细的边界而已，对于很小的字体，1像素又显得太大。
+
+这里提供另一种实现方案，使用的是Freetype的API：
+
+4.         使用FT_Stroker_New创建一个笔触
+
+5.         FT_Stroker_Set设置笔触为描边
+
+6.         把Load后的glyph通过FT_Glyph_Copy拷贝一份出来
+
+7.         对这个拷贝出来的glyph使用FT_Glyph_StrokeBorder设置成描边渲染
+
+8.         使用FT_Outline_Render渲染这个描边的glyph，渲染前要设置FT_Raster_Params参数成： 
+FT_Raster_Params params;
+memset(&params, 0, sizeof(params));
+params.flags = FT_RASTER_FLAG_AA | FT_RASTER_FLAG_DIRECT;
+params.gray_spans = RasterCallback;
+
+ 
+
+9.         在回调函数RasterCallback中实现像素化到位图中
+
+10.     对原来的glyph执行8操作，在回调函数RasterCallback中实现像素化到位图中，像素化过程使用alphablend的方式绘制上去
+
+11.     把位图渲染到屏幕上或保存到文件中
+
+
+4. 阴影
+
+阴影的实现就比较简单了，只要一个个像素偏移后多渲染几次就可以了，再次不多说。
+
+字体轮廓：首先使用FreeType创建两个字体库对象，加载同一个字体，设置字体大小也相同。然后把其中一个字体字模进行加粗效果。接着先绘制那个加粗的字体，最后绘制另一个字体就OK了。当然有时可能要自己去微调一两个像素。
+   字体阴影：比字体轮廓实现更简单。用FreeType加载一个字库，然后用一个较浅的颜色绘制一个字符串。然后偏移几个像素（按自己要求调）绘制一个颜色比较深的字符串，就大功告成了。有时给底部那个字符串加一个倾斜，效果看上去也不错
+
+
+1. 初始化FT lib
+
+ FT_Library  library;   /* handle to library     */
+ FT_Face     face;      /* handle to face object */
+
+ // 1. Init the library
+ if ( FT_Init_FreeType( &library ) )
+ {
+  MessageBox(_T("Init freetype library failed."), _T("Error"), MB_OK | MB_ICONERROR);
+  FT_Done_FreeType(library);
+  return;
+ }
+
+int nface = 0;
+ //nface = 1;
+
+//pathstring是TTF文件的路径
+ FT_Error error = FT_New_Face(
+      library,
+      pathstring,
+      nface,
+      &face );
+ 
+ if ( error == FT_Err_Unknown_File_Format )
+ {
+  MessageBox(_T("Font format not supported."), _T("Error"), MB_OK | MB_ICONERROR);
+  FT_Done_FreeType(library);
+  return;
+ }
+ else if ( error )
+ {
+  MessageBox(_T("Font face open failed."), _T("Error"), MB_OK | MB_ICONERROR);
+  FT_Done_FreeType(library);
+  return;
+ }
+
+2. 获取font face信息
+
+AddMessage(_T("Face information:"));
+
+//glyph数量
+ sMessage.Format(_T("      Totally %d glyphs."), face->num_glyphs);
+ AddMessage(sMessage);
+
+//每EM unit数量
+ sMessage.Format(_T("      %d uints per EM."), face->units_per_EM);
+ AddMessage(sMessage);
+
+//char map数量
+ sMessage.Format(_T("      %d char maps."), face->num_charmaps);
+ AddMessage(sMessage);
+
+//fix size
+
+//这个对于汉字很重要，fix size对于小字体显示很有帮助
+ sMessage.Format(_T("      %d fixed sizes:"), face->num_fixed_sizes);
+ if(face->available_sizes)
+ {
+  for(int ii = 0 ; ii <  face->num_fixed_sizes ; ii++)
+  {
+   sTemp.Format(_T(" %d"), face->available_sizes[ii].size / 64);
+   sMessage += sTemp;
+  }
+ }
+
+ AddMessage(sMessage);
+ int iUnderlinePos = 0;
+
+//下划线位置
+
+ if( FT_IS_SCALABLE(face) )
+ {
+  iUnderlinePos = FT_MulFix( face->underline_position , face->size->metrics.y_scale);
+  iUnderlinePos >>= 6;
+  sMessage.Format(_T("      underline position:%d"), iUnderlinePos);
+  AddMessage(sMessage);
+ }
+
+3. 设置参数，为获取glyph image做准备
+
+ 
+
+//按pixel大小设置字体尺寸
+
+FT_Set_Pixel_Sizes(face, m_iFontHeight, m_iFontHeight);
+
+//检查是否SCALABLE
+
+ if( !FT_IS_SCALABLE(face) )
+ {
+  //Not a scalable font (Truetype or Type1)
+  ASSERT(0);
+ }
+
+//当需要竖排文字时检查是否支持
+
+ if( !m_bHorizontal && !FT_HAS_VERTICAL(face))
+ {
+  MessageBox(_T("This font doesn't support vertical layout!"), _T("Error"), MB_OK | MB_ICONERROR);
+  // Do the clean up
+  FT_Done_Face( face );
+  FT_Done_FreeType(library);
+
+  return;
+ }
+
+//下面这个matrix用于设置斜体字
+
+FT_Matrix     matrix;              /* transformation matrix */
+
+ matrix.xx = 1 << 16;
+ matrix.xy = 0x5800;
+ matrix.yx = 0;
+ matrix.yy = 1 << 16;
+
+ 
+
+4. 获取glyph，并设置格式
+
+//curchar是该字符的unicode编码
+
+FT_Load_Char(face, curchar, FT_LOAD_DEFAULT);
+
+    if(m_bBold)
+    {//加粗
+     int strength = 1 << 6;
+     FT_Outline_Embolden(&face->glyph->outline, strength);
+
+    }
+    if(m_bItalic)
+    {//斜体
+     /* set transformation */
+     //FT_Set_Transform( face, &matrix, 0 );
+     FT_Outline_Transform(&face->glyph->outline, &matrix);
+    }
+
+5. Render glyph，准备拷贝glyph image
+
+ftResult = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
+   if (ftResult)
+   {
+    continue;//因为这是在一个循环中
+   }
+  
+   // 获取该文字整个宽度，包含跨距
+   FT_Int advance = (face->glyph->advance.x >> 6 );// + pixelwordspacing;
+
+   // 得到渲染后bitmap buffer指针
+   unsigned char* buffer = face->glyph->bitmap.buffer;
+   if (!buffer)
+   {
+        continue;
+   } 
+
+6. 拷贝glyph image
+
+switch (face->glyph->bitmap.pixel_mode)
+     {
+      case FT_PIXEL_MODE_GRAY:
+       {
+        for(int k = 0; k < face->glyph->bitmap.width; k++ )
+        {
+         pixelclr = buffer[j * face->glyph->bitmap.pitch + k];
+         // 可以使用pixelclr作为alpha值
+
+         // pDest是显示用的image内存指针
+         *pDest++= pixelclr;
+       }
+       break;
+
+      case FT_PIXEL_MODE_MONO:
+
+      //很多人不知道这个对应的就是fix size时的图片格式，每个bit对应一个点，非黑即白
+       
+       for(int k = 0; k < face->glyph->bitmap.width; k++ )
+       {
+        pixelclr = (src [k / 8] & (0x80 >> (k & 7))) ? 0xFFFFFFFF : 0x00000000;
+        // pDest是显示用的image内存指针
+         *pDest++= pixelclr;
+       }
+       break;
+
+      default:
+       //throw InvalidRequestException("Error - unsupported pixel mode");
+       break;
+     }
+
+7. 关于竖排文字
+
+//
+
+ftResult = FT_Load_Char( face, curchar, FT_LOAD_DEFAULT | FT_LOAD_VERTICAL_LAYOUT);
+
+
+版权声明：本文为博主原创文章，未经博主允许不得转载。

@@ -1,0 +1,366 @@
+ linux cscope 使用方法
+2013-07-05 17:56:41
+标签：linux cscope
+3
+4
+5
+6
+	
+#!/bin/bash
+currentPath=$(pwd | sed 's$\/$\\\/$g')
+echo $currentPath
+find . -name "*.h"-o -name "*.c"-o -name "*.cc"-o -name "*.cpp"| sed "s/^\./$currentPath/"> cscope.files
+cscope -bkq -i cscope.files
+ctags -R
+
+
+
+前言：
+本文档记录了我今天＜2007-11-9＞下午学习cscope的一点收获，特收录博客以作分享。在学习cscope过程中查阅了大量的文档，但发现适合我的很少＜我：对cscope没有一点概念＞。所以也感觉到写这文章的必要性，以和与自己处境相似的朋友们分享一点经验，希望能减少一些学习的时间。当然，由于时间有限＜仅一下午＞所以对很多cscope功能没有实践，我最大的希望能把这文档当成一个入门级的东东，能带着更多的人使用cscope.
+如果你能通过搜索来到这里，证明，我就权当你已知道cscope是做什么用的。今天我不准备写这些东东，以后可能添加。
+
+我的平台：Linux SUSE 10.1 硬件平台普通
+1, cscope安装
+
+    软件下载：http://sourceforge.net/project/showfiles.php?group_id=4664
+
+    软件安装:  
+
+        ./configure --with-flex  (注：如果平台是Linux,最好带上 --with-flex选项)
+
+        make  (注：我没有遇到错误)
+
+        make install (注： 直接安装好了) 
+
+
+2,cscope配置
+
+    修改vim配置文件vimrc.你可以修改/etc/vimrc使用所有用户都使用本配置文件，当然你还可以修改~/.vimrc
+
+        下载配置文件：cscope_map.vim  
+
+        把cscope_map.vim里从 if has("cscope")  到 endif里边的内容复制到/etc/vimrc里边去
+
+        里边的命令意思请看下边文章 
+
+
+3,cscope使用
+
+    建立cscope使用的索引文件
+
+        在你需要浏览源码的根目录下（如你想用cscope看linux源码)使用下面命令：
+
+            #: cscope -Rbkq<回车> 
+
+
+        R 表示把所有子目录里的文件也建立索引
+
+        b 表示cscope不启动自带的用户界面，而仅仅建立符号数据库
+
+        q生成cscope.in.out和cscope.po.out文件，加快cscope的索引速度
+
+        k在生成索引文件时，不搜索/usr/include目录 
+
+
+    在源码根目录下打开任意.c文件，使用如下命令：
+
+        Ctrl+]将跳到光标所在变量或函数的定义处 Ctrl+T返回
+
+        ：cs find s ---- 查找C语言符号，即查找函数名、宏、枚举值等出现的地方
+        ：cs find g ---- 查找函数、宏、枚举等定义的位置，类似ctags所提供的功能
+        ：cs find d ---- 查找本函数调用的函数
+        ：cs find c ---- 查找调用本函数的函数
+        ：cs find t: ---- 查找指定的字符串
+        ：cs find e ---- 查找egrep模式，相当于egrep功能，但查找速度快多了
+        ：cs find f ---- 查找并打开文件，类似vim的find功能
+        ：cs find i ---- 查找包含本文件的文
+
+        2的所以命令也可以且按銉来实现：
+
+            Ctrl+/ 再按 s 表示：cs find s命令
+
+            同理实现cs find + g,d,c,t,e,f,i命令 
+
+
+
+    cscope_map.vim说明：
+
+        有英文注释的我就不说明了，我就说一下里边的键map映射
+
+        如： nmap <C-/>s :cs find s <C-R>=expand("<cword>")<CR><CR>
+
+            nmap 表示在vim的普通模式下，即相对于：编辑模块和可视模式，以下是几种模式
+
+                       :map            普通，可视模式及操作符等待模式
+                       :vmap           可视模式
+                       :omap           操作符等待模式
+                       :map!           插入和命令行模式
+                       :imap           插入模式
+                       :cmap           命令行模式 
+
+
+            <C-/>表示：Ctrl+/
+
+            s表示输入(即按：s)s
+
+            : 表示输入':'
+
+            “cs find s"表示输入"cs find s"也即是要输入的命令
+
+            <C-R>=expand("cword")总体是为了得到：光标下的变量或函数。cword 表示：cursor word, 类似的还有：cfile表示光标所在处的文件名吧
+
+            ＜CR＞＜CR＞就是回车吧，不太清楚
+
+
+
+    其它的特补充吧。。今天就写到这里。 
+
+
+
+首先在目录下建立cscope索引文件
+
+find -name '*.c' > cscope.file
+
+cscope -Rbkq
+
+这个命令会生成三个文件：cscope.out, cscope.in.out, cscope.po.out。
+其中cscope.out是基本的符号索引，后两个文件是使用"-q"选项生成的，可以加快cscope的索引速度。
+上面所用到的命令参数，含义如下：
+
+-R: 在生成索引文件时，搜索子目录树中的代码
+-b: 只生成索引文件，不进入cscope的界面
+-k: 在生成索引文件时，不搜索/usr/include目录
+-q: 生成cscope.in.out和cscope.po.out文件，加快cscope的索引速度
+
+接下来，就可以在vim里读代码了。
+不 过在使用过程中，发现无法找到C++的类、函数定义、调用关系。仔细阅读了cscope的手册后发现，原来cscope在产生索引文件时，只搜索类型为 C, lex和yacc的文件(后缀名为.c, .h, .l, .y)，C++的文件根本没有生成索引。不过按照手册上的说明，cscope支持c++和Java语言的文件。
+于是按照cscope手册上提供的方法，先产生一个文件列表，然后让cscope为这个列表中的每个文件都生成索引。
+为了方便使用，编写了下面的脚本来更新cscope和ctags的索引文件：
+
+#!/bin/sh
+
+find . -name "*.h" -o -name "*.c" -o -name "*.cc" > cscope.files
+cscope -bkq -i cscope.files
+ctags -R
+
+
+这个脚本，首先使用find命令，查找当前目录及子目录中所有后缀名为".h", ".c"和".cc"的文件，并把查找结果重定向到文件cscope.files中。
+然后cscope根据cscope.files中的所有文件，生成符号索引文件。
+最后一条命令使用ctags命令，生成一个tags文件，在vim中执行":help tags"命令查询它的用法。它可以和cscope一起使用。
+
+-R: 在生成索引文件时，搜索子目录树中的代码
+
+-b: 只生成索引文件，不进入cscope的界面
+
+-q: 生成cscope.in.out和cscope.po.out文件，加快cscope的索引速度
+
+-k: 在生成索引文件时，不搜索/usr/include目录
+
+-i: 如果保存文件列表的文件名不是cscope.files时，需要加此选项告诉cscope到哪儿去找源文件列表。可以使用“-”，表示由标准输入获得文件列表。
+
+-I dir: 在-I选项指出的目录中查找头文件
+
+-u: 扫描所有文件，重新生成交叉索引文件
+
+-C: 在搜索时忽略大小写
+
+-P path: 在以相对路径表示的文件前加上的path，这样，你不用切换到你数据库文件所在的目录也可以使用它了。
+
+3在vim里读代码
+
+在VIM中使用cscope非常简单，首先调用“cscope add”命令添加一个cscope数据库，然后就可以调用“cscope find”命令进行查找了。VIM支持8种cscope的查询功能，如下：例如，我们想在代码中查找调用work()函数的函数，我们可以输入：“:cs find c work”，回车后发现没有找到匹配的功能，可能并没有函数调用work()。我们再输入“:cs find s work”，查找这个符号出现的位置，现在vim列出了这个符号出现的所有位置。我们还可以进行字符串查找，它会双引号或单引号括起来的内容中查找。还可以输入一个正则表达式，这类似于egrep程序的功能。
+
+s: 查找C语言符号，即查找函数名、宏、枚举值等出现的地方
+
+g: 查找函数、宏、枚举等定义的位置，类似ctags所提供的功能
+
+d: 查找本函数调用的函数
+
+c: 查找调用本函数的函数
+
+t: 查找指定的字符串
+
+e: 查找egrep模式，相当于egrep功能，但查找速度快多了
+
+f: 查找并打开文件，类似vim的find功能
+
+i: 查找包含本文件的文
+
+cs help
+
+find 的选项
+
+0或则S：查找本符号
+
+1或则G：查找本定义
+
+2或则D：查找本函数调用的函数
+
+3或则C：查找调用本函数的函数
+
+4或则T：查找本字符串
+
+6或则E：查找本EGREP模式
+
+7或则F：查找本文件
+
+8或则I：查找包含本文件的文件
+
+热后就可以在vim中使用cscope了，具体使用方法参考
+
+//----------------------------------------------------------------------
+cscope是什么？
+
+cscope 是一个 C 语言的浏览工具，通过这个工具可以很方便地找到某个函数或变量的定义位置、被调用的位置等信息。目前支持 C 和 C++。cscope 自身带一个基于文本的用户界面，不过 gvim 提供了cscope接口，因此可以在 gvim 中调用 cscope，方便快捷地浏览源代码。
+为什么要使用cscope？
+
+假设我们在读一份很大的项目的源代码。我们也许会需要进行如下操作。
+
+    函数 foo() 调用了函数 bar()，想看看函数 bar() 的内容。
+
+    想知道 foo() 在什么地方被调用。
+
+    想知道一个结构类型的定义。
+
+虽然在 Linux 下使用 grep 或者在 Windows 下使用文件查找功能也能找到想找的文件，但是效率太低了。有没有什么更为方便快捷的方法？
+
+这就需要用到cscope。gvim结合cscope，可以很方便地完成以上的操作，只需简单地敲几下键盘即可跳转到想去的地方。
+如何使用cscope？
+
+
+下载
+
+如果你使用的是Linux，那么恭喜你，很可能操作系统已经为你提供了cscope工具。使用下面的命令确认它是否存在：
+
+cscope -V
+
+如果cscope工具已经安装，上面的命令将显示cscope的版本号，类似于下面的结果：
+
+cscope: version 16.0a
+
+但是如果提示错误说找不到cscope命令，说明cscope尚未安装。你可以到网上去寻找cscope的RPM包。另外，我们可以从cscope官方网站上下载到 cscope 的最新源代码。在Linux下你可以编译该源代码生成cscope的可执行文件。
+
+如果你是Windows用户，就没有这么好的福气了，因为在Windows下编译程序并不是很简单的事情。好在已经有人为我们编译好了Windows版，可以从这里下载到：http://iamphet.nm.ru/cscope/。
+安装
+
+安装很简单，只要将cscope的可执行文件放到PATH环境变量包含的目录中即可。推荐Windows用户将上面下载到的 cscope.exe 与 gvim 放在同一个目录下，如 C:\Program Files\Vim\gvim64 下，然后单击开始菜单选择运行，输入 cmd，启动命令行提示符程序，执行
+
+cscope -V
+
+如果能看到cscope的版本好则说明安装成功。
+
+另外，为了方便地使用cscope，我们还需要下载cscope的键盘映射设置，这样就可以在gvim中简单地通过快捷键来使用 cscope，而不必敲复杂的命令了。键盘映射可以从这里下载：http://cscope.sourceforge.net/cscope_maps.vim
+
+将下载到的 cscope_maps.vim 放在gvim的插件目录里，如 C:\Program Files\Vim\vimfiles\plugin 中。Linux用户可以放在 $HOME/.vim/plugin 中。
+建立符号数据库
+
+我们假设我们要阅读的代码放在 D:\src\myproject 下。然后打开命令行，进入源代码所在的目录，为 cscope 建立搜索文件列表。在命令行中执行以下命令：
+
+dir /s /b *.c *.h  > cscope.files
+
+如果你的源代码是C++，则可以将 cpp 等扩展名也加入到上面的命令中。
+
+dir /s /b *.c *.h *cpp *.hpp  > cscope.files
+
+如果是Linux用户，则可以使用 find 命令实现同样的功能：
+
+find $(pwd) -name "*.[ch]"
+
+然后执行以下命令：
+
+cscope -b
+
+执行结束后你可以在当前目录下发现 cscope.out 文件，这就是 cscope 建立的符号数据库。
+
+上面这个命令中，-b参数使得cscope不启动自带的用户界面，而仅仅建立符号数据库。
+浏览源代码
+
+使用 gvim 打开你的源代码目录中任意一个C程序文件。然后在gvim中执行如下命令：
+
+:cscope add D:\src\myproject\cscope.out
+
+由于在 gvim 中可以使用命令缩写，因此上面的命令可以写成：
+
+:cs a D:\src\myproject\cscope.out
+
+这样就打开了刚刚建立的符号数据库。通过下面的命令可以检查数据库连接的存在。
+
+:cscope show
+
+该命令可以缩写为
+
+:cs s
+
+现在将光标移动到源代码中的某个函数名上，依次按下一下组合键：
+
+<C-\>s
+
+稍等片刻之后你会在屏幕下放看到如下的字样*1：
+
+Cscope tag: display
+   #   line  filename / context / line
+   1    342  D:\src\myproject\src\global.h <<GLOBAL>>
+             void display(void );
+   2    616  D:\src\myproject\src\command.c <<changestring>>
+             display();
+   3    138  D:\src\myproject\src\display.c <<display>>
+             display(void )
+   4    385  D:\src\myproject\src\main.c <<main.c>>
+             display();
+   5    652  D:\src\myproject\src\main.c <<main.c>>
+             display();
+   6    663  D:\src\myproject\src\main.c <<main.c>>
+             display();
+Enter nr or choice (<CR> to abort):
+
+这里显示出的就是整个工程中使用到了 display 这个标识符的位置。此时输入 4，回车，即可跳转到 main.c 的 385 行调用 display() 函数的地方进行浏览。浏览结束后按 <C-T> 或者 <C-O> 可以回到跳转前的位置。
+
+然后将光标移动到源代码某个函数名上，迅速地依次安下面的组合键：
+
+<C-@>s
+
+其中 <C-@> 按 Ctrl-2 即可输入。同样，屏幕上出现了一排结果，选择之后你会发现，跳转到的文件将在水平方向的新窗口中打开。
+
+然后将光标移动到源代码某个函数名上，迅速地依次安下面的组合键：
+
+<C-@><C-@>s
+
+选择之后你会发现，跳转到的文件将在垂直方向的新窗口中打开。
+
+以上我们简单介绍了cscope的使用方法，其中我们只用到了一个 s 命令，即跟在 <C-\> 和 <C-@> 后面的 s 键。同样，我们可以使用以下的功能键实现不同的跳转功能。
+
+    c: 查找该函数被调用的位置
+
+    d: 查找该函数调用了哪些函数
+
+    e: 查找指定的正规表达式
+
+    f: 查找指定的文件
+
+    g: 查找指定标识符的定义位置
+
+    i: 查找该文件在哪些地方被包含
+
+    s: 查找指定标识符的使用位置
+
+    t: 查找指定的文本字符串
+
+命令行使用说明
+
+除了上述通过快捷键映射的方式使用cscope之外，也可以直接在gvim命令行中使用cscope。这样就可以随意定义查找字符串，而不必局限于源代码中已有的标识符。命令格式如下：
+
+:cscope find <c|d|e|f|g|i|s|t> <关键字>
+
+该命令可以缩写为
+
+:cs f <c|d|e|f|g|i|s|t> <关键字>
+
+一个比较实用的技巧是使用cscope打开文件。使用以下命令即可直接打开名为display.c的文件，而不必先切换到display.c所在的目录。
+
+:cs f f display.c
+
+cscope也支持正规表达式。如果记不清某个函数的名称，可以用下面的方式来找到该函数的定义位置。
+
+:cs f g .*SetConfiguration.*
+
+

@@ -1,0 +1,315 @@
+ 任意多边形顶点排序和凸包计算
+分类： OpenGL C++ 算法 2011-06-10 14:56 1874人阅读 评论(0) 收藏 举报
+distancekeyboardbufferfloat算法null
+目录(?)[+]
+1，理论
+凸包计算算法导论上有讲，关键步骤是根据对顶点进行逆时针排序。凸包顶点只是多边形顶点子集。
+
+图-1
+如图1中，判断三个点构成顺时针还是逆时针方向。使用向量点积即可:
+向量A<beg, end>
+向量B<beg, next>
+A.dot(B) 是一个实数，大于0，则逆时针，小于0则顺时针。
+2，效果图：
+
+图 - 2
+
+图 - 3
+图2是随机生成了三十个点。
+图3是黄色线条是排序以后顺序链接，外面淡蓝色线条是凸包。注意排序以后的顶点只保证顺序连线的顺序，不能保证所有顶点逆时针/顺时针排序。。。而且中间非常有可能是z型，即顺时针/逆时针翻转~
+ 
+3，可运行程序
+freeglut2.6.0
+[cpp] view plaincopyprint?
+#include <GL/glut.h>  
+#include <math.h>  
+#include <time.h>  
+void drawLine(const POINT& pnt1, const POINT& pnt2)  
+{  
+    glBegin(GL_LINES);  
+    glVertex2f(pnt1.x, pnt1.y);  
+    glVertex2f(pnt2.x, pnt2.y);  
+    glEnd();  
+}  
+/******************************************************************************  
+判断三个点构成逆时针/顺时针方向 
+r = multiply(begPnt, endPnt, nextPnt),得到(nextPnt-begPnt)*(endPnt-begPne)的叉积  
+r>0: nextPnt在矢量<beg, end>的逆时针方向 
+r=0: opspep三点共线  
+r<0: ep在矢量<beg, end>的顺时针方向  
+*******************************************************************************/   
+double multiply(POINT begPnt,POINT endPnt,POINT nextPnt)   
+{   
+    return((nextPnt.x-begPnt.x)*(endPnt.y-begPnt.y) - (endPnt.x-begPnt.x)*(nextPnt.y-begPnt.y));   
+}   
+double distance(const POINT& pnt1, const POINT& pnt2)  
+{  
+    return sqrtf( (pnt2.x-pnt1.x) * (pnt2.x-pnt1.x) + (pnt2.y-pnt1.y) * (pnt2.y-pnt1.y) );  
+}  
+void Graham_scan(POINT PointSet[], POINT ch[], int n, int &len)   
+{   
+    int i,j,k=0,top=2;   
+    POINT tmp;   
+    // 选取PointSet中y坐标最小的点PointSet[k]，如果这样的点有多个，则取最左边的一个   
+    for(i=1;i<n;i++)   
+        if ( PointSet[i].y<PointSet[k].y || (PointSet[i].y==PointSet[k].y) && (PointSet[i].x<PointSet[k].x) )   
+            k=i;   
+    tmp = PointSet[0];   
+    PointSet[0] = PointSet[k];   
+    PointSet[k] = tmp; // 现在PointSet中y坐标最小的点在PointSet[0]   
+    //  对顶点按照相对PointSet[0]的极角从小到大进行排序，  
+    //  极角相同的按照距离PointSet[0]从近到远进行排序  
+    for (i=1; i<n-1; i++)   
+    {   
+        k=i;   
+        for (j=i+1;j<n;j++)   
+            if ( multiply(PointSet[j], PointSet[k], PointSet[0])>0 ||  // 极角更小      
+                (multiply(PointSet[j], PointSet[k], PointSet[0])==0) && /* 极角相等，距离更短 */    
+                distance(PointSet[0], PointSet[j]) < distance(PointSet[0], PointSet[k]) )   
+                k=j;   
+        tmp = PointSet[i];   
+        PointSet[i] = PointSet[k];   
+        PointSet[k] = tmp;   
+    }   
+    ch[0] = PointSet[0];   
+    ch[1] = PointSet[1];   
+    ch[2] = PointSet[2];   
+    for (i = 3; i<n; i++)   
+    {   
+        while (multiply(PointSet[i], ch[top], ch[top-1])>=0)   
+            top--;   
+        ch[++top] = PointSet[i];   
+    }   
+    len = top+1;   
+}   
+const int   gNUM = 30;  
+POINT       gTrackPath[gNUM];  
+POINT       gSortedPath[gNUM];  
+POINT       gConvex[gNUM];  
+bool        gChange = false;  
+void init(void)   
+{  
+    glClearColor (0.0, 0.0, 0.0, 0.0);  
+    glShadeModel (GL_SMOOTH);  
+    srand( (unsigned)time( NULL ) );  
+    // 随机初始化点  
+    for (int i=0; i<gNUM; i++)  
+    {  
+        gSortedPath[i].x = gTrackPath[i].x = rand() % 800;  
+        gSortedPath[i].y = gTrackPath[i].y = rand() % 600;  
+    }     
+}  
+//////////////////////////////////////////////////////////////////////////  
+//  Windows Coordinate : LEFT-CORNER-(0,0), X-RIGHT, Y-UP  
+//////////////////////////////////////////////////////////////////////////  
+void display(void)  
+{  
+    glClear (GL_COLOR_BUFFER_BIT);  
+    const float color = 0.5f;  
+    glClearColor(color, color, color, 0.0);  
+    if (gChange)    //  直接输出  
+    {  
+        glColor3f (1.0, 1.0, 1.0);  
+        glLineWidth(2.0);  
+        for (int i=0; i<gNUM-1; i++)  
+        {  
+            drawLine(gTrackPath[i], gTrackPath[i+1]);  
+        }  
+    }  
+    else  
+    {  
+        int convexNum;  
+        Graham_scan(gSortedPath, gConvex, gNUM, convexNum);  
+        //  排序过的黄色  
+        glColor3f (1.0, 1.0, 0.0);  
+        glLineWidth(3.0);  
+        for (int i=0; i<gNUM-1; i++)  
+        {  
+            drawLine(gSortedPath[i], gSortedPath[i+1]);  
+        }  
+        //  凸包  
+        glColor3f (0.0, 1.0, 1.0);  
+        glEnable (GL_LINE_STIPPLE);  
+        glLineWidth(2.0);  
+        glLineStipple (1, 0x00FF);  /*  dotted  */  
+        for (int i=0; i<convexNum-1; i++)  
+        {  
+            drawLine(gConvex[i], gConvex[i+1]);  
+        }  
+        glDisable(GL_LINE_STIPPLE);  
+    }  
+    glFlush ();  
+}  
+void reshape (int w, int h)  
+{  
+    glViewport (0, 0, (GLsizei) w, (GLsizei) h);  
+    glMatrixMode (GL_PROJECTION);  
+    glLoadIdentity ();  
+    gluOrtho2D (0.0, (GLdouble) w, 0.0, (GLdouble) h);  
+}  
+void keyboard(unsigned char key, int x, int y)  
+{  
+    switch (key) {  
+      case 27:  
+          exit(0);  
+          break;  
+      case ' ':  
+          gChange = !gChange;  
+          glutPostRedisplay();  
+          break;  
+    }  
+}  
+int main(int argc, char** argv)  
+{  
+    glutInit(&argc, argv);  
+    glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);  
+    glutInitWindowSize (800, 600);   
+    glutInitWindowPosition (100, 100);  
+    glutCreateWindow (argv[0]);  
+    init ();  
+    glutDisplayFunc(display);   
+    glutReshapeFunc(reshape);  
+    glutKeyboardFunc(keyboard);  
+    glutMainLoop();  
+    return 0;  
+}  
+
+更多 0
+上一篇iterator例子程序
+下一篇全局变量的陷阱
+主题推荐算法导论windowsmath.hbufferswitch
+猜你在找
+3D坐标系变换多边形求面积，QwtPlotCurveOpenGL: 深度阴影的原理H.264 NAL语法语意以及字节流的语法语意逻辑坐标，设备坐标，窗口，视口最大的划分Gdi+ 画笔三角形跟射线求交OpenGL下通过鼠标动态绘制三次Bezier曲线
+
+查看评论
+
+  暂无评论
+
+您还没有登录,请[登录]或[注册]
+* 以上用户言论只代表其个人观点，不代表CSDN网站的观点或立场
+
+TOP
+核心技术类目
+全部主题 Java VPN Android iOS ERP IE10 Eclipse CRM JavaScript Ubuntu NFC WAP jQuery 数据库 BI HTML5 Spring Apache Hadoop .NET API HTML SDK IIS Fedora XML LBS Unity Splashtop UML components Windows Mobile Rails QEMU KDE Cassandra CloudStack FTC coremail OPhone CouchBase 云计算 iOS6 Rackspace Web App SpringSide Maemo Compuware 大数据 aptech Perl Tornado Ruby Hibernate ThinkPHP Spark HBase Pure Solr Angular Cloud Foundry Redis Scala Django Bootstrap
+个人资料
+ 访问我的空间 
+ryfdizuo
+ 
+
+访问：280205次
+积分：4960分
+排名：第1395名
+原创：195篇转载：11篇译文：2篇评论：189条
+博客专栏
+	OpenGL技术专栏
+文章：30篇
+阅读：56005
+文章分类
+随想&&感想(90)
+服务器开发(2)
+Boost(1)
+C++(141)
+CEGUI 学习(3)
+DirectX(2)
+OpenCV(6)
+OpenGL(74)
+移动开发(19)
+Paper(5)
+OSG(2)
+Pattern Design(7)
+QT(11)
+ScreenShots(5)
+Visual Programming(6)
+windows编程学习(6)
+三维动画(5)
+三维造型(14)
+算法(61)
+翻译(7)
+视频处理(3)
+Android(7)
+编程命名(0)
+IOS开发(1)
+文章存档
+2014年06月(4)
+2014年05月(2)
+2014年04月(3)
+2014年03月(2)
+2014年02月(1)
+展开
+阅读排行
+谈谈C++中的swap函数(11561)
+一个简单的多叉树C++实现(8869)
+数据结构中的十字链表(1)(6390)
+多叉树的可视化与遍历(6145)
+理解OpenGL中的模型视图矩阵变换(5691)
+OpenGL中的矩阵相乘的顺序(5685)
+关于SVN的405错误(5516)
+freeglut(5205)
+光线跟踪的算法(4990)
+OpenGL实现立体显示(4893)
+评论排行
+利用OpenGL绘制按钮(12)
+创建自己的dll和lib文件(7)
+JavaScript和Activex交互(7)
+谈谈C++中的swap函数(6)
+关于BVH 动作捕捉数据文件(6)
+OpenGL实现立体显示(6)
+基于OpenGL的角色动画实现(5)
+Android ndk 中使用STL(5)
+迷宫寻路的等高线算法(5)
+OpenGL下通过鼠标动态绘制三次Bezier曲线(5)
+OpenGL交流群97111013
+ 
+ 技术群，QQ号97111013，欢迎加入！
+网址链接
+谷歌托管项目
+我制作的网站
+程序员面试100题
+我的网易轻博客
+Gitorious
+OpenGL官网
+GLProgramming
+MakeHuman
+lighthouse3d
+OpenGLBook
+网易公开课程
+探索发现
+增强现实｜计算机视觉
+OpenCV2.3 Wiki
+WebGL Playground
+WebGL Wiki
+Cinder
+LeetCode
+Blender Developer Blog
+Learn With Python3
+CollShell
+geeks3d
+Github
+最新评论
+开始研究cocos2d-x
+dyw: Qt5支持所有流行平台，移植应该不是问题。
+谈谈C++中的swap函数
+ryfdizuo: @tangzhangpeng:谢谢指正，逻辑是有点不够严密！
+谈谈C++中的swap函数
+Tenos: 第二种swap操作，当输入两个参数的地址相同时有问题第三种swap操作，可能会溢出
+理解墨卡托投影原理
+ryfdizuo: @jiangcaiyang123:gps设备采集到的是经纬度，wgs84.
+理解墨卡托投影原理
+彩阳: GPS设备采集的原始数据还是是正常投影吗？采用的是tan函数而不是a*ln( tan( PI / 4...
+理解墨卡托投影原理
+zenny_chen: 不错～
+全局变量的陷阱
+Emma535: 好厉害啊...
+Blender is twenty years old。
+ryfdizuo: 好的，有空我使用下，呵呵。opengl网上资料很多的啊。@hzc543806053:
+Blender is twenty years old。
+hzc543806053: 飞哥，好久木有联系啊，呵呵，你现在是专注于opengl研发么？ 我最近也在搞opengl，压力山大...
+vs2008下面制作activex
+敏儿: 3Q，按照提供的方法，顺利解决
+公司简介|招贤纳士|广告服务|银行汇款帐号|联系方式|版权声明|法律顾问|问题报告|合作伙伴|论坛反馈
+网站客服 杂志客服 微博客服 webmaster@csdn.net 400-600-2320
+京 ICP 证 070598 号
+北京创新乐知信息技术有限公司 版权所有
+江苏乐知网络技术有限公司 提供商务支持
+Copyright ? 1999-2014, CSDN.NET, All Rights Reserved GongshangLogo
+  

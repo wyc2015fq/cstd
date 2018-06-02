@@ -1,0 +1,752 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (P.R.C.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 4, 2\r\n"
+    "#pragma code_page(936)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\test.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""l.chs\\afxres.rc""          // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\test.ico"
+IDI_WEEKCHECKSELECT     ICON    DISCARDABLE     "res\\weekselect.ico"
+IDI_TIMEGROUP           ICON    DISCARDABLE     "res\\device.ico"
+IDI_TIMEGROUPSELECT     ICON    DISCARDABLE     "res\\deviceselect.ico"
+IDI_WEEKCHECK           ICON    DISCARDABLE     "res\\week.ico"
+IDI_RIGHT               ICON    DISCARDABLE     "res\\right.ico"
+IDI_RIGHTSELECT         ICON    DISCARDABLE     "res\\rightselect.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_TEST_DIALOG DIALOGEX 0, 0, 604, 524
+STYLE DS_MODALFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | 
+    WS_VISIBLE | WS_CAPTION | WS_VSCROLL | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "test"
+FONT 9, "宋体"
+BEGIN
+    CONTROL         "All",IDC_RADIO_ALL,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,476,197,30,10
+    CONTROL         "Specify the ID",IDC_RADIO_LOG_ID,"Button",
+                    BS_AUTORADIOBUTTON,504,197,72,10
+    PUSHBUTTON      "download",IDC_BUTTON_DL_IMAGE,478,254,50,14
+    CONTROL         "All",IDC_RADIO_ALL_IMAGE,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,476,240,28,10
+    CONTROL         "Specify the ID",IDC_RADIO_IMAGE_ID,"Button",
+                    BS_AUTORADIOBUTTON,504,240,72,10
+    PUSHBUTTON      "Search",IDC_BUTTON_SERCH,149,188,33,14
+    CONTROL         "List3",IDC_LIST_DEV,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,9,13,175,81
+    CONTROL         "List3",IDC_LIST_USER,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,9,305,576,118
+    GROUPBOX        "Device's Information",IDC_STATIC,4,3,187,289
+    GROUPBOX        "User information",IDC_STATIC,2,294,588,225
+    PUSHBUTTON      "New",IDC_BUTTON_NEW,11,428,50,14
+    PUSHBUTTON      "Upload",IDC_BUTTON_UP,11,453,50,14
+    PUSHBUTTON      "Download",IDC_BUTTON_DOWN,68,453,50,14
+    CONTROL         "Image",IDC_CHECK_PIC,"Button",BS_AUTOCHECKBOX | 
+                    WS_GROUP | WS_TABSTOP,173,449,36,10
+    CONTROL         " Feature",IDC_CHECK_FEAT,"Button",BS_AUTOCHECKBOX | 
+                    WS_GROUP | WS_TABSTOP,121,449,48,10
+    COMBOBOX        IDC_COMBO_CONDITION,227,462,85,68,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Static",IDC_STATIC_PIC,"Static",SS_LEFTNOWORDWRAP | 
+                    WS_BORDER | WS_GROUP,506,430,79,80
+    PUSHBUTTON      "Delete",IDC_BUTTON_DEL,121,428,50,14
+    CONTROL         "local",IDC_CHECK_LOCAL,"Button",BS_AUTOCHECKBOX | 
+                    WS_GROUP | WS_TABSTOP,185,432,36,10
+    CONTROL         "DSP",IDC_CHECK_DSP,"Button",BS_AUTOCHECKBOX | WS_GROUP | 
+                    WS_TABSTOP,238,432,28,10
+    PUSHBUTTON      "Upload Image",IDC_BUTTON_PIC,11,478,50,14
+    GROUPBOX        "Device's Record Information",IDC_STATIC,194,3,389,289
+    CONTROL         "List1",IDC_LIST_RECORD,"SysListView32",WS_BORDER | 
+                    WS_TABSTOP,197,13,276,81
+    LTEXT           "Static",IDC_STATIC_RECORD_PIC,479,13,98,80,WS_BORDER
+    CONTROL         "Image",IDC_CHECK_RECORD_PIC,"Button",BS_AUTOCHECKBOX | 
+                    NOT WS_VISIBLE | WS_TABSTOP,68,481,36,10
+    COMBOBOX        IDC_COMBO_RECORD,487,273,80,75,CBS_DROPDOWNLIST | NOT 
+                    WS_VISIBLE | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Download",IDC_BUTTON_DLRECORD,475,138,50,14
+    PUSHBUTTON      "Delete",IDC_BUTTON_DELRECORD,527,138,50,14
+    CONTROL         "DateTimePicker2",IDC_DATETIME_START_REC,
+                    "SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,518,97,
+                    62,15
+    CONTROL         "DateTimePicker2",IDC_DATETIME_END_REC,"SysDateTimePick32",
+                    DTS_RIGHTALIGN | WS_TABSTOP,518,117,62,15
+    LTEXT           "Start date",IDC_STATIC,475,100,41,8
+    LTEXT           "End date",IDC_STATIC,475,121,33,8
+    CONTROL         "DateTimePicker2",IDC_DATETIME_START_USER,
+                    "SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,121,477,
+                    62,15
+    CONTROL         "DateTimePicker2",IDC_DATETIME_END_USER,
+                    "SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,121,498,
+                    62,15
+    PUSHBUTTON      "Time Group",IDC_BUTTON_TIMEGROUP,314,428,44,14
+    PUSHBUTTON      "Permission",IDC_BUTTON_RRIGHT,314,453,44,14
+    PUSHBUTTON      "Emergency unlocking",IDC_BUTTON_OPEN_DOOR,361,428,84,14
+    PUSHBUTTON      "Alter",IDC_BUTTON_EDIT,68,428,50,14
+    CONTROL         "IPAddress1",IDC_IPADDRESS_ADDR,"SysIPAddress32",
+                    WS_TABSTOP,59,168,100,15
+    PUSHBUTTON      "Upload CA",IDC_BUTTON_SETADDR,69,187,47,14
+    LTEXT           "Area addess",IDC_STATIC,12,172,45,8
+    LTEXT           "Device IP",IDC_STATIC,15,206,37,8
+    PUSHBUTTON      "Connect",IDC_BUTTON_CONNECT,83,222,33,14
+    PUSHBUTTON      "DisConnect",IDC_BUTTON_DISCONNECT,132,222,50,14
+    CONTROL         "List1",IDC_LIST_LOG,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,197,101,276,91
+    PUSHBUTTON      "Download",IDC_BUTTON_DL_LOG,478,215,50,14
+    PUSHBUTTON      "Delete",IDC_BUTTON_DEL_LOG,530,215,50,14
+    PUSHBUTTON      "Upgrade",IDC_BUTTON_UPDATE,450,499,46,14
+    EDITTEXT        IDC_EDIT_FILE,195,484,117,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Dynamic password",IDC_BUTTON_FILE,192,501,82,14,NOT 
+                    WS_VISIBLE
+    PUSHBUTTON      "User Group",IDC_BUTTON_UG,314,478,44,14
+    CONTROL         "List1",IDC_LIST_IMAGE,"SysListView32",WS_BORDER | 
+                    WS_TABSTOP,197,197,276,91
+    PUSHBUTTON      "Delete",IDC_BUTTON_DEL_IMAGE,530,254,50,14
+    LTEXT           "ID",IDC_STATIC,477,159,9,8
+    EDITTEXT        IDC_EDIT_ID,503,156,73,14,ES_AUTOHSCROLL
+    LTEXT           "Downloads",IDC_STATIC,477,177,37,8
+    EDITTEXT        IDC_EDIT_COUNT,522,176,54,14,ES_AUTOHSCROLL
+    CONTROL         "IPAddress1",IDC_IPADDRESS_S,"SysIPAddress32",WS_TABSTOP,
+                    60,132,100,15
+    LTEXT           "Service IP",IDC_STATIC,12,135,41,8
+    PUSHBUTTON      "Connect",IDC_BUTTON_CN,57,150,33,14
+    PUSHBUTTON      "DisConnect",IDC_BUTTON_DCN,132,149,50,14
+    GROUPBOX        "Network",IDC_STATIC,9,120,176,120
+    GROUPBOX        "U-Disk",IDC_STATIC,9,239,176,48
+    LTEXT           "Data Path",IDC_STATIC,16,254,37,8
+    CONTROL         "Network",IDC_RADIO_NET,"Button",BS_AUTORADIOBUTTON,8,
+                    103,44,10
+    CONTROL         "U-Disk",IDC_RADIO_UDISK,"Button",BS_AUTORADIOBUTTON,60,
+                    103,40,10
+    EDITTEXT        IDC_EDIT_UPATH,57,252,90,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_BUTTON_UPATH,150,252,32,14
+    PUSHBUTTON      "Connect",IDC_BUTTON_CN_UDISK,57,269,33,14
+    PUSHBUTTON      "Emergency locking",IDC_BUTTON_CANCLE,361,453,81,14
+    PUSHBUTTON      "Remote Open",IDC_BUTTON_REMOTE,450,428,54,14
+    PUSHBUTTON      "Remote close",IDC_BUTTON_R_CLOSE,450,453,54,14
+    PUSHBUTTON      "Recover Normal",IDC_BUTTON_NOMAL,365,478,65,14
+    PUSHBUTTON      "Open video",IDC_BUTTON_VIDEO,132,101,50,14
+    PUSHBUTTON      "Collect",IDC_BUTTON_CAP,12,499,50,14
+    EDITTEXT        IDC_EDIT_ID_USER,68,499,50,14,ES_AUTOHSCROLL
+    CONTROL         "Batch",IDC_CHECK_USER_EX,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,272,432,36,10
+    CONTROL         "Word",IDC_CHECK_TEXT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,209,450,32,10
+    EDITTEXT        IDC_EDIT_FEAT,121,461,35,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_PIC,173,462,35,14,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "reboot",IDC_BUTTON_REBOOT,450,478,54,14
+    CONTROL         "TLS  ENCRYPT",IDC_CHECK_SSL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,13,224,64,10
+    EDITTEXT        IDC_IPAdress,59,205,123,14,ES_AUTOHSCROLL
+    CONTROL         "Root CA",IDC_RootCACHK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,15,190,44,10
+    PUSHBUTTON      "Upload CA",IDC_UpCaBnt,403,252,50,14,NOT WS_VISIBLE
+END
+
+IDD_DIALOG_DEVSTATIS DIALOG DISCARDABLE  0, 0, 250, 135
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    LTEXT           "No. of Users",IDC_STATIC,12,7,48,8
+    LTEXT           "No. of Records keep days",IDC_STATIC,12,41,98,8
+    LTEXT           "No. of UnReg-Users",IDC_STATIC,12,23,74,8
+    LTEXT           "No. of Verification Records",IDC_STATIC,12,59,100,8
+    EDITTEXT        IDC_EDIT_TOTAL_USER,115,3,94,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_REC_DATE,115,38,94,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_NO_FEAT,115,20,94,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TOTAL_REG,115,56,94,14,ES_AUTOHSCROLL
+    LTEXT           "No. of Alarm Records",IDC_STATIC,12,77,81,8
+    LTEXT           "No. of Operate logs",IDC_STATIC,12,95,77,8
+    LTEXT           "No. of His-Change's Photo",IDC_STATIC,12,113,101,8
+    EDITTEXT        IDC_EDIT_TOTAL_ALARM,114,73,95,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TOTAL_LOG,114,91,95,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_TOTAL_IMAGE,114,109,95,14,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_DEVSET DIALOG DISCARDABLE  0, 0, 311, 375
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    LTEXT           "Basic setting",IDC_STATIC,21,7,53,8
+    LTEXT           "Weigand Configuration",IDC_STATIC,21,191,85,8
+    LTEXT           "Weigand Content",IDC_STATIC,21,237,61,8
+    CONTROL         "Output signal",IDC_CHECK_WG_A,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,207,68,10
+    CONTROL         "Output 34",IDC_CHECK_WG_B,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,190,207,52,10
+    CONTROL         "Output weigand content",IDC_CHECK_WG_C,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,82,220,104,10
+    EDITTEXT        IDC_EDIT_CONTENT,113,233,70,14,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    PUSHBUTTON      "Upload",IDC_BUTTON_UP,27,346,50,14
+    PUSHBUTTON      "Download",IDC_BUTTON_DOWN,147,346,50,14
+    CONTROL         "Output User ID",IDC_CHECK_WG_D,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,190,221,72,10
+    LTEXT           "Device permission",IDC_STATIC,21,307,69,8
+    CONTROL         "Refused to open the door",IDC_RADIO_NO_RIGHT,"Button",
+                    BS_AUTORADIOBUTTON,112,307,112,10
+    CONTROL         "Allowed open the door",IDC_RADIO_SINGLE_RIGHT,"Button",
+                    BS_AUTORADIOBUTTON,111,326,100,10
+    CONTROL         "Save failed record",IDC_CHECK_A,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,82,6,88,10
+    CONTROL         "Enable With the password to open the door",IDC_CHECK_B,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,82,19,180,10
+    CONTROL         "Emergency lock",IDC_CHECK_D,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,40,72,10
+    CONTROL         "Display real-time record",IDC_CHECK_E,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,82,53,112,10
+    CONTROL         "Remote loading of user",IDC_CHECK_F,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,82,66,104,10
+    CONTROL         "User synchronization",IDC_CHECK_G,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,82,79,96,10
+    CONTROL         "Door contact",IDC_CHECK_H,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,92,64,10
+    CONTROL         "Abducting Alarm",IDC_CHECK_I,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,105,76,10
+    CONTROL         "Hardware Arming",IDC_CHECK_C,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,82,30,76,10
+    LTEXT           "Hold-open Time",IDC_STATIC,20,254,57,8
+    EDITTEXT        IDC_EDIT_MANEGET,113,251,70,14,ES_AUTOHSCROLL
+    LTEXT           "Door contact overtime",IDC_STATIC,20,272,85,8
+    EDITTEXT        IDC_EDIT_LOCK,113,270,70,14,ES_AUTOHSCROLL
+    LTEXT           "Supper password",IDC_STATIC,20,289,61,8
+    EDITTEXT        IDC_EDIT_PWD,113,287,70,14,ES_AUTOHSCROLL
+    LTEXT           "Operate mode",IDC_STATIC,21,140,49,8
+    LTEXT           "Spash card verify",IDC_STATIC,21,158,69,8
+    COMBOBOX        IDC_COMBO_VALIDE,82,139,87,63,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Enable",IDC_CHECK_OPEN_A,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,173,140,40,10
+    CONTROL         "Enable",IDC_CHECK_OPEN_B,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,95,158,40,10
+    LTEXT           "User ID Verify",IDC_STATIC,21,172,57,8
+    CONTROL         "Enable",IDC_CHECK_OPEN_C,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,95,171,40,10
+    CONTROL         "Remote control to collect user is saved to the DSP",
+                    IDC_CHECK_J,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,82,118,
+                    216,10
+END
+
+IDD_DIALOG_USER DIALOG DISCARDABLE  0, 0, 246, 254
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 9, "宋体"
+BEGIN
+    CONTROL         "Black list",IDC_CHECK_BLACK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,120,197,78,8
+    LTEXT           "ID",IDC_STATIC,34,10,9,8
+    LTEXT           "Card ID",IDC_STATIC,34,30,29,8
+    LTEXT           "Name",IDC_STATIC,34,50,17,8
+    LTEXT           "Department",IDC_STATIC,34,70,41,8
+    LTEXT           "Author",IDC_STATIC,34,90,25,8
+    LTEXT           "Type",IDC_STATIC,34,127,17,8
+    EDITTEXT        IDC_EDIT_ID,95,7,89,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_CARD,95,26,89,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_NAME,95,46,89,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_DEP,95,66,89,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Ok",IDC_BUTTON_SAVE,21,229,50,14
+    PUSHBUTTON      "Cancel",IDC_BUTTON_CANCEL,145,229,50,14
+    LTEXT           "Expiry date",IDC_STATIC,34,176,45,8
+    EDITTEXT        IDC_EDIT_INVALIDETIME,95,173,89,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_COMBO_RIGHT,95,87,89,57,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Supper administrator",IDC_RADIO_SUPERADMIN,"Button",
+                    BS_AUTORADIOBUTTON,94,125,96,10
+    CONTROL         "Common administrator",IDC_RADIO_ADMIN,"Button",
+                    BS_AUTORADIOBUTTON,97,141,96,10
+    CONTROL         "Common administrator",IDC_RADIO_NOMAL,"Button",
+                    BS_AUTORADIOBUTTON,97,157,96,10
+    CONTROL         "Mixed",IDC_CHECK_MUTEX,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,46,195,60,8
+    LTEXT           "User group",IDC_STATIC,33,108,41,8
+    COMBOBOX        IDC_COMBO_UG,95,107,89,30,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Card Lossing",IDC_CHECK_CARD_INVALIDE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,46,215,63,8
+    LTEXT           "",IDC_STATIC,113,221,8,8
+    CONTROL         "Don't judge the Expiry time",IDC_CHECK_IDLINE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,120,215,123,8
+END
+
+IDD_DIALOG_TIME_GROUP DIALOG DISCARDABLE  0, 0, 318, 293
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    GROUPBOX        "Time group",IDC_STATIC,6,12,109,262
+    GROUPBOX        "Edit Time group Information",IDC_STATIC,128,12,188,263
+    PUSHBUTTON      "New",IDC_BUTTON_NEW,11,24,30,14
+    PUSHBUTTON      "Delete",IDC_BUTTON_DELETE,46,24,30,14
+    PUSHBUTTON      "Save",IDC_BUTTON_SAVE,139,24,50,14
+    PUSHBUTTON      "Cancel",IDC_BUTTON_CANCEL,191,24,50,14
+    CONTROL         "Tree1",IDC_TREE_TIMEGROUP,"SysTreeView32",WS_BORDER | 
+                    WS_TABSTOP,11,45,101,224
+    CONTROL         "Tree2",IDC_TREE_WEEK,"SysTreeView32",TVS_HASLINES | 
+                    TVS_CHECKBOXES | WS_BORDER | WS_TABSTOP,140,157,103,112
+    LTEXT           "Name",IDC_STATIC,140,48,37,8
+    EDITTEXT        IDC_EDIT_NAME,186,47,56,14,ES_AUTOHSCROLL
+    LTEXT           "Start date",IDC_STATIC,140,70,41,8
+    LTEXT           "End date",IDC_STATIC,140,92,33,8
+    CONTROL         "DateTimePicker1",IDC_DATETIMEPICKER_START,
+                    "SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,186,66,
+                    56,15
+    CONTROL         "DateTimePicker2",IDC_DATETIMEPICKER_END,
+                    "SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,186,90,
+                    56,15
+    CONTROL         "Check Year",IDC_CHECK_YEAR,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,141,113,56,10
+    CONTROL         "Check month",IDC_CHECK_MONTH,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,198,113,60,10
+    CONTROL         "Check day",IDC_CHECK_DAY,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,261,113,52,10
+    CONTROL         "Check week",IDC_CHECK_WEEK,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,141,136,56,10
+    PUSHBUTTON      "Upload",IDC_BUTTON_UPLOAD,81,24,30,14,NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT_S_HOUR,244,66,12,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_S_MINI,265,66,12,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_S_SECOND,288,66,12,14,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    LTEXT           "h",IDC_STATIC,258,68,8,8
+    LTEXT           "m",IDC_STATIC,279,68,8,8
+    LTEXT           "s",IDC_STATIC,302,68,8,8
+    EDITTEXT        IDC_EDIT_E_HOUR,244,90,12,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_E_MINI,265,90,12,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT_E_SECOND,288,90,12,14,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    LTEXT           "h",IDC_STATIC,258,92,8,8
+    LTEXT           "m",IDC_STATIC,279,92,8,8
+    LTEXT           "s",IDC_STATIC,302,92,8,8
+    CONTROL         "Check time",IDC_CHECK_TIME,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,198,137,56,10
+    CONTROL         "Holiday",IDC_CHECK_HOLIDY,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,252,49,44,10
+END
+
+IDD_DIALOG_RIGHT DIALOG DISCARDABLE  0, 0, 359, 240
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    PUSHBUTTON      "New",IDC_BUTTON_NEW,11,17,36,14
+    PUSHBUTTON      "Delete",IDC_BUTTON_DELETE,51,17,36,14
+    PUSHBUTTON      "Upload",IDC_BUTTON_DOWN,91,17,36,14,NOT WS_VISIBLE
+    GROUPBOX        "Author",IDC_STATIC,6,6,126,228
+    GROUPBOX        "Edit Author Information",IDC_STATIC,140,7,203,228
+    LTEXT           "Name",IDC_STATIC,145,38,17,8
+    EDITTEXT        IDC_EDIT_NAME,186,35,77,14,ES_AUTOHSCROLL
+    CONTROL         "Holidays effectively",IDC_CHECK_HOLIDY_VALIDATE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,150,169,96,10
+    PUSHBUTTON      "Save",IDC_BUTTON_SAVE,145,17,36,14
+    CONTROL         "List1",IDC_LIST_TIMEGROUP,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,147,62,188,79
+    CONTROL         "Tree1",IDC_TREE_RIGHT,"SysTreeView32",WS_BORDER | 
+                    WS_TABSTOP,11,39,116,189
+    GROUPBOX        "Time Group",IDC_STATIC,143,51,197,96
+    GROUPBOX        "Configration",IDC_STATIC,143,150,197,84
+    CONTROL         "Electric lock output",IDC_CHECK_MANEGT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,150,186,96,10
+    CONTROL         "Electric lock aux output",IDC_CHECK_OUT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,150,203,112,10
+END
+
+IDD_DIALOG_UDLOAD DIALOG DISCARDABLE  0, 0, 178, 168
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    CONTROL         "List1",IDC_LIST_TG,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,10,7,159,123
+    PUSHBUTTON      "Upload",IDC_BUTTON_UPLOAD,9,141,50,14
+    PUSHBUTTON      "Download",IDC_BUTTON_DOWNLOAD,63,141,50,14
+    PUSHBUTTON      "Delete",IDC_BUTTON_DEL,119,141,50,14
+END
+
+IDD_DIALOG_DSP_AUTH DIALOG DISCARDABLE  0, 0, 163, 96
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    DEFPUSHBUTTON   "Setting",IDOK,77,74,50,14
+    LTEXT           "User Name",IDC_STATIC,18,22,37,8
+    LTEXT           "User Password",IDC_STATIC,18,46,53,8
+    EDITTEXT        IDC_EDIT_USER,75,19,74,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_PWS,75,44,74,14,ES_PASSWORD | ES_AUTOHSCROLL
+END
+
+IDD_DIALOG_USERGROUP DIALOG DISCARDABLE  0, 0, 311, 221
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    GROUPBOX        "User group",IDC_STATIC,6,6,83,209
+    GROUPBOX        "Editing User Group Information",IDC_STATIC,94,7,215,209
+    PUSHBUTTON      "New",IDC_BUTTON_NEW,9,20,35,14
+    PUSHBUTTON      "Delete",IDC_BUTTON_DEL,51,20,35,14
+    PUSHBUTTON      "Save",IDC_BUTTON_SAVE,100,20,35,14
+    PUSHBUTTON      "Cancel",IDC_BUTTON_CANCEL,143,20,35,14
+    LTEXT           "Name",IDC_STATIC,99,44,17,8
+    EDITTEXT        IDC_EDIT_NAME,129,41,49,14,ES_AUTOHSCROLL
+    CONTROL         "Combined order",IDC_CHECK_ORDER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,187,43,81,10
+    CONTROL         "List1",IDC_LIST_USER,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,97,91,69,120
+    CONTROL         "List1",IDC_LIST_SEL_USER,"SysListView32",LVS_REPORT | 
+                    WS_BORDER | WS_TABSTOP,198,91,105,120
+    LTEXT           "Normal User Group",IDC_STATIC,99,60,69,8
+    LTEXT           "Forcing User Group",IDC_STATIC,99,76,73,8
+    EDITTEXT        IDC_EDIT_N,177,58,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_F,177,73,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "--》",IDC_BUTTON_R,170,120,23,14
+    PUSHBUTTON      "《--",IDC_BUTTON_L,170,153,23,14
+    CONTROL         "Tree1",IDC_TREE_LIST,"SysTreeView32",WS_BORDER | 
+                    WS_TABSTOP,9,42,77,170
+END
+
+IDD_DIALOG_VIDEO DIALOG DISCARDABLE  0, 0, 539, 371
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 10, "宋体"
+BEGIN
+    LISTBOX         IDC_LIST_IP,2,2,88,232,LBS_SORT | LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Static",IDC_STATIC_VIDEO1,94,6,143,159,WS_BORDER
+    LTEXT           "Static",IDC_STATIC_VIDEO2,242,6,143,159,WS_BORDER
+    LTEXT           "Static",IDC_STATIC_VIDEO3,391,6,143,159,WS_BORDER
+    LTEXT           "Static",IDC_STATIC_VIDEO4,94,186,143,159,WS_BORDER
+    LTEXT           "Static",IDC_STATIC_VIDEO5,242,186,143,159,WS_BORDER
+    LTEXT           "Static",IDC_STATIC_VIDEO6,391,186,143,159,WS_BORDER
+    PUSHBUTTON      "Open",IDC_BUTTON_VIDEO1,135,168,50,14
+    PUSHBUTTON      "Open",IDC_BUTTON_VIDEO2,286,168,50,14
+    PUSHBUTTON      "Open",IDC_BUTTON_VIDEO3,438,168,50,14
+    PUSHBUTTON      "Open",IDC_BUTTON_VIDEO4,135,349,50,14
+    PUSHBUTTON      "Open",IDC_BUTTON_VIDEO6,438,349,50,14
+    PUSHBUTTON      "Open",IDC_BUTTON_VIDEO5,286,349,50,14
+END
+
+IDD_WebServiceMrg DIALOG DISCARDABLE  0, 0, 391, 321
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Network Settings"
+FONT 10, "宋体"
+BEGIN
+    LTEXT           "URL address:",IDC_STATIC,10,119,53,8
+    EDITTEXT        IDC_WebURL1Edt,73,118,250,14,ES_AUTOHSCROLL
+    CONTROL         "Load User",IDC_LoadChk,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,73,145,52,10
+    CONTROL         "Write Record",IDC_WriteRecord,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,205,146,64,10
+    CONTROL         "Write User",IDC_WriteUserChk,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,137,145,56,10
+    CONTROL         "Time Synchronization",IDC_SyncTimeChk,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,282,145,96,10
+    GROUPBOX        "Web service' 1",IDC_STATIC,6,104,378,91
+    LTEXT           "URL address:",IDC_STATIC,10,225,57,8
+    EDITTEXT        IDC_WebURL1Edt2,74,223,248,14,ES_AUTOHSCROLL | 
+                    WS_DISABLED
+    CONTROL         "Load User",IDC_LoadChk2,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,74,244,52,10
+    CONTROL         "Write Record",IDC_WriteRecord2,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,205,244,64,10
+    CONTROL         "Write User",IDC_WriteUserChk2,"Button",BS_AUTOCHECKBOX | 
+                    WS_DISABLED | WS_TABSTOP,142,244,56,10
+    CONTROL         "Time Synchronization",IDC_SyncTimeChk2,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,282,244,96,10
+    GROUPBOX        "Web service' 2",IDC_STATIC,6,205,378,91
+    PUSHBUTTON      "UpLoad",IDC_OkBnt,206,302,50,14
+    PUSHBUTTON      "DownLoad",IDC_CancelBnt,285,302,50,14
+    GROUPBOX        "Network Address",IDC_STATIC,6,7,379,89
+    LTEXT           "IP addresses",IDC_STATIC,10,22,50,8
+    LTEXT           "Gateway",IDC_STATIC,10,47,40,8
+    CONTROL         "IPAddress1",IDC_GateWay,"SysIPAddress32",WS_TABSTOP,92,
+                    45,113,15
+    LTEXT           "Multicast address",IDC_STATIC,10,73,75,8
+    CONTROL         "IPAddress1",IDC_MulitIP,"SysIPAddress32",WS_TABSTOP,92,
+                    73,113,15
+    LTEXT           "Subnet Mask",IDC_STATIC,222,47,47,8
+    CONTROL         "IPAddress1",IDC_SubMask,"SysIPAddress32",WS_TABSTOP,276,
+                    45,100,15
+    LTEXT           "DNS address",IDC_STATIC,222,73,47,8
+    CONTROL         "Services certification authority",IDC_ServiceVerifyChk,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,73,161,144,10
+    CONTROL         "Just upload a text message",IDC_OnlyUpLoadTextChk,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,73,177,120,10
+    CONTROL         "Enabling Services",IDC_EnaleWebServiceChk,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,205,177,84,10
+    CONTROL         "Services certification authority",IDC_ServiceVerifyChk2,
+                    "Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,74,
+                    261,144,10
+    CONTROL         "Just upload a text message",IDC_OnlyUpLoadTextChk2,
+                    "Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,74,
+                    278,120,10
+    CONTROL         "Enabling Services",IDC_EnaleWebServiceChk2,"Button",
+                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,205,278,84,10
+    EDITTEXT        IDC_IPAdr,92,21,113,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DNS,276,73,100,14,ES_AUTOHSCROLL
+END
+
+IDD_PassWordDlg DIALOG DISCARDABLE  0, 0, 187, 94
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Please enter your password!"
+FONT 10, "宋体"
+BEGIN
+    PUSHBUTTON      "Ok",IDOK,47,54,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,109,54,50,14
+    EDITTEXT        IDC_EDIT1,42,27,122,14,ES_AUTOHSCROLL | ES_NUMBER
+END
+
+IDD_CreateDynamicDlg DIALOG DISCARDABLE  0, 0, 266, 107
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dynamic password"
+FONT 10, "宋体"
+BEGIN
+    EDITTEXT        IDC_TIMEPWD,47,13,206,14,ES_AUTOHSCROLL
+    CONTROL         "Using the system time",IDC_CHECK1,"Button",
+                    BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,155,38,103,
+                    10
+    CONTROL         "DateTimePicker2",IDC_DATETIMEPICKER2,"SysDateTimePick32",
+                    DTS_RIGHTALIGN | WS_TABSTOP,47,37,59,15
+    CONTROL         "DateTimePicker1",IDC_DATETIMEPICKER1,"SysDateTimePick32",
+                    DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,106,37,48,
+                    15
+    PUSHBUTTON      "Generate",IDOK,155,85,50,14
+    PUSHBUTTON      "Close",IDCANCEL,208,85,50,14
+    LTEXT           "Dynamic-PWD",IDC_STATIC,2,63,45,8
+    LTEXT           "Device No.",IDC_STATIC,2,15,42,8
+    LTEXT           "Device Time",IDC_STATIC,2,39,45,8
+    EDITTEXT        IDC_EDIT2,47,61,107,14,ES_AUTOHSCROLL | ES_READONLY
+END
+
+IDD_UPLCADLG DIALOG DISCARDABLE  0, 0, 230, 72
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Upload CA File..."
+FONT 10, "宋体"
+BEGIN
+    PUSHBUTTON      "Upload",IDOK,184,21,44,14
+    PUSHBUTTON      "Cancel",IDCANCEL,184,46,44,14
+    LTEXT           " CA password",IDC_STATIC,7,24,49,8
+    EDITTEXT        IDC_PSWEDT,60,22,121,14,ES_AUTOHSCROLL
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "test Microsoft 基础类应用程序\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "test\0"
+            VALUE "LegalCopyright", "版权所有 (C) 2010\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "test.EXE\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "test 应用程序\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_TEST_DIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 592
+        BOTTOMMARGIN, 523
+    END
+
+    IDD_DIALOG_DEVSTATIS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 243
+        BOTTOMMARGIN, 134
+    END
+
+    IDD_DIALOG_UDLOAD, DIALOG
+    BEGIN
+        TOPMARGIN, 1
+    END
+
+    IDD_WebServiceMrg, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 319
+    END
+
+    IDD_PassWordDlg, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 184
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 87
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU MENU DISCARDABLE 
+BEGIN
+    POPUP "test"
+    BEGIN
+        MENUITEM "统计信息",                    IDM_DEVSTATIS
+        MENUITEM "工作属性",                    IDM_DEVSET
+        MENUITEM "时间同步",                    IDR_MENU_SYN_TIME
+        MENUITEM "时间组",                      IDR_TIMEGROUP
+        MENUITEM "权限",                        IDR_RIGHT
+        MENUITEM "用户组",                      IDR_UGROUP
+        MENUITEM "格式化",                      IDR_DEV_FORMAT
+        MENUITEM "设置验证",                    IDR_DEVAUTH
+        MENUITEM "断开连接",                    IDR_DEVCUT
+        MENUITEM SEPARATOR
+        MENUITEM "网络设置",                    IDM_NETWORKSET
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_TEST_DIALOG DLGINIT
+BEGIN
+    IDC_COMBO_CONDITION, 0x403, 14, 0
+0x6c41, 0x206c, 0x6f20, 0x2066, 0x7355, 0x7265, 0x0073, 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_FOLDERS             BITMAP  DISCARDABLE     "res\\folders.bmp"
+#endif    // Chinese (P.R.C.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE 4, 2
+#pragma code_page(936)
+#endif //_WIN32
+#include "res\test.rc2"  // non-Microsoft Visual C++ edited resources
+#include "l.chs\afxres.rc"          // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

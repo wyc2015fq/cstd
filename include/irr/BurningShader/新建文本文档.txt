@@ -1,0 +1,51 @@
+
+class IBurningShader
+{
+public:
+  IBurningShader(CBurningVideoDriver* driver);
+  //! destructor
+  virtual ~IBurningShader();
+  //! sets a render target
+  virtual void setRenderTarget(video::IImage* surface, const core::rect<s32>& viewPort);
+  //! sets the Texture
+  virtual void setTextureParam(u32 stage, video::CSoftwareTexture2* texture, s32 lodLevel);
+  virtual void drawTriangle(const s4DVertex* a, const s4DVertex* b, const s4DVertex* c) = 0;
+  virtual void drawLine(const s4DVertex* a, const s4DVertex* b) {};
+  virtual void setParam(u32 index, f32 value) {};
+  virtual void setZCompareFunc(u32 func) {};
+  virtual void setMaterial(const SBurningShaderMaterial& material) {};
+protected:
+  CBurningVideoDriver* Driver;
+  video::CImage* RenderTarget;
+  CDepthBuffer* DepthBuffer;
+  CStencilBuffer* Stencil;
+  tVideoSample ColorMask;
+  sInternalTexture IT[ BURNING_MATERIAL_MAX_TEXTURES ];
+  static const tFixPointu dithermask[ 4 * 4];
+};
+void setRenderTarget(IImage* surface, const IRECT& viewPort);
+void drawIndexedTriangleList(S2DVertex* vertices, s32 vertexCount, const u16* indexList, s32 triangleCount);
+void setBackfaceCulling(bool enabled = true);
+void setTexture(IImage* texture);
+
+CV_INLINE void swapVertices(const S2DVertex** v1, const S2DVertex** v2) {
+  const S2DVertex* b = *v1;
+  *v1 = *v2;
+  *v2 = b;
+}
+typedef struct CTRTextureGouraud {
+  //! vertauscht zwei vertizen
+  IImage* RenderTarget;
+  IRECT ViewPortRect;
+  IZBuffer* ZBuffer;
+  s32 SurfaceWidth;
+  s32 SurfaceHeight;
+  bool BackFaceCullingEnabled;
+  TZBufferType* lockedZBuffer;
+  u16* lockedSurface;
+  u16* lockedTexture;
+  s32 lockedTextureWidth;
+  s32 textureXMask, textureYMask;
+  IImage* Texture;
+} CTRTextureGouraud;
+

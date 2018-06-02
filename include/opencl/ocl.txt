@@ -1,0 +1,36 @@
+char* CholImpl_progstr = 
+"__kernel void CholImpl(__global float* A, size_t astep, int m,"
+"                     __global float* b, size_t bstep, int n)  "
+"{"
+"    int j, i = get_global_id(0);"
+"    float* L = A;"
+"    for( j = 0; j < i; j++ )"
+"    {"
+"        s = A[i*astep + j];"
+"        for( k = 0; k < j; k++ )"
+"            s -= L[i*astep + k]*L[j*astep + k];"
+"        L[i*astep + j] = (_Tp)(s*L[j*astep + j]);"
+"    }"
+"    s = A[i*astep + i];"
+"    for( k = 0; k < j; k++ )"
+"    {"
+"        s -= L[i*astep + k]*L[i*astep + k];"
+"    }"
+"    L[i*astep + i] = (_Tp)(1./sqrt(s+0.1));"
+"}"
+
+;
+
+
+char* vecAdd_progstr = 
+"__kernel void vecAdd(__global float* A,"
+"        __global float* B,  "
+"        __global float* C)  "
+"{"
+"    int idx = get_global_id(0);"
+"    C[idx] = A[idx] + B[idx];  "
+"}"
+
+;
+
+

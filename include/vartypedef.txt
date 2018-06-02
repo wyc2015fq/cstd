@@ -1,0 +1,6 @@
+VARTYPEDEF(0,'c',char,str2i,myitoa)
+VARTYPEDEF(1,'w',short,str2i,myitoa)
+VARTYPEDEF(2,'i',int,str2i,myitoa)
+VARTYPEDEF(3,'q',__int64,str2i,myi64toa)
+VARTYPEDEF(4,'f',float,str2f,myftoa)
+VARTYPEDEF(5,'d',double,str2f,myftoa)

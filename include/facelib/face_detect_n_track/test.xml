@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<opencv_storage>
+<!-- 测试写XML文件 -->
+<Employee>
+  <!-- MAP类型，姓名，年龄，薪水 -->
+  <name>"刘越"</name>
+  <age>18</age>
+  <salary>2.7803000000000002e+003</salary>
+  <sales_count>4</sales_count> <!-- SEQ类型，销售记录 -->
+  <sales_record>
+    30000 4200 50090 6100</sales_record> <!-- MAP类型，亲友 -->
+  <Parent>
+    <father>"杨舜"</father>
+    <mother>"王娟"</mother></Parent></Employee>
+</opencv_storage>

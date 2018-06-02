@@ -1,0 +1,94 @@
+求平面切割三角形的交线
+分类： OpenGL 三维造型 算法 C++ 2010-02-25 21:08 628人阅读 评论(0) 收藏 举报
+float算法
+算法还不太全面，下面只是一种最常见的相交情形:
+[cpp] view plaincopyprint?
+bool intersect_PlaneTriangle(const gtl::Vec3f& triVert0,   
+                            const gtl::Vec3f& triVert1,   
+                            const gtl::Vec3f& triVert2,  
+                            const gtl::Vec3f& planeVert0,  
+                            const gtl::Vec3f& planeVert1,  
+                            const gtl::Vec3f& planeVert2,  
+                            LineSegment& interLine)  
+{  
+    gtl::Vec3f edge1(planeVert1 - planeVert0);  
+    gtl::Vec3f edge2(planeVert2 - planeVert1);  
+    gtl::Vec3f planeNorm( edge1.cross( edge2 ) );  
+  
+    float dot0, dot1, dot2;  
+    dot0 = planeNorm.dot( triVert0 - planeVert0 );  
+    dot1 = planeNorm.dot( triVert1 - planeVert0 );  
+    dot2 = planeNorm.dot( triVert2 - planeVert0 );  
+  
+    if ( fabs(dot0) <= SMALL_NUM )   //gtl.hpp  
+        dot0 = 0.0f;  
+    if ( fabs(dot1) <= SMALL_NUM )   //gtl.hpp  
+        dot1 = 0.0f;  
+    if ( fabs(dot2) <= SMALL_NUM )   //gtl.hpp  
+        dot2 = 0.0f;  
+  
+    float d0d1 = dot0 * dot1;  
+    float d0d2 = dot0 * dot2;  
+  
+    if (d0d1 > 0.0 && d0d2 > 0.0)  
+    {  
+        // all points above plane  
+        return false;  
+    }/* 
+     else if ( d0d1 < 0.0 && d0d2 < 0.0) 
+        { 
+            // all points below plane 
+            return false; 
+        }*/  
+      
+    if (fabs(dot0) + fabs(dot1) + fabs(dot2) == 0.0)  
+    {  
+        //coplanar case  
+        return true;   
+    }  
+  
+    //////////////////////////////////////////////////////////////////////////  
+    //common case  
+    //0. 1 同侧 且与2异侧  
+    if (dot0 > 0 && dot1 > 0 && dot2 < 0 ||   
+        dot0 < 0 && dot1 < 0 && dot2 > 0)  
+    {  
+        gtl::Rayf ray1( triVert0, triVert2 - triVert0);  
+        gtl::Rayf ray2( triVert1, triVert2 - triVert1);  
+  
+        ray1.intersect( planeVert0, planeVert1, planeVert2, interLine.v0 );  
+        ray2.intersect( planeVert0, planeVert1, planeVert2, interLine.v1 );  
+  
+        return true;  
+    }  
+      
+    //0, 2同侧 且与1异侧  
+    if (dot0 > 0 && dot2 > 0 && dot1 < 0 ||   
+        dot0 < 0 && dot2 < 0 && dot1 > 0)  
+    {  
+        gtl::Rayf ray1( triVert0, triVert1 - triVert0);  
+        gtl::Rayf ray2( triVert2, triVert1 - triVert2);  
+  
+        ray1.intersect( planeVert0, planeVert1, planeVert2, interLine.v0 );  
+        ray2.intersect( planeVert0, planeVert1, planeVert2, interLine.v1 );  
+  
+        return true;  
+    }  
+  
+    //1，2同侧 且与0异侧  
+    if (dot2 > 0 && dot1 > 0 && dot0 < 0 ||   
+        dot2 < 0 && dot1 < 0 && dot0 > 0)  
+    {  
+        gtl::Rayf ray1( triVert1, triVert0 - triVert1);  
+        gtl::Rayf ray2( triVert2, triVert0 - triVert2);  
+  
+        ray1.intersect( planeVert0, planeVert1, planeVert2, interLine.v0 );  
+        ray2.intersect( planeVert0, planeVert1, planeVert2, interLine.v1 );  
+  
+        return true;  
+    }  
+  
+    return false;  
+}  
+ 
+效果如图：蓝色为切割平面，白色为被切割的三角形，虚线为切割交线。

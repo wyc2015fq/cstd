@@ -1,0 +1,255 @@
+
+<app name="main" Layouts="lays1" fonts="fonts1" ctrls="ctrls1" fonts="fonts1"></app>
+
+<button name="btn1"></button>
+
+<fonts name="fonts1">
+<font name="default">"宋体",24</font>
+<font name="font1">"宋体",24</font>
+<font name="font2">"宋体",48</font>
+</fonts>
+<ctrls name="ctrls1">
+<BUTTON name="btnclr" text="清除" font="font1"></BUTTON>
+<BUTTON name="btncap" text="采集" font="font1"></BUTTON>
+<BUTTON name="btnstop" text="停止采集" font="font1"></BUTTON>
+<BUTTON name="zero" text="清零" font="font2"></BUTTON>
+<BUTTON name="btnok" text="OK" font="font1"></BUTTON>
+<BUTTON name="btn1" text="1" font="font1"></BUTTON>
+<BUTTON name="btn2" text="2" font="font1"></BUTTON>
+<BUTTON name="btn3" text="3" font="font1"></BUTTON>
+<BUTTON name="btn4" text="4" font="font1"></BUTTON>
+<BUTTON name="btn5" text="5" font="font1"></BUTTON>
+<BUTTON name="btn6" text="6" font="font1"></BUTTON>
+<BUTTON name="btn7" text="7" font="font1"></BUTTON>
+<BUTTON name="btn8" text="8" font="font1"></BUTTON>
+<BUTTON name="btn9" text="9" font="font1"></BUTTON>
+<BUTTON name="btn0" text="0" font="font1"></BUTTON>
+<STATIC name="scord" text="" font="font1"></STATIC>
+<STATIC name="edid" text="" font="font1"></STATIC>
+
+<BUTTON name="boton1" text="boton1"></BUTTON>
+<BUTTON name="boton2" text="boton2"></BUTTON>
+<BUTTON name="boton3" text="boton3"></BUTTON>
+<BUTTON name="boton4" text="boton4"></BUTTON>
+<AUTOCHECKBOX name="check1" text="check1"></AUTOCHECKBOX>
+<MULTIEDIT name="memo" text="memo"></MULTIEDIT>
+<EDIT name="edit1" text="edit1"></EDIT>
+<EDIT name="edit2" text="edit2"></EDIT>
+<EDIT name="edit3" text="edit3"></EDIT>
+<STATIC name="label1" text="label1"></STATIC>
+<STATIC name="label2" text="label2"></STATIC>
+<STATIC name="label3" text="label3"></STATIC>
+<STATIC name="label4" text="label4"></STATIC>
+<RADIOGROUP name="radio1" text="radio1"></RADIOGROUP>
+<RADIO name="radio2" text="radio2"></RADIO>
+<RADIO name="radio3" text="radio3"></RADIO>
+<RADIOGROUP name="radio4" text="radio4"></RADIOGROUP>
+<RADIO name="radio5" text="radio5"></RADIO>
+<RADIO name="radio6" text="radio6"></RADIO>
+<IpAddress name="ipadd1" text="ipadd1"></IpAddress>
+<trackbar name="track1" text="track1"></trackbar>
+<progress name="progr1" text="progr1"></progress>
+<updown name="updown1" text="updown1"></updown>
+<Toolbar name="toolbar1" text="toolbar1"></Toolbar>
+<cap name="cap1" text=""></cap>
+<Menu1 name="Menu1" text="Menu1">
+玉溪卷烟厂
+	红梅一
+		1
+		2
+		3
+	-
+	红梅二
+	红梅三
+	-
+	红梅四
+	红梅五
+云南卷烟厂
+	白梅一
+		1
+		2
+		3
+	-
+	白梅二
+	白梅三
+	白梅四
+	白梅五
+沈阳卷烟厂
+	绿梅一
+	绿梅二
+	绿梅三
+	绿梅四
+	绿梅五
+成都卷烟厂
+	青梅一
+	青梅二
+	青梅三
+	青梅四
+	青梅五
+</Menu1>
+<ListView name="listview1" text="listview1">
+"玉溪卷烟厂","云南卷烟厂","沈阳卷烟厂","成都卷烟厂","xx卷烟厂"
+"红梅一","红梅二","红梅三","红梅四","红梅五"
+"白梅一","白梅二","白梅三","白梅四","白梅五"
+"绿梅一","绿梅二","绿梅三","绿梅四","绿梅五"
+"青梅一","青梅二","青梅三","青梅四","青梅五"
+"红梅一","红梅二","红梅三","红梅四","红梅五"
+"白梅一","白梅二","白梅三","白梅四","白梅五"
+"绿梅一","绿梅二","绿梅三","绿梅四","绿梅五"
+"青梅一","青梅二","青梅三","青梅四","青梅五"
+</ListView>
+<TreeView name="treeview1" text="treeview1">
+ImageList=Toolbar.bmp
+数据选择
+	玉溪卷烟厂
+		红梅一
+		红梅二
+		红梅三
+		红梅四
+		红梅五
+	云南卷烟厂
+		白梅一
+		白梅二
+		白梅三
+		白梅四
+		白梅五
+	沈阳卷烟厂
+		绿梅一
+		绿梅二
+		绿梅三
+		绿梅四
+		绿梅五
+	成都卷烟厂
+		青梅一
+		青梅二
+		青梅三
+		青梅四
+		青梅五
+</TreeView>
+<StatusBar name="status1" text="status1">
+250,"status text1"
+500,"status text2"
+600,"status text2"
+-1 ,"status text3"
+
+</StatusBar>
+<Tab name="tab1" text="tab1">
+tab1
+tab2
+tab3
+tab4
+tab5
+tab6
+</Tab>
+<ComboBox name="combo1" text="combo1">
+comboitem1
+comboitem2
+comboitem3
+comboitem4
+comboitem5
+comboitem1
+comboitem2
+comboitem3
+comboitem4
+comboitem5
+comboitem1
+comboitem2
+comboitem3
+comboitem4
+comboitem5
+comboitem1
+comboitem2
+comboitem3
+comboitem4
+comboitem5
+</ComboBox>
+<LISTBOX name="list1" text="list1">
+listitem1
+listitem2
+listitem3
+listitem4
+listitem5
+</LISTBOX>
+<image name="color" text=""></image>
+<image name="DI" text=""></image>
+<image name="BI" text=""></image>
+<image name="FrontI" text=""></image>
+<image name="FRDI" text=""></image>
+<image name="g" text=""></image>
+<image name="RDI" text=""></image>
+<image name="FAI" text=""></image>
+<image name="FAI1" text=""></image>
+<image name="LayerFilterI" text=""></image>
+
+<STATIC name="s_color" text="color"></STATIC>
+<STATIC name="s_DI" text="DI"></STATIC>
+<STATIC name="s_BI" text="BI"></STATIC>
+<STATIC name="s_FrontI" text="FrontI"></STATIC>
+<STATIC name="s_FRDI" text="FRDI"></STATIC>
+<STATIC name="s_g" text="g"></STATIC>
+<STATIC name="s_RDI" text="RDI"></STATIC>
+<STATIC name="s_FAI" text="FAI"></STATIC>
+<STATIC name="s_time" text="FAI" font="font2"></STATIC>
+<STATIC name="s_LayerFilterI" text="LayerFilterI"></STATIC>
+<STATIC name="s_IP" text="LayerFilterI"></STATIC>
+
+<STATIC name="s_ImerodeThresh" text="F_ImerodeThresh"></STATIC>
+<STATIC name="s_ImdilateThresh" text="F_ImdilateThresh"></STATIC>
+<STATIC name="s_AreaThresh" text="F_AreaThresh"></STATIC>
+<STATIC name="s_FilterLayerThresh" text="FilterLayerThresh"></STATIC>
+<STATIC name="s_FilterAreaThresh" text="FilterAreaThresh"></STATIC>
+<STATIC name="s_verson" text="verson"></STATIC>
+<STATIC name="s_BRsize" text="BRsize"></STATIC>
+<STATIC name="s_RN" text="RN"></STATIC>
+<STATIC name="s_RD" text="RD"></STATIC>
+<STATIC name="s_Order_verson" text="Order_verson"></STATIC>
+<STATIC name="s_beishu" text="雨滴倍数"></STATIC>
+<STATIC name="s_is160x120" text="是160x120"></STATIC>
+<STATIC name="s_win_size" text="win_size"></STATIC>
+
+<EDIT name="ImerodeThresh" text="2"></EDIT>
+<EDIT name="ImdilateThresh" text="5"></EDIT>
+<EDIT name="AreaThresh" text="200"></EDIT>
+<EDIT name="FilterLayerThresh" text="100"></EDIT>
+<EDIT name="FilterAreaThresh" text="60"></EDIT>
+<EDIT name="verson" text="'Y'"></EDIT>
+<EDIT name="BRsize" text="1"></EDIT>
+<EDIT name="RN" text="25"></EDIT>
+<EDIT name="RD" text="8"></EDIT>
+<EDIT name="Order_verson" text="2"></EDIT>
+<EDIT name="beishu" text="2"></EDIT>
+<EDIT name="is160x120" text="1"></EDIT>
+<EDIT name="win_size" text="400"></EDIT>
+<EDIT name="IP" text="192.168.1.7"></EDIT>
+
+</ctrls>
+
+
+<Layouts name="lays1">
+<Layout name="nudo1">
+   EvaLayout, 0, 0, 5, 5
+    zzz,   300   ,   X      ,   X     , 
+     60, s_time  ,         -,        -,
+     X , btns    , color    ,     DI  ,
+     30 ,        , s_color  ,     s_DI  ,
+</Layout>
+<Layout name="btns">
+   EvaLayout, 0, 0, 0, 0
+    zzz,   X   ,           X   ,                  
+      90, zero ,               - ,                  
+      30, s_IP,                IP,         
+      30, s_is160x120,         is160x120,         
+      30, s_ImerodeThresh,     ImerodeThresh,         
+      30, s_ImdilateThresh,    ImdilateThresh,        
+      30, s_AreaThresh,        AreaThresh,            
+      30, s_FilterLayerThresh, FilterLayerThresh,     
+      30, s_FilterAreaThresh,  FilterAreaThresh,      
+      30, s_BRsize,            BRsize,                
+      30, s_RN,                RN,                    
+      30, s_RD,                RD,                    
+      30, s_Order_verson,      Order_verson,            
+      30, s_beishu,            beishu,                   
+      30, s_win_size,          win_size,                   
+</Layout>
+
+</Layouts>

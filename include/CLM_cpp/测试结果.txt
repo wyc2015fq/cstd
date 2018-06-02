@@ -1,0 +1,44 @@
+
+
+--- icvInvert2
+time  4650.00        1634816_1.pts err =  0.00334       OK
+time  1630.00       24795717_1.pts err =  0.00329       OK
+time    52.00         261068_1.pts err =  0.00353       OK
+time    89.00       5083671561.pts err =  0.03072       OK
+time    51.00            Obama.pts err =  0.00340       OK
+time   176.00           child2.pts err =  0.01609       OK
+===============
+test_CLM_check.inl(356):(359): time = 6645.058ms
+CLM.inl(642):(645): time = 168.272ms
+Patch_experts.inl(122):(136): time = 214.955ms
+CCNF_patch_expert.inl(43):(51): time = 6052.681ms
+===============
+
+
+--- icvInvert
+time  1689.00        1634816_1.pts err =  0.00334       OK
+time   575.00       24795717_1.pts err =  0.00329       OK
+time    49.00         261068_1.pts err =  0.00353       OK
+time    80.00       5083671561.pts err =  0.03072       OK
+time    50.00            Obama.pts err =  0.00340       OK
+time    98.00           child2.pts err =  0.01609       OK
+===============
+test_CLM_check.inl(356):(359): time = 2539.412ms
+CLM.inl(642):(645): time = 166.440ms
+Patch_experts.inl(122):(136): time = 209.654ms
+CCNF_patch_expert.inl(43):(51): time = 1976.606ms
+===============
+
+--- icvInvert_openblas
+time   523.00        1634816_1.pts err =  0.00334       OK
+time   149.00       24795717_1.pts err =  0.00329       OK
+time    49.00         261068_1.pts err =  0.00353       OK
+time    80.00       5083671561.pts err =  0.03072       OK
+time    50.00            Obama.pts err =  0.00340       OK
+time   168.00           child2.pts err =  0.01611       OK
+===============
+test_CLM_check.inl(356):(359): time = 1015.747ms
+CLM.inl(642):(645): time = 165.413ms
+Patch_experts.inl(122):(136): time = 209.177ms
+CCNF_patch_expert.inl(43):(51): time = 451.461ms
+===============

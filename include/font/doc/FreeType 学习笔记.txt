@@ -1,0 +1,154 @@
+ FreeType 学习笔记
+分类： C/C++/VC Pdf格式分析 2009-06-30 16:16 529人阅读 评论(0) 收藏 举报
+嵌入式libraryobjectmatrixcache语言
+GTK+(基于DirectFB)的字体绘制是通过pango+freetype+fontconfig三者协 作来完成的，其中，fontconfig负责字体的管理和配置，freetype负责单个字符的绘制，pango则完成对文字的排版布局。而我对这一部分 的了解，基本上是空白的。这两天为了解决一个关于字体的BUG，花了一些时间阅读相关资料，这里记录一些freetype的学习笔记。
+ 
+尽管点阵字体在时间和空间性能上都有较佳的表现，但是由于缺乏灵活性，无法改变字体的大小和风格，除了在一些嵌 入式设备中仍然在使用外，大多数系统都使用矢量字体了。矢量字体不像点阵字体那样直接记录字符的字模数据，而是记录字体描述信息，其中最重要的两部分是 outline和hint。
+ 
+字体的outline( 轮廓) ：这是用来描述字体的基本手段，它一般由直线和贝塞尔（Bézier）曲线组成。贝塞尔（Bézier）曲线是一条由三个点确定的曲线，假设这三点的坐标是(Ax , Ay )、(Bx , By ) 和(Cx , Cy )，那么曲线方程为：
+    px = (1-t)2 .Ax + 2t(1-t).Bx + t2 .Cx
+    py = (1-t)2 .Ay + 2t(1-t).By + t2 .Cy
+ 
+字体精调提示(hint) 。Outline已经描述字体的表现形式，但是数学上的正确对人眼来说并不见得合适，特别是缩放到特定的大小和分辨率的时候，字体可能变得不好看，或者不清析。Hint指的是一系列的技术，用来精调字体，让字体变得更美观，更清析。
+ 
+在truetype字体中，hint是用一种编程语言来表述的，这种语言有点像汇编语言，每个语句完成一个单一的功能，通常用一个虚拟机来解释执行。它具有下列特点：
+l          支持循环。
+l          支持条件分支。
+l          支持用户定义的函数。
+l          支持以不同方式操作数据的指令集。
+l          支持数学和逻辑指令集。
+l          其它一些方法。
+ 
+字符影射表(charmap) 。字符对应的字体数据称为glyph，字体文 件中通常带有一个字符映射表，用来把字符映射到对应glyph的索引值。因为字符集的编码方式有多种，所以可以存在多个子映射表，以支持从不同编码的字符 到glyph索引的映射。如果某个字符没有对应的glyph，返回索引0，glyph 0通常显示一个方块或者空格。
+ 
+矢量字体有多种不同的格式，其中TrueType用得最为广泛。它的扩展名通常为OTF或者TTF，它的文件内容由几部分组成，文件头、表目录和表。文件头描述了版本号和表的数目等信息，表目录记录了表的偏移量和大小，表则是表的实际数据。
+ 
+文件头的格式为：
+类型
+	
+名称
+	
+描述
+Fixed
+	
+sfnt version
+	
+0x00010000 for version 1.0.
+USHORT
+	
+numTables
+	
+Number of tables.
+USHORT
+	
+searchRange
+	
+(Maximum power of 2 <= numTables) x 16.
+USHORT
+	
+entrySelector
+	
+Log2(maximum power of 2 <= numTables).
+USHORT
+	
+rangeShift
+	
+NumTables x 16-searchRange.
+ 
+而表目录的结构为:
+类型
+	
+名称
+	
+描述
+ULONG
+	
+tag
+	
+4 -byte identifier.
+ULONG
+	
+checkSum
+	
+CheckSum for this table.
+ULONG
+	
+offset
+	
+Offset from beginning of TrueType font file.
+ULONG
+	
+length
+	
+Length of this table.
+ 
+而表的内容则与具体的表有关，比如cmap表存放是的字符映射关系、fpgm 表存放的是outline的函数库、 glyf 表存放的是outline数据、而EBDT表存放的是嵌入式位图。
+ 
+表EBDT(嵌入式位图)有什么用呢，原来是这样的，矢量字体尽管可以任何缩放，但缩得太小时，仍然存在问题， 字体会变得不好好看或者不清析，即使采用hint精调，效果也不一定好，或者那样处理太麻烦了，这时可以采用点阵字体来弥补矢量字体的不足，EBDT就是 用来存放点阵字体的字模数据的。
+ 
+矢量字体的处理比较麻烦，即要进行矢量计算，又进行精调处理，相对于点阵字体来说慢多了，会不会存在性能问题呢？可能会的，不过可以通过下列两种方式缓解性能问题：
+l          cache法。把刚计算出来的glyph放到cache中，下次再用到这个字符时，直接从cache中取，而不用重新计算。
+l          预先计算法。把常用值预先计算出来，放在hdmx等表中，这可以节省不少计算时间。
+ 
+Freetype是一个操作字体的函数库，它不但可以处理点阵字体，也可以处理多种矢量字体，包括 truetype字体，为上层应用程序提供了一个统一的调用接口。Freetype具有良好的可移植性，特别考虑了嵌入式应用环境，字体文件可以在文件系 统中，也可以在ROM中，甚至可以用自定义IO函数来访问字体数据。Freetype采用模块化设计，很容易进行扩充和裁减，据说如果只支持 truetype，裁减后的二进制文件大小只有25K。Freetype是开放源代码的，它采用FreeType和GPL两种开源协议，可以用于任何商业 用途。
+ 
+Freetype的使用相对比较简单：
+ 
+1.         包含freetype的头文件。
+#include <ft2build.h>
+#include FT_FREETYPE_H
+ 
+ 
+2.         初始化freetype
+FT_Library library;
+error = FT_Init_FreeType( &library );
+ 
+ 
+3.         加载字体
+error = FT_New_Face( library,
+                       "/usr/share/fonts/truetype/arial.ttf",
+                       0,
+&face );
+ 
+或者
+error = FT_New_Memory_Face( library,
+                              buffer,    /* first byte in memory */
+                              size,      /* size in bytes        */
+                              0,         /* face_index           */
+                              &face );
+ 
+ 
+4.         设置字体的大小
+ error = FT_Set_Char_Size(
+            face,    /* handle to face object           */
+            0,       /* char_width in 1/64th of points */
+            16*64,   /* char_height in 1/64th of points */
+            300,     /* horizontal device resolution    */
+            300 );   /* vertical device resolution      */
+ error = FT_Set_Pixel_Sizes(
+            face,   /* handle to face object */
+            0,      /* pixel_width           */
+            16 );   /* pixel_height          */
+ 
+ 
+5.         加载字符的glyph
+glyph_index = FT_Get_Char_Index( face, charcode );
+ error = FT_Load_Glyph(
+            face,          /* handle to face object */
+            glyph_index,   /* glyph index           */
+            load_flags );  /* load flags, see below */
+ error = FT_Render_Glyph( face->glyph,   /* glyph slot */
+                           render_mode ); /* render mode */
+ 
+ 
+6.         字体变换(旋转和缩放)
+ error = FT_Set_Transform(
+            face,       /* target face object    */
+            &matrix,    /* pointer to 2x2 matrix */
+&delta );   /* pointer to 2d vector */
+ 
+ 
+7.         把字符显示出来(与具体实现有关)
+draw_bitmap( &slot->bitmap,
+                    pen_x + slot->bitmap_left,
+pen_y - slot->bitmap_top ); 

@@ -1,0 +1,493 @@
+ 算术编码Arithmetic Coding－高质量代码实现详解
+
+关于算术编码的具体讲解我不多细说，本文按照下述三个部分构成。
+
+ 
+
+    两个例子分别说明怎么用算数编码进行编码以及解码（来源：ARITHMETIC CODING FOR DATA COIUPRESSION）；
+    接下来我会给出算术编码的压缩效果接近熵编码的证明方法（这一部分参考惠普公司的论文:Introduction to Arithmetic Coding - Theory and Practice）；
+    最后我会详细说明一下算数编码的实现代码（代码来源:ACM87  ARITHMETIC CODING FOR DATA COIUPRESSION）；
+
+一, 直观上去认识算术编码
+
+    编码过程：将字符映射到 [0,1) 的区间的一个数
+
+    QQ截图20131116121255
+
+          稍微说明一下，一开始将区间分为好几段，每一段表示一个字符。编码字符e的时候，就把原先区间表示e的那一段放大，对这个区间进行划分获得子区间，每个子区间也是代表一个字符。依次进行下去。编码结束的时候获得的那个区间就是我们要的，我们可以在这中间取个数就好了。
+
+　
+
+　　　伪代码是这样的：
+
+　　　　　　　QQ截图20131116121559
+
+ 
+
+    解码过程：将编码得到的数还原成字符串。
+
+    　　大概思路是这样的，就是每次看那个数处落在哪个子区间段，然后输出这个区间段所表示的字符。之后，调整区间以及这个数，递归知道输出所有编码字符为止。
+
+    QQ截图20131116122228
+
+二，证明算术编码的压缩效率
+
+    首先我们得确切知道我们到底编码出来的是什么，然后我们才能去进一步去证明。
+
+    经过上一步的直观认识，我们应该知道编码结束的时候我们获得一个最终的区间，然后取这个区间中的一个值来表示最终的编码。在实践中，我们是输出子区间上下界中的共同位。比如我们最终得到的区间是[0.1010011,0.1010000)那么共同位就是0.10100，当然喽，方便起见，我们就只保存10100就好了，而把小数点什么的去掉。
+
+    接下来就是证明了。
+
+    QQ截图20131116125312
+
+    QQ截图20131116125151
+
+     
+
+三，实现代码详解
+
+            着重讲一下编码过程中字符编码的实现，先看一下代码。功能在于完成一个字符的编码工作
+
+ 
+
+   1:  static void bit_plus_follow(int);   /* Routine that follows                    */
+
+   2:  static code_value low, high;    /* Ends of the current code region          */
+
+   3:  static long bits_to_follow;     /* Number of opposite bits to output after */
+
+   4:   
+
+   5:   
+
+   6:  void encode_symbol(int symbol,int cum_freq[])
+
+   7:  {  
+
+   8:      long range;                 /* Size of the current code region          */
+
+   9:      range = (long)(high-low)+1;
+
+  10:   
+
+  11:      high = low + (range*cum_freq[symbol-1])/cum_freq[0]-1;  /* Narrow the code region  to that allotted to this */
+
+  12:      low = low + (range*cum_freq[symbol])/cum_freq[0]; /* symbol.                  */
+
+  13:   
+
+  14:      for (;;)
+
+  15:      {                                  /* Loop to output bits.     */
+
+  16:          if (high<Half) {
+
+  17:              bit_plus_follow(0);                 /* Output 0 if in low half. */
+
+  18:          }
+
+  19:          else if (low>=Half) {                   /* Output 1 if in high half.*/
+
+  20:              bit_plus_follow(1);
+
+  21:              low -= Half;
+
+  22:              high -= Half;                       /* Subtract offset to top. */
+
+  23:          }
+
+  24:          else if (low>=First_qtr  && high<Third_qtr) {  /* Output an opposite bit　later if in middle half. */
+
+  25:                  bits_to_follow += 1;
+
+  26:                  low -= First_qtr;                   /* Subtract offset to middle*/
+
+  27:                  high -= First_qtr;
+
+  28:          }
+
+  29:          else break;                             /* Otherwise exit loop.     */
+
+  30:          low = 2*low;
+
+  31:          high = 2*high+1;                        /* Scale up code range.     */
+
+  32:      }
+
+  33:  }
+
+  34:   
+
+  35:  static void bit_plus_follow(int bit)
+
+  36:  {  
+
+  37:      output_bit(bit);                           /* Output the bit.           */
+
+  38:      while (bits_to_follow>0) {
+
+  39:          output_bit(!bit);                      /* Output bits_to_follow     */
+
+  40:          bits_to_follow -= 1;                   /* opposite bits. Set        */
+
+  41:      }                                          /* bits_to_follow to zero.   */
+
+  42:  }
+
+    详细说明：
+
+    6-12行就是简单地计算，根据当前编码字符找到我们需要的子区间。前面讲到伪代码的时候编码到这一步的时候就已经完成对该字符的编码，即将对下一字符编码了。可是，实际操作的时候，我们看到这样一次次运行，区间会越来越小，也就意味着要存的那个数位数越来越多，那么我们的计算机能不能存下呢？这是个很严重的问题。
+
+    解决的方法是这样的，我们注意到，要是区间的上下界中前面几个字符是一样的，那么以后编码的时候它们还是一样不变的.举个例子，要是编码区间为[0.1101,0.1111)，那么后来再怎么编码，得到的区间还是[0.11~,0.11~)前面几个字符是一样的。那么我们是不是可以进行输出了呢，这样就可以避免溢出啦！16-23行代码就是执行这个的。
+
+    细心的同学就发现了还有24-28行代码的存在，他们是干嘛的呢？
+
+    我们举个，就是说区间卡在0.5这个地方，区间为[0.10~,0.01~)那么这种情况怎么处理？因为显然要是始终这样下去的话，16-23行代码是无能为力的。对此我们也是可以处理的。
+
+    QQ截图20131116164702
+
+    此时的区间上下界应该是类似这样，前面相同的部分我们就不看了，默认已经由16-23行代码处理完毕。
+
+    我们先看这个例子，假设区间是[0.011,0.101)，那么画图来看的话区间就是处于[3/8,6/8)之间，我们将原先区间的[2/8,6/8)放大一倍，那么此时原先的子区间就变成了[2/8,1)，可以参见下图。
+
+    Picture1
+
+    我们注意到放大后,如果编码下一个字符的时候，子区间存在于上半部分，也就是上图右边[4/8,1)之间，那么也就是上图左边[4/8,6/8)的位置，这个部分的编码为10,所以输出10。
+
+    通过这个例子我们就知道怎么处理了。
+
+    首先记录一下从[2/8,6/8)放大到区间[0,1)的次数bits_to_follow ,直到区间长度大于0.5为止。
+
+    然后开始编码下一个字符，如果区间存在于上半部，则输出10000，其中0的个数为bits_to_follow 个。
+
+    如果区间存在于下半部，则输出01111，其中1的个数为bits_to_follow 个。如果区间位于[2/8,6/8)则继续放大，bits_to_follow 也随之增加。
+
+    建议大家自己画图好好体会一下这段代码的妙处！
+
+     
+
+    现在给出全部代码：很多小细节有待自己去研究，很微妙的。
+    复制代码
+
+      1 #include<cstdio>
+      2 #include<stdlib.h>
+      3 using namespace::std;
+      4 
+      5 #define Code_value_bits 16              /* Number of bits in a code value   */
+      6 typedef long code_value;                /* Type of an arithmetic code value */
+      7 
+      8 #define Top_value (((long)1<<Code_value_bits)-1)      /* Largest code value */
+      9 
+     10 
+     11 #define First_qtr (Top_value/4+1)       /* Point after first quarter        */
+     12 #define Half      (2*First_qtr)         /* Point after first half           */
+     13 #define Third_qtr (3*First_qtr)         /* Point after third quarter        */
+     14 
+     15 #define No_of_chars 256                 /* Number of character symbols      */
+     16 #define EOF_symbol (No_of_chars+1)      /* Index of EOF symbol              */
+     17 
+     18 #define No_of_symbols (No_of_chars+1)   /* Total number of symbols          */
+     19 
+     20 /* TRANSLATION TABLES BETWEEN CHARACTERS AND SYMBOL INDEXES. */
+     21 
+     22 int char_to_index[No_of_chars];         /* To index from character          */
+     23 unsigned char index_to_char[No_of_symbols+1]; /* To character from index    */
+     24 
+     25 /* CUMULATIVE FREQUENCY TABLE. */
+     26 
+     27 #define Max_frequency 16383             /* Maximum allowed frequency count */
+     28 /*   2^14 - 1                       */
+     29 int cum_freq[No_of_symbols+1];          /* Cumulative symbol frequencies    */
+     30 
+     31 //固定频率表，为了方便起见
+     32 int freq[No_of_symbols+1] = {
+     33     0,
+     34     1,   1,   1,   1,   1,   1,   1,   1,   1,   1, 124,   1,   1,   1,   1,   1,
+     35     1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+     36 
+     37     /*      !    "    #    $    %    &    '    (    )    *    +    ,    -    .    / */
+     38     1236,   1, 21,   9,   3,   1, 25, 15,   2,   2,   2,   1, 79, 19, 60,   1,
+     39 
+     40     /* 0    1    2    3    4    5    6    7    8    9    :    ;    <    =    >    ? */
+     41     15, 15,   8,   5,   4,   7,   5,   4,   4,   6,   3,   2,   1,   1,   1,   1,
+     42 
+     43     /* @    A    B    C    D    E    F    G    H    I    J    K    L    M    N    O */
+     44     1, 24, 15, 22, 12, 15, 10,   9, 16, 16,   8,   6, 12, 23, 13, 11,
+     45 
+     46     /* P    Q    R    S    T    U    V    W    X    Y    Z    [    /    ]    ^    _ */
+     47     14,   1, 14, 28, 29,   6,   3, 11,   1,   3,   1,   1,   1,   1,   1,   3,
+     48 
+     49     /* '    a    b    c    d    e    f    g    h    i    j    k    l    m    n    o */
+     50     1, 491, 85, 173, 232, 744, 127, 110, 293, 418,   6, 39, 250, 139, 429, 446,
+     51 
+     52     /* p    q    r    s    t    u    v    w    x    y    z    {    |    }    ~      */
+     53     111,   5, 388, 375, 531, 152, 57, 97, 12, 101,   5,   2,   1,   2,   3,   1,
+     54 
+     55     1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+     56     1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+     57     1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+     58     1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+     59     1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+     60     1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+     61     1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+     62     1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,
+     63     1
+     64 };
+     65 
+     66 //用来存储编码值，是编码解码过程的桥梁。大小暂定１００，实际中可以修改
+     67 char code[100];
+     68 static int code_index=0;
+     69 static int decode_index=0; 
+     70 
+     71 //buffer为八位缓冲区，暂时存放编码制
+     72 static int buffer;      
+     73 //buffer中还有几个比特没有用到，初始值为8
+     74 static int bits_to_go;        
+     75 //超过了EOF的字符，也是垃圾
+     76 static int garbage_bits;      
+     77 
+     78 //启用字符频率统计模型，也就是计算各个字符的频率分布区间
+     79 void start_model(){
+     80     int i;
+     81     for (i = 0; i<No_of_chars; i++) {          
+     82         //为了便于查找
+     83         char_to_index[i] = i+1;                
+     84         index_to_char[i+1] = i;                
+     85     }
+     86 
+     87     //累计频率cum_freq[i-1]=freq[i]+...+freq[257], cum_freq[257]=0;
+     88     cum_freq[No_of_symbols] = 0;
+     89     for (i = No_of_symbols; i>0; i--) {       
+     90         cum_freq[i-1] = cum_freq[i] + freq[i]; 
+     91     }
+     92     //这条语句是为了确保频率和的上线，这是后话，这里就注释掉
+     93     //if (cum_freq[0] > Max_frequency);   /* Check counts within limit*/
+     94 }
+     95 
+     96 
+     97 //初始化缓冲区，便于开始接受编码值
+     98 void start_outputing_bits()
+     99 {  
+    100     buffer = 0;                                //缓冲区一开始为空
+    101     bits_to_go = 8;                          
+    102 }
+    103 
+    104 
+    105 void output_bit(int bit)
+    106 {  
+    107     //为了写代码方便，编码数据是从右到左进入缓冲区的。记住这一点！
+    108     buffer >>= 1;                              
+    109     if (bit) buffer |= 0x80;
+    110     bits_to_go -= 1;
+    111     //当缓冲区满了的时候，就输出存起来
+    112     if (bits_to_go==0) {                        
+    113         code[code_index]=buffer;
+    114         code_index++;
+    115 
+    116         bits_to_go = 8; //重新恢复为8
+    117     }
+    118 }
+    119 
+    120 
+    121 void done_outputing_bits()
+    122 {   
+    123     //编码最后的时候，当缓冲区没有满，则直接补充０
+    124     code[code_index]=buffer>>bits_to_go;
+    125     code_index++;
+    126 }
+    127 
+    128 
+    129 
+    130 static void bit_plus_follow(int);   /* Routine that follows                    */
+    131 static code_value low, high;    /* Ends of the current code region          */
+    132 static long bits_to_follow;     /* Number of opposite bits to output after */
+    133 
+    134 
+    135 void start_encoding()
+    136 {   
+    137     for(int i=0;i<100;i++)code[i]='\0';
+    138 
+    139     low = 0;                            /* Full code range.                 */
+    140     high = Top_value;
+    141     bits_to_follow = 0;                 /* No bits to follow           */
+    142 }
+    143 
+    144 
+    145 void encode_symbol(int symbol,int cum_freq[])
+    146 {  
+    147     long range;                 /* Size of the current code region          */
+    148     range = (long)(high-low)+1;
+    149 
+    150     high = low + (range*cum_freq[symbol-1])/cum_freq[0]-1;  /* Narrow the code region  to that allotted to this */
+    151     low = low + (range*cum_freq[symbol])/cum_freq[0]; /* symbol.                  */
+    152 
+    153     for (;;)
+    154     {                                  /* Loop to output bits.     */
+    155         if (high<Half) {
+    156             bit_plus_follow(0);                 /* Output 0 if in low half. */
+    157         }
+    158         else if (low>=Half) {                   /* Output 1 if in high half.*/
+    159             bit_plus_follow(1);
+    160             low -= Half;
+    161             high -= Half;                       /* Subtract offset to top. */
+    162         }
+    163         else if (low>=First_qtr  && high<Third_qtr) {  /* Output an opposite bit　later if in middle half. */
+    164                 bits_to_follow += 1;
+    165                 low -= First_qtr;                   /* Subtract offset to middle*/
+    166                 high -= First_qtr;
+    167         }
+    168         else break;                             /* Otherwise exit loop.     */
+    169         low = 2*low;
+    170         high = 2*high+1;                        /* Scale up code range.     */
+    171     }
+    172 }
+    173 
+    174 /* FINISH ENCODING THE STREAM. */
+    175 
+    176 void done_encoding()
+    177 {   
+    178     bits_to_follow += 1;                       /* Output two bits that      */
+    179     if (low<First_qtr) bit_plus_follow(0);     /* select the quarter that   */
+    180     else bit_plus_follow(1);                   /* the current code range    */
+    181 }                                              /* contains.                 */
+    182 
+    183 
+    184 static void bit_plus_follow(int bit)
+    185 {  
+    186     output_bit(bit);                           /* Output the bit.           */
+    187     while (bits_to_follow>0) {
+    188         output_bit(!bit);                      /* Output bits_to_follow     */
+    189         bits_to_follow -= 1;                   /* opposite bits. Set        */
+    190     }                                          /* bits_to_follow to zero.   */
+    191 }
+    192 
+    193 
+    194 
+    195 void encode(){
+    196     start_model();                             /* Set up other modules.     */
+    197     start_outputing_bits();
+    198     start_encoding();
+    199     for (;;) {                                 /* Loop through characters. */
+    200         int ch; 
+    201         int symbol;
+    202         ch = getchar();                      /* Read the next character. */
+    203         //if (ch==EOF) break;                    /* Exit loop on end-of-file. */
+    204         //为了简单起见，这里就不用EOF为结尾了，直接使用回车符作为结尾。这不影响说明算法的原理
+    205         if(ch==10)break;
+    206         symbol = char_to_index[ch];            /* Translate to an index.    */
+    207         encode_symbol(symbol,cum_freq);        /* Encode that symbol.       */
+    208 
+    209     }
+    210     //将EOF编码进去，作为终止符
+    211     encode_symbol(EOF_symbol,cum_freq);       
+    212     done_encoding();                           /* Send the last few bits.   */
+    213     done_outputing_bits();
+    214 
+    215 }
+    216 
+    217 
+    218 //解码
+    219 
+    220 static code_value value;        /* Currently-seen code value                */
+    221 
+    222 void start_inputing_bits()
+    223 {   
+    224     bits_to_go = 0;                             /* Buffer starts out with   */
+    225     garbage_bits = 0;                           /* no bits in it.           */
+    226 }
+    227 
+    228 
+    229 int input_bit()
+    230 {   
+    231     int t;
+    232 
+    233     if (bits_to_go==0) {   
+    234         buffer = code[decode_index];
+    235         decode_index++;
+    236 
+    237     //    if (buffer==EOF) {
+    238         if(decode_index > code_index ){
+    239             garbage_bits += 1;                      /* Return arbitrary bits*/
+    240             if (garbage_bits>Code_value_bits-2) {   /* after eof, but check */
+    241                 fprintf(stderr,"Bad input file/n"); /* for too many such.   */
+    242                 // exit(-1);
+    243             }
+    244         }
+    245         bits_to_go = 8;
+    246     }
+    247     //从左到右取出二进制位，因为存的时候是从右到左
+    248     t = buffer&1;                               /* Return the next bit from */
+    249     buffer >>= 1;                               /* the bottom of the byte. */
+    250     bits_to_go -= 1;
+    251     return t;
+    252 }
+    253 
+    254 void start_decoding()
+    255 {   
+    256     int i;
+    257     value = 0;                                  /* Input bits to fill the   */
+    258     for (i = 1; i<=Code_value_bits; i++) {      /* code value.              */
+    259         value = 2*value+input_bit();
+    260     }
+    261 
+    262 
+    263     low = 0;                                    /* Full code range.         */
+    264     high = Top_value;
+    265 }
+    266 
+    267 
+    268 int decode_symbol(int cum_freq[])
+    269 {   
+    270     long range;                 /* Size of current code region              */
+    271     int cum;                    /* Cumulative frequency calculated          */
+    272     int symbol;                 /* Symbol decoded */
+    273     range = (long)(high-low)+1;
+    274     cum = (((long)(value-low)+1)*cum_freq[0]-1)/range;    /* Find cum freq for value. */
+    275         
+    276     for (symbol = 1; cum_freq[symbol]>cum; symbol++) ; /* Then find symbol. */
+    277     high = low + (range*cum_freq[symbol-1])/cum_freq[0]-1;   /* Narrow the code region   *//* to that allotted to this */
+    278     low = low +  (range*cum_freq[symbol])/cum_freq[0];
+    279 
+    280     for (;;) {                                  /* Loop to get rid of bits. */
+    281         if (high<Half) {
+    282             /* nothing */                       /* Expand low half.         */
+    283         }
+    284         else if (low>=Half) {                   /* Expand high half.        */
+    285             value -= Half;
+    286             low -= Half;                        /* Subtract offset to top. */
+    287             high -= Half;
+    288         }
+    289         else if (low>=First_qtr && high <Third_qtr) {
+    290             value -= First_qtr;
+    291             low -= First_qtr;                   /* Subtract offset to middle*/
+    292             high -= First_qtr;
+    293         }
+    294         else break;                             /* Otherwise exit loop.     */
+    295         low = 2*low;
+    296         high = 2*high+1;                        /* Scale up code range.     */
+    297         value = 2*value+input_bit();            /* Move in next input blt. */
+    298     }
+    299     return symbol;
+    300 }
+    301 
+    302 
+    303 void decode(){
+    304     start_model();                              /* Set up other modules.    */
+    305     start_inputing_bits();
+    306     start_decoding();
+    307     for (;;) {                                  /* Loop through characters. */
+    308         int ch; int symbol;
+    309         symbol = decode_symbol(cum_freq);       /* Decode next symbol.      */
+    310         if (symbol==EOF_symbol) break;          /* Exit loop if EOF symbol. */
+    311         ch = index_to_char[symbol];             /* Translate to a character.*/
+    312         putc(ch,stdout);                        /* Write that character.    */
+    313     }
+    314 }
+    315 
+    316 int main()
+    317 {
+    318     encode();
+    319     decode();
+    320     system("pause");
+    321     return 0;
+    322 }

@@ -1,0 +1,227 @@
+--------------------Configuration: testc - Win32 Debug--------------------
+Build : warning : failed to (or don't know how to) build 'e:\code\cstd\include\cv1\core\cmd\clapack1.inl'
+Compiling...
+testcpp.cpp
+e:\code\cstd\include\cv1\core\hal_internal.inl(88) : error C2065: 'sgesv_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(341) : see reference to function template instantiation 'long __cdecl lapack_LU(float *,unsigned int,long,float *,unsigned int,long,long *,TypeId)' being compiled
+e:\code\cstd\include\cv1\core\hal_internal.inl(90) : error C2065: 'dgesv_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(341) : see reference to function template instantiation 'long __cdecl lapack_LU(float *,unsigned int,long,float *,unsigned int,long,long *,TypeId)' being compiled
+e:\code\cstd\include\cv1\core\hal_internal.inl(111) : error C2065: 'sgetrf_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(341) : see reference to function template instantiation 'long __cdecl lapack_LU(float *,unsigned int,long,float *,unsigned int,long,long *,TypeId)' being compiled
+e:\code\cstd\include\cv1\core\hal_internal.inl(113) : error C2065: 'dgetrf_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(341) : see reference to function template instantiation 'long __cdecl lapack_LU(float *,unsigned int,long,float *,unsigned int,long,long *,TypeId)' being compiled
+e:\code\cstd\include\cv1\core\hal_internal.inl(141) : error C2065: 'sposv_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(355) : see reference to function template instantiation 'long __cdecl lapack_Cholesky(float *,unsigned int,long,float *,unsigned int,long,bool *,TypeId)' being compiled
+e:\code\cstd\include\cv1\core\hal_internal.inl(143) : error C2065: 'dposv_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(355) : see reference to function template instantiation 'long __cdecl lapack_Cholesky(float *,unsigned int,long,float *,unsigned int,long,bool *,TypeId)' being compiled
+e:\code\cstd\include\cv1\core\hal_internal.inl(163) : error C2065: 'spotrf_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(355) : see reference to function template instantiation 'long __cdecl lapack_Cholesky(float *,unsigned int,long,float *,unsigned int,long,bool *,TypeId)' being compiled
+e:\code\cstd\include\cv1\core\hal_internal.inl(165) : error C2065: 'dpotrf_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(355) : see reference to function template instantiation 'long __cdecl lapack_Cholesky(float *,unsigned int,long,float *,unsigned int,long,bool *,TypeId)' being compiled
+e:\code\cstd\include\cv1\core\hal_internal.inl(205) : error C2065: 'sgesdd_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(371) : see reference to function template instantiation 'long __cdecl lapack_SVD(float *,unsigned int,float *,float *,unsigned int,float *,unsigned int,long,long,long,long *,TypeId)' being compi
+led
+e:\code\cstd\include\cv1\core\hal_internal.inl(207) : error C2065: 'dgesdd_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(371) : see reference to function template instantiation 'long __cdecl lapack_SVD(float *,unsigned int,float *,float *,unsigned int,float *,unsigned int,long,long,long,long *,TypeId)' being compi
+led
+e:\code\cstd\include\cv1\core\hal_internal.inl(266) : error C2065: 'sgels_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(387) : see reference to function template instantiation 'long __cdecl lapack_QR(float *,unsigned int,long,long,long,float *,unsigned int,float *,long *,TypeId)' being compiled
+e:\code\cstd\include\cv1\core\hal_internal.inl(268) : error C2065: 'dgels_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(387) : see reference to function template instantiation 'long __cdecl lapack_QR(float *,unsigned int,long,long,long,float *,unsigned int,float *,long *,TypeId)' being compiled
+e:\code\cstd\include\cv1\core\hal_internal.inl(308) : error C2065: 'sgeqrf_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(387) : see reference to function template instantiation 'long __cdecl lapack_QR(float *,unsigned int,long,long,long,float *,unsigned int,float *,long *,TypeId)' being compiled
+e:\code\cstd\include\cv1\core\hal_internal.inl(310) : error C2065: 'dgeqrf_' : undeclared identifier
+        e:\code\cstd\include\cv1\core\hal_internal.inl(387) : see reference to function template instantiation 'long __cdecl lapack_QR(float *,unsigned int,long,long,long,float *,unsigned int,float *,long *,TypeId)' being compiled
+Error executing cl.exe.
+
+testc.exe - 14 error(s), 1 warning(s)
+--------------------Configuration: testc - Win32 Debug--------------------
+Compiling...
+testcpp.cpp
+Linking...
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlasr_(char *,char *,char *,long *,long *,double *,double *,double *,long *)" (?dlasr_@@YAHPAD00PAJ1PAN221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dswap(long *,double *,long *,double *,long *)" (?f2c_dswap@@YAHPAJPAN010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dswap(long *,double *,long *,double *,long *)" (?f2c_dswap@@YAHPAJPAN010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlasda_(long *,long *,long *,long *,double *,double *,double *,long *,double *,long *,double *,double *,double *,double *,long *,long *,long *,long *,double *,double *,double *,dou
+ble *,long *,long *)" (?dlasda_@@YAHPAJ000PAN1101011110000111100@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlasd0_(long *,long *,double *,double *,double *,long *,double *,long *,long *,long *,double *,long *)" (?dlasd0_@@YAHPAJ0PAN110100010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlamch_(char *)" (?dlamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlamch_(char *)" (?dlamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlamch_(char *)" (?dlamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlamch_(char *)" (?dlamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlamch_(char *)" (?dlamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlanst_(char *,long *,double *,double *)" (?dlanst_@@YANPADPAJPAN2@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlasdq_(char *,long *,long *,long *,long *,long *,double *,double *,double *,long *,double *,long *,double *,long *,double *,long *)" (?dlasdq_@@YAHPADPAJ1111PAN221212121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlartg_(double *,double *,double *,double *,double *)" (?dlartg_@@YAHPAN0000@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dcopy(long *,double *,long *,double *,long *)" (?f2c_dcopy@@YAHPAJPAN010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dcopy(long *,double *,long *,double *,long *)" (?f2c_dcopy@@YAHPAJPAN010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl d_sign(double *,double *)" (?d_sign@@YANPAN0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dgebd2_(long *,long *,double *,long *,double *,double *,double *,double *,double *,long *)" (?dgebd2_@@YAHPAJ0PAN0111110@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dgemm(char *,char *,long *,long *,long *,double *,double *,long *,double *,long *,double *,double *,long *)" (?f2c_dgemm@@YAHPAD0PAJ11PAN2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dgemm(char *,char *,long *,long *,long *,double *,double *,long *,double *,long *,double *,double *,long *)" (?f2c_dgemm@@YAHPAD0PAJ11PAN2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dgemm(char *,char *,long *,long *,long *,double *,double *,long *,double *,long *,double *,double *,long *)" (?f2c_dgemm@@YAHPAD0PAJ11PAN2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dgemm(char *,char *,long *,long *,long *,double *,double *,long *,double *,long *,double *,double *,long *)" (?f2c_dgemm@@YAHPAD0PAJ11PAN2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dgemm(char *,char *,long *,long *,long *,double *,double *,long *,double *,long *,double *,double *,long *)" (?f2c_dgemm@@YAHPAD0PAJ11PAN2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlabrd_(long *,long *,long *,double *,long *,double *,double *,double *,double *,double *,long *,double *,long *)" (?dlabrd_@@YAHPAJ00PAN011111010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dgelq2_(long *,long *,double *,long *,double *,double *,long *)" (?dgelq2_@@YAHPAJ0PAN0110@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlarf_(char *,long *,long *,double *,long *,double *,double *,long *,double *)" (?dlarf_@@YAHPADPAJ1PAN12212@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlarfp_(long *,double *,double *,long *,double *)" (?dlarfp_@@YAHPAJPAN101@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dger(long *,long *,double *,double *,long *,double *,long *,double *,long *)" (?f2c_dger@@YAHPAJ0PAN101010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dscal(long *,double *,double *,long *)" (?f2c_dscal@@YAHPAJPAN10@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dscal(long *,double *,double *,long *)" (?f2c_dscal@@YAHPAJPAN10@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl f2c_idamax(long *,double *,long *)" (?f2c_idamax@@YAJPAJPAN0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dtrsm(char *,char *,char *,char *,long *,long *,double *,double *,long *,double *,long *)" (?f2c_dtrsm@@YAHPAD000PAJ1PAN2121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dtrsm(char *,char *,char *,char *,long *,long *,double *,double *,long *,double *,long *)" (?f2c_dtrsm@@YAHPAD000PAJ1PAN2121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dtrsm(char *,char *,char *,char *,long *,long *,double *,double *,long *,double *,long *)" (?f2c_dtrsm@@YAHPAD000PAJ1PAN2121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dtrsm(char *,char *,char *,char *,long *,long *,double *,double *,long *,double *,long *)" (?f2c_dtrsm@@YAHPAD000PAJ1PAN2121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dtrsm(char *,char *,char *,char *,long *,long *,double *,double *,long *,double *,long *)" (?f2c_dtrsm@@YAHPAD000PAJ1PAN2121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl d_lg10(double *)" (?d_lg10@@YANPAN@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlassq_(long *,double *,long *,double *,double *)" (?dlassq_@@YAHPAJPAN011@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dtrmm(char *,char *,char *,char *,long *,long *,double *,double *,long *,double *,long *)" (?f2c_dtrmm@@YAHPAD000PAJ1PAN2121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl iladlc_(long *,long *,double *,long *)" (?iladlc_@@YAJPAJ0PAN0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl iladlr_(long *,long *,double *,long *)" (?iladlr_@@YAJPAJ0PAN0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dtrmv(char *,char *,char *,long *,double *,long *,double *,long *)" (?f2c_dtrmv@@YAHPAD00PAJPAN121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dgemv(char *,long *,long *,double *,double *,long *,double *,long *,double *,double *,long *)" (?f2c_dgemv@@YAHPADPAJ1PAN2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dgemv(char *,long *,long *,double *,double *,long *,double *,long *,double *,double *,long *)" (?f2c_dgemv@@YAHPADPAJ1PAN2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl disnan_(double *)" (?disnan_@@YAJPAN@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl disnan_(double *)" (?disnan_@@YAJPAN@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dorgl2_(long *,long *,long *,double *,long *,double *,double *,long *)" (?dorgl2_@@YAHPAJ00PAN0110@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dorg2r_(long *,long *,long *,double *,long *,double *,double *,long *)" (?dorg2r_@@YAHPAJ00PAN0110@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_cat(char *,char * *,long *,long *,long)" (?s_cat@@YAHPADPAPADPAJ2J@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_cat(char *,char * *,long *,long *,long)" (?s_cat@@YAHPADPAPADPAJ2J@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_cat(char *,char * *,long *,long *,long)" (?s_cat@@YAHPADPAPADPAJ2J@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_cat(char *,char * *,long *,long *,long)" (?s_cat@@YAHPADPAPADPAJ2J@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_cat(char *,char * *,long *,long *,long)" (?s_cat@@YAHPADPAPADPAJ2J@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_cat(char *,char * *,long *,long *,long)" (?s_cat@@YAHPADPAPADPAJ2J@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dorml2_(char *,char *,long *,long *,long *,double *,long *,double *,double *,long *,double *,long *)" (?dorml2_@@YAHPAD0PAJ11PAN122121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dorm2r_(char *,char *,long *,long *,long *,double *,long *,double *,double *,long *,double *,long *)" (?dorm2r_@@YAHPAD0PAJ11PAN122121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl f2c_ddot(long *,double *,long *,double *,long *)" (?f2c_ddot@@YANPAJPAN010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_dsyrk(char *,char *,long *,long *,double *,double *,long *,double *,double *,long *)" (?f2c_dsyrk@@YAHPAD0PAJ1PAN21221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl iparmq_(long *,char *,char *,long *,long *,long *,long *)" (?iparmq_@@YAJPAJPAD10000@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl ieeeck_(long *,float *,float *)" (?ieeeck_@@YAJPAJPAM1@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl s_cmp(char *,char *,long,long)" (?s_cmp@@YAJPAD0JJ@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_copy(char *,char *,long,long)" (?s_copy@@YAHPAD0JJ@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slasr_(char *,char *,char *,long *,long *,float *,float *,float *,long *)" (?slasr_@@YAHPAD00PAJ1PAM221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_sswap(long *,float *,long *,float *,long *)" (?f2c_sswap@@YAHPAJPAM010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_sswap(long *,float *,long *,float *,long *)" (?f2c_sswap@@YAHPAJPAM010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slasda_(long *,long *,long *,long *,float *,float *,float *,long *,float *,long *,float *,float *,float *,float *,long *,long *,long *,long *,float *,float *,float *,float *,long *
+,long *)" (?slasda_@@YAHPAJ000PAM1101011110000111100@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slasd0_(long *,long *,float *,float *,float *,long *,float *,long *,long *,long *,float *,long *)" (?slasd0_@@YAHPAJ0PAM110100010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slamch_(char *)" (?slamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slamch_(char *)" (?slamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slamch_(char *)" (?slamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slamch_(char *)" (?slamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slamch_(char *)" (?slamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slanst_(char *,long *,float *,float *)" (?slanst_@@YANPADPAJPAM2@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slasdq_(char *,long *,long *,long *,long *,long *,float *,float *,float *,long *,float *,long *,float *,long *,float *,long *)" (?slasdq_@@YAHPADPAJ1111PAM221212121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slartg_(float *,float *,float *,float *,float *)" (?slartg_@@YAHPAM0000@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_scopy(long *,float *,long *,float *,long *)" (?f2c_scopy@@YAHPAJPAM010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_scopy(long *,float *,long *,float *,long *)" (?f2c_scopy@@YAHPAJPAM010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl r_sign(float *,float *)" (?r_sign@@YANPAM0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl sgebd2_(long *,long *,float *,long *,float *,float *,float *,float *,float *,long *)" (?sgebd2_@@YAHPAJ0PAM0111110@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_sgemm(char *,char *,long *,long *,long *,float *,float *,long *,float *,long *,float *,float *,long *)" (?f2c_sgemm@@YAHPAD0PAJ11PAM2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_sgemm(char *,char *,long *,long *,long *,float *,float *,long *,float *,long *,float *,float *,long *)" (?f2c_sgemm@@YAHPAD0PAJ11PAM2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_sgemm(char *,char *,long *,long *,long *,float *,float *,long *,float *,long *,float *,float *,long *)" (?f2c_sgemm@@YAHPAD0PAJ11PAM2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_sgemm(char *,char *,long *,long *,long *,float *,float *,long *,float *,long *,float *,float *,long *)" (?f2c_sgemm@@YAHPAD0PAJ11PAM2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_sgemm(char *,char *,long *,long *,long *,float *,float *,long *,float *,long *,float *,float *,long *)" (?f2c_sgemm@@YAHPAD0PAJ11PAM2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slabrd_(long *,long *,long *,float *,long *,float *,float *,float *,float *,float *,long *,float *,long *)" (?slabrd_@@YAHPAJ00PAM011111010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl sgelq2_(long *,long *,float *,long *,float *,float *,long *)" (?sgelq2_@@YAHPAJ0PAM0110@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slarf_(char *,long *,long *,float *,long *,float *,float *,long *,float *)" (?slarf_@@YAHPADPAJ1PAM12212@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slarfp_(long *,float *,float *,long *,float *)" (?slarfp_@@YAHPAJPAM101@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_sger(long *,long *,float *,float *,long *,float *,long *,float *,long *)" (?f2c_sger@@YAHPAJ0PAM101010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_sscal(long *,float *,float *,long *)" (?f2c_sscal@@YAHPAJPAM10@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_sscal(long *,float *,float *,long *)" (?f2c_sscal@@YAHPAJPAM10@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl f2c_isamax(long *,float *,long *)" (?f2c_isamax@@YAJPAJPAM0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_strsm(char *,char *,char *,char *,long *,long *,float *,float *,long *,float *,long *)" (?f2c_strsm@@YAHPAD000PAJ1PAM2121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_strsm(char *,char *,char *,char *,long *,long *,float *,float *,long *,float *,long *)" (?f2c_strsm@@YAHPAD000PAJ1PAM2121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_strsm(char *,char *,char *,char *,long *,long *,float *,float *,long *,float *,long *)" (?f2c_strsm@@YAHPAD000PAJ1PAM2121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_strsm(char *,char *,char *,char *,long *,long *,float *,float *,long *,float *,long *)" (?f2c_strsm@@YAHPAD000PAJ1PAM2121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_strsm(char *,char *,char *,char *,long *,long *,float *,float *,long *,float *,long *)" (?f2c_strsm@@YAHPAD000PAJ1PAM2121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl r_lg10(float *)" (?r_lg10@@YANPAM@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slassq_(long *,float *,long *,float *,float *)" (?slassq_@@YAHPAJPAM011@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_strmm(char *,char *,char *,char *,long *,long *,float *,float *,long *,float *,long *)" (?f2c_strmm@@YAHPAD000PAJ1PAM2121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl ilaslc_(long *,long *,float *,long *)" (?ilaslc_@@YAJPAJ0PAM0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl ilaslr_(long *,long *,float *,long *)" (?ilaslr_@@YAJPAJ0PAM0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_strmv(char *,char *,char *,long *,float *,long *,float *,long *)" (?f2c_strmv@@YAHPAD00PAJPAM121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_sgemv(char *,long *,long *,float *,float *,long *,float *,long *,float *,float *,long *)" (?f2c_sgemv@@YAHPADPAJ1PAM2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_sgemv(char *,long *,long *,float *,float *,long *,float *,long *,float *,float *,long *)" (?f2c_sgemv@@YAHPADPAJ1PAM2121221@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl sisnan_(float *)" (?sisnan_@@YAJPAM@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl sisnan_(float *)" (?sisnan_@@YAJPAM@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl sorgl2_(long *,long *,long *,float *,long *,float *,float *,long *)" (?sorgl2_@@YAHPAJ00PAM0110@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl sorg2r_(long *,long *,long *,float *,long *,float *,float *,long *)" (?sorg2r_@@YAHPAJ00PAM0110@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl sorml2_(char *,char *,long *,long *,long *,float *,long *,float *,float *,long *,float *,long *)" (?sorml2_@@YAHPAD0PAJ11PAM122121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl sorm2r_(char *,char *,long *,long *,long *,float *,long *,float *,float *,long *,float *,long *)" (?sorm2r_@@YAHPAD0PAJ11PAM122121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl f2c_sdot(long *,float *,long *,float *,long *)" (?f2c_sdot@@YANPAJPAM010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl f2c_ssyrk(char *,char *,long *,long *,float *,float *,long *,float *,float *,long *)" (?f2c_ssyrk@@YAHPAD0PAJ1PAM21221@Z)
+Debug/testc.exe : fatal error LNK1120: 73 unresolved externals
+Error executing link.exe.
+Creating browse info file...
+
+testc.exe - 113 error(s), 0 warning(s)
+f2c_--------------------Configuration: testc - Win32 Debug--------------------
+Compiling...
+testcpp.cpp
+Linking...
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlamch_(char *)" (?dlamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlamch_(char *)" (?dlamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlamch_(char *)" (?dlamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlamch_(char *)" (?dlamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlamch_(char *)" (?dlamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlamch_(char *)" (?dlamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlamch_(char *)" (?dlamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl d_sign(double *,double *)" (?d_sign@@YANPAN0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl d_sign(double *,double *)" (?d_sign@@YANPAN0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlarfg_(long *,double *,double *,long *,double *)" (?dlarfg_@@YAHPAJPAN101@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlarfg_(long *,double *,double *,long *,double *)" (?dlarfg_@@YAHPAJPAN101@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl dlaisnan_(double *,double *)" (?dlaisnan_@@YAJPAN0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl d_lg10(double *)" (?d_lg10@@YANPAN@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl dlapy2_(double *,double *)" (?dlapy2_@@YANPAN0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl f2c_dnrm2(long *,double *,long *)" (?f2c_dnrm2@@YANPAJPAN0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl pow_di(double *,long *)" (?pow_di@@YANPANPAJ@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlasd1_(long *,long *,long *,double *,double *,double *,double *,long *,double *,long *,long *,long *,double *,long *)" (?dlasd1_@@YAHPAJ00PAN1110100010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl pow_ii(long *,long *)" (?pow_ii@@YAJPAJ0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl pow_ii(long *,long *)" (?pow_ii@@YAJPAJ0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl pow_ii(long *,long *)" (?pow_ii@@YAJPAJ0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl pow_ii(long *,long *)" (?pow_ii@@YAJPAJ0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlasdt_(long *,long *,long *,long *,long *,long *,long *)" (?dlasdt_@@YAHPAJ000000@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlasdt_(long *,long *,long *,long *,long *,long *,long *)" (?dlasdt_@@YAHPAJ000000@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dlasd6_(long *,long *,long *,long *,double *,double *,double *,double *,double *,long *,long *,long *,long *,long *,double *,long *,double *,double *,double *,double *,long *,doubl
+e *,double *,double *,long *,long *)" (?dlasd6_@@YAHPAJ000PAN111100000101111011100@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl dbdsqr_(char *,long *,long *,long *,long *,double *,double *,double *,long *,double *,long *,double *,long *,double *,long *)" (?dbdsqr_@@YAHPADPAJ111PAN221212121@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_cat(char *,char * *,long *,long *,long)" (?s_cat@@YAHPADPAPADPAJ2J@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_cat(char *,char * *,long *,long *,long)" (?s_cat@@YAHPADPAPADPAJ2J@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_cat(char *,char * *,long *,long *,long)" (?s_cat@@YAHPADPAPADPAJ2J@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_cat(char *,char * *,long *,long *,long)" (?s_cat@@YAHPADPAPADPAJ2J@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_cat(char *,char * *,long *,long *,long)" (?s_cat@@YAHPADPAPADPAJ2J@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_cat(char *,char * *,long *,long *,long)" (?s_cat@@YAHPADPAPADPAJ2J@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl s_cmp(char *,char *,long,long)" (?s_cmp@@YAJPAD0JJ@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl s_copy(char *,char *,long,long)" (?s_copy@@YAHPAD0JJ@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl i_nint(float *)" (?i_nint@@YAJPAM@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slamch_(char *)" (?slamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slamch_(char *)" (?slamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slamch_(char *)" (?slamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slamch_(char *)" (?slamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slamch_(char *)" (?slamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slamch_(char *)" (?slamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slamch_(char *)" (?slamch_@@YANPAD@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl r_sign(float *,float *)" (?r_sign@@YANPAM0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl r_sign(float *,float *)" (?r_sign@@YANPAM0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slarfg_(long *,float *,float *,long *,float *)" (?slarfg_@@YAHPAJPAM101@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slarfg_(long *,float *,float *,long *,float *)" (?slarfg_@@YAHPAJPAM101@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "long __cdecl slaisnan_(float *,float *)" (?slaisnan_@@YAJPAM0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl r_lg10(float *)" (?r_lg10@@YANPAM@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl slapy2_(float *,float *)" (?slapy2_@@YANPAM0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl f2c_snrm2(long *,float *,long *)" (?f2c_snrm2@@YANPAJPAM0@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "double __cdecl pow_ri(float *,long *)" (?pow_ri@@YANPAMPAJ@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slasd1_(long *,long *,long *,float *,float *,float *,float *,long *,float *,long *,long *,long *,float *,long *)" (?slasd1_@@YAHPAJ00PAM1110100010@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slasdt_(long *,long *,long *,long *,long *,long *,long *)" (?slasdt_@@YAHPAJ000000@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slasdt_(long *,long *,long *,long *,long *,long *,long *)" (?slasdt_@@YAHPAJ000000@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl slasd6_(long *,long *,long *,long *,float *,float *,float *,float *,float *,long *,long *,long *,long *,long *,float *,long *,float *,float *,float *,float *,long *,float *,float *
+,float *,long *,long *)" (?slasd6_@@YAHPAJ000PAM111100000101111011100@Z)
+testcpp.obj : error LNK2001: unresolved external symbol "int __cdecl sbdsqr_(char *,long *,long *,long *,long *,float *,float *,float *,long *,float *,long *,float *,long *,float *,long *)" (?sbdsqr_@@YAHPADPAJ111PAM221212121@Z)
+Debug/testc.exe : fatal error LNK1120: 29 unresolved externals
+Error executing link.exe.
+Creating browse info file...
+
+testc.exe - 56 error(s), 0 warning(s)
+/f %%`n

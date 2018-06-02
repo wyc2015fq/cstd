@@ -1,0 +1,19 @@
+1. 初始化流程
+SSL_CTX_new()
+COpenSsl::ClientCtx()
+COpenSsl::Init(int 1)
+CPM_InitSock(NET_MODEL NET_SELECTED, unsigned int 1048576, unsigned int 8192) 
+DspDevManager::StartWork(int 1)
+DspDevManager::InitSys(int 1) 
+CPM_InitSys(int 1) 
+main()
+
+2. 連接流程
+SSL_connect()
+COpenSsl::Bind(unsigned int 312, int 0, int & 0)
+CSelectProcessor::StartRecv(unsigned int 312, int 0, int 0, void * 0x007ad928)
+CSelectProcessor::StartRecv(unsigned int 312, int 0, void * 0x007ad928)
+CPM_Recv(unsigned int 312, int 0, void * 0x007ad928)
+DspDevManager::NetCN_Imp(const char * 0x005af974 `string')
+CPM_CNDev(const char * 0x005af974 `string')
+main()

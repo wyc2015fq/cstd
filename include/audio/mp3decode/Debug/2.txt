@@ -1,0 +1,345 @@
+void III_hufman_decode(struct Granule *gr,int part2_start,
+		       	 int freqline[SBLIMIT][SSLIMIT])
+{
+    unsigned int reg1, reg2,i; 
+
+	unsigned int part3_length = part2_start + gr->part2_3_length;
+	unsigned used;
+    int h,*f=&freqline[0][0];
+
+    if(gr->window_switching_flag &&
+       gr->block_type == 2)
+	{
+	
+	/* short block regions */
+	
+	  reg1 = 36;  
+	  reg2 = 576;
+	
+    }
+	else
+	{
+	/* long block regions */
+
+	  reg1 = sfBandIndex[fr_ps.header->sampling_frequency].l[gr->region0_count + 1];
+	  reg2 = sfBandIndex[fr_ps.header->sampling_frequency].l[gr->region0_count + gr->region1_count + 2];
+    }
+
+
+    /* fill up dataword, end at a bytealign in the buffer */
+    {
+	int bitpos = totpos & 7;    //取8的余数
+	datapos = (totpos>> 3) & (BITSTREAM_BUFSIZE - 1);
+	/* the first read might not be bytealigned so shift it in place */
+	/* we have duplicated the last 4 bytes in the stream so it doesnt
+	   matter that datapos+2 etc dont pass through modulo */
+	dataword = buf[datapos++] << 24   ;                     //左移3个字节
+	datapos  %=  BITSTREAM_BUFSIZE;
+	dataword|= buf[datapos++] << 16 ;
+	datapos  %=  BITSTREAM_BUFSIZE;
+	dataword|= buf[datapos++] << 8  ;
+	datapos  %= BITSTREAM_BUFSIZE;
+	dataword|= buf[datapos++]       ;
+	datapos  %= BITSTREAM_BUFSIZE;
+
+	dataword <<= bitpos;  /* strip the misaligned leading bits  再左移bitpos位*/
+	dataword_len = 32 - bitpos;  /* number of valid bits in dataword  有效位的长度*/
+	/* now dataword is loaded with at least 24 bits of data */
+    }
+
+    part3_length -= totpos;    //计算部分2的结束位置
+
+    /* read the big values, they come in pairs */
+
+    h = gr->table_select[0];  /* start with the first table */
+    for(i = 0; i < gr->big_values * 2; i += 2)
+	{
+	unsigned long *h_tab;
+	unsigned int lead;
+	int l, len, x, y;
+
+	if(i == reg1)
+	    h = gr->table_select[1];
+	else if(i == reg2)
+	    h = gr->table_select[2];
+    h_tab = h_tables[h];
+
+	/* dataword is always leftaligned, not rightaligned */
+
+	lead = dataword >> (32 - NC_O); /* 19 - nc_o */
+	h_tab += h_cue[h][lead];  
+	
+	len = (*h_tab >> 8) & 0x1f;
+	
+	/* check for an immediate hit, so we can decode short codes very fast
+	 */
+
+	if (((*h_tab>>(32-len))!=(dataword>>(32-len)))&&(len))
+	{
+	  int dir_flag;
+	  int lag;
+	  unsigned int chunk = (dataword & 0xffffe000) | 0x1ff; /* WHY */
+	  lag = h_cue[h][lead + 1] - h_cue[h][lead];
+	  dir_flag = 0;
+	  while(lag > 1)
+	  {
+	    if (!dir_flag)
+	      h_tab += lag >> 1;
+	    else
+	      h_tab -= lag >> 1;
+	    if(*h_tab > chunk)
+		{
+		    if(!dir_flag)
+			    lag >>= 1;
+		    else
+			    lag -= lag >> 1;
+		    dir_flag =- 1;
+		}
+		else
+		{
+		    if (!dir_flag)
+			   lag -= lag >> 1;
+		    else
+			   lag >>= 1;
+		    dir_flag = 0;
+		}
+	  }
+
+      len = (*h_tab >> 8) & 0x1f;
+      if((*h_tab >> (32 - len)) != (chunk >> (32 - len)))
+	  {
+		  if (!dir_flag)
+		    h_tab++;
+		  else
+		    h_tab--;
+		  len = (*h_tab >> 8) & 0x1f;
+	  }
+	}
+	
+	dataword_len -= len;
+	dataword <<= len;  /* flush away the used bits */
+	
+	/* fill up dataword */
+	while(dataword_len <= 24) {
+	    dataword |= buf[datapos++] << (24 - dataword_len);
+	    dataword_len += 8;
+ 	    datapos  %= BITSTREAM_BUFSIZE;    //保证取数据的位置,防止溢出
+	}
+	
+	/* dataword now contains at least 24 bits */
+	
+	x = (*h_tab >> 4) & 0xf;
+	y = *h_tab & 0xf;
+
+	l = t_linbits[h];
+
+	/* linbits are used when values larger than 15 has to be encoded */
+
+	/* l is 13 or less, and we know we have at least 24 bits of data
+	   in the dataword, so use that directly */
+	
+	if(x == 15 && l > 0) {
+	    x += dataword >> (32 - l);
+	    dataword <<= l;
+	    dataword_len -= l;
+	    /* better refill since we might have used 13 bits */
+	    while(dataword_len <= 24) {
+		  dataword |= buf[datapos++] << (24 - dataword_len);
+		  dataword_len += 8;
+	      datapos = datapos % BITSTREAM_BUFSIZE;//保证取数据的位置,防止溢出
+	    }
+	}
+
+	/* read sign-bit for x */
+	if(x) {
+	    if(dataword & 0x80000000)
+	    	x = - x;
+	    dataword <<= 1;
+	    dataword_len--;
+	}
+
+	if(y == 15 && l > 0) {
+	    y += dataword >> (32 - l);
+	    dataword <<= l; 
+	    dataword_len -= l;
+	    /* better refill since we might have used 13 bits */
+	    while(dataword_len <= 24) {
+ 		  dataword |= buf[datapos++] << (24 - dataword_len);
+		  dataword_len += 8;
+	      datapos %=  BITSTREAM_BUFSIZE;//保证取数据的位置,防止溢出
+	    }
+	}
+
+	/* read sign-bit for y */
+	if(y) {
+	    if(dataword & 0x80000000)
+	    	y = - y;
+	    dataword <<= 1;
+	    dataword_len--;
+	}
+
+	*f++=x;
+	*f++=y;
+}
+	/* there are enough bits in dataword for the next run */
+	
+	/*  BIGVALUES 全部计算完 */
+
+    /* Now read the count1 values, they come in quadruples, and we
+       don't know explicetely how many there are but we are supposed to
+       keep decoding until all huffman bits have been decoded or until
+       all frequency lines have been assigned (i == 576). 
+    */
+            
+	  /* choose count1 table */
+	  used=BITS_USED;
+
+      h = gr->count1table_select + 32;  
+
+      while(BITS_USED < part3_length && i < 576)
+	  {
+
+	    HuffmanTable_decode(h,f + 2, f + 3, f, f + 1);
+	    f += 4;
+	    i += 4;
+	  }
+
+      used = BITS_USED;
+
+	  hgetbits(used);
+
+
+	  /* rewind if we got a bit too far, and discard if we got too short  */
+
+      if(used>part3_length)                    //保证totpos是part3_length长度的累加
+	  {
+	     i -= 4;
+	     rewindNbits(used - part3_length);
+	  }
+   /*   相等  totpos 不变  */
+	  else if(used<part3_length)
+		 hgetbits(part3_length-used);    //抛弃掉
+
+	  /* the rest of the frequency lines are zero */
+    for(; i < 576; i++)
+  	   *f++=0;
+
+}
+
+
+
+int HuffmanTable_decode(int tbl, 
+		    int *x, int *y, int *v, int *w)
+{
+    unsigned long *h_tab;
+    unsigned int lead;
+    int len,code;
+  
+    h_tab = h_tables[tbl];
+
+    /* dataword is always leftaligned, not rightaligned */
+
+    lead = dataword >> (32 - NC_O); /* 19 - NC_O */
+    h_tab += h_cue[tbl][lead];  
+    
+    len = (*h_tab >> 8) & 0x1f;
+    
+    /* check for an immediate hit, so we can decode short codes very fast
+     */
+    if ((*h_tab >> (32 - len)) != dataword >> (32 - len)) 
+	{
+	int dir_flag;
+	int lag;
+	unsigned int chunk = (dataword & 0xffffe000) | 0x1ff; /* WHY */
+	lag = h_cue[tbl][lead + 1] - h_cue[tbl][lead];
+	dir_flag = 0;
+	while(lag > 1)
+	{
+	  if (!dir_flag)
+		h_tab += lag >> 1;
+	  else
+		h_tab -= lag >> 1;
+	  if(*h_tab > chunk)
+	  {
+		if(!dir_flag)
+		    lag >>= 1;
+		else
+		    lag -= lag >> 1;
+		dir_flag =- 1;
+	  }
+	  else
+	  {
+		if (!dir_flag)
+		    lag -= lag >> 1;
+		else
+		    lag >>= 1;
+		dir_flag = 0;
+	  }
+	}
+	len = (*h_tab >> 8) & 0x1f;
+	if((*h_tab >> (32 - len)) != (chunk >> (32 - len)))
+	{
+	    if (!dir_flag)
+		h_tab++;
+	    else
+		h_tab--;
+	    len = (*h_tab >> 8) & 0x1f;
+	}
+    }
+
+    dataword_len -= len;
+    dataword <<= len;  /* flush away the used bits */
+
+    /* fill up dataword */
+    while(dataword_len <= 24)
+	{
+	  dataword |= buf[datapos++] << (24 - dataword_len);
+	  dataword_len += 8;
+      datapos %=  BITSTREAM_BUFSIZE;
+    }
+
+    /* dataword now contains at least 24 bits */
+
+    *x = (*h_tab >> 4) & 0xf;
+	code=*x;
+//	*y = *h_tab & 0xf;
+  	
+    *v = (*x >> 3) & 1;
+    *w = (*x >> 2) & 1;
+    *y = *x & 1;                     //  先求X的值!!!!!!!
+    *x = (*x >> 1) & 1;
+    
+    /* read and process the sign bits */
+    
+    if(*v)
+	{
+	   if(dataword & 0x80000000)
+	    *v = - *v;
+	   dataword <<= 1;
+	   dataword_len--;
+    }
+    if(*w) {
+	if(dataword & 0x80000000)
+	    *w = - *w;
+	dataword <<= 1;
+	dataword_len--;
+    }
+    if(*x) {
+	if(dataword & 0x80000000)
+	    *x = - *x;
+	dataword <<= 1;
+	dataword_len--;
+    }
+    if(*y) {
+	if(dataword & 0x80000000)
+	    *y = - *y;
+	dataword <<= 1;
+	dataword_len--;
+    }
+    
+    /* we have used up to 4 bits, so there are at least 20 bits
+       left in dataword, which is enough for the next run */
+    
+    return code;
+
+}

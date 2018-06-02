@@ -1,0 +1,403 @@
+ Windows 各种控件使用心得
+标签： windowscommanddropdownlistapibutton
+2011-07-18 20:14 1620人阅读 评论(2) 收藏 举报
+分类：
+Windows SDK（9）
+ 
+
+管理控件函数：
+ShowWindow()
+MoveWindow()
+CreateWindow()
+CreateWindowEx()
+
+系统预定义的窗口类：
+BUTTON   按钮控件
+COMBOBOX 组合框控件
+EDIT   编辑框控件
+LISTBOX   列表框控件
+SCROLLBAR 滚动条控件
+STATIC   静态控件
+
+子窗口控件通过向其父窗口发送WM_COMMAND消息进行通讯。WM_COMMAND的wParam参数包含了子窗口的标志ID，而lParam参数的低位是子窗口的句柄，高位是通知代码，通知代码将告诉父窗口用户在子窗口中所进行的操作。
+
+    《子窗口控件和相应的通知代码》
+
+按钮控件 BN_CLICKED   用户在按钮子窗口中单击
+   BN_DOUBLECLICKED 用户在按钮子窗口中双击
+   BN_SETFOCUS   按钮获得输入焦点
+   BN_KILLFOCUS   按钮失去输入焦点
+
+编辑框控件 EN_CHANGE   用户在编辑框子窗口中更改了输入框中的数据
+   EN_ERRSPACE   编辑框的空间已用完
+   EN_HSCROLL   水平滚动条被按下并被激活
+   EN_KILLFOCUS   编辑框失去输入焦点
+   EN_MAXTEXT   输入的正文数超过了编辑框的最大容量
+   EN_SETFOCUS   编辑框子窗口获得输入焦点
+   EN_UPDATE   编辑框子窗口将更新显示内容
+   EN_VSCROLL   垂直滚动条被按下并激活
+
+列表框控件 LBN_DBLCLK   字符串列表框中的字符串被双击
+   LBN_ERRSPACE   分配给字符串列表框的内存已经用完
+   LBN_KILLFOCUS   字符串列表框失去焦点
+   LBN_SELCHANGE   在字符串列表框进行的选择发生了改变
+   LBN_SETFOCUS   字符串列表框获得输入焦点
+
+组合框控件 CBN_DBLCLK   选择列表框中的字符串被双击
+   CBN_OROPDOWN   选择列表框将被取消
+   CBN_EDITCHANGE   选择列表框中的正文将被修改
+   CBN_EDITUPDATE   选择列表框中的正文将被更新
+   CBN_ERRSPACE   分配给选择列表框的内存已用完
+   CBN_KILLFOCUS   选择列表框失去输入焦点
+   CBN_SELCHANGE   选择列表框中的选择项发生改变
+   CBN_SETFOCUS   选择列表框获得输入焦点
+
+滚动条控件     没有与滚动条相关的通知代码
+
+静态控件     没有与静态文本框相关的通知代码
+
+
+应用程序窗口可调用函数SendMessage()向特定的子窗口发送消息，以指示其动作。
+例如用户单击单选按钮时，应用程序窗口可调用函数SendMessage()向该单选按钮
+发送BM_SETCHECK消息，为该按钮设置选中符号，其形式为:
+SendMessage(hwndRadioButton,BM_SETCHECK,1,0);
+使用对话框控件时，应用程序可调用函数SendDlgItemMessage向指定的对话框控件
+发送消息，其形式为:
+SendDlgItemMessage(hDlg,ID,message,wParam,lParam);
+其中message为所发的消息，应用程序向控件发送的消息的字参数与长参数包含该
+消息的相关信息，其含义取决于具体的控件消息。
+
+
+常用子窗口控件操作函数
+
+1、EnableWindow函数
+   用户通过该函数，可以激活或禁止窗口，函数的原型如下:
+   BOOL EnableWindow(HWND hwnd,BOOL bEnable);
+   其中，bEnable为激活或禁止标识，当bEnable值为True时该窗口可接收用户输入；
+        bEnable值为False时禁止该窗口接收输入。
+2、MoveWindow函数
+   利用该函数可以移动窗口或改变窗口的大小，函数的原型如下:
+   BOOL MoveWindow(HWND hwnd,
+     int X,
+     int Y,
+     int nWidth,
+     int nHeight,
+        BOOL bReprint);             // 表明窗口移动后是否重画
+   bReprint表明窗口移动后是否重画，如果父窗口的位置或大小改变，子窗口相对于
+   父窗口的位置与大小不变。
+3、SetWindowText函数
+   利用该函数可以设置窗口的标题或文本，函数的原型如下:
+   BOOL SetWindowText(HWND hwnd,LPCTSTR lpszString);
+   其中lpszString为设置的文本内容。
+4、GetWindowText函数
+   利用该函数可以获取指定窗口标题或文本，该函数返回从指定窗口获取的文本字节
+   数，函数的原型如下:
+   int GetWindowText(HWND hwnd,
+       LPSTR lpszString,         // 存放文本字符串的缓冲区
+       int nMax);                // 最大可获取的字符串长度
+   另外，对于对话框按钮控件，应用程序可调用函数SetDlgItemText和GetDlgItemText
+   完成相同操作。
+   SetDlgItemText函数原型为:
+   BOOL SetDlgItemText( HWND hDlg,             // 对话框句柄
+    int ID,
+    LPCTSTR lpszString);   // 设置的文本内容
+   GetDlgItemText函数的原型如下:
+   int GetDlgItemText( HWND hDlg,             // 对话框句柄
+    int ID,
+    LPSTR lpszString,      // 存放文本字符串的缓冲区
+    int nMax);             // 最大可获取的字符串长度
+   该函数返回从指定的控件获取的文本字节数
+5、DestroyWindow函数
+   该函数可以关闭窗口，如果应用程序关闭父窗口，则其中的子窗口同时被关闭，
+   函数的原型如下:
+   BOOL DestroyWindow(HWND hwnd);
+
+
+按钮控件与应用程序之间的消息传递
+
+1、接收按钮控件消息
+   在用户与控件交互时，控件向其父窗口发送WM_COMMAND消息，该消息的wParam参数
+   的低字节中包含控件的标识值(ID)，高字节中包含控件向父窗口发出的通知代码。
+2、向按钮控件发送消息
+   应用程序可调用函数SendMessage向按钮控件发送消息，对其进行操作，其形式如下:
+   SendMessage(hwnd,message,wParam,lParam);
+   message为向控件子窗口发出的消息，常用消息及其说明如下:
+
+按钮消息及其说明
+
+消息名     说明
+BM_GETCHECK    返回单选按钮或复选框的选中状态
+BM_SETCHECK    设置单选按钮或复选框的选中状态
+BM_GETSTATE    返回按钮或复选框的样式
+BM_SETSTYLE    设置按钮或复选框的样式
+BM_SETSTATE    设置按钮或复选框的状态
+BM_GETIMAGE    返回按钮图标或位图句柄
+BM_SETIMAGE    设置按钮图标或位图句柄
+
+SendMessage函数使用字参数确定同种消息中的不同动作，例如:
+设置复选框和单选按钮的选中标志时字参数应取1，其形式为:
+SendMessage(hwnd,BM_SETCHECK,1,0);
+取消选中标志时字参数应取0，其形式为:
+SendMessage(hwnd,BM_SETCHECK,0,0);
+对于对话框按钮控件，应用程序可调用函数SendDlgItemMessage完成相同操作。
+
+滚动条控件
+
+应用程序创建滚动条控件后，即可通过该控件发出的消息得知用户对滚动条
+的操作，并可调用API函数操作指定的滚动条。当用户操作窗口滚动条滚动
+窗口时，滚动条应用程序发出WM_VSCROLL或WM_HSCROLL消息。消息中的字参数
+(wParam)低字节中包含了滚动条动作的标识，常用的标识及其说明如下:
+
+常用滚动条动作标识及其说明
+
+标识
+SB_TOP     滚动到滚动条顶端或最右端
+SB_BOTTOM    滚动到滚动条底端或最左端
+SB_RIGHT    滚动到右边
+SB_LEFT     滚动到左边
+SB_PAGEUP    向上滚动一页
+SB_PAGEDOWN    向下滚动一页
+SB_PAGELEFT    向左滚动一页
+SB_PAGERIGHT    向右滚动一页
+SB_LINEDOWN    向下滚动一行
+SB_LINEUP    向上滚动一行
+SB_LINELEFT    向左滚动一行
+SB_LINERIGHT    向右滚动一行
+SB_THUMBPOSITION   滚动框移动到新位置
+SB_THUMBTRACK    滚动框被拖动
+SB_ENDSCROLL    滚动到最终位置
+
+其中比较特殊的是SB_THUMBPOSITION标识和SB_THUMBTRACK标识，当滚动条发出
+这两条消息时，消息的字参数高字节中包含了滚动条的位置。
+作为子窗口控件的滚动条，其消息发送与按钮等其他空间有所不同。滚动条控件
+并不发出WM_COMMAND消息，而是与窗口滚动条一样，发送WM_VSCROLL,或WM_HSCROLL
+消息。
+两者的区别在于消息的长参数(lParam)所包含的内容不同。滚动条控件消息的
+长参数的高字节中包含控件句柄，而窗口滚动条消息的长参数高字节则为0。
+此外，可应用API函数操作滚动条控件，例如设置滚动块位置等。
+
+常用滚动条操作函数
+1、SetScrollRange函数
+   该函数的功能是设置滚动条的滚动范围，函数原型如下:
+   int SetScrollRange
+   (
+HWND hwnd,           // 窗口句柄
+int nBar,            // 滚动条特性标识
+int nMaxPos,         // 滚动条最大滚动位置
+int nMinPos,         // 滚动条最小滚动位置
+BOOL bRedraw         // 当滚动条改变时，是否重绘标志，非0表示重绘
+   );
+值得提出的是：窗口句柄对应于不同的对象，它对应着响应的窗口句柄，如对于窗口
+滚动条为窗口句柄；对于独立滚动条子窗口为该子窗口句柄；对于对话框控件为对话
+框句柄。
+
+常用滚动条特性标识及其说明
+
+标识     说明
+SB_CTL     表示该滚动条为控件滚动条
+SB_HORZ     表示该滚动条为窗口水平滚动条
+SB_VERT     表示该滚动条为窗口垂直滚动条
+
+滚动条的滚动位置为一组离散值，例如设置滚动条的滚动范围为0~99，则该滚动条
+共有100个可能的位置。
+
+2、SetScrollPos函数
+   利用该函数可以设置滚动块的位置，函数的原型如下:
+   int SetScrollPos
+   (
+HWND hwnd,             // 窗口句柄
+int nBar,              // 滚动条的特性标识，同SetScrollRange函数
+int nPos,              // 滚动块的位置，其取值应在滚动条滚动范围之内
+BOOL bRedraw           // 意义同SetScrollRange函数
+   );
+
+3、GetSystemMetrics函数
+   应用程序常使用GetSystemMetrics函数获取系统提供的滚动条尺寸，其形式有两种:
+   获取系统水平滚动条的高度:GetSystemMetrics(SM_CYHSCROLL)
+   获取系统垂直滚动条的宽度:GetSystemMetrics(SM_CXVSCROLL)
+
+4、GetScrollPos函数
+   利用该函数可以获取滚动块的位置，函数的原型如下:
+   int GetScrollPos
+   (
+HWND hwnd,               // 窗口句柄
+int nBar                 // 滚动条特性标识
+   );
+函数返回当前滚动块的位置。
+
+5、GetScrollRange函数
+   利用该函数可以获取滚动条的滚动范围，函数的原型如下:
+   BOOL GetScrollRange
+   (
+HWND hwnd,               // 窗口句柄
+int nBar,                // 滚动条特性标识
+LPINT lpMinPos,          // 接收最小位置的整形变量的地址
+LPINT lpMaxPos           // 接收最大位置的整形变量的地址
+   );
+
+静态控件消息的发送
+
+一般情况下静态控件不发送消息。但在实际应用中，长需要静态文本能够像超文本
+那样相应用户的输入，向应用程序发送控件消息。这时应用程序需在创建静态控件
+时加入SS_NOTIFY样式。该样式允许静态控件向其父窗口发送WM_COMMAND消息，该
+消息的字参数(wParam)的低字节中包含静态控件的ID，高字节中包含通知码，
+长参数lParam中包含该静态控件的句柄。
+
+静态控件使用的通知码及其说明
+
+通知码     说明
+STN_CLICKED    单击静态控件
+STN_DBLCLK    双击静态控件
+STN_ENABLE    激活静态控件
+STN_DISABLE    禁止静态控件
+
+列表框控件与应用程序之间的消息传递
+
+1、列表框向应用程序发送消息
+   当用户与列表框交互时，列表框向应用程序发出WM_COMMAND消息。
+   该消息字参数(wParam)的高字节为标志列表框动作的消息通知码(如LBN_DBLCLK标识用户双击)；
+   低字节为控件标识值。应用程序中常用的列表框通知码及其说明如下:
+
+通知码     说明
+LBN_SELCHANGE    表明列表框中的用户选择已发生改变
+LBN_DBCLK    双击
+LBN_SELCHANGE    列表框中的选择被取消
+LBN_SETFOCUS    列表框收到输入焦点
+LBN_KILLFOCUS    列表框失去输入焦点
+
+2、应用程序向列表框发送消息
+   应用程序对列表框的操作通过调用函数SendMessage或SendDlgItemMessage向其发送
+   各种消息完成。常用列表框消息及其说明如下:
+
+消息     说明
+LB_ADDFILE    在文件表中加入指定文件
+LB_ADDSTRING    在列表框中加入列表项
+LB_DELETESTRING    在列表框中删除列表项
+LB_DIR     在列表框中列出指定文件
+LB_FINDSTRING    在列表框中查找指定项
+LB_GETCOUNT    获取多选列表框中的项数
+LB_GETCURSEL    获取列表框中当前选中项的索引值
+LB_GETSEL    获取列表框中指定项的选中状态
+LB_GETSELCOUNT    获取多选列表框中选中的项数
+LB_GETTEXT    获取指定项文本
+LB_GETTEXTLEN    获取指定项长高
+LB_GETTOPINDEX    获取列表框中第一项的索引值
+LB_INSERTSTRING    在列表框的指定位置加入一项
+LB_RESETCONTENT    清空列表框
+LB_SETSEL    设置多选列表框中指定项的选中状态
+LB_SETCURSEL    设置单选列表框中指定项的选中状态
+LB_SETTOPINDEX    设置列表框中第一项的索引值
+
+应用程序向列表框发送消息时应注意下列问题
+(1)索引号的使用
+   1 应用程序通过列表框中项的索引值操作指定项，其中第一项的默认值索引号为0，
+     最后一项的索引号为-1.例如，在列表框的第3个位置插入向德语句为：
+     SendMessage(hwndlist,LB_INSERTSTRING,2,(LPARAM)szNewItem);
+   2 应用程序常通过向列表框发送LB_GETCURSEL消息获取当前选中的索引号，形式为:
+     nIndex=SendMessage(hwndlist,LB_GETCURSEL,0,0);
+(2)多选列表框信息发送
+   当应用程序设置列表框的样式为LBS_EXETNDEDSEL和LBS_MULTIPLSEL时，用户可在
+   该列表框中选取多个项。当用户选择列表框中的多个项时，应用程序可通过向列表框
+   发送LB_GETSELCOUNT消息获取选中的项数，其形式为:
+   nCount=SendMessage(hwndlist,LB_GETSELCOUNT,0,0L);
+   其中nCount为返回选中项数。
+   此外，应用程序还可向列表框发送LB_GETSEL消息获取指定项的选中状态，其形式为:
+   nSelect=SendMessage(hwndlist,LB_GETSEL,nIndex,0L);
+   其中nSelect为返回该项的选中状态。若为非0则表明索引号为nIndex的列表项被选中
+(3)发送LB_DIR消息
+   列表框常见的用法是显示一系列文件名、目录或驱动器，这一功能由应用程序向列表框
+   发出LB_DIR消息实现。该消息的字参数(wParam)表示文件属性值，长参数(lParam)
+   表示所列文件的特征。常用的形式为:
+   nFileNum=SendMessage(hwndlist,LB_DIR,FILE_LIST,(LPARAM)"*.exe");
+   其中:
+nFileNum:函数返回列表框中指定文件的数目；
+hwndlist:列表框句柄；
+FILE_LIST:表示所列文件属性值的wParam参数，系统规定的文件属性值及其说明如下:
+   数值     说明
+   4000     列出驱动器名
+   0000     列出普通文件名
+   0001     列出只读文件名
+   0002     列出隐藏文件名
+   0004     列出系统文件名
+   0010     列出上述文件及子目录名
+
+
+1、编辑框向应用程序发送消息
+
+与列表框相似，编辑框通过向其父窗口发送WM_COMMAND消息通知应用程序用户
+的交互信息。该消息字参数(wParam)的低字节为控件标识；高字节为标识列表框
+动作的消息通知码。
+
+编辑框常用通知码及其说明
+
+通知码     说明
+EN_SETFOCUS    编辑框获取输入焦点
+EN_KILLFOCUS    编辑框失去输入焦点
+EN_CHANGE    编辑框的内容发生改变
+EN_UPDATE    编辑框的内容被更新
+EN_MAXTEXT    编辑框中的用户输入已达到允许的最大字节数
+EN_HSCROLL    编辑框中的内容水平滚动
+EN_VSCROLL    编辑框中的内容垂直滚动
+
+2、应用程序向编辑框发送消息
+   应用程序对编辑框的操作通过调用函数SendMessage或SendDlgItemMessage向其
+   发送各种消息完成。
+
+常用编辑框消息及其说明
+
+消息     说明
+EM_GETRECT    获取编辑框矩形的尺寸
+EM_SETRECT    设置编辑框矩形的尺寸
+EM_LINESCROLL    设置滚动条滚动的步长
+EM_SETHANDLE    设置输入内容缓冲区句柄
+EM_GETHANDLE    获取输入内容缓冲区句柄
+EM_LINELENGTH    获取文本行长度
+EM_GETFONT    获取编辑框使用的字体
+EM_GETLINECOUNT    获取多行编辑框的文本行数
+EM_REPLACESEL    替换编辑框中的选中文本
+EM_SETPASSWORDCHAR   设置密码编辑框中的替代字符
+EM_GETPASSWORDCHAR   获取密码编辑框中的替代字符
+EM_SETREADONLY    设置编辑框为只读
+EM_GETSEL    获取编辑框中的选中文本
+EM_SETSEL    设置编辑框中的选中文本
+
+
+1、组合框向应用程序发送消息
+   组合框通过向其发窗口发送WM_COMMAND消息通知应用程序用户的交互信息。
+   该消息字参数(wParam)的低字节为控件标识，高字节为标识组合框动作的消息通知码。
+
+组合框常用通知码及其说明
+
+通知码     说明
+CBN_SELCHANGE    组合框中列表框部分所选中项发生改变
+CBN_DBLCLK    双击
+CBN_SETFOCUS    组合框获得输入焦点
+CBN_KILLFOCUS    组合框失去输入焦点
+CBN_EDITCHANGE    组合框中的编辑框中的文本发生改变
+CBN_EDITUPDATE    组合框中的编辑框将显示修改过的文本
+CBN_DROPDOWN    组合框中的列表框将下拉
+CBN_CLOSEUP    组合框中的列表框将隐藏
+
+
+2、应用程序向组合框发送消息
+   应用程序对组合框的操作通过使用函数SendMessage或SendDlgItemMessage向组合框
+   发送消息进行。对组合框的操作实际上是对组合框中各成员的操作。例如，应用程序
+   向组合框中的列表框发出CB_ADDSTRING消息，可在列表框中加入一项。
+
+常用组合框消息及其说明
+
+消息     说明
+CB_SHOWDROPDOWN    显示下拉列表框
+CB_ADDSTRING    在列表框中加入新项
+CB_DELETESTRING    在列表框中删除新项
+CB_INSERTSTRING    在列表框中插入新项
+CB_FINDSTRING    在列表框中查询列表项
+CB_RESETCONTENT    清空列表框
+CB_DIR     在列表框中显示指定目录及文件
+CB_SETCURSEL    设置列表框中的选中项，该项将在编辑框中显示
+CB_GETCURSEL    获取列表框中的选中项的索引值
+CB_GETCOUNT    获取列表框中的项的数目
+CB_GETLBTEXT    获取列表框中的指定项的文本
+CB_GETLBTEXTLEN    获取列表框中指定项的文本长度
+CB_GETEDITSEL    获取编辑框中的选择
+CB_SETEDITSEL    设置编辑框中的选择

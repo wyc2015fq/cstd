@@ -1,0 +1,31 @@
+各函数说明：
+sample_train.m :算法训练
+sample_test.m  ：算法测试
+compute_error.m：计算误差
+Get_diff_features.m：提取差值特征
+Get_Forest_Model.m：构建森林模型
+getshape.m ：读取样本的形状
+isample_traverse.m：测试样本遍历
+randomshape.m：随机形状初始化
+readimg.m：读取样本数据
+regtree.m：构建树
+resetshape.m：形状初始化
+resizeimg.m： 图片尺寸变换
+Viola_Jones_face_detect.m：V_J人脸检测
+train.mexw32：liblinear
+
+mat说明：
+helen_test_detec_bbox.mat：V_J在helen测试库 检测的人脸框
+lfpw_test_detec_bbox.mat：V_J在lfpw测试库 检测的人脸框
+ibug_test_detec_bbox.mat：V_J在ibug测试库 检测的人脸框
+train_detec_bbox.mat:V_J依次在afw,lfpw,helen训练库 检测的人脸框
+train_model.mat ：训练模型
+
+文件夹说明：
+test文件夹：保存的是三个数据库，经过人脸抠出，经过尺寸缩放后的图片。
+test_detec文件夹：保存的是V_J检测器检测的结果。
+test_figures文件夹：保存的是算法定位的结果。
+train文件夹：保存的是三个数据库，经过人脸抠出，经过尺寸缩放后的图片。
+face_detect文件夹：V_J人脸检测依赖文件
+liblinear-1.94:liblinear
+300-w:未经尺寸，人脸抠出的原图，及pts.

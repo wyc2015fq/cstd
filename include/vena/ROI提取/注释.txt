@@ -1,0 +1,27 @@
+该程序夹是提取静脉采集图像的ROI区域，与之前相比：不再使用matlab内部自带edge函数和bwmorph函数，这两个函数由本实现程序中的edge.m和xihua.m两个函数代替实现。
+单个图片运行，用时0.8s。
+
+ROI.m是主程序，为程序入口
+
+edgecrop.m是边缘裁剪函数
+
+corret_angle.m是角度纠正函数
+
+lvboo.m 是去掉边缘图像中的细小末枝
+
+bianjie.m是图像左右边缘，从而确定ROI宽度
+
+guiyihua.m是将不同图像大小归一化到指定大小，没在ROI.m中引用
+
+roi_height.m是求取手指静脉的高度
+
+radoning.m是为了求直线的倾斜角
+
+right_dis.m是求手指边缘左右宽度，从而去除掉错误边缘
+
+edge.m是边缘检测函数，用来查找手指左右边界
+
+xihua.m是将二值图像细化，zseven.m和zsodd.m为细化内部调用
+
+
+程序中加入计时，可直接看出程序运行时间。

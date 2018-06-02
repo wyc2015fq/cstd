@@ -1,0 +1,162 @@
+        实现opengl 中gluLookAt函数
+
+opengl Distilled 中介绍了view 坐标转换的原理，先列一下原著中的介绍：
+The view transformation transforms vertices into eye coordinates and is the inverse of atransformation to place and orient the viewer in world coordinates. The view transformation hastwo components: a 4 x 4 orientation matrix, O, and a 4 x 4 translation
+ matrix, T. The viewtransformation matrix, V, is the concatenation of the two 4 x 4 matrices:V = OTThe orientation matrix O is an orthonormal basis derived from the view direction and upvectors. Given an [ x y z ] view direction d and an [ x y z ] up vector
+ u, compute their crossproduct c as:c = d x uDiscard u and compute the actual up vector u' as:u' = c x dNormalize d, c, and u' to unit length, and create the orientation matrix O as follows:
+The translation matrix T is simply the inverse translation to the eye location. If you alreadyhave the eye location stored in your application, you can use it directly in a call to glTranslated(), as shown in the code below. If you don't have the eye location,
+ scale the view directionvector by the distance to the eye, negate it, and add it to the center location. The result is the
+eye location.So if an application creates a double-precision orientation matrix called orientMatrix using thesteps above and has the eye location stored in a double-precision [ x y z ] array called eye, thecode to create the view transformation isglMatrixMode(
+ GL_MODELVIEW );glLoadMatrixd( orientMatrix );glTranslated( -eye[0], -eye[1], -eye[2] );In fact, gluLookAt() does essentially the same thing internally. It computes the view directionby subtracting eye from center and then follows the above method to create
+ the orientationmatrix. For this reason, if your application already stores the center location, view direction,and view distance, gluLookAt() is slightly less efficient than creating the view transformation inyour application code.
+下面我大体翻译一下：
+视图坐标转换实际上就是把定点的坐标转换进眼睛（摄像机）坐标系中，这个操作与将眼睛转换到相应位置并设定朝向的操作相反。
+来完成视图变换操作的矩阵V由两部分矩阵连乘形成的，一部分是朝向矩阵O，一部分是平移矩阵T,所以我们有：
+V= OT；
+朝向矩阵是由视线朝向D和眼睛的上方向U决定的，这两个方向向量叉乘得到向量C，向量C和向量D叉乘得到U‘，C，U，D（对应x,y,z），形成了眼睛坐标系的三个方向，它们属于右手坐标系，
+相关的公式如下：
+c = d x u，
+u' = c x d，
+将得到的三个变量相应的单位化，分别用这三个变量传到下面的矩阵中，就得到了转换需要的朝向矩阵O：
+，注意向量d的各个分量都被取了原值的负值。
+而平移矩阵，则是将眼睛移动操作的反操作，如果你有眼睛的位置，直接将眼睛的位置全取原值负值就OK了，否则可以用Center位置加一个向量就得到眼睛的位置了。
+有了上面的处理后，后面的处理就很简单了，将矩阵加载的opengl中，根据眼睛的位置平移就OK了。代码如下：
+glMatrixMode( GL_MODELVIEW );glLoadMatrixd( orientMatrix );glTranslated( -eye[0], -eye[1], -eye[2] );
+实际上glLookAt做了一样的事情。
+下面上我的代码：
+[cpp] view plaincopy
+class FVector3  
+{  
+public:  
+    union  
+    {  
+        struct  
+        {  
+            GLdouble X, Y, Z;  
+        };  
+        struct  
+        {  
+            GLdouble x, y, z;  
+        };  
+        GLdouble v[3];  
+    };  
+public:  
+    FVector3(){}  
+    FVector3(GLdouble x1,GLdouble y1,GLdouble z1):x(x1),y(y1),z(z1)  
+    {}  
+    FVector3(const FVector3& InV);  
+    FVector3 operator^(const FVector3& V) const;  
+    FVector3& Normalize();  
+};  
+inline  
+FVector3::FVector3(const FVector3& InV)  
+{  
+    x = InV.x;  
+    y = InV.y;  
+    z = InV.z;  
+}  
+inline GLdouble appInvSqrt(GLdouble f) { return 1.f/sqrt(f); }  
+inline FVector3&  
+FVector3::Normalize()  
+{  
+    GLdouble SquareSum = X*X + Y*Y + Z*Z;  
+    if( SquareSum < 0.000001 )  
+        return *this;  
+    GLdouble Scale = appInvSqrt(SquareSum);  
+    X *= Scale;  
+    Y *= Scale;  
+    Z *= Scale;  
+    return *this;  
+}  
+inline FVector3   
+FVector3::operator^( const FVector3& V ) const  
+{  
+    return FVector3(Y * V.Z - Z * V.Y, Z * V.X - X * V.Z, X * V.Y - Y * V.X );  
+}  
+上面的是工具类，下面是实现函数：
+[cpp] view plaincopy
+static void suLookAt(GLdouble eyeX,GLdouble eyeY,GLdouble eyeZ,GLdouble centerX,GLdouble centerY,GLdouble centerZ,GLdouble upX,GLdouble upY,GLdouble upZ)  
+{  
+    GLdouble directMat[16];  
+    for (int i = 0 ;i<16;i++)  
+    {  
+        directMat[i] = 0;  
+    }  
+    directMat[15]= 1;  
+    FVector3 fvDirect(centerX-eyeX,centerY-eyeY,centerZ-eyeZ);  
+    fvDirect.Normalize();  
+    FVector3 fvUpD(upX,upY,upZ);  
+    fvUpD.Normalize();  
+    FVector3 fvC = fvDirect^fvUpD;  
+    fvC.Normalize();  
+    FVector3 fvUp = fvC^fvDirect;  
+    fvUp.Normalize();  
+    fvDirect.x = -fvDirect.x;  
+    fvDirect.y = -fvDirect.y;  
+    fvDirect.z = -fvDirect.z;  
+    directMat[0] = fvC.x;  
+    directMat[4] = fvC.y;  
+    directMat[8] = fvC.z;  
+    directMat[1] = fvUp.x;  
+    directMat[5] = fvUp.y;  
+    directMat[9] = fvUp.z;  
+    directMat[2] = fvDirect.x;  
+    directMat[6] = fvDirect.y;  
+    directMat[10] = fvDirect.z;  
+    glLoadMatrixd(directMat);  
+    glTranslated(-eyeX,-eyeY,-eyeZ);  
+}  
+调用方法跟gluLookAt一样
+                                                                                来自：南氏珍藏 > 
+                                                                                                            转藏到我的图书馆
+                                                                                                    献花(0)
+                                                                                                        +1
+                                                                                                            分享到微信
+                                                                    类似文章
+                                                                更多
+                                                                            如何投影一个纹理 - GameRes.com
+                                                                            【转】matlab unique函数
+                                                                            矩阵类模板
+                                                                            GLUT基础
+                                                                            [OpenGL ES 03]3D变换：模型，视图，投影....
+                                                                            独立成分分析_发哥搞网络
+                                                                            告诉你一个最适用的方法
+                                                                            [转载]R语言矩阵运算
+                                                                    热门推广
+猜你喜欢
+凤凰传奇两人为何成不了夫妻
+小学数学必考经典应用题汇总
+不说权术,不说潜规则,说说职场上的...
+适合女生唱的各种难度的情歌
+太上感应篇图文详解
+玛雅末日真相
+经典名曲精选22首
+白话《二十四史》-阅读及全文检索
+200种美味豆腐的做法
+强肾秘法—还阳卧
+                                                    发表评论：
+最新文章
+[转] Excel这10招，让你称霸财会职场...
+[转] 在线工具很实用什么都可查太神...
+[转] 500强面试问题集锦
+[转] 风水秘笈
+[转] 终生受用的神秘偏方
+[转] 太实用了，快转！全都是偏方 
+更多
+            热门文章
+                        贫富差距是中国的绝症，中国根本问题5...
+                        微风轻澜，静水深流；怀素而静，积幽...
+                        有些事不能说，也不能想，却又不能忘?...
+                        弘一法师 | 长亭外，古道边，芳草碧连...
+                        如何提高你说话的逻辑性？
+                        111.住宅风水全套图解（很有用）
+                        电影【应招女友】美国>剧情
+                        武术百科全书（113册）
+                        禁播32年的纪录片《中国》（附4小时内...
+                        父母之恩 - 欠父母親的，一輩子都還不...
+                        【悦读】这一年我30岁，孩子3岁！（看...
+                        加那么多班，是你自己害的
+            更多>>
+                                    关闭
+                                    关闭
+

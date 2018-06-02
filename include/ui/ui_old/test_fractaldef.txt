@@ -1,0 +1,12 @@
+
+TEST_FRACTALDEF(koch, Koch曲线)
+TEST_FRACTALDEF(cantor, cantor三分集)
+TEST_FRACTALDEF(arboresent, Arboresent肺)
+TEST_FRACTALDEF(sierpinski, Sierpinski三角形)
+TEST_FRACTALDEF(sierpinski_sier, Sierpinski地毯)
+TEST_FRACTALDEF(perspective, Perspective)
+TEST_FRACTALDEF(bbbb, 5阶的贝塞尔曲线)
+TEST_FRACTALDEF(leaf, 正叶线)
+TEST_FRACTALDEF(rose, 蝴蝶结)
+TEST_FRACTALDEF(couch, couch曲线)
+

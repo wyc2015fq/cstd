@@ -1,0 +1,31 @@
+
+–ŒÃ¨—ß-≈Ú’Õ-C¥˙¬Î
+void MorhpolotyDilate_ChenLee(unsigned char* pBinImg, int imgW, int imgH, Tpoint* mask, int maskLen)  
+{  
+    unsigned char* pTempImg = new unsigned char[imgW*imgH];  
+    memcpy(pTempImg, pBinImg, imgW*imgH*sizeof(unsigned char));  
+  
+    Tpoint p;  
+  
+    for (int i=0; i<imgH; i++)  
+    {  
+        for (int j=0; j<imgW; j++)  
+        {  
+            if (pTempImg[i*imgW+j] > 10)  
+            {  
+                for (int k=0; k<maskLen; k++)  
+                {  
+                    p.y = i + mask[k].y;  
+                    p.x = j + mask[k].x;  
+  
+                    if (p.x>=0 && p.x<imgW && p.y>=0 && p.y<imgH)  
+                    {  
+                        pBinImg[p.y*imgW+p.x] = 255;  
+                    }  
+                }  
+            }  
+        }  
+    }    
+  
+    delete[] pTempImg;  
+}  

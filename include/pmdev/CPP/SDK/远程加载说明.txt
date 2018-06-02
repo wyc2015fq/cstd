@@ -1,0 +1,25 @@
+远程加载分为两部分：
+
+1.设备需要远程加载用户资料时，将向连接的管理端发送命令请求。请求通过CPM_RegOperResultNotifyCB注册的操作回调函数给出。
+  回调函数参数如下：
+  cszDevAddr: 设备IP
+  eType:      DEV_USER_RT_OPER 
+  pvContent:  为DEV_USER_REAL_LOAD类型的结构体，C++下可做如下类型转换DEV_USER_REAL_LOAD& load_mode = *((DEV_USER_REAL_LOAD*)pvContent);
+  其他参数忽略
+  
+  管理端接收到该数据后，解析load_mode来确定设备需要加载的具体需求。
+  typedef struct {
+	int     m_LoadFlag;  //DL_DEV_PIC|DL_DEV_USER_FEAT=需要加载注册照片和人脸特征
+	int	m_ReqSource; //请求来源
+	BOOL	m_bApeendID; //TRUE=卡号, FALSE=工号
+	DEV_CID m_ID;	     //加载ID
+  }DEV_USER_REAL_LOAD;       //实时用户加载
+   
+  DEV_USER_REAL_LOAD::m_LoadFlag  该成员表示要求远程加载的用户，是否需要加载注册照或者人脸特征
+  DEV_USER_REAL_LOAD::m_ReqSource 表示是由那一个前端发起远程加载 ，一拖二的情况下可区分请求来源。这个管理端无须解析。
+  DEV_USER_REAL_LOAD::m_bApeendID 指示触发设备远程加载的原因，是用户刷卡还是用户通过键盘输入ID。
+  DEV_USER_REAL_LOAD::m_ID        m_bApeendID = true 为用户卡号，false 为用户编号ID
+
+2. 管理端解析load_mode，根据DEV_USER_REAL_LOAD::m_ID和EV_USER_REAL_LOAD::m_LoadFlag，从数据库中加载用户资料，封装为DEV_USER
+   通过CPM_ULRealTimeUser(cszDevAddr, user, load_mode)回传给设备。切记load_mode要一并回传。
+   具体可以参考C++demo的DevRealLoadUser函数实现。

@@ -1,0 +1,1009 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Chinese (P.R.C.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\Eagleeye2_Viewer.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#include ""afxprint.rc""       // printing/print preview resources\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SELECTFILE_PREVIEW DIALOGEX 0, 0, 222, 134
+STYLE DS_MODALFRAME | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
+FONT 10, "System", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "",1119,7,7,91,120,NOT WS_VISIBLE
+    LTEXT           "",IDS_PREVIEW,118,7,97,120,0,WS_EX_CLIENTEDGE
+END
+
+IDD_TARGETIPADDRESS DIALOG DISCARDABLE  0, 0, 187, 68
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "IP Address of Target Camera"
+FONT 10, "System"
+BEGIN
+    DEFPUSHBUTTON   "SET",IDOK,7,45,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,130,46,50,14
+    LTEXT           "Target IP:",IDC_STATIC,25,20,32,8
+    CONTROL         "IPAddress1",IDC_TARGETIPADDRESS,"SysIPAddress32",
+                    WS_TABSTOP,62,18,100,12
+    GROUPBOX        "",IDC_STATIC,7,7,173,33
+END
+
+IDD_NEWIPSET DIALOG DISCARDABLE  0, 0, 187, 68
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "IP Address Config"
+FONT 10, "System"
+BEGIN
+    DEFPUSHBUTTON   "Apply",IDOK,7,47,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,130,47,50,14
+    LTEXT           "New IP Address:",IDC_STATIC,10,18,54,8
+    CONTROL         "IPAddress1",IDC_NEWIPADDRESS,"SysIPAddress32",
+                    WS_TABSTOP,76,15,97,14
+    GROUPBOX        "",IDC_STATIC,7,7,173,31
+END
+
+IDD_AFEGAINCONFIGDLG DIALOG DISCARDABLE  0, 0, 118, 56
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "CCD Signal Gain Config"
+FONT 10, "System"
+BEGIN
+    DEFPUSHBUTTON   "Apply",IDOK,7,35,40,14
+    PUSHBUTTON      "Cancel",IDCANCEL,71,35,40,14
+    GROUPBOX        "CCD Signal PGA Config",IDC_STATIC,7,0,104,28,BS_CENTER
+    LTEXT           "Value:",IDC_STATIC,16,13,21,8
+    EDITTEXT        IDC_AFEVGAGAIN,39,10,40,14,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           "(DB)",IDC_STATIC,81,12,15,8
+END
+
+IDD_WHITEBALANCEDLG DIALOG DISCARDABLE  0, 0, 104, 73
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "White Balance Options"
+FONT 10, "System"
+BEGIN
+    DEFPUSHBUTTON   "Apply",IDOK,7,52,40,14
+    PUSHBUTTON      "Cancel",IDCANCEL,57,52,40,14
+    CONTROL         "Daylight",IDC_WBDAYLIGHT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,10,12,40,10
+    CONTROL         "Fluorescence",IDC_WBFLUORESCENCE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,24,55,10
+    CONTROL         "Without WhiteBalance",IDC_ORGDATA,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,36,87,10
+    GROUPBOX        "",IDC_STATIC,7,7,90,42
+END
+
+IDD_GIODLG DIALOG DISCARDABLE  0, 0, 130, 211
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "General IO Config"
+FONT 10, "System"
+BEGIN
+    DEFPUSHBUTTON   "Apply",IDOK,7,190,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,73,190,50,14
+    LTEXT           "Port1:",IDC_STATIC,10,18,20,8
+    CONTROL         "Input",IDC_PORT1IN,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,35,18,27,10
+    CONTROL         "Output",IDC_PORT1OUT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,63,18,34,10
+    EDITTEXT        IDC_PORT1OUTVALUE,100,17,19,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    GROUPBOX        "Flash Lamp Synchronization",IDC_STATIC,7,159,116,27,
+                    BS_CENTER
+    LTEXT           "Port2:",IDC_STATIC,10,32,20,8
+    CONTROL         "Input",IDC_PORT2IN,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,35,32,27,10
+    CONTROL         "Output",IDC_PORT2OUT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,63,32,34,10
+    EDITTEXT        IDC_PORT2OUTVALUE,100,31,19,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    LTEXT           "Port3:",IDC_STATIC,10,46,20,8
+    CONTROL         "Input",IDC_PORT3IN,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,35,46,27,10
+    CONTROL         "Output",IDC_PORT3OUT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,63,46,34,10
+    EDITTEXT        IDC_PORT3OUTVALUE,100,45,19,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    LTEXT           "Port4:",IDC_STATIC,10,60,20,8
+    CONTROL         "Input",IDC_PORT4IN,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,35,60,27,10
+    CONTROL         "Output",IDC_PORT4OUT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,63,60,34,10
+    EDITTEXT        IDC_PORT4OUTVALUE,100,59,19,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    LTEXT           "Port5:",IDC_STATIC,10,74,20,8
+    CONTROL         "Input",IDC_PORT5IN,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,35,74,27,10
+    CONTROL         "Output",IDC_PORT5OUT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,63,74,34,10
+    EDITTEXT        IDC_PORT5OUTVALUE,100,73,19,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    LTEXT           "Port6:",IDC_STATIC,10,88,20,8
+    CONTROL         "Input",IDC_PORT6IN,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,35,88,27,10
+    CONTROL         "Output",IDC_PORT6OUT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,63,88,34,10
+    EDITTEXT        IDC_PORT6OUTVALUE,100,87,19,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    LTEXT           "Port7:",IDC_STATIC,10,102,20,8
+    CONTROL         "Input",IDC_PORT7IN,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,35,102,27,10
+    CONTROL         "Output",IDC_PORT7OUT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,63,102,34,10
+    EDITTEXT        IDC_PORT7OUTVALUE,100,101,19,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    LTEXT           "Port8:",IDC_STATIC,10,116,20,8
+    CONTROL         "Input",IDC_PORT8IN,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,35,116,27,10
+    CONTROL         "Output",IDC_PORT8OUT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,63,116,34,10
+    EDITTEXT        IDC_PORT8OUTVALUE,100,115,19,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    LTEXT           "Port9:",IDC_STATIC,10,130,20,8
+    CONTROL         "Input",IDC_PORT9IN,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,35,130,27,10
+    CONTROL         "Output",IDC_PORT9OUT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,63,130,34,10
+    EDITTEXT        IDC_PORT9OUTVALUE,100,129,19,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    LTEXT           "Port10:",IDC_STATIC,10,144,24,8
+    CONTROL         "Input",IDC_PORT10IN,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,35,144,27,10
+    CONTROL         "Output",IDC_PORT10OUT,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,63,144,34,10
+    GROUPBOX        "Programable IO Config",IDC_STATIC,7,7,116,149,BS_CENTER
+    EDITTEXT        IDC_PORT10OUTVALUE,100,143,19,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    CONTROL         "Disable",IDC_FLASHSYNDISABLE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,23,171,41,10
+    CONTROL         "Enable",IDC_FLASHSYNENABLE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,68,171,39,10
+END
+
+IDD_TRGMODECONFIG DIALOG DISCARDABLE  0, 0, 234, 263
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Trigger Mode Config"
+FONT 11, "宋体"
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,7,242,38,14
+    PUSHBUTTON      "取消",IDCANCEL,189,242,38,14
+    LTEXT           "快门:",IDC_STATIC,12,111,21,8
+    EDITTEXT        IDC_TRGSHUTTERTIME,33,110,29,12,ES_AUTOHSCROLL
+    LTEXT           "uS",IDC_STATIC,64,111,10,8
+    GROUPBOX        "抓拍信息",IDC_STATIC,7,7,220,71
+    LTEXT           "抓拍地点:",IDC_STATIC,12,20,35,8
+    EDITTEXT        IDC_LOCATION,52,18,166,12,ES_AUTOHSCROLL
+    CONTROL         "单线圈触发",IDC_SINGALCOIN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,12,49,54,10
+    CONTROL         "双线圈触发(测速)",IDC_DOUBLECOIN,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,12,62,77,10
+    LTEXT           "线圈间距:",IDC_STATIC,89,62,35,10
+    EDITTEXT        IDC_INTERVAL,124,61,25,12,ES_AUTOHSCROLL
+    LTEXT           "米",IDC_STATIC,152,62,9,10
+    LTEXT           "车 道 号:",IDC_STATIC,12,34,36,8
+    EDITTEXT        IDC_WAYNUM,52,33,21,12,ES_AUTOHSCROLL
+    GROUPBOX        "相机参数设置",IDC_STATIC,7,83,220,151
+    CONTROL         "快门、增益手动控制",IDC_SHUTPGAMANUALCTRL,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,12,96,84,10
+    LTEXT           "增益:",IDC_STATIC,93,111,20,8
+    EDITTEXT        IDC_TRGPGA,114,110,25,12,ES_AUTOHSCROLL
+    LTEXT           "dB",IDC_STATIC,141,111,9,8
+    CONTROL         "快门、增益自动控制",IDC_SHUTPGAAUTOCTRL,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,12,126,84,10
+    LTEXT           "快门上限:",IDC_STATIC,12,139,35,8
+    EDITTEXT        IDC_SHUTLIMIT,47,138,29,12,ES_AUTOHSCROLL
+    LTEXT           "uS",IDC_STATIC,78,139,10,8
+    LTEXT           "增益上限:",IDC_STATIC,93,139,35,8
+    EDITTEXT        IDC_PGALIMIT,129,138,25,12,ES_AUTOHSCROLL
+    LTEXT           "dB",IDC_STATIC,156,139,9,8
+    LTEXT           "测光区域定义:",IDC_STATIC,12,169,50,8
+    LTEXT           "起始行:",IDC_STATIC,12,184,28,8
+    EDITTEXT        IDC_SROW,40,183,21,12,ES_AUTOHSCROLL
+    LTEXT           "起始列:",IDC_STATIC,64,184,28,8
+    EDITTEXT        IDC_SCOL,92,183,21,12,ES_AUTOHSCROLL
+    LTEXT           "终止行:",IDC_STATIC,117,184,28,8
+    EDITTEXT        IDC_EROW,145,183,21,12,ES_AUTOHSCROLL
+    LTEXT           "终止列:",IDC_STATIC,169,184,28,8
+    EDITTEXT        IDC_ECOL,197,183,21,12,ES_AUTOHSCROLL
+    LTEXT           "测光区域期望平均亮度:",IDC_STATIC,12,200,80,8
+    EDITTEXT        IDC_EYMEAN,92,199,21,12,ES_AUTOHSCROLL
+    LTEXT           "自测光触发周期:",IDC_STATIC,87,216,58,8
+    EDITTEXT        IDC_ADLIP,145,215,21,12,ES_AUTOHSCROLL
+    LTEXT           "秒",IDC_STATIC,170,217,9,8
+    DEFPUSHBUTTON   "保存参数",IDSAVEPARAM,98,242,38,14
+    LTEXT           "当前快门:",IDC_STATIC,12,155,35,8
+    EDITTEXT        IDC_CURTRGSHUTTERTIME,47,154,29,12,ES_AUTOHSCROLL
+    LTEXT           "uS",IDC_STATIC,78,155,10,8
+    LTEXT           "当前增益:",IDC_STATIC,93,155,35,8
+    EDITTEXT        IDC_CURTRGPGA,129,154,25,12,ES_AUTOHSCROLL
+    LTEXT           "dB",IDC_STATIC,156,155,9,8
+    CONTROL         "使能非触发自测光",IDC_ENABLEADLI,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,12,215,76,11
+END
+
+IDD_MJPEGCONFIG DIALOG DISCARDABLE  0, 0, 157, 157
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Fcon Mode Config"
+FONT 10, "System"
+BEGIN
+    DEFPUSHBUTTON   "Apply",IDOK,7,136,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,100,136,50,14
+    GROUPBOX        "Manual Mode Config",IDC_STATIC,7,7,143,42,BS_CENTER
+    CONTROL         "Manual Mode",IDC_MANUAL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,14,17,60,10
+    CONTROL         "Auto Mode",IDC_AUTO,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,14,64,50,10
+    LTEXT           "Shutter Time:",IDC_STATIC,14,31,44,8
+    EDITTEXT        IDC_MJPEGSHUTTERTIME,60,29,33,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    LTEXT           "uS",IDC_STATIC,97,31,10,8
+    GROUPBOX        "Auto Mode Config",IDC_STATIC,7,52,143,78,BS_CENTER
+    LTEXT           "Shutter Time Upper Limit:",IDC_STATIC,14,80,84,8
+    EDITTEXT        IDC_AUTOSHUTTERUPLIMIT,99,78,33,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    LTEXT           "PGA Upper Limit:",IDC_STATIC,14,96,56,8
+    EDITTEXT        IDC_PGAUPLIMIT,73,95,33,12,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           "uS",IDC_STATIC,134,80,10,8
+    LTEXT           "DB",IDC_STATIC,109,97,11,8
+    LTEXT           "Mean Brightness Threshold:",IDC_STATIC,14,112,93,8
+    EDITTEXT        IDC_MEANBRIGHTNESS,110,111,33,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+END
+
+IDD_HFRMODECONFIG DIALOG DISCARDABLE  0, 0, 157, 162
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "High Frame Rate Mode Config"
+FONT 10, "System"
+BEGIN
+    DEFPUSHBUTTON   "Apply",IDOK,7,143,37,14
+    PUSHBUTTON      "Cancel",IDCANCEL,113,143,37,14
+    LTEXT           "Shutter Time:",IDC_STATIC,18,32,44,8
+    EDITTEXT        IDC_HFRSHUTTERTIME,64,30,30,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    LTEXT           "uS",IDC_STATIC,96,32,10,8
+    GROUPBOX        "Manual Mode Config",IDC_STATIC,7,7,144,41,BS_CENTER
+    CONTROL         "Manual Mode",IDC_MANUAL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,18,17,60,10
+    GROUPBOX        "Auto Mode Config",IDC_STATIC,7,51,144,83,BS_CENTER
+    CONTROL         "Auto Mode",IDC_AUTO,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,18,63,50,10
+    LTEXT           "Shutter Time Upper Limit:",IDC_STATIC,18,80,84,8
+    EDITTEXT        IDC_AUTOSHUTTERUPLIMIT,102,78,33,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+    LTEXT           "PGA Upper Limit:",IDC_STATIC,18,96,56,8
+    EDITTEXT        IDC_PGAUPLIMIT,76,95,33,12,ES_CENTER | ES_AUTOHSCROLL
+    LTEXT           "uS",IDC_STATIC,136,80,10,8
+    LTEXT           "DB",IDC_STATIC,112,97,11,8
+    LTEXT           "Mean Brightness Threshold:",IDC_STATIC,18,112,93,8
+    EDITTEXT        IDC_MEANBRIGHTNESS,111,111,33,12,ES_CENTER | 
+                    ES_AUTOHSCROLL
+END
+
+IDD_RTCDLG DIALOG DISCARDABLE  0, 0, 243, 91
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "RTC Config"
+FONT 10, "System"
+BEGIN
+    DEFPUSHBUTTON   "Apply",IDOK,14,70,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,179,70,50,14
+    GROUPBOX        "Time of RTC Options",IDC_STATIC,7,7,229,57,BS_CENTER
+    LTEXT           "Year:",IDC_STATIC,14,23,19,8
+    LTEXT           "Month:",IDC_STATIC,62,23,23,8
+    LTEXT           "Day:",IDC_STATIC,114,23,16,8
+    LTEXT           "Day of Week:",IDC_STATIC,159,24,45,8
+    LTEXT           "Hour:",IDC_STATIC,43,42,19,8
+    EDITTEXT        IDC_RTCYEAR,34,22,25,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RTCMONTH,86,22,25,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RTCDAY,131,22,25,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RTCWEEK,205,22,25,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_RTCHOUR,63,40,25,12,ES_AUTOHSCROLL
+    LTEXT           "Minute:",IDC_STATIC,92,42,25,8
+    EDITTEXT        IDC_RTCMINUTE,118,40,25,12,ES_AUTOHSCROLL
+    LTEXT           "Second:",IDC_STATIC,146,42,27,8
+    EDITTEXT        IDC_RTCSECOND,174,40,25,12,ES_AUTOHSCROLL
+END
+
+IDD_WDTDLG DIALOG DISCARDABLE  0, 0, 115, 79
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Watch Dog Timer Config"
+FONT 10, "System"
+BEGIN
+    DEFPUSHBUTTON   "Apply",IDOK,14,58,36,14
+    PUSHBUTTON      "Cancel",IDCANCEL,65,58,36,14
+    CONTROL         "Enable Watch Dog",IDC_WDTENABLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,16,14,76,10
+    LTEXT           "WD Countor:",IDC_STATIC,16,32,42,8
+    EDITTEXT        IDC_WDT,61,30,28,12,ES_CENTER | ES_AUTOHSCROLL
+    GROUPBOX        "",IDC_STATIC,7,7,101,44
+    LTEXT           "S",IDC_STATIC,93,32,8,8
+END
+
+IDD_MACCFGDLG DIALOG DISCARDABLE  0, 0, 185, 67
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "MAC Address Config"
+FONT 10, "System"
+BEGIN
+    DEFPUSHBUTTON   "Apply",IDOK,7,46,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,128,46,50,14
+    LTEXT           "New MAC Address:",IDC_STATIC,11,17,62,8
+    EDITTEXT        IDC_MACADD1,75,16,13,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    EDITTEXT        IDC_MACADD2,92,16,13,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    EDITTEXT        IDC_MACADD3,109,16,13,12,ES_CENTER | ES_AUTOHSCROLL | 
+                    ES_READONLY
+    EDITTEXT        IDC_MACADD4,126,16,13,12,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_MACADD5,143,16,13,12,ES_CENTER | ES_AUTOHSCROLL
+    EDITTEXT        IDC_MACADD6,160,16,13,12,ES_CENTER | ES_AUTOHSCROLL
+    GROUPBOX        "",IDC_STATIC,7,7,171,28
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,89,22,2,1
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,157,22,2,1
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,123,22,2,1
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,140,22,2,1
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,106,22,2,1
+END
+
+IDD_HFRBINMODECONFIG DIALOG DISCARDABLE  0, 0, 168, 153
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "High Frame Rate BIN Mode Config"
+FONT 10, "System"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,7,132,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,111,132,50,14
+    GROUPBOX        "Manual Mode Config",IDC_STATIC,7,7,154,41,BS_CENTER
+    CONTROL         "Manual Mode",IDC_MANUAL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,24,19,60,10
+    LTEXT           "Shutter Time:",IDC_STATIC,24,33,44,8
+    EDITTEXT        IDC_HFRBINSHUTTERTIME,70,31,30,12,ES_AUTOHSCROLL
+    LTEXT           "uS",IDC_STATIC,103,33,10,8
+    GROUPBOX        "Auto Mode Config",IDC_STATIC,7,50,154,76,BS_CENTER
+    CONTROL         "Auto Mode",IDC_AUTO,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,24,65,50,10
+    LTEXT           "Shutter Time Upper Limit:",IDC_STATIC,24,81,84,8
+    EDITTEXT        IDC_AUTOSHUTTERUPLIMIT,110,79,30,12,ES_AUTOHSCROLL
+    LTEXT           "uS",IDC_STATIC,143,81,10,8
+    LTEXT           "PGA Upper Limit:",IDC_STATIC,24,95,56,8
+    EDITTEXT        IDC_PGAUPLIMIT,82,93,30,12,ES_AUTOHSCROLL
+    LTEXT           "uS",IDC_STATIC,115,95,10,8
+    LTEXT           "Mean Brightness Threshold:",IDC_STATIC,24,109,93,8
+    EDITTEXT        IDC_MEANBRIGHTNESS,118,108,30,12,ES_AUTOHSCROLL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_SELECTFILE_PREVIEW, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 215
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 127
+    END
+
+    IDD_TARGETIPADDRESS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 180
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 61
+    END
+
+    IDD_NEWIPSET, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 180
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 61
+    END
+
+    IDD_AFEGAINCONFIGDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 111
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 49
+    END
+
+    IDD_WHITEBALANCEDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 97
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 66
+    END
+
+    IDD_GIODLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 123
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 204
+    END
+
+    IDD_TRGMODECONFIG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 227
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 256
+    END
+
+    IDD_MJPEGCONFIG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 150
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 150
+    END
+
+    IDD_HFRMODECONFIG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 150
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 155
+    END
+
+    IDD_RTCDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 236
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 84
+    END
+
+    IDD_WDTDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 108
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 72
+    END
+
+    IDD_MACCFGDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 60
+    END
+
+    IDD_HFRBINMODECONFIG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 161
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 146
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_TOOLBAR_DISABLE     BITMAP  DISCARDABLE     "res\\Toolbar_Disable_new.bmp"
+IDB_TOOLBAR_ENABLE      BITMAP  DISCARDABLE     "res\\Toolbar_Enable_new.bmp"
+#endif    // Chinese (P.R.C.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 260, 102
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About Eagleeye2_Viewer"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Eagleeye2_RMVA210SC_Viewer Version 1.1 ( 2008.07.06 ) ",
+                    IDC_STATIC,23,18,214,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2006",IDC_STATIC,90,31,77,8
+    DEFPUSHBUTTON   "Exit",IDOK,104,72,50,14,WS_GROUP
+    LTEXT           "Shanghai Rui Shi Machine Vision Technology  Co., Ltd.",
+                    IDC_STATIC,22,44,213,8
+    LTEXT           "www.machinevision.cn",IDC_STATIC,88,57,81,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 253
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 95
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP  MOVEABLE PURE   "res\\Toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\Eagleeye2_Viewer.ico"
+IDR_EAGLEETYPE          ICON    DISCARDABLE     "res\\Eagleeye2_ViewerDoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR DISCARDABLE  60, 16
+BEGIN
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE_AS
+    SEPARATOR
+    BUTTON      ID_CONFIG_TARGETIP
+    SEPARATOR
+    BUTTON      ID_OMC_TRIGGER
+    BUTTON      ID_TRGMODE_CONFIG
+    BUTTON      ID_OPE_GRAB
+    SEPARATOR
+    BUTTON      ID_OMC_MJPEG
+    BUTTON      ID_MJPEGMODE_CONFIG
+    SEPARATOR
+    BUTTON      ID_OMC_HFR
+    BUTTON      ID_HFRMODE_CONFIG
+    SEPARATOR
+    BUTTON      ID_OMC_HFRB
+    BUTTON      ID_HFRBINMODE_CONFIG
+    SEPARATOR
+    BUTTON      ID_APP_ABOUT
+    SEPARATOR
+    BUTTON      1364
+    BUTTON      5469
+    BUTTON      1789
+    BUTTON      2687
+    BUTTON      6345
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+    END
+    POPUP "&Config"
+    BEGIN
+        MENUITEM "Targe IP Address...",         ID_CONFIG_TARGETIP
+        MENUITEM "IP Address Config...",        ID_CONFIG_NEWIP
+        MENUITEM "MAC Address Config...",       ID_CONFIG_NEWMAC
+        MENUITEM "CCD Signal Gain Config...",   ID_CONFIG_AFEGAINCTRL
+        MENUITEM "White Balance Options...",    ID_CONFIG_WHITEBALANCE
+        MENUITEM "General IO Control...",       ID_CONFIG_GIOCONFIG
+        MENUITEM "RTC Config...",               ID_CONFIG_RTCCONFIG
+        MENUITEM "Watch Dog Timer Config...",   ID_CONFIG_WDTCONFIG
+        MENUITEM SEPARATOR
+        POPUP "Run Mode Config"
+        BEGIN
+            MENUITEM "Trigger Mode",                ID_OMC_TRIGGER
+            MENUITEM "Trigger Mode Config...",      ID_TRGMODE_CONFIG
+            MENUITEM SEPARATOR
+            MENUITEM "Fcon Mode",                   ID_OMC_MJPEG
+            MENUITEM "Fcon Mode Config...",         ID_MJPEGMODE_CONFIG
+            MENUITEM SEPARATOR
+            MENUITEM "High Frame Rate Mode",        ID_OMC_HFR
+            MENUITEM "High Frame Rate Mode Config...", ID_HFRMODE_CONFIG
+            MENUITEM SEPARATOR
+            MENUITEM "High Frame Rate Bin Mode",    ID_OMC_HFRB
+            MENUITEM "High Frame Rate Bin Mode Config...", 
+                                                    ID_HFRBINMODE_CONFIG
+        END
+    END
+    POPUP "&Operations"
+    BEGIN
+        MENUITEM "Grab a frame",                ID_OPE_GRAB
+        MENUITEM "Auto WhiteBalance",           ID_OPE_AUTOWB
+        POPUP "Auto Trigger Options"
+        BEGIN
+            MENUITEM "Enable",                      ID_OPE_AUTOTRG_ENABLE
+            MENUITEM "Disable",                     ID_OPE_AUTOTRG_DISABLE
+        END
+        POPUP "Image Acquisition Format"
+        BEGIN
+            MENUITEM "RGB Array",                   ID_OPE_IMGFORMAT_RGB
+            MENUITEM "YUV Array",                   ID_OPE_IMGFORMAT_YUV
+            MENUITEM "Bayer Array",                 ID_OPE_IMGFORMAT_BAYER
+        END
+        POPUP "TrgMode ShutterTime CtrlMode"
+        BEGIN
+            MENUITEM "Manual Mode",                 ID_OPE_TRGSHUTTERCTRL_MANUAL
+
+            MENUITEM "Auto   Mode",                 ID_OPE_TRGSHUTTERCTRL_AUTO
+
+        END
+        POPUP "LUT Options"
+        BEGIN
+            MENUITEM "Enable",                      ID_OPE_LUT_ENABLE
+            MENUITEM "Disable",                     ID_OPE_LUT_DISABLE
+        END
+        POPUP "Relay Control"
+        BEGIN
+            MENUITEM "Close",                       ID_OPE_RELAY_CLOSE
+            MENUITEM "Open",                        ID_OPE_RELAY_OPEN
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Reset Camera",                ID_OPE_RESETSYS
+        MENUITEM SEPARATOR
+        MENUITEM "Remote Update",               ID_OPE_REMOTEUPDATEDSPPRROM
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About Eagleeye2_Viewer...",  ID_APP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,16
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "Eagleeye2_Viewer MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 16\0"
+            VALUE "InternalName", "Eagleeye2_Viewer\0"
+            VALUE "LegalCopyright", "Copyright (C) 2006\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "Eagleeye2_Viewer.EXE\0"
+            VALUE "ProductName", "Eagleeye2_Viewer Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDR_MAINFRAME           "Eagleeye2_Viewer\n\nEaglee\n\n\nEagleeye2Viewer.Document\nEaglee Document"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "Eagleeye2_Viewer"
+    AFX_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+    ID_INDICATOR_TEMP       "CUR TEMP"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PICFORMAT           "Picture Files (*.jpg, *.gif, *.tif, *.pcx, *.tga, *.png)|*.jpg; *.jpeg; *.gif; *.tif; *.tiff; *.pcx; *.tga; *.png|JPEG Files (*.jpg;*.jpeg)|*.jpg; *.jpeg|Gif Files (*.gif)|*.gif|Png Files (*.png)|*.png|Tiff Files (*.tif)|*.tif; *.tiff|Pcx Files (*.pcx)|*.pcx|Tga Files (*.tga)|*.tga|All Files (*.*)|*.*||"
+    ID_INDICATOR_FRAMERATE  "              "
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the active document\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_PREVIEW_CLOSE   "Close print preview mode\nCancel Preview"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_CONFIG_TARGETIP      "\nIP Address of Target Camera"
+    ID_RUNMODE_OPENMODE     "\nNormal Mode"
+    ID_RUNMODE_AUTOMODE     "\nAuto Mode"
+    ID_OMC_TRIGGER          "\nCamera runs under trigger mode"
+    ID_OMC_MJPEG            "\nCamera runs under Motion-JPEG mode"
+    ID_OMC_HFR              "\nCamera runs under HFR mode"
+    ID_CONIFG_AMC           "Auto "
+    ID_TRGMODE_CONFIG       "\nConfiguration for trigger mode"
+    ID_MJPEGMODE_CONFIG     "\nConfiguration for Motion-JPEG Mode"
+    ID_HFRMODE_CONFIG       "\nConfiguration for HFR mode"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_OPE_GRAB             "\nGrab a frame"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_OMC_HFRB             "\nCamera runs under HFRBIN mode"
+    ID_HFRBINMODE_CONFIG    "\nConfiguration for HFRBIN mode"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_OMC_HFRBIN           "\nCamera runs under HFRBIN mode"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\Eagleeye2_Viewer.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#include "afxprint.rc"       // printing/print preview resources
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

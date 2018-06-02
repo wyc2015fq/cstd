@@ -1,0 +1,127 @@
+可以动的八卦，升级版，按暂停键后可以自动分开，改善了以前
+#include <graphics.h>
+#include <conio.h>
+#include <time.h>
+#include <stdio.h>
+#include <math.h>
+#define PI 3.141592653
+void moveright(int x);
+void moveleft(int y);
+void zhuandong();
+void cachu(int lx,int rx);
+int R=200;
+int angle=90;
+void main()
+{
+initgraph(800,600);
+setorigin(400,300);
+setaspectratio(1,-1);
+setbkcolor(BLUE);
+cleardevice();
+zhuandong();
+setbkcolor(BLUE);
+cleardevice();
+for(int lx=0,rx=0;(rx<200)&(lx>-200);rx++,lx--)
+{
+BeginBatchDraw();
+moveright(rx);
+moveleft(lx);
+FlushBatchDraw();
+cleardevice();
+//cachu(lx,rx);
+Sleep(100);
+}
+getch();
+}
+void zhuandong()
+{
+int j=0;
+setfillcolor(WHITE);
+fillcircle(0,0,200);
+setfillcolor(BLACK);
+fillpie(-R,R,R,-R,PI*3.0/2,PI/2.0);
+BeginBatchDraw();
+while(1)
+{
+if(angle==361)
+{
+angle=0;
+}
+angle++;
+int mx1=(int)(R/2*cos(angle*PI/180));
+int my1=(int)(R/2*sin(angle*PI/180));
+int mx2=(int)(R/2*cos((angle+180)*PI/180));
+int my2=(int)(R/2*sin((angle+180)*PI/180));
+setfillcolor(BLACK);
+solidcircle(mx1,my1,R/2);
+setfillcolor(WHITE);
+solidcircle(mx2,my2,R/2);
+solidcircle(mx1,my1,R/12);
+setfillcolor(BLACK);
+solidcircle(mx2,my2,R/11);
+setlinecolor(getbkcolor());
+circle(0,0,200);
+FlushBatchDraw();
+if(!kbhit())
+{
+}
+else
+{
+j++;
+if(j<=100)
+{
+Sleep(sqrt(j));
+continue;
+}
+if(angle%270==0)
+{
+Sleep(2000);
+break;
+}
+else
+{
+j++;
+Sleep(sqrt(j));
+continue;
+}
+}
+}
+getch();
+EndBatchDraw();
+}
+void moveright(int rx)
+{
+setlinecolor(WHITE);
+arc(rx-R,R,rx+R,-R,-PI/2,PI/2);
+arc(rx-100,200,rx+100,0,PI/2,3*PI/2);
+arc(rx-100,0,rx+100,-200,-PI/2,PI/2);
+setfillcolor(WHITE);
+floodfill(rx+120,0,WHITE);
+setfillcolor(BLACK);
+solidcircle(rx,100,20);
+}
+void moveleft(int lx)
+{
+setlinecolor(BLACK);
+arc(lx-R,R,lx+R,-R,PI/2,-PI/2);
+arc(lx-100,200,lx+100,0,PI/2,3*PI/2);
+arc(lx-100,0,lx+100,-200,-PI/2,PI/2);
+floodfill(lx-120,0,BLACK);
+setfillcolor(WHITE);
+solidcircle(lx,-100,20);
+}
+//擦出
+/*void cachu(int lx,int rx)
+{
+Sleep(12);
+setlinecolor(BLUE);
+arc(rx-R,R,rx+R,-R,-PI/2,PI/2);
+arc(rx-100,200,rx+100,0,PI/2,3*PI/2);
+arc(rx-100,0,rx+100,-200,-PI/2,PI/2);
+arc(lx-R,R,lx+R,-R,PI/2,-PI/2);
+arc(lx-100,200,lx+100,0,PI/2,3*PI/2);
+arc(lx-100,0,lx+100,-200,-PI/2,PI/2);
+setfillcolor(BLUE);
+floodfill(rx+120,0,BLUE);
+floodfill(lx-120,0,BLUE);
+}*/

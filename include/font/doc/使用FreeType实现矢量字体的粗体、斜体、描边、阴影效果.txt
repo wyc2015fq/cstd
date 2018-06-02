@@ -1,0 +1,310 @@
+使用FreeType实现矢量字体的粗体、斜体、描边、阴影效果
+
+ 
+前言：
+
+Freetype是一个跨平台、开源的字体渲染器，网上很多文章介绍，本人就不啰嗦了。本文重点在于实现文章标题所属的各种效果，不是Freetype的基本使用方法介绍文档，所以对于Freetype不熟悉的同学们请先学习下Freetype的基本用法，才可以使用本文中所提及的方法。
+正文：
+
+用FreeType实现矢量字体的粗体、斜体、描边、阴影效果不是一件容易的事，本人认为皆因Freetype的接口太过于底层化，Freetype没有对其进行上层包装，所以要实现这些对于软件/游戏来说的基本效果，都是件挺麻烦的事情。不过，问题总是会有解决方法的，这些效果的实现，请听本人一个个道来：
+1.      加粗
+
+加粗可以使用FreeType中的一个API来实现FT_Outline_Embolden，但是这个API不支持水平垂直方向加粗量的分别设置，所以，需要参照FT_Outline_Embolden的实现重新编写一个函数，GDI++已经做了这个事情，引用它的代码：
+
+ 
+// 就是FT_Outline_Embolden
+FT_Error Old_FT_Outline_Embolden( FT_Outline*  outline, FT_Pos strength )
+{
+    FT_Vector*    points;
+    FT_Vector    v_prev, v_first, v_next, v_cur;
+    FT_Angle    rotate, angle_in, angle_out;
+    FT_Int        c, n, first;
+    FT_Int        orientation;
+
+    if ( !outline )
+        return FT_Err_Invalid_Argument;
+
+    strength /= 2;
+    if ( strength == 0 )
+        return FT_Err_Ok;
+
+    orientation = FT_Outline_Get_Orientation( outline );
+    if ( orientation == FT_ORIENTATION_NONE )
+    {
+        if ( outline->n_contours )
+            return FT_Err_Invalid_Argument;
+        else
+            return FT_Err_Ok;
+    }
+
+    if ( orientation == FT_ORIENTATION_TRUETYPE )
+        rotate = -FT_ANGLE_PI2;
+    else
+        rotate = FT_ANGLE_PI2;
+
+    points = outline->points;
+
+    first = 0;
+    for ( c = 0; c < outline->n_contours; c++ )
+    {
+        int  last = outline->contours[c];
+
+        v_first = points[first];
+        v_prev  = points[last];
+        v_cur   = v_first;
+
+        for ( n = first; n <= last; n++ )
+        {
+            FT_Vector    in, out;
+            FT_Angle    angle_diff;
+            FT_Pos        d;
+            FT_Fixed    scale;
+
+            if ( n < last )
+                v_next = points[n + 1];
+            else
+                v_next = v_first;
+
+            /* compute the in and out vectors */
+            in.x = v_cur.x - v_prev.x;
+            in.y = v_cur.y - v_prev.y;
+
+            out.x = v_next.x - v_cur.x;
+            out.y = v_next.y - v_cur.y;
+
+            angle_in   = FT_Atan2( in.x, in.y );
+            angle_out  = FT_Atan2( out.x, out.y );
+            angle_diff = FT_Angle_Diff( angle_in, angle_out );
+            scale      = FT_Cos( angle_diff / 2 );
+
+            if ( scale < 0x4000L && scale > -0x4000L )
+                in.x = in.y = 0;
+            else
+            {
+                d = FT_DivFix( strength, scale );
+
+                FT_Vector_From_Polar( &in, d, angle_in + angle_diff / 2 - rotate );
+            }
+
+            outline->points[n].x = v_cur.x + strength + in.x;
+            //伀偙傟傪僐儊儞僩傾僂僩偟偨偩偗
+            //outline->points[n].y = v_cur.y + strength + in.y;
+
+            v_prev = v_cur;
+            v_cur  = v_next;
+        }
+
+        first = last + 1;
+    }
+
+    return FT_Err_Ok;
+}
+
+// 垂直加粗
+FT_Error Vert_FT_Outline_Embolden( FT_Outline*  outline, FT_Pos strength )
+{
+    FT_Vector*    points;
+    FT_Vector    v_prev, v_first, v_next, v_cur;
+    FT_Angle    rotate, angle_in, angle_out;
+    FT_Int        c, n, first;
+    FT_Int        orientation;
+
+    if ( !outline )
+        return FT_Err_Invalid_Argument;
+
+    strength /= 2;
+    if ( strength == 0 )
+        return FT_Err_Ok;
+
+    orientation = FT_Outline_Get_Orientation( outline );
+    if ( orientation == FT_ORIENTATION_NONE )
+    {
+        if ( outline->n_contours )
+            return FT_Err_Invalid_Argument;
+        else
+            return FT_Err_Ok;
+    }
+
+    if ( orientation == FT_ORIENTATION_TRUETYPE )
+        rotate = -FT_ANGLE_PI2;
+    else
+        rotate = FT_ANGLE_PI2;
+
+    points = outline->points;
+
+    first = 0;
+    for ( c = 0; c < outline->n_contours; c++ )
+    {
+        int  last = outline->contours[c];
+
+        v_first = points[first];
+        v_prev  = points[last];
+        v_cur   = v_first;
+
+        for ( n = first; n <= last; n++ )
+        {
+            FT_Vector    in, out;
+            FT_Angle    angle_diff;
+            FT_Pos        d;
+            FT_Fixed    scale;
+
+            if ( n < last )
+                v_next = points[n + 1];
+            else
+                v_next = v_first;
+
+            /* compute the in and out vectors */
+            in.x = v_cur.x - v_prev.x;
+            in.y = v_cur.y - v_prev.y;
+
+            out.x = v_next.x - v_cur.x;
+            out.y = v_next.y - v_cur.y;
+
+            angle_in   = FT_Atan2( in.x, in.y );
+            angle_out  = FT_Atan2( out.x, out.y );
+            angle_diff = FT_Angle_Diff( angle_in, angle_out );
+            scale      = FT_Cos( angle_diff / 2 );
+
+            if ( scale < 0x4000L && scale > -0x4000L )
+                in.x = in.y = 0;
+            else
+            {
+                d = FT_DivFix( strength, scale );
+
+                FT_Vector_From_Polar( &in, d, angle_in + angle_diff / 2 - rotate );
+            }
+
+            //outline->points[n].x = v_cur.x + strength + in.x;
+            //仾偙傟傪僐儊儞僩傾僂僩偟偨偩偗
+            outline->points[n].y = v_cur.y + strength + in.y;
+
+            v_prev = v_cur;
+            v_cur  = v_next;
+        }
+
+        first = last + 1;
+    }
+
+    return FT_Err_Ok;
+}
+
+// 新的加粗函数
+FT_Error New_FT_Outline_Embolden( FT_Outline*  outline, FT_Pos str_h, FT_Pos str_v )
+{
+    if ( !outline ) return FT_Err_Invalid_Argument;
+    int orientation = FT_Outline_Get_Orientation( outline );
+    if ( orientation == FT_ORIENTATION_NONE )
+        if ( outline->n_contours ) return FT_Err_Invalid_Argument;
+    Vert_FT_Outline_Embolden( outline, str_v );
+    Old_FT_Outline_Embolden( outline, str_h );
+    return FT_Err_Ok;
+}
+
+// 让一个字体槽加粗，并且填充其他的大小属性
+void New_GlyphSlot_Embolden( FT_GlyphSlot  slot , const Vector2Float &embolden)
+{
+    if(embolden == Vector2Float::ZERO)
+        return;
+    FT_Library  library = slot->library;
+    FT_Face     face    = slot->face;
+    FT_Error    error;
+    FT_Pos      xstr = embolden.x, ystr = embolden.y;
+
+
+    if ( slot->format != FT_GLYPH_FORMAT_OUTLINE &&
+        slot->format != FT_GLYPH_FORMAT_BITMAP )
+        return;
+
+    if ( slot->format == FT_GLYPH_FORMAT_OUTLINE )
+    {
+        FT_BBox oldBox;
+        FT_Outline_Get_CBox(&slot->outline , &oldBox);
+        error = New_FT_Outline_Embolden( &slot->outline, xstr , ystr);
+        if ( error )
+            return;
+
+        FT_BBox newBox;
+        FT_Outline_Get_CBox(&slot->outline , &newBox);
+        xstr = (newBox.xMax - newBox.xMin) - (oldBox.xMax - oldBox.xMin);
+        ystr = (newBox.yMax - newBox.yMin) - (oldBox.yMax - oldBox.yMin);
+    }
+    else if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
+    {
+        xstr = FT_PIX_FLOOR( xstr );
+        if ( xstr == 0 )
+            xstr = 1 << 6;
+        ystr = FT_PIX_FLOOR( ystr );
+
+        error = FT_Bitmap_Embolden( library, &slot->bitmap, xstr, ystr );
+        if ( error )
+            return;
+    }
+
+    if ( slot->advance.x )
+        slot->advance.x += xstr;
+
+    if ( slot->advance.y )
+        slot->advance.y += ystr;
+
+    slot->metrics.width        += xstr;
+    slot->metrics.height       += ystr;
+    slot->metrics.horiBearingY += ystr;
+    slot->metrics.horiAdvance  += xstr;
+    slot->metrics.vertBearingX -= xstr / 2;
+    slot->metrics.vertBearingY += ystr;
+    slot->metrics.vertAdvance  += ystr;
+
+    if ( slot->format == FT_GLYPH_FORMAT_BITMAP )
+        slot->bitmap_top += ystr >> 6;
+}
+2.      斜体
+
+斜体在FreeType中可以通过矩阵变换来实现，只要把矩阵设置成一个切边矩阵就可以了，方法如下：
+// 倾斜度，越大就越斜
+float lean = 0.5f;
+FT_Matrix matrix;
+matrix.xx = 0x10000L;
+matrix.xy = lean * 0x10000L;
+matrix.yx = 0;
+matrix.yy = 0x10000L;
+FT_Set_Transform( face, &matrix, 0 );
+
+
+3.      描边
+
+网上有不少文章说描边其实很简单，就是上下左右各移动一个像素渲染一次，最后在中间再渲染一次就可以了。但是，这种方法只对于位图字体有效，对于矢量字体，效果就不好了，特别是大字体，1个像素只是很细的边界而已，对于很小的字体，1像素又显得太大。
+
+这里提供另一种实现方案，使用的是Freetype的API：
+
+4.         使用FT_Stroker_New创建一个笔触
+
+5.         FT_Stroker_Set设置笔触为描边
+
+6.         把Load后的glyph通过FT_Glyph_Copy拷贝一份出来
+
+7.         对这个拷贝出来的glyph使用FT_Glyph_StrokeBorder设置成描边渲染
+
+8.         使用FT_Outline_Render渲染这个描边的glyph，渲染前要设置FT_Raster_Params参数成： 
+FT_Raster_Params params;
+memset(&params, 0, sizeof(params));
+params.flags = FT_RASTER_FLAG_AA | FT_RASTER_FLAG_DIRECT;
+params.gray_spans = RasterCallback;
+
+ 
+
+9.         在回调函数RasterCallback中实现像素化到位图中
+
+10.     对原来的glyph执行8操作，在回调函数RasterCallback中实现像素化到位图中，像素化过程使用alphablend的方式绘制上去
+
+11.     把位图渲染到屏幕上或保存到文件中
+
+ 
+
+这个方法是Freetype的一个example，只是很少有人注意而已，源码在这里http://www.freetype.org/freetype2/docs/tutorial/example2.cpp。
+
+
+ 12. 阴影
+
+阴影的实现就比较简单了，只要一个个像素偏移后多渲染几次就可以了，再次不多说。
+
+ 

@@ -1,0 +1,31 @@
+
+#include "cstd.h"
+#include "stdafx.h"
+#include "CLMParameters.h"
+#include "ccv.h"
+#include "CCNF_patch_expert.h"
+#include "SVR_patch_expert.h"
+#include "PDM.h"
+#include "Patch_experts.h"
+#include "PAW.h"
+#include "DetectionValidator.h"
+#include "CLM.h"
+#include "CLMTracker.h"
+#include "CLMParameters.h"
+#include "CLM_utils.h"
+#include "GazeEstimation.h"
+
+#ifdef _USE_MYCV
+#include "cv/imgproc/drawing.inl"
+#endif // _USE_MYCV
+#include "CLM_utils.inl"
+#include "CCNF_patch_expert.inl"
+#include "SVR_patch_expert.inl"
+#include "PDM.inl"
+#include "Patch_experts.inl"
+#include "PAW.inl"
+#include "DetectionValidator.inl"
+#include "CLMTracker.inl"
+#include "CLM.inl"
+
+#include "GazeEstimation.inl"

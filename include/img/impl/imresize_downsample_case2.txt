@@ -1,0 +1,33 @@
+switch (cch) {
+case 1: {
+enum {__ccw=1};
+#define ADDY(_i)  (ADDX(_i+0*al)+ADDX(_i+1*al))
+#include "imresize_downsample_case_sc.inl"
+#undef ADDY
+} break;
+case 2: {
+enum {__ccw=2};
+#define ADDY(_i)  (ADDX(_i+0*al)+ADDX(_i+1*al)+ADDX(_i+2*al)+ADDX(_i+3*al))
+#include "imresize_downsample_case_sc.inl"
+#undef ADDY
+} break;
+case 3: {
+enum {__ccw=3};
+#define ADDY(_i)  (ADDX(_i+0*al)+ADDX(_i+1*al)+ADDX(_i+2*al)+ADDX(_i+3*al)+ADDX(_i+4*al)+ADDX(_i+5*al)+ADDX(_i+6*al)+ADDX(_i+7*al))
+#include "imresize_downsample_case_sc.inl"
+#undef ADDY
+} break;
+case 4: {
+enum {__ccw=4};
+#define ADDY(_i)  (ADDX(_i+0*al)+ADDX(_i+1*al)+ADDX(_i+2*al)+ADDX(_i+3*al)+ADDX(_i+4*al)+ADDX(_i+5*al)+ADDX(_i+6*al)+ADDX(_i+7*al)+ADDX(_i+8*al)+ADDX(_i+9*al)+ADDX(_i+10*al)+ADDX(_i+11*al)+ADDX(_i+12*al)+ADDX(_i+13*al)+ADDX(_i+14*al)+ADDX(_i+15*al))
+#include "imresize_downsample_case_sc.inl"
+#undef ADDY
+} break;
+case 5: {
+enum {__ccw=5};
+#define ADDY(_i)  (ADDX(_i+0*al)+ADDX(_i+1*al)+ADDX(_i+2*al)+ADDX(_i+3*al)+ADDX(_i+4*al)+ADDX(_i+5*al)+ADDX(_i+6*al)+ADDX(_i+7*al)+ADDX(_i+8*al)+ADDX(_i+9*al)+ADDX(_i+10*al)+ADDX(_i+11*al)+ADDX(_i+12*al)+ADDX(_i+13*al)+ADDX(_i+14*al)+ADDX(_i+15*al)+ADDX(_i+16*al)+ADDX(_i+17*al)+ADDX(_i+18*al)+ADDX(_i+19*al)+ADDX(_i+20*al)+ADDX(_i+21*al)+ADDX(_i+22*al)+ADDX(_i+23*al)+ADDX(_i+24*al)+ADDX(_i+25*al)+ADDX(_i+26*al)+ADDX(_i+27*al)+ADDX(_i+28*al)+ADDX(_i+29*al)+ADDX(_i+30*al)+ADDX(_i+31*al))
+#include "imresize_downsample_case_sc.inl"
+#undef ADDY
+} break;
+}
+

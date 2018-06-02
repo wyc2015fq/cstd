@@ -1,0 +1,365 @@
+sdk下工具提示控件使用
+
+楼主 发表于： 2012-07-12 16:07:03
+看了很多例子很多都是对话框程序，要么就是MFC的难道不能再SDK下用，什么都没问题就是没有提示框
+
+引入的文件
+#include <commctrl.h> //INITCOMMONCONTROLSEX和InitCommonControlsEx的声明
+#pragma comment(lib, "comctl32") //InitCommonControlsEx的实现
+#pragma comment(linker, "/subsystem:windows")
+
+消息处理
+
+LRESULT WINAPI WndProc( HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam )
+{
+    static HWND hwndTT;
+    static TCHAR* pszTip = TEXT(
+                "This is a  message! "); //工具提示的文字.这里的回车换行符只有在情况3才起作用
+    switch( message )
+    {
+    case WM_CREATE:
+        {
+            
+            INITCOMMONCONTROLSEX iccex;                        //InitCommonControlsEx的参数
+            TOOLINFO ti;                                    //真正的工具提示
+            RECT rect;                                        //只有鼠标在这个矩形内,
+                                                            //工具提示才会显示
+            UINT uId = 0;                                    //每个工具提示控件可以有多个工具提示
+                                                            //这个标识每个提示的id
+            LPTSTR lpszTttext = pszTip;                        //工具提示的文字
+
+            iccex.dwICC = ICC_WIN95_CLASSES;                //指明要注册的控件窗口类
+            iccex.dwSize = sizeof(iccex);
+            InitCommonControlsEx(&iccex);                    //注册控件窗口类
+
+            hwndTT = CreateWindowEx(                        //创建工具提示窗口
+                WS_EX_TOPMOST,
+                TOOLTIPS_CLASS,                                //内部定义的窗口类的名字
+                NULL,                                        //其他参数基本同CreateWindow
+                WS_POPUP | TTS_ALWAYSTIP |TTS_NOPREFIX,
+                CW_USEDEFAULT,
+                CW_USEDEFAULT,
+                CW_USEDEFAULT,
+                CW_USEDEFAULT,
+                hwnd,
+                NULL,
+                ((LPCREATESTRUCT)lParam)->hInstance,
+                NULL);
+
+            SetWindowPos(
+                hwndTT,
+                HWND_TOPMOST,
+                0, 0, 0, 0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+
+            GetClientRect(hwnd, &rect);
+
+            ti.cbSize = sizeof(ti);
+            ti.uFlags = TTF_TRACK | TTF_ABSOLUTE; //情况2
+            ti.hwnd = hwnd;                //指明我们工具提示是对哪个窗口的提示
+            ti.hinst = ((LPCREATESTRUCT)lParam)->hInstance;
+            ti.uId = uId;
+            ti.lpszText = lpszTttext;
+            ti.rect.left = rect.left;    
+            ti.rect.top = rect.top;
+            ti.rect.right = rect.right;
+            ti.rect.bottom = rect.bottom;
+
+            SendMessage(hwndTT, TTM_ADDTOOL, 0, (LPARAM) (LPTOOLINFO) &ti);
+            SendMessage(hwndTT,TTM_TRACKACTIVATE,(WPARAM)TRUE,(LPARAM)&ti);//情况2
+            SendMessage(hwndTT, TTM_SETMAXTIPWIDTH, 0, 300);//情况3
+
+            return 0;
+        }
+    case WM_MOUSEMOVE: //整下WM_MOUSEMOVE是情况2的
+        {
+            POINT pt;
+            GetCursorPos(&pt);
+     
+            SendMessage(hwndTT,            
+                TTM_TRACKPOSITION,
+                0,
+                (LPARAM)MAKELPARAM(pt.x+15, 
+                pt.y+15));
+            return 0;
+        }
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
+    }
+    return DefWindowProc( hwnd,message,wParam,lParam );
+}
+
+	
+#3 得分：20 回复于： 2012-07-13 19:56:15
+HWND CreateTT(HWND parentWnd)
+{
+HWND hToolTip=0;
+hToolTip = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS,
+NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP ,//  TTS_BALLOON*/,        
+CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, 
+parentWnd, 
+NULL,// WS_POPUP !
+m_hInst,
+NULL);
+//add a tool
+if (hToolTip)  
+{  //  Do  the  standard  ToolTip  coding.  
+SetWindowPos(hToolTip, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+SendMessage(hToolTip, TTM_ACTIVATE, TRUE, 0);
+        SendMessage(hToolTip, TTM_SETMAXTIPWIDTH,0,290);
+        SendMessage(hToolTip, TTM_SETDELAYTIME, TTDT_AUTOPOP, 4000);
+}
+return hToolTip;
+} //
+对我有用[0] 丢个板砖[0] 引用 | 举报 | 管理
+
+schlafenhamster
+    关注 
+    schlafenhamster 
+    schlafenhamster 
+    等级：Blank
+6
+6
+
+	
+#4 得分：0 回复于： 2012-07-13 19:58:40
+调用：
+m_hToolTip=CreateTT(m_hListView);
+对我有用[0] 丢个板砖[0] 引用 | 举报 | 管理
+
+fghygzs
+    关注 
+    fghygzs 
+    fghygzs 
+    等级：Blank
+
+	
+#5 得分：0 回复于： 2012-07-16 09:00:57
+还是不行，我就是一个窗口，窗口有一个图标，下面一个字符串，但是字符串太长所以需要弹出提示。
+对我有用[0] 丢个板砖[0] 引用 | 举报 | 管理
+
+schlafenhamster
+    关注 
+    schlafenhamster 
+    schlafenhamster 
+    等级：Blank
+6
+6
+
+	
+#6 得分：0 回复于： 2012-07-16 12:20:52
+HWND CreateTT(HWND parentWnd)
+只是产生tooltip
+它的父窗口是主窗口，
+你还要用AddTools把那个‘字符串’static ？加到tooltip中。
+对我有用[0] 丢个板砖[0] 引用 | 举报 | 管理
+
+schlafenhamster
+    关注 
+    schlafenhamster 
+    schlafenhamster 
+    等级：Blank
+6
+6
+
+	
+#7 得分：0 回复于： 2012-07-16 16:17:23
+BOOL ToolTipAddTools(HWND hwndTT,HWND hParent)
+{
+TOOLINFO ti;
+RECT rc;
+ti.cbSize=sizeof(TOOLINFO);
+ti.uFlags=TTF_IDISHWND | TTF_SUBCLASS;
+ti.hWnd=hParent;
+ti.hinst=g_hInst;// global
+ti.uId=(UINT) hwndStatic;// your static String
+ti.lpszText=LPSTR_TEXTCALLBACK;
+GetClientRect(hwndStatic,rc);//
+MapWindowPoints(hwndStatic,hParent,(POINT*)&rc,2);
+ti.rect=rc;
+if(!SendMessage(hwndTT,TTM_ADDTOOL,0,(LPARAM)&ti)
+{
+return FALSE;
+}
+return TRUE;
+}
+
+
+//
+WinProc()中:
+LPTOOLTIPTEXT pTTT;
+case WM_NOTIFY:
+pTTT=(LPTOOLTIPTEXT)lparam;
+if(pTTT->hdr.code == TTN_NEEDTEXT)
+{
+if(pTTT->uFlags & TTF_IDISHWND)
+{// or check if it is hwndStatic 'idFrom'
+pTTT->lpszText="YourStringText";
+}
+}
+对我有用[0] 丢个板砖[0] 引用 | 举报 | 管理
+
+fghygzs
+    关注 
+    fghygzs 
+    fghygzs 
+    等级：Blank
+
+	
+#8 得分：0 回复于： 2012-07-17 09:19:24
+schlafenhamster很感谢你，真不想再次麻烦你了，可是不知道为何就是无效。
+这个我也很无奈，我总结了创建提示的步骤不知道对不对
+1InitCommonControls（）注册窗口类
+2创建提示控件
+3发送TTM_ADDTOOL
+
+还有就是我写在了WM_CREATE事件中不知有没有影响，如果你能给我一个SDK下的例子我将非常感谢
+ case WM_CREATE:
+ {
+InitCommonControls();   //1注册控件窗口类
+//我创建了一个按钮控件
+hwndB =CreateWindow ( TEXT("button"),TEXT("button"),
+  WS_CHILD | WS_VISIBLE |  BS_PUSHBUTTON,
+   0, 0,  100,100,   hwnd, (HMENU) 115,    hInst, NULL) ;
+//这个函数是我从MSDN上找来的，不会在错了吧
+CreateToolTip(115, hwnd, _T("这是按钮的ToolTip语句")); 
+//其他就没有任何函数了
+}
+
+//就这么几句话，可就是没提示 ToT 
+//郁闷死我了
+
+HWND CreateToolTip(int toolID, HWND hDlg, PTSTR pszText) 
+ { 
+     if (!toolID || !hDlg || !pszText) 
+     { 
+         return FALSE; 
+     } 
+     HWND hwndTool = GetDlgItem(hDlg, toolID); 
+  
+     HWND hwndTip = CreateWindowEx(NULL, 
+                                   TOOLTIPS_CLASS, 
+                                   NULL, 
+                                   WS_POPUP | TTS_ALWAYSTIP | TTS_BALLOON, 
+                                   CW_USEDEFAULT, 
+                                   CW_USEDEFAULT, 
+                                   CW_USEDEFAULT, 
+                                   CW_USEDEFAULT, 
+                                   hDlg, 
+                                   NULL, 
+                                   hInst, 
+                                   NULL); 
+  
+     if (!hwndTool || !hwndTip) 
+     { 
+         return (HWND)NULL; 
+     } 
+  
+     TOOLINFO toolInfo = {0}; 
+     toolInfo.cbSize = sizeof(TOOLINFO); 
+     toolInfo.hwnd = hDlg; 
+     toolInfo.uFlags = TTF_IDISHWND | TTF_SUBCLASS; 
+     toolInfo.uId = (UINT_PTR)hwndTool; 
+     toolInfo.lpszText = pszText; 
+ SendMessage(hwndTip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo); 
+  
+     return hwndTip; 
+ } 
+
+LRESULT WINAPI WndProc( HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam )
+{
+    static TCHAR* pszTip = TEXT("This is a message! "); //工具提示的文字.这里的回车换行符只有在情况3才起作用
+//    TOOLTIPTEXTW *pTTTW;
+    switch( message )
+    {
+    case WM_CREATE:
+        {
+            INITCOMMONCONTROLSEX iccex; //InitCommonControlsEx的参数
+            TOOLINFO ti; //真正的工具提示
+            RECT rect; //只有鼠标在这个矩形内,工具提示才会显示
+            UINT uId = 0; //每个工具提示控件可以有多个工具提示,这个标识每个提示的id
+             
+            iccex.dwICC = ICC_WIN95_CLASSES; //指明要注册的控件窗口类
+            iccex.dwSize = sizeof(iccex);
+            InitCommonControlsEx(&iccex); //注册控件窗口类
+             
+            hwndTT = CreateWindowEx( //创建工具提示窗口
+                                    WS_EX_TOPMOST,
+                                    TOOLTIPS_CLASS, //内部定义的窗口类的名字
+                                    NULL, //其他参数基本同CreateWindow
+                                    WS_POPUP | TTS_ALWAYSTIP |TTS_NOPREFIX,
+                                    CW_USEDEFAULT,
+                                    CW_USEDEFAULT,
+                                    CW_USEDEFAULT,
+                                    CW_USEDEFAULT,
+                                    hwnd,
+                                    NULL,
+                                    ((LPCREATESTRUCT)lParam)->hInstance,
+                                    NULL);
+             
+            //SetWindowPos(hwndTT,HWND_TOPMOST,0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+             
+            hwndStatic=CreateWindow("static","0",
+            WS_CHILD | WS_VISIBLE | SS_CENTER | SS_NOTIFY,
+            100,100,200,20,
+            hwnd,(HMENU)(1001),
+            (HINSTANCE)GetWindowLong(hwnd,GWL_HINSTANCE),NULL);
+            SendMessage(hwndStatic,WM_SETTEXT,0,(LPARAM)&"Tooltip Target");
+ 
+            GetClientRect(hwndStatic, &rect);
+             
+            ti.cbSize = sizeof(ti);
+            ZeroMemory(&ti, sizeof(TOOLINFO));
+            ti.uFlags =  TTF_IDISHWND | TTF_SUBCLASS;// | TTF_TRANSPARENT ;
+            //ti.uFlags = TTF_TRACK | TTF_ABSOLUTE; //情况2
+            ti.hwnd = hwnd; //指明我们工具提示是对哪个窗口的提示
+            ti.hinst = ((LPCREATESTRUCT)lParam)->hInstance;
+            ti.uId = (UINT)hwndStatic;
+            ti.lpszText = LPSTR_TEXTCALLBACK;
+            ti.rect = rect;   
+            SendMessage(hwndTT, TTM_ADDTOOL, 0, (LPARAM)&ti);
+//add a tool
+//            SetWindowPos(hwndTT, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+//            SendMessage(hwndTT, TTM_ACTIVATE, TRUE, 0);
+//            SendMessage(hwndTT, TTM_SETMAXTIPWIDTH, 0, 300);//情况3
+//            SendMessage(hwndTT, TTM_SETDELAYTIME, TTDT_AUTOPOP, 2000);
+//            SendMessage(hwndTT,TTM_TRACKACTIVATE,(WPARAM)TRUE,(LPARAM)&ti);//情况2
+             
+            return 0;
+        }
+    case WM_NOTIFY:
+        {
+            TOOLTIPTEXT *pTTT = (TOOLTIPTEXT *)lParam;
+             
+            UINT nID = pTTT->hdr.idFrom;
+            if (pTTT->hdr.code == TTN_NEEDTEXT)
+            {
+                if (pTTT->uFlags & TTF_IDISHWND)
+                {
+                    if(hwndStatic==(HWND)nID)
+                    {
+                        pTTT->lpszText="This is a text control!";
+                    }
+                }
+            }   
+            return TRUE;
+        }
+    break;
+    case WM_MOUSEMOVE: //整下WM_MOUSEMOVE是情况2的
+//        {
+//            POINT pt;
+//            GetCursorPos(&pt);
+//           
+//            SendMessage(hwndTT,    TTM_TRACKPOSITION,0,(LPARAM)MAKELPARAM(pt.x+15,pt.y+15));
+//            return 0;
+//        }
+    break;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
+    }
+    return DefWindowProc( hwnd,message,wParam,lParam );
+}
+
+

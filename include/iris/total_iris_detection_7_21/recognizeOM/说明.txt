@@ -1,0 +1,5 @@
+1.swsb.m将所有的图片提取定序特征，统一处理
+
+2.geneTGset.m构造训练集定序特征和测试集特征
+
+3.OMrecognize.m识别

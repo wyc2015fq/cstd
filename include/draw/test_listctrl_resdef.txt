@@ -1,0 +1,4 @@
+
+
+RESDEF(image, 0, (./res/Toolbar.bmp, #ff00ff00, t,16,16,0,40))
+RESDEF(font, 0, (ËÎÌו,12,))

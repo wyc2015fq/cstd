@@ -1,0 +1,106 @@
+main
+{
+1 读入精定位后的彩色图像I；
+
+灰度化I_gray；(I_gray=0.45R+0.45G+0.1B)
+
+2 车牌颜色判定；
+
+3 倾斜校正；
+4 上下边界精定位； (f_T=10,extend=0)
+倾斜校正；
+上下边界精定位；(f_T=16,extend=1)
+
+5 otsu&edge二值化；
+
+6 字符分割；
+
+}
+
+2 车牌颜色判定
+输入：I,I_gray
+输出：I_bw_edge,plateColor (1蓝 2黄)
+方法：统计竖直边缘点蓝 黄色像素点数目，plateColor对应数目较大的颜色 
+{
+sobel 竖直边缘提取；[-1 0 1]
+otsu二值化得I_bw_edge；
+
+HSV变换；
+FOR（I_bw_edge中的白点）
+{
+IF (S(hue,i,j)>=85 && S(hue,i,j)<=125 && S(sue,i,j)>30)
+{该白点为蓝色}
+IF (S(hue,i,j)>=10 && S(hue,i,j)<=40 && S(sue,i,j)>100)
+{该白点为黄色}
+}
+
+分别统计蓝 黄色点个数countY,countB；
+IF(countY>countB)
+{plateColor为黄}
+ELSE
+{plateColor为蓝}
+
+}
+
+3 倾斜校正
+输入：I_bw_edge     //plateColor,I_gray
+输出：alpha
+方法：粗调（在正负15度之间 每次将I_bw_edge旋转0.5度做垂直投影，找到使得投影宽度width 最小的角度）；细调（0.1-0.5之间每次旋转0.1，同理找到最小宽度的width的角度）
+{
+//otsu二值化I_gray得I_bw；（用到颜色信息对黄底黑子做二值化结果反转）
+//I_bw_edge=I_bw_edge & I_bw；
+
+temp=I_bw_edge;
+seg=0;
+FOR thita=0.5:0.5:15
+{
+temp旋转thita度；(旋转中心为图像中心，缩放比例0)
+投影统计宽度tempWidth；
+
+IF(tempWidth<width)
+{seg=1;width=tempWidth;}
+ELSEIF(tempWidth<width)
+{break;}
+ELSE
+{continue;}
+}
+thita=thita-0.5;
+
+IF(seg==0)
+{
+同理进行 thita=-0.5:-0.5:-15；
+thita=thita+0.5;
+
+细调m=-0.1:-0.1:-0.4；(旋转thita+m度)
+m=m+0.1;
+}
+}
+ELSE
+{
+细调m=0.1:0.1:0.4；(旋转thita+m度)
+m=m-0.1;
+}
+
+IF(seg==1)
+{旋转角度alpha=thita+m;}
+ELSE
+{alpha=0;}
+
+}
+
+4 上下边界精定位
+输入：f_T，alpha,I_gray，I_bw_edge,extend(像素扩展)
+输出：plateRegion
+方法：从中间一行分别向上向下做行扫描 直到跳变频率f<f_T；将定位出来的上下边界扩展extend个像素（上减 下加）；跳变频率：由黑点跳变为白点 或 白点跳变为黑点的记为一次跳变
+{
+根据alpha旋转I_bw_edge，I_gray得I_bw_edge_c，I_corrected；
+对I_bw_edge_c进行行扫描处理定位上下边界；
+更新I_corrected上下边界得plateRegion；
+}
+
+5 otsu&edge二值化
+输入：plateRegion
+输出：I_bw_final
+方法：I_bw_otsu && I_bw_edge_ver|| I_bw_edge_hor (otsu and 水平边缘二值化图[-1 0 1] or 垂直边缘二值化图[-1;0;1])
+{
+}

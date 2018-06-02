@@ -1,0 +1,4 @@
+aarch64-linux-android-g++ -I./  -c  MultiTrackCLM.cpp -Wall -g -DRYW_ANDROID -pie -fPIE -o MultiTrackCLM.o 
+Makefile:34: recipe for target 'MultiTrackCLM.o' failed
+aarch64-linux-android-g++ -I./  -c  MultiTrackCLM.cpp -Wall -g -DRYW_ANDROID -pie -fPIE -o MultiTrackCLM.o 
+Makefile:34: recipe for target 'MultiTrackCLM.o' failed

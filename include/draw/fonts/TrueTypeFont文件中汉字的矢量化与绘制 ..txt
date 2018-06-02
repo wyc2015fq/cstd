@@ -1,0 +1,134 @@
+TrueTypeFont文件中汉字的矢量化与绘制 .
+2009-07-22 17:49 245人阅读 评论(0) 收藏 举报 
+http://www.cnblogs.com/wuhanhoutao/archive/2008/01/10/1033782.html
+
+在 C:"WINDOWS"Fonts 文件夹下面有几个矢量字体文件，如SIMFANG.TTF，SIMHEI.TTF，SIMKAI，SIMSUN分别对应着仿宋体，黑体，楷体和宋体。希望首先提取文件当中的存储的汉字位置信息，接着完成矢量化处理后，然后采用DC或OpenGL进行绘制。从表面上看，这个工作也就是想实现Windows API中间的TextOut和wglUseFontOuline等函数所实现的功能。但自己编程实现汉字的矢量化，能在后续工作中获得更多的灵活性，比如将用户输入的汉字换行处理，根据用户的输入对汉字进行任意角度的倾斜，总之，主动性掌握在自己手里。完成矢量化工作后，对这些汉字的处理如同处理普通的矢量图形一样，相当方便，而再不仅仅受制于系统 API所能提供的功能。具体的步骤为：
+
+1)     根据Unicode编码标准，存储汉字的编码表 。
+
+wchar_t Mystring[1001];                       //存储准备显示的宽字符的编码
+
+    count = 0;
+
+    for (i=0;i<1000;i++)
+
+    {
+
+        Mystring[count] = 19968 + i;         //十进制的对应着十六进制的e00 
+
+        count++;
+
+    }
+
+    Mystring[1000] = '"0';
+
+上面的例子中只准备提取1000个汉字，其实可以让循环从4e00进行到9521（十六进制），代表十进制的19968和38176，分别对应着汉字：一，锠。
+
+2）采用FreeType2代码读取*.ttf文件，得到每个汉字的轮廓信息。
+
+while( *c)                                                                     //依次处理字符
+
+        {
+
+                         fonts[0]->CheckGlyph(*c);
+
+                         ++c;
+
+}
+
+    
+
+3）在上叙第2步当中，完成矢量化工作的过程中，可采用De Casteljau算法处理贝塞尔(bezier)曲线。
+
+矢量化工作的入口：
+
+for( short contourIndex = 0; contourIndex < ftContourCount; ++contourIndex)
+
+    {
+
+        FT_Vector* pointList = &outline.points[startIndex];
+
+        char* tagList = &outline.tags[startIndex];
+
+        
+
+        endIndex = outline.contours[contourIndex];
+
+        contourLength = ( endIndex - startIndex) + 1;
+
+        FTContour* contour = new FTContour( pointList, tagList, contourLength);
+
+        
+
+        contourList[contourIndex] = contour;
+
+        
+
+        startIndex = endIndex + 1;
+
+}
+
+4)根据提取的位置信息，采用DC或OpenGL进行绘制。
+
+//采用DC绘制
+
+for( unsigned int c = 0; c < numContours; ++c)
+
+    {
+
+        const FTContour* contour = vectoriser.Contour(c);
+
+        iPolylineNumbers = iPolylineNumbers + 1;
+
+        geoAtomLine =(geoatom::CGeoAtomPolyline**)realloc(geoAtomLine,iPolylineNumbers*sizeof(geoatom::CGeoAtomPolyline*));
+
+        geoAtomLine[iPolylineNumbers-1] = new geoatom::CGeoAtomPolyline();    //原子分配内存，由于数组从开始记数，标记总是比个数少
+
+        for( unsigned int pointIndex = 0; pointIndex < contour->PointCount(); ++pointIndex)
+
+        {
+
+            FTPoint point = contour->Point(pointIndex);
+
+            geoAtomLine[iPolylineNumbers-1]->GetPtList()->add(fXaddition+iSize*point.X()/64.0f,fYaddition+iSize*point.Y()/64.0f);
+
+        }
+
+        geoAtomLine[iPolylineNumbers-1]->SetClosed(true);                          //将线段形成的区域封闭起来
+
+        geoSymPoint[iPointSymbolNum-1]->AddAtom(geoAtomLine[iPolylineNumbers-1]); //将线要素添加到这个符号中
+
+    }
+
+    
+
+}
+
+//采用OpenGL进行绘制。
+
+for( unsigned int c = 0; c < numContours; ++c)
+
+    {
+
+        const FTContour* contour = vectoriser.Contour(c);
+
+        
+
+        glBegin( GL_LINE_LOOP);                           //首尾相连接的多边形
+
+           for( unsigned int pointIndex = 0; pointIndex < contour->PointCount(); ++pointIndex)
+
+            {
+
+                FTPoint point = contour->Point(pointIndex);
+
+        //        glVertex2f( point.X() / 64.0f, point.Y() / 64.0f);           //提取顶点信息，绘制的落脚点
+
+                
+
+            }
+
+      // glEnd();
+
+    }
+

@@ -1,0 +1,69 @@
+三角形跟射线求交
+分类： 算法 C++ OpenGL 2010-02-25 10:16 1316人阅读 评论(1) 收藏 举报
+parallel
+[cpp] view plaincopyprint?
+/*! V0，V1，V2三角形三顶点 
+    I为交点 
+    返回值 -1：没有交点 
+            0：  交点在三角形外 
+            1：交点在三角形内部 
+*/  
+int intersect_RayTriangle( const gtl::Rayf& R,   
+                       const gtl::Vec3f& V0, const gtl::Vec3f& V1, const gtl::Vec3f& V2,  
+                       gtl::Vec3f& I )  
+{  
+    gtl::Vec3f    u, v, n;             // triangle vectors  
+    gtl::Vec3f    dir, w0, w;          // ray vectors  
+    float     r, a, b;             // params to calc ray-plane intersect  
+  
+    // get triangle edge vectors and plane normal  
+    u = V1 - V0;  
+    v = V2 - V0;  
+    n = u.cross(v);  
+  
+    if (n == gtl::Vec3f(0.0f, 0.0f, 0.0f))            // triangle is degenerate  
+        return -1;                 // do not deal with this case  
+  
+    dir = R.getDirection();             // ray direction vector  
+    w0 = R.getOrigin() - V0;  
+  
+    a = -( n.dot(w0) );  
+    // a = -dot(n,w0);  
+    b = n.dot(dir);  
+    //b = dot(n,dir);  
+    if (fabs(b) < SMALL_NUM) {     // ray is parallel to triangle plane  
+        if (a == 0)                // ray lies in triangle plane  
+            return 2;  
+        else return 0;             // ray disjoint from plane  
+    }  
+  
+    // get intersect point of ray with triangle plane  
+    r = a / b;  
+    if (r < 0.0)                   // ray goes away from triangle  
+        return 0;                  // => no intersect  
+    // for a segment, also test if (r > 1.0) => no intersect  
+  
+    I = R.getOrigin() + r * dir;           // intersect point of ray and plane  
+  
+    //// is I inside T?  
+    float    uu, uv, vv, wu, wv, D;  
+  
+    uu = u.dot(u);  
+    uv = u.dot(v);  
+    vv = v.dot(v);  
+    w = I - V0;  
+    wu = w.dot(u);  
+    wv = w.dot(v);  
+    D = uv * uv - uu * vv;  
+  
+    // get and test parametric coords  
+    float s, t;  
+    s = (uv * wv - vv * wu) / D;  
+    if (s < 0.0 || s > 1.0)        // I is outside T  
+        return 0;  
+    t = (uv * wu - uu * wv) / D;  
+    if (t < 0.0 || (s + t) > 1.0)  // I is outside T  
+        return 0;  
+  
+    return 1;                      // I is in T  
+}  

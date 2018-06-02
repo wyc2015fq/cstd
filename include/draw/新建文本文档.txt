@@ -1,0 +1,41 @@
+private ArrayList>> buildTangentPoints() {
+        ArrayList<pointf> points;   // 1条线点集
+        ArrayList> morepoints;    // 多条线点集
+        ArrayList>> allpoints = new ArrayList<>();  // 所有点集
+        PointF point;
+        int order = mControlPoints.size() - 1;
+        float delta = 1.0f / FRAME;
+        for (int i = 0; i < order - 1; i++) {
+            int size = allpoints.size();
+            morepoints = new ArrayList<>();
+            for (int j = 0; j < order - i; j++) {
+                points = new ArrayList<>();
+                for (float t = 0; t <= 1; t += delta) {
+                    float p0x = 0;
+                    float p1x = 0;
+                    float p0y = 0;
+                    float p1y = 0;
+                    int z = (int) (t * FRAME);
+                    if (size > 0) {
+                        p0x = allpoints.get(i - 1).get(j).get(z).x;
+                        p1x = allpoints.get(i - 1).get(j + 1).get(z).x;
+                        p0y = allpoints.get(i - 1).get(j).get(z).y;
+                        p1y = allpoints.get(i - 1).get(j + 1).get(z).y;
+                    } else {
+                        p0x = mControlPoints.get(j).x;
+                        p1x = mControlPoints.get(j + 1).x;
+                        p0y = mControlPoints.get(j).y;
+                        p1y = mControlPoints.get(j + 1).y;
+                    }
+                    float x = (1 - t) * p0x + t * p1x;
+                    float y = (1 - t) * p0y + t * p1y;
+                    point = new PointF(x, y);
+                    points.add(point);
+                }
+                morepoints.add(points);
+            }
+            allpoints.add(morepoints);
+        }
+ 
+        return allpoints;
+    }</arraylist</arraylist<pointf></pointf></arraylist</code>

@@ -1,0 +1,13 @@
+//VARENUM_DEF(_VT_NULL, void*,"%s", "null"), var_free(v))
+//VARENUM_DEF(_VT_LPSTR, char*, "%s", v->v), 0)
+VARENUM_DEF(_VT_I2, short, "%d", atoi(s))
+VARENUM_DEF(_VT_I4, int, "%d", atoi(s))
+VARENUM_DEF(_VT_I1, char, "%d", atoi(s))
+VARENUM_DEF(_VT_I8, __int64, "%I64d", atoi(s))
+VARENUM_DEF(_VT_R4, float, "%f", atof(s))
+VARENUM_DEF(_VT_R8, double, "%f", atof(s))
+//VARENUM_DEF(_VT_UI1, unsigned char,"%u", atoi(s))
+//VARENUM_DEF(_VT_UI2, unsigned short,"%u", atoi(s))
+//VARENUM_DEF(_VT_UI4, unsigned int,"%u", atoi(s))
+//VARENUM_DEF(_VT_UI8, unsigned __int64,"%I64d", atoi(s))
+

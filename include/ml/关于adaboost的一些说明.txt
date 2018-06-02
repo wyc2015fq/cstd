@@ -1,0 +1,247 @@
+关于adaboost的一些说明
+分类： 图像处理操作 2012-09-21 13:48 1102人阅读 评论(0) 收藏 举报
+算法structobjectfeaturesalgorithmtraining
+
+本文转自：http://www.opencv.org.cn/forum/viewtopic.php?t=4264
+
+ 
+上学期拿出一部分时间来做adaboost，做的时候做了一些笔记。论坛上也有一些正在读程序研究算法的人。我就把这份粗糙的笔记拿出来与大家分享一下吧。肯定有错误的地方，也有不妥当的地方，大家不要太相信我
+
+还有这个地方不能贴公式，不能贴图片，还有我很懒，就挑了几幅重要的贴了，其他的大家去看文章吧
+
+排版不好看，也许写得也不明白，大家多包涵，希望大家可以完善这个文档。让后来者少走些弯路。
+
+不用发论坛消息问我，发在这里让更多人看见，更多人解答，然后也可以让更多的人知道，更好些
+
+第一部分:算法的产生
+
+1996年Yoav Freund在Experiments with a New Boosting Algorithm中提出了AdaBoost.M1和AdaBoost.M2两种算法.其中,AdaBoost.M1是我们通常所说的Discrete AdaBoost;而AdaBoost.M2是M1的泛化形式.该文的一个结论是:当弱分类器算法使用简单的分类方法时,boosting的效果明显地统一地比bagging要好.当弱分类器算法使用C4.5时,boosting比bagging较好,但是没有前者的比较来得明显.
+
+文献中记录的.M1算法
+初始
+1.获得一组样本(X)和它的分类(Y)和一个分类器(weaklearn).
+2.赋予平均的权值分布D(i)
+进入循环:T次
+1. 赋予弱分类器权值D(i),使用弱分类器获得样本(X)到分类(Y)上的一个映射.(就是把某个X归到某个Y类中去)
+2. 计算这个映射的误差e.e=各个归类错误的样本权值之和.如果e>1/2那么弱分类器训练失败,挑出循环,训练结束(这在二值检测中是不会发生的,而多值的情况就要看分类器够不够强健了)
+3. 设B = e / ( 1 - e ).用于调整权值.因为e<1/2.因此0<B<1
+4. 如果某样本分类正确,该样本的权值就乘以B让权值变小;如果分类错误,就让该样本的权值乘以B^-1或者不变,这样就让分类正确的样本权值降低,分类错误的样本权值升高,加强了对较难分类样本的分类能力
+5. 权值均衡化
+循环结束
+1. 最终的分类器是,当一个X进入时,遍历所有Y,寻找使(h(x)=y的情况下,log(1/B)之和)最大者即是输出分类y
+
+M2相比于M1的改进是允许弱分类器输出多个分类结果,并输出这几个分类结果的可能性(注意,这里不是概率)
+
+.M2的流程是
+1.获得一组样本(X)和它的分类(Y)和一个分类器(weaklearn).
+2.对于某个样本Xi将它的分类归为一个正确分类Yi和其他不正确分类Yb
+3.样本权值进行如下分布首先每个样本分到1/m的权值,然后每个不正确分类分到(1/m)/Yb的个数.也就是说样本权值是分到了每个不正确的分类上
+
+进入循环
+1. 求每个样本的权值,即每个样本所有不正确的分类的权值和,再求每个样本错误分类的权值,即不正确分类的权值除以该样本的权值.最后将每个样本的权值归一化
+2. 将样本权值和某样本的不正确分类的权值输入到weaklearn,获得弱分类器的输出为各个分类的可能值
+3. 计算伪错误率:公式见上
+4. 更新权值
+退出循环
+最终的强分类器: 图贴不出来了...
+
+1999年, ROBERT E. SCHAPIRE和YORAM SINGER,于Machine Learning发表论文: Improved Boosting Algorithms Using Confidence-rated Predictions.提出了更具一般性的AdaBoost形式.提出了自信率以改善AdaBoost的性能.并提出了解决多标签问题的AdaBoost.MH和AdaBoost.MR算法,其中AdaBoost.MH算法的一种形式又被称为Real Boost算法.
+事实上:Discrete AdaBoost是指,弱分类器的输出值限定在{-1,+1}，和与之相应的权值调整，强分类器生成的AdaBoost算法；Real AdaBoost是指，弱分类器输出一个可能度，该值的范围是整个R, 和与之相应的权值调整，强分类器生成的AdaBoost算法。事实上，Discrete到Real的转变体现了古典集合到模糊集合转变的思想
+
+至于Gentle AdaBoost.考虑到(AdaBoost对”不像”的正样本权值调整很高,而导致了分类器的效率下降),而产生的变种算法.它较少地强调难以分类的样本.
+Rainer Lienhart, Alexander Kuranov, Vadim Pisarevsky在论文Empirical Analysis of Detection Cascades of Boosted Classifiers for Rapid Object Detection中提出在stump弱分类器(即每个弱分类器使用一个特征进行分类)上进行的对比试验中,Gentle的结果明显好于Real和Discrete.大牛已经做出试验了,我就不怀疑它了.
+
+和上篇论文流程大体相同.作者还讨论了alpha(t)的取法:
+算法去看文章吧...这里不能直接贴图
+
+
+文献中记录的AdaBoost.MH算法
+算法的运算流程:
+1. 得到一组样本(m个)和样本相应的分类,这个分类是由K个是和否的标签组成.某一个样本可以有多个是标签.
+2. 均分权值:1/mk
+
+进入循环:
+1. 由弱分类器获得各样本针对各标签的是或否结果(给出离散值或连续值)
+2. 获得alpha（t）
+3. 调整权值.大概是,弱分类器判断l标签的是或否,若判断正确乘以1,错误乘以-1,再乘以 ,然后blablabla…
+4. 权值归一化
+跳出循环
+
+输出强分类器
+
+1998年Jerome Friedman & Trevor Hastie & Robert Tibshirani发表文章Additive Logistic Regression: a Statistical View of Boosting
+
+一些重要的结论:
+Bagging是一个纯粹的降低相关度的方法,如果树的节点具有很高的相关性,bagging就会有好的结果
+1.早期的AdaBoost在第二步的时候采用重采样方法,即使某些样本权重增加.这种方法与bagging存在某种关联,它也是Boost的成功之处中降低相关度方面的重要部分.
+2.在第二步中如果使用加权的tree-growing算法,而不是重采样算法,效果会更好. This removes the randomization component essential in bagging
+3.使用stumps作为弱分类器
+
+
+Logit和Gentle算法的提出过程大致是这样的
+1. 验证Boosting algorithms是一种拟合一个additive logistic regression model(加性的逻辑回归模型)的阶段式估计过程.它有最优一个指数判据,这个判据由第二定理与二项式对数似然判据是等价的.
+2. 作者证明Discrete是使用adaptive Newton updates拟合一个additive logistic regression model来最小化Ee^(-yF(x))的过程,其中F(x)=求和fm(x),而fm(x)就是各层分类器的结果
+3. 作者证明Real是使用层级最优的方法来拟合一个additive logistic regression model.
+4. 作者说明了为什么要选择Ee^(-yF(x))作为目标:因为大家都用这个
+5. 作者证明了当（blabla一个很复杂的公式，贴不出来）时Ee^(-yF(x))最小
+6. 作者证明了每次权值更新以后,最近一次训练出的弱分类器错误率为50%.
+7. 作者证明了对于最优的F(x),样本的分类乘以权值的和应该为0.
+
+于是作者用80年代兴起的逻辑回归的寻优方法中提炼出了LogitBoost(我终于找到logitBoost的logic了)
+
+自适应的牛顿法,拟合加性logistic回归模型
+1. 获得样本,(x,y)序列.将分类y*=(y+1)/2
+2. 设置初值,F(x)=0,p(xi)=1/2
+
+进入循环
+1. 依式计算zi,wi.
+2. 通过加权最小二乘的方式拟合函数fm(x).由zi拟合xi,权重为wi
+3. 更新F(x),p(x)
+退出循环
+
+输出分类器sign[F(x)].
+
+作者提出,logitAdaBoost在每一轮中都使Ee^(-y(F(x)+f(x)))最优,会使训练样本的代表性下降,于是提出了Gentle AdaBoost(牛顿步长法)
+
+第二部分 人脸检测
+
+2001年,Paul Viola & Michael Jones在ACCEPTED CONFERENCE ON COMPUTER VISION AND PATTERN RECOGNITION发表文章: Rapid Object Detection using a Boosted Cascade of Simple Features
+文章的主要结论:
+1.Haar特征的提出.使AdaBoost进行人脸检测成为可能.作者说明使用Haar特征而不是像素点的原因是:特征能包含某些特别领域的信息(encode ad-hoc domain knowledge that is difficult to learn using a finite quantity of training data.);此外在Integral提出以后,基于特征的系统的运算速度高于基于像素的系统
+2.用于快速Haar特征运算的Integral Image的提出:极大地提高了训练速度和检测速度
+3.用于物体检测的AdaBoost方法的提出:Haar特征作为弱分类器判据与Adaboost结合到了一起
+4.Cascade级联方式的提出:极大地提高了AdaBoost的检测速度
+[实在是一篇很NB的文章,每一个贡献都掷地有声]
+
+2002年, Rainer Lienhart and Jochen Maydt 在 IEEE ICIP 上发表文章An Extended Set of Haar-like Features for Rapid Object Detection.
+1. 提出了扩展的Haar特征,并证明了新的Haar特征集提高了检测的能力
+2. 提出了一种针对已训练完成的AdaBoost的修整程序
+
+2002年, Rainer Lienhart & Alexander Kuranov & Vadim Pisarevsky 在MRL Technical Report上发表Empirical Analysis of Detection Cascades of Boosted Classifiers for Rapid Object Detection.
+1. 提出了训练时进行样本丰富化
+2. 指出:logitBoost could not be used due to convergence problem on later stages in the cascade training.
+3. 通过试验得出结论,在人脸检测上Gentle AdaBoost的效果要好于 Discrete 和 Real
+
+2004年, Bo WU & Haizhou AI & Chang HUANG & Shihong LAO在Computer Society上发表文章Fast Rotation Invariant Multi-View Face Detection Based on Real AdaBoost.
+1. 提出了使用Real Boost检测旋转人脸
+
+*****************还有一篇巨大量负样本的速度提高方法找不到了……
+
+第三部分,OpenCv中AdaBoost训练程序略解
+
+这里只介绍一个大概的情况,具体的都写在代码的注释里了.
+
+1.结构:
+程序的总体结构是一棵多叉树,每个节点多少个叉由初始设定的maxtreesplits决定
+
+图片
+
+树节点结构:
+typedef struct CvTreeCascadeNode
+{
+CvStageHaarClassifier* stage; // 指向该节点stage强分类器的指针
+
+struct CvTreeCascadeNode* next; // 指向同层下一个节点的指针
+struct CvTreeCascadeNode* child; // 指向子节点的指针
+struct CvTreeCascadeNode* parent; // 指向父节点的指针
+
+struct CvTreeCascadeNode* next_same_level;//最后一层叶节点之间的连接
+struct CvTreeCascadeNode* child_eval; //用于连接最终分类的叶节点和根节点
+int idx; //表示该节点是第几个节点
+int leaf; //从来没有用到过的参数
+} CvTreeCascadeNode;
+
+这里需要说明的是child_eval这个指针，虽说人脸检测是一个单分类问题，程序中的maxtreesplits的设置值为0，没有分叉，但是树本身是解决多分类问题的，它有多个叶节点，也就有多个最终的分类结果。但是我们使用的时候，虽然是一个多分类的树，也可能我们只需要判断是或者不是某一类。于是我们就用root_eval和child_eval把这个分类上的节点索引出来，更方便地使用树结构。当然，这一点在本程序中是没有体现的。
+
+分类器结构：
+每个树节点中都包含了一个CvStageHaarClassifier强分类器，而每个CvStageHaarClassifier包含了多个CvIntHaarClassifier弱分类器。当CvIntHaarClassifier被使用的时候，被转化为CvCARTHaarClassifier，也就是分类树与衰减数分类器作为一个弱分类器。
+
+typedef struct CvCARTHaarClassifier
+{
+CV_INT_HAAR_CLASSIFIER_FIELDS()
+
+int count; /* 在决策树中的节点数 number of nodes in the decision tree */
+int* compidx; //特征序号
+CvTHaarFeature* feature; //选出的特征。数组
+CvFastHaarFeature* fastfeature;
+
+float* threshold; /* array of decision thresholds */
+int* left; /* array of left-branch indices */
+int* right; /* array of right-branch indices */
+float* val; /* array of output values */
+} CvCARTHaarClassifier;
+
+CvCARTHaarClassifier结构中包含了弱分类器的左值右值阈值等数组，在我们的程序中CART只选用了一个特征进行分类，即退化成了stump。这里的数组里面就只存有一个元了
+
+那么这里为什么要使用一个如此复杂的结构呢。大体来说有两个好处：
+1、 方便弱分类器之间的切换，当我们不选用CART而是其他的弱分类器结构的时候，就可以调用CvIntHaarClassifier时转换成其他的指针
+2、 这样方便了Haar训练的过程和Boost过程的衔接。
+
+特征的结构：
+图片
+
+2.OpenCV的HaarTraining程序中一种常用的编程方法：
+在这个程序中，函数指针是一种很常用的手法。函数指针的转换使读程序的人更难把握程序的脉络，在这里举一个最极端的例子，来说明程序中这种手法的应用。
+
+我们在cvBoost.cpp文件中的cvCreateMTStumpClassifier函数（这是一个生成多阈值(Multi-threshold)stump分类器的函数）下看到了一个这样的调用：
+findStumpThreshold_16s[stumperror]（……….）
+这里对应的stumperror值是2
+
+在cvboost.cpp中我们找到了一个这样的数组
+CvFindThresholdFunc findStumpThreshold_16s[4] = {
+icvFindStumpThreshold_misc_16s,
+icvFindStumpThreshold_gini_16s,
+icvFindStumpThreshold_entropy_16s,
+icvFindStumpThreshold_sq_16s
+};
+这个数组的类型是一个类型定义过的函数指针typedef int (*CvFindThresholdFunc)（…..）
+
+因此这个数组中的四项就是四个指针，我们在cvCreateMTStumpClassifier中调用的也就是其中的第三项icvFindStumpThreshold_entropy_16s。
+
+然后我们发现这个函数指针没有直接的显性的实现。那么问题出在哪里呢？
+它是通过宏实现的：
+程序中定义了一个这样的宏：
+#define ICV_DEF_FIND_STUMP_THRESHOLD_SQ( suffix, type )
+ICV_DEF_FIND_STUMP_THRESHOLD( sq_##suffix, type,
+/* calculate error (sum of squares) */
+/* err = sum( w * (y - left(rigt)Val)^2 ) */
+curlerror = wyyl + curleft * curleft * wl - 2.0F * curleft * wyl;
+currerror = (*sumwyy) - wyyl + curright * curright * wr - 2.0F * curright * wyr;
+)
+
+和一个这样的宏：
+#define ICV_DEF_FIND_STUMP_THRESHOLD( suffix, type, error )
+CV_BOOST_IMPL int icvFindStumpThreshold_##suffix(…..)
+{
+……..
+}
+
+这两个宏中，后者是函数的主体部分，而函数的定义通过前者完成。即：
+ICV_DEF_FIND_STUMP_THRESHOLD_ENTROPY( 16s, short )，这样的形式完成。这相当于给前者的宏传递了两个参数，前者的宏将第一个参数转换成sq_16s后和第二个参数一起传到后者的宏。（##是把前后两个string连接到一起，string是可变的两，在这里suffix就放入了16s和sq_结合成了sq_16s）
+后者的宏接收到参数以后就进行了函数的定义：
+CV_BOOST_IMPL int icvFindStumpThreshold_sq_16s
+
+这样icvFindStumpThreshold_sq_16s就被定义了。这样做的好处是，12个非常相似的函数可以通过两个宏和12个宏的调用来实现，而不需要直接定义12个函数。
+
+3.训练结果中数据的含义：
+- <feature>
+- <rects>
+<_>6 4 12 9 -1.</_>
+//矩阵。前四个数值是矩阵四个点的位置，最后一个数值是矩阵像素和的权值
+<_>6 7 12 3 3.</_>
+//矩阵。前四个数值是矩阵四个点的位置，最后一个是像素和的权值，这样两个矩阵就形成了一个Haar特征
+</rects>
+<tilted>0</tilted> //是否是倾斜的Haar特征
+</feature>
+<threshold>-0.0315119996666908</threshold> //阈值
+<left_val>2.0875380039215088</left_val> //小于阈值时取左值
+<right_val>-2.2172100543975830</right_val> //大于阈值时取右值
+
+
+
+4. 训练过程中使用的算法
+这里主要讲弱分类器算法
+
+?矩形特征值：Value[i][j], 1≤i≤n代表所有的Haar特征，1≤j≤m代表所有的样本
+?FAULT = (curlerror + currerror)表示当前分类器的错误率的最小值，初始设置：curlerror currerror= 1000000000000000000000000000000000000000000000000(反正给个暴力大的数值就对了)
+

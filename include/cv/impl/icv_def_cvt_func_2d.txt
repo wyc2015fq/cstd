@@ -1,0 +1,47 @@
+
+#define icv_def_cvt_func_2d(flavor, dsttype, worktype, cast_macro2,    
+                             srctype1, srctype1, cast_macro11,         
+                             srctype2, srctype2, cast_macro12,         
+                             srctype3, srctype3, cast_macro13,         
+                             srctype4, srctype4, cast_macro14,         
+                             srctype5, srctype5, cast_macro15,         
+                             srctype6, srctype6, cast_macro16)        
+static CvStatus C_STDCALL                                              
+icvCvtTo_##flavor##_C1R(const uchar* src, int srcstep,                 
+                         dsttype* dst, int dststep,                     
+                         CvSize size, int param)                       
+{                                                                       
+    int srctype = param;                                                
+    dststep /= sizeof(dst[0]);                                          
+                                                                        
+    switch(srctype)                                     
+    {                                                                   
+    case srctype1:                                                     
+        ICC_DEF_CVT_CASE_2D(srctype1, worktype,                        
+                             cast_macro11, cast_macro2);               
+        break;                                                          
+    case srctype2:                                                     
+        ICC_DEF_CVT_CASE_2D(srctype2, worktype,                        
+                             cast_macro12, cast_macro2);               
+        break;                                                          
+    case srctype3:                                                     
+        ICC_DEF_CVT_CASE_2D(srctype3, worktype,                        
+                             cast_macro13, cast_macro2);               
+        break;                                                          
+    case srctype4:                                                     
+        ICC_DEF_CVT_CASE_2D(srctype4, worktype,                        
+                             cast_macro14, cast_macro2);               
+        break;                                                          
+    case srctype5:                                                     
+        ICC_DEF_CVT_CASE_2D(srctype5, worktype,                        
+                             cast_macro15, cast_macro2);               
+        break;                                                          
+    case srctype6:                                                     
+        ICC_DEF_CVT_CASE_2D(srctype6, worktype,                        
+                             cast_macro16, cast_macro2);               
+        break;                                                          
+    }                                                                   
+                                                                        
+    return  CC_OK;                                                      
+}
+

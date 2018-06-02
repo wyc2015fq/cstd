@@ -1,0 +1,7 @@
+在进行对比实验部分，应该对比：
+1.	VJ框架（haar+离散adaboost（stump）+ cascade）,
+2.	ACF论文（组合+离散adaboost（depth-2）+ soft，
+3.	Nesting论文（haar + real adaboost + nesting）
+4.	自己框架 （组合 + gentle adaboost + nesting）or （组合 + real adaboost + nesting）
+
+以上4个实验都需要进行，重点得到：1、检测器（用来进行自己的框架与其他框架检测性能的对比，检测率/误检率）；2、特征选择个数；3、分类器级数；4、训练时间（特征提取时间，检测器训练时间）这四项指标即可。

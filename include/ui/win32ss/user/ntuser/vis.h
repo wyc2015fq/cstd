@@ -1,0 +1,16 @@
+/* $Id: vis.h 56311 2012-04-01 20:42:43Z akhaldi $
+ *
+ * COPYRIGHT:        See COPYING in the top level directory
+ * PROJECT:          ReactOS Win32k subsystem
+ * PURPOSE:          Visibility computations interface definition
+ * FILE:             include/win32k/vis.h
+ * PROGRAMMER:       Ge van Geldorp (ge@gse.nl)
+ *
+ */
+
+#pragma once
+
+HRGN FASTCALL VIS_ComputeVisibleRegion(PWND Window, BOOLEAN ClientArea, BOOLEAN ClipChildren, BOOLEAN ClipSiblings);
+VOID FASTCALL co_VIS_WindowLayoutChanged(PWND Window, HRGN UncoveredRgn);
+
+/* EOF */

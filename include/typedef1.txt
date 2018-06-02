@@ -1,0 +1,11 @@
+//此文件由 typedef.js自动生成，请勿修改
+TYPEDEF(CC_1U,u1,1,uchar)
+TYPEDEF(CC_1S,s1,1,char)
+TYPEDEF(CC_2U,u2,2,ushort)
+TYPEDEF(CC_2S,s2,2,short)
+TYPEDEF(CC_4U,u4,4,uint)
+TYPEDEF(CC_4S,s4,4,int)
+TYPEDEF(CC_8U,u8,8,uint64)
+TYPEDEF(CC_8S,s8,8,int64)
+TYPEDEF(CC_4F,f4,4,float)
+TYPEDEF(CC_8F,f8,8,double)

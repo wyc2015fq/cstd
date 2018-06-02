@@ -1,0 +1,368 @@
+ 四元数与旋转
+标签： floatmatlabfunctionmatrixvectorc
+2011-09-03 12:01 6605人阅读 评论(1) 收藏 举报
+分类：
+3D math（9）
+
+版权声明：本文为博主原创文章，未经博主允许不得转载。
+
+一．四元组基础
+
+Q(x,y,z,w)，其中x，y，z用来确定旋转轴，w为旋转的角度
+
+Q=w+xi+yj+zk，i，j，k为三个虚轴的单位分量
+
+I*j=k
+
+J*k=i;
+
+K*i=j;
+
+叉乘：
+
+c=a × b= 
+
+| i    j     k| 
+|a1  b1  c1| 
+|a2  b2  c2| 
+=(b1c2-b2c1,c1a2-a1c2,a1b2-a2b1)
+
+c也为一个向量，且c的长度为|a||b|sin(theta)，垂直于a和b所在的平面，方向由右手法则来判定，用右手的四指先表示向量a的方向，然后手指朝着手心的方向摆动到向量b的方向，大拇指所指的方向就是向量c的方向
+
+ 
+
+ 
+
+1． 四元组相乘：
+
+Q1=w1+x1i+y1j+z1k=(w1,v1)
+
+Q2=w2+x2i+y2j+z2k=(w2,v2)
+
+Q1*Q2=(w1*w2-<v1,v2>,w1*v2+w2*v1+v1xv2)
+
+( w1+x1i+y1j+z1k)*( w2+x2i+y2j+z2k)
+
+ =w1*w2-x1*x2-y1*y2-z1*z2+
+
+ (W1*x2+x1*w2+y1*z2-z1-y2)i+
+
+(y1*w2+w1*y2+z1*x2-x1*z2)j+
+
+(w1*z2+z1*w2+x1*y2-y1*x2)k
+
+        对于其中的轴部分，假如v1//v2，则有v1 x v2=0（平行向量的叉乘结果为0）
+
+2． 四元组的点乘，点乘积为数值：
+
+Q1.*Q2=w1*w2+<v1,v2>=w1*w2+x1*x2+y1*y2+z1*z2;
+
+3． 数乘
+
+        s为一实数，q为四元组，则有sq=qs
+
+4． 共轭
+
+p=(w,v)，则p*=(w,-v)
+
+ 
+
+(pq)*=q*p*
+
+ 
+
+N(q)=w2+x2+y2+z2
+
+q-1=q*/N(q)---------------à显然可得qq-1=(1,0)
+
+ 
+
+ 
+
+二．使用四元数旋转向量
+
+假如有一表示向量的四元组q=(w,v)，对其应用旋转量p后的结果为：
+
+       q’=pqp-1=(w,v’)
+
+从上可以看出，计算的结果q’的实部和q的实部是相等的，并且有N(v)=N(v’)
+
+ 
+
+如果N(q)=1，则可以令q=(cosa,usina)，u也为一个单位向量，则q’是q绕u旋转2a个弧度的结果
+
+ 
+
+假如S(q)表示q的实部，则有2S(q)=q+q*
+
+ 
+
+2S(pqp-1)= pqp-1+( pqp-1)*=pqp*+(pqp*)*=pqp*+pq*p*=p(q+q*)p*=2S(q)
+
+（这里由于p是单位四元数，所以有p-1等于p*）
+
+ 
+
+ 
+
+ 
+
+欧拉角到四元数的转换
+
+ 定义pitch, yaw, roll分别为绕X轴、Y轴、Z轴的旋转弧度
+
+[cpp] view plain copy
+
+    float p = pitch * PIOVER180 / 2.0;  
+    float y = yaw * PIOVER180 / 2.0;  
+    float r = roll * PIOVER180 / 2.0;  
+      
+    float sinp = sin(p);  
+    float siny = sin(y);  
+    float sinr = sin(r);  
+    float cosp = cos(p);  
+    float cosy = cos(y);  
+    float cosr = cos(r);  
+      
+    this->x = sinr * cosp * cosy - cosr * sinp * siny;  
+    this->y = cosr * sinp * cosy + sinr * cosp * siny;  
+    this->z = cosr * cosp * siny - sinr * sinp * cosy;  
+    this->w = cosr * cosp * cosy + sinr * sinp * siny;   
+      
+    normalise();  
+
+
+
+
+三．使用matlab进行相关计算
+
+ 
+
+计算两个向量v1和v2之间的旋转量四元数p，使得v1应用p后到达v2
+
+ 
+
+假如v1转到v2的旋转轴为v，旋转角为theta，则q=[v*cos(theta/2) sin(theta/2)]
+
+Matlab代码：
+
+[cpp] view plain copy
+
+    function q=vector2q(v1,v2)  
+        %..normalize....  
+        len1=sqrt(v1*v1');  
+        len2=sqrt(v2*v2');  
+        v1=v1/len1;  
+        v2=v2/len2;  
+        angle=v1*v2';  
+        axis=cross(v1,v2);  
+        alen=sqrt(axis*axis');  
+        axis=axis/alen;  
+        t=acos(angle);  
+        t=t/2;  
+        q(1)=axis(1)*sin(t);  
+        q(2)=axis(2)*sin(t);  
+        q(3)=axis(3)*sin(t);  
+        q(4)=cos(t);  
+       
+    end  
+
+
+
+ 
+
+计算出了q之后，可以获得对应的旋转矩阵，旋转矩阵的计算
+
+Matlab里面的矩阵是以列为主顺序的
+
+[cpp] view plain copy
+
+    function r=q2rot(q)  
+       w=q(4);  
+       x=q(1);  
+       y=q(2);  
+       z=q(3);  
+       
+       r=zeros(3,3);  
+       r(1,1)=1-2*y*y-2*z*z;  
+       r(1,2)=2*x*y+2*w*z;  
+       r(1,3)=2*x*z-2*w*y;  
+       
+       r(2,1)=2*x*y-2*w*z;  
+       r(2,2)=1-2*x*x-2*z*z;  
+       r(2,3)=2*z*y+2*w*x;  
+       
+       r(3,1)=2*x*z+2*w*y;  
+       r(3,2)=2*y*z-2*w*x;  
+       r(3,3)=1-2*x*x-2*y*y;  
+       r=r';  
+    end  
+
+
+
+同时，也可以根据四元数来计算欧拉角
+
+[cpp] view plain copy
+
+    function R=q2euler(q)  
+       w=q(4);  
+       x=q(1);  
+       y=q(2);  
+       z=q(3);  
+       
+       t11=2*(w*x+y*z);  
+       t12=1-2*(x*x+y*y);  
+       R(1)=atan2(t11,t12);  
+       
+       t2=2*(w*y-z*x);  
+       R(2)=asin(t2);  
+       
+       t31=2*(w*z+x*y);  
+       t32=1-2*(y*y+z*z);  
+       R(3)=atan2(t31,t32);  
+       
+    end  
+
+
+
+计算出来的欧拉角rx，ry，rz，分别为绕X轴、Y轴和Z轴的旋转角，假如有：
+
+Rotq=q2rot(q)
+
+R=q2euler(q)
+
+[rotx roty rotz]=Rotation(R)
+
+ 
+
+可以发现Rotq==rotz*roty*rotx
+
+从这里可以看出，上面使用四元数这样计算出来的旋转矩阵的旋转顺序分别是X轴、Y轴和Z轴的
+
+[cpp] view plain copy
+
+    ra=pi/4;  
+    qz=[0 0 -sin(ra) cos(ra)] %绕z旋转-90度  
+    qy=[0 sin(ra) 0 cos(ra) ] %绕y旋转90度  
+       
+    qyz=qmult(qy,qz)  
+    r=q2euler(qyz)  
+
+
+上面的r得出的结果为
+
+r = -1.5708   0.0000  -1.5708
+
+也就是说其几何意义变成先绕X轴旋转-90度，再绕Z轴旋转-90度，而根据qy和qz的相乘我们实际进行的操作却是先绕Z轴旋转-90度，再绕Y轴旋转90度，但是结果却是这两种操作等价，这说明由四元数到欧拉角可以有多个解
+
+ 
+
+两个四元数，假如它们的方向是相反的，用它们作用于向量得到的新向量的值仍然相等
+
+[cpp] view plain copy
+
+    q1=[0.024666 -0.023954 0.504727 0.862594];  
+    arm=[-8.881719 6.037597 -2.36776];  
+    q2=-q1;  
+    rot1=q2rot(q1);  
+    rot2=q2rot(q2);  
+    v1=rot1*arm'  
+    v2=rot2*arm'  
+
+
+
+上面计算出来的v1等于v2
+
+ 
+
+ 
+
+四元数的余弦值为它们的内积
+
+假如余弦值小于0，则需要将其中的一个取反，因为上面我们知道一个四元数和它的反方向的四元数对一个向量起相同的作用
+
+ 
+
+ 
+
+四元数的相乘，代表旋转的累积
+
+[cpp] view plain copy
+
+    pq=p*q;  
+    rotp=q2rot(p);  
+    rotq=q2rot(q);  
+    rotpq=q2rot(pq);  
+    rotmul=rotp*rotq;  
+
+
+
+这里rotpq与rotmul相等
+
+ 
+
+ 
+
+四．OGRE中Quaternion类的几个函数
+
+ 
+
+1.      四元数到旋转向量
+
+void Quaternion::ToRotationMatrix (Matrix3& kRot) const
+
+1 - 2*qy2 - 2*qz2
+	
+
+2*qx*qy - 2*qz*qw
+	
+
+2*qx*qz + 2*qy*qw
+
+2*qx*qy + 2*qz*qw
+	
+
+1 - 2*qx2 - 2*qz2
+	
+
+2*qy*qz - 2*qx*qw
+
+2*qx*qz - 2*qy*qw
+	
+
+2*qy*qz + 2*qx*qw
+	
+
+1 - 2*qx2 - 2*qy2
+
+ 
+
+2.      旋转量到四元数
+
+根据1中的表格，有：
+
+4 *(1-qx2-qy2-qz2) = 1 + m00 + m11 + m22
+
+又qw2=1-qx2-qy2-qz2，可得
+
+4 *qw2= 1 + m00 + m11 + m22
+
+这里解qw必须保证1 + m00 + m11 + m22>=0，如果不是的话，就构造其他的等式来计算，OGRE中分成两种情况，一种是m00 + m11 + m22>=0，就可以直接先解出qw，否则的采用另外的等式计算
+
+ 
+
+3．Local axis
+
+Vector3 xAixs(void) const;
+
+取得旋转矩阵的第一列，旋转矩阵和一个向量相乘的话，第一列的数据均和向量的x分量相乘
+
+Vecotr3 yAxis(void) const;
+
+取得旋转矩阵的第二列，旋转矩阵和一个向量相乘的话，第二列的数据均和向量的y分量相乘
+
+Vecotr3 zAxis(void) const;
+
+取得旋转矩阵的第三列，旋转矩阵和一个向量相乘的话，第三列的数据均和向量的z分量相乘
+
+ 

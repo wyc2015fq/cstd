@@ -1,0 +1,42 @@
+size_t GetUtf8StrLen(const char* pStr)
+{
+    size_t nLen = 0;
+    char c = '\0';
+    while ('\0' != (c = *pStr))
+    {
+        // This char is ascii
+        if (0 == (0x80 & c))
+        {
+            nLen++;
+            pStr++;
+            continue;
+        }
+        else
+        {
+            // This is NOT a utf-8 header char
+            if (0 == (0x40 & c))
+            {
+                pStr++;
+                continue;
+            }
+
+
+            // Parse the utf-8 header char to parse the char length
+            unsigned char l = ((0xF0 & c) >> 4);
+            switch (l)
+            {
+            case 0xF:// utf-8 char is 4 bytes
+                pStr += 4;
+                break;
+            case 0xE:// utf-8 char is 3 bytes
+                pStr += 3;
+                break;
+            case 0xC:// utf-8 char is 2 bytes
+                pStr += 2;
+                break;
+            }
+            nLen++;
+        }
+    }
+    return nLen;
+} 

@@ -1,0 +1,317 @@
+
+<app name="main" Layouts="lays1" fonts="fonts1" ctrls="ctrls1" fonts="fonts1"></app>
+
+<button name="btn1"></button>
+
+<fonts name="fonts1">
+<font name="default">"宋体",12</font>
+<font name="font1">"宋体",12</font>
+</fonts>
+<ctrls name="ctrls1">
+<BUTTON name="btnclr" text="清除" font="font1"></BUTTON>
+<BUTTON name="btncap" text="采集" font="font1"></BUTTON>
+<BUTTON name="btnstop" text="停止采集" font="font1"></BUTTON>
+<BUTTON name="btnok" text="OK" font="font1"></BUTTON>
+<BUTTON name="btn1" text="1" font="font1"></BUTTON>
+<BUTTON name="btn2" text="2" font="font1"></BUTTON>
+<BUTTON name="btn3" text="3" font="font1"></BUTTON>
+<BUTTON name="btn4" text="4" font="font1"></BUTTON>
+<BUTTON name="btn5" text="5" font="font1"></BUTTON>
+<BUTTON name="btn6" text="6" font="font1"></BUTTON>
+<BUTTON name="btn7" text="7" font="font1"></BUTTON>
+<BUTTON name="btn8" text="8" font="font1"></BUTTON>
+<BUTTON name="btn9" text="9" font="font1"></BUTTON>
+<BUTTON name="btn0" text="0" font="font1"></BUTTON>
+<STATIC name="scord" text="" font="font1"></STATIC>
+<STATIC name="edid" text="" font="font1"></STATIC>
+<image name="image1" text=""></image>
+<image name="image2" text=""></image>
+
+<BUTTON name="boton1" text="boton1"></BUTTON>
+<BUTTON name="boton2" text="boton2"></BUTTON>
+<BUTTON name="boton3" text="boton3"></BUTTON>
+<BUTTON name="boton4" text="boton4"></BUTTON>
+<AUTOCHECKBOX name="check1" text="check1"></AUTOCHECKBOX>
+<MULTIEDIT name="memo" text="memo"></MULTIEDIT>
+<EDIT name="edit1" text="edit1"></EDIT>
+<EDIT name="edit2" text="edit2"></EDIT>
+<EDIT name="edit3" text="edit3"></EDIT>
+<STATIC name="label1" text="label1"></STATIC>
+<STATIC name="label2" text="label2"></STATIC>
+<STATIC name="label3" text="label3"></STATIC>
+<STATIC name="label4" text="label4"></STATIC>
+<RADIOGROUP name="radio1" text="radio1"></RADIOGROUP>
+<RADIO name="radio2" text="radio2"></RADIO>
+<RADIO name="radio3" text="radio3"></RADIO>
+<RADIOGROUP name="radio4" text="radio4"></RADIOGROUP>
+<RADIO name="radio5" text="radio5"></RADIO>
+<RADIO name="radio6" text="radio6"></RADIO>
+<IpAddress name="ipadd1" text="ipadd1"></IpAddress>
+<trackbar name="track1" text="track1"></trackbar>
+<progress name="progr1" text="progr1"></progress>
+<updown name="updown1" text="updown1"></updown>
+<Toolbar name="toolbar1" text="toolbar1"></Toolbar>
+<cap name="cap1" text=""></cap>
+<Menu1 name="Menu1" text="Menu1">
+玉溪卷烟厂
+    红梅一
+        1
+        2
+        3
+    -
+    红梅二
+    红梅三
+    -
+    红梅四
+    红梅五
+云南卷烟厂
+    白梅一
+        1
+        2
+        3
+    -
+    白梅二
+    白梅三
+    白梅四
+    白梅五
+沈阳卷烟厂
+    绿梅一
+    绿梅二
+    绿梅三
+    绿梅四
+    绿梅五
+成都卷烟厂
+    青梅一
+    青梅二
+    青梅三
+    青梅四
+    青梅五
+</Menu1>
+<ListView name="listview1" text="listview1">
+"玉溪卷烟厂","云南卷烟厂","沈阳卷烟厂","成都卷烟厂","xx卷烟厂"
+"红梅一","红梅二","红梅三","红梅四","红梅五"
+"白梅一","白梅二","白梅三","白梅四","白梅五"
+"绿梅一","绿梅二","绿梅三","绿梅四","绿梅五"
+"青梅一","青梅二","青梅三","青梅四","青梅五"
+"红梅一","红梅二","红梅三","红梅四","红梅五"
+"白梅一","白梅二","白梅三","白梅四","白梅五"
+"绿梅一","绿梅二","绿梅三","绿梅四","绿梅五"
+"青梅一","青梅二","青梅三","青梅四","青梅五"
+</ListView>
+<TreeView name="treeview1" text="treeview1">
+ImageList=Toolbar.bmp
+数据选择
+    玉溪卷烟厂
+        红梅一
+        红梅二
+        红梅三
+        红梅四
+        红梅五
+    云南卷烟厂
+        白梅一
+        白梅二
+        白梅三
+        白梅四
+        白梅五
+    沈阳卷烟厂
+        绿梅一
+        绿梅二
+        绿梅三
+        绿梅四
+        绿梅五
+    成都卷烟厂
+        青梅一
+        青梅二
+        青梅三
+        青梅四
+        青梅五
+</TreeView>
+<StatusBar name="status1" text="status1">
+250,"status text1"
+500,"status text2"
+600,"status text2"
+-1 ,"status text3"
+
+</StatusBar>
+<Tab name="tab1" text="tab1">
+tab1
+tab2
+tab3
+tab4
+tab5
+tab6
+</Tab>
+<ComboBox name="combo1" text="combo1">
+comboitem1
+comboitem2
+comboitem3
+comboitem4
+comboitem5
+comboitem1
+comboitem2
+comboitem3
+comboitem4
+comboitem5
+comboitem1
+comboitem2
+comboitem3
+comboitem4
+comboitem5
+comboitem1
+comboitem2
+comboitem3
+comboitem4
+comboitem5
+</ComboBox>
+<LISTBOX name="list1" text="list1">
+listitem1
+listitem2
+listitem3
+listitem4
+listitem5
+</LISTBOX>
+</ctrls>
+
+
+<Layouts name="lays1">
+<Layout name="nudo1">
+   EvaLayout, 0, 0, 5, 5
+    zzz,   100   ,   X    ,   X     ,
+     A,  btncap  , image1 , image2  ,
+     A,  btnstop ,   +    ,   +     ,
+     X ,         ,   +    ,   +     ,
+</Layout>
+<Layout name="nudo">
+   EvaLayout, 0, 0, 5, 5
+
+    zzz,         ,   X     , 100
+     A, toolbar1 ,   -     ,    -   ,
+     A, tab1     ,   -     ,    -   ,
+     50, boton1  ,   -     ,    -   ,
+     A , boton4  , edit2   , combo1 ,
+     X ,  +      , memo    ,  + ,
+     50, boton3  ,     -   ,  + ,
+   200, list1    ,   -     ,    -   ,
+     A, status1  ,   -     ,    -   ,
+</Layout>
+<Layout name="face1">
+   EvaLayout, 0, 0, 5, 5
+
+   zzz,    X     ,   X     ,   X     ,   X     ,   X     ,   X
+    60, scord    ,   -     ,   -     ,   -     ,   -     ,   -    ,
+    60, cap1     ,   -     ,   -     ,  edid   ,   -     ,   -    ,
+     X,  +       ,   -     ,   -     ,  btnstop,  btncap ,        ,
+     X,  +       ,   -     ,   -     ,  btnok  ,  btn0   , btnclr ,
+     X,  +       ,   -     ,   -     ,  btn1   ,  btn2   , btn3   ,
+     X,  +       ,   -     ,   -     ,  btn4   ,  btn5   , btn6   ,
+     X,  +       ,   -     ,   -     ,  btn7   ,  btn8   , btn9   ,
+
+</Layout>
+<Layout name="aaa1">
+   EvaLayout, 0, 0, 5, 5
+   zzz,   200    ,   X     
+     X, treeview1,  edid   ,
+     X,  +       ,   -     ,
+     X,  +       ,   -     ,
+     X,  +       ,   -     ,
+     X,  +       ,   -     ,
+     X,  +       ,   -     ,
+</Layout>
+<Layout name="cap">
+   EvaLayout, 0, 0, 5, 5
+
+   zzz,    X     ,   X     ,   X     ,   X     ,   X     ,   X
+     A, toolbar1 ,   -     ,   -     ,   -     ,   -     ,   -    ,
+     A, tab1     ,   -     ,   -     ,   -     ,   -     ,   -    ,
+   110, scord    ,   -     ,   -     ,  edid   ,   -     ,   -    ,
+     X, cap1     ,   -     ,   -     ,  btnok  ,  btn0   , btnclr ,
+     X,  +       ,   -     ,   -     ,  btn1   ,  btn2   , btn3   ,
+     X,  +       ,   -     ,   -     ,  btn4   ,  btn5   , btn6   ,
+     X,  +       ,   -     ,   -     ,  btn7   ,  btn8   , btn9   ,
+     A, status1  ,   -     ,   -     ,   -     ,   -     ,    -   ,
+
+</Layout>
+<Layout name="face">
+   EvaLayout, 0, 0, 5, 5
+
+    zzz,  150    ,   X     , 100
+     A, toolbar1 ,   -     ,    -   ,
+     A, tab1     ,   -     ,    -   ,
+     50, edid    ,  cap1   ,    -   ,
+     50, btncap  ,   +     ,    -   ,
+     50, btnclr  ,   +     ,    - ,
+     X ,         ,   +     ,    - ,
+     A, status1  ,   -     ,    -   ,
+
+</Layout>
+<Layout name="simple">
+   EvaLayout, 0, 0, 5, 5
+
+   xxx,    A     ,    X    ,    A   ,
+     A, toolbar1 ,   -     ,    -   ,
+     A, tab1     ,   -     ,    -   ,
+     A, boton1   ,listview1,    -   ,
+     A, boton2   ,   +     ,        ,
+     A, boton3   ,   +     ,        ,
+     A, boton4   ,   +     ,        ,
+     A, check1   ,   +     ,        ,
+     A, radio1   ,   +     ,        ,
+     A, radio2   ,   +     ,        ,
+     A, radio4   ,   +     ,        ,
+     A, radio5   ,   +     ,        ,
+     A, ipadd1   ,   +     ,        ,
+     A, combo1   ,   +     ,        ,
+     X,          ,   +     ,        ,
+     A, updown1  , track1  , progr1 ,
+   200, list1    ,   -     ,    -   ,
+     A, status1  ,   -     ,    -   ,
+</Layout>
+<Layout name="complet21">
+
+  EvaLayout, 0, 0, 5, 5
+
+   ZZZ,      A   ,    X    , 110
+     A, toolbar1 ,   -     ,    -   ,
+     A, tab1     ,   -     ,    -   ,
+     A, boton1   , cap1    ,    -   ,
+     A, boton2   ,   +     ,    -   ,
+     A, boton3   ,   +     ,    -   ,
+     X,          ,   +     ,        ,
+     A, status1  ,   -     ,    -   ,
+  
+</Layout>
+<Layout name="complet">
+
+  EvaLayout, 0, 0, 5, 5
+
+   ZZZ,      A   ,    X    , 110
+     A, toolbar1 ,   -     ,    -   ,
+     A, tab1     ,   -     ,    -   ,
+      , label1   , edit1   , -
+      , label2   , combo1   , label3
+      , label4   ,treeview1, -
+      , boton1   ,    +    , +
+      , boton2   ,    +    , +
+    X ,          ,    +    , +
+    A , boton3   ,         , boton4
+   200, list1    ,   -     ,    -   ,
+     A, status1  ,   -     ,    -   ,
+
+</Layout>
+<Layout name="complet2">
+
+  EvaLayout, 0, 0, 5, 5
+
+   ZZZ,      A   ,    X    , 110
+     A, toolbar1 ,   -     ,    -   ,
+     A, tab1     ,   -     ,    -   ,
+      , label4   , memo    , -
+      , boton1   ,    +    ,  
+      , boton2   ,    +    ,  
+     X,          ,    +    ,  
+      ,          ,         , boton4
+   200, list1    ,   -     ,    -   ,
+     A, status1  ,   -     ,    -   ,
+
+</Layout>
+</Layouts>

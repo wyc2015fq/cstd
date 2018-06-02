@@ -1,0 +1,4959 @@
+X_cursor
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+         XXX        XXX        
+         XXXX      XXXX        
+         XXXXX    XXXXX        
+          XXXXX  XXXXX         
+           XXXXXXXXXX          
+            XXXXXXXX           
+             XXXXXX            
+             XXXXXX            
+            XXXXXXXX           
+           XXXXXXXXXX          
+          XXXXX  XXXXX         
+         XXXXX    XXXXX        
+         XXXX      XXXX        
+         XXX        XXX        
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+X_cursor_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+        XXXX        XXXX       
+        XXXXX      XXXXX       
+        XXXXXX    XXXXXX       
+        XXXXXXX  XXXXXXX       
+         XXXXXXXXXXXXXX        
+          XXXXXXXXXXXX         
+           XXXXXXXXXX          
+            XXXXXXXX           
+            XXXXXXXX           
+           XXXXXXXXXX          
+          XXXXXXXXXXXX         
+         XXXXXXXXXXXXXX        
+        XXXXXXX  XXXXXXX       
+        XXXXXX    XXXXXX       
+        XXXXX      XXXXX       
+        XXXX        XXXX       
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+arrow
+                               
+                               
+              XX               
+            XXXX               
+          XXXXX                
+        XXXXXXX                
+      XXXXXXXX                 
+    XXXXXXXXXX                 
+        XXXXX                  
+       XXXXXX                  
+      XXX XX                   
+     XXX  XX                   
+    XXX   X                    
+   XXX    X                    
+  XXX                          
+   X                           
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+arrow_mask
+                               
+              XXX              
+            XXXXX              
+          XXXXXXX              
+        XXXXXXXX               
+      XXXXXXXXXX               
+    XXXXXXXXXXX                
+   XXXXXXXXXXXX                
+   XXXXXXXXXXX                 
+      XXXXXXXX                 
+     XXXXXXXX                  
+    XXXXXXXXX                  
+   XXXXX XXX                   
+  XXXXX  XXX                   
+ XXXXX    X                    
+  XXX                          
+   X                           
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+based_arrow_down
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+            XXXXXXXX           
+                               
+            XXXXXXXX           
+               XX              
+               XX              
+               XX              
+               XX              
+             X XX X            
+              XXXX             
+               XX              
+                               
+                               
+                               
+                               
+                               
+                               
+based_arrow_down_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+           XXXXXXXXXX          
+           XXXXXXXXXX          
+           XXXXXXXXXX          
+           XXXXXXXXXX          
+           XXXXXXXXXX          
+              XXXX             
+              XXXX             
+            XXXXXXXX           
+            XXXXXXXX           
+            XXXXXXXX           
+             XXXXXX            
+              XXXX             
+                               
+                               
+                               
+                               
+                               
+based_arrow_up
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+               XX              
+              XXXX             
+             X XX X            
+               XX              
+               XX              
+               XX              
+               XX              
+            XXXXXXXX           
+                               
+            XXXXXXXX           
+                               
+                               
+                               
+                               
+                               
+                               
+based_arrow_up_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+               XX              
+              XXXX             
+            XXXXXXXX           
+            XXXXXXXX           
+            XXXXXXXX           
+              XXXX             
+              XXXX             
+           XXXXXXXXXX          
+           XXXXXXXXXX          
+           XXXXXXXXXX          
+           XXXXXXXXXX          
+           XXXXXXXXXX          
+                               
+                               
+                               
+                               
+                               
+boat
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+        X                      
+      XXXXX                    
+ X   X    XX                   
+ XXXXXXXXXXXXXXXX              
+            XX                 
+           X                   
+          X                    
+ XXXXXXXXXX                    
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+boat_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+      XXX                      
+     XXXXXX                    
+ X  XXXXXXXX                   
+ XXXXXXXXXXXXXXXX              
+ XXXXXXXXXXXXXXXX              
+ XXXXXXXXXXXXXXXX              
+ XXXXXXXXXXXXX                 
+ XXXXXXXXXXX                   
+ XXXXXXXXXX                    
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+bogosity
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+         XXX   X   XXX         
+           X   X   X           
+           X   X   X           
+           X   X   X           
+         XXXXXXXXXXXXX         
+         X X   X   X X         
+         X X   X   X X         
+         X X   X   X X         
+         X X   X   X X         
+         XXXXXXXXXXXXX         
+           X   X   X           
+           X   X   X           
+           X   X   X           
+         XXX   X   XXX         
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+bogosity_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+        XXXXX XXX XXXXX        
+        XXXXX XXX XXXXX        
+        XXXXX XXX XXXXX        
+          XXX XXX XXX          
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+        XXXXX XXX XXXXX        
+        XXXXX XXX XXXXX        
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+          XXX XXX XXX          
+        XXXXX XXX XXXXX        
+        XXXXX XXX XXXXX        
+        XXXXX XXX XXXXX        
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+bottom_left_corner
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+               XX              
+               XX              
+               XX   X     X    
+               XX   X    X     
+               XX   X   X      
+               XX   X  X       
+               XX   X X        
+               XX   XX         
+               XX   XXXXXXX    
+               XX              
+               XX              
+               XX              
+               XXXXXXXXXXXXXX  
+               XXXXXXXXXXXXXX  
+                               
+                               
+bottom_left_corner_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XXXX             
+              XXXX             
+              XXXX XXX    XX   
+              XXXX XXX   XXX   
+              XXXX XXX  XXX    
+              XXXX XXX XXX     
+              XXXX XXXXXX      
+              XXXX XXXXX       
+              XXXX XXXXXXXXX   
+              XXXX XXXXXXXXX   
+              XXXX XXXXXXXXX   
+              XXXX             
+              XXXXXXXXXXXXXXXX 
+              XXXXXXXXXXXXXXXX 
+              XXXXXXXXXXXXXXXX 
+              XXXXXXXXXXXXXXXX 
+                               
+bottom_right_corner
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XX               
+              XX               
+    X     X   XX               
+     X    X   XX               
+      X   X   XX               
+       X  X   XX               
+        X X   XX               
+         XX   XX               
+    XXXXXXX   XX               
+              XX               
+              XX               
+              XX               
+  XXXXXXXXXXXXXX               
+  XXXXXXXXXXXXXX               
+                               
+                               
+bottom_right_corner_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXX              
+             XXXX              
+   XX    XXX XXXX              
+   XXX   XXX XXXX              
+    XXX  XXX XXXX              
+     XXX XXX XXXX              
+      XXXXXX XXXX              
+       XXXXX XXXX              
+   XXXXXXXXX XXXX              
+   XXXXXXXXX XXXX              
+   XXXXXXXXX XXXX              
+             XXXX              
+ XXXXXXXXXXXXXXXX              
+ XXXXXXXXXXXXXXXX              
+ XXXXXXXXXXXXXXXX              
+ XXXXXXXXXXXXXXXX              
+                               
+bottom_side
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+               X               
+               X               
+               X               
+               X               
+               X               
+               X               
+           X   X   X           
+            X  X  X            
+             X X X             
+              XXX              
+               X               
+                               
+         XXXXXXXXXXXXX         
+         XXXXXXXXXXXXX         
+                               
+                               
+bottom_side_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+          XX  XXX  XX          
+          XXX XXX XXX          
+           XXXXXXXXX           
+            XXXXXXX            
+             XXXXX             
+              XXX              
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+                               
+bottom_tee
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+                               
+                               
+                               
+                               
+                               
+                               
+bottom_tee_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+                               
+                               
+                               
+                               
+                               
+box_spiral
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+       XXXXXXXXXXXXXXX         
+       X                       
+       X XXXXXXXXXXXXX         
+       X X           X         
+       X X XXXXXXXXX X         
+       X X X       X X         
+       X X X XXXXX X X         
+       X X X X   X X X         
+       X X X X X X X X         
+       X X X XXX X X X         
+       X X X     X X X         
+       X X XXXXXXX X X         
+       X X         X X         
+       X XXXXXXXXXXX X         
+       X             X         
+       XXXXXXXXXXXXXXX         
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+box_spiral_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+center_ptr
+                               
+                               
+               XX              
+               XX              
+              XXXX             
+              XXXX             
+             XXXXXX            
+             XXXXXX            
+            XXXXXXXX           
+            XXXXXXXX           
+           XX  XX  XX          
+           X   XX   X          
+               XX              
+               XX              
+               XX              
+               XX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+center_ptr_mask
+                               
+              XXXX             
+              XXXX             
+             XXXXXX            
+             XXXXXX            
+            XXXXXXXX           
+            XXXXXXXX           
+           XXXXXXXXXX          
+           XXXXXXXXXX          
+          XXXXXXXXXXXX         
+          XXXXXXXXXXXX         
+          XXXXXXXXXXXX         
+          XXX XXXX XXX         
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+circle
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXX              
+           XXXXXXXX            
+          XXXXXXXXXX           
+         XXXX    XXXX          
+         XXX      XXX          
+        XXX        XXX         
+        XXX        XXX         
+        XXX        XXX         
+        XXX        XXX         
+         XXX      XXX          
+         XXXX    XXXX          
+          XXXXXXXXXX           
+           XXXXXXXX            
+             XXXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+circle_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+            XXXXXX             
+          XXXXXXXXXX           
+         XXXXXXXXXXXX          
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+       XXXXXX    XXXXXX        
+       XXXXX      XXXXX        
+       XXXXX      XXXXX        
+       XXXXX      XXXXX        
+       XXXXX      XXXXX        
+       XXXXXX    XXXXXX        
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+         XXXXXXXXXXXX          
+          XXXXXXXXXX           
+            XXXXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+clock
+                               
+                               
+                               
+           XXXXXXXXXX          
+          XX  XXXX  XX         
+         XX  X   XX  XX        
+         X  X  XX  X  X        
+         X  XXXX   X  X        
+         X   X    X   X        
+         XX   XXXX   XX        
+          XXXXXXXXXXXX         
+          X X  XX  X X         
+          X X  XX  X X         
+          X X  XX  X X         
+          X X XXXX X X         
+         XX X  XX  X XX        
+         XXXX      XXXX        
+         XXXXXXXXXXXXXX        
+         XXXXXXXXXXXXXX        
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+clock_mask
+                               
+                               
+                               
+          XXXXXXXXXXXX         
+         XXX XXXXX  XXX        
+         XX XX XXXXX XXX       
+         X XX XXXX XX XX       
+         X XXXXXXXXXX XX       
+         X  XXXXX XX  XX       
+         XX  XXXXXX  XXX       
+         XXXXXXXXXXXXXX        
+         XX X XXXX X XX        
+         XX X XXXX X XX        
+         XX X XXXX X XX        
+         XX XXXXXXXX XX        
+         XX X XXXX X XXX       
+         XXXX  XX  XXXXX       
+         XXXXXXXXXXXXXXX       
+         XXXXXXXXXXXXXXX       
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+coffee_mug
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+           XXXXXXXXX           
+          X         X          
+         XX          XX        
+         X X       XX X        
+         X  XXXXXXX   X        
+        XX            X        
+        XX            X        
+         X            X        
+         X            X        
+         X XX  X   XX X        
+         XX X X X X X X        
+        XXX X XXX X X X        
+        XX XX X X  XX X        
+         X            X        
+         X            X        
+          XXXXXXXXXXXX         
+                               
+                               
+                               
+                               
+                               
+                               
+coffee_mug_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+           XXXXXXXXX           
+          XXXXXXXXXXX          
+         XXXXXXXXXXXXXXX       
+         XXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+         XXXXXXXXXXXXXXX       
+         XXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+         XXXXXXXXXXXXXXX       
+          XXXXXXXXXXXX         
+                               
+                               
+                               
+                               
+                               
+                               
+cross
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+        XXXXXXX XXXXXXXX       
+                               
+        XXXXXXX XXXXXXXX       
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+cross_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+cross_reverse
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+         X    X X    X         
+        X X   X X   X X        
+         X X  X X  X X         
+          X X X X X X          
+           X XX XX X           
+            X X X X            
+        XXXXXX X XXXXXXX       
+              X X              
+        XXXXXX X XXXXXXX       
+            X X X X            
+           X XX XX X           
+          X X X X X X          
+         X X  X X  X X         
+        X X   X X   X X        
+         X    X X    X         
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+cross_reverse_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+         XX  XX XX  XX         
+        X XX XX XX XX XX       
+        XX XXXX XXXX XX        
+         XX XXX XXX XX         
+          XX XX XX XX          
+        XXXXX X X XXXXXX       
+        XXXXXX   XXXXXXX       
+               X               
+        XXXXXX   XXXXXXX       
+        XXXXX X X XXXXXX       
+          XX XX XX XX          
+         XX XXX XXX XX         
+        XX XXXX XXXX XX        
+        X XX XX XX XX XX       
+         XX  XX XX  XX         
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+crosshair
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+               X               
+               X               
+               X               
+               X               
+               X               
+               X               
+               X               
+        XXXXXXX XXXXXXXX       
+               X               
+               X               
+               X               
+               X               
+               X               
+               X               
+               X               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+crosshair_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+diamond_cross
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              X X              
+             XX XX             
+            X X X X            
+           X  X X  X           
+          X   X X   X          
+         X    X X    X         
+        XXXXXXX XXXXXXX        
+                               
+        XXXXXXX XXXXXXX        
+         X    X X    X         
+          X   X X   X          
+           X  X X  X           
+            X X X X            
+             XX XX             
+              X X              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+diamond_cross_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXXX             
+            XXXXXXX            
+           XXXXXXXXX           
+          XXX XXX XXX          
+         XXX  XXX  XXX         
+        XXX   XXX   XXX        
+        XXXXXXXXXXXXXXX        
+        XXXXXXX XXXXXXX        
+        XXXXXXXXXXXXXXX        
+        XXX   XXX   XXX        
+         XXX  XXX  XXX         
+          XXX XXX XXX          
+           XXXXXXXXX           
+            XXXXXXX            
+             XXXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+dot
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXX              
+           XXXXXXXX            
+           XXXXXXXX            
+          XXXXXXXXXX           
+          XXXXXXXXXX           
+          XXXXXXXXXX           
+          XXXXXXXXXX           
+           XXXXXXXX            
+           XXXXXXXX            
+             XXXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+dot_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+            XXXXXX             
+          XXXXXXXXXX           
+          XXXXXXXXXX           
+         XXXXXXXXXXXX          
+         XXXXXXXXXXXX          
+         XXXXXXXXXXXX          
+         XXXXXXXXXXXX          
+         XXXXXXXXXXXX          
+         XXXXXXXXXXXX          
+          XXXXXXXXXX           
+          XXXXXXXXXX           
+            XXXXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+dotbox
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+         XXXXXXXXXXXX          
+         X          X          
+         X          X          
+         X          X          
+         X          X          
+         X    XX    X          
+         X    XX    X          
+         X          X          
+         X          X          
+         X          X          
+         X          X          
+         XXXXXXXXXXXX          
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+dotbox_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+        XXX        XXX         
+        XXX        XXX         
+        XXX  XXXX  XXX         
+        XXX  XXXX  XXX         
+        XXX  XXXX  XXX         
+        XXX  XXXX  XXX         
+        XXX        XXX         
+        XXX        XXX         
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+double_arrow
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XX               
+             XXXX              
+            XXXXXX             
+           XX XX XX            
+          XX  XX  XX           
+              XX               
+              XX               
+              XX               
+              XX               
+          XX  XX  XX           
+           XX XX XX            
+            XXXXXX             
+             XXXX              
+              XX               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+double_arrow_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXX              
+            XXXXXX             
+           XXXXXXXX            
+          XXXXXXXXXX           
+         XXXXXXXXXXXX          
+         XXXXXXXXXXXX          
+         XXXXXXXXXXXX          
+             XXXX              
+             XXXX              
+         XXXXXXXXXXXX          
+         XXXXXXXXXXXX          
+         XXXXXXXXXXXX          
+          XXXXXXXXXX           
+           XXXXXXXX            
+            XXXXXX             
+             XXXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+draft_large
+                               
+               X               
+             XX                
+           XXXX                
+         XXXXX                 
+       XXXXXXX                 
+     XXXXXXXX                  
+   XXXXXXXXXX                  
+        XXXX                   
+       X XXX                   
+      X  XX                    
+     X   XX                    
+    X    X                     
+   X     X                     
+  X                            
+ X                             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+draft_large_mask
+                               
+              XX               
+            XXXX               
+          XXXXXX               
+        XXXXXXX                
+      XXXXXXXX                 
+    XXXXXXXXXX                 
+  XXXXXXXXXXX                  
+  XXXXXXXXXXX                  
+      XXXXXX                   
+     XXXXXXX                   
+    XXX XXX                    
+   XXX  XXX                    
+  XXX   XX                     
+ XXX    XX                     
+ XX                            
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+draft_small
+                               
+               X               
+             XX                
+           XXXX                
+         XXXXX                 
+       XXXXXXX                 
+          XXX                  
+         X XX                  
+        X  X                   
+       X   X                   
+      X                        
+     X                         
+    X                          
+   X                           
+  X                            
+ X                             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+draft_small_mask
+                               
+              XX               
+            XXXX               
+          XXXXX                
+        XXXXXXX                
+      XXXXXXXX                 
+      XXXXXXXX                 
+        XXXXX                  
+       XXXXXX                  
+      XXX XX                   
+     XXX  X                    
+    XXX                        
+   XXX                         
+  XXX                          
+ XXX                           
+ XX                            
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+draped_box
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+         XXXXXXXXXXXX          
+         X   X  X   X          
+         X  XX  XX  X          
+         X XX    XX X          
+         XXX      XXX          
+         X    XX    X          
+         X    XX    X          
+         XXX      XXX          
+         X XX    XX X          
+         X  XX  XX  X          
+         X   X  X   X          
+         XXXXXXXXXXXX          
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+draped_box_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+        XX  XXXXXX  XX         
+        XX XXXXXXXX XX         
+        XXXXXX  XXXXXX         
+        XXXXX XX XXXXX         
+        XXXX XXXX XXXX         
+        XXXX XXXX XXXX         
+        XXXXX XX XXXXX         
+        XXXXXX  XXXXXX         
+        XX XXXXXXXX XX         
+        XX  XXXXXX  XX         
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+exchange
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+         X   XXXXXX            
+         XX XXXXXXXX           
+         XXXXX     XX          
+         X  X       X          
+         X  XX                 
+         XXXXXX                
+                               
+                               
+                 XXXXXX        
+                  XX  X        
+           X       X  X        
+           XX     XXXXX        
+            XXXXXXXX XX        
+             XXXXXX   X        
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+exchange_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+        XX   XXXXXX            
+        XXX XXXXXXXX           
+        XXXXXXXXXXXXX          
+        XXXXXXXXXXXXXX         
+        XXXXXX     XXX         
+        XXXXXXXX    XX         
+        XXXXXXXX               
+        XXXXXXXX               
+                XXXXXXXX       
+                XXXXXXXX       
+          XX     XXXXXXX       
+          XXX     XXXXXX       
+          XXXXXXXXXXXXXX       
+           XXXXXXXXXXXXX       
+            XXXXXXXX XXX       
+             XXXXXX   XX       
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+fleur
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XX               
+             XXXX              
+            XXXXXX             
+              XX               
+          X   XX   X           
+         XX   XX   XX          
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+         XX   XX   XX          
+          X   XX   X           
+              XX               
+            XXXXXX             
+             XXXX              
+              XX               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+fleur_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXX              
+             XXXXX             
+            XXXXXX             
+           XXXXXXXX            
+          X XXXXXX X           
+         XXX XXXX XXX          
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+         XXX XXXX XXX          
+          X XXXXXX X           
+           XXXXXXXX            
+            XXXXXX             
+             XXXX              
+             XXXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+gobbler
+                               
+                               
+                               
+          XXXX                 
+          XXX                  
+ X         XX  XX              
+ X  XXXXXX XX                  
+ XXXXXXXXXXXX                  
+ XXXXXXX   XX                  
+ XXXXXX    XX                  
+  XX       XXX                 
+         XXXX                  
+    XXXXXXXX                   
+     X                         
+     X                         
+     X                         
+     X                         
+    XXXX                       
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+gobbler_mask
+                               
+                               
+         XXXXXX                
+         XXXXXX                
+ XX      XXXXXXXX              
+ XXXXXXXXXXXXXXXX              
+ XXXXXXXXXXXXXXXX              
+ XXXXXXXXXXXXXX                
+ XXXXXXXXXXXXXX                
+ XXXXXXXXXXXXXX                
+ XXXXXXXXXXXXXX                
+ XXXXXXXXXXXXXX                
+  XXXXXXXXXXXX                 
+    XXXXXXXXX                  
+    XXX                        
+    XXX                        
+   XXXXXX                      
+   XXXXXX                      
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+gumby
+               XXXXXX          
+                X    X         
+             XX  X    X        
+             XXX X X X X       
+             XX  X     X       
+             XX  X XXX X       
+             XXXXX     XXXX    
+               XXX     XXXXXX  
+                 X     X  XXX  
+                 X     X  XXX  
+                 X  X  X XXXX  
+                 X  X  X  XXX  
+                 X  X  X       
+                X   X   X      
+               X    X    X     
+               XXXXX XXXXX     
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+gumby_mask
+               XXXXXX          
+             XX XXXXXX         
+             XXX XXXXXX        
+             XXXXXXXXXXX       
+             XXX XXXXXXX       
+             XXX XXXXXXXXXX    
+             XXXXXXXXXXXXXXX   
+             XXXXXXXXXXXXXXXX  
+               XXXXXXXXX XXXX  
+                 XXXXXXX XXXX  
+                 XXXXXXXXXXXX  
+                 XXXXXXX XXXX  
+                 XXXXXXX  XXX  
+                XXXXXXXXX      
+               XXXXXXXXXXX     
+               XXXXX XXXXX     
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+hand1
+              XX               
+            XXXX               
+          XXXX                 
+         XXXX                  
+        XXXX                   
+       XXXXXX                  
+      XXXXXXXX                 
+    X XXXXXXX                  
+   XXXXXXXXXXX                 
+   X XXXXXXXXX                 
+       XXXXXX                  
+       XXXXX                   
+   X  X X                      
+   XX   X                      
+    XX X                       
+     XX                        
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+hand1_mask
+             XXX               
+           XXXXX               
+         XXXXXX                
+        XXXXXX                 
+       XXXXXX                  
+      XXXXXXXX                 
+    XXXXXXXXXXX                
+   XXXXXXXXXXXX                
+   XXXXXXXXXXXX                
+   XXXXXXXXXXXX                
+   XXXXXXXXXXX                 
+   XXXXXXXXXX                  
+   XXXXXXXXX                   
+   XXXXXXX                     
+   XXXXXX                      
+    XXXX                       
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+hand2
+                               
+                               
+                XXXXXXXX       
+               X        X      
+                XXXXXX   X     
+                  X       X    
+                   XXX    X    
+                  X       X    
+                   XXX   X X   
+                  X     X   X  
+                   XX  X     X 
+                     XX     X  
+                     X  X  X   
+                      X   X    
+                       X X     
+                        X      
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+hand2_mask
+                               
+                XXXXXXXX       
+               XXXXXXXXXX      
+               XXXXXXXXXXX     
+               XXXXXXXXXXXX    
+                XXXXXXXXXXXX   
+                  XXXXXXXXXX   
+                 XXXXXXXXXXX   
+                  XXXXXXXXXXX  
+                 XXXXXXXXXXXXX 
+                  XXXXXXXXXXXXX
+                   XXXXXXXXXXX 
+                    XXXXXXXXX  
+                     XXXXXXX   
+                      XXXXX    
+                       XXX     
+                        X      
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+heart
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+           XXXXX XXXXX         
+          XX   XXX   XX        
+         XX     X     XX       
+         X             X       
+         X             X       
+         X             X       
+         X             X       
+         XX           XX       
+          XX         XX        
+           XX       XX         
+            XX     XX          
+             XX   XX           
+              XX XX            
+               XXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+heart_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+           XXXXX XXXXX         
+          XXXXXXXXXXXXX        
+         XXX   XXX   XXX       
+         XX     X     XX       
+         XX           XX       
+         XX           XX       
+         XX    X X    XX       
+         XXX    X    XXX       
+          XXX       XXX        
+           XXX     XXX         
+            XXX   XXX          
+             XXXXXXX           
+              XXXXX            
+               XXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+icon
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+       XXXXXXXXXXXXXXXX        
+       XX X X X X X X X        
+       X X X X X X X XX        
+       XX X X X X X X X        
+       X X         X XX        
+       XX X         X X        
+       X X         X XX        
+       XX X         X X        
+       X X         X XX        
+       XX X         X X        
+       X X         X XX        
+       XX X         X X        
+       X X X X X X X XX        
+       XX X X X X X X X        
+       X X X X X X X XX        
+       XXXXXXXXXXXXXXXX        
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+icon_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+iron_cross
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+         XXXXXXXXXXXX          
+          XXXXXXXXXX           
+        X  XXXXXXXX  X         
+        XX  XXXXXX  XX         
+        XXX  XXXX  XXX         
+        XXXX  XX  XXXX         
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+        XXXX  XX  XXXX         
+        XXX  XXXX  XXX         
+        XX  XXXXXX  XX         
+        X  XXXXXXXX  X         
+          XXXXXXXXXX           
+         XXXXXXXXXXXX          
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+iron_cross_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+         XXXXXXXXXXXX          
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+         XXXXXXXXXXXX          
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+left_ptr
+                               
+                               
+               X               
+               XX              
+               XXX             
+               XXXX            
+               XXXXX           
+               XXXXXX          
+               XXXXXXX         
+               XXXXXXXX        
+               XXXXX           
+               XX XX           
+               X   XX          
+                   XX          
+                    XX         
+                    XX         
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+left_ptr_mask
+                               
+              XX               
+              XXX              
+              XXXX             
+              XXXXX            
+              XXXXXX           
+              XXXXXXX          
+              XXXXXXXX         
+              XXXXXXXXX        
+              XXXXXXXXXX       
+              XXXXXXXXXX       
+              XXXXXXX          
+              XXX XXXX         
+              XX  XXXX         
+                   XXXX        
+                   XXXX        
+                    XX         
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+left_side
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+               XX              
+               XX              
+               XX     X        
+               XX    X         
+               XX   X          
+               XX  X           
+               XX XXXXXXXXXXX  
+               XX  X           
+               XX   X          
+               XX    X         
+               XX     X        
+               XX              
+               XX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+left_side_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XXXX             
+              XXXX             
+              XXXX    XX       
+              XXXX   XXX       
+              XXXX  XXX        
+              XXXX XXX         
+              XXXXXXXXXXXXXXXX 
+              XXXXXXXXXXXXXXXX 
+              XXXXXXXXXXXXXXXX 
+              XXXX XXX         
+              XXXX  XXX        
+              XXXX   XXX       
+              XXXX    XX       
+              XXXX             
+              XXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+left_tee
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+               XX              
+               XX              
+               XX              
+               XX              
+               XX              
+               XX              
+               XXXXXXXXXX      
+               XXXXXXXXXX      
+               XX              
+               XX              
+               XX              
+               XX              
+               XX              
+               XX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+left_tee_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXXXXXXXXXX     
+              XXXXXXXXXXXX     
+              XXXXXXXXXXXX     
+              XXXXXXXXXXXX     
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+leftbutton
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+       X             XX        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        X   X   X   X X        
+        X   X X X X X X        
+        X   X X X X X X        
+        X   X X X X X X        
+        X   X X X X X X        
+        X   X   X   X X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+       X             XX        
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+leftbutton_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+        XXXXXXXXXXXXX          
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+        XXXXXXXXXXXXX          
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+ll_angle
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+               XX              
+               XX              
+               XX              
+               XX              
+               XX              
+               XX              
+               XX              
+               XX              
+               XXXXXXXXXX      
+               XXXXXXXXXX      
+                               
+                               
+                               
+                               
+                               
+                               
+ll_angle_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXXXXXXXXXX     
+              XXXXXXXXXXXX     
+              XXXXXXXXXXXX     
+              XXXXXXXXXXXX     
+                               
+                               
+                               
+                               
+                               
+lr_angle
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+      XXXXXXXXXX               
+      XXXXXXXXXX               
+                               
+                               
+                               
+                               
+                               
+                               
+lr_angle_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+     XXXXXXXXXXXX              
+     XXXXXXXXXXXX              
+     XXXXXXXXXXXX              
+     XXXXXXXXXXXX              
+                               
+                               
+                               
+                               
+                               
+man
+                               
+                               
+                               
+                               
+                               
+       XXX                     
+    XXXX XXXX                  
+       X X                     
+ X      X                      
+  X    XXX    XXX              
+   X  X   X  X XX              
+    XXX X XXX                  
+      X X X                    
+      X   X                    
+       X X                     
+      X   X                    
+     X  X  X                   
+    X  X X  X                  
+    X X   X X                  
+  XXXX     XXXX                
+ XXXXX     XXXXXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+man_mask
+                               
+                               
+                               
+                               
+                               
+    XXXXXXXX                   
+   XXXXXXXXXX                  
+   XXXXXXXXXXX                 
+ XX    XXX     X               
+ XXX  XXXXX   XXX              
+  XXXXXXXXXXXXXXX              
+   XXXXXXXXXXX XX              
+    XXXXXXXXX                  
+      XXXXXX                   
+      XXXXX                    
+     XXXXXXX                   
+    XXXXXXXXX                  
+   XXXXXXXXXXX                 
+  XXXXXX XXXXXX                
+ XXXXXX   XXXXXXX              
+ XXXXXX   XXXXXXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+middlebutton
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+       X             XX        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        X   X   X   X X        
+        X X X   X X X X        
+        X X X   X X X X        
+        X X X   X X X X        
+        X X X   X X X X        
+        X   X   X   X X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+       X             XX        
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+middlebutton_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+        XXXXXXXXXXXXX          
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+        XXXXXXXXXXXXX          
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+mouse
+                               
+                               
+                               
+                XXX            
+               XX              
+                XX             
+                 XX            
+            XXXXXXXXXXXX       
+           X            X      
+           X XX  XX  XX XX     
+           X XX  XX  XX XX     
+           X XX  XX  XX XX     
+           X            XX     
+           X            XX     
+            XX        XXX      
+              XX    XX         
+                XXXX           
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+mouse_mask
+                               
+               XXXXX           
+              XXXX             
+               XXXX            
+                XXX            
+            XXXXXXXXXXXX       
+           XXXXXXXXXXXXXX      
+           XXXXXXXXXXXXXXXX    
+           XXXXXXXXXXXXXXXX    
+           XXXXXXXXXXXXXXXX    
+           XXXXXXXXXXXXXXXX    
+           XXXXXXXXXXXXXXXX    
+           XXXXXXXXXXXXXXXX    
+             XXXXXXXXXX XXX    
+              XXXXXXXX         
+               XXXXXX          
+                XXXX           
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+pencil
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+      XXX                      
+     X   X                     
+     X   XX                    
+      X  X X                   
+      XXXX X                   
+       X    X                  
+        X   X                  
+        X    X                 
+         X   X                 
+         XX   X                
+          X   X                
+           X   X               
+            XXXX               
+             XXX               
+              XX               
+               X               
+pencil_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+    XXXXXX                     
+    XXXXXXX                    
+    XXXXXXXX                   
+     XXXXXXX                   
+      XXXXXXX                  
+      XXXXXXX                  
+       XXXXXXX                 
+        XXXXXX                 
+        XXXXXXX                
+         XXXXXX                
+         XXXXXXX               
+          XXXXXXX              
+           XXXXXX              
+            XXXXX              
+             XXXX              
+              XXX              
+pirate
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXX              
+            XXXXXX             
+           XXXXXXXX            
+          XX  XX  XX           
+          XX  XX  XX           
+           XXXXXXXX            
+            XXXXXX             
+             XXXX              
+        X    XXXX    X         
+        X    XXXX    XX        
+         X    XX    X          
+          XXX    XXX           
+             XXXX              
+           XXXXXXXX   X        
+        XXXX      XXXXX        
+        X            X         
+                               
+                               
+                               
+pirate_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+            XXXXXX             
+           XXXXXXXX            
+          XXXXXXXXXX           
+         XXXXXXXXXXXX          
+         XXXXXXXXXXXX          
+          XXXXXXXXXX           
+           XXXXXXXX            
+        X   XXXXXX     X       
+        X   XXXXXX   XXX       
+        XX  XXXXXX  XXXX       
+        XXXX XXXX  XXX         
+         XXXX    XXXX          
+             XXXX              
+         XXXXXXXXXX   XX       
+        XXXXXXXXXXXXXXXX       
+        XXXX      XXXXX        
+                               
+                               
+                               
+plus
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+               XX              
+               XX              
+               XX              
+               XX              
+           XXXXXXXXXX          
+           XXXXXXXXXX          
+               XX              
+               XX              
+               XX              
+               XX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+plus_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+          XXXXXXXXXXXX         
+          XXXXXXXXXXXX         
+          XXXXXXXXXXXX         
+          XXXXXXXXXXXX         
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+question_arrow
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXXX             
+            XXXXXXX            
+           XXX   XXX           
+           XX     XX           
+           XXX    XX           
+            XX   XXX           
+                XXX            
+              XXXX             
+              XXX              
+              X X              
+              X X              
+            XXX XXX            
+             XX XX             
+              XXX              
+               X               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+question_arrow_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXXX             
+            XXXXXXX            
+           XXXXXXXXX           
+          XXXXXXXXXXX          
+          XXXX   XXXX          
+          XXXXX  XXXX          
+           XXXX XXXXX          
+            XXXXXXXX           
+             XXXXXX            
+             XXXXX             
+             XXXXX             
+            XXXXXXX            
+           XXXXXXXXX           
+            XXXXXXX            
+             XXXXX             
+              XXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+right_ptr
+                               
+                               
+               X               
+              XX               
+             XXX               
+            XXXX               
+           XXXXX               
+          XXXXXX               
+         XXXXXXX               
+        XXXXXXXX               
+           XXXXX               
+           XX XX               
+          XX   X               
+          XX                   
+         XX                    
+         XX                    
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+right_ptr_mask
+                               
+               XX              
+              XXX              
+             XXXX              
+            XXXXX              
+           XXXXXX              
+          XXXXXXX              
+         XXXXXXXX              
+        XXXXXXXXX              
+       XXXXXXXXXX              
+       XXXXXXXXXX              
+          XXXXXXX              
+         XXXX XXX              
+         XXXX  XX              
+        XXXX                   
+        XXXX                   
+         XX                    
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+right_side
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XX               
+              XX               
+        X     XX               
+         X    XX               
+          X   XX               
+           X  XX               
+  XXXXXXXXXXX XX               
+           X  XX               
+          X   XX               
+         X    XX               
+        X     XX               
+              XX               
+              XX               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+right_side_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXX              
+             XXXX              
+       XX    XXXX              
+       XXX   XXXX              
+        XXX  XXXX              
+         XXX XXXX              
+ XXXXXXXXXXXXXXXX              
+ XXXXXXXXXXXXXXXX              
+ XXXXXXXXXXXXXXXX              
+         XXX XXXX              
+        XXX  XXXX              
+       XXX   XXXX              
+       XX    XXXX              
+             XXXX              
+             XXXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+right_tee
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+      XXXXXXXXXX               
+      XXXXXXXXXX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+right_tee_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+     XXXXXXXXXXXX              
+     XXXXXXXXXXXX              
+     XXXXXXXXXXXX              
+     XXXXXXXXXXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+rightbutton
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+       X             XX        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        X   X   X   X X        
+        X X X X X   X X        
+        X X X X X   X X        
+        X X X X X   X X        
+        X X X X X   X X        
+        X   X   X   X X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+        XXXXXXXXXXXXX X        
+       X             XX        
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+rightbutton_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+        XXXXXXXXXXXXX          
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+       XXXXXXXXXXXXXXX         
+        XXXXXXXXXXXXX          
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+rtl_logo
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+         XXXXXXXXXXXXXX        
+         X        X   X        
+         X        X   X        
+         X        X   X        
+         XXXXXXXXXX   X        
+         X   X    X   X        
+         X   X    X   X        
+         X   X    X   X        
+         X   X    X   X        
+         X   XXXXXXXXXX        
+         X   X        X        
+         X   X        X        
+         X   X        X        
+         XXXXXXXXXXXXXX        
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+rtl_logo_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+        XXX      XXX XXX       
+        XXXXXXXXXXXX XXX       
+        XXXXXXXXXXXX XXX       
+        XXXXXXXXXXXX XXX       
+        XXX XXX  XXX XXX       
+        XXX XXX  XXX XXX       
+        XXX XXXXXXXXXXXX       
+        XXX XXXXXXXXXXXX       
+        XXX XXXXXXXXXXXX       
+        XXX XXX      XXX       
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+        XXXXXXXXXXXXXXXX       
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sailboat
+                               
+                               
+                X              
+                X              
+              X XX             
+              X XX             
+             XX XX             
+             XX XXX            
+            XXX XXX            
+            XXX XXX            
+           XXXX XXXX           
+           XXXX XXXX           
+          XXXXX XXXX           
+          XXXXX XXXXX          
+         XXXXX   XXX           
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sailboat_mask
+               XX              
+               XXX             
+              XXXX             
+             XXXXXX            
+             XXXXXX            
+            XXXXXXX            
+            XXXXXXXX           
+           XXXXXXXXX           
+           XXXXXXXXX           
+          XXXXXXXXXXX          
+          XXXXXXXXXXX          
+         XXXXXXXXXXXX          
+         XXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXX           
+        XXXXXXXXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sb_down_arrow
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+            XXXXXXX            
+             XXXXX             
+              XXX              
+               X               
+sb_down_arrow_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+           XXXXXXXXX           
+           XXXXXXXXX           
+            XXXXXXX            
+             XXXXX             
+              XXX              
+               X               
+sb_h_double_arrow
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+           X       X           
+          XX       XX          
+         XXXXXXXXXXXXX         
+        XXXX       XXXX        
+         XXXXXXXXXXXXX         
+          XX       XX          
+           X       X           
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sb_h_double_arrow_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+           XX     XX           
+          XXX     XXX          
+         XXXXXXXXXXXXX         
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+         XXXXXXXXXXXXX         
+          XXX     XXX          
+           XX     XX           
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sb_left_arrow
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                   X           
+                  XX           
+                 XXXXXXXXXXXXXX
+                XXXX           
+                 XXXXXXXXXXXXXX
+                  XX           
+                   X           
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sb_left_arrow_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                   XX          
+                  XXX          
+                 XXXXXXXXXXXXXX
+                XXXXXXXXXXXXXXX
+               XXXXXXXXXXXXXXXX
+                XXXXXXXXXXXXXXX
+                 XXXXXXXXXXXXXX
+                  XXX          
+                   XX          
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sb_right_arrow
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+           X                   
+           XX                  
+XXXXXXXXXXXXXX                 
+           XXXX                
+XXXXXXXXXXXXXX                 
+           XX                  
+           X                   
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sb_right_arrow_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+          XX                   
+          XXX                  
+XXXXXXXXXXXXXX                 
+XXXXXXXXXXXXXXX                
+XXXXXXXXXXXXXXXX               
+XXXXXXXXXXXXXXX                
+XXXXXXXXXXXXXX                 
+          XXX                  
+          XX                   
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sb_up_arrow
+               X               
+              XXX              
+             XXXXX             
+            XXXXXXX            
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sb_up_arrow_mask
+               X               
+              XXX              
+             XXXXX             
+            XXXXXXX            
+           XXXXXXXXX           
+           XXXXXXXXX           
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sb_v_double_arrow
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+               X               
+              XXX              
+             XXXXX             
+            XXXXXXX            
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+              X X              
+            XXXXXXX            
+             XXXXX             
+              XXX              
+               X               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sb_v_double_arrow_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XXX              
+             XXXXX             
+            XXXXXXX            
+           XXXXXXXXX           
+           XXXXXXXXX           
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+           XXXXXXXXX           
+           XXXXXXXXX           
+            XXXXXXX            
+             XXXXX             
+              XXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+shuttle
+               X               
+              XXX              
+             XXXXX             
+            XXX XXXX           
+          X XXX XXXX           
+         X  XXX XXXX           
+        X   XXX XXXX           
+        X   XXX XXXX           
+        X   XXX XXXX           
+        X   XXX XXXX           
+       XX   XXX XXXX           
+      XXX   XXX XXXX           
+     XXXXXX XXX XXXX           
+        XX   X   X             
+              XXXX             
+               XX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+shuttle_mask
+              XXX              
+             XXXXX             
+            XXXXXXX            
+            XXXXXXXX           
+         XX XXXXXXXX           
+        XXX XXXXXXXX           
+       XXXX XXXXXXXX           
+       XXXX XXXXXXXX           
+       XXXX XXXXXXXX           
+       XXXX XXXXXXXX           
+      XXXXX XXXXXXXX           
+     XXXXXX XXXXXXXX           
+    XXXXXXX XXXXXXXX           
+     XXXXXX XXXXXXX            
+        XX   XXXXXX            
+              XXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sizing
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+        XXXXXXXX               
+        X                      
+        X                      
+        X                      
+        X   XXXXXX             
+        X   X    X             
+        X   X    X   X         
+        X   X    X   X         
+            X    X   X         
+            XXXXXX   X         
+                  X  X         
+                   X X         
+                    XX         
+              XXXXXXXX         
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sizing_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+       XXXXXXXXXX              
+       XXXXXXXXXX              
+       XXXXXXXXXX              
+       XXX                     
+       XXX XXXXXXXX            
+       XXX XXXXXXXX            
+       XXX XXXXXXXX XXX        
+       XXX XXX  XXX XXX        
+       XXX XXX  XXX XXX        
+       XXX XXXXXXXX XXX        
+           XXXXXXXX XXX        
+           XXXXXXXXXXXX        
+                  XXXXX        
+             XXXXXXXXXX        
+             XXXXXXXXXX        
+             XXXXXXXXXX        
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+spider
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+           X        X          
+            X      X           
+            X      X           
+             X    X            
+             X    X            
+         X    XXXX    XXX      
+          XX  XXXX  XX         
+            XXXXXXXX           
+            XXXXXXXX           
+          XX  XXXX  XX         
+         X    XXXX    XXX      
+             X    X            
+             X    X            
+            X      X           
+            X      X           
+           X        X          
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+spider_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+          XX        XX         
+           XX      XX          
+            X      X           
+            XX    XX           
+         X   XXXXXX     X      
+         XX  XXXXXX  XXXX      
+          XX XXXXXX XXX        
+           XXXXXXXXXX          
+           XXXXXXXXX           
+          XX XXXXXXXXX         
+         XX  XXXXXX  XXXX      
+         X   XXXXXX     X      
+            XX    X            
+            XX    XX           
+           XX      XX          
+          XX        XX         
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+spraycan
+                               
+                               
+               XX              
+             X                 
+        XX X   XX              
+       XXXX  X                 
+       XX X    XX              
+      XXXXXX                   
+      X    X                   
+      XXX  X                   
+      X X  X                   
+      XXX  X                   
+      X X  X                   
+      XXX  X                   
+      XXX  X                   
+      X    X                   
+      X    X                   
+      XXXXXX                   
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+spraycan_mask
+                               
+                               
+               XX              
+        XX   X XX              
+       XXXXX X XX              
+       XXXXX X XX              
+      XXXXXX X XX              
+     XXXXXXXX                  
+     XXXXXXXX                  
+     XXXXXXXX                  
+     XXXXXXXX                  
+     XXXXXXXX                  
+     XXXXXXXX                  
+     XXXXXXXX                  
+     XXXXXXXX                  
+     XXXXXXXX                  
+     XXXXXXXX                  
+     XXXXXXXX                  
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+star
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+               X               
+              X X              
+              X X              
+              X X              
+             X   X             
+             X   X             
+             X   X             
+          XXX  X  XXX          
+        XX           XX        
+          XXX     XXX          
+            X  X  X            
+           X  X X  X           
+          X  X   X  X          
+          X X     X X          
+          XX       XX          
+          X         X          
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+star_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+               X               
+              XXX              
+              XXX              
+             XX XX             
+             XX XX             
+            XX   XX            
+           XXX   XXXX          
+        XXXXX  X  XXXXX        
+        XX           XXX       
+        XXXXX     XXXXX        
+          XXX  X  XXX          
+          XX  XXX  XX          
+         XX  XX XX  XX         
+         XX XX   XX XX         
+         XXXX     XXXX         
+         XXX       XXX         
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+target
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XXX              
+            XXXXXXX            
+           XXX   XXX           
+          XX       XX          
+         XX         XX         
+        XX     X     XX        
+        XX    X X    XX        
+        XX     X     XX        
+         XX         XX         
+          XX       XX          
+           XXX   XXX           
+            XXXXXXX            
+              XXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+target_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             XXXXX             
+            XXXXXXX            
+           XXXXXXXXX           
+          XXXX   XXXX          
+         XXX       XXX         
+        XXX    X    XXX        
+        XX    XXX    XXX       
+        XX   XX XX   XXX       
+        XX    XXX    XXX       
+        XXX    X    XXX        
+         XXX       XXX         
+          XXXX   XXXX          
+           XXXXXXXXX           
+            XXXXXXX            
+             XXXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+tcross
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+               X               
+               X               
+               X               
+               X               
+               X               
+               X               
+         XXXXXXXXXXXXX         
+               X               
+               X               
+               X               
+               X               
+               X               
+               X               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+tcross_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+top_left_arrow
+                               
+                               
+               XX              
+               XXXX            
+                XXXXX          
+                XXXXXXX        
+                 XXXXXXXX      
+                 XXXXXXXXXX    
+                  XXXXX        
+                  XXXXX        
+                   XX  X       
+                   XX   X      
+                    X    X     
+                    X     X    
+                           X   
+                            X  
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+top_left_arrow_mask
+                               
+              XXX              
+              XXXXX            
+              XXXXXXX          
+               XXXXXXXX        
+               XXXXXXXXXX      
+                XXXXXXXXXXXX   
+                XXXXXXXXXXXX   
+                 XXXXXXXXXXX   
+                 XXXXXXX       
+                  XXXXXXX      
+                  XXXX XXX     
+                   XXX  XXX    
+                   XXX   XXX   
+                   XXX    XXX  
+                           XXX 
+                            XX 
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+top_left_corner
+                               
+                               
+               XXXXXXXXXXXXXX  
+               XXXXXXXXXXXXXX  
+               XX              
+               XX              
+               XX              
+               XX   XXXXXXX    
+               XX   XX         
+               XX   X X        
+               XX   X  X       
+               XX   X   X      
+               XX   X    X     
+               XX   X     X    
+               XX              
+               XX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+top_left_corner_mask
+                               
+              XXXXXXXXXXXXXXXX 
+              XXXXXXXXXXXXXXXX 
+              XXXXXXXXXXXXXXXX 
+              XXXXXXXXXXXXXXXX 
+              XXXX             
+              XXXX XXXXXXXXX   
+              XXXX XXXXXXXXX   
+              XXXX XXXXXXXXX   
+              XXXX XXXXX       
+              XXXX XXXXXX      
+              XXXX XXX XXX     
+              XXXX XXX  XXX    
+              XXXX XXX   XXX   
+              XXXX XXX    XX   
+              XXXX             
+              XXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+top_right_corner
+                               
+                               
+  XXXXXXXXXXXXXX               
+  XXXXXXXXXXXXXX               
+              XX               
+              XX               
+              XX               
+    XXXXXXX   XX               
+         XX   XX               
+        X X   XX               
+       X  X   XX               
+      X   X   XX               
+     X    X   XX               
+    X     X   XX               
+              XX               
+              XX               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+top_right_corner_mask
+                               
+ XXXXXXXXXXXXXXXX              
+ XXXXXXXXXXXXXXXX              
+ XXXXXXXXXXXXXXXX              
+ XXXXXXXXXXXXXXXX              
+             XXXX              
+   XXXXXXXXX XXXX              
+   XXXXXXXXX XXXX              
+   XXXXXXXXX XXXX              
+       XXXXX XXXX              
+      XXXXXX XXXX              
+     XXX XXX XXXX              
+    XXX  XXX XXXX              
+   XXX   XXX XXXX              
+   XX    XXX XXXX              
+             XXXX              
+             XXXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+top_side
+                               
+                               
+         XXXXXXXXXXXXX         
+         XXXXXXXXXXXXX         
+                               
+               X               
+              XXX              
+             X X X             
+            X  X  X            
+           X   X   X           
+               X               
+               X               
+               X               
+               X               
+               X               
+               X               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+top_side_mask
+                               
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+        XXXXXXXXXXXXXXX        
+              XXX              
+             XXXXX             
+            XXXXXXX            
+           XXXXXXXXX           
+          XXX XXX XXX          
+          XX  XXX  XX          
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+top_tee
+                               
+                               
+                               
+                               
+                               
+                               
+        XXXXXXXXXXXXXX         
+        XXXXXXXXXXXXXX         
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+top_tee_mask
+                               
+                               
+                               
+                               
+                               
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXXXX        
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+trek
+               X               
+                               
+              XXX              
+             XXXXX             
+            XXXXXXX            
+            XXX XXX            
+            XXXXXXX            
+             XXXXX             
+              XXX              
+               X               
+            X XXX X            
+            XX X XX            
+            X  X  X            
+            X     X            
+            X     X            
+            X     X            
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+trek_mask
+              XXX              
+              XXX              
+             XXXXX             
+            XXXXXXX            
+           XXXXXXXXX           
+           XXXXXXXXX           
+           XXXXXXXXX           
+            XXXXXXX            
+             XXXXX             
+            X XXX X            
+           XXXXXXXXX           
+           XXXXXXXXX           
+           XXXXXXXXX           
+           XXX X XXX           
+           XXX X XXX           
+           XXX   XXX           
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+ul_angle
+                               
+                               
+                               
+                               
+                               
+                               
+               XXXXXXXXXX      
+               XXXXXXXXXX      
+               XX              
+               XX              
+               XX              
+               XX              
+               XX              
+               XX              
+               XX              
+               XX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+ul_angle_mask
+                               
+                               
+                               
+                               
+                               
+              XXXXXXXXXXXX     
+              XXXXXXXXXXXX     
+              XXXXXXXXXXXX     
+              XXXXXXXXXXXX     
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+              XXXX             
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+umbrella
+                               
+                               
+                               
+                               
+           X   X  X            
+             X   X X           
+        X  X  XX X  XX         
+         X  XXXXX  X           
+          XX  X  XX            
+        XX    X    XX          
+              X                
+              X                
+              X                
+              X                
+              X                
+              X X              
+              X X              
+               X               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+umbrella_mask
+                               
+                               
+          X XXX XX XXX         
+       XX XXXXXXXXXX XX        
+       X XXXXXXXXXXXX          
+        XXXXXXXXXXXXXXX        
+       XXXXXXXXXXXXXX          
+       XXXXXXXXXXXXXXXX        
+       XXXX  XXX  XXXX         
+             XXX               
+             XXX               
+             XXX               
+             XXX               
+             XXXXX             
+             XXXXX             
+             XXXXX             
+             XXXXX             
+              XXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+ur_angle
+                               
+                               
+                               
+                               
+                               
+                               
+      XXXXXXXXXX               
+      XXXXXXXXXX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+              XX               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+ur_angle_mask
+                               
+                               
+                               
+                               
+                               
+     XXXXXXXXXXXX              
+     XXXXXXXXXXXX              
+     XXXXXXXXXXXX              
+     XXXXXXXXXXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+             XXXX              
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+watch
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+   XXXXXXXX                    
+   XXXXXXXX                    
+   XXXXXXXX                    
+  XXXXXXXXXX                   
+ XX    X   XX                  
+XX     X    XX                 
+X      X     XXX               
+X     XXX    XXX               
+X     XXX    XXX               
+X    X       XXX               
+XX  X       XX                 
+ XX        XX                  
+  XXXXXXXXXX                   
+   XXXXXXXX                    
+   XXXXXXXX                    
+   XXXXXXXX                    
+                               
+                               
+                               
+                               
+                               
+                               
+watch_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+  XXXXXXXXXX                   
+  XXXXXXXXXX                   
+  XXXXXXXXXX                   
+ XXXXXXXXXXXX                  
+XXXXXXXXXXXXXX                 
+XXXXXXXXXXXXXXXX               
+XXXXXXXXXXXXXXXX               
+XXXXXXXXXXXXXXXX               
+XXXXXXXXXXXXXXXX               
+XXXXXXXXXXXXXXXX               
+XXXXXXXXXXXXXXXX               
+XXXXXXXXXXXXXX                 
+ XXXXXXXXXXXX                  
+  XXXXXXXXXX                   
+  XXXXXXXXXX                   
+  XXXXXXXXXX                   
+                               
+                               
+                               
+                               
+                               
+                               
+xterm
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+            XXX XXX            
+              XXX              
+               X               
+               X               
+               X               
+               X               
+               X               
+               X               
+               X               
+               X               
+               X               
+               X               
+              XXX              
+            XXX XXX            
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+xterm_mask
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+           XXXX XXXX           
+           XXXXXXXXX           
+           XXXXXXXXX           
+             XXXXX             
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+              XXX              
+             XXXXX             
+           XXXXXXXXX           
+           XXXXXXXXX           
+           XXXX XXXX           
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+sb_v_double_arrow
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+                               
+             X X               
+             X X               
+             X X               
+             X X               
+             X X               
+         X   X X   X           
+        XX   X X   XX          
+       XXXXXXX XXXXXXX         
+       XXXXXXX XXXXXXX         
+        XX   X X   XX          
+         X   X X   X           
+             X X               
+             X X               
+             X X               
+             X X               
+             X X               
+                               
+                               
+                               
+                               
+                               
+                             

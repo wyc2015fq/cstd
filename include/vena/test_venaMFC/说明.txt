@@ -1,0 +1,52 @@
+基本用法:
+{
+    int n = cap_num(CAP_DSHOW);
+    cap_t cap[1] = {0};
+    uchar* featlib = NULL;
+    enum {pic_per_man = 10};
+    int nman = 0, npic = 0, ch=0;
+    int isrecmode = 1;// 识别模式
+    cap_open(cap, 0, CAP_DSHOW);
+    MYREALLOC(featlib, 10*10*VENA_FEATLEN);
+    for (i=0; 1; ++i) {
+      int id=-1, dis=0;
+      //cap_getframe(cap, im, T_GRAY);
+      cap_getframe(cap, im, T_BGR);
+      if (1) {
+        utime_start(_start_time);
+        k = vena_recog_bf(bf->data, bf->len, im->h, im->w, im->tt.data, im->s, im->c,
+          pic_per_man*nman, isrecmode ? featlib : NULL, VENA_FEATLEN, im3_data, feat, &id, &dis);
+        printf("%f\n", utime_elapsed(_start_time));
+        if (!k)  {
+          imdraw_fill(im3, _rgb(0, 0, 0));
+        } else {
+          if (isrecmode) {
+            char buf[256];
+            _snprintf(buf, 256, "id = %d dis = %d", id, dis);
+            imdraw_text_v(im, 0, buf, 100, 100, NULL, dis>4000 ? _rgb(1, 0, 0) : _rgb(0, 1, 0));
+          } else {
+            if (npic<(nman+1)*pic_per_man) {
+              mem_push_back(&featlib, &npic, feat, 1, VENA_FEATLEN);
+            } else {
+              isrecmode = 1; // 切换回识别模式
+              ++nman;
+            }
+          }
+        }
+        {
+          IRECT rc = iRECT(0, 0, im3->w, im3->h);
+          imdraw_image_corner(im, &rc, rc, im3, 0, 0, 0);
+          imdraw_rect(im, &rc, rc, 0, isrecmode ? _rgba(1,0,0,0.4) : _rgba(1,1,1,0.4), 10, BDM_ALL);
+        }
+      }
+      if (1) {
+        imshow(im);
+        ch = cvWaitKey(20);
+        if ('r'==ch || 'R'==ch) { // 切换到注册模式
+          npic = nman*pic_per_man;
+          isrecmode = 0;
+        }
+      }
+    }
+    FREE(featlib);
+  }

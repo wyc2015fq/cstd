@@ -1,0 +1,361 @@
+TrueType字体概述
+
+TTF(TrueTypeFont)是Apple公司和Microsoft公司共同推出的字体文件格式,随着windows的流行,已经变成最常用的一种字体文件表示方式,在一些特殊的场合,系统字符集不包含你要用的字体,这时候必须使用自己的字体文件,如甲骨文等古文字处理,一般在系统盘\WINDOWS\Fonts里,直接双击能查看是什么样的字体。
+　　TTF(TrueTypeFont)是一种字库名称。 
+　　字库是输出设备的一个组成部分。由于汉字不同于西方字体，字符集非常庞大，不能用单字节表示，因此postscript level i的rip不能使用汉字，很多西文软件也不支持汉字。 
+　　桌面出版系统使用的字库有两种标准： postscript字库和truetype字库。这两种字体标准都是采用曲线方式描述字体轮廓，因此都可以输出很高质量的字形。postscript汉字库分为显示字库和打印字库，显示字库安装在制作计算机上，用来制作版面时显示用，通常由低分辨率的点阵字构成。打印字库要挂接在rip上，在解释页面时由rip把需要的字库调人页面并解释成记录的点阵。 postscript汉字使用方便，输出速度快，是输出中心必备的。 
+　　另一种常用的字库标准是truetype字库，truetype字体是windows操作系统使用的唯一字体标准，macintosh计算机也用 truetype字体作为系统字体。truetype字体的最大优点是可以很方便地把字体轮廓转换成曲线，可以对曲线进行填充，制成各种颜色和效果，它可以进一步变形，制作特殊效果字体，因此经常用来制作一些标题字或花样字。 truetype字便宜，字款丰富。但一般情况厂truetype字不能直接由rip输出。需要经过特殊处理，比如转成曲线或输出时下载，使用起来较麻烦。速度也要慢一些，尤其是处理大量文字时很不方便，因此不适合用来作为页面的正文文字使用。 
+truetype字体也用来作为postscript字库的显示字用，各字库公司同时都有这两种标准的产品。因此当使用truetype字体制作版面时，输出时仍然可以将它代换成postscript字库输出。
+
+
+TrueType字体通常包含在单个TrueType字体文件中，其文件后缀为.TTF。OpenType字体是以类似于TrueType字体的格式编码的PostScript字体。OpenType字体使用.OTF文件后缀。OpenType还允许把多个OpenType字体组合在一个文件中以利于数据共享。这些字体被称为TrueType字体集（TrueType  collection），其文件后缀为.TTC。
+TrueType字体用machintosh的轮廓字体资源的格式编码，有一个唯一的标记名"sfnt"。windows没有macintosh的位图字体资源格式，字体目录 包含了字体格式的版本号和几个表，每个表都有一个TableEntry结构项，TableEntry结构包含了资源标记、校验和、偏移量和每个表的大小。
+首先给出字体中用到的一些数据类型定义：
+Macintosh Data type	OS/2 Data Type	Description
+uint8	  BYTE	        8-bit unsigned integer
+int8	  CHAR	        8-bit signed integer
+uint16	  USHORT	16-bit unsigned integer
+int16	  SHORT	        16-bit signed integer
+uint32	  ULONG	        32-bit unsigned integer
+int32	  LONG	        32-bit signed integer
+shortFrac -	        16-bit signed fraction
+Fixed	  -	        16.16-bit signed fixed-point number
+FWord	  -	        16-bit signed integer that describes a quantity in FUnits, the
+                        smallestmeasurable distance in em space.
+uFWord	  -	        16-bit unsigned integer that describes a quantity in FUnits，
+                            the smallest measurable distance in em space.
+F2Dot14	  -	        16-bit signed fixed number with the low 14 bits representing fraction.
+longDateTime-	        The long internal format of a date in seconds since 12:00 midnight, 
+                        January 1, 1904. It is represented as a signed 64-bit integer.
+
+我也是尽量做到简单了，E文不好的朋友应该也可以理解这里的意思。
+
+下面是TrueType字体目录的c语言定义：
+typedef      sturct
+{
+  CHAR       	tag[4];        	/*资源标记*/
+  ULONG      	checkSum;       /*校验位*/
+  ULONG      	offset;	 /*表在TrueType结构体中的偏移量*/
+  ULONG      	length;	 /*每个表的大小*/
+}TableEntry;	 /*此结构体为TrueType字体中的表的定义形式*/
+
+typedef      struct
+{
+  Fixed         sfntversion;      	 /*目前所用版本皆为1.0版本，故此值为0x10000*/
+  USHORT      	numTables;	 /*该字体中表的数目*/
+  USHORT      	searchRange;
+  USHORT      	entrySelector;
+  USHORT      	rangeShift;
+  TableEntry    entries[i];	 /*保存着具体的表,i = numTables*/
+}TableDirectory;
+
+TrueType 字体中的所有数据都使用big-endian编码，最高位字节在最前面。TableDirectory结构中的最后一项，每个元素保存一个表。
+
+下面列出常用的表以及其功能：
+表名	表名解释	                  表名说明
+head	字体头	                  字体的全局信息
+cmap	字符代码到图元的映射	把字符代码映射为图元索引
+glyf	图元数据	                  图元轮廓定义以及网格调整指令
+maxp	最大需求表	         字体中所需内存分配情况的汇总数据
+mmtx	水平规格	                  图元水平规格
+loca	位置表索引	         把图元索引转换为图元的位置
+name	命名表	                  版权说明、字体名、字体族名、风格名等说明
+hmtx	水平布局	                  字体水平布局星系：上高、下高、最大前进宽度、最小左支撑、最小右支撑
+kerm	字距调整表	         字距调整对的数组
+post	PostScript信息	         所有图元的PostScript   FontInfo目录项和PostScript名
+PCLT	PCL 5数据	         HP PCL 5Printer Language的字体信息：字体数、宽度、X高度、风格、记号集
+OS/2	OS/2和Windows特有风格	TrueType字体所需的规格集
+
+在TableDirectory结构中，所有的TableEntry结构都必须根据它们的标记名排序。比如，cmap必须出现在head前，而head必须在glyf前。但是实际的表可以出现在TrueType字体文件中的任意位置。
+
+
+3楼为TTF字体中一些重要的表的一些说明：
+
+1.head表
+  结构如下：
+  typedef struct
+  {
+    Fixed        Table;                /*版本号，一般为0x00010000*/
+    Fixed        fontRevision;         /*由字体制造商设置*/
+    ULONG        cheskSumAdjestment;   /*校验调整项*/
+    ULONG        magicNumer;           /*一般设为0x5f0f3cf5*/
+    USHORT       flags;                /*标志位*/
+    USHORT       unitsPerEm;           /*EM_square的大小，从16到16384*/
+    longDT       created;              /*国际数据（8字节范围）*/
+    longDT       modified;             /*国际数据（8字节范围）*/
+    FWord        xMin;                 /*
+    FWord        yMin;                    图元范围
+    FWord        xMax;
+    FWord        yMax;                             */
+    USHORT       macStyle;             
+    USHORT       lowestRecPPEM;        /*最小可读像素大小*/
+    SHORT        fontDirctionHint;     /*字体方向*/
+    SHORT        indexToLocFormat;     /*在位置表中图元索引的格式*/
+                                       /*1为long，0为short*/、
+     SHORT        glyphDataFormat;      /*图元数据格式，设为0*/
+  }Table_head;
+
+字体设计时是针对一个参考网格设计的，该网格被称为em-square，字体中的图元用网格中的坐标表示。因此em-squrare的大小决定了该字体的图元被缩放的方式，同时也反映了该字体的质量。字体头中保存了每个em-square的格数和能包含所有图元的边界框。em-square的有效值是从16到16384，常见的值是2048、4096和8192。
+
+
+2.maxp表
+
+TrueType字体是一种非常灵活的数据结构，它可以包含可变数目的图元，每个图元可以有不同数目的控制点，甚至还可以有数量可变的图元指令。最大需求表的目的是告知字体栅格器（rasterizer）对内存的需求，以便在出来字体前分配合适大小的内存。因为性能对字体栅格器非常重要，像MFC的CAarray那样需要频繁进行数据拷贝操作的动态增长的数据结构不合要求。
+下面是maxp表的结构：
+
+typedef      struct
+{
+Fixed      	 Version;	  /*版本号1.0.取值为0x00010000*/
+USHORT      	numGlypha;      	  /*字体中图元的总数*/      
+USHORT      	maxPoints;      	  /*简单图元的最大点数*/      
+RSHORT      	maxContours;      	  /*简单图元的最大轮廓数*/
+USHORT      	maxCompositePoints;	 /*复合图元的最大点数*/
+USHORT      	maxCompositeContours; /*复合图元的最大轮廓数*/     
+USHORT      	maxZones;	  /*模糊地带的使用[Z0]，不使用置为0，少量使用
+                                   	  置为1，大量使用置为2*/
+USHORT      	maxTwilightPoints;	  /*Z0中用到的最大的点数*/      
+USHORT      	maxStorage;      	  /*储存区域的数目*/
+USHORT      	maxFunctionDefs;      	 /*FDEF的数目*/
+USHORT      	maxStackElements;      	 /*深度的数目*/
+USHORT      	maxSizeOfInstructions;    /*当前图元的最大字节数*/
+USHORT      	maxComponentElements; /*最大复合图元中的元素个数*/
+USHORT      	maxComponentDepth;      /*最大递归等级*/
+}Table_maxp;
+
+
+3.cmap表
+字符到图元索引的映射表（cmap表）定义了从不同代码页中的字符代码到图元索引的映射关系，这是在TrueType字体中存取图元信息的关键。cmap表包含几个子表以支持不同的平台和不同的字符编码方案。
+cmap表常常以一个包含了表的版本信息和子表数量的结构标识。
+该结构如下：
+
+Type	Name	Description
+UInt16	version	Version number (Set to zero)
+UInt16	numberSubtables	Number of encoding subtables
+
+如果子表的类型为0到6，那么这里的version就设置为0，如果子表的类型为8或者更高的类型的话，那么version就设置为1。
+
+以下为cmap关于子表描叙的结构：
+typedef    struct
+{
+USHORT	 PlatformID;	 /*平台ID*/
+USHORT	 EncodingID;	 /*编码ID*/
+ULONG	 TableOffset;	 /*编码表偏移量*/
+}Table_cmap;
+
+  ‘cmap’表使得 TTF字体文件可以在不同的平台和译码器体系下使用，PlatformID代码的值一般为3和1，分别代表Micrsoft平台和Macintosh平台，它们使用不同的字符集和编码方法。EncodingID具体选择字符集和编码方法。每一个’cmap’，子表由一组PlatformID和EncondingID唯一确定，并按PlatformID和EncondingID的顺序由小到大排列。为了保证Windows下的TTF文件也能在Macintosh系统下使用，至少包含两个子表:Macintosh下的Roman代码体系(PlatformID=1 ,  EncondingID=O)和 Micrsoft系UGI代码体系(PlatformID=3, EncondingID=1)。
+下面给出常用的PlatformID和EncodingID的具体设置：
+
+Platform ID	Encoding ID	Description
+3	0	Symbol
+3	1	Unicode
+3	2	ShiftJIS
+3	3	Big5
+3	4	PRC
+3	5	Wansung
+3	6	Johab
+
+
+在子表描述目录之后是每个了表的详细描述，’cmap’，子表有 4种描述格式，适用于不同的字符集。Windows系统下的 TTF文件’cmap’描述子表不止一个，但这里由于unicode的使用频率比较高，所以这里主要说明的是Microsoft系的设置。 
+紧接着的是关于子表的具体描述的形式，常用的为format 2和format 4，所以下面就具体介绍一下这两种format的构成：
+    1. Format 2：高字节表格映射
+此种格式的映射表主要用于某些民族字符集，如中文、日文、韩文等。这些字符集字符数量大，用单字节编码远远不够，需要两个字节才能满足要求能够满足要求。又因为在使用这些民族字符的同时，还要求能够使用西文字符，而西文文字符是单字节编码，所以在实际应用中，采用的是单、双字节混合编码方式。为了区分西文字符和民族字符，民族字符代码的高，低字节不能与西文字符的单字节代码冲突。例如:中文字符集中汉字内码的高、低字节取值范围0xAl-0xFE,西文ASCII代码为0x20-0x7F，两者不冲突。
+这种子表的格式如表2.6所示：
+
+Type	Name	Description
+USHORT	format	子表格式 (为2)
+USHORT	length	字节计子表长度
+USHORT	version	版本号码 (0开始)
+USHORT	subHeaderKeys[256]	高字节到subHeader序号的映射表
+subHeaderKeys[256]此值为subHeader序号乘8
+4 words struct	subHeaders[ ]	变长的subHeader数值
+USHORT	glyphIndexArray[ ]	变长的低字节映射表
+
+subHeaders结构体的定义如下：
+
+Type	Name	Description
+USHORT	firstCode	对于当前subHeader结构的第一个有效的低位字节
+USHORT	entryCount	对于当前subHeader结构的有效的低位字节的总数
+SHORT	idDelta	
+USHORT	idRangeOffset	
+
+
+firstCode和entryCount的值指明了一个subrange，这个subrange在0-255的自己范围内被映射，不在这个范围内的会被映射到glyph_index 0，这个subrange的字节偏移量同时被用在相应的glyphIndexArray中的subarray。这个subarray同时也是entryCount的长度。idRangeOffset的值表示的是从glyphIndexArray中元素相应的firstCode地址到实际位置的字节数。
+    此映射表的结构能够区分单字节编码西文字符和双字节编码的民族字符。如果字符代码的第一字节对应的 subHeader结构查找 glydArray[]得到对应文字序号；如果第一字节 (高字节)对应的subHeader序号不为0，则存在第二字节 (低字节)，通过低字节和subHeader结构得到对应文字序号。
+    如果字符代码高、低字节分别为high和low(对于西文ASCII字符，只使用high字节，不存在低字节low)，则此字符对应的文字序号index (USHORT)可由以下的一段C语言伪代码得到：
+
+    USHORT            high_map-key;
+    BYTE            firstCode,endCode;
+    SUBHEADER     subHeader;
+    LSHORT *         subArray;
+    High_ map_ key = SubHeaderKeys[high]/8;         //得到subHeaders序号
+     if (high_ map key = =0)                            //subHeaders序号为0，为西文字符
+      low = high;
+    subHeader = subHeaders[high_ map_ key];
+    firstCode = subHeaders.firstCode;
+    endCoder = firstCode-subHeader.entryCount-1;         //低字节有效范围为 firstCode
+                                                  //到endCode
+    if((low>endCode) || (low<firstCode))
+    index=0;                            //低字节不在有效范围之内，返回文字序号0
+    else
+    {
+      subArray = subHeader.idRangeOff'set+&(subHeader.idRangeOffset)
+                        //得到低字节映射数组的首地址subArray[]
+      index = subArray[low-firstCoder]; //得到 index初值
+       if (index != 0)                 //调整映射值 index
+      index = index+ subHeader.idDelta
+    }
+
+
+ 2. format 4:双字节分段映射表(segment mapping to delta values)
+这是Microsoft标准字符集到文字序号的映射表(也是现在DMA中用到的表)。
+结构如下：
+
+
+Type
+Name	Description
+USHORT	format	子表格式 (为4)
+USHORT	length	字节表示的子表长度 
+USHORT	version	版本号码 (0开始)
+USHORT	segCountX2 	分段数目2 *segCount.
+USHORT	searchRange 	快速查找范围：2 * (2**floor(log2(segCount)))
+USHORT	entrySelector 	入口值范围：log2(searchRange/2)
+USHORT	rangeShift 	偏移调整：2 *segCount - searchRange
+USHORT	endCount[segCount]	每段的结束字符代码，last =0xFFFF
+USHORT	reservedPad	设置为0
+USHORT	startCount[segCount]	每段的开始字符代码
+USHORT	idDelta[segCount]	每段的调整量
+USHORT	idRangeOffset[segCount]	每段映射子表的字节偏移量
+USHORT	glyphIdArray[ ]	变长的文字序号数组
+
+
+searchRange, entrySelector和rangeShift的计算与offset table中二个值的计算一样，用于段表项的快速定位。数组 starCount[]和 endCount[]决定了每一段的起始和终结字符代码，按照从小到大的顺序排列，最后一段的起始和终结字符代码必须为0XFFFF，作为段表的结束标志。
+给定一个字符代码char_code(USHORT型)，那么可以通过下面的代码得到glyph_Index的值：
+
+for(i= 0 ; i < segCount*2 / 2 ; i++)            //确定char_code所在的段
+{
+  if (char_code <= endCount[i])                //找到一个endCount>=char_code的段
+    break;
+  if(char code < startCount[i])         //如果char_code不在此段中，返回0。
+    index = 0;
+  else if (idRangeOffset[i] = =0)
+    index = char_code - idDelta[i];
+  else
+    index = *(idRangeOffset[i]/2+(char_code-startCount[i])十&idRangeOffset);
+  //获得初始文字序号
+  if (index !=0)                                //初始文字序号不为0
+    index=index+idDe1ta[i]
+}
+
+补充1：不知道这个排版是怎么回事。。我明明打的很好的。。显示出来就这个效果。。晕。大家讲究看吧。不明白的发我邮箱
+       zcssa0428@sina.com
+补充2：上面的代码中：
+subArray = subHeader.idRangeOffset+&(subHeader.idRangeOffset)
+
+多了一个’。。应该为：
+subArray = subHeader.idRangeOffset+&(subHeader.idRangeOffset)
+
+然后就是关于loca表和glyf表的说明了
+
+loca表
+TrueType字体中最有用的信息是glyf表中的图元数据。有了图元索引，要找到相应的图元，需要表（loca表）索引以把图元索引转换为图元数据表内的偏移量。
+举例说明，下表：
+Glyph Index           Offset             Glyph Length
+0                     0                  100
+1                     100                150
+2                     250                
+...                   ...                ...
+n-1                   1170               120
+extra                 1290
+
+解释一下上面的：
+根据规定，在任何的truetype字体中第一个图元都必须为丢失的图元，即index 0 指向的是没有找到的图元。Loca表有两个版本，长整型和短整型。版本的选择通过head表中的参数indexToLocFormat设定。
+位置索引表中保存了n+1个图元数据表的索引，其中n是保存在最大需求表中的图元数量。最后一个额外的偏移量并不指向一个新图元，而是指向最后一个图元的偏移量和当前图元的偏移量和当前图元的偏移量间的差值得到图元的长度。
+位置索引表中的每一个索引以无符号短整数对齐的，如果使用了短整数格式，索引表实际存储的是WORD偏移量，而不是BYTE偏移量。这使得短整数格式的位置索引表能支持128KB大小的图元数据表。
+
+
+glyf表：
+
+图元数据（glyf表）是TrueType字体的核心信息，因此通常它是最大的表。因为其位置索引是一张单独的表，图元数据表就完全只是图元的序列而已，每个图元以图元头结构开始：
+typedef  struct
+{
+  WORD      numberOfCountours;         /*轮廓数目，复合图元时为负数*/
+  FWord     xMin;
+  FWord     yMin;
+  FWord     xMax;
+  FWord     yMax;
+}GlyphHeader;
+
+1.简单图元
+对于简单图元，图元的描述紧跟在GlyphHeader结构之后。
+图元的描述由几部分信息组成：所有轮廓线结束点的索引、图元指令和一系列的控制点。每个控制点包括一个标志以x和y坐标。概念上而言，控制所需的信息和GDI函数PolyDraw函数所需的信息相同：一组标志和一组点的坐标。但TrueType字体中的控制点的编码要复杂得多。
+
+下面是图元描述信息的概述：
+
+USHORT    endPtsOfContours[n];             /*轮廓线描叙，n=轮廓线条数*/
+USHORT    instructionlength;               /*图元指令通知度*/
+BYTE      instruction[i];                  /*i=指令长度*/
+BYTE      flags[];
+BYTE      xCoordinates[];
+BYTE      yCoordinates[];
+
+图元可以包含一条或多条轮廓线。比如，字母"O"有两条轮廓线，一条是内部的轮廓，另一条是外部的轮廓。对于每一条轮廓线，endPtsOfContours数组保存了其终点的索引，从该索引中可以计算出轮廓线中点的数量。比如，endPtsOfContours[0]是第一条轮廓线上点的数量，endPtsOfContours[1]-endPtsOfContours[0]是第二条轮廓线上点的数量。
+图元的控制点保存在三个数组中：标志获得组、x坐标数组和y坐标数组。找到标志数组的起始点很简单，但是标志数组没有相应的长度字，也没有直接其他两个数组的方法，你必须先解码标志数组才能解释x和y坐标数组。em-square被限制为最大为16384个网格，因此通常情况下需要各两个字节来表示x坐标和y坐标。为了节省空间，图元中保存的是相对坐标。第一个点的坐标是相对（0，0）记录的，所有随后的点记录者是和上一个点的坐标差值。有些差值可以用一个字节表示，有些差值为0，另外一些差值则无法用单个字节表示。标志数组保存了每个坐标的编码信息以及其他一些信息。
+下面是标志中各个位的含义的总结：
+
+bit位         说明：
+0            如果为1，则此点为on-line点，否则为off-line点。
+1            如果为1，则对应的x坐标为BYTE型，否则为SHORT型。
+2            如果为1，则对应的y坐标为BYTE型，否则为SHORT型。
+3            如果设置为1，则下一个字节为此标志重复的次数，这使得标志数目可以小于点的个数。
+4            如果位1设置为l，则此位是x坐标的符号，1则正，0则负。如果位1设置为0，此位设置为 1，则表示当前x坐标与
+               上一点x坐标相同；如果位 1和此位都设置为0，则xcoordinates[]就是相对于上一点的x坐标。
+5            如果位2设置为1，则此位是y坐标的符号，1则正，0则负。如果位2设置0，此位设置为1，则表示当前y坐标与上
+               一点的y坐标相同；如果位2和此位都设置为0，则yCoordinates[]就是相对于上一点的y坐标。
+6            保留，设置为0。
+7            保留，设置为0。
+
+TureType字体中的图元轮廓是用二阶Bezier曲线定义的，有三个点：一个曲线上的点，一个曲线外的点和另一个曲线上的点。
+
+2.复合图元
+如果numberOfContours的值小于0，则此文字为复合文字。复合文字由若干个简单文字组成，结构如下所示：
+uint16                     flags             复合图元标志，下面会给出说明
+uint16                     glyphIndex        复合图元中glyphIndex
+int16,uint16,int8 or uint8 argument1         X方向的偏移量，值由标志位设置
+int16,uint16,int8 or uint8 argument2         Y方向的偏移量，值由标志位设置
+transformation option                        转换设置，在下面给出的表说明
+
+以下为标志位说明：
+
+Flags                      bit     Description
+ARG_1_AND_2_ARE_WORDS      0       设为1：argument1和argument2为word型；设为0：argument1和argument2为
+                                        byte型。
+ARG_ARE_XY_VALUES          1       设为1：argument1和argument2为xy值；设为0；argument1和argument2为轮
+                                        廓点编号。
+ROUND_XY_TO_GRID           2       设为1：将xy值舍入到最近的网格线上。
+WE_HAVE_A_SCALE            3       设为1：则有一个简单的缩放因子。
+RESERVED                   4       保留，设置为0。
+MORE_COMPONENTS            5       设为1：此后至少还有一个简单文字。
+WE_HAVE_AN_X_AND_Y_SCALE   6       设为1：xy使用不同的缩放因子。
+WE_HAVE_A_TWO_BY_TWO       7       设为1：存在一个2*2的坐标变换矩阵.
+WE_HAVE_INSTRUCTIONS       8       设为1：存在作用于复合文字的指令。
+USE_MY_MERICS              9       设为1：通过原始轮廓计算aw和lsb(忽略‘hmtx’的值)。
+
+下面给出transformation option的设置表：
+Transformation Option             Meaning
+transformation entry #1           scale(same for x and y)
+
+transformation entry #2           x-scale
+                                  y-scale
+
+transformation entry #3           xscale
+                                  scale01
+                                  scale10
+                                  yscale
+
+glyphlndex为此复合文字所包含的简单文字的序号(双字节整数)，Adjustment的内容由flags各标志位的值决定。
+    TTF解释器在处理复合文字时，将每个简单文字的轮廓点重新统一编号，后一个轮廓点的编号为上一个简单文字最后一个轮廓点的编号加上1。其中arguments1和arguments2有两种含义，如果是xy值，则表示这个简单文字轮廓点坐标都是相对于 (argumentst,  arguments2)的相对坐标值:如果是轮廓编号，则表示点argumentsl(前一个简单文字轮廓点)和arguments2(后一个简单文字的轮廓点)重合，即坐标值相同。argumentsl和arguments2给出各个简单文字在复合文字中的位置，控制复合文字的整体布局。
+简单文字的轮廓描述都是在纯轮廓描述，即轮廓曲线两两不相交。复合文字不能保证得到纯轮廓信息，因为组成复合文字的简单文字之间可能有交叉。复合文字不具体纪录轮廓点的坐标，大大减少了字体文件的长度。
+
+好了。先到这里吧。。格式有问题，，我也不知道怎么搞，大家勉强看了。对不住。
+
+
