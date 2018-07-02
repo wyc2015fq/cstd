@@ -2558,7 +2558,7 @@ static int imgauss(const img_t* im, img_t* im2, double delta) {
 
 
 static int pic2ascii(int h, int w, const uchar* img, int imgstep, int cn, char* out) {
-  static char* pic2ascii_chs = "   ...',;:clodxkO0KXNWMMMM";
+  static const char* pic2ascii_chs = "   ...',;:clodxkO0KXNWMMMM";
   int x, y, k=cn/2;
   static char pic2ascii_map[256] = {0};
   static int pic2ascii_len = 0;

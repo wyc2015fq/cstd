@@ -849,7 +849,7 @@ CC_INLINE int cvTypeSize(TypeId type) {
 CC_INLINE char* cvTypeName(TypeId type) {
   static char* _type_name_tab[16] = {0};
   if (NULL==_type_name_tab[CC_8U]) {
-#define TYPEDEF(a,b,c,d)  _type_name_tab[a]= #a ;
+#define TYPEDEF(a,b,c,d)  _type_name_tab[a]= (char*)#a ;
     TYPEDEF_DEF(TYPEDEF);
 #undef TYPEDEF
   }

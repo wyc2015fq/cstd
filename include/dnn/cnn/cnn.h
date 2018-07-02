@@ -142,8 +142,8 @@ static void logFatal(const char* fmt, ...)
   }
 }
 #include <assert.h>
-static char* __FILE = NULL;
-static char* __FUNCTION = NULL;
+static char const * __FILE = NULL;
+static char const * __FUNCTION = NULL;
 static int __LINE = 0;
 #if 0
 #define easyAssert (__FILE = __FILE__, __FUNCTION = __FUNCTION__, __LINE = __LINE__),easyAssertCore
@@ -1148,7 +1148,7 @@ LAYER_REGISTRY(softmax, SoftmaxLayer)
 
 static int layer_init(struct Layer* layer, const char* type)
 {
-  static char* layer_type[] = {
+  static char const * layer_type[] = {
 #define LAYER_REGISTRY(TYPE, RUN)  #TYPE,
     LAYER_DEFDEF(LAYER_REGISTRY)
 #undef LAYER_REGISTRY

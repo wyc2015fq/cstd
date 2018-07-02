@@ -80,7 +80,7 @@ static int base64_decode(const char* input, int input_len, void* output)
     for (i=0; i<n; ++i) {
     }
   }
-  len = p_out - output;
+  len = p_out - (uchar*)output;
   if (p[-2] == '=') {
     len-=2;
   } else if (p[-1] == '=') {  
