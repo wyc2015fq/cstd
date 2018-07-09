@@ -96,11 +96,17 @@ int ExtractFaceFeature(int cols, int rows, unsigned char* data, int c, const flo
         //cvui_printf(frame, 640+10, 90+i*40, 0.4, 0xff0000, "%d age: %d", i, face->age);
         //cvui_printf(frame, 640+10, 90+i*40, 0.4, 0xff0000, "%d gender: %s", i, gender_tag[!!face->gender]);
         float points[10] = {
-          face->leye_center.x, face->leye_center.y,
-            face->reye_center.x, face->reye_center.y,
-            face->nose_tip.x, face->nose_tip.y,
-            face->mouth_l_corner.x, face->mouth_l_corner.y,
-            face->mouth_r_corner.x, face->mouth_r_corner.y,
+            face->leye_center.x,
+            face->reye_center.x,
+            face->nose_tip.x,
+            face->mouth_l_corner.x,
+            face->mouth_r_corner.x,
+
+			face->leye_center.y,
+			face->reye_center.y,
+			face->nose_tip.y,
+			face->mouth_l_corner.y,
+			face->mouth_r_corner.y,
         };
         ExtractFaceFeature(im->w, im->h, im->data, im->c, points, cur->feat);
         if (is_reg) {

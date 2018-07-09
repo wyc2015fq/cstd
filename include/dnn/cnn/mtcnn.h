@@ -23,7 +23,7 @@ typedef struct Bbox {
   float x2;
   float y2;
   float area;
-  bool exist;
+  int exist;
   Dtype ppoint[10];
   Dtype regreCoord[4];
 } Bbox;

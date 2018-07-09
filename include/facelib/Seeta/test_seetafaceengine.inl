@@ -18,16 +18,16 @@ using namespace std;
 #include "img/imgopt.inl"
 #include "cv/imgproc/drawing.inl"
 
-#define FACE_DETECTION_MODEL_PATH       "E:/code/c/AI/face/SeetaFaceEngine-master/seeta_fd_frontal_v1.0.bin"
-#define FACE_ALIGNMENT_MODEL_PATH       "E:/code/c/AI/face/SeetaFaceEngine-master/seeta_fa_v1.1.bin"
-#define FACE_IDENTIFICATION_MODEL_PATH  "E:/code/c/AI/face/SeetaFaceEngine-master/seeta_fr_v1.0.bin"
+#define FACE_DETECTION_MODEL_PATH       "D:/data/model/seeta_fd_frontal_v1.0.bin"
+#define FACE_ALIGNMENT_MODEL_PATH       "D:/data/model/seeta_fa_v1.1.bin"
+#define FACE_IDENTIFICATION_MODEL_PATH  "D:/data/model/seeta_fr_v1.0.bin"
 
 
 //#define TEST(major, minor) major##_##minor##_Tester()
 #define EXPECT_NE(a, b) if ((a) == (b)) std::cout << "ERROR: "
 #define EXPECT_EQ(a, b) if ((a) != (b)) std::cout << "ERROR: "
 
-std::string DATA_DIR = "E:/code/c/AI/face/SeetaFaceEngine-master/FaceIdentification/data/";
+std::string DATA_DIR = "D:/code/git/SeetaFaceEngine/FaceIdentification/data/";
 
 
 int test_facedetection() {
@@ -186,7 +186,7 @@ int test_face_verification(int argc, char* argv[]) {
 
 	// Initialize face Identification model 
 	FaceIdentification face_recognizer(FACE_IDENTIFICATION_MODEL_PATH);
-	std::string test_dir = "E:/code/c/AI/face/SeetaFaceEngine-master/FaceIdentification/data/test_face_recognizer/";
+	std::string test_dir = "D:/code/git/SeetaFaceEngine/FaceIdentification/data/test_face_recognizer/";
 
 	//load image
 	img_t im[10] = { 0 };
@@ -235,7 +235,7 @@ int test_face_verification(int argc, char* argv[]) {
 	// Extract face identity feature
 	float gallery_fea[2048];
 	float probe_fea[2048];
-
+#if 0
   FacialLandmark gallery_points_[5] = {
 		107.00814056396484,
 		112.77738189697266,
@@ -269,6 +269,12 @@ int test_face_verification(int argc, char* argv[]) {
 		141.86750793457031,
 		160.88662719726562,
   };
+#endif
+
+#if 1
+  FacialLandmark gallery_points_[5] = { 108.01280212402344, 115.21343994140625, 147.99578857421875, 114.51779174804688, 129.07791137695312, 142.24993896484375, 108.84745788574219, 156.11947631835938, 148.44784545898438, 155.27120971679688 };
+  FacialLandmark probe_points_[5] = { 109.75684356689453, 113.79313659667969, 148.48760986328125, 115.44265747070312, 123.31971740722656, 140.52932739257812, 111.93360137939453, 162.70193481445312, 145.51885986328125, 163.10049438476562 };
+#endif
 
 
   MEMCPY(gallery_points, gallery_points_, 5);

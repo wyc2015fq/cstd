@@ -212,15 +212,15 @@ void matrix_procuct(const float* A, const float* B, float* C, const int n,
 }
 
 
-class Blob {
+class SeetaBlob {
  public:
-  Blob();
-  Blob(const Blob &source);
-  Blob(int n, int c, int h, int w);
-  Blob(int n, int c, int h, int w, float* data);
-  Blob(FILE* file);
+  SeetaBlob();
+  SeetaBlob(const SeetaBlob &source);
+  SeetaBlob(int n, int c, int h, int w);
+  SeetaBlob(int n, int c, int h, int w, float* data);
+  SeetaBlob(FILE* file);
 
-  virtual ~Blob();
+  virtual ~SeetaBlob();
   void reshape(int n, int c, int h, int w);
   void Permute(int dim1, int dim2, int dim3, int dim4);
   void Release();
@@ -237,7 +237,7 @@ class Blob {
     return ((n * channels() + c) * height() + h) * width() + w;
   }
   void SetData();
-  void SetData(const Blob &source);
+  void SetData(const SeetaBlob &source);
   void SetData(int n, int c, int h, int w);
   void CopyData(int n, int c, int h, int w, const float* const data);
   // copy data from unsigned char
@@ -274,27 +274,27 @@ class Blob {
 };
 
 #define nullptr NULL
-Blob::Blob() {
+SeetaBlob::SeetaBlob() {
   data_ = nullptr;
   shape_.clear();
 }
 
-Blob::Blob(const Blob &source) {
+SeetaBlob::SeetaBlob(const SeetaBlob &source) {
   data_ = nullptr;
   SetData(source);
 }
 
-Blob::Blob(int n, int c, int h, int w) {
+SeetaBlob::SeetaBlob(int n, int c, int h, int w) {
   data_ = nullptr;
   SetData(n, c, h, w);
 }
 
-Blob::Blob(int n, int c, int h, int w, float* data) {
+SeetaBlob::SeetaBlob(int n, int c, int h, int w, float* data) {
   data_ = nullptr;
   CopyData(n, c, h, w, data);
 }
 
-Blob::Blob(FILE* file) {
+SeetaBlob::SeetaBlob(FILE* file) {
   int n, c, h, w;
   data_ = nullptr;
   CHECK_EQ(fread(&(n), sizeof(int), 1, file), 1);
@@ -305,18 +305,18 @@ Blob::Blob(FILE* file) {
   CHECK_EQ(fread(data_, sizeof(float), count_, file), count_);
 }
 
-Blob::~Blob() {
+SeetaBlob::~SeetaBlob() {
   shape_.clear();
   count_ = 0;
   FREE(data_);
   data_ = nullptr;
 }
 
-void Blob::reshape(int n, int c, int h, int w) {
+void SeetaBlob::reshape(int n, int c, int h, int w) {
   SetData(n, c, h, w);
 }
 
-void Blob::Permute(int dim1, int dim2, int dim3, int dim4) {
+void SeetaBlob::Permute(int dim1, int dim2, int dim3, int dim4) {
   // todo: check permute
   std::vector<int> dim(4), redim(4), idx(4);
   dim[0] = dim1 - 1; redim[dim[0]] = 0;
@@ -348,24 +348,24 @@ void Blob::Permute(int dim1, int dim2, int dim3, int dim4) {
   FREE(tmp);
 }
 
-void Blob::Release() {
+void SeetaBlob::Release() {
   FREE(data_);
 }
 
-void Blob::SetData() {
+void SeetaBlob::SetData() {
   MYREALLOC2(data_, count_);
 }
 
 
-void Blob::SetData(const Blob &source) {
+void SeetaBlob::SetData(const SeetaBlob &source) {
   CopyData(source.num(), source.channels(), source.height(), source.width(), source.data());
 }
 
-void Blob::SetData(int n, int c, int h, int w) {
+void SeetaBlob::SetData(int n, int c, int h, int w) {
   CopyData(n, c, h, w, NULL);
 }
 
-void Blob::CopyData(int n, int c, int h, int w, const float* const data) {
+void SeetaBlob::CopyData(int n, int c, int h, int w, const float* const data) {
   shape_.resize(4);
   shape_[0] = n;
   shape_[1] = c;
@@ -378,7 +378,7 @@ void Blob::CopyData(int n, int c, int h, int w, const float* const data) {
   }
 }
 
-void Blob::CopyDataU8(int n, int c, int h, int w, 
+void SeetaBlob::CopyDataU8(int n, int c, int h, int w, 
     const unsigned char* const data) {
   if (data_)
     data_ = nullptr;
@@ -394,18 +394,18 @@ void Blob::CopyDataU8(int n, int c, int h, int w,
     data_head[i] = data[i];
 }
 
-void Blob::CopyTo(unsigned char* const data) {
+void SeetaBlob::CopyTo(unsigned char* const data) {
   const float* const data_head = data_;
   for (int i = 0; i < count_; ++ i)
     data[i] = MIN(255.0f, MAX(0.0f, data_head[i]));
 }
 
-void Blob::CopyTo(float* const data) {
+void SeetaBlob::CopyTo(float* const data) {
 	float* data_head = data_;
 	memcpy(data, data_head, count_ * sizeof(float));
 }
 
-void Blob::ToFile(const char* file_name) {
+void SeetaBlob::ToFile(const char* file_name) {
   std::ofstream ofs;
   ofs.open(file_name, std::ofstream::out);
   float* data = data_;
@@ -416,7 +416,7 @@ void Blob::ToFile(const char* file_name) {
   ofs.close();
 }
 
-void Blob::ToBinaryFile(const char* file_name) {
+void SeetaBlob::ToBinaryFile(const char* file_name) {
   FILE* file = fopen(file_name, "wb");
   if (file == nullptr) {
     LOG(ERROR) << file_name << " not exist!";
@@ -537,10 +537,10 @@ class HyperParam {
   std::vector<std::string> v_str_;
 };
 
-class Net {
+class SeetaNet {
  public:
-  Net();
-  virtual ~Net();
+  SeetaNet();
+  virtual ~SeetaNet();
   // initialize the networks from a binary file
   virtual void SetUp();
   // execute the networks
@@ -557,49 +557,49 @@ class Net {
       output_blobs_[i].Release();
   }
 
-  Net* const father() {
+  SeetaNet* const father() {
     return father_;
   }
-  void SetFather(Net* father) {
+  void SetFather(SeetaNet* father) {
     father_ = father;
   }
-  std::vector<Net* >& nets() {
+  std::vector<SeetaNet* >& nets() {
     return nets_;
   }
-  Net* nets(int i) {
+  SeetaNet* nets(int i) {
     return nets_[i];
   }
-  std::vector<Blob>& input_blobs() {
+  std::vector<SeetaBlob>& input_blobs() {
     return input_blobs_;
   }
-  Blob* input_blobs(int i) {
+  SeetaBlob* input_blobs(int i) {
     return &(input_blobs_[i]);
   }
-  std::vector<Blob>& output_blobs() {
+  std::vector<SeetaBlob>& output_blobs() {
     return output_blobs_;
   }
-  Blob* output_blobs(int i) {
+  SeetaBlob* output_blobs(int i) {
     return &(output_blobs_[i]);
   }
-  std::vector<std::vector<Blob*> >& output_plugs() {
+  std::vector<std::vector<SeetaBlob*> >& output_plugs() {
     return output_plugs_;
   }
-  std::vector<Blob*>& output_plugs(int i) {
+  std::vector<SeetaBlob*>& output_plugs(int i) {
     return output_plugs_[i];
   }
-  std::vector<std::vector<Blob*> >& input_plugs() {
+  std::vector<std::vector<SeetaBlob*> >& input_plugs() {
     return input_plugs_;
   }
-  std::vector<Blob*>& input_plugs(int i) {
+  std::vector<SeetaBlob*>& input_plugs(int i) {
     return input_plugs_[i];
   }
   HyperParam* hyper_param() {
     return &hyper_params_;
   }
-  std::vector<Blob>& params() {
+  std::vector<SeetaBlob>& params() {
     return params_;
   }
-  Blob* params(int i) {
+  SeetaBlob* params(int i) {
     return &(params_[i]);
   }
   // count the number of unreleased output blobs
@@ -610,31 +610,31 @@ class Net {
     return count;
   }
  protected:
-  // father net
-  Net* father_;
-  // the limit of net name size
+  // father SeetaNet
+  SeetaNet* father_;
+  // the limit of SeetaNet name size
   enum { MAX_NET_NAME_SIZE = 50 };
-  // net name
+  // SeetaNet name
   std::string name_;
 
   // input and output blobs
-  std::vector<Blob> input_blobs_;
-  std::vector<Blob> output_blobs_;
+  std::vector<SeetaBlob> input_blobs_;
+  std::vector<SeetaBlob> output_blobs_;
 
   // subnet of the networks
-  std::vector<Net* > nets_;
+  std::vector<SeetaNet* > nets_;
 
   // plugs
-  std::vector<std::vector<Blob*> > output_plugs_;
-  std::vector<std::vector<Blob*> > input_plugs_;
+  std::vector<std::vector<SeetaBlob*> > output_plugs_;
+  std::vector<std::vector<SeetaBlob*> > input_plugs_;
 
   // params in the networks
   HyperParam hyper_params_;
-  std::vector<Blob> params_;
+  std::vector<SeetaBlob> params_;
 };
 
 
-Net::Net() {
+SeetaNet::SeetaNet() {
   nets_.clear();
   
   input_blobs_.clear();
@@ -646,7 +646,7 @@ Net::Net() {
   father_ = nullptr;
 }
 
-Net::~Net() {
+SeetaNet::~SeetaNet() {
   nets_.clear();
   
   input_blobs_.clear();
@@ -658,7 +658,7 @@ Net::~Net() {
   params_.clear();
 }
 
-void Net::SetUp() {
+void SeetaNet::SetUp() {
   input_blobs_.clear();
   output_blobs_.clear();
 
@@ -670,7 +670,7 @@ void Net::SetUp() {
   params_.clear();
 }
 
-void Net::Execute() {
+void SeetaNet::Execute() {
   // 1. check input blobs
   CheckInput();
   uint i;
@@ -682,25 +682,25 @@ void Net::Execute() {
   CheckOutput();
 }
 
-void Net::CheckInput() {
+void SeetaNet::CheckInput() {
   for (uint i = 0; i < input_blobs_.size(); ++ i) {
     if (input_blobs_[i].data() == nullptr) {
-      LOG(INFO) << "Net input haven't been initialized completely!";
+      LOG(INFO) << "SeetaNet input haven't been initialized completely!";
       exit(0);
     }
   }
 }
 
-void Net::CheckOutput() {
+void SeetaNet::CheckOutput() {
   uint i;
   for (i = 0; i < input_blobs_.size(); ++ i) {
     input_blobs_[i].Release();
   }
   for (i = 0; i < output_blobs_.size(); ++ i) {
     // connecting output plugs
-    for (std::vector<Blob*>::iterator blob = output_plugs_[i].begin();
-        blob != output_plugs_[i].end(); ++ blob) {
-      (*blob)->SetData(output_blobs_[i]);
+    for (std::vector<SeetaBlob*>::iterator SeetaBlob = output_plugs_[i].begin();
+        SeetaBlob != output_plugs_[i].end(); ++ SeetaBlob) {
+      (*SeetaBlob)->SetData(output_blobs_[i]);
     }
     // release output blobs
     if (output_plugs_[i].size() != 0) {
@@ -712,7 +712,7 @@ void Net::CheckOutput() {
 
 class NetRegistry {
  public:
-  typedef Net* (*Creator)();
+  typedef SeetaNet* (*Creator)();
   typedef std::map<std::string, Creator> CreatorRegistry;
 
   static CreatorRegistry& Registry() {
@@ -723,15 +723,15 @@ class NetRegistry {
   static void AddCreator(const std::string& type, Creator creator) {
     CreatorRegistry& registry = Registry();
     if (registry.count(type) != 0) {
-      LOG(INFO) << "Net type " << type << " already registered.";
+      LOG(INFO) << "SeetaNet type " << type << " already registered.";
     }
     registry[type] = creator;
   }
 
-  static Net* CreateNet(const std::string type) {
+  static SeetaNet* CreateNet(const std::string type) {
     CreatorRegistry& registry = Registry();
     if (registry.count(type) != 1) {
-      LOG(ERROR) << "Net type " << type << " haven't registered.";
+      LOG(ERROR) << "SeetaNet type " << type << " haven't registered.";
     }
     return registry[type]();
   }
@@ -743,8 +743,8 @@ class NetRegistry {
 class NetRegisterer {
  public:
   NetRegisterer(const std::string& type,
-                Net*(*creator)()) {
-    LOG(INFO) << "Registering net type: " << type;
+                SeetaNet*(*creator)()) {
+    LOG(INFO) << "Registering SeetaNet type: " << type;
     NetRegistry::AddCreator(type, creator);
   }
 };
@@ -753,7 +753,7 @@ class NetRegisterer {
   static NetRegisterer g_creator_##type(#type, creator)
 
 #define REGISTER_NET_CLASS(type)                                               \
-  Net* Creator_##type##Net()                                   \
+  SeetaNet* Creator_##type##Net()                                   \
   {                                                                            \
     return (new type##Net());                              \
   }                                                                            \
@@ -762,12 +762,12 @@ class NetRegisterer {
 
 
 
-class CommonNet : public Net {
+class CommonNet : public SeetaNet {
  public:
   CommonNet();
   ~CommonNet();
   // load model
-  static Net* Load(FILE* file);
+  static SeetaNet* Load(FILE* file);
   // initialize the networks from a binary file
   virtual void SetUp();
   // execute the networks
@@ -798,16 +798,16 @@ CommonNet::~CommonNet() {
   params_.clear();
 }
 
-Net* CommonNet::Load(FILE* file) {
+SeetaNet* CommonNet::Load(FILE* file) {
   // Todo: assert file format
   int len;
   CHECK_EQ(fread(&len, sizeof(int), 1, file), 1);
   char* net_type = new char[len + 1];
-  // net type
+  // SeetaNet type
   CHECK_EQ(fread(net_type, sizeof(char), len, file), len);
   net_type[len] = '\0';
-  LOG(INFO) << "Creating " << net_type << " net ...";
-  Net* net = NetRegistry::CreateNet(net_type);
+  LOG(INFO) << "Creating " << net_type << " SeetaNet ...";
+  SeetaNet* net = NetRegistry::CreateNet(net_type);
   // params
   net->hyper_param()->Load(file);
   // Todo: name
@@ -815,8 +815,8 @@ Net* CommonNet::Load(FILE* file) {
   net->SetUp();
   int i, j;
   for (i = 0; i < net->params().size(); ++ i) {
-    Blob param(file);
-    LOG(INFO) << net_type << " net blobs[" << i << "]: (" << param.num() << "," 
+    SeetaBlob param(file);
+    LOG(INFO) << net_type << " SeetaNet blobs[" << i << "]: (" << param.num() << "," 
     << param.channels() << "," << param.height() << ","<< param.width() << ")";
     net->params(i)->SetData(param);
   }
@@ -825,11 +825,11 @@ Net* CommonNet::Load(FILE* file) {
   int num_in = net->input_blobs().size();
   int num_out = net->output_blobs().size();
  
-  std::vector<Net* >& nets = net->nets();
-  std::vector<Blob>& input_blobs = net->input_blobs();
-  std::vector<Blob>& output_blobs = net->output_blobs();
-  std::vector<std::vector<Blob*> >& output_plugs = net->output_plugs();
-  std::vector<std::vector<Blob*> >& input_plugs = net->input_plugs();
+  std::vector<SeetaNet* >& nets = net->nets();
+  std::vector<SeetaBlob>& input_blobs = net->input_blobs();
+  std::vector<SeetaBlob>& output_blobs = net->output_blobs();
+  std::vector<std::vector<SeetaBlob*> >& output_plugs = net->output_plugs();
+  std::vector<std::vector<SeetaBlob*> >& input_plugs = net->input_plugs();
 
   // subnet
   for (i = 0; i < num_subnet; ++ i) {
@@ -850,7 +850,7 @@ Net* CommonNet::Load(FILE* file) {
         int net_idx, blob_idx;
         CHECK_EQ(fread(&net_idx, sizeof(int), 1, file), 1);
         CHECK_EQ(fread(&blob_idx, sizeof(int), 1, file), 1);
-        if (net_idx == -1) { // connected to father net
+        if (net_idx == -1) { // connected to father SeetaNet
           input_plugs[blob_idx].push_back(nets[i]->input_blobs(j));
         }
         else {
@@ -896,18 +896,18 @@ void CommonNet::SetUp() {
 }
 
 void CommonNet::Execute() {
-  LOG(DEBUG) << "Common net executing ...";
+  LOG(DEBUG) << "Common SeetaNet executing ...";
   int i;
   // 1. check input blobs
   for (i = 0; i < input_blobs_.size(); ++ i) {
     if (input_blobs_[i].data() == nullptr) {
-      LOG(INFO) << "Net input haven't been initialized completely!";
+      LOG(INFO) << "SeetaNet input haven't been initialized completely!";
       return ;
     }
     // connecting input plugs
-    for (std::vector<Blob*>::iterator blob = input_plugs_[i].begin();
-        blob != input_plugs_[i].end(); ++ blob) {
-      (*blob)->SetData(input_blobs_[i]);
+    for (std::vector<SeetaBlob*>::iterator SeetaBlob = input_plugs_[i].begin();
+        SeetaBlob != input_plugs_[i].end(); ++ SeetaBlob) {
+      (*SeetaBlob)->SetData(input_blobs_[i]);
     }
     // release input blobs
     input_blobs_[i].Release();
@@ -924,9 +924,9 @@ void CommonNet::Execute() {
   // 3. check output blobs
   for (i = 0; i < output_blobs_.size(); ++ i) {
     // connecting output plugs
-    for (std::vector<Blob*>::iterator blob = output_plugs_[i].begin();
-        blob != output_plugs_[i].end(); ++ blob) {
-      (*blob)->SetData(output_blobs_[i]);
+    for (std::vector<SeetaBlob*>::iterator SeetaBlob = output_plugs_[i].begin();
+        SeetaBlob != output_plugs_[i].end(); ++ SeetaBlob) {
+      (*SeetaBlob)->SetData(output_blobs_[i]);
     }
     // release output blobs
     if (output_plugs_[i].size() != 0) {
@@ -938,9 +938,9 @@ void CommonNet::Execute() {
 REGISTER_NET_CLASS(Common);
 
 
-class BiasAdderNet : public Net {
+class BiasAdderNet : public SeetaNet {
   public:
-    BiasAdderNet():Net() {}
+    BiasAdderNet():SeetaNet() {}
     virtual ~BiasAdderNet(){}
     virtual void SetUp();
     virtual void Execute();
@@ -957,9 +957,9 @@ void BiasAdderNet::SetUp() {
 void BiasAdderNet::Execute() {
   CheckInput();
 
-  const Blob* const input = this->input_blobs(0);
-  const Blob* const bias = this->params(0);
-  Blob* const output = this->output_blobs(0);
+  const SeetaBlob* const input = this->input_blobs(0);
+  const SeetaBlob* const bias = this->params(0);
+  SeetaBlob* const output = this->output_blobs(0);
 
   int channels = bias->channels();
   CHECK_EQ(channels, input->channels());
@@ -968,9 +968,9 @@ void BiasAdderNet::Execute() {
   int width = input->width();
   int num = input->num();
   
-  LOG(DEBUG) << "input blob: (" << num << "," << input->channels() << "," 
+  LOG(DEBUG) << "input SeetaBlob: (" << num << "," << input->channels() << "," 
     << height << "," << width << ")";
-  LOG(DEBUG) << "bias blob: (" << bias->num() << "," << bias->channels() 
+  LOG(DEBUG) << "bias SeetaBlob: (" << bias->num() << "," << bias->channels() 
     << "," << bias->height() << "," << bias->width() << ")";
   
   int count_ = num*channels*height*width;
@@ -993,9 +993,9 @@ void BiasAdderNet::Execute() {
 
 REGISTER_NET_CLASS(BiasAdder);
 
-class BnNet : public Net {
+class BnNet : public SeetaNet {
  public:
-  BnNet(): Net() {}
+  BnNet(): SeetaNet() {}
   virtual ~BnNet() {}
   virtual void SetUp();
   virtual void Execute();
@@ -1007,7 +1007,7 @@ class BnNet : public Net {
 void BnNet::SetUp() {
   epsilon_ = *(float*)(this->hyper_param()->param("epsilon"));
  
- //check input and output blob size
+ //check input and output SeetaBlob size
   this->input_blobs().resize(1);
   this->output_blobs().resize(1);
   this->input_plugs().resize(1);
@@ -1018,11 +1018,11 @@ void BnNet::SetUp() {
 void BnNet::Execute() {
   CheckInput();
  
-  const Blob* const input = this->input_blobs(0);
-  const Blob* const para_mean = this->params(0);
-  const Blob* const para_var = this->params(1);
-  const Blob* const para_scale = this->params(2);
-  Blob* const output = this->output_blobs(0);
+  const SeetaBlob* const input = this->input_blobs(0);
+  const SeetaBlob* const para_mean = this->params(0);
+  const SeetaBlob* const para_var = this->params(1);
+  const SeetaBlob* const para_scale = this->params(2);
+  SeetaBlob* const output = this->output_blobs(0);
   
   int channels = input->channels();
   CHECK_EQ(channels, para_mean->channels());
@@ -1064,9 +1064,9 @@ void BnNet::Execute() {
 
 REGISTER_NET_CLASS(Bn);
 
-class ConvNet: public Net {
+class ConvNet: public SeetaNet {
  public:
-  ConvNet(): Net() {}
+  ConvNet(): SeetaNet() {}
   virtual ~ConvNet() {}
   virtual void SetUp();
   virtual void Execute();
@@ -1080,7 +1080,7 @@ void ConvNet::SetUp() {
   stride_h_ = stride_w_ =
       *(int*)(this->hyper_param()->param("stride"));
 
-  // check input and output blob size
+  // check input and output SeetaBlob size
   this->input_blobs().resize(1);
   this->output_blobs().resize(1);
   this->input_plugs().resize(1);
@@ -1094,9 +1094,9 @@ void ConvNet::Execute() {
   // *** //
 
   CheckInput();
-  const Blob* const input = this->input_blobs(0);
-  const Blob* const weight = this->params(0);
-  Blob* const output = this->output_blobs(0);
+  const SeetaBlob* const input = this->input_blobs(0);
+  const SeetaBlob* const weight = this->params(0);
+  SeetaBlob* const output = this->output_blobs(0);
 
   int src_num = input->num();
   int src_channels = input->channels();
@@ -1106,7 +1106,7 @@ void ConvNet::Execute() {
   int kernel_h = weight->height();
   int kernel_w = weight->width();
 
-  LOG(DEBUG) << "input blob: (" <<src_num << "," << src_channels << "," << src_h
+  LOG(DEBUG) << "input SeetaBlob: (" <<src_num << "," << src_channels << "," << src_h
     << "," << src_w << ")";
 
   int dst_h = (src_h - kernel_h) / stride_h_ + 1;
@@ -1155,16 +1155,16 @@ void ConvNet::Execute() {
   FREE(dst_head);
   FREE(mat_head);
 
-  LOG(DEBUG) << "output blob: (" << output->num() << "," << output->channels()
+  LOG(DEBUG) << "output SeetaBlob: (" << output->num() << "," << output->channels()
     << "," << output->height() << "," << output->width() << ")";
   CheckOutput();
 }
 
 REGISTER_NET_CLASS(Conv);
 
-class EltwiseNet: public Net {
+class EltwiseNet: public SeetaNet {
  public:
-  EltwiseNet(): Net() {}
+  EltwiseNet(): SeetaNet() {}
   virtual ~EltwiseNet() {}
   virtual void SetUp();
   virtual void Execute();
@@ -1213,9 +1213,9 @@ void EltwiseNet::SetUp() {
 void EltwiseNet::Execute() {
   CheckInput();
   if (op_ == "BAIS_ADDER") {
-    const Blob* const input = this->input_blobs(0);
-    const Blob* const bias = this->params(0);
-    Blob* const output = this->output_blobs(0);
+    const SeetaBlob* const input = this->input_blobs(0);
+    const SeetaBlob* const bias = this->params(0);
+    SeetaBlob* const output = this->output_blobs(0);
 
     int channels = bias->channels();
     CHECK_EQ(channels, input->channels());
@@ -1224,9 +1224,9 @@ void EltwiseNet::Execute() {
     int width = input->width();
     int num = input->num();
     
-    LOG(DEBUG) << "input blob: (" << num << "," << input->channels() << "," 
+    LOG(DEBUG) << "input SeetaBlob: (" << num << "," << input->channels() << "," 
       << height << "," << width << ")";
-    LOG(DEBUG) << "bias blob: (" << bias->num() << "," << bias->channels() 
+    LOG(DEBUG) << "bias SeetaBlob: (" << bias->num() << "," << bias->channels() 
       << "," << bias->height() << "," << bias->width() << ")";
     
     int dst_count = num*channels*height*width;
@@ -1252,13 +1252,13 @@ void EltwiseNet::Execute() {
     FREE(dst_head);
   }
   else if (op_ == "SCALE") {
-    const Blob* const input = this->input_blobs(0);
-	LOG(DEBUG) << "input blob: (" << input->num() << ","
+    const SeetaBlob* const input = this->input_blobs(0);
+	LOG(DEBUG) << "input SeetaBlob: (" << input->num() << ","
 		<< input->channels() << ","
 		<< input->height() << ","
 		<< input->width() << ")";
     int count = input->count();
-    Blob* const output = this->output_blobs(0);
+    SeetaBlob* const output = this->output_blobs(0);
     float* dst_head = NULL;
     MYREALLOC2(dst_head, count);
     for (int i = 0; i < count; ++ i)
@@ -1269,13 +1269,13 @@ void EltwiseNet::Execute() {
     FREE(dst_head);
   }
   else if (op_ == "CLOSE") {
-    const Blob* const input = this->input_blobs(0);
-	LOG(DEBUG) << "input blob: (" << input->num() << ","
+    const SeetaBlob* const input = this->input_blobs(0);
+	LOG(DEBUG) << "input SeetaBlob: (" << input->num() << ","
 		<< input->channels() << ","
 		<< input->height() << ","
 		<< input->width() << ")";
     int count = input->count();
-    Blob* const output = this->output_blobs(0);
+    SeetaBlob* const output = this->output_blobs(0);
     float* dst_head = NULL;
     MYREALLOC2(dst_head, count);
     for (int i = 0; i < count; ++ i) {
@@ -1295,9 +1295,9 @@ void EltwiseNet::Execute() {
 
 REGISTER_NET_CLASS(Eltwise);
 
-class InnerProductNet: public Net {
+class InnerProductNet: public SeetaNet {
  public:
-  InnerProductNet(): Net() {}
+  InnerProductNet(): SeetaNet() {}
   virtual ~InnerProductNet() {}
   virtual void SetUp();
   virtual void Execute();
@@ -1307,7 +1307,7 @@ class InnerProductNet: public Net {
 
 
 void InnerProductNet::SetUp() {
-  // check input and output blob size
+  // check input and output SeetaBlob size
   this->input_blobs().resize(1);
   this->output_blobs().resize(1);
   this->input_plugs().resize(1);
@@ -1317,9 +1317,9 @@ void InnerProductNet::SetUp() {
 
 void InnerProductNet::Execute() {
   CheckInput();
-  const Blob* const input = this->input_blobs(0); // src_num * vec_len
-  const Blob* const weight = this->params(0);  // dst_channels * vec_len
-  Blob* const output = this->output_blobs(0); // src_num * dst_channels
+  const SeetaBlob* const input = this->input_blobs(0); // src_num * vec_len
+  const SeetaBlob* const weight = this->params(0);  // dst_channels * vec_len
+  SeetaBlob* const output = this->output_blobs(0); // src_num * dst_channels
   
   int src_num = input->num();
   int src_channels = input->channels();
@@ -1327,7 +1327,7 @@ void InnerProductNet::Execute() {
   int src_w = input->width();
   int dst_channels = weight->num();
   
-  LOG(DEBUG) << "input blob: (" <<src_num << "," << src_channels << "," << src_h 
+  LOG(DEBUG) << "input SeetaBlob: (" <<src_num << "," << src_channels << "," << src_h 
     << "," << src_w << ")";
 
   const int vec_len = src_channels * src_h * src_w;
@@ -1347,16 +1347,16 @@ void InnerProductNet::Execute() {
   
   output->CopyData(src_num, dst_channels, 1, 1, dst_head);
   FREE(dst_head);
-  LOG(DEBUG) << "output blob: (" << output->num() << "," << output->channels() 
+  LOG(DEBUG) << "output SeetaBlob: (" << output->num() << "," << output->channels() 
     << "," << output->height() << "," << output->width() << ")";
   CheckOutput();
 }
 
 REGISTER_NET_CLASS(InnerProduct);
 
-class MaxPoolingNet: public Net {
+class MaxPoolingNet: public SeetaNet {
  public:
-  MaxPoolingNet(): Net() {}
+  MaxPoolingNet(): SeetaNet() {}
   virtual ~MaxPoolingNet() {}
   virtual void SetUp();
   virtual void Execute();
@@ -1374,7 +1374,7 @@ void MaxPoolingNet::SetUp() {
   stride_h_ = stride_w_ = 
       *(int*)(this->hyper_param()->param("stride"));
 
-  // check input and output blob size
+  // check input and output SeetaBlob size
   this->input_blobs().resize(1);
   this->output_blobs().resize(1);
   this->input_plugs().resize(1);
@@ -1387,8 +1387,8 @@ void MaxPoolingNet::Execute() {
   // *** //
   
   CheckInput();
-  const Blob* const input = this->input_blobs(0);
-  Blob* const output = this->output_blobs(0);
+  const SeetaBlob* const input = this->input_blobs(0);
+  SeetaBlob* const output = this->output_blobs(0);
   
   int src_h = input->height();
   int src_w = input->width();
@@ -1443,9 +1443,9 @@ void MaxPoolingNet::Execute() {
 
 REGISTER_NET_CLASS(MaxPooling);
 
-class PadNet: public Net {
+class PadNet: public SeetaNet {
  public:
-  PadNet(): Net() {}
+  PadNet(): SeetaNet() {}
   virtual ~PadNet() {}
   virtual void SetUp();
   virtual void Execute();
@@ -1456,7 +1456,7 @@ class PadNet: public Net {
 
 void PadNet::SetUp() {
   left_ = right_ = bottom_ = top_ = *(int*)(this->hyper_param()->param("pad"));
-  // check input and output blob size
+  // check input and output SeetaBlob size
   this->nets().resize(0);
   this->params().resize(0);
   this->input_blobs().resize(1);
@@ -1467,14 +1467,14 @@ void PadNet::SetUp() {
 
 void PadNet::Execute() {
   CheckInput();
-  const Blob* const input = this->input_blobs(0);
-  Blob* const output = this->output_blobs(0);
+  const SeetaBlob* const input = this->input_blobs(0);
+  SeetaBlob* const output = this->output_blobs(0);
   int src_w = input->width();
   int src_h = input->height();
   int num = input->num();
   int channels = input->channels();
 
-  LOG(DEBUG) << "input blob: (" << num << "," << channels << "," << src_h 
+  LOG(DEBUG) << "input SeetaBlob: (" << num << "," << channels << "," << src_h 
     << "," << src_w << ")";
 
   int dst_w = src_w + left_ + right_;
@@ -1518,15 +1518,15 @@ void PadNet::Execute() {
 REGISTER_NET_CLASS(Pad);
 
 
-class SpatialTransformNet : public Net {
+class SpatialTransformNet : public SeetaNet {
  public:
-  SpatialTransformNet() : Net() {}
+  SpatialTransformNet() : SeetaNet() {}
   virtual ~SpatialTransformNet() {}
   virtual void SetUp();
   virtual void Execute();
  
  protected:
-  // sampling for common blob data
+  // sampling for common SeetaBlob data
   virtual double Sampling(const float* const feat_map, int H, int W, double x, 
       double y, double scale = 1.0);
 
@@ -1564,7 +1564,7 @@ void SpatialTransformNet::SetUp() {
   else {
     is_mat_data_ = false;
   }
-  // check input and output blob size
+  // check input and output SeetaBlob size
   this->input_blobs().resize(2);
   this->output_blobs().resize(1);
   this->input_plugs().resize(2);
@@ -1573,9 +1573,9 @@ void SpatialTransformNet::SetUp() {
 
 void SpatialTransformNet::Execute() {
   CheckInput();
-  const Blob* const input = this->input_blobs(0);
-  const Blob* const theta = this->input_blobs(1);
-  Blob* const output = this->output_blobs(0);
+  const SeetaBlob* const input = this->input_blobs(0);
+  const SeetaBlob* const theta = this->input_blobs(1);
+  SeetaBlob* const output = this->output_blobs(0);
 
   CHECK_EQ(input->num(), theta->num());
 
@@ -1693,6 +1693,7 @@ double SpatialTransformNet::Sampling(const float* const feat_map, int H, int W,
     }
     return ans;
   }
+  return 0;
 }
 
 double SpatialTransformNet::Sampling(const unsigned char* const feat_map, 
@@ -1751,6 +1752,7 @@ double SpatialTransformNet::Sampling(const unsigned char* const feat_map,
     }
     return ans;
   }
+  return 0;
 }
 
 double SpatialTransformNet::Cubic(double x) {
@@ -1767,9 +1769,9 @@ REGISTER_NET_CLASS(SpatialTransform);
 
 
 // Calculate affine transformation according to feature points
-class TransformationMakerNet: public Net {
+class TransformationMakerNet: public SeetaNet {
  public:
-  TransformationMakerNet(): Net() {}
+  TransformationMakerNet(): SeetaNet() {}
   virtual ~TransformationMakerNet() {}
   virtual void SetUp();
   virtual void Execute();
@@ -1781,7 +1783,7 @@ class TransformationMakerNet: public Net {
 
 void TransformationMakerNet::SetUp() {
   points_num_ = *(int*)(this->hyper_param()->param("points_num"));
-  // check input and output blob size
+  // check input and output SeetaBlob size
   this->input_blobs().resize(1);
   this->output_blobs().resize(1);
   this->input_plugs().resize(1);
@@ -1795,8 +1797,8 @@ void TransformationMakerNet::Execute() {
   CheckInput();
   CHECK_EQ(points_num_, this->input_blobs(0)->channels());
 
-  Blob* const input = this->input_blobs(0);
-  Blob* const param = this->params(0);
+  SeetaBlob* const input = this->input_blobs(0);
+  SeetaBlob* const param = this->params(0);
   const float* feat_points = input->data();
   const float* std_points = param->data();
   int count_ = input->num() * TFORM_SIZE;
@@ -1866,10 +1868,10 @@ class Aligner {
   void Alignment(const ImageData &src_img, 
       const float* const llpoint, 
       const ImageData &dst_img); 
-  // Alignment and return to a Blob
+  // Alignment and return to a SeetaBlob
   void Alignment(const ImageData &src_img, 
       const float* const llpoint, 
-      Blob* const dst_blob); 
+      SeetaBlob* const dst_blob); 
 
   void set_height(int height) { crop_height_ = height; }
   void set_width(int width) {crop_width_ = width; }
@@ -1879,7 +1881,7 @@ class Aligner {
  private:
   int crop_height_;
   int crop_width_;
-  Net* net_;
+  SeetaNet* net_;
 };
 
 Aligner::Aligner():
@@ -1893,7 +1895,7 @@ Aligner::Aligner():
   common_param->InsertInt("num_out", 1);
   net_->SetUp();
  
-  Net* tform_maker_net = net_->nets(0);
+  SeetaNet* tform_maker_net = net_->nets(0);
   tform_maker_net->SetFather(net_); 
   // left_eye, right_eye, nose, left_mouse_corner and right_mouse_corner
   float std_points[10] = {
@@ -1906,10 +1908,10 @@ Aligner::Aligner():
   HyperParam* tform_param = tform_maker_net->hyper_param();
   tform_param->InsertInt("points_num", 5);
   tform_maker_net->SetUp();
-  Blob* tform_blob = tform_maker_net->params(0);
+  SeetaBlob* tform_blob = tform_maker_net->params(0);
   tform_blob->CopyData(1, 5, 2, 1, std_points);
 
-  Net*align_net = net_->nets(1);
+  SeetaNet*align_net = net_->nets(1);
   align_net->SetFather(net_); 
 
   HyperParam* align_param = align_net->hyper_param();
@@ -1937,11 +1939,11 @@ Aligner::Aligner(int crop_height, int crop_width, std::string type):
   common_param->InsertInt("num_out", 1);
   net_->SetUp();
 
-  std::vector<Net* >& sub_nets = net_->nets();
+  std::vector<SeetaNet* >& sub_nets = net_->nets();
  
   sub_nets[0] = (new TransformationMakerNet());
   sub_nets[1] = (new SpatialTransformNet());
-  Net* tform_maker_net = net_->nets(0);
+  SeetaNet* tform_maker_net = net_->nets(0);
   tform_maker_net->SetFather(net_); 
   // left_eye, right_eye, nose, left_mouse_corner and right_mouse_corner
   float std_points[10] = {
@@ -1958,10 +1960,10 @@ Aligner::Aligner(int crop_height, int crop_width, std::string type):
   HyperParam* tform_param = tform_maker_net->hyper_param();
   tform_param->InsertInt("points_num", 5);
   tform_maker_net->SetUp();
-  Blob* tform_blob = tform_maker_net->params(0);
+  SeetaBlob* tform_blob = tform_maker_net->params(0);
   tform_blob->CopyData(1, 5, 2, 1, std_points);
 
-  Net* align_net = net_->nets(1);
+  SeetaNet* align_net = net_->nets(1);
   align_net->SetFather(net_); 
 
   HyperParam* align_param = align_net->hyper_param();
@@ -1983,8 +1985,8 @@ Aligner::~Aligner() {}
 
 void Aligner::Alignment(const ImageData &src_img,
     const float* const points,
-    Blob* const dst_blob) {
-  Blob* const input_data = net_->input_blobs(1);
+    SeetaBlob* const dst_blob) {
+  SeetaBlob* const input_data = net_->input_blobs(1);
   input_data->reshape(1, src_img.num_channels, src_img.height, src_img.width);
   input_data->SetData();
   // input with mat::data avoid coping data
@@ -1992,7 +1994,7 @@ void Aligner::Alignment(const ImageData &src_img,
   /*input_data->CopyData(1, src_img.height, src_img.width, src_img.channels,
     src_img.data);
   input_data->Permute(1, 4, 2, 3);*/
-  Blob* const input_point = net_->input_blobs(0);
+  SeetaBlob* const input_point = net_->input_blobs(0);
   
   input_point->CopyData(1, 5, 2, 1, points);
 
@@ -2003,7 +2005,7 @@ void Aligner::Alignment(const ImageData &src_img,
 void Aligner::Alignment(const ImageData &src_img,
 	  const float* const points,
 	  const ImageData &dst_img) {
-	Blob out_blob;
+	SeetaBlob out_blob;
 	Alignment(src_img, points, &out_blob);
 	out_blob.Permute(1, 3, 4, 2);
 	out_blob.CopyTo(dst_img.data);
@@ -2132,7 +2134,7 @@ public:
   uint8_t ExtractFeatureWithCrop(const ImageData &src_img, 
       float* const points, float* const feat) {
     // crop
-    Blob crop_blob;
+    SeetaBlob crop_blob;
     aligner_->Alignment(src_img, points, &crop_blob);
     // extract feature
     net_->input_blobs(0)->SetData(crop_blob);
@@ -2155,7 +2157,7 @@ public:
   uint32_t feature_size() { return feat_size_; }
 
 private:
-  Net* net_;
+  SeetaNet* net_;
   Aligner* aligner_;
   uint32_t crop_width_;
   uint32_t crop_height_;
@@ -2233,6 +2235,7 @@ uint8_t FaceIdentification::ExtractFeatureWithCrop(const ImageData &src_image,
   for (int i = 0; i < 5; ++i) {
 	point_data[i * 2] = llpoint[i].x;
 	point_data[i * 2 + 1] = llpoint[i].y;
+	//printf("%f %f\n", llpoint[i].x, llpoint[i].y);
   }
   recognizer->ExtractFeatureWithCrop(src_image, point_data, feats);
   return 1;

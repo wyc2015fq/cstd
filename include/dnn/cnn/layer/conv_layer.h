@@ -240,7 +240,7 @@ static IRECT mode2pad(DataSize prevSize, DataSize kernelSize, DataSize strideSiz
 static float* copy_make_border(const float* src, float** pdst, DataSize srcSize, DataSize* pdstSize,
                                IRECT pad, enum CBorderTypes type, float v)
 {
-  DataSize dstSize = dataSize(srcSize.n, srcSize.c, srcSize.h + pad.t + pad.b, srcSize.w + pad.l + pad.r);
+	DataSize dstSize = { srcSize.n, srcSize.c, srcSize.h + pad.t + pad.b, srcSize.w + pad.l + pad.r };
   int i;
   int srcCount = Data_2DSize(srcSize);
   int dstCount = Data_2DSize(dstSize);

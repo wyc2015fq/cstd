@@ -51,7 +51,7 @@ int test_mtcnn()
 
 #if defined _WIN32 && defined _DEBUG
 
-  if (0) {
+  if (1) {
     img_t im[1] = {0};
     int i, num, nface = 0, times = 2;
     const char* filename;
@@ -61,6 +61,7 @@ int test_mtcnn()
     filename = "Z:/yiwei/rywclm/aaa_20171026041207_0.jpg";
     filename = "D:/rywclm/aaa_20171031053339_9.jpg";
     filename = "F:/dataset/facedetect/hztest.jpg";
+	filename = "D:/data/fddb/img_18.jpg";
     //filename = ("C:/code/testc/Release/aaa_20171020145235_0.jpg");
     imread(filename, 3, 1, im);
     {
@@ -83,7 +84,7 @@ int test_mtcnn()
 
     }
 
-    if (1) {
+    if (0) {
       for (i = 0; i < nface; ++i) {
         Bbox* it = out + i;
         printf("(%3d %3d %3d %3d)\n", (int)(*it).y1, (int)(*it).x1, (int)((*it).y2 - (*it).y1), (int)((*it).x2 - (*it).x1));
