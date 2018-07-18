@@ -51,7 +51,7 @@ int test_mtcnn()
 
 #if defined _WIN32 && defined _DEBUG
 
-  if (1) {
+  if (0) {
     img_t im[1] = {0};
     int i, num, nface = 0, times = 2;
     const char* filename;
