@@ -776,29 +776,29 @@ typedef PixFmt PixelFormat;
 
 #if 1
 #define TYPEDEF_DEF(TYPEDEF) \
-  TYPEDEF(CC_8U, u1,1,uchar  ) \
-  TYPEDEF(CC_8S, s1,1,char   ) \
-  TYPEDEF(CC_16U,u2,2,ushort ) \
-  TYPEDEF(CC_16S,s2,2,short  ) \
-  TYPEDEF(CC_32S,s4,4,int    ) \
-  TYPEDEF(CC_32F,f4,4,float  ) \
-  TYPEDEF(CC_64F,f8,8,double ) \
-  TYPEDEF(CC_32U,u4,4,uint   ) \
-  TYPEDEF(CC_64U,u8,8,uint64 ) \
-  TYPEDEF(CC_64S,s8,8,int64  )
+  TYPEDEF(CC_8U, u8,1,uchar  ) \
+  TYPEDEF(CC_8S, s8,1,char   ) \
+  TYPEDEF(CC_16U,u16,2,ushort ) \
+  TYPEDEF(CC_16S,s16,2,short  ) \
+  TYPEDEF(CC_32S,s32,4,int    ) \
+  TYPEDEF(CC_32F,f32,4,float  ) \
+  TYPEDEF(CC_64F,f64,8,double ) \
+  TYPEDEF(CC_32U,u32,4,uint   ) \
+  TYPEDEF(CC_64U,u64,8,uint64 ) \
+  TYPEDEF(CC_64S,s64,8,int64  )
 #endif
 #if 0
 #define TYPEDEF_DEF(TYPEDEF) \
-  TYPEDEF(CC_8U, u1,1,uchar  ) \
-  TYPEDEF(CC_8S, s1,1,char   ) \
-  TYPEDEF(CC_16U,u2,2,ushort ) \
-  TYPEDEF(CC_16S,s2,2,short  ) \
-  TYPEDEF(CC_32S,s4,4,int    ) \
-  TYPEDEF(CC_32F,f4,4,float  ) \
-  TYPEDEF(CC_64F,f8,8,double ) \
-  TYPEDEF(CC_32U,u4,4,uint   ) \
-  TYPEDEF(CC_64U,u8,8,uint64 ) \
-  TYPEDEF(CC_64S,s8,8,int64  )
+  TYPEDEF(CC_8U, u8,1,uchar  ) \
+  TYPEDEF(CC_8S, s8,1,char   ) \
+  TYPEDEF(CC_16U,u16,2,ushort ) \
+  TYPEDEF(CC_16S,s16,2,short  ) \
+  TYPEDEF(CC_32S,s32,4,int    ) \
+  TYPEDEF(CC_32F,f32,4,float  ) \
+  TYPEDEF(CC_64F,f64,8,double ) \
+  TYPEDEF(CC_32U,u32,4,uint   ) \
+  TYPEDEF(CC_64U,u64,8,uint64 ) \
+  TYPEDEF(CC_64S,s64,8,int64  )
 #endif
 //typedef void* CFuncTableCn[32][5];
 //typedef void* CFuncTable[32];
@@ -1048,22 +1048,30 @@ typedef struct {
   union { int w;    int width; int cols; };
   union { int h;    int height; int rows; };
   union { int s;    int step; int widthStep; };
-  union { int c;    int cn; };
+  union { int c;    int cn; int ch;  int channel; };
   union { int f;    int frame; };
-  union { int t;    TypeId tid; };
+  union { TypeId t;    TypeId type;  TypeId tid; };
 #if 1
   union {
   union {
     uchar* data;
-    uchar* ptr;
+	uchar* ptr;
     short* s;
     int* i;
-    float* fl;
-    double* db;
+	float* fl;
+	double* db;
 #define TYPEDEF(a,b,c,d)  d* b;
     TYPEDEF_DEF(TYPEDEF)
 #undef TYPEDEF
   } tt;
+  union {
+	  float* fl;
+	  double* db;
+	  int* i32;
+#define TYPEDEF(a,b,c,d)  d* b;
+	  TYPEDEF_DEF(TYPEDEF)
+#undef TYPEDEF
+  };
   uchar* data;
   uchar* imageData;
   };

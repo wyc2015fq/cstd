@@ -1,26 +1,8 @@
-/**
- * Real-time object detector based on the Viola Jones Framework.
- * Compatible to OpenCV Haar Cascade Classifiers (stump based only).
- * 
- * Copyright (c) 2012, Martin Tschirsich
 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- */
 typedef _jsfeat::matrix_t matrix_t;
+typedef _jsfeat::data_t data_t;
 
-struct objectdetect {
+struct _objectdetect {
     /**
 		 * Converts from a 4-channel RGBA source image to a 1-channel grayscale
 		 * image. Corresponds to the CV_RGB2GRAY OpenCV color space conversion.
@@ -52,11 +34,12 @@ struct objectdetect {
 		 * 
 		 * @return {Array} 1-channel destination image
 		 */
-#if 0
 		void rescaleImage(const matrix_t& src, int srcWidth, int srcHeight, double factor, matrix_t& dst) {
-			int srcLength = srcHeight * srcWidth,
-				dstWidth = (int)(srcWidth / factor),
+			int dstWidth = (int)(srcWidth / factor),
 				dstHeight = (int)(srcHeight / factor);
+			jsfeat.imgproc.resample(src, dst, dstWidth, dstHeight);
+#if 0
+			int srcLength = srcHeight * srcWidth;
 			
 			dst.resize(dstWidth, srcHeight);
 			
@@ -75,8 +58,10 @@ struct objectdetect {
 					++dstIndex;
 				}
 			}
+#endif
 		}
-		
+
+#if 0
 		/**
 		 * Horizontally mirrors a 1-channel source image.
 		 * 
@@ -376,8 +361,8 @@ struct objectdetect {
 				}
 			}
 			return dst;
-		},
-		
+		}
+#endif
 		/**
 		 * Compiles a cascade classifier to be applicable to images
 		 * of given dimensions. Speeds-up the actual detection process later on.
@@ -389,26 +374,26 @@ struct objectdetect {
 		 * 
 		 * @return {Float32Array} Compiled cascade classifier
 		 */
-		compileClassifier = function(src, width, height, scale, dst) {
+		int compileClassifier(const float* _src, int _src_length, int width, int height, float* dst) {
 			width += 1;
 			height += 1;
-			if (!dst) dst = new Float32Array(src.length);
-			var dstUint32 = new Uint32Array(dst.buffer);
+			_src_length--;
+			const float* src = _src+1;
+			int32* dstUint32 = (int32*)dst;
 			
 			dstUint32[0] = src[0];
 			dstUint32[1] = src[1];
-			var dstIndex = 1;
-			for (var srcIndex = 1, iEnd = src.length - 1; srcIndex < iEnd; ) {
+			int dstIndex = 1;
+			for (int srcIndex = 1, iEnd = _src_length - 1; srcIndex < iEnd; ) {
 				dst[++dstIndex] = src[++srcIndex];
 				
-				var numComplexClassifiers = dstUint32[++dstIndex] = src[++srcIndex];
-				for (var j = 0, jEnd = numComplexClassifiers; j < jEnd; ++j) {
-					
-					var tilted = dst[++dstIndex] = src[++srcIndex];
-					var numFeaturesTimes2 = dstUint32[++dstIndex] = src[++srcIndex] * 3;
+				int numComplexClassifiers = dstUint32[++dstIndex] = src[++srcIndex];
+				for (int j = 0, jEnd = numComplexClassifiers; j < jEnd; ++j) {
+					int tilted = dst[++dstIndex] = src[++srcIndex];
+					int numFeaturesTimes2 = dstUint32[++dstIndex] = src[++srcIndex] * 3;
 					if (tilted) {
-						for (var kEnd = dstIndex + numFeaturesTimes2; dstIndex < kEnd; ) {						
-							var featureOffset = src[srcIndex + 1] + src[srcIndex + 2] * width,
+						for (int kEnd = dstIndex + numFeaturesTimes2; dstIndex < kEnd; ) {						
+							int featureOffset = src[srcIndex + 1] + src[srcIndex + 2] * width,
 								featureWidthTimesWidth = src[srcIndex + 3] * (width + 1),
 								featureHeightTimesWidth = src[srcIndex + 4] * (width - 1);
 							
@@ -419,8 +404,8 @@ struct objectdetect {
 							srcIndex += 5;
 						}
 					} else {
-						for (var kEnd = dstIndex + numFeaturesTimes2; dstIndex < kEnd; ) {
-							var featureOffset = src[srcIndex + 1] + src[srcIndex + 2] * width,
+						for (int kEnd = dstIndex + numFeaturesTimes2; dstIndex < kEnd; ) {
+							int featureOffset = src[srcIndex + 1] + src[srcIndex + 2] * width,
 								featureWidth = src[srcIndex + 3],
 								featureHeightTimesWidth = src[srcIndex + 4] * width;
 
@@ -430,8 +415,8 @@ struct objectdetect {
 							srcIndex += 5;
 						}
 					}
-					var classifierThreshold = src[++srcIndex];
-					for (var k = 0; k < numFeaturesTimes2;) {
+					int classifierThreshold = src[++srcIndex];
+					for (int k = 0; k < numFeaturesTimes2;) {
 						dst[dstIndex - k] /= classifierThreshold;
 						k += 3;
 					}
@@ -446,8 +431,9 @@ struct objectdetect {
 					}
 				}
 			}
-			return dst.subarray(0, dstIndex+1);
-		},
+			//dstData.size = (dstIndex + 1) * sizeof(float);
+			return dstIndex + 1;
+		}
 		
 		/**
 		 * Evaluates a compiled cascade classifier. Sliding window approach.
@@ -463,30 +449,30 @@ struct objectdetect {
 		 * 
 		 * @return {Array} Rectangles representing detected objects
 		 */
-		detect = function(sat, rsat, ssat, cannySat, width, height, step, classifier) {
+		int detect(const float* sat, const float* rsat, const float* ssat, const float* cannySat, int width, int height, int step, const data_t& _classifier, matrix_t& rects) {
 			width  += 1;
 			height += 1;
-			
-			var classifierUint32 = new Uint32Array(classifier.buffer),
-				windowWidth  = classifierUint32[0],
+
+			int classifier_length = _classifier.size >> 2;
+			const float* classifier = (_classifier.f32);
+			const int32* classifierUint32 = (_classifier.i32);
+			int windowWidth = classifierUint32[0],
 				windowHeight = classifierUint32[1],
 				windowHeightTimesWidth = windowHeight * width,
 				area = windowWidth * windowHeight,
-				inverseArea = 1 / area,
-				widthTimesStep = width * step,
-				rects = [];
-			
-			for (var x = 0; x + windowWidth < width; x += step) {
-				var satIndex = x;
-				for (var y = 0; y + windowHeight < height; y += step) {					
-					var satIndex1 = satIndex + windowWidth,
+				widthTimesStep = width * step;
+			double inverseArea = 1 / area;
+			for (int x = 0; x + windowWidth < width; x += step) {
+				int satIndex = x;
+				for (int y = 0; y + windowHeight < height; y += step) {
+					int satIndex1 = satIndex + windowWidth,
 						satIndex2 = satIndex + windowHeightTimesWidth,
 						satIndex3 = satIndex2 + windowWidth,
 						canny = false;
 
 					// Canny test:
 					if (cannySat) {
-						var edgesDensity = (cannySat[satIndex] -
+						double edgesDensity = (cannySat[satIndex] -
 											cannySat[satIndex1] -
 											cannySat[satIndex2] +
 											cannySat[satIndex3]) * inverseArea;
@@ -498,7 +484,7 @@ struct objectdetect {
 					}
 					
 					// Normalize mean and variance of window area:
-					var mean = (sat[satIndex] -
+					double mean = (sat[satIndex] -
 							    sat[satIndex1] -
 						        sat[satIndex2] +
 						        sat[satIndex3]),
@@ -512,19 +498,19 @@ struct objectdetect {
 						found = true;
 					
 					// Evaluate cascade classifier aka 'stages':
-					for (var i = 1, iEnd = classifier.length - 1; i < iEnd; ) {
-						var complexClassifierThreshold = classifier[++i];
+					for (int i = 1, iEnd = classifier_length - 1; i < iEnd; ) {
+						float complexClassifierThreshold = classifier[++i];
 						// Evaluate complex classifiers aka 'trees':
-						var complexClassifierSum = 0;
-						for (var j = 0, jEnd = classifierUint32[++i]; j < jEnd; ++j) {
+						double complexClassifierSum = 0;
+						for (int j = 0, jEnd = classifierUint32[++i]; j < jEnd; ++j) {
 							
 							// Evaluate simple classifiers aka 'nodes':
-							var simpleClassifierSum = 0;
+							double simpleClassifierSum = 0;
 							
 							if (classifierUint32[++i]) {
 								// Simple classifier is tilted:
-								for (var kEnd = i + classifierUint32[++i]; i < kEnd; ) {
-									var f1 = satIndex + classifierUint32[++i],
+								for (int kEnd = i + classifierUint32[++i]; i < kEnd; ) {
+									int f1 = satIndex + classifierUint32[++i],
 										packed = classifierUint32[++i],
 										f2 = f1 + (packed & 0xFFFF),
 										f3 = f1 + (packed >> 16 & 0xFFFF);
@@ -534,8 +520,8 @@ struct objectdetect {
 								}
 							} else {
 								// Simple classifier is not tilted:
-								for (var kEnd = i + classifierUint32[++i]; i < kEnd; ) {
-									var f1 = satIndex + classifierUint32[++i],
+								for (int kEnd = i + classifierUint32[++i]; i < kEnd; ) {
+									int f1 = satIndex + classifierUint32[++i],
 										packed = classifierUint32[++i],
 										f2 = f1 + (packed & 0xFFFF),
 										f3 = f1 + (packed >> 16 & 0xFFFF);
@@ -552,13 +538,14 @@ struct objectdetect {
 							break;
 						}
 					}
-					if (found) rects.push([x, y, windowWidth, windowHeight]);
+					//if (found) rects.push([x, y, windowWidth, windowHeight]);
 					satIndex += widthTimesStep;
 				}
 			}
-			return rects;
-		},
-	    
+			return rects.rows;
+		}
+
+#if 0
 		/**
 		 * Groups rectangles together using a rectilinear distance metric. For
 		 * each group of related rectangles, a representative mean rectangle
@@ -587,7 +574,7 @@ struct objectdetect {
 					// Determine similarity:
 					var rect1 = rects[i];
 					var rect2 = rects[j];
-			        var delta = confluence * (Math.min(rect1[2], rect2[2]) + Math.min(rect1[3], rect2[3]));
+			        var delta = confluence * (Math_min(rect1[2], rect2[2]) + Math_min(rect1[3], rect2[3]));
 			        if (Math.abs(rect1[0] - rect2[0]) <= delta &&
 			        	Math.abs(rect1[1] - rect2[1]) <= delta &&
 			        	Math.abs(rect1[0] + rect1[2] - rect2[0] - rect2[2]) <= delta &&
@@ -659,7 +646,6 @@ struct objectdetect {
 
 #endif
 
-#if 0
 		/**
 		 * Creates a new detector - basically a convenient wrapper class around
 		 * the js-objectdetect functions and hides away the technical details
@@ -670,25 +656,35 @@ struct objectdetect {
 		 * @param scaleFactor Scaling factor for multi-scale detection
 		 * @param classifier  Compiled cascade classifier
 		 */
-		function detector(width, height, scaleFactor, classifier) {
-			this.canvas = document.createElement('canvas');
-			this.canvas.width = width;
-			this.canvas.height = height;
-			this.context = this.canvas.getContext('2d');
-			this.tilted = classifier.tilted;
-			this.scaleFactor = scaleFactor;
-			this.numScales = ~~(Math.log(Math.min(width / classifier[0], height / classifier[1])) / Math.log(scaleFactor));
-			this.scaledGray = new Uint32Array(width * height);
-			this.compiledClassifiers = [];
-			var scale = 1;
-			for (var i = 0; i < this.numScales; ++i) {
-				var scaledWidth = ~~(width / scale);
-				var scaledHeight = ~~(height / scale);
-				this.compiledClassifiers[i] = objectdetect.compileClassifier(classifier, scaledWidth, scaledHeight);
+		matrix_t context;
+		int tilted;
+		double scaleFactor;
+		int numScales;
+		matrix_t scaledGray;
+		matrix_t compiledClassifiers;
+		matrix_t compiledClassifiersLens;
+
+		void init(int width, int height, double scaleFactor, const float* classifier, int classifier_length) {
+			this->context.resize(width, height, 3);
+			--classifier_length;
+			this->tilted = (int)*classifier++;
+			this->scaleFactor = scaleFactor;
+			this->numScales = (int)(Math.log(Math_min(width / classifier[0], height / classifier[1])) / Math.log(scaleFactor));
+			this->scaledGray.resize(width, height, jsfeat.U8_t| jsfeat.C4_t);
+			//this->compiledClassifiers;
+			double scale = 1;
+
+			compiledClassifiers.resize(this->numScales, classifier_length, jsfeat.F32_t|jsfeat.C1_t);
+			compiledClassifiersLens.resize(this->numScales, 1, jsfeat.S32_t | jsfeat.C1_t);
+			for (int i = 0; i < this->numScales; ++i) {
+				int scaledWidth = (int)(width / scale);
+				int scaledHeight = (int)(height / scale);
+				compiledClassifiersLens.i32[i] = compileClassifier(classifier, classifier_length, scaledWidth, scaledHeight, this->compiledClassifiers.f32 + i*classifier_length);
 				scale *= scaleFactor;
 			}
 		}
-		
+
+
 		/**
 		 * Multi-scale object detection on image, video or canvas elements. 
 		 * 
@@ -699,37 +695,38 @@ struct objectdetect {
 		 * 
 		 * @return Grouped rectangles
 		 */
-		detector.prototype.detect = function(image, group, stepSize, Roi) {
+		void detect(const matrix_t& image, int group, int stepSize, const int* Roi) {
 			if (!stepSize) stepSize = 1;
 			
-			var width = this.canvas.width;
-			var height = this.canvas.height;
-			
+			int width = this->context.width;
+			int height = this->context.height;
+
+#if 0
 			if (Roi) 
-				this.context.drawImage(image, Roi[0], Roi[1], Roi[2], Roi[3], 0, 0, width, height);
+				this->context.drawImage(image, Roi[0], Roi[1], Roi[2], Roi[3], 0, 0, width, height);
 			else
-				this.context.drawImage(image, 0, 0, width, height);
-			var imageData = this.context.getImageData(0, 0, width, height).data;
-			this.gray = objectdetect.convertRgbaToGrayscale(imageData, this.gray);
+				this->context.drawImage(image, 0, 0, width, height);
+			var imageData = this->context.getImageData(0, 0, width, height).data;
+			this->gray = objectdetect.convertRgbaToGrayscale(imageData, this->gray);
 			
 			var rects = [];
 			var scale = 1;
-			for (var i = 0; i < this.numScales; ++i) {
+			for (var i = 0; i < this->numScales; ++i) {
 				var scaledWidth = ~~(width / scale);
 				var scaledHeight = ~~(height / scale);
 				
 				if (scale == 1) {
-					this.scaledGray.set(this.gray);
+					this->scaledGray.set(this->gray);
 				} else {
-					this.scaledGray = objectdetect.rescaleImage(this.gray, width, height, scale, this.scaledGray);
+					this->scaledGray = objectdetect.rescaleImage(this->gray, width, height, scale, this->scaledGray);
 				}
 				
-				this.sat = objectdetect.computeSat(this.scaledGray, scaledWidth, scaledHeight, this.sat);
-				this.ssat = objectdetect.computeSquaredSat(this.scaledGray, scaledWidth, scaledHeight, this.ssat);
-				if (this.tilted) this.rsat = objectdetect.computeRsat(this.scaledGray, scaledWidth, scaledHeight, this.rsat);
-				this.cannysat = undefined;
+				this->sat = objectdetect.computeSat(this->scaledGray, scaledWidth, scaledHeight, this->sat);
+				this->ssat = objectdetect.computeSquaredSat(this->scaledGray, scaledWidth, scaledHeight, this->ssat);
+				if (this->tilted) this->rsat = objectdetect.computeRsat(this->scaledGray, scaledWidth, scaledHeight, this->rsat);
+				this->cannysat = undefined;
 
-				var newRects = objectdetect.detect(this.sat, this.rsat, this.ssat, this.cannysat, scaledWidth, scaledHeight, stepSize, this.compiledClassifiers[i]);
+				var newRects = objectdetect.detect(this->sat, this->rsat, this->ssat, this->cannysat, scaledWidth, scaledHeight, stepSize, this->compiledClassifiers[i]);
 				for (var j = newRects.length - 1; j >= 0; --j) {
 					newRects[j][0] *= width / scaledWidth;
 					newRects[j][1] *= height / scaledHeight;
@@ -738,12 +735,12 @@ struct objectdetect {
 				}
 				rects = rects.concat(newRects);
 				
-				scale *= this.scaleFactor;
+				scale *= this->scaleFactor;
 			}				
 			return (group ? objectdetect.groupRectangles(rects, group) : rects).sort(function(r1, r2) {return r2[4] - r1[4];});
-		};
-		
-		return detector;
-	};
 #endif
-}objectdetect;
+		}
+};
+
+#if 0
+#endif
