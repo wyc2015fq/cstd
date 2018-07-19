@@ -1569,15 +1569,15 @@ GC_TYPE_MASK = 0xf,
 
 typedef struct {
   float m[4][4];
-} matrix_t;
+} matrix44;
 typedef FPOINT4 vector_t;
 //typedef vector_t point_t;
 
 typedef struct {
-  matrix_t world; // 世界坐标变换
-  matrix_t view; // 摄影机坐标变换
-  matrix_t projection; // 投影变换
-  matrix_t transform; // transform = world * view * projection
+  matrix44 world; // 世界坐标变换
+  matrix44 view; // 摄影机坐标变换
+  matrix44 projection; // 投影变换
+  matrix44 transform; // transform = world * view * projection
   int w, h;
 } transform_t;
 

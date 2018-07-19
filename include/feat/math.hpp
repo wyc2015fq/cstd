@@ -16,11 +16,15 @@ typedef unsigned int uint32;
 typedef float float32;
 typedef double float64;
 
+#include "cstd.h"
 
 struct _Math {
 	const double PI = 3.1415926535857;
 	template <typename T> inline T abs(const T& a) { return a < 0 ? -a : a; }
 	template <typename T> inline T exp(const T& a) { return (T)::exp(a); }
+	template <typename T> inline T log(const T& a) { return (T)::log(a); }
+	template <typename T> inline T sqrt(const T& a) { return (T)::sqrt(a); }
+	
 	int round(double a) { return (int)::round(a);  }
 };
 static _Math Math;

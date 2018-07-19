@@ -114,7 +114,7 @@ CC_INLINE int immul_ABT_f8(const img_t* A, const img_t* dst, img_t* C) {
     C = C1;
   }
   imsetsize(C, A->h, dst->h, A->c, 1);
-  mat_mul_ABT(C->h, C->w, A->w, A->tt.f8, A->w, dst->tt.f8, dst->w, C->tt.f8, C->w);
+  mat_mul_ABT(C->h, C->w, A->w, A->tt.f64, A->w, dst->tt.f64, dst->w, C->tt.f64, C->w);
   if (A==C0 || dst==C0) {
     imclone2(C1, C0);
   }
@@ -165,7 +165,7 @@ CC_INLINE int mat_scale2(int row_c, int col_c, const double* A, int al, double s
 }
 CC_INLINE int imscale2(const img_t* A, double sa, const img_t* dst, double sb, double dd, img_t* C) {
   imsetsize(C, A->h, A->w, A->c, 1);
-  mat_scale2(A->h, A->w*A->c/sizeof(double), A->tt.f8, A->s/sizeof(double), sa, dst->tt.f8, dst->s/sizeof(double), sb, dd, C->tt.f8, C->s/sizeof(double));
+  mat_scale2(A->h, A->w*A->c/sizeof(double), A->tt.f64, A->s/sizeof(double), sa, dst->tt.f64, dst->s/sizeof(double), sb, dd, C->tt.f64, C->s/sizeof(double));
   return 0;
 }
 
@@ -183,7 +183,7 @@ CC_INLINE int mat_dotmul(int row_c, int col_c, const double* A, int al, const do
 }
 CC_INLINE int imdotmul(const img_t* A, const img_t* dst, double ss, double dd, img_t* C) {
   imsetsize(C, A->h, A->w, sizeof(double), 1);
-  mat_dotmul(A->h, A->w, A->tt.f8, A->s/sizeof(double), dst->tt.f8, dst->s/sizeof(double), ss, dd, C->tt.f8, C->s/sizeof(double));
+  mat_dotmul(A->h, A->w, A->tt.f64, A->s/sizeof(double), dst->tt.f64, dst->s/sizeof(double), ss, dd, C->tt.f64, C->s/sizeof(double));
   return 0;
 }
 CC_INLINE int swap_rb(uchar* data, int step, int cn, int w, int h)
@@ -2184,7 +2184,7 @@ static int name2(const img_t* A, const img_t* dst, img_t* C) { \
   C = (A==C || dst==C) ? im : C; \
   ASSERT(A->c==dst->c && A->c==sizeof(double)); \
   imsetsize(C, MAX(A->h, dst->h), MAX(A->w, dst->w), sizeof(double), 1); \
-  name(A->h, A->w, A->tt.f8, A->s/sizeof(double), dst->h, dst->w, dst->tt.f8, dst->s/sizeof(double), C->tt.f8, C->s/sizeof(double)); \
+  name(A->h, A->w, A->tt.f64, A->s/sizeof(double), dst->h, dst->w, dst->tt.f64, dst->s/sizeof(double), C->tt.f64, C->s/sizeof(double)); \
   if (im==C) { imswap(im, C0); } \
   imfree(im); \
   return 0; \
@@ -2339,7 +2339,7 @@ CC_INLINE int imsum_f8(const img_t* im, OptMode mode, img_t* sum) {
   n = mat_get_nk(im->h, im->w, mode, NULL);
   imsetsize(sum, n, 1, sizeof(double), 1);
   ASSERT(im->c==sizeof(double));
-  mat_sum_f8(im->h, im->w, im->tt.f8, im->s/sizeof(double), mode, sum->tt.f8);
+  mat_sum_f8(im->h, im->w, im->tt.f64, im->s/sizeof(double), mode, sum->tt.f64);
   imfree(im1);
   return 0;
 }
@@ -2353,7 +2353,7 @@ CC_INLINE int immean_f8(const img_t* im, OptMode mode, img_t* mu) {
   n = mat_get_nk(im->h, im->w, mode, NULL);
   imsetsize(mu, n, 1, sizeof(double), 1);
   ASSERT(im->c==sizeof(double));
-  mat_mean_f8(im->h, im->w, im->tt.f8, im->s/sizeof(double), mode, mu->tt.f8);
+  mat_mean_f8(im->h, im->w, im->tt.f64, im->s/sizeof(double), mode, mu->tt.f64);
   imfree(im1);
   return 0;
 }
@@ -2376,7 +2376,7 @@ CC_INLINE int immeanstd_f8(const img_t* im, int flag, OptMode mode, img_t* mu, i
   imsetsize(mu, n, 1, sizeof(double), 1);
   imsetsize(st, n, 1, sizeof(double), 1);
   ASSERT(im->c==sizeof(double));
-  mat_meanstd_f8(im->h, im->w, im->tt.f8, im->s/sizeof(double), mode, mu->tt.f8, st->tt.f8, flag, true);
+  mat_meanstd_f8(im->h, im->w, im->tt.f64, im->s/sizeof(double), mode, mu->tt.f64, st->tt.f64, flag, true);
   imfrees(im1, 2);
   return 0;
 }
@@ -2393,7 +2393,7 @@ static int mat_maxs_f8(int h, int w, const double* A, int al, double s, double* 
 }
 static int immaxs_f8(const img_t* im, double s, img_t* y) {
   imsetsize(y, im->h, im->w, sizeof(double), 1);
-  mat_maxs_f8(im->h, im->w, im->tt.f8, im->s/sizeof(double), s, y->tt.f8, y->s/sizeof(double));
+  mat_maxs_f8(im->h, im->w, im->tt.f64, im->s/sizeof(double), s, y->tt.f64, y->s/sizeof(double));
   return 0;
 }
 static int mat_max_f8(int h, int w, const double* A, int al, OptMode mode, double* dst) {

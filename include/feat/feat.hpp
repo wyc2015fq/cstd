@@ -19,33 +19,32 @@ struct _jsfeat {
 	static _jsfeat jsfeat;
     // CONSTANTS
 	const double EPSILON = 0.0000001192092896;
-	const double FLT_MIN = 1E-37;
+	//const double FLT_MIN = 1E-37;
 
     // implementation from CCV project
     // currently working only with u8,s32,f32
-	static const unsigned short U8_t = 0x0100,
-        S32_t = 0x0200,
-        F32_t = 0x0400,
-        S64_t = 0x0800,
-        F64_t = 0x1000;
+	static const unsigned short U8_t = CC_8U,
+        S32_t = CC_32S,
+        F32_t = CC_32F,
+        S64_t = CC_64S,
+        F64_t = CC_64F;
+	
+	static const unsigned char C1_t = 1,
+        C2_t = 2,
+        C3_t = 3,
+        C4_t = 4;
 
-	static const unsigned char C1_t = 0x01,
-        C2_t = 0x02,
-        C3_t = 0x03,
-        C4_t = 0x04;
 
-
-	int get_data_type(int type) {
-		return (type & 0xFF00);
-	}
+	//int get_data_type(int type) {		return (type >> 8);	}
 
 	int get_channel(int type) {
 		return (type & 0xFF);
 	}
 
-    int get_data_type_size(int type) {
-		static const int32 _data_type_size[] = { -1, 1, 4, -1, 4, -1, -1, -1, 8, -1, -1, -1, -1, -1, -1, -1, 8 };
-		return _data_type_size[(type & 0xFF00) >> 8];
+    int get_data_type_size(TypeId type) {
+		//static const int32 _data_type_size[] = { -1, 1, 4, -1, 4, -1, -1, -1, 8, -1, -1, -1, -1, -1, -1, -1, 8 };
+		//return _data_type_size[(type & 0xFF00) >> 8];
+		return cvTypeSize(type);
 	}
 
     // color conversion
@@ -144,28 +143,36 @@ struct _jsfeat {
 		// if having cache sys really helps we can add auto extending sys
 	}cache;
 
-    struct matrix_t : public data_t {
+    struct matrix_t : public img_t {
 		typedef matrix_t self;
-		int type;
-		int channel;
-		int cols;
-		int rows;
+		//int type;
+		//union { int channel; int ch; };
+		//union { int cols; int width; };
+		//union { int rows; int height; };
 
-		void allocate(void* buffer = NULL) {
-			data_t& me = *this;
+		matrix_t() {
+			//type = channel = cols = rows = 0;
+			memset(this, 0, sizeof(*this));
+		}
+		void allocate1(void* buffer = NULL) {
+			//data_t& me = *this;
 			int new_size = (this->cols * jsfeat.get_data_type_size(this->type) * this->channel) * this->rows;
 			// clear references
-			me.resize(new_size, buffer);
+			//me.resize(new_size, buffer);
+			//imsetsize(this, );
 			//
 			//this->data = this->type&U8_t ? this->buffer.u8 : (this->type&S32_t ? this->buffer.i32 : (this->type&F32_t ? this->buffer.f32 : this->buffer.f64));
 		}
+		void resize(int w, int r, int ch = 1, TypeId data_type = CC_8U) {
+			if (ch == 0) { ch = 1; }
+			// relocate buffer only if new size doesnt fit
+			imsetsize(this, r, w, ch*jsfeat.get_data_type_size(type), 1);
+			this->type = type;
+			//this->allocate();
+		}
         // columns, rows, data_type
-        matrix_t(int c, int r, int data_type, void* data_buffer) {
-            this->type = jsfeat.get_data_type(data_type);
-            this->channel = jsfeat.get_channel(data_type);
-            this->cols = c;
-            this->rows = r;
-			this->allocate(data_buffer);
+        matrix_t(int w, int r, TypeId data_type, void* data_buffer) {
+			resize(r, w, data_type);
         }
         void copy_to(self& other) {
 			uint8* od = other.data;
@@ -180,14 +187,6 @@ struct _jsfeat {
             for(; i < n; ++i) {
                 od[i] = td[i];
             }
-        }
-        void resize(int c, int r, int ch = 1) {
-            if (ch == 0) { ch = this->channel; }
-            // relocate buffer only if new size doesnt fit
-            this->cols = c;
-            this->rows = r;
-            this->channel = ch;
-			this->allocate();
         }
     };
 
@@ -477,10 +476,10 @@ struct _math_t {
     }
 
     // The current implementation was derived from *BSD system qsort():
-    // Copyright (c) 1992, 1993
+    // Copyright (w) 1992, 1993
     // The Regents of the University of California.  All rights reserved.
-	template <typename T, typename C>
-    void qsort(T* array, int low, int high, C cmp) {
+	template <typename T, typename OP>
+    void qsort(T* array, int low, int high, OP cmp) {
         int isort_thresh = 7;
         T t,ta,tb,tc;
         int sp = 0,left=0,right=0,i=0,n=0,m=0,ptr=0,ptr2=0,d=0;
@@ -2288,7 +2287,7 @@ struct _math_t {
 
 #endif
 
-struct _imgproc_t {
+struct _imgproc {
      void _resample_u8(const matrix_t& src, matrix_t& dst, int nw, int nh) {
         int xofs_count=0;
 		int ch=src.channel,w=src.cols,h=src.rows;
@@ -2689,7 +2688,7 @@ struct _imgproc_t {
             if (h > nh && w > nw) {
                 dst.resize(nw, nh, src.channel);
                 // using the fast alternative (fix point scale, 0x100 to avoid overflow)
-                if (src.type&jsfeat.U8_t && dst.type&jsfeat.U8_t && h * w / (nh * nw) < 0x100) {
+                if (src.type==jsfeat.U8_t && dst.type&jsfeat.U8_t && h * w / (nh * nw) < 0x100) {
                     _resample_u8(src, dst, nw, nh);
                 } else {
                     _resample(src, dst, nw, nh);
@@ -3028,7 +3027,7 @@ struct _imgproc_t {
             var buf0_node = jsfeat.cache.get_buffer((w+2)<<2);
             var buf1_node = jsfeat.cache.get_buffer((w+2)<<2);
 
-            if(src.type&jsfeat.U8_t || src.type&jsfeat.S32_t) {
+            if(get_data_type(src.type)==jsfeat.U8_t || get_data_type(src.type)==jsfeat.S32_t) {
                 trow0 = buf0_node.i32;
                 trow1 = buf1_node.i32;
             } else {
@@ -3097,7 +3096,7 @@ struct _imgproc_t {
             var buf0_node = jsfeat.cache.get_buffer((w+2)<<2);
             var buf1_node = jsfeat.cache.get_buffer((w+2)<<2);
 
-            if(src.type&jsfeat.U8_t || src.type&jsfeat.S32_t) {
+            if(get_data_type(src.type)==jsfeat.U8_t || get_data_type(src.type)==jsfeat.S32_t) {
                 trow0 = buf0_node.i32;
                 trow1 = buf1_node.i32;
             } else {
