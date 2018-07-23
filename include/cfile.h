@@ -1777,46 +1777,6 @@ typedef void* (*CReadFunc)( struct CFileStorage* storage, CFileNode* node );
 typedef void (*CWriteFunc)( struct CFileStorage* storage, const char* name, const void* struct_ptr, vstr_t* attributes );
 typedef void* (*CCloneFunc)( const void* struct_ptr );
 
-static char* getDefaultObjectName(CFileStorage* fs, const char* _filename, char* name_buf)
-{
-    static const char* stubname = "unnamed";
-    const char* filename = _filename;
-    int _filename_size = strlen(_filename);
-    const char* ptr2 = filename + _filename_size;
-    const char* ptr = ptr2 - 1;
-    //CAutoBuffer<char> name_buf(_filename.size()+1);
-
-    while( ptr >= filename && *ptr != '\\' && *ptr != '/' && *ptr != ':' )
-    {
-        if( *ptr == '.' && (!*ptr2 || strncmp(ptr2, ".gz", 3) == 0) )
-            ptr2 = ptr;
-        ptr--;
-    }
-    ptr++;
-    if( ptr == ptr2 )
-        CC_Error( CC_StsBadArg, "Invalid filename" );
-
-    char* name = name_buf;
-
-    // name must start with letter or '_'
-    if( !cc_isalpha(*ptr) && *ptr!= '_' ){
-        *name++ = '_';
-    }
-
-    while( ptr < ptr2 )
-    {
-        char c = *ptr++;
-        if( !cc_isalnum(c) && c != '-' && c != '_' )
-            c = '_';
-        *name++ = c;
-    }
-    *name = '\0';
-    name = name_buf;
-    if( strcmp( name, "_" ) == 0 )
-        strcpy( name, stubname );
-    return (name);
-}
-
 /** @brief Type information
 
 The structure contains information about one of the standard or user-defined types. Instances of the
@@ -1869,6 +1829,46 @@ typedef struct CFileStorage
     CFileStruct* vfun;
 }
 CFileStorage;
+
+static char* getDefaultObjectName(CFileStorage* fs, const char* _filename, char* name_buf)
+{
+	static const char* stubname = "unnamed";
+	const char* filename = _filename;
+	int _filename_size = strlen(_filename);
+	const char* ptr2 = filename + _filename_size;
+	const char* ptr = ptr2 - 1;
+	//CAutoBuffer<char> name_buf(_filename.size()+1);
+
+	while (ptr >= filename && *ptr != '\\' && *ptr != '/' && *ptr != ':')
+	{
+		if (*ptr == '.' && (!*ptr2 || strncmp(ptr2, ".gz", 3) == 0))
+			ptr2 = ptr;
+		ptr--;
+	}
+	ptr++;
+	if (ptr == ptr2)
+		CC_Error(CC_StsBadArg, "Invalid filename");
+
+	char* name = name_buf;
+
+	// name must start with letter or '_'
+	if (!cc_isalpha(*ptr) && *ptr != '_') {
+		*name++ = '_';
+	}
+
+	while (ptr < ptr2)
+	{
+		char c = *ptr++;
+		if (!cc_isalnum(c) && c != '-' && c != '_')
+			c = '_';
+		*name++ = c;
+	}
+	*name = '\0';
+	name = name_buf;
+	if (strcmp(name, "_") == 0)
+		strcpy(name, stubname);
+	return (name);
+}
 
 #endif // _FILEIO_H_
 

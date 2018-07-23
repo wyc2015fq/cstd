@@ -46,7 +46,7 @@ int test_mtcnn()
   //CPCODE;
   //sys_chdir("E:/code/cstd/include/facelib/MTCNN"); cRange
 #endif
-  int minsize = 60;
+  int minsize = 150;
   Bbox out[200];
 
 #if defined _WIN32 && defined _DEBUG

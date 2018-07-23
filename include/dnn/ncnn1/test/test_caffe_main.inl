@@ -5,7 +5,7 @@
 #ifndef CPU_ONLY
   cudaDeviceProp CAFFE_TEST_CUDA_PROP;
 #endif
-}
+
 
 #ifndef CPU_ONLY
 using caffe::CAFFE_TEST_CUDA_PROP;

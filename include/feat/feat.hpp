@@ -150,13 +150,15 @@ struct _jsfeat {
 		//union { int cols; int width; };
 		//union { int rows; int height; };
 
+		int channel() const { return CC_MAT_CN(this); }
+		int length() const { return w*h; }
 		matrix_t() {
 			//type = channel = cols = rows = 0;
 			memset(this, 0, sizeof(*this));
 		}
 		void allocate1(void* buffer = NULL) {
 			//data_t& me = *this;
-			int new_size = (this->cols * jsfeat.get_data_type_size(this->type) * this->channel) * this->rows;
+			//int new_size = (this->cols * jsfeat.get_data_type_size(this->type) * this->channel()) * this->rows;
 			// clear references
 			//me.resize(new_size, buffer);
 			//imsetsize(this, );
@@ -166,18 +168,18 @@ struct _jsfeat {
 		void resize(int w, int r, int ch = 1, TypeId data_type = CC_8U) {
 			if (ch == 0) { ch = 1; }
 			// relocate buffer only if new size doesnt fit
-			imsetsize(this, r, w, ch*jsfeat.get_data_type_size(type), 1);
-			this->type = type;
+			imsetsize(this, r, w, ch*jsfeat.get_data_type_size(data_type), 1);
+			this->type = data_type;
 			//this->allocate();
 		}
         // columns, rows, data_type
         matrix_t(int w, int r, TypeId data_type, void* data_buffer) {
 			resize(r, w, data_type);
         }
-        void copy_to(self& other) {
+        void copy_to(self& other) const {
 			uint8* od = other.data;
 			uint8* td = this->data;
-            int i = 0, n = (this->cols*this->rows*this->channel);
+            int i = 0, n = (this->cols*this->rows*this->channel());
             for(; i < n-4; i+=4) {
                 od[i] = td[i];
                 od[i+1] = td[i+1];
@@ -2290,7 +2292,7 @@ struct _math_t {
 struct _imgproc {
      void _resample_u8(const matrix_t& src, matrix_t& dst, int nw, int nh) {
         int xofs_count=0;
-		int ch=src.channel,w=src.cols,h=src.rows;
+		int ch=src.channel(),w=src.cols,h=src.rows;
 		uint8* src_d=src.data,*dst_d=dst.data;
         double scale_x = w / nw, scale_y = h / nh;
         double inv_scale_256 = (scale_x * scale_y * 0x10000);
@@ -2377,20 +2379,23 @@ struct _imgproc {
 
     void _resample(const matrix_t& src, matrix_t& dst, int nw, int nh) {
         int xofs_count=0;
-		int ch=src.channel,w=src.cols,h=src.rows;
+		int ch=src.channel(),w=src.cols,h=src.rows;
         uchar* src_d=src.data, *dst_d=dst.data;
         double scale_x = w / nw, scale_y = h / nh;
 		double scale = 1.0 / (scale_x * scale_y);
 		int dx=0,dy=0,sx=0,sy=0,sx1=0,sx2=0,i=0,k=0, a = 0, b = 0, dxn = 0;
 		double alpha=0.0,beta=0.0,beta1=0.0, fsx1 = 0.0, fsx2 = 0.0;
 
-        data_t& buf_node = jsfeat.cache.get_buffer((nw*ch)<<2);
-		data_t& sum_node = jsfeat.cache.get_buffer((nw*ch)<<2);
-		data_t& xofs_node = jsfeat.cache.get_buffer((w*2*3)<<2);
+		//data_t& buf_node = jsfeat.cache.get_buffer((nw*ch)<<2);
+		//data_t& sum_node = jsfeat.cache.get_buffer((nw*ch)<<2);
+		//data_t& xofs_node = jsfeat.cache.get_buffer((w*2*3)<<2);
 
-        float* buf = buf_node.f32;
-		float* sum = sum_node.f32;
-		float* xofs = xofs_node.f32;
+        float* buf = NULL;
+		float* sum = NULL;
+		float* xofs = NULL;
+		MYREALLOC(buf, (nw*ch));
+		MYREALLOC(sum, (nw*ch));
+		MYREALLOC(xofs, (w * 2 * 3));
 
         for (; dx < nw; dx++) {
             fsx1 = dx * scale_x, fsx2 = fsx1 + scale_x;
@@ -2456,9 +2461,9 @@ struct _imgproc {
                 }
             }
         }
-        jsfeat.cache.put_buffer(sum_node);
-        jsfeat.cache.put_buffer(buf_node);
-        jsfeat.cache.put_buffer(xofs_node);
+		FREE(buf);
+		FREE(sum);
+		FREE(xofs);
     }
 
     void _convol_u8(int* buf, const uint8* src_d, uint8* dst_d, int w, int h, const int* filter, int kernel_size, int half_kernel) {
@@ -2686,7 +2691,7 @@ struct _imgproc {
         void resample(const matrix_t& src, matrix_t& dst, int nw, int nh) {
             int h=src.rows,w=src.cols;
             if (h > nh && w > nw) {
-                dst.resize(nw, nh, src.channel);
+                dst.resize(nw, nh, src.channel());
                 // using the fast alternative (fix point scale, 0x100 to avoid overflow)
                 if (src.type==jsfeat.U8_t && dst.type&jsfeat.U8_t && h * w / (nh * nw) < 0x100) {
                     _resample_u8(src, dst, nw, nh);
@@ -2711,7 +2716,7 @@ struct _imgproc {
             uchar* data_u8 = src.data;
             int hold=0;
 
-            dst.resize(w, h, src.channel);
+            dst.resize(w, h, src.channel());
 
             // first pass
             // no need to scale 
@@ -2871,7 +2876,7 @@ struct _imgproc {
             int w = src.cols, h = src.rows;
             int data_type = src.type, is_u8 = data_type&jsfeat.U8_t;
 
-            dst.resize(w, h, src.channel);
+            dst.resize(w, h, src.channel());
 
             //uchar* src_d = src.data, *dst_d = dst.data;
 			//int* buf;
@@ -2991,7 +2996,7 @@ struct _imgproc {
             var _w2 = w2 - (sx << 1), _h2 = h2 - (sy << 1);
             var x=0,y=0,sptr=sx+sy*w,sline=0,dptr=0,dline=0;
 
-            dst.resize(w2, h2, src.channel);
+            dst.resize(w2, h2, src.channel());
 
             var src_d = src.data, dst_d = dst.data;
 

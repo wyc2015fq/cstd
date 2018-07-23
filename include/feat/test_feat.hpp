@@ -1,4 +1,5 @@
 
+#define C_DBG
 
 #include "feat.hpp"
 #include "objectdetect.hpp"
@@ -24,17 +25,25 @@ int test_feat() {
 	char buf[256];
 	//img_t im[10] = {0};
 	matrix_t im;
+	int rects[1000];
 	_objectdetect facedetect;
 
 	for (i = 0; i < sv->n; ++i) {
 		_snprintf(buf, 256, "%s/%s.jpg", path, sv->v[i].s);
 		if (imread(buf, 3, 1, &im)) {
-			printf("%s\n", sv->v[i].s);
-			facedetect.init(im.w, im.h, 1.1, frontalface, countof(frontalface));
+			printf("%s ", sv->v[i].s);
+			int len=0;
+			//{utime_start(_start_time);
+			tic;
+			len  = facedetect.detect(im, 1, 1, 1.1, frontalface, countof(frontalface), rects, countof(rects) / 4);
+			toc;
+			tictoc;
+			//printf("%f ", utime_elapsed(_start_time)); }
 			//facedetect.detect(im, );
 			//objectdetect.detect();
+			printf("\n");
 			imshow_(&im);
-			WaitKey(-1);
+			WaitKey(10);
 		}
 	}
 	vstr_free(sv);

@@ -960,7 +960,7 @@ CC_INLINE COLOR hsv2rgb(float hue)
   rgb[ sector_data[ sector ][ 1 ] ] = 0;
   rgb[ sector_data[ sector ][ 2 ] ] = p;
 
-  return CC_RGB(rgb[ 0 ], rgb[ 1 ], rgb[ 1 ]);
+  return _RGB(rgb[ 0 ], rgb[ 1 ], rgb[ 1 ]);
 }
 
 
