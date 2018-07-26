@@ -22,7 +22,6 @@ using namespace std;
 #define FACE_ALIGNMENT_MODEL_PATH       "D:/data/model/seeta_fa_v1.1.bin"
 #define FACE_IDENTIFICATION_MODEL_PATH  "D:/data/model/seeta_fr_v1.0.bin"
 
-
 //#define TEST(major, minor) major##_##minor##_Tester()
 #define EXPECT_NE(a, b) if ((a) == (b)) std::cout << "ERROR: "
 #define EXPECT_EQ(a, b) if ((a) != (b)) std::cout << "ERROR: "

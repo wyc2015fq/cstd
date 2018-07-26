@@ -1604,7 +1604,7 @@ CC_INLINE int gcDrawHist(gc_t* g, IRECT rect, const uchar* f, int hdims)
   
   for (i = 0; i < hdims; ++i) {
     double val = (f[ i ] * h);
-    COLOR color = CC_RGB(255, 255, 0);   //(hsv2rgb(i*180.f/hdims);
+    COLOR color = _RGB(255, 255, 0);   //(hsv2rgb(i*180.f/hdims);
     IRECT rc = iRECT((int)(i * bin_w), h, (int)((i + 1) * bin_w), (int)(h - val));
     gcSolidBrush(g, color);
     gcFillRect2(g, rc);

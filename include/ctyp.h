@@ -1048,7 +1048,7 @@ typedef struct {
   union { int w;    int width; int cols; };
   union { int h;    int height; int rows; };
   union { int s;    int step; int widthStep; };
-  union { int c;    int cn; int ch;  int channel; };
+  union { int c;    int cn; int ch; };
   union { int f;    int frame; };
   union { TypeId t;    TypeId type;  TypeId tid; };
 #if 1

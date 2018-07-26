@@ -37,6 +37,7 @@ struct _objectdetect {
 		void rescaleImage(const matrix_t& src, int srcWidth, int srcHeight, double factor, matrix_t& dst) {
 			int dstWidth = (int)(srcWidth / factor),
 				dstHeight = (int)(srcHeight / factor);
+			dst.resize(dstWidth, dstHeight, 1, CC_8U);
 			jsfeat.imgproc.resample(src, dst, dstWidth, dstHeight);
 #if 0
 			int srcLength = srcHeight * srcWidth;
@@ -157,7 +158,8 @@ struct _objectdetect {
 				}
 			}
 			return dst;
-		},
+		}
+#endif
 
 		/**
 		 * Computes the integral image of a 1-channel image. Arithmetic
@@ -175,27 +177,27 @@ struct _objectdetect {
 		 * 
 		 * @return {Uint32Array} 1-channel destination image
 		 */
-		computeSat = function(src, srcWidth, srcHeight, dst) {
-			var dstWidth = srcWidth + 1;
+		matrix_t&  computeSat(matrix_t& src, int srcWidth, int srcHeight, matrix_t& _dst) {
+			int dstWidth = srcWidth + 1;
+			_dst.resize(dstWidth, srcHeight + 1, 1, CC_32U);
+			uint32* dst = _dst.u32;
 			
-			if (!dst) dst = new Uint32Array(srcWidth * srcHeight + dstWidth + srcHeight);
-			
-			for (var i = srcHeight * dstWidth; i >= 0; i -= dstWidth)
+			for (int i = srcHeight * dstWidth; i >= 0; i -= dstWidth)
 				dst[i] = 0;
 			
-			for (var x = 1; x <= srcWidth; ++x) {
-				var column_sum = 0;
-				var index = x;
+			for (int x = 1; x <= srcWidth; ++x) {
+				int column_sum = 0;
+				int index = x;
 				dst[x] = 0;
 				
-				for (var y = 1; y <= srcHeight; ++y) {
-					column_sum += src[index - y];
+				for (int y = 1; y <= srcHeight; ++y) {
+					column_sum += src.u8[index - y];
 					index += dstWidth;
 					dst[index] = dst[index - 1] + column_sum;
 				}
 			}
-			return dst;
-		},
+			return _dst;
+		}
 		
 		/**
 		 * Computes the squared integral image of a 1-channel image.
@@ -208,28 +210,29 @@ struct _objectdetect {
 		 * 
 		 * @return {Uint32Array} 1-channel destination image
 		 */
-		computeSquaredSat = function(src, srcWidth, srcHeight, dst) {
-			var dstWidth = srcWidth + 1;
-		
-			if (!dst) dst = new Uint32Array(srcWidth * srcHeight + dstWidth + srcHeight);
+		matrix_t& computeSquaredSat(const matrix_t& src, int srcWidth, int srcHeight, matrix_t& _dst) {
+			int dstWidth = srcWidth + 1;
+			_dst.resize(srcWidth + 1, srcHeight + 1, 1, CC_32U);
+			uint32* dst = _dst.u32;
+			int i, x, y;
 			
-			for (var i = srcHeight * dstWidth; i >= 0; i -= dstWidth)
+			for (i = srcHeight * dstWidth; i >= 0; i -= dstWidth)
 				dst[i] = 0;
 			
-			for (var x = 1; x <= srcWidth; ++x) {
-				var column_sum = 0;
-				var index = x;
+			for (x = 1; x <= srcWidth; ++x) {
+				int column_sum = 0;
+				int index = x;
 				dst[x] = 0;
-				for (var y = 1; y <= srcHeight; ++y) {
-					var val = src[index - y];
+				for (y = 1; y <= srcHeight; ++y) {
+					int val = src.u8[index - y];
 					column_sum += val * val;
 					index += dstWidth;
 					dst[index] = dst[index - 1] + column_sum;
 				}
 			}
-			return dst;
-		},
-		
+			return _dst;
+		}
+
 		/**
 		 * Computes the rotated / tilted integral image of a 1-channel image.
 		 * @see computeSat()
@@ -241,39 +244,39 @@ struct _objectdetect {
 		 * 
 		 * @return {Uint32Array} 1-channel destination image
 		 */
-		computeRsat = function(src, srcWidth, srcHeight, dst) {
-			var dstWidth = srcWidth + 1,
-				srcHeightTimesDstWidth = srcHeight * dstWidth;
-				
-			if (!dst) dst = new Uint32Array(srcWidth * srcHeight + dstWidth + srcHeight);
-			
-			for (var i = srcHeightTimesDstWidth; i >= 0; i -= dstWidth)
+		matrix_t& computeRsat(const matrix_t& src, int srcWidth, int srcHeight, matrix_t& _dst) {
+			int dstWidth = srcWidth + 1, srcHeightTimesDstWidth = srcHeight * dstWidth;
+			int i, x, y;
+			_dst.resize(srcWidth + 1, srcHeight + 1, 1, CC_32U);
+			uint32* dst = _dst.u32;
+
+			for (i = srcHeightTimesDstWidth; i >= 0; i -= dstWidth)
 				dst[i] = 0;
 			
-			for (var i = dstWidth - 1; i >= 0; --i)
+			for (i = dstWidth - 1; i >= 0; --i)
 				dst[i] = 0;
 			
-			var index = 0;
-			for (var y = 0; y < srcHeight; ++y) {
-				for (var x = 0; x < srcWidth; ++x) {
-					dst[index + dstWidth + 1] = src[index - y] + dst[index];
+			int index = 0;
+			for (y = 0; y < srcHeight; ++y) {
+				for (x = 0; x < srcWidth; ++x) {
+					dst[index + dstWidth + 1] = src.u8[index - y] + dst[index];
 					++index;
 				}
 				dst[index + dstWidth] += dst[index];
 				index++;
 			}
 			
-			for (var x = srcWidth - 1; x > 0; --x) {
-				var index = x + srcHeightTimesDstWidth;
-				for (var y = srcHeight; y > 0; --y) {
+			for (x = srcWidth - 1; x > 0; --x) {
+				int index = x + srcHeightTimesDstWidth;
+				for (y = srcHeight; y > 0; --y) {
 					index -= dstWidth;
 					dst[index + dstWidth] += dst[index] + dst[index + 1];
 				}
 			}
 			
-			return dst;
-		},
-		
+			return _dst;
+		}
+
 		/**
 		 * Equalizes the histogram of an unsigned 1-channel image with integer 
 		 * values in [0, 255]. Corresponds to the equalizeHist OpenCV function.
@@ -284,48 +287,49 @@ struct _objectdetect {
 		 * 
 		 * @return {Array} 1-channel destination image
 		 */
-		equalizeHistogram = function(src, step, dst) {
-			var srcLength = src.length;
-			if (!dst) dst = src;
-			if (!step) step = 5;
+		matrix_t& equalizeHistogram(const matrix_t& src, int step, matrix_t& _dst) {
+			int srcLength = src.length();
+			_dst.resize(src.w, src.h, 1, src.tid);
+			uint8* dst = _dst.u8;
+			int i;
+			if (step<1) step = 5;
 			
 			// Compute histogram and histogram sum:
-			var hist = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-			            0, 0, 0, 0];
+			int hist[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+						0, 0, 0, 0 };
 			
-			for (var i = 0; i < srcLength; i += step) {
-				++hist[src[i]];
+			for (i = 0; i < srcLength; i += step) {
+				++hist[src.u8[i]];
 			}
 			
 			// Compute integral histogram:
-			var norm = 255 * step / srcLength,
-				prev = 0;
-			for (var i = 0; i < 256; ++i) {
-				var h = hist[i];
+			int norm = 255 * step / srcLength, prev = 0;
+			for (i = 0; i < 256; ++i) {
+				int h = hist[i];
 				prev = h += prev;
 				hist[i] = h * norm; // For non-integer src: ~~(h * norm + 0.5);
 			}
 			
 			// Equalize image:
-			for (var i = 0; i < srcLength; ++i) {
-				dst[i] = hist[src[i]];
+			for (i = 0; i < srcLength; ++i) {
+				dst[i] = hist[src.u8[i]];
 			}
-			return dst;
-		},
-		
+			return _dst;
+		}
+
 		/**
 		 * Horizontally mirrors a cascase classifier. Useful to detect mirrored
 		 * objects such as opposite hands.
@@ -334,9 +338,10 @@ struct _objectdetect {
 		 * 
 		 * @return {Array} Mirrored cascade classifier
 		 */
-		mirrorClassifier = function(src, dst) {
-			if (!dst) dst = new src.constructor(src);
-			var windowWidth  = src[0];
+#if 0
+		matrix_t& mirrorClassifier(const int32* src, matrix_t& dst) {
+			_dst.resize(src.w, src.h, 1, src.tid);
+			int windowWidth  = src[0];
 			
 			for (var i = 1, iEnd = src.length - 1; i < iEnd; ) {
 				++i;
@@ -377,8 +382,7 @@ struct _objectdetect {
 		int compileClassifier(const float* _src, int _src_length, int width, int height, float* dst) {
 			width += 1;
 			height += 1;
-			_src_length--;
-			const float* src = _src+1;
+			const float* src = _src;
 			int32* dstUint32 = (int32*)dst;
 			
 			dstUint32[0] = src[0];
@@ -449,22 +453,22 @@ struct _objectdetect {
 		 * 
 		 * @return {Array} Rectangles representing detected objects
 		 */
-		int detect(const float* sat, const float* rsat, const float* ssat, const float* cannySat, int width, int height, int step, const data_t& _classifier, matrix_t& rects) {
+		int detect_(const uint32* sat, const uint32* rsat, const uint32* ssat, const uint32* cannySat, int width, int height, int step, const float* classifier, int classifier_length, int* rects, int len, int maxlen) {
 			width  += 1;
 			height += 1;
 
-			int classifier_length = _classifier.size >> 2;
-			const float* classifier = (_classifier.f32);
-			const int32* classifierUint32 = (_classifier.i32);
+			//int classifier_length = _classifier.size >> 2;
+			//const float* classifier = (_classifier.f32);
+			const int32* classifierUint32 = (const int32*)(classifier);
 			int windowWidth = classifierUint32[0],
 				windowHeight = classifierUint32[1],
 				windowHeightTimesWidth = windowHeight * width,
 				area = windowWidth * windowHeight,
 				widthTimesStep = width * step;
 			double inverseArea = 1 / area;
-			for (int x = 0; x + windowWidth < width; x += step) {
+			for (int x = 0; x + windowWidth < width && len<maxlen; x += step) {
 				int satIndex = x;
-				for (int y = 0; y + windowHeight < height; y += step) {
+				for (int y = 0; y + windowHeight < height && len<maxlen; y += step) {
 					int satIndex1 = satIndex + windowWidth,
 						satIndex2 = satIndex + windowHeightTimesWidth,
 						satIndex3 = satIndex2 + windowWidth,
@@ -503,10 +507,9 @@ struct _objectdetect {
 						// Evaluate complex classifiers aka 'trees':
 						double complexClassifierSum = 0;
 						for (int j = 0, jEnd = classifierUint32[++i]; j < jEnd; ++j) {
-							
 							// Evaluate simple classifiers aka 'nodes':
 							double simpleClassifierSum = 0;
-							
+
 							if (classifierUint32[++i]) {
 								// Simple classifier is tilted:
 								for (int kEnd = i + classifierUint32[++i]; i < kEnd; ) {
@@ -538,14 +541,20 @@ struct _objectdetect {
 							break;
 						}
 					}
-					//if (found) rects.push([x, y, windowWidth, windowHeight]);
+					if (found && len<maxlen) {
+						int* r = rects + 4 * len;
+						r[0] = x;
+						r[1] = y;
+						r[2] = windowWidth;
+						r[3] = windowHeight;
+						++len;
+					}
 					satIndex += widthTimesStep;
 				}
 			}
-			return rects.rows;
+			return len;
 		}
 
-#if 0
 		/**
 		 * Groups rectangles together using a rectilinear distance metric. For
 		 * each group of related rectangles, a representative mean rectangle
@@ -556,25 +565,25 @@ struct _objectdetect {
 		 *  
 		 * @return {Array} Mean rectangles (Arrays of 4 floats)
 		 */
-		groupRectangles = function(rects, minNeighbors, confluence) {
-			var rectsLength = rects.length;
-			if (!confluence) confluence = 1.0;
+		int groupRectangles(const int* rects, int rectsLength, int minNeighbors, double confluence, int* filteredGroups) {
+			if (confluence<1) confluence = 1.0;
 			
 	    	// Partition rects into similarity classes:
-	    	var numClasses = 0;
-	    	var labels = new Array(rectsLength);
-			for (var i = 0; i < labels.length; ++i) {
+	    	int i, j, numClasses = 0;
+			int* labels = NULL;
+			MYREALLOC(labels, rectsLength);
+			for (i = 0; i < rectsLength; ++i) {
 				labels[i] = 0;
 			}
 			
-			for (var i = 0; i < rectsLength; ++i) {
-				var found = false;
-				for (var j = 0; j < i; ++j) {
+			for (i = 0; i < rectsLength; ++i) {
+				int found = false;
+				for (j = 0; j < i; ++j) {
 					
 					// Determine similarity:
-					var rect1 = rects[i];
-					var rect2 = rects[j];
-			        var delta = confluence * (Math_min(rect1[2], rect2[2]) + Math_min(rect1[3], rect2[3]));
+					const int* rect1 = rects + 4 * i;
+					const int* rect2 = rects + 4 * j;
+			        double delta = confluence * (Math_min(rect1[2], rect2[2]) + Math_min(rect1[3], rect2[3]));
 			        if (Math.abs(rect1[0] - rect2[0]) <= delta &&
 			        	Math.abs(rect1[1] - rect2[1]) <= delta &&
 			        	Math.abs(rect1[0] + rect1[2] - rect2[0] - rect2[2]) <= delta &&
@@ -591,43 +600,48 @@ struct _objectdetect {
 			}
 			
 			// Compute average rectangle (group) for each cluster:
-			var groups = new Array(numClasses);
-			
-			for (var i = 0; i < numClasses; ++i) {
-				groups[i] = [0, 0, 0, 0, 0];
+			int* groups = NULL;
+			MYREALLOC(groups, 5 * numClasses);
+
+			for (i = 0; i < 5*numClasses; ++i) {
+				groups[i] = 0;
 			}
 			
-			for (var i = 0; i < rectsLength; ++i) {
-				var rect = rects[i],
-					group = groups[labels[i]];
+			for (i = 0; i < rectsLength; ++i) {
+				const int* rect = rects + 4 * i;
+				int* group = groups + 5*labels[i];
 				group[0] += rect[0];
 				group[1] += rect[1];
 				group[2] += rect[2];
 				group[3] += rect[3];
 				++group[4];
 			}
-			
-			for (var i = numClasses - 1; i >= 0; --i) {
-				var numNeighbors = groups[i][4];
+
+			int numGroups = 0;
+			for (i = 0; i < numClasses; ++i) {
+				int* group = groups + 5 * i;
+				int numNeighbors = group[4];
 				if (numNeighbors >= minNeighbors) {
-					var group = groups[i];
-					group[0] /= numNeighbors;
-					group[1] /= numNeighbors;
-					group[2] /= numNeighbors;
-					group[3] /= numNeighbors;
-				} else groups.splice(i, 1);
+					int* out = groups + numGroups *5;
+					numGroups++;
+					out[0] = group[0] / numNeighbors;
+					out[1] = group[1] / numNeighbors;
+					out[2] = group[2] / numNeighbors;
+					out[3] = group[3] / numNeighbors;
+					out[4] = numNeighbors;
+				}
 			}
-			
+			numClasses = numGroups;
+			numGroups = 0;
 			// Filter out small rectangles inside larger rectangles:
-			var filteredGroups = [];
-			for (var i = 0; i < numClasses; ++i) {
-		        var r1 = groups[i];
+			for (i = 0; i < numClasses; ++i) {
+		        int* r1 = groups+ 5*i;
 		        
-		        for (var j = 0; j < numClasses; ++j) {
-		        	if (i === j) continue;
-		            var r2 = groups[j];
-		            var dx = r2[2] * 0.2;
-		            var dy = r2[3] * 0.2;
+		        for (j = 0; j < numClasses; ++j) {
+		        	if (i == j) continue;
+		            int* r2 = groups + 5*j;
+		            int dx = r2[2] * 0.2;
+					int dy = r2[3] * 0.2;
 		            
 		            if (r1[0] >= r2[0] - dx &&
 		                r1[1] >= r2[1] - dy &&
@@ -637,14 +651,19 @@ struct _objectdetect {
 		            }
 		        }
 		        
-		        if (j === numClasses) {
-		        	filteredGroups.push(r1);
+		        if (j == numClasses) {
+					int* out = filteredGroups + 4*numGroups;;
+					out[0] = r1[0];
+					out[1] = r1[1];
+					out[2] = r1[2];
+					out[4] = r1[3];
 		        }
 		    }
-			return filteredGroups;
-		};
+			FREE(labels);
+			FREE(groups);
+			return numGroups;
+		}
 
-#endif
 
 		/**
 		 * Creates a new detector - basically a convenient wrapper class around
@@ -656,34 +675,6 @@ struct _objectdetect {
 		 * @param scaleFactor Scaling factor for multi-scale detection
 		 * @param classifier  Compiled cascade classifier
 		 */
-		matrix_t context;
-		int tilted;
-		double scaleFactor;
-		int numScales;
-		matrix_t scaledGray;
-		matrix_t compiledClassifiers;
-		matrix_t compiledClassifiersLens;
-
-		void init(int width, int height, double scaleFactor, const float* classifier, int classifier_length) {
-			this->context.resize(width, height, 3);
-			--classifier_length;
-			this->tilted = (int)*classifier++;
-			this->scaleFactor = scaleFactor;
-			this->numScales = (int)(Math.log(Math_min(width / classifier[0], height / classifier[1])) / Math.log(scaleFactor));
-			this->scaledGray.resize(width, height, jsfeat.U8_t| jsfeat.C4_t);
-			//this->compiledClassifiers;
-			double scale = 1;
-
-			compiledClassifiers.resize(this->numScales, classifier_length, jsfeat.F32_t|jsfeat.C1_t);
-			compiledClassifiersLens.resize(this->numScales, 1, jsfeat.S32_t | jsfeat.C1_t);
-			for (int i = 0; i < this->numScales; ++i) {
-				int scaledWidth = (int)(width / scale);
-				int scaledHeight = (int)(height / scale);
-				compiledClassifiersLens.i32[i] = compileClassifier(classifier, classifier_length, scaledWidth, scaledHeight, this->compiledClassifiers.f32 + i*classifier_length);
-				scale *= scaleFactor;
-			}
-		}
-
 
 		/**
 		 * Multi-scale object detection on image, video or canvas elements. 
@@ -695,52 +686,56 @@ struct _objectdetect {
 		 * 
 		 * @return Grouped rectangles
 		 */
-		void detect(const matrix_t& image, int group, int stepSize, const int* Roi) {
+		static int cmpfunc(const void * a, const void * b)
+		{
+			return (((int*)a)[2] - ((int*)b)[2]);
+		}
+		int detect(const matrix_t& image, int group, int stepSize, double scaleFactor, const float* classifier, int classifier_length, int* rects, int maxlen) {
 			if (!stepSize) stepSize = 1;
-			
-			int width = this->context.width;
-			int height = this->context.height;
+			int len = 0;
+			matrix_t sat;
+			matrix_t rsat;
+			matrix_t ssat;
+			matrix_t scaledGray;
+			int width = image.width;
+			int height = image.height;
+			int i, j;
+			float* compiledClassifiers = NULL;
+			--classifier_length;
+			int tilted = (int)*classifier++;
+			int numScales = (int)(Math.log(Math_min(width / classifier[0], height / classifier[1])) / Math.log(scaleFactor));
+			MYREALLOC(compiledClassifiers, classifier_length);
+			//this->scaledGray.resize(width, height, 1, CC_8U);
+			//drawImage(image, this->context, 0, 0, width, height);
 
-#if 0
-			if (Roi) 
-				this->context.drawImage(image, Roi[0], Roi[1], Roi[2], Roi[3], 0, 0, width, height);
-			else
-				this->context.drawImage(image, 0, 0, width, height);
-			var imageData = this->context.getImageData(0, 0, width, height).data;
-			this->gray = objectdetect.convertRgbaToGrayscale(imageData, this->gray);
-			
-			var rects = [];
-			var scale = 1;
-			for (var i = 0; i < this->numScales; ++i) {
-				var scaledWidth = ~~(width / scale);
-				var scaledHeight = ~~(height / scale);
-				
-				if (scale == 1) {
-					this->scaledGray.set(this->gray);
-				} else {
-					this->scaledGray = objectdetect.rescaleImage(this->gray, width, height, scale, this->scaledGray);
+			double scale = 1;
+			for (i = 0; i < numScales; ++i) {
+				int scaledWidth = (int)(width / scale);
+				int scaledHeight = (int)(height / scale);
+				int compiledClassifiersLens;
+				compiledClassifiersLens  = compileClassifier(classifier, classifier_length, scaledWidth, scaledHeight, compiledClassifiers);
+				rescaleImage(image, width, height, scale, scaledGray);
+				computeSat(scaledGray, scaledWidth, scaledHeight, sat);
+				computeSquaredSat(scaledGray, scaledWidth, scaledHeight, ssat);
+				if (tilted) computeRsat(scaledGray, scaledWidth, scaledHeight, rsat);
+				//this->cannysat = NULL;
+				uint32* cannysat = NULL;
+				j = len;
+				len = detect_(sat.u32, rsat.u32, ssat.u32, cannysat, scaledWidth, scaledHeight, stepSize, compiledClassifiers, compiledClassifiersLens, rects, len, maxlen);
+				for (; j < len; ++j) {
+					int* r = rects + 4 * j;
+					r[0] *= width / scaledWidth;
+					r[1] *= height / scaledHeight;
+					r[2] *= width / scaledWidth;
+					r[3] *= height / scaledHeight;
 				}
-				
-				this->sat = objectdetect.computeSat(this->scaledGray, scaledWidth, scaledHeight, this->sat);
-				this->ssat = objectdetect.computeSquaredSat(this->scaledGray, scaledWidth, scaledHeight, this->ssat);
-				if (this->tilted) this->rsat = objectdetect.computeRsat(this->scaledGray, scaledWidth, scaledHeight, this->rsat);
-				this->cannysat = undefined;
 
-				var newRects = objectdetect.detect(this->sat, this->rsat, this->ssat, this->cannysat, scaledWidth, scaledHeight, stepSize, this->compiledClassifiers[i]);
-				for (var j = newRects.length - 1; j >= 0; --j) {
-					newRects[j][0] *= width / scaledWidth;
-					newRects[j][1] *= height / scaledHeight;
-					newRects[j][2] *= width / scaledWidth;
-					newRects[j][3] *= height / scaledHeight;
-				}
-				rects = rects.concat(newRects);
-				
-				scale *= this->scaleFactor;
-			}				
-			return (group ? objectdetect.groupRectangles(rects, group) : rects).sort(function(r1, r2) {return r2[4] - r1[4];});
-#endif
+				scale *= scaleFactor;
+			}
+			FREE(compiledClassifiers);
+			len = (group ? groupRectangles(rects, len, group, 0, rects) : len);
+			//sort(function(r1, r2) { return r2[4] - r1[4]; });
+			qsort(rects, len, 4*sizeof(int), cmpfunc);
+			return len;
 		}
 };
-
-#if 0
-#endif
