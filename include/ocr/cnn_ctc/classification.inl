@@ -167,7 +167,7 @@ bool Classifier::Init(const string& trained_file, const string& model_file,
 
 int Classifier::FindMaxChannelLayer()
 {
-	const vector<shared_ptr<Blob<float> > >&blobs = net_->blobs();
+	const vector<std::shared_ptr<Blob<float> > >&blobs = net_->blobs();
 	int maxchannels = 0;
 	int idx = -1;
 	for (int i = (int)blobs.size() - 1; i >= 0; i--)
@@ -386,7 +386,7 @@ std::vector< std::vector<float> > Classifier::GetLastBlockFeature(const cv::Mat&
 
 	net_->Forward();
 
-	const vector<shared_ptr<Blob<float> > >&blobs = net_->blobs();
+	const vector<std::shared_ptr<Blob<float> > >&blobs = net_->blobs();
 
 	int idx = blobs.size() - 1;
 
@@ -511,7 +511,7 @@ std::vector<float> Classifier::GetLayerFeatureMaps(const string& strLayerName, s
 {
 	std::vector<float> v;
 
-	const shared_ptr<Blob<float> >& blob = net_->blob_by_name(strLayerName);
+	const std::shared_ptr<Blob<float> >& blob = net_->blob_by_name(strLayerName);
 
 	if (!blob)
 		return v;
@@ -542,7 +542,7 @@ std::vector<float> Classifier::GetLayerFeatureMaps(const string& strLayerName, s
 
 int Classifier::GetFeatureDim()
 {
-	const vector<shared_ptr<Blob<float> > >&blobs = net_->blobs();
+	const vector<std::shared_ptr<Blob<float> > >&blobs = net_->blobs();
 	for (int i = (int)blobs.size() - 1; i >= 0; i--)
 	{
 		if (blobs[i]->channels() > 1000)
@@ -641,7 +641,7 @@ void Classifier::GetInputImageSize(int &w, int &h)
 
 float Classifier::Pruning(float weight_t, const char* saveas_name)
 {
-	const vector<shared_ptr<Layer<float> > >&layers = net_->layers();
+	const vector<std::shared_ptr<Layer<float> > >&layers = net_->layers();
 #if 0
 	int scale = 1000;
 	vector<uint32_t> hist(scale*2+2,0);
@@ -711,7 +711,7 @@ cv::Mat Classifier::EstimateReceptiveField(const cv::Mat& img, const string& lay
 {
 	//通过对全图像素做修改，看指定层feature map的变化情况，来确定指定层指定神经元的感觉野
 	Forward(img, layerName);
-	const shared_ptr<Blob<float> >& blob = net_->blob_by_name(layerName);
+	const std::shared_ptr<Blob<float> >& blob = net_->blob_by_name(layerName);
 	const float* begin = blob->cpu_data();
 	const float* end = begin + blob->count();
 	vector<int> outshape = blob->shape();//BxCxHxW, or WxBxC (lstm)
@@ -910,7 +910,7 @@ void Classifier::GetLayerFeatureMapSize(int w, int h, const std::string& layerNa
 	}
 
 
-	const shared_ptr<Blob<float> >& blob = net_->blob_by_name(layerName);
+	const std::shared_ptr<Blob<float> >& blob = net_->blob_by_name(layerName);
 
 	if (blob->shape().size() == 4)
 	{

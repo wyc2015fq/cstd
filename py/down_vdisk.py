@@ -126,7 +126,7 @@ def runallu(url, path):
                 runalls(s['url'], path1)
 
 if 1:
-    url = 'http://vdisk.weibo.com/u/2322565925'
+    url = 'http://vdisk.weibo.com/u/1549252461'
     runallu(url, 'E:/微盘/')
 # print(data)
 

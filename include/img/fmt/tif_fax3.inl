@@ -114,7 +114,7 @@ typedef struct {
 } Fax3CodecState;
 
 #define is2DEncoding(sp)   (sp->groupoptions & GROUP3OPT_2DENCODING)
-#define isAligned(p,t)  ((((unsigned long)(p)) & (sizeof (t)-1)) == 0)
+#define isAligned(p,t)  ((((size_t)(p)) & (sizeof (t)-1)) == 0)
 
 /*
  * Group 3 and Group 4 Decoding.

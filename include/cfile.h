@@ -588,7 +588,7 @@ CC_INLINE int asprintf(char** pStr, const char* fmt, ...)
 #endif
 CC_INLINE int str_load(const char* fname, str_t* s)
 {
-  int len, readed_len;
+  size_t len, readed_len;
   FILE* pf;
   pf = fopen(fname, "rb");
   if (pf) {
@@ -611,7 +611,7 @@ CC_INLINE int str_loadasni(const char* fn, str_t* s)
 }
 CC_INLINE int str_save(const char* fname, const str_t* s)
 {
-  int writeed_len;
+	size_t writeed_len;
   FILE* pf;
   pf = fopen(fname, "wb");
   if (pf) {
@@ -720,14 +720,14 @@ static uint32 stream_filesize(stream_t* fp)
   return pos;
 }
 CC_INLINE int stream_puts(stream_t* fp, const char* str) {
-  int len = strlen(str);
+  size_t len = strlen(str);
   return stream_write(fp, str, len);
 }
 CC_INLINE int stream_rewind(stream_t* fp) {
   return stream_seek(fp, 0, SEEK_SET);
 }
 CC_INLINE int stream_puts2(const char* str, stream_t* fp) {
-  int len = strlen(str);
+	size_t len = strlen(str);
   return stream_write(fp, str, len);
 }
 CC_INLINE char* stream_gets(char* buf, int bufsize, stream_t* fp) {
