@@ -94,7 +94,7 @@ def getMaxDistPair(l1, l2):
     return a1, a2
 
 
-def loadlist(fn, encoding):
+def loadlist_chrome(fn, encoding):
     fp = open(fn, 'r', encoding=encoding)
     content = fp.read()
     fp.close()
@@ -116,6 +116,27 @@ def loadlist(fn, encoding):
     # print(t)
     return l1
 
+def loadlist_firefox(fn, encoding):
+    fp = open(fn, 'r', encoding=encoding)
+    content = fp.read()
+    fp.close()
+    # content = u''
+    l11 = content.split(u'\n')
+    if len(l11)<3:
+        return loadlist_chrome(fn, encoding)
+    # print(t)
+    l11 = [i.strip(' ') for i in l11]
+    if '收起' in l11:
+        l11.remove('收起')
+    return l11
+
+if 0:
+    with open((os.path.join('rename_bilibili.txt')), 'rb') as f:
+        data = f.read()
+    flvpath = data.decode('utf-8')
+    l1 = loadlist_firefox(flvpath + '/新建文本文档.txt', encoding='gbk')
+    print(flvpath)
+    print(l1)
 
 def dirlist(flvpath):
     l2 = []
@@ -164,23 +185,30 @@ def renalllist(flvpath, l2, ss):
             fn = ss[i2] + ext
             fn = filename + ' ' + ss[i2] + ext
             #print(flvpath+'/'+fn)
+            fn = fn.replace(':', '-')
+            fn = fn.replace('?', ' ')
             os.rename(flvpath+'/'+str2, flvpath+'/'+fn)
 
-flvpath = 'E:/_new/_ok1/考研计算机网络'
-flvpath = 'F:/kk/_unname/期权、期货及其他衍生产品'
-flvpath = '//169.254.233.118/kk/_ok/北京大学-操作系统原理'
-with open((os.path.join('rename_bilibili.txt')), 'rb') as f:
-	data = f.read()
-flvpath = data.decode('utf-8')
-l1 = loadlist(flvpath + '/新建文本文档.txt', encoding='gbk')
-l2 = dirlist(flvpath)
-print(l1)
-print(l2)
-ss = getName(l2, l1)
-print(get_prettytable(l1, ss))
-renalllist(flvpath, ss, l1)
-print([len(l1), len(ss)])
-# exit(0)
+
+import clip
+#print(clip.gettext().decode('gbk'))
+if 1:
+    flvpath = 'E:/_new/_ok1/考研计算机网络'
+    flvpath = 'F:/kk/_unname/期权、期货及其他衍生产品'
+    flvpath = '//169.254.233.118/kk/_ok/北京大学-操作系统原理'
+    #with open((os.path.join('rename_bilibili.txt')), 'rb') as f:
+    #    data = f.read()
+    #flvpath = data.decode('utf-8')
+    flvpath = clip.gettext().decode('gbk')
+    l1 = loadlist_firefox(flvpath + '/新建文本文档.txt', encoding='gbk')
+    l2 = dirlist(flvpath)
+    print(l1)
+    print(l2)
+    ss = getName(l2, l1)
+    print(get_prettytable(l1, ss))
+    renalllist(flvpath, ss, l1)
+    print([len(l1), len(ss)])
+    # exit(0)
 
 
 # print(ss)

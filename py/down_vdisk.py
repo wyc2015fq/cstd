@@ -125,8 +125,11 @@ def runallu(url, path):
             if s['class'] == 'vd_icon32_v2 vd_folder':
                 runalls(s['url'], path1)
 
+import clip
+# 1400818390
 if 1:
-    url = 'http://vdisk.weibo.com/u/1549252461'
+    url = 'http://vdisk.weibo.com/u/'
+    url = url + clip.gettext().decode('gbk')
     runallu(url, 'E:/微盘/')
 # print(data)
 
