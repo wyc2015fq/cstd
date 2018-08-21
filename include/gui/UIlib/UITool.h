@@ -14,11 +14,11 @@
 class UILIB_API CToolbarUI : public CHorizontalLayoutUI
 {
 public:
-   CToolbarUI();
+  CToolbarUI();
 
-   LPCTSTR GetClass() const;
-   SIZE EstimateSize(SIZE szAvailable);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
+  LPCTSTR GetClass() const;
+  SIZE EstimateSize(SIZE szAvailable);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
 };
 
 
@@ -28,16 +28,16 @@ public:
 class UILIB_API CToolbarTitlePanelUI : public CControlUI
 {
 public:
-   CToolbarTitlePanelUI();
+  CToolbarTitlePanelUI();
 
-   void SetPadding(int iPadding);
+  void SetPadding(int iPadding);
 
-   LPCTSTR GetClass() const;   
-   SIZE EstimateSize(SIZE szAvailable);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
+  LPCTSTR GetClass() const;
+  SIZE EstimateSize(SIZE szAvailable);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
 
 protected:
-   int m_iPadding;
+  int m_iPadding;
 };
 
 
@@ -47,9 +47,9 @@ protected:
 class UILIB_API CToolSeparatorUI : public CControlUI
 {
 public:
-   LPCTSTR GetClass() const;
-   SIZE EstimateSize(SIZE szAvailable);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
+  LPCTSTR GetClass() const;
+  SIZE EstimateSize(SIZE szAvailable);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
 };
 
 
@@ -59,9 +59,9 @@ public:
 class UILIB_API CToolGripperUI : public CControlUI
 {
 public:
-   LPCTSTR GetClass() const;
-   SIZE EstimateSize(SIZE szAvailable);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
+  LPCTSTR GetClass() const;
+  SIZE EstimateSize(SIZE szAvailable);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
 };
 
 
@@ -71,11 +71,11 @@ public:
 class UILIB_API CToolButtonUI : public CButtonUI
 {
 public:
-   CToolButtonUI();
+  CToolButtonUI();
 
-   LPCTSTR GetClass() const;
+  LPCTSTR GetClass() const;
 
-   void DoPaint(HDC hDC, const RECT& rcPaint);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
 };
 
 
@@ -85,10 +85,10 @@ public:
 class UILIB_API CStatusbarUI : public CContainerUI
 {
 public:
-   LPCTSTR GetClass() const;
+  LPCTSTR GetClass() const;
 
-   SIZE EstimateSize(SIZE szAvailable);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
+  SIZE EstimateSize(SIZE szAvailable);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
 };
 
 

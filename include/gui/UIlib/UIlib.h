@@ -1,8 +1,8 @@
 
 #ifdef UILIB_EXPORTS
-#define UILIB_API 
+#define UILIB_API
 #else
-#define UILIB_API 
+#define UILIB_API
 #endif
 
 #include <windows.h>

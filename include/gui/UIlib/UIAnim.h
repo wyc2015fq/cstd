@@ -9,10 +9,9 @@
 /////////////////////////////////////////////////////////////////////////////////////
 //
 
-typedef enum
-{
-   UIANIMTYPE_FLAT,
-   UIANIMTYPE_SWIPE,
+typedef enum {
+  UIANIMTYPE_FLAT,
+  UIANIMTYPE_SWIPE,
 } UITYPE_ANIM;
 
 
@@ -22,40 +21,36 @@ typedef enum
 class UILIB_API CAnimJobUI
 {
 public:
-   CAnimJobUI(const CAnimJobUI& src);
-   CAnimJobUI(UITYPE_ANIM AnimType, DWORD dwStartTick, DWORD dwDuration, COLORREF clrBack, COLORREF clrKey, RECT rcFrom, int xtrans, int ytrans, int ztrans, int alpha, float zrot);
+  CAnimJobUI(const CAnimJobUI & src);
+  CAnimJobUI(UITYPE_ANIM AnimType, DWORD dwStartTick, DWORD dwDuration, COLORREF clrBack, COLORREF clrKey, RECT rcFrom, int xtrans, int ytrans, int ztrans, int alpha, float zrot);
 
-   typedef enum
-   {
-      INTERPOLATE_LINEAR,
-      INTERPOLATE_COS,
-   } INTERPOLATETYPE;
+  typedef enum {
+    INTERPOLATE_LINEAR,
+    INTERPOLATE_COS,
+  } INTERPOLATETYPE;
 
-   typedef struct PLOTMATRIX
-   {
-      int xtrans;
-      int ytrans;
-      int ztrans;
-      int alpha;
-      float zrot;
-   } PLOTMATRIX;
+  typedef struct PLOTMATRIX {
+    int xtrans;
+    int ytrans;
+    int ztrans;
+    int alpha;
+    float zrot;
+  } PLOTMATRIX;
 
-   UITYPE_ANIM AnimType;
-   DWORD dwStartTick;
-   DWORD dwDuration;
-   int iBufferStart;
-   int iBufferEnd;
-   union
-   {
-      struct 
-      {
-         COLORREF clrBack;
-         COLORREF clrKey;
-         RECT rcFrom;
-         PLOTMATRIX mFrom;
-         INTERPOLATETYPE iInterpolate;
-      } plot;
-   } data;
+  UITYPE_ANIM AnimType;
+  DWORD dwStartTick;
+  DWORD dwDuration;
+  int iBufferStart;
+  int iBufferEnd;
+  union {
+    struct {
+      COLORREF clrBack;
+      COLORREF clrKey;
+      RECT rcFrom;
+      PLOTMATRIX mFrom;
+      INTERPOLATETYPE iInterpolate;
+    } plot;
+  } data;
 };
 
 

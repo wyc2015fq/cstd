@@ -13,9 +13,9 @@
 class UILIB_API CTitleShadowUI : public CControlUI
 {
 public:
-   LPCTSTR GetClass() const;
-   SIZE EstimateSize(SIZE szAvailable);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
+  LPCTSTR GetClass() const;
+  SIZE EstimateSize(SIZE szAvailable);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
 };
 
 
@@ -25,9 +25,9 @@ public:
 class UILIB_API CListHeaderShadowUI : public CControlUI
 {
 public:
-   LPCTSTR GetClass() const;
-   SIZE EstimateSize(SIZE szAvailable);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
+  LPCTSTR GetClass() const;
+  SIZE EstimateSize(SIZE szAvailable);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
 };
 
 
@@ -37,9 +37,9 @@ public:
 class UILIB_API CSeparatorLineUI : public CControlUI
 {
 public:
-   LPCTSTR GetClass() const;
-   SIZE EstimateSize(SIZE szAvailable);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
+  LPCTSTR GetClass() const;
+  SIZE EstimateSize(SIZE szAvailable);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
 };
 
 
@@ -49,9 +49,9 @@ public:
 class UILIB_API CFadedLineUI : public CControlUI
 {
 public:
-   LPCTSTR GetClass() const;
-   SIZE EstimateSize(SIZE szAvailable);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
+  LPCTSTR GetClass() const;
+  SIZE EstimateSize(SIZE szAvailable);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
 };
 
 

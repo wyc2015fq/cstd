@@ -14,40 +14,40 @@
 class UILIB_API CTabFolderUI : public CContainerUI, public IListOwnerUI
 {
 public:
-   CTabFolderUI();
+  CTabFolderUI();
 
-   LPCTSTR GetClass() const;
+  LPCTSTR GetClass() const;
 
-   void Init();
+  void Init();
 
-   bool Add(CControlUI* pControl);
+  bool Add(CControlUI* pControl);
 
-   int GetCurSel() const;
-   bool SelectItem(int iIndex);
+  int GetCurSel() const;
+  bool SelectItem(int iIndex);
 
-   void Event(TEventUI& Event);
+  void Event(TEventUI & Event);
 
-   void SetPos(RECT rc);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
+  void SetPos(RECT rc);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
 
-   void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
+  void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 
 protected:
-   int m_iCurSel;
-   RECT m_rcPage;
-   RECT m_rcClient;
-   CControlUI* m_pCurPage;
-   CStdValArray m_aTabAreas;
+  int m_iCurSel;
+  RECT m_rcPage;
+  RECT m_rcClient;
+  CControlUI* m_pCurPage;
+  CStdValArray m_aTabAreas;
 };
 
 
 class UILIB_API CTabPageUI : public CContainerUI
 {
 public:
-   CTabPageUI();
-   LPCTSTR GetClass() const;
+  CTabPageUI();
+  LPCTSTR GetClass() const;
 
-   bool Activate();
+  bool Activate();
 };
 
 

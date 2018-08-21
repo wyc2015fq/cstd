@@ -12,29 +12,29 @@
 class UILIB_API CButtonUI : public CControlUI
 {
 public:
-   CButtonUI();
+  CButtonUI();
 
-   LPCTSTR GetClass() const;
-   UINT GetControlFlags() const;
+  LPCTSTR GetClass() const;
+  UINT GetControlFlags() const;
 
-   bool Activate();
+  bool Activate();
 
-   void SetText(LPCTSTR pstrText);
+  void SetText(LPCTSTR pstrText);
 
-   void SetWidth(int cxWidth);
-   void SetPadding(int cx, int cy);
+  void SetWidth(int cxWidth);
+  void SetPadding(int cx, int cy);
 
-   void Event(TEventUI& event);
+  void Event(TEventUI & event);
 
-   SIZE EstimateSize(SIZE szAvailable);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
-   void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
+  SIZE EstimateSize(SIZE szAvailable);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
+  void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 
 protected:
-   int m_cxWidth;
-   SIZE m_szPadding;
-   UINT m_uTextStyle;
-   UINT m_uButtonState;
+  int m_cxWidth;
+  SIZE m_szPadding;
+  UINT m_uTextStyle;
+  UINT m_uButtonState;
 };
 
 
@@ -44,28 +44,28 @@ protected:
 class UILIB_API COptionUI : public CControlUI
 {
 public:
-   COptionUI();
+  COptionUI();
 
-   LPCTSTR GetClass() const;
-   UINT GetControlFlags() const;
+  LPCTSTR GetClass() const;
+  UINT GetControlFlags() const;
 
-   bool Activate();
+  bool Activate();
 
-   bool IsChecked() const;
-   void SetCheck(bool bSelected);
-   void SetWidth(int cxWidth);
-   
-   void Event(TEventUI& event);
+  bool IsChecked() const;
+  void SetCheck(bool bSelected);
+  void SetWidth(int cxWidth);
 
-   SIZE EstimateSize(SIZE szAvailable);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
-   void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
+  void Event(TEventUI & event);
+
+  SIZE EstimateSize(SIZE szAvailable);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
+  void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 
 protected:
-   bool m_bSelected;
-   UINT m_uStyle;
-   UINT m_uButtonState;
-   int m_cxWidth;
+  bool m_bSelected;
+  UINT m_uStyle;
+  UINT m_uButtonState;
+  int m_cxWidth;
 };
 
 

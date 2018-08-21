@@ -12,23 +12,23 @@
 class UILIB_API CSingleLinePickUI : public CControlUI
 {
 public:
-   CSingleLinePickUI();
+  CSingleLinePickUI();
 
-   void SetWidth(int cxWidth);
+  void SetWidth(int cxWidth);
 
-   LPCTSTR GetClass() const;
-   UINT GetControlFlags() const;
-   void Event(TEventUI& event);
+  LPCTSTR GetClass() const;
+  UINT GetControlFlags() const;
+  void Event(TEventUI & event);
 
-   SIZE EstimateSize(SIZE szAvailable);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
+  SIZE EstimateSize(SIZE szAvailable);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
 
 protected:
-   RECT m_rcButton;
-   RECT m_rcLinks[8];
-   int m_nLinks;
-   int m_cxWidth;
-   UINT m_uButtonState;
+  RECT m_rcButton;
+  RECT m_rcLinks[8];
+  int m_nLinks;
+  int m_cxWidth;
+  UINT m_uButtonState;
 };
 
 
@@ -38,39 +38,39 @@ protected:
 class UILIB_API CDropDownUI : public CContainerUI, public IListOwnerUI
 {
 public:
-   CDropDownUI();
+  CDropDownUI();
 
-   LPCTSTR GetClass() const;
-   LPVOID GetInterface(LPCTSTR pstrName);
-   
-   void Init();
-   UINT GetControlFlags() const;
+  LPCTSTR GetClass() const;
+  LPVOID GetInterface(LPCTSTR pstrName);
 
-   CStdString GetText() const;
+  void Init();
+  UINT GetControlFlags() const;
 
-   SIZE GetDropDownSize() const;
-   void SetDropDownSize(SIZE szDropBox);
+  CStdString GetText() const;
 
-   int GetCurSel() const;  
-   bool SelectItem(int iIndex);
+  SIZE GetDropDownSize() const;
+  void SetDropDownSize(SIZE szDropBox);
 
-   bool Add(CControlUI* pControl);
-   bool Remove(CControlUI* pControl);
-   void RemoveAll();
+  int GetCurSel() const;
+  bool SelectItem(int iIndex);
 
-   bool Activate();
+  bool Add(CControlUI* pControl);
+  bool Remove(CControlUI* pControl);
+  void RemoveAll();
 
-   void SetPos(RECT rc);
-   void Event(TEventUI& event);
-   SIZE EstimateSize(SIZE szAvailable);
-   void DoPaint(HDC hDC, const RECT& rcPaint);
+  bool Activate();
+
+  void SetPos(RECT rc);
+  void Event(TEventUI & event);
+  SIZE EstimateSize(SIZE szAvailable);
+  void DoPaint(HDC hDC, const RECT & rcPaint);
 
 protected:
-   int m_iCurSel;
-   int m_cxWidth;
-   SIZE m_szDropBox;
-   RECT m_rcButton;
-   UINT m_uButtonState;
+  int m_iCurSel;
+  int m_cxWidth;
+  SIZE m_szDropBox;
+  RECT m_rcButton;
+  UINT m_uButtonState;
 };
 
 
