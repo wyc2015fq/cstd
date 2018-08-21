@@ -8,6 +8,10 @@
 
 //#include "math/math.def"
 
+#ifndef CC_INLINE
+#define CC_INLINE static
+#endif
+
 //Ñ¹Ëõ·½·¨
 enum {
   csBI_RGB        = 0, // Î´Ñ¹Ëõ
