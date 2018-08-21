@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="BaseObject">
+      <UniqueIdentifier>{ec5db3a6-cd2c-4db5-95e8-3f0288686987}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BaseType">
+      <UniqueIdentifier>{4252bf8b-1a94-4ce8-9ebf-0fc2a37547e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Json">
+      <UniqueIdentifier>{58437fec-5765-483d-9e91-f15f9b13b3ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HardWare">
+      <UniqueIdentifier>{d5a3944a-dcaf-4000-aca7-e2fd97d3258f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="algorithm">
+      <UniqueIdentifier>{9933293a-bb79-45dd-90ad-e93ba0df5dc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PMGrid">
+      <UniqueIdentifier>{017478df-56ce-4398-ae00-cf8209ae2396}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PMEvent">
+      <UniqueIdentifier>{90f49992-2a12-4abb-be48-be2463868b72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PMScrollBar">
+      <UniqueIdentifier>{07735617-f0b9-423a-83f9-81a873276fd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PMEdit">
+      <UniqueIdentifier>{9d819b59-ff9e-4062-b6af-661083b7cdda}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="PMFrame.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PMThread.cpp">
+      <Filter>BaseObject</Filter>
+    </ClCompile>
+    <ClCompile Include="PMType.cpp">
+      <Filter>BaseType</Filter>
+    </ClCompile>
+    <ClCompile Include="TCommonTools.cpp">
+      <Filter>BaseType</Filter>
+    </ClCompile>
+    <ClCompile Include="PMJson.cpp">
+      <Filter>Json</Filter>
+    </ClCompile>
+    <ClCompile Include="PMCliboardManager.cpp">
+      <Filter>HardWare</Filter>
+    </ClCompile>
+    <ClCompile Include="PMPictureManager.cpp">
+      <Filter>HardWare</Filter>
+    </ClCompile>
+    <ClCompile Include="PMScreenGDI.cpp">
+      <Filter>HardWare</Filter>
+    </ClCompile>
+    <ClCompile Include="PMSpaceAlgorithm.cpp">
+      <Filter>algorithm</Filter>
+    </ClCompile>
+    <ClCompile Include="PMBaseAction.cpp">
+      <Filter>PMEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="PMInputManager.cpp">
+      <Filter>PMEvent</Filter>
+    </ClCompile>
+    <ClCompile Include="PMNavigator.cpp">
+      <Filter>PMScrollBar</Filter>
+    </ClCompile>
+    <ClCompile Include="PMScrollBar.cpp">
+      <Filter>PMScrollBar</Filter>
+    </ClCompile>
+    <ClCompile Include="PMEdit.cpp">
+      <Filter>PMEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="PMEditAction.cpp">
+      <Filter>PMEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="PMEditActionImpl.cpp">
+      <Filter>PMEdit</Filter>
+    </ClCompile>
+    <ClCompile Include="PMEditData.cpp">
+      <Filter>PMEdit</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PMFrame.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PMThread.h">
+      <Filter>BaseObject</Filter>
+    </ClInclude>
+    <ClInclude Include="PMBaseObject.h">
+      <Filter>BaseType</Filter>
+    </ClInclude>
+    <ClInclude Include="PMInclude.h">
+      <Filter>BaseType</Filter>
+    </ClInclude>
+    <ClInclude Include="PMType.h">
+      <Filter>BaseType</Filter>
+    </ClInclude>
+    <ClInclude Include="TCommonTools.h">
+      <Filter>BaseType</Filter>
+    </ClInclude>
+    <ClInclude Include="PMJson.h">
+      <Filter>Json</Filter>
+    </ClInclude>
+    <ClInclude Include="PMCliboardManager.h">
+      <Filter>HardWare</Filter>
+    </ClInclude>
+    <ClInclude Include="PMPictureManager.h">
+      <Filter>HardWare</Filter>
+    </ClInclude>
+    <ClInclude Include="PMScreenGDI.h">
+      <Filter>HardWare</Filter>
+    </ClInclude>
+    <ClInclude Include="PMSpaceAlgorithm.h">
+      <Filter>algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="PMGridConst.h">
+      <Filter>PMGrid</Filter>
+    </ClInclude>
+    <ClInclude Include="PMBaseAction.h">
+      <Filter>PMEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="PMInputManager.h">
+      <Filter>PMEvent</Filter>
+    </ClInclude>
+    <ClInclude Include="PMNavigator.h">
+      <Filter>PMScrollBar</Filter>
+    </ClInclude>
+    <ClInclude Include="PMScrollBar.h">
+      <Filter>PMScrollBar</Filter>
+    </ClInclude>
+    <ClInclude Include="PMScrollConst.h">
+      <Filter>PMScrollBar</Filter>
+    </ClInclude>
+    <ClInclude Include="PMEdit.h">
+      <Filter>PMEdit</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PMCross.cur">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="PMFrame.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="small.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="users.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PMFrame.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

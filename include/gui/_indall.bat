@@ -1,6 +1,9 @@
 
-call sd "s/ [ ]*/ /g" *.inl
 call ind *.inl
 call ind *.h
 call ind *.c
-sd "/^[ ]*$/d" *.inl
+call ind *.hpp
+call ind *.cpp
+call ind *.cxx
+
+

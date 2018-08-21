@@ -144,6 +144,8 @@ std::wstring string2wstring(const string& str, bool bSrcIsUTF8 = true)
 		-1,
 		dst,
 		len);
+	wstring wstr = dst;
+	delete[]dst;
 #else
 	//printf("=====str====%s,len=%lu\n", str.c_str(), str.size());
 	wstring wstr = convert_mb2wc("utf-8", "ucs-2", str);
@@ -153,10 +155,6 @@ std::wstring string2wstring(const string& str, bool bSrcIsUTF8 = true)
 	// 		wstr = convert_mb2wc("ascii", "ucs-2", str);
 
 #endif
-
-	wstring wstr = dst;
-	delete[]dst;
-
 
 	return wstr;
 }
@@ -460,6 +458,30 @@ void test_ocr_english(const string& imgfolder, const string& modelfolder, const 
 
 }
 
+int LoadTextFileList(const string& folder, const string& testfile, std::vector<string>& imgs) {
+	FILE* input = NULL;
+	input = fopen(testfile.c_str(), "rb");
+	if (input) {
+		char buf[1024];
+		char fname[256];
+		for (; fgets(buf, 1024, input) > 0; ) {
+			sscanf(buf, "%s", fname);
+			char* p = buf;
+			testdata_t td = { 0 };
+			for (; p = strchr(p, ' '); ) {
+				while (' ' == *p) ++p;
+				int k = atoi(p);
+				if (k>0) {
+					td.idx[td.n++] = k;
+				}
+			}
+			imgs.push_back(fname);
+		}
+		fclose(input);
+	}
+	return imgs.size();
+}
+
 int LoadTextFile(const string& folder, const string& testfile, std::vector<testdata_t>& testdata, std::vector<string>& imgs) {
 	FILE* input = NULL;
 	input = fopen(testfile.c_str(), "rb");
@@ -485,6 +507,42 @@ int LoadTextFile(const string& folder, const string& testfile, std::vector<testd
 	return testdata.size();
 }
 
+string ocr_chinese(cv::Mat img) {
+#ifdef CPU_ONLY
+	bool usegpu = false;
+#else
+	bool usegpu = true;
+#endif
+	static ICNNPredict* pCNN = NULL;
+	if (pCNN == NULL) {
+		string modelfolder = "C:\\OCR_Line\\model\\densenet-no-blstm\\";
+		pCNN = CreatePredictInstance(modelfolder.c_str(), usegpu);
+	}
+	int wstd = 0, hstd = 0;
+	pCNN->GetInputImageSize(wstd, hstd);
+	vector<string> alphabets = pCNN->GetLabels();
+
+	int w = img.cols, h = img.rows;
+	int w1 = hstd*w / h;
+	if (w1 != w && h != hstd) {
+		cv::resize(img, img, cv::Size(w1, hstd));
+	}
+
+	int start = clock();
+
+	vector<int> shape;
+	vector<float> pred = pCNN->GetOutputFeatureMap(img, shape);
+
+	int end = clock();
+	int idxBlank = 0;
+	testdata_t td;
+	vector<string>::const_iterator it = find(alphabets.begin(), alphabets.end(), "blank");
+	if (it != alphabets.end())
+		idxBlank = (int)(it - alphabets.begin());
+	string strpredict0 = GetPredictString(pred, idxBlank, alphabets, td);
+
+	return strpredict0;
+}
 
 void test_ocr_chinese(const string& imgfolder, const string& modelfolder, const string& outfile, const char* inputlistfile)
 {
@@ -549,7 +607,6 @@ void test_ocr_chinese(const string& imgfolder, const string& modelfolder, const 
 			cv::flip(img, img, 1);
 			w = img.cols, h = img.rows;
 		}
-
 
 		int w1 = hstd*w / h;
 		if (w1 != w && h != hstd)

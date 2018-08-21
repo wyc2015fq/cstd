@@ -20,12 +20,14 @@ using namespace std;
 #include <opencv2/imgproc/imgproc.hpp> 
 #endif  // USE_OPENCV
 
+using namespace cv;
 //#include "img/imgio.inl"
 
 bool loadJpeg(const char * filename, int & width, int & height, int & depth, vector<uint8_t> & bits)
 {
 #ifdef USE_OPENCV
 	cv::Mat img = cv::imread(filename, CV_LOAD_IMAGE_COLOR);
+	cv::resize(img, img, cv::Size(), 0.25, 0.25, cv::INTER_LANCZOS4);
 	width = img.cols, height = img.rows;
 	if (width > 0) {
 		depth = 3;
@@ -95,6 +97,12 @@ bool loadJpeg(const char * filename, int & width, int & height, int & depth, vec
 bool saveJpeg(const char * filename, int width, int height, int depth,
 			  vector<uint8_t> & bits)
 {
+#ifdef USE_OPENCV
+	int n = width * height * depth;
+	cv::Mat img(height, width, depth==3 ? CV_8UC3 : CV_8UC1);
+	memcpy(img.data, &bits[0], n);
+	cv::imwrite(filename, img);
+#endif
 #ifdef _IMGIO_INL_
 	img_t im[1] = { 0 };
 	IMINIT(im, height, width, &bits[0], width*depth, depth, 1);
@@ -192,13 +200,11 @@ void drawEllipse(const MSER::Region & region, int width, int height, int depth,
 	}
 }
 
-int test_mser(int argc, const char * argv[])
+int test_mser()
 {
 	// Check for correct usage of the command line
-	if (argc != 3) {
-		cerr << "Usage: " << argv[0] << " input.jpg output.jpg" << endl;
-		return -1;
-	}
+	const char* ch = "D:/code/pudn/ocr/Id_recognition/id_card9.jpg";
+	ch = "E:/OCR_Line/demo_images/005.jpg";
 	
 	// Try to load the jpeg image
 	int width;
@@ -206,7 +212,7 @@ int test_mser(int argc, const char * argv[])
 	int depth;
 	vector<uint8_t> original;
 	
-	if (!loadJpeg(argv[1], width, height, depth, original))
+	if (!loadJpeg(ch, width, height, depth, original))
 		return -1;
 	
 	// Create a grayscale image
@@ -239,7 +245,7 @@ int test_mser(int argc, const char * argv[])
 	
 	clock_t stop = clock();
 	
-	cout << "Extracted " << (regions[0].size() + regions[1].size()) << " regions from " << argv[1]
+	cout << "Extracted " << (regions[0].size() + regions[1].size()) << " regions from " << ch
 		 << " (" << width << 'x' << height << ") in "
 		 << (static_cast<double>(stop - start) / CLOCKS_PER_SEC) << "s." << endl;
 	
@@ -251,6 +257,14 @@ int test_mser(int argc, const char * argv[])
 			drawEllipse(regions[i][j], width, height, depth, original, colors[i]);
 	
 	// Save the original image
-	saveJpeg(argv[2], width, height, depth, original);
+	//saveJpeg("outl.jpg", width, height, depth, original);
+	{
+		int n = width * height * depth;
+		cv::Mat img(height, width, depth == 3 ? CV_8UC3 : CV_8UC1);
+		memcpy(img.data, &original[0], n);
+		//cv::imwrite(filename, img);
+		cv::imshow("dst", img);
+		cv::waitKey();
+	}
 	return 0;
 }
