@@ -7,8 +7,7 @@
 
 #ifndef NANA_TRAITS_HPP
 #define NANA_TRAITS_HPP
-
-#if 0
+#include <type_traits>
 
 namespace nana
 {
@@ -17,8 +16,8 @@ namespace nana
 	/// Prevent a class to be copyable
 	class noncopyable
 	{
-		noncopyable(const noncopyable&) {}
-		noncopyable& operator=(const noncopyable&) {}
+		noncopyable(const noncopyable&) = delete;
+		noncopyable& operator=(const noncopyable&) = delete;
 	protected:
 		noncopyable() = default;
 	};
@@ -26,8 +25,8 @@ namespace nana
 	/// Prevent a class to be movable
 	class nonmovable
 	{
-		nonmovable(nonmovable&) {}
-		nonmovable& operator=(nonmovable&) {}
+		nonmovable(nonmovable&&) = delete;
+		nonmovable& operator=(nonmovable&&) = delete;
 	protected:
 		nonmovable() = default;
 	};
@@ -44,21 +43,19 @@ namespace nana
 			template<typename T>
 			struct count
 			{
-				enum{value =	is_same<Param0, T>::value +
-								is_same<Param1, T>::value +
-								is_same<Param2, T>::value +
-								is_same<Param3, T>::value +
-								is_same<Param4, T>::value +
-								is_same<Param5, T>::value +
-								is_same<Param6, T>::value +
-								is_same<Param7, T>::value +
-								is_same<Param8, T>::value +
-								is_same<Param9, T>::value};
+				enum{value =	std::is_same<Param0, T>::value +
+								std::is_same<Param1, T>::value +
+								std::is_same<Param2, T>::value +
+								std::is_same<Param3, T>::value +
+								std::is_same<Param4, T>::value +
+								std::is_same<Param5, T>::value +
+								std::is_same<Param6, T>::value +
+								std::is_same<Param7, T>::value +
+								std::is_same<Param8, T>::value +
+								std::is_same<Param9, T>::value};
 			};
 		};
 	}//end namespace meta
 }//end namespace nana
-
-#endif
 
 #endif

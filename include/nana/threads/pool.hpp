@@ -55,12 +55,12 @@ namespace threads
 		struct task_signal;
 		class impl;
 
-		pool(const pool&) {}
-		pool& operator=(const pool&) {}
+		pool(const pool&) = delete;
+		pool& operator=(const pool&) = delete;
 	public:
 		pool();                             ///< Creates a group of threads.
 		pool(pool&&);
-		pool(size_t thread_number);    ///< Creates a number of threads specifed by thread_number.
+		pool(std::size_t thread_number);    ///< Creates a number of threads specifed by thread_number.
 		~pool();    ///< waits for the all running tasks till they are finished and skips all the queued tasks.
 
 		pool& operator=(pool&&);
@@ -68,14 +68,14 @@ namespace threads
 		template<typename Function>
 		void push(const Function& f)
 		{
-			task * taskptr = NULL;
+			task * taskptr = nullptr;
 
 			try
 			{
-				taskptr = new task_wrapper<typename conditional<is_function<Function>::value, Function*, Function>::type>(f);
+				taskptr = new task_wrapper<typename std::conditional<std::is_function<Function>::value, Function*, Function>::type>(f);
 				_m_push(taskptr);
 			}
-			catch(bad_alloc&)
+			catch(std::bad_alloc&)
 			{
 				delete taskptr;
 			}
@@ -96,7 +96,7 @@ namespace threads
 	{
 	public:
            /// same as Function if Function is not a function prototype, otherwise value_type is a pointer type of function
-		typedef typename conditional<is_function<Function>::value, Function*, Function>::type value_type;
+		typedef typename std::conditional<std::is_function<Function>::value, Function*, Function>::type value_type;
 
 		pool_pusher(pool& pobj, value_type fn)
 			:pobj_(pobj), value_(fn)
@@ -118,9 +118,9 @@ namespace threads
 	}
 
 	template<typename Class, typename Concept>
-	pool_pusher<function<void()> > pool_push(pool& pobj, Class& obj, void(Concept::*mf)())
+	pool_pusher<std::function<void()> > pool_push(pool& pobj, Class& obj, void(Concept::*mf)())
 	{
-		return pool_pusher<function<void()> >(pobj, bind(mf, &obj));
+		return pool_pusher<std::function<void()> >(pobj, std::bind(mf, &obj));
 	}
 
 }//end namespace threads

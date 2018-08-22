@@ -9,7 +9,7 @@ namespace nana{	namespace audio
 	namespace detail
 	{
 		//class buffer_preparation
-			buffer_preparation::buffer_preparation(audio_stream& as, size_t seconds)
+			buffer_preparation::buffer_preparation(audio_stream& as, std::size_t seconds)
 				: running_(true), wait_for_buffer_(false), as_(as)
 			{
 				//Allocate the space
@@ -18,7 +18,7 @@ namespace nana{	namespace audio
 
 				const wave_spec::format_chunck & ck = as.format();
 				block_size_ = ck.nAvgBytesPerSec;
-				for(size_t i = 0; i < seconds; ++i)
+				for(std::size_t i = 0; i < seconds; ++i)
 				{
 					char * rawbuf = new char[sizeof(meta) + ck.nAvgBytesPerSec];
 					meta * m = reinterpret_cast<meta*>(rawbuf);
@@ -26,6 +26,7 @@ namespace nana{	namespace audio
 					memset(m, 0, sizeof(meta));
 					m->dwBufferLength = static_cast<unsigned long>(block_size_);
 					m->lpData = rawbuf + sizeof(meta);
+#elif defined(__FreeBSD__)
 #elif defined(NANA_LINUX)
 					m->bufsize = ck.nAvgBytesPerSec;
 					m->buf = rawbuf + sizeof(meta);
@@ -33,7 +34,7 @@ namespace nana{	namespace audio
 					prepared_.emplace_back(m);
 				}
 
-				thr_ = thread{[this](){this->_m_prepare_routine();}};
+				thr_ = std::thread{[this](){this->_m_prepare_routine();}};
 			}
 
 			buffer_preparation::~buffer_preparation()
@@ -52,7 +53,7 @@ namespace nana{	namespace audio
 
 			buffer_preparation::meta * buffer_preparation::read()
 			{
-				unique_lock<decltype(token_buffer_)> lock(token_buffer_);
+				std::unique_lock<decltype(token_buffer_)> lock(token_buffer_);
 
 				//Wait for the buffer
 				if(0 == buffer_.size())
@@ -60,14 +61,14 @@ namespace nana{	namespace audio
 					//Before waiting, checks the thread whether it is finished
 					//it indicates the preparation is finished.
 					if(false == running_)
-						return NULL;
+						return nullptr;
 
 					wait_for_buffer_ = true;
 					cond_buffer_.wait(lock);
 
 					//NO more buffers
 					if(0 == buffer_.size())
-						return NULL;
+						return nullptr;
 				}
 				meta * m = buffer_.front();
 				buffer_.erase(buffer_.begin());
@@ -77,7 +78,7 @@ namespace nana{	namespace audio
 			//Revert the meta that returned by read()
 			void buffer_preparation::revert(meta * m)
 			{
-				lock_guard<decltype(token_prepared_)> lock(token_prepared_);
+				std::lock_guard<decltype(token_prepared_)> lock(token_prepared_);
 				auto const if_signal = prepared_.empty();
 				prepared_.emplace_back(m);
 				if(if_signal)
@@ -86,21 +87,21 @@ namespace nana{	namespace audio
 
 			bool buffer_preparation::data_finished() const
 			{
-				lock_guard<decltype(token_prepared_)> lock(token_prepared_);
+				std::lock_guard<decltype(token_prepared_)> lock(token_prepared_);
 				return ((prepared_.size() == prepared_.capacity()) && (running_ == false));
 			}
 
 			void buffer_preparation::_m_prepare_routine()
 			{
-				const size_t fixed_bufsize = 1024;
+				const std::size_t fixed_bufsize = 1024;
 				char buf[fixed_bufsize];
-				const size_t block_size = block_size_;
+				const std::size_t block_size = block_size_;
 
 				while(running_)
 				{
 					meta * m = 0;
 					{
-						unique_lock<decltype(token_prepared_)> lock(token_prepared_);
+						std::unique_lock<decltype(token_prepared_)> lock(token_prepared_);
 
 						if(prepared_.size() == 0)
 						{
@@ -113,17 +114,18 @@ namespace nana{	namespace audio
 						prepared_.pop_back();
 					}
 
-					size_t buffered = 0;
+					std::size_t buffered = 0;
 					while(buffered != block_size)
 					{
-						size_t want_bytes = block_size - buffered;
+						std::size_t want_bytes = block_size - buffered;
 						if(want_bytes > fixed_bufsize)	want_bytes = fixed_bufsize;
 
-						size_t read_bytes = as_.read(buf, want_bytes);
+						std::size_t read_bytes = as_.read(buf, want_bytes);
 						if(read_bytes)
 						{
 #if defined(NANA_WINDOWS)
 							memcpy(m->lpData + buffered, buf, read_bytes);
+#elif defined(__FreeBSD__)
 #elif defined(NANA_LINUX)
 							memcpy(m->buf + buffered, buf, read_bytes);
 #endif
@@ -134,7 +136,7 @@ namespace nana{	namespace audio
 							if(buffered == 0)
 							{
 								//PCM data is drained
-								lock_guard<decltype(token_buffer_)> lock(token_buffer_);
+								std::lock_guard<decltype(token_buffer_)> lock(token_buffer_);
 								cond_buffer_.notify_one();
 								running_ = false;
 								return;
@@ -144,10 +146,11 @@ namespace nana{	namespace audio
 					}
 #if defined(NANA_WINDOWS)
 					m->dwBufferLength = static_cast<unsigned long>(buffered);
+#elif defined(__FreeBSD__)
 #elif defined(NANA_LINUX)
 					m->bufsize = buffered;
 #endif
-					lock_guard<decltype(token_buffer_)> lock(token_buffer_);
+					std::lock_guard<decltype(token_buffer_)> lock(token_buffer_);
 					buffer_.emplace_back(m);
 					if(wait_for_buffer_)
 					{

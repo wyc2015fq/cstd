@@ -1,6 +1,6 @@
 /*
  *	A Thread Pool Implementation
- *	Copyright(C) 2003-2016 Jinhao(cnjinhao@hotmail.com)
+ *	Copyright(C) 2003-2018 Jinhao(cnjinhao@hotmail.com)
  *
  *	Distributed under the Boost Software License, Version 1.0.
  *	(See accompanying file LICENSE_1_0.txt or copy at
@@ -29,7 +29,7 @@
 #if defined(NANA_WINDOWS)
 	#include <windows.h>
 	#include <process.h>
-#elif defined(NANA_LINUX) || defined(NANA_MACOS)
+#elif defined(NANA_POSIX)
 	#include <pthread.h>
 #endif
 
@@ -69,16 +69,16 @@ namespace threads
 				impl * pool_ptr;
 				task * task_ptr;
 				thread_t	handle;
-				atomic<state>	thr_state;
+				std::atomic<state>	thr_state;
 				time_t	timestamp;
 #if defined(NANA_POSIX)
-				mutex wait_mutex;
-				condition_variable wait_cond;
-				atomic<bool> suspended;
+				std::mutex wait_mutex;
+				std::condition_variable wait_cond;
+				std::atomic<bool> suspended;
 #endif
 			};
 		public:
-			impl(size_t thr_number)
+			impl(std::size_t thr_number)
 			{
 				if(0 == thr_number) thr_number = 4;
 
@@ -87,7 +87,7 @@ namespace threads
 					pool_throbj * pto = new pool_throbj;
 					pto->pool_ptr = this;
 					pto->thr_state = state::init;
-					pto->task_ptr = NULL;
+					pto->task_ptr = nullptr;
 #if defined(NANA_WINDOWS)
 					pto->handle = (HANDLE)::_beginthreadex(0, 0, reinterpret_cast<unsigned(__stdcall*)(void*)>(&impl::_m_thr_starter), pto, 0, 0);
 #elif defined(NANA_POSIX)
@@ -127,10 +127,10 @@ namespace threads
 						else
 							break;
 					}
-					system::sleep(100);
+					nana::system::sleep(100);
 				}
 
-				vector<pool_throbj*> dup(move(container_.threads));
+				std::vector<pool_throbj*> dup(std::move(container_.threads));
 
 				for(auto thr: dup)
 				{
@@ -143,7 +143,7 @@ namespace threads
 #endif
 				}
 
-				lock_guard<decltype(mutex_)> lock(mutex_);
+				std::lock_guard<decltype(mutex_)> lock(mutex_);
 				for(auto task_ptr : container_.tasks)
 				{
 					delete task_ptr;
@@ -155,7 +155,7 @@ namespace threads
 				if(false == runflag_)
 				{
 					delete taskptr;
-					throw runtime_error("Nana.Pool: Do not accept task now");
+					throw std::runtime_error("Nana.Pool: Do not accept task now");
 				}
 
 				pool_throbj * pto = _m_pick_up_an_idle();
@@ -167,14 +167,14 @@ namespace threads
 				}
 				else
 				{
-					lock_guard<decltype(mutex_)> lock(mutex_);
+					std::lock_guard<decltype(mutex_)> lock(mutex_);
 					container_.tasks.emplace_back(taskptr);
 				}
 			}
 
 			void wait_for_signal()
 			{
-				unique_lock<mutex> lock(signal_.mutex);
+				std::unique_lock<std::mutex> lock(signal_.mutex);
 				signal_.cond.wait(lock);
 			}
 
@@ -183,7 +183,7 @@ namespace threads
 				while(true)
 				{
 					{
-						lock_guard<decltype(mutex_)> lock(mutex_);
+						std::lock_guard<decltype(mutex_)> lock(mutex_);
 						if(container_.tasks.empty())
 						{
 							bool finished = true;
@@ -199,7 +199,7 @@ namespace threads
 								return;
 						}
 					}
-					system::sleep(100);
+					nana::system::sleep(100);
 				}
 			}
 		private:
@@ -208,14 +208,14 @@ namespace threads
 				for(auto thr : container_.threads)
 					if(state::idle == thr->thr_state)
 					{
-						lock_guard<decltype(mutex_)> lock(mutex_);
+						std::lock_guard<decltype(mutex_)> lock(mutex_);
 						if(state::idle == thr->thr_state)
 						{
 							thr->thr_state = state::run;
 							return thr;
 						}
 					}
-				return NULL;
+				return nullptr;
 			}
 
 			void _m_suspend(pool_throbj* pto)
@@ -224,7 +224,7 @@ namespace threads
 #if defined(NANA_WINDOWS)
 				::SuspendThread(pto->handle);
 #elif defined(NANA_POSIX)
-				unique_lock<mutex> lock(pto->wait_mutex);
+				std::unique_lock<std::mutex> lock(pto->wait_mutex);
 				pto->suspended = true;
 				pto->wait_cond.wait(lock);
 				pto->suspended = false;
@@ -243,17 +243,17 @@ namespace threads
 #elif defined(NANA_POSIX)
 				while(false == pto->suspended)
 					;
-				unique_lock<mutex> lock(pto->wait_mutex);
+				std::unique_lock<std::mutex> lock(pto->wait_mutex);
 				pto->wait_cond.notify_one();
 #endif
 			}
 
 			bool _m_read(pool_throbj* pto)
 			{
-				pto->task_ptr = NULL;
+				pto->task_ptr = nullptr;
 				if(runflag_)
 				{
-					lock_guard<decltype(mutex_)> lock(mutex_);
+					std::lock_guard<decltype(mutex_)> lock(mutex_);
 					if(container_.tasks.size())
 					{
 						pto->task_ptr = container_.tasks.front();
@@ -263,21 +263,21 @@ namespace threads
 				else
 					return false;
 
-				if(NULL == pto->task_ptr)
+				if(nullptr == pto->task_ptr)
 				{
 					//The task queue is empty, so that
 					//suspend and wait for a task.
 					_m_suspend(pto);
 				}
 
-				return (NULL != pto->task_ptr);
+				return (nullptr != pto->task_ptr);
 			}
 
 			void _m_thr_runner(pool_throbj* pto)
 			{
 				while(_m_read(pto))
 				{
-					pto->timestamp = time(NULL);
+					pto->timestamp = time(nullptr);
 					switch(pto->task_ptr->kind)
 					{
 					case task::general:
@@ -291,7 +291,7 @@ namespace threads
 						{
 							bool finished = true;
 							{
-								lock_guard<decltype(mutex_)> lock(mutex_);
+								std::lock_guard<decltype(mutex_)> lock(mutex_);
 								for(auto thr : container_.threads)
 								{
 									if((thr != pto) && (state::run == thr->thr_state) && (thr->timestamp <= pto->timestamp))
@@ -304,7 +304,7 @@ namespace threads
 
 							if(finished)
 								break;
-							system::sleep(100);
+							nana::system::sleep(100);
 						}
 
 						//wait till the cond is waiting.
@@ -312,7 +312,7 @@ namespace threads
 						break;
 					}
 					delete pto->task_ptr;
-					pto->task_ptr = NULL;
+					pto->task_ptr = nullptr;
 				}
 
 				pto->thr_state = state::finished;
@@ -331,23 +331,23 @@ namespace threads
 			static void * _m_thr_starter(pool_throbj * pto)
 			{
 				pto->pool_ptr->_m_thr_runner(pto);
-				return NULL;
+				return nullptr;
 			}
 #endif
 		private:
-			atomic<bool> runflag_{ true };
-			recursive_mutex mutex_;
+			std::atomic<bool> runflag_{ true };
+			std::recursive_mutex mutex_;
 
 			struct signal
 			{
-				mutex mutex;
-				condition_variable cond;
+				std::mutex mutex;
+				std::condition_variable cond;
 			}signal_;
 
 			struct container
 			{
-				deque<task*> tasks;
-				vector<pool_throbj*> threads;
+				std::deque<task*> tasks;
+				std::vector<pool_throbj*> threads;
 			}container_;
 		};//end class impl
 
@@ -359,10 +359,10 @@ namespace threads
 		pool::pool(pool&& other)
 			: pool()
 		{
-			swap(impl_, other.impl_);
+			std::swap(impl_, other.impl_);
 		}
 
-		pool::pool(size_t thread_number)
+		pool::pool(std::size_t thread_number)
 			: impl_(new impl(thread_number))
 		{
 		}
@@ -385,13 +385,13 @@ namespace threads
 
 		void pool::signal()
 		{
-			task * task_ptr = NULL;
+			task * task_ptr = nullptr;
 			try
 			{
 				task_ptr = new task_signal;
 				_m_push(task_ptr);
 			}
-			catch(bad_alloc&)
+			catch(std::bad_alloc&)
 			{
 				delete task_ptr;
 			}

@@ -15,7 +15,7 @@
 
 namespace nana
 {
-	/// A date operation class. \see date_chooser
+	/// A date operation class. \see nana::date_chooser
 	class date
 	{
 	public:
@@ -27,7 +27,7 @@ namespace nana
 		};
 
 		date();					///< the initialized date is today.
-		date(const tm&);
+		date(const std::tm&);
 		date(int year, int month, int day);
 
 		date operator - (int off) const;
@@ -41,7 +41,7 @@ namespace nana
 
 		int day_of_week() const;
 		const value & read() const;
-		void set(const tm&);
+		void set(const std::tm&);
 
 		static int day_of_week(int year, int month, int day);
 		static unsigned year_days(unsigned year);	///< the number of days in the specified year.
@@ -65,10 +65,10 @@ namespace nana
 		};
 
 		time();
-		time(const tm&);
+		time(const std::tm&);
 		time(unsigned hour, unsigned minute, unsigned second);
 		const value& read() const;
-		void set(const tm&);
+		void set(const std::tm&);
 	private:
 		value	value_;
 	};//end class time

@@ -33,7 +33,7 @@ namespace nana{	namespace audio{
 					unsigned short	wBitsPerSample;
 				};
 			#pragma pack()
-		#elif defined(NANA_LINUX)
+		#elif defined(NANA_POSIX)
 			struct master_riff_chunk
 			{
 				unsigned	ckID;	//"RIFF"
@@ -63,21 +63,21 @@ namespace nana{	namespace audio{
 				unsigned cksize;
 			};
 		public:
-			bool open(const char* file);
+			bool open(const std::string& file);
 			void close();
 			bool empty() const;
 			const wave_spec::format_chunck & format() const;
-			size_t data_length() const;
+			std::size_t data_length() const;
 			void locate();
-			size_t read(void * buf, size_t len);
+			std::size_t read(void * buf, std::size_t len);
 		private:
-			size_t _m_locate_chunck(unsigned ckID);
+			std::size_t _m_locate_chunck(unsigned ckID);
 		private:
-			ifstream fs_;
+			std::ifstream fs_;
 			wave_spec::format_chunck ck_format_;
-			size_t pcm_data_pos_;
-			size_t pcm_data_size_;
-			size_t data_size_;
+			std::size_t pcm_data_pos_;
+			std::size_t pcm_data_size_;
+			std::size_t data_size_;
 		}; //end class audio_stream
 	}
 }//end namespace audio

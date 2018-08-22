@@ -1,5 +1,5 @@
 
-
+#include <nana/push_ignore_diagnostic>
 #include <nana/audio/player.hpp>
 
 
@@ -15,15 +15,15 @@ namespace nana{	namespace audio
 	//class player
 		struct player::implementation
 		{
-			audio_stream	stream;
-			audio_device	dev;
+			detail::audio_stream	stream;
+			detail::audio_device	dev;
 		};
 
 		player::player()
 			: impl_(new implementation)
 		{}
 
-		player::player(const char* file)
+		player::player(const std::string& file)
 			: impl_(new implementation)
 		{
 			open(file);
@@ -34,11 +34,11 @@ namespace nana{	namespace audio
 			delete impl_;
 		}
 
-		bool player::open(const char* file)
+		bool player::open(const std::string& file)
 		{
 			if(impl_->stream.open(file))
 			{
-				const wave_spec::format_chunck & ck = impl_->stream.format();
+				const detail::wave_spec::format_chunck & ck = impl_->stream.format();
 				return impl_->dev.open(ck.nChannels, ck.nSamplePerSec, ck.wBitsPerSample);
 			}
 			return false;
@@ -50,11 +50,11 @@ namespace nana{	namespace audio
 
 			//Locate the PCM
 			impl_->stream.locate();
-			const size_t seconds = 5;
+			const std::size_t seconds = 5;
 
-			buffer_preparation buffer(impl_->stream, seconds);
+			detail::buffer_preparation buffer(impl_->stream, seconds);
 			impl_->dev.prepare(buffer);
-			buffer_preparation::meta * meta;
+			detail::buffer_preparation::meta * meta;
 			while((meta = buffer.read()))
 			{
 				impl_->dev.write(meta);

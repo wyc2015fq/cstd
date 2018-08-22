@@ -40,58 +40,58 @@ namespace nana
 		template<>
 		struct type_escape<char*>
 		{
-			using type = ::string;
+			using type = ::std::string;
 		};
 
 		template<>
 		struct type_escape<const char*>
 		{
-			using type = ::string;
+			using type = ::std::string;
 		};
 
 		template<int Size>
 		struct type_escape<char[Size]>
 		{
-			using type = ::string;
+			using type = ::std::string;
 		};
 
 		template<int Size>
 		struct type_escape<const char[Size]>
 		{
-			using type = ::string;
+			using type = ::std::string;
 		};
 
 		template<>
 		struct type_escape<wchar_t*>
 		{
-			using type = ::wstring;
+			using type = ::std::wstring;
 		};
 
 		template<>
 		struct type_escape<const wchar_t*>
 		{
-			using type = ::wstring;
+			using type = ::std::wstring;
 		};
 
 		template<int Size>
 		struct type_escape<wchar_t[Size]>
 		{
-			using type = ::wstring;
+			using type = ::std::wstring;
 		};
 
 		template<int Size>
 		struct type_escape<const wchar_t[Size]>
 		{
-			using type = ::wstring;
+			using type = ::std::wstring;
 		};
 	}
 
 	template<typename T, typename Compare>
 	class key
-		: public key_interface
+		: public detail::key_interface
 	{
 	public:
-		typedef key_interface key_interface;
+		typedef detail::key_interface key_interface;
 		typedef T key_type;
 
 		key(const key_type& k)
@@ -99,17 +99,17 @@ namespace nana
 		{}
 
 		key(key_type&& k)
-			: key_object_(move(k))
+			: key_object_(std::move(k))
 		{
 		}
 	public:
 		//implement key_interface methods
-		bool same_type(const key_interface * p) const noexcept
+		bool same_type(const key_interface * p) const noexcept override
 		{
-			return (NULL != dynamic_cast<const key*>(p));
+			return (nullptr != dynamic_cast<const key*>(p));
 		}
 
-		bool compare(const key_interface* p) const noexcept
+		bool compare(const key_interface* p) const noexcept override
 		{
 			auto rhs = dynamic_cast<const key*>(p);
 			return rhs && compare_(key_object_, rhs->key_object_);

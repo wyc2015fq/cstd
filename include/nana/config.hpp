@@ -1,3 +1,24 @@
+/**
+ *	Nana Configuration
+ *	Nana C++ Library(http://www.nanapro.org)
+ *	Copyright(C) 2003-2016 Jinhao(cnjinhao@hotmail.com)
+ *
+ *	Distributed under the Boost Software License, Version 1.0.
+ *	(See accompanying file LICENSE_1_0.txt or copy at
+ *	http://www.boost.org/LICENSE_1_0.txt)
+ *
+ *	@file  nana/config.hpp
+ *
+ *	@brief Provide switches to enable 3rd-party libraries for a certain feature.
+ *
+ *	External libraries:
+ *	- NANA_LIBPNG, USE_LIBPNG_FROM_OS
+ *	- NANA_LIBJPEG, USE_LIBJPEG_FROM_OS
+ *  - NANA_ENABLE_AUDIO
+ *
+ *	messages:
+ *	- VERBOSE_PREPROCESSOR, STOP_VERBOSE_PREPROCESSOR
+ */
 
 #ifndef NANA_CONFIG_HPP
 #define NANA_CONFIG_HPP
@@ -15,7 +36,7 @@
 // Here defines some flags that tell Nana what features will be supported.
 
 ///////////////////////////
-//  Support of thread
+//  Support of std::thread
 //  Boost.Thread is preferred.
 //  NANA_ENABLE_MINGW_STD_THREADS_WITH_MEGANZ is only available on MinGW when STD_THREAD_NOT_SUPPORTED is defined.
 //  if NANA_ENABLE_MINGW_STD_THREADS_WITH_MEGANZ is enabled, Boost.Thread will be replaced with meganz's mingw-std-threads.
@@ -29,7 +50,7 @@
 //#              http://www.boost.org/doc/libs/1_60_0/libs/filesystem/doc/index.htm
 //# or you can choose to use the(partial, but functional) implementation provided by nana.
 //# If you include the file <nana/filesystem/filesystem.hpp>
-//# the selected option will be set by nana into filesystem
+//# the selected option will be set by nana into std::experimental::filesystem
 //# By default Nana will try to use the STD.If not available will try
 //# to use boost if available.Nana own implementation will be use only none of them are available.
 //# You can change that default if you change one of the following

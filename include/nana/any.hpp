@@ -23,7 +23,7 @@ namespace nana
 {
 
 	class bad_any_cast
-		: public bad_cast
+		: public std::bad_cast
 	{
 	};
 
@@ -34,14 +34,14 @@ namespace nana
 		public:
 			virtual ~content_interface() = default;
 			
-			virtual const type_info& type() const noexcept = 0;
+			virtual const std::type_info& type() const noexcept = 0;
 			virtual content_interface* clone() const = 0;
 		};
 
 		template<typename Value>
 		class holder : public content_interface
 		{
-			holder& operator=(const holder&) {}
+			holder& operator=(const holder&) = delete;
 		public:
 			holder(const Value& other)
 				: value(other)
@@ -51,12 +51,12 @@ namespace nana
 				: value(static_cast<Value&&>(other))
 			{}
 		public:
-			const type_info& type() const noexcept
+			const std::type_info& type() const noexcept override
 			{
 				return typeid(Value);
 			}
 
-			content_interface* clone() const
+			content_interface* clone() const override
 			{
 				return new holder(value);
 			}
@@ -72,9 +72,9 @@ namespace nana
 
 		template<typename Value>
 		any(Value && value,
-				typename enable_if<!is_same<any&, Value>::value>::type * = NULL,
-				typename enable_if<!is_const<Value>::value>::type* = NULL)
-			: content_(new holder<typename decay<Value>::type>(static_cast<Value&&>(value)))
+				typename std::enable_if<!std::is_same<any&, Value>::value>::type * = nullptr,
+				typename std::enable_if<!std::is_const<Value>::value>::type* = nullptr)
+			: content_(new holder<typename std::decay<Value>::type>(static_cast<Value&&>(value)))
 		{
 		}
 
@@ -97,7 +97,7 @@ namespace nana
 
 		//observers
 		bool empty() const noexcept;
-		const type_info& type() const noexcept;
+		const std::type_info& type() const noexcept;
 	private:
 		template<typename Value>
 		friend Value* any_cast(any*) noexcept;
@@ -114,27 +114,27 @@ namespace nana
 	template<typename Value>
 	Value any_cast(const any& operand)
 	{
-		using value_type = typename remove_reference<Value>::type;
+		using value_type = typename std::remove_reference<Value>::type;
 		return any_cast<const value_type&>(const_cast<any&>(operand));
 	}
 
 	template<typename Value>
 	Value any_cast(any& operand)
 	{
-		using value_type = typename remove_reference<Value>::type;
+		using value_type = typename std::remove_reference<Value>::type;
 
 		auto value_ptr = any_cast<value_type>(&operand);
 		if (!value_ptr)
 			throw bad_any_cast();
 
-		using ref_type = typename conditional<is_reference<Value>::value, Value, typename add_lvalue_reference<Value>::type>::type;
+		using ref_type = typename std::conditional<std::is_reference<Value>::value, Value, typename std::add_lvalue_reference<Value>::type>::type;
 		return static_cast<ref_type>(*value_ptr);
 	}
 
 	template<typename Value>
 	Value any_cast(any && operand)
 	{
-		static_assert(is_rvalue_reference<Value&&>::value || is_const<typename ::remove_reference<Value>::type>::value, "any_cast shall not be used for getting non-const reference to temporary objects");
+		static_assert(std::is_rvalue_reference<Value&&>::value || std::is_const<typename ::std::remove_reference<Value>::type>::value, "nana::any_cast shall not be used for getting non-const reference to temporary objects");
 		return any_cast<Value>(operand);
 	}
 
@@ -148,10 +148,10 @@ namespace nana
 	Value* any_cast(any* operand) noexcept
 	{
 		if (!operand)
-			return NULL;
+			return nullptr;
 
-		auto holder = dynamic_cast<any::holder<typename decay<Value>::type>*>(operand->content_);
-		return (holder ? &holder->value : NULL);
+		auto holder = dynamic_cast<any::holder<typename std::decay<Value>::type>*>(operand->content_);
+		return (holder ? &holder->value : nullptr);
 	}
 
 }//end namespace nana

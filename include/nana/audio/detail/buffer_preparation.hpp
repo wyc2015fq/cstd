@@ -32,16 +32,16 @@ namespace nana{	namespace audio
 		public:
 #if defined(NANA_WINDOWS)
 			typedef WAVEHDR meta;
-#elif defined(NANA_LINUX)
+#elif defined(NANA_POSIX)
 			struct meta
 			{
 				char * buf;
-				size_t bufsize;
+				std::size_t bufsize;
 			};
 #endif
 
 		public:
-			buffer_preparation(audio_stream& as, size_t seconds);
+			buffer_preparation(audio_stream& as, std::size_t seconds);
 
 			~buffer_preparation();
 
@@ -54,12 +54,12 @@ namespace nana{	namespace audio
 		private:
 			volatile bool running_;
 			volatile bool wait_for_buffer_;
-			thread thr_;
-			mutable mutex token_buffer_, token_prepared_;
-			mutable condition_variable	cond_buffer_, cond_prepared_;
+			std::thread thr_;
+			mutable std::mutex token_buffer_, token_prepared_;
+			mutable std::condition_variable	cond_buffer_, cond_prepared_;
 
-			vector<meta*> buffer_, prepared_;
-			size_t block_size_;
+			std::vector<meta*> buffer_, prepared_;
+			std::size_t block_size_;
 			audio_stream & as_;
 		};
 	}//end namespace detail

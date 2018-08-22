@@ -15,26 +15,30 @@
 #ifndef NANA_STD_OPTIONAL_HEADER_INCLUDED
 #define NANA_STD_OPTIONAL_HEADER_INCLUDED
 
-#include <stdexcept>
 #include <nana/c++defines.hpp>
+
+#ifndef _nana_std_optional
+#include <optional>
+#else
+#include <stdexcept>
+
 namespace nana
 {
-#if 0
 	namespace detail
 	{
 		template<typename T>
 		class storage
 		{
 		public:
-			typedef T value_type;
+			using value_type = T;
 
-      storage() {}
+			storage() = default;
 
 			template<typename U>
 			storage(U&& value)
 				: initialized_{ true }
 			{
-				::new (data_) value_type(forward<U>(value));
+				::new (data_) value_type(std::forward<U>(value));
 			}
 
 			template<typename U>
@@ -55,7 +59,7 @@ namespace nana
 				: initialized_{ other.initialized_ }
 			{
 				if (other.initialized_)
-					::new (data_) value_type(move(*other.ptr()));
+					::new (data_) value_type(std::move(*other.ptr()));
 			}
 
 			template<typename U>
@@ -94,10 +98,10 @@ namespace nana
 			void assign(U&& value)
 			{
 				if (initialized_)
-					*ptr() = forward<U>(value);
+					*ptr() = std::forward<U>(value);
 				else
 				{
-					::new (data_) value_type(forward<U>(value));
+					::new (data_) value_type(std::forward<U>(value));
 					initialized_ = true;
 				}
 			}
@@ -128,10 +132,10 @@ namespace nana
 				}
 
 				if (initialized_)
-					*ptr() = move(*other.ptr());
+					*ptr() = std::move(*other.ptr());
 				else
 				{
-					::new (data_) value_type(move(*other.ptr()));
+					::new (data_) value_type(std::move(*other.ptr()));
 					initialized_ = true;
 				}
 			}
@@ -152,11 +156,11 @@ namespace nana
 	}//end namespace detail
 
 	class bad_optional_access
-		: public logic_error
+		: public std::logic_error
 	{
 	public:
 		bad_optional_access()
-			: logic_error("Attempted to access the value of an uninitialized optional object.")
+			: std::logic_error("Attempted to access the value of an uninitialized optional object.")
 		{}
 	};
 
@@ -167,14 +171,14 @@ namespace nana
 		using value_type = T;
 
 		constexpr optional() = default;
-		constexpr optional(nullptr_t) {}
+		constexpr optional(std::nullptr_t) {}
 
 		optional(const optional& other)
 			: storage_(other.storage_)
 		{}
 
 		optional(optional&& other)
-			: storage_(move(other.storage_))
+			: storage_(std::move(other.storage_))
 		{}
 
 		constexpr optional(const value_type& value)
@@ -182,10 +186,10 @@ namespace nana
 		{}
 
 		constexpr optional(value_type&& value)
-			: storage_(move(value))
+			: storage_(std::move(value))
 		{}
 
-		optional& operator=(nullptr_t)
+		optional& operator=(std::nullptr_t)
 		{
 			storage_.destroy();
 			return *this;
@@ -204,7 +208,7 @@ namespace nana
 		{
 			if (this != &other)
 			{
-				storage_.assign(move(other.storage_));
+				storage_.assign(std::move(other.storage_));
 			}
 			return *this;
 		}
@@ -212,7 +216,7 @@ namespace nana
 		template<typename U>
 		optional& operator=(U&& value)
 		{
-			storage_.assign(forward<U>(value));
+			storage_.assign(std::forward<U>(value));
 
 			return *this;
 		}
@@ -243,13 +247,13 @@ namespace nana
 		//constexpr
 		value_type&& operator*() &&
 		{
-			return move(*storage_.ptr());
+			return std::move(*storage_.ptr());
 		}
 
 		//constexpr
 		const value_type&& operator*() const &&
 		{
-			return move(*storage_.ptr());
+			return std::move(*storage_.ptr());
 		}
 		*/
 
@@ -287,7 +291,7 @@ namespace nana
 			if (!storage_.initialized())
 				throw bad_optional_access{};
 
-			return move(*storage_.ptr());
+			return std::move(*storage_.ptr());
 		}
 
 		constexpr const value_type&& value() const
@@ -295,21 +299,21 @@ namespace nana
 			if (!storage_.initialized())
 				throw bad_optional_access{};
 
-			return move(*storage_.ptr());
+			return std::move(*storage_.ptr());
 		}
 		*/
 
 		template<typename U>
 		constexpr T value_or(U&& default_value) const
 		{
-			return (has_value() ? **this : static_cast<T>(forward<U>(default_value)));
+			return (has_value() ? **this : static_cast<T>(std::forward<U>(default_value)));
 		}
 
 		template<typename U>
 		//constexpr
 		T value_or(U&& default_value)
 		{
-			return (has_value() ? move(**this) : static_cast<T>(forward<U>(default_value)));
+			return (has_value() ? std::move(**this) : static_cast<T>(std::forward<U>(default_value)));
 		}
 
 		//Modifiers
@@ -317,17 +321,17 @@ namespace nana
 		{
 			if (has_value() && other.has_value())
 			{
-				swap(**this, *other);
+				std::swap(**this, *other);
 				return;
 			}
 			else if (has_value())
 			{
-				other.emplace(move(***this));
+				other.emplace(std::move(***this));
 				storage_.destroy();
 			}
 			else if (other.has_value())
 			{
-				this->emplace(move(*other));
+				this->emplace(std::move(*other));
 				other.storage_.destroy();
 			}
 		}
@@ -341,26 +345,31 @@ namespace nana
 		void emplace(Args&&... args)
 		{
 			storage_.destroy();
-			::new (storage_.ptr()) T(forward<Args>(args)...);
+			::new (storage_.ptr()) T(std::forward<Args>(args)...);
 
 			storage_.set_initialized();
 		}
 
 		template<typename U, typename... Args>
-		void emplace(initializer_list<U> il, Args&& ... args)
+		void emplace(std::initializer_list<U> il, Args&& ... args)
 		{
 			storage_.destroy();
-			::new (storage_.ptr()) T(il, forward<Args>(args)...);
+			::new (storage_.ptr()) T(il, std::forward<Args>(args)...);
 
 			storage_.set_initialized();
 		}
 
 
 	private:
-		storage<T> storage_;
+		detail::storage<T> storage_;
 
 	};
-#endif
 }
 
+namespace std
+{
+	using nana::optional;
+}
+
+#endif	//_nana_std_optional
 #endif

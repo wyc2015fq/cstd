@@ -1,6 +1,6 @@
 #ifndef NANA_AUDIO_PLAYER_HPP
 #define NANA_AUDIO_PLAYER_HPP
-
+#include <nana/push_ignore_diagnostic>
 #include <nana/deploy.hpp>
 
 #ifdef NANA_ENABLE_AUDIO
@@ -13,15 +13,15 @@ namespace nana{	namespace audio
         ///
         /// \include  audio_player.cpp
 	class player
-		: private noncopyable
+		: private nana::noncopyable
 	{
 		struct implementation;
 	public:
 		player();
-		player(const char* file);
+		player(const std::string& file);
 		~player();
 
-		bool open(const char* file);
+		bool open(const std::string& file);
 		void play();
 		void close();
 	private:
@@ -32,6 +32,6 @@ namespace nana{	namespace audio
 
 #endif	//NANA_ENABLE_AUDIO
 
-
+#include <nana/pop_ignore_diagnostic>
 
 #endif

@@ -8,9 +8,9 @@ namespace nana{	namespace audio
 	namespace detail
 	{
 		//class audio_stream
-			bool audio_stream::open(const char* file)
+			bool audio_stream::open(const std::string& file)
 			{
-				fs_.open(to_osmbstr(file), ios::binary);
+				fs_.open(to_osmbstr(file), std::ios::binary);
 				if(fs_)
 				{
 					wave_spec::master_riff_chunk riff;
@@ -21,12 +21,12 @@ namespace nana{	namespace audio
 						if(ck_format_.ckID == *reinterpret_cast<const unsigned*>("fmt ") && ck_format_.wFormatTag == 1)	//Only support PCM format
 						{
 							if (ck_format_.cksize > 16)
-								fs_.seekg(ck_format_.cksize - 16, ios::cur);
+								fs_.seekg(ck_format_.cksize - 16, std::ios::cur);
 
-							size_t cksize = _m_locate_chunck(*reinterpret_cast<const unsigned*>("data"));
+							std::size_t cksize = _m_locate_chunck(*reinterpret_cast<const unsigned*>("data"));
 							if(cksize)
 							{
-								pcm_data_pos_ = static_cast<size_t>(fs_.tellg());
+								pcm_data_pos_ = static_cast<std::size_t>(fs_.tellg());
 								pcm_data_size_ = cksize;
 								return true;
 							}
@@ -51,7 +51,7 @@ namespace nana{	namespace audio
 				return ck_format_;
 			}
 
-			size_t audio_stream::data_length() const
+			std::size_t audio_stream::data_length() const
 			{
 				return data_size_;
 			}
@@ -59,19 +59,19 @@ namespace nana{	namespace audio
 			void audio_stream::locate()
 			{
 				fs_.clear();
-				fs_.seekg(pcm_data_pos_, ios::beg);
+				fs_.seekg(pcm_data_pos_, std::ios::beg);
 				data_size_ = pcm_data_size_;
 			}
 
-			size_t audio_stream::read(void * buf, size_t len)
+			std::size_t audio_stream::read(void * buf, std::size_t len)
 			{
-				fs_.read(reinterpret_cast<char*>(buf), static_cast<streamsize>(len <= data_size_ ? len : data_size_));
-				size_t read_bytes = static_cast<size_t>(fs_.gcount());
+				fs_.read(reinterpret_cast<char*>(buf), static_cast<std::streamsize>(len <= data_size_ ? len : data_size_));
+				std::size_t read_bytes = static_cast<std::size_t>(fs_.gcount());
 				data_size_ -= read_bytes;
 				return read_bytes;
 			}
 
-			size_t audio_stream::_m_locate_chunck(unsigned ckID)
+			std::size_t audio_stream::_m_locate_chunck(unsigned ckID)
 			{
 				chunck ck;
 				while(true)
@@ -83,9 +83,9 @@ namespace nana{	namespace audio
 					if(ck.ckID == ckID)
 						return ck.cksize;
 					if(ck.ckID == *reinterpret_cast<const unsigned*>("data"))
-						fs_.seekg(ck.cksize + (ck.cksize & 1 ? 1 : 0), ios::cur);
+						fs_.seekg(ck.cksize + (ck.cksize & 1 ? 1 : 0), std::ios::cur);
 					else
-						fs_.seekg(ck.cksize, ios::cur);
+						fs_.seekg(ck.cksize, std::ios::cur);
 				}
 				return 0;
 			}

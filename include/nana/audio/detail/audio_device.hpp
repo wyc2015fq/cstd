@@ -10,7 +10,9 @@
 #if defined(NANA_WINDOWS)
 	#include <windows.h>
 #elif defined(NANA_LINUX)
-	#include <alsa/asoundlib.h> 
+	#include <alsa/asoundlib.h>
+#elif defined(NANA_POSIX)
+    #include <sys/soundcard.h>
 #endif
 
 namespace nana{	namespace audio
@@ -24,7 +26,7 @@ namespace nana{	namespace audio
 			~audio_device();
 
 			bool empty() const;
-			bool open(size_t channels, size_t rate, size_t bits_per_sample);
+			bool open(std::size_t channels, std::size_t rate, std::size_t bits_per_sample);
 			void close();
 			void prepare(buffer_preparation & buf_prep);
 			void write(buffer_preparation::meta * m);
@@ -34,17 +36,22 @@ namespace nana{	namespace audio
 			static void __stdcall _m_dev_callback(HWAVEOUT handle, UINT msg, audio_device * self, DWORD_PTR, DWORD_PTR);
 #endif
 
-	
 #if defined(NANA_WINDOWS)
 			HWAVEOUT handle_;
-			recursive_mutex queue_lock_;
-			vector<buffer_preparation::meta*> done_queue_;
+			std::recursive_mutex queue_lock_;
+			std::vector<buffer_preparation::meta*> done_queue_;
 #elif defined(NANA_LINUX)
 			snd_pcm_t * handle_;
-			size_t rate_;
-			size_t channels_;
-			size_t bytes_per_sample_;
-			size_t bytes_per_frame_;
+			std::size_t rate_;
+			std::size_t channels_;
+			std::size_t bytes_per_sample_;
+			std::size_t bytes_per_frame_;
+#elif defined(NANA_POSIX)
+			int handle_;
+			int rate_;
+			int channels_;
+			int bytes_per_sample_;
+			int bytes_per_frame_;
 #endif
 			buffer_preparation * buf_prep_;
 		};
