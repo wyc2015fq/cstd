@@ -24,8 +24,8 @@ namespace boost {
 #ifdef _DEBUG
 #pragma comment(lib,"libprotobufd.lib")
 #pragma comment(lib,"libprotocd.lib")
-#pragma comment(lib,"gflagsd.lib")
-#pragma comment(lib,"glogd.lib")
+//#pragma comment(lib,"gflagsd.lib")
+//#pragma comment(lib,"glogd.lib")
 #pragma comment(lib,"leveldbd.lib")
 #pragma comment(lib,"lmdbd.lib")
 #pragma comment(lib,"hdf5.lib")
@@ -35,8 +35,8 @@ namespace boost {
 #else
 #pragma comment(lib,"libprotobuf.lib")
 #pragma comment(lib,"libprotoc.lib")
-#pragma comment(lib,"gflags.lib")
-#pragma comment(lib,"glog.lib")
+//#pragma comment(lib,"gflags.lib")
+//#pragma comment(lib,"glog.lib")
 #pragma comment(lib,"leveldb.lib")
 #pragma comment(lib,"lmdb.lib")
 #pragma comment(lib,"hdf5.lib")

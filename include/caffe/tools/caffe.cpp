@@ -73,7 +73,7 @@ class __Registerer_##func { \
 __Registerer_##func g_registerer_##func; \
 }
 
-static BrewFunction GetBrewFunction(const caffe::string& name) {
+static BrewFunction GetBrewFunction(const char* name) {
   if (g_brew_map.count(name)) {
     return g_brew_map[name];
   } else {
@@ -449,18 +449,10 @@ int main(int argc, char** argv) {
       "  time            benchmark model execution time");
   // Run tool or show usage.
   caffe::GlobalInit(argc, argv);
-  if (argc == 2) {
-#ifdef WITH_PYTHON_LAYER
-    try {
-#endif
-      return GetBrewFunction(caffe::string(argv[1]))();
-#ifdef WITH_PYTHON_LAYER
-    } catch (bp::error_already_set) {
-      PyErr_Print();
-      return 1;
-    }
-#endif
-  } else {
+  if (argc <= 2) {
     gflags::ShowUsageWithFlagsRestrict(argv[0], "tools/caffe");
+    return 0;
   }
+  int ret = GetBrewFunction(argv[1])();
+  return ret;
 }
