@@ -311,7 +311,7 @@ int test_myfindContours() {
 
 int test_mser_opencv()
 {
-	return test_myfindContours();
+	//return test_myfindContours();
 	std::vector<string> filenames;
 	LoadTextFileList("E:/OCR_Line/demo_images/list.txt", filenames);
 	int k;

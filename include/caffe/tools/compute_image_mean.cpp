@@ -7,7 +7,7 @@
 
 #include "boost/scoped_ptr.hpp"
 #include "gflags/gflags.h"
-#include "glog/logging.h"
+#include "caffe/util/logging.hpp"
 
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/db.hpp"

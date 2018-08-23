@@ -1,6 +1,7 @@
 
 #include "caffe_config.h"
 #define __CUDACC_VER__ 9200
+
 #ifdef USE_CUDNN
 
 #include "..\caffe\layers\absval_layer.cu"
@@ -72,5 +73,6 @@
 #include "..\caffe\util\im2col.cu"
 #include "..\caffe\util\interp.cu" 
 #include "..\caffe\util\math_functions.cu"
+
 
 #endif

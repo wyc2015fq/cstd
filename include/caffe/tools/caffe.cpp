@@ -3,8 +3,9 @@
 namespace bp = boost::python;
 #endif
 
-#include <gflags/gflags.h>
-#include <glog/logging.h>
+#include "caffe/util/flags.hpp"
+#include "caffe/util/logging.hpp"
+//#include "caffe/util/logging.hpp"
 
 #include <cstring>
 #include <map>
@@ -373,7 +374,7 @@ int time() {
   LOG(INFO) << "Performing Backward";
   caffe_net.Backward();
 
-  const vector<shared_ptr<Layer<float> > >& layers = caffe_net.layers();
+  const vector<std::shared_ptr<Layer<float> > >& layers = caffe_net.layers();
   const vector<vector<Blob<float>*> >& bottom_vecs = caffe_net.bottom_vecs();
   const vector<vector<Blob<float>*> >& top_vecs = caffe_net.top_vecs();
   const vector<vector<bool> >& bottom_need_backward =
@@ -447,7 +448,7 @@ int main(int argc, char** argv) {
       "  device_query    show GPU diagnostic information\n"
       "  time            benchmark model execution time");
   // Run tool or show usage.
-  caffe::GlobalInit(&argc, &argv);
+  caffe::GlobalInit(argc, argv);
   if (argc == 2) {
 #ifdef WITH_PYTHON_LAYER
     try {

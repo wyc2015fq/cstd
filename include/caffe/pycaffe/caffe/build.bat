@@ -5,6 +5,6 @@ call vs2015_x64.bat
 del _caffe.dll
 del _caffe.pyd
 del _caffe.obj
-%cc%  /LD  _caffe.cpp
-::%cc%  /LD  _caffe.cpp /out:_caffe.pyd
+%cc%  /LD  _caffe.cpp /out:D:\code\bin\_caffe.dll
+::%cc%  /LD  _caffe.cpp /out:D:\code\bin\_caffe.pyd
 

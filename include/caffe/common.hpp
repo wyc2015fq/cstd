@@ -2,8 +2,9 @@
 #define CAFFE_COMMON_HPP_
 
 #include <boost/shared_ptr.hpp>
-#include <gflags/gflags.h>
-#include <glog/logging.h>
+//#include <gflags/gflags.h>
+//#include "caffe/util/logging.hpp"
+#include "caffe/util/logging.hpp"
 
 #include <climits>
 #include <cmath>
@@ -22,14 +23,6 @@
 #define STRINGIFY(m) #m
 #define AS_STRING(m) STRINGIFY(m)
 
-// gflags 2.1 issue: namespace google was changed to gflags without warning.
-// Luckily we will be able to use GFLAGS_GFLAGS_H_ to detect if it is version
-// 2.1. If yes, we will add a temporary solution to redirect the namespace.
-// TODO(Yangqing): Once gflags solves the problem in a more elegant way, let's
-// remove the following hack.
-#ifndef GFLAGS_GFLAGS_H_
-namespace gflags = google;
-#endif  // GFLAGS_GFLAGS_H_
 
 // Disable the copy and assignment operator for a class.
 #define DISABLE_COPY_AND_ASSIGN(classname) \
@@ -95,7 +88,7 @@ using std::vector;
 
 // A global initialization function that you should call in your main function.
 // Currently it initializes google flags and google logging.
-void GlobalInit(int* pargc, char*** pargv);
+void GlobalInit(int argc, char** argv);
 
 // A singleton class to hold common caffe stuff, such as the handler that
 // caffe is going to use for cublas, curand, etc.

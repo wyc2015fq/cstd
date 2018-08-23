@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <cmath>  // for std::fabs and std::signbit
 
-#include "glog/logging.h"
+#include "caffe/util/logging.hpp"
 
 #include "caffe/common.hpp"
 #include "caffe/util/device_alternate.hpp"

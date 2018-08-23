@@ -40,7 +40,7 @@
 #include <cstdio>
 #include <string>
 #include "base/commandlineflags.h"
-#include "glog/logging.h"
+#include "caffe/util/logging.hpp"
 #include "glog/raw_logging.h"
 #include "base/googleinit.h"
 
