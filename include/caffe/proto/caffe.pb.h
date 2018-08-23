@@ -7034,12 +7034,12 @@ class ImageDataParameter : public ::google::protobuf::Message {
   ::std::string* release_root_folder();
   void set_allocated_root_folder(::std::string* root_folder);
 
-  // optional uint32 task_class_num = 13 [default = 1];
-  bool has_task_class_num() const;
-  void clear_task_class_num();
-  static const int kTaskClassNumFieldNumber = 13;
-  ::google::protobuf::uint32 task_class_num() const;
-  void set_task_class_num(::google::protobuf::uint32 value);
+  // optional uint32 lebel_size = 13 [default = 1];
+  bool has_lebel_size() const;
+  void clear_lebel_size();
+  static const int kLebelSizeFieldNumber = 13;
+  ::google::protobuf::uint32 lebel_size() const;
+  void set_lebel_size(::google::protobuf::uint32 value);
 
   // optional bool regression = 14 [default = false];
   bool has_regression() const;
@@ -7074,8 +7074,8 @@ class ImageDataParameter : public ::google::protobuf::Message {
   inline void clear_has_mirror();
   inline void set_has_root_folder();
   inline void clear_has_root_folder();
-  inline void set_has_task_class_num();
-  inline void clear_has_task_class_num();
+  inline void set_has_lebel_size();
+  inline void clear_has_lebel_size();
   inline void set_has_regression();
   inline void clear_has_regression();
 
@@ -7094,7 +7094,7 @@ class ImageDataParameter : public ::google::protobuf::Message {
   bool regression_;
   ::google::protobuf::internal::ArenaStringPtr mean_file_;
   ::google::protobuf::uint32 crop_size_;
-  ::google::protobuf::uint32 task_class_num_;
+  ::google::protobuf::uint32 lebel_size_;
   ::google::protobuf::internal::ArenaStringPtr root_folder_;
   friend void  protobuf_AddDesc_caffe_2eproto();
   friend void protobuf_AssignDesc_caffe_2eproto();
@@ -7962,7 +7962,7 @@ class MemoryDataParameter : public ::google::protobuf::Message {
   ::google::protobuf::uint32 width() const;
   void set_width(::google::protobuf::uint32 value);
 
-  // optional uint32 label_size = 5;
+  // optional uint32 label_size = 5 [default = 1];
   bool has_label_size() const;
   void clear_label_size();
   static const int kLabelSizeFieldNumber = 5;
@@ -21535,28 +21535,28 @@ inline void ImageDataParameter::set_allocated_root_folder(::std::string* root_fo
   // @@protoc_insertion_point(field_set_allocated:caffe.ImageDataParameter.root_folder)
 }
 
-// optional uint32 task_class_num = 13 [default = 1];
-inline bool ImageDataParameter::has_task_class_num() const {
+// optional uint32 lebel_size = 13 [default = 1];
+inline bool ImageDataParameter::has_lebel_size() const {
   return (_has_bits_[0] & 0x00001000u) != 0;
 }
-inline void ImageDataParameter::set_has_task_class_num() {
+inline void ImageDataParameter::set_has_lebel_size() {
   _has_bits_[0] |= 0x00001000u;
 }
-inline void ImageDataParameter::clear_has_task_class_num() {
+inline void ImageDataParameter::clear_has_lebel_size() {
   _has_bits_[0] &= ~0x00001000u;
 }
-inline void ImageDataParameter::clear_task_class_num() {
-  task_class_num_ = 1u;
-  clear_has_task_class_num();
+inline void ImageDataParameter::clear_lebel_size() {
+  lebel_size_ = 1u;
+  clear_has_lebel_size();
 }
-inline ::google::protobuf::uint32 ImageDataParameter::task_class_num() const {
-  // @@protoc_insertion_point(field_get:caffe.ImageDataParameter.task_class_num)
-  return task_class_num_;
+inline ::google::protobuf::uint32 ImageDataParameter::lebel_size() const {
+  // @@protoc_insertion_point(field_get:caffe.ImageDataParameter.lebel_size)
+  return lebel_size_;
 }
-inline void ImageDataParameter::set_task_class_num(::google::protobuf::uint32 value) {
-  set_has_task_class_num();
-  task_class_num_ = value;
-  // @@protoc_insertion_point(field_set:caffe.ImageDataParameter.task_class_num)
+inline void ImageDataParameter::set_lebel_size(::google::protobuf::uint32 value) {
+  set_has_lebel_size();
+  lebel_size_ = value;
+  // @@protoc_insertion_point(field_set:caffe.ImageDataParameter.lebel_size)
 }
 
 // optional bool regression = 14 [default = false];
@@ -22334,7 +22334,7 @@ inline void MemoryDataParameter::set_width(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:caffe.MemoryDataParameter.width)
 }
 
-// optional uint32 label_size = 5;
+// optional uint32 label_size = 5 [default = 1];
 inline bool MemoryDataParameter::has_label_size() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
@@ -22345,7 +22345,7 @@ inline void MemoryDataParameter::clear_has_label_size() {
   _has_bits_[0] &= ~0x00000010u;
 }
 inline void MemoryDataParameter::clear_label_size() {
-  label_size_ = 0u;
+  label_size_ = 1u;
   clear_has_label_size();
 }
 inline ::google::protobuf::uint32 MemoryDataParameter::label_size() const {

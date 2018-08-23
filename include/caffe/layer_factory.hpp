@@ -47,92 +47,95 @@
 #include "caffe/layer.hpp"
 #include "caffe/proto/caffe.pb.h"
 
-namespace caffe {
+namespace caffe
+{
 
-template <typename Dtype>
-class Layer;
+  template <typename Dtype>
+  class Layer;
 
-template <typename Dtype>
-class LayerRegistry {
- public:
-  typedef std::shared_ptr<Layer<Dtype> > (*Creator)(const LayerParameter&);
-  typedef std::map<string, Creator> CreatorRegistry;
+  template <typename Dtype>
+  class LayerRegistry
+  {
+  public:
+    typedef boost::shared_ptr<Layer<Dtype> > (*Creator)(const LayerParameter &);
+    typedef std::map<string, Creator> CreatorRegistry;
 
-  static CreatorRegistry& Registry() {
-    static CreatorRegistry* g_registry_ = new CreatorRegistry();
-    return *g_registry_;
-  }
-
-  // Adds a creator.
-  static void AddCreator(const string& type, Creator creator) {
-    CreatorRegistry& registry = Registry();
-    CHECK_EQ(registry.count(type), 0)
-        << "Layer type " << type << " already registered.";
-    registry[type] = creator;
-  }
-
-  // Get a layer using a LayerParameter.
-  static std::shared_ptr<Layer<Dtype> > CreateLayer(const LayerParameter& param) {
-    if (Caffe::root_solver()) {
-      LOG(INFO) << "Creating layer " << param.name();
+    static CreatorRegistry & Registry() {
+      static CreatorRegistry* g_registry_ = new CreatorRegistry();
+      return *g_registry_;
     }
-    const string& type = param.type();
-    CreatorRegistry& registry = Registry();
-    CHECK_EQ(registry.count(type), 1) << "Unknown layer type: " << type
-        << " (known types: " << LayerTypeListString() << ")";
-    return registry[type](param);
-  }
 
-  static vector<string> LayerTypeList() {
-    CreatorRegistry& registry = Registry();
-    vector<string> layer_types;
-    for (typename CreatorRegistry::iterator iter = registry.begin();
-         iter != registry.end(); ++iter) {
-      layer_types.push_back(iter->first);
+    // Adds a creator.
+    static void AddCreator(const string & type, Creator creator) {
+      CreatorRegistry & registry = Registry();
+      CHECK_EQ(registry.count(type), 0)
+          << "Layer type " << type << " already registered.";
+      registry[type] = creator;
     }
-    return layer_types;
-  }
 
- private:
-  // Layer registry should never be instantiated - everything is done with its
-  // static variables.
-  LayerRegistry() {}
-
-  static string LayerTypeListString() {
-    vector<string> layer_types = LayerTypeList();
-    string layer_types_str;
-    for (vector<string>::iterator iter = layer_types.begin();
-         iter != layer_types.end(); ++iter) {
-      if (iter != layer_types.begin()) {
-        layer_types_str += ", ";
+    // Get a layer using a LayerParameter.
+    static boost::shared_ptr<Layer<Dtype> > CreateLayer(const LayerParameter & param) {
+      if (Caffe::root_solver()) {
+        LOG(INFO) << "Creating layer " << param.name();
       }
-      layer_types_str += *iter;
+      const string & type = param.type();
+      CreatorRegistry & registry = Registry();
+      CHECK_EQ(registry.count(type), 1) << "Unknown layer type: " << type
+                                        << " (known types: " << LayerTypeListString() << ")";
+      return registry[type](param);
     }
-    return layer_types_str;
-  }
-};
+
+    static vector<string> LayerTypeList() {
+      CreatorRegistry & registry = Registry();
+      vector<string> layer_types;
+      for (typename CreatorRegistry::iterator iter = registry.begin();
+           iter != registry.end(); ++iter) {
+        layer_types.push_back(iter->first);
+      }
+      return layer_types;
+    }
+
+  private:
+    // Layer registry should never be instantiated - everything is done with its
+    // static variables.
+    LayerRegistry() {}
+
+    static string LayerTypeListString() {
+      vector<string> layer_types = LayerTypeList();
+      string layer_types_str;
+      for (vector<string>::iterator iter = layer_types.begin();
+           iter != layer_types.end(); ++iter) {
+        if (iter != layer_types.begin()) {
+          layer_types_str += ", ";
+        }
+        layer_types_str += *iter;
+      }
+      return layer_types_str;
+    }
+  };
 
 
-template <typename Dtype>
-class LayerRegisterer {
- public:
-  LayerRegisterer(const string& type,
-                  std::shared_ptr<Layer<Dtype> > (*creator)(const LayerParameter&)) {
-    // LOG(INFO) << "Registering layer type: " << type;
-    LayerRegistry<Dtype>::AddCreator(type, creator);
-  }
-};
+  template <typename Dtype>
+  class LayerRegisterer
+  {
+  public:
+    LayerRegisterer(const string & type,
+                    boost::shared_ptr<Layer<Dtype> > (*creator)(const LayerParameter &)) {
+      // LOG(INFO) << "Registering layer type: " << type;
+      LayerRegistry<Dtype>::AddCreator(type, creator);
+    }
+  };
 
 
 #define REGISTER_LAYER_CREATOR(type, creator)                                  \
   static LayerRegisterer<float> g_creator_f_##type(#type, creator<float>);     \
   static LayerRegisterer<double> g_creator_d_##type(#type, creator<double>)    \
-
+ 
 #define REGISTER_LAYER_CLASS(type)                                             \
   template <typename Dtype>                                                    \
-  std::shared_ptr<Layer<Dtype> > Creator_##type##Layer(const LayerParameter& param) \
+  boost::shared_ptr<Layer<Dtype> > Creator_##type##Layer(const LayerParameter& param) \
   {                                                                            \
-    return std::shared_ptr<Layer<Dtype> >(new type##Layer<Dtype>(param));           \
+    return boost::shared_ptr<Layer<Dtype> >(new type##Layer<Dtype>(param));           \
   }                                                                            \
   REGISTER_LAYER_CREATOR(type, Creator_##type##Layer)
 

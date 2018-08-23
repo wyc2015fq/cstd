@@ -12,35 +12,37 @@
 #include "caffe/layers/base_data_layer.hpp"
 #include "caffe/proto/caffe.pb.h"
 
-namespace caffe {
+namespace caffe
+{
 
-/**
- * @brief Provides data to the Net from image files.
- *
- * TODO(dox): thorough documentation for Forward and proto params.
- */
-template <typename Dtype>
-class ImageDataLayer : public BasePrefetchingDataLayer<Dtype> {
- public:
-  explicit ImageDataLayer(const LayerParameter& param)
+  /**
+   * @brief Provides data to the Net from image files.
+   *
+   * TODO(dox): thorough documentation for Forward and proto params.
+   */
+  template <typename Dtype>
+  class ImageDataLayer : public BasePrefetchingDataLayer<Dtype>
+  {
+  public:
+    explicit ImageDataLayer(const LayerParameter & param)
       : BasePrefetchingDataLayer<Dtype>(param) {}
-  virtual ~ImageDataLayer();
-  virtual void DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
-      const vector<Blob<Dtype>*>& top);
+    virtual ~ImageDataLayer();
+    virtual void DataLayerSetUp(const vector<Blob<Dtype>*> & bottom,
+                                const vector<Blob<Dtype>*> & top);
 
-  virtual inline const char* type() const { return "ImageData"; }
-  virtual inline int ExactNumBottomBlobs() const { return 0; }
-  virtual inline int ExactNumTopBlobs() const { return 2; }
+    virtual inline const char* type() const { return "ImageData"; }
+    virtual inline int ExactNumBottomBlobs() const { return 0; }
+    virtual inline int ExactNumTopBlobs() const { return 2; }
 
- protected:
-  shared_ptr<Caffe::RNG> prefetch_rng_;
-  virtual void ShuffleImages();
-  virtual void load_batch(Batch<Dtype>* batch);
+  protected:
+    shared_ptr<Caffe::RNG> prefetch_rng_;
+    virtual void ShuffleImages();
+    virtual void load_batch(Batch<Dtype>* batch);
 
-  vector<std::pair<std::string, std::vector<int> > > lines_;
-  vector<std::pair<std::string, std::vector<float> > > regression_lines_;
-  int lines_id_;
-};
+    vector<std::pair<std::string, std::vector<int> > > lines_;
+    vector<std::pair<std::string, std::vector<float> > > regression_lines_;
+    int lines_id_;
+  };
 
 
 }  // namespace caffe

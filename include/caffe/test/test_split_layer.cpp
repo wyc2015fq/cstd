@@ -14,104 +14,111 @@
 #include "caffe/test/test_caffe_main.hpp"
 #include "caffe/test/test_gradient_check_util.hpp"
 
-namespace caffe {
+namespace caffe
+{
 
-template <typename TypeParam>
-class SplitLayerTest : public MultiDeviceTest<TypeParam> {
-  typedef typename TypeParam::Dtype Dtype;
+  template <typename TypeParam>
+  class SplitLayerTest : public MultiDeviceTest<TypeParam>
+  {
+    typedef typename TypeParam::Dtype Dtype;
 
- protected:
-  SplitLayerTest()
+  protected:
+    SplitLayerTest()
       : blob_bottom_(new Blob<Dtype>(2, 3, 6, 5)),
         blob_top_a_(new Blob<Dtype>()),
         blob_top_b_(new Blob<Dtype>()) {
-    // fill the values
-    FillerParameter filler_param;
-    GaussianFiller<Dtype> filler(filler_param);
-    filler.Fill(this->blob_bottom_);
-    blob_bottom_vec_.push_back(blob_bottom_);
-    blob_top_vec_.push_back(blob_top_a_);
-    blob_top_vec_.push_back(blob_top_b_);
+      // fill the values
+      FillerParameter filler_param;
+      GaussianFiller<Dtype> filler(filler_param);
+      filler.Fill(this->blob_bottom_);
+      blob_bottom_vec_.push_back(blob_bottom_);
+      blob_top_vec_.push_back(blob_top_a_);
+      blob_top_vec_.push_back(blob_top_b_);
+    }
+    virtual ~SplitLayerTest() {
+      delete blob_bottom_;
+      delete blob_top_a_;
+      delete blob_top_b_;
+    }
+    Blob<Dtype>* const blob_bottom_;
+    Blob<Dtype>* const blob_top_a_;
+    Blob<Dtype>* const blob_top_b_;
+    vector<Blob<Dtype>*> blob_bottom_vec_;
+    vector<Blob<Dtype>*> blob_top_vec_;
+  };
+
+  TYPED_TEST_CASE(SplitLayerTest, TestDtypesAndDevices);
+
+  TYPED_TEST(SplitLayerTest, TestSetup)
+  {
+    typedef typename TypeParam::Dtype Dtype;
+    LayerParameter layer_param;
+    SplitLayer<Dtype> layer(layer_param);
+    layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
+    EXPECT_EQ(this->blob_top_a_->num(), 2);
+    EXPECT_EQ(this->blob_top_a_->channels(), 3);
+    EXPECT_EQ(this->blob_top_a_->height(), 6);
+    EXPECT_EQ(this->blob_top_a_->width(), 5);
+    EXPECT_EQ(this->blob_top_b_->num(), 2);
+    EXPECT_EQ(this->blob_top_b_->channels(), 3);
+    EXPECT_EQ(this->blob_top_b_->height(), 6);
+    EXPECT_EQ(this->blob_top_b_->width(), 5);
   }
-  virtual ~SplitLayerTest() {
-    delete blob_bottom_;
-    delete blob_top_a_;
-    delete blob_top_b_;
+
+  TYPED_TEST(SplitLayerTest, Test)
+  {
+    typedef typename TypeParam::Dtype Dtype;
+    LayerParameter layer_param;
+    SplitLayer<Dtype> layer(layer_param);
+    layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
+    layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
+    for (int i = 0; i < this->blob_bottom_->count(); ++i) {
+      Dtype bottom_value = this->blob_bottom_->cpu_data()[i];
+      EXPECT_EQ(bottom_value, this->blob_top_a_->cpu_data()[i]);
+      EXPECT_EQ(bottom_value, this->blob_top_b_->cpu_data()[i]);
+    }
   }
-  Blob<Dtype>* const blob_bottom_;
-  Blob<Dtype>* const blob_top_a_;
-  Blob<Dtype>* const blob_top_b_;
-  vector<Blob<Dtype>*> blob_bottom_vec_;
-  vector<Blob<Dtype>*> blob_top_vec_;
-};
 
-TYPED_TEST_CASE(SplitLayerTest, TestDtypesAndDevices);
-
-TYPED_TEST(SplitLayerTest, TestSetup) {
-  typedef typename TypeParam::Dtype Dtype;
-  LayerParameter layer_param;
-  SplitLayer<Dtype> layer(layer_param);
-  layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
-  EXPECT_EQ(this->blob_top_a_->num(), 2);
-  EXPECT_EQ(this->blob_top_a_->channels(), 3);
-  EXPECT_EQ(this->blob_top_a_->height(), 6);
-  EXPECT_EQ(this->blob_top_a_->width(), 5);
-  EXPECT_EQ(this->blob_top_b_->num(), 2);
-  EXPECT_EQ(this->blob_top_b_->channels(), 3);
-  EXPECT_EQ(this->blob_top_b_->height(), 6);
-  EXPECT_EQ(this->blob_top_b_->width(), 5);
-}
-
-TYPED_TEST(SplitLayerTest, Test) {
-  typedef typename TypeParam::Dtype Dtype;
-  LayerParameter layer_param;
-  SplitLayer<Dtype> layer(layer_param);
-  layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
-  layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
-  for (int i = 0; i < this->blob_bottom_->count(); ++i) {
-    Dtype bottom_value = this->blob_bottom_->cpu_data()[i];
-    EXPECT_EQ(bottom_value, this->blob_top_a_->cpu_data()[i]);
-    EXPECT_EQ(bottom_value, this->blob_top_b_->cpu_data()[i]);
+  TYPED_TEST(SplitLayerTest, TestGradient)
+  {
+    typedef typename TypeParam::Dtype Dtype;
+    LayerParameter layer_param;
+    SplitLayer<Dtype> layer(layer_param);
+    GradientChecker<Dtype> checker(1e-2, 1e-2);
+    checker.CheckGradientEltwise(&layer, this->blob_bottom_vec_,
+                                 this->blob_top_vec_);
   }
-}
-
-TYPED_TEST(SplitLayerTest, TestGradient) {
-  typedef typename TypeParam::Dtype Dtype;
-  LayerParameter layer_param;
-  SplitLayer<Dtype> layer(layer_param);
-  GradientChecker<Dtype> checker(1e-2, 1e-2);
-  checker.CheckGradientEltwise(&layer, this->blob_bottom_vec_,
-      this->blob_top_vec_);
-}
 
 
-class SplitLayerInsertionTest : public ::testing::Test {
- protected:
-  void RunInsertionTest(
-      const string& input_param_string, const string& output_param_string) {
-    // Test that InsertSplits called on the proto specified by
-    // input_param_string results in the proto specified by
-    // output_param_string.
-    NetParameter input_param;
-    CHECK(google::protobuf::TextFormat::ParseFromString(
-        input_param_string, &input_param));
-    NetParameter expected_output_param;
-    CHECK(google::protobuf::TextFormat::ParseFromString(
-        output_param_string, &expected_output_param));
-    NetParameter actual_output_param;
-    InsertSplits(input_param, &actual_output_param);
-    EXPECT_EQ(expected_output_param.DebugString(),
-        actual_output_param.DebugString());
-    // Also test idempotence.
-    NetParameter double_split_insert_param;
-    InsertSplits(actual_output_param, &double_split_insert_param);
-    EXPECT_EQ(actual_output_param.DebugString(),
-       double_split_insert_param.DebugString());
-  }
-};
+  class SplitLayerInsertionTest : public ::testing::Test
+  {
+  protected:
+    void RunInsertionTest(
+      const string & input_param_string, const string & output_param_string) {
+      // Test that InsertSplits called on the proto specified by
+      // input_param_string results in the proto specified by
+      // output_param_string.
+      NetParameter input_param;
+      CHECK(google::protobuf::TextFormat::ParseFromString(
+              input_param_string, &input_param));
+      NetParameter expected_output_param;
+      CHECK(google::protobuf::TextFormat::ParseFromString(
+              output_param_string, &expected_output_param));
+      NetParameter actual_output_param;
+      InsertSplits(input_param, &actual_output_param);
+      EXPECT_EQ(expected_output_param.DebugString(),
+                actual_output_param.DebugString());
+      // Also test idempotence.
+      NetParameter double_split_insert_param;
+      InsertSplits(actual_output_param, &double_split_insert_param);
+      EXPECT_EQ(actual_output_param.DebugString(),
+                double_split_insert_param.DebugString());
+    }
+  };
 
-TEST_F(SplitLayerInsertionTest, TestNoInsertion1) {
-  const string& input_proto =
+  TEST_F(SplitLayerInsertionTest, TestNoInsertion1)
+  {
+    const string & input_proto =
       "name: 'TestNetwork' "
       "layer { "
       "  name: 'data' "
@@ -131,11 +138,12 @@ TEST_F(SplitLayerInsertionTest, TestNoInsertion1) {
       "  bottom: 'innerprod' "
       "  bottom: 'label' "
       "} ";
-  this->RunInsertionTest(input_proto, input_proto);
-}
+    this->RunInsertionTest(input_proto, input_proto);
+  }
 
-TEST_F(SplitLayerInsertionTest, TestNoInsertion2) {
-  const string& input_proto =
+  TEST_F(SplitLayerInsertionTest, TestNoInsertion2)
+  {
+    const string & input_proto =
       "name: 'TestNetwork' "
       "layer { "
       "  name: 'data' "
@@ -168,11 +176,12 @@ TEST_F(SplitLayerInsertionTest, TestNoInsertion2) {
       "  bottom: 'innerprod1' "
       "  bottom: 'innerprod2' "
       "} ";
-  this->RunInsertionTest(input_proto, input_proto);
-}
+    this->RunInsertionTest(input_proto, input_proto);
+  }
 
-TEST_F(SplitLayerInsertionTest, TestNoInsertionImageNet) {
-  const string& input_proto =
+  TEST_F(SplitLayerInsertionTest, TestNoInsertionImageNet)
+  {
+    const string & input_proto =
       "name: 'CaffeNet' "
       "layer { "
       "  name: 'data' "
@@ -523,11 +532,12 @@ TEST_F(SplitLayerInsertionTest, TestNoInsertionImageNet) {
       "  bottom: 'fc8' "
       "  bottom: 'label' "
       "} ";
-  this->RunInsertionTest(input_proto, input_proto);
-}
+    this->RunInsertionTest(input_proto, input_proto);
+  }
 
-TEST_F(SplitLayerInsertionTest, TestNoInsertionWithInPlace) {
-  const string& input_proto =
+  TEST_F(SplitLayerInsertionTest, TestNoInsertionWithInPlace)
+  {
+    const string & input_proto =
       "name: 'TestNetwork' "
       "layer { "
       "  name: 'data' "
@@ -553,11 +563,12 @@ TEST_F(SplitLayerInsertionTest, TestNoInsertionWithInPlace) {
       "  bottom: 'innerprod' "
       "  bottom: 'label' "
       "} ";
-  this->RunInsertionTest(input_proto, input_proto);
-}
+    this->RunInsertionTest(input_proto, input_proto);
+  }
 
-TEST_F(SplitLayerInsertionTest, TestLossInsertion) {
-  const string& input_proto =
+  TEST_F(SplitLayerInsertionTest, TestLossInsertion)
+  {
+    const string & input_proto =
       "name: 'UnsharedWeightsNetwork' "
       "force_backward: true "
       "layer { "
@@ -612,7 +623,7 @@ TEST_F(SplitLayerInsertionTest, TestLossInsertion) {
       "  bottom: 'innerproduct1' "
       "  bottom: 'innerproduct2' "
       "} ";
-  const string& expected_output_proto =
+    const string & expected_output_proto =
       "name: 'UnsharedWeightsNetwork' "
       "force_backward: true "
       "layer { "
@@ -682,11 +693,12 @@ TEST_F(SplitLayerInsertionTest, TestLossInsertion) {
       "  bottom: 'innerproduct1_innerproduct1_0_split_1' "
       "  bottom: 'innerproduct2' "
       "} ";
-  this->RunInsertionTest(input_proto, expected_output_proto);
-}
+    this->RunInsertionTest(input_proto, expected_output_proto);
+  }
 
-TEST_F(SplitLayerInsertionTest, TestInsertion) {
-  const string& input_proto =
+  TEST_F(SplitLayerInsertionTest, TestInsertion)
+  {
+    const string & input_proto =
       "name: 'TestNetwork' "
       "layer { "
       "  name: 'data' "
@@ -724,7 +736,7 @@ TEST_F(SplitLayerInsertionTest, TestInsertion) {
       "  bottom: 'innerprod2' "
       "  bottom: 'innerprod3' "
       "} ";
-  const string& expected_output_proto =
+    const string & expected_output_proto =
       "name: 'TestNetwork' "
       "layer { "
       "  name: 'data' "
@@ -777,11 +789,12 @@ TEST_F(SplitLayerInsertionTest, TestInsertion) {
       "  bottom: 'innerprod2_innerprod2_0_split_1' "
       "  bottom: 'innerprod3' "
       "} ";
-  this->RunInsertionTest(input_proto, expected_output_proto);
-}
+    this->RunInsertionTest(input_proto, expected_output_proto);
+  }
 
-TEST_F(SplitLayerInsertionTest, TestInsertionTwoTop) {
-  const string& input_proto =
+  TEST_F(SplitLayerInsertionTest, TestInsertionTwoTop)
+  {
+    const string & input_proto =
       "name: 'TestNetwork' "
       "layer { "
       "  name: 'data' "
@@ -825,7 +838,7 @@ TEST_F(SplitLayerInsertionTest, TestInsertionTwoTop) {
       "  bottom: 'innerprod2' "
       "  bottom: 'innerprod4' "
       "} ";
-  const string& expected_output_proto =
+    const string & expected_output_proto =
       "name: 'TestNetwork' "
       "layer { "
       "  name: 'data' "
@@ -883,11 +896,12 @@ TEST_F(SplitLayerInsertionTest, TestInsertionTwoTop) {
       "  bottom: 'innerprod2' "
       "  bottom: 'innerprod4' "
       "} ";
-  this->RunInsertionTest(input_proto, expected_output_proto);
-}
+    this->RunInsertionTest(input_proto, expected_output_proto);
+  }
 
-TEST_F(SplitLayerInsertionTest, TestWithInPlace) {
-  const string& input_proto =
+  TEST_F(SplitLayerInsertionTest, TestWithInPlace)
+  {
+    const string & input_proto =
       "name: 'TestNetwork' "
       "layer { "
       "  name: 'data' "
@@ -925,7 +939,7 @@ TEST_F(SplitLayerInsertionTest, TestWithInPlace) {
       "  bottom: 'innerprod2' "
       "  bottom: 'data' "
       "} ";
-  const string& expected_output_proto =
+    const string & expected_output_proto =
       "name: 'TestNetwork' "
       "layer { "
       "  name: 'data' "
@@ -977,7 +991,7 @@ TEST_F(SplitLayerInsertionTest, TestWithInPlace) {
       "  bottom: 'innerprod2' "
       "  bottom: 'data_data_0_split_1' "
       "} ";
-  this->RunInsertionTest(input_proto, expected_output_proto);
-}
+    this->RunInsertionTest(input_proto, expected_output_proto);
+  }
 
 }  // namespace caffe

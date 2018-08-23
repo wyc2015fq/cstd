@@ -22,11 +22,11 @@ DEFINE_bool(stop_logging_if_full_disk, true, "Sets whether to avoid logging to t
 //#include <iostream>
 
 struct NulStream {
-  template <typename T> inline NulStream& operator<<(const T& x) { return *this; }
+  template <typename T> inline NulStream & operator<<(const T & x) { return *this; }
 } nulstream;
 
 struct LogMessageVoidify {
-  void operator&(std::ostream&) {}
+  void operator&(std::ostream &) {}
 };
 
 
@@ -69,7 +69,8 @@ struct LogMessageVoidify {
 #define DCHECK_GT(val1, val2) LOGNULL
 #endif
 
-namespace google {
+namespace google
+{
 
   enum GLOGTYPE {
     GLOG_INFO = 0, GLOG_WARNING = 1, GLOG_ERROR = 2, GLOG_FATAL = 3,

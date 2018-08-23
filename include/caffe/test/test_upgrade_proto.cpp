@@ -14,183 +14,187 @@
 
 #include "caffe/test/test_caffe_main.hpp"
 
-namespace caffe {
+namespace caffe
+{
 
-class PaddingLayerUpgradeTest : public ::testing::Test {
- protected:
-  void RunPaddingUpgradeTest(
-      const string& input_param_string, const string& output_param_string) {
-    // Test that UpgradeV0PaddingLayers called on the proto specified by
-    // input_param_string results in the proto specified by
-    // output_param_string.
-    NetParameter input_param;
-    CHECK(google::protobuf::TextFormat::ParseFromString(
-        input_param_string, &input_param));
-    NetParameter expected_output_param;
-    CHECK(google::protobuf::TextFormat::ParseFromString(
-        output_param_string, &expected_output_param));
-    NetParameter actual_output_param;
-    UpgradeV0PaddingLayers(input_param, &actual_output_param);
-    EXPECT_EQ(expected_output_param.DebugString(),
-        actual_output_param.DebugString());
-    // Also test idempotence.
-    NetParameter double_pad_upgrade_param;
-    UpgradeV0PaddingLayers(actual_output_param, &double_pad_upgrade_param);
-    EXPECT_EQ(actual_output_param.DebugString(),
-       double_pad_upgrade_param.DebugString());
+  class PaddingLayerUpgradeTest : public ::testing::Test
+  {
+  protected:
+    void RunPaddingUpgradeTest(
+      const string & input_param_string, const string & output_param_string) {
+      // Test that UpgradeV0PaddingLayers called on the proto specified by
+      // input_param_string results in the proto specified by
+      // output_param_string.
+      NetParameter input_param;
+      CHECK(google::protobuf::TextFormat::ParseFromString(
+              input_param_string, &input_param));
+      NetParameter expected_output_param;
+      CHECK(google::protobuf::TextFormat::ParseFromString(
+              output_param_string, &expected_output_param));
+      NetParameter actual_output_param;
+      UpgradeV0PaddingLayers(input_param, &actual_output_param);
+      EXPECT_EQ(expected_output_param.DebugString(),
+                actual_output_param.DebugString());
+      // Also test idempotence.
+      NetParameter double_pad_upgrade_param;
+      UpgradeV0PaddingLayers(actual_output_param, &double_pad_upgrade_param);
+      EXPECT_EQ(actual_output_param.DebugString(),
+                double_pad_upgrade_param.DebugString());
+    }
+  };
+
+  TEST_F(PaddingLayerUpgradeTest, TestSimple)
+  {
+    const string & input_proto =
+      "name: 'CaffeNet' "
+      "layers { "
+      "  layer { "
+      "    name: 'data' "
+      "    type: 'data' "
+      "    source: '/home/jiayq/Data/ILSVRC12/train-leveldb' "
+      "    meanfile: '/home/jiayq/Data/ILSVRC12/image_mean.binaryproto' "
+      "    batchsize: 256 "
+      "    cropsize: 227 "
+      "    mirror: true "
+      "  } "
+      "  top: 'data' "
+      "  top: 'label' "
+      "} "
+      "layers { "
+      "  layer { "
+      "    name: 'pad1' "
+      "    type: 'padding' "
+      "    pad: 2 "
+      "  } "
+      "  bottom: 'data' "
+      "  top: 'pad1' "
+      "} "
+      "layers { "
+      "  layer { "
+      "    name: 'conv1' "
+      "    type: 'conv' "
+      "    num_output: 96 "
+      "    kernelsize: 11 "
+      "    stride: 4 "
+      "    weight_filler { "
+      "      type: 'gaussian' "
+      "      std: 0.01 "
+      "    } "
+      "    bias_filler { "
+      "      type: 'constant' "
+      "      value: 0. "
+      "    } "
+      "    blobs_lr: 1. "
+      "    blobs_lr: 2. "
+      "    weight_decay: 1. "
+      "    weight_decay: 0. "
+      "  } "
+      "  bottom: 'pad1' "
+      "  top: 'conv1' "
+      "} "
+      "layers { "
+      "  layer { "
+      "    name: 'fc8' "
+      "    type: 'innerproduct' "
+      "    num_output: 1000 "
+      "    weight_filler { "
+      "      type: 'gaussian' "
+      "      std: 0.01 "
+      "    } "
+      "    bias_filler { "
+      "      type: 'constant' "
+      "      value: 0 "
+      "    } "
+      "    blobs_lr: 1. "
+      "    blobs_lr: 2. "
+      "    weight_decay: 1. "
+      "    weight_decay: 0. "
+      "  } "
+      "  bottom: 'conv1' "
+      "  top: 'fc8' "
+      "} "
+      "layers { "
+      "  layer { "
+      "    name: 'loss' "
+      "    type: 'softmax_loss' "
+      "  } "
+      "  bottom: 'fc8' "
+      "  bottom: 'label' "
+      "} ";
+    const string & expected_output_proto =
+      "name: 'CaffeNet' "
+      "layers { "
+      "  layer { "
+      "    name: 'data' "
+      "    type: 'data' "
+      "    source: '/home/jiayq/Data/ILSVRC12/train-leveldb' "
+      "    meanfile: '/home/jiayq/Data/ILSVRC12/image_mean.binaryproto' "
+      "    batchsize: 256 "
+      "    cropsize: 227 "
+      "    mirror: true "
+      "  } "
+      "  top: 'data' "
+      "  top: 'label' "
+      "} "
+      "layers { "
+      "  layer { "
+      "    name: 'conv1' "
+      "    type: 'conv' "
+      "    num_output: 96 "
+      "    kernelsize: 11 "
+      "    stride: 4 "
+      "    pad: 2 "
+      "    weight_filler { "
+      "      type: 'gaussian' "
+      "      std: 0.01 "
+      "    } "
+      "    bias_filler { "
+      "      type: 'constant' "
+      "      value: 0. "
+      "    } "
+      "    blobs_lr: 1. "
+      "    blobs_lr: 2. "
+      "    weight_decay: 1. "
+      "    weight_decay: 0. "
+      "  } "
+      "  bottom: 'data' "
+      "  top: 'conv1' "
+      "} "
+      "layers { "
+      "  layer { "
+      "    name: 'fc8' "
+      "    type: 'innerproduct' "
+      "    num_output: 1000 "
+      "    weight_filler { "
+      "      type: 'gaussian' "
+      "      std: 0.01 "
+      "    } "
+      "    bias_filler { "
+      "      type: 'constant' "
+      "      value: 0 "
+      "    } "
+      "    blobs_lr: 1. "
+      "    blobs_lr: 2. "
+      "    weight_decay: 1. "
+      "    weight_decay: 0. "
+      "  } "
+      "  bottom: 'conv1' "
+      "  top: 'fc8' "
+      "} "
+      "layers { "
+      "  layer { "
+      "    name: 'loss' "
+      "    type: 'softmax_loss' "
+      "  } "
+      "  bottom: 'fc8' "
+      "  bottom: 'label' "
+      "} ";
+    this->RunPaddingUpgradeTest(input_proto, expected_output_proto);
   }
-};
 
-TEST_F(PaddingLayerUpgradeTest, TestSimple) {
-  const string& input_proto =
-      "name: 'CaffeNet' "
-      "layers { "
-      "  layer { "
-      "    name: 'data' "
-      "    type: 'data' "
-      "    source: '/home/jiayq/Data/ILSVRC12/train-leveldb' "
-      "    meanfile: '/home/jiayq/Data/ILSVRC12/image_mean.binaryproto' "
-      "    batchsize: 256 "
-      "    cropsize: 227 "
-      "    mirror: true "
-      "  } "
-      "  top: 'data' "
-      "  top: 'label' "
-      "} "
-      "layers { "
-      "  layer { "
-      "    name: 'pad1' "
-      "    type: 'padding' "
-      "    pad: 2 "
-      "  } "
-      "  bottom: 'data' "
-      "  top: 'pad1' "
-      "} "
-      "layers { "
-      "  layer { "
-      "    name: 'conv1' "
-      "    type: 'conv' "
-      "    num_output: 96 "
-      "    kernelsize: 11 "
-      "    stride: 4 "
-      "    weight_filler { "
-      "      type: 'gaussian' "
-      "      std: 0.01 "
-      "    } "
-      "    bias_filler { "
-      "      type: 'constant' "
-      "      value: 0. "
-      "    } "
-      "    blobs_lr: 1. "
-      "    blobs_lr: 2. "
-      "    weight_decay: 1. "
-      "    weight_decay: 0. "
-      "  } "
-      "  bottom: 'pad1' "
-      "  top: 'conv1' "
-      "} "
-      "layers { "
-      "  layer { "
-      "    name: 'fc8' "
-      "    type: 'innerproduct' "
-      "    num_output: 1000 "
-      "    weight_filler { "
-      "      type: 'gaussian' "
-      "      std: 0.01 "
-      "    } "
-      "    bias_filler { "
-      "      type: 'constant' "
-      "      value: 0 "
-      "    } "
-      "    blobs_lr: 1. "
-      "    blobs_lr: 2. "
-      "    weight_decay: 1. "
-      "    weight_decay: 0. "
-      "  } "
-      "  bottom: 'conv1' "
-      "  top: 'fc8' "
-      "} "
-      "layers { "
-      "  layer { "
-      "    name: 'loss' "
-      "    type: 'softmax_loss' "
-      "  } "
-      "  bottom: 'fc8' "
-      "  bottom: 'label' "
-      "} ";
-  const string& expected_output_proto =
-      "name: 'CaffeNet' "
-      "layers { "
-      "  layer { "
-      "    name: 'data' "
-      "    type: 'data' "
-      "    source: '/home/jiayq/Data/ILSVRC12/train-leveldb' "
-      "    meanfile: '/home/jiayq/Data/ILSVRC12/image_mean.binaryproto' "
-      "    batchsize: 256 "
-      "    cropsize: 227 "
-      "    mirror: true "
-      "  } "
-      "  top: 'data' "
-      "  top: 'label' "
-      "} "
-      "layers { "
-      "  layer { "
-      "    name: 'conv1' "
-      "    type: 'conv' "
-      "    num_output: 96 "
-      "    kernelsize: 11 "
-      "    stride: 4 "
-      "    pad: 2 "
-      "    weight_filler { "
-      "      type: 'gaussian' "
-      "      std: 0.01 "
-      "    } "
-      "    bias_filler { "
-      "      type: 'constant' "
-      "      value: 0. "
-      "    } "
-      "    blobs_lr: 1. "
-      "    blobs_lr: 2. "
-      "    weight_decay: 1. "
-      "    weight_decay: 0. "
-      "  } "
-      "  bottom: 'data' "
-      "  top: 'conv1' "
-      "} "
-      "layers { "
-      "  layer { "
-      "    name: 'fc8' "
-      "    type: 'innerproduct' "
-      "    num_output: 1000 "
-      "    weight_filler { "
-      "      type: 'gaussian' "
-      "      std: 0.01 "
-      "    } "
-      "    bias_filler { "
-      "      type: 'constant' "
-      "      value: 0 "
-      "    } "
-      "    blobs_lr: 1. "
-      "    blobs_lr: 2. "
-      "    weight_decay: 1. "
-      "    weight_decay: 0. "
-      "  } "
-      "  bottom: 'conv1' "
-      "  top: 'fc8' "
-      "} "
-      "layers { "
-      "  layer { "
-      "    name: 'loss' "
-      "    type: 'softmax_loss' "
-      "  } "
-      "  bottom: 'fc8' "
-      "  bottom: 'label' "
-      "} ";
-  this->RunPaddingUpgradeTest(input_proto, expected_output_proto);
-}
-
-TEST_F(PaddingLayerUpgradeTest, TestTwoTops) {
-  const string& input_proto =
+  TEST_F(PaddingLayerUpgradeTest, TestTwoTops)
+  {
+    const string & input_proto =
       "name: 'CaffeNet' "
       "layers { "
       "  layer { "
@@ -289,7 +293,7 @@ TEST_F(PaddingLayerUpgradeTest, TestTwoTops) {
       "  bottom: 'fc8' "
       "  bottom: 'label' "
       "} ";
-  const string& expected_output_proto =
+    const string & expected_output_proto =
       "name: 'CaffeNet' "
       "layers { "
       "  layer { "
@@ -381,11 +385,12 @@ TEST_F(PaddingLayerUpgradeTest, TestTwoTops) {
       "  bottom: 'fc8' "
       "  bottom: 'label' "
       "} ";
-  this->RunPaddingUpgradeTest(input_proto, expected_output_proto);
-}
+    this->RunPaddingUpgradeTest(input_proto, expected_output_proto);
+  }
 
-TEST_F(PaddingLayerUpgradeTest, TestImageNet) {
-  const string& input_proto =
+  TEST_F(PaddingLayerUpgradeTest, TestImageNet)
+  {
+    const string & input_proto =
       "name: 'CaffeNet' "
       "layers { "
       "  layer { "
@@ -750,7 +755,7 @@ TEST_F(PaddingLayerUpgradeTest, TestImageNet) {
       "  bottom: 'fc8' "
       "  bottom: 'label' "
       "} ";
-  const string& expected_output_proto =
+    const string & expected_output_proto =
       "name: 'CaffeNet' "
       "layers { "
       "  layer { "
@@ -1083,48 +1088,50 @@ TEST_F(PaddingLayerUpgradeTest, TestImageNet) {
       "  bottom: 'fc8' "
       "  bottom: 'label' "
       "} ";
-  this->RunPaddingUpgradeTest(input_proto, expected_output_proto);
-}
-
-class NetUpgradeTest : public ::testing::Test {
- protected:
-  void RunV0UpgradeTest(
-      const string& input_param_string, const string& output_param_string) {
-    // Test that UpgradeV0Net called on the NetParameter proto specified by
-    // input_param_string results in the NetParameter proto specified by
-    // output_param_string.
-    NetParameter input_param;
-    CHECK(google::protobuf::TextFormat::ParseFromString(
-        input_param_string, &input_param));
-    NetParameter expected_output_param;
-    CHECK(google::protobuf::TextFormat::ParseFromString(
-        output_param_string, &expected_output_param));
-    NetParameter actual_output_param;
-    UpgradeV0Net(input_param, &actual_output_param);
-    EXPECT_EQ(expected_output_param.DebugString(),
-        actual_output_param.DebugString());
+    this->RunPaddingUpgradeTest(input_proto, expected_output_proto);
   }
 
-  void RunV1UpgradeTest(
-      const string& input_param_string, const string& output_param_string) {
-    // Test that UpgradeV0Net called on the NetParameter proto specified by
-    // input_param_string results in the NetParameter proto specified by
-    // output_param_string.
-    NetParameter input_param;
-    CHECK(google::protobuf::TextFormat::ParseFromString(
-        input_param_string, &input_param));
-    NetParameter expected_output_param;
-    CHECK(google::protobuf::TextFormat::ParseFromString(
-        output_param_string, &expected_output_param));
-    NetParameter actual_output_param;
-    UpgradeV1Net(input_param, &actual_output_param);
-    EXPECT_EQ(expected_output_param.DebugString(),
-        actual_output_param.DebugString());
-  }
-};
+  class NetUpgradeTest : public ::testing::Test
+  {
+  protected:
+    void RunV0UpgradeTest(
+      const string & input_param_string, const string & output_param_string) {
+      // Test that UpgradeV0Net called on the NetParameter proto specified by
+      // input_param_string results in the NetParameter proto specified by
+      // output_param_string.
+      NetParameter input_param;
+      CHECK(google::protobuf::TextFormat::ParseFromString(
+              input_param_string, &input_param));
+      NetParameter expected_output_param;
+      CHECK(google::protobuf::TextFormat::ParseFromString(
+              output_param_string, &expected_output_param));
+      NetParameter actual_output_param;
+      UpgradeV0Net(input_param, &actual_output_param);
+      EXPECT_EQ(expected_output_param.DebugString(),
+                actual_output_param.DebugString());
+    }
 
-TEST_F(NetUpgradeTest, TestSimple) {
-  const string& v0_proto =
+    void RunV1UpgradeTest(
+      const string & input_param_string, const string & output_param_string) {
+      // Test that UpgradeV0Net called on the NetParameter proto specified by
+      // input_param_string results in the NetParameter proto specified by
+      // output_param_string.
+      NetParameter input_param;
+      CHECK(google::protobuf::TextFormat::ParseFromString(
+              input_param_string, &input_param));
+      NetParameter expected_output_param;
+      CHECK(google::protobuf::TextFormat::ParseFromString(
+              output_param_string, &expected_output_param));
+      NetParameter actual_output_param;
+      UpgradeV1Net(input_param, &actual_output_param);
+      EXPECT_EQ(expected_output_param.DebugString(),
+                actual_output_param.DebugString());
+    }
+  };
+
+  TEST_F(NetUpgradeTest, TestSimple)
+  {
+    const string & v0_proto =
       "name: 'CaffeNet' "
       "layers { "
       "  layer { "
@@ -1200,7 +1207,7 @@ TEST_F(NetUpgradeTest, TestSimple) {
       "  bottom: 'fc8' "
       "  bottom: 'label' "
       "} ";
-  const string& expected_v1_proto =
+    const string & expected_v1_proto =
       "name: 'CaffeNet' "
       "layers { "
       "  name: 'data' "
@@ -1268,9 +1275,8 @@ TEST_F(NetUpgradeTest, TestSimple) {
       "  bottom: 'fc8' "
       "  bottom: 'label' "
       "} ";
-  this->RunV0UpgradeTest(v0_proto, expected_v1_proto);
-
-  const string& expected_v2_proto =
+    this->RunV0UpgradeTest(v0_proto, expected_v1_proto);
+    const string & expected_v2_proto =
       "name: 'CaffeNet' "
       "layer { "
       "  name: 'data' "
@@ -1346,12 +1352,13 @@ TEST_F(NetUpgradeTest, TestSimple) {
       "  bottom: 'fc8' "
       "  bottom: 'label' "
       "} ";
-  this->RunV1UpgradeTest(expected_v1_proto, expected_v2_proto);
-}
+    this->RunV1UpgradeTest(expected_v1_proto, expected_v2_proto);
+  }
 
 // Test any layer or parameter upgrades not covered by other tests.
-TEST_F(NetUpgradeTest, TestAllParams) {
-  const string& input_proto =
+  TEST_F(NetUpgradeTest, TestAllParams)
+  {
+    const string & input_proto =
       "name: 'CaffeNet' "
       "input: 'input_data' "
       "input_dim: 64 "
@@ -1609,7 +1616,7 @@ TEST_F(NetUpgradeTest, TestAllParams) {
       "    type: 'tanh' "
       "  } "
       "} ";
-  const string& expected_output_proto =
+    const string & expected_output_proto =
       "name: 'CaffeNet' "
       "input: 'input_data' "
       "input_dim: 64 "
@@ -1847,11 +1854,12 @@ TEST_F(NetUpgradeTest, TestAllParams) {
       "  name: 'tanh' "
       "  type: TANH "
       "} ";
-  this->RunV0UpgradeTest(input_proto, expected_output_proto);
-}
+    this->RunV0UpgradeTest(input_proto, expected_output_proto);
+  }
 
-TEST_F(NetUpgradeTest, TestImageNet) {
-  const string& v0_proto =
+  TEST_F(NetUpgradeTest, TestImageNet)
+  {
+    const string & v0_proto =
       "name: 'CaffeNet' "
       "layers { "
       "  layer { "
@@ -2216,7 +2224,7 @@ TEST_F(NetUpgradeTest, TestImageNet) {
       "  bottom: 'fc8' "
       "  bottom: 'label' "
       "} ";
-  const string& expected_v1_proto =
+    const string & expected_v1_proto =
       "name: 'CaffeNet' "
       "layers { "
       "  name: 'data' "
@@ -2535,9 +2543,8 @@ TEST_F(NetUpgradeTest, TestImageNet) {
       "  bottom: 'fc8' "
       "  bottom: 'label' "
       "} ";
-  this->RunV0UpgradeTest(v0_proto, expected_v1_proto);
-
-  const string& expected_v2_proto =
+    this->RunV0UpgradeTest(v0_proto, expected_v1_proto);
+    const string & expected_v2_proto =
       "name: 'CaffeNet' "
       "layer { "
       "  name: 'data' "
@@ -2888,69 +2895,74 @@ TEST_F(NetUpgradeTest, TestImageNet) {
       "  bottom: 'fc8' "
       "  bottom: 'label' "
       "} ";
-  this->RunV1UpgradeTest(expected_v1_proto, expected_v2_proto);
-}  // NOLINT(readability/fn_size)
+    this->RunV1UpgradeTest(expected_v1_proto, expected_v2_proto);
+  }  // NOLINT(readability/fn_size)
 
-TEST_F(NetUpgradeTest, TestUpgradeV1LayerType) {
-  LayerParameter layer_param;
-  shared_ptr<Layer<float> > layer;
-  for (int i = 0; i < V1LayerParameter_LayerType_LayerType_ARRAYSIZE; ++i) {
-    ASSERT_TRUE(V1LayerParameter_LayerType_IsValid(i));
-    V1LayerParameter_LayerType v1_type = V1LayerParameter_LayerType(i);
-    string v2_layer_type(UpgradeV1LayerType(v1_type));
-    if (v2_layer_type == "") {
-      EXPECT_EQ(V1LayerParameter_LayerType_NONE, v1_type);
-      continue;  // Empty string isn't actually a valid layer type.
+  TEST_F(NetUpgradeTest, TestUpgradeV1LayerType)
+  {
+    LayerParameter layer_param;
+    boost::shared_ptr<Layer<float> > layer;
+    for (int i = 0; i < V1LayerParameter_LayerType_LayerType_ARRAYSIZE; ++i) {
+      ASSERT_TRUE(V1LayerParameter_LayerType_IsValid(i));
+      V1LayerParameter_LayerType v1_type = V1LayerParameter_LayerType(i);
+      string v2_layer_type(UpgradeV1LayerType(v1_type));
+      if (v2_layer_type == "") {
+        EXPECT_EQ(V1LayerParameter_LayerType_NONE, v1_type);
+        continue;  // Empty string isn't actually a valid layer type.
+      }
+      layer_param.set_type(v2_layer_type);
+      // Data layers expect a DB
+      if (v2_layer_type == "Data") {
+#ifdef USE_LEVELDB
+        string tmp;
+        MakeTempDir(&tmp);
+        boost::scoped_ptr<db::DB> db(db::GetDB(DataParameter_DB_LEVELDB));
+        db->Open(tmp, db::NEW);
+        db->Close();
+        layer_param.mutable_data_param()->set_source(tmp);
+#else
+        continue;
+#endif  // USE_LEVELDB
+      }
+#ifndef USE_OPENCV
+      if (v2_layer_type == "ImageData" || v2_layer_type == "WindowData") {
+        continue;
+      }
+#endif  // !USE_OPENCV
+      layer = LayerRegistry<float>::CreateLayer(layer_param);
+      EXPECT_EQ(v2_layer_type, layer->type());
     }
-    layer_param.set_type(v2_layer_type);
-    // Data layers expect a DB
-    if (v2_layer_type == "Data") {
-      #ifdef USE_LEVELDB
-      string tmp;
-      MakeTempDir(&tmp);
-      boost::scoped_ptr<db::DB> db(db::GetDB(DataParameter_DB_LEVELDB));
-      db->Open(tmp, db::NEW);
-      db->Close();
-      layer_param.mutable_data_param()->set_source(tmp);
-      #else
-      continue;
-      #endif  // USE_LEVELDB
-    }
-    #ifndef USE_OPENCV
-    if (v2_layer_type == "ImageData" || v2_layer_type == "WindowData") {
-     continue;
-    }
-    #endif  // !USE_OPENCV
-    layer = LayerRegistry<float>::CreateLayer(layer_param);
-    EXPECT_EQ(v2_layer_type, layer->type());
   }
-}
 
-class SolverTypeUpgradeTest : public ::testing::Test {
- protected:
-  void RunSolverTypeUpgradeTest(
-      const string& input_param_string, const string& output_param_string) {
-    // Test upgrading old solver_type field (enum) to new type field (string)
-    SolverParameter input_param;
-    CHECK(google::protobuf::TextFormat::ParseFromString(
-        input_param_string, &input_param));
-    SolverParameter expected_output_param;
-    CHECK(google::protobuf::TextFormat::ParseFromString(
-        output_param_string, &expected_output_param));
-    SolverParameter actual_output_param = input_param;
-    UpgradeSolverType(&actual_output_param);
-    EXPECT_EQ(expected_output_param.DebugString(),
-        actual_output_param.DebugString());
-  }
-};
+  class SolverTypeUpgradeTest : public ::testing::Test
+  {
+  protected:
+    void RunSolverTypeUpgradeTest(
+      const string & input_param_string, const string & output_param_string) {
+      // Test upgrading old solver_type field (enum) to new type field (string)
+      SolverParameter input_param;
+      CHECK(google::protobuf::TextFormat::ParseFromString(
+              input_param_string, &input_param));
+      SolverParameter expected_output_param;
+      CHECK(google::protobuf::TextFormat::ParseFromString(
+              output_param_string, &expected_output_param));
+      SolverParameter actual_output_param = input_param;
+      UpgradeSolverType(&actual_output_param);
+      EXPECT_EQ(expected_output_param.DebugString(),
+                actual_output_param.DebugString());
+    }
+  };
 
-TEST_F(SolverTypeUpgradeTest, TestSimple) {
-  const char* old_type_vec[6] = { "SGD", "ADAGRAD", "NESTEROV", "RMSPROP",
-      "ADADELTA", "ADAM" };
-  const char* new_type_vec[6] = { "SGD", "AdaGrad", "Nesterov", "RMSProp",
-      "AdaDelta", "Adam" };
-  for (int i = 0; i < 6; ++i) {
-    const string& input_proto =
+  TEST_F(SolverTypeUpgradeTest, TestSimple)
+  {
+    const char* old_type_vec[6] = { "SGD", "ADAGRAD", "NESTEROV", "RMSPROP",
+                                    "ADADELTA", "ADAM"
+                                  };
+    const char* new_type_vec[6] = { "SGD", "AdaGrad", "Nesterov", "RMSProp",
+                                    "AdaDelta", "Adam"
+                                  };
+    for (int i = 0; i < 6; ++i) {
+      const string & input_proto =
         "net: 'examples/mnist/lenet_train_test.prototxt' "
         "test_iter: 100 "
         "test_interval: 500 "
@@ -2966,7 +2978,7 @@ TEST_F(SolverTypeUpgradeTest, TestSimple) {
         "snapshot_prefix: 'examples/mnist/lenet_rmsprop' "
         "solver_mode: GPU "
         "solver_type: " + std::string(old_type_vec[i]) + " ";
-    const string& expected_output_proto =
+      const string & expected_output_proto =
         "net: 'examples/mnist/lenet_train_test.prototxt' "
         "test_iter: 100 "
         "test_interval: 500 "
@@ -2982,8 +2994,8 @@ TEST_F(SolverTypeUpgradeTest, TestSimple) {
         "snapshot_prefix: 'examples/mnist/lenet_rmsprop' "
         "solver_mode: GPU "
         "type: '" + std::string(new_type_vec[i]) + "' ";
-    this->RunSolverTypeUpgradeTest(input_proto, expected_output_proto);
+      this->RunSolverTypeUpgradeTest(input_proto, expected_output_proto);
+    }
   }
-}
 
 }  // NOLINT(readability/fn_size)  // namespace caffe

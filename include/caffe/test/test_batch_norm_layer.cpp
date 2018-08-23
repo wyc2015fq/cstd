@@ -15,15 +15,17 @@
 #define BATCH_SIZE 2
 #define INPUT_DATA_SIZE 3
 
-namespace caffe {
+namespace caffe
+{
 
   template <typename TypeParam>
-  class BatchNormLayerTest : public MultiDeviceTest<TypeParam> {
+  class BatchNormLayerTest : public MultiDeviceTest<TypeParam>
+  {
     typedef typename TypeParam::Dtype Dtype;
-   protected:
+  protected:
     BatchNormLayerTest()
-        : blob_bottom_(new Blob<Dtype>(5, 2, 3, 4)),
-          blob_top_(new Blob<Dtype>()) {
+      : blob_bottom_(new Blob<Dtype>(5, 2, 3, 4)),
+        blob_top_(new Blob<Dtype>()) {
       // fill the values
       FillerParameter filler_param;
       GaussianFiller<Dtype> filler(filler_param);
@@ -40,20 +42,18 @@ namespace caffe {
 
   TYPED_TEST_CASE(BatchNormLayerTest, TestDtypesAndDevices);
 
-  TYPED_TEST(BatchNormLayerTest, TestForward) {
+  TYPED_TEST(BatchNormLayerTest, TestForward)
+  {
     typedef typename TypeParam::Dtype Dtype;
     LayerParameter layer_param;
-
     BatchNormLayer<Dtype> layer(layer_param);
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
-
     // Test mean
     int num = this->blob_bottom_->num();
     int channels = this->blob_bottom_->channels();
     int height = this->blob_bottom_->height();
     int width = this->blob_bottom_->width();
-
     for (int j = 0; j < channels; ++j) {
       Dtype sum = 0, var = 0;
       for (int i = 0; i < num; ++i) {
@@ -67,7 +67,6 @@ namespace caffe {
       }
       sum /= height * width * num;
       var /= height * width * num;
-
       const Dtype kErrorBound = 0.001;
       // expect zero mean
       EXPECT_NEAR(0, sum, kErrorBound);
@@ -76,7 +75,8 @@ namespace caffe {
     }
   }
 
-  TYPED_TEST(BatchNormLayerTest, TestForwardInplace) {
+  TYPED_TEST(BatchNormLayerTest, TestForwardInplace)
+  {
     typedef typename TypeParam::Dtype Dtype;
     Blob<Dtype> blob_inplace(5, 2, 3, 4);
     vector<Blob<Dtype>*> blob_bottom_vec;
@@ -87,17 +87,14 @@ namespace caffe {
     filler.Fill(&blob_inplace);
     blob_bottom_vec.push_back(&blob_inplace);
     blob_top_vec.push_back(&blob_inplace);
-
     BatchNormLayer<Dtype> layer(layer_param);
     layer.SetUp(blob_bottom_vec, blob_top_vec);
     layer.Forward(blob_bottom_vec, blob_top_vec);
-
     // Test mean
     int num = blob_inplace.num();
     int channels = blob_inplace.channels();
     int height = blob_inplace.height();
     int width = blob_inplace.width();
-
     for (int j = 0; j < channels; ++j) {
       Dtype sum = 0, var = 0;
       for (int i = 0; i < num; ++i) {
@@ -111,7 +108,6 @@ namespace caffe {
       }
       sum /= height * width * num;
       var /= height * width * num;
-
       const Dtype kErrorBound = 0.001;
       // expect zero mean
       EXPECT_NEAR(0, sum, kErrorBound);
@@ -120,14 +116,14 @@ namespace caffe {
     }
   }
 
-  TYPED_TEST(BatchNormLayerTest, TestGradient) {
+  TYPED_TEST(BatchNormLayerTest, TestGradient)
+  {
     typedef typename TypeParam::Dtype Dtype;
     LayerParameter layer_param;
-
     BatchNormLayer<Dtype> layer(layer_param);
     GradientChecker<Dtype> checker(1e-2, 1e-4);
     checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
-        this->blob_top_vec_);
+                                    this->blob_top_vec_);
   }
 
 }  // namespace caffe

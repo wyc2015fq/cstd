@@ -17,18 +17,18 @@ template <typename Dtype> \
 void classname<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top, \
     const vector<bool>& propagate_down, \
     const vector<Blob<Dtype>*>& bottom) { NO_GPU; } \
-
+ 
 #define STUB_GPU_FORWARD(classname, funcname) \
 template <typename Dtype> \
 void classname<Dtype>::funcname##_##gpu(const vector<Blob<Dtype>*>& bottom, \
     const vector<Blob<Dtype>*>& top) { NO_GPU; } \
-
+ 
 #define STUB_GPU_BACKWARD(classname, funcname) \
 template <typename Dtype> \
 void classname<Dtype>::funcname##_##gpu(const vector<Blob<Dtype>*>& top, \
     const vector<bool>& propagate_down, \
     const vector<Blob<Dtype>*>& bottom) { NO_GPU; } \
-
+ 
 #else  // Normal GPU + CPU Caffe.
 
 #include <cublas_v2.h>
@@ -75,19 +75,21 @@ void classname<Dtype>::funcname##_##gpu(const vector<Blob<Dtype>*>& top, \
 // CUDA: check for error after kernel execution and exit loudly if there is one.
 #define CUDA_POST_KERNEL_CHECK CUDA_CHECK(cudaPeekAtLastError())
 
-namespace caffe {
+namespace caffe
+{
 
 // CUDA: library error reporting.
-const char* cublasGetErrorString(cublasStatus_t error);
-const char* curandGetErrorString(curandStatus_t error);
+  const char* cublasGetErrorString(cublasStatus_t error);
+  const char* curandGetErrorString(curandStatus_t error);
 
 // CUDA: use 512 threads per block
-const int CAFFE_CUDA_NUM_THREADS = 512;
+  const int CAFFE_CUDA_NUM_THREADS = 512;
 
 // CUDA: number of blocks for threads.
-inline int CAFFE_GET_BLOCKS(const int N) {
-  return (N + CAFFE_CUDA_NUM_THREADS - 1) / CAFFE_CUDA_NUM_THREADS;
-}
+  inline int CAFFE_GET_BLOCKS(const int N)
+  {
+    return (N + CAFFE_CUDA_NUM_THREADS - 1) / CAFFE_CUDA_NUM_THREADS;
+  }
 
 }  // namespace caffe
 

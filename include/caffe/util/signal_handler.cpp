@@ -6,12 +6,14 @@
 
 #include "caffe/util/signal_handler.h"
 
-namespace {
+namespace
+{
   static volatile sig_atomic_t got_sigint = false;
   static volatile sig_atomic_t got_sighup = false;
   static bool already_hooked_up = false;
 
-  void handle_signal(int signal) {
+  void handle_signal(int signal)
+  {
     switch (signal) {
       //case SIGHUP://there is no SIGHUP in windows
       //  got_sighup = true;
@@ -25,12 +27,12 @@ namespace {
     }
   }
 
-  void HookupHandler() {
+  void HookupHandler()
+  {
     if (already_hooked_up) {
       LOG(FATAL) << "Tried to hookup signal handlers more than once.";
     }
     already_hooked_up = true;
-
     //struct sigaction sa;
     //// Setup the handler
     //sa.sa_handler = &handle_signal;
@@ -54,7 +56,8 @@ namespace {
   }
 
   // Set the signal handlers to the default.
-  void UnhookHandler() {
+  void UnhookHandler()
+  {
     if (already_hooked_up) {
       //struct sigaction sa;
       //// Setup the sighub handler
@@ -82,7 +85,8 @@ namespace {
 
   // Return true iff a SIGINT has been received since the last time this
   // function was called.
-  bool GotSIGINT() {
+  bool GotSIGINT()
+  {
     bool result = got_sigint;
     got_sigint = false;
     return result;
@@ -90,40 +94,46 @@ namespace {
 
   // Return true iff a SIGHUP has been received since the last time this
   // function was called.
-  bool GotSIGHUP() {
+  bool GotSIGHUP()
+  {
     bool result = got_sighup;
     got_sighup = false;
     return result;
   }
 }  // namespace
 
-namespace caffe {
+namespace caffe
+{
 
-SignalHandler::SignalHandler(SolverAction::Enum SIGINT_action,
-                             SolverAction::Enum SIGHUP_action):
-  SIGINT_action_(SIGINT_action),
-  SIGHUP_action_(SIGHUP_action) {
-  HookupHandler();
-}
-
-SignalHandler::~SignalHandler() {
-  UnhookHandler();
-}
-
-SolverAction::Enum SignalHandler::CheckForSignals() const {
-  if (GotSIGHUP()) {
-    return SIGHUP_action_;
+  SignalHandler::SignalHandler(SolverAction::Enum SIGINT_action,
+                               SolverAction::Enum SIGHUP_action):
+    SIGINT_action_(SIGINT_action),
+    SIGHUP_action_(SIGHUP_action)
+  {
+    HookupHandler();
   }
-  if (GotSIGINT()) {
-    return SIGINT_action_;
+
+  SignalHandler::~SignalHandler()
+  {
+    UnhookHandler();
   }
-  return SolverAction::NONE;
-}
+
+  SolverAction::Enum SignalHandler::CheckForSignals() const
+  {
+    if (GotSIGHUP()) {
+      return SIGHUP_action_;
+    }
+    if (GotSIGINT()) {
+      return SIGINT_action_;
+    }
+    return SolverAction::NONE;
+  }
 
 // Return the function that the solver can use to find out if a snapshot or
 // early exit is being requested.
-ActionCallback SignalHandler::GetActionFunction() {
-  return boost::bind(&SignalHandler::CheckForSignals, this);
-}
+  ActionCallback SignalHandler::GetActionFunction()
+  {
+    return boost::bind(&SignalHandler::CheckForSignals, this);
+  }
 
 }  // namespace caffe

@@ -1,11 +1,12 @@
 
-#ifndef _CAFFE_INL_
-#define _CAFFE_INL_
+#ifndef _LIBCAFFE_CPP_
+#define _LIBCAFFE_CPP_
 
 #include <boost/get_pointer.hpp>
 //#define GET_POINTER_DWA20021219_HPP
-namespace boost {
-	//template <typename T>	T * get_pointer(T * p) { return p; }
+namespace boost
+{
+  //template <typename T>	T * get_pointer(T * p) { return p; }
 }
 
 
@@ -168,7 +169,7 @@ namespace boost {
 #include "..\caffe\layers\window_data_layer.cpp"
 
 //using namespace std;
-#include "..\caffe\layers\memory_data_layer.hpp"
+#include "..\caffe\layers\memory_data_layer.cpp"
 
 #if 0
 #include "..\caffe\blob.hpp"
@@ -275,22 +276,23 @@ namespace boost {
 #include "..\caffe\solver_factory.hpp"
 
 
-namespace boost {
+namespace boost
+{
 #if 1
-	template <typename T>	T const volatile * get_pointer(T const volatile * p) { return p; }
+  template <typename T>	T const volatile* get_pointer(T const volatile* p) { return p; }
 #define GET_POINTER_DEF(T) 	template <>	T* get_pointer<T>(T * p) { return p; }
-	//#define GET_POINTER_DEF(T) 	T* get_pointer(T * p) { return p; }
-	GET_POINTER_DEF(class caffe::SolverParameter const volatile);
-	GET_POINTER_DEF(class caffe::Net<float> const volatile);
-	GET_POINTER_DEF(class caffe::Timer const volatile);
-	GET_POINTER_DEF(class caffe::AdamSolver<float> const volatile);
-	GET_POINTER_DEF(class caffe::AdaDeltaSolver<float> const volatile);
-	GET_POINTER_DEF(class caffe::RMSPropSolver<float> const volatile);
-	GET_POINTER_DEF(class caffe::NesterovSolver<float> const volatile);
-	GET_POINTER_DEF(class caffe::SGDSolver<float> const volatile);
-	GET_POINTER_DEF(class caffe::AdaGradSolver<float> const volatile);
-	GET_POINTER_DEF(class caffe::Layer<float> const volatile);
-	GET_POINTER_DEF(class caffe::Solver<float> const volatile);
+  //#define GET_POINTER_DEF(T) 	T* get_pointer(T * p) { return p; }
+  GET_POINTER_DEF(class caffe::SolverParameter const volatile);
+  GET_POINTER_DEF(class caffe::Net<float> const volatile);
+  GET_POINTER_DEF(class caffe::Timer const volatile);
+  GET_POINTER_DEF(class caffe::AdamSolver<float> const volatile);
+  GET_POINTER_DEF(class caffe::AdaDeltaSolver<float> const volatile);
+  GET_POINTER_DEF(class caffe::RMSPropSolver<float> const volatile);
+  GET_POINTER_DEF(class caffe::NesterovSolver<float> const volatile);
+  GET_POINTER_DEF(class caffe::SGDSolver<float> const volatile);
+  GET_POINTER_DEF(class caffe::AdaGradSolver<float> const volatile);
+  GET_POINTER_DEF(class caffe::Layer<float> const volatile);
+  GET_POINTER_DEF(class caffe::Solver<float> const volatile);
 #undef GET_POINTER_DEF
 #endif
 }

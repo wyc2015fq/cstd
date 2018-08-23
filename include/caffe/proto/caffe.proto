@@ -905,7 +905,7 @@ message ImageDataParameter {
   optional string root_folder = 12 [default = ""];
   
   //multi task
-  optional uint32 task_class_num = 13 [default = 1];
+  optional uint32 lebel_size = 13 [default = 1];
   
   //regression
   optional bool regression = 14 [default = false];
@@ -984,7 +984,7 @@ message MemoryDataParameter {
   optional uint32 channels = 2;
   optional uint32 height = 3;
   optional uint32 width = 4;
-  optional uint32 label_size = 5;
+  optional uint32 label_size = 5 [default = 1];
 }
 
 message MVNParameter {
