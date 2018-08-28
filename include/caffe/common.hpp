@@ -3,8 +3,6 @@
 
 #include <boost/shared_ptr.hpp>
 //#include <gflags/gflags.h>
-//#include "caffe/util/logging.hpp"
-#include "caffe/util/logging.hpp"
 
 #include <climits>
 #include <cmath>

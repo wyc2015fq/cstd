@@ -13,9 +13,10 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <direct.h>
 
 #include "boost/scoped_ptr.hpp"
-#include "gflags/gflags.h"
+#include "caffe/util/flags.hpp"
 #include "caffe/util/logging.hpp"
 
 #include "caffe/proto/caffe.pb.h"
@@ -23,9 +24,14 @@
 #include "caffe/util/format.hpp"
 #include "caffe/util/io.hpp"
 #include "caffe/util/rng.hpp"
+//#include "caffe/libcaffe.cpp"
 
-#include <windows.h>
-
+#include "caffe/common.cpp"
+#include "caffe/proto/caffe.pb.cc"
+#include "caffe/util/db.cpp"
+#include "caffe/util/io.cpp"
+#include "caffe/util/db_leveldb.cpp"
+#include "caffe/util/db_lmdb.cpp"
 
 #ifdef USE_OPENCV
 #include <opencv2/core/core.hpp>
@@ -43,7 +49,7 @@ DEFINE_bool(gray, false,
 DEFINE_bool(shuffle, true,
             "Randomly shuffle the order of images and their labels");
 DEFINE_string(backend, "leveldb",
-              "The backend {lmdb, leveldb} for storing the result");
+              "The backend (lmdb, leveldb) for storing the result");
 DEFINE_int32(resize_width, 0, "Width images are resized to");
 DEFINE_int32(resize_height, 0, "Height images are resized to");
 DEFINE_bool(check_size, false,
@@ -54,18 +60,26 @@ DEFINE_string(encode_type, "",
               "Optional: What type should we encode the image as ('png','jpg',...).");
 
 
+size_t rfind_splash(const std::string& line, size_t pos) {
+  size_t pos1 = line.rfind('/', pos);
+  if (pos1>line.size()) {
+    pos1 = line.rfind('\\', pos);
+  }
+  if (pos1 > line.size()) {
+    pos1 = 0;
+  }
+  return pos1;
+}
+
 int convert_db(int argc, char** argv)
 {
-#ifndef GFLAGS_GFLAGS_H_
-  namespace gflags = google;
-#endif
   gflags::SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
                           "format used as input for Caffe.\n"
                           "Usage:\n"
                           "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
                           "The ImageNet dataset for the training demo is at\n"
                           "    http://www.image-net.org/download-images\n");
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
+  gflags::ParseCommandLineFlags(argc, argv, true);
   if (argc < 4) {
     gflags::ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
     return 1;
@@ -94,6 +108,14 @@ int convert_db(int argc, char** argv)
     size_t firstblank = line.find(' ', postfixpos + 1);
     filename = line.substr(0, firstblank);
     string strlabels = line.substr(firstblank + 1);
+    if (firstblank > line.size()) {
+      size_t pos1 = rfind_splash(line, -1);
+      size_t pos2 = rfind_splash(line, pos1 - 1);
+      if (pos2 > 0) {
+        ++pos2;
+      }
+      strlabels = line.substr(pos2, pos1- pos2);
+    }
     std::istringstream iss(strlabels);
     vector<int> labels;
     while (iss >> label) {
@@ -189,7 +211,7 @@ void read_db(int argc, char** argv)
   string dbfolder = argv[1];
   string dstfolder = argv[2];
   int num = atoi(argv[3]);
-  CreateDirectoryA(dstfolder.c_str(), NULL);
+  _mkdir(dstfolder.c_str());
   scoped_ptr<db::DB> db(db::GetDB("leveldb"));
   db->Open(dbfolder.c_str(), db::READ);
   shared_ptr<db::Cursor> cursor(db->NewCursor());
@@ -217,14 +239,17 @@ void read_db(int argc, char** argv)
   }
 }
 
-int main(int argc, char** argv)
+int convert_imageset(int argc, char** argv)
 {
 #ifdef USE_OPENCV
   ::google::InitGoogleLogging(argv[0]);
   // Print output to stderr (while still logging)
   FLAGS_alsologtostderr = 1;
   //FLAGS_alsologtostderr
-  convert_db(argc, argv);
+  _chdir("C://caffe_train//ocr");
+  char* argv_[] = {"<bin>", "", "test.txt", "test", "--gray=true", "--resize_width=30", "--resize_height=30" };
+  convert_db(7, argv_);
+  //convert_db(argc, argv);
 #else
   LOG(FATAL) << "This tool requires OpenCV; compile with USE_OPENCV.";
 #endif  // USE_OPENCV

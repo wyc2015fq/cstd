@@ -1,6 +1,6 @@
 
 #include "caffe_config.h"
-#define __CUDACC_VER__ 9200
+
 
 #ifdef USE_CUDNN
 

@@ -3,8 +3,10 @@
 #define WIN64
 #endif
 
+//#define __CUDACC_VER__ 9200
+
 //#define WITH_PYTHON_LAYER
-#define CPU_ONLY
+//#define CPU_ONLY
 #ifndef CPU_ONLY
 #define USE_CUDNN
 #endif

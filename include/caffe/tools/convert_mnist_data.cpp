@@ -27,6 +27,8 @@
 #include "caffe/util/db.hpp"
 #include "caffe/util/format.hpp"
 
+//#include "caffe/util/logging.hpp"
+#include "caffe/util/flags.hpp"
 #include "caffe/libcaffe.cpp"
 
 #if 0
@@ -47,7 +49,6 @@ uint32_t swap_endian(uint32_t val)
   return (val << 16) | (val >> 16);
 }
 
-#include "../util/CommandLineParser.hpp"
 
 int convert_dataset(const char* image_filename, const char* label_filename,
                     const char* db_path, const string & db_backend)

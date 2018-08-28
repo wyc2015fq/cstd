@@ -11,9 +11,11 @@
 
 #include "boost/scoped_ptr.hpp"
 #include "caffe/util/logging.hpp"
+#include "caffe/util/flags.hpp"
 #include "google/protobuf/text_format.h"
 #include "stdint.h"
 
+#include "caffe/libcaffe.cpp"
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/db.hpp"
 #include "caffe/util/format.hpp"
@@ -61,7 +63,8 @@ void convert_dataset(const string & input_folder, const string & output_folder,
     CHECK(data_file) << "Unable to open train file #" << fileid + 1;
     for (int itemid = 0; itemid < kCIFARBatchSize; ++itemid) {
       read_image(&data_file, &label, str_buffer);
-      datum.set_label(label);
+      datum.clear_label();
+      datum.add_label(label);
       datum.set_data(str_buffer, kCIFARImageNBytes);
       string out;
       CHECK(datum.SerializeToString(&out));
@@ -80,7 +83,8 @@ void convert_dataset(const string & input_folder, const string & output_folder,
   CHECK(data_file) << "Unable to open test file.";
   for (int itemid = 0; itemid < kCIFARBatchSize; ++itemid) {
     read_image(&data_file, &label, str_buffer);
-    datum.set_label(label);
+    datum.clear_label();
+    datum.add_label(label);
     datum.set_data(str_buffer, kCIFARImageNBytes);
     string out;
     CHECK(datum.SerializeToString(&out));
@@ -90,7 +94,7 @@ void convert_dataset(const string & input_folder, const string & output_folder,
   test_db->Close();
 }
 
-int main(int argc, char** argv)
+int convert_cifar_data(int argc, char** argv)
 {
   FLAGS_alsologtostderr = 1;
   if (argc != 4) {

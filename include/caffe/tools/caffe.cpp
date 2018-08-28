@@ -3,6 +3,7 @@
 namespace bp = boost::python;
 #endif
 
+#include "caffe/libcaffe.cpp"
 #include "caffe/util/flags.hpp"
 #include "caffe/util/logging.hpp"
 //#include "caffe/util/logging.hpp"
@@ -428,7 +429,7 @@ int time()
 }
 RegisterBrewFunction(time);
 
-int main(int argc, char** argv)
+int test_caffe(int argc, char** argv)
 {
   // Print output to stderr (while still logging).
   FLAGS_alsologtostderr = 1;

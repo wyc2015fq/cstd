@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <cmath>  // for std::fabs and std::signbit
 
-#include "caffe/util/logging.hpp"
-
 #include "caffe/common.hpp"
 #include "caffe/util/device_alternate.hpp"
 #include "caffe/util/mkl_alternate.hpp"

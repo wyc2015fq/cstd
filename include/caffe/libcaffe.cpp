@@ -52,6 +52,8 @@ namespace boost
 #pragma warning(disable:4661)
 //#include "proto/caffe.pb.h"
 //#include "proto/caffe.pb.cc"
+#include "caffe/util/logging.hpp"
+#include "caffe/util/flags.hpp"
 #include "..\caffe\blob.cpp"
 #include "..\caffe\common.cpp"
 #include "..\caffe\data_reader.cpp"

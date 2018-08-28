@@ -19,19 +19,14 @@ DEFINE_int32(v, 0, "in vlog_is_on.cc");
 DEFINE_int32(max_log_size, 100, "Sets the maximum log file size (in MB).");
 DEFINE_bool(stop_logging_if_full_disk, true, "Sets whether to avoid logging to the disk if the disk is full.");
 
-//#include <iostream>
-
-struct NulStream {
-  template <typename T> inline NulStream & operator<<(const T & x) { return *this; }
-} nulstream;
+#include <iostream>
 
 struct LogMessageVoidify {
   void operator&(std::ostream &) {}
 };
 
-
 #define LOGNULL  (void)0
-#define LOG(severity) std::cout
+#define LOG(severity) (std::cout << std::endl)
 
 #define LOG_IF(severity, condition)   !(condition) ? (void)0 : LogMessageVoidify() & LOG(severity)
 #define GOOGLE_PREDICT_BRANCH_NOT_TAKEN(x)  (x)
@@ -59,14 +54,14 @@ struct LogMessageVoidify {
 #define DCHECK_GE CHECK_GE
 #define DCHECK_GT CHECK_GT
 #else
-#define DLOG(severity)  LOGNULL
-#define DCHECK LOGNULL
-#define DCHECK_EQ(val1, val2) LOGNULL
-#define DCHECK_NE(val1, val2) LOGNULL
-#define DCHECK_LE(val1, val2) LOGNULL
-#define DCHECK_LT(val1, val2) LOGNULL
-#define DCHECK_GE(val1, val2) LOGNULL
-#define DCHECK_GT(val1, val2) LOGNULL
+#define DLOG(severity)  LOG_IF(severity, false)
+#define DCHECK(condition) LOG_IF(FATAL, false)
+#define DCHECK_EQ(val1, val2) DCHECK(false)
+#define DCHECK_NE(val1, val2) DCHECK(false)
+#define DCHECK_LE(val1, val2) DCHECK(false)
+#define DCHECK_LT(val1, val2) DCHECK(false)
+#define DCHECK_GE(val1, val2) DCHECK(false)
+#define DCHECK_GT(val1, val2) DCHECK(false)
 #endif
 
 namespace google
@@ -76,8 +71,8 @@ namespace google
     GLOG_INFO = 0, GLOG_WARNING = 1, GLOG_ERROR = 2, GLOG_FATAL = 3,
     NUM_SEVERITIES = 4
   };
-  void SetLogDestination(enum GLOGTYPE type, const char* str) {}
-  void InitGoogleLogging(const char* str) {}
+  static void SetLogDestination(enum GLOGTYPE type, const char* str) {}
+  static void InitGoogleLogging(const char* str) {}
 }
 
 #endif // _LOGGING_HPP_
