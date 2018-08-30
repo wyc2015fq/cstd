@@ -8,8 +8,8 @@
 
 int cascade_pass_img(CASCADE* ca, const uchar* im1_data, int al, double* pscore) {
   double* inter = 0;
-  const cx = ca->w, cy = ca->h;
-  const w = ca->w, h = ca->h;
+  const int cx = ca->w, cy = ca->h;
+  const int w = ca->w, h = ca->h;
   const int INTEGRAL_CN = ca->featfun->INTEGRAL_CN;
   int stp = (w + 1);
   int siz = (h + 1) * stp * INTEGRAL_CN;
@@ -38,7 +38,7 @@ int cascade_pass_img(CASCADE* ca, const uchar* im1_data, int al, double* pscore)
 int cascade_detect(buf_t* bf, CASCADE* ca, const img_t* im0, double ssmin, double ssmax, double ss, int stepxy, XRECT* B, int B_len)
 {
   int i, len = 0;
-  const cx = ca->w, cy = ca->h;
+  const int cx = ca->w, cy = ca->h;
   const int INTEGRAL_CN = ca->featfun->INTEGRAL_CN;
   int w = FLOOR(im0->w / ssmin), h = FLOOR(im0->h / ssmin);
   int stp = (w + 1);
@@ -61,8 +61,8 @@ int cascade_detect(buf_t* bf, CASCADE* ca, const img_t* im0, double ssmin, doubl
     double* inter1 = inter+(h+1)*(w+1);
     stp = (w + 1);
     
-    bf_imresize_impl(bf, im->h, im->w, im->tt.data, im->s, im->c, h, w, im1_data, w * im->c, im->c, CV_INTER_AREA);
-    //imshow(im1);cvWaitKey(-1);
+    bf_imresize_impl(im->h, im->w, im->tt.data, im->s, im->c, h, w, im1_data, w * im->c, im->c, CC_INTER_AREA);
+    //ShowImage("", h, w, im1_data, w * im->c, im->c);waitkey(-1);
     
     ca->featfun->integral(h, w, im1_data, w * im->c, inter, stp, INTEGRAL_CN);
     chptr = (char*)(ca->featptr);
@@ -101,7 +101,7 @@ int cascade_detect(buf_t* bf, CASCADE* ca, const img_t* im0, double ssmin, doubl
   BFFREE(bf, im1_data, im1sz);
   bf_imfree(bf, im);
   
-  if (0 && len > 0) {
+  if (1 && len > 0) {
     char* pabuf = 0;
     int pabuflen = SEQPARTITIONSIZE(sizeof(XRECT), len), plen;
     BFMALLOC(bf, pabuf, pabuflen);

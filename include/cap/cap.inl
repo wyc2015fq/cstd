@@ -5,13 +5,14 @@
 //#define WINVER
 //#include <windows.h>
 //#include "cstd.h"
+//#include "cap.h"
 //#include "img\color.inl"
 //#include "img/color.inl"
 #define CAPE_OPEN_DEF(name, impl)  int name(cap_t* s, int idx, int width, int height) {return impl(s, idx, width, height);}
 #ifdef _WIN32
 #undef CC_CDECL
 #undef CC_STDCALL
-#include "capdshow.inl"
+//#include "capdshow.inl"
 #include "capvfw.inl"
 #include "capvfwavi.inl"
 #ifdef __cplusplus

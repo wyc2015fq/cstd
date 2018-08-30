@@ -14,9 +14,10 @@
 #include "lutweak.inl"
 #include "genweak.inl"
 #include "cascade.inl"
+#include "cap.h"
 
 //#include "img/color.inl"
-//#include "draw/imdraw.inl"
+#include "draw/imdraw.inl"
 //#include "test_luobo.inl"
 int test_cascade1() {
   cascade_t ca[1] = {0};
@@ -29,17 +30,22 @@ int test_cascade1() {
   buf_t bf[1] = {0};
   sys_chdir("D:/pub/bin/adaboost/lobo");
   sys_chdir("D:/pub/faceplusplus/gender/out");
-  vstr_load("test_image_list.txt", sv);
+  sys_chdir("E:/OCR_Line/adaboost");
+  vstr_load("testlist.ini", sv);
 
   if (1) {
     fn = "haar_LUT_nesting_cas.dat";
     fn = "cas.dat";
     fn = "haar_gen_cas.dat";
     fn = "gender_cas.dat";
+    fn = "idcard_cas.dat";
+    fn = "idcard_cas.dat";
+    fn = "cas.dat";
     INIT_CA_FUN(ca, HAAR, GEN);
     INIT_CA_FUN(ca, HAAR, LUT);
     cascade_load(fn, ca);
-    ca->w = 100, ca->h = 100;
+    //ca->w = 100, ca->h = 100;
+    //ca->w = 30, ca->h = 20;
   } 
   if (0) {
 #ifdef _LUOBO_INL_
@@ -58,8 +64,29 @@ int test_cascade1() {
     //ca->stagelen = 3;
   }
   bfsetsize(bf, 20*_1M);
+  if (0) {
+    cap_t cap[1] = { 0 };
+    if (capvfw_open(cap, 0, 640, 480) > 0) {
+      int fram = 0;
+      char ch = 0;
+      img_t im[1] = { 0 };
+      for (; 'q' != ch && 'Q' != ch; ++fram) {
+        cap_getframe(cap, im, CAP_RGB);
+        //printf("%d w=%d h=%d\n", fram, im->w, im->h);
+        imshow_(im);
+        ch = waitkey(10);
+      }
+      cap_close(cap);
+      imfree(im);
+    }
+    return 0;
+  }
+
   for (i=0; i<sv->n; ++i) {
-    imread((char*)sv->v[i].s, 3, 1, im);
+    if (!imread((char*)sv->v[i].s, 3, 1, im)) continue;
+    if (im->h>600) {
+      imresize1(im, 600./im->h, im);
+    }
     imcolorcvt(im, gry, T_BGR, T_GRAY);
     if (ca->w == 80) {
       //n = lobo_detect(ca, im, out, countof(out));
@@ -67,16 +94,24 @@ int test_cascade1() {
       n = cascade_detect(bf, ca, gry, 1, 1000, 1.1, 1, out, countof(out));
     }
     printf("%d\n", n);
-    //imdraw_xrects(im, out, n);
-    imshow(im);
-    cvWaitKey(-1);
+    int j;
+    for (j=0; j<n; ++j) {
+      //imdraw_xrects(im, out, n);
+      if (out[j].count>5) {
+        DRECT rc = dRECT2(out[j].x, out[j].y, out[j].w, out[j].h);
+        imdrawaa_rect(im, 0, NULL, rc, 0, _RGB(255, 0, 0), 1);
+      }
+    }
+    imshow_(im);
+    waitkey(-1);
   }
   bffree(bf);
   freeims(im, 2);
-  strv_free(sv);
+  vstr_free(sv);
   return 0;
 }
 
+#if 0
 #include "face/face_recog.inl"
 
 int test_cascade2() {
@@ -240,7 +275,8 @@ int test_cascade() {
   strv_free(sv);
   return 0;
 }
-#include "draw/imdrawaa.inl"
+#include "cap.h"
+#include "draw/imdraw.inl"
 int test_cascade_cam() {
   int high = 0;
   capdev cap[1] = {0};
@@ -290,10 +326,21 @@ int test_cascade_cam() {
   }
   return 0;
 }
-int test_adaboost_train() {
+#endif
+int test_imread() {
+  img_t im[1] = { 0 };
+  char* fn = "E:/www/news.ifeng.com/jpg/c1.ifengimg.com/iamsImg/2017/09/01/ee8dab9516b0566114d538648fbd7b86_w180_h30.jpg";
+  if (imread(fn, 1, 1, im)) {
+    int asdf = 0;
+  }
+  imfree(im);
+  return 0;
+}
+int test_adaboost() {
   adaboost_t hh[1] = {0};
+  //test_imread();
   //return test_cascade_cam();
-  return test_cascade2();
+  //return test_cascade2();
 #ifdef _DEBUG
   
   if (1) {
@@ -306,6 +353,7 @@ int test_adaboost_train() {
     sys_chdir("D:/pub/bin/adaboost/data");
     sys_chdir("D:/pub/bin/adaboost/gender");
     sys_chdir("D:/pub/faceplusplus/gender/out");
+    sys_chdir("E:/OCR_Line/adaboost");
   }
   
 #endif // _DEBUG

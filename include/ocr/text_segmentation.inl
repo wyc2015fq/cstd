@@ -16,7 +16,7 @@ typedef struct
 
 }char_range_t;
 
-void draw_projection(vector<int>& pos, int mode)
+void show_projection(vector<int>& pos, int mode)
 {
 	vector<int>::iterator max = std::max_element(std::begin(pos), std::end(pos)); //求最大值
 	if (mode == H_PROJECT)
@@ -77,7 +77,7 @@ int GetTextProjection(const Mat &src, vector<int>& pos, int mode)
 			}
 		}
 
-		//draw_projection(pos, V_PROJECT);
+		show_projection(pos, V_PROJECT);
 	}
 	else if (mode == H_PROJECT)
 	{
@@ -96,7 +96,7 @@ int GetTextProjection(const Mat &src, vector<int>& pos, int mode)
 				}
 			}
 		}
-		//draw_projection(pos, H_PROJECT);
+		show_projection(pos, H_PROJECT);
 
 	}	
 
@@ -145,9 +145,6 @@ int GetPeekRange(vector<int> &vertical_pos, vector<char_range_t> &peek_range, in
 
 	return 0;
 }
-
-
-
 
 inline void save_cut(const Mat& img, int id)
 {
@@ -273,7 +270,12 @@ int getMinPos(const vector<int>& pos, int k, int range) {
 	int e = (int)CLAMP((k + range), 0, n - 1);
 	int minv = pos[k];
 	int s = 0, mini = k;
-	minv = *std::min_element(pos.begin(), pos.end());
+  minv = pos[(b + e)/2];
+  for (int i = b; i < e; ++i) {
+    if (pos[i] < minv) {
+      minv = pos[i];
+    }
+  }
 	n = 0;
 	minv += 5;
 	for (int i = b; i < e; ++i) {
@@ -285,58 +287,73 @@ int getMinPos(const vector<int>& pos, int k, int range) {
 	mini = s / n;
 	return mini;
 }
+Range getRange(const vector<int>& pos, double thd) {
+  int b = 0, e = pos.size();
+  int minv = pos[(b + e) / 2];
+  int maxv = pos[(b + e) / 2];
+  int thdv = minv;
+  for (int i = b; i < e; ++i) {
+    if (pos[i] < minv) {
+      minv = pos[i];
+    }
+    else if (pos[i] > maxv) {
+      maxv = pos[i];
+    }
+  }
+  thdv = minv + int(thd*(maxv - minv));
+  for (; b < e && pos[b]<thdv; ++b);
+  for (; b < e && pos[e-1]<thdv; --e);
+  return Range(b, e);
+}
 
-vector<Mat> CutBlock(Mat img, const char* str) {
-	vector<Mat> out;
-	vector<int> pos;
-	threshold(img, img, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+vector<Rect> CutBlock(const Mat& src, const char* str) {
+	vector<Rect> out;
+  vector<int> pos;
+  vector<int> pos1;
+  Mat img;
+  Rect r(0, 0, src.cols, src.rows);
+	threshold(src, img, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+  cv::imshow("bin", img);
+  double thd = 0.05;
+  GetTextProjection(img(r), pos, 'v');
+  Range range1 = getRange(pos, thd);
+  GetTextProjection(img(r), pos, 'h');
+  Range range2 = getRange(pos, thd);
+  r = Rect(range1.start, range2.start, range1.size(), range2.size());
+  cv::imshow("bin2", img(r));
+  //waitKey();
 	for (; *str;) {
 		int n, c = *str++;
+    int w = r.width, h = r.height;
 		if (*str == 0) { assert(0); }
 		n = (*str++) - '0';
-		GetTextProjection(img, pos, c);
+		GetTextProjection(img(r), pos, c);
 		int mini = n*pos.size() / 10;
 		int range = pos.size() / 10;
 		mini = getMinPos(pos, mini, range);
 		switch (c) {
-		case 'V':
-		{
-			Rect r(0, 0, mini, img.rows);
-			Rect r2(mini, 0, img.cols - mini, img.rows);
-			out.push_back(img(r));
-			img = img(r2);
-		}
-		break;
-		case 'v':
-		{
-			Rect r2(0, 0, mini, img.rows);
-			Rect r(mini, 0, img.cols - mini, img.rows);
-			out.push_back(img(r));
-			img = img(r2);
-		}
-		break;
-		case 'H':
-		{
-			Rect r(0, 0, img.cols, mini);
-			Rect r2(0, mini, img.cols, img.rows - mini);
-			out.push_back(img(r));
-			img = img(r2);
-		}
-		break;
-		case 'h':
-		{
-			Rect r2(0, 0, img.cols, mini);
-			Rect r(0, mini, img.cols, img.rows - mini);
-			out.push_back(img(r));
-			img = img(r2);
-		}
-		break;
-		default:
-			assert(0);
+    case 'V':
+      out.push_back(Rect(r.x, r.y, mini, h));
+      r = Rect(r.x+mini, r.y, w - mini, h);
+      break;
+    case 'v':
+      out.push_back(Rect(r.x+mini, r.y, w - mini, h));
+      r = Rect(r.x, r.y, mini, h);
+      break;
+    case 'H':
+      out.push_back(Rect(r.x, r.y, w, mini));
+      r = Rect(r.x, r.y+mini, w, h - mini);
+      break;
+    case 'h':
+      out.push_back(Rect(r.x, r.y+mini, w, h - mini));
+      r = Rect(r.x, r.y, w, mini);
+      break;
+    default:
+      assert(0);
 			break;
 		}
 	}
-	out.push_back(img);
+	out.push_back(r);
 	return out;
 }
 
@@ -359,15 +376,16 @@ int LoadTextFileList(const string& testfile, std::vector<string>& imgs) {
 
 int text_segmentation()
 {
-	test_rotation_correction();
+	//test_rotation_correction();
 	if (1) {
 		std::vector<string> flist;
 		LoadTextFileList("E:/OCR_Line/demo_images/list.txt", flist);
 		for (int j = 0; j < flist.size(); ++j) {
 			Mat img = imread(flist[j], 0);
-			imshow("src", img);
 			//resize(img, img, Size(), 2, 2, INTER_LANCZOS4);
-			vector<Mat> chars_set = CutBlock(img, "h7v7");
+      resize(img, img, Size(800, 600));
+      imshow("src", img);
+			vector<Rect> chars_set = CutBlock(img, "h7v7");
 			//vector<Mat> chars_set = CutSingleChar(img);
 			//waitKey();
 
@@ -375,7 +393,8 @@ int text_segmentation()
 			{
 				char buf[256];
 				snprintf(buf, 256, "chars_set %d", i);
-				cv::imshow(buf, chars_set[i]);
+        Rect r = chars_set[i];
+				cv::imshow(buf, img(r));
 			}
 
 			waitKey();
@@ -387,7 +406,7 @@ int text_segmentation()
 	Mat img = imread(ch, 0);
 	imshow("src", img);
 	//resize(img, img, Size(), 2, 2, INTER_LANCZOS4);
-	vector<Mat> chars_set = CutBlock(img, "h7v7");
+	vector<Rect> chars_set = CutBlock(img, "h7v7");
 	//vector<Mat> chars_set = CutSingleChar(img);
 	//waitKey();
 
@@ -395,7 +414,7 @@ int text_segmentation()
 	{
 		char buf[256];
 		snprintf(buf, 256, "chars_set %d", i);
-		cv::imshow(buf, chars_set[i]);
+		cv::imshow(buf, img(chars_set[i]));
 	}
 
 	waitKey();

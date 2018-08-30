@@ -27,7 +27,9 @@ bool loadJpeg(const char * filename, int & width, int & height, int & depth, vec
 {
 #ifdef USE_OPENCV
 	cv::Mat img = cv::imread(filename, CV_LOAD_IMAGE_COLOR);
-	cv::resize(img, img, cv::Size(), 0.25, 0.25, cv::INTER_LANCZOS4);
+  if (img.cols > 500) {
+	  cv::resize(img, img, cv::Size(), 0.25, 0.25, cv::INTER_LANCZOS4);
+  }
 	width = img.cols, height = img.rows;
 	if (width > 0) {
 		depth = 3;
@@ -205,6 +207,7 @@ int test_mser()
 	// Check for correct usage of the command line
 	const char* ch = "D:/code/pudn/ocr/Id_recognition/id_card9.jpg";
 	ch = "E:/OCR_Line/demo_images/005.jpg";
+  ch = "E:/OCR_Line/demo_images/002.jpg";
 	
 	// Try to load the jpeg image
 	int width;

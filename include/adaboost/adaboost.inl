@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include "cstd.h"
 #include "inifile.h"
 
 #define CAS_DAT "cas.dat"

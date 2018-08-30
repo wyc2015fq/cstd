@@ -242,20 +242,16 @@ int HAAR_find_samp(BOOST* hh, int type)
         ++sampnum;
         continue;
       }
-
       if (!imread(buf, 1, 1, im)) {
         continue;
       }
-
       if (1 == type) {
         if (im->h!=fs->h || im->w!=fs->w) {
           imresize_1(im, fs->h, fs->w, im);
         }
       }
 
-      if (-1 == type && 80 == im->h && 80 == im->w) {
-        imresize_1(im, fs->h, fs->w, im);
-      }
+      //if (-1 == type && 80 == im->h && 80 == im->w) {        imresize_1(im, fs->h, fs->w, im);      }
 
       {
 #define HAAR_CN                        ( 2)
@@ -348,7 +344,7 @@ int HAAR_find_samp(BOOST* hh, int type)
           img_t im2[1] = {0};
 
           for (; j < SampNum && ss <= 1; ss *= zoom) {
-            int tt = imresize1(im, ss, im2);
+            img_t* tt = imresize1(im, ss, im2);
             unsigned char* tmpimg = im2->tt.data;
             int h = im2->h, w = im2->w;
             int ranx = w - cx + 1;
@@ -609,8 +605,8 @@ int HAAR_init(BOOST* hh)
   strcpy(fs->postxtfile, inigetstr("正样本txt文件"));
   strcpy(fs->negtxtfile, inigetstr("负样本txt文件"));
   fs->zoom = inigetfloat("缩放比");
-  fs->w = inigetint("样本宽");
-  fs->h = inigetint("样本高");
+  hh->ca->w = fs->w = inigetint("样本宽");
+  hh->ca->h = fs->h = inigetint("样本高");
   mincx = inigetint("最小宽");
   mincy = inigetint("最小高");
   rectxy = inigetint("特征穷举步进");

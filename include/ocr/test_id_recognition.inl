@@ -9,107 +9,131 @@
 #include <vector>
 #include <stdlib.h>
 #include <iostream>
+#include "utils.h"
+
 #define qDebug()  std::cout
 
 
+int test_hsv_bin() {
 
-using namespace cv;
-using namespace std;
+  std::vector<string> filenames;
+  LoadTextFileList("E:/OCR_Line/demo_images/list.txt", filenames);
+  int k;
+  for (k = 0; k < filenames.size(); ++k) {
+    string fn = filenames[k];
+    printf("%s\n", fn.c_str());
+    cv::Mat srcImage = cv::imread(fn, IMREAD_COLOR);
+    if (srcImage.empty()) {
+      continue;
+    }
+    if (srcImage.cols>600) {
+      double t = 600.*1. / srcImage.cols;
+      cv::resize(srcImage, srcImage, cv::Size(), t, t, cv::INTER_LANCZOS4);
+    }
 
+    cv::Mat image(srcImage);
+    cv::Mat frameHSV;
+    cv::cvtColor(image, frameHSV, CV_BGR2HSV);
 
-void OstuBeresenThreshold(const Mat &in, Mat &out) //输入为单通道
-{
-
-	double ostu_T = threshold(in, out, 0, 255, CV_THRESH_OTSU); //otsu获得全局阈值
-
-	double min;
-	double max;
-	minMaxIdx(in, &min, &max);
-	const double CI = 0.12;
-	double beta = CI*(max - min + 1) / 128;
-	double beta_lowT = (1 - beta)*ostu_T;
-	double beta_highT = (1 + beta)*ostu_T;
-
-	Mat doubleMatIn;
-	in.copyTo(doubleMatIn);
-	int rows = doubleMatIn.rows;
-	int cols = doubleMatIn.cols;
-	double Tbn;
-	for (int i = 0; i < rows; ++i)
-	{
-		//获取第 i行首像素指针
-		uchar * p = doubleMatIn.ptr<uchar>(i);
-		uchar *outPtr = out.ptr<uchar>(i);
-
-		//对第i 行的每个像素(byte)操作
-		for (int j = 0; j < cols; ++j)
-		{
-
-			if (i <2 | i>rows - 3 | j<2 | j>rows - 3)
-			{
-
-				if (p[j] <= beta_lowT)
-					outPtr[j] = 0;
-				else
-					outPtr[j] = 255;
-			}
-			else
-			{
-				Tbn = sum(doubleMatIn(Rect(i - 2, j - 2, 5, 5)))[0] / 25;  //窗口大小25*25
-				if (p[j] < beta_lowT | (p[j] < Tbn && (beta_lowT <= p[j] && p[j] >= beta_highT)))
-					outPtr[j] = 0;
-				if (p[j] > beta_highT | (p[j] >= Tbn && (beta_lowT <= p[j] && p[j] >= beta_highT)))
-					outPtr[j] = 255;
-			}
-		}
-	}
-
+    cv::Mat dstTemp1(image.rows, image.cols, CV_8UC1);
+    cv::inRange(frameHSV, Scalar(0, 0, 0), Scalar(180, 255, 100), dstTemp1);
+    if (1) {
+      cv::imshow("dstTemp1", dstTemp1);
+      cv::imshow("srcImage", srcImage);
+      cv::waitKey(0);
+    }
+  }
+  return 0;
 }
 
-bool isEligible(const RotatedRect &candidate)
-{
-	float error = 0.2;
-	const float aspect = 4.5 / 0.3; //长宽比
-	int min = 10 * aspect * 10; //最小区域
-	int max = 50 * aspect * 50;  //最大区域
-	float rmin = aspect - aspect*error; //考虑误差后的最小长宽比
-	float rmax = aspect + aspect*error; //考虑误差后的最大长宽比
+int bin_by_black(const Mat &srcImage, Mat& out) {
+  cv::Mat image(srcImage);
+  cv::Mat frameHSV;
+  cv::cvtColor(image, frameHSV, CV_BGR2HSV);
 
-	int area = candidate.size.height * candidate.size.width;
-	float r = (float)candidate.size.width / (float)candidate.size.height;
-	if (r <1)
-		r = 1 / r;
-
-	if ((area < min || area > max) || (r< rmin || r > rmax)) //满足该条件才认为该candidate为车牌区域
-		return false;
-	else
-		return true;
+  cv::Mat dstTemp1(image.rows, image.cols, CV_8UC1);
+  cv::inRange(frameHSV, Scalar(50, 0, 90), Scalar(150, 50, 250), dstTemp1);
+  out = dstTemp1;
+  return 0;
 }
 
-void DrawRotatedRect(Mat& out, RotatedRect& rrect) {
-	Point2f vertices[4];
-	rrect.points(vertices);
-	for (int i = 0; i < 4; i++)
-		line(out, vertices[i], vertices[(i + 1) % 4], Scalar(0, 0, 0));//画黑色线条
+bool rect_area_greater(const Rect& r1, const Rect& r2) {
+  return r1.area() > r2.area();
 }
 
-void posDetect(const Mat &in, vector<RotatedRect> & rects)
+int posDetect0(const Mat &inRGB, const Mat &in, Rect& out) {
+  Mat threshold_R;
+  Mat threshold_Inv;
+  bin_by_black(inRGB, threshold_Inv);
+
+  Mat element = getStructuringElement(MORPH_RECT, Size(3, 3));  //闭形态学的结构元素
+  morphologyEx(threshold_Inv, threshold_Inv, CV_MOP_ERODE, element);
+
+  imshow("threshold_R", threshold_Inv);
+  vector< vector <Point> > contours;
+  findContours(threshold_Inv, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);//只检测外轮廓
+
+  vector< vector <Point> > ::iterator itc = contours.begin();
+  vector<Rect> rects;
+  while (itc != contours.end())
+  {
+    RotatedRect mr = minAreaRect(Mat(*itc)); //返回每个轮廓的最小有界矩形区域
+    Rect r = mr.boundingRect();
+    rects.push_back(r);
+    ++itc;
+  }
+  Mat RGB = inRGB;
+  if (rects.size() > 1) {
+    std::sort(rects.begin(), rects.end(), rect_area_greater);
+    out = rects[0];
+    int n = MIN(2, rects.size());
+    for (int i = 1; i < n; ++i) {
+      out = UnionRect(out, rects[i]);
+    }
+  }
+  else if (rects.size() == 1){
+    out = rects[0];
+  }
+  else {
+    out = Rect(0, 0, in.cols, in.rows);
+  }
+  if (1) {
+    int blockSize = 25;
+    int constValue = 20;
+    //cv::adaptiveThreshold(in, local, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY, blockSize, constValue);
+    //imshow("local", local);
+    rectangle(RGB, Rect(out), Scalar(0,0,255));
+    imshow("inRGB", RGB);
+    //imshow("threshold_R", threshold_Inv);
+    cv::waitKey(0);
+  }
+
+  return 0;
+}
+
+
+int posDetect(const Mat &inRGB, const Mat &in, vector<Rect> & out)
 {
 	Mat threshold_R;
 	Mat local;
+  vector<RotatedRect> rects;
 	OstuBeresenThreshold(in, threshold_R); //二值化
 	//int blockSize = in.rows / 20;
-	if (0) {
+	Mat imgInv(in.size(), in.type(), cv::Scalar(255));
+  Mat threshold_Inv;
+  threshold_Inv  = imgInv - threshold_R; //黑白色反转，即背景为黑色
+  //std::vector<int> pos;
+  //GetTextProjection(threshold_Inv, pos, 'H');
+  //show_projection(pos, 'H');
+
+	if (1) {
 		int blockSize = 25;
 		int constValue = 20;
-		cv::adaptiveThreshold(in, local, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY, blockSize, constValue);
-		imshow("local", local);
-		imshow("threshold_R", threshold_R); cv::waitKey(0);
+		//cv::adaptiveThreshold(in, local, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY, blockSize, constValue);
+		//imshow("local", local);
+		imshow("threshold_R", threshold_Inv);
+    cv::waitKey(0);
 	}
-
-
-	Mat imgInv(in.size(), in.type(), cv::Scalar(255));
-	Mat threshold_Inv = imgInv - threshold_R; //黑白色反转，即背景为黑色
 
 	Mat element = getStructuringElement(MORPH_RECT, Size(15, 3));  //闭形态学的结构元素
 	morphologyEx(threshold_Inv, threshold_Inv, CV_MOP_CLOSE, element);
@@ -119,9 +143,9 @@ void posDetect(const Mat &in, vector<RotatedRect> & rects)
 	
 	vector< vector <Point> > ::iterator itc = contours.begin();
 
-	if (0) {
+	if (1) {
 		Mat out;
-		in.copyTo(out);
+    inRGB.copyTo(out);
 		int i;
 		for (i = 0; i < contours.size(); ++i) {
 			RotatedRect mr = minAreaRect(Mat(contours[i]));
@@ -131,34 +155,56 @@ void posDetect(const Mat &in, vector<RotatedRect> & rects)
 		waitKey(0);
 	}
 
-	//对候选的轮廓进行进一步筛选
-	while (itc != contours.end())
-	{
-		RotatedRect mr = minAreaRect(Mat(*itc)); //返回每个轮廓的最小有界矩形区域
-		if (!isEligible(mr))  //判断矩形轮廓是否符合要求
-		{
-			itc = contours.erase(itc);
-		}
-		else
-		{
-			rects.push_back(mr);
-			++itc;
-		}
-	}
+  //对候选的轮廓进行进一步筛选
+  if (0) {
+    while (itc != contours.end())
+    {
+      RotatedRect mr = minAreaRect(Mat(*itc)); //返回每个轮廓的最小有界矩形区域
+      if (!isEligible(mr))  //判断矩形轮廓是否符合要求
+      {
+        itc = contours.erase(itc);
+      }
+      else
+      {
+        rects.push_back(mr);
+        ++itc;
+      }
+    }
+  }
+  else {
+    while (itc != contours.end())
+    {
+      RotatedRect mr = minAreaRect(Mat(*itc)); //返回每个轮廓的最小有界矩形区域
+      if (!isEligible2(mr, in.rows))  //判断矩形轮廓是否符合要求
+      {
+        itc = contours.erase(itc);
+      }
+      else
+      {
+        rects.push_back(mr);
+        ++itc;
+      }
+    }
+  }
 
 	//测试是否找到了号码区域
 	if (0) {
 		Mat out;
 		in.copyTo(out);
-		DrawRotatedRect(out, rects[0]); //画黑色线条
+    for (int i = 0; i < rects.size(); ++i) {
+      RotatedRect mr = rects[i];
+      DrawRotatedRect(out, mr); //画黑色线条
+    }
 		imshow("Test_Rplane", out);
 		waitKey(0);
 	}
-
-
+  for (int i = 0; i < rects.size(); ++i) {
+    out.push_back(rects[i].boundingRect());
+  }
+  return 0;
 }
 
-void normalPosArea(const Mat &intputImg, RotatedRect &rects_optimal, Mat& output_area)
+int normalPosArea(const Mat &intputImg, RotatedRect &rects_optimal, Mat& output_area)
 {
 	float r, angle;
 
@@ -179,128 +225,164 @@ void normalPosArea(const Mat &intputImg, RotatedRect &rects_optimal, Mat& output
 	getRectSubPix(img_rotated, rect_size, rects_optimal.center, img_crop);
 
 	//用光照直方图调整所有裁剪得到的图像，使具有相同宽度和高度，适用于训练和分类
-	Mat resultResized;
-	resultResized.create(20, 300, CV_8UC1);
-	cv::resize(img_crop, resultResized, resultResized.size(), 0, 0, INTER_CUBIC);
+  if (0) {
+    Mat resultResized;
+    resultResized.create(20, 300, CV_8UC1);
+    cv::resize(img_crop, resultResized, resultResized.size(), 0, 0, INTER_CUBIC);
 
-	resultResized.copyTo(output_area);
+    resultResized.copyTo(output_area);
+  }
+  else {
+    img_crop.copyTo(output_area);
+  }
+  return 0;
 }
 
-Mat getRplane(const Mat &in)
-{
-	vector<Mat> splitBGR(in.channels()); //容器大小为通道数3
-	split(in, splitBGR);
-	//return splitBGR[2];  //R分量
-
-	if (in.cols > 700 | in.cols >600)
-	{
-		Mat resizeR(450, 600, CV_8UC1);
-		cv::resize(splitBGR[2], resizeR, resizeR.size());
-
-		return resizeR;
-	}
-	else
-		return splitBGR[2];
-
+int seg_split(int npos, const int* pos, int minthd, int maxthd, std::vector<Range>& out) {
+  std::vector<Range> x_char;
+  Range r(0, npos);
+  //char *flag = new char[img_threshold.cols];
+  if (0) {
+    int minv, maxv;
+    minv = maxv = pos[0];
+    for (int i = r.start; i < r.end; ++i) {
+      if (pos[i] < minv) {
+        minv = pos[i];
+      }
+      else if (pos[i] > maxv) {
+        maxv = pos[i];
+      }
+    }
+    double thd = 0.05;
+    int thdv = minv + int(thd*(maxv - minv));
+    for (int i = r.start; i < r.end; ++i)
+    {
+      if (pos[i] > thdv)
+      {
+        int start = i;
+        for (; i < r.end && pos[i]>thdv; ++i);
+        x_char.push_back(Range(start, i));
+      }
+    }
+  }
+  else {
+    std::vector<int> minvec, maxvec;
+    loc_minmax(npos, pos, -maxthd/2, maxthd/2, minvec, maxvec);
+    double thd = 0.05;
+    show_projection(minvec, 'V');
+    for (int i = r.start; i < r.end; ++i)
+    {
+      int thdv = minvec[i] + int(thd*(maxvec[i] - minvec[i]));
+      if (pos[i] > thdv)
+      {
+        int start = i;
+        for (; i < r.end && pos[i]>thdv; ++i);
+        x_char.push_back(Range(start, i));
+      }
+    }
+  }
+  int k = 0;
+  short counter = x_char.size();
+  while ((k = find_minwidth(counter, x_char.data(), minthd, maxthd))>0) {
+    x_char[k - 1].end = x_char[k].end;
+    for (int i = k + 1; i < counter; ++i) {
+      x_char[i - 1] = x_char[i];
+    }
+    --counter;
+  }
+  for (int i = 0; i < counter; i++)
+  {
+    out.push_back(x_char[i]);
+  }
+  return counter;
 }
 
-Mat getRplane2(const Mat &in)
-{
-	Mat gray;
-	Mat color_boost;
-	cv::decolor(in, gray, color_boost);
-	//return splitBGR[2];  //R分量
-	imshow("gray", gray);
-	imshow("color_boost", color_boost);
-	cv::waitKey(-1);
-
-	if (in.cols > 700 | in.cols >600)
-	{
-		Mat resizeR(450, 600, CV_8UC1);
-		cv::resize(gray, resizeR, resizeR.size());
-
-		return resizeR;
-	}
-	else
-		return gray;
-
-}
-
-void char_segment(const Mat &inputImg, vector<Mat> &dst_mat)
+int char_segment(const Mat &inputImg, vector<Rect> &dst_rect)
 {
 	Mat img_threshold;
-
 	Mat whiteImg(inputImg.size(), inputImg.type(), cv::Scalar(255));
 	Mat in_Inv = whiteImg - inputImg;
 
 	// threshold(in_Inv ,img_threshold , 140,255 ,CV_THRESH_BINARY ); //反转黑白色
 	threshold(in_Inv, img_threshold, 0, 255, CV_THRESH_OTSU); //大津法二值化
+  //imshow("img_threshold", img_threshold); 
+  std::vector<int> pos;
+  std::vector<Range> x_char;
+  GetTextProjection(img_threshold, pos, 'V');
+  //SmoothPos121(pos.size(), pos.data());
+  //show_projection(pos, 'V');
+  //waitKey();
+  int minthd = img_threshold.rows / 2;
+  int maxthd = int(img_threshold.rows * 0.9);
 
-	int x_char[19] = { 0 };
-	short counter = 1;
-	short num = 0;
-	char *flag = new char[img_threshold.cols];
+  int npos = pos.size();
+  pos[0] = pos[npos - 1] = 0;
 
-	for (int j = 0; j < img_threshold.cols; ++j)
+  int counter = seg_split(npos, pos.data(), minthd, maxthd, x_char);
+
+	for (int i = 0; i < counter; i++)
 	{
-		flag[j] = true;
-		for (int i = 0; i < img_threshold.rows; ++i)
-		{
-			if (img_threshold.at<uchar>(i, j) != 0)
-			{
-				flag[j] = false;
-				break;
-			}
-
-		}
+    Rect r(x_char[i].start, 0, x_char[i].size(), img_threshold.rows);
+    dst_rect.push_back(r);
 	}
 
-	for (int i = 0; i < img_threshold.cols - 2; ++i)
-	{
-		if (flag[i] == true)
-		{
-			x_char[counter] += i;
-			num++;
-			if (flag[i + 1] == false && flag[i + 2] == false)
-			{
-				x_char[counter] = x_char[counter] / num;
-				num = 0;
-				counter++;
-			}
-		}
-	}
-	x_char[18] = img_threshold.cols;
-
-	for (int i = 0; i < 18; i++)
-	{
-		dst_mat.push_back(Mat(in_Inv, Rect(x_char[i], 0, x_char[i + 1] - x_char[i], img_threshold.rows)));
-	}
-
-	delete[]flag;
+	//delete[]flag;
 	// imwrite("b.jpg" , img_threshold);
+  return 0;
+}
+
+cv::Mat resetsize(const cv::Mat& in) {
+  if (in.cols > 700 | in.cols >600)
+  {
+    Mat resizeR(450, 600, CV_8UC3);
+    cv::resize(in, resizeR, resizeR.size());
+
+    return resizeR;
+  }
+  return in;
 }
 
 void on_pushButton_2_clicked(const cv::Mat& imgSrc)
 {
+    Mat srcImage = resetsize(imgSrc);
     //Mat imgSrc_test = imread("E:/PracticeOfQt/Id_recognition/id_cardBai.jpg" ,1); //用于测试，实际应用只需将下面替换成imgSrc
-    Mat imgRplane = getRplane(imgSrc); //获得原始图像R分量
+    Mat imgRplane = getRplane(srcImage); //获得原始图像R分量
 
-    vector <RotatedRect>  rects;
-    posDetect(imgRplane ,rects);  //获得身份证号码区域
-
-    Mat outputMat;
-    normalPosArea(imgRplane ,rects[0],outputMat); //获得身份证号码字符矩阵
-
-    vector<Mat> char_mat;  //获得切割得的字符矩阵
-    char_segment(outputMat , char_mat);
-
-	int i;
-	for (i = 0; i < char_mat.size(); ++i) {
-		char buf[256];
-		snprintf(buf, 256, "%d", i);
-		imshow(buf, char_mat[i]);
-	}
-	cv::waitKey(-1);
+    vector <Rect>  rects1;
+    vector<vector<Rect>>  rectvec;
+    Rect rc;
+    posDetect0(srcImage, imgRplane, rc);
+    return;
+    srcImage = srcImage(rc);
+    imgRplane = getRplane(srcImage);
+    posDetect(srcImage, imgRplane, rects1);  //获得身份证号码区域
+    partitionLine(rects1, rectvec);
+    for (int k = 0; k < rectvec.size(); ++k) {
+      vector <Rect>&  rects = rectvec[k];
+      for (int j = 0; j < rects.size(); ++j) {
+        //normalPosArea(imgRplane, rects[j], outputMat); //获得身份证号码字符矩阵
+        if (k == 2 && j == 1) {
+          Rect rect = rects[j];
+          printf("j = %d %3d %3d\n", j, rect.y, rect.x);
+          Mat outputMat = imgRplane(rect);
+          vector<Rect> char_mat;  //获得切割得的字符矩阵
+          char_segment(outputMat, char_mat);
+          for (int i = 0; i < char_mat.size(); ++i) {
+            char buf[256];
+            Rect r0 = char_mat[i];
+            r0.x += rect.x;
+            r0.y += rect.y;
+            snprintf(buf, 256, "%d", i);
+            cv::rectangle(srcImage, r0, cv::Scalar(0, 0, 255), 1);
+            //printf("%d %d\n", char_mat[i].width(), char_mat[i].height());
+            //imshow("char", srcImage(r0)); waitKey(-1);            cv::destroyWindow("char");
+          }
+        }
+      }
+      //cv::waitKey(-1);
+    }
+    imshow("srcImage", srcImage);
+    cv::waitKey(-1);
     //getAnnXML();  //该函数只需执行一次，获得训练矩阵和标签矩阵，保存于xml文件中
 #if 0
     cv::ANN_MLP ann;
@@ -507,7 +589,6 @@ void ann_train(CvANN_MLP &ann, int numCharacters, int nlayers)
             }
             else
                 trainClasses.at<float>(i,k)  = 0;
-
         }
 
     }
@@ -547,19 +628,40 @@ void getParityBit(vector<int> &char_result)
 
     int value[11]= {1,0,10,9,8,7,6,5,4,3,2};
     char_result[17] = value[mod];
-
 }
 
 
 int test_Id_recognition()
 {
-	cv::Mat imgSrc;
-	const char* ch = "D:/code/pudn/ocr/Id_recognition/id_card9.jpg";
-	ch = "E:/OCR_Line/demo_images/002.jpg";
-	imgSrc = cv::imread(ch, 1);  //使用打开的文件对话框获得的路径，由imread读出
-	on_pushButton_2_clicked(imgSrc);
-	cv::imshow("asdf", imgSrc);
-	cv::waitKey(-1);
+  if (0) {
+    cv::Mat imgSrc;
+    const char* ch = "D:/code/pudn/ocr/Id_recognition/id_card9.jpg";
+    ch = "E:/OCR_Line/demo_images/012.jpg";
+    imgSrc = cv::imread(ch, 1);  //使用打开的文件对话框获得的路径，由imread读出
+    on_pushButton_2_clicked(imgSrc);
+    //cv::imshow("asdf", imgSrc);
+    cv::waitKey(-1);
+  }
+  if (1) {
+    std::vector<string> filenames;
+    LoadTextFileList("E:/OCR_Line/demo_images/list.txt", filenames);
+    int k;
+    for (k = 13; k < filenames.size(); ++k) {
+      string fn = filenames[k];
+      printf("%s\n", fn.c_str());
+      cv::Mat srcImage = cv::imread(fn, IMREAD_COLOR);
+      if (srcImage.empty()) {
+        continue;
+      }
+      if (srcImage.cols > 600) {
+        double t = 600.*1. / srcImage.cols;
+        cv::resize(srcImage, srcImage, cv::Size(), t, t, cv::INTER_LANCZOS4);
+      }
+      on_pushButton_2_clicked(srcImage);
+      //cv::imshow("asdf", imgSrc);
+      //cv::waitKey(-1);
+    }
+  }
 	return 0;
 }
 

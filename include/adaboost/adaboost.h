@@ -26,7 +26,7 @@ typedef int (*_INTEGRAL_FUN_T)(int h, int w, const unsigned char* img, int al, d
 #define DO_PRINT_PRO(_PRO, _ALL, _TIME) { if ((_ALL) < 200 || !((_PRO) % ((_ALL) / MIN(_ALL, 10000))) || ((_ALL) - (_PRO)) < 3) \
     { printf("%6d|%9g %9g| %9g  %9g  %9d [%4.1f%%]\r", pwi->id, pwi->Ha, pwi->Fa, pwi->Error, pwi->Threshold, _TIME, ((_PRO + 1) * 100.f / (_ALL)) ); } }
 
-CV_INLINE int setptr(void** pa, void* b)
+CC_INLINE int setptr(void** pa, void* b)
 {
   *pa = b;
   return 0;

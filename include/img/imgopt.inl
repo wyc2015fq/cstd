@@ -1019,6 +1019,12 @@ CC_INLINE img_t* imresize(const img_t* s, int dh, int dw, img_t* d) {
   int sw = s->w, sh = s->h;
   int tw = dw, th = dh, i;
   img_t imt[1] = {0};
+  if (dw == 0 || dh == 0) {
+    d->h = dh, d->w = dw;
+    d->c = s->c;
+    d->f = s->f;
+    return d;
+  }
   if (s->h==dh && s->w==dw) {
     return imclone2(s, d);
   }

@@ -256,23 +256,7 @@ cv::Mat MycopyMakeBorder(cv::Mat img, int dstw, int dsth) {
 	return img2;
 }
 
-#include <string>
-using namespace std;
-
-int LoadTextFileList(const string& testfile, std::vector<string>& imgs) {
-	FILE* input = NULL;
-	input = fopen(testfile.c_str(), "rb");
-	if (input) {
-		char buf[1024];
-		char fname[256];
-		for (; fgets(buf, 1024, input) > 0; ) {
-			sscanf(buf, "%s", fname);
-			imgs.push_back(fname);
-		}
-		fclose(input);
-	}
-	return imgs.size();
-}
+#include "utils.h"
 
 using namespace cv;
 
@@ -311,6 +295,7 @@ int test_myfindContours() {
 
 int test_mser_opencv()
 {
+  //return test_hsv_bin();
 	//return test_myfindContours();
 	std::vector<string> filenames;
 	LoadTextFileList("E:/OCR_Line/demo_images/list.txt", filenames);

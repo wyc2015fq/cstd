@@ -2,14 +2,6 @@
 #ifndef _CDBG_H_
 #define _CDBG_H_
 
-#ifndef C_DBG
-#define tic
-#define toc
-#define toc_
-#define tictoc
-#define tictoc0
-#else
-
 static char dbg_buf[4096];
 CC_INLINE char* dbg_sprintf(const char* fmt, ...) {
   va_list arglist;
@@ -80,8 +72,9 @@ CC_INLINE int logprintf(const char* fmt, ...) {
   char buf[4096];
   LOGPRINTFTOBUF(buf, fmt, 1);
   if (__logecho) {
-    puts(buf);
-    puts("\n");
+    _cstrtrim_c(buf, -1, "\n\r");
+    printf("%s", buf);
+    //puts("\n");
   }
   return 0;
 }
@@ -167,6 +160,14 @@ CC_INLINE int llogprintf(ELOG_LEVEL level, const char* fmt, ...)
   }
   return 0;
 }
+#ifndef C_DBG
+#define tic
+#define toc
+#define toc_
+#define tictoc
+#define tictoc0
+#else
+
 //#define LINE printf("%s:%d\n", __FILE__, __LINE__)
 ////////////////////////////////////////////////////////////////////////////////
 #if 1

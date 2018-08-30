@@ -2047,7 +2047,7 @@ static int jpg_load(stream_t* f, int req_comp, img_t* im)
   stbi__setup_jpeg(&j);
   comp = load_jpeg_image(&j, im, req_comp);
 
-  if (comp) {
+  if (comp && req_comp>=3) {
     swap_rb(im->data, im->s, req_comp, im->w, im->h);
     // need to 'unget' all the characters in the IO buffer
     stream_seek(f, - (int)(s.img_buffer_end - s.img_buffer), SEEK_CUR);
