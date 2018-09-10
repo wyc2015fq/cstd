@@ -2,6 +2,8 @@
 #define _STR_H_
 #include <assert.h>
 #include <math.h>
+#include <inttypes.h>
+#include <ctype.h>
 #include "cstd.h"
 //#define str_cmp(s1, s2)  mystrcmp(s1.s, s1.l, s2.s, s2.l)
 #define str_count_str(s1, s2, ignore_case)  cstr_count((s1).s, (s1).l, (s2).s, (s2).l, ignore_case)
@@ -86,7 +88,7 @@
 // 当乘数24-31位都为1或0时，需要3个时钟周期
 // 否则，需要4个时钟周期
 // 因此，虽然我没有实际测试，但是我依然认为二者效率上差别不大
-CC_INLINE unsigned int BKDRHash(const char* str, unsigned int len)
+static unsigned int BKDRHash(const char* str, unsigned int len)
 {
   unsigned int hash = 0;
   unsigned int i = 0;
@@ -98,7 +100,7 @@ CC_INLINE unsigned int BKDRHash(const char* str, unsigned int len)
 }
 /// @brief SDBM Hash Function
 /// @detail 本算法是由于在开源项目SDBM（一种简单的数据库引擎）中被应用而得名，它与BKDRHash思想一致，只是种子不同而已。
-CC_INLINE unsigned int SDBMHash(const char* str, unsigned int len)
+static unsigned int SDBMHash(const char* str, unsigned int len)
 {
   unsigned int hash = 0;
   unsigned int i = 0;
@@ -110,7 +112,7 @@ CC_INLINE unsigned int SDBMHash(const char* str, unsigned int len)
 }
 /// @brief RS Hash Function
 /// @detail 因Robert Sedgwicks在其《Algorithms in C》一书中展示而得名。
-CC_INLINE unsigned int RSHash(const char* str, unsigned int len)
+static unsigned int RSHash(const char* str, unsigned int len)
 {
   unsigned int a = 63689;
   unsigned int hash = 0;
@@ -124,7 +126,7 @@ CC_INLINE unsigned int RSHash(const char* str, unsigned int len)
 /// @brief AP Hash Function
 /// @detail 由Arash Partow发明的一种hash算法。
 /* End Of FNV Hash Function */
-CC_INLINE unsigned int APHash(const char* str, unsigned int len)
+static unsigned int APHash(const char* str, unsigned int len)
 {
   unsigned int hash = 0xAAAAAAAA;
   unsigned int i = 0;
@@ -135,7 +137,7 @@ CC_INLINE unsigned int APHash(const char* str, unsigned int len)
 }
 /// @brief JS Hash Function
 /// 由Justin Sobel发明的一种hash算法。
-CC_INLINE unsigned int JSHash(const char* str, unsigned int len)
+static unsigned int JSHash(const char* str, unsigned int len)
 {
   unsigned int hash = 1315423911;
   unsigned int i = 0;
@@ -146,7 +148,7 @@ CC_INLINE unsigned int JSHash(const char* str, unsigned int len)
 }
 /// @brief DEK Function
 /// @detail 本算法是由于Donald E. Knuth在《Art Of Computer Programming Volume 3》中展示而得名。
-CC_INLINE unsigned int DEKHash(const char* str, unsigned int len)
+static unsigned int DEKHash(const char* str, unsigned int len)
 {
   unsigned int hash = 1315423911; // len
   unsigned int i = 0;
@@ -157,7 +159,7 @@ CC_INLINE unsigned int DEKHash(const char* str, unsigned int len)
 }
 /// @brief FNV Hash Function
 /// @detail Unix system系统中使用的一种著名hash算法，后来微软也在其hash_map中实现。
-CC_INLINE unsigned int FNVHash(const char* str, unsigned int len)
+static unsigned int FNVHash(const char* str, unsigned int len)
 {
   unsigned int hash = 0x811c9dc5;
   unsigned int i = 0;
@@ -168,7 +170,7 @@ CC_INLINE unsigned int FNVHash(const char* str, unsigned int len)
   return hash;
 }
 /* End Of BP Hash Function */
-CC_INLINE unsigned int FNVHash1(const char* str, unsigned int len)
+static unsigned int FNVHash1(const char* str, unsigned int len)
 {
   const unsigned int fnv_prime = 0x811C9DC5;
   unsigned int hash = 0;
@@ -182,7 +184,7 @@ CC_INLINE unsigned int FNVHash1(const char* str, unsigned int len)
 /// @brief DJB Hash Function
 /// @detail 由Daniel J. Bernstein教授发明的一种hash算法。
 /* End Of SDBM Hash Function */
-CC_INLINE unsigned int DJBHash(const char* str, unsigned int len)
+static unsigned int DJBHash(const char* str, unsigned int len)
 {
   unsigned int hash = 5381;
   unsigned int i = 0;
@@ -193,7 +195,7 @@ CC_INLINE unsigned int DJBHash(const char* str, unsigned int len)
 }
 /// @brief DJB Hash Function 2
 /// @detail 由Daniel J. Bernstein 发明的另一种hash算法。
-CC_INLINE unsigned int DJB2Hash(const char* str, unsigned int len)
+static unsigned int DJB2Hash(const char* str, unsigned int len)
 {
   register unsigned int hash = 5381;
   unsigned int i = 0;
@@ -205,7 +207,7 @@ CC_INLINE unsigned int DJB2Hash(const char* str, unsigned int len)
 /// @brief PJW Hash Function
 /// @detail 本算法是基于AT&T贝尔实验室的Peter J. Weinberger的论文而发明的一种hash算法。
 /* End Of JS Hash Function */
-CC_INLINE unsigned int PJWHash(const char* str, unsigned int len)
+static unsigned int PJWHash(const char* str, unsigned int len)
 {
   const unsigned int BitsInUnsignedInt = (unsigned int)(sizeof(unsigned int) * 8);
   const unsigned int ThreeQuarters = (unsigned int)((BitsInUnsignedInt * 3) / 4);
@@ -224,7 +226,7 @@ CC_INLINE unsigned int PJWHash(const char* str, unsigned int len)
 }
 /// @brief ELF Hash Function
 /// @detail 由于在Unix的Extended Library Function被附带而得名的一种hash算法，它其实就是PJW Hash的变形。
-CC_INLINE unsigned int ELFHash(const char* str, unsigned int len)
+static unsigned int ELFHash(const char* str, unsigned int len)
 {
   enum { TotalBits           = sizeof(unsigned int) * 8,
     ThreeQuarters       = (TotalBits * 3) / 4,
@@ -244,7 +246,7 @@ CC_INLINE unsigned int ELFHash(const char* str, unsigned int len)
   return hash;
 }
 /* End Of P. J. Weinberger Hash Function */
-CC_INLINE unsigned int ELFHash2(const char* str, unsigned int len)
+static unsigned int ELFHash2(const char* str, unsigned int len)
 {
   unsigned int hash = 0;
   unsigned int x = 0;
@@ -259,7 +261,7 @@ CC_INLINE unsigned int ELFHash2(const char* str, unsigned int len)
   return hash;
 }
 /* End Of DEK Hash Function */
-CC_INLINE unsigned int BPHash(const char* str, unsigned int len)
+static unsigned int BPHash(const char* str, unsigned int len)
 {
   unsigned int hash = 0;
   unsigned int i = 0;
@@ -271,9 +273,9 @@ CC_INLINE unsigned int BPHash(const char* str, unsigned int len)
 /* End Of AP Hash Function */
 //几种经典的Hash算法的实现(源代码)
 //●PHP中出现的字符串Hash函数
-CC_INLINE uint32 hashpjw(char* arKey, unsigned int nKeyLength)
+static uint32_t hashpjw(char* arKey, unsigned int nKeyLength)
 {
-  uint32 h = 0, g;
+  uint32_t h = 0, g;
   char* arEnd = arKey + nKeyLength;
   while (arKey < arEnd) {
     h = (h << 4) + *arKey++;
@@ -285,10 +287,10 @@ CC_INLINE uint32 hashpjw(char* arKey, unsigned int nKeyLength)
   return h;
 }
 //●OpenSSL中出现的字符串Hash函数
-CC_INLINE uint32 lh_strhash11(const char* str)
+static uint32_t lh_strhash11(const char* str)
 {
   int i, l;
-  uint32 ret = 0;
+  uint32_t ret = 0;
   unsigned short* s;
   if (str == NULL) {
     return(0);
@@ -304,11 +306,11 @@ CC_INLINE uint32 lh_strhash11(const char* str)
 * no collisions on /usr/dict/words and it distributes on %2^n quite
 * well, not as good as MD5, but still good.
 */
-CC_INLINE uint32 lh_strhash1(const char* c)
+static uint32_t lh_strhash1(const char* c)
 {
-  uint32 ret = 0;
+  uint32_t ret = 0;
   long n;
-  uint32 v;
+  uint32_t v;
   int r;
   if ((c == NULL) || (*c == '\0')) {
     return(ret);
@@ -333,24 +335,24 @@ CC_INLINE uint32 lh_strhash1(const char* c)
 //●MySql中出现的字符串Hash函数
 #ifndef NEW_HASH_FUNCTION
 /* Calc hashvalue for a key */
-CC_INLINE uint calc_hashnr(const byte* key, uint length)
+static uint32_t calc_hashnr(const char* key, uint32_t length)
 {
-  register uint nr = 1, nr2 = 4;
+  register uint32_t nr = 1, nr2 = 4;
   while (length--) {
-    nr ^= (((nr & 63) + nr2) * ((uint)(uchar) * key++)) + (nr << 8);
+    nr ^= (((nr & 63) + nr2) * ((uint32_t)(uint8_t) * key++)) + (nr << 8);
     nr2 += 3;
   }
-  return((uint) nr);
+  return((uint32_t) nr);
 }
 /* Calc hashvalue for a key, case indepenently */
-CC_INLINE uint calc_hashnr_caseup(const byte* key, uint length)
+static uint32_t calc_hashnr_caseup(const char* key, uint32_t length)
 {
-  register uint nr = 1, nr2 = 4;
+  register uint32_t nr = 1, nr2 = 4;
   while (length--) {
-    nr ^= (((nr & 63) + nr2) * ((uint)(uchar) toupper(*key++))) + (nr << 8);
+    nr ^= (((nr & 63) + nr2) * ((uint32_t)(uint8_t) toupper(*key++))) + (nr << 8);
     nr2 += 3;
   }
-  return((uint) nr);
+  return((uint32_t) nr);
 }
 #else
 /*
@@ -367,34 +369,34 @@ CC_INLINE uint calc_hashnr_caseup(const byte* key, uint length)
 * This hash produces the fewest collisions of any function that we've seen so
 * far, and works well on both numbers and strings.
 */
-CC_INLINE uint calc_hashnr(const byte* key, uint len)
+static uint32_t calc_hashnr(const byte* key, uint32_t len)
 {
   const byte* end = key + len;
-  uint hash;
+  uint32_t hash;
   for (hash = 0; key < end; key++) {
     hash *= 16777619;
-    hash ^= (uint) * (uchar*) key;
+    hash ^= (uint32_t) * (uint8_t*) key;
   }
   return (hash);
 }
-CC_INLINE uint calc_hashnr_caseup(const byte* key, uint len)
+static uint32_t calc_hashnr_caseup(const byte* key, uint32_t len)
 {
   const byte* end = key + len;
-  uint hash;
+  uint32_t hash;
   for (hash = 0; key < end; key++) {
     hash *= 16777619;
-    hash ^= (uint)(uchar) toupper(*key);
+    hash ^= (uint32_t)(uint8_t) toupper(*key);
   }
   return (hash);
 }
 #endif
 //Mysql中对字符串Hash函数还区分了大小写
 //●另一个经典字符串Hash函数
-CC_INLINE unsigned int MysqlHash(const char* str, uint len)
+static unsigned int MysqlHash(const char* str, uint32_t len)
 {
   register unsigned int h = 0;
   register const unsigned char* p = (const unsigned char*)str;
-  uint i = 0;
+  uint32_t i = 0;
   for (; i<len; ++i, ++p) {
     h = 31 * h + *p;
   }
@@ -413,15 +415,15 @@ CC_INLINE unsigned int MysqlHash(const char* str, uint len)
 // 比传统的CRC32,MD5，SHA-1（这两个算法都是加密HASH算法，复杂度本身就很高，带来的性能上的损害也不可避免） 
 // 等HASH算法要快很多，而且据说这个算法的碰撞率很低. 
 // http://murmurhash.googlepages.com/ 
-static uint64 MurMurHash(const char* key, int len) {  
-  uchar* buf = (uchar*)key;  
-  uint32 seed = 0x1234ABCD;
-  uint64 m = 0xc6a4a7935bd1e995L;  
+static uint64_t MurMurHash(const char* key, int len) {  
+  uint8_t* buf = (uint8_t*)key;  
+  uint32_t seed = 0x1234ABCD;
+  uint64_t m = 0xc6a4a7935bd1e995L;  
   int r = 47, remaining = len;
-  uint64 h = seed ^ (len * m); 
-  uint64 k;
+  uint64_t h = seed ^ (len * m); 
+  uint64_t k;
   while (remaining >= 8) {
-    k = *(uint64*)buf;
+    k = *(uint64_t*)buf;
     k *= m;
     k ^= k >> r;  
     k *= m;
@@ -432,11 +434,11 @@ static uint64 MurMurHash(const char* key, int len) {
   }  
   
   if (remaining > 0) {
-    suf64_t finish;
-    memcpy(finish.c, buf, remaining);
+    uint64_t finish = 0;
+    memcpy(&finish, buf, remaining);
     // for big-endian version, do this first:   
     // finish.position(8-buf.remaining());  
-    h ^= finish.i;  
+    h ^= finish;  
     h *= m;  
   }  
   
@@ -479,7 +481,7 @@ static unsigned int murMurHash(const void *key, int len)
   h ^= h >> 15;
   return h;
 }
-CC_INLINE int str_setsize(str_t* s, int l)
+static int str_setsize(str_t* s, int l)
 {
   if (l > s->l) {
     s->s = (char*)prealloc(s->s, l + 1);
@@ -492,7 +494,7 @@ CC_INLINE int str_setsize(str_t* s, int l)
 }
 #define str_setstr1(_s, ss) str_setstr(_s, (char*)(ss).s, (ss).l)
 #define str_setstr2(_s, ss) str_setstr(_s, ss, -1)
-CC_INLINE int str_setstr(str_t* s, const char* s0, int l)
+static int str_setstr(str_t* s, const char* s0, int l)
 {
   l = (l >= 0) ? l : (int)strlen(s0);
   str_setsize(s, l);
@@ -502,7 +504,7 @@ CC_INLINE int str_setstr(str_t* s, const char* s0, int l)
 #define str_isempty(_s)  0==_s->l
 #define str_trimleft(_s)  _s->l=STRtrimleft(_s->s, _s->l)
 #define str_trimright(_s)  _s->l=STRtrimright(_s->s, _s->l)
-CC_INLINE int str_free(str_t* s)
+static int str_free(str_t* s)
 {
   if (s->s) {
     pfree(s->s);
@@ -510,7 +512,7 @@ CC_INLINE int str_free(str_t* s)
   }
   return 0;
 }
-CC_INLINE int str_frees(str_t* s, int n)
+static int str_frees(str_t* s, int n)
 {
   for (; n-- > 0; ++s) {
     if (s->s) {
@@ -520,20 +522,20 @@ CC_INLINE int str_frees(str_t* s, int n)
   }
   return 0;
 }
-CC_INLINE int str_del(str_t* s, int i, int l)
+static int str_del(str_t* s, int i, int l)
 {
   ASSERT((i + l) <= s->l);
   memcpy(s->s + i, s->s + i + l, s->l - i - l + 1);
   s->l -= l;
   return 0;
 }
-CC_INLINE int str_delchr(str_t* s, int ch) {
+static int str_delchr(str_t* s, int ch) {
   s->l = cstr_delchr(s->s, s->l, ch);
   s->s[s->l] = 0;
   return 0;
 }
 // 在 [i, i+n] 之间插入 [s0 l0]
-CC_INLINE int str_ins(str_t* s, int i, int n, const char* s0, int l0)
+static int str_ins(str_t* s, int i, int n, const char* s0, int l0)
 {
 #if 0
   str_t ss[1] = {0};
@@ -545,7 +547,7 @@ CC_INLINE int str_ins(str_t* s, int i, int n, const char* s0, int l0)
 #endif
   return 0;
 }
-CC_INLINE IPOINT str_get_word(const str_t* s, int k)
+static IPOINT str_get_word(const str_t* s, int k)
 {
   IPOINT pt;
   pt = iPOINT(k, k);
@@ -561,7 +563,7 @@ CC_INLINE IPOINT str_get_word(const str_t* s, int k)
   }
   return pt;
 }
-CC_INLINE IPOINT str_get_line(const str_t* s, int k)
+static IPOINT str_get_line(const str_t* s, int k)
 {
   IPOINT pt;
   pt = iPOINT(k, k);
@@ -577,7 +579,7 @@ CC_INLINE IPOINT str_get_line(const str_t* s, int k)
   }
   return pt;
 }
-CC_INLINE int str_pt2pos(const str_t* s, IPOINT pt0)
+static int str_pt2pos(const str_t* s, IPOINT pt0)
 {
   IPOINT pt = {0};
   int i = 0;
@@ -598,21 +600,21 @@ CC_INLINE int str_pt2pos(const str_t* s, IPOINT pt0)
   return i;
 }
 #define str_cat_cstr(s, ss)  str_cat(s, STR2(ss, strlen(ss)))
-CC_INLINE int str_catc(str_t* s, int c)
+static int str_catc(str_t* s, int c)
 {
   int l = s->l;
   str_setsize(s, s->l + 1);
   s->s[l] = c;
   return 0;
 }
-CC_INLINE int str_cat(str_t* s, str_t s1)
+static int str_cat(str_t* s, str_t s1)
 {
   int l = s->l;
   str_setsize(s, s->l + s1.l);
   memcpy(s->s + l, s1.s, s1.l);
   return 0;
 }
-CC_INLINE int str_cat2(str_t* s, str_t s1, str_t s2)
+static int str_cat2(str_t* s, str_t s1, str_t s2)
 {
   int l = s->l;
   str_setsize(s, s->l + s1.l + s2.l);
@@ -620,7 +622,7 @@ CC_INLINE int str_cat2(str_t* s, str_t s1, str_t s2)
   memcpy(s->s + l + s1.l, s2.s, s2.l);
   return 0;
 }
-CC_INLINE int str_cat3(str_t* s, str_t s1, str_t s2, str_t s3)
+static int str_cat3(str_t* s, str_t s1, str_t s2, str_t s3)
 {
   int l = s->l;
   str_setsize(s, s->l + s1.l + s2.l + s3.l);
@@ -629,7 +631,7 @@ CC_INLINE int str_cat3(str_t* s, str_t s1, str_t s2, str_t s3)
   memcpy(s->s + l + s1.l + s2.l, s3.s, s3.l);
   return 0;
 }
-CC_INLINE int str_cat4(str_t* s, str_t s1, str_t s2, str_t s3, str_t s4)
+static int str_cat4(str_t* s, str_t s1, str_t s2, str_t s3, str_t s4)
 {
   int l = s->l;
   str_setsize(s, s->l + s1.l + s2.l + s3.l + s4.l);
@@ -639,7 +641,7 @@ CC_INLINE int str_cat4(str_t* s, str_t s1, str_t s2, str_t s3, str_t s4)
   memcpy(s->s + l + s1.l + s2.l + s3.l, s4.s, s4.l);
   return 0;
 }
-CC_INLINE int str_cat_nstr(str_t* s, str_t s1, int n)
+static int str_cat_nstr(str_t* s, str_t s1, int n)
 {
   int i, l = s->l;
   str_setsize(s, s->l + s1.l * n);
@@ -648,7 +650,7 @@ CC_INLINE int str_cat_nstr(str_t* s, str_t s1, int n)
   }
   return 0;
 }
-CC_INLINE int str_cat_nchr(str_t* s, int c1, int n)
+static int str_cat_nchr(str_t* s, int c1, int n)
 {
   int i, l = s->l;
   str_setsize(s, s->l + n);
@@ -657,7 +659,7 @@ CC_INLINE int str_cat_nchr(str_t* s, int c1, int n)
   }
   return 0;
 }
-CC_INLINE int str_trim(str_t* str, const char* sp)
+static int str_trim(str_t* str, const char* sp)
 {
   str_t s = _cstrtrim_c(str->s, str->l, sp);
   memcpy(str->s, s.s, s.l);
@@ -666,20 +668,20 @@ CC_INLINE int str_trim(str_t* str, const char* sp)
 }
 #define STRleft(str, pos)  STRmid(str, 0, (pos))
 #define STRright(str, pos) STRmid(str, pos, str.l)
-CC_INLINE str_t STRmid(str_t str, int beg, int end)
+static str_t STRmid(str_t str, int beg, int end)
 {
   _cstrmid0(str.s, str.l, &beg, &end);
   return STR2(str.s+beg, end-beg);
 }
-CC_INLINE int STRsplitc(str_t s, const char* delims, const char* trimstr, str_t* out, int maxout, str_t* ps) {
+static int STRsplitc(str_t s, const char* delims, const char* trimstr, str_t* out, int maxout, str_t* ps) {
   int i=0;
-  uchar delimsmap[256] = {0};
+  uint8_t delimsmap[256] = {0};
   get_delimsmap(delimsmap, delims);
   for (;i<maxout && s.l>0;++i) {
     str_t s0 = s;
     char* e = s.s + s.l;
     for (; s.s < e; ++s.s) {
-      if (delimsmap[(uchar)(*s.s)]) {
+      if (delimsmap[(uint8_t)(*s.s)]) {
         s0.l = s.s - s0.s;
         ++s.s;
         break;
@@ -696,14 +698,14 @@ CC_INLINE int STRsplitc(str_t s, const char* delims, const char* trimstr, str_t*
   }
   return i;
 }
-CC_INLINE str_t STRsplit(str_t s, const char* delims, const char* trimstr, str_t* ps)
+static str_t STRsplit(str_t s, const char* delims, const char* trimstr, str_t* ps)
 {
   str_t s0 = s;
   char* e = s.s + s.l;
-  uchar delimsmap[256] = {0};
+  uint8_t delimsmap[256] = {0};
   get_delimsmap(delimsmap, delims);
   for (; s.s < e; ++s.s) {
-    if (delimsmap[(uchar)(*s.s)]) {
+    if (delimsmap[(uint8_t)(*s.s)]) {
       s0.l = s.s - s0.s;
       ++s.s;
       break;
@@ -718,24 +720,24 @@ CC_INLINE str_t STRsplit(str_t s, const char* delims, const char* trimstr, str_t
   }
   return s0;
 }
-CC_INLINE int STRsplit_find(str_t s, str_t s2, int i, int ignore_case, const char* delims, const char* trimstr, str_t* ps)
+static int STRsplit_find(str_t s, str_t s2, int i, int ignore_case, const char* delims, const char* trimstr, str_t* ps)
 {
   //str_t s0 = s;
   //char* e = s.s + s.l;
-  uchar delimsmap[256] = {0};
+  uint8_t delimsmap[256] = {0};
   int j, k;
   get_delimsmap(delimsmap, delims);
   j = cstr_find(s.s, s.l, s2.s, s2.l, i, ignore_case);
   if (j>=0 && ps) {
     for (k=j; k>i; --k) {
-      if (delimsmap[(uchar)s.s[k]]) {
+      if (delimsmap[(uint8_t)s.s[k]]) {
         ++k;
         break;
       }
     }
     ps->s = s.s + k;
     for (k=j+s2.l; k<s.l; ++k) {
-      if (delimsmap[(uchar)s.s[k]]) {
+      if (delimsmap[(uint8_t)s.s[k]]) {
         break;
       }
     }
@@ -744,7 +746,7 @@ CC_INLINE int STRsplit_find(str_t s, str_t s2, int i, int ignore_case, const cha
       *ps = _cstrtrim_c(ps->s, ps->l, trimstr);
     }
     for (; k<s.l; ++k) {
-      if (!delimsmap[(uchar)s.s[k]]) {
+      if (!delimsmap[(uint8_t)s.s[k]]) {
         break;
       }
     }
@@ -752,15 +754,15 @@ CC_INLINE int STRsplit_find(str_t s, str_t s2, int i, int ignore_case, const cha
   }
   return j;
 }
-CC_INLINE int STRsplit_key(str_t s, int i, const uchar* trimstrmap, str_t* key)
+static int STRsplit_key(str_t s, int i, const uint8_t* trimstrmap, str_t* key)
 {
   //int prech = 0;
   int ibeg = -1, iend = -1;
-  for (; i < s.l && trimstrmap[(uchar)s.s[i]]; ++i) {}
+  for (; i < s.l && trimstrmap[(uint8_t)s.s[i]]; ++i) {}
   ibeg = i;
-  for (; i < s.l && 0 == trimstrmap[(uchar)s.s[i]]; ++i) {}
+  for (; i < s.l && 0 == trimstrmap[(uint8_t)s.s[i]]; ++i) {}
   iend = i;
-  for (; i < s.l && trimstrmap[(uchar)s.s[i]]; ++i) {}
+  for (; i < s.l && trimstrmap[(uint8_t)s.s[i]]; ++i) {}
   if (ibeg >= 0 && iend >= ibeg) {
     key->s = s.s + ibeg;
     key->l = iend - ibeg;
@@ -768,11 +770,11 @@ CC_INLINE int STRsplit_key(str_t s, int i, const uchar* trimstrmap, str_t* key)
   }
   return -1;
 }
-CC_INLINE int STRsplit_string(str_t s, int i, int k_beg_chr, int k_end_chr, int slash, const uchar* trimstrmap, str_t* value)
+static int STRsplit_string(str_t s, int i, int k_beg_chr, int k_end_chr, int slash, const uint8_t* trimstrmap, str_t* value)
 {
   int prech = 0;
   int ibeg = -1, iend = -1;
-  for (; i < s.l && trimstrmap[(uchar)s.s[i]]; ++i) {}
+  for (; i < s.l && trimstrmap[(uint8_t)s.s[i]]; ++i) {}
   prech = 0;
   for (; i < s.l; ++i) {
     if (s.s[i] == k_beg_chr && prech != slash) {
@@ -789,7 +791,7 @@ CC_INLINE int STRsplit_string(str_t s, int i, int k_beg_chr, int k_end_chr, int 
     }
     prech = s.s[i];
   }
-  for (; i < s.l && trimstrmap[(uchar)s.s[i]]; ++i) {}
+  for (; i < s.l && trimstrmap[(uint8_t)s.s[i]]; ++i) {}
   if (ibeg >= 0 && iend >= ibeg) {
     value->s = s.s + ibeg;
     value->l = iend - ibeg;
@@ -797,10 +799,10 @@ CC_INLINE int STRsplit_string(str_t s, int i, int k_beg_chr, int k_end_chr, int 
   }
   return -1;
 }
-CC_INLINE int STRsplit_pair(str_t s, int i, int eqchr, int v_beg, int v_end, const char* trimstr, str_t* key, str_t* value)
+static int STRsplit_pair(str_t s, int i, int eqchr, int v_beg, int v_end, const char* trimstr, str_t* key, str_t* value)
 {
   int i0 = i;
-  uchar trimstrmap[256] = {0};
+  uint8_t trimstrmap[256] = {0};
   get_delimsmap(trimstrmap, trimstr);
   for (; i < s.l; ++i) {
     if (s.s[i] == eqchr) {
@@ -812,7 +814,7 @@ CC_INLINE int STRsplit_pair(str_t s, int i, int eqchr, int v_beg, int v_end, con
   }
   return -1;
 }
-CC_INLINE str_t STRsplit_str(str_t s, const char* delims, const char* trimstr, str_t* ps, char* buf, int buflen)
+static str_t STRsplit_str(str_t s, const char* delims, const char* trimstr, str_t* ps, char* buf, int buflen)
 {
   str_t s0 = STRsplit(s, delims, trimstr, ps);
   if (buf) {
@@ -820,12 +822,12 @@ CC_INLINE str_t STRsplit_str(str_t s, const char* delims, const char* trimstr, s
   }
   return s0;
 }
-CC_INLINE int STRsplit_int(str_t s, const char* delims, const char* trimstr, str_t* ps)
+static int STRsplit_int(str_t s, const char* delims, const char* trimstr, str_t* ps)
 {
   str_t s0 = STRsplit(s, delims, trimstr, ps);
   return atoi((char*)s0.s);
 }
-CC_INLINE int STRsplitn(str_t s, const char* delims, const char* trimstr, int minlen)
+static int STRsplitn(str_t s, const char* delims, const char* trimstr, int minlen)
 {
   int i;
   char* e = s.s + s.l;
@@ -837,11 +839,11 @@ CC_INLINE int STRsplitn(str_t s, const char* delims, const char* trimstr, int mi
   }
   return i;
 }
-CC_INLINE int STRsplitv(str_t s, const char* delims, const char* trimstr, str_t* ps, str_t* v, int vl)
+static int STRsplitv(str_t s, const char* delims, const char* trimstr, str_t* ps, str_t* v, int vl)
 {
   int i;
   char* e = s.s + s.l;
-  //uchar trimstrmap[256] = {0};
+  //uint8_t trimstrmap[256] = {0};
   //get_delimsmap(trimstrmap, trimstr);
   for (i = 0; s.s < e && i < vl; ++i) {
     v[i] = STRsplit(s, delims, trimstr, &s);
@@ -851,11 +853,11 @@ CC_INLINE int STRsplitv(str_t s, const char* delims, const char* trimstr, str_t*
   }
   return i;
 }
-CC_INLINE int str_splitv(str_t s, const char* delims, const char* trimstr, str_t* ps, str_t* v, int vl, int minlen)
+static int str_splitv(str_t s, const char* delims, const char* trimstr, str_t* ps, str_t* v, int vl, int minlen)
 {
   int i;
   char* e = s.s + s.l;
-  //uchar trimstrmap[256] = {0};
+  //uint8_t trimstrmap[256] = {0};
   //get_delimsmap(trimstrmap, trimstr);
   for (i = 0; s.s < e && i < vl;) {
     str_t ss = STRsplit(s, delims, trimstr, &s);
@@ -873,7 +875,7 @@ typedef struct vstr_t {
   str_t* v;
   int n;
 } vstr_t;
-CC_INLINE int vstr_free(vstr_t* sv)
+static int vstr_free(vstr_t* sv)
 {
   if (sv->v) {
     str_frees(sv->v, sv->n);
@@ -883,14 +885,14 @@ CC_INLINE int vstr_free(vstr_t* sv)
   sv->n = 0;
   return 0;
 }
-CC_INLINE int vstr_frees(vstr_t* sv, int n) {
+static int vstr_frees(vstr_t* sv, int n) {
   int i;
   for (i=0; i<n; ++i) {
     vstr_free(sv+i);
   }
   return 0;
 }
-CC_INLINE int vstr_setsize(vstr_t* sv, int n)
+static int vstr_setsize(vstr_t* sv, int n)
 {
 #if 0
   int i, old_n = sv->n;
@@ -909,11 +911,11 @@ CC_INLINE int vstr_setsize(vstr_t* sv, int n)
 #endif
   return 0;
 }
-CC_INLINE int vstr_set_str(vstr_t* sv, int i, str_t s0)
+static int vstr_set_str(vstr_t* sv, int i, str_t s0)
 {
   return str_setstr1(sv->v + i, s0);
 }
-CC_INLINE int vstr_copy(vstr_t* sv, const vstr_t* sv2)
+static int vstr_copy(vstr_t* sv, const vstr_t* sv2)
 {
   int i;
   vstr_setsize(sv, sv2->n);
@@ -922,7 +924,7 @@ CC_INLINE int vstr_copy(vstr_t* sv, const vstr_t* sv2)
   }
   return 0;
 }
-CC_INLINE int vstr_set_cstrs(vstr_t* sv, int n, const char** ps)
+static int vstr_set_cstrs(vstr_t* sv, int n, const char** ps)
 {
   int i;
   vstr_setsize(sv, n);
@@ -935,7 +937,7 @@ CC_INLINE int vstr_set_cstrs(vstr_t* sv, int n, const char** ps)
   return 0;
 }
 #define vstr_ins_c_str(sv, i, c_str)  vstr_ins_str(sv, i, STR1(c_str))
-CC_INLINE int vstr_del_str(vstr_t* sv, int i)
+static int vstr_del_str(vstr_t* sv, int i)
 {
   if (0 <= i && i < sv->n) {
     str_free(sv->v + i);
@@ -948,7 +950,7 @@ CC_INLINE int vstr_del_str(vstr_t* sv, int i)
 #define vstr_push_str(sv, s0)  vstr_ins_cstr(sv, sv->n, s0.s, s0.l)
 #define vstr_push_str2(sv, s, l)  vstr_ins_cstr(sv, sv->n, s, l)
 #define vstr_push_cstr(sv, s0, l0)  vstr_ins_cstr(sv, sv->n, s0, l0)
-CC_INLINE int vstr_ins_cstr(vstr_t* sv, int i, const char* s0, int l0)
+static int vstr_ins_cstr(vstr_t* sv, int i, const char* s0, int l0)
 {
   int n = sv->n;
   str_t s[1] = {0};
@@ -960,7 +962,7 @@ CC_INLINE int vstr_ins_cstr(vstr_t* sv, int i, const char* s0, int l0)
   sv->v[i] = *s;
   return 0;
 }
-CC_INLINE int strv_find(const str_t* sv, int n, str_t s, int i, int ignore_case) {
+static int strv_find(const str_t* sv, int n, str_t s, int i, int ignore_case) {
   ASSERT(i>=0);
   for (; i < n; ++i) {
     if (0 == str_cmp(sv[i], s, ignore_case)) {
@@ -969,7 +971,7 @@ CC_INLINE int strv_find(const str_t* sv, int n, str_t s, int i, int ignore_case)
   }
   return -1;
 }
-CC_INLINE int vstr_find(const vstr_t* sv, str_t s, int i, int ignore_case)
+static int vstr_find(const vstr_t* sv, str_t s, int i, int ignore_case)
 {
   ASSERT(i>=0);
   for (; i < sv->n; ++i) {
@@ -980,7 +982,7 @@ CC_INLINE int vstr_find(const vstr_t* sv, str_t s, int i, int ignore_case)
   return -1;
 }
 // 包含s的列表
-CC_INLINE int vstr_find_instr(vstr_t* sv, str_t s, int i, int ignore_case)
+static int vstr_find_instr(vstr_t* sv, str_t s, int i, int ignore_case)
 {
   ASSERT(i>=0);
   for (; i < sv->n; ++i) {
@@ -991,7 +993,7 @@ CC_INLINE int vstr_find_instr(vstr_t* sv, str_t s, int i, int ignore_case)
   return -1;
 }
 #define vstr_join vstr_merge
-CC_INLINE int vstr_merge(const vstr_t* sv, str_t* s, const char* delims)
+static int vstr_merge(const vstr_t* sv, str_t* s, const char* delims)
 {
   int i, k = s->l, n = s->l, l = (int)strlen(delims);
   for (i = 0; i < sv->n; ++i) {
@@ -1007,7 +1009,7 @@ CC_INLINE int vstr_merge(const vstr_t* sv, str_t* s, const char* delims)
   }
   return k;
 }
-CC_INLINE int vstr_split_str(vstr_t* sv, str_t s, const char* delims, const char* trimstr, int minlen)
+static int vstr_split_str(vstr_t* sv, str_t s, const char* delims, const char* trimstr, int minlen)
 {
   int n = STRsplitn(s, delims, trimstr, minlen);
   vstr_setsize(sv, n);
@@ -1015,7 +1017,7 @@ CC_INLINE int vstr_split_str(vstr_t* sv, str_t s, const char* delims, const char
   vstr_setsize(sv, n);
   return 0;
 }
-CC_INLINE int vstr_split_str_add(vstr_t* sv, str_t s, const char* delims, const char* trimstr, int minlen)
+static int vstr_split_str_add(vstr_t* sv, str_t s, const char* delims, const char* trimstr, int minlen)
 {
   int old_n = sv->n;
   int n = STRsplitn(s, delims, trimstr, minlen);
@@ -1024,7 +1026,7 @@ CC_INLINE int vstr_split_str_add(vstr_t* sv, str_t s, const char* delims, const 
   vstr_setsize(sv, old_n+n);
   return 0;
 }
-CC_INLINE int vstr_getstr(vstr_t* sv, IPOINT beg, IPOINT pos, str_t* s)
+static int vstr_getstr(vstr_t* sv, IPOINT beg, IPOINT pos, str_t* s)
 {
   int i, k, n;
   if (iPOINT_cmp(beg, pos) > 0) {
@@ -1045,7 +1047,7 @@ CC_INLINE int vstr_getstr(vstr_t* sv, IPOINT beg, IPOINT pos, str_t* s)
   }
   return 0;
 }
-CC_INLINE int memfind_block(const void* s, const void* s1, int n, int ns1, int step)
+static int memfind_block(const void* s, const void* s1, int n, int ns1, int step)
 {
   int i;
   for (i = 0; i < n; ++i) {
@@ -1055,7 +1057,7 @@ CC_INLINE int memfind_block(const void* s, const void* s1, int n, int ns1, int s
   }
   return -1;
 }
-CC_INLINE char* memfind(const char* buf, unsigned int buf_len, const char* byte_sequence, unsigned int byte_sequence_len)
+static char* memfind(const char* buf, unsigned int buf_len, const char* byte_sequence, unsigned int byte_sequence_len)
 {
   char* bf = (char*)buf;
   char* bs = (char*)byte_sequence;
@@ -1076,11 +1078,11 @@ CC_INLINE char* memfind(const char* buf, unsigned int buf_len, const char* byte_
   }
   return NULL;
 }
-CC_INLINE int str_find_chr(str_t s, int ch, int i)
+static int str_find_chr(str_t s, int ch, int i)
 {
   return cstr_findchr(s.s, s.l, ch, i);
 }
-CC_INLINE int str_replace_str(str_t* s1, str_t s2, str_t s3, int ignore_case)
+static int str_replace_str(str_t* s1, str_t s2, str_t s3, int ignore_case)
 {
   int j = 0;
   if (s2.l >= s3.l) {
@@ -1095,7 +1097,7 @@ CC_INLINE int str_replace_str(str_t* s1, str_t s2, str_t s3, int ignore_case)
   return j;
 }
 // CString formatting
-CC_INLINE int str_formatv(str_t* s, int isadd, const char* lpszFormat, va_list argList)
+static int str_formatv(str_t* s, int isadd, const char* lpszFormat, va_list argList)
 {
   int nMaxLen = 0;
   str_t s2[1] = {0}, t;
@@ -1114,7 +1116,7 @@ CC_INLINE int str_formatv(str_t* s, int isadd, const char* lpszFormat, va_list a
   return nMaxLen;
 }
 // formatting (using wsprintf style formatting)
-CC_INLINE int str_format(str_t* s, int isadd, const char* lpszFormat, ...)
+static int str_format(str_t* s, int isadd, const char* lpszFormat, ...)
 {
   int ret = 0;
   va_list argList;
@@ -1123,28 +1125,28 @@ CC_INLINE int str_format(str_t* s, int isadd, const char* lpszFormat, ...)
   va_end(argList);
   return ret;
 }
-CC_INLINE str_t* str_tolower(str_t* str)
+static str_t* str_tolower(str_t* str)
 {
   TRANSFORM(str->s, str->s + str->l, str->s, tolower);
   return str;
 }
-CC_INLINE str_t* str_toupper(str_t* str)
+static str_t* str_toupper(str_t* str)
 {
   TRANSFORM(str->s, str->s + str->l, str->s, toupper);
   return str;
 }
 #define str_toi(str)   str2i(str.s, str.l, 0, 0, 0)
 #define str_tof(str)   str2f(str.s, str.l, 0, 0, 0)
-CC_INLINE int str_skip_nline(const char* s, int l, int i, int n, const char* trimstr, int* pn)
+static int str_skip_nline(const char* s, int l, int i, int n, const char* trimstr, int* pn)
 {
   char trimstrmap[256] = {0};
   int j = 0;
   if (n > 0) {
     for (; *trimstr;) {
-      trimstrmap[(uchar)(*trimstr++)] = 1;
+      trimstrmap[(uint8_t)(*trimstr++)] = 1;
     }
     for (; i < l; ++i) {
-      if (trimstrmap[(uchar)s[i]]) {
+      if (trimstrmap[(uint8_t)s[i]]) {
         ++j;
         if (j >= n) {
           ++i;
@@ -1158,17 +1160,17 @@ CC_INLINE int str_skip_nline(const char* s, int l, int i, int n, const char* tri
   }
   return i;
 }
-CC_INLINE IPOINT str_pos2pt(const char* s, int l, const char* trimstr)
+static IPOINT str_pos2pt(const char* s, int l, const char* trimstr)
 {
   char trimstrmap[256] = {0};
   IPOINT pt = {0};
   int i = 0, i0=0;
   if (l > 0) {
     for (; *trimstr;) {
-      trimstrmap[(uchar)(*trimstr++)] = 1;
+      trimstrmap[(uint8_t)(*trimstr++)] = 1;
     }
     for (; i < l;) {
-      if (trimstrmap[(uchar)s[i]]) {
+      if (trimstrmap[(uint8_t)s[i]]) {
         ++pt.y;
         i0 = i;
         pt.x = 0;
@@ -1182,7 +1184,7 @@ CC_INLINE IPOINT str_pos2pt(const char* s, int l, const char* trimstr)
   pt.x = i-i0;
   return pt;
 }
-CC_INLINE int test_rev_word()
+static int test_rev_word()
 {
   char s[100] = "today is a good day";
   char s2[100] = "today is a good day";
@@ -1192,7 +1194,7 @@ CC_INLINE int test_rev_word()
   ASSERT(0 == strcmp(s, s2));
   return 0;
 }
-CC_INLINE int test_strv()
+static int test_strv()
 {
   vstr_t sv[1] = {0};
   int i, j;
@@ -1205,7 +1207,7 @@ CC_INLINE int test_strv()
   vstr_free(sv);
   return 0;
 }
-CC_INLINE int STRpath_split(const char* dir, int len, const char* flag, char* buf, int buflen)
+static int STRpath_split(const char* dir, int len, const char* flag, char* buf, int buflen)
 {
   int i = 0, l = 0, len1 = buflen - 1;
   if (buflen > 0) {
@@ -1254,7 +1256,7 @@ CC_INLINE int STRpath_split(const char* dir, int len, const char* flag, char* bu
   }
   return i;
 }
-CC_INLINE int str_skip_delims(const char* s, int l, int i, const char* delims)
+static int str_skip_delims(const char* s, int l, int i, const char* delims)
 {
   int delimslen = (int)strlen(delims);
   for (; i < l; ++i) {
@@ -1268,7 +1270,7 @@ enum {
   STROPT_INSERT,
     STROPT_DELETE,
 };
-CC_INLINE int str_interface(void* s0, int opt, int param1, int* param2)
+static int str_interface(void* s0, int opt, int param1, int* param2)
 {
   str_t* s = (str_t*)s0;
   switch (opt) {
@@ -1288,15 +1290,15 @@ CC_INLINE int str_interface(void* s0, int opt, int param1, int* param2)
 }
 //#include "cfile.h"
 
-CC_INLINE int STRisempty(const char* s)
+static int STRisempty(const char* s)
 {
   return NULL == s || 0 == *s;
 }
 
-CC_INLINE int isutf16(const uchar* src, int srclen)
+static int isutf16(const uint8_t* src, int srclen)
 {
   int i;
-  const uchar* _PCS;
+  const uint8_t* _PCS;
   enum { GB2312_MATRIX = (94),
     DELTA = (0xA0),
     FONT_ROW_BEGIN = (16 + DELTA),
@@ -1320,10 +1322,10 @@ CC_INLINE int isutf16(const uchar* src, int srclen)
   }
   return 1;
 }
-CC_INLINE int istutf8(const uchar* str, int length)
+static int istutf8(const uint8_t* str, int length)
 {
   int i, nBytes = 0; //UFT8可用1-6个字节编码,ASCII用一个字节
-  uchar chr;
+  uint8_t chr;
   BOOL bAllAscii = TRUE; //如果全部都是ASCII, 说明不是UTF-8
   for (i = 0; i < length; i++) {
     chr = *(str + i);
@@ -1489,10 +1491,10 @@ static ushort utf_char_at(const char* text_utf8, unsigned pos, unsigned * len)
   
   return 0;
 }
-CC_INLINE uint32 nextCharA(const void* str, int len, int* i) {
+static uint32_t nextCharA(const void* str, int len, int* i) {
   if (*i<len) {
-    uchar* s = (uchar*)str;
-    uint32 code = s[(*i)++];
+    uint8_t* s = (uint8_t*)str;
+    uint32_t code = s[(*i)++];
     if (code < 0x80) {
     } else {
       code = (code<<8) | s[(*i)++];
@@ -1502,10 +1504,10 @@ CC_INLINE uint32 nextCharA(const void* str, int len, int* i) {
   return 0;
 }
 /// return the first code point and move the pointer to next character, springing to the end by errors
-CC_INLINE uint32 utf8char(const unsigned char** pp, const unsigned char* end)
+static uint32_t utf8char(const unsigned char** pp, const unsigned char* end)
 {
   const unsigned char* p = *pp;
-  uint32 ch, code = 0;
+  uint32_t ch, code = 0;
   if(p != end)
   {
     if(*p < 0x80)        // ASCII char   0-127 or 0-0x80
@@ -1546,17 +1548,17 @@ CC_INLINE uint32 utf8char(const unsigned char** pp, const unsigned char* end)
   return code;
 }
 
-CC_INLINE uint32 utf16char(const unsigned char** pbytes, const unsigned char* end, bool le_or_be)
+static uint32_t utf16char(const unsigned char** pbytes, const unsigned char* end, bool le_or_be)
 {
   const unsigned char* bytes = *pbytes;
-  uint32 code = 0;
+  uint32_t code = 0;
   if(le_or_be)
   {
     if((end - bytes >= 4) && ((bytes[1] & 0xFC) == 0xD8))
     {
       //32bit encoding
-      uint32 ch0 = bytes[0] | (bytes[1] << 8);
-      uint32 ch1 = bytes[2] | (bytes[3] << 8);
+      uint32_t ch0 = bytes[0] | (bytes[1] << 8);
+      uint32_t ch1 = bytes[2] | (bytes[3] << 8);
       
       code = ((ch0 & 0x3FF) << 10) | (ch1 & 0x3FF);
       bytes += 4;
@@ -1576,8 +1578,8 @@ CC_INLINE uint32 utf16char(const unsigned char** pbytes, const unsigned char* en
     if((end - bytes >= 4) && ((bytes[0] & 0xFC) == 0xD8))
     {
       //32bit encoding
-      uint32 ch0 = (bytes[0] << 8) | bytes[1];
-      uint32 ch1 = (bytes[2] << 8) | bytes[3];
+      uint32_t ch0 = (bytes[0] << 8) | bytes[1];
+      uint32_t ch1 = (bytes[2] << 8) | bytes[3];
       code = (((ch0 & 0x3FF) << 10) | (ch1 & 0x3FF)) + 0x10000;
       bytes += 4;
     }
@@ -1595,10 +1597,10 @@ CC_INLINE uint32 utf16char(const unsigned char** pbytes, const unsigned char* en
   return code;
 }
 
-CC_INLINE uint32 utf32char(const unsigned char** pbytes, const unsigned char* end, bool le_or_be)
+static uint32_t utf32char(const unsigned char** pbytes, const unsigned char* end, bool le_or_be)
 {
   const unsigned char* bytes = *pbytes;
-  uint32 code = 0;
+  uint32_t code = 0;
   if(end - bytes >= 4)
   {
     if(le_or_be)
@@ -1613,7 +1615,7 @@ CC_INLINE uint32 utf32char(const unsigned char** pbytes, const unsigned char* en
   return code;
 }
 
-CC_INLINE int put_utf8char(char* s, int i, uint32 code)
+static int put_utf8char(char* s, int i, uint32_t code)
 {
   if(code < 0x80)
   {
@@ -1641,7 +1643,7 @@ CC_INLINE int put_utf8char(char* s, int i, uint32 code)
 }
 
 //le_or_be, true = le, false = be
-CC_INLINE int put_utf16char(char* s, int i, uint32 code, bool le_or_be)
+static int put_utf16char(char* s, int i, uint32_t code, bool le_or_be)
 {
   if(code <= 0xFFFF)
   {
@@ -1658,8 +1660,8 @@ CC_INLINE int put_utf16char(char* s, int i, uint32 code, bool le_or_be)
   }
   else
   {
-    uint32 ch0 = (0xD800 | ((code - 0x10000) >> 10));
-    uint32 ch1 = (0xDC00 | ((code - 0x10000) & 0x3FF));
+    uint32_t ch0 = (0xD800 | ((code - 0x10000) >> 10));
+    uint32_t ch1 = (0xDC00 | ((code - 0x10000) & 0x3FF));
     
     if(le_or_be)
     {
@@ -1681,7 +1683,7 @@ CC_INLINE int put_utf16char(char* s, int i, uint32 code, bool le_or_be)
   return i;
 }
 
-CC_INLINE int put_utf32char(char* s, int i, uint32 code, bool le_or_be)
+static int put_utf32char(char* s, int i, uint32_t code, bool le_or_be)
 {
   if(le_or_be)
   {
@@ -1700,7 +1702,7 @@ CC_INLINE int put_utf32char(char* s, int i, uint32 code, bool le_or_be)
   return i;
 }
 
-CC_INLINE int utf8_to_utf16(const char* s, bool le_or_be, char** putf16str)
+static int utf8_to_utf16(const char* s, bool le_or_be, char** putf16str)
 {
   int i=0, s_len = (int)strlen(s);
   const unsigned char * bytes = (const unsigned char*)(s);
@@ -1726,7 +1728,7 @@ CC_INLINE int utf8_to_utf16(const char* s, bool le_or_be, char** putf16str)
   return i;
 }
 
-CC_INLINE int utf8_to_utf32(const char* s, bool le_or_be, char** putf32str)
+static int utf8_to_utf32(const char* s, bool le_or_be, char** putf32str)
 {
   int i=0, s_len = (int)strlen(s);
   const unsigned char * bytes = (const unsigned char*)(s);
@@ -1750,7 +1752,7 @@ CC_INLINE int utf8_to_utf32(const char* s, bool le_or_be, char** putf32str)
   return i;
 }
 
-CC_INLINE int utf16_to_utf8(const char* s, char** putf8str)
+static int utf16_to_utf8(const char* s, char** putf8str)
 {
   int i=0, s_len = (int)strlen(s);
   const unsigned char * bytes = (const unsigned char*)(s);
@@ -1786,7 +1788,7 @@ CC_INLINE int utf16_to_utf8(const char* s, char** putf8str)
   return i;
 }
 
-CC_INLINE int utf16_to_utf32(const char* s, char** putf32str)
+static int utf16_to_utf32(const char* s, char** putf32str)
 {
   int i=0, s_len = (int)strlen(s);
   const unsigned char * bytes = (const unsigned char*)(s);
@@ -1818,7 +1820,7 @@ CC_INLINE int utf16_to_utf32(const char* s, char** putf32str)
   return i;
 }
 
-CC_INLINE int utf32_to_utf8(const char* s, char** putf8str)
+static int utf32_to_utf8(const char* s, char** putf8str)
 {
   int i=0, s_len = (int)strlen(s);
   const unsigned char * bytes = (const unsigned char*)(s);
@@ -1854,7 +1856,7 @@ CC_INLINE int utf32_to_utf8(const char* s, char** putf8str)
   return i;
 }
 
-CC_INLINE int utf32_to_utf16(const char* s, char** putf16str)
+static int utf32_to_utf16(const char* s, char** putf16str)
 {
   int i=0, s_len = (int)strlen(s);
   const unsigned char * bytes = (const unsigned char*)(s);
@@ -1894,8 +1896,8 @@ CC_INLINE int utf32_to_utf16(const char* s, char** putf16str)
 //这种伴随着计算机发展而衍生出来的各种双字节语言字符编码只能是尽量想办法处理，但难有完美解决方案。
 //判断是否是GB2312
 /* Support for Chinese(GB2312) characters */
-// #define isgb2312head(c) (0xa1<=(uchar)(c) && (uchar)(c)<=0xf7)
-// #define isgb2312tail(c) (0xa1<=(uchar)(c) && (uchar)(c)<=0xfe)
+// #define isgb2312head(c) (0xa1<=(uint8_t)(c) && (uint8_t)(c)<=0xf7)
+// #define isgb2312tail(c) (0xa1<=(uint8_t)(c) && (uint8_t)(c)<=0xfe)
 static int isGB2312(byte head, byte tail)
 {
   int iHead = head & 0xff;
@@ -1903,9 +1905,9 @@ static int isGB2312(byte head, byte tail)
   return ((iHead >= 0xa1 && iHead <= 0xf7 && iTail >= 0xa1 && iTail <= 0xfe) ? TRUE : FALSE);
 }
 /* Support for Chinese(GBK) characters */
-// #define isgbkhead(c) (0x81<=(uchar)(c) && (uchar)(c)<=0xfe)
-// #define isgbktail(c) ((0x40<=(uchar)(c) && (uchar)(c)<=0x7e)
-// || (0x80<=(uchar)(c) && (uchar)(c)<=0xfe))
+// #define isgbkhead(c) (0x81<=(uint8_t)(c) && (uint8_t)(c)<=0xfe)
+// #define isgbktail(c) ((0x40<=(uint8_t)(c) && (uint8_t)(c)<=0x7e)
+// || (0x80<=(uint8_t)(c) && (uint8_t)(c)<=0xfe))
 static int isGBK(byte head, byte tail)
 {
   int iHead = head & 0xff;
@@ -1913,9 +1915,9 @@ static int isGBK(byte head, byte tail)
   return ((iHead >= 0x81 && iHead <= 0xfe && ((iTail >= 0x40 && iTail <= 0x7e) || (iTail >= 0x80 && iTail <= 0xfe))) ? TRUE : FALSE);
 }
 /* Support for Chinese(BIG5) characters */
-// #define isbig5head(c) (0xa1<=(uchar)(c) && (uchar)(c)<=0xf9)
-// #define isbig5tail(c) ((0x40<=(uchar)(c) && (uchar)(c)<=0x7e)
-// || (0xa1<=(uchar)(c) && (uchar)(c)<=0xfe))
+// #define isbig5head(c) (0xa1<=(uint8_t)(c) && (uint8_t)(c)<=0xf9)
+// #define isbig5tail(c) ((0x40<=(uint8_t)(c) && (uint8_t)(c)<=0x7e)
+// || (0xa1<=(uint8_t)(c) && (uint8_t)(c)<=0xfe))
 static int isBIG5(byte head, byte tail)
 {
   int iHead = head & 0xff;
@@ -1924,15 +1926,15 @@ static int isBIG5(byte head, byte tail)
     ((iTail >= 0x40 && iTail <= 0x7e) ||
     (iTail >= 0xa1 && iTail <= 0xfe))) ? TRUE : FALSE);
 }
-CC_INLINE int chr_mbtowc(const void* s, int slen, wchar_t* d, int dlen)
+static int chr_mbtowc(const void* s, int slen, wchar_t* d, int dlen)
 {
-  return mb2wc(CE_GB2312, (const uchar*)s, slen, d, dlen);
+  return mb2wc(CE_GB2312, (const uint8_t*)s, slen, d, dlen);
 }
-CC_INLINE int chr_wctomb(const wchar_t* s, int slen, void* d, int dlen)
+static int chr_wctomb(const wchar_t* s, int slen, void* d, int dlen)
 {
-  return wc2mb(CE_GB2312, s, slen, (uchar*)d, dlen);
+  return wc2mb(CE_GB2312, s, slen, (uint8_t*)d, dlen);
 }
-CC_INLINE int str_mbtowc(const str_t szNarrow, str_t* szWide)
+static int str_mbtowc(const str_t szNarrow, str_t* szWide)
 {
   str_t dd[1] = {0};
   int size, size2;
@@ -1942,7 +1944,7 @@ CC_INLINE int str_mbtowc(const str_t szNarrow, str_t* szWide)
   str_free(szWide), *szWide = *dd;
   return size2;
 }
-CC_INLINE int str_wctomb(const str_t szWide, str_t* szNarrow)
+static int str_wctomb(const str_t szWide, str_t* szNarrow)
 {
   str_t dd[1] = {0};
   int size, size2;
@@ -1957,14 +1959,14 @@ enum {
     XMLFILE_ENCODING_UNICODE = CE_UTF16,
     XMLFILE_ENCODING_ASNI = CE_GB2312
 };
-CC_INLINE int isTextUTF8(const void* str0, int length)
+static int isTextUTF8(const void* str0, int length)
 {
   int i;
-  uint32 nBytes = 0;
-  const uchar* str = (const uchar*)str0;
+  uint32_t nBytes = 0;
+  const uint8_t* str = (const uint8_t*)str0;
   BOOL bAllAscii = TRUE;
   for (i = 0; i < length; i++) {
-    uchar chr = *(str + i);
+    uint8_t chr = *(str + i);
     if ((chr & 0x80) != 0) {
       bAllAscii = FALSE;
     }
@@ -2006,7 +2008,7 @@ CC_INLINE int isTextUTF8(const void* str0, int length)
   }
   return TRUE;
 }
-CC_INLINE CodePage GetCodePage(const void* str, int len)
+static CodePage GetCodePage(const void* str, int len)
 {
   if (isTextUTF8(str, len)) {
     return CE_UTF8;
@@ -2014,50 +2016,50 @@ CC_INLINE CodePage GetCodePage(const void* str, int len)
   return CE_GB2312;
   return (CodePage)XMLFILE_ENCODING_ASNI;
 }
-CC_INLINE int iconv_s(CodePage scode, const void* s, int sl, CodePage dcode, void* d, int dl)
+static int iconv_s(CodePage scode, const void* s, int sl, CodePage dcode, void* d, int dl)
 {
   wchar_t* t;
   int dlen, tlen;
   if (scode < 0) {
     scode = GetCodePage(s, sl);
   }
-  tlen = mb2wc(scode, (const uchar*)s, sl, 0, 0);
+  tlen = mb2wc(scode, (const uint8_t*)s, sl, 0, 0);
   if (NULL == d) {
     return 3 * tlen;
   }
   t = (wchar_t*)pmalloc(tlen * sizeof(wchar_t) + 10);
-  mb2wc(scode, (const uchar*)s, sl, t, tlen);
+  mb2wc(scode, (const uint8_t*)s, sl, t, tlen);
   dlen = wc2mb(dcode, t, tlen, 0, 0);
   dlen = MIN(dlen, dl);
   dlen = wc2mb(dcode, t, tlen, d, dl);
   pfree(t);
   return dlen;
 }
-CC_INLINE int iconv(CodePage scode, const str_t s, CodePage dcode, str_t* d)
+static int iconv(CodePage scode, const str_t s, CodePage dcode, str_t* d)
 {
   wchar_t* t;
   int dlen, tlen;
   if (scode==CE_UNKNOW) {
-    scode = GetCodePage((const uchar*)s.s, s.l);
+    scode = GetCodePage((const uint8_t*)s.s, s.l);
   }
-  tlen = mb2wc(scode, (const uchar*)s.s, s.l, 0, 0);
+  tlen = mb2wc(scode, (const uint8_t*)s.s, s.l, 0, 0);
   t = (wchar_t*)pmalloc(tlen * sizeof(wchar_t) + 10);
-  tlen = mb2wc(scode, (const uchar*)s.s, s.l, t, tlen);
+  tlen = mb2wc(scode, (const uint8_t*)s.s, s.l, t, tlen);
   dlen = wc2mb(dcode, t, tlen, 0, 0);
   str_setsize(d, dlen);
-  d->l = dlen = wc2mb(dcode, t, tlen, (uchar*)d->s, d->l);
+  d->l = dlen = wc2mb(dcode, t, tlen, (uint8_t*)d->s, d->l);
   pfree(t);
   return dlen;
 }
-CC_INLINE int str_toasni(const str_t* s, str_t* d)
+static int str_toasni(const str_t* s, str_t* d)
 {
   const BYTE* pByte = (BYTE*)s->s;
-  uint32 dwSize = s->l;
+  uint32_t dwSize = s->l;
   str_t t, dd[1] = {0};
   wchar_t* w_str;
   int encoding = GetCodePage(pByte, dwSize);
   if (encoding == XMLFILE_ENCODING_UTF8) {
-    uint32 wide, nWide;
+    uint32_t wide, nWide;
     nWide = mb2wc(CE_UTF8, pByte, dwSize, NULL, 0);
     w_str = (wchar_t*)(pmalloc((nWide + 1) * sizeof(wchar_t)));
     mb2wc(CE_UTF8, pByte, dwSize, w_str, nWide);
@@ -2069,12 +2071,12 @@ CC_INLINE int str_toasni(const str_t* s, str_t* d)
   }
   else if (encoding == XMLFILE_ENCODING_UNICODE) {
     if (dwSize >= 2 && ((pByte[ 0 ] == 0xFE && pByte[ 1 ] == 0xFF) || (pByte[ 0 ] == 0xFF && pByte[ 1 ] == 0xFE))) {
-      uint32 nWide;
+      uint32_t nWide;
       BYTE* pByte1 = (BYTE*)memdup1(pByte, dwSize);
       BYTE* pByte2 = pByte1;
       dwSize = dwSize / 2 - 1;
       if (pByte2[ 0 ] == 0xFE && pByte2[ 1 ] == 0xFF) {
-        uint32 nSwap;
+        uint32_t nSwap;
         pByte2 += 2;
         for (nSwap = 0 ; nSwap < dwSize ; nSwap ++) {
           register CHAR nTemp = pByte2[(nSwap << 1) + 0 ];
@@ -2106,7 +2108,7 @@ static const char* csUnsafeString = "\"<>%\\^[]`+$,@:;/!#?=&";
 // PURPOSE OF THIS FUNCTION IS TO GENERATE A HEX REPRESENTATION OF GIVEN CHARACTER
 #define DEC2HEX(dec, Hex) { *(Hex) = hexVals[(dec)&16]; *(Hex+1) = hexVals[((dec)>>4) & 16]; }
 #define ISUNSAFE(_CH) (_CH & (1<<7))
-CC_INLINE int url2gb(const char* url, int urllen, char* gb)
+static int url2gb(const char* url, int urllen, char* gb)
 {
   int i, j = 0;
   if (gb) {
@@ -2146,9 +2148,9 @@ static BYTE SZHEX[] = {
     0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,
     0 , 10, 11, 12, 13, 14, 15, 0
 }; //sizeof(SZHEX)=0x68
-#define HEXChar(c) ((c)>0x68 ? 0 : SZHEX[(uchar)c])
+#define HEXChar(c) ((c)>0x68 ? 0 : SZHEX[(uint8_t)c])
 // UrlDecode URL解码函数
-CC_INLINE int url2any(const void* src, int srclen, char* dst)
+static int url2any(const void* src, int srclen, char* dst)
 {
   char* srcc = (char*) src;
   char* dstc = (char*) dst;
@@ -2172,7 +2174,7 @@ CC_INLINE int url2any(const void* src, int srclen, char* dst)
   *dstc = 0;
   return dstc - (char*) dst;
 }
-CC_INLINE int any2url(const void* src, int srclen, void* dst)
+static int any2url(const void* src, int srclen, void* dst)
 {
   int i;
   unsigned char* srcc = (unsigned char*) src;
@@ -2185,19 +2187,19 @@ CC_INLINE int any2url(const void* src, int srclen, void* dst)
   *dstc++ = '\0';
   return srclen * 3;
 }
-CC_INLINE int str_url2str(str_t s, str_t* d)
+static int str_url2str(str_t s, str_t* d)
 {
   str_setsize(d, s.l);
   d->l = url2any(s.s, s.l, d->s);
   return d->l;
 }
-CC_INLINE int str_str2url(str_t s, str_t* d)
+static int str_str2url(str_t s, str_t* d)
 {
   str_setsize(d, s.l * 3);
   d->l = any2url(s.s, s.l, d->s);
   return d->l;
 }
-CC_INLINE int gb2uni_code(int code)
+static int gb2uni_code(int code)
 {
   char str[8] = {0};
   wchar_t uni[2] = {0};
@@ -2223,7 +2225,7 @@ typedef struct trie_node_t {
 } trie_node_t;
 typedef struct trie_t {
   int maxnode; // 最大子节点数目
-  uchar smap[256];
+  uint8_t smap[256];
   int count; // 总单词数
   trie_node_t* root;
 } trie_t;
@@ -2270,7 +2272,7 @@ static int trie_set(trie_t* t, const char* str)
   int i;
   trie_free(t);
   if (str) {
-    const uchar* ustr = (const uchar*)str;
+    const uint8_t* ustr = (const uint8_t*)str;
     t->maxnode = (int)strlen(str);
     for (i = 0; i < t->maxnode; ++i) {
       t->smap[ustr[i]] = i;
@@ -2288,7 +2290,7 @@ static int trie_set(trie_t* t, const char* str)
 static trie_node_t* trie_insert(trie_t* t, const void* str, int len)
 {
   int i;
-  const uchar* ustr = (const uchar*)str;
+  const uint8_t* ustr = (const uint8_t*)str;
   trie_node_t** p = &t->root;
   len = len < 0 ? (int)strlen((const char*)str) : len;
   if (t->maxnode <= 0) {
@@ -2318,7 +2320,7 @@ static trie_node_t* trie_insert(trie_t* t, const void* str, int len)
 static trie_node_t* trie_find(const trie_t* t, const void* str, int len)
 {
   int i;
-  const uchar* ustr = (const uchar*)str;
+  const uint8_t* ustr = (const uint8_t*)str;
   trie_node_t* p = t->root;
   for (i = 0; i < len && p == NULL; ++i) {
     int id = t->smap[ustr[i]];
@@ -2330,7 +2332,7 @@ static trie_node_t* trie_find(const trie_t* t, const void* str, int len)
 }
 static int trie_have_instr(const trie_t* t, const void* str, int len) {
   int i, j;
-  const uchar* ustr = (const uchar*)str;
+  const uint8_t* ustr = (const uint8_t*)str;
   trie_node_t* ps[256];
   int np=0;
   if (t->root) {
@@ -2499,7 +2501,7 @@ static int TextCountCharsFromUtf8(const char* in_text, const char* in_text_end)
   return char_count;
 }
 // Based on stb_to_utf8() from github.com/nothings/stb/
-CC_INLINE int TextCharToUtf8(char* buf, int buf_size, unsigned int c)
+static int TextCharToUtf8(char* buf, int buf_size, unsigned int c)
 {
   if (c < 0x80) {
     buf[0] = (char)c;
@@ -2537,7 +2539,7 @@ CC_INLINE int TextCharToUtf8(char* buf, int buf_size, unsigned int c)
     return 3;
   }
 }
-CC_INLINE int ImTextCountUtf8BytesFromChar(unsigned int c)
+static int ImTextCountUtf8BytesFromChar(unsigned int c)
 {
   if (c < 0x80) {
     return 1;
@@ -2612,10 +2614,10 @@ static const unsigned char utf8_look_for_table[256] = {
   4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 1, 1
 };
 #define UTFLEN(x) utf8_look_for_table[(x)]
-CC_INLINE int utf8_len(const char* str)
+static int utf8_len(const char* str)
 {
   int i = 0;
-  unsigned char* ustr = (uchar*)str;
+  unsigned char* ustr = (uint8_t*)str;
   unsigned char ch;
   for (; (ch = ustr[i])!=0; i += UTFLEN(ch));
   return i;
@@ -2651,11 +2653,11 @@ static char* utf8_substring(const char* str, int start, int end)
   retStr[retLen] = 0;
   return retStr;
 }
-CC_INLINE bool ImCharIsSpace(int c)
+static bool ImCharIsSpace(int c)
 {
   return c == ' ' || c == '\t' || c == 0x3000;
 }
-CC_INLINE int test_utf8()
+static int test_utf8()
 {
   const char* str = "我的a测试工具阿斯顿aaab123阿斯顿个流氓了卡斯！";
   char* sub;
@@ -2675,14 +2677,14 @@ CC_INLINE int test_utf8()
   }
   return 0;
 }
-CC_INLINE int vcstr_len(const char*const* strs) {
+static int vcstr_len(const char*const* strs) {
   int i=0;
   if (strs) {
     for (; *strs;++i);
   }
   return i;
 }
-CC_INLINE int vcstr_setsize(char*** vstrs, int newn) {
+static int vcstr_setsize(char*** vstrs, int newn) {
   char** p = *vstrs;
   int n = vcstr_len(p);
   if (newn<n) {
@@ -2700,7 +2702,7 @@ CC_INLINE int vcstr_setsize(char*** vstrs, int newn) {
   } 
   return 0;
 }
-CC_INLINE int vcstr_free(char** vstrs) {
+static int vcstr_free(char** vstrs) {
   if (vstrs) {
     int i=0;
     for (; vstrs[i];++i) {

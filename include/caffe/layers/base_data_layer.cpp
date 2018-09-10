@@ -1,4 +1,4 @@
-#include <boost/thread.hpp>
+#include <thread>
 #include <vector>
 
 #include "caffe/blob.hpp"
@@ -103,7 +103,7 @@ namespace caffe
 #endif
         prefetch_full_.push(batch);
       }
-    } catch (boost::thread_interrupted &) {
+      } catch (std::exception & e) {
       // Interrupted exception is expected on shutdown
     }
 #ifndef CPU_ONLY

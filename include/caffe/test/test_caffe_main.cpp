@@ -1,4 +1,4 @@
-#include "caffe/libcaffe.cpp"
+//#include "caffe/libcaffe.cpp"
 #include "caffe/caffe.hpp"
 #include "caffe/test/test_caffe_main.hpp"
 #include "gtest/gtest-all.cpp"
@@ -15,7 +15,7 @@ namespace caffe
 using caffe::CAFFE_TEST_CUDA_PROP;
 #endif
 
-int main(int argc, char** argv)
+int test_caffe_main(int argc, char** argv)
 {
   ::testing::InitGoogleTest(&argc, argv);
   caffe::GlobalInit(argc, argv);

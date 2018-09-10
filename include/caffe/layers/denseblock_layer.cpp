@@ -10,9 +10,10 @@
 
 #include <sys/types.h>
 //#include <dirent.h>
-#include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
+//#include <boost/lexical_cast.hpp>
+//#include <boost/filesystem.hpp>
+//#include <boost/algorithm/string.hpp>
+#include "wstd/string.hpp"
 
 #include "caffe/blob.hpp"
 #include "caffe/filler.hpp"
@@ -20,6 +21,7 @@
 
 namespace caffe
 {
+  using wstd::itos;
 
   bool dirExists(string dirStr)
   {
@@ -92,21 +94,21 @@ namespace caffe
         int filterShape_Arr[] = { growthRate, inChannels, 3, 3 };
         vector<int> filterShape(filterShape_Arr, filterShape_Arr + 4);
         this->blobs_[transitionIdx].reset(new Blob<Dtype>(filterShape));
-        boost::shared_ptr<Filler<Dtype> > filter_Filler(GetFiller<Dtype>(dbParam.filter_filler()));
+        shared_ptr<Filler<Dtype> > filter_Filler(GetFiller<Dtype>(dbParam.filter_filler()));
         filter_Filler->Fill(this->blobs_[transitionIdx].get());
       } else {
         //3*3 kernel
         int filter_33_shapeArr[] = { growthRate, 4 * growthRate, 3, 3 };
         vector<int> filter33Shape(filter_33_shapeArr, filter_33_shapeArr + 4);
         this->blobs_[transitionIdx].reset(new Blob<Dtype>(filter33Shape));
-        boost::shared_ptr<Filler<Dtype> > filter_Filler3(GetFiller<Dtype>(dbParam.filter_filler()));
+        shared_ptr<Filler<Dtype> > filter_Filler3(GetFiller<Dtype>(dbParam.filter_filler()));
         filter_Filler3->Fill(this->blobs_[transitionIdx].get());
         //1*1 kernel
         int inChannels = initChannel + transitionIdx * growthRate;
         int filter_11_shapeArr[] = { 4 * growthRate, inChannels, 1, 1 };
         vector<int> filter11Shape(filter_11_shapeArr, filter_11_shapeArr + 4);
         this->blobs_[5 * numTransition + transitionIdx].reset(new Blob<Dtype>(filter11Shape));
-        boost::shared_ptr<Filler<Dtype> > filter_Filler1(GetFiller<Dtype>(dbParam.filter_filler()));
+        shared_ptr<Filler<Dtype> > filter_Filler1(GetFiller<Dtype>(dbParam.filter_filler()));
         filter_Filler1->Fill(this->blobs_[5 * numTransition + transitionIdx].get());
       }
       //scaler & bias
@@ -115,36 +117,36 @@ namespace caffe
       vector<int> BNparamShape(BNparamShape_Arr, BNparamShape_Arr + 4);
       //scaler
       this->blobs_[numTransition + transitionIdx].reset(new Blob<Dtype>(BNparamShape));
-      boost::shared_ptr<Filler<Dtype> > weight_filler0(GetFiller<Dtype>(dbParam.bn_scaler_filler()));
+      shared_ptr<Filler<Dtype> > weight_filler0(GetFiller<Dtype>(dbParam.bn_scaler_filler()));
       weight_filler0->Fill(this->blobs_[numTransition + transitionIdx].get());
       int BN_4G_Shape[] = { 1, 4 * growthRate, 1, 1 };
       vector<int> BN_4Gparam_ShapeVec(BN_4G_Shape, BN_4G_Shape + 4);
       //scaler BC
       if (useBC) {
         this->blobs_[6 * numTransition + transitionIdx].reset(new Blob<Dtype>(BN_4Gparam_ShapeVec));
-        boost::shared_ptr<Filler<Dtype> > weight_filler0_4G(GetFiller<Dtype>(dbParam.bn_scaler_filler()));
+        shared_ptr<Filler<Dtype> > weight_filler0_4G(GetFiller<Dtype>(dbParam.bn_scaler_filler()));
         weight_filler0_4G->Fill(this->blobs_[6 * numTransition + transitionIdx].get());
       }
       //bias
       this->blobs_[2 * numTransition + transitionIdx].reset(new Blob<Dtype>(BNparamShape));
-      boost::shared_ptr<Filler<Dtype> > weight_filler1(GetFiller<Dtype>(dbParam.bn_bias_filler()));
+      shared_ptr<Filler<Dtype> > weight_filler1(GetFiller<Dtype>(dbParam.bn_bias_filler()));
       weight_filler1->Fill(this->blobs_[2 * numTransition + transitionIdx].get());
       //bias BC
       if (useBC) {
         this->blobs_[7 * numTransition + transitionIdx].reset(new Blob<Dtype>(BN_4Gparam_ShapeVec));
-        boost::shared_ptr<Filler<Dtype> > weight_filler1_4G(GetFiller<Dtype>(dbParam.bn_bias_filler()));
+        shared_ptr<Filler<Dtype> > weight_filler1_4G(GetFiller<Dtype>(dbParam.bn_bias_filler()));
         weight_filler1_4G->Fill(this->blobs_[7 * numTransition + transitionIdx].get());
       }
       //globalMean
       this->blobs_[3 * numTransition + transitionIdx].reset(new Blob<Dtype>(BNparamShape));
       for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
-        boost::shared_ptr<Blob<Dtype> > localB = this->blobs_[3 * numTransition + transitionIdx];
+        shared_ptr<Blob<Dtype> > localB = this->blobs_[3 * numTransition + transitionIdx];
         localB->mutable_cpu_data()[localB->offset(0, blobIdx, 0, 0)] = 0;
       }
       //globalMean BC
       if (useBC) {
         this->blobs_[8 * numTransition + transitionIdx].reset(new Blob<Dtype>(BN_4Gparam_ShapeVec));
-        boost::shared_ptr<Blob<Dtype> > localB = this->blobs_[8 * numTransition + transitionIdx];
+        shared_ptr<Blob<Dtype> > localB = this->blobs_[8 * numTransition + transitionIdx];
         for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
           localB->mutable_cpu_data()[localB->offset(0, blobIdx, 0, 0)] = 0;
         }
@@ -152,13 +154,13 @@ namespace caffe
       //globalVar
       this->blobs_[4 * numTransition + transitionIdx].reset(new Blob<Dtype>(BNparamShape));
       for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
-        boost::shared_ptr<Blob<Dtype> > localB = this->blobs_[4 * numTransition + transitionIdx];
+        shared_ptr<Blob<Dtype> > localB = this->blobs_[4 * numTransition + transitionIdx];
         localB->mutable_cpu_data()[localB->offset(0, blobIdx, 0, 0)] = 1;
       }
       //globalVar BC
       if (useBC) {
         this->blobs_[9 * numTransition + transitionIdx].reset(new Blob<Dtype>(BN_4Gparam_ShapeVec));
-        boost::shared_ptr<Blob<Dtype> > localB = this->blobs_[9 * numTransition + transitionIdx];
+        shared_ptr<Blob<Dtype> > localB = this->blobs_[9 * numTransition + transitionIdx];
         for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
           localB->mutable_cpu_data()[localB->offset(0, blobIdx, 0, 0)] = 1;
         }
@@ -236,12 +238,12 @@ namespace caffe
   template <typename Dtype>
   void DenseBlockLayer<Dtype>::syncBlobs(DenseBlockLayer<Dtype>* originLayer)
   {
-    vector<boost::shared_ptr<Blob<Dtype> > > & originBlobs = originLayer->blobs();
+    vector<shared_ptr<Blob<Dtype> > > & originBlobs = originLayer->blobs();
     for (int blobIdx = 0; blobIdx < originBlobs.size(); ++blobIdx) {
-      boost::shared_ptr<Blob<Dtype> > localBlob = originBlobs[blobIdx];
+      shared_ptr<Blob<Dtype> > localBlob = originBlobs[blobIdx];
       Blob<Dtype>* newBlob = new Blob<Dtype>(localBlob->shape());
       newBlob->CopyFrom(*(localBlob.get()), false);
-      boost::shared_ptr<Blob<Dtype> > sharedPtrBlob(newBlob);
+      shared_ptr<Blob<Dtype> > sharedPtrBlob(newBlob);
       this->blobs_[blobIdx] = sharedPtrBlob;
     }
   }
@@ -275,12 +277,6 @@ namespace caffe
     }
     outWriter_data << std::endl;
     outWriter_grad << std::endl;
-  }
-
-  string itos(int i)
-  {
-    string output = boost::lexical_cast<string>(i);
-    return output;
   }
 
   template <typename Dtype>

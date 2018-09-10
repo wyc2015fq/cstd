@@ -13,4 +13,9 @@
 #define USE_WARP_CTC
 #define USE_OPENCV
 #define USE_LMDB
-#define USE_LEVELDB
+//#define USE_LEVELDB
+
+#ifdef _MSC_VER
+#endif
+
+#pragma warning(disable:4819) //È«²¿¹Øµô

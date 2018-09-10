@@ -1592,9 +1592,9 @@ typedef struct {
 // h - hour
 // M - minutes
 // s - seconds
-static char* strtimefmt(char* buf, int len, const char* fmt) {
+static char* strtimefmt(char* buf, size_t len, const char* fmt) {
   char c;
-  int j=0;
+  size_t j=0;
   char fmt1[32];
   time_t timep;
   struct tm *p;

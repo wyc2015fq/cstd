@@ -1,4 +1,6 @@
-#include <boost/thread.hpp>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 #include <string>
 
 #include "caffe/data_reader.hpp"
@@ -13,8 +15,8 @@ namespace caffe
   class BlockingQueue<T>::sync
   {
   public:
-    mutable boost::mutex mutex_;
-    boost::condition_variable condition_;
+    mutable std::mutex mutex_;
+    std::condition_variable condition_;
   };
 
   template<typename T>
@@ -26,7 +28,7 @@ namespace caffe
   template<typename T>
   void BlockingQueue<T>::push(const T & t)
   {
-    boost::mutex::scoped_lock lock(sync_->mutex_);
+    std::unique_lock<std::mutex> lock(sync_->mutex_);
     queue_.push(t);
     lock.unlock();
     sync_->condition_.notify_one();
@@ -35,7 +37,7 @@ namespace caffe
   template<typename T>
   bool BlockingQueue<T>::try_pop(T* t)
   {
-    boost::mutex::scoped_lock lock(sync_->mutex_);
+    std::unique_lock<std::mutex> lock(sync_->mutex_);
     if (queue_.empty()) {
       return false;
     }
@@ -47,7 +49,7 @@ namespace caffe
   template<typename T>
   T BlockingQueue<T>::pop(const string & log_on_wait)
   {
-    boost::mutex::scoped_lock lock(sync_->mutex_);
+    std::unique_lock<std::mutex> lock(sync_->mutex_);
     while (queue_.empty()) {
       if (!log_on_wait.empty()) {
         LOG_EVERY_N(INFO, 1000) << log_on_wait;
@@ -62,7 +64,7 @@ namespace caffe
   template<typename T>
   bool BlockingQueue<T>::try_peek(T* t)
   {
-    boost::mutex::scoped_lock lock(sync_->mutex_);
+    std::unique_lock<std::mutex> lock(sync_->mutex_);
     if (queue_.empty()) {
       return false;
     }
@@ -73,7 +75,7 @@ namespace caffe
   template<typename T>
   T BlockingQueue<T>::peek()
   {
-    boost::mutex::scoped_lock lock(sync_->mutex_);
+    std::unique_lock<std::mutex> lock(sync_->mutex_);
     while (queue_.empty()) {
       sync_->condition_.wait(lock);
     }
@@ -83,7 +85,7 @@ namespace caffe
   template<typename T>
   size_t BlockingQueue<T>::size() const
   {
-    boost::mutex::scoped_lock lock(sync_->mutex_);
+    std::unique_lock<std::mutex> lock(sync_->mutex_);
     return queue_.size();
   }
 

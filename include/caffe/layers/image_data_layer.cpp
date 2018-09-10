@@ -92,8 +92,8 @@ namespace caffe
       if (this->layer_param_.image_data_param().shuffle()) {
         // randomly shuffle data
         LOG(INFO) << "Shuffling data";
-        const unsigned int prefetch_rng_seed = caffe_rng_rand();
-        prefetch_rng_.reset(new Caffe::RNG(prefetch_rng_seed));
+        //const unsigned int prefetch_rng_seed = caffe_rng_rand();
+        //prefetch_rng_.reset(new Caffe::RNG(prefetch_rng_seed));
         ShuffleImages();
       }
       LOG(INFO) << "A total of " << lines_.size() << " images.";
@@ -149,10 +149,10 @@ namespace caffe
       if (this->layer_param_.image_data_param().shuffle()) {
         // randomly shuffle data
         LOG(INFO) << "Shuffling data";
-        const unsigned int prefetch_rng_seed = caffe_rng_rand();
-        prefetch_rng_.reset(new Caffe::RNG(prefetch_rng_seed));
-        caffe::rng_t* prefetch_rng =
-          static_cast<caffe::rng_t*>(prefetch_rng_->generator());
+        //const unsigned int prefetch_rng_seed = caffe_rng_rand();
+        //prefetch_rng_.reset(new Caffe::RNG(prefetch_rng_seed));
+        caffe::rng_t* prefetch_rng = caffe_rng();
+          //static_cast<caffe::rng_t*>(prefetch_rng_->generator());
         shuffle(regression_lines_.begin(), regression_lines_.end(), prefetch_rng);
       }
       LOG(INFO) << "A total of " << regression_lines_.size() << " images.";
@@ -198,8 +198,8 @@ namespace caffe
   template <typename Dtype>
   void ImageDataLayer<Dtype>::ShuffleImages()
   {
-    caffe::rng_t* prefetch_rng =
-      static_cast<caffe::rng_t*>(prefetch_rng_->generator());
+    caffe::rng_t* prefetch_rng = caffe_rng();
+      //static_cast<caffe::rng_t*>(prefetch_rng_->generator());
     shuffle(lines_.begin(), lines_.end(), prefetch_rng);
   }
 
@@ -308,8 +308,8 @@ namespace caffe
           //DLOG(INFO) << "Restarting data prefetching from start.";
           lines_id_ = 0;
           if (this->layer_param_.image_data_param().shuffle()) {
-            caffe::rng_t* prefetch_rng =
-              static_cast<caffe::rng_t*>(prefetch_rng_->generator());
+            caffe::rng_t* prefetch_rng = caffe_rng();
+              //static_cast<caffe::rng_t*>(prefetch_rng_->generator());
             shuffle(regression_lines_.begin(), regression_lines_.end(), prefetch_rng);
           }
         }

@@ -1,5 +1,5 @@
-#include <boost/thread.hpp>
-#include "caffe/util/logging.hpp"
+#include <thread>
+#include "wstd/logging.hpp"
 #include <cmath>
 #include <cstdio>
 #include <ctime>
@@ -7,7 +7,7 @@
 #include "caffe/common.hpp"
 #include "caffe/util/rng.hpp"
 
-#include <boost/date_time.hpp>
+
 #include <process.h>
 #include <direct.h>
 #include "caffe/solver.hpp"
@@ -17,13 +17,13 @@ namespace caffe
 
   Caffe & Caffe::Get()
   {
-// Make sure each thread can have different values.
-  static boost::thread_specific_ptr<Caffe> thread_instance_;
+    // Make sure each thread can have different values.
+    static Caffe* thread_instance_ = NULL;
 
-    if (!thread_instance_.get()) {
-      thread_instance_.reset(new Caffe());
+    if (!thread_instance_) {
+      thread_instance_ = (new Caffe());
     }
-    return *(thread_instance_.get());
+    return *(thread_instance_);
   }
 
 // random seeding
@@ -58,34 +58,34 @@ namespace caffe
     std::string LOG_WARNING_FILE;
     std::string LOG_ERROR_FILE;
     std::string LOG_FATAL_FILE;
-    std::string now_time = boost::posix_time::to_iso_extended_string(boost::posix_time::second_clock::local_time());
-    now_time[13] = '-';
-    now_time[16] = '-';
+    std::string now_time = "";// boost::posix_time::to_iso_extended_string(boost::posix_time::second_clock::local_time());
+    //now_time[13] = '-';
+    //now_time[16] = '-';
     LOG_INFO_FILE = FLAGS_log_dir + "INFO" + now_time + ".txt";
-    google::SetLogDestination(google::GLOG_INFO, LOG_INFO_FILE.c_str());
+    wstd::SetLogDestination(wstd::GLOG_INFO, LOG_INFO_FILE.c_str());
     LOG_WARNING_FILE = FLAGS_log_dir + "WARNING" + now_time + ".txt";
-    google::SetLogDestination(google::GLOG_WARNING, LOG_WARNING_FILE.c_str());
+    wstd::SetLogDestination(wstd::GLOG_WARNING, LOG_WARNING_FILE.c_str());
     LOG_ERROR_FILE = FLAGS_log_dir + "ERROR" + now_time + ".txt";
-    google::SetLogDestination(google::GLOG_ERROR, LOG_ERROR_FILE.c_str());
+    wstd::SetLogDestination(wstd::GLOG_ERROR, LOG_ERROR_FILE.c_str());
     LOG_FATAL_FILE = FLAGS_log_dir + "FATAL" + now_time + ".txt";
-    google::SetLogDestination(google::GLOG_FATAL, LOG_FATAL_FILE.c_str());
+    wstd::SetLogDestination(wstd::GLOG_FATAL, LOG_FATAL_FILE.c_str());
   }
 
   void GlobalInit(int argc, char** argv)
   {
-    // Google flags.
+    // wstd flags.
     ::gflags::ParseCommandLineFlags(argc, argv, true);
     // Provide a backtrace on segfault.
-    //::google::InstallFailureSignalHandler();
-    // Google logging.
+    //::wstd::InstallFailureSignalHandler();
+    // wstd logging.
     initGlog();
-    ::google::InitGoogleLogging(argv[0]);
+    ::wstd::InitGoogleLogging(argv[0]);
   }
 
 #ifdef CPU_ONLY  // CPU-only Caffe.
 
   Caffe::Caffe()
-    : random_generator_(), mode_(Caffe::CPU),
+    : mode_(Caffe::CPU),
       solver_count_(1), solver_rank_(0), multiprocess_(false) { }
 
   Caffe::~Caffe() { }
@@ -93,7 +93,7 @@ namespace caffe
   void Caffe::set_random_seed(const unsigned int seed)
   {
     // RNG seed
-    Get().random_generator_.reset(new RNG(seed));
+    caffe_rng()->seed(seed);
   }
 
   void Caffe::SetDevice(const int device_id)
@@ -118,30 +118,6 @@ namespace caffe
     return -1;
   }
 
-  class Caffe::RNG::Generator
-  {
-  public:
-    Generator() : rng_(new caffe::rng_t(cluster_seedgen())) {}
-    explicit Generator(unsigned int seed) : rng_(new caffe::rng_t(seed)) {}
-    caffe::rng_t* rng() { return rng_.get(); }
-  private:
-    shared_ptr<caffe::rng_t> rng_;
-  };
-
-  Caffe::RNG::RNG() : generator_(new Generator()) { }
-
-  Caffe::RNG::RNG(unsigned int seed) : generator_(new Generator(seed)) { }
-
-  Caffe::RNG & Caffe::RNG::operator=(const RNG & other)
-  {
-    generator_ = other.generator_;
-    return *this;
-  }
-
-  void* Caffe::RNG::generator()
-  {
-    return static_cast<void*>(generator_->rng());
-  }
 
 #else  // Normal GPU + CPU Caffe.
 
@@ -282,31 +258,6 @@ namespace caffe
       if (CheckDevice(i)) { return i; }
     }
     return -1;
-  }
-
-  class Caffe::RNG::Generator
-  {
-  public:
-    Generator() : rng_(new caffe::rng_t(cluster_seedgen())) {}
-    explicit Generator(unsigned int seed) : rng_(new caffe::rng_t(seed)) {}
-    caffe::rng_t* rng() { return rng_.get(); }
-  private:
-    shared_ptr<caffe::rng_t> rng_;
-  };
-
-  Caffe::RNG::RNG() : generator_(new Generator()) { }
-
-  Caffe::RNG::RNG(unsigned int seed) : generator_(new Generator(seed)) { }
-
-  Caffe::RNG & Caffe::RNG::operator=(const RNG & other)
-  {
-    generator_.reset(other.generator_.get());
-    return *this;
-  }
-
-  void* Caffe::RNG::generator()
-  {
-    return static_cast<void*>(generator_->rng());
   }
 
   const char* cublasGetErrorString(cublasStatus_t error)

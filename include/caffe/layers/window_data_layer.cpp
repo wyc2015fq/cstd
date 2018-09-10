@@ -68,10 +68,10 @@ namespace caffe
       this->transform_param_.mirror() ||
       this->transform_param_.crop_size();
     if (prefetch_needs_rand) {
-      const unsigned int prefetch_rng_seed = caffe_rng_rand();
-      prefetch_rng_.reset(new Caffe::RNG(prefetch_rng_seed));
+      //const unsigned int prefetch_rng_seed = caffe_rng_rand();
+      //prefetch_rng_.reset(new Caffe::RNG(prefetch_rng_seed));
     } else {
-      prefetch_rng_.reset();
+      //prefetch_rng_.reset();
     }
     std::ifstream infile(this->layer_param_.window_data_param().source().c_str());
     CHECK(infile.good()) << "Failed to open window file "
@@ -203,9 +203,9 @@ namespace caffe
   template <typename Dtype>
   unsigned int WindowDataLayer<Dtype>::PrefetchRand()
   {
-    CHECK(prefetch_rng_);
-    caffe::rng_t* prefetch_rng =
-      static_cast<caffe::rng_t*>(prefetch_rng_->generator());
+    //CHECK(prefetch_rng_);
+    caffe::rng_t* prefetch_rng = caffe_rng();
+      //static_cast<caffe::rng_t*>(prefetch_rng_->generator());
     return (*prefetch_rng)();
   }
 

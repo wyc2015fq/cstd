@@ -4,8 +4,8 @@ namespace bp = boost::python;
 #endif
 
 #include "caffe/libcaffe.cpp"
-#include "caffe/util/flags.hpp"
-#include "caffe/util/logging.hpp"
+#include "wstd/flags.hpp"
+#include "wstd/logging.hpp"
 //#include "caffe/util/logging.hpp"
 
 #include <cstring>
@@ -14,7 +14,7 @@ namespace bp = boost::python;
 #include <vector>
 #include <list>
 
-#include "boost/algorithm/string.hpp"
+#include "wstd/string.hpp"
 #include "caffe/caffe.hpp"
 #include "caffe/util/signal_handler.h"
 
@@ -23,7 +23,7 @@ using caffe::Caffe;
 using caffe::Net;
 using caffe::Layer;
 using caffe::Solver;
-using caffe::shared_ptr;
+//using caffe::shared_ptr;
 using caffe::string;
 using caffe::Timer;
 using caffe::vector;
@@ -104,9 +104,9 @@ static void get_gpus(vector<int>* gpus)
     }
   } else if (FLAGS_gpu.size()) {
     vector<string> strings;
-    boost::split(strings, FLAGS_gpu, boost::is_any_of(","));
+    wstd::split(strings, FLAGS_gpu, (","));
     for (int i = 0; i < strings.size(); ++i) {
-      gpus->push_back(boost::lexical_cast<int>(strings[i]));
+      gpus->push_back(atoi(strings[i].c_str()));
     }
   } else {
     CHECK_EQ(gpus->size(), 0);
@@ -133,7 +133,7 @@ caffe::Phase get_phase_from_flags(caffe::Phase default_value)
 vector<string> get_stages_from_flags()
 {
   vector<string> stages;
-  boost::split(stages, FLAGS_stage, boost::is_any_of(","));
+  wstd::split(stages, FLAGS_stage, (","));
   return stages;
 }
 
@@ -162,7 +162,7 @@ RegisterBrewFunction(device_query);
 void CopyLayers(caffe::Solver<float>* solver, const std::string & model_list)
 {
   std::vector<std::string> model_names;
-  boost::split(model_names, model_list, boost::is_any_of(",") );
+  wstd::split(model_names, model_list, (",") );
   for (int i = 0; i < model_names.size(); ++i) {
     LOG(INFO) << "Finetuning from " << model_names[i];
     solver->net()->CopyTrainedLayersFrom(model_names[i]);
@@ -209,10 +209,9 @@ int train()
   if (FLAGS_gpu.size() == 0
       && solver_param.solver_mode() == caffe::SolverParameter_SolverMode_GPU) {
     if (solver_param.has_device_id()) {
-      FLAGS_gpu = "" +
-                  boost::lexical_cast<string>(solver_param.device_id());
+      FLAGS_gpu = "" + wstd::itos(solver_param.device_id());
     } else {  // Set default GPU if unspecified
-      FLAGS_gpu = "" + boost::lexical_cast<string>(0);
+      FLAGS_gpu = "0";
     }
   }
 #ifdef USE_CUDNN
@@ -369,7 +368,7 @@ int time()
   LOG(INFO) << "Initial loss: " << initial_loss;
   LOG(INFO) << "Performing Backward";
   caffe_net.Backward();
-  const vector<boost::shared_ptr<Layer<float> > > & layers = caffe_net.layers();
+  const vector<shared_ptr<Layer<float> > > & layers = caffe_net.layers();
   const vector<vector<Blob<float>*> > & bottom_vecs = caffe_net.bottom_vecs();
   const vector<vector<Blob<float>*> > & top_vecs = caffe_net.top_vecs();
   const vector<vector<bool> > & bottom_need_backward =

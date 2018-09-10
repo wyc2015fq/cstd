@@ -283,6 +283,14 @@ Rect UnionRect(Rect r1, Rect r2) {
   return cv::Rect(l, t, r - l, b - t);
 }
 
+Rect InterRect(Rect r1, Rect r2) {
+  int l = max(r1.x, r2.x);
+  int r = min(r1.x + r1.width, r2.x + r2.width);
+  int t = max(r1.y, r2.y);
+  int b = min(r1.y + r1.height, r2.y + r2.height);
+  return cv::Rect(l, t, r - l, b - t);
+}
+
 bool isEligible(const RotatedRect &candidate)
 {
   float error = 0.2;
@@ -354,10 +362,10 @@ struct SimilarLine {
   inline bool operator()(const cv::Rect& r1, const cv::Rect& r2) const
   {
     // delta为最小长宽的eps倍
-    double delta = eps*(std::min(r1.height, r2.height))*0.5;
+    double delta = eps*(MIN(r1.height, r2.height))*0.5;
     // 如果矩形的四个顶点的位置差别都小于delta，则表示相似的矩形
-    int t = std::max(r1.y, r2.y);
-    int b = std::min(r1.y + r1.height, r2.y + r2.height);
+    int t = MAX(r1.y, r2.y);
+    int b = MIN(r1.y + r1.height, r2.y + r2.height);
     int d = b - t;
     return d>delta;
   }

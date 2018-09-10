@@ -1,7 +1,7 @@
-#include <boost/thread.hpp>
+#include <thread>
 #include <exception>
 
-#include "caffe/internal_thread.hpp"
+#include "internal_thread.hpp"
 #include "caffe/util/math_functions.hpp"
 
 namespace caffe
@@ -19,7 +19,8 @@ namespace caffe
 
   bool InternalThread::must_stop()
   {
-    return thread_ && thread_->interruption_requested();
+    //return thread_ && thread_->interruption_requested();
+    return is_must_stop;
   }
 
   void InternalThread::StartInternalThread()
@@ -35,7 +36,7 @@ namespace caffe
     int solver_rank = Caffe::solver_rank();
     bool multiprocess = Caffe::multiprocess();
     try {
-      thread_.reset(new boost::thread(&InternalThread::entry, this, device, mode,
+      thread_.reset(new std::thread(&InternalThread::entry, this, device, mode,
                                       rand_seed, solver_count, solver_rank, multiprocess));
     } catch (std::exception & e) {
       LOG(FATAL) << "Thread exception: " << e.what();
@@ -59,10 +60,10 @@ namespace caffe
   void InternalThread::StopInternalThread()
   {
     if (is_started()) {
-      thread_->interrupt();
+      is_must_stop = true;
+      //thread_->interrupt();
       try {
         thread_->join();
-      } catch (boost::thread_interrupted &) {
       } catch (std::exception & e) {
         LOG(FATAL) << "Thread exception: " << e.what();
       }

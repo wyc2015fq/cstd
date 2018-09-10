@@ -17,7 +17,7 @@
 
 using namespace caffe;  // NOLINT(build/namespaces)
 using std::string;
-using namespace cv;
+//using namespace cv;
 
 #include "classification.hpp"
 

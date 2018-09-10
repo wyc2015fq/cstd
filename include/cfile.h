@@ -1,6 +1,6 @@
 #ifndef _FILEIO_H_
 #define _FILEIO_H_
-#include "cstd.h"
+//#include "cstd.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,7 +41,7 @@ static char* find_not_eixst_file(const char* filename, char* buf, int buflen)
 CC_INLINE int savefile(const char* fname, const void* buf, int buflen)
 {
   FILE* pf = fopen(fname, "wb");
-  int n = 0;
+  size_t n = 0;
   if (NULL == pf) {
     return 0;
   }
@@ -52,7 +52,7 @@ CC_INLINE int savefile(const char* fname, const void* buf, int buflen)
 CC_INLINE int loadfile(const char* fname, void* buf, int buflen, int pos)
 {
   FILE* pf = fopen(fname, "rb");
-  int n = 0;
+  size_t n = 0;
   if (NULL == pf) {
     return 0;
   }
@@ -207,12 +207,12 @@ static int mkdirs(const char* filename)
 {
   char path[ MAX_PATH ];
   char* p;
-  int pos;
+  size_t pos;
   sys_stat st;
   strcpy(path, filename);
   p = path;
   for (; ;) {
-    int len = strlen(p);
+    size_t len = strlen(p);
     pos = strcspn(p, ("/\\"));
     if (pos != 0) {
       p[ pos ] = '\0';
@@ -262,7 +262,7 @@ CC_INLINE int buf_push(buf_t* bf, const void* s0, int l0) {
 }
 static int buf_load(const char* fname, buf_t* bf)
 {
-  int len, readed_len;
+  size_t len, readed_len;
   FILE* pf;
   pf = fname ? fopen(fname, "rb") : NULL;
   if (pf) {
@@ -611,11 +611,11 @@ CC_INLINE int str_loadasni(const char* fn, str_t* s)
 }
 CC_INLINE int str_save(const char* fname, const str_t* s)
 {
-	size_t writeed_len;
+	int writeed_len;
   FILE* pf;
   pf = fopen(fname, "wb");
   if (pf) {
-    writeed_len = fwrite(s->s, 1, s->l, pf);
+    writeed_len = (int)fwrite(s->s, 1, s->l, pf);
     printf("%d %d", writeed_len, s->l);
     //ASSERT(writeed_len == s->l);
     fclose(pf);
@@ -1834,7 +1834,7 @@ static char* getDefaultObjectName(CFileStorage* fs, const char* _filename, char*
 {
 	static const char* stubname = "unnamed";
 	const char* filename = _filename;
-	int _filename_size = strlen(_filename);
+	int _filename_size = (int)strlen(_filename);
 	const char* ptr2 = filename + _filename_size;
 	const char* ptr = ptr2 - 1;
 	//CAutoBuffer<char> name_buf(_filename.size()+1);

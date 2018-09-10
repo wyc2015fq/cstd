@@ -49,7 +49,7 @@ DEFINE_VSL_UNARY_FUNC(Abs, y[i] = fabs(a[i]));
     v##name<float>(n, a, b, y); \
   } \
   inline void vd##name( \
-      const int n, const double* a, const float b, double* y) { \
+      const int n, const double* a, const double b, double* y) { \
     v##name<double>(n, a, b, y); \
   }
 

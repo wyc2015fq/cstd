@@ -2,7 +2,7 @@
 //
 
 
-#include "caffe/caffe.inl"
+//#include "caffe/caffe.inl"
 //#include "ocr/dnn/caffe/pycaffe/caffe/_caffe.cpp"
 #include <windows.h>
 #include <map>

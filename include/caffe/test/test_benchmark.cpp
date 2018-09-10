@@ -1,4 +1,4 @@
-#include <boost/thread.hpp>
+#include <thread>
 
 #include "gtest/gtest.h"
 

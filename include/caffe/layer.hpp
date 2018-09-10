@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <mutex>
 
 #include "caffe/blob.hpp"
 #include "caffe/common.hpp"
@@ -15,7 +16,6 @@
  Forward declare boost::thread instead of including boost/thread.hpp
  to avoid a boost/NVCC issues (#1009, #1010) on OSX.
  */
-namespace boost { class mutex; }
 
 namespace caffe
 {
@@ -181,7 +181,7 @@ namespace caffe
     /**
      * @brief Returns the vector of learnable parameter blobs.
      */
-    vector<boost::shared_ptr<Blob<Dtype> > > & blobs() {
+    vector<shared_ptr<Blob<Dtype> > > & blobs() {
       return blobs_;
     }
 
@@ -325,7 +325,7 @@ namespace caffe
     /** The phase: TRAIN or TEST */
     Phase phase_;
     /** The vector that stores the learnable parameters as a set of blobs. */
-    vector<boost::shared_ptr<Blob<Dtype> > > blobs_;
+    vector<shared_ptr<Blob<Dtype> > > blobs_;
     /** Vector indicating whether to compute the diff of each param blob. */
     vector<bool> param_propagate_down_;
 
@@ -434,7 +434,7 @@ namespace caffe
     bool is_shared_;
 
     /** The mutex for sequential forward if this layer is shared */
-    boost::shared_ptr<boost::mutex> forward_mutex_;
+    shared_ptr<std::mutex> forward_mutex_;
 
     /** Initialize forward_mutex_ */
     void InitMutex();

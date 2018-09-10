@@ -1,7 +1,7 @@
 #ifndef CAFFE_UTIL_IO_H_
 #define CAFFE_UTIL_IO_H_
 
-#include <boost/filesystem.hpp>
+#include "wstd/filesystem.hpp"
 #include <iomanip>
 #include <iostream>  // NOLINT(readability/streams)
 #include <string>
@@ -15,21 +15,23 @@
 #ifndef CAFFE_TMP_DIR_RETRIES
 #define CAFFE_TMP_DIR_RETRIES 100
 #endif
+using namespace std;
+using namespace std::experimental;
+using namespace std::experimental::filesystem;
+
 
 namespace caffe
 {
-
   using ::google::protobuf::Message;
-  using ::boost::filesystem::path;
 
   inline void MakeTempDir(string* temp_dirname)
   {
     temp_dirname->clear();
     const path & model =
-      boost::filesystem::temp_directory_path() / "caffe_test.%%%%-%%%%";
+      filesystem::temp_directory_path() / "caffe_test.%%%%-%%%%";
     for ( int i = 0; i < CAFFE_TMP_DIR_RETRIES; i++ ) {
-      const path & dir = boost::filesystem::unique_path(model).string();
-      bool done = boost::filesystem::create_directory(dir);
+      const path & dir = wstd::filesystem::unique_path(model).string();
+      bool done = filesystem::create_directory(dir);
       if ( done ) {
         *temp_dirname = dir.string();
         return;

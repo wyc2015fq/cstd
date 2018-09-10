@@ -7,7 +7,6 @@
  Forward declare boost::thread instead of including boost/thread.hpp
  to avoid a boost/NVCC issues (#1009, #1010) on OSX.
  */
-namespace boost { class thread; }
 
 namespace caffe
 {
@@ -20,7 +19,7 @@ namespace caffe
   class InternalThread
   {
   public:
-    InternalThread() : thread_() {}
+    InternalThread() : thread_() { is_must_stop = false;  }
     virtual ~InternalThread();
 
     /**
@@ -42,12 +41,13 @@ namespace caffe
 
     /* Should be tested when running loops to exit when requested. */
     bool must_stop();
+    bool is_must_stop;
 
   private:
     void entry(int device, Caffe::Brew mode, int rand_seed,
                int solver_count, int solver_rank, bool multiprocess);
 
-    shared_ptr<boost::thread> thread_;
+    shared_ptr<std::thread> thread_;
   };
 
 }  // namespace caffe

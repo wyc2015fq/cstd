@@ -391,7 +391,7 @@ namespace caffe
                              const int top_id, set<string>* available_blobs,
                              map<string, int>* blob_name_to_idx)
   {
-    boost::shared_ptr<LayerParameter> layer_param(
+    shared_ptr<LayerParameter> layer_param(
       new LayerParameter(param.layer(layer_id)));
     const string & blob_name = (layer_param->top_size() > top_id) ?
                                layer_param->top(top_id) : "(automatic)";
@@ -414,7 +414,7 @@ namespace caffe
       if (Caffe::root_solver()) {
         LOG(INFO) << layer_param->name() << " -> " << blob_name;
       }
-      boost::shared_ptr<Blob<Dtype> > blob_pointer(new Blob<Dtype>());
+      shared_ptr<Blob<Dtype> > blob_pointer(new Blob<Dtype>());
       const int blob_id = blobs_.size();
       blobs_.push_back(blob_pointer);
       blob_names_.push_back(blob_name);
@@ -713,7 +713,7 @@ namespace caffe
         continue;
       }
       DLOG(INFO) << "Copying source layer " << source_layer_name;
-      vector<boost::shared_ptr<Blob<Dtype> > > & target_blobs =
+      vector<shared_ptr<Blob<Dtype> > > & target_blobs =
         layers_[target_layer_id]->blobs();
       CHECK_EQ(target_blobs.size(), source_layer->blobs().size())
           << "Incompatible number of blobs for layer " << source_layer_name;
@@ -786,7 +786,7 @@ namespace caffe
         continue;
       }
       DLOG(INFO) << "Copying source layer " << source_layer_name;
-      vector<boost::shared_ptr<Blob<Dtype> > > & target_blobs =
+      vector<shared_ptr<Blob<Dtype> > > & target_blobs =
         layers_[target_layer_id]->blobs();
       CHECK_EQ(target_blobs.size(), source_layer.blobs_size())
           << "Incompatible number of blobs for layer " << source_layer_name;
@@ -845,7 +845,7 @@ namespace caffe
       }
       int target_layer_id = layer_names_index_[source_layer_name];
       DLOG(INFO) << "Copying source layer " << source_layer_name;
-      vector<boost::shared_ptr<Blob<Dtype> > > & target_blobs =
+      vector<shared_ptr<Blob<Dtype> > > & target_blobs =
         layers_[target_layer_id]->blobs();
       hid_t layer_hid = H5Gopen2(data_hid, source_layer_name.c_str(),
                                  H5P_DEFAULT);
@@ -997,10 +997,10 @@ namespace caffe
   }
 
   template <typename Dtype>
-  const boost::shared_ptr<Blob<Dtype> > Net<Dtype>::blob_by_name(
+  const shared_ptr<Blob<Dtype> > Net<Dtype>::blob_by_name(
     const string & blob_name) const
   {
-    boost::shared_ptr<Blob<Dtype> > blob_ptr;
+    shared_ptr<Blob<Dtype> > blob_ptr;
     if (has_blob(blob_name)) {
       blob_ptr = blobs_[blob_names_index_.find(blob_name)->second];
     } else {
@@ -1017,10 +1017,10 @@ namespace caffe
   }
 
   template <typename Dtype>
-  const boost::shared_ptr<Layer<Dtype> > Net<Dtype>::layer_by_name(
+  const shared_ptr<Layer<Dtype> > Net<Dtype>::layer_by_name(
     const string & layer_name) const
   {
-    boost::shared_ptr<Layer<Dtype> > layer_ptr;
+    shared_ptr<Layer<Dtype> > layer_ptr;
     if (has_layer(layer_name)) {
       layer_ptr = layers_[layer_names_index_.find(layer_name)->second];
     } else {

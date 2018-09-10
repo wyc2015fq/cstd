@@ -1,7 +1,7 @@
 #ifndef CAFFE_TEST_GRADIENT_CHECK_UTIL_H_
 #define CAFFE_TEST_GRADIENT_CHECK_UTIL_H_
 
-#include "caffe/util/logging.hpp"
+#include "wstd/logging.hpp"
 #include <gtest/gtest.h>
 
 #include <algorithm>

@@ -541,19 +541,18 @@ namespace caffe
                             (phase_ == TRAIN && param_.crop_size());
     if (needs_rand) {
       const unsigned int rng_seed = caffe_rng_rand();
-      rng_.reset(new Caffe::RNG(rng_seed));
+      caffe_rng()->seed(rng_seed);
     } else {
-      rng_.reset();
+      //rng_.reset();
     }
   }
 
   template <typename Dtype>
   int DataTransformer<Dtype>::Rand(int n)
   {
-    CHECK(rng_);
+    //CHECK(rng_);
     CHECK_GT(n, 0);
-    caffe::rng_t* rng =
-      static_cast<caffe::rng_t*>(rng_->generator());
+    caffe::rng_t* rng = caffe_rng();
     return ((*rng)() % n);
   }
 

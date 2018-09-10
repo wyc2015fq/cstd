@@ -7,8 +7,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #define HMONITOR_DECLARED
-#include "DirectShow\Include\qedit.h"
-#include "DirectShow\Include\dshow.h"
+//#include <qedit.h>
+#include <dshow.h>
 //#include "opencv2/core/core_c.h"
 
 typedef struct capdshow {

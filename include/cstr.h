@@ -21,7 +21,7 @@
 //#define STRNCASECMP2(a, b)  strncasecmp(a, b, sizeof(b)-1)
 #define STRNCASECMP2(a, b)  strncasecmp2(a, b)
 CC_INLINE int strncasecmp2(const char* s1, const char* s2) {
-  int l2 = strlen(s2);
+  size_t l2 = strlen(s2);
   return strncasecmp(s1, s2, l2);
 }
 
@@ -372,8 +372,8 @@ CC_INLINE int cstr_next_chunk_alphanum(const char* s, int i, int l, str_t* ps) {
   return i;
 }
 CC_INLINE int cstr_cmp_alphanum(const char* s1, const char* s2, int ignore_case) {
-  int l1 = strlen(s1);
-  int l2 = strlen(s2);
+  size_t l1 = strlen(s1);
+  size_t l2 = strlen(s2);
   int i1=0, i2=0;
   str_t ps1[1] = {0};
   str_t ps2[1] = {0};
@@ -1221,7 +1221,7 @@ static char* _GetFilePath(const char* fn)
 }
 static char* GetFileExt(const char* fn)
 {
-  int len = strlen(fn);
+  size_t len = strlen(fn);
   char* pos = (char*)fn + len;
   for (;pos!=fn && (pos[-1]!='\\' && pos[-1]!='/');--pos) {
     if ('.'==pos[-1]) {
@@ -1243,7 +1243,7 @@ static char* GetFileNameExt(const char* fn)
 }
 static char* ReplaceExt(const char* fn, const char* ext, char* out, int outlen) {
   const char* oldext = GetFileExt(fn);
-  int pos = (oldext && *oldext) ? (oldext-fn) : strlen(fn);
+  size_t pos = (oldext && *oldext) ? (oldext-fn) : strlen(fn);
   while (*ext && *ext=='.') {
     ++ext;
   }

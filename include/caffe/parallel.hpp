@@ -1,8 +1,6 @@
 #ifndef CAFFE_PARALLEL_HPP_
 #define CAFFE_PARALLEL_HPP_
 
-#include <boost/date_time/posix_time/posix_time.hpp>
-
 #include <vector>
 
 #include "caffe/blob.hpp"

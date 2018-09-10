@@ -4,7 +4,7 @@
 #include <cstdlib>
 
 #include "common.hpp"
-#include "util/logging.hpp"
+#include "wstd/logging.hpp"
 
 namespace caffe
 {

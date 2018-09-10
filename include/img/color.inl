@@ -1,6 +1,6 @@
 #ifndef _COLOR_INL_
 #define _COLOR_INL_
-#include "cstd.h"
+//#include "cstd.h"
 //#include "precomp.hpp"
 
 #define ChannelBlend_Normal(A,B)       ((uint8)(A))

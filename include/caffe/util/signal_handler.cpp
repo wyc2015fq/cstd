@@ -1,5 +1,5 @@
-#include <boost/bind.hpp>
-#include "caffe/util/logging.hpp"
+
+#include "wstd/logging.hpp"
 
 #include <signal.h>
 #include <csignal>
@@ -133,7 +133,7 @@ namespace caffe
 // early exit is being requested.
   ActionCallback SignalHandler::GetActionFunction()
   {
-    return boost::bind(&SignalHandler::CheckForSignals, this);
+    return std::bind(&SignalHandler::CheckForSignals, this);
   }
 
 }  // namespace caffe

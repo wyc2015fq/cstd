@@ -12,7 +12,7 @@
 #ifdef _WIN32
 #undef CC_CDECL
 #undef CC_STDCALL
-//#include "capdshow.inl"
+#include "capdshow.inl"
 #include "capvfw.inl"
 #include "capvfwavi.inl"
 #ifdef __cplusplus

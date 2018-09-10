@@ -110,7 +110,7 @@ namespace caffe
       LossParameter_NormalizationMode normalization_mode, int valid_count);
 
     /// The internal SoftmaxLayer used to map predictions to a distribution.
-    boost::shared_ptr<Layer<Dtype> > softmax_layer_;
+    shared_ptr<Layer<Dtype> > softmax_layer_;
     /// prob stores the output probability predictions from the SoftmaxLayer.
     Blob<Dtype> prob_;
     /// bottom vector holder used in call to the underlying SoftmaxLayer::Forward

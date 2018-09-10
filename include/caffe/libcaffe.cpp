@@ -2,12 +2,8 @@
 #ifndef _LIBCAFFE_CPP_
 #define _LIBCAFFE_CPP_
 
-#include <boost/get_pointer.hpp>
+//#include <boost/get_pointer.hpp>
 //#define GET_POINTER_DWA20021219_HPP
-namespace boost
-{
-  //template <typename T>	T * get_pointer(T * p) { return p; }
-}
 
 
 #include "caffe_config.h"
@@ -52,8 +48,7 @@ namespace boost
 #pragma warning(disable:4661)
 //#include "proto/caffe.pb.h"
 //#include "proto/caffe.pb.cc"
-#include "caffe/util/logging.hpp"
-#include "caffe/util/flags.hpp"
+#include "wstd/logging.hpp"
 #include "..\caffe\blob.cpp"
 #include "..\caffe\common.cpp"
 #include "..\caffe\data_reader.cpp"
@@ -75,7 +70,6 @@ namespace boost
 #include "..\caffe\util\benchmark.cpp"
 #include "..\caffe\util\blocking_queue.cpp"
 #include "..\caffe\util\db.cpp"
-#include "..\caffe\util\db_leveldb.cpp"
 #include "..\caffe\util\db_lmdb.cpp"
 #include "..\caffe\util\hdf5.cpp"
 #include "..\caffe\util\im2col.cpp"
@@ -88,11 +82,14 @@ namespace boost
 #include "..\caffe\util\interp.cpp"
 #include "..\caffe\util\cudnn.cpp"
 
+#include "..\caffe\layers\base_conv_layer.cpp"
+#include "..\caffe\layers\conv_layer.cpp"
+#include "..\caffe\layers\DenseBlock_layer.cpp"
 
+#if 1
 #include "..\caffe\layers\absval_layer.cpp"
 #include "..\caffe\layers\accuracy_layer.cpp"
 #include "..\caffe\layers\argmax_layer.cpp"
-#include "..\caffe\layers\base_conv_layer.cpp"
 #include "..\caffe\layers\base_data_layer.cpp"
 #include "..\caffe\layers\batch_norm_layer.cpp"
 #include "..\caffe\layers\batch_reindex_layer.cpp"
@@ -100,7 +97,6 @@ namespace boost
 #include "..\caffe\layers\bnll_layer.cpp"
 #include "..\caffe\layers\concat_layer.cpp"
 #include "..\caffe\layers\contrastive_loss_layer.cpp"
-#include "..\caffe\layers\conv_layer.cpp"
 #include "..\caffe\layers\crop_layer.cpp"
 #include "..\caffe\layers\ctcpp_entrypoint.cpp"
 #include "..\caffe\layers\ctc_decoder_layer.cpp"
@@ -114,7 +110,6 @@ namespace boost
 #include "..\caffe\layers\cudnn_tanh_layer.cpp"
 #include "..\caffe\layers\data_layer.cpp"
 #include "..\caffe\layers\deconv_layer.cpp"
-#include "..\caffe\layers\DenseBlock_layer.cpp"
 #include "..\caffe\layers\dropout_layer.cpp"
 #include "..\caffe\layers\dummy_data_layer.cpp"
 #include "..\caffe\layers\eltwise_layer.cpp"
@@ -172,6 +167,7 @@ namespace boost
 
 //using namespace std;
 #include "..\caffe\layers\memory_data_layer.cpp"
+#endif
 
 #if 0
 #include "..\caffe\blob.hpp"

@@ -2,6 +2,10 @@
 #undef max
 #undef min
 
+//#include "test_util_blas.cpp"
+#include "test_convolution_layer.cpp"
+#include "test_denseblock_layer.cpp"
+#if 0
 #include "test_accuracy_layer.cpp"
 #include "test_argmax_layer.cpp"
 #include "test_batch_norm_layer.cpp"
@@ -12,7 +16,6 @@
 #include "test_common.cpp"
 #include "test_concat_layer.cpp"
 #include "test_contrastive_loss_layer.cpp"
-#include "test_convolution_layer.cpp"
 #include "test_crop_layer.cpp"
 #include "test_data_layer.cpp"
 #include "test_data_transformer.cpp"
@@ -68,7 +71,5 @@
 #include "test_threshold_layer.cpp"
 #include "test_tile_layer.cpp"
 #include "test_upgrade_proto.cpp"
-#include "test_util_blas.cpp"
 
-#if 0
 #endif

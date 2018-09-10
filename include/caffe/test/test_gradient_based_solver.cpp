@@ -468,7 +468,7 @@ namespace caffe
         RunLeastSquaresSolver(learning_rate, weight_decay, momentum,
                               iter_to_check, kIterSize, 1);
         // Compute the (K+1)th update using the analytic least squares gradient.
-        vector<boost::shared_ptr<Blob<Dtype> > > updated_params;
+        vector<shared_ptr<Blob<Dtype> > > updated_params;
         ComputeLeastSquaresUpdate(learning_rate, weight_decay, momentum,
                                   iter_to_check + 1, &updated_params);
         // Reinitialize the solver and run K+1 solver iterations.

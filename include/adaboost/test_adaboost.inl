@@ -64,6 +64,7 @@ int test_cascade1() {
     //ca->stagelen = 3;
   }
   bfsetsize(bf, 20*_1M);
+#ifdef _CAP_H_
   if (0) {
     cap_t cap[1] = { 0 };
     if (capvfw_open(cap, 0, 640, 480) > 0) {
@@ -81,6 +82,7 @@ int test_cascade1() {
     }
     return 0;
   }
+#endif // _CAP_H_
 
   for (i=0; i<sv->n; ++i) {
     if (!imread((char*)sv->v[i].s, 3, 1, im)) continue;

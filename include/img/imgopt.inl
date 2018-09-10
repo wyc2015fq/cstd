@@ -1,7 +1,7 @@
 #ifndef _IMOPT_INL_
 #define _IMOPT_INL_
 
-CC_INLINE int mat_add_row(int row_a, int col_a, const double* A, int al, const double* dst, double* C, int cl) {
+static int mat_add_row(int row_a, int col_a, const double* A, int al, const double* dst, double* C, int cl) {
   int i, j;
   
   for (i = 0; i < row_a; i++) {
@@ -11,7 +11,7 @@ CC_INLINE int mat_add_row(int row_a, int col_a, const double* A, int al, const d
   }
   return 0;
 }
-CC_INLINE int mat_add_col(int row_a, int col_a, const double* A, int al, const double* dst, double* C, int cl) {
+static int mat_add_col(int row_a, int col_a, const double* A, int al, const double* dst, double* C, int cl) {
   int i, j;
   
   for (i = 0; i < row_a; i++) {
@@ -22,7 +22,7 @@ CC_INLINE int mat_add_col(int row_a, int col_a, const double* A, int al, const d
   return 0;
 }
 // 矩阵乘法运算函数
-CC_INLINE int mat_mul_AB(int row_c, int col_c, int col_a, const double* A, int al, const double* dst, int bl, double* C, int cl)
+static int mat_mul_AB(int row_c, int col_c, int col_a, const double* A, int al, const double* dst, int bl, double* C, int cl)
 {
   int i, j, k;
   
@@ -37,7 +37,7 @@ CC_INLINE int mat_mul_AB(int row_c, int col_c, int col_a, const double* A, int a
   return 0;
 }
 // 矩阵乘法运算函数
-CC_INLINE int mat_mul_ATBT(int row_c, int col_c, int len, const double* A, int al, const double* dst, int bl, double* C, int cl)
+static int mat_mul_ATBT(int row_c, int col_c, int len, const double* A, int al, const double* dst, int bl, double* C, int cl)
 {
   int i, j, k;
   
@@ -52,7 +52,7 @@ CC_INLINE int mat_mul_ATBT(int row_c, int col_c, int len, const double* A, int a
   return 0;
 }
 #define mat_mul_ATA(row_a, col_a, A, al, C, cl)  mat_mul_ATB(col_a, col_a, row_a, A, al, A, al, C, cl)
-CC_INLINE int mat_mul_ATB(int row_c, int col_c, int n, const double* A, int al, const double* dst, int bl, double* C, int cl)
+static int mat_mul_ATB(int row_c, int col_c, int n, const double* A, int al, const double* dst, int bl, double* C, int cl)
 {
   int i, j, k;
   for (i = 0; i < row_c; i++) {
@@ -71,7 +71,7 @@ CC_INLINE int mat_mul_ATB(int row_c, int col_c, int n, const double* A, int al, 
   
   return 0;
 }
-CC_INLINE int mat_mul_ABT(int row_c, int col_c, int n, const double* A, int al, const double* dst, int bl, double* C, int cl)
+static int mat_mul_ABT(int row_c, int col_c, int n, const double* A, int al, const double* dst, int bl, double* C, int cl)
 {
   int i, j, k;
   for (i = 0; i < row_c; i++) {
@@ -84,7 +84,7 @@ CC_INLINE int mat_mul_ABT(int row_c, int col_c, int n, const double* A, int al, 
   
   return 0;
 }
-CC_INLINE int mat_mul_Ab(int row_a, int col_a, const double* A, int al, const double* dst, double* C)
+static int mat_mul_Ab(int row_a, int col_a, const double* A, int al, const double* dst, double* C)
 {
   int i, j;
   for (i = 0; i < row_a; i++) {
@@ -96,7 +96,7 @@ CC_INLINE int mat_mul_Ab(int row_a, int col_a, const double* A, int al, const do
   
   return 0;
 }
-CC_INLINE int mat_dot_Ab(int row_c, int col_c, const double* A, int al, const double* dst, double* C, int cl)
+static int mat_dot_Ab(int row_c, int col_c, const double* A, int al, const double* dst, double* C, int cl)
 {
   int i, j;
   for (i = 0; i < row_c; i++) {
@@ -107,7 +107,7 @@ CC_INLINE int mat_dot_Ab(int row_c, int col_c, const double* A, int al, const do
   
   return 0;
 }
-CC_INLINE int immul_ABT_f8(const img_t* A, const img_t* dst, img_t* C) {
+static int immul_ABT_f8(const img_t* A, const img_t* dst, img_t* C) {
   img_t C1[1] = {0}, *C0 = C;
   ASSERT(A->c==sizeof(double) && dst->c==A->c);
   if (A==C0 || dst==C0) {
@@ -122,7 +122,7 @@ CC_INLINE int immul_ABT_f8(const img_t* A, const img_t* dst, img_t* C) {
   return 0;
 }
 #define mat_mul_AATw(row_a, col_a, A, al, W, C, cl)  mat_mul_ABTw(row_a, row_a, col_a, A, al, A, al, W, C, cl)
-CC_INLINE int mat_mul_ABTw(int row_c, int col_c, int n, const double* A, int al, const double* dst, int bl, const double* W, double* C, int cl)
+static int mat_mul_ABTw(int row_c, int col_c, int n, const double* A, int al, const double* dst, int bl, const double* W, double* C, int cl)
 {
   int i, j, k;
   for (i = 0; i < row_c; i++) {
@@ -135,11 +135,11 @@ CC_INLINE int mat_mul_ABTw(int row_c, int col_c, int n, const double* A, int al,
   
   return 0;
 }
-CC_INLINE int immul_f8(const img_t* A, const img_t* dst, img_t* C) {
+static int immul_f8(const img_t* A, const img_t* dst, img_t* C) {
   //CC_GEMM_A_T
   return 0;
 }
-CC_INLINE int mat_scale(int row_c, int col_c, const double* A, int al, double bb, double dd, double* C, int cl)
+static int mat_scale(int row_c, int col_c, const double* A, int al, double bb, double dd, double* C, int cl)
 {
   int i, j;
   
@@ -151,7 +151,7 @@ CC_INLINE int mat_scale(int row_c, int col_c, const double* A, int al, double bb
   
   return 0;
 }
-CC_INLINE int mat_scale2(int row_c, int col_c, const double* A, int al, double sa, const double* dst, int bl, double sb, double dd, double* C, int cl)
+static int mat_scale2(int row_c, int col_c, const double* A, int al, double sa, const double* dst, int bl, double sb, double dd, double* C, int cl)
 {
   int i, j;
   
@@ -163,13 +163,13 @@ CC_INLINE int mat_scale2(int row_c, int col_c, const double* A, int al, double s
   
   return 0;
 }
-CC_INLINE int imscale2(const img_t* A, double sa, const img_t* dst, double sb, double dd, img_t* C) {
+static int imscale2(const img_t* A, double sa, const img_t* dst, double sb, double dd, img_t* C) {
   imsetsize(C, A->h, A->w, A->c, 1);
   mat_scale2(A->h, A->w*A->c/sizeof(double), A->tt.f64, A->s/sizeof(double), sa, dst->tt.f64, dst->s/sizeof(double), sb, dd, C->tt.f64, C->s/sizeof(double));
   return 0;
 }
 
-CC_INLINE int mat_dotmul(int row_c, int col_c, const double* A, int al, const double* dst, int bl, double ss, double dd, double* C, int cl)
+static int mat_dotmul(int row_c, int col_c, const double* A, int al, const double* dst, int bl, double ss, double dd, double* C, int cl)
 {
   int i, j;
   
@@ -181,12 +181,12 @@ CC_INLINE int mat_dotmul(int row_c, int col_c, const double* A, int al, const do
   
   return 0;
 }
-CC_INLINE int imdotmul(const img_t* A, const img_t* dst, double ss, double dd, img_t* C) {
+static int imdotmul(const img_t* A, const img_t* dst, double ss, double dd, img_t* C) {
   imsetsize(C, A->h, A->w, sizeof(double), 1);
   mat_dotmul(A->h, A->w, A->tt.f64, A->s/sizeof(double), dst->tt.f64, dst->s/sizeof(double), ss, dd, C->tt.f64, C->s/sizeof(double));
   return 0;
 }
-CC_INLINE int swap_rb(uchar* data, int step, int cn, int w, int h)
+static int swap_rb(uchar* data, int step, int cn, int w, int h)
 {
   int i, j;
 
@@ -202,10 +202,10 @@ CC_INLINE int swap_rb(uchar* data, int step, int cn, int w, int h)
 
   return 0;
 }
-CC_INLINE int imswap_rb(img_t* im) {
+static int imswap_rb(img_t* im) {
   return swap_rb(im->tt.data, im->s, im->c, im->w, im->h);
 }
-CC_INLINE int palette_is_color(int n, const uchar* palette)
+static int palette_is_color(int n, const uchar* palette)
 {
   int i;
 
@@ -219,7 +219,7 @@ CC_INLINE int palette_is_color(int n, const uchar* palette)
 
   return FALSE;
 }
-CC_INLINE int palette_fillgray(int n, uchar* palette, int negative)
+static int palette_fillgray(int n, uchar* palette, int negative)
 {
   int i;
   int xor_mask = negative ? 255 : 0;
@@ -234,7 +234,7 @@ CC_INLINE int palette_fillgray(int n, uchar* palette, int negative)
   return 0;
 }
 
-CC_INLINE unsigned char* fill_unicolor(unsigned char* data, unsigned char** line_end, int step, int width3, int* y, int height, int count3, PaletteEntry clr)
+static unsigned char* fill_unicolor(unsigned char* data, unsigned char** line_end, int step, int width3, int* y, int height, int count3, PaletteEntry clr)
 {
   do {
     unsigned char* end = data + count3;
@@ -439,14 +439,14 @@ static int imgsetbitmap(int m_height, int m_width, uchar* data, int step, int cn
 
   return 0;
 }
-CC_INLINE BOOL imsetbitmap(img_t* im, int nWidth, int nHeight, UINT nPlanes, UINT nBitcount, const void* lpBits, const void* bmiColors)
+static BOOL imsetbitmap(img_t* im, int nWidth, int nHeight, UINT nPlanes, UINT nBitcount, const void* lpBits, const void* bmiColors)
 {
   int cn = (nBitcount > 8 || palette_is_color(1 << nBitcount, (uchar*)bmiColors)) ? 4 : 1;
   imsetsize(im, nWidth, nHeight, cn, 1);
   imgsetbitmap(im->h, im->w, im->tt.data, im->s, im->c, (const uchar*)lpBits, -1, nBitcount, (const uchar*)bmiColors);
   return 1;
 }
-CC_INLINE int imprint(const img_t* im, int maxh, int maxw)
+static int imprint(const img_t* im, int maxh, int maxw)
 {
   int i, j;
   printf("[%3d %3d]\n", im->h, im->w);
@@ -462,7 +462,7 @@ CC_INLINE int imprint(const img_t* im, int maxh, int maxw)
   return 0;
 }
 
-CC_INLINE int trans_copy_cn3(int h, int w, const unsigned char* src, int srcstep, unsigned char* dst, int dststep)
+static int trans_copy_cn3(int h, int w, const unsigned char* src, int srcstep, unsigned char* dst, int dststep)
 {
   int i, j = 0;
 
@@ -522,7 +522,7 @@ CC_INLINE int trans_copy_cn3(int h, int w, const unsigned char* src, int srcstep
   }\
 }
 
-CC_INLINE int trans_copy(int h, int w, const uchar* src, int srcstep, int srccn, uchar* dst, int dststep, int dstcn, int cn, int istrans, int ismirrx, int ismirry)
+static int trans_copy(int h, int w, const uchar* src, int srcstep, int srccn, uchar* dst, int dststep, int dstcn, int cn, int istrans, int ismirrx, int ismirry)
 {
 //#include "impl/trans_copy.inl"
   switch (cn) {
@@ -554,7 +554,7 @@ CC_INLINE int trans_copy(int h, int w, const uchar* src, int srcstep, int srccn,
 }
 
 
-CC_INLINE int imtrans(const img_t* im, img_t* im2, int istrans, int ismirrx, int ismirry) {
+static int imtrans(const img_t* im, img_t* im2, int istrans, int ismirrx, int ismirry) {
   img_t im1[1] = {0};
   if (im==im2) {
     imclone2(im, im1);
@@ -635,7 +635,7 @@ if (y<h) { \
 // 输入图片数据img  高h 宽w 每行像素占的字节数al 通道数ai
 // 输出图片数据rgb2 高ph 宽pw 每行像素占的字节数pal 通道数与输入图片相同
 // istrans=1 旋转90度 istrans=2 旋转180度 istrans=3 旋转270度
-CC_INLINE int mat_trans(int h, int w, const uchar* src, int al, int ai, int* ph, int* pw, uchar* dst, int* pal, int transopt, int isflop) {
+static int mat_trans(int h, int w, const uchar* src, int al, int ai, int* ph, int* pw, uchar* dst, int* pal, int transopt, int isflop) {
   int x, y, incx, incy;
   int beg_tab[] = {0, h-1, h*w-1, (w-1)*h, w-1, 0, (h-1)*w, h*w-1};
   int incx_tab[] = {1, h, -1, -h, -1, h, 1, -h};
@@ -662,7 +662,7 @@ CC_INLINE int mat_trans(int h, int w, const uchar* src, int al, int ai, int* ph,
   
   return 0;
 }
-CC_INLINE int mat_trans2(int h, int w, const uchar* img, int al, int ai, int* ph, int* pw, uchar* dst, int* pal, int transopt, int isflop)
+static int mat_trans2(int h, int w, const uchar* img, int al, int ai, int* ph, int* pw, uchar* dst, int* pal, int transopt, int isflop)
 {
   int i, j, bl;
   transopt &=3;
@@ -746,7 +746,7 @@ CC_INLINE int mat_trans2(int h, int w, const uchar* img, int al, int ai, int* ph
   
   return 0;
 }
-CC_INLINE int mat_trans1(int h, int w, const uchar* img, int al, int ai, int* ph, int* pw, uchar* dst, int* pal, int transopt, int isflop)
+static int mat_trans1(int h, int w, const uchar* img, int al, int ai, int* ph, int* pw, uchar* dst, int* pal, int transopt, int isflop)
 {
   int i, j, bl;
   transopt &=3;
@@ -810,7 +810,7 @@ CC_INLINE int mat_trans1(int h, int w, const uchar* img, int al, int ai, int* ph
 
   return 0;
 }
-CC_INLINE int imtrans2(const img_t* im, img_t* im2, int transopt, int isflop)
+static int imtrans2(const img_t* im, img_t* im2, int transopt, int isflop)
 {
   img_t t, im3[1] = {0};
   imsetsize(im3, im->h, im->w, im->c, 1);
@@ -819,7 +819,7 @@ CC_INLINE int imtrans2(const img_t* im, img_t* im2, int transopt, int isflop)
   imfree(im3);
   return 0;
 }
-CC_INLINE int imtrans3(const img_t* im, img_t* im2, int transopt, int isflop)
+static int imtrans3(const img_t* im, img_t* im2, int transopt, int isflop)
 {
   img_t t, im3[1] = {0};
   imsetsize(im3, im->h, im->w, im->c, 1);
@@ -828,7 +828,7 @@ CC_INLINE int imtrans3(const img_t* im, img_t* im2, int transopt, int isflop)
   imfree(im3);
   return 0;
 }
-CC_INLINE int alpha_copy(int h, int w, const void* A, int al, int ai, void* dst, int bl, int bi)
+static int alpha_copy(int h, int w, const void* A, int al, int ai, void* dst, int bl, int bi)
 {
   int i, j;
   const uchar* A1 = (const uchar*)A;
@@ -858,7 +858,7 @@ CC_INLINE int alpha_copy(int h, int w, const void* A, int al, int ai, void* dst,
 
   return 0;
 }
-CC_INLINE int TransparentCopy2d_32u(int h, int w, const void* A, int al, void* dst, int bl, COLOR col, int revY)
+static int TransparentCopy2d_32u(int h, int w, const void* A, int al, void* dst, int bl, COLOR col, int revY)
 {
 #if 1
   alpha_copy(h, w, A, al, 4, dst, bl, 4);
@@ -880,7 +880,7 @@ CC_INLINE int TransparentCopy2d_32u(int h, int w, const void* A, int al, void* d
   return 0;
 }
 // C=A&dst
-CC_INLINE int imand_32u(int h, int w, const uint* A, int al, const uint* dst, int bl, uint* C, int cl, uint v)
+static int imand_32u(int h, int w, const uint* A, int al, const uint* dst, int bl, uint* C, int cl, uint v)
 {
   int i, j;
   //uint32* C0 = C;
@@ -894,7 +894,7 @@ CC_INLINE int imand_32u(int h, int w, const uint* A, int al, const uint* dst, in
   return 0;
 }
 
-CC_INLINE int MapBitBlt(img_t* dst, int x, int y, int w, int h, const img_t* src, int i)
+static int MapBitBlt(img_t* dst, int x, int y, int w, int h, const img_t* src, int i)
 {
   //int sh = src->h / h;
   int sw = src->w / w;
@@ -904,7 +904,7 @@ CC_INLINE int MapBitBlt(img_t* dst, int x, int y, int w, int h, const img_t* src
   alpha_copy(h, w, s, src->s, 4, d, dst->s, 4);
   return 0;
 }
-CC_INLINE int alpha_fill(int h, int w, const void* A, int al, int ai, void* dst, int bl, int bi, COLOR clr)
+static int alpha_fill(int h, int w, const void* A, int al, int ai, void* dst, int bl, int bi, COLOR clr)
 {
   int i, j;
   const uchar* A1 = (const uchar*)A;
@@ -927,7 +927,7 @@ CC_INLINE int alpha_fill(int h, int w, const void* A, int al, int ai, void* dst,
 
   return 0;
 }
-CC_INLINE int affine_line(int ah, int aw, uchar* A, int al, int ai, uchar* dst, int bl, int bi, MATRIX3X2 co)
+static int affine_line(int ah, int aw, uchar* A, int al, int ai, uchar* dst, int bl, int bi, MATRIX3X2 co)
 {
   //int _bh = (int)(0);
   int _bw = (int)(0);
@@ -951,14 +951,14 @@ CC_INLINE int affine_line(int ah, int aw, uchar* A, int al, int ai, uchar* dst, 
   return 0;
 }
 
-CC_INLINE int imresize3(const img_t* im, double scal, img_t* im2)
+static int imresize3(const img_t* im, double scal, img_t* im2)
 {
   imsetsize(im2, (int)(im->h * scal), (int)(im->w * scal), im->c, 1);
   IMRESIZE(im->h, im->w, im->tt.data, im->s, im->c, im2->h, im2->w, im2->tt.data, im2->s, im->c, INTER_BILINEARITY);
   return 0;
 }
 
-CC_INLINE int geometric_scaling(int sh, int sw, int dh, int dw, ISIZE* sz)
+static int geometric_scaling(int sh, int sw, int dh, int dw, ISIZE* sz)
 {
   int tw = dw, th = dh;
   //int x, y;
@@ -976,14 +976,14 @@ CC_INLINE int geometric_scaling(int sh, int sw, int dh, int dw, ISIZE* sz)
   return 0;
 }
 
-CC_INLINE int imresize_bili(const img_t* s, img_t* d)
+static int imresize_bili(const img_t* s, img_t* d)
 {
   IMRESIZE((s->h), s->w, s->tt.data, s->s, s->c, (d->h), d->w, d->tt.data, d->s, d->c, INTER_BILINEARITY);
   return 0;
 }
 // 保持长宽
 //#define imresize2(s, sc, d) imresize(s, (int)((sc)*(s)->h), (int)((sc)*(s)->w), d)
-CC_INLINE int imresize_aspect(const img_t* s, int dh, int dw, img_t* d)
+static int imresize_aspect(const img_t* s, int dh, int dw, img_t* d)
 {
   int sw = s->w, sh = s->h;
   int tw = dw, th = dh;
@@ -1015,7 +1015,7 @@ CC_INLINE int imresize_aspect(const img_t* s, int dh, int dw, img_t* d)
   imfree(imt);
   return 0;
 }
-CC_INLINE img_t* imresize(const img_t* s, int dh, int dw, img_t* d) {
+static img_t* imresize(const img_t* s, int dh, int dw, img_t* d) {
   int sw = s->w, sh = s->h;
   int tw = dw, th = dh, i;
   img_t imt[1] = {0};
@@ -1047,7 +1047,7 @@ CC_INLINE img_t* imresize(const img_t* s, int dh, int dw, img_t* d) {
   return d;
 }
 
-CC_INLINE ISIZE samsize(int sh, int sw, int dh, int dw, int tt)
+static ISIZE samsize(int sh, int sw, int dh, int dw, int tt)
 {
   int tw = dw, th = dh;
 
@@ -1068,12 +1068,12 @@ CC_INLINE ISIZE samsize(int sh, int sw, int dh, int dw, int tt)
 }
 
 // 下采样
-CC_INLINE int imresize_impl(int ah, int aw, const uchar* A, int al, int ai, int bh, int bw, uchar* dst, int bl, int bi, int type)
+static int imresize_impl(int ah, int aw, const uchar* A, int al, int ai, int bh, int bw, uchar* dst, int bl, int bi, int type)
 {
 #include "impl/imresize_impl_case_cn.inl"
   return 0;
 }
-CC_INLINE int imresize_impl_n(int ah, int aw, const uchar* A, int al, int ai, int bh, int bw, uchar* dst, int bl, int bi, int type, int n)
+static int imresize_impl_n(int ah, int aw, const uchar* A, int al, int ai, int bh, int bw, uchar* dst, int bl, int bi, int type, int n)
 {
   int i;
 
@@ -1085,7 +1085,7 @@ CC_INLINE int imresize_impl_n(int ah, int aw, const uchar* A, int al, int ai, in
 
   return 0;
 }
-CC_INLINE int imresize_n(const img_t* im, int h, int w, img_t* im2, int n)
+static int imresize_n(const img_t* im, int h, int w, img_t* im2, int n)
 {
   if (im->tt.data == im2->tt.data) {
     img_t im3[1] = {0};
@@ -1103,14 +1103,14 @@ CC_INLINE int imresize_n(const img_t* im, int h, int w, img_t* im2, int n)
 }
 #define imresize_1(im, h, w, im2) imresize_n(im, h, w, im2, 1)
 
-CC_INLINE int bf_imresize_1(buf_t* bf, const img_t* im, int h, int w, img_t* im2)
+static int bf_imresize_1(buf_t* bf, const img_t* im, int h, int w, img_t* im2)
 {
   bf_imsetsize(bf, im2, h, w, im->c, 1);
   imresize_impl(im->h, im->w, im->tt.data, im->s, im->c, h, w, im2->tt.data, im2->s, im2->c, CC_INTER_AREA);
   return 0;
 }
 
-CC_INLINE int imresizen(const img_t* a, double scaling, img_t* b, int n)
+static int imresizen(const img_t* a, double scaling, img_t* b, int n)
 {
   int h = (int)(a->h * scaling), w = (int)(a->w * scaling);
   return imresize_n(a, h, w, b, n);
@@ -1118,7 +1118,7 @@ CC_INLINE int imresizen(const img_t* a, double scaling, img_t* b, int n)
 
 #define imresize1(im, scaling, im2) imresize(im, im->h*scaling, im->w*scaling, im2)
 
-CC_INLINE int bf_imresize_impl(int ah, int aw, const uchar* A, int al, int ai, int bh, int bw, uchar* dst, int bl, int bi, int type)
+static int bf_imresize_impl(int ah, int aw, const uchar* A, int al, int ai, int bh, int bw, uchar* dst, int bl, int bi, int type)
 {
 #define IMMALLOC  BF_MALLOC
 #define IMFREE    BF_FREE
@@ -1127,7 +1127,7 @@ CC_INLINE int bf_imresize_impl(int ah, int aw, const uchar* A, int al, int ai, i
 #undef IMMALLOC
   return 0;
 }
-CC_INLINE int bf_imresize(buf_t* bf, const img_t* s, int dh, int dw, img_t* d) {
+static int bf_imresize(buf_t* bf, const img_t* s, int dh, int dw, img_t* d) {
   int sw = s->w, sh = s->h;
   int tw = dw, th = dh, i;
   img_t imt[1] = {0};
@@ -1152,7 +1152,7 @@ CC_INLINE int bf_imresize(buf_t* bf, const img_t* s, int dh, int dw, img_t* d) {
   return 0;
 }
 #if 0
-CC_INLINE int bf_imresize(buf_t* bf, const img_t* im, int h, int w, img_t* im2)
+static int bf_imresize(buf_t* bf, const img_t* im, int h, int w, img_t* im2)
 {
   ASSERT(im->tt.data != im2->tt.data);
   bf_imsetsize(bf, im2, h, w, im->c, 1);
@@ -1160,7 +1160,7 @@ CC_INLINE int bf_imresize(buf_t* bf, const img_t* im, int h, int w, img_t* im2)
   return 0;
 }
 #endif
-CC_INLINE int imresize_rect(int ah, int aw, const uchar* A, int al, int ai, const IRECT* parc, int bh, int bw, uchar* dst, int bl, int bi, const IRECT* pbrc, const IRECT* bclip, int type)
+static int imresize_rect(int ah, int aw, const uchar* A, int al, int ai, const IRECT* parc, int bh, int bw, uchar* dst, int bl, int bi, const IRECT* pbrc, const IRECT* bclip, int type)
 {
   IRECT ar = iRECT(0, 0, aw, ah), br = iRECT(0, 0, bw, bh), cr;
   IRECT arc = parc ? *parc : ar;
@@ -1181,7 +1181,7 @@ CC_INLINE int imresize_rect(int ah, int aw, const uchar* A, int al, int ai, cons
   return 0;
 }
 
-CC_INLINE int imsetmask(img_t* im, const img_t* imMask)
+static int imsetmask(img_t* im, const img_t* imMask)
 {
   int i, j, w = im->w, h = im->h;
 
@@ -1199,7 +1199,7 @@ CC_INLINE int imsetmask(img_t* im, const img_t* imMask)
 
   return 0;
 }
-CC_INLINE int imsetalpha(img_t* im, int alpha)
+static int imsetalpha(img_t* im, int alpha)
 {
   int i, j, w = im->w, h = im->h;
 
@@ -1217,7 +1217,7 @@ CC_INLINE int imsetalpha(img_t* im, int alpha)
   return 0;
 }
 // 设置透明色
-CC_INLINE int imsettranscolor(const img_t* im, COLOR transparent_color)
+static int imsettranscolor(const img_t* im, COLOR transparent_color)
 {
   int i, j, w = im->w, h = im->h;
 
@@ -1239,7 +1239,7 @@ CC_INLINE int imsettranscolor(const img_t* im, COLOR transparent_color)
   return 0;
 }
 
-CC_INLINE int imto1(const img_t* im, img_t* im1, uchar* pmap)
+static int imto1(const img_t* im, img_t* im1, uchar* pmap)
 {
   switch (im->c) {
   case 1: {
@@ -1267,7 +1267,7 @@ CC_INLINE int imto1(const img_t* im, img_t* im1, uchar* pmap)
   return 0;
 }
 
-CC_INLINE int imto32(const img_t* im, img_t* im32, BOOL swaprb)
+static int imto32(const img_t* im, img_t* im32, BOOL swaprb)
 {
   int i, j, w, h, al;
   uint32* ptr;
@@ -1336,7 +1336,7 @@ CC_INLINE int imto32(const img_t* im, img_t* im32, BOOL swaprb)
 
   return 0;
 }
-CC_INLINE int RGB_ContrastAdjust(BYTE* pRGB_In, BYTE* pRGB_Out, int Contrast, int ThresholdValue, long DateSize)
+static int RGB_ContrastAdjust(BYTE* pRGB_In, BYTE* pRGB_Out, int Contrast, int ThresholdValue, long DateSize)
 {
   int Count, Ytemp/*, tempContrast*/;
 
@@ -1356,7 +1356,7 @@ CC_INLINE int RGB_ContrastAdjust(BYTE* pRGB_In, BYTE* pRGB_Out, int Contrast, in
 
   return 0;
 }
-CC_INLINE int RGB_BrightAdjust(BYTE* pRGB_In, BYTE* pRGB_Out, int Bright, long DateSize)
+static int RGB_BrightAdjust(BYTE* pRGB_In, BYTE* pRGB_Out, int Bright, long DateSize)
 {
   int Count, Ytemp;
 
@@ -1376,13 +1376,13 @@ CC_INLINE int RGB_BrightAdjust(BYTE* pRGB_In, BYTE* pRGB_Out, int Bright, long D
 
   return 0;
 }
-CC_INLINE int imflip(img_t* im)
+static int imflip(img_t* im)
 {
   return matflip(im->h, im->s, im->tt.data, im->s);
 }
 
 // 上下翻转
-CC_INLINE int flip_ud(int h, int w, void* A, int al)
+static int flip_ud(int h, int w, void* A, int al)
 {
   int i, j, t;
   char* A0 = (char*)A;
@@ -1399,7 +1399,7 @@ CC_INLINE int flip_ud(int h, int w, void* A, int al)
   return 0;
 }
 // 上下翻转
-CC_INLINE int flip_ud_fast(int h, int w, void* A, int al)
+static int flip_ud_fast(int h, int w, void* A, int al)
 {
   int i, j, t;
   char* A0 = (char*)A;
@@ -1429,7 +1429,7 @@ CC_INLINE int flip_ud_fast(int h, int w, void* A, int al)
   return 0;
 }
 
-CC_INLINE int flip_ud_copy(int h, int w, void* A, int al, const void* dst, int bl)
+static int flip_ud_copy(int h, int w, void* A, int al, const void* dst, int bl)
 {
   int i;
   char* A0 = (char*)A;
@@ -1443,7 +1443,7 @@ CC_INLINE int flip_ud_copy(int h, int w, void* A, int al, const void* dst, int b
 }
 
 // 左右翻转
-CC_INLINE int flip_lr(int h, int w, void* A, int al, int cn)
+static int flip_lr(int h, int w, void* A, int al, int cn)
 {
   int i, j, k, t;
   char* A0 = (char*)A;
@@ -1463,16 +1463,16 @@ CC_INLINE int flip_lr(int h, int w, void* A, int al, int cn)
   
   return 0;
 }
-CC_INLINE int imflip_ud(img_t* im)
+static int imflip_ud(img_t* im)
 {
   return flip_ud(im->h, im->s, im->tt.data, im->s);
 }
-CC_INLINE int imflip_lr(img_t* im)
+static int imflip_lr(img_t* im)
 {
   return flip_lr(im->h, im->w, im->tt.data, im->s, im->c);
 }
 // 扩张边界
-CC_INLINE int imreplicate_border(const img_t* im, img_t* im2, IRECT rc)
+static int imreplicate_border(const img_t* im, img_t* im2, IRECT rc)
 {
   img_t im1[1] = {0};
   if (im==im2) {
@@ -1485,7 +1485,7 @@ CC_INLINE int imreplicate_border(const img_t* im, img_t* im2, IRECT rc)
   return 0;
 }
 #define rgb2gray im2gry
-CC_INLINE img_t* im2gry(const img_t* im, img_t* gry)
+static img_t* im2gry(const img_t* im, img_t* gry)
 {
   if (im->c>=3) {
     img_t im1[1] = {0};
@@ -1505,7 +1505,7 @@ CC_INLINE img_t* im2gry(const img_t* im, img_t* gry)
   }
   return gry;
 }
-CC_INLINE int im2rgb(const img_t* gry, img_t* im, int cn)
+static int im2rgb(const img_t* gry, img_t* im, int cn)
 {
   img_t im1[1] = {0};
   if (gry==im) {
@@ -1520,7 +1520,7 @@ CC_INLINE int im2rgb(const img_t* gry, img_t* im, int cn)
   return 0;
 }
 
-CC_INLINE int u1_lut(int n, const uchar* s, uchar* d, const uchar* lut)
+static int u1_lut(int n, const uchar* s, uchar* d, const uchar* lut)
 {
   int i;
 
@@ -1530,7 +1530,7 @@ CC_INLINE int u1_lut(int n, const uchar* s, uchar* d, const uchar* lut)
 
   return 0;
 }
-CC_INLINE int imglut_u8(int h, int w, const uchar* A, int al, uchar* dst, int bl, const uchar* lut)
+static int imglut_u8(int h, int w, const uchar* A, int al, uchar* dst, int bl, const uchar* lut)
 {
   int i, j;
 
@@ -1554,7 +1554,7 @@ CC_INLINE int imglut_u8(int h, int w, const uchar* A, int al, uchar* dst, int bl
   return 0;
 }
 //自适应
-CC_INLINE int im2bw_adapt(const img_t* im, int thd, img_t* bw, int p0, int p1)
+static int im2bw_adapt(const img_t* im, int thd, img_t* bw, int p0, int p1)
 {
   int i, j, ithd = thd;
   uchar lut[256] = {0};
@@ -1586,7 +1586,7 @@ CC_INLINE int im2bw_adapt(const img_t* im, int thd, img_t* bw, int p0, int p1)
   imglut_u8(im->h, im->w, im->tt.data, im->s, bw->tt.data, bw->s, lut);
   return ithd;
 }
-CC_INLINE int im2bw_adapt1(const img_t* im, int thd, img_t* bw, int p0, int p1)
+static int im2bw_adapt1(const img_t* im, int thd, img_t* bw, int p0, int p1)
 {
   int i, j, ithd = thd;
   uchar lut[256] = {0};
@@ -1617,7 +1617,7 @@ CC_INLINE int im2bw_adapt1(const img_t* im, int thd, img_t* bw, int p0, int p1)
   return ithd;
 }
 
-CC_INLINE int im2avg_u8(const img_t* im)
+static int im2avg_u8(const img_t* im)
 {
   int i, j, isum = 0, iavg = 0, n = im->h * im->w;;
 
@@ -1637,7 +1637,7 @@ CC_INLINE int im2avg_u8(const img_t* im)
   return iavg;
 }
 
-CC_INLINE int get_otsu_thd(const img_t* im)
+static int get_otsu_thd(const img_t* im)
 {
   int i, j, pixelSum = im->w * im->h, threshold = 0, dd = 0;
   int pixelCount[256] = {0};
@@ -1690,7 +1690,7 @@ CC_INLINE int get_otsu_thd(const img_t* im)
   return threshold;
 }
 
-CC_INLINE int im2bw(const img_t* im, int thd, img_t* bw)
+static int im2bw(const img_t* im, int thd, img_t* bw)
 {
   int i, j, ithd = thd;
   int imax = 0, imin = 1000;
@@ -1718,7 +1718,7 @@ CC_INLINE int im2bw(const img_t* im, int thd, img_t* bw)
   return 0;
 }
 
-CC_INLINE int im2xor(img_t* im, int val, img_t* bw)
+static int im2xor(img_t* im, int val, img_t* bw)
 {
   int i, j;
   //imsetsize(bw, im->h, im->w, 1, 1);
@@ -1735,7 +1735,7 @@ CC_INLINE int im2xor(img_t* im, int val, img_t* bw)
 
 //#include ".\draw\imwarp.inl"
 #if 0
-CC_INLINE int test_imresize()
+static int test_imresize()
 {
   img_t im[1] = {0};
   img_t im2[5] = {0};
@@ -1762,7 +1762,7 @@ CC_INLINE int test_imresize()
 }
 #endif
 
-CC_INLINE int mat2gray_u8(img_t* im)
+static int mat2gray_u8(img_t* im)
 {
   int i, mini, maxi, minv, maxv;
   MINMAX_ELEM2D(im->h, im->w, im->tt.data, im->s, im->c, mini, maxi);
@@ -1775,7 +1775,7 @@ CC_INLINE int mat2gray_u8(img_t* im)
   return 0;
 }
 
-CC_INLINE int in2double(const img_t* im, img_t* im2)
+static int in2double(const img_t* im, img_t* im2)
 {
   img_t im3[1] = {0};
   int i;
@@ -1803,7 +1803,7 @@ CC_INLINE int in2double(const img_t* im, img_t* im2)
 
 
 // 纵向拼接
-CC_INLINE int imcatv(int n, const img_t* ims, img_t* im2)
+static int imcatv(int n, const img_t* ims, img_t* im2)
 {
   int i, h2 = 0, w2 = 0, c2 = 0, y = 0;
 
@@ -1820,13 +1820,13 @@ CC_INLINE int imcatv(int n, const img_t* ims, img_t* im2)
 
   return 0;
 }
-CC_INLINE int imcatv2(const img_t* im0, const img_t* im1, img_t* im) {
+static int imcatv2(const img_t* im0, const img_t* im1, img_t* im) {
   img_t ims[2];
   ims[0] = *im0;
   ims[1] = *im1;
   return imcatv(2, ims, im);
 }
-CC_INLINE int imextend(img_t* im, int h, int w, int cn) {
+static int imextend(img_t* im, int h, int w, int cn) {
   int i;
   if (im->h!=h || im->w!=w) {
     img_t im2[1] = {0};
@@ -1842,7 +1842,7 @@ CC_INLINE int imextend(img_t* im, int h, int w, int cn) {
   return 0;
 }
 
-CC_INLINE int imcatv1(img_t* im, const img_t* im1) {
+static int imcatv1(img_t* im, const img_t* im1) {
   int h = im->h, w = im->w;
   imextend(im, im->h+im1->h, MAX(w, im1->w), im1->c);
   memcpy2d(im->tt.data + im->s*h, im->s, im1->tt.data, im1->s, im1->h, im1->w * im1->c);
@@ -1850,7 +1850,7 @@ CC_INLINE int imcatv1(img_t* im, const img_t* im1) {
 }
 
 // 横向拼接
-CC_INLINE int imcath(int n, const img_t* ims, img_t* im2)
+static int imcath(int n, const img_t* ims, img_t* im2)
 {
   int i, h2 = 0, w2 = 0, c2 = 0, x = 0;
 
@@ -1867,13 +1867,13 @@ CC_INLINE int imcath(int n, const img_t* ims, img_t* im2)
 
   return 0;
 }
-CC_INLINE int imcath2(const img_t* im0, const img_t* im1, img_t* im) {
+static int imcath2(const img_t* im0, const img_t* im1, img_t* im) {
   img_t ims[2];
   ims[0] = *im0;
   ims[1] = *im1;
   return imcath(2, ims, im);
 }
-CC_INLINE int imcat(int rows, int cols, const img_t* ims, img_t* im2)
+static int imcat(int rows, int cols, const img_t* ims, img_t* im2)
 {
   int i, j, h2 = 0, w2 = 0, c2 = 0, y = 0, n =  rows * cols;
   const img_t* im;
@@ -1905,7 +1905,7 @@ CC_INLINE int imcat(int rows, int cols, const img_t* ims, img_t* im2)
   return 0;
 }
 //合并通道
-CC_INLINE int imcat3(const img_t* im1, const img_t* im2, img_t* im) {
+static int imcat3(const img_t* im1, const img_t* im2, img_t* im) {
   img_t im0[1] = {0};
   int i, j;
   ASSERT(im1->h==im2->h && im1->w==im2->w && im1->f==im2->f);
@@ -1959,7 +1959,7 @@ static int asRowMatrix(int n, img_t* src, double alpha, double beta, img_t* data
   return 1;
 }
 
-CC_INLINE int im2bit1(int n, const uchar* A, uchar* dst)
+static int im2bit1(int n, const uchar* A, uchar* dst)
 {
   int i = 0;
 
@@ -1975,7 +1975,7 @@ CC_INLINE int im2bit1(int n, const uchar* A, uchar* dst)
 
   return 0;
 }
-CC_INLINE int bit12im(int n, const uchar* A, uchar* dst)
+static int bit12im(int n, const uchar* A, uchar* dst)
 {
   int i = 0;
 
@@ -1992,7 +1992,7 @@ CC_INLINE int bit12im(int n, const uchar* A, uchar* dst)
   return 0;
 }
 
-CC_INLINE int imsig_base(int h, int w, const uchar* A, int al, int ai, int n, uchar* bbb, void* out)
+static int imsig_base(int h, int w, const uchar* A, int al, int ai, int n, uchar* bbb, void* out)
 {
   int i, s = 0, nn = n * n;
   ASSERT(1 == ai);
@@ -2012,7 +2012,7 @@ CC_INLINE int imsig_base(int h, int w, const uchar* A, int al, int ai, int n, uc
   im2bit1(nn, bbb, (uchar*)out);
   return 0;
 }
-CC_INLINE int imsig_8x8(int h, int w, const uchar* A, int al, int ai, void* dst)
+static int imsig_8x8(int h, int w, const uchar* A, int al, int ai, void* dst)
 {
   enum {N = 8};
   uchar bbb[N * N] = {0};
@@ -2020,7 +2020,7 @@ CC_INLINE int imsig_8x8(int h, int w, const uchar* A, int al, int ai, void* dst)
   return 0;
 }
 
-CC_INLINE int imsig_16x16(int h, int w, const uchar* A, int al, int ai, uchar* dst)
+static int imsig_16x16(int h, int w, const uchar* A, int al, int ai, uchar* dst)
 {
   enum {N = 16};
   uchar bbb[N * N] = {0};
@@ -2242,7 +2242,7 @@ static int mat_sum_f8(int h, int w, const double* A, int al, OptMode mode, doubl
   }
   return 0;
 }
-CC_INLINE int mat_get_nk(int h, int w, OptMode mode, double* pk) {
+static int mat_get_nk(int h, int w, OptMode mode, double* pk) {
   int n = 1;
   double k = h*w;
   switch (mode) {
@@ -2265,7 +2265,7 @@ CC_INLINE int mat_get_nk(int h, int w, OptMode mode, double* pk) {
   return n;
 }
 
-CC_INLINE int mat_mean_f8(int h, int w, const double* A, int al, OptMode mode, double* dst) {
+static int mat_mean_f8(int h, int w, const double* A, int al, OptMode mode, double* dst) {
   int i, n = 1;
   double k = h*w;
   mat_sum_f8(h, w, A, al, mode, dst);
@@ -2335,7 +2335,7 @@ static int mat_meanstd_f8(int h, int w, const double* A, int al, OptMode mode, d
   }
   return 0;
 }
-CC_INLINE int imsum_f8(const img_t* im, OptMode mode, img_t* sum) {
+static int imsum_f8(const img_t* im, OptMode mode, img_t* sum) {
   int n = 1;
   img_t im1[1] = {0};
   if (im==sum) {
@@ -2349,7 +2349,7 @@ CC_INLINE int imsum_f8(const img_t* im, OptMode mode, img_t* sum) {
   imfree(im1);
   return 0;
 }
-CC_INLINE int immean_f8(const img_t* im, OptMode mode, img_t* mu) {
+static int immean_f8(const img_t* im, OptMode mode, img_t* mu) {
   int n = 1;
   img_t im1[1] = {0};
   if (im==mu) {
@@ -2365,7 +2365,7 @@ CC_INLINE int immean_f8(const img_t* im, OptMode mode, img_t* mu) {
 }
 // flag = 0 : s = sum(x-mu)/(n-1)
 // flag = 1 : s = sum(x-mu)/(n-n)
-CC_INLINE int immeanstd_f8(const img_t* im, int flag, OptMode mode, img_t* mu, img_t* st) {
+static int immeanstd_f8(const img_t* im, int flag, OptMode mode, img_t* mu, img_t* st) {
   int n = 1;
   img_t im1[2] = {0};
   if (NULL==st) {
@@ -2505,7 +2505,7 @@ static void hor_acc8(uchar* cp0, int cc, int stride)
 
 #undef REPEAT4
 
-CC_INLINE int imsplit(const img_t* im, img_t* im2, int off, int c) {
+static int imsplit(const img_t* im, img_t* im2, int off, int c) {
   int i, j;
   imsetsize(im2, im->h, im->w, c, im->f);
   switch (c) {
@@ -2567,7 +2567,7 @@ static int pic2ascii(int h, int w, const uchar* img, int imgstep, int cn, char* 
   static const char* pic2ascii_chs = "   ...',;:clodxkO0KXNWMMMM";
   int x, y, k=cn/2;
   static char pic2ascii_map[256] = {0};
-  static int pic2ascii_len = 0;
+  static size_t pic2ascii_len = 0;
   char* out1 = out;
   if (0==pic2ascii_len) {
     pic2ascii_len = strlen(pic2ascii_chs);

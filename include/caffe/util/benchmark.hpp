@@ -1,9 +1,8 @@
 #ifndef CAFFE_UTIL_BENCHMARK_H_
 #define CAFFE_UTIL_BENCHMARK_H_
 
-#include <boost/date_time/posix_time/posix_time.hpp>
-
 #include "caffe/util/device_alternate.hpp"
+#include "wstd/time.hpp"
 
 namespace caffe
 {
@@ -33,8 +32,8 @@ namespace caffe
     cudaEvent_t start_gpu_;
     cudaEvent_t stop_gpu_;
 #endif
-    boost::posix_time::ptime start_cpu_;
-    boost::posix_time::ptime stop_cpu_;
+    wstd::posix_time::ptime start_cpu_;
+    wstd::posix_time::ptime stop_cpu_;
     float elapsed_milliseconds_;
     float elapsed_microseconds_;
   };

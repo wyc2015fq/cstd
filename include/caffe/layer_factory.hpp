@@ -57,7 +57,7 @@ namespace caffe
   class LayerRegistry
   {
   public:
-    typedef boost::shared_ptr<Layer<Dtype> > (*Creator)(const LayerParameter &);
+    typedef shared_ptr<Layer<Dtype> > (*Creator)(const LayerParameter &);
     typedef std::map<string, Creator> CreatorRegistry;
 
     static CreatorRegistry & Registry() {
@@ -74,7 +74,7 @@ namespace caffe
     }
 
     // Get a layer using a LayerParameter.
-    static boost::shared_ptr<Layer<Dtype> > CreateLayer(const LayerParameter & param) {
+    static shared_ptr<Layer<Dtype> > CreateLayer(const LayerParameter & param) {
       if (Caffe::root_solver()) {
         LOG(INFO) << "Creating layer " << param.name();
       }
@@ -120,7 +120,7 @@ namespace caffe
   {
   public:
     LayerRegisterer(const string & type,
-                    boost::shared_ptr<Layer<Dtype> > (*creator)(const LayerParameter &)) {
+                    shared_ptr<Layer<Dtype> > (*creator)(const LayerParameter &)) {
       // LOG(INFO) << "Registering layer type: " << type;
       LayerRegistry<Dtype>::AddCreator(type, creator);
     }
@@ -133,9 +133,9 @@ namespace caffe
  
 #define REGISTER_LAYER_CLASS(type)                                             \
   template <typename Dtype>                                                    \
-  boost::shared_ptr<Layer<Dtype> > Creator_##type##Layer(const LayerParameter& param) \
+  shared_ptr<Layer<Dtype> > Creator_##type##Layer(const LayerParameter& param) \
   {                                                                            \
-    return boost::shared_ptr<Layer<Dtype> >(new type##Layer<Dtype>(param));           \
+    return shared_ptr<Layer<Dtype> >(new type##Layer<Dtype>(param));           \
   }                                                                            \
   REGISTER_LAYER_CREATOR(type, Creator_##type##Layer)
 

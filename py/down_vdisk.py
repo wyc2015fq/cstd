@@ -131,6 +131,11 @@ if 1:
     url = 'http://vdisk.weibo.com/u/'
     url = url + clip.gettext().decode('gbk')
     runallu(url, 'E:/微盘/')
+
+if 0:
+    url = 'http://vdisk.weibo.com/s/'
+    url = url + clip.gettext().decode('gbk')
+    runalls(url, 'E:/微盘/复杂网络/')
 # print(data)
 
 

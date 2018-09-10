@@ -1,14 +1,14 @@
 #ifndef CPU_ONLY
 #include <cuda_runtime.h>
 #endif
-#include "caffe/util/logging.hpp"
+#include "wstd/logging.hpp"
 #include <stdio.h>
 
 #include <sstream>
 #include <string>
 #include <vector>
+#include <thread>
 
-#include "boost/thread.hpp"
 #include "caffe/caffe.hpp"
 #include "caffe/parallel.hpp"
 

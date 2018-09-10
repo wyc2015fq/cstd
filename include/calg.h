@@ -3124,7 +3124,7 @@ CC_INLINE int file_putline(const char* fn, const char* str) {
   FILE* pf;
   pf = fopen(fn, "a");
   if (pf) {
-    int len = strlen(str);
+    size_t len = strlen(str);
     fwrite(str, 1, len, pf);
     fwrite("\n", 1, 1, pf);
     fclose(pf);
