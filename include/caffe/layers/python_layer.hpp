@@ -1,7 +1,7 @@
 #ifndef CAFFE_PYTHON_LAYER_HPP_
 #define CAFFE_PYTHON_LAYER_HPP_
 
-#include <python>
+#include <boost/python.hpp>
 #include <vector>
 
 #include "caffe/layer.hpp"

@@ -27,7 +27,7 @@ void LstmLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     LOG(INFO) << "Skipping parameter initialization";
   } else {
     this->blobs_.resize(3);
-    shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
+    SHARED_PTR<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
         this->layer_param_.lstm_param().weight_filler()));
  
     // input-to-hidden weights
@@ -49,7 +49,7 @@ void LstmLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
     // If necessary, intiialize and fill the bias term
     vector<int> bias_shape(1, 4*H_);
     this->blobs_[2].reset(new Blob<Dtype>(bias_shape));
-    shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
+    SHARED_PTR<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
         this->layer_param_.lstm_param().bias_filler()));
     bias_filler->Fill(this->blobs_[2].get());
   }  // parameter initialization

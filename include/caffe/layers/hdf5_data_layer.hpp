@@ -26,7 +26,7 @@ namespace caffe
   public:
     explicit HDF5DataLayer(const LayerParameter & param)
       : Layer<Dtype>(param) {}
-    virtual ~HDF5DataLayer();
+    virtual ~HDF5DataLayer() {}
     virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                             const vector<Blob<Dtype>*> & top);
     // Data layers should be shared by multiple solvers in parallel
@@ -54,7 +54,7 @@ namespace caffe
     unsigned int num_files_;
     unsigned int current_file_;
     hsize_t current_row_;
-    std::vector<shared_ptr<Blob<Dtype> > > hdf_blobs_;
+    std::vector<SHARED_PTR<Blob<Dtype> > > hdf_blobs_;
     std::vector<unsigned int> data_permutation_;
     std::vector<unsigned int> file_permutation_;
   };

@@ -94,7 +94,7 @@ namespace caffe
     filler_param.set_std(1);
     GaussianFiller<Dtype> sequence_filler(filler_param);
     sequence_filler.Fill(&this->blob_bottom_);
-    shared_ptr<RNNLayer<Dtype> > layer(new RNNLayer<Dtype>(this->layer_param_));
+    SHARED_PTR<RNNLayer<Dtype> > layer(new RNNLayer<Dtype>(this->layer_param_));
     Caffe::set_random_seed(1701);
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     LOG(INFO) << "Calling forward for full sequence RNN";

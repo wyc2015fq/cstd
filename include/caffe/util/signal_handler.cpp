@@ -87,7 +87,7 @@ namespace
   // function was called.
   bool GotSIGINT()
   {
-    bool result = got_sigint;
+    bool result = got_sigint != 0;
     got_sigint = false;
     return result;
   }
@@ -96,7 +96,7 @@ namespace
   // function was called.
   bool GotSIGHUP()
   {
-    bool result = got_sighup;
+    bool result = got_sighup != 0;
     got_sighup = false;
     return result;
   }

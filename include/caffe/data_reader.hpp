@@ -12,8 +12,6 @@
 
 namespace caffe
 {
-
-  using std::weak_ptr;
   /**
    * @brief Reads data from a source to queues available to data layers.
    * A single reading thread is created per source, even if multiple solvers
@@ -61,7 +59,7 @@ namespace caffe
       void read_one(db::Cursor* cursor, QueuePair* qp);
 
       const LayerParameter param_;
-      BlockingQueue<shared_ptr<QueuePair> > new_queue_pairs_;
+      BlockingQueue<SHARED_PTR<QueuePair> > new_queue_pairs_;
 
       friend class DataReader;
 
@@ -74,10 +72,10 @@ namespace caffe
       return param.name() + ":" + param.data_param().source();
     }
 
-    const shared_ptr<QueuePair> queue_pair_;
-    shared_ptr<Body> body_;
+    const SHARED_PTR<QueuePair> queue_pair_;
+    SHARED_PTR<Body> body_;
 
-    static map<const string, weak_ptr<DataReader::Body> > bodies_;
+    static map<const string, WEAK_PTR<DataReader::Body> > bodies_;
 
     DISABLE_COPY_AND_ASSIGN(DataReader);
   };

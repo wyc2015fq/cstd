@@ -25,7 +25,7 @@ int LoadTextFileList(const string& testfile, std::vector<string>& imgs) {
     }
     fclose(input);
   }
-  return imgs.size();
+  return (int)imgs.size();
 }
 
 
@@ -85,7 +85,7 @@ void show_projection(vector<int>& pos, int mode)
   vector<int>::iterator max = std::max_element(std::begin(pos), std::end(pos)); //求最大值
   if (mode == H_PROJECT)
   {
-    int height = pos.size();
+    int height = (int)pos.size();
     int width = *max;
     Mat project = Mat::zeros(height, width, CV_8UC1);
     for (int i = 0; i < project.rows; i++)
@@ -102,7 +102,7 @@ void show_projection(vector<int>& pos, int mode)
   else if (mode == V_PROJECT)
   {
     int height = *max;
-    int width = pos.size();
+    int width = (int)pos.size();
     Mat project = Mat::zeros(height, width, CV_8UC1);
     for (int i = 0; i < project.cols; i++)
     {
@@ -140,7 +140,7 @@ Mat getRplane2(const Mat &in)
   imshow("color_boost", color_boost);
   cv::waitKey(-1);
 
-  if (in.cols > 700 | in.cols >600)
+  if (in.cols > 700 || in.cols >600)
   {
     Mat resizeR(450, 600, CV_8UC1);
     cv::resize(gray, resizeR, resizeR.size());
@@ -254,7 +254,7 @@ void OstuBeresenThreshold(const Mat &in, Mat &out) //输入为单通道
     for (int j = 0; j < cols; ++j)
     {
 
-      if (i <2 | i>rows - 3 | j<2 | j>rows - 3)
+      if (i <2 || i>rows - 3 || j<2 || j>cols - 3)
       {
 
         if (p[j] <= beta_lowT)
@@ -264,10 +264,11 @@ void OstuBeresenThreshold(const Mat &in, Mat &out) //输入为单通道
       }
       else
       {
-        Tbn = sum(doubleMatIn(Rect(i - 2, j - 2, 5, 5)))[0] / 25;  //窗口大小25*25
-        if (p[j] < beta_lowT | (p[j] < Tbn && (beta_lowT <= p[j] && p[j] >= beta_highT)))
+        Rect rc = Rect(j - 2, i - 2, 5, 5);
+        Tbn = sum(doubleMatIn(rc))[0] / 25;  //窗口大小25*25
+        if (p[j] < beta_lowT || (p[j] < Tbn && (beta_lowT <= p[j] && p[j] >= beta_highT)))
           outPtr[j] = 0;
-        if (p[j] > beta_highT | (p[j] >= Tbn && (beta_lowT <= p[j] && p[j] >= beta_highT)))
+        if (p[j] > beta_highT || (p[j] >= Tbn && (beta_lowT <= p[j] && p[j] >= beta_highT)))
           outPtr[j] = 255;
       }
     }
@@ -293,15 +294,15 @@ Rect InterRect(Rect r1, Rect r2) {
 
 bool isEligible(const RotatedRect &candidate)
 {
-  float error = 0.2;
-  const float aspect = 4.5 / 0.3; //长宽比
-  int min = 10 * aspect * 10; //最小区域
-  int max = 50 * aspect * 50;  //最大区域
-  float rmin = aspect - aspect*error; //考虑误差后的最小长宽比
-  float rmax = aspect + aspect*error; //考虑误差后的最大长宽比
+  double error = 0.2;
+  const double aspect = 4.5 / 0.3; //长宽比
+  double min = 10 * aspect * 10; //最小区域
+  double max = 50 * aspect * 50;  //最大区域
+  double rmin = aspect - aspect*error; //考虑误差后的最小长宽比
+  double rmax = aspect + aspect*error; //考虑误差后的最大长宽比
 
-  int area = candidate.size.height * candidate.size.width;
-  float r = (float)candidate.size.width / (float)candidate.size.height;
+  double area = candidate.size.height * candidate.size.width;
+  double r = (double)candidate.size.width / (double)candidate.size.height;
   if (r <1)
     r = 1 / r;
 
@@ -313,20 +314,20 @@ bool isEligible(const RotatedRect &candidate)
 
 bool isEligible2(const RotatedRect &candidate, int imgheight)
 {
-  float error = 0.2;
-  const float aspect = 4.5 / 0.3; //长宽比
-  int min = 10 * aspect * 10; //最小区域
-  int max = 50 * aspect * 50;  //最大区域
-  float rmin = aspect - aspect*error; //考虑误差后的最小长宽比
-  float rmax = aspect + aspect*error; //考虑误差后的最大长宽比
-  float hmin = 1 + imgheight / 80;
-  float hmax = 1 + imgheight / 10;
+  double error = 0.2;
+  const double aspect = 4.5 / 0.3; //长宽比
+  double min = 10 * aspect * 10; //最小区域
+  double max = 50 * aspect * 50;  //最大区域
+  double rmin = aspect - aspect*error; //考虑误差后的最小长宽比
+  double rmax = aspect + aspect*error; //考虑误差后的最大长宽比
+  double hmin = 1 + imgheight / 80;
+  double hmax = 1 + imgheight / 10;
   Rect rect = candidate.boundingRect();
-  float h = rect.height;
-  float w = rect.width;
+  double h = rect.height;
+  double w = rect.width;
 
-  int area = h * w;
-  float r = (w + 0.1) / (h + 0.1);
+  double area = h * w;
+  double r = (w + 0.1) / (h + 0.1);
   //if (r <1)    r = 1 / r;
 
   if ((h< hmin || h>hmax) || (area < 100 || area > 10000) || (r< 0.2 || r > rmax)) //满足该条件才认为该candidate为车牌区域
@@ -376,6 +377,7 @@ int partitionLine(const std::vector<Rect>& bboxes1, std::vector<std::vector<Rect
   std::vector<cv::Rect> lines;
   std::vector<int> labels;
   std::vector<int> cnt;
+  if (bboxes1.size() < 1) { return 0; }
   int nclasses = cv::partition(bboxes1, labels, SimilarLine(0.3));
   bboxesvec.resize(nclasses);
   for (int i = 0; i < bboxes1.size(); ++i) {

@@ -22,7 +22,7 @@ namespace caffe
   void RNNLayer<Dtype>::RecurrentOutputBlobNames(vector<string>* names) const
   {
     names->resize(1);
-    (*names)[0] = "h_" + format_int(this->T_);
+    (*names)[0] = "h_" + wstd::format_int(this->T_);
   }
 
   template <typename Dtype>
@@ -136,8 +136,8 @@ namespace caffe
     output_concat_layer.add_top("o");
     output_concat_layer.mutable_concat_param()->set_axis(0);
     for (int t = 1; t <= this->T_; ++t) {
-      string tm1s = format_int(t - 1);
-      string ts = format_int(t);
+      string tm1s = wstd::format_int(t - 1);
+      string ts = wstd::format_int(t);
       cont_slice_param->add_top("cont_" + ts);
       x_slice_param->add_top("W_xh_x_" + ts);
       // Add layer to flush the hidden state when beginning a new sequence,

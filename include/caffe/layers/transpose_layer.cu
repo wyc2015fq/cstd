@@ -30,7 +30,7 @@ void TransposeLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
         <<<CAFFE_GET_BLOCKS(nthreads), CAFFE_CUDA_NUM_THREADS>>>(
         nthreads, bottom[0]->gpu_data(), top[0]->mutable_gpu_data(), 
         bottom_counts_.gpu_data(), top_counts_.gpu_data(), forward_map_.gpu_data(), 
-        bottom[0]->shape().size(), buf_.mutable_gpu_data());
+          (int)bottom[0]->shape().size(), buf_.mutable_gpu_data());
 }
 
 template <typename Dtype>
@@ -45,7 +45,7 @@ void TransposeLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
         <<<CAFFE_GET_BLOCKS(nthreads), CAFFE_CUDA_NUM_THREADS>>>(
         nthreads, top[0]->gpu_diff(), bottom[0]->mutable_gpu_diff(), 
         top_counts_.gpu_data(), bottom_counts_.gpu_data(), backward_map_.gpu_data(), 
-        bottom[0]->shape().size(), buf_.mutable_gpu_data());
+        (int)bottom[0]->shape().size(), buf_.mutable_gpu_data());
 }
 
 INSTANTIATE_LAYER_GPU_FUNCS(TransposeLayer);

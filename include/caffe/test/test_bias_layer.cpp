@@ -80,7 +80,7 @@ namespace caffe
     this->blob_bottom_vec_.push_back(this->blob_bottom_eltwise_);
     LayerParameter layer_param;
     layer_param.mutable_bias_param()->set_axis(0);
-    shared_ptr<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
+    SHARED_PTR<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_bottom_->shape(), this->blob_top_->shape());
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -102,7 +102,7 @@ namespace caffe
     this->blob_bottom_vec_.push_back(this->blob_bottom_eltwise_);
     LayerParameter layer_param;
     layer_param.mutable_bias_param()->set_axis(0);
-    shared_ptr<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
+    SHARED_PTR<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     const Dtype* data = this->blob_bottom_->cpu_data();
@@ -122,7 +122,7 @@ namespace caffe
     this->blob_bottom_vec_.push_back(this->blob_bottom_eltwise_);
     LayerParameter layer_param;
     layer_param.mutable_bias_param()->set_axis(0);
-    shared_ptr<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
+    SHARED_PTR<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
     Blob<Dtype> top_diff(this->blob_bottom_->shape());
     FillerParameter filler_param;
     filler_param.set_type("gaussian");
@@ -169,7 +169,7 @@ namespace caffe
     bias_param->set_axis(0);
     bias_param->set_num_axes(-1);
     bias_param->mutable_filler()->set_type("gaussian");
-    shared_ptr<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
+    SHARED_PTR<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_bottom_->shape(), this->blob_top_->shape());
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -188,7 +188,7 @@ namespace caffe
     this->blob_bottom_vec_.push_back(this->blob_bottom_broadcast_0_);
     LayerParameter layer_param;
     layer_param.mutable_bias_param()->set_axis(0);
-    shared_ptr<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
+    SHARED_PTR<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_bottom_->shape(), this->blob_top_->shape());
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -212,7 +212,7 @@ namespace caffe
     this->blob_bottom_vec_.push_back(this->blob_bottom_broadcast_1_);
     LayerParameter layer_param;
     layer_param.mutable_bias_param()->set_axis(1);
-    shared_ptr<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
+    SHARED_PTR<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_bottom_->shape(), this->blob_top_->shape());
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -239,7 +239,7 @@ namespace caffe
     this->blob_bottom_vec_.push_back(this->blob_bottom_broadcast_1_);
     LayerParameter layer_param;
     layer_param.mutable_bias_param()->set_axis(1);
-    shared_ptr<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
+    SHARED_PTR<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     for (int n = 0; n < this->blob_bottom_->num(); ++n) {
@@ -264,7 +264,7 @@ namespace caffe
     this->blob_bottom_vec_.push_back(this->blob_bottom_broadcast_1_);
     LayerParameter layer_param;
     layer_param.mutable_bias_param()->set_axis(1);
-    shared_ptr<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
+    SHARED_PTR<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
     Blob<Dtype> top_diff(this->blob_bottom_->shape());
     FillerParameter filler_param;
     filler_param.set_type("gaussian");
@@ -311,7 +311,7 @@ namespace caffe
     bias_param->set_axis(1);
     bias_param->set_num_axes(2);
     bias_param->mutable_filler()->set_type("gaussian");
-    shared_ptr<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
+    SHARED_PTR<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_bottom_->shape(), this->blob_top_->shape());
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -334,7 +334,7 @@ namespace caffe
     this->blob_bottom_vec_.push_back(this->blob_bottom_broadcast_2_);
     LayerParameter layer_param;
     layer_param.mutable_bias_param()->set_axis(2);
-    shared_ptr<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
+    SHARED_PTR<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_bottom_->shape(), this->blob_top_->shape());
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -357,7 +357,7 @@ namespace caffe
     typedef typename TypeParam::Dtype Dtype;
     this->blob_bottom_vec_.push_back(this->blob_bottom_bias_);
     LayerParameter layer_param;
-    shared_ptr<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
+    SHARED_PTR<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_bottom_->shape(), this->blob_top_->shape());
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -376,7 +376,7 @@ namespace caffe
     this->blob_bottom_vec_.push_back(this->blob_bottom_bias_);
     LayerParameter layer_param;
     layer_param.mutable_bias_param()->set_axis(2);
-    shared_ptr<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
+    SHARED_PTR<BiasLayer<Dtype> > layer(new BiasLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_bottom_->shape(), this->blob_top_->shape());
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);

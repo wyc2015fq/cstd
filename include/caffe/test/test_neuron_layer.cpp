@@ -748,8 +748,8 @@ namespace caffe
     // Set up blobs
     vector<Blob<Dtype>*> blob_bottom_vec_2;
     vector<Blob<Dtype>*> blob_top_vec_2;
-    shared_ptr<Blob<Dtype> > blob_bottom_2(new Blob<Dtype>());
-    shared_ptr<Blob<Dtype> > blob_top_2(new Blob<Dtype>());
+    SHARED_PTR<Blob<Dtype> > blob_bottom_2(new Blob<Dtype>());
+    SHARED_PTR<Blob<Dtype> > blob_top_2(new Blob<Dtype>());
     blob_bottom_vec_2.push_back(blob_bottom_2.get());
     blob_top_vec_2.push_back(blob_top_2.get());
     blob_bottom_2->CopyFrom(*this->blob_bottom_, false, true);
@@ -763,7 +763,7 @@ namespace caffe
       EXPECT_EQ(this->blob_top_->cpu_data()[s], blob_top_2->cpu_data()[s]);
     }
     // Check backward
-    shared_ptr<Blob<Dtype> > tmp_blob(new Blob<Dtype>());
+    SHARED_PTR<Blob<Dtype> > tmp_blob(new Blob<Dtype>());
     tmp_blob->ReshapeLike(*blob_top_2.get());
     FillerParameter filler_param;
     GaussianFiller<Dtype> filler(filler_param);
@@ -799,9 +799,9 @@ namespace caffe
     vector<Blob<Dtype>*> blob_bottom_vec_2;
     vector<Blob<Dtype>*> blob_middle_vec_2;
     vector<Blob<Dtype>*> blob_top_vec_2;
-    shared_ptr<Blob<Dtype> > blob_bottom_2(new Blob<Dtype>());
-    shared_ptr<Blob<Dtype> > blob_middle_2(new Blob<Dtype>());
-    shared_ptr<Blob<Dtype> > blob_top_2(new Blob<Dtype>());
+    SHARED_PTR<Blob<Dtype> > blob_bottom_2(new Blob<Dtype>());
+    SHARED_PTR<Blob<Dtype> > blob_middle_2(new Blob<Dtype>());
+    SHARED_PTR<Blob<Dtype> > blob_top_2(new Blob<Dtype>());
     blob_bottom_vec_2.push_back(blob_bottom_2.get());
     blob_middle_vec_2.push_back(blob_middle_2.get());
     blob_top_vec_2.push_back(blob_top_2.get());
@@ -824,7 +824,7 @@ namespace caffe
       EXPECT_EQ(this->blob_top_->cpu_data()[s], blob_top_2->cpu_data()[s]);
     }
     // Fill top diff with random numbers
-    shared_ptr<Blob<Dtype> > tmp_blob(new Blob<Dtype>());
+    SHARED_PTR<Blob<Dtype> > tmp_blob(new Blob<Dtype>());
     tmp_blob->ReshapeLike(*blob_top_2.get());
     FillerParameter filler_param;
     GaussianFiller<Dtype> filler(filler_param);

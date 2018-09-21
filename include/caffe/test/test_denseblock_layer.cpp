@@ -57,7 +57,7 @@ protected:
   Blob<Dtype>* const blob_bottom_2_;
   Blob<Dtype>* const blob_top_;
   Blob<Dtype>* const blob_top_2_;
-  shared_ptr<Blob<Dtype> > ref_blob_top_;
+  SHARED_PTR<Blob<Dtype> > ref_blob_top_;
   vector<Blob<Dtype>*> blob_bottom_vec_;
   vector<Blob<Dtype>*> blob_top_vec_;
 };

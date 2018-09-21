@@ -20,11 +20,37 @@ DEFINE_int32(v, 0, "in vlog_is_on.cc");
 DEFINE_int32(max_log_size, 100, "Sets the maximum log file size (in MB).");
 DEFINE_bool(stop_logging_if_full_disk, true, "Sets whether to avoid logging to the disk if the disk is full.");
 
+namespace wstd
+{
+
+class LogHelp {
+public:
+  
+  LogHelp(const char* options, const char* file, int line) {
+    std::cout << wstd::format("%s(%d)", file, line);
+    std::cout << options << ":";
+  }
+  ~LogHelp() {
+    std::cout << std::endl;
+  }
+  std::ostream& get() {
+    return std::cout;
+  }
+};
+struct LogMessageVoidify {
+  void operator&(std::ostream &) {}
+};
+
+
 
 #define LOGNULL  (void)0
-#define LOG(severity) (std::cout << std::endl)
+#define LOG(severity)  wstd::LogHelp( #severity ,__FILE__,__LINE__ ).get()
 
-#define LOG_IF(severity, condition)   !(condition) ? (void)0 : wstd::LogMessageVoidify() & LOG(severity) << wstd::format("%s(%d)", __FILE__, __LINE__)
+void aaa() {
+  LOG(severity) << "asdf" << std::endl;
+}
+
+#define LOG_IF(severity, condition)   !(condition) ? (void)0 : wstd::LogMessageVoidify() & LOG(severity)
 #define GOOGLE_PREDICT_BRANCH_NOT_TAKEN(x)  (x)
 #define CHECK(condition)        LOG_IF(FATAL, GOOGLE_PREDICT_BRANCH_NOT_TAKEN(!(condition))) << "Check failed: " #condition " "
 #define CHECK_OP(name, op, val1, val2)  CHECK((val1) op (val2))
@@ -59,12 +85,6 @@ DEFINE_bool(stop_logging_if_full_disk, true, "Sets whether to avoid logging to t
 #define DCHECK_GE(val1, val2) DCHECK(false)
 #define DCHECK_GT(val1, val2) DCHECK(false)
 #endif
-
-namespace wstd
-{
-  struct LogMessageVoidify {
-    void operator&(std::ostream &) {}
-  };
 
   enum GLOGTYPE {
     GLOG_INFO = 0, GLOG_WARNING = 1, GLOG_ERROR = 2, GLOG_FATAL = 3,

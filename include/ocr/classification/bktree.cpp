@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include "bktree.h"
 
-static int write_string(BKTree * bktree, char * string, unsigned char len);
-static BKNode * write_new_record(BKTree * bktree, char * string, unsigned char len);
+static int write_string(BKTree * bktree, char * string, int len);
+static BKNode * write_new_record(BKTree * bktree, char * string, int len);
 
 BKTree * bktree_new(int (* distance)(char *, int, char *, int, int)) {
     BKTree * bktree = (BKTree *)malloc(sizeof(BKTree));
@@ -30,8 +30,8 @@ void bktree_destroy(BKTree * bktree) {
     free(bktree);
 }
 
-BKNode * bktree_add(BKTree * bktree, char * string, unsigned char len) {
-    if(len > BKTREE_STRING_MAX || len == 0)
+BKNode * bktree_add(BKTree * bktree, char * string, int len) {
+    if(len > BKTREE_STRING_MAX || len <= 0)
         return NULL;
 
     if(bktree->size == 0) {
@@ -52,7 +52,7 @@ BKNode * bktree_add(BKTree * bktree, char * string, unsigned char len) {
             node = bktree->tree + node->next[d];
         } else {
             BKNode * new_node = write_new_record(bktree, string, len);
-            node->next[d] = new_node - bktree->tree;
+            node->next[d] = (int)(new_node - bktree->tree);
             return new_node;
         }
     }
@@ -70,7 +70,7 @@ BKNode * bktree_add(BKTree * bktree, char * string, unsigned char len) {
 // }
 
 
-void inner_query(BKTree * bktree, BKNode * node, char * string, unsigned char len, int max, std::vector<BKResult>& res) {
+void inner_query(BKTree * bktree, BKNode * node, char * string, int len, int max, std::vector<BKResult>& res) {
 
     int d = bktree->distance(BKTREE_GET_STRING(bktree, node->string_offset), BKTREE_GET_STRING_LEN(bktree, node->string_offset), string, len, -1);
 
@@ -98,7 +98,7 @@ void inner_query(BKTree * bktree, BKNode * node, char * string, unsigned char le
     }
 }
 
-std::vector<BKResult> bktree_query(BKTree * bktree, char * string, unsigned char len, int max) {
+std::vector<BKResult> bktree_query(BKTree * bktree, char * string, int len, int max) {
 	std::vector<BKResult> res;
     inner_query(bktree, bktree->tree, string, len, max, res);
     return res;
@@ -116,7 +116,7 @@ void bktree_node_print(BKTree * bktree, BKNode * node) {
     }
 
     printf("String: %s\n", BKTREE_GET_STRING(bktree, node->string_offset));
-    printf("Offset: %ld\n", node - bktree->tree);
+    printf("Offset: %ld\n", (int)(node - bktree->tree));
     int i;
     for(i = 0; i < BKTREE_STRING_MAX; i++)
         printf("%d ", node->next[i]);
@@ -124,9 +124,9 @@ void bktree_node_print(BKTree * bktree, BKNode * node) {
     printf("\n");
 }
 
-static int write_string(BKTree * bktree, char * string, unsigned char len) {
-    while(bktree->strings_cursor - bktree->strings + len + 2 >= bktree->strings_size) {
-        int cursor_offset = bktree->strings_cursor - bktree->strings;
+static int write_string(BKTree * bktree, char * string, int len) {
+    while(bktree->strings_cursor - bktree->strings + len + 2 >= (int)bktree->strings_size) {
+        int cursor_offset = (int)(bktree->strings_cursor - bktree->strings);
 
         char * old_strings = bktree->strings;
         bktree->strings = (char*)malloc(bktree->strings_size * 2);
@@ -140,7 +140,7 @@ static int write_string(BKTree * bktree, char * string, unsigned char len) {
         bktree->strings_cursor = bktree->strings + cursor_offset;
     }
 
-    int original_offset = bktree->strings_cursor - bktree->strings;
+    int original_offset = (int)(bktree->strings_cursor - bktree->strings);
 
     *(bktree->strings_cursor) = len;
     memcpy(bktree->strings_cursor + 1, string, len);
@@ -150,7 +150,7 @@ static int write_string(BKTree * bktree, char * string, unsigned char len) {
     return original_offset;
 }
 
-static BKNode * write_new_record(BKTree * bktree, char * string, unsigned char len) {
+static BKNode * write_new_record(BKTree * bktree, char * string, int len) {
     BKNode * node = bktree->tree_cursor++;
     node->string_offset = write_string(bktree, string, len);
     

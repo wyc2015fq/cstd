@@ -71,7 +71,7 @@ namespace caffe
   }
 
   template<typename Dtype>
-  Params<Dtype>::Params(shared_ptr<Solver<Dtype> > root_solver)
+  Params<Dtype>::Params(SHARED_PTR<Solver<Dtype> > root_solver)
     : size_(total_size<Dtype>(root_solver->net()->learnable_params())),
       data_(),
       diff_()
@@ -79,7 +79,7 @@ namespace caffe
   }
 
   template<typename Dtype>
-  GPUParams<Dtype>::GPUParams(shared_ptr<Solver<Dtype> > root_solver, int device)
+  GPUParams<Dtype>::GPUParams(SHARED_PTR<Solver<Dtype> > root_solver, int device)
     : Params<Dtype>(root_solver)
   {
 #ifndef CPU_ONLY
@@ -197,7 +197,7 @@ namespace caffe
 //
 
   template<typename Dtype>
-  P2PSync<Dtype>::P2PSync(shared_ptr<Solver<Dtype> > root_solver,
+  P2PSync<Dtype>::P2PSync(SHARED_PTR<Solver<Dtype> > root_solver,
                           P2PSync<Dtype>* parent, const SolverParameter & param)
     : GPUParams<Dtype>(root_solver, param.device_id()),
       parent_(parent),
@@ -369,7 +369,7 @@ namespace caffe
 
   template<typename Dtype>
   void P2PSync<Dtype>::Prepare(const vector<int> & gpus,
-                               vector<shared_ptr<P2PSync<Dtype> > >* syncs)
+                               vector<SHARED_PTR<P2PSync<Dtype> > >* syncs)
   {
     // Pair devices for map-reduce synchronization
     vector<DevicePair> pairs;
@@ -407,7 +407,7 @@ namespace caffe
   template<typename Dtype>
   void P2PSync<Dtype>::Run(const vector<int> & gpus)
   {
-    vector<shared_ptr<P2PSync<Dtype> > > syncs(gpus.size());
+    vector<SHARED_PTR<P2PSync<Dtype> > > syncs(gpus.size());
     Prepare(gpus, &syncs);
     LOG(INFO) << "Starting Optimization";
     for (int i = 1; i < syncs.size(); ++i) {

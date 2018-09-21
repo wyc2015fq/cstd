@@ -29,7 +29,7 @@ namespace caffe
 {
 
   template <typename Dtype>
-  WindowDataLayer<Dtype>::~WindowDataLayer<Dtype>()
+  WindowDataLayer<Dtype>::~WindowDataLayer()
   {
     this->StopInternalThread();
   }

@@ -19,11 +19,7 @@ TODO:
 
 namespace caffe
 {
-
-  template <typename Dtype>
-  HDF5DataLayer<Dtype>::~HDF5DataLayer<Dtype>() { }
-
-// Load data and label from HDF5 filename into the class property blobs.
+  // Load data and label from HDF5 filename into the class property blobs.
   template <typename Dtype>
   void HDF5DataLayer<Dtype>::LoadHDF5FileData(const char* filename)
   {
@@ -37,7 +33,7 @@ namespace caffe
     const int MIN_DATA_DIM = 1;
     const int MAX_DATA_DIM = INT_MAX;
     for (int i = 0; i < top_size; ++i) {
-      hdf_blobs_[i] = shared_ptr<Blob<Dtype> >(new Blob<Dtype>());
+      hdf_blobs_[i] = SHARED_PTR<Blob<Dtype> >(new Blob<Dtype>());
       hdf5_load_nd_dataset(file_id, this->layer_param_.top(i).c_str(),
                            MIN_DATA_DIM, MAX_DATA_DIM, hdf_blobs_[i].get());
     }
@@ -94,7 +90,7 @@ namespace caffe
     file_permutation_.clear();
     file_permutation_.resize(num_files_);
     // Default to identity permutation.
-    for (int i = 0; i < num_files_; i++) {
+    for (size_t i = 0; i < num_files_; i++) {
       file_permutation_[i] = i;
     }
     // Shuffle if needed.

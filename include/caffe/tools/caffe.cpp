@@ -1,9 +1,5 @@
-#ifdef WITH_PYTHON_LAYER
-#include "boost/python.hpp"
-namespace bp = boost::python;
-#endif
-
-#include "caffe/libcaffe.cpp"
+//#ifdef WITH_PYTHON_LAYER
+#include "../libcaffe.cpp"
 #include "wstd/flags.hpp"
 #include "wstd/logging.hpp"
 //#include "caffe/util/logging.hpp"
@@ -23,7 +19,7 @@ using caffe::Caffe;
 using caffe::Net;
 using caffe::Layer;
 using caffe::Solver;
-//using caffe::shared_ptr;
+//using caffe::SHARED_PTR;
 using caffe::string;
 using caffe::Timer;
 using caffe::vector;
@@ -187,6 +183,7 @@ caffe::SolverAction::Enum GetRequestedAction(
     return caffe::SolverAction::NONE;
   }
   LOG(FATAL) << "Invalid signal effect \"" << flag_value << "\" was specified";
+  return caffe::SolverAction::NONE;
 }
 
 // Train / Finetune a model.
@@ -246,7 +243,7 @@ int train()
   caffe::SignalHandler signal_handler(
     GetRequestedAction(FLAGS_sigint_effect),
     GetRequestedAction(FLAGS_sighup_effect));
-  shared_ptr<caffe::Solver<float> >
+  SHARED_PTR<caffe::Solver<float> >
   solver(caffe::SolverRegistry<float>::CreateSolver(solver_param));
   solver->SetActionFunction(signal_handler.GetActionFunction());
   if (FLAGS_snapshot.size()) {
@@ -368,11 +365,10 @@ int time()
   LOG(INFO) << "Initial loss: " << initial_loss;
   LOG(INFO) << "Performing Backward";
   caffe_net.Backward();
-  const vector<shared_ptr<Layer<float> > > & layers = caffe_net.layers();
+  const vector<SHARED_PTR<Layer<float> > > & layers = caffe_net.layers();
   const vector<vector<Blob<float>*> > & bottom_vecs = caffe_net.bottom_vecs();
   const vector<vector<Blob<float>*> > & top_vecs = caffe_net.top_vecs();
-  const vector<vector<bool> > & bottom_need_backward =
-    caffe_net.bottom_need_backward();
+  const vector<vector<bool> > & bottom_need_backward = caffe_net.bottom_need_backward();
   LOG(INFO) << "*** Benchmark begins ***";
   LOG(INFO) << "Testing for " << FLAGS_iterations << " iterations.";
   Timer total_timer;

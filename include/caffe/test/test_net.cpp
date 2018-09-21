@@ -44,9 +44,9 @@ namespace caffe
     }
 
     virtual void CopyNetBlobs(const bool copy_diff,
-                              vector<shared_ptr<Blob<Dtype> > >* blobs_copy) {
+                              vector<SHARED_PTR<Blob<Dtype> > >* blobs_copy) {
       CHECK(net_);
-      const vector<shared_ptr<Blob<Dtype> > > & net_blobs = net_->blobs();
+      const vector<SHARED_PTR<Blob<Dtype> > > & net_blobs = net_->blobs();
       blobs_copy->clear();
       blobs_copy->resize(net_blobs.size());
       const bool kReshape = true;
@@ -57,9 +57,9 @@ namespace caffe
     }
 
     virtual void CopyNetParams(const bool copy_diff,
-                               vector<shared_ptr<Blob<Dtype> > >* params_copy) {
+                               vector<SHARED_PTR<Blob<Dtype> > >* params_copy) {
       CHECK(net_);
-      const vector<shared_ptr<Blob<Dtype> > > & net_params = net_->params();
+      const vector<SHARED_PTR<Blob<Dtype> > > & net_params = net_->params();
       params_copy->clear();
       params_copy->resize(net_params.size());
       const bool kReshape = true;
@@ -842,7 +842,7 @@ namespace caffe
     }
 
     int seed_;
-    shared_ptr<Net<Dtype> > net_;
+    SHARED_PTR<Net<Dtype> > net_;
   };
 
   TYPED_TEST_CASE(NetTest, TestDtypesAndDevices);
@@ -960,9 +960,9 @@ namespace caffe
     this->InitUnsharedWeightsNet(NULL, NULL, kForceBackward);
     const Dtype loss = this->net_->ForwardBackward();
     const bool kCopyDiff = true;
-    vector<shared_ptr<Blob<Dtype> > > blob_grads;
+    vector<SHARED_PTR<Blob<Dtype> > > blob_grads;
     this->CopyNetBlobs(kCopyDiff, &blob_grads);
-    vector<shared_ptr<Blob<Dtype> > > param_grads;
+    vector<SHARED_PTR<Blob<Dtype> > > param_grads;
     this->CopyNetParams(kCopyDiff, &param_grads);
     // Check that the loss is non-trivial, otherwise the test doesn't prove much.
     const Dtype kMinLossAbsValue = 1e-2;
@@ -977,7 +977,7 @@ namespace caffe
       const Dtype error_margin = kErrorMargin * fabs(kLossWeights[i]);
       EXPECT_NEAR(loss * kLossWeights[i], weighted_loss, error_margin)
           << "loss weight = " << kLossWeights[i];
-      const vector<shared_ptr<Blob<Dtype> > > & weighted_blobs =
+      const vector<SHARED_PTR<Blob<Dtype> > > & weighted_blobs =
         this->net_->blobs();
       ASSERT_EQ(blob_grads.size(), weighted_blobs.size());
       for (int j = 0; j < blob_grads.size(); ++j) {
@@ -987,7 +987,7 @@ namespace caffe
                       weighted_blobs[j]->cpu_diff()[k], error_margin);
         }
       }
-      const vector<shared_ptr<Blob<Dtype> > > & weighted_params =
+      const vector<SHARED_PTR<Blob<Dtype> > > & weighted_params =
         this->net_->params();
       ASSERT_EQ(param_grads.size(), weighted_params.size());
       for (int j = 0; j < param_grads.size(); ++j) {
@@ -1028,7 +1028,7 @@ namespace caffe
       const Dtype error_margin = kErrorMargin * fabs(kLossWeights[i]);
       EXPECT_NEAR(loss * kLossWeights[i], weighted_loss, error_margin)
           << "loss weight = " << kLossWeights[i];
-      const shared_ptr<Blob<Dtype> > & weighted_blob =
+      const SHARED_PTR<Blob<Dtype> > & weighted_blob =
         this->net_->blob_by_name("data");
       ASSERT_EQ(data_grad.count(), weighted_blob->count());
       for (int j = 0; j < data_grad.count(); ++j) {
@@ -1054,9 +1054,9 @@ namespace caffe
                                  kForceBackward);
     const Dtype loss = this->net_->ForwardBackward();
     const bool kCopyDiff = true;
-    vector<shared_ptr<Blob<Dtype> > > blob_grads;
+    vector<SHARED_PTR<Blob<Dtype> > > blob_grads;
     this->CopyNetBlobs(kCopyDiff, &blob_grads);
-    vector<shared_ptr<Blob<Dtype> > > param_grads;
+    vector<SHARED_PTR<Blob<Dtype> > > param_grads;
     this->CopyNetParams(kCopyDiff, &param_grads);
     loss_weight = 2;
     midnet_loss_weight = 1;
@@ -1064,9 +1064,9 @@ namespace caffe
     this->InitUnsharedWeightsNet(&loss_weight, &midnet_loss_weight,
                                  kForceBackward);
     const Dtype loss_main_2 = this->net_->ForwardBackward();
-    vector<shared_ptr<Blob<Dtype> > > blob_grads_loss_2;
+    vector<SHARED_PTR<Blob<Dtype> > > blob_grads_loss_2;
     this->CopyNetBlobs(kCopyDiff, &blob_grads_loss_2);
-    vector<shared_ptr<Blob<Dtype> > > param_grads_loss_2;
+    vector<SHARED_PTR<Blob<Dtype> > > param_grads_loss_2;
     this->CopyNetParams(kCopyDiff, &param_grads_loss_2);
     loss_weight = 3;
     midnet_loss_weight = 1;
@@ -1074,7 +1074,7 @@ namespace caffe
     this->InitUnsharedWeightsNet(&loss_weight, &midnet_loss_weight,
                                  kForceBackward);
     const Dtype loss_main_3 = this->net_->ForwardBackward();
-    const vector<shared_ptr<Blob<Dtype> > > & blob_grads_loss_3 =
+    const vector<SHARED_PTR<Blob<Dtype> > > & blob_grads_loss_3 =
       this->net_->blobs();
     ASSERT_EQ(blob_grads.size(), blob_grads_loss_3.size());
     ASSERT_EQ(blob_grads_loss_2.size(), blob_grads_loss_3.size());
@@ -1116,7 +1116,7 @@ namespace caffe
     this->InitUnsharedWeightsNet(&loss_weight, &midnet_loss_weight,
                                  kForceBackward);
     const Dtype loss_midnet_3 = this->net_->ForwardBackward();
-    const vector<shared_ptr<Blob<Dtype> > > & blob_grads_midnet_loss_3 =
+    const vector<SHARED_PTR<Blob<Dtype> > > & blob_grads_midnet_loss_3 =
       this->net_->blobs();
     ASSERT_EQ(blob_grads.size(), blob_grads_midnet_loss_3.size());
     ASSERT_EQ(blob_grads_loss_2.size(), blob_grads_midnet_loss_3.size());
@@ -1363,7 +1363,7 @@ namespace caffe
                                  kBiasTerm, blobs_lr_w1, blobs_lr_w2, blobs_lr_b1, blobs_lr_b2);
     this->net_->Forward();
     this->net_->Backward();
-    const vector<shared_ptr<Blob<Dtype> > > & params = this->net_->params();
+    const vector<SHARED_PTR<Blob<Dtype> > > & params = this->net_->params();
     const int num_params = params.size();
     ASSERT_EQ(4, num_params);
     const Dtype kNonZeroTestMin = 1e-3;
@@ -1382,7 +1382,7 @@ namespace caffe
                                  kBiasTerm, blobs_lr_w1, blobs_lr_w2, blobs_lr_b1, blobs_lr_b2);
     this->net_->Forward();
     this->net_->Backward();
-    const vector<shared_ptr<Blob<Dtype> > > & params2 = this->net_->params();
+    const vector<SHARED_PTR<Blob<Dtype> > > & params2 = this->net_->params();
     ASSERT_EQ(num_params, params2.size());
     for (int i = 0; i < num_params; ++i) {
       const Dtype param_asum =
@@ -1397,7 +1397,7 @@ namespace caffe
                                  kBiasTerm, blobs_lr_w1, blobs_lr_w2, blobs_lr_b1, blobs_lr_b2);
     this->net_->Forward();
     this->net_->Backward();
-    const vector<shared_ptr<Blob<Dtype> > > & params3 = this->net_->params();
+    const vector<SHARED_PTR<Blob<Dtype> > > & params3 = this->net_->params();
     ASSERT_EQ(num_params, params3.size());
     for (int i = 0; i < num_params; ++i) {
       const Dtype param_asum =
@@ -1415,7 +1415,7 @@ namespace caffe
                                  kBiasTerm, blobs_lr_w1, blobs_lr_w2, blobs_lr_b1, blobs_lr_b2);
     this->net_->Forward();
     this->net_->Backward();
-    const vector<shared_ptr<Blob<Dtype> > > & params4 = this->net_->params();
+    const vector<SHARED_PTR<Blob<Dtype> > > & params4 = this->net_->params();
     ASSERT_EQ(num_params, params4.size());
     for (int i = 0; i < num_params; ++i) {
       const Dtype param_asum =
@@ -2416,7 +2416,7 @@ namespace caffe
     filler.Fill(&blob1);
     filler.Fill(&blob2);
     this->InitReshapableNet();
-    shared_ptr<Blob<Dtype> > input_blob = this->net_->blob_by_name("data");
+    SHARED_PTR<Blob<Dtype> > input_blob = this->net_->blob_by_name("data");
     Blob<Dtype>* output_blob = this->net_->output_blobs()[0];
     input_blob->Reshape(blob1.num(), blob1.channels(), blob1.height(),
                         blob1.width());

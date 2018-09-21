@@ -208,12 +208,12 @@ namespace caffe
       return cpu_diff()[offset(index)];
     }
 
-    inline const shared_ptr<SyncedMemory> & data() const {
+    inline const SHARED_PTR<SyncedMemory> & data() const {
       CHECK(data_);
       return data_;
     }
 
-    inline const shared_ptr<SyncedMemory> & diff() const {
+    inline const SHARED_PTR<SyncedMemory> & diff() const {
       CHECK(diff_);
       return diff_;
     }
@@ -248,30 +248,30 @@ namespace caffe
     void scale_diff(Dtype scale_factor);
 
     /**
-     * @brief Set the data_ shared_ptr to point to the SyncedMemory holding the
+     * @brief Set the data_ SHARED_PTR to point to the SyncedMemory holding the
      *        data_ of Blob other -- useful in Layer%s which simply perform a copy
      *        in their Forward pass.
      *
      * This deallocates the SyncedMemory holding this Blob's data_, as
-     * shared_ptr calls its destructor when reset with the "=" operator.
+     * SHARED_PTR calls its destructor when reset with the "=" operator.
      */
     void ShareData(const Blob & other);
     /**
-     * @brief Set the diff_ shared_ptr to point to the SyncedMemory holding the
+     * @brief Set the diff_ SHARED_PTR to point to the SyncedMemory holding the
      *        diff_ of Blob other -- useful in Layer%s which simply perform a copy
      *        in their Forward pass.
      *
      * This deallocates the SyncedMemory holding this Blob's diff_, as
-     * shared_ptr calls its destructor when reset with the "=" operator.
+     * SHARED_PTR calls its destructor when reset with the "=" operator.
      */
     void ShareDiff(const Blob & other);
 
     bool ShapeEquals(const BlobProto & other);
 
   protected:
-    shared_ptr<SyncedMemory> data_;
-    shared_ptr<SyncedMemory> diff_;
-    shared_ptr<SyncedMemory> shape_data_;
+    SHARED_PTR<SyncedMemory> data_;
+    SHARED_PTR<SyncedMemory> diff_;
+    SHARED_PTR<SyncedMemory> shape_data_;
     vector<int> shape_;
     int count_;
     int capacity_;

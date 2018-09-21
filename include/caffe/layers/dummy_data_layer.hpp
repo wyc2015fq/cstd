@@ -42,7 +42,7 @@ namespace caffe
     virtual void Backward_gpu(const vector<Blob<Dtype>*> & top,
                               const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom) {}
 
-    vector<shared_ptr<Filler<Dtype> > > fillers_;
+    vector<SHARED_PTR<Filler<Dtype> > > fillers_;
     vector<bool> refill_;
   };
 

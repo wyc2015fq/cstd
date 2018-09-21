@@ -95,7 +95,7 @@ namespace caffe
     vector<int> label_lengths_;
     vector<int> input_lengths_;
 
-    shared_ptr<SyncedMemory> workspace_;
+    SHARED_PTR<SyncedMemory> workspace_;
 
   };
 

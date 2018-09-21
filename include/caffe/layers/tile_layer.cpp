@@ -28,8 +28,8 @@ namespace caffe
   {
     const Dtype* bottom_data = bottom[0]->cpu_data();
     Dtype* top_data = top[0]->mutable_cpu_data();
-    for (int i = 0; i < outer_dim_; ++i) {
-      for (int t = 0; t < tiles_; ++t) {
+    for (size_t i = 0; i < outer_dim_; ++i) {
+      for (size_t t = 0; t < tiles_; ++t) {
         caffe_copy(inner_dim_, bottom_data, top_data);
         top_data += inner_dim_;
       }
@@ -44,10 +44,10 @@ namespace caffe
     if (!propagate_down[0]) { return; }
     const Dtype* top_diff = top[0]->cpu_diff();
     Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
-    for (int i = 0; i < outer_dim_; ++i) {
+    for (size_t i = 0; i < outer_dim_; ++i) {
       caffe_copy(inner_dim_, top_diff, bottom_diff);
       top_diff += inner_dim_;
-      for (int t = 1; t < tiles_; ++t) {
+      for (size_t t = 1; t < tiles_; ++t) {
         caffe_axpy(inner_dim_, Dtype(1), top_diff, bottom_diff);
         top_diff += inner_dim_;
       }

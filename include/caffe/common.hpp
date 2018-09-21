@@ -65,9 +65,9 @@ namespace cv { class Mat; }
 namespace caffe
 {
 
-// We will use the boost shared_ptr instead of the new C++11 one mainly
+// We will use the boost SHARED_PTR instead of the new C++11 one mainly
 // because cuda does not work (at least now) well with C++11 features.
-  //using std::shared_ptr;
+  //using std::SHARED_PTR;
 
 // Common functions and classes from std that caffe often uses.
   using std::fstream;
@@ -143,7 +143,7 @@ namespace caffe
     cublasHandle_t cublas_handle_;
     curandGenerator_t curand_generator_;
 #endif
-    //shared_ptr<RNG> random_generator_;
+    //SHARED_PTR<RNG> random_generator_;
 
     Brew mode_;
 

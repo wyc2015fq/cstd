@@ -37,7 +37,7 @@ namespace caffe
     class sync;
 
     std::queue<T> queue_;
-    shared_ptr<sync> sync_;
+    SHARED_PTR<sync> sync_;
 
     DISABLE_COPY_AND_ASSIGN(BlockingQueue);
   };

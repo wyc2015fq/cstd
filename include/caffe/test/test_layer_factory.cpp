@@ -25,7 +25,7 @@ namespace caffe
     typedef typename TypeParam::Dtype Dtype;
     typename LayerRegistry<Dtype>::CreatorRegistry & registry =
       LayerRegistry<Dtype>::Registry();
-    shared_ptr<Layer<Dtype> > layer;
+    SHARED_PTR<Layer<Dtype> > layer;
     for (typename LayerRegistry<Dtype>::CreatorRegistry::iterator iter =
            registry.begin(); iter != registry.end(); ++iter) {
       // Special case: PythonLayer is checked by pytest

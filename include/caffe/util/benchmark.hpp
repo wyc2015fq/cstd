@@ -32,8 +32,8 @@ namespace caffe
     cudaEvent_t start_gpu_;
     cudaEvent_t stop_gpu_;
 #endif
-    wstd::posix_time::ptime start_cpu_;
-    wstd::posix_time::ptime stop_cpu_;
+    wstd::ptime start_cpu_;
+    wstd::ptime stop_cpu_;
     float elapsed_milliseconds_;
     float elapsed_microseconds_;
   };

@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "caffe/solver.hpp"
-#include "caffe/util/format.hpp"
+#include "wstd/string.hpp"
 #include "caffe/util/hdf5.hpp"
 #include "caffe/util/io.hpp"
 #include "caffe/util/upgrade_proto.hpp"
@@ -348,7 +348,7 @@ namespace caffe
     ShareTrainedLayersWith(net_.get());
     vector<Dtype> test_score;
     vector<int> test_score_output_id;
-    const shared_ptr<Net<Dtype> > & test_net = test_nets_[test_net_id];
+    const SHARED_PTR<Net<Dtype> > & test_net = test_nets_[test_net_id];
     Dtype loss = 0;
     for (int i = 0; i < param_.test_iter(test_net_id); ++i) {
       SolverAction::Enum request = GetRequestedAction();
@@ -453,7 +453,7 @@ namespace caffe
   template <typename Dtype>
   string Solver<Dtype>::SnapshotFilename(const string extension)
   {
-    return param_.snapshot_prefix() + "_iter_" + caffe::format_int(iter_)
+    return param_.snapshot_prefix() + "_iter_" + wstd::format_int(iter_)
            + extension;
   }
 

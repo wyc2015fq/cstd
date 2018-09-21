@@ -47,7 +47,7 @@ namespace caffe
     void entry(int device, Caffe::Brew mode, int rand_seed,
                int solver_count, int solver_rank, bool multiprocess);
 
-    shared_ptr<std::thread> thread_;
+    SHARED_PTR<std::thread> thread_;
   };
 
 }  // namespace caffe

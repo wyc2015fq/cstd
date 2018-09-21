@@ -74,7 +74,7 @@ namespace caffe
     md_param->set_channels(this->channels_);
     md_param->set_height(this->height_);
     md_param->set_width(this->width_);
-    shared_ptr<Layer<Dtype> > layer(
+    SHARED_PTR<Layer<Dtype> > layer(
       new MemoryDataLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     EXPECT_EQ(this->data_blob_->num(), this->batch_size_);
@@ -97,7 +97,7 @@ namespace caffe
     md_param->set_channels(this->channels_);
     md_param->set_height(this->height_);
     md_param->set_width(this->width_);
-    shared_ptr<MemoryDataLayer<Dtype> > layer(
+    SHARED_PTR<MemoryDataLayer<Dtype> > layer(
       new MemoryDataLayer<Dtype>(layer_param));
     layer->DataLayerSetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer->Reset(this->data_->mutable_cpu_data(),

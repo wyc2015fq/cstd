@@ -8,6 +8,7 @@
 #define stricmp _stricmp
 #endif
 
+#include <string.h>
 
 #ifdef _WIN32
 #define strncasecmp _strnicmp

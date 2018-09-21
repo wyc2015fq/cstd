@@ -71,8 +71,8 @@ namespace caffe
     void Snapshot();
     virtual ~Solver() {}
     inline const SolverParameter & param() const { return param_; }
-    inline shared_ptr<Net<Dtype> > net() { return net_; }
-    inline const vector<shared_ptr<Net<Dtype> > > & test_nets() {
+    inline SHARED_PTR<Net<Dtype> > net() { return net_; }
+    inline const vector<SHARED_PTR<Net<Dtype> > > & test_nets() {
       return test_nets_;
     }
     int iter() { return iter_; }
@@ -116,8 +116,8 @@ namespace caffe
     SolverParameter param_;
     int iter_;
     int current_step_;
-    shared_ptr<Net<Dtype> > net_;
-    vector<shared_ptr<Net<Dtype> > > test_nets_;
+    SHARED_PTR<Net<Dtype> > net_;
+    vector<SHARED_PTR<Net<Dtype> > > test_nets_;
     vector<Callback*> callbacks_;
     vector<Dtype> losses_;
     Dtype smoothed_loss_;

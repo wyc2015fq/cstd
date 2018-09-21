@@ -19,7 +19,7 @@ namespace caffe
 {
 
   template <typename Dtype>
-  ImageDataLayer<Dtype>::~ImageDataLayer<Dtype>()
+  ImageDataLayer<Dtype>::~ImageDataLayer()
   {
     this->StopInternalThread();
   }
@@ -75,7 +75,7 @@ namespace caffe
     LOG(INFO) << "Opening file " << source;
     std::ifstream infile(source.c_str());
     string line;
-    size_t pos;
+    //size_t pos;
     std::string filename;
     if (!is_regression) {
       int label;

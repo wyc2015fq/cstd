@@ -42,7 +42,7 @@ namespace caffe
       reduction_param->set_operation(op);
       if (coeff != 1.0) { reduction_param->set_coeff(coeff); }
       if (axis != 0) { reduction_param->set_axis(axis); }
-      shared_ptr<ReductionLayer<Dtype> > layer(
+      SHARED_PTR<ReductionLayer<Dtype> > layer(
         new ReductionLayer<Dtype>(layer_param));
       layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
       layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -105,7 +105,7 @@ namespace caffe
   {
     typedef typename TypeParam::Dtype Dtype;
     LayerParameter layer_param;
-    shared_ptr<ReductionLayer<Dtype> > layer(
+    SHARED_PTR<ReductionLayer<Dtype> > layer(
       new ReductionLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_top_->num_axes(), 0);
@@ -116,7 +116,7 @@ namespace caffe
     typedef typename TypeParam::Dtype Dtype;
     LayerParameter layer_param;
     layer_param.mutable_reduction_param()->set_axis(1);
-    shared_ptr<ReductionLayer<Dtype> > layer(
+    SHARED_PTR<ReductionLayer<Dtype> > layer(
       new ReductionLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_top_->num_axes(), 1);
@@ -128,7 +128,7 @@ namespace caffe
     typedef typename TypeParam::Dtype Dtype;
     LayerParameter layer_param;
     layer_param.mutable_reduction_param()->set_axis(2);
-    shared_ptr<ReductionLayer<Dtype> > layer(
+    SHARED_PTR<ReductionLayer<Dtype> > layer(
       new ReductionLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_top_->num_axes(), 2);

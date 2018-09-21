@@ -11,10 +11,7 @@
 
 namespace caffe
 {
-
-  using std::weak_ptr;
-
-  map<const string, weak_ptr<DataReader::Body> > DataReader::bodies_;
+  map<const string, WEAK_PTR<DataReader::Body> > DataReader::bodies_;
   static std::mutex bodies_mutex_;
 
   DataReader::DataReader(const LayerParameter & param)
@@ -24,11 +21,11 @@ namespace caffe
     // Get or create a body
     std::lock_guard<std::mutex> lock(bodies_mutex_);
     string key = source_key(param);
-    weak_ptr<Body> & weak = bodies_[key];
+    WEAK_PTR<Body> & weak = bodies_[key];
     body_ = weak.lock();
     if (!body_) {
       body_.reset(new Body(param));
-      bodies_[key] = weak_ptr<Body>(body_);
+      bodies_[key] = WEAK_PTR<Body>(body_);
     }
     body_->new_queue_pairs_.push(queue_pair_);
   }
@@ -80,17 +77,17 @@ namespace caffe
 
   void DataReader::Body::InternalThreadEntry()
   {
-    shared_ptr<db::DB> db(db::GetDB(param_.data_param().backend()));
+    SHARED_PTR<db::DB> db(db::GetDB(param_.data_param().backend()));
     db->Open(param_.data_param().source(), db::READ);
-    shared_ptr<db::Cursor> cursor(db->NewCursor());
-    vector<shared_ptr<QueuePair> > qps;
+    SHARED_PTR<db::Cursor> cursor(db->NewCursor());
+    vector<SHARED_PTR<QueuePair> > qps;
     try {
       int solver_count = param_.phase() == TRAIN ? Caffe::solver_count() : 1;
       // To ensure deterministic runs, only start running once all solvers
       // are ready. But solvers need to peek on one item during initialization,
       // so read one item, then wait for the next solver.
       for (int i = 0; i < solver_count; ++i) {
-        shared_ptr<QueuePair> qp(new_queue_pairs_.pop());
+        SHARED_PTR<QueuePair> qp(new_queue_pairs_.pop());
         read_one(cursor.get(), qp.get());
         qps.push_back(qp);
       }

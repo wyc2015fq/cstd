@@ -43,7 +43,7 @@ namespace caffe
 
   protected:
     TransformationParameter transform_param_;
-    shared_ptr<DataTransformer<Dtype> > data_transformer_;
+    SHARED_PTR<DataTransformer<Dtype> > data_transformer_;
     bool output_labels_;
   };
 
@@ -75,7 +75,7 @@ namespace caffe
     virtual void InternalThreadEntry();
     virtual void load_batch(Batch<Dtype>* batch) = 0;
 
-    vector<shared_ptr<Batch<Dtype> > > prefetch_;
+    vector<SHARED_PTR<Batch<Dtype> > > prefetch_;
     BlockingQueue<Batch<Dtype>*> prefetch_free_;
     BlockingQueue<Batch<Dtype>*> prefetch_full_;
     Batch<Dtype>* prefetch_current_;

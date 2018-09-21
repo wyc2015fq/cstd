@@ -58,7 +58,7 @@ void SoftmaxWithLossMultiLabelLayer<Dtype>::Forward_gpu(
     caffe_gpu_asum(nthreads, counts, &valid_count);
   }
   top[0]->mutable_cpu_data()[0] = loss / get_normalizer(normalization_,
-                                                        valid_count);
+    (int)valid_count);
   if (top.size() == 2) {
     top[1]->ShareData(prob_);
   }
@@ -127,7 +127,7 @@ void SoftmaxWithLossMultiLabelLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype
       caffe_gpu_asum(nthreads, counts, &valid_count);
     }
     const Dtype loss_weight = top[0]->cpu_diff()[0] /
-                              get_normalizer(normalization_, valid_count);
+                              get_normalizer(normalization_, (int)valid_count);
     caffe_gpu_scal(prob_.count(), loss_weight , bottom_diff);
   }
 }

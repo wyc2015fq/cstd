@@ -67,7 +67,7 @@ namespace caffe
     virtual void Backward_gpu(const vector<Blob<Dtype>*> & top,
                               const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
 
-    shared_ptr<Layer<Dtype> > bias_layer_;
+    SHARED_PTR<Layer<Dtype> > bias_layer_;
     vector<Blob<Dtype>*> bias_bottom_vec_;
     vector<bool> bias_propagate_down_;
     int bias_param_id_;

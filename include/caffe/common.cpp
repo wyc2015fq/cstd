@@ -122,7 +122,7 @@ namespace caffe
 #else  // Normal GPU + CPU Caffe.
 
   Caffe::Caffe()
-    : cublas_handle_(NULL), curand_generator_(NULL), random_generator_(),
+    : cublas_handle_(NULL), curand_generator_(NULL),
       mode_(Caffe::CPU),
       solver_count_(1), solver_rank_(0), multiprocess_(false)
   {
@@ -164,7 +164,7 @@ namespace caffe
       }
     }
     // RNG seed
-    Get().random_generator_.reset(new RNG(seed));
+    caffe_rng()->seed(seed);
   }
 
   void Caffe::SetDevice(const int device_id)

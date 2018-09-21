@@ -5,13 +5,21 @@ from lxml import etree
 # http://vdisk.weibo.com/s/dorkVHqEL8IHs
 
 def getdata(url):
-    file = urllib.request.urlopen(url)
-    data = file.read().decode('utf8')
+    try:
+        file = urllib.request.urlopen(url)
+        data = file.read().decode('utf8')
+    except:
+        data = "<html></html>"
+        pass
     return data
 
 def gethtml(url):
     html = ""
-    html = etree.HTML(getdata(url))
+    data = getdata(url)
+    if len(data)<20:
+        data = getdata(url)
+
+    html = etree.HTML(data)
     return html
 
 # //*[@id="share_table"]/tbody/tr[1]/td[1]/div/div[2]/div/a

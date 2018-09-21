@@ -40,7 +40,7 @@ namespace caffe
         filler_param.set_type("constant");
         filler_param.set_value(1);
       }
-      shared_ptr<Filler<Dtype> > filler(GetFiller<Dtype>(filler_param));
+      SHARED_PTR<Filler<Dtype> > filler(GetFiller<Dtype>(filler_param));
       filler->Fill(this->blobs_[0].get());
     }
     if (param.bias_term()) {

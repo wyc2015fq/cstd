@@ -27,7 +27,7 @@ namespace caffe
       } else {
         this->blobs_[0].reset(new Blob<Dtype>(vector<int>(1, channels)));
       }
-      shared_ptr<Filler<Dtype> > filler;
+      SHARED_PTR<Filler<Dtype> > filler;
       if (prelu_param.has_filler()) {
         filler.reset(GetFiller<Dtype>(prelu_param.filler()));
       } else {

@@ -29,7 +29,7 @@ namespace caffe
       LOG(INFO) << "Skipping parameter initialization";
     } else {
       this->blobs_.resize(3);
-      shared_ptr<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
+      SHARED_PTR<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
             this->layer_param_.lstm_param().weight_filler()));
       // input-to-hidden weights
       // Intialize the weight
@@ -48,7 +48,7 @@ namespace caffe
       // If necessary, intiialize and fill the bias term
       vector<int> bias_shape(1, 4 * H_);
       this->blobs_[2].reset(new Blob<Dtype>(bias_shape));
-      shared_ptr<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
+      SHARED_PTR<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
           this->layer_param_.lstm_param().bias_filler()));
       bias_filler->Fill(this->blobs_[2].get());
     }  // parameter initialization
@@ -166,7 +166,7 @@ namespace caffe
       caffe_cpu_gemm(CblasNoTrans, CblasTrans, N_, 4 * H_, H_, Dtype(1.),
                      h_t_1, weight_h, Dtype(0.), h_to_gate);
       for (int n = 0; n < N_; ++n) {
-        const bool cont = clip_t ? clip_t[n] : t > 0;
+        const bool cont = clip_t ? (clip_t[n]!=0) : t > 0;
         if (cont) {
           caffe_add(4 * H_, pre_gate_t, h_to_gate, pre_gate_t);
         }
@@ -226,7 +226,7 @@ namespace caffe
       const Dtype* c_t_1 = t > 0 ? cell_data + cell_.offset(t - 1) : c_0_.cpu_data();
       const Dtype* gate_t = gate_data + gate_.offset(t);
       for (int n = 0; n < N_; ++n) {
-        const bool cont = clip_t ? clip_t[n] : t > 0;
+        const bool cont = clip_t ? (clip_t[n] != 0) : t > 0;
         for (int d = 0; d < H_; ++d) {
           const Dtype tanh_c = tanh(c_t[d]);
           gate_diff_t[2 * H_ + d] = dh_t[d] * tanh_c;
@@ -262,7 +262,7 @@ namespace caffe
                      Dtype(1.), pre_gate_diff + pre_gate_.offset(t),
                      weight_h, Dtype(0.), h_to_h_.mutable_cpu_data());
       for (int n = 0; n < N_; ++n) {
-        const bool cont = clip_t ? clip_t[n] : t > 0;
+        const bool cont = clip_t ? clip_t[n] != 0 : t > 0;
         const Dtype* h_to_h = h_to_h_.cpu_data() + h_to_h_.offset(n);
         if (cont) {
           caffe_add(H_, dh_t_1, h_to_h, dh_t_1);

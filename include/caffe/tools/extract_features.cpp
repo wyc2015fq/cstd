@@ -93,7 +93,7 @@ int feature_extraction_pipeline(int argc, char** argv)
    }
    */
   std::string feature_extraction_proto(argv[++arg_pos]);
-  shared_ptr<Net<Dtype> > feature_extraction_net(
+  SHARED_PTR<Net<Dtype> > feature_extraction_net(
     new Net<Dtype>(feature_extraction_proto, caffe::TEST));
   feature_extraction_net->CopyTrainedLayersFrom(pretrained_binary_proto);
   std::string extract_feature_blob_names(argv[++arg_pos]);
@@ -112,15 +112,15 @@ int feature_extraction_pipeline(int argc, char** argv)
         << " in the network " << feature_extraction_proto;
   }
   int num_mini_batches = atoi(argv[++arg_pos]);
-  std::vector<shared_ptr<db::DB> > feature_dbs;
-  std::vector<shared_ptr<db::Transaction> > txns;
+  std::vector<SHARED_PTR<db::DB> > feature_dbs;
+  std::vector<SHARED_PTR<db::Transaction> > txns;
   const char* db_type = argv[++arg_pos];
   for (size_t i = 0; i < num_features; ++i) {
     LOG(INFO) << "Opening dataset " << dataset_names[i];
-    shared_ptr<db::DB> db(db::GetDB(db_type));
+    SHARED_PTR<db::DB> db(db::GetDB(db_type));
     db->Open(dataset_names.at(i), db::NEW);
     feature_dbs.push_back(db);
-    shared_ptr<db::Transaction> txn(db->NewTransaction());
+    SHARED_PTR<db::Transaction> txn(db->NewTransaction());
     txns.push_back(txn);
   }
   LOG(ERROR) << "Extracting Features";
@@ -129,7 +129,7 @@ int feature_extraction_pipeline(int argc, char** argv)
   for (int batch_index = 0; batch_index < num_mini_batches; ++batch_index) {
     feature_extraction_net->Forward();
     for (int i = 0; i < num_features; ++i) {
-      const shared_ptr<Blob<Dtype> > feature_blob =
+      const SHARED_PTR<Blob<Dtype> > feature_blob =
         feature_extraction_net->blob_by_name(blob_names[i]);
       int batch_size = feature_blob->num();
       int dim_features = feature_blob->count() / batch_size;

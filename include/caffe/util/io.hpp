@@ -10,7 +10,7 @@
 
 #include "caffe/common.hpp"
 #include "caffe/proto/caffe.pb.h"
-#include "caffe/util/format.hpp"
+#include "wstd/string.hpp"
 
 #ifndef CAFFE_TMP_DIR_RETRIES
 #define CAFFE_TMP_DIR_RETRIES 100
@@ -50,8 +50,7 @@ namespace caffe
       MakeTempDir(&path_string);
       temp_files_subpath = path_string;
     }
-    *temp_filename =
-      (temp_files_subpath / caffe::format_int(next_temp_file++, 9)).string();
+    *temp_filename = (temp_files_subpath / wstd::format("%09u", next_temp_file++)).string();
   }
 
   bool ReadProtoFromTextFile(const char* filename, Message* proto);

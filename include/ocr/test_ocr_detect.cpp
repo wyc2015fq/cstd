@@ -86,7 +86,7 @@ int posDetect0(const Mat &inRGB, const Mat &in, Rect& out) {
   if (rects.size() > 1) {
     std::sort(rects.begin(), rects.end(), rect_area_greater);
     out = rects[0];
-    int n = MIN(2, rects.size());
+    int n = (int)MIN(2, rects.size());
     for (int i = 1; i < n; ++i) {
       out = UnionRect(out, rects[i]);
     }
@@ -286,7 +286,7 @@ int seg_split(int npos, const int* pos, int minthd, int maxthd, std::vector<Rang
     }
   }
   int k = 0;
-  short counter = x_char.size();
+  int counter = (int)x_char.size();
   while ((k = find_minwidth(counter, x_char.data(), minthd, maxthd))>0) {
     x_char[k - 1].end = x_char[k].end;
     for (int i = k + 1; i < counter; ++i) {
@@ -319,7 +319,7 @@ int char_segment(const Mat &inputImg, vector<Rect> &dst_rect)
   int minthd = img_threshold.rows / 2;
   int maxthd = int(img_threshold.rows * 0.9);
 
-  int npos = pos.size();
+  int npos = (int)pos.size();
   pos[0] = pos[npos - 1] = 0;
 
   int counter = seg_split(npos, pos.data(), minthd, maxthd, x_char);
@@ -336,7 +336,7 @@ int char_segment(const Mat &inputImg, vector<Rect> &dst_rect)
 }
 
 cv::Mat resetsize(const cv::Mat& in) {
-  if (in.cols > 700 | in.cols >600)
+  if (in.cols > 700 || in.cols >600)
   {
     Mat resizeR(450, 600, CV_8UC3);
     cv::resize(in, resizeR, resizeR.size());
@@ -528,7 +528,7 @@ void calcGradientFeat(const Mat &imgSrc, Mat &out)
 	}
 
 
-	out = Mat::zeros(1, feat.size(), CV_32F);
+	out = Mat::zeros(1, (int)feat.size(), CV_32F);
 	for (int i = 0; i<feat.size(); i++)
 	{
 		out.at<float>(i) = feat[i];

@@ -1,6 +1,7 @@
 
 #include "ocr/classification/test_ocr_classification.cpp"
 #include "ocr/test_ocr_detect.cpp"
+#include "wstd/string.hpp"
 
 Rect Rect_bound(Rect rect, int w, int h) {
   rect.x = BOUND(rect.x, 0, w);
@@ -130,7 +131,7 @@ int test_ocr_caffe()
 #ifdef CPU_ONLY
   usegpu = false;
 #endif
-  if (1) {
+  if (0) {
     std::vector<string> filenames;
     LoadTextFileList("E:/OCR_Line/std/list.txt", filenames);
     int k;
@@ -139,6 +140,33 @@ int test_ocr_caffe()
       string fn = filenames[k];
       printf("%s\n", fn.c_str());
       cv::Mat srcImage = cv::imread(fn, IMREAD_COLOR);
+      if (srcImage.empty()) {
+        continue;
+      }
+      if (srcImage.cols > 600) {
+        double t = 600.*1. / srcImage.cols;
+        cv::resize(srcImage, srcImage, cv::Size(), t, t, cv::INTER_LANCZOS4);
+      }
+      on_pushButton_2_clicked1(srcImage, ocr, is_seq);
+      //cv::imshow("asdf", imgSrc);
+      //cv::waitKey(-1);
+    }
+  }
+  if (1) {
+    ocr_classification* ocr = new ocr_classification(modelfolder, scale, usegpu);
+    FILE* pf = fopen("E:/data/ew_id/t1_0911.txt", "rb");
+    char buf[256];
+    string root_path = "E:/data/ew_id/we-loan.oss-cn-shanghai.aliyuncs.com/";
+    for (; fgets(buf, 256, pf); ) {
+      vector<string> strvec;
+      string line = wstd::trim(buf, "\r\n");
+      wstd::split(strvec, line, "\t");
+      string fn = root_path + strvec[1];
+      printf("%s\n", fn.c_str());
+      cv::Mat srcImage = cv::imread(fn, IMREAD_COLOR);
+      if (srcImage.cols < 210) {
+        continue;
+      }
       if (srcImage.empty()) {
         continue;
       }

@@ -37,8 +37,8 @@ namespace caffe
     }
 
     string snapshot_prefix_;
-    shared_ptr<SGDSolver<Dtype> > solver_;
-    shared_ptr<P2PSync<Dtype> > sync_;
+    SHARED_PTR<SGDSolver<Dtype> > solver_;
+    SHARED_PTR<P2PSync<Dtype> > sync_;
     int seed_;
     // Dimensions are determined by generate_sample_data.py
     // TODO this is brittle and the hdf5 file should be checked instead.
@@ -226,7 +226,7 @@ namespace caffe
     // using the blobs' diffs to hold the update values themselves.
     void ComputeLeastSquaresUpdate(const Dtype learning_rate,
                                    const Dtype weight_decay, const Dtype momentum, const int num_iters,
-                                   vector<shared_ptr<Blob<Dtype> > >* updated_params) {
+                                   vector<SHARED_PTR<Blob<Dtype> > >* updated_params) {
       const int N = num_;
       const int D = channels_ * height_ * width_;
       // Run a forward pass, and manually compute the update values from the
@@ -238,7 +238,7 @@ namespace caffe
       ASSERT_TRUE(net.has_blob("targets"));
       const Blob<Dtype> & targets = *net.blob_by_name("targets");
       ASSERT_TRUE(net.has_layer("innerprod"));
-      const vector<shared_ptr<Blob<Dtype> > > & param_blobs =
+      const vector<SHARED_PTR<Blob<Dtype> > > & param_blobs =
         net.layer_by_name("innerprod")->blobs();
       const int num_param_blobs = 2;
       ASSERT_EQ(num_param_blobs, param_blobs.size());
@@ -286,7 +286,7 @@ namespace caffe
         grad += weight_decay *
                 ((i == D) ? bias.cpu_data()[0] : weights.cpu_data()[i]);
         // Finally, compute update.
-        const vector<shared_ptr<Blob<Dtype> > > & history = solver_->history();
+        const vector<SHARED_PTR<Blob<Dtype> > > & history = solver_->history();
         if (solver_->type() != string("AdaDelta")
             && solver_->type() != string("Adam")) {
           ASSERT_EQ(2, history.size());  // 1 blob for weights, 1 for bias
@@ -347,13 +347,13 @@ namespace caffe
     }
 
     void CheckLeastSquaresUpdate(
-      const vector<shared_ptr<Blob<Dtype> > > & updated_params) {
+      const vector<SHARED_PTR<Blob<Dtype> > > & updated_params) {
       const int D = channels_ * height_ * width_;
       const Blob<Dtype> & updated_weights = *updated_params[0];
       const Blob<Dtype> & updated_bias = *updated_params[1];
       Net<Dtype> & net = *this->solver_->net();
       ASSERT_TRUE(net.has_layer("innerprod"));
-      const vector<shared_ptr<Blob<Dtype> > > & param_blobs =
+      const vector<SHARED_PTR<Blob<Dtype> > > & param_blobs =
         net.layer_by_name("innerprod")->blobs();
       ASSERT_EQ(2, param_blobs.size());
       const Blob<Dtype> & solver_updated_weights = *param_blobs[0];
@@ -376,7 +376,7 @@ namespace caffe
       EXPECT_NEAR(expected_updated_bias, solver_updated_bias, error_margin);
       // Check the solver's history -- should contain the previous update value.
       if (solver_->type() == string("SGD")) {
-        const vector<shared_ptr<Blob<Dtype> > > & history = solver_->history();
+        const vector<SHARED_PTR<Blob<Dtype> > > & history = solver_->history();
         ASSERT_EQ(2, history.size());
         for (int i = 0; i < D; ++i) {
           const Dtype expected_history = updated_weights.cpu_diff()[i];
@@ -402,9 +402,9 @@ namespace caffe
                                   kNumIters);
       // Save parameters for comparison.
       Net<Dtype> & net = *this->solver_->net();
-      const vector<shared_ptr<Blob<Dtype> > > & param_blobs =
+      const vector<SHARED_PTR<Blob<Dtype> > > & param_blobs =
         net.layer_by_name("innerprod")->blobs();
-      vector<shared_ptr<Blob<Dtype> > > noaccum_params(param_blobs.size());
+      vector<SHARED_PTR<Blob<Dtype> > > noaccum_params(param_blobs.size());
       for (int i = 0; i < param_blobs.size(); ++i) {
         noaccum_params[i].reset(new Blob<Dtype>());
         noaccum_params[i]->CopyFrom(*param_blobs[i], false, true);
@@ -413,7 +413,7 @@ namespace caffe
       this->RunLeastSquaresSolver(kLearningRate, kWeightDecay, kMomentum,
                                   kNumIters, kIterSize);
       Net<Dtype> & net_accum = *this->solver_->net();
-      const vector<shared_ptr<Blob<Dtype> > > & accum_params =
+      const vector<SHARED_PTR<Blob<Dtype> > > & accum_params =
         net_accum.layer_by_name("innerprod")->blobs();
       // Compare accumulated parameters against no accumulation standard.
       const int D = this->channels_ * this->height_ * this->width_;
@@ -468,7 +468,7 @@ namespace caffe
         RunLeastSquaresSolver(learning_rate, weight_decay, momentum,
                               iter_to_check, kIterSize, 1);
         // Compute the (K+1)th update using the analytic least squares gradient.
-        vector<shared_ptr<Blob<Dtype> > > updated_params;
+        vector<SHARED_PTR<Blob<Dtype> > > updated_params;
         ComputeLeastSquaresUpdate(learning_rate, weight_decay, momentum,
                                   iter_to_check + 1, &updated_params);
         // Reinitialize the solver and run K+1 solver iterations.
@@ -491,7 +491,7 @@ namespace caffe
       RunLeastSquaresSolver(learning_rate, weight_decay, momentum,
                             total_num_iters, kIterSize, kDevices, snapshot);
       // Save the resulting param values.
-      vector<shared_ptr<Blob<Dtype> > > param_copies;
+      vector<SHARED_PTR<Blob<Dtype> > > param_copies;
       const vector<Blob<Dtype>*> & orig_params =
         solver_->net()->learnable_params();
       param_copies.resize(orig_params.size());
@@ -503,8 +503,8 @@ namespace caffe
         }
       }
       // Save the solver history
-      vector<shared_ptr<Blob<Dtype> > > history_copies;
-      const vector<shared_ptr<Blob<Dtype> > > & orig_history = solver_->history();
+      vector<SHARED_PTR<Blob<Dtype> > > history_copies;
+      const vector<SHARED_PTR<Blob<Dtype> > > & orig_history = solver_->history();
       history_copies.resize(orig_history.size());
       for (int i = 0; i < orig_history.size(); ++i) {
         history_copies[i].reset(new Blob<Dtype>());
@@ -533,7 +533,7 @@ namespace caffe
         }
       }
       // Check that history now matches.
-      const vector<shared_ptr<Blob<Dtype> > > & history = solver_->history();
+      const vector<SHARED_PTR<Blob<Dtype> > > & history = solver_->history();
       for (int i = 0; i < history.size(); ++i) {
         for (int j = 0; j < history[i]->count(); ++j) {
           EXPECT_EQ(history_copies[i]->cpu_data()[j], history[i]->cpu_data()[j])

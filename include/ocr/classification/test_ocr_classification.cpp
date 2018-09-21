@@ -1,8 +1,5 @@
 // ocr_test.cpp : 定义控制台应用程序的入口点。
 
-
-
-
 #include <map>
 #include "public.h"
 
@@ -240,10 +237,10 @@ string GetPredictString(const vector<float>& fm, int idxBlank, const vector<stri
 	string str;
 	td.n = 0;
   if (is_seq) {
-    for (size_t t = 0; t < fm.size(); t++)
+    for (int t = 0; t < (int)fm.size(); t++)
     {
       int idx = t;
-      int label = (int)fm[idx] + 0.5f;
+      int label = (int)(fm[idx] + 0.5f);
       if (label >= 0 && label != idxBlank)
       {
         str += labels[label];
@@ -255,7 +252,7 @@ string GetPredictString(const vector<float>& fm, int idxBlank, const vector<stri
   }
   else {
     int idx = 0;
-    for (size_t t = 1; t < fm.size(); t++)
+    for (int t = 1; t < (int)fm.size(); t++)
     {
       if (fm[idx] < fm[t])
       {
@@ -278,7 +275,7 @@ float GetCTCLoss(float*activations, int timesteps, int alphabet_size, int blank_
 	options.num_threads = 8;
 	options.blank_label = blank_index_;
 
-	int len = strlabel.size();
+	int len = (int)strlabel.size();
 	ctcStatus_t status = CTC::get_workspace_size<float>(&len,
 		&timesteps,
 		alphabet_size,
@@ -335,7 +332,7 @@ void test_ocr_english(const string& imgfolder, const string& modelfolder, const 
 
 
 	map<wchar_t, int> mapLabel2IDs;
-	for (size_t i = 0; i < alphabets.size(); i++)
+	for (int i = 0; i < (int)alphabets.size(); i++)
 	{
 		wchar_t c = 0;
 		if (alphabets[i] == "blank")
@@ -358,12 +355,12 @@ void test_ocr_english(const string& imgfolder, const string& modelfolder, const 
 		if (line.size() == 0)
 			continue;
 		//if(line[line.size()-1]=='\t')
-		bktree_add(pBKtree, const_cast<char*>(line.c_str()), line.size());
+		bktree_add(pBKtree, const_cast<char*>(line.c_str()), (int)line.size());
 		n++;
 		if (GetUppercaseNum(line) == 0)//全部是小写的，转成大写再添加，转成首字母大写再添加
 		{
 			line[0] += caseoffset;
-			bktree_add(pBKtree, const_cast<char*>(line.c_str()), line.size());
+			bktree_add(pBKtree, const_cast<char*>(line.c_str()), (int)line.size());
 			n++;
 			if (line.size() > 1)
 			{
@@ -372,7 +369,7 @@ void test_ocr_english(const string& imgfolder, const string& modelfolder, const 
 					if (line[i] >= 'a' && line[i] <= 'z')
 						line[i] += caseoffset;
 				}
-				bktree_add(pBKtree, const_cast<char*>(line.c_str()), line.size());
+				bktree_add(pBKtree, const_cast<char*>(line.c_str()), (int)line.size());
 				n++;
 			}
 		}
@@ -388,7 +385,7 @@ void test_ocr_english(const string& imgfolder, const string& modelfolder, const 
 	vector<string> imgs;
 	FindAllImages(imgfolder.c_str(), imgs, false);
 	testdata_t td;
-	for (size_t i=0;i<imgs.size();i++)
+	for (int i=0;i<(int)imgs.size();i++)
 	{
 		string imgfile = imgs[i];
 		cv::Mat img = cv::imread(imgfile, CV_LOAD_IMAGE_COLOR);
@@ -415,7 +412,7 @@ void test_ocr_english(const string& imgfolder, const string& modelfolder, const 
 
 		string strpredict0 = GetPredictString(pred, idxBlank, alphabets, td, is_seq);
 
-		printf("[%d/%d]%s\n\torig result: %s\n",i+1,imgs.size(),imgs[i].c_str(), strpredict0.c_str());
+		printf("[%d/%d]%s\n\torig result: %s\n",i+1,(int)imgs.size(),imgs[i].c_str(), strpredict0.c_str());
 
 		string strpredict = strpredict0;
 
@@ -550,9 +547,8 @@ void test_ocr_chinese(const string& imgfolder, const string& modelfolder, const 
 	if (it != alphabets.end())
 		idxBlank = (int)(it - alphabets.begin());
 
-
 	map<wchar_t, int> mapLabel2IDs;
-	for (size_t i = 0; i < alphabets.size(); i++)
+	for (int i = 0; i < (int)alphabets.size(); i++)
 	{
 		wchar_t c = 0;
 		if (alphabets[i] == "blank")
@@ -613,7 +609,7 @@ void test_ocr_chinese(const string& imgfolder, const string& modelfolder, const 
 		edtdistcnt += ldistance(td, td1);
 		const char* fn = strrchr(imgs[i].c_str(), '\\');
 		++fn;
-		printf("%d[%d/%d/%d]%s: %s\n", edtdistcnt, errcnt, i + 1, imgs.size(), fn, strpredict0.c_str());
+		printf("%d[%d/%d/%d]%s: %s\n", edtdistcnt, errcnt, i + 1, (int)imgs.size(), fn, strpredict0.c_str());
 
 		if (1) {
 			fprintf(pf, "%s ", fn);
@@ -623,7 +619,7 @@ void test_ocr_chinese(const string& imgfolder, const string& modelfolder, const 
 			fprintf(pf, "\n");
 		}
 	}
-	fprintf(pf, "%d %d %d\n", edtdistcnt, errcnt, imgs.size());
+	fprintf(pf, "%d %d %d\n", edtdistcnt, errcnt, (int)imgs.size());
 	fclose(pf);// 13418 11435 364400
 	return;
 }

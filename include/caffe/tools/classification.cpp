@@ -33,10 +33,10 @@ Classifier::Classifier(const string & model_file,
   net_->CopyTrainedLayersFrom(trained_file);
 #ifdef _DEBUG
   //print blobs
-  const vector<shared_ptr<Blob<float> > > & blobs = net_->blobs();
+  const vector<SHARED_PTR<Blob<float> > > & blobs = net_->blobs();
   printf("blob num=%d\n", blobs.size());
   for (size_t i = 0; i < blobs.size(); i++) {
-    const shared_ptr < Blob<float>> & b = blobs[i];
+    const SHARED_PTR < Blob<float>> & b = blobs[i];
     const vector<int> & vshape = b->shape();
     printf("blob %d shape:", i);
     for (size_t j = 0; j < vshape.size(); j++) {
@@ -155,7 +155,7 @@ std::vector<float> Classifier::Predict(const cv::Mat & img)
 
 std::vector<float> Classifier::GetCurCNNFeature()
 {
-  const vector<shared_ptr<Blob<float> > > & blobs = net_->blobs();
+  const vector<SHARED_PTR<Blob<float> > > & blobs = net_->blobs();
   for (int i = (int)blobs.size() - 1; i >= 0; i--) {
     if (blobs[i]->channels() > 1000) {
       const float* begin = blobs[i]->cpu_data();
@@ -183,7 +183,7 @@ std::vector<float> Classifier::ExtractFeature(const cv::Mat & img)
 
 int Classifier::GetFeatureDim()
 {
-  const vector<shared_ptr<Blob<float> > > & blobs = net_->blobs();
+  const vector<SHARED_PTR<Blob<float> > > & blobs = net_->blobs();
   for (int i = (int)blobs.size() - 1; i >= 0; i--) {
     if (blobs[i]->channels() > 1000) {
       blobs[i]->channels();

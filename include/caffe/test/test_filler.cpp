@@ -21,7 +21,7 @@ namespace caffe
     virtual ~ConstantFillerTest() { delete blob_; }
     Blob<Dtype>* const blob_;
     FillerParameter filler_param_;
-    shared_ptr<ConstantFiller<Dtype> > filler_;
+    SHARED_PTR<ConstantFiller<Dtype> > filler_;
   };
 
   TYPED_TEST_CASE(ConstantFillerTest, TestDtypes);
@@ -52,7 +52,7 @@ namespace caffe
     virtual ~UniformFillerTest() { delete blob_; }
     Blob<Dtype>* const blob_;
     FillerParameter filler_param_;
-    shared_ptr<UniformFiller<Dtype> > filler_;
+    SHARED_PTR<UniformFiller<Dtype> > filler_;
   };
 
   TYPED_TEST_CASE(UniformFillerTest, TestDtypes);
@@ -81,7 +81,7 @@ namespace caffe
     virtual ~PositiveUnitballFillerTest() { delete blob_; }
     Blob<Dtype>* const blob_;
     FillerParameter filler_param_;
-    shared_ptr<PositiveUnitballFiller<Dtype> > filler_;
+    SHARED_PTR<PositiveUnitballFiller<Dtype> > filler_;
   };
 
   TYPED_TEST_CASE(PositiveUnitballFillerTest, TestDtypes);
@@ -122,7 +122,7 @@ namespace caffe
     virtual ~GaussianFillerTest() { delete blob_; }
     Blob<Dtype>* const blob_;
     FillerParameter filler_param_;
-    shared_ptr<GaussianFiller<Dtype> > filler_;
+    SHARED_PTR<GaussianFiller<Dtype> > filler_;
   };
 
   TYPED_TEST_CASE(GaussianFillerTest, TestDtypes);
@@ -181,7 +181,7 @@ namespace caffe
     virtual ~XavierFillerTest() { delete blob_; }
     Blob<Dtype>* const blob_;
     FillerParameter filler_param_;
-    shared_ptr<XavierFiller<Dtype> > filler_;
+    SHARED_PTR<XavierFiller<Dtype> > filler_;
   };
 
   TYPED_TEST_CASE(XavierFillerTest, TestDtypes);
@@ -234,7 +234,7 @@ namespace caffe
     virtual ~MSRAFillerTest() { delete blob_; }
     Blob<Dtype>* const blob_;
     FillerParameter filler_param_;
-    shared_ptr<MSRAFiller<Dtype> > filler_;
+    SHARED_PTR<MSRAFiller<Dtype> > filler_;
   };
 
   TYPED_TEST_CASE(MSRAFillerTest, TestDtypes);

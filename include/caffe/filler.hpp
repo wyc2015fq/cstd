@@ -96,7 +96,7 @@ namespace caffe
     }
 
   protected:
-    shared_ptr<SyncedMemory> rand_vec_;
+    SHARED_PTR<SyncedMemory> rand_vec_;
   };
 
   /** @brief Fills a Blob with values @f$ x \in [0, 1] @f$

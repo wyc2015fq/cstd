@@ -214,7 +214,7 @@ void read_db(int argc, char** argv)
   _mkdir(dstfolder.c_str());
   scoped_ptr<db::DB> db(db::GetDB("leveldb"));
   db->Open(dbfolder.c_str(), db::READ);
-  shared_ptr<db::Cursor> cursor(db->NewCursor());
+  SHARED_PTR<db::Cursor> cursor(db->NewCursor());
   std::ofstream ofs(argv[4]);
   for (int i = 0; i < num; i++) {
     Datum datum;

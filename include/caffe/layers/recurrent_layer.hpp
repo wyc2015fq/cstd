@@ -10,7 +10,7 @@
 #include "caffe/layer.hpp"
 #include "caffe/net.hpp"
 #include "caffe/proto/caffe.pb.h"
-#include "caffe/util/format.hpp"
+#include "wstd/string.hpp"
 
 namespace caffe
 {
@@ -42,7 +42,7 @@ namespace caffe
       if (this->layer_param_.recurrent_param().expose_hidden()) {
         vector<string> inputs;
         this->RecurrentInputBlobNames(&inputs);
-        min_bottoms += inputs.size();
+        min_bottoms += (int)inputs.size();
       }
       return min_bottoms;
     }
@@ -52,7 +52,7 @@ namespace caffe
       if (this->layer_param_.recurrent_param().expose_hidden()) {
         vector<string> outputs;
         this->RecurrentOutputBlobNames(&outputs);
-        num_tops += outputs.size();
+        num_tops += (int)outputs.size();
       }
       return num_tops;
     }
@@ -151,7 +151,7 @@ namespace caffe
                               const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
 
     /// @brief A Net to implement the Recurrent functionality.
-    shared_ptr<Net<Dtype> > unrolled_net_;
+    SHARED_PTR<Net<Dtype> > unrolled_net_;
 
     /// @brief The number of independent streams to process simultaneously.
     int N_;

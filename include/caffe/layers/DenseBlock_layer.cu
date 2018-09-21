@@ -9,10 +9,12 @@
 #include <stdlib.h>
 
 #include <sys/types.h>
+#include <ctime>
 //#include <dirent.h>
-#include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
+//#include <boost/lexical_cast.hpp>
+//#include <boost/filesystem.hpp>
+//#include <boost/algorithm/string.hpp>
+#include "wstd/string.hpp"
 
 #include "caffe/layers/DenseBlock_layer.hpp"
 #include "caffe/util/gpu_util.cuh"
@@ -45,8 +47,9 @@ namespace caffe {
 
 
 	string itos_cu(int i) {
-		string output = boost::lexical_cast<string>(i);
-		return output;
+    char buf[32] = "";
+    _itoa(i, buf, 10);
+		return buf;
 	}
 
 	template <typename Dtype>

@@ -59,7 +59,7 @@ namespace caffe
     LayerParameter layer_param;
     EltwiseParameter* eltwise_param = layer_param.mutable_eltwise_param();
     eltwise_param->set_operation(EltwiseParameter_EltwiseOp_PROD);
-    shared_ptr<EltwiseLayer<Dtype> > layer(
+    SHARED_PTR<EltwiseLayer<Dtype> > layer(
       new EltwiseLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     EXPECT_EQ(this->blob_top_->num(), 2);
@@ -74,7 +74,7 @@ namespace caffe
     LayerParameter layer_param;
     EltwiseParameter* eltwise_param = layer_param.mutable_eltwise_param();
     eltwise_param->set_operation(EltwiseParameter_EltwiseOp_PROD);
-    shared_ptr<EltwiseLayer<Dtype> > layer(
+    SHARED_PTR<EltwiseLayer<Dtype> > layer(
       new EltwiseLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -94,7 +94,7 @@ namespace caffe
     LayerParameter layer_param;
     EltwiseParameter* eltwise_param = layer_param.mutable_eltwise_param();
     eltwise_param->set_operation(EltwiseParameter_EltwiseOp_SUM);
-    shared_ptr<EltwiseLayer<Dtype> > layer(
+    SHARED_PTR<EltwiseLayer<Dtype> > layer(
       new EltwiseLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -117,7 +117,7 @@ namespace caffe
     eltwise_param->add_coeff(1);
     eltwise_param->add_coeff(-0.5);
     eltwise_param->add_coeff(2);
-    shared_ptr<EltwiseLayer<Dtype> > layer(
+    SHARED_PTR<EltwiseLayer<Dtype> > layer(
       new EltwiseLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -191,7 +191,7 @@ namespace caffe
     LayerParameter layer_param;
     EltwiseParameter* eltwise_param = layer_param.mutable_eltwise_param();
     eltwise_param->set_operation(EltwiseParameter_EltwiseOp_MAX);
-    shared_ptr<EltwiseLayer<Dtype> > layer(
+    SHARED_PTR<EltwiseLayer<Dtype> > layer(
       new EltwiseLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);

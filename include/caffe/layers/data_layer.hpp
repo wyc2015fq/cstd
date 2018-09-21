@@ -37,8 +37,8 @@ namespace caffe
     bool Skip();
     virtual void load_batch(Batch<Dtype>* batch);
 
-    shared_ptr<db::DB> db_;
-    shared_ptr<db::Cursor> cursor_;
+    SHARED_PTR<db::DB> db_;
+    SHARED_PTR<db::Cursor> cursor_;
     uint64_t offset_;
 
     unsigned int rand_skip_num_;

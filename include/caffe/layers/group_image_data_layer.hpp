@@ -35,7 +35,7 @@ namespace caffe
     virtual inline int ExactNumTopBlobs() const { return 2; }
 
   protected:
-    //shared_ptr<Caffe::RNG> prefetch_rng_;
+    //SHARED_PTR<Caffe::RNG> prefetch_rng_;
     virtual void ShuffleImages();
     virtual void load_batch(Batch<Dtype>* batch);
 

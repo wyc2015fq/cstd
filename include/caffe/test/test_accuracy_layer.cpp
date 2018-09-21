@@ -44,7 +44,7 @@ namespace caffe
       GaussianFiller<Dtype> filler(filler_param);
       filler.Fill(this->blob_bottom_data_);
       const unsigned int prefetch_rng_seed = caffe_rng_rand();
-      shared_ptr<Caffe::RNG> rng(new Caffe::RNG(prefetch_rng_seed));
+      SHARED_PTR<Caffe::RNG> rng(new Caffe::RNG(prefetch_rng_seed));
       caffe::rng_t* prefetch_rng =
         static_cast<caffe::rng_t*>(rng->generator());
       Dtype* label_data = blob_bottom_label_->mutable_cpu_data();

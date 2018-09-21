@@ -50,13 +50,13 @@ namespace caffe
     bool reshaped_first_time_;
 
     /// the internal Split layer that feeds the pooling layers
-    shared_ptr<SplitLayer<Dtype> > split_layer_;
+    SHARED_PTR<SplitLayer<Dtype> > split_layer_;
     /// top vector holder used in call to the underlying SplitLayer::Forward
     vector<Blob<Dtype>*> split_top_vec_;
     /// bottom vector holder used in call to the underlying PoolingLayer::Forward
     vector<vector<Blob<Dtype>*>*> pooling_bottom_vecs_;
     /// the internal Pooling layers of different kernel sizes
-    vector<shared_ptr<PoolingLayer<Dtype> > > pooling_layers_;
+    vector<SHARED_PTR<PoolingLayer<Dtype> > > pooling_layers_;
     /// top vector holders used in call to the underlying PoolingLayer::Forward
     vector<vector<Blob<Dtype>*>*> pooling_top_vecs_;
     /// pooling_outputs stores the outputs of the PoolingLayers
@@ -70,7 +70,7 @@ namespace caffe
     /// bottom vector holder used in call to the underlying ConcatLayer::Forward
     vector<Blob<Dtype>*> concat_bottom_vec_;
     /// the internal Concat layers that the Flatten layers feed into
-    shared_ptr<ConcatLayer<Dtype> > concat_layer_;
+    SHARED_PTR<ConcatLayer<Dtype> > concat_layer_;
   };
 
 }  // namespace caffe

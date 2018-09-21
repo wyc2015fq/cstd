@@ -103,7 +103,8 @@ namespace caffe
 #endif
         prefetch_full_.push(batch);
       }
-      } catch (std::exception & e) {
+    } catch (std::exception & e) {
+      LOG(ERROR) << "exception: " << e.what();
       // Interrupted exception is expected on shutdown
     }
 #ifndef CPU_ONLY

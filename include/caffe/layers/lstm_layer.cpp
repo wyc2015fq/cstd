@@ -23,7 +23,7 @@ namespace caffe
   void LSTMLayer<Dtype>::RecurrentOutputBlobNames(vector<string>* names) const
   {
     names->resize(2);
-    (*names)[0] = "h_" + format_int(this->T_);
+    (*names)[0] = "h_" + wstd::format_int(this->T_);
     (*names)[1] = "c_T";
   }
 
@@ -143,8 +143,8 @@ namespace caffe
     output_concat_layer.add_top("h");
     output_concat_layer.mutable_concat_param()->set_axis(0);
     for (int t = 1; t <= this->T_; ++t) {
-      string tm1s = format_int(t - 1);
-      string ts = format_int(t);
+      string tm1s = wstd::format_int(t - 1);
+      string ts = wstd::format_int(t);
       cont_slice_param->add_top("cont_" + ts);
       x_slice_param->add_top("W_xc_x_" + ts);
       // Add layers to flush the hidden state when beginning a new
@@ -215,7 +215,7 @@ namespace caffe
     {
       LayerParameter* c_T_copy_param = net_param->add_layer();
       c_T_copy_param->CopyFrom(split_param);
-      c_T_copy_param->add_bottom("c_" + format_int(this->T_));
+      c_T_copy_param->add_bottom("c_" + wstd::format_int(this->T_));
       c_T_copy_param->add_top("c_T");
     }
     net_param->add_layer()->CopyFrom(output_concat_layer);

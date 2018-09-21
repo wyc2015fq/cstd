@@ -10,7 +10,7 @@
 namespace ctc_helper
 {
 
-  static const float threshold = 1e-1;
+  static const double threshold = 1e-1;
 
   template<typename T>
   HOSTDEVICE

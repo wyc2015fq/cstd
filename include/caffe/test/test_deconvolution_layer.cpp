@@ -65,7 +65,7 @@ namespace caffe
     convolution_param->set_num_output(4);
     this->blob_bottom_vec_.push_back(this->blob_bottom_2_);
     this->blob_top_vec_.push_back(this->blob_top_2_);
-    shared_ptr<Layer<Dtype> > layer(
+    SHARED_PTR<Layer<Dtype> > layer(
       new DeconvolutionLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     EXPECT_EQ(this->blob_top_->num(), 2);
@@ -106,7 +106,7 @@ namespace caffe
     convolution_param->mutable_weight_filler()->set_value(1);
     convolution_param->mutable_bias_filler()->set_type("constant");
     convolution_param->mutable_bias_filler()->set_value(0.1);
-    shared_ptr<Layer<Dtype> > layer(
+    SHARED_PTR<Layer<Dtype> > layer(
       new DeconvolutionLayer<Dtype>(layer_param));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     // constant-fill the bottom blobs

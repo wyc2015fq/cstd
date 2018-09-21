@@ -40,7 +40,7 @@ namespace caffe
       solver_.reset(new SGDSolver<Dtype>(param));
     }
 
-    shared_ptr<Solver<Dtype> > solver_;
+    SHARED_PTR<Solver<Dtype> > solver_;
   };
 
   TYPED_TEST_CASE(SolverTest, TestDtypesAndDevices);

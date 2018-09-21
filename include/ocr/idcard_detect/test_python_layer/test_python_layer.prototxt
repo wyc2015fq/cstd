@@ -1,0 +1,45 @@
+name: "mnist_quick"
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    mean_file: "mean.binaryproto"
+  }
+  data_param {
+    source: "C:/caffe_train/mnist/mnist_train_lmdb"
+    batch_size: 64
+    backend: LMDB
+  }
+}
+layer {
+  name: "cifar"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    mean_file: "mean.binaryproto"
+  }
+  data_param {
+    source: "C:/caffe_train/mnist/mnist_test_lmdb"
+    batch_size: 64
+    backend: LMDB
+  }
+}
+layer {
+  name: "test"
+  type: "Python"
+  bottom: "data"
+  top: "loss"
+  python_param {
+    module: "test_python_layer"
+    layer: "TestPythonLayer"
+  }
+}

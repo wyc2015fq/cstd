@@ -200,10 +200,10 @@ namespace caffe
     size_t sample_size_;
     uint32_t seed_;
 
-    shared_ptr<SyncedMemory> data_;
-    shared_ptr<SyncedMemory> data_2_;
-    shared_ptr<SyncedMemory> int_data_;
-    shared_ptr<SyncedMemory> int_data_2_;
+    SHARED_PTR<SyncedMemory> data_;
+    SHARED_PTR<SyncedMemory> data_2_;
+    SHARED_PTR<SyncedMemory> int_data_;
+    SHARED_PTR<SyncedMemory> int_data_2_;
   };
 
   TYPED_TEST_CASE(RandomNumberGeneratorTest, TestDtypes);

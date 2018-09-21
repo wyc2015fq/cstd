@@ -22,7 +22,7 @@ namespace caffe
   class Params
   {
   public:
-    explicit Params(shared_ptr<Solver<Dtype> > root_solver);
+    explicit Params(SHARED_PTR<Solver<Dtype> > root_solver);
     virtual ~Params() {
     }
 
@@ -49,7 +49,7 @@ namespace caffe
   class GPUParams : public Params<Dtype>
   {
   public:
-    GPUParams(shared_ptr<Solver<Dtype> > root_solver, int device);
+    GPUParams(SHARED_PTR<Solver<Dtype> > root_solver, int device);
     virtual ~GPUParams();
 
     void configure(Solver<Dtype>* solver) const;
@@ -88,17 +88,17 @@ namespace caffe
     public InternalThread
   {
   public:
-    explicit P2PSync(shared_ptr<Solver<Dtype> > root_solver,
+    explicit P2PSync(SHARED_PTR<Solver<Dtype> > root_solver,
                      P2PSync<Dtype>* parent, const SolverParameter & param);
     virtual ~P2PSync();
 
-    inline const shared_ptr<Solver<Dtype> > & solver() const {
+    inline const SHARED_PTR<Solver<Dtype> > & solver() const {
       return solver_;
     }
 
     void Run(const vector<int> & gpus);
     void Prepare(const vector<int> & gpus,
-                 vector<shared_ptr<P2PSync<Dtype> > >* syncs);
+                 vector<SHARED_PTR<P2PSync<Dtype> > >* syncs);
     inline const int initial_iter() const { return initial_iter_; }
 
   protected:
@@ -112,7 +112,7 @@ namespace caffe
     BlockingQueue<P2PSync<Dtype>*> queue_;
     const int initial_iter_;
     Dtype* parent_grads_;
-    shared_ptr<Solver<Dtype> > solver_;
+    SHARED_PTR<Solver<Dtype> > solver_;
 
     using Params<Dtype>::size_;
     using Params<Dtype>::data_;

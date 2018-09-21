@@ -33,7 +33,7 @@ void WarpCTCLossLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 			int curlen = 0;
 			for (int l = 0; l < label_len_per_batch; ++l)
 			{
-				int label = label_seq_d[n*label_len_per_batch + l];
+				int label = (int)label_seq_d[n*label_len_per_batch + l];
 				if (label == blank_index_)
 					continue;
 				flat_labels_.push_back(label);
@@ -58,16 +58,16 @@ void WarpCTCLossLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       int accumulated = 0;
       CHECK_EQ(seq_len_blob->count(), lab_len_blob->count());
       for (int i = 0; i < seq_len_blob->count(); ++i) {
-        label_lengths_[i] = lab_len_d[i];
-        input_lengths_[i] = seq_len_d[i];
-        accumulated += lab_len_d[i];
+        label_lengths_[i] = (int)lab_len_d[i];
+        input_lengths_[i] = (int)seq_len_d[i];
+        accumulated += (int)lab_len_d[i];
       }
 
       flat_labels_.clear();
       flat_labels_.reserve(accumulated);
       for (int n = 0; n < N_; ++n) {
         for (int t = 0; t < label_lengths_[n]; ++t) {
-          flat_labels_.push_back(label_seq_d[label_seq_blob->offset(t, n)]);
+          flat_labels_.push_back((int)label_seq_d[label_seq_blob->offset(t, n)]);
         }
       }
     } else {

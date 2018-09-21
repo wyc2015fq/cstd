@@ -5,14 +5,7 @@
 
 namespace wstd {
 
-  namespace posix_time {
-    typedef uint64_t ptime;
-    namespace microsec_clock {
-      ptime local_time() {
-
-      }
-    }
-  }
+  typedef uint64_t ptime;
 
   class timer
   {

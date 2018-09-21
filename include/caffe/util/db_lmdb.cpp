@@ -5,6 +5,10 @@
 #include <direct.h>
 #include <string>
 
+#ifdef _WIN32
+#pragma comment(lib,"Advapi32.lib")
+#endif
+
 namespace caffe
 {
   namespace db

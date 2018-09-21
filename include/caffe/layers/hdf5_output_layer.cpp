@@ -21,7 +21,7 @@ namespace caffe
   }
 
   template <typename Dtype>
-  HDF5OutputLayer<Dtype>::~HDF5OutputLayer<Dtype>()
+  HDF5OutputLayer<Dtype>::~HDF5OutputLayer()
   {
     if (file_opened_) {
       herr_t status = H5Fclose(file_id_);
