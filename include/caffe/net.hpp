@@ -205,8 +205,8 @@ namespace caffe
       return param_display_names_;
     }
     /// @brief Input and output blob numbers
-    inline int num_inputs() const { return net_input_blobs_.size(); }
-    inline int num_outputs() const { return net_output_blobs_.size(); }
+    inline int num_inputs() const { return (int)net_input_blobs_.size(); }
+    inline int num_outputs() const { return (int)net_output_blobs_.size(); }
     inline const vector<Blob<Dtype>*> & input_blobs() const {
       return net_input_blobs_;
     }

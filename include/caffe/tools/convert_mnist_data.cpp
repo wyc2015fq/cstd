@@ -25,16 +25,17 @@
 //#include "boost/scoped_ptr.hpp"
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/db.hpp"
-#include "caffe/util/format.hpp"
 
 //#include "caffe/util/logging.hpp"
-#include "caffe/util/flags.hpp"
-#include "caffe/libcaffe.cpp"
+//#include "caffe/libcaffe.cpp"
+#include "wstd/string.hpp"
+#include "wstd/flags.hpp"
 
-#if 0
+#if 1
 #include "caffe/proto/caffe.pb.cc"
+#include "caffe/util/io.cpp"
 #include "caffe/util/db.cpp"
-#include "caffe/util/db_leveldb.cpp"
+//#include "caffe/util/db_leveldb.hpp"
 #include "caffe/util/db_lmdb.cpp"
 #endif
 
@@ -88,19 +89,21 @@ int convert_dataset(const char* image_filename, const char* label_filename,
   int count = 0;
   string value;
   Datum datum;
-  datum.set_channels(1);
-  datum.set_height(rows);
-  datum.set_width(cols);
+  caffe::BlobData* blob_img = datum.add_blob();
+  caffe::BlobData* blob_labels = datum.add_blob();
+  blob_img->add_dim(cols);
+  blob_img->add_dim(rows);
+  blob_labels->add_dim(1);
   LOG(INFO) << "A total of " << num_items << " items.";
   LOG(INFO) << "Rows: " << rows << " Cols: " << cols;
-  for (int item_id = 0; item_id < num_items; ++item_id) {
+  for (int item_id = 0; item_id < (int)num_items; ++item_id) {
+    printf("item_id=%d\n", item_id);
     image_file.read(pixels, rows * cols);
     label_file.read(&label, 1);
-    datum.set_data(pixels, rows * cols);
+    Blob_NCHW(blob_img, false, (unsigned char*)pixels, cols, rows);
+    Blob_NCHW(blob_labels, false, (unsigned char*)&label, 1);
     //datum.set_label(label);
-    datum.clear_label();
-    datum.add_label(label);
-    string key_str = caffe::format_int(item_id, 8);
+    string key_str = wstd::format_int(item_id, 8);
     datum.SerializeToString(&value);
     txn->Put(key_str, value);
     if (++count % 1000 == 0) {
@@ -119,8 +122,17 @@ int convert_dataset(const char* image_filename, const char* label_filename,
   return 0;
 }
 
-int main(int argc, char** argv)
+int convert_mnist_data(int argc, char** argv)
 {
+  if (0) {
+    _chdir("C:/caffe_train/mnist");
+    char* aa[] = { "",
+    "mnist/train-images-idx3-ubyte","mnist/train-labels-idx1-ubyte","./mnist_train_lmdb","--backend=lmdb"
+    };
+    argc = 5;
+    argv = aa;
+  }
+  
   static const char* const keys3 =
     "{ backend | lmdb  | The backend for storing the result }"
     "{ s5 |       | five values scalar }";
@@ -136,8 +148,8 @@ int main(int argc, char** argv)
            "or directly use data/mnist/get_mnist.sh\n");
     return 0;
   }
-  CommandLineParser parser(argc, argv, keys3);
-  const string & db_backend = parser.get<String>("backend");
+  wstd::CommandLineParser parser(argc, argv, keys3);
+  const string & db_backend = parser.get<string>("backend");
   convert_dataset(argv[1], argv[2], argv[3], db_backend);
   return 0;
 }

@@ -27,17 +27,31 @@ message BlobProtoVector {
   repeated BlobProto blobs = 1;
 }
 
-message Datum {
-  optional int32 channels = 1;
-  optional int32 height = 2;
-  optional int32 width = 3;
+enum TypeFlag //枚举消息类型
+{
+    TF_S8 = 0; //proto3版本中，首成员必须为0，成员不应有相同的值
+    TF_U8 = 1;
+    TF_S16 = 2;
+    TF_U16 = 3;
+    TF_S32 = 4;
+    TF_U32 = 5;
+    TF_F32 = 6;
+    TF_F64 = 7;
+}
+
+message BlobData {
+  repeated int32 dim = 1;
   // the actual image data, in bytes
-  optional bytes data = 4;
-  repeated int32 label = 5;
+  optional bytes data = 2;
+  optional TypeFlag type = 3;
   // Optionally, the datum could also hold float data.
-  repeated float float_data = 6;
+  //repeated float float_data = 4;
   // If true data contains an encoded image that need to be decoded
-  optional bool encoded = 7 [default = false];
+  optional bool encoded = 5 [default = false];
+}
+
+message Datum {
+  repeated BlobData blob = 6;
 }
 
 message FillerParameter {

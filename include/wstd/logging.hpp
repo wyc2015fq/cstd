@@ -22,20 +22,32 @@ DEFINE_bool(stop_logging_if_full_disk, true, "Sets whether to avoid logging to t
 
 namespace wstd
 {
-
+  static int fappend(const char* filename, const void* buf, int len) {
+    FILE* pf = fopen(filename, "a");
+    if (pf) {
+      fwrite(buf, len, 1, pf);
+      fclose(pf);
+    }
+    return 0;
+  }
 class LogHelp {
 public:
   
   LogHelp(const char* options, const char* file, int line) {
-    std::cout << wstd::format("%s(%d)", file, line);
-    std::cout << options << ":";
+    string stime = wstd::strtime(NULL);
+    string fnext = path_split_filenameext(file);
+    stream_ << wstd::format("%s %s(%d) %s:", stime.c_str(), fnext.c_str(), line, options);
   }
   ~LogHelp() {
-    std::cout << std::endl;
+    stream_ << "\n";
+    string s = stream_.str();
+    std::cerr << s << std::flush;
+    fappend("log.txt", s.c_str(), s.length());
   }
-  std::ostream& get() {
-    return std::cout;
+  std::stringstream& get() {
+    return stream_;
   }
+  std::stringstream stream_;
 };
 struct LogMessageVoidify {
   void operator&(std::ostream &) {}
@@ -46,9 +58,6 @@ struct LogMessageVoidify {
 #define LOGNULL  (void)0
 #define LOG(severity)  wstd::LogHelp( #severity ,__FILE__,__LINE__ ).get()
 
-void aaa() {
-  LOG(severity) << "asdf" << std::endl;
-}
 
 #define LOG_IF(severity, condition)   !(condition) ? (void)0 : wstd::LogMessageVoidify() & LOG(severity)
 #define GOOGLE_PREDICT_BRANCH_NOT_TAKEN(x)  (x)

@@ -44,14 +44,14 @@ namespace caffe
   protected:
     TransformationParameter transform_param_;
     SHARED_PTR<DataTransformer<Dtype> > data_transformer_;
-    bool output_labels_;
   };
 
   template <typename Dtype>
   class Batch
   {
   public:
-    Blob<Dtype> data_, label_;
+    Blob<Dtype> data_[10];
+    int data_size = 0;
   };
 
   template <typename Dtype>
@@ -80,7 +80,7 @@ namespace caffe
     BlockingQueue<Batch<Dtype>*> prefetch_full_;
     Batch<Dtype>* prefetch_current_;
 
-    Blob<Dtype> transformed_data_;
+    Blob<Dtype> transformed_data_[10];
   };
 
 }  // namespace caffe

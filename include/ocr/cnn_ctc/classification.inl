@@ -3,34 +3,11 @@
 #endif
 
 #include "classification.hpp"
+#include "wstd/filesystem.hpp"
 
 //#include "cblas.h"
 
 //#include "glog/logging.h"
-
-/*
-For Windows
-value	mode
-00		Existence only
-02		Write-only
-04		Read-only
-06		Read and write
-
-For linux
-F_OK	Existence only
-R_OK	Read-only
-W_OK	Write-only
-X_OK	Executable
-*/
-bool CheckFileExist(const char* szFile)
-{
-#ifdef WIN32
-	return _access(szFile, 0) != -1;
-#else
-	return access(szFile, F_OK) != -1;
-#endif
-
-}
 
 
 extern "C" EXPORT ICNNPredict* CreatePredictInstance(const char* model_folder, bool use_gpu)
@@ -167,7 +144,7 @@ bool Classifier::Init(const string& trained_file, const string& model_file,
 
 int Classifier::FindMaxChannelLayer()
 {
-	const vector<boost::shared_ptr<Blob<float> > >&blobs = net_->blobs();
+	const vector<SHARED_PTR<Blob<float> > >&blobs = net_->blobs();
 	int maxchannels = 0;
 	int idx = -1;
 	for (int i = (int)blobs.size() - 1; i >= 0; i--)
@@ -388,7 +365,7 @@ std::vector< std::vector<float> > Classifier::GetLastBlockFeature(const cv::Mat&
 
 	const vector<std::shared_ptr<Blob<float> > >&blobs = net_->blobs();
 
-	int idx = blobs.size() - 1;
+	int idx = (int)blobs.size() - 1;
 
 	const float* begin = blobs[idx]->cpu_data();
 	int dim1 = blobs[idx]->channels();
@@ -511,7 +488,7 @@ std::vector<float> Classifier::GetLayerFeatureMaps(const string& strLayerName, s
 {
 	std::vector<float> v;
 
-	const boost::shared_ptr<Blob<float> >& blob = net_->blob_by_name(strLayerName);
+	const SHARED_PTR<Blob<float> >& blob = net_->blob_by_name(strLayerName);
 
 	if (!blob)
 		return v;
@@ -615,7 +592,7 @@ void Classifier::Preprocess(const cv::Mat& img,
 	else
 	{
 		cv::Scalar channel_mean;
-		for (size_t i = 0; i < channel_mean_.size(); i++)
+		for (int i = 0; i < (int)channel_mean_.size(); i++)
 		{
 			channel_mean[i] = channel_mean_[i];
 		}
@@ -641,7 +618,7 @@ void Classifier::GetInputImageSize(int &w, int &h)
 
 float Classifier::Pruning(float weight_t, const char* saveas_name)
 {
-	const vector<boost::shared_ptr<Layer<float> > >&layers = net_->layers();
+	const vector<SHARED_PTR<Layer<float> > >&layers = net_->layers();
 #if 0
 	int scale = 1000;
 	vector<uint32_t> hist(scale*2+2,0);
@@ -745,7 +722,7 @@ cv::Mat Classifier::EstimateReceptiveField(const cv::Mat& img, const string& lay
 	memset(matRF.data, 0, h*matRF.step1()*sizeof(float));
 
 	int ch = img.channels();
-	int ws = img.step1();
+	int ws = (int)img.step1();
 	int dim_feature = w1*h1;
 	if (islstm)
 		dim_feature = outshape[2];
@@ -910,7 +887,7 @@ void Classifier::GetLayerFeatureMapSize(int w, int h, const std::string& layerNa
 	}
 
 
-	const boost::shared_ptr<Blob<float> >& blob = net_->blob_by_name(layerName);
+	const SHARED_PTR<Blob<float> >& blob = net_->blob_by_name(layerName);
 
 	if (blob->shape().size() == 4)
 	{
@@ -963,7 +940,7 @@ void Classifier::PrepareBatchInputs(const vector<cv::Mat>& imgs)
 		|| imgs[0].rows != input_layer->shape(2)//height
 		)
 	{
-		input_layer->Reshape(imgs.size(), num_channels_,
+		input_layer->Reshape((int)imgs.size(), num_channels_,
 			imgs[0].rows, imgs[0].cols);
 		/* Forward dimension change to all layers. */
 		net_->Reshape();

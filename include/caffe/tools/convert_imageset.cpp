@@ -8,6 +8,8 @@
 //   subfolder1/file1.JPEG 7
 //   ....
 
+#define countof(arr) sizeof(arr)/sizeof(arr[0])
+
 #include <algorithm>
 #include <fstream>  // NOLINT(readability/streams)
 #include <string>
@@ -15,13 +17,8 @@
 #include <vector>
 #include <direct.h>
 
-#include "boost/scoped_ptr.hpp"
-#include "caffe/util/flags.hpp"
-#include "caffe/util/logging.hpp"
-
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/db.hpp"
-#include "caffe/util/format.hpp"
 #include "caffe/util/io.hpp"
 #include "caffe/util/rng.hpp"
 //#include "caffe/libcaffe.cpp"
@@ -29,8 +26,8 @@
 #include "caffe/common.cpp"
 #include "caffe/proto/caffe.pb.cc"
 #include "caffe/util/db.cpp"
-#include "caffe/util/io.cpp"
-#include "caffe/util/db_leveldb.cpp"
+#include "../util/io.cpp"
+//#include "caffe/util/db_leveldb.cpp"
 #include "caffe/util/db_lmdb.cpp"
 
 #ifdef USE_OPENCV
@@ -40,24 +37,25 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #endif  // USE_OPENCV
 
+#include "wstd/flags.hpp"
+#include "wstd/logging.hpp"
+#include "wstd/string.hpp"
+#include "wstd/filesystem.hpp"
+
+using namespace std;
 using namespace caffe;  // NOLINT(build/namespaces)
 using std::pair;
-using boost::scoped_ptr;
 
-DEFINE_bool(gray, false,
-            "When this option is on, treat images as grayscale ones");
-DEFINE_bool(shuffle, true,
-            "Randomly shuffle the order of images and their labels");
-DEFINE_string(backend, "leveldb",
-              "The backend (lmdb, leveldb) for storing the result");
+
+DEFINE_bool(gray, false, "When this option is on, treat images as grayscale ones");
+DEFINE_bool(shuffle, true, "Randomly shuffle the order of images and their labels");
+DEFINE_string(backend, "lmdb", "The backend (lmdb, leveldb) for storing the result");
+DEFINE_string(typelist, "ifff", "typelist");
 DEFINE_int32(resize_width, 0, "Width images are resized to");
 DEFINE_int32(resize_height, 0, "Height images are resized to");
-DEFINE_bool(check_size, false,
-            "When this option is on, check that all the datum have the same size");
-DEFINE_bool(encoded, true,
-            "When this option is on, the encoded image will be save in datum");
-DEFINE_string(encode_type, "",
-              "Optional: What type should we encode the image as ('png','jpg',...).");
+DEFINE_bool(check_size, false, "When this option is on, check that all the datum have the same size");
+DEFINE_bool(encoded, true, "When this option is on, the encoded image will be save in datum");
+DEFINE_string(encode_type, "", "Optional: What type should we encode the image as ('png','jpg',...).");
 
 
 size_t rfind_splash(const std::string& line, size_t pos) {
@@ -71,17 +69,167 @@ size_t rfind_splash(const std::string& line, size_t pos) {
   return pos1;
 }
 
+//int str2Datum(const char* str, char type, )
+
+int str2vec(const char* str, vector<float>& vec) {
+  vector<string> strs;
+  wstd::split(strs, str, " ");
+  vec.resize(strs.size());
+  int i;
+  for (i = 0; i < vec.size(); ++i) {
+    vec[i] = atof(strs[i].c_str());
+  }
+  return vec.size();
+}
+
+int save_db(const char* db_fn, const char* encode_type, bool is_color, const char* root_folder, const char* typelist, const vector<string>& lines) {
+  int resize_height = FLAGS_resize_height;
+  int resize_width = FLAGS_resize_width;
+  // Create new DB
+  shared_ptr<db::DB> db(db::GetDB(FLAGS_backend));
+  db->Open(db_fn, db::NEW);
+  shared_ptr<db::Transaction> txn(db->NewTransaction());
+  // Storing to db
+  Datum datum;
+  int count = 0;
+  int data_size = 0;
+  bool data_size_initialized = false;
+  bool encoded = encode_type!=NULL;
+  bool check_size = true;
+  int i, n = strlen(typelist);
+  for (i=0; typelist[i]; ++i) {
+    datum.add_blob();
+  }
+  for (int line_id = 0; line_id < lines.size(); ++line_id) {
+    bool status;
+    vector<string> strs;
+    wstd::split(strs, lines[line_id], ";");
+    LOG_IF(INFO, strs.size() != n) << "strs.size()!=n";
+    for (i=0; i<n; ++i) {
+      string fn = strs[i];
+      BlobData* blob = datum.mutable_blob(i);
+      char c = typelist[i];
+      if ('i' == c) {
+        std::string enc = encode_type ? encode_type : "";
+        printf("%s\n", fn.c_str());
+        if (encoded && !enc.size()) {
+          // Guess the encoding type from the file name
+          size_t p = fn.rfind('.');
+          if (p == fn.npos) {
+            LOG(WARNING) << "Failed to guess the encoding of '" << fn << "'";
+          }
+          enc = fn.substr(p);
+          std::transform(enc.begin(), enc.end(), enc.begin(), ::tolower);
+        }
+        status = ReadImageToBlob(root_folder + fn, resize_height, resize_width, is_color, enc, blob);
+        if (status == false) {
+          LOG(WARNING) << "Failed to ReadImageToBlob '" << fn << "'";
+          continue;
+        }
+        if (check_size) {
+          if (!data_size_initialized) {
+            data_size = blob_channels(*blob) * blob_height(*blob) * blob_width(*blob);
+            data_size_initialized = true;
+          }
+          else {
+            const std::string & data = blob->data();
+            CHECK_EQ(data.size(), data_size) << "Incorrect data field size "
+              << data.size();
+          }
+        }
+      } else if ('f' == c) {
+        vector<float> vec;
+        str2vec(fn.c_str(), vec);
+        Blob_NCHW(blob, false, vec.data(), (int)vec.size());
+      }
+    }
+    // sequential
+    string key_str = wstd::format_int(line_id, 8);
+    // Put in db
+    string out;
+    CHECK(datum.SerializeToString(&out));
+    txn->Put(key_str, out);
+    if (++count % 1000 == 0) {
+      // Commit db
+      txn->Commit();
+      txn.reset(db->NewTransaction());
+      LOG(INFO) << "Processed " << count << " files.";
+    }
+  }
+  // write the last batch
+  if (count % 1000 != 0) {
+    txn->Commit();
+    LOG(INFO) << "Processed " << count << " files.";
+  }
+  return 0;
+}
+
+int read_db(const char* db_fn)
+{
+  shared_ptr<db::DB> db(db::GetDB(FLAGS_backend));
+  db->Open(db_fn, db::READ);
+  SHARED_PTR<db::Cursor> cursor(db->NewCursor());
+  for (int i = 0; cursor->valid(); i++) {
+    Datum datum;
+    printf("=== %d ===\n", i);
+    // TODO deserialize in-place instead of copy?
+    datum.ParseFromString(cursor->value());
+    for (int j = 0; j < datum.blob_size(); ++j) {
+      const BlobData& blob = datum.blob(j);
+      int num = blob_size(blob);
+      printf("[");
+      for (int k = 0; k < num; k++) {
+        double lk = blob_getValue(blob, k);
+        printf("%s%lg", (k > 0)? " ":"", lk);
+      }
+      printf("]\n");
+    }
+    cursor->Next();
+  }
+  return 0;
+}
+
+int convert_db_mutil(int argc, char** argv)
+{
+  wstd::SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
+    "format used as input for Caffe.\n"
+    "Usage:\n"
+    "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
+    "The ImageNet dataset for the training demo is at\n"
+    "    http://www.image-net.org/download-images\n");
+  wstd::ParseCommandLineFlags(argc, argv, true);
+  if (argc < 4) {
+    wstd::ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
+    return 1;
+  }
+  const bool is_color = !FLAGS_gray;
+  const bool check_size = FLAGS_check_size;
+  const bool encoded = FLAGS_encoded;
+  const string encode_type = FLAGS_encode_type;
+  printf("shuffle=%d,color=%d, check_size=%d, encoded=%d, resize_w=%d,resize_h=%d\n",
+    FLAGS_shuffle, is_color, check_size, encoded,
+    FLAGS_resize_width, FLAGS_resize_height);
+  std::vector<string> strs;
+  int len = wstd::readlines(argv[2], strs);
+  if (len<=0) {
+    printf("failed to open %s\n", argv[2]);
+  }
+  //const char* typelist = "ifff";
+  save_db(argv[3], NULL, is_color, argv[1], FLAGS_typelist.c_str(), strs);
+  return 0;
+}
+
 int convert_db(int argc, char** argv)
 {
-  gflags::SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
+  wstd::SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
                           "format used as input for Caffe.\n"
                           "Usage:\n"
                           "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
                           "The ImageNet dataset for the training demo is at\n"
                           "    http://www.image-net.org/download-images\n");
-  gflags::ParseCommandLineFlags(argc, argv, true);
+  wstd::ParseCommandLineFlags(argc, argv, true);
   if (argc < 4) {
-    gflags::ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
+    wstd::ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
     return 1;
   }
   const bool is_color = !FLAGS_gray;
@@ -138,15 +286,17 @@ int convert_db(int argc, char** argv)
   int resize_height = FLAGS_resize_height;
   int resize_width = FLAGS_resize_width;
   // Create new DB
-  scoped_ptr<db::DB> db(db::GetDB(FLAGS_backend));
+  shared_ptr<db::DB> db(db::GetDB(FLAGS_backend));
   db->Open(argv[3], db::NEW);
-  scoped_ptr<db::Transaction> txn(db->NewTransaction());
+  shared_ptr<db::Transaction> txn(db->NewTransaction());
   // Storing to db
   std::string root_folder(argv[1]);
   Datum datum;
   int count = 0;
   int data_size = 0;
   bool data_size_initialized = false;
+  BlobData* blob_img = datum.add_blob();
+  BlobData* blob_labels = datum.add_blob();
   for (int line_id = 0; line_id < lines.size(); ++line_id) {
     bool status;
     std::string enc = encode_type;
@@ -160,22 +310,21 @@ int convert_db(int argc, char** argv)
       enc = fn.substr(p);
       std::transform(enc.begin(), enc.end(), enc.begin(), ::tolower);
     }
-    status = ReadImageToDatum(root_folder + lines[line_id].first,
-                              lines[line_id].second, resize_height, resize_width, is_color,
-                              enc, &datum);
+    status = ReadImageToBlob(root_folder + lines[line_id].first, resize_height, resize_width, is_color, enc, blob_img);
+    LabelsToBlob(lines[line_id].second, blob_labels);
     if (status == false) { continue; }
     if (check_size) {
       if (!data_size_initialized) {
-        data_size = datum.channels() * datum.height() * datum.width();
+        data_size = blob_channels(*blob_img) * blob_height(*blob_img) * blob_width(*blob_img);
         data_size_initialized = true;
       } else {
-        const std::string & data = datum.data();
+        const std::string & data = blob_img->data();
         CHECK_EQ(data.size(), data_size) << "Incorrect data field size "
                                          << data.size();
       }
     }
     // sequential
-    string key_str = caffe::format_int(line_id, 8) + "_" + lines[line_id].first;
+    string key_str = wstd::format_int(line_id, 8) + "_" + lines[line_id].first;
     // Put in db
     string out;
     CHECK(datum.SerializeToString(&out));
@@ -195,7 +344,7 @@ int convert_db(int argc, char** argv)
   return 0;
 }
 
-void read_db(int argc, char** argv)
+int read2img_db(int argc, char** argv)
 {
 #ifdef _DEBUG
   argc = 4;
@@ -206,13 +355,13 @@ void read_db(int argc, char** argv)
 #endif
   if (argc < 5) {
     printf("exe dbfolder dstfolder readnum outputlist\n");
-    return;
+    return 0;
   }
   string dbfolder = argv[1];
   string dstfolder = argv[2];
   int num = atoi(argv[3]);
   _mkdir(dstfolder.c_str());
-  scoped_ptr<db::DB> db(db::GetDB("leveldb"));
+  shared_ptr<db::DB> db(db::GetDB("leveldb"));
   db->Open(dbfolder.c_str(), db::READ);
   SHARED_PTR<db::Cursor> cursor(db->NewCursor());
   std::ofstream ofs(argv[4]);
@@ -220,12 +369,14 @@ void read_db(int argc, char** argv)
     Datum datum;
     // TODO deserialize in-place instead of copy?
     datum.ParseFromString(cursor->value());
-    cv::Mat img = DecodeDatumToCVMat(datum, true);
+    cv::Mat img = DecodeDatumToCVMat(datum.blob(0), true);
     char name[100];
     sprintf(name, "%05d.png", i);
     ofs << name;
-    for (int j = 0; j < datum.label_size(); j++) {
-      int lj = datum.label(j);
+    const BlobData& blob_label = datum.blob(1);
+    int label_size = blob_size(blob_label);
+    for (int j = 0; j < label_size; j++) {
+      int lj = (int)blob_getValue(blob_label, j);
       ofs << " " << lj;
     }
     ofs << std::endl;
@@ -237,18 +388,28 @@ void read_db(int argc, char** argv)
       break;
     }
   }
+  return 0;
 }
 
 int convert_imageset(int argc, char** argv)
 {
 #ifdef USE_OPENCV
-  ::google::InitGoogleLogging(argv[0]);
+  wstd::InitGoogleLogging(argv[0]);
   // Print output to stderr (while still logging)
   FLAGS_alsologtostderr = 1;
   //FLAGS_alsologtostderr
-  _chdir("C://caffe_train//ocr");
-  char* argv_[] = {"<bin>", "", "test.txt", "test", "--gray=true", "--resize_width=30", "--resize_height=30" };
-  convert_db(7, argv_);
+#ifdef _DEBUG
+  const char* path;
+  path = "C:/caffe_train/ocr";
+  path = "E:/data/ew_id/mtcnn/48";
+  _chdir(path);
+  char* imdir = "E:/data/ew_id/mtcnn/48/";
+  char* argv_[] = {"<bin>", imdir, "images/train.txt", "lmdb/train1", "--gray=false", "--resize_width=48", "--resize_height=48", "--typelist=ifff" };
+    argc = countof(argv_);
+    argv = argv_;
+#endif
+  convert_db_mutil(argc, argv);
+  //read_db(argv_[3]);
   //convert_db(argc, argv);
 #else
   LOG(FATAL) << "This tool requires OpenCV; compile with USE_OPENCV.";

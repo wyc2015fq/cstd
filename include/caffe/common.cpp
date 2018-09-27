@@ -74,7 +74,7 @@ namespace caffe
   void GlobalInit(int argc, char** argv)
   {
     // wstd flags.
-    ::gflags::ParseCommandLineFlags(argc, argv, true);
+    wstd::ParseCommandLineFlags(argc, argv, true);
     // Provide a backtrace on segfault.
     //::wstd::InstallFailureSignalHandler();
     // wstd logging.

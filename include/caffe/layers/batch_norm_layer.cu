@@ -30,8 +30,8 @@ void BatchNormLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   } else {
     // compute mean
     caffe_gpu_gemv<Dtype>(CblasNoTrans, channels_ * num, spatial_dim,
-        1. / (num * spatial_dim), bottom_data,
-        spatial_sum_multiplier_.gpu_data(), 0.,
+      Dtype(1. / (num * spatial_dim)), bottom_data,
+        spatial_sum_multiplier_.gpu_data(), Dtype(0.),
         num_by_chans_.mutable_gpu_data());
     caffe_gpu_gemv<Dtype>(CblasTrans, num, channels_, 1.,
         num_by_chans_.gpu_data(), batch_sum_multiplier_.gpu_data(), 0.,
@@ -51,8 +51,8 @@ void BatchNormLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
     caffe_gpu_powx(top[0]->count(), top_data, Dtype(2),
         temp_.mutable_gpu_data());  // (X-EX)^2
     caffe_gpu_gemv<Dtype>(CblasNoTrans, channels_ * num, spatial_dim,
-        1. / (num * spatial_dim), temp_.gpu_data(),
-        spatial_sum_multiplier_.gpu_data(), 0.,
+      Dtype(1. / (num * spatial_dim)), temp_.gpu_data(),
+        spatial_sum_multiplier_.gpu_data(), Dtype(0.),
         num_by_chans_.mutable_gpu_data());
     caffe_gpu_gemv<Dtype>(CblasTrans, num, channels_, 1.,
         num_by_chans_.gpu_data(), batch_sum_multiplier_.gpu_data(), 0.,

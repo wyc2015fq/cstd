@@ -31,25 +31,25 @@ namespace caffe
      * @brief Applies the transformation defined in the data layer's
      * transform_param block to the data.
      *
-     * @param datum
-     *    Datum containing the data to be transformed.
+     * @param blob
+     *    BlobData containing the data to be transformed.
      * @param transformed_blob
      *    This is destination blob. It can be part of top blob's data if
      *    set_cpu_data() is used. See data_layer.cpp for an example.
      */
-    void Transform(const Datum & datum, Blob<Dtype>* transformed_blob);
+    void Transform(const BlobData & blob, Blob<Dtype>* transformed_blob);
 
     /**
      * @brief Applies the transformation defined in the data layer's
-     * transform_param block to a vector of Datum.
+     * transform_param block to a vector of BlobData.
      *
      * @param datum_vector
-     *    A vector of Datum containing the data to be transformed.
+     *    A vector of BlobData containing the data to be transformed.
      * @param transformed_blob
      *    This is destination blob. It can be part of top blob's data if
      *    set_cpu_data() is used. See memory_layer.cpp for an example.
      */
-    void Transform(const vector<Datum> & datum_vector,
+    void Transform(const vector<BlobData> & datum_vector,
                    Blob<Dtype>* transformed_blob);
 
 #ifdef USE_OPENCV
@@ -96,19 +96,19 @@ namespace caffe
      * @brief Infers the shape of transformed_blob will have when
      *    the transformation is applied to the data.
      *
-     * @param datum
-     *    Datum containing the data to be transformed.
+     * @param blob
+     *    BlobData containing the data to be transformed.
      */
-    vector<int> InferBlobShape(const Datum & datum);
+    vector<int> InferBlobShape(const BlobData & blob);
     /**
      * @brief Infers the shape of transformed_blob will have when
      *    the transformation is applied to the data.
      *    It uses the first element to infer the shape of the blob.
      *
      * @param datum_vector
-     *    A vector of Datum containing the data to be transformed.
+     *    A vector of BlobData containing the data to be transformed.
      */
-    vector<int> InferBlobShape(const vector<Datum> & datum_vector);
+    vector<int> InferBlobShape(const vector<BlobData> & datum_vector);
     /**
      * @brief Infers the shape of transformed_blob will have when
      *    the transformation is applied to the data.
@@ -140,7 +140,7 @@ namespace caffe
     */
     virtual int Rand(int n);
 
-    void Transform(const Datum & datum, Dtype* transformed_data);
+    void Transform(const BlobData & blob, Dtype* transformed_data);
     // Tranformation parameters
     TransformationParameter param_;
 

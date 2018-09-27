@@ -34,7 +34,7 @@ void RecurrentLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 	  Dtype* pcont = cont_input_blob_->mutable_cpu_data();
 	  for (int i = 0; i<T_; i++)
 	  {
-		  int cont = i == 0 ? 0 : 1;
+      Dtype cont = Dtype(i == 0 ? 0 : 1);
 		  Dtype* pconti = pcont + N_*i;
 		  for (int j = 0; j<N_; j++)
 		  {
@@ -46,7 +46,7 @@ void RecurrentLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   unrolled_net_->ForwardTo(last_layer_index_);
 
   if (expose_hidden_) {
-    const int top_offset = output_blobs_.size();
+    const int top_offset = (int)output_blobs_.size();
     for (int i = top_offset, j = 0; i < top.size(); ++i, ++j) {
       top[i]->ShareData(*recur_output_blobs_[j]);
     }

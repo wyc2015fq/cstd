@@ -23,11 +23,6 @@ namespace caffe
   void BaseDataLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                                         const vector<Blob<Dtype>*> & top)
   {
-    if (top.size() == 1) {
-      output_labels_ = false;
-    } else {
-      output_labels_ = true;
-    }
     data_transformer_.reset(
       new DataTransformer<Dtype>(transform_param_, this->phase_));
     data_transformer_->InitRand();
@@ -58,17 +53,15 @@ namespace caffe
     // cudaMalloc calls when the main thread is running. In some GPUs this
     // seems to cause failures if we do not so.
     for (int i = 0; i < prefetch_.size(); ++i) {
-      prefetch_[i]->data_.mutable_cpu_data();
-      if (this->output_labels_) {
-        prefetch_[i]->label_.mutable_cpu_data();
+      for (int j = 0; j < top.size(); ++j) {
+        prefetch_[i]->data_[j].mutable_cpu_data();
       }
     }
 #ifndef CPU_ONLY
     if (Caffe::mode() == Caffe::GPU) {
       for (int i = 0; i < prefetch_.size(); ++i) {
-        prefetch_[i]->data_.mutable_gpu_data();
-        if (this->output_labels_) {
-          prefetch_[i]->label_.mutable_gpu_data();
+      	for (int j=0; j< top.size(); ++j) {
+          prefetch_[i]->data_[j].mutable_gpu_data();
         }
       }
     }
@@ -94,9 +87,9 @@ namespace caffe
         load_batch(batch);
 #ifndef CPU_ONLY
         if (Caffe::mode() == Caffe::GPU) {
-          batch->data_.data().get()->async_gpu_push(stream);
-          if (this->output_labels_) {
-            batch->label_.data().get()->async_gpu_push(stream);
+        	for (int j=0; j<batch->data_size; ++j) {
+            SyncedMemory* ptr = batch->data_[j].data().get();
+            if (ptr) ptr->async_gpu_push(stream);
           }
           CUDA_CHECK(cudaStreamSynchronize(stream));
         }
@@ -123,13 +116,15 @@ namespace caffe
     }
     prefetch_current_ = prefetch_full_.pop("Waiting for data");
     // Reshape to loaded data.
-    top[0]->ReshapeLike(prefetch_current_->data_);
-    top[0]->set_cpu_data(prefetch_current_->data_.mutable_cpu_data());
-    if (this->output_labels_) {
-      // Reshape to loaded labels.
-      top[1]->ReshapeLike(prefetch_current_->label_);
-      top[1]->set_cpu_data(prefetch_current_->label_.mutable_cpu_data());
+    LOG_IF(INFO, top.size() > top.size()) << " top.size()> datum.blob_size()";
+    for (int j = 0; j<top.size(); ++j) {
+	    top[j]->ReshapeLike(prefetch_current_->data_[j]);
+	    top[j]->set_cpu_data(prefetch_current_->data_[j].mutable_cpu_data());
+      //Dtype* ptr = (Dtype*)prefetch_current_->data_[j].mutable_cpu_data();
+      //int count = top[j]->count();
+      //printf("%f ", ptr[count-1]);
     }
+    //printf("\n");
   }
 
 #ifdef CPU_ONLY

@@ -85,9 +85,9 @@ void BatchReindexLayer<Dtype>::Backward_gpu(
   caffe_set(begins.count(), Dtype(-1), b_data);
   caffe_set(counts.count(), Dtype(0), c_data);
   for (int i = 0; i < mapping.size(); ++i) {
-    t_i_data[i] = mapping[i].second;
+    t_i_data[i] = Dtype(mapping[i].second);
     if (b_data[mapping[i].first] == -1) {
-      b_data[mapping[i].first] = i;
+      b_data[mapping[i].first] = Dtype(i);
     }
     c_data[mapping[i].first] += 1;
   }

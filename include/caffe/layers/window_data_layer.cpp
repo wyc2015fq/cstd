@@ -95,12 +95,12 @@ namespace caffe
       channels = image_size[0];
       image_database_.push_back(std::make_pair(image_path, image_size));
       if (cache_images_) {
-        Datum datum;
-        if (!ReadFileToDatum(image_path, &datum)) {
+        BlobData blob;
+        if (!ReadFileToDatum(image_path, &blob)) {
           LOG(ERROR) << "Could not open or find file " << image_path;
           return;
         }
-        image_database_cache_.push_back(std::make_pair(image_path, datum));
+        image_database_cache_.push_back(std::make_pair(image_path, blob));
       }
       // read each box
       int num_windows;
@@ -160,9 +160,10 @@ namespace caffe
     CHECK_GT(crop_size, 0);
     const int batch_size = this->layer_param_.window_data_param().batch_size();
     top[0]->Reshape(batch_size, channels, crop_size, crop_size);
-    for (int i = 0; i < this->prefetch_.size(); ++i)
-      this->prefetch_[i]->data_.Reshape(
-        batch_size, channels, crop_size, crop_size);
+    for (int i = 0; i < this->prefetch_.size(); ++i) {
+      this->prefetch_[i]->data_.resize(2);
+      this->prefetch_[i]->data_[0].Reshape(batch_size, channels, crop_size, crop_size);
+    }
     LOG(INFO) << "output data size: " << top[0]->num() << ","
               << top[0]->channels() << "," << top[0]->height() << ","
               << top[0]->width();
@@ -170,7 +171,7 @@ namespace caffe
     vector<int> label_shape(1, batch_size);
     top[1]->Reshape(label_shape);
     for (int i = 0; i < this->prefetch_.size(); ++i) {
-      this->prefetch_[i]->label_.Reshape(label_shape);
+        this->prefetch_[i]->data_[1].Reshape(label_shape);
     }
     // data mean
     has_mean_file_ = this->transform_param_.has_mean_file();
@@ -220,8 +221,6 @@ namespace caffe
     double read_time = 0;
     double trans_time = 0;
     CPUTimer timer;
-    Dtype* top_data = batch->data_.mutable_cpu_data();
-    Dtype* top_label = batch->label_.mutable_cpu_data();
     const Dtype scale = this->layer_param_.window_data_param().scale();
     const int batch_size = this->layer_param_.window_data_param().batch_size();
     const int context_pad = this->layer_param_.window_data_param().context_pad();
@@ -242,8 +241,11 @@ namespace caffe
     cv::Size cv_crop_size(crop_size, crop_size);
     const string & crop_mode = this->layer_param_.window_data_param().crop_mode();
     bool use_square = (crop_mode == "square") ? true : false;
+    batch->data_.resize(2);
     // zero out batch
-    caffe_set(batch->data_.count(), Dtype(0), top_data);
+    Dtype* top_data = batch->data_[0].mutable_cpu_data();
+    Dtype* top_label = batch->data_[1].mutable_cpu_data();
+    caffe_set(batch->data_[0].count(), Dtype(0), top_data);
     const int num_fg = static_cast<int>(static_cast<float>(batch_size)
                                         * fg_fraction);
     const int num_samples[2] = { batch_size - num_fg, num_fg };
@@ -265,7 +267,7 @@ namespace caffe
           image_database_[window[WindowDataLayer<Dtype>::IMAGE_INDEX]];
         cv::Mat cv_img;
         if (this->cache_images_) {
-          pair<std::string, Datum> image_cached =
+          pair<std::string, BlobData> image_cached =
             image_database_cache_[window[WindowDataLayer<Dtype>::IMAGE_INDEX]];
           cv_img = DecodeDatumToCVMat(image_cached.second, true);
         } else {

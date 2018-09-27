@@ -1,6 +1,7 @@
 #ifndef CAFFE_COMMON_HPP_
 #define CAFFE_COMMON_HPP_
 
+#include "caffe_config.h"
 #include <wstd/flags.hpp>
 
 #include <climits>

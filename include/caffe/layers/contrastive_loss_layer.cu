@@ -89,7 +89,7 @@ void ContrastiveLossLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
       Dtype margin = this->layer_param_.contrastive_loss_param().margin();
       const bool legacy_version =
           this->layer_param_.contrastive_loss_param().legacy_version();
-      const Dtype sign = (i == 0) ? 1 : -1;
+      const Dtype sign = Dtype((i == 0) ? 1 : -1);
       const Dtype alpha = sign * top[0]->cpu_diff()[0] /
           static_cast<Dtype>(bottom[0]->num());
       // NOLINT_NEXT_LINE(whitespace/operators)

@@ -1,6 +1,6 @@
 #include <thread>
 #include <exception>
-
+#include "wstd/logging.hpp"
 #include "internal_thread.hpp"
 #include "caffe/util/math_functions.hpp"
 

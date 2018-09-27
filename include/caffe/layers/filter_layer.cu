@@ -8,7 +8,7 @@ namespace caffe {
 template <typename Dtype>
 void FilterLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
-  int new_tops_num = indices_to_forward_.size();
+  int new_tops_num = (int)indices_to_forward_.size();
   // forward all filtered items for all bottoms but the Selector (bottom[last])
   for (int t = 0; t < top.size(); ++t) {
     const Dtype* bottom_data = bottom[t]->gpu_data();

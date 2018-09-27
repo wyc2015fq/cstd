@@ -9,3 +9,5 @@
 #define OS_LINUX
 #include <sys/time.h>
 #endif
+
+#define DEFAULT NULL

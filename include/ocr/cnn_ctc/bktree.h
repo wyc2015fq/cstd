@@ -43,7 +43,7 @@ typedef struct BKResult_s BKResult;
 
 BKTree * bktree_new(int (* distance)(char *, int, char *, int, int));
 void bktree_destroy(BKTree * bktree);
-BKNode * bktree_add(BKTree * bktree, char * string, unsigned char len);
+BKNode * bktree_add(BKTree * bktree, char * string, int len);
 void bktree_node_print(BKTree * bktree, BKNode * node);
 
-std::vector<BKResult> bktree_query(BKTree * bktree, char * string, unsigned char len, int max);
+std::vector<BKResult> bktree_query(BKTree * bktree, char * string, int len, int max);

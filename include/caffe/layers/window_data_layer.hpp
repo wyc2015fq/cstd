@@ -49,7 +49,7 @@ namespace caffe
     bool has_mean_file_;
     bool has_mean_values_;
     bool cache_images_;
-    vector<std::pair<std::string, Datum > > image_database_cache_;
+    vector<std::pair<std::string, BlobData > > image_database_cache_;
   };
 
 }  // namespace caffe

@@ -40,6 +40,7 @@ void protobuf_ShutdownFile_caffe_2eproto();
 class BlobShape;
 class BlobProto;
 class BlobProtoVector;
+class BlobData;
 class Datum;
 class FillerParameter;
 class NetParameter;
@@ -643,6 +644,31 @@ inline bool V0LayerParameter_PoolMethod_Parse(
   return ::google::protobuf::internal::ParseNamedEnum<V0LayerParameter_PoolMethod>(
     V0LayerParameter_PoolMethod_descriptor(), name, value);
 }
+enum TypeFlag {
+  TF_S8 = 0,
+  TF_U8 = 1,
+  TF_S16 = 2,
+  TF_U16 = 3,
+  TF_S32 = 4,
+  TF_U32 = 5,
+  TF_F32 = 6,
+  TF_F64 = 7
+};
+bool TypeFlag_IsValid(int value);
+const TypeFlag TypeFlag_MIN = TF_S8;
+const TypeFlag TypeFlag_MAX = TF_F64;
+const int TypeFlag_ARRAYSIZE = TypeFlag_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* TypeFlag_descriptor();
+inline const ::std::string& TypeFlag_Name(TypeFlag value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    TypeFlag_descriptor(), value);
+}
+inline bool TypeFlag_Parse(
+    const ::std::string& name, TypeFlag* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<TypeFlag>(
+    TypeFlag_descriptor(), name, value);
+}
 enum Phase {
   TRAIN = 0,
   TEST = 1
@@ -1036,6 +1062,133 @@ class BlobProtoVector : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
+class BlobData : public ::google::protobuf::Message {
+ public:
+  BlobData();
+  virtual ~BlobData();
+
+  BlobData(const BlobData& from);
+
+  inline BlobData& operator=(const BlobData& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields();
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const BlobData& default_instance();
+
+  void Swap(BlobData* other);
+
+  // implements Message ----------------------------------------------
+
+  inline BlobData* New() const { return New(NULL); }
+
+  BlobData* New(::google::protobuf::Arena* arena) const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const BlobData& from);
+  void MergeFrom(const BlobData& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  void InternalSwap(BlobData* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return _internal_metadata_.arena();
+  }
+  inline void* MaybeArenaPtr() const {
+    return _internal_metadata_.raw_arena_ptr();
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated int32 dim = 1;
+  int dim_size() const;
+  void clear_dim();
+  static const int kDimFieldNumber = 1;
+  ::google::protobuf::int32 dim(int index) const;
+  void set_dim(int index, ::google::protobuf::int32 value);
+  void add_dim(::google::protobuf::int32 value);
+  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      dim() const;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_dim();
+
+  // optional bytes data = 2;
+  bool has_data() const;
+  void clear_data();
+  static const int kDataFieldNumber = 2;
+  const ::std::string& data() const;
+  void set_data(const ::std::string& value);
+  void set_data(const char* value);
+  void set_data(const void* value, size_t size);
+  ::std::string* mutable_data();
+  ::std::string* release_data();
+  void set_allocated_data(::std::string* data);
+
+  // optional .caffe.TypeFlag type = 3;
+  bool has_type() const;
+  void clear_type();
+  static const int kTypeFieldNumber = 3;
+  ::caffe::TypeFlag type() const;
+  void set_type(::caffe::TypeFlag value);
+
+  // optional bool encoded = 5 [default = false];
+  bool has_encoded() const;
+  void clear_encoded();
+  static const int kEncodedFieldNumber = 5;
+  bool encoded() const;
+  void set_encoded(bool value);
+
+  // @@protoc_insertion_point(class_scope:caffe.BlobData)
+ private:
+  inline void set_has_data();
+  inline void clear_has_data();
+  inline void set_has_type();
+  inline void clear_has_type();
+  inline void set_has_encoded();
+  inline void clear_has_encoded();
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > dim_;
+  ::google::protobuf::internal::ArenaStringPtr data_;
+  int type_;
+  bool encoded_;
+  friend void  protobuf_AddDesc_caffe_2eproto();
+  friend void protobuf_AssignDesc_caffe_2eproto();
+  friend void protobuf_ShutdownFile_caffe_2eproto();
+
+  void InitAsDefaultInstance();
+  static BlobData* default_instance_;
+};
+// -------------------------------------------------------------------
+
 class Datum : public ::google::protobuf::Message {
  public:
   Datum();
@@ -1100,93 +1253,25 @@ class Datum : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // optional int32 channels = 1;
-  bool has_channels() const;
-  void clear_channels();
-  static const int kChannelsFieldNumber = 1;
-  ::google::protobuf::int32 channels() const;
-  void set_channels(::google::protobuf::int32 value);
-
-  // optional int32 height = 2;
-  bool has_height() const;
-  void clear_height();
-  static const int kHeightFieldNumber = 2;
-  ::google::protobuf::int32 height() const;
-  void set_height(::google::protobuf::int32 value);
-
-  // optional int32 width = 3;
-  bool has_width() const;
-  void clear_width();
-  static const int kWidthFieldNumber = 3;
-  ::google::protobuf::int32 width() const;
-  void set_width(::google::protobuf::int32 value);
-
-  // optional bytes data = 4;
-  bool has_data() const;
-  void clear_data();
-  static const int kDataFieldNumber = 4;
-  const ::std::string& data() const;
-  void set_data(const ::std::string& value);
-  void set_data(const char* value);
-  void set_data(const void* value, size_t size);
-  ::std::string* mutable_data();
-  ::std::string* release_data();
-  void set_allocated_data(::std::string* data);
-
-  // repeated int32 label = 5;
-  int label_size() const;
-  void clear_label();
-  static const int kLabelFieldNumber = 5;
-  ::google::protobuf::int32 label(int index) const;
-  void set_label(int index, ::google::protobuf::int32 value);
-  void add_label(::google::protobuf::int32 value);
-  const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
-      label() const;
-  ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
-      mutable_label();
-
-  // repeated float float_data = 6;
-  int float_data_size() const;
-  void clear_float_data();
-  static const int kFloatDataFieldNumber = 6;
-  float float_data(int index) const;
-  void set_float_data(int index, float value);
-  void add_float_data(float value);
-  const ::google::protobuf::RepeatedField< float >&
-      float_data() const;
-  ::google::protobuf::RepeatedField< float >*
-      mutable_float_data();
-
-  // optional bool encoded = 7 [default = false];
-  bool has_encoded() const;
-  void clear_encoded();
-  static const int kEncodedFieldNumber = 7;
-  bool encoded() const;
-  void set_encoded(bool value);
+  // repeated .caffe.BlobData blob = 6;
+  int blob_size() const;
+  void clear_blob();
+  static const int kBlobFieldNumber = 6;
+  const ::caffe::BlobData& blob(int index) const;
+  ::caffe::BlobData* mutable_blob(int index);
+  ::caffe::BlobData* add_blob();
+  const ::google::protobuf::RepeatedPtrField< ::caffe::BlobData >&
+      blob() const;
+  ::google::protobuf::RepeatedPtrField< ::caffe::BlobData >*
+      mutable_blob();
 
   // @@protoc_insertion_point(class_scope:caffe.Datum)
  private:
-  inline void set_has_channels();
-  inline void clear_has_channels();
-  inline void set_has_height();
-  inline void clear_has_height();
-  inline void set_has_width();
-  inline void clear_has_width();
-  inline void set_has_data();
-  inline void clear_has_data();
-  inline void set_has_encoded();
-  inline void clear_has_encoded();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::google::protobuf::int32 channels_;
-  ::google::protobuf::int32 height_;
-  ::google::protobuf::internal::ArenaStringPtr data_;
-  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > label_;
-  ::google::protobuf::int32 width_;
-  bool encoded_;
-  ::google::protobuf::RepeatedField< float > float_data_;
+  ::google::protobuf::RepeatedPtrField< ::caffe::BlobData > blob_;
   friend void  protobuf_AddDesc_caffe_2eproto();
   friend void protobuf_AssignDesc_caffe_2eproto();
   friend void protobuf_ShutdownFile_caffe_2eproto();
@@ -12558,215 +12643,172 @@ BlobProtoVector::mutable_blobs() {
 
 // -------------------------------------------------------------------
 
-// Datum
+// BlobData
 
-// optional int32 channels = 1;
-inline bool Datum::has_channels() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
+// repeated int32 dim = 1;
+inline int BlobData::dim_size() const {
+  return dim_.size();
 }
-inline void Datum::set_has_channels() {
-  _has_bits_[0] |= 0x00000001u;
+inline void BlobData::clear_dim() {
+  dim_.Clear();
 }
-inline void Datum::clear_has_channels() {
-  _has_bits_[0] &= ~0x00000001u;
+inline ::google::protobuf::int32 BlobData::dim(int index) const {
+  // @@protoc_insertion_point(field_get:caffe.BlobData.dim)
+  return dim_.Get(index);
 }
-inline void Datum::clear_channels() {
-  channels_ = 0;
-  clear_has_channels();
+inline void BlobData::set_dim(int index, ::google::protobuf::int32 value) {
+  dim_.Set(index, value);
+  // @@protoc_insertion_point(field_set:caffe.BlobData.dim)
 }
-inline ::google::protobuf::int32 Datum::channels() const {
-  // @@protoc_insertion_point(field_get:caffe.Datum.channels)
-  return channels_;
+inline void BlobData::add_dim(::google::protobuf::int32 value) {
+  dim_.Add(value);
+  // @@protoc_insertion_point(field_add:caffe.BlobData.dim)
 }
-inline void Datum::set_channels(::google::protobuf::int32 value) {
-  set_has_channels();
-  channels_ = value;
-  // @@protoc_insertion_point(field_set:caffe.Datum.channels)
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+BlobData::dim() const {
+  // @@protoc_insertion_point(field_list:caffe.BlobData.dim)
+  return dim_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+BlobData::mutable_dim() {
+  // @@protoc_insertion_point(field_mutable_list:caffe.BlobData.dim)
+  return &dim_;
 }
 
-// optional int32 height = 2;
-inline bool Datum::has_height() const {
+// optional bytes data = 2;
+inline bool BlobData::has_data() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void Datum::set_has_height() {
+inline void BlobData::set_has_data() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void Datum::clear_has_height() {
+inline void BlobData::clear_has_data() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void Datum::clear_height() {
-  height_ = 0;
-  clear_has_height();
-}
-inline ::google::protobuf::int32 Datum::height() const {
-  // @@protoc_insertion_point(field_get:caffe.Datum.height)
-  return height_;
-}
-inline void Datum::set_height(::google::protobuf::int32 value) {
-  set_has_height();
-  height_ = value;
-  // @@protoc_insertion_point(field_set:caffe.Datum.height)
-}
-
-// optional int32 width = 3;
-inline bool Datum::has_width() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void Datum::set_has_width() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void Datum::clear_has_width() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void Datum::clear_width() {
-  width_ = 0;
-  clear_has_width();
-}
-inline ::google::protobuf::int32 Datum::width() const {
-  // @@protoc_insertion_point(field_get:caffe.Datum.width)
-  return width_;
-}
-inline void Datum::set_width(::google::protobuf::int32 value) {
-  set_has_width();
-  width_ = value;
-  // @@protoc_insertion_point(field_set:caffe.Datum.width)
-}
-
-// optional bytes data = 4;
-inline bool Datum::has_data() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
-}
-inline void Datum::set_has_data() {
-  _has_bits_[0] |= 0x00000008u;
-}
-inline void Datum::clear_has_data() {
-  _has_bits_[0] &= ~0x00000008u;
-}
-inline void Datum::clear_data() {
+inline void BlobData::clear_data() {
   data_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   clear_has_data();
 }
-inline const ::std::string& Datum::data() const {
-  // @@protoc_insertion_point(field_get:caffe.Datum.data)
+inline const ::std::string& BlobData::data() const {
+  // @@protoc_insertion_point(field_get:caffe.BlobData.data)
   return data_.GetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void Datum::set_data(const ::std::string& value) {
+inline void BlobData::set_data(const ::std::string& value) {
   set_has_data();
   data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:caffe.Datum.data)
+  // @@protoc_insertion_point(field_set:caffe.BlobData.data)
 }
-inline void Datum::set_data(const char* value) {
+inline void BlobData::set_data(const char* value) {
   set_has_data();
   data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:caffe.Datum.data)
+  // @@protoc_insertion_point(field_set_char:caffe.BlobData.data)
 }
-inline void Datum::set_data(const void* value, size_t size) {
+inline void BlobData::set_data(const void* value, size_t size) {
   set_has_data();
   data_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:caffe.Datum.data)
+  // @@protoc_insertion_point(field_set_pointer:caffe.BlobData.data)
 }
-inline ::std::string* Datum::mutable_data() {
+inline ::std::string* BlobData::mutable_data() {
   set_has_data();
-  // @@protoc_insertion_point(field_mutable:caffe.Datum.data)
+  // @@protoc_insertion_point(field_mutable:caffe.BlobData.data)
   return data_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* Datum::release_data() {
+inline ::std::string* BlobData::release_data() {
   clear_has_data();
   return data_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void Datum::set_allocated_data(::std::string* data) {
+inline void BlobData::set_allocated_data(::std::string* data) {
   if (data != NULL) {
     set_has_data();
   } else {
     clear_has_data();
   }
   data_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), data);
-  // @@protoc_insertion_point(field_set_allocated:caffe.Datum.data)
+  // @@protoc_insertion_point(field_set_allocated:caffe.BlobData.data)
 }
 
-// repeated int32 label = 5;
-inline int Datum::label_size() const {
-  return label_.size();
+// optional .caffe.TypeFlag type = 3;
+inline bool BlobData::has_type() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void Datum::clear_label() {
-  label_.Clear();
+inline void BlobData::set_has_type() {
+  _has_bits_[0] |= 0x00000004u;
 }
-inline ::google::protobuf::int32 Datum::label(int index) const {
-  // @@protoc_insertion_point(field_get:caffe.Datum.label)
-  return label_.Get(index);
+inline void BlobData::clear_has_type() {
+  _has_bits_[0] &= ~0x00000004u;
 }
-inline void Datum::set_label(int index, ::google::protobuf::int32 value) {
-  label_.Set(index, value);
-  // @@protoc_insertion_point(field_set:caffe.Datum.label)
+inline void BlobData::clear_type() {
+  type_ = 0;
+  clear_has_type();
 }
-inline void Datum::add_label(::google::protobuf::int32 value) {
-  label_.Add(value);
-  // @@protoc_insertion_point(field_add:caffe.Datum.label)
+inline ::caffe::TypeFlag BlobData::type() const {
+  // @@protoc_insertion_point(field_get:caffe.BlobData.type)
+  return static_cast< ::caffe::TypeFlag >(type_);
 }
-inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
-Datum::label() const {
-  // @@protoc_insertion_point(field_list:caffe.Datum.label)
-  return label_;
-}
-inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
-Datum::mutable_label() {
-  // @@protoc_insertion_point(field_mutable_list:caffe.Datum.label)
-  return &label_;
+inline void BlobData::set_type(::caffe::TypeFlag value) {
+  assert(::caffe::TypeFlag_IsValid(value));
+  set_has_type();
+  type_ = value;
+  // @@protoc_insertion_point(field_set:caffe.BlobData.type)
 }
 
-// repeated float float_data = 6;
-inline int Datum::float_data_size() const {
-  return float_data_.size();
+// optional bool encoded = 5 [default = false];
+inline bool BlobData::has_encoded() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
 }
-inline void Datum::clear_float_data() {
-  float_data_.Clear();
+inline void BlobData::set_has_encoded() {
+  _has_bits_[0] |= 0x00000008u;
 }
-inline float Datum::float_data(int index) const {
-  // @@protoc_insertion_point(field_get:caffe.Datum.float_data)
-  return float_data_.Get(index);
+inline void BlobData::clear_has_encoded() {
+  _has_bits_[0] &= ~0x00000008u;
 }
-inline void Datum::set_float_data(int index, float value) {
-  float_data_.Set(index, value);
-  // @@protoc_insertion_point(field_set:caffe.Datum.float_data)
-}
-inline void Datum::add_float_data(float value) {
-  float_data_.Add(value);
-  // @@protoc_insertion_point(field_add:caffe.Datum.float_data)
-}
-inline const ::google::protobuf::RepeatedField< float >&
-Datum::float_data() const {
-  // @@protoc_insertion_point(field_list:caffe.Datum.float_data)
-  return float_data_;
-}
-inline ::google::protobuf::RepeatedField< float >*
-Datum::mutable_float_data() {
-  // @@protoc_insertion_point(field_mutable_list:caffe.Datum.float_data)
-  return &float_data_;
-}
-
-// optional bool encoded = 7 [default = false];
-inline bool Datum::has_encoded() const {
-  return (_has_bits_[0] & 0x00000040u) != 0;
-}
-inline void Datum::set_has_encoded() {
-  _has_bits_[0] |= 0x00000040u;
-}
-inline void Datum::clear_has_encoded() {
-  _has_bits_[0] &= ~0x00000040u;
-}
-inline void Datum::clear_encoded() {
+inline void BlobData::clear_encoded() {
   encoded_ = false;
   clear_has_encoded();
 }
-inline bool Datum::encoded() const {
-  // @@protoc_insertion_point(field_get:caffe.Datum.encoded)
+inline bool BlobData::encoded() const {
+  // @@protoc_insertion_point(field_get:caffe.BlobData.encoded)
   return encoded_;
 }
-inline void Datum::set_encoded(bool value) {
+inline void BlobData::set_encoded(bool value) {
   set_has_encoded();
   encoded_ = value;
-  // @@protoc_insertion_point(field_set:caffe.Datum.encoded)
+  // @@protoc_insertion_point(field_set:caffe.BlobData.encoded)
+}
+
+// -------------------------------------------------------------------
+
+// Datum
+
+// repeated .caffe.BlobData blob = 6;
+inline int Datum::blob_size() const {
+  return blob_.size();
+}
+inline void Datum::clear_blob() {
+  blob_.Clear();
+}
+inline const ::caffe::BlobData& Datum::blob(int index) const {
+  // @@protoc_insertion_point(field_get:caffe.Datum.blob)
+  return blob_.Get(index);
+}
+inline ::caffe::BlobData* Datum::mutable_blob(int index) {
+  // @@protoc_insertion_point(field_mutable:caffe.Datum.blob)
+  return blob_.Mutable(index);
+}
+inline ::caffe::BlobData* Datum::add_blob() {
+  // @@protoc_insertion_point(field_add:caffe.Datum.blob)
+  return blob_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::caffe::BlobData >&
+Datum::blob() const {
+  // @@protoc_insertion_point(field_list:caffe.Datum.blob)
+  return blob_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::caffe::BlobData >*
+Datum::mutable_blob() {
+  // @@protoc_insertion_point(field_mutable_list:caffe.Datum.blob)
+  return &blob_;
 }
 
 // -------------------------------------------------------------------
@@ -27806,6 +27848,11 @@ template <> struct is_proto_enum< ::caffe::V0LayerParameter_PoolMethod> : ::goog
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::caffe::V0LayerParameter_PoolMethod>() {
   return ::caffe::V0LayerParameter_PoolMethod_descriptor();
+}
+template <> struct is_proto_enum< ::caffe::TypeFlag> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::caffe::TypeFlag>() {
+  return ::caffe::TypeFlag_descriptor();
 }
 template <> struct is_proto_enum< ::caffe::Phase> : ::google::protobuf::internal::true_type {};
 template <>

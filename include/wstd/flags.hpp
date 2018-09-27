@@ -15,10 +15,8 @@
 using namespace std;
 //typedef std::string string;
 
-namespace gflags
+namespace wstd
 {
-
-
 struct Param {
   enum {
     INT = 0, BOOLEAN = 1, REAL = 2, STRING = 3, MAT = 4, MAT_VECTOR = 5, ALGORITHM = 6, FLOAT = 7,
@@ -681,9 +679,9 @@ public:
 
   };
   static struct flags_data f_data;
-#define DEFINE_string(name, val, txt)  static std::string FLAGS_##name = val; static int IDFLAGS_##name = gflags::f_data.add(#name, &FLAGS_##name, val, txt)
-#define DEFINE_int32(name, val, txt)   static int32_t FLAGS_##name = val; static int IDFLAGS_##name = gflags::f_data.add(#name, &FLAGS_##name, val, txt)
-#define DEFINE_bool(name, val, txt)    static bool FLAGS_##name = val; static int IDFLAGS_##name = gflags::f_data.add(#name, &FLAGS_##name, val, txt)
+#define DEFINE_string(name, val, txt)  static std::string FLAGS_##name = val; static int IDFLAGS_##name = wstd::f_data.add(#name, &FLAGS_##name, val, txt)
+#define DEFINE_int32(name, val, txt)   static int32_t FLAGS_##name = val; static int IDFLAGS_##name = wstd::f_data.add(#name, &FLAGS_##name, val, txt)
+#define DEFINE_bool(name, val, txt)    static bool FLAGS_##name = val; static int IDFLAGS_##name = wstd::f_data.add(#name, &FLAGS_##name, val, txt)
 
   static int ParseCommandLineFlags(int argc, const char* const argv[], bool b)
   {

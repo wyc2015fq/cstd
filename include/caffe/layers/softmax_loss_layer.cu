@@ -57,7 +57,7 @@ void SoftmaxWithLossLayer<Dtype>::Forward_gpu(
     caffe_gpu_asum(nthreads, counts, &valid_count);
   }
   top[0]->mutable_cpu_data()[0] = loss / get_normalizer(normalization_,
-                                                        valid_count);
+                                                        (int)valid_count);
   if (top.size() == 2) {
     top[1]->ShareData(prob_);
   }

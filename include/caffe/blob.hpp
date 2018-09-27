@@ -75,6 +75,8 @@ namespace caffe
     }
     inline int num_axes() const { return (int)shape_.size(); }
     inline int count() const { return count_; }
+    inline int countL(int i) const { return count(0, i); }
+    inline int countH(int i) const { return count(i, 4); }
 
     /**
      * @brief Compute the volume of a slice; i.e., the product of dimensions
@@ -85,6 +87,11 @@ namespace caffe
      * @param end_axis The first axis to exclude from the slice.
      */
     inline int count(int start_axis, int end_axis) const {
+      if (end_axis > num_axes()) {
+        int asdf = 0;
+      }
+      start_axis = min(start_axis, num_axes());
+      end_axis = min(end_axis, num_axes());
       CHECK_LE(start_axis, end_axis);
       CHECK_GE(start_axis, 0);
       CHECK_GE(end_axis, 0);
@@ -268,7 +275,7 @@ namespace caffe
 
     bool ShapeEquals(const BlobProto & other);
 
-  protected:
+  public:
     SHARED_PTR<SyncedMemory> data_;
     SHARED_PTR<SyncedMemory> diff_;
     SHARED_PTR<SyncedMemory> shape_data_;

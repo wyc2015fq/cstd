@@ -27,7 +27,7 @@ namespace caffe
     virtual inline const char* type() const { return "Data"; }
     virtual inline int ExactNumBottomBlobs() const { return 0; }
     virtual inline int MinTopBlobs() const { return 1; }
-    virtual inline int MaxTopBlobs() const { return 2; }
+    virtual inline int MaxTopBlobs() const { return 10; }
 
     vector< std::pair<std::string, vector<int> > > lines_;
     int line_id_;

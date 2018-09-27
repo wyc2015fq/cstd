@@ -9,6 +9,7 @@
 #include <vector>
 #include <algorithm>
 #include <stdlib.h>
+#include <time.h>
 #include <iomanip>
 #include <sstream>
 
@@ -84,9 +85,11 @@ namespace wstd {
     std::replace_if(srcStr.begin(), srcStr.end(), [&](const char& c) {if (delimStr.find(c) != std::string::npos) { return true; } else { return false; }}/*pred*/, delimStr.at(0));//将出现的所有分隔符都替换成为一个相同的字符（分隔符字符串的第一个）
     size_t pos = srcStr.find(delimStr.at(0));
     std::string addedString = "";
+    resultStringVector.reserve(0);
     while (pos != std::string::npos) {
       addedString = srcStr.substr(0, pos);
       if (!addedString.empty() || !repeatedCharIgnored) {
+        addedString = trim(addedString, " \r\t");
         resultStringVector.push_back(addedString);
       }
       srcStr.erase(srcStr.begin(), srcStr.begin() + pos + 1);
@@ -94,10 +97,52 @@ namespace wstd {
     }
     addedString = srcStr;
     if (!addedString.empty() || !repeatedCharIgnored) {
+      addedString = trim(addedString, " \r\t");
       resultStringVector.push_back(addedString);
     }
     return (int)resultStringVector.size();
   }
+
+  static std::string strtime(const char* fmt) {
+    time_t rawtime;
+    tm *time1;
+    char buf[256];
+    time(&rawtime);
+    time1 = localtime(&rawtime);
+    fmt = fmt ? fmt : "%Y-%m-%d %H:%M:%S";
+    strftime(buf, 256, fmt, time1);
+    return buf;
+  }
+
+  inline char* strend(const char* str) {
+    return (char*)str + strlen(str);
+  }
+  static void path_split(const char* fullpath, string* path, string* filename, string* filenameext, string* ext) {
+    const char* p;
+    const char *e;
+    p = (p = strrchr(fullpath, '\\')) ? (p + 1) : (p = strrchr(fullpath, '/')) ? (p + 1) : fullpath;
+    e = (e = strrchr(fullpath, '.')) ? e : strend(fullpath);
+    if (path) path->assign(fullpath, p);
+    if (filename) filename->assign(p, e);
+    if (filenameext) filenameext->assign(p);
+    if (ext) ext->assign(e);
+  }
+  static string path_split_filename(const char* fullpath) {
+    string ret;
+    path_split(fullpath, NULL, &ret, NULL, NULL);
+    return ret;
+  }
+  static string path_split_filenameext(const char* fullpath) {
+    string ret;
+    path_split(fullpath, NULL, NULL, &ret, NULL);
+    return ret;
+  }
+  static string path_split_ext(const char* fullpath) {
+    string ret;
+    path_split(fullpath, NULL, NULL, NULL, &ret);
+    return ret;
+  }
+
 } // namespace wstd
 
 #endif // _WSTD_STRING_HPP_

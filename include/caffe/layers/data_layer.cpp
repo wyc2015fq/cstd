@@ -37,31 +37,24 @@ namespace caffe
     // Read a data point, and use it to initialize the top blob.
     Datum datum;
     datum.ParseFromString(cursor_->value());
+    LOG_IF(INFO, top.size() > datum.blob_size()) << " top.size()> datum.blob_size()";
     // Use data_transformer to infer the expected blob shape from datum.
-    vector<int> top_shape = this->data_transformer_->InferBlobShape(datum);
-    this->transformed_data_.Reshape(top_shape);
-    // Reshape top[0] and prefetch_data according to the batch_size.
-    top_shape[0] = batch_size;
-    top[0]->Reshape(top_shape);
     for (int i = 0; i < this->prefetch_.size(); ++i) {
-      this->prefetch_[i]->data_.Reshape(top_shape);
+      //this->prefetch_[i]->data_.resize(top.size());
+      for (int j = 0; j < top.size(); ++j) {
+        vector<int> top_shape = this->data_transformer_->InferBlobShape(datum.blob(j));
+        this->transformed_data_[j].Reshape(top_shape);
+        // Reshape top[0] and prefetch_data according to the batch_size.
+        top_shape[0] = batch_size;
+        top[j]->Reshape(top_shape);
+        this->prefetch_[i]->data_[j].Reshape(top_shape);
+      }
     }
+    
     LOG_IF(INFO, Caffe::root_solver())
         << "output data size: " << top[0]->num() << ","
         << top[0]->channels() << "," << top[0]->height() << ","
         << top[0]->width();
-    // label
-    if (this->output_labels_) {
-      vector<int> label_shape;
-      label_shape.push_back(batch_size);
-      label_shape.push_back(datum.label_size());
-      label_shape.push_back(1);
-      label_shape.push_back(1);
-      top[1]->Reshape(label_shape);
-      for (int i = 0; i < this->prefetch_.size(); ++i) {
-        this->prefetch_[i]->label_.Reshape(label_shape);
-      }
-    }
   }
 
   template <typename Dtype>
@@ -96,8 +89,8 @@ namespace caffe
     double read_time = 0;
     double trans_time = 0;
     CPUTimer timer;
-    CHECK(batch->data_.count());
-    CHECK(this->transformed_data_.count());
+    //for (int j=0; j<batch->data_.size(); ++j) {      CHECK(batch->data_[j].count());    }
+    //CHECK(this->transformed_data_.count());
     const int batch_size = this->layer_param_.data_param().batch_size();
     //rand skip
     if (rand_skip_num_ > 0) {
@@ -112,6 +105,7 @@ namespace caffe
       rand_skip_num_ = 0;//skip once
     }
     Datum datum;
+    batch->data_size = datum.blob_size();
     for (int item_id = 0; item_id < batch_size; ++item_id) {
       timer.Start();
       while (Skip()) {
@@ -119,29 +113,30 @@ namespace caffe
       }
       datum.ParseFromString(cursor_->value());
       read_time += timer.MicroSeconds();
-      if (item_id == 0) {
-        // Reshape according to the first datum of each batch
-        // on single input batches allows for inputs of varying dimension.
-        // Use data_transformer to infer the expected blob shape from datum.
-        vector<int> top_shape = this->data_transformer_->InferBlobShape(datum);
-        this->transformed_data_.Reshape(top_shape);
-        // Reshape batch according to the batch_size.
-        top_shape[0] = batch_size;
-        batch->data_.Reshape(top_shape);
-      }
-      // Apply data transformations (mirror, scale, crop...)
-      timer.Start();
-      int offset = batch->data_.offset(item_id);
-      Dtype* top_data = batch->data_.mutable_cpu_data();
-      this->transformed_data_.set_cpu_data(top_data + offset);
-      this->data_transformer_->Transform(datum, &(this->transformed_data_));
-      // Copy label.
-      if (this->output_labels_) {
-        Dtype* top_label = batch->label_.mutable_cpu_data();
-        //top_label[item_id] = datum.label();
-        for (size_t i = 0; i < datum.label_size(); i++) {
-          top_label[item_id * datum.label_size() + i] = datum.label(i);
+      for (int j = 0; j < datum.blob_size(); ++j) {
+        if (item_id == 0) {
+          // Reshape according to the first datum of each batch
+          // on single input batches allows for inputs of varying dimension.
+          // Use data_transformer to infer the expected blob shape from datum.
+          vector<int> top_shape = this->data_transformer_->InferBlobShape(datum.blob(j));
+          this->transformed_data_[j].Reshape(top_shape);
+          // Reshape batch according to the batch_size.
+          top_shape[0] = batch_size;
+          batch->data_[j].Reshape(top_shape);
         }
+        // Apply data transformations (mirror, scale, crop...)
+        timer.Start();
+        int offset = batch->data_[j].offset(item_id);
+        Dtype* top_data = batch->data_[j].mutable_cpu_data();
+        this->transformed_data_[j].set_cpu_data(top_data + offset);
+        if (0==j) {
+          this->data_transformer_->Transform(datum.blob(j), this->transformed_data_+j);
+        }
+        else {
+          Dtype* transformed_data = this->transformed_data_[j].mutable_cpu_data();
+          blob_data_copy(transformed_data, datum.blob(j));
+        }
+        // Copy label.
       }
       trans_time += timer.MicroSeconds();
       Next();

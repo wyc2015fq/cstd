@@ -145,32 +145,24 @@ namespace caffe
     return false;
   }
 
-  bool ReadImageToDatum(const string & filename, const std::vector<int> & labels,
-                        const int height, const int width, const bool is_color,
-                        const std::string & encoding, Datum* datum)
+
+  bool ReadImageToBlob(const string & filename, const int height, const int width, const bool is_color,
+                        const std::string & encoding, BlobData* blob_img)
   {
     cv::Mat cv_img = ReadImageToCVMat(filename, height, width, is_color);
     if (cv_img.data) {
       if (encoding.size()) {
         if ((cv_img.channels() == 3) == is_color && !height && !width &&
             matchExt(filename, encoding)) {
-          return ReadFileToDatum(filename, labels, datum);
+          return ReadFileToBlob(filename, blob_img);
         }
         std::vector<uchar> buf;
         cv::imencode("." + encoding, cv_img, buf);
-        datum->set_data(std::string(reinterpret_cast<char*>(&buf[0]),
+        blob_img->set_data(std::string(reinterpret_cast<char*>(&buf[0]),
                                     buf.size()));
-        datum->clear_label();
-        for (size_t i = 0; i < labels.size(); i++) {
-          datum->add_label((int)labels[i]);
-        }
-        datum->set_encoded(true);
-        return true;
-      }
-      CVMatToDatum(cv_img, datum);
-      datum->clear_label();
-      for (size_t i = 0; i < labels.size(); i++) {
-        datum->add_label((int)labels[i]);
+        blob_img->set_encoded(true);
+      } else {
+        CVMatToBlob(cv_img, blob_img);
       }
       return true;
     } else {
@@ -179,8 +171,7 @@ namespace caffe
   }
 #endif  // USE_OPENCV
 
-  bool ReadFileToDatum(const string & filename, const std::vector<int> & labels,
-                       Datum* datum)
+  bool ReadFileToBlob(const string & filename, BlobData* blob_img)
   {
     std::streampos size;
     fstream file(filename.c_str(), ios::in | ios::binary | ios::ate);
@@ -190,12 +181,7 @@ namespace caffe
       file.seekg(0, ios::beg);
       file.read(&buffer[0], size);
       file.close();
-      datum->set_data(buffer);
-      datum->clear_label();
-      for (size_t i = 0; i < labels.size(); i++) {
-        datum->add_label((int)labels[i]);
-      }
-      datum->set_encoded(true);
+      Blob_NCHW(blob_img, true, buffer.data(), (int)buffer.size());
       return true;
     } else {
       return false;
@@ -203,81 +189,75 @@ namespace caffe
   }
 
 #ifdef USE_OPENCV
-  cv::Mat DecodeDatumToCVMatNative(const Datum & datum)
+  cv::Mat DecodeDatumToCVMatNative(const BlobData & blob)
   {
     cv::Mat cv_img;
-    CHECK(datum.encoded()) << "Datum not encoded";
-    const string & data = datum.data();
+    CHECK(blob.encoded()) << "BlobData not encoded";
+    const string & data = blob.data();
     std::vector<char> vec_data(data.c_str(), data.c_str() + data.size());
     cv_img = cv::imdecode(vec_data, -1);
     if (!cv_img.data) {
-      LOG(ERROR) << "Could not decode datum ";
+      LOG(ERROR) << "Could not decode blob ";
     }
     return cv_img;
   }
-  cv::Mat DecodeDatumToCVMat(const Datum & datum, bool is_color)
+  cv::Mat DecodeDatumToCVMat(const BlobData & blob, bool is_color)
   {
     cv::Mat cv_img;
-    CHECK(datum.encoded()) << "Datum not encoded";
-    const string & data = datum.data();
+    CHECK(blob.encoded()) << "BlobData not encoded";
+    const string & data = blob.data();
     std::vector<char> vec_data(data.c_str(), data.c_str() + data.size());
     int cv_read_flag = (is_color ? CV_LOAD_IMAGE_COLOR :
                         CV_LOAD_IMAGE_GRAYSCALE);
     cv_img = cv::imdecode(vec_data, cv_read_flag);
     if (!cv_img.data) {
-      LOG(ERROR) << "Could not decode datum ";
+      LOG(ERROR) << "Could not decode blob ";
     }
     return cv_img;
   }
 
-// If Datum is encoded will decoded using DecodeDatumToCVMat and CVMatToDatum
-// If Datum is not encoded will do nothing
-  bool DecodeDatumNative(Datum* datum)
+// If BlobData is encoded will decoded using DecodeDatumToCVMat and CVMatToBlob
+// If BlobData is not encoded will do nothing
+  bool DecodeDatumNative(BlobData* blob)
   {
-    if (datum->encoded()) {
-      cv::Mat cv_img = DecodeDatumToCVMatNative((*datum));
-      CVMatToDatum(cv_img, datum);
+    if (blob->encoded()) {
+      cv::Mat cv_img = DecodeDatumToCVMatNative((*blob));
+      CVMatToBlob(cv_img, blob);
       return true;
     } else {
       return false;
     }
   }
-  bool DecodeDatum(Datum* datum, bool is_color)
+  bool DecodeDatum(BlobData* blob, bool is_color)
   {
-    if (datum->encoded()) {
-      cv::Mat cv_img = DecodeDatumToCVMat((*datum), is_color);
-      CVMatToDatum(cv_img, datum);
+    if (blob->encoded()) {
+      cv::Mat cv_img = DecodeDatumToCVMat((*blob), is_color);
+      CVMatToBlob(cv_img, blob);
       return true;
     } else {
       return false;
     }
   }
 
-  void CVMatToDatum(const cv::Mat & cv_img, Datum* datum)
+  void CVMatToBlob(const cv::Mat & cv_img, BlobData* blob)
   {
     CHECK(cv_img.depth() == CV_8U) << "Image data type must be unsigned byte";
-    datum->set_channels(cv_img.channels());
-    datum->set_height(cv_img.rows);
-    datum->set_width(cv_img.cols);
-    datum->clear_data();
-    datum->clear_float_data();
-    datum->set_encoded(false);
-    int datum_channels = datum->channels();
-    int datum_height = datum->height();
-    int datum_width = datum->width();
-    int datum_size = datum_channels * datum_height * datum_width;
+    int datum_c = cv_img.channels();
+    int datum_h = cv_img.rows;
+    int datum_w = cv_img.cols;
+    int datum_size = datum_c * datum_h * datum_w;
     std::string buffer(datum_size, ' ');
-    for (int h = 0; h < datum_height; ++h) {
+    for (int h = 0; h < datum_h; ++h) {
       const uchar* ptr = cv_img.ptr<uchar>(h);
       int img_index = 0;
-      for (int w = 0; w < datum_width; ++w) {
-        for (int c = 0; c < datum_channels; ++c) {
-          int datum_index = (c * datum_height + h) * datum_width + w;
+      for (int w = 0; w < datum_w; ++w) {
+        for (int c = 0; c < datum_c; ++c) {
+          int datum_index = (c * datum_h + h) * datum_w + w;
           buffer[datum_index] = static_cast<char>(ptr[img_index++]);
         }
       }
     }
-    datum->set_data(buffer);
+    Blob_NCHW(blob, false, (unsigned char*)buffer.data(), datum_w, datum_h, datum_c);
   }
 #endif  // USE_OPENCV
 }  // namespace caffe

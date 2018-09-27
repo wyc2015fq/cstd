@@ -25,7 +25,7 @@ void ReverseTimeLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 
   for (int n = 0; n < sub_axis_count; ++n) {
     const Dtype* sub_src = src + n * sub_copy_amount;
-    const int sub_seq_length = seq_length[n];
+    const int sub_seq_length = (int)seq_length[n];
     Dtype* target = dest + copy_amount * sub_seq_length - copy_amount
       + n * sub_copy_amount;
 
@@ -86,7 +86,7 @@ void ReverseTimeLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
     DCHECK_LT(n, bottom[1]->count());
     DCHECK_GE(n, 0);
     const Dtype* sub_src = src + n * sub_copy_amount;
-    const int sub_seq_length = seq_length[n];
+    const int sub_seq_length = (int)seq_length[n];
     Dtype* target = dest + copy_amount * sub_seq_length - copy_amount
       + n * sub_copy_amount;
 
