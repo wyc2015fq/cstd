@@ -97,7 +97,7 @@ int cascade_detect(buf_t* bf, CASCADE* ca, const img_t* im0, double ssmin, doubl
     }
   }
   
-  BFFREE(bf, inter, siz);
+  BFFREE(bf, inter);
   BFFREE(bf, im1_data, im1sz);
   bf_imfree(bf, im);
   

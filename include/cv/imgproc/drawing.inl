@@ -1733,7 +1733,7 @@ static void line( img_t* img, CPoint pt1, CPoint pt2, CScalar color,
     CC_Assert( 0 <= shift && shift <= XY_SHIFT );
 
     double buf[4];
-    cvScalarToRawData( &color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0 );
+    cScalarToRawData( &color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0 );
     ThickLine( img, pt1, pt2, buf, thickness, line_type, 3, shift );
 }
 
@@ -1776,7 +1776,7 @@ static void rectangle( img_t* img, CPoint pt1, CPoint pt2,
     CC_Assert( 0 <= shift && shift <= XY_SHIFT );
 
     double buf[4];
-    cvScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
+    cScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
 
     CPoint pt[4];
 
@@ -1899,7 +1899,7 @@ static void circle( img_t* img, CPoint center, int radius,
         0 <= shift && shift <= XY_SHIFT );
 
     double buf[4];
-    cvScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
+    cScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
 
     if( thickness > 1 || line_type != CC_LINE_8 || shift > 0 )
     {
@@ -1928,7 +1928,7 @@ static void ellipse( img_t* img, int center_x, int center_y, int axes_width, int
         thickness <= MAX_THICKNESS && 0 <= shift && shift <= XY_SHIFT );
 
     double buf[4];
-    cvScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
+    cScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
 
     int _angle = cRound(angle);
     int _start_angle = cRound(start_angle);
@@ -1939,14 +1939,14 @@ static void ellipse( img_t* img, int center_x, int center_y, int axes_width, int
       _angle, _start_angle, _end_angle, buf, thickness, line_type );
 }
 
-typedef struct RotatedRect
+typedef struct CRotatedRect
 {
     FPOINT center; //< the rectangle mass center
     float width, height;    //< width and height of the rectangle
     float angle;    //< the rotation angle. When the angle is 0, 90, 180, 270 etc., the rectangle becomes an up-right rectangle.
-} RotatedRect;
+} CRotatedRect;
 static void
-ellipse(img_t* img, const RotatedRect& box, const CScalar& color,
+ellipse(img_t* img, const CRotatedRect& box, const CScalar& color,
              int thickness, int lineType)
 {
     CC_INSTRUMENT_REGION()
@@ -1958,7 +1958,7 @@ ellipse(img_t* img, const RotatedRect& box, const CScalar& color,
                thickness <= MAX_THICKNESS );
 
     double buf[4];
-    cvScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
+    cScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
 
     int _angle = cRound(box.angle);
     CPoint center = {cRound(box.center.x), cRound(box.center.y)};
@@ -1984,7 +1984,7 @@ static void fillConvexPoly( img_t* img, const CPoint* pts, int npts,
 
     double buf[4];
     CC_Assert( 0 <= shift && shift <=  XY_SHIFT );
-    cvScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
+    cScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
     FillConvexPoly( img, pts, npts, buf, line_type, shift );
 }
 
@@ -2001,7 +2001,7 @@ void fillPoly( img_t* img, const CPoint** pts, const int* npts, int ncontours,
     CC_Assert( pts && npts && ncontours >= 0 && 0 <= shift && shift <= XY_SHIFT );
 
     double buf[4];
-    cvScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
+    cScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
 
     CPolyEdge* edges = NULL;
 
@@ -2033,7 +2033,7 @@ void polylines( img_t* img, const CPoint* const* pts, const int* npts, int ncont
                0 <= shift && shift <= XY_SHIFT );
 
     double buf[4];
-    cvScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0 );
+    cScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0 );
 
     for( int i = 0; i < ncontours; i++ )
     {
@@ -2273,7 +2273,7 @@ static void putText( img_t* img, const char* text, int text_size, CPoint org,
     const int* ascii = getFontData(fontFace);
 
     double buf[4];
-    cvScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
+    cScalarToRawData(&color, buf, CC_MAT_DEPTH(img), CC_MAT_CN(img), 0);
 
     int base_line = -(ascii[0] & 15);
     int hscale = cRound(fontScale*XY_ONE), vscale = hscale;

@@ -14,11 +14,29 @@
 #include "lutweak.inl"
 #include "genweak.inl"
 #include "cascade.inl"
-#include "cap.h"
+//#include "cap.h"
 
 //#include "img/color.inl"
 #include "draw/imdraw.inl"
 //#include "test_luobo.inl"
+
+int detect_idcard(int h, int w, const uchar* data, int step, XRECT* out, int maxout) {
+  static cascade_t ca[1] = { 0 };
+  static buf_t bf1[1] = { 0 };
+  buf_t bf[1] = { 0 };
+  if (ca->w == 0) {
+    const char* fn = "E:/OCR_Line/adaboost/cas.dat";
+    INIT_CA_FUN(ca, HAAR, LUT);
+    cascade_load(fn, ca);
+    bfsetsize(bf1, 20 * _1M);
+  }
+  img_t gry[1] = {0};
+  *bf = *bf1;
+  IMINIT(gry, h, w, data, step, 1, 1);
+  int n = cascade_detect(bf, ca, gry, 1, 1000, 1.1, 1, out, maxout);
+  return n;
+}
+
 int test_cascade1() {
   cascade_t ca[1] = {0};
   char* fn = NULL;

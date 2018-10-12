@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include "LicenseDetectionAndCropping.h"
+#include "LicenseDetectionAndCropping.cpp"
 #include <time.h>
 
 #ifdef __linux__  

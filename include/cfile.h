@@ -13,7 +13,10 @@
 #define USESYS
 //#include "str/iconv.inl"
 typedef struct stat stat_t;
-#define strend(_s)  ((_s) + strlen(_s))
+//#define strend(_s)  ((_s) + strlen(_s))
+static char* strend(const char* str) {
+  return (char*)str + strlen(str);
+}
 #define FN_IS_DOTS(_FN)      (((_FN)[0] == '.') && ((_FN)[1] == '\0' || ((_FN)[1] == '.' && (_FN)[2] == '\0')))
 
 #define file_exist(name)       (0 == sys_access(name, AS_EXIST))

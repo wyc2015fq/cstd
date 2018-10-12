@@ -1,4 +1,5 @@
 
+#include "wstd/filesystem.hpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -10,6 +11,9 @@
 #include <stdlib.h>
 #include <iostream>
 #include "utils.h"
+
+
+bool isdebug = false;
 
 #define qDebug()  std::cout
 
@@ -639,6 +643,32 @@ void getParityBit(vector<int> &char_result)
 
 int test_ocr_detect()
 {
+  if (1) {
+    //return test_hsv_bin();
+    //return test_myfindContours();
+    int k;
+    isdebug = true;
+    /// 加载源图像
+    string im_dir = "E:/data/ew_id/we-loan.oss-cn-shanghai.aliyuncs.com/";
+    string fn = im_dir + "upload/backend/20160927235243069-2951.jpg";
+    vector<string> list;
+    wstd::readlines("E:/data/ew_id/list1.txt", list, 1000);
+    for (int j = 0; j < list.size(); ++j) {
+      vector<string> strs;
+      wstd::split(strs, list[j], " ");
+      string fn = im_dir + strs[0];
+      printf("%s\n", fn.c_str());
+      cv::Mat srcImage = cv::imread(fn, 1);
+      if (srcImage.empty()) {
+        continue;
+      }
+      if (srcImage.cols > 600) {
+        double t = 600.*1. / srcImage.cols;
+        cv::resize(srcImage, srcImage, cv::Size(), t, t, cv::INTER_LANCZOS4);
+      }
+      on_pushButton_2_clicked(srcImage);
+    }
+  }
   if (0) {
     cv::Mat imgSrc;
     const char* ch = "D:/code/pudn/ocr/Id_recognition/id_card9.jpg";

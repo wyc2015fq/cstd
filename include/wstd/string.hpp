@@ -120,8 +120,11 @@ namespace wstd {
   static void path_split(const char* fullpath, string* path, string* filename, string* filenameext, string* ext) {
     const char* p;
     const char *e;
-    p = (p = strrchr(fullpath, '\\')) ? (p + 1) : (p = strrchr(fullpath, '/')) ? (p + 1) : fullpath;
-    e = (e = strrchr(fullpath, '.')) ? e : strend(fullpath);
+    p = strrchr(fullpath, '\\');
+    e = strrchr(fullpath, '/');
+    p = max(p+1, e+1);
+    p = max(p, fullpath);
+    e = (e = strrchr(p, '.')) ? e : strend(p);
     if (path) path->assign(fullpath, p);
     if (filename) filename->assign(p, e);
     if (filenameext) filenameext->assign(p);
@@ -140,6 +143,28 @@ namespace wstd {
   static string path_split_ext(const char* fullpath) {
     string ret;
     path_split(fullpath, NULL, NULL, NULL, &ret);
+    return ret;
+  }
+  static string path_fmt(const char* fullpath, const char* fmt) {
+    char flag[256] = {0};
+    string ret;
+    for (const char*p = fmt; *p; ++p) {
+      flag[(unsigned char)(*p)] = 1;
+    }
+    const char* d;
+    const char* p;
+    const char *e;
+    d = strchr(fullpath, ':');
+    d = max(fullpath, d+1);
+    p = strrchr(fullpath, '\\');
+    e = strrchr(fullpath, '/');
+    p = max(p + 1, e + 1);
+    p = max(p, fullpath);
+    e = (e = strrchr(p, '.')) ? e : strend(p);
+    if (flag['d']) ret.assign(fullpath, d);
+    if (flag['p']) ret += string(d, p);
+    if (flag['n']) ret += string(p, e);
+    if (flag['x']) ret += string(e);
     return ret;
   }
 

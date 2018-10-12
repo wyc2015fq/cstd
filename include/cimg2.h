@@ -707,9 +707,9 @@ cvCheckVector(const img_t* mat, int _elemChannels, TypeId type CC_DEFAULT(CC_NUL
 \****************************************************************************************/
 // Converts CScalar to specified type
 CC_IMPL void
-cvScalarToRawData(const CScalar* scalar, void* data, TypeId type, int cn, int extend_to_12 CC_DEFAULT(0))
+cScalarToRawData(const CScalar* scalar, void* data, TypeId type, int cn, int extend_to_12 CC_DEFAULT(0))
 {
-  CC_FUNCNAME("cvScalarToRawData");
+  CC_FUNCNAME("cScalarToRawData");
   int cn0 = cn;
   assert(scalar && data);
   if ((unsigned)(cn - 1) >= 4) {
@@ -1103,7 +1103,7 @@ cvSet1D(img_t* mat, int idx, CScalar scalar)
       CC_ERROR(CC_StsOutOfRange, "index is out of range");
     }
     ptr = mat->tt.data + (size_t)idx * pix_size;
-    cvScalarToRawData(&scalar, ptr, type, CC_MAT_CN(mat), 0);
+    cScalarToRawData(&scalar, ptr, type, CC_MAT_CN(mat), 0);
   }
   __END__;
 }
@@ -1119,7 +1119,7 @@ cvSet2D(img_t* mat, int y, int x, CScalar scalar)
     CC_ERROR(CC_StsOutOfRange, "index is out of range");
   }
   ptr = mat->tt.data + (size_t)y * mat->step + x * mat->c;
-  cvScalarToRawData(&scalar, ptr, type, CC_MAT_CN(mat), 0);
+  cScalarToRawData(&scalar, ptr, type, CC_MAT_CN(mat), 0);
 }
 // Assigns new value to specifed element of 3D array
 CC_IMPL void
@@ -1129,7 +1129,7 @@ cvSet3D(img_t* mat, int z, int y, int x, CScalar scalar)
   TypeId type;
   uchar* ptr;
   ptr = cvPtr3D(mat, z, y, x, &type);
-  cvScalarToRawData(&scalar, ptr, type, CC_MAT_CN(mat), 0);
+  cScalarToRawData(&scalar, ptr, type, CC_MAT_CN(mat), 0);
 }
 // Assigns new value to specifed element of nD array
 CC_IMPL void
@@ -1139,7 +1139,7 @@ cvSetND(img_t* mat, const int* idx, CScalar scalar)
   TypeId type;
   uchar* ptr;
   ptr = cvPtrND(mat, idx, &type, 1, NULL);
-  cvScalarToRawData(&scalar, ptr, type, CC_MAT_CN(mat), 0);
+  cScalarToRawData(&scalar, ptr, type, CC_MAT_CN(mat), 0);
 }
 CC_IMPL void
 cvSetReal1D(img_t* mat, int idx, double value)
@@ -1557,6 +1557,6 @@ CC_INLINE void memsetex(void* dst, int dstlen, const void* src, int srclen) {
 }
 
 CC_INLINE void cvSet1(img_t* mat, CScalar value) {
-   cvScalarToRawData(&value, mat->data, CC_MAT_DEPTH(mat), CC_MAT_CN(mat), 0);
+   cScalarToRawData(&value, mat->data, CC_MAT_DEPTH(mat), CC_MAT_CN(mat), 0);
    memsetex(mat->data, cvGetSize0D(mat), mat->data, mat->c);
 }

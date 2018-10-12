@@ -1,5 +1,5 @@
 
-#include "ocr/classification/test_ocr_classification.cpp"
+//#include "ocr/classification/test_ocr_classification.cpp"
 #include "ocr/test_ocr_detect.cpp"
 #include "wstd/string.hpp"
 

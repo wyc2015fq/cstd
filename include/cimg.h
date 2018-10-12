@@ -1600,15 +1600,15 @@ typedef enum CvGraphWeightType {
 //      All images must have format 8uC1.
 //
 ///                      Older definitions 
-typedef float*   CvVect32f;
-typedef float*   CvMatr32f;
-typedef double*  CvVect64d;
-typedef double*  CvMatr64d;
-typedef struct CvMatrix3 {
+typedef float*   CVect32f;
+typedef float*   CMatr32f;
+typedef double*  CVect64d;
+typedef double*  CMatr64d;
+typedef struct CMatrix3 {
   float m[3][3];
 }
-CvMatrix3;
-typedef struct CvConDensation {
+CMatrix3;
+typedef struct CConDensation {
   int MP;
   int DP;
   float* DynamMatr;       /* Matrix of the linear Dynamics system  */
@@ -1622,13 +1622,13 @@ typedef struct CvConDensation {
   float* RandomSample;    /* RandomVector to update sample set     */
   struct CvRandState* RandS; /* Array of structures to generate random vectors */
 }
-CvConDensation;
+CConDensation;
 /*
 standard Kalman filter (in G. Welch' and G. Bishop's notation):
   x(k)=A*x(k-1)+B*u(k)+w(k)  p(w)~N(0,Q)
   z(k)=H*x(k)+v(k),   p(v)~N(0,R)
 */
-typedef struct CvKalman {
+typedef struct CKalman {
   int MP;                     /* number of measurement vector dimensions */
   int DP;                     /* number of state vector dimensions */
   int CP;                     /* number of control vector dimensions */
@@ -1670,7 +1670,7 @@ typedef struct CvKalman {
   CvMat* temp5;
 #endif
 }
-CvKalman;
+CKalman;
 /*********************** Haar-like Object Detection structures **************************/
 #define CC_HAAR_MAGIC_VAL    0x42500000
 #define CC_TYPE_NAME_HAAR    "opencv-haar-classifier"

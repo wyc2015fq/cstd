@@ -136,14 +136,21 @@ def runallu(url, path):
 import clip
 # 1400818390
 if 1:
-    url = 'http://vdisk.weibo.com/u/'
-    url = url + clip.gettext().decode('gbk')
-    runallu(url, 'E:/微盘/')
+    str = clip.gettext().decode('gbk')
+    if str.isdigit():
+        url = 'http://vdisk.weibo.com/u/'
+        url = url + str
+        runallu(url, 'E:/微盘/')
+    else:
+        url = 'http://vdisk.weibo.com/s/'
+        url = url + str
+        runalls(url, 'E:/微盘/_aaa/')
 
 if 0:
+    str = clip.gettext().decode('gbk')
     url = 'http://vdisk.weibo.com/s/'
-    url = url + clip.gettext().decode('gbk')
-    runalls(url, 'E:/微盘/复杂网络/')
+    url = url + str
+    runalls(url, 'E:/微盘/_aaa/')
 # print(data)
 
 

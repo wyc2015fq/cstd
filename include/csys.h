@@ -440,7 +440,7 @@ static int ShowImagePal(const char* name, int height, int width, const unsigned 
 #define imshow2(_NAME, _IM) ShowImage(_NAME, (_IM)->h, (_IM)->w, (_IM)->tt.data, (_IM)->s, (_IM)->c)
 #define imshow_cn(_NAME, _IM, icn) ShowImagePal(_NAME, (_IM)->h, (_IM)->w, (_IM)->tt.data+icn, (_IM)->s, (_IM)->c, PF_8bppGrayUchar, NULL)
 #define imwrite3(_IM) imwrite(#_IM".bmp", (_IM)->h, (_IM)->w, (_IM)->tt.data, (_IM)->s, (_IM)->c)
-#define imshow imshow_
+//#define imshow imshow_
 
 static int cvShowMat(const char* name, const char* fmt, int h, int w, const void* arr, int al, int ai, int nColumnWidth /*= -1*/);
 #define imshowmat_u1(mm) cvShowMat( #mm , "%I8u", mm->h, mm->w*mm->c, mm->tt.data, mm->s, 1, -1)

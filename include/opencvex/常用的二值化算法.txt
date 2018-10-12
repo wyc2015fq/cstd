@@ -1,0 +1,50 @@
+常用的二值化算法
+2013年03月29日 20:03:04 tyf122 阅读数：8973更多
+个人分类： 数字图像
+  我们遇到的识别图片，经常被认为的加入杂色干扰，形成一个浓淡分布不均的多值图像。把这样一幅多灰度值的图像(Gray Level Image)转化为只有黑(前景文字部分)白(背景部分)分布的二值图像(Binary Image)的工作叫做二值化处理(Binariztion)。对于一般256级灰度的灰度图，0级灰度对应于黑色，255级对应于白色。二值化后0对应于黑色前景文字，1对应于白色背景。
+
+    一般来说，二值化方法可以分为： 全局二值化 和 局部自适应二值化。
+
+    全局二值化方法(Global Binariztion Method)对每一幅图计算一个单一的阀值。灰度级大于阈值的像素被标记为背景色，否则为前景。
+
+    局部二值化方法(Local Adaptive Binarization Method)以像素的邻域的信息为基础来计算每一个像素的阈值。其中一些方法还会计算整个图像中的一个阈值面。如果图像中的一个像素(x,y)的灰度级高于在(x,y)点的阈值面的计算值，那么把像素(x,y)标记为背景，否则为前景字符。
+
+    常用的二值化的方法包括：
+
+    1. 双峰直方图阈值分割法和平均灰度法【Hu 94】【Xia 99】
+
+    2. 微分直方图【Hu 94】
+
+    3. Ostu 方法【XZhang 01】【Xia 99】
+
+    4. Abutaleb 方法【Abutaleb 98】
+
+    5. Kapur 等人的方法【Kapur et al. 85】
+
+    6. Kittler 和 Illingworth 方法【Kittler and Illingworth 86】
+
+    7. Otsu 方法【Otsu 79】
+
+    8. Bernsen 方法【Bernsen 86】
+
+    9. Chow 和 Kaneko 方法【Chow and Kaneko 72】【Nakagawa and Rosenfeld 79】
+
+  10. Eikvil 等人的方法【Eikvil et al. 91】
+
+  11. Markia 和 Hainsworth 方法【Mardia and Hainsworth 88】
+
+  12. Niblack 方法【Niblack 86】
+
+  13. Taxt 等人的方法【Taxt et al. 89】
+
+  14. Yanowitz 和 Bruckstein 方法【Yanowitz and Bruckstein 89】
+
+  15. White 和 Rohrer 的动态阈值算法【White and Rohrer 89】
+
+  16. Parker 方法【Parker 91】
+
+  17. White 和 Rohrer 的集成函数算法【White and Rohrer 89】
+
+  18. Trier 和 Taxt 方法【Trier and Taxt 95】
+
+  其中 1---7是全局二值化方法，8---18是局部自适应二值化方法。

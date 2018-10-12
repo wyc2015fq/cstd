@@ -1,7 +1,11 @@
+
+#include "wstd/filesystem.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/features2d.hpp"
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
+using namespace std;
+using namespace cv;
 
 
 // Mser车牌目标检测
@@ -109,9 +113,9 @@ struct SimilarRect {
 	}
 };
 
-struct SimilarLine {
+struct SimilarLine1 {
 	double eps;
-	SimilarLine(double eps_ = 0.5) {
+	SimilarLine1(double eps_ = 0.5) {
 		this->eps = eps_;
 	}
 	inline bool operator()(const cv::Rect& r1, const cv::Rect& r2) const
@@ -182,17 +186,18 @@ std::vector<std::vector<cv::Rect>> mserGetPlate(cv::Mat srcImage)
 			mserMapMat.at<unsigned char>(pt) = 255;
 		}
 	}
+  imshow("mserMapMat", mserMapMat); waitKey(0);
 	cv::groupRectangles(bboxes1, 2);
 	std::vector<cv::Rect> lines;
 	std::vector<int> labels;
 	std::vector<int> cnt;
-	int nclasses = cv::partition(bboxes1, labels, SimilarLine(0.3));
+	int nclasses = cv::partition(bboxes1, labels, SimilarLine1(0.3));
 	lines = BOCR::rect_combine_by_index(bboxes1, labels, cnt);
 	if (isdebug) {
 		for (size_t i = 0; i != lines.size(); ++i) {
 			cv::Rect rect = (lines[i]);
 			if (cnt[i] > 2 && isdebug) {
-				cv::rectangle(srcImage, rect, cv::Scalar(0, 0, 255), 2);
+				cv::rectangle(srcImage, rect, cv::Scalar(0, 0, 255), 1);
 			}
 		}
 	}
@@ -210,7 +215,7 @@ std::vector<std::vector<cv::Rect>> mserGetPlate(cv::Mat srcImage)
 				for (size_t j = 0; j != block.size(); ++j) {
 					cv::Rect rect = (block[j]);
 					//candidates2.push_back(rect);
-					cv::rectangle(srcImage, rect, cv::Scalar(0, 255, 0), 3);
+					cv::rectangle(srcImage, rect, cv::Scalar(0, 255, 0), 1);
 				}
 			}
 			blocks.push_back(block);
@@ -293,7 +298,7 @@ int test_myfindContours() {
 	return 0;
 }
 
-int test_mser_opencv()
+int test_mser_opencv2()
 {
   //return test_hsv_bin();
 	//return test_myfindContours();
@@ -383,3 +388,47 @@ int test_mser_opencv11()
 	return 0;
 }
 
+
+int test_mser_opencv()
+{
+  //return test_hsv_bin();
+	//return test_myfindContours();
+	int k;
+	isdebug = true;
+  /// 加载源图像
+  string im_dir = "E:/data/ew_id/we-loan.oss-cn-shanghai.aliyuncs.com/";
+  string fn = im_dir + "upload/backend/20160927235243069-2951.jpg";
+  vector<string> list;
+  wstd::readlines("E:/data/ew_id/list1.txt", list, 100);
+  for (int j = 0; j < list.size(); ++j) {
+    vector<string> strs;
+    wstd::split(strs, list[j], " ");
+    string fn = im_dir + strs[0];
+		printf("%s\n", fn.c_str());
+		cv::Mat srcImage = cv::imread(fn, 1);
+		if (srcImage.empty()) {
+			continue;
+		}
+		if (srcImage.cols>600) {
+			double t = 600.*1. / srcImage.cols;
+			cv::resize(srcImage, srcImage, cv::Size(), t,t, cv::INTER_LANCZOS4);
+		}
+		//cv::imshow("src Image", srcImage);
+		std::vector<cv::Rect> candidates;
+		std::vector<std::vector<cv::Rect>> blocks;
+		std::string out;
+		blocks = mserGetPlate(srcImage);
+		// 车牌区域显示
+		for (int i = 0; i < blocks.size(); ++i) {
+			const std::vector<cv::Rect>& block = (blocks[i]);
+			for (int j = 0; j < block.size(); ++j) {
+			}
+		}
+		printf("%s\n", out.c_str());
+		if (1) {
+			cv::imshow("srcImage", srcImage);
+			cv::waitKey(0);
+		}
+	}
+	return 0;
+}

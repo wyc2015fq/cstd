@@ -1804,10 +1804,11 @@ for (_I = _M; _I < _N; ++_I) \
       CC_SWAP(*(_F + _X), *(_F + _Y), _TMP); } \
   } while(0)
 
-#ifndef _SHIFT
-#define _SHIFT                 (13)
-#define _SHIFT1                (1<<_SHIFT)
-#define _SHIFT_MARK            (_SHIFT1 - 1)
+#ifndef _SHIFT_MUL
+enum { _SHIFT =13, _SHIFT1= (1 << _SHIFT), _SHIFT_MARK=(_SHIFT1 - 1) };
+//#define _SHIFT                 (13)
+//#define _SHIFT1                (1<<_SHIFT)
+//#define _SHIFT_MARK            (_SHIFT1 - 1)
 #define _SHIFT_MUL(x, y)       (((x)*(y))>>_SHIFT)
 #define _SHIFT_DIV(x, y)       (((int)(x)<<_SHIFT)/(y))
 #define _SHIFT_TOFLOAT(x)      (((double)(x))/_SHIFT1)
@@ -1817,9 +1818,10 @@ for (_I = _M; _I < _N; ++_I) \
 #endif
 // RGB2GRAY
 #ifndef GREYSCALIZE
-#define _CR                  (299*(1 << _SHIFT)/1000)
-#define _CG                  (587*(1 << _SHIFT)/1000)
-#define _CB                  (_SHIFT1 - _CR - _CG)
+enum { _CR = (299 * (1 << _SHIFT) / 1000), _CG=(587 * (1 << _SHIFT) / 1000), _CB=(_SHIFT1 - _CR - _CG)};
+//#define _CR                  (299*(1 << _SHIFT)/1000)
+//#define _CG                  (587*(1 << _SHIFT)/1000)
+//#define _CB                  (_SHIFT1 - _CR - _CG)
 #define GREYSCALIZE(R, G, B)   ((_CR*(R) + _CG*(G) + _CB*(B) )>>_SHIFT)
 #endif // GREYSCALIZE
 #define BGR2GRAY(bgr, gry)   (*(gry) = (unsigned char)GREYSCALIZE(*(bgr+2), *(bgr+1), *(bgr)))
