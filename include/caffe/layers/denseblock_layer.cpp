@@ -942,7 +942,6 @@ namespace caffe
     //logInternal_cpu("TC_TrueFwdlog");
   }
 
-
   template <typename Dtype>
   void DenseBlockLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*> & top,
       const vector<bool> & propagate_down,

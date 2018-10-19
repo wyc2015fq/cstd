@@ -4,6 +4,16 @@
 using namespace std;
 using namespace cv;
 
+// 绕pt(x, y) 旋转t度
+//  cos(t), sin(t), 0
+// -sin(t), cos(t), 0
+// x*(1-cos(t))+y*sin(t), -x*sin(t)+y*(1-cos(t)), 1
+// 对直线(A*x+B*y+C=0)的对称变换
+// 直线与x轴交点-C/A, 与y轴的截距 -C/B, 与x轴夹角 a = arctg(-A/B)
+// t = 2*a
+// cos(t), sin(t), 0
+// sin(t), -cos(t), 0
+// (cos(t)-1)*C/A, sin(t)*C/A, 1
 void imCopyTo(const Mat& src, Mat& dst, Rect rect, bool keepRate) {
   int sh = src.rows;
   int sw = src.cols;
@@ -36,8 +46,9 @@ static Mat mergeImgs(int rc, int h, int w, const Mat** src, int n)
   int r = rc / 10, c = rc % 10;
   if (rc < 1) {
     int k = (int)sqrt(n);
-    if (k*k < n) ++k;
     c = r = k;
+    if (c*r < n) ++c;
+    if (c*r < n) ++r;
   }
   const Mat* src1 = src[0];
   int gap = 5, minhw = 60;
@@ -59,6 +70,7 @@ static Mat mergeImgs(int rc, int h, int w, const Mat** src, int n)
   int cols = gap * (c - 1) + c*w;
   bool keep = true;
   dst.create(rows, cols, CV_8UC3);
+  dst = Scalar(255,0,255);
   for (int i=0; i<n; ++i) {
     int pr = i / c;
     int pc = i % c;
@@ -144,25 +156,30 @@ double pt2Line(Point p1,Vec4f l) {
   return pt2Line(p1, Point(l[0], l[1]), Point(l[2], l[3]));
 }
 
+Point2f ptMove(Point2f pt, double angle, double len) {
+  double a = angle * CV_PI / 180;
+  Point2f end(pt.x + len*cos(a), pt.y + len*sin(a));
+  return end;
+}
 void drawArrow(cv::Mat& img, cv::Point pStart, cv::Point pEnd, int len, int alpha,
   cv::Scalar& color, int thickness = 1, int lineType = 8)
 {
-  Point arrow;
+  Point2f arrow;
   //计算 θ 角（最简单的一种情况在下面图示中已经展示，关键在于 atan2 函数，详情见下面）   
   double angle = atan2((double)(pStart.y - pEnd.y), (double)(pStart.x - pEnd.x));
   line(img, pStart, pEnd, color, thickness, lineType);
   //计算箭角边的另一端的端点位置（上面的还是下面的要看箭头的指向，也就是pStart和pEnd的位置） 
-  arrow.x = pEnd.x + len * cos(angle + CV_PI * alpha / 180);
-  arrow.y = pEnd.y + len * sin(angle + CV_PI * alpha / 180);
+  double a = CV_PI * alpha / 180;
+  arrow.x = pEnd.x + len * cos(angle + a);
+  arrow.y = pEnd.y + len * sin(angle + a);
   line(img, pEnd, arrow, color, thickness, lineType);
-  arrow.x = pEnd.x + len * cos(angle - CV_PI * alpha / 180);
-  arrow.y = pEnd.y + len * sin(angle - CV_PI * alpha / 180);
+  arrow.x = pEnd.x + len * cos(angle - a);
+  arrow.y = pEnd.y + len * sin(angle - a);
   line(img, pEnd, arrow, color, thickness, lineType);
 }
 
 Vec4f getLine(Point2f pt, double angle, double len) {
-  double a = angle * CV_PI / 180;
-  Point2f end(pt.x + len*cos(a), pt.y + len*sin(a));
+  Point2f end = ptMove(pt, angle, len);
   Vec4f l;
   l[0] = pt.x;
   l[1] = pt.y;
@@ -190,6 +207,38 @@ void drawRotatedRect(Mat& srcImage, RotatedRect rectPoint, Scalar color, int lw)
   drawArrow(srcImage, rectPoint.center, end, len2, 15, color, 1, 4);
 }
 
+double mymod(double a, double m) {
+  a = fmod(a, m);
+  double k = m*0.5;
+  //a = fmod(a+m, m);
+  //a = fmod(a, m);
+  if (a >= k) {
+    a -= m;
+  }
+  else if (a < -k) {
+    a += m;
+  }
+  return a;
+}
+int mymodi(int a, int m) {
+  a %= m;
+  int k = m / 2;
+  if (a >= k) {
+    a -= m;
+  }
+  else if (a < -k) {
+    a += m;
+  }
+  return a;
+}
+
+double line_angle(const Vec4f& l) {
+  double x = (l[2] - l[0]);
+  double y = (l[3] - l[1]);
+  int angle = (int)(atan2(y, x) * 180 / CV_PI);
+  angle = mymodi(angle, 180);
+  return angle;
+}
 
 double line_len(const Vec4f& l) {
   double x = (l[2] - l[0]);
@@ -316,16 +365,26 @@ struct SimilarLine2 {
     Point p2 = Point(r1[2], r1[3]);
     Point a1 = Point(r2[0], r2[1]);
     Point a2 = Point(r2[2], r2[3]);
-    double s1 = cal_area(p1, p2, a1);
-    double s2 = cal_area(p1, p2, a2);
-    double s3 = max(s1, s2);
-    double d1 = min(ptdist(p1, a1), ptdist(p1, a2));
-    double d2 = min(ptdist(p2, a1), ptdist(p2, a2));
-    double d3 = min(d1, d2);
-    return s3<eps_ && d3<deps_;
+    double d3 = pt2Line(p1, r2) + pt2Line(p2, r2) +
+      pt2Line(a1, r1) + pt2Line(a2, r1);
+    return d3<deps_;
   }
 };
 
+template<typename T>
+int argmax(const vector<T>& v) {
+  int idx = -1;
+  int Len = v.size();
+  if (Len > 0) {
+    idx = 0;
+    for (int i = 1; i < Len; i++) {
+      if (v[idx] < v[i]) {
+        idx = i;
+      }
+    }
+  }
+  return idx;
+}
 template<typename T>
 vector<int> argsort(const vector<T>& v) {
   int Len = v.size();
@@ -345,6 +404,14 @@ vector<int> argsort_d(const vector<T>& v) {
   }
   std::sort(idx.begin(), idx.end(), [&v](int i1, int i2) {return v[i1] < v[i2]; });
   return idx;
+}
+
+template <typename T>
+T& get_sum(const T* arr, int n, T& s) {
+  for (int i = 0; i < n; ++i) {
+    s += arr[i];
+  }
+  return s;
 }
 
 int lines_part(const vector<Vec4i>& lines, vector<vector<Vec4i>>& lines_class, double thd) {
@@ -660,8 +727,6 @@ Vec4i ptResetLine(const Vec4i& l, const vector<RotatedRect>& pts, const vector<i
   return Vec4i(minpt.x, minpt.y, maxpt.x, maxpt.y);
 }
 
-
-
 struct lines_part_t {
   std::vector<int> labels;
   std::vector<int> cnt;
@@ -795,16 +860,23 @@ void drawRotatedRects(Mat& color_edge, const vector<vector<RotatedRect>>& lines_
   }
 }
 
-void drawRotatedRects(Mat& color_edge, const vector<RotatedRect>& lines_class, int lw)
+void drawRotatedRects(Mat& color_edge, const vector<RotatedRect>& lines_class, int lw, const Scalar* pcolor = NULL)
 {
   RNG rng(12345);
   for (size_t j = 0; j < lines_class.size(); j++) {
-    Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+    Scalar color = pcolor ? *pcolor : Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
     RotatedRect r = lines_class[j];
     drawRotatedRect(color_edge, r, color, lw);
   }
 }
 
+RotatedRect& curr(RotatedRect& rr) {
+  if (rr.size.height > rr.size.width) {
+    std::swap(rr.size.height, rr.size.width);
+    rr.angle += 90;
+  }
+  return rr;
+}
 
 RotatedRect minAreaRect(const vector<RotatedRect>& vr) {
   vector<Point> p;
@@ -813,20 +885,71 @@ RotatedRect minAreaRect(const vector<RotatedRect>& vr) {
   }
   for (int i = 0; i < vr.size(); ++i) {
     RotatedRect r = vr[i];
-    if (r.size.area() > 100) {
-      //p.push_back(Point(r.center));
-      double dx = r.size.width*0.5;
-      double dy = r.size.height*0.5;
-      p.push_back(Point(r.center.x - dx, r.center.y - dy));
-      p.push_back(Point(r.center.x - dx, r.center.y + dy));
-      p.push_back(Point(r.center.x + dx, r.center.y + dy));
-      p.push_back(Point(r.center.x + dx, r.center.y - dy));
-    }
+    //p.push_back(Point(r.center));
+    double dx = r.size.width*0.5;
+    double dy = r.size.height*0.5;
+    p.push_back(Point(r.center.x - dx, r.center.y - dy));
+    p.push_back(Point(r.center.x - dx, r.center.y + dy));
+    p.push_back(Point(r.center.x + dx, r.center.y + dy));
+    p.push_back(Point(r.center.x + dx, r.center.y - dy));
   }
   if (p.size() <1) {
     return RotatedRect(Point2f(0, 0), Size2f(0, 0), 0);
   }
   RotatedRect r = minAreaRect(p);
+  r = curr(r);
+  return r;
+}
+int selectRotatedRect(const vector<RotatedRect>& vec_rrect, double tty, double meanh, vector<RotatedRect>& lines_tmp) {
+  lines_tmp.clear();
+  for (int i = 0; i < vec_rrect.size(); ++i) {
+    if (fabs(tty - vec_rrect[i].center.y) < meanh) {
+      lines_tmp.push_back(vec_rrect[i]);
+    }
+  }
+  return lines_tmp.size();
+}
+
+RotatedRect myMinAreaRect(vector<RotatedRect>& vr, double thdy) {
+  RotatedRect r = minAreaRect(vr);
+  vector<RotatedRect> aa = vr;
+  vr.clear();
+  for (int i = 0; i < aa.size(); ++i) {
+    if (fabs(aa[i].center.y - r.center.y)<thdy) {
+      vr.push_back(aa[i]);
+    }
+  }
+  r = minAreaRect(vr);
+  r = curr(r);
+  if (1) {
+    int times = 0;
+    for (; times < 3; ++times) {
+      double sumw = 0;
+      Point2f pt(0, 0);
+      for (int j = 0; j < vr.size(); ++j) {
+        sumw += vr[j].size.width;
+        pt += vr[j].center;
+      }
+      sumw /= r.size.width;
+      pt *= 1. / vr.size();
+      if (sumw < 0.5 && vr.size()>3) {
+        int k = -1;
+        double maxd = 0;
+        for (int i = 0; i < vr.size(); ++i) {
+          double d = fabs(vr[i].center.x - pt.x);
+          if (d > maxd) {
+            maxd = d;
+            k = i;
+          }
+        }
+        if (k >= 0 && vr[k].center.x>150) {
+          vr.erase(vr.begin() + k);
+          r = minAreaRect(vr);
+        }
+      }
+    }
+  }
+
   return r;
 }
 
@@ -873,29 +996,6 @@ bool DoesRectangleContainPoint(RotatedRect rectangle, Point2f point) {
   double indicator = pointPolygonTest(contour, point, false);
   bool rectangleContainsPoint = (indicator >= 0);
   return rectangleContainsPoint;
-}
-
-double mymod(double a, double m) {
-  a = fmod(a, m);
-  double k = m*0.5;
-  //a = fmod(a+m, m);
-  //a = fmod(a, m);
-  if (a >= k) {
-    a -= m;
-  } else if (a < -k) {
-    a += m;
-  }
-  return a;
-}
-int mymodi(int a, int m) {
-  a %= m;
-  int k = m/2;
-  if (a >= k) {
-    a -= m;
-  } else if (a < -k) {
-    a += m;
-  }
-  return a;
 }
 
 struct rrects_line_part {
@@ -946,14 +1046,6 @@ struct rrects_line_part {
     return nclasses;
   }
 };
-
-RotatedRect& curr(RotatedRect& rr) {
-  if (rr.size.height > rr.size.width) {
-    std::swap(rr.size.height, rr.size.width);
-    rr.angle += 90;
-  }
-  return rr;
-}
 
 struct rrects_part {
   vector<vector<RotatedRect>> lines_class;
@@ -1103,17 +1195,194 @@ struct rrects_w_part {
     return nclasses;
   }
 };
-void drawDetectLines(Mat& image, const vector<Vec4i>& lines, const Scalar & color)
+
+void drawDetectLines(Mat& image, const Vec4i* it, int len, int lw)
+{
+  // 将检测到的直线在图上画出来
+  const Vec4i* end = it + len;
+  RNG rng(12345);
+  while (it != end)
+  {
+    Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+    Point pt1((*it)[0], (*it)[1]);
+    Point pt2((*it)[2], (*it)[3]);
+    line(image, pt1, pt2, color, lw); //  线条宽度设置为2
+    ++it;
+  }
+}
+void drawDetectLines(Mat& image, const vector<Vec4i>& lines, int lw)
 {
   // 将检测到的直线在图上画出来
   vector<Vec4i>::const_iterator it = lines.begin();
+  RNG rng(12345);
   while (it != lines.end())
   {
+    Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
     Point pt1((*it)[0], (*it)[1]);
     Point pt2((*it)[2], (*it)[3]);
-    line(image, pt1, pt2, color, 2); //  线条宽度设置为2
+    line(image, pt1, pt2, color, lw); //  线条宽度设置为2
     ++it;
   }
+}
+
+Mat projectHistogram(const Mat &img, int t)
+{
+  Mat lowData;
+  cv::resize(img, lowData, Size(8, 16)); //缩放到8*16
+
+  int sz = (t) ? lowData.rows : lowData.cols;
+  Mat mhist = Mat::zeros(1, sz, CV_32F);
+
+  for (int j = 0; j < sz; j++)
+  {
+    Mat data = (t) ? lowData.row(j) : lowData.col(j);
+    mhist.at<float>(j) = countNonZero(data);
+  }
+
+  double min, max;
+  minMaxLoc(mhist, &min, &max);
+
+  if (max > 0)
+    mhist.convertTo(mhist, -1, 1.0f / max, 0);
+
+  return mhist;
+}
+void drawHist(Mat& histImg, const Mat& hist, int t) {
+  int histHeight = hist.cols*hist.rows;
+  int histW = t ? histImg.cols : histImg.rows;
+  double maxVal = 0;
+  double minVal = 0;
+  double absVal = 0;
+
+  //找到直方图中的最大值和最小值
+  minMaxLoc(hist, &minVal, &maxVal, 0, 0);
+  absVal = max(fabs(minVal), fabs(maxVal));
+  float hpt = (0.45*histW);
+
+  Scalar color = t ? Scalar(0, 255, 0) : Scalar(0, 0, 255);
+  Mat_<float> hist_ = hist;
+  for (int h = 1; h < histHeight; h++)
+  {
+    float v1 = hist_.at<float>(h-1);
+    float v2 = hist_.at<float>(h);
+    if (1) {
+      int intensity1 = static_cast<int>(histW*0.5 + v1* hpt / absVal);
+      int intensity2 = static_cast<int>(histW*0.5 + v2* hpt / absVal);
+      if (t) {
+        line(histImg, Point(intensity1, h), Point(intensity2,h), color);
+      }
+      else {
+        line(histImg, Point(h, histW-intensity1), Point(h, histW-intensity2), color);
+      }
+    }
+  }
+}
+
+// 0 means that the matrix is reduced to a single row. 
+// 1 means that the matrix is reduced to a single column.
+Mat getHistImage(const Mat& src, int t, Mat* histImg) {
+  Mat hist = projectHistogram(src, t);
+  reduce(src, hist, t, CV_REDUCE_SUM, CV_32F);
+  if (histImg) {
+    if (histImg->size() != src.size()) {
+      *histImg = Mat::zeros(src.rows, src.cols, CV_8UC3);
+    }
+    drawHist(*histImg, hist, t);
+  }
+  return hist;
+}
+
+vector<int> sum_part(const vector<int>& a, int k) {
+  vector<int> s(a.size()+1, 0), o(a.size(), 0);
+  int i;
+  for (i = 0; i < a.size(); ++i) {
+    s[i + 1] = s[i] + a[i];
+  }
+  for (i = 0; i < a.size()-k; ++i) {
+    o[i] = s[i+k] - s[i];
+  }
+  for (; i < a.size(); ++i) {
+    o[i] = o[i - 1];
+  }
+  return o;
+}
+
+struct mylines_part_t {
+  vector<int> labels;
+  vector<vector<Vec4i>> lines_class;
+  vector<Vec4i> lines1;
+  int run(const vector<Vec4i>& lines) {
+    double thd = 10;
+    int nclasses = cv::partition(lines, labels, SimilarLine2(thd, thd * 3));
+    lines_class.resize(nclasses);
+    vector<int> cnt(lines.size(), 0);
+    lines1.resize(nclasses);
+    for (int i = 0; i < labels.size(); ++i) {
+      int j = labels[i];
+      ++cnt[j];
+    }
+    //nclasses = min(nclasses, 1);
+    std::vector<int> index = argsort(cnt);
+    for (int i = 0; i < nclasses; ++i) {
+      int idx = index[i];
+      //vector<Vec4i> line_tmp;
+      Vec4i s(0);
+      double all_len = 0;
+      for (int j = 0; j < lines.size(); ++j) {
+        if (labels[j] == idx) {
+          //line_tmp.push_back(lines[j]);
+          double len = line_len(lines[j]);
+          all_len += len;
+          s += lines[j] * len;
+        }
+      }
+      lines1[i] = s *(1. / all_len);
+    }
+    sort(lines1.begin(), lines1.end(), [](const Vec4i& a, const Vec4i& b) {
+      return a[1] < b[1];
+    });
+    return lines1.size();
+  }
+};
+
+int rect_near_count(const Vec4i l, const vector<RotatedRect>& rects, double thd) {
+  int cnt = 0;
+  for (int i = 0; i < rects.size(); ++i) {
+    double d = pt2Line(rects[i].center, l);
+    if (d < thd) { ++cnt; }
+  }
+  return cnt;
+}
+
+Mat calcHistImage(Mat Image)
+{
+  const int channels[1] = { 0 };
+  const int histSize[1] = { 256 };
+  float hranges[2] = { 0, 255 };
+  const float* ranges[1] = { hranges };
+  Mat hist;
+  calcHist(&Image, 1, channels, Mat(), hist, 1, histSize, ranges);
+  return getHistImage(hist, 0, NULL);
+}
+
+Vec2i boundvect(const Mat& row, double thd) {
+  double meanrow = mean(row).val[0];
+  int n = row.cols*row.rows;
+  int l, r;
+  thd *= meanrow;
+  for (l = 0; l < n && row.at<float>(l) < thd; ++l);
+  for (r = n-1; r > 0 && row.at<float>(r) < thd; --r);
+  return Vec2i(l, r);
+}
+
+Rect getbw_rect(const Mat& src, double thd) {
+  Mat row = getHistImage(src, 0, NULL);
+  Mat col = getHistImage(src, 1, NULL);
+  double meancol = mean(col).val[0];
+  Vec2i br = boundvect(row, thd);
+  Vec2i bc = boundvect(col, thd);
+  Rect r(br[0], bc[0], br[1] - br[0], bc[1] - bc[0]);
+  return r;
 }
 
 #include "hough.hpp"

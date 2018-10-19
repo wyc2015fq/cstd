@@ -96,7 +96,7 @@ double sub_match(const double* a, int na, const double* b, int nb, int mincount,
   double fb[100];
   double mindis = 0;
   for (int i = 1; i < (1 << na); ++i) {
-    if (!(i&ma)) continue;
+    if ((i&ma)!=ma) continue;
     int k = 0, count = popcount(i);
     if (mincount <= count && count) {
       double c = pow(count, 0.01);
@@ -106,7 +106,7 @@ double sub_match(const double* a, int na, const double* b, int nb, int mincount,
         }
       }
       for (int m = 1; m < (1 << nb); ++m) {
-        if (!(m&mb)) continue;
+        if ((m&mb)!=mb) continue;
         int k = 0, countb = popcount(m);
         if (countb == count) {
           for (int j = 0; j < nb; ++j) {

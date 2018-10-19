@@ -44,7 +44,7 @@ static char* find_not_eixst_file(const char* filename, char* buf, int buflen)
 CC_INLINE int savefile(const char* fname, const void* buf, int buflen)
 {
   FILE* pf = fopen(fname, "wb");
-  size_t n = 0;
+  int n = 0;
   if (NULL == pf) {
     return 0;
   }
@@ -55,7 +55,7 @@ CC_INLINE int savefile(const char* fname, const void* buf, int buflen)
 CC_INLINE int loadfile(const char* fname, void* buf, int buflen, int pos)
 {
   FILE* pf = fopen(fname, "rb");
-  size_t n = 0;
+  int n = 0;
   if (NULL == pf) {
     return 0;
   }
@@ -142,8 +142,8 @@ typedef FILE* HD_FILE;
 #define FSEEKEND(_PF, _OFF)           fseek(_PF, _OFF, SEEK_END)
 //#define FSIZE(_PF, _SZ)               FILESIZE(_PF, _SZ)
 //#define FSIZE(_PF, _SZ)               (_SZ)=filelength(_PF,NULL)
-#define FWRITEPOS(_PF, _IDX, _PTR, _N)  { FSEEKSET(_PF, ((size_t)(_IDX))*((size_t)sizeof(*(_PTR)))); FWRITE(_PTR, (_N), _PF); }
-#define FREADPOS(_PF, _IDX, _PTR, _N)  { FSEEKSET(_PF, ((size_t)(_IDX))*((size_t)sizeof(*(_PTR)))); FREAD(_PTR, (_N), _PF); }
+#define FWRITEPOS(_PF, _IDX, _PTR, _N)  { FSEEKSET(_PF, ((int)(_IDX))*((int)sizeof(*(_PTR)))); FWRITE(_PTR, (_N), _PF); }
+#define FREADPOS(_PF, _IDX, _PTR, _N)  { FSEEKSET(_PF, ((int)(_IDX))*((int)sizeof(*(_PTR)))); FREAD(_PTR, (_N), _PF); }
 #endif // _WIN
 #ifndef FILESIZE
 #define FILESIZE(_PF, _SZ)               { int _cur = ftell(_PF); fpos_t pos; fseek(_PF, 0, SEEK_END); fgetpos(_PF, &pos); _SZ = (int)pos; fseek(_PF, _cur, SEEK_SET); }
@@ -210,12 +210,12 @@ static int mkdirs(const char* filename)
 {
   char path[ MAX_PATH ];
   char* p;
-  size_t pos;
+  int pos;
   sys_stat st;
   strcpy(path, filename);
   p = path;
   for (; ;) {
-    size_t len = strlen(p);
+    int len = strlen(p);
     pos = strcspn(p, ("/\\"));
     if (pos != 0) {
       p[ pos ] = '\0';
@@ -265,7 +265,7 @@ CC_INLINE int buf_push(buf_t* bf, const void* s0, int l0) {
 }
 static int buf_load(const char* fname, buf_t* bf)
 {
-  size_t len, readed_len;
+  int len, readed_len;
   FILE* pf;
   pf = fname ? fopen(fname, "rb") : NULL;
   if (pf) {
@@ -368,21 +368,21 @@ static char* read_text(const char* fname)
   fclose(pf);
   return str;
 }
-static int loaddata_1(const char* fn, void* buf, size_t n)
+static int loaddata_1(const char* fn, void* buf, int n)
 {
   FILE* pf = fopen(fn, "rb");
   if (pf) {
-    size_t rn = fread(buf, 1, n, pf);
+    int rn = fread(buf, 1, n, pf);
     //ASSERT(rn==n);
     fclose(pf);
   }
   return 0;
 }
-static int loaddata_11(const char* fn, void* buf, size_t n, int off)
+static int loaddata_11(const char* fn, void* buf, int n, int off)
 {
   FILE* pf = fopen(fn, "rb");
   if (pf) {
-    size_t rn;
+    int rn;
     fseek(pf, off, SEEK_SET);
     rn = fread(buf, 1, n, pf);
     //ASSERT(rn == n);
@@ -391,11 +391,11 @@ static int loaddata_11(const char* fn, void* buf, size_t n, int off)
   }
   return 0;
 }
-static int savedata_inl(const char* fn, const void* buf, size_t n)
+static int savedata_inl(const char* fn, const void* buf, int n)
 {
   FILE* pf = fopen(fn, "wb");
   if (pf) {
-    size_t i;
+    int i;
     const unsigned char* ucbuf = (const unsigned char*)buf;
     for (i = 0; i < n; ++i) {
       fprintf(pf, "0x%02x,\n", ucbuf[i]);
@@ -404,12 +404,12 @@ static int savedata_inl(const char* fn, const void* buf, size_t n)
   }
   return 0;
 }
-static int savedata_11(const char* fn, const void* buf, size_t n, int off)
+static int savedata_11(const char* fn, const void* buf, int n, int off)
 {
   FILE* pf = fopen(fn, "wb");
 	int ret=0;
   if (pf) {
-    size_t rn;
+    int rn;
     fseek(pf, off, SEEK_SET);
     rn = fwrite(buf, 1, n, pf);
     ret = (rn == n);
@@ -427,7 +427,7 @@ static int savedata(const char* fn, int nbuf, ...)
     va_start(marker, nbuf);
     for (i=0; i<nbuf; ++i) {
       buf = va_arg(marker, char*);
-      n = va_arg(marker, size_t);
+      n = va_arg(marker, int);
       if (buf && n>0) {
         rn = fwrite(buf, 1, n, pf);
         wn2 += rn;
@@ -442,7 +442,7 @@ static int savedata2(FILE* pf, ...)
 {
   va_list marker;
   char* buf;
-  size_t n;
+  int n;
   int ret = 0;
   if (pf) {
     va_start(marker, pf);
@@ -451,7 +451,7 @@ static int savedata2(FILE* pf, ...)
       if (0 == buf) {
         break;
       }
-      n = va_arg(marker, size_t);
+      n = va_arg(marker, int);
       if (0 == n) {
         break;
       }
@@ -466,7 +466,7 @@ static int loaddata_2(FILE* pf, ...)
 {
   va_list marker;
   char* buf;
-  size_t n;
+  int n;
   int ret=0;
   va_start(marker, pf);
   while (1) {
@@ -474,7 +474,7 @@ static int loaddata_2(FILE* pf, ...)
     if (0 == buf) {
       break;
     }
-    n = va_arg(marker, size_t);
+    n = va_arg(marker, int);
     if (0 == n) {
       break;
     }
@@ -488,7 +488,7 @@ static int loaddatafn(const char* fn, ...)
   FILE* pf = fopen(fn, "rb");
   va_list marker;
   char** buf;
-  size_t n;
+  int n;
   int ret=0;
   if (pf) {
     va_start(marker, fn);
@@ -497,7 +497,7 @@ static int loaddatafn(const char* fn, ...)
       if (0 == buf) {
         break;
       }
-      n = va_arg(marker, size_t);
+      n = va_arg(marker, int);
       if (0 == n) {
         break;
       }
@@ -513,7 +513,7 @@ static int loaddatafn2(const char* fn, ...)
   FILE* pf = fopen(fn, "rb");
   va_list marker;
   char** buf;
-  size_t i, n, nall, rn;
+  int i, n, nall, rn;
   char* bufall;
   int ret=0;
   if (pf) {
@@ -524,7 +524,7 @@ static int loaddatafn2(const char* fn, ...)
       if (0 == buf) {
         break;
       }
-      n = va_arg(marker, size_t);
+      n = va_arg(marker, int);
       if (0 == n) {
         break;
       }
@@ -542,7 +542,7 @@ static int loaddatafn2(const char* fn, ...)
       if (0 == buf) {
         break;
       }
-      n = va_arg(marker, size_t);
+      n = va_arg(marker, int);
       if (0 == n) {
         break;
       }
@@ -591,7 +591,7 @@ CC_INLINE int asprintf(char** pStr, const char* fmt, ...)
 #endif
 CC_INLINE int str_load(const char* fname, str_t* s)
 {
-  size_t len, readed_len;
+  int len, readed_len;
   FILE* pf;
   pf = fopen(fname, "rb");
   if (pf) {
@@ -723,14 +723,14 @@ static uint32 stream_filesize(stream_t* fp)
   return pos;
 }
 CC_INLINE int stream_puts(stream_t* fp, const char* str) {
-  size_t len = strlen(str);
+  int len = strlen(str);
   return stream_write(fp, str, len);
 }
 CC_INLINE int stream_rewind(stream_t* fp) {
   return stream_seek(fp, 0, SEEK_SET);
 }
 CC_INLINE int stream_puts2(const char* str, stream_t* fp) {
-	size_t len = strlen(str);
+	int len = strlen(str);
   return stream_write(fp, str, len);
 }
 CC_INLINE char* stream_gets(char* buf, int bufsize, stream_t* fp) {

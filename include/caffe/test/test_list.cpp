@@ -3,7 +3,8 @@
 #undef min
 
 //#include "test_util_blas.cpp"
-#include "test_convolution_layer.cpp"
+//#include "test_convolution_layer.cpp"
+//#include "../layers/denseblock_layer.cpp"
 #include "test_denseblock_layer.cpp"
 #if 0
 #include "test_accuracy_layer.cpp"

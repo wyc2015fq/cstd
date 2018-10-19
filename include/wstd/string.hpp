@@ -43,7 +43,7 @@ namespace wstd {
 
   inline int trim_rindex(const char* s, int l, int r, const unsigned char* ucmap)
   {
-    for (; l<r && ucmap[(unsigned char)s[r]]; --r);
+    for (; l<r && ucmap[(unsigned char)s[r-1]]; --r);
     return r;
   }
   static string trim(const string& s, const char* delims)
