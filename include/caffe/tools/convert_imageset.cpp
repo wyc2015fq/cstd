@@ -17,14 +17,14 @@
 #include <vector>
 #include <direct.h>
 
-#include "caffe/proto/caffe.pb.h"
+#include "caffe/proto/caffe_proto.h"
 #include "caffe/util/db.hpp"
 #include "caffe/util/io.hpp"
 #include "caffe/util/rng.hpp"
 //#include "caffe/libcaffe.cpp"
 
 #include "caffe/common.cpp"
-#include "caffe/proto/caffe.pb.cc"
+#include "caffe/proto/caffe_proto.cc"
 #include "caffe/util/db.cpp"
 #include "../util/io.cpp"
 //#include "caffe/util/db_leveldb.cpp"

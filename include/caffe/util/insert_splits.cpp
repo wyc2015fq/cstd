@@ -9,7 +9,7 @@
 
 namespace caffe
 {
-
+#ifdef USE_PRO
   void InsertSplits(const NetParameter & param, NetParameter* param_split)
   {
     // Initialize by copying from the input NetParameter.
@@ -109,6 +109,7 @@ namespace caffe
       }
     }
   }
+#endif // USE_PRO
 
   string SplitLayerName(const string & layer_name, const string & blob_name,
                         const int blob_idx)

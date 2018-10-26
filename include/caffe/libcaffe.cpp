@@ -38,12 +38,11 @@
 #pragma comment(lib,"opencv_world310.lib")
 #endif
 
-
 #pragma warning(disable:4267)
 #pragma warning(disable:4244)
 #pragma warning(disable:4661)
-//#include "proto/caffe.pb.h"
-//#include "proto/caffe.pb.cc"
+#include "proto/caffe_proto.h"
+#include "proto/caffe.pb.cc"
 #include "wstd/logging.hpp"
 #include "blob.cpp"
 #include "common.cpp"
@@ -54,7 +53,6 @@
 #include "layer_factory.cpp"
 #include "net.cpp"
 #include "parallel.cpp"
-#include "proto\caffe.pb.cc"
 #include "solver.cpp"
 #include "solvers\adadelta_solver.cpp"
 #include "solvers\adagrad_solver.cpp"
@@ -73,7 +71,7 @@
 #include "util\io.cpp"
 #include "util\math_functions.cpp"
 #include "util\signal_handler.cpp"
-#include "util\upgrade_proto.cpp"
+#include "util\upgrade_proto.hpp"
 
 #include "util\interp.cpp"
 #include "util\cudnn.cpp"
@@ -181,7 +179,6 @@ namespace boost
   template <typename T>	T const volatile* get_pointer(T const volatile* p) { return p; }
 #define GET_POINTER_DEF(T) 	template <>	T* get_pointer<T>(T * p) { return p; }
   //#define GET_POINTER_DEF(T) 	T* get_pointer(T * p) { return p; }
-  GET_POINTER_DEF(class caffe::SolverParameter const volatile);
   GET_POINTER_DEF(class caffe::Net<float> const volatile);
   GET_POINTER_DEF(class caffe::Timer const volatile);
   GET_POINTER_DEF(class caffe::AdamSolver<float> const volatile);
@@ -192,7 +189,10 @@ namespace boost
   GET_POINTER_DEF(class caffe::AdaGradSolver<float> const volatile);
   GET_POINTER_DEF(class caffe::Layer<float> const volatile);
   GET_POINTER_DEF(class caffe::Solver<float> const volatile);
+#ifdef USE_PRO
+  GET_POINTER_DEF(class caffe::SolverParameter const volatile);
   GET_POINTER_DEF(class caffe::LayerParameter const volatile);
+#endif
 #undef GET_POINTER_DEF
 #endif
 }

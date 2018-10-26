@@ -9,7 +9,7 @@
 #include "caffe/blob.hpp"
 #include "caffe/common.hpp"
 #include "caffe/layer_factory.hpp"
-#include "caffe/proto/caffe.pb.h"
+#include "caffe/proto/caffe_proto.h"
 #include "caffe/util/math_functions.hpp"
 
 /**

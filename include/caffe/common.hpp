@@ -1,8 +1,8 @@
 #ifndef CAFFE_COMMON_HPP_
 #define CAFFE_COMMON_HPP_
 
-#include "caffe_config.h"
 #include <wstd/flags.hpp>
+
 
 #include <climits>
 #include <cmath>
@@ -15,7 +15,7 @@
 #include <utility>  // pair
 #include <vector>
 
-#include "caffe/util/device_alternate.hpp"
+#include "./util/device_alternate.hpp"
 
 // Convert macro to string
 #define STRINGIFY(m) #m

@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "caffe/common.hpp"
-#include "caffe/proto/caffe.pb.h"
-#include "caffe/syncedmem.hpp"
+//#include "proto.h"
+#include "common.hpp"
+#include "syncedmem.hpp"
 
 const int kMaxBlobAxes = 32;
 
@@ -51,7 +51,17 @@ namespace caffe
      * propagate the new input shape to higher layers.
      */
     void Reshape(const vector<int> & shape);
+#ifdef USE_PRO
     void Reshape(const BlobShape & shape);
+    void FromProto(const BlobProto & proto, bool reshape = true);
+    void ToProto(BlobProto* proto, bool write_diff = false) const;
+#endif
+#ifdef USE_JSON
+    void Reshape(const cJSON* shape);
+    void FromProto(const cJSON* proto, bool reshape = true);
+    void ToProto(cJSON* proto, bool write_diff = false) const;
+#endif
+
     void ReshapeLike(const Blob & other);
     inline string shape_string() const {
       ostringstream stream;
@@ -237,8 +247,6 @@ namespace caffe
     Dtype* mutable_cpu_diff();
     Dtype* mutable_gpu_diff();
     void Update();
-    void FromProto(const BlobProto & proto, bool reshape = true);
-    void ToProto(BlobProto* proto, bool write_diff = false) const;
 
     /// @brief Compute the sum of absolute values (L1 norm) of the data.
     Dtype asum_data() const;

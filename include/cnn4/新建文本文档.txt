@@ -1,0 +1,71 @@
+
+
+struct DataShape {
+  int dim[4];
+};
+
+enum {CPU, GPU};
+
+struct DevMem {
+  void* dev_ptr_[2];
+  void* ptr_;
+};
+
+struct Blob {
+  DataShape shape_;
+  DevMem* data_;
+  DevMem* diff_;
+};
+
+enum ArgType{ AT_Float , AT_Int, AT_Enum };
+
+#define ENUM_DEF_DEF(ENUMDEF) \
+ENUMDEF(FAN_IN) \
+ENUMDEF(FAN_OUT) \
+ENUMDEF(AVERAGE) \
+ENUMDEF(HDF5) \
+ENUMDEF(BINARYPROTO) \
+ENUMDEF(TRAIN) \
+ENUMDEF(TEST) \
+ENUMDEF(aaaa)
+
+enum Enum {
+#define ENUMDEF(name)  Enum_ ## name,
+  ENUM_DEF_DEF(ENUMDEF)
+#undef ENUMDEF
+};
+const char* Enum_Name[] = {
+#define ENUMDEF(name)  #name,
+  ENUM_DEF_DEF(ENUMDEF)
+#undef ENUMDEF
+};
+
+#define ARG_DEF_DEF(ARGDEF) \
+ARGDEF(int, num_output)   \
+ARGDEF(float, lr_mult) \
+ARGDEF(Enum, eee)
+
+enum ArgId {
+#define ARGDEF(type, name)  Id_ ## name,
+  ARG_DEF_DEF(ARGDEF)
+#undef ARGDEF
+ArgIdMax,
+};
+const char* Arg_Name[] = {
+#define ARGDEF(type, name)  #name,
+  ARG_DEF_DEF(ARGDEF)
+#undef ARGDEF
+};
+
+struct Arg {
+  ArgType t;
+  union {
+    float f;
+    int i;
+    Enum e;
+  };
+};
+
+struct Layer {
+  Arg arg[ArgIdMax];
+};

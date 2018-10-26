@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "caffe/common.hpp"
-#include "caffe/proto/caffe.pb.h"
+#include "caffe/proto/caffe_proto.h"
 #include "caffe/util/io.hpp"
 //#include "glog/port.h"
 #include <io.h>

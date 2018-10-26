@@ -4,7 +4,7 @@
 #define CAFFE_UTIL_INTERP_H_
 
 //#include <cublas_v2.h>
-#include "caffe/proto/caffe.pb.h"
+#include "caffe/proto/caffe_proto.h"
 
 namespace caffe
 {

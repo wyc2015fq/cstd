@@ -16,7 +16,7 @@
 #include "stdint.h"
 
 #include "caffe/libcaffe.cpp"
-#include "caffe/proto/caffe.pb.h"
+#include "caffe/proto/caffe_proto.h"
 #include "caffe/util/db.hpp"
 #include "caffe/util/format.hpp"
 

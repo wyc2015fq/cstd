@@ -8,7 +8,7 @@ namespace caffe
 {
   namespace db
   {
-
+#ifdef USE_PRO
     DB* GetDB(DataParameter::DB backend)
     {
       switch (backend) {
@@ -25,6 +25,7 @@ namespace caffe
         return NULL;
       }
     }
+#endif
 
     DB* GetDB(const string & backend)
     {

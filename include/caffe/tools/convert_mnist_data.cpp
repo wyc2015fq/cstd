@@ -23,7 +23,7 @@
 #include <string>
 
 //#include "boost/scoped_ptr.hpp"
-#include "caffe/proto/caffe.pb.h"
+#include "caffe/proto/caffe_proto.h"
 #include "caffe/util/db.hpp"
 
 //#include "caffe/util/logging.hpp"
@@ -32,7 +32,7 @@
 #include "wstd/flags.hpp"
 
 #if 1
-#include "caffe/proto/caffe.pb.cc"
+#include "caffe/proto/caffe_proto.cc"
 #include "caffe/util/io.cpp"
 #include "caffe/util/db.cpp"
 //#include "caffe/util/db_leveldb.hpp"

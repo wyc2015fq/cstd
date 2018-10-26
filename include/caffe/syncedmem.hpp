@@ -75,8 +75,15 @@ namespace caffe
   private:
     void to_cpu();
     void to_gpu();
-    void* cpu_ptr_;
-    void* gpu_ptr_;
+    typedef float(*f32_t)[100];
+    union {
+      void* cpu_ptr_;
+      f32_t cpu_f32_ptr_;
+    };
+    union {
+      void* gpu_ptr_;
+      f32_t gpu_f32_ptr_;
+    };
     size_t size_;
     SyncedHead head_;
     bool own_cpu_data_;

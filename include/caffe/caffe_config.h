@@ -12,6 +12,13 @@
 #endif
 #define USE_WARP_CTC
 #define USE_OPENCV
+#define USE_PROTOBUF
+#if 1
+#define USE_PRO
+#else
+#define USE_JSON
+#endif
+
 #define USE_LMDB
 //#define USE_LEVELDB
 
