@@ -5,29 +5,39 @@
 #include "base64.h"
 #include "cJSON.h"
 #include <string>
-
+#include <vector>
+using namespace std;
 typedef cJSON CJSON;
 
 template <typename T>
 void cJSON_AddNumberArrayToObject(cJSON* object, const char* string, const T* arr, int n) {
   int i;
-  cJSON * json_arr = cJSON_CreateArray();
-  for (i = 0; i < n; ++i) {
-    //cJSON_AddNumberToObject(json_layer, "num_output", convolution_param.num_output());
-    cJSON_AddItemToArray(json_arr, cJSON_CreateNumber(arr[i]));
+  if (n > 0) {
+    cJSON * json_arr = cJSON_CreateArray();
+    for (i = 0; i < n; ++i) {
+      //cJSON_AddNumberToObject(json_layer, "num_output", convolution_param.num_output());
+      cJSON_AddItemToArray(json_arr, cJSON_CreateNumber(arr[i]));
+    }
+    cJSON_AddItemToObject(object, string, json_arr);
   }
-  cJSON_AddItemToObject(object, string, json_arr);
   return;
 }
 void cJSON_AddStringArrayToObject(cJSON* object, const char* string, const std::string* arr, int n) {
   int i;
-  cJSON * json_arr = cJSON_CreateArray();
-  for (i = 0; i < n; ++i) {
-    //cJSON_AddNumberToObject(json_layer, "num_output", convolution_param.num_output());
-    cJSON_AddItemToArray(json_arr, cJSON_CreateString(arr[i].c_str()));
+  if (n > 0) {
+    cJSON * json_arr = cJSON_CreateArray();
+    for (i = 0; i < n; ++i) {
+      //cJSON_AddNumberToObject(json_layer, "num_output", convolution_param.num_output());
+      cJSON_AddItemToArray(json_arr, cJSON_CreateString(arr[i].c_str()));
+    }
+    cJSON_AddItemToObject(object, string, json_arr);
   }
-  cJSON_AddItemToObject(object, string, json_arr);
   return;
+}
+void cJSON_AddStringArrayToObject(cJSON* object, const char* string, const vector<std::string>& arr) {
+  if (arr.size() > 0) {
+    cJSON_AddStringArrayToObject(object, string, &arr[0], arr.size());
+  }
 }
 
 void cJSON_AddBinaryDataToObject(cJSON* object, const char* string, const void* data, int size) {
@@ -37,6 +47,33 @@ void cJSON_AddBinaryDataToObject(cJSON* object, const char* string, const void* 
   buf[len] = 0;
   cJSON_AddStringToObject(object, string, buf);
   free(buf);
+}
+CJSON* cJSON_gcObjectItem(cJSON* object, const char* string, int type = cJSON_Object) {
+  CJSON* item = cJSON_GetObjectItem((cJSON*)object, string);
+  if (NULL == item) {
+    //item = cJSON_CreateObject();
+    item = cJSON_New_Item();
+    if (item) {
+      //item->type = cJSON_Object;
+      item->type = type;
+    }
+    cJSON_AddItemToObject(object, string, item);
+  }
+  return item;
+}
+CJSON* cJSON_pushArrayItem(cJSON* object) {
+  CJSON *item = cJSON_CreateObject();
+  cJSON_AddItemToArray(object, item);
+  return item;
+}
+CJSON* cJSON_gcArrayItem(cJSON* object, int index) {
+  int size = cJSON_GetArraySize(object);
+  for (; size <= index; ++size) {
+      cJSON_AddItemToArray(object, cJSON_CreateArray());
+  }
+  CJSON* item = cJSON_GetArrayItem((cJSON*)object, index);
+  assert(item);
+  return item;
 }
 int cJSON_GetObjectBinaryDataSize(cJSON* object, const char* string) {
   CJSON* item = cJSON_GetObjectItem((cJSON*)object, string);
@@ -55,6 +92,14 @@ int cJSON_GetObjectBinaryData(cJSON* object, const char* string, void* data, int
     size = 0;
   }
   return size;
+}
+
+int cJSON_GetObjectArraySize(const cJSON* object, const char* name) {
+  CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
+  if (item) {
+    return cJSON_GetArraySize(item);
+  }
+  return 0;
 }
 
 char* cJSON_GetObjectString(const cJSON* object, const char* name, const char* default_string) {
@@ -113,7 +158,7 @@ int cJSON_GetObjectNumberArray(cJSON* object, const char* name, vector<T>& arr) 
     size = cJSON_GetArraySize(object);
     arr.resize(size);
     for (int i = 0; i < size; ++i) {
-      arr[i] = cJSON_GetArrayItem(object, i)->valuedouble;
+      arr[i] = (T)cJSON_GetArrayItem(object, i)->valuedouble;
     }
   }
   return size;

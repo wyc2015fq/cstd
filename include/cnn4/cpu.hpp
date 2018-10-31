@@ -11,6 +11,8 @@ using namespace std;
 #define NOT_IMPLEMENTED
 enum Brew { CPU, GPU };
 
+#define CPU_KERNEL_LOOP(i, n)  for (int i = 0; i < (n); ++i )
+
 #if 0
 struct Context {
   virtual void* ReAlloc(void* ptr, size_t nbytes) = 0;
@@ -28,14 +30,52 @@ struct Buffer {
   int size;
 };
 
+typedef float(*f32_10_t)[100];
+
+#define CONTEXTDEF   \
+int size;  \
+union { \
+  void* data; \
+  float* fl; \
+  double* db; \
+  int* i; \
+  char* str; \
+  unsigned char* bytes; \
+  f32_10_t f100_; \
+}
+
 struct CPUContext {
-  //CPUContext() { context[CPU] = this;    }
-  static void* ReAlloc(void* ptr, size_t size) { return ptr = realloc(ptr, size); }
-  static void Memset(size_t nbytes, void* ptr) { memset(ptr, 0, nbytes); }
-  static void Memcpy(size_t nbytes, void* dst, const void* src) { memcpy(dst, src, nbytes); }
-  static void Free(void* data) { free(data); }
-  static void MemcpyAsync(size_t nbytes, void* dst, const void* src) { NOT_IMPLEMENTED; }
+  CONTEXTDEF;
 };
+
+//CPUContext() { context[CPU] = this;    }
+static void Memcpy(CPUContext* dst, const CPUContext* src, int nbytes) {
+  CHECK_LE(nbytes, dst->size);
+  CHECK_LE(nbytes, dst->size);
+  memcpy(dst->data, src->data, nbytes);
+}
+static void Free(CPUContext* ptr) {
+  if (ptr->data) {
+    free(ptr->data);
+    ptr->data = NULL;
+    ptr->size = 0;
+  }
+}
+static void ReAlloc(CPUContext* ptr, size_t nbytes) {
+  if (ptr->size<nbytes) {
+    ptr->data = realloc(ptr->data, ptr->size = nbytes);
+  }
+}
+static void Memset(CPUContext* ptr, size_t nbytes) {
+  CHECK_LE(nbytes, ptr->size);
+  memset(ptr->data, 0, ptr->size);
+}
+#if 0
+static void MemcpyAsync(size_t nbytes, CPUContext* dst, const void* src, void* stream) { memcpy(dst, src, nbytes); }
+//static CPUContext* BeginStream(CPUContext* ptr) { return 0; }
+//static void Synchronize(CPUContext* ptr);
+//static void EndStream(CPUContext* ptr) {}
+#endif
 
 
 //#define mode()  globel.mode_
@@ -63,13 +103,22 @@ struct Globel
 #define globel Globel::Get()
 #define mode()  globel.mode_
 
+inline static int solver_count() { return globel.solver_count_; }
+inline static void set_solver_count(int val) { globel.solver_count_ = val; }
+inline static int solver_rank() { return globel.solver_rank_; }
+inline static void set_solver_rank(int val) { globel.solver_rank_ = val; }
+inline static bool multiprocess() { return globel.multiprocess_; }
+inline static void set_multiprocess(bool val) { globel.multiprocess_ = val; }
+inline static bool root_solver() { return globel.solver_rank_ == 0; }
 
-//#define CPU_ONLY
+
+ 
 #ifdef CPU_ONLY
-#include "cpu_only.hpp"
+//#include "cpu_only.hpp"
 typedef CPUContext Context;
+//typedef GPUContext Context;
+struct GPUContext : public CPUContext {};
 #else
-#define USE_GPU
 #include "cuda.hpp"
 typedef GPUContext Context;
 #endif

@@ -1,9 +1,33 @@
 
-int FromProto(CJSON* param) {
+int AppendName(Layer<Dtype>* layer, bool is_top, vector<Blob<Dtype>*>& net_blobs_) {
+  vector<string> vec;
+  const char* name = is_top ? "top" : "bottom";
+  cJSON_GetObjectStringArray(layer->param_, name, vec);
+  Blob<Dtype>* bi;
+  vector<Blob<Dtype>*>& blobvec = is_top ? layer->top_vecs_ : layer->bottom_vecs_;
+  for (int i = 0; i < vec.size(); ++i) {
+    if (blobs_count(net_blobs_, vec[i]) == 0) {
+      bi = blobs_add(net_blobs_, vec[i]);
+    }
+    else {
+      bi = blobs_get(net_blobs_, vec[i]);
+    }
+    if (is_top) {
+      bi->top_cnt_++;
+    }
+    else {
+      bi->bottom_cnt_++;
+    }
+    blobvec.push_back(bi);
+  }
+  return 0;
+}
+
+int FromProto(CJSON* param, vector<Blob<Dtype>*>& net_blobs_) {
   auto layer = this;
   CJSON* blobs_json = param->GetObjectItem("blobs");
   layer->param_ = param;
-  layer->loss_weight_ = param->GetObjectNumber("loss_weight", 0);
+  //layer->loss_weight_ = param->GetObjectNumber("loss_weight", 0);
   this->phase_ = CJSON_GETOBJECTENUM(param_, "phase", TRAINorTEST, Phase);
   if (blobs_json) {
     int blob_size = blobs_json->GetArraySize();
@@ -12,6 +36,32 @@ int FromProto(CJSON* param) {
       CJSON* blob_json = blobs_json->GetArrayItem(j);
       layer->blobs_[j]->FromProto(blob_json);
     }
+  }
+  AppendName(layer, false, net_blobs_);
+  AppendName(layer, true, net_blobs_);
+  {
+    cJSON* item = cJSON_GetObjectItem(layer->param_, "loss_weight");
+    int loss_weight_size = item ? cJSON_GetArraySize(item) : 0;
+    has_loss_weights_ = 0;
+    if (loss_weight_size == layer->top_vecs_.size()) {
+      for (int j = 0; j < top_vecs_.size(); ++j) {
+        blobs_[j]->loss_weight_ = cJSON_GetArrayItem(item, j)->valuedouble;
+        if (blobs_[j]->loss_weight_ > 0) {
+          ++has_loss_weights_;
+        }
+      }
+    }
+    else {
+      for (int j = 0; j < layer->top_vecs_.size(); ++j) {
+        blobs_[j]->loss_weight_ = (layer->top_vecs_[j]->bottom_cnt_ == 0) ? 1 : 0;
+        if (blobs_[j]->loss_weight_ > 0) {
+          ++has_loss_weights_;
+        }
+      }
+    }
+  }
+  {
+    cJSON* item = cJSON_GetObjectItem(layer->param_, "propagate_down");
   }
   return 0;
 }
@@ -81,94 +131,92 @@ void SetUp(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top
   //SetLossWeights(layer, top);
 }
 
-double Forward(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top, const Dtype* loss_weights )
+double Forward(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top )
 {
   // Lock during forward to ensure sequential forward
   Lock();
   Dtype loss = 0;
   Reshape(bottom, top);
-  switch (mode()) {
-  case CPU: {
-    Forward_cpu(bottom, top);
+  Forward(CONTEXT,bottom, top);
 #if 0
-    if (bottom.size() > 0 && top.size() > 0) {
-      Dtype* bottom_data = bottom[0]->mutable_cpu_data();
-      Dtype* top_data = top[0]->mutable_cpu_data();
-      printf("############## %s ###########\n", this->layer_param().name().c_str());
-      for (int i = 0; i < 10; i++) {
-        printf("%f ", bottom_data[i]);
-      }
-      printf("\n");
-      for (int i = 0; i < 10; i++) {
-        printf("%f ", top_data[i]);
-      }
-      printf("\n");
+  if (bottom.size() > 0 && top.size() > 0) {
+    Dtype* bottom_data = bottom[0]->mutable_cpu_data();
+    Dtype* top_data = top[0]->mutable_cpu_data();
+    printf("############## %s ###########\n", this->layer_param().name().c_str());
+    for (int i = 0; i < 10; i++) {
+      printf("%f ", bottom_data[i]);
     }
+    printf("\n");
+    for (int i = 0; i < 10; i++) {
+      printf("%f ", top_data[i]);
+    }
+    printf("\n");
+  }
 #endif
-    if (loss_weights) {
-      for (int top_id = 0; top_id < top.size(); ++top_id) {
-        //if (!this->loss(top_id)) { continue; }
-        const int count = top[top_id]->count();
-        const Dtype* data = top[top_id]->cpu_data();
-        //const Dtype* loss_weights = top[top_id]->cpu_diff();
-        Dtype* loss_multiplier = top[top_id]->mutable_cpu_diff();
-        caffe_set(count, loss_weights[top_id], loss_multiplier);
-        loss += caffe_dot<Dtype>(CPUCONTEXT, count, data, loss_multiplier);
-      }
-      loss_ = loss;
+  if (has_loss_weights_) {
+    for (int top_id = 0; top_id < top.size(); ++top_id) {
+      //if (!this->loss(top_id)) { continue; }
+      loss += top[top_id]->Loss();
     }
   }
-            break;
-  case GPU:
-    Forward_gpu(bottom, top);
-#ifndef CPU_ONLY
-    if (loss_weights) {
-      for (int top_id = 0; top_id < top.size(); ++top_id) {
-        //if (!this->loss(top_id)) { continue; }
-        const int count = top[top_id]->count();
-        const Dtype* data = top[top_id]->gpu_data();
-        //const Dtype* loss_weights = top[top_id]->gpu_diff();
-        Dtype* loss_multiplier = top[top_id]->mutable_cpu_diff();
-        caffe_set(count, loss_weights[top_id], loss_multiplier);
-        Dtype blob_loss = 0;
-        caffe_dot<Dtype>(GPUCONTEXT, count, data, loss_multiplier, &blob_loss);
-        loss += blob_loss;
-      }
-    }
-#endif
-    break;
-  default:
-    LOG(FATAL) << "Unknown caffe mode.";
-  }
+
   Unlock();
 
   if (debug_info_) {
-#if 0
     for (int top_id = 0; top_id < top.size(); ++top_id) {
       const Blob<Dtype> & blob = *top[top_id];
       const string & blob_name = blob.name;
       const Dtype data_abs_val_mean = blob.asum_data() / blob.count();
       LOG_IF(INFO, root_solver())
         << "    [Forward] "
-        << "Layer " << layer_names_[layer_id]
+        << "Layer " << name
         << ", top blob " << blob_name
         << " data: " << data_abs_val_mean;
     }
-    for (int param_id = 0; param_id < layers_[layer_id]->blobs().size();
+    for (int param_id = 0; param_id < blobs_.size();
       ++param_id) {
-      const Blob<Dtype> & blob = *layers_[layer_id]->blobs()[param_id];
-      const int net_param_id = param_id_vecs_[layer_id][param_id];
-      const string & blob_name = param_display_names_[net_param_id];
+      const Blob<Dtype> & blob = *blobs_[param_id];
+      const string & blob_name = blob.name;
       const Dtype data_abs_val_mean = blob.asum_data() / blob.count();
       LOG_IF(INFO, root_solver())
         << "    [Forward] "
-        << "Layer " << layer_names_[layer_id]
+        << "Layer " << name
         << ", param blob " << blob_name
         << " data: " << data_abs_val_mean;
     }
-#endif
   }
 
   return loss;
 }
 
+
+inline void Backward(const vector<Blob<Dtype>*> & top,
+  const vector<bool> & propagate_down,
+  const vector<Blob<Dtype>*> & bottom)
+{
+  Backward(CONTEXT, top, propagate_down, bottom);
+
+  if (debug_info_) {
+    for (int top_id = 0; top_id < top.size(); ++top_id) {
+      const Blob<Dtype> & blob = *top[top_id];
+      const string & blob_name = top[top_id]->name;
+      const Dtype data_abs_val_mean = blob.asum_data() / blob.count();
+      LOG_IF(INFO, root_solver())
+        << "    [Forward] "
+        << "Layer " << name
+        << ", top blob " << blob_name
+        << " data: " << data_abs_val_mean;
+    }
+    for (int param_id = 0; param_id < blobs_.size(); ++param_id) {
+      const Blob<Dtype> & blob = *blobs_[param_id];
+      const string & blob_name = blob.name;
+      const Dtype data_abs_val_mean = blob.asum_data() / blob.count();
+      LOG_IF(INFO, root_solver())
+        << "    [Forward] "
+        << "Layer " << name
+        << ", param blob " << blob_name
+        << " data: " << data_abs_val_mean;
+    }
+  }
+
+}

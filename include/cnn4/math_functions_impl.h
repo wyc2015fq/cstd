@@ -1,4 +1,10 @@
 
+
+void caffe_memset(_CONTEXT, const size_t N, const int alpha, void* X);
+
+template <typename Dtype>
+void caffe_copy(_CONTEXT, const int N, const Dtype* X, Dtype* Y);
+
 // Decaf gpu gemm provides an interface that is almost the same as the cpu
 // gemm function - following the c convention and calling the fortran-order
 // gpu code under the hood.
@@ -25,8 +31,6 @@ void caffe_memcpy(_CONTEXT,const size_t N, const void* X, void* Y);
 
 template <typename Dtype>
 void caffe_set(_CONTEXT,const int N, const Dtype alpha, Dtype* X);
-
-
 
 template <typename Dtype>
 void caffe_add_scalar(_CONTEXT,const int N, const Dtype alpha, Dtype* X);
@@ -84,7 +88,10 @@ template <typename Dtype>
 void caffe_rng_bernoulli(_CONTEXT,const int n, const Dtype p, int* r);
 
 template <typename Dtype>
-void caffe_dot(_CONTEXT,const int n, const Dtype* x, const Dtype* y, Dtype* out);
+Dtype caffe_dot(_CONTEXT, const int n, const Dtype* x, const Dtype* y);
+
+template <typename Dtype>
+void caffe_dot(_CONTEXT, const int n, const Dtype* x, const Dtype* y, Dtype* out);
 
 template <typename Dtype>
 Dtype caffe_strided_dot(_CONTEXT,const int n, const Dtype* x, const int incx, const Dtype* y, const int incy);
@@ -107,3 +114,24 @@ void caffe_fabs(_CONTEXT,const int n, const Dtype* x, Dtype* y);
 template <typename Dtype>
 void caffe_scale(_CONTEXT,const int n, const Dtype alpha, const Dtype* x, Dtype* y);
 
+
+template <typename Dtype>
+void sgd_update(_CONTEXT, int N, Dtype* g, Dtype* h, Dtype momentum,
+  Dtype local_rate);
+
+template <typename Dtype>
+void adadelta_update(_CONTEXT, int N, Dtype* g, Dtype* h, Dtype* h2, Dtype momentum,
+  Dtype delta, Dtype local_rate);
+
+template <typename Dtype>
+void adagrad_update(_CONTEXT, int N, Dtype* g, Dtype* h, Dtype delta, Dtype local_rate);
+
+template <typename Dtype>
+void adam_update(_CONTEXT, int N, Dtype* g, Dtype* m, Dtype* v, Dtype beta1,
+  Dtype beta2, Dtype eps_hat, Dtype corrected_local_rate);
+
+template <typename Dtype>
+void relu_forward(_CONTEXT,const int n, const Dtype* in, Dtype* out, Dtype negative_slope);
+
+template <typename Dtype>
+void relu_backward(_CONTEXT,const int n, const Dtype* in_diff, const Dtype* in_data, Dtype* out_diff, Dtype negative_slope);

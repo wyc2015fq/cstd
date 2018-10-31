@@ -1,15 +1,19 @@
-#include <math_functions.h>  // CUDA's, not caffe's, for fabs, signbit
+
 #include <thrust/device_vector.h>
 #include <thrust/functional.h>  // thrust::plus
 #include <thrust/reduce.h>
-
 #include <cmath>
 #include "wstd/logging.hpp"
-#include "cuda.hpp"
+#include "cpu.hpp"
 #include "math_functions.h"
 
 
 #define _CONTEXT GPUContext* context
+
+void caffe_memset(_CONTEXT, const size_t N, const int alpha, void* X)
+{
+  CUDA_CHECK(cudaMemset(X, alpha, N));  // NOLINT(caffe/alt_fn)
+}
 
 template <>
 void caffe_gemm<float>(_CONTEXT,const CBLAS_TRANSPOSE TransA,
@@ -118,6 +122,20 @@ void caffe_dot<double>(_CONTEXT,const int n, const double* x, const double* y,
 }
 
 template <>
+float caffe_dot<float>(_CONTEXT, const int n, const float* x, const float* y) {
+  float out;
+  CUBLAS_CHECK(cublasSdot(cublas_handle(), n, x, 1, y, 1, &out));
+  return out;
+}
+
+template <>
+double caffe_dot<double>(_CONTEXT, const int n, const double* x, const double* y) {
+  double out;
+  CUBLAS_CHECK(cublasDdot(cublas_handle(), n, x, 1, y, 1, &out));
+  return out;
+}
+
+template <>
 void caffe_asum<float>(_CONTEXT,const int n, const float* x, float* y) {
   CUBLAS_CHECK(cublasSasum(cublas_handle(), n, x, 1, y));
 }
@@ -148,31 +166,6 @@ __global__ void set_kernel(const int n, const Dtype alpha, Dtype* y) {
   }
 }
 
-#if 0
-template <typename Dtype>
-void caffe_set<Dtype>(_CONTEXT,const int N, const Dtype alpha, Dtype* Y) {
-  if (alpha == 0) {
-    CUDA_CHECK(cudaMemset(Y, 0, sizeof(Dtype) * N));  // NOLINT(caffe/alt_fn)
-    return;
-  }
-  // NOLINT_NEXT_LINE(whitespace/operators)
-  set_kernel<Dtype><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
-      N, alpha, Y);
-}
-#else
-template <>
-void caffe_set<float>(_CONTEXT,const int N, const float alpha, float* Y) {
-  typedef float Dtype;
-  if (alpha == 0) {
-    CUDA_CHECK(cudaMemset(Y, 0, sizeof(Dtype) * N));  // NOLINT(caffe/alt_fn)
-    return;
-  }
-  // NOLINT_NEXT_LINE(whitespace/operators)
-  set_kernel<Dtype> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
-    N, alpha, Y);
-}
-#endif
-
 template <typename Dtype>
 __global__ void add_scalar_kernel(const int n, const Dtype alpha, Dtype* y) {
   CUDA_KERNEL_LOOP(index, n) {
@@ -181,17 +174,15 @@ __global__ void add_scalar_kernel(const int n, const Dtype alpha, Dtype* y) {
 }
 
 template <>
-void caffe_add_scalar<float>(_CONTEXT,const int N, const float alpha, float* Y) {
+void caffe_add_scalar<float>(_CONTEXT, const int N, const float alpha, float* Y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
-  add_scalar_kernel<float><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
-      N, alpha, Y);
+  add_scalar_kernel<float> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(N, alpha, Y);
 }
 
 template <>
-void caffe_add_scalar<double>(_CONTEXT,const int N, const double alpha, double* Y) {
+void caffe_add_scalar<double>(_CONTEXT, const int N, const double alpha, double* Y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
-  add_scalar_kernel<double><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
-      N, alpha, Y);
+  add_scalar_kernel<double> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(N, alpha, Y);
 }
 
 template <typename Dtype>
@@ -226,22 +217,6 @@ __global__ void sub_kernel(const int n, const Dtype* a,
   }
 }
 
-template <>
-void caffe_sub<float>(_CONTEXT,const int N, const float* a, const float* b,
-    float* y) {
-  // NOLINT_NEXT_LINE(whitespace/operators)
-  sub_kernel<float><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
-      N, a, b, y);
-}
-
-template <>
-void caffe_sub<double>(_CONTEXT,const int N, const double* a, const double* b,
-    double* y) {
-  // NOLINT_NEXT_LINE(whitespace/operators)
-  sub_kernel<double><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
-      N, a, b, y);
-}
-
 template <typename Dtype>
 __global__ void mul_kernel(const int n, const Dtype* a,
     const Dtype* b, Dtype* y) {
@@ -250,44 +225,12 @@ __global__ void mul_kernel(const int n, const Dtype* a,
   }
 }
 
-template <>
-void caffe_mul<float>(_CONTEXT,const int N, const float* a,
-    const float* b, float* y) {
-  // NOLINT_NEXT_LINE(whitespace/operators)
-  mul_kernel<float><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
-      N, a, b, y);
-}
-
-template <>
-void caffe_mul<double>(_CONTEXT,const int N, const double* a,
-    const double* b, double* y) {
-  // NOLINT_NEXT_LINE(whitespace/operators)
-  mul_kernel<double><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
-      N, a, b, y);
-}
-
 template <typename Dtype>
 __global__ void div_kernel(const int n, const Dtype* a,
     const Dtype* b, Dtype* y) {
   CUDA_KERNEL_LOOP(index, n) {
     y[index] = a[index] / b[index];
   }
-}
-
-template <>
-void caffe_div<float>(_CONTEXT,const int N, const float* a,
-    const float* b, float* y) {
-  // NOLINT_NEXT_LINE(whitespace/operators)
-  div_kernel<float><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
-      N, a, b, y);
-}
-
-template <>
-void caffe_div<double>(_CONTEXT,const int N, const double* a,
-    const double* b, double* y) {
-  // NOLINT_NEXT_LINE(whitespace/operators)
-  div_kernel<double><<<CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS>>>(
-      N, a, b, y);
 }
 
 template <typename Dtype>
@@ -445,5 +388,72 @@ void caffe_rng_gaussian<double>(_CONTEXT,const int n, const double mu, const dou
   CURAND_CHECK(
       curandGenerateNormalDouble(curand_generator(), r, n, mu, sigma));
 }
+
+
+template <typename Dtype>
+__global__ void SGDUpdate(int N, Dtype* g, Dtype* h, Dtype momentum, Dtype local_rate) {
+  CUDA_KERNEL_LOOP(i, N) {
+    g[i] = h[i] = momentum*h[i] + local_rate*g[i];
+  }
+}
+
+template <typename Dtype>
+__global__ void AdaDeltaUpdate(int N, Dtype* g, Dtype* h, Dtype* h2,
+  Dtype momentum, Dtype delta, Dtype local_rate) {
+  CUDA_KERNEL_LOOP(i, N) {
+    float gi = g[i];
+    float hi = h[i] = momentum * h[i] + (1 - momentum) * gi * gi;
+    gi = gi * sqrt((h2[i] + delta) / (hi + delta));
+    h2[i] = momentum * h2[i] + (1 - momentum) * gi * gi;
+    g[i] = local_rate * gi;
+  }
+}
+
+template <typename Dtype>
+__global__ void AdaGradUpdate(int N, Dtype* g, Dtype* h, Dtype delta,
+  Dtype local_rate) {
+  CUDA_KERNEL_LOOP(i, N) {
+    float gi = g[i];
+    float hi = h[i] = h[i] + gi*gi;
+    g[i] = local_rate * gi / (sqrt(hi) + delta);
+  }
+}
+
+template <typename Dtype>
+__global__ void AdamUpdate(int N, Dtype* g, Dtype* m, Dtype* v,
+  Dtype beta1, Dtype beta2, Dtype eps_hat, Dtype corrected_local_rate) {
+  CUDA_KERNEL_LOOP(i, N) {
+    float gi = g[i];
+    float mi = m[i] = m[i] * beta1 + gi*(1 - beta1);
+    float vi = v[i] = v[i] * beta2 + gi*gi*(1 - beta2);
+    g[i] = corrected_local_rate * mi / (sqrt(vi) + eps_hat);
+  }
+}
+
+template <typename Dtype>
+__global__ void ReLUForward(const int n, const Dtype* in, Dtype* out,
+  Dtype negative_slope) {
+  CUDA_KERNEL_LOOP(index, n) {
+    out[index] = in[index] > 0 ? in[index] : in[index] * negative_slope;
+  }
+}
+
+template <typename Dtype>
+__global__ void ReLUBackward(const int n, const Dtype* in_diff,
+  const Dtype* in_data, Dtype* out_diff, Dtype negative_slope) {
+  CUDA_KERNEL_LOOP(index, n) {
+    out_diff[index] = in_diff[index] * ((in_data[index] > 0)
+      + (in_data[index] <= 0) * negative_slope);
+  }
+}
+
+
+#define Dtype float
+#include "math_functions_cuda.inl"
+#undef Dtype
+
+#define Dtype double
+#include "math_functions_cuda.inl"
+#undef Dtype
 
 #undef _CONTEXT

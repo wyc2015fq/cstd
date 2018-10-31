@@ -330,24 +330,68 @@ private:
 };
 
 struct GPUContext {
-  //CPUContext() { context[CPU] = this;    }
-  static void* ReAlloc(void* data, size_t nbytes) {
-    cudaMalloc(&data, nbytes);
-    CHECK(data) << "Malloc cuda mem: " << nbytes << " bytes failed.";
-    return data;
-  }
-  static void Memset(size_t nbytes, void* ptr) { cudaMemset(ptr, 0, nbytes); }
-  static void Memcpy(size_t nbytes, void* dst, const void* src) {
-    CUDA_CHECK(cudaMemcpy(dst, src, nbytes, cudaMemcpyDefault));
-  }
-  static void Free(void* data) { cudaFree(data); }
-  static void MemcpyAsync(size_t nbytes, void* dst, const void* src) {
-    cudaStream_t stream;
-    CUDA_CHECK(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
-    CUDA_CHECK(cudaMemcpyAsync(dst, src, nbytes, cudaMemcpyDefault, stream));
-    CUDA_CHECK(cudaStreamDestroy(stream));
-  }
+  CONTEXTDEF;
 };
+//CPUContext() { context[CPU] = this;    }
+static void ReAlloc(GPUContext* ptr, size_t nbytes) {
+  if (ptr->size < nbytes) {
+    void* newdata = NULL;
+    cudaMalloc(&newdata, nbytes);
+    CHECK(newdata) << "Malloc cuda mem: " << nbytes << " bytes failed.";
+    if (ptr->data) {
+      CUDA_CHECK(cudaMemcpy(newdata, ptr->data, ptr->size, cudaMemcpyDeviceToDevice));
+      cudaFree(ptr->data);
+    }
+    ptr->data = newdata;
+    ptr->size = nbytes;
+  }
+  return ;
+}
+
+static void Free(GPUContext* ptr) {
+  if (ptr->data) {
+    cudaFree(ptr->data);
+    ptr->data = NULL;
+    ptr->size = 0;
+  }
+}
+static void Memset(GPUContext* ptr, size_t nbytes) {
+  CHECK_LE(nbytes, ptr->size);
+  cudaMemset(ptr->data, 0, ptr->size);
+}
+
+static void Memcpy(GPUContext* dst, const GPUContext* src, int nbytes) {
+  CHECK_LE(nbytes, dst->size);
+  CHECK_LE(nbytes, dst->size);
+  CUDA_CHECK(cudaMemcpy(dst->data, src->data, src->size, cudaMemcpyDeviceToDevice));
+}
+static void Memcpy(CPUContext* dst, const GPUContext* src, int nbytes) {
+  CHECK_LE(nbytes, dst->size);
+  CHECK_LE(nbytes, dst->size);
+  CUDA_CHECK(cudaMemcpy(dst->data, src->data, src->size, cudaMemcpyHostToHost));
+}
+static void Memcpy(GPUContext* dst, const CPUContext* src, int nbytes) {
+  CHECK_LE(nbytes, dst->size);
+  CHECK_LE(nbytes, dst->size);
+  CUDA_CHECK(cudaMemcpy(dst->data, src->data, src->size, cudaMemcpyHostToDevice));
+}
+#if 0
+static void MemcpyAsync(GPUContext* dst, const GPUContext* src, Stream* stream) {
+  CUDA_CHECK(cudaMemcpyAsync(dst, src, nbytes, cudaMemcpyDefault, (cudaStream_t)stream));
+}
+
+static void* BeginStream(GPUContext* context) {
+  cudaStream_t stream;
+  CUDA_CHECK(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
+  return (void*)stream;
+}
+static void EndStream(GPUContext* context, void* stream) {
+  CUDA_CHECK(cudaStreamDestroy((cudaStream_t)stream));
+}
+static void Synchronize(GPUContext* context, void* stream) {
+  CUDA_CHECK(cudaStreamSynchronize((cudaStream_t)stream));
+}
+#endif
 
 #undef Get
 

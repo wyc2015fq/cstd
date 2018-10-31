@@ -1,59 +1,36 @@
-struct blob_info {
-  int idx_;
-  int top_cnt_;
-  int bottom_cnt_;
-  blob_info() {}
-  blob_info(int idx) { idx_ = idx; bottom_cnt_ = top_cnt_ = 0; }
-};
 
-map<string, blob_info> name2int;
 
-int AppendName(CJSON* layer_json, bool is_top, int& k) {
-  vector<string> vec;
-  const char* name = is_top ? "top" : "bottom";
-  cJSON_GetObjectStringArray(layer_json, name, vec);
-  for (int i = 0; i < vec.size(); ++i) {
-    if (name2int.count(vec[i]) == 0) {
-      name2int[vec[i]] = blob_info(k++);
-    }
-    blob_info& bi = name2int[vec[i]];
-    if (is_top) {
-      bi.top_cnt_++;
-    }
-    else {
-      bi.bottom_cnt_++;
+int learnable_params(vector<Blob<Dtype>* >& out) {
+  out.resize(0);
+  for (int i = 0; i < layers_.size(); ++i) {
+    for (int j = 0; j < layers_[i]->blobs_.size(); ++j) {
+      out.push_back(layers_[i]->blobs_[j]);
     }
   }
-  return k;
+  return out.size();
 }
-int GetBlobs(CJSON* layer_json, bool is_top, vector<Blob<Dtype>*>& out) {
-  vector<string> vec;
-  const char* name = is_top ? "top" : "bottom";
-  cJSON_GetObjectStringArray(layer_json, name, vec);
-  out.resize(vec.size());
-  for (int i = 0; i < vec.size(); ++i) {
-    int idx = name2int[vec[i]].idx_;
-    out[i] = blobs_[i];
-  }
-  return 0;
-}
+
 int FromProto(CJSON* param) {
   Net<Dtype>* net = this;
   CJSON* layers_json = param->GetObjectItem("layers");
-  int ret = 0, k = 0;
+  int ret = 0;
   net->param_ = param;
   if (layers_json) {
-    int n = layers_json->GetArraySize();
-    net->reset(n);
-    for (int i = 0; i < n; ++i) {
+    int layer_size = layers_json->GetArraySize();
+    //net->reset(n);
+    layers_.resize(layer_size);
+    for (int i = 0; i < layer_size; ++i) {
       CJSON* layer_json = layers_json->GetArrayItem(i);
-      AppendName(layer_json, false, k);
-      AppendName(layer_json, true, k);
-      net->layers_[i]->FromProto(layer_json);
+      const char* type = layer_json->GetObjectString("type", NULL);
+      Layer<Dtype>::fun_type fun = Layer<Dtype>::reg(NULL, type);
+      if (NULL == fun) {
+        int asdf = 0;
+      }
+      Layer<Dtype>* layer = net->layers_[i] = fun();
+      layer->FromProto(layer_json, blobs_);
     }
     ret = 1;
   }
-  blob_reset(blobs_, k);
   return ret;
 }
 
@@ -68,35 +45,65 @@ double ForwardFromTo(int start, int end)
   CHECK_GE(start, 0);
   CHECK_LT(end, net->layers_.size());
   double loss = 0;
-  vector<Blob<Dtype>*> bottom_vecs_;
-  vector<Blob<Dtype>*> top_vecs_;
   vector<Dtype> loss_weight_arr;
   for (int i = start; i <= end; ++i) {
     // LOG(ERROR) << "Forwarding " << layer_names_[i];
     Layer<Dtype>* layer = net->layers_[i];
-    GetBlobs(layer->param_, false, bottom_vecs_);
-    GetBlobs(layer->param_, true, top_vecs_);
-    Dtype* loss_weights = 0;
-    if (1) {
-      cJSON_GetObjectNumberArray(layer->param_, "loss_weight", loss_weight_arr);
-      if (loss_weight_arr.size()== top_vecs_.size()) {
-        loss_weights = loss_weight_arr.data();
-      }
-      else {
-        loss_weight_arr.resize(top_vecs_.size());
-        for (int j = 0; j < top_vecs_.size(); ++j) {
-          if (name2int[top_vecs_[j]->name].bottom_cnt_ == 0) {
-            loss_weight_arr[j] = 1;
-            loss_weights = loss_weight_arr.data();
-          }
-          else {
-            loss_weight_arr[j] = 0;
-          }
-        }
-      }
-    }
-    double layer_loss = layer->Forward(bottom_vecs_, top_vecs_, loss_weights);
+    double layer_loss = layer->Forward(layer->bottom_vecs_, layer->top_vecs_);
     loss += layer_loss;
   }
   return loss;
+}
+
+void BackwardFromTo(int start, int end)
+{
+  Net* net = this;
+  CHECK_GE(end, 0);
+  CHECK_LT(start, layers_.size());
+  vector<bool> bottom_need_backward_;
+  for (int i = start; i >= end; --i) {
+    Layer<Dtype>* layer = net->layers_[i];
+    bottom_need_backward_.resize(layer->bottom_vecs_.size());
+    for (int j = 0; j < layer->bottom_vecs_.size(); ++i) {
+      bottom_need_backward_[j] = layer->bottom_vecs_[i]->propagate_down;
+    }
+    layers_[i]->Backward(layer->top_vecs_, bottom_need_backward_, layer->bottom_vecs_);
+  }
+}
+
+
+void Backward()
+{
+  BackwardFromTo(layers_.size() - 1, 0);
+  if (debug_info_) {
+    Dtype asum_data = 0, asum_diff = 0, sumsq_data = 0, sumsq_diff = 0;
+    vector<Blob<Dtype>* > learnable_params_;
+    learnable_params(learnable_params_);
+    for (int i = 0; i < learnable_params_.size(); ++i) {
+      asum_data += learnable_params_[i]->asum_data();
+      asum_diff += learnable_params_[i]->asum_diff();
+      sumsq_data += learnable_params_[i]->sumsq_data();
+      sumsq_diff += learnable_params_[i]->sumsq_diff();
+    }
+    const Dtype l2norm_data = std::sqrt(sumsq_data);
+    const Dtype l2norm_diff = std::sqrt(sumsq_diff);
+    LOG(ERROR) << "    [Backward] All net params (data, diff): "
+      << "L1 norm = (" << asum_data << ", " << asum_diff << "); "
+      << "L2 norm = (" << l2norm_data << ", " << l2norm_diff << ")";
+  }
+}
+
+Dtype ForwardBackward() {
+  Dtype loss = Forward();
+  Backward();
+  return loss;
+}
+
+void Update()
+{
+  vector<Blob<Dtype>*>  learnable_params_;
+  learnable_params(learnable_params_);
+  for (int i = 0; i < learnable_params_.size(); ++i) {
+    learnable_params_[i]->Update();
+  }
 }

@@ -32,6 +32,9 @@ typedef struct cJSON {
   double valuedouble; /* The item's number, if type==cJSON_Number */
   char* string; /* The item's name string, if this item is the child of, or is in the list of subitems of an object. */
   
+  bool has(const char* name) {
+    return GetObjectItem(name)!=NULL;
+  }
   void AddItemToArray(cJSON* item) {
     void cJSON_AddItemToArray(cJSON* array, cJSON* item);
     cJSON_AddItemToArray(this, item);
@@ -48,13 +51,25 @@ typedef struct cJSON {
     int cJSON_GetArraySize(const cJSON* array);
     return cJSON_GetArraySize(this);
   }
-  cJSON* GetArrayItem(int item) {
+  cJSON* GetArrayItem(int index) {
+    cJSON* cJSON_GetArrayItem(cJSON* array, int index);
+    return cJSON_GetArrayItem(this, index);
+  }
+  cJSON* get(int index) {
     cJSON* cJSON_GetArrayItem(cJSON* array, int item);
-    return cJSON_GetArrayItem(this, item);
+    return cJSON_GetArrayItem(this, index);
+  }
+    cJSON* get(const char* string) {
+    cJSON* cJSON_GetObjectItem(cJSON* object, const char* string);
+    return cJSON_GetObjectItem(this, string);
   }
   cJSON* GetObjectItem(const char* string) {
     cJSON* cJSON_GetObjectItem(cJSON* object, const char* string);
     return cJSON_GetObjectItem(this, string);
+  }
+  int GetObjectArraySize(const char* string) {
+    int cJSON_GetObjectArraySize(const cJSON* object, const char* name);
+    return cJSON_GetObjectArraySize(this, string);
   }
   char* GetObjectString(const char* name, const char* default_string) {
     char* cJSON_GetObjectString(const cJSON* object, const char* name, const char* default_string);
@@ -1191,11 +1206,11 @@ static cJSON* create_reference(cJSON* item)
   return ref;
 }
 /* Add item to array/object. */
-void cJSON_AddItemToArray(cJSON* array, cJSON* item)
+cJSON* cJSON_AddItemToArray(cJSON* array, cJSON* item)
 {
   cJSON* c = array->child;
   if (!item) {
-    return;
+    return item;
   }
   if (!c) {
     array->child = item;
@@ -1206,17 +1221,19 @@ void cJSON_AddItemToArray(cJSON* array, cJSON* item)
     }
     suffix_object(c, item);
   }
+  return item;
 }
-void cJSON_AddItemToObject(cJSON* object, const char* string, cJSON* item)
+cJSON* cJSON_AddItemToObject(cJSON* object, const char* string, cJSON* item)
 {
   if (!item) {
-    return;
+    return item;
   }
   if (item->string) {
     cJSON_free(item->string);
   }
   item->string = cJSON_strdup(string);
   cJSON_AddItemToArray(object, item);
+  return item;
 }
 void cJSON_AddItemToObjectCS(cJSON* object, const char* string, cJSON* item)
 {
@@ -1230,13 +1247,13 @@ void cJSON_AddItemToObjectCS(cJSON* object, const char* string, cJSON* item)
   item->type |= cJSON_StringIsConst;
   cJSON_AddItemToArray(object, item);
 }
-void cJSON_AddItemReferenceToArray(cJSON* array, cJSON* item)
+cJSON* cJSON_AddItemReferenceToArray(cJSON* array, cJSON* item)
 {
-  cJSON_AddItemToArray(array, create_reference(item));
+  return cJSON_AddItemToArray(array, create_reference(item));
 }
-void cJSON_AddItemReferenceToObject(cJSON* object, const char* string, cJSON* item)
+cJSON* cJSON_AddItemReferenceToObject(cJSON* object, const char* string, cJSON* item)
 {
-  cJSON_AddItemToObject(object, string, create_reference(item));
+  return cJSON_AddItemToObject(object, string, create_reference(item));
 }
 cJSON* cJSON_DetachItemFromArray(cJSON* array, int which)
 {

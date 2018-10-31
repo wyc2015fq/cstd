@@ -4,14 +4,38 @@
 
 #define _CONTEXT CPUContext* context
 
-void caffe_memset(const size_t N, const int alpha, void* X)
+void caffe_memset(_CONTEXT,const size_t N, const int alpha, void* X)
 {
-#ifndef CPU_ONLY
-  CUDA_CHECK(cudaMemset(X, alpha, N));  // NOLINT(caffe/alt_fn)
-#else
-  NO_GPU;
-#endif
+  memset(X, alpha, N);
 }
+//void caffe_memcpy(const int N, const void* X, void* Y) {}
+
+template <typename Dtype>
+void caffe_copy(_CONTEXT, const int N, const Dtype* X, Dtype* Y)
+{
+  if (X != Y) {
+    memcpy(Y, X, sizeof(Dtype) * N);  // NOLINT(caffe/alt_fn)
+  }
+}
+
+template<typename Dtype>
+inline int8_t caffe_sign(Dtype val)
+{
+  return (Dtype(0) < val) - (val < Dtype(0));
+}
+
+#define DEFINE_CAFFE_CPU_UNARY_FUNC(name, operation) \
+  template<typename Dtype> \
+  void caffe_##name(_CONTEXT, const int n, const Dtype* x, Dtype* y) { \
+    CHECK_GT(n, 0); CHECK(x); CHECK(y); \
+    for (int i = 0; i < n; ++i) { \
+      operation; \
+    } \
+  }
+
+DEFINE_CAFFE_CPU_UNARY_FUNC(sign, y[i] = caffe_sign<Dtype>(x[i]));
+DEFINE_CAFFE_CPU_UNARY_FUNC(sgnbit, y[i] = static_cast<bool>((std::signbit)(x[i])));
+DEFINE_CAFFE_CPU_UNARY_FUNC(fabs, y[i] = std::fabs(x[i]));
 
 template<>
 void caffe_gemm<float>(_CONTEXT,const CBLAS_TRANSPOSE TransA,
@@ -90,24 +114,6 @@ void caffe_add_scalar<double>(_CONTEXT,const int N, const double alpha, double* 
 {
   for (int i = 0; i < N; ++i) {
     Y[i] += alpha;
-  }
-}
-
-template <typename Dtype>
-void caffe_copy(const int N, const Dtype* X, Dtype* Y)
-{
-  if (X != Y) {
-    if (mode() == GPU) {
-#ifndef CPU_ONLY
-      // NOLINT_NEXT_LINE(caffe/alt_fn)
-      CUDA_CHECK(cudaMemcpy(Y, X, sizeof(Dtype) * N, cudaMemcpyDefault));
-#else
-      NO_GPU;
-#endif
-    }
-    else {
-      memcpy(Y, X, sizeof(Dtype) * N);  // NOLINT(caffe/alt_fn)
-    }
   }
 }
 
@@ -388,15 +394,27 @@ Dtype caffe_dot(_CONTEXT, const int n, const Dtype* x, const Dtype* y)
 }
 
 template <>
-float caffe_asum<float>(_CONTEXT,const int n, const float* x)
+float caffe_asum<float>(_CONTEXT, const int n, const float* x)
 {
   return cblas_sasum(n, x, 1);
 }
 
 template <>
-double caffe_asum<double>(_CONTEXT,const int n, const double* x)
+double caffe_asum<double>(_CONTEXT, const int n, const double* x)
 {
   return cblas_dasum(n, x, 1);
+}
+
+template <>
+void caffe_asum<float>(_CONTEXT, const int n, const float* x, float* y)
+{
+  *y = cblas_sasum(n, x, 1);
+}
+
+template <>
+void caffe_asum<double>(_CONTEXT, const int n, const double* x, double* y)
+{
+  *y = cblas_dasum(n, x, 1);
 }
 
 template <>
@@ -413,6 +431,61 @@ void caffe_scale<double>(_CONTEXT,const int n, const double alpha, const double*
 {
   cblas_dcopy(n, x, 1, y, 1);
   cblas_dscal(n, alpha, y, 1);
+}
+
+template <typename Dtype>
+void sgd_update(_CONTEXT, int N, Dtype* g, Dtype* h, Dtype momentum,
+  Dtype local_rate) {
+  CPU_KERNEL_LOOP(i, N) {
+    g[i] = h[i] = momentum*h[i] + local_rate*g[i];
+  }
+}
+
+template <typename Dtype>
+void adadelta_update(_CONTEXT, int N, Dtype* g, Dtype* h, Dtype* h2, Dtype momentum,
+  Dtype delta, Dtype local_rate) {
+  CPU_KERNEL_LOOP(i, N) {
+    float gi = g[i];
+    float hi = h[i] = momentum * h[i] + (1 - momentum) * gi * gi;
+    gi = gi * sqrt((h2[i] + delta) / (hi + delta));
+    h2[i] = momentum * h2[i] + (1 - momentum) * gi * gi;
+    g[i] = local_rate * gi;
+  }
+}
+
+template <typename Dtype>
+void adagrad_update(_CONTEXT, int N, Dtype* g, Dtype* h, Dtype delta, Dtype local_rate) {
+  CPU_KERNEL_LOOP(i, N) {
+    float gi = g[i];
+    float hi = h[i] = h[i] + gi*gi;
+    g[i] = local_rate * gi / (sqrt(hi) + delta);
+  }
+}
+
+template <typename Dtype>
+void adam_update(_CONTEXT, int N, Dtype* g, Dtype* m, Dtype* v, Dtype beta1,
+  Dtype beta2, Dtype eps_hat, Dtype corrected_local_rate) {
+  CPU_KERNEL_LOOP(i, N) {
+    float gi = g[i];
+    float mi = m[i] = m[i] * beta1 + gi*(1 - beta1);
+    float vi = v[i] = v[i] * beta2 + gi*gi*(1 - beta2);
+    g[i] = corrected_local_rate * mi / (sqrt(vi) + eps_hat);
+  }
+}
+
+template <typename Dtype>
+void relu_forward(_CONTEXT, const int n, const Dtype* in, Dtype* out, Dtype negative_slope) {
+  CPU_KERNEL_LOOP(index, n) {
+    out[index] = in[index] > 0 ? in[index] : in[index] * negative_slope;
+  }
+}
+
+template <typename Dtype>
+void relu_backward(_CONTEXT, const int n, const Dtype* in_diff, const Dtype* in_data, Dtype* out_diff, Dtype negative_slope) {
+  CPU_KERNEL_LOOP(index, n) {
+    out_diff[index] = in_diff[index] * ((in_data[index] > 0)
+      + (in_data[index] <= 0) * negative_slope);
+  }
 }
 
 #undef _CONTEXT
