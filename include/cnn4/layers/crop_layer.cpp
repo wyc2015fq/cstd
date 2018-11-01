@@ -20,7 +20,7 @@ namespace
     // LayerSetup() handles the number of dimensions; Reshape() handles the sizes.
     // bottom[0] supplies the data
     // bottom[1] supplies the size
-    const CropParameter & param = this->layer_param_.crop_param();
+    const CropParameter & param = this->param_->crop_param();
     CHECK_EQ(bottom.size(), 2) << "Wrong number of bottom blobs.";
     int input_dim = bottom[0]->num_axes();
     const int start_axis = bottom[0]->CanonicalAxisIndex(param.axis());
@@ -38,7 +38,7 @@ namespace
   void CropLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
                                  const vector<Blob<Dtype>*> & top)
   {
-    const CropParameter & param = this->layer_param_.crop_param();
+    const CropParameter & param = this->param_->crop_param();
     int input_dim = bottom[0]->num_axes();
     const int start_axis = bottom[0]->CanonicalAxisIndex(param.axis());
     // Initialize offsets to 0 and the new shape to the current shape of the data.
@@ -125,11 +125,11 @@ namespace
 
   template <typename Dtype>
   void CropLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                      const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                      const vector<Blob<Dtype>*> & bottom)
   {
     const Dtype* top_diff = top[0]->diff<Context>();
     Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       caffe_set(bottom[0]->count(), static_cast<Dtype>(0), bottom_diff);
       std::vector<int> indices(top[0]->num_axes(), 0);
       crop_copy(bottom, top, offsets, indices, 0, top_diff, bottom_diff, false);

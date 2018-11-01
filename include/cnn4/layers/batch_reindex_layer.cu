@@ -29,7 +29,7 @@ void BatchReindexLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dt
   // NOLINT_NEXT_LINE(whitespace/operators)
   BRForward<Dtype> <<<CAFFE_GET_BLOCKS(threads), CAFFE_CUDA_NUM_THREADS>>>(
       top[0]->count(), bottom[0]->count() / bottom[0]->shape(0),
-      bottom[0]->gpu_data(), bottom[1]->gpu_data(), top[0]->mutable_gpu_data());
+      bottom[0]->data<Context>(), bottom[1]->data<Context>(), top[0]->mutable_data<Context>());
   CUDA_POST_KERNEL_CHECK;
 }
 
@@ -54,8 +54,8 @@ template<typename Dtype>
 void BatchReindexLayer<Dtype>::Backward_gpu(
     const vector<Blob<Dtype>*>& top, const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
-  CHECK(!propagate_down[1]) << "Cannot backprop to index.";
-  if (!propagate_down[0]) {
+  CHECK(!top[1]->propagate_down_) << "Cannot backprop to index.";
+  if (!top[0]->propagate_down_) {
     return;
   }
 
@@ -96,8 +96,8 @@ void BatchReindexLayer<Dtype>::Backward_gpu(
   // NOLINT_NEXT_LINE(whitespace/operators)
   BRBackward<Dtype> <<<CAFFE_GET_BLOCKS(threads), CAFFE_CUDA_NUM_THREADS>>>(
       bottom[0]->count(), bottom[0]->count() / bottom[0]->shape(0),
-      top[0]->gpu_diff(), top_indexes.gpu_data(), begins.gpu_data(),
-      counts.gpu_data(), bottom[0]->mutable_gpu_diff());
+      top[0]->gpu_diff(), top_indexes.data<Context>(), begins.data<Context>(),
+      counts.data<Context>(), bottom[0]->mutable_gpu_diff());
   CUDA_POST_KERNEL_CHECK;
 }
 

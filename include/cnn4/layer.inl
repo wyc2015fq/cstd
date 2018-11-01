@@ -1,5 +1,5 @@
 
-int AppendName(Layer<Dtype>* layer, bool is_top, vector<Blob<Dtype>*>& net_blobs_) {
+int AppendName(Layer<Dtype>* layer, bool is_top, vector<Blob<Dtype>*>& net_blobs_, vector<Blob<Dtype>*>* top) {
   vector<string> vec;
   const char* name = is_top ? "top" : "bottom";
   cJSON_GetObjectStringArray(layer->param_, name, vec);
@@ -12,6 +12,7 @@ int AppendName(Layer<Dtype>* layer, bool is_top, vector<Blob<Dtype>*>& net_blobs
     else {
       bi = blobs_get(net_blobs_, vec[i]);
     }
+    if (top) { top->push_back(bi);  }
     if (is_top) {
       bi->top_cnt_++;
     }
@@ -24,7 +25,7 @@ int AppendName(Layer<Dtype>* layer, bool is_top, vector<Blob<Dtype>*>& net_blobs
 }
 
 int FromProto(CJSON* param, vector<Blob<Dtype>*>& net_blobs_) {
-  auto layer = this;
+  Layer<Dtype>* layer = this;
   CJSON* blobs_json = param->GetObjectItem("blobs");
   layer->param_ = param;
   //layer->loss_weight_ = param->GetObjectNumber("loss_weight", 0);
@@ -37,24 +38,24 @@ int FromProto(CJSON* param, vector<Blob<Dtype>*>& net_blobs_) {
       layer->blobs_[j]->FromProto(blob_json);
     }
   }
-  AppendName(layer, false, net_blobs_);
-  AppendName(layer, true, net_blobs_);
+  AppendName(layer, false, net_blobs_, &bottom_vecs_);
+  AppendName(layer, true, net_blobs_, &top_vecs_);
   {
     cJSON* item = cJSON_GetObjectItem(layer->param_, "loss_weight");
     int loss_weight_size = item ? cJSON_GetArraySize(item) : 0;
     has_loss_weights_ = 0;
     if (loss_weight_size == layer->top_vecs_.size()) {
       for (int j = 0; j < top_vecs_.size(); ++j) {
-        blobs_[j]->loss_weight_ = cJSON_GetArrayItem(item, j)->valuedouble;
-        if (blobs_[j]->loss_weight_ > 0) {
+        top_vecs_[j]->loss_weight_ = cJSON_GetArrayItem(item, j)->valuedouble;
+        if (top_vecs_[j]->loss_weight_ > 0) {
           ++has_loss_weights_;
         }
       }
     }
     else {
       for (int j = 0; j < layer->top_vecs_.size(); ++j) {
-        blobs_[j]->loss_weight_ = (layer->top_vecs_[j]->bottom_cnt_ == 0) ? 1 : 0;
-        if (blobs_[j]->loss_weight_ > 0) {
+        top_vecs_[j]->loss_weight_ = (layer->top_vecs_[j]->bottom_cnt_ == 0) ? 1 : 0;
+        if (top_vecs_[j]->loss_weight_ > 0) {
           ++has_loss_weights_;
         }
       }
@@ -190,11 +191,9 @@ double Forward(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> &
 }
 
 
-inline void Backward(const vector<Blob<Dtype>*> & top,
-  const vector<bool> & propagate_down,
-  const vector<Blob<Dtype>*> & bottom)
+inline void Backward(const vector<Blob<Dtype>*> & top, const vector<Blob<Dtype>*> & bottom)
 {
-  Backward(CONTEXT, top, propagate_down, bottom);
+  Backward(CONTEXT, top, bottom);
 
   if (debug_info_) {
     for (int top_id = 0; top_id < top.size(); ++top_id) {

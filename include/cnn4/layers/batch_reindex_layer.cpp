@@ -54,11 +54,11 @@ namespace
 
   template<typename Dtype>
   void BatchReindexLayer<Dtype>::Backward_cpu(
-    const vector<Blob<Dtype>*> & top, const vector<bool> & propagate_down,
+    const vector<Blob<Dtype>*> & top, int*
     const vector<Blob<Dtype>*> & bottom)
   {
-    CHECK(!propagate_down[1]) << "Cannot backprop to index.";
-    if (!propagate_down[0]) {
+    CHECK(!top[1]->propagate_down_) << "Cannot backprop to index.";
+    if (!top[0]->propagate_down_) {
       return;
     }
     int inner_dim = bottom[0]->count() / bottom[0]->shape(0);

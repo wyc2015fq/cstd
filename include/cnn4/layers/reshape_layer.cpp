@@ -6,14 +6,14 @@ namespace
 {
 
   template <typename Dtype>
-  void ReshapeLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
+  virtual void ReshapeLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                                        const vector<Blob<Dtype>*> & top)
   {
     CHECK_NE(top[0], bottom[0]) << this->type() << " Layer does not "
                                 "allow in-place computation.";
     inferred_axis_ = -1;
     copy_axes_.clear();
-    const BlobShape & top_blob_shape = this->layer_param_.reshape_param().shape();
+    const BlobShape & top_blob_shape = this->param_->reshape_param().shape();
     const int top_num_axes = top_blob_shape.dim_size();
     constant_count_ = 1;
     for (int i = 0; i < top_num_axes; ++i) {
@@ -31,16 +31,16 @@ namespace
   }
 
   template <typename Dtype>
-  void ReshapeLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
+  virtual void ReshapeLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
                                     const vector<Blob<Dtype>*> & top)
   {
-    const int input_start_axis = this->layer_param_.reshape_param().axis();
+    const int input_start_axis = this->param_->reshape_param().axis();
     const int start_axis = (input_start_axis >= 0) ? input_start_axis :
                            bottom[0]->num_axes() + input_start_axis + 1;
     CHECK_GE(start_axis, 0) << "axis " << input_start_axis << " out of range";
     CHECK_LE(start_axis, bottom[0]->num_axes()) << "axis " << input_start_axis
         << " out of range for " << bottom[0]->num_axes() << "-D input blob";
-    const int num_axes = this->layer_param_.reshape_param().num_axes();
+    const int num_axes = this->param_->reshape_param().num_axes();
     CHECK_GE(num_axes, -1) << "num_axes must be >= 0, or -1 for all";
     const int end_axis =
       (num_axes == -1) ? bottom[0]->num_axes() : (start_axis + num_axes);
@@ -48,7 +48,7 @@ namespace
         << "end_axis = axis + num_axes is out of range";
     const int num_axes_replaced = end_axis - start_axis;
     const int num_axes_retained = bottom[0]->num_axes() - num_axes_replaced;
-    const BlobShape & top_blob_shape = this->layer_param_.reshape_param().shape();
+    const BlobShape & top_blob_shape = this->param_->reshape_param().shape();
     const int num_new_axes = top_blob_shape.dim_size();
     vector<int> top_shape(num_axes_retained + num_new_axes);
     int top_shape_index = 0;

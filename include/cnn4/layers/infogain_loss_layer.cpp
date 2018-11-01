@@ -14,11 +14,11 @@ namespace
   {
     LossLayer<Dtype>::LayerSetUp(bottom, top);
     if (bottom.size() < 3) {
-      CHECK(this->layer_param_.infogain_loss_param().has_source())
+      CHECK(this->param_->infogain_loss_param().has_source())
           << "Infogain matrix source must be specified.";
       BlobProto blob_proto;
       ReadProtoFromBinaryFile(
-        this->layer_param_.infogain_loss_param().source(), &blob_proto);
+        this->param_->infogain_loss_param().source(), &blob_proto);
       infogain_.FromProto(blob_proto);
     }
   }
@@ -73,10 +73,10 @@ namespace
 
   template <typename Dtype>
   void InfogainLossLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down,
+      int*
       const vector<Blob<Dtype>*> & bottom)
   {
-    if (propagate_down[1]) {
+    if (top[1]->propagate_down_) {
       LOG(FATAL) << this->type()
                  << " Layer cannot backpropagate to label inputs.";
     }
@@ -84,7 +84,7 @@ namespace
       LOG(FATAL) << this->type()
                  << " Layer cannot backpropagate to infogain inputs.";
     }
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       const Dtype* bottom_data = bottom[0]->data<Context>();
       const Dtype* bottom_label = bottom[1]->data<Context>();
       const Dtype* infogain_mat = NULL;

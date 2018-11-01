@@ -78,7 +78,7 @@ namespace
      *            \frac{\partial E}{\partial y_i} & \mathrm{if} \; x_i > 0
      *        \end{array} \right.
      *      @f$.
-     *      If param_propagate_down_[0] is true, it fills the diff with gradients
+     *      If blobs_[0]->propagate_down_ is true, it fills the diff with gradients
      *      @f$
      *        \frac{\partial E}{\partial a_i} = \left\{
      *        \begin{array}{lr}
@@ -88,9 +88,9 @@ namespace
      *      @f$.
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
     virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
 
     bool channel_shared_;
     Blob<Dtype> multiplier_;  // dot multiplier for backward computation of params

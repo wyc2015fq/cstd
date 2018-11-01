@@ -69,18 +69,18 @@ namespace
      *            \alpha \gamma (\alpha x + \beta) ^ {\gamma - 1} =
      *            \frac{\partial E}{\partial y}
      *            \frac{\alpha \gamma y}{\alpha x + \beta}
-     *      @f$ if propagate_down[0]
+     *      @f$ if top[0]->propagate_down_
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
     virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
 
-    /// @brief @f$ \gamma @f$ from layer_param_.power_param()
+    /// @brief @f$ \gamma @f$ from param_->power_param()
     Dtype power_;
-    /// @brief @f$ \alpha @f$ from layer_param_.power_param()
+    /// @brief @f$ \alpha @f$ from param_->power_param()
     Dtype scale_;
-    /// @brief @f$ \beta @f$ from layer_param_.power_param()
+    /// @brief @f$ \beta @f$ from param_->power_param()
     Dtype shift_;
     /// @brief Result of @f$ \alpha \gamma @f$
     Dtype diff_scale_;

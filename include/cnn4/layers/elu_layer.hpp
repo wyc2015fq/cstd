@@ -74,12 +74,12 @@ namespace
      *            1           & \mathrm{if} \; x > 0 \\
      *            y + \alpha  & \mathrm{if} \; x \le 0
      *        \end{array} \right.
-     *      @f$ if propagate_down[0].
+     *      @f$ if top[0]->propagate_down_.
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
     virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
   };
 
 

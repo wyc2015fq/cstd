@@ -171,18 +171,18 @@ namespace
 
   template <typename Dtype>
   void WarpCTCLossLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down,
+      int*
       const vector<Blob<Dtype>*> & bottom)
   {
-    CHECK_EQ(propagate_down[0], true)
+    CHECK_EQ(top[0]->propagate_down_, true)
         << "Required to propagate to probabilities";
     if (propagate_down.size() >= 3) {
-      CHECK_EQ(propagate_down[1], false)
+      CHECK_EQ(top[1]->propagate_down_, false)
           << "Cannot propagate to sequence indicators";
       CHECK_EQ(propagate_down[2], false)
           << "Cannot propagate to target label sequence";
     } else if (propagate_down.size() == 2) {
-      CHECK_EQ(propagate_down[1], false)
+      CHECK_EQ(top[1]->propagate_down_, false)
           << "Cannot propagate to target label sequence";
     }
   }

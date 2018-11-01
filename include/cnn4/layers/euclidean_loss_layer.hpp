@@ -68,7 +68,7 @@ namespace
      *
      * Unlike other children of LossLayer, EuclideanLossLayer \b can compute
      * gradients with respect to the label inputs bottom[1] (but still only will
-     * if propagate_down[1] is set, due to being produced by learnable parameters
+     * if top[1]->propagate_down_ is set, due to being produced by learnable parameters
      * or if force_backward is set). In fact, this layer is "commutative" -- the
      * result is the same regardless of the order of the two bottoms.
      *
@@ -89,17 +89,17 @@ namespace
      *      gradients @f$
      *        \frac{\partial E}{\partial \hat{y}} =
      *            \frac{1}{n} \sum\limits_{n=1}^N (\hat{y}_n - y_n)
-     *      @f$ if propagate_down[0]
+     *      @f$ if top[0]->propagate_down_
      *   -# @f$ (N \times C \times H \times W) @f$
      *      the targets @f$y@f$; Backward fills their diff with gradients
      *      @f$ \frac{\partial E}{\partial y} =
      *          \frac{1}{n} \sum\limits_{n=1}^N (y_n - \hat{y}_n)
-     *      @f$ if propagate_down[1]
+     *      @f$ if top[1]->propagate_down_
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
     virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
 
     Blob<Dtype> diff_;
   };

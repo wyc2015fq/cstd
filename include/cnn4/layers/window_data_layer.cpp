@@ -53,17 +53,17 @@ namespace
     //    class_index overlap x1 y1 x2 y2
     LOG(INFO) << "Window data layer:" << std::endl
               << "  foreground (object) overlap threshold: "
-              << this->layer_param_.window_data_param().fg_threshold() << std::endl
+              << this->param_->window_data_param().fg_threshold() << std::endl
               << "  background (non-object) overlap threshold: "
-              << this->layer_param_.window_data_param().bg_threshold() << std::endl
+              << this->param_->window_data_param().bg_threshold() << std::endl
               << "  foreground sampling fraction: "
-              << this->layer_param_.window_data_param().fg_fraction() << std::endl
+              << this->param_->window_data_param().fg_fraction() << std::endl
               << "  cache_images: "
-              << this->layer_param_.window_data_param().cache_images() << std::endl
+              << this->param_->window_data_param().cache_images() << std::endl
               << "  root_folder: "
-              << this->layer_param_.window_data_param().root_folder();
-    cache_images_ = this->layer_param_.window_data_param().cache_images();
-    string root_folder = this->layer_param_.window_data_param().root_folder();
+              << this->param_->window_data_param().root_folder();
+    cache_images_ = this->param_->window_data_param().cache_images();
+    string root_folder = this->param_->window_data_param().root_folder();
     const bool prefetch_needs_rand =
       this->transform_param_.mirror() ||
       this->transform_param_.crop_size();
@@ -73,9 +73,9 @@ namespace
     } else {
       //prefetch_rng_.reset();
     }
-    std::ifstream infile(this->layer_param_.window_data_param().source().c_str());
+    std::ifstream infile(this->param_->window_data_param().source().c_str());
     CHECK(infile.good()) << "Failed to open window file "
-                         << this->layer_param_.window_data_param().source() << std::endl;
+                         << this->param_->window_data_param().source() << std::endl;
     map<int, int> label_hist;
     label_hist.insert(std::make_pair(0, 0));
     string hashtag;
@@ -106,9 +106,9 @@ namespace
       int num_windows;
       infile >> num_windows;
       const float fg_threshold =
-        this->layer_param_.window_data_param().fg_threshold();
+        this->param_->window_data_param().fg_threshold();
       const float bg_threshold =
-        this->layer_param_.window_data_param().bg_threshold();
+        this->param_->window_data_param().bg_threshold();
       for (int i = 0; i < num_windows; ++i) {
         int label, x1, y1, x2, y2;
         float overlap;
@@ -152,13 +152,13 @@ namespace
                 << " samples";
     }
     LOG(INFO) << "Amount of context padding: "
-              << this->layer_param_.window_data_param().context_pad();
+              << this->param_->window_data_param().context_pad();
     LOG(INFO) << "Crop mode: "
-              << this->layer_param_.window_data_param().crop_mode();
+              << this->param_->window_data_param().crop_mode();
     // image
     const int crop_size = this->transform_param_.crop_size();
     CHECK_GT(crop_size, 0);
-    const int batch_size = this->layer_param_.window_data_param().batch_size();
+    const int batch_size = this->param_->window_data_param().batch_size();
     top[0]->Reshape(batch_size, channels, crop_size, crop_size);
     for (int i = 0; i < this->prefetch_.size(); ++i) {
       this->prefetch_[i]->data_.resize(2);
@@ -221,13 +221,13 @@ namespace
     double read_time = 0;
     double trans_time = 0;
     CPUTimer timer;
-    const Dtype scale = this->layer_param_.window_data_param().scale();
-    const int batch_size = this->layer_param_.window_data_param().batch_size();
-    const int context_pad = this->layer_param_.window_data_param().context_pad();
+    const Dtype scale = this->param_->window_data_param().scale();
+    const int batch_size = this->param_->window_data_param().batch_size();
+    const int context_pad = this->param_->window_data_param().context_pad();
     const int crop_size = this->transform_param_.crop_size();
     const bool mirror = this->transform_param_.mirror();
     const float fg_fraction =
-      this->layer_param_.window_data_param().fg_fraction();
+      this->param_->window_data_param().fg_fraction();
     Dtype* mean = NULL;
     int mean_off = 0;
     int mean_width = 0;
@@ -239,7 +239,7 @@ namespace
       mean_height = this->data_mean_.height();
     }
     cv::Size cv_crop_size(crop_size, crop_size);
-    const string & crop_mode = this->layer_param_.window_data_param().crop_mode();
+    const string & crop_mode = this->param_->window_data_param().crop_mode();
     bool use_square = (crop_mode == "square") ? true : false;
     batch->data_.resize(2);
     // zero out batch

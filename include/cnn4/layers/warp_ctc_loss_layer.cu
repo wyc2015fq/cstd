@@ -16,7 +16,7 @@ void WarpCTCLossLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dty
     cudaStream_t stream;
     CHECK_EQ(cudaStreamCreate(&stream), CUDA_SUCCESS);
 
-    const Dtype* const activations = bottom[0]->gpu_data();
+    const Dtype* const activations = bottom[0]->data<Context>();
     Dtype* gradients = bottom[0]->mutable_gpu_diff();
     const int alphabet_size = C_;
     const int minibatch = N_;
@@ -101,7 +101,7 @@ void WarpCTCLossLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dty
                               alphabet_size,
                               minibatch,
                               costs.data(),
-                              workspace_->mutable_gpu_data(),
+                              workspace_->mutable_data<Context>(),
                               options
                               );
 
@@ -138,18 +138,18 @@ template <typename Dtype>
 void WarpCTCLossLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
                                            const vector<bool>& propagate_down,
                                            const vector<Blob<Dtype>*>& bottom) {
-  CHECK_EQ(propagate_down[0], true)
+  CHECK_EQ(top[0]->propagate_down_, true)
         << "Required to propagate to probabilities";
   if (propagate_down.size() >= 3)
   {
-	  CHECK_EQ(propagate_down[1], false)
+	  CHECK_EQ(top[1]->propagate_down_, false)
 		  << "Cannot propagate to sequence indicators";
 	  CHECK_EQ(propagate_down[2], false)
 		  << "Cannot propagate to target label sequence";
   }
   else if (propagate_down.size() == 2)
   {
-	  CHECK_EQ(propagate_down[1], false)
+	  CHECK_EQ(top[1]->propagate_down_, false)
 		  << "Cannot propagate to target label sequence";
   }
 }

@@ -143,9 +143,9 @@ namespace
      *      @f$ \delta_t @f$ is currently not computed.
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
     virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
 
     /// @brief The hidden and output dimension.
     int hidden_dim_;

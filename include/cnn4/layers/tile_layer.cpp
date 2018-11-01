@@ -10,7 +10,7 @@ namespace
   void TileLayer<Dtype>::Reshape(
     const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
-    const TileParameter & tile_param = this->layer_param_.tile_param();
+    const TileParameter & tile_param = this->param_->tile_param();
     axis_ = bottom[0]->CanonicalAxisIndex(tile_param.axis());
     CHECK(tile_param.has_tiles()) << "Number of tiles must be specified";
     tiles_ = tile_param.tiles();
@@ -39,9 +39,9 @@ namespace
 
   template <typename Dtype>
   void TileLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                      const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                      const vector<Blob<Dtype>*> & bottom)
   {
-    if (!propagate_down[0]) { return; }
+    if (!top[0]->propagate_down_) { return; }
     const Dtype* top_diff = top[0]->diff<Context>();
     Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
     for (size_t i = 0; i < outer_dim_; ++i) {

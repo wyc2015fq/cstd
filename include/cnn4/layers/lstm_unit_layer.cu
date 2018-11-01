@@ -55,12 +55,12 @@ template <typename Dtype>
 void LSTMUnitLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
   const int count = top[1]->count();
-  const Dtype* C_prev = bottom[0]->gpu_data();
-  const Dtype* X = bottom[1]->gpu_data();
-  const Dtype* cont = bottom[2]->gpu_data();
-  Dtype* X_acts = X_acts_.mutable_gpu_data();
-  Dtype* C = top[0]->mutable_gpu_data();
-  Dtype* H = top[1]->mutable_gpu_data();
+  const Dtype* C_prev = bottom[0]->data<Context>();
+  const Dtype* X = bottom[1]->data<Context>();
+  const Dtype* cont = bottom[2]->data<Context>();
+  Dtype* X_acts = X_acts_.mutable_data<Context>();
+  Dtype* C = top[0]->mutable_data<Context>();
+  Dtype* H = top[1]->mutable_data<Context>();
   const int X_count = bottom[1]->count();
   // NOLINT_NEXT_LINE(whitespace/operators)
   LSTMActsForward<Dtype><<<CAFFE_GET_BLOCKS(X_count), CAFFE_CUDA_NUM_THREADS>>>(
@@ -125,14 +125,14 @@ void LSTMUnitLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
   CHECK(!propagate_down[2]) << "Cannot backpropagate to sequence indicators.";
-  if (!propagate_down[0] && !propagate_down[1]) { return; }
+  if (!top[0]->propagate_down_ && !top[1]->propagate_down_) { return; }
 
   const int count = top[1]->count();
-  const Dtype* C_prev = bottom[0]->gpu_data();
-  const Dtype* X_acts = X_acts_.gpu_data();
-  const Dtype* cont = bottom[2]->gpu_data();
-  const Dtype* C = top[0]->gpu_data();
-  const Dtype* H = top[1]->gpu_data();
+  const Dtype* C_prev = bottom[0]->data<Context>();
+  const Dtype* X_acts = X_acts_.data<Context>();
+  const Dtype* cont = bottom[2]->data<Context>();
+  const Dtype* C = top[0]->data<Context>();
+  const Dtype* H = top[1]->data<Context>();
   const Dtype* C_diff = top[0]->gpu_diff();
   const Dtype* H_diff = top[1]->gpu_diff();
   Dtype* C_prev_diff = bottom[0]->mutable_gpu_diff();

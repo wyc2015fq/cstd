@@ -55,7 +55,7 @@ namespace
      *        gradient is (virtually) copied
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
   };
 
 }  // namespace

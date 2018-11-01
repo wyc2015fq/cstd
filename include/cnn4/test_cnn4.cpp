@@ -19,12 +19,15 @@ void ClearParamDiffs(Blob<Dtype>** learnable_params_, int learnable_params_size)
 int test_cnn4() {
   const char* fn;
   fn = "E:/OCR_Line/model/densenet-no-blstm/densenet-no-blstm.json";
-  fn = "C:/caffe_train/lenet.json";
+  fn = "C:/caffe_train/mnist/lenet.json";
   CJSON* root = cJSON_OpenFile(fn);
   typedef float Dtype;
   typedef Net<Dtype> NetF;
   NetF* net = new NetF;
-  //caffe_copy<float>((GPUContext*)0, 0, 0, 0);
+  DataShape d = {0};
+  //im2col_nd<float>(GPUCONTEXT, 0, 0, 0, d, d, d, d, d, d, 0);
+  //im2col_nd<float>(CPUCONTEXT, 0, 0, 0, d, d, d, d, d, d, 0);
+  //caffe_copy<float>(GPUCONTEXT, 0, 0, 0);
   //caffe_set<float>((GPUContext*)0, 0, 0, 0);
   if (net->FromProto(root)) {
     Solver<Dtype>* solver = new SGDSolver<Dtype>();

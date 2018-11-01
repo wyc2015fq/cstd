@@ -41,9 +41,9 @@ namespace
     virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
                              const vector<Blob<Dtype>*> & top);
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
     virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
 
     virtual void CrossChannelForward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
                                          const vector<Blob<Dtype>*> & top);
@@ -52,11 +52,11 @@ namespace
     virtual void WithinChannelForward(const vector<Blob<Dtype>*> & bottom,
                                       const vector<Blob<Dtype>*> & top);
     virtual void CrossChannelBackward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                          const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                                          const vector<Blob<Dtype>*> & bottom);
     virtual void CrossChannelBackward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                                          const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                                          const vector<Blob<Dtype>*> & bottom);
     virtual void WithinChannelBackward(const vector<Blob<Dtype>*> & top,
-                                       const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                                       const vector<Blob<Dtype>*> & bottom);
 
     int size_;
     int pre_pad_;

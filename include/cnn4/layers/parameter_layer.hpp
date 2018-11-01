@@ -21,9 +21,9 @@ namespace
       } else {
         this->blobs_.resize(1);
         this->blobs_[0].reset(new Blob<Dtype>());
-        this->blobs_[0]->Reshape(this->layer_param_.parameter_param().shape());
+        this->blobs_[0]->Reshape(this->param_->parameter_param().shape());
       }
-      top[0]->Reshape(this->layer_param_.parameter_param().shape());
+      top[0]->Reshape(this->param_->parameter_param().shape());
     }
     virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
                          const vector<Blob<Dtype>*> & top) { }
@@ -38,7 +38,7 @@ namespace
       top[0]->ShareDiff(*(this->blobs_[0]));
     }
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                              const vector<Blob<Dtype>*> & bottom)
     { }
   };
 

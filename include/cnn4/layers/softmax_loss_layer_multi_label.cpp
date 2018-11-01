@@ -23,17 +23,17 @@ namespace
     softmax_top_vec_.push_back(&prob_);
     softmax_layer_->SetUp(softmax_bottom_vec_, softmax_top_vec_);
     has_ignore_label_ =
-      this->layer_param_.loss_param().has_ignore_label();
+      this->param_->loss_param().has_ignore_label();
     if (has_ignore_label_) {
-      ignore_label_ = this->layer_param_.loss_param().ignore_label();
+      ignore_label_ = this->param_->loss_param().ignore_label();
     }
-    if (!this->layer_param_.loss_param().has_normalization() &&
-        this->layer_param_.loss_param().has_normalize()) {
-      normalization_ = this->layer_param_.loss_param().normalize() ?
+    if (!this->param_->loss_param().has_normalization() &&
+        this->param_->loss_param().has_normalize()) {
+      normalization_ = this->param_->loss_param().normalize() ?
                        LossParameter_NormalizationMode_VALID :
                        LossParameter_NormalizationMode_BATCH_SIZE;
     } else {
-      normalization_ = this->layer_param_.loss_param().normalization();
+      normalization_ = this->param_->loss_param().normalization();
     }
   }
 
@@ -44,7 +44,7 @@ namespace
     LossLayer<Dtype>::Reshape(bottom, top);
     softmax_layer_->Reshape(softmax_bottom_vec_, softmax_top_vec_);
     softmax_axis_ =
-      bottom[0]->CanonicalAxisIndex(this->layer_param_.softmax_param().axis());
+      bottom[0]->CanonicalAxisIndex(this->param_->softmax_param().axis());
     outer_num_ = bottom[0]->count(0, softmax_axis_);
     inner_num_ = bottom[0]->count(softmax_axis_ + 1);
     label_num_ = softmax_axis_ < bottom[1]->num_axes() ?
@@ -131,13 +131,13 @@ namespace
 
   template <typename Dtype>
   void SoftmaxWithLossMultiLabelLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+      const vector<Blob<Dtype>*> & bottom)
   {
-    if (propagate_down[1]) {
+    if (top[1]->propagate_down_) {
       LOG(FATAL) << this->type()
                  << " Layer cannot backpropagate to label inputs.";
     }
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       const Dtype* prob_data = prob_.data<Context>();
       caffe_copy(prob_.count(), prob_data, bottom_diff);

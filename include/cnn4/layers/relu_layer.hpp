@@ -51,7 +51,7 @@ public:
    *            0 & \mathrm{if} \; x \le 0 \\
    *            \frac{\partial E}{\partial y} & \mathrm{if} \; x > 0
    *        \end{array} \right.
-   *      @f$ if propagate_down[0], by default.
+   *      @f$ if top[0]->propagate_down_, by default.
    *      If a non-zero negative_slope @f$ \nu @f$ is provided,
    *      the computed gradients are @f$
    *        \frac{\partial E}{\partial x} = \left\{
@@ -62,9 +62,9 @@ public:
    *      @f$.
    */
   virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top,
-    const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+    const vector<Blob<Dtype>*> & bottom)
   {
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       const Dtype* bottom_data = bottom[0]->data<Context>();
       const Dtype* top_diff = top[0]->diff<Context>();
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();

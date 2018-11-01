@@ -11,7 +11,7 @@ namespace
   void SliceLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                                      const vector<Blob<Dtype>*> & top)
   {
-    const SliceParameter & slice_param = this->layer_param_.slice_param();
+    const SliceParameter & slice_param = this->param_->slice_param();
     CHECK(!(slice_param.has_axis() && slice_param.has_slice_dim()))
         << "Either axis or slice_dim should be specified; not both.";
     slice_point_.clear();
@@ -25,7 +25,7 @@ namespace
                                   const vector<Blob<Dtype>*> & top)
   {
     const int num_axes = bottom[0]->num_axes();
-    const SliceParameter & slice_param = this->layer_param_.slice_param();
+    const SliceParameter & slice_param = this->param_->slice_param();
     if (slice_param.has_slice_dim()) {
       slice_axis_ = static_cast<int>(slice_param.slice_dim());
       // Don't allow negative indexing for slice_dim, a uint32 -- almost
@@ -99,9 +99,9 @@ namespace
 
   template <typename Dtype>
   void SliceLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                       const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                       const vector<Blob<Dtype>*> & bottom)
   {
-    if (!propagate_down[0] || top.size() == 1) { return; }
+    if (!top[0]->propagate_down_ || top.size() == 1) { return; }
     int offset_slice_axis = 0;
     Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
     const int bottom_slice_axis = bottom[0]->shape(slice_axis_);

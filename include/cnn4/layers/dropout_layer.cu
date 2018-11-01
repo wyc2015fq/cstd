@@ -17,12 +17,12 @@ __global__ void DropoutForward(const int n, const Dtype* in,
 template <typename Dtype>
 void DropoutLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
-  const Dtype* bottom_data = bottom[0]->gpu_data();
-  Dtype* top_data = top[0]->mutable_gpu_data();
+  const Dtype* bottom_data = bottom[0]->data<Context>();
+  Dtype* top_data = top[0]->mutable_data<Context>();
   const int count = bottom[0]->count();
   if (this->phase_ == TRAIN) {
     unsigned int* mask =
-        static_cast<unsigned int*>(rand_vec_.mutable_gpu_data());
+        static_cast<unsigned int*>(rand_vec_.mutable_data<Context>());
     caffe_gpu_rng_uniform(count, mask);
     // set thresholds
     // NOLINT_NEXT_LINE(whitespace/operators)
@@ -47,12 +47,12 @@ template <typename Dtype>
 void DropoutLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
-  if (propagate_down[0]) {
+  if (top[0]->propagate_down_) {
     const Dtype* top_diff = top[0]->gpu_diff();
     Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
     if (this->phase_ == TRAIN) {
       const unsigned int* mask =
-          static_cast<const unsigned int*>(rand_vec_.gpu_data());
+          static_cast<const unsigned int*>(rand_vec_.data<Context>());
       const int count = bottom[0]->count();
       // NOLINT_NEXT_LINE(whitespace/operators)
       DropoutBackward<Dtype><<<CAFFE_GET_BLOCKS(count),

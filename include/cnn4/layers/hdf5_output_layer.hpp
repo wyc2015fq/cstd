@@ -49,9 +49,9 @@ namespace
     virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
                              const vector<Blob<Dtype>*> & top);
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
     virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
     virtual void SaveBlobs();
 
     bool file_opened_;

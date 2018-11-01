@@ -61,9 +61,9 @@ void CropLayer<Dtype>::crop_copy_gpu(const vector<Blob<Dtype>*>& bottom,
     const int dest_inner_stride = top[0]->shape(cur_dim+1);
 
     if (is_forward) {
-      const Dtype* bottom_data = bottom[0]->gpu_data() +
+      const Dtype* bottom_data = bottom[0]->data<Context>() +
           bottom[0]->offset(ind_off);
-      Dtype* top_data = top[0]->mutable_gpu_data() +
+      Dtype* top_data = top[0]->mutable_data<Context>() +
           top[0]->offset(indices);
       // NOLINT_NEXT_LINE(whitespace/operators)
       copy_kernel<<<CAFFE_GET_BLOCKS(lines), CAFFE_CUDA_NUM_THREADS>>>(
@@ -91,8 +91,8 @@ template <typename Dtype>
 void CropLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
   std::vector<int> indices(top[0]->num_axes(), 0);
-  const Dtype* bottom_data = bottom[0]->gpu_data();
-  Dtype* top_data = top[0]->mutable_gpu_data();
+  const Dtype* bottom_data = bottom[0]->data<Context>();
+  Dtype* top_data = top[0]->mutable_data<Context>();
   crop_copy_gpu(bottom, top, offsets, indices, 0, bottom_data, top_data, true);
 }
 
@@ -102,7 +102,7 @@ void CropLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>&
   const Dtype* top_diff = top[0]->gpu_diff();
   Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
 
-  if (propagate_down[0]) {
+  if (top[0]->propagate_down_) {
     caffe_gpu_set(bottom[0]->count(), static_cast<Dtype>(0), bottom_diff);
     std::vector<int> indices(top[0]->num_axes(), 0);
     crop_copy_gpu(bottom, top, offsets, indices, 0, top_diff, bottom_diff,

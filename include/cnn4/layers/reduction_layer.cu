@@ -8,10 +8,10 @@ namespace {
 template <typename Dtype>
 void ReductionLayer<Dtype>::Forward_gpu(
     const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
-  const Dtype* bottom_data = bottom[0]->gpu_data();
+  const Dtype* bottom_data = bottom[0]->data<Context>();
   const Dtype* mult_data = NULL;
   if (sum_multiplier_.count() > 0) {
-    mult_data = sum_multiplier_.gpu_data();
+    mult_data = sum_multiplier_.data<Context>();
   }
   Dtype* top_data = top[0]->mutable_data<Context>();
   for (int i = 0; i < num_; ++i) {
@@ -35,7 +35,7 @@ void ReductionLayer<Dtype>::Forward_gpu(
   }
   if (coeff_ != Dtype(1)) {
     // Reset the top_data pointer.
-    top_data = top[0]->mutable_gpu_data();
+    top_data = top[0]->mutable_data<Context>();
     caffe_gpu_scal(num_, coeff_, top_data);
   }
 }
@@ -43,7 +43,7 @@ void ReductionLayer<Dtype>::Forward_gpu(
 template <typename Dtype>
 void ReductionLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (!propagate_down[0]) { return; }
+  if (!top[0]->propagate_down_) { return; }
   // Get bottom_data, if needed.
   const Dtype* bottom_data = NULL;
   switch (op_) {
@@ -54,7 +54,7 @@ void ReductionLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtyp
   // Operations that need bottom_data
   case ReductionParameter_ReductionOp_ASUM:
   case ReductionParameter_ReductionOp_SUMSQ:
-    bottom_data = bottom[0]->gpu_data();
+    bottom_data = bottom[0]->data<Context>();
     break;
   default:
     LOG(FATAL) << "Unknown reduction op: "

@@ -54,7 +54,7 @@ namespace
                              const vector<Blob<Dtype>*> & top);
     /// @brief Not implemented (non-differentiable function)
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom) {
+                              const vector<Blob<Dtype>*> & bottom) {
       NOT_IMPLEMENTED;
     }
 

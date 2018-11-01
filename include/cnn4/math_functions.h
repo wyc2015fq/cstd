@@ -1,5 +1,6 @@
 
 #include "cblas.hpp"
+#include "types.h"
 //#include "cpu.hpp"
 
 struct CPUContext;

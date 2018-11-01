@@ -8,7 +8,7 @@ namespace {
 template <typename Dtype>
 void ReverseLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
-  const Dtype* src = bottom[0]->gpu_data();
+  const Dtype* src = bottom[0]->data<Context>();
 
   const int count = top[0]->count();
   const int axis_count = top[0]->count(axis_);
@@ -18,7 +18,7 @@ void ReverseLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*
   const int sub_iter_max = top[0]->shape(axis_);
 
   for (int fix = 0; fix < num_fix; ++fix) {
-    Dtype* target = top[0]->mutable_gpu_data()
+    Dtype* target = top[0]->mutable_data<Context>()
             + (fix + 1) * copy_amount * sub_iter_max - copy_amount;
     for (int i = 0; i < sub_iter_max; ++i) {
       caffe_copy(copy_amount, src, target);
@@ -31,7 +31,7 @@ void ReverseLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*
 template <typename Dtype>
 void ReverseLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (!propagate_down[0]) { return; }
+  if (!top[0]->propagate_down_) { return; }
 
   Dtype* target = bottom[0]->mutable_gpu_diff();
 

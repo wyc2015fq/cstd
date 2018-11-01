@@ -18,7 +18,7 @@ namespace
             == EltwiseParameter_EltwiseOp_PROD
             && this->layer_param().eltwise_param().coeff_size())) <<
                 "Eltwise layer only takes coefficients for summation.";
-    op_ = this->layer_param_.eltwise_param().operation();
+    op_ = this->param_->eltwise_param().operation();
     // Blob-wise coefficients for the elementwise operation.
     coeffs_ = vector<Dtype>(bottom.size(), 1);
     if (this->layer_param().eltwise_param().coeff_size()) {
@@ -26,7 +26,7 @@ namespace
         coeffs_[i] = this->layer_param().eltwise_param().coeff(i);
       }
     }
-    stable_prod_grad_ = this->layer_param_.eltwise_param().stable_prod_grad();
+    stable_prod_grad_ = this->param_->eltwise_param().stable_prod_grad();
   }
 
   template <typename Dtype>
@@ -38,7 +38,7 @@ namespace
     }
     top[0]->ReshapeLike(*bottom[0]);
     // If max operation, we will initialize the vector index part.
-    if (this->layer_param_.eltwise_param().operation() ==
+    if (this->param_->eltwise_param().operation() ==
         EltwiseParameter_EltwiseOp_MAX && top.size() == 1) {
       max_idx_.Reshape(bottom[0]->shape());
     }
@@ -102,14 +102,14 @@ namespace
 
   template <typename Dtype>
   void EltwiseLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                         const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                         const vector<Blob<Dtype>*> & bottom)
   {
     const int* mask = NULL;
     const int count = top[0]->count();
     const Dtype* top_data = top[0]->data<Context>();
     const Dtype* top_diff = top[0]->diff<Context>();
     for (int i = 0; i < bottom.size(); ++i) {
-      if (propagate_down[i]) {
+      if (top[i]->propagate_down_) {
         const Dtype* bottom_data = bottom[i]->data<Context>();
         Dtype* bottom_diff = bottom[i]->mutable_diff<Context>();
         switch (op_) {

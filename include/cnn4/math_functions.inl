@@ -433,6 +433,8 @@ void caffe_scale<double>(_CONTEXT,const int n, const double alpha, const double*
   cblas_dscal(n, alpha, y, 1);
 }
 
+////////////////////////////////////////
+
 template <typename Dtype>
 void sgd_update(_CONTEXT, int N, Dtype* g, Dtype* h, Dtype momentum,
   Dtype local_rate) {
@@ -473,6 +475,11 @@ void adam_update(_CONTEXT, int N, Dtype* g, Dtype* m, Dtype* v, Dtype beta1,
   }
 }
 
+//////////////////////////////////////
+
+
+//////////////////////////////////////
+
 template <typename Dtype>
 void relu_forward(_CONTEXT, const int n, const Dtype* in, Dtype* out, Dtype negative_slope) {
   CPU_KERNEL_LOOP(index, n) {
@@ -487,5 +494,8 @@ void relu_backward(_CONTEXT, const int n, const Dtype* in_diff, const Dtype* in_
       + (in_data[index] <= 0) * negative_slope);
   }
 }
+
+#include "im2col.inl"
+#include "layers/layers.inl"
 
 #undef _CONTEXT

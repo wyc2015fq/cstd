@@ -8,8 +8,8 @@ namespace {
 template <typename Dtype>
 void CuDNNPoolingLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
-  const Dtype* bottom_data = bottom[0]->gpu_data();
-  Dtype* top_data = top[0]->mutable_gpu_data();
+  const Dtype* bottom_data = bottom[0]->data<Context>();
+  Dtype* top_data = top[0]->mutable_data<Context>();
   CUDNN_CHECK(cudnnPoolingForward(handle_, pooling_desc_,
         cudnn::dataType<Dtype>::one,
         bottom_desc_, bottom_data,
@@ -20,12 +20,12 @@ void CuDNNPoolingLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dt
 template <typename Dtype>
 void CuDNNPoolingLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (!propagate_down[0]) {
+  if (!top[0]->propagate_down_) {
     return;
   }
   const Dtype* top_diff = top[0]->gpu_diff();
-  const Dtype* top_data = top[0]->gpu_data();
-  const Dtype* bottom_data = bottom[0]->gpu_data();
+  const Dtype* top_data = top[0]->data<Context>();
+  const Dtype* bottom_data = bottom[0]->data<Context>();
   Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
   CUDNN_CHECK(cudnnPoolingBackward(handle_, pooling_desc_,
         cudnn::dataType<Dtype>::one,

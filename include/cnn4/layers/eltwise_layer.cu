@@ -35,31 +35,31 @@ void EltwiseLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*
     const vector<Blob<Dtype>*>& top) {
   int* mask = NULL;
   const int count = top[0]->count();
-  Dtype* top_data = top[0]->mutable_gpu_data();
+  Dtype* top_data = top[0]->mutable_data<Context>();
   switch (op_) {
   case EltwiseParameter_EltwiseOp_PROD:
-    caffe_gpu_mul(count, bottom[0]->gpu_data(), bottom[1]->gpu_data(),
+    caffe_gpu_mul(count, bottom[0]->data<Context>(), bottom[1]->data<Context>(),
         top_data);
     for (int i = 2; i < bottom.size(); ++i) {
-      caffe_gpu_mul(count, top_data, bottom[i]->gpu_data(), top_data);
+      caffe_gpu_mul(count, top_data, bottom[i]->data<Context>(), top_data);
     }
     break;
   case EltwiseParameter_EltwiseOp_SUM:
     caffe_gpu_set(count, Dtype(0.), top_data);
     // TODO(shelhamer) does cuBLAS optimize to sum for coeff = 1?
     for (int i = 0; i < bottom.size(); ++i) {
-      caffe_gpu_axpy(count, coeffs_[i], bottom[i]->gpu_data(), top_data);
+      caffe_gpu_axpy(count, coeffs_[i], bottom[i]->data<Context>(), top_data);
     }
     break;
   case EltwiseParameter_EltwiseOp_MAX:
-    mask = max_idx_.mutable_gpu_data();
+    mask = max_idx_.mutable_data<Context>();
     // NOLINT_NEXT_LINE(whitespace/operators)
     MaxForward<Dtype> <<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
-        count, bottom[0]->gpu_data(), bottom[1]->gpu_data(), 0, top_data, mask);
+        count, bottom[0]->data<Context>(), bottom[1]->data<Context>(), 0, top_data, mask);
     for (int i = 2; i < bottom.size(); ++i) {
       // NOLINT_NEXT_LINE(whitespace/operators)
       MaxForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
-          count, top_data, bottom[i]->gpu_data(), i-1, top_data, mask);
+          count, top_data, bottom[i]->data<Context>(), i-1, top_data, mask);
     }
     break;
   default:
@@ -84,11 +84,11 @@ void EltwiseLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
   const int* mask = NULL;
   const int count = top[0]->count();
-  const Dtype* top_data = top[0]->gpu_data();
+  const Dtype* top_data = top[0]->data<Context>();
   const Dtype* top_diff = top[0]->gpu_diff();
   for (int i = 0; i < bottom.size(); ++i) {
-    if (propagate_down[i]) {
-      const Dtype* bottom_data = bottom[i]->gpu_data();
+    if (top[i]->propagate_down_) {
+      const Dtype* bottom_data = bottom[i]->data<Context>();
       Dtype* bottom_diff = bottom[i]->mutable_gpu_diff();
       switch (op_) {
       case EltwiseParameter_EltwiseOp_PROD:
@@ -97,10 +97,10 @@ void EltwiseLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>
           for (int j = 0; j < bottom.size(); ++j) {
             if (i == j) { continue; }
             if (!initialized) {
-              caffe_copy(count, bottom[j]->gpu_data(), bottom_diff);
+              caffe_copy(count, bottom[j]->data<Context>(), bottom_diff);
               initialized = true;
             } else {
-              caffe_gpu_mul(count, bottom[j]->gpu_data(), bottom_diff,
+              caffe_gpu_mul(count, bottom[j]->data<Context>(), bottom_diff,
                             bottom_diff);
             }
           }
@@ -117,7 +117,7 @@ void EltwiseLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>
         }
         break;
       case EltwiseParameter_EltwiseOp_MAX:
-        mask = max_idx_.gpu_data();
+        mask = max_idx_.data<Context>();
         MaxBackward<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
             <<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
             count, top_diff, i, mask, bottom_diff);

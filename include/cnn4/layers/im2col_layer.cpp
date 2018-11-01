@@ -10,7 +10,7 @@ namespace
   void Im2colLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                                       const vector<Blob<Dtype>*> & top)
   {
-    ConvolutionParameter conv_param = this->layer_param_.convolution_param();
+    ConvolutionParameter conv_param = this->param_->convolution_param();
     force_nd_im2col_ = conv_param.force_nd_im2col();
     const int input_num_dims = bottom[0]->shape().size();
     channel_axis_ = bottom[0]->CanonicalAxisIndex(conv_param.axis());
@@ -163,7 +163,7 @@ namespace
 
   template <typename Dtype>
   void Im2colLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                        const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                        const vector<Blob<Dtype>*> & bottom)
   {
     const Dtype* top_diff = top[0]->diff<Context>();
     Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();

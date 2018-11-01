@@ -62,7 +62,7 @@ namespace
   void SPPLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                                    const vector<Blob<Dtype>*> & top)
   {
-    SPPParameter spp_param = this->layer_param_.spp_param();
+    SPPParameter spp_param = this->param_->spp_param();
     num_ = bottom[0]->num();
     channels_ = bottom[0]->channels();
     bottom_h_ = bottom[0]->height();
@@ -145,7 +145,7 @@ namespace
     bottom_h_ = bottom[0]->height();
     bottom_w_ = bottom[0]->width();
     reshaped_first_time_ = true;
-    SPPParameter spp_param = this->layer_param_.spp_param();
+    SPPParameter spp_param = this->param_->spp_param();
     if (pyramid_height_ == 1) {
       LayerParameter pooling_param = GetPoolingParam(0, bottom_h_, bottom_w_,
                                      spp_param);
@@ -190,9 +190,9 @@ namespace
 
   template <typename Dtype>
   void SPPLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                     const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                     const vector<Blob<Dtype>*> & bottom)
   {
-    if (!propagate_down[0]) {
+    if (!top[0]->propagate_down_) {
       return;
     }
     if (pyramid_height_ == 1) {

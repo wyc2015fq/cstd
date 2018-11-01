@@ -65,7 +65,7 @@ void ReverseTimeLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dty
 template <typename Dtype>
 void ReverseTimeLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (!propagate_down[0]) { return; }
+  if (!top[0]->propagate_down_) { return; }
 
   const Dtype* src = top[0]->gpu_diff();
   Dtype* const dest = bottom[0]->mutable_gpu_diff();

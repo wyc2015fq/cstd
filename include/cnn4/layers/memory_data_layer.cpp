@@ -13,11 +13,11 @@ namespace
   void MemoryDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*> & bottom,
       const vector<Blob<Dtype>*> & top)
   {
-    batch_size_ = this->layer_param_.memory_data_param().batch_size();
-    channels_ = this->layer_param_.memory_data_param().channels();
-    height_ = this->layer_param_.memory_data_param().height();
-    width_ = this->layer_param_.memory_data_param().width();
-    label_size_ = this->layer_param_.memory_data_param().label_size();
+    batch_size_ = this->param_->memory_data_param().batch_size();
+    channels_ = this->param_->memory_data_param().channels();
+    height_ = this->param_->memory_data_param().height();
+    width_ = this->param_->memory_data_param().width();
+    label_size_ = this->param_->memory_data_param().label_size();
     size_ = channels_ * height_ * width_;
     CHECK_GT(batch_size_ * size_, 0) <<
                                      "batch_size, channels, height, and width must be specified and"
@@ -99,7 +99,7 @@ namespace
     CHECK_EQ(n % batch_size_, 0) << "n must be a multiple of batch size";
     // Warn with transformation parameters since a memory array is meant to
     // be generic and no transformations are done with Reset().
-    if (this->layer_param_.has_transform_param()) {
+    if (this->param_->has_transform_param()) {
       LOG(WARNING) << this->type() << " does not transform array data on Reset()";
     }
     data_ = data;

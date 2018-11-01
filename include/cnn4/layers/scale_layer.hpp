@@ -41,7 +41,7 @@ namespace
   public:
     /**
      * In the below shape specifications, @f$ i @f$ denotes the value of the
-     * `axis` field given by `this->layer_param_.scale_param().axis()`, after
+     * `axis` field given by `this->param_->scale_param().axis()`, after
      * canonicalization (i.e., conversion from negative to positive index,
      * if applicable).
      *
@@ -63,9 +63,9 @@ namespace
     virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
                              const vector<Blob<Dtype>*> & top);
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
     virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
 
     SHARED_PTR<Layer<Dtype> > bias_layer_;
     vector<Blob<Dtype>*> bias_bottom_vec_;

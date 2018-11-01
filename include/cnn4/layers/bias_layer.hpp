@@ -25,7 +25,7 @@ public:
   int axis_;
   int num_axes_;
 
-  void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
+  virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
     const vector<Blob<Dtype>*> & top)
   {
     axis_ = param_->GetObjectInt("axis", 0);
@@ -55,7 +55,7 @@ public:
     //this->param_propagate_down_.resize(this->blobs_.size(), true);
   }
 
-  void Reshape(const vector<Blob<Dtype>*> & bottom,
+  virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
     const vector<Blob<Dtype>*> & top)
   {
     Blob<Dtype>* bias = (bottom.size() > 1) ? bottom[1] : this->blobs_[0];
@@ -104,16 +104,17 @@ public:
   }
 
   void Backward(Context* context, const vector<Blob<Dtype>*> & top,
-    const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+    const vector<Blob<Dtype>*> & bottom)
   {
-    if (propagate_down[0] && bottom[0] != top[0]) {
+    if (top[0]->propagate_down_ && bottom[0] != top[0]) {
       const Dtype* top_diff = top[0]->diff<Context>();
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       caffe_copy(context,bottom[0]->count(), top_diff, bottom_diff);
     }
     // in-place, we don't need to do anything with the data diff
     const bool bias_param = (bottom.size() == 1);
-    if ((!bias_param && propagate_down[1]) ) {
+      if ((!bias_param && top[1]->propagate_down_) ||
+        (bias_param && this->blobs_[0]->propagate_down_)) {
       const Dtype* top_diff = top[0]->diff<Context>();
       Dtype* bias_diff = (bias_param ? this->blobs_[0] : bottom[1])
         ->mutable_diff<Context>();

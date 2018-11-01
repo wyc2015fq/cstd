@@ -66,14 +66,14 @@ namespace
      * @brief Unused. Gradient calculation is done in Forward_cpu
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down,
+                              int*
                               const vector<Blob<Dtype>*> & bottom);
 
     virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
                              const vector<Blob<Dtype>*> & top);
 
     virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down,
+                              int*
                               const vector<Blob<Dtype>*> & bottom);
 
     void ExtractInputData(const Blob<Dtype>* seq_ind_blob,

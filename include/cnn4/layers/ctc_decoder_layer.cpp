@@ -218,11 +218,11 @@ namespace
 
   template <typename Dtype>
   void CTCDecoderLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down,
+      int*
       const vector<Blob<Dtype>*> & bottom)
   {
     for (int i = 0; i < propagate_down.size(); ++i) {
-      if (propagate_down[i]) {
+      if (top[i]->propagate_down_) {
         //NOT_IMPLEMENTED;
       }
     }

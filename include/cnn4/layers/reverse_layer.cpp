@@ -48,9 +48,9 @@ namespace
 
   template <typename Dtype>
   void ReverseLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                         const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                         const vector<Blob<Dtype>*> & bottom)
   {
-    if (!propagate_down[0]) { return; }
+    if (!top[0]->propagate_down_) { return; }
     Dtype* target = bottom[0]->mutable_diff<Context>();
     const int count = top[0]->count();
     const int axis_count = top[0]->count(axis_);

@@ -11,7 +11,7 @@ namespace
   void BatchNormLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                                          const vector<Blob<Dtype>*> & top)
   {
-    BatchNormParameter param = this->layer_param_.batch_norm_param();
+    BatchNormParameter param = this->param_->batch_norm_param();
     moving_average_fraction_ = param.moving_average_fraction();
     use_global_stats_ = this->phase_ == TEST;
     if (param.has_use_global_stats()) {
@@ -152,7 +152,7 @@ namespace
 
   template <typename Dtype>
   void BatchNormLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down,
+      int*
       const vector<Blob<Dtype>*> & bottom)
   {
     const Dtype* top_diff;

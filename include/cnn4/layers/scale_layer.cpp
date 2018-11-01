@@ -13,7 +13,7 @@ namespace
   void ScaleLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                                      const vector<Blob<Dtype>*> & top)
   {
-    const ScaleParameter & param = this->layer_param_.scale_param();
+    const ScaleParameter & param = this->param_->scale_param();
     if (bottom.size() == 1 && this->blobs_.size() > 0) {
       LOG(INFO) << "Skipping parameter initialization";
     } else if (bottom.size() == 1) {
@@ -70,7 +70,7 @@ namespace
   void ScaleLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
                                   const vector<Blob<Dtype>*> & top)
   {
-    const ScaleParameter & param = this->layer_param_.scale_param();
+    const ScaleParameter & param = this->param_->scale_param();
     Blob<Dtype>* scale = (bottom.size() > 1) ? bottom[1] : this->blobs_[0].get();
     // Always set axis_ == 0 in special case where scale is a scalar
     // (num_axes == 0). Mathematically equivalent for any choice of axis_, so the
@@ -123,7 +123,7 @@ namespace
     }
     const Dtype* scale_data =
       ((bottom.size() > 1) ? bottom[1] : this->blobs_[0].get())->data<Context>();
-    //LOG(INFO) << this->layer_param_.name() << " scale value=" << scale_data[0];
+    //LOG(INFO) << this->param_->name() << " scale value=" << scale_data[0];
     Dtype* top_data = top[0]->mutable_data<Context>();
     for (int n = 0; n < outer_dim_; ++n) {
       for (int d = 0; d < scale_dim_; ++d) {
@@ -140,7 +140,7 @@ namespace
 
   template <typename Dtype>
   void ScaleLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                       const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                       const vector<Blob<Dtype>*> & bottom)
   {
     if (bias_layer_ &&
         this->param_propagate_down_[this->param_propagate_down_.size() - 1]) {
@@ -148,8 +148,8 @@ namespace
     }
     const bool scale_param = (bottom.size() == 1);
     Blob<Dtype>* scale = scale_param ? this->blobs_[0].get() : bottom[1];
-    if ((!scale_param && propagate_down[1]) ||
-        (scale_param && this->param_propagate_down_[0])) {
+    if ((!scale_param && top[1]->propagate_down_) ||
+        (scale_param && this->blobs_[0]->propagate_down_)) {
       const Dtype* top_diff = top[0]->diff<Context>();
       const bool in_place = (bottom[0] == top[0]);
       const Dtype* bottom_data = (in_place ? &temp_ : bottom[0])->data<Context>();
@@ -200,7 +200,7 @@ namespace
         }
       }
     }
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff<Context>();
       const Dtype* scale_data = scale->data<Context>();
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();

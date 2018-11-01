@@ -44,7 +44,7 @@ namespace
 
   template <typename Dtype>
   void DeconvolutionLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+      const vector<Blob<Dtype>*> & bottom)
   {
     const Dtype* weight = this->blobs_[0]->data<Context>();
     Dtype* weight_diff = this->blobs_[0]->mutable_diff<Context>();
@@ -53,25 +53,25 @@ namespace
       const Dtype* bottom_data = bottom[i]->data<Context>();
       Dtype* bottom_diff = bottom[i]->mutable_diff<Context>();
       // Bias gradient, if necessary.
-      if (this->bias_term_ && this->param_propagate_down_[1]) {
+      if (this->bias_term_ && this->blobs_[1]->propagate_down_) {
         Dtype* bias_diff = this->blobs_[1]->mutable_diff<Context>();
         for (int n = 0; n < this->num_; ++n) {
           this->backward_cpu_bias(bias_diff, top_diff + n * this->top_dim_);
         }
       }
-      if (this->param_propagate_down_[0] || propagate_down[i]) {
+      if (this->blobs_[0]->propagate_down_ || top[i]->propagate_down_) {
         for (int n = 0; n < this->num_; ++n) {
           // Gradient w.r.t. weight. Note that we will accumulate diffs.
-          if (this->param_propagate_down_[0]) {
+          if (this->blobs_[0]->propagate_down_) {
             this->weight_cpu_gemm(top_diff + n * this->top_dim_,
                                   bottom_data + n * this->bottom_dim_, weight_diff);
           }
           // Gradient w.r.t. bottom data, if necessary, reusing the column buffer
           // we might have just computed above.
-          if (propagate_down[i]) {
+          if (top[i]->propagate_down_) {
             this->forward_cpu_gemm(top_diff + n * this->top_dim_, weight,
                                    bottom_diff + n * this->bottom_dim_,
-                                   this->param_propagate_down_[0]);
+                                   this->blobs_[0]->propagate_down_);
           }
         }
       }

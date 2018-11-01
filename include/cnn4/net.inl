@@ -60,14 +60,9 @@ void BackwardFromTo(int start, int end)
   Net* net = this;
   CHECK_GE(end, 0);
   CHECK_LT(start, layers_.size());
-  vector<bool> bottom_need_backward_;
   for (int i = start; i >= end; --i) {
     Layer<Dtype>* layer = net->layers_[i];
-    bottom_need_backward_.resize(layer->bottom_vecs_.size());
-    for (int j = 0; j < layer->bottom_vecs_.size(); ++i) {
-      bottom_need_backward_[j] = layer->bottom_vecs_[i]->propagate_down;
-    }
-    layers_[i]->Backward(layer->top_vecs_, bottom_need_backward_, layer->bottom_vecs_);
+    layers_[i]->Backward(layer->top_vecs_, layer->bottom_vecs_);
   }
 }
 

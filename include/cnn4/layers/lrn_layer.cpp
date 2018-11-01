@@ -10,13 +10,13 @@ namespace
   void LRNLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                                    const vector<Blob<Dtype>*> & top)
   {
-    size_ = this->layer_param_.lrn_param().local_size();
+    size_ = this->param_->lrn_param().local_size();
     CHECK_EQ(size_ % 2, 1) << "LRN only supports odd values for local_size";
     pre_pad_ = (size_ - 1) / 2;
-    alpha_ = this->layer_param_.lrn_param().alpha();
-    beta_ = this->layer_param_.lrn_param().beta();
-    k_ = this->layer_param_.lrn_param().k();
-    if (this->layer_param_.lrn_param().norm_region() ==
+    alpha_ = this->param_->lrn_param().alpha();
+    beta_ = this->param_->lrn_param().beta();
+    k_ = this->param_->lrn_param().k();
+    if (this->param_->lrn_param().norm_region() ==
         LRNParameter_NormRegion_WITHIN_CHANNEL) {
       // Set up split_layer_ to use inputs in the numerator and denominator.
       split_top_vec_.clear();
@@ -77,7 +77,7 @@ namespace
     channels_ = bottom[0]->channels();
     height_ = bottom[0]->height();
     width_ = bottom[0]->width();
-    switch (this->layer_param_.lrn_param().norm_region()) {
+    switch (this->param_->lrn_param().norm_region()) {
     case LRNParameter_NormRegion_ACROSS_CHANNELS:
       top[0]->Reshape(num_, channels_, height_, width_);
       scale_.Reshape(num_, channels_, height_, width_);
@@ -96,7 +96,7 @@ namespace
   void LRNLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
                                     const vector<Blob<Dtype>*> & top)
   {
-    switch (this->layer_param_.lrn_param().norm_region()) {
+    switch (this->param_->lrn_param().norm_region()) {
     case LRNParameter_NormRegion_ACROSS_CHANNELS:
       CrossChannelForward_cpu(bottom, top);
       break;
@@ -168,9 +168,9 @@ namespace
 
   template <typename Dtype>
   void LRNLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                     const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                     const vector<Blob<Dtype>*> & bottom)
   {
-    switch (this->layer_param_.lrn_param().norm_region()) {
+    switch (this->param_->lrn_param().norm_region()) {
     case LRNParameter_NormRegion_ACROSS_CHANNELS:
       CrossChannelBackward_cpu(top, propagate_down, bottom);
       break;
@@ -184,7 +184,7 @@ namespace
 
   template <typename Dtype>
   void LRNLayer<Dtype>::CrossChannelBackward_cpu(
-    const vector<Blob<Dtype>*> & top, const vector<bool> & propagate_down,
+    const vector<Blob<Dtype>*> & top, int*
     const vector<Blob<Dtype>*> & bottom)
   {
     const Dtype* top_diff = top[0]->diff<Context>();
@@ -238,10 +238,10 @@ namespace
 
   template <typename Dtype>
   void LRNLayer<Dtype>::WithinChannelBackward(
-    const vector<Blob<Dtype>*> & top, const vector<bool> & propagate_down,
+    const vector<Blob<Dtype>*> & top, int*
     const vector<Blob<Dtype>*> & bottom)
   {
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       vector<bool> product_propagate_down(2, true);
       product_layer_->Backward(top, product_propagate_down, product_bottom_vec_);
       power_layer_->Backward(power_top_vec_, propagate_down, pool_top_vec_);

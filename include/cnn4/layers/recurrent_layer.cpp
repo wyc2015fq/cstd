@@ -29,7 +29,7 @@ namespace
     }
     // If expose_hidden is set, we take as input and produce as output
     // the hidden state blobs at the first and last timesteps.
-    expose_hidden_ = this->layer_param_.recurrent_param().expose_hidden();
+    expose_hidden_ = this->param_->recurrent_param().expose_hidden();
     // Get (recurrent) input/output names.
     vector<string> output_names;
     OutputBlobNames(&output_names);
@@ -81,7 +81,7 @@ namespace
     // recurrent architecture.
     this->FillUnrolledNet(&net_param);
     // Prepend this layer's name to the names of each layer in the unrolled net.
-    const string & layer_name = this->layer_param_.name();
+    const string & layer_name = this->param_->name();
     if (layer_name.size()) {
       for (int i = 0; i < net_param.layer_size(); ++i) {
         LayerParameter* layer = net_param.mutable_layer(i);
@@ -104,7 +104,7 @@ namespace
     // Create the unrolled net.
     unrolled_net_.reset(new Net<Dtype>(net_param));
     unrolled_net_->set_debug_info(
-      this->layer_param_.recurrent_param().debug_info());
+      this->param_->recurrent_param().debug_info());
     // Setup pointers to the inputs.
     x_input_blob_ = CHECK_NOTNULL(unrolled_net_->blob_by_name("x").get());
     cont_input_blob_ = CHECK_NOTNULL(unrolled_net_->blob_by_name("cont").get());
@@ -286,13 +286,13 @@ namespace
 
   template <typename Dtype>
   void RecurrentLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+      const vector<Blob<Dtype>*> & bottom)
   {
     if (propagate_down.size() > 1) {
-      CHECK(!propagate_down[1]) << "Cannot backpropagate to sequence indicators.";
+      CHECK(!top[1]->propagate_down_) << "Cannot backpropagate to sequence indicators.";
     }
     // TODO: skip backpropagation to inputs and parameters inside the unrolled
-    // net according to propagate_down[0] and propagate_down[2]. For now just
+    // net according to top[0]->propagate_down_ and propagate_down[2]. For now just
     // backprop to inputs and parameters unconditionally, as either the inputs or
     // the parameters do need backward (or Net would have set
     // layer_needs_backward_[i] == false for this layer).

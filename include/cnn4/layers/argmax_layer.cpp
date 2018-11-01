@@ -12,7 +12,7 @@ namespace
   void ArgMaxLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                                       const vector<Blob<Dtype>*> & top)
   {
-    const ArgMaxParameter & argmax_param = this->layer_param_.argmax_param();
+    const ArgMaxParameter & argmax_param = this->param_->argmax_param();
     out_max_val_ = argmax_param.out_max_val();
     top_k_ = argmax_param.top_k();
     has_axis_ = argmax_param.has_axis();

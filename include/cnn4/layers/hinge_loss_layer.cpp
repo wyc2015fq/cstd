@@ -28,7 +28,7 @@ namespace
       }
     }
     Dtype* loss = top[0]->mutable_data<Context>();
-    switch (this->layer_param_.hinge_loss_param().norm()) {
+    switch (this->param_->hinge_loss_param().norm()) {
     case HingeLossParameter_Norm_L1:
       loss[0] = caffe_asum(count, bottom_diff) / num;
       break;
@@ -42,13 +42,13 @@ namespace
 
   template <typename Dtype>
   void HingeLossLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+      const vector<Blob<Dtype>*> & bottom)
   {
-    if (propagate_down[1]) {
+    if (top[1]->propagate_down_) {
       LOG(FATAL) << this->type()
                  << " Layer cannot backpropagate to label inputs.";
     }
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       const Dtype* label = bottom[1]->data<Context>();
       int num = bottom[0]->num();
@@ -58,7 +58,7 @@ namespace
         bottom_diff[i * dim + static_cast<int>(label[i])] *= -1;
       }
       const Dtype loss_weight = top[0]->diff<Context>()[0];
-      switch (this->layer_param_.hinge_loss_param().norm()) {
+      switch (this->param_->hinge_loss_param().norm()) {
       case HingeLossParameter_Norm_L1:
         caffe_sign(count, bottom_diff, bottom_diff);
         caffe_scal(count, loss_weight / num, bottom_diff);

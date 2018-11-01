@@ -61,17 +61,17 @@ namespace
   void ImageDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*> & bottom,
       const vector<Blob<Dtype>*> & top)
   {
-    const int new_height = this->layer_param_.image_data_param().new_height();
-    const int new_width  = this->layer_param_.image_data_param().new_width();
-    const bool is_color  = this->layer_param_.image_data_param().is_color();
-    const int lebel_size = this->layer_param_.image_data_param().lebel_size();
-    const bool is_regression = this->layer_param_.image_data_param().regression();
-    string root_folder = this->layer_param_.image_data_param().root_folder();
+    const int new_height = this->param_->image_data_param().new_height();
+    const int new_width  = this->param_->image_data_param().new_width();
+    const bool is_color  = this->param_->image_data_param().is_color();
+    const int lebel_size = this->param_->image_data_param().lebel_size();
+    const bool is_regression = this->param_->image_data_param().regression();
+    string root_folder = this->param_->image_data_param().root_folder();
     CHECK((new_height == 0 && new_width == 0) ||
           (new_height > 0 && new_width > 0)) << "Current implementation requires "
               "new_height and new_width to be set at the same time.";
     // Read the file with filenames and labels
-    const string & source = this->layer_param_.image_data_param().source();
+    const string & source = this->param_->image_data_param().source();
     LOG(INFO) << "Opening file " << source;
     std::ifstream infile(source.c_str());
     string line;
@@ -89,7 +89,7 @@ namespace
         lines_.push_back(std::make_pair(filename, labels));
       }
       CHECK(!lines_.empty()) << "File is empty";
-      if (this->layer_param_.image_data_param().shuffle()) {
+      if (this->param_->image_data_param().shuffle()) {
         // randomly shuffle data
         LOG(INFO) << "Shuffling data";
         //const unsigned int prefetch_rng_seed = caffe_rng_rand();
@@ -99,9 +99,9 @@ namespace
       LOG(INFO) << "A total of " << lines_.size() << " images.";
       lines_id_ = 0;
       // Check if we would need to randomly skip a few data points
-      if (this->layer_param_.image_data_param().rand_skip()) {
+      if (this->param_->image_data_param().rand_skip()) {
         unsigned int skip = caffe_rng_rand() %
-                            this->layer_param_.image_data_param().rand_skip();
+                            this->param_->image_data_param().rand_skip();
         LOG(INFO) << "Skipping first " << skip << " data points.";
         CHECK_GT(lines_.size(), skip) << "Not enough points to skip";
         lines_id_ = skip;
@@ -114,7 +114,7 @@ namespace
       vector<int> top_shape = this->data_transformer_->InferBlobShape(cv_img);
       this->transformed_data_.Reshape(top_shape);
       // Reshape prefetch_data and top[0] according to the batch_size.
-      const int batch_size = this->layer_param_.image_data_param().batch_size();
+      const int batch_size = this->param_->image_data_param().batch_size();
       CHECK_GT(batch_size, 0) << "Positive batch size required";
       top_shape[0] = batch_size;
       for (int i = 0; i < this->prefetch_.size(); ++i) {
@@ -146,7 +146,7 @@ namespace
         regression_lines_.push_back(std::make_pair(filename, values));
       }
       CHECK(!regression_lines_.empty()) << "File is empty";
-      if (this->layer_param_.image_data_param().shuffle()) {
+      if (this->param_->image_data_param().shuffle()) {
         // randomly shuffle data
         LOG(INFO) << "Shuffling data";
         //const unsigned int prefetch_rng_seed = caffe_rng_rand();
@@ -158,9 +158,9 @@ namespace
       LOG(INFO) << "A total of " << regression_lines_.size() << " images.";
       lines_id_ = 0;
       // Check if we would need to randomly skip a few data points
-      if (this->layer_param_.image_data_param().rand_skip()) {
+      if (this->param_->image_data_param().rand_skip()) {
         unsigned int skip = caffe_rng_rand() %
-                            this->layer_param_.image_data_param().rand_skip();
+                            this->param_->image_data_param().rand_skip();
         LOG(INFO) << "Skipping first " << skip << " data points.";
         CHECK_GT(regression_lines_.size(), skip) << "Not enough points to skip";
         lines_id_ = skip;
@@ -173,7 +173,7 @@ namespace
       vector<int> top_shape = this->data_transformer_->InferBlobShape(cv_img);
       this->transformed_data_.Reshape(top_shape);
       // Reshape prefetch_data and top[0] according to the batch_size.
-      const int batch_size = this->layer_param_.image_data_param().batch_size();
+      const int batch_size = this->param_->image_data_param().batch_size();
       CHECK_GT(batch_size, 0) << "Positive batch size required";
       top_shape[0] = batch_size;
       for (int i = 0; i < this->prefetch_.size(); ++i) {
@@ -215,7 +215,7 @@ namespace
     ASSERT(batch.data_.size()==2);
     CHECK(batch->data_.count());
     CHECK(this->transformed_data_.count());
-    ImageDataParameter image_data_param = this->layer_param_.image_data_param();
+    ImageDataParameter image_data_param = this->param_->image_data_param();
     const int batch_size = image_data_param.batch_size();
     const int new_height = image_data_param.new_height();
     const int new_width = image_data_param.new_width();
@@ -263,7 +263,7 @@ namespace
           // We have reached the end. Restart from the first.
           //DLOG(INFO) << "Restarting data prefetching from start.";
           lines_id_ = 0;
-          if (this->layer_param_.image_data_param().shuffle()) {
+          if (this->param_->image_data_param().shuffle()) {
             ShuffleImages();
           }
         }
@@ -308,7 +308,7 @@ namespace
           // We have reached the end. Restart from the first.
           //DLOG(INFO) << "Restarting data prefetching from start.";
           lines_id_ = 0;
-          if (this->layer_param_.image_data_param().shuffle()) {
+          if (this->param_->image_data_param().shuffle()) {
             caffe::rng_t* prefetch_rng = caffe_rng();
               //static_cast<caffe::rng_t*>(prefetch_rng_->generator());
             shuffle(regression_lines_.begin(), regression_lines_.end(), prefetch_rng);

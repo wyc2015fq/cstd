@@ -11,8 +11,8 @@ void FilterLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>
   int new_tops_num = (int)indices_to_forward_.size();
   // forward all filtered items for all bottoms but the Selector (bottom[last])
   for (int t = 0; t < top.size(); ++t) {
-    const Dtype* bottom_data = bottom[t]->gpu_data();
-    Dtype* top_data = top[t]->mutable_gpu_data();
+    const Dtype* bottom_data = bottom[t]->data<Context>();
+    Dtype* top_data = top[t]->mutable_data<Context>();
     int dim = bottom[t]->count() / bottom[t]->shape(0);
     for (int n = 0; n < new_tops_num; ++n) {
       int data_offset_top = n * dim;
@@ -33,7 +33,7 @@ void FilterLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*
   for (int i = 0; i < top.size(); ++i) {
     // bottom[last] is the selector and never needs backpropagation
     // so we can iterate over top vector because top.size() == bottom.size() -1
-    if (propagate_down[i]) {
+    if (top[i]->propagate_down_) {
       const int dim = top[i]->count() / top[i]->shape(0);
       int next_to_backward_offset = 0;
       int batch_offset = 0;

@@ -11,9 +11,9 @@ namespace
                                      const vector<Blob<Dtype>*> & top)
   {
     NeuronLayer<Dtype>::LayerSetUp(bottom, top);
-    power_ = this->layer_param_.power_param().power();
-    scale_ = this->layer_param_.power_param().scale();
-    shift_ = this->layer_param_.power_param().shift();
+    power_ = this->param_->power_param().power();
+    scale_ = this->param_->power_param().scale();
+    shift_ = this->param_->power_param().shift();
     diff_scale_ = power_  * scale_;
   }
 
@@ -45,10 +45,10 @@ namespace
 
   template <typename Dtype>
   void PowerLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                       const vector<bool> & propagate_down,
+                                       int*
                                        const vector<Blob<Dtype>*> & bottom)
   {
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       const int count = bottom[0]->count();
       const Dtype* top_diff = top[0]->diff<Context>();

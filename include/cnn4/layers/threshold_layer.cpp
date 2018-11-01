@@ -10,7 +10,7 @@ namespace
                                          const vector<Blob<Dtype>*> & top)
   {
     NeuronLayer<Dtype>::LayerSetUp(bottom, top);
-    threshold_ = this->layer_param_.threshold_param().threshold();
+    threshold_ = this->param_->threshold_param().threshold();
   }
 
   template <typename Dtype>

@@ -41,38 +41,38 @@ __global__ void EmbedBackward(const int nthreads, const Dtype* bottom_data,
 template <typename Dtype>
 void EmbedLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
-  const Dtype* bottom_data = bottom[0]->gpu_data();
-  Dtype* top_data = top[0]->mutable_gpu_data();
-  const Dtype* weight = this->blobs_[0]->gpu_data();
+  const Dtype* bottom_data = bottom[0]->data<Context>();
+  Dtype* top_data = top[0]->mutable_data<Context>();
+  const Dtype* weight = this->blobs_[0]->data<Context>();
   const int count = top[0]->count();
   EmbedForward<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
       <<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
       count, bottom_data, weight, M_, N_, K_, top_data);
   if (bias_term_) {
     caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, N_, 1, Dtype(1),
-        bias_multiplier_.gpu_data(),
-        this->blobs_[1]->gpu_data(), Dtype(1), top_data);
+        bias_multiplier_.data<Context>(),
+        this->blobs_[1]->data<Context>(), Dtype(1), top_data);
   }
 }
 
 template <typename Dtype>
 void EmbedLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  CHECK(!propagate_down[0]) << "Can't backpropagate to EmbedLayer input.";
-  if (this->param_propagate_down_[0]) {
+  CHECK(!top[0]->propagate_down_) << "Can't backpropagate to EmbedLayer input.";
+  if (this->blobs_[0]->propagate_down_) {
     const int top_count = top[0]->count();
     const Dtype* top_diff = top[0]->gpu_diff();
-    const Dtype* bottom_data = bottom[0]->gpu_data();
+    const Dtype* bottom_data = bottom[0]->data<Context>();
     Dtype* weight_diff = this->blobs_[0]->mutable_gpu_diff();
     EmbedBackward<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(top_count), CAFFE_CUDA_NUM_THREADS>>>(
         top_count, bottom_data, top_diff, M_, N_, K_, weight_diff);
   }
-  if (bias_term_ && this->param_propagate_down_[1]) {
+  if (bias_term_ && this->blobs_[1]->propagate_down_) {
     const Dtype* top_diff = top[0]->gpu_diff();
     Dtype* bias_diff = this->blobs_[1]->mutable_gpu_diff();
     caffe_gpu_gemv<Dtype>(CblasTrans, M_, N_, Dtype(1), top_diff,
-        bias_multiplier_.gpu_data(), Dtype(1), bias_diff);
+        bias_multiplier_.data<Context>(), Dtype(1), bias_diff);
   }
 }
 

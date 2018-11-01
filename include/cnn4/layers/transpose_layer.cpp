@@ -27,7 +27,7 @@ namespace
   {
     CHECK_NE(bottom[0], top[0]) << this->type() << " Layer does not support "
                                 "in-place computation.";
-    transpose_param_ = this->layer_param_.transpose_param();
+    transpose_param_ = this->param_->transpose_param();
   }
 
   template <typename Dtype>
@@ -94,9 +94,9 @@ namespace
 
   template <typename Dtype>
   void TransposeLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+      const vector<Blob<Dtype>*> & bottom)
   {
-    if (!propagate_down[0]) {
+    if (!top[0]->propagate_down_) {
       return;
     }
     transpose_cpu<Dtype>(bottom[0]->count(), top[0]->diff<Context>(), bottom[0]->mutable_diff<Context>(),

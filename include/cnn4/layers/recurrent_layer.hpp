@@ -39,7 +39,7 @@ namespace
     virtual inline int MinBottomBlobs() const {
       //  int min_bottoms = 2;
       int min_bottoms = 1;//modified by jxs
-      if (this->layer_param_.recurrent_param().expose_hidden()) {
+      if (this->param_->recurrent_param().expose_hidden()) {
         vector<string> inputs;
         this->RecurrentInputBlobNames(&inputs);
         min_bottoms += (int)inputs.size();
@@ -49,7 +49,7 @@ namespace
     virtual inline int MaxBottomBlobs() const { return  MinBottomBlobs() + 1; }
     virtual inline int ExactNumTopBlobs() const {
       int num_tops = 1;
-      if (this->layer_param_.recurrent_param().expose_hidden()) {
+      if (this->param_->recurrent_param().expose_hidden()) {
         vector<string> outputs;
         this->RecurrentOutputBlobNames(&outputs);
         num_tops += (int)outputs.size();
@@ -148,7 +148,7 @@ namespace
     virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
                              const vector<Blob<Dtype>*> & top);
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
 
     /// @brief A Net to implement the Recurrent functionality.
     SHARED_PTR<Net<Dtype> > unrolled_net_;

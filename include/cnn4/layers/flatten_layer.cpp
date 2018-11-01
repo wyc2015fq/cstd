@@ -12,9 +12,9 @@ namespace
     CHECK_NE(top[0], bottom[0]) << this->type() << " Layer does not "
                                 "allow in-place computation.";
     const int start_axis = bottom[0]->CanonicalAxisIndex(
-                             this->layer_param_.flatten_param().axis());
+                             this->param_->flatten_param().axis());
     const int end_axis = bottom[0]->CanonicalAxisIndex(
-                           this->layer_param_.flatten_param().end_axis());
+                           this->param_->flatten_param().end_axis());
     vector<int> top_shape;
     for (int i = 0; i < start_axis; ++i) {
       top_shape.push_back(bottom[0]->shape(i));
@@ -37,7 +37,7 @@ namespace
 
   template <typename Dtype>
   void FlattenLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                         const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                         const vector<Blob<Dtype>*> & bottom)
   {
     bottom[0]->ShareDiff(*top[0]);
   }

@@ -26,11 +26,11 @@ namespace
 
   template <typename Dtype>
   void AbsValLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                        const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                        const vector<Blob<Dtype>*> & bottom)
   {
     const int count = top[0]->count();
     const Dtype* top_diff = top[0]->diff<Context>();
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       const Dtype* bottom_data = bottom[0]->data<Context>();
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       caffe_sign(count, bottom_data, bottom_diff);

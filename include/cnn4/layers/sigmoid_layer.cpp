@@ -26,10 +26,10 @@ namespace
 
   template <typename Dtype>
   void SigmoidLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                         const vector<bool> & propagate_down,
+                                         int*
                                          const vector<Blob<Dtype>*> & bottom)
   {
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       const Dtype* top_data = top[0]->data<Context>();
       const Dtype* top_diff = top[0]->diff<Context>();
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();

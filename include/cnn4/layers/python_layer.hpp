@@ -27,7 +27,7 @@ namespace
         LOG(FATAL) << "PythonLayer is not implemented in Multi-GPU training";
       }
       self_.attr("param_str") = bp::str(
-                                  this->layer_param_.python_param().param_str());
+                                  this->param_->python_param().param_str());
       self_.attr("phase") = static_cast<int>(this->phase_);
       self_.attr("setup")(bottom, top);
     }
@@ -37,7 +37,7 @@ namespace
     }
 
     virtual inline bool ShareInParallel() const {
-      return this->layer_param_.python_param().share_in_parallel();
+      return this->param_->python_param().share_in_parallel();
     }
 
     virtual inline const char* type() const { return "Python"; }
@@ -48,7 +48,7 @@ namespace
       self_.attr("forward")(bottom, top);
     }
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom) {
+                              const vector<Blob<Dtype>*> & bottom) {
       self_.attr("backward")(top, propagate_down, bottom);
     }
 

@@ -10,7 +10,7 @@ namespace
   void ReductionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                                          const vector<Blob<Dtype>*> & top)
   {
-    op_ = this->layer_param_.reduction_param().operation();
+    op_ = this->param_->reduction_param().operation();
   }
 
   template <typename Dtype>
@@ -18,7 +18,7 @@ namespace
                                       const vector<Blob<Dtype>*> & top)
   {
     axis_ = bottom[0]->CanonicalAxisIndex(
-              this->layer_param_.reduction_param().axis());
+              this->param_->reduction_param().axis());
     // In the output, we'll keep all axes up to the reduction axis, but
     // throw away any after that.
     // Note: currently reducing along non-tail axes is not supported; otherwise,
@@ -79,9 +79,9 @@ namespace
 
   template <typename Dtype>
   void ReductionLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+      const vector<Blob<Dtype>*> & bottom)
   {
-    if (!propagate_down[0]) { return; }
+    if (!top[0]->propagate_down_) { return; }
     // Get bottom_data, if needed.
     const Dtype* bottom_data = NULL;
     switch (op_) {

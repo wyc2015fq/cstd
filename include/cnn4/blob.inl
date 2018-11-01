@@ -2,10 +2,7 @@
 inline int num_axes() const { return (int)4; }
 
 inline string shape_string() const {
-  char buf[256];
-  const int* p = shape_.dim;
-  _snprintf(buf, 256, "(%d %d %d %d)", p[0], p[1], p[2], p[3]);
-  return buf;
+  return DataShape_string(shape_);
 }
 inline int shape(int index) const {
   return shape_.dim[CanonicalAxisIndex(index)];

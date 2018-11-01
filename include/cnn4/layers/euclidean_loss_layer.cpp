@@ -33,10 +33,10 @@ namespace
 
   template <typename Dtype>
   void EuclideanLossLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+      const vector<Blob<Dtype>*> & bottom)
   {
     for (int i = 0; i < 2; ++i) {
-      if (propagate_down[i]) {
+      if (top[i]->propagate_down_) {
         const Dtype sign = (i == 0) ? 1 : -1;
         const Dtype alpha = sign * top[0]->diff<Context>()[0] / bottom[i]->num();
         caffe_axpby(

@@ -20,9 +20,9 @@ namespace
   void LstmLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom, //bottom[0]: [T]x[N]x[Channels]
                                     const vector<Blob<Dtype>*> & top)
   {
-    clipping_threshold_ = this->layer_param_.lstm_param().clipping_threshold();
-    N_ = bottom[0]->shape(1);// this->layer_param_.lstm_param().batch_size(); // batch_size
-    H_ = this->layer_param_.lstm_param().num_output(); // number of hidden units
+    clipping_threshold_ = this->param_->lstm_param().clipping_threshold();
+    N_ = bottom[0]->shape(1);// this->param_->lstm_param().batch_size(); // batch_size
+    H_ = this->param_->lstm_param().num_output(); // number of hidden units
     I_ = bottom[0]->shape(2);// bottom[0]->count() / bottom[0]->num(); // input dimension
     // Check if we need to set up the weights
     if (this->blobs_.size() > 0) {
@@ -30,7 +30,7 @@ namespace
     } else {
       this->blobs_.resize(3);
       SHARED_PTR<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
-            this->layer_param_.lstm_param().weight_filler()));
+            this->param_->lstm_param().weight_filler()));
       // input-to-hidden weights
       // Intialize the weight
       vector<int> weight_shape;
@@ -49,7 +49,7 @@ namespace
       vector<int> bias_shape(1, 4 * H_);
       this->blobs_[2].reset(new Blob<Dtype>(bias_shape));
       SHARED_PTR<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
-          this->layer_param_.lstm_param().bias_filler()));
+          this->param_->lstm_param().bias_filler()));
       bias_filler->Fill(this->blobs_[2].get());
     }  // parameter initialization
     this->param_propagate_down_.resize(this->blobs_.size(), true);
@@ -195,7 +195,7 @@ namespace
 
   template <typename Dtype>
   void LstmLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                      const vector<bool> & propagate_down,
+                                      int*
                                       const vector<Blob<Dtype>*> & bottom)
   {
     const Dtype* top_data = top_.data<Context>();
@@ -269,12 +269,12 @@ namespace
         }
       }
     }
-    if (this->param_propagate_down_[0]) {
+    if (this->blobs_[0]->propagate_down_) {
       // Gradient w.r.t. input-to-hidden weight
       caffe_gemm(CblasTrans, CblasNoTrans, 4 * H_, I_, T_ * N_, Dtype(1.),
                      pre_gate_diff, bottom_data, Dtype(1.), this->blobs_[0]->mutable_diff<Context>());
     }
-    if (this->param_propagate_down_[1]) {
+    if (this->blobs_[1]->propagate_down_) {
       // Gradient w.r.t. hidden-to-hidden weight
       caffe_gemm(CblasTrans, CblasNoTrans, 4 * H_, H_, (T_ - 1)*N_, Dtype(1.),
                      pre_gate_diff + pre_gate_.offset(1), top_data,
@@ -284,13 +284,13 @@ namespace
                      pre_gate_diff, h_0_.data<Context>(),
                      Dtype(1.), this->blobs_[1]->mutable_diff<Context>());
     }
-    if (this->param_propagate_down_[2]) {
+    if (this->blobs_[2]->propagate_down_) {
       // Gradient w.r.t. bias
       caffe_gemv(CblasTrans, T_ * N_, 4 * H_, Dtype(1.), pre_gate_diff,
                      bias_multiplier_.data<Context>(), Dtype(1.),
                      this->blobs_[2]->mutable_diff<Context>());
     }
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       // Gradient w.r.t. bottom data
       caffe_gemm(CblasNoTrans, CblasNoTrans, T_ * N_, I_, 4 * H_, Dtype(1.),
                      pre_gate_diff, weight_i, Dtype(0.), bottom[0]->mutable_diff<Context>());

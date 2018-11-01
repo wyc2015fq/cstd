@@ -13,7 +13,7 @@ namespace
                                        const vector<Blob<Dtype>*> & top)
   {
     NeuronLayer<Dtype>::LayerSetUp(bottom, top);
-    threshold_ = this->layer_param_.dropout_param().dropout_ratio();
+    threshold_ = this->param_->dropout_param().dropout_ratio();
     DCHECK(threshold_ > 0.);
     DCHECK(threshold_ < 1.);
     scale_ = 1. / (1. - threshold_);
@@ -51,10 +51,10 @@ namespace
 
   template <typename Dtype>
   void DropoutLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                         const vector<bool> & propagate_down,
+                                         int*
                                          const vector<Blob<Dtype>*> & bottom)
   {
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff<Context>();
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       if (this->phase_ == TRAIN) {

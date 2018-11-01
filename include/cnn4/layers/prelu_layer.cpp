@@ -91,7 +91,7 @@ namespace
 
   template <typename Dtype>
   void PReLULayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                       const vector<bool> & propagate_down,
+                                       int*
                                        const vector<Blob<Dtype>*> & bottom)
   {
     const Dtype* bottom_data = bottom[0]->data<Context>();
@@ -111,7 +111,7 @@ namespace
     // Since to write bottom diff will affect top diff if top and bottom blobs
     // are identical (in-place computaion), we first compute param backward to
     // keep top_diff unchanged.
-    if (this->param_propagate_down_[0]) {
+    if (this->blobs_[0]->propagate_down_) {
       Dtype* slope_diff = this->blobs_[0]->mutable_diff<Context>();
       for (int i = 0; i < count; ++i) {
         int c = (i / dim) % channels / div_factor;
@@ -119,7 +119,7 @@ namespace
       }
     }
     // Propagate to bottom
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       for (int i = 0; i < count; ++i) {
         int c = (i / dim) % channels / div_factor;

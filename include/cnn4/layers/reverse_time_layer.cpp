@@ -83,9 +83,9 @@ namespace
 
   template <typename Dtype>
   void ReverseTimeLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+      const vector<Blob<Dtype>*> & bottom)
   {
-    if (!propagate_down[0]) { return; }
+    if (!top[0]->propagate_down_) { return; }
     const Dtype* src = top[0]->diff<Context>();
     Dtype* const dest = bottom[0]->mutable_diff<Context>();
     // TODO: Remove these tests

@@ -35,7 +35,7 @@ namespace
     virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
                              const vector<Blob<Dtype>*> & top);
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
     // calculates the kernel and stride dimensions for the pooling layer,
     // returns a correctly configured LayerParameter for a PoolingLayer
     virtual LayerParameter GetPoolingParam(const int pyramid_level,

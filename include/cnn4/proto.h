@@ -9,6 +9,18 @@
 
 int debug_info_ = 0;
 
+inline string DataShape_string(const DataShape& shape_) {
+  char buf[256];
+  const int* p = shape_.dim;
+  _snprintf(buf, 256, "(%d %d %d %d)", p[0], p[1], p[2], p[3]);
+  return buf;
+}
+inline DataShape dataShape(int n, int c = 1, int h = 1, int w = 1) {
+  DataShape shape;
+  shape.set(n, c, h, w);
+  return shape;
+}
+
 struct DevMem {
   CPUContext cpu_ptr_[1];
   GPUContext gpu_ptr_[1];
@@ -106,7 +118,7 @@ struct Blob {
   };
   DevMem data_[1];
   DevMem diff_[1];
-  bool propagate_down;
+  bool propagate_down_;
   int top_cnt_;
   int bottom_cnt_;
   int offset(int i) {
@@ -120,7 +132,7 @@ struct Blob {
   void init() {
     memset(this, 0, sizeof(Blob));
     bottom_cnt_ = top_cnt_ = 0;
-    propagate_down = true;
+    propagate_down_ = true;
   }
   ~Blob() {
     free();
@@ -139,9 +151,9 @@ struct Blob {
   const Dtype* cpu_diff() { return (Dtype*)diff_->cpu_ptr(); }
   Dtype* mutable_cpu_data() { return (Dtype*)data_->mutable_cpu_ptr(); }
   Dtype* mutable_cpu_diff() { return (Dtype*)diff_->mutable_cpu_ptr(); }
-  const Dtype* gpu_data() { return (Dtype*)data_->gpu_ptr(); }
+  const Dtype* data<Context>() { return (Dtype*)data_->gpu_ptr(); }
   const Dtype* gpu_diff() { return (Dtype*)diff_->gpu_ptr(); }
-  Dtype* mutable_gpu_data() { return (Dtype*)data_->mutable_gpu_ptr(); }
+  Dtype* mutable_data<Context>() { return (Dtype*)data_->mutable_gpu_ptr(); }
   Dtype* mutable_gpu_diff() { return (Dtype*)diff_->mutable_gpu_ptr(); }
 #endif
   int Reshape(const DataShape& shape) {
@@ -151,8 +163,11 @@ struct Blob {
     shape_ = shape;
     return 0;
   }
+  int Reshape(int n, int c, int h, int w) {
+    return Reshape(dataShape(n,c,h,w));
+  }
   const DataShape& shape() const { return shape_; }
-  void ReshapeLike(const Blob & other) {
+  virtual void ReshapeLike(const Blob & other) {
     Reshape(other.shape());
   }
   void CopyTo(Blob & other) const {
@@ -163,12 +178,6 @@ struct Blob {
     CopyTo(other);
   }
 #include "blob.inl"
-};
-enum Phase {
-  TRAINorTEST, TRAIN, TEST
-};
-const char* Phase_Name[]{
-  "TRAINorTEST", "TRAIN", "TEST"
 };
 
 template <typename Dtype>
@@ -220,7 +229,7 @@ struct Layer {
   virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) { ASSERT(0); }
   virtual void Reshape(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) { ASSERT(0); }
   virtual void Forward(Context* context, const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) { ASSERT(0); }
-  virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top, const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom) { ASSERT(0); }
+  virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top, const vector<Blob<Dtype>*> & bottom) { ASSERT(0); }
 
   //Vtbl* vtbl;
   void init() {
@@ -292,7 +301,7 @@ struct Net {
 };
 
 #include "math_functions.h"
-#include "math_functions.cpp"
+#include "math_functions.inl"
 #include "filler.hpp"
 #include "layers/layers.hpp"
 

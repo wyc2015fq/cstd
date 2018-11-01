@@ -80,7 +80,7 @@ namespace
 
   template <typename Dtype>
   void FilterLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                        const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                        const vector<Blob<Dtype>*> & bottom)
   {
     if (propagate_down[bottom.size() - 1]) {
       LOG(FATAL) << this->type()
@@ -89,7 +89,7 @@ namespace
     for (int i = 0; i < top.size(); i++) {
       // bottom[last] is the selector and never needs backpropagation
       // so we can iterate over top vector because top.size() == bottom.size() -1
-      if (propagate_down[i]) {
+      if (top[i]->propagate_down_) {
         const int dim = top[i]->count() / top[i]->shape(0);
         int next_to_backward_offset = 0;
         int batch_offset = 0;

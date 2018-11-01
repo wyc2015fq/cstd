@@ -67,12 +67,12 @@ namespace
      *      gradients @f$
      *        \frac{\partial E}{\partial x} =
      *            \frac{\partial E}{\partial y} y \alpha \log_e(gamma)
-     *      @f$ if propagate_down[0]
+     *      @f$ if top[0]->propagate_down_
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
     virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
 
     Dtype base_scale_;
     Dtype input_scale_, input_shift_;

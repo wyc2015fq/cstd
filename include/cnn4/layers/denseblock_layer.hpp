@@ -26,11 +26,11 @@ namespace
 
     virtual void Forward_cpu_public(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top);
 
-    virtual void Backward_cpu_public(const vector<Blob<Dtype>*> & top, const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward_cpu_public(const vector<Blob<Dtype>*> & top, const vector<Blob<Dtype>*> & bottom);
 
     void Forward_gpu_public(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top);
 
-    void Backward_gpu_public(const vector<Blob<Dtype>*> & top, const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+    void Backward_gpu_public(const vector<Blob<Dtype>*> & top, const vector<Blob<Dtype>*> & bottom);
 
     virtual void syncBlobs(DenseBlockLayer<Dtype>* originLayer);
 
@@ -54,7 +54,7 @@ namespace
     virtual void CPU_Initialization();
 
     void GPU_Initialization();
-    void reshape_gpu_data(int oldh, int oldw, int oldn, int h, int w, int newn);
+    void reshape_data<Context>(int oldh, int oldw, int oldn, int h, int w, int newn);
 
     virtual void LoopEndCleanup_cpu();
 
@@ -69,10 +69,10 @@ namespace
                              const vector<Blob<Dtype>*> & top);
 
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
 
     virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob<Dtype>*> & bottom);
 
     //start logging specific data: for debugging
     int logId;

@@ -13,7 +13,7 @@ namespace
     const Dtype* bottom_data = bottom[0]->data<Context>();
     Dtype* top_data = top[0]->mutable_data<Context>();
     const int count = bottom[0]->count();
-    Dtype alpha = this->layer_param_.elu_param().alpha();
+    Dtype alpha = this->param_->elu_param().alpha();
     for (int i = 0; i < count; ++i) {
       top_data[i] = std::max(bottom_data[i], Dtype(0))
                     + alpha * (exp(std::min(bottom_data[i], Dtype(0))) - Dtype(1));
@@ -22,16 +22,16 @@ namespace
 
   template <typename Dtype>
   void ELULayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                     const vector<bool> & propagate_down,
+                                     int*
                                      const vector<Blob<Dtype>*> & bottom)
   {
-    if (propagate_down[0]) {
+    if (top[0]->propagate_down_) {
       const Dtype* bottom_data = bottom[0]->data<Context>();
       const Dtype* top_data = top[0]->data<Context>();
       const Dtype* top_diff = top[0]->diff<Context>();
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       const int count = bottom[0]->count();
-      Dtype alpha = this->layer_param_.elu_param().alpha();
+      Dtype alpha = this->param_->elu_param().alpha();
       for (int i = 0; i < count; ++i) {
         bottom_diff[i] = top_diff[i] * ((bottom_data[i] > 0)
                                         + (alpha + top_data[i]) * (bottom_data[i] <= 0));

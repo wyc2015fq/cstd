@@ -11,7 +11,7 @@ namespace
                                    const vector<Blob<Dtype>*> & top)
   {
     NeuronLayer<Dtype>::LayerSetUp(bottom, top);
-    const Dtype base = this->layer_param_.exp_param().base();
+    const Dtype base = this->param_->exp_param().base();
     if (base != Dtype(-1)) {
       CHECK_GT(base, 0) << "base must be strictly positive.";
     }
@@ -22,8 +22,8 @@ namespace
         << "NaN result: log(base) = log(" << base << ") = " << log_base;
     CHECK(!isinf(log_base))
         << "Inf result: log(base) = log(" << base << ") = " << log_base;
-    const Dtype input_scale = this->layer_param_.exp_param().scale();
-    const Dtype input_shift = this->layer_param_.exp_param().shift();
+    const Dtype input_scale = this->param_->exp_param().scale();
+    const Dtype input_shift = this->param_->exp_param().shift();
     inner_scale_ = log_base * input_scale;
     outer_scale_ = (input_shift == Dtype(0)) ? Dtype(1) :
                    ( (base != Dtype(-1)) ? pow(base, input_shift) : exp(input_shift) );
@@ -49,9 +49,9 @@ namespace
 
   template <typename Dtype>
   void ExpLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                     const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                     const vector<Blob<Dtype>*> & bottom)
   {
-    if (!propagate_down[0]) { return; }
+    if (!top[0]->propagate_down_) { return; }
     const int count = bottom[0]->count();
     const Dtype* top_data = top[0]->data<Context>();
     const Dtype* top_diff = top[0]->diff<Context>();

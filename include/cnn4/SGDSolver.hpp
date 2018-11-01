@@ -174,8 +174,8 @@ struct AdaDeltaSolver : public SGDSolver<Dtype>
     size_t update_history_offset = net_params.size();
     adadelta_update<Dtype>(CONTEXT, net_params[param_id]->count(),
       net_params[param_id]->mutable_gpu_diff(),
-      this->history_[param_id]->mutable_gpu_data(),
-      this->history_[update_history_offset + param_id]->mutable_gpu_data(),
+      this->history_[param_id]->mutable_data<Context>(),
+      this->history_[update_history_offset + param_id]->mutable_data<Context>(),
       momentum, delta, local_rate);
   }
 };
@@ -195,7 +195,7 @@ struct AdaGradSolver : public SGDSolver<Dtype>
     Dtype delta = this->param_->GetObjectNumber("delta", 1e-8);
     adagrad_update<Dtype>(CONTEXT, net_params[param_id]->count(),
       net_params[param_id]->mutable_gpu_diff(),
-      this->history_[param_id]->mutable_gpu_data(), delta, local_rate);
+      this->history_[param_id]->mutable_data<Context>(), delta, local_rate);
   }
 
 };
@@ -221,7 +221,7 @@ struct AdamSolver : public SGDSolver<Dtype> {
     const Dtype eps_hat = this->param_.delta();
 
     adam_update<Dtype>(CONTEXT, N, net_params[param_id]->mutable_gpu_diff(),
-      val_m->mutable_gpu_data(), val_v->mutable_gpu_data(), beta1, beta2,
+      val_m->mutable_data<Context>(), val_v->mutable_data<Context>(), beta1, beta2,
       eps_hat, local_rate * correction);
   }
 

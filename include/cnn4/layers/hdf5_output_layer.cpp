@@ -13,7 +13,7 @@ namespace
   void HDF5OutputLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                                           const vector<Blob<Dtype>*> & top)
   {
-    file_name_ = this->layer_param_.hdf5_output_param().file_name();
+    file_name_ = this->param_->hdf5_output_param().file_name();
     file_id_ = H5Fcreate(file_name_.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT,
                          H5P_DEFAULT);
     CHECK_GE(file_id_, 0) << "Failed to open HDF5 file" << file_name_;
@@ -64,7 +64,7 @@ namespace
 
   template <typename Dtype>
   void HDF5OutputLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+      const vector<Blob<Dtype>*> & bottom)
   {
     return;
   }

@@ -11,11 +11,11 @@ namespace
   void EmbedLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                                      const vector<Blob<Dtype>*> & top)
   {
-    N_ = this->layer_param_.embed_param().num_output();
+    N_ = this->param_->embed_param().num_output();
     CHECK_GT(N_, 0) << "EmbedLayer num_output must be positive.";
-    K_ = this->layer_param_.embed_param().input_dim();
+    K_ = this->param_->embed_param().input_dim();
     CHECK_GT(K_, 0) << "EmbedLayer input_dim must be positive.";
-    bias_term_ = this->layer_param_.embed_param().bias_term();
+    bias_term_ = this->param_->embed_param().bias_term();
     // Check if we need to set up the weights
     if (this->blobs_.size() > 0) {
       LOG(INFO) << "Skipping parameter initialization";
@@ -33,14 +33,14 @@ namespace
       this->blobs_[0].reset(new Blob<Dtype>(weight_shape));
       // fill the weights
       SHARED_PTR<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
-            this->layer_param_.embed_param().weight_filler()));
+            this->param_->embed_param().weight_filler()));
       weight_filler->Fill(this->blobs_[0].get());
       // If necessary, initialize and fill the bias term
       if (bias_term_) {
         vector<int> bias_shape(1, N_);
         this->blobs_[1].reset(new Blob<Dtype>(bias_shape));
         SHARED_PTR<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
-            this->layer_param_.embed_param().bias_filler()));
+            this->param_->embed_param().bias_filler()));
         bias_filler->Fill(this->blobs_[1].get());
       }
     }  // parameter initialization
@@ -88,10 +88,10 @@ namespace
 
   template <typename Dtype>
   void EmbedLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                       const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                       const vector<Blob<Dtype>*> & bottom)
   {
-    CHECK(!propagate_down[0]) << "Can't backpropagate to EmbedLayer input.";
-    if (this->param_propagate_down_[0]) {
+    CHECK(!top[0]->propagate_down_) << "Can't backpropagate to EmbedLayer input.";
+    if (this->blobs_[0]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff<Context>();
       const Dtype* bottom_data = bottom[0]->data<Context>();
       // Gradient with respect to weight
@@ -106,7 +106,7 @@ namespace
         caffe_axpy(N_, Dtype(1), top_diff + n * N_, weight_diff + index * N_);
       }
     }
-    if (bias_term_ && this->param_propagate_down_[1]) {
+    if (bias_term_ && this->blobs_[1]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff<Context>();
       Dtype* bias_diff = this->blobs_[1]->mutable_diff<Context>();
       caffe_gemv<Dtype>(CblasTrans, M_, N_, Dtype(1), top_diff,

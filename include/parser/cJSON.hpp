@@ -155,10 +155,10 @@ int cJSON_GetObjectNumberArray(cJSON* object, const char* name, vector<T>& arr) 
   CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
   int size = 0;
   if (item) {
-    size = cJSON_GetArraySize(object);
+    size = cJSON_GetArraySize(item);
     arr.resize(size);
     for (int i = 0; i < size; ++i) {
-      arr[i] = (T)cJSON_GetArrayItem(object, i)->valuedouble;
+      arr[i] = (T)cJSON_GetArrayItem(item, i)->valuedouble;
     }
   }
   return size;
@@ -167,10 +167,10 @@ int cJSON_GetObjectStringArray(cJSON* object, const char* name, vector<string>& 
   CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
   int size = 0;
   if (item) {
-    size = cJSON_GetArraySize(object);
+    size = cJSON_GetArraySize(item);
     arr.resize(size);
     for (int i = 0; i < size; ++i) {
-      arr[i] = cJSON_GetArrayItem(object, i)->valuestring;
+      arr[i] = cJSON_GetArrayItem(item, i)->valuestring;
     }
   }
   return size;
@@ -188,7 +188,6 @@ int cJSON_GetObjectEnum(const cJSON* object, const char* name, int default_enum,
   }
   return default_enum;
 }
-
 
 
 #endif // _CJSON_HPP_

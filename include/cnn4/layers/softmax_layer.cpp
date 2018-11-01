@@ -12,7 +12,7 @@ namespace
                                     const vector<Blob<Dtype>*> & top)
   {
     softmax_axis_ =
-      bottom[0]->CanonicalAxisIndex(this->layer_param_.softmax_param().axis());
+      bottom[0]->CanonicalAxisIndex(this->param_->softmax_param().axis());
     top[0]->ReshapeLike(*bottom[0]);
     vector<int> mult_dims(1, bottom[0]->shape(softmax_axis_));
     sum_multiplier_.Reshape(mult_dims);
@@ -64,7 +64,7 @@ namespace
 
   template <typename Dtype>
   void SoftmaxLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                         const vector<bool> & propagate_down,
+                                         int*
                                          const vector<Blob<Dtype>*> & bottom)
   {
     const Dtype* top_diff = top[0]->diff<Context>();

@@ -54,7 +54,7 @@ namespace
                              const vector<Blob<Dtype>*> & top);
 
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<bool> & propagate_down,
+                              int*
                               const vector<Blob<Dtype>*> & bottom);
 
     virtual void Decode(const Blob<Dtype>* probabilities,

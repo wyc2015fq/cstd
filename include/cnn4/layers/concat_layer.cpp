@@ -10,7 +10,7 @@ namespace
   void ConcatLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
                                       const vector<Blob<Dtype>*> & top)
   {
-    const ConcatParameter & concat_param = this->layer_param_.concat_param();
+    const ConcatParameter & concat_param = this->param_->concat_param();
     CHECK(!(concat_param.has_axis() && concat_param.has_concat_dim()))
         << "Either axis or concat_dim should be specified; not both.";
   }
@@ -20,7 +20,7 @@ namespace
                                    const vector<Blob<Dtype>*> & top)
   {
     const int num_axes = bottom[0]->num_axes();
-    const ConcatParameter & concat_param = this->layer_param_.concat_param();
+    const ConcatParameter & concat_param = this->param_->concat_param();
     if (concat_param.has_concat_dim()) {
       concat_axis_ = static_cast<int>(concat_param.concat_dim());
       // Don't allow negative indexing for concat_dim, a uint32 -- almost
@@ -79,7 +79,7 @@ namespace
 
   template <typename Dtype>
   void ConcatLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                        const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                        const vector<Blob<Dtype>*> & bottom)
   {
     if (bottom.size() == 1) { return; }
     const Dtype* top_diff = top[0]->diff<Context>();
@@ -87,7 +87,7 @@ namespace
     const int top_concat_axis = top[0]->shape(concat_axis_);
     for (int i = 0; i < bottom.size(); ++i) {
       const int bottom_concat_axis = bottom[i]->shape(concat_axis_);
-      if (propagate_down[i]) {
+      if (top[i]->propagate_down_) {
         Dtype* bottom_diff = bottom[i]->mutable_diff<Context>();
         for (int n = 0; n < num_concats_; ++n) {
           caffe_copy(bottom_concat_axis * concat_input_size_, top_diff +

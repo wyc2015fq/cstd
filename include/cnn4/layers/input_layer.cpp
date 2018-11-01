@@ -10,7 +10,7 @@ namespace
                                      const vector<Blob<Dtype>*> & top)
   {
     const int num_top = top.size();
-    const InputParameter & param = this->layer_param_.input_param();
+    const InputParameter & param = this->param_->input_param();
     const int num_shape = param.shape_size();
     CHECK(num_shape == 0 || num_shape == 1 || num_shape == num_top)
         << "Must specify 'shape' once, once per top blob, or not at all: "

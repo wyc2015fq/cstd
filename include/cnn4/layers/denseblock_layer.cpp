@@ -58,7 +58,7 @@ namespace
     this->N = bottom[0]->shape()[0];
     this->H = bottom[0]->shape()[2];
     this->W = bottom[0]->shape()[3];
-    DenseBlockParameter dbParam = this->layer_param_.denseblock_param();
+    DenseBlockParameter dbParam = this->param_->denseblock_param();
     this->numTransition = dbParam.numtransition();
     //this->initChannel = dbParam.initchannel();
     this->initChannel = bottom[0]->channels();//modified by jxs
@@ -175,11 +175,11 @@ namespace
     //parameter specification: globalMean/Var weight decay and lr is 0
     if (!useBC) {
       for (int i = 0; i < this->blobs_.size(); ++i) {
-        if (this->layer_param_.param_size() != i) {
+        if (this->param_->param_size() != i) {
           CHECK_EQ(0, 1)
               << "Nope";
         }
-        ParamSpec* fixed_param_spec = this->layer_param_.add_param();
+        ParamSpec* fixed_param_spec = this->param_->add_param();
         //global Mean/Var
         if (i >= 3 * this->numTransition) {
           fixed_param_spec->set_lr_mult(0.f);
@@ -196,11 +196,11 @@ namespace
       }
     } else {
       for (int i = 0; i < this->blobs_.size(); ++i) {
-        if (this->layer_param_.param_size() != i) {
+        if (this->param_->param_size() != i) {
           CHECK_EQ(0, 1)
               << "Nope";
         }
-        ParamSpec* fixed_param_spec = this->layer_param_.add_param();
+        ParamSpec* fixed_param_spec = this->param_->add_param();
         if ((i >= 3 * numTransition) && (i < 5 * numTransition)) {
           fixed_param_spec->set_lr_mult(0.f);
           fixed_param_spec->set_decay_mult(0.f);
@@ -225,7 +225,7 @@ namespace
     int h = bottom[0]->shape()[2];
     int w = bottom[0]->shape()[3];
 #ifndef CPU_ONLY
-    reshape_gpu_data(this->H, this->W, this->N, h, w, batch_size);
+    reshape_data<Context>(this->H, this->W, this->N, h, w, batch_size);
 #endif
     this->N = batch_size;
     this->H = h;
@@ -944,7 +944,7 @@ namespace
 
   template <typename Dtype>
   void DenseBlockLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down,
+      int*
       const vector<Blob<Dtype>*> & bottom)
   {
     if (!this->cpuInited) {
@@ -1006,7 +1006,7 @@ namespace
   }
 
   template <typename Dtype>
-  void DenseBlockLayer<Dtype>::Backward_cpu_public(const vector<Blob<Dtype>*> & top, const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+  void DenseBlockLayer<Dtype>::Backward_cpu_public(const vector<Blob<Dtype>*> & top, const vector<Blob<Dtype>*> & bottom)
   {
     this->Backward_cpu(top, propagate_down, bottom);
   }

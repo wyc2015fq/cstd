@@ -47,6 +47,10 @@ typedef struct cJSON {
     void cJSON_AddItemToObjectCS(cJSON* object, const char* string, cJSON* item);
     cJSON_AddItemToObjectCS(this, string, item);
   }
+  int size() const {
+    int cJSON_GetArraySize(const cJSON* array);
+    return cJSON_GetArraySize(this);
+  }
   int GetArraySize() const {
     int cJSON_GetArraySize(const cJSON* array);
     return cJSON_GetArraySize(this);
@@ -55,11 +59,16 @@ typedef struct cJSON {
     cJSON* cJSON_GetArrayItem(cJSON* array, int index);
     return cJSON_GetArrayItem(this, index);
   }
+    int size(const char* string) {
+    int cJSON_GetArraySize(const cJSON* array);
+    cJSON* item = get(string);
+    return item ? cJSON_GetArraySize(item) : 0;
+  }
   cJSON* get(int index) {
     cJSON* cJSON_GetArrayItem(cJSON* array, int item);
     return cJSON_GetArrayItem(this, index);
   }
-    cJSON* get(const char* string) {
+  cJSON* get(const char* string) {
     cJSON* cJSON_GetObjectItem(cJSON* object, const char* string);
     return cJSON_GetObjectItem(this, string);
   }
@@ -79,6 +88,22 @@ typedef struct cJSON {
     double cJSON_GetObjectNumber(const cJSON* object, const char* name, double default_double);
     return cJSON_GetObjectNumber(this, name, default_double);
   }
+  double getfloat(const char* name, double default_double) {
+    double cJSON_GetObjectNumber(const cJSON* object, const char* name, double default_double);
+    return cJSON_GetObjectNumber(this, name, default_double);
+  }
+  int getint(const char* name, int default_int) {
+    int cJSON_GetObjectInt(const cJSON* object, const char* name, int default_int);
+    return cJSON_GetObjectInt(this, name, default_int);
+  }
+  int getint(int index, int default_int) {
+    cJSON* item = get(index);
+    return item ? item->valueint : default_int;
+  }
+  double getfloat(int index, double default_double) {
+    cJSON* item = get(index);
+    return item ? item->valuedouble : default_double;
+  }
   int GetObjectInt(const char* name, int default_int) {
     int cJSON_GetObjectInt(const cJSON* object, const char* name, int default_int);
     return cJSON_GetObjectInt(this, name, default_int);
@@ -87,7 +112,15 @@ typedef struct cJSON {
     int cJSON_GetObjectInt(const cJSON* object, const char* name, int default_int);
     return !!cJSON_GetObjectInt(this, name, default_int);
   }
+  bool getbool(const char* name, bool default_int) {
+    int cJSON_GetObjectInt(const cJSON* object, const char* name, int default_int);
+    return !!cJSON_GetObjectInt(this, name, default_int);
+  }
   int GetObjectEnum(const char* name, int default_enum, const char** enum_map, int enum_map_len) {
+    int cJSON_GetObjectEnum(const cJSON* object, const char* name, int default_enum, const char** enum_map, int enum_map_len);
+    return cJSON_GetObjectEnum(this, name, default_enum, enum_map, enum_map_len);
+  }
+  int getenum(const char* name, int default_enum, const char** enum_map, int enum_map_len) {
     int cJSON_GetObjectEnum(const cJSON* object, const char* name, int default_enum, const char** enum_map, int enum_map_len);
     return cJSON_GetObjectEnum(this, name, default_enum, enum_map, enum_map_len);
   }

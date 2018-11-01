@@ -9,8 +9,8 @@ template <typename Dtype>
 void LogLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
   const int count = bottom[0]->count();
-  const Dtype* bottom_data = bottom[0]->gpu_data();
-  Dtype* top_data = top[0]->mutable_gpu_data();
+  const Dtype* bottom_data = bottom[0]->data<Context>();
+  Dtype* top_data = top[0]->mutable_data<Context>();
   if (input_scale_ == Dtype(1) && input_shift_ == Dtype(0)) {
     caffe_gpu_log(count, bottom_data, top_data);
   } else {
@@ -31,9 +31,9 @@ void LogLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& b
 template <typename Dtype>
 void LogLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (!propagate_down[0]) { return; }
+  if (!top[0]->propagate_down_) { return; }
     const int count = bottom[0]->count();
-    const Dtype* bottom_data = bottom[0]->gpu_data();
+    const Dtype* bottom_data = bottom[0]->data<Context>();
     const Dtype* top_diff = top[0]->gpu_diff();
     Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
     caffe_copy(count, bottom_data, bottom_diff);

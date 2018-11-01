@@ -42,9 +42,9 @@ namespace
       bottom[1]->data<Context>(),  // b
       diff_.mutable_data<Context>());  // a_i-b_i
     const int channels = bottom[0]->channels();
-    Dtype margin = this->layer_param_.contrastive_loss_param().margin();
+    Dtype margin = this->param_->contrastive_loss_param().margin();
     bool legacy_version =
-      this->layer_param_.contrastive_loss_param().legacy_version();
+      this->param_->contrastive_loss_param().legacy_version();
     Dtype loss(0.0);
     for (int i = 0; i < bottom[0]->num(); ++i) {
       dist_sq_.mutable_data<Context>()[i] = caffe_dot(channels,
@@ -67,13 +67,13 @@ namespace
 
   template <typename Dtype>
   void ContrastiveLossLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+      const vector<Blob<Dtype>*> & bottom)
   {
-    Dtype margin = this->layer_param_.contrastive_loss_param().margin();
+    Dtype margin = this->param_->contrastive_loss_param().margin();
     bool legacy_version =
-      this->layer_param_.contrastive_loss_param().legacy_version();
+      this->param_->contrastive_loss_param().legacy_version();
     for (int i = 0; i < 2; ++i) {
-      if (propagate_down[i]) {
+      if (top[i]->propagate_down_) {
         const Dtype sign = (i == 0) ? 1 : -1;
         const Dtype alpha = sign * top[0]->diff<Context>()[0] /
                             static_cast<Dtype>(bottom[i]->num());

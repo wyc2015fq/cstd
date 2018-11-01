@@ -35,9 +35,9 @@ namespace
 
   template <typename Dtype>
   void SplitLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                       const vector<bool> & propagate_down, const vector<Blob<Dtype>*> & bottom)
+                                       const vector<Blob<Dtype>*> & bottom)
   {
-    if (!propagate_down[0]) { return; }
+    if (!top[0]->propagate_down_) { return; }
     if (top.size() == 1) {
       caffe_copy(count_, top[0]->diff<Context>(), bottom[0]->mutable_diff<Context>());
       return;
