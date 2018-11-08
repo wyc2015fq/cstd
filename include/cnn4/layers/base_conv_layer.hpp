@@ -161,7 +161,7 @@ public:
     pad_ = cJSON_GetShape(conv_param, 0, "pad", "pad_h", "pad_w");
 
     // Setup dilation dimensions (dilation_).
-    dilation_ = cJSON_GetShape(conv_param, 0, "dilation", "dilation_h", "dilation_w");
+    dilation_ = cJSON_GetShape(conv_param, 1, "dilation", "dilation_h", "dilation_w");
 
     // Special case: im2col is the identity for 1x1 convolution with stride 1
     // and no padding, so flag for skipping the buffer and transformation.
@@ -199,18 +199,23 @@ public:
     bias_term_ = this->param_->getbool("bias_term", true);
     DataShape bias_shape;
     bias_shape.set(num_output_);
-    if (this->blobs_.size() > 0) {
-      CHECK_EQ(1 + bias_term_, this->blobs_.size())
-        << "Incorrect number of weight blobs.";
+    CJSON* blobs_json = param_->get("blobs");
+    bool has_data = blobs_json && blobs_json->GetArraySize() > 0 && blobs_json->GetArrayItem(0)->has("data");
+    CHECK_EQ(1 + bias_term_, this->blobs_.size())
+      << "Incorrect number of weight blobs.";
+
+    if (has_data) {
       if (weight_shape != this->blobs_[0]->shape()) {
         LOG(FATAL) << "Incorrect weight shape: expected shape "
           << DataShape_string(weight_shape) << "; instead, shape was "
           << DataShape_string(this->blobs_[0]->shape_);
       }
-      if (bias_term_ && bias_shape != this->blobs_[1]->shape()) {
-        LOG(FATAL) << "Incorrect bias shape: expected shape "
-          << DataShape_string(bias_shape) << "; instead, shape was "
-          << DataShape_string(this->blobs_[1]->shape_);
+      if (bias_term_) {
+        if (bias_shape != this->blobs_[1]->shape()) {
+          LOG(FATAL) << "Incorrect bias shape: expected shape "
+            << DataShape_string(bias_shape) << "; instead, shape was "
+            << DataShape_string(this->blobs_[1]->shape_);
+        }
       }
       LOG(INFO) << "Skipping parameter initialization";
     }
@@ -290,6 +295,7 @@ public:
     // it goes lazily unused to save memory.
     //col_buffer_shape_.clear();
     i = 0;
+    col_buffer_shape_ = dataShape(1);
     col_buffer_shape_.dim[0] = (kernel_dim_ * group_);
     for (i=0; i < num_spatial_axes_; ++i) {
       if (reverse_dimensions()) {
@@ -309,7 +315,7 @@ public:
     if (bias_term_) {
       vector<int> bias_multiplier_shape(1, out_spatial_dim_);
       bias_multiplier_.Reshape(bias_multiplier_shape);
-      caffe_set(bias_multiplier_.count(), Dtype(1),
+      caffe_set(CONTEXT, bias_multiplier_.count(), Dtype(1),
         bias_multiplier_.mutable_data<Context>());
     }
   }

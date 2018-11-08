@@ -36,7 +36,7 @@ namespace
       const vector<Blob<Dtype>*> & bottom)
   {
     for (int i = 0; i < 2; ++i) {
-      if (top[i]->propagate_down_) {
+      if (bottom[i]->propagate_down_) {
         const Dtype sign = (i == 0) ? 1 : -1;
         const Dtype alpha = sign * top[0]->diff<Context>()[0] / bottom[i]->num();
         caffe_axpby(

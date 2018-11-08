@@ -138,23 +138,23 @@ void str_get_blob(const char* s, int& i, BlobData* blob) {
   STR_GETN(s, i, blob->data_, blob->nbytes_);
 }
 void str_get_datum(const char* s, int& i, Datum& datum) {
-  int n;
+  int n=0;
   STR_GET(s, i, n);
   datum.resize(n);
   for (int j = 0; j < n; ++j) {
     str_get_blob(s, i, &datum[j]);
   }
 }
-void ParseFromString(const string& s, Datum& datum) {
+void ParseFromString(const char* s, Datum& datum) {
   int i = 0;
-  str_get_datum(s.c_str(), i, datum);
+  str_get_datum(s, i, datum);
 }
 
 #undef STR_APPEND
 #undef STR_APPEND
 
 struct DataTransformerInfo {
-  DataShape shape_;
+  //DataShape shape_;
   double mean_values_vec[10];
   double* mean_values_;
   int crop_size;
@@ -166,44 +166,52 @@ struct DataTransformerInfo {
 };
 
 template <typename Stype, typename Dtype> inline
-bool blob_data_transform_T(DataTransformerInfo* info, int dn, Dtype* transformed_data, const Stype* data, int h_off, int w_off) {
-  bool has_mean_file = info->mean != NULL;
-  Dtype scale = info->scale;
-  //int dn = info->shape_.n;
-  int dc = info->shape_.c;
-  int dh = info->shape_.h;
-  int dw = info->shape_.w;
-  for (int n = 0; n < dn; ++n) {
-    for (int c = 0; c < dc; ++c) {
-      int c1 = n * dc + c;
-      for (int h = 0; h < dh; ++h) {
-        for (int w = 0; w < dw; ++w) {
-          int top_index = 0, data_index = (c1 * dh + h_off + h) * dw + w_off + w;
-          int w1 = info->do_mirror ? (dw - 1 - w) : w;
-          top_index = (c1 * dh + h) * dw + w1;
-          Dtype datum_element = static_cast<Dtype>(data[data_index]);
-          if (info->mean) {
-            transformed_data[top_index] = (datum_element - info->mean[data_index]) * scale;
-          }
-          else {
-            if (info->mean_values_) {
-              transformed_data[top_index] = (datum_element - info->mean_values_[c]) * scale;
+bool blob_data_transform_T(DataTransformerInfo* info, DataShape shape_, Dtype* transformed_data, const Stype* data, int h_off, int w_off) {
+  if (info) {
+    bool has_mean_file = info->mean != NULL;
+    Dtype scale = info->scale;
+    int dn = shape_.n;
+    int dc = shape_.c;
+    int dh = shape_.h;
+    int dw = shape_.w;
+    for (int n = 0; n < dn; ++n) {
+      for (int c = 0; c < dc; ++c) {
+        int c1 = n * dc + c;
+        for (int h = 0; h < dh; ++h) {
+          for (int w = 0; w < dw; ++w) {
+            int top_index = 0, data_index = (c1 * dh + h_off + h) * dw + w_off + w;
+            int w1 = info->do_mirror ? (dw - 1 - w) : w;
+            top_index = (c1 * dh + h) * dw + w1;
+            Dtype datum_element = static_cast<Dtype>(data[data_index]);
+            if (info->mean) {
+              transformed_data[top_index] = (datum_element - info->mean[data_index]) * scale;
             }
             else {
-              transformed_data[top_index] = datum_element * scale;
+              if (info->mean_values_) {
+                transformed_data[top_index] = (datum_element - info->mean_values_[c]) * scale;
+              }
+              else {
+                transformed_data[top_index] = datum_element * scale;
+              }
             }
           }
         }
       }
     }
   }
+  else {
+    int count = shape_.count();
+    for (int i = 0; i < count; ++i) {
+      transformed_data[i] = data[i];
+    }
+  }
   return 0;
 }
 
 template <typename Dtype> inline
-bool blob_data_transform(DataTransformerInfo* info, int dn, Dtype* transformed_data, const void* data, TypeFlag flag, int h_off, int w_off) {
+bool blob_data_transform(DataTransformerInfo* info, DataShape shape_, Dtype* transformed_data, const void* data, TypeFlag flag, int h_off, int w_off) {
   switch (flag) {
-#define TYPEFLAGDEF(F, T)   case TF_ ## F: blob_data_transform_T(info, dn, transformed_data, (T*)data, h_off, w_off); break;
+#define TYPEFLAGDEF(F, T)   case TF_ ## F: blob_data_transform_T(info, shape_, transformed_data, (T*)data, h_off, w_off); break;
     TYPEFLAGDEF_DEF(TYPEFLAGDEF)
 #undef TYPEFLAGDEF
   default:
@@ -220,9 +228,10 @@ int Rand(int n) {
   return (rand() % n);
 }
 
-void GetDataTransformerInfo(DataTransformerInfo* info, const BlobData* src, CJSON* param_, Phase phase_, int batch_size_) {
+DataShape GetDataTransformerInfo(DataTransformerInfo* info, const BlobData* src, CJSON* param_, Phase phase_) {
   //src<Dtype> data_mean_;
   CJSON* p = NULL;
+  DataShape shape_;
   info->phase_ = phase_;
   if (p = param_->get("mean_value")) {
     int n = p->GetArraySize();
@@ -248,63 +257,55 @@ void GetDataTransformerInfo(DataTransformerInfo* info, const BlobData* src, CJSO
   info->mean = NULL;
 
   // Check dimensions.
-  info->shape_.c = src->c;
+  shape_.c = src->c;
   if (info->crop_size) {
-    info->shape_.w = info->shape_.h = info->crop_size;
+    shape_.w = shape_.h = info->crop_size;
   }
   else {
-    info->shape_.h = src->h;
-    info->shape_.w = src->w;
+    shape_.h = src->h;
+    shape_.w = src->w;
   }
-  info->shape_.n = batch_size_;
+  shape_.n = 1;
 
-  CHECK_EQ(info->shape_.c, src->c);
-  CHECK_LE(info->shape_.h, src->h);
-  CHECK_LE(info->shape_.w, src->w);
+  CHECK_EQ(shape_.c, src->c);
+  CHECK_LE(shape_.h, src->h);
+  CHECK_LE(shape_.w, src->w);
 
 #if 0
   Dtype* mean = NULL;
   if (has_mean_file) {
-    CHECK_EQ(src->c, data_mean_.info->shape_.c());
-    CHECK_EQ(src->h, data_mean_.info->shape_.h());
-    CHECK_EQ(src->w, data_mean_.info->shape_.w());
+    CHECK_EQ(src->c, data_mean_.shape_.c());
+    CHECK_EQ(src->h, data_mean_.shape_.h());
+    CHECK_EQ(src->w, data_mean_.shape_.w());
     mean = data_mean_.mutable_cpu_data();
   }
 #endif
+  return shape_;
 }
 
 template <typename Dtype>
 int DataTransformer(DataTransformerInfo* info, const BlobData* src, Dtype* transformed_data)
 {
   // Check dimensions.
-  int crop_size = info->crop_size;
-  if (crop_size) {
-    CHECK_EQ(info->shape_.w, crop_size);
-    CHECK_EQ(info->shape_.h, crop_size);
-  }
-  else {
-    CHECK_EQ(info->shape_.h, src->h);
-    CHECK_EQ(info->shape_.w, src->w);
-  }
-
-  CHECK_EQ(info->shape_.c, src->c);
-  CHECK_LE(info->shape_.h, src->h);
-  CHECK_LE(info->shape_.w, src->w);
-
   int h_off = 0;
   int w_off = 0;
-  if (crop_size) {
-    // We only do random crop when we do training.
-    if (info->phase_ == TRAIN) {
-      h_off = Rand(src->h - crop_size + 1);
-      w_off = Rand(src->w - crop_size + 1);
-    }
-    else {
-      h_off = (src->h - crop_size) / 2;
-      w_off = (src->w - crop_size) / 2;
+  if (info) {
+    int crop_size = info->crop_size;
+    if (crop_size) {
+      // We only do random crop when we do training.
+      if (info->phase_ == TRAIN) {
+        h_off = Rand(src->h - crop_size + 1);
+        w_off = Rand(src->w - crop_size + 1);
+      }
+      else {
+        h_off = (src->h - crop_size) / 2;
+        w_off = (src->w - crop_size) / 2;
+      }
     }
   }
-  blob_data_transform(info, 1, transformed_data, src->data_, (TypeFlag)src->type_, h_off, w_off);
+  DataShape shape = src->shape;
+  shape.n = 1;
+  blob_data_transform(info, shape, transformed_data, src->data_, (TypeFlag)src->type_, h_off, w_off);
   return 0;
 }
 

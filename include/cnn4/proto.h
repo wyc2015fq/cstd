@@ -112,6 +112,7 @@ struct Blob {
   char name[MAX_NAME];
   Dtype loss_weight_;
   Dtype loss_;
+  Dtype lr_mult;
   union {
     DataShape shape_;
     struct { int n, c, h, w; };
@@ -133,6 +134,7 @@ struct Blob {
     memset(this, 0, sizeof(Blob));
     bottom_cnt_ = top_cnt_ = 0;
     propagate_down_ = true;
+    loss_weight_ = 0;
   }
   ~Blob() {
     free();
@@ -157,22 +159,26 @@ struct Blob {
   Dtype* mutable_gpu_diff() { return (Dtype*)diff_->mutable_gpu_ptr(); }
 #endif
   int Reshape(const DataShape& shape) {
-    int nbytes = shape.count() * sizeof(Dtype);
-    data_->reset(nbytes);
-    data_->reset(nbytes);
-    shape_ = shape;
+    if (shape_ != shape) {
+      int nbytes = shape.count() * sizeof(Dtype);
+      data_->reset(nbytes);
+      diff_->reset(nbytes);
+      shape_ = shape;
+    }
     return 0;
   }
   int Reshape(int n, int c, int h, int w) {
     return Reshape(dataShape(n,c,h,w));
   }
   const DataShape& shape() const { return shape_; }
-  virtual void ReshapeLike(const Blob & other) {
-    Reshape(other.shape());
+  void ReshapeLike(const Blob & other) {
+    if (this != &other) {
+      Reshape(other.shape());
+    }
   }
   void CopyTo(Blob & other) const {
     other.Reshape(shape());
-    caffe_copy(CONTEXT, count(), data<Context>(), other.data<Context>());
+    caffe_copy<Dtype>(CONTEXT, count(), data<Context>(), other.mutable_data<Context>());
   }
   void ShareData(Blob & other) const {
     CopyTo(other);
@@ -221,13 +227,21 @@ template <typename Dtype>
 struct Layer {
   Phase phase_;
   char name[MAX_NAME];
-  int has_loss_weights_;
   cJSON* param_;
   vector<Blob<Dtype>*> blobs_;
   vector<Blob<Dtype>*> bottom_vecs_;
   vector<Blob<Dtype>*> top_vecs_;
-  virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) { ASSERT(0); }
-  virtual void Reshape(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) { ASSERT(0); }
+  virtual inline const char* type() const { return ""; }
+  virtual inline int ExactNumBottomBlobs() const { return -1; }
+  virtual inline int MinBottomBlobs() const { return -1; }
+  virtual inline int MaxBottomBlobs() const { return -1; }
+  virtual inline int ExactNumTopBlobs() const { return -1; }
+  virtual inline int MinTopBlobs() const { return -1; }
+  virtual inline int MaxTopBlobs() const { return -1; }
+  virtual inline bool EqualNumBottomTopBlobs() const { return false; }
+  virtual inline bool AutoTopBlobs() const { return false; }
+  virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) { }
+  virtual void Reshape(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) { }
   virtual void Forward(Context* context, const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) { ASSERT(0); }
   virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top, const vector<Blob<Dtype>*> & bottom) { ASSERT(0); }
 
@@ -235,7 +249,6 @@ struct Layer {
   void init() {
     //memset(this, 0, sizeof(Layer));
     *name = 0;
-    has_loss_weights_ = false;
     //vtbl = NULL;
     phase_ = TRAINorTEST;
   }

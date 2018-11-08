@@ -222,7 +222,7 @@ namespace
       const vector<Blob<Dtype>*> & bottom)
   {
     for (int i = 0; i < propagate_down.size(); ++i) {
-      if (top[i]->propagate_down_) {
+      if (bottom[i]->propagate_down_) {
         //NOT_IMPLEMENTED;
       }
     }

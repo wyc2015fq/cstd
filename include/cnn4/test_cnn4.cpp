@@ -18,9 +18,11 @@ void ClearParamDiffs(Blob<Dtype>** learnable_params_, int learnable_params_size)
 
 int test_cnn4() {
   const char* fn;
+  test_caffe2json();
   fn = "E:/OCR_Line/model/densenet-no-blstm/densenet-no-blstm.json";
   fn = "C:/caffe_train/mnist/lenet.json";
   CJSON* root = cJSON_OpenFile(fn);
+  _chdir("C:/caffe_train/mnist/");
   typedef float Dtype;
   typedef Net<Dtype> NetF;
   NetF* net = new NetF;

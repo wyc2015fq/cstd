@@ -82,10 +82,10 @@ namespace
      * @param bottom input Blob vector (length 2)
      *   -# @f$ (N \times C \times 1 \times 1) @f$
      *      the features @f$a@f$; Backward fills their diff with
-     *      gradients if top[0]->propagate_down_
+     *      gradients if bottom[0]->propagate_down_
      *   -# @f$ (N \times C \times 1 \times 1) @f$
      *      the features @f$b@f$; Backward fills their diff with gradients if
-     *      top[1]->propagate_down_
+     *      bottom[1]->propagate_down_
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
                               const vector<Blob<Dtype>*> & bottom);

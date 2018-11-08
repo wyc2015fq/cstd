@@ -36,7 +36,7 @@ void TransposeLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype
 template <typename Dtype>
 void TransposeLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     	const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-	if (!top[0]->propagate_down_) {
+	if (!bottom[0]->propagate_down_) {
 		return;
 	}
 	const int nthreads = bottom[0]->count();

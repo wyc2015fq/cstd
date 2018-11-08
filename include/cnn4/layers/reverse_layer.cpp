@@ -25,7 +25,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ReverseLayer<Dtype>::Forward_cpu(
+  void ReverseLayer<Dtype>::Forward(_CONTEXT,
     const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
     const Dtype* src = bottom[0]->data<Context>();
@@ -50,7 +50,7 @@ namespace
   void ReverseLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
                                          const vector<Blob<Dtype>*> & bottom)
   {
-    if (!top[0]->propagate_down_) { return; }
+    if (!bottom[0]->propagate_down_) { return; }
     Dtype* target = bottom[0]->mutable_diff<Context>();
     const int count = top[0]->count();
     const int axis_count = top[0]->count(axis_);

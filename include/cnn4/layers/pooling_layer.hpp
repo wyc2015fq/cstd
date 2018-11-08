@@ -165,111 +165,17 @@ struct PoolingLayer : public Layer<Dtype>
     // Different pooling methods. We explicitly do the switch outside the for
     // loop to save time, although this results in more code.
       // Initialize
-    switch (pool_) {
-    case PoolMethod_MAX:
-      if (use_top_mask) {
-        top_mask = top[1]->mutable_data<Context>();
-        caffe_set(top_count, Dtype(-1), top_mask);
-      }
-      else {
-        mask = max_idx_.mutable_data<Context>();
-        caffe_set(top_count, -1, mask);
-      }
-      break;
-    case PoolMethod_STOCHASTIC:
-      break;
-    default:
-      break;
+    if (use_top_mask) {
+      top_mask = top[1]->mutable_data<Context>();
+    }
+    else {
+      mask = max_idx_.mutable_data<Context>();
     }
     pooling_forward<Dtype>(context, pool_, phase_, count, bottom_data,
       num, channels_, height_, width_, pooled_height_, pooled_width_,
       kernel_h_, kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_,
       rand_idx, top_data, mask, top_mask);
-
-#if 0
-    switch (pool_) {
-    case PoolMethod_MAX:
-      caffe_set(top_count, Dtype(-FLT_MAX), top_data);
-      // The main loop
-      for (int n = 0; n < bottom[0]->num(); ++n) {
-        for (int c = 0; c < channels_; ++c) {
-          for (int ph = 0; ph < pooled_height_; ++ph) {
-            for (int pw = 0; pw < pooled_width_; ++pw) {
-              int hstart = ph * stride_h_ - pad_h_;
-              int wstart = pw * stride_w_ - pad_w_;
-              int hend = min(hstart + kernel_h_, height_);
-              int wend = min(wstart + kernel_w_, width_);
-              hstart = max(hstart, 0);
-              wstart = max(wstart, 0);
-              const int pool_index = ph * pooled_width_ + pw;
-              for (int h = hstart; h < hend; ++h) {
-                for (int w = wstart; w < wend; ++w) {
-                  const int index = h * width_ + w;
-                  if (bottom_data[index] > top_data[pool_index]) {
-                    top_data[pool_index] = bottom_data[index];
-                    if (use_top_mask) {
-                      top_mask[pool_index] = static_cast<Dtype>(index);
-                    }
-                    else {
-                      mask[pool_index] = index;
-                    }
-                  }
-                }
-              }
-            }
-          }
-          // compute offset
-          bottom_data += bottom[0]->offset(0, 1);
-          top_data += top[0]->offset(0, 1);
-          if (use_top_mask) {
-            top_mask += top[0]->offset(0, 1);
-          }
-          else {
-            mask += top[0]->offset(0, 1);
-          }
-        }
-      }
-      break;
-    case PoolMethod_AVE:
-      for (int i = 0; i < top_count; ++i) {
-        top_data[i] = 0;
-      }
-      // The main loop
-      for (int n = 0; n < bottom[0]->num(); ++n) {
-        for (int c = 0; c < channels_; ++c) {
-          for (int ph = 0; ph < pooled_height_; ++ph) {
-            for (int pw = 0; pw < pooled_width_; ++pw) {
-              int hstart = ph * stride_h_ - pad_h_;
-              int wstart = pw * stride_w_ - pad_w_;
-              int hend = min(hstart + kernel_h_, height_ + pad_h_);
-              int wend = min(wstart + kernel_w_, width_ + pad_w_);
-              int pool_size = (hend - hstart) * (wend - wstart);
-              hstart = max(hstart, 0);
-              wstart = max(wstart, 0);
-              hend = min(hend, height_);
-              wend = min(wend, width_);
-              for (int h = hstart; h < hend; ++h) {
-                for (int w = wstart; w < wend; ++w) {
-                  top_data[ph * pooled_width_ + pw] +=
-                    bottom_data[h * width_ + w];
-                }
-              }
-              top_data[ph * pooled_width_ + pw] /= pool_size;
-            }
-          }
-          // compute offset
-          bottom_data += bottom[0]->offset(0, 1);
-          top_data += top[0]->offset(0, 1);
-        }
-      }
-      break;
-    case PoolMethod_STOCHASTIC:
-      NOT_IMPLEMENTED;
-      break;
-    default:
-      LOG(FATAL) << "Unknown pooling method.";
-    }
-#endif
+    return;
   }
 
   
@@ -278,7 +184,7 @@ struct PoolingLayer : public Layer<Dtype>
   {
     int count = bottom[0]->count();
     int num = top[0]->num();
-    if (!top[0]->propagate_down_) {
+    if (!bottom[0]->propagate_down_) {
       return;
     }
     const Dtype* top_diff = top[0]->diff<Context>();

@@ -192,7 +192,7 @@ namespace
   void SPPLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
                                      const vector<Blob<Dtype>*> & bottom)
   {
-    if (!top[0]->propagate_down_) {
+    if (!bottom[0]->propagate_down_) {
       return;
     }
     if (pyramid_height_ == 1) {

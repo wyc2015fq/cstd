@@ -147,8 +147,6 @@ __global__ void StoPoolForwardTest(const int nthreads,
   }
 }
 
-
-
 template <typename Dtype>
 __global__ void MaxPoolBackward(const int nthreads, const Dtype* const top_diff,
     const int* const mask, const Dtype* const top_mask, const int num,
@@ -273,7 +271,7 @@ template <>
 void pooling_forward<Dtype>(_CONTEXT, PoolMethod pool, Phase phase, const int count, const Dtype* bottom_data,
   const int num, const int channels, const int height, const int width, const int pooled_height, const int pooled_width,
   const int kernel_h, const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w,
-  Dtype* const rand_idx, Dtype* const top_data, int* mask, Dtype* top_mask ) {
+  Dtype* rand_idx, Dtype* top_data, int* mask, Dtype* top_mask ) {
   //int count = top[0]->count();
   // We'll output the mask to top[1] if it's of size >1.
   //const bool use_top_mask = top.size() > 1;
@@ -324,11 +322,11 @@ void pooling_forward<Dtype>(_CONTEXT, PoolMethod pool, Phase phase, const int co
 
 template <>
 void pooling_backward<Dtype>(_CONTEXT, PoolMethod pool, const int count, const Dtype* const rand_idx,
-  const Dtype* const top_diff, const int* const mask, const Dtype* const top_mask, const int num,
+  const Dtype* top_diff, const int* mask, const Dtype* top_mask, const int num,
   const int channels, const int height, const int width, const int pooled_height, const int pooled_width, const int kernel_h,
-  const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w, Dtype* const bottom_diff) {
+  const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w, Dtype* bottom_diff) {
 #if 0
-  if (!top[0]->propagate_down_) {
+  if (!bottom[0]->propagate_down_) {
     return;
   }
   const Dtype* top_diff = top[0]->gpu_diff();

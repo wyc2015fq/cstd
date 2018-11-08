@@ -73,8 +73,8 @@ namespace
      * @brief Computes the infogain loss error gradient w.r.t. the predictions.
      *
      * Gradients cannot be computed with respect to the label inputs (bottom[1]),
-     * so this method ignores bottom[1] and requires !top[1]->propagate_down_, crashing
-     * if top[1]->propagate_down_ is set. (The same applies to the infogain matrix, if
+     * so this method ignores bottom[1] and requires !bottom[1]->propagate_down_, crashing
+     * if bottom[1]->propagate_down_ is set. (The same applies to the infogain matrix, if
      * provided as bottom[2] rather than in the layer_param.)
      *
      * @param top output Blob vector (length 1), providing the error gradient
@@ -88,7 +88,7 @@ namespace
      *      (*Assuming that this top Blob is not used as a bottom (input) by any
      *      other layer of the Net.)
      * @param propagate_down see Layer::Backward.
-     *      top[1]->propagate_down_ must be false as we can't compute gradients with
+     *      bottom[1]->propagate_down_ must be false as we can't compute gradients with
      *      respect to the labels (similarly for propagate_down[2] and the
      *      infogain matrix, if provided as bottom[2])
      * @param bottom input Blob vector (length 2-3)

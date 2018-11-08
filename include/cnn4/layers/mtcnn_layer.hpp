@@ -70,7 +70,7 @@ namespace
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
       const vector<Blob<Dtype>*> & bottom) {
       for (int i = 0; i < 2; ++i) {
-        if (top[i]->propagate_down_) {
+        if (bottom[i]->propagate_down_) {
           const Dtype sign = (i == 0) ? 1 : -1;
           const Dtype alpha = sign * top[0]->diff<Context>()[0] / bottom[i]->num();
           caffe_axpby(
@@ -152,7 +152,7 @@ namespace
       int num = bottom[1]->countL(1);
       int len0 = bottom[0]->countH(1);
       int len1 = bottom[1]->countH(1);
-      if (top[0]->propagate_down_) {
+      if (bottom[0]->propagate_down_) {
         for (int i = 0; i < num; ++i) {
           Dtype* bottom0_diff = bottom[0]->mutable_diff<Context>() + i*len0;
           const Dtype* bottom1_data = bottom[1]->data<Context>() + i*len1;
@@ -169,7 +169,7 @@ namespace
           }
         }
       }
-      if (top[1]->propagate_down_) {
+      if (bottom[1]->propagate_down_) {
       }
     }
 };

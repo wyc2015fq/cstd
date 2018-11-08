@@ -109,7 +109,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ScaleLayer<Dtype>::Forward_cpu(
+  void ScaleLayer<Dtype>::Forward(_CONTEXT,
     const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data<Context>();
@@ -148,7 +148,7 @@ namespace
     }
     const bool scale_param = (bottom.size() == 1);
     Blob<Dtype>* scale = scale_param ? this->blobs_[0].get() : bottom[1];
-    if ((!scale_param && top[1]->propagate_down_) ||
+    if ((!scale_param && bottom[1]->propagate_down_) ||
         (scale_param && this->blobs_[0]->propagate_down_)) {
       const Dtype* top_diff = top[0]->diff<Context>();
       const bool in_place = (bottom[0] == top[0]);
@@ -200,7 +200,7 @@ namespace
         }
       }
     }
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff<Context>();
       const Dtype* scale_data = scale->data<Context>();
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();

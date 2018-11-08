@@ -76,7 +76,7 @@ namespace
       int*
       const vector<Blob<Dtype>*> & bottom)
   {
-    if (top[1]->propagate_down_) {
+    if (bottom[1]->propagate_down_) {
       LOG(FATAL) << this->type()
                  << " Layer cannot backpropagate to label inputs.";
     }
@@ -84,7 +84,7 @@ namespace
       LOG(FATAL) << this->type()
                  << " Layer cannot backpropagate to infogain inputs.";
     }
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       const Dtype* bottom_data = bottom[0]->data<Context>();
       const Dtype* bottom_label = bottom[1]->data<Context>();
       const Dtype* infogain_mat = NULL;

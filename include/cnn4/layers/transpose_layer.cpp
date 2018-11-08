@@ -96,7 +96,7 @@ namespace
   void TransposeLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
       const vector<Blob<Dtype>*> & bottom)
   {
-    if (!top[0]->propagate_down_) {
+    if (!bottom[0]->propagate_down_) {
       return;
     }
     transpose_cpu<Dtype>(bottom[0]->count(), top[0]->diff<Context>(), bottom[0]->mutable_diff<Context>(),

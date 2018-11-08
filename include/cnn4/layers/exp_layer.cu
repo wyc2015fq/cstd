@@ -25,7 +25,7 @@ void ExpLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& b
 template <typename Dtype>
 void ExpLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (!top[0]->propagate_down_) { return; }
+  if (!bottom[0]->propagate_down_) { return; }
   const int count = bottom[0]->count();
   const Dtype* top_data = top[0]->data<Context>();
   const Dtype* top_diff = top[0]->gpu_diff();

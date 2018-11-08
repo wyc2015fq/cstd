@@ -14,6 +14,7 @@ namespace caffe
   {
     // Initialize by copying from the input NetParameter.
     param_split->CopyFrom(param);
+    return;
     param_split->clear_layer();
     map<string, pair<int, int> > blob_name_to_last_top_idx;
     map<pair<int, int>, pair<int, int> > bottom_idx_to_source_top_idx;

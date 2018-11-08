@@ -1002,7 +1002,7 @@ namespace
   template <typename Dtype>
   void DenseBlockLayer<Dtype>::Forward_cpu_public(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
-    this->Forward_cpu(bottom, top);
+    this->Forward(_CONTEXT,bottom, top);
   }
 
   template <typename Dtype>

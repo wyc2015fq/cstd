@@ -53,6 +53,11 @@ struct DataShape {
   int* end() { return dim + MAX_DIM; }
   const int* begin() const { return dim; }
   const int* end() const { return dim + MAX_DIM; }
+  void resize(int k) {
+    for (; k < MAX_DIM; ++k) {
+      dim[k] = 1;
+    }
+  }
 };
 
 static int DataShape_cmp(const DataShape& a, const DataShape& b) {
@@ -110,6 +115,26 @@ static const char* PoolMethod_Name[] = {
 #define POOL_DEF(a) #a ,
   POOL_DEF_DEF(POOL_DEF)
 #undef POOL_DEF
+};
+
+///////////////////////////////////////////////////
+// pooling
+#define NORMALIZATIONMODE_DEF_DEF(DEF) \
+DEF(FULL) \
+DEF(VALID) \
+DEF(BATCH_SIZE) \
+DEF(NONE)
+
+enum NormalizationMode {
+#define DEF(a) NormalizationMode_ ## a,
+  NORMALIZATIONMODE_DEF_DEF(DEF)
+#undef DEF
+};
+
+static const char* NormalizationMode_Name[] = {
+#define DEF(a) #a ,
+  NORMALIZATIONMODE_DEF_DEF(DEF)
+#undef DEF
 };
 
 ///////////////////////////////////////////////////

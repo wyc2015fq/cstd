@@ -79,7 +79,7 @@ namespace
                                           const vector<Blob<Dtype>*> & bottom)
   {
     CHECK(!propagate_down[2]) << "Cannot backpropagate to sequence indicators.";
-    if (!top[0]->propagate_down_ && !top[1]->propagate_down_) { return; }
+    if (!bottom[0]->propagate_down_ && !bottom[1]->propagate_down_) { return; }
     const int num = bottom[0]->shape(1);
     const int x_dim = hidden_dim_ * 4;
     const Dtype* C_prev = bottom[0]->data<Context>();

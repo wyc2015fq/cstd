@@ -61,7 +61,7 @@ namespace
      * @param bottom input Blob vector (length 2):
      *   - @f$ \frac{\partial E}{\partial y} @f$ is de-indexed (summing where
      *     required) back to the input x_1
-     *   - This layer cannot backprop to x_2, i.e. top[1]->propagate_down_ must be
+     *   - This layer cannot backprop to x_2, i.e. bottom[1]->propagate_down_ must be
      *     false.
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,

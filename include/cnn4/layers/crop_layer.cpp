@@ -129,7 +129,7 @@ namespace
   {
     const Dtype* top_diff = top[0]->diff<Context>();
     Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       caffe_set(bottom[0]->count(), static_cast<Dtype>(0), bottom_diff);
       std::vector<int> indices(top[0]->num_axes(), 0);
       crop_copy(bottom, top, offsets, indices, 0, top_diff, bottom_diff, false);

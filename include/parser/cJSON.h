@@ -84,6 +84,10 @@ typedef struct cJSON {
     char* cJSON_GetObjectString(const cJSON* object, const char* name, const char* default_string);
     return cJSON_GetObjectString(this, name, default_string);
   }
+  char* getstring(const char* name, const char* default_string) {
+    char* cJSON_GetObjectString(const cJSON* object, const char* name, const char* default_string);
+    return cJSON_GetObjectString(this, name, default_string);
+  }
   double GetObjectNumber(const char* name, double default_double) {
     double cJSON_GetObjectNumber(const cJSON* object, const char* name, double default_double);
     return cJSON_GetObjectNumber(this, name, default_double);
@@ -120,9 +124,10 @@ typedef struct cJSON {
     int cJSON_GetObjectEnum(const cJSON* object, const char* name, int default_enum, const char** enum_map, int enum_map_len);
     return cJSON_GetObjectEnum(this, name, default_enum, enum_map, enum_map_len);
   }
-  int getenum(const char* name, int default_enum, const char** enum_map, int enum_map_len) {
+  template <typename T>
+  T getenum(const char* name, T default_enum, const char** enum_map, int enum_map_len) {
     int cJSON_GetObjectEnum(const cJSON* object, const char* name, int default_enum, const char** enum_map, int enum_map_len);
-    return cJSON_GetObjectEnum(this, name, default_enum, enum_map, enum_map_len);
+    return (T)cJSON_GetObjectEnum(this, name, default_enum, enum_map, enum_map_len);
   }
 } cJSON;
 typedef struct cJSON_Hooks {

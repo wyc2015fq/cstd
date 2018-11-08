@@ -87,7 +87,7 @@ void EltwiseLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>
   const Dtype* top_data = top[0]->data<Context>();
   const Dtype* top_diff = top[0]->gpu_diff();
   for (int i = 0; i < bottom.size(); ++i) {
-    if (top[i]->propagate_down_) {
+    if (bottom[i]->propagate_down_) {
       const Dtype* bottom_data = bottom[i]->data<Context>();
       Dtype* bottom_diff = bottom[i]->mutable_gpu_diff();
       switch (op_) {

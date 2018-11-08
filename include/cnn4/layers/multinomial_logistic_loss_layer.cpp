@@ -19,7 +19,7 @@ namespace
   }
 
   template <typename Dtype>
-  void MultinomialLogisticLossLayer<Dtype>::Forward_cpu(
+  void MultinomialLogisticLossLayer<Dtype>::Forward(_CONTEXT,
     const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data<Context>();
@@ -41,11 +41,11 @@ namespace
     const vector<Blob<Dtype>*> & top, int*
     const vector<Blob<Dtype>*> & bottom)
   {
-    if (top[1]->propagate_down_) {
+    if (bottom[1]->propagate_down_) {
       LOG(FATAL) << this->type()
                  << " Layer cannot backpropagate to label inputs.";
     }
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       const Dtype* bottom_data = bottom[0]->data<Context>();
       const Dtype* bottom_label = bottom[1]->data<Context>();
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();

@@ -20,7 +20,7 @@ void CuDNNPoolingLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dt
 template <typename Dtype>
 void CuDNNPoolingLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (!top[0]->propagate_down_) {
+  if (!bottom[0]->propagate_down_) {
     return;
   }
   const Dtype* top_diff = top[0]->gpu_diff();

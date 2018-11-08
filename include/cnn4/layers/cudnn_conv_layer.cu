@@ -87,7 +87,7 @@ void CuDNNConvolutionLayer<Dtype>::Backward(GPUContext* context, const vector<Bl
       }
 
       // Gradient w.r.t. bottom data.
-      if (top[i]->propagate_down_) {
+      if (bottom[i]->propagate_down_) {
         if (weight == NULL) {
           weight = this->blobs_[0]->data<Context>();
         }

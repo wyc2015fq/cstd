@@ -11,13 +11,13 @@
 
 #define _CONTEXT GPUContext* context
 
-#include "math_functions.cu"
+#include "math_functions.cuh"
 
 #define Dtype float
-#include "math_functions.cu"
+#include "math_functions.cuh"
 #undef Dtype
 #define Dtype double
-#include "math_functions.cu"
+#include "math_functions.cuh"
 #undef Dtype
 
 #undef _CONTEXT

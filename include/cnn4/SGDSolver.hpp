@@ -69,7 +69,7 @@ struct SGDSolver : public Solver<Dtype> {
 
   virtual void ClipGradients()
   {
-    double clip_gradients = this->param_->GetObjectNumber("clip_gradients", 1);
+    double clip_gradients = this->param_->GetObjectNumber("clip_gradients", -1);
     if (clip_gradients < 0) { return; }
     Dtype sumsq_diff = 0;
     for (int i = 0; i < learnable_params_.size(); ++i) {
@@ -105,19 +105,21 @@ struct SGDSolver : public Solver<Dtype> {
   virtual void Regularize(int param_id)
   {
     //const vector<float> & learnable_params__weight_decay = this->net_->params_weight_decay();
-    Dtype weight_decay = 1;// this->param_.weight_decay();
+    Dtype weight_decay = this->param_->getfloat("weight_decay", 0.0005);
     string regularization_type = param_->GetObjectString("regularization_type", "L2");
     Dtype local_decay = weight_decay;// learnable_params__weight_decay[param_id];
     int count_ = learnable_params_[param_id]->count();
     const Dtype* learnable_params_data = learnable_params_[param_id]->data<Context>();
+    Dtype* params_diff = learnable_params_[param_id]->mutable_diff<Context>();
     if (local_decay) {
       if (regularization_type == "L2") {
         // add weight decay
-        caffe_axpy<Dtype>(CONTEXT, count_, local_decay, learnable_params_data, learnable_params_[param_id]->mutable_diff<Context>());
+        caffe_axpy<Dtype>(CONTEXT, count_, local_decay, learnable_params_data, params_diff);
       }
       else if (regularization_type == "L1") {
-        caffe_sign<Dtype>(CONTEXT, count_, learnable_params_data, temp_[param_id]->mutable_data<Context>());
-        caffe_axpy<Dtype>(CONTEXT, count_, local_decay, temp_[param_id]->data<Context>(), learnable_params_[param_id]->mutable_diff<Context>());
+        Dtype* temp_data = temp_[param_id]->mutable_data<Context>();
+        caffe_sign<Dtype>(CONTEXT, count_, learnable_params_data, temp_data);
+        caffe_axpy<Dtype>(CONTEXT, count_, local_decay, temp_data, params_diff);
       }
       else {
         LOG(FATAL) << "Unknown regularization type: " << regularization_type;
@@ -130,7 +132,7 @@ struct SGDSolver : public Solver<Dtype> {
     //const vector<float> & net_params_lr = this->net_->params_lr();
     Dtype momentum = this->param_->GetObjectNumber("momentum", 1);
     Dtype local_rate = rate;// net_params_lr[param_id];
-#if 0
+#if 1
     int count_ = learnable_params_[param_id]->count();
     // Compute the update to history, then copy it to the parameter diff.
     Dtype* learnable_params_diff = learnable_params_[param_id]->mutable_diff<Context>();

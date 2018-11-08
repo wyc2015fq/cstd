@@ -9,6 +9,9 @@
 #include "inner_product_layer.hpp"
 #include "loss_layer.hpp"
 #include "accuracy_layer.hpp"
+#include "softmax_layer.hpp"
+#include "softmax_loss_layer.hpp"
+#include "split_layer.hpp"
 
 #if 0
 #include "dummy_data_layer.hpp"
@@ -71,10 +74,7 @@
 #include "sigmoid_layer.hpp"
 #include "silence_layer.hpp"
 #include "slice_layer.hpp"
-#include "softmax_layer.hpp"
-#include "softmax_loss_layer.hpp"
 #include "softmax_loss_layer_multi_label.hpp"
-#include "split_layer.hpp"
 #include "spp_layer.hpp"
 #include "tanh_layer.hpp"
 #include "threshold_layer.hpp"

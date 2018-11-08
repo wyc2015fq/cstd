@@ -25,7 +25,7 @@ namespace
                                      int*
                                      const vector<Blob<Dtype>*> & bottom)
   {
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       const Dtype* bottom_data = bottom[0]->data<Context>();
       const Dtype* top_data = top[0]->data<Context>();
       const Dtype* top_diff = top[0]->diff<Context>();

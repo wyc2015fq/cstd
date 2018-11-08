@@ -74,7 +74,7 @@ namespace
      *            1           & \mathrm{if} \; x > 0 \\
      *            y + \alpha  & \mathrm{if} \; x \le 0
      *        \end{array} \right.
-     *      @f$ if top[0]->propagate_down_.
+     *      @f$ if bottom[0]->propagate_down_.
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
                               const vector<Blob<Dtype>*> & bottom);

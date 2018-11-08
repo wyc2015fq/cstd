@@ -226,6 +226,7 @@ namespace caffe
 #ifdef _DEBUG
       //net_->set_debug_info(true);
 #endif
+      //if (0== iter_) Snapshot();
       // accumulate the loss and gradient
       Dtype loss = 0;
       for (int i = 0; i < param_.iter_size(); ++i) {
@@ -350,7 +351,9 @@ namespace caffe
     vector<int> test_score_output_id;
     const SHARED_PTR<Net<Dtype> > & test_net = test_nets_[test_net_id];
     Dtype loss = 0;
-    for (int i = 0; i < param_.test_iter(test_net_id); ++i) {
+    int test_iter1 = param_.test_iter(test_net_id);
+    test_iter1 = 1;
+    for (int i = 0; i < test_iter1; ++i) {
       SolverAction::Enum request = GetRequestedAction();
       // Check to see if stoppage of testing/training has been requested.
       while (request != SolverAction::NONE) {

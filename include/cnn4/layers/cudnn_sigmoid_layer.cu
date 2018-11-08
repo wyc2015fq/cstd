@@ -31,7 +31,7 @@ template <typename Dtype>
 void CuDNNSigmoidLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
-  if (!top[0]->propagate_down_) {
+  if (!bottom[0]->propagate_down_) {
     return;
   }
 

@@ -87,7 +87,7 @@ namespace
     const int top_concat_axis = top[0]->shape(concat_axis_);
     for (int i = 0; i < bottom.size(); ++i) {
       const int bottom_concat_axis = bottom[i]->shape(concat_axis_);
-      if (top[i]->propagate_down_) {
+      if (bottom[i]->propagate_down_) {
         Dtype* bottom_diff = bottom[i]->mutable_diff<Context>();
         for (int n = 0; n < num_concats_; ++n) {
           caffe_copy(bottom_concat_axis * concat_input_size_, top_diff +

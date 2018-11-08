@@ -72,7 +72,7 @@ struct DataLayer : public Layer<Dtype>
       for (int j = 0; j < top.size(); ++j) {
         Blob<Dtype>* blob = top[j];
         Dtype* data = blob->mutable_data<CPUContext>() + blob->offset(item_id);
-        DataTransformer(info, &datum[j], data);
+        DataTransformer(j == 0 ? info : NULL, &datum[j], data);
       }
       Next();
     }
@@ -93,11 +93,17 @@ struct DataLayer : public Layer<Dtype>
 
   virtual void Reshape(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) {
     Datum datum;
-    ParseFromString(cursor_->value().c_str(), datum);
+    string value = cursor_->value();
+    ParseFromString(value.c_str(), datum);
     CHECK_LE(top.size(), datum.size());
+    cJSON* transform = param_->get("transform");
     for (int j = 0; j < top.size(); ++j) {
-      GetDataTransformerInfo(info, &datum[j], param_, phase_, batch_size_);
-      top[j]->Reshape(info->shape_);
+      DataShape shape_ = datum[j].shape;
+      if (j == 0) {
+        shape_ = GetDataTransformerInfo(info, &datum[j], transform, phase_);
+      }
+      shape_.n = batch_size_;
+      top[j]->Reshape(shape_);
     }
   }
   virtual void Forward(Context* context, const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) {

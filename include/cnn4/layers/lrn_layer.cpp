@@ -98,7 +98,7 @@ namespace
   {
     switch (this->param_->lrn_param().norm_region()) {
     case LRNParameter_NormRegion_ACROSS_CHANNELS:
-      CrossChannelForward_cpu(bottom, top);
+      CrossChannelForward(_CONTEXT,bottom, top);
       break;
     case LRNParameter_NormRegion_WITHIN_CHANNEL:
       WithinChannelForward(bottom, top);
@@ -109,7 +109,7 @@ namespace
   }
 
   template <typename Dtype>
-  void LRNLayer<Dtype>::CrossChannelForward_cpu(
+  void LRNLayer<Dtype>::CrossChannelForward(_CONTEXT,
     const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data<Context>();
@@ -241,7 +241,7 @@ namespace
     const vector<Blob<Dtype>*> & top, int*
     const vector<Blob<Dtype>*> & bottom)
   {
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       vector<bool> product_propagate_down(2, true);
       product_layer_->Backward(top, product_propagate_down, product_bottom_vec_);
       power_layer_->Backward(power_top_vec_, propagate_down, pool_top_vec_);

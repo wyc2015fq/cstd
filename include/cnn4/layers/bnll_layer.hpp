@@ -59,7 +59,7 @@ namespace
      *      the inputs @f$ x @f$; Backward fills their diff with
      *      gradients @f$
      *        \frac{\partial E}{\partial x}
-     *      @f$ if top[0]->propagate_down_
+     *      @f$ if bottom[0]->propagate_down_
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
                               const vector<Blob<Dtype>*> & bottom);

@@ -66,6 +66,7 @@ public:
     const int* dilation_data = this->dilation_.dim;
     //this->output_shape_.clear();
     int i = 0;
+    this->output_shape_ = dataShape(1);
     for (; i < this->num_spatial_axes_; ++i) {
       // i + 1 to skip channel axis
       const int input_dim = this->input_shape(i + 1);
@@ -73,7 +74,6 @@ public:
       const int output_dim = (input_dim + 2 * pad_data[i] - kernel_extent) / stride_data[i] + 1;
       this->output_shape_.dim[i] = (output_dim);
     }
-    for (; i < MAX_DIM; ++i) { this->output_shape_.dim[i] = 1; }
   }
 
   virtual void Forward(Context* context, const vector<Blob<Dtype>*> & bottom,
@@ -108,7 +108,7 @@ public:
           this->backward_bias(bias_diff, top_diff + n * this->top_dim_);
         }
       }
-      if (this->blobs_[0]->propagate_down_ || top[i]->propagate_down_) {
+      if (this->blobs_[0]->propagate_down_ || bottom[i]->propagate_down_) {
         const Dtype* bottom_data = bottom[i]->data<Context>();
         Dtype* bottom_diff = bottom[i]->mutable_diff<Context>();
         for (int n = 0; n < this->num_; ++n) {
@@ -118,7 +118,7 @@ public:
               top_diff + n * this->top_dim_, weight_diff);
           }
           // gradient w.r.t. bottom data, if necessary.
-          if (top[i]->propagate_down_) {
+          if (bottom[i]->propagate_down_) {
             this->backward_gemm(top_diff + n * this->top_dim_, weight,
               bottom_diff + n * this->bottom_dim_);
           }

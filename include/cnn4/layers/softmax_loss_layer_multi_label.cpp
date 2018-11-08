@@ -98,7 +98,7 @@ namespace
   }
 
   template <typename Dtype>
-  void SoftmaxWithLossMultiLabelLayer<Dtype>::Forward_cpu(
+  void SoftmaxWithLossMultiLabelLayer<Dtype>::Forward(_CONTEXT,
     const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
     // The forward pass computes the softmax prob values.
@@ -133,11 +133,11 @@ namespace
   void SoftmaxWithLossMultiLabelLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
       const vector<Blob<Dtype>*> & bottom)
   {
-    if (top[1]->propagate_down_) {
+    if (bottom[1]->propagate_down_) {
       LOG(FATAL) << this->type()
                  << " Layer cannot backpropagate to label inputs.";
     }
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       const Dtype* prob_data = prob_.data<Context>();
       caffe_copy(prob_.count(), prob_data, bottom_diff);

@@ -32,7 +32,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ReverseTimeLayer<Dtype>::Forward_cpu(
+  void ReverseTimeLayer<Dtype>::Forward(_CONTEXT,
     const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
     const Dtype* src = bottom[0]->data<Context>();
@@ -85,7 +85,7 @@ namespace
   void ReverseTimeLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
       const vector<Blob<Dtype>*> & bottom)
   {
-    if (!top[0]->propagate_down_) { return; }
+    if (!bottom[0]->propagate_down_) { return; }
     const Dtype* src = top[0]->diff<Context>();
     Dtype* const dest = bottom[0]->mutable_diff<Context>();
     // TODO: Remove these tests

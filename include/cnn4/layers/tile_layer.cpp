@@ -23,7 +23,7 @@ namespace
   }
 
   template <typename Dtype>
-  void TileLayer<Dtype>::Forward_cpu(
+  void TileLayer<Dtype>::Forward(_CONTEXT,
     const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data<Context>();
@@ -41,7 +41,7 @@ namespace
   void TileLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
                                       const vector<Blob<Dtype>*> & bottom)
   {
-    if (!top[0]->propagate_down_) { return; }
+    if (!bottom[0]->propagate_down_) { return; }
     const Dtype* top_diff = top[0]->diff<Context>();
     Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
     for (size_t i = 0; i < outer_dim_; ++i) {

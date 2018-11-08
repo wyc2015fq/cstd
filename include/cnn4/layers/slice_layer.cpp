@@ -101,7 +101,7 @@ namespace
   void SliceLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
                                        const vector<Blob<Dtype>*> & bottom)
   {
-    if (!top[0]->propagate_down_ || top.size() == 1) { return; }
+    if (!bottom[0]->propagate_down_ || top.size() == 1) { return; }
     int offset_slice_axis = 0;
     Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
     const int bottom_slice_axis = bottom[0]->shape(slice_axis_);

@@ -2,9 +2,9 @@
 
 #ifndef Dtype
 
-void caffe_memset(_CONTEXT, const size_t N, const int alpha, void* X)
-{
-  CUDA_CHECK(cudaMemset(X, alpha, N));  // NOLINT(caffe/alt_fn)
+
+void caffe_memset(_CONTEXT, const size_t N, const int alpha, void* X){
+  CUDA_CHECK(cudaMemset(X, alpha, N));
 }
 
 template <>
@@ -539,5 +539,5 @@ void relu_backward<Dtype>(_CONTEXT, const int n, const Dtype* in_diff, const Dty
 
 
 
-#include "im2col.cu"
-#include "layers/pooling_layer.cu"
+#include "im2col.cuh"
+#include "layers/layers.cuh"

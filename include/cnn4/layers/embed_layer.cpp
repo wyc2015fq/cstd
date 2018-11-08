@@ -90,7 +90,7 @@ namespace
   void EmbedLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
                                        const vector<Blob<Dtype>*> & bottom)
   {
-    CHECK(!top[0]->propagate_down_) << "Can't backpropagate to EmbedLayer input.";
+    CHECK(!bottom[0]->propagate_down_) << "Can't backpropagate to EmbedLayer input.";
     if (this->blobs_[0]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff<Context>();
       const Dtype* bottom_data = bottom[0]->data<Context>();

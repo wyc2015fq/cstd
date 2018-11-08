@@ -7,32 +7,35 @@ struct Solver {
   void init(Net<Dtype>* net) {
     param_ = net->param_->GetObjectItem("solver");
     net_ = net;
+    smoothed_loss_ = 0;
   }
 
   int Test()
   {
     Net<Dtype>* test_net = net_;
     Dtype loss = 0;
-    bool test_compute_loss = param_->GetObjectBool("test_compute_loss", false);
+    bool test_compute_loss = param_->getbool("test_compute_loss", false);
     int test_iter = param_->GetObjectInt("test_iter", 1);
     vector<Dtype> test_score;
-    test_score.resize(net_->blobs_.size());
-    for (int i = 0; i < net_->blobs_.size(); ++i) {
-      test_score[i] = 0;
-    }
+    test_score.assign(net_->blobs_.size(), 0);
+    debug_info_ = 0;
     for (int j = 0; j < test_iter; ++j) {
-      Dtype iter_loss = test_net->Forward();
+      Dtype iter_loss = test_net->Forward(TEST);
       for (int i = 0; i < net_->blobs_.size(); ++i) {
+        Blob<Dtype>* blob = net_->blobs_[i];
         //auto layer = test_net->layers_[i];
-        test_score[i] += net_->blobs_[i]->loss_;
+        if (blob->loss_weight_ > 0 || blob->bottom_cnt_ == 0) {
+          test_score[i] += blob->amean_data();
+        }
       }
       loss += iter_loss;
     }
     loss /= test_iter;
     LOG(INFO) << "Test loss: " << loss;
+    int idx = 0;
     for (int i = 0; i < net_->blobs_.size(); ++i) {
       Blob<Dtype>* blob = net_->blobs_[i];
-      if (blob->loss_weight_ > 0) {
+      if (blob->loss_weight_ > 0 || blob->bottom_cnt_==0) {
         const Dtype loss_weight = blob->loss_weight_;
         const string output_name = blob->name;
         ostringstream loss_msg_stream;
@@ -41,14 +44,15 @@ struct Solver {
           loss_msg_stream << " (* " << loss_weight
             << " = " << loss_weight* mean_score << " loss)";
         }
-        LOG(INFO) << "    Test net output #" << i << ": " << output_name << " = "
+        LOG(INFO) << "    Test net output #" << idx << ": " << output_name << " = "
           << mean_score << loss_msg_stream.str();
+        ++idx;
       }
     }
     return 0;
   }
   vector<double> losses_;
-  double smoothed_loss_;
+  Dtype smoothed_loss_;
   void UpdateSmoothedLoss(Dtype loss, int start_iter,  int average_loss)
   {
     if (losses_.size() < average_loss) {
@@ -72,7 +76,9 @@ struct Solver {
   int max_iter;
   double average_loss;
   vector<Blob<Dtype>*> learnable_params_;
+  bool test_initialization;
 
+  virtual void PreSolve() = 0;
   int Solve()
   {
     LOG(INFO) << "Solving " << param_->GetObjectString("name", "");
@@ -80,19 +86,20 @@ struct Solver {
     LOG(INFO) << "Learning Rate Policy: " << lr_policy;
     int start_iter = iter_;
     max_iter = (int)param_->GetObjectNumber("max_iter", 1000);
-    iter_size  = (int)param_->GetObjectNumber("iter_size", 1000);
-    int test_initialization = (int)param_->GetObjectNumber("test_initialization", 0);
+    iter_size  = (int)param_->GetObjectNumber("iter_size", 1);
+    test_initialization = param_->getbool("test_initialization", true);
     display = param_->GetObjectInt("display", 100);
     snapshot = param_->GetObjectInt("snapshot", 100);
     test_interval = param_->GetObjectInt("test_interval", 100);
     average_loss = param_->GetObjectNumber("average_loss", 1);
-    debug_info_ = param_->GetObjectInt("debug_info", 1);
+    debug_info_ = param_->GetObjectInt("debug_info", 0);
     int iters = max_iter - iter_;
     this->net_->learnable_params(learnable_params_);
 
     const int stop_iter = max_iter;
     vector<float>  losses_;
     losses_.clear();
+    PreSolve();
     double smoothed_loss_ = 0;
     while (iter_ < stop_iter) {
       // zero-init the params
@@ -100,6 +107,7 @@ struct Solver {
       if (test_interval && iter_ % test_interval == 0 && (iter_ > 0 || test_initialization)) {
         Test();
       }
+      int debug_info_ = display && iter_ % display == 0;
       // accumulate the loss and gradient
       Dtype loss = 0;
       for (int i = 0; i < iter_size; ++i) {
@@ -108,7 +116,7 @@ struct Solver {
       loss /= iter_size;
       // average the loss across iterations for smoothed reporting
       UpdateSmoothedLoss(loss, start_iter, average_loss);
-      if (display) {
+      if (debug_info_) {
         LOG_IF(INFO, root_solver()) << "Iteration " << iter_
           << ", loss = " << smoothed_loss_;
         int score_index = 0;
@@ -144,7 +152,7 @@ struct Solver {
     }
 
     if (display && iter_ % display == 0) {
-      Dtype loss = net_->Forward();
+      Dtype loss = net_->Forward(TRAIN);
       UpdateSmoothedLoss(loss, start_iter, average_loss);
       LOG(INFO) << "Iteration " << iter_ << ", loss = " << smoothed_loss_;
     }

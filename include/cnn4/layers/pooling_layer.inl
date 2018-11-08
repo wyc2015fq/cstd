@@ -3,35 +3,25 @@ template <typename Dtype>
 void pooling_forward(_CONTEXT, PoolMethod pool, Phase phase, const int count, const Dtype* bottom_data,
   const int num, const int channels, const int height, const int width, const int pooled_height, const int pooled_width,
   const int kernel_h, const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w,
-  Dtype* const rand_idx, Dtype* const top_data, int* mask, Dtype* top_mask) {
-#if 0
-  const Dtype* bottom_data = bottom[0]->data<Context>();
-  Dtype* top_data = top[0]->mutable_data<Context>();
-  const int top_count = top[0]->count();
-  // We'll output the mask to top[1] if it's of size >1.
-  const bool use_top_mask = top.size() > 1;
-  int* mask = NULL;  // suppress warnings about uninitalized variables
-  Dtype* top_mask = NULL;
-  // Different pooling methods. We explicitly do the switch outside the for
-  // loop to save time, although this results in more code.
-  if (use_top_mask) {
-    top_mask = top[1]->mutable_data<Context>();
-    caffe_set(top_count, Dtype(-1), top_mask);
-  }
-  else {
-    mask = max_idx_.mutable_data<Context>();
-    caffe_set(top_count, -1, mask);
-  }
-#endif
-  int bottom_offset = height*width;
-  int top_offset = pooled_height*pooled_width;
+  Dtype* rand_idx, Dtype* top_data, int* mask, Dtype* top_mask) {
+  int top_count = num*channels*pooled_height * pooled_width;
+  int bottom_offset = height * width;
+  int top_offset = pooled_height * pooled_width;
+  bool use_top_mask = top_mask!=NULL;
+  double aa = 0;
   switch (pool) {
   case PoolMethod_MAX:
     // Initialize
-    caffe_set(top_count, Dtype(-FLT_MAX), top_data);
+    if (use_top_mask) {
+      caffe_set<Dtype>(context, top_count, Dtype(-1), top_mask);
+    }
+    else {
+      caffe_set(context, top_count, -1, mask);
+    }
+    caffe_set(context, top_count, Dtype(-FLT_MAX), top_data);
     // The main loop
     for (int n = 0; n < num; ++n) {
-      for (int c = 0; c < channels_; ++c) {
+      for (int c = 0; c < channels; ++c) {
         for (int ph = 0; ph < pooled_height; ++ph) {
           for (int pw = 0; pw < pooled_width; ++pw) {
             int hstart = ph * stride_h - pad_h;
@@ -46,7 +36,11 @@ void pooling_forward(_CONTEXT, PoolMethod pool, Phase phase, const int count, co
                 const int index = h * width + w;
                 if (bottom_data[index] > top_data[poolindex]) {
                   top_data[poolindex] = bottom_data[index];
-                  if (use_top_mask) {
+                  aa += fabs(top_data[poolindex]);
+                  if (aa > 0) {
+                    int asdf = 0;
+                  }
+                  if (top_mask) {
                     top_mask[poolindex] = static_cast<Dtype>(index);
                   }
                   else {
@@ -60,7 +54,7 @@ void pooling_forward(_CONTEXT, PoolMethod pool, Phase phase, const int count, co
         // compute offset
         bottom_data += bottom_offset;
         top_data += top_offset;
-        if (use_top_mask) {
+        if (top_mask) {
           top_mask += top_offset;
         }
         else {
@@ -75,7 +69,7 @@ void pooling_forward(_CONTEXT, PoolMethod pool, Phase phase, const int count, co
     }
     // The main loop
     for (int n = 0; n < num; ++n) {
-      for (int c = 0; c < channels_; ++c) {
+      for (int c = 0; c < channels; ++c) {
         for (int ph = 0; ph < pooled_height; ++ph) {
           for (int pw = 0; pw < pooled_width; ++pw) {
             int hstart = ph * stride_h - pad_h;
@@ -112,11 +106,11 @@ void pooling_forward(_CONTEXT, PoolMethod pool, Phase phase, const int count, co
 
 template <typename Dtype>
 void pooling_backward(_CONTEXT, PoolMethod pool, const int count, const Dtype* const rand_idx,
-  const Dtype* const top_diff, const int* const mask, const Dtype* const top_mask, const int num,
+  const Dtype* top_diff, const int* mask, const Dtype* top_mask, const int num,
   const int channels, const int height, const int width, const int pooled_height, const int pooled_width, const int kernel_h,
-  const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w, Dtype* const bottom_diff) {
+  const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w, Dtype* bottom_diff) {
 #if 0
-  if (!top[0]->propagate_down_) {
+  if (!bottom[0]->propagate_down_) {
     return;
   }
   const Dtype* top_diff = top[0]->diff<Context>();
@@ -135,6 +129,7 @@ void pooling_backward(_CONTEXT, PoolMethod pool, const int count, const Dtype* c
     mask = max_idx_.data<Context>();
   }
 #endif
+  //const bool use_top_mask = top_mask != NULL;
 
   caffe_set(context, count, Dtype(0), bottom_diff);
   int bottom_offset = height*width;
@@ -143,17 +138,17 @@ void pooling_backward(_CONTEXT, PoolMethod pool, const int count, const Dtype* c
   case PoolMethod_MAX:
     // The main loop
     for (int n = 0; n < num; ++n) {
-      for (int c = 0; c < channels_; ++c) {
+      for (int c = 0; c < channels; ++c) {
         for (int ph = 0; ph < pooled_height; ++ph) {
           for (int pw = 0; pw < pooled_width; ++pw) {
             const int index = ph * pooled_width + pw;
-            const int bottom_index = use_top_mask ? top_mask[index] : mask[index];
+            const int bottom_index = top_mask ? top_mask[index] : mask[index];
             bottom_diff[bottom_index] += top_diff[index];
           }
         }
         bottom_diff += bottom_offset;
         top_diff += top_offset;
-        if (use_top_mask) {
+        if (top_mask) {
           top_mask += top_offset;
         }
         else {
@@ -165,7 +160,7 @@ void pooling_backward(_CONTEXT, PoolMethod pool, const int count, const Dtype* c
   case PoolMethod_AVE:
     // The main loop
     for (int n = 0; n < num; ++n) {
-      for (int c = 0; c < channels_; ++c) {
+      for (int c = 0; c < channels; ++c) {
         for (int ph = 0; ph < pooled_height; ++ph) {
           for (int pw = 0; pw < pooled_width; ++pw) {
             int hstart = ph * stride_h - pad_h;

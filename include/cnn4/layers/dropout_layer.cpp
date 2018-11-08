@@ -54,7 +54,7 @@ namespace
                                          int*
                                          const vector<Blob<Dtype>*> & bottom)
   {
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff<Context>();
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       if (this->phase_ == TRAIN) {

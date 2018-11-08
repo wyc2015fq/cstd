@@ -10,6 +10,17 @@ int learnable_params(vector<Blob<Dtype>* >& out) {
   return out.size();
 }
 
+
+int SetUp() {
+  Net<Dtype>* net = this;
+  for (int i = 0; i < layers_.size(); ++i) {
+    // LOG(ERROR) << "Forwarding " << layer_names_[i];
+    Layer<Dtype>* layer = net->layers_[i];
+    layer->SetUp(layer->bottom_vecs_, layer->top_vecs_);
+  }
+  return 0;
+}
+
 int FromProto(CJSON* param) {
   Net<Dtype>* net = this;
   CJSON* layers_json = param->GetObjectItem("layers");
@@ -31,15 +42,16 @@ int FromProto(CJSON* param) {
     }
     ret = 1;
   }
+  SetUp();
   return ret;
 }
 
-Dtype Forward() {
-  Dtype loss = ForwardFromTo(0, layers_.size() - 1);
+Dtype Forward(Phase phase) {
+  Dtype loss = ForwardFromTo(phase, 0, layers_.size() - 1);
   return loss;
 }
 
-double ForwardFromTo(int start, int end)
+double ForwardFromTo(Phase phase, int start, int end)
 {
   Net<Dtype>* net = this;
   CHECK_GE(start, 0);
@@ -49,8 +61,10 @@ double ForwardFromTo(int start, int end)
   for (int i = start; i <= end; ++i) {
     // LOG(ERROR) << "Forwarding " << layer_names_[i];
     Layer<Dtype>* layer = net->layers_[i];
-    double layer_loss = layer->Forward(layer->bottom_vecs_, layer->top_vecs_);
-    loss += layer_loss;
+    if (layer->phase_ == TRAINorTEST || layer->phase_ == phase) {
+      double layer_loss = layer->Forward(layer->bottom_vecs_, layer->top_vecs_);
+      loss += layer_loss;
+    }
   }
   return loss;
 }
@@ -62,10 +76,11 @@ void BackwardFromTo(int start, int end)
   CHECK_LT(start, layers_.size());
   for (int i = start; i >= end; --i) {
     Layer<Dtype>* layer = net->layers_[i];
-    layers_[i]->Backward(layer->top_vecs_, layer->bottom_vecs_);
+    if (layer->phase_ == TRAINorTEST || layer->phase_ == TRAIN) {
+      layers_[i]->Backward(layer->top_vecs_, layer->bottom_vecs_);
+    }
   }
 }
-
 
 void Backward()
 {
@@ -89,7 +104,7 @@ void Backward()
 }
 
 Dtype ForwardBackward() {
-  Dtype loss = Forward();
+  Dtype loss = Forward(TRAIN);
   Backward();
   return loss;
 }

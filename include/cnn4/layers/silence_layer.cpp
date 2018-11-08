@@ -11,7 +11,7 @@ namespace
                                          const vector<Blob<Dtype>*> & bottom)
   {
     for (int i = 0; i < bottom.size(); ++i) {
-      if (top[i]->propagate_down_) {
+      if (bottom[i]->propagate_down_) {
         caffe_set(bottom[i]->count(), Dtype(0),
                   bottom[i]->mutable_diff<Context>());
       }

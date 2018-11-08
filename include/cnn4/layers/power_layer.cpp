@@ -48,7 +48,7 @@ namespace
                                        int*
                                        const vector<Blob<Dtype>*> & bottom)
   {
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       const int count = bottom[0]->count();
       const Dtype* top_diff = top[0]->diff<Context>();

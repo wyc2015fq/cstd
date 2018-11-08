@@ -62,7 +62,7 @@ namespace
      *            = \frac{\partial E}{\partial y}
      *              \left(1 - \left[\frac{\exp(2x) - 1}{exp(2x) + 1} \right]^2 \right)
      *            = \frac{\partial E}{\partial y} (1 - y^2)
-     *      @f$ if top[0]->propagate_down_
+     *      @f$ if bottom[0]->propagate_down_
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
                               const vector<Blob<Dtype>*> & bottom);

@@ -31,12 +31,14 @@ struct InnerProductLayer : public Layer<Dtype>
     transpose_ = this->param_->getbool("transpose", false);
     N_ = num_output;
     const int axis = bottom[0]->CanonicalAxisIndex(this->axis_);
+    CJSON* blobs_json = param_->get("blobs");
+    bool has_data = blobs_json && blobs_json->GetArraySize() > 0 && blobs_json->GetArrayItem(0)->has("data");
     // Dimensions starting from "axis" are "flattened" into a single
     // length K_ vector. For example, if bottom[0]'s shape is (N, C, H, W),
     // and axis == 1, N inner products with dimension CHW are performed.
     K_ = bottom[0]->count(axis);
     // Check if we need to set up the weights
-    if (this->blobs_.size() > 0) {
+    if (has_data) {
       LOG(INFO) << "Skipping parameter initialization";
     }
     else {
@@ -76,7 +78,7 @@ struct InnerProductLayer : public Layer<Dtype>
     // The top shape will be the bottom shape with the flattened axes dropped,
     // and replaced by a single axis with dimension num_output (N_).
     DataShape top_shape = bottom[0]->shape();
-    //top_shape.resize(axis + 1);
+    top_shape.resize(axis + 1);
     top_shape.dim[axis] = N_;
     top[0]->Reshape(top_shape);
     // Set up the bias multiplier
@@ -93,8 +95,7 @@ struct InnerProductLayer : public Layer<Dtype>
     Dtype* top_data = top[0]->mutable_data<Context>();
     const Dtype* weight = this->blobs_[0]->data<Context>();
     caffe_gemm<Dtype>(context, CblasNoTrans, transpose_ ? CblasNoTrans : CblasTrans,
-      M_, N_, K_, (Dtype)1.,
-      bottom_data, weight, (Dtype)0., top_data);
+      M_, N_, K_, (Dtype)1.,bottom_data, weight, (Dtype)0., top_data);
     if (bias_term_) {
       caffe_gemm<Dtype>(context, CblasNoTrans, CblasNoTrans, M_, N_, 1, (Dtype)1.,
         bias_multiplier_.data<Context>(),
@@ -129,7 +130,7 @@ struct InnerProductLayer : public Layer<Dtype>
         bias_multiplier_.data<Context>(), (Dtype)1.,
         this->blobs_[1]->mutable_diff<Context>());
     }
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff<Context>();
       // Gradient with respect to bottom data
       if (transpose_) {

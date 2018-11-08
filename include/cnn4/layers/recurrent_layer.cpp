@@ -289,10 +289,10 @@ namespace
       const vector<Blob<Dtype>*> & bottom)
   {
     if (propagate_down.size() > 1) {
-      CHECK(!top[1]->propagate_down_) << "Cannot backpropagate to sequence indicators.";
+      CHECK(!bottom[1]->propagate_down_) << "Cannot backpropagate to sequence indicators.";
     }
     // TODO: skip backpropagation to inputs and parameters inside the unrolled
-    // net according to top[0]->propagate_down_ and propagate_down[2]. For now just
+    // net according to bottom[0]->propagate_down_ and propagate_down[2]. For now just
     // backprop to inputs and parameters unconditionally, as either the inputs or
     // the parameters do need backward (or Net would have set
     // layer_needs_backward_[i] == false for this layer).

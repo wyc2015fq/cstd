@@ -112,7 +112,7 @@ int XavierFiller(Blob<Dtype>* blob, CJSON* param) {
   int fan_in = blob->count() / blob->num();
   int fan_out = blob->count() / blob->channels();
   Dtype n = (Dtype)fan_in;  // default to fan_in
-  VarianceNorm variance_norm = (VarianceNorm)param->GetObjectEnum("variance_norm", FAN_IN, VarianceNorm_Name, countof(VarianceNorm_Name));
+  VarianceNorm variance_norm = param->getenum("variance_norm", FAN_IN, VarianceNorm_Name, countof(VarianceNorm_Name));
   if (variance_norm == AVERAGE) {
     n = (fan_in + fan_out) / Dtype(2);
   }

@@ -78,8 +78,7 @@ void caffe_gemv<double>(_CONTEXT,const CBLAS_TRANSPOSE TransA, const int M,
 }
 
 template <>
-void caffe_axpy<float>(_CONTEXT,const int N, const float alpha, const float* X,
-  float* Y) {
+void caffe_axpy<float>(_CONTEXT,const int N, const float alpha, const float* X, float* Y) {
   cblas_saxpy(N, alpha, X, 1, Y, 1);
 }
 
@@ -90,7 +89,7 @@ void caffe_axpy<double>(_CONTEXT,const int N, const double alpha, const double* 
 }
 
 template <typename Dtype>
-void caffe_set(const int N, const Dtype alpha, Dtype* Y)
+void caffe_set(_CONTEXT, const int N, const Dtype alpha, Dtype* Y)
 {
   if (alpha == 0) {
     memset(Y, 0, sizeof(Dtype) * N);  // NOLINT(caffe/alt_fn)

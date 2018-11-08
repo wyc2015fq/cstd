@@ -58,7 +58,7 @@ void EmbedLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>&
 template <typename Dtype>
 void EmbedLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  CHECK(!top[0]->propagate_down_) << "Can't backpropagate to EmbedLayer input.";
+  CHECK(!bottom[0]->propagate_down_) << "Can't backpropagate to EmbedLayer input.";
   if (this->blobs_[0]->propagate_down_) {
     const int top_count = top[0]->count();
     const Dtype* top_diff = top[0]->gpu_diff();

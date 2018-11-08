@@ -125,7 +125,7 @@ void LSTMUnitLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
   CHECK(!propagate_down[2]) << "Cannot backpropagate to sequence indicators.";
-  if (!top[0]->propagate_down_ && !top[1]->propagate_down_) { return; }
+  if (!bottom[0]->propagate_down_ && !bottom[1]->propagate_down_) { return; }
 
   const int count = top[1]->count();
   const Dtype* C_prev = bottom[0]->data<Context>();

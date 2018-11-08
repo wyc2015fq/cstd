@@ -69,7 +69,7 @@ CJSON* cJSON_pushArrayItem(cJSON* object) {
 CJSON* cJSON_gcArrayItem(cJSON* object, int index) {
   int size = cJSON_GetArraySize(object);
   for (; size <= index; ++size) {
-      cJSON_AddItemToArray(object, cJSON_CreateArray());
+      cJSON_AddItemToArray(object, cJSON_CreateObject());
   }
   CJSON* item = cJSON_GetArrayItem((cJSON*)object, index);
   assert(item);
@@ -95,32 +95,40 @@ int cJSON_GetObjectBinaryData(cJSON* object, const char* string, void* data, int
 }
 
 int cJSON_GetObjectArraySize(const cJSON* object, const char* name) {
-  CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
-  if (item) {
-    return cJSON_GetArraySize(item);
+  if (object) {
+    CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
+    if (item) {
+      return cJSON_GetArraySize(item);
+    }
   }
   return 0;
 }
 
 char* cJSON_GetObjectString(const cJSON* object, const char* name, const char* default_string) {
-  CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
-  if (item) {
-    default_string = item->valuestring;
+  if (object) {
+    CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
+    if (item) {
+      default_string = item->valuestring;
+    }
   }
   return (char*)default_string;
 }
 
 double cJSON_GetObjectNumber(const cJSON* object, const char* name, double default_double) {
-  CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
-  if (item) {
-    default_double = item->valuedouble;
+  if (object) {
+    CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
+    if (item) {
+      default_double = item->valuedouble;
+    }
   }
   return default_double;
 }
 int cJSON_GetObjectInt(const cJSON* object, const char* name, int default_int) {
-  CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
-  if (item) {
-    default_int = item->valueint;
+  if (object) {
+    CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
+    if (item) {
+      default_int = item->valueint;
+    }
   }
   return default_int;
 }
@@ -178,11 +186,13 @@ int cJSON_GetObjectStringArray(cJSON* object, const char* name, vector<string>& 
 
 #define CJSON_GETOBJECTENUM(object, name, default_enum, type)  (type)cJSON_GetObjectEnum(object, name, default_enum, type ##_Name, countof( type ##_Name ))
 int cJSON_GetObjectEnum(const cJSON* object, const char* name, int default_enum, const char** enum_map, int enum_map_len) {
-  CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
-  if (item) {
-    for (int i=0; i<enum_map_len; ++i) {
-      if (0==strcmp(item->valuestring, enum_map[i])) {
-        return i;
+  if (object) {
+    CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
+    if (item) {
+      for (int i = 0; i < enum_map_len; ++i) {
+        if (0 == strcmp(item->valuestring, enum_map[i])) {
+          return i;
+        }
       }
     }
   }

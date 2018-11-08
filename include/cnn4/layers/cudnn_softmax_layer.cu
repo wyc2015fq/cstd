@@ -23,7 +23,7 @@ void CuDNNSoftmaxLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dt
 template <typename Dtype>
 void CuDNNSoftmaxLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (top[0]->propagate_down_) {
+  if (bottom[0]->propagate_down_) {
     const Dtype* top_data = top[0]->data<Context>();
     const Dtype* top_diff = top[0]->gpu_diff();
     const Dtype* bottom_data = bottom[0]->data<Context>();

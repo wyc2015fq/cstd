@@ -63,7 +63,7 @@ inline void im2col_nd_core(const Dtype* data_input, const bool im2col,
     for (int i = 0; i < num_spatial_axes; ++i) {
       im_size *= im_shape.dim[1 + i];
     }
-    caffe_set(im_size, Dtype(0), data_output);
+    caffe_set(CPUCONTEXT, im_size, Dtype(0), data_output);
   }
   int kernel_size = 1;
   for (int i = 0; i < num_spatial_axes; ++i) {
@@ -146,7 +146,7 @@ void col2im(_CONTEXT, const Dtype* data_col, const int channels,
   const int dilation_h, const int dilation_w,
   Dtype* data_im)
 {
-  caffe_set(height * width * channels, Dtype(0), data_im);
+  caffe_set(context, height * width * channels, Dtype(0), data_im);
   const int output_h = (height + 2 * pad_h -
     (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
   const int output_w = (width + 2 * pad_w -

@@ -16,7 +16,7 @@ void SplitLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>&
 template <typename Dtype>
 void SplitLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (!top[0]->propagate_down_) { return; }
+  if (!bottom[0]->propagate_down_) { return; }
   if (top.size() == 1) {
     caffe_copy(count_, top[0]->gpu_diff(), bottom[0]->mutable_gpu_diff());
     return;

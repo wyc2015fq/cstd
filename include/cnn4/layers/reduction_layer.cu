@@ -43,7 +43,7 @@ void ReductionLayer<Dtype>::Forward_gpu(
 template <typename Dtype>
 void ReductionLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (!top[0]->propagate_down_) { return; }
+  if (!bottom[0]->propagate_down_) { return; }
   // Get bottom_data, if needed.
   const Dtype* bottom_data = NULL;
   switch (op_) {

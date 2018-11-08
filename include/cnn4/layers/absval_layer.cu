@@ -18,7 +18,7 @@ void AbsValLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
   const int count = top[0]->count();
   const Dtype* top_diff = top[0]->gpu_diff();
-  if (top[0]->propagate_down_) {
+  if (bottom[0]->propagate_down_) {
     const Dtype* bottom_data = bottom[0]->data<Context>();
     Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
     caffe_gpu_sign(count, bottom_data, bottom_diff);

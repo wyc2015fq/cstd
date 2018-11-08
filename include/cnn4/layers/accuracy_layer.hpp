@@ -66,7 +66,7 @@ public:
   virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top,
     const vector<Blob<Dtype>*> & bottom) {
     for (int i = 0; i < top.size(); ++i) {
-      if (top[i]->propagate_down_) { NOT_IMPLEMENTED; }
+      if (bottom[i]->propagate_down_) { NOT_IMPLEMENTED; }
     }
   }
   int axis_;
@@ -114,8 +114,8 @@ public:
     vector<Dtype> maxval(top_k_ + 1);
     vector<int> max_id(top_k_ + 1);
     if (top.size() > 1) {
-      caffe_set(nums_buffer_.count(), Dtype(0), nums_buffer_.mutable_data<Context>());
-      caffe_set(top[1]->count(), Dtype(0), top[1]->mutable_data<Context>());
+      caffe_set(context, nums_buffer_.count(), Dtype(0), nums_buffer_.mutable_data<Context>());
+      caffe_set(context, top[1]->count(), Dtype(0), top[1]->mutable_data<Context>());
     }
     int count = 0;
     for (int i = 0; i < outer_num_; ++i) {
@@ -198,7 +198,7 @@ public:
   virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top,
     const vector<Blob<Dtype>*> & bottom) {
     for (int i = 0; i < propagate_down.size(); ++i) {
-      if (top[i]->propagate_down_) { NOT_IMPLEMENTED; }
+      if (bottom[i]->propagate_down_) { NOT_IMPLEMENTED; }
     }
   }
 

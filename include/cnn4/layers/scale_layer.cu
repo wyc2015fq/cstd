@@ -65,7 +65,7 @@ void ScaleLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>
   }
   const bool scale_param = (bottom.size() == 1);
   Blob<Dtype>* scale = scale_param ? this->blobs_[0].get() : bottom[1];
-  if ((!scale_param && top[1]->propagate_down_) ||
+  if ((!scale_param && bottom[1]->propagate_down_) ||
       (scale_param && this->blobs_[0]->propagate_down_)) {
     const Dtype* top_diff = top[0]->gpu_diff();
     const bool in_place = (bottom[0] == top[0]);
@@ -120,7 +120,7 @@ void ScaleLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>
       }
     }
   }
-  if (top[0]->propagate_down_) {
+  if (bottom[0]->propagate_down_) {
     const int count = top[0]->count();
     const Dtype* top_diff = top[0]->gpu_diff();
     const Dtype* scale_data = scale->data<Context>();

@@ -59,7 +59,7 @@ namespace
           this->backward_cpu_bias(bias_diff, top_diff + n * this->top_dim_);
         }
       }
-      if (this->blobs_[0]->propagate_down_ || top[i]->propagate_down_) {
+      if (this->blobs_[0]->propagate_down_ || bottom[i]->propagate_down_) {
         for (int n = 0; n < this->num_; ++n) {
           // Gradient w.r.t. weight. Note that we will accumulate diffs.
           if (this->blobs_[0]->propagate_down_) {
@@ -68,7 +68,7 @@ namespace
           }
           // Gradient w.r.t. bottom data, if necessary, reusing the column buffer
           // we might have just computed above.
-          if (top[i]->propagate_down_) {
+          if (bottom[i]->propagate_down_) {
             this->forward_cpu_gemm(top_diff + n * this->top_dim_, weight,
                                    bottom_diff + n * this->bottom_dim_,
                                    this->blobs_[0]->propagate_down_);

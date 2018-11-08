@@ -31,7 +31,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ContrastiveLossLayer<Dtype>::Forward_cpu(
+  void ContrastiveLossLayer<Dtype>::Forward(_CONTEXT,
     const vector<Blob<Dtype>*> & bottom,
     const vector<Blob<Dtype>*> & top)
   {
@@ -73,7 +73,7 @@ namespace
     bool legacy_version =
       this->param_->contrastive_loss_param().legacy_version();
     for (int i = 0; i < 2; ++i) {
-      if (top[i]->propagate_down_) {
+      if (bottom[i]->propagate_down_) {
         const Dtype sign = (i == 0) ? 1 : -1;
         const Dtype alpha = sign * top[0]->diff<Context>()[0] /
                             static_cast<Dtype>(bottom[i]->num());

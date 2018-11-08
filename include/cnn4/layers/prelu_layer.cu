@@ -108,7 +108,7 @@ void PReLULayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>
     }
   }
   // Propagate to bottom
-  if (top[0]->propagate_down_) {
+  if (bottom[0]->propagate_down_) {
     Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
     const Dtype* slope_data = this->blobs_[0]->data<Context>();
     int div_factor = channel_shared_ ? channels : 1;

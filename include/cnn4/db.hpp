@@ -35,7 +35,7 @@ class DB
 public:
   DB() { }
   virtual ~DB() { }
-  virtual void Open(const string & source, Mode mode) = 0;
+  virtual void Open(const char* source, Mode mode) = 0;
   virtual void Close() = 0;
   virtual Cursor* NewCursor() = 0;
   virtual Transaction* NewTransaction() = 0;
@@ -95,7 +95,7 @@ class LMDBTransaction : public Transaction
 public:
   explicit LMDBTransaction(MDB_env* mdb_env)
     : mdb_env_(mdb_env) { }
-  virtual void Put(const string & key, const string & value)
+  virtual void Put(const string& key, const string & value)
   {
     keys.push_back(key);
     values.push_back(value);
@@ -162,17 +162,17 @@ class LMDB : public DB
 public:
   LMDB() : mdb_env_(NULL) { }
   virtual ~LMDB() { Close(); }
-  virtual void Open(const string & source, Mode mode)
+  virtual void Open(const char* source, Mode mode)
   {
     MDB_CHECK(mdb_env_create(&mdb_env_));
     if (mode == NEW) {
-      CHECK_EQ(_mkdir(source.c_str()), 0) << "mkdir " << source << "failed";
+      CHECK_EQ(_mkdir(source), 0) << "mkdir " << source << "failed";
     }
     int flags = 0;
     if (mode == READ) {
       flags = MDB_RDONLY | MDB_NOTLS;
     }
-    int rc = mdb_env_open(mdb_env_, source.c_str(), flags, 0664);
+    int rc = mdb_env_open(mdb_env_, source, flags, 0664);
 #ifndef ALLOW_LMDB_NOLOCK
     MDB_CHECK(rc);
 #else
@@ -221,15 +221,15 @@ private:
 
 #endif
 
-DB* GetDB(const string & backend)
+DB* GetDB(const char* backend)
 {
 #ifdef USE_LEVELDB
-  if (backend == "leveldb") {
+  if (0 == _stricmp(backend, "leveldb")) {
     return new LevelDB();
   }
 #endif  // USE_LEVELDB
 #ifdef USE_LMDB
-  if (backend == "lmdb") {
+  if (0 == _stricmp(backend, "lmdb")) {
     return new LMDB();
   }
 #endif  // USE_LMDB

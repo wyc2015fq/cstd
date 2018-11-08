@@ -32,14 +32,14 @@ void BiasLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& 
 template <typename Dtype>
 void BiasLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (top[0]->propagate_down_ && bottom[0] != top[0]) {
+  if (bottom[0]->propagate_down_ && bottom[0] != top[0]) {
     const Dtype* top_diff = top[0]->gpu_diff();
     Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
     caffe_copy(bottom[0]->count(), top_diff, bottom_diff);
   }
   // in-place, we don't need to do anything with the data diff
   const bool bias_param = (bottom.size() == 1);
-  if ((!bias_param && top[1]->propagate_down_) ||
+  if ((!bias_param && bottom[1]->propagate_down_) ||
       (bias_param && this->blobs_[0]->propagate_down_)) {
     const Dtype* top_diff = top[0]->gpu_diff();
     Dtype* bias_diff = (bias_param ? this->blobs_[0].get() : bottom[1])

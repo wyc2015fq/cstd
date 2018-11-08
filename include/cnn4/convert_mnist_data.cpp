@@ -18,6 +18,8 @@
 
 //#include "boost/scoped_ptr.hpp"
 #include "db.hpp"
+#include "parser/cJSON.hpp"
+#include "data_transformer.hpp"
 #include "types.h"
 #include "wstd/string.hpp"
 #include "wstd/flags.hpp"
@@ -30,7 +32,7 @@ uint32_t swap_endian(uint32_t val)
 }
 
 int convert_dataset(const char* image_filename, const char* label_filename,
-                    const char* db_path, const string & db_backend)
+                    const char* db_path, const char* db_backend)
 {
   // Open files
   std::ifstream image_file(image_filename, std::ios::in | std::ios::binary);
@@ -73,6 +75,16 @@ int convert_dataset(const char* image_filename, const char* label_filename,
   //blob_labels->add_dim(1);
   LOG(INFO) << "A total of " << num_items << " items.";
   LOG(INFO) << "Rows: " << rows << " Cols: " << cols;
+  if (0) {
+    Cursor* cursor = db->NewCursor();
+    while (cursor->valid()) {
+      Datum datum2;
+      printf("%s\n", cursor->key().c_str());
+      string value = cursor->value();
+      ParseFromString(value.c_str(), datum2);
+      cursor->Next();
+    }
+  }
   for (int item_id = 0; item_id < (int)num_items; ++item_id) {
     printf("item_id=%d\n", item_id);
     image_file.read(pixels, rows * cols);
@@ -86,8 +98,7 @@ int convert_dataset(const char* image_filename, const char* label_filename,
     txn->Put(key_str, value);
     if (1) {
       Datum datum2;
-      int i = 0;
-      str_get_datum(value.c_str(), i, datum2);
+      ParseFromString(value.c_str(), datum2);
       int ret = Datum_cmp(datum2, datum);
       assert(ret == 0);
     }
@@ -111,17 +122,6 @@ int convert_dataset(const char* image_filename, const char* label_filename,
 
 int convert_mnist_data(int argc, char** argv)
 {
-#ifdef _DEBUG
-  if (1) {
-    _chdir("C:/caffe_train/mnist");
-    char* aa[] = { "",
-    "train-images-idx3-ubyte","train-labels-idx1-ubyte","./mnist_train_lmdb","--backend=lmdb"
-    };
-    argc = 5;
-    argv = aa;
-  }
-#endif
-  
   static const char* const keys3 =
     "{ backend | lmdb  | The backend for storing the result }"
     "{ s5 |       | five values scalar }";
@@ -139,7 +139,19 @@ int convert_mnist_data(int argc, char** argv)
   }
   wstd::CommandLineParser parser(argc, argv, keys3);
   const string & db_backend = parser.get<string>("backend");
-  convert_dataset(argv[1], argv[2], argv[3], db_backend);
+  convert_dataset(argv[1], argv[2], argv[3], db_backend.c_str());
   return 0;
 }
 
+int test_convert_mnist_data() {
+  _chdir("C:/caffe_train/mnist");
+  char* train[] = { "",
+    "train-images-idx3-ubyte","train-labels-idx1-ubyte","./mnist_train_lmdb","--backend=lmdb"
+  };
+  char* test[] = { "",
+    "t10k-images-idx3-ubyte","t10k-labels-idx1-ubyte","./mnist_test_lmdb","--backend=lmdb"
+  };
+  convert_mnist_data(countof(test), test);
+  convert_mnist_data(countof(train), train);
+  return 0;
+}

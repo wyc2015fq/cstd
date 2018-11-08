@@ -69,7 +69,7 @@ namespace
      *            \alpha \gamma (\alpha x + \beta) ^ {\gamma - 1} =
      *            \frac{\partial E}{\partial y}
      *            \frac{\alpha \gamma y}{\alpha x + \beta}
-     *      @f$ if top[0]->propagate_down_
+     *      @f$ if bottom[0]->propagate_down_
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
                               const vector<Blob<Dtype>*> & bottom);

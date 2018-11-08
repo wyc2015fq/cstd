@@ -29,7 +29,7 @@ namespace
   }
 
   template <typename Dtype>
-  void SigmoidCrossEntropyLossLayer<Dtype>::Forward_cpu(
+  void SigmoidCrossEntropyLossLayer<Dtype>::Forward(_CONTEXT,
     const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
     // The forward pass computes the sigmoid outputs.
@@ -54,11 +54,11 @@ namespace
     const vector<Blob<Dtype>*> & top, int*
     const vector<Blob<Dtype>*> & bottom)
   {
-    if (top[1]->propagate_down_) {
+    if (bottom[1]->propagate_down_) {
       LOG(FATAL) << this->type()
                  << " Layer cannot backpropagate to label inputs.";
     }
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       // First, compute the diff
       const int count = bottom[0]->count();
       const int num = bottom[0]->num();

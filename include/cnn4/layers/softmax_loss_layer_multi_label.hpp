@@ -74,8 +74,8 @@ namespace
      * @brief Computes the softmax loss error gradient w.r.t. the predictions.
      *
      * Gradients cannot be computed with respect to the label inputs (bottom[1]),
-     * so this method ignores bottom[1] and requires !top[1]->propagate_down_, crashing
-     * if top[1]->propagate_down_ is set.
+     * so this method ignores bottom[1] and requires !bottom[1]->propagate_down_, crashing
+     * if bottom[1]->propagate_down_ is set.
      *
      * @param top output Blob vector (length 1), providing the error gradient with
      *      respect to the outputs
@@ -88,7 +88,7 @@ namespace
      *      (*Assuming that this top Blob is not used as a bottom (input) by any
      *      other layer of the Net.)
      * @param propagate_down see Layer::Backward.
-     *      top[1]->propagate_down_ must be false as we can't compute gradients with
+     *      bottom[1]->propagate_down_ must be false as we can't compute gradients with
      *      respect to the labels.
      * @param bottom input Blob vector (length 2)
      *   -# @f$ (N \times C \times H \times W) @f$

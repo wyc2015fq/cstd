@@ -174,15 +174,15 @@ namespace
       int*
       const vector<Blob<Dtype>*> & bottom)
   {
-    CHECK_EQ(top[0]->propagate_down_, true)
+    CHECK_EQ(bottom[0]->propagate_down_, true)
         << "Required to propagate to probabilities";
     if (propagate_down.size() >= 3) {
-      CHECK_EQ(top[1]->propagate_down_, false)
+      CHECK_EQ(bottom[1]->propagate_down_, false)
           << "Cannot propagate to sequence indicators";
       CHECK_EQ(propagate_down[2], false)
           << "Cannot propagate to target label sequence";
     } else if (propagate_down.size() == 2) {
-      CHECK_EQ(top[1]->propagate_down_, false)
+      CHECK_EQ(bottom[1]->propagate_down_, false)
           << "Cannot propagate to target label sequence";
     }
   }

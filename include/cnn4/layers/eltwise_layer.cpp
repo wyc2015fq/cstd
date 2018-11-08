@@ -45,7 +45,7 @@ namespace
   }
 
   template <typename Dtype>
-  void EltwiseLayer<Dtype>::Forward_cpu(
+  void EltwiseLayer<Dtype>::Forward(_CONTEXT,
     const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
     int* mask = NULL;
@@ -109,7 +109,7 @@ namespace
     const Dtype* top_data = top[0]->data<Context>();
     const Dtype* top_diff = top[0]->diff<Context>();
     for (int i = 0; i < bottom.size(); ++i) {
-      if (top[i]->propagate_down_) {
+      if (bottom[i]->propagate_down_) {
         const Dtype* bottom_data = bottom[i]->data<Context>();
         Dtype* bottom_diff = bottom[i]->mutable_diff<Context>();
         switch (op_) {

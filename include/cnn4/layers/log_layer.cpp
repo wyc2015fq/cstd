@@ -60,7 +60,7 @@ namespace
   void LogLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
                                      const vector<Blob<Dtype>*> & bottom)
   {
-    if (!top[0]->propagate_down_) { return; }
+    if (!bottom[0]->propagate_down_) { return; }
     const int count = bottom[0]->count();
     const Dtype* bottom_data = bottom[0]->data<Context>();
     const Dtype* top_diff = top[0]->diff<Context>();

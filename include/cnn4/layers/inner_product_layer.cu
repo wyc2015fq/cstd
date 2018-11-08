@@ -57,7 +57,7 @@ void InnerProductLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<D
         bias_multiplier_.data<Context>(), (Dtype)1.,
         this->blobs_[1]->mutable_gpu_diff());
   }
-  if (top[0]->propagate_down_) {
+  if (bottom[0]->propagate_down_) {
     const Dtype* top_diff = top[0]->gpu_diff();
     // Gradient with respect to bottom data
     if (transpose_) {

@@ -223,15 +223,14 @@ namespace caffe
     const vector<float> & net_params_lr = this->net_->params_lr();
     Dtype momentum = this->param_.momentum();
     Dtype local_rate = rate * net_params_lr[param_id];
+    int count_ = net_params[param_id]->count();
+    Dtype* params_diff = net_params[param_id]->mutable_cpu_diff();
+    Dtype* history_data = history_[param_id]->mutable_cpu_data();
     // Compute the update to history, then copy it to the parameter diff.
     switch (Caffe::mode()) {
     case Caffe::CPU: {
-      caffe_cpu_axpby(net_params[param_id]->count(), local_rate,
-                      net_params[param_id]->cpu_diff(), momentum,
-                      history_[param_id]->mutable_cpu_data());
-      caffe_copy(net_params[param_id]->count(),
-                 history_[param_id]->cpu_data(),
-                 net_params[param_id]->mutable_cpu_diff());
+      caffe_cpu_axpby(count_, local_rate, params_diff, momentum, history_data);
+      caffe_copy(count_, history_data, params_diff);
       break;
     }
     case Caffe::GPU: {

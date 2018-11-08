@@ -31,7 +31,7 @@ void ReverseLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*
 template <typename Dtype>
 void ReverseLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
-  if (!top[0]->propagate_down_) { return; }
+  if (!bottom[0]->propagate_down_) { return; }
 
   Dtype* target = bottom[0]->mutable_gpu_diff();
 

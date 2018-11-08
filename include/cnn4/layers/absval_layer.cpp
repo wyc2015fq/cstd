@@ -16,7 +16,7 @@ namespace
   }
 
   template <typename Dtype>
-  void AbsValLayer<Dtype>::Forward_cpu(
+  void AbsValLayer<Dtype>::Forward(_CONTEXT,
     const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
     const int count = top[0]->count();
@@ -30,7 +30,7 @@ namespace
   {
     const int count = top[0]->count();
     const Dtype* top_diff = top[0]->diff<Context>();
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       const Dtype* bottom_data = bottom[0]->data<Context>();
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       caffe_sign(count, bottom_data, bottom_diff);

@@ -119,7 +119,7 @@ namespace
       }
     }
     // Propagate to bottom
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       for (int i = 0; i < count; ++i) {
         int c = (i / dim) % channels / div_factor;

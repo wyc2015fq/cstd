@@ -44,11 +44,11 @@ namespace
   void HingeLossLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
       const vector<Blob<Dtype>*> & bottom)
   {
-    if (top[1]->propagate_down_) {
+    if (bottom[1]->propagate_down_) {
       LOG(FATAL) << this->type()
                  << " Layer cannot backpropagate to label inputs.";
     }
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       const Dtype* label = bottom[1]->data<Context>();
       int num = bottom[0]->num();

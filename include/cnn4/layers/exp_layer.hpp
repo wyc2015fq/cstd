@@ -67,7 +67,7 @@ namespace
      *      gradients @f$
      *        \frac{\partial E}{\partial x} =
      *            \frac{\partial E}{\partial y} y \alpha \log_e(gamma)
-     *      @f$ if top[0]->propagate_down_
+     *      @f$ if bottom[0]->propagate_down_
      */
     virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
                               const vector<Blob<Dtype>*> & bottom);

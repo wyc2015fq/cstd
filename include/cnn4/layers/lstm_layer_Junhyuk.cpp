@@ -290,7 +290,7 @@ namespace
                      bias_multiplier_.data<Context>(), Dtype(1.),
                      this->blobs_[2]->mutable_diff<Context>());
     }
-    if (top[0]->propagate_down_) {
+    if (bottom[0]->propagate_down_) {
       // Gradient w.r.t. bottom data
       caffe_gemm(CblasNoTrans, CblasNoTrans, T_ * N_, I_, 4 * H_, Dtype(1.),
                      pre_gate_diff, weight_i, Dtype(0.), bottom[0]->mutable_diff<Context>());
