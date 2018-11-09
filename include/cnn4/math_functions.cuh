@@ -71,7 +71,7 @@ void caffe_axpy<double>(_CONTEXT, const int N, const double alpha, const double*
   CUBLAS_CHECK(cublasDaxpy(cublas_handle(), N, &alpha, X, 1, Y, 1));
 }
 
-void caffe_memcpy(const size_t N, const void* X, void* Y) {
+void caffe_memcpy(_CONTEXT,const size_t N, const void* X, void* Y) {
   if (X != Y) {
     CUDA_CHECK(cudaMemcpy(Y, X, N, cudaMemcpyDefault));  // NOLINT(caffe/alt_fn)
   }

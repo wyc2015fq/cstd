@@ -107,15 +107,19 @@ public:
     const vector<Blob<Dtype>*> & top)
   {
     Dtype accuracy = 0;
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    const Dtype* bottom_label = bottom[1]->data<Context>();
+    Dtype* top0_data = top[0]->mutable_data<CPUContext>();
+    Dtype* top1_data = NULL;
+    Dtype* nums_buffer_data = nums_buffer_.mutable_data<CPUContext>();
+    const Dtype* bottom_data = bottom[0]->data<CPUContext>();
+    const Dtype* bottom_label = bottom[1]->data<CPUContext>();
     const int dim = bottom[0]->count() / outer_num_;
     const int num_labels = bottom[0]->shape(label_axis_);
     vector<Dtype> maxval(top_k_ + 1);
     vector<int> max_id(top_k_ + 1);
     if (top.size() > 1) {
-      caffe_set(context, nums_buffer_.count(), Dtype(0), nums_buffer_.mutable_data<Context>());
-      caffe_set(context, top[1]->count(), Dtype(0), top[1]->mutable_data<Context>());
+      top1_data = top[1]->mutable_data<CPUContext>();
+      caffe_set(CPUCONTEXT, nums_buffer_.count(), Dtype(0), nums_buffer_data);
+      caffe_set(CPUCONTEXT, top[1]->count(), Dtype(0), top1_data);
     }
     int count = 0;
     for (int i = 0; i < outer_num_; ++i) {
@@ -125,7 +129,7 @@ public:
         if (has_ignore_label_ && label_value == ignore_label_) {
           continue;
         }
-        if (top.size() > 1) { ++nums_buffer_.mutable_data<Context>()[label_value]; }
+        if (top.size() > 1) { ++nums_buffer_data[label_value]; }
         DCHECK_GE(label_value, 0);
         DCHECK_LT(label_value, num_labels);
         // Top-k accuracy
@@ -141,7 +145,7 @@ public:
         for (int k = 0; k < top_k_; k++) {
           if (bottom_data_vector[k].second == label_value) {
             ++accuracy;
-            if (top.size() > 1) { ++top[1]->mutable_data<Context>()[label_value]; }
+            if (top.size() > 1) { ++top1_data[label_value]; }
             break;
           }
         }
@@ -149,12 +153,10 @@ public:
       }
     }
     // LOG(INFO) << "Accuracy: " << accuracy;
-    top[0]->mutable_data<Context>()[0] = accuracy / count;
+    top0_data[0] = accuracy / count;
     if (top.size() > 1) {
       for (int i = 0; i < top[1]->count(); ++i) {
-        top[1]->mutable_data<Context>()[i] =
-          nums_buffer_.data<Context>()[i] == 0 ? 0
-          : top[1]->data<Context>()[i] / nums_buffer_.data<Context>()[i];
+        top1_data[i] = nums_buffer_data[i] == 0 ? 0 : top1_data[i] / nums_buffer_data[i];
       }
     }
     // Accuracy layer should not be used as a loss function.

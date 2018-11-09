@@ -1,5 +1,5 @@
 
-inline int num_axes() const { return (int)4; }
+inline int num_axes() const { return shape_.num_axes(); }
 
 inline string shape_string() const {
   return DataShape_string(shape_);
@@ -8,16 +8,7 @@ inline int shape(int index) const {
   return shape_.dim[CanonicalAxisIndex(index)];
 }
 inline int CanonicalAxisIndex(int axis_index) const {
-  CHECK_GE(axis_index, -num_axes())
-    << "axis " << axis_index << " out of range for " << num_axes()
-    << "-D Blob with shape " << shape_string();
-  CHECK_LT(axis_index, num_axes())
-    << "axis " << axis_index << " out of range for " << num_axes()
-    << "-D Blob with shape " << shape_string();
-  if (axis_index < 0) {
-    return axis_index + num_axes();
-  }
-  return axis_index;
+  return shape_.CanonicalAxisIndex(axis_index);
 }
 
 /// @brief Deprecated legacy shape accessor num: use shape(0) instead.
@@ -43,21 +34,7 @@ inline int LegacyShape(int index) const {
 }
 
 inline int count(int start_axis, int end_axis) const {
-  if (end_axis > num_axes()) {
-    int asdf = 0;
-  }
-  start_axis = min(start_axis, num_axes());
-  end_axis = min(end_axis, num_axes());
-  CHECK_LE(start_axis, end_axis);
-  CHECK_GE(start_axis, 0);
-  CHECK_GE(end_axis, 0);
-  CHECK_LE(start_axis, num_axes());
-  CHECK_LE(end_axis, num_axes());
-  int count = 1;
-  for (int i = start_axis; i < end_axis; ++i) {
-    count *= shape(i);
-  }
-  return count;
+  return shape_.count(start_axis, end_axis);
 }
 inline int count(int start_axis) const {
   return count(start_axis, num_axes());
@@ -110,12 +87,12 @@ int FromProto(CJSON* proto) {
   int nbytes = count * sizeof(float);
   blob->Reshape(shape);
   if (proto->GetObjectItem("data")) {
-    Dtype* data = blob->mutable_data<Context>();
+    Dtype* data = blob->mutable_data<CPUContext>();
     nbytes = blob->shape_.count();
     cJSON_GetObjectBinaryData(proto, "data", data, nbytes);
   }
   if (proto->GetObjectItem("diff")) {
-    float* data = blob->mutable_diff<Context>();
+    float* data = blob->mutable_diff<CPUContext>();
     cJSON_GetObjectBinaryData(proto, "diff", data, count);
   }
   return 0;

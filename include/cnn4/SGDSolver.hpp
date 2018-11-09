@@ -132,7 +132,7 @@ struct SGDSolver : public Solver<Dtype> {
     //const vector<float> & net_params_lr = this->net_->params_lr();
     Dtype momentum = this->param_->GetObjectNumber("momentum", 1);
     Dtype local_rate = rate;// net_params_lr[param_id];
-#if 1
+#if 0
     int count_ = learnable_params_[param_id]->count();
     // Compute the update to history, then copy it to the parameter diff.
     Dtype* learnable_params_diff = learnable_params_[param_id]->mutable_diff<Context>();

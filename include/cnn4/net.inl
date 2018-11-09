@@ -33,12 +33,8 @@ int FromProto(CJSON* param) {
     for (int i = 0; i < layer_size; ++i) {
       CJSON* layer_json = layers_json->GetArrayItem(i);
       const char* type = layer_json->GetObjectString("type", NULL);
-      Layer<Dtype>::fun_type fun = Layer<Dtype>::reg(NULL, type);
-      if (NULL == fun) {
-        int asdf = 0;
-      }
-      Layer<Dtype>* layer = net->layers_[i] = fun();
-      layer->FromProto(layer_json, blobs_);
+      CreateLayer(net->layers_[i], type);
+      net->layers_[i]->FromProto(layer_json, blobs_);
     }
     ret = 1;
   }

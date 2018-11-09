@@ -100,6 +100,7 @@ struct Solver {
     vector<float>  losses_;
     losses_.clear();
     PreSolve();
+    Snapshot();
     double smoothed_loss_ = 0;
     while (iter_ < stop_iter) {
       // zero-init the params
@@ -123,7 +124,7 @@ struct Solver {
         for (int j = 0; j < net_->blobs_.size(); ++j) {
           Blob<Dtype>* blob = net_->blobs_[j];
           if (blob->loss_weight_>0) {
-            const Dtype* result_vec = blob->data<Context>();
+            const Dtype* result_vec = blob->data<CPUContext>();
             const string & output_name = blob->name;
             const Dtype loss_weight = blob->loss_weight_;
 
@@ -165,7 +166,7 @@ struct Solver {
 
   void Snapshot() {
     char model_filename[256];
-    char* snapshot_prefix = net_->param_->GetObjectString("snapshot_prefix", "");
+    char* snapshot_prefix = param_->GetObjectString("snapshot_prefix", "");
     _snprintf(model_filename, 256, "%s_iter_%d.json", snapshot_prefix, iter_);
     cJSON_SaveFile(model_filename, net_->param_);
   }

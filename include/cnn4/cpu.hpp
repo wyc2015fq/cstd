@@ -68,7 +68,7 @@ static void ReAlloc(CPUContext* ptr, size_t nbytes) {
 }
 static void Memset(CPUContext* ptr, size_t nbytes) {
   CHECK_LE(nbytes, ptr->size);
-  memset(ptr->data, 0, ptr->size);
+  memset(ptr->data, 0, nbytes);
 }
 #if 0
 static void MemcpyAsync(size_t nbytes, CPUContext* dst, const void* src, void* stream) { memcpy(dst, src, nbytes); }

@@ -1,28 +1,4 @@
 
-int AppendName(Layer<Dtype>* layer, bool is_top, vector<Blob<Dtype>*>& net_blobs_) {
-  vector<string> vec;
-  const char* name = is_top ? "top" : "bottom";
-  cJSON_GetObjectStringArray(layer->param_, name, vec);
-  Blob<Dtype>* bi;
-  vector<Blob<Dtype>*>& blobvec = is_top ? layer->top_vecs_ : layer->bottom_vecs_;
-  for (int i = 0; i < vec.size(); ++i) {
-    if (blobs_count(net_blobs_, vec[i]) == 0) {
-      bi = blobs_add(net_blobs_, vec[i]);
-    }
-    else {
-      bi = blobs_get(net_blobs_, vec[i]);
-    }
-    if (is_top) {
-      bi->top_cnt_++;
-    }
-    else {
-      bi->bottom_cnt_++;
-    }
-    blobvec.push_back(bi);
-  }
-  return 0;
-}
-
 int FromProto(CJSON* param, vector<Blob<Dtype>*>& net_blobs_) {
   Layer<Dtype>* layer = this;
   CJSON* blobs_json = param->GetObjectItem("blobs");
@@ -149,7 +125,9 @@ double Forward(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> &
   }
 
   Unlock();
-
+#ifdef _DEBUG
+  debug_info_ = 1;
+#endif
   if (debug_info_) {
     for (int i = 0; i < top.size(); ++i) {
       const Blob<Dtype> & blob = *top[i];

@@ -58,6 +58,33 @@ struct DataShape {
       dim[k] = 1;
     }
   }
+  inline int num_axes() const { return (int)4; }
+  inline int shape(int index) const {
+    return dim[CanonicalAxisIndex(index)];
+  }
+  inline int CanonicalAxisIndex(int axis_index) const {
+    if (axis_index < 0) {
+      return axis_index + num_axes();
+    }
+    return axis_index;
+  }
+  inline int count(int start_axis, int end_axis) const {
+    start_axis = min(start_axis, num_axes());
+    end_axis = min(end_axis, num_axes());
+    CHECK_LE(start_axis, end_axis);
+    CHECK_GE(start_axis, 0);
+    CHECK_GE(end_axis, 0);
+    CHECK_LE(start_axis, num_axes());
+    CHECK_LE(end_axis, num_axes());
+    int count = 1;
+    for (int i = start_axis; i < end_axis; ++i) {
+      count *= shape(i);
+    }
+    return count;
+  }
+  inline int count(int start_axis) const {
+    return count(start_axis, num_axes());
+  }
 };
 
 static int DataShape_cmp(const DataShape& a, const DataShape& b) {
@@ -136,6 +163,41 @@ static const char* NormalizationMode_Name[] = {
   NORMALIZATIONMODE_DEF_DEF(DEF)
 #undef DEF
 };
+#if 0
+int get_normalizer(DataShape bottom_shape, int axis_, NormalizationMode normalization_mode, int valid_count)
+{
+  int normalizer;
+  int softmax_axis_ = bottom_shape.CanonicalAxisIndex(axis_);
+  int outer_num_ = bottom_shape.count(0, softmax_axis_);
+  int inner_num_ = bottom_shape.count(softmax_axis_ + 1);
+
+  switch (normalization_mode) {
+  case NormalizationMode_FULL:
+    normalizer = int(outer_num_ * inner_num_);
+    break;
+  case NormalizationMode_VALID:
+    if (valid_count == -1) {
+      normalizer = int(outer_num_ * inner_num_);
+    }
+    else {
+      normalizer = int(valid_count);
+    }
+    break;
+  case NormalizationMode_BATCH_SIZE:
+    normalizer = int(outer_num_);
+    break;
+  case NormalizationMode_NONE:
+    normalizer = int(1);
+    break;
+  default:
+    LOG(FATAL) << "Unknown normalization mode: "
+      << NormalizationMode_Name[normalization_mode];
+  }
+  // Some users will have no labels for some examples in order to 'turn off' a
+  // particular loss in a multi-task setup. The max prevents NaNs in that case.
+  return std::max(int(1), normalizer);
+}
+#endif
 
 ///////////////////////////////////////////////////
 

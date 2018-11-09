@@ -56,7 +56,9 @@ struct DevMem {
 #endif
       break;
     case AT_CPU:
+      break;
     case SYNCED:
+      state_ = state;
       break;
     }
     return cpu_ptr_->data;
@@ -77,7 +79,9 @@ struct DevMem {
       state_ = state;
       break;
     case AT_GPU:
+      break;
     case SYNCED:
+      state_ = state;
       break;
     }
 #endif
@@ -200,27 +204,39 @@ static void blobs_reset(vector<Blob<Dtype>*>& blobs_, int blob_size) {
   }
 }
 template <typename Dtype>
-int blobs_count(const vector<Blob<Dtype>*>& blobs_, const string& name) {
+int blobs_count(const vector<Blob<Dtype>*>& blobs_, const char* name) {
   int i, count = 0;
   for (i = 0; i < blobs_.size(); ++i) {
-    if (0 == strcmp(name.c_str(), blobs_[i]->name)) { ++count; }
+    if (0 == strcmp(name, blobs_[i]->name)) { ++count; }
   }
   return count;
 }
 template <typename Dtype>
-Blob<Dtype>* blobs_get(const vector<Blob<Dtype>*>& blobs_, const string& name) {
+Blob<Dtype>* blobs_get(const vector<Blob<Dtype>*>& blobs_, const char* name) {
   int i;
   for (i = 0; i < blobs_.size(); ++i) {
-    if (0 == strcmp(name.c_str(), blobs_[i]->name)) { return blobs_[i]; }
+    if (0 == strcmp(name, blobs_[i]->name)) { return blobs_[i]; }
   }
   return NULL;
 }
+
 template <typename Dtype>
-Blob<Dtype>* blobs_add(vector<Blob<Dtype>*>& blobs_, const string& name) {
+Blob<Dtype>* blobs_add(vector<Blob<Dtype>*>& blobs_, const char* name) {
   Blob<Dtype>* new_blob = new Blob<Dtype>();
-  strncpy(new_blob->name, name.c_str(), MAX_NAME);
+  strncpy(new_blob->name, name, MAX_NAME);
   blobs_.push_back(new_blob);
   return new_blob;
+}
+template <typename Dtype>
+Blob<Dtype>* blobs_aget(vector<Blob<Dtype>*>& blobs_, const char* name) {
+  Blob<Dtype>* bi = NULL;
+  if (blobs_count(blobs_, name) == 0) {
+    bi = blobs_add(blobs_, name);
+  }
+  else {
+    bi = blobs_get(blobs_, name);
+  }
+  return bi;
 }
 
 template <typename Dtype>
@@ -276,8 +292,38 @@ struct Layer {
 #define INSTANTIATE_CLASS(Bias) template <typename Dtype>Layer<Dtype>* new ## Bias ## Layer() {return new Bias ## Layer<Dtype>();} \
 Layer<float>::fun_type f ## Bias = Layer<float>::reg(&new ## Bias ## Layer<float>, #Bias );
 //Layer<double>::fun_type d ## Bias = Layer<double>::reg(&new ## Bias ## Layer<double>, #Bias )
-
 #define REGISTER_LAYER_CLASS(Bias)  
+
+template <typename Dtype>
+int CreateLayer(Layer<Dtype>*& layer, const char* type) {
+  Layer<Dtype>::fun_type fun = Layer<Dtype>::reg(NULL, type);
+  CHECK(fun) << "CreateLayer can not find unkown layer type = " << type;
+  if (NULL == fun) {
+    return 0;
+  }
+  layer = fun();
+  return 1;
+}
+
+template <typename Dtype>
+static int AppendName(Layer<Dtype>* layer, bool is_top, vector<Blob<Dtype>*>& net_blobs_) {
+  vector<string> vec;
+  const char* name = is_top ? "top" : "bottom";
+  cJSON_GetObjectStringArray(layer->param_, name, vec);
+  Blob<Dtype>* bi;
+  vector<Blob<Dtype>*>& blobvec = is_top ? layer->top_vecs_ : layer->bottom_vecs_;
+  for (int i = 0; i < vec.size(); ++i) {
+    bi = blobs_aget(net_blobs_, vec[i].c_str());
+    if (is_top) {
+      bi->top_cnt_++;
+    }
+    else {
+      bi->bottom_cnt_++;
+    }
+    blobvec.push_back(bi);
+  }
+  return 0;
+}
 
 template <typename Dtype>
 struct Net {

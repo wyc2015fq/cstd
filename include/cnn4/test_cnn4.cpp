@@ -2,6 +2,7 @@
 #include "proto.h"
 #include "solver.hpp"
 #include "SGDSolver.hpp"
+#include "insert_splits.hpp"
 
 void Lock() {}
 void Unlock() {}
@@ -17,12 +18,18 @@ void ClearParamDiffs(Blob<Dtype>** learnable_params_, int learnable_params_size)
 }
 
 int test_cnn4() {
-  const char* fn;
+  const char* fn = NULL;
   test_caffe2json();
-  fn = "E:/OCR_Line/model/densenet-no-blstm/densenet-no-blstm.json";
-  fn = "C:/caffe_train/mnist/lenet.json";
+  if (1) {
+    fn = "C:/caffe_train/mnist/lenet.json";
+    _chdir("C:/caffe_train/mnist/");
+  }
+  if (0) {
+    fn = "E:/OCR_Line/model/densenet-no-blstm/densenet-no-blstm.json";
+    _chdir("E:/OCR_Line/model/densenet-no-blstm/");
+  }
+
   CJSON* root = cJSON_OpenFile(fn);
-  _chdir("C:/caffe_train/mnist/");
   typedef float Dtype;
   typedef Net<Dtype> NetF;
   NetF* net = new NetF;

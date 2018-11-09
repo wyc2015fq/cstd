@@ -8,7 +8,9 @@ void caffe_memset(_CONTEXT,const size_t N, const int alpha, void* X)
 {
   memset(X, alpha, N);
 }
-//void caffe_memcpy(const int N, const void* X, void* Y) {}
+void caffe_memcpy(_CONTEXT, const size_t N, const void* X, void* Y) {
+  memcpy(Y, X, N);
+}
 
 template <typename Dtype>
 void caffe_copy(_CONTEXT, const int N, const Dtype* X, Dtype* Y)

@@ -18,6 +18,11 @@ struct GPUContext;
 template <typename Dtype, typename Context>
 struct BufData : public Context {
   ~BufData() { Free(this); }
+  BufData(int count) {
+    memset(this, 0, sizeof(*this));
+    Context* ptr = this;
+    ReAlloc(ptr, count * sizeof(Dtype));
+  }
   BufData(int count, Dtype x) {
     memset(this, 0, sizeof(*this));
     Context* ptr = this;
@@ -25,5 +30,6 @@ struct BufData : public Context {
     caffe_set<Dtype>(ptr, count, x, (Dtype*)ptr->data);
   }
   const Dtype* get() const { return (const Dtype*)data; }
+  Dtype* mutable_get() { return (Dtype*)data; }
 };
 

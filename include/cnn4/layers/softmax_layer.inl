@@ -3,7 +3,8 @@
 template <typename Dtype>
 void softmax_forward(_CONTEXT, int count, int channels, int outer_num_, int inner_num_, const Dtype* bottom_data, Dtype* top_data, Dtype* scale_data) {
   int dim = count / outer_num_;
-  BufData<Dtype, Context> sum_multiplier_(channels, Dtype(1));
+  BufData<Dtype, CPUContext> sum_multiplier_buf(channels, Dtype(1));
+  const Dtype* sum_multiplier_ = sum_multiplier_buf.get();
   caffe_copy(context, count, bottom_data, top_data);
   // We need to subtract the max to avoid numerical issues, compute the exp,
   // and then normalize.
@@ -18,12 +19,12 @@ void softmax_forward(_CONTEXT, int count, int channels, int outer_num_, int inne
     }
     // subtraction
     caffe_gemm<Dtype>(context, CblasNoTrans, CblasNoTrans, channels, inner_num_,
-      1, -1., sum_multiplier_.get(), scale_data, 1., top_data);
+      1, -1., sum_multiplier_, scale_data, 1., top_data);
     // exponentiation
     caffe_exp<Dtype>(context, dim, top_data, top_data);
     // sum after exp
     caffe_gemv<Dtype>(context, CblasTrans, channels, inner_num_, 1.,
-      top_data, sum_multiplier_.get(), 0., scale_data);
+      top_data, sum_multiplier_, 0., scale_data);
     // division
     for (int j = 0; j < channels; j++) {
       caffe_div(context, inner_num_, top_data, scale_data, top_data);
@@ -35,7 +36,8 @@ void softmax_forward(_CONTEXT, int count, int channels, int outer_num_, int inne
 template <typename Dtype>
 void softmax_backward(_CONTEXT, int count, int channels, int outer_num_, int inner_num_, const Dtype* top_diff, const Dtype* top_data, Dtype* bottom_diff, Dtype* scale_data) {
   int dim = count / outer_num_;
-  BufData<Dtype, Context> sum_multiplier_(channels, Dtype(1));
+  BufData<Dtype, Context> sum_multiplier_buf(channels, Dtype(1));
+  const Dtype* sum_multiplier_ = sum_multiplier_buf.get();
   caffe_copy(context, count, top_diff, bottom_diff);
   for (int i = 0; i < outer_num_; ++i) {
     // compute dot(top_diff, top_data) and subtract them from the bottom diff
@@ -46,7 +48,7 @@ void softmax_backward(_CONTEXT, int count, int channels, int outer_num_, int inn
     }
     // subtraction
     caffe_gemm<Dtype>(context, CblasNoTrans, CblasNoTrans, channels, inner_num_, 1,
-      -1., sum_multiplier_.get(), scale_data, 1., bottom_diff + i * dim);
+      -1., sum_multiplier_, scale_data, 1., bottom_diff + i * dim);
   }
   // elementwise multiplication
   caffe_mul(context, count, bottom_diff, top_data, bottom_diff);

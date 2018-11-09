@@ -165,13 +165,13 @@ template <typename Dtype>
 void relu_backward(_CONTEXT, const int n, const Dtype* in_diff, const Dtype* in_data, Dtype* out_diff, Dtype negative_slope);
 
 template <typename Dtype>
-void pooling_forward(_CONTEXT, PoolMethod pool, Phase phase, const int count, const Dtype* bottom_data,
+void pooling_forward(_CONTEXT, PoolMethod pool, Phase phase, const Dtype* bottom_data,
   const int num, const int channels, const int height, const int width, const int pooled_height, const int pooled_width,
   const int kernel_h, const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w,
   Dtype* rand_idx, Dtype* top_data, int* mask, Dtype* top_mask);
 
 template <typename Dtype>
-void pooling_backward(_CONTEXT, PoolMethod pool, const int count, const Dtype* const rand_idx,
+void pooling_backward(_CONTEXT, PoolMethod pool, const Dtype* const rand_idx,
   const Dtype* top_diff, const int* mask, const Dtype* top_mask, const int num,
   const int channels, const int height, const int width, const int pooled_height, const int pooled_width, const int kernel_h,
   const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w, Dtype* bottom_diff);
@@ -182,3 +182,15 @@ void softmax_forward(_CONTEXT, int count, int channels, int outer_num_, int inne
 template <typename Dtype>
 void softmax_backward(_CONTEXT, int count, int channels, int outer_num_, int inner_num_, const Dtype* top_diff, const Dtype* top_data, Dtype* bottom_diff, Dtype* scale_data);
 
+
+template <typename Dtype>
+int softmaxloss_forward(_CONTEXT, const Dtype* prob_data, const Dtype* label,
+  const int num, const int dim, const int spatial_dim,
+  const bool has_ignore_label_, const int ignore_label_,
+  Dtype* out_loss);
+
+template <typename Dtype>
+int softmaxloss_backward(_CONTEXT,const Dtype* top_data,
+  const Dtype* label, Dtype* bottom_diff, const int outer_num_, const int dim,
+  const int spatial_dim, const bool has_ignore_label_,
+  const int ignore_label_);

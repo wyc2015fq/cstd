@@ -155,6 +155,8 @@ struct CudaObject {
 
 #define CUDAOBJECT  CudaObject::Get()
 
+static CudaObject& g_cuda = CUDAOBJECT;
+
 static void set_random_seed(const unsigned int seed)
 {
   // Curand seed
@@ -268,6 +270,15 @@ static int FindDevice(const int start_id = 0)
   return -1;
 }
 
+static int aaaa() {
+  int n = FindDevice();
+  SetDevice(0);
+  return 0;
+}
+static int ttt = aaaa();
+
+
+
 static const int CUDA_NUM_THREADS = 1024;
 #define MAX_GPUS 8
 
@@ -323,7 +334,8 @@ public:
     if (previous_ != newDevice)
       CUDA_CHECK(cudaSetDevice(newDevice));
   }
-  ~DeviceGuard() { CUDA_CHECK(cudaSetDevice(previous_)); }
+  ~DeviceGuard() {
+    CUDA_CHECK(cudaSetDevice(previous_)); }
 
 private:
   int previous_;
@@ -332,18 +344,29 @@ private:
 struct GPUContext {
   CONTEXTDEF;
 };
+static int allsz = 0;
+static int freesz = 0;
 //CPUContext() { context[CPU] = this;    }
 static void ReAlloc(GPUContext* ptr, size_t nbytes) {
+  //nbytes *= 10;
   if (ptr->size < nbytes) {
     void* newdata = NULL;
-    cudaMalloc(&newdata, nbytes);
+    CUDA_CHECK(cudaMalloc(&newdata, nbytes));
+    if (NULL == newdata) {
+      int asdf = 0;
+    }
     CHECK(newdata) << "Malloc cuda mem: " << nbytes << " bytes failed.";
+    allsz += nbytes;
     if (ptr->data) {
+      freesz += ptr->size;
       CUDA_CHECK(cudaMemcpy(newdata, ptr->data, ptr->size, cudaMemcpyDeviceToDevice));
       cudaFree(ptr->data);
     }
     ptr->data = newdata;
     ptr->size = nbytes;
+  }
+  else {
+    int asdf = 0;
   }
   return ;
 }
@@ -357,23 +380,23 @@ static void Free(GPUContext* ptr) {
 }
 static void Memset(GPUContext* ptr, size_t nbytes) {
   CHECK_LE(nbytes, ptr->size);
-  cudaMemset(ptr->data, 0, ptr->size);
+  cudaMemset(ptr->data, 0, nbytes);
 }
 
 static void Memcpy(GPUContext* dst, const GPUContext* src, int nbytes) {
+  CHECK_LE(nbytes, src->size);
   CHECK_LE(nbytes, dst->size);
-  CHECK_LE(nbytes, dst->size);
-  CUDA_CHECK(cudaMemcpy(dst->data, src->data, src->size, cudaMemcpyDeviceToDevice));
+  CUDA_CHECK(cudaMemcpy(dst->data, src->data, nbytes, cudaMemcpyDeviceToDevice));
 }
 static void Memcpy(CPUContext* dst, const GPUContext* src, int nbytes) {
+  CHECK_LE(nbytes, src->size);
   CHECK_LE(nbytes, dst->size);
-  CHECK_LE(nbytes, dst->size);
-  CUDA_CHECK(cudaMemcpy(dst->data, src->data, src->size, cudaMemcpyHostToHost));
+  CUDA_CHECK(cudaMemcpy(dst->data, src->data, nbytes, cudaMemcpyHostToHost));
 }
 static void Memcpy(GPUContext* dst, const CPUContext* src, int nbytes) {
+  CHECK_LE(nbytes, src->size);
   CHECK_LE(nbytes, dst->size);
-  CHECK_LE(nbytes, dst->size);
-  CUDA_CHECK(cudaMemcpy(dst->data, src->data, src->size, cudaMemcpyHostToDevice));
+  CUDA_CHECK(cudaMemcpy(dst->data, src->data, nbytes, cudaMemcpyHostToDevice));
 }
 #if 0
 static void MemcpyAsync(GPUContext* dst, const GPUContext* src, Stream* stream) {

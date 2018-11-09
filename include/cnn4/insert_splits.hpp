@@ -4,24 +4,57 @@
 #include <string>
 #include <utility>
 
-#include "caffe/common.hpp"
-#include "caffe/util/insert_splits.hpp"
 
-namespace caffe
+string SplitLayerName(const char* layer_name, const char* blob_name, const int blob_idx)
 {
-#ifdef USE_PRO
-  void InsertSplits(const NetParameter & param, NetParameter* param_split)
+  ostringstream split_layer_name;
+  split_layer_name << blob_name << "_" << layer_name << "_" << blob_idx
+    << "_split";
+  return split_layer_name.str();
+}
+
+string SplitBlobName(const char* layer_name, const char* blob_name, const int blob_idx, const int split_idx)
+{
+  ostringstream split_blob_name;
+  split_blob_name << blob_name << "_" << layer_name << "_" << blob_idx
+    << "_split_" << split_idx;
+  return split_blob_name.str();
+}
+
+template <typename Dtype>
+void ConfigureSplitLayer(const char* layer_name, const char* blob_name,
+  const int blob_idx, const int split_count, const float loss_weight,
+  Layer<Dtype>*& split_layer_param)
+{
+  CreateLayer(split_layer_param, "Split");
+  split_layer_param->add_bottom(blob_name);
+  split_layer_param->set_name(SplitLayerName(layer_name, blob_name, blob_idx));
+  for (int k = 0; k < split_count; ++k) {
+    split_layer_param->add_top(
+      SplitBlobName(layer_name, blob_name, blob_idx, k));
+    if (loss_weight) {
+      if (k == 0) {
+        split_layer_param->add_loss_weight(loss_weight);
+      }
+      else {
+        split_layer_param->add_loss_weight(0);
+      }
+    }
+  }
+}
+#if 0
+
+template <typedef Dtype>
+  void InsertSplits(Net<Dtype>* param_split)
   {
     // Initialize by copying from the input NetParameter.
-    param_split->CopyFrom(param);
-    param_split->clear_layer();
     map<string, pair<int, int> > blob_name_to_last_top_idx;
     map<pair<int, int>, pair<int, int> > bottom_idx_to_source_top_idx;
     map<pair<int, int>, int> top_idx_to_bottom_count;
     map<pair<int, int>, float> top_idx_to_loss_weight;
     map<pair<int, int>, int> top_idx_to_bottom_split_idx;
     map<int, string> layer_idx_to_layer_name;
-    for (int i = 0; i < param.layer_size(); ++i) {
+    for (int i = 0; i < param_split->layer_size(); ++i) {
       const LayerParameter & layer_param = param.layer(i);
       layer_idx_to_layer_name[i] = layer_param.name();
       for (int j = 0; j < layer_param.bottom_size(); ++j) {
@@ -89,44 +122,6 @@ namespace caffe
     }
   }
 
-  void ConfigureSplitLayer(const string & layer_name, const string & blob_name,
-                           const int blob_idx, const int split_count, const float loss_weight,
-                           LayerParameter* split_layer_param)
-  {
-    split_layer_param->Clear();
-    split_layer_param->add_bottom(blob_name);
-    split_layer_param->set_name(SplitLayerName(layer_name, blob_name, blob_idx));
-    split_layer_param->set_type("Split");
-    for (int k = 0; k < split_count; ++k) {
-      split_layer_param->add_top(
-        SplitBlobName(layer_name, blob_name, blob_idx, k));
-      if (loss_weight) {
-        if (k == 0) {
-          split_layer_param->add_loss_weight(loss_weight);
-        } else {
-          split_layer_param->add_loss_weight(0);
-        }
-      }
-    }
-  }
-#endif // USE_PRO
 
-  string SplitLayerName(const string & layer_name, const string & blob_name,
-                        const int blob_idx)
-  {
-    ostringstream split_layer_name;
-    split_layer_name << blob_name << "_" << layer_name << "_" << blob_idx
-                     << "_split";
-    return split_layer_name.str();
-  }
+#endif
 
-  string SplitBlobName(const string & layer_name, const string & blob_name,
-                       const int blob_idx, const int split_idx)
-  {
-    ostringstream split_blob_name;
-    split_blob_name << blob_name << "_" << layer_name << "_" << blob_idx
-                    << "_split_" << split_idx;
-    return split_blob_name.str();
-  }
-
-}  // namespace caffe

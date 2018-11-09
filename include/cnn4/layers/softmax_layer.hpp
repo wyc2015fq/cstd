@@ -40,12 +40,14 @@ public:
 
   void Forward(Context* context, const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
+    int count = bottom[0]->count();
+    int channels = bottom[0]->shape(softmax_axis_);
+    int channels1 = top[0]->shape(softmax_axis_);
     const Dtype* bottom_data = bottom[0]->data<Context>();
     Dtype* top_data = top[0]->mutable_data<Context>();
     Dtype* scale_data = scale_.mutable_data<Context>();
-    int count = bottom[0]->count();
-    int channels = bottom[0]->shape(softmax_axis_);
     softmax_forward<Dtype>(context, count, channels, outer_num_, inner_num_, bottom_data, top_data, scale_data);
+    return ;
   }
 
   

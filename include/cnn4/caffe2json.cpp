@@ -239,11 +239,22 @@ void ParamSpec(CJSON* json_layer, caffe::ParamSpec param) {
 
 int caffe2json(int argc, char** argv);
 int test_caffe2json() {
-  _chdir("C:/caffe_train");
-  char* test[] = { "",
-    "lenet_train_test.prototxt","lenet_iter_0_.caffemodel","lenet_solver.prototxt","mnist/lenet.json", "0"
-  };
-  caffe2json(countof(test), test);
+  if (1) {
+    _chdir("C:/caffe_train");
+    char* test[] = { "",
+      "lenet_train_test.prototxt","lenet_iter_0_.caffemodel","lenet_solver.prototxt","mnist/lenet.json", "0"
+    };
+#define TESTCALL(fun, args)    fun(countof(args), args)
+    TESTCALL(caffe2json, test);
+  }
+  if (1) {
+    _chdir("E:/OCR_Line/model/densenet-no-blstm/");
+    char* test[] = { "",
+      "deploy.prototxt","model.caffemodel","solver.prototxt","densenet-no-blstm.json", "0"
+    };
+#define TESTCALL(fun, args)    fun(countof(args), args)
+    TESTCALL(caffe2json, test);
+  }
   return 0;
 }
 

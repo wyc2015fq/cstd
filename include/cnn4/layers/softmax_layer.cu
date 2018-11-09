@@ -88,6 +88,7 @@ void softmax_forward(_CONTEXT, int count, int channels, int outer_num_, int inne
   //Dtype* scale_data = scale_.mutable_data<Context>();
   //int count = bottom[0]->count();
   //int channels = top[0]->shape(softmax_axis_);
+  //caffe_set(context, inner_num_, 0, scale_data);
   caffe_copy(context, count, bottom_data, top_data);
   // We need to subtract the max to avoid numerical issues, compute the exp,
   // and then normalize.
@@ -104,7 +105,7 @@ void softmax_forward(_CONTEXT, int count, int channels, int outer_num_, int inne
   // exponentiate
   // NOLINT_NEXT_LINE(whitespace/operators)
   kernel_exp<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
-      count, top_data, top_data);
+    count, top_data, top_data);
   // sum after exp
   // NOLINT_NEXT_LINE(whitespace/operators)
   kernel_channel_sum<Dtype><<<CAFFE_GET_BLOCKS(outer_num_ * inner_num_),

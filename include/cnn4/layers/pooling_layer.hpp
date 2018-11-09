@@ -152,11 +152,11 @@ struct PoolingLayer : public Layer<Dtype>
   
   virtual void Forward(Context* context, const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
-    int count = bottom[0]->count();
+    int top_count = top[0]->count();
     int num = top[0]->num();
     const Dtype* bottom_data = bottom[0]->data<Context>();
     Dtype* top_data = top[0]->mutable_data<Context>();
-    const int top_count = top[0]->count();
+    //const int top_count = top[0]->count();
     // We'll output the mask to top[1] if it's of size >1.
     const bool use_top_mask = top.size() > 1;
     int* mask = NULL;  // suppress warnings about uninitalized variables
@@ -171,7 +171,7 @@ struct PoolingLayer : public Layer<Dtype>
     else {
       mask = max_idx_.mutable_data<Context>();
     }
-    pooling_forward<Dtype>(context, pool_, phase_, count, bottom_data,
+    pooling_forward<Dtype>(context, pool_, phase_, bottom_data,
       num, channels_, height_, width_, pooled_height_, pooled_width_,
       kernel_h_, kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_,
       rand_idx, top_data, mask, top_mask);
@@ -182,7 +182,7 @@ struct PoolingLayer : public Layer<Dtype>
   virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top,
     const vector<Blob<Dtype>*> & bottom)
   {
-    int count = bottom[0]->count();
+    //int count = bottom[0]->count();
     int num = top[0]->num();
     if (!bottom[0]->propagate_down_) {
       return;
@@ -203,68 +203,8 @@ struct PoolingLayer : public Layer<Dtype>
     else {
       mask = max_idx_.data<Context>();
     }
-    pooling_backward<Dtype>(context, pool_, count, NULL, top_diff, mask, top_mask, num, channels_, height_, width_,
+    pooling_backward<Dtype>(context, pool_, NULL, top_diff, mask, top_mask, num, channels_, height_, width_,
       pooled_height_, pooled_width_, kernel_h_, kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, bottom_diff);
-#if 0
-    switch (pool_) {
-    case PoolMethod_MAX:
-      for (int n = 0; n < top[0]->num(); ++n) {
-        for (int c = 0; c < channels_; ++c) {
-          for (int ph = 0; ph < pooled_height_; ++ph) {
-            for (int pw = 0; pw < pooled_width_; ++pw) {
-              const int index = ph * pooled_width_ + pw;
-              const int bottom_index =
-                use_top_mask ? top_mask[index] : mask[index];
-              bottom_diff[bottom_index] += top_diff[index];
-            }
-          }
-          bottom_diff += bottom[0]->offset(0, 1);
-          top_diff += top[0]->offset(0, 1);
-          if (use_top_mask) {
-            top_mask += top[0]->offset(0, 1);
-          }
-          else {
-            mask += top[0]->offset(0, 1);
-          }
-        }
-      }
-      break;
-    case PoolMethod_AVE:
-      // The main loop
-      for (int n = 0; n < top[0]->num(); ++n) {
-        for (int c = 0; c < channels_; ++c) {
-          for (int ph = 0; ph < pooled_height_; ++ph) {
-            for (int pw = 0; pw < pooled_width_; ++pw) {
-              int hstart = ph * stride_h_ - pad_h_;
-              int wstart = pw * stride_w_ - pad_w_;
-              int hend = min(hstart + kernel_h_, height_ + pad_h_);
-              int wend = min(wstart + kernel_w_, width_ + pad_w_);
-              int pool_size = (hend - hstart) * (wend - wstart);
-              hstart = max(hstart, 0);
-              wstart = max(wstart, 0);
-              hend = min(hend, height_);
-              wend = min(wend, width_);
-              for (int h = hstart; h < hend; ++h) {
-                for (int w = wstart; w < wend; ++w) {
-                  bottom_diff[h * width_ + w] +=
-                    top_diff[ph * pooled_width_ + pw] / pool_size;
-                }
-              }
-            }
-          }
-          // offset
-          bottom_diff += bottom[0]->offset(0, 1);
-          top_diff += top[0]->offset(0, 1);
-        }
-      }
-      break;
-    case PoolMethod_STOCHASTIC:
-      NOT_IMPLEMENTED;
-      break;
-    default:
-      LOG(FATAL) << "Unknown pooling method.";
-    }
-#endif
   }
 
 };

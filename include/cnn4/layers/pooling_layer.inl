@@ -1,6 +1,6 @@
 
 template <typename Dtype>
-void pooling_forward(_CONTEXT, PoolMethod pool, Phase phase, const int count, const Dtype* bottom_data,
+void pooling_forward(_CONTEXT, PoolMethod pool, Phase phase, const Dtype* bottom_data,
   const int num, const int channels, const int height, const int width, const int pooled_height, const int pooled_width,
   const int kernel_h, const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w,
   Dtype* rand_idx, Dtype* top_data, int* mask, Dtype* top_mask) {
@@ -105,7 +105,7 @@ void pooling_forward(_CONTEXT, PoolMethod pool, Phase phase, const int count, co
 }
 
 template <typename Dtype>
-void pooling_backward(_CONTEXT, PoolMethod pool, const int count, const Dtype* const rand_idx,
+void pooling_backward(_CONTEXT, PoolMethod pool, const Dtype* const rand_idx,
   const Dtype* top_diff, const int* mask, const Dtype* top_mask, const int num,
   const int channels, const int height, const int width, const int pooled_height, const int pooled_width, const int kernel_h,
   const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w, Dtype* bottom_diff) {
@@ -129,6 +129,7 @@ void pooling_backward(_CONTEXT, PoolMethod pool, const int count, const Dtype* c
     mask = max_idx_.data<Context>();
   }
 #endif
+  const int count = num*channels*height * width;
   //const bool use_top_mask = top_mask != NULL;
 
   caffe_set(context, count, Dtype(0), bottom_diff);

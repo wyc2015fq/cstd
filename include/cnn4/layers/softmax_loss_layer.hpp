@@ -53,11 +53,12 @@ public:
     }
   }
 
+  int axis_;
   virtual void Reshape(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
   {
     LossLayer<Dtype>::Reshape(bottom, top);
     softmax_layer_->Reshape(softmax_bottom_vec_, softmax_top_vec_);
-    int axis_ = this->param_->getint("axis_", 1);
+    axis_  = this->param_->getint("axis_", 1);
     softmax_axis_ = bottom[0]->CanonicalAxisIndex(axis_);
     outer_num_ = bottom[0]->count(0, softmax_axis_);
     inner_num_ = bottom[0]->count(softmax_axis_ + 1);
@@ -72,60 +73,44 @@ public:
     }
   }
 
-  
-  Dtype get_normalizer(NormalizationMode normalization_mode, int valid_count)
+  int get_normalizer(NormalizationMode normalization_mode, int valid_count)
   {
-    Dtype normalizer;
+    int normalizer;
+
     switch (normalization_mode) {
     case NormalizationMode_FULL:
-      normalizer = Dtype(outer_num_ * inner_num_);
+      normalizer = int(outer_num_ * inner_num_);
       break;
     case NormalizationMode_VALID:
       if (valid_count == -1) {
-        normalizer = Dtype(outer_num_ * inner_num_);
+        normalizer = int(outer_num_ * inner_num_);
       }
       else {
-        normalizer = Dtype(valid_count);
+        normalizer = int(valid_count);
       }
       break;
     case NormalizationMode_BATCH_SIZE:
-      normalizer = Dtype(outer_num_);
+      normalizer = int(outer_num_);
       break;
     case NormalizationMode_NONE:
-      normalizer = Dtype(1);
+      normalizer = int(1);
       break;
     default:
       LOG(FATAL) << "Unknown normalization mode: "
         << NormalizationMode_Name[normalization_mode];
     }
-    // Some users will have no labels for some examples in order to 'turn off' a
-    // particular loss in a multi-task setup. The max prevents NaNs in that case.
-    return std::max(Dtype(1.0), normalizer);
+    return std::max(int(1), normalizer);
   }
-
-  virtual void Forward(Context* context,const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
-  {
+  virtual void Forward(Context* context,const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) {
     // The forward pass computes the softmax prob values.
-    softmax_layer_->Forward(softmax_bottom_vec_, softmax_top_vec_);
+    softmax_layer_->Forward(context, softmax_bottom_vec_, softmax_top_vec_);
     const Dtype* prob_data = prob_.data<Context>();
     const Dtype* label = bottom[1]->data<Context>();
-    int dim = prob_.count() / outer_num_;
-    int count = 0;
+    const int dim = prob_.count() / outer_num_;
+    Dtype* top_data = top[0]->mutable_data<CPUContext>();
     Dtype loss = 0;
-    for (int i = 0; i < outer_num_; ++i) {
-      for (int j = 0; j < inner_num_; j++) {
-        const int label_value = static_cast<int>(label[i * inner_num_ + j]);
-        if (has_ignore_label_ && label_value == ignore_label_) {
-          continue;
-        }
-        DCHECK_GE(label_value, 0);
-        DCHECK_LT(label_value, prob_.shape(softmax_axis_));
-        loss -= log(std::max(prob_data[i * dim + label_value * inner_num_ + j],
-          Dtype(FLT_MIN)));
-        ++count;
-      }
-    }
-    top[0]->mutable_data<Context>()[0] = loss / get_normalizer(normalization_, count);
+    int valid_count = softmaxloss_forward(context, prob_data, label, outer_num_, dim, inner_num_, has_ignore_label_, ignore_label_, &loss);
+    top_data[0] = loss / get_normalizer(normalization_, valid_count);
     if (top.size() == 2) {
       top[1]->ShareData(prob_);
     }
@@ -140,28 +125,21 @@ public:
     if (bottom[0]->propagate_down_) {
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       const Dtype* prob_data = prob_.data<Context>();
-      caffe_copy(context, prob_.count(), prob_data, bottom_diff);
+      const Dtype* top_data = top[0]->data<Context>();
+      caffe_memcpy(context, prob_.count() * sizeof(Dtype), prob_data, bottom_diff);
       const Dtype* label = bottom[1]->data<Context>();
-      int dim = prob_.count() / outer_num_;
-      int count = 0;
-      for (int i = 0; i < outer_num_; ++i) {
-        for (int j = 0; j < inner_num_; ++j) {
-          const int label_value = static_cast<int>(label[i * inner_num_ + j]);
-          if (has_ignore_label_ && label_value == ignore_label_) {
-            for (int c = 0; c < bottom[0]->shape(softmax_axis_); ++c) {
-              bottom_diff[i * dim + c * inner_num_ + j] = 0;
-            }
-          }
-          else {
-            bottom_diff[i * dim + label_value * inner_num_ + j] -= 1;
-            ++count;
-          }
-        }
-      }
-      // Scale gradient
-      Dtype loss_weight = top[0]->diff<Context>()[0] /
-        get_normalizer(normalization_, count);
+      const int dim = prob_.count() / outer_num_;
+      // Since this memory is never used for anything else,
+      // we use to to avoid allocating new GPU memory.
+      // NOLINT_NEXT_LINE(whitespace/operators)
+
+      int valid_count = softmaxloss_backward(context, top_data, label, bottom_diff,
+        outer_num_, dim, inner_num_, has_ignore_label_, ignore_label_);
+
+      // Only launch another CUDA kernel if we actually need the count of valid outputs.
+      const Dtype loss_weight = top[0]->diff<CPUContext>()[0] / get_normalizer(normalization_, valid_count);
       caffe_scal(context, prob_.count(), loss_weight, bottom_diff);
+
     }
   }
 };
