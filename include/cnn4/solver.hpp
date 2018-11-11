@@ -1,10 +1,10 @@
 
-template <typename Dtype>
 struct Solver {
   CJSON* param_;
-  Net<Dtype>* net_;
+  Net* net_;
+  typedef Net::Dtype Dtype;
   //Solver(Net<Dtype>* net) {    init(net);  }
-  void init(Net<Dtype>* net) {
+  void init(Net* net) {
     param_ = net->param_->GetObjectItem("solver");
     net_ = net;
     smoothed_loss_ = 0;
@@ -12,7 +12,7 @@ struct Solver {
 
   int Test()
   {
-    Net<Dtype>* test_net = net_;
+    Net* test_net = net_;
     Dtype loss = 0;
     bool test_compute_loss = param_->getbool("test_compute_loss", false);
     int test_iter = param_->GetObjectInt("test_iter", 1);

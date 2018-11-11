@@ -21,12 +21,13 @@ inline DataShape dataShape(int n, int c = 1, int h = 1, int w = 1) {
   return shape;
 }
 
+enum MemStage { UNINIT = 0, AT_CPU = 1, AT_GPU = 2, SYNCED = 3 };
+
 struct DevMem {
   CPUContext cpu_ptr_[1];
   GPUContext gpu_ptr_[1];
   int nbytes_;
-  int state_;
-  enum {UNINIT = 0, AT_CPU = 1<<CPU, AT_GPU = 1<<GPU, SYNCED = 3};
+  MemStage state_;
   void free() {
     Free(cpu_ptr_);
     Free(gpu_ptr_);
@@ -41,7 +42,7 @@ struct DevMem {
   DevMem() { init(); }
   ~DevMem() { free(); }
 
-  void* to_cpu(int state) {
+  void* to_cpu(MemStage state) {
     switch (state_) {
     case UNINIT:
       ReAlloc(cpu_ptr_, nbytes_);
@@ -64,7 +65,7 @@ struct DevMem {
     return cpu_ptr_->data;
   }
 
-  void* to_gpu(int state) {
+  void* to_gpu(MemStage state) {
 #ifndef CPU_ONLY
     void* new_ptr_ = nullptr;
     switch (state_) {
@@ -93,7 +94,7 @@ struct DevMem {
   void* mutable_cpu_ptr() {    return to_cpu(AT_CPU);  }
   void* mutable_gpu_ptr() {    return to_gpu(AT_GPU);  }
 
-  template <typename Context>  void* to(int state);
+  template <typename Context>  void* to(MemStage state);
   template <typename Context>  void* ptr();
   template <typename Context>  void* mutable_ptr();
 
@@ -103,8 +104,8 @@ struct DevMem {
   }
 };
 
-template <>void* DevMem::to<CPUContext>(int state) { return to_cpu(state); }
-template <>void* DevMem::to<GPUContext>(int state) { return to_gpu(state); }
+template <>void* DevMem::to<CPUContext>(MemStage state) { return to_cpu(state); }
+template <>void* DevMem::to<GPUContext>(MemStage state) { return to_gpu(state); }
 template <>void* DevMem::ptr<CPUContext>() { return to_cpu(SYNCED); }
 template <>void* DevMem::ptr<GPUContext>() { return to_gpu(SYNCED); }
 template <>void* DevMem::mutable_ptr<CPUContext>() { return to_cpu(AT_CPU); }
@@ -116,7 +117,8 @@ struct Blob {
   char name[MAX_NAME];
   Dtype loss_weight_;
   Dtype loss_;
-  Dtype lr_mult;
+  Dtype lr_mult_;
+  Dtype decay_mult_;
   union {
     DataShape shape_;
     struct { int n, c, h, w; };
@@ -180,15 +182,84 @@ struct Blob {
       Reshape(other.shape());
     }
   }
-  void CopyTo(Blob & other) const {
+  void CopyFrom(const Blob & other, bool copy_diff) {
+    Reshape(other.shape());
+    caffe_copy<Dtype>(CONTEXT, count(), other.data<Context>(), mutable_data<Context>());
+    if (copy_diff) {
+      caffe_copy<Dtype>(CONTEXT, count(), other.diff<Context>(), mutable_diff<Context>());
+    }
+  }
+  void CopyTo(Blob & other, bool copy_diff) const {
     other.Reshape(shape());
     caffe_copy<Dtype>(CONTEXT, count(), data<Context>(), other.mutable_data<Context>());
+    if (copy_diff) {
+      caffe_copy<Dtype>(CONTEXT, count(), diff<Context>(), other.mutable_diff<Context>());
+    }
   }
   void ShareData(Blob & other) const {
-    CopyTo(other);
+    CopyTo(other, false);
   }
 #include "blob.inl"
 };
+
+bool dirExists(string dirStr)
+{
+  //     const char* dirCStr = dirStr.c_str();
+  //     DIR* dir = opendir(dirCStr);
+  //     if (ENOENT == errno){
+  //       return false;
+  //     }
+  //     closedir(dir);
+  return true;
+}
+
+void tryCreateDirectory(string fileName)
+{
+  //     vector<string> strVec;
+  //     boost::split(strVec,fileName,boost::is_any_of("/"));
+  //     string newStr="";
+  //     for (int i=0;i<strVec.size()-1;++i){
+  //       newStr += strVec[i] + (i==strVec.size()-2?"":"/");
+  //     }
+  //     boost::filesystem::path dirToCreate(newStr);
+  //     if (!dirExists(newStr)){
+  //       boost::filesystem::create_directories(dirToCreate);
+  //     }
+}
+
+
+template <typename Dtype> static
+void logBlob(Blob<Dtype>* B, string fileName)
+{
+  string dataNameStr = fileName + "_data.txt";
+  string gradNameStr = fileName + "_grad.txt";
+  const char* dataName = (dataNameStr).c_str();
+  const char* gradName = (gradNameStr).c_str();
+  tryCreateDirectory(dataName);
+  tryCreateDirectory(gradName);
+  std::ofstream outWriter_data(dataName, std::ofstream::out);
+  std::ofstream outWriter_grad(gradName, std::ofstream::out);
+  for (int n = 0; n < B->shape(0); ++n) {
+    for (int c = 0; c < B->shape(1); ++c) {
+      for (int h = 0; h < B->shape(2); ++h) {
+        for (int w = 0; w < B->shape(3); ++w) {
+          outWriter_data << B->data_at(n, c, h, w) << ",";
+          outWriter_grad << B->diff_at(n, c, h, w) << ",";
+        }
+      }
+    }
+  }
+  outWriter_data << std::endl;
+  outWriter_grad << std::endl;
+}
+
+template <typename Dtype> static
+void logBlobs(const vector<Blob<Dtype>*>& blobs, string fileName) {
+  for (int i = 0; i < blobs.size(); ++i) {
+    string blobStr = fileName + "_" + itos(i);
+    logBlob(blobs[i], blobStr);
+  }
+}
 
 template <typename Dtype>
 static void blobs_reset(vector<Blob<Dtype>*>& blobs_, int blob_size) {
@@ -292,7 +363,7 @@ struct Layer {
 #define INSTANTIATE_CLASS(Bias) template <typename Dtype>Layer<Dtype>* new ## Bias ## Layer() {return new Bias ## Layer<Dtype>();} \
 Layer<float>::fun_type f ## Bias = Layer<float>::reg(&new ## Bias ## Layer<float>, #Bias );
 //Layer<double>::fun_type d ## Bias = Layer<double>::reg(&new ## Bias ## Layer<double>, #Bias )
-#define REGISTER_LAYER_CLASS(Bias)  
+//#define REGISTER_LAYER_CLASS(Bias)  
 
 template <typename Dtype>
 int CreateLayer(Layer<Dtype>*& layer, const char* type) {
@@ -325,9 +396,10 @@ static int AppendName(Layer<Dtype>* layer, bool is_top, vector<Blob<Dtype>*>& ne
   return 0;
 }
 
-template <typename Dtype>
+
 struct Net {
   cJSON* param_;
+  typedef float Dtype;
   vector<Layer<Dtype>* > layers_;
   vector<Blob<Dtype>* > blobs_;
   int size() { return layers_.size(); }

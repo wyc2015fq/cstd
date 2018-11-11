@@ -1,6 +1,5 @@
 
-template <typename Dtype>
-struct SGDSolver : public Solver<Dtype> {
+struct SGDSolver : public Solver {
   int current_step_;
   vector<Blob<Dtype>*>  history_;
   vector<Blob<Dtype>*>  update_;
@@ -104,10 +103,10 @@ struct SGDSolver : public Solver<Dtype> {
 
   virtual void Regularize(int param_id)
   {
-    //const vector<float> & learnable_params__weight_decay = this->net_->params_weight_decay();
+    Dtype decay_mult = learnable_params_[param_id]->decay_mult_;
     Dtype weight_decay = this->param_->getfloat("weight_decay", 0.0005);
     string regularization_type = param_->GetObjectString("regularization_type", "L2");
-    Dtype local_decay = weight_decay;// learnable_params__weight_decay[param_id];
+    Dtype local_decay = weight_decay * decay_mult;
     int count_ = learnable_params_[param_id]->count();
     const Dtype* learnable_params_data = learnable_params_[param_id]->data<Context>();
     Dtype* params_diff = learnable_params_[param_id]->mutable_diff<Context>();
@@ -163,29 +162,25 @@ struct SGDSolver : public Solver<Dtype> {
 
 };
 
-template <typename Dtype>
-struct AdaDeltaSolver : public SGDSolver<Dtype>
+struct AdaDeltaSolver : public SGDSolver
 {
   virtual void ComputeUpdateValue(int param_id, Dtype rate)
   {
     const vector<Blob<Dtype>*> & net_params = learnable_params_;
-    const vector<float> & net_params_lr = this->net_->params_lr();
-    Dtype delta = this->param_.delta();
-    Dtype momentum = this->param_.momentum();
-    Dtype local_rate = rate * net_params_lr[param_id];
+    //const vector<float> & net_params_lr = this->net_->params_lr();
+    Dtype delta = this->param_->getfloat("delta", 1e-8);
+    Dtype momentum = this->param_->getfloat("momentum", 0.999);
+    Dtype local_rate = rate * net_params[param_id]->lr_mult_;
     size_t update_history_offset = net_params.size();
     adadelta_update<Dtype>(CONTEXT, net_params[param_id]->count(),
-      net_params[param_id]->mutable_gpu_diff(),
+      net_params[param_id]->mutable_diff<Context>(),
       this->history_[param_id]->mutable_data<Context>(),
       this->history_[update_history_offset + param_id]->mutable_data<Context>(),
       momentum, delta, local_rate);
   }
 };
 
-
-
-template <typename Dtype>
-struct AdaGradSolver : public SGDSolver<Dtype>
+struct AdaGradSolver : public SGDSolver
 {
   virtual void ComputeUpdateValue(int param_id, Dtype rate)
   {
@@ -194,23 +189,22 @@ struct AdaGradSolver : public SGDSolver<Dtype>
     //const vector<float> & net_params_lr = this->net_->params_lr();
     //Dtype local_rate = rate * net_params_lr[param_id];
     Dtype local_rate = rate;
-    Dtype delta = this->param_->GetObjectNumber("delta", 1e-8);
+    Dtype delta = this->param_->getfloat("delta", 1e-8);
     adagrad_update<Dtype>(CONTEXT, net_params[param_id]->count(),
-      net_params[param_id]->mutable_gpu_diff(),
+      net_params[param_id]->mutable_diff<Context>(),
       this->history_[param_id]->mutable_data<Context>(), delta, local_rate);
   }
 
 };
 
-template <typename Dtype>
-struct AdamSolver : public SGDSolver<Dtype> {
+struct AdamSolver : public SGDSolver {
   virtual void ComputeUpdateValue(int param_id, Dtype rate)
   {
-    const vector<Blob<Dtype>*> & net_params = this->net_->learnable_params();
-    const vector<float> & net_params_lr = this->net_->params_lr();
-    Dtype local_rate = rate * net_params_lr[param_id];
-    const Dtype beta1 = this->param_.momentum();
-    const Dtype beta2 = this->param_.momentum2();
+    const vector<Blob<Dtype>*> & net_params = learnable_params_;
+    //const vector<float> & net_params_lr = this->net_->params_lr();
+    Dtype local_rate = rate * net_params[param_id]->lr_mult_;
+    const Dtype beta1 = this->param_->getfloat("momentum", 0.999);
+    const Dtype beta2 = this->param_->getfloat("momentum2", 0.999);
     // we create aliases for convenience
     size_t update_history_offset = net_params.size();
     Blob<Dtype>* val_m = this->history_[param_id];
@@ -220,9 +214,9 @@ struct AdamSolver : public SGDSolver<Dtype> {
     const Dtype correction = std::sqrt(Dtype(1) - pow(beta2, t)) /
       (Dtype(1.) - pow(beta1, t));
     const int N = net_params[param_id]->count();
-    const Dtype eps_hat = this->param_.delta();
+    const Dtype eps_hat = this->param_->getfloat("delta", 1e-8);
 
-    adam_update<Dtype>(CONTEXT, N, net_params[param_id]->mutable_gpu_diff(),
+    adam_update<Dtype>(CONTEXT, N, net_params[param_id]->mutable_diff<Context>(),
       val_m->mutable_data<Context>(), val_v->mutable_data<Context>(), beta1, beta2,
       eps_hat, local_rate * correction);
   }

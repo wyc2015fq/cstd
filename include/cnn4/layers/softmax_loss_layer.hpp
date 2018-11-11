@@ -103,10 +103,11 @@ public:
   }
   virtual void Forward(Context* context,const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) {
     // The forward pass computes the softmax prob values.
+    int prob_count = prob_.count();
     softmax_layer_->Forward(context, softmax_bottom_vec_, softmax_top_vec_);
     const Dtype* prob_data = prob_.data<Context>();
     const Dtype* label = bottom[1]->data<Context>();
-    const int dim = prob_.count() / outer_num_;
+    const int dim = prob_count / outer_num_;
     Dtype* top_data = top[0]->mutable_data<CPUContext>();
     Dtype loss = 0;
     int valid_count = softmaxloss_forward(context, prob_data, label, outer_num_, dim, inner_num_, has_ignore_label_, ignore_label_, &loss);
@@ -123,12 +124,13 @@ public:
       //LOG(FATAL) << this->type() << " Layer cannot backpropagate to label inputs.";
     }
     if (bottom[0]->propagate_down_) {
+      int prob_count = prob_.count();
       Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
       const Dtype* prob_data = prob_.data<Context>();
       const Dtype* top_data = top[0]->data<Context>();
-      caffe_memcpy(context, prob_.count() * sizeof(Dtype), prob_data, bottom_diff);
+      caffe_memcpy(context, prob_count * sizeof(Dtype), prob_data, bottom_diff);
       const Dtype* label = bottom[1]->data<Context>();
-      const int dim = prob_.count() / outer_num_;
+      const int dim = prob_count / outer_num_;
       // Since this memory is never used for anything else,
       // we use to to avoid allocating new GPU memory.
       // NOLINT_NEXT_LINE(whitespace/operators)
@@ -136,9 +138,10 @@ public:
       int valid_count = softmaxloss_backward(context, top_data, label, bottom_diff,
         outer_num_, dim, inner_num_, has_ignore_label_, ignore_label_);
 
+      const Dtype* top_diff = top[0]->diff<CPUContext>();
       // Only launch another CUDA kernel if we actually need the count of valid outputs.
-      const Dtype loss_weight = top[0]->diff<CPUContext>()[0] / get_normalizer(normalization_, valid_count);
-      caffe_scal(context, prob_.count(), loss_weight, bottom_diff);
+      const Dtype loss_weight = top_diff[0] / get_normalizer(normalization_, valid_count);
+      caffe_scal(context, prob_count, loss_weight, bottom_diff);
 
     }
   }

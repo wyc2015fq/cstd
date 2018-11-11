@@ -66,6 +66,16 @@ inline int offset(const vector<int> & indices) const {
   return offset;
 }
 
+inline Dtype data_at(const int n, const int c, const int h,
+  const int w) const {
+  return data<CPUContext>()[offset(n, c, h, w)];
+}
+
+inline Dtype diff_at(const int n, const int c, const int h,
+  const int w) const {
+  return diff<CPUContext>()[offset(n, c, h, w)];
+}
+
 void Reshape(const vector<int> & shape) {
   int i;
   ASSERT(shape.size()<=4);
@@ -78,11 +88,18 @@ void Reshape(const vector<int> & shape) {
   }
   Reshape(dshape);
 }
+void set_lr_mult(float lr_mult) {
+  lr_mult_ = lr_mult;
+}
+void set_decay_mult(float decay_mult) {
+  decay_mult_ = decay_mult;
+}
 int FromProto(CJSON* proto) {
   Blob<Dtype>* blob = this;
   DataShape shape;
   cJSON_GetObjectNumberArray(proto, "shape", shape.dim, 4, 1);
-  lr_mult = proto->getfloat("lr_mult", 1);
+  blob->lr_mult_ = proto->getfloat("lr_mult", 1);
+  blob->decay_mult_ = proto->getfloat("decay_mult", 1);
   int count = shape.count();
   int nbytes = count * sizeof(float);
   blob->Reshape(shape);

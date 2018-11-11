@@ -12,7 +12,7 @@ int learnable_params(vector<Blob<Dtype>* >& out) {
 
 
 int SetUp() {
-  Net<Dtype>* net = this;
+  Net* net = this;
   for (int i = 0; i < layers_.size(); ++i) {
     // LOG(ERROR) << "Forwarding " << layer_names_[i];
     Layer<Dtype>* layer = net->layers_[i];
@@ -22,7 +22,7 @@ int SetUp() {
 }
 
 int FromProto(CJSON* param) {
-  Net<Dtype>* net = this;
+  Net* net = this;
   CJSON* layers_json = param->GetObjectItem("layers");
   int ret = 0;
   net->param_ = param;
@@ -49,7 +49,7 @@ Dtype Forward(Phase phase) {
 
 double ForwardFromTo(Phase phase, int start, int end)
 {
-  Net<Dtype>* net = this;
+  Net* net = this;
   CHECK_GE(start, 0);
   CHECK_LT(end, net->layers_.size());
   double loss = 0;

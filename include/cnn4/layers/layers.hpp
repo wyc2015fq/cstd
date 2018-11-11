@@ -12,6 +12,7 @@
 #include "softmax_layer.hpp"
 #include "softmax_loss_layer.hpp"
 #include "split_layer.hpp"
+//#include "denseblock_layer.hpp"
 
 #if 0
 #include "dummy_data_layer.hpp"
@@ -34,7 +35,6 @@
 #include "cudnn_softmax_layer.hpp"
 #include "cudnn_tanh_layer.hpp"
 #include "deconv_layer.hpp"
-#include "denseblock_layer.hpp"
 #include "dropout_layer.hpp"
 #include "eltwise_layer.hpp"
 #include "elu_layer.hpp"
