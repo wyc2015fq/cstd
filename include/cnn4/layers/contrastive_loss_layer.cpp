@@ -8,10 +8,10 @@ namespace
 {
 
   template <typename Dtype>
-  void ContrastiveLossLayer<Dtype>::LayerSetUp(
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void ContrastiveLossLayer::LayerSetUp(
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    LossLayer<Dtype>::LayerSetUp(bottom, top);
+    LossLayer::LayerSetUp(bottom, top);
     CHECK_EQ(bottom[0]->channels(), bottom[1]->channels());
     CHECK_EQ(bottom[0]->height(), 1);
     CHECK_EQ(bottom[0]->width(), 1);
@@ -26,48 +26,48 @@ namespace
     // vector of ones used to sum along channels
     summer_vec_.Reshape(bottom[0]->channels(), 1, 1, 1);
     for (int i = 0; i < bottom[0]->channels(); ++i) {
-      summer_vec_.mutable_data<Context>()[i] = Dtype(1);
+      summer_vec_.mutable_data()[i] = Dtype(1);
     }
   }
 
   template <typename Dtype>
-  void ContrastiveLossLayer<Dtype>::Forward(_CONTEXT,
-    const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  void ContrastiveLossLayer::Forward(_CONTEXT,
+    const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
     int count = bottom[0]->count();
     caffe_sub(
       count,
-      bottom[0]->data<Context>(),  // a
-      bottom[1]->data<Context>(),  // b
-      diff_.mutable_data<Context>());  // a_i-b_i
+      bottom[0]->data(),  // a
+      bottom[1]->data(),  // b
+      diff_.mutable_data());  // a_i-b_i
     const int channels = bottom[0]->channels();
     Dtype margin = this->param_->contrastive_loss_param().margin();
     bool legacy_version =
       this->param_->contrastive_loss_param().legacy_version();
     Dtype loss(0.0);
     for (int i = 0; i < bottom[0]->num(); ++i) {
-      dist_sq_.mutable_data<Context>()[i] = caffe_dot(channels,
-                                       diff_.data<Context>() + (i * channels), diff_.data<Context>() + (i * channels));
-      if (static_cast<int>(bottom[2]->data<Context>()[i])) {  // similar pairs
-        loss += dist_sq_.data<Context>()[i];
+      dist_sq_.mutable_data()[i] = caffe_dot(channels,
+                                       diff_.data() + (i * channels), diff_.data() + (i * channels));
+      if (static_cast<int>(bottom[2]->data()[i])) {  // similar pairs
+        loss += dist_sq_.data()[i];
       } else {  // dissimilar pairs
         if (legacy_version) {
-          loss += std::max(margin - dist_sq_.data<Context>()[i], Dtype(0.0));
+          loss += std::max(margin - dist_sq_.data()[i], Dtype(0.0));
         } else {
-          Dtype dist = std::max<Dtype>(margin - sqrt(dist_sq_.data<Context>()[i]),
+          Dtype dist = std::max<Dtype>(margin - sqrt(dist_sq_.data()[i]),
                                        Dtype(0.0));
           loss += dist * dist;
         }
       }
     }
     loss = loss / static_cast<Dtype>(bottom[0]->num()) / Dtype(2);
-    top[0]->mutable_data<Context>()[0] = loss;
+    top[0]->mutable_data()[0] = loss;
   }
 
   template <typename Dtype>
-  void ContrastiveLossLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<Blob<Dtype>*> & bottom)
+  void ContrastiveLossLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+      const vector<Blob*> & bottom)
   {
     Dtype margin = this->param_->contrastive_loss_param().margin();
     bool legacy_version =
@@ -75,27 +75,27 @@ namespace
     for (int i = 0; i < 2; ++i) {
       if (bottom[i]->propagate_down_) {
         const Dtype sign = (i == 0) ? 1 : -1;
-        const Dtype alpha = sign * top[0]->diff<Context>()[0] /
+        const Dtype alpha = sign * top[0]->diff()[0] /
                             static_cast<Dtype>(bottom[i]->num());
         int num = bottom[i]->num();
         int channels = bottom[i]->channels();
         for (int j = 0; j < num; ++j) {
-          Dtype* bout = bottom[i]->mutable_diff<Context>();
-          if (static_cast<int>(bottom[2]->data<Context>()[j])) {  // similar pairs
+          Dtype* bout = bottom[i]->mutable_diff();
+          if (static_cast<int>(bottom[2]->data()[j])) {  // similar pairs
             caffe_axpby(
               channels,
               alpha,
-              diff_.data<Context>() + (j * channels),
+              diff_.data() + (j * channels),
               Dtype(0.0),
               bout + (j * channels));
           } else {  // dissimilar pairs
             Dtype mdist(0.0);
             Dtype beta(0.0);
             if (legacy_version) {
-              mdist = margin - dist_sq_.data<Context>()[j];
+              mdist = margin - dist_sq_.data()[j];
               beta = -alpha;
             } else {
-              Dtype dist = sqrt(dist_sq_.data<Context>()[j]);
+              Dtype dist = sqrt(dist_sq_.data()[j]);
               mdist = margin - dist;
               beta = -alpha * mdist / (dist + Dtype(1e-4));
             }
@@ -103,7 +103,7 @@ namespace
               caffe_axpby(
                 channels,
                 beta,
-                diff_.data<Context>() + (j * channels),
+                diff_.data() + (j * channels),
                 Dtype(0.0),
                 bout + (j * channels));
             } else {

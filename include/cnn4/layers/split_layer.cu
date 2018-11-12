@@ -6,16 +6,16 @@
 namespace {
 
 template <typename Dtype>
-void SplitLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-      const vector<Blob<Dtype>*>& top) {
+void SplitLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+      const vector<Blob*>& top) {
   for (int i = 0; i < top.size(); ++i) {
     top[i]->ShareData(*bottom[0]);
   }
 }
 
 template <typename Dtype>
-void SplitLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
-      const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+void SplitLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+      const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) { return; }
   if (top.size() == 1) {
     caffe_copy(count_, top[0]->gpu_diff(), bottom[0]->mutable_gpu_diff());

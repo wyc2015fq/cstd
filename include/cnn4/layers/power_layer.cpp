@@ -7,10 +7,10 @@ namespace
 {
 
   template <typename Dtype>
-  void PowerLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                     const vector<Blob<Dtype>*> & top)
+  void PowerLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                     const vector<Blob*> & top)
   {
-    NeuronLayer<Dtype>::LayerSetUp(bottom, top);
+    NeuronLayer::LayerSetUp(bottom, top);
     power_ = this->param_->power_param().power();
     scale_ = this->param_->power_param().scale();
     shift_ = this->param_->power_param().shift();
@@ -19,10 +19,10 @@ namespace
 
 // Compute y = (shift + scale * x)^power
   template <typename Dtype>
-  void PowerLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                      const vector<Blob<Dtype>*> & top)
+  void PowerLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                      const vector<Blob*> & top)
   {
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    Dtype* top_data = top[0]->mutable_data();
     const int count = bottom[0]->count();
     // Special case where we can ignore the input: scale or power is 0.
     if (diff_scale_ == Dtype(0)) {
@@ -30,7 +30,7 @@ namespace
       caffe_set(count, value, top_data);
       return;
     }
-    const Dtype* bottom_data = bottom[0]->data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
     caffe_copy(count, bottom_data, top_data);
     if (scale_ != Dtype(1)) {
       caffe_scal(count, scale_, top_data);
@@ -44,18 +44,18 @@ namespace
   }
 
   template <typename Dtype>
-  void PowerLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
+  void PowerLayer::Backward(CPUContext* context, const vector<Blob*> & top,
                                        int*
-                                       const vector<Blob<Dtype>*> & bottom)
+                                       const vector<Blob*> & bottom)
   {
     if (bottom[0]->propagate_down_) {
-      Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+      Dtype* bottom_diff = bottom[0]->mutable_diff();
       const int count = bottom[0]->count();
-      const Dtype* top_diff = top[0]->diff<Context>();
+      const Dtype* top_diff = top[0]->diff();
       if (diff_scale_ == Dtype(0) || power_ == Dtype(1)) {
         caffe_set(count, diff_scale_, bottom_diff);
       } else {
-        const Dtype* bottom_data = bottom[0]->data<Context>();
+        const Dtype* bottom_data = bottom[0]->data();
         // Compute dy/dx = scale * power * (shift + scale * x)^(power - 1)
         //               = diff_scale * y / (shift + scale * x)
         if (power_ == Dtype(2)) {
@@ -72,7 +72,7 @@ namespace
           //     -> dy/dx = scale * power * (scale * x)^(power - 1)
           //              = scale * power * (scale * x)^power * (scale * x)^(-1)
           //              = power * y / x
-          const Dtype* top_data = top[0]->data<Context>();
+          const Dtype* top_data = top[0]->data();
           caffe_div(count, top_data, bottom_data, bottom_diff);
           caffe_scal(count, power_, bottom_diff);
         } else {
@@ -83,7 +83,7 @@ namespace
           if (shift_ != Dtype(0)) {
             caffe_add_scalar(count, shift_, bottom_diff);
           }
-          const Dtype* top_data = top[0]->data<Context>();
+          const Dtype* top_data = top[0]->data();
           caffe_div<Dtype>(count, top_data, bottom_diff, bottom_diff);
           if (diff_scale_ != Dtype(1)) {
             caffe_scal(count, diff_scale_, bottom_diff);

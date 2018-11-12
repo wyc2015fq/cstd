@@ -56,18 +56,18 @@ namespace
    * HingeLossLayer).
    */
   template <typename Dtype>
-  class HingeLossLayer : public LossLayer<Dtype>
+  class HingeLossLayer : public LossLayer
   {
   public:
     explicit HingeLossLayer()
-      : LossLayer<Dtype>() {}
+      : LossLayer() {}
 
     virtual inline const char* type() const { return "HingeLoss"; }
 
   public:
     /// @copydoc HingeLossLayer
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the hinge loss error gradient w.r.t. the predictions.
@@ -96,8 +96,8 @@ namespace
      *   -# @f$ (N \times 1 \times 1 \times 1) @f$
      *      the labels -- ignored as we can't compute their error gradients
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
   };
 
 

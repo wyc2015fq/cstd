@@ -22,20 +22,20 @@ __global__ void transpose_gpu(const int nthreads, const Dtype* from_data, Dtype*
 }
 
 template <typename Dtype>
-void TransposeLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom, 
-		const vector<Blob<Dtype>*>& top) {
+void TransposeLayer::Forward(GPUContext* context, const vector<Blob*>& bottom, 
+		const vector<Blob*>& top) {
 	const int nthreads = bottom[0]->count();
 
 	transpose_gpu<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(nthreads), CAFFE_CUDA_NUM_THREADS>>>(
-        nthreads, bottom[0]->data<Context>(), top[0]->mutable_data<Context>(), 
-        bottom_counts_.data<Context>(), top_counts_.data<Context>(), forward_map_.data<Context>(), 
-          (int)bottom[0]->shape().size(), buf_.mutable_data<Context>());
+        nthreads, bottom[0]->data(), top[0]->mutable_data(), 
+        bottom_counts_.data(), top_counts_.data(), forward_map_.data(), 
+          (int)bottom[0]->shape().size(), buf_.mutable_data());
 }
 
 template <typename Dtype>
-void TransposeLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
-    	const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+void TransposeLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+    	const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
 	if (!bottom[0]->propagate_down_) {
 		return;
 	}
@@ -44,8 +44,8 @@ void TransposeLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtyp
 	transpose_gpu<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(nthreads), CAFFE_CUDA_NUM_THREADS>>>(
         nthreads, top[0]->gpu_diff(), bottom[0]->mutable_gpu_diff(), 
-        top_counts_.data<Context>(), bottom_counts_.data<Context>(), backward_map_.data<Context>(), 
-        (int)bottom[0]->shape().size(), buf_.mutable_data<Context>());
+        top_counts_.data(), bottom_counts_.data(), backward_map_.data(), 
+        (int)bottom[0]->shape().size(), buf_.mutable_data());
 }
 
 INSTANTIATE_LAYER_GPU_FUNCS(TransposeLayer);

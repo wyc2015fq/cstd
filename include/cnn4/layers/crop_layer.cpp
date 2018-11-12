@@ -14,8 +14,8 @@ namespace
 {
 
   template <typename Dtype>
-  void CropLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                    const vector<Blob<Dtype>*> & top)
+  void CropLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                    const vector<Blob*> & top)
   {
     // LayerSetup() handles the number of dimensions; Reshape() handles the sizes.
     // bottom[0] supplies the data
@@ -35,8 +35,8 @@ namespace
   }
 
   template <typename Dtype>
-  void CropLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                 const vector<Blob<Dtype>*> & top)
+  void CropLayer::Reshape(const vector<Blob*> & bottom,
+                                 const vector<Blob*> & top)
   {
     const CropParameter & param = this->param_->crop_param();
     int input_dim = bottom[0]->num_axes();
@@ -70,8 +70,8 @@ namespace
   }
 
   template <typename Dtype>
-  void CropLayer<Dtype>::crop_copy(const vector<Blob<Dtype>*> & bottom,
-                                   const vector<Blob<Dtype>*> & top,
+  void CropLayer::crop_copy(const vector<Blob*> & bottom,
+                                   const vector<Blob*> & top,
                                    const vector<int> & offsets,
                                    vector<int> indices,
                                    int cur_dim,
@@ -114,21 +114,21 @@ namespace
   }
 
   template <typename Dtype>
-  void CropLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                     const vector<Blob<Dtype>*> & top)
+  void CropLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                     const vector<Blob*> & top)
   {
     std::vector<int> indices(top[0]->num_axes(), 0);
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
     crop_copy(bottom, top, offsets, indices, 0, bottom_data, top_data, true);
   }
 
   template <typename Dtype>
-  void CropLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                      const vector<Blob<Dtype>*> & bottom)
+  void CropLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                      const vector<Blob*> & bottom)
   {
-    const Dtype* top_diff = top[0]->diff<Context>();
-    Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+    const Dtype* top_diff = top[0]->diff();
+    Dtype* bottom_diff = bottom[0]->mutable_diff();
     if (bottom[0]->propagate_down_) {
       caffe_set(bottom[0]->count(), static_cast<Dtype>(0), bottom_diff);
       std::vector<int> indices(top[0]->num_axes(), 0);

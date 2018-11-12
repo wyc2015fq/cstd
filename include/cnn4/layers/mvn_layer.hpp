@@ -16,32 +16,32 @@ namespace
    * TODO(dox): thorough documentation for Forward, Backward, and proto params.
    */
   template <typename Dtype>
-  class MVNLayer : public Layer<Dtype>
+  class MVNLayer : public Layer
   {
   public:
     explicit MVNLayer()
-      : Layer<Dtype>() {}
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : Layer() {}
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "MVN"; }
     virtual inline int ExactNumBottomBlobs() const { return 1; }
     virtual inline int ExactNumTopBlobs() const { return 1; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
-    Blob<Dtype> mean_, variance_, temp_;
+    Blob mean_, variance_, temp_;
 
     /// sum_multiplier is used to carry out sum using BLAS
-    Blob<Dtype> sum_multiplier_;
+    Blob sum_multiplier_;
     Dtype eps_;
   };
 

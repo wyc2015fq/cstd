@@ -7,8 +7,8 @@ namespace
 {
 
   template <typename Dtype>
-  void TileLayer<Dtype>::Reshape(
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void TileLayer::Reshape(
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const TileParameter & tile_param = this->param_->tile_param();
     axis_ = bottom[0]->CanonicalAxisIndex(tile_param.axis());
@@ -23,11 +23,11 @@ namespace
   }
 
   template <typename Dtype>
-  void TileLayer<Dtype>::Forward(_CONTEXT,
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void TileLayer::Forward(_CONTEXT,
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
     for (size_t i = 0; i < outer_dim_; ++i) {
       for (size_t t = 0; t < tiles_; ++t) {
         caffe_copy(inner_dim_, bottom_data, top_data);
@@ -38,12 +38,12 @@ namespace
   }
 
   template <typename Dtype>
-  void TileLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                      const vector<Blob<Dtype>*> & bottom)
+  void TileLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                      const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }
-    const Dtype* top_diff = top[0]->diff<Context>();
-    Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+    const Dtype* top_diff = top[0]->diff();
+    Dtype* bottom_diff = bottom[0]->mutable_diff();
     for (size_t i = 0; i < outer_dim_; ++i) {
       caffe_copy(inner_dim_, top_diff, bottom_diff);
       top_diff += inner_dim_;

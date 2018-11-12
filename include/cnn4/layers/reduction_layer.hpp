@@ -18,29 +18,29 @@ namespace
    * TODO(dox): thorough documentation for Forward, Backward, and proto params.
    */
   template <typename Dtype>
-  class ReductionLayer : public Layer<Dtype>
+  class ReductionLayer : public Layer
   {
   public:
     explicit ReductionLayer()
-      : Layer<Dtype>() {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : Layer() {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "Reduction"; }
     virtual inline int ExactNumBottomBlobs() const { return 1; }
     virtual inline int ExactNumTopBlobs() const { return 1; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
     /// @brief the reduction operation performed by the layer
     ReductionParameter_ReductionOp op_;
@@ -53,7 +53,7 @@ namespace
     /// @brief the input size of each reduction
     int dim_;
     /// @brief a helper Blob used for summation (op_ == SUM)
-    Blob<Dtype> sum_multiplier_;
+    Blob sum_multiplier_;
   };
 
 }  // namespace

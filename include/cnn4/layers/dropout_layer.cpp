@@ -9,10 +9,10 @@ namespace
 {
 
   template <typename Dtype>
-  void DropoutLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                       const vector<Blob<Dtype>*> & top)
+  void DropoutLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                       const vector<Blob*> & top)
   {
-    NeuronLayer<Dtype>::LayerSetUp(bottom, top);
+    NeuronLayer::LayerSetUp(bottom, top);
     threshold_ = this->param_->dropout_param().dropout_ratio();
     DCHECK(threshold_ > 0.);
     DCHECK(threshold_ < 1.);
@@ -21,22 +21,22 @@ namespace
   }
 
   template <typename Dtype>
-  void DropoutLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                    const vector<Blob<Dtype>*> & top)
+  void DropoutLayer::Reshape(const vector<Blob*> & bottom,
+                                    const vector<Blob*> & top)
   {
-    NeuronLayer<Dtype>::Reshape(bottom, top);
+    NeuronLayer::Reshape(bottom, top);
     // Set up the cache for random number generation
     // ReshapeLike does not work because rand_vec_ is of Dtype uint
     rand_vec_.Reshape(bottom[0]->shape());
   }
 
   template <typename Dtype>
-  void DropoutLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                        const vector<Blob<Dtype>*> & top)
+  void DropoutLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                        const vector<Blob*> & top)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
-    unsigned int* mask = rand_vec_.mutable_data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
+    unsigned int* mask = rand_vec_.mutable_data();
     const int count = bottom[0]->count();
     if (this->phase_ == TRAIN) {
       // Create random numbers
@@ -50,15 +50,15 @@ namespace
   }
 
   template <typename Dtype>
-  void DropoutLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
+  void DropoutLayer::Backward(CPUContext* context, const vector<Blob*> & top,
                                          int*
-                                         const vector<Blob<Dtype>*> & bottom)
+                                         const vector<Blob*> & bottom)
   {
     if (bottom[0]->propagate_down_) {
-      const Dtype* top_diff = top[0]->diff<Context>();
-      Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+      const Dtype* top_diff = top[0]->diff();
+      Dtype* bottom_diff = bottom[0]->mutable_diff();
       if (this->phase_ == TRAIN) {
-        const unsigned int* mask = rand_vec_.data<Context>();
+        const unsigned int* mask = rand_vec_.data();
         const int count = bottom[0]->count();
         for (int i = 0; i < count; ++i) {
           bottom_diff[i] = top_diff[i] * mask[i] * scale_;

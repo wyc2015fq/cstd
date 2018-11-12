@@ -14,10 +14,8 @@
 
 /// @brief Fills a Blob with constant values @f$ x = 0 @f$.
 
-
-int ConstantFiller(Blob* blob, CJSON* param) {
-  Dtype* data = blob->mutable_cpu_data();
-  const int count = blob->count();
+template <typename Dtype>
+int ConstantFiller(int count, Dtype* data, CJSON* param) {
   const Dtype value = (Dtype)param->GetObjectNumber("value", 0);
   CHECK(count);
   for (int i = 0; i < count; ++i) {
@@ -30,8 +28,8 @@ int ConstantFiller(Blob* blob, CJSON* param) {
 
 
 /// @brief Fills a Blob with uniformly distributed values @f$ x\sim U(a, b) @f$.
-
-int UniformFiller(Blob* blob, CJSON* param) {
+template <typename Dtype>
+int UniformFiller(int count, Dtype* data, CJSON* param) {
   CHECK(blob->count());
   caffe_rng_uniform(blob->count(), Dtype(param->GetObjectNumber("min", 0)),
     Dtype(param->GetObjectNumber("max", 1)), blob->mutable_cpu_data());
@@ -41,8 +39,8 @@ int UniformFiller(Blob* blob, CJSON* param) {
 }
 
 /// @brief Fills a Blob with Gaussian-distributed values @f$ x = a @f$.
-
-int GaussianFiller(Blob* blob, CJSON* param) {
+template <typename Dtype>
+int GaussianFiller(int count, Dtype* data, CJSON* param) {
   Dtype* data = blob->mutable_cpu_data();
   CHECK(blob->count());
   caffe_rng_gaussian(blob->count(), Dtype(param->GetObjectNumber("mean", 0)),
@@ -71,8 +69,8 @@ int GaussianFiller(Blob* blob, CJSON* param) {
 /** @brief Fills a Blob with values @f$ x \in [0, 1] @f$
  *         such that @f$ \forall i \sum_j x_{ij} = 1 @f$.
  */
-
-int PositiveUnitballFiller(Blob* blob, CJSON* param) {
+template <typename Dtype>
+int PositiveUnitballFiller(int count, Dtype* data, CJSON* param) {
   Dtype* data = blob->mutable_cpu_data();
   DCHECK(blob->count());
   caffe_rng_uniform<Dtype>(blob->count(), 0, 1, blob->mutable_cpu_data());
@@ -117,8 +115,8 @@ const char* VarianceNorm_Name[] = {
  *
  * TODO(dox): make notation in above comment consistent with rest & use LaTeX.
  */
-
-int XavierFiller(Blob* blob, CJSON* param) {
+template <typename Dtype>
+int XavierFiller(int count, Dtype* data, CJSON* param) {
   CHECK(blob->count());
   int fan_in = blob->count() / blob->num();
   int fan_out = blob->count() / blob->channels();
@@ -155,8 +153,8 @@ int XavierFiller(Blob* blob, CJSON* param) {
  * a, b, c) where a * b * c = fan_in and num * b * c = fan_out. Note that this
  * is currently not the case for inner product layers.
  */
-
-int MSRAFiller(Blob* blob, CJSON* param) {
+template <typename Dtype>
+int MSRAFiller(int count, Dtype* data, CJSON* param) {
   CHECK(blob->count());
   int fan_in = blob->count() / blob->num();
   int fan_out = blob->count() / blob->channels();
@@ -210,11 +208,11 @@ operation is equivalent to the following call in Python with Scikit.Image.
 out = skimage.transform.rescale(img, factor, mode='constant', cval=0)
 \endcode
  */
-
-int BilinearFiller(Blob* blob, CJSON* param) {
+template <typename Dtype>
+int BilinearFiller(int count, Dtype* data, CJSON* param) {
   CHECK_EQ(blob->num_axes(), 4) << "Blob must be 4 dim.";
   CHECK_EQ(blob->width(), blob->height()) << "Filter must be square";
-  Dtype* data = blob->mutable_cpu_data();
+  Dtype* data = blob->mutable_data<Context>();
   int f = ceil(blob->width() / 2.);
   float c = (2 * f - 1 - f % 2) / (2. * f);
   for (int i = 0; i < blob->count(); ++i) {
@@ -238,26 +236,28 @@ int BilinearFiller(Blob* blob, CJSON* param) {
 int Filler(Blob* blob, CJSON* param)
 {
   const std::string & type = cJSON_GetObjectString(param, "type", "xavier");
+  Blob::Dtype* data = blob->mutable_data<CPUContext>();
+  const int count = blob->count();
   if (type == "constant") {
-    return ConstantFiller(blob, param);
+    return ConstantFiller(count, data, param);
   }
   else if (type == "gaussian") {
-    return GaussianFiller(blob, param);
+    return GaussianFiller(count, data, param);
   }
   else if (type == "positive_unitball") {
-    return PositiveUnitballFiller(blob, param);
+    return PositiveUnitballFiller(count, data, param);
   }
   else if (type == "uniform") {
-    return UniformFiller(blob, param);
+    return UniformFiller(count, data, param);
   }
   else if (type == "xavier") {
-    return XavierFiller(blob, param);
+    return XavierFiller(count, data, param);
   }
   else if (type == "msra") {
-    return MSRAFiller(blob, param);
+    return MSRAFiller(count, data, param);
   }
   else if (type == "bilinear") {
-    return BilinearFiller(blob, param);
+    return BilinearFiller(count, data, param);
   }
   else {
     CHECK(false) << "Unknown filler name: " << param->GetObjectString("type", "constant");

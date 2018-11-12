@@ -39,13 +39,13 @@ namespace
    * linear least squares problems! We use it only as an instructive example.)
    */
   template <typename Dtype>
-  class EuclideanLossLayer : public LossLayer<Dtype>
+  class EuclideanLossLayer : public LossLayer
   {
   public:
     explicit EuclideanLossLayer()
-      : LossLayer<Dtype>(param), diff_() {}
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : LossLayer(param), diff_() {}
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "EuclideanLoss"; }
     /**
@@ -58,10 +58,10 @@ namespace
 
   public:
     /// @copydoc EuclideanLossLayer
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the Euclidean error gradient w.r.t. the inputs.
@@ -96,12 +96,12 @@ namespace
      *          \frac{1}{n} \sum\limits_{n=1}^N (y_n - \hat{y}_n)
      *      @f$ if bottom[1]->propagate_down_
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
-    Blob<Dtype> diff_;
+    Blob diff_;
   };
 
 }  // namespace

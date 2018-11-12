@@ -22,7 +22,7 @@ struct Solver {
     for (int j = 0; j < test_iter; ++j) {
       Dtype iter_loss = test_net->Forward(TEST);
       for (int i = 0; i < net_->blobs_.size(); ++i) {
-        Blob<Dtype>* blob = net_->blobs_[i];
+        Blob* blob = net_->blobs_[i];
         //auto layer = test_net->layers_[i];
         if (blob->loss_weight_ > 0 || blob->bottom_cnt_ == 0) {
           test_score[i] += blob->amean_data();
@@ -34,7 +34,7 @@ struct Solver {
     LOG(INFO) << "Test loss: " << loss;
     int idx = 0;
     for (int i = 0; i < net_->blobs_.size(); ++i) {
-      Blob<Dtype>* blob = net_->blobs_[i];
+      Blob* blob = net_->blobs_[i];
       if (blob->loss_weight_ > 0 || blob->bottom_cnt_==0) {
         const Dtype loss_weight = blob->loss_weight_;
         const string output_name = blob->name;
@@ -75,7 +75,7 @@ struct Solver {
   int test_interval;
   int max_iter;
   double average_loss;
-  vector<Blob<Dtype>*> learnable_params_;
+  vector<Blob*> learnable_params_;
   bool test_initialization;
 
   virtual void PreSolve() = 0;
@@ -122,9 +122,9 @@ struct Solver {
           << ", loss = " << smoothed_loss_;
         int score_index = 0;
         for (int j = 0; j < net_->blobs_.size(); ++j) {
-          Blob<Dtype>* blob = net_->blobs_[j];
+          Blob* blob = net_->blobs_[j];
           if (blob->loss_weight_>0) {
-            const Dtype* result_vec = blob->data<CPUContext>();
+            const Dtype* result_vec = blob->cpu_data();
             const string & output_name = blob->name;
             const Dtype loss_weight = blob->loss_weight_;
 

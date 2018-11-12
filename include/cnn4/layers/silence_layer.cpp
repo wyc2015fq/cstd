@@ -7,13 +7,13 @@ namespace
 {
 
   template <typename Dtype>
-  void SilenceLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                         const vector<Blob<Dtype>*> & bottom)
+  void SilenceLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                         const vector<Blob*> & bottom)
   {
     for (int i = 0; i < bottom.size(); ++i) {
       if (bottom[i]->propagate_down_) {
         caffe_set(bottom[i]->count(), Dtype(0),
-                  bottom[i]->mutable_diff<Context>());
+                  bottom[i]->mutable_diff());
       }
     }
   }

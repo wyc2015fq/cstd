@@ -11,12 +11,12 @@ using namespace CTC;
 namespace {
 
 template <typename Dtype>
-void WarpCTCLossLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-                                      const vector<Blob<Dtype>*>& top) {
+void WarpCTCLossLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+                                      const vector<Blob*>& top) {
     cudaStream_t stream;
     CHECK_EQ(cudaStreamCreate(&stream), CUDA_SUCCESS);
 
-    const Dtype* const activations = bottom[0]->data<Context>();
+    const Dtype* const activations = bottom[0]->data();
     Dtype* gradients = bottom[0]->mutable_gpu_diff();
     const int alphabet_size = C_;
     const int minibatch = N_;
@@ -24,8 +24,8 @@ void WarpCTCLossLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dty
 
 	flat_labels_.clear();
 	if (bottom.size() == 2) {//bottom[0]=activations, bottom[1] is labels, shape: Batchsize*seq len
-		const Blob<Dtype>* label_seq_blob = bottom[1];
-		const Dtype *label_seq_d = label_seq_blob->data<Context>();
+		const Blob* label_seq_blob = bottom[1];
+		const Dtype *label_seq_d = label_seq_blob->data();
 		int label_len_per_batch = label_seq_blob->channels();
 		
 		for (int n = 0; n < N_; ++n)
@@ -47,13 +47,13 @@ void WarpCTCLossLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dty
       ExtractInputData(bottom[1], bottom[2],
           &flat_labels_, &label_lengths_, &input_lengths_);
     } else if (bottom.size() == 4) {
-      const Blob<Dtype>* seq_len_blob = bottom[1];
-      const Blob<Dtype>* lab_len_blob = bottom[2];
-      const Blob<Dtype>* label_seq_blob = bottom[3];
+      const Blob* seq_len_blob = bottom[1];
+      const Blob* lab_len_blob = bottom[2];
+      const Blob* label_seq_blob = bottom[3];
 
-      const Dtype *seq_len_d = seq_len_blob->data<Context>();
-      const Dtype *lab_len_d = lab_len_blob->data<Context>();
-      const Dtype *label_seq_d = label_seq_blob->data<Context>();
+      const Dtype *seq_len_d = seq_len_blob->data();
+      const Dtype *lab_len_d = lab_len_blob->data();
+      const Dtype *label_seq_d = label_seq_blob->data();
 
       int accumulated = 0;
       CHECK_EQ(seq_len_blob->count(), lab_len_blob->count());
@@ -101,7 +101,7 @@ void WarpCTCLossLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dty
                               alphabet_size,
                               minibatch,
                               costs.data(),
-                              workspace_->mutable_data<Context>(),
+                              workspace_->mutable_data(),
                               options
                               );
 
@@ -119,7 +119,7 @@ void WarpCTCLossLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dty
 
 
     // output loss
-    Dtype &loss = top[0]->mutable_data<Context>()[0];
+    Dtype &loss = top[0]->mutable_data()[0];
     loss = 0;
     int num = 0;
     for (int n = 0; n < N_; ++n) {
@@ -135,9 +135,9 @@ void WarpCTCLossLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dty
 }
 
 template <typename Dtype>
-void WarpCTCLossLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
+void WarpCTCLossLayer::Backward(GPUContext* context, const vector<Blob*>& top,
                                            const vector<bool>& propagate_down,
-                                           const vector<Blob<Dtype>*>& bottom) {
+                                           const vector<Blob*>& bottom) {
   CHECK_EQ(bottom[0]->propagate_down_, true)
         << "Required to propagate to probabilities";
   if (propagate_down.size() >= 3)

@@ -7,8 +7,8 @@ namespace
 {
 
   template <typename Dtype>
-  void ConcatLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                      const vector<Blob<Dtype>*> & top)
+  void ConcatLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                      const vector<Blob*> & top)
   {
     const ConcatParameter & concat_param = this->param_->concat_param();
     CHECK(!(concat_param.has_axis() && concat_param.has_concat_dim()))
@@ -16,8 +16,8 @@ namespace
   }
 
   template <typename Dtype>
-  void ConcatLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                   const vector<Blob<Dtype>*> & top)
+  void ConcatLayer::Reshape(const vector<Blob*> & bottom,
+                                   const vector<Blob*> & top)
   {
     const int num_axes = bottom[0]->num_axes();
     const ConcatParameter & concat_param = this->param_->concat_param();
@@ -57,15 +57,15 @@ namespace
   }
 
   template <typename Dtype>
-  void ConcatLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                       const vector<Blob<Dtype>*> & top)
+  void ConcatLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                       const vector<Blob*> & top)
   {
     if (bottom.size() == 1) { return; }
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    Dtype* top_data = top[0]->mutable_data();
     int offset_concat_axis = 0;
     const int top_concat_axis = top[0]->shape(concat_axis_);
     for (int i = 0; i < bottom.size(); ++i) {
-      const Dtype* bottom_data = bottom[i]->data<Context>();
+      const Dtype* bottom_data = bottom[i]->data();
       const int bottom_concat_axis = bottom[i]->shape(concat_axis_);
       for (int n = 0; n < num_concats_; ++n) {
         caffe_copy(bottom_concat_axis * concat_input_size_,
@@ -78,17 +78,17 @@ namespace
   }
 
   template <typename Dtype>
-  void ConcatLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                        const vector<Blob<Dtype>*> & bottom)
+  void ConcatLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                        const vector<Blob*> & bottom)
   {
     if (bottom.size() == 1) { return; }
-    const Dtype* top_diff = top[0]->diff<Context>();
+    const Dtype* top_diff = top[0]->diff();
     int offset_concat_axis = 0;
     const int top_concat_axis = top[0]->shape(concat_axis_);
     for (int i = 0; i < bottom.size(); ++i) {
       const int bottom_concat_axis = bottom[i]->shape(concat_axis_);
       if (bottom[i]->propagate_down_) {
-        Dtype* bottom_diff = bottom[i]->mutable_diff<Context>();
+        Dtype* bottom_diff = bottom[i]->mutable_diff();
         for (int n = 0; n < num_concats_; ++n) {
           caffe_copy(bottom_concat_axis * concat_input_size_, top_diff +
                      (n * top_concat_axis + offset_concat_axis) * concat_input_size_,

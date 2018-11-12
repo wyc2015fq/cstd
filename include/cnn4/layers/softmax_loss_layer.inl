@@ -1,7 +1,5 @@
 
-
-template <typename Dtype>
-int softmaxloss_forward(_CONTEXT, const Dtype* prob_data, const Dtype* label,
+int FUN(softmaxloss_forward)(const Dtype* prob_data, const Dtype* label,
   const int outer_num_, const int dim, const int inner_num_,
   const bool has_ignore_label_, const int ignore_label_,
   Dtype* out_loss) {
@@ -20,12 +18,11 @@ int softmaxloss_forward(_CONTEXT, const Dtype* prob_data, const Dtype* label,
     }
   }
   *out_loss = loss;
-   // top[0]->mutable_data<Context>()[0] = loss / get_normalizer(bottom[0]->shape_, axis_, normalization_, valid_count);
+   // top[0]->mutable_data()[0] = loss / get_normalizer(bottom[0]->shape_, axis_, normalization_, valid_count);
   return count;
 }
 
-template <typename Dtype>
-int softmaxloss_backward(_CONTEXT, const Dtype* top_data,
+int FUN(softmaxloss_backward)(const Dtype* top_data,
   const Dtype* label, Dtype* bottom_diff, const int outer_num_, const int dim,
   const int inner_num_, const bool has_ignore_label_,
   const int ignore_label_) {

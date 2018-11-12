@@ -19,13 +19,13 @@ namespace
    * first axis of the first blob.
    */
   template <typename Dtype>
-  class BatchReindexLayer : public Layer<Dtype>
+  class BatchReindexLayer : public Layer
   {
   public:
     explicit BatchReindexLayer()
-      : Layer<Dtype>() {}
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : Layer() {}
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "BatchReindex"; }
     virtual inline int ExactNumBottomBlobs() const { return 2; }
@@ -44,10 +44,10 @@ namespace
      *        y = x_1[x_2]
      *      @f$
      */
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the error gradient w.r.t. the reordered input.
@@ -64,10 +64,10 @@ namespace
      *   - This layer cannot backprop to x_2, i.e. bottom[1]->propagate_down_ must be
      *     false.
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
   private:
     struct pair_sort_first {

@@ -1,52 +1,48 @@
+#ifndef _FILLER_INL_
+#define _FILLER_INL_
 
-template <typename Dtype>
-int ConstantFiller(Blob<Dtype>* blob, CJSON* param) {
-  Dtype* data = blob->mutable_data<CPUContext>();
-  const int count = blob->count();
-  const Dtype value = (Dtype)param->GetObjectNumber("value", 0);
+
+
+int FUN(ConstantFiller)(DataShape shape, Dtype* data, CJSON* param) {
+  const int count = shape.count();
+  const Dtype value = (Dtype)param->getfloat("value", 0);
   CHECK(count);
   for (int i = 0; i < count; ++i) {
     data[i] = value;
   }
-  CHECK_EQ(param->GetObjectNumber("sparse", -1), -1)
+  CHECK_EQ(param->getfloat("sparse", -1), -1)
     << "Sparsity not supported by this Filler.";
   return 0;
 }
 
-
 /// @brief Fills a Blob with uniformly distributed values @f$ x\sim U(a, b) @f$.
-
-template <typename Dtype>
-int UniformFiller(Blob<Dtype>* blob, CJSON* param) {
-  CHECK(blob->count());
-  caffe_rng_uniform(blob->count(), Dtype(param->GetObjectNumber("min", 0)),
-    Dtype(param->GetObjectNumber("max", 1)), blob->mutable_data<CPUContext>());
-  CHECK_EQ(param->GetObjectNumber("sparse", -1), -1)
+int FUN(UniformFiller)(DataShape shape, Dtype* data, CJSON* param) {
+  const int count = shape.count();
+  FUN(caffe_rng_uniform)(count, param->getfloat("min", 0), param->getfloat("max", 1), data);
+  CHECK_EQ(param->getfloat("sparse", -1), -1)
     << "Sparsity not supported by this Filler.";
   return 0;
 }
 
 /// @brief Fills a Blob with Gaussian-distributed values @f$ x = a @f$.
-
-template <typename Dtype>
-int GaussianFiller(Blob<Dtype>* blob, CJSON* param) {
-  Dtype* data = blob->mutable_data<CPUContext>();
-  CHECK(blob->count());
-  caffe_rng_gaussian(blob->count(), Dtype(param->GetObjectNumber("mean", 0)),
-    Dtype(param->GetObjectNumber("std", 1)), blob->mutable_data<CPUContext>());
-  int sparse = (int)param->GetObjectNumber("sparse", -1);
+int FUN(GaussianFiller)(DataShape shape, Dtype* data, CJSON* param) {
+  const int count = shape.count();
+  CHECK(count);
+  FUN(caffe_rng_gaussian)(count, Dtype(param->getfloat("mean", 0)),
+    Dtype(param->getfloat("std", 1)), data);
+  int sparse = (int)param->getfloat("sparse", -1);
   CHECK_GE(sparse, -1);
   if (sparse >= 0) {
     // Sparse initialization is implemented for "weight" blobs; i.e. matrices.
     // These have num == channels == 1; width is number of inputs; height is
     // number of outputs.  The 'sparse' variable specifies the mean number
     // of non-zero input weights for a given output.
-    CHECK_GE(blob->num_axes(), 1);
-    const int num_outputs = blob->shape(0);
+    CHECK_GE(shape.num_axes(), 1);
+    const int num_outputs = shape.shape(0);
     Dtype non_zero_probability = Dtype(sparse) / Dtype(num_outputs);
-    int* mask = reinterpret_cast<int*>(malloc(blob->count() * sizeof(int)));
-    caffe_rng_bernoulli(blob->count(), non_zero_probability, mask);
-    for (int i = 0; i < blob->count(); ++i) {
+    int* mask = reinterpret_cast<int*>(malloc(count * sizeof(int)));
+    caffe_rng_bernoulli(count, non_zero_probability, mask);
+    for (int i = 0; i < count; ++i) {
       data[i] *= mask[i];
     }
     free(mask);
@@ -54,21 +50,18 @@ int GaussianFiller(Blob<Dtype>* blob, CJSON* param) {
   return 0;
 }
 
-
 /** @brief Fills a Blob with values @f$ x \in [0, 1] @f$
  *         such that @f$ \forall i \sum_j x_{ij} = 1 @f$.
  */
-
-template <typename Dtype>
-int PositiveUnitballFiller(Blob<Dtype>* blob, CJSON* param) {
-  Dtype* data = blob->mutable_data<CPUContext>();
-  DCHECK(blob->count());
-  caffe_rng_uniform<Dtype>(blob->count(), 0, 1, blob->mutable_data<CPUContext>());
+int FUN(PositiveUnitballFiller)(DataShape shape, Dtype* data, CJSON* param) {
+  const int count = shape.count();
+  DCHECK(count);
+  FUN(caffe_rng_uniform)(count, 0, 1, data);
   // We expect the filler to not be called very frequently, so we will
   // just use a simple implementation
-  int dim = blob->count() / blob->num();
+  int dim = count / shape.num();
   CHECK(dim);
-  for (int i = 0; i < blob->num(); ++i) {
+  for (int i = 0; i < shape.num(); ++i) {
     Dtype sum = 0;
     for (int j = 0; j < dim; ++j) {
       sum += data[i * dim + j];
@@ -77,17 +70,10 @@ int PositiveUnitballFiller(Blob<Dtype>* blob, CJSON* param) {
       data[i * dim + j] /= sum;
     }
   }
-  CHECK_EQ(param->GetObjectNumber("sparse", -1), -1)
+  CHECK_EQ(param->getfloat("sparse", -1), -1)
     << "Sparsity not supported by this Filler.";
   return 0;
 }
-
-enum VarianceNorm {
-  FAN_IN, FAN_OUT, AVERAGE,
-};
-const char* VarianceNorm_Name[] = {
-  "FAN_IN", "FAN_OUT", "AVERAGE",
-};
 
 /**
  * @brief Fills a Blob with values @f$ x \sim U(-a, +a) @f$ where @f$ a @f$ is
@@ -105,12 +91,11 @@ const char* VarianceNorm_Name[] = {
  *
  * TODO(dox): make notation in above comment consistent with rest & use LaTeX.
  */
-
-template <typename Dtype>
-int XavierFiller(Blob<Dtype>* blob, CJSON* param) {
-  CHECK(blob->count());
-  int fan_in = blob->count() / blob->num();
-  int fan_out = blob->count() / blob->channels();
+int FUN(XavierFiller)(DataShape shape, Dtype* data, CJSON* param) {
+  const int count = shape.count();
+  CHECK(count);
+  int fan_in = count / shape.num();
+  int fan_out = count / shape.channels();
   Dtype n = (Dtype)fan_in;  // default to fan_in
   VarianceNorm variance_norm = param->getenum("variance_norm", FAN_IN, VarianceNorm_Name, countof(VarianceNorm_Name));
   if (variance_norm == AVERAGE) {
@@ -120,9 +105,9 @@ int XavierFiller(Blob<Dtype>* blob, CJSON* param) {
     n = fan_out;
   }
   Dtype scale = sqrt(Dtype(3) / n);
-  caffe_rng_uniform(blob->count(), -scale, scale,
-    blob->mutable_data<CPUContext>());
-  CHECK_EQ(param->GetObjectNumber("sparse", -1), -1)
+  caffe_rng_uniform(count, -scale, scale,
+    data);
+  CHECK_EQ(param->getfloat("sparse", -1), -1)
     << "Sparsity not supported by this Filler.";
   return 0;
 }
@@ -145,11 +130,12 @@ int XavierFiller(Blob<Dtype>* blob, CJSON* param) {
  * is currently not the case for inner product layers.
  */
 
-template <typename Dtype>
-int MSRAFiller(Blob<Dtype>* blob, CJSON* param) {
-  CHECK(blob->count());
-  int fan_in = blob->count() / blob->num();
-  int fan_out = blob->count() / blob->channels();
+
+int FUN(MSRAFiller)(DataShape shape, Dtype* data, CJSON* param) {
+  const int count = shape.count();
+  CHECK(count);
+  int fan_in = count / shape.num();
+  int fan_out = count / shape.channels();
   Dtype n = fan_in;  // default to fan_in
   const char* variance_norm = param->GetObjectString("variance_norm", "FAN_IN");
   if (0 == strcmp(variance_norm, "AVERAGE")) {
@@ -159,9 +145,9 @@ int MSRAFiller(Blob<Dtype>* blob, CJSON* param) {
     n = fan_out;
   }
   Dtype std = sqrt(Dtype(2) / n);
-  caffe_rng_gaussian(blob->count(), Dtype(0), std,
-    blob->mutable_data<CPUContext>());
-  CHECK_EQ(param->GetObjectNumber("sparse", -1), -1)
+  caffe_rng_gaussian(count, Dtype(0), std,
+    data);
+  CHECK_EQ(param->getfloat("sparse", -1), -1)
     << "Sparsity not supported by this Filler.";
   return 0;
 }
@@ -201,58 +187,59 @@ out = skimage.transform.rescale(img, factor, mode='constant', cval=0)
 \endcode
  */
 
-template <typename Dtype>
-int BilinearFiller(Blob<Dtype>* blob, CJSON* param) {
-  CHECK_EQ(blob->num_axes(), 4) << "Blob must be 4 dim.";
-  CHECK_EQ(blob->width(), blob->height()) << "Filter must be square";
-  Dtype* data = blob->mutable_data<CPUContext>();
-  int f = ceil(blob->width() / 2.);
+
+int FUN(BilinearFiller)(DataShape shape, Dtype* data, CJSON* param) {
+  const int count = shape.count();
+  CHECK_EQ(shape.num_axes(), 4) << "Blob must be 4 dim.";
+  CHECK_EQ(shape.width(), shape.height()) << "Filter must be square";
+  int f = ceil(shape.width() / 2.);
   float c = (2 * f - 1 - f % 2) / (2. * f);
-  for (int i = 0; i < blob->count(); ++i) {
-    float x = i % blob->width();
-    float y = (i / blob->width()) % blob->height();
+  for (int i = 0; i < count; ++i) {
+    float x = i % shape.width();
+    float y = (i / shape.width()) % shape.height();
     data[i] = (1 - fabs(x / f - c)) * (1 - fabs(y / f - c));
   }
-  CHECK_EQ(param->GetObjectNumber("sparse", -1), -1)
+  CHECK_EQ(param->getfloat("sparse", -1), -1)
     << "Sparsity not supported by this Filler.";
   return 0;
 }
 
-
 /**
- * @brief Get a specific filler from the specification given in FillerParameter.
- *
- * Ideally this would be replaced by a factory pattern, but we will leave it
- * this way for now.
- */
+* @brief Get a specific filler from the specification given in FillerParameter.
+*
+* Ideally this would be replaced by a factory pattern, but we will leave it
+* this way for now.
+*/
 
-template <typename Dtype>
-int Filler(Blob<Dtype>* blob, CJSON* param)
-{
+int FUN(Filler)(DataShape shape, Dtype* data, CJSON* param) {
   const std::string & type = cJSON_GetObjectString(param, "type", "xavier");
+  //Blob::Dtype* data = blob->mutable_cpu_data();
   if (type == "constant") {
-    return ConstantFiller(blob, param);
+    return FUN(ConstantFiller)(shape, data, param);
   }
   else if (type == "gaussian") {
-    return GaussianFiller(blob, param);
+    return FUN(GaussianFiller)(shape, data, param);
   }
   else if (type == "positive_unitball") {
-    return PositiveUnitballFiller(blob, param);
+    return FUN(PositiveUnitballFiller)(shape, data, param);
   }
   else if (type == "uniform") {
-    return UniformFiller(blob, param);
+    return FUN(UniformFiller)(shape, data, param);
   }
   else if (type == "xavier") {
-    return XavierFiller(blob, param);
+    return FUN(XavierFiller)(shape, data, param);
   }
   else if (type == "msra") {
-    return MSRAFiller(blob, param);
+    return FUN(MSRAFiller)(shape, data, param);
   }
   else if (type == "bilinear") {
-    return BilinearFiller(blob, param);
+    return FUN(BilinearFiller)(shape, data, param);
   }
   else {
     CHECK(false) << "Unknown filler name: " << param->GetObjectString("type", "constant");
   }
   return 1;
 }
+
+
+#endif // _FILLER_INL_

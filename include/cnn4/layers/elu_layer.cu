@@ -15,10 +15,10 @@ __global__ void ELUForward(const int n, const Dtype* in, Dtype* out,
 }
 
 template <typename Dtype>
-void ELULayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
-  const Dtype* bottom_data = bottom[0]->data<Context>();
-  Dtype* top_data = top[0]->mutable_data<Context>();
+void ELULayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+    const vector<Blob*>& top) {
+  const Dtype* bottom_data = bottom[0]->data();
+  Dtype* top_data = top[0]->mutable_data();
   const int count = bottom[0]->count();
   Dtype alpha = this->param_->elu_param().alpha();
   // NOLINT_NEXT_LINE(whitespace/operators)
@@ -38,13 +38,13 @@ __global__ void ELUBackward(const int n, const Dtype* in_diff,
 }
 
 template <typename Dtype>
-void ELULayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
+void ELULayer::Backward(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
-    const vector<Blob<Dtype>*>& bottom) {
+    const vector<Blob*>& bottom) {
   if (bottom[0]->propagate_down_) {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
     const Dtype* top_diff = top[0]->gpu_diff();
-    const Dtype* top_data = top[0]->data<Context>();
+    const Dtype* top_data = top[0]->data();
     Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
     const int count = bottom[0]->count();
     Dtype alpha = this->param_->elu_param().alpha();

@@ -27,23 +27,23 @@ namespace
    *   stride results in upsampling rather than downsampling).
    */
   template <typename Dtype>
-  class DeconvolutionLayer : public BaseConvolutionLayer<Dtype>
+  class DeconvolutionLayer : public BaseConvolutionLayer
   {
   public:
     explicit DeconvolutionLayer()
-      : BaseConvolutionLayer<Dtype>() {}
+      : BaseConvolutionLayer() {}
 
     virtual inline const char* type() const { return "Deconvolution"; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
     virtual inline bool reverse_dimensions() { return true; }
     virtual void compute_output_shape();
   };

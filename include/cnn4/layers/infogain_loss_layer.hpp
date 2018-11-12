@@ -45,15 +45,15 @@ namespace
    *      @f$, where @f$ H_{l_n} @f$ denotes row @f$l_n@f$ of @f$H@f$.
    */
   template <typename Dtype>
-  class InfogainLossLayer : public LossLayer<Dtype>
+  class InfogainLossLayer : public LossLayer
   {
   public:
     explicit InfogainLossLayer()
-      : LossLayer<Dtype>(param), infogain_() {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : LossLayer(param), infogain_() {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     // InfogainLossLayer takes 2-3 bottom Blobs; if there are 3 the third should
     // be the infogain matrix.  (Otherwise the infogain matrix is loaded from a
@@ -66,8 +66,8 @@ namespace
 
   public:
     /// @copydoc InfogainLossLayer
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the infogain loss error gradient w.r.t. the predictions.
@@ -101,10 +101,10 @@ namespace
      *      (\b optional) the information gain matrix -- ignored as its error
      *      gradient computation is not implemented.
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
-    Blob<Dtype> infogain_;
+    Blob infogain_;
   };
 
 }  // namespace

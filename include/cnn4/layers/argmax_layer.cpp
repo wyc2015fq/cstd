@@ -9,8 +9,8 @@ namespace
 {
 
   template <typename Dtype>
-  void ArgMaxLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                      const vector<Blob<Dtype>*> & top)
+  void ArgMaxLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                      const vector<Blob*> & top)
   {
     const ArgMaxParameter & argmax_param = this->param_->argmax_param();
     out_max_val_ = argmax_param.out_max_val();
@@ -32,8 +32,8 @@ namespace
   }
 
   template <typename Dtype>
-  void ArgMaxLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                   const vector<Blob<Dtype>*> & top)
+  void ArgMaxLayer::Reshape(const vector<Blob*> & bottom,
+                                   const vector<Blob*> & top)
   {
     int num_top_axes = bottom[0]->num_axes();
     if ( num_top_axes < 3 ) { num_top_axes = 3; }
@@ -55,11 +55,11 @@ namespace
   }
 
   template <typename Dtype>
-  void ArgMaxLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                       const vector<Blob<Dtype>*> & top)
+  void ArgMaxLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                       const vector<Blob*> & top)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
     int dim, axis_dist;
     if (has_axis_) {
       dim = bottom[0]->shape(axis_);

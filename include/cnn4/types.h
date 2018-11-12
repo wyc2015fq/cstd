@@ -2,6 +2,9 @@
 #ifndef _CNN4_TYPES_H_
 #define _CNN4_TYPES_H_
 
+typedef void void_type;
+typedef void void_float;
+
 #define TYPEFLAGDEF_DEF(DEF) \
 DEF(S8, char) \
 DEF(U8, unsigned char) \
@@ -25,7 +28,7 @@ static const int TypeSize[] = {
 #undef TYPEFLAGDEF
 };
 
-#if 0
+#if 1
 template <typename T>
 struct TypeFlag_TF { enum { flag = 0 }; };
 
@@ -43,12 +46,14 @@ enum DimType { NCHW, NHWC };
 #define MAX_DIM 4
 
 struct DataShape {
+  //TypeFlag t;
   union {
     int dim[MAX_DIM];
     struct { int n, c, h, w; };
   };
   void set(int n, int c = 1, int h = 1, int w = 1) { dim[0] = n, dim[1] = c, dim[2] = h, dim[3] = w; }
   int count() const { return dim[0] * dim[1] * dim[2] * dim[3]; }
+  //int size() const { return count()*TypeSize[t]; }
   int* begin() { return dim; }
   int* end() { return dim + MAX_DIM; }
   const int* begin() const { return dim; }
@@ -84,6 +89,27 @@ struct DataShape {
   }
   inline int count(int start_axis) const {
     return count(start_axis, num_axes());
+  }
+  /// @brief Deprecated legacy shape accessor num: use shape(0) instead.
+  inline int num() const { return LegacyShape(0); }
+  /// @brief Deprecated legacy shape accessor channels: use shape(1) instead.
+  inline int channels() const { return LegacyShape(1); }
+  /// @brief Deprecated legacy shape accessor height: use shape(2) instead.
+  inline int height() const { return LegacyShape(2); }
+  /// @brief Deprecated legacy shape accessor width: use shape(3) instead.
+  inline int width() const { return LegacyShape(3); }
+  inline int LegacyShape(int index) const {
+    CHECK_LE(num_axes(), 4)
+      << "Cannot use legacy accessors on Blobs with > 4 axes.";
+    CHECK_LT(index, 4);
+    CHECK_GE(index, -4);
+    if (index >= num_axes() || index < -num_axes()) {
+      // Axis is out of range, but still in [0, 3] (or [-4, -1] for reverse
+      // indexing) -- this special case simulates the one-padding used to fill
+      // extraneous axes of legacy blobs.
+      return 1;
+    }
+    return shape(index);
   }
 };
 
@@ -198,6 +224,14 @@ int get_normalizer(DataShape bottom_shape, int axis_, NormalizationMode normaliz
   return std::max(int(1), normalizer);
 }
 #endif
+
+///////////////////////////////////////////////////
+enum VarianceNorm {
+  FAN_IN, FAN_OUT, AVERAGE,
+};
+const char* VarianceNorm_Name[] = {
+  "FAN_IN", "FAN_OUT", "AVERAGE",
+};
 
 ///////////////////////////////////////////////////
 

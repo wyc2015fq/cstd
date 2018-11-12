@@ -25,15 +25,15 @@ __global__ void Concat(const int nthreads, const Dtype* in_data,
 }
 
 template <typename Dtype>
-void ConcatLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-      const vector<Blob<Dtype>*>& top) {
+void ConcatLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+      const vector<Blob*>& top) {
   if (bottom.size() == 1) { return; }
-  Dtype* top_data = top[0]->mutable_data<Context>();
+  Dtype* top_data = top[0]->mutable_data();
   int offset_concat_axis = 0;
   const int top_concat_axis = top[0]->shape(concat_axis_);
   const bool kForward = true;
   for (int i = 0; i < bottom.size(); ++i) {
-    const Dtype* bottom_data = bottom[i]->data<Context>();
+    const Dtype* bottom_data = bottom[i]->data();
     const int bottom_concat_axis = bottom[i]->shape(concat_axis_);
     const int bottom_concat_size = bottom_concat_axis * concat_input_size_;
     const int nthreads = bottom_concat_size * num_concats_;
@@ -46,8 +46,8 @@ void ConcatLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>
 }
 
 template <typename Dtype>
-void ConcatLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
-      const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+void ConcatLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+      const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
   if (bottom.size() == 1) { return; }
   const Dtype* top_diff = top[0]->gpu_diff();
   int offset_concat_axis = 0;

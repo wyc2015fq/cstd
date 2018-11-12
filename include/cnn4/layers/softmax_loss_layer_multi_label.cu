@@ -29,11 +29,11 @@ __global__ void SoftmaxLossForwardGPU1(const int nthreads,
 }
 
 template <typename Dtype>
-void SoftmaxWithLossMultiLabelLayer<Dtype>::Forward_gpu(
-    const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
-  softmax_layer_->Forward(softmax_bottom_vec_, softmax_top_vec_);
-  const Dtype* prob_data = prob_.data<Context>();
-  const Dtype* label = bottom[1]->data<Context>();
+void SoftmaxWithLossMultiLabelLayer::Forward_gpu(
+    const vector<Blob*>& bottom, const vector<Blob*>& top) {
+  softmax_layer_->runForward(softmax_bottom_vec_, softmax_top_vec_);
+  const Dtype* prob_data = prob_.data();
+  const Dtype* label = bottom[1]->data();
   const int dim = prob_.count() / outer_num_;
   const int nthreads = outer_num_ * inner_num_;
   // Since this memory is not used for anything until it is overwritten
@@ -57,7 +57,7 @@ void SoftmaxWithLossMultiLabelLayer<Dtype>::Forward_gpu(
       has_ignore_label_) {
     caffe_gpu_asum(nthreads, counts, &valid_count);
   }
-  top[0]->mutable_data<Context>()[0] = loss / get_normalizer(normalization_,
+  top[0]->mutable_data()[0] = loss / get_normalizer(normalization_,
     (int)valid_count);
   if (top.size() == 2) {
     top[1]->ShareData(prob_);
@@ -96,18 +96,18 @@ __global__ void SoftmaxLossBackwardGPU1(const int nthreads, const Dtype* top,
 }
 
 template <typename Dtype>
-void SoftmaxWithLossMultiLabelLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
-    const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+void SoftmaxWithLossMultiLabelLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+    const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
   if (bottom[1]->propagate_down_) {
     LOG(FATAL) << this->type()
                << " Layer cannot backpropagate to label inputs.";
   }
   if (bottom[0]->propagate_down_) {
     Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
-    const Dtype* prob_data = prob_.data<Context>();
-    const Dtype* top_data = top[0]->data<Context>();
+    const Dtype* prob_data = prob_.data();
+    const Dtype* top_data = top[0]->data();
     caffe_gpu_memcpy(prob_.count() * sizeof(Dtype), prob_data, bottom_diff);
-    const Dtype* label = bottom[1]->data<Context>();
+    const Dtype* label = bottom[1]->data();
     const int dim = prob_.count() / outer_num_;
     const int nthreads = outer_num_ * inner_num_;
     // Since this memory is never used for anything else,
@@ -126,7 +126,7 @@ void SoftmaxWithLossMultiLabelLayer<Dtype>::Backward(GPUContext* context, const 
         has_ignore_label_) {
       caffe_gpu_asum(nthreads, counts, &valid_count);
     }
-    const Dtype loss_weight = top[0]->diff<Context>()[0] /
+    const Dtype loss_weight = top[0]->diff()[0] /
                               get_normalizer(normalization_, (int)valid_count);
     caffe_gpu_scal(prob_.count(), loss_weight , bottom_diff);
   }

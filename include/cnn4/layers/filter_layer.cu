@@ -6,13 +6,13 @@
 namespace {
 
 template <typename Dtype>
-void FilterLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-      const vector<Blob<Dtype>*>& top) {
+void FilterLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+      const vector<Blob*>& top) {
   int new_tops_num = (int)indices_to_forward_.size();
   // forward all filtered items for all bottoms but the Selector (bottom[last])
   for (int t = 0; t < top.size(); ++t) {
-    const Dtype* bottom_data = bottom[t]->data<Context>();
-    Dtype* top_data = top[t]->mutable_data<Context>();
+    const Dtype* bottom_data = bottom[t]->data();
+    Dtype* top_data = top[t]->mutable_data();
     int dim = bottom[t]->count() / bottom[t]->shape(0);
     for (int n = 0; n < new_tops_num; ++n) {
       int data_offset_top = n * dim;
@@ -24,8 +24,8 @@ void FilterLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>
 }
 
 template <typename Dtype>
-void FilterLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
-      const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+void FilterLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+      const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
   if (propagate_down[bottom.size() - 1]) {
     LOG(FATAL) << this->type()
                << "Layer cannot backpropagate to filter index inputs";

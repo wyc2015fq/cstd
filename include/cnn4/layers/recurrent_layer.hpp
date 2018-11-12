@@ -24,15 +24,15 @@ namespace
    *        architecture, such as RNNLayer or LSTMLayer.
    */
   template <typename Dtype>
-  class RecurrentLayer : public Layer<Dtype>
+  class RecurrentLayer : public Layer
   {
   public:
     explicit RecurrentLayer()
-      : Layer<Dtype>() {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : Layer() {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
     virtual void Reset();
 
     virtual inline const char* type() const { return "Recurrent"; }
@@ -143,12 +143,12 @@ namespace
      *      Refer to documentation for particular RecurrentLayer implementations
      *      (such as RNNLayer and LSTMLayer) for the definition of @f$ y @f$.
      */
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
     /// @brief A Net to implement the Recurrent functionality.
     SHARED_PTR<Net<Dtype> > unrolled_net_;
@@ -177,12 +177,12 @@ namespace
      */
     bool expose_hidden_;
 
-    vector<Blob<Dtype>* > recur_input_blobs_;
-    vector<Blob<Dtype>* > recur_output_blobs_;
-    vector<Blob<Dtype>* > output_blobs_;
-    Blob<Dtype>* x_input_blob_;
-    Blob<Dtype>* x_static_input_blob_;
-    Blob<Dtype>* cont_input_blob_;
+    vector<Blob* > recur_input_blobs_;
+    vector<Blob* > recur_output_blobs_;
+    vector<Blob* > output_blobs_;
+    Blob* x_input_blob_;
+    Blob* x_static_input_blob_;
+    Blob* cont_input_blob_;
   };
 
 }  // namespace

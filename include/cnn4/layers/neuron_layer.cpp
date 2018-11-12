@@ -6,8 +6,8 @@ namespace
 {
 
   template <typename Dtype>
-  void NeuronLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                   const vector<Blob<Dtype>*> & top)
+  void NeuronLayer::Reshape(const vector<Blob*> & bottom,
+                                   const vector<Blob*> & top)
   {
     top[0]->ReshapeLike(*bottom[0]);
   }

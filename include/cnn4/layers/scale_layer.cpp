@@ -10,8 +10,8 @@ namespace
 {
 
   template <typename Dtype>
-  void ScaleLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                     const vector<Blob<Dtype>*> & top)
+  void ScaleLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                     const vector<Blob*> & top)
   {
     const ScaleParameter & param = this->param_->scale_param();
     if (bottom.size() == 1 && this->blobs_.size() > 0) {
@@ -33,7 +33,7 @@ namespace
       const int* & shape_end =
         (num_axes == -1) ? bottom[0]->shape().end() : (shape_start + num_axes);
       vector<int> scale_shape(shape_start, shape_end);
-      this->blobs_[0].reset(new Blob<Dtype>(scale_shape));
+      this->blobs_[0].reset(new Blob(scale_shape));
       FillerParameter filler_param(param.filler());
       if (!param.has_filler()) {
         // Default to unit (1) filler for identity operation.
@@ -67,11 +67,11 @@ namespace
   }
 
   template <typename Dtype>
-  void ScaleLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                  const vector<Blob<Dtype>*> & top)
+  void ScaleLayer::Reshape(const vector<Blob*> & bottom,
+                                  const vector<Blob*> & top)
   {
     const ScaleParameter & param = this->param_->scale_param();
-    Blob<Dtype>* scale = (bottom.size() > 1) ? bottom[1] : this->blobs_[0].get();
+    Blob* scale = (bottom.size() > 1) ? bottom[1] : this->blobs_[0].get();
     // Always set axis_ == 0 in special case where scale is a scalar
     // (num_axes == 0). Mathematically equivalent for any choice of axis_, so the
     // actual setting can be safely ignored; and computation is most efficient
@@ -99,8 +99,8 @@ namespace
     sum_result_.Reshape(vector<int>(1, outer_dim_ * scale_dim_));
     const int sum_mult_size = std::max(outer_dim_, inner_dim_);
     sum_multiplier_.Reshape(vector<int>(1, sum_mult_size));
-    if (sum_multiplier_.data<Context>()[sum_mult_size - 1] != Dtype(1)) {
-      caffe_set(sum_mult_size, Dtype(1), sum_multiplier_.mutable_data<Context>());
+    if (sum_multiplier_.data()[sum_mult_size - 1] != Dtype(1)) {
+      caffe_set(sum_mult_size, Dtype(1), sum_multiplier_.mutable_data());
     }
     if (bias_layer_) {
       bias_bottom_vec_[0] = top[0];
@@ -109,22 +109,22 @@ namespace
   }
 
   template <typename Dtype>
-  void ScaleLayer<Dtype>::Forward(_CONTEXT,
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void ScaleLayer::Forward(_CONTEXT,
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
     if (bottom[0] == top[0]) {
       // In-place computation; need to store bottom data before overwriting it.
       // Note that this is only necessary for Backward; we could skip this if not
       // doing Backward, but Caffe currently provides no way of knowing whether
       // we'll need to do Backward at the time of the Forward call.
-      caffe_copy(bottom[0]->count(), bottom[0]->data<Context>(),
-                 temp_.mutable_data<Context>());
+      caffe_copy(bottom[0]->count(), bottom[0]->data(),
+                 temp_.mutable_data());
     }
     const Dtype* scale_data =
-      ((bottom.size() > 1) ? bottom[1] : this->blobs_[0].get())->data<Context>();
+      ((bottom.size() > 1) ? bottom[1] : this->blobs_[0].get())->data();
     //LOG(INFO) << this->param_->name() << " scale value=" << scale_data[0];
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    Dtype* top_data = top[0]->mutable_data();
     for (int n = 0; n < outer_dim_; ++n) {
       for (int d = 0; d < scale_dim_; ++d) {
         const Dtype factor = scale_data[d];
@@ -134,41 +134,41 @@ namespace
       }
     }
     if (bias_layer_) {
-      bias_layer_->Forward(bias_bottom_vec_, top);
+      bias_layer_->runForward(bias_bottom_vec_, top);
     }
   }
 
   template <typename Dtype>
-  void ScaleLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                       const vector<Blob<Dtype>*> & bottom)
+  void ScaleLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                       const vector<Blob*> & bottom)
   {
     if (bias_layer_ &&
         this->param_propagate_down_[this->param_propagate_down_.size() - 1]) {
-      bias_layer_->Backward(top, bias_propagate_down_, bias_bottom_vec_);
+      bias_layer_->runBackward(top, bias_propagate_down_, bias_bottom_vec_);
     }
     const bool scale_param = (bottom.size() == 1);
-    Blob<Dtype>* scale = scale_param ? this->blobs_[0].get() : bottom[1];
+    Blob* scale = scale_param ? this->blobs_[0].get() : bottom[1];
     if ((!scale_param && bottom[1]->propagate_down_) ||
         (scale_param && this->blobs_[0]->propagate_down_)) {
-      const Dtype* top_diff = top[0]->diff<Context>();
+      const Dtype* top_diff = top[0]->diff();
       const bool in_place = (bottom[0] == top[0]);
-      const Dtype* bottom_data = (in_place ? &temp_ : bottom[0])->data<Context>();
+      const Dtype* bottom_data = (in_place ? &temp_ : bottom[0])->data();
       // Hack: store big eltwise product in bottom[0] diff, except in the special
       // case where this layer itself does the eltwise product, in which case we
       // can store it directly in the scale diff, and we're done.
       // If we're computing in-place (and not doing eltwise computation), this
       // hack doesn't work and we store the product in temp_.
       const bool is_eltwise = (bottom[0]->count() == scale->count());
-      Dtype* product = (is_eltwise ? scale->mutable_diff<Context>() :
-                        (in_place ? temp_.mutable_data<Context>() : bottom[0]->mutable_diff<Context>()));
+      Dtype* product = (is_eltwise ? scale->mutable_diff() :
+                        (in_place ? temp_.mutable_data() : bottom[0]->mutable_diff()));
       caffe_mul(top[0]->count(), top_diff, bottom_data, product);
       if (!is_eltwise) {
         Dtype* sum_result = NULL;
         if (inner_dim_ == 1) {
           sum_result = product;
         } else if (sum_result_.count() == 1) {
-          const Dtype* sum_mult = sum_multiplier_.data<Context>();
-          Dtype* scale_diff = scale->mutable_diff<Context>();
+          const Dtype* sum_mult = sum_multiplier_.data();
+          Dtype* scale_diff = scale->mutable_diff();
           if (scale_param) {
             Dtype result = caffe_dot(inner_dim_, product, sum_mult);
             *scale_diff += result;
@@ -176,15 +176,15 @@ namespace
             *scale_diff = caffe_dot(inner_dim_, product, sum_mult);
           }
         } else {
-          const Dtype* sum_mult = sum_multiplier_.data<Context>();
+          const Dtype* sum_mult = sum_multiplier_.data();
           sum_result = (outer_dim_ == 1) ?
-                       scale->mutable_diff<Context>() : sum_result_.mutable_data<Context>();
+                       scale->mutable_diff() : sum_result_.mutable_data();
           caffe_gemv(CblasNoTrans, sum_result_.count(), inner_dim_,
                          Dtype(1), product, sum_mult, Dtype(0), sum_result);
         }
         if (outer_dim_ != 1) {
-          const Dtype* sum_mult = sum_multiplier_.data<Context>();
-          Dtype* scale_diff = scale->mutable_diff<Context>();
+          const Dtype* sum_mult = sum_multiplier_.data();
+          Dtype* scale_diff = scale->mutable_diff();
           if (scale_dim_ == 1) {
             if (scale_param) {
               Dtype result = caffe_dot(outer_dim_, sum_mult, sum_result);
@@ -201,9 +201,9 @@ namespace
       }
     }
     if (bottom[0]->propagate_down_) {
-      const Dtype* top_diff = top[0]->diff<Context>();
-      const Dtype* scale_data = scale->data<Context>();
-      Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+      const Dtype* top_diff = top[0]->diff();
+      const Dtype* scale_data = scale->data();
+      Dtype* bottom_diff = bottom[0]->mutable_diff();
       for (int n = 0; n < outer_dim_; ++n) {
         for (int d = 0; d < scale_dim_; ++d) {
           const Dtype factor = scale_data[d];

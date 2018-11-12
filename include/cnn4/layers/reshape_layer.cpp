@@ -6,8 +6,8 @@ namespace
 {
 
   template <typename Dtype>
-  virtual void ReshapeLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                       const vector<Blob<Dtype>*> & top)
+  virtual void ReshapeLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                       const vector<Blob*> & top)
   {
     CHECK_NE(top[0], bottom[0]) << this->type() << " Layer does not "
                                 "allow in-place computation.";
@@ -31,8 +31,8 @@ namespace
   }
 
   template <typename Dtype>
-  virtual void ReshapeLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                    const vector<Blob<Dtype>*> & top)
+  virtual void ReshapeLayer::Reshape(const vector<Blob*> & bottom,
+                                    const vector<Blob*> & top)
   {
     const int input_start_axis = this->param_->reshape_param().axis();
     const int start_axis = (input_start_axis >= 0) ? input_start_axis :

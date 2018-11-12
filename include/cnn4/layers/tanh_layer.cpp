@@ -9,11 +9,11 @@ namespace
 {
 
   template <typename Dtype>
-  void TanHLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                     const vector<Blob<Dtype>*> & top)
+  void TanHLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                     const vector<Blob*> & top)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
     const int count = bottom[0]->count();
     for (int i = 0; i < count; ++i) {
       top_data[i] = tanh(bottom_data[i]);
@@ -21,14 +21,14 @@ namespace
   }
 
   template <typename Dtype>
-  void TanHLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
+  void TanHLayer::Backward(CPUContext* context, const vector<Blob*> & top,
                                       int*
-                                      const vector<Blob<Dtype>*> & bottom)
+                                      const vector<Blob*> & bottom)
   {
     if (bottom[0]->propagate_down_) {
-      const Dtype* top_data = top[0]->data<Context>();
-      const Dtype* top_diff = top[0]->diff<Context>();
-      Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+      const Dtype* top_data = top[0]->data();
+      const Dtype* top_diff = top[0]->diff();
+      Dtype* bottom_diff = bottom[0]->mutable_diff();
       const int count = bottom[0]->count();
       Dtype tanhx;
       for (int i = 0; i < count; ++i) {

@@ -22,15 +22,15 @@ namespace
    * of the layer.
    */
   template <typename Dtype>
-  class ScaleLayer: public Layer<Dtype>
+  class ScaleLayer: public Layer
   {
   public:
     explicit ScaleLayer()
-      : Layer<Dtype>() {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : Layer() {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "Scale"; }
     // Scale
@@ -58,23 +58,23 @@ namespace
      *      Equivalent to tiling @f$ y @f$ to have the same shape as @f$ x @f$,
      *      then computing the elementwise product.
      */
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
-    SHARED_PTR<Layer<Dtype> > bias_layer_;
-    vector<Blob<Dtype>*> bias_bottom_vec_;
+    SHARED_PTR<Layer > bias_layer_;
+    vector<Blob*> bias_bottom_vec_;
     vector<bool> bias_propagate_down_;
     int bias_param_id_;
 
-    Blob<Dtype> sum_multiplier_;
-    Blob<Dtype> sum_result_;
-    Blob<Dtype> temp_;
+    Blob sum_multiplier_;
+    Blob sum_result_;
+    Blob temp_;
     int axis_;
     int outer_dim_, scale_dim_, inner_dim_;
   };

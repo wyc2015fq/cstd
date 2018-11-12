@@ -10,8 +10,8 @@ namespace
 {
 
   template <typename Dtype>
-  void HDF5OutputLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                          const vector<Blob<Dtype>*> & top)
+  void HDF5OutputLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                          const vector<Blob*> & top)
   {
     file_name_ = this->param_->hdf5_output_param().file_name();
     file_id_ = H5Fcreate(file_name_.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT,
@@ -21,7 +21,7 @@ namespace
   }
 
   template <typename Dtype>
-  HDF5OutputLayer<Dtype>::~HDF5OutputLayer()
+  HDF5OutputLayer::~HDF5OutputLayer()
   {
     if (file_opened_) {
       herr_t status = H5Fclose(file_id_);
@@ -30,7 +30,7 @@ namespace
   }
 
   template <typename Dtype>
-  void HDF5OutputLayer<Dtype>::SaveBlobs()
+  void HDF5OutputLayer::SaveBlobs()
   {
     // TODO: no limit on the number of blobs
     LOG(INFO) << "Saving HDF5 file " << file_name_;
@@ -42,8 +42,8 @@ namespace
   }
 
   template <typename Dtype>
-  void HDF5OutputLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-      const vector<Blob<Dtype>*> & top)
+  void HDF5OutputLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+      const vector<Blob*> & top)
   {
     CHECK_GE(bottom.size(), 2);
     CHECK_EQ(bottom[0]->num(), bottom[1]->num());
@@ -54,17 +54,17 @@ namespace
     const int data_datum_dim = bottom[0]->count() / bottom[0]->num();
     const int label_datum_dim = bottom[1]->count() / bottom[1]->num();
     for (int i = 0; i < bottom[0]->num(); ++i) {
-      caffe_copy(data_datum_dim, &bottom[0]->data<Context>()[i * data_datum_dim],
-                 &data_blob_.mutable_data<Context>()[i * data_datum_dim]);
-      caffe_copy(label_datum_dim, &bottom[1]->data<Context>()[i * label_datum_dim],
-                 &label_blob_.mutable_data<Context>()[i * label_datum_dim]);
+      caffe_copy(data_datum_dim, &bottom[0]->data()[i * data_datum_dim],
+                 &data_blob_.mutable_data()[i * data_datum_dim]);
+      caffe_copy(label_datum_dim, &bottom[1]->data()[i * label_datum_dim],
+                 &label_blob_.mutable_data()[i * label_datum_dim]);
     }
     SaveBlobs();
   }
 
   template <typename Dtype>
-  void HDF5OutputLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<Blob<Dtype>*> & bottom)
+  void HDF5OutputLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+      const vector<Blob*> & bottom)
   {
     return;
   }

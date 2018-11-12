@@ -16,10 +16,10 @@ namespace
    * TODO(dox) explain cuDNN interface
    */
   template <typename Dtype>
-  void CuDNNConvolutionLayer<Dtype>::LayerSetUp(
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void CuDNNConvolutionLayer::LayerSetUp(
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    ConvolutionLayer<Dtype>::LayerSetUp(bottom, top);
+    ConvolutionLayer::LayerSetUp(bottom, top);
     // Initialize CUDA streams and cuDNN.
     stream_         = new cudaStream_t[this->group_ * CUDNN_STREAMS_PER_GROUP];
     handle_         = new cudnnHandle_t[this->group_ * CUDNN_STREAMS_PER_GROUP];
@@ -54,7 +54,7 @@ namespace
     // Set the indexing parameters.
     bias_offset_ = (this->num_output_ / this->group_);
     // Create filter descriptor.
-    const int* kernel_shape_data = this->kernel_shape_.data<Context>();
+    const int* kernel_shape_data = this->kernel_shape_.data();
     const int kernel_h = kernel_shape_data[0];
     const int kernel_w = kernel_shape_data[1];
     cudnn::createFilterDesc<Dtype>(&filter_desc_,
@@ -80,10 +80,10 @@ namespace
   }
 
   template <typename Dtype>
-  void CuDNNConvolutionLayer<Dtype>::Reshape(
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void CuDNNConvolutionLayer::Reshape(
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    ConvolutionLayer<Dtype>::Reshape(bottom, top);
+    ConvolutionLayer::Reshape(bottom, top);
     CHECK_EQ(2, this->num_spatial_axes_)
         << "CuDNNConvolution input must have 2 spatial axes "
         << "(e.g., height and width). "
@@ -94,10 +94,10 @@ namespace
     const int width = bottom[0]->shape(this->channel_axis_ + 2);
     const int height_out = top[0]->shape(this->channel_axis_ + 1);
     const int width_out = top[0]->shape(this->channel_axis_ + 2);
-    const int* pad_data = this->pad_.data<Context>();
+    const int* pad_data = this->pad_.data();
     const int pad_h = pad_data[0];
     const int pad_w = pad_data[1];
-    const int* stride_data = this->stride_.data<Context>();
+    const int* stride_data = this->stride_.data();
     const int stride_h = stride_data[0];
     const int stride_w = stride_data[1];
     // Specify workspace limit for kernels directly until we have a
@@ -209,7 +209,7 @@ namespace
   }
 
   template <typename Dtype>
-  CuDNNConvolutionLayer<Dtype>::~CuDNNConvolutionLayer()
+  CuDNNConvolutionLayer::~CuDNNConvolutionLayer()
   {
     // Check that handles have been setup before destroying.
     if (!handles_setup_) { return; }

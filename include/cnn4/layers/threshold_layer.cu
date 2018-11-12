@@ -13,10 +13,10 @@ __global__ void ThresholdForward(const int n, const Dtype threshold,
 }
 
 template <typename Dtype>
-void ThresholdLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
-  const Dtype* bottom_data = bottom[0]->data<Context>();
-  Dtype* top_data = top[0]->mutable_data<Context>();
+void ThresholdLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+    const vector<Blob*>& top) {
+  const Dtype* bottom_data = bottom[0]->data();
+  Dtype* top_data = top[0]->mutable_data();
   const int count = bottom[0]->count();
   // NOLINT_NEXT_LINE(whitespace/operators)
   ThresholdForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(

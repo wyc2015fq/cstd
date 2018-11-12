@@ -7,8 +7,8 @@ namespace
 {
 
   template<typename Dtype>
-  void BatchReindexLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                         const vector<Blob<Dtype>*> & top)
+  void BatchReindexLayer::Reshape(const vector<Blob*> & bottom,
+                                         const vector<Blob*> & top)
   {
     CHECK_EQ(1, bottom[1]->num_axes());
     vector<int> newshape;
@@ -20,7 +20,7 @@ namespace
   }
 
   template<typename Dtype>
-  void BatchReindexLayer<Dtype>::check_batch_reindex(int initial_num,
+  void BatchReindexLayer::check_batch_reindex(int initial_num,
       int final_num,
       const Dtype* ridx_data)
   {
@@ -33,18 +33,18 @@ namespace
   }
 
   template<typename Dtype>
-  void BatchReindexLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-      const vector<Blob<Dtype>*> & top)
+  void BatchReindexLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+      const vector<Blob*> & top)
   {
     check_batch_reindex(bottom[0]->shape(0), bottom[1]->count(),
-                        bottom[1]->data<Context>());
+                        bottom[1]->data());
     if (top[0]->count() == 0) {
       return;
     }
     int inner_dim = bottom[0]->count() / bottom[0]->shape(0);
-    const Dtype* in = bottom[0]->data<Context>();
-    const Dtype* permut = bottom[1]->data<Context>();
-    Dtype* out = top[0]->mutable_data<Context>();
+    const Dtype* in = bottom[0]->data();
+    const Dtype* permut = bottom[1]->data();
+    Dtype* out = top[0]->mutable_data();
     for (int index = 0; index < top[0]->count(); ++index) {
       int n = index / (inner_dim);
       int in_n = static_cast<int>(permut[n]);
@@ -53,18 +53,18 @@ namespace
   }
 
   template<typename Dtype>
-  void BatchReindexLayer<Dtype>::Backward_cpu(
-    const vector<Blob<Dtype>*> & top, int*
-    const vector<Blob<Dtype>*> & bottom)
+  void BatchReindexLayer::Backward_cpu(
+    const vector<Blob*> & top, int*
+    const vector<Blob*> & bottom)
   {
     CHECK(!bottom[1]->propagate_down_) << "Cannot backprop to index.";
     if (!bottom[0]->propagate_down_) {
       return;
     }
     int inner_dim = bottom[0]->count() / bottom[0]->shape(0);
-    Dtype* bot_diff = bottom[0]->mutable_diff<Context>();
-    const Dtype* permut = bottom[1]->data<Context>();
-    const Dtype* top_diff = top[0]->diff<Context>();
+    Dtype* bot_diff = bottom[0]->mutable_diff();
+    const Dtype* permut = bottom[1]->data();
+    const Dtype* top_diff = top[0]->diff();
     caffe_set(bottom[0]->count(), Dtype(0), bot_diff);
     for (int index = 0; index < top[0]->count(); ++index) {
       int n = index / (inner_dim);

@@ -20,16 +20,16 @@ namespace
    *
    * @see CTCLossLayer
    */
-  class WarpCTCLossLayer : public LossLayer<Dtype>
+  class WarpCTCLossLayer : public LossLayer
   {
   public:
     explicit WarpCTCLossLayer();
     virtual ~WarpCTCLossLayer();
 
     virtual void LayerSetUp(
-      const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top);
+      const vector<Blob*> & bottom, const vector<Blob*> & top);
     virtual void Reshape(
-      const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top);
+      const vector<Blob*> & bottom, const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "WarpCTCLoss"; }
 
@@ -60,24 +60,24 @@ namespace
      *      the computed loss
      */
 
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
     /**
      * @brief Unused. Gradient calculation is done in Forward_cpu
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
                               int*
-                              const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob*> & bottom);
 
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
                               int*
-                              const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob*> & bottom);
 
-    void ExtractInputData(const Blob<Dtype>* seq_ind_blob,
-                          const Blob<Dtype>* labels_blob,
+    void ExtractInputData(const Blob* seq_ind_blob,
+                          const Blob* labels_blob,
                           vector<int>* flat_labels,
                           vector<int>* label_lengths,
                           vector<int>* input_lengths);

@@ -28,22 +28,22 @@ namespace
    * faster as long as it fits in memory.
   */
   template <typename Dtype>
-  class CuDNNConvolutionLayer : public ConvolutionLayer<Dtype>
+  class CuDNNConvolutionLayer : public ConvolutionLayer
   {
   public:
     explicit CuDNNConvolutionLayer()
-      : ConvolutionLayer<Dtype>(param), handles_setup_(false) {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : ConvolutionLayer(param), handles_setup_(false) {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
     virtual ~CuDNNConvolutionLayer();
 
   public:
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
     bool handles_setup_;
     cudnnHandle_t* handle_;

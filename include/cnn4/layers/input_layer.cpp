@@ -6,8 +6,8 @@ namespace
 {
 
   template <typename Dtype>
-  void InputLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                     const vector<Blob<Dtype>*> & top)
+  void InputLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                     const vector<Blob*> & top)
   {
     const int num_top = top.size();
     const InputParameter & param = this->param_->input_param();

@@ -21,11 +21,11 @@ namespace
    * The ReLULayer is often a better choice for this reason.
    */
   template <typename Dtype>
-  class TanHLayer : public NeuronLayer<Dtype>
+  class TanHLayer : public NeuronLayer
   {
   public:
     explicit TanHLayer()
-      : NeuronLayer<Dtype>() {}
+      : NeuronLayer() {}
 
     virtual inline const char* type() const { return "TanH"; }
 
@@ -40,10 +40,10 @@ namespace
      *        y = \frac{\exp(2x) - 1}{\exp(2x) + 1}
      *      @f$
      */
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the error gradient w.r.t. the sigmoid inputs.
@@ -64,10 +64,10 @@ namespace
      *            = \frac{\partial E}{\partial y} (1 - y^2)
      *      @f$ if bottom[0]->propagate_down_
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
   };
 
 }  // namespace

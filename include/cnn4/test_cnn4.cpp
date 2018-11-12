@@ -4,16 +4,12 @@
 #include "SGDSolver.hpp"
 #include "insert_splits.hpp"
 
-void Lock() {}
-void Unlock() {}
-void InitMutex() {}
-
 template <typename Dtype>
-void ClearParamDiffs(Blob<Dtype>** learnable_params_, int learnable_params_size)
+void ClearParamDiffs(Blob** learnable_params_, int learnable_params_size)
 {
   for (int i = 0; i < learnable_params_size; ++i) {
     BlobF* blob = learnable_params_[i];
-    caffe_set<Dtype>(CONTEXT, blob->count(), static_cast<Dtype>(0), blob->mutable_cpu_diff());
+    caffe_set<Dtype>(blob->count(), static_cast<Dtype>(0), blob->mutable_cpu_diff());
   }
 }
 

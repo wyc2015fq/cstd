@@ -82,14 +82,14 @@ __global__ void kernel_channel_dot(const int num, const int channels,
 #else
 
 template <>
-void softmax_forward(_CONTEXT, int count, int channels, int outer_num_, int inner_num_, const Dtype* bottom_data, Dtype* top_data, Dtype* scale_data) {
-  //const Dtype* bottom_data = bottom[0]->data<Context>();
-  //Dtype* top_data = top[0]->mutable_data<Context>();
-  //Dtype* scale_data = scale_.mutable_data<Context>();
+void softmax_forward(int count, int channels, int outer_num_, int inner_num_, const Dtype* bottom_data, Dtype* top_data, Dtype* scale_data) {
+  //const Dtype* bottom_data = bottom[0]->data();
+  //Dtype* top_data = top[0]->mutable_data();
+  //Dtype* scale_data = scale_.mutable_data();
   //int count = bottom[0]->count();
   //int channels = top[0]->shape(softmax_axis_);
-  //caffe_set(context, inner_num_, 0, scale_data);
-  caffe_copy(context, count, bottom_data, top_data);
+  //caffe_set(inner_num_, 0, scale_data);
+  caffe_copy(count, bottom_data, top_data);
   // We need to subtract the max to avoid numerical issues, compute the exp,
   // and then normalize.
   // compute max
@@ -119,15 +119,15 @@ void softmax_forward(_CONTEXT, int count, int channels, int outer_num_, int inne
 }
 
 template <>
-void softmax_backward(_CONTEXT, int count, int channels, int outer_num_, int inner_num_,
+void softmax_backward(int count, int channels, int outer_num_, int inner_num_,
   const Dtype* top_diff, const Dtype* top_data, Dtype* bottom_diff, Dtype* scale_data) {
   //const Dtype* top_diff = top[0]->gpu_diff();
-  //const Dtype* top_data = top[0]->data<Context>();
+  //const Dtype* top_data = top[0]->data();
   //Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
-  //Dtype* scale_data = scale_.mutable_data<Context>();
+  //Dtype* scale_data = scale_.mutable_data();
   //int count = top[0]->count();
   //int channels = top[0]->shape(softmax_axis_);
-  caffe_copy(context, count, top_diff, bottom_diff);
+  caffe_copy(count, top_diff, bottom_diff);
   // Compute inner1d(top_diff, top_data) and subtract them from the bottom diff.
   // NOLINT_NEXT_LINE(whitespace/operators)
   kernel_channel_dot<Dtype><<<CAFFE_GET_BLOCKS(outer_num_ * inner_num_),
@@ -138,7 +138,7 @@ void softmax_backward(_CONTEXT, int count, int channels, int outer_num_, int inn
       CAFFE_CUDA_NUM_THREADS>>>(count, outer_num_, channels, inner_num_,
       scale_data, bottom_diff);
   // elementwise multiplication
-  caffe_mul<Dtype>(context, count, bottom_diff, top_data, bottom_diff);
+  caffe_mul<Dtype>(count, bottom_diff, top_data, bottom_diff);
 }
 
 

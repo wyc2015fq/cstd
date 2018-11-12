@@ -7,10 +7,10 @@ namespace
 {
 
   template <typename Dtype>
-  void ExpLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                   const vector<Blob<Dtype>*> & top)
+  void ExpLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                   const vector<Blob*> & top)
   {
-    NeuronLayer<Dtype>::LayerSetUp(bottom, top);
+    NeuronLayer::LayerSetUp(bottom, top);
     const Dtype base = this->param_->exp_param().base();
     if (base != Dtype(-1)) {
       CHECK_GT(base, 0) << "base must be strictly positive.";
@@ -30,12 +30,12 @@ namespace
   }
 
   template <typename Dtype>
-  void ExpLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                    const vector<Blob<Dtype>*> & top)
+  void ExpLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                    const vector<Blob*> & top)
   {
     const int count = bottom[0]->count();
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
     if (inner_scale_ == Dtype(1)) {
       caffe_exp(count, bottom_data, top_data);
     } else {
@@ -48,14 +48,14 @@ namespace
   }
 
   template <typename Dtype>
-  void ExpLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                     const vector<Blob<Dtype>*> & bottom)
+  void ExpLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                     const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }
     const int count = bottom[0]->count();
-    const Dtype* top_data = top[0]->data<Context>();
-    const Dtype* top_diff = top[0]->diff<Context>();
-    Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+    const Dtype* top_data = top[0]->data();
+    const Dtype* top_diff = top[0]->diff();
+    Dtype* bottom_diff = bottom[0]->mutable_diff();
     caffe_mul(count, top_data, top_diff, bottom_diff);
     if (inner_scale_ != Dtype(1)) {
       caffe_scal(count, inner_scale_, bottom_diff);

@@ -12,8 +12,8 @@ namespace
 {
 
   template <typename Dtype>
-  void RecurrentLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                         const vector<Blob<Dtype>*> & top)
+  void RecurrentLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                         const vector<Blob*> & top)
   {
     CHECK_GE(bottom[0]->num_axes(), 2)
         << "bottom[0] must have at least 2 axes -- (#timesteps, #streams, ...)";
@@ -158,7 +158,7 @@ namespace
     // batches.
     for (int i = 0; i < recur_output_blobs_.size(); ++i) {
       caffe_set(recur_output_blobs_[i]->count(), Dtype(0),
-                recur_output_blobs_[i]->mutable_diff<Context>());
+                recur_output_blobs_[i]->mutable_diff());
     }
     // Check that the last output_names.size() layers are the pseudo-losses;
     // set last_layer_index so that we don't actually run these layers.
@@ -170,8 +170,8 @@ namespace
   }
 
   template <typename Dtype>
-  void RecurrentLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                      const vector<Blob<Dtype>*> & top)
+  void RecurrentLayer::Reshape(const vector<Blob*> & bottom,
+                                      const vector<Blob*> & top)
   {
     CHECK_GE(bottom[0]->num_axes(), 2)
         << "bottom[0] must have at least 2 axes -- (#timesteps, #streams, ...)";
@@ -234,18 +234,18 @@ namespace
   }
 
   template <typename Dtype>
-  void RecurrentLayer<Dtype>::Reset()
+  void RecurrentLayer::Reset()
   {
     // "Reset" the hidden state of the net by zeroing out all recurrent outputs.
     for (int i = 0; i < recur_output_blobs_.size(); ++i) {
       caffe_set(recur_output_blobs_[i]->count(), Dtype(0),
-                recur_output_blobs_[i]->mutable_data<Context>());
+                recur_output_blobs_[i]->mutable_data());
     }
   }
 
   template <typename Dtype>
-  void RecurrentLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                          const vector<Blob<Dtype>*> & top)
+  void RecurrentLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                          const vector<Blob*> & top)
   {
     // Hacky fix for test time: reshare all the internal shared blobs, which may
     // currently point to a stale owner blob that was dropped when Solver::Test
@@ -259,14 +259,14 @@ namespace
       for (int i = 0; i < recur_input_blobs_.size(); ++i) {
         const int count = recur_input_blobs_[i]->count();
         DCHECK_EQ(count, recur_output_blobs_[i]->count());
-        const Dtype* timestep_T_data = recur_output_blobs_[i]->data<Context>();
-        Dtype* timestep_0_data = recur_input_blobs_[i]->mutable_data<Context>();
+        const Dtype* timestep_T_data = recur_output_blobs_[i]->data();
+        Dtype* timestep_0_data = recur_input_blobs_[i]->mutable_data();
         caffe_copy(count, timestep_T_data, timestep_0_data);
       }
     }
     //generate input sequence continuation indicators if bottom.size()<2
     if (bottom.size() < 2) {
-      Dtype* pcont = cont_input_blob_->mutable_data<Context>();
+      Dtype* pcont = cont_input_blob_->mutable_data();
       for (int i = 0; i < T_; i++) {
         int cont = i == 0 ? 0 : 1;
         Dtype* pconti = pcont + N_ * i;
@@ -285,8 +285,8 @@ namespace
   }
 
   template <typename Dtype>
-  void RecurrentLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<Blob<Dtype>*> & bottom)
+  void RecurrentLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+      const vector<Blob*> & bottom)
   {
     if (propagate_down.size() > 1) {
       CHECK(!bottom[1]->propagate_down_) << "Cannot backpropagate to sequence indicators.";

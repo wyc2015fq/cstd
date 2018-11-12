@@ -10,8 +10,8 @@
 namespace {
 
 template <typename Dtype>
-void RecurrentLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
+void RecurrentLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+    const vector<Blob*>& top) {
   // Hacky fix for test time... reshare all the shared blobs.
   // TODO: somehow make this work non-hackily.
   if (this->phase_ == TEST) {
@@ -23,15 +23,15 @@ void RecurrentLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype
     for (int i = 0; i < recur_input_blobs_.size(); ++i) {
       const int count = recur_input_blobs_[i]->count();
       DCHECK_EQ(count, recur_output_blobs_[i]->count());
-      const Dtype* timestep_T_data = recur_output_blobs_[i]->data<Context>();
-      Dtype* timestep_0_data = recur_input_blobs_[i]->mutable_data<Context>();
+      const Dtype* timestep_T_data = recur_output_blobs_[i]->data();
+      Dtype* timestep_0_data = recur_input_blobs_[i]->mutable_data();
       caffe_copy(count, timestep_T_data, timestep_0_data);
     }
   }
 
   if (bottom.size() < 2)
   {
-	  Dtype* pcont = cont_input_blob_->mutable_data<Context>();
+	  Dtype* pcont = cont_input_blob_->mutable_data();
 	  for (int i = 0; i<T_; i++)
 	  {
       Dtype cont = Dtype(i == 0 ? 0 : 1);

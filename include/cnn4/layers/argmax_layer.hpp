@@ -22,7 +22,7 @@ namespace
    * NOTE: does not implement Backwards operation.
    */
   template <typename Dtype>
-  class ArgMaxLayer : public Layer<Dtype>
+  class ArgMaxLayer : public Layer
   {
   public:
     /**
@@ -38,11 +38,11 @@ namespace
      *     trailing dimensions for each index of the first / num dimension.
      */
     explicit ArgMaxLayer()
-      : Layer<Dtype>() {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : Layer() {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "ArgMax"; }
     virtual inline int ExactNumBottomBlobs() const { return 1; }
@@ -61,11 +61,11 @@ namespace
      *       y_n = \arg\max\limits_i x_{ni}
      *      @f$ (for @f$ K = 1 @f$).
      */
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
     /// @brief Not implemented (non-differentiable function)
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom) {
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom) {
       NOT_IMPLEMENTED;
     }
     bool out_max_val_;

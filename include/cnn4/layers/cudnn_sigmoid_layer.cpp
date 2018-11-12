@@ -7,10 +7,10 @@ namespace
 {
 
   template <typename Dtype>
-  void CuDNNSigmoidLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-      const vector<Blob<Dtype>*> & top)
+  void CuDNNSigmoidLayer::LayerSetUp(const vector<Blob*> & bottom,
+      const vector<Blob*> & top)
   {
-    SigmoidLayer<Dtype>::LayerSetUp(bottom, top);
+    SigmoidLayer::LayerSetUp(bottom, top);
     // initialize cuDNN
     CUDNN_CHECK(cudnnCreate(&handle_));
     cudnn::createTensor4dDesc<Dtype>(&bottom_desc_);
@@ -21,10 +21,10 @@ namespace
   }
 
   template <typename Dtype>
-  void CuDNNSigmoidLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                         const vector<Blob<Dtype>*> & top)
+  void CuDNNSigmoidLayer::Reshape(const vector<Blob*> & bottom,
+                                         const vector<Blob*> & top)
   {
-    SigmoidLayer<Dtype>::Reshape(bottom, top);
+    SigmoidLayer::Reshape(bottom, top);
     const int N = bottom[0]->num();
     const int K = bottom[0]->channels();
     const int H = bottom[0]->height();
@@ -34,7 +34,7 @@ namespace
   }
 
   template <typename Dtype>
-  CuDNNSigmoidLayer<Dtype>::~CuDNNSigmoidLayer()
+  CuDNNSigmoidLayer::~CuDNNSigmoidLayer()
   {
     // Check that handles have been setup before destroying.
     if (!handles_setup_) { return; }

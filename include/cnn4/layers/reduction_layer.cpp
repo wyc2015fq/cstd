@@ -7,15 +7,15 @@ namespace
 {
 
   template <typename Dtype>
-  void ReductionLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                         const vector<Blob<Dtype>*> & top)
+  void ReductionLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                         const vector<Blob*> & top)
   {
     op_ = this->param_->reduction_param().operation();
   }
 
   template <typename Dtype>
-  void ReductionLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                      const vector<Blob<Dtype>*> & top)
+  void ReductionLayer::Reshape(const vector<Blob*> & bottom,
+                                      const vector<Blob*> & top)
   {
     axis_ = bottom[0]->CanonicalAxisIndex(
               this->param_->reduction_param().axis());
@@ -33,7 +33,7 @@ namespace
         op_ == ReductionParameter_ReductionOp_MEAN) {
       vector<int> sum_mult_shape(1, dim_);
       sum_multiplier_.Reshape(sum_mult_shape);
-      caffe_set(dim_, Dtype(1), sum_multiplier_.mutable_data<Context>());
+      caffe_set(dim_, Dtype(1), sum_multiplier_.mutable_data());
     }
     coeff_ = this->layer_param().reduction_param().coeff();
     if (op_ == ReductionParameter_ReductionOp_MEAN) {
@@ -42,15 +42,15 @@ namespace
   }
 
   template <typename Dtype>
-  void ReductionLayer<Dtype>::Forward(_CONTEXT,
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void ReductionLayer::Forward(_CONTEXT,
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
     const Dtype* mult_data = NULL;
     if (sum_multiplier_.count() > 0) {
-      mult_data = sum_multiplier_.data<Context>();
+      mult_data = sum_multiplier_.data();
     }
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    Dtype* top_data = top[0]->mutable_data();
     for (int i = 0; i < num_; ++i) {
       switch (op_) {
       case ReductionParameter_ReductionOp_SUM:
@@ -72,14 +72,14 @@ namespace
     }
     if (coeff_ != Dtype(1)) {
       // Reset the top_data pointer.
-      top_data = top[0]->mutable_data<Context>();
+      top_data = top[0]->mutable_data();
       caffe_scal(num_, coeff_, top_data);
     }
   }
 
   template <typename Dtype>
-  void ReductionLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<Blob<Dtype>*> & bottom)
+  void ReductionLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+      const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }
     // Get bottom_data, if needed.
@@ -92,14 +92,14 @@ namespace
       // Operations that need bottom_data
     case ReductionParameter_ReductionOp_ASUM:
     case ReductionParameter_ReductionOp_SUMSQ:
-      bottom_data = bottom[0]->data<Context>();
+      bottom_data = bottom[0]->data();
       break;
     default:
       LOG(FATAL) << "Unknown reduction op: "
                  << ReductionParameter_ReductionOp_Name(op_);
     }
-    const Dtype* top_diff = top[0]->diff<Context>();
-    Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+    const Dtype* top_diff = top[0]->diff();
+    Dtype* bottom_diff = bottom[0]->mutable_diff();
     for (int i = 0; i < num_; ++i) {
       const Dtype bottom_coeff = (*top_diff) * coeff_;
       switch (op_) {

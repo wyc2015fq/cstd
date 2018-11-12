@@ -18,7 +18,7 @@ namespace
    * TODO(dox): thorough documentation for Forward, Backward, and proto params.
    */
   template <typename Dtype>
-  class CTCDecoderLayer : public Layer<Dtype>
+  class CTCDecoderLayer : public Layer
   {
   public:
     typedef vector<int> Sequence;
@@ -26,10 +26,10 @@ namespace
 
   public:
     explicit CTCDecoderLayer();
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "CTCDecoder"; }
 
@@ -50,21 +50,21 @@ namespace
     const Sequences & OutputSequences() const {return output_sequences_;}
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
                               int*
-                              const vector<Blob<Dtype>*> & bottom);
+                              const vector<Blob*> & bottom);
 
-    virtual void Decode(const Blob<Dtype>* probabilities,
-                        const Blob<Dtype>* sequence_indicators,
+    virtual void Decode(const Blob* probabilities,
+                        const Blob* sequence_indicators,
                         Sequences* output_sequences,
-                        Blob<Dtype>* scores) const = 0;
+                        Blob* scores) const = 0;
 
-    virtual void Decode(const Blob<Dtype>* probabilities,
+    virtual void Decode(const Blob* probabilities,
                         Sequences* output_sequences,
-                        Blob<Dtype>* scores) const = 0;
+                        Blob* scores) const = 0;
 
     int EditDistance(const Sequence & s1, const Sequence & s2);
 
@@ -82,31 +82,31 @@ namespace
   };
 
   template <typename Dtype>
-  class CTCGreedyDecoderLayer : public CTCDecoderLayer<Dtype>
+  class CTCGreedyDecoderLayer : public CTCDecoderLayer
   {
   private:
-    using typename CTCDecoderLayer<Dtype>::Sequences;
-    using CTCDecoderLayer<Dtype>::T_;
-    using CTCDecoderLayer<Dtype>::N_;
-    using CTCDecoderLayer<Dtype>::C_;
-    using CTCDecoderLayer<Dtype>::blank_index_;
-    using CTCDecoderLayer<Dtype>::merge_repeated_;
+    using typename CTCDecoderLayer::Sequences;
+    using CTCDecoderLayer::T_;
+    using CTCDecoderLayer::N_;
+    using CTCDecoderLayer::C_;
+    using CTCDecoderLayer::blank_index_;
+    using CTCDecoderLayer::merge_repeated_;
 
   public:
     explicit CTCGreedyDecoderLayer()
-      : CTCDecoderLayer<Dtype>() {}
+      : CTCDecoderLayer() {}
 
     virtual inline const char* type() const { return "CTCGreedyDecoder"; }
 
   public:
-    virtual void Decode(const Blob<Dtype>* probabilities,
-                        const Blob<Dtype>* sequence_indicators,
+    virtual void Decode(const Blob* probabilities,
+                        const Blob* sequence_indicators,
                         Sequences* output_sequences,
-                        Blob<Dtype>* scores) const;
+                        Blob* scores) const;
 
-    virtual void Decode(const Blob<Dtype>* probabilities,
+    virtual void Decode(const Blob* probabilities,
                         Sequences* output_sequences,
-                        Blob<Dtype>* scores) const;
+                        Blob* scores) const;
 
   };
 

@@ -21,14 +21,14 @@ namespace
    * TODO(dox): thorough documentation for Forward and proto params.
    */
   template <typename Dtype>
-  class ImageDataLayer : public BasePrefetchingDataLayer<Dtype>
+  class ImageDataLayer : public BasePrefetchingDataLayer
   {
   public:
     explicit ImageDataLayer()
-      : BasePrefetchingDataLayer<Dtype>() {}
+      : BasePrefetchingDataLayer() {}
     virtual ~ImageDataLayer();
-    virtual void DataLayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                const vector<Blob<Dtype>*> & top);
+    virtual void DataLayerSetUp(const vector<Blob*> & bottom,
+                                const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "ImageData"; }
     virtual inline int ExactNumBottomBlobs() const { return 0; }

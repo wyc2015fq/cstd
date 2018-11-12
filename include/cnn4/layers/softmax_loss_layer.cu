@@ -54,7 +54,7 @@ __global__ void SoftmaxLossBackwardGPU(const int nthreads, const Dtype* top,
 #else
 
 template <>
-int softmaxloss_forward(_CONTEXT, const Dtype* prob_data, const Dtype* label,
+int softmaxloss_forward(const Dtype* prob_data, const Dtype* label,
   const int outer_num_, const int dim, const int inner_num_,
   const bool has_ignore_label_, const int ignore_label_, Dtype* out_loss) {
   const int nthreads = outer_num_ * inner_num_;
@@ -65,11 +65,11 @@ int softmaxloss_forward(_CONTEXT, const Dtype* prob_data, const Dtype* label,
   SoftmaxLossForwardGPU<Dtype> << <CAFFE_GET_BLOCKS(nthreads),
     CAFFE_CUDA_NUM_THREADS >> >(nthreads, prob_data, label, loss_data,
       outer_num_, dim, inner_num_, has_ignore_label_, ignore_label_, counts);
-  caffe_asum(context, nthreads, loss_data, out_loss);
+  caffe_asum(nthreads, loss_data, out_loss);
   Dtype valid_count = 0;
   // Only launch another CUDA kernel if we actually need the count of valid
   // outputs.
-  caffe_asum(context, nthreads, counts, &valid_count);
+  caffe_asum(nthreads, counts, &valid_count);
   valid_count -= 1;
   return (int)valid_count;
 }
@@ -87,7 +87,7 @@ int softmaxloss_backward(_CONTEXT,const Dtype* top_data,
   SoftmaxLossBackwardGPU<Dtype> << <CAFFE_GET_BLOCKS(nthreads),
     CAFFE_CUDA_NUM_THREADS >> >(nthreads, top_data, label, bottom_diff,
       outer_num_, dim, inner_num_, has_ignore_label_, ignore_label_, counts);
-  caffe_asum(context, nthreads, counts, &valid_count);
+  caffe_asum(nthreads, counts, &valid_count);
   valid_count -= 1;
   return (int)valid_count;
 }

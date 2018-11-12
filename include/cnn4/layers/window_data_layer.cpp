@@ -29,14 +29,14 @@ namespace
 {
 
   template <typename Dtype>
-  WindowDataLayer<Dtype>::~WindowDataLayer()
+  WindowDataLayer::~WindowDataLayer()
   {
     this->StopInternalThread();
   }
 
   template <typename Dtype>
-  void WindowDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*> & bottom,
-      const vector<Blob<Dtype>*> & top)
+  void WindowDataLayer::DataLayerSetUp(const vector<Blob*> & bottom,
+      const vector<Blob*> & top)
   {
     // LayerSetUp runs through the window_file and creates two structures
     // that hold windows: one for foreground (object) windows and one
@@ -202,7 +202,7 @@ namespace
   }
 
   template <typename Dtype>
-  unsigned int WindowDataLayer<Dtype>::PrefetchRand()
+  unsigned int WindowDataLayer::PrefetchRand()
   {
     //CHECK(prefetch_rng_);
     caffe::rng_t* prefetch_rng = caffe_rng();
@@ -212,7 +212,7 @@ namespace
 
 // This function is called on prefetch thread
   template <typename Dtype>
-  void WindowDataLayer<Dtype>::load_batch(Batch<Dtype>* batch)
+  void WindowDataLayer::load_batch(Batch<Dtype>* batch)
   {
     // At each iteration, sample N windows where N*p are foreground (object)
     // windows and N*(1-p) are background (non-object) windows
@@ -233,7 +233,7 @@ namespace
     int mean_width = 0;
     int mean_height = 0;
     if (this->has_mean_file_) {
-      mean = this->data_mean_.mutable_data<Context>();
+      mean = this->data_mean_.mutable_data();
       mean_off = (this->data_mean_.width() - crop_size) / 2;
       mean_width = this->data_mean_.width();
       mean_height = this->data_mean_.height();
@@ -243,8 +243,8 @@ namespace
     bool use_square = (crop_mode == "square") ? true : false;
     batch->data_.resize(2);
     // zero out batch
-    Dtype* top_data = batch->data_[0].mutable_data<Context>();
-    Dtype* top_label = batch->data_[1].mutable_data<Context>();
+    Dtype* top_data = batch->data_[0].mutable_data();
+    Dtype* top_label = batch->data_[1].mutable_data();
     caffe_set(batch->data_[0].count(), Dtype(0), top_data);
     const int num_fg = static_cast<int>(static_cast<float>(batch_size)
                                         * fg_fraction);
@@ -264,11 +264,11 @@ namespace
         bool do_mirror = mirror && PrefetchRand() % 2;
         // load the image containing the window
         pair<std::string, vector<int> > image =
-          image_database_[window[WindowDataLayer<Dtype>::IMAGE_INDEX]];
+          image_database_[window[WindowDataLayer::IMAGE_INDEX]];
         cv::Mat cv_img;
         if (this->cache_images_) {
           pair<std::string, BlobData> image_cached =
-            image_database_cache_[window[WindowDataLayer<Dtype>::IMAGE_INDEX]];
+            image_database_cache_[window[WindowDataLayer::IMAGE_INDEX]];
           cv_img = DecodeDatumToCVMat(image_cached.second, true);
         } else {
           cv_img = cv::imread(image.first, CV_LOAD_IMAGE_COLOR);
@@ -281,10 +281,10 @@ namespace
         timer.Start();
         const int channels = cv_img.channels();
         // crop window out of image and warp it
-        int x1 = window[WindowDataLayer<Dtype>::X1];
-        int y1 = window[WindowDataLayer<Dtype>::Y1];
-        int x2 = window[WindowDataLayer<Dtype>::X2];
-        int y2 = window[WindowDataLayer<Dtype>::Y2];
+        int x1 = window[WindowDataLayer::X1];
+        int y1 = window[WindowDataLayer::Y1];
+        int x2 = window[WindowDataLayer::X2];
+        int y2 = window[WindowDataLayer::Y2];
         int pad_w = 0;
         int pad_h = 0;
         if (context_pad > 0 || use_square) {
@@ -394,7 +394,7 @@ namespace
         }
         trans_time += timer.MicroSeconds();
         // get window label
-        top_label[item_id] = window[WindowDataLayer<Dtype>::LABEL];
+        top_label[item_id] = window[WindowDataLayer::LABEL];
 #if 0
         // useful debugging code for dumping transformed windows to disk
         string file_id;
@@ -404,10 +404,10 @@ namespace
         std::ofstream inf((string("dump/") + file_id +
                            string("_info.txt")).c_str(), std::ofstream::out);
         inf << image.first << std::endl
-            << window[WindowDataLayer<Dtype>::X1] + 1 << std::endl
-            << window[WindowDataLayer<Dtype>::Y1] + 1 << std::endl
-            << window[WindowDataLayer<Dtype>::X2] + 1 << std::endl
-            << window[WindowDataLayer<Dtype>::Y2] + 1 << std::endl
+            << window[WindowDataLayer::X1] + 1 << std::endl
+            << window[WindowDataLayer::Y1] + 1 << std::endl
+            << window[WindowDataLayer::X2] + 1 << std::endl
+            << window[WindowDataLayer::Y2] + 1 << std::endl
             << do_mirror << std::endl
             << top_label[item_id] << std::endl
             << is_fg << std::endl;

@@ -7,16 +7,16 @@ namespace
 {
 
   template <typename Dtype>
-  void FilterLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                      const vector<Blob<Dtype>*> & top)
+  void FilterLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                      const vector<Blob*> & top)
   {
     CHECK_EQ(top.size(), bottom.size() - 1);
     first_reshape_ = true;
   }
 
   template <typename Dtype>
-  void FilterLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                   const vector<Blob<Dtype>*> & top)
+  void FilterLayer::Reshape(const vector<Blob*> & bottom,
+                                   const vector<Blob*> & top)
   {
     // bottom[0...k-1] are the blobs to filter
     // bottom[last] is the "selector_blob"
@@ -29,7 +29,7 @@ namespace
       CHECK_EQ(bottom[selector_index]->shape(0), bottom[i]->shape(0)) <<
           "Each bottom should have the same 0th dimension as the selector blob";
     }
-    const Dtype* bottom_data_selector = bottom[selector_index]->data<Context>();
+    const Dtype* bottom_data_selector = bottom[selector_index]->data();
     indices_to_forward_.clear();
     // look for non-zero elements in bottom[0]. Items of each bottom that
     // have the same index as the items in bottom[0] with value == non-zero
@@ -60,14 +60,14 @@ namespace
   }
 
   template <typename Dtype>
-  void FilterLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                       const vector<Blob<Dtype>*> & top)
+  void FilterLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                       const vector<Blob*> & top)
   {
     int new_tops_num = indices_to_forward_.size();
     // forward all filtered items for all bottoms but the Selector (bottom[last])
     for (int t = 0; t < top.size(); ++t) {
-      const Dtype* bottom_data = bottom[t]->data<Context>();
-      Dtype* top_data = top[t]->mutable_data<Context>();
+      const Dtype* bottom_data = bottom[t]->data();
+      Dtype* top_data = top[t]->mutable_data();
       int dim = bottom[t]->count() / bottom[t]->shape(0);
       for (int n = 0; n < new_tops_num; ++n) {
         int data_offset_top = n * dim;
@@ -79,8 +79,8 @@ namespace
   }
 
   template <typename Dtype>
-  void FilterLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                        const vector<Blob<Dtype>*> & bottom)
+  void FilterLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                        const vector<Blob*> & bottom)
   {
     if (propagate_down[bottom.size() - 1]) {
       LOG(FATAL) << this->type()
@@ -101,17 +101,17 @@ namespace
             // we already visited all items that were been forwarded, so
             // just set to zero remaining ones
             caffe_set(dim, Dtype(0),
-                      bottom[i]->mutable_diff<Context>() + data_offset_bottom);
+                      bottom[i]->mutable_diff() + data_offset_bottom);
           } else {
             batch_offset = indices_to_forward_[next_to_backward_offset];
             if (n != batch_offset) {  // this data was not been forwarded
               caffe_set(dim, Dtype(0),
-                        bottom[i]->mutable_diff<Context>() + data_offset_bottom);
+                        bottom[i]->mutable_diff() + data_offset_bottom);
             } else {  // this data was been forwarded
               data_offset_top = next_to_backward_offset * dim;
               next_to_backward_offset++;  // point to next forwarded item index
-              caffe_copy(dim, top[i]->mutable_diff<Context>() + data_offset_top,
-                         bottom[i]->mutable_diff<Context>() + data_offset_bottom);
+              caffe_copy(dim, top[i]->mutable_diff() + data_offset_top,
+                         bottom[i]->mutable_diff() + data_offset_bottom);
             }
           }
         }

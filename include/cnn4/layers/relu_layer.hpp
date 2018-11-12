@@ -5,8 +5,7 @@
  * @brief Rectified Linear Unit non-linearity @f$ y = \max(0, x) @f$.
  *        The simple max is fast to compute, and the function does not saturate.
  */
-template <typename Dtype>
-class ReLULayer : public NeuronLayer<Dtype>
+class ReLULayer : public NeuronLayer
 {
 public:
   virtual inline const char* type() const { return "ReLU"; }
@@ -23,14 +22,14 @@ public:
    *      @f$ by default.  If a non-zero negative_slope @f$ \nu @f$ is provided,
    *      the computed outputs are @f$ y = \max(0, x) + \nu \min(0, x) @f$.
    */
-  virtual void Forward(Context* context, const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  virtual void Forward(const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
     const int count = bottom[0]->count();
     Dtype negative_slope = this->param_->GetObjectNumber("negative_slope", 0);
-    relu_forward(context, count, bottom_data, top_data, negative_slope);
+    relu_forward(count, bottom_data, top_data, negative_slope);
   }
 
   /**
@@ -61,16 +60,16 @@ public:
    *        \end{array} \right.
    *      @f$.
    */
-  virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top,
-    const vector<Blob<Dtype>*> & bottom)
+  virtual void Backward(const vector<Blob*> & top,
+    const vector<Blob*> & bottom)
   {
     if (bottom[0]->propagate_down_) {
-      const Dtype* bottom_data = bottom[0]->data<Context>();
-      const Dtype* top_diff = top[0]->diff<Context>();
-      Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+      const Dtype* bottom_data = bottom[0]->data();
+      const Dtype* top_diff = top[0]->diff();
+      Dtype* bottom_diff = bottom[0]->mutable_diff();
       const int count = bottom[0]->count();
       Dtype negative_slope = this->param_->GetObjectNumber("negative_slope", 0);
-      relu_backward<Dtype>(context, count, top_diff, bottom_data, bottom_diff, negative_slope);
+      relu_backward(count, top_diff, bottom_data, bottom_diff, negative_slope);
     }
   }
 };

@@ -1,8 +1,7 @@
 #ifndef CAFFE_CONV_LAYER_HPP_
 #define CAFFE_CONV_LAYER_HPP_
 
-template <typename Dtype>
-class ConvolutionLayer : public BaseConvolutionLayer<Dtype>
+class ConvolutionLayer : public BaseConvolutionLayer
 {
 public:
   virtual inline const char* type() const { return "Convolution"; }
@@ -25,41 +24,41 @@ public:
     }
   }
 
-  virtual void Forward(Context* context, const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  virtual void Forward(const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
-    const Dtype* weight = this->blobs_[0]->data<Context>();
+    const Dtype* weight = this->blobs_[0]->data();
     for (int i = 0; i < bottom.size(); ++i) {
-      const Dtype* bottom_data = bottom[i]->data<Context>();
-      Dtype* top_data = top[i]->mutable_data<Context>();
+      const Dtype* bottom_data = bottom[i]->data();
+      Dtype* top_data = top[i]->mutable_data();
       for (int n = 0; n < this->num_; ++n) {
         this->forward_gemm(bottom_data + n * this->bottom_dim_, weight,
           top_data + n * this->top_dim_);
         if (this->bias_term_) {
-          const Dtype* bias = this->blobs_[1]->data<Context>();
+          const Dtype* bias = this->blobs_[1]->data();
           this->forward_bias(top_data + n * this->top_dim_, bias);
         }
       }
     }
   }
 
-  virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top,
-    const vector<Blob<Dtype>*> & bottom)
+  virtual void Backward(const vector<Blob*> & top,
+    const vector<Blob*> & bottom)
   {
-    const Dtype* weight = this->blobs_[0]->data<Context>();
-    Dtype* weight_diff = this->blobs_[0]->mutable_diff<Context>();
+    const Dtype* weight = this->blobs_[0]->data();
+    Dtype* weight_diff = this->blobs_[0]->mutable_diff();
     for (int i = 0; i < top.size(); ++i) {
-      const Dtype* top_diff = top[i]->diff<Context>();
+      const Dtype* top_diff = top[i]->diff();
       // Bias gradient, if necessary.
       if (this->bias_term_ && this->blobs_[1]->propagate_down_) {
-        Dtype* bias_diff = this->blobs_[1]->mutable_diff<Context>();
+        Dtype* bias_diff = this->blobs_[1]->mutable_diff();
         for (int n = 0; n < this->num_; ++n) {
           this->backward_bias(bias_diff, top_diff + n * this->top_dim_);
         }
       }
       if (this->blobs_[0]->propagate_down_ || bottom[i]->propagate_down_) {
-        const Dtype* bottom_data = bottom[i]->data<Context>();
-        Dtype* bottom_diff = bottom[i]->mutable_diff<Context>();
+        const Dtype* bottom_data = bottom[i]->data();
+        Dtype* bottom_diff = bottom[i]->mutable_diff();
         for (int n = 0; n < this->num_; ++n) {
           // gradient w.r.t. weight. Note that we will accumulate diffs.
           if (this->blobs_[0]->propagate_down_) {

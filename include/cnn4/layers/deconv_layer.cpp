@@ -6,12 +6,12 @@ namespace
 {
 
   template <typename Dtype>
-  void DeconvolutionLayer<Dtype>::compute_output_shape()
+  void DeconvolutionLayer::compute_output_shape()
   {
-    const int* kernel_shape_data = this->kernel_shape_.data<Context>();
-    const int* stride_data = this->stride_.data<Context>();
-    const int* pad_data = this->pad_.data<Context>();
-    const int* dilation_data = this->dilation_.data<Context>();
+    const int* kernel_shape_data = this->kernel_shape_.data();
+    const int* stride_data = this->stride_.data();
+    const int* pad_data = this->pad_.data();
+    const int* dilation_data = this->dilation_.data();
     this->output_shape_.clear();
     for (int i = 0; i < this->num_spatial_axes_; ++i) {
       // i + 1 to skip channel axis
@@ -24,18 +24,18 @@ namespace
   }
 
   template <typename Dtype>
-  void DeconvolutionLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-      const vector<Blob<Dtype>*> & top)
+  void DeconvolutionLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+      const vector<Blob*> & top)
   {
-    const Dtype* weight = this->blobs_[0]->data<Context>();
+    const Dtype* weight = this->blobs_[0]->data();
     for (int i = 0; i < bottom.size(); ++i) {
-      const Dtype* bottom_data = bottom[i]->data<Context>();
-      Dtype* top_data = top[i]->mutable_data<Context>();
+      const Dtype* bottom_data = bottom[i]->data();
+      Dtype* top_data = top[i]->mutable_data();
       for (int n = 0; n < this->num_; ++n) {
         this->backward_cpu_gemm(bottom_data + n * this->bottom_dim_, weight,
                                 top_data + n * this->top_dim_);
         if (this->bias_term_) {
-          const Dtype* bias = this->blobs_[1]->data<Context>();
+          const Dtype* bias = this->blobs_[1]->data();
           this->forward_cpu_bias(top_data + n * this->top_dim_, bias);
         }
       }
@@ -43,18 +43,18 @@ namespace
   }
 
   template <typename Dtype>
-  void DeconvolutionLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<Blob<Dtype>*> & bottom)
+  void DeconvolutionLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+      const vector<Blob*> & bottom)
   {
-    const Dtype* weight = this->blobs_[0]->data<Context>();
-    Dtype* weight_diff = this->blobs_[0]->mutable_diff<Context>();
+    const Dtype* weight = this->blobs_[0]->data();
+    Dtype* weight_diff = this->blobs_[0]->mutable_diff();
     for (int i = 0; i < top.size(); ++i) {
-      const Dtype* top_diff = top[i]->diff<Context>();
-      const Dtype* bottom_data = bottom[i]->data<Context>();
-      Dtype* bottom_diff = bottom[i]->mutable_diff<Context>();
+      const Dtype* top_diff = top[i]->diff();
+      const Dtype* bottom_data = bottom[i]->data();
+      Dtype* bottom_diff = bottom[i]->mutable_diff();
       // Bias gradient, if necessary.
       if (this->bias_term_ && this->blobs_[1]->propagate_down_) {
-        Dtype* bias_diff = this->blobs_[1]->mutable_diff<Context>();
+        Dtype* bias_diff = this->blobs_[1]->mutable_diff();
         for (int n = 0; n < this->num_; ++n) {
           this->backward_cpu_bias(bias_diff, top_diff + n * this->top_dim_);
         }

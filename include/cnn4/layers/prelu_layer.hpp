@@ -21,7 +21,7 @@ namespace
    *        equal to 2. The 1st axis (0-based) is seen as channels.
    */
   template <typename Dtype>
-  class PReLULayer : public NeuronLayer<Dtype>
+  class PReLULayer : public NeuronLayer
   {
   public:
     /**
@@ -33,13 +33,13 @@ namespace
      *     negative slopes are shared across channels.
      */
     explicit PReLULayer()
-      : NeuronLayer<Dtype>() {}
+      : NeuronLayer() {}
 
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
 
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "PReLU"; }
 
@@ -54,10 +54,10 @@ namespace
      *        y_i = \max(0, x_i) + a_i \min(0, x_i)
      *      @f$.
      */
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the error gradient w.r.t. the PReLU inputs.
@@ -87,15 +87,15 @@ namespace
      *        \end{array} \right.
      *      @f$.
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
     bool channel_shared_;
-    Blob<Dtype> multiplier_;  // dot multiplier for backward computation of params
-    Blob<Dtype> backward_buff_;  // temporary buffer for backward computation
-    Blob<Dtype> bottom_memory_;  // memory for in-place computation
+    Blob multiplier_;  // dot multiplier for backward computation of params
+    Blob backward_buff_;  // temporary buffer for backward computation
+    Blob bottom_memory_;  // memory for in-place computation
   };
 
 }  // namespace

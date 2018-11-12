@@ -6,7 +6,7 @@
 #include "cudnn.h"
 
 template <typename Dtype>
-class DenseBlockLayer : public Layer<Dtype>
+class DenseBlockLayer : public Layer
 {
 public:
   //start logging specific data: for debugging
@@ -22,22 +22,22 @@ public:
   //start CPU specific data section
   bool cpuInited;
   //at T has shape (1,initC+T*growth,1,1)
-  vector<Blob<Dtype>*> batch_Mean;
-  vector<Blob<Dtype>*> batch_Var;
-  vector<Blob<Dtype>*> batch_Mean4G;
-  vector<Blob<Dtype>*> batch_Var4G;
+  vector<Blob*> batch_Mean;
+  vector<Blob*> batch_Var;
+  vector<Blob*> batch_Mean4G;
+  vector<Blob*> batch_Var4G;
 
-  vector<Blob<Dtype>*> merged_conv;//at T has shape (N,initC+T*growth,H,W), but this vector has T+1 elements
+  vector<Blob*> merged_conv;//at T has shape (N,initC+T*growth,H,W), but this vector has T+1 elements
 
-  vector<Blob<Dtype>*> BN_XhatVec;//at T has shape (N,initC+T*growth,H,W)
-  vector<Blob<Dtype>*> postBN_blobVec;
-  vector<Blob<Dtype>*> postReLU_blobVec;
-  vector<Blob<Dtype>*> postConv_blobVec;//at T has shape(N,growth,H,W)
+  vector<Blob*> BN_XhatVec;//at T has shape (N,initC+T*growth,H,W)
+  vector<Blob*> postBN_blobVec;
+  vector<Blob*> postReLU_blobVec;
+  vector<Blob*> postConv_blobVec;//at T has shape(N,growth,H,W)
                                         //BC related CPU
-  vector<Blob<Dtype>*> BC_BN_XhatVec;//at T has shape(N,4*growthRate,H,W)
-  vector<Blob<Dtype>*> postBN_BCVec;
-  vector<Blob<Dtype>*> postReLU_BCVec;
-  vector<Blob<Dtype>*> postConv_BCVec;
+  vector<Blob*> BC_BN_XhatVec;//at T has shape(N,4*growthRate,H,W)
+  vector<Blob*> postBN_BCVec;
+  vector<Blob*> postReLU_BCVec;
+  vector<Blob*> postConv_BCVec;
   //end CPU specific data section
 
   int trainCycleIdx; //used in BN train phase for EMA Mean/Var estimation
@@ -138,7 +138,7 @@ public:
   virtual inline const char* type() const { return "DenseBlock"; }
 
 public:
-  virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) {
+  virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top) {
     this->cpuInited = false;
     // #ifndef CPU_ONLY
     // 		this->gpuInited = false;
@@ -226,29 +226,29 @@ public:
       //globalMean
       this->blobs_[3 * numTransition + transitionIdx]->Reshape((BNparamShape));
       for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
-        Blob<Dtype>* localB = this->blobs_[3 * numTransition + transitionIdx];
-        localB->mutable_data<CPUContext>()[localB->offset(0, blobIdx, 0, 0)] = 0;
+        Blob* localB = this->blobs_[3 * numTransition + transitionIdx];
+        localB->mutable_cpu_data()[localB->offset(0, blobIdx, 0, 0)] = 0;
       }
       //globalMean BC
       if (useBC) {
         this->blobs_[8 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-        Blob<Dtype>* localB = this->blobs_[8 * numTransition + transitionIdx];
+        Blob* localB = this->blobs_[8 * numTransition + transitionIdx];
         for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
-          localB->mutable_data<CPUContext>()[localB->offset(0, blobIdx, 0, 0)] = 0;
+          localB->mutable_cpu_data()[localB->offset(0, blobIdx, 0, 0)] = 0;
         }
       }
       //globalVar
       this->blobs_[4 * numTransition + transitionIdx]->Reshape((BNparamShape));
       for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
-        Blob<Dtype>* localB = this->blobs_[4 * numTransition + transitionIdx];
-        localB->mutable_data<CPUContext>()[localB->offset(0, blobIdx, 0, 0)] = 1;
+        Blob* localB = this->blobs_[4 * numTransition + transitionIdx];
+        localB->mutable_cpu_data()[localB->offset(0, blobIdx, 0, 0)] = 1;
       }
       //globalVar BC
       if (useBC) {
         this->blobs_[9 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-        Blob<Dtype>* localB = this->blobs_[9 * numTransition + transitionIdx];
+        Blob* localB = this->blobs_[9 * numTransition + transitionIdx];
         for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
-          localB->mutable_data<CPUContext>()[localB->offset(0, blobIdx, 0, 0)] = 1;
+          localB->mutable_cpu_data()[localB->offset(0, blobIdx, 0, 0)] = 1;
         }
       }
     }
@@ -257,11 +257,11 @@ public:
     singletonShapeVec.push_back(1);
     int singletonIdx = useBC ? 10 * numTransition : 5 * numTransition;
     this->blobs_[singletonIdx]->Reshape((singletonShapeVec));
-    this->blobs_[singletonIdx]->mutable_data<CPUContext>()[0] = Dtype(0);
+    this->blobs_[singletonIdx]->mutable_cpu_data()[0] = Dtype(0);
     //parameter specification: globalMean/Var weight decay and lr is 0
     if (!useBC) {
       for (int i = 0; i < this->blobs_.size(); ++i) {
-        Blob<Dtype>* blob = blobs_[i];
+        Blob* blob = blobs_[i];
         //global Mean/Var
         if (i >= 3 * this->numTransition) {
           blob->set_lr_mult(0.f);
@@ -280,7 +280,7 @@ public:
     }
     else {
       for (int i = 0; i < this->blobs_.size(); ++i) {
-        Blob<Dtype>* blob = blobs_[i];
+        Blob* blob = blobs_[i];
         if ((i >= 3 * numTransition) && (i < 5 * numTransition)) {
           blob->set_lr_mult(0.f);
           blob->set_decay_mult(0.f);
@@ -300,13 +300,13 @@ public:
 #endif
   }
 
-  virtual void Reshape(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     int batch_size = bottom[0]->shape(0);
     int h = bottom[0]->shape(2);
     int w = bottom[0]->shape(3);
 #ifndef CPU_ONLY
-    reshape_data<Context>(this->H, this->W, this->N, h, w, batch_size);
+    reshape_data(this->H, this->W, this->N, h, w, batch_size);
 #endif
     this->N = batch_size;
     this->H = h;
@@ -316,13 +316,13 @@ public:
     top[0]->Reshape(topShape);
   }
 
-  virtual void syncBlobs(DenseBlockLayer<Dtype>* originLayer)
+  virtual void syncBlobs(DenseBlockLayer* originLayer)
   {
-    vector<Blob<Dtype>*> & originBlobs = originLayer->blobs_;
+    vector<Blob*> & originBlobs = originLayer->blobs_;
     blobs_reset(blobs_, originBlobs.size());
     for (int blobIdx = 0; blobIdx < originBlobs.size(); ++blobIdx) {
-      Blob<Dtype>* localBlob = originBlobs[blobIdx];
-      Blob<Dtype>* newBlob = this->blobs_[blobIdx];
+      Blob* localBlob = originBlobs[blobIdx];
+      Blob* newBlob = this->blobs_[blobIdx];
       newBlob->CopyFrom(*localBlob, false);
     }
   }

@@ -3,12 +3,12 @@
 #ifndef Dtype
 
 
-void caffe_memset(_CONTEXT, const size_t N, const int alpha, void* X){
+void caffe_memset(const size_t N, const int alpha, void* X){
   CUDA_CHECK(cudaMemset(X, alpha, N));
 }
 
 template <>
-void caffe_gemm<float>(_CONTEXT, const CBLAS_TRANSPOSE TransA,
+void caffe_gemm<float>(const CBLAS_TRANSPOSE TransA,
   const CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
   const float alpha, const float* A, const float* B, const float beta,
   float* C) {
@@ -24,7 +24,7 @@ void caffe_gemm<float>(_CONTEXT, const CBLAS_TRANSPOSE TransA,
 }
 
 template <>
-void caffe_gemm<double>(_CONTEXT, const CBLAS_TRANSPOSE TransA,
+void caffe_gemm<double>(const CBLAS_TRANSPOSE TransA,
   const CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
   const double alpha, const double* A, const double* B, const double beta,
   double* C) {
@@ -40,7 +40,7 @@ void caffe_gemm<double>(_CONTEXT, const CBLAS_TRANSPOSE TransA,
 }
 
 template <>
-void caffe_gemv<float>(_CONTEXT, const CBLAS_TRANSPOSE TransA, const int M,
+void caffe_gemv<float>(const CBLAS_TRANSPOSE TransA, const int M,
   const int N, const float alpha, const float* A, const float* x,
   const float beta, float* y) {
   cublasOperation_t cuTransA =
@@ -50,7 +50,7 @@ void caffe_gemv<float>(_CONTEXT, const CBLAS_TRANSPOSE TransA, const int M,
 }
 
 template <>
-void caffe_gemv<double>(_CONTEXT, const CBLAS_TRANSPOSE TransA, const int M,
+void caffe_gemv<double>(const CBLAS_TRANSPOSE TransA, const int M,
   const int N, const double alpha, const double* A, const double* x,
   const double beta, double* y) {
   cublasOperation_t cuTransA =
@@ -60,13 +60,13 @@ void caffe_gemv<double>(_CONTEXT, const CBLAS_TRANSPOSE TransA, const int M,
 }
 
 template <>
-void caffe_axpy<float>(_CONTEXT, const int N, const float alpha, const float* X,
+void caffe_axpy<float>(const int N, const float alpha, const float* X,
   float* Y) {
   CUBLAS_CHECK(cublasSaxpy(cublas_handle(), N, &alpha, X, 1, Y, 1));
 }
 
 template <>
-void caffe_axpy<double>(_CONTEXT, const int N, const double alpha, const double* X,
+void caffe_axpy<double>(const int N, const double alpha, const double* X,
   double* Y) {
   CUBLAS_CHECK(cublasDaxpy(cublas_handle(), N, &alpha, X, 1, Y, 1));
 }
@@ -78,74 +78,74 @@ void caffe_memcpy(_CONTEXT,const size_t N, const void* X, void* Y) {
 }
 
 template <>
-void caffe_scal<float>(_CONTEXT, const int N, const float alpha, float *X) {
+void caffe_scal<float>(const int N, const float alpha, float *X) {
   CUBLAS_CHECK(cublasSscal(cublas_handle(), N, &alpha, X, 1));
 }
 
 template <>
-void caffe_scal<double>(_CONTEXT, const int N, const double alpha, double *X) {
+void caffe_scal<double>(const int N, const double alpha, double *X) {
   CUBLAS_CHECK(cublasDscal(cublas_handle(), N, &alpha, X, 1));
 }
 
 template <>
-void caffe_axpby<float>(_CONTEXT, const int N, const float alpha, const float* X,
+void caffe_axpby<float>(const int N, const float alpha, const float* X,
   const float beta, float* Y) {
-  caffe_scal<float>(context, N, beta, Y);
-  caffe_axpy<float>(context, N, alpha, X, Y);
+  caffe_scal<float>(N, beta, Y);
+  caffe_axpy<float>(N, alpha, X, Y);
 }
 
 template <>
-void caffe_axpby<double>(_CONTEXT, const int N, const double alpha, const double* X,
+void caffe_axpby<double>(const int N, const double alpha, const double* X,
   const double beta, double* Y) {
-  caffe_scal<double>(context, N, beta, Y);
-  caffe_axpy<double>(context, N, alpha, X, Y);
+  caffe_scal<double>(N, beta, Y);
+  caffe_axpy<double>(N, alpha, X, Y);
 }
 
 template <>
-void caffe_dot<float>(_CONTEXT, const int n, const float* x, const float* y,
+void caffe_dot<float>(const int n, const float* x, const float* y,
   float* out) {
   CUBLAS_CHECK(cublasSdot(cublas_handle(), n, x, 1, y, 1, out));
 }
 
 template <>
-void caffe_dot<double>(_CONTEXT, const int n, const double* x, const double* y,
+void caffe_dot<double>(const int n, const double* x, const double* y,
   double * out) {
   CUBLAS_CHECK(cublasDdot(cublas_handle(), n, x, 1, y, 1, out));
 }
 
 template <>
-float caffe_dot<float>(_CONTEXT, const int n, const float* x, const float* y) {
+float caffe_dot<float>(const int n, const float* x, const float* y) {
   float out;
   CUBLAS_CHECK(cublasSdot(cublas_handle(), n, x, 1, y, 1, &out));
   return out;
 }
 
 template <>
-double caffe_dot<double>(_CONTEXT, const int n, const double* x, const double* y) {
+double caffe_dot<double>(const int n, const double* x, const double* y) {
   double out;
   CUBLAS_CHECK(cublasDdot(cublas_handle(), n, x, 1, y, 1, &out));
   return out;
 }
 
 template <>
-void caffe_asum<float>(_CONTEXT, const int n, const float* x, float* y) {
+void caffe_asum<float>(const int n, const float* x, float* y) {
   CUBLAS_CHECK(cublasSasum(cublas_handle(), n, x, 1, y));
 }
 
 template <>
-void caffe_asum<double>(_CONTEXT, const int n, const double* x, double* y) {
+void caffe_asum<double>(const int n, const double* x, double* y) {
   CUBLAS_CHECK(cublasDasum(cublas_handle(), n, x, 1, y));
 }
 
 template <>
-void caffe_scale<float>(_CONTEXT, const int n, const float alpha, const float *x,
+void caffe_scale<float>(const int n, const float alpha, const float *x,
   float* y) {
   CUBLAS_CHECK(cublasScopy(cublas_handle(), n, x, 1, y, 1));
   CUBLAS_CHECK(cublasSscal(cublas_handle(), n, &alpha, y, 1));
 }
 
 template <>
-void caffe_scale<double>(_CONTEXT, const int n, const double alpha, const double *x,
+void caffe_scale<double>(const int n, const double alpha, const double *x,
   double* y) {
   CUBLAS_CHECK(cublasDcopy(cublas_handle(), n, x, 1, y, 1));
   CUBLAS_CHECK(cublasDscal(cublas_handle(), n, &alpha, y, 1));
@@ -166,13 +166,13 @@ __global__ void add_scalar_kernel(const int n, const Dtype alpha, Dtype* y) {
 }
 
 template <>
-void caffe_add_scalar<float>(_CONTEXT, const int N, const float alpha, float* Y) {
+void caffe_add_scalar<float>(const int N, const float alpha, float* Y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   add_scalar_kernel<float> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(N, alpha, Y);
 }
 
 template <>
-void caffe_add_scalar<double>(_CONTEXT, const int N, const double alpha, double* Y) {
+void caffe_add_scalar<double>(const int N, const double alpha, double* Y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   add_scalar_kernel<double> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(N, alpha, Y);
 }
@@ -186,7 +186,7 @@ __global__ void add_kernel(const int n, const Dtype* a,
 }
 
 template <>
-void caffe_add<float>(_CONTEXT, const int N, const float* a, const float* b,
+void caffe_add<float>(const int N, const float* a, const float* b,
   float* y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   add_kernel<float> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
@@ -194,7 +194,7 @@ void caffe_add<float>(_CONTEXT, const int N, const float* a, const float* b,
 }
 
 template <>
-void caffe_add<double>(_CONTEXT, const int N, const double* a, const double* b,
+void caffe_add<double>(const int N, const double* a, const double* b,
   double* y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   add_kernel<double> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
@@ -233,14 +233,14 @@ __global__ void abs_kernel(const int n, const Dtype* a, Dtype* y) {
 }
 
 template <>
-void caffe_abs<float>(_CONTEXT, const int N, const float* a, float* y) {
+void caffe_abs<float>(const int N, const float* a, float* y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   abs_kernel<float> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
     N, a, y);
 }
 
 template <>
-void caffe_abs<double>(_CONTEXT, const int N, const double* a, double* y) {
+void caffe_abs<double>(const int N, const double* a, double* y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   abs_kernel<double> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
     N, a, y);
@@ -255,14 +255,14 @@ __global__ void exp_kernel(const int n, const Dtype* a, Dtype* y) {
 }
 
 template <>
-void caffe_exp<float>(_CONTEXT, const int N, const float* a, float* y) {
+void caffe_exp<float>(const int N, const float* a, float* y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   exp_kernel<float> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
     N, a, y);
 }
 
 template <>
-void caffe_exp<double>(_CONTEXT, const int N, const double* a, double* y) {
+void caffe_exp<double>(const int N, const double* a, double* y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   exp_kernel<double> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
     N, a, y);
@@ -276,14 +276,14 @@ __global__ void log_kernel(const int n, const Dtype* a, Dtype* y) {
 }
 
 template <>
-void caffe_log<float>(_CONTEXT, const int N, const float* a, float* y) {
+void caffe_log<float>(const int N, const float* a, float* y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   log_kernel<float> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
     N, a, y);
 }
 
 template <>
-void caffe_log<double>(_CONTEXT, const int N, const double* a, double* y) {
+void caffe_log<double>(const int N, const double* a, double* y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   log_kernel<double> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
     N, a, y);
@@ -298,7 +298,7 @@ __global__ void powx_kernel(const int n, const Dtype* a,
 }
 
 template <>
-void caffe_powx<float>(_CONTEXT, const int N, const float* a,
+void caffe_powx<float>(const int N, const float* a,
   const float alpha, float* y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   powx_kernel<float> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
@@ -306,7 +306,7 @@ void caffe_powx<float>(_CONTEXT, const int N, const float* a,
 }
 
 template <>
-void caffe_powx<double>(_CONTEXT, const int N, const double* a,
+void caffe_powx<double>(const int N, const double* a,
   const double alpha, double* y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   powx_kernel<double> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
@@ -342,40 +342,40 @@ void caffe_rng_uniform(const int n, unsigned int* r) {
 }
 
 template <>
-void caffe_rng_uniform<float>(_CONTEXT, const int n, const float a, const float b,
+void caffe_rng_uniform<float>(const int n, const float a, const float b,
   float* r) {
   CURAND_CHECK(curandGenerateUniform(curand_generator(), r, n));
   const float range = b - a;
   if (range != static_cast<float>(1)) {
-    caffe_scal<float>(context, n, range, r);
+    caffe_scal<float>(n, range, r);
   }
   if (a != static_cast<float>(0)) {
-    caffe_add_scalar<float>(context, n, a, r);
+    caffe_add_scalar<float>(n, a, r);
   }
 }
 
 template <>
-void caffe_rng_uniform<double>(_CONTEXT, const int n, const double a, const double b,
+void caffe_rng_uniform<double>(const int n, const double a, const double b,
   double* r) {
   CURAND_CHECK(curandGenerateUniformDouble(curand_generator(), r, n));
   const double range = b - a;
   if (range != static_cast<double>(1)) {
-    caffe_scal<double>(context, n, range, r);
+    caffe_scal<double>(n, range, r);
   }
   if (a != static_cast<double>(0)) {
-    caffe_add_scalar<double>(context, n, a, r);
+    caffe_add_scalar<double>(n, a, r);
   }
 }
 
 template <>
-void caffe_rng_gaussian<float>(_CONTEXT, const int n, const float mu, const float sigma,
+void caffe_rng_gaussian<float>(const int n, const float mu, const float sigma,
   float* r) {
   CURAND_CHECK(
     curandGenerateNormal(curand_generator(), r, n, mu, sigma));
 }
 
 template <>
-void caffe_rng_gaussian<double>(_CONTEXT, const int n, const double mu, const double sigma,
+void caffe_rng_gaussian<double>(const int n, const double mu, const double sigma,
   double* r) {
   CURAND_CHECK(
     curandGenerateNormalDouble(curand_generator(), r, n, mu, sigma));
@@ -447,7 +447,7 @@ __global__ void ReLUBackward(const int n, const Dtype* in_diff,
 #else
 
 template <>
-void caffe_copy(_CONTEXT, const int N, const Dtype* X, Dtype* Y)
+void caffe_copy(const int N, const Dtype* X, Dtype* Y)
 {
   if (X != Y) {
     // NOLINT_NEXT_LINE(caffe/alt_fn)
@@ -456,7 +456,7 @@ void caffe_copy(_CONTEXT, const int N, const Dtype* X, Dtype* Y)
 }
 
 template <>
-void caffe_set<Dtype>(_CONTEXT, const int N, const Dtype alpha, Dtype* Y) {
+void caffe_set<Dtype>(const int N, const Dtype alpha, Dtype* Y) {
   if (alpha == 0) {
     CUDA_CHECK(cudaMemset(Y, 0, sizeof(Dtype) * N));  // NOLINT(caffe/alt_fn)
     return;
@@ -466,14 +466,14 @@ void caffe_set<Dtype>(_CONTEXT, const int N, const Dtype alpha, Dtype* Y) {
 }
 
 template <>
-void caffe_sub<Dtype>(_CONTEXT, const int N, const Dtype* a, const Dtype* b, Dtype* y) {
+void caffe_sub<Dtype>(const int N, const Dtype* a, const Dtype* b, Dtype* y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   sub_kernel<Dtype> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
     N, a, b, y);
 }
 
 template <>
-void caffe_mul<Dtype>(_CONTEXT, const int N, const Dtype* a,
+void caffe_mul<Dtype>(const int N, const Dtype* a,
   const Dtype* b, Dtype* y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   mul_kernel<Dtype> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
@@ -481,7 +481,7 @@ void caffe_mul<Dtype>(_CONTEXT, const int N, const Dtype* a,
 }
 
 template <>
-void caffe_div<Dtype>(_CONTEXT, const int N, const Dtype* a,
+void caffe_div<Dtype>(const int N, const Dtype* a,
   const Dtype* b, Dtype* y) {
   // NOLINT_NEXT_LINE(whitespace/operators)
   div_kernel<Dtype> << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
@@ -489,7 +489,7 @@ void caffe_div<Dtype>(_CONTEXT, const int N, const Dtype* a,
 }
 
 template <>
-void sgd_update<Dtype>(_CONTEXT, int N, Dtype* g, Dtype* h, Dtype momentum, Dtype local_rate) {
+void sgd_update<Dtype>(int N, Dtype* g, Dtype* h, Dtype momentum, Dtype local_rate) {
   SGDUpdate<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
     << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
       N, g, h, momentum, local_rate);
@@ -497,7 +497,7 @@ void sgd_update<Dtype>(_CONTEXT, int N, Dtype* g, Dtype* h, Dtype momentum, Dtyp
 }
 
 template <>
-void adadelta_update<Dtype>(_CONTEXT, int N, Dtype* g, Dtype* h, Dtype* h2, Dtype momentum,
+void adadelta_update<Dtype>(int N, Dtype* g, Dtype* h, Dtype* h2, Dtype momentum,
   Dtype delta, Dtype local_rate) {
   AdaDeltaUpdate<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
     << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
@@ -505,7 +505,7 @@ void adadelta_update<Dtype>(_CONTEXT, int N, Dtype* g, Dtype* h, Dtype* h2, Dtyp
   CUDA_POST_KERNEL_CHECK;
 }
 template <>
-void adagrad_update<Dtype>(_CONTEXT, int N, Dtype* g, Dtype* h, Dtype delta, Dtype local_rate) {
+void adagrad_update<Dtype>(int N, Dtype* g, Dtype* h, Dtype delta, Dtype local_rate) {
   AdaGradUpdate<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
     << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
       N, g, h, delta, local_rate);
@@ -513,7 +513,7 @@ void adagrad_update<Dtype>(_CONTEXT, int N, Dtype* g, Dtype* h, Dtype delta, Dty
 }
 
 template <>
-void adam_update<Dtype>(_CONTEXT, int N, Dtype* g, Dtype* m, Dtype* v, Dtype beta1,
+void adam_update<Dtype>(int N, Dtype* g, Dtype* m, Dtype* v, Dtype beta1,
   Dtype beta2, Dtype eps_hat, Dtype corrected_local_rate) {
   AdamUpdate<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
     << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(
@@ -528,7 +528,7 @@ void relu_forward<Dtype>(_CONTEXT,const int n, const Dtype* in, Dtype* out,
 }
 
 template <>
-void relu_backward<Dtype>(_CONTEXT, const int n, const Dtype* in_diff, const Dtype* in_data, Dtype* out_diff, Dtype negative_slope) {
+void relu_backward<Dtype>(const int n, const Dtype* in_diff, const Dtype* in_data, Dtype* out_diff, Dtype negative_slope) {
   ReLUBackward<Dtype> << <CAFFE_GET_BLOCKS(n), CAFFE_CUDA_NUM_THREADS >> >( n, in_diff, in_data, out_diff, negative_slope);
 }
 

@@ -22,9 +22,7 @@ int cJSON_GetShape2D(cJSON* pool_param, const char* name, const char* name_h, co
   return 0;
 }
 
-
-template <typename Dtype>
-struct PoolingLayer : public Layer<Dtype>
+struct PoolingLayer : public Layer
 {
   int kernel_h_, kernel_w_;
   int stride_h_, stride_w_;
@@ -33,8 +31,8 @@ struct PoolingLayer : public Layer<Dtype>
   int height_, width_;
   int pooled_height_, pooled_width_;
   bool global_pooling_;
-  Blob<Dtype> rand_idx_;
-  Blob<int> max_idx_;
+  Blob rand_idx_;
+  Blob max_idx_;
   PoolMethod pool_;
   virtual inline const char* type() const { return "Pooling"; }
   virtual inline int ExactNumBottomBlobs() const { return 1; }
@@ -46,8 +44,8 @@ struct PoolingLayer : public Layer<Dtype>
   }
 
   
-  virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  virtual void LayerSetUp(const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
     CJSON* pool_param = this->param_;
     pool_ = (PoolMethod)this->param_->getenum("pool", 1, PoolMethod_Name, countof(PoolMethod_Name));
@@ -102,8 +100,8 @@ struct PoolingLayer : public Layer<Dtype>
   }
 
   
-  virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  virtual void Reshape(const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
     CHECK_EQ(4, bottom[0]->num_axes()) << "Input must have 4 axes, "
       << "corresponding to (num, channels, height, width)";
@@ -150,12 +148,12 @@ struct PoolingLayer : public Layer<Dtype>
   // TODO(Yangqing): Is there a faster way to do pooling in the channel-first
   // case?
   
-  virtual void Forward(Context* context, const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  virtual void Forward(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     int top_count = top[0]->count();
     int num = top[0]->num();
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
     //const int top_count = top[0]->count();
     // We'll output the mask to top[1] if it's of size >1.
     const bool use_top_mask = top.size() > 1;
@@ -166,12 +164,12 @@ struct PoolingLayer : public Layer<Dtype>
     // loop to save time, although this results in more code.
       // Initialize
     if (use_top_mask) {
-      top_mask = top[1]->mutable_data<Context>();
+      top_mask = top[1]->mutable_data();
     }
     else {
-      mask = max_idx_.mutable_data<Context>();
+      mask = (int*)max_idx_.mutable_data();
     }
-    pooling_forward<Dtype>(context, pool_, phase_, bottom_data,
+    pooling_forward(pool_, phase_, bottom_data,
       num, channels_, height_, width_, pooled_height_, pooled_width_,
       kernel_h_, kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_,
       rand_idx, top_data, mask, top_mask);
@@ -179,16 +177,16 @@ struct PoolingLayer : public Layer<Dtype>
   }
 
   
-  virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top,
-    const vector<Blob<Dtype>*> & bottom)
+  virtual void Backward(const vector<Blob*> & top,
+    const vector<Blob*> & bottom)
   {
     //int count = bottom[0]->count();
     int num = top[0]->num();
     if (!bottom[0]->propagate_down_) {
       return;
     }
-    const Dtype* top_diff = top[0]->diff<Context>();
-    Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+    const Dtype* top_diff = top[0]->diff();
+    Dtype* bottom_diff = bottom[0]->mutable_diff();
     // Different pooling methods. We explicitly do the switch outside the for
     // loop to save time, although this results in more codes.
     //caffe_set(bottom[0]->count(), Dtype(0), bottom_diff);
@@ -198,12 +196,12 @@ struct PoolingLayer : public Layer<Dtype>
     const Dtype* top_mask = NULL;
     // The main loop
     if (use_top_mask) {
-      top_mask = top[1]->data<Context>();
+      top_mask = top[1]->data();
     }
     else {
-      mask = max_idx_.data<Context>();
+      mask = (int*)max_idx_.data();
     }
-    pooling_backward<Dtype>(context, pool_, NULL, top_diff, mask, top_mask, num, channels_, height_, width_,
+    pooling_backward(pool_, NULL, top_diff, mask, top_mask, num, channels_, height_, width_,
       pooled_height_, pooled_width_, kernel_h_, kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, bottom_diff);
   }
 

@@ -22,7 +22,7 @@ namespace
    *      @f$.
    */
   template <typename Dtype>
-  class ELULayer : public NeuronLayer<Dtype>
+  class ELULayer : public NeuronLayer
   {
   public:
     /**
@@ -32,7 +32,7 @@ namespace
      *     the value @f$ \alpha @f$ by which controls saturation for negative inputs.
      */
     explicit ELULayer()
-      : NeuronLayer<Dtype>() {}
+      : NeuronLayer() {}
 
     virtual inline const char* type() const { return "ELU"; }
 
@@ -51,10 +51,10 @@ namespace
      *        \end{array} \right.
      *      @f$.
      */
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the error gradient w.r.t. the ELU inputs.
@@ -76,10 +76,10 @@ namespace
      *        \end{array} \right.
      *      @f$ if bottom[0]->propagate_down_.
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
   };
 
 

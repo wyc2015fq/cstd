@@ -19,36 +19,36 @@ namespace
    */
 
   template <typename Dtype>
-  class CropLayer : public Layer<Dtype>
+  class CropLayer : public Layer
   {
   public:
     explicit CropLayer()
-      : Layer<Dtype>() {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : Layer() {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "Crop"; }
     virtual inline int ExactNumBottomBlobs() const { return 2; }
     virtual inline int ExactNumTopBlobs() const { return 1; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
     vector<int> offsets;
 
   private:
     // Recursive copy function.
-    void crop_copy(const vector<Blob<Dtype>*> & bottom,
-                   const vector<Blob<Dtype>*> & top,
+    void crop_copy(const vector<Blob*> & bottom,
+                   const vector<Blob*> & top,
                    const vector<int> & offsets,
                    vector<int> indices,
                    int cur_dim,
@@ -64,8 +64,8 @@ namespace
     // Since in the standard (N,C,W,H) case N,C are usually not cropped a speedup
     // could be achieved by not looping the application of the copy_kernel around
     // these dimensions.
-    void crop_copy_gpu(const vector<Blob<Dtype>*> & bottom,
-                       const vector<Blob<Dtype>*> & top,
+    void crop_copy_gpu(const vector<Blob*> & bottom,
+                       const vector<Blob*> & top,
                        const vector<int> & offsets,
                        vector<int> indices,
                        int cur_dim,

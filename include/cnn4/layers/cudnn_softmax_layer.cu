@@ -8,10 +8,10 @@
 namespace {
 
 template <typename Dtype>
-void CuDNNSoftmaxLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
-  const Dtype* bottom_data = bottom[0]->data<Context>();
-  Dtype* top_data = top[0]->mutable_data<Context>();
+void CuDNNSoftmaxLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+    const vector<Blob*>& top) {
+  const Dtype* bottom_data = bottom[0]->data();
+  Dtype* top_data = top[0]->mutable_data();
   CUDNN_CHECK(cudnnSoftmaxForward(handle_, CUDNN_SOFTMAX_ACCURATE,
         CUDNN_SOFTMAX_MODE_CHANNEL,
         cudnn::dataType<Dtype>::one,
@@ -21,12 +21,12 @@ void CuDNNSoftmaxLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dt
 }
 
 template <typename Dtype>
-void CuDNNSoftmaxLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
-    const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+void CuDNNSoftmaxLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+    const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
   if (bottom[0]->propagate_down_) {
-    const Dtype* top_data = top[0]->data<Context>();
+    const Dtype* top_data = top[0]->data();
     const Dtype* top_diff = top[0]->gpu_diff();
-    const Dtype* bottom_data = bottom[0]->data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
     Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
 
     CUDNN_CHECK(cudnnSoftmaxBackward(handle_, CUDNN_SOFTMAX_ACCURATE,

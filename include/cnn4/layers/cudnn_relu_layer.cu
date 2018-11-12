@@ -6,15 +6,15 @@
 namespace {
 
 template <typename Dtype>
-void CuDNNReLULayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
+void CuDNNReLULayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+    const vector<Blob*>& top) {
   // Fallback to standard Caffe for leaky ReLU.
-  if (ReLULayer<Dtype>::param_->relu_param().negative_slope() != 0) {
-    return ReLULayer<Dtype>::Forward_gpu(bottom, top);
+  if (ReLULayer::param_->relu_param().negative_slope() != 0) {
+    return ReLULayer::Forward_gpu(bottom, top);
   }
 
-  const Dtype* bottom_data = bottom[0]->data<Context>();
-  Dtype* top_data = top[0]->mutable_data<Context>();
+  const Dtype* bottom_data = bottom[0]->data();
+  Dtype* top_data = top[0]->mutable_data();
 #if CUDNN_VERSION_MIN(5, 0, 0)
   CUDNN_CHECK(cudnnActivationForward(this->handle_,
         activ_desc_,
@@ -33,21 +33,21 @@ void CuDNNReLULayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype
 }
 
 template <typename Dtype>
-void CuDNNReLULayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
+void CuDNNReLULayer::Backward(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
-    const vector<Blob<Dtype>*>& bottom) {
+    const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) {
     return;
   }
 
   // Fallback to standard Caffe for leaky ReLU.
-  if (ReLULayer<Dtype>::param_->relu_param().negative_slope() != 0) {
-    return ReLULayer<Dtype>::Backward_gpu(top, propagate_down, bottom);
+  if (ReLULayer::param_->relu_param().negative_slope() != 0) {
+    return ReLULayer::Backward_gpu(top, propagate_down, bottom);
   }
 
-  const Dtype* top_data = top[0]->data<Context>();
+  const Dtype* top_data = top[0]->data();
   const Dtype* top_diff = top[0]->gpu_diff();
-  const Dtype* bottom_data = bottom[0]->data<Context>();
+  const Dtype* bottom_data = bottom[0]->data();
   Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
 #if CUDNN_VERSION_MIN(5, 0, 0)
   CUDNN_CHECK(cudnnActivationBackward(this->handle_,

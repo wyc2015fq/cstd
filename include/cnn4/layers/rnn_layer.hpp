@@ -28,11 +28,11 @@ namespace
    * @f$.
    */
   template <typename Dtype>
-  class RNNLayer : public RecurrentLayer<Dtype>
+  class RNNLayer : public RecurrentLayer
   {
   public:
     explicit RNNLayer()
-      : RecurrentLayer<Dtype>() {}
+      : RecurrentLayer() {}
 
     virtual inline const char* type() const { return "RNN"; }
 

@@ -21,7 +21,7 @@ namespace
 {
   // Load data and label from HDF5 filename into the class property blobs.
   template <typename Dtype>
-  void HDF5DataLayer<Dtype>::LoadHDF5FileData(const char* filename)
+  void HDF5DataLayer::LoadHDF5FileData(const char* filename)
   {
     DLOG(INFO) << "Loading HDF5 file: " << filename;
     hid_t file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
@@ -33,7 +33,7 @@ namespace
     const int MIN_DATA_DIM = 1;
     const int MAX_DATA_DIM = INT_MAX;
     for (int i = 0; i < top_size; ++i) {
-      hdf_blobs_[i] = SHARED_PTR<Blob<Dtype> >(new Blob<Dtype>());
+      hdf_blobs_[i] = SHARED_PTR<Blob >(new Blob());
       hdf5_load_nd_dataset(file_id, this->param_->top(i).c_str(),
                            MIN_DATA_DIM, MAX_DATA_DIM, hdf_blobs_[i].get());
     }
@@ -62,8 +62,8 @@ namespace
   }
 
   template <typename Dtype>
-  void HDF5DataLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                        const vector<Blob<Dtype>*> & top)
+  void HDF5DataLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                        const vector<Blob*> & top)
   {
     // Refuse transformation parameters since HDF5 is totally generic.
     CHECK(!this->param_->has_transform_param()) <<
@@ -115,8 +115,8 @@ namespace
   }
 
   template <typename Dtype>
-  void HDF5DataLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                         const vector<Blob<Dtype>*> & top)
+  void HDF5DataLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                         const vector<Blob*> & top)
   {
     const int batch_size = this->param_->hdf5_data_param().batch_size();
     for (int i = 0; i < batch_size; ++i, ++current_row_) {
@@ -142,8 +142,8 @@ namespace
       for (int j = 0; j < this->param_->top_size(); ++j) {
         int data_dim = top[j]->count() / top[j]->shape(0);
         caffe_copy(data_dim,
-                   &hdf_blobs_[j]->data<Context>()[data_permutation_[current_row_]
-                                              * data_dim], &top[j]->mutable_data<Context>()[i * data_dim]);
+                   &hdf_blobs_[j]->data()[data_permutation_[current_row_]
+                                              * data_dim], &top[j]->mutable_data()[i * data_dim]);
       }
     }
   }

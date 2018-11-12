@@ -10,8 +10,8 @@ namespace
 {
 
   template <typename Dtype>
-  void PReLULayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                     const vector<Blob<Dtype>*> & top)
+  void PReLULayer::LayerSetUp(const vector<Blob*> & bottom,
+                                     const vector<Blob*> & top)
   {
     CHECK_GE(bottom[0]->num_axes(), 2)
         << "Number of axes of bottom blob must be >=2.";
@@ -23,9 +23,9 @@ namespace
     } else {
       this->blobs_.resize(1);
       if (channel_shared_) {
-        this->blobs_[0].reset(new Blob<Dtype>(vector<int>(0)));
+        this->blobs_[0].reset(new Blob(vector<int>(0)));
       } else {
-        this->blobs_[0].reset(new Blob<Dtype>(vector<int>(1, channels)));
+        this->blobs_[0].reset(new Blob(vector<int>(1, channels)));
       }
       SHARED_PTR<Filler<Dtype> > filler;
       if (prelu_param.has_filler()) {
@@ -49,12 +49,12 @@ namespace
     this->param_propagate_down_.resize(this->blobs_.size(), true);
     multiplier_.Reshape(vector<int>(1, bottom[0]->count(1)));
     backward_buff_.Reshape(vector<int>(1, bottom[0]->count(1)));
-    caffe_set(multiplier_.count(), Dtype(1), multiplier_.mutable_data<Context>());
+    caffe_set(multiplier_.count(), Dtype(1), multiplier_.mutable_data());
   }
 
   template <typename Dtype>
-  void PReLULayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                  const vector<Blob<Dtype>*> & top)
+  void PReLULayer::Reshape(const vector<Blob*> & bottom,
+                                  const vector<Blob*> & top)
   {
     CHECK_GE(bottom[0]->num_axes(), 2)
         << "Number of axes of bottom blob must be >=2.";
@@ -66,18 +66,18 @@ namespace
   }
 
   template <typename Dtype>
-  void PReLULayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                      const vector<Blob<Dtype>*> & top)
+  void PReLULayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                      const vector<Blob*> & top)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
     const int count = bottom[0]->count();
     const int dim = bottom[0]->count(2);
     const int channels = bottom[0]->channels();
-    const Dtype* slope_data = this->blobs_[0]->data<Context>();
+    const Dtype* slope_data = this->blobs_[0]->data();
     // For in-place computation
     if (bottom[0] == top[0]) {
-      caffe_copy(count, bottom_data, bottom_memory_.mutable_data<Context>());
+      caffe_copy(count, bottom_data, bottom_memory_.mutable_data());
     }
     // if channel_shared, channel index in the following computation becomes
     // always zero.
@@ -90,19 +90,19 @@ namespace
   }
 
   template <typename Dtype>
-  void PReLULayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
+  void PReLULayer::Backward(CPUContext* context, const vector<Blob*> & top,
                                        int*
-                                       const vector<Blob<Dtype>*> & bottom)
+                                       const vector<Blob*> & bottom)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    const Dtype* slope_data = this->blobs_[0]->data<Context>();
-    const Dtype* top_diff = top[0]->diff<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    const Dtype* slope_data = this->blobs_[0]->data();
+    const Dtype* top_diff = top[0]->diff();
     const int count = bottom[0]->count();
     const int dim = bottom[0]->count(2);
     const int channels = bottom[0]->channels();
     // For in-place computation
     if (top[0] == bottom[0]) {
-      bottom_data = bottom_memory_.data<Context>();
+      bottom_data = bottom_memory_.data();
     }
     // if channel_shared, channel index in the following computation becomes
     // always zero.
@@ -112,7 +112,7 @@ namespace
     // are identical (in-place computaion), we first compute param backward to
     // keep top_diff unchanged.
     if (this->blobs_[0]->propagate_down_) {
-      Dtype* slope_diff = this->blobs_[0]->mutable_diff<Context>();
+      Dtype* slope_diff = this->blobs_[0]->mutable_diff();
       for (int i = 0; i < count; ++i) {
         int c = (i / dim) % channels / div_factor;
         slope_diff[c] += top_diff[i] * bottom_data[i] * (bottom_data[i] <= 0);
@@ -120,7 +120,7 @@ namespace
     }
     // Propagate to bottom
     if (bottom[0]->propagate_down_) {
-      Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+      Dtype* bottom_diff = bottom[0]->mutable_diff();
       for (int i = 0; i < count; ++i) {
         int c = (i / dim) % channels / div_factor;
         bottom_diff[i] = top_diff[i] * ((bottom_data[i] > 0)

@@ -42,20 +42,20 @@ namespace
    *      @f$
    */
   template <typename Dtype>
-  class MultinomialLogisticLossLayer : public LossLayer<Dtype>
+  class MultinomialLogisticLossLayer : public LossLayer
   {
   public:
     explicit MultinomialLogisticLossLayer()
-      : LossLayer<Dtype>() {}
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : LossLayer() {}
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "MultinomialLogisticLoss"; }
 
   public:
     /// @copydoc MultinomialLogisticLossLayer
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the multinomial logistic loss error gradient w.r.t. the
@@ -85,8 +85,8 @@ namespace
      *   -# @f$ (N \times 1 \times 1 \times 1) @f$
      *      the labels -- ignored as we can't compute their error gradients
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
   };
 
 }  // namespace

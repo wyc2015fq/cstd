@@ -6,18 +6,18 @@ namespace
 {
 
   template <typename Dtype>
-  ReverseLayer<Dtype>::ReverseLayer()
-    : NeuronLayer<Dtype>(param)
+  ReverseLayer::ReverseLayer()
+    : NeuronLayer(param)
     , axis_(param.reverse_param().axis())
   {
     CHECK_GE(axis_, 0);
   }
 
   template <typename Dtype>
-  void ReverseLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                       const vector<Blob<Dtype>*> & top)
+  void ReverseLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                       const vector<Blob*> & top)
   {
-    NeuronLayer<Dtype>::LayerSetUp(bottom, top);
+    NeuronLayer::LayerSetUp(bottom, top);
     CHECK_NE(top[0], bottom[0]) << this->type() << " Layer does not "
                                 "allow in-place computation.";
     CHECK_LT(axis_, bottom[0]->num_axes())
@@ -25,10 +25,10 @@ namespace
   }
 
   template <typename Dtype>
-  void ReverseLayer<Dtype>::Forward(_CONTEXT,
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void ReverseLayer::Forward(_CONTEXT,
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    const Dtype* src = bottom[0]->data<Context>();
+    const Dtype* src = bottom[0]->data();
     const int count = top[0]->count();
     const int axis_count = top[0]->count(axis_);
     const int copy_amount
@@ -36,7 +36,7 @@ namespace
     const int num_fix = (axis_ > 0) ? count / axis_count : 1;
     const int sub_iter_max = top[0]->shape(axis_);
     for (int fix = 0; fix < num_fix; ++fix) {
-      Dtype* target = top[0]->mutable_data<Context>()
+      Dtype* target = top[0]->mutable_data()
                       + (fix + 1) * copy_amount * sub_iter_max - copy_amount;
       for (int i = 0; i < sub_iter_max; ++i) {
         caffe_copy(copy_amount, src, target);
@@ -47,11 +47,11 @@ namespace
   }
 
   template <typename Dtype>
-  void ReverseLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                         const vector<Blob<Dtype>*> & bottom)
+  void ReverseLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                         const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }
-    Dtype* target = bottom[0]->mutable_diff<Context>();
+    Dtype* target = bottom[0]->mutable_diff();
     const int count = top[0]->count();
     const int axis_count = top[0]->count(axis_);
     const int copy_amount =
@@ -60,7 +60,7 @@ namespace
     const int sub_iter_max = top[0]->shape(axis_);
     for (int fix = 0; fix < num_fix; ++fix) {
       const Dtype* src
-        = top[0]->diff<Context>() + (fix + 1) * copy_amount * sub_iter_max
+        = top[0]->diff() + (fix + 1) * copy_amount * sub_iter_max
           - copy_amount;
       for (int i = 0; i < sub_iter_max; ++i) {
         caffe_copy(copy_amount, src, target);

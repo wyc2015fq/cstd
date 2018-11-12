@@ -7,10 +7,9 @@
  *        each element of the output depends only on the corresponding input
  *        element.
  */
-template <typename Dtype>
-struct NeuronLayer : public Layer<Dtype>
+struct NeuronLayer : public Layer
 {
-  virtual void Reshape(const vector<Blob<Dtype>*> & bottom,  const vector<Blob<Dtype>*> & top) {
+  virtual void Reshape(const vector<Blob*> & bottom,  const vector<Blob*> & top) {
     top[0]->ReshapeLike(*bottom[0]);
   }
   virtual inline int ExactNumBottomBlobs() const { return 1; }

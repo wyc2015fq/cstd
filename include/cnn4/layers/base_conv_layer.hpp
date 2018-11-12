@@ -37,8 +37,8 @@ DataShape cJSON_GetShape(cJSON* conv_param, int kDefaultPad, const char* name, c
  * @brief Abstract base class that factors out the BLAS code common to
  *        ConvolutionLayer and DeconvolutionLayer.
  */
-template <typename Dtype>
-struct BaseConvolutionLayer : public Layer<Dtype>
+
+struct BaseConvolutionLayer : public Layer
 {
 public:
 
@@ -96,12 +96,12 @@ public:
   int col_offset_;
   int output_offset_;
 
-  Blob<Dtype> col_buffer_;
-  Blob<Dtype> bias_multiplier_;
+  Blob col_buffer_;
+  Blob bias_multiplier_;
 
   inline void conv_im2col(const Dtype* data, Dtype* col_buff) {
     if (!force_nd_im2col_ && num_spatial_axes_ == 2) {
-      im2col(CONTEXT, data, conv_in_channels_,
+      im2col(data, conv_in_channels_,
         conv_input_shape_.dim[1], conv_input_shape_.dim[2],
         kernel_shape_.dim[0], kernel_shape_.dim[1],
         pad_.dim[0], pad_.dim[1],
@@ -109,7 +109,7 @@ public:
         dilation_.dim[0], dilation_.dim[1], col_buff);
     }
     else {
-      im2col_nd(CONTEXT, data, num_spatial_axes_, num_kernels_im2col_,
+      im2col_nd(data, num_spatial_axes_, num_kernels_im2col_,
         conv_input_shape_, col_buffer_.shape_,
         kernel_shape_, pad_,
         stride_, dilation_, col_buff);
@@ -117,7 +117,7 @@ public:
   }
   inline void conv_col2im(const Dtype* col_buff, Dtype* data) {
     if (!force_nd_im2col_ && num_spatial_axes_ == 2) {
-      col2im(CONTEXT, col_buff, conv_in_channels_,
+      col2im(col_buff, conv_in_channels_,
         conv_input_shape_.dim[1], conv_input_shape_.dim[2],
         kernel_shape_.dim[0], kernel_shape_.dim[1],
         pad_.dim[0], pad_.dim[1],
@@ -125,7 +125,7 @@ public:
         dilation_.dim[0], dilation_.dim[1], data);
     }
     else {
-      col2im_nd(CONTEXT, col_buff, num_spatial_axes_, num_kernels_col2im_,
+      col2im_nd(col_buff, num_spatial_axes_, num_kernels_col2im_,
         conv_input_shape_, col_buffer_.shape_,
         kernel_shape_, pad_, stride_,
         dilation_, data);
@@ -133,8 +133,8 @@ public:
   }
 
   int axis_;
-  virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  virtual void LayerSetUp(const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
     // Configure the kernel size, padding, stride, and inputs.
     cJSON* conv_param = this->param_;
@@ -244,8 +244,8 @@ public:
     //this->param_propagate_down_.resize(this->blobs_.size(), true);
   }
 
-  virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  virtual void Reshape(const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
     const int first_spatial_axis = channel_axis_ + 1;
     CHECK_EQ(bottom[0]->num_axes(), first_spatial_axis + num_spatial_axes_)
@@ -315,8 +315,8 @@ public:
     if (bias_term_) {
       vector<int> bias_multiplier_shape(1, out_spatial_dim_);
       bias_multiplier_.Reshape(bias_multiplier_shape);
-      caffe_set(CONTEXT, bias_multiplier_.count(), Dtype(1),
-        bias_multiplier_.mutable_data<Context>());
+      caffe_set(bias_multiplier_.count(), Dtype(1),
+        bias_multiplier_.mutable_data());
     }
   }
 
@@ -326,12 +326,12 @@ public:
     const Dtype* col_buff = input;
     if (!is_1x1_) {
       if (!skip_im2col) {
-        conv_im2col(input, col_buffer_.mutable_data<Context>());
+        conv_im2col(input, col_buffer_.mutable_data());
       }
-      col_buff = col_buffer_.data<Context>();
+      col_buff = col_buffer_.data();
     }
     for (int g = 0; g < group_; ++g) {
-      caffe_gemm<Dtype>(CONTEXT, CblasNoTrans, CblasNoTrans, conv_out_channels_ /
+      caffe_gemm(CblasNoTrans, CblasNoTrans, conv_out_channels_ /
         group_, conv_out_spatial_dim_, kernel_dim_,
         (Dtype)1., weights + weight_offset_ * g, col_buff + col_offset_ * g,
         (Dtype)0., output + output_offset_ * g);
@@ -341,20 +341,20 @@ public:
   void forward_bias(Dtype* output,
     const Dtype* bias)
   {
-    caffe_gemm<Dtype>(CONTEXT, CblasNoTrans, CblasNoTrans, num_output_,
-      out_spatial_dim_, 1, (Dtype)1., bias, bias_multiplier_.data<Context>(),
+    caffe_gemm(CblasNoTrans, CblasNoTrans, num_output_,
+      out_spatial_dim_, 1, (Dtype)1., bias, bias_multiplier_.data(),
       (Dtype)1., output);
   }
 
   void backward_gemm(const Dtype* output,
     const Dtype* weights, Dtype* input)
   {
-    Dtype* col_buff = col_buffer_.mutable_data<Context>();
+    Dtype* col_buff = col_buffer_.mutable_data();
     if (is_1x1_) {
       col_buff = input;
     }
     for (int g = 0; g < group_; ++g) {
-      caffe_gemm<Dtype>(CONTEXT, CblasTrans, CblasNoTrans, kernel_dim_,
+      caffe_gemm(CblasTrans, CblasNoTrans, kernel_dim_,
         conv_out_spatial_dim_, conv_out_channels_ / group_,
         (Dtype)1., weights + weight_offset_ * g, output + output_offset_ * g,
         (Dtype)0., col_buff + col_offset_ * g);
@@ -368,11 +368,11 @@ public:
   {
     const Dtype* col_buff = input;
     if (!is_1x1_) {
-      conv_im2col(input, col_buffer_.mutable_data<Context>());
-      col_buff = col_buffer_.data<Context>();
+      conv_im2col(input, col_buffer_.mutable_data());
+      col_buff = col_buffer_.data();
     }
     for (int g = 0; g < group_; ++g) {
-      caffe_gemm<Dtype>(CONTEXT, CblasNoTrans, CblasTrans, conv_out_channels_ / group_,
+      caffe_gemm(CblasNoTrans, CblasTrans, conv_out_channels_ / group_,
         kernel_dim_, conv_out_spatial_dim_,
         (Dtype)1., output + output_offset_ * g, col_buff + col_offset_ * g,
         (Dtype)1., weights + weight_offset_ * g);
@@ -382,8 +382,8 @@ public:
   void backward_bias(Dtype* bias,
     const Dtype* input)
   {
-    caffe_gemv<Dtype>(CONTEXT, CblasNoTrans, num_output_, out_spatial_dim_, 1.,
-      input, bias_multiplier_.data<Context>(), 1., bias);
+    caffe_gemv(CblasNoTrans, num_output_, out_spatial_dim_, 1.,
+      input, bias_multiplier_.data(), 1., bias);
   }
 
 

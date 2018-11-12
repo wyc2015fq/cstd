@@ -6,17 +6,17 @@ namespace
 {
 
   template <typename Dtype>
-  ReverseTimeLayer<Dtype>::ReverseTimeLayer()
-    : Layer<Dtype>(param)
+  ReverseTimeLayer::ReverseTimeLayer()
+    : Layer(param)
     , copy_remaining_(param.reverse_time_param().copy_remaining())
   {
   }
 
   template <typename Dtype>
-  void ReverseTimeLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-      const vector<Blob<Dtype>*> & top)
+  void ReverseTimeLayer::LayerSetUp(const vector<Blob*> & bottom,
+      const vector<Blob*> & top)
   {
-    Layer<Dtype>::LayerSetUp(bottom, top);
+    Layer::LayerSetUp(bottom, top);
     CHECK_NE(top[0], bottom[0]) << this->type() << " Layer does not "
                                 "allow in-place computation.";
     // copy to an expected length only
@@ -25,25 +25,25 @@ namespace
   }
 
   template <typename Dtype>
-  void ReverseTimeLayer<Dtype>::Reshape(
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void ReverseTimeLayer::Reshape(
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     top[0]->ReshapeLike(*bottom[0]);
   }
 
   template <typename Dtype>
-  void ReverseTimeLayer<Dtype>::Forward(_CONTEXT,
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void ReverseTimeLayer::Forward(_CONTEXT,
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    const Dtype* src = bottom[0]->data<Context>();
-    Dtype* const dest = top[0]->mutable_data<Context>();
+    const Dtype* src = bottom[0]->data();
+    Dtype* const dest = top[0]->mutable_data();
     // TODO: Remove these tests
     const Dtype* const src_max = src + bottom[0]->count();
     const Dtype* const dest_max = dest + top[0]->count();
     const int count = top[0]->count();
     const int copy_amount = top[0]->count(1);
     const int sub_iter_max = top[0]->shape(0);
-    const Dtype* seq_length = bottom[1]->data<Context>();
+    const Dtype* seq_length = bottom[1]->data();
     const int sub_axis_count = bottom[0]->shape(1);
     const int sub_copy_amount = copy_amount / sub_axis_count;
     for (int n = 0; n < sub_axis_count; ++n) {
@@ -82,19 +82,19 @@ namespace
   }
 
   template <typename Dtype>
-  void ReverseTimeLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<Blob<Dtype>*> & bottom)
+  void ReverseTimeLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+      const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }
-    const Dtype* src = top[0]->diff<Context>();
-    Dtype* const dest = bottom[0]->mutable_diff<Context>();
+    const Dtype* src = top[0]->diff();
+    Dtype* const dest = bottom[0]->mutable_diff();
     // TODO: Remove these tests
     const Dtype* const src_max = src + top[0]->count();
     const Dtype* const dest_max = dest + bottom[0]->count();
     const int count = top[0]->count();
     const int copy_amount = top[0]->count(1);
     const int sub_iter_max = top[0]->shape(0);
-    const Dtype* seq_length = bottom[1]->data<Context>();
+    const Dtype* seq_length = bottom[1]->data();
     const int sub_axis_count = bottom[0]->shape(1);
     const int sub_copy_amount = copy_amount / sub_axis_count;
     for (int n = 0; n < sub_axis_count; ++n) {

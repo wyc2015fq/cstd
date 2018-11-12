@@ -42,7 +42,7 @@ namespace
    *      @f$, for softmax output class probabilites @f$ \hat{p} @f$
    */
   template <typename Dtype>
-  class SoftmaxWithLossMultiLabelLayer : public LossLayer<Dtype>
+  class SoftmaxWithLossMultiLabelLayer : public LossLayer
   {
   public:
     /**
@@ -54,11 +54,11 @@ namespace
      *    present; otherwise the loss is simply summed over spatial locations.
      */
     explicit SoftmaxWithLossMultiLabelLayer()
-      : LossLayer<Dtype>() {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : LossLayer() {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "SoftmaxWithLossMultiLabel"; }
     virtual inline int ExactNumTopBlobs() const { return -1; }
@@ -66,10 +66,10 @@ namespace
     virtual inline int MaxTopBlobs() const { return 2; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
     /**
      * @brief Computes the softmax loss error gradient w.r.t. the predictions.
      *
@@ -97,10 +97,10 @@ namespace
      *   -# @f$ (N \times 1 \times 1 \times 1) @f$
      *      the labels -- ignored as we can't compute their error gradients
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
     /// Read the normalization mode parameter and compute the normalizer based
     /// on the blob size.  If normalization_mode is VALID, the count of valid
@@ -110,13 +110,13 @@ namespace
       LossParameter_NormalizationMode normalization_mode, int valid_count);
 
     /// The internal SoftmaxLayer used to map predictions to a distribution.
-    SHARED_PTR<Layer<Dtype> > softmax_layer_;
+    SHARED_PTR<Layer > softmax_layer_;
     /// prob stores the output probability predictions from the SoftmaxLayer.
-    Blob<Dtype> prob_;
+    Blob prob_;
     /// bottom vector holder used in call to the underlying SoftmaxLayer::Forward
-    vector<Blob<Dtype>*> softmax_bottom_vec_;
+    vector<Blob*> softmax_bottom_vec_;
     /// top vector holder used in call to the underlying SoftmaxLayer::Forward
-    vector<Blob<Dtype>*> softmax_top_vec_;
+    vector<Blob*> softmax_top_vec_;
     /// Whether to ignore instances with a certain label.
     bool has_ignore_label_;
     /// The label indicating that an instance should be ignored.

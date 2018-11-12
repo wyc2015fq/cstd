@@ -11,8 +11,8 @@ namespace
 {
 
   template <typename Dtype>
-  WarpCTCLossLayer<Dtype>::WarpCTCLossLayer()
-    : LossLayer<Dtype>(param),
+  WarpCTCLossLayer::WarpCTCLossLayer()
+    : LossLayer(param),
       T_(0),
       N_(0),
       C_(0)
@@ -21,36 +21,36 @@ namespace
   }
 
   template <typename Dtype>
-  WarpCTCLossLayer<Dtype>::~WarpCTCLossLayer()
+  WarpCTCLossLayer::~WarpCTCLossLayer()
   {
   }
 
   template <typename Dtype>
-  void WarpCTCLossLayer<Dtype>::LayerSetUp(
-    const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  void WarpCTCLossLayer::LayerSetUp(
+    const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
-    LossLayer<Dtype>::LayerSetUp(bottom, top);
-    const Blob<Dtype>* probs = bottom[0];//TxNxC
+    LossLayer::LayerSetUp(bottom, top);
+    const Blob* probs = bottom[0];//TxNxC
     T_ = probs->num();
     N_ = probs->channels();
     C_ = probs->height();
     CHECK_EQ(probs->width(), 1);
     if (bottom.size() == 3) {
-      const Blob<Dtype>* seq_ind = bottom[1];
-      const Blob<Dtype>* label_seq = bottom[2];
+      const Blob* seq_ind = bottom[1];
+      const Blob* label_seq = bottom[2];
       CHECK_EQ(T_, seq_ind->num());
       CHECK_EQ(N_, seq_ind->channels());
       CHECK_EQ(N_, label_seq->channels());
     } else if (bottom.size() == 4) {
-      const Blob<Dtype>* seq_len_blob = bottom[1];
-      const Blob<Dtype>* lab_len_blob = bottom[2];
-      const Blob<Dtype>* label_seq_blob = bottom[3];
+      const Blob* seq_len_blob = bottom[1];
+      const Blob* lab_len_blob = bottom[2];
+      const Blob* label_seq_blob = bottom[3];
       CHECK_EQ(N_, seq_len_blob->count());
       CHECK_EQ(N_, lab_len_blob->count());
       CHECK_EQ(N_, label_seq_blob->channels());
     } else if (bottom.size() == 2) { //input seq + labels
-      const Blob<Dtype>* label_seq = bottom[1];
+      const Blob* label_seq = bottom[1];
       CHECK_EQ(N_, label_seq->num());
     } else {
       LOG(FATAL) << "Unsupported blobs shape";
@@ -60,27 +60,27 @@ namespace
   }
 
   template <typename Dtype>
-  void WarpCTCLossLayer<Dtype>::Reshape(
-    const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  void WarpCTCLossLayer::Reshape(
+    const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
     vector<int> loss_shape(0);  // Loss layers output a scalar; 0 axes.
     top[0]->Reshape(loss_shape);
   }
 
   template <typename Dtype>
-  void WarpCTCLossLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-      const vector<Blob<Dtype>*> & top)
+  void WarpCTCLossLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+      const vector<Blob*> & top)
   {
-    const Dtype* const activations = bottom[0]->data<Context>();
-    Dtype* gradients = bottom[0]->mutable_diff<Context>();
+    const Dtype* const activations = bottom[0]->data();
+    Dtype* gradients = bottom[0]->mutable_diff();
     const int alphabet_size = C_;
     const int minibatch = N_;
     vector<Dtype> costs(N_);
     flat_labels_.clear();
     if (bottom.size() == 2) {//bottom[0]=activations, bottom[1] is labels, shape: Batchsize*seq len
-      const Blob<Dtype>* label_seq_blob = bottom[1];
-      const Dtype* label_seq_d = label_seq_blob->data<Context>();
+      const Blob* label_seq_blob = bottom[1];
+      const Dtype* label_seq_d = label_seq_blob->data();
       int label_len_per_batch = label_seq_blob->channels();
       for (int n = 0; n < N_; ++n) {
         int curlen = 0;
@@ -99,12 +99,12 @@ namespace
       ExtractInputData(bottom[1], bottom[2],
                        &flat_labels_, &label_lengths_, &input_lengths_);
     } else if (bottom.size() == 4) {
-      const Blob<Dtype>* seq_len_blob = bottom[1];
-      const Blob<Dtype>* lab_len_blob = bottom[2];
-      const Blob<Dtype>* label_seq_blob = bottom[3];
-      const Dtype* seq_len_d = seq_len_blob->data<Context>();
-      const Dtype* lab_len_d = lab_len_blob->data<Context>();
-      const Dtype* label_seq_d = label_seq_blob->data<Context>();
+      const Blob* seq_len_blob = bottom[1];
+      const Blob* lab_len_blob = bottom[2];
+      const Blob* label_seq_blob = bottom[3];
+      const Dtype* seq_len_d = seq_len_blob->data();
+      const Dtype* lab_len_d = lab_len_blob->data();
+      const Dtype* label_seq_d = label_seq_blob->data();
       int accumulated = 0;
       CHECK_EQ(seq_len_blob->count(), lab_len_blob->count());
       for (int i = 0; i < seq_len_blob->count(); ++i) {
@@ -146,12 +146,12 @@ namespace
                                   alphabet_size,
                                   minibatch,
                                   costs.data(),
-                                  workspace_->mutable_data<Context>(),
+                                  workspace_->mutable_data(),
                                   options
                                  );
     CHECK_EQ(status, CTC_STATUS_SUCCESS) << "CTC Error: " << ctcGetStatusString(status);
     // output loss
-    Dtype & loss = top[0]->mutable_data<Context>()[0];
+    Dtype & loss = top[0]->mutable_data()[0];
     loss = 0;
     int num = 0;
     for (int n = 0; n < N_; ++n) {
@@ -170,9 +170,9 @@ namespace
   }
 
   template <typename Dtype>
-  void WarpCTCLossLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
+  void WarpCTCLossLayer::Backward(CPUContext* context, const vector<Blob*> & top,
       int*
-      const vector<Blob<Dtype>*> & bottom)
+      const vector<Blob*> & bottom)
   {
     CHECK_EQ(bottom[0]->propagate_down_, true)
         << "Required to propagate to probabilities";
@@ -188,14 +188,14 @@ namespace
   }
 
   template <typename Dtype>
-  void WarpCTCLossLayer<Dtype>::ExtractInputData(const Blob<Dtype>* seq_ind_blob,
-      const Blob<Dtype>* labels_blob,
+  void WarpCTCLossLayer::ExtractInputData(const Blob* seq_ind_blob,
+      const Blob* labels_blob,
       vector<int>* flat_labels,
       vector<int>* label_lengths,
       vector<int>* input_lengths)
   {
-    const Dtype* seq_ind = CHECK_NOTNULL(seq_ind_blob)->data<Context>();
-    const Dtype* target_seq = CHECK_NOTNULL(labels_blob)->data<Context>();
+    const Dtype* seq_ind = CHECK_NOTNULL(seq_ind_blob)->data();
+    const Dtype* target_seq = CHECK_NOTNULL(labels_blob)->data();
     CHECK_NOTNULL(flat_labels)->clear();
     flat_labels->reserve(T_ * N_);  // maximum required
     CHECK_NOTNULL(label_lengths)->resize(N_);

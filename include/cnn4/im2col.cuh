@@ -272,7 +272,7 @@ __global__ void col2im_nd_kernel(const int n, const Dtype* data_col,
 #else
 
 template <>
-void im2col<Dtype>(_CONTEXT, const Dtype* data_im, const int channels,
+void im2col<Dtype>(const Dtype* data_im, const int channels,
     const int height, const int width, const int kernel_h, const int kernel_w,
     const int pad_h, const int pad_w,
     const int stride_h, const int stride_w,
@@ -295,7 +295,7 @@ void im2col<Dtype>(_CONTEXT, const Dtype* data_im, const int channels,
 }
 
 template <>
-void im2col_nd<Dtype>(_CONTEXT, const Dtype* data_im, const int num_spatial_axes,
+void im2col_nd<Dtype>(const Dtype* data_im, const int num_spatial_axes,
     const int num_kernels, const DataShape im_shape, const DataShape col_shape,
     const DataShape kernel_shape, const DataShape pad, const DataShape stride,
     const DataShape dilation, Dtype* data_col) {
@@ -370,7 +370,7 @@ void im2col_nd<Dtype>(_CONTEXT, const Dtype* data_im, const int num_spatial_axes
 }
 
 template <>
-void col2im<Dtype>(_CONTEXT, const Dtype* data_col, const int channels,
+void col2im<Dtype>(const Dtype* data_col, const int channels,
     const int height, const int width, const int kernel_h, const int kernel_w,
     const int pad_h, const int pad_w, const int stride_h,
     const int stride_w, const int dilation_h, const int dilation_w,
@@ -392,7 +392,7 @@ void col2im<Dtype>(_CONTEXT, const Dtype* data_col, const int channels,
 }
 
 template <>
-void col2im_nd<Dtype>(_CONTEXT, const Dtype* data_col, const int num_spatial_axes,
+void col2im_nd<Dtype>(const Dtype* data_col, const int num_spatial_axes,
     const int im_size, const DataShape im_shape, const DataShape col_shape,
     const DataShape kernel_shape, const DataShape pad, const DataShape stride,
     const DataShape dilation, Dtype* data_im) {

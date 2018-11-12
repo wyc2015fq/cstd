@@ -1,13 +1,13 @@
 
 struct SGDSolver : public Solver {
   int current_step_;
-  vector<Blob<Dtype>*>  history_;
-  vector<Blob<Dtype>*>  update_;
-  vector<Blob<Dtype>*>  temp_;
+  vector<Blob*>  history_;
+  vector<Blob*>  update_;
+  vector<Blob*>  temp_;
   virtual void PreSolve()
   {
     // Initialize the history
-    const vector<Blob<Dtype>*>& net_params = learnable_params_;
+    const vector<Blob*>& net_params = learnable_params_;
     int n = net_params.size();
     blobs_reset(history_, n);
     blobs_reset(update_, n);
@@ -81,11 +81,11 @@ struct SGDSolver : public Solver {
       //         << l2norm_diff << " > " << clip_gradients << ") "
       //         << "by scale factor " << scale_factor;
       for (int i = 0; i < learnable_params_.size(); ++i) {
-        Blob<Dtype>* blob = learnable_params_[i];
+        Blob* blob = learnable_params_[i];
         //learnable_params_[i]->scale_diff(scale_factor);
-        Dtype* diff = blob->mutable_diff<Context>();
+        Dtype* diff = blob->mutable_diff();
         int count_ = blob->count();
-        caffe_scal<Dtype>(CONTEXT, count_, scale_factor, diff);
+        caffe_scal(count_, scale_factor, diff);
       }
     }
   }
@@ -95,8 +95,8 @@ struct SGDSolver : public Solver {
     if (iter_size == 1) { return; }
     // Scale gradient to counterbalance accumulation.
     const Dtype accum_normalization = Dtype(1.) / iter_size;
-    caffe_scal<Dtype>(CONTEXT, learnable_params_[param_id]->count(), accum_normalization,
-      learnable_params_[param_id]->mutable_diff<Context>());
+    caffe_scal(learnable_params_[param_id]->count(), accum_normalization,
+      learnable_params_[param_id]->mutable_diff());
 
   }
 
@@ -108,17 +108,17 @@ struct SGDSolver : public Solver {
     string regularization_type = param_->GetObjectString("regularization_type", "L2");
     Dtype local_decay = weight_decay * decay_mult;
     int count_ = learnable_params_[param_id]->count();
-    const Dtype* learnable_params_data = learnable_params_[param_id]->data<Context>();
-    Dtype* params_diff = learnable_params_[param_id]->mutable_diff<Context>();
+    const Dtype* learnable_params_data = learnable_params_[param_id]->data();
+    Dtype* params_diff = learnable_params_[param_id]->mutable_diff();
     if (local_decay) {
       if (regularization_type == "L2") {
         // add weight decay
-        caffe_axpy<Dtype>(CONTEXT, count_, local_decay, learnable_params_data, params_diff);
+        caffe_axpy(count_, local_decay, learnable_params_data, params_diff);
       }
       else if (regularization_type == "L1") {
-        Dtype* temp_data = temp_[param_id]->mutable_data<Context>();
-        caffe_sign<Dtype>(CONTEXT, count_, learnable_params_data, temp_data);
-        caffe_axpy<Dtype>(CONTEXT, count_, local_decay, temp_data, params_diff);
+        Dtype* temp_data = temp_[param_id]->mutable_data();
+        caffe_sign(count_, learnable_params_data, temp_data);
+        caffe_axpy(count_, local_decay, temp_data, params_diff);
       }
       else {
         LOG(FATAL) << "Unknown regularization type: " << regularization_type;
@@ -134,13 +134,13 @@ struct SGDSolver : public Solver {
 #if 0
     int count_ = learnable_params_[param_id]->count();
     // Compute the update to history, then copy it to the parameter diff.
-    Dtype* learnable_params_diff = learnable_params_[param_id]->mutable_diff<Context>();
-    Dtype* history_data = history_[param_id]->mutable_data<Context>();
-    caffe_axpby<Dtype>(CONTEXT, count_, local_rate, learnable_params_diff, momentum, history_data);
-    caffe_copy<Dtype>(CONTEXT, count_, history_data, learnable_params_diff);
+    Dtype* learnable_params_diff = learnable_params_[param_id]->mutable_diff();
+    Dtype* history_data = history_[param_id]->mutable_data();
+    caffe_axpby(count_, local_rate, learnable_params_diff, momentum, history_data);
+    caffe_copy(count_, history_data, learnable_params_diff);
 #else
-    const vector<Blob<Dtype>*> & net_params = learnable_params_;
-    sgd_update<Dtype>(CONTEXT,net_params[param_id]->count(), net_params[param_id]->mutable_diff<Context>(), history_[param_id]->mutable_data<Context>(), momentum, local_rate);
+    const vector<Blob*> & net_params = learnable_params_;
+    sgd_update(net_params[param_id]->count(), net_params[param_id]->mutable_diff(), history_[param_id]->mutable_data(), momentum, local_rate);
 #endif
   }
 
@@ -166,16 +166,16 @@ struct AdaDeltaSolver : public SGDSolver
 {
   virtual void ComputeUpdateValue(int param_id, Dtype rate)
   {
-    const vector<Blob<Dtype>*> & net_params = learnable_params_;
+    const vector<Blob*> & net_params = learnable_params_;
     //const vector<float> & net_params_lr = this->net_->params_lr();
     Dtype delta = this->param_->getfloat("delta", 1e-8);
     Dtype momentum = this->param_->getfloat("momentum", 0.999);
     Dtype local_rate = rate * net_params[param_id]->lr_mult_;
     size_t update_history_offset = net_params.size();
-    adadelta_update<Dtype>(CONTEXT, net_params[param_id]->count(),
-      net_params[param_id]->mutable_diff<Context>(),
-      this->history_[param_id]->mutable_data<Context>(),
-      this->history_[update_history_offset + param_id]->mutable_data<Context>(),
+    adadelta_update(net_params[param_id]->count(),
+      net_params[param_id]->mutable_diff(),
+      this->history_[param_id]->mutable_data(),
+      this->history_[update_history_offset + param_id]->mutable_data(),
       momentum, delta, local_rate);
   }
 };
@@ -185,14 +185,14 @@ struct AdaGradSolver : public SGDSolver
   virtual void ComputeUpdateValue(int param_id, Dtype rate)
   {
     CHECK(root_solver());
-    const vector<Blob<Dtype>*> & net_params = learnable_params_;
+    const vector<Blob*> & net_params = learnable_params_;
     //const vector<float> & net_params_lr = this->net_->params_lr();
     //Dtype local_rate = rate * net_params_lr[param_id];
     Dtype local_rate = rate;
     Dtype delta = this->param_->getfloat("delta", 1e-8);
-    adagrad_update<Dtype>(CONTEXT, net_params[param_id]->count(),
-      net_params[param_id]->mutable_diff<Context>(),
-      this->history_[param_id]->mutable_data<Context>(), delta, local_rate);
+    adagrad_update(net_params[param_id]->count(),
+      net_params[param_id]->mutable_diff(),
+      this->history_[param_id]->mutable_data(), delta, local_rate);
   }
 
 };
@@ -200,24 +200,24 @@ struct AdaGradSolver : public SGDSolver
 struct AdamSolver : public SGDSolver {
   virtual void ComputeUpdateValue(int param_id, Dtype rate)
   {
-    const vector<Blob<Dtype>*> & net_params = learnable_params_;
+    const vector<Blob*> & net_params = learnable_params_;
     //const vector<float> & net_params_lr = this->net_->params_lr();
     Dtype local_rate = rate * net_params[param_id]->lr_mult_;
     const Dtype beta1 = this->param_->getfloat("momentum", 0.999);
     const Dtype beta2 = this->param_->getfloat("momentum2", 0.999);
     // we create aliases for convenience
     size_t update_history_offset = net_params.size();
-    Blob<Dtype>* val_m = this->history_[param_id];
-    Blob<Dtype>* val_v = this->history_[param_id + update_history_offset];
-    Blob<Dtype>* val_t = this->temp_[param_id];
+    Blob* val_m = this->history_[param_id];
+    Blob* val_v = this->history_[param_id + update_history_offset];
+    Blob* val_t = this->temp_[param_id];
     const int t = this->iter_ + 1;
     const Dtype correction = std::sqrt(Dtype(1) - pow(beta2, t)) /
       (Dtype(1.) - pow(beta1, t));
     const int N = net_params[param_id]->count();
     const Dtype eps_hat = this->param_->getfloat("delta", 1e-8);
 
-    adam_update<Dtype>(CONTEXT, N, net_params[param_id]->mutable_diff<Context>(),
-      val_m->mutable_data<Context>(), val_v->mutable_data<Context>(), beta1, beta2,
+    adam_update(N, net_params[param_id]->mutable_diff(),
+      val_m->mutable_data(), val_v->mutable_data(), beta1, beta2,
       eps_hat, local_rate * correction);
   }
 

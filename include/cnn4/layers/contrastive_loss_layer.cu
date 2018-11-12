@@ -7,47 +7,47 @@
 namespace {
 
 template <typename Dtype>
-void ContrastiveLossLayer<Dtype>::Forward_gpu(
-    const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
+void ContrastiveLossLayer::Forward_gpu(
+    const vector<Blob*>& bottom, const vector<Blob*>& top) {
   const int count = bottom[0]->count();
   caffe_gpu_sub(
       count,
-      bottom[0]->data<Context>(),  // a
-      bottom[1]->data<Context>(),  // b
-      diff_.mutable_data<Context>());  // a_i-b_i
+      bottom[0]->data(),  // a
+      bottom[1]->data(),  // b
+      diff_.mutable_data());  // a_i-b_i
   caffe_gpu_powx(
       count,
-      diff_.mutable_data<Context>(),  // a_i-b_i
+      diff_.mutable_data(),  // a_i-b_i
       Dtype(2),
-      diff_sq_.mutable_data<Context>());  // (a_i-b_i)^2
+      diff_sq_.mutable_data());  // (a_i-b_i)^2
   caffe_gpu_gemv(
       CblasNoTrans,
       bottom[0]->num(),
       bottom[0]->channels(),
       Dtype(1.0),
-      diff_sq_.data<Context>(),  // (a_i-b_i)^2
-      summer_vec_.data<Context>(),
+      diff_sq_.data(),  // (a_i-b_i)^2
+      summer_vec_.data(),
       Dtype(0.0),
-      dist_sq_.mutable_data<Context>());  // \Sum (a_i-b_i)^2
+      dist_sq_.mutable_data());  // \Sum (a_i-b_i)^2
   Dtype margin = this->param_->contrastive_loss_param().margin();
   bool legacy_version =
       this->param_->contrastive_loss_param().legacy_version();
   Dtype loss(0.0);
   for (int i = 0; i < bottom[0]->num(); ++i) {
-    if (static_cast<int>(bottom[2]->data<Context>()[i])) {  // similar pairs
-      loss += dist_sq_.data<Context>()[i];
+    if (static_cast<int>(bottom[2]->data()[i])) {  // similar pairs
+      loss += dist_sq_.data()[i];
     } else {  // dissimilar pairs
       if (legacy_version) {
-        loss += std::max(margin - dist_sq_.data<Context>()[i], Dtype(0.0));
+        loss += std::max(margin - dist_sq_.data()[i], Dtype(0.0));
       } else {
-        Dtype dist = std::max(margin - sqrt(dist_sq_.data<Context>()[i]),
+        Dtype dist = std::max(margin - sqrt(dist_sq_.data()[i]),
                               Dtype(0.0));
         loss += dist*dist;
       }
     }
   }
   loss = loss / static_cast<Dtype>(bottom[0]->num()) / Dtype(2);
-  top[0]->mutable_data<Context>()[0] = loss;
+  top[0]->mutable_data()[0] = loss;
 }
 
 template <typename Dtype>
@@ -80,8 +80,8 @@ __global__ void CLLBackward(const int count, const int channels,
 }
 
 template <typename Dtype>
-void ContrastiveLossLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
-    const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+void ContrastiveLossLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+    const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
   for (int i = 0; i < 2; ++i) {
     if (bottom[i]->propagate_down_) {
       const int count = bottom[0]->count();
@@ -90,14 +90,14 @@ void ContrastiveLossLayer<Dtype>::Backward(GPUContext* context, const vector<Blo
       const bool legacy_version =
           this->param_->contrastive_loss_param().legacy_version();
       const Dtype sign = Dtype((i == 0) ? 1 : -1);
-      const Dtype alpha = sign * top[0]->diff<Context>()[0] /
+      const Dtype alpha = sign * top[0]->diff()[0] /
           static_cast<Dtype>(bottom[0]->num());
       // NOLINT_NEXT_LINE(whitespace/operators)
       CLLBackward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
           count, channels, margin, legacy_version, alpha,
-          bottom[2]->data<Context>(),  // pair similarity 0 or 1
-          diff_.data<Context>(),  // the cached eltwise difference between a and b
-          dist_sq_.data<Context>(),  // the cached square distance between a and b
+          bottom[2]->data(),  // pair similarity 0 or 1
+          diff_.data(),  // the cached eltwise difference between a and b
+          dist_sq_.data(),  // the cached square distance between a and b
           bottom[i]->mutable_gpu_diff());
       CUDA_POST_KERNEL_CHECK;
     }

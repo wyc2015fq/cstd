@@ -67,13 +67,13 @@ inline int offset(const vector<int> & indices) const {
 }
 
 inline Dtype data_at(const int n, const int c, const int h,
-  const int w) const {
-  return data<CPUContext>()[offset(n, c, h, w)];
+  const int w) {
+  return cpu_data()[offset(n, c, h, w)];
 }
 
 inline Dtype diff_at(const int n, const int c, const int h,
-  const int w) const {
-  return diff<CPUContext>()[offset(n, c, h, w)];
+  const int w) {
+  return cpu_diff()[offset(n, c, h, w)];
 }
 
 void Reshape(const vector<int> & shape) {
@@ -95,7 +95,7 @@ void set_decay_mult(float decay_mult) {
   decay_mult_ = decay_mult;
 }
 int FromProto(CJSON* proto) {
-  Blob<Dtype>* blob = this;
+  Blob* blob = this;
   DataShape shape;
   cJSON_GetObjectNumberArray(proto, "shape", shape.dim, 4, 1);
   blob->lr_mult_ = proto->getfloat("lr_mult", 1);
@@ -104,59 +104,55 @@ int FromProto(CJSON* proto) {
   int nbytes = count * sizeof(float);
   blob->Reshape(shape);
   if (proto->GetObjectItem("data")) {
-    Dtype* data = blob->mutable_data<CPUContext>();
+    Dtype* data = blob->mutable_cpu_data();
     nbytes = blob->shape_.count();
     cJSON_GetObjectBinaryData(proto, "data", data, nbytes);
   }
   if (proto->GetObjectItem("diff")) {
-    float* data = blob->mutable_diff<CPUContext>();
+    Dtype* data = blob->mutable_cpu_diff();
     cJSON_GetObjectBinaryData(proto, "diff", data, count);
   }
   return 0;
 }
 
-double amean_data() const {
+double amean_data() {
   return asum_data() / count();
 }
 
-double amean_diff() const {
+double amean_diff() {
   return asum_diff() / count();
 }
 
-double asum_data() const {
-  Dtype asum;
+double asum_data() {
   int count_ = count();
-  caffe_asum(CONTEXT, count_, data<Context>(), &asum);
+  Dtype asum = caffe_asum(count_, data());
   return asum;
 }
-double asum_diff() const {
-  Dtype asum;
+double asum_diff() {
   int count_ = count();
-  caffe_asum(CONTEXT, count_, diff<Context>(), &asum);
+  Dtype asum = caffe_asum(count_, diff());
   return asum;
 }
-double sumsq_data() const {
-  Dtype sumsq;
+double sumsq_data() {
   int count_ = count();
-  const Dtype* x = data<Context>();
-  sumsq = caffe_dot(CONTEXT, count_, x, x);
+  const Dtype* x = data();
+  Dtype sumsq = caffe_dot(count_, x, x);
   return sumsq;
 }
-double sumsq_diff() const {
-  Dtype sumsq;
+double sumsq_diff() {
   int count_ = count();
-  const Dtype* x = diff<Context>();
-  sumsq = caffe_dot(CONTEXT, count_, x, x);
+  const Dtype* x = diff();
+  Dtype sumsq = caffe_dot(count_, x, x);
   return sumsq;
 }
 double Loss() {
   if (loss_weight_ > 0) {
     const int count = this->count();
-    const Dtype* data = this->data<CPUContext>();
+    const Dtype* data = this->cpu_data();
     //const Dtype* loss_weights = top[top_id]->cpu_diff();
-    Dtype* loss_multiplier = mutable_diff<CPUContext>();
-    caffe_set<Dtype>(CPUCONTEXT, count, loss_weight_, loss_multiplier);
-    loss_ = caffe_dot<Dtype>(CPUCONTEXT, count, data, loss_multiplier);
+    Dtype* loss_multiplier = mutable_cpu_diff();
+    cpu_caffe_set(count, loss_weight_, loss_multiplier);
+    loss_ = cpu_caffe_dot(count, data, loss_multiplier);
   }
   return loss_;
 }
@@ -164,5 +160,5 @@ double Loss() {
 void Update()
 {
   const int count_ = this->count();
-  caffe_axpy<Dtype>(CONTEXT, count_, Dtype(-1), diff<Context>(), mutable_data<Context>());
+  caffe_axpy(count_, Dtype(-1), diff(), mutable_data());
 }

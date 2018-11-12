@@ -7,8 +7,8 @@ namespace
 {
 
   template <typename Dtype>
-  void LRNLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                   const vector<Blob<Dtype>*> & top)
+  void LRNLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                   const vector<Blob*> & top)
   {
     size_ = this->param_->lrn_param().local_size();
     CHECK_EQ(size_ % 2, 1) << "LRN only supports odd values for local_size";
@@ -23,7 +23,7 @@ namespace
       split_top_vec_.push_back(&product_input_);
       split_top_vec_.push_back(&square_input_);
       LayerParameter split_param;
-      split_layer_.reset(new SplitLayer<Dtype>(split_param));
+      split_layer_.reset(new SplitLayer(split_param));
       split_layer_->SetUp(bottom, split_top_vec_);
       // Set up square_layer_ to square the inputs.
       square_bottom_vec_.clear();
@@ -32,7 +32,7 @@ namespace
       square_top_vec_.push_back(&square_output_);
       LayerParameter square_param;
       square_param.mutable_power_param()->set_power(Dtype(2));
-      square_layer_.reset(new PowerLayer<Dtype>(square_param));
+      square_layer_.reset(new PowerLayer(square_param));
       square_layer_->SetUp(square_bottom_vec_, square_top_vec_);
       // Set up pool_layer_ to sum over square neighborhoods of the input.
       pool_top_vec_.clear();
@@ -42,7 +42,7 @@ namespace
         PoolingParameter_PoolMethod_AVE);
       pool_param.mutable_pooling_param()->set_pad(pre_pad_);
       pool_param.mutable_pooling_param()->set_kernel_size(size_);
-      pool_layer_.reset(new PoolingLayer<Dtype>(pool_param));
+      pool_layer_.reset(new PoolingLayer(pool_param));
       pool_layer_->SetUp(square_top_vec_, pool_top_vec_);
       // Set up power_layer_ to compute (1 + alpha_/N^2 s)^-beta_, where s is
       // the sum of a squared neighborhood (the output of pool_layer_).
@@ -52,7 +52,7 @@ namespace
       power_param.mutable_power_param()->set_power(-beta_);
       power_param.mutable_power_param()->set_scale(alpha_);
       power_param.mutable_power_param()->set_shift(Dtype(1));
-      power_layer_.reset(new PowerLayer<Dtype>(power_param));
+      power_layer_.reset(new PowerLayer(power_param));
       power_layer_->SetUp(pool_top_vec_, power_top_vec_);
       // Set up a product_layer_ to compute outputs by multiplying inputs by the
       // inverse demoninator computed by the power layer.
@@ -62,14 +62,14 @@ namespace
       LayerParameter product_param;
       EltwiseParameter* eltwise_param = product_param.mutable_eltwise_param();
       eltwise_param->set_operation(EltwiseParameter_EltwiseOp_PROD);
-      product_layer_.reset(new EltwiseLayer<Dtype>(product_param));
+      product_layer_.reset(new EltwiseLayer(product_param));
       product_layer_->SetUp(product_bottom_vec_, top);
     }
   }
 
   template <typename Dtype>
-  void LRNLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                const vector<Blob<Dtype>*> & top)
+  void LRNLayer::Reshape(const vector<Blob*> & bottom,
+                                const vector<Blob*> & top)
   {
     CHECK_EQ(4, bottom[0]->num_axes()) << "Input must have 4 axes, "
                                        << "corresponding to (num, channels, height, width)";
@@ -93,8 +93,8 @@ namespace
   }
 
   template <typename Dtype>
-  void LRNLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                    const vector<Blob<Dtype>*> & top)
+  void LRNLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                    const vector<Blob*> & top)
   {
     switch (this->param_->lrn_param().norm_region()) {
     case LRNParameter_NormRegion_ACROSS_CHANNELS:
@@ -109,18 +109,18 @@ namespace
   }
 
   template <typename Dtype>
-  void LRNLayer<Dtype>::CrossChannelForward(_CONTEXT,
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void LRNLayer::CrossChannelForward(_CONTEXT,
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
-    Dtype* scale_data = scale_.mutable_data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
+    Dtype* scale_data = scale_.mutable_data();
     // start with the constant value
     for (int i = 0; i < scale_.count(); ++i) {
       scale_data[i] = k_;
     }
-    Blob<Dtype> padded_square(1, channels_ + size_ - 1, height_, width_);
-    Dtype* padded_square_data = padded_square.mutable_data<Context>();
+    Blob padded_square(1, channels_ + size_ - 1, height_, width_);
+    Dtype* padded_square_data = padded_square.mutable_data();
     caffe_set(padded_square.count(), Dtype(0), padded_square_data);
     Dtype alpha_over_size = alpha_ / size_;
     // go through the images
@@ -156,19 +156,19 @@ namespace
   }
 
   template <typename Dtype>
-  void LRNLayer<Dtype>::WithinChannelForward(
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void LRNLayer::WithinChannelForward(
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    split_layer_->Forward(bottom, split_top_vec_);
-    square_layer_->Forward(square_bottom_vec_, square_top_vec_);
-    pool_layer_->Forward(square_top_vec_, pool_top_vec_);
-    power_layer_->Forward(pool_top_vec_, power_top_vec_);
-    product_layer_->Forward(product_bottom_vec_, top);
+    split_layer_->runForward(bottom, split_top_vec_);
+    square_layer_->runForward(square_bottom_vec_, square_top_vec_);
+    pool_layer_->runForward(square_top_vec_, pool_top_vec_);
+    power_layer_->runForward(pool_top_vec_, power_top_vec_);
+    product_layer_->runForward(product_bottom_vec_, top);
   }
 
   template <typename Dtype>
-  void LRNLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                     const vector<Blob<Dtype>*> & bottom)
+  void LRNLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                     const vector<Blob*> & bottom)
   {
     switch (this->param_->lrn_param().norm_region()) {
     case LRNParameter_NormRegion_ACROSS_CHANNELS:
@@ -183,21 +183,21 @@ namespace
   }
 
   template <typename Dtype>
-  void LRNLayer<Dtype>::CrossChannelBackward_cpu(
-    const vector<Blob<Dtype>*> & top, int*
-    const vector<Blob<Dtype>*> & bottom)
+  void LRNLayer::CrossChannelBackward_cpu(
+    const vector<Blob*> & top, int*
+    const vector<Blob*> & bottom)
   {
-    const Dtype* top_diff = top[0]->diff<Context>();
-    const Dtype* top_data = top[0]->data<Context>();
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    const Dtype* scale_data = scale_.data<Context>();
-    Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
-    Blob<Dtype> padded_ratio(1, channels_ + size_ - 1, height_, width_);
-    Blob<Dtype> accum_ratio(1, 1, height_, width_);
-    Dtype* padded_ratio_data = padded_ratio.mutable_data<Context>();
-    Dtype* accum_ratio_data = accum_ratio.mutable_data<Context>();
+    const Dtype* top_diff = top[0]->diff();
+    const Dtype* top_data = top[0]->data();
+    const Dtype* bottom_data = bottom[0]->data();
+    const Dtype* scale_data = scale_.data();
+    Dtype* bottom_diff = bottom[0]->mutable_diff();
+    Blob padded_ratio(1, channels_ + size_ - 1, height_, width_);
+    Blob accum_ratio(1, 1, height_, width_);
+    Dtype* padded_ratio_data = padded_ratio.mutable_data();
+    Dtype* accum_ratio_data = accum_ratio.mutable_data();
     // We hack a little bit by using the diff() to store an additional result
-    Dtype* accum_ratio_times_bottom = accum_ratio.mutable_diff<Context>();
+    Dtype* accum_ratio_times_bottom = accum_ratio.mutable_diff();
     caffe_set(padded_ratio.count(), Dtype(0), padded_ratio_data);
     Dtype cache_ratio_value = 2. * alpha_ * beta_ / size_;
     caffe_powx<Dtype>(scale_.count(), scale_data, -beta_, bottom_diff);
@@ -237,18 +237,18 @@ namespace
   }
 
   template <typename Dtype>
-  void LRNLayer<Dtype>::WithinChannelBackward(
-    const vector<Blob<Dtype>*> & top, int*
-    const vector<Blob<Dtype>*> & bottom)
+  void LRNLayer::WithinChannelBackward(
+    const vector<Blob*> & top, int*
+    const vector<Blob*> & bottom)
   {
     if (bottom[0]->propagate_down_) {
       vector<bool> product_propagate_down(2, true);
-      product_layer_->Backward(top, product_propagate_down, product_bottom_vec_);
-      power_layer_->Backward(power_top_vec_, propagate_down, pool_top_vec_);
-      pool_layer_->Backward(pool_top_vec_, propagate_down, square_top_vec_);
-      square_layer_->Backward(square_top_vec_, propagate_down,
+      product_layer_->runBackward(top, product_propagate_down, product_bottom_vec_);
+      power_layer_->runBackward(power_top_vec_, propagate_down, pool_top_vec_);
+      pool_layer_->runBackward(pool_top_vec_, propagate_down, square_top_vec_);
+      square_layer_->runBackward(square_top_vec_, propagate_down,
                               square_bottom_vec_);
-      split_layer_->Backward(split_top_vec_, propagate_down, bottom);
+      split_layer_->runBackward(split_top_vec_, propagate_down, bottom);
     }
   }
 

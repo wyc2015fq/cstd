@@ -23,13 +23,13 @@ namespace
    *      the computed outputs @f$ y = |x| @f$
    */
   template <typename Dtype>
-  class AbsValLayer : public NeuronLayer<Dtype>
+  class AbsValLayer : public NeuronLayer
   {
   public:
     explicit AbsValLayer()
-      : NeuronLayer<Dtype>() {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
+      : NeuronLayer() {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "AbsVal"; }
     virtual inline int ExactNumBottomBlobs() const { return 1; }
@@ -37,10 +37,10 @@ namespace
 
   public:
     /// @copydoc AbsValLayer
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the error gradient w.r.t. the absolute value inputs.
@@ -59,10 +59,10 @@ namespace
      *            \mathrm{sign}(x) \frac{\partial E}{\partial y}
      *      @f$ if bottom[0]->propagate_down_
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
   };
 
 }  // namespace

@@ -13,68 +13,83 @@ enum Brew { CPU, GPU };
 
 #define CPU_KERNEL_LOOP(i, n)  for (int i = 0; i < (n); ++i )
 
-#if 0
-struct Context {
-  virtual void* ReAlloc(void* ptr, size_t nbytes) = 0;
-  virtual void Memset(size_t nbytes, void* ptr) = 0;
-  virtual void Memcpy(size_t nbytes, void* dst, const void* src) = 0;
-  virtual void Free(void* data) = 0;
-  virtual void MemcpyAsync(size_t nbytes, void* dst, const void* src) = 0;
-};
-#endif
-
 //Context* context[2] = {0};
-
-struct Buffer {
-  void* data;
-  int size;
-};
 
 typedef float(*f32_10_t)[100];
 
-#define CONTEXTDEF   \
-int size;  \
-union { \
-  void* data; \
-  float* fl; \
-  double* db; \
-  int* i; \
-  char* str; \
-  unsigned char* bytes; \
-  f32_10_t f100_; \
-}
-
-struct CPUContext {
-  CONTEXTDEF;
+struct Buffer {
+  int size;
+  Brew brew;
+  union {
+    void* data;
+    float* fl;
+    double* db;
+    int* i;
+    char* str;
+    unsigned char* bytes;
+    f32_10_t f100_;
+  };
 };
 
-//CPUContext() { context[CPU] = this;    }
-static void Memcpy(CPUContext* dst, const CPUContext* src, int nbytes) {
+
+#define NOT_IMPL {assert(0);}
+#ifdef CPU_ONLY
+//#include "cpu_only.hpp"
+//typedef Buffer Context;
+//typedef GPUContext Context;
+//struct GPUContext : public Buffer {};
+static void gpu_Memset(Buffer* ptr, size_t nbytes) NOT_IMPL;
+static void gpu_Memcpy(Buffer* dst, const Buffer* src, int nbytes) NOT_IMPL;
+static void gpu_ReAlloc(Buffer* ptr, size_t nbytes) NOT_IMPL;
+static void gpu_Free(Buffer* ptr) NOT_IMPL;
+#else
+#include "cuda.hpp"
+#endif
+
+#define CPUFUN(NAME)  cpu_##NAME
+
+//Buffer() { context[CPU] = this;    }
+static void Memcpy(Buffer* dst, const Buffer* src, int nbytes) {
+  if (GPU == dst->brew || GPU == src->brew) {
+    return gpu_Memcpy(dst, src, nbytes);
+  }
   CHECK_LE(nbytes, dst->size);
   CHECK_LE(nbytes, dst->size);
   memcpy(dst->data, src->data, nbytes);
 }
-static void Free(CPUContext* ptr) {
+static void Free(Buffer* ptr) {
   if (ptr->data) {
+    if (GPU == ptr->brew) {
+      return gpu_Free(ptr);
+    }
     free(ptr->data);
     ptr->data = NULL;
     ptr->size = 0;
   }
 }
-static void ReAlloc(CPUContext* ptr, size_t nbytes) {
+static void ReAlloc(Brew brew, Buffer* ptr, size_t nbytes) {
+  if (ptr->data) {
+    assert(brew==ptr->brew);
+  }
+  if (GPU == brew) {
+    return gpu_ReAlloc(ptr, nbytes);
+  }
   if (ptr->size<nbytes) {
     ptr->data = realloc(ptr->data, ptr->size = nbytes);
   }
 }
-static void Memset(CPUContext* ptr, size_t nbytes) {
+static void Memset(Buffer* ptr, size_t nbytes) {
+  if (GPU == ptr->brew) {
+    return gpu_Memset(ptr, nbytes);
+  }
   CHECK_LE(nbytes, ptr->size);
   memset(ptr->data, 0, nbytes);
 }
 #if 0
-static void MemcpyAsync(size_t nbytes, CPUContext* dst, const void* src, void* stream) { memcpy(dst, src, nbytes); }
-//static CPUContext* BeginStream(CPUContext* ptr) { return 0; }
-//static void Synchronize(CPUContext* ptr);
-//static void EndStream(CPUContext* ptr) {}
+static void MemcpyAsync(size_t nbytes, Buffer* dst, const void* src, void* stream) { memcpy(dst, src, nbytes); }
+//static Buffer* BeginStream(Buffer* ptr) { return 0; }
+//static void Synchronize(Buffer* ptr);
+//static void EndStream(Buffer* ptr) {}
 #endif
 
 
@@ -111,20 +126,11 @@ inline static bool multiprocess() { return globel.multiprocess_; }
 inline static void set_multiprocess(bool val) { globel.multiprocess_ = val; }
 inline static bool root_solver() { return globel.solver_rank_ == 0; }
 
-
- 
-#ifdef CPU_ONLY
-//#include "cpu_only.hpp"
-typedef CPUContext Context;
-//typedef GPUContext Context;
-struct GPUContext : public CPUContext {};
+#ifndef CPU_ONLY
+#define BREW GPU
 #else
-#include "cuda.hpp"
-typedef GPUContext Context;
+#define BREW CPU
 #endif
 
-#define CPUCONTEXT (CPUContext*)0
-#define GPUCONTEXT (GPUContext*)0
-#define CONTEXT (Context*)0
 
 #endif // _CPU_HPP_

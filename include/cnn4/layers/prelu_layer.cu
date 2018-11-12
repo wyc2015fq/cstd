@@ -44,19 +44,19 @@ __global__ void PReLUParamBackward(const int n,
 }
 
 template <typename Dtype>
-void PReLULayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
-  const Dtype* bottom_data = bottom[0]->data<Context>();
-  Dtype* top_data = top[0]->mutable_data<Context>();
+void PReLULayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+    const vector<Blob*>& top) {
+  const Dtype* bottom_data = bottom[0]->data();
+  Dtype* top_data = top[0]->mutable_data();
   const int count = bottom[0]->count();
   const int dim = bottom[0]->count(2);
   const int channels = bottom[0]->channels();
-  const Dtype* slope_data = this->blobs_[0]->data<Context>();
+  const Dtype* slope_data = this->blobs_[0]->data();
   const int div_factor = channel_shared_ ? channels : 1;
 
   // For in-place computation
   if (top[0] == bottom[0]) {
-    caffe_copy(count, bottom_data, bottom_memory_.mutable_data<Context>());
+    caffe_copy(count, bottom_data, bottom_memory_.mutable_data());
   }
 
   // NOLINT_NEXT_LINE(whitespace/operators)
@@ -66,10 +66,10 @@ void PReLULayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>&
 }
 
 template <typename Dtype>
-void PReLULayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
+void PReLULayer::Backward(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
-    const vector<Blob<Dtype>*>& bottom) {
-  const Dtype* bottom_data = bottom[0]->data<Context>();
+    const vector<Blob*>& bottom) {
+  const Dtype* bottom_data = bottom[0]->data();
   const Dtype* top_diff = top[0]->gpu_diff();
   const int count = bottom[0]->count();
   const int dim = bottom[0]->count(2);
@@ -77,7 +77,7 @@ void PReLULayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>
 
   // For in-place computation
   if (top[0] == bottom[0]) {
-    bottom_data = bottom_memory_.data<Context>();
+    bottom_data = bottom_memory_.data();
   }
 
   // Propagate to param
@@ -99,18 +99,18 @@ void PReLULayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>
     if (channel_shared_) {
       Dtype dsum;
       caffe_gpu_dot<Dtype>(channels * dim, backward_buff_.gpu_diff(),
-       multiplier_.data<Context>(), &dsum);
+       multiplier_.data(), &dsum);
       caffe_gpu_add_scalar(this->blobs_[0]->count(), Dtype(dsum), slope_diff);
     } else {
       caffe_gpu_gemv<Dtype>(CblasNoTrans, channels, dim, 1.,
-        backward_buff_.gpu_diff(), multiplier_.data<Context>(), 1.,
+        backward_buff_.gpu_diff(), multiplier_.data(), 1.,
         slope_diff);
     }
   }
   // Propagate to bottom
   if (bottom[0]->propagate_down_) {
     Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
-    const Dtype* slope_data = this->blobs_[0]->data<Context>();
+    const Dtype* slope_data = this->blobs_[0]->data();
     int div_factor = channel_shared_ ? channels : 1;
     // NOLINT_NEXT_LINE(whitespace/operators)
     PReLUBackward<Dtype><<<CAFFE_GET_BLOCKS(count),

@@ -18,13 +18,13 @@ namespace
    * TODO(dox): thorough documentation for Forward and proto params.
    */
   template <typename Dtype>
-  class MemoryDataLayer : public BaseDataLayer<Dtype>
+  class MemoryDataLayer : public BaseDataLayer
   {
   public:
     explicit MemoryDataLayer()
-      : BaseDataLayer<Dtype>(param), has_new_data_(false) {}
-    virtual void DataLayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                const vector<Blob<Dtype>*> & top);
+      : BaseDataLayer(param), has_new_data_(false) {}
+    virtual void DataLayerSetUp(const vector<Blob*> & bottom,
+                                const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "MemoryData"; }
     virtual inline int ExactNumBottomBlobs() const { return 0; }
@@ -47,16 +47,16 @@ namespace
     int width() { return width_; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     int batch_size_, channels_, height_, width_, size_, label_size_;
     Dtype* data_;
     Dtype* labels_;
     int n_;
     size_t pos_;
-    Blob<Dtype> added_data_;
-    Blob<Dtype> added_label_;
+    Blob added_data_;
+    Blob added_label_;
     bool has_new_data_;
   };
 

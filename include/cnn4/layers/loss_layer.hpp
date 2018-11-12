@@ -12,8 +12,7 @@ const double kLOG_THRESHOLD = 1e-20;
  * LossLayers are typically only capable of backpropagating to their first input
  * -- the predictions.
  */
-template <typename Dtype>
-class LossLayer : public Layer<Dtype>
+class LossLayer : public Layer
 {
 public:
   virtual inline int ExactNumBottomBlobs() const { return 2; }
@@ -34,7 +33,7 @@ public:
     return bottom_index != 1;
   }
 
-  virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     // LossLayers have a non-zero (1) loss by default.
     //if (this->param_->loss_weight_size() == 0) {
@@ -43,7 +42,7 @@ public:
     top[0]->loss_weight_ = 1;
   }
 
-  virtual void Reshape(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     CHECK_EQ(bottom[0]->num(), bottom[1]->num())
       << "The data and label should have the same number.";

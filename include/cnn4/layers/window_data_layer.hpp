@@ -23,14 +23,14 @@ namespace
    * TODO(dox): thorough documentation for Forward and proto params.
    */
   template <typename Dtype>
-  class WindowDataLayer : public BasePrefetchingDataLayer<Dtype>
+  class WindowDataLayer : public BasePrefetchingDataLayer
   {
   public:
     explicit WindowDataLayer()
-      : BasePrefetchingDataLayer<Dtype>() {}
+      : BasePrefetchingDataLayer() {}
     virtual ~WindowDataLayer();
-    virtual void DataLayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                const vector<Blob<Dtype>*> & top);
+    virtual void DataLayerSetUp(const vector<Blob*> & bottom,
+                                const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "WindowData"; }
     virtual inline int ExactNumBottomBlobs() const { return 0; }
@@ -44,7 +44,7 @@ namespace
     enum WindowField { IMAGE_INDEX, LABEL, OVERLAP, X1, Y1, X2, Y2, NUM };
     vector<vector<float> > fg_windows_;
     vector<vector<float> > bg_windows_;
-    Blob<Dtype> data_mean_;
+    Blob data_mean_;
     vector<Dtype> mean_values_;
     bool has_mean_file_;
     bool has_mean_values_;

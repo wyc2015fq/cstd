@@ -268,7 +268,7 @@ __global__ void StoPoolBackward(const int nthreads,
 
 
 template <>
-void pooling_forward<Dtype>(_CONTEXT, PoolMethod pool, Phase phase, const Dtype* bottom_data,
+void pooling_forward<Dtype>(PoolMethod pool, Phase phase, const Dtype* bottom_data,
   const int num, const int channels, const int height, const int width, const int pooled_height, const int pooled_width,
   const int kernel_h, const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w,
   Dtype* rand_idx, Dtype* top_data, int* mask, Dtype* top_mask ) {
@@ -297,7 +297,7 @@ void pooling_forward<Dtype>(_CONTEXT, PoolMethod pool, Phase phase, const Dtype*
   case PoolMethod_STOCHASTIC:
     if (phase == TRAIN) {
       // We need to create the random index as well.
-      caffe_rng_uniform(context, count, Dtype(0), Dtype(1), rand_idx);
+      caffe_rng_uniform(count, Dtype(0), Dtype(1), rand_idx);
       // NOLINT_NEXT_LINE(whitespace/operators)
       StoPoolForwardTrain<Dtype> << <CAFFE_GET_BLOCKS(count),
         CAFFE_CUDA_NUM_THREADS >> >(
@@ -322,7 +322,7 @@ void pooling_forward<Dtype>(_CONTEXT, PoolMethod pool, Phase phase, const Dtype*
 }
 
 template <>
-void pooling_backward<Dtype>(_CONTEXT, PoolMethod pool, const Dtype* const rand_idx,
+void pooling_backward<Dtype>(PoolMethod pool, const Dtype* const rand_idx,
   const Dtype* top_diff, const int* mask, const Dtype* top_mask, const int num,
   const int channels, const int height, const int width, const int pooled_height, const int pooled_width, const int kernel_h,
   const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w, Dtype* bottom_diff) {
@@ -340,7 +340,7 @@ void pooling_backward<Dtype>(_CONTEXT, PoolMethod pool, const Dtype* const rand_
   const int* mask = NULL;
   const Dtype* top_mask = NULL;
     if (use_top_mask) {
-      top_mask = top[1]->data<Context>();
+      top_mask = top[1]->data();
     } else {
       mask = max_idx_;
     }

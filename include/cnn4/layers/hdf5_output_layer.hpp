@@ -22,19 +22,19 @@ namespace
    * TODO(dox): thorough documentation for Forward and proto params.
    */
   template <typename Dtype>
-  class HDF5OutputLayer : public Layer<Dtype>
+  class HDF5OutputLayer : public Layer
   {
   public:
     explicit HDF5OutputLayer()
-      : Layer<Dtype>(param), file_opened_(false) {}
+      : Layer(param), file_opened_(false) {}
     virtual ~HDF5OutputLayer();
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
     // Data layers should be shared by multiple solvers in parallel
     virtual inline bool ShareInParallel() const { return true; }
     // Data layers have no bottoms, so reshaping is trivial.
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top) {}
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top) {}
 
     virtual inline const char* type() const { return "HDF5Output"; }
     // TODO: no limit on the number of blobs
@@ -44,21 +44,21 @@ namespace
     inline std::string file_name() const { return file_name_; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
     virtual void SaveBlobs();
 
     bool file_opened_;
     std::string file_name_;
     hid_t file_id_;
-    Blob<Dtype> data_blob_;
-    Blob<Dtype> label_blob_;
+    Blob data_blob_;
+    Blob label_blob_;
   };
 
 }  // namespace

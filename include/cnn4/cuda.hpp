@@ -341,13 +341,10 @@ private:
   int previous_;
 };
 
-struct GPUContext {
-  CONTEXTDEF;
-};
 static int allsz = 0;
 static int freesz = 0;
 //CPUContext() { context[CPU] = this;    }
-static void ReAlloc(GPUContext* ptr, size_t nbytes) {
+static void ReAlloc_gpu(Buffer* ptr, size_t nbytes) {
   //nbytes *= 10;
   if (ptr->size < nbytes) {
     void* newdata = NULL;
@@ -371,47 +368,47 @@ static void ReAlloc(GPUContext* ptr, size_t nbytes) {
   return ;
 }
 
-static void Free(GPUContext* ptr) {
+static void Free_gpu(Buffer* ptr) {
   if (ptr->data) {
     cudaFree(ptr->data);
     ptr->data = NULL;
     ptr->size = 0;
   }
 }
-static void Memset(GPUContext* ptr, size_t nbytes) {
+static void Memset_gpu(Buffer* ptr, size_t nbytes) {
   CHECK_LE(nbytes, ptr->size);
   cudaMemset(ptr->data, 0, nbytes);
 }
 
-static void Memcpy(GPUContext* dst, const GPUContext* src, int nbytes) {
+static void Memcpy_gpu(Buffer* dst, const Buffer* src, int nbytes) {
+  enum cudaMemcpyKind kind;
   CHECK_LE(nbytes, src->size);
   CHECK_LE(nbytes, dst->size);
-  CUDA_CHECK(cudaMemcpy(dst->data, src->data, nbytes, cudaMemcpyDeviceToDevice));
-}
-static void Memcpy(CPUContext* dst, const GPUContext* src, int nbytes) {
-  CHECK_LE(nbytes, src->size);
-  CHECK_LE(nbytes, dst->size);
-  CUDA_CHECK(cudaMemcpy(dst->data, src->data, nbytes, cudaMemcpyHostToHost));
-}
-static void Memcpy(GPUContext* dst, const CPUContext* src, int nbytes) {
-  CHECK_LE(nbytes, src->size);
-  CHECK_LE(nbytes, dst->size);
-  CUDA_CHECK(cudaMemcpy(dst->data, src->data, nbytes, cudaMemcpyHostToDevice));
+  if (GPU == dst->brew && GPU == src->brew) {
+    kind = cudaMemcpyDeviceToDevice;
+  }
+  else if (CPU == dst->brew && GPU == src->brew) {
+    kind = cudaMemcpyHostToHost;
+  } 
+  else if (GPU == dst->brew && CPU == src->brew) {
+    kind = cudaMemcpyHostToHost;
+  } 
+  CUDA_CHECK(cudaMemcpy(dst->data, src->data, nbytes, kind));
 }
 #if 0
-static void MemcpyAsync(GPUContext* dst, const GPUContext* src, Stream* stream) {
+static void MemcpyAsync(Buffer* dst, const Buffer* src, Stream* stream) {
   CUDA_CHECK(cudaMemcpyAsync(dst, src, nbytes, cudaMemcpyDefault, (cudaStream_t)stream));
 }
 
-static void* BeginStream(GPUContext* context) {
+static void* BeginStream(Buffer* context) {
   cudaStream_t stream;
   CUDA_CHECK(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
   return (void*)stream;
 }
-static void EndStream(GPUContext* context, void* stream) {
+static void EndStream(Buffer* context, void* stream) {
   CUDA_CHECK(cudaStreamDestroy((cudaStream_t)stream));
 }
-static void Synchronize(GPUContext* context, void* stream) {
+static void Synchronize(Buffer* context, void* stream) {
   CUDA_CHECK(cudaStreamSynchronize((cudaStream_t)stream));
 }
 #endif

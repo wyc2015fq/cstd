@@ -5,8 +5,7 @@
 #include "../db.hpp"
 
 
-template <typename Dtype>
-struct DataLayer : public Layer<Dtype>
+struct DataLayer : public Layer
 {
   vector< std::pair<std::string, vector<int> > > lines_;
   int line_id_;
@@ -50,7 +49,7 @@ struct DataLayer : public Layer<Dtype>
   }
 
   // This function is called on prefetch thread
-  void load_batch(const vector<Blob<Dtype>*> & top)
+  void load_batch(const vector<Blob*> & top)
   {
     //rand skip
     if (rand_skip_num_ > 0) {
@@ -70,8 +69,8 @@ struct DataLayer : public Layer<Dtype>
       ParseFromString(cursor_->value().c_str(), datum);
       CHECK_LE(top.size(), datum.size());
       for (int j = 0; j < top.size(); ++j) {
-        Blob<Dtype>* blob = top[j];
-        Dtype* data = blob->mutable_data<CPUContext>() + blob->offset(item_id);
+        Blob* blob = top[j];
+        Dtype* data = blob->mutable_cpu_data() + blob->offset(item_id);
         DataTransformer(j == 0 ? info : NULL, &datum[j], data);
       }
       Next();
@@ -82,7 +81,7 @@ struct DataLayer : public Layer<Dtype>
   }
   DataTransformerInfo info[1];
   int batch_size_;
-  virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     db_ = GetDB(param_->GetObjectString("backend", "lmdb"));
     db_->Open(param_->GetObjectString("source", NULL), READ);
@@ -91,7 +90,7 @@ struct DataLayer : public Layer<Dtype>
     batch_size_ = param_->GetObjectInt("batch_size", 64);
   }
 
-  virtual void Reshape(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) {
+  virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top) {
     Datum datum;
     string value = cursor_->value();
     ParseFromString(value.c_str(), datum);
@@ -106,10 +105,10 @@ struct DataLayer : public Layer<Dtype>
       top[j]->Reshape(shape_);
     }
   }
-  virtual void Forward(Context* context, const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top) {
+  virtual void Forward(const vector<Blob*> & bottom, const vector<Blob*> & top) {
     load_batch(top);
   }
-  virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top, const vector<Blob<Dtype>*> & bottom) {
+  virtual void Backward(const vector<Blob*> & top, const vector<Blob*> & bottom) {
   }
 
 };

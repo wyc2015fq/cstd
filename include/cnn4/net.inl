@@ -1,6 +1,6 @@
 
 
-int learnable_params(vector<Blob<Dtype>* >& out) {
+int learnable_params(vector<Blob* >& out) {
   out.resize(0);
   for (int i = 0; i < layers_.size(); ++i) {
     for (int j = 0; j < layers_[i]->blobs_.size(); ++j) {
@@ -15,7 +15,7 @@ int SetUp() {
   Net* net = this;
   for (int i = 0; i < layers_.size(); ++i) {
     // LOG(ERROR) << "Forwarding " << layer_names_[i];
-    Layer<Dtype>* layer = net->layers_[i];
+    Layer* layer = net->layers_[i];
     layer->SetUp(layer->bottom_vecs_, layer->top_vecs_);
   }
   return 0;
@@ -56,9 +56,9 @@ double ForwardFromTo(Phase phase, int start, int end)
   vector<Dtype> loss_weight_arr;
   for (int i = start; i <= end; ++i) {
     // LOG(ERROR) << "Forwarding " << layer_names_[i];
-    Layer<Dtype>* layer = net->layers_[i];
+    Layer* layer = net->layers_[i];
     if (layer->phase_ == TRAINorTEST || layer->phase_ == phase) {
-      double layer_loss = layer->Forward(layer->bottom_vecs_, layer->top_vecs_);
+      double layer_loss = layer->runForward(layer->bottom_vecs_, layer->top_vecs_);
       loss += layer_loss;
     }
   }
@@ -71,9 +71,9 @@ void BackwardFromTo(int start, int end)
   CHECK_GE(end, 0);
   CHECK_LT(start, layers_.size());
   for (int i = start; i >= end; --i) {
-    Layer<Dtype>* layer = net->layers_[i];
+    Layer* layer = net->layers_[i];
     if (layer->phase_ == TRAINorTEST || layer->phase_ == TRAIN) {
-      layers_[i]->Backward(layer->top_vecs_, layer->bottom_vecs_);
+      layers_[i]->runBackward(layer->top_vecs_, layer->bottom_vecs_);
     }
   }
 }
@@ -83,7 +83,7 @@ void Backward()
   BackwardFromTo(layers_.size() - 1, 0);
   if (debug_info_) {
     Dtype asum_data = 0, asum_diff = 0, sumsq_data = 0, sumsq_diff = 0;
-    vector<Blob<Dtype>* > learnable_params_;
+    vector<Blob* > learnable_params_;
     learnable_params(learnable_params_);
     for (int i = 0; i < learnable_params_.size(); ++i) {
       asum_data += learnable_params_[i]->asum_data();
@@ -107,7 +107,7 @@ Dtype ForwardBackward() {
 
 void Update()
 {
-  vector<Blob<Dtype>*>  learnable_params_;
+  vector<Blob*>  learnable_params_;
   learnable_params(learnable_params_);
   for (int i = 0; i < learnable_params_.size(); ++i) {
     learnable_params_[i]->Update();

@@ -18,25 +18,25 @@ namespace
    *        Fallback to PoolingLayer for CPU mode.
   */
   template <typename Dtype>
-  class CuDNNPoolingLayer : public PoolingLayer<Dtype>
+  class CuDNNPoolingLayer : public PoolingLayer
   {
   public:
     explicit CuDNNPoolingLayer()
-      : PoolingLayer<Dtype>(param), handles_setup_(false) {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : PoolingLayer(param), handles_setup_(false) {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
     virtual ~CuDNNPoolingLayer();
     // Currently, cuDNN does not support the extra top blob.
     virtual inline int MinTopBlobs() const { return -1; }
     virtual inline int ExactNumTopBlobs() const { return 1; }
 
   public:
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
     bool handles_setup_;
     cudnnHandle_t             handle_;

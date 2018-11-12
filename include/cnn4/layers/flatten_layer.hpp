@@ -21,13 +21,13 @@ namespace
    * (see Blob::ShareDiff).
    */
   template <typename Dtype>
-  class FlattenLayer : public Layer<Dtype>
+  class FlattenLayer : public Layer
   {
   public:
     explicit FlattenLayer()
-      : Layer<Dtype>() {}
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : Layer() {}
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "Flatten"; }
     virtual inline int ExactNumBottomBlobs() const { return 1; }
@@ -42,8 +42,8 @@ namespace
      *   -# @f$ (N \times CHW \times 1 \times 1) @f$
      *      the outputs -- i.e., the (virtually) copied, flattened inputs
      */
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the error gradient w.r.t. the concatenate inputs.
@@ -54,8 +54,8 @@ namespace
      * @param bottom input Blob vector (length K), into which the top error
      *        gradient is (virtually) copied
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
   };
 
 }  // namespace

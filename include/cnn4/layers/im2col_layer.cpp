@@ -7,8 +7,8 @@ namespace
 {
 
   template <typename Dtype>
-  void Im2colLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                      const vector<Blob<Dtype>*> & top)
+  void Im2colLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                      const vector<Blob*> & top)
   {
     ConvolutionParameter conv_param = this->param_->convolution_param();
     force_nd_im2col_ = conv_param.force_nd_im2col();
@@ -20,7 +20,7 @@ namespace
     vector<int> dim_blob_shape(1, num_spatial_axes_);
     // Setup filter kernel dimensions (kernel_shape_).
     kernel_shape_.Reshape(dim_blob_shape);
-    int* kernel_shape_data = kernel_shape_.mutable_data<Context>();
+    int* kernel_shape_data = kernel_shape_.mutable_data();
     if (conv_param.has_kernel_h() || conv_param.has_kernel_w()) {
       CHECK_EQ(num_spatial_axes_, 2)
           << "kernel_h & kernel_w can only be used for 2D convolution.";
@@ -44,7 +44,7 @@ namespace
     }
     // Setup stride dimensions (stride_).
     stride_.Reshape(dim_blob_shape);
-    int* stride_data = stride_.mutable_data<Context>();
+    int* stride_data = stride_.mutable_data();
     if (conv_param.has_stride_h() || conv_param.has_stride_w()) {
       CHECK_EQ(num_spatial_axes_, 2)
           << "stride_h & stride_w can only be used for 2D convolution.";
@@ -68,7 +68,7 @@ namespace
     }
     // Setup pad dimensions (pad_).
     pad_.Reshape(dim_blob_shape);
-    int* pad_data = pad_.mutable_data<Context>();
+    int* pad_data = pad_.mutable_data();
     if (conv_param.has_pad_h() || conv_param.has_pad_w()) {
       CHECK_EQ(num_spatial_axes_, 2)
           << "pad_h & pad_w can only be used for 2D convolution.";
@@ -91,7 +91,7 @@ namespace
     }
     // Setup dilation dimensions (dilation_).
     dilation_.Reshape(dim_blob_shape);
-    int* dilation_data = dilation_.mutable_data<Context>();
+    int* dilation_data = dilation_.mutable_data();
     const int num_dilation_dims = conv_param.dilation_size();
     CHECK(num_dilation_dims == 0 || num_dilation_dims == 1 ||
           num_dilation_dims == num_spatial_axes_)
@@ -106,14 +106,14 @@ namespace
   }
 
   template <typename Dtype>
-  void Im2colLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                   const vector<Blob<Dtype>*> & top)
+  void Im2colLayer::Reshape(const vector<Blob*> & bottom,
+                                   const vector<Blob*> & top)
   {
     vector<int> top_shape = bottom[0]->shape();
-    const int* kernel_shape_data = kernel_shape_.data<Context>();
-    const int* stride_data = stride_.data<Context>();
-    const int* pad_data = pad_.data<Context>();
-    const int* dilation_data = dilation_.data<Context>();
+    const int* kernel_shape_data = kernel_shape_.data();
+    const int* stride_data = stride_.data();
+    const int* pad_data = pad_.data();
+    const int* dilation_data = dilation_.data();
     for (int i = 0; i < num_spatial_axes_; ++i) {
       top_shape[channel_axis_] *= kernel_shape_data[i];
       const int input_dim = bottom[0]->shape(channel_axis_ + i + 1);
@@ -130,11 +130,11 @@ namespace
   }
 
   template <typename Dtype>
-  void Im2colLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                       const vector<Blob<Dtype>*> & top)
+  void Im2colLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                       const vector<Blob*> & top)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
     for (int n = 0; n < num_; ++n) {
       DCHECK_EQ(bottom[0]->shape().size() - channel_axis_, num_spatial_axes_ + 1);
       DCHECK_EQ(top[0]->shape().size() - channel_axis_, num_spatial_axes_ + 1);
@@ -146,43 +146,43 @@ namespace
         im2col_cpu(bottom_data + n * bottom_dim_, channels_,
                    bottom[0]->shape(channel_axis_ + 1),
                    bottom[0]->shape(channel_axis_ + 2),
-                   kernel_shape_.data<Context>()[0], kernel_shape_.data<Context>()[1],
-                   pad_.data<Context>()[0], pad_.data<Context>()[1],
-                   stride_.data<Context>()[0], stride_.data<Context>()[1],
-                   dilation_.data<Context>()[0], dilation_.data<Context>()[1],
+                   kernel_shape_.data()[0], kernel_shape_.data()[1],
+                   pad_.data()[0], pad_.data()[1],
+                   stride_.data()[0], stride_.data()[1],
+                   dilation_.data()[0], dilation_.data()[1],
                    top_data + n * top_dim_);
       } else {
         im2col_nd_cpu(bottom_data + n * bottom_dim_, num_spatial_axes_,
                       bottom[0]->shape().data() + channel_axis_,
                       top[0]->shape().data() + channel_axis_,
-                      kernel_shape_.data<Context>(), pad_.data<Context>(), stride_.data<Context>(),
-                      dilation_.data<Context>(), top_data + n * top_dim_);
+                      kernel_shape_.data(), pad_.data(), stride_.data(),
+                      dilation_.data(), top_data + n * top_dim_);
       }
     }
   }
 
   template <typename Dtype>
-  void Im2colLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                        const vector<Blob<Dtype>*> & bottom)
+  void Im2colLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                        const vector<Blob*> & bottom)
   {
-    const Dtype* top_diff = top[0]->diff<Context>();
-    Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+    const Dtype* top_diff = top[0]->diff();
+    Dtype* bottom_diff = bottom[0]->mutable_diff();
     for (int n = 0; n < num_; ++n) {
       if (!force_nd_im2col_ && num_spatial_axes_ == 2) {
         col2im_cpu(top_diff + n * top_dim_, channels_,
                    bottom[0]->shape(channel_axis_ + 1),
                    bottom[0]->shape(channel_axis_ + 2),
-                   kernel_shape_.data<Context>()[0], kernel_shape_.data<Context>()[1],
-                   pad_.data<Context>()[0], pad_.data<Context>()[1],
-                   stride_.data<Context>()[0], stride_.data<Context>()[1],
-                   dilation_.data<Context>()[0], dilation_.data<Context>()[1],
+                   kernel_shape_.data()[0], kernel_shape_.data()[1],
+                   pad_.data()[0], pad_.data()[1],
+                   stride_.data()[0], stride_.data()[1],
+                   dilation_.data()[0], dilation_.data()[1],
                    bottom_diff + n * bottom_dim_);
       } else {
         col2im_nd_cpu(top_diff + n * top_dim_, num_spatial_axes_,
                       bottom[0]->shape().data() + channel_axis_,
                       top[0]->shape().data() + channel_axis_,
-                      kernel_shape_.data<Context>(), pad_.data<Context>(), stride_.data<Context>(),
-                      dilation_.data<Context>(), bottom_diff + n * bottom_dim_);
+                      kernel_shape_.data(), pad_.data(), stride_.data(),
+                      dilation_.data(), bottom_diff + n * bottom_dim_);
       }
     }
   }

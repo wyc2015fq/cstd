@@ -18,10 +18,10 @@ __global__ void BNLLForward(const int n, const Dtype* in, Dtype* out) {
 }
 
 template <typename Dtype>
-void BNLLLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
-  const Dtype* bottom_data = bottom[0]->data<Context>();
-  Dtype* top_data = top[0]->mutable_data<Context>();
+void BNLLLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+    const vector<Blob*>& top) {
+  const Dtype* bottom_data = bottom[0]->data();
+  Dtype* top_data = top[0]->mutable_data();
   const int count = bottom[0]->count();
   // NOLINT_NEXT_LINE(whitespace/operators)
   BNLLForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
@@ -39,11 +39,11 @@ __global__ void BNLLBackward(const int n, const Dtype* in_diff,
 }
 
 template <typename Dtype>
-void BNLLLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
+void BNLLLayer::Backward(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
-    const vector<Blob<Dtype>*>& bottom) {
+    const vector<Blob*>& bottom) {
   if (bottom[0]->propagate_down_) {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
     const Dtype* top_diff = top[0]->gpu_diff();
     Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
     const int count = bottom[0]->count();

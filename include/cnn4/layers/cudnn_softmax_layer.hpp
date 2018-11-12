@@ -18,22 +18,22 @@ namespace
    *        Fallback to SoftmaxLayer for CPU mode.
    */
   template <typename Dtype>
-  class CuDNNSoftmaxLayer : public SoftmaxLayer<Dtype>
+  class CuDNNSoftmaxLayer : public SoftmaxLayer
   {
   public:
     explicit CuDNNSoftmaxLayer()
-      : SoftmaxLayer<Dtype>(param), handles_setup_(false) {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : SoftmaxLayer(param), handles_setup_(false) {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
     virtual ~CuDNNSoftmaxLayer();
 
   public:
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
     bool handles_setup_;
     cudnnHandle_t             handle_;

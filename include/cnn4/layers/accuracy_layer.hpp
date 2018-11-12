@@ -7,8 +7,7 @@
  * @brief Computes the classification accuracy for a one-of-many
  *        classification task.
  */
-template <typename Dtype>
-class AccuracyLayer : public Layer<Dtype>
+class AccuracyLayer : public Layer
 {
 public:
   int label_axis_, outer_num_, inner_num_;
@@ -18,7 +17,7 @@ public:
   /// The label indicating that an instance should be ignored.
   int ignore_label_;
   /// Keeps counts of the number of samples per class.
-  Blob<Dtype> nums_buffer_;
+  Blob nums_buffer_;
 
   /**
    * @param param provides AccuracyParameter accuracy_param,
@@ -63,14 +62,14 @@ public:
    */
 
   /// @brief Not implemented -- AccuracyLayer cannot be used as a loss.
-  virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top,
-    const vector<Blob<Dtype>*> & bottom) {
+  virtual void Backward(const vector<Blob*> & top,
+    const vector<Blob*> & bottom) {
     for (int i = 0; i < top.size(); ++i) {
       if (bottom[i]->propagate_down_) { NOT_IMPLEMENTED; }
     }
   }
   int axis_;
-  virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     axis_ = this->param_->getint("axis", 1);
     top_k_ = this->param_->getint("top_k", 1);
@@ -80,7 +79,7 @@ public:
     }
   }
 
-  virtual void Reshape(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     CHECK_LE(top_k_, bottom[0]->count() / bottom[1]->count())
       << "top_k must be less than or equal to the number of classes.";
@@ -103,23 +102,23 @@ public:
     }
   }
 
-  virtual void Forward(Context* context, const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  virtual void Forward(const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
     Dtype accuracy = 0;
-    Dtype* top0_data = top[0]->mutable_data<CPUContext>();
+    Dtype* top0_data = top[0]->mutable_cpu_data();
     Dtype* top1_data = NULL;
-    Dtype* nums_buffer_data = nums_buffer_.mutable_data<CPUContext>();
-    const Dtype* bottom_data = bottom[0]->data<CPUContext>();
-    const Dtype* bottom_label = bottom[1]->data<CPUContext>();
+    Dtype* nums_buffer_data = nums_buffer_.mutable_cpu_data();
+    const Dtype* bottom_data = bottom[0]->cpu_data();
+    const Dtype* bottom_label = bottom[1]->cpu_data();
     const int dim = bottom[0]->count() / outer_num_;
     const int num_labels = bottom[0]->shape(label_axis_);
     vector<Dtype> maxval(top_k_ + 1);
     vector<int> max_id(top_k_ + 1);
     if (top.size() > 1) {
-      top1_data = top[1]->mutable_data<CPUContext>();
-      caffe_set(CPUCONTEXT, nums_buffer_.count(), Dtype(0), nums_buffer_data);
-      caffe_set(CPUCONTEXT, top[1]->count(), Dtype(0), top1_data);
+      top1_data = top[1]->mutable_cpu_data();
+      cpu_caffe_set(nums_buffer_.count(), Dtype(0), nums_buffer_data);
+      cpu_caffe_set(top[1]->count(), Dtype(0), top1_data);
     }
     int count = 0;
     for (int i = 0; i < outer_num_; ++i) {
@@ -171,7 +170,7 @@ public:
   Computes the accuracy and cross entropy loss with respect to b.
 */
 template <typename Dtype>
-class MultiLabelAccuracyLayer : public Layer<Dtype>
+class MultiLabelAccuracyLayer : public Layer
 {
 public:
   int label_axis_, outer_num_, inner_num_, label_num_;
@@ -183,7 +182,7 @@ public:
   /// The label indicating that an instance should be ignored.
   int ignore_label_;
   /// Keeps counts of the number of samples per class.
-  Blob<Dtype> nums_buffer_;
+  Blob nums_buffer_;
 
 
   virtual inline const char* type() const {
@@ -197,8 +196,8 @@ public:
   virtual inline int MaxTopBlos() const { return 2; }
 
   /// @brief Not implemented -- AccuracyLayer cannot be used as a loss.
-  virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top,
-    const vector<Blob<Dtype>*> & bottom) {
+  virtual void Backward(const vector<Blob*> & top,
+    const vector<Blob*> & bottom) {
     for (int i = 0; i < propagate_down.size(); ++i) {
       if (bottom[i]->propagate_down_) { NOT_IMPLEMENTED; }
     }

@@ -37,13 +37,13 @@ namespace
    * This can be used to train siamese networks.
    */
   template <typename Dtype>
-  class ContrastiveLossLayer : public LossLayer<Dtype>
+  class ContrastiveLossLayer : public LossLayer
   {
   public:
     explicit ContrastiveLossLayer()
-      : LossLayer<Dtype>(param), diff_() {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
+      : LossLayer(param), diff_() {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
 
     virtual inline int ExactNumBottomBlobs() const { return 3; }
     virtual inline const char* type() const { return "ContrastiveLoss"; }
@@ -57,10 +57,10 @@ namespace
 
   public:
     /// @copydoc ContrastiveLossLayer
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the Contrastive error gradient w.r.t. the inputs.
@@ -87,15 +87,15 @@ namespace
      *      the features @f$b@f$; Backward fills their diff with gradients if
      *      bottom[1]->propagate_down_
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
-    Blob<Dtype> diff_;  // cached for backward pass
-    Blob<Dtype> dist_sq_;  // cached for backward pass
-    Blob<Dtype> diff_sq_;  // tmp storage for gpu forward pass
-    Blob<Dtype> summer_vec_;  // tmp storage for gpu forward pass
+    Blob diff_;  // cached for backward pass
+    Blob dist_sq_;  // cached for backward pass
+    Blob diff_sq_;  // tmp storage for gpu forward pass
+    Blob summer_vec_;  // tmp storage for gpu forward pass
   };
 
 }  // namespace

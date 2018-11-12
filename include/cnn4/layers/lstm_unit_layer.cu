@@ -52,15 +52,15 @@ __global__ void LSTMUnitForward(const int nthreads, const int dim,
 }
 
 template <typename Dtype>
-void LSTMUnitLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
+void LSTMUnitLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+    const vector<Blob*>& top) {
   const int count = top[1]->count();
-  const Dtype* C_prev = bottom[0]->data<Context>();
-  const Dtype* X = bottom[1]->data<Context>();
-  const Dtype* cont = bottom[2]->data<Context>();
-  Dtype* X_acts = X_acts_.mutable_data<Context>();
-  Dtype* C = top[0]->mutable_data<Context>();
-  Dtype* H = top[1]->mutable_data<Context>();
+  const Dtype* C_prev = bottom[0]->data();
+  const Dtype* X = bottom[1]->data();
+  const Dtype* cont = bottom[2]->data();
+  Dtype* X_acts = X_acts_.mutable_data();
+  Dtype* C = top[0]->mutable_data();
+  Dtype* H = top[1]->mutable_data();
   const int X_count = bottom[1]->count();
   // NOLINT_NEXT_LINE(whitespace/operators)
   LSTMActsForward<Dtype><<<CAFFE_GET_BLOCKS(X_count), CAFFE_CUDA_NUM_THREADS>>>(
@@ -121,18 +121,18 @@ __global__ void LSTMActsBackward(const int nthreads, const int dim,
 }
 
 template <typename Dtype>
-void LSTMUnitLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
+void LSTMUnitLayer::Backward(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
-    const vector<Blob<Dtype>*>& bottom) {
+    const vector<Blob*>& bottom) {
   CHECK(!propagate_down[2]) << "Cannot backpropagate to sequence indicators.";
   if (!bottom[0]->propagate_down_ && !bottom[1]->propagate_down_) { return; }
 
   const int count = top[1]->count();
-  const Dtype* C_prev = bottom[0]->data<Context>();
-  const Dtype* X_acts = X_acts_.data<Context>();
-  const Dtype* cont = bottom[2]->data<Context>();
-  const Dtype* C = top[0]->data<Context>();
-  const Dtype* H = top[1]->data<Context>();
+  const Dtype* C_prev = bottom[0]->data();
+  const Dtype* X_acts = X_acts_.data();
+  const Dtype* cont = bottom[2]->data();
+  const Dtype* C = top[0]->data();
+  const Dtype* H = top[1]->data();
   const Dtype* C_diff = top[0]->gpu_diff();
   const Dtype* H_diff = top[1]->gpu_diff();
   Dtype* C_prev_diff = bottom[0]->mutable_gpu_diff();

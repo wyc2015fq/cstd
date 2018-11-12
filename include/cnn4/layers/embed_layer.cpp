@@ -8,8 +8,8 @@ namespace
 {
 
   template <typename Dtype>
-  void EmbedLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                     const vector<Blob<Dtype>*> & top)
+  void EmbedLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                     const vector<Blob*> & top)
   {
     N_ = this->param_->embed_param().num_output();
     CHECK_GT(N_, 0) << "EmbedLayer num_output must be positive.";
@@ -30,7 +30,7 @@ namespace
       vector<int> weight_shape(2);
       weight_shape[0] = K_;
       weight_shape[1] = N_;
-      this->blobs_[0].reset(new Blob<Dtype>(weight_shape));
+      this->blobs_[0].reset(new Blob(weight_shape));
       // fill the weights
       SHARED_PTR<Filler<Dtype> > weight_filler(GetFiller<Dtype>(
             this->param_->embed_param().weight_filler()));
@@ -38,7 +38,7 @@ namespace
       // If necessary, initialize and fill the bias term
       if (bias_term_) {
         vector<int> bias_shape(1, N_);
-        this->blobs_[1].reset(new Blob<Dtype>(bias_shape));
+        this->blobs_[1].reset(new Blob(bias_shape));
         SHARED_PTR<Filler<Dtype> > bias_filler(GetFiller<Dtype>(
             this->param_->embed_param().bias_filler()));
         bias_filler->Fill(this->blobs_[1].get());
@@ -48,8 +48,8 @@ namespace
   }
 
   template <typename Dtype>
-  void EmbedLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                  const vector<Blob<Dtype>*> & top)
+  void EmbedLayer::Reshape(const vector<Blob*> & bottom,
+                                  const vector<Blob*> & top)
   {
     // Figure out the dimensions
     M_ = bottom[0]->count();
@@ -60,17 +60,17 @@ namespace
     if (bias_term_) {
       vector<int> bias_shape(1, M_);
       bias_multiplier_.Reshape(bias_shape);
-      caffe_set(M_, Dtype(1), bias_multiplier_.mutable_data<Context>());
+      caffe_set(M_, Dtype(1), bias_multiplier_.mutable_data());
     }
   }
 
   template <typename Dtype>
-  void EmbedLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                      const vector<Blob<Dtype>*> & top)
+  void EmbedLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                      const vector<Blob*> & top)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    const Dtype* weight = this->blobs_[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    const Dtype* weight = this->blobs_[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
     int index;
     for (int n = 0; n < M_; ++n) {
       index = static_cast<int>(bottom_data[n]);
@@ -80,22 +80,22 @@ namespace
       caffe_copy(N_, weight + index * N_, top_data + n * N_);
     }
     if (bias_term_) {
-      const Dtype* bias = this->blobs_[1]->data<Context>();
+      const Dtype* bias = this->blobs_[1]->data();
       caffe_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, N_, 1, Dtype(1),
-                            bias_multiplier_.data<Context>(), bias, Dtype(1), top_data);
+                            bias_multiplier_.data(), bias, Dtype(1), top_data);
     }
   }
 
   template <typename Dtype>
-  void EmbedLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                       const vector<Blob<Dtype>*> & bottom)
+  void EmbedLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                       const vector<Blob*> & bottom)
   {
     CHECK(!bottom[0]->propagate_down_) << "Can't backpropagate to EmbedLayer input.";
     if (this->blobs_[0]->propagate_down_) {
-      const Dtype* top_diff = top[0]->diff<Context>();
-      const Dtype* bottom_data = bottom[0]->data<Context>();
+      const Dtype* top_diff = top[0]->diff();
+      const Dtype* bottom_data = bottom[0]->data();
       // Gradient with respect to weight
-      Dtype* weight_diff = this->blobs_[0]->mutable_diff<Context>();
+      Dtype* weight_diff = this->blobs_[0]->mutable_diff();
       int index;
       for (int n = 0; n < M_; ++n) {
         index = static_cast<int>(bottom_data[n]);
@@ -107,10 +107,10 @@ namespace
       }
     }
     if (bias_term_ && this->blobs_[1]->propagate_down_) {
-      const Dtype* top_diff = top[0]->diff<Context>();
-      Dtype* bias_diff = this->blobs_[1]->mutable_diff<Context>();
+      const Dtype* top_diff = top[0]->diff();
+      Dtype* bias_diff = this->blobs_[1]->mutable_diff();
       caffe_gemv<Dtype>(CblasTrans, M_, N_, Dtype(1), top_diff,
-                            bias_multiplier_.data<Context>(), Dtype(1), bias_diff);
+                            bias_multiplier_.data(), Dtype(1), bias_diff);
     }
   }
 

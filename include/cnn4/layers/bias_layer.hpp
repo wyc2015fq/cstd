@@ -11,8 +11,8 @@
  * The second input may be omitted, in which case it's learned as a parameter
  * of the layer.
  */
-template <typename Dtype>
-struct BiasLayer : public Layer<Dtype>
+
+struct BiasLayer : public Layer
 {
 public:
   virtual inline const char* type() const { return "Bias"; }
@@ -20,13 +20,13 @@ public:
   virtual inline int MaxBottomBlobs() const { return 2; }
   virtual inline int ExactNumTopBlobs() const { return 1; }
 
-  Blob<Dtype> bias_multiplier_;
+  Blob bias_multiplier_;
   int outer_dim_, bias_dim_, inner_dim_, dim_;
   int axis_;
   int num_axes_;
 
-  virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  virtual void LayerSetUp(const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
     axis_ = param_->GetObjectInt("axis", 0);
     num_axes_ = param_->GetObjectInt("num_axes", -1);
@@ -50,15 +50,15 @@ public:
       const int* shape_end = (num_axes == -1) ? bottom[0]->shape().end() : (shape_start + num_axes);
       vector<int> bias_shape(shape_start, shape_end);
       this->blobs_[0]->Reshape(bias_shape);
-      Filler<Dtype>(this->blobs_[0], param_);
+      Filler(this->blobs_[0], param_);
     }
     //this->param_propagate_down_.resize(this->blobs_.size(), true);
   }
 
-  virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  virtual void Reshape(const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
-    Blob<Dtype>* bias = (bottom.size() > 1) ? bottom[1] : this->blobs_[0];
+    Blob* bias = (bottom.size() > 1) ? bottom[1] : this->blobs_[0];
     // Always set axis == 0 in special case where bias is a scalar
     // (num_axes == 0). Mathematically equivalent for any choice of axis, so the
     // actual setting can be safely ignored; and computation is most efficient
@@ -80,48 +80,48 @@ public:
       top[0]->ReshapeLike(*bottom[0]);
     }
     bias_multiplier_.Reshape(vector<int>(1, inner_dim_));
-    if (bias_multiplier_.data<Context>()[inner_dim_ - 1] != Dtype(1)) {
-      caffe_set(CONTEXT, inner_dim_, Dtype(1), bias_multiplier_.mutable_data<Context>());
+    if (bias_multiplier_.data()[inner_dim_ - 1] != Dtype(1)) {
+      caffe_set(inner_dim_, Dtype(1), bias_multiplier_.mutable_data());
     }
   }
 
-  void Forward(Context* context, const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  void Forward(const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
     const Dtype* bias_data =
-      ((bottom.size() > 1) ? bottom[1] : this->blobs_[0])->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
+      ((bottom.size() > 1) ? bottom[1] : this->blobs_[0])->data();
+    Dtype* top_data = top[0]->mutable_data();
     if (bottom[0] != top[0]) {
-      const Dtype* bottom_data = bottom[0]->data<Context>();
-      caffe_copy(context,bottom[0]->count(), bottom_data, top_data);
+      const Dtype* bottom_data = bottom[0]->data();
+      caffe_copy(bottom[0]->count(), bottom_data, top_data);
     }
     for (int n = 0; n < outer_dim_; ++n) {
-      caffe_gemm(context, CblasNoTrans, CblasNoTrans, bias_dim_,
+      caffe_gemm(CblasNoTrans, CblasNoTrans, bias_dim_,
         inner_dim_, 1, Dtype(1), bias_data,
-        bias_multiplier_.data<Context>(), Dtype(1), top_data);
+        bias_multiplier_.data(), Dtype(1), top_data);
       top_data += dim_;
     }
   }
 
-  void Backward(Context* context, const vector<Blob<Dtype>*> & top,
-    const vector<Blob<Dtype>*> & bottom)
+  void Backward(const vector<Blob*> & top,
+    const vector<Blob*> & bottom)
   {
     if (bottom[0]->propagate_down_ && bottom[0] != top[0]) {
-      const Dtype* top_diff = top[0]->diff<Context>();
-      Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
-      caffe_copy(context,bottom[0]->count(), top_diff, bottom_diff);
+      const Dtype* top_diff = top[0]->diff();
+      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      caffe_copy(bottom[0]->count(), top_diff, bottom_diff);
     }
     // in-place, we don't need to do anything with the data diff
     const bool bias_param = (bottom.size() == 1);
       if ((!bias_param && bottom[1]->propagate_down_) ||
         (bias_param && this->blobs_[0]->propagate_down_)) {
-      const Dtype* top_diff = top[0]->diff<Context>();
+      const Dtype* top_diff = top[0]->diff();
       Dtype* bias_diff = (bias_param ? this->blobs_[0] : bottom[1])
-        ->mutable_diff<Context>();
+        ->mutable_diff();
       bool accum = bias_param;
       for (int n = 0; n < outer_dim_; ++n) {
-        caffe_gemv(context, CblasNoTrans, bias_dim_, inner_dim_, Dtype(1),
-          top_diff, bias_multiplier_.data<Context>(), Dtype(accum), bias_diff);
+        caffe_gemv(CblasNoTrans, bias_dim_, inner_dim_, Dtype(1),
+          top_diff, bias_multiplier_.data(), Dtype(accum), bias_diff);
         top_diff += dim_;
         accum = true;
       }

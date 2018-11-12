@@ -6,10 +6,10 @@
 namespace {
 
 template <typename Dtype>
-void ReverseTimeLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
-  const Dtype* src = bottom[0]->data<Context>();
-  Dtype* const dest = top[0]->mutable_data<Context>();
+void ReverseTimeLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+    const vector<Blob*>& top) {
+  const Dtype* src = bottom[0]->data();
+  Dtype* const dest = top[0]->mutable_data();
 
   // TODO: Remove these tests
   const Dtype* const src_max = src + bottom[0]->count();
@@ -19,7 +19,7 @@ void ReverseTimeLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dty
   const int copy_amount = top[0]->count(1);
   const int sub_iter_max = top[0]->shape(0);
 
-  const Dtype* seq_length = bottom[1]->data<Context>();
+  const Dtype* seq_length = bottom[1]->data();
   const int sub_axis_count = bottom[0]->shape(1);
   const int sub_copy_amount = copy_amount / sub_axis_count;
 
@@ -63,8 +63,8 @@ void ReverseTimeLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dty
 }
 
 template <typename Dtype>
-void ReverseTimeLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
-    const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+void ReverseTimeLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+    const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) { return; }
 
   const Dtype* src = top[0]->gpu_diff();
@@ -78,7 +78,7 @@ void ReverseTimeLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dt
   const int copy_amount = top[0]->count(1);
   const int sub_iter_max = top[0]->shape(0);
 
-  const Dtype* seq_length = bottom[1]->data<Context>();
+  const Dtype* seq_length = bottom[1]->data();
   const int sub_axis_count = bottom[0]->shape(1);
   const int sub_copy_amount = copy_amount / sub_axis_count;
 

@@ -7,8 +7,8 @@ namespace
 {
 
   template <typename Dtype>
-  void DummyDataLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                         const vector<Blob<Dtype>*> & top)
+  void DummyDataLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                         const vector<Blob*> & top)
   {
     const int num_top = top.size();
     const DummyDataParameter & param = this->param_->dummy_data_param();
@@ -90,7 +90,7 @@ namespace
       }
     }
     // Run Forward once, with refill_ inverted, to fill the constant Blobs.
-    this->Forward(bottom, top);
+    this->runForward(bottom, top);
     // Invert the inverted refill_ values to refill the desired (non-constant)
     // Blobs in every usual forward pass.
     for (int i = 0; i < refill_.size(); ++i) {
@@ -99,8 +99,8 @@ namespace
   }
 
   template <typename Dtype>
-  void DummyDataLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                          const vector<Blob<Dtype>*> & top)
+  void DummyDataLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                          const vector<Blob*> & top)
   {
     for (int i = 0; i < top.size(); ++i) {
       const int filler_id = (fillers_.size() > 1) ? i : 0;

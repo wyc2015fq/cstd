@@ -30,20 +30,20 @@ namespace
    *      @f$
    */
   template <typename Dtype>
-  class BNLLLayer : public NeuronLayer<Dtype>
+  class BNLLLayer : public NeuronLayer
   {
   public:
     explicit BNLLLayer()
-      : NeuronLayer<Dtype>() {}
+      : NeuronLayer() {}
 
     virtual inline const char* type() const { return "BNLL"; }
 
   public:
     /// @copydoc BNLLLayer
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the error gradient w.r.t. the BNLL inputs.
@@ -61,10 +61,10 @@ namespace
      *        \frac{\partial E}{\partial x}
      *      @f$ if bottom[0]->propagate_down_
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
   };
 
 }  // namespace

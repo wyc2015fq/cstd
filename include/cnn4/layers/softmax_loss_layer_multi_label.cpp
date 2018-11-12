@@ -10,10 +10,10 @@ namespace
 {
 
   template <typename Dtype>
-  void SoftmaxWithLossMultiLabelLayer<Dtype>::LayerSetUp(
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void SoftmaxWithLossMultiLabelLayer::LayerSetUp(
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    LossLayer<Dtype>::LayerSetUp(bottom, top);
+    LossLayer::LayerSetUp(bottom, top);
     LayerParameter softmax_param(this->layer_param_);
     softmax_param.set_type("Softmax");
     softmax_layer_ = LayerRegistry<Dtype>::CreateLayer(softmax_param);
@@ -38,10 +38,10 @@ namespace
   }
 
   template <typename Dtype>
-  void SoftmaxWithLossMultiLabelLayer<Dtype>::Reshape(
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void SoftmaxWithLossMultiLabelLayer::Reshape(
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    LossLayer<Dtype>::Reshape(bottom, top);
+    LossLayer::Reshape(bottom, top);
     softmax_layer_->Reshape(softmax_bottom_vec_, softmax_top_vec_);
     softmax_axis_ =
       bottom[0]->CanonicalAxisIndex(this->param_->softmax_param().axis());
@@ -67,7 +67,7 @@ namespace
   }
 
   template <typename Dtype>
-  Dtype SoftmaxWithLossMultiLabelLayer<Dtype>::get_normalizer(
+  Dtype SoftmaxWithLossMultiLabelLayer::get_normalizer(
     LossParameter_NormalizationMode normalization_mode, int valid_count)
   {
     Dtype normalizer;
@@ -98,13 +98,13 @@ namespace
   }
 
   template <typename Dtype>
-  void SoftmaxWithLossMultiLabelLayer<Dtype>::Forward(_CONTEXT,
-    const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  void SoftmaxWithLossMultiLabelLayer::Forward(_CONTEXT,
+    const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     // The forward pass computes the softmax prob values.
-    softmax_layer_->Forward(softmax_bottom_vec_, softmax_top_vec_);
-    const Dtype* prob_data = prob_.data<Context>();//batchsize x ch x labelnum x 1
-    const Dtype* label = bottom[1]->data<Context>();//batchsize x labelnum x 1 x 1
+    softmax_layer_->runForward(softmax_bottom_vec_, softmax_top_vec_);
+    const Dtype* prob_data = prob_.data();//batchsize x ch x labelnum x 1
+    const Dtype* label = bottom[1]->data();//batchsize x labelnum x 1 x 1
     int dim = prob_.count() / outer_num_;
     int count = 0;
     Dtype loss = 0;
@@ -123,25 +123,25 @@ namespace
         //}
       }
     }
-    top[0]->mutable_data<Context>()[0] = loss / get_normalizer(normalization_, count);
+    top[0]->mutable_data()[0] = loss / get_normalizer(normalization_, count);
     if (top.size() == 2) {
       top[1]->ShareData(prob_);
     }
   }
 
   template <typename Dtype>
-  void SoftmaxWithLossMultiLabelLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<Blob<Dtype>*> & bottom)
+  void SoftmaxWithLossMultiLabelLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+      const vector<Blob*> & bottom)
   {
     if (bottom[1]->propagate_down_) {
       LOG(FATAL) << this->type()
                  << " Layer cannot backpropagate to label inputs.";
     }
     if (bottom[0]->propagate_down_) {
-      Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
-      const Dtype* prob_data = prob_.data<Context>();
+      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      const Dtype* prob_data = prob_.data();
       caffe_copy(prob_.count(), prob_data, bottom_diff);
-      const Dtype* label = bottom[1]->data<Context>();
+      const Dtype* label = bottom[1]->data();
       int dim = prob_.count() / outer_num_;
       int count = 0;
       int ch = bottom[0]->channels();
@@ -159,7 +159,7 @@ namespace
         }
       }
       // Scale gradient
-      Dtype loss_weight = top[0]->diff<Context>()[0] /
+      Dtype loss_weight = top[0]->diff()[0] /
                           get_normalizer(normalization_, count);
       caffe_scal(prob_.count(), loss_weight, bottom_diff);
     }

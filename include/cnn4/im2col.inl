@@ -5,13 +5,8 @@
 // therefore its value is always lower than 0x800... where casting
 // negative value of a parameter converts it to value higher than 0x800...
 // The casting allows to use one condition instead of two.
-inline bool is_a_ge_zero_and_a_lt_b(int a, int b)
-{
-  return static_cast<unsigned>(a) < static_cast<unsigned>(b);
-}
 
-template <typename Dtype>
-void im2col(_CONTEXT, const Dtype* data_im, const int channels,
+void FUN(im2col)(const Dtype* data_im, const int channels,
   const int height, const int width, const int kernel_h, const int kernel_w,
   const int pad_h, const int pad_w,
   const int stride_h, const int stride_w,
@@ -52,8 +47,7 @@ void im2col(_CONTEXT, const Dtype* data_im, const int channels,
   }
 }
 
-template <typename Dtype>
-inline void im2col_nd_core(const Dtype* data_input, const bool im2col,
+void FUN(im2col_nd_core)(const Dtype* data_input, const bool im2col,
   const int num_spatial_axes, const DataShape im_shape, const DataShape col_shape,
   const DataShape kernel_shape, const DataShape pad, const DataShape stride,
   const DataShape dilation, Dtype* data_output)
@@ -63,7 +57,7 @@ inline void im2col_nd_core(const Dtype* data_input, const bool im2col,
     for (int i = 0; i < num_spatial_axes; ++i) {
       im_size *= im_shape.dim[1 + i];
     }
-    caffe_set(CPUCONTEXT, im_size, Dtype(0), data_output);
+    FUN(caffe_set)(im_size, Dtype(0), data_output);
   }
   int kernel_size = 1;
   for (int i = 0; i < num_spatial_axes; ++i) {
@@ -127,26 +121,24 @@ inline void im2col_nd_core(const Dtype* data_input, const bool im2col,
   }  // for (int c = 0; c < channels_col; ++c) {
 }
 
-template <typename Dtype>
-void im2col_nd(_CONTEXT, const Dtype* data_im, const int num_spatial_axes,
+void FUN(im2col_nd)(const Dtype* data_im, const int num_spatial_axes,
   const int num_kernels, const DataShape im_shape, const DataShape col_shape,
   const DataShape kernel_shape, const DataShape pad, const DataShape stride,
   const DataShape dilation, Dtype* data_col)
 {
   const bool kIm2Col = true;
-  im2col_nd_core(data_im, kIm2Col, num_spatial_axes, im_shape, col_shape,
+  FUN(im2col_nd_core)(data_im, kIm2Col, num_spatial_axes, im_shape, col_shape,
     kernel_shape, pad, stride, dilation, data_col);
 }
 
-template <typename Dtype>
-void col2im(_CONTEXT, const Dtype* data_col, const int channels,
+void FUN(col2im)(const Dtype* data_col, const int channels,
   const int height, const int width, const int kernel_h, const int kernel_w,
   const int pad_h, const int pad_w,
   const int stride_h, const int stride_w,
   const int dilation_h, const int dilation_w,
   Dtype* data_im)
 {
-  caffe_set(context, height * width * channels, Dtype(0), data_im);
+  FUN(caffe_set)(height * width * channels, Dtype(0), data_im);
   const int output_h = (height + 2 * pad_h -
     (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
   const int output_w = (width + 2 * pad_w -
@@ -177,13 +169,12 @@ void col2im(_CONTEXT, const Dtype* data_col, const int channels,
   }
 }
 
-template <typename Dtype>
-void col2im_nd(_CONTEXT, const Dtype* data_col, const int num_spatial_axes,
+void FUN(col2im_nd)(const Dtype* data_col, const int num_spatial_axes,
   const int im_size, const DataShape im_shape, const DataShape col_shape,
   const DataShape kernel_shape, const DataShape pad, const DataShape stride,
   const DataShape dilation, Dtype* data_im)
 {
   const bool kIm2Col = false;
-  im2col_nd_core(data_col, kIm2Col, num_spatial_axes, im_shape, col_shape,
+  FUN(im2col_nd_core)(data_col, kIm2Col, num_spatial_axes, im_shape, col_shape,
     kernel_shape, pad, stride, dilation, data_im);
 }

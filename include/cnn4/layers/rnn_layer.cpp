@@ -12,21 +12,21 @@ namespace
 {
 
   template <typename Dtype>
-  void RNNLayer<Dtype>::RecurrentInputBlobNames(vector<string>* names) const
+  void RNNLayer::RecurrentInputBlobNames(vector<string>* names) const
   {
     names->resize(1);
     (*names)[0] = "h_0";
   }
 
   template <typename Dtype>
-  void RNNLayer<Dtype>::RecurrentOutputBlobNames(vector<string>* names) const
+  void RNNLayer::RecurrentOutputBlobNames(vector<string>* names) const
   {
     names->resize(1);
     (*names)[0] = "h_" + wstd::format_int(this->T_);
   }
 
   template <typename Dtype>
-  void RNNLayer<Dtype>::RecurrentInputShapes(vector<BlobShape>* shapes) const
+  void RNNLayer::RecurrentInputShapes(vector<BlobShape>* shapes) const
   {
     const int num_output = this->param_->recurrent_param().num_output();
     shapes->resize(1);
@@ -37,14 +37,14 @@ namespace
   }
 
   template <typename Dtype>
-  void RNNLayer<Dtype>::OutputBlobNames(vector<string>* names) const
+  void RNNLayer::OutputBlobNames(vector<string>* names) const
   {
     names->resize(1);
     (*names)[0] = "o";
   }
 
   template <typename Dtype>
-  void RNNLayer<Dtype>::FillUnrolledNet(NetParameter* net_param) const
+  void RNNLayer::FillUnrolledNet(NetParameter* net_param) const
   {
     const int num_output = this->param_->recurrent_param().num_output();
     CHECK_GT(num_output, 0) << "num_output must be positive";

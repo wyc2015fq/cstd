@@ -18,7 +18,7 @@ namespace
    *        and base @f$ \gamma @f$.
    */
   template <typename Dtype>
-  class ExpLayer : public NeuronLayer<Dtype>
+  class ExpLayer : public NeuronLayer
   {
   public:
     /**
@@ -30,9 +30,9 @@ namespace
      *         the base @f$ \gamma @f$
      */
     explicit ExpLayer()
-      : NeuronLayer<Dtype>() {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
+      : NeuronLayer() {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "Exp"; }
 
@@ -47,10 +47,10 @@ namespace
      *        y = \gamma ^ {\alpha x + \beta}
      *      @f$
      */
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the error gradient w.r.t. the exp inputs.
@@ -69,10 +69,10 @@ namespace
      *            \frac{\partial E}{\partial y} y \alpha \log_e(gamma)
      *      @f$ if bottom[0]->propagate_down_
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
     Dtype inner_scale_, outer_scale_;
   };

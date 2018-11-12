@@ -6,19 +6,19 @@ namespace
 {
 
   template <typename Dtype>
-  void ThresholdLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                         const vector<Blob<Dtype>*> & top)
+  void ThresholdLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                         const vector<Blob*> & top)
   {
-    NeuronLayer<Dtype>::LayerSetUp(bottom, top);
+    NeuronLayer::LayerSetUp(bottom, top);
     threshold_ = this->param_->threshold_param().threshold();
   }
 
   template <typename Dtype>
-  void ThresholdLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                          const vector<Blob<Dtype>*> & top)
+  void ThresholdLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                          const vector<Blob*> & top)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
     const int count = bottom[0]->count();
     for (int i = 0; i < count; ++i) {
       top_data[i] = (bottom_data[i] > threshold_) ? Dtype(1) : Dtype(0);

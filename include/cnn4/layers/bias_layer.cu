@@ -17,21 +17,21 @@ __global__ void BiasForward(const int n, const Dtype* in,
 }
 
 template <typename Dtype>
-void BiasLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-      const vector<Blob<Dtype>*>& top) {
+void BiasLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+      const vector<Blob*>& top) {
   const int count = top[0]->count();
-  const Dtype* bottom_data = bottom[0]->data<Context>();
+  const Dtype* bottom_data = bottom[0]->data();
   const Dtype* bias_data =
-      ((bottom.size() > 1) ? bottom[1] : this->blobs_[0].get())->data<Context>();
-  Dtype* top_data = top[0]->mutable_data<Context>();
+      ((bottom.size() > 1) ? bottom[1] : this->blobs_[0].get())->data();
+  Dtype* top_data = top[0]->mutable_data();
   BiasForward<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
       <<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
       count, bottom_data, bias_data, bias_dim_, inner_dim_, top_data);
 }
 
 template <typename Dtype>
-void BiasLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
-      const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+void BiasLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+      const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
   if (bottom[0]->propagate_down_ && bottom[0] != top[0]) {
     const Dtype* top_diff = top[0]->gpu_diff();
     Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
@@ -47,7 +47,7 @@ void BiasLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>&
     bool accum = bias_param;
     for (int n = 0; n < outer_dim_; ++n) {
       caffe_gpu_gemv(CblasNoTrans, bias_dim_, inner_dim_, Dtype(1),
-          top_diff, bias_multiplier_.data<Context>(), Dtype(accum), bias_diff);
+          top_diff, bias_multiplier_.data(), Dtype(accum), bias_diff);
       top_diff += dim_;
       accum = true;
     }

@@ -7,8 +7,7 @@
  *
  * TODO(dox): thorough documentation for Forward, Backward, and proto params.
  */
-template <typename Dtype>
-class SplitLayer : public Layer<Dtype>
+class SplitLayer : public Layer
 {
 public:
   int count_;
@@ -17,8 +16,8 @@ public:
   virtual inline int ExactNumBottomBlobs() const { return 1; }
   virtual inline int MinTopBlobs() const { return 1; }
 
-  virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  virtual void Reshape(const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
     count_ = bottom[0]->count();
     for (int i = 0; i < top.size(); ++i) {
@@ -34,29 +33,29 @@ public:
     }
   }
 
-  virtual void Forward(Context* context, const vector<Blob<Dtype>*> & bottom,
-    const vector<Blob<Dtype>*> & top)
+  virtual void Forward(const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
     for (int i = 0; i < top.size(); ++i) {
-      top[i]->ShareData(*bottom[0]);
+      top[i]->ShareData(bottom[0]);
     }
   }
 
-  virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top,
-    const vector<Blob<Dtype>*> & bottom)
+  virtual void Backward(const vector<Blob*> & top,
+    const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }
     if (top.size() == 1) {
-      caffe_copy(context, count_, top[0]->diff<Context>(), bottom[0]->mutable_diff<Context>());
+      caffe_copy(count_, top[0]->diff(), bottom[0]->mutable_diff());
       return;
     }
-    caffe_add(context, count_, top[0]->diff<Context>(), top[1]->diff<Context>(),
-      bottom[0]->mutable_diff<Context>());
+    caffe_add(count_, top[0]->diff(), top[1]->diff(),
+      bottom[0]->mutable_diff());
     // Add remaining top blob diffs.
     for (int i = 2; i < top.size(); ++i) {
-      const Dtype* top_diff = top[i]->diff<Context>();
-      Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
-      caffe_axpy(context, count_, Dtype(1.), top_diff, bottom_diff);
+      const Dtype* top_diff = top[i]->diff();
+      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      caffe_axpy(count_, Dtype(1.), top_diff, bottom_diff);
     }
   }
 

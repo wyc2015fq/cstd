@@ -43,24 +43,24 @@ namespace
    *      @f$
    */
   template <typename Dtype>
-  class SigmoidCrossEntropyLossLayer : public LossLayer<Dtype>
+  class SigmoidCrossEntropyLossLayer : public LossLayer
   {
   public:
     explicit SigmoidCrossEntropyLossLayer()
-      : LossLayer<Dtype>(param),
-        sigmoid_layer_(new SigmoidLayer<Dtype>(param)),
-        sigmoid_output_(new Blob<Dtype>()) {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : LossLayer(param),
+        sigmoid_layer_(new SigmoidLayer(param)),
+        sigmoid_output_(new Blob()) {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "SigmoidCrossEntropyLoss"; }
 
   public:
     /// @copydoc SigmoidCrossEntropyLossLayer
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the sigmoid cross-entropy loss error gradient w.r.t. the
@@ -92,19 +92,19 @@ namespace
      *   -# @f$ (N \times 1 \times 1 \times 1) @f$
      *      the labels -- ignored as we can't compute their error gradients
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
     /// The internal SigmoidLayer used to map predictions to probabilities.
-    SHARED_PTR<SigmoidLayer<Dtype> > sigmoid_layer_;
+    SHARED_PTR<SigmoidLayer > sigmoid_layer_;
     /// sigmoid_output stores the output of the SigmoidLayer.
-    SHARED_PTR<Blob<Dtype> > sigmoid_output_;
+    SHARED_PTR<Blob > sigmoid_output_;
     /// bottom vector holder to call the underlying SigmoidLayer::Forward
-    vector<Blob<Dtype>*> sigmoid_bottom_vec_;
+    vector<Blob*> sigmoid_bottom_vec_;
     /// top vector holder to call the underlying SigmoidLayer::Forward
-    vector<Blob<Dtype>*> sigmoid_top_vec_;
+    vector<Blob*> sigmoid_top_vec_;
   };
 
 }  // namespace

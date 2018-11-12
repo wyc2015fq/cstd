@@ -19,7 +19,7 @@ namespace
 {
 
   template <typename Dtype>
-  ImageDataLayer<Dtype>::~ImageDataLayer()
+  ImageDataLayer::~ImageDataLayer()
   {
     this->StopInternalThread();
   }
@@ -58,8 +58,8 @@ namespace
   }
 
   template <typename Dtype>
-  void ImageDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*> & bottom,
-      const vector<Blob<Dtype>*> & top)
+  void ImageDataLayer::DataLayerSetUp(const vector<Blob*> & bottom,
+      const vector<Blob*> & top)
   {
     const int new_height = this->param_->image_data_param().new_height();
     const int new_width  = this->param_->image_data_param().new_width();
@@ -196,7 +196,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ImageDataLayer<Dtype>::ShuffleImages()
+  void ImageDataLayer::ShuffleImages()
   {
     caffe::rng_t* prefetch_rng = caffe_rng();
       //static_cast<caffe::rng_t*>(prefetch_rng_->generator());
@@ -205,7 +205,7 @@ namespace
 
 // This function is called on prefetch thread
   template <typename Dtype>
-  void ImageDataLayer<Dtype>::load_batch(Batch<Dtype>* batch)
+  void ImageDataLayer::load_batch(Batch<Dtype>* batch)
   {
     CPUTimer batch_timer;
     batch_timer.Start();
@@ -234,8 +234,8 @@ namespace
       // Reshape batch according to the batch_size.
       top_shape[0] = batch_size;
       batch->data_.Reshape(top_shape);
-      Dtype* prefetch_data = batch->data_[0].mutable_data<Context>();
-      Dtype* prefetch_label = batch->data_[1].mutable_data<Context>();
+      Dtype* prefetch_data = batch->data_[0].mutable_data();
+      Dtype* prefetch_label = batch->data_[1].mutable_data();
       // datum scales
       const int lines_size = lines_.size();
       for (int item_id = 0; item_id < batch_size; ++item_id) {
@@ -249,7 +249,7 @@ namespace
         timer.Start();
         // Apply transformations (mirror, crop...) to the image
         int offset = batch->data_[0].offset(item_id);
-        this->transformed_data_.set_data<Context>(prefetch_data + offset);
+        this->transformed_data_.set_data(prefetch_data + offset);
         this->data_transformer_->Transform(cv_img, &(this->transformed_data_));
         trans_time += timer.MicroSeconds();
         //prefetch_label[item_id] = lines_[lines_id_].second;
@@ -280,8 +280,8 @@ namespace
       // Reshape batch according to the batch_size.
       top_shape[0] = batch_size;
       batch->data_[0].Reshape(top_shape);
-      Dtype* prefetch_data = batch->data_[0].mutable_data<Context>();
-      Dtype* prefetch_label = batch->data_[1].mutable_data<Context>();
+      Dtype* prefetch_data = batch->data_[0].mutable_data();
+      Dtype* prefetch_label = batch->data_[1].mutable_data();
       // datum scales
       const int lines_size = regression_lines_.size();
       for (int item_id = 0; item_id < batch_size; ++item_id) {
@@ -295,7 +295,7 @@ namespace
         timer.Start();
         // Apply transformations (mirror, crop...) to the image
         int offset = batch->data_[0].offset(item_id);
-        this->transformed_data_.set_data<Context>(prefetch_data + offset);
+        this->transformed_data_.set_data(prefetch_data + offset);
         this->data_transformer_->Transform(cv_img, &(this->transformed_data_));
         trans_time += timer.MicroSeconds();
         int valuenum = regression_lines_[lines_id_].second.size();

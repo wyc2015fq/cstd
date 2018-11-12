@@ -122,38 +122,38 @@ __global__ void ActivationBackward(const int nthreads, const int H,
 }
 
 template <typename Dtype>
-void LstmLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
-  CHECK_EQ(top[0]->data<Context>(), top_.data<Context>());
-  Dtype* top_data = top_.mutable_data<Context>();
-  const Dtype* bottom_data = bottom[0]->data<Context>();
+void LstmLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+    const vector<Blob*>& top) {
+  CHECK_EQ(top[0]->data(), top_.data());
+  Dtype* top_data = top_.mutable_data();
+  const Dtype* bottom_data = bottom[0]->data();
   const Dtype* clip = NULL;
   if (bottom.size() > 1) {
-    clip = bottom[1]->data<Context>();
+    clip = bottom[1]->data();
     CHECK_EQ(bottom[1]->num(), bottom[1]->count());
   }
-  const Dtype* weight_i = this->blobs_[0]->data<Context>();
-  const Dtype* weight_h = this->blobs_[1]->data<Context>();
-  const Dtype* bias = this->blobs_[2]->data<Context>();
-  Dtype* pre_gate_data = pre_gate_.mutable_data<Context>();
-  Dtype* gate_data = gate_.mutable_data<Context>();
-  Dtype* cell_data = cell_.mutable_data<Context>();
+  const Dtype* weight_i = this->blobs_[0]->data();
+  const Dtype* weight_h = this->blobs_[1]->data();
+  const Dtype* bias = this->blobs_[2]->data();
+  Dtype* pre_gate_data = pre_gate_.mutable_data();
+  Dtype* gate_data = gate_.mutable_data();
+  Dtype* cell_data = cell_.mutable_data();
 
   // Initialize previous state
   if (clip) {
-    caffe_copy(c_0_.count(), c_T_.data<Context>(), c_0_.mutable_data<Context>());
-    caffe_copy(h_0_.count(), h_T_.data<Context>(), h_0_.mutable_data<Context>());
+    caffe_copy(c_0_.count(), c_T_.data(), c_0_.mutable_data());
+    caffe_copy(h_0_.count(), h_T_.data(), h_0_.mutable_data());
   }
   else {
-    caffe_gpu_set(c_0_.count(), Dtype(0.), c_0_.mutable_data<Context>());
-    caffe_gpu_set(h_0_.count(), Dtype(0.), h_0_.mutable_data<Context>());
+    caffe_gpu_set(c_0_.count(), Dtype(0.), c_0_.mutable_data());
+    caffe_gpu_set(h_0_.count(), Dtype(0.), h_0_.mutable_data());
   }
 
   // Compute input to hidden forward propagation
   caffe_gpu_gemm(CblasNoTrans, CblasTrans, T_*N_, 4*H_, I_, Dtype(1.),
       bottom_data, weight_i, Dtype(0.), pre_gate_data);
   caffe_gpu_gemm(CblasNoTrans, CblasNoTrans, T_*N_, 4*H_, 1, Dtype(1.),
-      bias_multiplier_.data<Context>(), bias, Dtype(1.), pre_gate_data);
+      bias_multiplier_.data(), bias, Dtype(1.), pre_gate_data);
 
   // Compute recurrent forward propagation
   for (int t = 0; t < T_; ++t) {
@@ -162,13 +162,13 @@ void LstmLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& 
     Dtype* pre_gate_t = pre_gate_data + pre_gate_.offset(t);
     Dtype* gate_t = gate_data + gate_.offset(t);
     const Dtype* clip_t = clip ? clip + bottom[1]->offset(t) : NULL;
-    const Dtype* h_t_1 = t > 0 ? (h_t - top_.offset(1)) : h_0_.data<Context>();
-    const Dtype* c_t_1 = t > 0 ? (c_t - cell_.offset(1)) : c_0_.data<Context>();
+    const Dtype* h_t_1 = t > 0 ? (h_t - top_.offset(1)) : h_0_.data();
+    const Dtype* c_t_1 = t > 0 ? (c_t - cell_.offset(1)) : c_0_.data();
 
     caffe_gpu_gemm(CblasNoTrans, CblasTrans, N_, 4*H_, H_, Dtype(1.), 
-        h_t_1, weight_h, Dtype(0.), h_to_gate_.mutable_data<Context>());
+        h_t_1, weight_h, Dtype(0.), h_to_gate_.mutable_data());
     ClipAdd<Dtype><<<CAFFE_GET_BLOCKS(4*N_*H_), CAFFE_CUDA_NUM_THREADS>>>(
-        4*N_*H_, 4*H_, t, clip_t, h_to_gate_.data<Context>(), pre_gate_t);
+        4*N_*H_, 4*H_, t, clip_t, h_to_gate_.data(), pre_gate_t);
     CUDA_POST_KERNEL_CHECK;
     ActivationForward<Dtype><<<CAFFE_GET_BLOCKS(4*N_*H_), CAFFE_CUDA_NUM_THREADS>>>(
         4*N_*H_, H_, pre_gate_t, gate_t);
@@ -179,25 +179,25 @@ void LstmLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& 
   }
 
   // Preserve cell state and output value for truncated BPTT
-  caffe_copy(N_*H_, cell_data + cell_.offset(T_-1), c_T_.mutable_data<Context>());
-  caffe_copy(N_*H_, top_data + top_.offset(T_-1), h_T_.mutable_data<Context>());
+  caffe_copy(N_*H_, cell_data + cell_.offset(T_-1), c_T_.mutable_data());
+  caffe_copy(N_*H_, top_data + top_.offset(T_-1), h_T_.mutable_data());
 }
 
 template <typename Dtype>
-void LstmLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
+void LstmLayer::Backward(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
-    const vector<Blob<Dtype>*>& bottom) {
-  const Dtype* top_data = top_.data<Context>();
-  const Dtype* bottom_data = bottom[0]->data<Context>();
+    const vector<Blob*>& bottom) {
+  const Dtype* top_data = top_.data();
+  const Dtype* bottom_data = bottom[0]->data();
   const Dtype* clip = NULL;
   if (bottom.size() > 1) {
-    clip = bottom[1]->data<Context>();
+    clip = bottom[1]->data();
     CHECK_EQ(bottom[1]->num(), bottom[1]->count());
   }
-  const Dtype* weight_i = this->blobs_[0]->data<Context>();
-  const Dtype* weight_h = this->blobs_[1]->data<Context>();
-  const Dtype* gate_data = gate_.data<Context>();
-  const Dtype* cell_data = cell_.data<Context>();
+  const Dtype* weight_i = this->blobs_[0]->data();
+  const Dtype* weight_h = this->blobs_[1]->data();
+  const Dtype* gate_data = gate_.data();
+  const Dtype* cell_data = cell_.data();
 
   Dtype* top_diff = top_.mutable_gpu_diff();
   Dtype* pre_gate_diff = pre_gate_.mutable_gpu_diff();
@@ -215,7 +215,7 @@ void LstmLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>&
     Dtype* dc_t_1 = t > 0 ? cell_diff + cell_.offset(t-1) : c_0_.mutable_gpu_diff();
     const Dtype* clip_t = clip ? clip + bottom[1]->offset(t) : NULL;
     const Dtype* c_t = cell_data + cell_.offset(t);
-    const Dtype* c_t_1 = t > 0 ? cell_data + cell_.offset(t-1) : c_0_.data<Context>();
+    const Dtype* c_t_1 = t > 0 ? cell_data + cell_.offset(t-1) : c_0_.data();
     const Dtype* gate_t = gate_data + gate_.offset(t);
 
     LSTMBackward<Dtype><<<CAFFE_GET_BLOCKS(N_*H_), CAFFE_CUDA_NUM_THREADS>>>(
@@ -227,9 +227,9 @@ void LstmLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>&
     
     // Backprop errors to the previous time step
     caffe_gpu_gemm(CblasNoTrans, CblasNoTrans, N_, H_, 4*H_,
-        Dtype(1.), pre_gate_diff_t, weight_h, Dtype(0.), h_to_h_.mutable_data<Context>());
+        Dtype(1.), pre_gate_diff_t, weight_h, Dtype(0.), h_to_h_.mutable_data());
     ClipAdd<Dtype><<<CAFFE_GET_BLOCKS(N_*H_), CAFFE_CUDA_NUM_THREADS>>>(
-        N_*H_, H_, t, clip_t, h_to_h_.data<Context>(), dh_t_1);
+        N_*H_, H_, t, clip_t, h_to_h_.data(), dh_t_1);
   }
  
   if (this->blobs_[0]->propagate_down_) {
@@ -246,13 +246,13 @@ void LstmLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>&
 
     // Add Gradient from previous time-step
     caffe_gpu_gemm(CblasTrans, CblasNoTrans, 4*H_, H_, 1, Dtype(1.),
-        pre_gate_diff, h_0_.data<Context>(), 
+        pre_gate_diff, h_0_.data(), 
         Dtype(1.), this->blobs_[1]->mutable_gpu_diff());
   }
   if (this->blobs_[2]->propagate_down_) { 
     // Gradient w.r.t. bias
     caffe_gpu_gemv(CblasTrans, T_*N_, 4*H_, Dtype(1.), pre_gate_diff,
-        bias_multiplier_.data<Context>(), Dtype(1.),
+        bias_multiplier_.data(), Dtype(1.),
         this->blobs_[2]->mutable_gpu_diff());
   }
   if (bottom[0]->propagate_down_) {

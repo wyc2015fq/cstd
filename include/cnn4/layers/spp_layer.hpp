@@ -17,25 +17,25 @@ namespace
    *        images are of the same size.
    */
   template <typename Dtype>
-  class SPPLayer : public Layer<Dtype>
+  class SPPLayer : public Layer
   {
   public:
     explicit SPPLayer()
-      : Layer<Dtype>() {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : Layer() {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "SPP"; }
     virtual inline int ExactNumBottomBlobs() const { return 1; }
     virtual inline int ExactNumTopBlobs() const { return 1; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
     // calculates the kernel and stride dimensions for the pooling layer,
     // returns a correctly configured LayerParameter for a PoolingLayer
     virtual LayerParameter GetPoolingParam(const int pyramid_level,
@@ -50,27 +50,27 @@ namespace
     bool reshaped_first_time_;
 
     /// the internal Split layer that feeds the pooling layers
-    SHARED_PTR<SplitLayer<Dtype> > split_layer_;
+    SHARED_PTR<SplitLayer > split_layer_;
     /// top vector holder used in call to the underlying SplitLayer::Forward
-    vector<Blob<Dtype>*> split_top_vec_;
+    vector<Blob*> split_top_vec_;
     /// bottom vector holder used in call to the underlying PoolingLayer::Forward
-    vector<vector<Blob<Dtype>*>*> pooling_bottom_vecs_;
+    vector<vector<Blob*>*> pooling_bottom_vecs_;
     /// the internal Pooling layers of different kernel sizes
-    vector<SHARED_PTR<PoolingLayer<Dtype> > > pooling_layers_;
+    vector<SHARED_PTR<PoolingLayer > > pooling_layers_;
     /// top vector holders used in call to the underlying PoolingLayer::Forward
-    vector<vector<Blob<Dtype>*>*> pooling_top_vecs_;
+    vector<vector<Blob*>*> pooling_top_vecs_;
     /// pooling_outputs stores the outputs of the PoolingLayers
-    vector<Blob<Dtype>*> pooling_outputs_;
+    vector<Blob*> pooling_outputs_;
     /// the internal Flatten layers that the Pooling layers feed into
-    vector<FlattenLayer<Dtype>*> flatten_layers_;
+    vector<FlattenLayer*> flatten_layers_;
     /// top vector holders used in call to the underlying FlattenLayer::Forward
-    vector<vector<Blob<Dtype>*>*> flatten_top_vecs_;
+    vector<vector<Blob*>*> flatten_top_vecs_;
     /// flatten_outputs stores the outputs of the FlattenLayers
-    vector<Blob<Dtype>*> flatten_outputs_;
+    vector<Blob*> flatten_outputs_;
     /// bottom vector holder used in call to the underlying ConcatLayer::Forward
-    vector<Blob<Dtype>*> concat_bottom_vec_;
+    vector<Blob*> concat_bottom_vec_;
     /// the internal Concat layers that the Flatten layers feed into
-    SHARED_PTR<ConcatLayer<Dtype> > concat_layer_;
+    SHARED_PTR<ConcatLayer > concat_layer_;
   };
 
 }  // namespace

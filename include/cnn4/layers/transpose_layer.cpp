@@ -22,8 +22,8 @@ namespace
   }
 
   template <typename Dtype>
-  void TransposeLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                         const vector<Blob<Dtype>*> & top)
+  void TransposeLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                         const vector<Blob*> & top)
   {
     CHECK_NE(bottom[0], top[0]) << this->type() << " Layer does not support "
                                 "in-place computation.";
@@ -31,8 +31,8 @@ namespace
   }
 
   template <typename Dtype>
-  void TransposeLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                      const vector<Blob<Dtype>*> & top)
+  void TransposeLayer::Reshape(const vector<Blob*> & bottom,
+                                      const vector<Blob*> & top)
   {
     vector<int> shape = bottom[0]->shape();
     CHECK_GT(shape.size(), 0) << "the dimension of the transposed blob should "
@@ -48,8 +48,8 @@ namespace
     shape.push_back(num_axes);
     bottom_counts_.Reshape(shape);
     top_counts_.Reshape(shape);
-    int* bottom_counts_data = bottom_counts_.mutable_data<Context>();
-    int* top_counts_data = top_counts_.mutable_data<Context>();
+    int* bottom_counts_data = bottom_counts_.mutable_data();
+    int* top_counts_data = top_counts_.mutable_data();
     for (int i = 1; i < num_axes; i++) {
       *bottom_counts_data = bottom[0]->count(i);
       *top_counts_data = top[0]->count(i);
@@ -60,8 +60,8 @@ namespace
     *top_counts_data = 1;
     forward_map_.Reshape(shape);
     backward_map_.Reshape(shape);
-    int* forward_map_data = forward_map_.mutable_data<Context>();
-    int* backward_map_data = backward_map_.mutable_data<Context>();
+    int* forward_map_data = forward_map_.mutable_data();
+    int* backward_map_data = backward_map_.mutable_data();
     for (int i = 0; i < num_axes; i++) {
       *forward_map_data = transpose_param_.dim(i);
       backward_map_data[transpose_param_.dim(i)] = i;
@@ -73,7 +73,7 @@ namespace
   }
 
   template <typename Dtype>
-  vector<int> TransposeLayer<Dtype>::permute(const vector<int> & vec)
+  vector<int> TransposeLayer::permute(const vector<int> & vec)
   {
     vector<int> new_vec(vec.size());
     for (int i = 0; i < vec.size(); i++) {
@@ -84,23 +84,23 @@ namespace
 
 
   template <typename Dtype>
-  void TransposeLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                          const vector<Blob<Dtype>*> & top)
+  void TransposeLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                          const vector<Blob*> & top)
   {
-    transpose_cpu<Dtype>(bottom[0]->count(), bottom[0]->data<Context>(), top[0]->mutable_data<Context>(),
-                         bottom_counts_.data<Context>(), top_counts_.data<Context>(), forward_map_.data<Context>(),
+    transpose_cpu<Dtype>(bottom[0]->count(), bottom[0]->data(), top[0]->mutable_data(),
+                         bottom_counts_.data(), top_counts_.data(), forward_map_.data(),
                          bottom[0]->shape().size());
   }
 
   template <typename Dtype>
-  void TransposeLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-      const vector<Blob<Dtype>*> & bottom)
+  void TransposeLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+      const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) {
       return;
     }
-    transpose_cpu<Dtype>(bottom[0]->count(), top[0]->diff<Context>(), bottom[0]->mutable_diff<Context>(),
-                         top_counts_.data<Context>(), bottom_counts_.data<Context>(), backward_map_.data<Context>(),
+    transpose_cpu<Dtype>(bottom[0]->count(), top[0]->diff(), bottom[0]->mutable_diff(),
+                         top_counts_.data(), bottom_counts_.data(), backward_map_.data(),
                          bottom[0]->shape().size());
   }
 

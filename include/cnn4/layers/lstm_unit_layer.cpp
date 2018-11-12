@@ -21,8 +21,8 @@ namespace
   }
 
   template <typename Dtype>
-  void LSTMUnitLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                     const vector<Blob<Dtype>*> & top)
+  void LSTMUnitLayer::Reshape(const vector<Blob*> & bottom,
+                                     const vector<Blob*> & top)
   {
     const int num_instances = bottom[0]->shape(1);
     for (int i = 0; i < bottom.size(); ++i) {
@@ -43,16 +43,16 @@ namespace
   }
 
   template <typename Dtype>
-  void LSTMUnitLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                         const vector<Blob<Dtype>*> & top)
+  void LSTMUnitLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                         const vector<Blob*> & top)
   {
     const int num = bottom[0]->shape(1);
     const int x_dim = hidden_dim_ * 4;
-    const Dtype* C_prev = bottom[0]->data<Context>();
-    const Dtype* X = bottom[1]->data<Context>();
-    const Dtype* cont = bottom[2]->data<Context>();
-    Dtype* C = top[0]->mutable_data<Context>();
-    Dtype* H = top[1]->mutable_data<Context>();
+    const Dtype* C_prev = bottom[0]->data();
+    const Dtype* X = bottom[1]->data();
+    const Dtype* cont = bottom[2]->data();
+    Dtype* C = top[0]->mutable_data();
+    Dtype* H = top[1]->mutable_data();
     for (int n = 0; n < num; ++n) {
       for (int d = 0; d < hidden_dim_; ++d) {
         const Dtype i = sigmoid(X[d]);
@@ -75,22 +75,22 @@ namespace
   }
 
   template <typename Dtype>
-  void LSTMUnitLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                          const vector<Blob<Dtype>*> & bottom)
+  void LSTMUnitLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                          const vector<Blob*> & bottom)
   {
     CHECK(!propagate_down[2]) << "Cannot backpropagate to sequence indicators.";
     if (!bottom[0]->propagate_down_ && !bottom[1]->propagate_down_) { return; }
     const int num = bottom[0]->shape(1);
     const int x_dim = hidden_dim_ * 4;
-    const Dtype* C_prev = bottom[0]->data<Context>();
-    const Dtype* X = bottom[1]->data<Context>();
-    const Dtype* cont = bottom[2]->data<Context>();
-    const Dtype* C = top[0]->data<Context>();
-    const Dtype* H = top[1]->data<Context>();
-    const Dtype* C_diff = top[0]->diff<Context>();
-    const Dtype* H_diff = top[1]->diff<Context>();
-    Dtype* C_prev_diff = bottom[0]->mutable_diff<Context>();
-    Dtype* X_diff = bottom[1]->mutable_diff<Context>();
+    const Dtype* C_prev = bottom[0]->data();
+    const Dtype* X = bottom[1]->data();
+    const Dtype* cont = bottom[2]->data();
+    const Dtype* C = top[0]->data();
+    const Dtype* H = top[1]->data();
+    const Dtype* C_diff = top[0]->diff();
+    const Dtype* H_diff = top[1]->diff();
+    Dtype* C_prev_diff = bottom[0]->mutable_diff();
+    Dtype* X_diff = bottom[1]->mutable_diff();
     for (int n = 0; n < num; ++n) {
       for (int d = 0; d < hidden_dim_; ++d) {
         const Dtype i = sigmoid(X[d]);

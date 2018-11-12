@@ -7,10 +7,10 @@ namespace
 {
 
   template <typename Dtype>
-  void CuDNNTanHLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                         const vector<Blob<Dtype>*> & top)
+  void CuDNNTanHLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                         const vector<Blob*> & top)
   {
-    TanHLayer<Dtype>::LayerSetUp(bottom, top);
+    TanHLayer::LayerSetUp(bottom, top);
     // initialize cuDNN
     CUDNN_CHECK(cudnnCreate(&handle_));
     cudnn::createTensor4dDesc<Dtype>(&bottom_desc_);
@@ -20,10 +20,10 @@ namespace
   }
 
   template <typename Dtype>
-  void CuDNNTanHLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                      const vector<Blob<Dtype>*> & top)
+  void CuDNNTanHLayer::Reshape(const vector<Blob*> & bottom,
+                                      const vector<Blob*> & top)
   {
-    TanHLayer<Dtype>::Reshape(bottom, top);
+    TanHLayer::Reshape(bottom, top);
     const int N = bottom[0]->num();
     const int K = bottom[0]->channels();
     const int H = bottom[0]->height();
@@ -33,7 +33,7 @@ namespace
   }
 
   template <typename Dtype>
-  CuDNNTanHLayer<Dtype>::~CuDNNTanHLayer()
+  CuDNNTanHLayer::~CuDNNTanHLayer()
   {
     // Check that handles have been setup before destroying.
     if (!handles_setup_) { return; }

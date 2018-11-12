@@ -1,6 +1,5 @@
 
-template <typename Dtype>
-void pooling_forward(_CONTEXT, PoolMethod pool, Phase phase, const Dtype* bottom_data,
+void FUN(pooling_forward)(PoolMethod pool, Phase phase, const Dtype* bottom_data,
   const int num, const int channels, const int height, const int width, const int pooled_height, const int pooled_width,
   const int kernel_h, const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w,
   Dtype* rand_idx, Dtype* top_data, int* mask, Dtype* top_mask) {
@@ -13,12 +12,12 @@ void pooling_forward(_CONTEXT, PoolMethod pool, Phase phase, const Dtype* bottom
   case PoolMethod_MAX:
     // Initialize
     if (use_top_mask) {
-      caffe_set<Dtype>(context, top_count, Dtype(-1), top_mask);
+      FUN(caffe_set)(top_count, Dtype(-1), top_mask);
     }
     else {
-      caffe_set(context, top_count, -1, mask);
+      icaffe_set(top_count, -1, mask);
     }
-    caffe_set(context, top_count, Dtype(-FLT_MAX), top_data);
+    FUN(caffe_set)(top_count, Dtype(-FLT_MAX), top_data);
     // The main loop
     for (int n = 0; n < num; ++n) {
       for (int c = 0; c < channels; ++c) {
@@ -104,8 +103,7 @@ void pooling_forward(_CONTEXT, PoolMethod pool, Phase phase, const Dtype* bottom
   }
 }
 
-template <typename Dtype>
-void pooling_backward(_CONTEXT, PoolMethod pool, const Dtype* const rand_idx,
+void FUN(pooling_backward)(PoolMethod pool, const Dtype* const rand_idx,
   const Dtype* top_diff, const int* mask, const Dtype* top_mask, const int num,
   const int channels, const int height, const int width, const int pooled_height, const int pooled_width, const int kernel_h,
   const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w, Dtype* bottom_diff) {
@@ -113,8 +111,8 @@ void pooling_backward(_CONTEXT, PoolMethod pool, const Dtype* const rand_idx,
   if (!bottom[0]->propagate_down_) {
     return;
   }
-  const Dtype* top_diff = top[0]->diff<Context>();
-  Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+  const Dtype* top_diff = top[0]->diff();
+  Dtype* bottom_diff = bottom[0]->mutable_diff();
   // Different pooling methods. We explicitly do the switch outside the for
   // loop to save time, although this results in more codes.
   //caffe_set(bottom[0]->count(), Dtype(0), bottom_diff);
@@ -123,16 +121,16 @@ void pooling_backward(_CONTEXT, PoolMethod pool, const Dtype* const rand_idx,
   const int* mask = NULL;  // suppress warnings about uninitialized variables
   const Dtype* top_mask = NULL;
   if (use_top_mask) {
-    top_mask = top[1]->data<Context>();
+    top_mask = top[1]->data();
   }
   else {
-    mask = max_idx_.data<Context>();
+    mask = max_idx_.data();
   }
 #endif
   const int count = num*channels*height * width;
   //const bool use_top_mask = top_mask != NULL;
 
-  caffe_set(context, count, Dtype(0), bottom_diff);
+  FUN(caffe_set)(count, Dtype(0), bottom_diff);
   int bottom_offset = height*width;
   int top_offset = pooled_height*pooled_width;
   switch (pool) {

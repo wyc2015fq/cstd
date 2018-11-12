@@ -12,7 +12,7 @@ namespace
 {
 
   template <typename Dtype>
-  void LSTMLayer<Dtype>::RecurrentInputBlobNames(vector<string>* names) const
+  void LSTMLayer::RecurrentInputBlobNames(vector<string>* names) const
   {
     names->resize(2);
     (*names)[0] = "h_0";
@@ -20,7 +20,7 @@ namespace
   }
 
   template <typename Dtype>
-  void LSTMLayer<Dtype>::RecurrentOutputBlobNames(vector<string>* names) const
+  void LSTMLayer::RecurrentOutputBlobNames(vector<string>* names) const
   {
     names->resize(2);
     (*names)[0] = "h_" + wstd::format_int(this->T_);
@@ -28,7 +28,7 @@ namespace
   }
 
   template <typename Dtype>
-  void LSTMLayer<Dtype>::RecurrentInputShapes(vector<BlobShape>* shapes) const
+  void LSTMLayer::RecurrentInputShapes(vector<BlobShape>* shapes) const
   {
     const int num_output = this->param_->recurrent_param().num_output();
     const int num_blobs = 2;
@@ -42,14 +42,14 @@ namespace
   }
 
   template <typename Dtype>
-  void LSTMLayer<Dtype>::OutputBlobNames(vector<string>* names) const
+  void LSTMLayer::OutputBlobNames(vector<string>* names) const
   {
     names->resize(1);
     (*names)[0] = "h";
   }
 
   template <typename Dtype>
-  void LSTMLayer<Dtype>::FillUnrolledNet(NetParameter* net_param) const
+  void LSTMLayer::FillUnrolledNet(NetParameter* net_param) const
   {
     const int num_output = this->param_->recurrent_param().num_output();
     CHECK_GT(num_output, 0) << "num_output must be positive";

@@ -8,12 +8,12 @@ namespace {
 __global__ void sync_conv_groups() { }
 
 template <typename Dtype>
-void CuDNNConvolutionLayer<Dtype>::Forward_gpu(
-    const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top) {
-  const Dtype* weight = this->blobs_[0]->data<Context>();
+void CuDNNConvolutionLayer::Forward_gpu(
+    const vector<Blob*>& bottom, const vector<Blob*>& top) {
+  const Dtype* weight = this->blobs_[0]->data();
   for (int i = 0; i < bottom.size(); ++i) {
-    const Dtype* bottom_data = bottom[i]->data<Context>();
-    Dtype* top_data = top[i]->mutable_data<Context>();
+    const Dtype* bottom_data = bottom[i]->data();
+    Dtype* top_data = top[i]->mutable_data();
 
     // Forward through cuDNN in parallel over groups.
     for (int g = 0; g < this->group_; g++) {
@@ -29,7 +29,7 @@ void CuDNNConvolutionLayer<Dtype>::Forward_gpu(
 
       // Bias.
       if (this->bias_term_) {
-        const Dtype* bias_data = this->blobs_[1]->data<Context>();
+        const Dtype* bias_data = this->blobs_[1]->data();
         CUDNN_CHECK(cudnnAddTensor(handle_[g],
               cudnn::dataType<Dtype>::one,
               bias_desc_, bias_data + bias_offset_ * g,
@@ -46,12 +46,12 @@ void CuDNNConvolutionLayer<Dtype>::Forward_gpu(
 }
 
 template <typename Dtype>
-void CuDNNConvolutionLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
-    const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+void CuDNNConvolutionLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+    const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
   const Dtype* weight = NULL;
   Dtype* weight_diff = NULL;
   if (this->blobs_[0]->propagate_down_) {
-    weight = this->blobs_[0]->data<Context>();
+    weight = this->blobs_[0]->data();
     weight_diff = this->blobs_[0]->mutable_gpu_diff();
   }
   Dtype* bias_diff = NULL;
@@ -73,7 +73,7 @@ void CuDNNConvolutionLayer<Dtype>::Backward(GPUContext* context, const vector<Bl
 
       // Gradient w.r.t. weights.
       if (this->blobs_[0]->propagate_down_) {
-        const Dtype* bottom_data = bottom[i]->data<Context>();
+        const Dtype* bottom_data = bottom[i]->data();
         CUDNN_CHECK(cudnnConvolutionBackwardFilter(
               handle_[1*this->group_ + g],
               cudnn::dataType<Dtype>::one,
@@ -89,7 +89,7 @@ void CuDNNConvolutionLayer<Dtype>::Backward(GPUContext* context, const vector<Bl
       // Gradient w.r.t. bottom data.
       if (bottom[i]->propagate_down_) {
         if (weight == NULL) {
-          weight = this->blobs_[0]->data<Context>();
+          weight = this->blobs_[0]->data();
         }
         Dtype* bottom_diff = bottom[i]->mutable_gpu_diff();
         CUDNN_CHECK(cudnnConvolutionBackwardData(

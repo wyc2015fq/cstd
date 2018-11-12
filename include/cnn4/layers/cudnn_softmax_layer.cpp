@@ -9,10 +9,10 @@ namespace
 {
 
   template <typename Dtype>
-  void CuDNNSoftmaxLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-      const vector<Blob<Dtype>*> & top)
+  void CuDNNSoftmaxLayer::LayerSetUp(const vector<Blob*> & bottom,
+      const vector<Blob*> & top)
   {
-    SoftmaxLayer<Dtype>::LayerSetUp(bottom, top);
+    SoftmaxLayer::LayerSetUp(bottom, top);
     // Initialize CUDNN.
     CUDNN_CHECK(cudnnCreate(&handle_));
     cudnn::createTensor4dDesc<Dtype>(&bottom_desc_);
@@ -21,10 +21,10 @@ namespace
   }
 
   template <typename Dtype>
-  void CuDNNSoftmaxLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                         const vector<Blob<Dtype>*> & top)
+  void CuDNNSoftmaxLayer::Reshape(const vector<Blob*> & bottom,
+                                         const vector<Blob*> & top)
   {
-    SoftmaxLayer<Dtype>::Reshape(bottom, top);
+    SoftmaxLayer::Reshape(bottom, top);
     int N = this->outer_num_;
     int K = bottom[0]->shape(this->softmax_axis_);
     int H = this->inner_num_;
@@ -34,7 +34,7 @@ namespace
   }
 
   template <typename Dtype>
-  CuDNNSoftmaxLayer<Dtype>::~CuDNNSoftmaxLayer()
+  CuDNNSoftmaxLayer::~CuDNNSoftmaxLayer()
   {
     // Check that handles have been setup before destroying.
     if (!handles_setup_) { return; }

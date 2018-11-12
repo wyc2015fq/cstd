@@ -46,11 +46,11 @@ namespace
    *     arXiv preprint arXiv:1308.0850 (2013).
    */
   template <typename Dtype>
-  class LSTMLayer : public RecurrentLayer<Dtype>
+  class LSTMLayer : public RecurrentLayer
   {
   public:
     explicit LSTMLayer()
-      : RecurrentLayer<Dtype>() {}
+      : RecurrentLayer() {}
 
     virtual inline const char* type() const { return "LSTM"; }
 
@@ -68,13 +68,13 @@ namespace
    *        states.
    */
   template <typename Dtype>
-  class LSTMUnitLayer : public Layer<Dtype>
+  class LSTMUnitLayer : public Layer
   {
   public:
     explicit LSTMUnitLayer()
-      : Layer<Dtype>() {}
-    virtual void Reshape(const vector<Blob<Dtype>*> & bottom,
-                         const vector<Blob<Dtype>*> & top);
+      : Layer() {}
+    virtual void Reshape(const vector<Blob*> & bottom,
+                         const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "LSTMUnit"; }
     virtual inline int ExactNumBottomBlobs() const { return 3; }
@@ -106,10 +106,10 @@ namespace
      *      the updated hidden state @f$ h_t @f$, computed as:
      *          h_t := o_t .* \tanh[c_t]
      */
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the error gradient w.r.t. the LSTMUnit inputs.
@@ -142,14 +142,14 @@ namespace
      *      the gradient w.r.t. the sequence continuation indicators
      *      @f$ \delta_t @f$ is currently not computed.
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
     /// @brief The hidden and output dimension.
     int hidden_dim_;
-    Blob<Dtype> X_acts_;
+    Blob X_acts_;
   };
 
 }  // namespace

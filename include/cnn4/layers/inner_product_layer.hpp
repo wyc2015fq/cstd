@@ -8,22 +8,21 @@
  * TODO(dox): thorough documentation for Forward, Backward, and proto params.
  */
 
-template <typename Dtype>
-struct InnerProductLayer : public Layer<Dtype>
+struct InnerProductLayer : public Layer
 {
   int M_;
   int K_;
   int N_;
   int axis_;
   bool bias_term_;
-  Blob<Dtype> bias_multiplier_;
+  Blob bias_multiplier_;
   bool transpose_;  ///< if true, assume transposed weights
 
   virtual inline const char* type() const { return "InnerProduct"; }
   virtual inline int ExactNumBottomBlobs() const { return 1; }
   virtual inline int ExactNumTopBlobs() const { return 1; }
 
-  virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom, const vector<Blob<Dtype>*> & top)
+  virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const int num_output = this->param_->getint("num_output", 0);
     this->axis_ = this->param_->getint("axis", 1);
@@ -65,7 +64,7 @@ struct InnerProductLayer : public Layer<Dtype>
     //this->param_propagate_down_.resize(this->blobs_.size(), true);
   }
   
-  virtual void Reshape(const vector<Blob<Dtype>*> & bottom,  const vector<Blob<Dtype>*> & top)
+  virtual void Reshape(const vector<Blob*> & bottom,  const vector<Blob*> & top)
   {
     // Figure out the dimensions
     const int axis = bottom[0]->CanonicalAxisIndex(this->axis_);
@@ -85,65 +84,65 @@ struct InnerProductLayer : public Layer<Dtype>
     if (bias_term_) {
       DataShape bias_shape = dataShape(M_);
       bias_multiplier_.Reshape(bias_shape);
-      caffe_set(CONTEXT, M_, Dtype(1), bias_multiplier_.mutable_data<Context>());
+      caffe_set(M_, Dtype(1), bias_multiplier_.mutable_data());
     }
   }
 
-  virtual void Forward(Context* context, const vector<Blob<Dtype>*> & bottom,  const vector<Blob<Dtype>*> & top)
+  virtual void Forward(const vector<Blob*> & bottom,  const vector<Blob*> & top)
   {
-    const Dtype* bottom_data = bottom[0]->data<Context>();
-    Dtype* top_data = top[0]->mutable_data<Context>();
-    const Dtype* weight = this->blobs_[0]->data<Context>();
-    caffe_gemm<Dtype>(context, CblasNoTrans, transpose_ ? CblasNoTrans : CblasTrans,
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mutable_data();
+    const Dtype* weight = this->blobs_[0]->data();
+    caffe_gemm(CblasNoTrans, transpose_ ? CblasNoTrans : CblasTrans,
       M_, N_, K_, (Dtype)1.,bottom_data, weight, (Dtype)0., top_data);
     if (bias_term_) {
-      caffe_gemm<Dtype>(context, CblasNoTrans, CblasNoTrans, M_, N_, 1, (Dtype)1.,
-        bias_multiplier_.data<Context>(),
-        this->blobs_[1]->data<Context>(), (Dtype)1., top_data);
+      caffe_gemm(CblasNoTrans, CblasNoTrans, M_, N_, 1, (Dtype)1.,
+        bias_multiplier_.data(),
+        this->blobs_[1]->data(), (Dtype)1., top_data);
     }
   }
 
 
-  virtual void Backward(Context* context, const vector<Blob<Dtype>*> & top,  const vector<Blob<Dtype>*> & bottom)
+  virtual void Backward(const vector<Blob*> & top,  const vector<Blob*> & bottom)
   {
     if (this->blobs_[0]->propagate_down_) {
-      const Dtype* top_diff = top[0]->diff<Context>();
-      const Dtype* bottom_data = bottom[0]->data<Context>();
+      const Dtype* top_diff = top[0]->diff();
+      const Dtype* bottom_data = bottom[0]->data();
       // Gradient with respect to weight
       if (transpose_) {
-        caffe_gemm<Dtype>(context, CblasTrans, CblasNoTrans,
+        caffe_gemm(CblasTrans, CblasNoTrans,
           K_, N_, M_,
           (Dtype)1., bottom_data, top_diff,
-          (Dtype)1., this->blobs_[0]->mutable_diff<Context>());
+          (Dtype)1., this->blobs_[0]->mutable_diff());
       }
       else {
-        caffe_gemm<Dtype>(context, CblasTrans, CblasNoTrans,
+        caffe_gemm(CblasTrans, CblasNoTrans,
           N_, K_, M_,
           (Dtype)1., top_diff, bottom_data,
-          (Dtype)1., this->blobs_[0]->mutable_diff<Context>());
+          (Dtype)1., this->blobs_[0]->mutable_diff());
       }
     }
     if (bias_term_ && this->blobs_[1]->propagate_down_) {
-      const Dtype* top_diff = top[0]->diff<Context>();
+      const Dtype* top_diff = top[0]->diff();
       // Gradient with respect to bias
-      caffe_gemv<Dtype>(context, CblasTrans, M_, N_, (Dtype)1., top_diff,
-        bias_multiplier_.data<Context>(), (Dtype)1.,
-        this->blobs_[1]->mutable_diff<Context>());
+      caffe_gemv(CblasTrans, M_, N_, (Dtype)1., top_diff,
+        bias_multiplier_.data(), (Dtype)1.,
+        this->blobs_[1]->mutable_diff());
     }
     if (bottom[0]->propagate_down_) {
-      const Dtype* top_diff = top[0]->diff<Context>();
+      const Dtype* top_diff = top[0]->diff();
       // Gradient with respect to bottom data
       if (transpose_) {
-        caffe_gemm<Dtype>(context, CblasNoTrans, CblasTrans,
+        caffe_gemm(CblasNoTrans, CblasTrans,
           M_, K_, N_,
-          (Dtype)1., top_diff, this->blobs_[0]->data<Context>(),
-          (Dtype)0., bottom[0]->mutable_diff<Context>());
+          (Dtype)1., top_diff, this->blobs_[0]->data(),
+          (Dtype)0., bottom[0]->mutable_diff());
       }
       else {
-        caffe_gemm<Dtype>(context, CblasNoTrans, CblasNoTrans,
+        caffe_gemm(CblasNoTrans, CblasNoTrans,
           M_, K_, N_,
-          (Dtype)1., top_diff, this->blobs_[0]->data<Context>(),
-          (Dtype)0., bottom[0]->mutable_diff<Context>());
+          (Dtype)1., top_diff, this->blobs_[0]->data(),
+          (Dtype)0., bottom[0]->mutable_diff());
       }
     }
   }

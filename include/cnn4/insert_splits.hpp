@@ -24,7 +24,7 @@ string SplitBlobName(const char* layer_name, const char* blob_name, const int bl
 template <typename Dtype>
 void ConfigureSplitLayer(const char* layer_name, const char* blob_name,
   const int blob_idx, const int split_count, const float loss_weight,
-  Layer<Dtype>*& split_layer_param)
+  Layer*& split_layer_param)
 {
   CreateLayer(split_layer_param, "Split");
   split_layer_param->add_bottom(blob_name);

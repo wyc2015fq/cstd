@@ -6,8 +6,8 @@ namespace
 {
 
   template <typename Dtype>
-  void FlattenLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                    const vector<Blob<Dtype>*> & top)
+  void FlattenLayer::Reshape(const vector<Blob*> & bottom,
+                                    const vector<Blob*> & top)
   {
     CHECK_NE(top[0], bottom[0]) << this->type() << " Layer does not "
                                 "allow in-place computation.";
@@ -29,15 +29,15 @@ namespace
   }
 
   template <typename Dtype>
-  void FlattenLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                        const vector<Blob<Dtype>*> & top)
+  void FlattenLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                        const vector<Blob*> & top)
   {
     top[0]->ShareData(*bottom[0]);
   }
 
   template <typename Dtype>
-  void FlattenLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                         const vector<Blob<Dtype>*> & bottom)
+  void FlattenLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                         const vector<Blob*> & bottom)
   {
     bottom[0]->ShareDiff(*top[0]);
   }

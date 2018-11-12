@@ -9,8 +9,8 @@
 namespace
 {
   template <typename Dtype>
-  CTCDecoderLayer<Dtype>::CTCDecoderLayer()
-    : Layer<Dtype>(param)
+  CTCDecoderLayer::CTCDecoderLayer()
+    : Layer(param)
     , T_(0)
     , N_(0)
     , C_(0)
@@ -23,8 +23,8 @@ namespace
   }
 
   template <typename Dtype>
-  void CTCDecoderLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                          const vector<Blob<Dtype>*> & top)
+  void CTCDecoderLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                          const vector<Blob*> & top)
   {
 #if 0
     // compute indices of output (top) blobs
@@ -66,25 +66,25 @@ namespace
   }
 
   template <typename Dtype>
-  void CTCDecoderLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                       const vector<Blob<Dtype>*> & top)
+  void CTCDecoderLayer::Reshape(const vector<Blob*> & bottom,
+                                       const vector<Blob*> & top)
   {
-    const Blob<Dtype>* probabilities = bottom[0];
+    const Blob* probabilities = bottom[0];
     T_ = probabilities->shape(0);
     N_ = probabilities->shape(1);
     C_ = probabilities->shape(2);
     output_sequences_.clear();
     output_sequences_.resize(N_);
     if (sequence_index_ >= 0) {
-      Blob<Dtype>* sequences = top[sequence_index_];
+      Blob* sequences = top[sequence_index_];
       sequences->Reshape(N_, T_, 1, 1);  // switch to N x T
     }
     if (score_index_ >= 0) {
-      Blob<Dtype>* scores = top[score_index_];
+      Blob* scores = top[score_index_];
       scores->Reshape(N_, 1, 1, 1);
     }
     if (accuracy_index_ >= 0) {
-      Blob<Dtype>* accuracy = top[accuracy_index_];
+      Blob* accuracy = top[accuracy_index_];
       accuracy->Reshape(1, 2, 1, 1);
     }
     if (blank_index_ < 0) {
@@ -93,19 +93,19 @@ namespace
   }
 
   template <typename Dtype>
-  void CTCDecoderLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-      const vector<Blob<Dtype>*> & top)
+  void CTCDecoderLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+      const vector<Blob*> & top)
   {
 #if 0
-    const Blob<Dtype>* probabilities = bottom[0];
-    const Blob<Dtype>* sequence_indicators = bottom[1];
-    Blob<Dtype>* scores = (score_index_ >= 0) ? top[score_index_] : 0;
+    const Blob* probabilities = bottom[0];
+    const Blob* sequence_indicators = bottom[1];
+    Blob* scores = (score_index_ >= 0) ? top[score_index_] : 0;
     // decode string with the requiested method (e.g. CTCGreedyDecoder)
     Decode(probabilities, sequence_indicators, &output_sequences_, scores);
     // transform output_sequences to blob
     if (sequence_index_ >= 0) {
-      Blob<Dtype>* sequence_blob = top[sequence_index_];
-      Dtype* sequence_d = sequence_blob->mutable_data<Context>();
+      Blob* sequence_blob = top[sequence_index_];
+      Dtype* sequence_d = sequence_blob->mutable_data();
       // clear all data
       caffe_set(sequence_blob->count(), static_cast<Dtype>(-1), sequence_d);
       // copy data
@@ -122,11 +122,11 @@ namespace
     }
     // compute accuracy
     if (accuracy_index_ >= 0) {
-      Dtype & acc = top[accuracy_index_]->mutable_data<Context>()[0];
+      Dtype & acc = top[accuracy_index_]->mutable_data()[0];
       acc = 0;
       CHECK_GE(bottom.size(), 3);  // required target sequences blob
-      const Blob<Dtype>* target_sequences_data = bottom[2];
-      const Dtype* ts_data = target_sequences_data->data<Context>();
+      const Blob* target_sequences_data = bottom[2];
+      const Dtype* ts_data = target_sequences_data->data();
       for (int n = 0; n < N_; ++n) {
         Sequence target_sequence;
         for (int t = 0; t < T_; ++t) {
@@ -152,13 +152,13 @@ namespace
       CHECK_LE(acc, 1);
     }
 #else
-    const Blob<Dtype>* probabilities = bottom[0];
+    const Blob* probabilities = bottom[0];
     // decode string with the requiested method (e.g. CTCGreedyDecoder)
     Decode(probabilities, &output_sequences_, NULL);
     // transform output_sequences to blob
     if (sequence_index_ >= 0) {
-      Blob<Dtype>* sequence_blob = top[sequence_index_];
-      Dtype* sequence_d = sequence_blob->mutable_data<Context>();
+      Blob* sequence_blob = top[sequence_index_];
+      Dtype* sequence_d = sequence_blob->mutable_data();
       // clear all data
       caffe_set(sequence_blob->count(), static_cast<Dtype>(-1), sequence_d);
       // copy data
@@ -173,14 +173,14 @@ namespace
     }
     // compute accuracy
     if (accuracy_index_ >= 0) {
-      Dtype & accedit = top[0]->mutable_data<Context>()[0];
-      Dtype & accline = top[0]->mutable_data<Context>()[1];
+      Dtype & accedit = top[0]->mutable_data()[0];
+      Dtype & accline = top[0]->mutable_data()[1];
       accedit = 0;
       accline = 0;
       int total_ok = 0;
       //CHECK_GE(bottom.size(), 3);  // required target sequences blob
-      const Blob<Dtype>* target_sequences_data = bottom[1];//Batchsize x labelnum
-      const Dtype* ts_data = target_sequences_data->data<Context>();
+      const Blob* target_sequences_data = bottom[1];//Batchsize x labelnum
+      const Dtype* ts_data = target_sequences_data->data();
       int labelnum = target_sequences_data->channels();
       for (int n = 0; n < N_; ++n) {
         Sequence target_sequence;
@@ -217,9 +217,9 @@ namespace
   }
 
   template <typename Dtype>
-  void CTCDecoderLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
+  void CTCDecoderLayer::Backward(CPUContext* context, const vector<Blob*> & top,
       int*
-      const vector<Blob<Dtype>*> & bottom)
+      const vector<Blob*> & bottom)
   {
     for (int i = 0; i < propagate_down.size(); ++i) {
       if (bottom[i]->propagate_down_) {
@@ -229,7 +229,7 @@ namespace
   }
 
   template <typename Dtype>
-  int CTCDecoderLayer<Dtype>::EditDistance(const Sequence & s1,
+  int CTCDecoderLayer::EditDistance(const Sequence & s1,
       const Sequence & s2)
   {
     const size_t len1 = s1.size();
@@ -257,16 +257,16 @@ namespace
 // ============================================================================
 
   template <typename Dtype>
-  void CTCGreedyDecoderLayer<Dtype>::Decode(
-    const Blob<Dtype>* probabilities,
-    const Blob<Dtype>* sequence_indicators,
+  void CTCGreedyDecoderLayer::Decode(
+    const Blob* probabilities,
+    const Blob* sequence_indicators,
     Sequences* output_sequences,
-    Blob<Dtype>* scores) const
+    Blob* scores) const
   {
     Dtype* score_data = 0;
     if (scores) {
       CHECK_EQ(scores->count(), N_);
-      score_data = scores->mutable_data<Context>();
+      score_data = scores->mutable_data();
       caffe_set(N_, static_cast<Dtype>(0), score_data);
     }
     for (int n = 0; n < N_; ++n) {
@@ -274,7 +274,7 @@ namespace
       for (int t = 0; /* check at end */; ++t) {
         // get maximum probability and its index
         int max_class_idx = 0;
-        const Dtype* probs = probabilities->data<Context>()
+        const Dtype* probs = probabilities->data()
                              + probabilities->offset(t, n);
         Dtype max_prob = probs[0];
         ++probs;
@@ -302,15 +302,15 @@ namespace
 
 
   template <typename Dtype>
-  void CTCGreedyDecoderLayer<Dtype>::Decode(
-    const Blob<Dtype>* probabilities,
+  void CTCGreedyDecoderLayer::Decode(
+    const Blob* probabilities,
     Sequences* output_sequences,
-    Blob<Dtype>* scores) const
+    Blob* scores) const
   {
     Dtype* score_data = 0;
     if (scores) {
       CHECK_EQ(scores->count(), N_);
-      score_data = scores->mutable_data<Context>();
+      score_data = scores->mutable_data();
       caffe_set(N_, static_cast<Dtype>(0), score_data);
     }
     for (int n = 0; n < N_; ++n) {
@@ -318,7 +318,7 @@ namespace
       for (int t = 0; t < T_; ++t) {
         // get maximum probability and its index
         int max_class_idx = 0;
-        const Dtype* probs = probabilities->data<Context>()
+        const Dtype* probs = probabilities->data()
                              + probabilities->offset(t, n);
         Dtype max_prob = probs[0];
         ++probs;

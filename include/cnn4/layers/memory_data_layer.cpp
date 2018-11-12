@@ -10,8 +10,8 @@ namespace
 {
 
   template <typename Dtype>
-  void MemoryDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*> & bottom,
-      const vector<Blob<Dtype>*> & top)
+  void MemoryDataLayer::DataLayerSetUp(const vector<Blob*> & bottom,
+      const vector<Blob*> & top)
   {
     batch_size_ = this->param_->memory_data_param().batch_size();
     channels_ = this->param_->memory_data_param().channels();
@@ -29,12 +29,12 @@ namespace
     added_label_.Reshape(label_shape);
     data_ = NULL;
     labels_ = NULL;
-    added_data_.data<Context>();
-    added_label_.data<Context>();
+    added_data_.data();
+    added_label_.data();
   }
 
   template <typename Dtype>
-  void MemoryDataLayer<Dtype>::AddDatumVector(const vector<Datum> & datum_vector)
+  void MemoryDataLayer::AddDatumVector(const vector<Datum> & datum_vector)
   {
     CHECK(!has_new_data_) <<
                           "Can't add data until current data has been consumed.";
@@ -49,7 +49,7 @@ namespace
     // Apply data transformations (mirror, scale, crop...)
     this->data_transformer_->Transform(datum_vector, &added_data_);
     // Copy Labels
-    Dtype* top_label = added_label_.mutable_data<Context>();
+    Dtype* top_label = added_label_.mutable_data();
 //   for (int item_id = 0; item_id < num; ++item_id) {
 //     top_label[item_id] = datum_vector[item_id].label();
 //   }
@@ -59,14 +59,14 @@ namespace
       }
     }
     // num_images == batch_size_
-    Dtype* top_data = added_data_.mutable_data<Context>();
+    Dtype* top_data = added_data_.mutable_data();
     Reset(top_data, top_label, num);
     has_new_data_ = true;
   }
 
 #ifdef USE_OPENCV
   template <typename Dtype>
-  void MemoryDataLayer<Dtype>::AddMatVector(const vector<cv::Mat> & mat_vector,
+  void MemoryDataLayer::AddMatVector(const vector<cv::Mat> & mat_vector,
       const vector<int> & labels)
   {
     size_t num = mat_vector.size();
@@ -80,19 +80,19 @@ namespace
     // Apply data transformations (mirror, scale, crop...)
     this->data_transformer_->Transform(mat_vector, &added_data_);
     // Copy Labels
-    Dtype* top_label = added_label_.mutable_data<Context>();
+    Dtype* top_label = added_label_.mutable_data();
     for (int item_id = 0; item_id < num; ++item_id) {
       top_label[item_id] = labels[item_id];
     }
     // num_images == batch_size_
-    Dtype* top_data = added_data_.mutable_data<Context>();
+    Dtype* top_data = added_data_.mutable_data();
     Reset(top_data, top_label, num);
     has_new_data_ = true;
   }
 #endif  // USE_OPENCV
 
   template <typename Dtype>
-  void MemoryDataLayer<Dtype>::Reset(Dtype* data, Dtype* labels, int n)
+  void MemoryDataLayer::Reset(Dtype* data, Dtype* labels, int n)
   {
     CHECK(data);
     CHECK(labels);
@@ -109,7 +109,7 @@ namespace
   }
 
   template <typename Dtype>
-  void MemoryDataLayer<Dtype>::set_batch_size(int new_size)
+  void MemoryDataLayer::set_batch_size(int new_size)
   {
     CHECK(!has_new_data_) <<
                           "Can't change batch_size until current data has been consumed.";
@@ -119,14 +119,14 @@ namespace
   }
 
   template <typename Dtype>
-  void MemoryDataLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-      const vector<Blob<Dtype>*> & top)
+  void MemoryDataLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+      const vector<Blob*> & top)
   {
     CHECK(data_) << "MemoryDataLayer needs to be initialized by calling Reset";
     top[0]->Reshape(batch_size_, channels_, height_, width_);
     top[1]->Reshape(batch_size_, label_size_, 1, 1);
-    top[0]->set_data<Context>(data_ + pos_ * size_);
-    top[1]->set_data<Context>(labels_ + pos_);
+    top[0]->set_data(data_ + pos_ * size_);
+    top[1]->set_data(labels_ + pos_);
     pos_ = (pos_ + batch_size_) % n_;
     if (pos_ == 0) {
       has_new_data_ = false;

@@ -17,7 +17,7 @@ namespace
    *        above threshold; 0 otherwise.
    */
   template <typename Dtype>
-  class ThresholdLayer : public NeuronLayer<Dtype>
+  class ThresholdLayer : public NeuronLayer
   {
   public:
     /**
@@ -27,9 +27,9 @@ namespace
      *     the threshold value @f$ t @f$ to which the input values are compared.
      */
     explicit ThresholdLayer()
-      : NeuronLayer<Dtype>() {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
+      : NeuronLayer() {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "Threshold"; }
 
@@ -48,13 +48,13 @@ namespace
      *       \end{array} \right.
      *      @f$
      */
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
     /// @brief Not implemented (non-differentiable function)
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom) {
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom) {
       NOT_IMPLEMENTED;
     }
 

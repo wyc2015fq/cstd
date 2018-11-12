@@ -8,8 +8,8 @@ namespace
 {
 
   template <typename Dtype>
-  void SliceLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                                     const vector<Blob<Dtype>*> & top)
+  void SliceLayer::LayerSetUp(const vector<Blob*> & bottom,
+                                     const vector<Blob*> & top)
   {
     const SliceParameter & slice_param = this->param_->slice_param();
     CHECK(!(slice_param.has_axis() && slice_param.has_slice_dim()))
@@ -21,8 +21,8 @@ namespace
   }
 
   template <typename Dtype>
-  void SliceLayer<Dtype>::Reshape(const vector<Blob<Dtype>*> & bottom,
-                                  const vector<Blob<Dtype>*> & top)
+  void SliceLayer::Reshape(const vector<Blob*> & bottom,
+                                  const vector<Blob*> & top)
   {
     const int num_axes = bottom[0]->num_axes();
     const SliceParameter & slice_param = this->param_->slice_param();
@@ -76,15 +76,15 @@ namespace
   }
 
   template <typename Dtype>
-  void SliceLayer<Dtype>::Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                                      const vector<Blob<Dtype>*> & top)
+  void SliceLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+                                      const vector<Blob*> & top)
   {
     if (top.size() == 1) { return; }
     int offset_slice_axis = 0;
-    const Dtype* bottom_data = bottom[0]->data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
     const int bottom_slice_axis = bottom[0]->shape(slice_axis_);
     for (int i = 0; i < top.size(); ++i) {
-      Dtype* top_data = top[i]->mutable_data<Context>();
+      Dtype* top_data = top[i]->mutable_data();
       const int top_slice_axis = top[i]->shape(slice_axis_);
       for (int n = 0; n < num_slices_; ++n) {
         const int top_offset = n * top_slice_axis * slice_size_;
@@ -98,15 +98,15 @@ namespace
   }
 
   template <typename Dtype>
-  void SliceLayer<Dtype>::Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                                       const vector<Blob<Dtype>*> & bottom)
+  void SliceLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+                                       const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_ || top.size() == 1) { return; }
     int offset_slice_axis = 0;
-    Dtype* bottom_diff = bottom[0]->mutable_diff<Context>();
+    Dtype* bottom_diff = bottom[0]->mutable_diff();
     const int bottom_slice_axis = bottom[0]->shape(slice_axis_);
     for (int i = 0; i < top.size(); ++i) {
-      const Dtype* top_diff = top[i]->diff<Context>();
+      const Dtype* top_diff = top[i]->diff();
       const int top_slice_axis = top[i]->shape(slice_axis_);
       for (int n = 0; n < num_slices_; ++n) {
         const int top_offset = n * top_slice_axis * slice_size_;

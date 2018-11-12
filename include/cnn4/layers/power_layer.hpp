@@ -18,7 +18,7 @@ namespace
    *        and power @f$ \gamma @f$.
    */
   template <typename Dtype>
-  class PowerLayer : public NeuronLayer<Dtype>
+  class PowerLayer : public NeuronLayer
   {
   public:
     /**
@@ -29,9 +29,9 @@ namespace
      *   - power (\b optional, default 1) the power @f$ \gamma @f$
      */
     explicit PowerLayer()
-      : NeuronLayer<Dtype>() {}
-    virtual void LayerSetUp(const vector<Blob<Dtype>*> & bottom,
-                            const vector<Blob<Dtype>*> & top);
+      : NeuronLayer() {}
+    virtual void LayerSetUp(const vector<Blob*> & bottom,
+                            const vector<Blob*> & top);
 
     virtual inline const char* type() const { return "Power"; }
 
@@ -46,10 +46,10 @@ namespace
      *        y = (\alpha x + \beta) ^ \gamma
      *      @f$
      */
-    virtual void Forward(CPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob<Dtype>*> & bottom,
-                             const vector<Blob<Dtype>*> & top);
+    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
+    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+                             const vector<Blob*> & top);
 
     /**
      * @brief Computes the error gradient w.r.t. the power inputs.
@@ -71,10 +71,10 @@ namespace
      *            \frac{\alpha \gamma y}{\alpha x + \beta}
      *      @f$ if bottom[0]->propagate_down_
      */
-    virtual void Backward(CPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob<Dtype>*> & top,
-                              const vector<Blob<Dtype>*> & bottom);
+    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
+    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+                              const vector<Blob*> & bottom);
 
     /// @brief @f$ \gamma @f$ from param_->power_param()
     Dtype power_;

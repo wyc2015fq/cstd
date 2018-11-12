@@ -39,30 +39,30 @@ __global__ void EmbedBackward(const int nthreads, const Dtype* bottom_data,
 }
 
 template <typename Dtype>
-void EmbedLayer<Dtype>::Forward(GPUContext* context, const vector<Blob<Dtype>*>& bottom,
-    const vector<Blob<Dtype>*>& top) {
-  const Dtype* bottom_data = bottom[0]->data<Context>();
-  Dtype* top_data = top[0]->mutable_data<Context>();
-  const Dtype* weight = this->blobs_[0]->data<Context>();
+void EmbedLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+    const vector<Blob*>& top) {
+  const Dtype* bottom_data = bottom[0]->data();
+  Dtype* top_data = top[0]->mutable_data();
+  const Dtype* weight = this->blobs_[0]->data();
   const int count = top[0]->count();
   EmbedForward<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
       <<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
       count, bottom_data, weight, M_, N_, K_, top_data);
   if (bias_term_) {
     caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, M_, N_, 1, Dtype(1),
-        bias_multiplier_.data<Context>(),
-        this->blobs_[1]->data<Context>(), Dtype(1), top_data);
+        bias_multiplier_.data(),
+        this->blobs_[1]->data(), Dtype(1), top_data);
   }
 }
 
 template <typename Dtype>
-void EmbedLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>& top,
-    const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+void EmbedLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+    const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
   CHECK(!bottom[0]->propagate_down_) << "Can't backpropagate to EmbedLayer input.";
   if (this->blobs_[0]->propagate_down_) {
     const int top_count = top[0]->count();
     const Dtype* top_diff = top[0]->gpu_diff();
-    const Dtype* bottom_data = bottom[0]->data<Context>();
+    const Dtype* bottom_data = bottom[0]->data();
     Dtype* weight_diff = this->blobs_[0]->mutable_gpu_diff();
     EmbedBackward<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(top_count), CAFFE_CUDA_NUM_THREADS>>>(
@@ -72,7 +72,7 @@ void EmbedLayer<Dtype>::Backward(GPUContext* context, const vector<Blob<Dtype>*>
     const Dtype* top_diff = top[0]->gpu_diff();
     Dtype* bias_diff = this->blobs_[1]->mutable_gpu_diff();
     caffe_gpu_gemv<Dtype>(CblasTrans, M_, N_, Dtype(1), top_diff,
-        bias_multiplier_.data<Context>(), Dtype(1), bias_diff);
+        bias_multiplier_.data(), Dtype(1), bias_diff);
   }
 }
 
