@@ -25,10 +25,10 @@ namespace
       count,
       bottom[0]->data(),
       bottom[1]->data(),
-      diff_.mutable_data());
+      diff_.mdata());
     Dtype dot = caffe_dot(count, diff_.data(), diff_.data());
     Dtype loss = dot / bottom[0]->num() / Dtype(2);
-    top[0]->mutable_data()[0] = loss;
+    top[0]->mdata()[0] = loss;
   }
 
   template <typename Dtype>
@@ -44,7 +44,7 @@ namespace
           alpha,                              // alpha
           diff_.data(),                   // a
           Dtype(0),                           // beta
-          bottom[i]->mutable_diff());  // b
+          bottom[i]->mdiff());  // b
       }
     }
   }

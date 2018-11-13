@@ -68,7 +68,7 @@ namespace
         loss -= infogain_mat[label * dim + j] * log(prob);
       }
     }
-    top[0]->mutable_data()[0] = loss / num;
+    top[0]->mdata()[0] = loss / num;
   }
 
   template <typename Dtype>
@@ -93,7 +93,7 @@ namespace
       } else {
         infogain_mat = bottom[2]->data();
       }
-      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      Dtype* bottom_diff = bottom[0]->mdiff();
       int num = bottom[0]->num();
       int dim = bottom[0]->count() / bottom[0]->num();
       const Dtype scale = - top[0]->diff()[0] / num;

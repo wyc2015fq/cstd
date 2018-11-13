@@ -35,8 +35,8 @@ namespace
                                         const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
-    Dtype* top_data = top[0]->mutable_data();
-    unsigned int* mask = rand_vec_.mutable_data();
+    Dtype* top_data = top[0]->mdata();
+    unsigned int* mask = rand_vec_.mdata();
     const int count = bottom[0]->count();
     if (this->phase_ == TRAIN) {
       // Create random numbers
@@ -56,7 +56,7 @@ namespace
   {
     if (bottom[0]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff();
-      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      Dtype* bottom_diff = bottom[0]->mdiff();
       if (this->phase_ == TRAIN) {
         const unsigned int* mask = rand_vec_.data();
         const int count = bottom[0]->count();

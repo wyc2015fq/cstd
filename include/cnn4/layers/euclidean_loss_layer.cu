@@ -13,16 +13,16 @@ void EuclideanLossLayer::Forward(GPUContext* context, const vector<Blob*>& botto
       count,
       bottom[0]->data(),
       bottom[1]->data(),
-      diff_.mutable_data());
+      diff_.mdata());
   Dtype dot;
   caffe_gpu_dot(count, diff_.data(), diff_.data(), &dot);
   Dtype loss = dot / bottom[0]->num() / Dtype(2);
-  top[0]->mutable_data()[0] = loss;
+  top[0]->mdata()[0] = loss;
 }
 
 template <typename Dtype>
 void EuclideanLossLayer::Backward(GPUContext* context, const vector<Blob*>& top,
-    const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
+    const vector<Blob*>& bottom) {
   for (int i = 0; i < 2; ++i) {
     if (bottom[i]->propagate_down_) {
       const Dtype sign = Dtype((i == 0) ? 1 : -1);
@@ -32,7 +32,7 @@ void EuclideanLossLayer::Backward(GPUContext* context, const vector<Blob*>& top,
           alpha,                              // alpha
           diff_.data(),                   // a
           Dtype(0),                           // beta
-          bottom[i]->mutable_gpu_diff());  // b
+          bottom[i]->gpu_mdiff());  // b
     }
   }
 }

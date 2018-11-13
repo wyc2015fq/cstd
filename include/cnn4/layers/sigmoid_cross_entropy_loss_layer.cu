@@ -19,7 +19,7 @@ void SigmoidCrossEntropyLossLayer::Backward_gpu(
     const int num = bottom[0]->num();
     const Dtype* sigmoid_output_data = sigmoid_output_->data();
     const Dtype* target = bottom[1]->data();
-    Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
+    Dtype* bottom_diff = bottom[0]->gpu_mdiff();
     caffe_copy(count, sigmoid_output_data, bottom_diff);
     caffe_gpu_axpy(count, Dtype(-1), target, bottom_diff);
     // Scale down gradient

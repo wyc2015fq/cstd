@@ -20,7 +20,7 @@ namespace
     vector<int> dim_blob_shape(1, num_spatial_axes_);
     // Setup filter kernel dimensions (kernel_shape_).
     kernel_shape_.Reshape(dim_blob_shape);
-    int* kernel_shape_data = kernel_shape_.mutable_data();
+    int* kernel_shape_data = kernel_shape_.mdata();
     if (conv_param.has_kernel_h() || conv_param.has_kernel_w()) {
       CHECK_EQ(num_spatial_axes_, 2)
           << "kernel_h & kernel_w can only be used for 2D convolution.";
@@ -44,7 +44,7 @@ namespace
     }
     // Setup stride dimensions (stride_).
     stride_.Reshape(dim_blob_shape);
-    int* stride_data = stride_.mutable_data();
+    int* stride_data = stride_.mdata();
     if (conv_param.has_stride_h() || conv_param.has_stride_w()) {
       CHECK_EQ(num_spatial_axes_, 2)
           << "stride_h & stride_w can only be used for 2D convolution.";
@@ -68,7 +68,7 @@ namespace
     }
     // Setup pad dimensions (pad_).
     pad_.Reshape(dim_blob_shape);
-    int* pad_data = pad_.mutable_data();
+    int* pad_data = pad_.mdata();
     if (conv_param.has_pad_h() || conv_param.has_pad_w()) {
       CHECK_EQ(num_spatial_axes_, 2)
           << "pad_h & pad_w can only be used for 2D convolution.";
@@ -91,7 +91,7 @@ namespace
     }
     // Setup dilation dimensions (dilation_).
     dilation_.Reshape(dim_blob_shape);
-    int* dilation_data = dilation_.mutable_data();
+    int* dilation_data = dilation_.mdata();
     const int num_dilation_dims = conv_param.dilation_size();
     CHECK(num_dilation_dims == 0 || num_dilation_dims == 1 ||
           num_dilation_dims == num_spatial_axes_)
@@ -134,7 +134,7 @@ namespace
                                        const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
-    Dtype* top_data = top[0]->mutable_data();
+    Dtype* top_data = top[0]->mdata();
     for (int n = 0; n < num_; ++n) {
       DCHECK_EQ(bottom[0]->shape().size() - channel_axis_, num_spatial_axes_ + 1);
       DCHECK_EQ(top[0]->shape().size() - channel_axis_, num_spatial_axes_ + 1);
@@ -166,7 +166,7 @@ namespace
                                         const vector<Blob*> & bottom)
   {
     const Dtype* top_diff = top[0]->diff();
-    Dtype* bottom_diff = bottom[0]->mutable_diff();
+    Dtype* bottom_diff = bottom[0]->mdiff();
     for (int n = 0; n < num_; ++n) {
       if (!force_nd_im2col_ && num_spatial_axes_ == 2) {
         col2im_cpu(top_diff + n * top_dim_, channels_,

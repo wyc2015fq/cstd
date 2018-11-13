@@ -9,7 +9,7 @@ template <typename Dtype>
 void CuDNNTanHLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
-  Dtype* top_data = top[0]->mutable_data();
+  Dtype* top_data = top[0]->mdata();
 #if CUDNN_VERSION_MIN(5, 0, 0)
   CUDNN_CHECK(cudnnActivationForward(this->handle_,
         activ_desc_,
@@ -38,7 +38,7 @@ void CuDNNTanHLayer::Backward(GPUContext* context, const vector<Blob*>& top,
   const Dtype* top_data = top[0]->data();
   const Dtype* top_diff = top[0]->gpu_diff();
   const Dtype* bottom_data = bottom[0]->data();
-  Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
+  Dtype* bottom_diff = bottom[0]->gpu_mdiff();
 
 #if CUDNN_VERSION_MIN(5, 0, 0)
   CUDNN_CHECK(cudnnActivationBackward(this->handle_,

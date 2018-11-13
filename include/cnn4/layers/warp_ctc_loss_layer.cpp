@@ -73,7 +73,7 @@ namespace
       const vector<Blob*> & top)
   {
     const Dtype* const activations = bottom[0]->data();
-    Dtype* gradients = bottom[0]->mutable_diff();
+    Dtype* gradients = bottom[0]->mdiff();
     const int alphabet_size = C_;
     const int minibatch = N_;
     vector<Dtype> costs(N_);
@@ -146,12 +146,12 @@ namespace
                                   alphabet_size,
                                   minibatch,
                                   costs.data(),
-                                  workspace_->mutable_data(),
+                                  workspace_->mdata(),
                                   options
                                  );
     CHECK_EQ(status, CTC_STATUS_SUCCESS) << "CTC Error: " << ctcGetStatusString(status);
     // output loss
-    Dtype & loss = top[0]->mutable_data()[0];
+    Dtype & loss = top[0]->mdata()[0];
     loss = 0;
     int num = 0;
     for (int n = 0; n < N_; ++n) {

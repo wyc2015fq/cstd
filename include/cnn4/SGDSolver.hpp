@@ -83,7 +83,7 @@ struct SGDSolver : public Solver {
       for (int i = 0; i < learnable_params_.size(); ++i) {
         Blob* blob = learnable_params_[i];
         //learnable_params_[i]->scale_diff(scale_factor);
-        Dtype* diff = blob->mutable_diff();
+        Dtype* diff = blob->mdiff();
         int count_ = blob->count();
         caffe_scal(count_, scale_factor, diff);
       }
@@ -96,7 +96,7 @@ struct SGDSolver : public Solver {
     // Scale gradient to counterbalance accumulation.
     const Dtype accum_normalization = Dtype(1.) / iter_size;
     caffe_scal(learnable_params_[param_id]->count(), accum_normalization,
-      learnable_params_[param_id]->mutable_diff());
+      learnable_params_[param_id]->mdiff());
 
   }
 
@@ -109,14 +109,14 @@ struct SGDSolver : public Solver {
     Dtype local_decay = weight_decay * decay_mult;
     int count_ = learnable_params_[param_id]->count();
     const Dtype* learnable_params_data = learnable_params_[param_id]->data();
-    Dtype* params_diff = learnable_params_[param_id]->mutable_diff();
+    Dtype* params_diff = learnable_params_[param_id]->mdiff();
     if (local_decay) {
       if (regularization_type == "L2") {
         // add weight decay
         caffe_axpy(count_, local_decay, learnable_params_data, params_diff);
       }
       else if (regularization_type == "L1") {
-        Dtype* temp_data = temp_[param_id]->mutable_data();
+        Dtype* temp_data = temp_[param_id]->mdata();
         caffe_sign(count_, learnable_params_data, temp_data);
         caffe_axpy(count_, local_decay, temp_data, params_diff);
       }
@@ -134,13 +134,13 @@ struct SGDSolver : public Solver {
 #if 0
     int count_ = learnable_params_[param_id]->count();
     // Compute the update to history, then copy it to the parameter diff.
-    Dtype* learnable_params_diff = learnable_params_[param_id]->mutable_diff();
-    Dtype* history_data = history_[param_id]->mutable_data();
+    Dtype* learnable_params_diff = learnable_params_[param_id]->mdiff();
+    Dtype* history_data = history_[param_id]->mdata();
     caffe_axpby(count_, local_rate, learnable_params_diff, momentum, history_data);
     caffe_copy(count_, history_data, learnable_params_diff);
 #else
     const vector<Blob*> & net_params = learnable_params_;
-    sgd_update(net_params[param_id]->count(), net_params[param_id]->mutable_diff(), history_[param_id]->mutable_data(), momentum, local_rate);
+    sgd_update(net_params[param_id]->count(), net_params[param_id]->mdiff(), history_[param_id]->mdata(), momentum, local_rate);
 #endif
   }
 
@@ -173,9 +173,9 @@ struct AdaDeltaSolver : public SGDSolver
     Dtype local_rate = rate * net_params[param_id]->lr_mult_;
     size_t update_history_offset = net_params.size();
     adadelta_update(net_params[param_id]->count(),
-      net_params[param_id]->mutable_diff(),
-      this->history_[param_id]->mutable_data(),
-      this->history_[update_history_offset + param_id]->mutable_data(),
+      net_params[param_id]->mdiff(),
+      this->history_[param_id]->mdata(),
+      this->history_[update_history_offset + param_id]->mdata(),
       momentum, delta, local_rate);
   }
 };
@@ -191,8 +191,8 @@ struct AdaGradSolver : public SGDSolver
     Dtype local_rate = rate;
     Dtype delta = this->param_->getfloat("delta", 1e-8);
     adagrad_update(net_params[param_id]->count(),
-      net_params[param_id]->mutable_diff(),
-      this->history_[param_id]->mutable_data(), delta, local_rate);
+      net_params[param_id]->mdiff(),
+      this->history_[param_id]->mdata(), delta, local_rate);
   }
 
 };
@@ -216,8 +216,8 @@ struct AdamSolver : public SGDSolver {
     const int N = net_params[param_id]->count();
     const Dtype eps_hat = this->param_->getfloat("delta", 1e-8);
 
-    adam_update(N, net_params[param_id]->mutable_diff(),
-      val_m->mutable_data(), val_v->mutable_data(), beta1, beta2,
+    adam_update(N, net_params[param_id]->mdiff(),
+      val_m->mdata(), val_v->mdata(), beta1, beta2,
       eps_hat, local_rate * correction);
   }
 

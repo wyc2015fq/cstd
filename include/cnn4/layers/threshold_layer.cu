@@ -16,7 +16,7 @@ template <typename Dtype>
 void ThresholdLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
-  Dtype* top_data = top[0]->mutable_data();
+  Dtype* top_data = top[0]->mdata();
   const int count = bottom[0]->count();
   // NOLINT_NEXT_LINE(whitespace/operators)
   ThresholdForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(

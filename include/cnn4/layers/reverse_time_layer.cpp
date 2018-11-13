@@ -36,7 +36,7 @@ namespace
     const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const Dtype* src = bottom[0]->data();
-    Dtype* const dest = top[0]->mutable_data();
+    Dtype* const dest = top[0]->mdata();
     // TODO: Remove these tests
     const Dtype* const src_max = src + bottom[0]->count();
     const Dtype* const dest_max = dest + top[0]->count();
@@ -87,7 +87,7 @@ namespace
   {
     if (!bottom[0]->propagate_down_) { return; }
     const Dtype* src = top[0]->diff();
-    Dtype* const dest = bottom[0]->mutable_diff();
+    Dtype* const dest = bottom[0]->mdiff();
     // TODO: Remove these tests
     const Dtype* const src_max = src + top[0]->count();
     const Dtype* const dest_max = dest + bottom[0]->count();

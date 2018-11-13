@@ -39,10 +39,10 @@ void SoftmaxWithLossMultiLabelLayer::Forward_gpu(
   // Since this memory is not used for anything until it is overwritten
   // on the backward pass, we use it here to avoid having to allocate new GPU
   // memory to accumulate intermediate results in the kernel.
-  Dtype* loss_data = bottom[0]->mutable_gpu_diff();
+  Dtype* loss_data = bottom[0]->gpu_mdiff();
   // Similarly, this memory is never used elsewhere, and thus we can use it
   // to avoid having to allocate additional GPU memory.
-  Dtype* counts = prob_.mutable_gpu_diff();
+  Dtype* counts = prob_.gpu_mdiff();
   // NOLINT_NEXT_LINE(whitespace/operators)
   SoftmaxLossForwardGPU<Dtype><<<CAFFE_GET_BLOCKS(nthreads),
       CAFFE_CUDA_NUM_THREADS>>>(nthreads, prob_data, label, loss_data,
@@ -57,7 +57,7 @@ void SoftmaxWithLossMultiLabelLayer::Forward_gpu(
       has_ignore_label_) {
     caffe_gpu_asum(nthreads, counts, &valid_count);
   }
-  top[0]->mutable_data()[0] = loss / get_normalizer(normalization_,
+  top[0]->mdata()[0] = loss / get_normalizer(normalization_,
     (int)valid_count);
   if (top.size() == 2) {
     top[1]->ShareData(prob_);
@@ -97,13 +97,13 @@ __global__ void SoftmaxLossBackwardGPU1(const int nthreads, const Dtype* top,
 
 template <typename Dtype>
 void SoftmaxWithLossMultiLabelLayer::Backward(GPUContext* context, const vector<Blob*>& top,
-    const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
+    const vector<Blob*>& bottom) {
   if (bottom[1]->propagate_down_) {
     LOG(FATAL) << this->type()
                << " Layer cannot backpropagate to label inputs.";
   }
   if (bottom[0]->propagate_down_) {
-    Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
+    Dtype* bottom_diff = bottom[0]->gpu_mdiff();
     const Dtype* prob_data = prob_.data();
     const Dtype* top_data = top[0]->data();
     caffe_gpu_memcpy(prob_.count() * sizeof(Dtype), prob_data, bottom_diff);
@@ -112,7 +112,7 @@ void SoftmaxWithLossMultiLabelLayer::Backward(GPUContext* context, const vector<
     const int nthreads = outer_num_ * inner_num_;
     // Since this memory is never used for anything else,
     // we use to to avoid allocating new GPU memory.
-    Dtype* counts = prob_.mutable_gpu_diff();
+    Dtype* counts = prob_.gpu_mdiff();
     // NOLINT_NEXT_LINE(whitespace/operators)
     SoftmaxLossBackwardGPU<Dtype><<<CAFFE_GET_BLOCKS(nthreads),
         CAFFE_CUDA_NUM_THREADS>>>(nthreads, top_data, label, bottom_diff,

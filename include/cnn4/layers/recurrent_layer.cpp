@@ -51,7 +51,7 @@ namespace
     NetParameter net_param;
     LayerParameter* input_layer_param = net_param.add_layer();
     input_layer_param->set_type("Input");
-    InputParameter* input_param = input_layer_param->mutable_input_param();
+    InputParameter* input_param = input_layer_param->minput_param();
     input_layer_param->add_top("x");
     BlobShape input_shape;
     for (int i = 0; i < bottom[0]->num_axes(); ++i) {
@@ -84,7 +84,7 @@ namespace
     const string & layer_name = this->param_->name();
     if (layer_name.size()) {
       for (int i = 0; i < net_param.layer_size(); ++i) {
-        LayerParameter* layer = net_param.mutable_layer(i);
+        LayerParameter* layer = net_param.mlayer(i);
         layer->set_name(layer_name + "_" + layer->name());
       }
     }
@@ -158,7 +158,7 @@ namespace
     // batches.
     for (int i = 0; i < recur_output_blobs_.size(); ++i) {
       caffe_set(recur_output_blobs_[i]->count(), Dtype(0),
-                recur_output_blobs_[i]->mutable_diff());
+                recur_output_blobs_[i]->mdiff());
     }
     // Check that the last output_names.size() layers are the pseudo-losses;
     // set last_layer_index so that we don't actually run these layers.
@@ -239,7 +239,7 @@ namespace
     // "Reset" the hidden state of the net by zeroing out all recurrent outputs.
     for (int i = 0; i < recur_output_blobs_.size(); ++i) {
       caffe_set(recur_output_blobs_[i]->count(), Dtype(0),
-                recur_output_blobs_[i]->mutable_data());
+                recur_output_blobs_[i]->mdata());
     }
   }
 
@@ -260,13 +260,13 @@ namespace
         const int count = recur_input_blobs_[i]->count();
         DCHECK_EQ(count, recur_output_blobs_[i]->count());
         const Dtype* timestep_T_data = recur_output_blobs_[i]->data();
-        Dtype* timestep_0_data = recur_input_blobs_[i]->mutable_data();
+        Dtype* timestep_0_data = recur_input_blobs_[i]->mdata();
         caffe_copy(count, timestep_T_data, timestep_0_data);
       }
     }
     //generate input sequence continuation indicators if bottom.size()<2
     if (bottom.size() < 2) {
-      Dtype* pcont = cont_input_blob_->mutable_data();
+      Dtype* pcont = cont_input_blob_->mdata();
       for (int i = 0; i < T_; i++) {
         int cont = i == 0 ? 0 : 1;
         Dtype* pconti = pcont + N_ * i;

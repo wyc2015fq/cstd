@@ -56,40 +56,40 @@ namespace
     // use to save redundant code.
     LayerParameter hidden_param;
     hidden_param.set_type("InnerProduct");
-    hidden_param.mutable_inner_product_param()->set_num_output(num_output);
-    hidden_param.mutable_inner_product_param()->set_bias_term(false);
-    hidden_param.mutable_inner_product_param()->set_axis(2);
-    hidden_param.mutable_inner_product_param()->
-    mutable_weight_filler()->CopyFrom(weight_filler);
+    hidden_param.minner_product_param()->set_num_output(num_output);
+    hidden_param.minner_product_param()->set_bias_term(false);
+    hidden_param.minner_product_param()->set_axis(2);
+    hidden_param.minner_product_param()->
+    mweight_filler()->CopyFrom(weight_filler);
     LayerParameter biased_hidden_param(hidden_param);
-    biased_hidden_param.mutable_inner_product_param()->set_bias_term(true);
-    biased_hidden_param.mutable_inner_product_param()->
-    mutable_bias_filler()->CopyFrom(bias_filler);
+    biased_hidden_param.minner_product_param()->set_bias_term(true);
+    biased_hidden_param.minner_product_param()->
+    mbias_filler()->CopyFrom(bias_filler);
     LayerParameter sum_param;
     sum_param.set_type("Eltwise");
-    sum_param.mutable_eltwise_param()->set_operation(
+    sum_param.meltwise_param()->set_operation(
       EltwiseParameter_EltwiseOp_SUM);
     LayerParameter tanh_param;
     tanh_param.set_type("TanH");
     LayerParameter scale_param;
     scale_param.set_type("Scale");
-    scale_param.mutable_scale_param()->set_axis(0);
+    scale_param.mscale_param()->set_axis(0);
     LayerParameter slice_param;
     slice_param.set_type("Slice");
-    slice_param.mutable_slice_param()->set_axis(0);
+    slice_param.mslice_param()->set_axis(0);
     vector<BlobShape> input_shapes;
     RecurrentInputShapes(&input_shapes);
     CHECK_EQ(1, input_shapes.size());
     LayerParameter* input_layer_param = net_param->add_layer();
     input_layer_param->set_type("Input");
-    InputParameter* input_param = input_layer_param->mutable_input_param();
+    InputParameter* input_param = input_layer_param->minput_param();
     input_layer_param->add_top("h_0");
     input_param->add_shape()->CopyFrom(input_shapes[0]);
     LayerParameter* cont_slice_param = net_param->add_layer();
     cont_slice_param->CopyFrom(slice_param);
     cont_slice_param->set_name("cont_slice");
     cont_slice_param->add_bottom("cont");
-    cont_slice_param->mutable_slice_param()->set_axis(0);
+    cont_slice_param->mslice_param()->set_axis(0);
     // Add layer to transform all timesteps of x to the hidden state dimension.
     //     W_xh_x = W_xh * x + b_h
     {
@@ -107,7 +107,7 @@ namespace
       //     W_xh_x_static = W_xh_static * x_static
       LayerParameter* x_static_transform_param = net_param->add_layer();
       x_static_transform_param->CopyFrom(hidden_param);
-      x_static_transform_param->mutable_inner_product_param()->set_axis(1);
+      x_static_transform_param->minner_product_param()->set_axis(1);
       x_static_transform_param->set_name("W_xh_x_static");
       x_static_transform_param->add_param()->set_name("W_xh_static");
       x_static_transform_param->add_bottom("x_static");
@@ -116,7 +116,7 @@ namespace
       LayerParameter* reshape_param = net_param->add_layer();
       reshape_param->set_type("Reshape");
       BlobShape* new_shape =
-        reshape_param->mutable_reshape_param()->mutable_shape();
+        reshape_param->mreshape_param()->mshape();
       new_shape->add_dim(1);  // One timestep.
       // Should infer this->N as the dimension so we can reshape on batch size.
       new_shape->add_dim(-1);
@@ -134,7 +134,7 @@ namespace
     output_concat_layer.set_name("o_concat");
     output_concat_layer.set_type("Concat");
     output_concat_layer.add_top("o");
-    output_concat_layer.mutable_concat_param()->set_axis(0);
+    output_concat_layer.mconcat_param()->set_axis(0);
     for (int t = 1; t <= this->T_; ++t) {
       string tm1s = wstd::format_int(t - 1);
       string ts = wstd::format_int(t);
@@ -164,7 +164,7 @@ namespace
         w_param->add_param()->set_name("W_hh");
         w_param->add_bottom("h_conted_" + tm1s);
         w_param->add_top("W_hh_h_" + tm1s);
-        w_param->mutable_inner_product_param()->set_axis(2);
+        w_param->minner_product_param()->set_axis(2);
       }
       // Add layers to compute
       //     h_t := \tanh( W_hh * h_conted_{t-1} + W_xh * x_t + b_h )
@@ -197,7 +197,7 @@ namespace
         w_param->add_param()->set_name("b_o");
         w_param->add_bottom("h_" + ts);
         w_param->add_top("W_ho_h_" + ts);
-        w_param->mutable_inner_product_param()->set_axis(2);
+        w_param->minner_product_param()->set_axis(2);
       }
       // Add layers to compute
       //     o_t := \tanh( W_ho h_t + b_o)

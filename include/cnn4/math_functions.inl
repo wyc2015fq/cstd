@@ -2,13 +2,11 @@
 #include <limits>
 #include "cpu.hpp"
 
-//#define _CONTEXT CPUContext* context
-
-void caffe_memset(const size_t N, const int alpha, void* X)
+void cpu_caffe_memset(const size_t N, const int alpha, void* X)
 {
   memset(X, alpha, N);
 }
-void caffe_memcpy(const size_t N, const void* X, void* Y) {
+void cpu_caffe_memcpy(const size_t N, const void* X, void* Y) {
   memcpy(Y, X, N);
 }
 

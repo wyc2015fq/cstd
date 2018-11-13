@@ -48,8 +48,8 @@ namespace
     shape.push_back(num_axes);
     bottom_counts_.Reshape(shape);
     top_counts_.Reshape(shape);
-    int* bottom_counts_data = bottom_counts_.mutable_data();
-    int* top_counts_data = top_counts_.mutable_data();
+    int* bottom_counts_data = bottom_counts_.mdata();
+    int* top_counts_data = top_counts_.mdata();
     for (int i = 1; i < num_axes; i++) {
       *bottom_counts_data = bottom[0]->count(i);
       *top_counts_data = top[0]->count(i);
@@ -60,8 +60,8 @@ namespace
     *top_counts_data = 1;
     forward_map_.Reshape(shape);
     backward_map_.Reshape(shape);
-    int* forward_map_data = forward_map_.mutable_data();
-    int* backward_map_data = backward_map_.mutable_data();
+    int* forward_map_data = forward_map_.mdata();
+    int* backward_map_data = backward_map_.mdata();
     for (int i = 0; i < num_axes; i++) {
       *forward_map_data = transpose_param_.dim(i);
       backward_map_data[transpose_param_.dim(i)] = i;
@@ -87,7 +87,7 @@ namespace
   void TransposeLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
                                           const vector<Blob*> & top)
   {
-    transpose_cpu<Dtype>(bottom[0]->count(), bottom[0]->data(), top[0]->mutable_data(),
+    transpose_cpu<Dtype>(bottom[0]->count(), bottom[0]->data(), top[0]->mdata(),
                          bottom_counts_.data(), top_counts_.data(), forward_map_.data(),
                          bottom[0]->shape().size());
   }
@@ -99,7 +99,7 @@ namespace
     if (!bottom[0]->propagate_down_) {
       return;
     }
-    transpose_cpu<Dtype>(bottom[0]->count(), top[0]->diff(), bottom[0]->mutable_diff(),
+    transpose_cpu<Dtype>(bottom[0]->count(), top[0]->diff(), bottom[0]->mdiff(),
                          top_counts_.data(), bottom_counts_.data(), backward_map_.data(),
                          bottom[0]->shape().size());
   }

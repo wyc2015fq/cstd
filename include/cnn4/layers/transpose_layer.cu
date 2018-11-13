@@ -28,14 +28,14 @@ void TransposeLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 
 	transpose_gpu<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(nthreads), CAFFE_CUDA_NUM_THREADS>>>(
-        nthreads, bottom[0]->data(), top[0]->mutable_data(), 
+        nthreads, bottom[0]->data(), top[0]->mdata(), 
         bottom_counts_.data(), top_counts_.data(), forward_map_.data(), 
-          (int)bottom[0]->shape().size(), buf_.mutable_data());
+          (int)bottom[0]->shape().size(), buf_.mdata());
 }
 
 template <typename Dtype>
 void TransposeLayer::Backward(GPUContext* context, const vector<Blob*>& top,
-    	const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
+    	const vector<Blob*>& bottom) {
 	if (!bottom[0]->propagate_down_) {
 		return;
 	}
@@ -43,9 +43,9 @@ void TransposeLayer::Backward(GPUContext* context, const vector<Blob*>& top,
 
 	transpose_gpu<Dtype>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(nthreads), CAFFE_CUDA_NUM_THREADS>>>(
-        nthreads, top[0]->gpu_diff(), bottom[0]->mutable_gpu_diff(), 
+        nthreads, top[0]->gpu_diff(), bottom[0]->gpu_mdiff(), 
         top_counts_.data(), bottom_counts_.data(), backward_map_.data(), 
-        (int)bottom[0]->shape().size(), buf_.mutable_data());
+        (int)bottom[0]->shape().size(), buf_.mdata());
 }
 
 INSTANTIATE_LAYER_GPU_FUNCS(TransposeLayer);

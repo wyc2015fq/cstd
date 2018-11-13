@@ -1,46 +1,45 @@
 #ifndef CAFFE_INPUT_LAYER_HPP_
 #define CAFFE_INPUT_LAYER_HPP_
 
-
-
-
-
-
-
-namespace
+class InputLayer : public Layer
 {
+public:
+  // Data layers should be shared by multiple solvers in parallel
+  virtual inline bool ShareInParallel() const { return true; }
+  // Data layers have no bottoms, so reshaping is trivial.
+   
+  virtual inline const char* type() const { return "Input"; }
+  virtual inline int ExactNumBottomBlobs() const { return 0; }
+  virtual inline int MinTopBlobs() const { return 1; }
 
-  /**
-   * @brief Provides data to the Net by assigning tops directly.
-   *
-   * This data layer is a container that merely holds the data assigned to it;
-   * forward, backward, and reshape are all no-ops.
-   */
-  template <typename Dtype>
-  class InputLayer : public Layer
+  std::vector<int> shape;
+
+  void init(cJSON* param) {
+    cJSON_GetObjectNumberArray(param, "shape", shape);
+  }
+
+  virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-  public:
-    explicit InputLayer()
-      : Layer() {}
-    virtual void LayerSetUp(const vector<Blob*> & bottom,
-                            const vector<Blob*> & top);
-    // Data layers should be shared by multiple solvers in parallel
-    virtual inline bool ShareInParallel() const { return true; }
-    // Data layers have no bottoms, so reshaping is trivial.
-    virtual void Reshape(const vector<Blob*> & bottom,
-                         const vector<Blob*> & top) {}
+    const int num_top = top.size();
+    const int num_shape = shape.size()/4;
+    CHECK(num_shape == 0 || num_shape == 1 || num_shape == num_top)
+      << "Must specify 'shape' once, once per top blob, or not at all: "
+      << num_top << " tops vs. " << num_shape << " shapes.";
+    if (num_shape > 0) {
+      for (int i = 0; i < num_top; ++i) {
+        const int shape_index = (num_shape == 1) ? 0 : i;
+        DataShape datashape;
+        for (int j = 0; j < 4; ++j) {
+          datashape.dim[j] = shape[shape_index *4+j];
+        }
+        top[i]->Reshape(datashape);
+      }
+    }
+  }
+};
 
-    virtual inline const char* type() const { return "Input"; }
-    virtual inline int ExactNumBottomBlobs() const { return 0; }
-    virtual inline int MinTopBlobs() const { return 1; }
 
-  public:
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
-                             const vector<Blob*> & top) {}
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
-                              const vector<Blob*> & bottom) {}
-  };
+REGISTER_LAYER_CLASS(Input);
 
-}  // namespace
 
 #endif  // CAFFE_INPUT_LAYER_HPP_

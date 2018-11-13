@@ -7,18 +7,31 @@
  * @brief Computes the classification accuracy for a one-of-many
  *        classification task.
  */
+
+#define AccuracyParameter_DEF(DEF) \
+DEF##Int(top_k, 1, 0) \
+DEF##Int(axis, 1, 0) \
+DEF##Int(ignore_label, -1, 0) \
+
 class AccuracyLayer : public Layer
 {
 public:
+  AccuracyParameter_DEF(Def);
   int label_axis_, outer_num_, inner_num_;
-  int top_k_;
   /// Whether to ignore instances with a certain label.
   bool has_ignore_label_;
   /// The label indicating that an instance should be ignored.
-  int ignore_label_;
   /// Keeps counts of the number of samples per class.
   Blob nums_buffer_;
 
+
+  AccuracyLayer() {
+    AccuracyParameter_DEF(Set);
+  }
+  void init(CJSON* param) {
+    AccuracyParameter_DEF(Get);
+    has_ignore_label_ = param->has("ignore_label");
+  }
   /**
    * @param param provides AccuracyParameter accuracy_param,
    *     with AccuracyLayer options:
@@ -36,31 +49,6 @@ public:
   virtual inline int MinTopBlobs() const { return 1; }
   virtual inline int MaxTopBlos() const { return 2; }
 
-  /**
-   * @param bottom input Blob vector (length 2)
-   *   -# @f$ (N \times C \times H \times W) @f$
-   *      the predictions @f$ x @f$, a Blob with values in
-   *      @f$ [-\infty, +\infty] @f$ indicating the predicted score for each of
-   *      the @f$ K = CHW @f$ classes. Each @f$ x_n @f$ is mapped to a predicted
-   *      label @f$ \hat{l}_n @f$ given by its maximal index:
-   *      @f$ \hat{l}_n = \arg\max\limits_k x_{nk} @f$
-   *   -# @f$ (N \times 1 \times 1 \times 1) @f$
-   *      the labels @f$ l @f$, an integer-valued Blob with values
-   *      @f$ l_n \in [0, 1, 2, ..., K - 1] @f$
-   *      indicating the correct class label among the @f$ K @f$ classes
-   * @param top output Blob vector (length 1)
-   *   -# @f$ (1 \times 1 \times 1 \times 1) @f$
-   *      the computed accuracy: @f$
-   *        \frac{1}{N} \sum\limits_{n=1}^N \delta\{ \hat{l}_n = l_n \}
-   *      @f$, where @f$
-   *      \delta\{\mathrm{condition}\} = \left\{
-   *         \begin{array}{lr}
-   *            1 & \mbox{if condition} \\
-   *            0 & \mbox{otherwise}
-   *         \end{array} \right.
-   *      @f$
-   */
-
   /// @brief Not implemented -- AccuracyLayer cannot be used as a loss.
   virtual void Backward(const vector<Blob*> & top,
     const vector<Blob*> & bottom) {
@@ -68,15 +56,9 @@ public:
       if (bottom[i]->propagate_down_) { NOT_IMPLEMENTED; }
     }
   }
-  int axis_;
+
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    axis_ = this->param_->getint("axis", 1);
-    top_k_ = this->param_->getint("top_k", 1);
-    has_ignore_label_ = param_->has("ignore_label");
-    if (has_ignore_label_) {
-      ignore_label_ = this->param_->getbool("ignore_label", false);
-    }
   }
 
   virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top)
@@ -106,9 +88,9 @@ public:
     const vector<Blob*> & top)
   {
     Dtype accuracy = 0;
-    Dtype* top0_data = top[0]->mutable_cpu_data();
+    Dtype* top0_data = top[0]->cpu_mdata();
     Dtype* top1_data = NULL;
-    Dtype* nums_buffer_data = nums_buffer_.mutable_cpu_data();
+    Dtype* nums_buffer_data = nums_buffer_.cpu_mdata();
     const Dtype* bottom_data = bottom[0]->cpu_data();
     const Dtype* bottom_label = bottom[1]->cpu_data();
     const int dim = bottom[0]->count() / outer_num_;
@@ -116,7 +98,7 @@ public:
     vector<Dtype> maxval(top_k_ + 1);
     vector<int> max_id(top_k_ + 1);
     if (top.size() > 1) {
-      top1_data = top[1]->mutable_cpu_data();
+      top1_data = top[1]->cpu_mdata();
       cpu_caffe_set(nums_buffer_.count(), Dtype(0), nums_buffer_data);
       cpu_caffe_set(top[1]->count(), Dtype(0), top1_data);
     }

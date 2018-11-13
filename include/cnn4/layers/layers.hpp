@@ -1,4 +1,5 @@
 
+#include "input_layer.hpp"
 #include "neuron_layer.hpp"
 #include "relu_layer.hpp"
 #include "bias_layer.hpp"
@@ -12,21 +13,24 @@
 #include "softmax_layer.hpp"
 #include "softmax_loss_layer.hpp"
 #include "split_layer.hpp"
-//#include "denseblock_layer.hpp"
+#include "batch_norm_layer.hpp"
+#include "scale_layer.hpp"
+
+#ifdef USE_CUDNN
+#include "denseblock_layer.hpp"
+#include "cudnn_conv_layer.hpp"
+#endif
 
 #if 0
 #include "dummy_data_layer.hpp"
-#include "scale_layer.hpp"
 #include "absval_layer.hpp"
 #include "argmax_layer.hpp"
-#include "batch_norm_layer.hpp"
 #include "batch_reindex_layer.hpp"
 #include "bnll_layer.hpp"
 #include "concat_layer.hpp"
 #include "contrastive_loss_layer.hpp"
 #include "crop_layer.hpp"
 #include "ctc_decoder_layer.hpp"
-#include "cudnn_conv_layer.hpp"
 #include "cudnn_lcn_layer.hpp"
 #include "cudnn_lrn_layer.hpp"
 #include "cudnn_pooling_layer.hpp"
@@ -50,7 +54,6 @@
 #include "im2col_layer.hpp"
 #include "image_data_layer.hpp"
 #include "infogain_loss_layer.hpp"
-#include "input_layer.hpp"
 #include "interp_layer.hpp"
 #include "log_layer.hpp"
 #include "lrn_layer.hpp"

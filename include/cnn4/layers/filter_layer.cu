@@ -12,7 +12,7 @@ void FilterLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
   // forward all filtered items for all bottoms but the Selector (bottom[last])
   for (int t = 0; t < top.size(); ++t) {
     const Dtype* bottom_data = bottom[t]->data();
-    Dtype* top_data = top[t]->mutable_data();
+    Dtype* top_data = top[t]->mdata();
     int dim = bottom[t]->count() / bottom[t]->shape(0);
     for (int n = 0; n < new_tops_num; ++n) {
       int data_offset_top = n * dim;
@@ -25,7 +25,7 @@ void FilterLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 
 template <typename Dtype>
 void FilterLayer::Backward(GPUContext* context, const vector<Blob*>& top,
-      const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
+      const vector<Blob*>& bottom) {
   if (propagate_down[bottom.size() - 1]) {
     LOG(FATAL) << this->type()
                << "Layer cannot backpropagate to filter index inputs";
@@ -45,18 +45,18 @@ void FilterLayer::Backward(GPUContext* context, const vector<Blob*>& top,
           // just set to zero remaining ones
           data_offset_bottom = n * dim;
           caffe_gpu_set(dim, Dtype(0),
-              bottom[i]->mutable_gpu_diff() + data_offset_bottom);
+              bottom[i]->gpu_mdiff() + data_offset_bottom);
         } else {
           batch_offset = indices_to_forward_[next_to_backward_offset];
           data_offset_bottom = n * dim;
           if (n != batch_offset) {  // this data was not been forwarded
             caffe_gpu_set(dim, Dtype(0),
-                bottom[i]->mutable_gpu_diff() + data_offset_bottom);
+                bottom[i]->gpu_mdiff() + data_offset_bottom);
           } else {  // this data was been forwarded
             data_offset_top = next_to_backward_offset * dim;
             ++next_to_backward_offset;  // point to next forwarded item index
-            caffe_copy(dim, top[i]->mutable_gpu_diff() + data_offset_top,
-                bottom[i]->mutable_gpu_diff() + data_offset_bottom);
+            caffe_copy(dim, top[i]->gpu_mdiff() + data_offset_top,
+                bottom[i]->gpu_mdiff() + data_offset_bottom);
           }
         }
       }

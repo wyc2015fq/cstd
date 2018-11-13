@@ -51,8 +51,8 @@ namespace
     const Dtype* C_prev = bottom[0]->data();
     const Dtype* X = bottom[1]->data();
     const Dtype* cont = bottom[2]->data();
-    Dtype* C = top[0]->mutable_data();
-    Dtype* H = top[1]->mutable_data();
+    Dtype* C = top[0]->mdata();
+    Dtype* H = top[1]->mdata();
     for (int n = 0; n < num; ++n) {
       for (int d = 0; d < hidden_dim_; ++d) {
         const Dtype i = sigmoid(X[d]);
@@ -89,8 +89,8 @@ namespace
     const Dtype* H = top[1]->data();
     const Dtype* C_diff = top[0]->diff();
     const Dtype* H_diff = top[1]->diff();
-    Dtype* C_prev_diff = bottom[0]->mutable_diff();
-    Dtype* X_diff = bottom[1]->mutable_diff();
+    Dtype* C_prev_diff = bottom[0]->mdiff();
+    Dtype* X_diff = bottom[1]->mdiff();
     for (int n = 0; n < num; ++n) {
       for (int d = 0; d < hidden_dim_; ++d) {
         const Dtype i = sigmoid(X[d]);

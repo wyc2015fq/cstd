@@ -5,6 +5,13 @@
 #include "../db.hpp"
 
 
+#define DataParameter_DEF(DEF) \
+DEF##Enum(backend, DBMethod_LMDB, DBMethod) \
+DEF##String(source, "", 0) \
+DEF##Int(rand_skip, 0, 0) \
+DEF##Struct(transform, 0, DataTransformerInfo) \
+DEF##Int(batch_size, 64, 0) \
+
 struct DataLayer : public Layer
 {
   vector< std::pair<std::string, vector<int> > > lines_;
@@ -12,8 +19,8 @@ struct DataLayer : public Layer
   DB* db_;
   Cursor* cursor_;
   uint64_t offset_;
+  DataParameter_DEF(Def);
 
-  unsigned int rand_skip_num_;
   // DataLayer uses DataReader instead for sharing for parallelism
   virtual inline bool ShareInParallel() const { return false; }
   virtual inline const char* type() const { return "Data"; }
@@ -21,6 +28,14 @@ struct DataLayer : public Layer
   virtual inline int MinTopBlobs() const { return 1; }
   virtual inline int MaxTopBlobs() const { return 10; }
 
+  DataLayer() {
+    DataParameter_DEF(Set);
+  }
+  void init(CJSON* param) {
+    DataParameter_DEF(Get);
+    db_ = GetDB(backend_);
+    db_->Open(source_.c_str(), READ);
+  }
   ~DataLayer()
   {
     delete cursor_;
@@ -52,14 +67,14 @@ struct DataLayer : public Layer
   void load_batch(const vector<Blob*> & top)
   {
     //rand skip
-    if (rand_skip_num_ > 0) {
-      unsigned int skip = rand() % rand_skip_num_;
+    if (rand_skip_ > 0) {
+      unsigned int skip = rand() % rand_skip_;
       unsigned int k = 0;
       while (k < skip) {
         Next();
         k++;
       }
-      rand_skip_num_ = 0;//skip once
+      rand_skip_ = 0;//skip once
     }
     Datum datum;
     for (int item_id = 0; item_id < batch_size_; ++item_id) {
@@ -70,8 +85,8 @@ struct DataLayer : public Layer
       CHECK_LE(top.size(), datum.size());
       for (int j = 0; j < top.size(); ++j) {
         Blob* blob = top[j];
-        Dtype* data = blob->mutable_cpu_data() + blob->offset(item_id);
-        DataTransformer(j == 0 ? info : NULL, &datum[j], data);
+        Dtype* data = blob->cpu_mdata() + blob->offset(item_id);
+        DataTransformer(j == 0 ? &transform_ : NULL, &datum[j], data);
       }
       Next();
     }
@@ -79,15 +94,10 @@ struct DataLayer : public Layer
     //DLOG(INFO) << "     Read time: " << read_time / 1000 << " ms.";
     //DLOG(INFO) << "Transform time: " << trans_time / 1000 << " ms.";
   }
-  DataTransformerInfo info[1];
-  int batch_size_;
+  
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    db_ = GetDB(param_->GetObjectString("backend", "lmdb"));
-    db_->Open(param_->GetObjectString("source", NULL), READ);
     cursor_ = db_->NewCursor();
-    rand_skip_num_ = param_->GetObjectInt("rand_skip", 0);
-    batch_size_ = param_->GetObjectInt("batch_size", 64);
   }
 
   virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top) {
@@ -95,11 +105,10 @@ struct DataLayer : public Layer
     string value = cursor_->value();
     ParseFromString(value.c_str(), datum);
     CHECK_LE(top.size(), datum.size());
-    cJSON* transform = param_->get("transform");
     for (int j = 0; j < top.size(); ++j) {
       DataShape shape_ = datum[j].shape;
       if (j == 0) {
-        shape_ = GetDataTransformerInfo(info, &datum[j], transform, phase_);
+        shape_ = GetDataTransformerInfo(&transform_, &datum[j], phase_);
       }
       shape_.n = batch_size_;
       top[j]->Reshape(shape_);

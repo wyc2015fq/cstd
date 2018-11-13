@@ -31,17 +31,17 @@ namespace
       square_bottom_vec_.push_back(&square_input_);
       square_top_vec_.push_back(&square_output_);
       LayerParameter square_param;
-      square_param.mutable_power_param()->set_power(Dtype(2));
+      square_param.mpower_param()->set_power(Dtype(2));
       square_layer_.reset(new PowerLayer(square_param));
       square_layer_->SetUp(square_bottom_vec_, square_top_vec_);
       // Set up pool_layer_ to sum over square neighborhoods of the input.
       pool_top_vec_.clear();
       pool_top_vec_.push_back(&pool_output_);
       LayerParameter pool_param;
-      pool_param.mutable_pooling_param()->set_pool(
+      pool_param.mpooling_param()->set_pool(
         PoolingParameter_PoolMethod_AVE);
-      pool_param.mutable_pooling_param()->set_pad(pre_pad_);
-      pool_param.mutable_pooling_param()->set_kernel_size(size_);
+      pool_param.mpooling_param()->set_pad(pre_pad_);
+      pool_param.mpooling_param()->set_kernel_size(size_);
       pool_layer_.reset(new PoolingLayer(pool_param));
       pool_layer_->SetUp(square_top_vec_, pool_top_vec_);
       // Set up power_layer_ to compute (1 + alpha_/N^2 s)^-beta_, where s is
@@ -49,9 +49,9 @@ namespace
       power_top_vec_.clear();
       power_top_vec_.push_back(&power_output_);
       LayerParameter power_param;
-      power_param.mutable_power_param()->set_power(-beta_);
-      power_param.mutable_power_param()->set_scale(alpha_);
-      power_param.mutable_power_param()->set_shift(Dtype(1));
+      power_param.mpower_param()->set_power(-beta_);
+      power_param.mpower_param()->set_scale(alpha_);
+      power_param.mpower_param()->set_shift(Dtype(1));
       power_layer_.reset(new PowerLayer(power_param));
       power_layer_->SetUp(pool_top_vec_, power_top_vec_);
       // Set up a product_layer_ to compute outputs by multiplying inputs by the
@@ -60,7 +60,7 @@ namespace
       product_bottom_vec_.push_back(&product_input_);
       product_bottom_vec_.push_back(&power_output_);
       LayerParameter product_param;
-      EltwiseParameter* eltwise_param = product_param.mutable_eltwise_param();
+      EltwiseParameter* eltwise_param = product_param.meltwise_param();
       eltwise_param->set_operation(EltwiseParameter_EltwiseOp_PROD);
       product_layer_.reset(new EltwiseLayer(product_param));
       product_layer_->SetUp(product_bottom_vec_, top);
@@ -113,14 +113,14 @@ namespace
     const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
-    Dtype* top_data = top[0]->mutable_data();
-    Dtype* scale_data = scale_.mutable_data();
+    Dtype* top_data = top[0]->mdata();
+    Dtype* scale_data = scale_.mdata();
     // start with the constant value
     for (int i = 0; i < scale_.count(); ++i) {
       scale_data[i] = k_;
     }
     Blob padded_square(1, channels_ + size_ - 1, height_, width_);
-    Dtype* padded_square_data = padded_square.mutable_data();
+    Dtype* padded_square_data = padded_square.mdata();
     caffe_set(padded_square.count(), Dtype(0), padded_square_data);
     Dtype alpha_over_size = alpha_ / size_;
     // go through the images
@@ -191,13 +191,13 @@ namespace
     const Dtype* top_data = top[0]->data();
     const Dtype* bottom_data = bottom[0]->data();
     const Dtype* scale_data = scale_.data();
-    Dtype* bottom_diff = bottom[0]->mutable_diff();
+    Dtype* bottom_diff = bottom[0]->mdiff();
     Blob padded_ratio(1, channels_ + size_ - 1, height_, width_);
     Blob accum_ratio(1, 1, height_, width_);
-    Dtype* padded_ratio_data = padded_ratio.mutable_data();
-    Dtype* accum_ratio_data = accum_ratio.mutable_data();
+    Dtype* padded_ratio_data = padded_ratio.mdata();
+    Dtype* accum_ratio_data = accum_ratio.mdata();
     // We hack a little bit by using the diff() to store an additional result
-    Dtype* accum_ratio_times_bottom = accum_ratio.mutable_diff();
+    Dtype* accum_ratio_times_bottom = accum_ratio.mdiff();
     caffe_set(padded_ratio.count(), Dtype(0), padded_ratio_data);
     Dtype cache_ratio_value = 2. * alpha_ * beta_ / size_;
     caffe_powx<Dtype>(scale_.count(), scale_data, -beta_, bottom_diff);

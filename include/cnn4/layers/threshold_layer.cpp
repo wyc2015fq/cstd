@@ -18,7 +18,7 @@ namespace
                                           const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
-    Dtype* top_data = top[0]->mutable_data();
+    Dtype* top_data = top[0]->mdata();
     const int count = bottom[0]->count();
     for (int i = 0; i < count; ++i) {
       top_data[i] = (bottom_data[i] > threshold_) ? Dtype(1) : Dtype(0);

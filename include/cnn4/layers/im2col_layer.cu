@@ -9,7 +9,7 @@ template <typename Dtype>
 void Im2colLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
       const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
-  Dtype* top_data = top[0]->mutable_data();
+  Dtype* top_data = top[0]->mdata();
   const int num_kernels = channels_ * top[0]->count(channel_axis_ + 1);
   for (int n = 0; n < num_; ++n) {
     if (!force_nd_im2col_ && num_spatial_axes_ == 2) {
@@ -33,9 +33,9 @@ void Im2colLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 
 template <typename Dtype>
 void Im2colLayer::Backward(GPUContext* context, const vector<Blob*>& top,
-      const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
+      const vector<Blob*>& bottom) {
   const Dtype* top_diff = top[0]->gpu_diff();
-  Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
+  Dtype* bottom_diff = bottom[0]->gpu_mdiff();
   for (int n = 0; n < num_; ++n) {
     if (!force_nd_im2col_ && num_spatial_axes_ == 2) {
       col2im_gpu(top_diff + n * top_dim_, channels_,

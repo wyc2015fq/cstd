@@ -35,17 +35,17 @@ typedef struct cJSON {
   bool has(const char* name) {
     return GetObjectItem(name)!=NULL;
   }
-  void AddItemToArray(cJSON* item) {
-    void cJSON_AddItemToArray(cJSON* array, cJSON* item);
-    cJSON_AddItemToArray(this, item);
+  cJSON* AddItemToArray(cJSON* item) {
+    cJSON* cJSON_AddItemToArray(cJSON* array, cJSON* item);
+    return cJSON_AddItemToArray(this, item);
   }
-  void AddItemToObject(const char* string, cJSON* item) {
-    void cJSON_AddItemToObject(cJSON* object, const char* string, cJSON* item);
-    cJSON_AddItemToObject(this, string, item);
+  cJSON* AddItemToObject(const char* string, cJSON* item) {
+    cJSON* cJSON_AddItemToObject(cJSON* object, const char* string, cJSON* item);
+    return cJSON_AddItemToObject(this, string, item);
   }
-  void AddItemToObjectCS(const char* string, cJSON* item) {
-    void cJSON_AddItemToObjectCS(cJSON* object, const char* string, cJSON* item);
-    cJSON_AddItemToObjectCS(this, string, item);
+  cJSON* AddItemToObjectCS(const char* string, cJSON* item) {
+    cJSON* cJSON_AddItemToObjectCS(cJSON* object, const char* string, cJSON* item);
+    return cJSON_AddItemToObjectCS(this, string, item);
   }
   int size() const {
     int cJSON_GetArraySize(const cJSON* array);

@@ -44,7 +44,7 @@ namespace
     int inner_dim = bottom[0]->count() / bottom[0]->shape(0);
     const Dtype* in = bottom[0]->data();
     const Dtype* permut = bottom[1]->data();
-    Dtype* out = top[0]->mutable_data();
+    Dtype* out = top[0]->mdata();
     for (int index = 0; index < top[0]->count(); ++index) {
       int n = index / (inner_dim);
       int in_n = static_cast<int>(permut[n]);
@@ -62,7 +62,7 @@ namespace
       return;
     }
     int inner_dim = bottom[0]->count() / bottom[0]->shape(0);
-    Dtype* bot_diff = bottom[0]->mutable_diff();
+    Dtype* bot_diff = bottom[0]->mdiff();
     const Dtype* permut = bottom[1]->data();
     const Dtype* top_diff = top[0]->diff();
     caffe_set(bottom[0]->count(), Dtype(0), bot_diff);

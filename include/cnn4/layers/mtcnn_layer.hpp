@@ -40,14 +40,14 @@ namespace
     virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
       const vector<Blob*> & top) {
       int count = bottom[0]->count();
-      //caffe_sub( count, bottom[0]->data(), bottom[1]->data(), diff_.mutable_data());
+      //caffe_sub( count, bottom[0]->data(), bottom[1]->data(), diff_.mdata());
       //const Dtype* roi = bottom[1]->data();
       int num = bottom[1]->countL(1);
       int len = bottom[1]->countH(1);
       for (int i = 0; i < num; ++i) {
         const Dtype* bottom0_data = bottom[0]->data() + i*len;
         const Dtype* bottom1_data = bottom[1]->data() + i*len;
-        Dtype* diff_data = diff_.mutable_data() + i*len;
+        Dtype* diff_data = diff_.mdata() + i*len;
         if (bottom1_data[0]>(0-0.0001)) {
           for (int j = 0; j < len; ++j) {
             diff_data[j] = bottom0_data[j] - bottom1_data[j];
@@ -61,7 +61,7 @@ namespace
       }
       Dtype dot = caffe_dot(count, diff_.data(), diff_.data());
       Dtype loss = dot / bottom[0]->num() / Dtype(2);
-      top[0]->mutable_data()[0] = loss;
+      top[0]->mdata()[0] = loss;
     }
     virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
       const vector<Blob*> & top);
@@ -78,7 +78,7 @@ namespace
             alpha,                              // alpha
             diff_.data(),                   // a
             Dtype(0),                           // beta
-            bottom[i]->mutable_diff());  // b
+            bottom[i]->mdiff());  // b
         }
       }
     }
@@ -127,8 +127,8 @@ namespace
       for (int i = 0; i < num; ++i) {
         const Dtype* bottom0_data = bottom[0]->data() + i*len0;
         const Dtype* bottom1_data = bottom[1]->data() + i*len1;
-        Dtype* top0_data = top[0]->mutable_data() + i*len0;
-        Dtype* top1_data = top[1]->mutable_data() + i*len1;
+        Dtype* top0_data = top[0]->mdata() + i*len0;
+        Dtype* top1_data = top[1]->mdata() + i*len1;
         if (bottom1_data[0] >= (0 - 0.00001)) {
           for (int j = 0; j < len0; ++j) {
             top0_data[j] = bottom0_data[j];
@@ -154,7 +154,7 @@ namespace
       int len1 = bottom[1]->countH(1);
       if (bottom[0]->propagate_down_) {
         for (int i = 0; i < num; ++i) {
-          Dtype* bottom0_diff = bottom[0]->mutable_diff() + i*len0;
+          Dtype* bottom0_diff = bottom[0]->mdiff() + i*len0;
           const Dtype* bottom1_data = bottom[1]->data() + i*len1;
           const Dtype* top0_diff = top[0]->diff() + i*len0;
           if (bottom1_data[0] >= (0 - 0.00001)) {

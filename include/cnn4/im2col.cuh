@@ -1,9 +1,6 @@
 
-#ifndef Dtype
 
-
-template <typename Dtype>
-__global__ void im2col_kernel(const int n, const Dtype* data_im,
+__global__ void FUN(im2col_kernel)(const int n, const Dtype* data_im,
   const int height, const int width, const int kernel_h, const int kernel_w,
   const int pad_h, const int pad_w,
   const int stride_h, const int stride_w,
@@ -35,8 +32,30 @@ __global__ void im2col_kernel(const int n, const Dtype* data_im,
   }
 }
 
-template <typename Dtype, int num_axes>
-__global__ void im2col_nd_kernel(const int n, const Dtype* data_im,
+void FUN(im2col)(const Dtype* data_im, const int channels,
+  const int height, const int width, const int kernel_h, const int kernel_w,
+  const int pad_h, const int pad_w,
+  const int stride_h, const int stride_w,
+  const int dilation_h, const int dilation_w,
+  Dtype* data_col) {
+  // We are going to launch channels * height_col * width_col kernels, each
+  // kernel responsible for copying a single-channel grid.
+  int height_col = (height + 2 * pad_h -
+    (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
+  int width_col = (width + 2 * pad_w -
+    (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
+  int num_kernels = channels * height_col * width_col;
+  // NOLINT_NEXT_LINE(whitespace/operators)
+  FUN(im2col_kernel) << <CAFFE_GET_BLOCKS(num_kernels),
+    CAFFE_CUDA_NUM_THREADS >> >(
+      num_kernels, data_im, height, width, kernel_h, kernel_w, pad_h,
+      pad_w, stride_h, stride_w, dilation_h, dilation_w, height_col,
+      width_col, data_col);
+  CUDA_POST_KERNEL_CHECK;
+}
+
+template <int num_axes>
+__global__ void FUN(im2col_nd_kernel)(const int n, const Dtype* data_im,
   const DataShape im_shape, const DataShape col_shape,
   const DataShape kernel_shape, const DataShape pad, const DataShape stride,
   const DataShape dilation, Dtype* data_col) {
@@ -122,8 +141,7 @@ __global__ void im2col_nd_kernel(const int n, const Dtype* data_im,
   }  // CUDA_KERNEL_LOOP(index, n)
 }
 
-template <typename Dtype>
-__global__ void col2im_kernel(const int n, const Dtype* data_col,
+__global__ void FUN(col2im_kernel)(const int n, const Dtype* data_col,
   const int height, const int width, const int channels,
   const int kernel_h, const int kernel_w,
   const int pad_h, const int pad_w,
@@ -163,8 +181,8 @@ __global__ void col2im_kernel(const int n, const Dtype* data_col,
   }
 }
 
-template <typename Dtype, int num_axes>
-__global__ void col2im_nd_kernel(const int n, const Dtype* data_col,
+template <int num_axes>
+__global__ void FUN(col2im_nd_kernel)(const int n, const Dtype* data_col,
   const DataShape im_shape, const DataShape col_shape,
   const DataShape kernel_shape, const DataShape pad, const DataShape stride,
   const DataShape dilation, Dtype* data_im) {
@@ -269,33 +287,7 @@ __global__ void col2im_nd_kernel(const int n, const Dtype* data_col,
   }  // CUDA_KERNEL_LOOP(index, n)
 }
 
-#else
-
-template <>
-void im2col<Dtype>(const Dtype* data_im, const int channels,
-    const int height, const int width, const int kernel_h, const int kernel_w,
-    const int pad_h, const int pad_w,
-    const int stride_h, const int stride_w,
-    const int dilation_h, const int dilation_w,
-    Dtype* data_col) {
-  // We are going to launch channels * height_col * width_col kernels, each
-  // kernel responsible for copying a single-channel grid.
-  int height_col = (height + 2 * pad_h -
-      (dilation_h * (kernel_h - 1) + 1)) / stride_h + 1;
-  int width_col = (width + 2 * pad_w -
-      (dilation_w * (kernel_w - 1) + 1)) / stride_w + 1;
-  int num_kernels = channels * height_col * width_col;
-  // NOLINT_NEXT_LINE(whitespace/operators)
-  im2col_kernel<Dtype><<<CAFFE_GET_BLOCKS(num_kernels),
-                             CAFFE_CUDA_NUM_THREADS>>>(
-      num_kernels, data_im, height, width, kernel_h, kernel_w, pad_h,
-      pad_w, stride_h, stride_w, dilation_h, dilation_w, height_col,
-      width_col, data_col);
-  CUDA_POST_KERNEL_CHECK;
-}
-
-template <>
-void im2col_nd<Dtype>(const Dtype* data_im, const int num_spatial_axes,
+void FUN(im2col_nd)(const Dtype* data_im, const int num_spatial_axes,
     const int num_kernels, const DataShape im_shape, const DataShape col_shape,
     const DataShape kernel_shape, const DataShape pad, const DataShape stride,
     const DataShape dilation, Dtype* data_col) {
@@ -303,61 +295,61 @@ void im2col_nd<Dtype>(const Dtype* data_im, const int num_spatial_axes,
   DCHECK_LT(num_spatial_axes, CAFFE_CUDA_NUM_THREADS);
   switch (num_spatial_axes) {
   case 1:
-    im2col_nd_kernel<Dtype, 1>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(im2col_nd_kernel)<1>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(num_kernels), CAFFE_CUDA_NUM_THREADS>>>(
         num_kernels, data_im, im_shape, col_shape,
         kernel_shape, pad, stride, dilation, data_col);
     break;
   case 2:
-    im2col_nd_kernel<Dtype, 2>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(im2col_nd_kernel)<2>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(num_kernels), CAFFE_CUDA_NUM_THREADS>>>(
         num_kernels, data_im, im_shape, col_shape,
         kernel_shape, pad, stride, dilation, data_col);
     break;
   case 3:
-    im2col_nd_kernel<Dtype, 3>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(im2col_nd_kernel)<3>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(num_kernels), CAFFE_CUDA_NUM_THREADS>>>(
         num_kernels, data_im, im_shape, col_shape,
         kernel_shape, pad, stride, dilation, data_col);
     break;
   case 4:
-    im2col_nd_kernel<Dtype, 4>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(im2col_nd_kernel)<4>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(num_kernels), CAFFE_CUDA_NUM_THREADS>>>(
         num_kernels, data_im, im_shape, col_shape,
         kernel_shape, pad, stride, dilation, data_col);
     break;
   case 5:
-    im2col_nd_kernel<Dtype, 5>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(im2col_nd_kernel)<5>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(num_kernels), CAFFE_CUDA_NUM_THREADS>>>(
         num_kernels, data_im, im_shape, col_shape,
         kernel_shape, pad, stride, dilation, data_col);
     break;
   case 6:
-    im2col_nd_kernel<Dtype, 6>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(im2col_nd_kernel)<6>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(num_kernels), CAFFE_CUDA_NUM_THREADS>>>(
         num_kernels, data_im, im_shape, col_shape,
         kernel_shape, pad, stride, dilation, data_col);
     break;
   case 7:
-    im2col_nd_kernel<Dtype, 7>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(im2col_nd_kernel)<7>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(num_kernels), CAFFE_CUDA_NUM_THREADS>>>(
         num_kernels, data_im, im_shape, col_shape,
         kernel_shape, pad, stride, dilation, data_col);
     break;
   case 8:
-    im2col_nd_kernel<Dtype, 8>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(im2col_nd_kernel)<8>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(num_kernels), CAFFE_CUDA_NUM_THREADS>>>(
         num_kernels, data_im, im_shape, col_shape,
         kernel_shape, pad, stride, dilation, data_col);
     break;
   case 9:
-    im2col_nd_kernel<Dtype, 9>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(im2col_nd_kernel)<9>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(num_kernels), CAFFE_CUDA_NUM_THREADS>>>(
         num_kernels, data_im, im_shape, col_shape,
         kernel_shape, pad, stride, dilation, data_col);
     break;
   case 10:
-    im2col_nd_kernel<Dtype, 10>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(im2col_nd_kernel)<10>  // NOLINT_NEXT_LINE(whitespace/operators)
         <<<CAFFE_GET_BLOCKS(num_kernels), CAFFE_CUDA_NUM_THREADS>>>(
         num_kernels, data_im, im_shape, col_shape,
         kernel_shape, pad, stride, dilation, data_col);
@@ -369,8 +361,7 @@ void im2col_nd<Dtype>(const Dtype* data_im, const int num_spatial_axes,
   CUDA_POST_KERNEL_CHECK;
 }
 
-template <>
-void col2im<Dtype>(const Dtype* data_col, const int channels,
+void FUN(col2im)(const Dtype* data_col, const int channels,
     const int height, const int width, const int kernel_h, const int kernel_w,
     const int pad_h, const int pad_w, const int stride_h,
     const int stride_w, const int dilation_h, const int dilation_w,
@@ -383,7 +374,7 @@ void col2im<Dtype>(const Dtype* data_col, const int channels,
   // To avoid involving atomic operations, we will launch one kernel per
   // bottom dimension, and then in the kernel add up the top dimensions.
   // NOLINT_NEXT_LINE(whitespace/operators)
-  col2im_kernel<Dtype><<<CAFFE_GET_BLOCKS(num_kernels),
+  FUN(col2im_kernel) <<<CAFFE_GET_BLOCKS(num_kernels),
                              CAFFE_CUDA_NUM_THREADS>>>(
       num_kernels, data_col, height, width, channels, kernel_h, kernel_w,
       pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w,
@@ -391,8 +382,7 @@ void col2im<Dtype>(const Dtype* data_col, const int channels,
   CUDA_POST_KERNEL_CHECK;
 }
 
-template <>
-void col2im_nd<Dtype>(const Dtype* data_col, const int num_spatial_axes,
+void FUN(col2im_nd)(const Dtype* data_col, const int num_spatial_axes,
     const int im_size, const DataShape im_shape, const DataShape col_shape,
     const DataShape kernel_shape, const DataShape pad, const DataShape stride,
     const DataShape dilation, Dtype* data_im) {
@@ -400,61 +390,61 @@ void col2im_nd<Dtype>(const Dtype* data_col, const int num_spatial_axes,
   DCHECK_LT(num_spatial_axes, CAFFE_CUDA_NUM_THREADS);
   switch (num_spatial_axes) {
   case 1:
-    col2im_nd_kernel<Dtype, 1>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(col2im_nd_kernel)<1>  // NOLINT_NEXT_LINE(whitespace/operators)
           <<<CAFFE_GET_BLOCKS(im_size), CAFFE_CUDA_NUM_THREADS>>>(
           im_size, data_col, im_shape, col_shape,
           kernel_shape, pad, stride, dilation, data_im);
     break;
   case 2:
-    col2im_nd_kernel<Dtype, 2>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(col2im_nd_kernel)<2>  // NOLINT_NEXT_LINE(whitespace/operators)
           <<<CAFFE_GET_BLOCKS(im_size), CAFFE_CUDA_NUM_THREADS>>>(
           im_size, data_col, im_shape, col_shape,
           kernel_shape, pad, stride, dilation, data_im);
     break;
   case 3:
-    col2im_nd_kernel<Dtype, 3>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(col2im_nd_kernel)<3>  // NOLINT_NEXT_LINE(whitespace/operators)
           <<<CAFFE_GET_BLOCKS(im_size), CAFFE_CUDA_NUM_THREADS>>>(
           im_size, data_col, im_shape, col_shape,
           kernel_shape, pad, stride, dilation, data_im);
     break;
   case 4:
-    col2im_nd_kernel<Dtype, 4>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(col2im_nd_kernel)<4>  // NOLINT_NEXT_LINE(whitespace/operators)
           <<<CAFFE_GET_BLOCKS(im_size), CAFFE_CUDA_NUM_THREADS>>>(
           im_size, data_col, im_shape, col_shape,
           kernel_shape, pad, stride, dilation, data_im);
     break;
   case 5:
-    col2im_nd_kernel<Dtype, 5>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(col2im_nd_kernel)<5>  // NOLINT_NEXT_LINE(whitespace/operators)
           <<<CAFFE_GET_BLOCKS(im_size), CAFFE_CUDA_NUM_THREADS>>>(
           im_size, data_col, im_shape, col_shape,
           kernel_shape, pad, stride, dilation, data_im);
     break;
   case 6:
-    col2im_nd_kernel<Dtype, 6>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(col2im_nd_kernel)<6>  // NOLINT_NEXT_LINE(whitespace/operators)
           <<<CAFFE_GET_BLOCKS(im_size), CAFFE_CUDA_NUM_THREADS>>>(
           im_size, data_col, im_shape, col_shape,
           kernel_shape, pad, stride, dilation, data_im);
     break;
   case 7:
-    col2im_nd_kernel<Dtype, 7>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(col2im_nd_kernel)<7>  // NOLINT_NEXT_LINE(whitespace/operators)
           <<<CAFFE_GET_BLOCKS(im_size), CAFFE_CUDA_NUM_THREADS>>>(
           im_size, data_col, im_shape, col_shape,
           kernel_shape, pad, stride, dilation, data_im);
     break;
   case 8:
-    col2im_nd_kernel<Dtype, 8>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(col2im_nd_kernel)<8>  // NOLINT_NEXT_LINE(whitespace/operators)
           <<<CAFFE_GET_BLOCKS(im_size), CAFFE_CUDA_NUM_THREADS>>>(
           im_size, data_col, im_shape, col_shape,
           kernel_shape, pad, stride, dilation, data_im);
     break;
   case 9:
-    col2im_nd_kernel<Dtype, 9>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(col2im_nd_kernel)<9>  // NOLINT_NEXT_LINE(whitespace/operators)
           <<<CAFFE_GET_BLOCKS(im_size), CAFFE_CUDA_NUM_THREADS>>>(
           im_size, data_col, im_shape, col_shape,
           kernel_shape, pad, stride, dilation, data_im);
     break;
   case 10:
-    col2im_nd_kernel<Dtype, 10>  // NOLINT_NEXT_LINE(whitespace/operators)
+    FUN(col2im_nd_kernel)<10>  // NOLINT_NEXT_LINE(whitespace/operators)
           <<<CAFFE_GET_BLOCKS(im_size), CAFFE_CUDA_NUM_THREADS>>>(
           im_size, data_col, im_shape, col_shape,
           kernel_shape, pad, stride, dilation, data_im);
@@ -465,4 +455,5 @@ void col2im_nd<Dtype>(const Dtype* data_col, const int num_spatial_axes,
   }
   CUDA_POST_KERNEL_CHECK;
 }
-#endif
+
+

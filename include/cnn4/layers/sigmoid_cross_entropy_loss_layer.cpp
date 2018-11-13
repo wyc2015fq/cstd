@@ -46,7 +46,7 @@ namespace
       loss -= input_data[i] * (target[i] - (input_data[i] >= 0)) -
               log(1 + exp(input_data[i] - 2 * input_data[i] * (input_data[i] >= 0)));
     }
-    top[0]->mutable_data()[0] = loss / num;
+    top[0]->mdata()[0] = loss / num;
   }
 
   template <typename Dtype>
@@ -64,7 +64,7 @@ namespace
       const int num = bottom[0]->num();
       const Dtype* sigmoid_output_data = sigmoid_output_->data();
       const Dtype* target = bottom[1]->data();
-      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      Dtype* bottom_diff = bottom[0]->mdiff();
       caffe_sub(count, sigmoid_output_data, target, bottom_diff);
       // Scale down gradient
       const Dtype loss_weight = top[0]->diff()[0];

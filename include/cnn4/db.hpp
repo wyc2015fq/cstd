@@ -221,15 +221,15 @@ private:
 
 #endif
 
-DB* GetDB(const char* backend)
+DB* GetDB(DBMethod backend)
 {
 #ifdef USE_LEVELDB
-  if (0 == _stricmp(backend, "leveldb")) {
+  if (backend == DBMethod_LEVELDB)) {
     return new LevelDB();
   }
 #endif  // USE_LEVELDB
 #ifdef USE_LMDB
-  if (0 == _stricmp(backend, "lmdb")) {
+  if (backend == DBMethod_LMDB) {
     return new LMDB();
   }
 #endif  // USE_LMDB

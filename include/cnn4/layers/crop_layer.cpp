@@ -119,7 +119,7 @@ namespace
   {
     std::vector<int> indices(top[0]->num_axes(), 0);
     const Dtype* bottom_data = bottom[0]->data();
-    Dtype* top_data = top[0]->mutable_data();
+    Dtype* top_data = top[0]->mdata();
     crop_copy(bottom, top, offsets, indices, 0, bottom_data, top_data, true);
   }
 
@@ -128,7 +128,7 @@ namespace
                                       const vector<Blob*> & bottom)
   {
     const Dtype* top_diff = top[0]->diff();
-    Dtype* bottom_diff = bottom[0]->mutable_diff();
+    Dtype* bottom_diff = bottom[0]->mdiff();
     if (bottom[0]->propagate_down_) {
       caffe_set(bottom[0]->count(), static_cast<Dtype>(0), bottom_diff);
       std::vector<int> indices(top[0]->num_axes(), 0);

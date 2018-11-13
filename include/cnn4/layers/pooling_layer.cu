@@ -1,8 +1,5 @@
 
-#ifndef Dtype
-
-template <typename Dtype>
-__global__ void MaxPoolForward(const int nthreads,
+__global__ void FUN(MaxPoolForward)(const int nthreads,
     const Dtype* const bottom_data, const int num, const int channels,
     const int height, const int width, const int pooled_height,
     const int pooled_width, const int kernel_h, const int kernel_w,
@@ -40,8 +37,7 @@ __global__ void MaxPoolForward(const int nthreads,
   }
 }
 
-template <typename Dtype>
-__global__ void AvePoolForward(const int nthreads,
+__global__ void FUN(AvePoolForward)(const int nthreads,
     const Dtype* const bottom_data, const int num, const int channels,
     const int height, const int width, const int pooled_height,
     const int pooled_width, const int kernel_h, const int kernel_w,
@@ -73,8 +69,7 @@ __global__ void AvePoolForward(const int nthreads,
   }
 }
 
-template <typename Dtype>
-__global__ void StoPoolForwardTrain(const int nthreads,
+__global__ void FUN(StoPoolForwardTrain)(const int nthreads,
     const Dtype* const bottom_data,
     const int num, const int channels, const int height,
     const int width, const int pooled_height, const int pooled_width,
@@ -114,9 +109,7 @@ __global__ void StoPoolForwardTrain(const int nthreads,
   }
 }
 
-
-template <typename Dtype>
-__global__ void StoPoolForwardTest(const int nthreads,
+__global__ void FUN(StoPoolForwardTest)(const int nthreads,
     const Dtype* const bottom_data,
     const int num, const int channels, const int height,
     const int width, const int pooled_height, const int pooled_width,
@@ -147,8 +140,7 @@ __global__ void StoPoolForwardTest(const int nthreads,
   }
 }
 
-template <typename Dtype>
-__global__ void MaxPoolBackward(const int nthreads, const Dtype* const top_diff,
+__global__ void FUN(MaxPoolBackward)(const int nthreads, const Dtype* const top_diff,
     const int* const mask, const Dtype* const top_mask, const int num,
     const int channels, const int height, const int width,
     const int pooled_height, const int pooled_width, const int kernel_h,
@@ -193,8 +185,7 @@ __global__ void MaxPoolBackward(const int nthreads, const Dtype* const top_diff,
   }
 }
 
-template <typename Dtype>
-__global__ void AvePoolBackward(const int nthreads, const Dtype* const top_diff,
+__global__ void FUN(AvePoolBackward)(const int nthreads, const Dtype* const top_diff,
     const int num, const int channels, const int height,
     const int width, const int pooled_height, const int pooled_width,
     const int kernel_h, const int kernel_w, const int stride_h,
@@ -229,9 +220,7 @@ __global__ void AvePoolBackward(const int nthreads, const Dtype* const top_diff,
   }
 }
 
-
-template <typename Dtype>
-__global__ void StoPoolBackward(const int nthreads,
+__global__ void FUN(StoPoolBackward)(const int nthreads,
     const Dtype* const rand_idx, const Dtype* const top_diff,
     const int num, const int channels, const int height,
     const int width, const int pooled_height, const int pooled_width,
@@ -264,11 +253,8 @@ __global__ void StoPoolBackward(const int nthreads,
 }
 
 
-#else
 
-
-template <>
-void pooling_forward<Dtype>(PoolMethod pool, Phase phase, const Dtype* bottom_data,
+void FUN(pooling_forward)(PoolMethod pool, Phase phase, const Dtype* bottom_data,
   const int num, const int channels, const int height, const int width, const int pooled_height, const int pooled_width,
   const int kernel_h, const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w,
   Dtype* rand_idx, Dtype* top_data, int* mask, Dtype* top_mask ) {
@@ -281,7 +267,7 @@ void pooling_forward<Dtype>(PoolMethod pool, Phase phase, const Dtype* bottom_da
   switch (pool) {
   case PoolMethod_MAX:
     // NOLINT_NEXT_LINE(whitespace/operators)
-    MaxPoolForward<Dtype> << <CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS >> >(
+    FUN(MaxPoolForward) << <CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS >> >(
       count, bottom_data, num, channels,
       height, width, pooled_height, pooled_width, kernel_h,
       kernel_w, stride_h, stride_w, pad_h, pad_w, top_data,
@@ -289,7 +275,7 @@ void pooling_forward<Dtype>(PoolMethod pool, Phase phase, const Dtype* bottom_da
     break;
   case PoolMethod_AVE:
     // NOLINT_NEXT_LINE(whitespace/operators)
-    AvePoolForward<Dtype> << <CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS >> >(
+    FUN(AvePoolForward) << <CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS >> >(
       count, bottom_data, num, channels,
       height, width, pooled_height, pooled_width, kernel_h,
       kernel_w, stride_h, stride_w, pad_h, pad_w, top_data);
@@ -297,9 +283,9 @@ void pooling_forward<Dtype>(PoolMethod pool, Phase phase, const Dtype* bottom_da
   case PoolMethod_STOCHASTIC:
     if (phase == TRAIN) {
       // We need to create the random index as well.
-      caffe_rng_uniform(count, Dtype(0), Dtype(1), rand_idx);
+      FUN(caffe_rng_uniform)(count, Dtype(0), Dtype(1), rand_idx);
       // NOLINT_NEXT_LINE(whitespace/operators)
-      StoPoolForwardTrain<Dtype> << <CAFFE_GET_BLOCKS(count),
+      FUN(StoPoolForwardTrain) << <CAFFE_GET_BLOCKS(count),
         CAFFE_CUDA_NUM_THREADS >> >(
           count, bottom_data, num, channels,
           height, width, pooled_height, pooled_width, kernel_h,
@@ -308,7 +294,7 @@ void pooling_forward<Dtype>(PoolMethod pool, Phase phase, const Dtype* bottom_da
     }
     else {
       // NOLINT_NEXT_LINE(whitespace/operators)
-      StoPoolForwardTest<Dtype> << <CAFFE_GET_BLOCKS(count),
+      FUN(StoPoolForwardTest) << <CAFFE_GET_BLOCKS(count),
         CAFFE_CUDA_NUM_THREADS >> >(
           count, bottom_data, num, channels,
           height, width, pooled_height, pooled_width, kernel_h,
@@ -321,8 +307,7 @@ void pooling_forward<Dtype>(PoolMethod pool, Phase phase, const Dtype* bottom_da
   CUDA_POST_KERNEL_CHECK;
 }
 
-template <>
-void pooling_backward<Dtype>(PoolMethod pool, const Dtype* const rand_idx,
+void FUN(pooling_backward)(PoolMethod pool, const Dtype* const rand_idx,
   const Dtype* top_diff, const int* mask, const Dtype* top_mask, const int num,
   const int channels, const int height, const int width, const int pooled_height, const int pooled_width, const int kernel_h,
   const int kernel_w, const int stride_h, const int stride_w, const int pad_h, const int pad_w, Dtype* bottom_diff) {
@@ -332,7 +317,7 @@ void pooling_backward<Dtype>(PoolMethod pool, const Dtype* const rand_idx,
     return;
   }
   const Dtype* top_diff = top[0]->gpu_diff();
-  Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
+  Dtype* bottom_diff = bottom[0]->gpu_mdiff();
   const int count = bottom[0]->count();
   caffe_gpu_set(count, Dtype(0.), bottom_diff);
   // We'll output the mask to top[1] if it's of size >1.
@@ -348,7 +333,7 @@ void pooling_backward<Dtype>(PoolMethod pool, const Dtype* const rand_idx,
   switch (pool) {
   case PoolMethod_MAX:
     // NOLINT_NEXT_LINE(whitespace/operators)
-    MaxPoolBackward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
+    FUN(MaxPoolBackward) <<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, top_diff, mask, top_mask, num, channels,
         height, width, pooled_height, pooled_width,
         kernel_h, kernel_w, stride_h, stride_w, pad_h, pad_w,
@@ -356,14 +341,14 @@ void pooling_backward<Dtype>(PoolMethod pool, const Dtype* const rand_idx,
     break;
   case PoolMethod_AVE:
     // NOLINT_NEXT_LINE(whitespace/operators)
-    AvePoolBackward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
+    FUN(AvePoolBackward)<<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, top_diff, num, channels,
         height, width, pooled_height, pooled_width, kernel_h,
         kernel_w, stride_h, stride_w, pad_h, pad_w, bottom_diff);
     break;
   case PoolMethod_STOCHASTIC:
     // NOLINT_NEXT_LINE(whitespace/operators)
-    StoPoolBackward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
+    FUN(StoPoolBackward)<<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, rand_idx, top_diff,
         num, channels, height, width, pooled_height,
         pooled_width, kernel_h, kernel_w, stride_h, stride_w,
@@ -375,6 +360,3 @@ void pooling_backward<Dtype>(PoolMethod pool, const Dtype* const rand_idx,
   CUDA_POST_KERNEL_CHECK;
 }
 
-
-
-#endif

@@ -42,7 +42,7 @@
     int outputShape[] = { N, c_output, h_img, w_img };
     vector<int> outputShapeVec(outputShape, outputShape + 4);
     output->Reshape(outputShapeVec);
-    Dtype* outputPtr = output->mutable_data();
+    Dtype* outputPtr = output->mdata();
     for (int n = 0; n < N; ++n) {
       for (int c_outIdx = 0; c_outIdx < c_output; ++c_outIdx) {
         for (int hIdx = 0; hIdx < h_img; ++hIdx) {
@@ -67,8 +67,8 @@
   template <typename Dtype>
   void convolution_Bwd(Blob* bottom, Blob* top, Blob* filter, int N, int c_output, int c_input, int h_img, int w_img, int h_filter, int w_filter)
   {
-    Dtype* filterDiffPtr = filter->mutable_diff();
-    Dtype* bottomDiffPtr = bottom->mutable_diff();
+    Dtype* filterDiffPtr = filter->mdiff();
+    Dtype* bottomDiffPtr = bottom->mdiff();
     //compute FilterGrad
     for (int coutIdx = 0; coutIdx < c_output; ++coutIdx) {
       for (int cinIdx = 0; cinIdx < c_input; ++cinIdx) {
@@ -119,7 +119,7 @@
     vector<int> topShapeVec(topShapeArr, topShapeArr + 4);
     top->Reshape(topShapeVec);
     //ReLU Fwd
-    Dtype* topPtr = top->mutable_data();
+    Dtype* topPtr = top->mdata();
     for (int n = 0; n < N; ++n) {
       for (int cIdx = 0; cIdx < C; ++cIdx) {
         for (int hIdx = 0; hIdx < h_img; ++hIdx) {
@@ -135,7 +135,7 @@
   template <typename Dtype>
   void ReLU_Bwd(Blob* bottom, Blob* top, int N, int C, int h_img, int w_img)
   {
-    Dtype* bottomDiffPtr = bottom->mutable_diff();
+    Dtype* bottomDiffPtr = bottom->mdiff();
     for (int n = 0; n < N; ++n) {
       for (int cIdx = 0; cIdx < C; ++cIdx) {
         for (int hIdx = 0; hIdx < h_img; ++hIdx) {
@@ -192,15 +192,15 @@
     Blob* localInf_Mean = new Blob(channelShapeVec);
     Blob* localInf_Var = new Blob(channelShapeVec);
     Dtype scale_factor = factor_b->data()[0] == 0 ? 0 : (1 / factor_b->data()[0]);
-    caffe_scale(localInf_Mean->count(), scale_factor, globalMean->data(), localInf_Mean->mutable_data());
-    caffe_scale(localInf_Var->count(), scale_factor, globalVar->data(), localInf_Var->mutable_data());
+    caffe_scale(localInf_Mean->count(), scale_factor, globalMean->data(), localInf_Mean->mdata());
+    caffe_scale(localInf_Var->count(), scale_factor, globalVar->data(), localInf_Var->mdata());
     //Reshape output
     int outputShape[] = { N, C, h_img, w_img };
     vector<int> outputShapeVec(outputShape, outputShape + 4);
     output->Reshape(outputShapeVec);
     //BN Fwd inf
     double epsilon = 1e-5;
-    Dtype* outputPtr = output->mutable_data();
+    Dtype* outputPtr = output->mdata();
     for (int n = 0; n < N; ++n) {
       for (int cIdx = 0; cIdx < C; ++cIdx) {
         Dtype denom = 1.0 / sqrt(localInf_Var->data_at(0, cIdx, 0, 0) + epsilon);
@@ -227,13 +227,13 @@
     for (int channelIdx = 0; channelIdx < C; ++channelIdx) {
       int variance_adjust_m = N * h_img * w_img;
       //batch
-      Dtype* batchMean_mutable = batchMean->mutable_data();
-      Dtype* batchVar_mutable = batchVar->mutable_data();
+      Dtype* batchMean_mutable = batchMean->mdata();
+      Dtype* batchVar_mutable = batchVar->mdata();
       batchMean_mutable[channelIdx] = getMean(bottom, channelIdx);
       batchVar_mutable[channelIdx] = (variance_adjust_m / (variance_adjust_m - 1.0)) * getVar(bottom, channelIdx);
       //global
-      Dtype* globalMean_mutable = globalMean->mutable_data();
-      Dtype* globalVar_mutable = globalVar->mutable_data();
+      Dtype* globalMean_mutable = globalMean->mdata();
+      Dtype* globalVar_mutable = globalVar->mdata();
       globalMean_mutable[channelIdx] = EMA_decay * globalMean->data_at(0, channelIdx, 0, 0) + batchMean->data_at(0, channelIdx, 0, 0);
       globalVar_mutable[channelIdx] = EMA_decay * globalVar->data_at(0, channelIdx, 0, 0) + batchVar->data_at(0, channelIdx, 0, 0);
     }
@@ -242,9 +242,9 @@
       for (int c = 0; c < C; ++c) {
         for (int h = 0; h < h_img; ++h) {
           for (int w = 0; w < w_img; ++w) {
-            Dtype* xhat_mutable = output_xhat->mutable_data();
+            Dtype* xhat_mutable = output_xhat->mdata();
             xhat_mutable[output_xhat->offset(n, c, h, w)] = (bottom->data_at(n, c, h, w) - batchMean->data_at(0, c, 0, 0)) / sqrt(batchVar->data_at(0, c, 0, 0) + epsilon);
-            Dtype* output_mutable = top->mutable_data();
+            Dtype* output_mutable = top->mdata();
             output_mutable[top->offset(n, c, h, w)] = (scaler->data_at(0, c, 0, 0)) * (output_xhat->data_at(n, c, h, w)) + bias->data_at(0, c, 0, 0);
           }
         }
@@ -271,8 +271,8 @@
   {
     double epsilon = 1e-5;
     //bias and scaler grad
-    Dtype* biasGrad = bias->mutable_diff();
-    Dtype* scalerGrad = scaler->mutable_diff();
+    Dtype* biasGrad = bias->mdiff();
+    Dtype* scalerGrad = scaler->mdiff();
     for (int channelIdx = 0; channelIdx < C; ++channelIdx) {
       biasGrad[channelIdx] = 0;
       scalerGrad[channelIdx] = 0;
@@ -287,7 +287,7 @@
     }
     //bottom data grad
     //helper 1:
-    Dtype* XhatGrad = bottom_xhat->mutable_diff();
+    Dtype* XhatGrad = bottom_xhat->mdiff();
     for (int n = 0; n < N; ++n) {
       for (int c = 0; c < C; ++c) {
         for (int h = 0; h < h_img; ++h) {
@@ -298,7 +298,7 @@
       }
     }
     //helper 2:
-    Dtype* varGrad = batchVar->mutable_diff();
+    Dtype* varGrad = batchVar->mdiff();
     for (int c = 0; c < C; ++c) {
       for (int n = 0; n < N; ++n) {
         for (int h = 0; h < h_img; ++h) {
@@ -315,7 +315,7 @@
     }
     //helper 3:
     double m = N * h_img * w_img;
-    Dtype* meanGrad = batchMean->mutable_diff();
+    Dtype* meanGrad = batchMean->mdiff();
     for (int c = 0; c < C; ++c) {
       for (int n = 0; n < N; ++n) {
         for (int h = 0; h < h_img; ++h) {
@@ -329,7 +329,7 @@
       }
     }
     //combine helpers
-    Dtype* bottomDataGrad = bottom->mutable_diff();
+    Dtype* bottomDataGrad = bottom->mdiff();
     for (int n = 0; n < N; ++n) {
       for (int c = 0; c < C; ++c) {
         for (int h = 0; h < h_img; ++h) {
@@ -423,7 +423,7 @@
               int readC = c - frontC;
               inData = blobB->data()[blobB->offset(n, readC, h, w)];
             }
-            outputBlob->mutable_data()[outputBlob->offset(n, c, h, w)] = inData;
+            outputBlob->mdata()[outputBlob->offset(n, c, h, w)] = inData;
           }
         }
       }
@@ -444,10 +444,10 @@
           for (int w = 0; w < W; ++w) {
             Dtype readData = inputBlob->diff()[inputBlob->offset(n, c, h, w)];
             if (c < frontC) {
-              blobA->mutable_diff()[blobA->offset(n, c, h, w)] = readData;
+              blobA->mdiff()[blobA->offset(n, c, h, w)] = readData;
             } else {
               int writeC = c - frontC;
-              blobB->mutable_diff()[blobB->offset(n, writeC, h, w)] = readData;
+              blobB->mdiff()[blobB->offset(n, writeC, h, w)] = readData;
             }
           }
         }
@@ -458,11 +458,11 @@
   template <typename Dtype>
   void BlobSetZero(Blob* B, int count)
   {
-    Dtype* B_mutable_data = B->mutable_data();
-    Dtype* B_mutable_diff = B->mutable_diff();
+    Dtype* B_mdata = B->mdata();
+    Dtype* B_mdiff = B->mdiff();
     for (int i = 0; i < count; ++i) {
-      B_mutable_data[i] = 0;
-      B_mutable_diff[i] = 0;
+      B_mdata[i] = 0;
+      B_mdiff[i] = 0;
     }
   }
 
@@ -556,8 +556,8 @@
     //deploy output data
     top[0]->CopyFrom(*(this->merged_conv[this->numTransition]));
     if (this->phase_ == TRAIN) {
-      this->blobs_[bnTimerIdx]->mutable_data()[0] *= this->EMA_decay;
-      this->blobs_[bnTimerIdx]->mutable_data()[0] += 1;
+      this->blobs_[bnTimerIdx]->mdata()[0] *= this->EMA_decay;
+      this->blobs_[bnTimerIdx]->mdata()[0] += 1;
       this->trainCycleIdx += 1;
     }
     //logInternal_cpu("TC_TrueFwdlog");

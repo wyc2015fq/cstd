@@ -20,7 +20,7 @@ namespace
     const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const int count = top[0]->count();
-    Dtype* top_data = top[0]->mutable_data();
+    Dtype* top_data = top[0]->mdata();
     caffe_abs(count, bottom[0]->data(), top_data);
   }
 
@@ -32,7 +32,7 @@ namespace
     const Dtype* top_diff = top[0]->diff();
     if (bottom[0]->propagate_down_) {
       const Dtype* bottom_data = bottom[0]->data();
-      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      Dtype* bottom_diff = bottom[0]->mdiff();
       caffe_sign(count, bottom_data, bottom_diff);
       caffe_mul(count, bottom_diff, top_diff, bottom_diff);
     }

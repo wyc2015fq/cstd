@@ -7,37 +7,46 @@
  *
  * TODO(dox): thorough documentation for Forward, Backward, and proto params.
  */
+#define InnerProductParameter_DEF(DEF) \
+DEF##Int(num_output, 0, 0) \
+DEF##Int(axis, 1, 0) \
+DEF##Bool(bias_term, true, 0) \
+DEF##Bool(transpose, false, 0) \
+DEF##Struct(weight_filler, 0, Filler) \
+DEF##Struct(bias_filler, 0, Filler) \
+
 
 struct InnerProductLayer : public Layer
 {
+  InnerProductParameter_DEF(Def);
   int M_;
   int K_;
   int N_;
-  int axis_;
-  bool bias_term_;
   Blob bias_multiplier_;
-  bool transpose_;  ///< if true, assume transposed weights
 
   virtual inline const char* type() const { return "InnerProduct"; }
   virtual inline int ExactNumBottomBlobs() const { return 1; }
   virtual inline int ExactNumTopBlobs() const { return 1; }
 
+  bool has_data_;
+  InnerProductLayer() {
+    InnerProductParameter_DEF(Set);
+  }
+  void init(CJSON* param) {
+    InnerProductParameter_DEF(Get);
+    CJSON* blobs_json = param->get("blobs");
+    has_data_ = blobs_json && blobs_json->GetArraySize() > 0 && blobs_json->GetArrayItem(0)->has("data");
+  }
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    const int num_output = this->param_->getint("num_output", 0);
-    this->axis_ = this->param_->getint("axis", 1);
-    bias_term_ = this->param_->getbool("bias_term", true);
-    transpose_ = this->param_->getbool("transpose", false);
-    N_ = num_output;
+    N_ = num_output_;
     const int axis = bottom[0]->CanonicalAxisIndex(this->axis_);
-    CJSON* blobs_json = param_->get("blobs");
-    bool has_data = blobs_json && blobs_json->GetArraySize() > 0 && blobs_json->GetArrayItem(0)->has("data");
     // Dimensions starting from "axis" are "flattened" into a single
     // length K_ vector. For example, if bottom[0]'s shape is (N, C, H, W),
     // and axis == 1, N inner products with dimension CHW are performed.
     K_ = bottom[0]->count(axis);
     // Check if we need to set up the weights
-    if (has_data) {
+    if (has_data_) {
       LOG(INFO) << "Skipping parameter initialization";
     }
     else {
@@ -51,14 +60,12 @@ struct InnerProductLayer : public Layer
       DataShape weight_shape = transpose_ ? dataShape(K_, N_) : dataShape(N_, K_);
       this->blobs_[0]->Reshape(weight_shape);
       // fill the weights
-      cJSON* weight_filler = param_->get("weight_filler");
-      Filler(this->blobs_[0], weight_filler);
+      weight_filler_.Fill(this->blobs_[0]);
       // If necessary, intiialize and fill the bias term
       if (bias_term_) {
-        cJSON* bias_filler = param_->get("bias_filler");
         DataShape bias_shape = dataShape(1, N_);
         this->blobs_[1]->Reshape(bias_shape);
-        Filler(this->blobs_[1], bias_filler);
+        bias_filler_.Fill(this->blobs_[1]);
       }
     }  // parameter initialization
     //this->param_propagate_down_.resize(this->blobs_.size(), true);
@@ -75,7 +82,7 @@ struct InnerProductLayer : public Layer
     // number of these is M_, the product over these dimensions.
     M_ = bottom[0]->count(0, axis);
     // The top shape will be the bottom shape with the flattened axes dropped,
-    // and replaced by a single axis with dimension num_output (N_).
+    // and replaced by a single axis with dimension num_output_ (N_).
     DataShape top_shape = bottom[0]->shape();
     top_shape.resize(axis + 1);
     top_shape.dim[axis] = N_;
@@ -84,14 +91,14 @@ struct InnerProductLayer : public Layer
     if (bias_term_) {
       DataShape bias_shape = dataShape(M_);
       bias_multiplier_.Reshape(bias_shape);
-      caffe_set(M_, Dtype(1), bias_multiplier_.mutable_data());
+      caffe_set(M_, Dtype(1), bias_multiplier_.mdata());
     }
   }
 
   virtual void Forward(const vector<Blob*> & bottom,  const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
-    Dtype* top_data = top[0]->mutable_data();
+    Dtype* top_data = top[0]->mdata();
     const Dtype* weight = this->blobs_[0]->data();
     caffe_gemm(CblasNoTrans, transpose_ ? CblasNoTrans : CblasTrans,
       M_, N_, K_, (Dtype)1.,bottom_data, weight, (Dtype)0., top_data);
@@ -113,13 +120,13 @@ struct InnerProductLayer : public Layer
         caffe_gemm(CblasTrans, CblasNoTrans,
           K_, N_, M_,
           (Dtype)1., bottom_data, top_diff,
-          (Dtype)1., this->blobs_[0]->mutable_diff());
+          (Dtype)1., this->blobs_[0]->mdiff());
       }
       else {
         caffe_gemm(CblasTrans, CblasNoTrans,
           N_, K_, M_,
           (Dtype)1., top_diff, bottom_data,
-          (Dtype)1., this->blobs_[0]->mutable_diff());
+          (Dtype)1., this->blobs_[0]->mdiff());
       }
     }
     if (bias_term_ && this->blobs_[1]->propagate_down_) {
@@ -127,7 +134,7 @@ struct InnerProductLayer : public Layer
       // Gradient with respect to bias
       caffe_gemv(CblasTrans, M_, N_, (Dtype)1., top_diff,
         bias_multiplier_.data(), (Dtype)1.,
-        this->blobs_[1]->mutable_diff());
+        this->blobs_[1]->mdiff());
     }
     if (bottom[0]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff();
@@ -136,13 +143,13 @@ struct InnerProductLayer : public Layer
         caffe_gemm(CblasNoTrans, CblasTrans,
           M_, K_, N_,
           (Dtype)1., top_diff, this->blobs_[0]->data(),
-          (Dtype)0., bottom[0]->mutable_diff());
+          (Dtype)0., bottom[0]->mdiff());
       }
       else {
         caffe_gemm(CblasNoTrans, CblasNoTrans,
           M_, K_, N_,
           (Dtype)1., top_diff, this->blobs_[0]->data(),
-          (Dtype)0., bottom[0]->mutable_diff());
+          (Dtype)0., bottom[0]->mdiff());
       }
     }
   }

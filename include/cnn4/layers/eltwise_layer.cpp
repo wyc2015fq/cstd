@@ -52,7 +52,7 @@ namespace
     const Dtype* bottom_data_a = NULL;
     const Dtype* bottom_data_b = NULL;
     const int count = top[0]->count();
-    Dtype* top_data = top[0]->mutable_data();
+    Dtype* top_data = top[0]->mdata();
     switch (op_) {
     case EltwiseParameter_EltwiseOp_PROD:
       caffe_mul(count, bottom[0]->data(), bottom[1]->data(), top_data);
@@ -69,7 +69,7 @@ namespace
       break;
     case EltwiseParameter_EltwiseOp_MAX:
       // Initialize
-      mask = max_idx_.mutable_data();
+      mask = max_idx_.mdata();
       caffe_set(count, -1, mask);
       caffe_set(count, Dtype(-FLT_MAX), top_data);
       // bottom 0 & 1
@@ -111,7 +111,7 @@ namespace
     for (int i = 0; i < bottom.size(); ++i) {
       if (bottom[i]->propagate_down_) {
         const Dtype* bottom_data = bottom[i]->data();
-        Dtype* bottom_diff = bottom[i]->mutable_diff();
+        Dtype* bottom_diff = bottom[i]->mdiff();
         switch (op_) {
         case EltwiseParameter_EltwiseOp_PROD:
           if (stable_prod_grad_) {

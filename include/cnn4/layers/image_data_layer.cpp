@@ -234,8 +234,8 @@ namespace
       // Reshape batch according to the batch_size.
       top_shape[0] = batch_size;
       batch->data_.Reshape(top_shape);
-      Dtype* prefetch_data = batch->data_[0].mutable_data();
-      Dtype* prefetch_label = batch->data_[1].mutable_data();
+      Dtype* prefetch_data = batch->data_[0].mdata();
+      Dtype* prefetch_label = batch->data_[1].mdata();
       // datum scales
       const int lines_size = lines_.size();
       for (int item_id = 0; item_id < batch_size; ++item_id) {
@@ -280,8 +280,8 @@ namespace
       // Reshape batch according to the batch_size.
       top_shape[0] = batch_size;
       batch->data_[0].Reshape(top_shape);
-      Dtype* prefetch_data = batch->data_[0].mutable_data();
-      Dtype* prefetch_label = batch->data_[1].mutable_data();
+      Dtype* prefetch_data = batch->data_[0].mdata();
+      Dtype* prefetch_label = batch->data_[1].mdata();
       // datum scales
       const int lines_size = regression_lines_.size();
       for (int item_id = 0; item_id < batch_size; ++item_id) {

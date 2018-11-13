@@ -21,11 +21,19 @@ public:
   virtual inline const char* type() const { return "Softmax"; }
   virtual inline int ExactNumBottomBlobs() const { return 1; }
   virtual inline int ExactNumTopBlobs() const { return 1; }
+  int axis_;
+
+  SoftmaxLayer() {
+    axis_ = 1;
+  }
+
+  void init(CJSON* param) {
+    axis_ = param->getint("axis", 1);
+  }
 
   void Reshape(const vector<Blob*> & bottom,
     const vector<Blob*> & top)
   {
-    int axis_ = param_->getint("axis", 1);
     softmax_axis_ = bottom[0]->CanonicalAxisIndex(axis_);
     top[0]->ReshapeLike(*bottom[0]);
     //vector<int> mult_dims(1, bottom[0]->shape(softmax_axis_));
@@ -43,8 +51,8 @@ public:
     int channels = bottom[0]->shape(softmax_axis_);
     int channels1 = top[0]->shape(softmax_axis_);
     const Dtype* bottom_data = bottom[0]->data();
-    Dtype* top_data = top[0]->mutable_data();
-    Dtype* scale_data = scale_.mutable_data();
+    Dtype* top_data = top[0]->mdata();
+    Dtype* scale_data = scale_.mdata();
     softmax_forward(count, channels, outer_num_, inner_num_, bottom_data, top_data, scale_data);
     return ;
   }
@@ -54,8 +62,8 @@ public:
   {
     const Dtype* top_diff = top[0]->diff();
     const Dtype* top_data = top[0]->data();
-    Dtype* bottom_diff = bottom[0]->mutable_diff();
-    Dtype* scale_data = scale_.mutable_data();
+    Dtype* bottom_diff = bottom[0]->mdiff();
+    Dtype* scale_data = scale_.mdata();
     int count = top[0]->count();
     int channels = top[0]->shape(softmax_axis_);
     softmax_backward(count, channels, outer_num_, inner_num_, top_diff, top_data, bottom_diff, scale_data);

@@ -60,7 +60,7 @@ namespace
     if (bias_term_) {
       vector<int> bias_shape(1, M_);
       bias_multiplier_.Reshape(bias_shape);
-      caffe_set(M_, Dtype(1), bias_multiplier_.mutable_data());
+      caffe_set(M_, Dtype(1), bias_multiplier_.mdata());
     }
   }
 
@@ -70,7 +70,7 @@ namespace
   {
     const Dtype* bottom_data = bottom[0]->data();
     const Dtype* weight = this->blobs_[0]->data();
-    Dtype* top_data = top[0]->mutable_data();
+    Dtype* top_data = top[0]->mdata();
     int index;
     for (int n = 0; n < M_; ++n) {
       index = static_cast<int>(bottom_data[n]);
@@ -95,7 +95,7 @@ namespace
       const Dtype* top_diff = top[0]->diff();
       const Dtype* bottom_data = bottom[0]->data();
       // Gradient with respect to weight
-      Dtype* weight_diff = this->blobs_[0]->mutable_diff();
+      Dtype* weight_diff = this->blobs_[0]->mdiff();
       int index;
       for (int n = 0; n < M_; ++n) {
         index = static_cast<int>(bottom_data[n]);
@@ -108,7 +108,7 @@ namespace
     }
     if (bias_term_ && this->blobs_[1]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff();
-      Dtype* bias_diff = this->blobs_[1]->mutable_diff();
+      Dtype* bias_diff = this->blobs_[1]->mdiff();
       caffe_gemv<Dtype>(CblasTrans, M_, N_, Dtype(1), top_diff,
                             bias_multiplier_.data(), Dtype(1), bias_diff);
     }

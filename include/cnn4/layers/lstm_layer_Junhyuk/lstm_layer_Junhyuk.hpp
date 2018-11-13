@@ -35,9 +35,9 @@ class LstmLayer : public Layer {
   virtual void Forward(GPUContext* context, const vector<Blob*>& bottom,
       const vector<Blob*>& top);
   virtual void Backward(CPUContext* context, const vector<Blob*>& top,
-      const vector<bool>& propagate_down, const vector<Blob*>& bottom);
+      const vector<Blob*>& bottom);
   virtual void Backward(GPUContext* context, const vector<Blob*>& top,
-      const vector<bool>& propagate_down, const vector<Blob*>& bottom);
+      const vector<Blob*>& bottom);
 
   int I_; // input dimension
   int H_; // num of hidden units

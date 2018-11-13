@@ -22,7 +22,7 @@ namespace
   void PowerLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
                                       const vector<Blob*> & top)
   {
-    Dtype* top_data = top[0]->mutable_data();
+    Dtype* top_data = top[0]->mdata();
     const int count = bottom[0]->count();
     // Special case where we can ignore the input: scale or power is 0.
     if (diff_scale_ == Dtype(0)) {
@@ -49,7 +49,7 @@ namespace
                                        const vector<Blob*> & bottom)
   {
     if (bottom[0]->propagate_down_) {
-      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      Dtype* bottom_diff = bottom[0]->mdiff();
       const int count = bottom[0]->count();
       const Dtype* top_diff = top[0]->diff();
       if (diff_scale_ == Dtype(0) || power_ == Dtype(1)) {

@@ -24,14 +24,14 @@ void RecurrentLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
       const int count = recur_input_blobs_[i]->count();
       DCHECK_EQ(count, recur_output_blobs_[i]->count());
       const Dtype* timestep_T_data = recur_output_blobs_[i]->data();
-      Dtype* timestep_0_data = recur_input_blobs_[i]->mutable_data();
+      Dtype* timestep_0_data = recur_input_blobs_[i]->mdata();
       caffe_copy(count, timestep_T_data, timestep_0_data);
     }
   }
 
   if (bottom.size() < 2)
   {
-	  Dtype* pcont = cont_input_blob_->mutable_data();
+	  Dtype* pcont = cont_input_blob_->mdata();
 	  for (int i = 0; i<T_; i++)
 	  {
       Dtype cont = Dtype(i == 0 ? 0 : 1);

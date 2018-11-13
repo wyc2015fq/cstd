@@ -4,11 +4,18 @@
 
 #include <string>
 #include "cudnn.h"
+#include "wstd/string.hpp"
+using namespace wstd;
 
-template <typename Dtype>
+#define DenseBlockParameter_DEF(DEF) \
+DEF##Struct(Filter_Filler, 0, Filler) \
+DEF##Struct(BN_Scaler_Filler, 0, Filler) \
+DEF##Struct(BN_Bias_Filler, 0, Filler) \
+
 class DenseBlockLayer : public Layer
 {
 public:
+  DenseBlockParameter_DEF(Def);
   //start logging specific data: for debugging
   int logId;
   //end logging specific data
@@ -106,7 +113,7 @@ public:
 
 
   //gpu handles and descriptors
-  cudnnHandle_t* cudnnHandlePtr;
+  cudnnHandle_t cudnnHandlePtr;
   cudaStream_t* cudaPrimalStream;
   vector<cudnnHandle_t*> extraHandles;
   vector<cudaStream_t*> extraStreams;
@@ -138,6 +145,25 @@ public:
   virtual inline const char* type() const { return "DenseBlock"; }
 
 public:
+
+  DenseBlockLayer() {
+    DenseBlockParameter_DEF(Set);
+  }
+  void init(CJSON* param) {
+    DenseBlockParameter_DEF(Get);
+    this->numTransition = param->getint("numtransition", 40);
+    this->growthRate = param->getint("growthrate", 12);
+    this->EMA_decay = param->getfloat("moving_average_fraction", 0.1);
+#ifndef CPU_ONLY
+    this->workspace_size_bytes = param->getint("workspace_mb", 8) * 1024 * 1024;
+    this->gpu_idx_ = param->getint("gpuidx", 0);
+#endif
+    this->useDropout = param->getbool("use_dropout", false);
+    this->dropoutAmount = param->getfloat("dropout_amount", 0);
+    this->DB_randomSeed = 124816;
+    this->useBC = param->getbool("use_bc", false);
+    this->BC_ultra_spaceEfficient = param->getbool("bc_ultra_space_efficient", false);
+  }
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top) {
     this->cpuInited = false;
     // #ifndef CPU_ONLY
@@ -146,22 +172,9 @@ public:
     this->N = bottom[0]->shape(0);
     this->H = bottom[0]->shape(2);
     this->W = bottom[0]->shape(3);
-    CJSON* dbParam = this->param_;
-    this->numTransition = dbParam->getint("numtransition", 40);
-    //this->initChannel = dbParam->initchannel();
+    //this->initChannel = param->initchannel();
     this->initChannel = bottom[0]->channels();//modified by jxs
-    this->growthRate = dbParam->getint("growthrate", 12);
     this->trainCycleIdx = 0; //initially, trainCycleIdx = 0
-    this->EMA_decay = dbParam->getfloat("moving_average_fraction", 0.1);
-#ifndef CPU_ONLY
-    this->workspace_size_bytes = dbParam->getint("workspace_mb", 8) * 1024 * 1024;
-    this->gpu_idx_ = dbParam->getint("gpuidx", 0);
-#endif
-    this->useDropout = dbParam->getbool("use_dropout", false);
-    this->dropoutAmount = dbParam->getfloat("dropout_amount", 0);
-    this->DB_randomSeed = 124816;
-    this->useBC = dbParam->getbool("use_bc", false);
-    this->BC_ultra_spaceEfficient = dbParam->getbool("bc_ultra_space_efficient", false);
     //Parameter Blobs
     //for transition i,
     //blobs_[i] is its filter blob
@@ -175,9 +188,6 @@ public:
     else {
       blobs_reset(this->blobs_, 5 * this->numTransition + 1);
     }
-    CJSON* filter_filler = dbParam->get("Filter_Filler");
-    CJSON* bn_scaler_filler = dbParam->get("BN_Scaler_Filler");
-    CJSON* bn_bias_filler = dbParam->get("BN_Bias_Filler");
     for (int transitionIdx = 0; transitionIdx < this->numTransition; ++transitionIdx) {
       //filter
       //No BC case
@@ -186,20 +196,20 @@ public:
         int filterShape_Arr[] = { growthRate, inChannels, 3, 3 };
         vector<int> filterShape(filterShape_Arr, filterShape_Arr + 4);
         this->blobs_[transitionIdx]->Reshape((filterShape));
-        Filler(this->blobs_[transitionIdx], filter_filler);
+        Fill(this->blobs_[transitionIdx], &Filter_Filler_);
       }
       else {
         //3*3 kernel
         int filter_33_shapeArr[] = { growthRate, 4 * growthRate, 3, 3 };
         vector<int> filter33Shape(filter_33_shapeArr, filter_33_shapeArr + 4);
         this->blobs_[transitionIdx]->Reshape((filter33Shape));
-        Filler(this->blobs_[transitionIdx], filter_filler);
+        Fill(this->blobs_[transitionIdx], &Filter_Filler_);
         //1*1 kernel
         int inChannels = initChannel + transitionIdx * growthRate;
         int filter_11_shapeArr[] = { 4 * growthRate, inChannels, 1, 1 };
         vector<int> filter11Shape(filter_11_shapeArr, filter_11_shapeArr + 4);
         this->blobs_[5 * numTransition + transitionIdx]->Reshape((filter11Shape));
-        Filler(this->blobs_[5 * numTransition + transitionIdx], filter_filler);
+        Fill(this->blobs_[5 * numTransition + transitionIdx], &Filter_Filler_);
       }
       //scaler & bias
       int inChannels = initChannel + transitionIdx * growthRate;
@@ -207,48 +217,48 @@ public:
       vector<int> BNparamShape(BNparamShape_Arr, BNparamShape_Arr + 4);
       //scaler
       this->blobs_[numTransition + transitionIdx]->Reshape((BNparamShape));
-      Filler(this->blobs_[numTransition + transitionIdx], bn_scaler_filler);
+      Fill(this->blobs_[numTransition + transitionIdx], &BN_Scaler_Filler_);
       int BN_4G_Shape[] = { 1, 4 * growthRate, 1, 1 };
       vector<int> BN_4Gparam_ShapeVec(BN_4G_Shape, BN_4G_Shape + 4);
       //scaler BC
       if (useBC) {
         this->blobs_[6 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-        Filler(this->blobs_[6 * numTransition + transitionIdx], bn_scaler_filler);
+        Fill(this->blobs_[6 * numTransition + transitionIdx], &BN_Scaler_Filler_);
       }
       //bias
       this->blobs_[2 * numTransition + transitionIdx]->Reshape((BNparamShape));
-      Filler(this->blobs_[2 * numTransition + transitionIdx], bn_bias_filler);
+      Fill(this->blobs_[2 * numTransition + transitionIdx], &BN_Bias_Filler_);
       //bias BC
       if (useBC) {
         this->blobs_[7 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-        Filler(this->blobs_[7 * numTransition + transitionIdx], bn_bias_filler);
+        Fill(this->blobs_[7 * numTransition + transitionIdx], &BN_Bias_Filler_);
       }
       //globalMean
       this->blobs_[3 * numTransition + transitionIdx]->Reshape((BNparamShape));
       for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
         Blob* localB = this->blobs_[3 * numTransition + transitionIdx];
-        localB->mutable_cpu_data()[localB->offset(0, blobIdx, 0, 0)] = 0;
+        localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 0;
       }
       //globalMean BC
       if (useBC) {
         this->blobs_[8 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
         Blob* localB = this->blobs_[8 * numTransition + transitionIdx];
         for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
-          localB->mutable_cpu_data()[localB->offset(0, blobIdx, 0, 0)] = 0;
+          localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 0;
         }
       }
       //globalVar
       this->blobs_[4 * numTransition + transitionIdx]->Reshape((BNparamShape));
       for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
         Blob* localB = this->blobs_[4 * numTransition + transitionIdx];
-        localB->mutable_cpu_data()[localB->offset(0, blobIdx, 0, 0)] = 1;
+        localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 1;
       }
       //globalVar BC
       if (useBC) {
         this->blobs_[9 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
         Blob* localB = this->blobs_[9 * numTransition + transitionIdx];
         for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
-          localB->mutable_cpu_data()[localB->offset(0, blobIdx, 0, 0)] = 1;
+          localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 1;
         }
       }
     }
@@ -257,7 +267,7 @@ public:
     singletonShapeVec.push_back(1);
     int singletonIdx = useBC ? 10 * numTransition : 5 * numTransition;
     this->blobs_[singletonIdx]->Reshape((singletonShapeVec));
-    this->blobs_[singletonIdx]->mutable_cpu_data()[0] = Dtype(0);
+    this->blobs_[singletonIdx]->cpu_mdata()[0] = Dtype(0);
     //parameter specification: globalMean/Var weight decay and lr is 0
     if (!useBC) {
       for (int i = 0; i < this->blobs_.size(); ++i) {
@@ -323,7 +333,7 @@ public:
     for (int blobIdx = 0; blobIdx < originBlobs.size(); ++blobIdx) {
       Blob* localBlob = originBlobs[blobIdx];
       Blob* newBlob = this->blobs_[blobIdx];
-      newBlob->CopyFrom(*localBlob, false);
+      newBlob->CopyFrom(localBlob, false);
     }
   }
 
@@ -408,61 +418,51 @@ public:
     //filter
     for (int i = 0; i < this->numTransition; ++i) {
       string blobStr = localDir + "filter_" + itos(i);
-      logBlob(this->blobs_[i].get(), blobStr);
+      logBlob(this->blobs_[i], blobStr);
     }
     //scaler
     for (int i = 0; i < this->numTransition; ++i) {
       string blobStr = localDir + "scaler_" + itos(i);
-      logBlob(this->blobs_[this->numTransition + i].get(), blobStr);
+      logBlob(this->blobs_[this->numTransition + i], blobStr);
     }
     //bias
     for (int i = 0; i < this->numTransition; ++i) {
       string blobStr = localDir + "bias_" + itos(i);
-      logBlob(this->blobs_[this->numTransition * 2 + i].get(), blobStr);
+      logBlob(this->blobs_[this->numTransition * 2 + i], blobStr);
     }
     if (useBC) {
       //filter
       for (int i = 0; i < this->numTransition; ++i) {
         string blobStr = localDir + "filter_BC_" + itos(i);
-        logBlob(this->blobs_[5 * numTransition + i].get(), blobStr);
+        logBlob(this->blobs_[5 * numTransition + i], blobStr);
       }
       //scaler
       for (int i = 0; i < this->numTransition; ++i) {
         string blobStr = localDir + "scaler_BC_" + itos(i);
-        logBlob(this->blobs_[6 * numTransition + i].get(), blobStr);
+        logBlob(this->blobs_[6 * numTransition + i], blobStr);
       }
       //bias
       for (int i = 0; i < this->numTransition; ++i) {
         string blobStr = localDir + "bias_BC_" + itos(i);
-        logBlob(this->blobs_[7 * numTransition + i].get(), blobStr);
+        logBlob(this->blobs_[7 * numTransition + i], blobStr);
       }
       //Mean
       for (int i = 0; i < this->numTransition; ++i) {
         string blobStr = localDir + "Mean_BC_" + itos(i);
-        logBlob(this->blobs_[8 * numTransition + i].get(), blobStr);
+        logBlob(this->blobs_[8 * numTransition + i], blobStr);
       }
       //Var
       for (int i = 0; i < this->numTransition; ++i) {
         string blobStr = localDir + "Var_BC_" + itos(i);
-        logBlob(this->blobs_[9 * numTransition + i].get(), blobStr);
+        logBlob(this->blobs_[9 * numTransition + i], blobStr);
       }
     }
   }
 
-  void logInternal_gpu(string dir, int transitionIdx, bool logDynamic, bool logDiff);
-
-  virtual void CPU_Initialization();
-
-  void GPU_Initialization();
-  void reshape_data(int oldh, int oldw, int oldn, int h, int w, int newn);
-
-  virtual void LoopEndCleanup_cpu();
-
-  void LoopEndCleanup_gpu();
-
-  void resetDropoutDesc();
 
 public:
+
+#include "DenseBlock_layer.cuh"
 
 
 };

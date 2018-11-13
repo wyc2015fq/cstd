@@ -12,7 +12,7 @@ namespace
                                           const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
-    Dtype* bottom_diff = bottom[0]->mutable_diff();
+    Dtype* bottom_diff = bottom[0]->mdiff();
     const Dtype* label = bottom[1]->data();
     int num = bottom[0]->num();
     int count = bottom[0]->count();
@@ -27,7 +27,7 @@ namespace
                                      Dtype(0), 1 + bottom_diff[i * dim + j]);
       }
     }
-    Dtype* loss = top[0]->mutable_data();
+    Dtype* loss = top[0]->mdata();
     switch (this->param_->hinge_loss_param().norm()) {
     case HingeLossParameter_Norm_L1:
       loss[0] = caffe_asum(count, bottom_diff) / num;
@@ -49,7 +49,7 @@ namespace
                  << " Layer cannot backpropagate to label inputs.";
     }
     if (bottom[0]->propagate_down_) {
-      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      Dtype* bottom_diff = bottom[0]->mdiff();
       const Dtype* label = bottom[1]->data();
       int num = bottom[0]->num();
       int count = bottom[0]->count();

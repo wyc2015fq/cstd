@@ -29,7 +29,7 @@ void BatchReindexLayer::Forward(GPUContext* context, const vector<Blob*>& bottom
   // NOLINT_NEXT_LINE(whitespace/operators)
   BRForward<Dtype> <<<CAFFE_GET_BLOCKS(threads), CAFFE_CUDA_NUM_THREADS>>>(
       top[0]->count(), bottom[0]->count() / bottom[0]->shape(0),
-      bottom[0]->data(), bottom[1]->data(), top[0]->mutable_data());
+      bottom[0]->data(), bottom[1]->data(), top[0]->mdata());
   CUDA_POST_KERNEL_CHECK;
 }
 
@@ -79,9 +79,9 @@ void BatchReindexLayer::Backward_gpu(
   shape[0] = bottom[0]->shape(0);
   Blob counts(shape);
   Blob begins(shape);
-  Dtype* t_i_data = top_indexes.mutable_data();
-  Dtype* c_data = counts.mutable_data();
-  Dtype* b_data = begins.mutable_data();
+  Dtype* t_i_data = top_indexes.mdata();
+  Dtype* c_data = counts.mdata();
+  Dtype* b_data = begins.mdata();
   caffe_set(begins.count(), Dtype(-1), b_data);
   caffe_set(counts.count(), Dtype(0), c_data);
   for (int i = 0; i < mapping.size(); ++i) {
@@ -97,7 +97,7 @@ void BatchReindexLayer::Backward_gpu(
   BRBackward<Dtype> <<<CAFFE_GET_BLOCKS(threads), CAFFE_CUDA_NUM_THREADS>>>(
       bottom[0]->count(), bottom[0]->count() / bottom[0]->shape(0),
       top[0]->gpu_diff(), top_indexes.data(), begins.data(),
-      counts.data(), bottom[0]->mutable_gpu_diff());
+      counts.data(), bottom[0]->gpu_mdiff());
   CUDA_POST_KERNEL_CHECK;
 }
 

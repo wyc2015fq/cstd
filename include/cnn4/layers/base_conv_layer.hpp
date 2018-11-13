@@ -1,21 +1,21 @@
 #ifndef CAFFE_BASE_CONVOLUTION_LAYER_HPP_
 #define CAFFE_BASE_CONVOLUTION_LAYER_HPP_
 
-DataShape cJSON_GetShape(cJSON* conv_param, int kDefaultPad, const char* name, const char* name_h = NULL, const char* name_w = NULL) {
+DataShape cJSON_GetShape(cJSON* param, int kDefaultPad, const char* name, const char* name_h = NULL, const char* name_w = NULL) {
   DataShape pad = { 0 };
   int* pad_data = pad.dim;
   char buf[64];
-  cJSON* item = conv_param->get(name);
+  cJSON* item = param->get(name);
   if (!name_h) {
     _snprintf(buf, 64, "%s_h", name);
     name_h = buf;
   }
-  cJSON* h_json = conv_param->get(name_h);
+  cJSON* h_json = param->get(name_h);
   if (!name_w) {
     _snprintf(buf, 64, "%s_w", name);
     name_w = buf;
   }
-  cJSON* w_json = conv_param->get(name_w);
+  cJSON* w_json = param->get(name_w);
   if (h_json || w_json) {
     CHECK_EQ(0, item->size())
       << "Either pad or pad_h/w should be specified; not both.";
@@ -38,10 +38,20 @@ DataShape cJSON_GetShape(cJSON* conv_param, int kDefaultPad, const char* name, c
  *        ConvolutionLayer and DeconvolutionLayer.
  */
 
+#define ConvolutionParameter_DEF(DEF) \
+DEF##Bool(force_nd_im2col, false, 0) \
+DEF##Bool(bias_term, true, 0) \
+DEF##Int(axis, 1, 0) \
+DEF##Int(num_output, 0, 0) \
+DEF##Int(group, 1, 0) \
+DEF##Struct(weight_filler, 0, Filler) \
+DEF##Struct(bias_filler, 0, Filler) \
+
+
 struct BaseConvolutionLayer : public Layer
 {
 public:
-
+  ConvolutionParameter_DEF(Def);
   virtual inline int MinBottomBlobs() const { return 1; }
   virtual inline int MinTopBlobs() const { return 1; }
   virtual inline bool EqualNumBottomTopBlobs() const { return true; }
@@ -79,13 +89,9 @@ public:
   int channel_axis_;
   int num_;
   int channels_;
-  int group_;
   int out_spatial_dim_;
   int weight_offset_;
-  int num_output_;
-  bool bias_term_;
   bool is_1x1_;
-  bool force_nd_im2col_;
 
   int num_kernels_im2col_;
   int num_kernels_col2im_;
@@ -131,15 +137,31 @@ public:
         dilation_, data);
     }
   }
+  void init() {
+    ConvolutionParameter_DEF(Set);
+  }
 
-  int axis_;
+  void init(CJSON* param) {
+    ConvolutionParameter_DEF(Get);
+    kernel_shape_ = cJSON_GetShape(param, 1, "kernel_size", "kernel_h", "kernel_w");
+    // Setup stride dimensions (stride_).
+    //stride_.Reshape(spatial_dim_blob_shape);
+    stride_ = cJSON_GetShape(param, 1, "stride", "stride_h", "stride_w");
+    // Setup pad dimensions (pad_).
+    //pad_.Reshape(spatial_dim_blob_shape);
+    pad_ = cJSON_GetShape(param, 0, "pad", "pad_h", "pad_w");
+
+    // Setup dilation dimensions (dilation_).
+    dilation_ = cJSON_GetShape(param, 1, "dilation", "dilation_h", "dilation_w");
+    CJSON* blobs_json = param->get("blobs");
+    has_data_ = blobs_json && blobs_json->GetArraySize() > 0 && blobs_json->GetArrayItem(0)->has("data");
+  }
+  bool has_data_;
+
   virtual void LayerSetUp(const vector<Blob*> & bottom,
     const vector<Blob*> & top)
   {
     // Configure the kernel size, padding, stride, and inputs.
-    cJSON* conv_param = this->param_;
-    force_nd_im2col_ = conv_param->getbool("force_nd_im2col", false);
-    axis_ = conv_param->getint("axis", 1);
     channel_axis_ = bottom[0]->CanonicalAxisIndex(axis_);
     const int first_spatial_axis = channel_axis_ + 1;
     const int num_axes = bottom[0]->num_axes();
@@ -149,19 +171,9 @@ public:
     //vector<int> spatial_dim_blob_shape(1, std::max(num_spatial_axes_, 1));
     // Setup filter kernel dimensions (kernel_shape_).
     //kernel_shape_.Reshape(spatial_dim_blob_shape);
-    kernel_shape_ = cJSON_GetShape(conv_param, 1, "kernel_size", "kernel_h", "kernel_w");
     for (int i = 0; i < num_spatial_axes_; ++i) {
       CHECK_GT(kernel_shape_.dim[i], 0) << "Filter dimensions must be nonzero.";
     }
-    // Setup stride dimensions (stride_).
-    //stride_.Reshape(spatial_dim_blob_shape);
-    stride_ = cJSON_GetShape(conv_param, 1, "stride", "stride_h", "stride_w");
-    // Setup pad dimensions (pad_).
-    //pad_.Reshape(spatial_dim_blob_shape);
-    pad_ = cJSON_GetShape(conv_param, 0, "pad", "pad_h", "pad_w");
-
-    // Setup dilation dimensions (dilation_).
-    dilation_ = cJSON_GetShape(conv_param, 1, "dilation", "dilation_h", "dilation_w");
 
     // Special case: im2col is the identity for 1x1 convolution with stride 1
     // and no padding, so flag for skipping the buffer and transformation.
@@ -173,9 +185,7 @@ public:
     }
     // Configure output channels and groups.
     channels_ = bottom[0]->shape(channel_axis_);
-    num_output_ = this->param_->getint("num_output", 0);
     CHECK_GT(num_output_, 0);
-    group_ = this->param_->getint("group", 1);
     CHECK_EQ(channels_ % group_, 0);
     CHECK_EQ(num_output_ % group_, 0)
       << "Number of output should be multiples of group.";
@@ -196,15 +206,12 @@ public:
     for (int i = 0; i < num_spatial_axes_; ++i) {
       weight_shape.dim[i+2] = (kernel_shape_.dim[i]);
     }
-    bias_term_ = this->param_->getbool("bias_term", true);
     DataShape bias_shape;
     bias_shape.set(num_output_);
-    CJSON* blobs_json = param_->get("blobs");
-    bool has_data = blobs_json && blobs_json->GetArraySize() > 0 && blobs_json->GetArrayItem(0)->has("data");
     CHECK_EQ(1 + bias_term_, this->blobs_.size())
       << "Incorrect number of weight blobs.";
 
-    if (has_data) {
+    if (has_data_) {
       if (weight_shape != this->blobs_[0]->shape()) {
         LOG(FATAL) << "Incorrect weight shape: expected shape "
           << DataShape_string(weight_shape) << "; instead, shape was "
@@ -228,20 +235,18 @@ public:
       }
       // Initialize and fill the weights:
       // output channels x input channels per-group x kernel height x kernel width
-      cJSON* weight_filler = this->param_->get("weight_filler");
       this->blobs_[0]->Reshape(weight_shape);
-      Filler(this->blobs_[0], weight_filler);
+      weight_filler_.Fill(this->blobs_[0]);
       // If necessary, initialize and fill the biases.
       if (bias_term_) {
-        cJSON* bias_filler = this->param_->get("bias_filler");
         this->blobs_[1]->Reshape(bias_shape);
-        Filler(this->blobs_[1], bias_filler);
+        bias_filler_.Fill(this->blobs_[1]);
       }
     }
     kernel_dim_ = this->blobs_[0]->count(1);
     weight_offset_ = conv_out_channels_ * kernel_dim_ / group_;
     // Propagate gradients to the parameters (as directed by backward pass).
-    //this->param_propagate_down_.resize(this->blobs_.size(), true);
+    //parampropagate_down_.resize(this->blobs_.size(), true);
   }
 
   virtual void Reshape(const vector<Blob*> & bottom,
@@ -316,7 +321,7 @@ public:
       vector<int> bias_multiplier_shape(1, out_spatial_dim_);
       bias_multiplier_.Reshape(bias_multiplier_shape);
       caffe_set(bias_multiplier_.count(), Dtype(1),
-        bias_multiplier_.mutable_data());
+        bias_multiplier_.mdata());
     }
   }
 
@@ -326,7 +331,7 @@ public:
     const Dtype* col_buff = input;
     if (!is_1x1_) {
       if (!skip_im2col) {
-        conv_im2col(input, col_buffer_.mutable_data());
+        conv_im2col(input, col_buffer_.mdata());
       }
       col_buff = col_buffer_.data();
     }
@@ -349,7 +354,7 @@ public:
   void backward_gemm(const Dtype* output,
     const Dtype* weights, Dtype* input)
   {
-    Dtype* col_buff = col_buffer_.mutable_data();
+    Dtype* col_buff = col_buffer_.mdata();
     if (is_1x1_) {
       col_buff = input;
     }
@@ -368,7 +373,7 @@ public:
   {
     const Dtype* col_buff = input;
     if (!is_1x1_) {
-      conv_im2col(input, col_buffer_.mutable_data());
+      conv_im2col(input, col_buffer_.mdata());
       col_buff = col_buffer_.data();
     }
     for (int g = 0; g < group_; ++g) {
@@ -385,8 +390,6 @@ public:
     caffe_gemv(CblasNoTrans, num_output_, out_spatial_dim_, 1.,
       input, bias_multiplier_.data(), 1., bias);
   }
-
-
 
 };
 

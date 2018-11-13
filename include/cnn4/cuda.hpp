@@ -344,13 +344,14 @@ private:
 static int allsz = 0;
 static int freesz = 0;
 //CPUContext() { context[CPU] = this;    }
-static void ReAlloc_gpu(Buffer* ptr, size_t nbytes) {
+static void gpu_ReAlloc(Buffer* ptr, size_t nbytes) {
   //nbytes *= 10;
+  ptr->brew = GPU;
   if (ptr->size < nbytes) {
     void* newdata = NULL;
     CUDA_CHECK(cudaMalloc(&newdata, nbytes));
     if (NULL == newdata) {
-      int asdf = 0;
+      //int asdf = 0;
     }
     CHECK(newdata) << "Malloc cuda mem: " << nbytes << " bytes failed.";
     allsz += nbytes;
@@ -363,24 +364,24 @@ static void ReAlloc_gpu(Buffer* ptr, size_t nbytes) {
     ptr->size = nbytes;
   }
   else {
-    int asdf = 0;
+    //int asdf = 0;
   }
   return ;
 }
 
-static void Free_gpu(Buffer* ptr) {
+static void gpu_Free(Buffer* ptr) {
   if (ptr->data) {
     cudaFree(ptr->data);
     ptr->data = NULL;
     ptr->size = 0;
   }
 }
-static void Memset_gpu(Buffer* ptr, size_t nbytes) {
+static void gpu_Memset(Buffer* ptr, size_t nbytes) {
   CHECK_LE(nbytes, ptr->size);
   cudaMemset(ptr->data, 0, nbytes);
 }
 
-static void Memcpy_gpu(Buffer* dst, const Buffer* src, int nbytes) {
+static void gpu_Memcpy(Buffer* dst, const Buffer* src, int nbytes) {
   enum cudaMemcpyKind kind;
   CHECK_LE(nbytes, src->size);
   CHECK_LE(nbytes, dst->size);

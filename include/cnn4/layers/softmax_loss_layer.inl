@@ -18,7 +18,7 @@ int FUN(softmaxloss_forward)(const Dtype* prob_data, const Dtype* label,
     }
   }
   *out_loss = loss;
-   // top[0]->mutable_data()[0] = loss / get_normalizer(bottom[0]->shape_, axis_, normalization_, valid_count);
+   // top[0]->mdata()[0] = loss / get_normalizer(bottom[0]->shape_, axis_, normalization_, valid_count);
   return count;
 }
 

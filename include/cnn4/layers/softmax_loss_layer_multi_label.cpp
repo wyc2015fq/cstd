@@ -123,7 +123,7 @@ namespace
         //}
       }
     }
-    top[0]->mutable_data()[0] = loss / get_normalizer(normalization_, count);
+    top[0]->mdata()[0] = loss / get_normalizer(normalization_, count);
     if (top.size() == 2) {
       top[1]->ShareData(prob_);
     }
@@ -138,7 +138,7 @@ namespace
                  << " Layer cannot backpropagate to label inputs.";
     }
     if (bottom[0]->propagate_down_) {
-      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      Dtype* bottom_diff = bottom[0]->mdiff();
       const Dtype* prob_data = prob_.data();
       caffe_copy(prob_.count(), prob_data, bottom_diff);
       const Dtype* label = bottom[1]->data();

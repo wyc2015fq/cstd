@@ -71,7 +71,7 @@ namespace
   {
     caffe_interp2<Dtype, false>(num_ * channels_,
                                     bottom[0]->data(), - pad_beg_, - pad_beg_, height_in_eff_, width_in_eff_, height_in_, width_in_,
-                                    top[0]->mutable_data(), 0, 0, height_out_, width_out_, height_out_, width_out_);
+                                    top[0]->mdata(), 0, 0, height_out_, width_out_, height_out_, width_out_);
   }
 
   template <typename Dtype>
@@ -79,9 +79,9 @@ namespace
                                         const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }
-    caffe_set(bottom[0]->count(), Dtype(0), bottom[0]->mutable_diff());
+    caffe_set(bottom[0]->count(), Dtype(0), bottom[0]->mdiff());
     caffe_interp2_backward<Dtype, false>(num_ * channels_,
-        bottom[0]->mutable_diff(), - pad_beg_, - pad_beg_, height_in_eff_, width_in_eff_, height_in_, width_in_,
+        bottom[0]->mdiff(), - pad_beg_, - pad_beg_, height_in_eff_, width_in_eff_, height_in_, width_in_,
         top[0]->diff(), 0, 0, height_out_, width_out_, height_out_, width_out_);
   }
 
@@ -92,7 +92,7 @@ namespace
   {
     caffe_gpu_interp2<Dtype, false>(num_ * channels_,
                                     bottom[0]->data(), - pad_beg_, - pad_beg_, height_in_eff_, width_in_eff_, height_in_, width_in_,
-                                    top[0]->mutable_data(), 0, 0, height_out_, width_out_, height_out_, width_out_);
+                                    top[0]->mdata(), 0, 0, height_out_, width_out_, height_out_, width_out_);
   }
 
   template <typename Dtype>
@@ -100,9 +100,9 @@ namespace
                                         const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }
-    caffe_gpu_set(bottom[0]->count(), Dtype(0), bottom[0]->mutable_gpu_diff());
+    caffe_gpu_set(bottom[0]->count(), Dtype(0), bottom[0]->gpu_mdiff());
     caffe_gpu_interp2_backward<Dtype, false>(num_ * channels_,
-        bottom[0]->mutable_gpu_diff(), - pad_beg_, - pad_beg_, height_in_eff_, width_in_eff_, height_in_, width_in_,
+        bottom[0]->gpu_mdiff(), - pad_beg_, - pad_beg_, height_in_eff_, width_in_eff_, height_in_, width_in_,
         top[0]->gpu_diff(), 0, 0, height_out_, width_out_, height_out_, width_out_);
   }
 #endif

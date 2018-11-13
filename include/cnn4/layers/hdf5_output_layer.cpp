@@ -55,9 +55,9 @@ namespace
     const int label_datum_dim = bottom[1]->count() / bottom[1]->num();
     for (int i = 0; i < bottom[0]->num(); ++i) {
       caffe_copy(data_datum_dim, &bottom[0]->data()[i * data_datum_dim],
-                 &data_blob_.mutable_data()[i * data_datum_dim]);
+                 &data_blob_.mdata()[i * data_datum_dim]);
       caffe_copy(label_datum_dim, &bottom[1]->data()[i * label_datum_dim],
-                 &label_blob_.mutable_data()[i * label_datum_dim]);
+                 &label_blob_.mdata()[i * label_datum_dim]);
     }
     SaveBlobs();
   }

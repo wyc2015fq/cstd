@@ -26,30 +26,34 @@ public:
   virtual inline int MinTopBlobs() const { return 1; }
   virtual inline int MaxTopBlobs() const { return 2; }
 
+  SoftmaxWithLossLayer() {
+    LossLayer::init();
+  }
+  void init(CJSON* param) {
+    LossLayer::init(param);
+    axis_ = param->getint("axis", 1);
+    has_ignore_label_ = param->has("ignore_label");
+    if (!param->has("normalization") && param->has("normalize")) {
+      normalization_ = param->getbool("normalize", true) ?
+        NormalizationMode_VALID :
+        NormalizationMode_BATCH_SIZE;
+    }
+    else {
+      normalization_ = param->getenum("normalization", NormalizationMode_VALID, NormalizationMode_Name, countof(NormalizationMode_Name));
+    }
+  }
+
   virtual void LayerSetUp( const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     LossLayer::LayerSetUp(bottom, top);
     //LayerParameter softmax_param(this->layer_param_);
     //softmax_param.set_type("Softmax");
     softmax_layer_ = new SoftmaxLayer();
-    softmax_layer_->init();
     softmax_bottom_vec_.clear();
     softmax_bottom_vec_.push_back(bottom[0]);
     softmax_top_vec_.clear();
     softmax_top_vec_.push_back(&prob_);
     softmax_layer_->SetUp(softmax_bottom_vec_, softmax_top_vec_);
-    has_ignore_label_ = this->param_->has("ignore_label");
-    if (has_ignore_label_) {
-      ignore_label_ = this->param_->getint("ignore_label", 0);
-    }
-    if (!this->param_->has("normalization") && this->param_->has("normalize")) {
-      normalization_ = this->param_->getbool("normalize", true) ?
-        NormalizationMode_VALID :
-        NormalizationMode_BATCH_SIZE;
-    }
-    else {
-      normalization_ = param_->getenum("normalization", NormalizationMode_VALID, NormalizationMode_Name, countof(NormalizationMode_Name));
-    }
   }
 
   int axis_;
@@ -57,7 +61,6 @@ public:
   {
     LossLayer::Reshape(bottom, top);
     softmax_layer_->Reshape(softmax_bottom_vec_, softmax_top_vec_);
-    axis_  = this->param_->getint("axis_", 1);
     softmax_axis_ = bottom[0]->CanonicalAxisIndex(axis_);
     outer_num_ = bottom[0]->count(0, softmax_axis_);
     inner_num_ = bottom[0]->count(softmax_axis_ + 1);
@@ -107,7 +110,7 @@ public:
     const Dtype* prob_data = prob_.data();
     const Dtype* label = bottom[1]->data();
     const int dim = prob_count / outer_num_;
-    Dtype* top_data = top[0]->mutable_cpu_data();
+    Dtype* top_data = top[0]->cpu_mdata();
     Dtype loss = 0;
     int valid_count = softmaxloss_forward(prob_data, label, outer_num_, dim, inner_num_, has_ignore_label_, ignore_label_, &loss);
     top_data[0] = loss / get_normalizer(normalization_, valid_count);
@@ -124,7 +127,7 @@ public:
     }
     if (bottom[0]->propagate_down_) {
       int prob_count = prob_.count();
-      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      Dtype* bottom_diff = bottom[0]->mdiff();
       const Dtype* prob_data = prob_.data();
       const Dtype* top_data = top[0]->data();
       caffe_memcpy(prob_count * sizeof(Dtype), prob_data, bottom_diff);

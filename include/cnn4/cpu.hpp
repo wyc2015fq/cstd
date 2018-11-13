@@ -77,6 +77,7 @@ static void ReAlloc(Brew brew, Buffer* ptr, size_t nbytes) {
   if (ptr->size<nbytes) {
     ptr->data = realloc(ptr->data, ptr->size = nbytes);
   }
+  ptr->brew = brew;
 }
 static void Memset(Buffer* ptr, size_t nbytes) {
   if (GPU == ptr->brew) {

@@ -36,7 +36,7 @@ namespace
     const int num_fix = (axis_ > 0) ? count / axis_count : 1;
     const int sub_iter_max = top[0]->shape(axis_);
     for (int fix = 0; fix < num_fix; ++fix) {
-      Dtype* target = top[0]->mutable_data()
+      Dtype* target = top[0]->mdata()
                       + (fix + 1) * copy_amount * sub_iter_max - copy_amount;
       for (int i = 0; i < sub_iter_max; ++i) {
         caffe_copy(copy_amount, src, target);
@@ -51,7 +51,7 @@ namespace
                                          const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }
-    Dtype* target = bottom[0]->mutable_diff();
+    Dtype* target = bottom[0]->mdiff();
     const int count = top[0]->count();
     const int axis_count = top[0]->count(axis_);
     const int copy_amount =

@@ -2,10 +2,10 @@
 int FromProto(CJSON* param, vector<Blob*>& net_blobs_) {
   Layer* layer = this;
   CJSON* blobs_json = param->GetObjectItem("blobs");
-  layer->param_ = param;
+  //layer->param_ = param;
   strncpy(layer->name, param->getstring("name", ""), MAX_NAME);
   //layer->loss_weight_ = param->GetObjectNumber("loss_weight", 0);
-  this->phase_ = CJSON_GETOBJECTENUM(param_, "phase", TRAINorTEST, Phase);
+  this->phase_ = CJSON_GETOBJECTENUM(param, "phase", TRAINorTEST, Phase);
   if (blobs_json) {
     int blob_size = blobs_json->GetArraySize();
     layer->reset(blob_size);
@@ -14,10 +14,10 @@ int FromProto(CJSON* param, vector<Blob*>& net_blobs_) {
       layer->blobs_[j]->FromProto(blob_json);
     }
   }
-  AppendName(layer, false, net_blobs_);
-  AppendName(layer, true, net_blobs_);
+  AppendName(param, layer, false, net_blobs_);
+  AppendName(param, layer, true, net_blobs_);
   {
-    cJSON* item = cJSON_GetObjectItem(layer->param_, "loss_weight");
+    cJSON* item = cJSON_GetObjectItem(param, "loss_weight");
     int loss_weight_size = item ? cJSON_GetArraySize(item) : 0;
 
     if (loss_weight_size == layer->top_vecs_.size()) {
@@ -43,7 +43,7 @@ inline void SetLossWeights(const vector<Blob*> & top, vector<Dtype>& lossvec) {
       if (loss_weight == Dtype(0)) { continue; }
       this->set_loss(top_id, loss_weight);
       const int count = top[top_id]->count();
-      Dtype* loss_multiplier = top[top_id]->mutable_cpu_diff();
+      Dtype* loss_multiplier = top[top_id]->cpu_mdiff();
       caffe_set(count, loss_weight, loss_multiplier);
     }
   }
@@ -107,8 +107,8 @@ double runForward(const vector<Blob*> & bottom, const vector<Blob*> & top )
   Forward(bottom, top);
 #if 0
   if (bottom.size() > 0 && top.size() > 0) {
-    Dtype* bottom_data = bottom[0]->mutable_cpu_data();
-    Dtype* top_data = top[0]->mutable_cpu_data();
+    Dtype* bottom_data = bottom[0]->cpu_mdata();
+    Dtype* top_data = top[0]->cpu_mdata();
     printf("############## %s ###########\n", this->layer_param().name().c_str());
     for (int i = 0; i < 10; i++) {
       printf("%f ", bottom_data[i]);

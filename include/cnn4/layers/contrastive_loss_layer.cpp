@@ -26,7 +26,7 @@ namespace
     // vector of ones used to sum along channels
     summer_vec_.Reshape(bottom[0]->channels(), 1, 1, 1);
     for (int i = 0; i < bottom[0]->channels(); ++i) {
-      summer_vec_.mutable_data()[i] = Dtype(1);
+      summer_vec_.mdata()[i] = Dtype(1);
     }
   }
 
@@ -40,14 +40,14 @@ namespace
       count,
       bottom[0]->data(),  // a
       bottom[1]->data(),  // b
-      diff_.mutable_data());  // a_i-b_i
+      diff_.mdata());  // a_i-b_i
     const int channels = bottom[0]->channels();
     Dtype margin = this->param_->contrastive_loss_param().margin();
     bool legacy_version =
       this->param_->contrastive_loss_param().legacy_version();
     Dtype loss(0.0);
     for (int i = 0; i < bottom[0]->num(); ++i) {
-      dist_sq_.mutable_data()[i] = caffe_dot(channels,
+      dist_sq_.mdata()[i] = caffe_dot(channels,
                                        diff_.data() + (i * channels), diff_.data() + (i * channels));
       if (static_cast<int>(bottom[2]->data()[i])) {  // similar pairs
         loss += dist_sq_.data()[i];
@@ -62,7 +62,7 @@ namespace
       }
     }
     loss = loss / static_cast<Dtype>(bottom[0]->num()) / Dtype(2);
-    top[0]->mutable_data()[0] = loss;
+    top[0]->mdata()[0] = loss;
   }
 
   template <typename Dtype>
@@ -80,7 +80,7 @@ namespace
         int num = bottom[i]->num();
         int channels = bottom[i]->channels();
         for (int j = 0; j < num; ++j) {
-          Dtype* bout = bottom[i]->mutable_diff();
+          Dtype* bout = bottom[i]->mdiff();
           if (static_cast<int>(bottom[2]->data()[j])) {  // similar pairs
             caffe_axpby(
               channels,

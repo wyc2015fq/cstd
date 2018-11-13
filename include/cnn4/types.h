@@ -5,25 +5,29 @@
 typedef void void_type;
 typedef void void_float;
 
+struct int8x4 { unsigned char v[4]; };
+//DEF(U8x4, int8x4, CUDNN_DATA_INT8x4)
+
 #define TYPEFLAGDEF_DEF(DEF) \
-DEF(S8, char) \
-DEF(U8, unsigned char) \
-DEF(S16, short) \
-DEF(U16, unsigned short) \
-DEF(S32, int) \
-DEF(U32, unsigned int) \
-DEF(F32, float) \
-DEF(F64, double)
+DEF(S8, char, CUDNN_DATA_INT8) \
+DEF(U8, unsigned char, CUDNN_DATA_UINT8) \
+DEF(S16, short, CUDNN_DATA_HALF) \
+DEF(U16, unsigned short, CUDNN_DATA_HALF) \
+DEF(S32, int, CUDNN_DATA_INT32) \
+DEF(U32, unsigned int, CUDNN_DATA_INT32) \
+DEF(F32, float, CUDNN_DATA_FLOAT) \
+DEF(F64, double, CUDNN_DATA_DOUBLE)
+
 
 enum TypeFlag //枚举消息类型
 {
-#define TYPEFLAGDEF(a, b)  TF_ ## a,
+#define TYPEFLAGDEF(a, b, c)  TF_ ## a,
   TYPEFLAGDEF_DEF(TYPEFLAGDEF)
 #undef TYPEFLAGDEF
 };
 
 static const int TypeSize[] = {
-#define TYPEFLAGDEF(a, b)  sizeof(b),
+#define TYPEFLAGDEF(a, b, c)  sizeof(b),
   TYPEFLAGDEF_DEF(TYPEFLAGDEF)
 #undef TYPEFLAGDEF
 };
@@ -32,7 +36,7 @@ static const int TypeSize[] = {
 template <typename T>
 struct TypeFlag_TF { enum { flag = 0 }; };
 
-#define TYPEFLAGDEF(F, T)   template<> struct TypeFlag_TF<T> { enum { flag = TF_ ## F }; };
+#define TYPEFLAGDEF(F, T, c)   template<> struct TypeFlag_TF<T> { enum { flag = TF_ ## F }; };
 TYPEFLAGDEF_DEF(TYPEFLAGDEF)
 #undef TYPEFLAGDEF
 #endif
@@ -144,6 +148,41 @@ static const char* Phase_Name[] = {
   PHASE_DEF_DEF(POOL_DEF)
 #undef POOL_DEF
 };
+///////////////////////////////////////////////////
+#define FILLER_DEF_DEF(DEF) \
+DEF(constant) \
+DEF(gaussian) \
+DEF(positive_unitball) \
+DEF(uniform) \
+DEF(xavier) \
+DEF(msra) \
+DEF(bilinear)
+
+enum FillerMethod {
+#define DEF(a) FillerMethod_ ## a,
+  FILLER_DEF_DEF(DEF)
+#undef DEF
+};
+static const char* FillerMethod_Name[] = {
+#define DEF(a) #a ,
+  FILLER_DEF_DEF(DEF)
+#undef DEF
+};
+
+///////////////////////////////////////////////////
+#define DBMETHOD_DEF_DEF(DEF) \
+DEF(LEVELDB) \
+DEF(LMDB)
+enum DBMethod {
+#define DEF(a) DBMethod_##a,
+  DBMETHOD_DEF_DEF(DEF)
+#undef DEF
+};
+static const char* DBMethod_Name[] {
+#define DEF(a) #a ,
+  DBMETHOD_DEF_DEF(DEF)
+#undef DEF
+};
 
 ///////////////////////////////////////////////////
 // pooling
@@ -229,7 +268,7 @@ int get_normalizer(DataShape bottom_shape, int axis_, NormalizationMode normaliz
 enum VarianceNorm {
   FAN_IN, FAN_OUT, AVERAGE,
 };
-const char* VarianceNorm_Name[] = {
+static const char* VarianceNorm_Name[] = {
   "FAN_IN", "FAN_OUT", "AVERAGE",
 };
 

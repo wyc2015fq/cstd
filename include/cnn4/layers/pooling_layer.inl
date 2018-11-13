@@ -112,7 +112,7 @@ void FUN(pooling_backward)(PoolMethod pool, const Dtype* const rand_idx,
     return;
   }
   const Dtype* top_diff = top[0]->diff();
-  Dtype* bottom_diff = bottom[0]->mutable_diff();
+  Dtype* bottom_diff = bottom[0]->mdiff();
   // Different pooling methods. We explicitly do the switch outside the for
   // loop to save time, although this results in more codes.
   //caffe_set(bottom[0]->count(), Dtype(0), bottom_diff);

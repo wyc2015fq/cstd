@@ -1,16 +1,10 @@
 #ifndef CAFFE_BIAS_LAYER_HPP_
 #define CAFFE_BIAS_LAYER_HPP_
 
-
-/**
- * @brief Computes a sum of two input Blobs, with the shape of the
- *        latter Blob "broadcast" to match the shape of the former.
- *        Equivalent to tiling the latter Blob, then computing the elementwise
- *        sum.
- *
- * The second input may be omitted, in which case it's learned as a parameter
- * of the layer.
- */
+#define BiasParameter_DEF(DEF) \
+DEF##Int(axis, 1, 0) \
+DEF##Int(num_axes, 1, 0) \
+DEF##Struct(filler, 1, Filler)
 
 struct BiasLayer : public Layer
 {
@@ -19,38 +13,40 @@ public:
   virtual inline int MinBottomBlobs() const { return 1; }
   virtual inline int MaxBottomBlobs() const { return 2; }
   virtual inline int ExactNumTopBlobs() const { return 1; }
-
+  BiasParameter_DEF(Def);
   Blob bias_multiplier_;
   int outer_dim_, bias_dim_, inner_dim_, dim_;
-  int axis_;
-  int num_axes_;
+
+  BiasLayer() {
+    BiasParameter_DEF(Set);
+  }
+
+  void init(CJSON* param) {
+    BiasParameter_DEF(Get);
+  }
 
   virtual void LayerSetUp(const vector<Blob*> & bottom,
     const vector<Blob*> & top)
   {
-    axis_ = param_->GetObjectInt("axis", 0);
-    num_axes_ = param_->GetObjectInt("num_axes", -1);
-
     if (bottom.size() == 1 && this->blobs_.size() > 0) {
       LOG(INFO) << "Skipping parameter initialization";
     }
     else if (bottom.size() == 1) {
       // bias is a learned parameter; initialize it
-      const int axis = bottom[0]->CanonicalAxisIndex(axis_);
-      const int num_axes = num_axes_;
-      CHECK_GE(num_axes, -1) << "num_axes must be non-negative, "
+      axis_ = bottom[0]->CanonicalAxisIndex(axis_);
+      CHECK_GE(num_axes_, -1) << "num_axes_ must be non-negative, "
         << "or -1 to extend to the end of bottom[0]";
-      if (num_axes >= 0) {
-        CHECK_GE(bottom[0]->num_axes(), axis + num_axes)
+      if (num_axes_ >= 0) {
+        CHECK_GE(bottom[0]->num_axes(), axis_ + num_axes_)
           << "bias blob's shape extends past bottom[0]'s shape when applied "
-          << "starting with bottom[0] axis = " << axis;
+          << "starting with bottom[0] axis_ = " << axis_;
       }
-      this->blobs_.resize(1);
-      const int* shape_start = bottom[0]->shape().dim + axis;
-      const int* shape_end = (num_axes == -1) ? bottom[0]->shape().end() : (shape_start + num_axes);
+      blobs_reset(this->blobs_, 1);
+      const int* shape_start = bottom[0]->shape().dim + axis_;
+      const int* shape_end = (num_axes_ == -1) ? bottom[0]->shape().end() : (shape_start + num_axes_);
       vector<int> bias_shape(shape_start, shape_end);
       this->blobs_[0]->Reshape(bias_shape);
-      Filler(this->blobs_[0], param_);
+      filler_.Fill(this->blobs_[0]);
     }
     //this->param_propagate_down_.resize(this->blobs_.size(), true);
   }
@@ -59,38 +55,37 @@ public:
     const vector<Blob*> & top)
   {
     Blob* bias = (bottom.size() > 1) ? bottom[1] : this->blobs_[0];
-    // Always set axis == 0 in special case where bias is a scalar
-    // (num_axes == 0). Mathematically equivalent for any choice of axis, so the
+    // Always set axis_ == 0 in special case where bias is a scalar
+    // (num_axes_ == 0). Mathematically equivalent for any choice of axis_, so the
     // actual setting can be safely ignored; and computation is most efficient
-    // with axis == 0 and (therefore) outer_dim_ == 1.
-    const int axis = bottom[0]->CanonicalAxisIndex(axis_);
-    CHECK_GE(bottom[0]->num_axes(), axis + bias->num_axes())
+    // with axis_ == 0 and (therefore) outer_dim_ == 1.
+    axis_ = bottom[0]->CanonicalAxisIndex(axis_);
+    CHECK_GE(bottom[0]->num_axes(), axis_ + bias->num_axes())
       << "bias blob's shape extends past bottom[0]'s shape when applied "
-      << "starting with bottom[0] axis = " << axis;
+      << "starting with bottom[0] axis_ = " << axis_;
     for (int i = 0; i < bias->num_axes(); ++i) {
-      CHECK_EQ(bottom[0]->shape(axis + i), bias->shape(i))
-        << "dimension mismatch between bottom[0]->shape(" << axis + i
+      CHECK_EQ(bottom[0]->shape(axis_ + i), bias->shape(i))
+        << "dimension mismatch between bottom[0]->shape(" << axis_ + i
         << ") and bias->shape(" << i << ")";
     }
-    outer_dim_ = bottom[0]->count(0, axis);
+    outer_dim_ = bottom[0]->count(0, axis_);
     bias_dim_ = bias->count();
-    inner_dim_ = bottom[0]->count(axis + bias->num_axes());
+    inner_dim_ = bottom[0]->count(axis_ + bias->num_axes());
     dim_ = bias_dim_ * inner_dim_;
     if (bottom[0] != top[0]) {
       top[0]->ReshapeLike(*bottom[0]);
     }
     bias_multiplier_.Reshape(vector<int>(1, inner_dim_));
-    if (bias_multiplier_.data()[inner_dim_ - 1] != Dtype(1)) {
-      caffe_set(inner_dim_, Dtype(1), bias_multiplier_.mutable_data());
+    if (bias_multiplier_.cpu_data()[inner_dim_ - 1] != Dtype(1)) {
+      caffe_set(inner_dim_, Dtype(1), bias_multiplier_.mdata());
     }
   }
 
-  void Forward(const vector<Blob*> & bottom,
-    const vector<Blob*> & top)
+  void Forward(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const Dtype* bias_data =
       ((bottom.size() > 1) ? bottom[1] : this->blobs_[0])->data();
-    Dtype* top_data = top[0]->mutable_data();
+    Dtype* top_data = top[0]->mdata();
     if (bottom[0] != top[0]) {
       const Dtype* bottom_data = bottom[0]->data();
       caffe_copy(bottom[0]->count(), bottom_data, top_data);
@@ -103,12 +98,11 @@ public:
     }
   }
 
-  void Backward(const vector<Blob*> & top,
-    const vector<Blob*> & bottom)
+  void Backward(const vector<Blob*> & top, const vector<Blob*> & bottom)
   {
     if (bottom[0]->propagate_down_ && bottom[0] != top[0]) {
       const Dtype* top_diff = top[0]->diff();
-      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      Dtype* bottom_diff = bottom[0]->mdiff();
       caffe_copy(bottom[0]->count(), top_diff, bottom_diff);
     }
     // in-place, we don't need to do anything with the data diff
@@ -117,7 +111,7 @@ public:
         (bias_param && this->blobs_[0]->propagate_down_)) {
       const Dtype* top_diff = top[0]->diff();
       Dtype* bias_diff = (bias_param ? this->blobs_[0] : bottom[1])
-        ->mutable_diff();
+        ->mdiff();
       bool accum = bias_param;
       for (int n = 0; n < outer_dim_; ++n) {
         caffe_gemv(CblasNoTrans, bias_dim_, inner_dim_, Dtype(1),

@@ -40,7 +40,7 @@ void HDF5DataLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
       int data_dim = top[j]->count() / top[j]->shape(0);
       caffe_copy(data_dim,
           &hdf_blobs_[j]->data()[data_permutation_[current_row_]
-            * data_dim], &top[j]->mutable_data()[i * data_dim]);
+            * data_dim], &top[j]->mdata()[i * data_dim]);
     }
   }
 }

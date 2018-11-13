@@ -105,7 +105,7 @@ namespace
     // transform output_sequences to blob
     if (sequence_index_ >= 0) {
       Blob* sequence_blob = top[sequence_index_];
-      Dtype* sequence_d = sequence_blob->mutable_data();
+      Dtype* sequence_d = sequence_blob->mdata();
       // clear all data
       caffe_set(sequence_blob->count(), static_cast<Dtype>(-1), sequence_d);
       // copy data
@@ -122,7 +122,7 @@ namespace
     }
     // compute accuracy
     if (accuracy_index_ >= 0) {
-      Dtype & acc = top[accuracy_index_]->mutable_data()[0];
+      Dtype & acc = top[accuracy_index_]->mdata()[0];
       acc = 0;
       CHECK_GE(bottom.size(), 3);  // required target sequences blob
       const Blob* target_sequences_data = bottom[2];
@@ -158,7 +158,7 @@ namespace
     // transform output_sequences to blob
     if (sequence_index_ >= 0) {
       Blob* sequence_blob = top[sequence_index_];
-      Dtype* sequence_d = sequence_blob->mutable_data();
+      Dtype* sequence_d = sequence_blob->mdata();
       // clear all data
       caffe_set(sequence_blob->count(), static_cast<Dtype>(-1), sequence_d);
       // copy data
@@ -173,8 +173,8 @@ namespace
     }
     // compute accuracy
     if (accuracy_index_ >= 0) {
-      Dtype & accedit = top[0]->mutable_data()[0];
-      Dtype & accline = top[0]->mutable_data()[1];
+      Dtype & accedit = top[0]->mdata()[0];
+      Dtype & accline = top[0]->mdata()[1];
       accedit = 0;
       accline = 0;
       int total_ok = 0;
@@ -266,7 +266,7 @@ namespace
     Dtype* score_data = 0;
     if (scores) {
       CHECK_EQ(scores->count(), N_);
-      score_data = scores->mutable_data();
+      score_data = scores->mdata();
       caffe_set(N_, static_cast<Dtype>(0), score_data);
     }
     for (int n = 0; n < N_; ++n) {
@@ -310,7 +310,7 @@ namespace
     Dtype* score_data = 0;
     if (scores) {
       CHECK_EQ(scores->count(), N_);
-      score_data = scores->mutable_data();
+      score_data = scores->mdata();
       caffe_set(N_, static_cast<Dtype>(0), score_data);
     }
     for (int n = 0; n < N_; ++n) {

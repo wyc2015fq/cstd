@@ -16,6 +16,10 @@ public:
   virtual inline int ExactNumBottomBlobs() const { return 1; }
   virtual inline int MinTopBlobs() const { return 1; }
 
+  SplitLayer() {}
+  void init(CJSON* param) {
+  }
+
   virtual void Reshape(const vector<Blob*> & bottom,
     const vector<Blob*> & top)
   {
@@ -46,15 +50,15 @@ public:
   {
     if (!bottom[0]->propagate_down_) { return; }
     if (top.size() == 1) {
-      caffe_copy(count_, top[0]->diff(), bottom[0]->mutable_diff());
+      caffe_copy(count_, top[0]->diff(), bottom[0]->mdiff());
       return;
     }
     caffe_add(count_, top[0]->diff(), top[1]->diff(),
-      bottom[0]->mutable_diff());
+      bottom[0]->mdiff());
     // Add remaining top blob diffs.
     for (int i = 2; i < top.size(); ++i) {
       const Dtype* top_diff = top[i]->diff();
-      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      Dtype* bottom_diff = bottom[0]->mdiff();
       caffe_axpy(count_, Dtype(1.), top_diff, bottom_diff);
     }
   }

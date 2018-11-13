@@ -14,12 +14,12 @@ void ContrastiveLossLayer::Forward_gpu(
       count,
       bottom[0]->data(),  // a
       bottom[1]->data(),  // b
-      diff_.mutable_data());  // a_i-b_i
+      diff_.mdata());  // a_i-b_i
   caffe_gpu_powx(
       count,
-      diff_.mutable_data(),  // a_i-b_i
+      diff_.mdata(),  // a_i-b_i
       Dtype(2),
-      diff_sq_.mutable_data());  // (a_i-b_i)^2
+      diff_sq_.mdata());  // (a_i-b_i)^2
   caffe_gpu_gemv(
       CblasNoTrans,
       bottom[0]->num(),
@@ -28,7 +28,7 @@ void ContrastiveLossLayer::Forward_gpu(
       diff_sq_.data(),  // (a_i-b_i)^2
       summer_vec_.data(),
       Dtype(0.0),
-      dist_sq_.mutable_data());  // \Sum (a_i-b_i)^2
+      dist_sq_.mdata());  // \Sum (a_i-b_i)^2
   Dtype margin = this->param_->contrastive_loss_param().margin();
   bool legacy_version =
       this->param_->contrastive_loss_param().legacy_version();
@@ -47,7 +47,7 @@ void ContrastiveLossLayer::Forward_gpu(
     }
   }
   loss = loss / static_cast<Dtype>(bottom[0]->num()) / Dtype(2);
-  top[0]->mutable_data()[0] = loss;
+  top[0]->mdata()[0] = loss;
 }
 
 template <typename Dtype>
@@ -81,7 +81,7 @@ __global__ void CLLBackward(const int count, const int channels,
 
 template <typename Dtype>
 void ContrastiveLossLayer::Backward(GPUContext* context, const vector<Blob*>& top,
-    const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
+    const vector<Blob*>& bottom) {
   for (int i = 0; i < 2; ++i) {
     if (bottom[i]->propagate_down_) {
       const int count = bottom[0]->count();
@@ -98,7 +98,7 @@ void ContrastiveLossLayer::Backward(GPUContext* context, const vector<Blob*>& to
           bottom[2]->data(),  // pair similarity 0 or 1
           diff_.data(),  // the cached eltwise difference between a and b
           dist_sq_.data(),  // the cached square distance between a and b
-          bottom[i]->mutable_gpu_diff());
+          bottom[i]->gpu_mdiff());
       CUDA_POST_KERNEL_CHECK;
     }
   }

@@ -233,7 +233,7 @@ namespace
     int mean_width = 0;
     int mean_height = 0;
     if (this->has_mean_file_) {
-      mean = this->data_mean_.mutable_data();
+      mean = this->data_mean_.mdata();
       mean_off = (this->data_mean_.width() - crop_size) / 2;
       mean_width = this->data_mean_.width();
       mean_height = this->data_mean_.height();
@@ -243,8 +243,8 @@ namespace
     bool use_square = (crop_mode == "square") ? true : false;
     batch->data_.resize(2);
     // zero out batch
-    Dtype* top_data = batch->data_[0].mutable_data();
-    Dtype* top_label = batch->data_[1].mutable_data();
+    Dtype* top_data = batch->data_[0].mdata();
+    Dtype* top_label = batch->data_[1].mdata();
     caffe_set(batch->data_[0].count(), Dtype(0), top_data);
     const int num_fg = static_cast<int>(static_cast<float>(batch_size)
                                         * fg_fraction);

@@ -1,5 +1,8 @@
 
-#define CPU_ONLY
+//#define CPU_ONLY
+#ifndef CPU_ONLY
+#define USE_CUDNN
+#endif
 
 
 #define countof(arr) sizeof(arr)/sizeof(arr[0])

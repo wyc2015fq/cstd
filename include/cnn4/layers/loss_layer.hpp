@@ -12,11 +12,24 @@ const double kLOG_THRESHOLD = 1e-20;
  * LossLayers are typically only capable of backpropagating to their first input
  * -- the predictions.
  */
+
+#define LossParameter_DEF(DEF) \
+DEF##Int(ignore_label, -1, 0) \
+DEF##Bool(normalize, false, 0) \
+DEF##Enum(normalization, NormalizationMode_VALID, NormalizationMode) \
+
 class LossLayer : public Layer
 {
 public:
+  LossParameter_DEF(Def);
   virtual inline int ExactNumBottomBlobs() const { return 2; }
 
+  void init() {
+    LossParameter_DEF(Set);
+  }
+  void init(CJSON* param) {
+    LossParameter_DEF(Get);
+  }
   /**
    * @brief For convenience and backwards compatibility, instruct the Net to
    *        automatically allocate a single top Blob for LossLayers, into which

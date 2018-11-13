@@ -33,7 +33,7 @@ namespace
                      bottom_data[i * dim + label], Dtype(kLOG_THRESHOLD));
       loss -= log(prob);
     }
-    top[0]->mutable_data()[0] = loss / num;
+    top[0]->mdata()[0] = loss / num;
   }
 
   template <typename Dtype>
@@ -48,7 +48,7 @@ namespace
     if (bottom[0]->propagate_down_) {
       const Dtype* bottom_data = bottom[0]->data();
       const Dtype* bottom_label = bottom[1]->data();
-      Dtype* bottom_diff = bottom[0]->mutable_diff();
+      Dtype* bottom_diff = bottom[0]->mdiff();
       int num = bottom[0]->num();
       int dim = bottom[0]->count() / bottom[0]->num();
       caffe_set(bottom[0]->count(), Dtype(0), bottom_diff);

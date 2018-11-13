@@ -27,7 +27,7 @@ namespace
     const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
-    Dtype* top_data = top[0]->mutable_data();
+    Dtype* top_data = top[0]->mdata();
     for (size_t i = 0; i < outer_dim_; ++i) {
       for (size_t t = 0; t < tiles_; ++t) {
         caffe_copy(inner_dim_, bottom_data, top_data);
@@ -43,7 +43,7 @@ namespace
   {
     if (!bottom[0]->propagate_down_) { return; }
     const Dtype* top_diff = top[0]->diff();
-    Dtype* bottom_diff = bottom[0]->mutable_diff();
+    Dtype* bottom_diff = bottom[0]->mdiff();
     for (size_t i = 0; i < outer_dim_; ++i) {
       caffe_copy(inner_dim_, top_diff, bottom_diff);
       top_diff += inner_dim_;

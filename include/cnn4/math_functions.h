@@ -5,13 +5,11 @@
 #include "cblas.hpp"
 #include "types.h"
 //#include "cpu.hpp"
+struct cJSON;
+
 
 //struct CPUContext;
 //struct GPUContext;
-
-#define _MATH_FUNCTIONS_MEM_CPU_GPU_DEF(DEF)  \
-DEF(void, caffe_memset, (const size_t N, const int alpha, void* X)) \
-DEF(void, caffe_memcpy, (const size_t N, const void* X, void* Y))
 
 #define _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF, Dtype, Stype)  \
 DEF(void, caffe_copy, (const int N, const Dtype* X, Dtype* Y)) \
@@ -34,9 +32,7 @@ DEF(void, caffe_log, (const int n, const Dtype* a, Dtype* y)) \
 DEF(void, caffe_powx, (const int n, const Dtype* a, const Stype b, Dtype* y)) \
 DEF(void, caffe_bound, (const int n, const Dtype* a, const Stype min, const Stype max, Dtype* y)) \
 DEF(void, caffe_rng_uniform, (const int n, const Stype a, const Stype b, Dtype* r)) \
-DEF(void, caffe_rng_gaussian, (const int n, const Stype mu, const Stype sigma,Dtype* r)) \
-DEF(void, caffe_rng_bernoulli, (const int n, const Stype p, int* r)) \
-DEF(void, caffe_rng_bernoulli_u, (const int n, const Stype p, unsigned int* r)) \
+DEF(void, caffe_rng_gaussian, (const int n, const Stype mu, const Stype sigma, Dtype* r)) \
 DEF(Stype, caffe_dot, (const int n, const Dtype* x, const Dtype* y)) \
 DEF(Stype, caffe_strided_dot, (const int n, const Dtype* x, const int incx, const Dtype* y, const int incy)) \
 DEF(Stype, caffe_asum, (const int n, const Dtype* x)) \
@@ -73,17 +69,22 @@ DEF(int, softmaxloss_forward, (const Dtype* prob_data, const Dtype* label, const
 const int dim, const int spatial_dim, const bool has_ignore_label_, const int ignore_label_, Dtype* out_loss)) \
 DEF(int, softmaxloss_backward, (const Dtype* top_data,const Dtype* label, Dtype* bottom_diff, \
 const int outer_num_, const int dim,const int spatial_dim, const bool has_ignore_label_,const int ignore_label_)) \
+DEF(void, scale_forward, (const int n, const Dtype* in, const Dtype* scale, const int scale_dim, const int inner_dim, Dtype* out)) \
+DEF(void, scalebias_forward, (const int n, const Dtype* in,const Dtype* scale, const Dtype* bias, const int scale_dim, const int inner_dim, Dtype* out)) \
 //
 #define _MATH_FUNCTIONS_TYPE_CPU_DEF(DEF, Dtype, Stype)  \
-DEF(int, ConstantFiller, (DataShape shape, Dtype* data, CJSON* param)) \
-DEF(int, UniformFiller, (DataShape shape, Dtype* data, CJSON* param)) \
-DEF(int, GaussianFiller, (DataShape shape, Dtype* data, CJSON* param)) \
-DEF(int, PositiveUnitballFiller, (DataShape shape, Dtype* data, CJSON* param)) \
-DEF(int, XavierFiller, (DataShape shape, Dtype* data, CJSON* param)) \
-DEF(int, MSRAFiller, (DataShape shape, Dtype* data, CJSON* param)) \
-DEF(int, BilinearFiller, (DataShape shape, Dtype* data, CJSON* param)) \
-DEF(int, Filler, (DataShape shape, Dtype* data, CJSON* param)) \
+DEF(void, caffe_rng_bernoulli, (const int n, const Stype p, int* r)) \
+DEF(void, caffe_rng_bernoulli_u, (const int n, const Stype p, unsigned int* r)) \
+DEF(int, ConstantFiller, (DataShape shape, Dtype* data, const Stype value)) \
+DEF(int, Filler, (DataShape shape, Dtype* data, cJSON* param)) \
 _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF, Dtype, Stype)
+
+
+#define _MATH_FUNCTIONS_MEM_CPU_GPU_DEF(DEF)  \
+DEF(void, caffe_memset, (const size_t N, const int alpha, void* X)) \
+DEF(void, caffe_memcpy, (const size_t N, const void* X, void* Y))
+
+
 //
 #define _MATH_FUNCTIONS_TYPE_GPU_DEF(DEF, Dtype, Stype)  \
 _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF, Dtype, Stype)
@@ -100,11 +101,13 @@ _MATH_FUNCTIONS_MEM_CPU_GPU_DEF(DEF)
 _MATH_FUNCTIONS_TYPE_CPU_DEF(DEF, float, double)
 #undef DEF
 #define DEF(RET, NAME, ARGS)  typedef RET (*NAME ## t) ARGS;static NAME ## t NAME = (NAME ## t)gpu_ ## NAME;
+_MATH_FUNCTIONS_MEM_CPU_GPU_DEF(DEF)
 _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF, void, double)
 #undef DEF
 #else
 #define DEF(RET, NAME, ARGS)  typedef RET (*NAME ## t) ARGS;static NAME ## t NAME = (NAME ## t)cpu_ ## NAME;
 _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF, void, double)
+_MATH_FUNCTIONS_MEM_CPU_GPU_DEF(DEF)
 #undef DEF
 #endif
 

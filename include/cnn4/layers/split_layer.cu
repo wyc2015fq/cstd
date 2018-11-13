@@ -15,18 +15,18 @@ void SplitLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 
 template <typename Dtype>
 void SplitLayer::Backward(GPUContext* context, const vector<Blob*>& top,
-      const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
+      const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) { return; }
   if (top.size() == 1) {
-    caffe_copy(count_, top[0]->gpu_diff(), bottom[0]->mutable_gpu_diff());
+    caffe_copy(count_, top[0]->gpu_diff(), bottom[0]->gpu_mdiff());
     return;
   }
   caffe_gpu_add(count_, top[0]->gpu_diff(), top[1]->gpu_diff(),
-                bottom[0]->mutable_gpu_diff());
+                bottom[0]->gpu_mdiff());
   // Add remaining top blob diffs.
   for (int i = 2; i < top.size(); ++i) {
     const Dtype* top_diff = top[i]->gpu_diff();
-    Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
+    Dtype* bottom_diff = bottom[0]->gpu_mdiff();
     caffe_gpu_axpy(count_, Dtype(1.), top_diff, bottom_diff);
   }
 }

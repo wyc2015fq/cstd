@@ -9,7 +9,7 @@ template <typename Dtype>
 void ReverseTimeLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* src = bottom[0]->data();
-  Dtype* const dest = top[0]->mutable_data();
+  Dtype* const dest = top[0]->mdata();
 
   // TODO: Remove these tests
   const Dtype* const src_max = src + bottom[0]->count();
@@ -64,11 +64,11 @@ void ReverseTimeLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 
 template <typename Dtype>
 void ReverseTimeLayer::Backward(GPUContext* context, const vector<Blob*>& top,
-    const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
+    const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) { return; }
 
   const Dtype* src = top[0]->gpu_diff();
-  Dtype* const dest = bottom[0]->mutable_gpu_diff();
+  Dtype* const dest = bottom[0]->gpu_mdiff();
 
   // TODO: Remove these tests
   const Dtype* const src_max = src + top[0]->count();

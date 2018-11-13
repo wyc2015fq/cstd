@@ -21,7 +21,7 @@ int NHWC2NCHW_T(T* dst, const T* src, int dim_w, int dim_h = 1, int dim_c = 1, i
 }
 int NHWC2NCHW(TypeFlag flag, void* dst, const void* src, int dim_w, int dim_h = 1, int dim_c = 1, int dim_n = 1) {
   switch (flag) {
-#define TYPEFLAGDEF(F, T)   case TF_ ## F: NHWC2NCHW_T<T>((T*)dst, (const T*)src, dim_w, dim_h, dim_c, dim_n); break;
+#define TYPEFLAGDEF(F, T, c)   case TF_ ## F: NHWC2NCHW_T<T>((T*)dst, (const T*)src, dim_w, dim_h, dim_c, dim_n); break;
     TYPEFLAGDEF_DEF(TYPEFLAGDEF)
 #undef TYPEFLAGDEF
   default:
@@ -153,6 +153,13 @@ void ParseFromString(const char* s, Datum& datum) {
 #undef STR_APPEND
 #undef STR_APPEND
 
+
+int Rand(int n) {
+  //CHECK(rng_);
+  CHECK_GT(n, 0);
+  return (rand() % n);
+}
+
 struct DataTransformerInfo {
   //DataShape shape_;
   double mean_values_vec[10];
@@ -163,6 +170,32 @@ struct DataTransformerInfo {
   bool has_mean_file;
   double* mean;
   Phase phase_;
+  void init() {
+    memset(this, 0, sizeof(*this));
+  }
+  int init(CJSON* param) {
+    CJSON* p = NULL;
+    DataTransformerInfo* info = this;
+    info->mean_values_ = NULL;
+    if (p = param->get("mean_value")) {
+      int n = p->GetArraySize();
+      n = MIN(10, n);
+      if (n > 0) {
+        int i = 0;
+        for (; i < n; ++i) {
+          info->mean_values_vec[i] = p->get(i)->valuedouble;
+        }
+        double t = info->mean_values_vec[0];
+        info->mean_values_ = info->mean_values_vec;
+      }
+    }
+    info->crop_size = param->GetObjectInt("crop_size", 0);
+    info->scale = param->GetObjectNumber("scale", 1);
+    info->do_mirror = param->GetObjectBool("mirror", false) && Rand(2);
+    info->has_mean_file = false;// param->has("mean_file");
+    info->mean = NULL;
+    return 0;
+  }
 };
 
 template <typename Stype, typename Dtype> inline
@@ -211,7 +244,7 @@ bool blob_data_transform_T(DataTransformerInfo* info, DataShape shape_, Dtype* t
 template <typename Dtype> inline
 bool blob_data_transform(DataTransformerInfo* info, DataShape shape_, Dtype* transformed_data, const void* data, TypeFlag flag, int h_off, int w_off) {
   switch (flag) {
-#define TYPEFLAGDEF(F, T)   case TF_ ## F: blob_data_transform_T(info, shape_, transformed_data, (T*)data, h_off, w_off); break;
+#define TYPEFLAGDEF(F, T, c)   case TF_ ## F: blob_data_transform_T(info, shape_, transformed_data, (T*)data, h_off, w_off); break;
     TYPEFLAGDEF_DEF(TYPEFLAGDEF)
 #undef TYPEFLAGDEF
   default:
@@ -221,42 +254,11 @@ bool blob_data_transform(DataTransformerInfo* info, DataShape shape_, Dtype* tra
   return 0;
 }
 
-
-int Rand(int n) {
-  //CHECK(rng_);
-  CHECK_GT(n, 0);
-  return (rand() % n);
-}
-
-DataShape GetDataTransformerInfo(DataTransformerInfo* info, const BlobData* src, CJSON* param_, Phase phase_) {
+DataShape GetDataTransformerInfo(DataTransformerInfo* info, const BlobData* src, Phase phase) {
   //src<Dtype> data_mean_;
-  CJSON* p = NULL;
-  DataShape shape_;
-  info->phase_ = phase_;
-  if (p = param_->get("mean_value")) {
-    int n = p->GetArraySize();
-    n = MIN(10, n);
-    n = MIN(10, src->c);
-    if (n > 0) {
-      int i = 0;
-      for (; i < n; ++i) {
-        info->mean_values_vec[i] = p->get(i)->valuedouble;
-      }
-      double t = info->mean_values_vec[0];
-      for (; i < src->c; ++i) {
-        info->mean_values_vec[i] = (t);
-      }
-      info->mean_values_ = info->mean_values_vec;
-    
-    }
-  }
-  info->crop_size = param_->GetObjectInt("crop_size", 0);
-  info->scale = param_->GetObjectNumber("scale", 1);
-  info->do_mirror = param_->GetObjectBool("mirror", false) && Rand(2);
-  info->has_mean_file = false;// param_->has("mean_file");
-  info->mean = NULL;
-
   // Check dimensions.
+  DataShape shape_;
+  info->phase_ = phase;
   shape_.c = src->c;
   if (info->crop_size) {
     shape_.w = shape_.h = info->crop_size;
@@ -277,7 +279,7 @@ DataShape GetDataTransformerInfo(DataTransformerInfo* info, const BlobData* src,
     CHECK_EQ(src->c, data_mean_.shape_.c());
     CHECK_EQ(src->h, data_mean_.shape_.h());
     CHECK_EQ(src->w, data_mean_.shape_.w());
-    mean = data_mean_.mutable_cpu_data();
+    mean = data_mean_.cpu_mdata();
   }
 #endif
   return shape_;

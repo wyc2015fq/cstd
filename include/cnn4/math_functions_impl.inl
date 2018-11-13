@@ -43,7 +43,7 @@ void FUN(caffe_gemv)(const CBLAS_TRANSPOSE TransA, const int M,
   CBLASFUN(gemv)(CblasRowMajor, TransA, M, N, alpha, A, N, x, 1, beta, y, 1);
 }
 
-void FUN(caffe_axpy)(const int N, const Stype alpha, const float* X, float* Y) {
+void FUN(caffe_axpy)(const int N, const Stype alpha, const Dtype* X, Dtype* Y) {
   CBLASFUN(axpy)(N, alpha, X, 1, Y, 1);
 }
 void FUN(caffe_set)(const int N, const Stype alpha, Dtype* Y)
@@ -56,19 +56,19 @@ void FUN(caffe_set)(const int N, const Stype alpha, Dtype* Y)
     Y[i] = alpha;
   }
 }
-void FUN(caffe_add_scalar)(const int N, const Stype alpha, float* Y)
+void FUN(caffe_add_scalar)(const int N, const Stype alpha, Dtype* Y)
 {
   for (int i = 0; i < N; ++i) {
     Y[i] += alpha;
   }
 }
 
-void FUN(caffe_scal)(const int N, const Stype alpha, float* X)
+void FUN(caffe_scal)(const int N, const Stype alpha, Dtype* X)
 {
   CBLASFUN(scal)(N, alpha, X, 1);
 }
 
-Stype FUN(caffe_strided_dot)(const int n, const float* x, const int incx, const float* y, const int incy)
+Stype FUN(caffe_strided_dot)(const int n, const Dtype* x, const int incx, const Dtype* y, const int incy)
 {
   return CBLASFUN(dot)(n, x, incx, y, incy);
 }
@@ -78,7 +78,7 @@ Stype FUN(caffe_dot)(const int n, const Dtype* x, const Dtype* y)
   return CBLASFUN(dot)(n, x, 1, y, 1);
 }
 
-Stype FUN(caffe_asum)(const int n, const float* x)
+Stype FUN(caffe_asum)(const int n, const Dtype* x)
 {
   return CBLASFUN(asum)(n, x, 1);
 }
@@ -130,14 +130,14 @@ void CBLASFUN(axpby)(const int N, const Stype alpha, const Dtype* X,
   CBLASFUN(axpy)(N, alpha, X, incX, Y, incY);
 }
 
-void FUN(caffe_axpby)(const int N, const Stype alpha, const float* X,
-  const Stype beta, float* Y)
+void FUN(caffe_axpby)(const int N, const Stype alpha, const Dtype* X,
+  const Stype beta, Dtype* Y)
 {
   CBLASFUN(axpby)(N, alpha, X, 1, beta, Y, 1);
 }
 
-void FUN(caffe_bound)(const int N, const float* a, const Stype min,
-  const Stype max, float* y)
+void FUN(caffe_bound)(const int N, const Dtype* a, const Stype min,
+  const Stype max, Dtype* y)
 {
   for (int i = 0; i < N; ++i) {
     y[i] = BOUND(a[i], min, max);
@@ -208,12 +208,12 @@ void FUN(caffe_rng_bernoulli_u)(const int n, const Stype p, unsigned int* r)
   }
 }
 
-void FUN(caffe_asum2)(const int n, const float* x, float* y)
+void FUN(caffe_asum2)(const int n, const Dtype* x, Dtype* y)
 {
   *y = CBLASFUN(asum)(n, x, 1);
 }
 
-void FUN(caffe_scale)(const int n, const Stype alpha, const float* x, float* y)
+void FUN(caffe_scale)(const int n, const Stype alpha, const Dtype* x, Dtype* y)
 {
   CBLASFUN(copy)(n, x, 1, y, 1);
   CBLASFUN(scal)(n, alpha, y, 1);

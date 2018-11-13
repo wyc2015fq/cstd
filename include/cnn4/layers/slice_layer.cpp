@@ -84,7 +84,7 @@ namespace
     const Dtype* bottom_data = bottom[0]->data();
     const int bottom_slice_axis = bottom[0]->shape(slice_axis_);
     for (int i = 0; i < top.size(); ++i) {
-      Dtype* top_data = top[i]->mutable_data();
+      Dtype* top_data = top[i]->mdata();
       const int top_slice_axis = top[i]->shape(slice_axis_);
       for (int n = 0; n < num_slices_; ++n) {
         const int top_offset = n * top_slice_axis * slice_size_;
@@ -103,7 +103,7 @@ namespace
   {
     if (!bottom[0]->propagate_down_ || top.size() == 1) { return; }
     int offset_slice_axis = 0;
-    Dtype* bottom_diff = bottom[0]->mutable_diff();
+    Dtype* bottom_diff = bottom[0]->mdiff();
     const int bottom_slice_axis = bottom[0]->shape(slice_axis_);
     for (int i = 0; i < top.size(); ++i) {
       const Dtype* top_diff = top[i]->diff();

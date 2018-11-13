@@ -47,7 +47,7 @@ template <typename Dtype>
 void PReLULayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
-  Dtype* top_data = top[0]->mutable_data();
+  Dtype* top_data = top[0]->mdata();
   const int count = bottom[0]->count();
   const int dim = bottom[0]->count(2);
   const int channels = bottom[0]->channels();
@@ -56,7 +56,7 @@ void PReLULayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 
   // For in-place computation
   if (top[0] == bottom[0]) {
-    caffe_copy(count, bottom_data, bottom_memory_.mutable_data());
+    caffe_copy(count, bottom_data, bottom_memory_.mdata());
   }
 
   // NOLINT_NEXT_LINE(whitespace/operators)
@@ -85,7 +85,7 @@ void PReLULayer::Backward(GPUContext* context, const vector<Blob*>& top,
   // are identical (in-place computaion), we first compute param backward to
   // keep top_diff unchanged.
   if (this->blobs_[0]->propagate_down_) {
-    Dtype* slope_diff = this->blobs_[0]->mutable_gpu_diff();
+    Dtype* slope_diff = this->blobs_[0]->gpu_mdiff();
     int cdim = channels * dim;
 
     // compute element-wise diff
@@ -94,7 +94,7 @@ void PReLULayer::Backward(GPUContext* context, const vector<Blob*>& top,
       CAFFE_CUDA_NUM_THREADS>>>(
       cdim, bottom[0]->num(), top[0]->offset(1), top_diff ,
       bottom_data ,
-      backward_buff_.mutable_gpu_diff());
+      backward_buff_.gpu_mdiff());
     CUDA_POST_KERNEL_CHECK;
     if (channel_shared_) {
       Dtype dsum;
@@ -109,7 +109,7 @@ void PReLULayer::Backward(GPUContext* context, const vector<Blob*>& top,
   }
   // Propagate to bottom
   if (bottom[0]->propagate_down_) {
-    Dtype* bottom_diff = bottom[0]->mutable_gpu_diff();
+    Dtype* bottom_diff = bottom[0]->gpu_mdiff();
     const Dtype* slope_data = this->blobs_[0]->data();
     int div_factor = channel_shared_ ? channels : 1;
     // NOLINT_NEXT_LINE(whitespace/operators)

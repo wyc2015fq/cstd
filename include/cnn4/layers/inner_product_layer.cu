@@ -10,7 +10,7 @@ template <typename Dtype>
 void InnerProductLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
-  Dtype* top_data = top[0]->mutable_data();
+  Dtype* top_data = top[0]->mdata();
   const Dtype* weight = this->blobs_[0]->data();
   if (M_ == 1) {
     caffe_gpu_gemv<Dtype>(CblasNoTrans, N_, K_, (Dtype)1.,
@@ -42,12 +42,12 @@ void InnerProductLayer::Backward(GPUContext* context, const vector<Blob*>& top,
       caffe_gpu_gemm<Dtype>(CblasTrans, CblasNoTrans,
           K_, N_, M_,
           (Dtype)1., bottom_data, top_diff,
-          (Dtype)1., this->blobs_[0]->mutable_gpu_diff());
+          (Dtype)1., this->blobs_[0]->gpu_mdiff());
     } else {
       caffe_gpu_gemm<Dtype>(CblasTrans, CblasNoTrans,
           N_, K_, M_,
           (Dtype)1., top_diff, bottom_data,
-          (Dtype)1., this->blobs_[0]->mutable_gpu_diff());
+          (Dtype)1., this->blobs_[0]->gpu_mdiff());
     }
   }
   if (bias_term_ && this->blobs_[1]->propagate_down_) {
@@ -55,7 +55,7 @@ void InnerProductLayer::Backward(GPUContext* context, const vector<Blob*>& top,
     // Gradient with respect to bias
     caffe_gpu_gemv<Dtype>(CblasTrans, M_, N_, (Dtype)1., top_diff,
         bias_multiplier_.data(), (Dtype)1.,
-        this->blobs_[1]->mutable_gpu_diff());
+        this->blobs_[1]->gpu_mdiff());
   }
   if (bottom[0]->propagate_down_) {
     const Dtype* top_diff = top[0]->gpu_diff();
@@ -64,12 +64,12 @@ void InnerProductLayer::Backward(GPUContext* context, const vector<Blob*>& top,
       caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasTrans,
           M_, K_, N_,
           (Dtype)1., top_diff, this->blobs_[0]->data(),
-          (Dtype)0., bottom[0]->mutable_gpu_diff());
+          (Dtype)0., bottom[0]->gpu_mdiff());
     } else {
       caffe_gpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans,
           M_, K_, N_,
          (Dtype)1., top_diff, this->blobs_[0]->data(),
-         (Dtype)0., bottom[0]->mutable_gpu_diff());
+         (Dtype)0., bottom[0]->gpu_mdiff());
     }
   }
 }

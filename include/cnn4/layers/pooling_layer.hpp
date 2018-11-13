@@ -8,10 +8,10 @@
  */
 
 
-int cJSON_GetShape2D(cJSON* pool_param, const char* name, const char* name_h, const char* name_w, int defint, int& pad_h_, int& pad_w_) {
-  cJSON* item = pool_param->get(name);
-  cJSON* item_h = pool_param->get(name_h);
-  cJSON* item_w = pool_param->get(name_w);
+int cJSON_GetShape2D(cJSON* param, const char* name, const char* name_h, const char* name_w, int defint, int& pad_h_, int& pad_w_) {
+  cJSON* item = param->get(name);
+  cJSON* item_h = param->get(name_h);
+  cJSON* item_w = param->get(name_w);
   if (item_h || item_w) {
     pad_h_ = item_h ? item_h->valueint : defint;
     pad_w_ = item_h ? item_w->valueint : defint;
@@ -22,18 +22,22 @@ int cJSON_GetShape2D(cJSON* pool_param, const char* name, const char* name_h, co
   return 0;
 }
 
+#define PoolingParameter_DEF(DEF) \
+DEF##Enum(pool, PoolMethod_MAX, PoolMethod) \
+DEF##Bool(global_pooling, false, 0) \
+
+
 struct PoolingLayer : public Layer
 {
+  PoolingParameter_DEF(Def);
   int kernel_h_, kernel_w_;
   int stride_h_, stride_w_;
   int pad_h_, pad_w_;
   int channels_;
   int height_, width_;
   int pooled_height_, pooled_width_;
-  bool global_pooling_;
   Blob rand_idx_;
   Blob max_idx_;
-  PoolMethod pool_;
   virtual inline const char* type() const { return "Pooling"; }
   virtual inline int ExactNumBottomBlobs() const { return 1; }
   virtual inline int MinTopBlobs() const { return 1; }
@@ -42,46 +46,50 @@ struct PoolingLayer : public Layer
   virtual inline int MaxTopBlobs() const {
     return (pool_ == PoolMethod_MAX) ? 2 : 1;
   }
-
+  PoolingLayer() {
+    PoolingParameter_DEF(Set);
+  }
+  void init(CJSON* param) {
+    PoolingParameter_DEF(Get);
+    if (global_pooling_) {
+      CHECK(!(param->has("kernel_size") ||
+        param->has("kernel_h") || param->has("kernel_w")))
+        << "With Global_pooling: true Filter size cannot specified";
+    }
+    else {
+      CHECK(!param->has("kernel_size") !=
+        !(param->has("kernel_h") && param->has("kernel_w")))
+        << "Filter size is kernel_size OR kernel_h and kernel_w; not both";
+      CHECK(param->has("kernel_size") ||
+        (param->has("kernel_h") && param->has("kernel_w")))
+        << "For non-square filters both kernel_h and kernel_w are required.";
+    }
+    CHECK((!param->has("pad") && param->has("pad_h")
+      && param->has("pad_w"))
+      || (!param->has("pad_h") && !param->has("pad_w")))
+      << "pad is pad OR pad_h and pad_w are required.";
+    CHECK((!param->has("stride") && param->has("stride_h")
+      && param->has("stride_w"))
+      || (!param->has("stride_h") && !param->has("stride_w")))
+      << "Stride is stride OR stride_h and stride_w are required.";
+    if (global_pooling_) {
+    }
+    else {
+      cJSON_GetShape2D(param, "kernel_size", "kernel_h", "kernel_w", 0, kernel_h_, kernel_w_);
+    }
+    cJSON_GetShape2D(param, "pad", "pad_h", "pad_w", 0, pad_h_, pad_w_);
+    cJSON_GetShape2D(param, "stride", "stride_h", "stride_w", 0, stride_h_, stride_w_);
+  }
   
   virtual void LayerSetUp(const vector<Blob*> & bottom,
     const vector<Blob*> & top)
   {
-    CJSON* pool_param = this->param_;
-    pool_ = (PoolMethod)this->param_->getenum("pool", 1, PoolMethod_Name, countof(PoolMethod_Name));
-    global_pooling_ = pool_param->getbool("global_pooling", false);
-    if (global_pooling_) {
-      CHECK(!(pool_param->has("kernel_size") ||
-        pool_param->has("kernel_h") || pool_param->has("kernel_w")))
-        << "With Global_pooling: true Filter size cannot specified";
-    }
-    else {
-      CHECK(!pool_param->has("kernel_size") !=
-        !(pool_param->has("kernel_h") && pool_param->has("kernel_w")))
-        << "Filter size is kernel_size OR kernel_h and kernel_w; not both";
-      CHECK(pool_param->has("kernel_size") ||
-        (pool_param->has("kernel_h") && pool_param->has("kernel_w")))
-        << "For non-square filters both kernel_h and kernel_w are required.";
-    }
-    CHECK((!pool_param->has("pad") && pool_param->has("pad_h")
-      && pool_param->has("pad_w"))
-      || (!pool_param->has("pad_h") && !pool_param->has("pad_w")))
-      << "pad is pad OR pad_h and pad_w are required.";
-    CHECK((!pool_param->has("stride") && pool_param->has("stride_h")
-      && pool_param->has("stride_w"))
-      || (!pool_param->has("stride_h") && !pool_param->has("stride_w")))
-      << "Stride is stride OR stride_h and stride_w are required.";
     if (global_pooling_) {
       kernel_h_ = bottom[0]->height();
       kernel_w_ = bottom[0]->width();
     }
-    else {
-      cJSON_GetShape2D(pool_param, "kernel_size", "kernel_h", "kernel_w", 0, kernel_h_, kernel_w_);
-    }
     CHECK_GT(kernel_h_, 0) << "Filter dimensions cannot be zero.";
     CHECK_GT(kernel_w_, 0) << "Filter dimensions cannot be zero.";
-    cJSON_GetShape2D(pool_param, "pad", "pad_h", "pad_w", 0, pad_h_, pad_w_);
-    cJSON_GetShape2D(pool_param, "stride", "stride_h", "stride_w", 0, stride_h_, stride_w_);
 
 
     if (global_pooling_) {
@@ -153,7 +161,7 @@ struct PoolingLayer : public Layer
     int top_count = top[0]->count();
     int num = top[0]->num();
     const Dtype* bottom_data = bottom[0]->data();
-    Dtype* top_data = top[0]->mutable_data();
+    Dtype* top_data = top[0]->mdata();
     //const int top_count = top[0]->count();
     // We'll output the mask to top[1] if it's of size >1.
     const bool use_top_mask = top.size() > 1;
@@ -164,10 +172,10 @@ struct PoolingLayer : public Layer
     // loop to save time, although this results in more code.
       // Initialize
     if (use_top_mask) {
-      top_mask = top[1]->mutable_data();
+      top_mask = top[1]->mdata();
     }
     else {
-      mask = (int*)max_idx_.mutable_data();
+      mask = (int*)max_idx_.mdata();
     }
     pooling_forward(pool_, phase_, bottom_data,
       num, channels_, height_, width_, pooled_height_, pooled_width_,
@@ -186,7 +194,7 @@ struct PoolingLayer : public Layer
       return;
     }
     const Dtype* top_diff = top[0]->diff();
-    Dtype* bottom_diff = bottom[0]->mutable_diff();
+    Dtype* bottom_diff = bottom[0]->mdiff();
     // Different pooling methods. We explicitly do the switch outside the for
     // loop to save time, although this results in more codes.
     //caffe_set(bottom[0]->count(), Dtype(0), bottom_diff);

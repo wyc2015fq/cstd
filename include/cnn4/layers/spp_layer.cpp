@@ -33,23 +33,23 @@ namespace
     int kernel_w = ceil(bottom_w / static_cast<double>(num_bins));
     int remainder_w = kernel_w * num_bins - bottom_w;
     int pad_w = (remainder_w + 1) / 2;
-    pooling_param.mutable_pooling_param()->set_pad_h(pad_h);
-    pooling_param.mutable_pooling_param()->set_pad_w(pad_w);
-    pooling_param.mutable_pooling_param()->set_kernel_h(kernel_h);
-    pooling_param.mutable_pooling_param()->set_kernel_w(kernel_w);
-    pooling_param.mutable_pooling_param()->set_stride_h(kernel_h);
-    pooling_param.mutable_pooling_param()->set_stride_w(kernel_w);
+    pooling_param.mpooling_param()->set_pad_h(pad_h);
+    pooling_param.mpooling_param()->set_pad_w(pad_w);
+    pooling_param.mpooling_param()->set_kernel_h(kernel_h);
+    pooling_param.mpooling_param()->set_kernel_w(kernel_w);
+    pooling_param.mpooling_param()->set_stride_h(kernel_h);
+    pooling_param.mpooling_param()->set_stride_w(kernel_w);
     switch (spp_param.pool()) {
     case SPPParameter_PoolMethod_MAX:
-      pooling_param.mutable_pooling_param()->set_pool(
+      pooling_param.mpooling_param()->set_pool(
         PoolingParameter_PoolMethod_MAX);
       break;
     case SPPParameter_PoolMethod_AVE:
-      pooling_param.mutable_pooling_param()->set_pool(
+      pooling_param.mpooling_param()->set_pool(
         PoolingParameter_PoolMethod_AVE);
       break;
     case SPPParameter_PoolMethod_STOCHASTIC:
-      pooling_param.mutable_pooling_param()->set_pool(
+      pooling_param.mpooling_param()->set_pool(
         PoolingParameter_PoolMethod_STOCHASTIC);
       break;
     default:

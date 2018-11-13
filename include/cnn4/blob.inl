@@ -104,12 +104,12 @@ int FromProto(CJSON* proto) {
   int nbytes = count * sizeof(float);
   blob->Reshape(shape);
   if (proto->GetObjectItem("data")) {
-    Dtype* data = blob->mutable_cpu_data();
+    Dtype* data = blob->cpu_mdata();
     nbytes = blob->shape_.count();
     cJSON_GetObjectBinaryData(proto, "data", data, nbytes);
   }
   if (proto->GetObjectItem("diff")) {
-    Dtype* data = blob->mutable_cpu_diff();
+    Dtype* data = blob->cpu_mdiff();
     cJSON_GetObjectBinaryData(proto, "diff", data, count);
   }
   return 0;
@@ -150,7 +150,7 @@ double Loss() {
     const int count = this->count();
     const Dtype* data = this->cpu_data();
     //const Dtype* loss_weights = top[top_id]->cpu_diff();
-    Dtype* loss_multiplier = mutable_cpu_diff();
+    Dtype* loss_multiplier = cpu_mdiff();
     cpu_caffe_set(count, loss_weight_, loss_multiplier);
     loss_ = cpu_caffe_dot(count, data, loss_multiplier);
   }
@@ -160,5 +160,5 @@ double Loss() {
 void Update()
 {
   const int count_ = this->count();
-  caffe_axpy(count_, Dtype(-1), diff(), mutable_data());
+  caffe_axpy(count_, Dtype(-1), diff(), mdata());
 }

@@ -102,11 +102,11 @@ struct DevMem {
 
   void* cpu_ptr() {    return to(CPU, SYNCED);  }
   void* gpu_ptr() {    return to(GPU, SYNCED);  }
-  void* mutable_cpu_ptr() {    return to(CPU, AT_CPU);  }
-  void* mutable_gpu_ptr() {    return to(GPU, AT_GPU);  }
+  void* cpu_mptr() {    return to(CPU, AT_CPU);  }
+  void* gpu_mptr() {    return to(GPU, AT_GPU);  }
 
   void* ptr(Brew brew) { return to(brew, SYNCED); }
-  void* mutable_ptr(Brew brew) { return to(brew, brew==CPU ? AT_CPU : AT_GPU); }
+  void* mptr(Brew brew) { return to(brew, brew==CPU ? AT_CPU : AT_GPU); }
 
   void reset(size_t size) {
     nbytes_ = size;
@@ -156,21 +156,22 @@ struct Blob {
 
   const Dtype* data() { return (const Dtype*)(data_)->ptr(BREW); }
   const Dtype* diff() { return (const Dtype*)(diff_)->ptr(BREW); }
-  Dtype* mutable_data() { return (Dtype*)(data_)->mutable_ptr(BREW); }
-  Dtype* mutable_diff() { return (Dtype*)(diff_)->mutable_ptr(BREW); }
+  Dtype* mdata() { return (Dtype*)(data_)->mptr(BREW); }
+  Dtype* mdiff() { return (Dtype*)(diff_)->mptr(BREW); }
 
   const Dtype* cpu_data() { return (Dtype*)data_->cpu_ptr(); }
   const Dtype* cpu_diff() { return (Dtype*)diff_->cpu_ptr(); }
-  Dtype* mutable_cpu_data() { return (Dtype*)data_->mutable_cpu_ptr(); }
-  Dtype* mutable_cpu_diff() { return (Dtype*)diff_->mutable_cpu_ptr(); }
+  Dtype* cpu_mdata() { return (Dtype*)data_->cpu_mptr(); }
+  Dtype* cpu_mdiff() { return (Dtype*)diff_->cpu_mptr(); }
 
   const Dtype* gpu_data() { return (Dtype*)data_->gpu_ptr(); }
   const Dtype* gpu_diff() { return (Dtype*)diff_->gpu_ptr(); }
-  Dtype* mutable_gpu_data() { return (Dtype*)data_->mutable_gpu_ptr(); }
-  Dtype* mutable_gpu_diff() { return (Dtype*)diff_->mutable_gpu_ptr(); }
+  Dtype* gpu_mdata() { return (Dtype*)data_->gpu_mptr(); }
+  Dtype* gpu_mdiff() { return (Dtype*)diff_->gpu_mptr(); }
 
   int Reshape(const DataShape& shape) {
-    if (shape_ != shape) {
+    //if (shape_ != shape)
+    {
       int nbytes = shape.count() * sizeof(Dtype);
       data_->reset(nbytes);
       diff_->reset(nbytes);
@@ -189,16 +190,16 @@ struct Blob {
   }
   void CopyFrom(Blob* other, bool copy_diff) {
     Reshape(other->shape());
-    caffe_copy(count(), other->data(), mutable_data());
+    caffe_copy(count(), other->data(), mdata());
     if (copy_diff) {
-      caffe_copy(count(), other->diff(), mutable_diff());
+      caffe_copy(count(), other->diff(), mdiff());
     }
   }
   void CopyTo(Blob* other, bool copy_diff) {
     other->Reshape(shape());
-    caffe_copy(count(), data(), other->mutable_data());
+    caffe_copy(count(), data(), other->mdata());
     if (copy_diff) {
-      caffe_copy(count(), diff(), other->mutable_diff());
+      caffe_copy(count(), diff(), other->mdiff());
     }
   }
   void ShareData(Blob* other) {
@@ -207,8 +208,92 @@ struct Blob {
 #include "blob.inl"
 };
 
-void Filler(Blob* blob, CJSON* param) {
-  cpu_Filler(blob->shape_, blob->mutable_cpu_data(), param);
+#define SetString(name, def, type)  name##_ = (def);
+#define SetBool(name, def, type)  name##_ = (def);
+#define SetFloat(name, def, type)  name##_ = (def);
+#define SetInt(name, def, type)  name##_ = (def);
+#define SetEnum(name, def, type)  name##_ = (def);
+#define SetStruct(name, def, type)  name##_.init();
+
+#define GetString(name, def, type)  name##_ = param->getstring(#name, def);
+#define GetBool(name, def, type)  name##_ = param->getbool(#name, def);
+#define GetFloat(name, def, type)  name##_ = param->getfloat(#name, def);
+#define GetInt(name, def, type)  name##_ = param->getint(#name, def);
+#define GetEnum(name, def, type)  name##_ = param->getenum(#name, def, type##_Name, countof(type##_Name));
+#define GetStruct(name, def, type)  name##_.init(param->get(#name ));
+
+#define DefString(name, def, type)  string name##_;
+#define DefBool(name, def, type)  bool name##_;
+#define DefFloat(name, def, type)  double name##_;
+#define DefInt(name, def, type)  int name##_;
+#define DefEnum(name, def, type)  type name##_;
+#define DefStruct(name, def, type)  type name##_;
+
+#define FILLER_PARAM_DEF(DEF) \
+DEF##Enum(type, FillerMethod_constant, FillerMethod) \
+DEF##Float(value, 0, 0) \
+DEF##Float(min, 0, 0) \
+DEF##Float(max, 1, 0) \
+DEF##Float(mean, 0, 0) \
+DEF##Float(std, 0, 0) \
+DEF##Float(sparse, -1, 0) \
+DEF##Enum(variance_norm, FAN_IN, VarianceNorm)
+
+struct Filler {
+  FILLER_PARAM_DEF(Def);
+  typedef Blob::Dtype Dtype;
+  typedef double Stype;
+  void init() {
+    FILLER_PARAM_DEF(Set);
+  }
+  void init(CJSON* param) {
+    FILLER_PARAM_DEF(Get);
+  }
+  int Fill(Blob* blob) {
+    //cpu_Filler(blob->shape_, blob->cpu_mdata(), param);
+    DataShape shape = blob->shape_;
+    Dtype* data = blob->cpu_mdata();
+    //Blob::Dtype* data = blob->cpu_mdata();
+    switch(type_) {
+    case FillerMethod_constant:
+      CHECK_EQ(sparse_, -1)
+        << "Sparsity not supported by this Filler.";
+      return cpu_ConstantFiller(shape, data, value_);
+    case FillerMethod_gaussian:
+      return (cpu_GaussianFiller)(shape, data, mean_, std_, sparse_);
+    
+    case FillerMethod_positive_unitball:
+      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
+      return (cpu_PositiveUnitballFiller)(shape, data);
+    
+    case FillerMethod_uniform:
+      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
+      return (cpu_UniformFiller)(shape, data, min_, max_);
+    
+    case FillerMethod_xavier:
+      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
+      return (cpu_XavierFiller)(shape, data, variance_norm_);
+    
+    case FillerMethod_msra:
+      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
+      return (cpu_MSRAFiller)(shape, data, variance_norm_);
+    
+    case FillerMethod_bilinear:
+      CHECK_EQ(sparse_, -1)
+        << "Sparsity not supported by this Filler.";
+      return (cpu_BilinearFiller)(shape, data);
+    
+    default:
+      CHECK(false) << "Unknown filler name: " << type_;
+      break;
+    }
+    return 0;
+  }
+
+};
+
+static int Fill(Blob* blob, Filler* filler) {
+  return filler->Fill(blob);
 }
 
 bool dirExists(string dirStr)
@@ -322,7 +407,7 @@ Blob* blobs_aget(vector<Blob*>& blobs_, const char* name) {
 struct Layer {
   Phase phase_;
   char name[MAX_NAME];
-  cJSON* param_;
+  //cJSON* param_;
   typedef Blob::Dtype Dtype;
   vector<Blob*> blobs_;
   vector<Blob*> bottom_vecs_;
@@ -338,8 +423,8 @@ struct Layer {
   virtual inline bool AutoTopBlobs() const { return false; }
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top) { }
   virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top) { }
-  virtual void Forward(const vector<Blob*> & bottom, const vector<Blob*> & top) { ASSERT(0); }
-  virtual void Backward(const vector<Blob*> & top, const vector<Blob*> & bottom) { ASSERT(0); }
+  virtual void Forward(const vector<Blob*> & bottom, const vector<Blob*> & top) { (0); }
+  virtual void Backward(const vector<Blob*> & top, const vector<Blob*> & bottom) { (0); }
 
   //Vtbl* vtbl;
   void init() {
@@ -354,7 +439,7 @@ struct Layer {
   void reset(int blob_size) {
     blobs_reset(blobs_, blob_size);
   }
-  typedef Layer* (*fun_type)();
+  typedef Layer* (*fun_type)(cJSON* param);
 
   static fun_type reg(fun_type fun, const char* type) {
     static map<string, fun_type>  fmap;
@@ -366,10 +451,10 @@ struct Layer {
     }
     return fun;
   }
-  static int AppendName(Layer* layer, bool is_top, vector<Blob*>& net_blobs_) {
+  static int AppendName(CJSON* param, Layer* layer, bool is_top, vector<Blob*>& net_blobs_) {
     vector<string> vec;
     const char* name = is_top ? "top" : "bottom";
-    cJSON_GetObjectStringArray(layer->param_, name, vec);
+    cJSON_GetObjectStringArray(param, name, vec);
     Blob* bi;
     vector<Blob*>& blobvec = is_top ? layer->top_vecs_ : layer->bottom_vecs_;
     for (int i = 0; i < vec.size(); ++i) {
@@ -388,18 +473,23 @@ struct Layer {
 #include "layer.inl"
 };
 
-#define INSTANTIATE_CLASS(Bias) Layer* new ## Bias ## Layer() {return new Bias ## Layer();} \
-Layer::fun_type f ## Bias = Layer::reg(&new ## Bias ## Layer, #Bias );
+//#define REG_LAYER(name) Layer::fun_type f ## Bias = Layer::reg(new ## Bias, #name );
+
+#define INSTANTIATE_CLASS2(name, Bias) Layer* new ## Bias ## Layer(cJSON* param) { Bias ## Layer* p = new Bias ## Layer(); p->init(param); return p;} \
+Layer::fun_type f ## Bias = Layer::reg(&new ## Bias ## Layer, #name );
+
+#define INSTANTIATE_CLASS(Bias) INSTANTIATE_CLASS2(Bias, Bias)
+#define REGISTER_LAYER_CLASS INSTANTIATE_CLASS
 //Layer<double>::fun_type d ## Bias = Layer<double>::reg(&new ## Bias ## Layer<double>, #Bias )
 //#define REGISTER_LAYER_CLASS(Bias)  
 
-int CreateLayer(Layer*& layer, const char* type) {
+int CreateLayer(CJSON* param, Layer*& layer, const char* type) {
   Layer::fun_type fun = Layer::reg(NULL, type);
   CHECK(fun) << "CreateLayer can not find unkown layer type = " << type;
   if (NULL == fun) {
     return 0;
   }
-  layer = fun();
+  layer = fun(param);
   return 1;
 }
 

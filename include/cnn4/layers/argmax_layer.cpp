@@ -59,7 +59,7 @@ namespace
                                        const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
-    Dtype* top_data = top[0]->mutable_data();
+    Dtype* top_data = top[0]->mdata();
     int dim, axis_dist;
     if (has_axis_) {
       dim = bottom[0]->shape(axis_);

@@ -35,7 +35,7 @@ void EltwiseLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   int* mask = NULL;
   const int count = top[0]->count();
-  Dtype* top_data = top[0]->mutable_data();
+  Dtype* top_data = top[0]->mdata();
   switch (op_) {
   case EltwiseParameter_EltwiseOp_PROD:
     caffe_gpu_mul(count, bottom[0]->data(), bottom[1]->data(),
@@ -52,7 +52,7 @@ void EltwiseLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
     }
     break;
   case EltwiseParameter_EltwiseOp_MAX:
-    mask = max_idx_.mutable_data();
+    mask = max_idx_.mdata();
     // NOLINT_NEXT_LINE(whitespace/operators)
     MaxForward<Dtype> <<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, bottom[0]->data(), bottom[1]->data(), 0, top_data, mask);
@@ -81,7 +81,7 @@ __global__ void MaxBackward(const int nthreads, const Dtype* top_diff,
 
 template <typename Dtype>
 void EltwiseLayer::Backward(GPUContext* context, const vector<Blob*>& top,
-    const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
+    const vector<Blob*>& bottom) {
   const int* mask = NULL;
   const int count = top[0]->count();
   const Dtype* top_data = top[0]->data();
@@ -89,7 +89,7 @@ void EltwiseLayer::Backward(GPUContext* context, const vector<Blob*>& top,
   for (int i = 0; i < bottom.size(); ++i) {
     if (bottom[i]->propagate_down_) {
       const Dtype* bottom_data = bottom[i]->data();
-      Dtype* bottom_diff = bottom[i]->mutable_gpu_diff();
+      Dtype* bottom_diff = bottom[i]->gpu_mdiff();
       switch (op_) {
       case EltwiseParameter_EltwiseOp_PROD:
         if (stable_prod_grad_) {
