@@ -12,6 +12,8 @@ struct cJSON;
 //struct GPUContext;
 
 #define _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF, Dtype, Stype)  \
+DEF(const Dtype*, get_one, ()) \
+DEF(const Dtype*, get_zero, ()) \
 DEF(void, caffe_copy, (const int N, const Dtype* X, Dtype* Y)) \
 DEF(void, caffe_gemm, (const CBLAS_TRANSPOSE TransA, const CBLAS_TRANSPOSE TransB, const int M, const int N, const int K, \
 const Stype alpha, const Dtype* A, const Dtype* B, const Stype beta, Dtype* C)) \
@@ -71,6 +73,9 @@ DEF(int, softmaxloss_backward, (const Dtype* top_data,const Dtype* label, Dtype*
 const int outer_num_, const int dim,const int spatial_dim, const bool has_ignore_label_,const int ignore_label_)) \
 DEF(void, scale_forward, (const int n, const Dtype* in, const Dtype* scale, const int scale_dim, const int inner_dim, Dtype* out)) \
 DEF(void, scalebias_forward, (const int n, const Dtype* in,const Dtype* scale, const Dtype* bias, const int scale_dim, const int inner_dim, Dtype* out)) \
+DEF(void, dropout_forward, (const int n, const Dtype* in, unsigned int* mask, const Stype dropout_ratio, const Stype scale, Dtype* out)) \
+DEF(void, dropout_backward, (const int n, const Dtype* in_diff, const unsigned int* mask, const Stype scale, Dtype* out_diff)) \
+DEF(void, transpose, (const int nthreads, const Dtype* from_data, Dtype* to_data, const DataShape from_counts, const DataShape to_counts, const DataShape map, const int num_axes)) \
 //
 #define _MATH_FUNCTIONS_TYPE_CPU_DEF(DEF, Dtype, Stype)  \
 DEF(void, caffe_rng_bernoulli, (const int n, const Stype p, int* r)) \

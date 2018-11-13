@@ -157,7 +157,7 @@ struct CudaObject {
 
 static CudaObject& g_cuda = CUDAOBJECT;
 
-static void set_random_seed(const unsigned int seed)
+static void gpu_set_random_seed(const unsigned int seed)
 {
   // Curand seed
   static bool g_curand_availability_logged = false;

@@ -119,7 +119,7 @@ public:
     sum_result_.Reshape(vector<int>(1, outer_dim_ * scale_dim_));
     const int sum_mult_size = std::max(outer_dim_, inner_dim_);
     sum_multiplier_.Reshape(vector<int>(1, sum_mult_size));
-    if (sum_multiplier_.data()[sum_mult_size - 1] != Dtype(1)) {
+    if (sum_multiplier_.cpu_data()[sum_mult_size - 1] != Dtype(1)) {
       caffe_set(sum_mult_size, Dtype(1), sum_multiplier_.mdata());
     }
     if (bias_layer_) {

@@ -1,4 +1,13 @@
 
+const Dtype* FUN(get_one)() {
+  static Dtype oneval = 1.0;
+  return &oneval;
+}
+const Dtype* FUN(get_zero)() {
+  static Dtype zeroval = 0.0;
+  return &zeroval;
+}
+
 void FUN(caffe_copy)(const int N, const Dtype* X, Dtype* Y)
 {
   if (X != Y) {
@@ -280,13 +289,12 @@ void FUN(caffe_fabs)(const int n, const Dtype* x, Dtype* y) {
     n, x, y);
 }
 
-void FUN(caffe_rng_uniform)(const int n, unsigned int* r) {
+void FUN(caffe_rng_uniform_i)(const int n, unsigned int* r) {
   CURAND_CHECK(curandGenerate(curand_generator(), r, n));
 }
 
 
-void FUN(caffe_rng_uniform)(const int n, const Stype a, const Stype b,
-  Dtype* r) {
+void FUN(caffe_rng_uniform)(const int n, const Stype a, const Stype b, Dtype* r) {
   CURAND_CHECK(curandGenerateUniform(curand_generator(), r, n));
   const Dtype range = b - a;
   if (range != static_cast<Dtype>(1)) {

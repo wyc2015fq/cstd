@@ -3,6 +3,7 @@
 #include "solver.hpp"
 #include "SGDSolver.hpp"
 #include "insert_splits.hpp"
+#include "test/test_all.hpp"
 
 template <typename Dtype>
 void ClearParamDiffs(Blob** learnable_params_, int learnable_params_size)

@@ -15,6 +15,8 @@
 #include "split_layer.hpp"
 #include "batch_norm_layer.hpp"
 #include "scale_layer.hpp"
+#include "dropout_layer.hpp"
+#include "transpose_layer.hpp"
 
 #ifdef USE_CUDNN
 #include "denseblock_layer.hpp"
@@ -39,7 +41,6 @@
 #include "cudnn_softmax_layer.hpp"
 #include "cudnn_tanh_layer.hpp"
 #include "deconv_layer.hpp"
-#include "dropout_layer.hpp"
 #include "eltwise_layer.hpp"
 #include "elu_layer.hpp"
 #include "embed_layer.hpp"
@@ -82,7 +83,6 @@
 #include "tanh_layer.hpp"
 #include "threshold_layer.hpp"
 #include "tile_layer.hpp"
-#include "transpose_layer.hpp"
 #include "warp_ctc_loss_layer.hpp"
 #include "window_data_layer.hpp"
 #endif

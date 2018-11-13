@@ -140,6 +140,9 @@ struct Blob {
   Blob() {
     init();
   }
+  Blob(int n, int c, int h, int w) {
+    this->Reshape(n, c, h, w);
+  }
   void init() {
     memset(this, 0, sizeof(Blob));
     bottom_cnt_ = top_cnt_ = 0;
@@ -235,7 +238,7 @@ DEF##Float(value, 0, 0) \
 DEF##Float(min, 0, 0) \
 DEF##Float(max, 1, 0) \
 DEF##Float(mean, 0, 0) \
-DEF##Float(std, 0, 0) \
+DEF##Float(std, 1, 0) \
 DEF##Float(sparse, -1, 0) \
 DEF##Enum(variance_norm, FAN_IN, VarianceNorm)
 
@@ -243,6 +246,9 @@ struct Filler {
   FILLER_PARAM_DEF(Def);
   typedef Blob::Dtype Dtype;
   typedef double Stype;
+  Filler() {
+    init();
+  }
   void init() {
     FILLER_PARAM_DEF(Set);
   }
@@ -530,3 +536,23 @@ struct Net {
 
 #include "layers/layers.hpp"
 
+#undef SetString
+#undef SetBool
+#undef SetFloat
+#undef SetInt
+#undef SetEnum
+#undef SetStruct
+
+#undef GetString
+#undef GetBool
+#undef GetFloat
+#undef GetInt
+#undef GetEnum
+#undef GetStruct
+
+#undef DefString
+#undef DefBool
+#undef DefFloat
+#undef DefInt
+#undef DefEnum
+#undef DefStruct

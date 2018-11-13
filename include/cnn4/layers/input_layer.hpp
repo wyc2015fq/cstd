@@ -12,16 +12,16 @@ public:
   virtual inline int ExactNumBottomBlobs() const { return 0; }
   virtual inline int MinTopBlobs() const { return 1; }
 
-  std::vector<int> shape;
+  std::vector<int> shape_;
 
   void init(cJSON* param) {
-    cJSON_GetObjectNumberArray(param, "shape", shape);
+    cJSON_GetObjectNumberArray(param, "shape", shape_);
   }
 
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const int num_top = top.size();
-    const int num_shape = shape.size()/4;
+    const int num_shape = shape_.size()/4;
     CHECK(num_shape == 0 || num_shape == 1 || num_shape == num_top)
       << "Must specify 'shape' once, once per top blob, or not at all: "
       << num_top << " tops vs. " << num_shape << " shapes.";
@@ -30,7 +30,7 @@ public:
         const int shape_index = (num_shape == 1) ? 0 : i;
         DataShape datashape;
         for (int j = 0; j < 4; ++j) {
-          datashape.dim[j] = shape[shape_index *4+j];
+          datashape.dim[j] = shape_[shape_index *4+j];
         }
         top[i]->Reshape(datashape);
       }

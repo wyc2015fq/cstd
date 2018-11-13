@@ -11,27 +11,11 @@ template<> class dataType<float>
 {
 public:
   static const cudnnDataType_t type = CUDNN_DATA_FLOAT;
-  static void* get_one() {
-    static float oneval = 1.0;
-    return &oneval;
-  }
-  static void* get_zero() {
-    static float zeroval = 0.0;
-  return &zeroval;
-  }
 };
 template<> class dataType<double>
 {
 public:
   static const cudnnDataType_t type = CUDNN_DATA_DOUBLE;
-  static void* get_one() {
-    static double oneval = 1.0;
-    return &oneval;
-  }
-  static void* get_zero() {
-    static double zeroval = 0.0;
-    return &zeroval;
-  }
 };
 
 

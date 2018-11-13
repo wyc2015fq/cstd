@@ -48,6 +48,7 @@ TYPEFLAGDEF_DEF(TYPEFLAGDEF)
 
 enum DimType { NCHW, NHWC };
 #define MAX_DIM 4
+#define kMaxBlobAxes MAX_DIM
 
 struct DataShape {
   //TypeFlag t;
@@ -62,12 +63,17 @@ struct DataShape {
   int* end() { return dim + MAX_DIM; }
   const int* begin() const { return dim; }
   const int* end() const { return dim + MAX_DIM; }
+  int at(int i) { assert(i<MAX_DIM);  return dim[i]; }
   void resize(int k) {
     for (; k < MAX_DIM; ++k) {
       dim[k] = 1;
     }
   }
-  inline int num_axes() const { return (int)4; }
+  inline int num_axes() const {
+    int i = MAX_DIM;
+    for (; i > 0 && dim[i - 1] <= 1; --i);
+    return i;
+  }
   inline int shape(int index) const {
     return dim[CanonicalAxisIndex(index)];
   }

@@ -1,4 +1,13 @@
 
+const Dtype* FUN(get_one)() {
+  static Dtype oneval = 1.0;
+  return &oneval;
+}
+const Dtype* FUN(get_zero)() {
+  static Dtype zeroval = 0.0;
+  return &zeroval;
+}
+
 void FUN(caffe_copy)(const int N, const Dtype* X, Dtype* Y) {
   if (X != Y) {
     memcpy(Y, X, sizeof(Dtype) * N);
@@ -191,20 +200,6 @@ void FUN(caffe_rng_bernoulli)(const int n, const Stype p, int* r)
   rng_t* rng = caffe_rng();
   for (int i = 0; i < n; ++i) {
     r[i] = random_distribution(*rng);
-  }
-}
-
-
-void FUN(caffe_rng_bernoulli_u)(const int n, const Stype p, unsigned int* r)
-{
-  CHECK_GE(n, 0);
-  CHECK(r);
-  CHECK_GE(p, 0);
-  CHECK_LE(p, 1);
-  std::bernoulli_distribution random_distribution(p);
-  rng_t* rng = caffe_rng();
-  for (int i = 0; i < n; ++i) {
-    r[i] = static_cast<unsigned int>(random_distribution(*rng));
   }
 }
 

@@ -70,6 +70,7 @@ void log_gpuPtr(Dtype* gpuPtr, int numValues, string fileName) {
   for (int i = 0; i < numValues; ++i) {
     outWriter << cpuPtr[i] << ",";
   }
+  delete [] cpuPtr;
   outWriter << std::endl;
 }
 
@@ -537,7 +538,7 @@ virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
     if (this->phase_ == TEST) {
       CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
         cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
-        dataType<Dtype>::get_one(), dataType<Dtype>::get_zero(),
+        gpu_get_one(), gpu_get_zero(),
         *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_ptr,
         *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
         *BN_paramDesc,
@@ -551,7 +552,7 @@ virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
       Dtype* batchInvVar = this->ResultSaveInvVariance_gpu[transitionIdx];
       CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
         cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
-        dataType<Dtype>::get_one(), dataType<Dtype>::get_zero(),
+        gpu_get_one(), gpu_get_zero(),
         *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_ptr,
         *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
         *BN_paramDesc,
@@ -570,9 +571,9 @@ virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
     Dtype* ReLU_x_ptr = this->postBN_data_gpu;
     Dtype* ReLU_y_ptr = this->postReLU_data_gpu;
     CUDNN_CHECK(cudnnActivationForward(cudnnHandlePtr, *ReLUDesc,
-      dataType<Dtype>::get_one(),
+      gpu_get_one(),
       *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_x_ptr,
-      dataType<Dtype>::get_zero(),
+      gpu_get_zero(),
       *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_y_ptr)
     );
     if (useBC) {
@@ -587,12 +588,12 @@ virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
       }
       //CONV_ALGO
       CUDNN_CHECK(cudnnConvolutionForward(cudnnHandlePtr,
-        dataType<Dtype>::get_one(),
+        gpu_get_one(),
         *this->tensorDescriptorVec_conv_x[transitionIdx], conv_x_4G,
         *(BC_filterDescriptorVec[transitionIdx]),
         this->blobs_[5 * numTransition + transitionIdx]->data(),
         *(convBC_Descriptor), *BC_FwdAlgoVec[transitionIdx],
-        workspace, workspace_size_bytes, dataType<Dtype>::get_zero(),
+        workspace, workspace_size_bytes, gpu_get_zero(),
         *quadG_tensorDesc, conv_y_4G
       ));
       //std::cout<<"BC Fwd Conv Done"<<std::endl;
@@ -607,7 +608,7 @@ virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
       if (this->phase_ == TEST) {
         CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
           cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
-          dataType<Dtype>::get_one(), dataType<Dtype>::get_zero(),
+          gpu_get_one(), gpu_get_zero(),
           *quadG_tensorDesc, BN_x_4G,
           *quadG_tensorDesc, BN_y_4G,
           *quadG_paramDesc,
@@ -621,7 +622,7 @@ virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
         Dtype* BC_batchInvVar = ResultSaveInvVariance_BC[transitionIdx];
         CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
           cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
-          dataType<Dtype>::get_one(), dataType<Dtype>::get_zero(),
+          gpu_get_one(), gpu_get_zero(),
           *quadG_tensorDesc, BN_x_4G,
           *quadG_tensorDesc, BN_y_4G,
           *quadG_paramDesc,
@@ -638,9 +639,9 @@ virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
       Dtype* ReLU_BC_x = postBN_4G;
       Dtype* ReLU_BC_y = postReLU_4G;
       CUDNN_CHECK(cudnnActivationForward(cudnnHandlePtr, *ReLUDesc,
-        dataType<Dtype>::get_one(),
+        gpu_get_one(),
         *quadG_tensorDesc, ReLU_BC_x,
-        dataType<Dtype>::get_zero(),
+        gpu_get_zero(),
         *quadG_tensorDesc, ReLU_BC_y
       ));
       //std::cout<<"BC Fwd ReLU Done"<<std::endl;
@@ -660,12 +661,12 @@ virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
     Dtype* conv_y_local = this->postConv_data_gpu + delayChannel * this->H * this->W;
     //CONV_ALGO
     CUDNN_CHECK(cudnnConvolutionForward(cudnnHandlePtr,
-      dataType<Dtype>::get_one(),
+      gpu_get_one(),
       *conv_x_localDesc, conv_x_local,
       *(filterDescriptorVec[transitionIdx]),
       this->blobs_[transitionIdx]->data(),
       *conv_Descriptor, *conv_FwdAlgoVec[transitionIdx],
-      workspace, workspace_size_bytes, dataType<Dtype>::get_zero(),
+      workspace, workspace_size_bytes, gpu_get_zero(),
       *(tensorDescriptor_conv_y), conv_y_local
     )
     );
@@ -735,7 +736,7 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
     Dtype* batchInvVar = this->ResultSaveInvVariance_gpu[transitionIdx];
     CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
       cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
-      dataType<Dtype>::get_one(), dataType<Dtype>::get_zero(),
+      gpu_get_one(), gpu_get_zero(),
       *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_ptr,
       *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
       *BN_paramDesc,
@@ -747,7 +748,7 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
 
     /*CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
     cudnnHandlePtr,CUDNN_BATCHNORM_SPATIAL,
-    dataType<Dtype>::get_one(),dataType<Dtype>::get_zero(),
+    gpu_get_one(),gpu_get_zero(),
     *(this->tensorDescriptorVec_conv_x[transitionIdx]),BN_x_ptr,
     *(this->tensorDescriptorVec_conv_x[transitionIdx]),BN_y_ptr,
     *BN_paramDesc,
@@ -759,9 +760,9 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
     Dtype* ReLU_x_ptr = this->postBN_data_gpu;
     Dtype* ReLU_y_ptr = this->postReLU_data_gpu;
     CUDNN_CHECK(cudnnActivationForward(cudnnHandlePtr, *ReLUDesc,
-      dataType<Dtype>::get_one(),
+      gpu_get_one(),
       *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_x_ptr,
-      dataType<Dtype>::get_zero(),
+      gpu_get_zero(),
       *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_y_ptr)
     );
     if (useBC) {
@@ -772,12 +773,12 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
         Dtype* conv_x_4G = postReLU_data_gpu;
         Dtype* conv_y_4G = postConv_4G;
         CUDNN_CHECK(cudnnConvolutionForward(cudnnHandlePtr,
-          dataType<Dtype>::get_one(),
+          gpu_get_one(),
           *this->tensorDescriptorVec_conv_x[transitionIdx], conv_x_4G,
           *(BC_filterDescriptorVec[transitionIdx]),
           this->blobs_[5 * numTransition + transitionIdx]->data(),
           *(convBC_Descriptor), *BC_FwdAlgoVec[transitionIdx],
-          workspace, workspace_size_bytes, dataType<Dtype>::get_zero(),
+          workspace, workspace_size_bytes, gpu_get_zero(),
           *quadG_tensorDesc, conv_y_4G
         ));
       }
@@ -792,7 +793,7 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
       Dtype* BC_batchInvVar = ResultSaveInvVariance_BC[transitionIdx];
       CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
         cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
-        dataType<Dtype>::get_one(), dataType<Dtype>::get_zero(),
+        gpu_get_one(), gpu_get_zero(),
         *quadG_tensorDesc, BN_x_4G,
         *quadG_tensorDesc, BN_y_4G,
         *quadG_paramDesc,
@@ -803,7 +804,7 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
       ));
       /*CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
         localFwdHandle,CUDNN_BATCHNORM_SPATIAL,
-        dataType<Dtype>::get_one(),dataType<Dtype>::get_zero(),
+        gpu_get_one(),gpu_get_zero(),
         *quadG_tensorDesc,BN_x_4G,
         *quadG_tensorDesc,BN_y_4G,
         *quadG_paramDesc,
@@ -815,9 +816,9 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
       Dtype* ReLU_BC_x = postBN_4G;
       Dtype* ReLU_BC_y = postReLU_4G;
       CUDNN_CHECK(cudnnActivationForward(localFwdHandle, *ReLUDesc,
-        dataType<Dtype>::get_one(),
+        gpu_get_one(),
         *quadG_tensorDesc, ReLU_BC_x,
-        dataType<Dtype>::get_zero(),
+        gpu_get_zero(),
         *quadG_tensorDesc, ReLU_BC_y
       ));
     }
@@ -845,24 +846,24 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
     //Conv w.r.t. filter
     //CONV_ALGO
     CUDNN_CHECK(cudnnConvolutionBackwardFilter(cudnnHandlePtr,
-      dataType<Dtype>::get_one(),
+      gpu_get_one(),
       *conv_x_localDesc, conv_x_local,
       *(this->tensorDescriptor_conv_y), conv_dy_local,
       *(this->conv_Descriptor), *conv_BwdFilterAlgoVec[transitionIdx],
       this->workspace, this->workspace_size_bytes,
-      dataType<Dtype>::get_one(),
+      gpu_get_one(),
       *(this->filterDescriptorVec[transitionIdx]), filterGrad_local
     )
     );
     //Conv w.r.t. x
       //CONV_ALGO
     CUDNN_CHECK(cudnnConvolutionBackwardData(*(this->extraHandles[0]),
-      dataType<Dtype>::get_one(),
+      gpu_get_one(),
       *(this->filterDescriptorVec[transitionIdx]), filterData_local,
       *(this->tensorDescriptor_conv_y), conv_dy_local,
       *(this->conv_Descriptor), *conv_BwdDataAlgoVec[transitionIdx],
       this->workspace2, this->workspace_size_bytes,
-      dataType<Dtype>::get_zero(),
+      gpu_get_zero(),
       *conv_x_localDesc, conv_dx_local
     )
     );
@@ -874,11 +875,11 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
       Dtype* BC_ReLU_x_local = postBN_4G;
       Dtype* BC_ReLU_dx_local = postBN_4G_grad;
       CUDNN_CHECK(cudnnActivationBackward(cudnnHandlePtr, *ReLUDesc,
-        dataType<Dtype>::get_one(),
+        gpu_get_one(),
         *quadG_tensorDesc, BC_ReLU_y_local,
         *quadG_tensorDesc, BC_ReLU_dy_local,
         *quadG_tensorDesc, BC_ReLU_x_local,
-        dataType<Dtype>::get_zero(),
+        gpu_get_zero(),
         *quadG_tensorDesc, BC_ReLU_dx_local
       ));
       //BC BN Bwd
@@ -892,11 +893,11 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
         cudnnBatchNormalizationBackward(
           cudnnHandlePtr,
           CUDNN_BATCHNORM_SPATIAL,
-          dataType<Dtype>::get_one(),
-          dataType<Dtype>::get_zero(),
+          gpu_get_one(),
+          gpu_get_zero(),
 #if CUDNN_VERSION >= 4005
-          dataType<Dtype>::get_one(),
-          dataType<Dtype>::get_one(),
+          gpu_get_one(),
+          gpu_get_one(),
 #endif
           *quadG_tensorDesc,
           BC_BN_x_local,
@@ -923,23 +924,23 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
       //Conv Bwd w.r.t. filter
       //CONV_ALGO
       CUDNN_CHECK(cudnnConvolutionBackwardFilter(cudnnHandlePtr,
-        dataType<Dtype>::get_one(),
+        gpu_get_one(),
         *tensorDescriptorVec_conv_x[transitionIdx], BC_conv_x_local,
         *quadG_tensorDesc, BC_conv_dy_local,
         *convBC_Descriptor, *BC_BwdFilterAlgoVec[transitionIdx],
         workspace, workspace_size_bytes,
-        dataType<Dtype>::get_one(),
+        gpu_get_one(),
         *BC_filterDescriptorVec[transitionIdx], BC_filterGrad
       ));
       //Conv Bwd w.r.t. data
       //CONV_ALGO
       CUDNN_CHECK(cudnnConvolutionBackwardData(*(extraHandles[0]),
-        dataType<Dtype>::get_one(),
+        gpu_get_one(),
         *BC_filterDescriptorVec[transitionIdx], BC_filterData,
         *quadG_tensorDesc, BC_conv_dy_local,
         *convBC_Descriptor, *BC_BwdDataAlgoVec[transitionIdx],
         workspace2, workspace_size_bytes,
-        dataType<Dtype>::get_zero(),
+        gpu_get_zero(),
         *tensorDescriptorVec_conv_x[transitionIdx], BC_conv_dx_local
       ));
       //sync_streams << <1, 1 >> > ();
@@ -950,11 +951,11 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
     Dtype* ReLU_dy_local = postReLU_grad_gpu;
     Dtype* ReLU_dx_local = postBN_grad_gpu;
     CUDNN_CHECK(cudnnActivationBackward(cudnnHandlePtr, *ReLUDesc,
-      dataType<Dtype>::get_one(),
+      gpu_get_one(),
       *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_y_local,
       *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_dy_local,
       *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_x_local,
-      dataType<Dtype>::get_zero(),
+      gpu_get_zero(),
       *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_dx_local)
     );
     //BN Bwd
@@ -974,9 +975,9 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
     //CUDNN_CHECK(
     cudnnBatchNormalizationBackward(cudnnHandlePtr,
       CUDNN_BATCHNORM_SPATIAL,
-      dataType<Dtype>::get_one(), dataType<Dtype>::get_one(),
+      gpu_get_one(), gpu_get_one(),
 #if CUDNN_VERSION >= 4005
-      dataType<Dtype>::get_one(), dataType<Dtype>::get_one(),
+      gpu_get_one(), gpu_get_one(),
 #endif	  
       *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_local,
       *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_dy_local,

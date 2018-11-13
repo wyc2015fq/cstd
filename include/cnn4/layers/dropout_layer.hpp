@@ -2,81 +2,81 @@
 #define CAFFE_DROPOUT_LAYER_HPP_
 
 
+#define DropoutParameter_DEF(DEF) \
+DEF##Float(dropout_ratio, 0.5, 0)
 
-
-
-
-
-#include "caffe/layers/neuron_layer.hpp"
-
-namespace
+class DropoutLayer : public NeuronLayer
 {
+public:
+  DropoutParameter_DEF(Def);
+  /// when divided by UINT_MAX, the randomly generated values @f$u\sim U(0,1)@f$
+  Blob rand_vec_;
+  /// the probability @f$ p @f$ of dropping any input
+  //Dtype dropout_ratio_;
+  /// the scale for undropped inputs at train time @f$ 1 / (1 - p) @f$
+  Dtype scale_;
 
-  /**
-   * @brief During training only, sets a random portion of @f$x@f$ to 0, adjusting
-   *        the rest of the vector magnitude accordingly.
-   *
-   * @param bottom input Blob vector (length 1)
-   *   -# @f$ (N \times C \times H \times W) @f$
-   *      the inputs @f$ x @f$
-   * @param top output Blob vector (length 1)
-   *   -# @f$ (N \times C \times H \times W) @f$
-   *      the computed outputs @f$ y = |x| @f$
-   */
-  template <typename Dtype>
-  class DropoutLayer : public NeuronLayer
+  virtual inline const char* type() const { return "Dropout"; }
+public:
+  DropoutLayer() {
+    DropoutParameter_DEF(Set);
+  }
+  void init(CJSON* param) {
+    DropoutParameter_DEF(Get);
+  }
+
+  virtual void LayerSetUp(const vector<Blob*> & bottom,
+    const vector<Blob*> & top)
   {
-  public:
-    /**
-     * @param param provides DropoutParameter dropout_param,
-     *     with DropoutLayer options:
-     *   - dropout_ratio (\b optional, default 0.5).
-     *     Sets the probability @f$ p @f$ that any given unit is dropped.
-     */
-    explicit DropoutLayer()
-      : NeuronLayer() {}
-    virtual void LayerSetUp(const vector<Blob*> & bottom,
-                            const vector<Blob*> & top);
-    virtual void Reshape(const vector<Blob*> & bottom,
-                         const vector<Blob*> & top);
+    NeuronLayer::LayerSetUp(bottom, top);
+    DCHECK(dropout_ratio_ > 0.);
+    DCHECK(dropout_ratio_ < 1.);
+    scale_ = 1. / (1. - dropout_ratio_);
+  }
 
-    virtual inline const char* type() const { return "Dropout"; }
+  virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top)
+  {
+    NeuronLayer::Reshape(bottom, top);
+    // Set up the cache for random number generation
+    // ReshapeLike does not work because rand_vec_ is of Dtype uint
+    rand_vec_.Reshape(bottom[0]->shape());
+  }
 
-  public:
-    /**
-     * @param bottom input Blob vector (length 1)
-     *   -# @f$ (N \times C \times H \times W) @f$
-     *      the inputs @f$ x @f$
-     * @param top output Blob vector (length 1)
-     *   -# @f$ (N \times C \times H \times W) @f$
-     *      the computed outputs. At training time, we have @f$
-     *      y_{\mbox{train}} = \left\{
-     *         \begin{array}{ll}
-     *            \frac{x}{1 - p} & \mbox{if } u > p \\
-     *            0 & \mbox{otherwise}
-     *         \end{array} \right.
-     *      @f$, where @f$ u \sim U(0, 1)@f$ is generated independently for each
-     *      input at each iteration. At test time, we simply have
-     *      @f$ y_{\mbox{test}} = \mathbb{E}[y_{\mbox{train}}] = x @f$.
-     */
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
-                             const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
-                             const vector<Blob*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
-                              const vector<Blob*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
-                              const vector<Blob*> & bottom);
+  virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mdata();
+    const int count = bottom[0]->count();
+    if (this->phase_ == TRAIN) {
+      unsigned int* mask = (unsigned int*)(rand_vec_.mdata());
+      // set thresholds
+      // NOLINT_NEXT_LINE(whitespace/operators)
+      dropout_forward(count, bottom_data, mask, dropout_ratio_, Dtype(scale_), top_data);
+      //CUDA_POST_KERNEL_CHECK;
+    }
+    else {
+      caffe_copy(count, bottom_data, top_data);
+    }
+  }
 
-    /// when divided by UINT_MAX, the randomly generated values @f$u\sim U(0,1)@f$
-    Blob<unsigned int> rand_vec_;
-    /// the probability @f$ p @f$ of dropping any input
-    Dtype threshold_;
-    /// the scale for undropped inputs at train time @f$ 1 / (1 - p) @f$
-    Dtype scale_;
-    unsigned int uint_thres_;
-  };
+  virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
+    if (bottom[0]->propagate_down_) {
+      const Dtype* top_diff = top[0]->diff();
+      Dtype* bottom_diff = bottom[0]->mdiff();
+      if (this->phase_ == TRAIN) {
+        const unsigned int* mask = (const unsigned int*)(rand_vec_.data());
+        const int count = bottom[0]->count();
+        // NOLINT_NEXT_LINE(whitespace/operators)
+        dropout_backward(count, top_diff, mask, Dtype(scale_), bottom_diff);
+        //CUDA_POST_KERNEL_CHECK;
+      }
+      else {
+        caffe_copy(top[0]->count(), top_diff, bottom_diff);
+      }
+    }
+  }
 
-}  // namespace
+};
+
+REGISTER_LAYER_CLASS(Dropout);
 
 #endif  // CAFFE_DROPOUT_LAYER_HPP_

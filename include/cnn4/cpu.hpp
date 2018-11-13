@@ -32,7 +32,7 @@ struct Buffer {
 };
 
 
-#define NOT_IMPL {assert(0);}
+#define NOT_IMPL {(0);}
 #ifdef CPU_ONLY
 //#include "cpu_only.hpp"
 //typedef Buffer Context;
@@ -42,12 +42,17 @@ static void gpu_Memset(Buffer* ptr, size_t nbytes) NOT_IMPL;
 static void gpu_Memcpy(Buffer* dst, const Buffer* src, int nbytes) NOT_IMPL;
 static void gpu_ReAlloc(Buffer* ptr, size_t nbytes) NOT_IMPL;
 static void gpu_Free(Buffer* ptr) NOT_IMPL;
+static void gpu_set_random_seed(const unsigned int seed) NOT_IMPL;
 #else
 #include "cuda.hpp"
 #endif
 
 #define CPUFUN(NAME)  cpu_##NAME
 
+static void set_random_seed(const unsigned int seed) {
+  srand(seed);
+  gpu_set_random_seed(seed);
+}
 //Buffer() { context[CPU] = this;    }
 static void Memcpy(Buffer* dst, const Buffer* src, int nbytes) {
   if (GPU == dst->brew || GPU == src->brew) {
