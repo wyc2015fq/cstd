@@ -40,11 +40,11 @@ namespace
           << "Must specify 'shape' once, or once per top blob "
           << "(" << num_top << "); specified " << param.shape_size() << ".";
     }
-    // refill_[i] tells Forward i whether or not to actually refill top Blob i.
-    // If refill_[i] is false, Forward does nothing for Blob i. We use this to
+    // refill_[i] tells Forward_ i whether or not to actually refill top Blob i.
+    // If refill_[i] is false, Forward_ does nothing for Blob i. We use this to
     // avoid wastefully refilling "constant" Blobs in every forward pass.
     // We first fill refill_ in with the INVERSE of its final values.
-    // The first time we run Forward from the LayerSetUp method, we'll fill only
+    // The first time we run Forward_ from the LayerSetUp method, we'll fill only
     // Blobs for which refill_ is normally false.  These Blobs will never be
     // filled again.
     refill_.clear();
@@ -89,7 +89,7 @@ namespace
         top[i]->Reshape(param.shape(shape_index));
       }
     }
-    // Run Forward once, with refill_ inverted, to fill the constant Blobs.
+    // Run Forward_ once, with refill_ inverted, to fill the constant Blobs.
     this->runForward(bottom, top);
     // Invert the inverted refill_ values to refill the desired (non-constant)
     // Blobs in every usual forward pass.
@@ -99,7 +99,7 @@ namespace
   }
 
   template <typename Dtype>
-  void DummyDataLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void DummyDataLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                           const vector<Blob*> & top)
   {
     for (int i = 0; i < top.size(); ++i) {

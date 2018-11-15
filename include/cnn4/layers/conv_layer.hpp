@@ -27,7 +27,7 @@ public:
     }
   }
 
-  virtual void Forward(const vector<Blob*> & bottom,
+  virtual void Forward_(const vector<Blob*> & bottom,
     const vector<Blob*> & top)
   {
     const Dtype* weight = this->blobs_[0]->data();
@@ -45,7 +45,7 @@ public:
     }
   }
 
-  virtual void Backward(const vector<Blob*> & top,
+  virtual void Backward_(const vector<Blob*> & top,
     const vector<Blob*> & bottom)
   {
     const Dtype* weight = this->blobs_[0]->data();

@@ -14,7 +14,7 @@ void AbsValLayer::Forward_gpu(
 }
 
 template <typename Dtype>
-void AbsValLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void AbsValLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   const int count = top[0]->count();
   const Dtype* top_diff = top[0]->gpu_diff();

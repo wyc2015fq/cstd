@@ -115,7 +115,7 @@ namespace
   }
 
   template <typename Dtype>
-  void HDF5DataLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void HDF5DataLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                          const vector<Blob*> & top)
   {
     const int batch_size = this->param_->hdf5_data_param().batch_size();
@@ -149,7 +149,7 @@ namespace
   }
 
 #ifdef CPU_ONLY
-  STUB_GPU_FORWARD(HDF5DataLayer, Forward);
+  STUB_GPU_FORWARD(HDF5DataLayer, Forward_);
 #endif
 
   INSTANTIATE_CLASS(HDF5DataLayer);

@@ -66,9 +66,9 @@ namespace
     virtual inline int MaxTopBlobs() const { return 2; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
     /**
      * @brief Computes the softmax loss error gradient w.r.t. the predictions.
@@ -87,19 +87,19 @@ namespace
      *      @f$ \frac{\partial E}{\partial \ell_i} = \lambda_i @f$.
      *      (*Assuming that this top Blob is not used as a bottom (input) by any
      *      other layer of the Net.)
-     * @param propagate_down see Layer::Backward.
+     * @param propagate_down see Layer::Backward_.
      *      bottom[1]->propagate_down_ must be false as we can't compute gradients with
      *      respect to the labels.
      * @param bottom input Blob vector (length 2)
      *   -# @f$ (N \times C \times H \times W) @f$
-     *      the predictions @f$ x @f$; Backward computes diff
+     *      the predictions @f$ x @f$; Backward_ computes diff
      *      @f$ \frac{\partial E}{\partial x} @f$
      *   -# @f$ (N \times 1 \times 1 \times 1) @f$
      *      the labels -- ignored as we can't compute their error gradients
      */
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
 
     /// Read the normalization mode parameter and compute the normalizer based
@@ -113,9 +113,9 @@ namespace
     SHARED_PTR<Layer > softmax_layer_;
     /// prob stores the output probability predictions from the SoftmaxLayer.
     Blob prob_;
-    /// bottom vector holder used in call to the underlying SoftmaxLayer::Forward
+    /// bottom vector holder used in call to the underlying SoftmaxLayer::Forward_
     vector<Blob*> softmax_bottom_vec_;
-    /// top vector holder used in call to the underlying SoftmaxLayer::Forward
+    /// top vector holder used in call to the underlying SoftmaxLayer::Forward_
     vector<Blob*> softmax_top_vec_;
     /// Whether to ignore instances with a certain label.
     bool has_ignore_label_;

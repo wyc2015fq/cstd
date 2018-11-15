@@ -98,7 +98,7 @@ namespace
   }
 
   template <typename Dtype>
-  void SoftmaxWithLossMultiLabelLayer::Forward(_CONTEXT,
+  void SoftmaxWithLossMultiLabelLayer::Forward_(_CONTEXT,
     const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     // The forward pass computes the softmax prob values.
@@ -130,7 +130,7 @@ namespace
   }
 
   template <typename Dtype>
-  void SoftmaxWithLossMultiLabelLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void SoftmaxWithLossMultiLabelLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
       const vector<Blob*> & bottom)
   {
     if (bottom[1]->propagate_down_) {

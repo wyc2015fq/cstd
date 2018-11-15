@@ -39,16 +39,16 @@ public:
   void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     DataShape shape = bottom[0]->shape_;
-    CHECK_GT(shape.num_axes(), 0) << "the dimension of the transposed blob should "
+    int num_axes = shape.num_axes();
+    CHECK_GT(num_axes, 0) << "the dimension of the transposed blob should "
       "be greater than 0.";
-    CHECK_LE(shape.num_axes(), kMaxBlobAxes) << "the dimension of the transposed blob should "
+    CHECK_LE(num_axes, kMaxBlobAxes) << "the dimension of the transposed blob should "
       "be less than kMaxBlobAxes (" << kMaxBlobAxes << ").";
-    CHECK_EQ(shape.num_axes(), dim_.size()) << "the dimensions of "
+    CHECK_EQ(num_axes, dim_.size()) << "the dimensions of "
       "the top blob and bottom blob must be equal.";
-    DataShape top_shape;
-    permute(4, shape.dim, &dim_[0], top_shape.dim);
+    DataShape top_shape = shape;
+    permute(num_axes, shape.dim, &dim_[0], top_shape.dim);
     top[0]->Reshape(top_shape);
-    const int num_axes = dim_.size();
     shape = dataShape(num_axes);
     //bottom_counts_.Reshape(shape);
     //top_counts_.Reshape(shape);
@@ -76,14 +76,14 @@ public:
   }
 
 
-  void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
+  void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
     const int nthreads = bottom[0]->count();
 
     transpose(nthreads, bottom[0]->data(), top[0]->mdata(),
         bottom_counts_, top_counts_, forward_map_, (int)bottom[0]->shape_.num_axes());
   }
 
-  void Backward(const vector<Blob*>& top,const vector<Blob*>& bottom) {
+  void Backward_(const vector<Blob*>& top,const vector<Blob*>& bottom) {
     if (!bottom[0]->propagate_down_) {
       return;
     }

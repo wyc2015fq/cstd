@@ -8,7 +8,7 @@ namespace
 {
 
   template <typename Dtype>
-  void HingeLossLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void HingeLossLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                           const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -41,7 +41,7 @@ namespace
   }
 
   template <typename Dtype>
-  void HingeLossLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void HingeLossLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
       const vector<Blob*> & bottom)
   {
     if (bottom[1]->propagate_down_) {

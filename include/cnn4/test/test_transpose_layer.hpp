@@ -6,7 +6,6 @@
 //#include "caffe/test/test_caffe_main.hpp"
 #include "test_gradient_check_util.hpp"
 
-struct MultiDeviceTest {};
 class TransposeLayerTest : public MultiDeviceTest {
   typedef Blob TypeParam;
   typedef typename TypeParam::Dtype Dtype;
@@ -15,9 +14,7 @@ public:
     : blob_bottom_(new Blob(5, 2, 3, 4)),
     blob_top_(new Blob()) {
     // fill the values
-    Filler filler;
-    filler.type_ = FillerMethod_gaussian;
-    filler.Fill(this->blob_bottom_);
+    GaussianFiller(this->blob_bottom_);
     blob_bottom_vec_.push_back(blob_bottom_);
     blob_top_vec_.push_back(blob_top_);
   }
@@ -27,12 +24,6 @@ public:
   vector<Blob*> blob_bottom_vec_;
   vector<Blob*> blob_top_vec_;
 };
-
-#define EXPECT_EQ(expected, actual)  assert(expected == actual && "EXPECT_EQ")
-#define TYPED_TEST_CASE(a, b)
-#define TYPED_TEST(a, b) struct b : public a {b() {run();}void run();}; b b##run; void b::run()
-
-TYPED_TEST_CASE(TransposeLayerTest, TestDtypesAndDevices);
 
 TYPED_TEST(TransposeLayerTest, TestTopShape) {
   typedef typename TypeParam::Dtype Dtype;

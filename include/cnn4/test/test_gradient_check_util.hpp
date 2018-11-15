@@ -8,6 +8,16 @@
 #include <cmath>
 #include <vector>
 
+struct MultiDeviceTest {};
+#define EXPECT_EQ(expected, actual)  CHECK(expected == actual)
+#define ASSERT_EQ(expected, actual)  CHECK(expected == actual)
+#define EXPECT_NEAR(a, b, c)   CHECK(fabs((a)-(b))<c)
+
+#define TYPED_TEST_CASE(a, b)
+#define TYPED_TEST(a, b) struct a##b : public a {a##b() {run();}void run();}; a##b a##b##run##__LINE__; void a##b::run()
+
+TYPED_TEST_CASE(TransposeLayerTest, TestDtypesAndDevices);
+
 
 
 typedef Blob::Dtype Dtype;
@@ -20,9 +30,9 @@ public:
   // kink and kink_range specify an ignored nonsmooth region of the form
   // kink - kink_range <= |feature value| <= kink + kink_range,
   // which accounts for all nonsmoothness in use by caffe
-  GradientChecker(const Dtype stepsize, const Dtype threshold,
-    const unsigned int seed = 1701, const Dtype kink = 0.,
-    const Dtype kink_range = -1)
+  GradientChecker(const double stepsize, const double threshold,
+    const unsigned int seed = 1701, const double kink = 0.,
+    const double kink_range = -1)
     : stepsize_(stepsize), threshold_(threshold), seed_(seed),
     kink_(kink), kink_range_(kink_range) {}
   // Checks the gradient of a layer, with provided bottom layers and top
@@ -105,10 +115,10 @@ void GradientChecker::CheckGradientSingle(Layer* layer,
   set_random_seed(seed_);
   // Ignore the loss from the layer (it's just the weighted sum of the losses
   // from the top blobs, whose gradients we may want to test individually).
-  layer->runForward(bottom, top);
+  layer->Forward(bottom, top);
   // Get additional loss from the objective
   GetObjAndGradient(*layer, top, top_id, top_data_id);
-  layer->runBackward(top, bottom);
+  layer->Backward(top, bottom);
   // Store computed gradients for all checked blobs
   vector<Blob*> computed_gradient_blobs(blobs_to_check.size());
   for (int blob_id = 0; blob_id < blobs_to_check.size(); ++blob_id) {
@@ -143,13 +153,13 @@ void GradientChecker::CheckGradientSingle(Layer* layer,
         // Compute loss with stepsize_ added to input.
         current_blob->cpu_mdata()[feat_id] += stepsize_;
         set_random_seed(seed_);
-        layer->runForward(bottom, top);
+        layer->Forward(bottom, top);
         positive_objective =
           GetObjAndGradient(*layer, top, top_id, top_data_id);
         // Compute loss with stepsize_ subtracted from input.
         current_blob->cpu_mdata()[feat_id] -= stepsize_ * 2;
         set_random_seed(seed_);
-        layer->runForward(bottom, top);
+        layer->Forward(bottom, top);
         negative_objective =
           GetObjAndGradient(*layer, top, top_id, top_data_id);
         // Recover original input value.
@@ -168,7 +178,6 @@ void GradientChecker::CheckGradientSingle(Layer* layer,
         Dtype scale = std::max(
           std::max(fabs(computed_gradient), fabs(estimated_gradient)),
           Dtype(1.));
-#define EXPECT_NEAR(a, b, c)   CHECK(fabs((a)-(b))<c)
         EXPECT_NEAR(computed_gradient, estimated_gradient, threshold_ * scale)
           << "debug: (top_id, top_data_id, blob_id, feat_id)="
           << top_id << "," << top_data_id << "," << blob_id << "," << feat_id

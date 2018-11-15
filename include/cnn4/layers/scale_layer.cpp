@@ -10,15 +10,15 @@ namespace
 {
 
   template <typename Dtype>
-  void ScaleLayer::Forward(_CONTEXT,
+  void ScaleLayer::Forward_(_CONTEXT,
     const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
     if (bottom[0] == top[0]) {
       // In-place computation; need to store bottom data before overwriting it.
-      // Note that this is only necessary for Backward; we could skip this if not
-      // doing Backward, but Caffe currently provides no way of knowing whether
-      // we'll need to do Backward at the time of the Forward call.
+      // Note that this is only necessary for Backward_; we could skip this if not
+      // doing Backward_, but Caffe currently provides no way of knowing whether
+      // we'll need to do Backward_ at the time of the Forward_ call.
       caffe_copy(bottom[0]->count(), bottom[0]->data(),
                  temp_.mdata());
     }
@@ -40,7 +40,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ScaleLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void ScaleLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                        const vector<Blob*> & bottom)
   {
     if (bias_layer_ &&

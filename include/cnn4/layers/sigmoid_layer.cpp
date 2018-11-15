@@ -13,7 +13,7 @@ namespace
   }
 
   template <typename Dtype>
-  void SigmoidLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void SigmoidLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                         const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -25,7 +25,7 @@ namespace
   }
 
   template <typename Dtype>
-  void SigmoidLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void SigmoidLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                          int*
                                          const vector<Blob*> & bottom)
   {

@@ -114,7 +114,7 @@ namespace
   }
 
   template <typename Dtype>
-  void CropLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void CropLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                      const vector<Blob*> & top)
   {
     std::vector<int> indices(top[0]->num_axes(), 0);
@@ -124,7 +124,7 @@ namespace
   }
 
   template <typename Dtype>
-  void CropLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void CropLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                       const vector<Blob*> & bottom)
   {
     const Dtype* top_diff = top[0]->diff();

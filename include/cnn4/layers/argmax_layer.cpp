@@ -55,7 +55,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ArgMaxLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void ArgMaxLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                        const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();

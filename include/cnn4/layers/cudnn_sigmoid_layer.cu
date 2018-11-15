@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void CuDNNSigmoidLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void CuDNNSigmoidLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
   Dtype* top_data = top[0]->mdata();
@@ -28,7 +28,7 @@ void CuDNNSigmoidLayer::Forward(GPUContext* context, const vector<Blob*>& bottom
 }
 
 template <typename Dtype>
-void CuDNNSigmoidLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void CuDNNSigmoidLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) {

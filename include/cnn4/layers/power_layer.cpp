@@ -19,7 +19,7 @@ namespace
 
 // Compute y = (shift + scale * x)^power
   template <typename Dtype>
-  void PowerLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void PowerLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                       const vector<Blob*> & top)
   {
     Dtype* top_data = top[0]->mdata();
@@ -44,7 +44,7 @@ namespace
   }
 
   template <typename Dtype>
-  void PowerLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void PowerLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                        int*
                                        const vector<Blob*> & bottom)
   {

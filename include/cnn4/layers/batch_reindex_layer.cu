@@ -18,7 +18,7 @@ __global__ void BRForward(const int count, const int inner_dim, const Dtype* in,
 }
 
 template<typename Dtype>
-void BatchReindexLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void BatchReindexLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
                                            const vector<Blob*>& top) {
   check_batch_reindex(bottom[0]->shape(0), bottom[1]->count(),
                       bottom[1]->data());

@@ -13,7 +13,7 @@ namespace
   /**
    * @brief Normalizes the input to have 0-mean and/or unit (1) variance.
    *
-   * TODO(dox): thorough documentation for Forward, Backward, and proto params.
+   * TODO(dox): thorough documentation for Forward_, Backward_, and proto params.
    */
   template <typename Dtype>
   class MVNLayer : public Layer
@@ -29,13 +29,13 @@ namespace
     virtual inline int ExactNumTopBlobs() const { return 1; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
 
     Blob mean_, variance_, temp_;

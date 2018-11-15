@@ -29,14 +29,14 @@ namespace
   }
 
   template <typename Dtype>
-  void FlattenLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void FlattenLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                         const vector<Blob*> & top)
   {
     top[0]->ShareData(*bottom[0]);
   }
 
   template <typename Dtype>
-  void FlattenLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void FlattenLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                          const vector<Blob*> & bottom)
   {
     bottom[0]->ShareDiff(*top[0]);

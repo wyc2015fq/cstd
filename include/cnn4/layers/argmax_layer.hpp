@@ -61,10 +61,10 @@ namespace
      *       y_n = \arg\max\limits_i x_{ni}
      *      @f$ (for @f$ K = 1 @f$).
      */
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
     /// @brief Not implemented (non-differentiable function)
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom) {
       NOT_IMPLEMENTED;
     }

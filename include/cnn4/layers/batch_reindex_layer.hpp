@@ -44,9 +44,9 @@ namespace
      *        y = x_1[x_2]
      *      @f$
      */
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
 
     /**
@@ -57,16 +57,16 @@ namespace
      *   -# @f$ (M \times ...) @f$:
      *      containing error gradients @f$ \frac{\partial E}{\partial y} @f$
      *      with respect to concatenated outputs @f$ y @f$
-     * @param propagate_down see Layer::Backward.
+     * @param propagate_down see Layer::Backward_.
      * @param bottom input Blob vector (length 2):
      *   - @f$ \frac{\partial E}{\partial y} @f$ is de-indexed (summing where
      *     required) back to the input x_1
      *   - This layer cannot backprop to x_2, i.e. bottom[1]->propagate_down_ must be
      *     false.
      */
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
 
   private:

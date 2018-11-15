@@ -8,7 +8,7 @@
 namespace {
 
 template <typename Dtype>
-void CuDNNSoftmaxLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void CuDNNSoftmaxLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
   Dtype* top_data = top[0]->mdata();
@@ -21,7 +21,7 @@ void CuDNNSoftmaxLayer::Forward(GPUContext* context, const vector<Blob*>& bottom
 }
 
 template <typename Dtype>
-void CuDNNSoftmaxLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void CuDNNSoftmaxLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   if (bottom[0]->propagate_down_) {
     const Dtype* top_data = top[0]->data();

@@ -19,7 +19,7 @@ namespace
   }
 
   template <typename Dtype>
-  void MultinomialLogisticLossLayer::Forward(_CONTEXT,
+  void MultinomialLogisticLossLayer::Forward_(_CONTEXT,
     const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();

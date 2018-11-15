@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void PowerLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void PowerLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   Dtype* top_data = top[0]->mdata();
   const int count = bottom[0]->count();
@@ -30,7 +30,7 @@ void PowerLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void PowerLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void PowerLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob*>& bottom) {
   if (bottom[0]->propagate_down_) {

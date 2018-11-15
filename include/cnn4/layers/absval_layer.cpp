@@ -16,7 +16,7 @@ namespace
   }
 
   template <typename Dtype>
-  void AbsValLayer::Forward(_CONTEXT,
+  void AbsValLayer::Forward_(_CONTEXT,
     const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const int count = top[0]->count();
@@ -25,7 +25,7 @@ namespace
   }
 
   template <typename Dtype>
-  void AbsValLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void AbsValLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                         const vector<Blob*> & bottom)
   {
     const int count = top[0]->count();

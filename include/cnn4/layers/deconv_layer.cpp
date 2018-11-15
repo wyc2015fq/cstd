@@ -24,7 +24,7 @@ namespace
   }
 
   template <typename Dtype>
-  void DeconvolutionLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void DeconvolutionLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
       const vector<Blob*> & top)
   {
     const Dtype* weight = this->blobs_[0]->data();
@@ -43,7 +43,7 @@ namespace
   }
 
   template <typename Dtype>
-  void DeconvolutionLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void DeconvolutionLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
       const vector<Blob*> & bottom)
   {
     const Dtype* weight = this->blobs_[0]->data();

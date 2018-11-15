@@ -130,7 +130,7 @@ namespace
   }
 
   template <typename Dtype>
-  void Im2colLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void Im2colLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                        const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -162,7 +162,7 @@ namespace
   }
 
   template <typename Dtype>
-  void Im2colLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void Im2colLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                         const vector<Blob*> & bottom)
   {
     const Dtype* top_diff = top[0]->diff();

@@ -47,7 +47,7 @@ namespace
 
 
   template <typename Dtype>
-  void InfogainLossLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void InfogainLossLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
       const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -72,7 +72,7 @@ namespace
   }
 
   template <typename Dtype>
-  void InfogainLossLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void InfogainLossLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
       int*
       const vector<Blob*> & bottom)
   {

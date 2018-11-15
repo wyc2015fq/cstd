@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void CuDNNLRNLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void CuDNNLRNLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
   Dtype* top_data = top[0]->mdata();
@@ -20,7 +20,7 @@ void CuDNNLRNLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void CuDNNLRNLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void CuDNNLRNLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   const Dtype* top_diff = top[0]->gpu_diff();
   const Dtype* top_data = top[0]->data();

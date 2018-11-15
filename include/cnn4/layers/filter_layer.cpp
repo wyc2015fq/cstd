@@ -60,7 +60,7 @@ namespace
   }
 
   template <typename Dtype>
-  void FilterLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void FilterLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                        const vector<Blob*> & top)
   {
     int new_tops_num = indices_to_forward_.size();
@@ -79,7 +79,7 @@ namespace
   }
 
   template <typename Dtype>
-  void FilterLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void FilterLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                         const vector<Blob*> & bottom)
   {
     if (propagate_down[bottom.size() - 1]) {

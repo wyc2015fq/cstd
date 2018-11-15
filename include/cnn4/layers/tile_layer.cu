@@ -48,7 +48,7 @@ __global__ void TileBackward(const int nthreads, const Dtype* top_diff,
 }
 
 template <typename Dtype>
-void TileLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void TileLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) { return; }
   const Dtype* top_diff = top[0]->gpu_diff();

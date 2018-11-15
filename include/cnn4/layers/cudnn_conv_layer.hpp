@@ -259,13 +259,13 @@ public:
     delete[] workspace_bwd_filter_sizes_;
   }
 
-  virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
+  virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
     const Dtype* weight = this->blobs_[0]->data();
     for (int i = 0; i < bottom.size(); ++i) {
       const Dtype* bottom_data = bottom[i]->data();
       Dtype* top_data = top[i]->mdata();
 
-      // Forward through cuDNN in parallel over groups.
+      // Forward_ through cuDNN in parallel over groups.
       for (int g = 0; g < this->group_; g++) {
         // Filters.
         CUDNN_CHECK(cudnnConvolutionForward(handle_[g],
@@ -295,7 +295,7 @@ public:
     }
   }
 
-  virtual void Backward(const vector<Blob*>& top,  const vector<Blob*>& bottom) {
+  virtual void Backward_(const vector<Blob*>& top,  const vector<Blob*>& bottom) {
     const Dtype* weight = NULL;
     Dtype* weight_diff = NULL;
     if (this->blobs_[0]->propagate_down_) {
@@ -308,7 +308,7 @@ public:
     }
     for (int i = 0; i < top.size(); ++i) {
       const Dtype* top_diff = top[i]->gpu_diff();
-      // Backward through cuDNN in parallel over groups and gradients.
+      // Backward_ through cuDNN in parallel over groups and gradients.
       for (int g = 0; g < this->group_; g++) {
         // Gradient w.r.t. bias.
         if (this->bias_term_ && this->blobs_[1]->propagate_down_) {

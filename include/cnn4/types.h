@@ -47,30 +47,48 @@ TYPEFLAGDEF_DEF(TYPEFLAGDEF)
 //shape[3] = width;
 
 enum DimType { NCHW, NHWC };
-#define MAX_DIM 4
-#define kMaxBlobAxes MAX_DIM
+enum { kMaxBlobAxes = 8 };
 
 struct DataShape {
   //TypeFlag t;
+  DataShape() { set(1); }
   union {
-    int dim[MAX_DIM];
+    int dim[kMaxBlobAxes];
     struct { int n, c, h, w; };
   };
-  void set(int n, int c = 1, int h = 1, int w = 1) { dim[0] = n, dim[1] = c, dim[2] = h, dim[3] = w; }
-  int count() const { return dim[0] * dim[1] * dim[2] * dim[3]; }
+  void set(int n, int c = 1, int h = 1, int w = 1) {
+    dim[0] = n, dim[1] = c, dim[2] = h, dim[3] = w;
+    for (int i = 4; i < kMaxBlobAxes; ++i) { dim[i] = 1; }
+  }
+  void check() const {
+    for (int i = 0; i < kMaxBlobAxes; ++i) { assert(dim[i]>=1); }
+  }
+  int count() const {
+    check();
+    int cnt = 1, n = num_axes();
+    for (int i = 0; i < n; ++i) {
+      cnt *= dim[i];
+    }
+    return cnt;
+  }
   //int size() const { return count()*TypeSize[t]; }
   int* begin() { return dim; }
-  int* end() { return dim + MAX_DIM; }
+  int* end() { return dim + num_axes(); }
   const int* begin() const { return dim; }
-  const int* end() const { return dim + MAX_DIM; }
-  int at(int i) { assert(i<MAX_DIM);  return dim[i]; }
+  const int* end() const { return dim + num_axes(); }
+  int at(int i) { assert(i<kMaxBlobAxes);  return dim[i]; }
   void resize(int k) {
-    for (; k < MAX_DIM; ++k) {
+    assert(k <= kMaxBlobAxes);
+    for (; k < kMaxBlobAxes; ++k) {
       dim[k] = 1;
     }
   }
+  int size() const {
+    return num_axes();
+  }
   inline int num_axes() const {
-    int i = MAX_DIM;
+    check();
+    int i = kMaxBlobAxes;
     for (; i > 0 && dim[i - 1] <= 1; --i);
     return i;
   }

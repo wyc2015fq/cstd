@@ -32,12 +32,12 @@ namespace
     virtual inline int ExactNumTopBlobs() const { return 1; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top) {
       top[0]->ShareData(*(this->blobs_[0]));
       top[0]->ShareDiff(*(this->blobs_[0]));
     }
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom)
     { }
   };

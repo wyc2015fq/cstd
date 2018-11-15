@@ -5,3 +5,4 @@
 #include "scale_layer.inl"
 #include "dropout_layer.inl"
 #include "transpose_layer.inl"
+#include "ctc/ctcpp_entrypoint.inl"

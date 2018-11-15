@@ -66,7 +66,7 @@ namespace
   }
 
   template <typename Dtype>
-  void InterpLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void InterpLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                        const vector<Blob*> & top)
   {
     caffe_interp2<Dtype, false>(num_ * channels_,
@@ -75,7 +75,7 @@ namespace
   }
 
   template <typename Dtype>
-  void InterpLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void InterpLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                         const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }
@@ -87,7 +87,7 @@ namespace
 
 #ifndef CPU_ONLY
   template <typename Dtype>
-  void InterpLayer::Forward(GPUContext* context, const vector<Blob*> & bottom,
+  void InterpLayer::Forward_(GPUContext* context, const vector<Blob*> & bottom,
                                        const vector<Blob*> & top)
   {
     caffe_gpu_interp2<Dtype, false>(num_ * channels_,
@@ -96,7 +96,7 @@ namespace
   }
 
   template <typename Dtype>
-  void InterpLayer::Backward(GPUContext* context, const vector<Blob*> & top,
+  void InterpLayer::Backward_(GPUContext* context, const vector<Blob*> & top,
                                         const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }

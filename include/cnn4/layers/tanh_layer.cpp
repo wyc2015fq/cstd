@@ -9,7 +9,7 @@ namespace
 {
 
   template <typename Dtype>
-  void TanHLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void TanHLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                      const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -21,7 +21,7 @@ namespace
   }
 
   template <typename Dtype>
-  void TanHLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void TanHLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                       int*
                                       const vector<Blob*> & bottom)
   {

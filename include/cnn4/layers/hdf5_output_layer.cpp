@@ -42,7 +42,7 @@ namespace
   }
 
   template <typename Dtype>
-  void HDF5OutputLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void HDF5OutputLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
       const vector<Blob*> & top)
   {
     CHECK_GE(bottom.size(), 2);
@@ -63,7 +63,7 @@ namespace
   }
 
   template <typename Dtype>
-  void HDF5OutputLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void HDF5OutputLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
       const vector<Blob*> & bottom)
   {
     return;

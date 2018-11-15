@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void CuDNNPoolingLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void CuDNNPoolingLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
   Dtype* top_data = top[0]->mdata();
@@ -18,7 +18,7 @@ void CuDNNPoolingLayer::Forward(GPUContext* context, const vector<Blob*>& bottom
 }
 
 template <typename Dtype>
-void CuDNNPoolingLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void CuDNNPoolingLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) {
     return;

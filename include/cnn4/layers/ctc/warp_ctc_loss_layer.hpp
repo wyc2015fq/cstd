@@ -4,12 +4,6 @@
 #include <list>
 
 
-#include "caffe/layers/loss_layer.hpp"
-
-namespace
-{
-  template <typename Dtype>
-
 
   /**
    * @brief Implementation of the CTC (Connectionist Temporal Classification) algorithm
@@ -60,19 +54,19 @@ namespace
      *      the computed loss
      */
 
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
     /**
      * @brief Unused. Gradient calculation is done in Forward_cpu
      */
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               int*
                               const vector<Blob*> & bottom);
 
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
 
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
                               int*
                               const vector<Blob*> & bottom);
 
@@ -95,10 +89,9 @@ namespace
     vector<int> label_lengths_;
     vector<int> input_lengths_;
 
-    SHARED_PTR<SyncedMemory> workspace_;
+    SyncedMemory* workspace_;
 
   };
 
-}  // namespace
 
 #endif // WARP_CTC_LOSS_LAYER_HPP

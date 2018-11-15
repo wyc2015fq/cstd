@@ -12,6 +12,8 @@
 #endif
 #undef ACCESS_MASK
 
+#ifndef countof
 #define countof(arr)  (sizeof(arr)/sizeof(arr[0]))
+#endif // countof
 
 //#define DEFAULT NULL

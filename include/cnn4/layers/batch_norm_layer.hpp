@@ -97,7 +97,7 @@ public:
   }
 
 
-  void BatchNormLayer::Forward(const vector<Blob*> & bottom,
+  void BatchNormLayer::Forward_(const vector<Blob*> & bottom,
     const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -174,7 +174,7 @@ public:
   }
 
 
-  virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom)
+  virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom)
   {
     const Dtype* top_diff;
     if (bottom[0] != top[0]) {

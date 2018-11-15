@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void SplitLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void SplitLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
       const vector<Blob*>& top) {
   for (int i = 0; i < top.size(); ++i) {
     top[i]->ShareData(*bottom[0]);
@@ -14,7 +14,7 @@ void SplitLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void SplitLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void SplitLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
       const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) { return; }
   if (top.size() == 1) {

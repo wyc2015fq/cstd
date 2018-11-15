@@ -5,7 +5,7 @@
 /**
  * @brief Computes the softmax function.
  *
- * TODO(dox): thorough documentation for Forward, Backward, and proto params.
+ * TODO(dox): thorough documentation for Forward_, Backward_, and proto params.
  */
 class SoftmaxLayer : public Layer
 {
@@ -45,7 +45,7 @@ public:
     scale_.Reshape(scale_dims);
   }
 
-  void Forward(const vector<Blob*> & bottom, const vector<Blob*> & top)
+  void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     int count = bottom[0]->count();
     int channels = bottom[0]->shape(softmax_axis_);
@@ -58,7 +58,7 @@ public:
   }
 
   
-  void Backward(const vector<Blob*> & top,  const vector<Blob*> & bottom)
+  void Backward_(const vector<Blob*> & top,  const vector<Blob*> & bottom)
   {
     const Dtype* top_diff = top[0]->diff();
     const Dtype* top_data = top[0]->data();

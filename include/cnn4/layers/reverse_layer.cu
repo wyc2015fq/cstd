@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void ReverseLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void ReverseLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* src = bottom[0]->data();
 
@@ -29,7 +29,7 @@ void ReverseLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void ReverseLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void ReverseLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) { return; }
 

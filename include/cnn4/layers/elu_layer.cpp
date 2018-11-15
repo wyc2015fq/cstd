@@ -7,7 +7,7 @@ namespace
 {
 
   template <typename Dtype>
-  void ELULayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void ELULayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                     const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -21,7 +21,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ELULayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void ELULayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                      int*
                                      const vector<Blob*> & bottom)
   {

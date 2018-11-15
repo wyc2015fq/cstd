@@ -5,7 +5,7 @@
 namespace {
 
 template <typename Dtype>
-void DeconvolutionLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void DeconvolutionLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
       const vector<Blob*>& top) {
   const Dtype* weight = this->blobs_[0]->data();
   for (int i = 0; i < bottom.size(); ++i) {
@@ -23,7 +23,7 @@ void DeconvolutionLayer::Forward(GPUContext* context, const vector<Blob*>& botto
 }
 
 template <typename Dtype>
-void DeconvolutionLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void DeconvolutionLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
       const vector<Blob*>& bottom) {
   const Dtype* weight = this->blobs_[0]->data();
   Dtype* weight_diff = this->blobs_[0]->gpu_mdiff();

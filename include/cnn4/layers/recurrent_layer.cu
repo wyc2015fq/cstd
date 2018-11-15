@@ -10,7 +10,7 @@
 namespace {
 
 template <typename Dtype>
-void RecurrentLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void RecurrentLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   // Hacky fix for test time... reshare all the shared blobs.
   // TODO: somehow make this work non-hackily.

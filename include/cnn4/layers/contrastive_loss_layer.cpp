@@ -31,7 +31,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ContrastiveLossLayer::Forward(_CONTEXT,
+  void ContrastiveLossLayer::Forward_(_CONTEXT,
     const vector<Blob*> & bottom,
     const vector<Blob*> & top)
   {
@@ -66,7 +66,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ContrastiveLossLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void ContrastiveLossLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
       const vector<Blob*> & bottom)
   {
     Dtype margin = this->param_->contrastive_loss_param().margin();

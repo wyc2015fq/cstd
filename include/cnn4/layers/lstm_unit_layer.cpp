@@ -43,7 +43,7 @@ namespace
   }
 
   template <typename Dtype>
-  void LSTMUnitLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void LSTMUnitLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                          const vector<Blob*> & top)
   {
     const int num = bottom[0]->shape(1);
@@ -75,7 +75,7 @@ namespace
   }
 
   template <typename Dtype>
-  void LSTMUnitLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void LSTMUnitLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                           const vector<Blob*> & bottom)
   {
     CHECK(!propagate_down[2]) << "Cannot backpropagate to sequence indicators.";

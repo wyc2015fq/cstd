@@ -88,7 +88,7 @@ void CropLayer::crop_copy_gpu(const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void CropLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void CropLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   std::vector<int> indices(top[0]->num_axes(), 0);
   const Dtype* bottom_data = bottom[0]->data();
@@ -97,7 +97,7 @@ void CropLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void CropLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void CropLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   const Dtype* top_diff = top[0]->gpu_diff();
   Dtype* bottom_diff = bottom[0]->gpu_mdiff();

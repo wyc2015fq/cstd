@@ -21,7 +21,72 @@ int SetUp() {
   return 0;
 }
 
-int FromProto(CJSON* param) {
+void Reshape() {}
+bool has_layer(const char* name) {
+  return NULL != blob_by_name(name);
+}
+int layer_index_by_name(const char* name) {
+  for (int i = 0; i < blobs_.size(); ++i) {
+    if (strcmp(name, blobs_[i]->name) == 0) {
+      return i;
+    }
+  }
+  return -1;
+}
+Blob* blob_by_name(const char* name) {
+  for (int i = 0; i < blobs_.size(); ++i) {
+    if (strcmp(name, blobs_[i]->name) == 0) {
+      return blobs_[i];
+    }
+  }
+  return NULL;
+}
+
+Blob* output_blobs(int k) {
+  int n = 0;
+  for (int i = 0; i < blobs_.size(); ++i) {
+    if (blobs_[i]->bottom_cnt_ == 0) {
+      if (n == i) { return blobs_[i]; }
+      ++n;
+    }
+  }
+  return NULL;
+}
+Blob* input_blobs(int i) {
+  for (int i = 0; i < layers_.size(); ++i) {
+    if (0 == strcmp("Input", layers_[i]->type_)) {
+      return layers_[i]->top_vecs_[i];
+    }
+  }
+  return NULL;
+}
+int num_outputs() {
+  int n = 0;
+  for (int i = 0; i < blobs_.size(); ++i) {
+    if (blobs_[i]->bottom_cnt_ == 0) {
+      ++n;
+    }
+  }
+  return n;
+}
+int num_inputs() {
+  for (int i = 0; i < layers_.size(); ++i) {
+    if (0 == strcmp("Input", layers_[i]->type_)) {
+      return layers_[i]->top_vecs_.size();
+    }
+  }
+  return 0;
+}
+int FromJsonFile(const char* fn) {
+  int ret = 0;
+  CJSON* root = cJSON_OpenFile(fn);
+  if (root) {
+    ret = FromProto(root);
+    cJSON_Delete(root);
+  }
+  return ret;
+}
+  int FromProto(CJSON* param) {
   Net* net = this;
   CJSON* layers_json = param->GetObjectItem("layers");
   int ret = 0;
@@ -60,7 +125,7 @@ double ForwardFromTo(Phase phase, int start, int end)
     // LOG(ERROR) << "Forwarding " << layer_names_[i];
     Layer* layer = net->layers_[i];
     if (layer->phase_ == TRAINorTEST || layer->phase_ == phase) {
-      double layer_loss = layer->runForward(layer->bottom_vecs_, layer->top_vecs_);
+      double layer_loss = layer->Forward(layer->bottom_vecs_, layer->top_vecs_);
       loss += layer_loss;
     }
   }
@@ -75,7 +140,7 @@ void BackwardFromTo(int start, int end)
   for (int i = start; i >= end; --i) {
     Layer* layer = net->layers_[i];
     if (layer->phase_ == TRAINorTEST || layer->phase_ == TRAIN) {
-      layers_[i]->runBackward(layer->top_vecs_, layer->bottom_vecs_);
+      layers_[i]->Backward(layer->top_vecs_, layer->bottom_vecs_);
     }
   }
 }

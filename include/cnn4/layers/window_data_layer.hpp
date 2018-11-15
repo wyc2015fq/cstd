@@ -20,7 +20,7 @@ namespace
    *        by a window data file. This layer is *DEPRECATED* and only kept for
    *        archival purposes for use by the original R-CNN.
    *
-   * TODO(dox): thorough documentation for Forward and proto params.
+   * TODO(dox): thorough documentation for Forward_ and proto params.
    */
   template <typename Dtype>
   class WindowDataLayer : public BasePrefetchingDataLayer

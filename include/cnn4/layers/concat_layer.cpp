@@ -57,7 +57,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ConcatLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void ConcatLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                        const vector<Blob*> & top)
   {
     if (bottom.size() == 1) { return; }
@@ -78,7 +78,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ConcatLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void ConcatLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                         const vector<Blob*> & bottom)
   {
     if (bottom.size() == 1) { return; }

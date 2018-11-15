@@ -1,30 +1,58 @@
-#include "caffe/layers/ctc_decoder_layer.hpp"
+#ifndef CAFFE_CTC_DECODER_LAYER_HPP_
+#define CAFFE_CTC_DECODER_LAYER_HPP_
 
-#include <algorithm>
+#define CTCDecoderParameter_DEF(DEF) \
+DEF##Int(blank_index, 0, 0) \
+DEF##Bool(ctc_merge_repeated, true, 0) \
 
-
-// Base decoder
-// ============================================================================
-
-namespace
+class CTCGreedyDecoderLayer : public Layer
 {
-  template <typename Dtype>
-  CTCDecoderLayer::CTCDecoderLayer()
-    : Layer(param)
-    , T_(0)
-    , N_(0)
-    , C_(0)
-    , blank_index_(param.ctc_decoder_param().blank_index())
-    , merge_repeated_(param.ctc_decoder_param().ctc_merge_repeated())
-    , sequence_index_(0)
-    , score_index_(-1)
-    , accuracy_index_(-1)
-  {
-  }
+public:
+  CTCDecoderParameter_DEF(Def);
+  typedef vector<int> Sequence;
+  typedef vector<Sequence> Sequences;
+  Sequences output_sequences_;
+  int T_;
+  int N_;
+  int C_;
 
-  template <typename Dtype>
-  void CTCDecoderLayer::LayerSetUp(const vector<Blob*> & bottom,
-                                          const vector<Blob*> & top)
+  int sequence_index_;
+  int score_index_;
+  int accuracy_index_;
+  CTCGreedyDecoderLayer() {
+    CTCDecoderParameter_DEF(Set);
+    T_ = (0);
+    N_ = (0);
+    C_ = (0);
+    sequence_index_ = (0);
+    score_index_ = (-1);
+    accuracy_index_ = (-1);
+  }
+  void init(CJSON* param) {
+    CTCDecoderParameter_DEF(Get);
+  }
+public:
+  virtual inline const char* type() const { return "CTCDecoder"; }
+
+  // probabilities (T x N x C),
+  // sequence_indicators (T x N),[optional]
+  // target_sequences (T X N) [optional]
+  // if a target_sequence is provided, an additional accuracy top blob is
+  // required
+  virtual inline int MinBottomBlobs() const { return 1; }
+  virtual inline int MaxBottomBlobs() const { return 3; }
+
+  // sequences (terminated with negative numbers),
+  // output scores [optional if 2 top blobs and bottom blobs = 2]
+  // accuracy [optional, if target_sequences as bottom blob = 3]
+  virtual inline int MinTopBlobs() const { return 1; }
+  virtual inline int MaxTopBlobs() const { return 3; }
+
+  const Sequences & OutputSequences() const { return output_sequences_; }
+
+public:
+
+  virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
 #if 0
     // compute indices of output (top) blobs
@@ -33,41 +61,46 @@ namespace
       // 2 input blobs (data, sequence indicators)
       if (top.size() == 1) {
         // no further output
-      } else if (top.size() == 2) {
-        score_index_ = 1;  // output scores
-      } else {
-        LOG(FATAL) << "Only two output blobs allowed: "
-                   << "1: sequences, 2: scores";
       }
-    } else if (bottom.size() == 3) {
+      else if (top.size() == 2) {
+        score_index_ = 1;  // output scores
+      }
+      else {
+        LOG(FATAL) << "Only two output blobs allowed: "
+          << "1: sequences, 2: scores";
+      }
+    }
+    else if (bottom.size() == 3) {
       // 3 input blobs (data, seq_ind, target_seq)
       if (top.size() == 1) {
         // no further output
-      } else if (top.size() == 2) {
+      }
+      else if (top.size() == 2) {
         accuracy_index_ = 1;  // output accuracy
-      } else if (top.size() == 3) {
+      }
+      else if (top.size() == 3) {
         score_index_ = 1;  // output scores
         accuracy_index_ = 2;  // output accuracy
-      } else {
+      }
+      else {
         LOG(FATAL) << "Need two or three output blobs: "
-                   << "a) 1: sequences, 2: accuracy, or "
-                   << "b) 1: sequences, 2: score, 3: accuracy.";
+          << "a) 1: sequences, 2: accuracy, or "
+          << "b) 1: sequences, 2: score, 3: accuracy.";
       }
     }
 #else
     if (bottom.size() == 2 && top.size() == 1) { //data,label --> acc
       sequence_index_ = -1;
       accuracy_index_ = 0;
-    } else if (bottom.size() == 1 && top.size() == 1) { //data --> decode result
-      sequence_index_  = 0;
+    }
+    else if (bottom.size() == 1 && top.size() == 1) { //data --> decode result
+      sequence_index_ = 0;
       accuracy_index_ = -1;
     }
 #endif
   }
 
-  template <typename Dtype>
-  void CTCDecoderLayer::Reshape(const vector<Blob*> & bottom,
-                                       const vector<Blob*> & top)
+  virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const Blob* probabilities = bottom[0];
     T_ = probabilities->shape(0);
@@ -92,9 +125,7 @@ namespace
     }
   }
 
-  template <typename Dtype>
-  void CTCDecoderLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
-      const vector<Blob*> & top)
+  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
 #if 0
     const Blob* probabilities = bottom[0];
@@ -145,14 +176,14 @@ namespace
         }
         const int ed = EditDistance(target_sequence, output_sequences_[n]);
         acc += ed * 1.0 /
-               std::max(target_sequence.size(), output_sequences_[n].size());
+          std::max(target_sequence.size(), output_sequences_[n].size());
       }
       acc = 1 - acc / N_;
       CHECK_GE(acc, 0);
       CHECK_LE(acc, 1);
     }
 #else
-    const Blob* probabilities = bottom[0];
+    Blob* probabilities = bottom[0];
     // decode string with the requiested method (e.g. CTCGreedyDecoder)
     Decode(probabilities, &output_sequences_, NULL);
     // transform output_sequences to blob
@@ -179,7 +210,7 @@ namespace
       accline = 0;
       int total_ok = 0;
       //CHECK_GE(bottom.size(), 3);  // required target sequences blob
-      const Blob* target_sequences_data = bottom[1];//Batchsize x labelnum
+      Blob* target_sequences_data = bottom[1];//Batchsize x labelnum
       const Dtype* ts_data = target_sequences_data->data();
       int labelnum = target_sequences_data->channels();
       for (int n = 0; n < N_; ++n) {
@@ -202,7 +233,7 @@ namespace
         }
         const int ed = EditDistance(target_sequence, output_sequences_[n]);
         accedit += ed * 1.0 /
-                   std::max(target_sequence.size(), output_sequences_[n].size());
+          std::max(target_sequence.size(), output_sequences_[n].size());
         if (ed == 0) {
           total_ok++;
         }
@@ -216,52 +247,34 @@ namespace
 #endif
   }
 
-  template <typename Dtype>
-  void CTCDecoderLayer::Backward(CPUContext* context, const vector<Blob*> & top,
-      int*
-      const vector<Blob*> & bottom)
+  virtual void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom)
   {
-    for (int i = 0; i < propagate_down.size(); ++i) {
+    for (int i = 0; i < bottom.size(); ++i) {
       if (bottom[i]->propagate_down_) {
         //NOT_IMPLEMENTED;
       }
     }
   }
 
-  template <typename Dtype>
-  int CTCDecoderLayer::EditDistance(const Sequence & s1,
-      const Sequence & s2)
+  int EditDistance(const Sequence & s1, const Sequence & s2)
   {
     const size_t len1 = s1.size();
     const size_t len2 = s2.size();
     Sequences d(len1 + 1, Sequence(len2 + 1));
     d[0][0] = 0;
-    for (size_t i = 1; i <= len1; ++i) {d[i][0] = i;}
-    for (size_t i = 1; i <= len2; ++i) {d[0][i] = i;}
+    for (size_t i = 1; i <= len1; ++i) { d[i][0] = i; }
+    for (size_t i = 1; i <= len2; ++i) { d[0][i] = i; }
     for (size_t i = 1; i <= len1; ++i) {
       for (size_t j = 1; j <= len2; ++j) {
-        d[i][j] = std::min(
-                    std::min(
-                      d[i - 1][j] + 1,
-                      d[i][j - 1] + 1),
-                    d[i - 1][j - 1] + (s1[i - 1] == s2[j - 1] ? 0 : 1));
+        d[i][j] = std::min(std::min(d[i - 1][j] + 1, d[i][j - 1] + 1),
+          d[i - 1][j - 1] + (s1[i - 1] == s2[j - 1] ? 0 : 1));
       }
     }
     return d[len1][len2];
   }
 
-  INSTANTIATE_CLASS(CTCDecoderLayer);
 
-
-// Greedy decoder
-// ============================================================================
-
-  template <typename Dtype>
-  void CTCGreedyDecoderLayer::Decode(
-    const Blob* probabilities,
-    const Blob* sequence_indicators,
-    Sequences* output_sequences,
-    Blob* scores) const
+  virtual void Decode(Blob* probabilities, Blob* sequence_indicators, Sequences* output_sequences, Blob* scores) const
   {
     Dtype* score_data = 0;
     if (scores) {
@@ -274,8 +287,7 @@ namespace
       for (int t = 0; /* check at end */; ++t) {
         // get maximum probability and its index
         int max_class_idx = 0;
-        const Dtype* probs = probabilities->data()
-                             + probabilities->offset(t, n);
+        const Dtype* probs = probabilities->cpu_data() + probabilities->offset(t, n);
         Dtype max_prob = probs[0];
         ++probs;
         for (int c = 1; c < C_; ++c, ++probs) {
@@ -288,7 +300,7 @@ namespace
           score_data[n] += -max_prob;
         }
         if (max_class_idx != blank_index_
-            && !(merge_repeated_ && max_class_idx == prev_class_idx)) {
+          && !(ctc_merge_repeated_ && max_class_idx == prev_class_idx)) {
           output_sequences->at(n).push_back(max_class_idx);
         }
         prev_class_idx = max_class_idx;
@@ -300,12 +312,7 @@ namespace
     }
   }
 
-
-  template <typename Dtype>
-  void CTCGreedyDecoderLayer::Decode(
-    const Blob* probabilities,
-    Sequences* output_sequences,
-    Blob* scores) const
+  virtual void Decode(Blob* probabilities, Sequences* output_sequences, Blob* scores) const
   {
     Dtype* score_data = 0;
     if (scores) {
@@ -318,8 +325,7 @@ namespace
       for (int t = 0; t < T_; ++t) {
         // get maximum probability and its index
         int max_class_idx = 0;
-        const Dtype* probs = probabilities->data()
-                             + probabilities->offset(t, n);
+        const Dtype* probs = probabilities->cpu_data() + probabilities->offset(t, n);
         Dtype max_prob = probs[0];
         ++probs;
         for (int c = 1; c < C_; ++c, ++probs) {
@@ -332,7 +338,7 @@ namespace
           score_data[n] += -max_prob;
         }
         if (max_class_idx != blank_index_
-            && !(merge_repeated_ && max_class_idx == prev_class_idx)) {
+          && !(ctc_merge_repeated_ && max_class_idx == prev_class_idx)) {
           output_sequences->at(n).push_back(max_class_idx);
         }
         prev_class_idx = max_class_idx;
@@ -340,7 +346,11 @@ namespace
     }
   }
 
-  INSTANTIATE_CLASS(CTCGreedyDecoderLayer);
-  REGISTER_LAYER_CLASS(CTCGreedyDecoder);
+};
 
-}  // namespace
+
+INSTANTIATE_CLASS(CTCGreedyDecoder);
+
+
+
+#endif  // CAFFE_CTC_DECODER_LAYER_HPP_

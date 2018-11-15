@@ -4,7 +4,7 @@
 /**
  * @brief Pools the input image by taking the max, average, etc. within regions.
  *
- * TODO(dox): thorough documentation for Forward, Backward, and proto params.
+ * TODO(dox): thorough documentation for Forward_, Backward_, and proto params.
  */
 
 
@@ -156,7 +156,7 @@ struct PoolingLayer : public Layer
   // TODO(Yangqing): Is there a faster way to do pooling in the channel-first
   // case?
   
-  virtual void Forward(const vector<Blob*> & bottom, const vector<Blob*> & top)
+  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     int top_count = top[0]->count();
     int num = top[0]->num();
@@ -185,7 +185,7 @@ struct PoolingLayer : public Layer
   }
 
   
-  virtual void Backward(const vector<Blob*> & top,
+  virtual void Backward_(const vector<Blob*> & top,
     const vector<Blob*> & bottom)
   {
     //int count = bottom[0]->count();

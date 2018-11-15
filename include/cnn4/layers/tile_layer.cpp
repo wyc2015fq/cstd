@@ -23,7 +23,7 @@ namespace
   }
 
   template <typename Dtype>
-  void TileLayer::Forward(_CONTEXT,
+  void TileLayer::Forward_(_CONTEXT,
     const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -38,7 +38,7 @@ namespace
   }
 
   template <typename Dtype>
-  void TileLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void TileLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                       const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }

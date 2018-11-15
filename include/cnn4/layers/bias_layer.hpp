@@ -81,7 +81,7 @@ public:
     }
   }
 
-  void Forward(const vector<Blob*> & bottom, const vector<Blob*> & top)
+  void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const Dtype* bias_data =
       ((bottom.size() > 1) ? bottom[1] : this->blobs_[0])->data();
@@ -98,7 +98,7 @@ public:
     }
   }
 
-  void Backward(const vector<Blob*> & top, const vector<Blob*> & bottom)
+  void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom)
   {
     if (bottom[0]->propagate_down_ && bottom[0] != top[0]) {
       const Dtype* top_diff = top[0]->diff();

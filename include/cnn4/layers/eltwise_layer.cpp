@@ -45,7 +45,7 @@ namespace
   }
 
   template <typename Dtype>
-  void EltwiseLayer::Forward(_CONTEXT,
+  void EltwiseLayer::Forward_(_CONTEXT,
     const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     int* mask = NULL;
@@ -101,7 +101,7 @@ namespace
   }
 
   template <typename Dtype>
-  void EltwiseLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void EltwiseLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                          const vector<Blob*> & bottom)
   {
     const int* mask = NULL;

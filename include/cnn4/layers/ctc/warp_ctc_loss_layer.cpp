@@ -69,7 +69,7 @@ namespace
   }
 
   template <typename Dtype>
-  void WarpCTCLossLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void WarpCTCLossLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
       const vector<Blob*> & top)
   {
     const Dtype* const activations = bottom[0]->data();
@@ -170,7 +170,7 @@ namespace
   }
 
   template <typename Dtype>
-  void WarpCTCLossLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void WarpCTCLossLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
       int*
       const vector<Blob*> & bottom)
   {

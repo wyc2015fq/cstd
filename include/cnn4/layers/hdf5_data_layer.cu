@@ -14,7 +14,7 @@ TODO:
 namespace {
 
 template <typename Dtype>
-void HDF5DataLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void HDF5DataLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
       const vector<Blob*>& top) {
   const int batch_size = this->param_->hdf5_data_param().batch_size();
   for (int i = 0; i < batch_size; ++i, ++current_row_) {

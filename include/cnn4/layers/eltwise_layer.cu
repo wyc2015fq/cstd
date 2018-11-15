@@ -31,7 +31,7 @@ __global__ void MaxForward(const int nthreads, const Dtype* bottom_data_a,
 }
 
 template <typename Dtype>
-void EltwiseLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void EltwiseLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   int* mask = NULL;
   const int count = top[0]->count();
@@ -80,7 +80,7 @@ __global__ void MaxBackward(const int nthreads, const Dtype* top_diff,
 }
 
 template <typename Dtype>
-void EltwiseLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void EltwiseLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   const int* mask = NULL;
   const int count = top[0]->count();

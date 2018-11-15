@@ -48,12 +48,12 @@ namespace
      *       \end{array} \right.
      *      @f$
      */
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
     /// @brief Not implemented (non-differentiable function)
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom) {
       NOT_IMPLEMENTED;
     }

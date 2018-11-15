@@ -8,9 +8,9 @@ public:
   Layer* softmax_layer_;
   /// prob stores the output probability predictions from the SoftmaxLayer.
   Blob prob_;
-  /// bottom vector holder used in call to the underlying SoftmaxLayer::Forward
+  /// bottom vector holder used in call to the underlying SoftmaxLayer::Forward_
   vector<Blob*> softmax_bottom_vec_;
-  /// top vector holder used in call to the underlying SoftmaxLayer::Forward
+  /// top vector holder used in call to the underlying SoftmaxLayer::Forward_
   vector<Blob*> softmax_top_vec_;
   /// Whether to ignore instances with a certain label.
   bool has_ignore_label_;
@@ -103,10 +103,10 @@ public:
     }
     return std::max(int(1), normalizer);
   }
-  virtual void Forward(const vector<Blob*> & bottom, const vector<Blob*> & top) {
+  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top) {
     // The forward pass computes the softmax prob values.
     int prob_count = prob_.count();
-    softmax_layer_->runForward(softmax_bottom_vec_, softmax_top_vec_);
+    softmax_layer_->Forward(softmax_bottom_vec_, softmax_top_vec_);
     const Dtype* prob_data = prob_.data();
     const Dtype* label = bottom[1]->data();
     const int dim = prob_count / outer_num_;
@@ -120,7 +120,7 @@ public:
   }
 
   
-  virtual void Backward(const vector<Blob*> & top, const vector<Blob*> & bottom)
+  virtual void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom)
   {
     if (bottom[1]->propagate_down_) {
       //LOG(FATAL) << this->type() << " Layer cannot backpropagate to label inputs.";

@@ -51,9 +51,9 @@ namespace
      *        where S is the number of items
      *        that haven't been filtered
      */
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
 
     /**
@@ -61,13 +61,13 @@ namespace
      *
      * @param top output Blob vector (length 1+), providing the error gradient with
      *        respect to the outputs
-     * @param propagate_down see Layer::Backward.
+     * @param propagate_down see Layer::Backward_.
      * @param bottom input Blob vector (length 2+), into which the top error
      *        gradient is copied
      */
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
 
     bool first_reshape_;

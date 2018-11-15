@@ -50,7 +50,7 @@ public:
   virtual inline int MaxTopBlos() const { return 2; }
 
   /// @brief Not implemented -- AccuracyLayer cannot be used as a loss.
-  virtual void Backward(const vector<Blob*> & top,
+  virtual void Backward_(const vector<Blob*> & top,
     const vector<Blob*> & bottom) {
     for (int i = 0; i < top.size(); ++i) {
       if (bottom[i]->propagate_down_) { NOT_IMPLEMENTED; }
@@ -84,7 +84,7 @@ public:
     }
   }
 
-  virtual void Forward(const vector<Blob*> & bottom,
+  virtual void Forward_(const vector<Blob*> & bottom,
     const vector<Blob*> & top)
   {
     Dtype accuracy = 0;
@@ -178,7 +178,7 @@ public:
   virtual inline int MaxTopBlos() const { return 2; }
 
   /// @brief Not implemented -- AccuracyLayer cannot be used as a loss.
-  virtual void Backward(const vector<Blob*> & top,
+  virtual void Backward_(const vector<Blob*> & top,
     const vector<Blob*> & bottom) {
     for (int i = 0; i < propagate_down.size(); ++i) {
       if (bottom[i]->propagate_down_) { NOT_IMPLEMENTED; }

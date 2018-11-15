@@ -119,7 +119,7 @@ namespace
   }
 
   template <typename Dtype>
-  void MemoryDataLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void MemoryDataLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
       const vector<Blob*> & top)
   {
     CHECK(data_) << "MemoryDataLayer needs to be initialized by calling Reset";

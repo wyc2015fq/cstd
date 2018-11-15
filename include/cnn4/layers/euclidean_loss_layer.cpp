@@ -17,7 +17,7 @@ namespace
   }
 
   template <typename Dtype>
-  void EuclideanLossLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void EuclideanLossLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
       const vector<Blob*> & top)
   {
     int count = bottom[0]->count();
@@ -32,7 +32,7 @@ namespace
   }
 
   template <typename Dtype>
-  void EuclideanLossLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void EuclideanLossLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
       const vector<Blob*> & bottom)
   {
     for (int i = 0; i < 2; ++i) {

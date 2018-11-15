@@ -18,7 +18,7 @@ namespace
   /**
    * @brief Provides data to the Net from HDF5 files.
    *
-   * TODO(dox): thorough documentation for Forward and proto params.
+   * TODO(dox): thorough documentation for Forward_ and proto params.
    */
   template <typename Dtype>
   class HDF5DataLayer : public Layer
@@ -40,13 +40,13 @@ namespace
     virtual inline int MinTopBlobs() const { return 1; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom) {}
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom) {}
     virtual void LoadHDF5FileData(const char* filename);
 

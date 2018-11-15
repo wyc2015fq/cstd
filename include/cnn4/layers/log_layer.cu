@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void LogLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void LogLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const int count = bottom[0]->count();
   const Dtype* bottom_data = bottom[0]->data();
@@ -29,7 +29,7 @@ void LogLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void LogLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void LogLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) { return; }
     const int count = bottom[0]->count();

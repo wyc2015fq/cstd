@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void Im2colLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void Im2colLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
       const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
   Dtype* top_data = top[0]->mdata();
@@ -32,7 +32,7 @@ void Im2colLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void Im2colLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void Im2colLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
       const vector<Blob*>& bottom) {
   const Dtype* top_diff = top[0]->gpu_diff();
   Dtype* bottom_diff = bottom[0]->gpu_mdiff();

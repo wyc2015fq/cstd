@@ -11,7 +11,7 @@ using namespace CTC;
 namespace {
 
 template <typename Dtype>
-void WarpCTCLossLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void WarpCTCLossLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
                                       const vector<Blob*>& top) {
     cudaStream_t stream;
     CHECK_EQ(cudaStreamCreate(&stream), CUDA_SUCCESS);
@@ -135,7 +135,7 @@ void WarpCTCLossLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void WarpCTCLossLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void WarpCTCLossLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
                                            const vector<bool>& propagate_down,
                                            const vector<Blob*>& bottom) {
   CHECK_EQ(bottom[0]->propagate_down_, true)

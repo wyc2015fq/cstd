@@ -42,7 +42,7 @@ public:
     rand_vec_.Reshape(bottom[0]->shape());
   }
 
-  virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
+  virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
     const Dtype* bottom_data = bottom[0]->data();
     Dtype* top_data = top[0]->mdata();
     const int count = bottom[0]->count();
@@ -58,7 +58,7 @@ public:
     }
   }
 
-  virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
+  virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
     if (bottom[0]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff();
       Dtype* bottom_diff = bottom[0]->mdiff();

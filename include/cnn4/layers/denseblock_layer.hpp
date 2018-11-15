@@ -462,7 +462,11 @@ public:
 
 public:
 
+#ifndef CPU_ONLY
 #include "DenseBlock_layer.cuh"
+#else
+#include "DenseBlock_layer.inl"
+#endif
 
 
 };

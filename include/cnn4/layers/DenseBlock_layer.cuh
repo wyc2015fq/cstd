@@ -494,7 +494,7 @@ virtual void resetDropoutDesc() {
 //__global__ void sync_streams() {}
 
 
-virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
+virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
 #if 0
   if (!this->gpuInited) {
     //std::cout<<"Initializing GPU local"<<std::endl;
@@ -696,7 +696,7 @@ virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
   //this->logInternal_gpu("TClogFwd",-1,false,false);
 }
 
-virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
+virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
 #if 0
   if (!this->gpuInited) {
     this->GPU_Initialization();
@@ -714,7 +714,7 @@ virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
   else {
     cudaMemcpy(postConv_grad_gpu, top[0]->gpu_mdiff(), work_n * sizeof(Dtype), cudaMemcpyDeviceToDevice);
   }
-  //Backward, transition by transition
+  //Backward_, transition by transition
   for (int transitionIdx = this->numTransition - 1; transitionIdx >= 0; --transitionIdx) {
     int channelsBefore_self = this->initChannel + transitionIdx * this->growthRate;
     //Using BN & ReLU Fwd to generate corresponding postBN,postReLU data for this transition 

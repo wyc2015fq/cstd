@@ -57,9 +57,9 @@ namespace
 
   public:
     /// @copydoc ContrastiveLossLayer
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
 
     /**
@@ -78,18 +78,18 @@ namespace
      *      @f$ \frac{\partial E}{\partial \ell_i} = \lambda_i @f$.
      *      (*Assuming that this top Blob is not used as a bottom (input) by any
      *      other layer of the Net.)
-     * @param propagate_down see Layer::Backward.
+     * @param propagate_down see Layer::Backward_.
      * @param bottom input Blob vector (length 2)
      *   -# @f$ (N \times C \times 1 \times 1) @f$
-     *      the features @f$a@f$; Backward fills their diff with
+     *      the features @f$a@f$; Backward_ fills their diff with
      *      gradients if bottom[0]->propagate_down_
      *   -# @f$ (N \times C \times 1 \times 1) @f$
-     *      the features @f$b@f$; Backward fills their diff with gradients if
+     *      the features @f$b@f$; Backward_ fills their diff with gradients if
      *      bottom[1]->propagate_down_
      */
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
 
     Blob diff_;  // cached for backward pass

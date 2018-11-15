@@ -18,7 +18,7 @@ namespace
   /**
    * @brief Normalize the input in a local region across or within feature maps.
    *
-   * TODO(dox): thorough documentation for Forward, Backward, and proto params.
+   * TODO(dox): thorough documentation for Forward_, Backward_, and proto params.
    */
   template <typename Dtype>
   class LRNLayer : public Layer
@@ -36,13 +36,13 @@ namespace
     virtual inline int ExactNumTopBlobs() const { return 1; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
 
     virtual void CrossChannelForward(CPUContext* context, const vector<Blob*> & bottom,

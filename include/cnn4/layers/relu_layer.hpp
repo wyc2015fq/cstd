@@ -16,7 +16,7 @@ public:
   void init(CJSON* param) {
     ReLUParameter_DEF(Get);
   }
-  virtual void Forward(const vector<Blob*> & bottom,
+  virtual void Forward_(const vector<Blob*> & bottom,
     const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -25,7 +25,7 @@ public:
     relu_forward(count, bottom_data, top_data, negative_slope_);
   }
 
-  virtual void Backward(const vector<Blob*> & top,
+  virtual void Backward_(const vector<Blob*> & top,
     const vector<Blob*> & bottom)
   {
     if (bottom[0]->propagate_down_) {

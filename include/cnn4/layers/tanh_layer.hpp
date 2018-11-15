@@ -40,9 +40,9 @@ namespace
      *        y = \frac{\exp(2x) - 1}{\exp(2x) + 1}
      *      @f$
      */
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
 
     /**
@@ -53,10 +53,10 @@ namespace
      *   -# @f$ (N \times C \times H \times W) @f$
      *      containing error gradients @f$ \frac{\partial E}{\partial y} @f$
      *      with respect to computed outputs @f$ y @f$
-     * @param propagate_down see Layer::Backward.
+     * @param propagate_down see Layer::Backward_.
      * @param bottom input Blob vector (length 1)
      *   -# @f$ (N \times C \times H \times W) @f$
-     *      the inputs @f$ x @f$; Backward fills their diff with
+     *      the inputs @f$ x @f$; Backward_ fills their diff with
      *      gradients @f$
      *        \frac{\partial E}{\partial x}
      *            = \frac{\partial E}{\partial y}
@@ -64,9 +64,9 @@ namespace
      *            = \frac{\partial E}{\partial y} (1 - y^2)
      *      @f$ if bottom[0]->propagate_down_
      */
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
   };
 

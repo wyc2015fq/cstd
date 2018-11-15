@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void MVNLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void MVNLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
   Dtype* top_data = top[0]->mdata();
@@ -50,7 +50,7 @@ void MVNLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void MVNLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void MVNLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob*>& bottom) {
   const Dtype* top_diff = top[0]->gpu_diff();

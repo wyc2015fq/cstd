@@ -7,7 +7,7 @@
 namespace {
 
 template <typename Dtype>
-void InnerProductLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void InnerProductLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
   Dtype* top_data = top[0]->mdata();
@@ -31,7 +31,7 @@ void InnerProductLayer::Forward(GPUContext* context, const vector<Blob*>& bottom
 }
 
 template <typename Dtype>
-void InnerProductLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void InnerProductLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob*>& bottom) {
   if (this->blobs_[0]->propagate_down_) {

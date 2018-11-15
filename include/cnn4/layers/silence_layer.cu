@@ -6,13 +6,13 @@
 namespace {
 
 template <typename Dtype>
-void SilenceLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void SilenceLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
       const vector<Blob*>& top) {
   // Do nothing.
 }
 
 template <typename Dtype>
-void SilenceLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void SilenceLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
       const vector<Blob*>& bottom) {
   for (int i = 0; i < bottom.size(); ++i) {
     if (bottom[i]->propagate_down_) {

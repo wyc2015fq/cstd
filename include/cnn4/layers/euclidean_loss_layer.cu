@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void EuclideanLossLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void EuclideanLossLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   int count = bottom[0]->count();
   caffe_gpu_sub(
@@ -21,7 +21,7 @@ void EuclideanLossLayer::Forward(GPUContext* context, const vector<Blob*>& botto
 }
 
 template <typename Dtype>
-void EuclideanLossLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void EuclideanLossLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   for (int i = 0; i < 2; ++i) {
     if (bottom[i]->propagate_down_) {

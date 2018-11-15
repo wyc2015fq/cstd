@@ -76,7 +76,7 @@ namespace
   }
 
   template <typename Dtype>
-  void SliceLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void SliceLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                       const vector<Blob*> & top)
   {
     if (top.size() == 1) { return; }
@@ -98,7 +98,7 @@ namespace
   }
 
   template <typename Dtype>
-  void SliceLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void SliceLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                        const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_ || top.size() == 1) { return; }

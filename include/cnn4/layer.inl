@@ -98,13 +98,13 @@ void SetUp(const vector<Blob*> & bottom, const vector<Blob*> & top) {
   //SetLossWeights(layer, top);
 }
 
-double runForward(const vector<Blob*> & bottom, const vector<Blob*> & top )
+double Forward(const vector<Blob*> & bottom, const vector<Blob*> & top )
 {
   // Lock during forward to ensure sequential forward
   Lock();
   Dtype loss = 0;
   Reshape(bottom, top);
-  Forward(bottom, top);
+  Forward_(bottom, top);
 #if 0
   if (bottom.size() > 0 && top.size() > 0) {
     Dtype* bottom_data = bottom[0]->cpu_mdata();
@@ -158,9 +158,9 @@ double runForward(const vector<Blob*> & bottom, const vector<Blob*> & top )
 }
 
 
-inline void runBackward(const vector<Blob*> & top, const vector<Blob*> & bottom)
+inline void Backward(const vector<Blob*> & top, const vector<Blob*> & bottom)
 {
-  Backward(top, bottom);
+  Backward_(top, bottom);
 
   if (debug_info_) {
     for (int i = 0; i < bottom.size(); ++i) {

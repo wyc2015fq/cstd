@@ -15,7 +15,7 @@ __global__ void TanHForward(const int n, const Dtype* in, Dtype* out) {
 }
 
 template <typename Dtype>
-void TanHLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void TanHLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
   Dtype* top_data = top[0]->mdata();
@@ -36,7 +36,7 @@ __global__ void TanHBackward(const int n, const Dtype* in_diff,
 }
 
 template <typename Dtype>
-void TanHLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void TanHLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob*>& bottom) {
   if (bottom[0]->propagate_down_) {

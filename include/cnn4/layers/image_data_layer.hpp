@@ -18,7 +18,7 @@ namespace
   /**
    * @brief Provides data to the Net from image files.
    *
-   * TODO(dox): thorough documentation for Forward and proto params.
+   * TODO(dox): thorough documentation for Forward_ and proto params.
    */
   template <typename Dtype>
   class ImageDataLayer : public BasePrefetchingDataLayer

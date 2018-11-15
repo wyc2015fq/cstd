@@ -8,7 +8,7 @@
 namespace {
 
 template <typename Dtype>
-void HDF5OutputLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void HDF5OutputLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
       const vector<Blob*>& top) {
   CHECK_GE(bottom.size(), 2);
   CHECK_EQ(bottom[0]->num(), bottom[1]->num());
@@ -29,7 +29,7 @@ void HDF5OutputLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void HDF5OutputLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void HDF5OutputLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
       const vector<Blob*>& bottom) {
   return;
 }

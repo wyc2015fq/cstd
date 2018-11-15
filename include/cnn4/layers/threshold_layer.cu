@@ -13,7 +13,7 @@ __global__ void ThresholdForward(const int n, const Dtype threshold,
 }
 
 template <typename Dtype>
-void ThresholdLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void ThresholdLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
   Dtype* top_data = top[0]->mdata();

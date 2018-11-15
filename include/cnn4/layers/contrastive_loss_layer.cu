@@ -80,7 +80,7 @@ __global__ void CLLBackward(const int count, const int channels,
 }
 
 template <typename Dtype>
-void ContrastiveLossLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void ContrastiveLossLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   for (int i = 0; i < 2; ++i) {
     if (bottom[i]->propagate_down_) {

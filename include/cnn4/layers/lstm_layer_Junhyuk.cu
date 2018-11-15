@@ -122,7 +122,7 @@ __global__ void ActivationBackward(const int nthreads, const int H,
 }
 
 template <typename Dtype>
-void LstmLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void LstmLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   CHECK_EQ(top[0]->data(), top_.data());
   Dtype* top_data = top_.mdata();
@@ -184,7 +184,7 @@ void LstmLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void LstmLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void LstmLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob*>& bottom) {
   const Dtype* top_data = top_.data();

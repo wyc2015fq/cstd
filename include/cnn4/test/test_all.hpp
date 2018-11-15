@@ -1,4 +1,6 @@
 
+#include "test_gradient_check_util.hpp"
+#include "test_reshape_layer.hpp"
 #include "test_transpose_layer.hpp"
 
 #if 0
@@ -56,7 +58,6 @@
 #include "test_protobuf.hpp"
 #include "test_random_number_generator.hpp"
 #include "test_reduction_layer.hpp"
-#include "test_reshape_layer.hpp"
 #include "test_rnn_layer.hpp"
 #include "test_scale_layer.hpp"
 #include "test_sigmoid_cross_entropy_loss_layer.hpp"

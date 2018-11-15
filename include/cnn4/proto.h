@@ -5,6 +5,8 @@
 #include "parser/cJSON.hpp"
 #include "cpu.hpp"
 #include <map>
+#include <iostream>
+#include <fstream>
 #include "types.h"
 #include "math_functions.h"
 #include "math_functions.inl"
@@ -143,8 +145,15 @@ struct Blob {
   Blob(int n, int c, int h, int w) {
     this->Reshape(n, c, h, w);
   }
+  Blob(const std::vector<int>& shape) {
+    this->Reshape(shape);
+  }
+  Blob(const DataShape& shape) {
+    this->Reshape(shape);
+  }
   void init() {
     memset(this, 0, sizeof(Blob));
+    shape_.set(1);
     bottom_cnt_ = top_cnt_ = 0;
     propagate_down_ = true;
     loss_weight_ = 0;
@@ -191,7 +200,7 @@ struct Blob {
       Reshape(other.shape());
     }
   }
-  void CopyFrom(Blob* other, bool copy_diff) {
+  void CopyFrom(Blob* other, bool copy_diff = false) {
     Reshape(other->shape());
     caffe_copy(count(), other->data(), mdata());
     if (copy_diff) {
@@ -205,8 +214,14 @@ struct Blob {
       caffe_copy(count(), diff(), other->mdiff());
     }
   }
+  // this->data = other->data
   void ShareData(Blob* other) {
-    CopyTo(other, false);
+    assert(count()==other->count());
+    caffe_copy(count(), other->data(), mdata());
+  }
+  void ShareDiff(Blob* other) {
+    assert(count() == other->count());
+    caffe_copy(count(), other->diff(), mdiff());
   }
 #include "blob.inl"
 };
@@ -231,6 +246,10 @@ struct Blob {
 #define DefInt(name, def, type)  int name##_;
 #define DefEnum(name, def, type)  type name##_;
 #define DefStruct(name, def, type)  type name##_;
+
+static void GaussianFiller(Blob* blob, double mu = 0, double st = 1) {
+  cpu_GaussianFiller(blob->shape_, blob->cpu_mdata(), mu, st, -1);
+}
 
 #define FILLER_PARAM_DEF(DEF) \
 DEF##Enum(type, FillerMethod_constant, FillerMethod) \
@@ -328,8 +347,7 @@ void tryCreateDirectory(string fileName)
 }
 
 
- static
-void logBlob(Blob* B, string fileName)
+ static void logBlob(Blob* B, string fileName)
 {
   string dataNameStr = fileName + "_data.txt";
   string gradNameStr = fileName + "_grad.txt";
@@ -413,6 +431,7 @@ Blob* blobs_aget(vector<Blob*>& blobs_, const char* name) {
 struct Layer {
   Phase phase_;
   char name[MAX_NAME];
+  char* type_;
   //cJSON* param_;
   typedef Blob::Dtype Dtype;
   vector<Blob*> blobs_;
@@ -429,8 +448,10 @@ struct Layer {
   virtual inline bool AutoTopBlobs() const { return false; }
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top) { }
   virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top) { }
-  virtual void Forward(const vector<Blob*> & bottom, const vector<Blob*> & top) { (0); }
-  virtual void Backward(const vector<Blob*> & top, const vector<Blob*> & bottom) { (0); }
+  // bottom -> top
+  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top) { (0); }
+  // top -> bottom
+  virtual void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom) { (0); }
 
   //Vtbl* vtbl;
   void init() {
@@ -496,6 +517,7 @@ int CreateLayer(CJSON* param, Layer*& layer, const char* type) {
     return 0;
   }
   layer = fun(param);
+  layer->type_ = (char*)type;
   return 1;
 }
 

@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void FilterLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void FilterLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
       const vector<Blob*>& top) {
   int new_tops_num = (int)indices_to_forward_.size();
   // forward all filtered items for all bottoms but the Selector (bottom[last])
@@ -24,7 +24,7 @@ void FilterLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void FilterLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void FilterLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
       const vector<Blob*>& bottom) {
   if (propagate_down[bottom.size() - 1]) {
     LOG(FATAL) << this->type()

@@ -1,20 +1,7 @@
-#include <vector>
 
-#include "gtest/gtest.h"
+typedef Blob TypeParam;
 
-#include "caffe/blob.hpp"
-#include "caffe/common.hpp"
-#include "caffe/filler.hpp"
-#include "caffe/layers/reshape_layer.hpp"
-
-#include "caffe/test/test_caffe_main.hpp"
-#include "caffe/test/test_gradient_check_util.hpp"
-
-namespace caffe
-{
-
-  template <typename TypeParam>
-  class ReshapeLayerTest : public MultiDeviceTest<TypeParam>
+  class ReshapeLayerTest : public MultiDeviceTest
   {
     typedef typename TypeParam::Dtype Dtype;
   protected:
@@ -22,9 +9,7 @@ namespace caffe
       : blob_bottom_(new Blob(2, 3, 6, 5)),
         blob_top_(new Blob()) {
       // fill the values
-      FillerParameter filler_param;
-      GaussianFiller filler(filler_param);
-      filler.Fill(this->blob_bottom_);
+      GaussianFiller(this->blob_bottom_);
       blob_bottom_vec_.push_back(blob_bottom_);
       blob_top_vec_.push_back(blob_top_);
     }
@@ -42,13 +27,9 @@ namespace caffe
   TYPED_TEST(ReshapeLayerTest, TestFlattenOutputSizes)
   {
     typedef typename TypeParam::Dtype Dtype;
-    LayerParameter layer_param;
-    BlobShape* blob_shape = layer_param.mutable_reshape_param()->mutable_shape();
-    blob_shape->add_dim(0);
-    blob_shape->add_dim(-1);
-    blob_shape->add_dim(1);
-    blob_shape->add_dim(1);
-    ReshapeLayer layer(layer_param);
+    int dim[] = {0, -1, 1, 1};
+    ReshapeLayer layer;
+    layer.shape_.assign(dim, dim+ countof(dim));
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     EXPECT_EQ(this->blob_top_->num(), 2);
     EXPECT_EQ(this->blob_top_->channels(), 3 * 6 * 5);
@@ -59,13 +40,9 @@ namespace caffe
   TYPED_TEST(ReshapeLayerTest, TestFlattenValues)
   {
     typedef typename TypeParam::Dtype Dtype;
-    LayerParameter layer_param;
-    BlobShape* blob_shape = layer_param.mutable_reshape_param()->mutable_shape();
-    blob_shape->add_dim(0);
-    blob_shape->add_dim(-1);
-    blob_shape->add_dim(1);
-    blob_shape->add_dim(1);
-    ReshapeLayer layer(layer_param);
+    int dim[] = { 0, -1, 1, 1 };
+    ReshapeLayer layer;
+    layer.shape_.assign(dim, dim + countof(dim));
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     for (int c = 0; c < 3 * 6 * 5; ++c) {
@@ -81,13 +58,9 @@ namespace caffe
   TYPED_TEST(ReshapeLayerTest, TestCopyDimensions)
   {
     typedef typename TypeParam::Dtype Dtype;
-    LayerParameter layer_param;
-    BlobShape* blob_shape = layer_param.mutable_reshape_param()->mutable_shape();
-    blob_shape->add_dim(0);
-    blob_shape->add_dim(0);
-    blob_shape->add_dim(0);
-    blob_shape->add_dim(0);
-    ReshapeLayer layer(layer_param);
+    int dim[] = { 0, 0, 0, 0 };
+    ReshapeLayer layer;
+    layer.shape_.assign(dim, dim + countof(dim));
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     EXPECT_EQ(this->blob_top_->num(), 2);
     EXPECT_EQ(this->blob_top_->channels(), 3);
@@ -100,14 +73,10 @@ namespace caffe
   TYPED_TEST(ReshapeLayerTest, TestInferenceOfUnspecified)
   {
     typedef typename TypeParam::Dtype Dtype;
-    LayerParameter layer_param;
-    BlobShape* blob_shape = layer_param.mutable_reshape_param()->mutable_shape();
-    blob_shape->add_dim(0);
-    blob_shape->add_dim(3);
-    blob_shape->add_dim(10);
-    blob_shape->add_dim(-1);
+    int dim[] = { 0, 3, 10, -1 };
+    ReshapeLayer layer;
+    layer.shape_.assign(dim, dim + countof(dim));
     // Count is 180, thus height should be 180 / (2*3*10) = 3.
-    ReshapeLayer layer(layer_param);
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     EXPECT_EQ(this->blob_top_->num(), 2);
     EXPECT_EQ(this->blob_top_->channels(), 3);
@@ -118,13 +87,10 @@ namespace caffe
   TYPED_TEST(ReshapeLayerTest, TestInferenceOfUnspecifiedWithStartAxis)
   {
     typedef typename TypeParam::Dtype Dtype;
-    LayerParameter layer_param;
-    layer_param.mutable_reshape_param()->set_axis(1);
-    BlobShape* blob_shape = layer_param.mutable_reshape_param()->mutable_shape();
-    blob_shape->add_dim(3);
-    blob_shape->add_dim(10);
-    blob_shape->add_dim(-1);
-    ReshapeLayer layer(layer_param);
+    int dim[] = { 3, 10, -1 };
+    ReshapeLayer layer;
+    layer.shape_.assign(dim, dim + countof(dim));
+    layer.axis_ = 1;
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_top_->num_axes(), 4);
     EXPECT_EQ(this->blob_top_->num(), 2);
@@ -136,14 +102,11 @@ namespace caffe
   TYPED_TEST(ReshapeLayerTest, TestInsertSingletonAxesStart)
   {
     typedef typename TypeParam::Dtype Dtype;
-    LayerParameter layer_param;
-    layer_param.mutable_reshape_param()->set_axis(0);
-    layer_param.mutable_reshape_param()->set_num_axes(0);
-    BlobShape* blob_shape = layer_param.mutable_reshape_param()->mutable_shape();
-    blob_shape->add_dim(1);
-    blob_shape->add_dim(1);
-    blob_shape->add_dim(1);
-    ReshapeLayer layer(layer_param);
+    int dim[] = { 1,1,1 };
+    ReshapeLayer layer;
+    layer.shape_.assign(dim, dim + countof(dim));
+    layer.axis_ = (0);
+    layer.num_axes_ = (0);
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_top_->num_axes(), 7);
     EXPECT_EQ(this->blob_top_->shape(0), 1);
@@ -154,18 +117,17 @@ namespace caffe
     EXPECT_EQ(this->blob_top_->shape(5), 6);
     EXPECT_EQ(this->blob_top_->shape(6), 5);
   }
-
   TYPED_TEST(ReshapeLayerTest, TestInsertSingletonAxesMiddle)
   {
     typedef typename TypeParam::Dtype Dtype;
-    LayerParameter layer_param;
-    layer_param.mutable_reshape_param()->set_axis(2);
-    layer_param.mutable_reshape_param()->set_num_axes(0);
-    BlobShape* blob_shape = layer_param.mutable_reshape_param()->mutable_shape();
-    blob_shape->add_dim(1);
-    blob_shape->add_dim(1);
-    blob_shape->add_dim(1);
-    ReshapeLayer layer(layer_param);
+    ReshapeLayer layer;
+    layer.axis_=(2);
+    layer.num_axes_ = (0);
+    vector<int>* blob_shape = &layer.shape_;
+    blob_shape->push_back(1);
+    blob_shape->push_back(1);
+    blob_shape->push_back(1);
+    
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_top_->num_axes(), 7);
     EXPECT_EQ(this->blob_top_->shape(0), 2);
@@ -180,14 +142,14 @@ namespace caffe
   TYPED_TEST(ReshapeLayerTest, TestInsertSingletonAxesEnd)
   {
     typedef typename TypeParam::Dtype Dtype;
-    LayerParameter layer_param;
-    layer_param.mutable_reshape_param()->set_axis(-1);
-    layer_param.mutable_reshape_param()->set_num_axes(0);
-    BlobShape* blob_shape = layer_param.mutable_reshape_param()->mutable_shape();
-    blob_shape->add_dim(1);
-    blob_shape->add_dim(1);
-    blob_shape->add_dim(1);
-    ReshapeLayer layer(layer_param);
+    ReshapeLayer layer;
+    layer.axis_=(-1);
+    layer.num_axes_ = (0);
+    vector<int>* blob_shape = &layer.shape_;
+    blob_shape->push_back(1);
+    blob_shape->push_back(1);
+    blob_shape->push_back(1);
+    
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_top_->num_axes(), 7);
     EXPECT_EQ(this->blob_top_->shape(0), 2);
@@ -202,12 +164,12 @@ namespace caffe
   TYPED_TEST(ReshapeLayerTest, TestFlattenMiddle)
   {
     typedef typename TypeParam::Dtype Dtype;
-    LayerParameter layer_param;
-    layer_param.mutable_reshape_param()->set_axis(1);
-    layer_param.mutable_reshape_param()->set_num_axes(2);
-    BlobShape* blob_shape = layer_param.mutable_reshape_param()->mutable_shape();
-    blob_shape->add_dim(-1);
-    ReshapeLayer layer(layer_param);
+    ReshapeLayer layer;
+    layer.axis_=(1);
+    layer.num_axes_ = (2);
+    vector<int>* blob_shape = &layer.shape_;
+    blob_shape->push_back(-1);
+    
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     ASSERT_EQ(this->blob_top_->num_axes(), 3);
     EXPECT_EQ(this->blob_top_->shape(0), 2);
@@ -218,13 +180,13 @@ namespace caffe
   TYPED_TEST(ReshapeLayerTest, TestForward)
   {
     typedef typename TypeParam::Dtype Dtype;
-    LayerParameter layer_param;
-    BlobShape* shape = layer_param.mutable_reshape_param()->mutable_shape();
-    shape->add_dim(6);
-    shape->add_dim(2);
-    shape->add_dim(3);
-    shape->add_dim(5);
-    ReshapeLayer layer(layer_param);
+    ReshapeLayer layer;
+    vector<int>* shape = &layer.shape_;
+    shape->push_back(6);
+    shape->push_back(2);
+    shape->push_back(3);
+    shape->push_back(5);
+    
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     for (int i = 0; i < this->blob_bottom_->count(); ++i) {
@@ -236,13 +198,13 @@ namespace caffe
   TYPED_TEST(ReshapeLayerTest, TestForwardAfterReshape)
   {
     typedef typename TypeParam::Dtype Dtype;
-    LayerParameter layer_param;
-    BlobShape* shape = layer_param.mutable_reshape_param()->mutable_shape();
-    shape->add_dim(6);
-    shape->add_dim(2);
-    shape->add_dim(3);
-    shape->add_dim(5);
-    ReshapeLayer layer(layer_param);
+    ReshapeLayer layer;
+    vector<int>* shape = &layer.shape_;
+    shape->push_back(6);
+    shape->push_back(2);
+    shape->push_back(3);
+    shape->push_back(5);
+    
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     // We know the above produced the correct result from TestForward.
@@ -250,9 +212,7 @@ namespace caffe
     vector<int> new_bottom_shape(1, 2 * 3 * 6 * 5);
     this->blob_bottom_->Reshape(new_bottom_shape);
     layer.Reshape(this->blob_bottom_vec_, this->blob_top_vec_);
-    FillerParameter filler_param;
-    GaussianFiller filler(filler_param);
-    filler.Fill(this->blob_bottom_);
+    GaussianFiller(this->blob_bottom_);
     layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     for (int i = 0; i < this->blob_bottom_->count(); ++i) {
       EXPECT_EQ(this->blob_top_->cpu_data()[i],
@@ -263,16 +223,14 @@ namespace caffe
   TYPED_TEST(ReshapeLayerTest, TestGradient)
   {
     typedef typename TypeParam::Dtype Dtype;
-    LayerParameter layer_param;
-    BlobShape* shape = layer_param.mutable_reshape_param()->mutable_shape();
-    shape->add_dim(6);
-    shape->add_dim(2);
-    shape->add_dim(3);
-    shape->add_dim(5);
-    ReshapeLayer layer(layer_param);
+    ReshapeLayer layer;
+    vector<int>* shape = &layer.shape_;
+    shape->push_back(6);
+    shape->push_back(2);
+    shape->push_back(3);
+    shape->push_back(5);
+    
     GradientChecker checker(1e-2, 1e-2);
     checker.CheckGradientEltwise(&layer, this->blob_bottom_vec_,
                                  this->blob_top_vec_);
   }
-
-}  // namespace caffe

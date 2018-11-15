@@ -42,7 +42,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ReductionLayer::Forward(_CONTEXT,
+  void ReductionLayer::Forward_(_CONTEXT,
     const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -78,7 +78,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ReductionLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void ReductionLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
       const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }

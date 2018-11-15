@@ -33,7 +33,7 @@ namespace
   }
 
   template <typename Dtype>
-  void LogLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void LogLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                     const vector<Blob*> & top)
   {
     const int count = bottom[0]->count();
@@ -57,7 +57,7 @@ namespace
   }
 
   template <typename Dtype>
-  void LogLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void LogLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                      const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }

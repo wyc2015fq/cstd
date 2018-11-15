@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void CuDNNReLULayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void CuDNNReLULayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   // Fallback to standard Caffe for leaky ReLU.
   if (ReLULayer::param_->relu_param().negative_slope() != 0) {
@@ -33,7 +33,7 @@ void CuDNNReLULayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void CuDNNReLULayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void CuDNNReLULayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) {

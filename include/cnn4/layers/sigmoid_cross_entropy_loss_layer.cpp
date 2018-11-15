@@ -29,7 +29,7 @@ namespace
   }
 
   template <typename Dtype>
-  void SigmoidCrossEntropyLossLayer::Forward(_CONTEXT,
+  void SigmoidCrossEntropyLossLayer::Forward_(_CONTEXT,
     const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     // The forward pass computes the sigmoid outputs.
@@ -73,7 +73,7 @@ namespace
   }
 
 #ifdef CPU_ONLY
-  STUB_GPU_BACKWARD(SigmoidCrossEntropyLossLayer, Backward);
+  STUB_GPU_BACKWARD(SigmoidCrossEntropyLossLayer, Backward_);
 #endif
 
   INSTANTIATE_CLASS(SigmoidCrossEntropyLossLayer);

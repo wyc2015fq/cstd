@@ -44,7 +44,7 @@ __global__ void PReLUParamBackward(const int n,
 }
 
 template <typename Dtype>
-void PReLULayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void PReLULayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* bottom_data = bottom[0]->data();
   Dtype* top_data = top[0]->mdata();
@@ -66,7 +66,7 @@ void PReLULayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void PReLULayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void PReLULayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob*>& bottom) {
   const Dtype* bottom_data = bottom[0]->data();

@@ -43,11 +43,11 @@ namespace
     virtual inline const char* type() const { return "Python"; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top) {
       self_.attr("forward")(bottom, top);
     }
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom) {
       self_.attr("backward")(top, propagate_down, bottom);
     }

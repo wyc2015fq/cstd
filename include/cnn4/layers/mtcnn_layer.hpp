@@ -37,7 +37,7 @@ namespace
 
   public:
     /// @copydoc RegressionLayer
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
       const vector<Blob*> & top) {
       int count = bottom[0]->count();
       //caffe_sub( count, bottom[0]->data(), bottom[1]->data(), diff_.mdata());
@@ -63,11 +63,11 @@ namespace
       Dtype loss = dot / bottom[0]->num() / Dtype(2);
       top[0]->mdata()[0] = loss;
     }
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
       const vector<Blob*> & top);
 
 
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
       const vector<Blob*> & bottom) {
       for (int i = 0; i < 2; ++i) {
         if (bottom[i]->propagate_down_) {
@@ -82,7 +82,7 @@ namespace
         }
       }
     }
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
       const vector<Blob*> & bottom);
 
     Blob diff_;
@@ -118,7 +118,7 @@ namespace
       top[0]->ReshapeLike(*bottom[0]);
       top[1]->ReshapeLike(*bottom[1]);
     }
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
       const vector<Blob*> & top) {
       int num = bottom[1]->countL(1);
       int len0 = bottom[0]->countH(1);
@@ -147,7 +147,7 @@ namespace
         }
       }
     }
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
       const vector<Blob*> & bottom) {
       int num = bottom[1]->countL(1);
       int len0 = bottom[0]->countH(1);

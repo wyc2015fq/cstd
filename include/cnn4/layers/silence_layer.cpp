@@ -7,7 +7,7 @@ namespace
 {
 
   template <typename Dtype>
-  void SilenceLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void SilenceLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                          const vector<Blob*> & bottom)
   {
     for (int i = 0; i < bottom.size(); ++i) {

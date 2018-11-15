@@ -96,7 +96,7 @@ __global__ void SoftmaxLossBackwardGPU1(const int nthreads, const Dtype* top,
 }
 
 template <typename Dtype>
-void SoftmaxWithLossMultiLabelLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void SoftmaxWithLossMultiLabelLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   if (bottom[1]->propagate_down_) {
     LOG(FATAL) << this->type()

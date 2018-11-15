@@ -106,9 +106,9 @@ namespace
      *      the updated hidden state @f$ h_t @f$, computed as:
      *          h_t := o_t .* \tanh[c_t]
      */
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
 
     /**
@@ -122,7 +122,7 @@ namespace
      *   -# @f$ (1 \times N \times D) @f$:
      *      containing error gradients @f$ \frac{\partial E}{\partial h_t} @f$
      *      with respect to the updated cell state @f$ h_t @f$
-     * @param propagate_down see Layer::Backward.
+     * @param propagate_down see Layer::Backward_.
      * @param bottom input Blob vector (length 3), into which the error gradients
      *        with respect to the LSTMUnit inputs @f$ c_{t-1} @f$ and the gate
      *        inputs are computed.  Computatation of the error gradients w.r.t.
@@ -142,9 +142,9 @@ namespace
      *      the gradient w.r.t. the sequence continuation indicators
      *      @f$ \delta_t @f$ is currently not computed.
      */
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
 
     /// @brief The hidden and output dimension.

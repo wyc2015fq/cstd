@@ -19,7 +19,7 @@ namespace
   /**
    * @brief Write blobs to disk as HDF5 files.
    *
-   * TODO(dox): thorough documentation for Forward and proto params.
+   * TODO(dox): thorough documentation for Forward_ and proto params.
    */
   template <typename Dtype>
   class HDF5OutputLayer : public Layer
@@ -44,13 +44,13 @@ namespace
     inline std::string file_name() const { return file_name_; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
     virtual void SaveBlobs();
 

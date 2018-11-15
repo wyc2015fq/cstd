@@ -54,9 +54,9 @@ namespace
      *        y_i = \max(0, x_i) + a_i \min(0, x_i)
      *      @f$.
      */
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
 
     /**
@@ -67,7 +67,7 @@ namespace
      *   -# @f$ (N \times C \times ...) @f$
      *      containing error gradients @f$ \frac{\partial E}{\partial y} @f$
      *      with respect to computed outputs @f$ y @f$
-     * @param propagate_down see Layer::Backward.
+     * @param propagate_down see Layer::Backward_.
      * @param bottom input Blob vector (length 1)
      *   -# @f$ (N \times C \times ...) @f$
      *      the inputs @f$ x @f$; For each channel @f$i@f$, backward fills their
@@ -87,9 +87,9 @@ namespace
      *        \end{array} \right.
      *      @f$.
      */
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
 
     bool channel_shared_;

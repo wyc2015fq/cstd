@@ -54,10 +54,7 @@ struct BlobData {
   void set(DimType dimtype, TypeFlag flag, const void* data, int dim_w, int dim_h = 1, int dim_c = 1, int dim_n = 1) {
     int size = dim_w*dim_h*dim_c*dim_n;
     int elemsz = TypeSize[flag];
-    dim_[0] = dim_n;
-    dim_[1] = dim_c;
-    dim_[2] = dim_h;
-    dim_[3] = dim_w;
+    shape.set(dim_n, dim_c, dim_h, dim_w);
     type_ = flag;
     nbytes_ = size*elemsz;
     data_ = (char*)realloc(data_, nbytes_);
@@ -258,6 +255,7 @@ DataShape GetDataTransformerInfo(DataTransformerInfo* info, const BlobData* src,
   //src<Dtype> data_mean_;
   // Check dimensions.
   DataShape shape_;
+  shape_.set(1);
   info->phase_ = phase;
   shape_.c = src->c;
   if (info->crop_size) {

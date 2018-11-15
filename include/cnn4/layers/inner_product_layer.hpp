@@ -5,7 +5,7 @@
  * @brief Also known as a "fully-connected" layer, computes an inner product
  *        with a set of learned weights, and (optionally) adds biases.
  *
- * TODO(dox): thorough documentation for Forward, Backward, and proto params.
+ * TODO(dox): thorough documentation for Forward_, Backward_, and proto params.
  */
 #define InnerProductParameter_DEF(DEF) \
 DEF##Int(num_output, 0, 0) \
@@ -95,7 +95,7 @@ struct InnerProductLayer : public Layer
     }
   }
 
-  virtual void Forward(const vector<Blob*> & bottom,  const vector<Blob*> & top)
+  virtual void Forward_(const vector<Blob*> & bottom,  const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
     Dtype* top_data = top[0]->mdata();
@@ -110,7 +110,7 @@ struct InnerProductLayer : public Layer
   }
 
 
-  virtual void Backward(const vector<Blob*> & top,  const vector<Blob*> & bottom)
+  virtual void Backward_(const vector<Blob*> & top,  const vector<Blob*> & bottom)
   {
     if (this->blobs_[0]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff();

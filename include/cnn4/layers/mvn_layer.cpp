@@ -30,7 +30,7 @@ namespace
   }
 
   template <typename Dtype>
-  void MVNLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void MVNLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                     const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -68,7 +68,7 @@ namespace
   }
 
   template <typename Dtype>
-  void MVNLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void MVNLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                      int*
                                      const vector<Blob*> & bottom)
   {

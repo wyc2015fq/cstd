@@ -9,7 +9,7 @@ namespace
   const float kBNLL_THRESHOLD = 50.;
 
   template <typename Dtype>
-  void BNLLLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void BNLLLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                      const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -23,7 +23,7 @@ namespace
   }
 
   template <typename Dtype>
-  void BNLLLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void BNLLLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                       int*
                                       const vector<Blob*> & bottom)
   {

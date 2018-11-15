@@ -17,9 +17,13 @@
 #include "scale_layer.hpp"
 #include "dropout_layer.hpp"
 #include "transpose_layer.hpp"
+#include "reshape_layer.hpp"
+#include "ctc/ctc_decoder_layer.hpp"
+
+//#include "warp_ctc_loss_layer.hpp"
+#include "denseblock_layer.hpp"
 
 #ifdef USE_CUDNN
-#include "denseblock_layer.hpp"
 #include "cudnn_conv_layer.hpp"
 #endif
 
@@ -32,7 +36,6 @@
 #include "concat_layer.hpp"
 #include "contrastive_loss_layer.hpp"
 #include "crop_layer.hpp"
-#include "ctc_decoder_layer.hpp"
 #include "cudnn_lcn_layer.hpp"
 #include "cudnn_lrn_layer.hpp"
 #include "cudnn_pooling_layer.hpp"
@@ -70,7 +73,6 @@
 #include "python_layer.hpp"
 #include "recurrent_layer.hpp"
 #include "reduction_layer.hpp"
-#include "reshape_layer.hpp"
 #include "reverse_layer.hpp"
 #include "reverse_time_layer.hpp"
 #include "rnn_layer.hpp"
@@ -83,7 +85,6 @@
 #include "tanh_layer.hpp"
 #include "threshold_layer.hpp"
 #include "tile_layer.hpp"
-#include "warp_ctc_loss_layer.hpp"
 #include "window_data_layer.hpp"
 #endif
 

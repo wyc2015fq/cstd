@@ -32,9 +32,9 @@ namespace
     virtual inline int ExactNumTopBlobs() const { return 1; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
     // calculates the kernel and stride dimensions for the pooling layer,
     // returns a correctly configured LayerParameter for a PoolingLayer
@@ -51,23 +51,23 @@ namespace
 
     /// the internal Split layer that feeds the pooling layers
     SHARED_PTR<SplitLayer > split_layer_;
-    /// top vector holder used in call to the underlying SplitLayer::Forward
+    /// top vector holder used in call to the underlying SplitLayer::Forward_
     vector<Blob*> split_top_vec_;
-    /// bottom vector holder used in call to the underlying PoolingLayer::Forward
+    /// bottom vector holder used in call to the underlying PoolingLayer::Forward_
     vector<vector<Blob*>*> pooling_bottom_vecs_;
     /// the internal Pooling layers of different kernel sizes
     vector<SHARED_PTR<PoolingLayer > > pooling_layers_;
-    /// top vector holders used in call to the underlying PoolingLayer::Forward
+    /// top vector holders used in call to the underlying PoolingLayer::Forward_
     vector<vector<Blob*>*> pooling_top_vecs_;
     /// pooling_outputs stores the outputs of the PoolingLayers
     vector<Blob*> pooling_outputs_;
     /// the internal Flatten layers that the Pooling layers feed into
     vector<FlattenLayer*> flatten_layers_;
-    /// top vector holders used in call to the underlying FlattenLayer::Forward
+    /// top vector holders used in call to the underlying FlattenLayer::Forward_
     vector<vector<Blob*>*> flatten_top_vecs_;
     /// flatten_outputs stores the outputs of the FlattenLayers
     vector<Blob*> flatten_outputs_;
-    /// bottom vector holder used in call to the underlying ConcatLayer::Forward
+    /// bottom vector holder used in call to the underlying ConcatLayer::Forward_
     vector<Blob*> concat_bottom_vec_;
     /// the internal Concat layers that the Flatten layers feed into
     SHARED_PTR<ConcatLayer > concat_layer_;

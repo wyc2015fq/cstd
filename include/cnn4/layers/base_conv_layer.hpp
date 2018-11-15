@@ -2,7 +2,7 @@
 #define CAFFE_BASE_CONVOLUTION_LAYER_HPP_
 
 DataShape cJSON_GetShape(cJSON* param, int kDefaultPad, const char* name, const char* name_h = NULL, const char* name_w = NULL) {
-  DataShape pad = { 0 };
+  DataShape pad;
   int* pad_data = pad.dim;
   char buf[64];
   cJSON* item = param->get(name);
@@ -200,7 +200,7 @@ public:
     // Handle the parameters: weights and biases.
     // - blobs_[0] holds the filter weights
     // - blobs_[1] holds the biases (optional)
-    DataShape weight_shape = {0};
+    DataShape weight_shape;
     weight_shape.dim[0] = conv_out_channels_;
     weight_shape.dim[1] = conv_in_channels_ / group_;
     for (int i = 0; i < num_spatial_axes_; ++i) {

@@ -129,14 +129,14 @@ public:
   }
 
 
-  virtual void Forward(const vector<Blob*>& bottom, const vector<Blob*>& top) {
+  virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
     const int count = top[0]->count();
     const Dtype* bottom_data = bottom[0]->data();
     if (bottom[0] == top[0]) {
       // in-place computation; need to store bottom data before overwriting it.
-      // Note that this is only necessary for Backward; we could skip this if not
-      // doing Backward, but Caffe currently provides no way of knowing whether
-      // we'll need to do Backward at the time of the Forward call.
+      // Note that this is only necessary for Backward_; we could skip this if not
+      // doing Backward_, but Caffe currently provides no way of knowing whether
+      // we'll need to do Backward_ at the time of the Forward_ call.
       caffe_copy(bottom[0]->count(), bottom[0]->data(),
         temp_.mdata());
     }
@@ -153,9 +153,9 @@ public:
     }
   }
 
-  virtual void Backward(const vector<Blob*>& top, const vector<Blob*>& bottom) {
+  virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
     if (bias_term_) {
-      bias_layer_->runBackward(top, bias_layer_->bottom_vecs_);
+      bias_layer_->Backward(top, bias_layer_->bottom_vecs_);
     }
     const bool scale_param = (bottom.size() == 1);
     Blob* scale = scale_param ? this->blobs_[0] : bottom[1];

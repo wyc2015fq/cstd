@@ -65,7 +65,7 @@ namespace
   }
 
   template <typename Dtype>
-  void EmbedLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void EmbedLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                       const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -87,7 +87,7 @@ namespace
   }
 
   template <typename Dtype>
-  void EmbedLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void EmbedLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                        const vector<Blob*> & bottom)
   {
     CHECK(!bottom[0]->propagate_down_) << "Can't backpropagate to EmbedLayer input.";

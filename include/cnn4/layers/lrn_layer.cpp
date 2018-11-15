@@ -93,7 +93,7 @@ namespace
   }
 
   template <typename Dtype>
-  void LRNLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void LRNLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                     const vector<Blob*> & top)
   {
     switch (this->param_->lrn_param().norm_region()) {
@@ -167,7 +167,7 @@ namespace
   }
 
   template <typename Dtype>
-  void LRNLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void LRNLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                      const vector<Blob*> & bottom)
   {
     switch (this->param_->lrn_param().norm_region()) {

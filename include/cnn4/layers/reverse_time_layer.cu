@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void ReverseTimeLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void ReverseTimeLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const Dtype* src = bottom[0]->data();
   Dtype* const dest = top[0]->mdata();
@@ -63,7 +63,7 @@ void ReverseTimeLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void ReverseTimeLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void ReverseTimeLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) { return; }
 

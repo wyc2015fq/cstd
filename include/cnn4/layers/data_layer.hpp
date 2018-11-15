@@ -114,10 +114,10 @@ struct DataLayer : public Layer
       top[j]->Reshape(shape_);
     }
   }
-  virtual void Forward(const vector<Blob*> & bottom, const vector<Blob*> & top) {
+  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top) {
     load_batch(top);
   }
-  virtual void Backward(const vector<Blob*> & top, const vector<Blob*> & bottom) {
+  virtual void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom) {
   }
 
 };

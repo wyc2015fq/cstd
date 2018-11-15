@@ -244,7 +244,7 @@ namespace
   }
 
   template <typename Dtype>
-  void RecurrentLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void RecurrentLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                           const vector<Blob*> & top)
   {
     // Hacky fix for test time: reshare all the internal shared blobs, which may
@@ -285,7 +285,7 @@ namespace
   }
 
   template <typename Dtype>
-  void RecurrentLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void RecurrentLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
       const vector<Blob*> & bottom)
   {
     if (propagate_down.size() > 1) {
@@ -300,7 +300,7 @@ namespace
   }
 
 #ifdef CPU_ONLY
-  STUB_GPU_FORWARD(RecurrentLayer, Forward);
+  STUB_GPU_FORWARD(RecurrentLayer, Forward_);
 #endif
 
   INSTANTIATE_CLASS(RecurrentLayer);

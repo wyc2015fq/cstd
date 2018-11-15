@@ -15,7 +15,7 @@ namespace
   /**
    * @brief Provides data to the Net from memory.
    *
-   * TODO(dox): thorough documentation for Forward and proto params.
+   * TODO(dox): thorough documentation for Forward_ and proto params.
    */
   template <typename Dtype>
   class MemoryDataLayer : public BaseDataLayer
@@ -47,7 +47,7 @@ namespace
     int width() { return width_; }
 
   public:
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
 
     int batch_size_, channels_, height_, width_, size_, label_size_;

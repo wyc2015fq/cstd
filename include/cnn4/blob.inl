@@ -11,6 +11,14 @@ inline int CanonicalAxisIndex(int axis_index) const {
   return shape_.CanonicalAxisIndex(axis_index);
 }
 
+void shape(std::vector<int>& out) {
+  out.assign(shape_.dim, shape_.dim + shape_.num_axes());
+}
+std::vector<int> shape_vec() {
+  std::vector<int> out;
+  out.assign(shape_.dim, shape_.dim + shape_.num_axes());
+  return out;
+}
 /// @brief Deprecated legacy shape accessor num: use shape(0) instead.
 inline int num() const { return LegacyShape(0); }
 /// @brief Deprecated legacy shape accessor channels: use shape(1) instead.
@@ -20,6 +28,7 @@ inline int height() const { return LegacyShape(2); }
 /// @brief Deprecated legacy shape accessor width: use shape(3) instead.
 inline int width() const { return LegacyShape(3); }
 inline int LegacyShape(int index) const {
+  assert(num_axes() <= 4);
   CHECK_LE(num_axes(), 4)
     << "Cannot use legacy accessors on Blobs with > 4 axes.";
   CHECK_LT(index, 4);
@@ -78,7 +87,7 @@ inline Dtype diff_at(const int n, const int c, const int h,
 
 void Reshape(const vector<int> & shape) {
   int i;
-  ASSERT(shape.size()<=4);
+  ASSERT(shape.size()<=kMaxBlobAxes);
   DataShape dshape;
   for (i = 0; i < shape.size(); ++i) {
     dshape.dim[i] = shape[i];

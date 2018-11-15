@@ -6,7 +6,7 @@
 namespace {
 
 template <typename Dtype>
-void ExpLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void ExpLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const int count = bottom[0]->count();
   const Dtype* bottom_data = bottom[0]->data();
@@ -23,7 +23,7 @@ void ExpLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
 }
 
 template <typename Dtype>
-void ExpLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void ExpLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<Blob*>& bottom) {
   if (!bottom[0]->propagate_down_) { return; }
   const int count = bottom[0]->count();

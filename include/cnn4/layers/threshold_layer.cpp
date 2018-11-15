@@ -14,7 +14,7 @@ namespace
   }
 
   template <typename Dtype>
-  void ThresholdLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void ThresholdLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                           const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
@@ -26,7 +26,7 @@ namespace
   }
 
 #ifdef CPU_ONLY
-  STUB_GPU_FORWARD(ThresholdLayer, Forward);
+  STUB_GPU_FORWARD(ThresholdLayer, Forward_);
 #endif
 
   INSTANTIATE_CLASS(ThresholdLayer);

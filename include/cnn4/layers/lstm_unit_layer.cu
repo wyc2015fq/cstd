@@ -52,7 +52,7 @@ __global__ void LSTMUnitForward(const int nthreads, const int dim,
 }
 
 template <typename Dtype>
-void LSTMUnitLayer::Forward(GPUContext* context, const vector<Blob*>& bottom,
+void LSTMUnitLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom,
     const vector<Blob*>& top) {
   const int count = top[1]->count();
   const Dtype* C_prev = bottom[0]->data();
@@ -121,7 +121,7 @@ __global__ void LSTMActsBackward(const int nthreads, const int dim,
 }
 
 template <typename Dtype>
-void LSTMUnitLayer::Backward(GPUContext* context, const vector<Blob*>& top,
+void LSTMUnitLayer::Backward_(GPUContext* context, const vector<Blob*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob*>& bottom) {
   CHECK(!propagate_down[2]) << "Cannot backpropagate to sequence indicators.";

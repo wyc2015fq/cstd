@@ -5,7 +5,7 @@
  * @brief Creates a "split" path in the network by copying the bottom Blob
  *        into multiple top Blob%s to be used by multiple consuming layers.
  *
- * TODO(dox): thorough documentation for Forward, Backward, and proto params.
+ * TODO(dox): thorough documentation for Forward_, Backward_, and proto params.
  */
 class SplitLayer : public Layer
 {
@@ -37,7 +37,7 @@ public:
     }
   }
 
-  virtual void Forward(const vector<Blob*> & bottom,
+  virtual void Forward_(const vector<Blob*> & bottom,
     const vector<Blob*> & top)
   {
     for (int i = 0; i < top.size(); ++i) {
@@ -45,7 +45,7 @@ public:
     }
   }
 
-  virtual void Backward(const vector<Blob*> & top,
+  virtual void Backward_(const vector<Blob*> & top,
     const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) { return; }

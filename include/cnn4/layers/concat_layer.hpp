@@ -46,9 +46,9 @@ namespace
      *        y = [\begin{array}{cccc} x_1 & x_2 & ... & x_K \end{array}]
      *      @f$
      */
-    virtual void Forward(CPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(CPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
-    virtual void Forward(GPUContext* context, const vector<Blob*> & bottom,
+    virtual void Forward_(GPUContext* context, const vector<Blob*> & bottom,
                              const vector<Blob*> & top);
 
     /**
@@ -60,7 +60,7 @@ namespace
      *      @f$ (N \times KC \times H \times W) @f$ if axis == 1:
      *      containing error gradients @f$ \frac{\partial E}{\partial y} @f$
      *      with respect to concatenated outputs @f$ y @f$
-     * @param propagate_down see Layer::Backward.
+     * @param propagate_down see Layer::Backward_.
      * @param bottom input Blob vector (length K), into which the top gradient
      *        @f$ \frac{\partial E}{\partial y} @f$ is deconcatenated back to the
      *        inputs @f$
@@ -73,9 +73,9 @@ namespace
      *        \frac{\partial E}{\partial y}
      *        @f$
      */
-    virtual void Backward(CPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(CPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
-    virtual void Backward(GPUContext* context, const vector<Blob*> & top,
+    virtual void Backward_(GPUContext* context, const vector<Blob*> & top,
                               const vector<Blob*> & bottom);
 
     int count_;

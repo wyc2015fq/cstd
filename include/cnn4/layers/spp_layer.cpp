@@ -171,7 +171,7 @@ namespace
   }
 
   template <typename Dtype>
-  void SPPLayer::Forward(CPUContext* context, const vector<Blob*> & bottom,
+  void SPPLayer::Forward_(CPUContext* context, const vector<Blob*> & bottom,
                                     const vector<Blob*> & top)
   {
     if (pyramid_height_ == 1) {
@@ -189,7 +189,7 @@ namespace
   }
 
   template <typename Dtype>
-  void SPPLayer::Backward(CPUContext* context, const vector<Blob*> & top,
+  void SPPLayer::Backward_(CPUContext* context, const vector<Blob*> & top,
                                      const vector<Blob*> & bottom)
   {
     if (!bottom[0]->propagate_down_) {
