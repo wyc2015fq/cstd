@@ -36,7 +36,7 @@ namespace caffe
       filler.Fill(this->blob_bottom_data_j_);
       blob_bottom_vec_.push_back(blob_bottom_data_j_);
       for (int i = 0; i < blob_bottom_y_->count(); ++i) {
-        blob_bottom_y_->mutable_cpu_data()[i] = caffe_rng_rand() % 2;  // 0 or 1
+        blob_bottom_y_->cpu_mdata()[i] = caffe_rng_rand() % 2;  // 0 or 1
       }
       blob_bottom_vec_.push_back(blob_bottom_y_);
       blob_top_vec_.push_back(blob_top_loss_);

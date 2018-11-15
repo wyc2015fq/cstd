@@ -47,7 +47,7 @@ namespace caffe
       SHARED_PTR<Caffe::RNG> rng(new Caffe::RNG(prefetch_rng_seed));
       caffe::rng_t* prefetch_rng =
         static_cast<caffe::rng_t*>(rng->generator());
-      Dtype* label_data = blob_bottom_label_->mutable_cpu_data();
+      Dtype* label_data = blob_bottom_label_->cpu_mdata();
       for (int i = 0; i < blob_bottom_label_->count(); ++i) {
         label_data[i] = (*prefetch_rng)() % 10;
       }
@@ -191,9 +191,9 @@ namespace caffe
     layer_param.mutable_accuracy_param()->set_ignore_label(kIgnoreLabelValue);
     AccuracyLayer<TypeParam> layer(layer_param);
     // Manually set some labels to the ignore label value (-1).
-    this->blob_bottom_label_->mutable_cpu_data()[2] = kIgnoreLabelValue;
-    this->blob_bottom_label_->mutable_cpu_data()[5] = kIgnoreLabelValue;
-    this->blob_bottom_label_->mutable_cpu_data()[32] = kIgnoreLabelValue;
+    this->blob_bottom_label_->cpu_mdata()[2] = kIgnoreLabelValue;
+    this->blob_bottom_label_->cpu_mdata()[5] = kIgnoreLabelValue;
+    this->blob_bottom_label_->cpu_mdata()[32] = kIgnoreLabelValue;
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     TypeParam max_value;
@@ -297,9 +297,9 @@ namespace caffe
     layer_param.mutable_accuracy_param()->set_ignore_label(kIgnoreLabelValue);
     AccuracyLayer<TypeParam> layer(layer_param);
     // Manually set some labels to the ignore label value (-1).
-    this->blob_bottom_label_->mutable_cpu_data()[2] = kIgnoreLabelValue;
-    this->blob_bottom_label_->mutable_cpu_data()[5] = kIgnoreLabelValue;
-    this->blob_bottom_label_->mutable_cpu_data()[32] = kIgnoreLabelValue;
+    this->blob_bottom_label_->cpu_mdata()[2] = kIgnoreLabelValue;
+    this->blob_bottom_label_->cpu_mdata()[5] = kIgnoreLabelValue;
+    this->blob_bottom_label_->cpu_mdata()[32] = kIgnoreLabelValue;
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_per_class_vec_);
     layer.Forward(this->blob_bottom_vec_, this->blob_top_per_class_vec_);
     TypeParam max_value;

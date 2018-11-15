@@ -8,10 +8,14 @@
 #include <cmath>
 #include <vector>
 
+typedef Blob TypeParam;
 struct MultiDeviceTest {};
-#define EXPECT_EQ(expected, actual)  CHECK(expected == actual)
-#define ASSERT_EQ(expected, actual)  CHECK(expected == actual)
+#define EXPECT_EQ(expected, actual)  CHECK_EQ(expected, actual)
+#define EXPECT_NE(expected, actual)  CHECK_NE(expected, actual)
+#define EXPECT_FLOAT_EQ(expected, actual)  CHECK(fabs(expected - actual)<0.0001)
+#define ASSERT_EQ(expected, actual)  CHECK_EQ(expected, actual)
 #define EXPECT_NEAR(a, b, c)   CHECK(fabs((a)-(b))<c)
+#define EXPECT_GE(a, b)        CHECK_GE(a, b)
 
 #define TYPED_TEST_CASE(a, b)
 #define TYPED_TEST(a, b) struct a##b : public a {a##b() {run();}void run();}; a##b a##b##run##__LINE__; void a##b::run()

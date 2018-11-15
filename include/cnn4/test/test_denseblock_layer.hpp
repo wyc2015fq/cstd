@@ -81,7 +81,7 @@ void convolution_Fwd_fast(Blob* input, Blob* output, Blob* filter, int N, int c_
   int outputShape[] = { N, c_output, h_img, w_img };
   vector<int> outputShapeVec(outputShape, outputShape + 4);
   output->Reshape(outputShapeVec);
-  Dtype* outputPtr = output->mutable_cpu_data();
+  Dtype* outputPtr = output->cpu_mdata();
   for (int n = 0; n < N; ++n) {
     for (int c_outIdx = 0; c_outIdx < c_output; ++c_outIdx) {
       for (int hIdx = 0; hIdx < h_img; ++hIdx) {

@@ -78,12 +78,14 @@ public:
       else {
         bias_layer_->num_axes_ = num_axes_;
       }
-      bias_layer_->bottom_vecs_.resize(1);
-      bias_layer_->bottom_vecs_[0] = bottom[0];
-      bias_layer_->SetUp(bias_layer_->bottom_vecs_, top);
       bias_param_id_ = this->blobs_.size();
-      this->blobs_.resize(bias_param_id_ + 1);
-      this->blobs_[bias_param_id_] = bias_layer_->blobs_[0];
+      blobs_reset(this->blobs_, bias_param_id_ + 1);
+      bias_layer_->bottom_vecs_.resize(2);
+      bias_layer_->bottom_vecs_[0] = bottom[0];
+      bias_layer_->bottom_vecs_[1] = this->blobs_[bias_param_id_];
+      Blob* bias = this->blobs_[bias_param_id_];
+      bias_layer_->LayerSetUp(bottom[0], top[0], bias);
+      bias_layer_->Reshape(bottom[0], top[0], bias);
       //bias_propagate_down_.resize(1, false);
     }
     //this->param_propagate_down_.resize(this->blobs_.size(), true);

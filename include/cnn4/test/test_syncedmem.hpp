@@ -31,7 +31,7 @@ namespace caffe
     SyncedMemory mem(10);
     EXPECT_TRUE(mem.cpu_data());
     EXPECT_TRUE(mem.gpu_data());
-    EXPECT_TRUE(mem.mutable_cpu_data());
+    EXPECT_TRUE(mem.cpu_mdata());
     EXPECT_TRUE(mem.mutable_gpu_data());
   }
 
@@ -41,7 +41,7 @@ namespace caffe
   {
     SyncedMemory mem(10);
     EXPECT_TRUE(mem.cpu_data());
-    EXPECT_TRUE(mem.mutable_cpu_data());
+    EXPECT_TRUE(mem.cpu_mdata());
   }
 
 #ifndef CPU_ONLY  // GPU test
@@ -58,14 +58,14 @@ namespace caffe
   TEST_F(SyncedMemoryTest, TestCPUWrite)
   {
     SyncedMemory mem(10);
-    void* cpu_data = mem.mutable_cpu_data();
+    void* cpu_data = mem.cpu_mdata();
     EXPECT_EQ(mem.head(), SyncedMemory::HEAD_AT_CPU);
     caffe_memset(mem.size(), 1, cpu_data);
     for (int i = 0; i < mem.size(); ++i) {
       EXPECT_EQ((static_cast<char*>(cpu_data))[i], 1);
     }
     // do another round
-    cpu_data = mem.mutable_cpu_data();
+    cpu_data = mem.cpu_mdata();
     EXPECT_EQ(mem.head(), SyncedMemory::HEAD_AT_CPU);
     caffe_memset(mem.size(), 2, cpu_data);
     for (int i = 0; i < mem.size(); ++i) {
@@ -78,7 +78,7 @@ namespace caffe
   TEST_F(SyncedMemoryTest, TestGPURead)
   {
     SyncedMemory mem(10);
-    void* cpu_data = mem.mutable_cpu_data();
+    void* cpu_data = mem.cpu_mdata();
     EXPECT_EQ(mem.head(), SyncedMemory::HEAD_AT_CPU);
     caffe_memset(mem.size(), 1, cpu_data);
     const void* gpu_data = mem.gpu_data();
@@ -90,7 +90,7 @@ namespace caffe
       EXPECT_EQ((static_cast<char*>(recovered_value))[i], 1);
     }
     // do another round
-    cpu_data = mem.mutable_cpu_data();
+    cpu_data = mem.cpu_mdata();
     EXPECT_EQ(mem.head(), SyncedMemory::HEAD_AT_CPU);
     caffe_memset(mem.size(), 2, cpu_data);
     for (int i = 0; i < mem.size(); ++i) {

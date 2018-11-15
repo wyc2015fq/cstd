@@ -197,7 +197,7 @@ namespace caffe
       ASSERT_EQ(1, layer.blobs().size());
       copy_diff = false;
       reshape = true;
-      weights.CopyFrom(*layer.blobs()[0], copy_diff, reshape);
+      weights.CopyFrom(layer.blobs()[0], copy_diff, reshape);
     }
     vector<bool> propagate_down(1, true);
     Blob result_2d;
@@ -206,10 +206,10 @@ namespace caffe
     // Test with 2D im2col
     {
       caffe_set(this->blob_top_->count(), Dtype(0),
-                this->blob_top_->mutable_cpu_data());
+                this->blob_top_->cpu_mdata());
       caffe_set(this->blob_bottom_->count(), Dtype(0),
-                this->blob_bottom_->mutable_cpu_diff());
-      caffe_set(weights.count(), Dtype(0), weights.mutable_cpu_diff());
+                this->blob_bottom_->cpu_mdiff());
+      caffe_set(weights.count(), Dtype(0), weights.cpu_mdiff());
       // Do SetUp and Forward; save Forward result in result_2d.
       convolution_param->set_force_nd_im2col(false);
       DeconvolutionLayer layer_2d(layer_param);
@@ -221,17 +221,17 @@ namespace caffe
       layer_2d.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
       copy_diff = false;
       reshape = true;
-      result_2d.CopyFrom(*this->blob_top_, copy_diff, reshape);
+      result_2d.CopyFrom(this->blob_top_, copy_diff, reshape);
       // Copy pre-generated top diff into actual top diff;
       // do Backward and save result in backward_result_2d.
       ASSERT_EQ(this->blob_top_->shape(), top_diff.shape());
       caffe_copy(top_diff.count(), top_diff.cpu_data(),
-                 this->blob_top_->mutable_cpu_diff());
+                 this->blob_top_->cpu_mdiff());
       layer_2d.Backward(this->blob_top_vec_, propagate_down,
                         this->blob_bottom_vec_);
       copy_diff = true;
       reshape = true;
-      backward_result_2d.CopyFrom(*this->blob_bottom_, copy_diff, reshape);
+      backward_result_2d.CopyFrom(this->blob_bottom_, copy_diff, reshape);
       backward_weight_result_2d.CopyFrom(weights, copy_diff, reshape);
     }
     Blob result_nd;
@@ -240,10 +240,10 @@ namespace caffe
     // Test with ND im2col
     {
       caffe_set(this->blob_top_->count(), Dtype(0),
-                this->blob_top_->mutable_cpu_data());
+                this->blob_top_->cpu_mdata());
       caffe_set(this->blob_bottom_->count(), Dtype(0),
-                this->blob_bottom_->mutable_cpu_diff());
-      caffe_set(weights.count(), Dtype(0), weights.mutable_cpu_diff());
+                this->blob_bottom_->cpu_mdiff());
+      caffe_set(weights.count(), Dtype(0), weights.cpu_mdiff());
       // Do SetUp and Forward; save Forward result in result_nd.
       convolution_param->set_force_nd_im2col(true);
       DeconvolutionLayer layer_nd(layer_param);
@@ -255,17 +255,17 @@ namespace caffe
       layer_nd.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
       copy_diff = false;
       reshape = true;
-      result_nd.CopyFrom(*this->blob_top_, copy_diff, reshape);
+      result_nd.CopyFrom(this->blob_top_, copy_diff, reshape);
       // Copy pre-generated top diff into actual top diff;
       // do Backward and save result in backward_result_nd.
       ASSERT_EQ(this->blob_top_->shape(), top_diff.shape());
       caffe_copy(top_diff.count(), top_diff.cpu_data(),
-                 this->blob_top_->mutable_cpu_diff());
+                 this->blob_top_->cpu_mdiff());
       layer_nd.Backward(this->blob_top_vec_, propagate_down,
                         this->blob_bottom_vec_);
       copy_diff = true;
       reshape = true;
-      backward_result_nd.CopyFrom(*this->blob_bottom_, copy_diff, reshape);
+      backward_result_nd.CopyFrom(this->blob_bottom_, copy_diff, reshape);
       backward_weight_result_nd.CopyFrom(weights, copy_diff, reshape);
     }
     ASSERT_EQ(result_nd.count(), result_2d.count());

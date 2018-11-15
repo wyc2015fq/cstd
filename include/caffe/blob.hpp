@@ -65,10 +65,11 @@ namespace caffe
     void ReshapeLike(const Blob & other);
     inline string shape_string() const {
       ostringstream stream;
+      stream << "[";
       for (int i = 0; i < shape_.size(); ++i) {
         stream << shape_[i] << " ";
       }
-      stream << "(" << count_ << ")";
+      stream << "(" << count_ << ")]";
       return stream.str();
     }
     inline const vector<int> & shape() const { return shape_; }

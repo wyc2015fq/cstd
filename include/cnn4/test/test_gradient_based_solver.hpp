@@ -336,11 +336,11 @@ namespace caffe
           LOG(FATAL) << "Unknown solver type: " << solver_->type();
         }
         if (i == D) {
-          updated_bias.mutable_cpu_diff()[0] = update_value;
-          updated_bias.mutable_cpu_data()[0] = bias.cpu_data()[0] - update_value;
+          updated_bias.cpu_mdiff()[0] = update_value;
+          updated_bias.cpu_mdata()[0] = bias.cpu_data()[0] - update_value;
         } else {
-          updated_weights.mutable_cpu_diff()[i] = update_value;
-          updated_weights.mutable_cpu_data()[i] =
+          updated_weights.cpu_mdiff()[i] = update_value;
+          updated_weights.cpu_mdata()[i] =
             weights.cpu_data()[i] - update_value;
         }
       }
@@ -407,7 +407,7 @@ namespace caffe
       vector<SHARED_PTR<Blob > > noaccum_params(param_blobs.size());
       for (int i = 0; i < param_blobs.size(); ++i) {
         noaccum_params[i].reset(new Blob());
-        noaccum_params[i]->CopyFrom(*param_blobs[i], false, true);
+        noaccum_params[i]->CopyFrom(param_blobs[i], false, true);
       }
       // Solve by equivalent accumulation of gradients over divided batches.
       this->RunLeastSquaresSolver(kLearningRate, kWeightDecay, kMomentum,
@@ -499,7 +499,7 @@ namespace caffe
         param_copies[i].reset(new Blob());
         const bool kReshape = true;
         for (int copy_diff = false; copy_diff <= true; ++copy_diff) {
-          param_copies[i]->CopyFrom(*orig_params[i], copy_diff, kReshape);
+          param_copies[i]->CopyFrom(orig_params[i], copy_diff, kReshape);
         }
       }
       // Save the solver history
@@ -510,7 +510,7 @@ namespace caffe
         history_copies[i].reset(new Blob());
         const bool kReshape = true;
         for (int copy_diff = false; copy_diff <= true; ++copy_diff) {
-          history_copies[i]->CopyFrom(*orig_history[i], copy_diff, kReshape);
+          history_copies[i]->CopyFrom(orig_history[i], copy_diff, kReshape);
         }
       }
       // Run the solver for num_iters iterations and snapshot.

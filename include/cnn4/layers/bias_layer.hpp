@@ -25,55 +25,60 @@ public:
     BiasParameter_DEF(Get);
   }
 
-  virtual void LayerSetUp(const vector<Blob*> & bottom,
-    const vector<Blob*> & top)
+  void LayerSetUp(Blob* in, Blob* out, Blob* bias)
+  {
+    // bias is a learned parameter; initialize it
+    axis_ = in->CanonicalAxisIndex(axis_);
+    CHECK_GE(num_axes_, -1) << "num_axes_ must be non-negative, "
+      << "or -1 to extend to the end of in";
+    if (num_axes_ >= 0) {
+      CHECK_GE(in->num_axes(), axis_ + num_axes_)
+        << "bias blob's shape extends past in's shape when applied "
+        << "starting with in axis_ = " << axis_;
+    }
+    //blobs_reset(this->blobs_, 1);
+    if (bias) {
+      const int* shape_start = in->shape().dim + axis_;
+      const int* shape_end = (num_axes_ == -1) ? in->shape().end() : (shape_start + num_axes_);
+      vector<int> bias_shape(shape_start, shape_end);
+      bias->Reshape(bias_shape);
+      filler_.Fill(bias);
+    }
+  }
+
+  virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     if (bottom.size() == 1 && this->blobs_.size() > 0) {
       LOG(INFO) << "Skipping parameter initialization";
     }
     else if (bottom.size() == 1) {
-      // bias is a learned parameter; initialize it
-      axis_ = bottom[0]->CanonicalAxisIndex(axis_);
-      CHECK_GE(num_axes_, -1) << "num_axes_ must be non-negative, "
-        << "or -1 to extend to the end of bottom[0]";
-      if (num_axes_ >= 0) {
-        CHECK_GE(bottom[0]->num_axes(), axis_ + num_axes_)
-          << "bias blob's shape extends past bottom[0]'s shape when applied "
-          << "starting with bottom[0] axis_ = " << axis_;
-      }
       blobs_reset(this->blobs_, 1);
-      const int* shape_start = bottom[0]->shape().dim + axis_;
-      const int* shape_end = (num_axes_ == -1) ? bottom[0]->shape().end() : (shape_start + num_axes_);
-      vector<int> bias_shape(shape_start, shape_end);
-      this->blobs_[0]->Reshape(bias_shape);
-      filler_.Fill(this->blobs_[0]);
+      LayerSetUp(bottom[0], top[0], this->blobs_[0]);
     }
     //this->param_propagate_down_.resize(this->blobs_.size(), true);
   }
 
-  virtual void Reshape(const vector<Blob*> & bottom,
-    const vector<Blob*> & top)
+  void Reshape(Blob* in, Blob* out, Blob* bias)
   {
-    Blob* bias = (bottom.size() > 1) ? bottom[1] : this->blobs_[0];
     // Always set axis_ == 0 in special case where bias is a scalar
     // (num_axes_ == 0). Mathematically equivalent for any choice of axis_, so the
     // actual setting can be safely ignored; and computation is most efficient
     // with axis_ == 0 and (therefore) outer_dim_ == 1.
-    axis_ = bottom[0]->CanonicalAxisIndex(axis_);
-    CHECK_GE(bottom[0]->num_axes(), axis_ + bias->num_axes())
-      << "bias blob's shape extends past bottom[0]'s shape when applied "
-      << "starting with bottom[0] axis_ = " << axis_;
+    axis_ = in->CanonicalAxisIndex(axis_);
+    CHECK_GE(in->num_axes(), axis_ + bias->num_axes())
+      << "bias blob's shape extends past in's shape when applied "
+      << "starting with in axis_ = " << axis_;
     for (int i = 0; i < bias->num_axes(); ++i) {
-      CHECK_EQ(bottom[0]->shape(axis_ + i), bias->shape(i))
-        << "dimension mismatch between bottom[0]->shape(" << axis_ + i
+      CHECK_EQ(in->shape(axis_ + i), bias->shape(i))
+        << "dimension mismatch between in->shape(" << axis_ + i
         << ") and bias->shape(" << i << ")";
     }
-    outer_dim_ = bottom[0]->count(0, axis_);
+    outer_dim_ = in->count(0, axis_);
     bias_dim_ = bias->count();
-    inner_dim_ = bottom[0]->count(axis_ + bias->num_axes());
+    inner_dim_ = in->count(axis_ + bias->num_axes());
     dim_ = bias_dim_ * inner_dim_;
-    if (bottom[0] != top[0]) {
-      top[0]->ReshapeLike(*bottom[0]);
+    if (in != out) {
+      out->ReshapeLike(*in);
     }
     bias_multiplier_.Reshape(vector<int>(1, inner_dim_));
     if (bias_multiplier_.cpu_data()[inner_dim_ - 1] != Dtype(1)) {
@@ -81,10 +86,19 @@ public:
     }
   }
 
-  void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top)
+  virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
-    const Dtype* bias_data =
-      ((bottom.size() > 1) ? bottom[1] : this->blobs_[0])->data();
+    Blob* bias = (bottom.size() > 1) ? bottom[1] : this->blobs_[0];
+    // Always set axis_ == 0 in special case where bias is a scalar
+    // (num_axes_ == 0). Mathematically equivalent for any choice of axis_, so the
+    // actual setting can be safely ignored; and computation is most efficient
+    // with axis_ == 0 and (therefore) outer_dim_ == 1.
+    Reshape(bottom[0], top[0], bias);
+  }
+
+  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top)
+  {
+    const Dtype* bias_data = ((bottom.size() > 1) ? bottom[1] : this->blobs_[0])->data();
     Dtype* top_data = top[0]->mdata();
     if (bottom[0] != top[0]) {
       const Dtype* bottom_data = bottom[0]->data();
@@ -98,7 +112,7 @@ public:
     }
   }
 
-  void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom)
+  virtual void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom)
   {
     if (bottom[0]->propagate_down_ && bottom[0] != top[0]) {
       const Dtype* top_diff = top[0]->diff();

@@ -52,7 +52,7 @@ namespace caffe
       const bool kReshape = true;
       for (int i = 0; i < net_blobs.size(); ++i) {
         (*blobs_copy)[i].reset(new Blob());
-        (*blobs_copy)[i]->CopyFrom(*net_blobs[i], copy_diff, kReshape);
+        (*blobs_copy)[i]->CopyFrom(net_blobs[i], copy_diff, kReshape);
       }
     }
 
@@ -65,7 +65,7 @@ namespace caffe
       const bool kReshape = true;
       for (int i = 0; i < net_params.size(); ++i) {
         (*params_copy)[i].reset(new Blob());
-        (*params_copy)[i]->CopyFrom(*net_params[i], copy_diff, kReshape);
+        (*params_copy)[i]->CopyFrom(net_params[i], copy_diff, kReshape);
       }
     }
 
@@ -1013,7 +1013,7 @@ namespace caffe
     const bool kCopyDiff = true;
     const bool kReshape = true;
     Blob data_grad;
-    data_grad.CopyFrom(*this->net_->blob_by_name("data"), kCopyDiff, kReshape);
+    data_grad.CopyFrom(this->net_->blob_by_name("data"), kCopyDiff, kReshape);
     // Check that the loss is non-trivial, otherwise the test doesn't prove much.
     const Dtype kMinLossAbsValue = 1e-2;
     ASSERT_GE(fabs(loss), kMinLossAbsValue);
@@ -1245,15 +1245,15 @@ namespace caffe
     Blob shared_params;
     const bool reshape = true;
     const bool copy_diff = false;
-    shared_params.CopyFrom(*ip1_weights, copy_diff, reshape);
-    shared_params.CopyFrom(*ip1_weights, !copy_diff, reshape);
+    shared_params.CopyFrom(ip1_weights, copy_diff, reshape);
+    shared_params.CopyFrom(ip1_weights, !copy_diff, reshape);
     const int count = ip1_weights->count();
     // Make sure the diffs are non-trivial.
     for (int i = 0; i < count; ++i) {
       EXPECT_NE(0, ip1_weights->cpu_diff()[i]);
     }
     caffe_axpy(count, Dtype(-1), shared_params.cpu_diff(),
-               shared_params.mutable_cpu_data());
+               shared_params.cpu_mdata());
     const Dtype* expected_updated_params = shared_params.cpu_data();
     this->net_->Update();
     const Dtype* actual_updated_params = ip1_weights->cpu_data();
@@ -1277,11 +1277,11 @@ namespace caffe
     this->net_->Backward();
     // Compute the expected update.
     Blob unshared_params1;
-    unshared_params1.CopyFrom(*ip1_weights, copy_diff, reshape);
-    unshared_params1.CopyFrom(*ip1_weights, !copy_diff, reshape);
+    unshared_params1.CopyFrom(ip1_weights, copy_diff, reshape);
+    unshared_params1.CopyFrom(ip1_weights, !copy_diff, reshape);
     Blob unshared_params2;
-    unshared_params2.CopyFrom(*ip2_weights, copy_diff, reshape);
-    unshared_params2.CopyFrom(*ip2_weights, !copy_diff, reshape);
+    unshared_params2.CopyFrom(ip2_weights, copy_diff, reshape);
+    unshared_params2.CopyFrom(ip2_weights, !copy_diff, reshape);
     // Make sure the diffs are non-trivial and sum to the diff in the shared net.
     for (int i = 0; i < count; ++i) {
       EXPECT_NE(0, ip1_weights->cpu_diff()[i]);
@@ -1291,9 +1291,9 @@ namespace caffe
                       shared_params.cpu_diff()[i]);
     }
     caffe_axpy(count, Dtype(-1), ip1_weights->cpu_diff(),
-               unshared_params1.mutable_cpu_data());
+               unshared_params1.cpu_mdata());
     caffe_axpy(count, Dtype(-1), ip2_weights->cpu_diff(),
-               unshared_params2.mutable_cpu_data());
+               unshared_params2.cpu_mdata());
     const Dtype* expected_updated_params1 = unshared_params1.cpu_data();
     const Dtype* expected_updated_params2 = unshared_params2.cpu_data();
     this->net_->Update();
@@ -1326,7 +1326,7 @@ namespace caffe
     Blob shared_params;
     const bool kReshape = true;
     const bool kCopyDiff = false;
-    shared_params.CopyFrom(*ip1_weights, kCopyDiff, kReshape);
+    shared_params.CopyFrom(ip1_weights, kCopyDiff, kReshape);
     const int count = ip1_weights->count();
     // Write the net to a NetParameter, as in Solver::Snapshot.
     NetParameter net_param;
@@ -1437,7 +1437,7 @@ namespace caffe
     data.ReshapeLike(*this->net_->blob_by_name("data"));
     this->net_->Forward();
     this->net_->Backward();
-    data.CopyFrom(*this->net_->blob_by_name("data"), true, true);
+    data.CopyFrom(this->net_->blob_by_name("data"), true, true);
     const Dtype* loss_ptr = this->net_->output_blobs()[0]->cpu_data();
     Dtype loss = *loss_ptr;
     // Check that combining partial Forwards gives the same loss.
@@ -2420,26 +2420,26 @@ namespace caffe
     Blob* output_blob = this->net_->output_blobs()[0];
     input_blob->Reshape(blob1.num(), blob1.channels(), blob1.height(),
                         blob1.width());
-    caffe_copy(blob1.count(), blob1.cpu_data(), input_blob->mutable_cpu_data());
+    caffe_copy(blob1.count(), blob1.cpu_data(), input_blob->cpu_mdata());
     this->net_->Forward();
     // call backward just to make sure it runs
     this->net_->Backward();
     Blob output1(output_blob->num(), output_blob->channels(),
                         output_blob->height(), output_blob->width());
     caffe_copy(output1.count(), output_blob->cpu_data(),
-               output1.mutable_cpu_data());
+               output1.cpu_mdata());
     input_blob->Reshape(blob2.num(), blob2.channels(), blob2.height(),
                         blob2.width());
-    caffe_copy(blob2.count(), blob2.cpu_data(), input_blob->mutable_cpu_data());
+    caffe_copy(blob2.count(), blob2.cpu_data(), input_blob->cpu_mdata());
     this->net_->Forward();
     this->net_->Backward();
     Blob output2(output_blob->num(), output_blob->channels(),
                         output_blob->height(), output_blob->width());
     caffe_copy(output2.count(), output_blob->cpu_data(),
-               output2.mutable_cpu_data());
+               output2.cpu_mdata());
     input_blob->Reshape(blob1.num(), blob1.channels(), blob1.height(),
                         blob1.width());
-    caffe_copy(blob1.count(), blob1.cpu_data(), input_blob->mutable_cpu_data());
+    caffe_copy(blob1.count(), blob1.cpu_data(), input_blob->cpu_mdata());
     this->net_->Forward();
     this->net_->Backward();
     for (int i = 0; i < output1.count(); ++i) {
@@ -2447,7 +2447,7 @@ namespace caffe
     }
     input_blob->Reshape(blob2.num(), blob2.channels(), blob2.height(),
                         blob2.width());
-    caffe_copy(blob2.count(), blob2.cpu_data(), input_blob->mutable_cpu_data());
+    caffe_copy(blob2.count(), blob2.cpu_data(), input_blob->cpu_mdata());
     this->net_->Forward();
     this->net_->Backward();
     for (int i = 0; i < output2.count(); ++i) {

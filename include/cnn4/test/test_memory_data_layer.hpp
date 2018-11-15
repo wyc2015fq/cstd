@@ -100,8 +100,8 @@ namespace caffe
     SHARED_PTR<MemoryDataLayer > layer(
       new MemoryDataLayer(layer_param));
     layer->DataLayerSetUp(this->blob_bottom_vec_, this->blob_top_vec_);
-    layer->Reset(this->data_->mutable_cpu_data(),
-                 this->labels_->mutable_cpu_data(), this->data_->num());
+    layer->Reset(this->data_->cpu_mdata(),
+                 this->labels_->cpu_mdata(), this->data_->num());
     for (int i = 0; i < this->batches_ * 6; ++i) {
       int batch_num = i % this->batches_;
       layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);

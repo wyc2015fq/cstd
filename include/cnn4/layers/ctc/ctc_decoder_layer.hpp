@@ -189,7 +189,7 @@ public:
     // transform output_sequences to blob
     if (sequence_index_ >= 0) {
       Blob* sequence_blob = top[sequence_index_];
-      Dtype* sequence_d = sequence_blob->mdata();
+      Dtype* sequence_d = sequence_blob->cpu_mdata();
       // clear all data
       caffe_set(sequence_blob->count(), static_cast<Dtype>(-1), sequence_d);
       // copy data
@@ -211,7 +211,7 @@ public:
       int total_ok = 0;
       //CHECK_GE(bottom.size(), 3);  // required target sequences blob
       Blob* target_sequences_data = bottom[1];//Batchsize x labelnum
-      const Dtype* ts_data = target_sequences_data->data();
+      const Dtype* ts_data = target_sequences_data->cpu_data();
       int labelnum = target_sequences_data->channels();
       for (int n = 0; n < N_; ++n) {
         Sequence target_sequence;

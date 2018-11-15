@@ -56,12 +56,16 @@ struct DataShape {
     int dim[kMaxBlobAxes];
     struct { int n, c, h, w; };
   };
-  void set(int n, int c = 1, int h = 1, int w = 1) {
+  void set(int n, int c = 0, int h = 0, int w = 0) {
     dim[0] = n, dim[1] = c, dim[2] = h, dim[3] = w;
-    for (int i = 4; i < kMaxBlobAxes; ++i) { dim[i] = 1; }
+    for (int i = 4; i < kMaxBlobAxes; ++i) { dim[i] = 0; }
+  }
+  void set(const int* dim2, int n) {
+    assert(n<=kMaxBlobAxes);
+    for (int i = 0; i < n; ++i) { dim[i] = dim2[i]; }
   }
   void check() const {
-    for (int i = 0; i < kMaxBlobAxes; ++i) { assert(dim[i]>=1); }
+    for (int i = 0; i < kMaxBlobAxes; ++i) { assert(dim[i]>=0); }
   }
   int count() const {
     check();
@@ -80,7 +84,7 @@ struct DataShape {
   void resize(int k) {
     assert(k <= kMaxBlobAxes);
     for (; k < kMaxBlobAxes; ++k) {
-      dim[k] = 1;
+      dim[k] = 0;
     }
   }
   int size() const {
@@ -89,7 +93,7 @@ struct DataShape {
   inline int num_axes() const {
     check();
     int i = kMaxBlobAxes;
-    for (; i > 0 && dim[i - 1] <= 1; --i);
+    for (; i > 0 && dim[i - 1] <= 0; --i);
     return i;
   }
   inline int shape(int index) const {

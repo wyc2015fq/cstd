@@ -68,7 +68,7 @@ namespace caffe
       PowerLayer layer(layer_param);
       if (power != Dtype(0) && power != Dtype(1) && power != Dtype(2)) {
         // Avoid NaNs by forcing (shift + scale * x) >= 0
-        Dtype* bottom_data = this->blob_bottom_->mutable_cpu_data();
+        Dtype* bottom_data = this->blob_bottom_->cpu_mdata();
         Dtype min_value = -shift / scale;
         for (int i = 0; i < this->blob_bottom_->count(); ++i) {
           if (bottom_data[i] < min_value) {

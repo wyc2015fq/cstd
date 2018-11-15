@@ -7,7 +7,6 @@
 #include "test_gradient_check_util.hpp"
 
 class TransposeLayerTest : public MultiDeviceTest {
-  typedef Blob TypeParam;
   typedef typename TypeParam::Dtype Dtype;
 public:
   TransposeLayerTest()

@@ -43,7 +43,7 @@ namespace caffe
     EXPECT_TRUE(this->blob_preshaped_->gpu_data());
     EXPECT_TRUE(this->blob_preshaped_->cpu_data());
     EXPECT_TRUE(this->blob_preshaped_->mutable_gpu_data());
-    EXPECT_TRUE(this->blob_preshaped_->mutable_cpu_data());
+    EXPECT_TRUE(this->blob_preshaped_->cpu_mdata());
   }
 
   TYPED_TEST(BlobSimpleTest, TestReshape)
@@ -148,7 +148,7 @@ namespace caffe
     // (Otherwise, this would only check the CPU sumsq implementation.)
     switch (TypeParam::device) {
     case Caffe::CPU:
-      this->blob_->mutable_cpu_data();
+      this->blob_->cpu_mdata();
       break;
     case Caffe::GPU:
       this->blob_->mutable_gpu_data();
@@ -162,10 +162,10 @@ namespace caffe
     // Check sumsq_diff too.
     const Dtype kDiffScaleFactor = 7;
     caffe_cpu_scale(this->blob_->count(), kDiffScaleFactor, data,
-                    this->blob_->mutable_cpu_diff());
+                    this->blob_->cpu_mdiff());
     switch (TypeParam::device) {
     case Caffe::CPU:
-      this->blob_->mutable_cpu_diff();
+      this->blob_->cpu_mdiff();
       break;
     case Caffe::GPU:
       this->blob_->mutable_gpu_diff();
@@ -202,7 +202,7 @@ namespace caffe
     // (Otherwise, this would only check the CPU asum implementation.)
     switch (TypeParam::device) {
     case Caffe::CPU:
-      this->blob_->mutable_cpu_data();
+      this->blob_->cpu_mdata();
       break;
     case Caffe::GPU:
       this->blob_->mutable_gpu_data();
@@ -216,10 +216,10 @@ namespace caffe
     // Check asum_diff too.
     const Dtype kDiffScaleFactor = 7;
     caffe_cpu_scale(this->blob_->count(), kDiffScaleFactor, data,
-                    this->blob_->mutable_cpu_diff());
+                    this->blob_->cpu_mdiff());
     switch (TypeParam::device) {
     case Caffe::CPU:
-      this->blob_->mutable_cpu_diff();
+      this->blob_->cpu_mdiff();
       break;
     case Caffe::GPU:
       this->blob_->mutable_gpu_diff();
@@ -250,7 +250,7 @@ namespace caffe
     // (Otherwise, this would only check the CPU asum implementation.)
     switch (TypeParam::device) {
     case Caffe::CPU:
-      this->blob_->mutable_cpu_data();
+      this->blob_->cpu_mdata();
       break;
     case Caffe::GPU:
       this->blob_->mutable_gpu_data();
@@ -267,7 +267,7 @@ namespace caffe
     const Dtype kDataToDiffScaleFactor = 7;
     const Dtype* data = this->blob_->cpu_data();
     caffe_cpu_scale(this->blob_->count(), kDataToDiffScaleFactor, data,
-                    this->blob_->mutable_cpu_diff());
+                    this->blob_->cpu_mdiff());
     const Dtype expected_asum_before_scale = asum_before_scale * kDataScaleFactor;
     EXPECT_NEAR(expected_asum_before_scale, this->blob_->asum_data(),
                 this->epsilon_ * expected_asum_before_scale);
@@ -277,7 +277,7 @@ namespace caffe
                 this->epsilon_ * expected_diff_asum_before_scale);
     switch (TypeParam::device) {
     case Caffe::CPU:
-      this->blob_->mutable_cpu_diff();
+      this->blob_->cpu_mdiff();
       break;
     case Caffe::GPU:
       this->blob_->mutable_gpu_diff();

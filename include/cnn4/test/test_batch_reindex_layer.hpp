@@ -41,7 +41,7 @@ namespace caffe
       filler.Fill(this->blob_bottom_);
       int perm[] = { 4, 0, 4, 0, 1, 2 };
       for (int i = 0; i < blob_bottom_permute_->count(); ++i) {
-        blob_bottom_permute_->mutable_cpu_data()[i] = perm[i];
+        blob_bottom_permute_->cpu_mdata()[i] = perm[i];
       }
       blob_bottom_vec_.push_back(blob_bottom_);
       blob_bottom_vec_.push_back(blob_bottom_permute_);
@@ -67,14 +67,14 @@ namespace caffe
       sz.push_back(2);
       blob_bottom_->Reshape(sz);
       for (int i = 0; i < blob_bottom_->count(); ++i) {
-        blob_bottom_->mutable_cpu_data()[i] = i;
+        blob_bottom_->cpu_mdata()[i] = i;
       }
       vector<int> permsz;
       permsz.push_back(6);
       blob_bottom_permute_->Reshape(permsz);
       int perm[] = { 4, 0, 4, 0, 1, 2 };
       for (int i = 0; i < blob_bottom_permute_->count(); ++i) {
-        blob_bottom_permute_->mutable_cpu_data()[i] = perm[i];
+        blob_bottom_permute_->cpu_mdata()[i] = perm[i];
       }
       BatchReindexLayer layer(layer_param);
       layer.SetUp(blob_bottom_vec_, blob_top_vec_);

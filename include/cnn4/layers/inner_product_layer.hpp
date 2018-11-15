@@ -28,14 +28,14 @@ struct InnerProductLayer : public Layer
   virtual inline int ExactNumBottomBlobs() const { return 1; }
   virtual inline int ExactNumTopBlobs() const { return 1; }
 
-  bool has_data_;
+  //bool has_data_;
   InnerProductLayer() {
     InnerProductParameter_DEF(Set);
   }
   void init(CJSON* param) {
     InnerProductParameter_DEF(Get);
     CJSON* blobs_json = param->get("blobs");
-    has_data_ = blobs_json && blobs_json->GetArraySize() > 0 && blobs_json->GetArrayItem(0)->has("data");
+    //has_data_ = blobs_json && blobs_json->GetArraySize() > 0 && blobs_json->GetArrayItem(0)->has("data");
   }
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
@@ -46,7 +46,7 @@ struct InnerProductLayer : public Layer
     // and axis == 1, N inner products with dimension CHW are performed.
     K_ = bottom[0]->count(axis);
     // Check if we need to set up the weights
-    if (has_data_) {
+    if (blobs_.size()>0) {
       LOG(INFO) << "Skipping parameter initialization";
     }
     else {

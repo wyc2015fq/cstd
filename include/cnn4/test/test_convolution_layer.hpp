@@ -70,7 +70,7 @@ namespace caffe
     vector<int> weight_offset(4 + has_depth);
     vector<int> in_offset(4 + has_depth);
     vector<int> out_offset(4 + has_depth);
-    Dtype* out_data = out->mutable_cpu_data();
+    Dtype* out_data = out->cpu_mdata();
     for (int n = 0; n < out->shape(0); n++) {
       for (int g = 0; g < groups; g++) {
         o_head = o_g * g;
@@ -518,7 +518,7 @@ namespace caffe
     filler_param.set_value(1.);
     filler.reset(new GaussianFiller(filler_param));
     filler->Fill(this->blob_bottom_);
-    this->blob_bottom_2_->CopyFrom(*this->blob_bottom_);
+    this->blob_bottom_2_->CopyFrom(this->blob_bottom_);
     // Compute Sobel G_x operator as 3 x 3 convolution.
     LayerParameter layer_param;
     ConvolutionParameter* convolution_param =
@@ -531,7 +531,7 @@ namespace caffe
       new ConvolutionLayer(layer_param));
     layer->blobs().resize(1);
     layer->blobs()[0].reset(new Blob(1, 3, 3, 3));
-    Dtype* weights = layer->blobs()[0]->mutable_cpu_data();
+    Dtype* weights = layer->blobs()[0]->cpu_mdata();
     for (int c = 0; c < 3; ++c) {
       int i = c * 9;  // 3 x 3 filter
       weights[i +  0] = -1;
@@ -564,7 +564,7 @@ namespace caffe
     layer.reset(new ConvolutionLayer(layer_param));
     layer->blobs().resize(1);
     layer->blobs()[0].reset(new Blob(1, 3, 3, 1));
-    Dtype* weights_1 = layer->blobs()[0]->mutable_cpu_data();
+    Dtype* weights_1 = layer->blobs()[0]->cpu_mdata();
     for (int c = 0; c < 3; ++c) {
       int i = c * 3;  // 3 x 1 filter
       weights_1[i +  0] = 1;
@@ -574,7 +574,7 @@ namespace caffe
     layer->SetUp(sep_blob_bottom_vec, sep_blob_top_vec);
     layer->Forward(sep_blob_bottom_vec, sep_blob_top_vec);
     // (2) the [-1 0 1] row filter
-    blob_sep->CopyFrom(*this->blob_top_2_, false, true);
+    blob_sep->CopyFrom(this->blob_top_2_, false, true);
     sep_blob_bottom_vec.clear();
     sep_blob_bottom_vec.push_back(blob_sep.get());
     convolution_param->set_kernel_h(1);
@@ -586,7 +586,7 @@ namespace caffe
     layer.reset(new ConvolutionLayer(layer_param));
     layer->blobs().resize(1);
     layer->blobs()[0].reset(new Blob(1, 1, 1, 3));
-    Dtype* weights_2 = layer->blobs()[0]->mutable_cpu_data();
+    Dtype* weights_2 = layer->blobs()[0]->cpu_mdata();
     weights_2[0] = -1;
     weights_2[1] =  0;
     weights_2[2] =  1;
@@ -638,7 +638,7 @@ namespace caffe
       ASSERT_EQ(1, layer.blobs().size());
       copy_diff = false;
       reshape = true;
-      weights.CopyFrom(*layer.blobs()[0], copy_diff, reshape);
+      weights.CopyFrom(layer.blobs()[0], copy_diff, reshape);
     }
     vector<bool> propagate_down(1, true);
     Blob result_2d;
@@ -647,10 +647,10 @@ namespace caffe
     // Test with 2D im2col
     {
       caffe_set(this->blob_top_->count(), Dtype(0),
-                this->blob_top_->mutable_cpu_data());
+                this->blob_top_->cpu_mdata());
       caffe_set(this->blob_bottom_->count(), Dtype(0),
-                this->blob_bottom_->mutable_cpu_diff());
-      caffe_set(weights.count(), Dtype(0), weights.mutable_cpu_diff());
+                this->blob_bottom_->cpu_mdiff());
+      caffe_set(weights.count(), Dtype(0), weights.cpu_mdiff());
       // Do SetUp and Forward; save Forward result in result_2d.
       convolution_param->set_force_nd_im2col(false);
       ConvolutionLayer layer_2d(layer_param);
@@ -662,17 +662,17 @@ namespace caffe
       layer_2d.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
       copy_diff = false;
       reshape = true;
-      result_2d.CopyFrom(*this->blob_top_, copy_diff, reshape);
+      result_2d.CopyFrom(this->blob_top_, copy_diff, reshape);
       // Copy pre-generated top diff into actual top diff;
       // do Backward and save result in backward_result_2d.
       ASSERT_EQ(this->blob_top_->shape(), top_diff.shape());
       caffe_copy(top_diff.count(), top_diff.cpu_data(),
-                 this->blob_top_->mutable_cpu_diff());
+                 this->blob_top_->cpu_mdiff());
       layer_2d.Backward(this->blob_top_vec_, propagate_down,
                         this->blob_bottom_vec_);
       copy_diff = true;
       reshape = true;
-      backward_result_2d.CopyFrom(*this->blob_bottom_, copy_diff, reshape);
+      backward_result_2d.CopyFrom(this->blob_bottom_, copy_diff, reshape);
       backward_weight_result_2d.CopyFrom(weights, copy_diff, reshape);
     }
     Blob result_nd;
@@ -681,10 +681,10 @@ namespace caffe
     // Test with ND im2col
     {
       caffe_set(this->blob_top_->count(), Dtype(0),
-                this->blob_top_->mutable_cpu_data());
+                this->blob_top_->cpu_mdata());
       caffe_set(this->blob_bottom_->count(), Dtype(0),
-                this->blob_bottom_->mutable_cpu_diff());
-      caffe_set(weights.count(), Dtype(0), weights.mutable_cpu_diff());
+                this->blob_bottom_->cpu_mdiff());
+      caffe_set(weights.count(), Dtype(0), weights.cpu_mdiff());
       // Do SetUp and Forward; save Forward result in result_nd.
       convolution_param->set_force_nd_im2col(true);
       ConvolutionLayer layer_nd(layer_param);
@@ -696,17 +696,17 @@ namespace caffe
       layer_nd.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
       copy_diff = false;
       reshape = true;
-      result_nd.CopyFrom(*this->blob_top_, copy_diff, reshape);
+      result_nd.CopyFrom(this->blob_top_, copy_diff, reshape);
       // Copy pre-generated top diff into actual top diff;
       // do Backward and save result in backward_result_nd.
       ASSERT_EQ(this->blob_top_->shape(), top_diff.shape());
       caffe_copy(top_diff.count(), top_diff.cpu_data(),
-                 this->blob_top_->mutable_cpu_diff());
+                 this->blob_top_->cpu_mdiff());
       layer_nd.Backward(this->blob_top_vec_, propagate_down,
                         this->blob_bottom_vec_);
       copy_diff = true;
       reshape = true;
-      backward_result_nd.CopyFrom(*this->blob_bottom_, copy_diff, reshape);
+      backward_result_nd.CopyFrom(this->blob_bottom_, copy_diff, reshape);
       backward_weight_result_nd.CopyFrom(weights, copy_diff, reshape);
     }
     ASSERT_EQ(result_nd.count(), result_2d.count());
@@ -995,7 +995,7 @@ namespace caffe
     filler_param.set_value(1.);
     filler.reset(new GaussianFiller<TypeParam>(filler_param));
     filler->Fill(this->blob_bottom_);
-    this->blob_bottom_2_->CopyFrom(*this->blob_bottom_);
+    this->blob_bottom_2_->CopyFrom(this->blob_bottom_);
     // Compute Sobel G_x operator as 3 x 3 convolution.
     LayerParameter layer_param;
     ConvolutionParameter* convolution_param =
@@ -1008,7 +1008,7 @@ namespace caffe
       new CuDNNConvolutionLayer<TypeParam>(layer_param));
     layer->blobs().resize(1);
     layer->blobs()[0].reset(new Blob<TypeParam>(1, 3, 3, 3));
-    TypeParam* weights = layer->blobs()[0]->mutable_cpu_data();
+    TypeParam* weights = layer->blobs()[0]->cpu_mdata();
     for (int c = 0; c < 3; ++c) {
       int i = c * 9;  // 3 x 3 filter
       weights[i +  0] = -1;
@@ -1041,7 +1041,7 @@ namespace caffe
     layer.reset(new CuDNNConvolutionLayer<TypeParam>(layer_param));
     layer->blobs().resize(1);
     layer->blobs()[0].reset(new Blob<TypeParam>(1, 3, 3, 1));
-    TypeParam* weights_1 = layer->blobs()[0]->mutable_cpu_data();
+    TypeParam* weights_1 = layer->blobs()[0]->cpu_mdata();
     for (int c = 0; c < 3; ++c) {
       int i = c * 3;  // 3 x 1 filter
       weights_1[i +  0] = 1;
@@ -1051,7 +1051,7 @@ namespace caffe
     layer->SetUp(sep_blob_bottom_vec, sep_blob_top_vec);
     layer->Forward(sep_blob_bottom_vec, sep_blob_top_vec);
     // (2) the [-1 0 1] row filter
-    blob_sep->CopyFrom(*this->blob_top_2_, false, true);
+    blob_sep->CopyFrom(this->blob_top_2_, false, true);
     sep_blob_bottom_vec.clear();
     sep_blob_bottom_vec.push_back(blob_sep.get());
     convolution_param->set_kernel_h(1);
@@ -1063,7 +1063,7 @@ namespace caffe
     layer.reset(new CuDNNConvolutionLayer<TypeParam>(layer_param));
     layer->blobs().resize(1);
     layer->blobs()[0].reset(new Blob<TypeParam>(1, 1, 1, 3));
-    TypeParam* weights_2 = layer->blobs()[0]->mutable_cpu_data();
+    TypeParam* weights_2 = layer->blobs()[0]->cpu_mdata();
     weights_2[0] = -1;
     weights_2[1] =  0;
     weights_2[2] =  1;

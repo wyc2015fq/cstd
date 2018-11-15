@@ -11,7 +11,7 @@ using namespace std;
 #define NOT_IMPLEMENTED
 enum Brew { CPU, GPU };
 
-void set_mode(enum Brew brew) {}
+static void set_mode(enum Brew brew) {}
 
 #define CPU_KERNEL_LOOP(i, n)  for (int i = 0; i < (n); ++i )
 

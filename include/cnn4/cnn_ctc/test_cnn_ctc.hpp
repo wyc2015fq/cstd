@@ -628,22 +628,25 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 
 int test_cnn_ctc()
 {
-#if 0
-	string imgfolder = "I:\\OCR_Line\\synth_english\\db_read_test\\";
-	string modelfolder = "I:\\OCR_Line\\synth_english\\crnn\\crnn_256\\";
-	string lexiconfile = "I:\\OCR_Line\\synth_english\\lexicon.txt";
-	test_ocr_english(imgfolder, modelfolder, lexiconfile);
 
-#else
+  if (0) {
+    string imgfolder = "I:\\OCR_Line\\synth_english\\db_read_test\\";
+    string modelfolder = "I:\\OCR_Line\\synth_english\\crnn\\crnn_256\\";
+    string lexiconfile = "I:\\OCR_Line\\synth_english\\lexicon.txt";
+    test_ocr_english(imgfolder, modelfolder, lexiconfile);
+  }
+
+  if (1) {
 #define ROOTPATH "E:\\OCR_Line\\"
-	const char* imgfolder = ROOTPATH"images\\";
-  const char* modelfolder = ROOTPATH"model\\densenet-no-blstm\\";
-  const char* outfile = ROOTPATH"out.txt";
-  const char* testfile = ROOTPATH"test.txt";
+    const char* imgfolder = ROOTPATH"images\\";
+    const char* modelfolder = ROOTPATH"model\\densenet-no-blstm\\";
+    const char* outfile = ROOTPATH"out.txt";
+    const char* testfile = ROOTPATH"test.txt";
 
-	test_ocr_chinese(imgfolder, modelfolder, outfile, testfile);
+    test_ocr_chinese(imgfolder, modelfolder, outfile, testfile);
+#undef ROOTPATH
+  }
 
-#endif
 	return 0;
 }
 

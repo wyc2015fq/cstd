@@ -75,7 +75,7 @@ namespace caffe
   {
     int n = this->blob_bottom_->count();
     const TypeParam* x = this->blob_bottom_->cpu_data();
-    caffe_cpu_sign<TypeParam>(n, x, this->blob_bottom_->mutable_cpu_diff());
+    caffe_cpu_sign<TypeParam>(n, x, this->blob_bottom_->cpu_mdiff());
     const TypeParam* signs = this->blob_bottom_->cpu_diff();
     for (int i = 0; i < n; ++i) {
       EXPECT_EQ(signs[i], x[i] > 0 ? 1 : (x[i] < 0 ? -1 : 0));
@@ -86,7 +86,7 @@ namespace caffe
   {
     int n = this->blob_bottom_->count();
     const TypeParam* x = this->blob_bottom_->cpu_data();
-    caffe_cpu_sgnbit<TypeParam>(n, x, this->blob_bottom_->mutable_cpu_diff());
+    caffe_cpu_sgnbit<TypeParam>(n, x, this->blob_bottom_->cpu_mdiff());
     const TypeParam* signbits = this->blob_bottom_->cpu_diff();
     for (int i = 0; i < n; ++i) {
       EXPECT_EQ(signbits[i], x[i] < 0 ? 1 : 0);
@@ -97,7 +97,7 @@ namespace caffe
   {
     int n = this->blob_bottom_->count();
     const TypeParam* x = this->blob_bottom_->cpu_data();
-    caffe_abs<TypeParam>(n, x, this->blob_bottom_->mutable_cpu_diff());
+    caffe_abs<TypeParam>(n, x, this->blob_bottom_->cpu_mdiff());
     const TypeParam* abs_val = this->blob_bottom_->cpu_diff();
     for (int i = 0; i < n; ++i) {
       EXPECT_EQ(abs_val[i], x[i] > 0 ? x[i] : -x[i]);
@@ -110,7 +110,7 @@ namespace caffe
     TypeParam alpha = this->blob_bottom_->cpu_diff()[caffe_rng_rand() %
                       this->blob_bottom_->count()];
     caffe_cpu_scale<TypeParam>(n, alpha, this->blob_bottom_->cpu_data(),
-                               this->blob_bottom_->mutable_cpu_diff());
+                               this->blob_bottom_->cpu_mdiff());
     const TypeParam* scaled = this->blob_bottom_->cpu_diff();
     const TypeParam* x = this->blob_bottom_->cpu_data();
     for (int i = 0; i < n; ++i) {
@@ -122,7 +122,7 @@ namespace caffe
   {
     const int n = this->blob_bottom_->count();
     const TypeParam* bottom_data = this->blob_bottom_->cpu_data();
-    TypeParam* top_data = this->blob_top_->mutable_cpu_data();
+    TypeParam* top_data = this->blob_top_->cpu_mdata();
     caffe_copy(n, bottom_data, top_data);
     for (int i = 0; i < n; ++i) {
       EXPECT_EQ(bottom_data[i], top_data[i]);
@@ -208,7 +208,7 @@ namespace caffe
     TypeParam* top_data = this->blob_top_->mutable_gpu_data();
     caffe_copy(n, bottom_data, top_data);
     bottom_data = this->blob_bottom_->cpu_data();
-    top_data = this->blob_top_->mutable_cpu_data();
+    top_data = this->blob_top_->cpu_mdata();
     for (int i = 0; i < n; ++i) {
       EXPECT_EQ(bottom_data[i], top_data[i]);
     }

@@ -24,15 +24,21 @@ int cJSON_GetShape2D(cJSON* param, const char* name, const char* name_h, const c
 
 #define PoolingParameter_DEF(DEF) \
 DEF##Enum(pool, PoolMethod_MAX, PoolMethod) \
+DEF##Int(pad, 0, 0) \
+DEF##Int(pad_h, 0, 0) \
+DEF##Int(pad_w, 0, 0) \
+DEF##Int(kernel_size, 2, 0) \
+DEF##Int(kernel_h, 2, 0) \
+DEF##Int(kernel_w, 2, 0) \
+DEF##Int(stride, 1, 0) \
+DEF##Int(stride_h, 1, 0) \
+DEF##Int(stride_w, 1, 0) \
 DEF##Bool(global_pooling, false, 0) \
 
 
 struct PoolingLayer : public Layer
 {
   PoolingParameter_DEF(Def);
-  int kernel_h_, kernel_w_;
-  int stride_h_, stride_w_;
-  int pad_h_, pad_w_;
   int channels_;
   int height_, width_;
   int pooled_height_, pooled_width_;

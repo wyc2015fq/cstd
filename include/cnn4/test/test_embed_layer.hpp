@@ -75,7 +75,7 @@ namespace caffe
     weight_shape[1] = kNumOutput;
     ASSERT_TRUE(weight_shape == layer->blobs()[0]->shape());
     for (int i = 0; i < this->blob_bottom_->count(); ++i) {
-      this->blob_bottom_->mutable_cpu_data()[i] = caffe_rng_rand() % kInputDim;
+      this->blob_bottom_->cpu_mdata()[i] = caffe_rng_rand() % kInputDim;
     }
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     vector<int> weight_offset(2, 0);
@@ -116,7 +116,7 @@ namespace caffe
     weight_shape[1] = kNumOutput;
     ASSERT_TRUE(weight_shape == layer->blobs()[0]->shape());
     for (int i = 0; i < this->blob_bottom_->count(); ++i) {
-      this->blob_bottom_->mutable_cpu_data()[i] = caffe_rng_rand() % kInputDim;
+      this->blob_bottom_->cpu_mdata()[i] = caffe_rng_rand() % kInputDim;
     }
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     vector<int> bias_offset(1, 0);
@@ -152,10 +152,10 @@ namespace caffe
     embed_param->mutable_weight_filler()->set_max(10);
     EmbedLayer layer(layer_param);
     GradientChecker checker(1e-2, 1e-3);
-    this->blob_bottom_->mutable_cpu_data()[0] = 4;
-    this->blob_bottom_->mutable_cpu_data()[1] = 2;
-    this->blob_bottom_->mutable_cpu_data()[2] = 2;
-    this->blob_bottom_->mutable_cpu_data()[3] = 3;
+    this->blob_bottom_->cpu_mdata()[0] = 4;
+    this->blob_bottom_->cpu_mdata()[1] = 2;
+    this->blob_bottom_->cpu_mdata()[2] = 2;
+    this->blob_bottom_->cpu_mdata()[3] = 3;
     checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
                                     this->blob_top_vec_, -2);
   }
@@ -174,10 +174,10 @@ namespace caffe
     embed_param->mutable_bias_filler()->CopyFrom(embed_param->weight_filler());
     EmbedLayer layer(layer_param);
     GradientChecker checker(1e-2, 1e-3);
-    this->blob_bottom_->mutable_cpu_data()[0] = 4;
-    this->blob_bottom_->mutable_cpu_data()[1] = 2;
-    this->blob_bottom_->mutable_cpu_data()[2] = 2;
-    this->blob_bottom_->mutable_cpu_data()[3] = 3;
+    this->blob_bottom_->cpu_mdata()[0] = 4;
+    this->blob_bottom_->cpu_mdata()[1] = 2;
+    this->blob_bottom_->cpu_mdata()[2] = 2;
+    this->blob_bottom_->cpu_mdata()[3] = 3;
     checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
                                     this->blob_top_vec_, -2);
   }

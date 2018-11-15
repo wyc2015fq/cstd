@@ -20,13 +20,20 @@ void InitMutex() {}
 
 
 
-inline string DataShape_string(const DataShape& shape_) {
-  char buf[256];
-  const int* p = shape_.dim;
-  _snprintf(buf, 256, "(%d %d %d %d)", p[0], p[1], p[2], p[3]);
+inline string DataShape_string(const DataShape& shape) {
+  char buf[256]="[";
+  char buf2[32];
+  int n = shape.num_axes();
+  for (int i = 0; i < n; ++i) {
+    if (i) strcat(buf, ",");
+    strcat(buf, _itoa(shape.dim[i], buf2, 10));
+  }
+  strcat(buf, "(");
+  strcat(buf, _itoa(shape.count(), buf2, 10));
+  strcat(buf, ")]");
   return buf;
 }
-inline DataShape dataShape(int n, int c = 1, int h = 1, int w = 1) {
+inline DataShape dataShape(int n, int c = 0, int h = 0, int w = 0) {
   DataShape shape;
   shape.set(n, c, h, w);
   return shape;
@@ -200,8 +207,8 @@ struct Blob {
       Reshape(other.shape());
     }
   }
-  void CopyFrom(Blob* other, bool copy_diff = false) {
-    Reshape(other->shape());
+  void CopyFrom(Blob* other, bool copy_diff = false, bool reshape = true) {
+    if (reshape) { Reshape(other->shape()); }
     caffe_copy(count(), other->data(), mdata());
     if (copy_diff) {
       caffe_copy(count(), other->diff(), mdiff());
@@ -247,6 +254,9 @@ struct Blob {
 #define DefEnum(name, def, type)  type name##_;
 #define DefStruct(name, def, type)  type name##_;
 
+static void UniformFiller(Blob* blob, double min = 0, double max = 1) {
+  cpu_UniformFiller(blob->shape_, blob->cpu_mdata(), min, max);
+}
 static void GaussianFiller(Blob* blob, double mu = 0, double st = 1) {
   cpu_GaussianFiller(blob->shape_, blob->cpu_mdata(), mu, st, -1);
 }
@@ -431,7 +441,7 @@ Blob* blobs_aget(vector<Blob*>& blobs_, const char* name) {
 struct Layer {
   Phase phase_;
   char name[MAX_NAME];
-  char* type_;
+  char type_[MAX_NAME];
   //cJSON* param_;
   typedef Blob::Dtype Dtype;
   vector<Blob*> blobs_;
@@ -453,6 +463,9 @@ struct Layer {
   // top -> bottom
   virtual void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom) { (0); }
 
+  Layer() {
+    init();
+  }
   //Vtbl* vtbl;
   void init() {
     //memset(this, 0, sizeof(Layer));
@@ -517,7 +530,8 @@ int CreateLayer(CJSON* param, Layer*& layer, const char* type) {
     return 0;
   }
   layer = fun(param);
-  layer->type_ = (char*)type;
+  //layer->type_ = (char*)type;
+  strcpy(layer->type_, type);
   return 1;
 }
 

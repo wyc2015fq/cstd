@@ -85,7 +85,7 @@ namespace caffe
     // then continues for the rest of the sequence.
     for (int t = 0; t < kNumTimesteps; ++t) {
       for (int n = 0; n < num; ++n) {
-        this->blob_bottom_cont_.mutable_cpu_data()[t * num + n] = t > 0;
+        this->blob_bottom_cont_.cpu_mdata()[t * num + n] = t > 0;
       }
     }
     // Process the full sequence in a single batch.
@@ -115,9 +115,9 @@ namespace caffe
     const Dtype kEpsilon = 1e-5;
     for (int t = 0; t < kNumTimesteps; ++t) {
       caffe_copy(bottom_count, bottom_copy.cpu_data() + t * bottom_count,
-                 this->blob_bottom_.mutable_cpu_data());
+                 this->blob_bottom_.cpu_mdata());
       for (int n = 0; n < num; ++n) {
-        this->blob_bottom_cont_.mutable_cpu_data()[n] = t > 0;
+        this->blob_bottom_cont_.cpu_mdata()[n] = t > 0;
       }
       LOG(INFO) << "Calling forward for RNN timestep " << t;
       layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -135,9 +135,9 @@ namespace caffe
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     for (int t = 0; t < kNumTimesteps; ++t) {
       caffe_copy(bottom_count, bottom_copy.cpu_data() + t * bottom_count,
-                 this->blob_bottom_.mutable_cpu_data());
+                 this->blob_bottom_.cpu_mdata());
       for (int n = 0; n < num; ++n) {
-        this->blob_bottom_cont_.mutable_cpu_data()[n] = 0;
+        this->blob_bottom_cont_.cpu_mdata()[n] = 0;
       }
       LOG(INFO) << "Calling forward for RNN timestep " << t;
       layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -170,7 +170,7 @@ namespace caffe
     RNNLayer layer(this->layer_param_);
     GradientChecker checker(1e-2, 1e-3);
     for (int i = 0; i < this->blob_bottom_cont_.count(); ++i) {
-      this->blob_bottom_cont_.mutable_cpu_data()[i] = i > 2;
+      this->blob_bottom_cont_.cpu_mdata()[i] = i > 2;
     }
     checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
                                     this->blob_top_vec_, 0);
@@ -187,7 +187,7 @@ namespace caffe
     RNNLayer layer(this->layer_param_);
     GradientChecker checker(1e-2, 1e-3);
     for (int i = 0; i < this->blob_bottom_cont_.count(); ++i) {
-      this->blob_bottom_cont_.mutable_cpu_data()[i] = i > 2;
+      this->blob_bottom_cont_.cpu_mdata()[i] = i > 2;
     }
     checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
                                     this->blob_top_vec_, 0);
@@ -205,7 +205,7 @@ namespace caffe
     RNNLayer layer(this->layer_param_);
     GradientChecker checker(1e-2, 1e-3);
     for (int i = 0; i < this->blob_bottom_cont_.count(); ++i) {
-      this->blob_bottom_cont_.mutable_cpu_data()[i] = i > 2;
+      this->blob_bottom_cont_.cpu_mdata()[i] = i > 2;
     }
     checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
                                     this->blob_top_vec_, 0);

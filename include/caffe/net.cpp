@@ -559,7 +559,9 @@ namespace caffe
       // LOG(ERROR) << "Forwarding " << layer_names_[i];
       Dtype layer_loss = layers_[i]->Forward(bottom_vecs_[i], top_vecs_[i]);
       loss += layer_loss;
-      if (debug_info_) { ForwardDebugInfo(i); }
+      if (debug_info_=1) {
+        ForwardDebugInfo(i);
+      }
     }
     return loss;
   }
@@ -609,7 +611,9 @@ namespace caffe
       if (layer_need_backward_[i]) {
         layers_[i]->Backward(
           top_vecs_[i], bottom_need_backward_[i], bottom_vecs_[i]);
-        if (debug_info_) { BackwardDebugInfo(i); }
+        if (debug_info_) {
+          BackwardDebugInfo(i);
+        }
       }
     }
   }
@@ -624,7 +628,7 @@ namespace caffe
       LOG_IF(INFO, Caffe::root_solver())
           << "    [Forward] "
           << "Layer " << layer_names_[layer_id]
-          << ", top blob " << blob_name
+          << ", top blob " << blob_name << blob.shape_string()
           << " data: " << data_abs_val_mean;
     }
     for (int param_id = 0; param_id < layers_[layer_id]->blobs().size();
@@ -636,7 +640,7 @@ namespace caffe
       LOG_IF(INFO, Caffe::root_solver())
           << "    [Forward] "
           << "Layer " << layer_names_[layer_id]
-          << ", param blob " << blob_name
+          << ", param blob " << param_id << blob.shape_string()
           << " data: " << data_abs_val_mean;
     }
   }
@@ -653,7 +657,7 @@ namespace caffe
       LOG_IF(INFO, Caffe::root_solver())
           << "    [Backward] "
           << "Layer " << layer_names_[layer_id]
-          << ", bottom blob " << blob_name
+          << ", bottom blob " << blob_name << blob.shape_string()
           << " diff: " << diff_abs_val_mean;
     }
     for (int param_id = 0; param_id < layers_[layer_id]->blobs().size();
@@ -664,7 +668,7 @@ namespace caffe
       LOG_IF(INFO, Caffe::root_solver())
           << "    [Backward] "
           << "Layer " << layer_names_[layer_id]
-          << ", param blob " << param_id
+          << ", param blob " << param_id << blob.shape_string()
           << " diff: " << diff_abs_val_mean;
     }
   }

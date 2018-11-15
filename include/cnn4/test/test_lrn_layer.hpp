@@ -61,7 +61,7 @@ namespace caffe
     typedef typename TypeParam::Dtype Dtype;
     blob_top->Reshape(blob_bottom.num(), blob_bottom.channels(),
                       blob_bottom.height(), blob_bottom.width());
-    Dtype* top_data = blob_top->mutable_cpu_data();
+    Dtype* top_data = blob_top->cpu_mdata();
     LRNParameter lrn_param = layer_param.lrn_param();
     Dtype alpha = lrn_param.alpha();
     Dtype beta = lrn_param.beta();
@@ -173,7 +173,7 @@ namespace caffe
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     for (int i = 0; i < this->blob_top_->count(); ++i) {
-      this->blob_top_->mutable_cpu_diff()[i] = 1.;
+      this->blob_top_->cpu_mdiff()[i] = 1.;
     }
     vector<bool> propagate_down(this->blob_bottom_vec_.size(), true);
     layer.Backward(this->blob_top_vec_, propagate_down,
@@ -196,7 +196,7 @@ namespace caffe
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     for (int i = 0; i < this->blob_top_->count(); ++i) {
-      this->blob_top_->mutable_cpu_diff()[i] = 1.;
+      this->blob_top_->cpu_mdiff()[i] = 1.;
     }
     vector<bool> propagate_down(this->blob_bottom_vec_.size(), true);
     layer.Backward(this->blob_top_vec_, propagate_down,
@@ -255,7 +255,7 @@ namespace caffe
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     for (int i = 0; i < this->blob_top_->count(); ++i) {
-      this->blob_top_->mutable_cpu_diff()[i] = 1.;
+      this->blob_top_->cpu_mdiff()[i] = 1.;
     }
     checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
                                     this->blob_top_vec_);
@@ -299,7 +299,7 @@ namespace caffe
     typedef TypeParam Dtype;
     blob_top->Reshape(blob_bottom.num(), blob_bottom.channels(),
                       blob_bottom.height(), blob_bottom.width());
-    Dtype* top_data = blob_top->mutable_cpu_data();
+    Dtype* top_data = blob_top->cpu_mdata();
     LRNParameter lrn_param = layer_param.lrn_param();
     Dtype alpha = lrn_param.alpha();
     Dtype beta = lrn_param.beta();
@@ -399,7 +399,7 @@ namespace caffe
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     for (int i = 0; i < this->blob_top_->count(); ++i) {
-      this->blob_top_->mutable_cpu_diff()[i] = 1.;
+      this->blob_top_->cpu_mdiff()[i] = 1.;
     }
     vector<bool> propagate_down(this->blob_bottom_vec_.size(), true);
     layer.Backward(this->blob_top_vec_, propagate_down,
@@ -439,7 +439,7 @@ namespace caffe
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     for (int i = 0; i < this->blob_top_->count(); ++i) {
-      this->blob_top_->mutable_cpu_diff()[i] = 1.;
+      this->blob_top_->cpu_mdiff()[i] = 1.;
     }
     checker.CheckGradientExhaustive(&layer, this->blob_bottom_vec_,
                                     this->blob_top_vec_);
@@ -455,7 +455,7 @@ namespace caffe
     layer.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     for (int i = 0; i < this->blob_top_->count(); ++i) {
-      this->blob_top_->mutable_cpu_diff()[i] = 1.;
+      this->blob_top_->cpu_mdiff()[i] = 1.;
     }
     vector<bool> propagate_down(this->blob_bottom_vec_.size(), true);
     layer.Backward(this->blob_top_vec_, propagate_down,

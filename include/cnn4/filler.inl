@@ -87,7 +87,7 @@ int FUN(MSRAFiller)(DataShape shape, Dtype* data, VarianceNorm variance_norm) {
   if (variance_norm == AVERAGE) {
     n = (fan_in + fan_out) / Dtype(2);
   }
-  else if(variance_norm = FAN_OUT) {
+  else if(variance_norm == FAN_OUT) {
     n = fan_out;
   }
   Dtype std = sqrt(Dtype(2) / n);

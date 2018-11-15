@@ -31,7 +31,7 @@ namespace caffe
       FillerParameter filler_param;
       GaussianFiller filler(filler_param);
       // fill the selector blob
-      Dtype* bottom_data_selector_ = blob_bottom_selector_->mutable_cpu_data();
+      Dtype* bottom_data_selector_ = blob_bottom_selector_->cpu_mdata();
       bottom_data_selector_[0] = 0;
       bottom_data_selector_[1] = 1;
       bottom_data_selector_[2] = 1;
@@ -39,7 +39,7 @@ namespace caffe
       // fill the other bottom blobs
       filler.Fill(blob_bottom_data_);
       for (int i = 0; i < blob_bottom_labels_->count(); ++i) {
-        blob_bottom_labels_->mutable_cpu_data()[i] = caffe_rng_rand() % 5;
+        blob_bottom_labels_->cpu_mdata()[i] = caffe_rng_rand() % 5;
       }
       blob_bottom_vec_.push_back(blob_bottom_data_);
       blob_bottom_vec_.push_back(blob_bottom_labels_);

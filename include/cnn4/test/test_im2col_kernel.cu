@@ -62,10 +62,10 @@ class Im2colKernelTest : public GPUDeviceTest {
         (dilation_ * (kernel_size_ - 1) + 1)) / stride_ + 1;
 
     for (int i = 0; i < 2; ++i) {
-      blob_kernel_shape_->mutable_cpu_data()[i] = kernel_size_;
-      blob_stride_->mutable_cpu_data()[i] = stride_;
-      blob_pad_->mutable_cpu_data()[i] = pad_;
-      blob_dilation_->mutable_cpu_data()[i] = dilation_;
+      blob_kernel_shape_->cpu_mdata()[i] = kernel_size_;
+      blob_stride_->cpu_mdata()[i] = stride_;
+      blob_pad_->cpu_mdata()[i] = pad_;
+      blob_dilation_->cpu_mdata()[i] = dilation_;
     }
   }
 
@@ -113,7 +113,7 @@ TYPED_TEST(Im2colKernelTest, Test2D) {
 
   const TypeParam* bottom_data = this->blob_bottom_->gpu_data();
   TypeParam* top_data = this->blob_top_->mutable_gpu_data();
-  TypeParam* cpu_data = this->blob_top_cpu_->mutable_cpu_data();
+  TypeParam* cpu_data = this->blob_top_cpu_->cpu_mdata();
 
   // CPU Version
   for (int n = 0; n < this->blob_bottom_->num(); ++n) {
@@ -165,7 +165,7 @@ TYPED_TEST(Im2colKernelTest, TestND) {
   this->blob_top_cpu_->ReshapeLike(*this->blob_top_);
 
   const TypeParam* bottom_data_cpu = this->blob_bottom_->cpu_data();
-  TypeParam* top_data_cpu = this->blob_top_cpu_->mutable_cpu_data();
+  TypeParam* top_data_cpu = this->blob_top_cpu_->cpu_mdata();
 
   // CPU Version
   for (int n = 0; n < this->blob_bottom_->num(); ++n) {

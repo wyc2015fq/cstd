@@ -250,7 +250,7 @@ int test_caffe2json() {
   if (1) {
     _chdir("E:/OCR_Line/model/densenet-no-blstm/");
     char* test[] = { "",
-      "deploy.prototxt","model.caffemodel","solver.prototxt","densenet-no-blstm.json", "0"
+      "deploy.prototxt","model.caffemodel","solver.prototxt","model.json", "0"
     };
 #define TESTCALL(fun, args)    fun(countof(args), args)
     TESTCALL(caffe2json, test);
@@ -341,8 +341,8 @@ int caffe2json(int argc, char** argv)
     }
   }
 
-  for (int i = 0; i < layer_count; i++) {
-    const caffe::LayerParameter& layer = proto.layer(i);
+  for (int layer_i = 0; layer_i < layer_count; layer_i++) {
+    const caffe::LayerParameter& layer = proto.layer(layer_i);
     string layer_type = layer.type();
     cJSON * json_layer = cJSON_pushArrayItem(json_layers);
     // find blob binary by layer name
@@ -351,6 +351,7 @@ int caffe2json(int argc, char** argv)
     CJSON_ADDSTRINGARRAYTOOBJECT(json_layer, "top", layer.top());
     CJSON_ADDSTRINGARRAYTOOBJECT(json_layer, "bottom", layer.bottom());
     int netidx;
+    //printf("%d\n", layer_i);    if (layer_i == 22) {      int asdf = 0;    }
     if (s1) {
       for (netidx = 0; netidx < net.layer_size(); netidx++)
       {
@@ -458,6 +459,17 @@ int caffe2json(int argc, char** argv)
       DefNumber(growthrate);
       DefBool(use_dropout);
       DefNumber(dropout_amount);
+      DefNumber(pad_h);
+      DefNumber(pad_w);
+      DefNumber(conv_verticalstride);
+      DefNumber(conv_horizentalstride);
+      DefNumber(moving_average_fraction);
+      DefNumber(filter_h);
+      DefNumber(filter_w);
+      DefNumber(workspace_mb);
+      DefBool(use_dropout);
+      DefBool(use_bc);
+      DefBool(bc_ultra_space_efficient);
       FillerParameter(json_layer, "Filter_Filler", param.filter_filler());
       FillerParameter(json_layer, "BN_Scaler_Filler", param.bn_scaler_filler());
       FillerParameter(json_layer, "BN_Bias_Filler", param.bn_bias_filler());
@@ -470,7 +482,9 @@ int caffe2json(int argc, char** argv)
     else if (layer_type == "InnerProduct")
     {
       const caffe::InnerProductParameter& param = layer.inner_product_param();
+      DefNumber(axis);
       DefNumber(num_output);
+      DefBool(transpose);
       DefBool(bias_term);
     }
     else if (layer_type == "Pooling")
@@ -481,7 +495,14 @@ int caffe2json(int argc, char** argv)
       DefEnum(pool, PoolMethod);
       //cJSON_AddStringToObject(json_layer, "pool", pool_name.c_str());
       DefNumber(kernel_size);
+      DefNumber(kernel_h);
+      DefNumber(kernel_w);
       DefNumber(stride);
+      DefNumber(stride_h);
+      DefNumber(stride_w);
+      DefNumber(pad);
+      DefNumber(pad_h);
+      DefNumber(pad_w);
       DefNumber(pad);
       DefBool(global_pooling);
     }

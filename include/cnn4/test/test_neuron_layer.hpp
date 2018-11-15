@@ -142,7 +142,7 @@ namespace caffe
       FillerParameter filler_param;
       GaussianFiller filler(filler_param);
       filler.Fill(this->blob_bottom_);
-      Dtype* bottom_data = this->blob_bottom_->mutable_cpu_data();
+      Dtype* bottom_data = this->blob_bottom_->cpu_mdata();
       caffe_exp(this->blob_bottom_->count(), bottom_data, bottom_data);
     }
 
@@ -752,7 +752,7 @@ namespace caffe
     SHARED_PTR<Blob > blob_top_2(new Blob());
     blob_bottom_vec_2.push_back(blob_bottom_2.get());
     blob_top_vec_2.push_back(blob_top_2.get());
-    blob_bottom_2->CopyFrom(*this->blob_bottom_, false, true);
+    blob_bottom_2->CopyFrom(this->blob_bottom_, false, true);
     // SetUp layers
     prelu.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     relu.SetUp(blob_bottom_vec_2, blob_top_vec_2);
@@ -769,9 +769,9 @@ namespace caffe
     GaussianFiller filler(filler_param);
     filler.Fill(tmp_blob.get());
     caffe_copy(blob_top_2->count(), tmp_blob->cpu_data(),
-               this->blob_top_->mutable_cpu_diff());
+               this->blob_top_->cpu_mdiff());
     caffe_copy(blob_top_2->count(), tmp_blob->cpu_data(),
-               blob_top_2->mutable_cpu_diff());
+               blob_top_2->cpu_mdiff());
     vector<bool> propagate_down;
     propagate_down.push_back(true);
     prelu.Backward(this->blob_top_vec_, propagate_down, this->blob_bottom_vec_);
@@ -805,14 +805,14 @@ namespace caffe
     blob_bottom_vec_2.push_back(blob_bottom_2.get());
     blob_middle_vec_2.push_back(blob_middle_2.get());
     blob_top_vec_2.push_back(blob_top_2.get());
-    blob_bottom_2->CopyFrom(*this->blob_bottom_, false, true);
+    blob_bottom_2->CopyFrom(this->blob_bottom_, false, true);
     // SetUp layers
     ip.SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     prelu.SetUp(this->blob_top_vec_, this->blob_top_vec_);
     ip2.SetUp(blob_bottom_vec_2, blob_middle_vec_2);
     prelu2.SetUp(blob_middle_vec_2, blob_top_vec_2);
     caffe_copy(ip2.blobs()[0]->count(), ip.blobs()[0]->cpu_data(),
-               ip2.blobs()[0]->mutable_cpu_data());
+               ip2.blobs()[0]->cpu_mdata());
     // Forward in-place
     ip.Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     prelu.Forward(this->blob_top_vec_, this->blob_top_vec_);
@@ -830,9 +830,9 @@ namespace caffe
     GaussianFiller filler(filler_param);
     filler.Fill(tmp_blob.get());
     caffe_copy(blob_top_2->count(), tmp_blob->cpu_data(),
-               this->blob_top_->mutable_cpu_diff());
+               this->blob_top_->cpu_mdiff());
     caffe_copy(blob_top_2->count(), tmp_blob->cpu_data(),
-               blob_top_2->mutable_cpu_diff());
+               blob_top_2->cpu_mdiff());
     // Backward in-place
     vector<bool> propagate_down;
     propagate_down.push_back(true);

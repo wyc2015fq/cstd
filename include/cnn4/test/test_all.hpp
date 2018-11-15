@@ -1,12 +1,15 @@
 
 #include "test_gradient_check_util.hpp"
+#if 0
 #include "test_reshape_layer.hpp"
 #include "test_transpose_layer.hpp"
+#include "test_batch_norm_layer.hpp"
+#endif
+#include "test_inner_product_layer.hpp"
 
 #if 0
 #include "test_accuracy_layer.hpp"
 #include "test_argmax_layer.hpp"
-#include "test_batch_norm_layer.hpp"
 #include "test_batch_reindex_layer.hpp"
 #include "test_benchmark.hpp"
 #include "test_bias_layer.hpp"
@@ -38,7 +41,6 @@
 #include "test_im2col_layer.hpp"
 #include "test_image_data_layer.hpp"
 #include "test_infogain_loss_layer.hpp"
-#include "test_inner_product_layer.hpp"
 #include "test_internal_thread.hpp"
 #include "test_io.hpp"
 #include "test_layer_factory.hpp"

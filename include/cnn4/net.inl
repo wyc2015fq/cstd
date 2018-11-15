@@ -42,11 +42,20 @@ Blob* blob_by_name(const char* name) {
   return NULL;
 }
 
+#if 0
+Blob* get_blob(const char* name) {
+  Blob* out = blob_by_name(name);
+  assert(out);
+  return 0;
+}
+#endif
 Blob* output_blobs(int k) {
   int n = 0;
   for (int i = 0; i < blobs_.size(); ++i) {
     if (blobs_[i]->bottom_cnt_ == 0) {
-      if (n == i) { return blobs_[i]; }
+      if (n == k) {
+        return blobs_[i];
+      }
       ++n;
     }
   }
@@ -86,7 +95,7 @@ int FromJsonFile(const char* fn) {
   }
   return ret;
 }
-  int FromProto(CJSON* param) {
+int FromProto(CJSON* param) {
   Net* net = this;
   CJSON* layers_json = param->GetObjectItem("layers");
   int ret = 0;
@@ -97,7 +106,8 @@ int FromJsonFile(const char* fn) {
     layers_.resize(layer_size);
     for (int i = 0; i < layer_size; ++i) {
       CJSON* layer_json = layers_json->GetArrayItem(i);
-      const char* type = layer_json->GetObjectString("type", NULL);
+      const char* type = layer_json->getstring("type", NULL);
+      const char* name = layer_json->getstring("name", NULL);
       CreateLayer(layer_json, net->layers_[i], type);
       Layer* layer = net->layers_[i];
       layer->FromProto(layer_json, blobs_);

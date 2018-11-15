@@ -182,126 +182,130 @@ public:
     //blobs_[2*numTransition + i] is its bias blob
     //blobs_[3*numTransition + i] is its globalMean
     //blobs_[4*numTransition + i] is its globalVar
+    int blobs_size = 0;
     if (useBC) {
-      blobs_reset(this->blobs_, 10 * this->numTransition + 1);
+      blobs_size = 10 * this->numTransition + 1;
     }
     else {
-      blobs_reset(this->blobs_, 5 * this->numTransition + 1);
+      blobs_size = 5 * this->numTransition + 1;
     }
-    for (int transitionIdx = 0; transitionIdx < this->numTransition; ++transitionIdx) {
-      //filter
-      //No BC case
-      if (!useBC) {
+    if (blobs_.size() < blobs_size) {
+      blobs_reset(this->blobs_, blobs_size);
+      for (int transitionIdx = 0; transitionIdx < this->numTransition; ++transitionIdx) {
+        //filter
+        //No BC case
+        if (!useBC) {
+          int inChannels = initChannel + transitionIdx * growthRate;
+          int filterShape_Arr[] = { growthRate, inChannels, 3, 3 };
+          vector<int> filterShape(filterShape_Arr, filterShape_Arr + 4);
+          this->blobs_[transitionIdx]->Reshape((filterShape));
+          Fill(this->blobs_[transitionIdx], &Filter_Filler_);
+        }
+        else {
+          //3*3 kernel
+          int filter_33_shapeArr[] = { growthRate, 4 * growthRate, 3, 3 };
+          vector<int> filter33Shape(filter_33_shapeArr, filter_33_shapeArr + 4);
+          this->blobs_[transitionIdx]->Reshape((filter33Shape));
+          Fill(this->blobs_[transitionIdx], &Filter_Filler_);
+          //1*1 kernel
+          int inChannels = initChannel + transitionIdx * growthRate;
+          int filter_11_shapeArr[] = { 4 * growthRate, inChannels, 1, 1 };
+          vector<int> filter11Shape(filter_11_shapeArr, filter_11_shapeArr + 4);
+          this->blobs_[5 * numTransition + transitionIdx]->Reshape((filter11Shape));
+          Fill(this->blobs_[5 * numTransition + transitionIdx], &Filter_Filler_);
+        }
+        //scaler & bias
         int inChannels = initChannel + transitionIdx * growthRate;
-        int filterShape_Arr[] = { growthRate, inChannels, 3, 3 };
-        vector<int> filterShape(filterShape_Arr, filterShape_Arr + 4);
-        this->blobs_[transitionIdx]->Reshape((filterShape));
-        Fill(this->blobs_[transitionIdx], &Filter_Filler_);
-      }
-      else {
-        //3*3 kernel
-        int filter_33_shapeArr[] = { growthRate, 4 * growthRate, 3, 3 };
-        vector<int> filter33Shape(filter_33_shapeArr, filter_33_shapeArr + 4);
-        this->blobs_[transitionIdx]->Reshape((filter33Shape));
-        Fill(this->blobs_[transitionIdx], &Filter_Filler_);
-        //1*1 kernel
-        int inChannels = initChannel + transitionIdx * growthRate;
-        int filter_11_shapeArr[] = { 4 * growthRate, inChannels, 1, 1 };
-        vector<int> filter11Shape(filter_11_shapeArr, filter_11_shapeArr + 4);
-        this->blobs_[5 * numTransition + transitionIdx]->Reshape((filter11Shape));
-        Fill(this->blobs_[5 * numTransition + transitionIdx], &Filter_Filler_);
-      }
-      //scaler & bias
-      int inChannels = initChannel + transitionIdx * growthRate;
-      int BNparamShape_Arr[] = { 1, inChannels, 1, 1 };
-      vector<int> BNparamShape(BNparamShape_Arr, BNparamShape_Arr + 4);
-      //scaler
-      this->blobs_[numTransition + transitionIdx]->Reshape((BNparamShape));
-      Fill(this->blobs_[numTransition + transitionIdx], &BN_Scaler_Filler_);
-      int BN_4G_Shape[] = { 1, 4 * growthRate, 1, 1 };
-      vector<int> BN_4Gparam_ShapeVec(BN_4G_Shape, BN_4G_Shape + 4);
-      //scaler BC
-      if (useBC) {
-        this->blobs_[6 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-        Fill(this->blobs_[6 * numTransition + transitionIdx], &BN_Scaler_Filler_);
-      }
-      //bias
-      this->blobs_[2 * numTransition + transitionIdx]->Reshape((BNparamShape));
-      Fill(this->blobs_[2 * numTransition + transitionIdx], &BN_Bias_Filler_);
-      //bias BC
-      if (useBC) {
-        this->blobs_[7 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-        Fill(this->blobs_[7 * numTransition + transitionIdx], &BN_Bias_Filler_);
-      }
-      //globalMean
-      this->blobs_[3 * numTransition + transitionIdx]->Reshape((BNparamShape));
-      for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
-        Blob* localB = this->blobs_[3 * numTransition + transitionIdx];
-        localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 0;
-      }
-      //globalMean BC
-      if (useBC) {
-        this->blobs_[8 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-        Blob* localB = this->blobs_[8 * numTransition + transitionIdx];
-        for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
+        int BNparamShape_Arr[] = { 1, inChannels, 1, 1 };
+        vector<int> BNparamShape(BNparamShape_Arr, BNparamShape_Arr + 4);
+        //scaler
+        this->blobs_[numTransition + transitionIdx]->Reshape((BNparamShape));
+        Fill(this->blobs_[numTransition + transitionIdx], &BN_Scaler_Filler_);
+        int BN_4G_Shape[] = { 1, 4 * growthRate, 1, 1 };
+        vector<int> BN_4Gparam_ShapeVec(BN_4G_Shape, BN_4G_Shape + 4);
+        //scaler BC
+        if (useBC) {
+          this->blobs_[6 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
+          Fill(this->blobs_[6 * numTransition + transitionIdx], &BN_Scaler_Filler_);
+        }
+        //bias
+        this->blobs_[2 * numTransition + transitionIdx]->Reshape((BNparamShape));
+        Fill(this->blobs_[2 * numTransition + transitionIdx], &BN_Bias_Filler_);
+        //bias BC
+        if (useBC) {
+          this->blobs_[7 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
+          Fill(this->blobs_[7 * numTransition + transitionIdx], &BN_Bias_Filler_);
+        }
+        //globalMean
+        this->blobs_[3 * numTransition + transitionIdx]->Reshape((BNparamShape));
+        for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
+          Blob* localB = this->blobs_[3 * numTransition + transitionIdx];
           localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 0;
         }
-      }
-      //globalVar
-      this->blobs_[4 * numTransition + transitionIdx]->Reshape((BNparamShape));
-      for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
-        Blob* localB = this->blobs_[4 * numTransition + transitionIdx];
-        localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 1;
-      }
-      //globalVar BC
-      if (useBC) {
-        this->blobs_[9 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-        Blob* localB = this->blobs_[9 * numTransition + transitionIdx];
-        for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
+        //globalMean BC
+        if (useBC) {
+          this->blobs_[8 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
+          Blob* localB = this->blobs_[8 * numTransition + transitionIdx];
+          for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
+            localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 0;
+          }
+        }
+        //globalVar
+        this->blobs_[4 * numTransition + transitionIdx]->Reshape((BNparamShape));
+        for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
+          Blob* localB = this->blobs_[4 * numTransition + transitionIdx];
           localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 1;
         }
-      }
-    }
-    //final parameter for the equivalent of blobs_[2] in Caffe-BN
-    vector<int> singletonShapeVec;
-    singletonShapeVec.push_back(1);
-    int singletonIdx = useBC ? 10 * numTransition : 5 * numTransition;
-    this->blobs_[singletonIdx]->Reshape((singletonShapeVec));
-    this->blobs_[singletonIdx]->cpu_mdata()[0] = Dtype(0);
-    //parameter specification: globalMean/Var weight decay and lr is 0
-    if (!useBC) {
-      for (int i = 0; i < this->blobs_.size(); ++i) {
-        Blob* blob = blobs_[i];
-        //global Mean/Var
-        if (i >= 3 * this->numTransition) {
-          blob->set_lr_mult(0.f);
-          blob->set_decay_mult(0.f);
-        }
-        //BN Scaler and Bias
-        else if (i >= this->numTransition) {
-          blob->set_lr_mult(1.f);
-          blob->set_decay_mult(1.f);
-        }
-        else {
-          blob->set_lr_mult(1.f);
-          blob->set_decay_mult(1.f);
+        //globalVar BC
+        if (useBC) {
+          this->blobs_[9 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
+          Blob* localB = this->blobs_[9 * numTransition + transitionIdx];
+          for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
+            localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 1;
+          }
         }
       }
-    }
-    else {
-      for (int i = 0; i < this->blobs_.size(); ++i) {
-        Blob* blob = blobs_[i];
-        if ((i >= 3 * numTransition) && (i < 5 * numTransition)) {
-          blob->set_lr_mult(0.f);
-          blob->set_decay_mult(0.f);
+      //final parameter for the equivalent of blobs_[2] in Caffe-BN
+      vector<int> singletonShapeVec;
+      singletonShapeVec.push_back(1);
+      int singletonIdx = useBC ? 10 * numTransition : 5 * numTransition;
+      this->blobs_[singletonIdx]->Reshape((singletonShapeVec));
+      this->blobs_[singletonIdx]->cpu_mdata()[0] = Dtype(0);
+      //parameter specification: globalMean/Var weight decay and lr is 0
+      if (!useBC) {
+        for (int i = 0; i < this->blobs_.size(); ++i) {
+          Blob* blob = blobs_[i];
+          //global Mean/Var
+          if (i >= 3 * this->numTransition) {
+            blob->set_lr_mult(0.f);
+            blob->set_decay_mult(0.f);
+          }
+          //BN Scaler and Bias
+          else if (i >= this->numTransition) {
+            blob->set_lr_mult(1.f);
+            blob->set_decay_mult(1.f);
+          }
+          else {
+            blob->set_lr_mult(1.f);
+            blob->set_decay_mult(1.f);
+          }
         }
-        else if (i >= 8 * numTransition) {
-          blob->set_lr_mult(0.f);
-          blob->set_decay_mult(0.f);
-        }
-        else {
-          blob->set_lr_mult(1.f);
-          blob->set_decay_mult(1.f);
+      }
+      else {
+        for (int i = 0; i < this->blobs_.size(); ++i) {
+          Blob* blob = blobs_[i];
+          if ((i >= 3 * numTransition) && (i < 5 * numTransition)) {
+            blob->set_lr_mult(0.f);
+            blob->set_decay_mult(0.f);
+          }
+          else if (i >= 8 * numTransition) {
+            blob->set_lr_mult(0.f);
+            blob->set_decay_mult(0.f);
+          }
+          else {
+            blob->set_lr_mult(1.f);
+            blob->set_decay_mult(1.f);
+          }
         }
       }
     }

@@ -212,7 +212,7 @@ namespace caffe
   {
     const TypeParam mu = 0;
     const TypeParam sigma = 1;
-    void* gaussian_data = this->data_->mutable_cpu_data();
+    void* gaussian_data = this->data_->cpu_mdata();
     this->RngGaussianFill(mu, sigma, gaussian_data);
     this->RngGaussianChecks(mu, sigma, gaussian_data);
   }
@@ -222,7 +222,7 @@ namespace caffe
   {
     const TypeParam mu = -2;
     const TypeParam sigma = 3;
-    void* gaussian_data = this->data_->mutable_cpu_data();
+    void* gaussian_data = this->data_->cpu_mdata();
     this->RngGaussianFill(mu, sigma, gaussian_data);
     this->RngGaussianChecks(mu, sigma, gaussian_data);
   }
@@ -232,7 +232,7 @@ namespace caffe
   {
     const TypeParam lower = 0;
     const TypeParam upper = 1;
-    void* uniform_data = this->data_->mutable_cpu_data();
+    void* uniform_data = this->data_->cpu_mdata();
     this->RngUniformFill(lower, upper, uniform_data);
     this->RngUniformChecks(lower, upper, uniform_data);
   }
@@ -242,7 +242,7 @@ namespace caffe
   {
     const TypeParam lower = -7.3;
     const TypeParam upper = -2.3;
-    void* uniform_data = this->data_->mutable_cpu_data();
+    void* uniform_data = this->data_->cpu_mdata();
     this->RngUniformFill(lower, upper, uniform_data);
     this->RngUniformChecks(lower, upper, uniform_data);
   }
@@ -251,7 +251,7 @@ namespace caffe
   TYPED_TEST(RandomNumberGeneratorTest, TestRngBernoulli)
   {
     const TypeParam p = 0.3;
-    void* bernoulli_data = this->int_data_->mutable_cpu_data();
+    void* bernoulli_data = this->int_data_->cpu_mdata();
     this->RngBernoulliFill(p, bernoulli_data);
     this->RngBernoulliChecks(p, bernoulli_data);
   }
@@ -260,7 +260,7 @@ namespace caffe
   TYPED_TEST(RandomNumberGeneratorTest, TestRngBernoulli2)
   {
     const TypeParam p = 0.9;
-    void* bernoulli_data = this->int_data_->mutable_cpu_data();
+    void* bernoulli_data = this->int_data_->cpu_mdata();
     this->RngBernoulliFill(p, bernoulli_data);
     this->RngBernoulliChecks(p, bernoulli_data);
   }
@@ -272,11 +272,11 @@ namespace caffe
     const TypeParam sigma = 1;
     // Sample from 0 mean Gaussian.
     TypeParam* gaussian_data_1 =
-      static_cast<TypeParam*>(this->data_->mutable_cpu_data());
+      static_cast<TypeParam*>(this->data_->cpu_mdata());
     this->RngGaussianFill(mu, sigma, gaussian_data_1);
     // Sample from 0 mean Gaussian again.
     TypeParam* gaussian_data_2 =
-      static_cast<TypeParam*>(this->data_2_->mutable_cpu_data());
+      static_cast<TypeParam*>(this->data_2_->cpu_mdata());
     this->RngGaussianFill(mu, sigma, gaussian_data_2);
     // Multiply Gaussians.
     for (int i = 0; i < this->sample_size_; ++i) {
@@ -295,13 +295,13 @@ namespace caffe
     const TypeParam lower_1 = -2;
     const TypeParam upper_1 = -lower_1;
     TypeParam* uniform_data_1 =
-      static_cast<TypeParam*>(this->data_->mutable_cpu_data());
+      static_cast<TypeParam*>(this->data_->cpu_mdata());
     this->RngUniformFill(lower_1, upper_1, uniform_data_1);
     // Sample from Uniform on [-3, 3].
     const TypeParam lower_2 = -3;
     const TypeParam upper_2 = -lower_2;
     TypeParam* uniform_data_2 =
-      static_cast<TypeParam*>(this->data_2_->mutable_cpu_data());
+      static_cast<TypeParam*>(this->data_2_->cpu_mdata());
     this->RngUniformFill(lower_2, upper_2, uniform_data_2);
     // Multiply Uniforms.
     for (int i = 0; i < this->sample_size_; ++i) {
@@ -321,12 +321,12 @@ namespace caffe
     const TypeParam mu = 0;
     const TypeParam sigma = 1;
     TypeParam* gaussian_data =
-      static_cast<TypeParam*>(this->data_->mutable_cpu_data());
+      static_cast<TypeParam*>(this->data_->cpu_mdata());
     this->RngGaussianFill(mu, sigma, gaussian_data);
     // Sample from Bernoulli with p = 0.3.
     const TypeParam bernoulli_p = 0.3;
     int* bernoulli_data =
-      static_cast<int*>(this->int_data_->mutable_cpu_data());
+      static_cast<int*>(this->int_data_->cpu_mdata());
     this->RngBernoulliFill(bernoulli_p, bernoulli_data);
     // Multiply Gaussian by Bernoulli.
     for (int i = 0; i < this->sample_size_; ++i) {
@@ -344,12 +344,12 @@ namespace caffe
     const TypeParam lower = -1;
     const TypeParam upper = 1;
     TypeParam* uniform_data =
-      static_cast<TypeParam*>(this->data_->mutable_cpu_data());
+      static_cast<TypeParam*>(this->data_->cpu_mdata());
     this->RngUniformFill(lower, upper, uniform_data);
     // Sample from Bernoulli with p = 0.3.
     const TypeParam bernoulli_p = 0.3;
     int* bernoulli_data =
-      static_cast<int*>(this->int_data_->mutable_cpu_data());
+      static_cast<int*>(this->int_data_->cpu_mdata());
     this->RngBernoulliFill(bernoulli_p, bernoulli_data);
     // Multiply Uniform by Bernoulli.
     for (int i = 0; i < this->sample_size_; ++i) {
@@ -366,12 +366,12 @@ namespace caffe
     // Sample from Bernoulli with p = 0.5.
     const TypeParam p_a = 0.5;
     int* bernoulli_data_a =
-      static_cast<int*>(this->int_data_->mutable_cpu_data());
+      static_cast<int*>(this->int_data_->cpu_mdata());
     this->RngBernoulliFill(p_a, bernoulli_data_a);
     // Sample from Bernoulli with p = 0.3.
     const TypeParam p_b = 0.3;
     int* bernoulli_data_b =
-      static_cast<int*>(this->int_data_2_->mutable_cpu_data());
+      static_cast<int*>(this->int_data_2_->cpu_mdata());
     this->RngBernoulliFill(p_b, bernoulli_data_b);
     // Multiply Bernoullis.
     for (int i = 0; i < this->sample_size_; ++i) {
@@ -446,7 +446,7 @@ namespace caffe
     const unsigned int* uniform_uint_data =
       static_cast<const unsigned int*>(this->int_data_->cpu_data());
     TypeParam* uniform_data =
-      static_cast<TypeParam*>(this->data_->mutable_cpu_data());
+      static_cast<TypeParam*>(this->data_->cpu_mdata());
     for (int i = 0; i < this->sample_size_; ++i) {
       uniform_data[i] = static_cast<const TypeParam>(uniform_uint_data[i]);
     }
@@ -470,7 +470,7 @@ namespace caffe
     this->RngGaussianFillGPU(mu, sigma, gaussian_gpu_data_2);
     // Multiply Gaussians.
     TypeParam* gaussian_data_1 =
-      static_cast<TypeParam*>(this->data_->mutable_cpu_data());
+      static_cast<TypeParam*>(this->data_->cpu_mdata());
     const TypeParam* gaussian_data_2 =
       static_cast<const TypeParam*>(this->data_2_->cpu_data());
     for (int i = 0; i < this->sample_size_; ++i) {
@@ -500,7 +500,7 @@ namespace caffe
     this->RngUniformFillGPU(lower_2, upper_2, uniform_gpu_data_2);
     // Multiply Uniforms.
     TypeParam* uniform_data_1 =
-      static_cast<TypeParam*>(this->data_->mutable_cpu_data());
+      static_cast<TypeParam*>(this->data_->cpu_mdata());
     const TypeParam* uniform_data_2 =
       static_cast<const TypeParam*>(this->data_2_->cpu_data());
     for (int i = 0; i < this->sample_size_; ++i) {

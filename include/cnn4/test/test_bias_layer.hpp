@@ -98,7 +98,7 @@ namespace caffe
     typedef typename TypeParam::Dtype Dtype;
     this->blob_top_vec_[0] = this->blob_bottom_;  // in-place computation
     Blob orig_bottom(this->blob_bottom_->shape());
-    orig_bottom.CopyFrom(*this->blob_bottom_);
+    orig_bottom.CopyFrom(this->blob_bottom_);
     this->blob_bottom_vec_.push_back(this->blob_bottom_eltwise_);
     LayerParameter layer_param;
     layer_param.mutable_bias_param()->set_axis(0);
@@ -118,7 +118,7 @@ namespace caffe
   {
     typedef typename TypeParam::Dtype Dtype;
     Blob orig_bottom(this->blob_bottom_->shape());
-    orig_bottom.CopyFrom(*this->blob_bottom_);
+    orig_bottom.CopyFrom(this->blob_bottom_);
     this->blob_bottom_vec_.push_back(this->blob_bottom_eltwise_);
     LayerParameter layer_param;
     layer_param.mutable_bias_param()->set_axis(0);
@@ -135,21 +135,21 @@ namespace caffe
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     caffe_copy(top_diff.count(), top_diff.cpu_data(),
-               this->blob_top_->mutable_cpu_diff());
+               this->blob_top_->cpu_mdiff());
     layer->Backward(this->blob_top_vec_, propagate_down, this->blob_bottom_vec_);
     const bool kReshape = true;
     const bool kCopyDiff = true;
     Blob orig_bottom_diff;
-    orig_bottom_diff.CopyFrom(*this->blob_bottom_, kCopyDiff, kReshape);
+    orig_bottom_diff.CopyFrom(this->blob_bottom_, kCopyDiff, kReshape);
     Blob orig_bias_diff;
-    orig_bias_diff.CopyFrom(*this->blob_bottom_eltwise_,
+    orig_bias_diff.CopyFrom(this->blob_bottom_eltwise_,
                             kCopyDiff, kReshape);
     // Rerun forward + backward with in-place computation;
     // check that resulting bottom diffs are the same.
     this->blob_top_vec_[0] = this->blob_bottom_;  // in-place computation
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     caffe_copy(top_diff.count(), top_diff.cpu_data(),
-               this->blob_bottom_->mutable_cpu_diff());
+               this->blob_bottom_->cpu_mdiff());
     layer->Backward(this->blob_top_vec_, propagate_down, this->blob_bottom_vec_);
     for (int i = 0; i < this->blob_bottom_->count(); ++i) {
       EXPECT_NEAR(orig_bottom_diff.cpu_diff()[i],
@@ -235,7 +235,7 @@ namespace caffe
     typedef typename TypeParam::Dtype Dtype;
     this->blob_top_vec_[0] = this->blob_bottom_;  // in-place computation
     Blob orig_bottom(this->blob_bottom_->shape());
-    orig_bottom.CopyFrom(*this->blob_bottom_);
+    orig_bottom.CopyFrom(this->blob_bottom_);
     this->blob_bottom_vec_.push_back(this->blob_bottom_broadcast_1_);
     LayerParameter layer_param;
     layer_param.mutable_bias_param()->set_axis(1);
@@ -260,7 +260,7 @@ namespace caffe
   {
     typedef typename TypeParam::Dtype Dtype;
     Blob orig_bottom(this->blob_bottom_->shape());
-    orig_bottom.CopyFrom(*this->blob_bottom_);
+    orig_bottom.CopyFrom(this->blob_bottom_);
     this->blob_bottom_vec_.push_back(this->blob_bottom_broadcast_1_);
     LayerParameter layer_param;
     layer_param.mutable_bias_param()->set_axis(1);
@@ -277,21 +277,21 @@ namespace caffe
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     caffe_copy(top_diff.count(), top_diff.cpu_data(),
-               this->blob_top_->mutable_cpu_diff());
+               this->blob_top_->cpu_mdiff());
     layer->Backward(this->blob_top_vec_, propagate_down, this->blob_bottom_vec_);
     const bool kReshape = true;
     const bool kCopyDiff = true;
     Blob orig_bottom_diff;
-    orig_bottom_diff.CopyFrom(*this->blob_bottom_, kCopyDiff, kReshape);
+    orig_bottom_diff.CopyFrom(this->blob_bottom_, kCopyDiff, kReshape);
     Blob orig_bias_diff;
-    orig_bias_diff.CopyFrom(*this->blob_bottom_broadcast_1_,
+    orig_bias_diff.CopyFrom(this->blob_bottom_broadcast_1_,
                             kCopyDiff, kReshape);
     // Rerun forward + backward with in-place computation;
     // check that resulting bottom diffs are the same.
     this->blob_top_vec_[0] = this->blob_bottom_;  // in-place computation
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
     caffe_copy(top_diff.count(), top_diff.cpu_data(),
-               this->blob_bottom_->mutable_cpu_diff());
+               this->blob_bottom_->cpu_mdiff());
     layer->Backward(this->blob_top_vec_, propagate_down, this->blob_bottom_vec_);
     for (int i = 0; i < this->blob_bottom_->count(); ++i) {
       EXPECT_NEAR(orig_bottom_diff.cpu_diff()[i],
