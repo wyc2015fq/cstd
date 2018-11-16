@@ -155,8 +155,7 @@ void FUN(caffe_bound)(const int N, const Dtype* a, const Stype min,
 
 Dtype FUN(caffe_nextafter)(const Stype b)
 {
-  return std::nextafter<Dtype>(
-    b, std::numeric_limits<Dtype>::max());
+  return std::nextafter<Dtype>(b, std::numeric_limits<Dtype>::max());
 }
 
 

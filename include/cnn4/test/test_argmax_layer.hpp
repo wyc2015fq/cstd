@@ -21,7 +21,7 @@ namespace caffe
       : blob_bottom_(new Blob(10, 10, 20, 20)),
         blob_top_(new Blob()),
         top_k_(5) {
-      Caffe::set_random_seed(1701);
+      set_random_seed(1701);
       // fill the values
       FillerParameter filler_param;
       GaussianFiller filler(filler_param);

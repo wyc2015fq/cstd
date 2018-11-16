@@ -107,7 +107,7 @@ public:
     }
     if (use_global_stats_) {
       // use the stored mean/variance estimates.
-      const Dtype scale_factor = this->blobs_[2]->data()[0] == 0 ? 0 : 1 / this->blobs_[2]->data()[0];
+      const Dtype scale_factor = this->blobs_[2]->cpu_data()[0] == 0 ? 0 : 1 / this->blobs_[2]->cpu_data()[0];
       caffe_scale(variance_.count(), scale_factor, this->blobs_[0]->data(), mean_.mdata());
       caffe_scale(variance_.count(), scale_factor, this->blobs_[1]->data(), variance_.mdata());
     }

@@ -78,15 +78,15 @@ static void createTensor4dDesc(cudnnTensorDescriptor_t* desc)
   CUDNN_CHECK(cudnnCreateTensorDescriptor(desc));
 }
 
-static void setTensor4dDesc(cudnnTensorDescriptor_t* desc, cudnnDataType_t type,
+static void setTensor4dDesc(cudnnTensorDescriptor_t desc, cudnnDataType_t type,
   int n, int c, int h, int w,
   int stride_n, int stride_c, int stride_h, int stride_w)
 {
-  CUDNN_CHECK(cudnnSetTensor4dDescriptorEx(*desc, type,
+  CUDNN_CHECK(cudnnSetTensor4dDescriptorEx(desc, type,
     n, c, h, w, stride_n, stride_c, stride_h, stride_w));
 }
 
-static void setTensor4dDesc(cudnnTensorDescriptor_t* desc, cudnnDataType_t type,
+static void setTensor4dDesc(cudnnTensorDescriptor_t desc, cudnnDataType_t type,
   int n, int c, int h, int w)
 {
   const int stride_w = 1;
@@ -115,16 +115,16 @@ static void createConvolutionDesc(cudnnConvolutionDescriptor_t* conv)
   CUDNN_CHECK(cudnnCreateConvolutionDescriptor(conv));
 }
 
-static void setConvolutionDesc(cudnnConvolutionDescriptor_t* conv, cudnnDataType_t type,
+static void setConvolutionDesc(cudnnConvolutionDescriptor_t conv, cudnnDataType_t type,
   cudnnTensorDescriptor_t bottom, cudnnFilterDescriptor_t filter,
   int pad_h, int pad_w, int stride_h, int stride_w )
 {
 #if CUDNN_VERSION_MIN(6, 0, 0)
-  CUDNN_CHECK(cudnnSetConvolution2dDescriptor(*conv,
+  CUDNN_CHECK(cudnnSetConvolution2dDescriptor(conv,
     pad_h, pad_w, stride_h, stride_w, 1, 1, CUDNN_CROSS_CORRELATION,
     type));
 #else
-  CUDNN_CHECK(cudnnSetConvolution2dDescriptor(*conv,
+  CUDNN_CHECK(cudnnSetConvolution2dDescriptor(conv,
     pad_h, pad_w, stride_h, stride_w, 1, 1, CUDNN_CROSS_CORRELATION));
 #endif
 }

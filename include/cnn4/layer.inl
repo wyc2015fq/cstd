@@ -3,9 +3,14 @@ int FromProto(CJSON* param, vector<Blob*>& net_blobs_) {
   Layer* layer = this;
   CJSON* blobs_json = param->GetObjectItem("blobs");
   //layer->param_ = param;
-  strncpy(layer->name, param->getstring("name", ""), MAX_NAME);
+  strncpy(layer->name_, param->getstring("name", ""), MAX_NAME);
   //layer->loss_weight_ = param->GetObjectNumber("loss_weight", 0);
-  this->phase_ = CJSON_GETOBJECTENUM(param, "phase", TRAINorTEST, Phase);
+  if (param->has("phase")) {
+    Phase phase = param->getenum("phase", TEST, Phase_Name, countof(Phase_Name));
+    layer->phase_mask_ = 1 << phase;
+  }
+  else {
+  }
   if (blobs_json) {
     int blob_size = blobs_json->GetArraySize();
     layer->reset(blob_size);
@@ -127,25 +132,22 @@ double Forward(const vector<Blob*> & bottom, const vector<Blob*> & top )
 
   Unlock();
 #ifdef _DEBUG
-  //debug_info_ = 1;
+  debug_info_ = 1;
 #endif
-  if (debug_info_=1) {
+  if (debug_info_) {
+    LOG_IF(INFO, root_solver()) << "  [Forward] " << type_ << "Layer " << name_;
     for (int i = 0; i < top.size(); ++i) {
       Blob* blob = top[i];
       const Dtype data_abs_val_mean = blob->amean_data();
       LOG_IF(INFO, root_solver())
-        << "    [Forward] "
-        << "Layer " << name
-        << ", top blob " << i << " " << blob->name << DataShape_string(blob->shape_)
+        << "    top blob " << i << " " << blob->name << DataShape_string(blob->shape_)
         << " data: " << data_abs_val_mean;
     }
     for (int param_id = 0; param_id < blobs_.size(); ++param_id) {
       Blob* blob = blobs_[param_id];
       const Dtype data_abs_val_mean = blob->amean_data();
       LOG_IF(INFO, root_solver())
-        << "    [Forward] "
-        << "Layer " << name
-        << ", param blob " << param_id << " " << blob->name  << DataShape_string(blob->shape_)
+        << "    param blob " << param_id << " " << blob->name  << DataShape_string(blob->shape_)
         << " data: " << data_abs_val_mean;
     }
   }
@@ -159,22 +161,19 @@ inline void Backward(const vector<Blob*> & top, const vector<Blob*> & bottom)
   Backward_(top, bottom);
 
   if (debug_info_) {
+    LOG_IF(INFO, root_solver()) << "  [Backward] " << type_ << "Layer " << name_;
     for (int i = 0; i < bottom.size(); ++i) {
       Blob* blob = bottom[i];
       const Dtype abs_val_mean = blob->amean_diff();
       LOG_IF(INFO, root_solver())
-        << "    [Backward] "
-        << "Layer " << name
-        << ", bottom blob " << i << " " << blob->name << DataShape_string(blob->shape_)
+        << "    bottom blob " << i << " " << blob->name << DataShape_string(blob->shape_)
         << " diff: " << abs_val_mean;
     }
     for (int param_id = 0; param_id < blobs_.size(); ++param_id) {
       Blob* blob = blobs_[param_id];
       const Dtype data_abs_val_mean = blob->amean_diff();
       LOG_IF(INFO, root_solver())
-        << "    [Backward] "
-        << "Layer " << name
-        << ", param blob " << param_id << " " << blob->name << DataShape_string(blob->shape_)
+        << "    param blob " << param_id << " " << blob->name << DataShape_string(blob->shape_)
         << " diff: " << data_abs_val_mean;
     }
   }

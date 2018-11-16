@@ -1,9 +1,13 @@
 #ifndef CAFFE_SOFTMAX_WITH_LOSS_LAYER_HPP_
 #define CAFFE_SOFTMAX_WITH_LOSS_LAYER_HPP_
 
+#define SoftmaxWithLossParameter_DEF(DEF) \
+DEF##Int(ignore_label, -1, 0) \
+
 class SoftmaxWithLossLayer : public LossLayer
 {
 public:
+  SoftmaxWithLossParameter_DEF(Def);
   /// The internal SoftmaxLayer used to map predictions to a distribution.
   Layer* softmax_layer_;
   /// prob stores the output probability predictions from the SoftmaxLayer.
@@ -14,8 +18,6 @@ public:
   vector<Blob*> softmax_top_vec_;
   /// Whether to ignore instances with a certain label.
   bool has_ignore_label_;
-  /// The label indicating that an instance should be ignored.
-  int ignore_label_;
   /// How to normalize the output loss.
   NormalizationMode normalization_;
 
@@ -28,9 +30,14 @@ public:
 
   SoftmaxWithLossLayer() {
     LossLayer::init();
+    axis_ = 1;
+    has_ignore_label_ = false;
+    ignore_label_ = -1;
+    SoftmaxWithLossParameter_DEF(Set);
   }
   void init(CJSON* param) {
     LossLayer::init(param);
+    SoftmaxWithLossParameter_DEF(Get);
     axis_ = param->getint("axis", 1);
     has_ignore_label_ = param->has("ignore_label");
     if (!param->has("normalization") && param->has("normalize")) {
@@ -60,6 +67,7 @@ public:
   virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     LossLayer::Reshape(bottom, top);
+    has_ignore_label_ = ignore_label_>=0;
     softmax_layer_->Reshape(softmax_bottom_vec_, softmax_top_vec_);
     softmax_axis_ = bottom[0]->CanonicalAxisIndex(axis_);
     outer_num_ = bottom[0]->count(0, softmax_axis_);

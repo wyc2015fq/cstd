@@ -54,16 +54,16 @@ namespace caffe
     virtual void InitSolverFromProtoString(const string & proto) {
       SolverParameter param;
       CHECK(google::protobuf::TextFormat::ParseFromString(proto, &param));
-      // Set the solver_mode according to current Caffe::mode.
-      switch (Caffe::mode()) {
-      case Caffe::CPU:
+      // Set the solver_mode according to current mode.
+      switch (mode()) {
+      case CPU:
         param.set_solver_mode(SolverParameter_SolverMode_CPU);
         break;
-      case Caffe::GPU:
+      case GPU:
         param.set_solver_mode(SolverParameter_SolverMode_GPU);
         break;
       default:
-        LOG(FATAL) << "Unknown Caffe mode: " << Caffe::mode();
+        LOG(FATAL) << "Unknown Caffe mode: " << mode();
       }
       InitSolver(param);
       delta_ = param.delta();
@@ -76,7 +76,7 @@ namespace caffe
       ostringstream proto;
       int device_id = 0;
 #ifndef CPU_ONLY
-      if (Caffe::mode() == Caffe::GPU) {
+      if (mode() == GPU) {
         CUDA_CHECK(cudaGetDevice(&device_id));
       }
 #endif
@@ -183,7 +183,7 @@ namespace caffe
       if (snapshot) {
         proto << "snapshot: " << num_iters << " ";
       }
-      Caffe::set_random_seed(this->seed_);
+      set_random_seed(this->seed_);
       this->InitSolverFromProtoString(proto.str());
       if (from_snapshot != NULL) {
         this->solver_->Restore(from_snapshot);
@@ -204,11 +204,11 @@ namespace caffe
             gpus.push_back(i);
           }
         }
-        Caffe::set_solver_count(gpus.size());
+        set_solver_count(gpus.size());
         this->sync_.reset(new P2PSync(
                             this->solver_, NULL, this->solver_->param()));
         this->sync_->Run(gpus);
-        Caffe::set_solver_count(1);
+        set_solver_count(1);
       }
       if (snapshot) {
         ostringstream resume_file;
@@ -455,7 +455,7 @@ namespace caffe
       // Test over all numbers of devices.
       int available_devices = 1;
 #ifndef CPU_ONLY
-      if (Caffe::mode() == Caffe::GPU) {
+      if (mode() == GPU) {
         CUDA_CHECK(cudaGetDeviceCount(&available_devices));
       }
 #endif

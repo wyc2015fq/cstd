@@ -3,7 +3,16 @@
 #define _LOGGING_HPP_
 
 #include <iostream>
+#ifdef _WIN32
+#include <windows.h>
+#undef max
+#undef min
+#endif
 #include "flags.hpp"
+
+#ifndef OutputDebugString
+#define OutputDebugString printf
+#endif
 
 DEFINE_bool(logtostderr, true, "Set whether log messages go to stderr instead of logfiles");
 DEFINE_bool(alsologtostderr, true, "Set whether log messages go to stderr in addition to logfiles.");
@@ -36,12 +45,13 @@ public:
   LogHelp(const char* options, const char* file, int line) {
     string stime = wstd::strtime(NULL);
     string fnext = path_split_filenameext(file);
-    stream_ << wstd::format("%s %s(%d) %s:", stime.c_str(), fnext.c_str(), line, options);
+    //stream_ << wstd::format("%s %s(%d) %s:", stime.c_str(), fnext.c_str(), line, options);
+    stream_ << wstd::format("%s(%d): %s:", file, line, options);
   }
   ~LogHelp() {
     stream_ << "\n";
     string s = stream_.str();
-    std::cerr << s << std::flush;
+    OutputDebugString(s.c_str());
     fappend("log.txt", s.c_str(), s.length());
   }
   std::stringstream& get() {

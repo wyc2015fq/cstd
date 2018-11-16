@@ -3,7 +3,6 @@
 #include "solver.hpp"
 #include "SGDSolver.hpp"
 #include "insert_splits.hpp"
-#include "cnn_ctc/test_cnn_ctc.hpp"
 //#include "test/test_all.hpp"
 
 void ClearParamDiffs(Blob** learnable_params_, int learnable_params_size)

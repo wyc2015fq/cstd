@@ -38,7 +38,7 @@ namespace caffe
     TanHLayerTest()
       : blob_bottom_(new Blob(2, 3, 4, 5)),
         blob_top_(new Blob()) {
-      Caffe::set_random_seed(1701);
+      set_random_seed(1701);
       FillerParameter filler_param;
       blob_bottom_vec_.push_back(blob_bottom_);
       blob_top_vec_.push_back(blob_top_);

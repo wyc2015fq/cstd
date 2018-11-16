@@ -32,7 +32,7 @@ namespace caffe
     EXPECT_TRUE(mem.cpu_data());
     EXPECT_TRUE(mem.gpu_data());
     EXPECT_TRUE(mem.cpu_mdata());
-    EXPECT_TRUE(mem.mutable_gpu_data());
+    EXPECT_TRUE(mem.gpu_mdata());
   }
 
 #endif
@@ -50,7 +50,7 @@ namespace caffe
   {
     SyncedMemory mem(10);
     EXPECT_TRUE(mem.gpu_data());
-    EXPECT_TRUE(mem.mutable_gpu_data());
+    EXPECT_TRUE(mem.gpu_mdata());
   }
 
 #endif
@@ -109,7 +109,7 @@ namespace caffe
   TEST_F(SyncedMemoryTest, TestGPUWrite)
   {
     SyncedMemory mem(10);
-    void* gpu_data = mem.mutable_gpu_data();
+    void* gpu_data = mem.gpu_mdata();
     EXPECT_EQ(mem.head(), SyncedMemory::HEAD_AT_GPU);
     caffe_gpu_memset(mem.size(), 1, gpu_data);
     const void* cpu_data = mem.cpu_data();
@@ -117,7 +117,7 @@ namespace caffe
       EXPECT_EQ((static_cast<const char*>(cpu_data))[i], 1);
     }
     EXPECT_EQ(mem.head(), SyncedMemory::SYNCED);
-    gpu_data = mem.mutable_gpu_data();
+    gpu_data = mem.gpu_mdata();
     EXPECT_EQ(mem.head(), SyncedMemory::HEAD_AT_GPU);
     caffe_gpu_memset(mem.size(), 2, gpu_data);
     cpu_data = mem.cpu_data();

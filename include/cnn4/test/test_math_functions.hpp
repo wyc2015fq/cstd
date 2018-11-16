@@ -26,7 +26,7 @@ namespace caffe
     }
 
     virtual void SetUp() {
-      Caffe::set_random_seed(1701);
+      set_random_seed(1701);
       this->blob_bottom_->Reshape(11, 17, 19, 23);
       this->blob_top_->Reshape(11, 17, 19, 23);
       // fill the values
@@ -155,7 +155,7 @@ namespace caffe
   {
     int n = this->blob_bottom_->count();
     caffe_gpu_sign<TypeParam>(n, this->blob_bottom_->gpu_data(),
-                              this->blob_bottom_->mutable_gpu_diff());
+                              this->blob_bottom_->gpu_mdiff());
     const TypeParam* signs = this->blob_bottom_->cpu_diff();
     const TypeParam* x = this->blob_bottom_->cpu_data();
     for (int i = 0; i < n; ++i) {
@@ -167,7 +167,7 @@ namespace caffe
   {
     int n = this->blob_bottom_->count();
     caffe_gpu_sgnbit<TypeParam>(n, this->blob_bottom_->gpu_data(),
-                                this->blob_bottom_->mutable_gpu_diff());
+                                this->blob_bottom_->gpu_mdiff());
     const TypeParam* signbits = this->blob_bottom_->cpu_diff();
     const TypeParam* x = this->blob_bottom_->cpu_data();
     for (int i = 0; i < n; ++i) {
@@ -179,7 +179,7 @@ namespace caffe
   {
     int n = this->blob_bottom_->count();
     caffe_gpu_abs<TypeParam>(n, this->blob_bottom_->gpu_data(),
-                             this->blob_bottom_->mutable_gpu_diff());
+                             this->blob_bottom_->gpu_mdiff());
     const TypeParam* abs_val = this->blob_bottom_->cpu_diff();
     const TypeParam* x = this->blob_bottom_->cpu_data();
     for (int i = 0; i < n; ++i) {
@@ -193,7 +193,7 @@ namespace caffe
     TypeParam alpha = this->blob_bottom_->cpu_diff()[caffe_rng_rand() %
                       this->blob_bottom_->count()];
     caffe_gpu_scale<TypeParam>(n, alpha, this->blob_bottom_->gpu_data(),
-                               this->blob_bottom_->mutable_gpu_diff());
+                               this->blob_bottom_->gpu_mdiff());
     const TypeParam* scaled = this->blob_bottom_->cpu_diff();
     const TypeParam* x = this->blob_bottom_->cpu_data();
     for (int i = 0; i < n; ++i) {
@@ -205,7 +205,7 @@ namespace caffe
   {
     const int n = this->blob_bottom_->count();
     const TypeParam* bottom_data = this->blob_bottom_->gpu_data();
-    TypeParam* top_data = this->blob_top_->mutable_gpu_data();
+    TypeParam* top_data = this->blob_top_->gpu_mdata();
     caffe_copy(n, bottom_data, top_data);
     bottom_data = this->blob_bottom_->cpu_data();
     top_data = this->blob_top_->cpu_mdata();

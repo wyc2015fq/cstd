@@ -191,7 +191,7 @@ public:
       Blob* sequence_blob = top[sequence_index_];
       Dtype* sequence_d = sequence_blob->cpu_mdata();
       // clear all data
-      caffe_set(sequence_blob->count(), static_cast<Dtype>(-1), sequence_d);
+      cpu_caffe_set(sequence_blob->count(), static_cast<Dtype>(-1), sequence_d);
       // copy data
       for (int n = 0; n < N_; ++n) {
         Dtype* seq_n_d = sequence_d + n * T_;
@@ -279,8 +279,8 @@ public:
     Dtype* score_data = 0;
     if (scores) {
       CHECK_EQ(scores->count(), N_);
-      score_data = scores->mdata();
-      caffe_set(N_, static_cast<Dtype>(0), score_data);
+      score_data = scores->cpu_mdata();
+      cpu_caffe_set(N_, static_cast<Dtype>(0), score_data);
     }
     for (int n = 0; n < N_; ++n) {
       int prev_class_idx = -1;
@@ -317,8 +317,8 @@ public:
     Dtype* score_data = 0;
     if (scores) {
       CHECK_EQ(scores->count(), N_);
-      score_data = scores->mdata();
-      caffe_set(N_, static_cast<Dtype>(0), score_data);
+      score_data = scores->cpu_mdata();
+      cpu_caffe_set(N_, static_cast<Dtype>(0), score_data);
     }
     for (int n = 0; n < N_; ++n) {
       int prev_class_idx = -1;

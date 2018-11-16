@@ -23,7 +23,7 @@ namespace caffe
     PowerLayerTest()
       : blob_bottom_(new Blob(2, 3, 4, 5)),
         blob_top_(new Blob()) {
-      Caffe::set_random_seed(1701);
+      set_random_seed(1701);
       // fill the values
       FillerParameter filler_param;
       GaussianFiller filler(filler_param);

@@ -17,26 +17,26 @@ namespace caffe
   {
     int cuda_device_id;
     CUDA_CHECK(cudaGetDevice(&cuda_device_id));
-    EXPECT_TRUE(Caffe::cublas_handle());
+    EXPECT_TRUE(cublas_handle());
   }
 
 #endif
 
   TEST_F(CommonTest, TestBrewMode)
   {
-    Caffe::set_mode(Caffe::CPU);
-    EXPECT_EQ(Caffe::mode(), Caffe::CPU);
-    Caffe::set_mode(Caffe::GPU);
-    EXPECT_EQ(Caffe::mode(), Caffe::GPU);
+    set_mode(CPU);
+    EXPECT_EQ(mode(), CPU);
+    set_mode(GPU);
+    EXPECT_EQ(mode(), GPU);
   }
 
   TEST_F(CommonTest, TestRandSeedCPU)
   {
     SyncedMemory data_a(10 * sizeof(int));
     SyncedMemory data_b(10 * sizeof(int));
-    Caffe::set_random_seed(1701);
+    set_random_seed(1701);
     caffe_rng_bernoulli(10, 0.5, static_cast<int*>(data_a.cpu_mdata()));
-    Caffe::set_random_seed(1701);
+    set_random_seed(1701);
     caffe_rng_bernoulli(10, 0.5, static_cast<int*>(data_b.cpu_mdata()));
     for (int i = 0; i < 10; ++i) {
       EXPECT_EQ(static_cast<const int*>(data_a.cpu_data())[i],
@@ -50,12 +50,12 @@ namespace caffe
   {
     SyncedMemory data_a(10 * sizeof(unsigned int));
     SyncedMemory data_b(10 * sizeof(unsigned int));
-    Caffe::set_random_seed(1701);
-    CURAND_CHECK(curandGenerate(Caffe::curand_generator(),
-                                static_cast<unsigned int*>(data_a.mutable_gpu_data()), 10));
-    Caffe::set_random_seed(1701);
-    CURAND_CHECK(curandGenerate(Caffe::curand_generator(),
-                                static_cast<unsigned int*>(data_b.mutable_gpu_data()), 10));
+    set_random_seed(1701);
+    CURAND_CHECK(curandGenerate(curand_generator(),
+                                static_cast<unsigned int*>(data_a.gpu_mdata()), 10));
+    set_random_seed(1701);
+    CURAND_CHECK(curandGenerate(curand_generator(),
+                                static_cast<unsigned int*>(data_b.gpu_mdata()), 10));
     for (int i = 0; i < 10; ++i) {
       EXPECT_EQ(((const unsigned int*)(data_a.cpu_data()))[i],
                 ((const unsigned int*)(data_b.cpu_data()))[i]);

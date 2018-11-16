@@ -27,7 +27,7 @@ namespace caffe
         blob_top_labels_(new Blob()) {}
     virtual void SetUp() {
       // fill the values
-      Caffe::set_random_seed(1890);
+      set_random_seed(1890);
       FillerParameter filler_param;
       GaussianFiller filler(filler_param);
       // fill the selector blob

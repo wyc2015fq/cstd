@@ -121,10 +121,10 @@ namespace caffe
     filler_param.set_mean(0);
     filler_param.set_std(1);
     GaussianFiller sequence_filler(filler_param);
-    Caffe::set_random_seed(1);
+    set_random_seed(1);
     sequence_filler.Fill(&this->blob_bottom_);
     SHARED_PTR<LSTMLayer > layer(new LSTMLayer(this->layer_param_));
-    Caffe::set_random_seed(1701);
+    set_random_seed(1701);
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     LOG(INFO) << "Calling forward for full sequence LSTM";
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -137,7 +137,7 @@ namespace caffe
     // check that we get the same result.
     this->ReshapeBlobs(1, num);
     layer.reset(new LSTMLayer(this->layer_param_));
-    Caffe::set_random_seed(1701);
+    set_random_seed(1701);
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     const int bottom_count = this->blob_bottom_.count();
     const int top_count = this->blob_top_.count();
@@ -159,7 +159,7 @@ namespace caffe
     }
     // Process the batch one timestep at a time with all cont blobs set to 0.
     // Check that we get a different result, except in the first timestep.
-    Caffe::set_random_seed(1701);
+    set_random_seed(1701);
     layer.reset(new LSTMLayer(this->layer_param_));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     for (int t = 0; t < kNumTimesteps; ++t) {

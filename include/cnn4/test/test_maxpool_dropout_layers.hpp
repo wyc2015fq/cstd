@@ -23,7 +23,7 @@ namespace caffe
       : blob_bottom_(new Blob()),
         blob_top_(new Blob()) {}
     virtual void SetUp() {
-      Caffe::set_random_seed(1703);
+      set_random_seed(1703);
       blob_bottom_->Reshape(2, 3, 6, 5);
       // fill the values
       FillerParameter filler_param;

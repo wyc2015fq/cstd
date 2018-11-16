@@ -126,17 +126,17 @@ public:
     // planning strategy and a rewrite of Caffe's GPU memory mangagement
     size_t workspace_limit_bytes = 8 * 1024 * 1024;
     for (int i = 0; i < bottom.size(); i++) {
-      setTensor4dDesc(&bottom_descs_[i], type,
+      setTensor4dDesc(bottom_descs_[i], type,
         this->num_,
         this->channels_ / this->group_, height, width,
         this->channels_ * height * width,
         height * width, width, 1);
-      setTensor4dDesc(&top_descs_[i], type,
+      setTensor4dDesc(top_descs_[i], type,
         this->num_,
         this->num_output_ / this->group_, height_out, width_out,
         this->num_output_ * this->out_spatial_dim_,
         this->out_spatial_dim_, width_out, 1);
-      setConvolutionDesc(&conv_descs_[i], type, bottom_descs_[i],
+      setConvolutionDesc(conv_descs_[i], type, bottom_descs_[i],
         filter_desc_, pad_h, pad_w,
         stride_h, stride_w);
       // choose forward and backward algorithms + workspace(s)
@@ -179,20 +179,15 @@ public:
     size_t total_workspace_bwd_data = 0;
     size_t total_workspace_bwd_filter = 0;
     for (size_t i = 0; i < bottom.size(); i++) {
-      total_workspace_fwd = std::max(total_workspace_fwd,
-        workspace_fwd_sizes_[i]);
-      total_workspace_bwd_data = std::max(total_workspace_bwd_data,
-        workspace_bwd_data_sizes_[i]);
-      total_workspace_bwd_filter = std::max(total_workspace_bwd_filter,
-        workspace_bwd_filter_sizes_[i]);
+      total_workspace_fwd = std::max(total_workspace_fwd, workspace_fwd_sizes_[i]);
+      total_workspace_bwd_data = std::max(total_workspace_bwd_data, workspace_bwd_data_sizes_[i]);
+      total_workspace_bwd_filter = std::max(total_workspace_bwd_filter, workspace_bwd_filter_sizes_[i]);
     }
     // get max over all operations
-    size_t max_workspace = std::max(total_workspace_fwd,
-      total_workspace_bwd_data);
+    size_t max_workspace = std::max(total_workspace_fwd, total_workspace_bwd_data);
     max_workspace = std::max(max_workspace, total_workspace_bwd_filter);
     // ensure all groups have enough workspace
-    size_t total_max_workspace = max_workspace *
-      (this->group_ * CUDNN_STREAMS_PER_GROUP);
+    size_t total_max_workspace = max_workspace * (this->group_ * CUDNN_STREAMS_PER_GROUP);
     // this is the total amount of storage needed over all groups + streams
     if (total_max_workspace > workspaceSizeInBytes) {
       DLOG(INFO) << "Reallocating workspace storage: " << total_max_workspace;
@@ -225,7 +220,7 @@ public:
     }
     // Tensor descriptor for bias.
     if (this->bias_term_) {
-      setTensor4dDesc(&bias_desc_, type,
+      setTensor4dDesc(bias_desc_, type,
         1, this->num_output_ / this->group_, 1, 1);
     }
   }
@@ -361,9 +356,6 @@ public:
   }
 };
 
-
-
 INSTANTIATE_CLASS2(Convolution, CuDNNConvolution);
-
 
 #endif  // CAFFE_CUDNN_CONV_LAYER_HPP_

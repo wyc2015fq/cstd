@@ -9,16 +9,31 @@
 #include <vector>
 
 typedef Blob TypeParam;
-struct MultiDeviceTest {};
+struct MultiDeviceTest {
+  virtual void SetUp() {}
+  virtual void begin_test(const char* file, int line, const char* a, const char* b) {
+    string fn = path_split_filenameext(file);
+    char buf[256];
+    _snprintf(buf, 256, "%s(%d): <<< %s::%s >>>\n", file, line, a, b);
+    OutputDebugString(buf);
+  }
+  virtual void end_test() {
+    const char* buf = ("\n");
+    OutputDebugString(buf);
+  }
+};
+typedef MultiDeviceTest CPUDeviceTest;
+#define EXPECT_TRUE(expected)  CHECK(expected)
 #define EXPECT_EQ(expected, actual)  CHECK_EQ(expected, actual)
 #define EXPECT_NE(expected, actual)  CHECK_NE(expected, actual)
 #define EXPECT_FLOAT_EQ(expected, actual)  CHECK(fabs(expected - actual)<0.0001)
 #define ASSERT_EQ(expected, actual)  CHECK_EQ(expected, actual)
 #define EXPECT_NEAR(a, b, c)   CHECK(fabs((a)-(b))<c)
 #define EXPECT_GE(a, b)        CHECK_GE(a, b)
+#define EXPECT_LE(a, b)        CHECK_LE(a, b)
 
 #define TYPED_TEST_CASE(a, b)
-#define TYPED_TEST(a, b) struct a##b : public a {a##b() {run();}void run();}; a##b a##b##run##__LINE__; void a##b::run()
+#define TYPED_TEST(a, b) struct a##b : public a {a##b() {SetUp();begin_test(__FILE__, __LINE__, #a, #b); run();end_test();}void run();}; a##b a##b##run##__LINE__; void a##b::run()
 
 TYPED_TEST_CASE(TransposeLayerTest, TestDtypesAndDevices);
 

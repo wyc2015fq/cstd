@@ -22,7 +22,7 @@ namespace
                             const vector<Blob*> & top) {
       // Disallow PythonLayer in MultiGPU training stage, due to GIL issues
       // Details: https://github.com/BVLC/caffe/issues/2936
-      if (this->phase_ == TRAIN && Caffe::solver_count() > 1
+      if (this->phase_ == TRAIN && solver_count() > 1
           && !ShareInParallel()) {
         LOG(FATAL) << "PythonLayer is not implemented in Multi-GPU training";
       }

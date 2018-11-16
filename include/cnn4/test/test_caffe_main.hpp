@@ -35,7 +35,7 @@ namespace caffe
     typedef typename TypeParam::Dtype Dtype;
   protected:
     MultiDeviceTest() {
-      Caffe::set_mode(TypeParam::device);
+      set_mode(TypeParam::device);
     }
     virtual ~MultiDeviceTest() {}
   };
@@ -45,7 +45,7 @@ namespace caffe
   template <typename TypeParam>
   struct CPUDevice {
     typedef TypeParam Dtype;
-    static const Caffe::Brew device = Caffe::CPU;
+    static const Brew device = CPU;
   };
 
   template <typename Dtype>
@@ -63,7 +63,7 @@ namespace caffe
   template <typename TypeParam>
   struct GPUDevice {
     typedef TypeParam Dtype;
-    static const Caffe::Brew device = Caffe::GPU;
+    static const Brew device = GPU;
   };
 
   template <typename Dtype>

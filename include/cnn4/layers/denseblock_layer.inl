@@ -451,8 +451,7 @@ void DenseBlockLayer::LoopEndCleanup_cpu()
   }
 }
 
-void Forward_(const vector<Blob*> & bottom,
-  const vector<Blob*> & top)
+void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top)
 {
   //init CPU
   if (!this->cpuInited) {

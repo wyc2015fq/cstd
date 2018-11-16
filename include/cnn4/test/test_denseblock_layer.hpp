@@ -133,12 +133,12 @@ TYPED_TEST(DenseBlockLayerTest, TestCPUvsGPU)
   LayerParameter layer_param;
   DenseBlockParameter* convolution_param = layer_param.mutable_denseblock_param();
   convolution_param->set_numtransition(10);
-  Caffe::set_mode(Caffe::GPU);
+  set_mode(GPU);
   SHARED_PTR<DenseBlockLayer > layer(new DenseBlockLayer(layer_param));
   layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
   layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
 
-  Caffe::set_mode(Caffe::CPU);
+  set_mode(CPU);
   SHARED_PTR<DenseBlockLayer > layer_2(new DenseBlockLayer(layer_param));
   layer_2->SetUp(this->blob_bottom_vec_, this->blob_top_vec_2_);
   layer_2->Forward(this->blob_bottom_vec_, this->blob_top_vec_2_);

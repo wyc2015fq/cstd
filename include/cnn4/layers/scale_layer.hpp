@@ -6,6 +6,7 @@ DEF##Int(axis, 1, 0) \
 DEF##Int(num_axes, 1, 0) \
 DEF##Bool(bias_term, false, 0) \
 DEF##Struct(filler, 0, Filler) \
+DEF##Struct(bias_filler, 0, Filler) \
 
 // top=alpha∗bottom+beta
 struct ScaleLayer : public Layer
@@ -62,7 +63,7 @@ public:
           << "scale blob's shape extends past bottom[0]'s shape when applied "
           << "starting with bottom[0] axis = " << axis_;
       }
-      this->blobs_.resize(1);
+      blobs_reset(this->blobs_, 1);
       const int* shape_start = bottom[0]->shape().begin() + axis_;
       const int* shape_end = (num_axes_ == -1) ? bottom[0]->shape().end() : (shape_start + num_axes_);
       vector<int> scale_shape(shape_start, shape_end);
@@ -78,6 +79,7 @@ public:
       else {
         bias_layer_->num_axes_ = num_axes_;
       }
+      bias_layer_->filler_ = bias_filler_;
       bias_param_id_ = this->blobs_.size();
       blobs_reset(this->blobs_, bias_param_id_ + 1);
       bias_layer_->bottom_vecs_.resize(2);
@@ -86,6 +88,7 @@ public:
       Blob* bias = this->blobs_[bias_param_id_];
       bias_layer_->LayerSetUp(bottom[0], top[0], bias);
       bias_layer_->Reshape(bottom[0], top[0], bias);
+      //Fill(bias, &bias_filler_);
       //bias_propagate_down_.resize(1, false);
     }
     //this->param_propagate_down_.resize(this->blobs_.size(), true);

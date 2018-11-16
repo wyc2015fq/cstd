@@ -93,7 +93,7 @@ namespace
         // randomly shuffle data
         LOG(INFO) << "Shuffling data";
         //const unsigned int prefetch_rng_seed = caffe_rng_rand();
-        //prefetch_rng_.reset(new Caffe::RNG(prefetch_rng_seed));
+        //prefetch_rng_.reset(new RNG(prefetch_rng_seed));
         ShuffleImages();
       }
       LOG(INFO) << "A total of " << lines_.size() << " images.";
@@ -150,7 +150,7 @@ namespace
         // randomly shuffle data
         LOG(INFO) << "Shuffling data";
         //const unsigned int prefetch_rng_seed = caffe_rng_rand();
-        //prefetch_rng_.reset(new Caffe::RNG(prefetch_rng_seed));
+        //prefetch_rng_.reset(new RNG(prefetch_rng_seed));
         caffe::rng_t* prefetch_rng = caffe_rng();
           //static_cast<caffe::rng_t*>(prefetch_rng_->generator());
         shuffle(regression_lines_.begin(), regression_lines_.end(), prefetch_rng);

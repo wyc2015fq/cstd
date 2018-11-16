@@ -112,7 +112,7 @@ TYPED_TEST(Im2colKernelTest, Test2D) {
           this->width_col_);
 
   const TypeParam* bottom_data = this->blob_bottom_->gpu_data();
-  TypeParam* top_data = this->blob_top_->mutable_gpu_data();
+  TypeParam* top_data = this->blob_top_->gpu_mdata();
   TypeParam* cpu_data = this->blob_top_cpu_->cpu_mdata();
 
   // CPU Version
@@ -187,7 +187,7 @@ TYPED_TEST(Im2colKernelTest, TestND) {
   for (int grid_div = 2; grid_div <= 8; grid_div++) {
     for (int n = 0; n < this->blob_bottom_->num(); ++n) {
       const int grid_dim = default_grid_dim / grid_div;
-      TypeParam* top_data_gpu = this->blob_top_->mutable_gpu_data();
+      TypeParam* top_data_gpu = this->blob_top_->gpu_mdata();
       // NOLINT_NEXT_LINE(whitespace/operators)
       im2col_nd_gpu_kernel<TypeParam, 2><<<grid_dim, CAFFE_CUDA_NUM_THREADS>>>(
           num_kernels, bottom_data_gpu + this->blob_bottom_->offset(n),

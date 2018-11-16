@@ -955,7 +955,7 @@ namespace caffe
     // In this case, the loss weight for the 'EuclideanLoss' layer should default
     // to 1.
     vector<Blob*> bottom;
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     const bool kForceBackward = true;
     this->InitUnsharedWeightsNet(NULL, NULL, kForceBackward);
     const Dtype loss = this->net_->ForwardBackward();
@@ -971,7 +971,7 @@ namespace caffe
     const int kNumLossWeights = 6;
     Dtype kLossWeights[kNumLossWeights] = {2, 0, 1, -1, -2.5, 3.7};
     for (int i = 0; i < kNumLossWeights; ++i) {
-      Caffe::set_random_seed(this->seed_);
+      set_random_seed(this->seed_);
       this->InitUnsharedWeightsNet(&kLossWeights[i], NULL, kForceBackward);
       const Dtype weighted_loss = this->net_->ForwardBackward();
       const Dtype error_margin = kErrorMargin * fabs(kLossWeights[i]);
@@ -1003,7 +1003,7 @@ namespace caffe
   TYPED_TEST(NetTest, TestLossWeightMidNet)
   {
     typedef typename TypeParam::Dtype Dtype;
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     const bool kForceBackward = true;
     Dtype loss_weight = 0;
     Dtype midnet_loss_weight = 1;
@@ -1021,7 +1021,7 @@ namespace caffe
     const int kNumLossWeights = 6;
     Dtype kLossWeights[kNumLossWeights] = {2, 0, 1, -1, -2.5, 3.7};
     for (int i = 0; i < kNumLossWeights; ++i) {
-      Caffe::set_random_seed(this->seed_);
+      set_random_seed(this->seed_);
       this->InitUnsharedWeightsNet(&loss_weight, &kLossWeights[i],
                                    kForceBackward);
       const Dtype weighted_loss = this->net_->ForwardBackward();
@@ -1049,7 +1049,7 @@ namespace caffe
     // 'InnerProduct' weight 1.
     loss_weight = 1;
     midnet_loss_weight = 1;
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     this->InitUnsharedWeightsNet(&loss_weight, &midnet_loss_weight,
                                  kForceBackward);
     const Dtype loss = this->net_->ForwardBackward();
@@ -1060,7 +1060,7 @@ namespace caffe
     this->CopyNetParams(kCopyDiff, &param_grads);
     loss_weight = 2;
     midnet_loss_weight = 1;
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     this->InitUnsharedWeightsNet(&loss_weight, &midnet_loss_weight,
                                  kForceBackward);
     const Dtype loss_main_2 = this->net_->ForwardBackward();
@@ -1070,7 +1070,7 @@ namespace caffe
     this->CopyNetParams(kCopyDiff, &param_grads_loss_2);
     loss_weight = 3;
     midnet_loss_weight = 1;
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     this->InitUnsharedWeightsNet(&loss_weight, &midnet_loss_weight,
                                  kForceBackward);
     const Dtype loss_main_3 = this->net_->ForwardBackward();
@@ -1104,7 +1104,7 @@ namespace caffe
     }
     loss_weight = 1;
     midnet_loss_weight = 2;
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     this->InitUnsharedWeightsNet(&loss_weight, &midnet_loss_weight,
                                  kForceBackward);
     const Dtype loss_midnet_2 = this->net_->ForwardBackward();
@@ -1112,7 +1112,7 @@ namespace caffe
     this->CopyNetParams(kCopyDiff, &param_grads_loss_2);
     loss_weight = 1;
     midnet_loss_weight = 3;
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     this->InitUnsharedWeightsNet(&loss_weight, &midnet_loss_weight,
                                  kForceBackward);
     const Dtype loss_midnet_3 = this->net_->ForwardBackward();
@@ -1229,7 +1229,7 @@ namespace caffe
   TYPED_TEST(NetTest, TestSharedWeightsUpdate)
   {
     typedef typename TypeParam::Dtype Dtype;
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     this->InitDiffDataSharedWeightsNet();
     EXPECT_EQ(this->net_->layer_names()[1], "innerproduct1");
     EXPECT_EQ(this->net_->layer_names()[2], "innerproduct2");
@@ -1263,7 +1263,7 @@ namespace caffe
     // Check that data blobs of shared weights STILL point to the same memory
     // location (because ... who knows).
     EXPECT_EQ(ip1_weights->cpu_data(), ip2_weights->cpu_data());
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     this->InitDiffDataUnsharedWeightsNet();
     EXPECT_EQ(this->net_->layer_names()[1], "innerproduct1");
     EXPECT_EQ(this->net_->layer_names()[2], "innerproduct2");
@@ -1311,7 +1311,7 @@ namespace caffe
   {
     typedef typename TypeParam::Dtype Dtype;
     // Create a net with weight sharing; Update it once.
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     this->InitDiffDataSharedWeightsNet();
     EXPECT_EQ(this->net_->layer_names()[1], "innerproduct1");
     EXPECT_EQ(this->net_->layer_names()[2], "innerproduct2");
@@ -1333,7 +1333,7 @@ namespace caffe
     this->net_->ToProto(&net_param);
     // Reinitialize the net and copy parameters from net_param, as in
     // Solver::Restore.
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     this->InitDiffDataSharedWeightsNet();
     this->net_->CopyTrainedLayersFrom(net_param);
     ip1_weights = this->net_->layers()[1]->blobs()[0].get();
@@ -1357,7 +1357,7 @@ namespace caffe
     const Dtype* kLossWeight1 = NULL;
     const Dtype* kLossWeight2 = NULL;
     // Run the net with all params learned; check that gradients are non-zero.
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     Dtype blobs_lr_w1 = 1, blobs_lr_w2 = 1, blobs_lr_b1 = 2, blobs_lr_b2 = 2;
     this->InitUnsharedWeightsNet(kLossWeight1, kLossWeight2, kForceBackward,
                                  kBiasTerm, blobs_lr_w1, blobs_lr_w2, blobs_lr_b1, blobs_lr_b2);
@@ -1376,7 +1376,7 @@ namespace caffe
     }
     // Change the learning rates to different non-zero values; should see same
     // gradients.
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     blobs_lr_w1 *= 2, blobs_lr_w2 *= 2, blobs_lr_b1 *= 2, blobs_lr_b2 *= 2;
     this->InitUnsharedWeightsNet(kLossWeight1, kLossWeight2, kForceBackward,
                                  kBiasTerm, blobs_lr_w1, blobs_lr_w2, blobs_lr_b1, blobs_lr_b2);
@@ -1391,7 +1391,7 @@ namespace caffe
     }
     // Change a subset of the learning rates to zero; check that we see zero
     // gradients for those.
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     blobs_lr_w1 = 1, blobs_lr_w2 = 0, blobs_lr_b1 = 0, blobs_lr_b2 = 1;
     this->InitUnsharedWeightsNet(kLossWeight1, kLossWeight2, kForceBackward,
                                  kBiasTerm, blobs_lr_w1, blobs_lr_w2, blobs_lr_b1, blobs_lr_b2);
@@ -1409,7 +1409,7 @@ namespace caffe
       }
     }
     // Change the opposite subset of the learning rates to zero.
-    Caffe::set_random_seed(this->seed_);
+    set_random_seed(this->seed_);
     blobs_lr_w1 = 0, blobs_lr_w2 = 1, blobs_lr_b1 = 1, blobs_lr_b2 = 0;
     this->InitUnsharedWeightsNet(kLossWeight1, kLossWeight2, kForceBackward,
                                  kBiasTerm, blobs_lr_w1, blobs_lr_w2, blobs_lr_b1, blobs_lr_b2);
@@ -2404,8 +2404,8 @@ namespace caffe
     // We set up bottom blobs of two different sizes, switch between
     // them, check that forward and backward both run and the results
     // are the same, and check that the output shapes change.
-    Caffe::set_random_seed(this->seed_);
-    Caffe::set_mode(Caffe::CPU);
+    set_random_seed(this->seed_);
+    set_mode(CPU);
     FillerParameter filler_param;
     filler_param.set_std(1);
     GaussianFiller filler(filler_param);

@@ -63,10 +63,12 @@ struct DataShape {
   void set(const int* dim2, int n) {
     assert(n<=kMaxBlobAxes);
     for (int i = 0; i < n; ++i) { dim[i] = dim2[i]; }
+    for (int i = n; i < kMaxBlobAxes; ++i) { dim[i] = 0; }
   }
   void check() const {
     for (int i = 0; i < kMaxBlobAxes; ++i) { assert(dim[i]>=0); }
   }
+  int operator[](int i) const { return at(i); }
   int count() const {
     check();
     int cnt = 1, n = num_axes();
@@ -80,7 +82,7 @@ struct DataShape {
   int* end() { return dim + num_axes(); }
   const int* begin() const { return dim; }
   const int* end() const { return dim + num_axes(); }
-  int at(int i) { assert(i<kMaxBlobAxes);  return dim[i]; }
+  int at(int i) const { assert(i<kMaxBlobAxes);  return dim[i]; }
   void resize(int k) {
     assert(k <= kMaxBlobAxes);
     for (; k < kMaxBlobAxes; ++k) {
@@ -161,7 +163,6 @@ inline bool operator !=(const DataShape& a, const DataShape& b) {
 }
 ///////////////////////////////////////////////////
 #define PHASE_DEF_DEF(DEF) \
-DEF(TRAINorTEST) \
 DEF(TRAIN) \
 DEF(TEST)
 

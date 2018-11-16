@@ -1,5 +1,81 @@
 
 
+//start GPU specific data section
+//GPU ptr for efficient space usage only, these pointers not allocated when CPU_ONLY, these are not Blobs because Descriptor is not traditional
+//bool gpuInited;
+Dtype* postConv_data_gpu;
+Dtype* postConv_grad_gpu;
+Dtype* postDropout_data_gpu;
+Dtype* postDropout_grad_gpu;
+Dtype* postBN_data_gpu;
+Dtype* postBN_grad_gpu;
+Dtype* postReLU_data_gpu;
+Dtype* postReLU_grad_gpu;
+Dtype* workspace;
+Dtype* workspace2;
+//gpu workspace size
+int workspace_size_bytes;
+
+vector<Dtype*> ResultSaveMean_gpu;
+vector<Dtype*> ResultSaveInvVariance_gpu;
+vector<void*> dropout_state_gpu;
+vector<size_t> dropout_stateSize;
+vector<void*> dropout_reserve_gpu;
+vector<size_t> dropout_reserveSize;
+Dtype* Mean_tmp;//used in BN inf
+Dtype* Var_tmp;//used in BN inf
+
+               //BC related parameters
+vector<Dtype*> postConv_4GVec; //used if not ultra space efficient mode
+Dtype* postConv_4G; //used if ultra space efficient mode
+Dtype* postBN_4G;
+Dtype* postReLU_4G;
+Dtype* postConv_4G_grad;
+Dtype* postBN_4G_grad;
+Dtype* postReLU_4G_grad;
+cudnnTensorDescriptor_t quadG_tensorDesc;
+cudnnTensorDescriptor_t quadG_paramDesc;
+cudnnConvolutionDescriptor_t convBC_Descriptor;
+vector<Dtype*> BC_MeanInfVec;
+vector<Dtype*> BC_VarInfVec;
+vector<Dtype*> ResultSaveMean_BC;
+vector<Dtype*> ResultSaveInvVariance_BC;
+vector<cudnnFilterDescriptor_t> BC_filterDescriptorVec;
+//chosen Fwd,BwdFilter,BwdData algos for BC-Conv/Normal-Conv
+vector<cudnnConvolutionFwdAlgo_t> conv_FwdAlgoVec;
+vector<cudnnConvolutionFwdAlgo_t> BC_FwdAlgoVec;
+vector<cudnnConvolutionBwdFilterAlgo_t> conv_BwdFilterAlgoVec;
+vector<cudnnConvolutionBwdFilterAlgo_t> BC_BwdFilterAlgoVec;
+vector<cudnnConvolutionBwdDataAlgo_t> conv_BwdDataAlgoVec;
+vector<cudnnConvolutionBwdDataAlgo_t> BC_BwdDataAlgoVec;
+//BC_dropout
+//vector<void*> BC_dropout_state;
+//vector<void*> BC_dropout_reserve;
+//vector<size_t> BC_dropout_stateSize;
+//vector<size_t> BC_dropout_reserveSize;
+//Dtype* postDropout_4G;
+//Dtype* postDropout_4G_grad;
+
+
+//gpu handles and descriptors
+cudnnHandle_t cudnnHandlePtr;
+cudaStream_t cudaPrimalStream;
+vector<cudnnHandle_t> extraHandles;
+vector<cudaStream_t> extraStreams;
+
+vector<cudnnTensorDescriptor_t> tensorDescriptorVec_conv_x; //local Conv X
+cudnnTensorDescriptor_t tensorDescriptor_conv_y; //local Conv Y
+vector<cudnnTensorDescriptor_t> tensorDescriptor_BN; //<channelwise>
+                                                      //Dropout descriptor
+vector<cudnnDropoutDescriptor_t> dropoutDescriptorVec;
+//filter descriptor for conv
+vector<cudnnFilterDescriptor_t> filterDescriptorVec;
+//ReLU Activation Descriptor
+cudnnActivationDescriptor_t ReLUDesc;
+//conv descriptor for conv
+cudnnConvolutionDescriptor_t conv_Descriptor;
+
+
 bool dirExists_cu(string dirStr) {
   /* const char* dirCStr = dirStr.c_str();
    DIR* dir = opendir(dirCStr);
@@ -169,9 +245,6 @@ void logInternal_gpu(string dir, int TIdx, bool logDynamic, bool logDiff) {
   }
 }
 
-
-
-
 virtual void GPU_Initialization() {
   cudnnDataType_t type = dataType<Dtype>::type;
   //std::cout<<"Pre DeviceSet"<<std::endl;
@@ -209,26 +282,26 @@ virtual void GPU_Initialization() {
   //handles and descriptors
   //cudnn handle
   cudnnHandlePtr = 0;
-  cudaPrimalStream = new cudaStream_t;
+  cudaPrimalStream = NULL;
   CUDNN_CHECK(cudnnCreate(&cudnnHandlePtr));
-  CUDA_CHECK(cudaStreamCreate(cudaPrimalStream));
+  CUDA_CHECK(cudaStreamCreate(&cudaPrimalStream));
   //CUDNN_CHECK(cudnnSetStream(cudnnHandlePtr,*cudaPrimalStream));
   int extraHandle_num = 3;
   for (int i = 0; i < extraHandle_num; ++i) {
-    cudnnHandle_t* localHandle = new cudnnHandle_t;
-    cudaStream_t* localStream = new cudaStream_t;
-    CUDNN_CHECK(cudnnCreate(localHandle));
-    CUDA_CHECK(cudaStreamCreate(localStream));
-    CUDNN_CHECK(cudnnSetStream(*localHandle, *localStream));
+    cudnnHandle_t localHandle = 0;
+    cudaStream_t localStream = 0;
+    CUDNN_CHECK(cudnnCreate(&localHandle));
+    CUDA_CHECK(cudaStreamCreate(&localStream));
+    CUDNN_CHECK(cudnnSetStream(localHandle, localStream));
     extraHandles.push_back(localHandle);
     extraStreams.push_back(localStream);
   }
   //ReLU Activation Descriptor
-  this->ReLUDesc = new cudnnActivationDescriptor_t;
-  createActivationDescriptor(ReLUDesc, CUDNN_ACTIVATION_RELU);
+  this->ReLUDesc = NULL;
+  createActivationDescriptor(&ReLUDesc, CUDNN_ACTIVATION_RELU);
   //conv_y global tensor descriptor
-  this->tensorDescriptor_conv_y = new cudnnTensorDescriptor_t;
-  createTensor4dDesc(this->tensorDescriptor_conv_y);
+  this->tensorDescriptor_conv_y = NULL;
+  createTensor4dDesc(&this->tensorDescriptor_conv_y);
 #if 1
   setTensor4dDesc(this->tensorDescriptor_conv_y, type, this->N, this->growthRate, this->H, this->W, (this->numTransition*this->growthRate + this->initChannel)*this->H*this->W, this->H*this->W, this->W, 1);
 #endif
@@ -252,17 +325,16 @@ virtual void GPU_Initialization() {
       cudaMemset(postConv_4G, 0, quadG_numBytes);
     }
 #endif
-    quadG_tensorDesc = new cudnnTensorDescriptor_t;
-    createTensor4dDesc(quadG_tensorDesc);
+    createTensor4dDesc(&quadG_tensorDesc);
 #if 1
     setTensor4dDesc(quadG_tensorDesc, type, N, 4 * growthRate, H, W, 4 * growthRate*H*W, H*W, W, 1);
 #endif
-    quadG_paramDesc = new cudnnTensorDescriptor_t;
-    createTensor4dDesc(quadG_paramDesc);
+    quadG_paramDesc = NULL;
+    createTensor4dDesc(&quadG_paramDesc);
     setTensor4dDesc(quadG_paramDesc, type, 1, 4 * growthRate, 1, 1, 4 * growthRate, 1, 1, 1);
-    convBC_Descriptor = new cudnnConvolutionDescriptor_t;
-    CUDNN_CHECK(cudnnCreateConvolutionDescriptor(convBC_Descriptor));
-    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(*convBC_Descriptor, 0, 0, 1, 1, 1, 1, CUDNN_CONVOLUTION, dataType<Dtype>::type));
+    convBC_Descriptor = NULL;
+    CUDNN_CHECK(cudnnCreateConvolutionDescriptor(&convBC_Descriptor));
+    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(convBC_Descriptor, 0, 0, 1, 1, 1, 1, CUDNN_CONVOLUTION, dataType<Dtype>::type));
   }
   //per transition variables
   for (int i = 0; i < this->numTransition; ++i) {
@@ -282,51 +354,51 @@ virtual void GPU_Initialization() {
 
     //conv_x descriptor
     int conv_x_channels = this->initChannel + this->growthRate * i;
-    cudnnTensorDescriptor_t * wide_Desc_local_x = new cudnnTensorDescriptor_t;
-    createTensor4dDesc(wide_Desc_local_x);
+    cudnnTensorDescriptor_t  wide_Desc_local_x = NULL;
+    createTensor4dDesc(&wide_Desc_local_x);
 #if 1
     setTensor4dDesc(wide_Desc_local_x, type, this->N, conv_x_channels, this->H, this->W, (this->numTransition*this->growthRate + this->initChannel)*this->H*this->W, this->H*this->W, this->W, 1);
     this->tensorDescriptorVec_conv_x.push_back(wide_Desc_local_x);
 #endif
     //filter Descriptor for Convolution
     if (!useBC) {
-      cudnnFilterDescriptor_t * localFilterDesc = new cudnnFilterDescriptor_t;
-      createFilterDesc(localFilterDesc, type, growthRate, conv_x_channels, 3, 3);
+      cudnnFilterDescriptor_t  localFilterDesc = NULL;
+      createFilterDesc(&localFilterDesc, type, growthRate, conv_x_channels, 3, 3);
       this->filterDescriptorVec.push_back(localFilterDesc);
     }
     else {
       //3*3 convolution filter desc
-      cudnnFilterDescriptor_t * localFilterDesc = new cudnnFilterDescriptor_t;
-      createFilterDesc(localFilterDesc, type, growthRate, 4 * growthRate, 3, 3);
+      cudnnFilterDescriptor_t  localFilterDesc = NULL;
+      createFilterDesc(&localFilterDesc, type, growthRate, 4 * growthRate, 3, 3);
       this->filterDescriptorVec.push_back(localFilterDesc);
       //1*1 convolution filter desc
-      cudnnFilterDescriptor_t * localBottleneckFilterDesc = new cudnnFilterDescriptor_t;
-      createFilterDesc(localBottleneckFilterDesc, type, 4 * growthRate, conv_x_channels, 1, 1);
+      cudnnFilterDescriptor_t  localBottleneckFilterDesc = NULL;
+      createFilterDesc(&localBottleneckFilterDesc, type, 4 * growthRate, conv_x_channels, 1, 1);
       this->BC_filterDescriptorVec.push_back(localBottleneckFilterDesc);
     }
     //BN channel-wise Descriptor
     int channelsBefore_self = initChannel + growthRate*i;
-    cudnnTensorDescriptor_t * BNparam = new cudnnTensorDescriptor_t;
-    createTensor4dDesc(BNparam);
+    cudnnTensorDescriptor_t  BNparam = NULL;
+    createTensor4dDesc(&BNparam);
     setTensor4dDesc(BNparam, type, 1, channelsBefore_self, 1, 1);
     this->tensorDescriptor_BN.push_back(BNparam);
     //Dropout Ptr and Descriptor
     if (useDropout) {
-      size_t * sizeState = new size_t[1];
-      size_t * sizeReserve = new size_t[1];
-      CUDNN_CHECK(cudnnDropoutGetStatesSize((cudnnHandlePtr), sizeState));
-      CUDNN_CHECK(cudnnDropoutGetReserveSpaceSize(*tensorDescriptor_conv_y, sizeReserve));
-      dropout_reserveSize.push_back(sizeReserve[0]);
-      dropout_stateSize.push_back(sizeState[0]);
+      size_t sizeState = 0;
+      size_t sizeReserve = 0;
+      CUDNN_CHECK(cudnnDropoutGetStatesSize((cudnnHandlePtr), &sizeState));
+      CUDNN_CHECK(cudnnDropoutGetReserveSpaceSize(tensorDescriptor_conv_y, &sizeReserve));
+      dropout_reserveSize.push_back(sizeReserve);
+      dropout_stateSize.push_back(sizeState);
       void* localStatePtr;
       void* localReservePtr;
-      CUDA_CHECK(cudaMalloc(&localStatePtr, sizeState[0]));
-      CUDA_CHECK(cudaMalloc(&localReservePtr, sizeReserve[0]));
+      CUDA_CHECK(cudaMalloc(&localStatePtr, sizeState));
+      CUDA_CHECK(cudaMalloc(&localReservePtr, sizeReserve));
       dropout_state_gpu.push_back(localStatePtr);
       dropout_reserve_gpu.push_back(localReservePtr);
-      cudnnDropoutDescriptor_t* localDropoutDesc = new cudnnDropoutDescriptor_t;
-      cudnnCreateDropoutDescriptor(localDropoutDesc);
-      cudnnSetDropoutDescriptor(*localDropoutDesc, cudnnHandlePtr, dropoutAmount, localStatePtr, sizeState[0], DB_randomSeed);
+      cudnnDropoutDescriptor_t localDropoutDesc = NULL;
+      cudnnCreateDropoutDescriptor(&localDropoutDesc);
+      cudnnSetDropoutDescriptor(localDropoutDesc, cudnnHandlePtr, dropoutAmount, localStatePtr, sizeState, DB_randomSeed);
       dropoutDescriptorVec.push_back(localDropoutDesc);
       DB_randomSeed += 1;
     }
@@ -359,9 +431,9 @@ virtual void GPU_Initialization() {
     }
   }
   //Conv Descriptor
-  this->conv_Descriptor = new cudnnConvolutionDescriptor_t;
-  CUDNN_CHECK(cudnnCreateConvolutionDescriptor(this->conv_Descriptor));
-  CUDNN_CHECK(cudnnSetConvolution2dDescriptor(*this->conv_Descriptor, 1, 1, 1, 1, 1, 1, CUDNN_CONVOLUTION, dataType<Dtype>::type));
+  this->conv_Descriptor = NULL;
+  CUDNN_CHECK(cudnnCreateConvolutionDescriptor(&this->conv_Descriptor));
+  CUDNN_CHECK(cudnnSetConvolution2dDescriptor(this->conv_Descriptor, 1, 1, 1, 1, 1, 1, CUDNN_CONVOLUTION, dataType<Dtype>::type));
 
   //Mean and Var tmp
   int totalNumChannel = this->initChannel + this->growthRate * this->numTransition;
@@ -377,72 +449,72 @@ virtual void GPU_Initialization() {
     cudnnTensorDescriptor_t BC_y_desc = NULL;
     cudnnFilterDescriptor_t BC_w_desc = NULL;
     if (useBC) {
-      conv_x_desc = *(quadG_tensorDesc);
-      conv_y_desc = *(tensorDescriptor_conv_y);
-      conv_w_desc = *(filterDescriptorVec[transitionIdx]);
-      BC_x_desc = *(tensorDescriptorVec_conv_x[transitionIdx]);
-      BC_y_desc = *(quadG_tensorDesc);
-      BC_w_desc = *(BC_filterDescriptorVec[transitionIdx]);
+      conv_x_desc = quadG_tensorDesc;
+      conv_y_desc = tensorDescriptor_conv_y;
+      conv_w_desc = filterDescriptorVec[transitionIdx];
+      BC_x_desc = tensorDescriptorVec_conv_x[transitionIdx];
+      BC_y_desc = quadG_tensorDesc;
+      BC_w_desc = BC_filterDescriptorVec[transitionIdx];
     }
     else {
-      conv_x_desc = *(tensorDescriptorVec_conv_x[transitionIdx]);
-      conv_y_desc = *(tensorDescriptor_conv_y);
-      conv_w_desc = *(filterDescriptorVec[transitionIdx]);
+      conv_x_desc = (tensorDescriptorVec_conv_x[transitionIdx]);
+      conv_y_desc = (tensorDescriptor_conv_y);
+      conv_w_desc = (filterDescriptorVec[transitionIdx]);
     }
     //Conv Fwd Algo
-    cudnnConvolutionFwdAlgo_t* conv_FwdAlgo_local = new cudnnConvolutionFwdAlgo_t;
+    cudnnConvolutionFwdAlgo_t conv_FwdAlgo_local;
     CUDNN_CHECK(cudnnGetConvolutionForwardAlgorithm(
       cudnnHandlePtr,
-      conv_x_desc, conv_w_desc, *conv_Descriptor, conv_y_desc,
+      conv_x_desc, conv_w_desc, conv_Descriptor, conv_y_desc,
       CUDNN_CONVOLUTION_FWD_SPECIFY_WORKSPACE_LIMIT,
-      workspace_size_bytes, conv_FwdAlgo_local
+      workspace_size_bytes, &conv_FwdAlgo_local
     ));
     conv_FwdAlgoVec.push_back(conv_FwdAlgo_local);
     //Conv Bwd Filter Algo
-    cudnnConvolutionBwdFilterAlgo_t* conv_BwdFilter_local = new cudnnConvolutionBwdFilterAlgo_t;
+    cudnnConvolutionBwdFilterAlgo_t conv_BwdFilter_local;
     CUDNN_CHECK(cudnnGetConvolutionBackwardFilterAlgorithm(
       cudnnHandlePtr,
-      conv_x_desc, conv_y_desc, *conv_Descriptor, conv_w_desc,
+      conv_x_desc, conv_y_desc, conv_Descriptor, conv_w_desc,
       CUDNN_CONVOLUTION_BWD_FILTER_SPECIFY_WORKSPACE_LIMIT,
-      workspace_size_bytes, conv_BwdFilter_local
+      workspace_size_bytes, &conv_BwdFilter_local
     ));
     conv_BwdFilterAlgoVec.push_back(conv_BwdFilter_local);
     //Conv Bwd Data Algo
-    cudnnConvolutionBwdDataAlgo_t* conv_BwdData_local = new cudnnConvolutionBwdDataAlgo_t;
+    cudnnConvolutionBwdDataAlgo_t conv_BwdData_local;
     CUDNN_CHECK(cudnnGetConvolutionBackwardDataAlgorithm(
-      *(this->extraHandles[0]),
-      conv_w_desc, conv_y_desc, *conv_Descriptor, conv_x_desc,
+      (this->extraHandles[0]),
+      conv_w_desc, conv_y_desc, conv_Descriptor, conv_x_desc,
       CUDNN_CONVOLUTION_BWD_DATA_SPECIFY_WORKSPACE_LIMIT,
-      workspace_size_bytes, conv_BwdData_local
+      workspace_size_bytes, &conv_BwdData_local
     ));
     conv_BwdDataAlgoVec.push_back(conv_BwdData_local);
     //BC Convolution
     if (useBC) {
       //BC Fwd Algo
-      cudnnConvolutionFwdAlgo_t* BC_FwdAlgo_local = new cudnnConvolutionFwdAlgo_t;
+      cudnnConvolutionFwdAlgo_t BC_FwdAlgo_local;
       CUDNN_CHECK(cudnnGetConvolutionForwardAlgorithm(
         cudnnHandlePtr,
-        BC_x_desc, BC_w_desc, *convBC_Descriptor, BC_y_desc,
+        BC_x_desc, BC_w_desc, convBC_Descriptor, BC_y_desc,
         CUDNN_CONVOLUTION_FWD_SPECIFY_WORKSPACE_LIMIT,
-        workspace_size_bytes, BC_FwdAlgo_local
+        workspace_size_bytes, &BC_FwdAlgo_local
       ));
       BC_FwdAlgoVec.push_back(BC_FwdAlgo_local);
       //BC Bwd Filter Algo
-      cudnnConvolutionBwdFilterAlgo_t* BC_BwdFilter_local = new cudnnConvolutionBwdFilterAlgo_t;
+      cudnnConvolutionBwdFilterAlgo_t BC_BwdFilter_local;
       CUDNN_CHECK(cudnnGetConvolutionBackwardFilterAlgorithm(
         cudnnHandlePtr,
-        BC_x_desc, BC_y_desc, *convBC_Descriptor, BC_w_desc,
+        BC_x_desc, BC_y_desc, convBC_Descriptor, BC_w_desc,
         CUDNN_CONVOLUTION_BWD_FILTER_SPECIFY_WORKSPACE_LIMIT,
-        workspace_size_bytes, BC_BwdFilter_local
+        workspace_size_bytes, &BC_BwdFilter_local
       ));
       BC_BwdFilterAlgoVec.push_back(BC_BwdFilter_local);
       //BC Bwd Data Algo
-      cudnnConvolutionBwdDataAlgo_t* BC_BwdData_local = new cudnnConvolutionBwdDataAlgo_t;
+      cudnnConvolutionBwdDataAlgo_t BC_BwdData_local;
       CUDNN_CHECK(cudnnGetConvolutionBackwardDataAlgorithm(
-        *(this->extraHandles[0]),
-        BC_w_desc, BC_y_desc, *convBC_Descriptor, BC_x_desc,
+        (this->extraHandles[0]),
+        BC_w_desc, BC_y_desc, convBC_Descriptor, BC_x_desc,
         CUDNN_CONVOLUTION_BWD_DATA_SPECIFY_WORKSPACE_LIMIT,
-        workspace_size_bytes, BC_BwdData_local
+        workspace_size_bytes, &BC_BwdData_local
       ));
       BC_BwdDataAlgoVec.push_back(BC_BwdData_local);
     }
@@ -480,7 +552,7 @@ virtual void resetDropoutDesc() {
   for (int transitionIdx = 0; transitionIdx < numTransition; ++transitionIdx) {
     std::cout << &(dropout_state_gpu[transitionIdx]) << "," << dropout_stateSize[transitionIdx] << std::endl;
     CUDNN_CHECK(cudnnSetDropoutDescriptor(
-      *(dropoutDescriptorVec[transitionIdx]),
+      (dropoutDescriptorVec[transitionIdx]),
       cudnnHandlePtr,
       dropoutAmount,
       dropout_state_gpu[transitionIdx],
@@ -492,8 +564,6 @@ virtual void resetDropoutDesc() {
 }
 
 //__global__ void sync_streams() {}
-
-
 virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
 #if 0
   if (!this->gpuInited) {
@@ -530,7 +600,7 @@ virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
     Dtype* BN_y_ptr = this->postBN_data_gpu;
     Dtype* BN_globalMean = this->blobs_[3 * this->numTransition + transitionIdx]->mdata();
     Dtype* BN_globalVar = this->blobs_[4 * this->numTransition + transitionIdx]->mdata();
-    cudnnTensorDescriptor_t * BN_paramDesc = tensorDescriptor_BN[transitionIdx];
+    cudnnTensorDescriptor_t BN_paramDesc = tensorDescriptor_BN[transitionIdx];
     int numChannels = initChannel + growthRate*transitionIdx;
     Dtype* local_MeanInf = this->Mean_tmp;
     Dtype* local_VarInf = this->Var_tmp;
@@ -539,9 +609,9 @@ virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
       CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
         cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
         gpu_get_one(), gpu_get_zero(),
-        *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_ptr,
-        *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
-        *BN_paramDesc,
+        (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_ptr,
+        (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
+        BN_paramDesc,
         this->blobs_[this->numTransition + transitionIdx]->data(),
         this->blobs_[2 * this->numTransition + transitionIdx]->data(),
         BN_globalMean, BN_globalVar, CUDNN_BN_MIN_EPSILON)
@@ -553,9 +623,9 @@ virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
       CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
         cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
         gpu_get_one(), gpu_get_zero(),
-        *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_ptr,
-        *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
-        *BN_paramDesc,
+        (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_ptr,
+        (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
+        BN_paramDesc,
         this->blobs_[this->numTransition + transitionIdx]->mdata(),
         this->blobs_[2 * this->numTransition + transitionIdx]->mdata(),
         Dtype(1), local_MeanInf, local_VarInf, CUDNN_BN_MIN_EPSILON,
@@ -570,11 +640,11 @@ virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
     //ReLU
     Dtype* ReLU_x_ptr = this->postBN_data_gpu;
     Dtype* ReLU_y_ptr = this->postReLU_data_gpu;
-    CUDNN_CHECK(cudnnActivationForward(cudnnHandlePtr, *ReLUDesc,
+    CUDNN_CHECK(cudnnActivationForward(cudnnHandlePtr, ReLUDesc,
       gpu_get_one(),
-      *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_x_ptr,
+      (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_x_ptr,
       gpu_get_zero(),
-      *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_y_ptr)
+      (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_y_ptr)
     );
     if (useBC) {
       //Convolution 1*1 kernel 
@@ -589,12 +659,12 @@ virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
       //CONV_ALGO
       CUDNN_CHECK(cudnnConvolutionForward(cudnnHandlePtr,
         gpu_get_one(),
-        *this->tensorDescriptorVec_conv_x[transitionIdx], conv_x_4G,
-        *(BC_filterDescriptorVec[transitionIdx]),
+        this->tensorDescriptorVec_conv_x[transitionIdx], conv_x_4G,
+        (BC_filterDescriptorVec[transitionIdx]),
         this->blobs_[5 * numTransition + transitionIdx]->data(),
-        *(convBC_Descriptor), *BC_FwdAlgoVec[transitionIdx],
+        (convBC_Descriptor), BC_FwdAlgoVec[transitionIdx],
         workspace, workspace_size_bytes, gpu_get_zero(),
-        *quadG_tensorDesc, conv_y_4G
+        quadG_tensorDesc, conv_y_4G
       ));
       //std::cout<<"BC Fwd Conv Done"<<std::endl;
       //BN 4G Fwd
@@ -609,9 +679,9 @@ virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
         CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
           cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
           gpu_get_one(), gpu_get_zero(),
-          *quadG_tensorDesc, BN_x_4G,
-          *quadG_tensorDesc, BN_y_4G,
-          *quadG_paramDesc,
+          quadG_tensorDesc, BN_x_4G,
+          quadG_tensorDesc, BN_y_4G,
+          quadG_paramDesc,
           this->blobs_[6 * numTransition + transitionIdx]->data(),
           this->blobs_[7 * numTransition + transitionIdx]->data(),
           BN_BC_globalMean, BN_BC_globalVar, CUDNN_BN_MIN_EPSILON)
@@ -623,9 +693,9 @@ virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
         CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
           cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
           gpu_get_one(), gpu_get_zero(),
-          *quadG_tensorDesc, BN_x_4G,
-          *quadG_tensorDesc, BN_y_4G,
-          *quadG_paramDesc,
+          quadG_tensorDesc, BN_x_4G,
+          quadG_tensorDesc, BN_y_4G,
+          quadG_paramDesc,
           this->blobs_[6 * numTransition + transitionIdx]->mdata(),
           this->blobs_[7 * numTransition + transitionIdx]->mdata(),
           Dtype(1), localBC_MeanInf, localBC_VarInf, CUDNN_BN_MIN_EPSILON,
@@ -638,18 +708,18 @@ virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
     //ReLU 4G Fwd
       Dtype* ReLU_BC_x = postBN_4G;
       Dtype* ReLU_BC_y = postReLU_4G;
-      CUDNN_CHECK(cudnnActivationForward(cudnnHandlePtr, *ReLUDesc,
+      CUDNN_CHECK(cudnnActivationForward(cudnnHandlePtr, ReLUDesc,
         gpu_get_one(),
-        *quadG_tensorDesc, ReLU_BC_x,
+        quadG_tensorDesc, ReLU_BC_x,
         gpu_get_zero(),
-        *quadG_tensorDesc, ReLU_BC_y
+        quadG_tensorDesc, ReLU_BC_y
       ));
       //std::cout<<"BC Fwd ReLU Done"<<std::endl;
     }
     //Convolution
     int delayChannel = this->initChannel + this->growthRate * transitionIdx;
     Dtype* conv_x_local;
-    cudnnTensorDescriptor_t* conv_x_localDesc;
+    cudnnTensorDescriptor_t conv_x_localDesc;
     if (useBC) {
       conv_x_local = postReLU_4G;
       conv_x_localDesc = quadG_tensorDesc;
@@ -662,12 +732,12 @@ virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
     //CONV_ALGO
     CUDNN_CHECK(cudnnConvolutionForward(cudnnHandlePtr,
       gpu_get_one(),
-      *conv_x_localDesc, conv_x_local,
-      *(filterDescriptorVec[transitionIdx]),
+      conv_x_localDesc, conv_x_local,
+      (filterDescriptorVec[transitionIdx]),
       this->blobs_[transitionIdx]->data(),
-      *conv_Descriptor, *conv_FwdAlgoVec[transitionIdx],
+      conv_Descriptor, conv_FwdAlgoVec[transitionIdx],
       workspace, workspace_size_bytes, gpu_get_zero(),
-      *(tensorDescriptor_conv_y), conv_y_local
+      (tensorDescriptor_conv_y), conv_y_local
     )
     );
     //Dropout
@@ -675,9 +745,9 @@ virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
       Dtype* dropout_x_local = postConv_data_gpu + delayChannel*H*W;
       Dtype* dropout_y_local = postDropout_data_gpu + delayChannel*H*W;
       CUDNN_CHECK(cudnnDropoutForward(cudnnHandlePtr,
-        *(dropoutDescriptorVec[transitionIdx]),
-        *tensorDescriptor_conv_y, dropout_x_local,
-        *tensorDescriptor_conv_y, dropout_y_local,
+        (dropoutDescriptorVec[transitionIdx]),
+        tensorDescriptor_conv_y, dropout_x_local,
+        tensorDescriptor_conv_y, dropout_y_local,
         dropout_reserve_gpu[transitionIdx], dropout_reserveSize[transitionIdx]
       ));
     }
@@ -729,7 +799,7 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
     Dtype* BN_y_ptr = postBN_data_gpu;
     Dtype* BN_globalMean = this->blobs_[3 * this->numTransition + transitionIdx]->mdata();
     Dtype* BN_globalVar = this->blobs_[4 * this->numTransition + transitionIdx]->mdata();
-    cudnnTensorDescriptor_t* BN_paramDesc = tensorDescriptor_BN[transitionIdx];
+    cudnnTensorDescriptor_t BN_paramDesc = tensorDescriptor_BN[transitionIdx];
     Dtype* local_MeanInf = Mean_tmp;
     Dtype* local_VarInf = Var_tmp;
     Dtype* batchMean = this->ResultSaveMean_gpu[transitionIdx];
@@ -737,9 +807,9 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
     CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
       cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
       gpu_get_one(), gpu_get_zero(),
-      *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_ptr,
-      *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
-      *BN_paramDesc,
+      (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_ptr,
+      (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
+      BN_paramDesc,
       this->blobs_[this->numTransition + transitionIdx]->mdata(),
       this->blobs_[2 * this->numTransition + transitionIdx]->mdata(),
       Dtype(1), local_MeanInf, local_VarInf, CUDNN_BN_MIN_EPSILON,
@@ -751,7 +821,7 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
     gpu_get_one(),gpu_get_zero(),
     *(this->tensorDescriptorVec_conv_x[transitionIdx]),BN_x_ptr,
     *(this->tensorDescriptorVec_conv_x[transitionIdx]),BN_y_ptr,
-    *BN_paramDesc,
+    BN_paramDesc,
     this->blobs_[this->numTransition+transitionIdx]->data(),
       this->blobs_[2*this->numTransition+transitionIdx]->data(),
     local_MeanInf,local_VarInf,CUDNN_BN_MIN_EPSILON)
@@ -759,11 +829,11 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
   //ReLU Fwd
     Dtype* ReLU_x_ptr = this->postBN_data_gpu;
     Dtype* ReLU_y_ptr = this->postReLU_data_gpu;
-    CUDNN_CHECK(cudnnActivationForward(cudnnHandlePtr, *ReLUDesc,
+    CUDNN_CHECK(cudnnActivationForward(cudnnHandlePtr, ReLUDesc,
       gpu_get_one(),
-      *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_x_ptr,
+      (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_x_ptr,
       gpu_get_zero(),
-      *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_y_ptr)
+      (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_y_ptr)
     );
     if (useBC) {
       //Fwd phase 
@@ -774,12 +844,12 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
         Dtype* conv_y_4G = postConv_4G;
         CUDNN_CHECK(cudnnConvolutionForward(cudnnHandlePtr,
           gpu_get_one(),
-          *this->tensorDescriptorVec_conv_x[transitionIdx], conv_x_4G,
-          *(BC_filterDescriptorVec[transitionIdx]),
+          this->tensorDescriptorVec_conv_x[transitionIdx], conv_x_4G,
+          (BC_filterDescriptorVec[transitionIdx]),
           this->blobs_[5 * numTransition + transitionIdx]->data(),
-          *(convBC_Descriptor), *BC_FwdAlgoVec[transitionIdx],
+          (convBC_Descriptor), BC_FwdAlgoVec[transitionIdx],
           workspace, workspace_size_bytes, gpu_get_zero(),
-          *quadG_tensorDesc, conv_y_4G
+          quadG_tensorDesc, conv_y_4G
         ));
       }
       //cudnnHandle_t localFwdHandle = BC_ultra_spaceEfficient?cudnnHandlePtr:extraHandles[0];//TODO
@@ -794,9 +864,9 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
       CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
         cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
         gpu_get_one(), gpu_get_zero(),
-        *quadG_tensorDesc, BN_x_4G,
-        *quadG_tensorDesc, BN_y_4G,
-        *quadG_paramDesc,
+        quadG_tensorDesc, BN_x_4G,
+        quadG_tensorDesc, BN_y_4G,
+        quadG_paramDesc,
         this->blobs_[6 * numTransition + transitionIdx]->mdata(),
         this->blobs_[7 * numTransition + transitionIdx]->mdata(),
         Dtype(1), localBC_MeanInf, localBC_VarInf, CUDNN_BN_MIN_EPSILON,
@@ -805,9 +875,9 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
       /*CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
         localFwdHandle,CUDNN_BATCHNORM_SPATIAL,
         gpu_get_one(),gpu_get_zero(),
-        *quadG_tensorDesc,BN_x_4G,
-        *quadG_tensorDesc,BN_y_4G,
-        *quadG_paramDesc,
+        quadG_tensorDesc,BN_x_4G,
+        quadG_tensorDesc,BN_y_4G,
+        quadG_paramDesc,
         this->blobs_[6*numTransition+transitionIdx]->data(),
         this->blobs_[7*numTransition+transitionIdx]->data(),
         localBC_MeanInf,localBC_VarInf,CUDNN_BN_MIN_EPSILON
@@ -815,11 +885,11 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
       //BC ReLU Fwd reconstruction
       Dtype* ReLU_BC_x = postBN_4G;
       Dtype* ReLU_BC_y = postReLU_4G;
-      CUDNN_CHECK(cudnnActivationForward(localFwdHandle, *ReLUDesc,
+      CUDNN_CHECK(cudnnActivationForward(localFwdHandle, ReLUDesc,
         gpu_get_one(),
-        *quadG_tensorDesc, ReLU_BC_x,
+        quadG_tensorDesc, ReLU_BC_x,
         gpu_get_zero(),
-        *quadG_tensorDesc, ReLU_BC_y
+        quadG_tensorDesc, ReLU_BC_y
       ));
     }
     //CUDA_CHECK(cudaStreamSynchronize(*(extraStreams[0])));
@@ -830,9 +900,9 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
       Dtype* dropout_dy_ptr = postDropout_grad_gpu + channelsBefore_self*H*W;
       Dtype* dropout_dx_ptr = postConv_grad_gpu + channelsBefore_self*H*W;
       CUDNN_CHECK(cudnnDropoutBackward(cudnnHandlePtr,
-        *(dropoutDescriptorVec[transitionIdx]),
-        *tensorDescriptor_conv_y, dropout_dy_ptr,
-        *tensorDescriptor_conv_y, dropout_dx_ptr,
+        (dropoutDescriptorVec[transitionIdx]),
+        tensorDescriptor_conv_y, dropout_dy_ptr,
+        tensorDescriptor_conv_y, dropout_dx_ptr,
         dropout_reserve_gpu[transitionIdx], dropout_reserveSize[transitionIdx]
       ));
     }
@@ -842,29 +912,29 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
     Dtype* conv_x_local = useBC ? postReLU_4G : postReLU_data_gpu;
     Dtype* conv_dy_local = postConv_grad_gpu + channelsBefore_self * this->H * this->W;
     Dtype* conv_dx_local = useBC ? postReLU_4G_grad : postReLU_grad_gpu;
-    cudnnTensorDescriptor_t * conv_x_localDesc = useBC ? quadG_tensorDesc : tensorDescriptorVec_conv_x[transitionIdx];
+    cudnnTensorDescriptor_t conv_x_localDesc = useBC ? quadG_tensorDesc : tensorDescriptorVec_conv_x[transitionIdx];
     //Conv w.r.t. filter
     //CONV_ALGO
     CUDNN_CHECK(cudnnConvolutionBackwardFilter(cudnnHandlePtr,
       gpu_get_one(),
-      *conv_x_localDesc, conv_x_local,
-      *(this->tensorDescriptor_conv_y), conv_dy_local,
-      *(this->conv_Descriptor), *conv_BwdFilterAlgoVec[transitionIdx],
+      conv_x_localDesc, conv_x_local,
+      (this->tensorDescriptor_conv_y), conv_dy_local,
+      (this->conv_Descriptor), conv_BwdFilterAlgoVec[transitionIdx],
       this->workspace, this->workspace_size_bytes,
       gpu_get_one(),
-      *(this->filterDescriptorVec[transitionIdx]), filterGrad_local
+      (this->filterDescriptorVec[transitionIdx]), filterGrad_local
     )
     );
     //Conv w.r.t. x
       //CONV_ALGO
-    CUDNN_CHECK(cudnnConvolutionBackwardData(*(this->extraHandles[0]),
+    CUDNN_CHECK(cudnnConvolutionBackwardData((this->extraHandles[0]),
       gpu_get_one(),
-      *(this->filterDescriptorVec[transitionIdx]), filterData_local,
-      *(this->tensorDescriptor_conv_y), conv_dy_local,
-      *(this->conv_Descriptor), *conv_BwdDataAlgoVec[transitionIdx],
+      (this->filterDescriptorVec[transitionIdx]), filterData_local,
+      (this->tensorDescriptor_conv_y), conv_dy_local,
+      (this->conv_Descriptor), conv_BwdDataAlgoVec[transitionIdx],
       this->workspace2, this->workspace_size_bytes,
       gpu_get_zero(),
-      *conv_x_localDesc, conv_dx_local
+      conv_x_localDesc, conv_dx_local
     )
     );
     //sync_streams << <1, 1 >> > ();
@@ -874,13 +944,13 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
       Dtype* BC_ReLU_dy_local = postReLU_4G_grad;
       Dtype* BC_ReLU_x_local = postBN_4G;
       Dtype* BC_ReLU_dx_local = postBN_4G_grad;
-      CUDNN_CHECK(cudnnActivationBackward(cudnnHandlePtr, *ReLUDesc,
+      CUDNN_CHECK(cudnnActivationBackward(cudnnHandlePtr, ReLUDesc,
         gpu_get_one(),
-        *quadG_tensorDesc, BC_ReLU_y_local,
-        *quadG_tensorDesc, BC_ReLU_dy_local,
-        *quadG_tensorDesc, BC_ReLU_x_local,
+        quadG_tensorDesc, BC_ReLU_y_local,
+        quadG_tensorDesc, BC_ReLU_dy_local,
+        quadG_tensorDesc, BC_ReLU_x_local,
         gpu_get_zero(),
-        *quadG_tensorDesc, BC_ReLU_dx_local
+        quadG_tensorDesc, BC_ReLU_dx_local
       ));
       //BC BN Bwd
       Dtype* BC_BN_x_local = BC_ultra_spaceEfficient ? postConv_4G : postConv_4GVec[transitionIdx];
@@ -899,13 +969,13 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
           gpu_get_one(),
           gpu_get_one(),
 #endif
-          *quadG_tensorDesc,
+          quadG_tensorDesc,
           BC_BN_x_local,
-          *quadG_tensorDesc,
+          quadG_tensorDesc,
           BC_BN_dy_local,
-          *quadG_tensorDesc,
+          quadG_tensorDesc,
           BC_BN_dx_local,
-          *quadG_paramDesc,
+          quadG_paramDesc,
           this->blobs_[6 * numTransition + transitionIdx]->data(),
           this->blobs_[6 * numTransition + transitionIdx]->gpu_mdiff(),
           this->blobs_[7 * numTransition + transitionIdx]->gpu_mdiff(),
@@ -925,23 +995,23 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
       //CONV_ALGO
       CUDNN_CHECK(cudnnConvolutionBackwardFilter(cudnnHandlePtr,
         gpu_get_one(),
-        *tensorDescriptorVec_conv_x[transitionIdx], BC_conv_x_local,
-        *quadG_tensorDesc, BC_conv_dy_local,
-        *convBC_Descriptor, *BC_BwdFilterAlgoVec[transitionIdx],
+        tensorDescriptorVec_conv_x[transitionIdx], BC_conv_x_local,
+        quadG_tensorDesc, BC_conv_dy_local,
+        convBC_Descriptor, BC_BwdFilterAlgoVec[transitionIdx],
         workspace, workspace_size_bytes,
         gpu_get_one(),
-        *BC_filterDescriptorVec[transitionIdx], BC_filterGrad
+        BC_filterDescriptorVec[transitionIdx], BC_filterGrad
       ));
       //Conv Bwd w.r.t. data
       //CONV_ALGO
-      CUDNN_CHECK(cudnnConvolutionBackwardData(*(extraHandles[0]),
+      CUDNN_CHECK(cudnnConvolutionBackwardData((extraHandles[0]),
         gpu_get_one(),
-        *BC_filterDescriptorVec[transitionIdx], BC_filterData,
-        *quadG_tensorDesc, BC_conv_dy_local,
-        *convBC_Descriptor, *BC_BwdDataAlgoVec[transitionIdx],
+        BC_filterDescriptorVec[transitionIdx], BC_filterData,
+        quadG_tensorDesc, BC_conv_dy_local,
+        convBC_Descriptor, BC_BwdDataAlgoVec[transitionIdx],
         workspace2, workspace_size_bytes,
         gpu_get_zero(),
-        *tensorDescriptorVec_conv_x[transitionIdx], BC_conv_dx_local
+        tensorDescriptorVec_conv_x[transitionIdx], BC_conv_dx_local
       ));
       //sync_streams << <1, 1 >> > ();
     }
@@ -950,13 +1020,13 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
     Dtype* ReLU_x_local = postBN_data_gpu;
     Dtype* ReLU_dy_local = postReLU_grad_gpu;
     Dtype* ReLU_dx_local = postBN_grad_gpu;
-    CUDNN_CHECK(cudnnActivationBackward(cudnnHandlePtr, *ReLUDesc,
+    CUDNN_CHECK(cudnnActivationBackward(cudnnHandlePtr, ReLUDesc,
       gpu_get_one(),
-      *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_y_local,
-      *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_dy_local,
-      *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_x_local,
+      (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_y_local,
+      (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_dy_local,
+      (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_x_local,
       gpu_get_zero(),
-      *(this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_dx_local)
+      (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_dx_local)
     );
     //BN Bwd
     Dtype* BN_x_local;
@@ -979,10 +1049,10 @@ virtual void Backward_(const vector<Blob*>& top, const vector<Blob*>& bottom) {
 #if CUDNN_VERSION >= 4005
       gpu_get_one(), gpu_get_one(),
 #endif	  
-      *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_local,
-      *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_dy_local,
-      *(this->tensorDescriptorVec_conv_x[transitionIdx]), BN_dx_local,
-      *BN_paramDesc,
+      (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_local,
+      (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_dy_local,
+      (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_dx_local,
+      BN_paramDesc,
       this->blobs_[this->numTransition + transitionIdx]->data(),
       this->blobs_[this->numTransition + transitionIdx]->gpu_mdiff(),
       this->blobs_[2 * this->numTransition + transitionIdx]->gpu_mdiff(),

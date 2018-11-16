@@ -1,18 +1,6 @@
-#include <vector>
 
-#include "gtest/gtest.h"
 
-#include "caffe/blob.hpp"
-#include "caffe/common.hpp"
-#include "caffe/filler.hpp"
-
-#include "caffe/test/test_caffe_main.hpp"
-
-namespace caffe
-{
-
-  template <typename Dtype>
-  class BlobSimpleTest : public ::testing::Test
+  class BlobSimpleTest : public MultiDeviceTest
   {
   protected:
     BlobSimpleTest()
@@ -42,7 +30,7 @@ namespace caffe
   {
     EXPECT_TRUE(this->blob_preshaped_->gpu_data());
     EXPECT_TRUE(this->blob_preshaped_->cpu_data());
-    EXPECT_TRUE(this->blob_preshaped_->mutable_gpu_data());
+    EXPECT_TRUE(this->blob_preshaped_->gpu_mdata());
     EXPECT_TRUE(this->blob_preshaped_->cpu_mdata());
   }
 
@@ -147,11 +135,11 @@ namespace caffe
     // so that the sumsq computation is done on that device.
     // (Otherwise, this would only check the CPU sumsq implementation.)
     switch (TypeParam::device) {
-    case Caffe::CPU:
+    case CPU:
       this->blob_->cpu_mdata();
       break;
-    case Caffe::GPU:
-      this->blob_->mutable_gpu_data();
+    case GPU:
+      this->blob_->gpu_mdata();
       break;
     default:
       LOG(FATAL) << "Unknown device: " << TypeParam::device;
@@ -164,11 +152,11 @@ namespace caffe
     caffe_cpu_scale(this->blob_->count(), kDiffScaleFactor, data,
                     this->blob_->cpu_mdiff());
     switch (TypeParam::device) {
-    case Caffe::CPU:
+    case CPU:
       this->blob_->cpu_mdiff();
       break;
-    case Caffe::GPU:
-      this->blob_->mutable_gpu_diff();
+    case GPU:
+      this->blob_->gpu_mdiff();
       break;
     default:
       LOG(FATAL) << "Unknown device: " << TypeParam::device;
@@ -201,11 +189,11 @@ namespace caffe
     // so that the asum computation is done on that device.
     // (Otherwise, this would only check the CPU asum implementation.)
     switch (TypeParam::device) {
-    case Caffe::CPU:
+    case CPU:
       this->blob_->cpu_mdata();
       break;
-    case Caffe::GPU:
-      this->blob_->mutable_gpu_data();
+    case GPU:
+      this->blob_->gpu_mdata();
       break;
     default:
       LOG(FATAL) << "Unknown device: " << TypeParam::device;
@@ -218,11 +206,11 @@ namespace caffe
     caffe_cpu_scale(this->blob_->count(), kDiffScaleFactor, data,
                     this->blob_->cpu_mdiff());
     switch (TypeParam::device) {
-    case Caffe::CPU:
+    case CPU:
       this->blob_->cpu_mdiff();
       break;
-    case Caffe::GPU:
-      this->blob_->mutable_gpu_diff();
+    case GPU:
+      this->blob_->gpu_mdiff();
       break;
     default:
       LOG(FATAL) << "Unknown device: " << TypeParam::device;
@@ -249,11 +237,11 @@ namespace caffe
     // so that the asum computation is done on that device.
     // (Otherwise, this would only check the CPU asum implementation.)
     switch (TypeParam::device) {
-    case Caffe::CPU:
+    case CPU:
       this->blob_->cpu_mdata();
       break;
-    case Caffe::GPU:
-      this->blob_->mutable_gpu_data();
+    case GPU:
+      this->blob_->gpu_mdata();
       break;
     default:
       LOG(FATAL) << "Unknown device: " << TypeParam::device;
@@ -276,11 +264,11 @@ namespace caffe
     EXPECT_NEAR(expected_diff_asum_before_scale, this->blob_->asum_diff(),
                 this->epsilon_ * expected_diff_asum_before_scale);
     switch (TypeParam::device) {
-    case Caffe::CPU:
+    case CPU:
       this->blob_->cpu_mdiff();
       break;
-    case Caffe::GPU:
-      this->blob_->mutable_gpu_diff();
+    case GPU:
+      this->blob_->gpu_mdiff();
       break;
     default:
       LOG(FATAL) << "Unknown device: " << TypeParam::device;
@@ -295,4 +283,3 @@ namespace caffe
                 this->epsilon_ * expected_diff_asum);
   }
 
-}  // namespace caffe

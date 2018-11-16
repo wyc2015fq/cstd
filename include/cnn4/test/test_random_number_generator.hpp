@@ -25,7 +25,7 @@ namespace caffe
         int_data_2_(new SyncedMemory(sample_size_ * sizeof(int))) {}
 
     virtual void SetUp() {
-      Caffe::set_random_seed(this->seed_);
+      set_random_seed(this->seed_);
     }
 
     Dtype sample_mean(const Dtype* const seqs, const int sample_size) {
@@ -398,7 +398,7 @@ namespace caffe
   {
     const TypeParam mu = 0;
     const TypeParam sigma = 1;
-    void* gaussian_gpu_data = this->data_->mutable_gpu_data();
+    void* gaussian_gpu_data = this->data_->gpu_mdata();
     this->RngGaussianFillGPU(mu, sigma, gaussian_gpu_data);
     const void* gaussian_data = this->data_->cpu_data();
     this->RngGaussianChecks(mu, sigma, gaussian_data);
@@ -409,7 +409,7 @@ namespace caffe
   {
     const TypeParam mu = -2;
     const TypeParam sigma = 3;
-    void* gaussian_gpu_data = this->data_->mutable_gpu_data();
+    void* gaussian_gpu_data = this->data_->gpu_mdata();
     this->RngGaussianFillGPU(mu, sigma, gaussian_gpu_data);
     const void* gaussian_data = this->data_->cpu_data();
     this->RngGaussianChecks(mu, sigma, gaussian_data);
@@ -420,7 +420,7 @@ namespace caffe
   {
     const TypeParam lower = 0;
     const TypeParam upper = 1;
-    void* uniform_gpu_data = this->data_->mutable_gpu_data();
+    void* uniform_gpu_data = this->data_->gpu_mdata();
     this->RngUniformFillGPU(lower, upper, uniform_gpu_data);
     const void* uniform_data = this->data_->cpu_data();
     this->RngUniformChecks(lower, upper, uniform_data);
@@ -431,7 +431,7 @@ namespace caffe
   {
     const TypeParam lower = -7.3;
     const TypeParam upper = -2.3;
-    void* uniform_gpu_data = this->data_->mutable_gpu_data();
+    void* uniform_gpu_data = this->data_->gpu_mdata();
     this->RngUniformFillGPU(lower, upper, uniform_gpu_data);
     const void* uniform_data = this->data_->cpu_data();
     this->RngUniformChecks(lower, upper, uniform_data);
@@ -441,7 +441,7 @@ namespace caffe
   TYPED_TEST(RandomNumberGeneratorTest, TestRngUniformIntGPU)
   {
     unsigned int* uniform_uint_gpu_data =
-      static_cast<unsigned int*>(this->int_data_->mutable_gpu_data());
+      static_cast<unsigned int*>(this->int_data_->gpu_mdata());
     this->RngUniformIntFillGPU(uniform_uint_gpu_data);
     const unsigned int* uniform_uint_data =
       static_cast<const unsigned int*>(this->int_data_->cpu_data());
@@ -462,11 +462,11 @@ namespace caffe
     const TypeParam sigma = 1;
     // Sample from 0 mean Gaussian.
     TypeParam* gaussian_gpu_data_1 =
-      static_cast<TypeParam*>(this->data_->mutable_gpu_data());
+      static_cast<TypeParam*>(this->data_->gpu_mdata());
     this->RngGaussianFillGPU(mu, sigma, gaussian_gpu_data_1);
     // Sample from 0 mean Gaussian again.
     TypeParam* gaussian_gpu_data_2 =
-      static_cast<TypeParam*>(this->data_2_->mutable_gpu_data());
+      static_cast<TypeParam*>(this->data_2_->gpu_mdata());
     this->RngGaussianFillGPU(mu, sigma, gaussian_gpu_data_2);
     // Multiply Gaussians.
     TypeParam* gaussian_data_1 =
@@ -490,13 +490,13 @@ namespace caffe
     const TypeParam lower_1 = -2;
     const TypeParam upper_1 = -lower_1;
     TypeParam* uniform_gpu_data_1 =
-      static_cast<TypeParam*>(this->data_->mutable_gpu_data());
+      static_cast<TypeParam*>(this->data_->gpu_mdata());
     this->RngUniformFillGPU(lower_1, upper_1, uniform_gpu_data_1);
     // Sample from Uniform on [-3, 3].
     const TypeParam lower_2 = -3;
     const TypeParam upper_2 = -lower_2;
     TypeParam* uniform_gpu_data_2 =
-      static_cast<TypeParam*>(this->data_2_->mutable_gpu_data());
+      static_cast<TypeParam*>(this->data_2_->gpu_mdata());
     this->RngUniformFillGPU(lower_2, upper_2, uniform_gpu_data_2);
     // Multiply Uniforms.
     TypeParam* uniform_data_1 =

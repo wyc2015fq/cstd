@@ -24,7 +24,7 @@ namespace caffe
         blob_bottom_label_(new Blob(10, 1, 1, 1)),
         blob_bottom_infogain_(new Blob(1, 1, 5, 5)),
         blob_top_loss_(new Blob()) {
-      Caffe::set_random_seed(1701);
+      set_random_seed(1701);
       FillerParameter filler_param;
       PositiveUnitballFiller filler(filler_param);
       filler.Fill(this->blob_bottom_data_);

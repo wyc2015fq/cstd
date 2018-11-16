@@ -170,7 +170,7 @@ namespace caffe
       const Dtype scale = 3;
       LayerParameter param;
       param.set_phase(phase);
-      Caffe::set_random_seed(1701);
+      set_random_seed(1701);
       DataParameter* data_param = param.mutable_data_param();
       data_param->set_batch_size(5);
       data_param->set_source(filename_->c_str());
@@ -228,7 +228,7 @@ namespace caffe
       transform_param->set_crop_size(1);
       transform_param->set_mirror(true);
       // Get crop sequence with Caffe seed 1701.
-      Caffe::set_random_seed(seed_);
+      set_random_seed(seed_);
       vector<vector > crop_sequence;
       {
         DataLayer layer1(param);
@@ -250,7 +250,7 @@ namespace caffe
       }  // destroy 1st data layer and unlock the db
       // Get crop sequence after reseeding Caffe with 1701.
       // Check that the sequence is the same as the original.
-      Caffe::set_random_seed(seed_);
+      set_random_seed(seed_);
       DataLayer layer2(param);
       layer2.SetUp(blob_bottom_vec_, blob_top_vec_);
       for (int iter = 0; iter < 2; ++iter) {
@@ -280,7 +280,7 @@ namespace caffe
       transform_param->set_crop_size(1);
       transform_param->set_mirror(true);
       // Get crop sequence with Caffe seed 1701, srand seed 1701.
-      Caffe::set_random_seed(seed_);
+      set_random_seed(seed_);
       srand(seed_);
       vector<vector > crop_sequence;
       {
@@ -356,7 +356,7 @@ namespace caffe
   }
 
 // Test that the sequence of random crops is consistent when using
-// Caffe::set_random_seed.
+// set_random_seed.
   TYPED_TEST(DataLayerTest, TestReadCropTrainSequenceSeededLevelDB)
   {
     const bool unique_pixels = true;  // all images the same; pixels different
@@ -365,7 +365,7 @@ namespace caffe
   }
 
 // Test that the sequence of random crops differs across iterations when
-// Caffe::set_random_seed isn't called (and seeds from srand are ignored).
+// set_random_seed isn't called (and seeds from srand are ignored).
   TYPED_TEST(DataLayerTest, TestReadCropTrainSequenceUnseededLevelDB)
   {
     const bool unique_pixels = true;  // all images the same; pixels different
@@ -402,7 +402,7 @@ namespace caffe
   }
 
 // Test that the sequence of random crops is consistent when using
-// Caffe::set_random_seed.
+// set_random_seed.
   TYPED_TEST(DataLayerTest, TestReadCropTrainSequenceSeededLMDB)
   {
     const bool unique_pixels = true;  // all images the same; pixels different
@@ -411,7 +411,7 @@ namespace caffe
   }
 
 // Test that the sequence of random crops differs across iterations when
-// Caffe::set_random_seed isn't called (and seeds from srand are ignored).
+// set_random_seed isn't called (and seeds from srand are ignored).
   TYPED_TEST(DataLayerTest, TestReadCropTrainSequenceUnseededLMDB)
   {
     const bool unique_pixels = true;  // all images the same; pixels different

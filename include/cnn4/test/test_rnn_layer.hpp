@@ -95,7 +95,7 @@ namespace caffe
     GaussianFiller sequence_filler(filler_param);
     sequence_filler.Fill(&this->blob_bottom_);
     SHARED_PTR<RNNLayer > layer(new RNNLayer(this->layer_param_));
-    Caffe::set_random_seed(1701);
+    set_random_seed(1701);
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     LOG(INFO) << "Calling forward for full sequence RNN";
     layer->Forward(this->blob_bottom_vec_, this->blob_top_vec_);
@@ -108,7 +108,7 @@ namespace caffe
     // check that we get the same result.
     this->ReshapeBlobs(1, num);
     layer.reset(new RNNLayer(this->layer_param_));
-    Caffe::set_random_seed(1701);
+    set_random_seed(1701);
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     const int bottom_count = this->blob_bottom_.count();
     const int top_count = this->blob_top_.count();
@@ -130,7 +130,7 @@ namespace caffe
     }
     // Process the batch one timestep at a time with all cont blobs set to 0.
     // Check that we get a different result, except in the first timestep.
-    Caffe::set_random_seed(1701);
+    set_random_seed(1701);
     layer.reset(new RNNLayer(this->layer_param_));
     layer->SetUp(this->blob_bottom_vec_, this->blob_top_vec_);
     for (int t = 0; t < kNumTimesteps; ++t) {

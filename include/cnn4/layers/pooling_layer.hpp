@@ -27,10 +27,10 @@ DEF##Enum(pool, PoolMethod_MAX, PoolMethod) \
 DEF##Int(pad, 0, 0) \
 DEF##Int(pad_h, 0, 0) \
 DEF##Int(pad_w, 0, 0) \
-DEF##Int(kernel_size, 2, 0) \
+DEF##Int(kernel_size, 0, 0) \
 DEF##Int(kernel_h, 2, 0) \
 DEF##Int(kernel_w, 2, 0) \
-DEF##Int(stride, 1, 0) \
+DEF##Int(stride, 0, 0) \
 DEF##Int(stride_h, 1, 0) \
 DEF##Int(stride_w, 1, 0) \
 DEF##Bool(global_pooling, false, 0) \
@@ -90,32 +90,34 @@ struct PoolingLayer : public Layer
   virtual void LayerSetUp(const vector<Blob*> & bottom,
     const vector<Blob*> & top)
   {
+    if (kernel_size_) {
+      kernel_h_ = kernel_w_ = kernel_size_;
+    }
+    if (pad_) {
+      pad_h_ = pad_w_ = pad_;
+    }
+    if (stride_) {
+      stride_h_ = stride_w_ = stride_;
+    }
     if (global_pooling_) {
       kernel_h_ = bottom[0]->height();
       kernel_w_ = bottom[0]->width();
     }
     CHECK_GT(kernel_h_, 0) << "Filter dimensions cannot be zero.";
     CHECK_GT(kernel_w_, 0) << "Filter dimensions cannot be zero.";
-
-
     if (global_pooling_) {
       CHECK(pad_h_ == 0 && pad_w_ == 0 && stride_h_ == 1 && stride_w_ == 1)
         << "With Global_pooling: true; only pad = 0 and stride = 1";
     }
     if (pad_h_ != 0 || pad_w_ != 0) {
-      CHECK(this->pool_
-        == PoolMethod_AVE
-        || this->pool_
-        == PoolMethod_MAX)
+      CHECK(this->pool_ == PoolMethod_AVE || this->pool_ == PoolMethod_MAX)
         << "Padding implemented only for average and max pooling.";
       CHECK_LT(pad_h_, kernel_h_);
       CHECK_LT(pad_w_, kernel_w_);
     }
   }
 
-  
-  virtual void Reshape(const vector<Blob*> & bottom,
-    const vector<Blob*> & top)
+  virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     CHECK_EQ(4, bottom[0]->num_axes()) << "Input must have 4 axes, "
       << "corresponding to (num, channels, height, width)";
@@ -126,10 +128,8 @@ struct PoolingLayer : public Layer
       kernel_h_ = bottom[0]->height();
       kernel_w_ = bottom[0]->width();
     }
-    pooled_height_ = static_cast<int>(ceil(static_cast<float>(
-      height_ + 2 * pad_h_ - kernel_h_) / stride_h_)) + 1;
-    pooled_width_ = static_cast<int>(ceil(static_cast<float>(
-      width_ + 2 * pad_w_ - kernel_w_) / stride_w_)) + 1;
+    pooled_height_ = static_cast<int>(ceil(static_cast<float>(height_ + 2 * pad_h_ - kernel_h_) / stride_h_)) + 1;
+    pooled_width_ = static_cast<int>(ceil(static_cast<float>(width_ + 2 * pad_w_ - kernel_w_) / stride_w_)) + 1;
     if (pad_h_ || pad_w_) {
       // If we have padding, ensure that the last pooling starts strictly
       // inside the image (instead of at the padding); otherwise clip the last.

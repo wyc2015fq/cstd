@@ -26,7 +26,7 @@ namespace caffe
         blob_top_2_(new Blob()) {}
     virtual void SetUp() {
       // fill the values
-      Caffe::set_random_seed(1701);
+      set_random_seed(1701);
       FillerParameter filler_param;
       GaussianFiller filler(filler_param);
       filler.Fill(this->blob_bottom_);

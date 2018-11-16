@@ -162,7 +162,7 @@ int Classifier::FindLayerIndex(const string& strLayerName)
 	int idx = -1;
 	for (int i = (int)net_->layers_.size() - 1; i >= 0; i--)
 	{
-		if (strLayerName == net_->layers_[i]->name)
+		if (strLayerName == net_->layers_[i]->name_)
 		{
 			idx = i;
 			break;
@@ -946,7 +946,6 @@ void Classifier::PrepareBatchInputs(const vector<cv::Mat>& imgs)
 	std::vector<cv::Mat> input_channels;
 	WrapInputLayer(&input_channels);
 
-
 	for (size_t i = 0; i < imgs.size(); i++)
 	{
 		vector<cv::Mat> vChannels;
@@ -959,15 +958,11 @@ void Classifier::PrepareBatchInputs(const vector<cv::Mat>& imgs)
 std::vector<float> Classifier::GetOutputFeatureMap(const cv::Mat& img, std::vector<int>& outshape)
 {
 	PrepareInput(img);
-
 	net_->Forward(TEST);
-
 	Blob* output_layer = net_->output_blobs(0);
 	const float* begin = output_layer->cpu_data();
 	const float* end = begin + output_layer->count();
-
 	outshape = output_layer->shape_vec();
-
 	return std::vector<float>(begin, end);
 }
  

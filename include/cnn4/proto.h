@@ -148,14 +148,18 @@ struct Blob {
   int count() const { return shape_.count(); }
   Blob() {
     init();
+    this->Reshape(dataShape(1));
   }
-  Blob(int n, int c, int h, int w) {
+  Blob(int n, int c=0, int h=0, int w=0) {
+    init();
     this->Reshape(n, c, h, w);
   }
   Blob(const std::vector<int>& shape) {
+    init();
     this->Reshape(shape);
   }
   Blob(const DataShape& shape) {
+    init();
     this->Reshape(shape);
   }
   void init() {
@@ -254,6 +258,9 @@ struct Blob {
 #define DefEnum(name, def, type)  type name##_;
 #define DefStruct(name, def, type)  type name##_;
 
+static void ConstantFiller(Blob* blob, double x = 1) {
+  cpu_ConstantFiller(blob->shape_, blob->cpu_mdata(), x);
+}
 static void UniformFiller(Blob* blob, double min = 0, double max = 1) {
   cpu_UniformFiller(blob->shape_, blob->cpu_mdata(), min, max);
 }
@@ -440,7 +447,8 @@ Blob* blobs_aget(vector<Blob*>& blobs_, const char* name) {
 
 struct Layer {
   Phase phase_;
-  char name[MAX_NAME];
+  int phase_mask_;
+  char name_[MAX_NAME];
   char type_[MAX_NAME];
   //cJSON* param_;
   typedef Blob::Dtype Dtype;
@@ -469,9 +477,12 @@ struct Layer {
   //Vtbl* vtbl;
   void init() {
     //memset(this, 0, sizeof(Layer));
-    *name = 0;
+    *name_ = 0;
+    *type_ = 0;
     //vtbl = NULL;
-    phase_ = TRAINorTEST;
+    phase_ = TEST;
+    phase_mask_ = (1 << TRAIN) | (1 << TEST);
+    phase_mask_ = 7;
   }
   void Free() {
     reset(0);

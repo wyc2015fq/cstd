@@ -45,7 +45,7 @@ namespace caffe
       // Get crop sequence with Caffe seed 1701.
       DataTransformer transformer(transform_param, phase);
       const int crop_size = transform_param.crop_size();
-      Caffe::set_random_seed(seed_);
+      set_random_seed(seed_);
       transformer.InitRand();
       Blob blob(1, datum.channels(), datum.height(), datum.width());
       if (transform_param.crop_size() > 0) {

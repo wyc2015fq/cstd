@@ -30,7 +30,7 @@ namespace caffe
     virtual void SetUp() {
       blob_top_vec_.push_back(blob_top_data_);
       blob_top_vec_.push_back(blob_top_label_);
-      Caffe::set_random_seed(seed_);
+      set_random_seed(seed_);
       // Create test input file.
       MakeTempFilename(&filename_);
       std::ofstream outfile(filename_.c_str(), std::ofstream::out);

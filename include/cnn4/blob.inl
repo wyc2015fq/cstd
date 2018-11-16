@@ -75,20 +75,35 @@ inline int offset(const vector<int> & indices) const {
   return offset;
 }
 
-inline Dtype data_at(const int n, const int c, const int h,
-  const int w) {
+inline int offset(const DataShape& indices) const {
+  CHECK_LE(indices.size(), num_axes());
+  int offset = 0;
+  for (int i = 0; i < num_axes(); ++i) {
+    offset *= shape(i);
+    if (indices.size() > i) {
+      CHECK_GE(indices[i], 0);
+      CHECK_LT(indices[i], shape(i));
+      offset += indices[i];
+    }
+  }
+  return offset;
+}
+
+inline Dtype data_at(const vector<int> vec) {
+  return cpu_data()[offset(vec)];
+}
+inline Dtype data_at(const int n, const int c, const int h, const int w) {
   return cpu_data()[offset(n, c, h, w)];
 }
 
-inline Dtype diff_at(const int n, const int c, const int h,
-  const int w) {
+inline Dtype diff_at(const int n, const int c, const int h, const int w) {
   return cpu_diff()[offset(n, c, h, w)];
 }
 
 void Reshape(const vector<int> & shape) {
   ASSERT(shape.size()<=kMaxBlobAxes);
   DataShape dshape;
-  dshape.set(&shape[0], shape.size());
+  dshape.set(shape.data(), shape.size());
   Reshape(dshape);
 }
 void set_lr_mult(float lr_mult) {

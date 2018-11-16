@@ -22,7 +22,7 @@ namespace caffe
       : blob_bottom_(new Blob(2, 3, 6, 5)),
         blob_top_(new Blob()) {
       // fill the values
-      Caffe::set_random_seed(1701);
+      set_random_seed(1701);
       FillerParameter filler_param;
       GaussianFiller filler(filler_param);
       filler.Fill(this->blob_bottom_);
