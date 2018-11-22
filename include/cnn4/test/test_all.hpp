@@ -12,6 +12,7 @@
 #include "test_softmax_layer.hpp"
 #include "test_softmax_with_loss_layer.hpp"
 #endif
+#include "test_convolution_layer.hpp"
 
 #if 0
 #include "test_blob.hpp"
@@ -23,7 +24,6 @@
 #include "test_common.hpp"
 #include "test_concat_layer.hpp"
 #include "test_contrastive_loss_layer.hpp"
-#include "test_convolution_layer.hpp"
 #include "test_crop_layer.hpp"
 #include "test_data_layer.hpp"
 #include "test_data_transformer.hpp"

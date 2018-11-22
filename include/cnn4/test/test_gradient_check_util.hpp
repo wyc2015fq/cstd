@@ -34,6 +34,7 @@ typedef MultiDeviceTest CPUDeviceTest;
 
 #define TYPED_TEST_CASE(a, b)
 #define TYPED_TEST(a, b) struct a##b : public a {a##b() {SetUp();begin_test(__FILE__, __LINE__, #a, #b); run();end_test();}void run();}; a##b a##b##run##__LINE__; void a##b::run()
+#define TYPED_TEST0(a, b) struct a##b : public a {a##b() {}void run();}; a##b a##b##run##__LINE__; void a##b::run()
 
 TYPED_TEST_CASE(TransposeLayerTest, TestDtypesAndDevices);
 

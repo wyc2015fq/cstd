@@ -596,13 +596,10 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 			cv::resize(img, img, cv::Size(w1, hstd));
 
 		int start = clock();
-
 		vector<int> shape;
 		vector<float> pred = pCNN->GetOutputFeatureMap(img, shape);
-
 		int end = clock();
 		sumspend += (end - start);
-
 		string strpredict0 = GetPredictString(pred, idxBlank, alphabets, td);
 
 		testdata_t td1 = testdata[i];

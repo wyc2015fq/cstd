@@ -37,7 +37,7 @@ struct Solver {
       Blob* blob = net_->blobs_[i];
       if (blob->loss_weight_ > 0 || blob->bottom_cnt_==0) {
         const Dtype loss_weight = blob->loss_weight_;
-        const string output_name = blob->name;
+        const string output_name = blob->name_;
         ostringstream loss_msg_stream;
         const Dtype mean_score = test_score[i] / test_iter;
         if (fabs(loss_weight) > 0) {
@@ -125,7 +125,7 @@ struct Solver {
           Blob* blob = net_->blobs_[j];
           if (blob->loss_weight_>0) {
             const Dtype* result_vec = blob->cpu_data();
-            const string & output_name = blob->name;
+            const string output_name = blob->name_;
             const Dtype loss_weight = blob->loss_weight_;
 
             for (int k = 0; k < blob->count(); ++k) {

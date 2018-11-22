@@ -14,6 +14,23 @@ inline int CanonicalAxisIndex(int axis_index) const {
 void shape(std::vector<int>& out) {
   out.assign(shape_.dim, shape_.dim + shape_.num_axes());
 }
+
+void set_name(const char* name) {
+  strncpy(name_, name, MAX_NAME);
+}
+
+string to_debug_string() {
+  Blob* blob = this;
+  char str[256];
+  if (blob->diff_->state_ == UNINIT) {
+    _snprintf(str, 256, "%s %s [%lf]", blob->name_,
+      DataShape_string(blob->shape_).c_str(), blob->amean_data());
+  } else {
+    _snprintf(str, 256, "%s %s [%lf %lf]", blob->name_,
+      DataShape_string(blob->shape_).c_str(), blob->amean_data(), blob->amean_diff());
+  }
+  return str;
+}
 std::vector<int> shape_vec() {
   std::vector<int> out;
   out.assign(shape_.dim, shape_.dim + shape_.num_axes());
@@ -89,7 +106,7 @@ inline int offset(const DataShape& indices) const {
   return offset;
 }
 
-inline Dtype data_at(const vector<int> vec) {
+inline Dtype data_at(const vector<int>& vec) {
   return cpu_data()[offset(vec)];
 }
 inline Dtype data_at(const int n, const int c, const int h, const int w) {

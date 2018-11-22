@@ -3,15 +3,22 @@
 #define _WSTD_STRING_HPP_
 
 
-#include <varargs.h>
+//#include <varargs.h>
 #include <assert.h>
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <time.h>
 #include <iomanip>
 #include <sstream>
+
+#ifdef _WIN32
+#if _MSC_VER < 1300
+#define vsnprintf _vsnprintf
+#endif
+#endif
 
 namespace wstd {
 

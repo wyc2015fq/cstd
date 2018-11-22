@@ -46,6 +46,21 @@ public:
   vector<Blob*> postReLU_BCVec;
   vector<Blob*> postConv_BCVec;
   //end CPU specific data section
+  ConvolutionLayer conv_FwdAlgo;
+
+#define BLOB_NAME(NAME)  NAME.set_name(#NAME);
+#define BLOB_DEF1(NAME)  Blob NAME;
+#define BLOB_DEF(DEF) \
+  DEF(postConv) \
+  DEF(postConv_4G) \
+  DEF(postReLU_4G) \
+  DEF(postDropout) \
+  DEF(postBN) \
+  DEF(postBN_4G) \
+  DEF(postReLU)
+
+  BLOB_DEF(BLOB_DEF1)
+#undef BLOB_DEF1
 
   int trainCycleIdx; //used in BN train phase for EMA Mean/Var estimation
                      //convolution Related
@@ -64,8 +79,6 @@ public:
   unsigned long long DB_randomSeed;
   bool useBC;
   bool BC_ultra_spaceEfficient;
-
-
   virtual inline const char* type() const { return "DenseBlock"; }
 
 public:
@@ -75,6 +88,8 @@ public:
   }
   void init(CJSON* param) {
     DenseBlockParameter_DEF(Get);
+    BLOB_DEF(BLOB_NAME);
+
     this->numTransition = param->getint("numtransition", 40);
     this->growthRate = param->getint("growthrate", 12);
     this->EMA_decay = param->getfloat("moving_average_fraction", 0.1);
@@ -389,6 +404,83 @@ public:
 
 
 public:
+  #define log_blob(blob)    LOG_IF(INFO, root_solver()) << " denseblock blob " << (blob).to_debug_string()
+
+  void CPU_Initialization()
+  {
+    this->batch_Mean.resize(this->numTransition);
+    this->batch_Var.resize(this->numTransition);
+    this->merged_conv.resize(this->numTransition + 1);
+    this->BN_XhatVec.resize(this->numTransition);
+    this->postBN_blobVec.resize(this->numTransition);
+    this->postReLU_blobVec.resize(this->numTransition);
+    this->postConv_blobVec.resize(this->numTransition);
+    if (useBC) {
+      BC_BN_XhatVec.resize(this->numTransition);
+      postBN_BCVec.resize(this->numTransition);
+      postReLU_BCVec.resize(this->numTransition);
+      postConv_BCVec.resize(this->numTransition);
+      batch_Mean4G.resize(numTransition);
+      batch_Var4G.resize(numTransition);
+    }
+    for (int transitionIdx = 0; transitionIdx < this->numTransition; ++transitionIdx) {
+      int conv_y_Channels = this->growthRate;
+      int mergeChannels = this->initChannel + this->growthRate * transitionIdx;
+      int channelShapeArr[] = { 1, mergeChannels, 1, 1 };
+      int conv_y_ShapeArr[] = { this->N, conv_y_Channels, this->H, this->W };
+      int mergeShapeArr[] = { this->N, mergeChannels, this->H, this->W };
+      vector<int> channelShape(channelShapeArr, channelShapeArr + 4);
+      vector<int> conv_y_Shape(conv_y_ShapeArr, conv_y_ShapeArr + 4);
+      vector<int> mergeShape(mergeShapeArr, mergeShapeArr + 4);
+      this->batch_Mean[transitionIdx] = new Blob(channelShape);
+      this->batch_Var[transitionIdx] = new Blob(channelShape);
+      this->merged_conv[transitionIdx] = new Blob(mergeShape);
+      this->BN_XhatVec[transitionIdx] = new Blob(mergeShape);
+      this->postBN_blobVec[transitionIdx] = new Blob(mergeShape);
+      this->postReLU_blobVec[transitionIdx] = new Blob(mergeShape);
+      this->postConv_blobVec[transitionIdx] = new Blob(conv_y_Shape);
+      if (useBC) {
+        int quadGShapeArr[] = { N, 4 * growthRate, H, W };
+        int quadChannelArr[] = { 1, 4 * growthRate, 1, 1 };
+        vector<int> quadGShape(quadGShapeArr, quadGShapeArr + 4);
+        vector<int> quadChannelShape(quadChannelArr, quadChannelArr + 4);
+        this->BC_BN_XhatVec[transitionIdx] = new Blob(quadGShape);
+        this->postBN_BCVec[transitionIdx] = new Blob(quadGShape);
+        this->postReLU_BCVec[transitionIdx] = new Blob(quadGShape);
+        this->postConv_BCVec[transitionIdx] = new Blob(quadGShape);
+        batch_Mean4G[transitionIdx] = new Blob(quadChannelShape);
+        batch_Var4G[transitionIdx] = new Blob(quadChannelShape);
+      }
+    }
+    //the last element of merged_conv serve as output of forward
+    int extraMergeOutputShapeArr[] = { this->N, this->initChannel + this->growthRate* this->numTransition, this->H, this->W };
+    vector<int> extraMergeOutputShapeVector(extraMergeOutputShapeArr, extraMergeOutputShapeArr + 4);
+    this->merged_conv[this->numTransition] = new Blob(extraMergeOutputShapeVector);
+  }
+
+  void cleanupBuffer(Dtype* ptr_gpu, int count) {
+    caffe_set(count, 0, ptr_gpu);
+  }
+
+  virtual void LoopEndCleanup_gpu() {
+    int valsBuffer = this->N * (this->initChannel + this->growthRate * this->numTransition) * this->H * this->W;
+    cleanupBuffer(this->postConv.mdata(), valsBuffer);
+    cleanupBuffer(this->postConv.mdiff(), valsBuffer);
+    if (useDropout) {
+      cleanupBuffer(this->postDropout.mdata(), valsBuffer);
+      cleanupBuffer(this->postDropout.mdiff(), valsBuffer);
+    }
+    cleanupBuffer(this->postBN.mdata(), valsBuffer);
+    cleanupBuffer(this->postBN.mdiff(), valsBuffer);
+    cleanupBuffer(this->postReLU.mdata(), valsBuffer);
+    cleanupBuffer(this->postReLU.mdiff(), valsBuffer);
+    int vals4G = N * 4 * growthRate*H*W;
+    if (useBC) {
+      cleanupBuffer(postConv_4G.mdiff(), vals4G);
+      cleanupBuffer(postBN_4G.mdiff(), vals4G);
+      cleanupBuffer(postReLU_4G.mdiff(), vals4G);
+    }
+  }
 
 #ifndef CPU_ONLY
 #include "DenseBlock_layer.cuh"
@@ -402,6 +494,7 @@ public:
 
 INSTANTIATE_CLASS(DenseBlock);
 
+#undef log_blob
 
 #endif  // CAFFE_DENSEBLOCK_LAYER_HPP_
 

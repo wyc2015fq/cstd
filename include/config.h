@@ -1,5 +1,5 @@
 
-//#define CPU_ONLY
+#define CPU_ONLY
 #ifndef CPU_ONLY
 #define USE_CUDNN
 #endif

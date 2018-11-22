@@ -18,8 +18,6 @@ void Lock() {}
 void Unlock() {}
 void InitMutex() {}
 
-
-
 inline string DataShape_string(const DataShape& shape) {
   char buf[256]="[";
   char buf2[32];
@@ -123,10 +121,9 @@ struct DevMem {
   }
 };
 
-
 enum { MAX_NAME = 64 };
 struct Blob {
-  char name[MAX_NAME];
+  char name_[MAX_NAME];
   typedef float Dtype;
   Dtype loss_weight_;
   Dtype loss_;
@@ -225,6 +222,12 @@ struct Blob {
       caffe_copy(count(), diff(), other->mdiff());
     }
   }
+  void zeroData() {
+    caffe_set(count(), (Dtype)0, this->mdata());
+  }
+  void zeroDiff() {
+    caffe_set(count(), (Dtype)0, this->mdiff());
+  }
   // this->data = other->data
   void ShareData(Blob* other) {
     assert(count()==other->count());
@@ -236,6 +239,7 @@ struct Blob {
   }
 #include "blob.inl"
 };
+
 
 #define SetString(name, def, type)  name##_ = (def);
 #define SetBool(name, def, type)  name##_ = (def);
@@ -284,6 +288,16 @@ struct Filler {
   typedef double Stype;
   Filler() {
     init();
+  }
+  void set_value(double value) {    value_ = value;  }
+  bool set_type(const char* name) {
+    for (int i = 0; i < countof(FillerMethod_Name); ++i) {
+      if (0==strcmp(name, FillerMethod_Name[i])) {
+        type_ = (FillerMethod)i;
+        return true;
+      }
+    }
+    return false;
   }
   void init() {
     FILLER_PARAM_DEF(Set);
@@ -413,7 +427,7 @@ static void blobs_reset(vector<Blob*>& blobs_, int blob_size) {
 int blobs_count(const vector<Blob*>& blobs_, const char* name) {
   int i, count = 0;
   for (i = 0; i < blobs_.size(); ++i) {
-    if (0 == strcmp(name, blobs_[i]->name)) { ++count; }
+    if (0 == strcmp(name, blobs_[i]->name_)) { ++count; }
   }
   return count;
 }
@@ -421,7 +435,7 @@ int blobs_count(const vector<Blob*>& blobs_, const char* name) {
 Blob* blobs_get(const vector<Blob*>& blobs_, const char* name) {
   int i;
   for (i = 0; i < blobs_.size(); ++i) {
-    if (0 == strcmp(name, blobs_[i]->name)) { return blobs_[i]; }
+    if (0 == strcmp(name, blobs_[i]->name_)) { return blobs_[i]; }
   }
   return NULL;
 }
@@ -429,7 +443,7 @@ Blob* blobs_get(const vector<Blob*>& blobs_, const char* name) {
 
 Blob* blobs_add(vector<Blob*>& blobs_, const char* name) {
   Blob* new_blob = new Blob();
-  strncpy(new_blob->name, name, MAX_NAME);
+  strncpy(new_blob->name_, name, MAX_NAME);
   blobs_.push_back(new_blob);
   return new_blob;
 }

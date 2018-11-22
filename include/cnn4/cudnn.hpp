@@ -86,8 +86,7 @@ static void setTensor4dDesc(cudnnTensorDescriptor_t desc, cudnnDataType_t type,
     n, c, h, w, stride_n, stride_c, stride_h, stride_w));
 }
 
-static void setTensor4dDesc(cudnnTensorDescriptor_t desc, cudnnDataType_t type,
-  int n, int c, int h, int w)
+static void setTensor4dDesc(cudnnTensorDescriptor_t desc, cudnnDataType_t type, int n, int c, int h, int w)
 {
   const int stride_w = 1;
   const int stride_h = w * stride_w;
@@ -129,21 +128,21 @@ static void setConvolutionDesc(cudnnConvolutionDescriptor_t conv, cudnnDataType_
 #endif
 }
 
-static void createPoolingDesc(cudnnPoolingDescriptor_t* pool_desc,
-  const char* poolmethod, cudnnPoolingMode_t* mode,
+static void createPoolingDesc(cudnnPoolingDescriptor_t* pool_desc, const PoolMethod poolmethod, 
   int h, int w, int pad_h, int pad_w, int stride_h, int stride_w)
 {
-  if (0 == _stricmp(poolmethod, "MAX")) {
-    *mode = CUDNN_POOLING_MAX;
+  cudnnPoolingMode_t        mode;
+  if (poolmethod == PoolMethod_MAX) {
+    mode = CUDNN_POOLING_MAX;
   }
-  else if (0 == _stricmp(poolmethod, "AVE")) {
-    *mode = CUDNN_POOLING_AVERAGE_COUNT_INCLUDE_PADDING;
+  else if (poolmethod == PoolMethod_AVE) {
+    mode = CUDNN_POOLING_AVERAGE_COUNT_INCLUDE_PADDING;
   } else {
     LOG(FATAL) << "Unknown pooling method.";
   }
   CUDNN_CHECK(cudnnCreatePoolingDescriptor(pool_desc));
 #if CUDNN_VERSION_MIN(5, 0, 0)
-  CUDNN_CHECK(cudnnSetPooling2dDescriptor(*pool_desc, *mode,
+  CUDNN_CHECK(cudnnSetPooling2dDescriptor(*pool_desc, mode,
     CUDNN_PROPAGATE_NAN, h, w, pad_h, pad_w, stride_h, stride_w));
 #else
   CUDNN_CHECK(cudnnSetPooling2dDescriptor_v4(*pool_desc, *mode,

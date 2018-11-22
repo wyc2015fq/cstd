@@ -8,6 +8,12 @@
  */
 
 
+template <typename T> T* clone(const T* p) {
+  T* out = new T;
+  *out = *p;
+  return out;
+}
+
 int cJSON_GetShape2D(cJSON* param, const char* name, const char* name_h, const char* name_w, int defint, int& pad_h_, int& pad_w_) {
   cJSON* item = param->get(name);
   cJSON* item_h = param->get(name_h);
@@ -35,10 +41,49 @@ DEF##Int(stride_h, 1, 0) \
 DEF##Int(stride_w, 1, 0) \
 DEF##Bool(global_pooling, false, 0) \
 
+#if 0
+struct pooling_layer_t {
+  PoolingParameter_DEF(Def);
+  DataShape out_shape;
+  int channels_;
+  int height_, width_;
+  int pooled_height_, pooled_width_;
+  void setup(DataShape in_shape) {
+    pooling_layer_t* s = this;
+    CHECK_EQ(4, in_shape.num_axes()) << "Input must have 4 axes, "
+      << "corresponding to (num, channels, height, width)";
+    s->channels_ = in_shape.channels();
+    s->height_ = in_shape.height();
+    s->width_ = in_shape.width();
+    if (s->global_pooling_) {
+      s->kernel_h_ = in_shape.height();
+      s->kernel_w_ = in_shape.width();
+    }
+    s->pooled_height_ = static_cast<int>(ceil(static_cast<float>(s->height_ + 2 * s->pad_h_ - s->kernel_h_) / s->stride_h_)) + 1;
+    s->pooled_width_ = static_cast<int>(ceil(static_cast<float>(s->width_ + 2 * s->pad_w_ - s->kernel_w_) / s->stride_w_)) + 1;
+    if (s->pad_h_ || s->pad_w_) {
+      // If we have padding, ensure that the last pooling starts strictly
+      // inside the image (instead of at the padding); otherwise clip the last.
+      if ((s->pooled_height_ - 1) * s->stride_h_ >= s->height_ + s->pad_h_) {
+        --s->pooled_height_;
+      }
+      if ((s->pooled_width_ - 1) * s->stride_w_ >= s->width_ + pad_w_) {
+        --s->pooled_width_;
+      }
+      CHECK_LT((pooled_height_ - 1) * stride_h_, height_ + pad_h_);
+      CHECK_LT((pooled_width_ - 1) * stride_w_, width_ + pad_w_);
+    }
+    out_shape = dataShape(in_shape.num(), channels_, pooled_height_, pooled_width_);
+    return;
+  }
+};
+#endif
+
 
 struct PoolingLayer : public Layer
 {
   PoolingParameter_DEF(Def);
+  DataShape out_shape;
   int channels_;
   int height_, width_;
   int pooled_height_, pooled_width_;
@@ -87,8 +132,7 @@ struct PoolingLayer : public Layer
     cJSON_GetShape2D(param, "stride", "stride_h", "stride_w", 0, stride_h_, stride_w_);
   }
   
-  virtual void LayerSetUp(const vector<Blob*> & bottom,
-    const vector<Blob*> & top)
+  virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     if (kernel_size_) {
       kernel_h_ = kernel_w_ = kernel_size_;
@@ -154,8 +198,7 @@ struct PoolingLayer : public Layer
     }
     // If stochastic pooling, we will initialize the random index part.
     if (this->pool_ == PoolMethod_STOCHASTIC) {
-      rand_idx_.Reshape(bottom[0]->num(), channels_, pooled_height_,
-        pooled_width_);
+      rand_idx_.Reshape(bottom[0]->num(), channels_, pooled_height_, pooled_width_);
     }
   }
 

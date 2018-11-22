@@ -1,4 +1,81 @@
 
+static void FUN(conv2d)(const Dtype* inData, float* outData, const Dtype* weights, const Dtype* biasData,
+  DataShape inSize, DataShape outSize, int kernel_h, int kernel_w, int stride_h, int stride_w,
+  int dilation_h, int dilation_w, int pad_h, int pad_w, int groups, bool cross_correlation) {
+  // Groups
+  int o_c = outSize.c;
+  int o_g = outSize.c / groups;
+  int k_g = inSize.c / groups;
+  int o_head, k_head;
+  int n, g, o, k, y, x, p, q;
+  // Convolution
+    for (n = 0; n < outSize.n; n++) {
+      for (g = 0; g < groups; g++) {
+        o_head = o_g * g;
+        k_head = k_g * g;
+        for (o = 0; o < o_g; o++) {
+          for (k = 0; k < k_g; k++) {
+            for (y = 0; y < outSize.h; y++) {
+              for (x = 0; x < outSize.w; x++) {
+                int out_offset = ((n*o_g + o + o_head)*outSize.h + y)*outSize.w + x;
+                const Dtype* w = weights + ((o + o_head)*k_g + k)*kernel_h*kernel_w;
+                for (p = 0; p < kernel_h; p++) {
+                  for (q = 0; q < kernel_w; q++) {
+                    int in_y = y * stride_h - pad_h + p * dilation_h;
+                    int in_x = x * stride_w - pad_w + q * dilation_w;
+                    if (is_a_ge_zero_and_a_lt_b(in_y, inSize.h) && is_a_ge_zero_and_a_lt_b(in_x, inSize.w)) {
+                      int weight_offset = cross_correlation ? (((o + o_head)*k_g + k)*kernel_h + p)*kernel_w + q
+                        : (((o + o_head)*k_g + k)*kernel_h + kernel_h -1-p)*kernel_w + kernel_w - 1 - q;
+                      int in_offset = ((n*k_g + k + k_head)*inSize.h + in_y)*inSize.w + in_x;
+                      outData[out_offset] += inData[in_offset] * weights[weight_offset];
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  
+  // Bias
+  if (biasData) {
+    for (n = 0; n < outSize.n; n++) {
+      for (o = 0; o < o_c; o++) {
+        for (y = 0; y < outSize.h; y++) {
+          for (x = 0; x < outSize.w; x++) {
+            int out_offset = ((n*o_c + o)*outSize.h + y)*outSize.w + x;
+            outData[out_offset] += biasData[o];
+          }
+        }
+      }
+    }
+  }
+}
+
+
+struct FUN(ones_t) {
+  Buffer buf;
+  FUN(ones_t)() {
+    buf.data = 0; buf.size = 0; }
+  ~FUN(ones_t)() {
+    Free(&buf);
+  }
+  Dtype* get(int n) {
+    int size = n * sizeof(Dtype);
+    if (size > buf.size) {
+      cpu_ReAlloc(&buf, size);
+      FUN(caffe_set)(n, 1, (Dtype*)buf.data);
+    }
+    return (Dtype*)buf.data;
+  }
+};
+
+const Dtype* FUN(get_ones)(int n) {
+  static FUN(ones_t) ones_;
+  return ones_.get(n);
+};
+
 const Dtype* FUN(get_one)() {
   static Dtype oneval = 1.0;
   return &oneval;
@@ -138,9 +215,8 @@ void CBLASFUN(axpby)(const int N, const Stype alpha, const Dtype* X,
   CBLASFUN(scal)(N, beta, Y, incY);
   CBLASFUN(axpy)(N, alpha, X, incX, Y, incY);
 }
-
-void FUN(caffe_axpby)(const int N, const Stype alpha, const Dtype* X,
-  const Stype beta, Dtype* Y)
+// Y=alpha * X +beta*Y
+void FUN(caffe_axpby)(const int N, const Stype alpha, const Dtype* X, const Stype beta, Dtype* Y)
 {
   CBLASFUN(axpby)(N, alpha, X, 1, beta, Y, 1);
 }
@@ -207,6 +283,7 @@ void FUN(caffe_asum2)(const int n, const Dtype* x, Dtype* y)
   *y = CBLASFUN(asum)(n, x, 1);
 }
 
+// y[i] = alpha * x[i]
 void FUN(caffe_scale)(const int n, const Stype alpha, const Dtype* x, Dtype* y)
 {
   CBLASFUN(copy)(n, x, 1, y, 1);

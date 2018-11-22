@@ -325,58 +325,6 @@ void BN_train_Bwd(Blob* bottom, Blob* bottom_xhat, Blob* top, Blob* batchMean, B
   }
 }
 
-void CPU_Initialization()
-{
-  this->batch_Mean.resize(this->numTransition);
-  this->batch_Var.resize(this->numTransition);
-  this->merged_conv.resize(this->numTransition + 1);
-  this->BN_XhatVec.resize(this->numTransition);
-  this->postBN_blobVec.resize(this->numTransition);
-  this->postReLU_blobVec.resize(this->numTransition);
-  this->postConv_blobVec.resize(this->numTransition);
-  if (useBC) {
-    BC_BN_XhatVec.resize(this->numTransition);
-    postBN_BCVec.resize(this->numTransition);
-    postReLU_BCVec.resize(this->numTransition);
-    postConv_BCVec.resize(this->numTransition);
-    batch_Mean4G.resize(numTransition);
-    batch_Var4G.resize(numTransition);
-  }
-  for (int transitionIdx = 0; transitionIdx < this->numTransition; ++transitionIdx) {
-    int conv_y_Channels = this->growthRate;
-    int mergeChannels = this->initChannel + this->growthRate * transitionIdx;
-    int channelShapeArr[] = { 1, mergeChannels, 1, 1 };
-    int conv_y_ShapeArr[] = { this->N, conv_y_Channels, this->H, this->W };
-    int mergeShapeArr[] = { this->N, mergeChannels, this->H, this->W };
-    vector<int> channelShape(channelShapeArr, channelShapeArr + 4);
-    vector<int> conv_y_Shape(conv_y_ShapeArr, conv_y_ShapeArr + 4);
-    vector<int> mergeShape(mergeShapeArr, mergeShapeArr + 4);
-    this->batch_Mean[transitionIdx] = new Blob(channelShape);
-    this->batch_Var[transitionIdx] = new Blob(channelShape);
-    this->merged_conv[transitionIdx] = new Blob(mergeShape);
-    this->BN_XhatVec[transitionIdx] = new Blob(mergeShape);
-    this->postBN_blobVec[transitionIdx] = new Blob(mergeShape);
-    this->postReLU_blobVec[transitionIdx] = new Blob(mergeShape);
-    this->postConv_blobVec[transitionIdx] = new Blob(conv_y_Shape);
-    if (useBC) {
-      int quadGShapeArr[] = { N, 4 * growthRate, H, W };
-      int quadChannelArr[] = { 1, 4 * growthRate, 1, 1 };
-      vector<int> quadGShape(quadGShapeArr, quadGShapeArr + 4);
-      vector<int> quadChannelShape(quadChannelArr, quadChannelArr + 4);
-      this->BC_BN_XhatVec[transitionIdx] = new Blob(quadGShape);
-      this->postBN_BCVec[transitionIdx] = new Blob(quadGShape);
-      this->postReLU_BCVec[transitionIdx] = new Blob(quadGShape);
-      this->postConv_BCVec[transitionIdx] = new Blob(quadGShape);
-      batch_Mean4G[transitionIdx] = new Blob(quadChannelShape);
-      batch_Var4G[transitionIdx] = new Blob(quadChannelShape);
-    }
-  }
-  //the last element of merged_conv serve as output of forward
-  int extraMergeOutputShapeArr[] = { this->N, this->initChannel + this->growthRate* this->numTransition, this->H, this->W };
-  vector<int> extraMergeOutputShapeVector(extraMergeOutputShapeArr, extraMergeOutputShapeArr + 4);
-  this->merged_conv[this->numTransition] = new Blob(extraMergeOutputShapeVector);
-}
-
 void mergeChannelData(Blob* outputBlob, Blob* blobA, Blob* blobB)
 {
   int N = blobA->shape(0);
@@ -450,6 +398,8 @@ void DenseBlockLayer::LoopEndCleanup_cpu()
     BlobSetZero(this->postConv_blobVec[transitionIdx], tensorCount);
   }
 }
+
+
 
 void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top)
 {

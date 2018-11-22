@@ -27,7 +27,7 @@ bool has_layer(const char* name) {
 }
 int layer_index_by_name(const char* name) {
   for (int i = 0; i < blobs_.size(); ++i) {
-    if (strcmp(name, blobs_[i]->name) == 0) {
+    if (strcmp(name, blobs_[i]->name_) == 0) {
       return i;
     }
   }
@@ -35,7 +35,7 @@ int layer_index_by_name(const char* name) {
 }
 Blob* blob_by_name(const char* name) {
   for (int i = 0; i < blobs_.size(); ++i) {
-    if (strcmp(name, blobs_[i]->name) == 0) {
+    if (strcmp(name, blobs_[i]->name_) == 0) {
       return blobs_[i];
     }
   }

@@ -10,8 +10,10 @@ struct cJSON;
 
 //struct CPUContext;
 //struct GPUContext;
+#define BN_MIN_EPSILON  (1e-5)
 
 #define _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF, Dtype, Stype)  \
+DEF(const Dtype*, get_ones, (int n)) \
 DEF(const Dtype*, get_one, ()) \
 DEF(const Dtype*, get_zero, ()) \
 DEF(void, caffe_copy, (const int N, const Dtype* X, Dtype* Y)) \
@@ -76,6 +78,7 @@ DEF(void, scalebias_forward, (const int n, const Dtype* in,const Dtype* scale, c
 DEF(void, dropout_forward, (const int n, const Dtype* in, unsigned int* mask, const Stype dropout_ratio, const Stype scale, Dtype* out)) \
 DEF(void, dropout_backward, (const int n, const Dtype* in_diff, const unsigned int* mask, const Stype scale, Dtype* out_diff)) \
 DEF(void, transpose, (const int nthreads, const Dtype* from_data, Dtype* to_data, const DataShape from_counts, const DataShape to_counts, const DataShape map, const int num_axes)) \
+DEF(void, BatchNormalizationForwardInference, (int count, int channels, int inner_num_, const Dtype *x, Dtype *y, const Dtype *bnScale, const Dtype *bnBias, const Dtype *estimatedMean, const Dtype *estimatedVariance, Stype epsilon)) \
 //
 #define _MATH_FUNCTIONS_TYPE_CPU_DEF(DEF, Dtype, Stype)  \
 DEF(void, caffe_rng_bernoulli, (const int n, const Stype p, int* r)) \

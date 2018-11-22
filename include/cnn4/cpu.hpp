@@ -17,7 +17,7 @@ static void set_mode(enum Brew brew) {}
 
 //Context* context[2] = {0};
 
-typedef float(*f32_10_t)[100];
+typedef float(*f32_10_t)[1000];
 
 struct Buffer {
   int size;
@@ -74,6 +74,12 @@ static void Free(Buffer* ptr) {
     ptr->size = 0;
   }
 }
+static void cpu_ReAlloc(Buffer* ptr, size_t nbytes) {
+  ptr->brew = CPU;
+  if (ptr->size<nbytes) {
+    ptr->data = realloc(ptr->data, ptr->size = nbytes);
+  }
+}
 static void ReAlloc(Brew brew, Buffer* ptr, size_t nbytes) {
   if (ptr->data) {
     assert(brew==ptr->brew);
@@ -81,17 +87,17 @@ static void ReAlloc(Brew brew, Buffer* ptr, size_t nbytes) {
   if (GPU == brew) {
     return gpu_ReAlloc(ptr, nbytes);
   }
-  if (ptr->size<nbytes) {
-    ptr->data = realloc(ptr->data, ptr->size = nbytes);
-  }
-  ptr->brew = brew;
+  return cpu_ReAlloc(ptr, nbytes);
+}
+static void cpu_Memset(Buffer* ptr, size_t nbytes) {
+  CHECK_LE(nbytes, ptr->size);
+  memset(ptr->data, 0, nbytes);
 }
 static void Memset(Buffer* ptr, size_t nbytes) {
   if (GPU == ptr->brew) {
     return gpu_Memset(ptr, nbytes);
   }
-  CHECK_LE(nbytes, ptr->size);
-  memset(ptr->data, 0, nbytes);
+  return cpu_Memset(ptr, nbytes);
 }
 #if 0
 static void MemcpyAsync(size_t nbytes, Buffer* dst, const void* src, void* stream) { memcpy(dst, src, nbytes); }

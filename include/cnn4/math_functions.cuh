@@ -1,4 +1,27 @@
 
+struct FUN(ones_t) {
+  Buffer buf;
+  FUN(ones_t)() {
+    buf.data = 0; buf.size = 0;
+  }
+  ~FUN(ones_t)() {
+    Free(&buf);
+  }
+  Dtype* get(int n) {
+    int size = n * sizeof(Dtype);
+    if (size > buf.size) {
+      gpu_ReAlloc(&buf, size);
+      FUN(caffe_set)(n, 1, (Dtype*)buf.data);
+    }
+    return (Dtype*)buf.data;
+  }
+};
+
+const Dtype* FUN(get_ones)(int n) {
+  static FUN(ones_t) ones_;
+  return ones_.get(n);
+};
+
 const Dtype* FUN(get_one)() {
   static Dtype oneval = 1.0;
   return &oneval;
@@ -263,8 +286,7 @@ __global__ void FUN(sign_kernel)(const int n, const Dtype* x, Dtype* y) {
 }
 
 void FUN(caffe_sign)(const int n, const Dtype* x, Dtype* y) {
-  FUN(sign_kernel)<<<CAFFE_GET_BLOCKS(n), CAFFE_CUDA_NUM_THREADS>>>(
-      n, x, y);
+  FUN(sign_kernel)<<<CAFFE_GET_BLOCKS(n), CAFFE_CUDA_NUM_THREADS>>>(n, x, y);
 }
 
 __global__ void FUN(sgnbit_kernel)(const int n, const Dtype* x, Dtype* y) {

@@ -132,23 +132,15 @@ double Forward(const vector<Blob*> & bottom, const vector<Blob*> & top )
 
   Unlock();
 #ifdef _DEBUG
-  debug_info_ = 1;
+  //debug_info_ = 1;
 #endif
   if (debug_info_) {
     LOG_IF(INFO, root_solver()) << "  [Forward] " << type_ << "Layer " << name_;
     for (int i = 0; i < top.size(); ++i) {
-      Blob* blob = top[i];
-      const Dtype data_abs_val_mean = blob->amean_data();
-      LOG_IF(INFO, root_solver())
-        << "    top blob " << i << " " << blob->name << DataShape_string(blob->shape_)
-        << " data: " << data_abs_val_mean;
+      LOG_IF(INFO, root_solver()) << "    top blob " << i << " " << top[i]->to_debug_string();
     }
-    for (int param_id = 0; param_id < blobs_.size(); ++param_id) {
-      Blob* blob = blobs_[param_id];
-      const Dtype data_abs_val_mean = blob->amean_data();
-      LOG_IF(INFO, root_solver())
-        << "    param blob " << param_id << " " << blob->name  << DataShape_string(blob->shape_)
-        << " data: " << data_abs_val_mean;
+    for (int i = 0; i < blobs_.size(); ++i) {
+      LOG_IF(INFO, root_solver()) << "    param blob " << i << " " << blobs_[i]->to_debug_string();
     }
   }
 
@@ -163,18 +155,10 @@ inline void Backward(const vector<Blob*> & top, const vector<Blob*> & bottom)
   if (debug_info_) {
     LOG_IF(INFO, root_solver()) << "  [Backward] " << type_ << "Layer " << name_;
     for (int i = 0; i < bottom.size(); ++i) {
-      Blob* blob = bottom[i];
-      const Dtype abs_val_mean = blob->amean_diff();
-      LOG_IF(INFO, root_solver())
-        << "    bottom blob " << i << " " << blob->name << DataShape_string(blob->shape_)
-        << " diff: " << abs_val_mean;
+      LOG_IF(INFO, root_solver()) << "    bottom blob " << i << " " << bottom[i]->to_debug_string();
     }
-    for (int param_id = 0; param_id < blobs_.size(); ++param_id) {
-      Blob* blob = blobs_[param_id];
-      const Dtype data_abs_val_mean = blob->amean_diff();
-      LOG_IF(INFO, root_solver())
-        << "    param blob " << param_id << " " << blob->name << DataShape_string(blob->shape_)
-        << " diff: " << data_abs_val_mean;
+    for (int i = 0; i < blobs_.size(); ++i) {
+      LOG_IF(INFO, root_solver()) << "    param blob " << i << " " << blobs_[i]->to_debug_string();
     }
   }
 

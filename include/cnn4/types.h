@@ -60,6 +60,8 @@ struct DataShape {
     dim[0] = n, dim[1] = c, dim[2] = h, dim[3] = w;
     for (int i = 4; i < kMaxBlobAxes; ++i) { dim[i] = 0; }
   }
+  int& operator[](int index) { return dim[index]; }
+  const int& operator[](int index) const { return dim[index]; }
   void set(const int* dim2, int n) {
     assert(n<=kMaxBlobAxes);
     for (int i = 0; i < n; ++i) { dim[i] = dim2[i]; }
@@ -68,7 +70,6 @@ struct DataShape {
   void check() const {
     for (int i = 0; i < kMaxBlobAxes; ++i) { assert(dim[i]>=0); }
   }
-  int operator[](int i) const { return at(i); }
   int count() const {
     check();
     int cnt = 1, n = num_axes();

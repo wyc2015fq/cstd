@@ -25,6 +25,8 @@
 
 #ifdef USE_CUDNN
 #include "cudnn_conv_layer.hpp"
+//#include "cudnn_conv2_layer.hpp"
+#include "cudnn_pooling_layer.hpp"
 #endif
 
 #if 0
