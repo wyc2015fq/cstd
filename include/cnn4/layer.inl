@@ -132,7 +132,7 @@ double Forward(const vector<Blob*> & bottom, const vector<Blob*> & top )
 
   Unlock();
 #ifdef _DEBUG
-  //debug_info_ = 1;
+  debug_info_ = 1;
 #endif
   if (debug_info_) {
     LOG_IF(INFO, root_solver()) << "  [Forward] " << type_ << "Layer " << name_;

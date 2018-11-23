@@ -285,19 +285,14 @@ void FUN(pooling_forward)(PoolMethod pool, Phase phase, const Dtype* bottom_data
       // We need to create the random index as well.
       FUN(caffe_rng_uniform)(count, Dtype(0), Dtype(1), rand_idx);
       // NOLINT_NEXT_LINE(whitespace/operators)
-      FUN(StoPoolForwardTrain) << <CAFFE_GET_BLOCKS(count),
-        CAFFE_CUDA_NUM_THREADS >> >(
-          count, bottom_data, num, channels,
-          height, width, pooled_height, pooled_width, kernel_h,
-          kernel_w, stride_h, stride_w,
-          rand_idx, top_data);
+      FUN(StoPoolForwardTrain) <<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS >>>(
+          count, bottom_data, num, channels, height, width, pooled_height, pooled_width, kernel_h,
+          kernel_w, stride_h, stride_w, rand_idx, top_data);
     }
     else {
       // NOLINT_NEXT_LINE(whitespace/operators)
-      FUN(StoPoolForwardTest) << <CAFFE_GET_BLOCKS(count),
-        CAFFE_CUDA_NUM_THREADS >> >(
-          count, bottom_data, num, channels,
-          height, width, pooled_height, pooled_width, kernel_h,
+      FUN(StoPoolForwardTest) <<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS >> >(
+          count, bottom_data, num, channels, height, width, pooled_height, pooled_width, kernel_h,
           kernel_w, stride_h, stride_w, top_data);
     }
     break;

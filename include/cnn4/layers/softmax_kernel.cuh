@@ -4,8 +4,7 @@
 #include "thrust/device_vector.h"
 
 
-__global__ void FUN(kernel_channel_max)(const int num, const int channels,
-    const int spatial_dim, const Dtype* data, Dtype* out) {
+__global__ void FUN(kernel_channel_max)(const int num, const int channels, const int spatial_dim, const Dtype* data, Dtype* out) {
   CUDA_KERNEL_LOOP(index, num * spatial_dim) {
     int n = index / spatial_dim;
     int s = index % spatial_dim;
@@ -17,8 +16,7 @@ __global__ void FUN(kernel_channel_max)(const int num, const int channels,
   }
 }
 
-__global__ void FUN(kernel_channel_subtract)(const int count,
-    const int num, const int channels,
+__global__ void FUN(kernel_channel_subtract)(const int count, const int num, const int channels,
     const int spatial_dim, const Dtype* channel_max, Dtype* data) {
   CUDA_KERNEL_LOOP(index, count) {
     int n = index / channels / spatial_dim;
@@ -33,8 +31,7 @@ __global__ void FUN(kernel_exp)(const int count, const Dtype* data, Dtype* out) 
   }
 }
 
-__global__ void FUN(kernel_channel_sum)(const int num, const int channels,
-    const int spatial_dim, const Dtype* data, Dtype* channel_sum) {
+__global__ void FUN(kernel_channel_sum)(const int num, const int channels, const int spatial_dim, const Dtype* data, Dtype* channel_sum) {
   CUDA_KERNEL_LOOP(index, num * spatial_dim) {
     int n = index / spatial_dim;
     int s = index % spatial_dim;
@@ -46,9 +43,8 @@ __global__ void FUN(kernel_channel_sum)(const int num, const int channels,
   }
 }
 
-__global__ void FUN(kernel_channel_div)(const int count,
-    const int num, const int channels,
-    const int spatial_dim, const Dtype* channel_sum, Dtype* data) {
+__global__ void FUN(kernel_channel_div)(const int count,  const int num, const int channels,
+  const int spatial_dim, const Dtype* channel_sum, Dtype* data) {
   CUDA_KERNEL_LOOP(index, count) {
     int n = index / channels / spatial_dim;
     int s = index % spatial_dim;
@@ -64,8 +60,7 @@ __global__ void FUN(kernel_channel_dot)(const int num, const int channels,
     int s = index % spatial_dim;
     Dtype dot = 0;
     for (int c = 0; c < channels; ++c) {
-      dot += (data_1[(n * channels + c) * spatial_dim + s]
-          * data_2[(n * channels + c) * spatial_dim + s]);
+      dot += (data_1[(n * channels + c) * spatial_dim + s] * data_2[(n * channels + c) * spatial_dim + s]);
     }
     channel_dot[index] = dot;
   }
@@ -83,28 +78,19 @@ void FUN(softmax_forward)(int count, int channels, int outer_num_, int inner_num
   // and then normalize.
   // compute max
   // NOLINT_NEXT_LINE(whitespace/operators)
-  FUN(kernel_channel_max) <<<CAFFE_GET_BLOCKS(outer_num_ * inner_num_),
-      CAFFE_CUDA_NUM_THREADS>>>(outer_num_, channels, inner_num_, top_data,
-      scale_data);
+  FUN(kernel_channel_max) <<<CAFFE_GET_BLOCKS(outer_num_ * inner_num_), CAFFE_CUDA_NUM_THREADS>>>(outer_num_, channels, inner_num_, top_data, scale_data);
   // subtract
   // NOLINT_NEXT_LINE(whitespace/operators)
-  FUN(kernel_channel_subtract)<<<CAFFE_GET_BLOCKS(count),
-      CAFFE_CUDA_NUM_THREADS>>>(count, outer_num_, channels, inner_num_,
-      scale_data, top_data);
+  FUN(kernel_channel_subtract)<<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(count, outer_num_, channels, inner_num_, scale_data, top_data);
   // exponentiate
   // NOLINT_NEXT_LINE(whitespace/operators)
-  FUN(kernel_exp)<<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
-    count, top_data, top_data);
+  FUN(kernel_exp)<<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(count, top_data, top_data);
   // sum after exp
   // NOLINT_NEXT_LINE(whitespace/operators)
-  FUN(kernel_channel_sum)<<<CAFFE_GET_BLOCKS(outer_num_ * inner_num_),
-      CAFFE_CUDA_NUM_THREADS>>>(outer_num_, channels, inner_num_, top_data,
-      scale_data);
+  FUN(kernel_channel_sum)<<<CAFFE_GET_BLOCKS(outer_num_ * inner_num_), CAFFE_CUDA_NUM_THREADS>>>(outer_num_, channels, inner_num_, top_data, scale_data);
   // divide
   // NOLINT_NEXT_LINE(whitespace/operators)
-  FUN(kernel_channel_div)<<<CAFFE_GET_BLOCKS(count),
-      CAFFE_CUDA_NUM_THREADS>>>(count, outer_num_, channels, inner_num_,
-      scale_data, top_data);
+  FUN(kernel_channel_div)<<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(count, outer_num_, channels, inner_num_, scale_data, top_data);
 }
 
 void FUN(softmax_backward)(int count, int channels, int outer_num_, int inner_num_,
@@ -118,13 +104,9 @@ void FUN(softmax_backward)(int count, int channels, int outer_num_, int inner_nu
   FUN(caffe_copy)(count, top_diff, bottom_diff);
   // Compute inner1d(top_diff, top_data) and subtract them from the bottom diff.
   // NOLINT_NEXT_LINE(whitespace/operators)
-  FUN(kernel_channel_dot)<<<CAFFE_GET_BLOCKS(outer_num_ * inner_num_),
-      CAFFE_CUDA_NUM_THREADS>>>(outer_num_, channels, inner_num_,
-      top_diff, top_data, scale_data);
+  FUN(kernel_channel_dot)<<<CAFFE_GET_BLOCKS(outer_num_ * inner_num_), CAFFE_CUDA_NUM_THREADS>>>(outer_num_, channels, inner_num_, top_diff, top_data, scale_data);
   // NOLINT_NEXT_LINE(whitespace/operators)
-  FUN(kernel_channel_subtract)<<<CAFFE_GET_BLOCKS(count),
-      CAFFE_CUDA_NUM_THREADS>>>(count, outer_num_, channels, inner_num_,
-      scale_data, bottom_diff);
+  FUN(kernel_channel_subtract)<<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(count, outer_num_, channels, inner_num_, scale_data, bottom_diff);
   // elementwise multiplication
   FUN(caffe_mul)(count, bottom_diff, top_data, bottom_diff);
 }

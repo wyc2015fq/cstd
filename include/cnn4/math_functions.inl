@@ -3,12 +3,22 @@
 #include "cpu.hpp"
 
 #define FUN(NAME)  cpu_##NAME
+#define DEF(RET, NAME, ARGS)  RET cpu_ ## NAME ARGS
+
+void* FUN(caffe_malloc)(const int N) {
+  return malloc(N);
+}
+void FUN(caffe_free)(void* p) {
+  if (p) {
+    free(p);
+  }
+}
 
 void FUN(caffe_memset)(const size_t N, const int alpha, void* X)
 {
   memset(X, alpha, N);
 }
-void cpu_caffe_memcpy(const size_t N, const void* X, void* Y) {
+void FUN(caffe_memcpy)(const size_t N, const void* X, void* Y) {
   memcpy(Y, X, N);
 }
 
@@ -35,10 +45,7 @@ inline bool is_a_ge_zero_and_a_lt_b(int a, int b)
   return static_cast<unsigned>(a) < static_cast<unsigned>(b);
 }
 
-
-
 #define Stype double
-
 #define CBLASFUN(NAME)  cblas_s##NAME
 #define Dtype float
 #include "math_functions_impl.inl"
@@ -52,3 +59,4 @@ inline bool is_a_ge_zero_and_a_lt_b(int a, int b)
 
 
 #undef _CONTEXT
+#undef DEF

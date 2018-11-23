@@ -57,10 +57,16 @@ public:
   DEF(postDropout) \
   DEF(postBN) \
   DEF(postBN_4G) \
-  DEF(postReLU)
+  DEF(postReLU) \
 
-  BLOB_DEF(BLOB_DEF1)
+
+  BLOB_DEF(BLOB_DEF1);
 #undef BLOB_DEF1
+
+  Dtype* Mean_tmp;
+  Dtype* Var_tmp;
+  vector<Dtype*> ResultSaveMean_gpu;
+  vector<Dtype*> ResultSaveInvVariance_gpu;
 
   int trainCycleIdx; //used in BN train phase for EMA Mean/Var estimation
                      //convolution Related
@@ -79,6 +85,7 @@ public:
   unsigned long long DB_randomSeed;
   bool useBC;
   bool BC_ultra_spaceEfficient;
+
   virtual inline const char* type() const { return "DenseBlock"; }
 
 public:
@@ -250,6 +257,8 @@ public:
     }
 #ifndef CPU_ONLY
     GPU_Initialization();
+#else
+    CPU_Initialization();
 #endif
   }
 
@@ -456,10 +465,119 @@ public:
     int extraMergeOutputShapeArr[] = { this->N, this->initChannel + this->growthRate* this->numTransition, this->H, this->W };
     vector<int> extraMergeOutputShapeVector(extraMergeOutputShapeArr, extraMergeOutputShapeArr + 4);
     this->merged_conv[this->numTransition] = new Blob(extraMergeOutputShapeVector);
+
+
+
+    DataShape shape = dataShape(N, (this->initChannel + this->growthRate*this->numTransition), H, W);
+    postConv.Reshape(shape);
+    if (useDropout) {
+      postDropout.Reshape(shape);
+    }
+    postBN.Reshape(shape);
+    postReLU.Reshape(shape);
+
+    DataShape quadG_shape = dataShape(N, 4 * growthRate, H, W);
+    if (useBC) {
+#if 1
+      postBN_4G.Reshape(quadG_shape);
+      postReLU_4G.Reshape(quadG_shape);
+      postReLU_4G.Reshape(quadG_shape);
+#endif
+    }
+    for (int i = 0; i < this->numTransition; ++i) {
+      //Result Running/Saving Mean/Variance/InvVariance
+      int localChannel = this->initChannel + i * this->growthRate;
+      Dtype* local_SaveMean;
+      Dtype* local_SaveInvVar;
+
+      caffe_Malloc(&local_SaveMean, localChannel * sizeof(Dtype));
+      caffe_Malloc(&local_SaveInvVar, localChannel * sizeof(Dtype));
+
+      caffe_Memset(local_SaveMean, 0, localChannel * sizeof(Dtype));
+      caffe_Memset(local_SaveInvVar, 0, localChannel * sizeof(Dtype));
+
+      this->ResultSaveMean_gpu.push_back(local_SaveMean);
+      this->ResultSaveInvVariance_gpu.push_back(local_SaveInvVar);
+    }
+
+    //Mean and Var tmp
+    int totalNumChannel = this->initChannel + this->growthRate * this->numTransition;
+    caffe_Malloc(&this->Mean_tmp, totalNumChannel * sizeof(Dtype));
+    caffe_Malloc(&this->Var_tmp, totalNumChannel * sizeof(Dtype));
+    cleanupBuffer(this->Mean_tmp, totalNumChannel);
+    cleanupBuffer(this->Var_tmp, totalNumChannel);
+
   }
+
+
+
 
   void cleanupBuffer(Dtype* ptr_gpu, int count) {
     caffe_set(count, 0, ptr_gpu);
+  }
+
+  void copy_one_to_many(const Dtype* inPtr, Dtype* outPtr, int numChunks, int chunkSize_input, int chunkStride_output) {
+    for (int chunkIdx = 0; chunkIdx < numChunks; ++chunkIdx) {
+      const Dtype* inPtr_local = inPtr + chunkIdx*chunkSize_input;
+      Dtype* outPtr_local = outPtr + chunkIdx*chunkStride_output;
+
+      //printf("inpointer %p\n",inPtr);
+      //printf("outpointer %p\n",outPtr);
+      //CUDA_CHECK(cudaMemcpy(outPtr_local, inPtr_local, , cudaMemcpyDeviceToDevice));
+      caffe_memcpy(chunkSize_input * sizeof(Dtype), inPtr_local, outPtr_local);
+    }
+  }
+
+  void copy_many_to_one(const Dtype* inPtr, Dtype* outPtr, int numChunks, int chunkSize_output, int chunkStride_input) {
+    for (int chunkIdx = 0; chunkIdx < numChunks; ++chunkIdx) {
+      const Dtype* inPtr_local = inPtr + chunkIdx*chunkStride_input;
+      Dtype* outPtr_local = outPtr + chunkIdx*chunkSize_output;
+      //CUDA_CHECK(cudaMemcpy(outPtr_local, inPtr_local, chunkSize_output * sizeof(Dtype), cudaMemcpyDeviceToDevice));
+      caffe_memcpy(chunkSize_output * sizeof(Dtype), inPtr_local, outPtr_local);
+    }
+  }
+
+  //__global__ void sync_streams() {}
+  virtual void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
+#if 0
+    if (!this->gpuInited) {
+      //std::cout<<"Initializing GPU local"<<std::endl;
+      this->GPU_Initialization();
+      this->gpuInited = true;
+      //std::cout<< "GPUInited"<< std::endl;
+    }
+#endif
+    //clock_t begin_fwd = std::clock();//timer
+    const Dtype* bottom_data = bottom[0]->data();
+    Dtype* top_data = top[0]->mdata();
+    const int count = bottom[0]->count();
+    //copy to bottom_data to buffer with stride
+    int chunkSize_copy_init = this->initChannel * this->H * this->W;
+    int chunkStride_copy = (this->initChannel + this->growthRate * this->numTransition) * this->H * this->W;
+    if ((this->phase_ == TRAIN) && useDropout) {
+      copy_one_to_many(bottom_data, this->postDropout.mdata(), this->N, chunkSize_copy_init, chunkStride_copy);
+    }
+    else {
+      copy_one_to_many(bottom_data, this->postConv.mdata(), this->N, chunkSize_copy_init, chunkStride_copy);
+    }
+    int work_n = this->N * (this->initChannel + this->numTransition * this->growthRate) * this->H * this->W;
+    //work in the buffer, transition by transition
+    for (int transitionIdx = 0; transitionIdx < this->numTransition; ++transitionIdx) {
+      bottleneck_Forward_(transitionIdx);
+    }
+    //deploy top data
+    if ((this->phase_ == TRAIN) && useDropout) {
+      //cudaMemcpy(top[0]->gpu_mdata(), postDropout.gpu_mdata(), work_n * sizeof(Dtype), cudaMemcpyDeviceToDevice);
+      caffe_memcpy(work_n * sizeof(Dtype), postDropout.data(), top[0]->mdata());
+    }
+    else {
+      //cudaMemcpy(top[0]->gpu_mdata(), postConv.gpu_mdata(), work_n * sizeof(Dtype), cudaMemcpyDeviceToDevice);
+      caffe_memcpy(work_n * sizeof(Dtype), postConv.data(), top[0]->mdata());
+    }
+    //clock_t end_fwd = std::clock();
+    //double elapsed_fwd = double(end_fwd - begin_fwd) / CLOCKS_PER_SEC;
+    //std::cout<<"elapsed fwd gpu:"<<elapsed_fwd<<std::endl;
+    //this->logInternal("TClogFwd",-1,false,false);
   }
 
   virtual void LoopEndCleanup_gpu() {

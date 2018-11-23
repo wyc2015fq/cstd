@@ -96,6 +96,10 @@ static void setTensor4dDesc(cudnnTensorDescriptor_t desc, cudnnDataType_t type, 
     stride_n, stride_c, stride_h, stride_w);
 }
 
+static void setTensor4dDesc(cudnnTensorDescriptor_t desc, cudnnDataType_t type, DataShape shape) {
+  setTensor4dDesc(desc, type, shape.n, shape.c, shape.h, shape.w);
+}
+
 static void createFilterDesc(cudnnFilterDescriptor_t* desc, cudnnDataType_t type,
   int n, int c, int h, int w)
 {

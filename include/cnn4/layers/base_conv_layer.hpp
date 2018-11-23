@@ -99,6 +99,9 @@ public:
   int output_offset_;
 
   Blob col_buffer_;
+  BaseConvolutionLayer() {
+    init();
+  }
   //Blob bias_multiplier_;
   inline void conv_im2col(const Dtype* data, Dtype* col_buff) {
     if (!force_nd_im2col_ && num_spatial_axes_ == 2) {
@@ -154,7 +157,7 @@ public:
     dilation_ = cJSON_GetShape(param, 1, "dilation", "dilation_h", "dilation_w");
     CJSON* blobs_json = param->get("blobs");
   }
-  
+  void set_group(int group) {  group_ = group;  }
   void set_force_nd_im2col(bool force_nd_im2col) { force_nd_im2col_ = force_nd_im2col; }
   void set_bias_term(bool bias_term) { bias_term_ = bias_term; }
   void set_axis(int axis) {    axis_ = axis;  }

@@ -400,8 +400,177 @@ void DenseBlockLayer::LoopEndCleanup_cpu()
 }
 
 
+void bottleneck_Forward_(int transitionIdx) {
+  //BN Fwd 
+  Dtype* BN_x_ptr;
+  if (this->phase_ == TRAIN && useDropout) {
+    BN_x_ptr = this->postDropout.mdata();
+  }
+  else {
+    BN_x_ptr = this->postConv.mdata();
+  }
+  Dtype* BN_y_ptr = this->postBN.mdata();
+  Dtype* BN_globalMean = this->blobs_[3 * this->numTransition + transitionIdx]->mdata();
+  Dtype* BN_globalVar = this->blobs_[4 * this->numTransition + transitionIdx]->mdata();
+  //Dtype* BC_filter = this->blobs_[5 * numTransition + transitionIdx]->mdata();
+  int numChannels = initChannel + growthRate*transitionIdx;
+  Dtype* local_MeanInf = this->Mean_tmp;
+  Dtype* local_VarInf = this->Var_tmp;
 
-void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top)
+  const Dtype* bnScale = this->blobs_[this->numTransition + transitionIdx]->data();
+  const Dtype *bnBias = this->blobs_[2 * this->numTransition + transitionIdx]->data();
+  int localChannels = this->initChannel + transitionIdx * this->growthRate;
+  int inner_num_ = this->H * this->W;
+  if (this->phase_ == TEST) {
+    int count = this->N*localChannels*inner_num_;
+    BatchNormalizationForwardInference(this->N, localChannels, inner_num_, BN_x_ptr, BN_y_ptr, bnScale, bnBias, BN_globalMean, BN_globalVar, BN_MIN_EPSILON);
+    //log_blob(this->postBN);
+    //log_blob(this->postConv);
+  }
+  else {
+    Dtype* batchMean = this->ResultSaveMean_gpu[transitionIdx];
+    Dtype* batchInvVar = this->ResultSaveInvVariance_gpu[transitionIdx];
+    BatchNormalizationForwardTraining(this->N, localChannels, inner_num_, BN_x_ptr, BN_y_ptr, bnScale, bnBias, Dtype(1), local_MeanInf, local_VarInf, BN_MIN_EPSILON, batchMean, batchInvVar);
+    //update global Mean/Var manually
+    //Mean:
+    caffe_axpby(numChannels, EMA_decay, local_MeanInf, Dtype(1.0 - EMA_decay), BN_globalMean);
+    //Var:
+    caffe_axpby(numChannels, EMA_decay, local_VarInf, Dtype(1.0 - EMA_decay), BN_globalVar);
+  }
+  Dtype* ReLU_x_ptr = this->postBN.mdata();
+  Dtype* ReLU_y_ptr = this->postReLU.mdata();
+  if (1) {
+    int count = this->postBN.count();
+    relu_forward(count, ReLU_x_ptr, ReLU_y_ptr, 0);
+  }
+  //log_blob(this->postReLU);
+  if (useBC) {
+#if 0
+    //Convolution 1*1 kernel 
+    Dtype* conv_x_4G = postReLU.mdata();
+    Dtype* conv_y_4G;
+    if (BC_ultra_spaceEfficient) {
+      conv_y_4G = postConv_4G.mdata();
+    }
+    else {
+      conv_y_4G = postConv_4GVec[transitionIdx];
+    }
+    //CONV_ALGO
+    CUDNN_CHECK(cudnnConvolutionForward(cudnnHandlePtr,
+      get_one(),
+      this->tensorDescriptorVec_conv_x[transitionIdx], conv_x_4G,
+      this->BC_filterDescriptorVec[transitionIdx],
+      this->blobs_[5 * numTransition + transitionIdx]->data(),
+      convBC_Descriptor, BC_FwdAlgoVec[transitionIdx],
+      workspace, workspace_size_bytes, get_zero(),
+      quadG_tensorDesc, conv_y_4G
+    ));
+    //std::cout<<"BC Fwd Conv Done"<<std::endl;
+    //BN 4G Fwd
+    Dtype* BN_x_4G = BC_ultra_spaceEfficient ? postConv_4G.mdata() : postConv_4GVec[transitionIdx];
+    Dtype* BN_y_4G = postBN_4G.mdata();
+    Dtype* BN_BC_globalMean = this->blobs_[8 * numTransition + transitionIdx]->mdata();
+    Dtype* BN_BC_globalVar = this->blobs_[9 * numTransition + transitionIdx]->mdata();
+    Dtype* localBC_MeanInf = BC_MeanInfVec[transitionIdx];
+    Dtype* localBC_VarInf = BC_VarInfVec[transitionIdx];
+    //std::cout<<"BC Fwd BN Prepared"<<std::endl;
+    if (this->phase_ == TEST) {
+      CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
+        cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
+        get_one(), get_zero(),
+        quadG_tensorDesc, BN_x_4G,
+        quadG_tensorDesc, BN_y_4G,
+        quadG_paramDesc,
+        this->blobs_[6 * numTransition + transitionIdx]->data(),
+        this->blobs_[7 * numTransition + transitionIdx]->data(),
+        BN_BC_globalMean, BN_BC_globalVar, CUDNN_BN_MIN_EPSILON)
+      );
+    }
+    else {
+      Dtype* BC_batchMean = ResultSaveMean_BC[transitionIdx];
+      Dtype* BC_batchInvVar = ResultSaveInvVariance_BC[transitionIdx];
+      CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
+        cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
+        get_one(), get_zero(),
+        quadG_tensorDesc, BN_x_4G,
+        quadG_tensorDesc, BN_y_4G,
+        quadG_paramDesc,
+        this->blobs_[6 * numTransition + transitionIdx]->mdata(),
+        this->blobs_[7 * numTransition + transitionIdx]->mdata(),
+        Dtype(1), localBC_MeanInf, localBC_VarInf, CUDNN_BN_MIN_EPSILON,
+        BC_batchMean, BC_batchInvVar
+      ));
+      caffe_axpby(4 * growthRate, EMA_decay, localBC_MeanInf, Dtype(1.0 - EMA_decay), BN_BC_globalMean);
+      caffe_axpby(4 * growthRate, EMA_decay, localBC_VarInf, Dtype(1.0 - EMA_decay), BN_BC_globalVar);
+    }
+    //std::cout<<"BC Fwd BN Done"<<std::endl;
+    //ReLU 4G Fwd
+    Dtype* ReLU_BC_x = postBN_4G.mdata();
+    Dtype* ReLU_BC_y = postReLU_4G.mdata();
+    CUDNN_CHECK(cudnnActivationForward(cudnnHandlePtr, ReLUDesc,
+      get_one(),
+      quadG_tensorDesc, ReLU_BC_x,
+      get_zero(),
+      quadG_tensorDesc, ReLU_BC_y
+    ));
+    //std::cout<<"BC Fwd ReLU Done"<<std::endl;
+#endif
+  }
+  //Convolution
+  int delayChannel = this->initChannel + this->growthRate * transitionIdx;
+  Dtype* conv_x_local;
+  cudnnTensorDescriptor_t conv_x_localDesc;
+  Blob* conv_x = NULL;
+  if (useBC) {
+    conv_x = &postReLU_4G;
+    conv_x_local = postReLU_4G.mdata();
+  }
+  else {
+    conv_x = &postReLU;
+    conv_x_local = postReLU.mdata();
+  }
+  Dtype* conv_y_local = this->postConv.mdata() + delayChannel * this->H * this->W;
+  //CONV_ALGO
+  //  void cudnn_conv2d(const Dtype* inData, float* outData, const Dtype* weights, const Dtype* biasData,
+  //DataShape inSize, DataShape outSize, int kernel_h, int kernel_w, int stride_h, int stride_w,
+  //int dilation_h, int dilation_w, int pad_h, int pad_w, int group_, bool cross_correlation)
+  if (1) {
+    uutime a;
+    //     static void FUN(conv2d)(const Dtype* inData, float* outData, const Dtype* weights, const Dtype* biasData,
+    // DataShape inSize, DataShape outSize, int kernel_h, int kernel_w, int stride_h, int stride_w,
+    // int dilation_h, int dilation_w, int pad_h, int pad_w, int groups)
+    int conv_x_channels = this->initChannel + this->growthRate * transitionIdx;
+    Blob* conv_w = this->blobs_[transitionIdx];
+    DataShape conv_x_shape = conv_x->shape_;
+    conv_x_shape.c = conv_x_channels;
+    DataShape conv_y_shape = dataShape(this->N, this->growthRate, this->H, this->W);
+    Dtype* conv_x_local = postReLU.cpu_mdata();
+    Dtype* conv_y_local = this->postConv.cpu_mdata() + delayChannel * this->H * this->W;
+    const Dtype* w = conv_w->cpu_data();
+    cpu_caffe_set(conv_y_shape.count(), 0, conv_y_local);
+    cpu_conv2d(conv_x_local, conv_y_local, w, NULL, conv_x_shape, conv_y_shape, conv_w->shape_.h, conv_w->shape_.w, 1, 1, 1, 1, 1, 1, 1, false);
+    //LOG(INFO) << a.elapsed();
+    //log_blob(this->postConv);
+    1 == 1;
+  }
+#if 0
+  //Dropout
+  if ((this->phase_ == TRAIN) && useDropout) {
+    Dtype* dropout_x_local = postConv.mdata() + delayChannel*H*W;
+    Dtype* dropout_y_local = postDropout.mdata() + delayChannel*H*W;
+    CUDNN_CHECK(cudnnDropoutForward(cudnnHandlePtr,
+      dropoutDescriptorVec[transitionIdx],
+      tensorDescriptor_conv_y, dropout_x_local,
+      tensorDescriptor_conv_y, dropout_y_local,
+      dropout_reserve_gpu[transitionIdx], dropout_reserveSize[transitionIdx]
+    ));
+  }
+#endif
+  //this->logInternal_gpu("TClogFwd",transitionIdx,true,false);
+}
+
+
+void Forward_1(const vector<Blob*> & bottom, const vector<Blob*> & top)
 {
   //init CPU
   if (!this->cpuInited) {

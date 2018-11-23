@@ -8,6 +8,20 @@
 #define CUDNN_STREAMS_PER_GROUP 3
 // __global__ void sync_conv_groups() { }
 
+struct HandleStream {
+  cudnnHandle_t handle_;
+  cudaStream_t stream_;
+  void init() {
+    if (NULL == handle_) {
+      CUDA_CHECK(cudaStreamCreate(&stream_));
+      CUDNN_CHECK(cudnnCreate(&handle_));
+      CUDNN_CHECK(cudnnSetStream(handle_, stream_));
+    }
+  }
+};
+
+//#include "conv_layer_cudnn.h"
+
 class CuDNNConvolution2Layer : public ConvolutionLayer
 {
 public:
@@ -72,7 +86,7 @@ public:
     // Set the indexing parameters.
     bias_offset_ = (this->num_output_ / this->group_);
     // Create filter descriptor.
-    const int* kernel_shape_data = this->kernel_shape_.dim;
+    const int* kernel_shape_data = this->kernel_.dim;
     const int kernel_h = kernel_shape_data[0];
     const int kernel_w = kernel_shape_data[1];
     createFilterDesc(&filter_desc_, type,

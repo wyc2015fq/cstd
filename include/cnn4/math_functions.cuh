@@ -31,6 +31,17 @@ const Dtype* FUN(get_zero)() {
   return &zeroval;
 }
 
+void* FUN(caffe_malloc)(const int N) {
+  void* p = NULL;
+  CUDA_CHECK(cudaMalloc(&p, N));
+  return p;
+}
+void FUN(caffe_free)(void* p) {
+  if (p) {
+    CUDA_CHECK(cudaFree(p));
+  }
+}
+
 void FUN(caffe_copy)(const int N, const Dtype* X, Dtype* Y)
 {
   if (X != Y) {

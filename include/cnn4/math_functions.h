@@ -78,7 +78,8 @@ DEF(void, scalebias_forward, (const int n, const Dtype* in,const Dtype* scale, c
 DEF(void, dropout_forward, (const int n, const Dtype* in, unsigned int* mask, const Stype dropout_ratio, const Stype scale, Dtype* out)) \
 DEF(void, dropout_backward, (const int n, const Dtype* in_diff, const unsigned int* mask, const Stype scale, Dtype* out_diff)) \
 DEF(void, transpose, (const int nthreads, const Dtype* from_data, Dtype* to_data, const DataShape from_counts, const DataShape to_counts, const DataShape map, const int num_axes)) \
-DEF(void, BatchNormalizationForwardInference, (int count, int channels, int inner_num_, const Dtype *x, Dtype *y, const Dtype *bnScale, const Dtype *bnBias, const Dtype *estimatedMean, const Dtype *estimatedVariance, Stype epsilon)) \
+DEF(void, BatchNormalizationForwardInference, (int num, int channels, int inner_num_, const Dtype *x, Dtype *y, const Dtype *bnScale, const Dtype *bnBias, const Dtype *estimatedMean, const Dtype *estimatedVariance, Stype epsilon)) \
+DEF(void, BatchNormalizationForwardTraining, (int N, int C, int M, Dtype* X, Dtype* Y, const Dtype* scaler, const Dtype* bias, Stype factor, Dtype* runningMean, Dtype* runningVar, Stype epsilon, Dtype* batchMean, Dtype* batchVar)) \
 //
 #define _MATH_FUNCTIONS_TYPE_CPU_DEF(DEF, Dtype, Stype)  \
 DEF(void, caffe_rng_bernoulli, (const int n, const Stype p, int* r)) \
@@ -89,9 +90,10 @@ _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF, Dtype, Stype)
 
 
 #define _MATH_FUNCTIONS_MEM_CPU_GPU_DEF(DEF)  \
+DEF(void*, caffe_malloc, (const int N)) \
+DEF(void, caffe_free, (void* p)) \
 DEF(void, caffe_memset, (const size_t N, const int alpha, void* X)) \
 DEF(void, caffe_memcpy, (const size_t N, const void* X, void* Y))
-
 
 //
 #define _MATH_FUNCTIONS_TYPE_GPU_DEF(DEF, Dtype, Stype)  \
@@ -143,6 +145,17 @@ struct BufData : public Buffer {
     return (Dtype*)data;
   }
 };
+template <typename T>
+void caffe_Malloc(T** p, int n) {
+  *p = (T*)caffe_malloc(n);
+}
+template <typename T>
+void caffe_Free(T** p) {
+  caffe_free(*p);
+  *p = NULL;
+}
+static void caffe_Memcpy(void* y, const void* x, int n) { caffe_memcpy(n, x, y); }
+static void caffe_Memset(void* y, const int a, int n) { caffe_memset(n, a, y); }
 
 
 #endif // _MATH_FUNCTIONS_H_

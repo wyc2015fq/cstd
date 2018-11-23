@@ -21,6 +21,7 @@ void gpu_caffe_memcpy(const size_t N, const void* X, void* Y) {
 }
 
 #define FUN(NAME) gpu_##NAME
+#define DEF(RET, NAME, ARGS)  RET gpu_ ## NAME ARGS
 #define Stype double
 #define Dtype float
 #define CBLASFUN(NAME)  cublasS##NAME
@@ -28,6 +29,7 @@ void gpu_caffe_memcpy(const size_t N, const void* X, void* Y) {
 #undef CBLASFUN
 #undef Dtype
 #undef Stype
+#undef DEF
 #undef FUN
 
 

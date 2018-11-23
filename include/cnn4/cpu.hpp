@@ -13,7 +13,7 @@ enum Brew { CPU, GPU };
 
 static void set_mode(enum Brew brew) {}
 
-#define CPU_KERNEL_LOOP(i, n)  for (int i = 0; i < (n); ++i )
+#define CPU_KERNEL_LOOP(_i, _n)  for (int _i = 0; _i < (_n); ++_i )
 
 //Context* context[2] = {0};
 

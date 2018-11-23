@@ -18,15 +18,16 @@
 #include "dropout_layer.hpp"
 #include "transpose_layer.hpp"
 #include "reshape_layer.hpp"
+#include "deconv_layer.hpp"
 #include "ctc/ctc_decoder_layer.hpp"
 
 //#include "warp_ctc_loss_layer.hpp"
 #include "denseblock_layer.hpp"
 
 #ifdef USE_CUDNN
-#include "cudnn_conv_layer.hpp"
-//#include "cudnn_conv2_layer.hpp"
-#include "cudnn_pooling_layer.hpp"
+#include "conv_layer_cudnn.hpp"
+#include "conv2_layer_cudnn.hpp"
+#include "pooling_layer_cudnn.hpp"
 #endif
 
 #if 0
