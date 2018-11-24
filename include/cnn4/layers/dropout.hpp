@@ -77,6 +77,6 @@ public:
 
 };
 
-REGISTER_LAYER_CLASS(Dropout);
+INSTANTIATE_CLASS(Dropout, DropoutLayer);
 
 #endif  // CAFFE_DROPOUT_LAYER_HPP_

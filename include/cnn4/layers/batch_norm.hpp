@@ -220,7 +220,7 @@ public:
 
 };
 
-INSTANTIATE_CLASS(BatchNorm);
+INSTANTIATE_CLASS(BatchNorm, BatchNormLayer);
 
 
 #endif  // CAFFE_BATCHNORM_LAYER_HPP_

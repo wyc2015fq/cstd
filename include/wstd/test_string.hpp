@@ -1,7 +1,20 @@
 
 #include "wstd/string.hpp"
 
+using namespace wstd;
+
 int test_string() {
+  vector<string> ret;
+  split(ret, "what tatoo"," t",true);
+  const char* out[] = {"wha","a","oo"};
+  for (int i=0; i<countof(out); ++i) {
+    ASSERT(out[i]==ret[i]);
+  }
+  return 0;
+}
+
+#if 0
+int test_string_path() {
   using namespace std;
   const char* str = "C:\\outpic\\aaa.jpg";
   assert("C:" == wstd::path_fmt(str, "d"));
@@ -14,3 +27,5 @@ int test_string() {
   return 0;
 }
 
+
+#endif

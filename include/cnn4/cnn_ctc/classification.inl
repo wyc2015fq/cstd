@@ -3,23 +3,11 @@
 #endif
 
 #include "classification.hpp"
-#include "wstd/filesystem.hpp"
 
 //#include "cblas.h"
 
 //#include "glog/logging.h"
 
-
-extern "C" EXPORT ICNNPredict* CreatePredictInstance(const char* model_folder, bool use_gpu)
-{
-	Classifier* p = new Classifier();
-	if (!p->Init(model_folder, use_gpu))
-	{
-		delete p;
-		p = NULL;
-	}
-	return p;
-}
 
 Classifier::Classifier(){  }
 
@@ -171,23 +159,6 @@ int Classifier::FindLayerIndex(const string& strLayerName)
 	return idx;
 }
 
-static bool PairCompare(const std::pair<float, int>& lhs,
-	const std::pair<float, int>& rhs) {
-	return lhs.first > rhs.first;
-}
-
-/* Return the indices of the top N values of vector v. */
-static std::vector<int> Argmax(const std::vector<float>& v, int N) {
-	std::vector<std::pair<float, int> > pairs;
-	for (size_t i = 0; i < v.size(); ++i)
-		pairs.push_back(std::make_pair(v[i], (int)i));
-	std::partial_sort(pairs.begin(), pairs.begin() + N, pairs.end(), PairCompare);
-
-	std::vector<int> result;
-	for (int i = 0; i < N; ++i)
-		result.push_back(pairs[i].second);
-	return result;
-}
 /* Return the top Na predictions. */
 std::vector<Prediction> Classifier::Classify(const string& file, int N) {
 
@@ -910,8 +881,6 @@ void Classifier::Forward(const cv::Mat& img, const string& lastLayerName)
 	BatchForward(imgs, lastLayerName);
 }
 
-
-
 void Classifier::BatchForward(const vector<cv::Mat>& imgs, const string& lastLayerName)
 {
 	if (!net_->has_layer(lastLayerName.c_str()))
@@ -958,7 +927,9 @@ void Classifier::PrepareBatchInputs(const vector<cv::Mat>& imgs)
 std::vector<float> Classifier::GetOutputFeatureMap(const cv::Mat& img, std::vector<int>& outshape)
 {
 	PrepareInput(img);
+  uutime a;
 	net_->Forward(TEST);
+  LOG(INFO) << a.elapsed();
 	Blob* output_layer = net_->output_blobs(0);
 	const float* begin = output_layer->cpu_data();
 	const float* end = begin + output_layer->count();

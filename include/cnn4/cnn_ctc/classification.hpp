@@ -1,23 +1,30 @@
 #ifndef __CLASSIFICATION__
 #define __CLASSIFICATION__
 
-
-
-//#include <caffe/caffe.hpp>
-// #include <opencv2/core/core.hpp>
-// #include <opencv2/highgui/highgui.hpp>
-// #include <opencv2/imgproc/imgproc.hpp>
-
-#include <set>
 #include "ICNNPredict.h"
+#include "wstd/filesystem.hpp"
 
+using namespace std;
 
-using std::string;
-using std::ifstream;
+static bool PairCompare(const std::pair<float, int>& lhs,
+  const std::pair<float, int>& rhs) {
+  return lhs.first > rhs.first;
+}
 
+/* Return the indices of the top N values of vector v. */
+static std::vector<int> Argmax(const std::vector<float>& v, int N) {
+  std::vector<std::pair<float, int> > pairs;
+  for (size_t i = 0; i < v.size(); ++i)
+    pairs.push_back(std::make_pair(v[i], (int)i));
+  std::partial_sort(pairs.begin(), pairs.begin() + N, pairs.end(), PairCompare);
 
+  std::vector<int> result;
+  for (int i = 0; i < N; ++i)
+    result.push_back(pairs[i].second);
+  return result;
+}
 
-class EXPORT Classifier : public ICNNPredict
+class Classifier : public ICNNPredict
 {
 public:
 	Classifier();
@@ -39,7 +46,6 @@ public:
 
 	std::vector<PredictionIdx> ClassifyRtnIdx(const cv::Mat& img, int N = 5);
 
-
 	//std::vector<float> ExtractFeature(const cv::Mat& img,const string& strLayerName="");
 	std::vector<float> GetLayerFeatureMaps(const string& strLayerName, std::vector<int>& outshape);
 	int GetFeatureDim();
@@ -47,7 +53,6 @@ public:
 	std::vector< std::vector<float> > GetLastBlockFeature(const cv::Mat& img);
 	std::vector<float> GetOutputFeatureMap(const cv::Mat& img, std::vector<int>& outshape);
 	
-
 	void SetMean(const string& mean_file);
 
 	std::vector<float> Predict(const cv::Mat& img);
@@ -76,16 +81,21 @@ private:
 	cv::Size input_geometry_;
 	int num_channels_;
 	cv::Mat mean_;
-	std::vector<float> channel_mean_;
-	std::vector<string> labels_;
-
-	std::vector< std::set<string> > synsetwords;
-
+	vector<float> channel_mean_;
+	vector<string> labels_;
+	//std::vector< std::set<string> > synsetwords1;
 	int FindMaxChannelLayer();
 	int FindLayerIndex(const string& strLayerName);
 };
 
-
-
-
+ICNNPredict* CreatePredictInstance(const char* model_folder, bool use_gpu)
+{
+  Classifier* p = new Classifier();
+  if (!p->Init(model_folder, use_gpu))
+  {
+    delete p;
+    p = NULL;
+  }
+  return p;
+}
 #endif

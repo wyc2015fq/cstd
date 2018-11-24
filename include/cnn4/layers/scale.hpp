@@ -232,6 +232,6 @@ public:
 };
 
 
-REGISTER_LAYER_CLASS(Scale);
+INSTANTIATE_CLASS(Scale, ScaleLayer);
 
 #endif  // CAFFE_SCALE_LAYER_HPP_

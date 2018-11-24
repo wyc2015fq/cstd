@@ -95,6 +95,6 @@ public:
 
 };
 
-INSTANTIATE_CLASS(Transpose);
+INSTANTIATE_CLASS(Transpose, TransposeLayer);
 
 #endif  // CAFFE_TRANSPOSE_LAYER_HPP_

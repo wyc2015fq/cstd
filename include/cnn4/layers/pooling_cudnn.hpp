@@ -72,7 +72,7 @@ public:
 
 };
 
-INSTANTIATE_CLASS2(Pooling, CuDNNPooling);
+INSTANTIATE_CLASS(Pooling, CuDNNPoolingLayer);
 
 
 #endif  // CAFFE_CUDNN_POOLING_LAYER_HPP_

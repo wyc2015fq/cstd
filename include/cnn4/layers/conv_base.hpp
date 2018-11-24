@@ -32,12 +32,6 @@ DataShape cJSON_GetShape(cJSON* param, int kDefaultPad, const char* name, const 
   return pad;
 }
 
-
-/**
-* @brief Abstract base class that factors out the BLAS code common to
-*        ConvolutionLayer and DeconvolutionLayer.
-*/
-
 #define ConvolutionParameter_DEF(DEF) \
 DEF##Bool(force_nd_im2col, false, 0) \
 DEF##Bool(bias_term, true, 0) \
@@ -48,7 +42,7 @@ DEF##Struct(weight_filler, 0, Filler) \
 DEF##Struct(bias_filler, 0, Filler) \
 
 
-struct BaseConvolutionLayer : public Layer
+struct ConvolutionLayerBase : public Layer
 {
 public:
   ConvolutionParameter_DEF(Def);
@@ -99,7 +93,7 @@ public:
   int output_offset_;
 
   Blob col_buffer_;
-  BaseConvolutionLayer() {
+  ConvolutionLayerBase() {
     init();
   }
   //Blob bias_multiplier_;

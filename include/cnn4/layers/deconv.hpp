@@ -1,7 +1,7 @@
 #ifndef CAFFE_DECONV_LAYER_HPP_
 #define CAFFE_DECONV_LAYER_HPP_
 
-struct DeconvolutionLayer : public BaseConvolutionLayer
+struct DeconvolutionLayer : public ConvolutionLayerBase
 {
   virtual inline const char* type() const { return "Deconvolution"; }
 
@@ -33,8 +33,7 @@ public:
       const Dtype* bottom_data = bottom[i]->data();
       Dtype* top_data = top[i]->mdata();
       for (int n = 0; n < this->num_; ++n) {
-        this->backward_gemm(bottom_data + n * this->bottom_dim_, weight,
-          top_data + n * this->top_dim_);
+        this->backward_gemm(bottom_data + n * this->bottom_dim_, weight, top_data + n * this->top_dim_);
         if (this->bias_term_) {
           const Dtype* bias = this->blobs_[1]->data();
           this->forward_bias(top_data + n * this->top_dim_, bias);
@@ -79,6 +78,6 @@ public:
 
 };
 
-INSTANTIATE_CLASS(Deconvolution);
+INSTANTIATE_CLASS(Deconvolution, DeconvolutionLayer);
 
 #endif  // CAFFE_DECONV_LAYER_HPP_

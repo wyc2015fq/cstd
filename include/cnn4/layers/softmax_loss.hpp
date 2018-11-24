@@ -157,7 +157,7 @@ public:
   }
 };
 
-INSTANTIATE_CLASS(SoftmaxWithLoss);
+INSTANTIATE_CLASS(SoftmaxWithLoss, SoftmaxWithLossLayer);
 
 
 #endif  // CAFFE_SOFTMAX_WITH_LOSS_LAYER_HPP_

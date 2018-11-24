@@ -264,6 +264,6 @@ struct PoolingLayer : public Layer
 
 };
 
-INSTANTIATE_CLASS(Pooling);
+INSTANTIATE_CLASS(Pooling, PoolingLayer);
 
 #endif  // CAFFE_POOLING_LAYER_HPP_

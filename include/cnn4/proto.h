@@ -540,10 +540,11 @@ struct Layer {
 
 //#define REG_LAYER(name) Layer::fun_type f ## Bias = Layer::reg(new ## Bias, #name );
 
-#define INSTANTIATE_CLASS2(name, Bias) Layer* new ## Bias ## Layer(cJSON* param) { Bias ## Layer* p = new Bias ## Layer(); p->init(param); return p;} \
-Layer::fun_type f ## Bias = Layer::reg(&new ## Bias ## Layer, #name );
+#define log_blob(blob)    LOG_IF(INFO, root_solver()) << " denseblock blob " << (blob).to_debug_string()
+#define INSTANTIATE_CLASS(name, Class) Layer* new ## Class (cJSON* param) { Class * p = new Class(); p->init(param); return p;} \
+Layer::fun_type f ## Class = Layer::reg(&new ## Class, #name );
 
-#define INSTANTIATE_CLASS(Bias) INSTANTIATE_CLASS2(Bias, Bias)
+//#define INSTANTIATE_CLASS(Bias) INSTANTIATE_CLASS2(Bias, Bias)
 #define REGISTER_LAYER_CLASS INSTANTIATE_CLASS
 //Layer<double>::fun_type d ## Bias = Layer<double>::reg(&new ## Bias ## Layer<double>, #Bias )
 //#define REGISTER_LAYER_CLASS(Bias)  
@@ -617,3 +618,4 @@ struct Net {
 #undef DefInt
 #undef DefEnum
 #undef DefStruct
+#undef log_blob

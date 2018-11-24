@@ -349,7 +349,7 @@ public:
 };
 
 
-INSTANTIATE_CLASS(CTCGreedyDecoder);
+INSTANTIATE_CLASS(CTCGreedyDecoder, CTCGreedyDecoderLayer);
 
 
 

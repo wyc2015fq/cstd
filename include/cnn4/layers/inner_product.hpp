@@ -156,7 +156,7 @@ struct InnerProductLayer : public Layer
   
 };
 
-INSTANTIATE_CLASS(InnerProduct);
+INSTANTIATE_CLASS(InnerProduct, InnerProductLayer);
 
 
 

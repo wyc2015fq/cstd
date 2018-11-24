@@ -137,8 +137,7 @@ public:
   }
 };
 
-
-INSTANTIATE_CLASS(Bias);
+INSTANTIATE_CLASS(Bias, BiasLayer);
 
 
 #endif  // CAFFE_BIAS_LAYER_HPP_

@@ -123,6 +123,6 @@ public:
 };
 
 
-REGISTER_LAYER_CLASS(Reshape);
+INSTANTIATE_CLASS(Reshape, ReshapeLayer);
 
 #endif  // CAFFE_XXX_LAYER_HPP_

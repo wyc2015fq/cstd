@@ -122,7 +122,7 @@ struct DataLayer : public Layer
 
 };
 
-INSTANTIATE_CLASS(Data);
+INSTANTIATE_CLASS(Data, DataLayer);
 
 
 #endif  // CAFFE_DATA_LAYER_HPP_

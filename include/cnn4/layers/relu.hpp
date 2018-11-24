@@ -39,6 +39,6 @@ public:
 };
 ;
 
-INSTANTIATE_CLASS(ReLU);
+INSTANTIATE_CLASS(ReLU, ReLULayer);
 
 #endif  // CAFFE_RELU_LAYER_HPP_

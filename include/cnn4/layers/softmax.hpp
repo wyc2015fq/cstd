@@ -70,6 +70,6 @@ public:
   }
 };
 
-INSTANTIATE_CLASS(Softmax);
+INSTANTIATE_CLASS(Softmax, SoftmaxLayer);
 
 #endif  // CAFFE_SOFTMAX_LAYER_HPP_

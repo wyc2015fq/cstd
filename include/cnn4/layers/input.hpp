@@ -39,7 +39,7 @@ public:
 };
 
 
-REGISTER_LAYER_CLASS(Input);
+INSTANTIATE_CLASS(Input, InputLayer);
 
 
 #endif  // CAFFE_INPUT_LAYER_HPP_

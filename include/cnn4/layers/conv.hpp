@@ -1,13 +1,15 @@
 #ifndef CAFFE_CONV_LAYER_HPP_
 #define CAFFE_CONV_LAYER_HPP_
 
-class ConvolutionLayer : public BaseConvolutionLayer
+#include "conv_gemm.h"
+
+class ConvolutionLayer : public ConvolutionLayerBase
 {
 public:
   virtual inline const char* type() const { return "Convolution"; }
   virtual inline bool reverse_dimensions() { return false; }
   ConvolutionLayer() {
-    BaseConvolutionLayer::init();
+    ConvolutionLayerBase::init();
   }
   virtual void compute_output_shape(const int* input_shape)
   {
@@ -27,7 +29,7 @@ public:
     }
   }
 
-  virtual void Forward_(const Dtype* in, Dtype* out, const Dtype* w, const Dtype* b) {
+  virtual void Forward_(const Dtype* in, Dtype* out, const Dtype* w, const Dtype* b, int i) {
     for (int n = 0; n < this->num_; ++n) {
       this->forward_gemm(in + n * this->bottom_dim_, w, out + n * this->top_dim_);
       if (b) {
@@ -35,22 +37,22 @@ public:
       }
     }
   }
-  virtual void Forward_(Blob* in, Blob* out, Blob* w, Blob* b) {
+  virtual void Forward_(Blob* in, Blob* out, Blob* w, Blob* b, int i) {
     const Dtype* bottom_data = in->data();
     const Dtype* weight_data = w->data();
     Dtype* top_data = out->mdata();
     const Dtype* bias_data = (b) ? b->data() : NULL;
-    Forward_(bottom_data, top_data, weight_data, bias_data);
+    Forward_(bottom_data, top_data, weight_data, bias_data, i);
   }
   virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     Blob* w = this->blobs_[0];
     Blob* b = (this->bias_term_ && blobs_.size() > 1) ? this->blobs_[1] : NULL;
     for (int i = 0; i < bottom.size(); ++i) {
-      Forward_(bottom[i], top[i], w, b);
+      Forward_(bottom[i], top[i], w, b, i);
     }
   }
-  virtual void Backward_(Blob* in, Blob* out, Blob* w, Blob* b) {
+  virtual void Backward_(Blob* in, Blob* out, Blob* w, Blob* b, int i) {
     const Dtype* top_diff = out->diff();
     const Dtype* weight = w->data();
     Dtype* weight_diff = w->mdiff();
@@ -84,12 +86,12 @@ public:
     Blob* w = this->blobs_[0];
     Blob* b = (this->bias_term_ && blobs_.size() > 1) ? this->blobs_[1] : NULL;
     for (int i = 0; i < top.size(); ++i) {
-      Backward_(bottom[i], top[i], w, b);
+      Backward_(bottom[i], top[i], w, b, i);
     }
   }
 };
 
 
-INSTANTIATE_CLASS(Convolution);
+INSTANTIATE_CLASS(Convolution, ConvolutionLayer);
 
 #endif  // CAFFE_CONV_LAYER_HPP_

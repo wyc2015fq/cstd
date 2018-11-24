@@ -187,7 +187,7 @@ public:
 
 };
 
-INSTANTIATE_CLASS(Accuracy);
+INSTANTIATE_CLASS(Accuracy, AccuracyLayer);
 
 
 

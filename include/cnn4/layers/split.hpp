@@ -65,7 +65,7 @@ public:
 
 };
 
-INSTANTIATE_CLASS(Split);
+INSTANTIATE_CLASS(Split, SplitLayer);
 
 
 #endif  // CAFFE_SPLIT_LAYER_HPP_
