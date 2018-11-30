@@ -21,11 +21,196 @@
 #endif
 
 typedef unsigned char uchar;
+#ifdef _WIN32
+typedef __int64 int64;
+//typedef __int64 int64_t;
+//typedef unsigned __int64 uint64_t;
+#endif
+
+int my_atoi(const char *nptr)
+{
+  int c;              /* current char */
+  int total;      /* current total */
+  int sign;           /* if '-', then negative, otherwise positive */
+
+  /* skip whitespace */
+  while (isspace((int)(unsigned char)*nptr))
+    ++nptr;
+
+  c = (int)(unsigned char)*nptr++;
+  sign = c;           /* save sign indication */
+  if (c == '-' || c == '+')
+    c = (int)(unsigned char)*nptr++;    /* skip sign */
+
+  total = 0;
+
+  while (isdigit(c)) {
+    total = 10 * total + (c - '0');     /* accumulate digit */
+    c = (int)(unsigned char)*nptr++;    /* get next char */
+  }
+
+  if (sign == '-')
+    return -total;
+  else
+    return total;   /* return result, negated if necessary */
+}
+
+int64_t my_atoi64(const char *nptr)
+{
+  int c;              /* current char */
+  int64_t total;      /* current total */
+  int sign;           /* if '-', then negative, otherwise positive */
+
+  /* skip whitespace */
+  while (isspace((int)(unsigned char)*nptr))
+    ++nptr;
+
+  c = (int)(unsigned char)*nptr++;
+  sign = c;           /* save sign indication */
+  if (c == '-' || c == '+')
+    c = (int)(unsigned char)*nptr++;    /* skip sign */
+
+  total = 0;
+
+  while (isdigit(c)) {
+    total = 10 * total + (c - '0');     /* accumulate digit */
+    c = (int)(unsigned char)*nptr++;    /* get next char */
+  }
+
+  if (sign == '-')
+    return -total;
+  else
+    return total;   /* return result, negated if necessary */
+}
+
+static void my_xtoa(unsigned long val, char *buf, unsigned radix, int is_neg)
+{
+  char *p;                /* pointer to traverse string */
+  char *firstdig;         /* pointer to first digit */
+  char temp;              /* temp char */
+  unsigned digval;        /* value of digit */
+
+  p = buf;
+
+  if (is_neg) {
+    /* negative, so output '-' and negate */
+    *p++ = '-';
+    val = (unsigned long)(-(long)val);
+  }
+
+  firstdig = p;           /* save pointer to first digit */
+
+  do {
+    digval = (unsigned)(val % radix);
+    val /= radix;       /* get next digit */
+
+    /* convert to ascii and store */
+    if (digval > 9)
+      *p++ = (char)(digval - 10 + 'a');  /* a letter */
+    else
+      *p++ = (char)(digval + '0');       /* a digit */
+  } while (val > 0);
+
+  /* We now have the digit of the number in the buffer, but in reverse
+     order.  Thus we reverse them now. */
+
+  *p-- = '\0';            /* terminate string; p points to last digit */
+
+  do {
+    temp = *p;
+    *p = *firstdig;
+    *firstdig = temp;   /* swap *p and *firstdig */
+    --p;
+    ++firstdig;         /* advance to next two digits */
+  } while (firstdig < p); /* repeat until halfway */
+}
+
+/* Actual functions just call conversion helper with neg flag set correctly,
+   and return pointer to buffer. */
+
+char * my_itoa(int val, char *buf, int radix)
+{
+  if (radix == 10 && val < 0)
+    my_xtoa((unsigned long)val, buf, radix, 1);
+  else
+    my_xtoa((unsigned long)(unsigned int)val, buf, radix, 0);
+  return buf;
+}
+
+char * my_ltoa(long val, char *buf, int radix)
+{
+  my_xtoa((unsigned long)val, buf, radix, (radix == 10 && val < 0));
+  return buf;
+}
+
+char * my_ultoa(unsigned long val, char *buf, int radix)
+{
+  my_xtoa(val, buf, radix, 0);
+  return buf;
+}
+/* stdcall is faster and smaller... Might as well use it for the helper. */
+static void my_x64toa(uint64_t val, char *buf, unsigned radix, int is_neg)
+{
+  char *p;                /* pointer to traverse string */
+  char *firstdig;         /* pointer to first digit */
+  char temp;              /* temp char */
+  unsigned digval;        /* value of digit */
+
+  p = buf;
+
+  if (is_neg)
+  {
+    *p++ = '-';         /* negative, so output '-' and negate */
+    val = (uint64_t)(-(int64_t)val);
+  }
+
+  firstdig = p;           /* save pointer to first digit */
+
+  do {
+    digval = (unsigned)(val % radix);
+    val /= radix;       /* get next digit */
+
+    /* convert to ascii and store */
+    if (digval > 9)
+      *p++ = (char)(digval - 10 + 'a');  /* a letter */
+    else
+      *p++ = (char)(digval + '0');       /* a digit */
+  } while (val > 0);
+
+  /* We now have the digit of the number in the buffer, but in reverse
+     order.  Thus we reverse them now. */
+
+  *p-- = '\0';            /* terminate string; p points to last digit */
+
+  do {
+    temp = *p;
+    *p = *firstdig;
+    *firstdig = temp;   /* swap *p and *firstdig */
+    --p;
+    ++firstdig;         /* advance to next two digits */
+  } while (firstdig < p); /* repeat until halfway */
+}
+
+/* Actual functions just call conversion helper with neg flag set correctly,
+   and return pointer to buffer. */
+
+char * my_i64toa(int64_t val, char *buf, int radix)
+{
+  my_x64toa((uint64_t)val, buf, radix, (radix == 10 && val < 0));
+  return buf;
+}
+
+char * my_ui64toa(uint64_t val, char *buf, int radix)
+{
+  my_x64toa(val, buf, radix, 0);
+  return buf;
+}
+
 
 namespace wstd {
 
   template <typename T, int N>
-    struct bufvec {
+  struct bufvec {
     T buf_[N];
     T* data_;
     int size_;
@@ -40,36 +225,37 @@ namespace wstd {
       clear();
     }
     void clear() {
-      if (data_!=buf_) {
+      if (data_ != buf_) {
         if (data_) free(data_);
         data_ = buf_;
       }
       size_ = N;
     }
-    int size() {return size_;}
+    int size() { return size_; }
     void resize(int n) {
-      if (n>size_ && n>N) {
-        if (data_==buf_) {
-          data_ = (T*)malloc(n*sizeof(T));
-        } else {
-          data_ = (T*)realloc(data_, n*sizeof(T));
+      if (n > size_ && n > N) {
+        if (data_ == buf_) {
+          data_ = (T*)malloc(n * sizeof(T));
+        }
+        else {
+          data_ = (T*)realloc(data_, n * sizeof(T));
         }
       }
       size_ = n;
     }
-    T& operator[](int i) {      return data_[i];    }
-    const T& operator[](int i) const {      return data_[i];    }
-    T* data() {return data_; }
-    const T* data() const {return data_; }
-    T* begin() {return data_; }
-    const T* begin() const {return data_; }
-    T* end() {return data_+size_; }
-    const T* end() const {return data_+size_; }
+    T& operator[](int i) { return data_[i]; }
+    const T& operator[](int i) const { return data_[i]; }
+    T* data() { return data_; }
+    const T* data() const { return data_; }
+    T* begin() { return data_; }
+    const T* begin() const { return data_; }
+    T* end() { return data_ + size_; }
+    const T* end() const { return data_ + size_; }
   };
   using namespace std;
   static std::string itos(int value, int radix = 10) {
     char buf[32] = "";
-    _itoa(value, buf, radix);
+    my_itoa(value, buf, radix);
     return buf;
   }
   static int stoi(const std::string& str) {
@@ -82,19 +268,19 @@ namespace wstd {
       for (; *p; ) { ucmap[(unsigned char)(*p++)] = 1; }
     }
     bool operator [](int index) const {
-      return 1==ucmap[index&0xff];
+      return 1 == ucmap[index & 0xff];
     }
   };
 
   inline int trim_lindex(const char* s, int l, int r, const unsigned char* ucmap)
   {
-    for (; l<r && ucmap[(unsigned char)s[l]]; l++);
+    for (; l < r && ucmap[(unsigned char)s[l]]; l++);
     return l;
   }
 
   inline int trim_rindex(const char* s, int l, int r, const unsigned char* ucmap)
   {
-    for (; l<r && ucmap[(unsigned char)s[r-1]]; --r);
+    for (; l < r && ucmap[(unsigned char)s[r - 1]]; --r);
     return r;
   }
 #define CC_INLINE static
@@ -103,7 +289,7 @@ namespace wstd {
     const string_set_256 strset(delims);
     int l = trim_lindex(s.data(), 0, (int)s.size(), strset.ucmap);
     int r = trim_rindex(s.data(), 0, (int)s.size(), strset.ucmap);
-    return s.substr(l, r-l);
+    return s.substr(l, r - l);
   }
 
   static std::string format_int(int n, int numberOfLeadingZeros = 0)
@@ -131,16 +317,17 @@ namespace wstd {
       return std::string(buf.data(), len);
     }
   }
-  struct IRANGE {int s,l;};
-  CC_INLINE IRANGE iRANGE(int s, int l) {    IRANGE r;    r.s=s,r.l=l;    return r;  }
-  CC_INLINE void get_delims_set(uchar* delims_set, const char* delims) {
+  struct IRANGE { int s, l; };
+  CC_INLINE IRANGE iRANGE(int s, int l) { IRANGE r;    r.s = s, r.l = l;    return r; }
+  CC_INLINE uchar* get_delims_set(uchar* delims_set, const char* delims) {
     for (; *delims;) {
       delims_set[(uchar)(*delims++)] = 1;
     }
+    return delims_set;
   }
   CC_INLINE int mem_icmp(const char* s1, const char* s2, int n, int ignore_case)
   {
-    static uchar map[256] = {0};
+    static uchar map[256] = { 0 };
     static int inited = 0;
     if (!inited) {
       int i;
@@ -153,7 +340,7 @@ namespace wstd {
         s1++;
         s2++;
       }
-      return(map[(uchar) * s1] - map[(uchar) * s2]);
+      return(map[(uchar)* s1] - map[(uchar)* s2]);
     }
     while (--n && *s1 == *s2) {
       s1++;
@@ -199,7 +386,7 @@ namespace wstd {
   }
   CC_INLINE int findstr_c(const char* s, IRANGE r, const char* s2, int l2, int ignore_case)
   {
-    int l=r.l-l2;
+    int l = r.l - l2;
     for (; r.s < l; ++r.s) {
       if (0 == mem_icmp(s + r.s, s2, l2, ignore_case)) {
         return r.s;
@@ -209,7 +396,7 @@ namespace wstd {
   }
   CC_INLINE int rfindstr(const char* s, IRANGE r, const char* s2, int l2, int ignore_case)
   {
-    int l=r.l-l2;
+    int l = r.l - l2;
     for (; r.s < l; --l) {
       if (0 == mem_icmp(s + l, s2, l2, ignore_case)) {
         return l;
@@ -230,9 +417,9 @@ namespace wstd {
       }
     }
     return j;
-}
+  }
   CC_INLINE int replacestr(char* s1, int l1, int len, const char* s2, int l2, const char* s3, int l3, int ignore_case, int pl1, int* pj) {
-    int i, j = 0, m, ret=l1;
+    int i, j = 0, m, ret = l1;
     if (l2 >= l3) {
       for (i = 0, m = 0; i <= l1 - l2;) {
         if (0 == mem_icmp(s1 + i, s2, l2, ignore_case)) {
@@ -249,16 +436,17 @@ namespace wstd {
         s1[m++] = s1[i++];
       }
       ret = (l1 + j * (l3 - l2));
-    } else {
-      if (pl1<=0) {
+    }
+    else {
+      if (pl1 <= 0) {
         j = cstr_count(s1, l1, s2, l2, ignore_case);
         ret = l1 + j * (l3 - l2);
-        pl1 =  ret;
+        pl1 = ret;
       }
-      if (ret<len && pl1<len) {
+      if (ret < len && pl1 < len) {
         s1[pl1] = 0;
         for (i = l1, m = pl1; i >= l2;) {
-          if (s2[0]==s1[i - l2] && 0 == mem_icmp(s1 + i - l2, s2, l2, ignore_case)) {
+          if (s2[0] == s1[i - l2] && 0 == mem_icmp(s1 + i - l2, s2, l2, ignore_case)) {
             m -= l3;
             memcpy(s1 + m, s3, l3);
             i -= l2;
@@ -278,19 +466,19 @@ namespace wstd {
       *pj = j;
     }
     return ret;
-}
+  }
 
   static IRANGE trim_c(const char* s, IRANGE r, const uchar* trims_set)
   {
-    for (; r.s < r.l && trims_set[(uchar)s[r.l-1]]; r.l--);
+    for (; r.s < r.l && trims_set[(uchar)s[r.l - 1]]; r.l--);
     for (; r.s < r.l && trims_set[(uchar)s[r.s]]; r.s++);
     return r;
   }
 
-  static int split_c(const char* s, IRANGE* r, IRANGE* out, int maxout, const uchar* delims_set, const uchar* trims_set, bool repeatedCharIgnored = true)
+  static int split_c_(const char* s, IRANGE* r, IRANGE* out, int maxout, const uchar* delims_set, const uchar* trims_set, bool repeatedCharIgnored = true)
   {
     int out_count = 0;
-    for (;r->s<r->l && out_count<maxout;) {
+    for (; r->s < r->l && out_count < maxout;) {
       IRANGE ret = *r;
       for (; r->s < r->l; ++r->s) {
         if (delims_set[(uchar)s[r->s]]) {
@@ -304,25 +492,48 @@ namespace wstd {
       }
       // save
       if (repeatedCharIgnored) {
-        if (ret.s<ret.l) {
+        if (ret.s < ret.l) {
           out[out_count++] = ret;
         }
-      } else {
+      }
+      else {
         out[out_count++] = ret;
       }
     }
     return out_count;
   }
+  static char* strcpy_c(char* s, IRANGE* r, const char* s1, IRANGE r1) {
+    int l = r->l - r->s;
+    int l1 = r1.l - r1.s;
+    assert(l > l1);
+    memcpy(s + r->s, s1 + r1.s, l1);
+    r->s += l1;
+    s[r->s] = 0;
+    return s;
+  }
+  static char* strcpy_c1(char* s, IRANGE* r, const char* s1) {
+    return strcpy_c(s, r, s1, iRANGE(0, strlen(s1)));
+  }
+#define GET_DELIMS_SET(nameset, str)  uchar nameset[256] = {0};uchar* p##nameset = get_delims_set(nameset, str)
+  static int split_c(const char* s, IRANGE* r, IRANGE* out, int maxout, const char* delims, const char* trims, bool repeatedCharIgnored = true) {
+    uchar delims_set[256] = { 0 };
+    uchar trims_set[256] = { 0 };
+    get_delims_set(delims_set, delims);
+    if (trims) {
+      get_delims_set(trims_set, " \r\n\t");
+    }
+    return split_c_(s, r, out, maxout, delims_set, trims ? trims_set : NULL, repeatedCharIgnored);
+  }
 #if _MSC_VER < 1300
   static int split(vector<string>& resultStringVector, const string& srcStr, const std::string& delimStr, bool repeatedCharIgnored = true) {
     const char* s = srcStr.c_str();
     IRANGE r = iRANGE(0, srcStr.size()), b;
-    uchar delims_set[256] = {0};
-    uchar trims_set[256] = {0};
+    uchar delims_set[256] = { 0 };
+    uchar trims_set[256] = { 0 };
     get_delims_set(delims_set, delimStr.c_str());
     get_delims_set(trims_set, " \r\n\t");
-    for(;split_c(s, &r, &b, 1, delims_set, trims_set, repeatedCharIgnored);) {
-      resultStringVector.push_back(srcStr.substr(b.s, b.l-b.s));
+    for (; split_c_(s, &r, &b, 1, delims_set, trims_set, repeatedCharIgnored);) {
+      resultStringVector.push_back(srcStr.substr(b.s, b.l - b.s));
     }
     return (int)resultStringVector.size();
   }
@@ -350,6 +561,7 @@ namespace wstd {
     }
     return (int)resultStringVector.size();
   }
+#endif
 
   static std::string strtime(const char* fmt) {
     time_t rawtime;
@@ -370,7 +582,7 @@ namespace wstd {
     const char *e;
     p = strrchr(fullpath, '\\');
     e = strrchr(fullpath, '/');
-    p = max(p+1, e+1);
+    p = max(p + 1, e + 1);
     p = max(p, fullpath);
     e = (e = strrchr(p, '.')) ? e : strend(p);
     if (path) path->assign(fullpath, p);
@@ -394,7 +606,7 @@ namespace wstd {
     return ret;
   }
   static string path_fmt(const char* fullpath, const char* fmt) {
-    char flag[256] = {0};
+    char flag[256] = { 0 };
     string ret;
     for (const char*p = fmt; *p; ++p) {
       flag[(unsigned char)(*p)] = 1;
@@ -403,7 +615,7 @@ namespace wstd {
     const char* p;
     const char *e;
     d = strchr(fullpath, ':');
-    d = max(fullpath, d+1);
+    d = max(fullpath, d + 1);
     p = strrchr(fullpath, '\\');
     e = strrchr(fullpath, '/');
     p = max(p + 1, e + 1);
@@ -415,7 +627,6 @@ namespace wstd {
     if (flag['x']) ret += string(e);
     return ret;
   }
-#endif
 
 } // namespace wstd
 

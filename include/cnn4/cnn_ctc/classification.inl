@@ -764,7 +764,7 @@ cv::Mat Classifier::EstimateReceptiveField(const cv::Mat& img, const string& lay
 		}
 	}
 	else
-	{		
+	{
 		cv::Mat matTemp = img.clone();
 		vector<float> vDiffSum(w);
 

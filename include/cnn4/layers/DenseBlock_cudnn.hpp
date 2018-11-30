@@ -508,7 +508,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
     Dtype* conv_y_local = this->postConv.gpu_mdata() + delayChannel * this->H * this->W;
     //CONV_ALGO
     if (1) {
-      uutime a;
+      //uutime a;
       CUDNN_CHECK(cudnnConvolutionForward(cudnnHandlePtr,
         gpu_get_one(),
         conv_x_localDesc, conv_x_local,
@@ -519,8 +519,8 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         tensorDescriptor_conv_y, conv_y_local
       )
       );
-      LOG(INFO) << a.elapsed();
-      log_blob(this->postConv);
+      //LOG(INFO) << a.elapsed();
+      //log_blob(this->postConv);
     }
     //  void cudnn_conv2d(const Dtype* inData, float* outData, const Dtype* weights, const Dtype* biasData,
       //DataShape inSize, DataShape outSize, int kernel_h, int kernel_w, int stride_h, int stride_w,

@@ -1,35 +1,4 @@
 
-struct FUN(ones_t) {
-  Buffer buf;
-  FUN(ones_t)() {
-    buf.data = 0; buf.size = 0; }
-  ~FUN(ones_t)() {
-    Free(&buf);
-  }
-  Dtype* get(int n) {
-    int size = n * sizeof(Dtype);
-    if (size > buf.size) {
-      cpu_ReAlloc(&buf, size);
-      FUN(caffe_set)(n, 1, (Dtype*)buf.data);
-    }
-    return (Dtype*)buf.data;
-  }
-};
-
-const Dtype* FUN(get_ones)(int n) {
-  static FUN(ones_t) ones_;
-  return ones_.get(n);
-};
-
-const Dtype* FUN(get_one)() {
-  static Dtype oneval = 1.0;
-  return &oneval;
-}
-const Dtype* FUN(get_zero)() {
-  static Dtype zeroval = 0.0;
-  return &zeroval;
-}
-
 void FUN(caffe_copy)(const int N, const Dtype* X, Dtype* Y) {
   if (X != Y) {
     memcpy(Y, X, sizeof(Dtype) * N);
@@ -62,8 +31,31 @@ void FUN(caffe_gemm)(const CBLAS_TRANSPOSE TransA,
 {
   int lda = (TransA == CblasNoTrans) ? K : M;
   int ldb = (TransB == CblasNoTrans) ? N : K;
-  CBLASFUN(gemm)(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B,
-    ldb, beta, C, N);
+#if 1
+  CBLASFUN(gemm)(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, N);
+  //my_sgemm(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, N);
+#else
+  Dtype* D = NULL;
+  out_file(__FILE__"_C.txt", M*N, C);
+  MYREALLOC(D, M*N);
+  memcpy(D, C, M*N*sizeof(Dtype));
+  CBLASFUN(gemm)(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, N);
+  my_sgemm(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, D, N);
+  double s1 = CBLASFUN(asum)(M*N, C, 1);
+  double s2 = CBLASFUN(asum)(M*N, D, 1);
+  if (fabs(s1 - s2) > 0.001) {
+    out_file(__FILE__"_A.txt", M*K, A);
+    out_file(__FILE__"_B.txt", N*K, B);
+    out_file(__FILE__"_out_C.txt", M*N, C);
+    out_file(__FILE__"_out_D.txt", M*N, D);
+    for (int i = 0; i < M*N; ++i) {
+      if (fabs(C[i] - D[i])>0.0001) {
+        int adsf = 0;
+      }
+    }
+  }
+  FREE(D);
+#endif
 }
 
 
@@ -176,7 +168,7 @@ void FUN(caffe_bound)(const int N, const Dtype* a, const Stype min,
 
 Dtype FUN(caffe_nextafter)(const Stype b)
 {
-  return std::nextafter<Dtype>(b, std::numeric_limits<Dtype>::max());
+  return nextafter(b, FLT_MAX);
 }
 
 
@@ -186,22 +178,23 @@ void FUN(caffe_rng_uniform)(const int n, const Stype a, const Stype b, Dtype* r)
   CHECK_GE(n, 0);
   CHECK(r);
   CHECK_LE(a, b);
-  std::uniform_real<Dtype> random_distribution(a, FUN(caffe_nextafter)(b));
+  Stype s = FUN(caffe_nextafter)(b) - a;
+  //std::uniform_real<Dtype> random_distribution(a, FUN(caffe_nextafter)(b));
   //std::variate_generator<caffe::rng_t*, std::uniform_real<Dtype> >
   //variate_generator(caffe_rng(), random_distribution);
   //caffe_rng();
-  rng_t* rng = caffe_rng();
+  //rng_t* rng = caffe_rng();
   for (int i = 0; i < n; ++i) {
-    r[i] = random_distribution(*rng);
+    r[i] = a + (rand()*s/RAND_MAX);
   }
 }
 
-void FUN(caffe_rng_gaussian)(const int n, const Stype a, const Stype sigma, Dtype* r)
+void FUN(caffe_rng_gaussian)(const int n, const Stype _Mean0, const Stype sigma, Dtype* r)
 {
   CHECK_GE(n, 0);
   CHECK(r);
   CHECK_GT(sigma, 0);
-  std::normal_distribution<Dtype> random_distribution(a, sigma);
+  std::normal_distribution<Dtype> random_distribution(_Mean0, sigma);
   //std::variate_generator<caffe::rng_t*, boost::normal_distribution<Dtype> >
   //variate_generator(caffe_rng(), random_distribution);
   rng_t* rng = caffe_rng();
@@ -276,6 +269,38 @@ void FUN(adam_update)(int N, Dtype* g, Dtype* m, Dtype* v, Stype beta1,
 }
 
 //////////////////////////////////////
+
+struct FUN(ones_t) {
+  Buffer buf;
+  FUN(ones_t)() {
+    buf.data = 0; buf.size = 0;
+  }
+  ~FUN(ones_t)() {
+    Free(&buf);
+  }
+  Dtype* get(int n) {
+    int size = n * sizeof(Dtype);
+    if (size > buf.size) {
+      cpu_ReAlloc(&buf, size);
+      FUN(caffe_set)(n, 1, (Dtype*)buf.data);
+    }
+    return (Dtype*)buf.data;
+  }
+};
+
+const Dtype* FUN(get_ones)(int n) {
+  static FUN(ones_t) ones_;
+  return ones_.get(n);
+};
+
+const Dtype* FUN(get_one)() {
+  static Dtype oneval = 1.0;
+  return &oneval;
+}
+const Dtype* FUN(get_zero)() {
+  static Dtype zeroval = 0.0;
+  return &zeroval;
+}
 
 
 //////////////////////////////////////

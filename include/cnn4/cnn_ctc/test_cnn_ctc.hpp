@@ -25,6 +25,7 @@
 #include <set>
 using namespace std;
 
+
 //#include "caffe/ctcpp.h"
 
 struct testdata_t {
@@ -235,6 +236,31 @@ void FindAllImages(const char *folder, std::vector<std::string>& vImgPaths, bool
 
 }
 
+testdata_t GetPredict(const vector<float>& fm, int idxBlank)
+{
+  testdata_t td = { 0 };
+  td.n = 0;
+  for (int t = 0; t < (int)fm.size(); t++)
+  {
+    int idx = t;
+    int label = (int)(fm[idx] + 0.5f);
+    if (label >= 0 && label != idxBlank)
+    {
+      td.idx[td.n++] = label;
+    }
+  }
+  return td;
+}
+string GetPredictString(const vector<string>& labels, const testdata_t& td) {
+  string str;
+  for (int t = 0; t < (int)td.n; t++)
+  {
+    int label = td.idx[t];
+    str += labels[label];
+  }
+  return str;
+}
+
 string GetPredictString(const vector<float>& fm, int idxBlank, const vector<string>& labels, testdata_t& td)
 {
 	string str;
@@ -306,7 +332,7 @@ void test_ocr_english(const string& imgfolder, const string& modelfolder, const 
 #endif
 
 	//load model
-	ICNNPredict* pCNN = CreatePredictInstance(modelfolder.c_str(), usegpu);
+  Classifier* pCNN = CreatePredictInstance(modelfolder.c_str(), usegpu);
 	int wstd = 0, hstd = 0;
 	pCNN->GetInputImageSize(wstd, hstd);
 
@@ -464,7 +490,67 @@ int LoadTextFileList(const string& folder, const string& testfile, std::vector<s
 	return (int)imgs.size();
 }
 
-int LoadTextFile(const string& folder, const string& testfile, std::vector<testdata_t>& testdata, std::vector<string>& imgs) {
+long loadfile(const char* file, char** pbuf) {
+  FILE* pf = fopen(file, "rb");
+  long size = 0;
+  if (pf) {
+    fseek(pf, 0, SEEK_END);
+    size = ftell(pf);
+    fseek(pf, 0, SEEK_SET);
+    *pbuf = (char*)realloc(*pbuf, size+10);
+    fread(*pbuf, size, 1, pf);
+    (*pbuf)[size] = 0;
+    fclose(pf);
+  }
+  return size;
+}
+
+int LoadTextFile(const char* folder, const char* testfile, std::vector<testdata_t>& testdata, std::vector<string>& imgs) {
+  char* buf = NULL;
+  long size = loadfile(testfile, &buf);
+  int n = 0;
+  if (buf) {
+    //GET_DELIMS_SET(delimsset, "\n");
+    //GET_DELIMS_SET(trimsset, "\r\n ");
+    if (1) {
+      IRANGE r = iRANGE(0, size), out;
+      for (n=0; split_c(buf, &r, &out, 1, "\n", "\r\n ", true);) {
+        ++n;
+      }
+      testdata.resize(n);
+      imgs.resize(n);
+    }
+    IRANGE r = iRANGE(0, size), out, r0 = iRANGE(0, 256);
+    char fname[256];
+    strcpy_c1(fname, &r0, folder);
+    for (n=0; split_c(buf, &r, &out, 1, "\n", "\r\n ", true);) {
+      IRANGE r2 = out, out2, r1 = r0;
+      testdata_t td = { 0 };
+      split_c(buf, &r2, &out2, 1, " ", NULL, true);
+      strcpy_c(fname, &r1, buf, out2);
+
+      for (; split_c(buf, &r2, &out2, 1, " ", NULL, true); ) {
+        int k = atoi(buf+out2.s);
+        if (k>0) {
+          td.idx[td.n++] = k;
+        }
+      }
+
+      if (0) {
+        testdata.push_back(td);
+        imgs.push_back(fname);
+      }
+      else {
+        testdata[n] = td;
+        imgs[n] = fname;;
+      }
+      ++n;
+    }
+  }
+  return (int)testdata.size();
+}
+
+int LoadTextFile1(const string& folder, const string& testfile, std::vector<testdata_t>& testdata, std::vector<string>& imgs) {
 	FILE* input = NULL;
 	input = fopen(testfile.c_str(), "rb");
 	if (input) {
@@ -495,7 +581,7 @@ string ocr_chinese(cv::Mat img) {
 #else
 	bool usegpu = true;
 #endif
-	static ICNNPredict* pCNN = NULL;
+	static Classifier* pCNN = NULL;
 	if (pCNN == NULL) {
 		string modelfolder = "C:\\OCR_Line\\model\\densenet-no-blstm\\";
 		pCNN = CreatePredictInstance(modelfolder.c_str(), usegpu);
@@ -533,9 +619,9 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 #else
 	bool usegpu = true;
 #endif
-
+  
 	//load model
-	ICNNPredict* pCNN = CreatePredictInstance(modelfolder, usegpu);
+  Classifier* pCNN = CreatePredictInstance(modelfolder, usegpu);
 	int wstd = 0, hstd = 0;
 	pCNN->GetInputImageSize(wstd, hstd);
 
@@ -547,7 +633,6 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 	if (it != alphabets.end())
 		idxBlank = (int)(it - alphabets.begin());
 
-
 	map<wchar_t, int> mapLabel2IDs;
 	for (int i = 0; i < (int)alphabets.size(); i++)
 	{
@@ -558,7 +643,6 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 		mapLabel2IDs.insert(make_pair(wlabel[0], i));
 	}
 
-
 	int sumspend = 0;
 	int nok_lexicon = 0;
 	int nok_nolexicon = 0;
@@ -566,7 +650,6 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 	vector<string> imgs;
 	std::vector<int> label_idx;
 	std::vector<testdata_t> testdata;
-	testdata_t td;
 	FILE* input = NULL;
 	if (inputlistfile) {
 		LoadTextFile(imgfolder, inputlistfile, testdata, imgs);
@@ -578,6 +661,7 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 	FILE* pf = fopen(outfile, "wb");
 	int errcnt = 0;
 	int edtdistcnt = 0;
+  alphabets[91] = alphabets[1];
 	for (int i = 0; i < imgs.size(); ++i)
 	{
 		string imgfile = imgs[i];
@@ -595,19 +679,26 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 		if (w1 != w && h != hstd)
 			cv::resize(img, img, cv::Size(w1, hstd));
 
+    testdata_t td1 = testdata[i];
 		int start = clock();
 		vector<int> shape;
 		vector<float> pred = pCNN->GetOutputFeatureMap(img, shape);
 		int end = clock();
 		sumspend += (end - start);
-		string strpredict0 = GetPredictString(pred, idxBlank, alphabets, td);
+    testdata_t td = GetPredict(pred, idxBlank);
+    string strpredict = GetPredictString(alphabets, td);
 
-		testdata_t td1 = testdata[i];
 		errcnt += !!testdata_cmp(td, td1);
 		edtdistcnt += ldistance(td, td1);
 		const char* fn = strrchr(imgs[i].c_str(), '\\');
 		++fn;
-		printf("%d[%d/%d/%d]%s: %s\n", edtdistcnt, errcnt, i + 1, (int)imgs.size(), fn, strpredict0.c_str());
+    string strpredict1 = GetPredictString(alphabets, td1);
+    if (strpredict == strpredict1) {
+      printf("%d[%d/%d/%d]%s: %s\n", edtdistcnt, errcnt, i + 1, (int)imgs.size(), fn, strpredict.c_str());
+    }
+    else {
+      printf("%d[%d/%d/%d]%s: %s %s\n", edtdistcnt, errcnt, i + 1, (int)imgs.size(), fn, strpredict.c_str(), strpredict1.c_str());
+    }
 
 		if (1) {
 			fprintf(pf, "%s ", fn);
@@ -625,7 +716,7 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 
 int test_cnn_ctc()
 {
-
+  int aa = atoi("10123");
   if (0) {
     string imgfolder = "I:\\OCR_Line\\synth_english\\db_read_test\\";
     string modelfolder = "I:\\OCR_Line\\synth_english\\crnn\\crnn_256\\";

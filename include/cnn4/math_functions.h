@@ -2,9 +2,10 @@
 #ifndef _MATH_FUNCTIONS_H_
 #define _MATH_FUNCTIONS_H_
 
-#include "cblas.hpp"
+#include "config.h"
+#include "myblas/myblas.h"
 #include "types.h"
-//#include "cpu.hpp"
+#include "cpu.hpp"
 struct cJSON;
 
 

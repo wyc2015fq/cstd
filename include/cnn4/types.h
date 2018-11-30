@@ -2,6 +2,8 @@
 #ifndef _CNN4_TYPES_H_
 #define _CNN4_TYPES_H_
 
+#include "wstd/logging.hpp"
+
 typedef void void_type;
 typedef void void_float;
 

@@ -1148,7 +1148,7 @@ virtual void bottleneck_Forward_(int transitionIdx) {
     cpu_caffe_set(conv_y_shape.count(), 0, conv_y_local);
     //cpu_conv2d(conv_x_local, conv_y_local, w, NULL, conv_x_shape, conv_y_shape, conv_w->shape_.h, conv_w->shape_.w, 1, 1, 1, 1, 1, 1, 1, false);
     conv2d_gemm_fw(conv_x_local, conv_y_local, w, NULL, conv_x_shape, conv_y_shape, conv_w->shape_.h, conv_w->shape_.w, 1, 1, 1, 1, 1, 1, 1, false);
-    //LOG(INFO) << a.elapsed();
+    LOG(INFO) << a.elapsed();
     //log_blob(this->postConv);
     1 == 1;
   }

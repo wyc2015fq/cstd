@@ -24,7 +24,7 @@ static std::vector<int> Argmax(const std::vector<float>& v, int N) {
   return result;
 }
 
-class Classifier : public ICNNPredict
+class Classifier //: public ICNNPredict
 {
 public:
 	Classifier();
@@ -88,7 +88,7 @@ private:
 	int FindLayerIndex(const string& strLayerName);
 };
 
-ICNNPredict* CreatePredictInstance(const char* model_folder, bool use_gpu)
+Classifier* CreatePredictInstance(const char* model_folder, bool use_gpu)
 {
   Classifier* p = new Classifier();
   if (!p->Init(model_folder, use_gpu))

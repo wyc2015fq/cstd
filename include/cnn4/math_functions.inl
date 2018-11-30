@@ -1,3 +1,8 @@
+
+#ifndef _MATH_FUNCTIONS_INL_
+#define _MATH_FUNCTIONS_INL_
+
+#include "math_functions.h"
 #include <random>
 #include <limits>
 #include "cpu.hpp"
@@ -46,7 +51,6 @@ inline bool is_a_ge_zero_and_a_lt_b(int a, int b)
 }
 
 #define Stype double
-#define CBLASFUN(NAME)  cblas_s##NAME
 #define Dtype float
 #include "math_functions_impl.inl"
 #undef Dtype
@@ -60,3 +64,5 @@ inline bool is_a_ge_zero_and_a_lt_b(int a, int b)
 
 #undef _CONTEXT
 #undef DEF
+
+#endif // _MATH_FUNCTIONS_INL_

@@ -108,8 +108,10 @@ double Forward(const vector<Blob*> & bottom, const vector<Blob*> & top )
   // Lock during forward to ensure sequential forward
   Lock();
   Dtype loss = 0;
+  uutime a;
   Reshape(bottom, top);
   Forward_(bottom, top);
+  double t = a.elapsed();
 #if 0
   if (bottom.size() > 0 && top.size() > 0) {
     Dtype* bottom_data = bottom[0]->cpu_mdata();
@@ -132,15 +134,19 @@ double Forward(const vector<Blob*> & bottom, const vector<Blob*> & top )
 
   Unlock();
 #ifdef _DEBUG
-  //debug_info_ = 1;
 #endif
+  debug_info_ = 2;
   if (debug_info_) {
-    LOG_IF(INFO, root_solver()) << "  [Forward] " << type_ << "Layer " << name_;
-    for (int i = 0; i < top.size(); ++i) {
-      LOG_IF(INFO, root_solver()) << "    top blob " << i << " " << top[i]->to_debug_string();
-    }
-    for (int i = 0; i < blobs_.size(); ++i) {
-      LOG_IF(INFO, root_solver()) << "    param blob " << i << " " << blobs_[i]->to_debug_string();
+    LOG_IF(INFO, root_solver()) << "  [Forward] " << type_ << "Layer " << name_ << "(" << t << ")";
+    if (debug_info_ > 1) {
+      for (int i = 0; i < top.size(); ++i) {
+        LOG_IF(INFO, root_solver()) << "    top blob " << i << " " << top[i]->to_debug_string();
+      }
+      if (debug_info_ > 2) {
+        for (int i = 0; i < blobs_.size(); ++i) {
+          LOG_IF(INFO, root_solver()) << "    param blob " << i << " " << blobs_[i]->to_debug_string();
+        }
+      }
     }
   }
 

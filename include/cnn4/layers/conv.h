@@ -57,7 +57,7 @@ static void FUN(conv2d)(const Dtype* inData, float* outData, const Dtype* weight
 
 void FUN(rev)(int count, Dtype* f) {
   Dtype* e = f + count;
-  for (; f < e--;++f) {
+  for (; f < e--; ++f) {
     Dtype t1 = *f;
     Dtype t2 = *e;
     *e = t1;
@@ -66,7 +66,7 @@ void FUN(rev)(int count, Dtype* f) {
 }
 void FUN(rev2d)(int N, int M, Dtype* f) {
   int i;
-  for (i=0; i<N; ++i) {
+  for (i = 0; i < N; ++i) {
     FUN(rev)(M, f);
     f += M;
   }
@@ -89,25 +89,32 @@ static void conv2d_gemm_fw(const Dtype* inData, float* outData, const Dtype* wei
   Dtype* inv_kernel = NULL;
   is_1x1_ &= kernel_h == 1 && stride_h == 1 && pad_h == 0;
   is_1x1_ &= kernel_w == 1 && stride_w == 1 && pad_w == 0;
+  //uutime a;
+  //a.restart();
   if (1) {
-    int n = outSize.c*inSize.c, m=kernel_h*kernel_w;
-    inv_kernel = (Dtype*)caffe_malloc(n*m*sizeof(Dtype));
-    memcpy(inv_kernel, weights, n*m*sizeof(Dtype));
+    int n = outSize.c*inSize.c, m = kernel_h*kernel_w;
+    inv_kernel = (Dtype*)caffe_malloc(n*m * sizeof(Dtype));
+    memcpy(inv_kernel, weights, n*m * sizeof(Dtype));
     FUN(rev2d)(n, m, inv_kernel);
     weights = inv_kernel;
   }
+  //LOG(INFO) << "rev2d " << a.elapsed();
 
+  //a.restart();
   if (!is_1x1_) {
     if (!skip_im2col) {
-      col_buffer_ = (Dtype*)caffe_malloc(col_buffer_size_*sizeof(Dtype));
-      im2col(inData, inSize.c,inSize.h, inSize.w,kernel_h, kernel_w,pad_h, pad_w,stride_h, stride_w,dilation_h, dilation_w, col_buffer_);
+      col_buffer_ = (Dtype*)caffe_malloc(col_buffer_size_ * sizeof(Dtype));
+      im2col(inData, inSize.c, inSize.h, inSize.w, kernel_h, kernel_w, pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w, col_buffer_);
     }
     col_buff = col_buffer_;
   }
+  //LOG(INFO) << "im2col " << a.elapsed();
+  //a.restart();
   for (int g = 0; g < group_; ++g) {
     caffe_gemm(CblasNoTrans, CblasNoTrans, conv_out_channels_ / group_, conv_out_spatial_dim_, kernel_dim_,
       (Dtype)1., weights + weight_offset_ * g, col_buff + col_offset_ * g, (Dtype)0., outData + output_offset_ * g);
   }
+  //LOG(INFO) << "caffe_gemm " << a.elapsed();
   if (col_buffer_) { caffe_free(col_buffer_); }
   if (inv_kernel) { caffe_free(inv_kernel); }
 }

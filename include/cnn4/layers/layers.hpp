@@ -27,7 +27,7 @@
 #include "conv_cudnn.hpp"
 //#include "conv2_cudnn.hpp"
 #include "pooling_cudnn.hpp"
-#include "DenseBlock_cudnn.hpp"
+#include "denseblock_cudnn.hpp"
 #endif
 
 #if 0

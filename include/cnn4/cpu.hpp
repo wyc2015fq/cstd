@@ -2,6 +2,7 @@
 #ifndef _CPU_HPP_
 #define _CPU_HPP_
 
+#include "config.h"
 #include "wstd/logging.hpp"
 #include "rng.hpp"
 #include <random>

@@ -41,9 +41,9 @@ namespace wstd
   }
 class LogHelp {
 public:
-  
+
   LogHelp(const char* options, const char* file, int line) {
-    string stime = wstd::strtime(NULL);
+    string stime = strtime(NULL);
     string fnext = path_split_filenameext(file);
     //stream_ << wstd::format("%s %s(%d) %s:", stime.c_str(), fnext.c_str(), line, options);
     stream_ << wstd::format("%s(%d): %s:", file, line, options);
@@ -51,7 +51,11 @@ public:
   ~LogHelp() {
     stream_ << "\n";
     string s = stream_.str();
+#ifdef _WIN32
     OutputDebugString(s.c_str());
+#else
+    puts(s.c_str());
+#endif
     fappend("log.txt", s.c_str(), s.length());
   }
   std::stringstream& get() {

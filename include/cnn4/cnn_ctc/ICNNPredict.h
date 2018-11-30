@@ -30,7 +30,7 @@ typedef std::pair<int, float> PredictionIdx;
 
 
 
-
+#if 0
  interface ICNNPredict
 {
 	 virtual bool IsCPUMode() = 0;
@@ -63,3 +63,4 @@ typedef std::pair<int, float> PredictionIdx;
 };
 
  extern "C" EXPORT ICNNPredict* CreatePredictInstance(const char* model_folder, bool use_gpu);
+#endif
