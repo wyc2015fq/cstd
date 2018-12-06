@@ -27,11 +27,21 @@ static std::vector<int> Argmax(const std::vector<float>& v, int N) {
 class Classifier //: public ICNNPredict
 {
 public:
+  Net* net_;
+  cv::Size input_geometry_;
+  int num_channels_;
+  cv::Mat mean_;
+  vector<float> channel_mean_;
+  vector<string> labels_;
+  //std::vector< std::set<string> > synsetwords1;
+  int FindMaxChannelLayer();
+  int FindLayerIndex(const string& strLayerName);
+public:
 	Classifier();
 
 	bool Init(const string& model_path, bool gpu_mode = true);
 	bool Init(const string& trained_file, const string& model_file,
-		const string&mean_file, const string&label_file,
+		const string&mean_file, const string& label_file,
 		bool gpu_mode);
 	void Release() { delete this; }
 
@@ -77,15 +87,6 @@ private:
 	void PrepareInput(const cv::Mat& img);
 	void PrepareBatchInputs(const vector<cv::Mat>& imgs);
 private:
-	Net* net_;
-	cv::Size input_geometry_;
-	int num_channels_;
-	cv::Mat mean_;
-	vector<float> channel_mean_;
-	vector<string> labels_;
-	//std::vector< std::set<string> > synsetwords1;
-	int FindMaxChannelLayer();
-	int FindLayerIndex(const string& strLayerName);
 };
 
 Classifier* CreatePredictInstance(const char* model_folder, bool use_gpu)

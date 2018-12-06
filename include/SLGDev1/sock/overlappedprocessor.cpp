@@ -271,7 +271,7 @@ unsigned long WINAPI COverlappedProcessor::process1(void* param)
 void COverlappedProcessor::process()
 {
     DWORD dwTrans = 0;
-    DWORD dkey = 0;
+    DWORD* dkey = 0;
     LPOVERLAPPED lpover = NULL;
     BOOL bok = false;
 
@@ -282,22 +282,22 @@ void COverlappedProcessor::process()
         lpover = NULL;
         bok = FALSE;
         SetLastError(0);
-        bok = ::GetQueuedCompletionStatus(m_hCompletionPort, &dwTrans, &dkey, &lpover, INFINITE);
+        bok = ::GetQueuedCompletionStatus(m_hCompletionPort, &dwTrans, (PULONG_PTR)&dkey, &lpover, INFINITE);
         OVERLAPPED_DATA* lpOverlapped = (OVERLAPPED_DATA*)lpover;
 
-        if (!ErrDeal(dkey, lpover, dwTrans, bok, lpOverlapped ? lpOverlapped->user : NULL))
+        if (!ErrDeal((SOCKET)dkey, lpover, dwTrans, bok, lpOverlapped ? lpOverlapped->user : NULL))
         {
             continue;
         }
 
         if (!(lpOverlapped->bListen))
         {
-            HandleIO(dkey, (WSAOVERLAPPED*)lpover, dwTrans, 1, lpOverlapped ? lpOverlapped->user : NULL);
+            HandleIO((SOCKET)dkey, (WSAOVERLAPPED*)lpover, dwTrans, 1, lpOverlapped ? lpOverlapped->user : NULL);
         }
 
         else
         {
-            HandleListen(dkey, (WSAOVERLAPPED*)lpover, dwTrans, 1, lpOverlapped ? lpOverlapped->user : NULL);
+            HandleListen((SOCKET)dkey, (WSAOVERLAPPED*)lpover, dwTrans, 1, lpOverlapped ? lpOverlapped->user : NULL);
         }
 
     }

@@ -97,7 +97,7 @@ EXTERN_C_BEGIN
 #define SSL_ROOTCA_PATH  "C:\\rootca"
 ///////////////////////////////////////////////////////////////////////////////////////
 // for openssl
-#define USE_SSL
+//#define USE_SSL
 ///////////////////////////////////////////////////////////////////////////////////////
 // macro
 #ifdef _WIN32
@@ -106,6 +106,7 @@ EXTERN_C_BEGIN
 #define CDECL_CALL __cdecl
 #define SLGDEV_CALL  __stdcall
 typedef unsigned long /**/(__stdcall* thread_cb)(void* pParam);
+#include "winsock2.h"
 #ifndef _WINSOCK2API_
 typedef unsigned int SOCKET;
 #endif

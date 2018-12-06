@@ -1,9 +1,6 @@
 
 #include "wstd/utime.hpp"
-#include "proto.h"
-#include "solver.hpp"
-#include "SGDSolver.hpp"
-#include "insert_splits.hpp"
+#include "cnn4.hpp"
 //#include "test/test_all.hpp"
 
 void ClearParamDiffs(Blob** learnable_params_, int learnable_params_size)
@@ -17,6 +14,8 @@ void ClearParamDiffs(Blob** learnable_params_, int learnable_params_size)
 int test_cnn4() {
   const char* fn = NULL;
   //test_caffe2json();
+  char buf[256];
+  itoa_c(1234, buf, 10);
   if (1) {
     fn = "C:/caffe_train/mnist/lenet.json";
     _chdir("C:/caffe_train/mnist/");

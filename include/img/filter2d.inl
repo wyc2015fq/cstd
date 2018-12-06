@@ -579,7 +579,7 @@ static int filter2d(int h, int w, const double* src, int srcstep, int srccn, dou
   if (1 == border_type) {
     int h2 = h + kh - 1;
     int w2 = w + kw - 1;
-    A_buf = (double*) pmalloc(sizeof(double) * h2 * w2 * srccn);
+    A_buf = (double*) malloc(sizeof(double) * h2 * w2 * srccn);
     copy_replicate_border(h, w, src, srcstep * sizeof(double), h2, w2, A_buf, srccn * w2 * sizeof(double), srccn * sizeof(double), ky, kx);
     //COPY(h2*w2, A2, uA);
     //imwrite("c.bmp", h2, w2, uA, w2, 1);
@@ -587,7 +587,7 @@ static int filter2d(int h, int w, const double* src, int srcstep, int srccn, dou
     src = A_buf + ky * srcstep + kx * srccn;
   }
 
-  A_ptr = (const double**) pmalloc((sizeof(double*) + sizeof(double) + sizeof(int) * 2) * kh * kw);
+  A_ptr = (const double**) malloc((sizeof(double*) + sizeof(double) + sizeof(int) * 2) * kh * kw);
   ky_ptr = (double*)(A_ptr + kh * kw);
   ky_ptx = (int*)(ky_ptr + kh * kw);
   ky_pty = (int*)(ky_ptx + kh * kw);
@@ -597,7 +597,7 @@ static int filter2d(int h, int w, const double* src, int srcstep, int srccn, dou
 
   if (Ky) {
     int w2 = w + kw - 1;
-    B_buf = (double*) pmalloc(sizeof(double) * w2 * srccn);
+    B_buf = (double*) malloc(sizeof(double) * w2 * srccn);
     kx_ptr = ky_ptr + kh;
     kx_ptx = ky_ptx + kh;
     kx_pty = ky_pty + kh;
@@ -739,14 +739,14 @@ static int filter2d(int h, int w, const double* src, int srcstep, int srccn, dou
     }
   }
 
-  pfree((void*) A_ptr);
+  FREE(A_ptr);
 
   if (A_buf) {
-    pfree((void*) A_buf);
+    FREE(A_buf);
   }
 
   if (B_buf) {
-    pfree((void*) B_buf);
+    FREE(B_buf);
   }
 
   return 0;
@@ -761,7 +761,7 @@ static int filter2d_old(int h, int w, const double* src, int srcstep, int srccn,
   if (1 == border_type) {
     int h2 = h + kh - 1;
     int w2 = w + kw - 1;
-    A_buf = (double*) pmalloc(sizeof(double) * h2 * w2 * srccn);
+    A_buf = (double*) malloc(sizeof(double) * h2 * w2 * srccn);
     copy_replicate_border(h, w, src, srcstep * sizeof(double), h2, w2, A_buf, srccn * w2 * sizeof(double), srccn * sizeof(double), ky, kx);
     //COPY(h2*w2, A2, uA);
     //imwrite("c.bmp", h2, w2, uA, w2, 1);
@@ -788,10 +788,7 @@ static int filter2d_old(int h, int w, const double* src, int srcstep, int srccn,
     }
   }
 
-  if (A_buf) {
-    pfree((void*) A_buf);
-  }
-
+  FREE(A_buf);
   return 0;
 }
 

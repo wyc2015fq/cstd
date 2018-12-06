@@ -1,5 +1,46 @@
 #ifndef _SEQPARTITION_H_
 #define _SEQPARTITION_H_
+
+#include "stdc/stdc.h"
+#include "stdc/bufmem.h"
+#include "stdc/algo.h"
+
+#define REAL_TYPE double
+
+// out == 1
+// out == 0 ??????? double threshold=0.3;
+// ?????.w = MIN((r1?????-r2?????), (r2?????-r1?????))
+// ?????? (area(r1) + area(r2))/2
+#define IS_RECT_EQUAL_COVER_RETE12(r1, r2, THRESHOLD, OUT) \
+  do { \
+    int dx, dy; \
+    if ((dx = (MIN(((r1).x+(r1).w-(r2).x), ((r2).x+(r2).w-(r1).x)))) < 0 \
+    || (dy = (MIN(((r1).y+(r1).h-(r2).y), ((r2).y+(r2).h-(r1).y)))) < 0) {\
+      (OUT) = 0; \
+    } else { \
+      (OUT) = (2*dx*dy) > (THRESHOLD * ((r1).w*(r1).h + (r2).w*(r2).h)); \
+    } \
+  } while(0)
+// line[a0, a1] ???? line[b0, b1]
+#define IS_LINE_INCLUDE(a0, a1, b0, b1)  ((a0)<=(b0) && (a1)>=(b1))
+// r1 ???? r2
+#define IS_RECT_INCLUDE(r1, r2) \
+  ((IS_LINE_INCLUDE((r1).x, (r1).x+(r1).w, (r2).x, (r2).x+(r2).w) && \
+      IS_LINE_INCLUDE((r1).y, (r1).y+(r1).h, (r2).y, (r2).y+(r2).h) ) \
+      && ((r1).w < ((r2).w*2)))
+#define IS_RECT_EQUAL_COVER_RETE(r1, r2, THRESHOLD, OUT) \
+  do { \
+    int dx, dy, covarea, avgarea; \
+    (OUT) = IS_RECT_INCLUDE(r1, r2) || IS_RECT_INCLUDE(r2, r1); \
+    if (OUT) { break; } \
+    dx = MIN(((r1).x+(r1).w-(r2).x), ((r2).x+(r2).w-(r1).x)); \
+    dy = MIN(((r1).y+(r1).h-(r2).y), ((r2).y+(r2).h-(r1).y)); \
+    covarea=dx*dy; \
+    if (dx < 0 || dy < 0 ) { (OUT) = 0; break; } \
+    avgarea=((r1).w*(r1).h + (r2).w*(r2).h)/2; \
+    (OUT) = (covarea >= (THRESHOLD)*avgarea); \
+  } while(0)
+
 #define SEQPARTITION(total, seq, labels, is_equal, class_cnt, TYPE)           \
   do {                                                                          \
     typedef struct CvPTreeNode {                                                \

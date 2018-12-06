@@ -24,6 +24,7 @@
 #include <iostream>
 #include <set>
 using namespace std;
+#include "test_cnn_ctc2.hpp"
 
 
 //#include "caffe/ctcpp.h"
@@ -111,23 +112,13 @@ std::wstring string2wstring(const string& str, bool bSrcIsUTF8 = true)
 {
 #ifdef _WIN32
 	UINT srcCode = bSrcIsUTF8 ? CP_UTF8 : CP_ACP;
-	int len = ::MultiByteToWideChar(srcCode,
-		0,
-		str.c_str(),
-		-1,
-		NULL,
-		0);
-	if (len == 0)
+	int len = ::MultiByteToWideChar(srcCode,0,str.c_str(),-1,NULL,0);
+  if (len == 0)
 		return wstring();
 
 	WCHAR* dst = new WCHAR[len];
-	int nRet = ::MultiByteToWideChar(srcCode,
-		0,
-		str.c_str(),
-		-1,
-		dst,
-		len);
-	wstring wstr = dst;
+	int nRet = ::MultiByteToWideChar(srcCode,0,str.c_str(),-1,dst,len);
+  wstring wstr = dst;
 	delete[]dst;
 #else
 	//printf("=====str====%s,len=%lu\n", str.c_str(), str.size());
@@ -236,26 +227,41 @@ void FindAllImages(const char *folder, std::vector<std::string>& vImgPaths, bool
 
 }
 
-testdata_t GetPredict(const vector<float>& fm, int idxBlank)
+int GetPredict(const float* fm, int size, int idxBlank, int* idx)
 {
-  testdata_t td = { 0 };
-  td.n = 0;
-  for (int t = 0; t < (int)fm.size(); t++)
+  int n = 0;
+  for (int i = 0; i < (int)size; i++)
   {
-    int idx = t;
-    int label = (int)(fm[idx] + 0.5f);
+    int label = (int)(fm[i] + 0.5f);
     if (label >= 0 && label != idxBlank)
     {
-      td.idx[td.n++] = label;
+      idx[n++] = label;
     }
   }
+  return n;
+}
+void GetPredictString1(char* str, IRANGE* r, const char* const* labels, const int* idx, int n) {
+  for (int i = 0; i < (int)n; i++)
+  {
+    int label = idx[i];
+    const char* s1 = labels[label];
+    size_t l1 = strlen(s1);
+    strcat_c(str, r, s1, l1);
+  }
+}
+
+testdata_t GetPredict(const vector<float>& fm, int idxBlank)
+{
+  testdata_t td;
+  td.n = GetPredict(fm.data(), fm.size(), idxBlank, td.idx);
   return td;
 }
+
 string GetPredictString(const vector<string>& labels, const testdata_t& td) {
   string str;
-  for (int t = 0; t < (int)td.n; t++)
+  for (int i = 0; i < (int)td.n; i++)
   {
-    int label = td.idx[t];
+    int label = td.idx[i];
     str += labels[label];
   }
   return str;
@@ -265,9 +271,9 @@ string GetPredictString(const vector<float>& fm, int idxBlank, const vector<stri
 {
 	string str;
 	td.n = 0;
-	for (int t = 0; t < (int)fm.size(); t++)
+	for (int i = 0; i < (int)fm.size(); i++)
 	{
-		int idx = t;
+		int idx = i;
 		int label = (int)(fm[idx] + 0.5f);
 		if (label >= 0 && label != idxBlank)
 		{
@@ -522,12 +528,12 @@ int LoadTextFile(const char* folder, const char* testfile, std::vector<testdata_
     }
     IRANGE r = iRANGE(0, size), out, r0 = iRANGE(0, 256);
     char fname[256];
-    strcpy_c1(fname, &r0, folder);
+    strcpy_c(fname, &r0, folder, strlen(folder));
     for (n=0; split_c(buf, &r, &out, 1, "\n", "\r\n ", true);) {
       IRANGE r2 = out, out2, r1 = r0;
       testdata_t td = { 0 };
       split_c(buf, &r2, &out2, 1, " ", NULL, true);
-      strcpy_c(fname, &r1, buf, out2);
+      strcpy_c(fname, &r1, buf+ out2.s, out2.l- out2.s);
 
       for (; split_c(buf, &r2, &out2, 1, " ", NULL, true); ) {
         int k = atoi(buf+out2.s);
@@ -614,6 +620,7 @@ string ocr_chinese(cv::Mat img) {
 
 void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char* outfile, const char* inputlistfile)
 {
+  //test_ocr_static();
 #ifdef CPU_ONLY
 	bool usegpu = false;
 #else
@@ -667,6 +674,7 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 		string imgfile = imgs[i];
 		cv::Mat img = cv::imread(imgfile, CV_LOAD_IMAGE_COLOR);
 		int w = img.cols, h = img.rows;
+    //OUT_FILE(__FILE__"_img.txt", w*h*img.channels(), img.data, "%d,\n");
     if (h < 1)continue;
 		if (2 * w <= h)
 		{
@@ -716,6 +724,17 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 
 int test_cnn_ctc()
 {
+
+  if (1) {
+    int n = countof(labels);
+    FILE*pf = fopen(__FILE__"_labels.txt", "wb");
+    for (int i = 0; i < n; ++i) {
+      std::wstring ws = string2wstring(0==i ? " " : labels[i], false);
+      fprintf(pf, "%d,\n", ws[0]);
+    }
+    fclose(pf);
+    return 0;
+  }
   int aa = atoi("10123");
   if (0) {
     string imgfolder = "I:\\OCR_Line\\synth_english\\db_read_test\\";

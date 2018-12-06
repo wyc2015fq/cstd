@@ -4,7 +4,7 @@
 #include "wstd/logging.hpp"
 #include <string>
 #include <sys/stat.h>
-#include <direct.h>
+#include "stdc/fileio_c.h"
 using namespace std;
 
 enum Mode { READ, WRITE, NEW };
@@ -41,9 +41,12 @@ public:
   virtual Transaction* NewTransaction() = 0;
 };
 
+#ifdef _WIN32
 #define USE_LMDB
+#endif
 #ifdef USE_LMDB
 #include "lmdb/lmdb.h"
+
 
 inline void MDB_CHECK(int mdb_status)
 {

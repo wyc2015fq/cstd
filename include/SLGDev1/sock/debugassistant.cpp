@@ -1,5 +1,5 @@
 
-#include "slgdev/slgdev_private.h"
+#include "../slgdev_private.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>

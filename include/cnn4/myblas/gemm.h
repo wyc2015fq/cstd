@@ -4,7 +4,7 @@ static Dtype* FUN(pack)(int mc, int kc, const Dtype *A, int incRowA, int incColA
   int _mr = mc % MR;
   int i, j;
   int a1 = incRowA, a2 = 2 * incRowA, a3 = 3 * incRowA;
-  
+
   for (i = 0; i < mp; ++i) {
     const Dtype* A0 = A;
     for (j = 0; j < kc; ++j) {
@@ -36,18 +36,18 @@ static void FUN(gemm_kernel_4x4)(int kc, Dtype alpha, const Dtype *A, const Dtyp
   int i, j, l = 0;
   enum { MR = 4, NR = 4};
   Dtype AB_[MR * NR] = {0};
-#if defined(MDL_V7) && !ISDOUBLE
+#if defined(__ARM_V8) && !ISDOUBLE
   float32x4_t abv0 = vdupq_n_f32(0);
   float32x4_t abv1 = vdupq_n_f32(0);
   float32x4_t abv2 = vdupq_n_f32(0);
   float32x4_t abv3 = vdupq_n_f32(0);
-  
+
   float32x4_t av;
   float32x4_t bv;
-  
+
   float32x2_t bv01;
   float32x2_t bv23;
-  
+
   for (l = 0; l < kc; ++l) {
     av = vld1q_f32(A);
     bv = vld1q_f32(B);
@@ -60,51 +60,23 @@ static void FUN(gemm_kernel_4x4)(int kc, Dtype alpha, const Dtype *A, const Dtyp
     A += MR;
     B += NR;
   }
-  
+
   vst1q_f32(AB_ + 0, abv0);
   vst1q_f32(AB_ + 4, abv1);
   vst1q_f32(AB_ + 8, abv2);
   vst1q_f32(AB_ + 12, abv3);
-  
-  if (fequal(beta, 0.0)) {
-    for (j = 0; j < NR; ++j) {
-      for (i = 0; i < MR; ++i) {
-        C[i * incRowC + j * incColC] = 0.0;
-      }
-    }
-  } else if (!fequal(beta, 1.0)) {
-    for (j = 0; j < NR; ++j) {
-      for (i = 0; i < MR; ++i) {
-        C[i * incRowC + j * incColC] *= beta;
-      }
-    }
-  }
-  
-  if (!fequal(alpha, 1.0)) {
-    for (j = 0; j < NR; ++j) {
-      for (i = 0; i < MR; ++i) {
-        C[i * incRowC + j * incColC] += alpha * AB_[i + j * MR];
-      }
-    }
-  } else {
-    for (j = 0; j < NR; ++j) {
-      for (i = 0; i < MR; ++i) {
-        C[i * incRowC + j * incColC] += AB_[i + j * MR];
-      }
-    }
-  }
-  
-#elif defined(MDL_V8) && !ISDOUBLE
-  
-  
+  l = 1;
+#endif
+
+#if defined(__ARM_V7) && !ISDOUBLE
   float32x4_t abv0 = vdupq_n_f32(0);
   float32x4_t abv1 = vdupq_n_f32(0);
   float32x4_t abv2 = vdupq_n_f32(0);
   float32x4_t abv3 = vdupq_n_f32(0);
-  
+
   float32x4_t av;
   float32x4_t bv;
-  
+
   int kc1 = kc / 4, kc2 = kc % 4;
   asm volatile (
     "subs %[kc1], %[kc1], #1\n\t"
@@ -166,41 +138,23 @@ static void FUN(gemm_kernel_4x4)(int kc, Dtype alpha, const Dtype *A, const Dtyp
     "[abv0]"(abv0), "[abv1]"(abv1), "[abv2]"(abv2), "[abv3]"(abv3),
     "[kc1]"(kc1), "[kc2]"(kc2)
     );
-  
+
   vst1q_f32(AB_ + 0, abv0);
   vst1q_f32(AB_ + 4, abv1);
   vst1q_f32(AB_ + 8, abv2);
   vst1q_f32(AB_ + 12, abv3);
-  
-  if (beta == 0.0) {
-    for (j = 0; j < NR; ++j) {
-      for (i = 0; i < MR; ++i) {
-        C[i * incRowC + j * incColC] = 0.0;
-      }
-    }
-  } else if (beta != 1.0) {
-    for (j = 0; j < NR; ++j) {
-      for (i = 0; i < MR; ++i) {
-        C[i * incRowC + j * incColC] *= beta;
-      }
-    }
-  }
-  
-  for (j = 0; j < NR; ++j) {
-    for (i = 0; i < MR; ++i) {
-      C[i * incRowC + j * incColC] += AB_[i + j * MR];
-    }
-  }
-  
-  
-#elif CC_SSE2 && !ISDOUBLE
-  
+  l = 1;
+#endif
+
+
+#if defined(__SSE2) && !ISDOUBLE
+
   __m128 abv0 = _mm_set_ps1(0);
   __m128 abv1 = _mm_set_ps1(0);
   __m128 abv2 = _mm_set_ps1(0);
   __m128 abv3 = _mm_set_ps1(0);
   __m128 av;
-  
+
   for (; l < kc; ++l) {
     av = _mm_loadu_ps(A);
     _mm_muladd_ps(abv0, av, _mm_set_ps1(B[0]));
@@ -210,45 +164,28 @@ static void FUN(gemm_kernel_4x4)(int kc, Dtype alpha, const Dtype *A, const Dtyp
     A += MR;
     B += NR;
   }
-  
+
   av = _mm_set_ps1(alpha);
   _mm_storeu_ps(AB_ +  0, _mm_mul_ps(abv0, av));
   _mm_storeu_ps(AB_ +  4, _mm_mul_ps(abv1, av));
   _mm_storeu_ps(AB_ +  8, _mm_mul_ps(abv2, av));
   _mm_storeu_ps(AB_ + 12, _mm_mul_ps(abv3, av));
+  l = 1;
+#endif
 
-  if (fequal(beta, 0.0)) {
-    for (j = 0; j < NR; ++j) {
-      for (i = 0; i < MR; ++i) {
-        C[i * incRowC + j * incColC] = AB_[i + j * MR];
-      }
+  if (l==0) {
+    for (l = 0; l < MR * NR; ++l) {
+      AB_[l] = 0;
     }
-  } else if (!fequal(beta, 1.0)) {
-    for (j = 0; j < NR; ++j) {
-      for (i = 0; i < MR; ++i) {
-        C[i * incRowC + j * incColC] = C[i * incRowC + j * incColC] * beta + AB_[i + j * MR];
+    for (l = 0; l < kc; ++l) {
+      for (j = 0; j < NR; ++j) {
+        for (i = 0; i < MR; ++i) {
+          AB_[i + j * MR] += A[i] * B[j];
+        }
       }
+      A += MR;
+      B += NR;
     }
-  } else {
-    for (j = 0; j < NR; ++j) {
-      for (i = 0; i < MR; ++i) {
-        C[i * incRowC + j * incColC] += AB_[i + j * MR];
-      }
-    }
-  }
-#else
-  
-  for (l = 0; l < MR * NR; ++l) {
-    AB_[l] = 0;
-  }
-  for (l = 0; l < kc; ++l) {
-    for (j = 0; j < NR; ++j) {
-      for (i = 0; i < MR; ++i) {
-        AB_[i + j * MR] += A[i] * B[j];
-      }
-    }
-    A += MR;
-    B += NR;
   }
   if (fequal(beta, 0.0)) {
     for (j = 0; j < NR; ++j) {
@@ -263,7 +200,7 @@ static void FUN(gemm_kernel_4x4)(int kc, Dtype alpha, const Dtype *A, const Dtyp
       }
     }
   }
-  
+
   if (!fequal(alpha, 1.0)) {
     for (j = 0; j < NR; ++j) {
       for (i = 0; i < MR; ++i) {
@@ -277,7 +214,6 @@ static void FUN(gemm_kernel_4x4)(int kc, Dtype alpha, const Dtype *A, const Dtyp
       }
     }
   }
-#endif
 }
 
 static void FUN(gemm_nn)(int m, int n, int k, Dtype alpha, const Dtype *A, int incRowA, int incColA,
@@ -285,30 +221,30 @@ static void FUN(gemm_nn)(int m, int n, int k, Dtype alpha, const Dtype *A, int i
   int mb = (m + MC - 1) / MC;
   int nb = (n + NC - 1) / NC;
   int kb = (k + KC - 1) / KC;
-  
+
   int _mc = m % MC;
   int _nc = n % NC;
   int _kc = k % KC;
-  
+
   int i, j, l;
   enum { MR = 4, NR = 4};
   Dtype C_[MR * NR];
   Dtype _beta;
-  
+
   if (fequal(alpha, 0.0) ||  k == 0) {
     FUN(gescal)(m, n, beta, C, incRowC, incColC);
     return;
   }
-  
+
   for (j = 0; j < nb; ++j) {
     int nc = (j != nb - 1 || _nc == 0) ? NC : _nc;
-    
+
     for (l = 0; l < kb; ++l) {
       int kc = (l != kb - 1 || _kc == 0) ? KC : _kc;
       _beta = (l == 0) ? beta : 1.0;
-      
+
       FUN(pack)(nc, kc, &B[l * KC * incRowB + j * NC * incColB], incColB, incRowB, B_, NR);
-      
+
       for (i = 0; i < mb; ++i) {
         int mc = (i != mb - 1 || _mc == 0) ? MC : _mc;
         Dtype* C0 = &C[i * MC * incRowC + j * NC * incColC];
@@ -318,13 +254,13 @@ static void FUN(gemm_nn)(int m, int n, int k, Dtype alpha, const Dtype *A, int i
         int _mr = mc % MR;
         int _nr = nc % NR;
         FUN(pack)(mc, kc, &A[i * MC * incRowA + l * KC * incColA], incRowA, incColA, A_, MR);
-        
+
         for (nn = 0; nn < np; ++nn) {
           int nr = (nn != np - 1 || _nr == 0) ? NR : _nr;
-          
+
           for (mm = 0; mm < mp; ++mm) {
             int mr = (mm != mp - 1 || _mr == 0) ? MR : _mr;
-            
+
             if (mr == MR && nr == NR) {
               FUN(gemm_kernel_4x4)(kc, alpha, &A_[mm * kc * MR], &B_[nn * kc * NR], _beta, &C0[mm * MR * incRowC + nn * NR * incColC], incRowC, incColC);
             } else {
@@ -354,13 +290,13 @@ static void FUN(gemm)(CBLAS_ORDER order, const CBLAS_TRANSPOSE TransA, const CBL
   if (CblasColMajor==order) {
     T_SWAP(int, ldc, idc);
   }
-  
+
   if (NULL==fast_sgemm_buf) {
     int size = MC * KC + KC * NC;
     MYREALLOC(fast_sgemm_buf, size);
     FUN(set)(size, 0, fast_sgemm_buf);
   }
-  
+
   A_ = fast_sgemm_buf;
   B_ = fast_sgemm_buf + MC * KC;
   FUN(gemm_nn)(M, N, K, alpha, A, lda, ida, B, ldb, idb, beta, C, ldc, idc, MC, NC, KC, A_, B_);

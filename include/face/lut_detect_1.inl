@@ -2,6 +2,8 @@
 //#include "img/imgio.inl"
 //#define USE_FIX_FLOAT1
 
+
+
 int swaplr_img(int h, int w, unsigned char* a, int al) {
   int i, j, t;
   for (i=0; i<h; ++i, a+=al) {

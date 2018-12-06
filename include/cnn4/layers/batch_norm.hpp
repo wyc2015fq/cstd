@@ -37,7 +37,7 @@ public:
     }
   }
 
-  void BatchNormLayer::LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
+  void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     if (bottom[0]->num_axes() == 1) {
       channels_ = 1;
@@ -46,7 +46,7 @@ public:
       channels_ = bottom[0]->shape(1);
     }
     if (this->blobs_.size() > 0) {
-      LOG(INFO) << "Skipping parameter initialization";
+      //LOG(INFO) << "Skipping parameter initialization";
     }
     else {
       blobs_reset(this->blobs_, 3);
@@ -93,7 +93,7 @@ public:
   }
 
 
-  void BatchNormLayer::Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top)
+  void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
     const Dtype* batch_sum_multiplier_data = batch_sum_multiplier_.data();

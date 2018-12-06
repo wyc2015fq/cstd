@@ -1005,7 +1005,7 @@ void LoopEndCleanup_cpu()
 
 
 virtual void bottleneck_Forward_(int transitionIdx) {
-  //BN Fwd 
+  //BN Fwd
   Dtype* BN_x_ptr;
   if (this->phase_ == TRAIN && useDropout) {
     BN_x_ptr = this->postDropout.mdata();
@@ -1051,7 +1051,7 @@ virtual void bottleneck_Forward_(int transitionIdx) {
   if (useBC) {
     assert(0);
 #if 0
-    //Convolution 1*1 kernel 
+    //Convolution 1*1 kernel
     Dtype* conv_x_4G = postReLU.mdata();
     Dtype* conv_y_4G;
     if (BC_ultra_spaceEfficient) {
@@ -1136,7 +1136,7 @@ virtual void bottleneck_Forward_(int transitionIdx) {
   Dtype* conv_y_local = this->postConv.mdata() + delayChannel * this->H * this->W;
   //CONV_ALGO
   if (1) {
-    uutime a;
+    //utime_start(a);
     int conv_x_channels = this->initChannel + this->growthRate * transitionIdx;
     Blob* conv_w = this->blobs_[transitionIdx];
     DataShape conv_x_shape = conv_x->shape_;
@@ -1148,9 +1148,8 @@ virtual void bottleneck_Forward_(int transitionIdx) {
     cpu_caffe_set(conv_y_shape.count(), 0, conv_y_local);
     //cpu_conv2d(conv_x_local, conv_y_local, w, NULL, conv_x_shape, conv_y_shape, conv_w->shape_.h, conv_w->shape_.w, 1, 1, 1, 1, 1, 1, 1, false);
     conv2d_gemm_fw(conv_x_local, conv_y_local, w, NULL, conv_x_shape, conv_y_shape, conv_w->shape_.h, conv_w->shape_.w, 1, 1, 1, 1, 1, 1, 1, false);
-    LOG(INFO) << a.elapsed();
+    //LOG(INFO) << utime_elapsed(a);
     //log_blob(this->postConv);
-    1 == 1;
   }
 #if 0
   //Dropout

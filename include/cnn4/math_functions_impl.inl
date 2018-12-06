@@ -171,8 +171,6 @@ Dtype FUN(caffe_nextafter)(const Stype b)
   return nextafter(b, FLT_MAX);
 }
 
-
-
 void FUN(caffe_rng_uniform)(const int n, const Stype a, const Stype b, Dtype* r)
 {
   CHECK_GE(n, 0);

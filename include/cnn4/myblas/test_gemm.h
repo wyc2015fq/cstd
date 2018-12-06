@@ -36,7 +36,7 @@ int test_gemm_kernel(int M, int N, int K, const Dtype* A, const Dtype* B, Dtype*
       }
     }
   }
-  printf("%8.5f %8.5f %d %d %d %8.5f %8.5f %8.5f\n", timeOpenCV, timeOpenBlas, M, N, K, d, s1, s2);
+  printf("%8.5lf %8.5lf %d %d %d %8.5lf %8.5lf %8.5lf\n", timeOpenCV, timeOpenBlas, M, N, K, d, s1, s2);
   return 0;
 }
 #if 0
@@ -65,7 +65,7 @@ int test_gemm1() {
 #endif
 int test_gemm() {
   //test_gemm1();
-  enum {LEN = 3};
+  enum {LEN = 8};
   double timeOpenCV[LEN] = {0};
   double timeOpenBlas[LEN] = {0};
 

@@ -50,6 +50,9 @@ int lbpex_memsize( void* p0 ) {
   return 0;
 }
 
+int detect_memsize(void* p);
+int detect_process(void* p);
+
 int facerecog_memsize( void* p0 ) {
   facerecog_param_t* p = (facerecog_param_t*)p0;
   lut_detect_param_t pp;

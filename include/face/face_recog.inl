@@ -2,11 +2,13 @@
 #ifndef _FACE_RECOG_INL_
 #define _FACE_RECOG_INL_
 
-#include "cfile.h"
+
 #include "face.inl"
 #include "cascadearr.h"
 #include "DSP_feat.h"
 #include "img/imgopt.inl"
+#include "stdc/dir_c.h"
+#include "stdc/fileio_c.h"
 //#include "img/imgio.inl"
 
 //#include "lib/Sentinel/libsentinel.inl"
@@ -89,7 +91,9 @@ int load_facelib(const char* path, const char* filters, SPInfo** pfacelib) {
   n = dl->n;
   if (pfacelib) {
     buf_t bf[1] = {0};
-    SPInfo* facelib = *pfacelib = (SPInfo*)prealloc(*pfacelib, n*sizeof(SPInfo));
+    SPInfo* facelib = NULL;
+    MYREALLOC(facelib, n);
+    *pfacelib = facelib;
     for (i=0; i<n; ++i) {
       if (buf_load(dl->v[i].name, bf)) {
         if (bf->len<sizeof(SPInfo)) {
@@ -135,6 +139,16 @@ int str2mode(const char* str) {
   return mode;
 }
 
+CC_INLINE int XRECT_int(const XRECT* r, int* out) {
+  if (r && out) {
+    out[0] = r->x;
+    out[1] = r->y;
+    out[2] = r->w;
+    out[3] = r->h;
+  }
+  return 0;
+}
+
 int face_recog(int h, int w, const void* data, int step, int cn, const char* s_pixtype, const char* s_mode, int trans, double scale,
                int* xywh, void* stdface, void* feature, const void* featlib, int featstep, int feat_num, int* pid, int* pdis) {
   img_t im[1] = {0};
@@ -155,7 +169,7 @@ int face_recog(int h, int w, const void* data, int step, int cn, const char* s_p
 #endif
   
   IMINIT(im, h, w, data, step, cn, 1);
-  pixtype = cstr_splitfind(pixtypes, -1, s_pixtype, -1, 1, 0);
+  pixtype = splitfind_c(pixtypes, -1, s_pixtype, -1, 1, 0);
   mode = str2mode(s_mode);
   facerecog_set(s);
   s->transopt = trans;
@@ -231,7 +245,7 @@ int facefeature(const char* pic_100x100_file_name, void* out_feature) {
 #endif // _IMGIO_INL_
 
 
-#include "parser/xml.inl"
+//#include "parser/xml.inl"
 
 #define REGH  300
 #define REGW  200

@@ -398,6 +398,9 @@ int make_syscolor()
 #endif
 #endif
 
+
+#if 0
+
 typedef struct ColTable {
   const char* szName;
   COLOR colVal;
@@ -408,6 +411,7 @@ COLORTABLEDEF_DEF(COLORTABLEDEF)
 #undef COLORTABLEDEF
   {NULL, 0}
 };
+#endif
 
 
 CC_INLINE int colorcn(ColorSpace type)

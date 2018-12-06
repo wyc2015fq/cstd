@@ -378,8 +378,8 @@ int new_rect_lbp_hist_feature( int srch, int srcw, const INT2* src, int srcstep,
       }
     }
     //FPRINT1D("feat.txt", "%3d,\r\n", bin*len, me, 1);
-    pfree( AA );
-    pfree( img2 );
+    free( AA );
+    free( img2 );
   }
   return bin*len;
 }
@@ -542,6 +542,25 @@ int new_pp_lbp_ex_ft( int ah, int aw, const unsigned char* A, int al, int ai, FE
   }
   return sz;
 }
+typedef enum feature_type {
+  LBP8BIN = 0,         
+  LBP59BIN,            
+  PPLBP8BIN,           
+  PPLBP59BIN,          
+  BOOSTLBP59BIN,       
+  PPBOOSTLBP59BIN,     
+  PPBOOSTLBPXBIN,      
+  PPBOOSTLBPXBINFIX,   
+  PPLBPXBIN,           
+  LBP59RECTBIN,        
+  PPLBP59BIN2,
+  PPLGBP8BINCOMPRESS,
+  BOOSTLBPXBIN,        
+  PPBOOSTLBPXBINABS,   
+  EDGEGRADLBP,         
+  BOOSTEDGEGRADLBP,    
+  MAX_FEAT
+} feature_type;
 
 int CPM_GetFeature1( int srch, int srcw, const unsigned char* src, int srcstep, int cn, int type, void* featptr ) {
   int len = 0;
@@ -626,7 +645,26 @@ int CPM_GetFeature1( int srch, int srcw, const unsigned char* src, int srcstep, 
   }
   return len;
 }
+typedef enum distance_type {
+  CPM_CHISQUARE,    
+  CPM_COSINE,       
+  CPM_HISTINTER,    
+  CPM_ABSSUB        
+} distance_type;
 
+typedef struct RECOALGO {
+  int feat_type;   
+  int feat_dims;   
+  int std_height;  
+  int std_width;   
+  int std_cn;      
+  int is_dist;     
+  double dist_min; 
+  double dist_max; 
+  double dist_th;  
+  int dist_type;   
+}
+RECOALGO;
 #if 0
 static struct RECOALGO info[ MAX_FEAT ] =   //
   {

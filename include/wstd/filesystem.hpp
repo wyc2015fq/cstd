@@ -76,28 +76,5 @@ namespace wstd {
 
 }
 
-/*
-For Windows
-value	mode
-00		Existence only
-02		Write-only
-04		Read-only
-06		Read and write
-
-For linux
-F_OK	Existence only
-R_OK	Read-only
-W_OK	Write-only
-X_OK	Executable
-*/
-static bool CheckFileExist(const char* szFile)
-{
-#ifdef WIN32
-  return _access(szFile, 0) != -1;
-#else
-  return access(szFile, F_OK) != -1;
-#endif
-
-}
 
 #endif // _FILESYSTEM_HPP_

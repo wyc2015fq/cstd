@@ -6,6 +6,11 @@
 
 #ifdef __ARM_NEON
 #define __arm__
+#if __aarch64__
+#define __ARM_V8
+#else
+#define __ARM_V7
+#endif
 #endif
 
 #ifdef __ARM_NEON
@@ -37,6 +42,9 @@
 #define ABS(x)  (x)<0 ? -(x) : (x)
 
 #include <stdio.h>
+#define OUT_FILE(name, n, a, fmt)  { FILE* pf = fopen(name, "wb"); if (pf) { \
+  for (int i = 0; i < n; ++i) { fprintf(pf, fmt, a[i]);  }  fclose(pf); } }
+
 static int out_file(const char* name, int n, const float* a) {
   FILE* pf = fopen(name, "wb");
   if (pf) {

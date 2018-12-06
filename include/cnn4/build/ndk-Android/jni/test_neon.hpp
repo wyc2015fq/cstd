@@ -1,4 +1,6 @@
-#include <iostream>
+
+#include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include "wstd/utime.hpp"
 using namespace std;
@@ -12,7 +14,7 @@ float sum_array(float* arr, int len)
 {
   if (NULL == arr || len<1)
   {
-    cout << "input error\n";
+    printf("input error\n");
     return 0;
   }
   float sum(0.0);
@@ -28,7 +30,7 @@ float sum_array_neon(float* arr, int len)
 {
   if (NULL == arr || len < 1)
   {
-    cout << "input error\n";
+    printf("input error\n");
     return 0;
   }
   long dim4 = len / 4;

@@ -41,7 +41,7 @@ bool Compare(KVNode& aNode, KVNode& bNode)
  
 	int total = 0;
 	int numAngle, numRho;
-	int i, j;
+	//int i, j;
 	double scale = 0.0;
 	float iRho = 1 / rho;
  

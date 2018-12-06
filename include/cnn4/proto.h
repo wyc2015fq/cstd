@@ -24,10 +24,10 @@ inline string DataShape_string(const DataShape& shape) {
   int n = shape.num_axes();
   for (int i = 0; i < n; ++i) {
     if (i) strcat(buf, ",");
-    strcat(buf, _itoa(shape.dim[i], buf2, 10));
+    strcat(buf, itoa_c(shape.dim[i], buf2, 10));
   }
   strcat(buf, "(");
-  strcat(buf, _itoa(shape.count(), buf2, 10));
+  strcat(buf, itoa_c(shape.count(), buf2, 10));
   strcat(buf, ")]");
   return buf;
 }
@@ -317,28 +317,28 @@ struct Filler {
       return cpu_ConstantFiller(shape, data, value_);
     case FillerMethod_gaussian:
       return (cpu_GaussianFiller)(shape, data, mean_, std_, sparse_);
-    
+
     case FillerMethod_positive_unitball:
       CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
       return (cpu_PositiveUnitballFiller)(shape, data);
-    
+
     case FillerMethod_uniform:
       CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
       return (cpu_UniformFiller)(shape, data, min_, max_);
-    
+
     case FillerMethod_xavier:
       CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
       return (cpu_XavierFiller)(shape, data, variance_norm_);
-    
+
     case FillerMethod_msra:
       CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
       return (cpu_MSRAFiller)(shape, data, variance_norm_);
-    
+
     case FillerMethod_bilinear:
       CHECK_EQ(sparse_, -1)
         << "Sparsity not supported by this Filler.";
       return (cpu_BilinearFiller)(shape, data);
-    
+
     default:
       CHECK(false) << "Unknown filler name: " << type_;
       break;
@@ -401,7 +401,7 @@ void tryCreateDirectory(string fileName)
   outWriter_data << std::endl;
   outWriter_grad << std::endl;
 }
- 
+
 static void logBlobs(const vector<Blob*>& blobs, const char* fileName) {
   char blobStr[256];
   for (int i = 0; i < blobs.size(); ++i) {
@@ -481,9 +481,9 @@ struct Layer {
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top) { }
   virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top) { }
   // bottom -> top
-  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top) { (0); }
+  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top) {  }
   // top -> bottom
-  virtual void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom) { (0); }
+  virtual void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom) {  }
 
   Layer() {
     init();
@@ -547,7 +547,7 @@ Layer::fun_type f ## Class = Layer::reg(&new ## Class, #name );
 //#define INSTANTIATE_CLASS(Bias) INSTANTIATE_CLASS2(Bias, Bias)
 #define REGISTER_LAYER_CLASS INSTANTIATE_CLASS
 //Layer<double>::fun_type d ## Bias = Layer<double>::reg(&new ## Bias ## Layer<double>, #Bias )
-//#define REGISTER_LAYER_CLASS(Bias)  
+//#define REGISTER_LAYER_CLASS(Bias)
 
 int CreateLayer(CJSON* param, Layer*& layer, const char* type) {
   Layer::fun_type fun = Layer::reg(NULL, type);

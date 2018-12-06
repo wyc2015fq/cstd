@@ -6,7 +6,7 @@
 #include <math.h>
 #include <string.h>
 #include <assert.h>
-#include "../cstd.h"
+//#include "../cstd.h"
 //#include "../codec/Huffman.inl"
 //#include "../codec/LZARI.h"
 //#include "../codec/LZF.h" UINT
@@ -14,6 +14,7 @@
 #include "../codec/huff.inl"
 //#include "SCIO_Export.h"
 
+#include "stdc/popcount.h"
 #include "_faceRecognition.h"
 
 //int vvv;

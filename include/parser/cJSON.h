@@ -31,7 +31,7 @@ typedef struct cJSON {
   int valueint; /* The item's number, if type==cJSON_Number */
   double valuedouble; /* The item's number, if type==cJSON_Number */
   char* string; /* The item's name string, if this item is the child of, or is in the list of subitems of an object. */
-  
+
   bool has(const char* name) {
     return GetObjectItem(name)!=NULL;
   }
@@ -1273,10 +1273,10 @@ cJSON* cJSON_AddItemToObject(cJSON* object, const char* string, cJSON* item)
   cJSON_AddItemToArray(object, item);
   return item;
 }
-void cJSON_AddItemToObjectCS(cJSON* object, const char* string, cJSON* item)
+cJSON* cJSON_AddItemToObjectCS(cJSON* object, const char* string, cJSON* item)
 {
   if (!item) {
-    return;
+    return NULL;
   }
   if (!(item->type & cJSON_StringIsConst) && item->string) {
     cJSON_free(item->string);
@@ -1284,6 +1284,7 @@ void cJSON_AddItemToObjectCS(cJSON* object, const char* string, cJSON* item)
   item->string = (char*)string;
   item->type |= cJSON_StringIsConst;
   cJSON_AddItemToArray(object, item);
+  return item;
 }
 cJSON* cJSON_AddItemReferenceToArray(cJSON* array, cJSON* item)
 {

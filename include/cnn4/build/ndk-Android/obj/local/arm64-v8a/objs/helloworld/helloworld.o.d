@@ -2,6 +2,19 @@
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\stdio.h \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\__config \
   jni/test_neon.hpp \
+  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\stdlib.h \
+  D:\code\git\cstd\include\wstd/utime.hpp \
+  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\ctime \
+  jni/test_conv.hpp D:\code\git\cstd\include\cnn4/math_functions.inl \
+  D:\code\git\cstd\include\cnn4/math_functions.h \
+  D:\code\git\cstd\include\config.h \
+  D:\code\git\cstd\include\cnn4/myblas/myblas.h \
+  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\string.h \
+  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\math.h \
+  D:\code\git\cstd\include\cnn4/myblas/level1.h \
+  D:\code\git\cstd\include\cnn4/myblas/gemm.h \
+  D:\code\git\cstd\include\cnn4/types.h \
+  D:\code\git\cstd\include\wstd/logging.hpp \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\iostream \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\ios \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\iosfwd \
@@ -12,10 +25,7 @@
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\__string \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\algorithm \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\initializer_list \
-  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\cstddef \
-  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\type_traits \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\cstring \
-  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\string.h \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\utility \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\__tuple \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\cstdint \
@@ -24,9 +34,7 @@
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\typeinfo \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\exception \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\cstdlib \
-  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\stdlib.h \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\new \
-  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\limits \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\iterator \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\__functional_base \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\tuple \
@@ -43,7 +51,6 @@
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\mutex \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\__mutex_base \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\chrono \
-  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\ctime \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\ratio \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\climits \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\system_error \
@@ -61,22 +68,17 @@
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\__bsd_locale_fallbacks.h \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\bitset \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\__bit_reference \
-  D:\code\git\cstd\include\wstd/utime.hpp jni/test_conv.hpp \
-  D:\code\git\cstd\include\cnn4/math_functions.inl \
-  D:\code\git\cstd\include\cnn4/math_functions.h \
-  D:\code\git\cstd\include\config.h \
-  D:\code\git\cstd\include\cnn4/myblas/myblas.h \
-  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\math.h \
-  D:\code\git\cstd\include\cnn4/myblas/level1.h \
-  D:\code\git\cstd\include\cnn4/myblas/gemm.h \
-  D:\code\git\cstd\include\cnn4/types.h \
-  D:\code\git\cstd\include\wstd/logging.hpp \
   D:\code\git\cstd\include\wstd/flags.hpp \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\vector \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\__split_buffer \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\sstream \
   D:\code\git\cstd\include\wstd/string.hpp \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\iomanip \
+  D:\code\git\cstd\include\stdc/string_c.h \
+  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\inttypes.h \
+  D:\code\git\cstd\include\stdc/xtoa_c.h \
+  D:\code\git\cstd\include\stdc/atoi_c.h \
+  D:\code\git\cstd\include\stdc/stdc.h \
   D:\code\git\cstd\include\cnn4/cpu.hpp \
   D:\code\git\cstd\include\cnn4/rng.hpp \
   C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\random \
@@ -99,14 +101,85 @@
   D:\code\git\cstd\include\cnn4/layers/ctc/hostdevice.h \
   D:\code\git\cstd\include\cnn4/layers/ctc/ctc.h \
   D:\code\git\cstd\include\cnn4/layers/denseblock.h \
-  D:\code\git\cstd\include\cnn4/myblas/test_gemm.h \
-  D:\code\git\cstd\include\utime.h
+  D:\code\git\cstd\include\cnn4/cnn_ctc/test_cnn_ctc2.hpp \
+  D:\code\git\cstd\include\cnn4/cnn4.hpp \
+  D:\code\git\cstd\include\utime.h D:\code\git\cstd\include\cnn4/proto.h \
+  D:\code\git\cstd\include\parser/cJSON.hpp \
+  D:\code\git\cstd\include\parser/base64.h \
+  D:\code\git\cstd\include\parser/cJSON.h \
+  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\map \
+  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\__tree \
+  C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\fstream \
+  D:\code\git\cstd\include\cnn4/blob.inl \
+  D:\code\git\cstd\include\cnn4/layer.inl \
+  D:\code\git\cstd\include\cnn4/net.inl \
+  D:\code\git\cstd\include\cnn4/layers/layers.hpp \
+  D:\code\git\cstd\include\cnn4/layers/input.hpp \
+  D:\code\git\cstd\include\cnn4/layers/neuron.hpp \
+  D:\code\git\cstd\include\cnn4/layers/relu.hpp \
+  D:\code\git\cstd\include\cnn4/layers/bias.hpp \
+  D:\code\git\cstd\include\cnn4/layers/data.hpp \
+  D:\code\git\cstd\include\cnn4/layers/../data_transformer.hpp \
+  D:\code\git\cstd\include\cnn4/layers/../db.hpp \
+  D:\code\git\cstd\include\stdc/fileio_c.h \
+  D:\code\git\cstd\include\stdc/bufmem.h \
+  D:\code\git\cstd\include\cnn4/layers/conv_base.hpp \
+  D:\code\git\cstd\include\cnn4/layers/conv.hpp \
+  D:\code\git\cstd\include\cnn4/layers/conv_gemm.h \
+  D:\code\git\cstd\include\cnn4/layers/pooling.hpp \
+  D:\code\git\cstd\include\cnn4/layers/inner_product.hpp \
+  D:\code\git\cstd\include\cnn4/layers/loss.hpp \
+  D:\code\git\cstd\include\cnn4/layers/accuracy.hpp \
+  D:\code\git\cstd\include\cnn4/layers/softmax.hpp \
+  D:\code\git\cstd\include\cnn4/layers/softmax_loss.hpp \
+  D:\code\git\cstd\include\cnn4/layers/split.hpp \
+  D:\code\git\cstd\include\cnn4/layers/batch_norm.hpp \
+  D:\code\git\cstd\include\cnn4/layers/scale.hpp \
+  D:\code\git\cstd\include\cnn4/layers/dropout.hpp \
+  D:\code\git\cstd\include\cnn4/layers/transpose.hpp \
+  D:\code\git\cstd\include\cnn4/layers/reshape.hpp \
+  D:\code\git\cstd\include\cnn4/layers/deconv.hpp \
+  D:\code\git\cstd\include\cnn4/layers/ctc/ctc_decoder.hpp \
+  D:\code\git\cstd\include\cnn4/layers/denseblock.hpp \
+  D:\code\git\cstd\include\cnn4/solver.hpp \
+  D:\code\git\cstd\include\cnn4/SGDSolver.hpp \
+  D:\code\git\cstd\include\cnn4/insert_splits.hpp \
+  D:\code\git\cstd\include\cnn4/cnn_ctc/test_cnn_ctc.hpp_img.txt \
+  D:\code\git\cstd\include\cnn4/cnn_ctc/test_cnn_ctc.hpp_labels.txt
 
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\stdio.h:
 
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\__config:
 
 jni/test_neon.hpp:
+
+C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\stdlib.h:
+
+D:\code\git\cstd\include\wstd/utime.hpp:
+
+C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\ctime:
+
+jni/test_conv.hpp:
+
+D:\code\git\cstd\include\cnn4/math_functions.inl:
+
+D:\code\git\cstd\include\cnn4/math_functions.h:
+
+D:\code\git\cstd\include\config.h:
+
+D:\code\git\cstd\include\cnn4/myblas/myblas.h:
+
+C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\string.h:
+
+C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\math.h:
+
+D:\code\git\cstd\include\cnn4/myblas/level1.h:
+
+D:\code\git\cstd\include\cnn4/myblas/gemm.h:
+
+D:\code\git\cstd\include\cnn4/types.h:
+
+D:\code\git\cstd\include\wstd/logging.hpp:
 
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\iostream:
 
@@ -128,13 +201,7 @@ C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\algorithm:
 
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\initializer_list:
 
-C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\cstddef:
-
-C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\type_traits:
-
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\cstring:
-
-C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\string.h:
 
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\utility:
 
@@ -152,11 +219,7 @@ C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\exception:
 
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\cstdlib:
 
-C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\stdlib.h:
-
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\new:
-
-C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\limits:
 
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\iterator:
 
@@ -189,8 +252,6 @@ C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\mutex:
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\__mutex_base:
 
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\chrono:
-
-C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\ctime:
 
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\ratio:
 
@@ -226,28 +287,6 @@ C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\bitset:
 
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\__bit_reference:
 
-D:\code\git\cstd\include\wstd/utime.hpp:
-
-jni/test_conv.hpp:
-
-D:\code\git\cstd\include\cnn4/math_functions.inl:
-
-D:\code\git\cstd\include\cnn4/math_functions.h:
-
-D:\code\git\cstd\include\config.h:
-
-D:\code\git\cstd\include\cnn4/myblas/myblas.h:
-
-C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\math.h:
-
-D:\code\git\cstd\include\cnn4/myblas/level1.h:
-
-D:\code\git\cstd\include\cnn4/myblas/gemm.h:
-
-D:\code\git\cstd\include\cnn4/types.h:
-
-D:\code\git\cstd\include\wstd/logging.hpp:
-
 D:\code\git\cstd\include\wstd/flags.hpp:
 
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\vector:
@@ -259,6 +298,16 @@ C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\sstream:
 D:\code\git\cstd\include\wstd/string.hpp:
 
 C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\iomanip:
+
+D:\code\git\cstd\include\stdc/string_c.h:
+
+C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\inttypes.h:
+
+D:\code\git\cstd\include\stdc/xtoa_c.h:
+
+D:\code\git\cstd\include\stdc/atoi_c.h:
+
+D:\code\git\cstd\include\stdc/stdc.h:
 
 D:\code\git\cstd\include\cnn4/cpu.hpp:
 
@@ -304,6 +353,94 @@ D:\code\git\cstd\include\cnn4/layers/ctc/ctc.h:
 
 D:\code\git\cstd\include\cnn4/layers/denseblock.h:
 
-D:\code\git\cstd\include\cnn4/myblas/test_gemm.h:
+D:\code\git\cstd\include\cnn4/cnn_ctc/test_cnn_ctc2.hpp:
+
+D:\code\git\cstd\include\cnn4/cnn4.hpp:
 
 D:\code\git\cstd\include\utime.h:
+
+D:\code\git\cstd\include\cnn4/proto.h:
+
+D:\code\git\cstd\include\parser/cJSON.hpp:
+
+D:\code\git\cstd\include\parser/base64.h:
+
+D:\code\git\cstd\include\parser/cJSON.h:
+
+C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\map:
+
+C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\__tree:
+
+C:/android-ndk-r18b/build//../sources/cxx-stl/llvm-libc++/include\fstream:
+
+D:\code\git\cstd\include\cnn4/blob.inl:
+
+D:\code\git\cstd\include\cnn4/layer.inl:
+
+D:\code\git\cstd\include\cnn4/net.inl:
+
+D:\code\git\cstd\include\cnn4/layers/layers.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/input.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/neuron.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/relu.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/bias.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/data.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/../data_transformer.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/../db.hpp:
+
+D:\code\git\cstd\include\stdc/fileio_c.h:
+
+D:\code\git\cstd\include\stdc/bufmem.h:
+
+D:\code\git\cstd\include\cnn4/layers/conv_base.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/conv.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/conv_gemm.h:
+
+D:\code\git\cstd\include\cnn4/layers/pooling.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/inner_product.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/loss.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/accuracy.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/softmax.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/softmax_loss.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/split.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/batch_norm.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/scale.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/dropout.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/transpose.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/reshape.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/deconv.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/ctc/ctc_decoder.hpp:
+
+D:\code\git\cstd\include\cnn4/layers/denseblock.hpp:
+
+D:\code\git\cstd\include\cnn4/solver.hpp:
+
+D:\code\git\cstd\include\cnn4/SGDSolver.hpp:
+
+D:\code\git\cstd\include\cnn4/insert_splits.hpp:
+
+D:\code\git\cstd\include\cnn4/cnn_ctc/test_cnn_ctc.hpp_img.txt:
+
+D:\code\git\cstd\include\cnn4/cnn_ctc/test_cnn_ctc.hpp_labels.txt:

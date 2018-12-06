@@ -1,7 +1,7 @@
 #ifndef CAFFE_ACCURACY_LAYER_HPP_
 #define CAFFE_ACCURACY_LAYER_HPP_
 
-#include <xfunctional>
+#include <functional>
 
 /**
  * @brief Computes the classification accuracy for a one-of-many
@@ -180,7 +180,7 @@ public:
   /// @brief Not implemented -- AccuracyLayer cannot be used as a loss.
   virtual void Backward_(const vector<Blob*> & top,
     const vector<Blob*> & bottom) {
-    for (int i = 0; i < propagate_down.size(); ++i) {
+    for (int i = 0; i < bottom.size(); ++i) {
       if (bottom[i]->propagate_down_) { NOT_IMPLEMENTED; }
     }
   }

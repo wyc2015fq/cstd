@@ -722,10 +722,10 @@ static int CPM_EyesDetect( const void* deye, const void* leye, const void* reye,
   reyecas[0] = reye, reyecas[1] = ralleye, reyecas[2] = reye_without_glass, reyecas[3] = 0;
   ihlen = MAX(cas_ihlen(leyecas, 4), cas_ihlen(reyecas, 4));
   buflen = DETECT_MEMSIZE(ihlen, MAX(128,face->h), MAX(128,face->w), maxoutlen );
-  buf = (unsigned char*)pmalloc(buflen);
+  buf = (unsigned char*)malloc(buflen);
   if (buf) {
     ret = detect_eyes(0, 0, A, al, deyecas, leyecas, reyecas, (face), (B), (B+1), (B+2), buf, buflen, out, maxoutlen, al, 0, 0, 0);
-    pfree(buf);
+    free(buf);
     if (ret) {
       ret = 3;
     }

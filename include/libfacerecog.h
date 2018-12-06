@@ -6,40 +6,9 @@
 extern "C" //
 {
 #endif
-#ifndef COLOR_TYPE_DEF_DEF
-#define COLOR_TYPE_DEF_DEF(COLOR_TYPE_DEF) \
-  COLOR_TYPE_DEF(1, GRAY) \
-  COLOR_TYPE_DEF(3, BGR) \
-  COLOR_TYPE_DEF(3, RGB) \
-  COLOR_TYPE_DEF(4, BGRA) \
-  COLOR_TYPE_DEF(2, BGR555) \
-  COLOR_TYPE_DEF(2, BGR565) \
-  COLOR_TYPE_DEF(2, YUYV) \
-  COLOR_TYPE_DEF(2, UYVY) \
-  COLOR_TYPE_DEF(2, YUV420P) \
-  COLOR_TYPE_DEF(2, YUV420) \
-  COLOR_TYPE_DEF(2, YUV411P) \
-  COLOR_TYPE_DEF(1, BayerGR) \
-  COLOR_TYPE_DEF(1, BayerGB) \
-  COLOR_TYPE_DEF(1, BayerBG) \
-  COLOR_TYPE_DEF(3, HSV) \
-  COLOR_TYPE_DEF(3, XYZ) \
-  COLOR_TYPE_DEF(3, HLS) \
-  COLOR_TYPE_DEF(3, Lab) \
-  COLOR_TYPE_DEF(3, Luv) \
-  COLOR_TYPE_DEF(3, YCrCb) \
-  COLOR_TYPE_DEF(2, YCrYCb) \
-  /* COLOR_TYPE_DEF(2, SBGGR8) */ \
-  COLOR_TYPE_DEF(2, SN9C10X) \
-  COLOR_TYPE_DEF(2, SGBRG) \
-  COLOR_TYPE_DEF(12, HSV32F)
-enum //
-{
-#define COLOR_TYPE_DEF(a, b)  T_##b,
-COLOR_TYPE_DEF_DEF(COLOR_TYPE_DEF)
-#undef COLOR_TYPE_DEF
-};
-#endif // COLOR_TYPE_DEF_DEF
+
+#include "stdc/img_c.h"
+#include "stdc/objdetect.h"
 #if 0
 #define FEAT_T unsigned char
 #define FEAT_MAX 255
@@ -55,17 +24,7 @@ COLOR_TYPE_DEF_DEF(COLOR_TYPE_DEF)
 #define FEAT_MAX 65532.f
 #endif
 #endif
-#ifndef XRECT_DEFINED
-#define XRECT_DEFINED
-  // 矩形框
-  typedef struct XRECT {
-    int x, y, w, h;      /* 一个目标的所有框的位置平均值 */
-    int score;           /* 一个目标的所有框的得分平均值 */
-    int count;             /* 一个目标的所有框的个数       */
-    //INT id;
-  }
-  XRECT;
-#endif // XRECT_DEFINED
+
   /*
   建议参数：
   p.cas[1] = pNIRDoubleEYE;

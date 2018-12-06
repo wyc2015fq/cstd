@@ -30,45 +30,22 @@ static __int64 utime_counter()
 #define utime_elapsed(_start_time)  ((double)(utime_counter() - _start_time) / utime_frequency())
 #endif
 
-#ifdef __linux__
+#if defined(__linux__) && !defined(__ARM_NEON)
 #include <sys/time.h>
-
-  // 获得计数器的时钟频率
-  // 获得初始值
-
-#if 1
-  static int64_t utime_frequency()
-  {
-    int64_t  frequency = 1000000;
-    return frequency;
-  }
-  static int64_t utime_counter()
-  {
-    int64_t  counter;
-    timeval t;
-    gettimeofday(&t, NULL);
-    counter = (int64_t)t.tv_sec * 1000 + (int64_t)t.tv_usec;
-    return counter;
-  }
-#else
-  static int64_t utime_frequency()
-  {
-    int64_t  frequency = 1000000000;
-    return frequency;
-  }
-  static int64_t utime_counter()
-  {
-    int64_t  counter;
-    timespec t;
-    getnstimeofday(&t, NULL);
-    counter = (int64_t)t.tv_sec * 1000000 + (int64_t)t.tv_nsec;
-      return counter;
-  }
-#endif
-
+// 获得计数器的时钟频率
+// 获得初始值
+static int64_t utime_counter()
+{
+  int64_t  counter;
+  timeval t;
+  gettimeofday(&t, NULL);
+  counter = ((int64_t)t.tv_sec) * 1000 + (int64_t)t.tv_usec;
+  //printf("%lu %d\n", counter, sizeof(t.tv_sec));
+  return counter;
+}
 #define utime_restart(_start_time)  _start_time = utime_counter()
 #define utime_start(_start_time)    int64_t utime_restart(_start_time)
-#define utime_elapsed(_start_time)  ((double)(utime_counter() - _start_time) / utime_frequency())
+#define utime_elapsed(_start_time)  ((double)(utime_counter() - _start_time) / 1000000)
 #endif
 
 

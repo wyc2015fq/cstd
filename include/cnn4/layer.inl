@@ -108,10 +108,10 @@ double Forward(const vector<Blob*> & bottom, const vector<Blob*> & top )
   // Lock during forward to ensure sequential forward
   Lock();
   Dtype loss = 0;
-  uutime a;
+  utime_start(a);
   Reshape(bottom, top);
   Forward_(bottom, top);
-  double t = a.elapsed();
+  double t = utime_elapsed(a);
 #if 0
   if (bottom.size() > 0 && top.size() > 0) {
     Dtype* bottom_data = bottom[0]->cpu_mdata();
@@ -134,8 +134,8 @@ double Forward(const vector<Blob*> & bottom, const vector<Blob*> & top )
 
   Unlock();
 #ifdef _DEBUG
+  //debug_info_ = 2;
 #endif
-  debug_info_ = 2;
   if (debug_info_) {
     LOG_IF(INFO, root_solver()) << "  [Forward] " << type_ << "Layer " << name_ << "(" << t << ")";
     if (debug_info_ > 1) {

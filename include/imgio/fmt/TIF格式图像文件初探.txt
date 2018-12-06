@@ -1,0 +1,479 @@
+TIF格式图像文件初探
+
+    文章概要：
+    因工作需要，本人经常接触一些图像方面的编程工作。目前图像领域中的格式很多且大部分官方说明都是英文文档，实在令人头疼，我想受此困扰的程序员朋友不在少数吧。这里本人不揣浅陋，写了一个将TIF格式转换成BMP格式图像的程序，供大家参考。请不吝赐教。
+
+一、前言
+
+因工作需要，本人经常接触一些图像方面的编程工作。目前图像领域中的格式很多且大部分官方说明都是英文文档，实在令人头疼，我想受此困扰的程序员朋友不在少数吧。这里本人不揣浅陋，写了一个将TIF格式转换成BMP格式图像的程序，供大家参考。请不吝赐教。
+
+注：TIF是可扩充标记的文件，所以理论上是不可能编写一个能识别所有类别TIF格式的读写程序，这里只是给大家提供一个思路， 将TIF图像转换成BMP图像后就可以使用Windows提供的API函数对其进行编辑并方便直观地显示出来，测试代码中包含 了一个用于测试的TIF图。本代码也只能针对这一种类别的TIF图进行操作，如何对其他类别的TIF图进行编码，读完本例子自然就能融会 贯通了。
+
+二、TIF图像格式概览
+
+TIF图由四个部分组成：
+
+1、图像文件头（Image File Header简称IFH）：
+[Byte order(2字节)]
+[Version(2字节)]
+[Offset to first IFD(4字节)]
+图一 IFH结构描述
+
+IFH数据结构包含3个成员共计8个字节，Byte order成员可能是“MM”(0x4d4d)或“II”(0x4949)，0x4d4d表示该TIFF图是摩托罗拉整数格式 0x4949表示该图是Intel整数格式；Version成员总是包含十进制42(0x2a)，它用于进一步校验该文件是否为TIF格式，42这个数并不是一般人 想象中的那样认为是tif软件的版本，实际上，42这个数大概永远不会变化；第三个成员是IFD（接下来要说的第二个数据结构）相对文件开始 处的偏移量。
+
+2、图像文件目录（Image File Directory简称IFD）：
+
+图二 IFD及DE结构描述
+Directory Entry Count (2字节)
+Directory Entry 0 (12字节)
+Directory Entry 1 (12字节)
+...
+Directory Entry N (12字节)
+Offset to next IFD Or NULL (4字节)
+
+Directory Entry (DE) 结构描述
+tag (2字节)
+type (2字节)
+length (4字节)
+valueOffset (4字节)
+
+IFD是TIF图中最重要的数据结构，它包含了一个TIF文件中最重要的信息，一个TIF图可能有多个IFD，这说明文件中有多个图像，每个IFD标识1个图像的基本属性。 IFD结构中包含了三类成员，Directory Entry Count指出该结构里面有多少个目录入口；接下来就是N个线性排列的DE序列，数量不定（这就是 为什么称TIF格式文件为可扩充标记的文件，甚至用户可以添加自定义的标记属性），每个DE标识了图像的某一个属性；最后就是一个偏移量， 标识下一个文件目录相对于文件开始处的位置，当然，如果该TIF文件只包含了一幅图像，那么就只有一个IFD，显然，这个偏移量就等于0；
+
+3、目录入口（Directory Entry简称DE）：
+
+共12个字节，见图二。简单说，一个DE就是一幅图像的某一个属性。例如图像的大小、分辨率、是否压缩、像素的行列数、一个像素由几位 表示（1位代表黑白两色，8位代表256色等等）等。其中：tag成员是该属性的编号，在图像文件目录中，它是按照升序排列的。我们可以通过读 这些编号，然后到TIF格式官方白皮书中查找相应的含义。属性是用数据来表示的，那么type就是代表着该数据的类型，TIF官方指定的有5种数据类型。 type=1就是BYTE类型（8位无标记整数）、type=2是ASCII类型（7位ASCII码加1位二进制0）、type=3是SHORT类型（16位无标记整数）、type=4是LONG 类型（32位无标记整数）、type=5是RATIONAL类型（2个LONG，第一个是分子，第二个是分母）。length成员是数据的数量而不是数据类型的长度。 第4个成员valueOffset很重要，它是tag标识的属性代表的变量值相对文件开始处的偏移量。如果变量值占用的空间小于4个字节，那么该值就存放在 valueOffset中即可，没必要再另外指向一个地方了。
+
+4、图像数据 本例提供的图像是基于256灰度级的，即一个字节代表一个像素点，它是0x00~0xff区间中256个灰度级的任意一个整数。通过使用UltraEdit工具观察， 我们发现该图像文件的组织形式是：IFH--数据--IFD。以下的示例说明遵循了这一观察结果。
+
+三、实战
+
+1、VC创建一个MFC AppWizard(exe)工程取名TiffTest，选择单文档程序。
+
+2、添加TiffStruct.h文件，定义IFH和DE结构（参考前面的结构描述），用来接收读TIF文件的信息。
+
+#ifndef _TIFFSTRUCT_
+#define _TIFFSTRUCT_
+ 
+typedef struct tagIMAGEFILEHEADER
+{
+  WORD byteOrder;
+  WORD version;
+  DWORD offsetToIFD;
+}IFH;
+ 
+typedef struct tagDIRECTORYENTRY
+{
+  WORD tag;
+  WORD type;
+  DWORD length;
+  DWORD valueOffset;
+}DE;
+ 
+#endif
+
+3、在文档类中添加4个公有变量，并将其初始化为0。在TiffTestDoc.cpp中#include "TiffStruct.h"
+DWORD m_dwBmSize;   //图象的数据部分的大小
+CPalette m_palDIB;  //BMP图象调色板
+HANDLE m_hDIB;      //BMP图象内存块句柄
+CSize m_sizeDoc;    //图象的长和宽
+
+4、在文档类的OnOpenDocument函数中定义局部工具变量并读文件
+DWORD dwFileLength = 0;
+CString strTemp = _T("");
+WORD wDECount = 0;
+BYTE* pDIB = NULL;
+int i = 0;
+ 
+IFH ifh;
+ZeroMemory(&ifh, sizeof(IFH));
+ 
+CFile file;
+CFileException fe;
+ 
+if(0 == file.Open(lpszPathName, CFile::modeRead | CFile::shareDenyWrite, &fe))
+{
+  AfxMessageBox("打开文件失败");
+  return FALSE;
+}
+dwFileLength = file.GetLength();
+
+读IFH文件头
+if(sizeof(IFH) != file.Read(&ifh, sizeof(IFH)))
+{
+AfxMessageBox("读TIF文件头失败");
+return FALSE;
+}
+ 
+if(0x2a != ifh.version)
+08.
+{
+09.
+AfxMessageBox("该文件不是TIF格式，读文件失败");
+10.
+return FALSE;
+11.
+}
+12.
+ 
+13.
+if(0x4949 != ifh.byteOrder)
+14.
+{
+15.
+AfxMessageBox("该TIF文件不是IBMPC字节序，读文件失败");
+16.
+return FALSE;
+17.
+}
+18.
+ 
+19.
+file.Seek(ifh.offsetToIFD, CFile::begin);//将文件指针定位到IFD
+
+读文件有多少个目录入口
+1.
+if(2 != file.Read(&wDECount, 2))
+2.
+{
+3.
+AfxMessageBox("无法获得TIF文件目录入口数量");
+4.
+return FALSE;
+5.
+}
+6.
+strTemp.Format("该TIF文件有%d个目录入口", wDECount);
+7.
+AfxMessageBox(strTemp);
+
+创建DE数组，接收信息，数组中有wDECount个元素
+01.
+DE* pde = new DE[wDECount];
+02.
+DE* pTemp = pde;
+03.
+memset(pde, 0, sizeof(DE)*wDECount);
+04.
+if(sizeof(DE)*wDECount != file.ReadHuge(pde, sizeof(DE)*wDECount))
+05.
+{
+06.
+AfxMessageBox("读图象文件目录失败");
+07.
+delete []pde;
+08.
+return FALSE;
+09.
+}  
+
+显示图像文件目录信息
+1.
+for(i=0; itag, i, pTemp->type, i, pTemp->length, i, pTemp->valueOffset);
+2.
+AfxMessageBox(strTemp);
+3.
+}
+
+把图像的大小和图像数据的容量保存到成员变量中
+01.
+for(i=0; itag)  //tag为256的目录入口中的变量标识了图象宽度
+02.
+{
+03.
+m_sizeDoc.cx = pTemp->valueOffset;
+04.
+}
+05.
+if(257 == pTemp->tag)    //图象高度
+06.
+{
+07.
+m_sizeDoc.cy = pTemp->valueOffset;
+08.
+}
+09.
+if(273 == pTemp->tag)    //计算图象数据占用字节数
+10.
+{
+11.
+//m_dwBmSize = pTemp->valueOffset - sizeof(IFH);
+12.
+//或者把tag=256的valueOffset乘以tag=257的valueOffset
+13.
+m_dwBmSize = m_sizeDoc.cx * m_sizeDoc.cy;
+14.
+}
+15.
+}
+
+在文档类中创建一个成员工具函数CreateBmpBuffer，申请全局内存块以存放BMP文件结构数据
+01.
+BOOL CTiffTestDoc::CreateBmpBuffer()
+02.
+{
+03.
+//申请BMP内存块
+04.
+m_hDIB = GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT,
+05.
+sizeof(BITMAPFILEHEADER) +
+06.
+sizeof(BITMAPINFOHEADER) +
+07.
+256*sizeof(RGBQUAD) +
+08.
+m_dwBmSize);
+09.
+if(NULL == m_hDIB)
+10.
+{
+11.
+AfxMessageBox("申请BMP内存块失败");
+12.
+return FALSE;
+13.
+}
+14.
+else
+15.
+{
+16.
+return TRUE;
+17.
+}
+18.
+}
+
+回到OnOpenDocument成员函数中调用工具函数并获得全局内存块指针
+01.
+//构造BMP图象内存块
+02.
+if(!CreateBmpBuffer())
+03.
+{
+04.
+AfxMessageBox("构造BMP图象内存块失败");
+05.
+delete []pde;
+06.
+return FALSE;
+07.
+}
+08.
+ 
+09.
+//获得BMP内存块指针
+10.
+pDIB = (BYTE*)GlobalLock(m_hDIB);
+11.
+if(NULL == pDIB)
+12.
+{
+13.
+AfxMessageBox("获得BMP内存块指针失败");
+14.
+GlobalUnlock(m_hDIB);
+15.
+delete []pde;
+16.
+return FALSE;
+17.
+}  
+
+以下是将图像信息填充到BMP内存块中，网上介绍BMP格式的文章很多，这里就不详述了。因测试图像数据表达的是0x00-0xff灰度，正好和BMP文件调色板索引值巧合。 故在代码中直接把图像数据信息当成索引即可，减少了编码复杂度。注：BMP文件中图像数据的第一行代表的是最终显示光栅的最后一行，所以在数据排列中要颠倒过来。
+01.
+//构造BITMAPFILEHEADER并复制到BMP内存块
+02.
+BITMAPFILEHEADER bmfHdr;
+03.
+memset(&bmfHdr, 0, sizeof(BITMAPFILEHEADER));
+04.
+bmfHdr.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) +
+05.
+256*sizeof(RGBQUAD);
+06.
+bmfHdr.bfReserved1 = 0;
+07.
+bmfHdr.bfReserved2 = 0;
+08.
+bmfHdr.bfSize = bmfHdr.bfOffBits + m_dwBmSize;
+09.
+bmfHdr.bfType = 0x4d42;
+10.
+ 
+11.
+memmove(pDIB, &bmfHdr, sizeof(BITMAPFILEHEADER));
+12.
+ 
+13.
+//构造BITMAPINFOHEADER并复制到BMP内存块
+14.
+BITMAPINFOHEADER bmiHdr;
+15.
+memset(&bmiHdr, 0, sizeof(BITMAPINFOHEADER));
+16.
+bmiHdr.biBitCount = 8;
+17.
+bmiHdr.biClrImportant = 0;
+18.
+bmiHdr.biClrUsed = 0;
+19.
+bmiHdr.biCompression = 0;
+20.
+bmiHdr.biHeight = m_sizeDoc.cy;
+21.
+bmiHdr.biPlanes = 1;
+22.
+bmiHdr.biSize = sizeof(BITMAPINFOHEADER);
+23.
+bmiHdr.biSizeImage = 0;
+24.
+bmiHdr.biWidth = m_sizeDoc.cx;
+25.
+bmiHdr.biXPelsPerMeter = 2834;
+26.
+bmiHdr.biYPelsPerMeter = 2834;
+27.
+ 
+28.
+memmove((BITMAPFILEHEADER*)pDIB + 1, &bmiHdr, sizeof(BITMAPINFOHEADER));
+29.
+ 
+30.
+//构造256个RGBQUAD并复制到BMP内存块
+31.
+RGBQUAD* pRgbQuad = (RGBQUAD*)(pDIB + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER));
+32.
+RGBQUAD* pOldQuad = pRgbQuad;
+33.
+RGBQUAD rgbQuad;
+34.
+memset(&rgbQuad, 0, sizeof(RGBQUAD));
+35.
+for(i=0; i<256; i++)
+36.
+{
+37.
+rgbQuad.rgbBlue = i;
+38.
+rgbQuad.rgbGreen = i;
+39.
+rgbQuad.rgbRed = i;
+40.
+rgbQuad.rgbReserved = 0;
+41.
+pRgbQuad = pOldQuad + i;
+42.
+memmove(pRgbQuad, &rgbQuad, sizeof(RGBQUAD));
+43.
+}
+44.
+ 
+45.
+//填充所有像素数据, 颠倒图象数据从最后一行开始读起
+46.
+int j = 0;
+47.
+for(i=m_sizeDoc.cy-1; i>=0; i--)
+48.
+{
+49.
+file.Seek(sizeof(IFH) + i*m_sizeDoc.cx, CFile::begin);
+50.
+file.Read((BYTE*)(pRgbQuad + 1) + j*m_sizeDoc.cx, m_sizeDoc.cx);
+51.
+j++;
+52.
+}  
+
+初始化BMP调色板，为显示BMP文件做准备
+01.
+//初始化专用调色板
+02.
+BYTE buf[2+2+4*256];
+03.
+LOGPALETTE* pPal = (LOGPALETTE*)buf;
+04.
+pPal->palVersion = 0x300;
+05.
+pPal->palNumEntries = 256;
+06.
+for(i=0; i<255; i++)
+07.
+{
+08.
+pPal->palPalEntry[i].peBlue = i;
+09.
+pPal->palPalEntry[i].peFlags = 0;
+10.
+pPal->palPalEntry[i].peGreen = i;
+11.
+pPal->palPalEntry[i].peRed = i;
+12.
+}
+13.
+m_palDIB.CreatePalette(pPal);
+
+最后是OnOpenDocument成员函数返回前的清理工作
+1.
+GlobalUnlock(m_hDIB);
+2.
+delete []pde;
+3.
+return TRUE;
+
+至此，TIF文件信息已转换为BMP图像并保存在全局内存块中了，接下来就可以在OnDraw中调用WinAPI函数StretchDIBits来显示它。
+01.
+if(NULL == pDoc->m_hDIB)
+02.
+{
+03.
+return;
+04.
+}
+05.
+HDC hdc = pDC->m_hDC;
+06.
+BYTE* pBuf = (BYTE*)GlobalLock(pDoc->m_hDIB);
+07.
+pBuf += sizeof(BITMAPFILEHEADER);
+08.
+BYTE* pData = pBuf + sizeof(BITMAPINFOHEADER) + 256*sizeof(RGBQUAD);
+09.
+ 
+10.
+CPalette* pOldPal = pDC->SelectPalette(&pDoc->m_palDIB, TRUE);
+11.
+pDC->RealizePalette();
+12.
+ 
+13.
+::SetStretchBltMode(hdc, COLORONCOLOR);
+14.
+::StretchDIBits(hdc, 10, 10, pDoc->m_sizeDoc.cx, pDoc->m_sizeDoc.cy,
+15.
+0, 0, pDoc->m_sizeDoc.cx, pDoc->m_sizeDoc.cy, pData,
+16.
+(BITMAPINFO*)pBuf, DIB_RGB_COLORS, SRCCOPY);
+17.
+ 
+18.
+pDC->SelectPalette(pOldPal, FALSE);
+19.
+GlobalUnlock(pDoc->m_hDIB);
+
+最后别忘了在文档类析构函数~CTiffTestDoc中销毁全局内存块
+1.
+if(NULL != m_hDIB)
+2.
+{
+3.
+GlobalFree(m_hDIB);
+4.
+m_hDIB = NULL;
+5.
+}
+
+四、结束语
+
+测试用的TIF文件在工程目录下，文件名为SSS00.TIF。本人学习图形图像编程不久，文章难免挂一漏万，请高手指教。 

@@ -8,11 +8,15 @@
 #include <string.h>
 #include <assert.h>
 //#include "../cascade.h"
-#include "../cstd.h"
+//#include "../cstd.h"
+#include "../stdc/stdc.h"
 #include "../libfacerecog.h"
 //#include "../imresize.h"
 //#include "../sort.h"
 #include "../seqpartition.h"
+#include "../stdc/objdetect.h"
+#include "../stdc/imresize.h"
+#include "../stdc/img_c.h"
 
 
 #ifndef WIN32 
@@ -233,6 +237,7 @@ void* FixCascade( const void * cas );
 
 //extern iHaar* iHaarBuf;
 //extern int HAARBUFLEN;
+
 
 int lut_detect_1( const void* alg );
 

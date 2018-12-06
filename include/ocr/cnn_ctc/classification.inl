@@ -962,7 +962,6 @@ void Classifier::PrepareBatchInputs(const vector<cv::Mat>& imgs)
 std::vector<float> Classifier::GetOutputFeatureMap(const cv::Mat& img, std::vector<int>& outshape)
 {
 	PrepareInput(img);
-
 	net_->Forward();
 
 	Blob<float>* output_layer = net_->output_blobs()[0];

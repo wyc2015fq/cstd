@@ -160,21 +160,24 @@ int Rand(int n) {
 struct DataTransformerInfo {
   //DataShape shape_;
   double mean_values_vec[10];
-  double* mean_values_;
+  const double* mean_values_;
   int crop_size;
   double scale;
   bool do_mirror;
   bool has_mean_file;
   double* mean;
   Phase phase_;
+  DimType shape_type_;
   void init() {
     memset(this, 0, sizeof(*this));
+    scale = 1;
   }
   int init(CJSON* param) {
     CJSON* p = NULL;
     DataTransformerInfo* info = this;
     info->mean_values_ = NULL;
-    if (p = param->get("mean_value")) {
+    p = param->get("mean_value");
+    if (p) {
       int n = p->GetArraySize();
       n = MIN(10, n);
       if (n > 0) {
@@ -206,10 +209,16 @@ bool blob_data_transform_T(DataTransformerInfo* info, DataShape shape_, Dtype* t
     int dw = shape_.w;
     for (int n = 0; n < dn; ++n) {
       for (int c = 0; c < dc; ++c) {
-        int c1 = n * dc + c;
+        int c1 = (n * dc + c);
         for (int h = 0; h < dh; ++h) {
           for (int w = 0; w < dw; ++w) {
-            int top_index = 0, data_index = (c1 * dh + h_off + h) * dw + w_off + w;
+            int top_index = 0, data_index = 0;
+            if (info->shape_type_ == NCHW) {
+              data_index = (c1 * dh + h_off + h) * dw + w_off + w;
+            }
+            if (info->shape_type_ == NHWC) {
+              data_index = ((n * dh + h_off + h) * dw + w_off + w)*dc+c;
+            }
             int w1 = info->do_mirror ? (dw - 1 - w) : w;
             top_index = (c1 * dh + h) * dw + w1;
             Dtype datum_element = static_cast<Dtype>(data[data_index]);

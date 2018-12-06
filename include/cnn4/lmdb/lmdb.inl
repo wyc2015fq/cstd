@@ -711,8 +711,10 @@ static txnid_t mdb_debug_start;
 	 */
 
 	/** Should be alignment of \b type. Ensure it is a power of 2. */
-#define ALIGNOF2(type) \
-	LOW_BIT(offsetof(struct { char ch_; type align_; }, align_))
+//#define ALIGNOF2(type) 	LOW_BIT(offsetof(struct { char ch_; type align_; }, align_))
+#define offsetofname(type) 	type##_t
+#define offsetofdef(type) 	typedef struct { char ch_; type align_; } offsetofname(type)
+#define ALIGNOF2(type) 	LOW_BIT((int)offsetof(offsetofname(type), align_))
 
 	/**	Used for offsets within a single page.
 	 *	Since memory pages are typically 4 or 8KB in size, 12-13 bits,
@@ -917,7 +919,7 @@ typedef struct MDB_txninfo {
 		LOG2_MOD(ALIGNOF2(pthread_mutex_t), 5) + \
 		sizeof(pthread_mutex_t) / 4U % 22 * 5)
 #endif
-
+offsetofdef(mdb_hash_t);
 enum {
 	/** Magic number for lockfile layout and features.
 	 *
@@ -5462,7 +5464,7 @@ mdb_env_open(MDB_env *env, const char *path, unsigned int flags, mdb_mode_t mode
 	}
 #endif
 
-	env->me_path = strdup(path);
+	env->me_path = _strdup(path);
 	env->me_dbxs = calloc(env->me_maxdbs, sizeof(MDB_dbx));
 	env->me_dbflags = calloc(env->me_maxdbs, sizeof(uint16_t));
 	env->me_dbiseqs = calloc(env->me_maxdbs, sizeof(unsigned int));
@@ -7765,7 +7767,7 @@ current:
 						 * Copy end of page, adjusting alignment so
 						 * compiler may copy words instead of bytes.
 						 */
-						off = (PAGEHDRSZ + data->mv_size) & -sizeof(size_t);
+						off = (PAGEHDRSZ + data->mv_size) & -(int)sizeof(size_t);
 						memcpy((size_t *)((char *)np + off),
 							(size_t *)((char *)omp + off), sz - off);
 						sz = PAGEHDRSZ;
@@ -10678,7 +10680,8 @@ int mdb_dbi_open(MDB_txn *txn, const char *name, unsigned int flags, MDB_dbi *db
 	}
 
 	/* Done here so we cannot fail after creating a new DB */
-	if ((namedup = strdup(name)) == NULL)
+  namedup = _strdup(name);
+	if ((namedup) == NULL)
 		return ENOMEM;
 
 	if (rc) {

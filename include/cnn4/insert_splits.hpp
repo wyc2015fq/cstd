@@ -21,12 +21,13 @@ string SplitBlobName(const char* layer_name, const char* blob_name, const int bl
   return split_blob_name.str();
 }
 
+#if 0
 template <typename Dtype>
 void ConfigureSplitLayer(const char* layer_name, const char* blob_name,
   const int blob_idx, const int split_count, const float loss_weight,
   Layer*& split_layer_param)
 {
-  CreateLayer(split_layer_param, "Split");
+  CreateLayer(NULL, split_layer_param, "Split");
   split_layer_param->add_bottom(blob_name);
   split_layer_param->set_name(SplitLayerName(layer_name, blob_name, blob_idx));
   for (int k = 0; k < split_count; ++k) {
@@ -42,7 +43,6 @@ void ConfigureSplitLayer(const char* layer_name, const char* blob_name,
     }
   }
 }
-#if 0
 
 template <typedef Dtype>
   void InsertSplits(Net<Dtype>* param_split)

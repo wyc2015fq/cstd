@@ -52,7 +52,7 @@ public:
   {
     axis_ = bottom[0]->CanonicalAxisIndex(axis_);
     if (bottom.size() == 1 && this->blobs_.size() > 0) {
-      LOG(INFO) << "Skipping parameter initialization";
+      //LOG(INFO) << "Skipping parameter initialization";
     }
     else if (bottom.size() == 1) {
       // scale is a learned parameter; initialize it

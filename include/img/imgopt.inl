@@ -1,6 +1,9 @@
 #ifndef _IMOPT_INL_
 #define _IMOPT_INL_
 
+#include "stdc/img_c.h"
+#include "stdc/geo_c.h"
+
 static int mat_add_row(int row_a, int col_a, const double* A, int al, const double* dst, double* C, int cl) {
   int i, j;
   
@@ -1949,7 +1952,7 @@ static int asRowMatrix(int n, img_t* src, double alpha, double beta, img_t* data
     // make sure data can be reshaped, throw exception if not!
     int d1 = im->h*im->w;
     if(d1 != d || im->c!=c) {
-      CC_Error(CC_StsBadArg, _format("Wrong number of elements in matrix #%d! Expected %d was %d.", i, d, d1));
+      //CC_Error(CC_StsBadArg, _format("Wrong number of elements in matrix #%d! Expected %d was %d.", i, d, d1));
       return 0;
     }
     // get a hold of the current row
@@ -2587,7 +2590,8 @@ static int pic2ascii(int h, int w, const uchar* img, int imgstep, int cn, char* 
   return out1-out;
 }
 
-#include "str.h"
+#if 0
+//#include "str.h"
 static int img2str(const img_t* im, int maxw, str_t* s) {
   img_t im1[1] = {0};
   if (1) {
@@ -2608,7 +2612,7 @@ static int imgprint(const img_t* im) {
   str_free(s);
   return 0;
 }
-
+#endif
 
 #endif // _IMOPT_INL_
 
