@@ -1,29 +1,71 @@
+/*M///////////////////////////////////////////////////////////////////////////////////////
+//
+//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
+//
+//  By downloading, copying, installing or using the software you agree to this license.
+//  If you do not agree to this license, do not download, install,
+//  copy or use the software.
+//
+//
+//                          License Agreement
+//                For Open Source Computer Vision Library
+//
+// Copyright (C) 2000-2008, Intel Corporation, all rights reserved.
+// Copyright (C) 2009, Willow Garage Inc., all rights reserved.
+// Copyright (C) 2013, OpenCV Foundation, all rights reserved.
+// Copyright (C) 2015, Itseez Inc., all rights reserved.
+// Third party copyrights are property of their respective owners.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//   * Redistribution's of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//
+//   * Redistribution's in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//
+//   * The name of the copyright holders may not be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+//
+// This software is provided by the copyright holders and contributors "as is" and
+// any express or implied warranties, including, but not limited to, the implied
+// warranties of merchantability and fitness for a particular purpose are disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any direct,
+// indirect, incidental, special, exemplary, or consequential damages
+// (including, but not limited to, procurement of substitute goods or services;
+// loss of use, data, or profits; or business interruption) however caused
+// and on any theory of liability, whether in contract, strict liability,
+// or tort (including negligence or otherwise) arising in any way out of
+// the use of this software, even if advised of the possibility of such damage.
+//
+//M*/
 
-
-#ifndef __OPENCC_ARITHM_SIMD_HPP__
-#define __OPENCC_ARITHM_SIMD_HPP__
+#ifndef __OPENCV_ARITHM_SIMD_HPP__
+#define __OPENCV_ARITHM_SIMD_HPP__
 
 namespace cv {
 
 struct NOP {};
 
-#if CC_SSE2 || CC_NEON
+#if CV_SSE2 || CV_NEON
 #define IF_SIMD(op) op
 #else
 #define IF_SIMD(op) NOP
 #endif
 
 
-#if CC_SSE2 || CC_NEON
+#if CV_SSE2 || CV_NEON
 
 #define FUNCTOR_TEMPLATE(name)          \
     template<typename T> struct name {}
 
 FUNCTOR_TEMPLATE(VLoadStore128);
-#if CC_SSE2
+#if CV_SSE2
 FUNCTOR_TEMPLATE(VLoadStore64);
 FUNCTOR_TEMPLATE(VLoadStore128Aligned);
-#if CC_AVX2
+#if CV_AVX2
 FUNCTOR_TEMPLATE(VLoadStore256);
 FUNCTOR_TEMPLATE(VLoadStore256Aligned);
 #endif
@@ -31,7 +73,7 @@ FUNCTOR_TEMPLATE(VLoadStore256Aligned);
 
 #endif
 
-#if CC_AVX2
+#if CV_AVX2
 
 #define FUNCTOR_LOADSTORE_CAST(name, template_arg, register_type, load_body, store_body)         \
     template <>                                                                                  \
@@ -122,9 +164,9 @@ FUNCTOR_CLOSURE_2arg(VMax,  float, return _mm256_max_ps   (a, b));
 FUNCTOR_CLOSURE_2arg(VMax, double, return _mm256_max_pd   (a, b));
 
 
-static unsigned int CC_DECL_ALIGNED(32) v32f_absmask[] = { 0x7fffffff, 0x7fffffff, 0x7fffffff, 0x7fffffff,
+static unsigned int CV_DECL_ALIGNED(32) v32f_absmask[] = { 0x7fffffff, 0x7fffffff, 0x7fffffff, 0x7fffffff,
                                                            0x7fffffff, 0x7fffffff, 0x7fffffff, 0x7fffffff };
-static unsigned int CC_DECL_ALIGNED(32) v64f_absmask[] = { 0xffffffff, 0x7fffffff, 0xffffffff, 0x7fffffff,
+static unsigned int CV_DECL_ALIGNED(32) v64f_absmask[] = { 0xffffffff, 0x7fffffff, 0xffffffff, 0x7fffffff,
                                                            0xffffffff, 0x7fffffff, 0xffffffff, 0x7fffffff };
 
 FUNCTOR_TEMPLATE(VAbsDiff);
@@ -165,7 +207,7 @@ FUNCTOR_CLOSURE_2arg(VXor, uchar, return _mm256_xor_si256(a, b));
 FUNCTOR_TEMPLATE(VNot);
 FUNCTOR_CLOSURE_1arg(VNot, uchar, return _mm256_xor_si256(_mm256_set1_epi32(-1), a));
 
-#elif CC_SSE2
+#elif CV_SSE2
 
 #define FUNCTOR_LOADSTORE_CAST(name, template_arg, register_type, load_body, store_body)\
     template <>                                                                                  \
@@ -273,8 +315,8 @@ FUNCTOR_CLOSURE_2arg(VMax,  float, return _mm_max_ps(a, b));
 FUNCTOR_CLOSURE_2arg(VMax, double, return _mm_max_pd(a, b));
 
 
-static unsigned int CC_DECL_ALIGNED(16) v32f_absmask[] = { 0x7fffffff, 0x7fffffff, 0x7fffffff, 0x7fffffff };
-static unsigned int CC_DECL_ALIGNED(16) v64f_absmask[] = { 0xffffffff, 0x7fffffff, 0xffffffff, 0x7fffffff };
+static unsigned int CV_DECL_ALIGNED(16) v32f_absmask[] = { 0x7fffffff, 0x7fffffff, 0x7fffffff, 0x7fffffff };
+static unsigned int CV_DECL_ALIGNED(16) v64f_absmask[] = { 0xffffffff, 0x7fffffff, 0xffffffff, 0x7fffffff };
 
 FUNCTOR_TEMPLATE(VAbsDiff);
 FUNCTOR_CLOSURE_2arg(VAbsDiff,  uchar,
@@ -315,7 +357,7 @@ FUNCTOR_TEMPLATE(VNot);
 FUNCTOR_CLOSURE_1arg(VNot, uchar, return _mm_xor_si128(_mm_set1_epi32(-1), a));
 #endif
 
-#if CC_NEON
+#if CV_NEON
 
 #define FUNCTOR_LOADSTORE(name, template_arg, register_type, load_body, store_body)\
     template <>                                                                \
@@ -420,7 +462,7 @@ struct Cmp_SIMD
     }
 };
 
-#if CC_NEON
+#if CV_NEON
 
 template <>
 struct Cmp_SIMD<schar>
@@ -428,7 +470,7 @@ struct Cmp_SIMD<schar>
     explicit Cmp_SIMD(int code_) :
         code(code_)
     {
-        // CC_Assert(code == CMP_GT || code == CMP_LE ||
+        // CV_Assert(code == CMP_GT || code == CMP_LE ||
         //           code == CMP_EQ || code == CMP_NE);
 
         v_mask = vdupq_n_u8(255);
@@ -464,7 +506,7 @@ struct Cmp_SIMD<ushort>
     explicit Cmp_SIMD(int code_) :
         code(code_)
     {
-        // CC_Assert(code == CMP_GT || code == CMP_LE ||
+        // CV_Assert(code == CMP_GT || code == CMP_LE ||
         //           code == CMP_EQ || code == CMP_NE);
 
         v_mask = vdup_n_u8(255);
@@ -512,7 +554,7 @@ struct Cmp_SIMD<int>
     explicit Cmp_SIMD(int code_) :
         code(code_)
     {
-        // CC_Assert(code == CMP_GT || code == CMP_LE ||
+        // CV_Assert(code == CMP_GT || code == CMP_LE ||
         //           code == CMP_EQ || code == CMP_NE);
 
         v_mask = vdup_n_u8(255);
@@ -565,7 +607,7 @@ struct Cmp_SIMD<float>
     explicit Cmp_SIMD(int code_) :
         code(code_)
     {
-        // CC_Assert(code == CMP_GT || code == CMP_LE ||
+        // CV_Assert(code == CMP_GT || code == CMP_LE ||
         //           code == CMP_EQ || code == CMP_NE);
 
         v_mask = vdup_n_u8(255);
@@ -612,7 +654,7 @@ struct Cmp_SIMD<float>
     uint8x8_t v_mask;
 };
 
-#elif CC_SSE2
+#elif CV_SSE2
 
 template <>
 struct Cmp_SIMD<schar>
@@ -620,10 +662,10 @@ struct Cmp_SIMD<schar>
     explicit Cmp_SIMD(int code_) :
         code(code_)
     {
-        // CC_Assert(code == CMP_GT || code == CMP_LE ||
+        // CV_Assert(code == CMP_GT || code == CMP_LE ||
         //           code == CMP_EQ || code == CMP_NE);
 
-        haveSSE = checkHardwareSupport(CC_CPU_SSE2);
+        haveSSE = checkHardwareSupport(CV_CPU_SSE2);
 
         v_mask = _mm_set1_epi8(-1);
     }
@@ -672,10 +714,10 @@ struct Cmp_SIMD<int>
     explicit Cmp_SIMD(int code_) :
         code(code_)
     {
-        // CC_Assert(code == CMP_GT || code == CMP_LE ||
+        // CV_Assert(code == CMP_GT || code == CMP_LE ||
         //           code == CMP_EQ || code == CMP_NE);
 
-        haveSSE = checkHardwareSupport(CC_CPU_SSE2);
+        haveSSE = checkHardwareSupport(CV_CPU_SSE2);
 
         v_mask = _mm_set1_epi32(0xffffffff);
     }
@@ -748,7 +790,7 @@ struct Mul_SIMD
     }
 };
 
-#if CC_NEON
+#if CV_NEON
 
 template <>
 struct Mul_SIMD<uchar, float>
@@ -969,16 +1011,16 @@ struct Mul_SIMD<float, float>
     }
 };
 
-#elif CC_SSE2
+#elif CV_SSE2
 
-#if CC_SSE4_1
+#if CV_SSE4_1
 
 template <>
 struct Mul_SIMD<ushort, float>
 {
     Mul_SIMD()
     {
-        haveSSE = checkHardwareSupport(CC_CPU_SSE4_1);
+        haveSSE = checkHardwareSupport(CV_CPU_SSE4_1);
     }
 
     int operator() (const ushort * src1, const ushort * src2, ushort * dst, int width, float scale) const
@@ -1024,7 +1066,7 @@ struct Mul_SIMD<schar, float>
 {
     Mul_SIMD()
     {
-        haveSSE = checkHardwareSupport(CC_CPU_SSE2);
+        haveSSE = checkHardwareSupport(CV_CPU_SSE2);
     }
 
     int operator() (const schar * src1, const schar * src2, schar * dst, int width, float scale) const
@@ -1089,7 +1131,7 @@ struct Mul_SIMD<short, float>
 {
     Mul_SIMD()
     {
-        haveSSE = checkHardwareSupport(CC_CPU_SSE2);
+        haveSSE = checkHardwareSupport(CV_CPU_SSE2);
     }
 
     int operator() (const short * src1, const short * src2, short * dst, int width, float scale) const
@@ -1149,7 +1191,7 @@ struct Recip_SIMD
 };
 
 
-#if CC_SIMD128
+#if CV_SIMD128
 
 template <>
 struct Div_SIMD<uchar>
@@ -1654,7 +1696,7 @@ struct Recip_SIMD<float>
     }
 };
 
-#if CC_SIMD128_64F
+#if CV_SIMD128_64F
 
 template <>
 struct Div_SIMD<double>
@@ -1682,8 +1724,8 @@ struct Div_SIMD<double>
             v_float64x2 res0 = f0 * v_scale / f2;
             v_float64x2 res1 = f1 * v_scale / f3;
 
-            res0 = v_select(f0 == v_zero, v_zero, res0);
-            res1 = v_select(f1 == v_zero, v_zero, res1);
+            res0 = v_select(f2 == v_zero, v_zero, res0);
+            res1 = v_select(f3 == v_zero, v_zero, res1);
 
             v_store(dst + x, res0);
             v_store(dst + x + 2, res1);
@@ -1742,14 +1784,14 @@ struct AddWeighted_SIMD
     }
 };
 
-#if CC_SSE2
+#if CV_SSE2
 
 template <>
 struct AddWeighted_SIMD<schar, float>
 {
     AddWeighted_SIMD()
     {
-        haveSSE2 = checkHardwareSupport(CC_CPU_SSE2);
+        haveSSE2 = checkHardwareSupport(CV_CPU_SSE2);
     }
 
     int operator() (const schar * src1, const schar * src2, schar * dst, int width, float alpha, float beta, float gamma) const
@@ -1796,7 +1838,7 @@ struct AddWeighted_SIMD<short, float>
 {
     AddWeighted_SIMD()
     {
-        haveSSE2 = checkHardwareSupport(CC_CPU_SSE2);
+        haveSSE2 = checkHardwareSupport(CV_CPU_SSE2);
     }
 
     int operator() (const short * src1, const short * src2, short * dst, int width, float alpha, float beta, float gamma) const
@@ -1833,14 +1875,14 @@ struct AddWeighted_SIMD<short, float>
     bool haveSSE2;
 };
 
-#if CC_SSE4_1
+#if CV_SSE4_1
 
 template <>
 struct AddWeighted_SIMD<ushort, float>
 {
     AddWeighted_SIMD()
     {
-        haveSSE4_1 = checkHardwareSupport(CC_CPU_SSE4_1);
+        haveSSE4_1 = checkHardwareSupport(CV_CPU_SSE4_1);
     }
 
     int operator() (const ushort * src1, const ushort * src2, ushort * dst, int width, float alpha, float beta, float gamma) const
@@ -1879,7 +1921,7 @@ struct AddWeighted_SIMD<ushort, float>
 
 #endif
 
-#elif CC_NEON
+#elif CV_NEON
 
 template <>
 struct AddWeighted_SIMD<schar, float>
@@ -1980,4 +2022,4 @@ struct AddWeighted_SIMD<short, float>
 
 }
 
-#endif // __OPENCC_ARITHM_SIMD_HPP__
+#endif // __OPENCV_ARITHM_SIMD_HPP__

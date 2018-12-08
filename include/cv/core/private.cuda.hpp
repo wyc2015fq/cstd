@@ -41,23 +41,33 @@
 //
 //M*/
 
-#ifndef OPENCC_CORE_PRIVATE_CUDA_HPP
-#define OPENCC_CORE_PRIVATE_CUDA_HPP
+#ifndef OPENCV_CORE_PRIVATE_CUDA_HPP
+#define OPENCV_CORE_PRIVATE_CUDA_HPP
 
-#ifndef __OPENCC_BUILD
+#ifndef __OPENCV_BUILD
 #  error this is a private header which should not be used from outside of the OpenCV library
 #endif
 
 #include "cvconfig.h"
 
 #include "opencv2/core/cvdef.h"
-
+#include "opencv2/core/base.hpp"
 
 #include "opencv2/core/cuda.hpp"
 
 #ifdef HAVE_CUDA
 #  include <cuda.h>
 #  include <cuda_runtime.h>
+#  if defined(__CUDACC_VER_MAJOR__) && (8 <= __CUDACC_VER_MAJOR__)
+#    if defined (__GNUC__) && !defined(__CUDACC__)
+#     pragma GCC diagnostic push
+#     pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#     include <cuda_fp16.h>
+#     pragma GCC diagnostic pop
+#    else
+#     include <cuda_fp16.h>
+#    endif
+#  endif // defined(__CUDACC_VER_MAJOR__) && (8 <= __CUDACC_VER_MAJOR__)
 #  include <npp.h>
 #  include "opencv2/core/cuda_stream_accessor.hpp"
 #  include "opencv2/core/cuda/common.hpp"
@@ -78,64 +88,50 @@
 //! @cond IGNORED
 
 namespace cv { namespace cuda {
-    CC_EXPORTS String getNppErrorMessage(int code);
-    CC_EXPORTS String getCudaDriverApiErrorMessage(int code);
+    CV_EXPORTS cv::String getNppErrorMessage(int code);
+    CV_EXPORTS cv::String getCudaDriverApiErrorMessage(int code);
 
-    CC_EXPORTS GpuMat getInputMat(const CvMat* _src, Stream& stream);
+    CV_EXPORTS GpuMat getInputMat(InputArray _src, Stream& stream);
 
-    CC_EXPORTS GpuMat getOutputMat(CvMat* _dst, int rows, int cols, int type, Stream& stream);
-    static inline GpuMat getOutputMat(CvMat* _dst, Size size, int type, Stream& stream)
+    CV_EXPORTS GpuMat getOutputMat(OutputArray _dst, int rows, int cols, int type, Stream& stream);
+    static inline GpuMat getOutputMat(OutputArray _dst, Size size, int type, Stream& stream)
     {
         return getOutputMat(_dst, size.height, size.width, type, stream);
     }
 
-    CC_EXPORTS void syncOutput(const GpuMat& dst, CvMat* _dst, Stream& stream);
+    CV_EXPORTS void syncOutput(const GpuMat& dst, OutputArray _dst, Stream& stream);
 }}
 
 #ifndef HAVE_CUDA
 
-static inline void throw_no_cuda() { CC_Error(Error::GpuNotSupported, "The library is compiled without CUDA support"); }
+static inline void throw_no_cuda() { CV_Error(cv::Error::GpuNotSupported, "The library is compiled without CUDA support"); }
 
 #else // HAVE_CUDA
 
-static inline void throw_no_cuda() { CC_Error(Error::StsNotImplemented, "The called functionality is disabled for current build or platform"); }
+static inline void throw_no_cuda() { CV_Error(cv::Error::StsNotImplemented, "The called functionality is disabled for current build or platform"); }
 
 namespace cv { namespace cuda
 {
-    class CC_EXPORTS BufferPool
-    {
-    public:
-        explicit BufferPool(Stream& stream);
-
-        GpuMat getBuffer(int rows, int cols, int type);
-        GpuMat getBuffer(Size size, int type) { return getBuffer(size.height, size.width, type); }
-
-        GpuMat::Allocator* getAllocator() const { return allocator_; }
-
-    private:
-        GpuMat::Allocator* allocator_;
-    };
-
     static inline void checkNppError(int code, const char* file, const int line, const char* func)
     {
         if (code < 0)
-            error(Error::GpuApiCallError, getNppErrorMessage(code), func, file, line);
+            cv::error(cv::Error::GpuApiCallError, getNppErrorMessage(code), func, file, line);
     }
 
     static inline void checkCudaDriverApiError(int code, const char* file, const int line, const char* func)
     {
         if (code != CUDA_SUCCESS)
-            error(Error::GpuApiCallError, getCudaDriverApiErrorMessage(code), func, file, line);
+            cv::error(cv::Error::GpuApiCallError, getCudaDriverApiErrorMessage(code), func, file, line);
     }
 
     template<int n> struct NPPTypeTraits;
-    template<> struct NPPTypeTraits<CC_8U>  { typedef Npp8u npp_type; };
-    template<> struct NPPTypeTraits<CC_8S>  { typedef Npp8s npp_type; };
-    template<> struct NPPTypeTraits<CC_16U> { typedef Npp16u npp_type; };
-    template<> struct NPPTypeTraits<CC_16S> { typedef Npp16s npp_type; };
-    template<> struct NPPTypeTraits<CC_32S> { typedef Npp32s npp_type; };
-    template<> struct NPPTypeTraits<CC_32F> { typedef Npp32f npp_type; };
-    template<> struct NPPTypeTraits<CC_64F> { typedef Npp64f npp_type; };
+    template<> struct NPPTypeTraits<CV_8U>  { typedef Npp8u npp_type; };
+    template<> struct NPPTypeTraits<CV_8S>  { typedef Npp8s npp_type; };
+    template<> struct NPPTypeTraits<CV_16U> { typedef Npp16u npp_type; };
+    template<> struct NPPTypeTraits<CV_16S> { typedef Npp16s npp_type; };
+    template<> struct NPPTypeTraits<CV_32S> { typedef Npp32s npp_type; };
+    template<> struct NPPTypeTraits<CV_32F> { typedef Npp32f npp_type; };
+    template<> struct NPPTypeTraits<CV_64F> { typedef Npp64f npp_type; };
 
     class NppStreamHandler
     {
@@ -162,11 +158,11 @@ namespace cv { namespace cuda
     };
 }}
 
-#define nppSafeCall(expr)  cuda::checkNppError(expr, __FILE__, __LINE__, CC_Func)
-#define cuSafeCall(expr)  cuda::checkCudaDriverApiError(expr, __FILE__, __LINE__, CC_Func)
+#define nppSafeCall(expr)  cv::cuda::checkNppError(expr, __FILE__, __LINE__, CV_Func)
+#define cuSafeCall(expr)  cv::cuda::checkCudaDriverApiError(expr, __FILE__, __LINE__, CV_Func)
 
 #endif // HAVE_CUDA
 
 //! @endcond
 
-#endif // OPENCC_CORE_PRIVATE_CUDA_HPP
+#endif // OPENCV_CORE_PRIVATE_CUDA_HPP

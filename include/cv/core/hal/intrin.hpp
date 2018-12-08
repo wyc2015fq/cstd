@@ -1,22 +1,83 @@
+/*M///////////////////////////////////////////////////////////////////////////////////////
+//
+//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
+//
+//  By downloading, copying, installing or using the software you agree to this license.
+//  If you do not agree to this license, do not download, install,
+//  copy or use the software.
+//
+//
+//                          License Agreement
+//                For Open Source Computer Vision Library
+//
+// Copyright (C) 2000-2008, Intel Corporation, all rights reserved.
+// Copyright (C) 2009, Willow Garage Inc., all rights reserved.
+// Copyright (C) 2013, OpenCV Foundation, all rights reserved.
+// Copyright (C) 2015, Itseez Inc., all rights reserved.
+// Third party copyrights are property of their respective owners.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//   * Redistribution's of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//
+//   * Redistribution's in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//
+//   * The name of the copyright holders may not be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+//
+// This software is provided by the copyright holders and contributors "as is" and
+// any express or implied warranties, including, but not limited to, the implied
+// warranties of merchantability and fitness for a particular purpose are disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any direct,
+// indirect, incidental, special, exemplary, or consequential damages
+// (including, but not limited to, procurement of substitute goods or services;
+// loss of use, data, or profits; or business interruption) however caused
+// and on any theory of liability, whether in contract, strict liability,
+// or tort (including negligence or otherwise) arising in any way out of
+// the use of this software, even if advised of the possibility of such damage.
+//
+//M*/
 
-
-#ifndef OPENCC_HAL_INTRIN_HPP
-#define OPENCC_HAL_INTRIN_HPP
+#ifndef OPENCV_HAL_INTRIN_HPP
+#define OPENCV_HAL_INTRIN_HPP
 
 #include <cmath>
 #include <float.h>
 #include <stdlib.h>
 #include "opencv2/core/cvdef.h"
 
-#define OPENCC_HAL_ADD(a, b) ((a) + (b))
-#define OPENCC_HAL_AND(a, b) ((a) & (b))
-#define OPENCC_HAL_NOP(a) (a)
-#define OPENCC_HAL_1ST(a, b) (a)
+#define OPENCV_HAL_ADD(a, b) ((a) + (b))
+#define OPENCV_HAL_AND(a, b) ((a) & (b))
+#define OPENCV_HAL_NOP(a) (a)
+#define OPENCV_HAL_1ST(a, b) (a)
 
-// unlike HAL API, which is in hal,
+// unlike HAL API, which is in cv::hal,
 // we put intrinsics into cv namespace to make its
 // access from within opencv code more accessible
 namespace cv {
+
+#ifndef CV_DOXYGEN
+
+#ifdef CV_CPU_DISPATCH_MODE
+#define CV_CPU_OPTIMIZATION_HAL_NAMESPACE __CV_CAT(hal_, CV_CPU_DISPATCH_MODE)
+#define CV_CPU_OPTIMIZATION_HAL_NAMESPACE_BEGIN namespace __CV_CAT(hal_, CV_CPU_DISPATCH_MODE) {
+#define CV_CPU_OPTIMIZATION_HAL_NAMESPACE_END }
+#else
+#define CV_CPU_OPTIMIZATION_HAL_NAMESPACE hal_baseline
+#define CV_CPU_OPTIMIZATION_HAL_NAMESPACE_BEGIN namespace hal_baseline {
+#define CV_CPU_OPTIMIZATION_HAL_NAMESPACE_END }
+#endif
+
+
+CV_CPU_OPTIMIZATION_HAL_NAMESPACE_BEGIN
+CV_CPU_OPTIMIZATION_HAL_NAMESPACE_END
+using namespace CV_CPU_OPTIMIZATION_HAL_NAMESPACE;
+CV_CPU_OPTIMIZATION_HAL_NAMESPACE_BEGIN
+#endif
 
 //! @addtogroup core_hal_intrin
 //! @{
@@ -185,19 +246,19 @@ template<> struct V_TypeTraits<float>
 
     static int_type reinterpret_int(value_type x)
     {
-        suf32_t u;
+        Cv32suf u;
         u.f = x;
         return u.i;
     }
     static uint_type reinterpet_uint(value_type x)
     {
-        suf32_t u;
+        Cv32suf u;
         u.f = x;
         return u.u;
     }
     static value_type reinterpret_from_int(int_type x)
     {
-        suf32_t u;
+        Cv32suf u;
         u.i = x;
         return u.f;
     }
@@ -212,19 +273,19 @@ template<> struct V_TypeTraits<double>
     typedef double sum_type;
     static int_type reinterpret_int(value_type x)
     {
-        suf64_t u;
+        Cv64suf u;
         u.f = x;
         return u.i;
     }
     static uint_type reinterpet_uint(value_type x)
     {
-        suf64_t u;
+        Cv64suf u;
         u.f = x;
         return u.u;
     }
     static value_type reinterpret_from_int(int_type x)
     {
-        suf64_t u;
+        Cv64suf u;
         u.i = x;
         return u.f;
     }
@@ -239,20 +300,28 @@ template <typename T> struct V_SIMD128Traits
 
 //! @}
 
+#ifndef CV_DOXYGEN
+CV_CPU_OPTIMIZATION_HAL_NAMESPACE_END
+#endif
 }
 
-#ifdef CC_DOXYGEN
-#   undef CC_SSE2
-#   undef CC_NEON
+#ifdef CV_DOXYGEN
+#   undef CV_SSE2
+#   undef CV_NEON
+#   undef CV_VSX
 #endif
 
-#if CC_SSE2
+#if CV_SSE2
 
 #include "opencv2/core/hal/intrin_sse.hpp"
 
-#elif CC_NEON
+#elif CV_NEON
 
 #include "opencv2/core/hal/intrin_neon.hpp"
+
+#elif CV_VSX
+
+#include "opencv2/core/hal/intrin_vsx.hpp"
 
 #else
 
@@ -263,14 +332,14 @@ template <typename T> struct V_SIMD128Traits
 //! @addtogroup core_hal_intrin
 //! @{
 
-#ifndef CC_SIMD128
+#ifndef CV_SIMD128
 //! Set to 1 if current compiler supports vector extensions (NEON or SSE is enabled)
-#define CC_SIMD128 0
+#define CV_SIMD128 0
 #endif
 
-#ifndef CC_SIMD128_64F
+#ifndef CV_SIMD128_64F
 //! Set to 1 if current intrinsics implementation supports 64-bit float vectors
-#define CC_SIMD128_64F 0
+#define CV_SIMD128_64F 0
 #endif
 
 //! @}
@@ -280,6 +349,10 @@ template <typename T> struct V_SIMD128Traits
 //! @cond IGNORED
 
 namespace cv {
+
+#ifndef CV_DOXYGEN
+CV_CPU_OPTIMIZATION_HAL_NAMESPACE_BEGIN
+#endif
 
 template <typename R> struct V_RegTrait128;
 
@@ -355,7 +428,7 @@ template <> struct V_RegTrait128<float> {
     static v_float32x4 all(float val) { return v_setall_f32(val); }
 };
 
-#if CC_SIMD128_64F
+#if CV_SIMD128_64F
 template <> struct V_RegTrait128<double> {
     typedef v_float64x2 reg;
     typedef v_int32x4 int_reg;
@@ -365,7 +438,34 @@ template <> struct V_RegTrait128<double> {
 };
 #endif
 
-} // 
+inline unsigned int trailingZeros32(unsigned int value) {
+#if defined(_MSC_VER)
+#if (_MSC_VER < 1700) || defined(_M_ARM)
+    unsigned long index = 0;
+    _BitScanForward(&index, value);
+    return (unsigned int)index;
+#else
+    return _tzcnt_u32(value);
+#endif
+#elif defined(__GNUC__) || defined(__GNUG__)
+    return __builtin_ctz(value);
+#elif defined(__ICC) || defined(__INTEL_COMPILER)
+    return _bit_scan_forward(value);
+#elif defined(__clang__)
+    return llvm.cttz.i32(value, true);
+#else
+    static const int MultiplyDeBruijnBitPosition[32] = {
+        0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
+        31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9 };
+    return MultiplyDeBruijnBitPosition[((uint32_t)((value & -value) * 0x077CB531U)) >> 27];
+#endif
+}
+
+#ifndef CV_DOXYGEN
+CV_CPU_OPTIMIZATION_HAL_NAMESPACE_END
+#endif
+
+} // cv::
 
 //! @endcond
 

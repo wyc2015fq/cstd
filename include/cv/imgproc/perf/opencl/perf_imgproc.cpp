@@ -47,37 +47,35 @@
 #include "../perf_precomp.hpp"
 #include "opencv2/ts/ocl_perf.hpp"
 
-#ifdef HAVE_OPENCL
-
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ///////////// equalizeHist ////////////////////////
 
-typedef TestBaseWithParam<CvSize> EqualizeHistFixture;
+typedef TestBaseWithParam<Size> EqualizeHistFixture;
 
 OCL_PERF_TEST_P(EqualizeHistFixture, EqualizeHist, OCL_TEST_SIZES)
 {
-    const CvSize srcSize = GetParam();
+    const Size srcSize = GetParam();
     const double eps = 1;
 
-    checkDeviceMaxMemoryAllocSize(srcSize, CC_8UC1);
+    checkDeviceMaxMemoryAllocSize(srcSize, CV_8UC1);
 
-    UMat src(srcSize, CC_8UC1), dst(srcSize, CC_8UC1);
+    UMat src(srcSize, CV_8UC1), dst(srcSize, CV_8UC1);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() equalizeHist(src, dst);
+    OCL_TEST_CYCLE() cv::equalizeHist(src, dst);
 
     SANITY_CHECK(dst, eps);
 }
 
 ///////////// calcHist ////////////////////////
 
-typedef TestBaseWithParam<CvSize> CalcHistFixture;
+typedef TestBaseWithParam<Size> CalcHistFixture;
 
 OCL_PERF_TEST_P(CalcHistFixture, CalcHist, OCL_TEST_SIZES)
 {
-    const CvSize srcSize = GetParam();
+    const Size srcSize = GetParam();
 
     const std::vector<int> channels(1, 0);
     std::vector<float> ranges(2);
@@ -85,23 +83,23 @@ OCL_PERF_TEST_P(CalcHistFixture, CalcHist, OCL_TEST_SIZES)
     ranges[0] = 0;
     ranges[1] = 256;
 
-    checkDeviceMaxMemoryAllocSize(srcSize, CC_8UC1);
+    checkDeviceMaxMemoryAllocSize(srcSize, CV_8UC1);
 
-    UMat src(srcSize, CC_8UC1), hist(256, 1, CC_32FC1);
+    UMat src(srcSize, CV_8UC1), hist(256, 1, CV_32FC1);
     declare.in(src, WARMUP_RNG).out(hist);
 
-    OCL_TEST_CYCLE() calcHist(std::vector<UMat>(1, src), channels, noArray(), hist, histSize, ranges, false);
+    OCL_TEST_CYCLE() cv::calcHist(std::vector<UMat>(1, src), channels, noArray(), hist, histSize, ranges, false);
 
     SANITY_CHECK(hist);
 }
 
 ///////////// calcHist ////////////////////////
 
-typedef TestBaseWithParam<CvSize> CalcBackProjFixture;
+typedef TestBaseWithParam<Size> CalcBackProjFixture;
 
 OCL_PERF_TEST_P(CalcBackProjFixture, CalcBackProj, OCL_TEST_SIZES)
 {
-    const CvSize srcSize = GetParam();
+    const Size srcSize = GetParam();
 
     const std::vector<int> channels(1, 0);
     std::vector<float> ranges(2);
@@ -109,15 +107,15 @@ OCL_PERF_TEST_P(CalcBackProjFixture, CalcBackProj, OCL_TEST_SIZES)
     ranges[0] = 0;
     ranges[1] = 256;
 
-    checkDeviceMaxMemoryAllocSize(srcSize, CC_8UC1);
+    checkDeviceMaxMemoryAllocSize(srcSize, CV_8UC1);
 
-    UMat src(srcSize, CC_8UC1), hist(256, 1, CC_32FC1), dst(srcSize, CC_8UC1);
+    UMat src(srcSize, CV_8UC1), hist(256, 1, CV_32FC1), dst(srcSize, CV_8UC1);
     declare.in(src, WARMUP_RNG).out(hist);
 
-    calcHist(std::vector<UMat>(1, src), channels, noArray(), hist, histSize, ranges, false);
+    cv::calcHist(std::vector<UMat>(1, src), channels, noArray(), hist, histSize, ranges, false);
 
     declare.in(src, WARMUP_RNG).out(dst);
-    OCL_TEST_CYCLE() calcBackProject(std::vector<UMat>(1,src), channels, hist, dst, ranges, 1);
+    OCL_TEST_CYCLE() cv::calcBackProject(std::vector<UMat>(1,src), channels, hist, dst, ranges, 1);
 
     SANITY_CHECK_NOTHING();
 }
@@ -125,26 +123,26 @@ OCL_PERF_TEST_P(CalcBackProjFixture, CalcBackProj, OCL_TEST_SIZES)
 
 /////////// CopyMakeBorder //////////////////////
 
-CC_ENUM(Border, BORDER_CONSTANT, BORDER_REPLICATE, BORDER_REFLECT, BORDER_WRAP, BORDER_REFLECT_101)
+CV_ENUM(Border, BORDER_CONSTANT, BORDER_REPLICATE, BORDER_REFLECT, BORDER_WRAP, BORDER_REFLECT_101)
 
-typedef tuple<CvSize, MatType, Border> CopyMakeBorderParamType;
+typedef tuple<Size, MatType, Border> CopyMakeBorderParamType;
 typedef TestBaseWithParam<CopyMakeBorderParamType> CopyMakeBorderFixture;
 
 OCL_PERF_TEST_P(CopyMakeBorderFixture, CopyMakeBorder,
             ::testing::Combine(OCL_TEST_SIZES, OCL_TEST_TYPES_134, Border::all()))
 {
     const CopyMakeBorderParamType params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int type = get<1>(params), borderType = get<2>(params);
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
     UMat src(srcSize, type), dst;
-    const CvSize dstSize = srcSize + CvSize(12, 12);
+    const Size dstSize = srcSize + Size(12, 12);
     dst.create(dstSize, type);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() copyMakeBorder(src, dst, 7, 5, 5, 7, borderType, Scalar(1.0));
+    OCL_TEST_CYCLE() cv::copyMakeBorder(src, dst, 7, 5, 5, 7, borderType, cv::Scalar(1.0));
 
     SANITY_CHECK(dst);
 }
@@ -154,19 +152,19 @@ OCL_PERF_TEST_P(CopyMakeBorderFixture, CopyMakeBorder,
 typedef Size_MatType CornerMinEigenValFixture;
 
 OCL_PERF_TEST_P(CornerMinEigenValFixture, CornerMinEigenVal,
-            ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CC_8UC1, CC_32FC1)))
+            ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CV_8UC1, CV_32FC1)))
 {
     const Size_MatType_t params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int type = get<1>(params), borderType = BORDER_REFLECT;
     const int blockSize = 7, apertureSize = 1 + 2 * 3;
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
-    UMat src(srcSize, type), dst(srcSize, CC_32FC1);
+    UMat src(srcSize, type), dst(srcSize, CV_32FC1);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() cornerMinEigenVal(src, dst, blockSize, apertureSize, borderType);
+    OCL_TEST_CYCLE() cv::cornerMinEigenVal(src, dst, blockSize, apertureSize, borderType);
 
     SANITY_CHECK(dst, 1e-6, ERROR_RELATIVE);
 }
@@ -176,18 +174,18 @@ OCL_PERF_TEST_P(CornerMinEigenValFixture, CornerMinEigenVal,
 typedef Size_MatType CornerHarrisFixture;
 
 OCL_PERF_TEST_P(CornerHarrisFixture, CornerHarris,
-            ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CC_8UC1, CC_32FC1)))
+            ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CV_8UC1, CV_32FC1)))
 {
     const Size_MatType_t params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int type = get<1>(params), borderType = BORDER_REFLECT;
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
-    UMat src(srcSize, type), dst(srcSize, CC_32FC1);
+    UMat src(srcSize, type), dst(srcSize, CV_32FC1);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() cornerHarris(src, dst, 5, 7, 0.1, borderType);
+    OCL_TEST_CYCLE() cv::cornerHarris(src, dst, 5, 7, 0.1, borderType);
 
     SANITY_CHECK(dst, 5e-6, ERROR_RELATIVE);
 }
@@ -197,55 +195,55 @@ OCL_PERF_TEST_P(CornerHarrisFixture, CornerHarris,
 typedef Size_MatType PreCornerDetectFixture;
 
 OCL_PERF_TEST_P(PreCornerDetectFixture, PreCornerDetect,
-            ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CC_8UC1, CC_32FC1)))
+            ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CV_8UC1, CV_32FC1)))
 {
     const Size_MatType_t params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int type = get<1>(params), borderType = BORDER_REFLECT;
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
-    UMat src(srcSize, type), dst(srcSize, CC_32FC1);
+    UMat src(srcSize, type), dst(srcSize, CV_32FC1);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() preCornerDetect(src, dst, 3, borderType);
+    OCL_TEST_CYCLE() cv::preCornerDetect(src, dst, 3, borderType);
 
     SANITY_CHECK(dst, 1e-6, ERROR_RELATIVE);
 }
 
 ///////////// Integral ////////////////////////
 
-typedef tuple<CvSize, MatDepth> IntegralParams;
+typedef tuple<Size, MatDepth> IntegralParams;
 typedef TestBaseWithParam<IntegralParams> IntegralFixture;
 
-OCL_PERF_TEST_P(IntegralFixture, Integral1, ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CC_32S, CC_32F)))
+OCL_PERF_TEST_P(IntegralFixture, Integral1, ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CV_32S, CV_32F)))
 {
     const IntegralParams params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int ddepth = get<1>(params);
 
     checkDeviceMaxMemoryAllocSize(srcSize, ddepth);
 
-    UMat src(srcSize, CC_8UC1), dst(srcSize + CvSize(1, 1), ddepth);
+    UMat src(srcSize, CV_8UC1), dst(srcSize + Size(1, 1), ddepth);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() integral(src, dst, ddepth);
+    OCL_TEST_CYCLE() cv::integral(src, dst, ddepth);
 
     SANITY_CHECK(dst, 2e-6, ERROR_RELATIVE);
 }
 
-OCL_PERF_TEST_P(IntegralFixture, Integral2, ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CC_32S, CC_32F)))
+OCL_PERF_TEST_P(IntegralFixture, Integral2, ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CV_32S, CV_32F)))
 {
     const IntegralParams params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int ddepth = get<1>(params);
 
     checkDeviceMaxMemoryAllocSize(srcSize, ddepth);
 
-    UMat src(srcSize, CC_8UC1), sum(srcSize + CvSize(1, 1), ddepth), sqsum(srcSize + CvSize(1, 1), CC_32F);
+    UMat src(srcSize, CV_8UC1), sum(srcSize + Size(1, 1), ddepth), sqsum(srcSize + Size(1, 1), CV_32F);
     declare.in(src, WARMUP_RNG).out(sum, sqsum);
 
-    OCL_TEST_CYCLE() integral(src, sum, sqsum, ddepth, CC_32F);
+    OCL_TEST_CYCLE() cv::integral(src, sum, sqsum, ddepth, CV_32F);
 
     SANITY_CHECK(sum, 2e-4, ERROR_RELATIVE);
     SANITY_CHECK(sqsum, 5e-5, ERROR_RELATIVE);
@@ -253,16 +251,16 @@ OCL_PERF_TEST_P(IntegralFixture, Integral2, ::testing::Combine(OCL_TEST_SIZES, O
 
 ///////////// Threshold ////////////////////////
 
-CC_ENUM(ThreshType, THRESH_BINARY, THRESH_BINARY_INV, THRESH_TRUNC, THRESH_TOZERO_INV)
+CV_ENUM(ThreshType, THRESH_BINARY, THRESH_BINARY_INV, THRESH_TRUNC, THRESH_TOZERO_INV)
 
-typedef tuple<CvSize, MatType, ThreshType> ThreshParams;
+typedef tuple<Size, MatType, ThreshType> ThreshParams;
 typedef TestBaseWithParam<ThreshParams> ThreshFixture;
 
 OCL_PERF_TEST_P(ThreshFixture, Threshold,
             ::testing::Combine(OCL_TEST_SIZES, OCL_TEST_TYPES, ThreshType::all()))
 {
     const ThreshParams params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int srcType = get<1>(params);
     const int threshType = get<2>(params);
     const double maxValue = 220.0, threshold = 50;
@@ -272,26 +270,26 @@ OCL_PERF_TEST_P(ThreshFixture, Threshold,
     UMat src(srcSize, srcType), dst(srcSize, srcType);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() threshold(src, dst, threshold, maxValue, threshType);
+    OCL_TEST_CYCLE() cv::threshold(src, dst, threshold, maxValue, threshType);
 
     SANITY_CHECK(dst);
 }
 
 ///////////// CLAHE ////////////////////////
 
-typedef TestBaseWithParam<CvSize> CLAHEFixture;
+typedef TestBaseWithParam<Size> CLAHEFixture;
 
 OCL_PERF_TEST_P(CLAHEFixture, CLAHE, OCL_TEST_SIZES)
 {
-    const CvSize srcSize = GetParam();
+    const Size srcSize = GetParam();
 
-    checkDeviceMaxMemoryAllocSize(srcSize, CC_8UC1);
+    checkDeviceMaxMemoryAllocSize(srcSize, CV_8UC1);
 
-    UMat src(srcSize, CC_8UC1), dst(srcSize, CC_8UC1);
+    UMat src(srcSize, CV_8UC1), dst(srcSize, CV_8UC1);
     const double clipLimit = 40.0;
     declare.in(src, WARMUP_RNG).out(dst);
 
-    Ptr<CLAHE> clahe = createCLAHE(clipLimit);
+    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(clipLimit);
     OCL_TEST_CYCLE() clahe->apply(src, dst);
 
     SANITY_CHECK(dst);
@@ -299,30 +297,30 @@ OCL_PERF_TEST_P(CLAHEFixture, CLAHE, OCL_TEST_SIZES)
 
 ///////////// Canny ////////////////////////
 
-typedef tuple<CvSize, int, bool> CannyParams;
+typedef tuple<Size, int, bool> CannyParams;
 typedef TestBaseWithParam<CannyParams> CannyFixture;
 
 OCL_PERF_TEST_P(CannyFixture, Canny, ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(3, 5), Bool()))
 {
     const CannyParams& params = GetParam();
-    CvSize imgSize = get<0>(params);
+    cv::Size imgSize = get<0>(params);
     int apertureSize = get<1>(params);
     bool L2Grad = get<2>(params);
 
-    CvMat _img = imread(getDataPath("gpu/stereobm/aloe-L.png"), IMREAD_GRAYSCALE);
+    Mat _img = imread(getDataPath("gpu/stereobm/aloe-L.png"), cv::IMREAD_GRAYSCALE);
     ASSERT_TRUE(!_img.empty()) << "can't open aloe-L.png";
 
     UMat img;
-    resize(_img, img, imgSize);
-    UMat edges(img.size(), CC_8UC1);
+    cv::resize(_img, img, imgSize, 0, 0, INTER_LINEAR_EXACT);
+    UMat edges(img.size(), CV_8UC1);
 
     declare.in(img).out(edges);
 
-    OCL_TEST_CYCLE() Canny(img, edges, 50.0, 100.0, apertureSize, L2Grad);
+    PERF_SAMPLE_BEGIN();
+        cv::Canny(img, edges, 50.0, 100.0, apertureSize, L2Grad);
+    PERF_SAMPLE_END();
 
     SANITY_CHECK_NOTHING();
 }
 
-} } // namespace cvtest::ocl
-
-#endif // HAVE_OPENCL
+} } // namespace opencv_test::ocl

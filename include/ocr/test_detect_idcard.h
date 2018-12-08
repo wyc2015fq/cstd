@@ -1,14 +1,16 @@
 
 #include "stdc/img_c.h"
-#include "imgio/imgio.h"
+#include "../imgio/imgio.h"
+#include "detect_idcard.h"
 
 int test_detect_idcard() {
+  printf("%x\n", imread);
+  printf("%x\n", imwrite);
   return 0;
 }
 
 #if 0
 
-#include "detect_idcard.hpp"
 
 struct ocr_detect {
   FaceDetector face_etector;

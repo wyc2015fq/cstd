@@ -1,7 +1,47 @@
+/*M///////////////////////////////////////////////////////////////////////////////////////
+//
+//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
+//
+//  By downloading, copying, installing or using the software you agree to this license.
+//  If you do not agree to this license, do not download, install,
+//  copy or use the software.
+//
+//
+//                           License Agreement
+//                For Open Source Computer Vision Library
+//
+// Copyright (C) 2000-2008, Intel Corporation, all rights reserved.
+// Copyright (C) 2009, Willow Garage Inc., all rights reserved.
+// Third party copyrights are property of their respective owners.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//   * Redistribution's of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//
+//   * Redistribution's in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//
+//   * The name of the copyright holders may not be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+//
+// This software is provided by the copyright holders and contributors "as is" and
+// any express or implied warranties, including, but not limited to, the implied
+// warranties of merchantability and fitness for a particular purpose are disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any direct,
+// indirect, incidental, special, exemplary, or consequential damages
+// (including, but not limited to, procurement of substitute goods or services;
+// loss of use, data, or profits; or business interruption) however caused
+// and on any theory of liability, whether in contract, strict liability,
+// or tort (including negligence or otherwise) arising in any way out of
+// the use of this software, even if advised of the possibility of such damage.
+//
+//M*/
 
-
-#ifndef OPENCC_CUDA_DEVICE_BLOCK_HPP
-#define OPENCC_CUDA_DEVICE_BLOCK_HPP
+#ifndef OPENCV_CUDA_DEVICE_BLOCK_HPP
+#define OPENCV_CUDA_DEVICE_BLOCK_HPP
 
 /** @file
  * @deprecated Use @ref cudev instead.
@@ -66,7 +106,7 @@ namespace cv { namespace cuda { namespace device
         }
 
         template<typename InIt, typename OutIt, class UnOp>
-        static __device__ __forceinline__ void transfrom(InIt beg, InIt end, OutIt out, UnOp op)
+        static __device__ __forceinline__ void transform(InIt beg, InIt end, OutIt out, UnOp op)
         {
             int STRIDE = stride();
             InIt  t = beg + flattenedThreadId();
@@ -77,7 +117,7 @@ namespace cv { namespace cuda { namespace device
         }
 
         template<typename InIt1, typename InIt2, typename OutIt, class BinOp>
-        static __device__ __forceinline__ void transfrom(InIt1 beg1, InIt1 end1, InIt2 beg2, OutIt out, BinOp op)
+        static __device__ __forceinline__ void transform(InIt1 beg1, InIt1 end1, InIt2 beg2, OutIt out, BinOp op)
         {
             int STRIDE = stride();
             InIt1 t1 = beg1 + flattenedThreadId();
@@ -168,4 +208,4 @@ namespace cv { namespace cuda { namespace device
 
 //! @endcond
 
-#endif /* OPENCC_CUDA_DEVICE_BLOCK_HPP */
+#endif /* OPENCV_CUDA_DEVICE_BLOCK_HPP */

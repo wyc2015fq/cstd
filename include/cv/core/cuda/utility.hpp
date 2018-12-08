@@ -1,7 +1,47 @@
+/*M///////////////////////////////////////////////////////////////////////////////////////
+//
+//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
+//
+//  By downloading, copying, installing or using the software you agree to this license.
+//  If you do not agree to this license, do not download, install,
+//  copy or use the software.
+//
+//
+//                           License Agreement
+//                For Open Source Computer Vision Library
+//
+// Copyright (C) 2000-2008, Intel Corporation, all rights reserved.
+// Copyright (C) 2009, Willow Garage Inc., all rights reserved.
+// Third party copyrights are property of their respective owners.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//   * Redistribution's of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//
+//   * Redistribution's in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//
+//   * The name of the copyright holders may not be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+//
+// This software is provided by the copyright holders and contributors "as is" and
+// any express or implied warranties, including, but not limited to, the implied
+// warranties of merchantability and fitness for a particular purpose are disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any direct,
+// indirect, incidental, special, exemplary, or consequential damages
+// (including, but not limited to, procurement of substitute goods or services;
+// loss of use, data, or profits; or business interruption) however caused
+// and on any theory of liability, whether in contract, strict liability,
+// or tort (including negligence or otherwise) arising in any way out of
+// the use of this software, even if advised of the possibility of such damage.
+//
+//M*/
 
-
-#ifndef OPENCC_CUDA_UTILITY_HPP
-#define OPENCC_CUDA_UTILITY_HPP
+#ifndef OPENCV_CUDA_UTILITY_HPP
+#define OPENCV_CUDA_UTILITY_HPP
 
 #include "saturate_cast.hpp"
 #include "datamov_utils.hpp"
@@ -14,7 +54,7 @@
 
 namespace cv { namespace cuda { namespace device
 {
-    struct CC_EXPORTS ThrustAllocator
+    struct CV_EXPORTS ThrustAllocator
     {
         typedef uchar value_type;
         virtual ~ThrustAllocator();
@@ -23,10 +63,10 @@ namespace cv { namespace cuda { namespace device
         static ThrustAllocator& getAllocator();
         static void setAllocator(ThrustAllocator* allocator);
     };
-    #define OPENCC_CUDA_LOG_WARP_SIZE        (5)
-    #define OPENCC_CUDA_WARP_SIZE            (1 << OPENCC_CUDA_LOG_WARP_SIZE)
-    #define OPENCC_CUDA_LOG_MEM_BANKS        ((__CUDA_ARCH__ >= 200) ? 5 : 4) // 32 banks on fermi, 16 on tesla
-    #define OPENCC_CUDA_MEM_BANKS            (1 << OPENCC_CUDA_LOG_MEM_BANKS)
+    #define OPENCV_CUDA_LOG_WARP_SIZE        (5)
+    #define OPENCV_CUDA_WARP_SIZE            (1 << OPENCV_CUDA_LOG_WARP_SIZE)
+    #define OPENCV_CUDA_LOG_MEM_BANKS        ((__CUDA_ARCH__ >= 200) ? 5 : 4) // 32 banks on fermi, 16 on tesla
+    #define OPENCV_CUDA_MEM_BANKS            (1 << OPENCV_CUDA_LOG_MEM_BANKS)
 
     ///////////////////////////////////////////////////////////////////////////////
     // swap
@@ -187,4 +227,4 @@ namespace cv { namespace cuda { namespace device
 
 //! @endcond
 
-#endif // OPENCC_CUDA_UTILITY_HPP
+#endif // OPENCV_CUDA_UTILITY_HPP

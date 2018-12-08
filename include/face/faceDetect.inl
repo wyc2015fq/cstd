@@ -443,7 +443,7 @@ static int detect_eyes(int height, int width, const unsigned char* data, int dat
                 const XRECT* face, XRECT* deye, XRECT* leye, XRECT* reye, unsigned char* buf, int buflen, XRECT* out, int maxoutlen, int max_width, int is_trans, int is_flip, int is_flop) {
   float sc, mincx, kk=180.f;
   int ret, cy, dy, dx, cx, t;
-  lut_detect_param_t pp = {0};
+  lut_detect_param_t pp _INIT0;
   XRECT face2=*face, ddeye, dleye, dreye;
   void const** leyecas=leyecas0;
   void const** reyecas=reyecas0;
@@ -648,8 +648,8 @@ FaceDetectParams* FaceDetectParamsDefault(FaceDetectParams* s) {
 }
 
 static int cvFaceDetect( const void* cas, const img_t* im, const img_t* mask, double scale, const FaceDetectParams* params, XRECT* B, int B_len ) {
-  img_t gry[1] = {0};
-  FaceDetectParams _params[1] = {0};
+  img_t gry[1] _INIT0;
+  FaceDetectParams _params[1] _INIT0;
   int ret = 0;
   const unsigned char* mask_ptr = NULL;
   int mask_step = 0;

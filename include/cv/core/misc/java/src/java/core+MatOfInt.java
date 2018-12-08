@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class MatOfInt extends CvMat {
+public class MatOfInt extends Mat {
     // 32SC1
-    private static final int _depth = CvType.CC_32S;
+    private static final int _depth = CvType.CV_32S;
     private static final int _channels = 1;
 
     public MatOfInt() {
@@ -16,7 +16,7 @@ public class MatOfInt extends CvMat {
     protected MatOfInt(long addr) {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
-            throw new IllegalArgumentException("Incompatible CvMat");
+            throw new IllegalArgumentException("Incompatible Mat");
         //FIXME: do we need release() here?
     }
 
@@ -24,10 +24,10 @@ public class MatOfInt extends CvMat {
         return new MatOfInt(addr);
     }
 
-    public MatOfInt(CvMat m) {
+    public MatOfInt(Mat m) {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
-            throw new IllegalArgumentException("Incompatible CvMat");
+            throw new IllegalArgumentException("Incompatible Mat");
         //FIXME: do we need release() here?
     }
 
@@ -52,7 +52,7 @@ public class MatOfInt extends CvMat {
     public int[] toArray() {
         int num = checkVector(_channels, _depth);
         if(num < 0)
-            throw new RuntimeException("Native CvMat has unexpected type or size: " + toString());
+            throw new RuntimeException("Native Mat has unexpected type or size: " + toString());
         int[] a = new int[num * _channels];
         if(num == 0)
             return a;

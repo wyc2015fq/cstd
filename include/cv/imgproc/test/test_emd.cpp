@@ -41,25 +41,22 @@
 
 #include "test_precomp.hpp"
 
-using namespace cv;
-using namespace std;
+namespace opencv_test { namespace {
 
-/*////////////////////// emd_test /////////////////////////*/
-
-class CC_EMDTest : public cvtest::BaseTest
+class CV_EMDTest : public cvtest::BaseTest
 {
 public:
-    CC_EMDTest();
+    CV_EMDTest();
 protected:
     void run(int);
 };
 
 
-CC_EMDTest::CC_EMDTest()
+CV_EMDTest::CV_EMDTest()
 {
 }
 
-void CC_EMDTest::run( int )
+void CV_EMDTest::run( int )
 {
     int code = cvtest::TS::OK;
     const double success_error_level = 1e-6;
@@ -74,9 +71,9 @@ void CC_EMDTest::run( int )
     };
     static float  w1[] = { 50, 60, 50, 50 },
                   w2[] = { 30, 20, 70, 30, 60 };
-    CvMat _w1(4, 1, CC_32F, w1);
-    CvMat _w2(5, 1, CC_32F, w2);
-    CvMat _cost(_w1.rows, _w2.rows, CC_32F, cost);
+    Mat _w1(4, 1, CV_32F, w1);
+    Mat _w2(5, 1, CV_32F, w2);
+    Mat _cost(_w1.rows, _w2.rows, CV_32F, cost);
 
     float emd = EMD( _w1, _w2, -1, _cost );
     if( fabs( emd - emd0 ) > success_error_level*emd0 )
@@ -90,6 +87,7 @@ void CC_EMDTest::run( int )
         ts->set_failed_test_info( code );
 }
 
-TEST(Imgproc_EMD, regression) { CC_EMDTest test; test.safe_run(); }
+TEST(Imgproc_EMD, regression) { CV_EMDTest test; test.safe_run(); }
 
-
+}} // namespace
+/* End of file. */

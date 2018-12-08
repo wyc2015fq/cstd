@@ -3,9 +3,9 @@ package org.opencv.core;
 import java.util.Arrays;
 import java.util.List;
 
-public class MatOfByte extends CvMat {
+public class MatOfByte extends Mat {
     // 8UC(x)
-    private static final int _depth = CvType.CC_8U;
+    private static final int _depth = CvType.CV_8U;
     private static final int _channels = 1;
 
     public MatOfByte() {
@@ -15,7 +15,7 @@ public class MatOfByte extends CvMat {
     protected MatOfByte(long addr) {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
-            throw new IllegalArgumentException("Incompatible CvMat");
+            throw new IllegalArgumentException("Incompatible Mat");
         //FIXME: do we need release() here?
     }
 
@@ -23,16 +23,21 @@ public class MatOfByte extends CvMat {
         return new MatOfByte(addr);
     }
 
-    public MatOfByte(CvMat m) {
+    public MatOfByte(Mat m) {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
-            throw new IllegalArgumentException("Incompatible CvMat");
+            throw new IllegalArgumentException("Incompatible Mat");
         //FIXME: do we need release() here?
     }
 
     public MatOfByte(byte...a) {
         super();
         fromArray(a);
+    }
+
+    public MatOfByte(int offset, int length, byte...a) {
+        super();
+        fromArray(offset, length, a);
     }
 
     public void alloc(int elemNumber) {
@@ -48,10 +53,24 @@ public class MatOfByte extends CvMat {
         put(0, 0, a); //TODO: check ret val!
     }
 
+    public void fromArray(int offset, int length, byte...a) {
+        if (offset < 0)
+            throw new IllegalArgumentException("offset < 0");
+        if (a == null)
+            throw new NullPointerException();
+        if (length < 0 || length + offset > a.length)
+            throw new IllegalArgumentException("invalid 'length' parameter: " + Integer.toString(length));
+        if (a.length == 0)
+            return;
+        int num = length / _channels;
+        alloc(num);
+        put(0, 0, a, offset, length); //TODO: check ret val!
+    }
+
     public byte[] toArray() {
         int num = checkVector(_channels, _depth);
         if(num < 0)
-            throw new RuntimeException("Native CvMat has unexpected type or size: " + toString());
+            throw new RuntimeException("Native Mat has unexpected type or size: " + toString());
         byte[] a = new byte[num * _channels];
         if(num == 0)
             return a;

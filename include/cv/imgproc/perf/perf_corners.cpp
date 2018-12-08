@@ -1,14 +1,13 @@
+// This file is part of OpenCV project.
+// It is subject to the license terms in the LICENSE file found in the top-level directory
+// of this distribution and at http://opencv.org/license.html.
 #include "perf_precomp.hpp"
 
-using namespace std;
-using namespace cv;
-using namespace perf;
-using std::tr1::make_tuple;
-using std::tr1::get;
+namespace opencv_test {
 
-CC_ENUM(BorderType, BORDER_REPLICATE, BORDER_CONSTANT, BORDER_REFLECT, BORDER_REFLECT_101)
+CV_ENUM(BorderType, BORDER_REPLICATE, BORDER_CONSTANT, BORDER_REFLECT, BORDER_REFLECT_101)
 
-typedef std::tr1::tuple<string, int, int, double, BorderType> Img_BlockSize_ApertureSize_k_BorderType_t;
+typedef tuple<string, int, int, double, BorderType> Img_BlockSize_ApertureSize_k_BorderType_t;
 typedef perf::TestBaseWithParam<Img_BlockSize_ApertureSize_k_BorderType_t> Img_BlockSize_ApertureSize_k_BorderType;
 
 PERF_TEST_P(Img_BlockSize_ApertureSize_k_BorderType, cornerHarris,
@@ -27,17 +26,17 @@ PERF_TEST_P(Img_BlockSize_ApertureSize_k_BorderType, cornerHarris,
     double k = get<3>(GetParam());
     BorderType borderType = get<4>(GetParam());
 
-    CvMat src = imread(filename, IMREAD_GRAYSCALE);
+    Mat src = imread(filename, IMREAD_GRAYSCALE);
     ASSERT_FALSE(src.empty()) << "Unable to load source image: " << filename;
 
-    CvMat dst;
+    Mat dst;
 
     TEST_CYCLE() cornerHarris(src, dst, blockSize, apertureSize, k, borderType);
 
     SANITY_CHECK(dst, 2e-5, ERROR_RELATIVE);
 }
 
-typedef std::tr1::tuple<string, int, int, BorderType> Img_BlockSize_ApertureSize_BorderType_t;
+typedef tuple<string, int, int, BorderType> Img_BlockSize_ApertureSize_BorderType_t;
 typedef perf::TestBaseWithParam<Img_BlockSize_ApertureSize_BorderType_t> Img_BlockSize_ApertureSize_BorderType;
 
 PERF_TEST_P(Img_BlockSize_ApertureSize_BorderType, cornerEigenValsAndVecs,
@@ -54,14 +53,14 @@ PERF_TEST_P(Img_BlockSize_ApertureSize_BorderType, cornerEigenValsAndVecs,
     int apertureSize = get<2>(GetParam());
     BorderType borderType = get<3>(GetParam());
 
-    CvMat src = imread(filename, IMREAD_GRAYSCALE);
+    Mat src = imread(filename, IMREAD_GRAYSCALE);
     ASSERT_FALSE(src.empty()) << "Unable to load source image: " << filename;
 
-    CvMat dst;
+    Mat dst;
 
     TEST_CYCLE() cornerEigenValsAndVecs(src, dst, blockSize, apertureSize, borderType);
 
-    CvMat l1;
+    Mat l1;
     extractChannel(dst, l1, 0);
 
     SANITY_CHECK(l1, 2e-5, ERROR_RELATIVE);
@@ -81,12 +80,14 @@ PERF_TEST_P(Img_BlockSize_ApertureSize_BorderType, cornerMinEigenVal,
     int apertureSize = get<2>(GetParam());
     BorderType borderType = get<3>(GetParam());
 
-    CvMat src = imread(filename, IMREAD_GRAYSCALE);
+    Mat src = imread(filename, IMREAD_GRAYSCALE);
     ASSERT_FALSE(src.empty()) << "Unable to load source image: " << filename;
 
-    CvMat dst;
+    Mat dst;
 
     TEST_CYCLE() cornerMinEigenVal(src, dst, blockSize, apertureSize, borderType);
 
     SANITY_CHECK(dst, 2e-5, ERROR_RELATIVE);
 }
+
+} // namespace

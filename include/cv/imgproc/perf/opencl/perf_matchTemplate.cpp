@@ -3,31 +3,30 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
-
+namespace opencv_test {
 namespace ocl {
 
-CC_ENUM(MethodType, TM_SQDIFF, TM_SQDIFF_NORMED, TM_CCORR, TM_CCORR_NORMED, TM_CCOEFF, TM_CCOEFF_NORMED)
+CV_ENUM(MethodType, TM_SQDIFF, TM_SQDIFF_NORMED, TM_CCORR, TM_CCORR_NORMED, TM_CCOEFF, TM_CCOEFF_NORMED)
 
-typedef std::tr1::tuple<CvSize, CvSize, MethodType, MatType> ImgSize_TmplSize_Method_MatType_t;
+typedef tuple<Size, Size, MethodType, MatType> ImgSize_TmplSize_Method_MatType_t;
 typedef TestBaseWithParam<ImgSize_TmplSize_Method_MatType_t> ImgSize_TmplSize_Method_MatType;
 
 OCL_PERF_TEST_P(ImgSize_TmplSize_Method_MatType, MatchTemplate,
         ::testing::Combine(
-            testing::Values(CvSize(640, 480), CvSize(1280, 1024)),
-            testing::Values(CvSize(11, 11), CvSize(16, 16), CvSize(41, 41)),
+            testing::Values(cv::Size(640, 480), cv::Size(1280, 1024)),
+            testing::Values(cv::Size(11, 11), cv::Size(16, 16), cv::Size(41, 41)),
             MethodType::all(),
-            testing::Values(CC_8UC1, CC_8UC3, CC_32FC1, CC_32FC3)
+            testing::Values(CV_8UC1, CV_8UC3, CV_32FC1, CV_32FC3)
             )
         )
 {
     const ImgSize_TmplSize_Method_MatType_t params = GetParam();
-    const CvSize imgSz = get<0>(params), tmplSz = get<1>(params);
+    const Size imgSz = get<0>(params), tmplSz = get<1>(params);
     const int method = get<2>(params);
     int type = get<3>(GetParam());
 
     UMat img(imgSz, type), tmpl(tmplSz, type);
-    UMat result(imgSz - tmplSz + CvSize(1, 1), CC_32F);
+    UMat result(imgSz - tmplSz + Size(1, 1), CV_32F);
 
     declare.in(img, tmpl, WARMUP_RNG).out(result);
 
@@ -45,45 +44,45 @@ OCL_PERF_TEST_P(ImgSize_TmplSize_Method_MatType, MatchTemplate,
 
 /////////// matchTemplate (performance tests from 2.4) ////////////////////////
 
-typedef Size_MatType CC_TM_CCORRFixture;
+typedef Size_MatType CV_TM_CCORRFixture;
 
-OCL_PERF_TEST_P(CC_TM_CCORRFixture, matchTemplate,
-                ::testing::Combine(::testing::Values(CvSize(1000, 1000), CvSize(2000, 2000)),
-                               OCL_PERF_ENUM(CC_32FC1, CC_32FC4)))
+OCL_PERF_TEST_P(CV_TM_CCORRFixture, matchTemplate,
+                ::testing::Combine(::testing::Values(Size(1000, 1000), Size(2000, 2000)),
+                               OCL_PERF_ENUM(CV_32FC1, CV_32FC4)))
 {
     const Size_MatType_t params = GetParam();
-    const CvSize srcSize = get<0>(params), templSize(5, 5);
+    const Size srcSize = get<0>(params), templSize(5, 5);
     const int type = get<1>(params);
 
     UMat src(srcSize, type), templ(templSize, type);
-    const CvSize dstSize(src.cols - templ.cols + 1, src.rows - templ.rows + 1);
-    UMat dst(dstSize, CC_32F);
+    const Size dstSize(src.cols - templ.cols + 1, src.rows - templ.rows + 1);
+    UMat dst(dstSize, CV_32F);
 
     declare.in(src, templ, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() matchTemplate(src, templ, dst, CC_TM_CCORR);
+    OCL_TEST_CYCLE() cv::matchTemplate(src, templ, dst, CV_TM_CCORR);
 
     SANITY_CHECK(dst, 1e-4);
 }
 
-typedef TestBaseWithParam<CvSize> CC_TM_CCORR_NORMEDFixture;
+typedef TestBaseWithParam<Size> CV_TM_CCORR_NORMEDFixture;
 
-OCL_PERF_TEST_P(CC_TM_CCORR_NORMEDFixture, matchTemplate,
-                ::testing::Values(CvSize(1000, 1000), CvSize(2000, 2000), CvSize(4000, 4000)))
+OCL_PERF_TEST_P(CV_TM_CCORR_NORMEDFixture, matchTemplate,
+                ::testing::Values(Size(1000, 1000), Size(2000, 2000), Size(4000, 4000)))
 {
-    const CvSize srcSize = GetParam(), templSize(5, 5);
+    const Size srcSize = GetParam(), templSize(5, 5);
 
-    UMat src(srcSize, CC_8UC1), templ(templSize, CC_8UC1);
-    const CvSize dstSize(src.cols - templ.cols + 1, src.rows - templ.rows + 1);
-    UMat dst(dstSize, CC_8UC1);
+    UMat src(srcSize, CV_8UC1), templ(templSize, CV_8UC1);
+    const Size dstSize(src.cols - templ.cols + 1, src.rows - templ.rows + 1);
+    UMat dst(dstSize, CV_8UC1);
 
     declare.in(src, templ, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() matchTemplate(src, templ, dst, CC_TM_CCORR_NORMED);
+    OCL_TEST_CYCLE() cv::matchTemplate(src, templ, dst, CV_TM_CCORR_NORMED);
 
     SANITY_CHECK(dst, 3e-2);
 }
 
-} }
+} } // namespace
 
 #endif // HAVE_OPENCL

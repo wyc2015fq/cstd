@@ -46,7 +46,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ////////////////////////////////////////// boxFilter ///////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ PARAM_TEST_CASE(BoxFilterBase, MatDepth, Channels, BorderType, bool, bool)
     static const int kernelMaxSize = 10;
 
     int depth, cn, borderType;
-    CvSize ksize, dsize;
+    Size ksize, dsize;
     Point anchor;
     bool normalize, useRoi;
 
@@ -75,10 +75,10 @@ PARAM_TEST_CASE(BoxFilterBase, MatDepth, Channels, BorderType, bool, bool)
 
     void random_roi()
     {
-        int type = CC_MAKE_TYPE(depth, cn);
+        int type = CV_MAKE_TYPE(depth, cn);
         ksize = randomSize(kernelMinSize, kernelMaxSize);
 
-        CvSize roiSize = randomSize(ksize.width, MAX_VALUE, ksize.height, MAX_VALUE);
+        Size roiSize = randomSize(ksize.width, MAX_VALUE, ksize.height, MAX_VALUE);
         Border srcBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
         randomSubMat(src, src_roi, roiSize, srcBorder, type, -MAX_VALUE, MAX_VALUE);
 
@@ -100,39 +100,39 @@ PARAM_TEST_CASE(BoxFilterBase, MatDepth, Channels, BorderType, bool, bool)
 
 typedef BoxFilterBase BoxFilter;
 
-OCL_TEST_P(BoxFilter, CvMat)
+OCL_TEST_P(BoxFilter, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
         random_roi();
 
-        OCL_OFF(boxFilter(src_roi, dst_roi, -1, ksize, anchor, normalize, borderType));
-        OCL_ON(boxFilter(usrc_roi, udst_roi, -1, ksize, anchor, normalize, borderType));
+        OCL_OFF(cv::boxFilter(src_roi, dst_roi, -1, ksize, anchor, normalize, borderType));
+        OCL_ON(cv::boxFilter(usrc_roi, udst_roi, -1, ksize, anchor, normalize, borderType));
 
-        Near(depth <= CC_32S ? 1 : 3e-3);
+        Near(depth <= CV_32S ? 1 : 3e-3);
     }
 }
 
 typedef BoxFilterBase SqrBoxFilter;
 
-OCL_TEST_P(SqrBoxFilter, CvMat)
+OCL_TEST_P(SqrBoxFilter, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
         random_roi();
 
-        int ddepth = depth == CC_8U ? CC_32S : CC_64F;
+        int ddepth = depth == CV_8U ? CV_32S : CV_64F;
 
-        OCL_OFF(sqrBoxFilter(src_roi, dst_roi, ddepth, ksize, anchor, normalize, borderType));
-        OCL_ON(sqrBoxFilter(usrc_roi, udst_roi, ddepth, ksize, anchor, normalize, borderType));
+        OCL_OFF(cv::sqrBoxFilter(src_roi, dst_roi, ddepth, ksize, anchor, normalize, borderType));
+        OCL_ON(cv::sqrBoxFilter(usrc_roi, udst_roi, ddepth, ksize, anchor, normalize, borderType));
 
-        Near(depth <= CC_32S ? 1 : 7e-2);
+        Near(depth <= CV_32S ? 1 : 7e-2);
     }
 }
 
 OCL_INSTANTIATE_TEST_CASE_P(ImageProc, BoxFilter,
                             Combine(
-                                Values(CC_8U, CC_16U, CC_16S, CC_32S, CC_32F),
+                                Values(CV_8U, CV_16U, CV_16S, CV_32S, CV_32F),
                                 OCL_ALL_CHANNELS,
                                 Values((BorderType)BORDER_CONSTANT,
                                        (BorderType)BORDER_REPLICATE,
@@ -145,7 +145,7 @@ OCL_INSTANTIATE_TEST_CASE_P(ImageProc, BoxFilter,
 
 OCL_INSTANTIATE_TEST_CASE_P(ImageProc, SqrBoxFilter,
                             Combine(
-                                Values(CC_8U, CC_16U, CC_16S, CC_32F, CC_64F),
+                                Values(CV_8U, CV_16U, CV_16S, CV_32F, CV_64F),
                                 OCL_ALL_CHANNELS,
                                 Values((BorderType)BORDER_CONSTANT,
                                        (BorderType)BORDER_REPLICATE,
@@ -160,7 +160,7 @@ OCL_INSTANTIATE_TEST_CASE_P(ImageProc, SqrBoxFilter,
 PARAM_TEST_CASE(BoxFilter3x3_cols16_rows2_Base, MatDepth, Channels, BorderType, bool, bool)
 {
     int depth, cn, borderType;
-    CvSize ksize, dsize;
+    Size ksize, dsize;
     Point anchor;
     bool normalize, useRoi;
 
@@ -178,12 +178,12 @@ PARAM_TEST_CASE(BoxFilter3x3_cols16_rows2_Base, MatDepth, Channels, BorderType, 
 
     void random_roi()
     {
-        int type = CC_MAKE_TYPE(depth, cn);
-        ksize = CvSize(3,3);
+        int type = CV_MAKE_TYPE(depth, cn);
+        ksize = Size(3,3);
 
-        CvSize roiSize = randomSize(ksize.width, MAX_VALUE, ksize.height, MAX_VALUE);
-        roiSize.width = MAX(ksize.width + 13, roiSize.width & (~0xf));
-        roiSize.height = MAX(ksize.height + 1, roiSize.height & (~0x1));
+        Size roiSize = randomSize(ksize.width, MAX_VALUE, ksize.height, MAX_VALUE);
+        roiSize.width = std::max(ksize.width + 13, roiSize.width & (~0xf));
+        roiSize.height = std::max(ksize.height + 1, roiSize.height & (~0x1));
         Border srcBorder = {0, 0, 0, 0};
         randomSubMat(src, src_roi, roiSize, srcBorder, type, -MAX_VALUE, MAX_VALUE);
 
@@ -205,22 +205,22 @@ PARAM_TEST_CASE(BoxFilter3x3_cols16_rows2_Base, MatDepth, Channels, BorderType, 
 
 typedef BoxFilter3x3_cols16_rows2_Base BoxFilter3x3_cols16_rows2;
 
-OCL_TEST_P(BoxFilter3x3_cols16_rows2, CvMat)
+OCL_TEST_P(BoxFilter3x3_cols16_rows2, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
         random_roi();
 
-        OCL_OFF(boxFilter(src_roi, dst_roi, -1, ksize, anchor, normalize, borderType));
-        OCL_ON(boxFilter(usrc_roi, udst_roi, -1, ksize, anchor, normalize, borderType));
+        OCL_OFF(cv::boxFilter(src_roi, dst_roi, -1, ksize, anchor, normalize, borderType));
+        OCL_ON(cv::boxFilter(usrc_roi, udst_roi, -1, ksize, anchor, normalize, borderType));
 
-        Near(depth <= CC_32S ? 1 : 3e-3);
+        Near(depth <= CV_32S ? 1 : 3e-3);
     }
 }
 
 OCL_INSTANTIATE_TEST_CASE_P(ImageProc, BoxFilter3x3_cols16_rows2,
                             Combine(
-                                Values((MatDepth)CC_8U),
+                                Values((MatDepth)CV_8U),
                                 Values((Channels)1),
                                 Values((BorderType)BORDER_CONSTANT,
                                        (BorderType)BORDER_REPLICATE,
@@ -231,6 +231,6 @@ OCL_INSTANTIATE_TEST_CASE_P(ImageProc, BoxFilter3x3_cols16_rows2,
                                 )
                            );
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

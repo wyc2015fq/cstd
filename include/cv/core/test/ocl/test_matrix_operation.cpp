@@ -49,7 +49,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ////////////////////////////////converto/////////////////////////////////////////////////
@@ -66,7 +66,7 @@ PARAM_TEST_CASE(ConvertTo, MatDepth, MatDepth, Channels, bool)
     {
         src_depth = GET_PARAM(0);
         cn = GET_PARAM(2);
-        dstType = CC_MAKE_TYPE(GET_PARAM(1), cn);
+        dstType = CV_MAKE_TYPE(GET_PARAM(1), cn);
 
         use_roi = GET_PARAM(3);
     }
@@ -75,7 +75,7 @@ PARAM_TEST_CASE(ConvertTo, MatDepth, MatDepth, Channels, bool)
     {
         Size roiSize = randomSize(1, MAX_VALUE);
         Border srcBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
-        randomSubMat(src, src_roi, roiSize, srcBorder, CC_MAKE_TYPE(src_depth, cn), -MAX_VALUE, MAX_VALUE);
+        randomSubMat(src, src_roi, roiSize, srcBorder, CV_MAKE_TYPE(src_depth, cn), -MAX_VALUE, MAX_VALUE);
 
         Border dstBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
         randomSubMat(dst, dst_roi, roiSize, dstBorder, dstType, 5, 16);
@@ -96,7 +96,7 @@ OCL_TEST_P(ConvertTo, WithScale_Accuracy)
         OCL_OFF(src_roi.convertTo(dst_roi, dstType, alpha, beta));
         OCL_ON(usrc_roi.convertTo(udst_roi, dstType, alpha, beta));
 
-        double eps = CC_MAT_DEPTH(dstType) >= CC_32F ? 2e-4 : 1;
+        double eps = CV_MAT_DEPTH(dstType) >= CV_32F ? 2e-4 : 1;
         OCL_EXPECT_MATS_NEAR(dst, eps);
     }
 }
@@ -110,7 +110,7 @@ OCL_TEST_P(ConvertTo, NoScale_Accuracy)
         OCL_OFF(src_roi.convertTo(dst_roi, dstType, 1, 0));
         OCL_ON(usrc_roi.convertTo(udst_roi, dstType, 1, 0));
 
-        double eps = CC_MAT_DEPTH(dstType) >= CC_32F ? 2e-4 : 1;
+        double eps = CV_MAT_DEPTH(dstType) >= CV_32F ? 2e-4 : 1;
         OCL_EXPECT_MATS_NEAR(dst, eps);
     }
 }
@@ -137,7 +137,7 @@ PARAM_TEST_CASE(CopyTo, MatDepth, Channels, bool, bool)
 
     void generateTestData(bool one_cn_mask = false)
     {
-        const int type = CC_MAKE_TYPE(depth, cn);
+        const int type = CV_MAKE_TYPE(depth, cn);
 
         Size roiSize = randomSize(1, MAX_VALUE);
         Border srcBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
@@ -149,8 +149,8 @@ PARAM_TEST_CASE(CopyTo, MatDepth, Channels, bool, bool)
             int mask_cn = 1;
             if (!one_cn_mask && randomDouble(0.0, 2.0) > 1.0)
                 mask_cn = cn;
-            randomSubMat(mask, mask_roi, roiSize, maskBorder, CC_8UC(mask_cn), 0, 2);
-            threshold(mask, mask, 0.5, 255., THRESH_BINARY);
+            randomSubMat(mask, mask_roi, roiSize, maskBorder, CV_8UC(mask_cn), 0, 2);
+            cv::threshold(mask, mask, 0.5, 255., THRESH_BINARY);
         }
 
         Border dstBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
@@ -193,7 +193,7 @@ OCL_TEST_P(SetTo, Accuracy)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
-        generateTestData(true); // see modules/core/src/umatrix.cpp Ln:791 => CC_Assert( mask.size() == size() && mask CC_MAT_TYPE() == CC_8UC1 );
+        generateTestData(true); // see modules/core/src/umatrix.cpp Ln:791 => CV_Assert( mask.size() == size() && mask.type() == CV_8UC1 );
 
         if (use_mask)
         {
@@ -219,6 +219,6 @@ OCL_INSTANTIATE_TEST_CASE_P(MatrixOperation, CopyTo, Combine(
 OCL_INSTANTIATE_TEST_CASE_P(MatrixOperation, SetTo, Combine(
                                 OCL_ALL_DEPTHS, OCL_ALL_CHANNELS, Bool(), Bool()));
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif

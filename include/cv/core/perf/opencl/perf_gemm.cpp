@@ -49,19 +49,19 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ///////////// gemm ////////////////////////
 
-CC_ENUM(FlagType, 0, GEMM_1_T, GEMM_2_T, GEMM_3_T, GEMM_1_T|GEMM_2_T, GEMM_2_T|GEMM_3_T)
+CV_ENUM(FlagType, 0, GEMM_1_T, GEMM_2_T, GEMM_3_T, GEMM_1_T|GEMM_2_T, GEMM_2_T|GEMM_3_T)
 
 typedef tuple<Size, FlagType, MatType> GemmParams;
 typedef TestBaseWithParam<GemmParams> GemmFixture;
 
 OCL_PERF_TEST_P(GemmFixture, Gemm, ::testing::Combine(
                     ::testing::Values(Size(640, 640), Size(1280, 1280)),
-                    FlagType::all(), testing::Values(CC_32FC1, CC_32FC2)))
+                    FlagType::all(), testing::Values(CV_32FC1, CV_32FC2)))
 {
     GemmParams params = GetParam();
     const Size srcSize = get<0>(params);
@@ -74,11 +74,11 @@ OCL_PERF_TEST_P(GemmFixture, Gemm, ::testing::Combine(
     randu(src2, -10.0f, 10.0f);
     randu(src3, -10.0f, 10.0f);
 
-    OCL_TEST_CYCLE() gemm(src1, src2, 0.6, src3, 1.5, dst, flags);
+    OCL_TEST_CYCLE() cv::gemm(src1, src2, 0.6, src3, 1.5, dst, flags);
 
     SANITY_CHECK(dst, 0.01);
 }
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

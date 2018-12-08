@@ -15,7 +15,7 @@
 //#include "../sort.h"
 #include "../seqpartition.h"
 #include "../stdc/objdetect.h"
-#include "../stdc/imresize.h"
+#include "../stdc/imgopt.h"
 #include "../stdc/img_c.h"
 
 

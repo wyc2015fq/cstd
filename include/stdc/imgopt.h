@@ -291,7 +291,7 @@ static int mat_dot_Ab(int row_c, int col_c, const double* A, int al, const doubl
   return 0;
 }
 static int immul_ABT_f8(const img_t* A, const img_t* dst, img_t* C) {
-  img_t C1[1] = {0}, *C0 = C;
+  img_t C1[1] _INIT0, *C0 = C;
   ASSERT(A->c==sizeof(double) && dst->c==A->c);
   if (A==C0 || dst==C0) {
     C = C1;
@@ -664,12 +664,6 @@ static int trans_copy_cn3(int h, int w, const unsigned char* src, int srcstep, u
   return 0;
 }
 
-#define ISMIRRX  1
-#define ISMIRRY  2
-#define ISTRANS  4
-#define ISROT1   (ISTRANS|ISMIRRX)
-#define ISROT2   (ISMIRRY|ISMIRRX)
-#define ISROT3   (ISTRANS|ISMIRRY)
 
 #define TRANS_COPY(TCOPY) \
 {\
@@ -738,7 +732,7 @@ static int trans_copy(int h, int w, const uchar* src, int srcstep, int srccn, uc
 
 
 static int imtrans(const img_t* im, img_t* im2, int istrans, int ismirrx, int ismirry) {
-  img_t im1[1] = {0};
+  img_t im1[1] _INIT0;
   if (im==im2) {
     imclone2(im, im1);
     im = im1;
@@ -749,10 +743,21 @@ static int imtrans(const img_t* im, img_t* im2, int istrans, int ismirrx, int is
   return 0;
 }
 
-static img_t* im_trans(const img_t* im, img_t* dst, int flag)
+
+// flag 1-90 2-180 3-270
+static img_t* rotate90(const img_t* im, img_t* dst, int flag)
 {
+  enum {
+    ISMIRRX = 1,
+    ISMIRRY = 2,
+    ISTRANS = 4,
+    ISROT1 = (ISTRANS | ISMIRRX),
+    ISROT2 = (ISMIRRY | ISMIRRX),
+    ISROT3 = (ISTRANS | ISMIRRY)
+  };
+
   int hw[] = {im->h, im->w};
-  img_t im2[1] = {0};
+  img_t im2[1] _INIT0;
   int istrans = !!(flag & ISTRANS);
   int ismirrx = !!(flag & ISMIRRX);
   int ismirry = !!(flag & ISMIRRY);
@@ -766,20 +771,6 @@ static img_t* im_trans(const img_t* im, img_t* dst, int flag)
   imfree(im2);
   return dst;
 }
-
-static int bf_im_trans(buf_t* bf, const img_t* im, img_t* im1, int flag)
-{
-  int hw[] = {im->h, im->w};
-  img_t im2[1] = {0};
-  int istrans = !!(flag & ISTRANS);
-  int ismirrx = !!(flag & ISMIRRX);
-  int ismirry = !!(flag & ISMIRRY);
-  ASSERT(im != im1);
-  bf_imsetsize(bf, im1, hw[!!istrans], hw[!istrans], im->c, 1);
-  trans_copy(im->h, im->w, im->tt.data, im->s, im->c, im1->tt.data, im1->s, im1->c, im->c, istrans, ismirrx, ismirry);
-  return 0;
-}
-
 
 #define MAT_TRANS_CASE_IMPL(T) \
 for (y=0; y<h-1; y+=2) { \
@@ -995,7 +986,7 @@ static int mat_trans1(int h, int w, const uchar* img, int al, int ai, int* ph, i
 }
 static int imtrans2(const img_t* im, img_t* im2, int transopt, int isflop)
 {
-  img_t t, im3[1] = {0};
+  img_t t, im3[1] _INIT0;
   imsetsize(im3, im->h, im->w, im->c, 1);
   mat_trans(im->h, im->w, im->tt.data, im->s, im->c, &im3->h, &im3->w, im3->tt.data, &im3->s, transopt, isflop);
   CC_SWAP(*im3, *im2, t);
@@ -1004,7 +995,7 @@ static int imtrans2(const img_t* im, img_t* im2, int transopt, int isflop)
 }
 static int imtrans3(const img_t* im, img_t* im2, int transopt, int isflop)
 {
-  img_t t, im3[1] = {0};
+  img_t t, im3[1] _INIT0;
   imsetsize(im3, im->h, im->w, im->c, 1);
   mat_trans2(im->h, im->w, im->tt.data, im->s, im->c, &im3->h, &im3->w, im3->tt.data, &im3->s, transopt, isflop);
   CC_SWAP(*im3, *im2, t);
@@ -1171,7 +1162,7 @@ static int imresize_aspect(const img_t* s, int dh, int dw, img_t* d)
 {
   int sw = s->w, sh = s->h;
   int tw = dw, th = dh;
-  img_t imt[1] = {0};
+  img_t imt[1] _INIT0;
   if (s==d) {
     imclone2(s, imt);
     s = imt;
@@ -1202,7 +1193,7 @@ static int imresize_aspect(const img_t* s, int dh, int dw, img_t* d)
 static img_t* imresize(const img_t* s, int dh, int dw, img_t* d) {
   int sw = s->w, sh = s->h;
   int tw = dw, th = dh, i;
-  img_t imt[1] = {0};
+  img_t imt[1] _INIT0;
   if (dw == 0 || dh == 0) {
     d->h = dh, d->w = dw;
     d->c = s->c;
@@ -1274,7 +1265,7 @@ static int imresize_impl_n(int ah, int aw, const uchar* A, int al, int ai, int b
 static int imresize_n(const img_t* im, int h, int w, img_t* im2, int n)
 {
   if (im->tt.data == im2->tt.data) {
-    img_t im3[1] = {0};
+    img_t im3[1] _INIT0;
     imsetsize(im3, h, w, im->c, n);
     imresize_impl_n(im->h, im->w, im->tt.data, im->s, im->c, h, w, im3->tt.data, im3->s, im3->c, CC_INTER_AREA, n);
     T_SWAP(img_t, *im3, *im2);
@@ -1288,14 +1279,6 @@ static int imresize_n(const img_t* im, int h, int w, img_t* im2, int n)
   return 0;
 }
 #define imresize_1(im, h, w, im2) imresize_n(im, h, w, im2, 1)
-
-
-static int bf_imresize_1(buf_t* bf, const img_t* im, int h, int w, img_t* im2)
-{
-  bf_imsetsize(bf, im2, h, w, im->c, 1);
-  imresize_impl(im->h, im->w, im->tt.data, im->s, im->c, h, w, im2->tt.data, im2->s, im2->c, CC_INTER_AREA);
-  return 0;
-}
 
 static int imresizen(const img_t* a, double scaling, img_t* b, int n)
 {
@@ -1313,30 +1296,6 @@ static int bf_imresize_impl(int ah, int aw, const uchar* A, int al, int ai, int 
 #undef IMFREE
 #undef IMMALLOC
   IMRESIZE(ah, aw, A, al, ai, bh, bw, dst, bl, bi, INTER_BILINEARITY);
-  return 0;
-}
-static int bf_imresize(buf_t* bf, const img_t* s, int dh, int dw, img_t* d) {
-  int sw = s->w, sh = s->h;
-  int tw = dw, th = dh, i;
-  img_t imt[1] = {0};
-  
-  if (NULL == s->tt.data || 1 >= s->h || 1 >= s->w || 1 >= s->s) {
-    return 0;
-  }
-  
-  if (s==d) {
-    imclone2(s, imt);
-    s = imt;
-  }
-  bf_imsetsize(bf, d, th, tw, s->c, s->f);
-  for (i=0; i<s->f; ++i) {
-    const uchar* s1 = s->tt.data + i*s->h*s->s;
-    uchar* d1 = d->tt.data + i*d->h*d->s;
-    IMRESIZE(s->h, s->w, s1, s->s, s->c, d->h, d->w, d1, d->s, d->c, INTER_BILINEARITY);
-    //IMRESIZE_AREA(s->h, s->w, s1, s->s, d->h, d->w, d1, d->s, d->c);
-    //imresize_impl(s->h, s->w, s1, s->s, s->c, d->h, d->w, d1, d->s, d->c, CC_INTER_LINEAR);
-  }
-  imfree(imt);
   return 0;
 }
 #if 0
@@ -1683,7 +1642,7 @@ static int imflip_lr(img_t* im)
 // 
 static int imreplicate_border(const img_t* im, img_t* im2, IRECT rc)
 {
-  img_t im1[1] = {0};
+  img_t im1[1] _INIT0;
   if (im==im2) {
     imclone2(im, im1);
     im = im1;
@@ -1697,7 +1656,7 @@ static int imreplicate_border(const img_t* im, img_t* im2, IRECT rc)
 static img_t* im2gry(const img_t* im, img_t* gry)
 {
   if (im->c>=3) {
-    img_t im1[1] = {0};
+    img_t im1[1] _INIT0;
     if (gry==im) {
       imclone2(im, im1);
       im = im1;
@@ -1716,7 +1675,7 @@ static img_t* im2gry(const img_t* im, img_t* gry)
 }
 static int im2rgb(const img_t* gry, img_t* im, int cn)
 {
-  img_t im1[1] = {0};
+  img_t im1[1] _INIT0;
   if (gry==im) {
     imclone2(gry, im1);
     gry = im1;
@@ -1766,7 +1725,7 @@ static int imglut_u8(int h, int w, const uchar* A, int al, uchar* dst, int bl, c
 static int im2bw_adapt(const img_t* im, int thd, img_t* bw, int p0, int p1)
 {
   int i, j, ithd = thd;
-  uchar lut[256] = {0};
+  uchar lut[256] _INIT0;
   //bf_ imsetsize(bw, im->h, im->w, 1, 1);
 
   if (1) {
@@ -1798,11 +1757,11 @@ static int im2bw_adapt(const img_t* im, int thd, img_t* bw, int p0, int p1)
 static int im2bw_adapt1(const img_t* im, int thd, img_t* bw, int p0, int p1)
 {
   int i, j, ithd = thd;
-  uchar lut[256] = {0};
+  uchar lut[256] _INIT0;
   //bf_ imsetsize(bw, im->h, im->w, 1, 1);
 
   if (1) {
-    int cnt[256] = {0}, sumcnt = 0, tt = thd * im->h * im->w / 256;
+    int cnt[256] _INIT0, sumcnt = 0, tt = thd * im->h * im->w / 256;
 
     for (i = 0; i < im->h; ++i) {
       for (j = 0; j < im->w; ++j) {
@@ -1849,8 +1808,8 @@ static int im2avg_u8(const img_t* im)
 static int get_otsu_thd(const img_t* im)
 {
   int i, j, pixelSum = im->w * im->h, threshold = 0, dd = 0;
-  int pixelCount[256] = {0};
-  float pixelPro[256] = {0};
+  int pixelCount[256] _INIT0;
+  float pixelPro[256] _INIT0;
   float w0, w1, u0tmp, u1tmp, u0, u1, u, deltaTmp, deltaMax = 0;
 
   //Í³¼Æ»Ò¶È¼¶ÖÐÃ¿¸öÏñËØÔÚÕû·ùÍ¼ÏñÖÐµÄ¸öÊý
@@ -1946,8 +1905,8 @@ static int im2xor(img_t* im, int val, img_t* bw)
 #if 0
 static int test_imresize()
 {
-  img_t im[1] = {0};
-  img_t im2[5] = {0};
+  img_t im[1] _INIT0;
+  img_t im2[5] _INIT0;
   int i;
   _chdir("D:/pub/pic");
   imread("lena.BMP", 4, 1, im);
@@ -1986,7 +1945,7 @@ static int mat2gray_u8(img_t* im)
 
 static int in2double(const img_t* im, img_t* im2)
 {
-  img_t im3[1] = {0};
+  img_t im3[1] _INIT0;
   int i;
   double* dst;
   imsetsize(im3, im->h, im->w, sizeof(double), 1);
@@ -2038,7 +1997,7 @@ static int imcatv2(const img_t* im0, const img_t* im1, img_t* im) {
 static int imextend(img_t* im, int h, int w, int cn) {
   int i;
   if (im->h!=h || im->w!=w) {
-    img_t im2[1] = {0};
+    img_t im2[1] _INIT0;
     int f = MAX(im->f, 1);
     cn = MAX(cn, im->c);
     imsetsize(im2, h, w, cn, f);
@@ -2115,7 +2074,7 @@ static int imcat(int rows, int cols, const img_t* ims, img_t* im2)
 }
 //ºÏ²¢Í¨µÀ
 static int imcat3(const img_t* im1, const img_t* im2, img_t* im) {
-  img_t im0[1] = {0};
+  img_t im0[1] _INIT0;
   int i, j;
   ASSERT(im1->h==im2->h && im1->w==im2->w && im1->f==im2->f);
   imsetsize(im0, im1->h, im1->w, im1->c+im2->c, 1);
@@ -2224,7 +2183,7 @@ static int imsig_base(int h, int w, const uchar* A, int al, int ai, int n, uchar
 static int imsig_8x8(int h, int w, const uchar* A, int al, int ai, void* dst)
 {
   enum {N = 8};
-  uchar bbb[N * N] = {0};
+  uchar bbb[N * N] _INIT0;
   imsig_base(h, w, A, al, ai, N, bbb, dst);
   return 0;
 }
@@ -2232,7 +2191,7 @@ static int imsig_8x8(int h, int w, const uchar* A, int al, int ai, void* dst)
 static int imsig_16x16(int h, int w, const uchar* A, int al, int ai, uchar* dst)
 {
   enum {N = 16};
-  uchar bbb[N * N] = {0};
+  uchar bbb[N * N] _INIT0;
   imsig_base(h, w, A, al, ai, N, bbb, dst);
   return 0;
 }
@@ -2398,7 +2357,7 @@ if ((1==aw && ah==bh) || (1==ah && aw==bh)) { \
 } return 0;\
   } \
 static int name2(const img_t* A, const img_t* dst, img_t* C) { \
-  img_t im[1] = {0}, *C0 = C; \
+  img_t im[1] _INIT0, *C0 = C; \
   C = (A==C || dst==C) ? im : C; \
   ASSERT(A->c==dst->c && A->c==sizeof(double)); \
   imsetsize(C, MAX(A->h, dst->h), MAX(A->w, dst->w), sizeof(double), 1); \
@@ -2549,7 +2508,7 @@ static int mat_meanstd_f8(int h, int w, const double* A, int al, OptMode mode, d
 }
 static int imsum_f8(const img_t* im, OptMode mode, img_t* sum) {
   int n = 1;
-  img_t im1[1] = {0};
+  img_t im1[1] _INIT0;
   if (im==sum) {
     imclone2(im, im1);
     im = im1;
@@ -2563,7 +2522,7 @@ static int imsum_f8(const img_t* im, OptMode mode, img_t* sum) {
 }
 static int immean_f8(const img_t* im, OptMode mode, img_t* mu) {
   int n = 1;
-  img_t im1[1] = {0};
+  img_t im1[1] _INIT0;
   if (im==mu) {
     imclone2(im, im1);
     im = im1;
@@ -2579,7 +2538,7 @@ static int immean_f8(const img_t* im, OptMode mode, img_t* mu) {
 // flag = 1 : s = sum(x-mu)/(n-n)
 static int immeanstd_f8(const img_t* im, int flag, OptMode mode, img_t* mu, img_t* st) {
   int n = 1;
-  img_t im1[2] = {0};
+  img_t im1[2] _INIT0;
   if (NULL==st) {
     return immean_f8(im, mode, mu);
   }
@@ -2762,7 +2721,7 @@ static int imhisteq(const img_t* im, img_t* im2) {
 static int imgauss(const img_t* im, img_t* im2, double delta) {
   //imsetsize();
   //SKIP_FILTER_RC( h, w, xx0, xxl, 1, xx, w, 1, 3, 3, zz, GAUSS_I7X7, GAUSS_I7X7 );
-  img_t im1[1] = {0};
+  img_t im1[1] _INIT0;
   if (im==im2) {
     imclone2(im, im1);
     im = im1;
@@ -2780,7 +2739,7 @@ static int imgauss(const img_t* im, img_t* im2, double delta) {
 static int pic2ascii(int h, int w, const uchar* img, int imgstep, int cn, char* out) {
   static const char* pic2ascii_chs = "   ...',;:clodxkO0KXNWMMMM";
   int x, y, k=cn/2;
-  static char pic2ascii_map[256] = {0};
+  static char pic2ascii_map[256] _INIT0;
   static size_t pic2ascii_len = 0;
   char* out1 = out;
   if (0==pic2ascii_len) {
@@ -2804,7 +2763,7 @@ static int pic2ascii(int h, int w, const uchar* img, int imgstep, int cn, char* 
 #if 0
 //#include "str.h"
 static int img2str(const img_t* im, int maxw, str_t* s) {
-  img_t im1[1] = {0};
+  img_t im1[1] _INIT0;
   if (1) {
     int w = MIN(maxw, im->w);
     int h = im->h*w/(im->w*2);
@@ -2817,7 +2776,7 @@ static int img2str(const img_t* im, int maxw, str_t* s) {
   return s->l;
 }
 static int imgprint(const img_t* im) {
-  str_t s[1] = {0};
+  str_t s[1] _INIT0;
   img2str(im, 79, s);
   puts(s->s);
   str_free(s);

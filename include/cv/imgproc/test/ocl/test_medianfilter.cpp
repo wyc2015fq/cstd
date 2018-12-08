@@ -46,7 +46,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 /////////////////////////////////////////////medianFilter//////////////////////////////////////////////////////////
@@ -62,14 +62,14 @@ PARAM_TEST_CASE(MedianFilter, MatDepth, Channels, int, bool)
 
     virtual void SetUp()
     {
-        type = CC_MAKE_TYPE(GET_PARAM(0), GET_PARAM(1));
+        type = CV_MAKE_TYPE(GET_PARAM(0), GET_PARAM(1));
         ksize = GET_PARAM(2);
         use_roi = GET_PARAM(3);
     }
 
     void generateTestData()
     {
-        CvSize roiSize = randomSize(1, MAX_VALUE);
+        Size roiSize = randomSize(1, MAX_VALUE);
         Border srcBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
         randomSubMat(src, src_roi, roiSize, srcBorder, type, -MAX_VALUE, MAX_VALUE);
 
@@ -87,25 +87,25 @@ PARAM_TEST_CASE(MedianFilter, MatDepth, Channels, int, bool)
     }
 };
 
-OCL_TEST_P(MedianFilter, CvMat)
+OCL_TEST_P(MedianFilter, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
         generateTestData();
 
-        OCL_OFF(medianBlur(src_roi, dst_roi, ksize));
-        OCL_ON(medianBlur(usrc_roi, udst_roi, ksize));
+        OCL_OFF(cv::medianBlur(src_roi, dst_roi, ksize));
+        OCL_ON(cv::medianBlur(usrc_roi, udst_roi, ksize));
 
         Near(0);
     }
 }
 
 OCL_INSTANTIATE_TEST_CASE_P(ImageProc, MedianFilter, Combine(
-                                Values(CC_8U, CC_16U, CC_16S, CC_32F),
+                                Values(CV_8U, CV_16U, CV_16S, CV_32F),
                                 OCL_ALL_CHANNELS,
                                 Values(3, 5),
                                 Bool())
                            );
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif

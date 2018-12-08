@@ -268,7 +268,7 @@ CC_INLINE int bmp_load_file_close(FILE* pf, int cn_req, img_t* im, int* pbpp, uc
   int ret = 0;
 
   if (pf) {
-    stream_t s[1] = {0};
+    stream_t s[1] _INIT0;
     fstream_init(s, pf);
     ret = bmp_load(s, cn_req, im, pbpp, palette);
     fclose(pf);
@@ -283,7 +283,7 @@ CC_INLINE int bmp_save_file_close(FILE* pf, int height, int width, const uchar* 
   int ret = 0;
 
   if (pf) {
-    stream_t s[1] = {0};
+    stream_t s[1] _INIT0;
     fstream_init(s, pf);
     ret = bmp_save(s, height, width, data, step, channels, palette);
     fclose(pf);
@@ -843,7 +843,7 @@ static int jpg_save(stream_t* s, int im_h, int im_w, const uchar* im_data, int i
   uint8* g_R, *g_G, *g_B;
   uint8* g_Y, *g_Cr, *g_Cb;
   int rw = im_w % 16, rh = im_h % 16;
-  jpg_writer_t writer[1] = {0};
+  jpg_writer_t writer[1] _INIT0;
   static int inited = 0;
   static uint32 g_lumDCHuffCode[256], g_lumACHuffCode[256];
   static uint8 g_lumDCHuffSize[256], g_lumACHuffSize[256];
@@ -886,7 +886,7 @@ static int jpg_save(stream_t* s, int im_h, int im_w, const uchar* im_data, int i
     int npix = width * height;
     step = width;
     step2 = width >> 1;
-    MYREALLOC(g_R, npix * 5);
+    MYMALLOC(g_R, npix * 5);
     g_G = g_R + npix;
     g_B = g_R + npix * 2;
     g_Y = g_R + npix * 3;
@@ -1016,7 +1016,7 @@ static int jpg_save_file_close(FILE* pf, int height, int width, const uchar* dat
   int ret = 0;
 
   if (pf) {
-    stream_t s[1] = {0};
+    stream_t s[1] _INIT0;
     fstream_init(s, pf);
     ret = jpg_save(s, height, width, data, step, channels, QValue);
     fclose(pf);
@@ -1056,7 +1056,7 @@ CC_INLINE int xpm_load_file_close(FILE* pf, int cn_req, img_t* im, int* pbpp, uc
   int ret = 0;
   
   if (pf) {
-    stream_t s[1] = {0};
+    stream_t s[1] _INIT0;
     fstream_init(s, pf);
     ret = xpm_load(s, cn_req, im, pbpp, palette);
     fclose(pf);
@@ -1071,7 +1071,7 @@ CC_INLINE int xpm_save_file_close(FILE* pf, const img_t* im, const char* name, c
   int ret = 0;
 
   if (pf) {
-    stream_t s[1] = {0};
+    stream_t s[1] _INIT0;
     fstream_init(s, pf);
     ret = xpm_save(s, im, name, palette);
     fclose(pf);
@@ -1085,7 +1085,7 @@ CC_INLINE int xpm_save_file_close(FILE* pf, const img_t* im, const char* name, c
 
 static int test_jpg()
 {
-  img_t im[1] = {0};
+  img_t im[1] _INIT0;
   int i;
 
   for (i = 0; i < 30; ++i) {
@@ -1126,7 +1126,7 @@ static int test_jpg()
 
 static int test_gif()
 {
-  img_t im[1] = {0};
+  img_t im[1] _INIT0;
   int i;
 
   for (i = 0; i < 30; ++i) {
@@ -1157,7 +1157,7 @@ static int test_gif()
 
 static int test_png()
 {
-  img_t im[1] = {0};
+  img_t im[1] _INIT0;
   int i;
 
   for (i = 0; i < 30; ++i) {
@@ -1212,7 +1212,7 @@ static img_t* imload_file_close(FILE* pf, int cn_req, img_t* im)
   img_t* ret = 0;
 
   if (pf) {
-    stream_t s[1] = {0};
+    stream_t s[1] _INIT0;
     fstream_init(s, pf);
     ret = imload_stream(s, cn_req, im);
     fclose(pf);
@@ -1230,7 +1230,7 @@ static img_t* imload_mem(void* buf, int len, int cn_req, img_t* im)
   img_t* ret = 0;
   
   if (buf) {
-    stream_t s[1] = {0};
+    stream_t s[1] _INIT0;
     memstream_init(s, buf, len);
     ret = imload_stream(s, cn_req, im);
   }
@@ -1240,8 +1240,8 @@ static img_t* imload_mem(void* buf, int len, int cn_req, img_t* im)
 #if 0
 static int imfile_to_inlfile(const char* imfile, const char* inlfile, uchar* map1)
 {
-  img_t im[1] = {0};
-  img_t im1[1] = {0};
+  img_t im[1] _INIT0;
+  img_t im1[1] _INIT0;
   imload_filename(imfile, 0, im);
   imto1(im, im1, map1);
   savedata_inl(inlfile, im1->tt.data, im1->h * im1->s);
@@ -1249,7 +1249,7 @@ static int imfile_to_inlfile(const char* imfile, const char* inlfile, uchar* map
 }
 static int test_imfile_to_inlfile()
 {
-  uchar map[256] = {0};
+  uchar map[256] _INIT0;
   map[0] = 1;
   imfile_to_inlfile("D:/code/c/GUI/bcgsoft/BCG/BCGCBPro/res/menuimg-pro.bmp", "menuimg_9x324.inl", map);
   return 0;
@@ -1259,7 +1259,7 @@ static int test_imfile_to_inlfile()
 static int imlist_trans(const img_t* im, img_t* im2, int w)
 {
   int i, j, n = im->w / w;
-  img_t im1[1] = {0};
+  img_t im1[1] _INIT0;
   im = (im==im2) ? (imclone2(im, im1), im1) : im;
   imsetsize(im2, im->h, w, im->c, n);
 
@@ -1294,7 +1294,7 @@ static int imload_imagelist1(const char* pstrText, int req_cn, img_t* im, COLOR 
 static int imload_images(img_t* im, int n, const char** pstrText, COLOR transparent_color)
 {
   int i, ret = 0;
-  img_t im2[1] = {0};
+  img_t im2[1] _INIT0;
   imload_filename(pstrText[0], 4, im2);
   imsettranscolor(im2, transparent_color);
   imsetsize(im, im2->h, im2->w, 4, n);
@@ -1313,7 +1313,7 @@ static int imload_images(img_t* im, int n, const char** pstrText, COLOR transpar
 static int imload_images2(img_t* im, int cn_req, int n, const str_t* pstrText, COLOR transparent_color)
 {
   int i, ret = 0;
-  img_t im2[1] = {0};
+  img_t im2[1] _INIT0;
   imload_filename(pstrText[0].s, cn_req, im2);
   imsettranscolor(im2, transparent_color);
   imsetsize(im, im2->h, im2->w, cn_req, n);
@@ -1344,7 +1344,7 @@ static int test_stbi()
 
   {
     const char* path = "E:/pub/bin/face/bin/20151123-20151126¶þÓ××Ü/1103_0F0086_20151124170536294.algo.bmp";
-    img_t im[1] = {0};
+    img_t im[1] _INIT0;
     imread(path, 3, 1, im);
     imshow(im);
     //cvShowMat("asdf", "");
@@ -1356,7 +1356,7 @@ static int test_stbi()
 
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
 //#include "stb/stb_image_write.inl"
-#define IMWRITE(NAME, h, w, p, s, c)  {img_t im[1] = {0};IMINIT(im, h, w, p, s, c, 1); imwrite(NAME, im);}
+#define IMWRITE(NAME, h, w, p, s, c)  {img_t im[1] _INIT0;IMINIT(im, h, w, p, s, c, 1); imwrite(NAME, im);}
 
 static int imsave_stream(stream_t* s, const char* ext, int height, int width, const uchar* data, int step, int channels) {
   int ret = 0;
@@ -1386,7 +1386,7 @@ static int imsave(const char* filename, int height, int width, const uchar* data
   if (dotext) {
     FILE* pf = fopen(filename, "wb");
     if (pf) {
-      stream_t s[1] = {0};
+      stream_t s[1] _INIT0;
       fstream_init(s, pf);
       ret = imsave_stream(s, dotext+1, height, width, data, step, channels);
       fclose(pf);
@@ -1395,7 +1395,7 @@ static int imsave(const char* filename, int height, int width, const uchar* data
   return ret;
 }
 static int imsave_mem(void* buf, int len, const char* ext, int height, int width, const uchar* data, int step, int channels) {
-  stream_t s[1] = {0};
+  stream_t s[1] _INIT0;
   //int ret = 0;
   memstream_init(s, buf, len);
   imsave_stream(s, ext, height, width, data, step, channels);
@@ -1432,7 +1432,7 @@ static int imsavetxt(const char* filename, const img_t* im, const char* fmt) {
 
 static int imwrite4(const char* filename, int h, int w, const unsigned char* data, int step, int cn)
 {
-  img_t im[1] = {0};
+  img_t im[1] _INIT0;
   IMINIT(im, h, w, data, step, cn, 1);
   imwrite(filename, im);
   return 0;

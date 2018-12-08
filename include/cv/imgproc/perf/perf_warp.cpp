@@ -1,24 +1,22 @@
+// This file is part of OpenCV project.
+// It is subject to the license terms in the LICENSE file found in the top-level directory
+// of this distribution and at http://opencv.org/license.html.
 #include "perf_precomp.hpp"
 
-using namespace std;
-using namespace cv;
-using namespace perf;
-using namespace testing;
-using std::tr1::make_tuple;
-using std::tr1::get;
+namespace opencv_test {
 
 enum{HALF_SIZE=0, UPSIDE_DOWN, REFLECTION_X, REFLECTION_BOTH};
 
-CC_ENUM(BorderMode, BORDER_CONSTANT, BORDER_REPLICATE)
-CC_ENUM(InterType, INTER_NEAREST, INTER_LINEAR)
-CC_ENUM(RemapMode, HALF_SIZE, UPSIDE_DOWN, REFLECTION_X, REFLECTION_BOTH)
+CV_ENUM(BorderMode, BORDER_CONSTANT, BORDER_REPLICATE)
+CV_ENUM(InterType, INTER_NEAREST, INTER_LINEAR)
+CV_ENUM(RemapMode, HALF_SIZE, UPSIDE_DOWN, REFLECTION_X, REFLECTION_BOTH)
 
-typedef TestBaseWithParam< tr1::tuple<CvSize, InterType, BorderMode> > TestWarpAffine;
-typedef TestBaseWithParam< tr1::tuple<CvSize, InterType, BorderMode> > TestWarpPerspective;
-typedef TestBaseWithParam< tr1::tuple<CvSize, InterType, BorderMode, MatType> > TestWarpPerspectiveNear_t;
-typedef TestBaseWithParam< tr1::tuple<MatType, CvSize, InterType, BorderMode, RemapMode> > TestRemap;
+typedef TestBaseWithParam< tuple<Size, InterType, BorderMode> > TestWarpAffine;
+typedef TestBaseWithParam< tuple<Size, InterType, BorderMode> > TestWarpPerspective;
+typedef TestBaseWithParam< tuple<Size, InterType, BorderMode, MatType> > TestWarpPerspectiveNear_t;
+typedef TestBaseWithParam< tuple<MatType, Size, InterType, BorderMode, RemapMode> > TestRemap;
 
-void update_map(const CvMat& src, CvMat& map_x, CvMat& map_y, const int remapMode );
+void update_map(const Mat& src, Mat& map_x, Mat& map_y, const int remapMode );
 
 PERF_TEST_P( TestWarpAffine, WarpAffine,
              Combine(
@@ -28,23 +26,53 @@ PERF_TEST_P( TestWarpAffine, WarpAffine,
              )
 )
 {
-    CvSize sz, szSrc(512, 512);
+    Size sz, szSrc(512, 512);
     int borderMode, interType;
     sz         = get<0>(GetParam());
     interType  = get<1>(GetParam());
     borderMode = get<2>(GetParam());
     Scalar borderColor = Scalar::all(150);
 
-    CvMat src(szSrc,CC_8UC4), dst(sz, CC_8UC4);
+    Mat src(szSrc,CV_8UC4), dst(sz, CV_8UC4);
     cvtest::fillGradient(src);
     if(borderMode == BORDER_CONSTANT) cvtest::smoothBorder(src, borderColor, 1);
-    CvMat warpMat = getRotationMatrix2D(Point2f(src.cols/2.f, src.rows/2.f), 30., 2.2);
+    Mat warpMat = getRotationMatrix2D(Point2f(src.cols/2.f, src.rows/2.f), 30., 2.2);
     declare.in(src).out(dst);
 
     TEST_CYCLE() warpAffine( src, dst, warpMat, sz, interType, borderMode, borderColor );
 
-#ifdef ANDROID
+#ifdef __ANDROID__
     SANITY_CHECK(dst, interType==INTER_LINEAR? 5 : 10);
+#else
+    SANITY_CHECK(dst, 1);
+#endif
+}
+
+PERF_TEST_P(TestWarpAffine, WarpAffine_ovx,
+    Combine(
+        Values(szVGA, sz720p, sz1080p),
+        InterType::all(),
+        BorderMode::all()
+    )
+)
+{
+    Size sz, szSrc(512, 512);
+    int borderMode, interType;
+    sz = get<0>(GetParam());
+    interType = get<1>(GetParam());
+    borderMode = get<2>(GetParam());
+    Scalar borderColor = Scalar::all(150);
+
+    Mat src(szSrc, CV_8UC1), dst(sz, CV_8UC1);
+    cvtest::fillGradient(src);
+    if (borderMode == BORDER_CONSTANT) cvtest::smoothBorder(src, borderColor, 1);
+    Mat warpMat = getRotationMatrix2D(Point2f(src.cols / 2.f, src.rows / 2.f), 30., 2.2);
+    declare.in(src).out(dst);
+
+    TEST_CYCLE() warpAffine(src, dst, warpMat, sz, interType, borderMode, borderColor);
+
+#ifdef __ANDROID__
+    SANITY_CHECK(dst, interType == INTER_LINEAR ? 5 : 10);
 #else
     SANITY_CHECK(dst, 1);
 #endif
@@ -58,18 +86,18 @@ PERF_TEST_P( TestWarpPerspective, WarpPerspective,
              )
 )
 {
-    CvSize sz, szSrc(512, 512);
+    Size sz, szSrc(512, 512);
     int borderMode, interType;
     sz         = get<0>(GetParam());
     interType  = get<1>(GetParam());
     borderMode = get<2>(GetParam());
     Scalar borderColor = Scalar::all(150);
 
-    CvMat src(szSrc,CC_8UC4), dst(sz, CC_8UC4);
+    Mat src(szSrc,CV_8UC4), dst(sz, CV_8UC4);
     cvtest::fillGradient(src);
     if(borderMode == BORDER_CONSTANT) cvtest::smoothBorder(src, borderColor, 1);
-    CvMat rotMat = getRotationMatrix2D(Point2f(src.cols/2.f, src.rows/2.f), 30., 2.2);
-    CvMat warpMat(3, 3, CC_64FC1);
+    Mat rotMat = getRotationMatrix2D(Point2f(src.cols/2.f, src.rows/2.f), 30., 2.2);
+    Mat warpMat(3, 3, CV_64FC1);
     for(int r=0; r<2; r++)
         for(int c=0; c<3; c++)
             warpMat.at<double>(r, c) = rotMat.at<double>(r, c);
@@ -81,8 +109,46 @@ PERF_TEST_P( TestWarpPerspective, WarpPerspective,
 
     TEST_CYCLE() warpPerspective( src, dst, warpMat, sz, interType, borderMode, borderColor );
 
-#ifdef ANDROID
+#ifdef __ANDROID__
     SANITY_CHECK(dst, interType==INTER_LINEAR? 5 : 10);
+#else
+    SANITY_CHECK(dst, 1);
+#endif
+}
+
+PERF_TEST_P(TestWarpPerspective, WarpPerspective_ovx,
+    Combine(
+        Values(szVGA, sz720p, sz1080p),
+        InterType::all(),
+        BorderMode::all()
+    )
+)
+{
+    Size sz, szSrc(512, 512);
+    int borderMode, interType;
+    sz = get<0>(GetParam());
+    interType = get<1>(GetParam());
+    borderMode = get<2>(GetParam());
+    Scalar borderColor = Scalar::all(150);
+
+    Mat src(szSrc, CV_8UC1), dst(sz, CV_8UC1);
+    cvtest::fillGradient(src);
+    if (borderMode == BORDER_CONSTANT) cvtest::smoothBorder(src, borderColor, 1);
+    Mat rotMat = getRotationMatrix2D(Point2f(src.cols / 2.f, src.rows / 2.f), 30., 2.2);
+    Mat warpMat(3, 3, CV_64FC1);
+    for (int r = 0; r<2; r++)
+        for (int c = 0; c<3; c++)
+            warpMat.at<double>(r, c) = rotMat.at<double>(r, c);
+    warpMat.at<double>(2, 0) = .3 / sz.width;
+    warpMat.at<double>(2, 1) = .3 / sz.height;
+    warpMat.at<double>(2, 2) = 1;
+
+    declare.in(src).out(dst);
+
+    TEST_CYCLE() warpPerspective(src, dst, warpMat, sz, interType, borderMode, borderColor);
+
+#ifdef __ANDROID__
+    SANITY_CHECK(dst, interType == INTER_LINEAR ? 5 : 10);
 #else
     SANITY_CHECK(dst, 1);
 #endif
@@ -90,14 +156,14 @@ PERF_TEST_P( TestWarpPerspective, WarpPerspective,
 
 PERF_TEST_P( TestWarpPerspectiveNear_t, WarpPerspectiveNear,
              Combine(
-                 Values( CvSize(640,480), CvSize(1920,1080), CvSize(2592,1944) ),
+                 Values( Size(640,480), Size(1920,1080), Size(2592,1944) ),
                  InterType::all(),
                  BorderMode::all(),
-                 Values( CC_8UC1, CC_8UC4 )
+                 Values( CV_8UC1, CV_8UC4 )
                  )
              )
 {
-    CvSize size;
+    Size size;
     int borderMode, interType, type;
     size       = get<0>(GetParam());
     interType  = get<1>(GetParam());
@@ -105,19 +171,19 @@ PERF_TEST_P( TestWarpPerspectiveNear_t, WarpPerspectiveNear,
     type       = get<3>(GetParam());
     Scalar borderColor = Scalar::all(150);
 
-    CvMat src(size, type), dst(size, type);
+    Mat src(size, type), dst(size, type);
     cvtest::fillGradient(src);
     if(borderMode == BORDER_CONSTANT) cvtest::smoothBorder(src, borderColor, 1);
     int shift = static_cast<int>(src.cols*0.04);
-    CvMat srcVertices = (Mat_<Vec2f>(1, 4) << Vec2f(0, 0),
+    Mat srcVertices = (Mat_<Vec2f>(1, 4) << Vec2f(0, 0),
                                             Vec2f(static_cast<float>(size.width-1), 0),
                                             Vec2f(static_cast<float>(size.width-1), static_cast<float>(size.height-1)),
                                             Vec2f(0, static_cast<float>(size.height-1)));
-    CvMat dstVertices = (Mat_<Vec2f>(1, 4) << Vec2f(0, static_cast<float>(shift)),
+    Mat dstVertices = (Mat_<Vec2f>(1, 4) << Vec2f(0, static_cast<float>(shift)),
                                             Vec2f(static_cast<float>(size.width-shift/2), 0),
                                             Vec2f(static_cast<float>(size.width-shift), static_cast<float>(size.height-shift)),
                                             Vec2f(static_cast<float>(shift/2), static_cast<float>(size.height-1)));
-    CvMat warpMat = getPerspectiveTransform(srcVertices, dstVertices);
+    Mat warpMat = getPerspectiveTransform(srcVertices, dstVertices);
 
     declare.in(src).out(dst);
     declare.time(100);
@@ -127,7 +193,7 @@ PERF_TEST_P( TestWarpPerspectiveNear_t, WarpPerspectiveNear,
         warpPerspective( src, dst, warpMat, size, interType, borderMode, borderColor );
     }
 
-#ifdef ANDROID
+#ifdef __ANDROID__
     SANITY_CHECK(dst, interType==INTER_LINEAR? 5 : 10);
 #else
     SANITY_CHECK(dst, 1);
@@ -145,16 +211,16 @@ PERF_TEST_P( TestRemap, remap,
              )
 {
     int type = get<0>(GetParam());
-    CvSize size = get<1>(GetParam());
+    Size size = get<1>(GetParam());
     int interpolationType = get<2>(GetParam());
     int borderMode = get<3>(GetParam());
     int remapMode = get<4>(GetParam());
     unsigned int height = size.height;
     unsigned int width = size.width;
-    CvMat source(height, width, type);
-    CvMat destination;
-    CvMat map_x(height, width, CC_32F);
-    CvMat map_y(height, width, CC_32F);
+    Mat source(height, width, type);
+    Mat destination;
+    Mat map_x(height, width, CV_32F);
+    Mat map_y(height, width, CV_32F);
 
     declare.in(source, WARMUP_RNG);
 
@@ -168,7 +234,7 @@ PERF_TEST_P( TestRemap, remap,
     SANITY_CHECK(destination, 1);
 }
 
-void update_map(const CvMat& src, CvMat& map_x, CvMat& map_y, const int remapMode )
+void update_map(const Mat& src, Mat& map_x, Mat& map_y, const int remapMode )
 {
     for( int j = 0; j < src.rows; j++ )
     {
@@ -208,9 +274,9 @@ void update_map(const CvMat& src, CvMat& map_x, CvMat& map_y, const int remapMod
 PERF_TEST(Transform, getPerspectiveTransform)
 {
     unsigned int size = 8;
-    CvMat source(1, size/2, CC_32FC2);
-    CvMat destination(1, size/2, CC_32FC2);
-    CvMat transformCoefficient;
+    Mat source(1, size/2, CV_32FC2);
+    Mat destination(1, size/2, CV_32FC2);
+    Mat transformCoefficient;
 
     declare.in(source, destination, WARMUP_RNG);
 
@@ -221,3 +287,5 @@ PERF_TEST(Transform, getPerspectiveTransform)
 
     SANITY_CHECK(transformCoefficient, 1e-5);
 }
+
+} // namespace

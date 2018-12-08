@@ -46,7 +46,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,12 +57,12 @@ PARAM_TEST_CASE(Filter2D, MatDepth, Channels, int, int, BorderType, bool, bool)
     static const int kernelMaxSize = 10;
 
     int type;
-    CvSize size;
+    Size size;
     Point anchor;
     int borderType;
     int widthMultiple;
     bool useRoi;
-    CvMat kernel;
+    Mat kernel;
     double delta;
 
     TEST_DECLARE_INPUT_PARAMETER(src);
@@ -70,13 +70,13 @@ PARAM_TEST_CASE(Filter2D, MatDepth, Channels, int, int, BorderType, bool, bool)
 
     virtual void SetUp()
     {
-        type = CC_MAKE_TYPE(GET_PARAM(0), GET_PARAM(1));
-        CvSize ksize(GET_PARAM(2), GET_PARAM(2));
+        type = CV_MAKE_TYPE(GET_PARAM(0), GET_PARAM(1));
+        Size ksize(GET_PARAM(2), GET_PARAM(2));
         widthMultiple = GET_PARAM(3);
         borderType = GET_PARAM(4) | (GET_PARAM(5) ? BORDER_ISOLATED : 0);
         useRoi = GET_PARAM(6);
-        CvMat temp = randomMat(ksize, CC_MAKE_TYPE(((CC_64F == CC_MAT_DEPTH(type)) ? CC_64F : CC_32F), 1), -MAX_VALUE, MAX_VALUE);
-        normalize(temp, kernel, 1.0, 0.0, NORM_L1);
+        Mat temp = randomMat(ksize, CV_MAKE_TYPE(((CV_64F == CV_MAT_DEPTH(type)) ? CV_64F : CV_32F), 1), -MAX_VALUE, MAX_VALUE);
+        cv::normalize(temp, kernel, 1.0, 0.0, NORM_L1);
     }
 
     void random_roi()
@@ -108,14 +108,14 @@ PARAM_TEST_CASE(Filter2D, MatDepth, Channels, int, int, BorderType, bool, bool)
     }
 };
 
-OCL_TEST_P(Filter2D, CvMat)
+OCL_TEST_P(Filter2D, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
         random_roi();
 
-        OCL_OFF(filter2D(src_roi, dst_roi, -1, kernel, anchor, delta, borderType));
-        OCL_ON(filter2D(usrc_roi, udst_roi, -1, kernel, anchor, delta, borderType));
+        OCL_OFF(cv::filter2D(src_roi, dst_roi, -1, kernel, anchor, delta, borderType));
+        OCL_ON(cv::filter2D(usrc_roi, udst_roi, -1, kernel, anchor, delta, borderType));
 
         Near(1.0);
     }
@@ -123,10 +123,10 @@ OCL_TEST_P(Filter2D, CvMat)
 
 OCL_INSTANTIATE_TEST_CASE_P(ImageProc, Filter2D,
                             Combine(
-                                Values(CC_8U, CC_16U, CC_32F),
+                                Values(CV_8U, CV_16U, CV_32F),
                                 OCL_ALL_CHANNELS,
                                 Values(3, 5, 7),  // Kernel size
-                                Values(1, 4, 8),   // Width mutiple
+                                Values(1, 4, 8),   // Width multiple
                                 Values((BorderType)BORDER_CONSTANT,
                                        (BorderType)BORDER_REPLICATE,
                                        (BorderType)BORDER_REFLECT,
@@ -137,6 +137,6 @@ OCL_INSTANTIATE_TEST_CASE_P(ImageProc, Filter2D,
                            );
 
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

@@ -1,4 +1,7 @@
 
+#ifndef _ALGO_H_
+#define _ALGO_H_
+
 #define CC_INLINE static
 #define CC_DEFAULT(x) 
 
@@ -571,26 +574,6 @@ enum {
   CC_SCHARR = -1,
   CC_MAX_SOBEL_KSIZE = 7
 };
-/* Sub-pixel interpolation methods */
-enum InterpolationFlags {
-  CC_INTER_NN = 0,
-  CC_INTER_NEAREST = 0,
-  CC_INTER_LINEAR = 1,
-  CC_INTER_CUBIC = 2,
-  CC_INTER_AREA = 3,
-  CC_INTER_LANCZOS4 = 4,
-  CC_INTER_DOWN,
-  CC_INTER_MAX = 7,
-  CC_WARP_FILL_OUTLIERS = 8,
-  CC_WARP_INVERSE_MAP = 16,
-};
-enum InterpolationMasks {
-  CC_INTER_BITS = 5,
-  CC_INTER_BITS2 = CC_INTER_BITS * 2,
-  CC_INTER_TAB_SIZE = 1 << CC_INTER_BITS,
-  CC_INTER_TAB_SIZE2 = CC_INTER_TAB_SIZE * CC_INTER_TAB_SIZE
-};
-
 /* Shapes of a structuring element for morphological operations */
 enum {
   CC_SHAPE_RECT = 0,
@@ -671,11 +654,6 @@ enum {
   CC_CONTOURS_MATCH_I1 = 1,
   CC_CONTOURS_MATCH_I2 = 2,
   CC_CONTOURS_MATCH_I3 = 3
-};
-/* Shape orientation */
-enum {
-  CC_CLOCKWISE = 1,
-  CC_COUNTER_CLOCKWISE = 2
 };
 /* Histogram comparison methods */
 enum {
@@ -772,51 +750,8 @@ struct CvLSHOperations;
       cosv = (x1*x2+y1*y2)/d; \
     } \
   } while(0)
-typedef struct MATRIX3X2 {
-  int a, b, c, d, e, f;
-}
-MATRIX3X2;
-#define MAKE_MATRIX3X2(m, A, B, C, D, E, F) \
-  (  m.a=(int)(A), m.b=(int)(B), m.c=(int)(C), m.d=(int)(D), m.e=(int)(E), m.f=(int)(F)  )
-#define MAKE_MATRIX3X2_TOINT(m, A, B, C, D, E, F) \
-  m.a=_SHIFT_TOINT(A), m.b=_SHIFT_TOINT(B), m.c=_SHIFT_TOINT(C), m.d=_SHIFT_TOINT(D), m.e=_SHIFT_TOINT(E), m.f=_SHIFT_TOINT(F)
-// |out_x|   |a c e|   |x|
-// |out_y| = |b d f| * |y|
-// |     |   |0 0 0|   |1|
-#define MATRIX3X2_MUL_POINT(m, x, y, out_x, out_y)  out_x=m.a*(x)+m.c*(y)+m.e, out_y=m.b*(x)+m.d*(y)+m.f
-//m=x*y
-// |a c e|   |y.a y.c y.e|   |x.a x.c x.e|   | (a1*a2+c1*b2) ()
-// |b d f| = |y.b y.d y.f| * |x.b x.d x.f| = |
-// |0 0 0|   |y.0 y.0 y.0|   |x.0 x.0 x.0|   |
-#define MATRIX3X2_MUL_MATRIX3X2(m, x, y)  MAKE_MATRIX3X2(m, \
-    (int)_SHIFT_TOFLOAT((double)x.a * y.a + (double)x.b * y.c      ), \
-    (int)_SHIFT_TOFLOAT((double)x.a * y.b + (double)x.b * y.d      ), \
-    (int)_SHIFT_TOFLOAT((double)x.c * y.a + (double)x.d * y.c      ), \
-    (int)_SHIFT_TOFLOAT((double)x.c * y.b + (double)x.d * y.d      ), \
-    (int)_SHIFT_TOFLOAT((double)x.e * y.a + (double)x.f * y.c + y.e), \
-    (int)_SHIFT_TOFLOAT((double)x.e * y.b + (double)x.f * y.d + y.f) )
-//x*=y
-#define MATRIX3X2_MUL(x, y) do { MATRIX3X2 _m; MATRIX3X2_MUL_MATRIX3X2(_m, x, y); x=_m; } while(0)
-#define MATRIX3X2_GET_TRANSLATE(m, x, y)     MAKE_MATRIX3X2(m,1,0,0,1,x,y)
-#define MATRIX3X2_GET_SCALE(m1, s, x, y)     MAKE_MATRIX3X2(m1,s,0,0,s, (s)*(x), (s)*(y) )
-#define MATRIX3X2_INIT(m)  MAKE_MATRIX3X2(m, _SHIFT1,0,0,_SHIFT1,0,0)
-#define MATRIX3X2_MOVE(m, x, y)  (m.e-=_SHIFT_TOINT(x), m.f-=_SHIFT_TOINT(y))
-#define MATRIX3X2_ROTATE(m, rads)  {\
-    int c=_SHIFT_TOINT(cos(rads)), s=_SHIFT_TOINT(sin(rads)); \
-    MATRIX3X2 _x; MAKE_MATRIX3X2(_x, c,s,-s,c, 0, 0); MATRIX3X2_MUL(m, _x); }
-// | c, s|
-// |-s, c|
-// | 0, 0|
-#define MATRIX3X2_GET_ROTATE(m, rads, x, y) do { \
-    int c=_SHIFT_TOINT(cos(rads)), s=_SHIFT_TOINT(sin(rads)); \
-    MAKE_MATRIX3X2(m, c,s,-s,c,-(y)*c+(x)*s+x,-(y)*s+(x)*c+y); \
-  } while(0)
-#define MATRIX3X2_GET_ROTATE(m, rads, x, y) do { \
-    int c=_SHIFT_TOINT(cos(rads)), s=_SHIFT_TOINT(sin(rads)); \
-    MAKE_MATRIX3X2(m, c,s,-s,c,-(y)*c+(x)*s+x,-(y)*s+(x)*c+y); \
-  } while(0)
-#define MATRIX3X2_GET_STD_TOINT(m, c, s, s1, s2) \
-  MAKE_MATRIX3X2_TOINT(m, c, -s, s, c, ((-s2.x*(c) - s2.y*(s))+s1.x), ((s2.x*(s) - s2.y*(c))+s1.y));
+
+
 #define CC_AUTOSTEP      -1
 /**************** matrix iterator: used for n-ary operations on dense arrays *********/
 #define CC_MAX_ARR 10
@@ -1998,7 +1933,7 @@ void Hsv2Rgb(float H, float S, float V, float& R, float& G, float& B)
 //#define cast_macro(a)       (a)
 #define CC_NOP(a)           (a)
 #define DESCALE(x,n)  (((x) + (1 << ((n)-1))) >> (n))
-#define descale DESCALE
+//#define descale DESCALE
 //   Various 3/4-channel to 3/4-channel RGB transformations                 *
 #define BGRx2BGR(src, dst, blue_idx) \
   do { \
@@ -3037,3 +2972,5 @@ CC_INLINE int file_putline(const char* fn, const char* str) {
   }
   return 0;
 }
+
+#endif // _ALGO_H_

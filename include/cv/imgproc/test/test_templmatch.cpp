@@ -41,17 +41,16 @@
 
 #include "test_precomp.hpp"
 
-using namespace cv;
-using namespace std;
+namespace opencv_test { namespace {
 
-class CC_TemplMatchTest : public cvtest::ArrayTest
+class CV_TemplMatchTest : public cvtest::ArrayTest
 {
 public:
-    CC_TemplMatchTest();
+    CV_TemplMatchTest();
 
 protected:
     int read_params( CvFileStorage* fs );
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
     void get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high );
     double get_success_error_level( int test_case_idx, int i, int j );
     void run_func();
@@ -63,7 +62,7 @@ protected:
 };
 
 
-CC_TemplMatchTest::CC_TemplMatchTest()
+CV_TemplMatchTest::CV_TemplMatchTest()
 {
     test_array[INPUT].push_back(NULL);
     test_array[INPUT].push_back(NULL);
@@ -76,7 +75,7 @@ CC_TemplMatchTest::CC_TemplMatchTest()
 }
 
 
-int CC_TemplMatchTest::read_params( CvFileStorage* fs )
+int CV_TemplMatchTest::read_params( CvFileStorage* fs )
 {
     int code = cvtest::ArrayTest::read_params( fs );
     if( code < 0 )
@@ -89,11 +88,11 @@ int CC_TemplMatchTest::read_params( CvFileStorage* fs )
 }
 
 
-void CC_TemplMatchTest::get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high )
+void CV_TemplMatchTest::get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high )
 {
     cvtest::ArrayTest::get_minmax_bounds( i, j, type, low, high );
-    int depth = CC_MAT_DEPTH(type);
-    if( depth == CC_32F )
+    int depth = CV_MAT_DEPTH(type);
+    if( depth == CV_32F )
     {
         low = Scalar::all(-10.);
         high = Scalar::all(10.);
@@ -101,16 +100,16 @@ void CC_TemplMatchTest::get_minmax_bounds( int i, int j, int type, Scalar& low, 
 }
 
 
-void CC_TemplMatchTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                vector<vector<CvSize> >& sizes, vector<vector<int> >& types )
+void CV_TemplMatchTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                vector<vector<Size> >& sizes, vector<vector<int> >& types )
 {
     RNG& rng = ts->get_rng();
     int depth = cvtest::randInt(rng) % 2, cn = cvtest::randInt(rng) & 1 ? 3 : 1;
     cvtest::ArrayTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
-    depth = depth == 0 ? CC_8U : CC_32F;
+    depth = depth == 0 ? CV_8U : CV_32F;
 
-    types[INPUT][0] = types[INPUT][1] = CC_MAKETYPE(depth,cn);
-    types[OUTPUT][0] = types[REF_OUTPUT][0] = CC_32FC1;
+    types[INPUT][0] = types[INPUT][1] = CV_MAKETYPE(depth,cn);
+    types[OUTPUT][0] = types[REF_OUTPUT][0] = CV_32FC1;
 
     sizes[INPUT][1].width = cvtest::randInt(rng)%MIN(sizes[INPUT][1].width,max_template_size) + 1;
     sizes[INPUT][1].height = cvtest::randInt(rng)%MIN(sizes[INPUT][1].height,max_template_size) + 1;
@@ -123,24 +122,24 @@ void CC_TemplMatchTest::get_test_array_types_and_sizes( int test_case_idx,
 }
 
 
-double CC_TemplMatchTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
+double CV_TemplMatchTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
 {
-    if( test_mat[INPUT][1].depth() == CC_8U ||
-        (method >= CC_TM_CCOEFF && test_mat[INPUT][1].cols*test_mat[INPUT][1].rows <= 2) )
+    if( test_mat[INPUT][1].depth() == CV_8U ||
+        (method >= CV_TM_CCOEFF && test_mat[INPUT][1].cols*test_mat[INPUT][1].rows <= 2) )
         return 1e-2;
     else
         return 1e-3;
 }
 
 
-void CC_TemplMatchTest::run_func()
+void CV_TemplMatchTest::run_func()
 {
     if(!test_cpp)
         cvMatchTemplate( test_array[INPUT][0], test_array[INPUT][1], test_array[OUTPUT][0], method );
     else
     {
-        CvMat _out = cvarrToMat(test_array[OUTPUT][0]);
-        matchTemplate(cvarrToMat(test_array[INPUT][0]), cvarrToMat(test_array[INPUT][1]), _out, method);
+        cv::Mat _out = cv::cvarrToMat(test_array[OUTPUT][0]);
+        cv::matchTemplate(cv::cvarrToMat(test_array[INPUT][0]), cv::cvarrToMat(test_array[INPUT][1]), _out, method);
     }
 }
 
@@ -148,10 +147,10 @@ void CC_TemplMatchTest::run_func()
 static void cvTsMatchTemplate( const CvMat* img, const CvMat* templ, CvMat* result, int method )
 {
     int i, j, k, l;
-    int depth = CC_MAT_DEPTH(img->tid), cn = CC_MAT_CN(img->tid);
+    int depth = CV_MAT_DEPTH(img->type), cn = CV_MAT_CN(img->type);
     int width_n = templ->cols*cn, height = templ->rows;
-    int a_step = img->step / CC_ELEM_SIZE(img->tid & CC_MAT_DEPTH_MASK);
-    int b_step = templ->step / CC_ELEM_SIZE(templ->tid & CC_MAT_DEPTH_MASK);
+    int a_step = img->step / CV_ELEM_SIZE(img->type & CV_MAT_DEPTH_MASK);
+    int b_step = templ->step / CV_ELEM_SIZE(templ->type & CV_MAT_DEPTH_MASK);
     CvScalar b_mean, b_sdv;
     double b_denom = 1., b_sum2 = 0;
     int area = templ->rows*templ->cols;
@@ -163,7 +162,7 @@ static void cvTsMatchTemplate( const CvMat* img, const CvMat* templ, CvMat* resu
 
     if( b_sdv.val[0]*b_sdv.val[0] + b_sdv.val[1]*b_sdv.val[1] +
         b_sdv.val[2]*b_sdv.val[2] + b_sdv.val[3]*b_sdv.val[3] < DBL_EPSILON &&
-        method == CC_TM_CCOEFF_NORMED )
+        method == CV_TM_CCOEFF_NORMED )
     {
         cvSet( result, cvScalarAll(1.) );
         return;
@@ -172,7 +171,7 @@ static void cvTsMatchTemplate( const CvMat* img, const CvMat* templ, CvMat* resu
     if( method & 1 )
     {
         b_denom = 0;
-        if( method != CC_TM_CCOEFF_NORMED )
+        if( method != CV_TM_CCOEFF_NORMED )
         {
             b_denom = b_sum2;
         }
@@ -186,7 +185,7 @@ static void cvTsMatchTemplate( const CvMat* img, const CvMat* templ, CvMat* resu
             b_denom = 1.;
     }
 
-    assert( CC_TM_SQDIFF <= method && method <= CC_TM_CCOEFF_NORMED );
+    assert( CV_TM_SQDIFF <= method && method <= CV_TM_CCOEFF_NORMED );
 
     for( i = 0; i < result->rows; i++ )
     {
@@ -196,12 +195,12 @@ static void cvTsMatchTemplate( const CvMat* img, const CvMat* templ, CvMat* resu
             CvScalar ccorr(0);
             double value = 0.;
 
-            if( depth == CC_8U )
+            if( depth == CV_8U )
             {
                 const uchar* a = img->data.ptr + i*img->step + j*cn;
                 const uchar* b = templ->data.ptr;
 
-                if( cn == 1 || method < CC_TM_CCOEFF )
+                if( cn == 1 || method < CV_TM_CCOEFF )
                 {
                     for( k = 0; k < height; k++, a += a_step, b += b_step )
                         for( l = 0; l < width_n; l++ )
@@ -233,7 +232,7 @@ static void cvTsMatchTemplate( const CvMat* img, const CvMat* templ, CvMat* resu
                 const float* a = (const float*)(img->data.ptr + i*img->step) + j*cn;
                 const float* b = (const float*)templ->data.ptr;
 
-                if( cn == 1 || method < CC_TM_CCOEFF )
+                if( cn == 1 || method < CV_TM_CCOEFF )
                 {
                     for( k = 0; k < height; k++, a += a_step, b += b_step )
                         for( l = 0; l < width_n; l++ )
@@ -263,12 +262,12 @@ static void cvTsMatchTemplate( const CvMat* img, const CvMat* templ, CvMat* resu
 
             switch( method )
             {
-            case CC_TM_CCORR:
-            case CC_TM_CCORR_NORMED:
+            case CV_TM_CCORR:
+            case CV_TM_CCORR_NORMED:
                 value = ccorr.val[0];
                 break;
-            case CC_TM_SQDIFF:
-            case CC_TM_SQDIFF_NORMED:
+            case CV_TM_SQDIFF:
+            case CV_TM_SQDIFF_NORMED:
                 value = (a_sum2.val[0] + b_sum2 - 2*ccorr.val[0]);
                 break;
             default:
@@ -282,7 +281,7 @@ static void cvTsMatchTemplate( const CvMat* img, const CvMat* templ, CvMat* resu
                 double denom;
 
                 // calc denominator
-                if( method != CC_TM_CCOEFF_NORMED )
+                if( method != CV_TM_CCOEFF_NORMED )
                 {
                     denom = a_sum2.val[0] + a_sum2.val[1] + a_sum2.val[2];
                 }
@@ -298,7 +297,7 @@ static void cvTsMatchTemplate( const CvMat* img, const CvMat* templ, CvMat* resu
                 else if( fabs(value) < denom*1.125 )
                     value = value > 0 ? 1 : -1;
                 else
-                    value = method != CC_TM_SQDIFF_NORMED ? 0 : 1;
+                    value = method != CV_TM_SQDIFF_NORMED ? 0 : 1;
             }
 
             ((float*)(result->data.ptr + result->step*i))[j] = (float)value;
@@ -307,7 +306,7 @@ static void cvTsMatchTemplate( const CvMat* img, const CvMat* templ, CvMat* resu
 }
 
 
-void CC_TemplMatchTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_TemplMatchTest::prepare_to_validation( int /*test_case_idx*/ )
 {
     CvMat _input = test_mat[INPUT][0], _templ = test_mat[INPUT][1];
     CvMat _output = test_mat[REF_OUTPUT][0];
@@ -315,7 +314,7 @@ void CC_TemplMatchTest::prepare_to_validation( int /*test_case_idx*/ )
 
     //if( ts->get_current_test_info()->test_case_idx == 0 )
     /*{
-        CvFileStorage* fs = cvOpenFileStorage( "_match_template.yml", 0, CC_STORAGE_WRITE );
+        CvFileStorage* fs = cvOpenFileStorage( "_match_template.yml", 0, CV_STORAGE_WRITE );
         cvWrite( fs, "image", &test_mat[INPUT][0] );
         cvWrite( fs, "template", &test_mat[INPUT][1] );
         cvWrite( fs, "ref", &test_mat[REF_OUTPUT][0] );
@@ -324,7 +323,7 @@ void CC_TemplMatchTest::prepare_to_validation( int /*test_case_idx*/ )
         cvReleaseFileStorage( &fs );
     }*/
 
-    if( method >= CC_TM_CCOEFF )
+    if( method >= CV_TM_CCOEFF )
     {
         // avoid numerical stability problems in singular cases (when the results are near to 0)
         const double delta = 10.;
@@ -333,4 +332,6 @@ void CC_TemplMatchTest::prepare_to_validation( int /*test_case_idx*/ )
     }
 }
 
-TEST(Imgproc_MatchTemplate, accuracy) { CC_TemplMatchTest test; test.safe_run(); }
+TEST(Imgproc_MatchTemplate, accuracy) { CV_TemplMatchTest test; test.safe_run(); }
+
+}} // namespace

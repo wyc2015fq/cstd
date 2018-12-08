@@ -53,12 +53,11 @@
 //M*/
 
 #include "../test_precomp.hpp"
-#include "cvconfig.h"
 #include "opencv2/ts/ocl_test.hpp"
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,8 +71,8 @@ PARAM_TEST_CASE(CalcBackProject, MatDepth, int, bool)
     std::vector<int> channels;
     double scale;
 
-    std::vector<CvMat> images;
-    std::vector<CvMat> images_roi;
+    std::vector<Mat> images;
+    std::vector<Mat> images_roi;
     std::vector<UMat> uimages;
     std::vector<UMat> uimages_roi;
 
@@ -96,7 +95,7 @@ PARAM_TEST_CASE(CalcBackProject, MatDepth, int, bool)
 
     void random_roi()
     {
-        CvSize roiSize = randomSize(1, MAX_VALUE);
+        Size roiSize = randomSize(1, MAX_VALUE);
 
         int totalChannels = 0;
 
@@ -107,7 +106,7 @@ PARAM_TEST_CASE(CalcBackProject, MatDepth, int, bool)
         {
             Border srcBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
             int cn = randomInt(1, 5);
-            randomSubMat(images[i], images_roi[i], roiSize, srcBorder, CC_MAKE_TYPE(depth, cn), 0, 125);
+            randomSubMat(images[i], images_roi[i], roiSize, srcBorder, CV_MAKE_TYPE(depth, cn), 0, 125);
 
             ranges.push_back(10);
             ranges.push_back(100);
@@ -116,28 +115,28 @@ PARAM_TEST_CASE(CalcBackProject, MatDepth, int, bool)
             totalChannels += cn;
         }
 
-        CvMat tmpHist;
+        Mat tmpHist;
         {
             std::vector<int> hist_size(N);
             for (int i = 0 ; i < N; ++i)
                 hist_size[i] = randomInt(10, 50);
 
-            calcHist(images_roi, channels, noArray(), tmpHist, hist_size, ranges);
-            ASSERT_EQ(CC_32FC1, tmpHist->tid);
+            cv::calcHist(images_roi, channels, noArray(), tmpHist, hist_size, ranges);
+            ASSERT_EQ(CV_32FC1, tmpHist.type());
         }
 
         Border histBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
-        randomSubMat(hist, hist_roi, tmpHist.size(), histBorder, tmpHist->tid, 0, MAX_VALUE);
+        randomSubMat(hist, hist_roi, tmpHist.size(), histBorder, tmpHist.type(), 0, MAX_VALUE);
         tmpHist.copyTo(hist_roi);
 
         Border dstBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
-        randomSubMat(dst, dst_roi, roiSize, dstBorder, CC_MAKE_TYPE(depth, 1), 5, 16);
+        randomSubMat(dst, dst_roi, roiSize, dstBorder, CV_MAKE_TYPE(depth, 1), 5, 16);
 
         for (int i = 0; i < N; ++i)
         {
             images[i].copyTo(uimages[i]);
 
-            CvSize _wholeSize;
+            Size _wholeSize;
             Point ofs;
             images_roi[i].locateROI(_wholeSize, ofs);
 
@@ -152,20 +151,20 @@ PARAM_TEST_CASE(CalcBackProject, MatDepth, int, bool)
 
     void test_by_pict()
     {
-        CvMat frame1 = readImage("optflow/RubberWhale1.png", IMREAD_GRAYSCALE);
+        Mat frame1 = readImage("optflow/RubberWhale1.png", IMREAD_GRAYSCALE);
 
         UMat usrc;
         frame1.copyTo(usrc);
         int histSize = randomInt(3, 29);
         float hue_range[] = { 0, 180 };
         const float* ranges1 = { hue_range };
-        CvMat hist1;
+        Mat hist1;
 
         //compute histogram
-        calcHist(&frame1, 1, 0, CvMat(), hist1, 1, &histSize, &ranges1, true, false);
-        normalize(hist1, hist1, 0, 255, NORM_MINMAX, -1, CvMat());
+        calcHist(&frame1, 1, 0, Mat(), hist1, 1, &histSize, &ranges1, true, false);
+        normalize(hist1, hist1, 0, 255, NORM_MINMAX, -1, Mat());
 
-        CvMat dst1;
+        Mat dst1;
         UMat udst1, src, uhist1;
         hist1.copyTo(uhist1);
         std::vector<UMat> uims;
@@ -179,9 +178,9 @@ PARAM_TEST_CASE(CalcBackProject, MatDepth, int, bool)
         OCL_OFF(calcBackProject(&frame1, 1, 0, hist1, dst1, &ranges1, 1, true));
         OCL_ON(calcBackProject(uims, chs, uhist1, udst1, urngs, 1.0));
 
-        if (ocl::useOpenCL() && ocl::Device::getDefault().isAMD())
+        if (cv::ocl::useOpenCL() && cv::ocl::Device::getDefault().isAMD())
         {
-            CvSize dstSize = dst1.size();
+            Size dstSize = dst1.size();
             int nDiffs = (int)(0.03f*dstSize.height*dstSize.width);
 
             //check if the dst mats are the same except 3% difference
@@ -196,17 +195,17 @@ PARAM_TEST_CASE(CalcBackProject, MatDepth, int, bool)
 
 //////////////////////////////// CalcBackProject //////////////////////////////////////////////
 
-OCL_TEST_P(CalcBackProject, CvMat)
+OCL_TEST_P(CalcBackProject, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
         random_roi();
 
-        OCL_OFF(calcBackProject(images_roi, channels, hist_roi, dst_roi, ranges, scale));
-        OCL_ON(calcBackProject(uimages_roi, channels, uhist_roi, udst_roi, ranges, scale));
+        OCL_OFF(cv::calcBackProject(images_roi, channels, hist_roi, dst_roi, ranges, scale));
+        OCL_ON(cv::calcBackProject(uimages_roi, channels, uhist_roi, udst_roi, ranges, scale));
 
-        CvSize dstSize = dst_roi.size();
-        int nDiffs = MAX((int)(0.07f*dstSize.area()), 1);
+        Size dstSize = dst_roi.size();
+        int nDiffs = std::max((int)(0.07f*dstSize.area()), 1);
 
         //check if the dst mats are the same except 7% difference
         EXPECT_MAT_N_DIFF(dst_roi, udst_roi, nDiffs);
@@ -235,20 +234,20 @@ PARAM_TEST_CASE(CalcHist, bool)
 
     void random_roi()
     {
-        CvSize roiSize = randomSize(1, MAX_VALUE);
+        Size roiSize = randomSize(1, MAX_VALUE);
 
         Border srcBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
-        randomSubMat(src, src_roi, roiSize, srcBorder, CC_8UC1, 0, 256);
+        randomSubMat(src, src_roi, roiSize, srcBorder, CV_8UC1, 0, 256);
 
         Border histBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
-        randomSubMat(hist, hist_roi, CvSize(1, 256), histBorder, CC_32SC1, 0, MAX_VALUE);
+        randomSubMat(hist, hist_roi, Size(1, 256), histBorder, CV_32SC1, 0, MAX_VALUE);
 
         UMAT_UPLOAD_INPUT_PARAMETER(src);
         UMAT_UPLOAD_OUTPUT_PARAMETER(hist);
     }
 };
 
-OCL_TEST_P(CalcHist, CvMat)
+OCL_TEST_P(CalcHist, Mat)
 {
     const std::vector<int> channels(1, 0);
     std::vector<float> ranges(2);
@@ -260,8 +259,8 @@ OCL_TEST_P(CalcHist, CvMat)
     {
         random_roi();
 
-        OCL_OFF(calcHist(std::vector<CvMat>(1, src_roi), channels, noArray(), hist_roi, histSize, ranges, false));
-        OCL_ON(calcHist(std::vector<UMat>(1, usrc_roi), channels, noArray(), uhist_roi, histSize, ranges, false));
+        OCL_OFF(cv::calcHist(std::vector<Mat>(1, src_roi), channels, noArray(), hist_roi, histSize, ranges, false));
+        OCL_ON(cv::calcHist(std::vector<UMat>(1, usrc_roi), channels, noArray(), uhist_roi, histSize, ranges, false));
 
         OCL_EXPECT_MATS_NEAR(hist, 0.0);
     }
@@ -269,9 +268,9 @@ OCL_TEST_P(CalcHist, CvMat)
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-OCL_INSTANTIATE_TEST_CASE_P(Imgproc, CalcBackProject, Combine(Values((MatDepth)CC_8U), Values(1, 2), Bool()));
+OCL_INSTANTIATE_TEST_CASE_P(Imgproc, CalcBackProject, Combine(Values((MatDepth)CV_8U), Values(1, 2), Bool()));
 OCL_INSTANTIATE_TEST_CASE_P(Imgproc, CalcHist, Values(true, false));
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

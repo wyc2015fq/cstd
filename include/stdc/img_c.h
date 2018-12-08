@@ -444,13 +444,21 @@ void Hsv2Rgb(float H, float S, float V, float& R, float& G, float& B)
 //#define CC_MAKE_TYPE CC_MAKETYPE
 #define CC_AUTO_STEP  0x7fffffff
 #define CC_WHOLE_ARR  cvSlice( 0, 0x3fffffff )
-#define CC_MAT_CN(im)             ((im)->c)/CC_TYPE_SIZE((im->tid))
 #define CC_MAT_NEEDED(mat)        (1)
 #define CC_MAKETYPECN(depth,cn)   ((TypeCnId)_MAKETYPECN(depth,cn))
+#define CC_MAKETYPE CC_MAKETYPECN
 #define CC_MAT_TYPECN(mat)        CC_MAKETYPECN(mat->tid, CC_MAT_CN(mat))
+#define _MAT_CN(c, t)             (c)/CC_TYPE_SIZE(t)
+#if 0
 #define CC_MAT_TYPE(mat)          CC_MAT_TYPECN(mat)
+#define CC_MAT_DEPTH(mat)         (mat)->tid
+#define CC_MAT_CN(im)             ((im)->c)/CC_TYPE_SIZE((im->tid))
+#else
+#define CC_MAT_TYPE(type)          (type)
+#define CC_MAT_DEPTH(type)         CC_TYPECN_TYPE(type)
+#define CC_MAT_CN(type)            CC_TYPECN_CN(type)
+#endif
 #define CC_MAT_TOTAL(mat)         ((mat)->rows * (mat)->cols)
-#define CC_MAT_DEPTH(mat)       (mat)->tid
 #define CC_MAT_ELEM( mat, elemtype, row, col ) *img_at(elemtype, mat, row, col)
 #define CC_MAT_CONT_FLAG        (0xff)
 #define CC_IS_MAT_CONT(im)    ((im)->w*(im)->c==(im)->s)
@@ -507,19 +515,31 @@ void Hsv2Rgb(float H, float S, float V, float& R, float& G, float& B)
 #define imrefrc(_IM, RC, _IM2)  imsubref(_IM, iRECT((RC).x, (RC).y, (RC).x+(RC).w, (RC).y+(RC).h), _IM2)
 ///
 #define IMINIT(IM, H, W, A, S, C, F)  ((IM)->h=H,(IM)->w=W,(IM)->tt.data=(uchar*)(A),(IM)->s=S,(IM)->c=(short)(C),(IM)->f=F)
-#define img_ptr(type, img)            (ASSERT(cc_##type == (img)->type), (type*)(img)->tt.data)
+#define img_ptr(type, img)            ((type*)(img)->tt.data)
 #define img_end(type, img)            ((type*)(img)->tt.data+(img)->h*(img)->s)
 #define img_row(type, img, row)       ((type*)((img)->tt.data + (row)*(img)->s))
 #define img_at(type, img, row, col)   ((type*)((img)->tt.data + (row)*(img)->s + (col)*(img)->c))
 
-typedef struct {
+int getElemSize(int type) {
+  TypeId t = CC_TYPECN_TYPE(type);
+  int cn = CC_TYPECN_CN(type);
+  int size = cn * CC_TYPE_SIZE(t);
+  return size;
+}
+struct img_t;
+CC_INLINE int imsetsize_(img_t* im, int height, int width, int channels, int frames, const char* file, int line);
+static img_t* imcreate(img_t* im, ISize size, int type, const void* data, int step = -1);
+static img_t* imconvert(const img_t* src, img_t* _dst, TypeId _type, double alpha, double beta);
+
+struct img_t {
   //IMGHEADFEILD;
   union { int w;    int width; int cols; };
   union { int h;    int height; int rows; };
   union { int s;    int step; int widthStep; };
   union { int c;    int cn; int ch; };
   union { int f;    int frame; };
-  union { TypeId t;    TypeId type;  TypeId tid; };
+  union { TypeId t;    TypeId type_;  TypeId tid; };
+  mem_t* mem;
 #if 1
   union {
     union {
@@ -548,70 +568,41 @@ typedef struct {
   uchar* data;
 #endif
 #ifdef __cplusplus
-  int channels() const { return CC_MAT_CN(this); }
+  img_t() { BZERO(this, 1); printf("img_t\n"); }
+  ~img_t() { FREE(data); BZERO(this, 1); }
+  int type() const {    return CC_MAKETYPECN(t, channels());  }
+  TypeId depth() const { return t; }
+  int channels() const { return _MAT_CN(this->c, this->t); }
+  ISize size() const { return iSIZE(w, h); }
+  img_t* create(ISize size, int type) {    return imcreate(this, size, type, NULL, 0);  }
+  img_t& getMat() { return *this; }
+  const img_t& getMat() const { return *this; }
+  bool isSubmatrix() const { return false; }
+  img_t* copyTo(img_t* _dst) const {    return imcreate(_dst, size(), type(), data, s);  }
+  bool isContinuous() const { return w*c == s; }
+  void locateROI(ISize& wsz, IPoint& ofs) const { wsz = size(); ofs = iPOINT(0, 0); }
+  img_t* clone(img_t* _dst) const {    return copyTo(_dst);  }
+  img_t* convertTo(img_t* _dst, TypeId _type, double alpha=1, double beta = 0) const {
+    return imconvert(this, _dst, _type, alpha, beta);
+  }
+  template <typename T> T* ptr() { return (T*)data; }
+  template <typename T> const T* ptr() const { return (const T*)data; }
+  template <typename T> T at(int row, int col) const { return *img_at(T, this, row, col); }
 #endif
-} img_t;
+};
 
 CC_INLINE int imfree(img_t* im)
 {
   if (im) {
-    if (im->tt.data) {
+    if (im->tt.data && im->mem->free_) {
       //fastFree(im->tt.data);
-      FREE(im->tt.data);
+      im->mem->free_(im->tt.data);
     }
     memset(im, 0, sizeof(img_t));
   }
   return 0;
 }
-#if 0
-CC_INLINE int imsetsize(img_t* im, int height, int width, int channels, int frames)
-{
-  if (NULL != im) {
-    if (im->h == height && im->w == width && im->c == channels && im->f == frames && im->tt.data != NULL) {
-    }
-    else {
-      //int step = (width*channels+3) & ~3;
-      int step = width * channels;
-      int oldn = im->h * im->s * im->f;
-      int n = height * step * frames;
-      if (n > oldn) {
-        REALLOC(uchar, im->tt.data, n);
-        //im->tt.data = (uchar*)fastRealloc(im->tt.data, n);
-        ASSERT(im->tt.data != NULL && "");
-      }
-      memset(im->tt.data, 0, n);
-      IMINIT(im, height, width, im->tt.data, step, channels, frames);
-      im->tid = CC_8U;
-    }
-  }
-  return 0;
-}
-CC_INLINE int bf_imsetsize(buf_t* bf, img_t* im, int height, int width, int channels, int frames)
-{
-  if (NULL == bf || NULL == bf->data) {
-    return imsetsize(im, height, width, channels, frames);
-  }
-  if (NULL != im) {
-    if (im->h == height && im->w == width && im->c == channels && im->f == frames && im->tt.data != NULL) {
-    }
-    else {
-      int n = sizeof(uchar) * height * width * channels * frames;
-      uchar* newp;
-      BFMALLOC(bf, newp, n);
-      if (newp) {
-        memset(newp, 0, n);
-        IMINIT(im, height, width, newp, width * channels, channels, frames);
-      }
-      else {
-        BZERO1(im);
-      }
-    }
-  }
-  return 0;
-}
-#else
-#define imsetsize(im, height, width, channels, frames) imsetsize_(im, height, width, channels, frames, __FILE__, __LINE__)
-CC_INLINE int imsetsize_(img_t* im, int height, int width, int channels, int frames, const char* file, int line)
+CC_INLINE int imsetsize(img_t* im, int height, int width, int channels, int frames, mem_t* mem = cpu_mem)
 {
   if (NULL != im) {
     int step = width * channels;
@@ -622,8 +613,9 @@ CC_INLINE int imsetsize_(img_t* im, int height, int width, int channels, int fra
       int oldn = im->h * im->s * im->f;
       //int step = (width*channels+3) & ~3;
       if (n > oldn) {
-        REALLOC(uchar, im->tt.data, n);
+        im->tt.data = (uchar*)mem_realloc(im->tt.data, n, mem, oldn, im->mem);
         //im->tt.data = (uchar*)fastRealloc(im->tt.data, n);
+        im->mem = mem;
         ASSERT(im->tt.data != NULL && "");
       }
       IMINIT(im, height, width, im->tt.data, step, channels, frames);
@@ -633,31 +625,26 @@ CC_INLINE int imsetsize_(img_t* im, int height, int width, int channels, int fra
   }
   return 0;
 }
-#define bf_imsetsize(bf, im, height, width, channels, frames) bf_imsetsize_(bf, im, height, width, channels, frames, __FILE__, __LINE__)
-CC_INLINE int bf_imsetsize_(buf_t* bf, img_t* im, int height, int width, int channels, int frames, const char* file, int line)
-{
-  if (NULL == bf || NULL == bf->data) {
-    return imsetsize_(im, height, width, channels, frames, file, line);
+
+img_t* imcreate(img_t* im, ISize size, int type, const void* data, int step) {
+  int _cn = CC_TYPECN_CN(type);
+  TypeId t = CC_TYPECN_TYPE(type);
+  int c = _cn * CC_TYPE_SIZE(im->t);
+  int s = c*size.h;
+  if (data) {
+    step = MAX(step, s);
+    if (im->mem->free_) { im->mem->free_(im->data); }
+    IMINIT(im, size.height, size.width, im->tt.data, step, c, 1);
   }
-  if (NULL != im) {
-    if (im->h == height && im->w == width && im->c == channels && im->f == frames && im->tt.data != NULL) {
-    }
-    else {
-      int n = sizeof(uchar) * height * width * channels * frames;
-      uchar* newp;
-      BFMALLOC(bf, newp, n);
-      if (newp) {
-        memset(newp, 0, n);
-        IMINIT(im, height, width, newp, width * channels, channels, frames);
-      }
-      else {
-        BZERO1(im);
-      }
-    }
+  else {
+    imsetsize(im, size.height, size.width, c, 1);
   }
-  return 0;
+  im->t = t;
+  return im;
 }
-#endif
+img_t* imcreate2(img_t* im, int h, int w, int type, const void* data=0, int step=0) {
+  return imcreate(im, iSize(w, h), type, data, step);
+}
 
 CC_INLINE img_t* imsubref(const img_t* im, IRECT rc, img_t* im2)
 {
@@ -715,6 +702,11 @@ CC_INLINE int imsetframe(img_t* im, int iframe, img_t* im2)
   memcpy(im->tt.data + n * iframe, im2->tt.data, n);
   return 0;
 }
+static img_t* imconvert(const img_t* src, img_t* _dst, TypeId _type, double alpha, double beta) {
+  _dst->create(src->size(), CC_MAKETYPECN(_type, src->channels()));
+  arrcvt2d(_dst->data, _type, _dst->s, src->data, src->t, src->s, src->h, src->w, alpha, beta);
+  return _dst;
+}
 
 CC_INLINE int imcopy(const img_t* a, img_t* b)
 {
@@ -754,23 +746,15 @@ CC_INLINE img_t* imclone2(const img_t* a, img_t* dst)
 }
 CC_INLINE img_t imclone1(const img_t* a)
 {
-  img_t b[1] = { 0 };
+  img_t b[1];
   imclone2(a, b);
   return *b;
 }
 CC_INLINE int imsubcopy(const img_t* im, IRECT rc, img_t* im2)
 {
-  img_t im1[1] = { { 0 } };
+  img_t im1[1];// = { 0 };
   imsubref(im, rc, im1);
   imclone2(im1, im2);
-  return 0;
-}
-CC_INLINE int bf_imclone2(buf_t* bf, const img_t* a, img_t* b)
-{
-  if (a != b) {
-    bf_imsetsamesize(bf, b, a);
-    memcpy2d(b->tt.data, b->s, a->tt.data, a->s, a->h, b->w * b->c);
-  }
   return 0;
 }
 #define IM_DEF(im, n)  img_t _##im [n]={0}; img_t* im = _##im

@@ -10,7 +10,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 //////////////////////////////// UMat Expressions /////////////////////////////////////////////////
@@ -22,7 +22,7 @@ PARAM_TEST_CASE(UMatExpr, MatDepth, Channels)
 
     virtual void SetUp()
     {
-        type = CC_MAKE_TYPE(GET_PARAM(0), GET_PARAM(1));
+        type = CV_MAKE_TYPE(GET_PARAM(0), GET_PARAM(1));
     }
 
     void generateTestData()
@@ -39,7 +39,7 @@ OCL_TEST_P(UMatExpr, Eye)
     {
         generateTestData();
 
-        CvMat m = CvMat::eye(size, type);
+        Mat m = Mat::eye(size, type);
         UMat um = UMat::eye(size, type);
 
         EXPECT_MAT_NEAR(m, um, 0);
@@ -54,7 +54,7 @@ OCL_TEST_P(UMatExpr, Zeros)
     {
         generateTestData();
 
-        CvMat m = CvMat::zeros(size, type);
+        Mat m = Mat::zeros(size, type);
         UMat um = UMat::zeros(size, type);
 
         EXPECT_MAT_NEAR(m, um, 0);
@@ -69,7 +69,7 @@ OCL_TEST_P(UMatExpr, Ones)
     {
         generateTestData();
 
-        CvMat m = CvMat::ones(size, type);
+        Mat m = Mat::ones(size, type);
         UMat um = UMat::ones(size, type);
 
         EXPECT_MAT_NEAR(m, um, 0);
@@ -80,6 +80,6 @@ OCL_TEST_P(UMatExpr, Ones)
 
 OCL_INSTANTIATE_TEST_CASE_P(MatrixOperation, UMatExpr, Combine(OCL_ALL_DEPTHS, OCL_ALL_CHANNELS));
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif

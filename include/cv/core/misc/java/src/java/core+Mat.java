@@ -1,12 +1,14 @@
 package org.opencv.core;
 
-// C++: class CvMat
-//javadoc: CvMat
-public class CvMat {
+import java.nio.ByteBuffer;
+
+// C++: class Mat
+//javadoc: Mat
+public class Mat {
 
     public final long nativeObj;
 
-    public CvMat(long addr)
+    public Mat(long addr)
     {
         if (addr == 0)
             throw new java.lang.UnsupportedOperationException("Native object address is NULL");
@@ -14,11 +16,11 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat::CvMat()
+    // C++: Mat::Mat()
     //
 
-    // javadoc: CvMat::CvMat()
-    public CvMat()
+    // javadoc: Mat::Mat()
+    public Mat()
     {
 
         nativeObj = n_Mat();
@@ -27,11 +29,11 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat::CvMat(int rows, int cols, int type)
+    // C++: Mat::Mat(int rows, int cols, int type)
     //
 
-    // javadoc: CvMat::CvMat(rows, cols, type)
-    public CvMat(int rows, int cols, int type)
+    // javadoc: Mat::Mat(rows, cols, type)
+    public Mat(int rows, int cols, int type)
     {
 
         nativeObj = n_Mat(rows, cols, type);
@@ -40,11 +42,24 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat::CvMat(Size size, int type)
+    // C++: Mat::Mat(int rows, int cols, int type, void* data)
     //
 
-    // javadoc: CvMat::CvMat(size, type)
-    public CvMat(Size size, int type)
+    // javadoc: Mat::Mat(rows, cols, type, data)
+    public Mat(int rows, int cols, int type, ByteBuffer data)
+    {
+
+        nativeObj = n_Mat(rows, cols, type, data);
+
+        return;
+    }
+
+    //
+    // C++: Mat::Mat(Size size, int type)
+    //
+
+    // javadoc: Mat::Mat(size, type)
+    public Mat(Size size, int type)
     {
 
         nativeObj = n_Mat(size.width, size.height, type);
@@ -53,11 +68,11 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat::CvMat(int rows, int cols, int type, Scalar s)
+    // C++: Mat::Mat(int rows, int cols, int type, Scalar s)
     //
 
-    // javadoc: CvMat::CvMat(rows, cols, type, s)
-    public CvMat(int rows, int cols, int type, Scalar s)
+    // javadoc: Mat::Mat(rows, cols, type, s)
+    public Mat(int rows, int cols, int type, Scalar s)
     {
 
         nativeObj = n_Mat(rows, cols, type, s.val[0], s.val[1], s.val[2], s.val[3]);
@@ -66,11 +81,11 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat::CvMat(Size size, int type, Scalar s)
+    // C++: Mat::Mat(Size size, int type, Scalar s)
     //
 
-    // javadoc: CvMat::CvMat(size, type, s)
-    public CvMat(Size size, int type, Scalar s)
+    // javadoc: Mat::Mat(size, type, s)
+    public Mat(Size size, int type, Scalar s)
     {
 
         nativeObj = n_Mat(size.width, size.height, type, s.val[0], s.val[1], s.val[2], s.val[3]);
@@ -79,11 +94,11 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat::CvMat(CvMat m, Range rowRange, Range colRange = Range::all())
+    // C++: Mat::Mat(Mat m, Range rowRange, Range colRange = Range::all())
     //
 
-    // javadoc: CvMat::CvMat(m, rowRange, colRange)
-    public CvMat(CvMat m, Range rowRange, Range colRange)
+    // javadoc: Mat::Mat(m, rowRange, colRange)
+    public Mat(Mat m, Range rowRange, Range colRange)
     {
 
         nativeObj = n_Mat(m.nativeObj, rowRange.start, rowRange.end, colRange.start, colRange.end);
@@ -91,8 +106,8 @@ public class CvMat {
         return;
     }
 
-    // javadoc: CvMat::CvMat(m, rowRange)
-    public CvMat(CvMat m, Range rowRange)
+    // javadoc: Mat::Mat(m, rowRange)
+    public Mat(Mat m, Range rowRange)
     {
 
         nativeObj = n_Mat(m.nativeObj, rowRange.start, rowRange.end);
@@ -101,11 +116,11 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat::CvMat(CvMat m, Rect roi)
+    // C++: Mat::Mat(Mat m, Rect roi)
     //
 
-    // javadoc: CvMat::CvMat(m, roi)
-    public CvMat(CvMat m, Rect roi)
+    // javadoc: Mat::Mat(m, roi)
+    public Mat(Mat m, Rect roi)
     {
 
         nativeObj = n_Mat(m.nativeObj, roi.y, roi.y + roi.height, roi.x, roi.x + roi.width);
@@ -114,24 +129,24 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat CvMat::adjustROI(int dtop, int dbottom, int dleft, int dright)
+    // C++: Mat Mat::adjustROI(int dtop, int dbottom, int dleft, int dright)
     //
 
-    // javadoc: CvMat::adjustROI(dtop, dbottom, dleft, dright)
-    public CvMat adjustROI(int dtop, int dbottom, int dleft, int dright)
+    // javadoc: Mat::adjustROI(dtop, dbottom, dleft, dright)
+    public Mat adjustROI(int dtop, int dbottom, int dleft, int dright)
     {
 
-        CvMat retVal = new CvMat(n_adjustROI(nativeObj, dtop, dbottom, dleft, dright));
+        Mat retVal = new Mat(n_adjustROI(nativeObj, dtop, dbottom, dleft, dright));
 
         return retVal;
     }
 
     //
-    // C++: void CvMat::assignTo(CvMat m, int type = -1)
+    // C++: void Mat::assignTo(Mat m, int type = -1)
     //
 
-    // javadoc: CvMat::assignTo(m, type)
-    public void assignTo(CvMat m, int type)
+    // javadoc: Mat::assignTo(m, type)
+    public void assignTo(Mat m, int type)
     {
 
         n_assignTo(nativeObj, m.nativeObj, type);
@@ -139,8 +154,8 @@ public class CvMat {
         return;
     }
 
-    // javadoc: CvMat::assignTo(m)
-    public void assignTo(CvMat m)
+    // javadoc: Mat::assignTo(m)
+    public void assignTo(Mat m)
     {
 
         n_assignTo(nativeObj, m.nativeObj);
@@ -149,10 +164,10 @@ public class CvMat {
     }
 
     //
-    // C++: int CvMat::channels()
+    // C++: int Mat::channels()
     //
 
-    // javadoc: CvMat::channels()
+    // javadoc: Mat::channels()
     public int channels()
     {
 
@@ -162,11 +177,11 @@ public class CvMat {
     }
 
     //
-    // C++: int CvMat::checkVector(int elemChannels, int depth = -1, bool
+    // C++: int Mat::checkVector(int elemChannels, int depth = -1, bool
     // requireContinuous = true)
     //
 
-    // javadoc: CvMat::checkVector(elemChannels, depth, requireContinuous)
+    // javadoc: Mat::checkVector(elemChannels, depth, requireContinuous)
     public int checkVector(int elemChannels, int depth, boolean requireContinuous)
     {
 
@@ -175,7 +190,7 @@ public class CvMat {
         return retVal;
     }
 
-    // javadoc: CvMat::checkVector(elemChannels, depth)
+    // javadoc: Mat::checkVector(elemChannels, depth)
     public int checkVector(int elemChannels, int depth)
     {
 
@@ -184,7 +199,7 @@ public class CvMat {
         return retVal;
     }
 
-    // javadoc: CvMat::checkVector(elemChannels)
+    // javadoc: Mat::checkVector(elemChannels)
     public int checkVector(int elemChannels)
     {
 
@@ -194,62 +209,62 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat CvMat::clone()
+    // C++: Mat Mat::clone()
     //
 
-    // javadoc: CvMat::clone()
-    public CvMat clone()
+    // javadoc: Mat::clone()
+    public Mat clone()
     {
 
-        CvMat retVal = new CvMat(n_clone(nativeObj));
+        Mat retVal = new Mat(n_clone(nativeObj));
 
         return retVal;
     }
 
     //
-    // C++: CvMat CvMat::col(int x)
+    // C++: Mat Mat::col(int x)
     //
 
-    // javadoc: CvMat::col(x)
-    public CvMat col(int x)
+    // javadoc: Mat::col(x)
+    public Mat col(int x)
     {
 
-        CvMat retVal = new CvMat(n_col(nativeObj, x));
+        Mat retVal = new Mat(n_col(nativeObj, x));
 
         return retVal;
     }
 
     //
-    // C++: CvMat CvMat::colRange(int startcol, int endcol)
+    // C++: Mat Mat::colRange(int startcol, int endcol)
     //
 
-    // javadoc: CvMat::colRange(startcol, endcol)
-    public CvMat colRange(int startcol, int endcol)
+    // javadoc: Mat::colRange(startcol, endcol)
+    public Mat colRange(int startcol, int endcol)
     {
 
-        CvMat retVal = new CvMat(n_colRange(nativeObj, startcol, endcol));
+        Mat retVal = new Mat(n_colRange(nativeObj, startcol, endcol));
 
         return retVal;
     }
 
     //
-    // C++: CvMat CvMat::colRange(Range r)
+    // C++: Mat Mat::colRange(Range r)
     //
 
-    // javadoc: CvMat::colRange(r)
-    public CvMat colRange(Range r)
+    // javadoc: Mat::colRange(r)
+    public Mat colRange(Range r)
     {
 
-        CvMat retVal = new CvMat(n_colRange(nativeObj, r.start, r.end));
+        Mat retVal = new Mat(n_colRange(nativeObj, r.start, r.end));
 
         return retVal;
     }
 
     //
-    // C++: int CvMat::dims()
+    // C++: int Mat::dims()
     //
 
-    // javadoc: CvMat::dims()
+    // javadoc: Mat::dims()
     public int dims()
     {
 
@@ -259,10 +274,10 @@ public class CvMat {
     }
 
     //
-    // C++: int CvMat::cols()
+    // C++: int Mat::cols()
     //
 
-    // javadoc: CvMat::cols()
+    // javadoc: Mat::cols()
     public int cols()
     {
 
@@ -272,12 +287,12 @@ public class CvMat {
     }
 
     //
-    // C++: void CvMat::convertTo(CvMat& m, int rtype, double alpha = 1, double beta
+    // C++: void Mat::convertTo(Mat& m, int rtype, double alpha = 1, double beta
     // = 0)
     //
 
-    // javadoc: CvMat::convertTo(m, rtype, alpha, beta)
-    public void convertTo(CvMat m, int rtype, double alpha, double beta)
+    // javadoc: Mat::convertTo(m, rtype, alpha, beta)
+    public void convertTo(Mat m, int rtype, double alpha, double beta)
     {
 
         n_convertTo(nativeObj, m.nativeObj, rtype, alpha, beta);
@@ -285,8 +300,8 @@ public class CvMat {
         return;
     }
 
-    // javadoc: CvMat::convertTo(m, rtype, alpha)
-    public void convertTo(CvMat m, int rtype, double alpha)
+    // javadoc: Mat::convertTo(m, rtype, alpha)
+    public void convertTo(Mat m, int rtype, double alpha)
     {
 
         n_convertTo(nativeObj, m.nativeObj, rtype, alpha);
@@ -294,8 +309,8 @@ public class CvMat {
         return;
     }
 
-    // javadoc: CvMat::convertTo(m, rtype)
-    public void convertTo(CvMat m, int rtype)
+    // javadoc: Mat::convertTo(m, rtype)
+    public void convertTo(Mat m, int rtype)
     {
 
         n_convertTo(nativeObj, m.nativeObj, rtype);
@@ -304,11 +319,11 @@ public class CvMat {
     }
 
     //
-    // C++: void CvMat::copyTo(CvMat& m)
+    // C++: void Mat::copyTo(Mat& m)
     //
 
-    // javadoc: CvMat::copyTo(m)
-    public void copyTo(CvMat m)
+    // javadoc: Mat::copyTo(m)
+    public void copyTo(Mat m)
     {
 
         n_copyTo(nativeObj, m.nativeObj);
@@ -317,11 +332,11 @@ public class CvMat {
     }
 
     //
-    // C++: void CvMat::copyTo(CvMat& m, CvMat mask)
+    // C++: void Mat::copyTo(Mat& m, Mat mask)
     //
 
-    // javadoc: CvMat::copyTo(m, mask)
-    public void copyTo(CvMat m, CvMat mask)
+    // javadoc: Mat::copyTo(m, mask)
+    public void copyTo(Mat m, Mat mask)
     {
 
         n_copyTo(nativeObj, m.nativeObj, mask.nativeObj);
@@ -330,10 +345,10 @@ public class CvMat {
     }
 
     //
-    // C++: void CvMat::create(int rows, int cols, int type)
+    // C++: void Mat::create(int rows, int cols, int type)
     //
 
-    // javadoc: CvMat::create(rows, cols, type)
+    // javadoc: Mat::create(rows, cols, type)
     public void create(int rows, int cols, int type)
     {
 
@@ -343,10 +358,10 @@ public class CvMat {
     }
 
     //
-    // C++: void CvMat::create(Size size, int type)
+    // C++: void Mat::create(Size size, int type)
     //
 
-    // javadoc: CvMat::create(size, type)
+    // javadoc: Mat::create(size, type)
     public void create(Size size, int type)
     {
 
@@ -356,23 +371,23 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat CvMat::cross(CvMat m)
+    // C++: Mat Mat::cross(Mat m)
     //
 
-    // javadoc: CvMat::cross(m)
-    public CvMat cross(CvMat m)
+    // javadoc: Mat::cross(m)
+    public Mat cross(Mat m)
     {
 
-        CvMat retVal = new CvMat(n_cross(nativeObj, m.nativeObj));
+        Mat retVal = new Mat(n_cross(nativeObj, m.nativeObj));
 
         return retVal;
     }
 
     //
-    // C++: long CvMat::dataAddr()
+    // C++: long Mat::dataAddr()
     //
 
-    // javadoc: CvMat::dataAddr()
+    // javadoc: Mat::dataAddr()
     public long dataAddr()
     {
 
@@ -382,10 +397,10 @@ public class CvMat {
     }
 
     //
-    // C++: int CvMat::depth()
+    // C++: int Mat::depth()
     //
 
-    // javadoc: CvMat::depth()
+    // javadoc: Mat::depth()
     public int depth()
     {
 
@@ -395,46 +410,46 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat CvMat::diag(int d = 0)
+    // C++: Mat Mat::diag(int d = 0)
     //
 
-    // javadoc: CvMat::diag(d)
-    public CvMat diag(int d)
+    // javadoc: Mat::diag(d)
+    public Mat diag(int d)
     {
 
-        CvMat retVal = new CvMat(n_diag(nativeObj, d));
+        Mat retVal = new Mat(n_diag(nativeObj, d));
 
         return retVal;
     }
 
-    // javadoc: CvMat::diag()
-    public CvMat diag()
+    // javadoc: Mat::diag()
+    public Mat diag()
     {
 
-        CvMat retVal = new CvMat(n_diag(nativeObj, 0));
-
-        return retVal;
-    }
-
-    //
-    // C++: static CvMat CvMat::diag(CvMat d)
-    //
-
-    // javadoc: CvMat::diag(d)
-    public static CvMat diag(CvMat d)
-    {
-
-        CvMat retVal = new CvMat(n_diag(d.nativeObj));
+        Mat retVal = new Mat(n_diag(nativeObj, 0));
 
         return retVal;
     }
 
     //
-    // C++: double CvMat::dot(CvMat m)
+    // C++: static Mat Mat::diag(Mat d)
     //
 
-    // javadoc: CvMat::dot(m)
-    public double dot(CvMat m)
+    // javadoc: Mat::diag(d)
+    public static Mat diag(Mat d)
+    {
+
+        Mat retVal = new Mat(n_diag(d.nativeObj));
+
+        return retVal;
+    }
+
+    //
+    // C++: double Mat::dot(Mat m)
+    //
+
+    // javadoc: Mat::dot(m)
+    public double dot(Mat m)
     {
 
         double retVal = n_dot(nativeObj, m.nativeObj);
@@ -443,10 +458,10 @@ public class CvMat {
     }
 
     //
-    // C++: size_t CvMat::elemSize()
+    // C++: size_t Mat::elemSize()
     //
 
-    // javadoc: CvMat::elemSize()
+    // javadoc: Mat::elemSize()
     public long elemSize()
     {
 
@@ -456,10 +471,10 @@ public class CvMat {
     }
 
     //
-    // C++: size_t CvMat::elemSize1()
+    // C++: size_t Mat::elemSize1()
     //
 
-    // javadoc: CvMat::elemSize1()
+    // javadoc: Mat::elemSize1()
     public long elemSize1()
     {
 
@@ -469,10 +484,10 @@ public class CvMat {
     }
 
     //
-    // C++: bool CvMat::empty()
+    // C++: bool Mat::empty()
     //
 
-    // javadoc: CvMat::empty()
+    // javadoc: Mat::empty()
     public boolean empty()
     {
 
@@ -482,58 +497,58 @@ public class CvMat {
     }
 
     //
-    // C++: static CvMat CvMat::eye(int rows, int cols, int type)
+    // C++: static Mat Mat::eye(int rows, int cols, int type)
     //
 
-    // javadoc: CvMat::eye(rows, cols, type)
-    public static CvMat eye(int rows, int cols, int type)
+    // javadoc: Mat::eye(rows, cols, type)
+    public static Mat eye(int rows, int cols, int type)
     {
 
-        CvMat retVal = new CvMat(n_eye(rows, cols, type));
+        Mat retVal = new Mat(n_eye(rows, cols, type));
 
         return retVal;
     }
 
     //
-    // C++: static CvMat CvMat::eye(Size size, int type)
+    // C++: static Mat Mat::eye(Size size, int type)
     //
 
-    // javadoc: CvMat::eye(size, type)
-    public static CvMat eye(Size size, int type)
+    // javadoc: Mat::eye(size, type)
+    public static Mat eye(Size size, int type)
     {
 
-        CvMat retVal = new CvMat(n_eye(size.width, size.height, type));
+        Mat retVal = new Mat(n_eye(size.width, size.height, type));
 
         return retVal;
     }
 
     //
-    // C++: CvMat CvMat::inv(int method = DECOMP_LU)
+    // C++: Mat Mat::inv(int method = DECOMP_LU)
     //
 
-    // javadoc: CvMat::inv(method)
-    public CvMat inv(int method)
+    // javadoc: Mat::inv(method)
+    public Mat inv(int method)
     {
 
-        CvMat retVal = new CvMat(n_inv(nativeObj, method));
+        Mat retVal = new Mat(n_inv(nativeObj, method));
 
         return retVal;
     }
 
-    // javadoc: CvMat::inv()
-    public CvMat inv()
+    // javadoc: Mat::inv()
+    public Mat inv()
     {
 
-        CvMat retVal = new CvMat(n_inv(nativeObj));
+        Mat retVal = new Mat(n_inv(nativeObj));
 
         return retVal;
     }
 
     //
-    // C++: bool CvMat::isContinuous()
+    // C++: bool Mat::isContinuous()
     //
 
-    // javadoc: CvMat::isContinuous()
+    // javadoc: Mat::isContinuous()
     public boolean isContinuous()
     {
 
@@ -543,10 +558,10 @@ public class CvMat {
     }
 
     //
-    // C++: bool CvMat::isSubmatrix()
+    // C++: bool Mat::isSubmatrix()
     //
 
-    // javadoc: CvMat::isSubmatrix()
+    // javadoc: Mat::isSubmatrix()
     public boolean isSubmatrix()
     {
 
@@ -556,10 +571,10 @@ public class CvMat {
     }
 
     //
-    // C++: void CvMat::locateROI(Size wholeSize, Point ofs)
+    // C++: void Mat::locateROI(Size wholeSize, Point ofs)
     //
 
-    // javadoc: CvMat::locateROI(wholeSize, ofs)
+    // javadoc: Mat::locateROI(wholeSize, ofs)
     public void locateROI(Size wholeSize, Point ofs)
     {
         double[] wholeSize_out = new double[2];
@@ -571,59 +586,59 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat CvMat::mul(CvMat m, double scale = 1)
+    // C++: Mat Mat::mul(Mat m, double scale = 1)
     //
 
-    // javadoc: CvMat::mul(m, scale)
-    public CvMat mul(CvMat m, double scale)
+    // javadoc: Mat::mul(m, scale)
+    public Mat mul(Mat m, double scale)
     {
 
-        CvMat retVal = new CvMat(n_mul(nativeObj, m.nativeObj, scale));
+        Mat retVal = new Mat(n_mul(nativeObj, m.nativeObj, scale));
 
         return retVal;
     }
 
-    // javadoc: CvMat::mul(m)
-    public CvMat mul(CvMat m)
+    // javadoc: Mat::mul(m)
+    public Mat mul(Mat m)
     {
 
-        CvMat retVal = new CvMat(n_mul(nativeObj, m.nativeObj));
-
-        return retVal;
-    }
-
-    //
-    // C++: static CvMat CvMat::ones(int rows, int cols, int type)
-    //
-
-    // javadoc: CvMat::ones(rows, cols, type)
-    public static CvMat ones(int rows, int cols, int type)
-    {
-
-        CvMat retVal = new CvMat(n_ones(rows, cols, type));
+        Mat retVal = new Mat(n_mul(nativeObj, m.nativeObj));
 
         return retVal;
     }
 
     //
-    // C++: static CvMat CvMat::ones(Size size, int type)
+    // C++: static Mat Mat::ones(int rows, int cols, int type)
     //
 
-    // javadoc: CvMat::ones(size, type)
-    public static CvMat ones(Size size, int type)
+    // javadoc: Mat::ones(rows, cols, type)
+    public static Mat ones(int rows, int cols, int type)
     {
 
-        CvMat retVal = new CvMat(n_ones(size.width, size.height, type));
+        Mat retVal = new Mat(n_ones(rows, cols, type));
 
         return retVal;
     }
 
     //
-    // C++: void CvMat::push_back(CvMat m)
+    // C++: static Mat Mat::ones(Size size, int type)
     //
 
-    // javadoc: CvMat::push_back(m)
-    public void push_back(CvMat m)
+    // javadoc: Mat::ones(size, type)
+    public static Mat ones(Size size, int type)
+    {
+
+        Mat retVal = new Mat(n_ones(size.width, size.height, type));
+
+        return retVal;
+    }
+
+    //
+    // C++: void Mat::push_back(Mat m)
+    //
+
+    // javadoc: Mat::push_back(m)
+    public void push_back(Mat m)
     {
 
         n_push_back(nativeObj, m.nativeObj);
@@ -632,10 +647,10 @@ public class CvMat {
     }
 
     //
-    // C++: void CvMat::release()
+    // C++: void Mat::release()
     //
 
-    // javadoc: CvMat::release()
+    // javadoc: Mat::release()
     public void release()
     {
 
@@ -645,71 +660,71 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat CvMat::reshape(int cn, int rows = 0)
+    // C++: Mat Mat::reshape(int cn, int rows = 0)
     //
 
-    // javadoc: CvMat::reshape(cn, rows)
-    public CvMat reshape(int cn, int rows)
+    // javadoc: Mat::reshape(cn, rows)
+    public Mat reshape(int cn, int rows)
     {
 
-        CvMat retVal = new CvMat(n_reshape(nativeObj, cn, rows));
+        Mat retVal = new Mat(n_reshape(nativeObj, cn, rows));
 
         return retVal;
     }
 
-    // javadoc: CvMat::reshape(cn)
-    public CvMat reshape(int cn)
+    // javadoc: Mat::reshape(cn)
+    public Mat reshape(int cn)
     {
 
-        CvMat retVal = new CvMat(n_reshape(nativeObj, cn));
-
-        return retVal;
-    }
-
-    //
-    // C++: CvMat CvMat::row(int y)
-    //
-
-    // javadoc: CvMat::row(y)
-    public CvMat row(int y)
-    {
-
-        CvMat retVal = new CvMat(n_row(nativeObj, y));
+        Mat retVal = new Mat(n_reshape(nativeObj, cn));
 
         return retVal;
     }
 
     //
-    // C++: CvMat CvMat::rowRange(int startrow, int endrow)
+    // C++: Mat Mat::row(int y)
     //
 
-    // javadoc: CvMat::rowRange(startrow, endrow)
-    public CvMat rowRange(int startrow, int endrow)
+    // javadoc: Mat::row(y)
+    public Mat row(int y)
     {
 
-        CvMat retVal = new CvMat(n_rowRange(nativeObj, startrow, endrow));
+        Mat retVal = new Mat(n_row(nativeObj, y));
 
         return retVal;
     }
 
     //
-    // C++: CvMat CvMat::rowRange(Range r)
+    // C++: Mat Mat::rowRange(int startrow, int endrow)
     //
 
-    // javadoc: CvMat::rowRange(r)
-    public CvMat rowRange(Range r)
+    // javadoc: Mat::rowRange(startrow, endrow)
+    public Mat rowRange(int startrow, int endrow)
     {
 
-        CvMat retVal = new CvMat(n_rowRange(nativeObj, r.start, r.end));
+        Mat retVal = new Mat(n_rowRange(nativeObj, startrow, endrow));
 
         return retVal;
     }
 
     //
-    // C++: int CvMat::rows()
+    // C++: Mat Mat::rowRange(Range r)
     //
 
-    // javadoc: CvMat::rows()
+    // javadoc: Mat::rowRange(r)
+    public Mat rowRange(Range r)
+    {
+
+        Mat retVal = new Mat(n_rowRange(nativeObj, r.start, r.end));
+
+        return retVal;
+    }
+
+    //
+    // C++: int Mat::rows()
+    //
+
+    // javadoc: Mat::rows()
     public int rows()
     {
 
@@ -719,58 +734,58 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat CvMat::operator =(Scalar s)
+    // C++: Mat Mat::operator =(Scalar s)
     //
 
-    // javadoc: CvMat::operator =(s)
-    public CvMat setTo(Scalar s)
+    // javadoc: Mat::operator =(s)
+    public Mat setTo(Scalar s)
     {
 
-        CvMat retVal = new CvMat(n_setTo(nativeObj, s.val[0], s.val[1], s.val[2], s.val[3]));
+        Mat retVal = new Mat(n_setTo(nativeObj, s.val[0], s.val[1], s.val[2], s.val[3]));
 
         return retVal;
     }
 
     //
-    // C++: CvMat CvMat::setTo(Scalar value, CvMat mask = CvMat())
+    // C++: Mat Mat::setTo(Scalar value, Mat mask = Mat())
     //
 
-    // javadoc: CvMat::setTo(value, mask)
-    public CvMat setTo(Scalar value, CvMat mask)
+    // javadoc: Mat::setTo(value, mask)
+    public Mat setTo(Scalar value, Mat mask)
     {
 
-        CvMat retVal = new CvMat(n_setTo(nativeObj, value.val[0], value.val[1], value.val[2], value.val[3], mask.nativeObj));
+        Mat retVal = new Mat(n_setTo(nativeObj, value.val[0], value.val[1], value.val[2], value.val[3], mask.nativeObj));
 
         return retVal;
     }
 
     //
-    // C++: CvMat CvMat::setTo(CvMat value, CvMat mask = CvMat())
+    // C++: Mat Mat::setTo(Mat value, Mat mask = Mat())
     //
 
-    // javadoc: CvMat::setTo(value, mask)
-    public CvMat setTo(CvMat value, CvMat mask)
+    // javadoc: Mat::setTo(value, mask)
+    public Mat setTo(Mat value, Mat mask)
     {
 
-        CvMat retVal = new CvMat(n_setTo(nativeObj, value.nativeObj, mask.nativeObj));
+        Mat retVal = new Mat(n_setTo(nativeObj, value.nativeObj, mask.nativeObj));
 
         return retVal;
     }
 
-    // javadoc: CvMat::setTo(value)
-    public CvMat setTo(CvMat value)
+    // javadoc: Mat::setTo(value)
+    public Mat setTo(Mat value)
     {
 
-        CvMat retVal = new CvMat(n_setTo(nativeObj, value.nativeObj));
+        Mat retVal = new Mat(n_setTo(nativeObj, value.nativeObj));
 
         return retVal;
     }
 
     //
-    // C++: Size CvMat::size()
+    // C++: Size Mat::size()
     //
 
-    // javadoc: CvMat::size()
+    // javadoc: Mat::size()
     public Size size()
     {
 
@@ -780,10 +795,10 @@ public class CvMat {
     }
 
     //
-    // C++: size_t CvMat::step1(int i = 0)
+    // C++: size_t Mat::step1(int i = 0)
     //
 
-    // javadoc: CvMat::step1(i)
+    // javadoc: Mat::step1(i)
     public long step1(int i)
     {
 
@@ -792,7 +807,7 @@ public class CvMat {
         return retVal;
     }
 
-    // javadoc: CvMat::step1()
+    // javadoc: Mat::step1()
     public long step1()
     {
 
@@ -802,63 +817,63 @@ public class CvMat {
     }
 
     //
-    // C++: CvMat CvMat::operator()(int rowStart, int rowEnd, int colStart, int
+    // C++: Mat Mat::operator()(int rowStart, int rowEnd, int colStart, int
     // colEnd)
     //
 
-    // javadoc: CvMat::operator()(rowStart, rowEnd, colStart, colEnd)
-    public CvMat submat(int rowStart, int rowEnd, int colStart, int colEnd)
+    // javadoc: Mat::operator()(rowStart, rowEnd, colStart, colEnd)
+    public Mat submat(int rowStart, int rowEnd, int colStart, int colEnd)
     {
 
-        CvMat retVal = new CvMat(n_submat_rr(nativeObj, rowStart, rowEnd, colStart, colEnd));
+        Mat retVal = new Mat(n_submat_rr(nativeObj, rowStart, rowEnd, colStart, colEnd));
 
         return retVal;
     }
 
     //
-    // C++: CvMat CvMat::operator()(Range rowRange, Range colRange)
+    // C++: Mat Mat::operator()(Range rowRange, Range colRange)
     //
 
-    // javadoc: CvMat::operator()(rowRange, colRange)
-    public CvMat submat(Range rowRange, Range colRange)
+    // javadoc: Mat::operator()(rowRange, colRange)
+    public Mat submat(Range rowRange, Range colRange)
     {
 
-        CvMat retVal = new CvMat(n_submat_rr(nativeObj, rowRange.start, rowRange.end, colRange.start, colRange.end));
+        Mat retVal = new Mat(n_submat_rr(nativeObj, rowRange.start, rowRange.end, colRange.start, colRange.end));
 
         return retVal;
     }
 
     //
-    // C++: CvMat CvMat::operator()(Rect roi)
+    // C++: Mat Mat::operator()(Rect roi)
     //
 
-    // javadoc: CvMat::operator()(roi)
-    public CvMat submat(Rect roi)
+    // javadoc: Mat::operator()(roi)
+    public Mat submat(Rect roi)
     {
 
-        CvMat retVal = new CvMat(n_submat(nativeObj, roi.x, roi.y, roi.width, roi.height));
+        Mat retVal = new Mat(n_submat(nativeObj, roi.x, roi.y, roi.width, roi.height));
 
         return retVal;
     }
 
     //
-    // C++: CvMat CvMat::t()
+    // C++: Mat Mat::t()
     //
 
-    // javadoc: CvMat::t()
-    public CvMat t()
+    // javadoc: Mat::t()
+    public Mat t()
     {
 
-        CvMat retVal = new CvMat(n_t(nativeObj));
+        Mat retVal = new Mat(n_t(nativeObj));
 
         return retVal;
     }
 
     //
-    // C++: size_t CvMat::total()
+    // C++: size_t Mat::total()
     //
 
-    // javadoc: CvMat::total()
+    // javadoc: Mat::total()
     public long total()
     {
 
@@ -868,10 +883,10 @@ public class CvMat {
     }
 
     //
-    // C++: int CvMat::type()
+    // C++: int Mat::type()
     //
 
-    // javadoc: CvMat::type()
+    // javadoc: Mat::type()
     public int type()
     {
 
@@ -881,27 +896,27 @@ public class CvMat {
     }
 
     //
-    // C++: static CvMat CvMat::zeros(int rows, int cols, int type)
+    // C++: static Mat Mat::zeros(int rows, int cols, int type)
     //
 
-    // javadoc: CvMat::zeros(rows, cols, type)
-    public static CvMat zeros(int rows, int cols, int type)
+    // javadoc: Mat::zeros(rows, cols, type)
+    public static Mat zeros(int rows, int cols, int type)
     {
 
-        CvMat retVal = new CvMat(n_zeros(rows, cols, type));
+        Mat retVal = new Mat(n_zeros(rows, cols, type));
 
         return retVal;
     }
 
     //
-    // C++: static CvMat CvMat::zeros(Size size, int type)
+    // C++: static Mat Mat::zeros(Size size, int type)
     //
 
-    // javadoc: CvMat::zeros(size, type)
-    public static CvMat zeros(Size size, int type)
+    // javadoc: Mat::zeros(size, type)
+    public static Mat zeros(Size size, int type)
     {
 
-        CvMat retVal = new CvMat(n_zeros(size.width, size.height, type));
+        Mat retVal = new Mat(n_zeros(size.width, size.height, type));
 
         return retVal;
     }
@@ -912,10 +927,10 @@ public class CvMat {
         super.finalize();
     }
 
-    // javadoc:CvMat::toString()
+    // javadoc:Mat::toString()
     @Override
     public String toString() {
-        return "CvMat [ " +
+        return "Mat [ " +
                 rows() + "*" + cols() + "*" + CvType.typeToString(type()) +
                 ", isCont=" + isContinuous() + ", isSubmat=" + isSubmatrix() +
                 ", nativeObj=0x" + Long.toHexString(nativeObj) +
@@ -923,210 +938,228 @@ public class CvMat {
                 " ]";
     }
 
-    // javadoc:CvMat::dump()
+    // javadoc:Mat::dump()
     public String dump() {
         return nDump(nativeObj);
     }
 
-    // javadoc:CvMat::put(row,col,data)
+    // javadoc:Mat::put(row,col,data)
     public int put(int row, int col, double... data) {
         int t = type();
         if (data == null || data.length % CvType.channels(t) != 0)
             throw new java.lang.UnsupportedOperationException(
                     "Provided data element number (" +
                             (data == null ? 0 : data.length) +
-                            ") should be multiple of the CvMat channels count (" +
+                            ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
         return nPutD(nativeObj, row, col, data.length, data);
     }
 
-    // javadoc:CvMat::put(row,col,data)
+    // javadoc:Mat::put(row,col,data)
     public int put(int row, int col, float[] data) {
         int t = type();
         if (data == null || data.length % CvType.channels(t) != 0)
             throw new java.lang.UnsupportedOperationException(
                     "Provided data element number (" +
                             (data == null ? 0 : data.length) +
-                            ") should be multiple of the CvMat channels count (" +
+                            ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
-        if (CvType.depth(t) == CvType.CC_32F) {
+        if (CvType.depth(t) == CvType.CV_32F) {
             return nPutF(nativeObj, row, col, data.length, data);
         }
-        throw new java.lang.UnsupportedOperationException("CvMat data type is not compatible: " + t);
+        throw new java.lang.UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
 
-    // javadoc:CvMat::put(row,col,data)
+    // javadoc:Mat::put(row,col,data)
     public int put(int row, int col, int[] data) {
         int t = type();
         if (data == null || data.length % CvType.channels(t) != 0)
             throw new java.lang.UnsupportedOperationException(
                     "Provided data element number (" +
                             (data == null ? 0 : data.length) +
-                            ") should be multiple of the CvMat channels count (" +
+                            ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
-        if (CvType.depth(t) == CvType.CC_32S) {
+        if (CvType.depth(t) == CvType.CV_32S) {
             return nPutI(nativeObj, row, col, data.length, data);
         }
-        throw new java.lang.UnsupportedOperationException("CvMat data type is not compatible: " + t);
+        throw new java.lang.UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
 
-    // javadoc:CvMat::put(row,col,data)
+    // javadoc:Mat::put(row,col,data)
     public int put(int row, int col, short[] data) {
         int t = type();
         if (data == null || data.length % CvType.channels(t) != 0)
             throw new java.lang.UnsupportedOperationException(
                     "Provided data element number (" +
                             (data == null ? 0 : data.length) +
-                            ") should be multiple of the CvMat channels count (" +
+                            ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
-        if (CvType.depth(t) == CvType.CC_16U || CvType.depth(t) == CvType.CC_16S) {
+        if (CvType.depth(t) == CvType.CV_16U || CvType.depth(t) == CvType.CV_16S) {
             return nPutS(nativeObj, row, col, data.length, data);
         }
-        throw new java.lang.UnsupportedOperationException("CvMat data type is not compatible: " + t);
+        throw new java.lang.UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
 
-    // javadoc:CvMat::put(row,col,data)
+    // javadoc:Mat::put(row,col,data)
     public int put(int row, int col, byte[] data) {
         int t = type();
         if (data == null || data.length % CvType.channels(t) != 0)
             throw new java.lang.UnsupportedOperationException(
                     "Provided data element number (" +
                             (data == null ? 0 : data.length) +
-                            ") should be multiple of the CvMat channels count (" +
+                            ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
-        if (CvType.depth(t) == CvType.CC_8U || CvType.depth(t) == CvType.CC_8S) {
+        if (CvType.depth(t) == CvType.CV_8U || CvType.depth(t) == CvType.CV_8S) {
             return nPutB(nativeObj, row, col, data.length, data);
         }
-        throw new java.lang.UnsupportedOperationException("CvMat data type is not compatible: " + t);
+        throw new java.lang.UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
 
-    // javadoc:CvMat::get(row,col,data)
+    // javadoc:Mat::put(row,col,data,offset,length)
+    public int put(int row, int col, byte[] data, int offset, int length) {
+        int t = type();
+        if (data == null || length % CvType.channels(t) != 0)
+            throw new java.lang.UnsupportedOperationException(
+                    "Provided data element number (" +
+                            (data == null ? 0 : data.length) +
+                            ") should be multiple of the Mat channels count (" +
+                            CvType.channels(t) + ")");
+        if (CvType.depth(t) == CvType.CV_8U || CvType.depth(t) == CvType.CV_8S) {
+            return nPutBwOffset(nativeObj, row, col, length, offset, data);
+        }
+        throw new java.lang.UnsupportedOperationException("Mat data type is not compatible: " + t);
+    }
+
+    // javadoc:Mat::get(row,col,data)
     public int get(int row, int col, byte[] data) {
         int t = type();
         if (data == null || data.length % CvType.channels(t) != 0)
             throw new java.lang.UnsupportedOperationException(
                     "Provided data element number (" +
                             (data == null ? 0 : data.length) +
-                            ") should be multiple of the CvMat channels count (" +
+                            ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
-        if (CvType.depth(t) == CvType.CC_8U || CvType.depth(t) == CvType.CC_8S) {
+        if (CvType.depth(t) == CvType.CV_8U || CvType.depth(t) == CvType.CV_8S) {
             return nGetB(nativeObj, row, col, data.length, data);
         }
-        throw new java.lang.UnsupportedOperationException("CvMat data type is not compatible: " + t);
+        throw new java.lang.UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
 
-    // javadoc:CvMat::get(row,col,data)
+    // javadoc:Mat::get(row,col,data)
     public int get(int row, int col, short[] data) {
         int t = type();
         if (data == null || data.length % CvType.channels(t) != 0)
             throw new java.lang.UnsupportedOperationException(
                     "Provided data element number (" +
                             (data == null ? 0 : data.length) +
-                            ") should be multiple of the CvMat channels count (" +
+                            ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
-        if (CvType.depth(t) == CvType.CC_16U || CvType.depth(t) == CvType.CC_16S) {
+        if (CvType.depth(t) == CvType.CV_16U || CvType.depth(t) == CvType.CV_16S) {
             return nGetS(nativeObj, row, col, data.length, data);
         }
-        throw new java.lang.UnsupportedOperationException("CvMat data type is not compatible: " + t);
+        throw new java.lang.UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
 
-    // javadoc:CvMat::get(row,col,data)
+    // javadoc:Mat::get(row,col,data)
     public int get(int row, int col, int[] data) {
         int t = type();
         if (data == null || data.length % CvType.channels(t) != 0)
             throw new java.lang.UnsupportedOperationException(
                     "Provided data element number (" +
                             (data == null ? 0 : data.length) +
-                            ") should be multiple of the CvMat channels count (" +
+                            ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
-        if (CvType.depth(t) == CvType.CC_32S) {
+        if (CvType.depth(t) == CvType.CV_32S) {
             return nGetI(nativeObj, row, col, data.length, data);
         }
-        throw new java.lang.UnsupportedOperationException("CvMat data type is not compatible: " + t);
+        throw new java.lang.UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
 
-    // javadoc:CvMat::get(row,col,data)
+    // javadoc:Mat::get(row,col,data)
     public int get(int row, int col, float[] data) {
         int t = type();
         if (data == null || data.length % CvType.channels(t) != 0)
             throw new java.lang.UnsupportedOperationException(
                     "Provided data element number (" +
                             (data == null ? 0 : data.length) +
-                            ") should be multiple of the CvMat channels count (" +
+                            ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
-        if (CvType.depth(t) == CvType.CC_32F) {
+        if (CvType.depth(t) == CvType.CV_32F) {
             return nGetF(nativeObj, row, col, data.length, data);
         }
-        throw new java.lang.UnsupportedOperationException("CvMat data type is not compatible: " + t);
+        throw new java.lang.UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
 
-    // javadoc:CvMat::get(row,col,data)
+    // javadoc:Mat::get(row,col,data)
     public int get(int row, int col, double[] data) {
         int t = type();
         if (data == null || data.length % CvType.channels(t) != 0)
             throw new java.lang.UnsupportedOperationException(
                     "Provided data element number (" +
                             (data == null ? 0 : data.length) +
-                            ") should be multiple of the CvMat channels count (" +
+                            ") should be multiple of the Mat channels count (" +
                             CvType.channels(t) + ")");
-        if (CvType.depth(t) == CvType.CC_64F) {
+        if (CvType.depth(t) == CvType.CV_64F) {
             return nGetD(nativeObj, row, col, data.length, data);
         }
-        throw new java.lang.UnsupportedOperationException("CvMat data type is not compatible: " + t);
+        throw new java.lang.UnsupportedOperationException("Mat data type is not compatible: " + t);
     }
 
-    // javadoc:CvMat::get(row,col)
+    // javadoc:Mat::get(row,col)
     public double[] get(int row, int col) {
         return nGet(nativeObj, row, col);
     }
 
-    // javadoc:CvMat::height()
+    // javadoc:Mat::height()
     public int height() {
         return rows();
     }
 
-    // javadoc:CvMat::width()
+    // javadoc:Mat::width()
     public int width() {
         return cols();
     }
 
-    // javadoc:CvMat::getNativeObjAddr()
+    // javadoc:Mat::getNativeObjAddr()
     public long getNativeObjAddr() {
         return nativeObj;
     }
 
-    // C++: CvMat::CvMat()
+    // C++: Mat::Mat()
     private static native long n_Mat();
 
-    // C++: CvMat::CvMat(int rows, int cols, int type)
+    // C++: Mat::Mat(int rows, int cols, int type)
     private static native long n_Mat(int rows, int cols, int type);
 
-    // C++: CvMat::CvMat(Size size, int type)
+    // C++: Mat::Mat(int rows, int cols, int type, void* data)
+    private static native long n_Mat(int rows, int cols, int type, ByteBuffer data);
+
+    // C++: Mat::Mat(Size size, int type)
     private static native long n_Mat(double size_width, double size_height, int type);
 
-    // C++: CvMat::CvMat(int rows, int cols, int type, Scalar s)
+    // C++: Mat::Mat(int rows, int cols, int type, Scalar s)
     private static native long n_Mat(int rows, int cols, int type, double s_val0, double s_val1, double s_val2, double s_val3);
 
-    // C++: CvMat::CvMat(Size size, int type, Scalar s)
+    // C++: Mat::Mat(Size size, int type, Scalar s)
     private static native long n_Mat(double size_width, double size_height, int type, double s_val0, double s_val1, double s_val2, double s_val3);
 
-    // C++: CvMat::CvMat(CvMat m, Range rowRange, Range colRange = Range::all())
+    // C++: Mat::Mat(Mat m, Range rowRange, Range colRange = Range::all())
     private static native long n_Mat(long m_nativeObj, int rowRange_start, int rowRange_end, int colRange_start, int colRange_end);
 
     private static native long n_Mat(long m_nativeObj, int rowRange_start, int rowRange_end);
 
-    // C++: CvMat CvMat::adjustROI(int dtop, int dbottom, int dleft, int dright)
+    // C++: Mat Mat::adjustROI(int dtop, int dbottom, int dleft, int dright)
     private static native long n_adjustROI(long nativeObj, int dtop, int dbottom, int dleft, int dright);
 
-    // C++: void CvMat::assignTo(CvMat m, int type = -1)
+    // C++: void Mat::assignTo(Mat m, int type = -1)
     private static native void n_assignTo(long nativeObj, long m_nativeObj, int type);
 
     private static native void n_assignTo(long nativeObj, long m_nativeObj);
 
-    // C++: int CvMat::channels()
+    // C++: int Mat::channels()
     private static native int n_channels(long nativeObj);
 
-    // C++: int CvMat::checkVector(int elemChannels, int depth = -1, bool
+    // C++: int Mat::checkVector(int elemChannels, int depth = -1, bool
     // requireContinuous = true)
     private static native int n_checkVector(long nativeObj, int elemChannels, int depth, boolean requireContinuous);
 
@@ -1134,22 +1167,22 @@ public class CvMat {
 
     private static native int n_checkVector(long nativeObj, int elemChannels);
 
-    // C++: CvMat CvMat::clone()
+    // C++: Mat Mat::clone()
     private static native long n_clone(long nativeObj);
 
-    // C++: CvMat CvMat::col(int x)
+    // C++: Mat Mat::col(int x)
     private static native long n_col(long nativeObj, int x);
 
-    // C++: CvMat CvMat::colRange(int startcol, int endcol)
+    // C++: Mat Mat::colRange(int startcol, int endcol)
     private static native long n_colRange(long nativeObj, int startcol, int endcol);
 
-    // C++: int CvMat::dims()
+    // C++: int Mat::dims()
     private static native int n_dims(long nativeObj);
 
-    // C++: int CvMat::cols()
+    // C++: int Mat::cols()
     private static native int n_cols(long nativeObj);
 
-    // C++: void CvMat::convertTo(CvMat& m, int rtype, double alpha = 1, double beta
+    // C++: void Mat::convertTo(Mat& m, int rtype, double alpha = 1, double beta
     // = 0)
     private static native void n_convertTo(long nativeObj, long m_nativeObj, int rtype, double alpha, double beta);
 
@@ -1157,134 +1190,134 @@ public class CvMat {
 
     private static native void n_convertTo(long nativeObj, long m_nativeObj, int rtype);
 
-    // C++: void CvMat::copyTo(CvMat& m)
+    // C++: void Mat::copyTo(Mat& m)
     private static native void n_copyTo(long nativeObj, long m_nativeObj);
 
-    // C++: void CvMat::copyTo(CvMat& m, CvMat mask)
+    // C++: void Mat::copyTo(Mat& m, Mat mask)
     private static native void n_copyTo(long nativeObj, long m_nativeObj, long mask_nativeObj);
 
-    // C++: void CvMat::create(int rows, int cols, int type)
+    // C++: void Mat::create(int rows, int cols, int type)
     private static native void n_create(long nativeObj, int rows, int cols, int type);
 
-    // C++: void CvMat::create(Size size, int type)
+    // C++: void Mat::create(Size size, int type)
     private static native void n_create(long nativeObj, double size_width, double size_height, int type);
 
-    // C++: CvMat CvMat::cross(CvMat m)
+    // C++: Mat Mat::cross(Mat m)
     private static native long n_cross(long nativeObj, long m_nativeObj);
 
-    // C++: long CvMat::dataAddr()
+    // C++: long Mat::dataAddr()
     private static native long n_dataAddr(long nativeObj);
 
-    // C++: int CvMat::depth()
+    // C++: int Mat::depth()
     private static native int n_depth(long nativeObj);
 
-    // C++: CvMat CvMat::diag(int d = 0)
+    // C++: Mat Mat::diag(int d = 0)
     private static native long n_diag(long nativeObj, int d);
 
-    // C++: static CvMat CvMat::diag(CvMat d)
+    // C++: static Mat Mat::diag(Mat d)
     private static native long n_diag(long d_nativeObj);
 
-    // C++: double CvMat::dot(CvMat m)
+    // C++: double Mat::dot(Mat m)
     private static native double n_dot(long nativeObj, long m_nativeObj);
 
-    // C++: size_t CvMat::elemSize()
+    // C++: size_t Mat::elemSize()
     private static native long n_elemSize(long nativeObj);
 
-    // C++: size_t CvMat::elemSize1()
+    // C++: size_t Mat::elemSize1()
     private static native long n_elemSize1(long nativeObj);
 
-    // C++: bool CvMat::empty()
+    // C++: bool Mat::empty()
     private static native boolean n_empty(long nativeObj);
 
-    // C++: static CvMat CvMat::eye(int rows, int cols, int type)
+    // C++: static Mat Mat::eye(int rows, int cols, int type)
     private static native long n_eye(int rows, int cols, int type);
 
-    // C++: static CvMat CvMat::eye(Size size, int type)
+    // C++: static Mat Mat::eye(Size size, int type)
     private static native long n_eye(double size_width, double size_height, int type);
 
-    // C++: CvMat CvMat::inv(int method = DECOMP_LU)
+    // C++: Mat Mat::inv(int method = DECOMP_LU)
     private static native long n_inv(long nativeObj, int method);
 
     private static native long n_inv(long nativeObj);
 
-    // C++: bool CvMat::isContinuous()
+    // C++: bool Mat::isContinuous()
     private static native boolean n_isContinuous(long nativeObj);
 
-    // C++: bool CvMat::isSubmatrix()
+    // C++: bool Mat::isSubmatrix()
     private static native boolean n_isSubmatrix(long nativeObj);
 
-    // C++: void CvMat::locateROI(Size wholeSize, Point ofs)
+    // C++: void Mat::locateROI(Size wholeSize, Point ofs)
     private static native void locateROI_0(long nativeObj, double[] wholeSize_out, double[] ofs_out);
 
-    // C++: CvMat CvMat::mul(CvMat m, double scale = 1)
+    // C++: Mat Mat::mul(Mat m, double scale = 1)
     private static native long n_mul(long nativeObj, long m_nativeObj, double scale);
 
     private static native long n_mul(long nativeObj, long m_nativeObj);
 
-    // C++: static CvMat CvMat::ones(int rows, int cols, int type)
+    // C++: static Mat Mat::ones(int rows, int cols, int type)
     private static native long n_ones(int rows, int cols, int type);
 
-    // C++: static CvMat CvMat::ones(Size size, int type)
+    // C++: static Mat Mat::ones(Size size, int type)
     private static native long n_ones(double size_width, double size_height, int type);
 
-    // C++: void CvMat::push_back(CvMat m)
+    // C++: void Mat::push_back(Mat m)
     private static native void n_push_back(long nativeObj, long m_nativeObj);
 
-    // C++: void CvMat::release()
+    // C++: void Mat::release()
     private static native void n_release(long nativeObj);
 
-    // C++: CvMat CvMat::reshape(int cn, int rows = 0)
+    // C++: Mat Mat::reshape(int cn, int rows = 0)
     private static native long n_reshape(long nativeObj, int cn, int rows);
 
     private static native long n_reshape(long nativeObj, int cn);
 
-    // C++: CvMat CvMat::row(int y)
+    // C++: Mat Mat::row(int y)
     private static native long n_row(long nativeObj, int y);
 
-    // C++: CvMat CvMat::rowRange(int startrow, int endrow)
+    // C++: Mat Mat::rowRange(int startrow, int endrow)
     private static native long n_rowRange(long nativeObj, int startrow, int endrow);
 
-    // C++: int CvMat::rows()
+    // C++: int Mat::rows()
     private static native int n_rows(long nativeObj);
 
-    // C++: CvMat CvMat::operator =(Scalar s)
+    // C++: Mat Mat::operator =(Scalar s)
     private static native long n_setTo(long nativeObj, double s_val0, double s_val1, double s_val2, double s_val3);
 
-    // C++: CvMat CvMat::setTo(Scalar value, CvMat mask = CvMat())
+    // C++: Mat Mat::setTo(Scalar value, Mat mask = Mat())
     private static native long n_setTo(long nativeObj, double s_val0, double s_val1, double s_val2, double s_val3, long mask_nativeObj);
 
-    // C++: CvMat CvMat::setTo(CvMat value, CvMat mask = CvMat())
+    // C++: Mat Mat::setTo(Mat value, Mat mask = Mat())
     private static native long n_setTo(long nativeObj, long value_nativeObj, long mask_nativeObj);
 
     private static native long n_setTo(long nativeObj, long value_nativeObj);
 
-    // C++: Size CvMat::size()
+    // C++: Size Mat::size()
     private static native double[] n_size(long nativeObj);
 
-    // C++: size_t CvMat::step1(int i = 0)
+    // C++: size_t Mat::step1(int i = 0)
     private static native long n_step1(long nativeObj, int i);
 
     private static native long n_step1(long nativeObj);
 
-    // C++: CvMat CvMat::operator()(Range rowRange, Range colRange)
+    // C++: Mat Mat::operator()(Range rowRange, Range colRange)
     private static native long n_submat_rr(long nativeObj, int rowRange_start, int rowRange_end, int colRange_start, int colRange_end);
 
-    // C++: CvMat CvMat::operator()(Rect roi)
+    // C++: Mat Mat::operator()(Rect roi)
     private static native long n_submat(long nativeObj, int roi_x, int roi_y, int roi_width, int roi_height);
 
-    // C++: CvMat CvMat::t()
+    // C++: Mat Mat::t()
     private static native long n_t(long nativeObj);
 
-    // C++: size_t CvMat::total()
+    // C++: size_t Mat::total()
     private static native long n_total(long nativeObj);
 
-    // C++: int CvMat::type()
+    // C++: int Mat::type()
     private static native int n_type(long nativeObj);
 
-    // C++: static CvMat CvMat::zeros(int rows, int cols, int type)
+    // C++: static Mat Mat::zeros(int rows, int cols, int type)
     private static native long n_zeros(int rows, int cols, int type);
 
-    // C++: static CvMat CvMat::zeros(Size size, int type)
+    // C++: static Mat Mat::zeros(Size size, int type)
     private static native long n_zeros(double size_width, double size_height, int type);
 
     // native support for java finalize()
@@ -1299,6 +1332,8 @@ public class CvMat {
     private static native int nPutS(long self, int row, int col, int count, short[] data);
 
     private static native int nPutB(long self, int row, int col, int count, byte[] data);
+
+    private static native int nPutBwOffset(long self, int row, int col, int count, int offset, byte[] data);
 
     private static native int nGetB(long self, int row, int col, int count, byte[] vals);
 

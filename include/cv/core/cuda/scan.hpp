@@ -1,7 +1,47 @@
+/*M///////////////////////////////////////////////////////////////////////////////////////
+//
+//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
+//
+//  By downloading, copying, installing or using the software you agree to this license.
+//  If you do not agree to this license, do not download, install,
+//  copy or use the software.
+//
+//
+//                           License Agreement
+//                For Open Source Computer Vision Library
+//
+// Copyright (C) 2000-2008, Intel Corporation, all rights reserved.
+// Copyright (C) 2009, Willow Garage Inc., all rights reserved.
+// Third party copyrights are property of their respective owners.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//   * Redistribution's of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//
+//   * Redistribution's in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//
+//   * The name of the copyright holders may not be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+//
+// This software is provided by the copyright holders and contributors "as is" and
+// any express or implied warranties, including, but not limited to, the implied
+// warranties of merchantability and fitness for a particular purpose are disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any direct,
+// indirect, incidental, special, exemplary, or consequential damages
+// (including, but not limited to, procurement of substitute goods or services;
+// loss of use, data, or profits; or business interruption) however caused
+// and on any theory of liability, whether in contract, strict liability,
+// or tort (including negligence or otherwise) arising in any way out of
+// the use of this software, even if advised of the possibility of such damage.
+//
+//M*/
 
-
-#ifndef OPENCC_CUDA_SCAN_HPP
-#define OPENCC_CUDA_SCAN_HPP
+#ifndef OPENCV_CUDA_SCAN_HPP
+#define OPENCV_CUDA_SCAN_HPP
 
 #include "opencv2/core/cuda/common.hpp"
 #include "opencv2/core/cuda/utility.hpp"
@@ -140,22 +180,22 @@ namespace cv { namespace cuda { namespace device
     __device__ T warpScanInclusive(T idata, volatile T* s_Data, unsigned int tid)
     {
     #if __CUDA_ARCH__ >= 300
-        const unsigned int laneId = cuda::device::Warp::laneId();
+        const unsigned int laneId = cv::cuda::device::Warp::laneId();
 
         // scan on shuffl functions
         #pragma unroll
-        for (int i = 1; i <= (OPENCC_CUDA_WARP_SIZE / 2); i *= 2)
+        for (int i = 1; i <= (OPENCV_CUDA_WARP_SIZE / 2); i *= 2)
         {
-            const T n = cuda::device::shfl_up(idata, i);
+            const T n = cv::cuda::device::shfl_up(idata, i);
             if (laneId >= i)
                   idata += n;
         }
 
         return idata;
     #else
-        unsigned int pos = 2 * tid - (tid & (OPENCC_CUDA_WARP_SIZE - 1));
+        unsigned int pos = 2 * tid - (tid & (OPENCV_CUDA_WARP_SIZE - 1));
         s_Data[pos] = 0;
-        pos += OPENCC_CUDA_WARP_SIZE;
+        pos += OPENCV_CUDA_WARP_SIZE;
         s_Data[pos] = idata;
 
         s_Data[pos] += s_Data[pos - 1];
@@ -177,7 +217,7 @@ namespace cv { namespace cuda { namespace device
     template <int tiNumScanThreads, typename T>
     __device__ T blockScanInclusive(T idata, volatile T* s_Data, unsigned int tid)
     {
-        if (tiNumScanThreads > OPENCC_CUDA_WARP_SIZE)
+        if (tiNumScanThreads > OPENCV_CUDA_WARP_SIZE)
         {
             //Bottom-level inclusive warp scan
             T warpResult = warpScanInclusive(idata, s_Data, tid);
@@ -185,15 +225,15 @@ namespace cv { namespace cuda { namespace device
             //Save top elements of each warp for exclusive warp scan
             //sync to wait for warp scans to complete (because s_Data is being overwritten)
             __syncthreads();
-            if ((tid & (OPENCC_CUDA_WARP_SIZE - 1)) == (OPENCC_CUDA_WARP_SIZE - 1))
+            if ((tid & (OPENCV_CUDA_WARP_SIZE - 1)) == (OPENCV_CUDA_WARP_SIZE - 1))
             {
-                s_Data[tid >> OPENCC_CUDA_LOG_WARP_SIZE] = warpResult;
+                s_Data[tid >> OPENCV_CUDA_LOG_WARP_SIZE] = warpResult;
             }
 
             //wait for warp scans to complete
             __syncthreads();
 
-            if (tid < (tiNumScanThreads / OPENCC_CUDA_WARP_SIZE) )
+            if (tid < (tiNumScanThreads / OPENCV_CUDA_WARP_SIZE) )
             {
                 //grab top warp elements
                 T val = s_Data[tid];
@@ -204,7 +244,7 @@ namespace cv { namespace cuda { namespace device
             //return updated warp scans with exclusive scan results
             __syncthreads();
 
-            return warpResult + s_Data[tid >> OPENCC_CUDA_LOG_WARP_SIZE];
+            return warpResult + s_Data[tid >> OPENCV_CUDA_LOG_WARP_SIZE];
         }
         else
         {
@@ -215,4 +255,4 @@ namespace cv { namespace cuda { namespace device
 
 //! @endcond
 
-#endif // OPENCC_CUDA_SCAN_HPP
+#endif // OPENCV_CUDA_SCAN_HPP

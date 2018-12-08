@@ -286,8 +286,8 @@ static int LZW_out_line(gif_load_t* fmt, image_iterator* iter, unsigned char* pi
 #define bad_code_count (*pbad_code_count)
 static short LZW_decode(gif_load_t* fmt, stream_t* file, image_iterator* iter, short linewidth, int* pbad_code_count)
 {
-  register uint8* sp, *bufptr;
-  uint8* buf;
+  register uint8* sp = NULL, *bufptr = NULL;
+  uint8* buf = NULL;
   register short code, fc, oc, bufcnt;
   short c, size, ret;
 

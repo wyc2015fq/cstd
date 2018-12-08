@@ -1,14 +1,11 @@
+// This file is part of OpenCV project.
+// It is subject to the license terms in the LICENSE file found in the top-level directory
+// of this distribution and at http://opencv.org/license.html.
 #include "perf_precomp.hpp"
 
-#include "cmath"
+namespace opencv_test {
 
-using namespace std;
-using namespace cv;
-using namespace perf;
-using std::tr1::make_tuple;
-using std::tr1::get;
-
-typedef std::tr1::tuple<string, double, double, double> Image_RhoStep_ThetaStep_Threshold_t;
+typedef tuple<string, double, double, double> Image_RhoStep_ThetaStep_Threshold_t;
 typedef perf::TestBaseWithParam<Image_RhoStep_ThetaStep_Threshold_t> Image_RhoStep_ThetaStep_Threshold;
 
 PERF_TEST_P(Image_RhoStep_ThetaStep_Threshold, HoughLines,
@@ -25,7 +22,7 @@ PERF_TEST_P(Image_RhoStep_ThetaStep_Threshold, HoughLines,
     double thetaStep = get<2>(GetParam());
     double threshold_ratio = get<3>(GetParam());
 
-    CvMat image = imread(filename, IMREAD_GRAYSCALE);
+    Mat image = imread(filename, IMREAD_GRAYSCALE);
     if (image.empty())
         FAIL() << "Unable to load source image" << filename;
 
@@ -38,9 +35,9 @@ PERF_TEST_P(Image_RhoStep_ThetaStep_Threshold, HoughLines,
     vector<Vec2f> lines;
     declare.time(60);
 
-    int threshold = (int)(MIN(image.cols, image.rows) * threshold_ratio);
+    int hough_threshold = (int)(std::min(image.cols, image.rows) * threshold_ratio);
 
-    TEST_CYCLE() HoughLines(image, lines, rhoStep, thetaStep, threshold);
+    TEST_CYCLE() HoughLines(image, lines, rhoStep, thetaStep, hough_threshold);
 
     printf("%dx%d: %d lines\n", image.cols, image.rows, (int)lines.size());
 
@@ -52,7 +49,7 @@ PERF_TEST_P(Image_RhoStep_ThetaStep_Threshold, HoughLines,
     EXPECT_LT(lines.size(), 3000u);
 
 #if 0
-    cvtColor(image,image,COLOR_GRAY2BGR);
+    cv::cvtColor(image,image,cv::COLOR_GRAY2BGR);
     for( size_t i = 0; i < lines.size(); i++ )
     {
         float rho = lines[i][0], theta = lines[i][1];
@@ -63,11 +60,13 @@ PERF_TEST_P(Image_RhoStep_ThetaStep_Threshold, HoughLines,
         pt1.y = cvRound(y0 + 1000*(a));
         pt2.x = cvRound(x0 - 1000*(-b));
         pt2.y = cvRound(y0 - 1000*(a));
-        line(image, pt1, pt2, Scalar(0,0,255), 1, LINE_AA);
+        line(image, pt1, pt2, Scalar(0,0,255), 1, cv::LINE_AA);
     }
-    imshow("result", image);
-    waitKey();
+    cv::imshow("result", image);
+    cv::waitKey();
 #endif
 
     SANITY_CHECK_NOTHING();
 }
+
+} // namespace

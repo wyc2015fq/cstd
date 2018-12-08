@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.opencv.core.KeyPoint;
 
-public class MatOfKeyPoint extends CvMat {
+public class MatOfKeyPoint extends Mat {
     // 32FC7
-    private static final int _depth = CvType.CC_32F;
+    private static final int _depth = CvType.CV_32F;
     private static final int _channels = 7;
 
     public MatOfKeyPoint() {
@@ -17,7 +17,7 @@ public class MatOfKeyPoint extends CvMat {
     protected MatOfKeyPoint(long addr) {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
-            throw new IllegalArgumentException("Incompatible CvMat");
+            throw new IllegalArgumentException("Incompatible Mat");
         //FIXME: do we need release() here?
     }
 
@@ -25,10 +25,10 @@ public class MatOfKeyPoint extends CvMat {
         return new MatOfKeyPoint(addr);
     }
 
-    public MatOfKeyPoint(CvMat m) {
+    public MatOfKeyPoint(Mat m) {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
-            throw new IllegalArgumentException("Incompatible CvMat");
+            throw new IllegalArgumentException("Incompatible Mat");
         //FIXME: do we need release() here?
     }
 

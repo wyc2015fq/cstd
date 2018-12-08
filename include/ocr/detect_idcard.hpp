@@ -25,7 +25,6 @@ int proc_key(int c, int npic, int& iline) {
 }
 
 #include "opencvex/opencvex.hpp"
-using namespace cv;
 
 RotatedRect face_rect_to_card_rect(const RotatedRect& face, double y_off_scale, double scalex, double scaley) {
   double w = face.size.width;

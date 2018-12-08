@@ -42,8 +42,8 @@
 //M*/
 
 
-#ifndef OPENCC_CORE_EIGEN_HPP
-#define OPENCC_CORE_EIGEN_HPP
+#ifndef OPENCV_CORE_EIGEN_HPP
+#define OPENCV_CORE_EIGEN_HPP
 
 #include "opencv2/core.hpp"
 
@@ -60,18 +60,18 @@ namespace cv
 //! @{
 
 template<typename _Tp, int _rows, int _cols, int _options, int _maxRows, int _maxCols> static inline
-void eigen2cv( const Eigen::Matrix<_Tp, _rows, _cols, _options, _maxRows, _maxCols>& src, CvMat& dst )
+void eigen2cv( const Eigen::Matrix<_Tp, _rows, _cols, _options, _maxRows, _maxCols>& src, Mat& dst )
 {
     if( !(src.Flags & Eigen::RowMajorBit) )
     {
-        CvMat _src(src.cols(), src.rows(), DataType<_Tp>::type,
-              (void*)src.data(), src.stride()*sizeof(_Tp));
+        Mat _src(src.cols(), src.rows(), traits::Type<_Tp>::value,
+              (void*)src.data(), src.outerStride()*sizeof(_Tp));
         transpose(_src, dst);
     }
     else
     {
-        CvMat _src(src.rows(), src.cols(), DataType<_Tp>::type,
-                 (void*)src.data(), src.stride()*sizeof(_Tp));
+        Mat _src(src.rows(), src.cols(), traits::Type<_Tp>::value,
+                 (void*)src.data(), src.outerStride()*sizeof(_Tp));
         _src.copyTo(dst);
     }
 }
@@ -92,29 +92,29 @@ void eigen2cv( const Eigen::Matrix<_Tp, _rows, _cols, _options, _maxRows, _maxCo
 }
 
 template<typename _Tp, int _rows, int _cols, int _options, int _maxRows, int _maxCols> static inline
-void cv2eigen( const CvMat& src,
+void cv2eigen( const Mat& src,
                Eigen::Matrix<_Tp, _rows, _cols, _options, _maxRows, _maxCols>& dst )
 {
-    CC_DbgAssert(src.rows == _rows && src.cols == _cols);
+    CV_DbgAssert(src.rows == _rows && src.cols == _cols);
     if( !(dst.Flags & Eigen::RowMajorBit) )
     {
-        const CvMat _dst(src.cols, src.rows, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
-        if( src CC_MAT_TYPE() == _dst CC_MAT_TYPE() )
+        const Mat _dst(src.cols, src.rows, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
+        if( src.type() == _dst.type() )
             transpose(src, _dst);
         else if( src.cols == src.rows )
         {
-            src.convertTo(_dst, _dst CC_MAT_TYPE());
+            src.convertTo(_dst, _dst.type());
             transpose(_dst, _dst);
         }
         else
-            CvMat(src.t()).convertTo(_dst, _dst CC_MAT_TYPE());
+            Mat(src.t()).convertTo(_dst, _dst.type());
     }
     else
     {
-        const CvMat _dst(src.rows, src.cols, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
-        src.convertTo(_dst, _dst CC_MAT_TYPE());
+        const Mat _dst(src.rows, src.cols, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
+        src.convertTo(_dst, _dst.type());
     }
 }
 
@@ -125,42 +125,42 @@ void cv2eigen( const Matx<_Tp, _rows, _cols>& src,
 {
     if( !(dst.Flags & Eigen::RowMajorBit) )
     {
-        const CvMat _dst(_cols, _rows, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
+        const Mat _dst(_cols, _rows, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
         transpose(src, _dst);
     }
     else
     {
-        const CvMat _dst(_rows, _cols, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
-        CvMat(src).copyTo(_dst);
+        const Mat _dst(_rows, _cols, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
+        Mat(src).copyTo(_dst);
     }
 }
 
 template<typename _Tp>  static inline
-void cv2eigen( const CvMat& src,
+void cv2eigen( const Mat& src,
                Eigen::Matrix<_Tp, Eigen::Dynamic, Eigen::Dynamic>& dst )
 {
     dst.resize(src.rows, src.cols);
     if( !(dst.Flags & Eigen::RowMajorBit) )
     {
-        const CvMat _dst(src.cols, src.rows, DataType<_Tp>::type,
-             dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
-        if( src CC_MAT_TYPE() == _dst CC_MAT_TYPE() )
+        const Mat _dst(src.cols, src.rows, traits::Type<_Tp>::value,
+             dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
+        if( src.type() == _dst.type() )
             transpose(src, _dst);
         else if( src.cols == src.rows )
         {
-            src.convertTo(_dst, _dst CC_MAT_TYPE());
+            src.convertTo(_dst, _dst.type());
             transpose(_dst, _dst);
         }
         else
-            CvMat(src.t()).convertTo(_dst, _dst CC_MAT_TYPE());
+            Mat(src.t()).convertTo(_dst, _dst.type());
     }
     else
     {
-        const CvMat _dst(src.rows, src.cols, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
-        src.convertTo(_dst, _dst CC_MAT_TYPE());
+        const Mat _dst(src.rows, src.cols, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
+        src.convertTo(_dst, _dst.type());
     }
 }
 
@@ -172,39 +172,39 @@ void cv2eigen( const Matx<_Tp, _rows, _cols>& src,
     dst.resize(_rows, _cols);
     if( !(dst.Flags & Eigen::RowMajorBit) )
     {
-        const CvMat _dst(_cols, _rows, DataType<_Tp>::type,
-             dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
+        const Mat _dst(_cols, _rows, traits::Type<_Tp>::value,
+             dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
         transpose(src, _dst);
     }
     else
     {
-        const CvMat _dst(_rows, _cols, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
-        CvMat(src).copyTo(_dst);
+        const Mat _dst(_rows, _cols, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
+        Mat(src).copyTo(_dst);
     }
 }
 
 template<typename _Tp> static inline
-void cv2eigen( const CvMat& src,
+void cv2eigen( const Mat& src,
                Eigen::Matrix<_Tp, Eigen::Dynamic, 1>& dst )
 {
-    CC_Assert(src.cols == 1);
+    CV_Assert(src.cols == 1);
     dst.resize(src.rows);
 
     if( !(dst.Flags & Eigen::RowMajorBit) )
     {
-        const CvMat _dst(src.cols, src.rows, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
-        if( src CC_MAT_TYPE() == _dst CC_MAT_TYPE() )
+        const Mat _dst(src.cols, src.rows, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
+        if( src.type() == _dst.type() )
             transpose(src, _dst);
         else
-            CvMat(src.t()).convertTo(_dst, _dst CC_MAT_TYPE());
+            Mat(src.t()).convertTo(_dst, _dst.type());
     }
     else
     {
-        const CvMat _dst(src.rows, src.cols, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
-        src.convertTo(_dst, _dst CC_MAT_TYPE());
+        const Mat _dst(src.rows, src.cols, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
+        src.convertTo(_dst, _dst.type());
     }
 }
 
@@ -217,39 +217,39 @@ void cv2eigen( const Matx<_Tp, _rows, 1>& src,
 
     if( !(dst.Flags & Eigen::RowMajorBit) )
     {
-        const CvMat _dst(1, _rows, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
+        const Mat _dst(1, _rows, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
         transpose(src, _dst);
     }
     else
     {
-        const CvMat _dst(_rows, 1, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
+        const Mat _dst(_rows, 1, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
         src.copyTo(_dst);
     }
 }
 
 
 template<typename _Tp> static inline
-void cv2eigen( const CvMat& src,
+void cv2eigen( const Mat& src,
                Eigen::Matrix<_Tp, 1, Eigen::Dynamic>& dst )
 {
-    CC_Assert(src.rows == 1);
+    CV_Assert(src.rows == 1);
     dst.resize(src.cols);
     if( !(dst.Flags & Eigen::RowMajorBit) )
     {
-        const CvMat _dst(src.cols, src.rows, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
-        if( src CC_MAT_TYPE() == _dst CC_MAT_TYPE() )
+        const Mat _dst(src.cols, src.rows, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
+        if( src.type() == _dst.type() )
             transpose(src, _dst);
         else
-            CvMat(src.t()).convertTo(_dst, _dst CC_MAT_TYPE());
+            Mat(src.t()).convertTo(_dst, _dst.type());
     }
     else
     {
-        const CvMat _dst(src.rows, src.cols, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
-        src.convertTo(_dst, _dst CC_MAT_TYPE());
+        const Mat _dst(src.rows, src.cols, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
+        src.convertTo(_dst, _dst.type());
     }
 }
 
@@ -261,15 +261,15 @@ void cv2eigen( const Matx<_Tp, 1, _cols>& src,
     dst.resize(_cols);
     if( !(dst.Flags & Eigen::RowMajorBit) )
     {
-        const CvMat _dst(_cols, 1, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
+        const Mat _dst(_cols, 1, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
         transpose(src, _dst);
     }
     else
     {
-        const CvMat _dst(1, _cols, DataType<_Tp>::type,
-                 dst.data(), (size_t)(dst.stride()*sizeof(_Tp)));
-        CvMat(src).copyTo(_dst);
+        const Mat _dst(1, _cols, traits::Type<_Tp>::value,
+                 dst.data(), (size_t)(dst.outerStride()*sizeof(_Tp)));
+        Mat(src).copyTo(_dst);
     }
 }
 

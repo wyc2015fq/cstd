@@ -1,15 +1,11 @@
 #include "perf_precomp.hpp"
 
-using namespace std;
-using namespace cv;
+namespace opencv_test
+{
 using namespace perf;
 
-using std::tr1::tuple;
-using std::tr1::make_tuple;
-using std::tr1::get;
-
 #define TYPICAL_MAT_SIZES_SORT  TYPICAL_MAT_SIZES
-#define TYPICAL_MAT_TYPES_SORT  CC_8UC1, CC_16UC1, CC_32FC1
+#define TYPICAL_MAT_TYPES_SORT  CV_8UC1, CV_16UC1, CV_32FC1
 #define SORT_TYPES              SORT_EVERY_ROW | SORT_ASCENDING, SORT_EVERY_ROW | SORT_DESCENDING
 #define TYPICAL_MATS_SORT       testing::Combine( testing::Values(TYPICAL_MAT_SIZES_SORT), testing::Values(TYPICAL_MAT_TYPES_SORT), testing::Values(SORT_TYPES) )
 
@@ -22,11 +18,11 @@ PERF_TEST_P(sortFixture, sort, TYPICAL_MATS_SORT)
     const Size sz = get<0>(params);
     const int type = get<1>(params), flags = get<2>(params);
 
-    CvMat a(sz, type), b(sz, type);
+    cv::Mat a(sz, type), b(sz, type);
 
     declare.in(a, WARMUP_RNG).out(b);
 
-    TEST_CYCLE() sort(a, b, flags);
+    TEST_CYCLE() cv::sort(a, b, flags);
 
     SANITY_CHECK(b);
 }
@@ -42,11 +38,13 @@ PERF_TEST_P(sortIdxFixture, sorIdx, TYPICAL_MATS_SORT)
     const Size sz = get<0>(params);
     const int type = get<1>(params), flags = get<2>(params);
 
-    CvMat a(sz, type), b(sz, type);
+    cv::Mat a(sz, type), b(sz, type);
 
     declare.in(a, WARMUP_RNG).out(b);
 
-    TEST_CYCLE() sortIdx(a, b, flags);
+    TEST_CYCLE() cv::sortIdx(a, b, flags);
 
     SANITY_CHECK_NOTHING();
 }
+
+} // namespace

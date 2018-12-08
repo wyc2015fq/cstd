@@ -39,8 +39,8 @@
 //
 //M*/
 
-#ifndef OPENCC_CORE_SSE_UTILS_HPP
-#define OPENCC_CORE_SSE_UTILS_HPP
+#ifndef OPENCV_CORE_SSE_UTILS_HPP
+#define OPENCV_CORE_SSE_UTILS_HPP
 
 #ifndef __cplusplus
 #  error sse_utils.hpp header must be compiled as C++
@@ -51,7 +51,7 @@
 //! @addtogroup core_utils_sse
 //! @{
 
-#if CC_SSE2
+#if CV_SSE2
 
 inline void _mm_deinterleave_epi8(__m128i & v_r0, __m128i & v_r1, __m128i & v_g0, __m128i & v_g1)
 {
@@ -386,7 +386,7 @@ inline void _mm_deinterleave_epi16(__m128i & v_r0, __m128i & v_r1, __m128i & v_g
     v_a1 = _mm_unpackhi_epi16(layer3_chunk3, layer3_chunk7);
 }
 
-#if CC_SSE4_1
+#if CV_SSE4_1
 
 inline void _mm_interleave_epi16(__m128i & v_r0, __m128i & v_r1, __m128i & v_g0, __m128i & v_g1)
 {
@@ -489,7 +489,7 @@ inline void _mm_interleave_epi16(__m128i & v_r0, __m128i & v_r1, __m128i & v_g0,
     v_a1 = _mm_packus_epi32(_mm_srli_epi32(layer1_chunk6, 16), _mm_srli_epi32(layer1_chunk7, 16));
 }
 
-#endif // CC_SSE4_1
+#endif // CV_SSE4_1
 
 inline void _mm_deinterleave_ps(__m128 & v_r0, __m128 & v_r1, __m128 & v_g0, __m128 & v_g1)
 {
@@ -645,8 +645,8 @@ inline void _mm_interleave_ps(__m128 & v_r0, __m128 & v_r1, __m128 & v_g0, __m12
     v_a1 = _mm_shuffle_ps(layer1_chunk6, layer1_chunk7, mask_hi);
 }
 
-#endif // CC_SSE2
+#endif // CV_SSE2
 
 //! @}
 
-#endif //OPENCC_CORE_SSE_UTILS_HPP
+#endif //OPENCV_CORE_SSE_UTILS_HPP

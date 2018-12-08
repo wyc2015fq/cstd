@@ -41,8 +41,8 @@
 //
 //M*/
 
-#ifndef OPENCC_CORE_CUDAINL_HPP
-#define OPENCC_CORE_CUDAINL_HPP
+#ifndef OPENCV_CORE_CUDAINL_HPP
+#define OPENCV_CORE_CUDAINL_HPP
 
 #include "opencv2/core/cuda.hpp"
 
@@ -102,11 +102,11 @@ GpuMat::GpuMat(const GpuMat& m)
     : flags(m.flags), rows(m.rows), cols(m.cols), step(m.step), data(m.data), refcount(m.refcount), datastart(m.datastart), dataend(m.dataend), allocator(m.allocator)
 {
     if (refcount)
-        CC_XADD(refcount, 1);
+        CV_XADD(refcount, 1);
 }
 
 inline
-GpuMat::GpuMat(const CvMat* arr, Allocator* allocator_) :
+GpuMat::GpuMat(InputArray arr, Allocator* allocator_) :
     flags(0), rows(0), cols(0), step(0), data(0), refcount(0), datastart(0), dataend(0), allocator(allocator_)
 {
     upload(arr);
@@ -139,15 +139,15 @@ void GpuMat::create(Size size_, int type_)
 inline
 void GpuMat::swap(GpuMat& b)
 {
-    T_SWAP(_Tp, flags, b.flags);
-    T_SWAP(_Tp, rows, b.rows);
-    T_SWAP(_Tp, cols, b.cols);
-    T_SWAP(_Tp, step, b.step);
-    T_SWAP(_Tp, data, b.data);
-    T_SWAP(_Tp, datastart, b.datastart);
-    T_SWAP(_Tp, dataend, b.dataend);
-    T_SWAP(_Tp, refcount, b.refcount);
-    T_SWAP(_Tp, allocator, b.allocator);
+    std::swap(flags, b.flags);
+    std::swap(rows, b.rows);
+    std::swap(cols, b.cols);
+    std::swap(step, b.step);
+    std::swap(data, b.data);
+    std::swap(datastart, b.datastart);
+    std::swap(dataend, b.dataend);
+    std::swap(refcount, b.refcount);
+    std::swap(allocator, b.allocator);
 }
 
 inline
@@ -159,7 +159,7 @@ GpuMat GpuMat::clone() const
 }
 
 inline
-void GpuMat::copyTo(CvMat* dst, const CvMat* mask) const
+void GpuMat::copyTo(OutputArray dst, InputArray mask) const
 {
     copyTo(dst, mask, Stream::Null());
 }
@@ -171,25 +171,25 @@ GpuMat& GpuMat::setTo(Scalar s)
 }
 
 inline
-GpuMat& GpuMat::setTo(Scalar s, const CvMat* mask)
+GpuMat& GpuMat::setTo(Scalar s, InputArray mask)
 {
     return setTo(s, mask, Stream::Null());
 }
 
 inline
-void GpuMat::convertTo(CvMat* dst, int rtype) const
+void GpuMat::convertTo(OutputArray dst, int rtype) const
 {
     convertTo(dst, rtype, Stream::Null());
 }
 
 inline
-void GpuMat::convertTo(CvMat* dst, int rtype, double alpha, double beta) const
+void GpuMat::convertTo(OutputArray dst, int rtype, double alpha, double beta) const
 {
     convertTo(dst, rtype, alpha, beta, Stream::Null());
 }
 
 inline
-void GpuMat::convertTo(CvMat* dst, int rtype, double alpha, Stream& stream) const
+void GpuMat::convertTo(OutputArray dst, int rtype, double alpha, Stream& stream) const
 {
     convertTo(dst, rtype, alpha, 0.0, stream);
 }
@@ -206,14 +206,14 @@ void GpuMat::assignTo(GpuMat& m, int _type) const
 inline
 uchar* GpuMat::ptr(int y)
 {
-    CC_DbgAssert( (unsigned)y < (unsigned)rows );
+    CV_DbgAssert( (unsigned)y < (unsigned)rows );
     return data + step * y;
 }
 
 inline
 const uchar* GpuMat::ptr(int y) const
 {
-    CC_DbgAssert( (unsigned)y < (unsigned)rows );
+    CV_DbgAssert( (unsigned)y < (unsigned)rows );
     return data + step * y;
 }
 
@@ -292,37 +292,37 @@ GpuMat GpuMat::operator ()(Rect roi) const
 inline
 bool GpuMat::isContinuous() const
 {
-    return (flags & CvMat::CONTINUOUS_FLAG) != 0;
+    return (flags & Mat::CONTINUOUS_FLAG) != 0;
 }
 
 inline
 size_t GpuMat::elemSize() const
 {
-    return CC_ELEM_SIZE(flags);
+    return CV_ELEM_SIZE(flags);
 }
 
 inline
 size_t GpuMat::elemSize1() const
 {
-    return CC_ELEM_SIZE1(flags);
+    return CV_ELEM_SIZE1(flags);
 }
 
 inline
 int GpuMat::type() const
 {
-    return CC_MAT_TYPE(flags);
+    return CV_MAT_TYPE(flags);
 }
 
 inline
 int GpuMat::depth() const
 {
-    return CC_MAT_DEPTH(flags);
+    return CV_MAT_DEPTH(flags);
 }
 
 inline
 int GpuMat::channels() const
 {
-    return CC_MAT_CN(flags);
+    return CV_MAT_CN(flags);
 }
 
 inline
@@ -352,7 +352,7 @@ GpuMat createContinuous(int rows, int cols, int type)
 }
 
 static inline
-void createContinuous(Size size, int type, CvMat* arr)
+void createContinuous(Size size, int type, OutputArray arr)
 {
     createContinuous(size.height, size.width, type, arr);
 }
@@ -366,7 +366,7 @@ GpuMat createContinuous(Size size, int type)
 }
 
 static inline
-void ensureSizeIsEnough(Size size, int type, CvMat* arr)
+void ensureSizeIsEnough(Size size, int type, OutputArray arr)
 {
     ensureSizeIsEnough(size.height, size.width, type, arr);
 }
@@ -392,7 +392,7 @@ HostMem::HostMem(const HostMem& m)
     : flags(m.flags), rows(m.rows), cols(m.cols), step(m.step), data(m.data), refcount(m.refcount), datastart(m.datastart), dataend(m.dataend), alloc_type(m.alloc_type)
 {
     if( refcount )
-        CC_XADD(refcount, 1);
+        CV_XADD(refcount, 1);
 }
 
 inline
@@ -412,10 +412,10 @@ HostMem::HostMem(Size size_, int type_, AllocType alloc_type_)
 }
 
 inline
-HostMem::HostMem(const CvMat* arr, AllocType alloc_type_)
+HostMem::HostMem(InputArray arr, AllocType alloc_type_)
     : flags(0), rows(0), cols(0), step(0), data(0), refcount(0), datastart(0), dataend(0), alloc_type(alloc_type_)
 {
-    arr.copyTo(*this);
+    arr.getMat().copyTo(*this);
 }
 
 inline
@@ -439,15 +439,15 @@ HostMem& HostMem::operator =(const HostMem& m)
 inline
 void HostMem::swap(HostMem& b)
 {
-    T_SWAP(_Tp, flags, b.flags);
-    T_SWAP(_Tp, rows, b.rows);
-    T_SWAP(_Tp, cols, b.cols);
-    T_SWAP(_Tp, step, b.step);
-    T_SWAP(_Tp, data, b.data);
-    T_SWAP(_Tp, datastart, b.datastart);
-    T_SWAP(_Tp, dataend, b.dataend);
-    T_SWAP(_Tp, refcount, b.refcount);
-    T_SWAP(_Tp, alloc_type, b.alloc_type);
+    std::swap(flags, b.flags);
+    std::swap(rows, b.rows);
+    std::swap(cols, b.cols);
+    std::swap(step, b.step);
+    std::swap(data, b.data);
+    std::swap(datastart, b.datastart);
+    std::swap(dataend, b.dataend);
+    std::swap(refcount, b.refcount);
+    std::swap(alloc_type, b.alloc_type);
 }
 
 inline
@@ -465,45 +465,45 @@ void HostMem::create(Size size_, int type_)
 }
 
 inline
-CvMat HostMem::createMatHeader() const
+Mat HostMem::createMatHeader() const
 {
-    return CvMat(size(), type(), data, step);
+    return Mat(size(), type(), data, step);
 }
 
 inline
 bool HostMem::isContinuous() const
 {
-    return (flags & CvMat::CONTINUOUS_FLAG) != 0;
+    return (flags & Mat::CONTINUOUS_FLAG) != 0;
 }
 
 inline
 size_t HostMem::elemSize() const
 {
-    return CC_ELEM_SIZE(flags);
+    return CV_ELEM_SIZE(flags);
 }
 
 inline
 size_t HostMem::elemSize1() const
 {
-    return CC_ELEM_SIZE1(flags);
+    return CV_ELEM_SIZE1(flags);
 }
 
 inline
 int HostMem::type() const
 {
-    return CC_MAT_TYPE(flags);
+    return CV_MAT_TYPE(flags);
 }
 
 inline
 int HostMem::depth() const
 {
-    return CC_MAT_DEPTH(flags);
+    return CV_MAT_DEPTH(flags);
 }
 
 inline
 int HostMem::channels() const
 {
-    return CC_MAT_CN(flags);
+    return CV_MAT_CN(flags);
 }
 
 inline
@@ -575,7 +575,7 @@ DeviceInfo::DeviceInfo()
 inline
 DeviceInfo::DeviceInfo(int device_id)
 {
-    CC_Assert( device_id >= 0 && device_id < getCudaEnabledDeviceCount() );
+    CV_Assert( device_id >= 0 && device_id < getCudaEnabledDeviceCount() );
     device_id_ = device_id;
 }
 
@@ -612,13 +612,13 @@ bool DeviceInfo::supports(FeatureSet feature_set) const
 }} // namespace cv { namespace cuda {
 
 //===================================================================================
-// CvMat
+// Mat
 //===================================================================================
 
 namespace cv {
 
 inline
-CvMat::CvMat(const cuda::GpuMat& m)
+Mat::Mat(const cuda::GpuMat& m)
     : flags(0), dims(0), rows(0), cols(0), data(0), datastart(0), dataend(0), datalimit(0), allocator(0), u(0), size(&rows)
 {
     m.download(*this);
@@ -628,4 +628,4 @@ CvMat::CvMat(const cuda::GpuMat& m)
 
 //! @endcond
 
-#endif // OPENCC_CORE_CUDAINL_HPP
+#endif // OPENCV_CORE_CUDAINL_HPP

@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.opencv.core.DMatch;
 
-public class MatOfDMatch extends CvMat {
+public class MatOfDMatch extends Mat {
     // 32FC4
-    private static final int _depth = CvType.CC_32F;
+    private static final int _depth = CvType.CV_32F;
     private static final int _channels = 4;
 
     public MatOfDMatch() {
@@ -17,7 +17,7 @@ public class MatOfDMatch extends CvMat {
     protected MatOfDMatch(long addr) {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
-            throw new IllegalArgumentException("Incompatible CvMat: " + toString());
+            throw new IllegalArgumentException("Incompatible Mat: " + toString());
         //FIXME: do we need release() here?
     }
 
@@ -25,10 +25,10 @@ public class MatOfDMatch extends CvMat {
         return new MatOfDMatch(addr);
     }
 
-    public MatOfDMatch(CvMat m) {
+    public MatOfDMatch(Mat m) {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
-            throw new IllegalArgumentException("Incompatible CvMat: " + toString());
+            throw new IllegalArgumentException("Incompatible Mat: " + toString());
         //FIXME: do we need release() here?
     }
 

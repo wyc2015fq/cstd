@@ -4,8 +4,8 @@
 //
 // Copyright (C) 2014, Advanced Micro Devices, Inc., all rights reserved.
 
-#ifndef __OPENCC_CORE_BUFFER_POOL_IMPL_HPP__
-#define __OPENCC_CORE_BUFFER_POOL_IMPL_HPP__
+#ifndef __OPENCV_CORE_BUFFER_POOL_IMPL_HPP__
+#define __OPENCV_CORE_BUFFER_POOL_IMPL_HPP__
 
 #include "opencv2/core/bufferpool.hpp"
 
@@ -25,4 +25,4 @@ public:
 
 } // namespace
 
-#endif // __OPENCC_CORE_BUFFER_POOL_IMPL_HPP__
+#endif // __OPENCV_CORE_BUFFER_POOL_IMPL_HPP__

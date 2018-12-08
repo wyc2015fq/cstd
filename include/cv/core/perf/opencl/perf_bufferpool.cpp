@@ -9,7 +9,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 struct BufferPoolState
@@ -20,7 +20,7 @@ struct BufferPoolState
     BufferPoolState(BufferPoolController* c, bool enable)
         : controller_(c)
     {
-        if (!ocl::useOpenCL())
+        if (!cv::ocl::useOpenCL())
         {
             throw ::perf::TestBase::PerfSkipTestException();
         }
@@ -49,7 +49,7 @@ typedef TestBaseWithParam<bool> BufferPoolFixture;
 
 OCL_PERF_TEST_P(BufferPoolFixture, BufferPool_UMatCreation100, Bool())
 {
-    BufferPoolState s(ocl::getOpenCLAllocator()->getBufferPoolController(), GetParam());
+    BufferPoolState s(cv::ocl::getOpenCLAllocator()->getBufferPoolController(), GetParam());
 
     Size sz(1920, 1080);
 
@@ -57,7 +57,7 @@ OCL_PERF_TEST_P(BufferPoolFixture, BufferPool_UMatCreation100, Bool())
     {
         for (int i = 0; i < 100; i++)
         {
-            UMat u(sz, CC_8UC1);
+            UMat u(sz, CV_8UC1);
         }
     }
 
@@ -66,7 +66,7 @@ OCL_PERF_TEST_P(BufferPoolFixture, BufferPool_UMatCreation100, Bool())
 
 OCL_PERF_TEST_P(BufferPoolFixture, BufferPool_UMatCountNonZero100, Bool())
 {
-    BufferPoolState s(ocl::getOpenCLAllocator()->getBufferPoolController(), GetParam());
+    BufferPoolState s(cv::ocl::getOpenCLAllocator()->getBufferPoolController(), GetParam());
 
     Size sz(1920, 1080);
 
@@ -74,7 +74,7 @@ OCL_PERF_TEST_P(BufferPoolFixture, BufferPool_UMatCountNonZero100, Bool())
     {
         for (int i = 0; i < 100; i++)
         {
-            UMat u(sz, CC_8UC1);
+            UMat u(sz, CV_8UC1);
             countNonZero(u);
         }
     }
@@ -84,7 +84,7 @@ OCL_PERF_TEST_P(BufferPoolFixture, BufferPool_UMatCountNonZero100, Bool())
 
 OCL_PERF_TEST_P(BufferPoolFixture, BufferPool_UMatCanny10, Bool())
 {
-    BufferPoolState s(ocl::getOpenCLAllocator()->getBufferPoolController(), GetParam());
+    BufferPoolState s(cv::ocl::getOpenCLAllocator()->getBufferPoolController(), GetParam());
 
     Size sz(1920, 1080);
 
@@ -97,7 +97,7 @@ OCL_PERF_TEST_P(BufferPoolFixture, BufferPool_UMatCanny10, Bool())
     {
         for (int i = 0; i < 10; i++)
         {
-            UMat src(sz, CC_8UC1);
+            UMat src(sz, CV_8UC1);
             UMat dst;
             Canny(src, dst, thresh_low, thresh_high, aperture, useL2);
             dst.getMat(ACCESS_READ); // complete async operations
@@ -109,7 +109,7 @@ OCL_PERF_TEST_P(BufferPoolFixture, BufferPool_UMatCanny10, Bool())
 
 OCL_PERF_TEST_P(BufferPoolFixture, BufferPool_UMatIntegral10, Bool())
 {
-    BufferPoolState s(ocl::getOpenCLAllocator()->getBufferPoolController(), GetParam());
+    BufferPoolState s(cv::ocl::getOpenCLAllocator()->getBufferPoolController(), GetParam());
 
     Size sz(1920, 1080);
 
@@ -117,7 +117,7 @@ OCL_PERF_TEST_P(BufferPoolFixture, BufferPool_UMatIntegral10, Bool())
     {
         for (int i = 0; i < 10; i++)
         {
-            UMat src(sz, CC_32FC1);
+            UMat src(sz, CV_32FC1);
             UMat dst;
             integral(src, dst);
             dst.getMat(ACCESS_READ); // complete async operations
@@ -127,6 +127,6 @@ OCL_PERF_TEST_P(BufferPoolFixture, BufferPool_UMatIntegral10, Bool())
     SANITY_CHECK_NOTHING();
 }
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

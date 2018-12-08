@@ -1,12 +1,52 @@
+/*M///////////////////////////////////////////////////////////////////////////////////////
+//
+//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
+//
+//  By downloading, copying, installing or using the software you agree to this license.
+//  If you do not agree to this license, do not download, install,
+//  copy or use the software.
+//
+//
+//                           License Agreement
+//                For Open Source Computer Vision Library
+//
+// Copyright (C) 2000-2008, Intel Corporation, all rights reserved.
+// Copyright (C) 2009, Willow Garage Inc., all rights reserved.
+// Third party copyrights are property of their respective owners.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//   * Redistribution's of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//
+//   * Redistribution's in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//
+//   * The name of the copyright holders may not be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+//
+// This software is provided by the copyright holders and contributors "as is" and
+// any express or implied warranties, including, but not limited to, the implied
+// warranties of merchantability and fitness for a particular purpose are disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any direct,
+// indirect, incidental, special, exemplary, or consequential damages
+// (including, but not limited to, procurement of substitute goods or services;
+// loss of use, data, or profits; or business interruption) however caused
+// and on any theory of liability, whether in contract, strict liability,
+// or tort (including negligence or otherwise) arising in any way out of
+// the use of this software, even if advised of the possibility of such damage.
+//
+//M*/
 
-
-#ifndef OPENCC_CUDA_COMMON_HPP
-#define OPENCC_CUDA_COMMON_HPP
+#ifndef OPENCV_CUDA_COMMON_HPP
+#define OPENCV_CUDA_COMMON_HPP
 
 #include <cuda_runtime.h>
 #include "opencv2/core/cuda_types.hpp"
 #include "opencv2/core/cvdef.h"
-
+#include "opencv2/core/base.hpp"
 
 /** @file
  * @deprecated Use @ref cudev instead.
@@ -14,11 +54,11 @@
 
 //! @cond IGNORED
 
-#ifndef CC_PI_F
-    #ifndef CC_PI
-        #define CC_PI_F 3.14159265f
+#ifndef CV_PI_F
+    #ifndef CV_PI
+        #define CV_PI_F 3.14159265f
     #else
-        #define CC_PI_F ((float)CC_PI)
+        #define CV_PI_F ((float)CV_PI)
     #endif
 #endif
 
@@ -26,12 +66,12 @@ namespace cv { namespace cuda {
     static inline void checkCudaError(cudaError_t err, const char* file, const int line, const char* func)
     {
         if (cudaSuccess != err)
-            error(Error::GpuApiCallError, cudaGetErrorString(err), func, file, line);
+            cv::error(cv::Error::GpuApiCallError, cudaGetErrorString(err), func, file, line);
     }
 }}
 
 #ifndef cudaSafeCall
-    #define cudaSafeCall(expr)  cuda::checkCudaError(expr, __FILE__, __LINE__, CC_Func)
+    #define cudaSafeCall(expr)  cv::cuda::checkCudaError(expr, __FILE__, __LINE__, CV_Func)
 #endif
 
 namespace cv { namespace cuda
@@ -66,4 +106,4 @@ namespace cv { namespace cuda
 
 //! @endcond
 
-#endif // OPENCC_CUDA_COMMON_HPP
+#endif // OPENCV_CUDA_COMMON_HPP

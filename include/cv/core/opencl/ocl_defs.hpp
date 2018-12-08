@@ -5,54 +5,71 @@
 // Copyright (C) 2014, Advanced Micro Devices, Inc., all rights reserved.
 // Third party copyrights are property of their respective owners.
 
+#ifndef OPENCV_CORE_OPENCL_DEFS_HPP
+#define OPENCV_CORE_OPENCL_DEFS_HPP
+
 #include "opencv2/core/utility.hpp"
-//#define CC_OPENCL_RUN_ASSERT
+#include "cvconfig.h"
+
+namespace cv { namespace ocl {
+#ifdef HAVE_OPENCL
+/// Call is similar to useOpenCL() but doesn't try to load OpenCL runtime or create OpenCL context
+CV_EXPORTS bool isOpenCLActivated();
+#else
+static inline bool isOpenCLActivated() { return false; }
+#endif
+}} // namespace
+
+
+//#define CV_OPENCL_RUN_ASSERT
 
 #ifdef HAVE_OPENCL
 
-#ifdef CC_OPENCL_RUN_VERBOSE
-#define CC_OCL_RUN_(condition, func, ...)                                   \
+#ifdef CV_OPENCL_RUN_VERBOSE
+#define CV_OCL_RUN_(condition, func, ...)                                   \
     {                                                                       \
-        if (ocl::useOpenCL() && (condition) && func)                    \
+        if (cv::ocl::isOpenCLActivated() && (condition) && func)            \
         {                                                                   \
-            printf("%s: OpenCL implementation is running\n", CC_Func);      \
+            printf("%s: OpenCL implementation is running\n", CV_Func);      \
             fflush(stdout);                                                 \
-            CC_IMPL_ADD(CC_IMPL_OCL);                                       \
+            CV_IMPL_ADD(CV_IMPL_OCL);                                       \
             return __VA_ARGS__;                                             \
         }                                                                   \
         else                                                                \
         {                                                                   \
-            printf("%s: Plain implementation is running\n", CC_Func);       \
+            printf("%s: Plain implementation is running\n", CV_Func);       \
             fflush(stdout);                                                 \
         }                                                                   \
     }
-#elif defined CC_OPENCL_RUN_ASSERT
-#define CC_OCL_RUN_(condition, func, ...)                                   \
+#elif defined CV_OPENCL_RUN_ASSERT
+#define CV_OCL_RUN_(condition, func, ...)                                   \
     {                                                                       \
-        if (ocl::useOpenCL() && (condition))                            \
+        if (cv::ocl::isOpenCLActivated() && (condition))                    \
         {                                                                   \
             if(func)                                                        \
             {                                                               \
-                CC_IMPL_ADD(CC_IMPL_OCL);                                   \
+                CV_IMPL_ADD(CV_IMPL_OCL);                                   \
             }                                                               \
             else                                                            \
             {                                                               \
-                CC_Error(Error::StsAssert, #func);                      \
+                CV_Error(cv::Error::StsAssert, #func);                      \
             }                                                               \
             return __VA_ARGS__;                                             \
         }                                                                   \
     }
 #else
-#define CC_OCL_RUN_(condition, func, ...)                                   \
-    if (ocl::useOpenCL() && (condition) && func)                        \
+#define CV_OCL_RUN_(condition, func, ...)                                   \
+    if (cv::ocl::isOpenCLActivated() && (condition) && func)                \
     {                                                                       \
-        CC_IMPL_ADD(CC_IMPL_OCL);                                           \
+        CV_IMPL_ADD(CV_IMPL_OCL);                                           \
         return __VA_ARGS__;                                                 \
     }
 #endif
 
 #else
-#define CC_OCL_RUN_(condition, func, ...)
+#define CV_OCL_RUN_(condition, func, ...)
 #endif
 
-#define CC_OCL_RUN(condition, func) CC_OCL_RUN_(condition, func)
+#define CV_OCL_RUN(condition, func) CV_OCL_RUN_(condition, func)
+
+#endif // OPENCV_CORE_OPENCL_DEFS_HPP

@@ -88,9 +88,9 @@ static BOOL tif_load(stream_t* f, int cn_req, img_t* im)
   int y, i = 0;
   TIFF_DIRECTORY_ENTRY* pde = NULL;
   enum {MAX_TAGS = 32};
-  int len[MAX_TAGS] = {0};
-  int value[MAX_TAGS] = {0};
-  int* values[MAX_TAGS] = {0};
+  int len[MAX_TAGS] _INIT0;
+  int value[MAX_TAGS] _INIT0;
+  int* values[MAX_TAGS] _INIT0;
   enum {
 #define TIFTAGDEF(a, b)  t_##b,
 #include "tiftagdef.txt"
@@ -101,7 +101,7 @@ static BOOL tif_load(stream_t* f, int cn_req, img_t* im)
   int bpp = 0;
   int rowbytes = 0;
 
-  TIFF_IMAGEFILE_HEADER ifh[1] = {0};
+  TIFF_IMAGEFILE_HEADER ifh[1] _INIT0;
   memset(&ifh, 0, sizeof(TIFF_IMAGEFILE_HEADER));
 
   //dwFileLength = file.GetLength();
@@ -216,7 +216,7 @@ static BOOL tif_load(stream_t* f, int cn_req, img_t* im)
       }
 
       {
-        img_t im1[1] = {0};
+        img_t im1[1] _INIT0;
       }
 
       FREE(pbuf);
@@ -232,7 +232,7 @@ static BOOL tif_load(stream_t* f, int cn_req, img_t* im)
   {
     int src_pitch = rowbytes;
     uchar* src_line = MALLOC(uchar, src_pitch);
-    uchar m_palette[1024] = {0};
+    uchar m_palette[1024] _INIT0;
 
     if (1 == cn_req) {
       for (i = 0; i < 256; ++i) {
@@ -300,7 +300,7 @@ static int tif_load_file_close(FILE* pf, int cn_req, img_t* im)
   int ret = 0;
 
   if (pf) {
-    stream_t s[1] = {0};
+    stream_t s[1] _INIT0;
     fstream_init(s, pf);
     ret = tif_load(s, cn_req, im);
     fclose(pf);

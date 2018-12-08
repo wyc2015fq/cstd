@@ -8,21 +8,21 @@
 // OpenVX related definitions and declarations
 
 #pragma once
-#ifndef OPENCC_OVX_HPP
-#define OPENCC_OVX_HPP
+#ifndef OPENCV_OVX_HPP
+#define OPENCV_OVX_HPP
 
 #include "cvdef.h"
 
 namespace cv
 {
 /// Check if use of OpenVX is possible
-CC_EXPORTS_W bool haveOpenVX();
+CV_EXPORTS_W bool haveOpenVX();
 
 /// Check if use of OpenVX is enabled
-CC_EXPORTS_W bool useOpenVX();
+CV_EXPORTS_W bool useOpenVX();
 
 /// Enable/disable use of OpenVX
-CC_EXPORTS_W void setUseOpenVX(bool flag);
+CV_EXPORTS_W void setUseOpenVX(bool flag);
 } // namespace cv
 
-#endif // OPENCC_OVX_HPP
+#endif // OPENCV_OVX_HPP

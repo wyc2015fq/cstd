@@ -42,26 +42,23 @@
 
 #include "test_precomp.hpp"
 
-namespace {
-
-using namespace std;
-using namespace cv;
+namespace opencv_test { namespace {
 
 //#define DRAW_TEST_IMAGE
 
-class CC_DrawingTest : public cvtest::BaseTest
+class CV_DrawingTest : public cvtest::BaseTest
 {
 public:
-    CC_DrawingTest(){}
+    CV_DrawingTest(){}
 protected:
     void run( int );
-    virtual void draw( CvMat& img ) = 0;
-    virtual int checkLineIterator( CvMat& img) = 0;
+    virtual void draw( Mat& img ) = 0;
+    virtual int checkLineIterator( Mat& img) = 0;
 };
 
-void CC_DrawingTest::run( int )
+void CV_DrawingTest::run( int )
 {
-    CvMat testImg, valImg;
+    Mat testImg, valImg;
     const string fname = "../highgui/drawing/image.png";
     string path = ts->get_data_path(), filename;
     filename = path + fname;
@@ -99,19 +96,19 @@ void CC_DrawingTest::run( int )
     ts->set_failed_test_info(cvtest::TS::OK);
 }
 
-class CC_DrawingTest_CPP : public CC_DrawingTest
+class CV_DrawingTest_CPP : public CV_DrawingTest
 {
 public:
-    CC_DrawingTest_CPP() {}
+    CV_DrawingTest_CPP() {}
 protected:
-    virtual void draw( CvMat& img );
-    virtual int checkLineIterator( CvMat& img);
+    virtual void draw( Mat& img );
+    virtual int checkLineIterator( Mat& img);
 };
 
-void CC_DrawingTest_CPP::draw( CvMat& img )
+void CV_DrawingTest_CPP::draw( Mat& img )
 {
-    CvSize imgSize( 600, 400 );
-    img.create( imgSize, CC_8UC3 );
+    Size imgSize( 600, 400 );
+    img.create( imgSize, CV_8UC3 );
 
     vector<Point> polyline(4);
     polyline[0] = Point(0, 0);
@@ -128,7 +125,7 @@ void CC_DrawingTest_CPP::draw( CvMat& img )
 
     p2 = Point(3,imgSize.height+1000);
     if( clipLine(Rect(0,0,imgSize.width,imgSize.height), p1, p2) && clipLine(imgSize, p1, p2) )
-        circle( img, Point(500,300), 50, cvColorToScalar(255,CC_8UC3), 5, 8, 1 ); // draw
+        circle( img, Point(500,300), 50, cvColorToScalar(255,CV_8UC3), 5, 8, 1 ); // draw
 
     p1 = Point(imgSize.width,1), p2 = Point(imgSize.width,3);
     if( clipLine(Rect(0,0,imgSize.width,imgSize.height), p1, p2) && clipLine(imgSize, p1, p2) )
@@ -136,15 +133,15 @@ void CC_DrawingTest_CPP::draw( CvMat& img )
 
     p1 = Point(imgSize.width-1,1), p2 = Point(imgSize.width,3);
     if( clipLine(Rect(0,0,imgSize.width,imgSize.height), p1, p2) && clipLine(imgSize, p1, p2) )
-        ellipse( img, Point(390,100), CvSize(20,30), 60, 0, 220.0, Scalar(0,200,0), 4 ); //draw
+        ellipse( img, Point(390,100), Size(20,30), 60, 0, 220.0, Scalar(0,200,0), 4 ); //draw
 
-    ellipse( img, RotatedRect(Point(100,200),CvSize(200,100),160), Scalar(200,200,255), 5 );
+    ellipse( img, RotatedRect(Point(100,200),Size(200,100),160), Scalar(200,200,255), 5 );
 
     polyline.clear();
-    ellipse2Poly( Point(430,180), CvSize(100,150), 30, 0, 150, 20, polyline );
+    ellipse2Poly( Point(430,180), Size(100,150), 30, 0, 150, 20, polyline );
     pts = &polyline[0];
     n = (int)polyline.size();
-    polylines( img, &pts, &n, 1, false, Scalar(0,0,150), 4, CC_AA );
+    polylines( img, &pts, &n, 1, false, Scalar(0,0,150), 4, CV_AA );
     n = 0;
     for( vector<Point>::const_iterator it = polyline.begin(); n < (int)polyline.size()-1; ++it, n++ )
     {
@@ -152,7 +149,7 @@ void CC_DrawingTest_CPP::draw( CvMat& img )
     }
 
     polyline.clear();
-    ellipse2Poly( Point(500,300), CvSize(50,80), 0, 0, 180, 10, polyline );
+    ellipse2Poly( Point(500,300), Size(50,80), 0, 0, 180, 10, polyline );
     pts = &polyline[0];
     n = (int)polyline.size();
     polylines( img, &pts, &n, 1, true, Scalar(100,200,100), 20 );
@@ -178,7 +175,7 @@ void CC_DrawingTest_CPP::draw( CvMat& img )
     string text1 = "OpenCV";
     int baseline = 0, thickness = 3, fontFace = FONT_HERSHEY_SCRIPT_SIMPLEX;
     float fontScale = 2;
-    CvSize textSize = getTextSize( text1, fontFace, fontScale, thickness, &baseline);
+    Size textSize = getTextSize( text1, fontFace, fontScale, thickness, &baseline);
     baseline += thickness;
     Point textOrg((img.cols - textSize.width)/2, (img.rows + textSize.height)/2);
     rectangle(img, textOrg + Point(0, baseline), textOrg + Point(textSize.width, -textSize.height), Scalar(0,0,255));
@@ -192,46 +189,46 @@ void CC_DrawingTest_CPP::draw( CvMat& img )
 
     textSize = getTextSize( text2, FONT_HERSHEY_SIMPLEX, fontScale, thickness, &baseline);
     textOrg = Point(5,5)+Point(0,textSize.height+dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, CV_AA);
 
     fontScale = 1;
     textSize = getTextSize( text2, FONT_HERSHEY_PLAIN, fontScale, thickness, &baseline);
     textOrg += Point(0,textSize.height+dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_PLAIN, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_PLAIN, fontScale, color, thickness, CV_AA);
 
     fontScale = 0.5;
     textSize = getTextSize( text2, FONT_HERSHEY_DUPLEX, fontScale, thickness, &baseline);
     textOrg += Point(0,textSize.height+dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_DUPLEX, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_DUPLEX, fontScale, color, thickness, CV_AA);
 
     textSize = getTextSize( text2, FONT_HERSHEY_COMPLEX, fontScale, thickness, &baseline);
     textOrg += Point(0,textSize.height+dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_COMPLEX, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_COMPLEX, fontScale, color, thickness, CV_AA);
 
     textSize = getTextSize( text2, FONT_HERSHEY_TRIPLEX, fontScale, thickness, &baseline);
     textOrg += Point(0,textSize.height+dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_TRIPLEX, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_TRIPLEX, fontScale, color, thickness, CV_AA);
 
     fontScale = 1;
     textSize = getTextSize( text2, FONT_HERSHEY_COMPLEX_SMALL, fontScale, thickness, &baseline);
     textOrg += Point(0,180) + Point(0,textSize.height+dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_COMPLEX_SMALL, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_COMPLEX_SMALL, fontScale, color, thickness, CV_AA);
 
     textSize = getTextSize( text2, FONT_HERSHEY_SCRIPT_SIMPLEX, fontScale, thickness, &baseline);
     textOrg += Point(0,textSize.height+dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_SCRIPT_SIMPLEX, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_SCRIPT_SIMPLEX, fontScale, color, thickness, CV_AA);
 
     textSize = getTextSize( text2, FONT_HERSHEY_SCRIPT_COMPLEX, fontScale, thickness, &baseline);
     textOrg += Point(0,textSize.height+dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_SCRIPT_COMPLEX, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_SCRIPT_COMPLEX, fontScale, color, thickness, CV_AA);
 
     dist = 15, fontScale = 0.5;
     textSize = getTextSize( text2, FONT_ITALIC, fontScale, thickness, &baseline);
     textOrg += Point(0,textSize.height+dist);
-    putText(img, text2, textOrg, FONT_ITALIC, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_ITALIC, fontScale, color, thickness, CV_AA);
 }
 
-int CC_DrawingTest_CPP::checkLineIterator( CvMat& img )
+int CV_DrawingTest_CPP::checkLineIterator( Mat& img )
 {
     LineIterator it( img, Point(0,300), Point(1000, 300) );
     for(int i = 0; i < it.count; ++it, i++ )
@@ -248,19 +245,19 @@ int CC_DrawingTest_CPP::checkLineIterator( CvMat& img )
     return 0;
 }
 
-class CC_DrawingTest_C : public CC_DrawingTest
+class CV_DrawingTest_C : public CV_DrawingTest
 {
 public:
-    CC_DrawingTest_C() {}
+    CV_DrawingTest_C() {}
 protected:
-    virtual void draw( CvMat& img );
-    virtual int checkLineIterator( CvMat& img);
+    virtual void draw( Mat& img );
+    virtual int checkLineIterator( Mat& img);
 };
 
-void CC_DrawingTest_C::draw( CvMat& _img )
+void CV_DrawingTest_C::draw( Mat& _img )
 {
     CvSize imgSize = cvSize(600, 400);
-    _img.create( imgSize, CC_8UC3 );
+    _img.create( imgSize, CV_8UC3 );
     CvMat img = _img;
 
     vector<CvPoint> polyline(4);
@@ -301,8 +298,8 @@ void CC_DrawingTest_C::draw( CvMat& _img )
     pts = &polyline[0];
     n = (int)polyline.size();
     actualSize = cvEllipse2Poly( cvPoint(430,180), cvSize(100,150), 30, 0, 150, &polyline[0], 20 );
-    CC_Assert(actualSize == n);
-    cvPolyLine( &img, &pts, &n, 1, false, cvScalar(0,0,150), 4, CC_AA );
+    CV_Assert(actualSize == n);
+    cvPolyLine( &img, &pts, &n, 1, false, cvScalar(0,0,150), 4, CV_AA );
     n = 0;
     for( vector<CvPoint>::const_iterator it = polyline.begin(); n < (int)polyline.size()-1; ++it, n++ )
     {
@@ -313,7 +310,7 @@ void CC_DrawingTest_C::draw( CvMat& _img )
     pts = &polyline[0];
     n = (int)polyline.size();
     actualSize = cvEllipse2Poly( cvPoint(500,300), cvSize(50,80), 0, 0, 180, &polyline[0], 10 );
-    CC_Assert(actualSize == n);
+    CV_Assert(actualSize == n);
     cvPolyLine( &img, &pts, &n, 1, true, Scalar(100,200,100), 20 );
     cvFillConvexPoly( &img, pts, n, cvScalar(0, 80, 0) );
 
@@ -351,54 +348,54 @@ void CC_DrawingTest_C::draw( CvMat& _img )
     int dist = 5;
     string text2 = "abcdefghijklmnopqrstuvwxyz1234567890";
     CvScalar color = cvScalar(200,0,0);
-    cvInitFont( &font, FONT_HERSHEY_SIMPLEX, 0.5, 0.5, 0, 1, CC_AA );
+    cvInitFont( &font, FONT_HERSHEY_SIMPLEX, 0.5, 0.5, 0, 1, CV_AA );
     cvGetTextSize( text2.c_str(), &font, &textSize, &baseline );
     textOrg = cvPoint(5, 5+textSize.height+dist);
     cvPutText(&img, text2.c_str(), textOrg, &font, color );
 
-    cvInitFont( &font, FONT_HERSHEY_PLAIN, 1, 1, 0, 1, CC_AA );
+    cvInitFont( &font, FONT_HERSHEY_PLAIN, 1, 1, 0, 1, CV_AA );
     cvGetTextSize( text2.c_str(), &font, &textSize, &baseline );
     textOrg = cvPoint(textOrg.x,textOrg.y+textSize.height+dist);
     cvPutText(&img, text2.c_str(), textOrg, &font, color );
 
-    cvInitFont( &font, FONT_HERSHEY_DUPLEX, 0.5, 0.5, 0, 1, CC_AA );
+    cvInitFont( &font, FONT_HERSHEY_DUPLEX, 0.5, 0.5, 0, 1, CV_AA );
     cvGetTextSize( text2.c_str(), &font, &textSize, &baseline );
     textOrg = cvPoint(textOrg.x,textOrg.y+textSize.height+dist);
     cvPutText(&img, text2.c_str(), textOrg, &font, color );
 
-    cvInitFont( &font, FONT_HERSHEY_COMPLEX, 0.5, 0.5, 0, 1, CC_AA );
+    cvInitFont( &font, FONT_HERSHEY_COMPLEX, 0.5, 0.5, 0, 1, CV_AA );
     cvGetTextSize( text2.c_str(), &font, &textSize, &baseline );
     textOrg = cvPoint(textOrg.x,textOrg.y+textSize.height+dist);
     cvPutText(&img, text2.c_str(), textOrg, &font, color );
 
-    cvInitFont( &font, FONT_HERSHEY_TRIPLEX, 0.5, 0.5, 0, 1, CC_AA );
+    cvInitFont( &font, FONT_HERSHEY_TRIPLEX, 0.5, 0.5, 0, 1, CV_AA );
     cvGetTextSize( text2.c_str(), &font, &textSize, &baseline );
     textOrg = cvPoint(textOrg.x,textOrg.y+textSize.height+dist);
     cvPutText(&img, text2.c_str(), textOrg, &font, color );
 
-    cvInitFont( &font, FONT_HERSHEY_COMPLEX_SMALL, 1, 1, 0, 1, CC_AA );
+    cvInitFont( &font, FONT_HERSHEY_COMPLEX_SMALL, 1, 1, 0, 1, CV_AA );
     cvGetTextSize( text2.c_str(), &font, &textSize, &baseline );
     textOrg = cvPoint(textOrg.x,textOrg.y+textSize.height+dist + 180);
     cvPutText(&img, text2.c_str(), textOrg, &font, color );
 
-    cvInitFont( &font, FONT_HERSHEY_SCRIPT_SIMPLEX, 1, 1, 0, 1, CC_AA );
+    cvInitFont( &font, FONT_HERSHEY_SCRIPT_SIMPLEX, 1, 1, 0, 1, CV_AA );
     cvGetTextSize( text2.c_str(), &font, &textSize, &baseline );
     textOrg = cvPoint(textOrg.x,textOrg.y+textSize.height+dist);
     cvPutText(&img, text2.c_str(), textOrg, &font, color );
 
-    cvInitFont( &font, FONT_HERSHEY_SCRIPT_COMPLEX, 1, 1, 0, 1, CC_AA );
+    cvInitFont( &font, FONT_HERSHEY_SCRIPT_COMPLEX, 1, 1, 0, 1, CV_AA );
     cvGetTextSize( text2.c_str(), &font, &textSize, &baseline );
     textOrg = cvPoint(textOrg.x,textOrg.y+textSize.height+dist);
     cvPutText(&img, text2.c_str(), textOrg, &font, color );
 
     dist = 15;
-    cvInitFont( &font, FONT_ITALIC, 0.5, 0.5, 0, 1, CC_AA );
+    cvInitFont( &font, FONT_ITALIC, 0.5, 0.5, 0, 1, CV_AA );
     cvGetTextSize( text2.c_str(), &font, &textSize, &baseline );
     textOrg = cvPoint(textOrg.x,textOrg.y+textSize.height+dist);
     cvPutText(&img, text2.c_str(), textOrg, &font, color );
 }
 
-int CC_DrawingTest_C::checkLineIterator( CvMat& _img )
+int CV_DrawingTest_C::checkLineIterator( Mat& _img )
 {
     CvLineIterator it;
     CvMat img = _img;
@@ -412,24 +409,24 @@ int CC_DrawingTest_C::checkLineIterator( CvMat& _img )
             ts->printf( ts->LOG, "CvLineIterator works incorrect" );
             ts->set_failed_test_info(cvtest::TS::FAIL_INVALID_OUTPUT);
         }
-        CC_NEXT_LINE_POINT(it);
+        CV_NEXT_LINE_POINT(it);
     }
     ts->set_failed_test_info(cvtest::TS::OK);
     return 0;
 }
 
-class CC_DrawingTest_Far : public CC_DrawingTest_CPP
+class CV_DrawingTest_Far : public CV_DrawingTest_CPP
 {
 public:
-    CC_DrawingTest_Far() {}
+    CV_DrawingTest_Far() {}
 protected:
-    virtual void draw(CvMat& img);
+    virtual void draw(Mat& img);
 };
 
-void CC_DrawingTest_Far::draw(CvMat& img)
+void CV_DrawingTest_Far::draw(Mat& img)
 {
-    CvSize imgSize(32768 + 600, 400);
-    img.create(imgSize, CC_8UC3);
+    Size imgSize(32768 + 600, 400);
+    img.create(imgSize, CV_8UC3);
 
     vector<Point> polyline(4);
     polyline[0] = Point(32768 + 0, 0);
@@ -446,7 +443,7 @@ void CC_DrawingTest_Far::draw(CvMat& img)
 
     p2 = Point(32768 + 3, imgSize.height + 1000);
     if (clipLine(Rect(32768 + 0, 0, imgSize.width, imgSize.height), p1, p2) && clipLine(imgSize, p1, p2))
-        circle(img, Point(65536 + 500, 300), 50, cvColorToScalar(255, CC_8UC3), 5, 8, 1); // draw
+        circle(img, Point(65536 + 500, 300), 50, cvColorToScalar(255, CV_8UC3), 5, 8, 1); // draw
 
     p1 = Point(imgSize.width, 1), p2 = Point(imgSize.width, 3);
     if (clipLine(Rect(32768 + 0, 0, imgSize.width, imgSize.height), p1, p2) && clipLine(imgSize, p1, p2))
@@ -454,15 +451,15 @@ void CC_DrawingTest_Far::draw(CvMat& img)
 
     p1 = Point(imgSize.width - 1, 1), p2 = Point(imgSize.width, 3);
     if (clipLine(Rect(32768 + 0, 0, imgSize.width, imgSize.height), p1, p2) && clipLine(imgSize, p1, p2))
-        ellipse(img, Point(32768 + 390, 100), CvSize(20, 30), 60, 0, 220.0, Scalar(0, 200, 0), 4); //draw
+        ellipse(img, Point(32768 + 390, 100), Size(20, 30), 60, 0, 220.0, Scalar(0, 200, 0), 4); //draw
 
-    ellipse(img, RotatedRect(Point(32768 + 100, 200), CvSize(200, 100), 160), Scalar(200, 200, 255), 5);
+    ellipse(img, RotatedRect(Point(32768 + 100, 200), Size(200, 100), 160), Scalar(200, 200, 255), 5);
 
     polyline.clear();
-    ellipse2Poly(Point(32768 + 430, 180), CvSize(100, 150), 30, 0, 150, 20, polyline);
+    ellipse2Poly(Point(32768 + 430, 180), Size(100, 150), 30, 0, 150, 20, polyline);
     pts = &polyline[0];
     n = (int)polyline.size();
-    polylines(img, &pts, &n, 1, false, Scalar(0, 0, 150), 4, CC_AA);
+    polylines(img, &pts, &n, 1, false, Scalar(0, 0, 150), 4, CV_AA);
     n = 0;
     for (vector<Point>::const_iterator it = polyline.begin(); n < (int)polyline.size() - 1; ++it, n++)
     {
@@ -470,7 +467,7 @@ void CC_DrawingTest_Far::draw(CvMat& img)
     }
 
     polyline.clear();
-    ellipse2Poly(Point(32768 + 500, 300), CvSize(50, 80), 0, 0, 180, 10, polyline);
+    ellipse2Poly(Point(32768 + 500, 300), Size(50, 80), 0, 0, 180, 10, polyline);
     pts = &polyline[0];
     n = (int)polyline.size();
     polylines(img, &pts, &n, 1, true, Scalar(100, 200, 100), 20);
@@ -496,7 +493,7 @@ void CC_DrawingTest_Far::draw(CvMat& img)
     string text1 = "OpenCV";
     int baseline = 0, thickness = 3, fontFace = FONT_HERSHEY_SCRIPT_SIMPLEX;
     float fontScale = 2;
-    CvSize textSize = getTextSize(text1, fontFace, fontScale, thickness, &baseline);
+    Size textSize = getTextSize(text1, fontFace, fontScale, thickness, &baseline);
     baseline += thickness;
     Point textOrg((32768 + img.cols - textSize.width) / 2, (img.rows + textSize.height) / 2);
     rectangle(img, textOrg + Point(0, baseline), textOrg + Point(textSize.width, -textSize.height), Scalar(0, 0, 255));
@@ -510,56 +507,56 @@ void CC_DrawingTest_Far::draw(CvMat& img)
 
     textSize = getTextSize(text2, FONT_HERSHEY_SIMPLEX, fontScale, thickness, &baseline);
     textOrg = Point(32768 + 5, 5) + Point(0, textSize.height + dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_SIMPLEX, fontScale, color, thickness, CV_AA);
 
     fontScale = 1;
     textSize = getTextSize(text2, FONT_HERSHEY_PLAIN, fontScale, thickness, &baseline);
     textOrg += Point(0, textSize.height + dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_PLAIN, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_PLAIN, fontScale, color, thickness, CV_AA);
 
     fontScale = 0.5;
     textSize = getTextSize(text2, FONT_HERSHEY_DUPLEX, fontScale, thickness, &baseline);
     textOrg += Point(0, textSize.height + dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_DUPLEX, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_DUPLEX, fontScale, color, thickness, CV_AA);
 
     textSize = getTextSize(text2, FONT_HERSHEY_COMPLEX, fontScale, thickness, &baseline);
     textOrg += Point(0, textSize.height + dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_COMPLEX, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_COMPLEX, fontScale, color, thickness, CV_AA);
 
     textSize = getTextSize(text2, FONT_HERSHEY_TRIPLEX, fontScale, thickness, &baseline);
     textOrg += Point(0, textSize.height + dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_TRIPLEX, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_TRIPLEX, fontScale, color, thickness, CV_AA);
 
     fontScale = 1;
     textSize = getTextSize(text2, FONT_HERSHEY_COMPLEX_SMALL, fontScale, thickness, &baseline);
     textOrg += Point(0, 180) + Point(0, textSize.height + dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_COMPLEX_SMALL, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_COMPLEX_SMALL, fontScale, color, thickness, CV_AA);
 
     textSize = getTextSize(text2, FONT_HERSHEY_SCRIPT_SIMPLEX, fontScale, thickness, &baseline);
     textOrg += Point(0, textSize.height + dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_SCRIPT_SIMPLEX, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_SCRIPT_SIMPLEX, fontScale, color, thickness, CV_AA);
 
     textSize = getTextSize(text2, FONT_HERSHEY_SCRIPT_COMPLEX, fontScale, thickness, &baseline);
     textOrg += Point(0, textSize.height + dist);
-    putText(img, text2, textOrg, FONT_HERSHEY_SCRIPT_COMPLEX, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_HERSHEY_SCRIPT_COMPLEX, fontScale, color, thickness, CV_AA);
 
     dist = 15, fontScale = 0.5;
     textSize = getTextSize(text2, FONT_ITALIC, fontScale, thickness, &baseline);
     textOrg += Point(0, textSize.height + dist);
-    putText(img, text2, textOrg, FONT_ITALIC, fontScale, color, thickness, CC_AA);
+    putText(img, text2, textOrg, FONT_ITALIC, fontScale, color, thickness, CV_AA);
 
     img = img(Rect(32768, 0, 600, 400)).clone();
 }
 
-TEST(Drawing,    cpp_regression) { CC_DrawingTest_CPP test; test.safe_run(); }
-TEST(Drawing,      c_regression) { CC_DrawingTest_C   test; test.safe_run(); }
-TEST(Drawing,    far_regression) { CC_DrawingTest_Far test; test.safe_run(); }
+TEST(Drawing,    cpp_regression) { CV_DrawingTest_CPP test; test.safe_run(); }
+TEST(Drawing,      c_regression) { CV_DrawingTest_C   test; test.safe_run(); }
+TEST(Drawing,    far_regression) { CV_DrawingTest_Far test; test.safe_run(); }
 
-class CC_FillConvexPolyTest : public cvtest::BaseTest
+class CV_FillConvexPolyTest : public cvtest::BaseTest
 {
 public:
-    CC_FillConvexPolyTest() {}
-    ~CC_FillConvexPolyTest() {}
+    CV_FillConvexPolyTest() {}
+    ~CV_FillConvexPolyTest() {}
 protected:
     void run(int)
     {
@@ -576,24 +573,24 @@ protected:
         line2.push_back(Point(10, 16));
         line2.push_back(Point(2, 16));
 
-        CvMat gray0(10,10,CC_8U, Scalar(0));
+        Mat gray0(10,10,CV_8U, Scalar(0));
         fillConvexPoly(gray0, line1, Scalar(255), 8, 0);
         int nz1 = countNonZero(gray0);
 
         fillConvexPoly(gray0, line2, Scalar(0), 8, 1);
         int nz2 = countNonZero(gray0)/255;
 
-        CC_Assert( nz1 == 40 && nz2 == 0 );
+        CV_Assert( nz1 == 40 && nz2 == 0 );
     }
 };
 
-TEST(Drawing, fillconvexpoly_clipping) { CC_FillConvexPolyTest test; test.safe_run(); }
+TEST(Drawing, fillconvexpoly_clipping) { CV_FillConvexPolyTest test; test.safe_run(); }
 
-class CC_DrawingTest_UTF8 : public cvtest::BaseTest
+class CV_DrawingTest_UTF8 : public cvtest::BaseTest
 {
 public:
-    CC_DrawingTest_UTF8() {}
-    ~CC_DrawingTest_UTF8() {}
+    CV_DrawingTest_UTF8() {}
+    ~CV_DrawingTest_UTF8() {}
 protected:
     void run(int)
     {
@@ -627,8 +624,8 @@ protected:
         fonts.push_back(FONT_HERSHEY_SCRIPT_SIMPLEX);
         fonts.push_back(FONT_HERSHEY_SCRIPT_COMPLEX);
 
-        vector<CvMat> results;
-        CvSize bigSize(0, 0);
+        vector<Mat> results;
+        Size bigSize(0, 0);
         for (vector<int>::const_iterator font = fonts.begin(); font != fonts.end(); ++font)
         {
             for (int italic = 0; italic <= FONT_ITALIC; italic += FONT_ITALIC)
@@ -640,10 +637,10 @@ protected:
                     const Scalar color(20,20,20);
                     int baseline = 0;
 
-                    CvSize textSize = getTextSize(*line, *font | italic, fontScale, thickness, &baseline);
+                    Size textSize = getTextSize(*line, *font | italic, fontScale, thickness, &baseline);
                     Point textOrg(0, textSize.height + 2);
-                    CvMat img(textSize + CvSize(0, baseline), CC_8UC3, Scalar(255, 255, 255));
-                    putText(img, *line, textOrg, *font | italic, fontScale, color, thickness, CC_AA);
+                    Mat img(textSize + Size(0, baseline), CV_8UC3, Scalar(255, 255, 255));
+                    putText(img, *line, textOrg, *font | italic, fontScale, color, thickness, CV_AA);
 
                     results.push_back(img);
                     bigSize.width = max(bigSize.width, img.size().width);
@@ -653,11 +650,11 @@ protected:
         }
 
         int shift = 0;
-        CvMat result(bigSize, CC_8UC3, Scalar(100, 100, 100));
-        for (vector<CvMat>::const_iterator img = results.begin(); img != results.end(); ++img)
+        Mat result(bigSize, CV_8UC3, Scalar(100, 100, 100));
+        for (vector<Mat>::const_iterator img = results.begin(); img != results.end(); ++img)
         {
             Rect roi(Point(0, shift), img->size());
-            CvMat sub(result, roi);
+            Mat sub(result, roi);
             img->copyTo(sub);
             shift += img->size().height + 1;
         }
@@ -665,7 +662,7 @@ protected:
     }
 };
 
-TEST(Drawing, utf8_support) { CC_DrawingTest_UTF8 test; test.safe_run(); }
+TEST(Drawing, utf8_support) { CV_DrawingTest_UTF8 test; test.safe_run(); }
 
 
 TEST(Drawing, _914)
@@ -673,7 +670,7 @@ TEST(Drawing, _914)
     const int rows = 256;
     const int cols = 256;
 
-    CvMat img(rows, cols, CC_8UC1, Scalar(255));
+    Mat img(rows, cols, CV_8UC1, Scalar(255));
 
     line(img, Point(0, 10), Point(255, 10), Scalar(0), 2, 4);
     line(img, Point(-5, 20), Point(260, 20), Scalar(0), 2, 4);
@@ -691,7 +688,7 @@ TEST(Drawing, _914)
 
 TEST(Drawing, polylines_empty)
 {
-    CvMat img(100, 100, CC_8UC1, Scalar(0));
+    Mat img(100, 100, CV_8UC1, Scalar(0));
     vector<Point> pts; // empty
     polylines(img, pts, false, Scalar(255));
     int cnt = countNonZero(img);
@@ -700,7 +697,7 @@ TEST(Drawing, polylines_empty)
 
 TEST(Drawing, polylines)
 {
-    CvMat img(100, 100, CC_8UC1, Scalar(0));
+    Mat img(100, 100, CV_8UC1, Scalar(0));
     vector<Point> pts;
     pts.push_back(Point(0, 0));
     pts.push_back(Point(20, 0));
@@ -709,21 +706,52 @@ TEST(Drawing, polylines)
     ASSERT_EQ(cnt, 21);
 }
 
+TEST(Drawing, longline)
+{
+    Mat mat = Mat::zeros(256, 256, CV_8UC1);
+
+    line(mat, cv::Point(34, 204), cv::Point(46400, 47400), cv::Scalar(255), 3);
+    EXPECT_EQ(310, cv::countNonZero(mat));
+
+    Point pt[6];
+    pt[0].x = 32;
+    pt[0].y = 204;
+    pt[1].x = 34;
+    pt[1].y = 202;
+    pt[2].x = 87;
+    pt[2].y = 255;
+    pt[3].x = 82;
+    pt[3].y = 255;
+    pt[4].x = 37;
+    pt[4].y = 210;
+    pt[5].x = 37;
+    pt[5].y = 209;
+    fillConvexPoly(mat, pt, 6, cv::Scalar(0));
+
+    EXPECT_EQ(0, cv::countNonZero(mat));
+}
+
 
 TEST(Drawing, putText_no_garbage)
 {
-    CvSize sz(640, 480);
-    CvMat mat = CvMat::zeros(sz, CC_8UC1);
+    Size sz(640, 480);
+    Mat mat = Mat::zeros(sz, CV_8UC1);
 
     mat = Scalar::all(0);
     putText(mat, "029", Point(10, 350), 0, 10, Scalar(128), 15);
 
-    EXPECT_EQ(0, countNonZero(mat(Rect(0, 0,           10, sz.height))));
-    EXPECT_EQ(0, countNonZero(mat(Rect(sz.width-10, 0, 10, sz.height))));
-    EXPECT_EQ(0, countNonZero(mat(Rect(205, 0,         10, sz.height))));
-    EXPECT_EQ(0, countNonZero(mat(Rect(405, 0,         10, sz.height))));
+    EXPECT_EQ(0, cv::countNonZero(mat(Rect(0, 0,           10, sz.height))));
+    EXPECT_EQ(0, cv::countNonZero(mat(Rect(sz.width-10, 0, 10, sz.height))));
+    EXPECT_EQ(0, cv::countNonZero(mat(Rect(205, 0,         10, sz.height))));
+    EXPECT_EQ(0, cv::countNonZero(mat(Rect(405, 0,         10, sz.height))));
 }
 
 
+TEST(Drawing, line)
+{
+    Mat mat = Mat::zeros(Size(100,100), CV_8UC1);
 
-} // namespace
+    ASSERT_THROW(line(mat, Point(1,1),Point(99,99),Scalar(255),0), cv::Exception);
+}
+
+}} // namespace

@@ -1,15 +1,13 @@
+// This file is part of OpenCV project.
+// It is subject to the license terms in the LICENSE file found in the top-level directory
+// of this distribution and at http://opencv.org/license.html.
 #include "perf_precomp.hpp"
 
-using namespace std;
-using namespace cv;
-using namespace perf;
-using namespace testing;
-using std::tr1::make_tuple;
-using std::tr1::get;
+namespace opencv_test {
 
-CC_ENUM(Mat_Type, CC_8UC1, CC_8UC3, CC_32FC1, CC_32FC3)
+CV_ENUM(Mat_Type, CV_8UC1, CV_8UC3, CV_32FC1, CV_32FC3)
 
-typedef TestBaseWithParam< tr1::tuple<CvSize, int, Mat_Type> > TestBilateralFilter;
+typedef TestBaseWithParam< tuple<Size, int, Mat_Type> > TestBilateralFilter;
 
 PERF_TEST_P( TestBilateralFilter, BilateralFilter,
              Combine(
@@ -19,7 +17,7 @@ PERF_TEST_P( TestBilateralFilter, BilateralFilter,
              )
 )
 {
-    CvSize sz;
+    Size sz;
     int d, type;
     const double sigmaColor = 1., sigmaSpace = 1.;
 
@@ -27,8 +25,8 @@ PERF_TEST_P( TestBilateralFilter, BilateralFilter,
     d          = get<1>(GetParam());
     type       = get<2>(GetParam());
 
-    CvMat src(sz, type);
-    CvMat dst(sz, type);
+    Mat src(sz, type);
+    Mat dst(sz, type);
 
     declare.in(src, WARMUP_RNG).out(dst).time(20);
 
@@ -36,3 +34,5 @@ PERF_TEST_P( TestBilateralFilter, BilateralFilter,
 
     SANITY_CHECK(dst, .01, ERROR_RELATIVE);
 }
+
+} // namespace

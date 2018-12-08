@@ -5,7 +5,7 @@
 namespace cv
 {
 
-CC_EXPORTS_W void setErrorVerbosity(bool verbose);
+CV_EXPORTS_W void setErrorVerbosity(bool verbose);
 
 }
 
@@ -13,21 +13,21 @@ CC_EXPORTS_W void setErrorVerbosity(bool verbose);
 
 namespace cv
 {
-CC_EXPORTS_W void add(const CvMat* src1, Scalar src2, CvMat* dst, const CvMat* mask=noArray(), int dtype=-1);
+CV_EXPORTS_W void add(InputArray src1, Scalar src2, OutputArray dst, InputArray mask=noArray(), int dtype=-1);
 
-CC_EXPORTS_W void subtract(const CvMat* src1, Scalar src2, CvMat* dst, const CvMat* mask=noArray(), int dtype=-1);
+CV_EXPORTS_W void subtract(InputArray src1, Scalar src2, OutputArray dst, InputArray mask=noArray(), int dtype=-1);
 
-CC_EXPORTS_W void multiply(const CvMat* src1, Scalar src2, CvMat* dst, double scale=1, int dtype=-1);
+CV_EXPORTS_W void multiply(InputArray src1, Scalar src2, OutputArray dst, double scale=1, int dtype=-1);
 
-CC_EXPORTS_W void divide(const CvMat* src1, Scalar src2, CvMat* dst, double scale=1, int dtype=-1);
+CV_EXPORTS_W void divide(InputArray src1, Scalar src2, OutputArray dst, double scale=1, int dtype=-1);
 
-CC_EXPORTS_W void absdiff(const CvMat* src1, Scalar src2, CvMat* dst);
+CV_EXPORTS_W void absdiff(InputArray src1, Scalar src2, OutputArray dst);
 
-CC_EXPORTS_W void compare(const CvMat* src1, Scalar src2, CvMat* dst, int cmpop);
+CV_EXPORTS_W void compare(InputArray src1, Scalar src2, OutputArray dst, int cmpop);
 
-CC_EXPORTS_W void min(const CvMat* src1, Scalar src2, CvMat* dst);
+CV_EXPORTS_W void min(InputArray src1, Scalar src2, OutputArray dst);
 
-CC_EXPORTS_W void max(const CvMat* src1, Scalar src2, CvMat* dst);
+CV_EXPORTS_W void max(InputArray src1, Scalar src2, OutputArray dst);
 
 }
 #endif //0

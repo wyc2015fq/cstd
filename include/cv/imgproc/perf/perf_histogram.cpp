@@ -1,28 +1,26 @@
+// This file is part of OpenCV project.
+// It is subject to the license terms in the LICENSE file found in the top-level directory
+// of this distribution and at http://opencv.org/license.html.
 #include "perf_precomp.hpp"
 
-using namespace std;
-using namespace cv;
-using namespace perf;
-using namespace testing;
-using std::tr1::make_tuple;
-using std::tr1::get;
+namespace opencv_test {
 
-typedef tr1::tuple<CvSize, MatType> Size_Source_t;
+typedef tuple<Size, MatType> Size_Source_t;
 typedef TestBaseWithParam<Size_Source_t> Size_Source;
-typedef TestBaseWithParam<CvSize> TestMatSize;
+typedef TestBaseWithParam<Size> TestMatSize;
 
 static const float rangeHight = 256.0f;
 static const float rangeLow = 0.0f;
 
 PERF_TEST_P(Size_Source, calcHist1d,
             testing::Combine(testing::Values(sz3MP, sz5MP),
-                             testing::Values(CC_8U, CC_16U, CC_32F) )
+                             testing::Values(CV_8U, CV_16U, CV_32F) )
             )
 {
-    CvSize size = get<0>(GetParam());
+    Size size = get<0>(GetParam());
     MatType type = get<1>(GetParam());
-    CvMat source(size.height, size.width, type);
-    CvMat hist;
+    Mat source(size.height, size.width, type);
+    Mat hist;
     int channels [] = {0};
     int histSize [] = {256};
     int dims = 1;
@@ -37,7 +35,7 @@ PERF_TEST_P(Size_Source, calcHist1d,
 
     TEST_CYCLE_MULTIRUN(3)
     {
-        calcHist(&source, numberOfImages, channels, CvMat(), hist, dims, histSize, ranges);
+        calcHist(&source, numberOfImages, channels, Mat(), hist, dims, histSize, ranges);
     }
 
     SANITY_CHECK(hist);
@@ -45,13 +43,13 @@ PERF_TEST_P(Size_Source, calcHist1d,
 
 PERF_TEST_P(Size_Source, calcHist2d,
             testing::Combine(testing::Values(sz3MP, sz5MP),
-                             testing::Values(CC_8UC2, CC_16UC2, CC_32FC2) )
+                             testing::Values(CV_8UC2, CV_16UC2, CV_32FC2) )
             )
 {
-    CvSize size = get<0>(GetParam());
+    Size size = get<0>(GetParam());
     MatType type = get<1>(GetParam());
-    CvMat source(size.height, size.width, type);
-    CvMat hist;
+    Mat source(size.height, size.width, type);
+    Mat hist;
     int channels [] = {0, 1};
     int histSize [] = {256, 256};
     int dims = 2;
@@ -65,7 +63,7 @@ PERF_TEST_P(Size_Source, calcHist2d,
     declare.in(source);
     TEST_CYCLE()
     {
-        calcHist(&source, numberOfImages, channels, CvMat(), hist, dims, histSize, ranges);
+        calcHist(&source, numberOfImages, channels, Mat(), hist, dims, histSize, ranges);
     }
 
     SANITY_CHECK(hist);
@@ -73,17 +71,17 @@ PERF_TEST_P(Size_Source, calcHist2d,
 
 PERF_TEST_P(Size_Source, calcHist3d,
             testing::Combine(testing::Values(sz3MP, sz5MP),
-                             testing::Values(CC_8UC3, CC_16UC3, CC_32FC3) )
+                             testing::Values(CV_8UC3, CV_16UC3, CV_32FC3) )
             )
 {
-    CvSize size = get<0>(GetParam());
+    Size size = get<0>(GetParam());
     MatType type = get<1>(GetParam());
-    CvMat hist;
+    Mat hist;
     int channels [] = {0, 1, 2};
     int histSize [] = {32, 32, 32};
     int dims = 3;
     int numberOfImages = 1;
-    CvMat source(size.height, size.width, type);
+    Mat source(size.height, size.width, type);
 
     const float r[] = {rangeLow, rangeHight};
     const float* ranges[] = {r, r, r};
@@ -93,7 +91,7 @@ PERF_TEST_P(Size_Source, calcHist3d,
     declare.in(source);
     TEST_CYCLE()
     {
-        calcHist(&source, numberOfImages, channels, CvMat(), hist, dims, histSize, ranges);
+        calcHist(&source, numberOfImages, channels, Mat(), hist, dims, histSize, ranges);
     }
 
     SANITY_CHECK(hist);
@@ -104,9 +102,9 @@ PERF_TEST_P(MatSize, equalizeHist,
             testing::Values(TYPICAL_MAT_SIZES)
             )
 {
-    CvSize size = GetParam();
-    CvMat source(size.height, size.width, CC_8U);
-    CvMat destination;
+    Size size = GetParam();
+    Mat source(size.height, size.width, CV_8U);
+    Mat destination;
     declare.in(source, WARMUP_RNG);
 
     TEST_CYCLE()
@@ -118,7 +116,7 @@ PERF_TEST_P(MatSize, equalizeHist,
 }
 #undef MatSize
 
-typedef tr1::tuple<CvSize, double> Sz_ClipLimit_t;
+typedef tuple<Size, double> Sz_ClipLimit_t;
 typedef TestBaseWithParam<Sz_ClipLimit_t> Sz_ClipLimit;
 
 PERF_TEST_P(Sz_ClipLimit, CLAHE,
@@ -126,16 +124,18 @@ PERF_TEST_P(Sz_ClipLimit, CLAHE,
                              testing::Values(0.0, 40.0))
             )
 {
-    const CvSize size = get<0>(GetParam());
+    const Size size = get<0>(GetParam());
     const double clipLimit = get<1>(GetParam());
 
-    CvMat src(size, CC_8UC1);
+    Mat src(size, CV_8UC1);
     declare.in(src, WARMUP_RNG);
 
     Ptr<CLAHE> clahe = createCLAHE(clipLimit);
-    CvMat dst;
+    Mat dst;
 
     TEST_CYCLE() clahe->apply(src, dst);
 
     SANITY_CHECK(dst);
 }
+
+} // namespace

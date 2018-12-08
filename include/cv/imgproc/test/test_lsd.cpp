@@ -1,11 +1,11 @@
+// This file is part of OpenCV project.
+// It is subject to the license terms in the LICENSE file found in the top-level directory
+// of this distribution and at http://opencv.org/license.html.
 #include "test_precomp.hpp"
 
-#include <vector>
+namespace opencv_test { namespace {
 
-using namespace cv;
-using namespace std;
-
-const CvSize img_size(640, 480);
+const Size img_size(640, 480);
 const int LSD_TEST_SEED = 0x134679;
 const int EPOCHS = 20;
 
@@ -15,15 +15,15 @@ public:
     LSDBase() { }
 
 protected:
-    CvMat test_image;
+    Mat test_image;
     vector<Vec4f> lines;
     RNG rng;
     int passedtests;
 
-    void GenerateWhiteNoise(CvMat& image);
-    void GenerateConstColor(CvMat& image);
-    void GenerateLines(CvMat& image, const unsigned int numLines);
-    void GenerateRotatedRect(CvMat& image);
+    void GenerateWhiteNoise(Mat& image);
+    void GenerateConstColor(Mat& image);
+    void GenerateLines(Mat& image, const unsigned int numLines);
+    void GenerateRotatedRect(Mat& image);
     virtual void SetUp();
 };
 
@@ -51,20 +51,20 @@ protected:
 
 };
 
-void LSDBase::GenerateWhiteNoise(CvMat& image)
+void LSDBase::GenerateWhiteNoise(Mat& image)
 {
-    image = CvMat(img_size, CC_8UC1);
+    image = Mat(img_size, CV_8UC1);
     rng.fill(image, RNG::UNIFORM, 0, 256);
 }
 
-void LSDBase::GenerateConstColor(CvMat& image)
+void LSDBase::GenerateConstColor(Mat& image)
 {
-    image = CvMat(img_size, CC_8UC1, Scalar::all(rng.uniform(0, 256)));
+    image = Mat(img_size, CV_8UC1, Scalar::all(rng.uniform(0, 256)));
 }
 
-void LSDBase::GenerateLines(CvMat& image, const unsigned int numLines)
+void LSDBase::GenerateLines(Mat& image, const unsigned int numLines)
 {
-    image = CvMat(img_size, CC_8UC1, Scalar::all(rng.uniform(0, 128)));
+    image = Mat(img_size, CV_8UC1, Scalar::all(rng.uniform(0, 128)));
 
     for(unsigned int i = 0; i < numLines; ++i)
     {
@@ -75,13 +75,13 @@ void LSDBase::GenerateLines(CvMat& image, const unsigned int numLines)
     }
 }
 
-void LSDBase::GenerateRotatedRect(CvMat& image)
+void LSDBase::GenerateRotatedRect(Mat& image)
 {
-    image = CvMat::zeros(img_size, CC_8UC1);
+    image = Mat::zeros(img_size, CV_8UC1);
 
     Point center(rng.uniform(img_size.width/4, img_size.width*3/4),
                  rng.uniform(img_size.height/4, img_size.height*3/4));
-    CvSize rect_size(rng.uniform(img_size.width/8, img_size.width/6),
+    Size rect_size(rng.uniform(img_size.width/8, img_size.width/6),
                    rng.uniform(img_size.height/8, img_size.height/6));
     float angle = rng.uniform(0.f, 360.f);
 
@@ -99,7 +99,7 @@ void LSDBase::GenerateRotatedRect(CvMat& image)
 void LSDBase::SetUp()
 {
     lines.clear();
-    test_image = CvMat();
+    test_image = Mat();
     rng = RNG(LSD_TEST_SEED);
     passedtests = 0;
 }
@@ -263,3 +263,5 @@ TEST_F(Imgproc_LSD_NONE, rotatedRect)
     }
     ASSERT_EQ(EPOCHS, passedtests);
 }
+
+}} // namespace

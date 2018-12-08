@@ -41,24 +41,23 @@
 
 #include "test_precomp.hpp"
 
-using namespace cv;
-using namespace std;
+namespace opencv_test { namespace {
 
-class CC_FloodFillTest : public cvtest::ArrayTest
+class CV_FloodFillTest : public cvtest::ArrayTest
 {
 public:
-    CC_FloodFillTest();
+    CV_FloodFillTest();
 
 protected:
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
     double get_success_error_level( int test_case_idx, int i, int j );
     void run_func();
     void prepare_to_validation( int );
 
-    void fill_array( int test_case_idx, int i, int j, CvMat& arr );
+    void fill_array( int test_case_idx, int i, int j, Mat& arr );
 
     /*int write_default_params(CvFileStorage* fs);
-    void get_timing_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types
+    void get_timing_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types
                                                 CvSize** whole_sizes, bool *are_images );
     void print_timing_params( int test_case_idx, char* ptr, int params_left );*/
     CvPoint seed_pt;
@@ -72,7 +71,7 @@ protected:
 };
 
 
-CC_FloodFillTest::CC_FloodFillTest()
+CV_FloodFillTest::CV_FloodFillTest()
 {
     test_array[INPUT_OUTPUT].push_back(NULL);
     test_array[INPUT_OUTPUT].push_back(NULL);
@@ -87,8 +86,8 @@ CC_FloodFillTest::CC_FloodFillTest()
 }
 
 
-void CC_FloodFillTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                       vector<vector<CvSize> >& sizes,
+void CV_FloodFillTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                       vector<vector<Size> >& sizes,
                                                        vector<vector<int> >& types )
 {
     RNG& rng = ts->get_rng();
@@ -98,7 +97,7 @@ void CC_FloodFillTest::get_test_array_types_and_sizes( int test_case_idx,
     cvtest::ArrayTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
 
     depth = cvtest::randInt(rng) % 3;
-    depth = depth == 0 ? CC_8U : depth == 1 ? CC_32S : CC_32F;
+    depth = depth == 0 ? CV_8U : depth == 1 ? CV_32S : CV_32F;
     cn = cvtest::randInt(rng) & 1 ? 3 : 1;
 
     use_mask = (cvtest::randInt(rng) & 1) != 0;
@@ -107,9 +106,9 @@ void CC_FloodFillTest::get_test_array_types_and_sizes( int test_case_idx,
     new_mask_val = cvtest::randInt(rng) & 255;
     range_type = cvtest::randInt(rng) % 3;
 
-    types[INPUT_OUTPUT][0] = types[REF_INPUT_OUTPUT][0] = CC_MAKETYPE(depth, cn);
-    types[INPUT_OUTPUT][1] = types[REF_INPUT_OUTPUT][1] = CC_8UC1;
-    types[OUTPUT][0] = types[REF_OUTPUT][0] = CC_64FC1;
+    types[INPUT_OUTPUT][0] = types[REF_INPUT_OUTPUT][0] = CV_MAKETYPE(depth, cn);
+    types[INPUT_OUTPUT][1] = types[REF_INPUT_OUTPUT][1] = CV_8UC1;
+    types[OUTPUT][0] = types[REF_OUTPUT][0] = CV_64FC1;
     sizes[OUTPUT][0] = sizes[REF_OUTPUT][0] = cvSize(9,1);
 
     if( !use_mask )
@@ -127,7 +126,7 @@ void CC_FloodFillTest::get_test_array_types_and_sizes( int test_case_idx,
         l_diff = u_diff = Scalar::all(0.);
     else
     {
-        CvMat m( 1, 8, CC_16S, buff );
+        Mat m( 1, 8, CV_16S, buff );
         rng.fill( m, RNG::NORMAL, Scalar::all(0), Scalar::all(32) );
         for( i = 0; i < 4; i++ )
         {
@@ -144,13 +143,13 @@ void CC_FloodFillTest::get_test_array_types_and_sizes( int test_case_idx,
 }
 
 
-double CC_FloodFillTest::get_success_error_level( int /*test_case_idx*/, int i, int j )
+double CV_FloodFillTest::get_success_error_level( int /*test_case_idx*/, int i, int j )
 {
     return i == OUTPUT ? FLT_EPSILON : j == 0 ? FLT_EPSILON : 0;
 }
 
 
-void CC_FloodFillTest::fill_array( int test_case_idx, int i, int j, CvMat& arr )
+void CV_FloodFillTest::fill_array( int test_case_idx, int i, int j, Mat& arr )
 {
     RNG& rng = ts->get_rng();
 
@@ -162,19 +161,19 @@ void CC_FloodFillTest::fill_array( int test_case_idx, int i, int j, CvMat& arr )
 
     if( j == 0 )
     {
-        CvMat tmp = arr;
+        Mat tmp = arr;
         Scalar m = Scalar::all(128);
         Scalar s = Scalar::all(10);
 
-        if( arr.depth() == CC_32FC1 )
-            tmp.create(arr.size(), CC_MAKETYPE(CC_8U, arr.channels()));
+        if( arr.depth() == CV_32FC1 )
+            tmp.create(arr.size(), CV_MAKETYPE(CV_8U, arr.channels()));
 
         if( range_type == 0 )
             s = Scalar::all(2);
 
         rng.fill(tmp, RNG::NORMAL, m, s );
         if( arr.data != tmp.data )
-            cvtest::convert(tmp, arr, arr->tid);
+            cvtest::convert(tmp, arr, arr.type());
     }
     else
     {
@@ -186,10 +185,10 @@ void CC_FloodFillTest::fill_array( int test_case_idx, int i, int j, CvMat& arr )
 }
 
 
-void CC_FloodFillTest::run_func()
+void CV_FloodFillTest::run_func()
 {
-    int flags = connectivity + (mask_only ? CC_FLOODFILL_MASK_ONLY : 0) +
-        (range_type == 1 ? CC_FLOODFILL_FIXED_RANGE : 0) + (new_mask_val << 8);
+    int flags = connectivity + (mask_only ? CV_FLOODFILL_MASK_ONLY : 0) +
+        (range_type == 1 ? CV_FLOODFILL_FIXED_RANGE : 0) + (new_mask_val << 8);
     double* odata = test_mat[OUTPUT][0].ptr<double>();
 
     if(!test_cpp)
@@ -209,14 +208,14 @@ void CC_FloodFillTest::run_func()
     }
     else
     {
-        CvMat img = cvarrToMat(test_array[INPUT_OUTPUT][0]),
-            mask = test_array[INPUT_OUTPUT][1] ? cvarrToMat(test_array[INPUT_OUTPUT][1]) : CvMat();
-        Rect rect;
+        cv::Mat img = cv::cvarrToMat(test_array[INPUT_OUTPUT][0]),
+            mask = test_array[INPUT_OUTPUT][1] ? cv::cvarrToMat(test_array[INPUT_OUTPUT][1]) : cv::Mat();
+        cv::Rect rect;
         int area;
         if( mask.empty() )
-            area = floodFill( img, seed_pt, new_val, &rect, l_diff, u_diff, flags );
+            area = cv::floodFill( img, seed_pt, new_val, &rect, l_diff, u_diff, flags );
         else
-            area = floodFill( img, mask, seed_pt, new_val, &rect, l_diff, u_diff, flags );
+            area = cv::floodFill( img, mask, seed_pt, new_val, &rect, l_diff, u_diff, flags );
         odata[0] = area;
         odata[1] = rect.x;
         odata[2] = rect.y;
@@ -250,26 +249,26 @@ cvTsFloodFill( CvMat* _img, CvPoint seed_pt, CvScalar new_val,
     ushort* m;
     float* img;
     int mstep, step;
-    int cn = CC_MAT_CN(_img->tid);
+    int cn = CV_MAT_CN(_img->type);
     int mdelta[8], idelta[8], ncount;
     int cols = _img->cols, rows = _img->rows;
     int u0 = 0, u1 = 0, u2 = 0;
     double s0 = 0, s1 = 0, s2 = 0;
 
-    if( CC_MAT_DEPTH(_img->tid) == CC_8U || CC_MAT_DEPTH(_img->tid) == CC_32S )
+    if( CV_MAT_DEPTH(_img->type) == CV_8U || CV_MAT_DEPTH(_img->type) == CV_32S )
     {
-        tmp = cvCreateMat( rows, cols, CC_MAKETYPE(CC_32F,CC_MAT_CN(_img->tid)) );
+        tmp = cvCreateMat( rows, cols, CV_MAKETYPE(CV_32F,CV_MAT_CN(_img->type)) );
         cvtest::convert(cvarrToMat(_img), cvarrToMat(tmp), -1);
     }
 
-    mask = cvCreateMat( rows + 2, cols + 2, CC_16UC1 );
+    mask = cvCreateMat( rows + 2, cols + 2, CV_16UC1 );
 
     if( _mask )
         cvtest::convert(cvarrToMat(_mask), cvarrToMat(mask), -1);
     else
     {
-        CvMat m_mask = cvarrToMat(mask);
-        cvtest::set( m_mask, Scalar::all(0), CvMat() );
+        Mat m_mask = cvarrToMat(mask);
+        cvtest::set( m_mask, Scalar::all(0), Mat() );
         cvRectangle( mask, cvPoint(0,0), cvPoint(mask->cols-1,mask->rows-1), Scalar::all(1.), 1, 8, 0 );
     }
 
@@ -513,7 +512,7 @@ _exit_:
 }
 
 
-void CC_FloodFillTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_FloodFillTest::prepare_to_validation( int /*test_case_idx*/ )
 {
     double* comp = test_mat[REF_OUTPUT][0].ptr<double>();
     CvMat _input = test_mat[REF_INPUT_OUTPUT][0];
@@ -526,20 +525,21 @@ void CC_FloodFillTest::prepare_to_validation( int /*test_case_idx*/ )
         comp[5] = comp[6] = comp[7] = comp[8] = 0;
 }
 
-TEST(Imgproc_FloodFill, accuracy) { CC_FloodFillTest test; test.safe_run(); }
+TEST(Imgproc_FloodFill, accuracy) { CV_FloodFillTest test; test.safe_run(); }
 
 TEST(Imgproc_FloodFill, maskValue)
 {
     const int n = 50;
-    CvMat img = CvMat::zeros(n, n, CC_8U);
-    CvMat mask = CvMat::zeros(n + 2, n + 2, CC_8U);
+    Mat img = Mat::zeros(n, n, CV_8U);
+    Mat mask = Mat::zeros(n + 2, n + 2, CV_8U);
 
     circle(img, Point(n/2, n/2), 20, Scalar(100), 4);
 
-    int flags = 4 + CC_FLOODFILL_MASK_ONLY;
+    int flags = 4 + CV_FLOODFILL_MASK_ONLY;
     floodFill(img, mask, Point(n/2 + 13, n/2), Scalar(100), NULL, Scalar(),  Scalar(), flags);
 
-    ASSERT_TRUE(norm(mask.rowRange(1, n-1).colRange(1, n-1), NORM_INF) == 1.);
+    ASSERT_EQ(1, cvtest::norm(mask.rowRange(1, n-1).colRange(1, n-1), NORM_INF));
 }
 
-
+}} // namespace
+/* End of file. */

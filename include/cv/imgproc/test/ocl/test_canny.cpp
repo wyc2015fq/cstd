@@ -48,7 +48,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ////////////////////////////////////////////////////////
@@ -76,11 +76,11 @@ PARAM_TEST_CASE(Canny, Channels, ApertureSize, L2gradient, UseRoi)
 
     void generateTestData()
     {
-        CvMat img = readImageType("shared/fruits.png", CC_8UC(cn));
+        Mat img = readImageType("shared/fruits.png", CV_8UC(cn));
         ASSERT_FALSE(img.empty()) << "cann't load shared/fruits.png";
 
-        CvSize roiSize = img.size();
-        int type = img->tid;
+        Size roiSize = img.size();
+        int type = img.type();
 
         Border srcBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
         randomSubMat(src, src_roi, roiSize, srcBorder, type, 2, 100);
@@ -101,8 +101,8 @@ OCL_TEST_P(Canny, Accuracy)
     const double low_thresh = 50.0, high_thresh = 100.0;
     double eps = 0.03;
 
-    OCL_OFF(Canny(src_roi, dst_roi, low_thresh, high_thresh, aperture_size, useL2gradient));
-    OCL_ON(Canny(usrc_roi, udst_roi, low_thresh, high_thresh, aperture_size, useL2gradient));
+    OCL_OFF(cv::Canny(src_roi, dst_roi, low_thresh, high_thresh, aperture_size, useL2gradient));
+    OCL_ON(cv::Canny(usrc_roi, udst_roi, low_thresh, high_thresh, aperture_size, useL2gradient));
 
     EXPECT_MAT_SIMILAR(dst_roi, udst_roi, eps);
     EXPECT_MAT_SIMILAR(dst, udst, eps);
@@ -115,12 +115,12 @@ OCL_TEST_P(Canny, AccuracyCustomGradient)
     const double low_thresh = 50.0, high_thresh = 100.0;
     double eps = 0.03;
 
-    OCL_OFF(Canny(src_roi, dst_roi, low_thresh, high_thresh, aperture_size, useL2gradient));
+    OCL_OFF(cv::Canny(src_roi, dst_roi, low_thresh, high_thresh, aperture_size, useL2gradient));
     OCL_ON(
         UMat dx, dy;
-        Sobel(usrc_roi, dx, CC_16S, 1, 0, aperture_size, 1, 0, BORDER_REPLICATE);
-        Sobel(usrc_roi, dy, CC_16S, 0, 1, aperture_size, 1, 0, BORDER_REPLICATE);
-        Canny(dx, dy, udst_roi, low_thresh, high_thresh, useL2gradient);
+        Sobel(usrc_roi, dx, CV_16S, 1, 0, aperture_size, 1, 0, BORDER_REPLICATE);
+        Sobel(usrc_roi, dy, CV_16S, 0, 1, aperture_size, 1, 0, BORDER_REPLICATE);
+        cv::Canny(dx, dy, udst_roi, low_thresh, high_thresh, useL2gradient);
     );
 
     EXPECT_MAT_SIMILAR(dst_roi, udst_roi, eps);
@@ -135,6 +135,6 @@ OCL_INSTANTIATE_TEST_CASE_P(ImgProc, Canny, testing::Combine(
 
 } // namespace ocl
 
-} // namespace cvtest
+} // namespace opencv_test
 
 #endif // HAVE_OPENCL

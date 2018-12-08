@@ -1,14 +1,12 @@
 /* See LICENSE file in the root OpenCV directory */
 
-#ifndef OPENCC_CORE_OCL_RUNTIME_OPENCL_SVM_2_0_HPP
-#define OPENCC_CORE_OCL_RUNTIME_OPENCL_SVM_2_0_HPP
+#ifndef OPENCV_CORE_OCL_RUNTIME_OPENCL_SVM_2_0_HPP
+#define OPENCV_CORE_OCL_RUNTIME_OPENCL_SVM_2_0_HPP
 
 #if defined(HAVE_OPENCL_SVM)
 #include "opencl_core.hpp"
 
 #include "opencl_svm_definitions.hpp"
-
-#ifndef HAVE_OPENCL_STATIC
 
 #undef clSVMAlloc
 #define clSVMAlloc clSVMAlloc_pfn
@@ -45,8 +43,6 @@ extern CL_RUNTIME_EXPORT cl_int (CL_API_CALL *clEnqueueSVMMap)(cl_command_queue 
 extern CL_RUNTIME_EXPORT cl_int (CL_API_CALL *clEnqueueSVMUnmap)(cl_command_queue command_queue, void* svm_ptr,
         cl_uint num_events_in_wait_list, const cl_event* event_wait_list, cl_event* event);
 
-#endif // HAVE_OPENCL_STATIC
-
 #endif // HAVE_OPENCL_SVM
 
-#endif // OPENCC_CORE_OCL_RUNTIME_OPENCL_SVM_2_0_HPP
+#endif // OPENCV_CORE_OCL_RUNTIME_OPENCL_SVM_2_0_HPP

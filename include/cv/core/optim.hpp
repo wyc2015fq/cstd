@@ -39,8 +39,8 @@
 //
 //M*/
 
-#ifndef OPENCC_OPTIM_HPP
-#define OPENCC_OPTIM_HPP
+#ifndef OPENCV_OPTIM_HPP
+#define OPENCV_OPTIM_HPP
 
 #include "opencv2/core.hpp"
 
@@ -55,12 +55,12 @@ without any constraints.
 
 /** @brief Basic interface for all solvers
  */
-class CC_EXPORTS MinProblemSolver : public Algorithm
+class CV_EXPORTS MinProblemSolver : public Algorithm
 {
 public:
     /** @brief Represents function being optimized
      */
-    class CC_EXPORTS Function
+    class CV_EXPORTS Function
     {
     public:
         virtual ~Function() {}
@@ -73,7 +73,7 @@ public:
     /** @brief Getter for the optimized function.
 
     The optimized function is represented by Function interface, which requires derivatives to
-    implement the sole method calc(double*) to evaluate the function.
+    implement the calc(double*) and getDim() methods to evaluate the function.
 
     @return Smart-pointer to an object that implements Function interface - it represents the
     function that is being optimized. It can be empty, if no function was given so far.
@@ -103,7 +103,7 @@ public:
     the function values at the vertices of simplex are within termcrit.epsilon range or simplex
     becomes so small that it can enclosed in a box with termcrit.epsilon sides, whatever comes
     first.
-    @param termcrit Terminal criteria to be used, represented as TermCriteria structure.
+    @param termcrit Terminal criteria to be used, represented as cv::TermCriteria structure.
      */
     virtual void setTermCriteria(const TermCriteria& termcrit) = 0;
 
@@ -115,7 +115,7 @@ public:
     always sensible) will be used.
 
     @param x The initial point, that will become a centroid of an initial simplex. After the algorithm
-    will terminate, it will be setted to the point where the algorithm stops, the point of possible
+    will terminate, it will be set to the point where the algorithm stops, the point of possible
     minimum.
     @return The value of a function at the point found.
      */
@@ -143,7 +143,7 @@ small that it can enclosed in a box with termcrit.epsilon sides, whatever comes 
 defined by user positive integer termcrit.maxCount and positive non-integer termcrit.epsilon.
 
 @note DownhillSolver is a derivative of the abstract interface
-MinProblemSolver, which in turn is derived from the Algorithm interface and is used to
+cv::MinProblemSolver, which in turn is derived from the Algorithm interface and is used to
 encapsulate the functionality, common to all non-linear optimization algorithms in the optim
 module.
 
@@ -152,7 +152,7 @@ module.
     termcrit.type == (TermCriteria::MAX_ITER + TermCriteria::EPS) && termcrit.epsilon > 0 && termcrit.maxCount > 0
 @endcode
  */
-class CC_EXPORTS DownhillSolver : public MinProblemSolver
+class CV_EXPORTS DownhillSolver : public MinProblemSolver
 {
 public:
     /** @brief Returns the initial step that will be used in downhill simplex algorithm.
@@ -161,7 +161,7 @@ public:
     accepts column-vectors as well as row-vectors, this method will return a row-vector.
     @see DownhillSolver::setInitStep
      */
-    virtual void getInitStep(CvMat* step) const=0;
+    virtual void getInitStep(OutputArray step) const=0;
 
     /** @brief Sets the initial step that will be used in downhill simplex algorithm.
 
@@ -177,7 +177,7 @@ public:
     @param step Initial step that will be used in algorithm. Roughly said, it determines the spread
     (size in each dimension) of an initial simplex.
      */
-    virtual void setInitStep(const CvMat* step)=0;
+    virtual void setInitStep(InputArray step)=0;
 
     /** @brief This function returns the reference to the ready-to-use DownhillSolver object.
 
@@ -196,7 +196,7 @@ public:
     MinProblemSolver::setTermCriteria.
      */
     static Ptr<DownhillSolver> create(const Ptr<MinProblemSolver::Function>& f=Ptr<MinProblemSolver::Function>(),
-                                      const CvMat* initStep=Mat_<double>(1,1,0.0),
+                                      InputArray initStep=Mat_<double>(1,1,0.0),
                                       TermCriteria termcrit=TermCriteria(TermCriteria::MAX_ITER+TermCriteria::EPS,5000,0.000001));
 };
 
@@ -233,7 +233,7 @@ point) and comput its gradient (it should be stored in the second argument as an
     termcrit.type == TermCriteria::MAX_ITER) && termcrit.maxCount > 0
 @endcode
  */
-class CC_EXPORTS ConjGradSolver : public MinProblemSolver
+class CV_EXPORTS ConjGradSolver : public MinProblemSolver
 {
 public:
     /** @brief This function returns the reference to the ready-to-use ConjGradSolver object.
@@ -253,7 +253,7 @@ public:
                                       TermCriteria termcrit=TermCriteria(TermCriteria::MAX_ITER+TermCriteria::EPS,5000,0.000001));
 };
 
-//! return codes for solveLP() function
+//! return codes for cv::solveLP() function
 enum SolveLPResult
 {
     SOLVELP_UNBOUNDED    = -2, //!< problem is unbounded (target function can achieve arbitrary high values)
@@ -288,12 +288,12 @@ Bland's rule <http://en.wikipedia.org/wiki/Bland%27s_rule> is used to prevent cy
 contain 32- or 64-bit floating point numbers. As a convenience, column-vector may be also submitted,
 in the latter case it is understood to correspond to \f$c^T\f$.
 @param Constr `m`-by-`n+1` matrix, whose rightmost column corresponds to \f$b\f$ in formulation above
-and the remaining to \f$A\f$. It should containt 32- or 64-bit floating point numbers.
+and the remaining to \f$A\f$. It should contain 32- or 64-bit floating point numbers.
 @param z The solution will be returned here as a column-vector - it corresponds to \f$c\f$ in the
 formulation above. It will contain 64-bit floating point numbers.
-@return One of SolveLPResult
+@return One of cv::SolveLPResult
  */
-CC_EXPORTS_W int solveLP(const CvMat& Func, const CvMat& Constr, CvMat& z);
+CV_EXPORTS_W int solveLP(const Mat& Func, const Mat& Constr, Mat& z);
 
 //! @}
 

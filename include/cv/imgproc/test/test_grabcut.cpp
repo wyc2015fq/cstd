@@ -1,27 +1,63 @@
-
+/*M///////////////////////////////////////////////////////////////////////////////////////
+//
+//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
+//
+//  By downloading, copying, installing or using the software you agree to this license.
+//  If you do not agree to this license, do not download, install,
+//  copy or use the software.
+//
+//
+//                           License Agreement
+//                For Open Source Computer Vision Library
+//
+// Copyright (C) 2000-2008, Intel Corporation, all rights reserved.
+// Copyright (C) 2009, Willow Garage Inc., all rights reserved.
+// Third party copyrights are property of their respective owners.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//   * Redistribution's of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//
+//   * Redistribution's in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//
+//   * The name of the copyright holders may not be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+//
+// This software is provided by the copyright holders and contributors "as is" and
+// any express or implied warranties, including, but not limited to, the implied
+// warranties of merchantability and fitness for a particular purpose are disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any direct,
+// indirect, incidental, special, exemplary, or consequential damages
+// (including, but not limited to, procurement of substitute goods or services;
+// loss of use, data, or profits; or business interruption) however caused
+// and on any theory of liability, whether in contract, strict liability,
+// or tort (including negligence or otherwise) arising in any way out of
+// the use of this software, even if advised of the possibility of such damage.
+//
+//M*/
 
 #include "test_precomp.hpp"
 
-#include <string>
-#include <iostream>
+namespace opencv_test { namespace {
 
-using namespace std;
-using namespace cv;
-
-class CC_GrabcutTest : public cvtest::BaseTest
+class CV_GrabcutTest : public cvtest::BaseTest
 {
 public:
-    CC_GrabcutTest();
-    ~CC_GrabcutTest();
+    CV_GrabcutTest();
+    ~CV_GrabcutTest();
 protected:
-    bool verify(const CvMat& mask, const CvMat& exp);
+    bool verify(const Mat& mask, const Mat& exp);
     void run(int);
 };
 
-CC_GrabcutTest::CC_GrabcutTest() {}
-CC_GrabcutTest::~CC_GrabcutTest() {}
+CV_GrabcutTest::CV_GrabcutTest() {}
+CV_GrabcutTest::~CV_GrabcutTest() {}
 
-bool CC_GrabcutTest::verify(const CvMat& mask, const CvMat& exp)
+bool CV_GrabcutTest::verify(const Mat& mask, const Mat& exp)
 {
     const float maxDiffRatio = 0.005f;
     int expArea = countNonZero( exp );
@@ -32,14 +68,14 @@ bool CC_GrabcutTest::verify(const CvMat& mask, const CvMat& exp)
     return curRatio < maxDiffRatio;
 }
 
-void CC_GrabcutTest::run( int /* start_from */)
+void CV_GrabcutTest::run( int /* start_from */)
 {
     cvtest::DefaultRngAuto defRng;
 
-    CvMat img = imread(string(ts->get_data_path()) + "shared/airplane.png");
-    CvMat mask_prob = imread(string(ts->get_data_path()) + "grabcut/mask_prob.png", 0);
-    CvMat exp_mask1 = imread(string(ts->get_data_path()) + "grabcut/exp_mask1.png", 0);
-    CvMat exp_mask2 = imread(string(ts->get_data_path()) + "grabcut/exp_mask2.png", 0);
+    Mat img = imread(string(ts->get_data_path()) + "shared/airplane.png");
+    Mat mask_prob = imread(string(ts->get_data_path()) + "grabcut/mask_prob.png", 0);
+    Mat exp_mask1 = imread(string(ts->get_data_path()) + "grabcut/exp_mask1.png", 0);
+    Mat exp_mask2 = imread(string(ts->get_data_path()) + "grabcut/exp_mask2.png", 0);
 
     if (img.empty() || (!mask_prob.empty() && img.size() != mask_prob.size()) ||
                        (!exp_mask1.empty() && img.size() != exp_mask1.size()) ||
@@ -50,11 +86,11 @@ void CC_GrabcutTest::run( int /* start_from */)
     }
 
     Rect rect(Point(24, 126), Point(483, 294));
-    CvMat exp_bgdModel, exp_fgdModel;
+    Mat exp_bgdModel, exp_fgdModel;
 
-    CvMat mask;
+    Mat mask;
     mask = Scalar(0);
-    CvMat bgdModel, fgdModel;
+    Mat bgdModel, fgdModel;
     grabCut( img, mask, rect, bgdModel, fgdModel, 0, GC_INIT_WITH_RECT );
     grabCut( img, mask, rect, bgdModel, fgdModel, 2, GC_EVAL );
 
@@ -97,27 +133,27 @@ void CC_GrabcutTest::run( int /* start_from */)
     ts->set_failed_test_info(cvtest::TS::OK);
 }
 
-TEST(Imgproc_GrabCut, regression) { CC_GrabcutTest test; test.safe_run(); }
+TEST(Imgproc_GrabCut, regression) { CV_GrabcutTest test; test.safe_run(); }
 
 TEST(Imgproc_GrabCut, repeatability)
 {
     cvtest::TS& ts = *cvtest::TS::ptr();
 
-    CvMat image_1 = imread(string(ts.get_data_path()) + "grabcut/image1652.ppm", IMREAD_COLOR);
-    CvMat mask_1 = imread(string(ts.get_data_path()) + "grabcut/mask1652.ppm", IMREAD_GRAYSCALE);
+    Mat image_1 = imread(string(ts.get_data_path()) + "grabcut/image1652.ppm", IMREAD_COLOR);
+    Mat mask_1 = imread(string(ts.get_data_path()) + "grabcut/mask1652.ppm", IMREAD_GRAYSCALE);
     Rect roi_1(0, 0, 150, 150);
 
-    CvMat image_2 = image_1.clone();
-    CvMat mask_2 = mask_1.clone();
+    Mat image_2 = image_1.clone();
+    Mat mask_2 = mask_1.clone();
     Rect roi_2 = roi_1;
 
-    CvMat image_3 = image_1.clone();
-    CvMat mask_3 = mask_1.clone();
+    Mat image_3 = image_1.clone();
+    Mat mask_3 = mask_1.clone();
     Rect roi_3 = roi_1;
 
-    CvMat bgdModel_1, fgdModel_1;
-    CvMat bgdModel_2, fgdModel_2;
-    CvMat bgdModel_3, fgdModel_3;
+    Mat bgdModel_1, fgdModel_1;
+    Mat bgdModel_2, fgdModel_2;
+    Mat bgdModel_3, fgdModel_3;
 
     theRNG().state = 12378213;
     grabCut(image_1, mask_1, roi_1, bgdModel_1, fgdModel_1, 1, GC_INIT_WITH_MASK);
@@ -130,3 +166,5 @@ TEST(Imgproc_GrabCut, repeatability)
     EXPECT_EQ(0, countNonZero(mask_1 != mask_3));
     EXPECT_EQ(0, countNonZero(mask_2 != mask_3));
 }
+
+}} // namespace

@@ -39,8 +39,8 @@
 //
 //M*/
 
-#ifndef _CC_GCGRAPH_H_
-#define _CC_GCGRAPH_H_
+#ifndef _CV_GCGRAPH_H_
+#define _CV_GCGRAPH_H_
 
 template <class TWeight> class GCGraph
 {
@@ -113,10 +113,10 @@ int GCGraph<TWeight>::addVtx()
 template <class TWeight>
 void GCGraph<TWeight>::addEdges( int i, int j, TWeight w, TWeight revw )
 {
-    CC_Assert( i>=0 && i<(int)vtcs.size() );
-    CC_Assert( j>=0 && j<(int)vtcs.size() );
-    CC_Assert( w>=0 && revw>=0 );
-    CC_Assert( i != j );
+    CV_Assert( i>=0 && i<(int)vtcs.size() );
+    CV_Assert( j>=0 && j<(int)vtcs.size() );
+    CV_Assert( w>=0 && revw>=0 );
+    CV_Assert( i != j );
 
     if( !edges.size() )
         edges.resize( 2 );
@@ -138,7 +138,7 @@ void GCGraph<TWeight>::addEdges( int i, int j, TWeight w, TWeight revw )
 template <class TWeight>
 void GCGraph<TWeight>::addTermWeights( int i, TWeight sourceW, TWeight sinkW )
 {
-    CC_Assert( i>=0 && i<(int)vtcs.size() );
+    CV_Assert( i>=0 && i<(int)vtcs.size() );
 
     TWeight dw = vtcs[i].weight;
     if( dw > 0 )
@@ -241,7 +241,7 @@ TWeight GCGraph<TWeight>::maxFlow()
 
         // find the minimum edge weight along the path
         minWeight = edgePtr[e0].weight;
-        CC_Assert( minWeight > 0 );
+        CV_Assert( minWeight > 0 );
         // k = 1: source tree, k = 0: destination tree
         for( int k = 1; k >= 0; k-- )
         {
@@ -251,11 +251,11 @@ TWeight GCGraph<TWeight>::maxFlow()
                     break;
                 weight = edgePtr[ei^k].weight;
                 minWeight = MIN(minWeight, weight);
-                CC_Assert( minWeight > 0 );
+                CV_Assert( minWeight > 0 );
             }
             weight = fabs(v->weight);
             minWeight = MIN(minWeight, weight);
-            CC_Assert( minWeight > 0 );
+            CV_Assert( minWeight > 0 );
         }
 
         // modify weights of the edges along the path and collect orphans
@@ -378,7 +378,7 @@ TWeight GCGraph<TWeight>::maxFlow()
 template <class TWeight>
 bool GCGraph<TWeight>::inSourceSegment( int i )
 {
-    CC_Assert( i>=0 && i<(int)vtcs.size() );
+    CV_Assert( i>=0 && i<(int)vtcs.size() );
     return vtcs[i].t == 0;
 }
 

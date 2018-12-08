@@ -45,12 +45,11 @@
 
 #include "test_precomp.hpp"
 
-using namespace cv;
-using namespace std;
+namespace opencv_test { namespace {
 
 #define ACCURACY 0.00001
 
-class CC_RotatedRectangleIntersectionTest: public cvtest::ArrayTest
+class CV_RotatedRectangleIntersectionTest: public cvtest::ArrayTest
 {
 public:
 
@@ -69,7 +68,7 @@ private:
     void test9();
 };
 
-void CC_RotatedRectangleIntersectionTest::run(int)
+void CV_RotatedRectangleIntersectionTest::run(int)
 {
     // See pics/intersection.png for the scenarios we are testing
 
@@ -95,7 +94,7 @@ void CC_RotatedRectangleIntersectionTest::run(int)
     test9();
 }
 
-void CC_RotatedRectangleIntersectionTest::test1()
+void CV_RotatedRectangleIntersectionTest::test1()
 {
     // no intersection
 
@@ -117,11 +116,11 @@ void CC_RotatedRectangleIntersectionTest::test1()
 
     int ret = rotatedRectangleIntersection(rect1, rect2, vertices);
 
-    CC_Assert(ret == INTERSECT_NONE);
-    CC_Assert(vertices.empty());
+    CV_Assert(ret == INTERSECT_NONE);
+    CV_Assert(vertices.empty());
 }
 
-void CC_RotatedRectangleIntersectionTest::test2()
+void CV_RotatedRectangleIntersectionTest::test2()
 {
     // partial intersection, rectangles translated
 
@@ -143,8 +142,8 @@ void CC_RotatedRectangleIntersectionTest::test2()
 
     int ret = rotatedRectangleIntersection(rect1, rect2, vertices);
 
-    CC_Assert(ret == INTERSECT_PARTIAL);
-    CC_Assert(vertices.size() == 4);
+    CV_Assert(ret == INTERSECT_PARTIAL);
+    CV_Assert(vertices.size() == 4);
 
     vector<Point2f> possibleVertices(4);
 
@@ -163,14 +162,14 @@ void CC_RotatedRectangleIntersectionTest::test2()
             double dy = vertices[i].y - possibleVertices[j].y;
             double r = sqrt(dx*dx + dy*dy);
 
-            bestR = MIN(bestR, r);
+            bestR = std::min(bestR, r);
         }
 
-        CC_Assert(bestR < ACCURACY);
+        CV_Assert(bestR < ACCURACY);
     }
 }
 
-void CC_RotatedRectangleIntersectionTest::test3()
+void CV_RotatedRectangleIntersectionTest::test3()
 {
     // partial intersection, rectangles rotated 45 degree on the corner, forms a triangle intersection
     RotatedRect rect1, rect2;
@@ -191,8 +190,8 @@ void CC_RotatedRectangleIntersectionTest::test3()
 
     int ret = rotatedRectangleIntersection(rect1, rect2, vertices);
 
-    CC_Assert(ret == INTERSECT_PARTIAL);
-    CC_Assert(vertices.size() == 3);
+    CV_Assert(ret == INTERSECT_PARTIAL);
+    CV_Assert(vertices.size() == 3);
 
     vector<Point2f> possibleVertices(3);
 
@@ -210,14 +209,14 @@ void CC_RotatedRectangleIntersectionTest::test3()
             double dy = vertices[i].y - possibleVertices[j].y;
             double r = sqrt(dx*dx + dy*dy);
 
-            bestR = MIN(bestR, r);
+            bestR = std::min(bestR, r);
         }
 
-        CC_Assert(bestR < ACCURACY);
+        CV_Assert(bestR < ACCURACY);
     }
 }
 
-void CC_RotatedRectangleIntersectionTest::test4()
+void CV_RotatedRectangleIntersectionTest::test4()
 {
     // full intersection, rectangles of same size directly on top of each other
 
@@ -239,8 +238,8 @@ void CC_RotatedRectangleIntersectionTest::test4()
 
     int ret = rotatedRectangleIntersection(rect1, rect2, vertices);
 
-    CC_Assert(ret == INTERSECT_FULL);
-    CC_Assert(vertices.size() == 4);
+    CV_Assert(ret == INTERSECT_FULL);
+    CV_Assert(vertices.size() == 4);
 
     vector<Point2f> possibleVertices(4);
 
@@ -259,14 +258,14 @@ void CC_RotatedRectangleIntersectionTest::test4()
             double dy = vertices[i].y - possibleVertices[j].y;
             double r = sqrt(dx*dx + dy*dy);
 
-            bestR = MIN(bestR, r);
+            bestR = std::min(bestR, r);
         }
 
-        CC_Assert(bestR < ACCURACY);
+        CV_Assert(bestR < ACCURACY);
     }
 }
 
-void CC_RotatedRectangleIntersectionTest::test5()
+void CV_RotatedRectangleIntersectionTest::test5()
 {
     // partial intersection, rectangle on top rotated 45 degrees
 
@@ -288,8 +287,8 @@ void CC_RotatedRectangleIntersectionTest::test5()
 
     int ret = rotatedRectangleIntersection(rect1, rect2, vertices);
 
-    CC_Assert(ret == INTERSECT_PARTIAL);
-    CC_Assert(vertices.size() == 8);
+    CV_Assert(ret == INTERSECT_PARTIAL);
+    CV_Assert(vertices.size() == 8);
 
     vector<Point2f> possibleVertices(8);
 
@@ -312,14 +311,14 @@ void CC_RotatedRectangleIntersectionTest::test5()
             double dy = vertices[i].y - possibleVertices[j].y;
             double r = sqrt(dx*dx + dy*dy);
 
-            bestR = MIN(bestR, r);
+            bestR = std::min(bestR, r);
         }
 
-        CC_Assert(bestR < ACCURACY);
+        CV_Assert(bestR < ACCURACY);
     }
 }
 
-void CC_RotatedRectangleIntersectionTest::test6()
+void CV_RotatedRectangleIntersectionTest::test6()
 {
     // 6 - partial intersection, rectangle on top of different size
 
@@ -341,8 +340,8 @@ void CC_RotatedRectangleIntersectionTest::test6()
 
     int ret = rotatedRectangleIntersection(rect1, rect2, vertices);
 
-    CC_Assert(ret == INTERSECT_PARTIAL);
-    CC_Assert(vertices.size() == 4);
+    CV_Assert(ret == INTERSECT_PARTIAL);
+    CV_Assert(vertices.size() == 4);
 
     vector<Point2f> possibleVertices(4);
 
@@ -361,14 +360,14 @@ void CC_RotatedRectangleIntersectionTest::test6()
             double dy = vertices[i].y - possibleVertices[j].y;
             double r = sqrt(dx*dx + dy*dy);
 
-            bestR = MIN(bestR, r);
+            bestR = std::min(bestR, r);
         }
 
-        CC_Assert(bestR < ACCURACY);
+        CV_Assert(bestR < ACCURACY);
     }
 }
 
-void CC_RotatedRectangleIntersectionTest::test7()
+void CV_RotatedRectangleIntersectionTest::test7()
 {
     // full intersection, rectangle fully enclosed in the other
 
@@ -390,8 +389,8 @@ void CC_RotatedRectangleIntersectionTest::test7()
 
     int ret = rotatedRectangleIntersection(rect1, rect2, vertices);
 
-    CC_Assert(ret == INTERSECT_FULL);
-    CC_Assert(vertices.size() == 4);
+    CV_Assert(ret == INTERSECT_FULL);
+    CV_Assert(vertices.size() == 4);
 
     vector<Point2f> possibleVertices(4);
 
@@ -410,14 +409,14 @@ void CC_RotatedRectangleIntersectionTest::test7()
             double dy = vertices[i].y - possibleVertices[j].y;
             double r = sqrt(dx*dx + dy*dy);
 
-            bestR = MIN(bestR, r);
+            bestR = std::min(bestR, r);
         }
 
-        CC_Assert(bestR < ACCURACY);
+        CV_Assert(bestR < ACCURACY);
     }
 }
 
-void CC_RotatedRectangleIntersectionTest::test8()
+void CV_RotatedRectangleIntersectionTest::test8()
 {
     // full intersection, rectangle fully enclosed in the other
 
@@ -439,17 +438,17 @@ void CC_RotatedRectangleIntersectionTest::test8()
 
     int ret = rotatedRectangleIntersection(rect1, rect2, vertices);
 
-    CC_Assert(ret == INTERSECT_PARTIAL);
-    CC_Assert(vertices.size() == 1);
+    CV_Assert(ret == INTERSECT_PARTIAL);
+    CV_Assert(vertices.size() == 1);
 
     double dx = vertices[0].x - 1;
     double dy = vertices[0].y - 1;
     double r = sqrt(dx*dx + dy*dy);
 
-    CC_Assert(r < ACCURACY);
+    CV_Assert(r < ACCURACY);
 }
 
-void CC_RotatedRectangleIntersectionTest::test9()
+void CV_RotatedRectangleIntersectionTest::test9()
 {
     // full intersection, rectangle fully enclosed in the other
 
@@ -471,8 +470,8 @@ void CC_RotatedRectangleIntersectionTest::test9()
 
     int ret = rotatedRectangleIntersection(rect1, rect2, vertices);
 
-    CC_Assert(ret == INTERSECT_PARTIAL);
-    CC_Assert(vertices.size() == 2);
+    CV_Assert(ret == INTERSECT_PARTIAL);
+    CV_Assert(vertices.size() == 2);
 
     vector<Point2f> possibleVertices(2);
 
@@ -489,11 +488,13 @@ void CC_RotatedRectangleIntersectionTest::test9()
             double dy = vertices[i].y - possibleVertices[j].y;
             double r = sqrt(dx*dx + dy*dy);
 
-            bestR = MIN(bestR, r);
+            bestR = std::min(bestR, r);
         }
 
-        CC_Assert(bestR < ACCURACY);
+        CV_Assert(bestR < ACCURACY);
     }
 }
 
-TEST (Imgproc_RotatedRectangleIntersection, accuracy) { CC_RotatedRectangleIntersectionTest test; test.safe_run(); }
+TEST (Imgproc_RotatedRectangleIntersection, accuracy) { CV_RotatedRectangleIntersectionTest test; test.safe_run(); }
+
+}} // namespace

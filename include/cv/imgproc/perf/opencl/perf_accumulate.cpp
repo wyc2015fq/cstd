@@ -48,7 +48,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 /////////////////////////////////// Accumulate ///////////////////////////////////
@@ -59,15 +59,15 @@ OCL_PERF_TEST_P(AccumulateFixture, Accumulate,
                 ::testing::Combine(OCL_TEST_SIZES, OCL_TEST_TYPES))
 {
     Size_MatType_t params = GetParam();
-    const CvSize srcSize = get<0>(params);
-    const int srcType = get<1>(params), cn = CC_MAT_CN(srcType), dstType = CC_32FC(cn);
+    const Size srcSize = get<0>(params);
+    const int srcType = get<1>(params), cn = CV_MAT_CN(srcType), dstType = CV_32FC(cn);
 
     checkDeviceMaxMemoryAllocSize(srcSize, dstType);
 
     UMat src(srcSize, srcType), dst(srcSize, dstType);
     declare.in(src, dst, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() accumulate(src, dst);
+    OCL_TEST_CYCLE() cv::accumulate(src, dst);
 
     SANITY_CHECK_NOTHING();
 }
@@ -80,15 +80,15 @@ OCL_PERF_TEST_P(AccumulateSquareFixture, AccumulateSquare,
                 ::testing::Combine(OCL_TEST_SIZES, OCL_TEST_TYPES))
 {
     Size_MatType_t params = GetParam();
-    const CvSize srcSize = get<0>(params);
-    const int srcType = get<1>(params), cn = CC_MAT_CN(srcType), dstType = CC_32FC(cn);
+    const Size srcSize = get<0>(params);
+    const int srcType = get<1>(params), cn = CV_MAT_CN(srcType), dstType = CV_32FC(cn);
 
     checkDeviceMaxMemoryAllocSize(srcSize, dstType);
 
     UMat src(srcSize, srcType), dst(srcSize, dstType);
     declare.in(src, dst, WARMUP_RNG);
 
-    OCL_TEST_CYCLE() accumulateSquare(src, dst);
+    OCL_TEST_CYCLE() cv::accumulateSquare(src, dst);
 
     SANITY_CHECK_NOTHING();
 }
@@ -101,15 +101,15 @@ OCL_PERF_TEST_P(AccumulateProductFixture, AccumulateProduct,
                 ::testing::Combine(OCL_TEST_SIZES, OCL_TEST_TYPES))
 {
     Size_MatType_t params = GetParam();
-    const CvSize srcSize = get<0>(params);
-    const int srcType = get<1>(params), cn = CC_MAT_CN(srcType), dstType = CC_32FC(cn);
+    const Size srcSize = get<0>(params);
+    const int srcType = get<1>(params), cn = CV_MAT_CN(srcType), dstType = CV_32FC(cn);
 
     checkDeviceMaxMemoryAllocSize(srcSize, dstType);
 
     UMat src1(srcSize, srcType), src2(srcSize, srcType), dst(srcSize, dstType);
     declare.in(src1, src2, dst, WARMUP_RNG);
 
-    OCL_TEST_CYCLE() accumulateProduct(src1, src2, dst);
+    OCL_TEST_CYCLE() cv::accumulateProduct(src1, src2, dst);
 
     SANITY_CHECK_NOTHING();
 }
@@ -122,19 +122,19 @@ OCL_PERF_TEST_P(AccumulateWeightedFixture, AccumulateWeighted,
                 ::testing::Combine(OCL_TEST_SIZES, OCL_TEST_TYPES))
 {
     Size_MatType_t params = GetParam();
-    const CvSize srcSize = get<0>(params);
-    const int srcType = get<1>(params), cn = CC_MAT_CN(srcType), dstType = CC_32FC(cn);
+    const Size srcSize = get<0>(params);
+    const int srcType = get<1>(params), cn = CV_MAT_CN(srcType), dstType = CV_32FC(cn);
 
     checkDeviceMaxMemoryAllocSize(srcSize, dstType);
 
     UMat src(srcSize, srcType), dst(srcSize, dstType);
     declare.in(src, dst, WARMUP_RNG);
 
-    OCL_TEST_CYCLE() accumulateWeighted(src, dst, 2.0);
+    OCL_TEST_CYCLE() cv::accumulateWeighted(src, dst, 2.0);
 
     SANITY_CHECK_NOTHING();
 }
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif

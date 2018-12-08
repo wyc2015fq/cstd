@@ -5,26 +5,23 @@
 #include "perf_precomp.hpp"
 #include "opencv2/ts/ocl_perf.hpp"
 
-using namespace std;
-using namespace cv;
-using namespace ::perf;
+namespace opencv_test
+{
+using namespace perf;
 using namespace ::cvtest::ocl;
-using namespace ::testing;
-using std::tr1::tuple;
-using std::tr1::get;
 
 
 struct OpenCLState
 {
     OpenCLState(bool useOpenCL)
     {
-        isOpenCL_enabled = ocl::useOpenCL();
-        ocl::setUseOpenCL(useOpenCL);
+        isOpenCL_enabled = cv::ocl::useOpenCL();
+        cv::ocl::setUseOpenCL(useOpenCL);
     }
 
     ~OpenCLState()
     {
-        ocl::setUseOpenCL(isOpenCL_enabled);
+        cv::ocl::setUseOpenCL(isOpenCL_enabled);
     }
 
 private:
@@ -37,25 +34,25 @@ OCL_PERF_TEST_P(UMatTest, CustomPtr, Combine(Values(sz1080p, sz2160p), Bool(), :
 {
     OpenCLState s(get<1>(GetParam()));
 
-    int type = CC_8UC1;
-    Size size = get<0>(GetParam());
+    int type = CV_8UC1;
+    cv::Size size = get<0>(GetParam());
     size_t align_base = 4096;
     const int align_offset = get<2>(GetParam());
 
-    void* pData_allocated = new unsigned char [size.area() * CC_ELEM_SIZE(type) + (align_base + align_offset)];
+    void* pData_allocated = new unsigned char [size.area() * CV_ELEM_SIZE(type) + (align_base + align_offset)];
     void* pData = (char*)alignPtr(pData_allocated, (int)align_base) + align_offset;
-    size_t step = size.width * CC_ELEM_SIZE(type);
+    size_t step = size.width * CV_ELEM_SIZE(type);
 
     OCL_TEST_CYCLE()
     {
-        CvMat m = CvMat(size, type, pData, step);
-        m.setTo(Scalar::all(2));
+        Mat m = Mat(size, type, pData, step);
+        m.setTo(cv::Scalar::all(2));
 
         UMat u = m.getUMat(ACCESS_RW);
-        add(u, Scalar::all(2), u);
-        add(u, Scalar::all(3), u);
+        cv::add(u, cv::Scalar::all(2), u);
+        cv::add(u, cv::Scalar::all(3), u);
 
-        CvMat d = u.getMat(ACCESS_READ);
+        Mat d = u.getMat(ACCESS_READ);
         ASSERT_EQ(7, d.at<char>(0, 0));
     }
 
@@ -63,3 +60,5 @@ OCL_PERF_TEST_P(UMatTest, CustomPtr, Combine(Values(sz1080p, sz2160p), Bool(), :
 
     SANITY_CHECK_NOTHING();
 }
+
+} // namespace

@@ -44,12 +44,11 @@
 //M*/
 
 #include "../test_precomp.hpp"
-#include "cvconfig.h"
 #include "opencv2/ts/ocl_test.hpp"
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 PARAM_TEST_CASE(BlendLinear, MatDepth, Channels, bool)
@@ -72,10 +71,10 @@ PARAM_TEST_CASE(BlendLinear, MatDepth, Channels, bool)
 
     void random_roi()
     {
-        const int type = CC_MAKE_TYPE(depth, channels);
+        const int type = CV_MAKE_TYPE(depth, channels);
         const double upValue = 256;
 
-        CvSize roiSize = randomSize(1, MAX_VALUE);
+        Size roiSize = randomSize(1, MAX_VALUE);
         Border src1Border = randomBorder(0, useRoi ? MAX_VALUE : 0);
         randomSubMat(src1, src1_roi, roiSize, src1Border, type, -upValue, upValue);
 
@@ -83,13 +82,13 @@ PARAM_TEST_CASE(BlendLinear, MatDepth, Channels, bool)
         randomSubMat(src2, src2_roi, roiSize, src2Border, type, -upValue, upValue);
 
         Border weights1Border = randomBorder(0, useRoi ? MAX_VALUE : 0);
-        randomSubMat(weights1, weights1_roi, roiSize, weights1Border, CC_32FC1, -upValue, upValue);
+        randomSubMat(weights1, weights1_roi, roiSize, weights1Border, CV_32FC1, -upValue, upValue);
 
         Border weights2Border = randomBorder(0, useRoi ? MAX_VALUE : 0);
-        randomSubMat(weights2, weights2_roi, roiSize, weights2Border, CC_32FC1, 1e-2, upValue);
+        randomSubMat(weights2, weights2_roi, roiSize, weights2Border, CV_32FC1, 1e-2, upValue);
 
         weights2_roi -= weights1_roi;
-        CC_Assert(checkNorm2(weights2_roi, weights2(Rect(weights2Border.lef, weights2Border.top,
+        CV_Assert(checkNorm2(weights2_roi, weights2(Rect(weights2Border.lef, weights2Border.top,
                                                         roiSize.width, roiSize.height))) < 1e-6);
 
         Border dstBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
@@ -114,15 +113,15 @@ OCL_TEST_P(BlendLinear, Accuracy)
     {
         random_roi();
 
-        OCL_OFF(blendLinear(src1_roi, src2_roi, weights1_roi, weights2_roi, dst_roi));
-        OCL_ON(blendLinear(usrc1_roi, usrc2_roi, uweights1_roi, uweights2_roi, udst_roi));
+        OCL_OFF(cv::blendLinear(src1_roi, src2_roi, weights1_roi, weights2_roi, dst_roi));
+        OCL_ON(cv::blendLinear(usrc1_roi, usrc2_roi, uweights1_roi, uweights2_roi, udst_roi));
 
-        Near(depth <= CC_32S ? 1.0 : 0.5);
+        Near(depth <= CV_32S ? 1.0 : 0.5);
     }
 }
 
-OCL_INSTANTIATE_TEST_CASE_P(ImgProc, BlendLinear, Combine(testing::Values(CC_8U, CC_32F), OCL_ALL_CHANNELS, Bool()));
+OCL_INSTANTIATE_TEST_CASE_P(ImgProc, BlendLinear, Combine(testing::Values(CV_8U, CV_32F), OCL_ALL_CHANNELS, Bool()));
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif

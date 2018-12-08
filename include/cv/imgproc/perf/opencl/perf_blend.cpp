@@ -49,34 +49,34 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ///////////// BlendLinear ////////////////////////
 
 typedef Size_MatType BlendLinearFixture;
 
-OCL_PERF_TEST_P(BlendLinearFixture, BlendLinear, ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CC_32FC1, CC_32FC4)))
+OCL_PERF_TEST_P(BlendLinearFixture, BlendLinear, ::testing::Combine(OCL_TEST_SIZES, OCL_TEST_TYPES_134))
 {
     Size_MatType_t params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int srcType = get<1>(params);
-    const double eps = CC_MAT_DEPTH(srcType) <= CC_32S ? 1.0 : 0.2;
+    const double eps = CV_MAT_DEPTH(srcType) <= CV_32S ? 1.0 : 0.2;
 
     checkDeviceMaxMemoryAllocSize(srcSize, srcType);
 
     UMat src1(srcSize, srcType), src2(srcSize, srcType), dst(srcSize, srcType);
-    UMat weights1(srcSize, CC_32FC1), weights2(srcSize, CC_32FC1);
+    UMat weights1(srcSize, CV_32FC1), weights2(srcSize, CV_32FC1);
 
     declare.in(src1, src2, WARMUP_RNG).in(weights1, weights2, WARMUP_READ).out(dst);
     randu(weights1, 0, 1);
     randu(weights2, 0, 1);
 
-    OCL_TEST_CYCLE() blendLinear(src1, src2, weights1, weights2, dst);
+    OCL_TEST_CYCLE() cv::blendLinear(src1, src2, weights1, weights2, dst);
 
     SANITY_CHECK(dst, eps);
 }
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

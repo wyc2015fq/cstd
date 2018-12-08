@@ -42,8 +42,8 @@
 //
 //M*/
 
-#ifndef OPENCC_CORE_OPERATIONS_HPP
-#define OPENCC_CORE_OPERATIONS_HPP
+#ifndef OPENCV_CORE_OPERATIONS_HPP
+#define OPENCV_CORE_OPERATIONS_HPP
 
 #ifndef __cplusplus
 #  error operations.hpp header must be compiled as C++
@@ -82,7 +82,7 @@ template<typename _Tp> struct Matx_FastInvOp<_Tp, 2>
 {
     bool operator()(const Matx<_Tp, 2, 2>& a, Matx<_Tp, 2, 2>& b, int) const
     {
-        _Tp d = determinant(a);
+        _Tp d = (_Tp)determinant(a);
         if( d == 0 )
             return false;
         d = 1/d;
@@ -137,7 +137,7 @@ template<typename _Tp> struct Matx_FastSolveOp<_Tp, 2, 1>
     bool operator()(const Matx<_Tp, 2, 2>& a, const Matx<_Tp, 2, 1>& b,
                     Matx<_Tp, 2, 1>& x, int) const
     {
-        _Tp d = determinant(a);
+        _Tp d = (_Tp)determinant(a);
         if( d == 0 )
             return false;
         d = 1/d;
@@ -177,7 +177,7 @@ template<typename _Tp, int m, int n> inline
 Matx<_Tp,m,n> Matx<_Tp,m,n>::randu(_Tp a, _Tp b)
 {
     Matx<_Tp,m,n> M;
-    randu(M, Scalar(a), Scalar(b));
+    cv::randu(M, Scalar(a), Scalar(b));
     return M;
 }
 
@@ -185,7 +185,7 @@ template<typename _Tp, int m, int n> inline
 Matx<_Tp,m,n> Matx<_Tp,m,n>::randn(_Tp a, _Tp b)
 {
     Matx<_Tp,m,n> M;
-    randn(M, Scalar(a), Scalar(b));
+    cv::randn(M, Scalar(a), Scalar(b));
     return M;
 }
 
@@ -195,10 +195,10 @@ Matx<_Tp, n, m> Matx<_Tp, m, n>::inv(int method, bool *p_is_ok /*= NULL*/) const
     Matx<_Tp, n, m> b;
     bool ok;
     if( method == DECOMP_LU || method == DECOMP_CHOLESKY )
-        ok = internal::Matx_FastInvOp<_Tp, m>()(*this, b, method);
+        ok = cv::internal::Matx_FastInvOp<_Tp, m>()(*this, b, method);
     else
     {
-        CvMat A(*this, false), B(b, false);
+        Mat A(*this, false), B(b, false);
         ok = (invert(A, B, method) != 0);
     }
     if( NULL != p_is_ok ) { *p_is_ok = ok; }
@@ -211,11 +211,11 @@ Matx<_Tp, n, l> Matx<_Tp, m, n>::solve(const Matx<_Tp, m, l>& rhs, int method) c
     Matx<_Tp, n, l> x;
     bool ok;
     if( method == DECOMP_LU || method == DECOMP_CHOLESKY )
-        ok = internal::Matx_FastSolveOp<_Tp, m, l>()(*this, rhs, x, method);
+        ok = cv::internal::Matx_FastSolveOp<_Tp, m, l>()(*this, rhs, x, method);
     else
     {
-        CvMat A(*this, false), B(rhs, false), X(x, false);
-        ok = solve(A, B, X, method);
+        Mat A(*this, false), B(rhs, false), X(x, false);
+        ok = cv::solve(A, B, X, method);
     }
 
     return ok ? x : Matx<_Tp, n, l>::zeros();
@@ -225,94 +225,94 @@ Matx<_Tp, n, l> Matx<_Tp, m, n>::solve(const Matx<_Tp, m, l>& rhs, int method) c
 
 ////////////////////////// Augmenting algebraic & logical operations //////////////////////////
 
-#define CC_MAT_AUG_OPERATOR1(op, cvop, A, B) \
+#define CV_MAT_AUG_OPERATOR1(op, cvop, A, B) \
     static inline A& operator op (A& a, const B& b) { cvop; return a; }
 
-#define CC_MAT_AUG_OPERATOR(op, cvop, A, B)   \
-    CC_MAT_AUG_OPERATOR1(op, cvop, A, B)      \
-    CC_MAT_AUG_OPERATOR1(op, cvop, const A, B)
+#define CV_MAT_AUG_OPERATOR(op, cvop, A, B)   \
+    CV_MAT_AUG_OPERATOR1(op, cvop, A, B)      \
+    CV_MAT_AUG_OPERATOR1(op, cvop, const A, B)
 
-#define CC_MAT_AUG_OPERATOR_T(op, cvop, A, B)                   \
-    template<typename _Tp> CC_MAT_AUG_OPERATOR1(op, cvop, A, B) \
-    template<typename _Tp> CC_MAT_AUG_OPERATOR1(op, cvop, const A, B)
+#define CV_MAT_AUG_OPERATOR_T(op, cvop, A, B)                   \
+    template<typename _Tp> CV_MAT_AUG_OPERATOR1(op, cvop, A, B) \
+    template<typename _Tp> CV_MAT_AUG_OPERATOR1(op, cvop, const A, B)
 
-CC_MAT_AUG_OPERATOR  (+=, add(a,b,a), CvMat, CvMat)
-CC_MAT_AUG_OPERATOR  (+=, add(a,b,a), CvMat, Scalar)
-CC_MAT_AUG_OPERATOR_T(+=, add(a,b,a), Mat_<_Tp>, CvMat)
-CC_MAT_AUG_OPERATOR_T(+=, add(a,b,a), Mat_<_Tp>, Scalar)
-CC_MAT_AUG_OPERATOR_T(+=, add(a,b,a), Mat_<_Tp>, Mat_<_Tp>)
+CV_MAT_AUG_OPERATOR  (+=, cv::add(a,b,a), Mat, Mat)
+CV_MAT_AUG_OPERATOR  (+=, cv::add(a,b,a), Mat, Scalar)
+CV_MAT_AUG_OPERATOR_T(+=, cv::add(a,b,a), Mat_<_Tp>, Mat)
+CV_MAT_AUG_OPERATOR_T(+=, cv::add(a,b,a), Mat_<_Tp>, Scalar)
+CV_MAT_AUG_OPERATOR_T(+=, cv::add(a,b,a), Mat_<_Tp>, Mat_<_Tp>)
 
-CC_MAT_AUG_OPERATOR  (-=, subtract(a,b,a), CvMat, CvMat)
-CC_MAT_AUG_OPERATOR  (-=, subtract(a,b,a), CvMat, Scalar)
-CC_MAT_AUG_OPERATOR_T(-=, subtract(a,b,a), Mat_<_Tp>, CvMat)
-CC_MAT_AUG_OPERATOR_T(-=, subtract(a,b,a), Mat_<_Tp>, Scalar)
-CC_MAT_AUG_OPERATOR_T(-=, subtract(a,b,a), Mat_<_Tp>, Mat_<_Tp>)
+CV_MAT_AUG_OPERATOR  (-=, cv::subtract(a,b,a), Mat, Mat)
+CV_MAT_AUG_OPERATOR  (-=, cv::subtract(a,b,a), Mat, Scalar)
+CV_MAT_AUG_OPERATOR_T(-=, cv::subtract(a,b,a), Mat_<_Tp>, Mat)
+CV_MAT_AUG_OPERATOR_T(-=, cv::subtract(a,b,a), Mat_<_Tp>, Scalar)
+CV_MAT_AUG_OPERATOR_T(-=, cv::subtract(a,b,a), Mat_<_Tp>, Mat_<_Tp>)
 
-CC_MAT_AUG_OPERATOR  (*=, gemm(a, b, 1, CvMat(), 0, a, 0), CvMat, CvMat)
-CC_MAT_AUG_OPERATOR_T(*=, gemm(a, b, 1, CvMat(), 0, a, 0), Mat_<_Tp>, CvMat)
-CC_MAT_AUG_OPERATOR_T(*=, gemm(a, b, 1, CvMat(), 0, a, 0), Mat_<_Tp>, Mat_<_Tp>)
-CC_MAT_AUG_OPERATOR  (*=, a.convertTo(a, -1, b), CvMat, double)
-CC_MAT_AUG_OPERATOR_T(*=, a.convertTo(a, -1, b), Mat_<_Tp>, double)
+CV_MAT_AUG_OPERATOR  (*=, cv::gemm(a, b, 1, Mat(), 0, a, 0), Mat, Mat)
+CV_MAT_AUG_OPERATOR_T(*=, cv::gemm(a, b, 1, Mat(), 0, a, 0), Mat_<_Tp>, Mat)
+CV_MAT_AUG_OPERATOR_T(*=, cv::gemm(a, b, 1, Mat(), 0, a, 0), Mat_<_Tp>, Mat_<_Tp>)
+CV_MAT_AUG_OPERATOR  (*=, a.convertTo(a, -1, b), Mat, double)
+CV_MAT_AUG_OPERATOR_T(*=, a.convertTo(a, -1, b), Mat_<_Tp>, double)
 
-CC_MAT_AUG_OPERATOR  (/=, divide(a,b,a), CvMat, CvMat)
-CC_MAT_AUG_OPERATOR_T(/=, divide(a,b,a), Mat_<_Tp>, CvMat)
-CC_MAT_AUG_OPERATOR_T(/=, divide(a,b,a), Mat_<_Tp>, Mat_<_Tp>)
-CC_MAT_AUG_OPERATOR  (/=, a.convertTo((CvMat&)a, -1, 1./b), CvMat, double)
-CC_MAT_AUG_OPERATOR_T(/=, a.convertTo((CvMat&)a, -1, 1./b), Mat_<_Tp>, double)
+CV_MAT_AUG_OPERATOR  (/=, cv::divide(a,b,a), Mat, Mat)
+CV_MAT_AUG_OPERATOR_T(/=, cv::divide(a,b,a), Mat_<_Tp>, Mat)
+CV_MAT_AUG_OPERATOR_T(/=, cv::divide(a,b,a), Mat_<_Tp>, Mat_<_Tp>)
+CV_MAT_AUG_OPERATOR  (/=, a.convertTo((Mat&)a, -1, 1./b), Mat, double)
+CV_MAT_AUG_OPERATOR_T(/=, a.convertTo((Mat&)a, -1, 1./b), Mat_<_Tp>, double)
 
-CC_MAT_AUG_OPERATOR  (&=, bitwise_and(a,b,a), CvMat, CvMat)
-CC_MAT_AUG_OPERATOR  (&=, bitwise_and(a,b,a), CvMat, Scalar)
-CC_MAT_AUG_OPERATOR_T(&=, bitwise_and(a,b,a), Mat_<_Tp>, CvMat)
-CC_MAT_AUG_OPERATOR_T(&=, bitwise_and(a,b,a), Mat_<_Tp>, Scalar)
-CC_MAT_AUG_OPERATOR_T(&=, bitwise_and(a,b,a), Mat_<_Tp>, Mat_<_Tp>)
+CV_MAT_AUG_OPERATOR  (&=, cv::bitwise_and(a,b,a), Mat, Mat)
+CV_MAT_AUG_OPERATOR  (&=, cv::bitwise_and(a,b,a), Mat, Scalar)
+CV_MAT_AUG_OPERATOR_T(&=, cv::bitwise_and(a,b,a), Mat_<_Tp>, Mat)
+CV_MAT_AUG_OPERATOR_T(&=, cv::bitwise_and(a,b,a), Mat_<_Tp>, Scalar)
+CV_MAT_AUG_OPERATOR_T(&=, cv::bitwise_and(a,b,a), Mat_<_Tp>, Mat_<_Tp>)
 
-CC_MAT_AUG_OPERATOR  (|=, bitwise_or(a,b,a), CvMat, CvMat)
-CC_MAT_AUG_OPERATOR  (|=, bitwise_or(a,b,a), CvMat, Scalar)
-CC_MAT_AUG_OPERATOR_T(|=, bitwise_or(a,b,a), Mat_<_Tp>, CvMat)
-CC_MAT_AUG_OPERATOR_T(|=, bitwise_or(a,b,a), Mat_<_Tp>, Scalar)
-CC_MAT_AUG_OPERATOR_T(|=, bitwise_or(a,b,a), Mat_<_Tp>, Mat_<_Tp>)
+CV_MAT_AUG_OPERATOR  (|=, cv::bitwise_or(a,b,a), Mat, Mat)
+CV_MAT_AUG_OPERATOR  (|=, cv::bitwise_or(a,b,a), Mat, Scalar)
+CV_MAT_AUG_OPERATOR_T(|=, cv::bitwise_or(a,b,a), Mat_<_Tp>, Mat)
+CV_MAT_AUG_OPERATOR_T(|=, cv::bitwise_or(a,b,a), Mat_<_Tp>, Scalar)
+CV_MAT_AUG_OPERATOR_T(|=, cv::bitwise_or(a,b,a), Mat_<_Tp>, Mat_<_Tp>)
 
-CC_MAT_AUG_OPERATOR  (^=, bitwise_xor(a,b,a), CvMat, CvMat)
-CC_MAT_AUG_OPERATOR  (^=, bitwise_xor(a,b,a), CvMat, Scalar)
-CC_MAT_AUG_OPERATOR_T(^=, bitwise_xor(a,b,a), Mat_<_Tp>, CvMat)
-CC_MAT_AUG_OPERATOR_T(^=, bitwise_xor(a,b,a), Mat_<_Tp>, Scalar)
-CC_MAT_AUG_OPERATOR_T(^=, bitwise_xor(a,b,a), Mat_<_Tp>, Mat_<_Tp>)
+CV_MAT_AUG_OPERATOR  (^=, cv::bitwise_xor(a,b,a), Mat, Mat)
+CV_MAT_AUG_OPERATOR  (^=, cv::bitwise_xor(a,b,a), Mat, Scalar)
+CV_MAT_AUG_OPERATOR_T(^=, cv::bitwise_xor(a,b,a), Mat_<_Tp>, Mat)
+CV_MAT_AUG_OPERATOR_T(^=, cv::bitwise_xor(a,b,a), Mat_<_Tp>, Scalar)
+CV_MAT_AUG_OPERATOR_T(^=, cv::bitwise_xor(a,b,a), Mat_<_Tp>, Mat_<_Tp>)
 
-#undef CC_MAT_AUG_OPERATOR_T
-#undef CC_MAT_AUG_OPERATOR
-#undef CC_MAT_AUG_OPERATOR1
+#undef CV_MAT_AUG_OPERATOR_T
+#undef CV_MAT_AUG_OPERATOR
+#undef CV_MAT_AUG_OPERATOR1
 
 
 
 ///////////////////////////////////////////// SVD /////////////////////////////////////////////
 
 inline SVD::SVD() {}
-inline SVD::SVD( const CvMat* m, int flags ) { operator ()(m, flags); }
-inline void SVD::solveZ( const CvMat* m, CvMat* _dst )
+inline SVD::SVD( InputArray m, int flags ) { operator ()(m, flags); }
+inline void SVD::solveZ( InputArray m, OutputArray _dst )
 {
-    CvMat mtx = m;
+    Mat mtx = m.getMat();
     SVD svd(mtx, (mtx.rows >= mtx.cols ? 0 : SVD::FULL_UV));
-    _dst.create(svd.vt.cols, 1, svd.vt CC_MAT_TYPE());
-    CvMat dst = _dst;
+    _dst.create(svd.vt.cols, 1, svd.vt.type());
+    Mat dst = _dst.getMat();
     svd.vt.row(svd.vt.rows-1).reshape(1,svd.vt.cols).copyTo(dst);
 }
 
 template<typename _Tp, int m, int n, int nm> inline void
     SVD::compute( const Matx<_Tp, m, n>& a, Matx<_Tp, nm, 1>& w, Matx<_Tp, m, nm>& u, Matx<_Tp, n, nm>& vt )
 {
-    CC_StaticAssert( nm == MIN(m, n), "Invalid size of output vector.");
-    CvMat _a(a, false), _u(u, false), _w(w, false), _vt(vt, false);
+    CV_StaticAssert( nm == MIN(m, n), "Invalid size of output vector.");
+    Mat _a(a, false), _u(u, false), _w(w, false), _vt(vt, false);
     SVD::compute(_a, _w, _u, _vt);
-    CC_Assert(_w.data == (uchar*)&w.val[0] && _u.data == (uchar*)&u.val[0] && _vt.data == (uchar*)&vt.val[0]);
+    CV_Assert(_w.data == (uchar*)&w.val[0] && _u.data == (uchar*)&u.val[0] && _vt.data == (uchar*)&vt.val[0]);
 }
 
 template<typename _Tp, int m, int n, int nm> inline void
 SVD::compute( const Matx<_Tp, m, n>& a, Matx<_Tp, nm, 1>& w )
 {
-    CC_StaticAssert( nm == MIN(m, n), "Invalid size of output vector.");
-    CvMat _a(a, false), _w(w, false);
+    CV_StaticAssert( nm == MIN(m, n), "Invalid size of output vector.");
+    Mat _a(a, false), _w(w, false);
     SVD::compute(_a, _w);
-    CC_Assert(_w.data == (uchar*)&w.val[0]);
+    CV_Assert(_w.data == (uchar*)&w.val[0]);
 }
 
 template<typename _Tp, int m, int n, int nm, int nb> inline void
@@ -320,10 +320,10 @@ SVD::backSubst( const Matx<_Tp, nm, 1>& w, const Matx<_Tp, m, nm>& u,
                 const Matx<_Tp, n, nm>& vt, const Matx<_Tp, m, nb>& rhs,
                 Matx<_Tp, n, nb>& dst )
 {
-    CC_StaticAssert( nm == MIN(m, n), "Invalid size of output vector.");
-    CvMat _u(u, false), _w(w, false), _vt(vt, false), _rhs(rhs, false), _dst(dst, false);
+    CV_StaticAssert( nm == MIN(m, n), "Invalid size of output vector.");
+    Mat _u(u, false), _w(w, false), _vt(vt, false), _rhs(rhs, false), _dst(dst, false);
     SVD::backSubst(_w, _u, _vt, _rhs, _dst);
-    CC_Assert(_dst.data == (uchar*)&dst.val[0]);
+    CV_Assert(_dst.data == (uchar*)&dst.val[0]);
 }
 
 
@@ -349,9 +349,11 @@ inline int    RNG::uniform(int a, int b)       { return a == b ? a : (int)(next(
 inline float  RNG::uniform(float a, float b)   { return ((float)*this)*(b - a) + a; }
 inline double RNG::uniform(double a, double b) { return ((double)*this)*(b - a) + a; }
 
+inline bool RNG::operator ==(const RNG& other) const { return state == other.state; }
+
 inline unsigned RNG::next()
 {
-    state = (uint64)(unsigned)state* /*CC_RNG_COEFF*/ 4164903690U + (unsigned)(state >> 32);
+    state = (uint64)(unsigned)state* /*CV_RNG_COEFF*/ 4164903690U + (unsigned)(state >> 32);
     return (unsigned)state;
 }
 
@@ -363,14 +365,20 @@ template<typename _Tp> static inline _Tp randu()
 
 ///////////////////////////////// Formatted string generation /////////////////////////////////
 
-CC_EXPORTS String format( const char* fmt, ... );
+/** @brief Returns a text string formatted using the printf-like expression.
 
-///////////////////////////////// Formatted output of CvMat /////////////////////////////////
+The function acts like sprintf but forms and returns an STL string. It can be used to form an error
+message in the Exception constructor.
+@param fmt printf-compatible formatting specifiers.
+ */
+CV_EXPORTS String format( const char* fmt, ... );
+
+///////////////////////////////// Formatted output of cv::Mat /////////////////////////////////
 
 static inline
-Ptr<Formatted> format(const CvMat* mtx, int fmt)
+Ptr<Formatted> format(InputArray mtx, int fmt)
 {
-    return Formatter::get(fmt)->format(mtx);
+    return Formatter::get(fmt)->format(mtx.getMat());
 }
 
 static inline
@@ -385,7 +393,7 @@ int print(Ptr<Formatted> fmtd, FILE* stream = stdout)
 }
 
 static inline
-int print(const CvMat& mtx, FILE* stream = stdout)
+int print(const Mat& mtx, FILE* stream = stdout)
 {
     return print(Formatter::get()->format(mtx), stream);
 }
@@ -399,19 +407,19 @@ int print(const UMat& mtx, FILE* stream = stdout)
 template<typename _Tp> static inline
 int print(const std::vector<Point_<_Tp> >& vec, FILE* stream = stdout)
 {
-    return print(Formatter::get()->format(CvMat(vec)), stream);
+    return print(Formatter::get()->format(Mat(vec)), stream);
 }
 
 template<typename _Tp> static inline
 int print(const std::vector<Point3_<_Tp> >& vec, FILE* stream = stdout)
 {
-    return print(Formatter::get()->format(CvMat(vec)), stream);
+    return print(Formatter::get()->format(Mat(vec)), stream);
 }
 
 template<typename _Tp, int m, int n> static inline
 int print(const Matx<_Tp, m, n>& matx, FILE* stream = stdout)
 {
-    return print(Formatter::get()->format(CvMat(matx)), stream);
+    return print(Formatter::get()->format(cv::Mat(matx)), stream);
 }
 
 //! @endcond
@@ -485,7 +493,7 @@ partition( const std::vector<_Tp>& _vec, std::vector<int>& labels,
                     nodes[root2][RANK] += rank == rank2;
                     root = root2;
                 }
-                CC_Assert( nodes[root][PARENT] < 0 );
+                CV_Assert( nodes[root][PARENT] < 0 );
 
                 int k = j, parent;
 

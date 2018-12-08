@@ -10,7 +10,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ///////////// 3 channels Vs 4 ////////////////////////
@@ -20,17 +20,17 @@ enum
     Pure = 0, Split, Convert
 };
 
-CC_ENUM(Modes, Pure, Split, Convert)
+CV_ENUM(Modes, Pure, Split, Convert)
 
-typedef tuple <CvSize, MatType, Modes> _3vs4Params;
+typedef tuple <Size, MatType, Modes> _3vs4Params;
 typedef TestBaseWithParam<_3vs4Params> _3vs4_Fixture;
 
 OCL_PERF_TEST_P(_3vs4_Fixture, Resize,
-                ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CC_8UC3, CC_32FC3), Modes::all()))
+                ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CV_8UC3, CV_32FC3), Modes::all()))
 {
     _3vs4Params params = GetParam();
-    const CvSize srcSize = get<0>(params);
-    const int type = get<1>(params), depth = CC_MAT_DEPTH(type);
+    const Size srcSize = get<0>(params);
+    const int type = get<1>(params), depth = CV_MAT_DEPTH(type);
     const int mode = get<2>(params);
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
@@ -40,7 +40,7 @@ OCL_PERF_TEST_P(_3vs4_Fixture, Resize,
 
     if (mode == Pure)
     {
-        OCL_TEST_CYCLE() resize(src, dst, CvSize(), 0.5, 0.5, INTER_LINEAR);
+        OCL_TEST_CYCLE() resize(src, dst, Size(), 0.5, 0.5, INTER_LINEAR_EXACT);
     }
     else if (mode == Split)
     {
@@ -57,20 +57,20 @@ OCL_PERF_TEST_P(_3vs4_Fixture, Resize,
             split(src, srcs);
 
             for (size_t i = 0; i < srcs.size(); ++i)
-                resize(srcs[i], dsts[i], CvSize(), 0.5, 0.5, INTER_LINEAR);
+                resize(srcs[i], dsts[i], Size(), 0.5, 0.5, INTER_LINEAR_EXACT);
 
             merge(dsts, dst);
         }
     }
     else if (mode == Convert)
     {
-        int type4 = CC_MAKE_TYPE(depth, 4);
+        int type4 = CV_MAKE_TYPE(depth, 4);
         UMat src4(srcSize, type4), dst4(srcSize, type4);
 
         OCL_TEST_CYCLE()
         {
             cvtColor(src, src4, COLOR_RGB2RGBA);
-            resize(src4, dst4, CvSize(), 0.5, 0.5, INTER_LINEAR);
+            resize(src4, dst4, Size(), 0.5, 0.5, INTER_LINEAR_EXACT);
             cvtColor(dst4, dst, COLOR_RGBA2RGB);
         }
     }
@@ -79,11 +79,11 @@ OCL_PERF_TEST_P(_3vs4_Fixture, Resize,
 }
 
 OCL_PERF_TEST_P(_3vs4_Fixture, Subtract,
-                ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CC_8UC3, CC_32FC3), Modes::all()))
+                ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CV_8UC3, CV_32FC3), Modes::all()))
 {
     _3vs4Params params = GetParam();
-    const CvSize srcSize = get<0>(params);
-    const int type = get<1>(params), depth = CC_MAT_DEPTH(type);
+    const Size srcSize = get<0>(params);
+    const int type = get<1>(params), depth = CV_MAT_DEPTH(type);
     const int mode = get<2>(params);
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
@@ -118,7 +118,7 @@ OCL_PERF_TEST_P(_3vs4_Fixture, Subtract,
     }
     else if (mode == Convert)
     {
-        int type4 = CC_MAKE_TYPE(depth, 4);
+        int type4 = CV_MAKE_TYPE(depth, 4);
         UMat src4(srcSize, type4), dst4(srcSize, type4);
 
         OCL_TEST_CYCLE()
@@ -132,6 +132,6 @@ OCL_PERF_TEST_P(_3vs4_Fixture, Subtract,
     SANITY_CHECK_NOTHING();
 }
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

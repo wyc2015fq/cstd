@@ -52,12 +52,11 @@
 //M*/
 
 #include "../test_precomp.hpp"
-#include "cvconfig.h"
 #include "opencv2/ts/ocl_test.hpp"
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,7 +82,7 @@ PARAM_TEST_CASE(ImgprocTestBase, MatType,
 
     void random_roi()
     {
-        CvSize roiSize = randomSize(1, MAX_VALUE);
+        Size roiSize = randomSize(1, MAX_VALUE);
         Border srcBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
         randomSubMat(src, src_roi, roiSize, srcBorder, type, 5, 256);
 
@@ -122,7 +121,7 @@ PARAM_TEST_CASE(CopyMakeBorder, MatDepth, // depth
 
     virtual void SetUp()
     {
-        type = CC_MAKE_TYPE(GET_PARAM(0), GET_PARAM(1));
+        type = CV_MAKE_TYPE(GET_PARAM(0), GET_PARAM(1));
         borderType = GET_PARAM(3);
 
         if (GET_PARAM(2))
@@ -136,7 +135,7 @@ PARAM_TEST_CASE(CopyMakeBorder, MatDepth, // depth
         border = randomBorder(0, MAX_VALUE << 2);
         val = randomScalar(-MAX_VALUE, MAX_VALUE);
 
-        CvSize roiSize = randomSize(1, MAX_VALUE);
+        Size roiSize = randomSize(1, MAX_VALUE);
         Border srcBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
         randomSubMat(src, src_roi, roiSize, srcBorder, type, -MAX_VALUE, MAX_VALUE);
 
@@ -158,14 +157,14 @@ PARAM_TEST_CASE(CopyMakeBorder, MatDepth, // depth
     }
 };
 
-OCL_TEST_P(CopyMakeBorder, CvMat)
+OCL_TEST_P(CopyMakeBorder, Mat)
 {
     for (int i = 0; i < test_loop_times; ++i)
     {
         random_roi();
 
-        OCL_OFF(copyMakeBorder(src_roi, dst_roi, border.top, border.bot, border.lef, border.rig, borderType, val));
-        OCL_ON(copyMakeBorder(usrc_roi, udst_roi, border.top, border.bot, border.lef, border.rig, borderType, val));
+        OCL_OFF(cv::copyMakeBorder(src_roi, dst_roi, border.top, border.bot, border.lef, border.rig, borderType, val));
+        OCL_ON(cv::copyMakeBorder(usrc_roi, udst_roi, border.top, border.bot, border.lef, border.rig, borderType, val));
 
         Near();
     }
@@ -175,14 +174,14 @@ OCL_TEST_P(CopyMakeBorder, CvMat)
 
 typedef ImgprocTestBase EqualizeHist;
 
-OCL_TEST_P(EqualizeHist, CvMat)
+OCL_TEST_P(EqualizeHist, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
         random_roi();
 
-        OCL_OFF(equalizeHist(src_roi, dst_roi));
-        OCL_ON(equalizeHist(usrc_roi, udst_roi));
+        OCL_OFF(cv::equalizeHist(src_roi, dst_roi));
+        OCL_ON(cv::equalizeHist(usrc_roi, udst_roi));
 
         Near(1);
     }
@@ -195,10 +194,10 @@ struct CornerTestBase :
 {
     void random_roi()
     {
-        CvMat image = readImageType("../gpu/stereobm/aloe-L.png", type);
+        Mat image = readImageType("../gpu/stereobm/aloe-L.png", type);
         ASSERT_FALSE(image.empty());
 
-        bool isFP = CC_MAT_DEPTH(type) >= CC_32F;
+        bool isFP = CV_MAT_DEPTH(type) >= CV_32F;
         float val = 255.0f;
         if (isFP)
         {
@@ -206,16 +205,16 @@ struct CornerTestBase :
             val /= 255.0f;
         }
 
-        CvSize roiSize = image.size();
+        Size roiSize = image.size();
         Border srcBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
 
-        CvSize wholeSize = CvSize(roiSize.width + srcBorder.lef + srcBorder.rig, roiSize.height + srcBorder.top + srcBorder.bot);
+        Size wholeSize = Size(roiSize.width + srcBorder.lef + srcBorder.rig, roiSize.height + srcBorder.top + srcBorder.bot);
         src = randomMat(wholeSize, type, -val, val, false);
         src_roi = src(Rect(srcBorder.lef, srcBorder.top, roiSize.width, roiSize.height));
         image.copyTo(src_roi);
 
         Border dstBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
-        randomSubMat(dst, dst_roi, roiSize, dstBorder, CC_32FC1, 5, 16);
+        randomSubMat(dst, dst_roi, roiSize, dstBorder, CV_32FC1, 5, 16);
 
         UMAT_UPLOAD_INPUT_PARAMETER(src);
         UMAT_UPLOAD_OUTPUT_PARAMETER(dst);
@@ -224,7 +223,7 @@ struct CornerTestBase :
 
 typedef CornerTestBase CornerMinEigenVal;
 
-OCL_TEST_P(CornerMinEigenVal, CvMat)
+OCL_TEST_P(CornerMinEigenVal, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
@@ -232,8 +231,8 @@ OCL_TEST_P(CornerMinEigenVal, CvMat)
 
         int apertureSize = 3;
 
-        OCL_OFF(cornerMinEigenVal(src_roi, dst_roi, blockSize, apertureSize, borderType));
-        OCL_ON(cornerMinEigenVal(usrc_roi, udst_roi, blockSize, apertureSize, borderType));
+        OCL_OFF(cv::cornerMinEigenVal(src_roi, dst_roi, blockSize, apertureSize, borderType));
+        OCL_ON(cv::cornerMinEigenVal(usrc_roi, udst_roi, blockSize, apertureSize, borderType));
 
         Near(1e-5, true);
     }
@@ -243,7 +242,7 @@ OCL_TEST_P(CornerMinEigenVal, CvMat)
 
 typedef CornerTestBase CornerHarris;
 
-OCL_TEST_P(CornerHarris, CvMat)
+OCL_TEST_P(CornerHarris, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
@@ -252,8 +251,8 @@ OCL_TEST_P(CornerHarris, CvMat)
         int apertureSize = 3;
         double k = randomDouble(0.01, 0.9);
 
-        OCL_OFF(cornerHarris(src_roi, dst_roi, blockSize, apertureSize, k, borderType));
-        OCL_ON(cornerHarris(usrc_roi, udst_roi, blockSize, apertureSize, k, borderType));
+        OCL_OFF(cv::cornerHarris(src_roi, dst_roi, blockSize, apertureSize, k, borderType));
+        OCL_ON(cv::cornerHarris(usrc_roi, udst_roi, blockSize, apertureSize, k, borderType));
 
         Near(1e-6, true);
     }
@@ -263,7 +262,7 @@ OCL_TEST_P(CornerHarris, CvMat)
 
 typedef ImgprocTestBase PreCornerDetect;
 
-OCL_TEST_P(PreCornerDetect, CvMat)
+OCL_TEST_P(PreCornerDetect, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
@@ -271,8 +270,8 @@ OCL_TEST_P(PreCornerDetect, CvMat)
 
         const int apertureSize = blockSize;
 
-        OCL_OFF(preCornerDetect(src_roi, dst_roi, apertureSize, borderType));
-        OCL_ON(preCornerDetect(usrc_roi, udst_roi, apertureSize, borderType));
+        OCL_OFF(cv::preCornerDetect(src_roi, dst_roi, apertureSize, borderType));
+        OCL_ON(cv::preCornerDetect(usrc_roi, udst_roi, apertureSize, borderType));
 
         Near(1e-6, true);
     }
@@ -298,9 +297,9 @@ struct Integral :
 
     void random_roi()
     {
-        ASSERT_EQ(CC_MAT_CN(type), 1);
+        ASSERT_EQ(CV_MAT_CN(type), 1);
 
-        CvSize roiSize = randomSize(1, MAX_VALUE), isize = CvSize(roiSize.width + 1, roiSize.height + 1);
+        Size roiSize = randomSize(1, MAX_VALUE), isize = Size(roiSize.width + 1, roiSize.height + 1);
         Border srcBorder = randomBorder(0, useRoi ? 2 : 0);
         randomSubMat(src, src_roi, roiSize, srcBorder, type, 5, 256);
 
@@ -330,8 +329,8 @@ OCL_TEST_P(Integral, Mat1)
     {
         random_roi();
 
-        OCL_OFF(integral(src_roi, dst_roi, sdepth));
-        OCL_ON(integral(usrc_roi, udst_roi, sdepth));
+        OCL_OFF(cv::integral(src_roi, dst_roi, sdepth));
+        OCL_ON(cv::integral(usrc_roi, udst_roi, sdepth));
 
         Near();
     }
@@ -343,11 +342,11 @@ OCL_TEST_P(Integral, Mat2)
     {
         random_roi();
 
-        OCL_OFF(integral(src_roi, dst_roi, dst2_roi, sdepth, sqdepth));
-        OCL_ON(integral(usrc_roi, udst_roi, udst2_roi, sdepth, sqdepth));
+        OCL_OFF(cv::integral(src_roi, dst_roi, dst2_roi, sdepth, sqdepth));
+        OCL_ON(cv::integral(usrc_roi, udst_roi, udst2_roi, sdepth, sqdepth));
 
         Near();
-        sqdepth == CC_32F ? Near2(1e-6, true) : Near2();
+        sqdepth == CV_32F ? Near2(1e-6, true) : Near2();
     }
 }
 
@@ -366,7 +365,7 @@ struct Threshold :
     }
 };
 
-OCL_TEST_P(Threshold, CvMat)
+OCL_TEST_P(Threshold, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
@@ -375,8 +374,8 @@ OCL_TEST_P(Threshold, CvMat)
         double maxVal = randomDouble(20.0, 127.0);
         double thresh = randomDouble(0.0, maxVal);
 
-        OCL_OFF(threshold(src_roi, dst_roi, thresh, maxVal, thresholdType));
-        OCL_ON(threshold(usrc_roi, udst_roi, thresh, maxVal, thresholdType));
+        OCL_OFF(cv::threshold(src_roi, dst_roi, thresh, maxVal, thresholdType));
+        OCL_ON(cv::threshold(usrc_roi, udst_roi, thresh, maxVal, thresholdType));
 
         Near(1);
     }
@@ -384,9 +383,9 @@ OCL_TEST_P(Threshold, CvMat)
 
 /////////////////////////////////////////// CLAHE //////////////////////////////////////////////////
 
-PARAM_TEST_CASE(CLAHETest, CvSize, double, bool)
+PARAM_TEST_CASE(CLAHETest, Size, double, bool)
 {
-    CvSize gridSize;
+    Size gridSize;
     double clipLimit;
     bool useRoi;
 
@@ -402,12 +401,12 @@ PARAM_TEST_CASE(CLAHETest, CvSize, double, bool)
 
     void random_roi()
     {
-        CvSize roiSize = randomSize(MAX(gridSize.height, gridSize.width), MAX_VALUE);
+        Size roiSize = randomSize(std::max(gridSize.height, gridSize.width), MAX_VALUE);
         Border srcBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
-        randomSubMat(src, src_roi, roiSize, srcBorder, CC_8UC1, 5, 256);
+        randomSubMat(src, src_roi, roiSize, srcBorder, CV_8UC1, 5, 256);
 
         Border dstBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
-        randomSubMat(dst, dst_roi, roiSize, dstBorder, CC_8UC1, 5, 16);
+        randomSubMat(dst, dst_roi, roiSize, dstBorder, CV_8UC1, 5, 16);
 
         UMAT_UPLOAD_INPUT_PARAMETER(src);
         UMAT_UPLOAD_OUTPUT_PARAMETER(dst);
@@ -425,7 +424,7 @@ OCL_TEST_P(CLAHETest, Accuracy)
     {
         random_roi();
 
-        Ptr<CLAHE> clahe = createCLAHE(clipLimit, gridSize);
+        Ptr<CLAHE> clahe = cv::createCLAHE(clipLimit, gridSize);
 
         OCL_OFF(clahe->apply(src_roi, dst_roi));
         OCL_ON(clahe->apply(usrc_roi, udst_roi));
@@ -437,42 +436,42 @@ OCL_TEST_P(CLAHETest, Accuracy)
 /////////////////////////////////////////////////////////////////////////////////////
 
 OCL_INSTANTIATE_TEST_CASE_P(Imgproc, EqualizeHist, Combine(
-                            Values((MatType)CC_8UC1),
+                            Values((MatType)CV_8UC1),
                             Values(0), // not used
                             Values(0), // not used
                             Bool()));
 
 OCL_INSTANTIATE_TEST_CASE_P(Imgproc, CornerMinEigenVal, Combine(
-                            Values((MatType)CC_8UC1, (MatType)CC_32FC1),
+                            Values((MatType)CV_8UC1, (MatType)CV_32FC1),
                             Values(3, 5),
                             Values((BorderType)BORDER_CONSTANT, (BorderType)BORDER_REPLICATE,
                                    (BorderType)BORDER_REFLECT, (BorderType)BORDER_REFLECT101),
                             Bool()));
 
 OCL_INSTANTIATE_TEST_CASE_P(Imgproc, CornerHarris, Combine(
-                            Values((MatType)CC_8UC1, CC_32FC1),
+                            Values((MatType)CV_8UC1, CV_32FC1),
                             Values(3, 5),
                             Values( (BorderType)BORDER_CONSTANT, (BorderType)BORDER_REPLICATE,
                                     (BorderType)BORDER_REFLECT, (BorderType)BORDER_REFLECT_101),
                             Bool()));
 
 OCL_INSTANTIATE_TEST_CASE_P(Imgproc, PreCornerDetect, Combine(
-                            Values((MatType)CC_8UC1, CC_32FC1),
+                            Values((MatType)CV_8UC1, CV_32FC1),
                             Values(3, 5),
                             Values( (BorderType)BORDER_CONSTANT, (BorderType)BORDER_REPLICATE,
                                     (BorderType)BORDER_REFLECT, (BorderType)BORDER_REFLECT_101),
                             Bool()));
 
 OCL_INSTANTIATE_TEST_CASE_P(Imgproc, Integral, Combine(
-                            Values((MatType)CC_8UC1), // TODO does not work with CC_32F, CC_64F
-                            Values(CC_32SC1, CC_32FC1), // desired sdepth
-                            Values(CC_32FC1, CC_64FC1), // desired sqdepth
+                            Values((MatType)CV_8UC1), // TODO does not work with CV_32F, CV_64F
+                            Values(CV_32SC1, CV_32FC1), // desired sdepth
+                            Values(CV_32FC1, CV_64FC1), // desired sqdepth
                             Bool()));
 
 OCL_INSTANTIATE_TEST_CASE_P(Imgproc, Threshold, Combine(
-                            Values(CC_8UC1, CC_8UC2, CC_8UC3, CC_8UC4,
-                                   CC_16SC1, CC_16SC2, CC_16SC3, CC_16SC4,
-                                   CC_32FC1, CC_32FC2, CC_32FC3, CC_32FC4),
+                            Values(CV_8UC1, CV_8UC2, CV_8UC3, CV_8UC4,
+                                   CV_16SC1, CV_16SC2, CV_16SC3, CV_16SC4,
+                                   CV_32FC1, CV_32FC2, CV_32FC3, CV_32FC4),
                             Values(0),
                             Values(ThreshOp(THRESH_BINARY),
                                    ThreshOp(THRESH_BINARY_INV), ThreshOp(THRESH_TRUNC),
@@ -480,18 +479,18 @@ OCL_INSTANTIATE_TEST_CASE_P(Imgproc, Threshold, Combine(
                             Bool()));
 
 OCL_INSTANTIATE_TEST_CASE_P(Imgproc, CLAHETest, Combine(
-                            Values(CvSize(4, 4), CvSize(32, 8), CvSize(8, 64)),
+                            Values(Size(4, 4), Size(32, 8), Size(8, 64)),
                             Values(0.0, 10.0, 62.0, 300.0),
                             Bool()));
 
 OCL_INSTANTIATE_TEST_CASE_P(ImgprocTestBase, CopyMakeBorder, Combine(
-                            testing::Values((MatDepth)CC_8U, (MatDepth)CC_16S, (MatDepth)CC_32S, (MatDepth)CC_32F),
+                            testing::Values((MatDepth)CV_8U, (MatDepth)CV_16S, (MatDepth)CV_32S, (MatDepth)CV_32F),
                             testing::Values(Channels(1), Channels(3), (Channels)4),
                             Bool(), // border isolated or not
                             Values((BorderType)BORDER_CONSTANT, (BorderType)BORDER_REPLICATE, (BorderType)BORDER_REFLECT,
                                    (BorderType)BORDER_WRAP, (BorderType)BORDER_REFLECT_101),
                             Bool()));
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

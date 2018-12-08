@@ -39,8 +39,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 //M*/
 
-#ifndef OPENCC_CORE_WIMAGE_HPP
-#define OPENCC_CORE_WIMAGE_HPP
+#ifndef OPENCV_CORE_WIMAGE_HPP
+#define OPENCV_CORE_WIMAGE_HPP
 
 #include "opencv2/core/core_c.h"
 
@@ -197,7 +197,7 @@ public:
     // Number of bytes per pixel
     int PixelSize() const {return Channels() * ChannelSize(); }
 
-    // Return depth type (e.g. IMG_DEPTH_8U, IMG_DEPTH_32F) which is the number
+    // Return depth type (e.g. IPL_DEPTH_8U, IPL_DEPTH_32F) which is the number
     // of bits per channel and with the signed bit set.
     // This is known at compile time using specializations.
     int Depth() const;
@@ -289,7 +289,7 @@ protected:
 };
 
 /** Image class which owns the data, so it can be allocated and is always
-freed.  It cannot be copied but can be explicity cloned.
+freed.  It cannot be copied but can be explicitly cloned.
 */
 template<typename T>
 class WImageBuffer : public WImage<T>
@@ -493,19 +493,19 @@ protected:
 
 // Specializations for depth
 template<>
-inline int WImage<uchar>::Depth() const {return IMG_DEPTH_8U; }
+inline int WImage<uchar>::Depth() const {return IPL_DEPTH_8U; }
 template<>
-inline int WImage<signed char>::Depth() const {return IMG_DEPTH_8S; }
+inline int WImage<signed char>::Depth() const {return IPL_DEPTH_8S; }
 template<>
-inline int WImage<short>::Depth() const {return IMG_DEPTH_16S; }
+inline int WImage<short>::Depth() const {return IPL_DEPTH_16S; }
 template<>
-inline int WImage<ushort>::Depth() const {return IMG_DEPTH_16U; }
+inline int WImage<ushort>::Depth() const {return IPL_DEPTH_16U; }
 template<>
-inline int WImage<int>::Depth() const {return IMG_DEPTH_32S; }
+inline int WImage<int>::Depth() const {return IPL_DEPTH_32S; }
 template<>
-inline int WImage<float>::Depth() const {return IMG_DEPTH_32F; }
+inline int WImage<float>::Depth() const {return IPL_DEPTH_32F; }
 template<>
-inline int WImage<double>::Depth() const {return IMG_DEPTH_64F; }
+inline int WImage<double>::Depth() const {return IPL_DEPTH_64F; }
 
 template<typename T> inline WImage<T>::~WImage() {}
 template<typename T, int C> inline WImageC<T, C>::~WImageC() {}

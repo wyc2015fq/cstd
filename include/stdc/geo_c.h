@@ -3,6 +3,9 @@
 #define _GEO_C_H_
 
 #include "stdc.h"
+#include "error_c.h"
+#include <math.h>
+#include <float.h>
 
 // 根据父容器来定位:
 typedef enum {
@@ -809,8 +812,11 @@ CC_INLINE double icvSqDist2D32f(FPOINT pt1, FPOINT pt2)
   double dy = pt1.y - pt2.y;
   return dx * dx + dy * dy;
 }
-#define CC_CLOCKWISE         1   // ??????
-#define CC_COUNTER_CLOCKWISE 2   // ???????
+/* Shape orientation */
+enum {
+  CC_CLOCKWISE = 1,
+  CC_COUNTER_CLOCKWISE = 2
+};
 typedef DSEGMENT2 DLINE2;
 typedef DSEGMENT3 DLINE3;
 typedef struct DLINESEG2 {
@@ -1025,6 +1031,119 @@ MATRIX3X2;
   } while(0)
 #define MATRIX3X2_GET_STD_TOINT(m, c, s, s1, s2) \
   MAKE_MATRIX3X2_TOINT(m, c, -s, s, c, ((-s2.x*(c) - s2.y*(s))+s1.x), ((s2.x*(s) - s2.y*(c))+s1.y));
+///////////////////////////////////
+//typedef FPOINT FPOINT;
+//typedef FSIZE FSIZE;
+//FPOINT operator + (const FPOINT& a, const FPOINT& b) { return fPOINT(a.x + b.x, a.y + b.y); }
+///////////////////////////////////
+static double sdot2(const float* a, const float* b) {
+  return a[0] * b[0] + a[1] * b[1];
+}
+static double snorm2(const float* a) {
+  return sqrt(sdot2(a, a));
+}
+///////////////////////////////////
+
+///////////////////////////////////
+struct CRotatedRect
+{
+  FPOINT center; //< the rectangle mass center
+  FSIZE size;    //< width and height of the rectangle
+  float angle;    //< the rotation angle. When the angle is 0, 90, 180, 270 etc., the rectangle becomes an up-right rectangle.
+};
+
+CRotatedRect cRotatedRect(FPOINT center, FSIZE size, float angle) {
+  CRotatedRect rr;
+  rr.center = center;
+  rr.size = size;
+  rr.angle = angle;
+  return rr;
+}
+static CRotatedRect cRotatedRect2(FPOINT _point1, FPOINT _point2, FPOINT _point3) {
+  FPOINT _center;
+  float vecs[2][2];
+  _center.x = 0.5f * (_point1.x + _point3.x);
+  _center.y = 0.5f * (_point1.y + _point3.y);
+  vecs[0][0] = (_point1.x - _point2.x);
+  vecs[0][1] = (_point1.y - _point2.y);
+  vecs[1][0] = (_point2.x - _point3.x);
+  vecs[1][1] = (_point2.y - _point3.y);
+  // check that given sides are perpendicular
+  CC_Assert(fabs(sdot2(vecs[0], vecs[1])) / (snorm2(vecs[0]) * snorm2(vecs[1])) <= FLT_EPSILON);
+
+  // wd_i stores which vector (0,1) or (1,2) will make the width
+  // One of them will definitely have slope within -1 to 1
+  int wd_i = 0;
+  if (fabs(vecs[1][1]) < fabs(vecs[1][0])) wd_i = 1;
+  int ht_i = (wd_i + 1) % 2;
+
+  float _angle = atan(vecs[wd_i][1] / vecs[wd_i][0]) * 180.0f / (float)CC_PI;
+  float _width = (float)snorm2(vecs[wd_i]);
+  float _height = (float)snorm2(vecs[ht_i]);
+
+  return cRotatedRect(_center, fSIZE(_width, _height), _angle);
+}
+
+void cRotatedRect_points(CRotatedRect rr, FPOINT pt[])
+{
+  FPOINT center = rr.center;
+  FSIZE size = rr.size;
+  double _angle = rr.angle*CC_PI / 180.;
+  float b = (float)cos(_angle)*0.5f;
+  float a = (float)sin(_angle)*0.5f;
+
+  pt[0].x = center.x - a*size.height - b*size.width;
+  pt[0].y = center.y + b*size.height - a*size.width;
+  pt[1].x = center.x + a*size.height - b*size.width;
+  pt[1].y = center.y - b*size.height - a*size.width;
+  pt[2].x = 2 * center.x - pt[0].x;
+  pt[2].y = 2 * center.y - pt[0].y;
+  pt[3].x = 2 * center.x - pt[1].x;
+  pt[3].y = 2 * center.y - pt[1].y;
+}
+
+IRect cRotatedRect_boundingRect(CRotatedRect rr)
+{
+  FPOINT center = rr.center;
+  FSIZE size = rr.size;
+  FPOINT pt[4];
+  cRotatedRect_points(rr, pt);
+  IRect r = iRect(floor(MIN(MIN(MIN(pt[0].x, pt[1].x), pt[2].x), pt[3].x)),
+    floor(MIN(MIN(MIN(pt[0].y, pt[1].y), pt[2].y), pt[3].y)),
+    ceil(MAX(MAX(MAX(pt[0].x, pt[1].x), pt[2].x), pt[3].x)),
+    ceil(MAX(MAX(MAX(pt[0].y, pt[1].y), pt[2].y), pt[3].y)));
+  r.width -= r.x - 1;
+  r.height -= r.y - 1;
+  return r;
+}
 
 
+
+///////////////////////////////////
+struct CKeyPoint
+{
+  FPoint pt; //!< coordinates of the keypoints
+  float size; //!< diameter of the meaningful keypoint neighborhood
+  float angle; //!< computed orientation of the keypoint (-1 if not applicable);
+               //!< it's in [0,360) degrees and measured relative to
+               //!< image coordinate system, ie in clockwise.
+  float response; //!< the response by which the most strong keypoints have been selected. Can be used for the further sorting or subsampling
+  int octave; //!< octave (pyramid layer) from which the keypoint has been extracted
+  int class_id; //!< object class (if the keypoints need to be clustered by an object they belong to)
+};
+CKeyPoint cKeyPoint(FPoint _pt, float _size, float _angle = -1, float _response = 0, int _octave = 0, int _class_id = -1) {
+  CKeyPoint k;
+  k.pt = _pt;
+  k.size = _size;
+  k.response = _response;
+  k.octave = _octave;
+  k.class_id = _class_id;
+  return k;
+}
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
+///////////////////////////////////
 #endif // _GEO_C_H_

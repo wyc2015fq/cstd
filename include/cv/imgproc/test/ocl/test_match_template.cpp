@@ -43,17 +43,15 @@
 
 #include "../test_precomp.hpp"
 #include "opencv2/ts/ocl_test.hpp"
-#include "iostream"
-#include "fstream"
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ///////////////////////////////////////////// matchTemplate //////////////////////////////////////////////////////////
 
-CC_ENUM(MatchTemplType, CC_TM_CCORR, CC_TM_CCORR_NORMED, CC_TM_SQDIFF, CC_TM_SQDIFF_NORMED, CC_TM_CCOEFF, CC_TM_CCOEFF_NORMED)
+CV_ENUM(MatchTemplType, CV_TM_CCORR, CV_TM_CCORR_NORMED, CV_TM_SQDIFF, CV_TM_SQDIFF_NORMED, CV_TM_CCOEFF, CV_TM_CCOEFF_NORMED)
 
 PARAM_TEST_CASE(MatchTemplate, MatDepth, Channels, MatchTemplType, bool)
 {
@@ -68,7 +66,7 @@ PARAM_TEST_CASE(MatchTemplate, MatDepth, Channels, MatchTemplType, bool)
 
     virtual void SetUp()
     {
-        type = CC_MAKE_TYPE(GET_PARAM(0), GET_PARAM(1));
+        type = CV_MAKE_TYPE(GET_PARAM(0), GET_PARAM(1));
         depth = GET_PARAM(0);
         method = GET_PARAM(2);
         use_roi = GET_PARAM(3);
@@ -76,9 +74,9 @@ PARAM_TEST_CASE(MatchTemplate, MatDepth, Channels, MatchTemplType, bool)
 
     void generateTestData()
     {
-        CvSize image_roiSize = randomSize(2, 100);
-        CvSize templ_roiSize = CvSize(randomInt(1, image_roiSize.width), randomInt(1, image_roiSize.height));
-        CvSize result_roiSize = CvSize(image_roiSize.width - templ_roiSize.width + 1,
+        Size image_roiSize = randomSize(2, 100);
+        Size templ_roiSize = Size(randomInt(1, image_roiSize.width), randomInt(1, image_roiSize.height));
+        Size result_roiSize = Size(image_roiSize.width - templ_roiSize.width + 1,
                                    image_roiSize.height - templ_roiSize.height + 1);
 
         const double upValue = 256;
@@ -90,7 +88,7 @@ PARAM_TEST_CASE(MatchTemplate, MatDepth, Channels, MatchTemplType, bool)
         randomSubMat(templ, templ_roi, templ_roiSize, templBorder, type, -upValue, upValue);
 
         Border resultBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
-        randomSubMat(result, result_roi, result_roiSize, resultBorder, CC_32FC1, -upValue, upValue);
+        randomSubMat(result, result_roi, result_roiSize, resultBorder, CV_32FC1, -upValue, upValue);
 
         UMAT_UPLOAD_INPUT_PARAMETER(image);
         UMAT_UPLOAD_INPUT_PARAMETER(templ);
@@ -111,25 +109,25 @@ PARAM_TEST_CASE(MatchTemplate, MatDepth, Channels, MatchTemplType, bool)
     }
 };
 
-OCL_TEST_P(MatchTemplate, CvMat)
+OCL_TEST_P(MatchTemplate, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
         generateTestData();
 
-        OCL_OFF(matchTemplate(image_roi, templ_roi, result_roi, method));
-        OCL_ON(matchTemplate(uimage_roi, utempl_roi, uresult_roi, method));
+        OCL_OFF(cv::matchTemplate(image_roi, templ_roi, result_roi, method));
+        OCL_ON(cv::matchTemplate(uimage_roi, utempl_roi, uresult_roi, method));
 
         Near();
     }
 }
 
 OCL_INSTANTIATE_TEST_CASE_P(ImageProc, MatchTemplate, Combine(
-                                Values(CC_8U, CC_32F),
+                                Values(CV_8U, CV_32F),
                                 Values(1, 2, 3, 4),
                                 MatchTemplType::all(),
                                 Bool())
                            );
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif

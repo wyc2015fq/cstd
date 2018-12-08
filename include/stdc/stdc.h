@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <float.h>
 
 #undef ASSERT
 #define ASSERT assert
@@ -21,6 +23,11 @@
 #define UNUSED(__X)  { const void* _P0 = &(__X); _P0=&_P0; }
 //#define UNUSED(x) (void)x
 #endif
+#ifdef __cplusplus
+#define _INIT0
+#else
+#define _INIT0   ={0}
+#endif
 //
 #define CC_ALIGN(n, x)   (((n)+((x)-1))&(~((x)-1)))
 #define ARRSIZE(_T, _N)   (sizeof(_T)*(_N))
@@ -30,7 +37,7 @@
 #define REALLOC(_TYPE, _PTR, _N)      _PTR=(_TYPE*)realloc(_PTR, (unsigned int)(sizeof(_TYPE)*(_N)))
 #undef MYREALLOC
 #define MYREALLOC(ptr, n)             *(void**)(&ptr) = realloc(ptr, n*sizeof(*ptr))
-//#define MYMALLOC(ptr, n)             *(void**)(&ptr) = realloc(ptr, n*sizeof(*ptr))
+#define MYMALLOC(ptr, n)             *(void**)(&ptr) = malloc(n*sizeof(*ptr))
 #undef FREE
 #define FREE(_PTR)                    ((_PTR) ? (free((void*)(_PTR)), _PTR=0) : 0), (_PTR)=0
 /////
@@ -314,6 +321,7 @@ typedef enum CStatus {
 } CStatus;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+typedef signed char schar;
 typedef unsigned char uchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
@@ -331,6 +339,21 @@ typedef unsigned __int64 uint64;
 typedef int64_t int64;
 typedef uint64_t uint64;
 #endif
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// typedef int vec4i[4];
+//
+
+#define VECN_DEF(name, n, type) struct Vec ## n ## name { type v[n]; };
+#define VECN_DEF_DEF(n) VECN_DEF(b, n, uchar)VECN_DEF(s, n, short)VECN_DEF(i, n, int)VECN_DEF(f, n, float)
+VECN_DEF_DEF(2);
+VECN_DEF_DEF(3);
+VECN_DEF_DEF(4);
+VECN_DEF_DEF(6);
+VECN_DEF_DEF(8);
+VECN_DEF_DEF(16);
+#undef VECN_DEF_DEF
+#undef VECN_DEF
+/////////////////////////////////////////////////////////////////////////////////////////////////
 typedef uint32 COLOR;
 typedef uint64 COLOR64;
 
@@ -411,6 +434,7 @@ typedef enum {
 #define _MAKETYPECN(depth,cn)   ((depth) + (((cn)-1) << CC_CN_SHIFT))
 #define CC_TYPECN_CN(typecn)    (( (typecn)>>CC_CN_SHIFT ) + 1 )
 #define CC_TYPECN_TYPE(typecn)  (TypeId)( ((typecn) & CC_CN_MASK) )
+#define CC_TYPECN_DEPTH   CC_TYPECN_TYPE
 typedef enum {
 #define TDD(a,b,c)  a##C##c=_MAKETYPECN(a, c)
 #define TYPEDEF(a,b,c,d)  TDD(a,b,1),TDD(a,b,2),TDD(a,b,3),TDD(a,b,4),
@@ -445,6 +469,156 @@ CC_INLINE char* cvTypeName(TypeId type) {
 
 /////////////////////////////////////////////////////////
 
+#define TYPECVTDEF_DEF(TYPECVTDEF) \
+TYPECVTDEF(CC_8U,u1,1,uchar,CC_8U,u1,1,uchar) \
+TYPECVTDEF(CC_8U,u1,1,uchar,CC_8S,s1,1,char) \
+TYPECVTDEF(CC_8U,u1,1,uchar,CC_16U,u2,2,ushort) \
+TYPECVTDEF(CC_8U,u1,1,uchar,CC_16S,s2,2,short) \
+TYPECVTDEF(CC_8U,u1,1,uchar,CC_32U,u4,4,uint) \
+TYPECVTDEF(CC_8U,u1,1,uchar,CC_32S,s4,4,int) \
+TYPECVTDEF(CC_8U,u1,1,uchar,CC_64U,u8,8,uint64) \
+TYPECVTDEF(CC_8U,u1,1,uchar,CC_64S,s8,8,int64) \
+TYPECVTDEF(CC_8U,u1,1,uchar,CC_32F,f4,4,float) \
+TYPECVTDEF(CC_8U,u1,1,uchar,CC_64F,f8,8,double) \
+TYPECVTDEF(CC_8S,s1,1,char,CC_8U,u1,1,uchar) \
+TYPECVTDEF(CC_8S,s1,1,char,CC_8S,s1,1,char) \
+TYPECVTDEF(CC_8S,s1,1,char,CC_16U,u2,2,ushort) \
+TYPECVTDEF(CC_8S,s1,1,char,CC_16S,s2,2,short) \
+TYPECVTDEF(CC_8S,s1,1,char,CC_32U,u4,4,uint) \
+TYPECVTDEF(CC_8S,s1,1,char,CC_32S,s4,4,int) \
+TYPECVTDEF(CC_8S,s1,1,char,CC_64U,u8,8,uint64) \
+TYPECVTDEF(CC_8S,s1,1,char,CC_64S,s8,8,int64) \
+TYPECVTDEF(CC_8S,s1,1,char,CC_32F,f4,4,float) \
+TYPECVTDEF(CC_8S,s1,1,char,CC_64F,f8,8,double) \
+TYPECVTDEF(CC_16U,u2,2,ushort,CC_8U,u1,1,uchar) \
+TYPECVTDEF(CC_16U,u2,2,ushort,CC_8S,s1,1,char) \
+TYPECVTDEF(CC_16U,u2,2,ushort,CC_16U,u2,2,ushort) \
+TYPECVTDEF(CC_16U,u2,2,ushort,CC_16S,s2,2,short) \
+TYPECVTDEF(CC_16U,u2,2,ushort,CC_32U,u4,4,uint) \
+TYPECVTDEF(CC_16U,u2,2,ushort,CC_32S,s4,4,int) \
+TYPECVTDEF(CC_16U,u2,2,ushort,CC_64U,u8,8,uint64) \
+TYPECVTDEF(CC_16U,u2,2,ushort,CC_64S,s8,8,int64) \
+TYPECVTDEF(CC_16U,u2,2,ushort,CC_32F,f4,4,float) \
+TYPECVTDEF(CC_16U,u2,2,ushort,CC_64F,f8,8,double) \
+TYPECVTDEF(CC_16S,s2,2,short,CC_8U,u1,1,uchar) \
+TYPECVTDEF(CC_16S,s2,2,short,CC_8S,s1,1,char) \
+TYPECVTDEF(CC_16S,s2,2,short,CC_16U,u2,2,ushort) \
+TYPECVTDEF(CC_16S,s2,2,short,CC_16S,s2,2,short) \
+TYPECVTDEF(CC_16S,s2,2,short,CC_32U,u4,4,uint) \
+TYPECVTDEF(CC_16S,s2,2,short,CC_32S,s4,4,int) \
+TYPECVTDEF(CC_16S,s2,2,short,CC_64U,u8,8,uint64) \
+TYPECVTDEF(CC_16S,s2,2,short,CC_64S,s8,8,int64) \
+TYPECVTDEF(CC_16S,s2,2,short,CC_32F,f4,4,float) \
+TYPECVTDEF(CC_16S,s2,2,short,CC_64F,f8,8,double) \
+TYPECVTDEF(CC_32U,u4,4,uint,CC_8U,u1,1,uchar) \
+TYPECVTDEF(CC_32U,u4,4,uint,CC_8S,s1,1,char) \
+TYPECVTDEF(CC_32U,u4,4,uint,CC_16U,u2,2,ushort) \
+TYPECVTDEF(CC_32U,u4,4,uint,CC_16S,s2,2,short) \
+TYPECVTDEF(CC_32U,u4,4,uint,CC_32U,u4,4,uint) \
+TYPECVTDEF(CC_32U,u4,4,uint,CC_32S,s4,4,int) \
+TYPECVTDEF(CC_32U,u4,4,uint,CC_64U,u8,8,uint64) \
+TYPECVTDEF(CC_32U,u4,4,uint,CC_64S,s8,8,int64) \
+TYPECVTDEF(CC_32U,u4,4,uint,CC_32F,f4,4,float) \
+TYPECVTDEF(CC_32U,u4,4,uint,CC_64F,f8,8,double) \
+TYPECVTDEF(CC_32S,s4,4,int,CC_8U,u1,1,uchar) \
+TYPECVTDEF(CC_32S,s4,4,int,CC_8S,s1,1,char) \
+TYPECVTDEF(CC_32S,s4,4,int,CC_16U,u2,2,ushort) \
+TYPECVTDEF(CC_32S,s4,4,int,CC_16S,s2,2,short) \
+TYPECVTDEF(CC_32S,s4,4,int,CC_32U,u4,4,uint) \
+TYPECVTDEF(CC_32S,s4,4,int,CC_32S,s4,4,int) \
+TYPECVTDEF(CC_32S,s4,4,int,CC_64U,u8,8,uint64) \
+TYPECVTDEF(CC_32S,s4,4,int,CC_64S,s8,8,int64) \
+TYPECVTDEF(CC_32S,s4,4,int,CC_32F,f4,4,float) \
+TYPECVTDEF(CC_32S,s4,4,int,CC_64F,f8,8,double) \
+TYPECVTDEF(CC_64U,u8,8,uint64,CC_8U,u1,1,uchar) \
+TYPECVTDEF(CC_64U,u8,8,uint64,CC_8S,s1,1,char) \
+TYPECVTDEF(CC_64U,u8,8,uint64,CC_16U,u2,2,ushort) \
+TYPECVTDEF(CC_64U,u8,8,uint64,CC_16S,s2,2,short) \
+TYPECVTDEF(CC_64U,u8,8,uint64,CC_32U,u4,4,uint) \
+TYPECVTDEF(CC_64U,u8,8,uint64,CC_32S,s4,4,int) \
+TYPECVTDEF(CC_64U,u8,8,uint64,CC_64U,u8,8,uint64) \
+TYPECVTDEF(CC_64U,u8,8,uint64,CC_64S,s8,8,int64) \
+TYPECVTDEF(CC_64U,u8,8,uint64,CC_32F,f4,4,float) \
+TYPECVTDEF(CC_64U,u8,8,uint64,CC_64F,f8,8,double) \
+TYPECVTDEF(CC_64S,s8,8,int64,CC_8U,u1,1,uchar) \
+TYPECVTDEF(CC_64S,s8,8,int64,CC_8S,s1,1,char) \
+TYPECVTDEF(CC_64S,s8,8,int64,CC_16U,u2,2,ushort) \
+TYPECVTDEF(CC_64S,s8,8,int64,CC_16S,s2,2,short) \
+TYPECVTDEF(CC_64S,s8,8,int64,CC_32U,u4,4,uint) \
+TYPECVTDEF(CC_64S,s8,8,int64,CC_32S,s4,4,int) \
+TYPECVTDEF(CC_64S,s8,8,int64,CC_64U,u8,8,uint64) \
+TYPECVTDEF(CC_64S,s8,8,int64,CC_64S,s8,8,int64) \
+TYPECVTDEF(CC_64S,s8,8,int64,CC_32F,f4,4,float) \
+TYPECVTDEF(CC_64S,s8,8,int64,CC_64F,f8,8,double) \
+TYPECVTDEF(CC_32F,f4,4,float,CC_8U,u1,1,uchar) \
+TYPECVTDEF(CC_32F,f4,4,float,CC_8S,s1,1,char) \
+TYPECVTDEF(CC_32F,f4,4,float,CC_16U,u2,2,ushort) \
+TYPECVTDEF(CC_32F,f4,4,float,CC_16S,s2,2,short) \
+TYPECVTDEF(CC_32F,f4,4,float,CC_32U,u4,4,uint) \
+TYPECVTDEF(CC_32F,f4,4,float,CC_32S,s4,4,int) \
+TYPECVTDEF(CC_32F,f4,4,float,CC_64U,u8,8,uint64) \
+TYPECVTDEF(CC_32F,f4,4,float,CC_64S,s8,8,int64) \
+TYPECVTDEF(CC_32F,f4,4,float,CC_32F,f4,4,float) \
+TYPECVTDEF(CC_32F,f4,4,float,CC_64F,f8,8,double) \
+TYPECVTDEF(CC_64F,f8,8,double,CC_8U,u1,1,uchar) \
+TYPECVTDEF(CC_64F,f8,8,double,CC_8S,s1,1,char) \
+TYPECVTDEF(CC_64F,f8,8,double,CC_16U,u2,2,ushort) \
+TYPECVTDEF(CC_64F,f8,8,double,CC_16S,s2,2,short) \
+TYPECVTDEF(CC_64F,f8,8,double,CC_32U,u4,4,uint) \
+TYPECVTDEF(CC_64F,f8,8,double,CC_32S,s4,4,int) \
+TYPECVTDEF(CC_64F,f8,8,double,CC_64U,u8,8,uint64) \
+TYPECVTDEF(CC_64F,f8,8,double,CC_64S,s8,8,int64) \
+TYPECVTDEF(CC_64F,f8,8,double,CC_32F,f4,4,float) \
+TYPECVTDEF(CC_64F,f8,8,double,CC_64F,f8,8,double)
+
+static void* arrcvt(void* dst, TypeId dst_type, const void* src, TypeId src_type, int n) {
+  int i = 0;
+  if (NULL == dst) {}
+  switch ((dst_type << 8) | src_type) {
+#define TYPECVTDEF(a, b, c, d, e, f, g, h)  case ((a<<8) | e): { d* _d = (d*)dst; const h* _s = (const h*) src; \
+    for (; i<n-3; i+=4) {_d[i] = (d)_s[i];_d[i+1] = (d)_s[i+1];_d[i+2] = (d)_s[i+2];_d[i+3] = (d)_s[i+3]; } for (; i<n; ++i) {_d[i] = (d)_s[i]; } } break;
+    TYPECVTDEF_DEF(TYPECVTDEF)
+#undef TYPECVTDEF
+  }
+  return dst;
+}
+static void* arrcvt2(void* dst, TypeId dst_type, const void* src, TypeId src_type, int n, double alpha, double beta) {
+  bool noScale = fabs(alpha - 1) < DBL_EPSILON && fabs(beta) < DBL_EPSILON;
+  if (noScale) {
+    return arrcvt(dst, dst_type, src, src_type, n);
+  }
+  else {
+    int i = 0;
+    if (NULL == dst) {}
+    switch ((dst_type << 8) | src_type) {
+#define OP(a)  (alpha*(a) + beta)
+#define TYPECVTDEF(a, b, c, d, e, f, g, h)  case ((a<<8) | e): { d* _d = (d*)dst; const h* _s = (const h*) src; \
+    for (; i<n-3; i+=4) {_d[i] = (d)OP(_s[i]);_d[i+1] = (d)OP(_s[i+1]);_d[i+2] = (d)OP(_s[i+2]);_d[i+3] = (d)OP(_s[i+3]); } for (; i<n; ++i) {_d[i] = (d)OP(_s[i]); } } break;
+      TYPECVTDEF_DEF(TYPECVTDEF)
+#undef TYPECVTDEF
+#undef OP
+    }
+    return dst;
+  }
+}
+static void* arrcvt2d(void* dst, TypeId dsttype, int dl, const void* src, TypeId srctype, int sl, int h, int w, double alpha, double beta) {
+  char* d = (char*)(dst);
+  const char* s = (const char*)(src);
+  int dw = w*(dsttype >> 16);
+  int sw = w*(srctype >> 16);
+  dl = dl>0 ? dl : dw;
+  sl = sl>0 ? sl : sw;
+  if (dl == dw && sl == sw) {
+    return arrcvt2(dst, dsttype, src, srctype, h * w, alpha, beta);
+  }
+  for (; h--; s += sl, d += dl) {
+    arrcvt2(d, dsttype, s, srctype, w, alpha, beta);
+  }
+  return dst;
+}
+
+
+/////////////////////////////////////////////////////////
 
 typedef struct DPOINT3 {
   double x, y, z;
@@ -460,21 +634,20 @@ typedef struct DPOINT4 {
 typedef DPOINT4 D4VECTOR;
 typedef struct FPOINT4 {
   float x, y, z, w;
-} FPOINT4;
+} FPOINT4, FPoint4;
 typedef FPOINT4 F4VECTOR;
 typedef struct {
   short x, y;
-} SPOINT;
+} SPOINT, SPoint;
 typedef struct {
   int x, y;
-} IPOINT;
-typedef IPOINT IPOINT2;
+} IPOINT, IPOINT2, IPoint, IPoint2;
 typedef struct IPOINT3 {
   int x, y, z;
-} IPOINT3;
+} IPOINT3, IPoint3;
 typedef struct {
   int64 x, y;
-} QPOINT;
+} QPOINT, QPoint;
 typedef QPOINT LPOINT2;
 typedef struct {
   int64 x, y, z;
@@ -482,16 +655,16 @@ typedef struct {
 typedef QPOINT3 LPOINT3;
 typedef struct {
   double x, y;
-} DPOINT;
+} DPOINT, DPoint;
 typedef DPOINT D2VECTOR;
 #ifndef __FPOINT_DEFINED__
 #define __FPOINT_DEFINED__
 typedef struct {
   float x, y;
-} FPOINT, FPOINT2;
+} FPOINT, FPoint, FPOINT2, FPoint2;
 #endif // __FPOINT_DEFINED__
 typedef FPOINT F2VECTOR;
-typedef struct {
+typedef struct ISize {
   union { int cx; int w; int width; int c; };
   union { int cy; int h; int height; int r; };
 } ISIZE;
@@ -643,6 +816,12 @@ CC_INLINE IPOINT iPOINT(int x, int y)
   pt.x = x, pt.y = y;
   return pt;
 }
+CC_INLINE IPoint iPoint(int x, int y)
+{
+  IPOINT pt;
+  pt.x = x, pt.y = y;
+  return pt;
+}
 CC_INLINE int iPOINT_cmp(IPOINT a, IPOINT b)
 {
   return a.y == b.y ? CC_CMP(a.x, b.x) : CC_CMP(a.y, b.y);
@@ -706,6 +885,13 @@ CC_INLINE ISEGMENT iSEGMENT(int x0, int y0, int x1, int y1)
 
 /////////////////////////////////////////////////////////
 
+CC_INLINE void memunroll(void* p, int n, int unroll_to) {
+  char* ptr = (char*)p;
+  while (n < unroll_to) {
+    memcpy(ptr + n, p, MIN(n, unroll_to - n));
+    n *= 2;
+  }
+}
 CC_INLINE void* matcpy(void* dst, int dl, const void* src, int sl, int h, int w)
 {
   char* d = (char*)(dst);
@@ -916,6 +1102,18 @@ CC_INLINE ISIZE iSIZE(int w, int h)
   ISIZE sz;
   sz.w = w, sz.h = h;
   return sz;
+}
+CC_INLINE ISize iSize(int w, int h)
+{
+  ISize sz;
+  sz.w = w, sz.h = h;
+  return sz;
+}
+CC_INLINE FSIZE fSIZE(float w, float h) {
+  FSIZE s;
+  s.w = w;
+  s.h = h;
+  return s;
 }
 CC_INLINE IRECT iRECT(int l, int t, int r, int b)
 {
@@ -1246,6 +1444,66 @@ CC_INLINE double iRectIOU(IRECT Reframe, IRECT GTframe) {
   }
   // return IOU
   return ratio;
+}
+/////////////////////////////////////////////////////////
+
+struct IRect {
+  int x, y, width, height;
+};
+IRect iRect(int _x, int _y, int _width, int _height) {
+  IRect r;
+  r.x = _x;
+  r.y = _y;
+  r.width = _width;
+  r.height = _height;
+  return r;
+}
+IRect iRect(IPoint pt, ISize sz) {
+  IRect r;
+  r.x = pt.x;
+  r.y = pt.y;
+  r.width = sz.width;
+  r.height = sz.height;
+  return r;
+}
+template <typename IRect, typename IPoint>
+bool contains(IRect r, IPoint pt) {
+  return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height;
+}
+bool contains(IRect r, IPoint pt) {
+  return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height;
+}
+bool inside(IPoint pt, IRect r) {
+  return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height;
+}
+/////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////
+enum MemType {CPU, GPU};
+struct mem_t {
+  MemType type_;
+  void* (*realloc_)(void* p, size_t n);
+  void(*free_)(void* p);
+};
+static void* cpu_realloc(void* p, size_t n) { return realloc(p, n); }
+static void cpu_free(void* p) { free(p); }
+static void* copy_cpu2cpu(void* dst, const void* src, size_t n) { return memcpy(dst, src, n); }
+typedef void* (*mem_copy_t)(void* dst, const void* src, size_t n);
+static mem_copy_t mem_copy[2][2] = { copy_cpu2cpu ,NULL, NULL, NULL};
+static mem_t cpu_mem[1] = { CPU, cpu_realloc , cpu_free };
+static mem_t cpu_mem_nul[1] = { CPU, NULL , NULL };
+static void* mem_realloc(void* p, size_t newn, mem_t* newmem, size_t oldn, mem_t* oldmem) {
+  void* newp = NULL;
+  newmem = newmem ? newmem : cpu_mem;
+  oldmem = oldmem ? oldmem : cpu_mem;
+  if (newmem == oldmem) {
+    newp = newmem->realloc_(p, newn);
+  }
+  else {
+    newp = newmem->realloc_(NULL, newn);
+    mem_copy[newmem->type_][oldmem->type_](newp, p, oldn);
+    if (oldmem->free_) { oldmem->free_(p); }
+  }
+  return newp;
 }
 /////////////////////////////////////////////////////////
 

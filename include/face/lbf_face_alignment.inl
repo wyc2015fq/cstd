@@ -402,7 +402,7 @@ int lbf_face_alignment_fix16(const void* lbfmodel, const img_t* im, const img_t*
 //buf_t g_lbfmodel[1] = {0};
 
 int detect_eyes1(const void* model, int h, int w, const unsigned char* data, int datastep, const XRECT* face, XRECT* deye, XRECT* leye, XRECT* reye, int is_trans) {
-  img_t imgTe_gray[1] = {0};
+  img_t imgTe_gray[1] _INIT0;
   double box[4] = {0};
   enum {npt=68};
   double pt[2*npt] = {0};

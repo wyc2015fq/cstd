@@ -41,18 +41,17 @@
 
 #include "test_precomp.hpp"
 
-using namespace cv;
-using namespace std;
+namespace opencv_test { namespace {
 
-class CC_FilterBaseTest : public cvtest::ArrayTest
+class CV_FilterBaseTest : public cvtest::ArrayTest
 {
 public:
-    CC_FilterBaseTest( bool _fp_kernel );
+    CV_FilterBaseTest( bool _fp_kernel );
 
 protected:
     int prepare_test_case( int test_case_idx );
     int read_params( CvFileStorage* fs );
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
     void get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high );
     CvSize aperture_size;
     CvPoint anchor;
@@ -63,7 +62,7 @@ protected:
 };
 
 
-CC_FilterBaseTest::CC_FilterBaseTest( bool _fp_kernel ) : fp_kernel(_fp_kernel)
+CV_FilterBaseTest::CV_FilterBaseTest( bool _fp_kernel ) : fp_kernel(_fp_kernel)
 {
     test_array[INPUT].push_back(NULL);
     test_array[INPUT].push_back(NULL);
@@ -77,7 +76,7 @@ CC_FilterBaseTest::CC_FilterBaseTest( bool _fp_kernel ) : fp_kernel(_fp_kernel)
 }
 
 
-int CC_FilterBaseTest::read_params( CvFileStorage* fs )
+int CV_FilterBaseTest::read_params( CvFileStorage* fs )
 {
     int code = cvtest::ArrayTest::read_params( fs );
     if( code < 0 )
@@ -90,7 +89,7 @@ int CC_FilterBaseTest::read_params( CvFileStorage* fs )
 }
 
 
-void CC_FilterBaseTest::get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high )
+void CV_FilterBaseTest::get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high )
 {
     cvtest::ArrayTest::get_minmax_bounds( i, j, type, low, high );
     if( i == INPUT )
@@ -110,12 +109,12 @@ void CC_FilterBaseTest::get_minmax_bounds( int i, int j, int type, Scalar& low, 
                 high = Scalar::all(2);
             }
         }
-        else if( CC_MAT_DEPTH(type) == CC_16U )
+        else if( CV_MAT_DEPTH(type) == CV_16U )
         {
             low = Scalar::all(0.);
             high = Scalar::all(40000.);
         }
-        else if( CC_MAT_DEPTH(type) == CC_32F )
+        else if( CV_MAT_DEPTH(type) == CV_32F )
         {
             low = Scalar::all(-10.);
             high = Scalar::all(10.);
@@ -124,25 +123,25 @@ void CC_FilterBaseTest::get_minmax_bounds( int i, int j, int type, Scalar& low, 
 }
 
 
-void CC_FilterBaseTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                        vector<vector<CvSize> >& sizes,
+void CV_FilterBaseTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                        vector<vector<Size> >& sizes,
                                                         vector<vector<int> >& types )
 {
     RNG& rng = ts->get_rng();
-    int depth = cvtest::randInt(rng) % CC_32F;
+    int depth = cvtest::randInt(rng) % CV_32F;
     int cn = cvtest::randInt(rng) % 3 + 1;
     cvtest::ArrayTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
-    depth += depth == CC_8S;
+    depth += depth == CV_8S;
     cn += cn == 2;
 
-    types[INPUT][0] = types[OUTPUT][0] = types[REF_OUTPUT][0] = CC_MAKETYPE(depth, cn);
+    types[INPUT][0] = types[OUTPUT][0] = types[REF_OUTPUT][0] = CV_MAKETYPE(depth, cn);
 
     aperture_size.width = cvtest::randInt(rng) % max_aperture_size + 1;
     aperture_size.height = cvtest::randInt(rng) % max_aperture_size + 1;
     anchor.x = cvtest::randInt(rng) % aperture_size.width;
     anchor.y = cvtest::randInt(rng) % aperture_size.height;
 
-    types[INPUT][1] = fp_kernel ? CC_32FC1 : CC_8UC1;
+    types[INPUT][1] = fp_kernel ? CV_32FC1 : CV_8UC1;
     sizes[INPUT][1] = aperture_size;
 
     inplace = cvtest::randInt(rng) % 2 != 0;
@@ -150,12 +149,12 @@ void CC_FilterBaseTest::get_test_array_types_and_sizes( int test_case_idx,
 }
 
 
-int CC_FilterBaseTest::prepare_test_case( int test_case_idx )
+int CV_FilterBaseTest::prepare_test_case( int test_case_idx )
 {
     int code = cvtest::ArrayTest::prepare_test_case( test_case_idx );
     if( code > 0 )
     {
-        if( inplace && test_mat[INPUT][0]->tid == test_mat[OUTPUT][0]->tid)
+        if( inplace && test_mat[INPUT][0].type() == test_mat[OUTPUT][0].type())
             cvtest::copy( test_mat[INPUT][0], test_mat[OUTPUT][0] );
         else
             inplace = false;
@@ -166,15 +165,15 @@ int CC_FilterBaseTest::prepare_test_case( int test_case_idx )
 
 /////////////////////////
 
-class CC_MorphologyBaseTest : public CC_FilterBaseTest
+class CV_MorphologyBaseTest : public CV_FilterBaseTest
 {
 public:
-    CC_MorphologyBaseTest();
+    CV_MorphologyBaseTest();
 
 protected:
     void prepare_to_validation( int test_case_idx );
     int prepare_test_case( int test_case_idx );
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
     double get_success_error_level( int test_case_idx, int i, int j );
     int optype, optype_min, optype_max;
     int shape;
@@ -182,7 +181,7 @@ protected:
 };
 
 
-CC_MorphologyBaseTest::CC_MorphologyBaseTest() : CC_FilterBaseTest( false )
+CV_MorphologyBaseTest::CV_MorphologyBaseTest() : CV_FilterBaseTest( false )
 {
     shape = -1;
     element = 0;
@@ -190,42 +189,42 @@ CC_MorphologyBaseTest::CC_MorphologyBaseTest() : CC_FilterBaseTest( false )
 }
 
 
-void CC_MorphologyBaseTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                vector<vector<CvSize> >& sizes, vector<vector<int> >& types )
+void CV_MorphologyBaseTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                vector<vector<Size> >& sizes, vector<vector<int> >& types )
 {
     RNG& rng = ts->get_rng();
-    CC_FilterBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
+    CV_FilterBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
     int depth = cvtest::randInt(rng) % 4;
-    depth = depth == 0 ? CC_8U : depth == 1 ? CC_16U : depth == 2 ? CC_16S : CC_32F;
-    int cn = CC_MAT_CN(types[INPUT][0]);
+    depth = depth == 0 ? CV_8U : depth == 1 ? CV_16U : depth == 2 ? CV_16S : CV_32F;
+    int cn = CV_MAT_CN(types[INPUT][0]);
 
-    types[INPUT][0] = types[OUTPUT][0] = types[REF_OUTPUT][0] = CC_MAKETYPE(depth, cn);
+    types[INPUT][0] = types[OUTPUT][0] = types[REF_OUTPUT][0] = CV_MAKETYPE(depth, cn);
     shape = cvtest::randInt(rng) % 4;
     if( shape >= 3 )
-        shape = CC_SHAPE_CUSTOM;
+        shape = CV_SHAPE_CUSTOM;
     else
         sizes[INPUT][1] = cvSize(0,0);
     optype = cvtest::randInt(rng) % (optype_max - optype_min + 1) + optype_min;
 }
 
 
-double CC_MorphologyBaseTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
+double CV_MorphologyBaseTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
 {
-    return test_mat[INPUT][0].depth() < CC_32F ||
-        (optype == CC_MOP_ERODE || optype == CC_MOP_DILATE ||
-        optype == CC_MOP_OPEN || optype == CC_MOP_CLOSE) ? 0 : 1e-5;
+    return test_mat[INPUT][0].depth() < CV_32F ||
+        (optype == CV_MOP_ERODE || optype == CV_MOP_DILATE ||
+        optype == CV_MOP_OPEN || optype == CV_MOP_CLOSE) ? 0 : 1e-5;
 }
 
 
-int CC_MorphologyBaseTest::prepare_test_case( int test_case_idx )
+int CV_MorphologyBaseTest::prepare_test_case( int test_case_idx )
 {
-    int code = CC_FilterBaseTest::prepare_test_case( test_case_idx );
+    int code = CV_FilterBaseTest::prepare_test_case( test_case_idx );
     vector<int> eldata;
 
     if( code <= 0 )
         return code;
 
-    if( shape == CC_SHAPE_CUSTOM )
+    if( shape == CV_SHAPE_CUSTOM )
     {
         eldata.resize(aperture_size.width*aperture_size.height);
         const uchar* src = test_mat[INPUT][1].ptr();
@@ -252,56 +251,56 @@ int CC_MorphologyBaseTest::prepare_test_case( int test_case_idx )
 }
 
 
-void CC_MorphologyBaseTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_MorphologyBaseTest::prepare_to_validation( int /*test_case_idx*/ )
 {
-    CvMat& src = test_mat[INPUT][0], &dst = test_mat[REF_OUTPUT][0];
-    CvMat _ielement(element->nRows, element->nCols, CC_32S, element->values);
-    CvMat _element;
-    _ielement.convertTo(_element, CC_8U);
+    Mat& src = test_mat[INPUT][0], &dst = test_mat[REF_OUTPUT][0];
+    Mat _ielement(element->nRows, element->nCols, CV_32S, element->values);
+    Mat _element;
+    _ielement.convertTo(_element, CV_8U);
     Point _anchor(element->anchorX, element->anchorY);
     int _border = BORDER_REPLICATE;
 
-    if( optype == CC_MOP_ERODE )
+    if( optype == CV_MOP_ERODE )
     {
         cvtest::erode( src, dst, _element, _anchor, _border );
     }
-    else if( optype == CC_MOP_DILATE )
+    else if( optype == CV_MOP_DILATE )
     {
         cvtest::dilate( src, dst, _element, _anchor, _border );
     }
     else
     {
-        CvMat temp;
-        if( optype == CC_MOP_OPEN )
+        Mat temp;
+        if( optype == CV_MOP_OPEN )
         {
             cvtest::erode( src, temp, _element, _anchor, _border );
             cvtest::dilate( temp, dst, _element, _anchor, _border );
         }
-        else if( optype == CC_MOP_CLOSE )
+        else if( optype == CV_MOP_CLOSE )
         {
             cvtest::dilate( src, temp, _element, _anchor, _border );
             cvtest::erode( temp, dst, _element, _anchor, _border );
         }
-        else if( optype == CC_MOP_GRADIENT )
+        else if( optype == CV_MOP_GRADIENT )
         {
             cvtest::erode( src, temp, _element, _anchor, _border );
             cvtest::dilate( src, dst, _element, _anchor, _border );
-            cvtest::add( dst, 1, temp, -1, Scalar::all(0), dst, dst->tid );
+            cvtest::add( dst, 1, temp, -1, Scalar::all(0), dst, dst.type() );
         }
-        else if( optype == CC_MOP_TOPHAT )
+        else if( optype == CV_MOP_TOPHAT )
         {
             cvtest::erode( src, temp, _element, _anchor, _border );
             cvtest::dilate( temp, dst, _element, _anchor, _border );
-            cvtest::add( src, 1, dst, -1, Scalar::all(0), dst, dst->tid );
+            cvtest::add( src, 1, dst, -1, Scalar::all(0), dst, dst.type() );
         }
-        else if( optype == CC_MOP_BLACKHAT )
+        else if( optype == CV_MOP_BLACKHAT )
         {
             cvtest::dilate( src, temp, _element, _anchor, _border );
             cvtest::erode( temp, dst, _element, _anchor, _border );
-            cvtest::add( dst, 1, src, -1, Scalar::all(0), dst, dst->tid );
+            cvtest::add( dst, 1, src, -1, Scalar::all(0), dst, dst.type() );
         }
         else
-            CC_Error( CC_StsBadArg, "Unknown operation" );
+            CV_Error( CV_StsBadArg, "Unknown operation" );
     }
 
     cvReleaseStructuringElement( &element );
@@ -310,22 +309,22 @@ void CC_MorphologyBaseTest::prepare_to_validation( int /*test_case_idx*/ )
 
 /////////////// erode ///////////////
 
-class CC_ErodeTest : public CC_MorphologyBaseTest
+class CV_ErodeTest : public CV_MorphologyBaseTest
 {
 public:
-    CC_ErodeTest();
+    CV_ErodeTest();
 protected:
     void run_func();
 };
 
 
-CC_ErodeTest::CC_ErodeTest()
+CV_ErodeTest::CV_ErodeTest()
 {
-    optype_min = optype_max = CC_MOP_ERODE;
+    optype_min = optype_max = CV_MOP_ERODE;
 }
 
 
-void CC_ErodeTest::run_func()
+void CV_ErodeTest::run_func()
 {
     cvErode( inplace ? test_array[OUTPUT][0] : test_array[INPUT][0],
              test_array[OUTPUT][0], element, 1 );
@@ -334,22 +333,22 @@ void CC_ErodeTest::run_func()
 
 /////////////// dilate ///////////////
 
-class CC_DilateTest : public CC_MorphologyBaseTest
+class CV_DilateTest : public CV_MorphologyBaseTest
 {
 public:
-    CC_DilateTest();
+    CV_DilateTest();
 protected:
     void run_func();
 };
 
 
-CC_DilateTest::CC_DilateTest()
+CV_DilateTest::CV_DilateTest()
 {
-    optype_min = optype_max = CC_MOP_DILATE;
+    optype_min = optype_max = CV_MOP_DILATE;
 }
 
 
-void CC_DilateTest::run_func()
+void CV_DilateTest::run_func()
 {
     cvDilate( inplace ? test_array[OUTPUT][0] : test_array[INPUT][0],
              test_array[OUTPUT][0], element, 1 );
@@ -357,23 +356,23 @@ void CC_DilateTest::run_func()
 
 /////////////// morphEx ///////////////
 
-class CC_MorphExTest : public CC_MorphologyBaseTest
+class CV_MorphExTest : public CV_MorphologyBaseTest
 {
 public:
-    CC_MorphExTest();
+    CV_MorphExTest();
 protected:
     void run_func();
 };
 
 
-CC_MorphExTest::CC_MorphExTest()
+CV_MorphExTest::CV_MorphExTest()
 {
-    optype_min = CC_MOP_ERODE;
-    optype_max = CC_MOP_BLACKHAT;
+    optype_min = CV_MOP_ERODE;
+    optype_max = CV_MOP_BLACKHAT;
 }
 
 
-void CC_MorphExTest::run_func()
+void CV_MorphExTest::run_func()
 {
     cvMorphologyEx( test_array[inplace ? OUTPUT : INPUT][0],
              test_array[OUTPUT][0], 0, element, optype, 1 );
@@ -381,45 +380,45 @@ void CC_MorphExTest::run_func()
 
 /////////////// generic filter ///////////////
 
-class CC_FilterTest : public CC_FilterBaseTest
+class CV_FilterTest : public CV_FilterBaseTest
 {
 public:
-    CC_FilterTest();
+    CV_FilterTest();
 
 protected:
     void prepare_to_validation( int test_case_idx );
     void run_func();
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
     double get_success_error_level( int test_case_idx, int i, int j );
 };
 
 
-CC_FilterTest::CC_FilterTest() : CC_FilterBaseTest( true )
+CV_FilterTest::CV_FilterTest() : CV_FilterBaseTest( true )
 {
 }
 
 
-void CC_FilterTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                vector<vector<CvSize> >& sizes, vector<vector<int> >& types )
+void CV_FilterTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                vector<vector<Size> >& sizes, vector<vector<int> >& types )
 {
-    CC_FilterBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
+    CV_FilterBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
     RNG& rng = ts->get_rng();
     int depth = cvtest::randInt(rng)%3;
-    int cn = CC_MAT_CN(types[INPUT][0]);
-    depth = depth == 0 ? CC_8U : depth == 1 ? CC_16U : CC_32F;
-    types[INPUT][0] = types[OUTPUT][0] = types[REF_OUTPUT][0] = CC_MAKETYPE(depth, cn);
+    int cn = CV_MAT_CN(types[INPUT][0]);
+    depth = depth == 0 ? CV_8U : depth == 1 ? CV_16U : CV_32F;
+    types[INPUT][0] = types[OUTPUT][0] = types[REF_OUTPUT][0] = CV_MAKETYPE(depth, cn);
 }
 
 
-double CC_FilterTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
+double CV_FilterTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
 {
     int depth = test_mat[INPUT][0].depth();
-    return depth <= CC_8S ? 2 : depth <= CC_32S ? 32 :
-           depth == CC_32F ? 1e-4 : 1e-10;
+    return depth <= CV_8S ? 2 : depth <= CV_32S ? 32 :
+           depth == CV_32F ? 1e-4 : 1e-10;
 }
 
 
-void CC_FilterTest::run_func()
+void CV_FilterTest::run_func()
 {
     CvMat kernel = test_mat[INPUT][1];
     cvFilter2D( test_array[inplace ? OUTPUT : INPUT][0],
@@ -427,78 +426,78 @@ void CC_FilterTest::run_func()
 }
 
 
-void CC_FilterTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_FilterTest::prepare_to_validation( int /*test_case_idx*/ )
 {
-    cvtest::filter2D( test_mat[INPUT][0], test_mat[REF_OUTPUT][0], test_mat[REF_OUTPUT][0]->tid,
+    cvtest::filter2D( test_mat[INPUT][0], test_mat[REF_OUTPUT][0], test_mat[REF_OUTPUT][0].type(),
                       test_mat[INPUT][1], anchor, 0, BORDER_REPLICATE );
 }
 
 
 ////////////////////////
 
-class CC_DerivBaseTest : public CC_FilterBaseTest
+class CV_DerivBaseTest : public CV_FilterBaseTest
 {
 public:
-    CC_DerivBaseTest();
+    CV_DerivBaseTest();
 protected:
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
     double get_success_error_level( int test_case_idx, int i, int j );
     int _aperture_size;
 };
 
 
-CC_DerivBaseTest::CC_DerivBaseTest() : CC_FilterBaseTest( true )
+CV_DerivBaseTest::CV_DerivBaseTest() : CV_FilterBaseTest( true )
 {
     max_aperture_size = 7;
 }
 
 
-void CC_DerivBaseTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                vector<vector<CvSize> >& sizes, vector<vector<int> >& types )
+void CV_DerivBaseTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                vector<vector<Size> >& sizes, vector<vector<int> >& types )
 {
     RNG& rng = ts->get_rng();
-    CC_FilterBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
+    CV_FilterBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
     int depth = cvtest::randInt(rng) % 2;
-    depth = depth == 0 ? CC_8U : CC_32F;
-    types[INPUT][0] = CC_MAKETYPE(depth,1);
-    types[OUTPUT][0] = types[REF_OUTPUT][0] = CC_MAKETYPE(depth==CC_8U?CC_16S:CC_32F,1);
+    depth = depth == 0 ? CV_8U : CV_32F;
+    types[INPUT][0] = CV_MAKETYPE(depth,1);
+    types[OUTPUT][0] = types[REF_OUTPUT][0] = CV_MAKETYPE(depth==CV_8U?CV_16S:CV_32F,1);
     _aperture_size = (cvtest::randInt(rng)%5)*2 - 1;
     sizes[INPUT][1] = aperture_size = cvSize(_aperture_size, _aperture_size);
 }
 
 
-double CC_DerivBaseTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
+double CV_DerivBaseTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
 {
     int depth = test_mat[INPUT][0].depth();
-    return depth <= CC_8S ? 2 : 5e-4;
+    return depth <= CV_8S ? 2 : 5e-4;
 }
 
 
 /////////////// sobel ///////////////
 
-class CC_SobelTest : public CC_DerivBaseTest
+class CV_SobelTest : public CV_DerivBaseTest
 {
 public:
-    CC_SobelTest();
+    CV_SobelTest();
 
 protected:
     void prepare_to_validation( int test_case_idx );
     void run_func();
     void get_test_array_types_and_sizes( int test_case_idx,
-        vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+        vector<vector<Size> >& sizes, vector<vector<int> >& types );
     int dx, dy, origin;
 };
 
 
-CC_SobelTest::CC_SobelTest() {}
+CV_SobelTest::CV_SobelTest() {}
 
 
-void CC_SobelTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                   vector<vector<CvSize> >& sizes,
+void CV_SobelTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                   vector<vector<Size> >& sizes,
                                                    vector<vector<int> >& types )
 {
     RNG& rng = ts->get_rng();
-    CC_DerivBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
+    CV_DerivBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
     int max_d = _aperture_size > 0 ? 2 : 1;
     origin = cvtest::randInt(rng) % 2;
     dx = cvtest::randInt(rng) % (max_d + 1);
@@ -508,7 +507,7 @@ void CC_SobelTest::get_test_array_types_and_sizes( int test_case_idx,
     if( cvtest::randInt(rng) % 2 )
     {
         int t;
-        CC_SWAP( dx, dy, t );
+        CV_SWAP( dx, dy, t );
     }
 
     if( _aperture_size < 0 )
@@ -534,19 +533,19 @@ void CC_SobelTest::get_test_array_types_and_sizes( int test_case_idx,
 }
 
 
-void CC_SobelTest::run_func()
+void CV_SobelTest::run_func()
 {
     cvSobel( test_array[inplace ? OUTPUT : INPUT][0],
              test_array[OUTPUT][0], dx, dy, _aperture_size );
-    /*Sobel( test_mat[inplace ? OUTPUT : INPUT][0],
+    /*cv::Sobel( test_mat[inplace ? OUTPUT : INPUT][0],
                test_mat[OUTPUT][0], test_mat[OUTPUT][0].depth(),
                dx, dy, _aperture_size, 1, 0, border );*/
 }
 
 
-void CC_SobelTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_SobelTest::prepare_to_validation( int /*test_case_idx*/ )
 {
-    CvMat kernel = cvtest::calcSobelKernel2D( dx, dy, _aperture_size, 0 );
+    Mat kernel = cvtest::calcSobelKernel2D( dx, dy, _aperture_size, 0 );
     cvtest::filter2D( test_mat[INPUT][0], test_mat[REF_OUTPUT][0], test_mat[REF_OUTPUT][0].depth(),
                       kernel, anchor, 0, BORDER_REPLICATE);
 }
@@ -554,90 +553,90 @@ void CC_SobelTest::prepare_to_validation( int /*test_case_idx*/ )
 
 /////////////// spatialGradient ///////////////
 
-class CC_SpatialGradientTest : public CC_DerivBaseTest
+class CV_SpatialGradientTest : public CV_DerivBaseTest
 {
 public:
-    CC_SpatialGradientTest();
+    CV_SpatialGradientTest();
 
 protected:
     void prepare_to_validation( int test_case_idx );
     void run_func();
     void get_test_array_types_and_sizes( int test_case_idx,
-        vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+        vector<vector<Size> >& sizes, vector<vector<int> >& types );
     int ksize;
 };
 
-CC_SpatialGradientTest::CC_SpatialGradientTest() {
+CV_SpatialGradientTest::CV_SpatialGradientTest() {
     test_array[OUTPUT].push_back(NULL);
     test_array[REF_OUTPUT].push_back(NULL);
     inplace = false;
 }
 
 
-void CC_SpatialGradientTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                             vector<vector<CvSize> >& sizes,
+void CV_SpatialGradientTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                             vector<vector<Size> >& sizes,
                                                              vector<vector<int> >& types )
 {
-    CC_DerivBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
+    CV_DerivBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
 
     sizes[OUTPUT][1] = sizes[REF_OUTPUT][1] = sizes[OUTPUT][0];
 
-    // Inputs are only CC_8UC1 for now
-    types[INPUT][0] = CC_8UC1;
+    // Inputs are only CV_8UC1 for now
+    types[INPUT][0] = CV_8UC1;
 
-    // Outputs are only CC_16SC1 for now
+    // Outputs are only CV_16SC1 for now
     types[OUTPUT][0] = types[OUTPUT][1] = types[REF_OUTPUT][0]
-                     = types[REF_OUTPUT][1] = CC_16SC1;
+                     = types[REF_OUTPUT][1] = CV_16SC1;
 
     ksize = 3;
     border = BORDER_DEFAULT; // TODO: Add BORDER_REPLICATE
 }
 
 
-void CC_SpatialGradientTest::run_func()
+void CV_SpatialGradientTest::run_func()
 {
     spatialGradient( test_mat[INPUT][0], test_mat[OUTPUT][0],
                      test_mat[OUTPUT][1], ksize, border );
 }
 
-void CC_SpatialGradientTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_SpatialGradientTest::prepare_to_validation( int /*test_case_idx*/ )
 {
     int dx, dy;
 
     dx = 1; dy = 0;
-    Sobel( test_mat[INPUT][0], test_mat[REF_OUTPUT][0], CC_16SC1, dx, dy, ksize,
+    Sobel( test_mat[INPUT][0], test_mat[REF_OUTPUT][0], CV_16SC1, dx, dy, ksize,
            1, 0, border );
 
     dx = 0; dy = 1;
-    Sobel( test_mat[INPUT][0], test_mat[REF_OUTPUT][1], CC_16SC1, dx, dy, ksize,
+    Sobel( test_mat[INPUT][0], test_mat[REF_OUTPUT][1], CV_16SC1, dx, dy, ksize,
            1, 0, border );
 }
 
 
 /////////////// laplace ///////////////
 
-class CC_LaplaceTest : public CC_DerivBaseTest
+class CV_LaplaceTest : public CV_DerivBaseTest
 {
 public:
-    CC_LaplaceTest();
+    CV_LaplaceTest();
 
 protected:
     int prepare_test_case( int test_case_idx );
     void prepare_to_validation( int test_case_idx );
     void run_func();
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
 };
 
 
-CC_LaplaceTest::CC_LaplaceTest()
+CV_LaplaceTest::CV_LaplaceTest()
 {
 }
 
 
-void CC_LaplaceTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                vector<vector<CvSize> >& sizes, vector<vector<int> >& types )
+void CV_LaplaceTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                vector<vector<Size> >& sizes, vector<vector<int> >& types )
 {
-    CC_DerivBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
+    CV_DerivBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
     if( _aperture_size <= 1 )
     {
         if( _aperture_size < 0 )
@@ -653,23 +652,23 @@ void CC_LaplaceTest::get_test_array_types_and_sizes( int test_case_idx,
 }
 
 
-void CC_LaplaceTest::run_func()
+void CV_LaplaceTest::run_func()
 {
     cvLaplace( test_array[inplace ? OUTPUT : INPUT][0],
                test_array[OUTPUT][0], _aperture_size );
 }
 
 
-int CC_LaplaceTest::prepare_test_case( int test_case_idx )
+int CV_LaplaceTest::prepare_test_case( int test_case_idx )
 {
-    int code = CC_DerivBaseTest::prepare_test_case( test_case_idx );
+    int code = CV_DerivBaseTest::prepare_test_case( test_case_idx );
     return _aperture_size < 0 ? 0 : code;
 }
 
 
-void CC_LaplaceTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_LaplaceTest::prepare_to_validation( int /*test_case_idx*/ )
 {
-    CvMat kernel = cvtest::calcLaplaceKernel2D( _aperture_size );
+    Mat kernel = cvtest::calcLaplaceKernel2D( _aperture_size );
     cvtest::filter2D( test_mat[INPUT][0], test_mat[REF_OUTPUT][0], test_mat[REF_OUTPUT][0].depth(),
                       kernel, anchor, 0, BORDER_REPLICATE );
 }
@@ -677,33 +676,33 @@ void CC_LaplaceTest::prepare_to_validation( int /*test_case_idx*/ )
 
 ////////////////////////////////////////////////////////////
 
-class CC_SmoothBaseTest : public CC_FilterBaseTest
+class CV_SmoothBaseTest : public CV_FilterBaseTest
 {
 public:
-    CC_SmoothBaseTest();
+    CV_SmoothBaseTest();
 
 protected:
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
     double get_success_error_level( int test_case_idx, int i, int j );
     const char* smooth_type;
 };
 
 
-CC_SmoothBaseTest::CC_SmoothBaseTest() : CC_FilterBaseTest( true )
+CV_SmoothBaseTest::CV_SmoothBaseTest() : CV_FilterBaseTest( true )
 {
     smooth_type = "";
 }
 
 
-void CC_SmoothBaseTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                vector<vector<CvSize> >& sizes, vector<vector<int> >& types )
+void CV_SmoothBaseTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                vector<vector<Size> >& sizes, vector<vector<int> >& types )
 {
     RNG& rng = ts->get_rng();
-    CC_FilterBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
+    CV_FilterBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
     int depth = cvtest::randInt(rng) % 2;
-    int cn = CC_MAT_CN(types[INPUT][0]);
-    depth = depth == 0 ? CC_8U : CC_32F;
-    types[INPUT][0] = types[OUTPUT][0] = types[REF_OUTPUT][0] = CC_MAKETYPE(depth,cn);
+    int cn = CV_MAT_CN(types[INPUT][0]);
+    depth = depth == 0 ? CV_8U : CV_32F;
+    types[INPUT][0] = types[OUTPUT][0] = types[REF_OUTPUT][0] = CV_MAKETYPE(depth,cn);
     anchor.x = cvtest::randInt(rng)%(max_aperture_size/2+1);
     anchor.y = cvtest::randInt(rng)%(max_aperture_size/2+1);
     aperture_size.width = anchor.x*2 + 1;
@@ -712,70 +711,70 @@ void CC_SmoothBaseTest::get_test_array_types_and_sizes( int test_case_idx,
 }
 
 
-double CC_SmoothBaseTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
+double CV_SmoothBaseTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
 {
     int depth = test_mat[INPUT][0].depth();
-    return depth <= CC_8S ? 1 : 1e-5;
+    return depth < CV_32F ? 1 : 1e-5;
 }
 
 
 /////////////// blur ///////////////
 
-class CC_BlurTest : public CC_SmoothBaseTest
+class CV_BlurTest : public CV_SmoothBaseTest
 {
 public:
-    CC_BlurTest();
+    CV_BlurTest();
 
 protected:
     int prepare_test_case( int test_case_idx );
     void prepare_to_validation( int test_case_idx );
     void run_func();
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
     bool normalize;
 };
 
 
-CC_BlurTest::CC_BlurTest()
+CV_BlurTest::CV_BlurTest()
 {
 }
 
 
-void CC_BlurTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                vector<vector<CvSize> >& sizes, vector<vector<int> >& types )
+void CV_BlurTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                vector<vector<Size> >& sizes, vector<vector<int> >& types )
 {
     RNG& rng = ts->get_rng();
-    CC_SmoothBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
+    CV_SmoothBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
     int depth = cvtest::randInt(rng) % 4;
     int cn = (cvtest::randInt(rng) % 4) + 1;
-    depth = depth == 0 ? CC_8U : depth == 1 ? CC_16U : depth == 2 ? CC_16S : CC_32F;
-    types[OUTPUT][0] = types[REF_OUTPUT][0] = types[INPUT][0] = CC_MAKETYPE(depth, cn);
+    depth = depth == 0 ? CV_8U : depth == 1 ? CV_16U : depth == 2 ? CV_16S : CV_32F;
+    types[OUTPUT][0] = types[REF_OUTPUT][0] = types[INPUT][0] = CV_MAKETYPE(depth, cn);
     normalize = cvtest::randInt(rng) % 2 != 0;
     if( !normalize )
     {
-        types[INPUT][0] = CC_MAKETYPE(depth, 1);
-        types[OUTPUT][0] = types[REF_OUTPUT][0] = CC_MAKETYPE(depth==CC_8U?CC_16S:CC_32F,1);
+        types[INPUT][0] = CV_MAKETYPE(depth, 1);
+        types[OUTPUT][0] = types[REF_OUTPUT][0] = CV_MAKETYPE(depth==CV_8U?CV_16S:CV_32F,1);
     }
 }
 
 
-void CC_BlurTest::run_func()
+void CV_BlurTest::run_func()
 {
     cvSmooth( inplace ? test_array[OUTPUT][0] : test_array[INPUT][0],
-              test_array[OUTPUT][0], normalize ? CC_BLUR : CC_BLUR_NO_SCALE,
+              test_array[OUTPUT][0], normalize ? CV_BLUR : CV_BLUR_NO_SCALE,
               aperture_size.width, aperture_size.height );
 }
 
 
-int CC_BlurTest::prepare_test_case( int test_case_idx )
+int CV_BlurTest::prepare_test_case( int test_case_idx )
 {
-    int code = CC_SmoothBaseTest::prepare_test_case( test_case_idx );
+    int code = CV_SmoothBaseTest::prepare_test_case( test_case_idx );
     return code > 0 && !normalize && test_mat[INPUT][0].channels() > 1 ? 0 : code;
 }
 
 
-void CC_BlurTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_BlurTest::prepare_to_validation( int /*test_case_idx*/ )
 {
-    CvMat kernel(aperture_size, CC_64F);
+    Mat kernel(aperture_size, CV_64F);
     kernel.setTo(Scalar::all(normalize ? 1./(aperture_size.width*aperture_size.height) : 1.));
     cvtest::filter2D( test_mat[INPUT][0], test_mat[REF_OUTPUT][0], test_mat[REF_OUTPUT][0].depth(),
                       kernel, anchor, 0, BORDER_REPLICATE );
@@ -784,41 +783,41 @@ void CC_BlurTest::prepare_to_validation( int /*test_case_idx*/ )
 
 /////////////// gaussian ///////////////
 
-class CC_GaussianBlurTest : public CC_SmoothBaseTest
+class CV_GaussianBlurTest : public CV_SmoothBaseTest
 {
 public:
-    CC_GaussianBlurTest();
+    CV_GaussianBlurTest();
 
 protected:
     void prepare_to_validation( int test_case_idx );
     void run_func();
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
     double get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ );
     double sigma;
     int param1, param2;
 };
 
 
-CC_GaussianBlurTest::CC_GaussianBlurTest() : CC_SmoothBaseTest()
+CV_GaussianBlurTest::CV_GaussianBlurTest() : CV_SmoothBaseTest()
 {
     sigma = 0.;
     smooth_type = "Gaussian";
 }
 
 
-double CC_GaussianBlurTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
+double CV_GaussianBlurTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
 {
     int depth = test_mat[INPUT][0].depth();
-    return depth <= CC_8S ? 8 : 1e-5;
+    return depth <= CV_8S ? 8 : 1e-5;
 }
 
 
-void CC_GaussianBlurTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                vector<vector<CvSize> >& sizes, vector<vector<int> >& types )
+void CV_GaussianBlurTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                vector<vector<Size> >& sizes, vector<vector<int> >& types )
 {
     RNG& rng = ts->get_rng();
     int kernel_case = cvtest::randInt(rng) % 2;
-    CC_SmoothBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
+    CV_SmoothBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
     anchor = cvPoint(aperture_size.width/2,aperture_size.height/2);
 
     sigma = exp(cvtest::randReal(rng)*5-2);
@@ -829,10 +828,10 @@ void CC_GaussianBlurTest::get_test_array_types_and_sizes( int test_case_idx,
         sigma = 0.;
 }
 
-void CC_GaussianBlurTest::run_func()
+void CV_GaussianBlurTest::run_func()
 {
     cvSmooth( test_array[inplace ? OUTPUT : INPUT][0],
-              test_array[OUTPUT][0], CC_GAUSSIAN,
+              test_array[OUTPUT][0], CV_GAUSSIAN,
               param1, param2, sigma, sigma );
 }
 
@@ -878,10 +877,10 @@ calcGaussianKernel( int n, double sigma, vector<float>& kernel )
 }
 
 
-static CvMat calcGaussianKernel2D( CvSize ksize, double sigma )
+static Mat calcGaussianKernel2D( Size ksize, double sigma )
 {
     vector<float> kx, ky;
-    CvMat kernel(ksize, CC_32F);
+    Mat kernel(ksize, CV_32F);
 
     calcGaussianKernel( kernel.cols, sigma, kx );
     calcGaussianKernel( kernel.rows, sigma, ky );
@@ -893,9 +892,9 @@ static CvMat calcGaussianKernel2D( CvSize ksize, double sigma )
 }
 
 
-void CC_GaussianBlurTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_GaussianBlurTest::prepare_to_validation( int /*test_case_idx*/ )
 {
-    CvMat kernel = calcGaussianKernel2D( aperture_size, sigma );
+    Mat kernel = calcGaussianKernel2D( aperture_size, sigma );
     cvtest::filter2D( test_mat[INPUT][0], test_mat[REF_OUTPUT][0], test_mat[REF_OUTPUT][0].depth(),
                       kernel, anchor, 0, border & ~BORDER_ISOLATED );
 }
@@ -903,33 +902,33 @@ void CC_GaussianBlurTest::prepare_to_validation( int /*test_case_idx*/ )
 
 /////////////// median ///////////////
 
-class CC_MedianBlurTest : public CC_SmoothBaseTest
+class CV_MedianBlurTest : public CV_SmoothBaseTest
 {
 public:
-    CC_MedianBlurTest();
+    CV_MedianBlurTest();
 
 protected:
     void prepare_to_validation( int test_case_idx );
     double get_success_error_level( int test_case_idx, int i, int j );
     void run_func();
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
 };
 
 
-CC_MedianBlurTest::CC_MedianBlurTest()
+CV_MedianBlurTest::CV_MedianBlurTest()
 {
     smooth_type = "Median";
 }
 
 
-void CC_MedianBlurTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                vector<vector<CvSize> >& sizes, vector<vector<int> >& types )
+void CV_MedianBlurTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                vector<vector<Size> >& sizes, vector<vector<int> >& types )
 {
-    CC_SmoothBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
-    int depth = CC_8U;
-    int cn = CC_MAT_CN(types[INPUT][0]);
-    types[INPUT][0] = types[OUTPUT][0] = types[REF_OUTPUT][0] = CC_MAKETYPE(depth,cn);
-    types[INPUT][1] = CC_MAKETYPE(depth,1);
+    CV_SmoothBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
+    int depth = CV_8U;
+    int cn = CV_MAT_CN(types[INPUT][0]);
+    types[INPUT][0] = types[OUTPUT][0] = types[REF_OUTPUT][0] = CV_MAKETYPE(depth,cn);
+    types[INPUT][1] = CV_MAKETYPE(depth,1);
 
     aperture_size.height = aperture_size.width;
     anchor.x = anchor.y = aperture_size.width / 2;
@@ -943,16 +942,16 @@ void CC_MedianBlurTest::get_test_array_types_and_sizes( int test_case_idx,
 }
 
 
-double CC_MedianBlurTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
+double CV_MedianBlurTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
 {
     return 0;
 }
 
 
-void CC_MedianBlurTest::run_func()
+void CV_MedianBlurTest::run_func()
 {
     cvSmooth( test_array[INPUT][0], test_array[OUTPUT][0],
-              CC_MEDIAN, aperture_size.width );
+              CV_MEDIAN, aperture_size.width );
 }
 
 
@@ -965,7 +964,7 @@ struct median_pair
 };
 
 
-static void test_medianFilter( const CvMat& src, CvMat& dst, int m )
+static void test_medianFilter( const Mat& src, Mat& dst, int m )
 {
     int i, j, k, l, m2 = m*m, n;
     vector<int> col_buf(m+1);
@@ -974,7 +973,7 @@ static void test_medianFilter( const CvMat& src, CvMat& dst, int m )
     int step = (int)(src.step/src.elemSize());
 
     assert( src.rows == dst.rows + m - 1 && src.cols == dst.cols + m - 1 &&
-            src->tid == dst->tid && src->tid == CC_8UC1 );
+            src.type() == dst.type() && src.type() == CV_8UC1 );
 
     for( i = 0; i < dst.rows; i++ )
     {
@@ -996,7 +995,7 @@ static void test_medianFilter( const CvMat& src, CvMat& dst, int m )
                 if( buf0[j].val > buf0[j+1].val )
                 {
                     median_pair t;
-                    CC_SWAP( buf0[j], buf0[j+1], t );
+                    CV_SWAP( buf0[j], buf0[j+1], t );
                     f = 1;
                 }
             }
@@ -1017,7 +1016,7 @@ static void test_medianFilter( const CvMat& src, CvMat& dst, int m )
                     int t;
                     if( col_buf[l] < col_buf[l+1] )
                         break;
-                    CC_SWAP( col_buf[l], col_buf[l+1], t );
+                    CV_SWAP( col_buf[l], col_buf[l+1], t );
                 }
             }
 
@@ -1045,21 +1044,21 @@ static void test_medianFilter( const CvMat& src, CvMat& dst, int m )
             assert( n == m2 );
             dst1[j] = (uchar)buf1[n/2].val;
             median_pair* tbuf;
-            CC_SWAP( buf0, buf1, tbuf );
+            CV_SWAP( buf0, buf1, tbuf );
         }
     }
 }
 
 
-void CC_MedianBlurTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_MedianBlurTest::prepare_to_validation( int /*test_case_idx*/ )
 {
-    // CC_SmoothBaseTest::prepare_to_validation( test_case_idx );
-    const CvMat& src0 = test_mat[INPUT][0];
-    CvMat& dst0 = test_mat[REF_OUTPUT][0];
+    // CV_SmoothBaseTest::prepare_to_validation( test_case_idx );
+    const Mat& src0 = test_mat[INPUT][0];
+    Mat& dst0 = test_mat[REF_OUTPUT][0];
     int i, cn = src0.channels();
     int m = aperture_size.width;
-    CvMat src(src0.rows + m - 1, src0.cols + m - 1, src0.depth());
-    CvMat dst;
+    Mat src(src0.rows + m - 1, src0.cols + m - 1, src0.depth());
+    Mat dst;
     if( cn == 1 )
         dst = dst0;
     else
@@ -1067,7 +1066,7 @@ void CC_MedianBlurTest::prepare_to_validation( int /*test_case_idx*/ )
 
     for( i = 0; i < cn; i++ )
     {
-        CvMat ptr = src0;
+        Mat ptr = src0;
         if( cn > 1 )
         {
             cvtest::extract( src0, dst, i );
@@ -1083,45 +1082,45 @@ void CC_MedianBlurTest::prepare_to_validation( int /*test_case_idx*/ )
 
 /////////////// pyramid tests ///////////////
 
-class CC_PyramidBaseTest : public CC_FilterBaseTest
+class CV_PyramidBaseTest : public CV_FilterBaseTest
 {
 public:
-    CC_PyramidBaseTest( bool downsample );
+    CV_PyramidBaseTest( bool downsample );
 
 protected:
     double get_success_error_level( int test_case_idx, int i, int j );
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
     bool downsample;
-    CvMat kernel;
+    Mat kernel;
 };
 
 
-CC_PyramidBaseTest::CC_PyramidBaseTest( bool _downsample ) : CC_FilterBaseTest(true)
+CV_PyramidBaseTest::CV_PyramidBaseTest( bool _downsample ) : CV_FilterBaseTest(true)
 {
     static float kdata[] = { 1.f, 4.f, 6.f, 4.f, 1.f };
     downsample = _downsample;
-    CvMat kernel1d(1, 5, CC_32F, kdata);
+    Mat kernel1d(1, 5, CV_32F, kdata);
     kernel = (kernel1d.t()*kernel1d)*((downsample ? 1 : 4)/256.);
 }
 
 
-double CC_PyramidBaseTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
+double CV_PyramidBaseTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
 {
     int depth = test_mat[INPUT][0].depth();
-    return depth < CC_32F ? 1 : 1e-5;
+    return depth < CV_32F ? 1 : 1e-5;
 }
 
 
-void CC_PyramidBaseTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                         vector<vector<CvSize> >& sizes,
+void CV_PyramidBaseTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                         vector<vector<Size> >& sizes,
                                                          vector<vector<int> >& types )
 {
     const int channels[] = {1, 3, 4};
-    const int depthes[] = {CC_8U, CC_16S, CC_16U, CC_32F};
+    const int depthes[] = {CV_8U, CV_16S, CV_16U, CV_32F};
 
     RNG& rng = ts->get_rng();
     CvSize sz;
-    CC_FilterBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
+    CV_FilterBaseTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
 
     int depth = depthes[cvtest::randInt(rng) % (sizeof(depthes)/sizeof(depthes[0]))];
     int cn = channels[cvtest::randInt(rng) % (sizeof(channels)/sizeof(channels[0]))];
@@ -1129,7 +1128,7 @@ void CC_PyramidBaseTest::get_test_array_types_and_sizes( int test_case_idx,
     aperture_size = cvSize(5,5);
     anchor = cvPoint(aperture_size.width/2, aperture_size.height/2);
 
-    types[INPUT][0] = types[OUTPUT][0] = types[REF_OUTPUT][0] = CC_MAKETYPE(depth, cn);
+    types[INPUT][0] = types[OUTPUT][0] = types[REF_OUTPUT][0] = CV_MAKETYPE(depth, cn);
 
     sz.width = MAX( sizes[INPUT][0].width/2, 1 );
     sz.height = MAX( sizes[INPUT][0].height/2, 1 );
@@ -1156,10 +1155,10 @@ void CC_PyramidBaseTest::get_test_array_types_and_sizes( int test_case_idx,
 
 /////// pyrdown ////////
 
-class CC_PyramidDownTest : public CC_PyramidBaseTest
+class CV_PyramidDownTest : public CV_PyramidBaseTest
 {
 public:
-    CC_PyramidDownTest();
+    CV_PyramidDownTest();
 
 protected:
     void run_func();
@@ -1167,21 +1166,21 @@ protected:
 };
 
 
-CC_PyramidDownTest::CC_PyramidDownTest() : CC_PyramidBaseTest( true )
+CV_PyramidDownTest::CV_PyramidDownTest() : CV_PyramidBaseTest( true )
 {
 }
 
 
-void CC_PyramidDownTest::run_func()
+void CV_PyramidDownTest::run_func()
 {
-    cvPyrDown( test_array[INPUT][0], test_array[OUTPUT][0], CC_GAUSSIAN_5x5 );
+    cvPyrDown( test_array[INPUT][0], test_array[OUTPUT][0], CV_GAUSSIAN_5x5 );
 }
 
 
-void CC_PyramidDownTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_PyramidDownTest::prepare_to_validation( int /*test_case_idx*/ )
 {
-    CvMat& src = test_mat[INPUT][0], &dst = test_mat[REF_OUTPUT][0];
-    CvMat temp;
+    Mat& src = test_mat[INPUT][0], &dst = test_mat[REF_OUTPUT][0];
+    Mat temp;
     cvtest::filter2D(src, temp, src.depth(),
                      kernel, Point(kernel.cols/2, kernel.rows/2),
                      0, BORDER_REFLECT_101);
@@ -1205,10 +1204,10 @@ void CC_PyramidDownTest::prepare_to_validation( int /*test_case_idx*/ )
 
 /////// pyrup ////////
 
-class CC_PyramidUpTest : public CC_PyramidBaseTest
+class CV_PyramidUpTest : public CV_PyramidBaseTest
 {
 public:
-    CC_PyramidUpTest();
+    CV_PyramidUpTest();
 
 protected:
     void run_func();
@@ -1216,21 +1215,21 @@ protected:
 };
 
 
-CC_PyramidUpTest::CC_PyramidUpTest() : CC_PyramidBaseTest( false )
+CV_PyramidUpTest::CV_PyramidUpTest() : CV_PyramidBaseTest( false )
 {
 }
 
 
-void CC_PyramidUpTest::run_func()
+void CV_PyramidUpTest::run_func()
 {
-    cvPyrUp( test_array[INPUT][0], test_array[OUTPUT][0], CC_GAUSSIAN_5x5 );
+    cvPyrUp( test_array[INPUT][0], test_array[OUTPUT][0], CV_GAUSSIAN_5x5 );
 }
 
 
-void CC_PyramidUpTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_PyramidUpTest::prepare_to_validation( int /*test_case_idx*/ )
 {
-    CvMat& src = test_mat[INPUT][0], &dst = test_mat[REF_OUTPUT][0];
-    CvMat temp(dst.size(), dst->tid);
+    Mat& src = test_mat[INPUT][0], &dst = test_mat[REF_OUTPUT][0];
+    Mat temp(dst.size(), dst.type());
 
     size_t elem_size = src.elemSize();
     size_t ncols = src.cols*elem_size;
@@ -1260,14 +1259,14 @@ void CC_PyramidUpTest::prepare_to_validation( int /*test_case_idx*/ )
 
 //////////////////////// feature selection //////////////////////////
 
-class CC_FeatureSelBaseTest : public cvtest::ArrayTest
+class CV_FeatureSelBaseTest : public cvtest::ArrayTest
 {
 public:
-    CC_FeatureSelBaseTest( int width_factor );
+    CV_FeatureSelBaseTest( int width_factor );
 
 protected:
     int read_params( CvFileStorage* fs );
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
     void get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high );
     double get_success_error_level( int test_case_idx, int i, int j );
     int aperture_size, block_size;
@@ -1277,7 +1276,7 @@ protected:
 };
 
 
-CC_FeatureSelBaseTest::CC_FeatureSelBaseTest( int _width_factor )
+CV_FeatureSelBaseTest::CV_FeatureSelBaseTest( int _width_factor )
 {
     max_aperture_size = 7;
     max_block_size = 21;
@@ -1290,7 +1289,7 @@ CC_FeatureSelBaseTest::CC_FeatureSelBaseTest( int _width_factor )
 }
 
 
-int CC_FeatureSelBaseTest::read_params( CvFileStorage* fs )
+int CV_FeatureSelBaseTest::read_params( CvFileStorage* fs )
 {
     int code = cvtest::BaseTest::read_params( fs );
     if( code < 0 )
@@ -1305,17 +1304,17 @@ int CC_FeatureSelBaseTest::read_params( CvFileStorage* fs )
 }
 
 
-double CC_FeatureSelBaseTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
+double CV_FeatureSelBaseTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
 {
     int depth = test_mat[INPUT][0].depth();
-    return depth <= CC_8S ? 3e-2 : depth == CC_32F ? 1e-3 : 1e-10;
+    return depth <= CV_8S ? 3e-2 : depth == CV_32F ? 1e-3 : 1e-10;
 }
 
 
-void CC_FeatureSelBaseTest::get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high )
+void CV_FeatureSelBaseTest::get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high )
 {
     cvtest::ArrayTest::get_minmax_bounds( i, j, type, low, high );
-    if( i == INPUT && CC_MAT_DEPTH(type) == CC_32F )
+    if( i == INPUT && CV_MAT_DEPTH(type) == CV_32F )
     {
         low = Scalar::all(-10.);
         high = Scalar::all(10.);
@@ -1323,21 +1322,21 @@ void CC_FeatureSelBaseTest::get_minmax_bounds( int i, int j, int type, Scalar& l
 }
 
 
-void CC_FeatureSelBaseTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                vector<vector<CvSize> >& sizes, vector<vector<int> >& types )
+void CV_FeatureSelBaseTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                vector<vector<Size> >& sizes, vector<vector<int> >& types )
 {
     RNG& rng = ts->get_rng();
     cvtest::ArrayTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
     int depth = cvtest::randInt(rng) % 2, asz;
 
-    depth = depth == 0 ? CC_8U : CC_32F;
+    depth = depth == 0 ? CV_8U : CV_32F;
     types[INPUT][0] = depth;
-    types[OUTPUT][0] = types[REF_OUTPUT][0] = CC_32FC1;
+    types[OUTPUT][0] = types[REF_OUTPUT][0] = CV_32FC1;
 
     aperture_size = (cvtest::randInt(rng) % (max_aperture_size+2) - 1) | 1;
     if( aperture_size == 1 )
         aperture_size = 3;
-    if( depth == CC_8U )
+    if( depth == CV_8U )
         aperture_size = MIN( aperture_size, 5 );
     block_size = (cvtest::randInt(rng) % max_block_size + 1) | 1;
     if( block_size <= 3 )
@@ -1352,24 +1351,24 @@ void CC_FeatureSelBaseTest::get_test_array_types_and_sizes( int test_case_idx,
 
 
 static void
-test_cornerEigenValsVecs( const CvMat& src, CvMat& eigenv, CvMat& ocv_eigenv,
+test_cornerEigenValsVecs( const Mat& src, Mat& eigenv, Mat& ocv_eigenv,
                           int block_size, int _aperture_size, int mode )
 {
     int i, j;
     int aperture_size = _aperture_size < 0 ? 3 : _aperture_size;
     Point anchor( aperture_size/2, aperture_size/2 );
 
-    CC_Assert( src->tid == CC_8UC1 || src->tid == CC_32FC1 );
-    CC_Assert( eigenv->tid == CC_32FC1 );
-    CC_Assert( src.rows == eigenv.rows &&
+    CV_Assert( src.type() == CV_8UC1 || src.type() == CV_32FC1 );
+    CV_Assert( eigenv.type() == CV_32FC1 );
+    CV_Assert( src.rows == eigenv.rows &&
               ((mode > 0 && src.cols == eigenv.cols) ||
               (mode == 0 && src.cols*6 == eigenv.cols)) );
 
-    int type = src->tid;
-    int ftype = CC_32FC1;
+    int type = src.type();
+    int ftype = CV_32FC1;
     double kernel_scale = type != ftype ? 1./255 : 1;
 
-    CvMat dx2, dy2, dxdy(src.size(), CC_32F), kernel;
+    Mat dx2, dy2, dxdy(src.size(), CV_32F), kernel;
 
     kernel = cvtest::calcSobelKernel2D( 1, 0, _aperture_size );
     cvtest::filter2D( src, dx2, ftype, kernel*kernel_scale, anchor, 0, BORDER_REPLICATE );
@@ -1397,7 +1396,7 @@ test_cornerEigenValsVecs( const CvMat& src, CvMat& eigenv, CvMat& ocv_eigenv,
         }
     }
 
-    kernel = CvMat::ones(block_size, block_size, CC_32F);
+    kernel = Mat::ones(block_size, block_size, CV_32F);
     anchor = Point(block_size/2, block_size/2);
 
     cvtest::filter2D( dx2, dx2, ftype, kernel, anchor, 0, BORDER_REPLICATE );
@@ -1476,10 +1475,10 @@ test_cornerEigenValsVecs( const CvMat& src, CvMat& eigenv, CvMat& ocv_eigenv,
 
 
 // min eigenval
-class CC_MinEigenValTest : public CC_FeatureSelBaseTest
+class CV_MinEigenValTest : public CV_FeatureSelBaseTest
 {
 public:
-    CC_MinEigenValTest();
+    CV_MinEigenValTest();
 
 protected:
     void run_func();
@@ -1487,19 +1486,19 @@ protected:
 };
 
 
-CC_MinEigenValTest::CC_MinEigenValTest() : CC_FeatureSelBaseTest( 1 )
+CV_MinEigenValTest::CV_MinEigenValTest() : CV_FeatureSelBaseTest( 1 )
 {
 }
 
 
-void CC_MinEigenValTest::run_func()
+void CV_MinEigenValTest::run_func()
 {
     cvCornerMinEigenVal( test_array[INPUT][0], test_array[OUTPUT][0],
                          block_size, aperture_size );
 }
 
 
-void CC_MinEigenValTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_MinEigenValTest::prepare_to_validation( int /*test_case_idx*/ )
 {
     test_cornerEigenValsVecs( test_mat[INPUT][0], test_mat[REF_OUTPUT][0],
                     test_mat[OUTPUT][0], block_size, aperture_size, 1 );
@@ -1507,10 +1506,10 @@ void CC_MinEigenValTest::prepare_to_validation( int /*test_case_idx*/ )
 
 
 // eigenval's & vec's
-class CC_EigenValVecTest : public CC_FeatureSelBaseTest
+class CV_EigenValVecTest : public CV_FeatureSelBaseTest
 {
 public:
-    CC_EigenValVecTest();
+    CV_EigenValVecTest();
 
 protected:
     void run_func();
@@ -1518,19 +1517,19 @@ protected:
 };
 
 
-CC_EigenValVecTest::CC_EigenValVecTest() : CC_FeatureSelBaseTest( 6 )
+CV_EigenValVecTest::CV_EigenValVecTest() : CV_FeatureSelBaseTest( 6 )
 {
 }
 
 
-void CC_EigenValVecTest::run_func()
+void CV_EigenValVecTest::run_func()
 {
     cvCornerEigenValsAndVecs( test_array[INPUT][0], test_array[OUTPUT][0],
                               block_size, aperture_size );
 }
 
 
-void CC_EigenValVecTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_EigenValVecTest::prepare_to_validation( int /*test_case_idx*/ )
 {
     test_cornerEigenValsVecs( test_mat[INPUT][0], test_mat[REF_OUTPUT][0],
                     test_mat[OUTPUT][0], block_size, aperture_size, 0 );
@@ -1538,10 +1537,10 @@ void CC_EigenValVecTest::prepare_to_validation( int /*test_case_idx*/ )
 
 
 // precornerdetect
-class CC_PreCornerDetectTest : public CC_FeatureSelBaseTest
+class CV_PreCornerDetectTest : public CV_FeatureSelBaseTest
 {
 public:
-    CC_PreCornerDetectTest();
+    CV_PreCornerDetectTest();
 
 protected:
     void run_func();
@@ -1550,39 +1549,39 @@ protected:
 };
 
 
-CC_PreCornerDetectTest::CC_PreCornerDetectTest() : CC_FeatureSelBaseTest( 1 )
+CV_PreCornerDetectTest::CV_PreCornerDetectTest() : CV_FeatureSelBaseTest( 1 )
 {
 }
 
 
-void CC_PreCornerDetectTest::run_func()
+void CV_PreCornerDetectTest::run_func()
 {
     cvPreCornerDetect( test_array[INPUT][0], test_array[OUTPUT][0], aperture_size );
 }
 
 
-int CC_PreCornerDetectTest::prepare_test_case( int test_case_idx )
+int CV_PreCornerDetectTest::prepare_test_case( int test_case_idx )
 {
-    int code = CC_FeatureSelBaseTest::prepare_test_case( test_case_idx );
+    int code = CV_FeatureSelBaseTest::prepare_test_case( test_case_idx );
     if( aperture_size < 0 )
         aperture_size = 3;
     return code;
 }
 
 
-void CC_PreCornerDetectTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_PreCornerDetectTest::prepare_to_validation( int /*test_case_idx*/ )
 {
     /*cvTsCornerEigenValsVecs( test_mat[INPUT][0], test_mat[REF_OUTPUT][0],
                              block_size, aperture_size, 0 );*/
-    const CvMat& src = test_mat[INPUT][0];
-    CvMat& dst = test_mat[REF_OUTPUT][0];
+    const Mat& src = test_mat[INPUT][0];
+    Mat& dst = test_mat[REF_OUTPUT][0];
 
-    int type = src->tid, ftype = CC_32FC1;
+    int type = src.type(), ftype = CV_32FC1;
     Point anchor(aperture_size/2, aperture_size/2);
 
     double kernel_scale = type != ftype ? 1./255 : 1.;
 
-    CvMat dx, dy, d2x, d2y, dxy, kernel;
+    Mat dx, dy, d2x, d2y, dxy, kernel;
 
     kernel = cvtest::calcSobelKernel2D(1, 0, aperture_size);
     cvtest::filter2D(src, dx, ftype, kernel*kernel_scale, anchor, 0, BORDER_REPLICATE);
@@ -1621,13 +1620,13 @@ void CC_PreCornerDetectTest::prepare_to_validation( int /*test_case_idx*/ )
 
 ///////// integral /////////
 
-class CC_IntegralTest : public cvtest::ArrayTest
+class CV_IntegralTest : public cvtest::ArrayTest
 {
 public:
-    CC_IntegralTest();
+    CV_IntegralTest();
 
 protected:
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
     void get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high );
     double get_success_error_level( int test_case_idx, int i, int j );
     void run_func();
@@ -1637,7 +1636,7 @@ protected:
 };
 
 
-CC_IntegralTest::CC_IntegralTest()
+CV_IntegralTest::CV_IntegralTest()
 {
     test_array[INPUT].push_back(NULL);
     test_array[OUTPUT].push_back(NULL);
@@ -1650,11 +1649,11 @@ CC_IntegralTest::CC_IntegralTest()
 }
 
 
-void CC_IntegralTest::get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high )
+void CV_IntegralTest::get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high )
 {
     cvtest::ArrayTest::get_minmax_bounds( i, j, type, low, high );
-    int depth = CC_MAT_DEPTH(type);
-    if( depth == CC_32F )
+    int depth = CV_MAT_DEPTH(type);
+    if( depth == CV_32F )
     {
         low = Scalar::all(-10.);
         high = Scalar::all(10.);
@@ -1662,31 +1661,31 @@ void CC_IntegralTest::get_minmax_bounds( int i, int j, int type, Scalar& low, Sc
 }
 
 
-void CC_IntegralTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                vector<vector<CvSize> >& sizes, vector<vector<int> >& types )
+void CV_IntegralTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                vector<vector<Size> >& sizes, vector<vector<int> >& types )
 {
     RNG& rng = ts->get_rng();
     int depth = cvtest::randInt(rng) % 2, sum_depth;
     int cn = cvtest::randInt(rng) % 3 + 1;
     cvtest::ArrayTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
-    CvSize sum_size;
+    Size sum_size;
 
-    depth = depth == 0 ? CC_8U : CC_32F;
+    depth = depth == 0 ? CV_8U : CV_32F;
     cn += cn == 2;
     int b = (cvtest::randInt(rng) & 1) != 0;
-    sum_depth = depth == CC_8U && b ? CC_32S : b ? CC_32F : CC_64F;
+    sum_depth = depth == CV_8U && b ? CV_32S : b ? CV_32F : CV_64F;
 
-    types[INPUT][0] = CC_MAKETYPE(depth,cn);
+    types[INPUT][0] = CV_MAKETYPE(depth,cn);
     types[OUTPUT][0] = types[REF_OUTPUT][0] =
-        types[OUTPUT][2] = types[REF_OUTPUT][2] = CC_MAKETYPE(sum_depth, cn);
-    types[OUTPUT][1] = types[REF_OUTPUT][1] = CC_MAKETYPE(CC_64F, cn);
+        types[OUTPUT][2] = types[REF_OUTPUT][2] = CV_MAKETYPE(sum_depth, cn);
+    types[OUTPUT][1] = types[REF_OUTPUT][1] = CV_MAKETYPE(CV_64F, cn);
 
     sum_size.width = sizes[INPUT][0].width + 1;
     sum_size.height = sizes[INPUT][0].height + 1;
 
     sizes[OUTPUT][0] = sizes[REF_OUTPUT][0] = sum_size;
     sizes[OUTPUT][1] = sizes[REF_OUTPUT][1] =
-        sizes[OUTPUT][2] = sizes[REF_OUTPUT][2] = CvSize(0,0);
+        sizes[OUTPUT][2] = sizes[REF_OUTPUT][2] = Size(0,0);
 
     if( cvtest::randInt(rng) % 3 > 0 )
     {
@@ -1697,14 +1696,14 @@ void CC_IntegralTest::get_test_array_types_and_sizes( int test_case_idx,
 }
 
 
-double CC_IntegralTest::get_success_error_level( int, int i, int j )
+double CV_IntegralTest::get_success_error_level( int, int i, int j )
 {
     int depth = test_mat[i][j].depth();
-    return depth == CC_32S ? 0 : depth == CC_64F ? FLT_EPSILON : 5e-3;
+    return depth == CV_32S ? 0 : depth == CV_64F ? FLT_EPSILON : 5e-3;
 }
 
 
-int CC_IntegralTest::prepare_test_case( int test_case_idx )
+int CV_IntegralTest::prepare_test_case( int test_case_idx )
 {
     int code = cvtest::ArrayTest::prepare_test_case( test_case_idx );
     return code > 0 && ((test_array[OUTPUT][2] && test_mat[OUTPUT][2].channels() > 1) ||
@@ -1712,22 +1711,22 @@ int CC_IntegralTest::prepare_test_case( int test_case_idx )
 }
 
 
-void CC_IntegralTest::run_func()
+void CV_IntegralTest::run_func()
 {
     cvIntegral( test_array[INPUT][0], test_array[OUTPUT][0],
                 test_array[OUTPUT][1], test_array[OUTPUT][2] );
 }
 
 
-static void test_integral( const CvMat& img, CvMat* sum, CvMat* sqsum, CvMat* tilted )
+static void test_integral( const Mat& img, Mat* sum, Mat* sqsum, Mat* tilted )
 {
-    CC_Assert( img.depth() == CC_32F );
+    CV_Assert( img.depth() == CV_32F );
 
-    sum->create(img.rows+1, img.cols+1, CC_64F);
+    sum->create(img.rows+1, img.cols+1, CV_64F);
     if( sqsum )
-        sqsum->create(img.rows+1, img.cols+1, CC_64F);
+        sqsum->create(img.rows+1, img.cols+1, CV_64F);
     if( tilted )
-        tilted->create(img.rows+1, img.cols+1, CC_64F);
+        tilted->create(img.rows+1, img.cols+1, CV_64F);
 
     const float* data = img.ptr<float>();
     double* sdata = sum->ptr<double>();
@@ -1737,7 +1736,7 @@ static void test_integral( const CvMat& img, CvMat* sum, CvMat* sqsum, CvMat* ti
     int sstep = (int)(sum->step/sizeof(sdata[0]));
     int sqstep = sqsum ? (int)(sqsum->step/sizeof(sqdata[0])) : 0;
     int tstep = tilted ? (int)(tilted->step/sizeof(tdata[0])) : 0;
-    CvSize size = img.size();
+    Size size = img.size();
 
     memset( sdata, 0, (size.width+1)*sizeof(sdata[0]) );
     if( sqsum )
@@ -1785,29 +1784,29 @@ static void test_integral( const CvMat& img, CvMat* sum, CvMat* sqsum, CvMat* ti
 }
 
 
-void CC_IntegralTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_IntegralTest::prepare_to_validation( int /*test_case_idx*/ )
 {
-    CvMat& src = test_mat[INPUT][0];
+    Mat& src = test_mat[INPUT][0];
     int cn = src.channels();
 
-    CvMat* sum0 = &test_mat[REF_OUTPUT][0];
-    CvMat* sqsum0 = test_array[REF_OUTPUT][1] ? &test_mat[REF_OUTPUT][1] : 0;
-    CvMat* tsum0 = test_array[REF_OUTPUT][2] ? &test_mat[REF_OUTPUT][2] : 0;
+    Mat* sum0 = &test_mat[REF_OUTPUT][0];
+    Mat* sqsum0 = test_array[REF_OUTPUT][1] ? &test_mat[REF_OUTPUT][1] : 0;
+    Mat* tsum0 = test_array[REF_OUTPUT][2] ? &test_mat[REF_OUTPUT][2] : 0;
 
-    CvMat plane, srcf, psum, psqsum, ptsum, psum2, psqsum2, ptsum2;
+    Mat plane, srcf, psum, psqsum, ptsum, psum2, psqsum2, ptsum2;
     if( cn == 1 )
     {
         plane = src;
         psum2 = *sum0;
-        psqsum2 = sqsum0 ? *sqsum0 : CvMat();
-        ptsum2 = tsum0 ? *tsum0 : CvMat();
+        psqsum2 = sqsum0 ? *sqsum0 : Mat();
+        ptsum2 = tsum0 ? *tsum0 : Mat();
     }
 
     for( int i = 0; i < cn; i++ )
     {
         if( cn > 1 )
             cvtest::extract(src, plane, i);
-        plane.convertTo(srcf, CC_32F);
+        plane.convertTo(srcf, CV_32F);
 
         test_integral( srcf, &psum, sqsum0 ? &psqsum : 0, tsum0 ? &ptsum : 0 );
         psum.convertTo(psum2, sum0->depth());
@@ -1830,48 +1829,48 @@ void CC_IntegralTest::prepare_to_validation( int /*test_case_idx*/ )
 
 ///////////////////////////////////////////////////////////////////////////////////
 
-TEST(Imgproc_Erode, accuracy) { CC_ErodeTest test; test.safe_run(); }
-TEST(Imgproc_Dilate, accuracy) { CC_DilateTest test; test.safe_run(); }
-TEST(Imgproc_MorphologyEx, accuracy) { CC_MorphExTest test; test.safe_run(); }
-TEST(Imgproc_Filter2D, accuracy) { CC_FilterTest test; test.safe_run(); }
-TEST(Imgproc_Sobel, accuracy) { CC_SobelTest test; test.safe_run(); }
-TEST(Imgproc_SpatialGradient, accuracy) { CC_SpatialGradientTest test; test.safe_run(); }
-TEST(Imgproc_Laplace, accuracy) { CC_LaplaceTest test; test.safe_run(); }
-TEST(Imgproc_Blur, accuracy) { CC_BlurTest test; test.safe_run(); }
-TEST(Imgproc_GaussianBlur, accuracy) { CC_GaussianBlurTest test; test.safe_run(); }
-TEST(Imgproc_MedianBlur, accuracy) { CC_MedianBlurTest test; test.safe_run(); }
-TEST(Imgproc_PyramidDown, accuracy) { CC_PyramidDownTest test; test.safe_run(); }
-TEST(Imgproc_PyramidUp, accuracy) { CC_PyramidUpTest test; test.safe_run(); }
-TEST(Imgproc_MinEigenVal, accuracy) { CC_MinEigenValTest test; test.safe_run(); }
-TEST(Imgproc_EigenValsVecs, accuracy) { CC_EigenValVecTest test; test.safe_run(); }
-TEST(Imgproc_PreCornerDetect, accuracy) { CC_PreCornerDetectTest test; test.safe_run(); }
-TEST(Imgproc_Integral, accuracy) { CC_IntegralTest test; test.safe_run(); }
+TEST(Imgproc_Erode, accuracy) { CV_ErodeTest test; test.safe_run(); }
+TEST(Imgproc_Dilate, accuracy) { CV_DilateTest test; test.safe_run(); }
+TEST(Imgproc_MorphologyEx, accuracy) { CV_MorphExTest test; test.safe_run(); }
+TEST(Imgproc_Filter2D, accuracy) { CV_FilterTest test; test.safe_run(); }
+TEST(Imgproc_Sobel, accuracy) { CV_SobelTest test; test.safe_run(); }
+TEST(Imgproc_SpatialGradient, accuracy) { CV_SpatialGradientTest test; test.safe_run(); }
+TEST(Imgproc_Laplace, accuracy) { CV_LaplaceTest test; test.safe_run(); }
+TEST(Imgproc_Blur, accuracy) { CV_BlurTest test; test.safe_run(); }
+TEST(Imgproc_GaussianBlur, accuracy) { CV_GaussianBlurTest test; test.safe_run(); }
+TEST(Imgproc_MedianBlur, accuracy) { CV_MedianBlurTest test; test.safe_run(); }
+TEST(Imgproc_PyramidDown, accuracy) { CV_PyramidDownTest test; test.safe_run(); }
+TEST(Imgproc_PyramidUp, accuracy) { CV_PyramidUpTest test; test.safe_run(); }
+TEST(Imgproc_MinEigenVal, accuracy) { CV_MinEigenValTest test; test.safe_run(); }
+TEST(Imgproc_EigenValsVecs, accuracy) { CV_EigenValVecTest test; test.safe_run(); }
+TEST(Imgproc_PreCornerDetect, accuracy) { CV_PreCornerDetectTest test; test.safe_run(); }
+TEST(Imgproc_Integral, accuracy) { CV_IntegralTest test; test.safe_run(); }
 
 //////////////////////////////////////////////////////////////////////////////////
 
-class CC_FilterSupportedFormatsTest : public cvtest::BaseTest
+class CV_FilterSupportedFormatsTest : public cvtest::BaseTest
 {
 public:
-    CC_FilterSupportedFormatsTest() {}
-    ~CC_FilterSupportedFormatsTest() {}
+    CV_FilterSupportedFormatsTest() {}
+    ~CV_FilterSupportedFormatsTest() {}
 protected:
     void run(int)
     {
         const int depths[][2] =
         {
-            {CC_8U, CC_8U},
-            {CC_8U, CC_16U},
-            {CC_8U, CC_16S},
-            {CC_8U, CC_32F},
-            {CC_8U, CC_64F},
-            {CC_16U, CC_16U},
-            {CC_16U, CC_32F},
-            {CC_16U, CC_64F},
-            {CC_16S, CC_16S},
-            {CC_16S, CC_32F},
-            {CC_16S, CC_64F},
-            {CC_32F, CC_32F},
-            {CC_64F, CC_64F},
+            {CV_8U, CV_8U},
+            {CV_8U, CV_16U},
+            {CV_8U, CV_16S},
+            {CV_8U, CV_32F},
+            {CV_8U, CV_64F},
+            {CV_16U, CV_16U},
+            {CV_16U, CV_32F},
+            {CV_16U, CV_64F},
+            {CV_16S, CV_16S},
+            {CV_16S, CV_32F},
+            {CV_16S, CV_64F},
+            {CV_32F, CV_32F},
+            {CV_64F, CV_64F},
             {-1, -1}
         };
 
@@ -1881,10 +1880,10 @@ protected:
         {
             // use some "odd" size to do yet another smoke
             // testing of the non-SIMD loop tails
-            CvSize sz(163, 117);
-            CvMat small_kernel(5, 5, CC_32F), big_kernel(21, 21, CC_32F);
-            CvMat kernelX(11, 1, CC_32F), kernelY(7, 1, CC_32F);
-            CvMat symkernelX(11, 1, CC_32F), symkernelY(7, 1, CC_32F);
+            Size sz(163, 117);
+            Mat small_kernel(5, 5, CV_32F), big_kernel(21, 21, CV_32F);
+            Mat kernelX(11, 1, CV_32F), kernelY(7, 1, CV_32F);
+            Mat symkernelX(11, 1, CV_32F), symkernelY(7, 1, CV_32F);
             randu(small_kernel, -10, 10);
             randu(big_kernel, -1, 1);
             randu(kernelX, -1, 1);
@@ -1894,38 +1893,38 @@ protected:
             flip(kernelY, symkernelY, 0);
             symkernelY += kernelY;
 
-            CvMat elem_ellipse = getStructuringElement(MORPH_ELLIPSE, CvSize(7, 7));
-            CvMat elem_rect = getStructuringElement(MORPH_RECT, CvSize(7, 7));
+            Mat elem_ellipse = getStructuringElement(MORPH_ELLIPSE, Size(7, 7));
+            Mat elem_rect = getStructuringElement(MORPH_RECT, Size(7, 7));
 
             for( i = 0; depths[i][0] >= 0; i++ )
             {
                 int sdepth = depths[i][0];
                 int ddepth = depths[i][1];
-                CvMat src(sz, CC_MAKETYPE(sdepth, 5)), dst;
+                Mat src(sz, CV_MAKETYPE(sdepth, 5)), dst;
                 randu(src, 0, 100);
                 // non-separable filtering with a small kernel
                 fidx = 0;
-                filter2D(src, dst, ddepth, small_kernel);
+                cv::filter2D(src, dst, ddepth, small_kernel);
                 fidx++;
-                filter2D(src, dst, ddepth, big_kernel);
+                cv::filter2D(src, dst, ddepth, big_kernel);
                 fidx++;
-                sepFilter2D(src, dst, ddepth, kernelX, kernelY);
+                cv::sepFilter2D(src, dst, ddepth, kernelX, kernelY);
                 fidx++;
-                sepFilter2D(src, dst, ddepth, symkernelX, symkernelY);
+                cv::sepFilter2D(src, dst, ddepth, symkernelX, symkernelY);
                 fidx++;
-                Sobel(src, dst, ddepth, 2, 0, 5);
+                cv::Sobel(src, dst, ddepth, 2, 0, 5);
                 fidx++;
-                Scharr(src, dst, ddepth, 0, 1);
+                cv::Scharr(src, dst, ddepth, 0, 1);
                 if( sdepth != ddepth )
                     continue;
                 fidx++;
-                GaussianBlur(src, dst, CvSize(5, 5), 1.2, 1.2);
+                cv::GaussianBlur(src, dst, Size(5, 5), 1.2, 1.2);
                 fidx++;
-                blur(src, dst, CvSize(11, 11));
+                cv::blur(src, dst, Size(11, 11));
                 fidx++;
-                morphologyEx(src, dst, MORPH_GRADIENT, elem_ellipse);
+                cv::morphologyEx(src, dst, MORPH_GRADIENT, elem_ellipse);
                 fidx++;
-                morphologyEx(src, dst, MORPH_GRADIENT, elem_rect);
+                cv::morphologyEx(src, dst, MORPH_GRADIENT, elem_rect);
             }
         }
         catch(...)
@@ -1948,38 +1947,59 @@ protected:
     }
 };
 
-TEST(Imgproc_Filtering, supportedFormats) { CC_FilterSupportedFormatsTest test; test.safe_run(); }
+TEST(Imgproc_Filtering, supportedFormats) { CV_FilterSupportedFormatsTest test; test.safe_run(); }
 
 TEST(Imgproc_Blur, borderTypes)
 {
-    CvSize kernelSize(3, 3);
+    Size kernelSize(3, 3);
 
     /// ksize > src_roi.size()
-    CvMat src(3, 3, CC_8UC1, Scalar::all(255)), dst;
-    CvMat src_roi = src(Rect(1, 1, 1, 1));
-    src_roi.setTo(Scalar::all(0));
+    Mat src(3, 3, CV_8UC1, cv::Scalar::all(255)), dst;
+    Mat src_roi = src(Rect(1, 1, 1, 1));
+    src_roi.setTo(cv::Scalar::all(0));
 
     // should work like !BORDER_ISOLATED
     blur(src_roi, dst, kernelSize, Point(-1, -1), BORDER_REPLICATE);
     EXPECT_EQ(227, dst.at<uchar>(0, 0));
 
     // should work like BORDER_ISOLATED
-    blur(src_roi, dst, kernelSize, Point(-1, -1), BORDER_REPLICATE | BORDER_ISOLATED);
+    cv::blur(src_roi, dst, kernelSize, Point(-1, -1), BORDER_REPLICATE | BORDER_ISOLATED);
     EXPECT_EQ(0, dst.at<uchar>(0, 0));
 
     /// ksize <= src_roi.size()
-    src = CvMat(5, 5, CC_8UC1, Scalar(255));
+    src = Mat(5, 5, CV_8UC1, cv::Scalar(255));
     src_roi = src(Rect(1, 1, 3, 3));
     src_roi.setTo(0);
     src.at<uchar>(2, 2) = 255;
 
     // should work like !BORDER_ISOLATED
-    blur(src_roi, dst, kernelSize, Point(-1, -1), BORDER_REPLICATE);
-    CvMat expected_dst =
+    cv::blur(src_roi, dst, kernelSize, Point(-1, -1), BORDER_REPLICATE);
+    Mat expected_dst =
             (Mat_<uchar>(3, 3) << 170, 113, 170, 113, 28, 113, 170, 113, 170);
-    EXPECT_EQ(expected_dst->tid, dst->tid);
+    EXPECT_EQ(expected_dst.type(), dst.type());
     EXPECT_EQ(expected_dst.size(), dst.size());
     EXPECT_DOUBLE_EQ(0.0, cvtest::norm(expected_dst, dst, NORM_INF));
+}
+
+TEST(Imgproc_GaussianBlur, borderTypes)
+{
+    Size kernelSize(3, 3);
+
+    Mat src_16(16, 16, CV_8UC1, cv::Scalar::all(42)), dst_16;
+    Mat src_roi_16 = src_16(Rect(1, 1, 14, 14));
+    src_roi_16.setTo(cv::Scalar::all(3));
+
+    cv::GaussianBlur(src_roi_16, dst_16, kernelSize, 0, 0, BORDER_REPLICATE);
+
+    EXPECT_EQ(20, dst_16.at<uchar>(0, 0));
+
+    Mat src(3, 12, CV_8UC1, cv::Scalar::all(42)), dst;
+    Mat src_roi = src(Rect(1, 1, 10, 1));
+    src_roi.setTo(cv::Scalar::all(2));
+
+    cv::GaussianBlur(src_roi, dst, kernelSize, 0, 0, BORDER_REPLICATE);
+
+    EXPECT_EQ(27, dst.at<uchar>(0, 0));
 }
 
 TEST(Imgproc_Morphology, iterated)
@@ -1992,27 +2012,27 @@ TEST(Imgproc_Morphology, iterated)
         int cn = rng.uniform(1, 5);
         int iterations = rng.uniform(1, 11);
         int op = rng.uniform(0, 2);
-        CvMat src(height, width, CC_8UC(cn)), dst0, dst1, dst2;
+        Mat src(height, width, CV_8UC(cn)), dst0, dst1, dst2;
 
         randu(src, 0, 256);
         if( op == 0 )
-            dilate(src, dst0, CvMat(), Point(-1,-1), iterations);
+            cv::dilate(src, dst0, Mat(), Point(-1,-1), iterations);
         else
-            erode(src, dst0, CvMat(), Point(-1,-1), iterations);
+            cv::erode(src, dst0, Mat(), Point(-1,-1), iterations);
 
         for( int i = 0; i < iterations; i++ )
             if( op == 0 )
-                dilate(i == 0 ? src : dst1, dst1, CvMat(), Point(-1,-1), 1);
+                cv::dilate(i == 0 ? src : dst1, dst1, Mat(), Point(-1,-1), 1);
             else
-                erode(i == 0 ? src : dst1, dst1, CvMat(), Point(-1,-1), 1);
+                cv::erode(i == 0 ? src : dst1, dst1, Mat(), Point(-1,-1), 1);
 
-        CvMat kern = getStructuringElement(MORPH_RECT, CvSize(3,3));
+        Mat kern = getStructuringElement(MORPH_RECT, Size(3,3));
         if( op == 0 )
-            dilate(src, dst2, kern, Point(-1,-1), iterations);
+            cv::dilate(src, dst2, kern, Point(-1,-1), iterations);
         else
-            erode(src, dst2, kern, Point(-1,-1), iterations);
-        ASSERT_EQ(0.0, norm(dst0, dst1, NORM_INF));
-        ASSERT_EQ(0.0, norm(dst0, dst2, NORM_INF));
+            cv::erode(src, dst2, kern, Point(-1,-1), iterations);
+        ASSERT_EQ(0.0, cvtest::norm(dst0, dst1, NORM_INF));
+        ASSERT_EQ(0.0, cvtest::norm(dst0, dst2, NORM_INF));
     }
 }
 
@@ -2021,47 +2041,82 @@ TEST(Imgproc_Sobel, borderTypes)
     int kernelSize = 3;
 
     /// ksize > src_roi.size()
-    CvMat src = (Mat_<uchar>(3, 3) << 1, 2, 3, 4, 5, 6, 7, 8, 9), dst, expected_dst;
-    CvMat src_roi = src(Rect(1, 1, 1, 1));
-    src_roi.setTo(Scalar::all(0));
+    Mat src = (Mat_<uchar>(3, 3) << 1, 2, 3, 4, 5, 6, 7, 8, 9), dst, expected_dst;
+    Mat src_roi = src(Rect(1, 1, 1, 1));
+    src_roi.setTo(cv::Scalar::all(0));
 
     // should work like !BORDER_ISOLATED, so the function MUST read values in full matrix
-    Sobel(src_roi, dst, CC_16S, 1, 0, kernelSize, 1, 0, BORDER_REPLICATE);
+    cv::Sobel(src_roi, dst, CV_16S, 1, 0, kernelSize, 1, 0, BORDER_REPLICATE);
     EXPECT_EQ(8, dst.at<short>(0, 0));
-    Sobel(src_roi, dst, CC_16S, 1, 0, kernelSize, 1, 0, BORDER_REFLECT);
+    cv::Sobel(src_roi, dst, CV_16S, 1, 0, kernelSize, 1, 0, BORDER_REFLECT);
     EXPECT_EQ(8, dst.at<short>(0, 0));
 
     // should work like BORDER_ISOLATED
-    Sobel(src_roi, dst, CC_16S, 1, 0, kernelSize, 1, 0, BORDER_REPLICATE | BORDER_ISOLATED);
+    cv::Sobel(src_roi, dst, CV_16S, 1, 0, kernelSize, 1, 0, BORDER_REPLICATE | BORDER_ISOLATED);
     EXPECT_EQ(0, dst.at<short>(0, 0));
-    Sobel(src_roi, dst, CC_16S, 1, 0, kernelSize, 1, 0, BORDER_REFLECT | BORDER_ISOLATED);
+    cv::Sobel(src_roi, dst, CV_16S, 1, 0, kernelSize, 1, 0, BORDER_REFLECT | BORDER_ISOLATED);
     EXPECT_EQ(0, dst.at<short>(0, 0));
 
     /// ksize <= src_roi.size()
-    src = CvMat(5, 5, CC_8UC1, Scalar(5));
+    src = Mat(5, 5, CV_8UC1, cv::Scalar(5));
     src_roi = src(Rect(1, 1, 3, 3));
     src_roi.setTo(0);
 
     // should work like !BORDER_ISOLATED, so the function MUST read values in full matrix
     expected_dst =
         (Mat_<short>(3, 3) << -15, 0, 15, -20, 0, 20, -15, 0, 15);
-    Sobel(src_roi, dst, CC_16S, 1, 0, kernelSize, 1, 0, BORDER_REPLICATE);
-    EXPECT_EQ(expected_dst->tid, dst->tid);
+    cv::Sobel(src_roi, dst, CV_16S, 1, 0, kernelSize, 1, 0, BORDER_REPLICATE);
+    EXPECT_EQ(expected_dst.type(), dst.type());
     EXPECT_EQ(expected_dst.size(), dst.size());
     EXPECT_DOUBLE_EQ(0.0, cvtest::norm(expected_dst, dst, NORM_INF));
-    Sobel(src_roi, dst, CC_16S, 1, 0, kernelSize, 1, 0, BORDER_REFLECT);
-    EXPECT_EQ(expected_dst->tid, dst->tid);
+    cv::Sobel(src_roi, dst, CV_16S, 1, 0, kernelSize, 1, 0, BORDER_REFLECT);
+    EXPECT_EQ(expected_dst.type(), dst.type());
     EXPECT_EQ(expected_dst.size(), dst.size());
     EXPECT_DOUBLE_EQ(0.0, cvtest::norm(expected_dst, dst, NORM_INF));
 
     // should work like !BORDER_ISOLATED, so the function MUST read values in full matrix
-    expected_dst = CvMat::zeros(3, 3, CC_16SC1);
-    Sobel(src_roi, dst, CC_16S, 1, 0, kernelSize, 1, 0, BORDER_REPLICATE | BORDER_ISOLATED);
-    EXPECT_EQ(expected_dst->tid, dst->tid);
+    expected_dst = Mat::zeros(3, 3, CV_16SC1);
+    cv::Sobel(src_roi, dst, CV_16S, 1, 0, kernelSize, 1, 0, BORDER_REPLICATE | BORDER_ISOLATED);
+    EXPECT_EQ(expected_dst.type(), dst.type());
     EXPECT_EQ(expected_dst.size(), dst.size());
     EXPECT_DOUBLE_EQ(0.0, cvtest::norm(expected_dst, dst, NORM_INF));
-    Sobel(src_roi, dst, CC_16S, 1, 0, kernelSize, 1, 0, BORDER_REFLECT | BORDER_ISOLATED);
-    EXPECT_EQ(expected_dst->tid, dst->tid);
+    cv::Sobel(src_roi, dst, CV_16S, 1, 0, kernelSize, 1, 0, BORDER_REFLECT | BORDER_ISOLATED);
+    EXPECT_EQ(expected_dst.type(), dst.type());
     EXPECT_EQ(expected_dst.size(), dst.size());
     EXPECT_DOUBLE_EQ(0.0, cvtest::norm(expected_dst, dst, NORM_INF));
 }
+
+TEST(Imgproc_MorphEx, hitmiss_regression_8957)
+{
+    Mat_<uchar> src(3, 3);
+    src << 0, 255, 0,
+           0,   0, 0,
+           0, 255, 0;
+
+    Mat_<uchar> kernel = src / 255;
+
+    Mat dst;
+    cv::morphologyEx(src, dst, MORPH_HITMISS, kernel);
+
+    Mat ref = Mat::zeros(3, 3, CV_8U);
+    ref.at<uchar>(1, 1) = 255;
+
+    ASSERT_DOUBLE_EQ(cvtest::norm(dst, ref, NORM_INF), 0.);
+}
+
+TEST(Imgproc_MorphEx, hitmiss_zero_kernel)
+{
+    Mat_<uchar> src(3, 3);
+    src << 0, 255, 0,
+           0,   0, 0,
+           0, 255, 0;
+
+    Mat_<uchar> kernel = Mat_<uchar>::zeros(3, 3);
+
+    Mat dst;
+    cv::morphologyEx(src, dst, MORPH_HITMISS, kernel);
+
+    ASSERT_DOUBLE_EQ(cvtest::norm(dst, src, NORM_INF), 0.);
+}
+
+}} // namespace

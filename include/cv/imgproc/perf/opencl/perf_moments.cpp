@@ -49,30 +49,30 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ///////////// Moments ////////////////////////
 
-typedef tuple<CvSize, bool> MomentsParams;
+typedef tuple<Size, bool> MomentsParams;
 typedef TestBaseWithParam<MomentsParams> MomentsFixture;
 
 OCL_PERF_TEST_P(MomentsFixture, Moments,
     ::testing::Combine(OCL_TEST_SIZES, ::testing::Bool()))
 {
     const MomentsParams params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const bool binaryImage = get<1>(params);
 
-    Moments m;
-    UMat src(srcSize, CC_8UC1);
+    cv::Moments m;
+    UMat src(srcSize, CV_8UC1);
     declare.in(src, WARMUP_RNG);
 
-    OCL_TEST_CYCLE() m = moments(src, binaryImage);
+    OCL_TEST_CYCLE() m = cv::moments(src, binaryImage);
 
     SANITY_CHECK_MOMENTS(m, 1e-6, ERROR_RELATIVE);
 }
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

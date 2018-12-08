@@ -10,7 +10,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ///////////// SetTo ////////////////////////
@@ -49,7 +49,7 @@ OCL_PERF_TEST_P(SetToFixture, SetToWithMask,
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
-    UMat src(srcSize, type), mask(srcSize, CC_8UC1);
+    UMat src(srcSize, type), mask(srcSize, CV_8UC1);
     declare.in(src, mask, WARMUP_RNG).out(src);
 
     OCL_TEST_CYCLE() src.setTo(s, mask);
@@ -66,8 +66,8 @@ OCL_PERF_TEST_P(ConvertToFixture, ConvertTo,
 {
     const Size_MatType_t params = GetParam();
     const Size srcSize = get<0>(params);
-    const int type = get<1>(params), ddepth = CC_MAT_DEPTH(type) == CC_8U ? CC_32F : CC_8U,
-        cn = CC_MAT_CN(type), dtype = CC_MAKE_TYPE(ddepth, cn);
+    const int type = get<1>(params), ddepth = CV_MAT_DEPTH(type) == CV_8U ? CV_32F : CV_8U,
+        cn = CV_MAT_CN(type), dtype = CV_MAKE_TYPE(ddepth, cn);
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
     checkDeviceMaxMemoryAllocSize(srcSize, dtype);
@@ -114,7 +114,7 @@ OCL_PERF_TEST_P(CopyToFixture, CopyToWithMask,
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
-    UMat src(srcSize, type), dst(srcSize, type), mask(srcSize, CC_8UC1);
+    UMat src(srcSize, type), dst(srcSize, type), mask(srcSize, CV_8UC1);
     declare.in(src, mask, WARMUP_RNG).out(dst);
 
     OCL_TEST_CYCLE() src.copyTo(dst, mask);
@@ -131,7 +131,7 @@ OCL_PERF_TEST_P(CopyToFixture, CopyToWithMaskUninit,
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
-    UMat src(srcSize, type), dst, mask(srcSize, CC_8UC1);
+    UMat src(srcSize, type), dst, mask(srcSize, CV_8UC1);
     declare.in(src, mask, WARMUP_RNG);
 
     for ( ;  next(); )
@@ -139,13 +139,13 @@ OCL_PERF_TEST_P(CopyToFixture, CopyToWithMaskUninit,
         dst.release();
         startTimer();
         src.copyTo(dst, mask);
-        ocl::finish();
+        cvtest::ocl::perf::safeFinish();
         stopTimer();
     }
 
     SANITY_CHECK(dst);
 }
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

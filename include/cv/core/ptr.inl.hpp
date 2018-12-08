@@ -39,8 +39,8 @@
 //
 //M*/
 
-#ifndef OPENCC_CORE_PTR_INL_HPP
-#define OPENCC_CORE_PTR_INL_HPP
+#ifndef OPENCV_CORE_PTR_INL_HPP
+#define OPENCV_CORE_PTR_INL_HPP
 
 #include <algorithm>
 
@@ -64,12 +64,12 @@ struct PtrOwner
 
     void incRef()
     {
-        CC_XADD(&refCount, 1);
+        CV_XADD(&refCount, 1);
     }
 
     void decRef()
     {
-        if (CC_XADD(&refCount, -1) == 1) deleteSelf();
+        if (CV_XADD(&refCount, -1) == 1) deleteSelf();
     }
 
 protected:
@@ -196,8 +196,8 @@ void Ptr<T>::reset(Y* p, D d)
 template<typename T>
 void Ptr<T>::swap(Ptr<T>& o)
 {
-    T_SWAP(_Tp, owner, o.owner);
-    T_SWAP(_Tp, stored, o.stored);
+    std::swap(owner, o.owner);
+    std::swap(stored, o.stored);
 }
 
 template<typename T>
@@ -252,7 +252,7 @@ Ptr<Y> Ptr<T>::dynamicCast() const
     return Ptr<Y>(*this, dynamic_cast<Y*>(stored));
 }
 
-#ifdef CC_CXX_MOVE_SEMANTICS
+#ifdef CV_CXX_MOVE_SEMANTICS
 
 template<typename T>
 Ptr<T>::Ptr(Ptr&& o) : owner(o.owner), stored(o.stored)
@@ -376,4 +376,4 @@ Ptr<T> makePtr(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5&
 
 //! @endcond
 
-#endif // OPENCC_CORE_PTR_INL_HPP
+#endif // OPENCV_CORE_PTR_INL_HPP

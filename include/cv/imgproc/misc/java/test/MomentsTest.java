@@ -2,7 +2,7 @@ package org.opencv.test.imgproc;
 
 import org.opencv.test.OpenCVTestCase;
 import org.opencv.core.Core;
-import org.opencv.core.CvMat;
+import org.opencv.core.Mat;
 import org.opencv.core.CvType;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
@@ -10,13 +10,13 @@ import org.opencv.imgproc.Moments;
 
 public class MomentsTest extends OpenCVTestCase {
 
-    CvMat data;
+    Mat data;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
 
-        data = new CvMat(3,3, CvType.CC_8UC1, new Scalar(1));
+        data = new Mat(3,3, CvType.CV_8UC1, new Scalar(1));
         data.row(1).setTo(new Scalar(5));
     }
 

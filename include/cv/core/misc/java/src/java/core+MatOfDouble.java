@@ -3,9 +3,9 @@ package org.opencv.core;
 import java.util.Arrays;
 import java.util.List;
 
-public class MatOfDouble extends CvMat {
+public class MatOfDouble extends Mat {
     // 64FC(x)
-    private static final int _depth = CvType.CC_64F;
+    private static final int _depth = CvType.CV_64F;
     private static final int _channels = 1;
 
     public MatOfDouble() {
@@ -15,7 +15,7 @@ public class MatOfDouble extends CvMat {
     protected MatOfDouble(long addr) {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
-            throw new IllegalArgumentException("Incompatible CvMat");
+            throw new IllegalArgumentException("Incompatible Mat");
         //FIXME: do we need release() here?
     }
 
@@ -23,10 +23,10 @@ public class MatOfDouble extends CvMat {
         return new MatOfDouble(addr);
     }
 
-    public MatOfDouble(CvMat m) {
+    public MatOfDouble(Mat m) {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
-            throw new IllegalArgumentException("Incompatible CvMat");
+            throw new IllegalArgumentException("Incompatible Mat");
         //FIXME: do we need release() here?
     }
 
@@ -51,7 +51,7 @@ public class MatOfDouble extends CvMat {
     public double[] toArray() {
         int num = checkVector(_channels, _depth);
         if(num < 0)
-            throw new RuntimeException("Native CvMat has unexpected type or size: " + toString());
+            throw new RuntimeException("Native Mat has unexpected type or size: " + toString());
         double[] a = new double[num * _channels];
         if(num == 0)
             return a;

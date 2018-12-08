@@ -48,7 +48,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 //////////////////////////// GoodFeaturesToTrack //////////////////////////
@@ -66,22 +66,22 @@ OCL_PERF_TEST_P(GoodFeaturesToTrackFixture, GoodFeaturesToTrack,
     const bool harrisDetector = get<2>(params);
     const int maxCorners = 1000;
 
-    CvMat img = imread(getDataPath(fileName), IMREAD_GRAYSCALE);
+    Mat img = imread(getDataPath(fileName), cv::IMREAD_GRAYSCALE);
     ASSERT_FALSE(img.empty()) << "could not load " << fileName;
 
-    checkDeviceMaxMemoryAllocSize(img.size(), img->tid);
+    checkDeviceMaxMemoryAllocSize(img.size(), img.type());
 
-    UMat src(img.size(), img->tid), dst(1, maxCorners, CC_32FC2);
+    UMat src(img.size(), img.type()), dst(1, maxCorners, CV_32FC2);
     img.copyTo(src);
 
     declare.in(src, WARMUP_READ).out(dst);
 
-    OCL_TEST_CYCLE() goodFeaturesToTrack(src, dst, maxCorners, qualityLevel,
-                                             minDistance, noArray(), 3, harrisDetector, 0.04);
+    OCL_TEST_CYCLE() cv::goodFeaturesToTrack(src, dst, maxCorners, qualityLevel,
+                                             minDistance, noArray(), 3, 3, harrisDetector, 0.04);
 
     SANITY_CHECK(dst);
 }
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif

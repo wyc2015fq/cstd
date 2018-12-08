@@ -49,14 +49,14 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ///////////// WarpAffine ////////////////////////
 
-CC_ENUM(InterType, INTER_NEAREST, INTER_LINEAR, INTER_CUBIC)
+CV_ENUM(InterType, INTER_NEAREST, INTER_LINEAR, INTER_CUBIC)
 
-typedef tuple<CvSize, MatType, InterType> WarpAffineParams;
+typedef tuple<Size, MatType, InterType> WarpAffineParams;
 typedef TestBaseWithParam<WarpAffineParams> WarpAffineFixture;
 
 OCL_PERF_TEST_P(WarpAffineFixture, WarpAffine,
@@ -64,22 +64,22 @@ OCL_PERF_TEST_P(WarpAffineFixture, WarpAffine,
 {
     static const double coeffs[2][3] =
     {
-        { cos(CC_PI / 6), -sin(CC_PI / 6), 100.0  },
-        { sin(CC_PI / 6), cos(CC_PI / 6) , -100.0 }
+        { cos(CV_PI / 6), -sin(CV_PI / 6), 100.0  },
+        { sin(CV_PI / 6), cos(CV_PI / 6) , -100.0 }
     };
-    CvMat M(2, 3, CC_64F, (void *)coeffs);
+    Mat M(2, 3, CV_64F, (void *)coeffs);
 
     const WarpAffineParams params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int type = get<1>(params), interpolation = get<2>(params);
-    const double eps = CC_MAT_DEPTH(type) <= CC_32S ? 1 : interpolation == INTER_CUBIC ? 2e-3 : 1e-4;
+    const double eps = CV_MAT_DEPTH(type) <= CV_32S ? 1 : interpolation == INTER_CUBIC ? 2e-3 : 1e-4;
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
     UMat src(srcSize, type), dst(srcSize, type);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() warpAffine(src, dst, M, srcSize, interpolation);
+    OCL_TEST_CYCLE() cv::warpAffine(src, dst, M, srcSize, interpolation);
 
     SANITY_CHECK(dst, eps);
 }
@@ -95,30 +95,30 @@ OCL_PERF_TEST_P(WarpPerspectiveFixture, WarpPerspective,
 {
     static const double coeffs[3][3] =
     {
-        {cos(CC_PI / 6), -sin(CC_PI / 6), 100.0},
-        {sin(CC_PI / 6), cos(CC_PI / 6), -100.0},
+        {cos(CV_PI / 6), -sin(CV_PI / 6), 100.0},
+        {sin(CV_PI / 6), cos(CV_PI / 6), -100.0},
         {0.0, 0.0, 1.0}
     };
-    CvMat M(3, 3, CC_64F, (void *)coeffs);
+    Mat M(3, 3, CV_64F, (void *)coeffs);
 
     const WarpPerspectiveParams params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int type = get<1>(params), interpolation = get<2>(params);
-    const double eps = CC_MAT_DEPTH(type) <= CC_32S ? 1 : 1e-4;
+    const double eps = CV_MAT_DEPTH(type) <= CV_32S ? 1 : 1e-4;
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
     UMat src(srcSize, type), dst(srcSize, type);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() warpPerspective(src, dst, M, srcSize, interpolation);
+    OCL_TEST_CYCLE() cv::warpPerspective(src, dst, M, srcSize, interpolation);
 
     SANITY_CHECK(dst, eps);
 }
 
 ///////////// Resize ////////////////////////
 
-typedef tuple<CvSize, MatType, InterType, double> ResizeParams;
+typedef tuple<Size, MatType, InterType, double> ResizeParams;
 typedef TestBaseWithParam<ResizeParams> ResizeFixture;
 
 OCL_PERF_TEST_P(ResizeFixture, Resize,
@@ -127,11 +127,11 @@ OCL_PERF_TEST_P(ResizeFixture, Resize,
                                ::testing::Values(0.5, 2.0)))
 {
     const ResizeParams params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int type = get<1>(params), interType = get<2>(params);
     double scale = get<3>(params);
-    const CvSize dstSize(cvRound(srcSize.width * scale), cvRound(srcSize.height * scale));
-    const double eps = CC_MAT_DEPTH(type) <= CC_32S ? 1 : 1e-4;
+    const Size dstSize(cvRound(srcSize.width * scale), cvRound(srcSize.height * scale));
+    const double eps = CV_MAT_DEPTH(type) <= CV_32S ? 1 : 1e-4;
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
     checkDeviceMaxMemoryAllocSize(dstSize, type);
@@ -139,23 +139,23 @@ OCL_PERF_TEST_P(ResizeFixture, Resize,
     UMat src(srcSize, type), dst(dstSize, type);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() resize(src, dst, CvSize(), scale, scale, interType);
+    OCL_TEST_CYCLE() cv::resize(src, dst, Size(), scale, scale, interType);
 
     SANITY_CHECK(dst, eps);
 }
 
-typedef tuple<CvSize, MatType, double> ResizeAreaParams;
+typedef tuple<Size, MatType, double> ResizeAreaParams;
 typedef TestBaseWithParam<ResizeAreaParams> ResizeAreaFixture;
 
 OCL_PERF_TEST_P(ResizeAreaFixture, Resize,
             ::testing::Combine(OCL_TEST_SIZES, OCL_TEST_TYPES_134, ::testing::Values(0.3, 0.5, 0.6)))
 {
     const ResizeAreaParams params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int type = get<1>(params);
     double scale = get<2>(params);
-    const CvSize dstSize(cvRound(srcSize.width * scale), cvRound(srcSize.height * scale));
-    const double eps = CC_MAT_DEPTH(type) <= CC_32S ? 1 : 1e-4;
+    const Size dstSize(cvRound(srcSize.width * scale), cvRound(srcSize.height * scale));
+    const double eps = CV_MAT_DEPTH(type) <= CV_32S ? 1 : 1e-4;
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
     checkDeviceMaxMemoryAllocSize(dstSize, type);
@@ -163,14 +163,38 @@ OCL_PERF_TEST_P(ResizeAreaFixture, Resize,
     UMat src(srcSize, type), dst(dstSize, type);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() resize(src, dst, CvSize(), scale, scale, INTER_AREA);
+    OCL_TEST_CYCLE() cv::resize(src, dst, Size(), scale, scale, cv::INTER_AREA);
+
+    SANITY_CHECK(dst, eps);
+}
+
+typedef ResizeAreaParams ResizeLinearExactParams;
+typedef TestBaseWithParam<ResizeLinearExactParams> ResizeLinearExactFixture;
+
+OCL_PERF_TEST_P(ResizeLinearExactFixture, Resize,
+            ::testing::Combine(OCL_TEST_SIZES, ::testing::Values(CV_8UC1, CV_8UC3, CV_8UC4), ::testing::Values(0.5, 2.0)))
+{
+    const ResizeAreaParams params = GetParam();
+    const Size srcSize = get<0>(params);
+    const int type = get<1>(params);
+    double scale = get<2>(params);
+    const Size dstSize(cvRound(srcSize.width * scale), cvRound(srcSize.height * scale));
+    const double eps = 1e-4;
+
+    checkDeviceMaxMemoryAllocSize(srcSize, type);
+    checkDeviceMaxMemoryAllocSize(dstSize, type);
+
+    UMat src(srcSize, type), dst(dstSize, type);
+    declare.in(src, WARMUP_RNG).out(dst);
+
+    OCL_TEST_CYCLE() cv::resize(src, dst, Size(), scale, scale, cv::INTER_LINEAR_EXACT);
 
     SANITY_CHECK(dst, eps);
 }
 
 ///////////// Remap ////////////////////////
 
-typedef tuple<CvSize, MatType, InterType> RemapParams;
+typedef tuple<Size, MatType, InterType> RemapParams;
 typedef TestBaseWithParam<RemapParams> RemapFixture;
 
 OCL_PERF_TEST_P(RemapFixture, Remap,
@@ -178,17 +202,17 @@ OCL_PERF_TEST_P(RemapFixture, Remap,
                                OCL_PERF_ENUM(InterType(INTER_NEAREST), InterType(INTER_LINEAR))))
 {
     const RemapParams params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int type = get<1>(params), interpolation = get<2>(params), borderMode = BORDER_CONSTANT;
-    const double eps = CC_MAT_DEPTH(type) <= CC_32S ? 1 : 1e-4;
+    const double eps = CV_MAT_DEPTH(type) <= CV_32S ? 1 : 1e-4;
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
     UMat src(srcSize, type), dst(srcSize, type);
-    UMat xmap(srcSize, CC_32FC1), ymap(srcSize, CC_32FC1);
+    UMat xmap(srcSize, CV_32FC1), ymap(srcSize, CV_32FC1);
 
     {
-        CvMat _xmap = xmap.getMat(ACCESS_WRITE), _ymap = ymap.getMat(ACCESS_WRITE);
+        Mat _xmap = xmap.getMat(ACCESS_WRITE), _ymap = ymap.getMat(ACCESS_WRITE);
         for (int i = 0; i < srcSize.height; ++i)
         {
             float * const xmap_row = _xmap.ptr<float>(i);
@@ -203,11 +227,11 @@ OCL_PERF_TEST_P(RemapFixture, Remap,
     }
     declare.in(src, WARMUP_RNG).in(xmap, ymap, WARMUP_READ).out(dst);
 
-    OCL_TEST_CYCLE() remap(src, dst, xmap, ymap, interpolation, borderMode);
+    OCL_TEST_CYCLE() cv::remap(src, dst, xmap, ymap, interpolation, borderMode);
 
     SANITY_CHECK(dst, eps);
 }
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

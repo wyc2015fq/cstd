@@ -49,7 +49,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 //////////////////////////////////////// Merge ///////////////////////////////////////////////
@@ -65,7 +65,7 @@ PARAM_TEST_CASE(Merge, MatDepth, int, bool)
     TEST_DECLARE_INPUT_PARAMETER(src4);
     TEST_DECLARE_OUTPUT_PARAMETER(dst);
 
-    std::vector<CvMat> src_roi;
+    std::vector<Mat> src_roi;
     std::vector<UMat> usrc_roi;
 
     virtual void SetUp()
@@ -74,12 +74,12 @@ PARAM_TEST_CASE(Merge, MatDepth, int, bool)
         nsrc = GET_PARAM(1);
         use_roi = GET_PARAM(2);
 
-        CC_Assert(nsrc >= 1 && nsrc <= 4);
+        CV_Assert(nsrc >= 1 && nsrc <= 4);
     }
 
     int type()
     {
-        return CC_MAKE_TYPE(depth, randomInt(1, 3));
+        return CV_MAKE_TYPE(depth, randomInt(1, 3));
     }
 
     void generateTestData()
@@ -119,7 +119,7 @@ PARAM_TEST_CASE(Merge, MatDepth, int, bool)
             dcn += src_roi[i].channels();
 
         Border dstBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
-        randomSubMat(dst, dst_roi, roiSize, dstBorder, CC_MAKE_TYPE(depth, dcn), 5, 16);
+        randomSubMat(dst, dst_roi, roiSize, dstBorder, CV_MAKE_TYPE(depth, dcn), 5, 16);
 
         UMAT_UPLOAD_OUTPUT_PARAMETER(dst);
     }
@@ -136,8 +136,8 @@ OCL_TEST_P(Merge, Accuracy)
     {
         generateTestData();
 
-        OCL_OFF(merge(src_roi, dst_roi));
-        OCL_ON(merge(usrc_roi, udst_roi));
+        OCL_OFF(cv::merge(src_roi, dst_roi));
+        OCL_ON(cv::merge(usrc_roi, udst_roi));
 
         Near();
     }
@@ -156,7 +156,7 @@ PARAM_TEST_CASE(Split, MatType, Channels, bool)
     TEST_DECLARE_OUTPUT_PARAMETER(dst3);
     TEST_DECLARE_OUTPUT_PARAMETER(dst4);
 
-    std::vector<CvMat> dst_roi, dst;
+    std::vector<Mat> dst_roi, dst;
     std::vector<UMat> udst_roi, udst;
 
     virtual void SetUp()
@@ -165,14 +165,14 @@ PARAM_TEST_CASE(Split, MatType, Channels, bool)
         cn = GET_PARAM(1);
         use_roi = GET_PARAM(2);
 
-        CC_Assert(cn >= 1 && cn <= 4);
+        CV_Assert(cn >= 1 && cn <= 4);
     }
 
     void generateTestData()
     {
         Size roiSize = randomSize(1, MAX_VALUE);
         Border srcBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
-        randomSubMat(src, src_roi, roiSize, srcBorder, CC_MAKE_TYPE(depth, cn), 5, 16);
+        randomSubMat(src, src_roi, roiSize, srcBorder, CV_MAKE_TYPE(depth, cn), 5, 16);
 
         {
             Border dst1Border = randomBorder(0, use_roi ? MAX_VALUE : 0);
@@ -214,8 +214,8 @@ OCL_TEST_P(Split, Accuracy)
     {
         generateTestData();
 
-        OCL_OFF(split(src_roi, dst_roi));
-        OCL_ON(split(usrc_roi, udst_roi));
+        OCL_OFF(cv::split(src_roi, dst_roi));
+        OCL_ON(cv::split(usrc_roi, udst_roi));
 
         for (int i = 0; i < cn; ++i)
         {
@@ -241,7 +241,7 @@ PARAM_TEST_CASE(MixChannels, MatType, bool)
     TEST_DECLARE_OUTPUT_PARAMETER(dst3);
     TEST_DECLARE_OUTPUT_PARAMETER(dst4);
 
-    std::vector<CvMat> src_roi, dst_roi, dst;
+    std::vector<Mat> src_roi, dst_roi, dst;
     std::vector<UMat> usrc_roi, udst_roi, udst;
     std::vector<int> fromTo;
 
@@ -255,7 +255,7 @@ PARAM_TEST_CASE(MixChannels, MatType, bool)
     int type()
     {
         int cn = randomInt(1, 5);
-        return CC_MAKE_TYPE(depth, cn);
+        return CV_MAKE_TYPE(depth, cn);
     }
 
     void generateTestData()
@@ -336,7 +336,7 @@ PARAM_TEST_CASE(MixChannels, MatType, bool)
         for (int i = 0; i < ndst; ++i)
             dcntotal += dst_roi[i].channels();
 
-        int npairs = randomInt(1, MIN(scntotal, dcntotal) + 1);
+        int npairs = randomInt(1, std::min(scntotal, dcntotal) + 1);
         fromTo.resize(npairs << 1);
 
         for (int i = 0; i < npairs; ++i)
@@ -353,8 +353,8 @@ OCL_TEST_P(MixChannels, Accuracy)
     {
         generateTestData();
 
-        OCL_OFF(mixChannels(src_roi, dst_roi, fromTo));
-        OCL_ON(mixChannels(usrc_roi, udst_roi, fromTo));
+        OCL_OFF(cv::mixChannels(src_roi, dst_roi, fromTo));
+        OCL_ON(cv::mixChannels(usrc_roi, udst_roi, fromTo));
 
         for (size_t i = 0, size = dst_roi.size(); i < size; ++i)
         {
@@ -390,7 +390,7 @@ PARAM_TEST_CASE(InsertChannel, MatDepth, Channels, bool)
         randomSubMat(src, src_roi, roiSize, srcBorder, depth, 2, 11);
 
         Border dstBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
-        randomSubMat(dst, dst_roi, roiSize, dstBorder, CC_MAKE_TYPE(depth, cn), 5, 16);
+        randomSubMat(dst, dst_roi, roiSize, dstBorder, CV_MAKE_TYPE(depth, cn), 5, 16);
 
         UMAT_UPLOAD_INPUT_PARAMETER(src);
         UMAT_UPLOAD_OUTPUT_PARAMETER(dst);
@@ -403,8 +403,8 @@ OCL_TEST_P(InsertChannel, Accuracy)
     {
         generateTestData();
 
-        OCL_OFF(insertChannel(src_roi, dst_roi, coi));
-        OCL_ON(insertChannel(usrc_roi, udst_roi, coi));
+        OCL_OFF(cv::insertChannel(src_roi, dst_roi, coi));
+        OCL_ON(cv::insertChannel(usrc_roi, udst_roi, coi));
 
         OCL_EXPECT_MATS_NEAR(dst, 0);
     }
@@ -433,7 +433,7 @@ PARAM_TEST_CASE(ExtractChannel, MatDepth, Channels, bool)
         coi = randomInt(0, cn);
 
         Border srcBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
-        randomSubMat(src, src_roi, roiSize, srcBorder, CC_MAKE_TYPE(depth, cn), 2, 11);
+        randomSubMat(src, src_roi, roiSize, srcBorder, CV_MAKE_TYPE(depth, cn), 2, 11);
 
         Border dstBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
         randomSubMat(dst, dst_roi, roiSize, dstBorder, depth, 5, 16);
@@ -449,8 +449,8 @@ OCL_TEST_P(ExtractChannel, Accuracy)
     {
         generateTestData();
 
-        OCL_OFF(extractChannel(src_roi, dst_roi, coi));
-        OCL_ON(extractChannel(usrc_roi, udst_roi, coi));
+        OCL_OFF(cv::extractChannel(src_roi, dst_roi, coi));
+        OCL_ON(cv::extractChannel(usrc_roi, udst_roi, coi));
 
         OCL_EXPECT_MATS_NEAR(dst, 0);
     }
@@ -464,6 +464,6 @@ OCL_INSTANTIATE_TEST_CASE_P(Channels, MixChannels, Combine(OCL_ALL_DEPTHS, Bool(
 OCL_INSTANTIATE_TEST_CASE_P(Channels, InsertChannel, Combine(OCL_ALL_DEPTHS, OCL_ALL_CHANNELS, Bool()));
 OCL_INSTANTIATE_TEST_CASE_P(Channels, ExtractChannel, Combine(OCL_ALL_DEPTHS, OCL_ALL_CHANNELS, Bool()));
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

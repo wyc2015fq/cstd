@@ -1,12 +1,50 @@
-
+/*M///////////////////////////////////////////////////////////////////////////////////////
+//
+//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
+//
+//  By downloading, copying, installing or using the software you agree to this license.
+//  If you do not agree to this license, do not download, install,
+//  copy or use the software.
+//
+//
+//                           License Agreement
+//                For Open Source Computer Vision Library
+//
+// Copyright (C) 2000-2008, Intel Corporation, all rights reserved.
+// Copyright (C) 2009, Willow Garage Inc., all rights reserved.
+// Third party copyrights are property of their respective owners.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//   * Redistribution's of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//
+//   * Redistribution's in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//
+//   * The name of the copyright holders may not be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+//
+// This software is provided by the copyright holders and contributors "as is" and
+// any express or implied warranties, including, but not limited to, the implied
+// warranties of merchantability and fitness for a particular purpose are disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any direct,
+// indirect, incidental, special, exemplary, or consequential damages
+// (including, but not limited to, procurement of substitute goods or services;
+// loss of use, data, or profits; or business interruption) however caused
+// and on any theory of liability, whether in contract, strict liability,
+// or tort (including negligence or otherwise) arising in any way out of
+// the use of this software, even if advised of the possibility of such damage.
+//
+//M*/
 
 #include "test_precomp.hpp"
 
-using namespace cv;
+namespace opencv_test { namespace {
 
-namespace cvtest
-{
-    class CC_BilateralFilterTest :
+    class CV_BilateralFilterTest :
         public cvtest::BaseTest
     {
     public:
@@ -16,8 +54,8 @@ namespace cvtest
             MAX_HEIGHT = 1080, MIN_HEIGHT = 1
         };
 
-        CC_BilateralFilterTest();
-        ~CC_BilateralFilterTest();
+        CV_BilateralFilterTest();
+        ~CV_BilateralFilterTest();
 
     protected:
         virtual void run_func();
@@ -25,7 +63,7 @@ namespace cvtest
         virtual int validate_test_results(int test_case_index);
 
     private:
-        void reference_bilateral_filter(const CvMat& src, CvMat& dst, int d, double sigma_color,
+        void reference_bilateral_filter(const Mat& src, Mat& dst, int d, double sigma_color,
             double sigma_space, int borderType = BORDER_DEFAULT);
 
         int getRandInt(RNG& rng, int min_value, int max_value) const;
@@ -33,28 +71,28 @@ namespace cvtest
         double _sigma_color;
         double _sigma_space;
 
-        CvMat _src;
-        CvMat _parallel_dst;
+        Mat _src;
+        Mat _parallel_dst;
         int _d;
     };
 
-    CC_BilateralFilterTest::CC_BilateralFilterTest() :
+    CV_BilateralFilterTest::CV_BilateralFilterTest() :
         cvtest::BaseTest(), _src(), _parallel_dst(), _d()
     {
         test_case_count = 1000;
     }
 
-    CC_BilateralFilterTest::~CC_BilateralFilterTest()
+    CV_BilateralFilterTest::~CV_BilateralFilterTest()
     {
     }
 
-    int CC_BilateralFilterTest::getRandInt(RNG& rng, int min_value, int max_value) const
+    int CV_BilateralFilterTest::getRandInt(RNG& rng, int min_value, int max_value) const
     {
         double rand_value = rng.uniform(log((double)min_value), log((double)max_value + 1));
         return cvRound(exp((double)rand_value));
     }
 
-    void CC_BilateralFilterTest::reference_bilateral_filter(const CvMat &src, CvMat &dst, int d,
+    void CV_BilateralFilterTest::reference_bilateral_filter(const Mat &src, Mat &dst, int d,
         double sigma_color, double sigma_space, int borderType)
     {
         int cn = src.channels();
@@ -64,12 +102,12 @@ namespace cvtest
         int kExpNumBins = 0;
         float lastExpVal = 1.f;
         float len, scale_index;
-        CvSize size = src.size();
+        Size size = src.size();
 
-        dst.create(size, src->tid);
+        dst.create(size, src.type());
 
-        CC_Assert( (src->tid == CC_32FC1 || src->tid == CC_32FC3) &&
-            src->tid == dst->tid && src.size() == dst.size() &&
+        CV_Assert( (src.type() == CV_32FC1 || src.type() == CV_32FC3) &&
+            src.type() == dst.type() && src.size() == dst.size() &&
             src.data != dst.data );
 
         if( sigma_color <= 0 )
@@ -88,7 +126,8 @@ namespace cvtest
         d = radius*2 + 1;
         // compute the min/max range for the input image (even if multichannel)
 
-        minMaxLoc( src.reshape(1), &minValSrc, &maxValSrc );
+        // TODO cvtest
+        cv::minMaxLoc( src.reshape(1), &minValSrc, &maxValSrc );
         if(std::abs(minValSrc - maxValSrc) < FLT_EPSILON)
         {
             src.copyTo(dst);
@@ -96,9 +135,9 @@ namespace cvtest
         }
 
         // temporary copy of the image with borders for easy processing
-        CvMat temp;
-        copyMakeBorder( src, temp, radius, radius, radius, radius, borderType );
-        patchNaNs(temp);
+        Mat temp;
+        cv::copyMakeBorder( src, temp, radius, radius, radius, radius, borderType );
+        cv::patchNaNs(temp);
 
         // allocate lookup tables
         vector<float> _space_weight(d*d);
@@ -191,11 +230,11 @@ namespace cvtest
         }
     }
 
-    int CC_BilateralFilterTest::prepare_test_case(int /* test_case_index */)
+    int CV_BilateralFilterTest::prepare_test_case(int /* test_case_index */)
     {
-        const static int types[] = { CC_32FC1, CC_32FC3, CC_8UC1, CC_8UC3 };
+        const static int types[] = { CV_32FC1, CV_32FC3, CV_8UC1, CV_8UC3 };
         RNG& rng = ts->get_rng();
-        CvSize size(getRandInt(rng, MIN_WIDTH, MAX_WIDTH), getRandInt(rng, MIN_HEIGHT, MAX_HEIGHT));
+        Size size(getRandInt(rng, MIN_WIDTH, MAX_WIDTH), getRandInt(rng, MIN_HEIGHT, MAX_HEIGHT));
         int type = types[rng(sizeof(types) / sizeof(types[0]))];
 
         _d = rng.uniform(0., 1.) > 0.5 ? 5 : 3;
@@ -209,22 +248,25 @@ namespace cvtest
         return 1;
     }
 
-    int CC_BilateralFilterTest::validate_test_results(int test_case_index)
+    int CV_BilateralFilterTest::validate_test_results(int test_case_index)
     {
-        static const double eps = 4;
-
-        CvMat reference_dst, reference_src;
-        if (_src.depth() == CC_32F)
+        double eps = (_src.depth() < CV_32F)?1:5e-3;
+        double e;
+        Mat reference_dst, reference_src;
+        if (_src.depth() == CV_32F)
+        {
             reference_bilateral_filter(_src, reference_dst, _d, _sigma_color, _sigma_space);
+            e = cvtest::norm(reference_dst, _parallel_dst, NORM_INF|NORM_RELATIVE);
+        }
         else
         {
-            int type = _src->tid;
-            _src.convertTo(reference_src, CC_32F);
+            int type = _src.type();
+            _src.convertTo(reference_src, CV_32F);
             reference_bilateral_filter(reference_src, reference_dst, _d, _sigma_color, _sigma_space);
             reference_dst.convertTo(reference_dst, type);
+            e = cvtest::norm(reference_dst, _parallel_dst, NORM_INF);
         }
 
-        double e = cvtest::norm(reference_dst, _parallel_dst, NORM_L2);
         if (e > eps)
         {
             ts->printf(cvtest::TS::CONSOLE, "actual error: %g, expected: %g", e, eps);
@@ -236,15 +278,15 @@ namespace cvtest
         return BaseTest::validate_test_results(test_case_index);
     }
 
-    void CC_BilateralFilterTest::run_func()
+    void CV_BilateralFilterTest::run_func()
     {
         bilateralFilter(_src, _parallel_dst, _d, _sigma_color, _sigma_space);
     }
 
     TEST(Imgproc_BilateralFilter, accuracy)
     {
-        CC_BilateralFilterTest test;
+        CV_BilateralFilterTest test;
         test.safe_run();
     }
 
-} // end of namespace cvtest
+}} // namespace

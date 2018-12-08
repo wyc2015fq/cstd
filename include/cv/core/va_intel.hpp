@@ -5,8 +5,8 @@
 // Copyright (C) 2015, Itseez, Inc., all rights reserved.
 // Third party copyrights are property of their respective owners.
 
-#ifndef OPENCC_CORE_VA_INTEL_HPP
-#define OPENCC_CORE_VA_INTEL_HPP
+#ifndef OPENCV_CORE_VA_INTEL_HPP
+#define OPENCV_CORE_VA_INTEL_HPP
 
 #ifndef __cplusplus
 #  error va_intel.hpp header must be compiled as C++
@@ -42,7 +42,7 @@ function to create OpenCL context and set up interoperability.
 /////////////////// CL-VA Interoperability Functions ///////////////////
 
 namespace ocl {
-using namespace ocl;
+using namespace cv::ocl;
 
 // TODO static functions in the Context class
 /** @brief Creates OpenCL context from VA.
@@ -50,28 +50,28 @@ using namespace ocl;
 @param tryInterop - try to set up for interoperability, if true; set up for use slow copy if false.
 @return Returns reference to OpenCL Context
  */
-CC_EXPORTS Context& initializeContextFromVA(VADisplay display, bool tryInterop = true);
+CV_EXPORTS Context& initializeContextFromVA(VADisplay display, bool tryInterop = true);
 
-} // namespace va_intel::ocl
+} // namespace cv::va_intel::ocl
 
-/** @brief Converts const CvMat* to VASurfaceID object.
+/** @brief Converts InputArray to VASurfaceID object.
 @param display - VADisplay object.
-@param src     - source const CvMat*.
+@param src     - source InputArray.
 @param surface - destination VASurfaceID object.
 @param size    - size of image represented by VASurfaceID object.
  */
-CC_EXPORTS void convertToVASurface(VADisplay display, const CvMat* src, VASurfaceID surface, Size size);
+CV_EXPORTS void convertToVASurface(VADisplay display, InputArray src, VASurfaceID surface, Size size);
 
-/** @brief Converts VASurfaceID object to CvMat*.
+/** @brief Converts VASurfaceID object to OutputArray.
 @param display - VADisplay object.
 @param surface - source VASurfaceID object.
 @param size    - size of image represented by VASurfaceID object.
-@param dst     - destination CvMat*.
+@param dst     - destination OutputArray.
  */
-CC_EXPORTS void convertFromVASurface(VADisplay display, VASurfaceID surface, Size size, CvMat* dst);
+CV_EXPORTS void convertFromVASurface(VADisplay display, VASurfaceID surface, Size size, OutputArray dst);
 
 //! @}
 
-}} // namespace va_intel
+}} // namespace cv::va_intel
 
-#endif /* OPENCC_CORE_VA_INTEL_HPP */
+#endif /* OPENCV_CORE_VA_INTEL_HPP */

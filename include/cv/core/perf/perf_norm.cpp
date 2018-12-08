@@ -1,14 +1,14 @@
 #include "perf_precomp.hpp"
 
-using namespace std;
-using namespace cv;
+namespace opencv_test
+{
 using namespace perf;
-using std::tr1::make_tuple;
-using std::tr1::get;
 
+#define HAMMING_NORM_SIZES cv::Size(640, 480), cv::Size(1920, 1080)
+#define HAMMING_NORM_TYPES CV_8UC1
 
-CC_FLAGS(NormType, NORM_INF, NORM_L1, NORM_L2, NORM_TYPE_MASK, NORM_RELATIVE, NORM_MINMAX)
-typedef std::tr1::tuple<Size, MatType, NormType> Size_MatType_NormType_t;
+CV_FLAGS(NormType, NORM_HAMMING2, NORM_HAMMING, NORM_INF, NORM_L1, NORM_L2, NORM_TYPE_MASK, NORM_RELATIVE, NORM_MINMAX)
+typedef tuple<Size, MatType, NormType> Size_MatType_NormType_t;
 typedef perf::TestBaseWithParam<Size_MatType_NormType_t> Size_MatType_NormType;
 
 PERF_TEST_P(Size_MatType_NormType, norm,
@@ -23,12 +23,12 @@ PERF_TEST_P(Size_MatType_NormType, norm,
     int matType = get<1>(GetParam());
     int normType = get<2>(GetParam());
 
-    CvMat src(sz, matType);
+    Mat src(sz, matType);
     double n;
 
     declare.in(src, WARMUP_RNG);
 
-    TEST_CYCLE() n = norm(src, normType);
+    TEST_CYCLE() n = cv::norm(src, normType);
 
     SANITY_CHECK(n, 1e-6, ERROR_RELATIVE);
 }
@@ -45,13 +45,13 @@ PERF_TEST_P(Size_MatType_NormType, norm_mask,
     int matType = get<1>(GetParam());
     int normType = get<2>(GetParam());
 
-    CvMat src(sz, matType);
-    CvMat mask = CvMat::ones(sz, CC_8U);
+    Mat src(sz, matType);
+    Mat mask = Mat::ones(sz, CV_8U);
     double n;
 
     declare.in(src, WARMUP_RNG).in(mask);
 
-    TEST_CYCLE() n = norm(src, normType, mask);
+    TEST_CYCLE() n = cv::norm(src, normType, mask);
 
     SANITY_CHECK(n, 1e-6, ERROR_RELATIVE);
 }
@@ -68,13 +68,13 @@ PERF_TEST_P(Size_MatType_NormType, norm2,
     int matType = get<1>(GetParam());
     int normType = get<2>(GetParam());
 
-    CvMat src1(sz, matType);
-    CvMat src2(sz, matType);
+    Mat src1(sz, matType);
+    Mat src2(sz, matType);
     double n;
 
     declare.in(src1, src2, WARMUP_RNG);
 
-    TEST_CYCLE() n = norm(src1, src2, normType);
+    TEST_CYCLE() n = cv::norm(src1, src2, normType);
 
     SANITY_CHECK(n, 1e-5, ERROR_RELATIVE);
 }
@@ -91,17 +91,71 @@ PERF_TEST_P(Size_MatType_NormType, norm2_mask,
     int matType = get<1>(GetParam());
     int normType = get<2>(GetParam());
 
-    CvMat src1(sz, matType);
-    CvMat src2(sz, matType);
-    CvMat mask = CvMat::ones(sz, CC_8U);
+    Mat src1(sz, matType);
+    Mat src2(sz, matType);
+    Mat mask = Mat::ones(sz, CV_8U);
     double n;
 
     declare.in(src1, src2, WARMUP_RNG).in(mask);
 
-    TEST_CYCLE() n = norm(src1, src2, normType, mask);
+    TEST_CYCLE() n = cv::norm(src1, src2, normType, mask);
 
     SANITY_CHECK(n, 1e-5, ERROR_RELATIVE);
 }
+
+namespace {
+typedef tuple<NormType, MatType, Size> PerfHamming_t;
+typedef perf::TestBaseWithParam<PerfHamming_t> PerfHamming;
+
+PERF_TEST_P(PerfHamming, norm,
+            testing::Combine(
+                testing::Values(NORM_HAMMING, NORM_HAMMING2),
+                testing::Values(HAMMING_NORM_TYPES),
+                testing::Values(HAMMING_NORM_SIZES)
+                )
+            )
+{
+    Size sz = get<2>(GetParam());
+    int matType = get<1>(GetParam());
+    int normType = get<0>(GetParam());
+
+    Mat src(sz, matType);
+    double n;
+
+    declare.in(src, WARMUP_RNG);
+
+    TEST_CYCLE() n = cv::norm(src, normType);
+
+    (void)n;
+    SANITY_CHECK_NOTHING();
+}
+
+PERF_TEST_P(PerfHamming, norm2,
+            testing::Combine(
+                testing::Values(NORM_HAMMING, NORM_HAMMING2),
+                testing::Values(HAMMING_NORM_TYPES),
+                testing::Values(HAMMING_NORM_SIZES)
+                )
+            )
+{
+    Size sz = get<2>(GetParam());
+    int matType = get<1>(GetParam());
+    int normType = get<0>(GetParam());
+
+    Mat src1(sz, matType);
+    Mat src2(sz, matType);
+    double n;
+
+    declare.in(src1, src2, WARMUP_RNG);
+
+    TEST_CYCLE() n = cv::norm(src1, src2, normType);
+
+    (void)n;
+    SANITY_CHECK_NOTHING();
+}
+
+}
+
 
 PERF_TEST_P(Size_MatType_NormType, normalize,
             testing::Combine(
@@ -115,8 +169,8 @@ PERF_TEST_P(Size_MatType_NormType, normalize,
     int matType = get<1>(GetParam());
     int normType = get<2>(GetParam());
 
-    CvMat src(sz, matType);
-    CvMat dst(sz, matType);
+    Mat src(sz, matType);
+    Mat dst(sz, matType);
 
     double alpha = 100.;
     if(normType==NORM_L1) alpha = (double)src.total() * src.channels();
@@ -124,7 +178,7 @@ PERF_TEST_P(Size_MatType_NormType, normalize,
 
     declare.in(src, WARMUP_RNG).out(dst);
 
-    TEST_CYCLE() normalize(src, dst, alpha, 0., normType);
+    TEST_CYCLE() cv::normalize(src, dst, alpha, 0., normType);
 
     SANITY_CHECK(dst, 1e-6);
 }
@@ -141,9 +195,9 @@ PERF_TEST_P(Size_MatType_NormType, normalize_mask,
     int matType = get<1>(GetParam());
     int normType = get<2>(GetParam());
 
-    CvMat src(sz, matType);
-    CvMat dst(sz, matType);
-    CvMat mask = CvMat::ones(sz, CC_8U);
+    Mat src(sz, matType);
+    Mat dst(sz, matType);
+    Mat mask = Mat::ones(sz, CV_8U);
 
     double alpha = 100.;
     if(normType==NORM_L1) alpha = (double)src.total() * src.channels();
@@ -152,7 +206,7 @@ PERF_TEST_P(Size_MatType_NormType, normalize_mask,
     declare.in(src, WARMUP_RNG).in(mask).out(dst);
     declare.time(100);
 
-    TEST_CYCLE() normalize(src, dst, alpha, 0., normType, -1, mask);
+    TEST_CYCLE() cv::normalize(src, dst, alpha, 0., normType, -1, mask);
 
     SANITY_CHECK(dst, 1e-6);
 }
@@ -169,8 +223,8 @@ PERF_TEST_P(Size_MatType_NormType, normalize_32f,
     int matType = get<1>(GetParam());
     int normType = get<2>(GetParam());
 
-    CvMat src(sz, matType);
-    CvMat dst(sz, CC_32F);
+    Mat src(sz, matType);
+    Mat dst(sz, CV_32F);
 
     double alpha = 100.;
     if(normType==NORM_L1) alpha = (double)src.total() * src.channels();
@@ -178,7 +232,7 @@ PERF_TEST_P(Size_MatType_NormType, normalize_32f,
 
     declare.in(src, WARMUP_RNG).out(dst);
 
-    TEST_CYCLE() normalize(src, dst, alpha, 0., normType, CC_32F);
+    TEST_CYCLE() cv::normalize(src, dst, alpha, 0., normType, CV_32F);
 
     SANITY_CHECK(dst, 1e-6, ERROR_RELATIVE);
 }
@@ -188,13 +242,15 @@ PERF_TEST_P( Size_MatType, normalize_minmax, TYPICAL_MATS )
     Size sz = get<0>(GetParam());
     int matType = get<1>(GetParam());
 
-    CvMat src(sz, matType);
-    CvMat dst(sz, matType);
+    Mat src(sz, matType);
+    Mat dst(sz, matType);
 
     declare.in(src, WARMUP_RNG).out(dst);
     declare.time(30);
 
-    TEST_CYCLE() normalize(src, dst, 20., 100., NORM_MINMAX);
+    TEST_CYCLE() cv::normalize(src, dst, 20., 100., NORM_MINMAX);
 
     SANITY_CHECK(dst, 1e-6, ERROR_RELATIVE);
 }
+
+} // namespace

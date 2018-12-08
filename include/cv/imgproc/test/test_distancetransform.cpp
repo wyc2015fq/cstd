@@ -41,16 +41,15 @@
 
 #include "test_precomp.hpp"
 
-using namespace cv;
-using namespace std;
+namespace opencv_test { namespace {
 
-class CC_DisTransTest : public cvtest::ArrayTest
+class CV_DisTransTest : public cvtest::ArrayTest
 {
 public:
-    CC_DisTransTest();
+    CV_DisTransTest();
 
 protected:
-    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<CvSize> >& sizes, vector<vector<int> >& types );
+    void get_test_array_types_and_sizes( int test_case_idx, vector<vector<Size> >& sizes, vector<vector<int> >& types );
     double get_success_error_level( int test_case_idx, int i, int j );
     void run_func();
     void prepare_to_validation( int );
@@ -65,7 +64,7 @@ protected:
 };
 
 
-CC_DisTransTest::CC_DisTransTest()
+CV_DisTransTest::CV_DisTransTest()
 {
     test_array[INPUT].push_back(NULL);
     test_array[OUTPUT].push_back(NULL);
@@ -77,15 +76,15 @@ CC_DisTransTest::CC_DisTransTest()
 }
 
 
-void CC_DisTransTest::get_test_array_types_and_sizes( int test_case_idx,
-                                                vector<vector<CvSize> >& sizes, vector<vector<int> >& types )
+void CV_DisTransTest::get_test_array_types_and_sizes( int test_case_idx,
+                                                vector<vector<Size> >& sizes, vector<vector<int> >& types )
 {
     RNG& rng = ts->get_rng();
     cvtest::ArrayTest::get_test_array_types_and_sizes( test_case_idx, sizes, types );
 
-    types[INPUT][0] = CC_8UC1;
-    types[OUTPUT][0] = types[REF_OUTPUT][0] = CC_32FC1;
-    types[OUTPUT][1] = types[REF_OUTPUT][1] = CC_32SC1;
+    types[INPUT][0] = CV_8UC1;
+    types[OUTPUT][0] = types[REF_OUTPUT][0] = CV_32FC1;
+    types[OUTPUT][1] = types[REF_OUTPUT][1] = CV_32SC1;
 
     if( cvtest::randInt(rng) & 1 )
     {
@@ -97,7 +96,7 @@ void CC_DisTransTest::get_test_array_types_and_sizes( int test_case_idx,
     }
 
     dist_type = cvtest::randInt(rng) % 3;
-    dist_type = dist_type == 0 ? CC_DIST_C : dist_type == 1 ? CC_DIST_L1 : CC_DIST_L2;
+    dist_type = dist_type == 0 ? CV_DIST_C : dist_type == 1 ? CV_DIST_L1 : CV_DIST_L2;
 
     // for now, check only the "labeled" distance transform mode
     fill_labels = 0;
@@ -107,31 +106,31 @@ void CC_DisTransTest::get_test_array_types_and_sizes( int test_case_idx,
 }
 
 
-double CC_DisTransTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
+double CV_DisTransTest::get_success_error_level( int /*test_case_idx*/, int /*i*/, int /*j*/ )
 {
-    CvSize sz = test_mat[INPUT][0].size();
-    return dist_type == CC_DIST_C || dist_type == CC_DIST_L1 ? 0 : 0.01*MAX(sz.width, sz.height);
+    Size sz = test_mat[INPUT][0].size();
+    return dist_type == CV_DIST_C || dist_type == CV_DIST_L1 ? 0 : 0.01*MAX(sz.width, sz.height);
 }
 
 
-void CC_DisTransTest::get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high )
+void CV_DisTransTest::get_minmax_bounds( int i, int j, int type, Scalar& low, Scalar& high )
 {
     cvtest::ArrayTest::get_minmax_bounds( i, j, type, low, high );
-    if( i == INPUT && CC_MAT_DEPTH(type) == CC_8U )
+    if( i == INPUT && CV_MAT_DEPTH(type) == CV_8U )
     {
         low = Scalar::all(0);
         high = Scalar::all(10);
     }
 }
 
-int CC_DisTransTest::prepare_test_case( int test_case_idx )
+int CV_DisTransTest::prepare_test_case( int test_case_idx )
 {
     int code = cvtest::ArrayTest::prepare_test_case( test_case_idx );
     if( code > 0 )
     {
         // the function's response to an "all-nonzeros" image is not determined,
         // so put at least one zero point
-        CvMat& mat = test_mat[INPUT][0];
+        Mat& mat = test_mat[INPUT][0];
         RNG& rng = ts->get_rng();
         int i = cvtest::randInt(rng) % mat.rows;
         int j = cvtest::randInt(rng) % mat.cols;
@@ -142,10 +141,10 @@ int CC_DisTransTest::prepare_test_case( int test_case_idx )
 }
 
 
-void CC_DisTransTest::run_func()
+void CV_DisTransTest::run_func()
 {
     cvDistTransform( test_array[INPUT][0], test_array[OUTPUT][0], dist_type, mask_size,
-                     dist_type == CC_DIST_USER ? mask : 0, test_array[OUTPUT][1] );
+                     dist_type == CV_DIST_USER ? mask : 0, test_array[OUTPUT][1] );
 }
 
 
@@ -164,14 +163,14 @@ cvTsDistTransform( const CvMat* _src, CvMat* _dst, int dist_type,
 
     assert( mask_size == 3 || mask_size == 5 );
 
-    if( dist_type == CC_DIST_USER )
+    if( dist_type == CV_DIST_USER )
         memcpy( mask, _mask, sizeof(mask) );
-    else if( dist_type == CC_DIST_C )
+    else if( dist_type == CV_DIST_C )
     {
         mask_size = 3;
         mask[0] = mask[1] = 1.f;
     }
-    else if( dist_type == CC_DIST_L1 )
+    else if( dist_type == CV_DIST_L1 )
     {
         mask_size = 3;
         mask[0] = 1.f;
@@ -189,7 +188,7 @@ cvTsDistTransform( const CvMat* _src, CvMat* _dst, int dist_type,
         mask[2] = 2.1969f;
     }
 
-    temp = cvCreateMat( height + mask_size-1, width + mask_size-1, CC_32F );
+    temp = cvCreateMat( height + mask_size-1, width + mask_size-1, CV_32F );
     tstep = temp->step / sizeof(float);
 
     if( mask_size == 3 )
@@ -274,7 +273,7 @@ cvTsDistTransform( const CvMat* _src, CvMat* _dst, int dist_type,
 }
 
 
-void CC_DisTransTest::prepare_to_validation( int /*test_case_idx*/ )
+void CV_DisTransTest::prepare_to_validation( int /*test_case_idx*/ )
 {
     CvMat _input = test_mat[INPUT][0], _output = test_mat[REF_OUTPUT][0];
 
@@ -282,4 +281,6 @@ void CC_DisTransTest::prepare_to_validation( int /*test_case_idx*/ )
 }
 
 
-TEST(Imgproc_DistanceTransform, accuracy) { CC_DisTransTest test; test.safe_run(); }
+TEST(Imgproc_DistanceTransform, accuracy) { CV_DisTransTest test; test.safe_run(); }
+
+}} // namespace

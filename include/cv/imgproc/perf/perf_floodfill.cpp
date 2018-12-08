@@ -7,14 +7,9 @@
 
 #include "perf_precomp.hpp"
 
-using namespace std;
-using namespace cv;
-using namespace perf;
-using namespace testing;
-using std::tr1::make_tuple;
-using std::tr1::get;
+namespace opencv_test {
 
-typedef std::tr1::tuple<string, Point, int, int, int, int> Size_Source_Fl_t;
+typedef tuple<string, Point, int, int, int, int> Size_Source_Fl_t;
 typedef perf::TestBaseWithParam<Size_Source_Fl_t> Size_Source_Fl;
 
 PERF_TEST_P(Size_Source_Fl, floodFill1, Combine(
@@ -23,7 +18,7 @@ PERF_TEST_P(Size_Source_Fl, floodFill1, Combine(
             testing::Values(4,8), //connectivity
             testing::Values((int)IMREAD_COLOR, (int)IMREAD_GRAYSCALE), //color image, or not
             testing::Values(0, 1, 2), //use fixed(1), gradient (2) or simple(0) mode
-            testing::Values((int)CC_8U, (int)CC_32F, (int)CC_32S) //image depth
+            testing::Values((int)CV_8U, (int)CV_32F, (int)CV_32S) //image depth
             ))
 {
     //test given image(s)
@@ -36,7 +31,7 @@ PERF_TEST_P(Size_Source_Fl, floodFill1, Combine(
     int modeType = get<4>(GetParam());
     int imdepth = get<5>(GetParam());
 
-    CvMat image0 = imread(filename, colorType);
+    Mat image0 = imread(filename, colorType);
 
     Scalar newval, loVal, upVal;
     if (modeType == 0)
@@ -58,16 +53,18 @@ PERF_TEST_P(Size_Source_Fl, floodFill1, Combine(
     newval = (colorType == IMREAD_COLOR) ? Scalar(b, g, r) : Scalar(r*0.299 + g*0.587 + b*0.114);
 
     Rect outputRect = Rect();
-    CvMat source = CvMat();
+    Mat source = Mat();
 
     for (;  next(); )
     {
         image0.convertTo(source, imdepth);
         startTimer();
-        floodFill(source, pseed, newval, &outputRect, loVal, upVal, flags);
+        cv::floodFill(source, pseed, newval, &outputRect, loVal, upVal, flags);
         stopTimer();
     }
     EXPECT_EQ(image0.cols, source.cols);
     EXPECT_EQ(image0.rows, source.rows);
     SANITY_CHECK_NOTHING();
 }
+
+} // namespace

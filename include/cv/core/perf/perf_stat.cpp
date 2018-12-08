@@ -1,17 +1,15 @@
 #include "perf_precomp.hpp"
 
-using namespace std;
-using namespace cv;
+namespace opencv_test
+{
 using namespace perf;
-using std::tr1::make_tuple;
-using std::tr1::get;
 
 PERF_TEST_P(Size_MatType, sum, TYPICAL_MATS)
 {
     Size sz = get<0>(GetParam());
     int type = get<1>(GetParam());
 
-    CvMat arr(sz, type);
+    Mat arr(sz, type);
     Scalar s;
 
     declare.in(arr, WARMUP_RNG).out(s);
@@ -26,7 +24,7 @@ PERF_TEST_P(Size_MatType, mean, TYPICAL_MATS)
     Size sz = get<0>(GetParam());
     int type = get<1>(GetParam());
 
-    CvMat src(sz, type);
+    Mat src(sz, type);
     Scalar s;
 
     declare.in(src, WARMUP_RNG).out(s);
@@ -41,8 +39,8 @@ PERF_TEST_P(Size_MatType, mean_mask, TYPICAL_MATS)
     Size sz = get<0>(GetParam());
     int type = get<1>(GetParam());
 
-    CvMat src(sz, type);
-    CvMat mask = CvMat::ones(src.size(), CC_8U);
+    Mat src(sz, type);
+    Mat mask = Mat::ones(src.size(), CV_8U);
     Scalar s;
 
     declare.in(src, WARMUP_RNG).in(mask).out(s);
@@ -57,7 +55,7 @@ PERF_TEST_P(Size_MatType, meanStdDev, TYPICAL_MATS)
     Size sz = get<0>(GetParam());
     int matType = get<1>(GetParam());
 
-    CvMat src(sz, matType);
+    Mat src(sz, matType);
     Scalar mean;
     Scalar dev;
 
@@ -74,8 +72,8 @@ PERF_TEST_P(Size_MatType, meanStdDev_mask, TYPICAL_MATS)
     Size sz = get<0>(GetParam());
     int matType = get<1>(GetParam());
 
-    CvMat src(sz, matType);
-    CvMat mask = CvMat::ones(sz, CC_8U);
+    Mat src(sz, matType);
+    Mat mask = Mat::ones(sz, CV_8U);
     Scalar mean;
     Scalar dev;
 
@@ -87,12 +85,12 @@ PERF_TEST_P(Size_MatType, meanStdDev_mask, TYPICAL_MATS)
     SANITY_CHECK(dev, 1e-5);
 }
 
-PERF_TEST_P(Size_MatType, countNonZero, testing::Combine( testing::Values( TYPICAL_MAT_SIZES ), testing::Values( CC_8UC1, CC_8SC1, CC_16UC1, CC_16SC1, CC_32SC1, CC_32FC1, CC_64FC1 ) ))
+PERF_TEST_P(Size_MatType, countNonZero, testing::Combine( testing::Values( TYPICAL_MAT_SIZES ), testing::Values( CV_8UC1, CV_8SC1, CV_16UC1, CV_16SC1, CV_32SC1, CV_32FC1, CV_64FC1 ) ))
 {
     Size sz = get<0>(GetParam());
     int matType = get<1>(GetParam());
 
-    CvMat src(sz, matType);
+    Mat src(sz, matType);
     int cnt = 0;
 
     declare.in(src, WARMUP_RNG);
@@ -102,3 +100,5 @@ PERF_TEST_P(Size_MatType, countNonZero, testing::Combine( testing::Values( TYPIC
 
     SANITY_CHECK(cnt);
 }
+
+} // namespace

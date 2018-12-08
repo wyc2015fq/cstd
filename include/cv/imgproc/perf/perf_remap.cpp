@@ -1,26 +1,24 @@
+// This file is part of OpenCV project.
+// It is subject to the license terms in the LICENSE file found in the top-level directory
+// of this distribution and at http://opencv.org/license.html.
 #include "perf_precomp.hpp"
 
-using namespace std;
-using namespace cv;
-using namespace perf;
-using namespace testing;
-using std::tr1::make_tuple;
-using std::tr1::get;
+namespace opencv_test {
 
-CC_ENUM(InterType, INTER_NEAREST, INTER_LINEAR, INTER_CUBIC, INTER_LANCZOS4)
+CV_ENUM(InterType, INTER_NEAREST, INTER_LINEAR, INTER_CUBIC, INTER_LANCZOS4)
 
-typedef TestBaseWithParam< tr1::tuple<CvSize, MatType, MatType, InterType> > TestRemap;
+typedef TestBaseWithParam< tuple<Size, MatType, MatType, InterType> > TestRemap;
 
 PERF_TEST_P( TestRemap, Remap,
              Combine(
                 Values( szVGA, sz1080p ),
-                Values( CC_16UC1, CC_16SC1, CC_32FC1 ),
-                Values( CC_16SC2, CC_32FC1, CC_32FC2 ),
+                Values( CV_16UC1, CV_16SC1, CV_32FC1 ),
+                Values( CV_16SC2, CV_32FC1, CV_32FC2 ),
                 InterType::all()
              )
 )
 {
-    CvSize sz;
+    Size sz;
     int src_type, map1_type, inter_type;
 
     sz         = get<0>(GetParam());
@@ -28,12 +26,12 @@ PERF_TEST_P( TestRemap, Remap,
     map1_type  = get<2>(GetParam());
     inter_type = get<3>(GetParam());
 
-    CvMat src(sz, src_type), dst(sz, src_type), map1(sz, map1_type), map2;
-    if (map1_type == CC_32FC1)
-        map2.create(sz, CC_32FC1);
-    else if (inter_type != INTER_NEAREST && map1_type == CC_16SC2)
+    Mat src(sz, src_type), dst(sz, src_type), map1(sz, map1_type), map2;
+    if (map1_type == CV_32FC1)
+        map2.create(sz, CV_32FC1);
+    else if (inter_type != INTER_NEAREST && map1_type == CV_16SC2)
     {
-        map2.create(sz, CC_16UC1);
+        map2.create(sz, CV_16UC1);
         map2 = Scalar::all(0);
     }
 
@@ -44,20 +42,20 @@ PERF_TEST_P( TestRemap, Remap,
         for (int i = 0; i < map1.cols; ++i)
             switch (map1_type)
             {
-                case CC_32FC1:
+                case CV_32FC1:
                     map1.at<float>(j, i) = static_cast<float>(src.cols - i - 1);
                     map2.at<float>(j, i) = static_cast<float>(j);
                     break;
-                case CC_32FC2:
+                case CV_32FC2:
                     map1.at<Vec2f>(j, i)[0] = static_cast<float>(src.cols - i - 1);
                     map1.at<Vec2f>(j, i)[1] = static_cast<float>(j);
                     break;
-                case CC_16SC2:
+                case CV_16SC2:
                     map1.at<Vec2s>(j, i)[0] = static_cast<short>(src.cols - i - 1);
                     map1.at<Vec2s>(j, i)[1] = static_cast<short>(j);
                     break;
                 default:
-                    CC_Assert(0);
+                    CV_Assert(0);
             }
 
 
@@ -68,3 +66,5 @@ PERF_TEST_P( TestRemap, Remap,
 
     SANITY_CHECK(dst);
 }
+
+} // namespace

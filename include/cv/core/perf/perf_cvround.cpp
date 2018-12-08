@@ -1,13 +1,11 @@
 #include "perf_precomp.hpp"
 
-using namespace std;
-using namespace cv;
+namespace opencv_test
+{
 using namespace perf;
-using std::tr1::make_tuple;
-using std::tr1::get;
 
 template <typename T>
-static void CvRoundMat(const CvMat & src, CvMat & dst)
+static void CvRoundMat(const cv::Mat & src, cv::Mat & dst)
 {
     for (int y = 0; y < dst.rows; ++y)
     {
@@ -21,21 +19,21 @@ static void CvRoundMat(const CvMat & src, CvMat & dst)
 
 PERF_TEST_P(Size_MatType, CvRound_Float,
             testing::Combine(testing::Values(TYPICAL_MAT_SIZES),
-                             testing::Values(CC_32FC1, CC_64FC1)))
+                             testing::Values(CV_32FC1, CV_64FC1)))
 {
     Size size = get<0>(GetParam());
-    int type = get<1>(GetParam()), depth = CC_MAT_DEPTH(type);
+    int type = get<1>(GetParam()), depth = CV_MAT_DEPTH(type);
 
-    CvMat src(size, type), dst(size, CC_32SC1);
+    cv::Mat src(size, type), dst(size, CV_32SC1);
 
     declare.in(src, WARMUP_RNG).out(dst);
 
-    if (depth == CC_32F)
+    if (depth == CV_32F)
     {
         TEST_CYCLE()
             CvRoundMat<float>(src, dst);
     }
-    else if (depth == CC_64F)
+    else if (depth == CV_64F)
     {
         TEST_CYCLE()
             CvRoundMat<double>(src, dst);
@@ -43,3 +41,5 @@ PERF_TEST_P(Size_MatType, CvRound_Float,
 
     SANITY_CHECK_NOTHING();
 }
+
+} // namespace

@@ -46,7 +46,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 //////////////////////////// GoodFeaturesToTrack //////////////////////////
@@ -71,12 +71,12 @@ PARAM_TEST_CASE(GoodFeaturesToTrack, double, bool)
 
     void generateTestData()
     {
-        CvMat frame = readImage("../gpu/opticalflow/rubberwhale1.png", IMREAD_GRAYSCALE);
+        Mat frame = readImage("../gpu/opticalflow/rubberwhale1.png", IMREAD_GRAYSCALE);
         ASSERT_FALSE(frame.empty()) << "could not load gpu/opticalflow/rubberwhale1.png";
 
-        CvSize roiSize = frame.size();
+        Size roiSize = frame.size();
         Border srcBorder = randomBorder(0, useRoi ? 2 : 0);
-        randomSubMat(src, src_roi, roiSize, srcBorder, frame->tid, 5, 256);
+        randomSubMat(src, src_roi, roiSize, srcBorder, frame.type(), 5, 256);
         src_roi.copyTo(frame);
 
         UMAT_UPLOAD_INPUT_PARAMETER(src);
@@ -85,7 +85,7 @@ PARAM_TEST_CASE(GoodFeaturesToTrack, double, bool)
     void UMatToVector(const UMat & um, std::vector<Point2f> & v) const
     {
         v.resize(um.size().area());
-        um.copyTo(CvMat(um.size(), CC_32FC2, &v[0]));
+        um.copyTo(Mat(um.size(), CV_32FC2, &v[0]));
     }
 };
 
@@ -100,11 +100,11 @@ OCL_TEST_P(GoodFeaturesToTrack, Accuracy)
 
         std::vector<Point2f> upts, pts;
 
-        OCL_OFF(goodFeaturesToTrack(src_roi, points, maxCorners, qualityLevel, minDistance, noArray()));
+        OCL_OFF(cv::goodFeaturesToTrack(src_roi, points, maxCorners, qualityLevel, minDistance, noArray()));
         ASSERT_FALSE(points.empty());
         UMatToVector(points, pts);
 
-        OCL_ON(goodFeaturesToTrack(usrc_roi, upoints, maxCorners, qualityLevel, minDistance));
+        OCL_ON(cv::goodFeaturesToTrack(usrc_roi, upoints, maxCorners, qualityLevel, minDistance));
         ASSERT_FALSE(upoints.empty());
         UMatToVector(upoints, upts);
 
@@ -131,7 +131,7 @@ OCL_TEST_P(GoodFeaturesToTrack, EmptyCorners)
     generateTestData();
     usrc_roi.setTo(Scalar::all(0));
 
-    OCL_ON(goodFeaturesToTrack(usrc_roi, upoints, maxCorners, qualityLevel, minDistance));
+    OCL_ON(cv::goodFeaturesToTrack(usrc_roi, upoints, maxCorners, qualityLevel, minDistance));
 
     ASSERT_TRUE(upoints.empty());
 }
@@ -139,6 +139,6 @@ OCL_TEST_P(GoodFeaturesToTrack, EmptyCorners)
 OCL_INSTANTIATE_TEST_CASE_P(Imgproc, GoodFeaturesToTrack,
                             ::testing::Combine(testing::Values(0.0, 3.0), Bool()));
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif

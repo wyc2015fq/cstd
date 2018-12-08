@@ -1,12 +1,12 @@
 /* See LICENSE file in the root OpenCV directory */
 
-#ifndef OPENCC_CORE_OPENCL_SVM_HPP
-#define OPENCC_CORE_OPENCL_SVM_HPP
+#ifndef OPENCV_CORE_OPENCL_SVM_HPP
+#define OPENCV_CORE_OPENCL_SVM_HPP
 
 //
 // Internal usage only (binary compatibility is not guaranteed)
 //
-#ifndef __OPENCC_BUILD
+#ifndef __OPENCV_BUILD
 #error Internal header file
 #endif
 
@@ -38,7 +38,7 @@ struct SVMCapabilities
     inline bool isSupportAtomics() const { return (value_ & SVM_ATOMICS) != 0; }
 };
 
-CC_EXPORTS const SVMCapabilities getSVMCapabilitites(const ocl::Context& context);
+CV_EXPORTS const SVMCapabilities getSVMCapabilitites(const ocl::Context& context);
 
 struct SVMFunctions
 {
@@ -70,12 +70,12 @@ struct SVMFunctions
 };
 
 // We should guarantee that SVMFunctions lifetime is not less than context's lifetime
-CC_EXPORTS const SVMFunctions* getSVMFunctions(const ocl::Context& context);
+CV_EXPORTS const SVMFunctions* getSVMFunctions(const ocl::Context& context);
 
-CC_EXPORTS bool useSVM(UMatUsageFlags usageFlags);
+CV_EXPORTS bool useSVM(UMatUsageFlags usageFlags);
 
-}}} //namespace ocl::svm
+}}} //namespace cv::ocl::svm
 #endif
 
-#endif // OPENCC_CORE_OPENCL_SVM_HPP
-
+#endif // OPENCV_CORE_OPENCL_SVM_HPP
+/* End of file. */

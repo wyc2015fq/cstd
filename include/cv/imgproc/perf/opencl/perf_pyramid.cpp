@@ -49,7 +49,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ///////////// PyrDown //////////////////////
@@ -60,10 +60,10 @@ OCL_PERF_TEST_P(PyrDownFixture, PyrDown,
             ::testing::Combine(OCL_TEST_SIZES, OCL_TEST_TYPES_134))
 {
     const Size_MatType_t params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int type = get<1>(params);
-    const CvSize dstSize((srcSize.height + 1) >> 1, (srcSize.width + 1) >> 1);
-    const double eps = CC_MAT_DEPTH(type) <= CC_32S ? 1 : 1e-5;
+    const Size dstSize((srcSize.height + 1) >> 1, (srcSize.width + 1) >> 1);
+    const double eps = CV_MAT_DEPTH(type) <= CV_32S ? 1 : 1e-5;
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
     checkDeviceMaxMemoryAllocSize(dstSize, type);
@@ -71,7 +71,7 @@ OCL_PERF_TEST_P(PyrDownFixture, PyrDown,
     UMat src(srcSize, type), dst(dstSize, type);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() pyrDown(src, dst);
+    OCL_TEST_CYCLE() cv::pyrDown(src, dst);
 
     SANITY_CHECK(dst, eps);
 }
@@ -84,10 +84,10 @@ OCL_PERF_TEST_P(PyrUpFixture, PyrUp,
             ::testing::Combine(OCL_TEST_SIZES, OCL_TEST_TYPES_134))
 {
     const Size_MatType_t params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int type = get<1>(params);
-    const CvSize dstSize(srcSize.height << 1, srcSize.width << 1);
-    const double eps = CC_MAT_DEPTH(type) <= CC_32S ? 1 : 1e-5;
+    const Size dstSize(srcSize.height << 1, srcSize.width << 1);
+    const double eps = CV_MAT_DEPTH(type) <= CV_32S ? 1 : 1e-5;
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
     checkDeviceMaxMemoryAllocSize(dstSize, type);
@@ -95,7 +95,7 @@ OCL_PERF_TEST_P(PyrUpFixture, PyrUp,
     UMat src(srcSize, type), dst(dstSize, type);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() pyrUp(src, dst);
+    OCL_TEST_CYCLE() cv::pyrUp(src, dst);
 
     SANITY_CHECK(dst, eps);
 }
@@ -108,9 +108,9 @@ OCL_PERF_TEST_P(BuildPyramidFixture, BuildPyramid,
                 ::testing::Combine(OCL_TEST_SIZES, OCL_TEST_TYPES_134))
 {
     const Size_MatType_t params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const int type = get<1>(params), maxLevel = 5;
-    const double eps = CC_MAT_DEPTH(type) <= CC_32S ? 1 : 1e-5;
+    const double eps = CV_MAT_DEPTH(type) <= CV_32S ? 1 : 1e-5;
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
@@ -118,7 +118,7 @@ OCL_PERF_TEST_P(BuildPyramidFixture, BuildPyramid,
     UMat src(srcSize, type);
     declare.in(src, WARMUP_RNG);
 
-    OCL_TEST_CYCLE() buildPyramid(src, dst, maxLevel);
+    OCL_TEST_CYCLE() cv::buildPyramid(src, dst, maxLevel);
 
     UMat dst0 = dst[0], dst1 = dst[1], dst2 = dst[2], dst3 = dst[3], dst4 = dst[4];
 
@@ -129,6 +129,6 @@ OCL_PERF_TEST_P(BuildPyramidFixture, BuildPyramid,
     SANITY_CHECK(dst4, eps);
 }
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

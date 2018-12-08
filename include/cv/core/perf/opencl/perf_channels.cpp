@@ -49,7 +49,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ///////////// Merge////////////////////////
@@ -58,11 +58,11 @@ typedef tuple<Size, MatDepth, int> MergeParams;
 typedef TestBaseWithParam<MergeParams> MergeFixture;
 
 OCL_PERF_TEST_P(MergeFixture, Merge,
-                ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CC_8U, CC_32F), Values(2, 3)))
+                ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CV_8U, CV_32F), Values(2, 3)))
 {
     const MergeParams params = GetParam();
     const Size srcSize = get<0>(params);
-    const int depth = get<1>(params), cn = get<2>(params), dtype = CC_MAKE_TYPE(depth, cn);
+    const int depth = get<1>(params), cn = get<2>(params), dtype = CV_MAKE_TYPE(depth, cn);
 
     checkDeviceMaxMemoryAllocSize(srcSize, dtype);
 
@@ -70,12 +70,12 @@ OCL_PERF_TEST_P(MergeFixture, Merge,
     vector<UMat> src(cn);
     for (vector<UMat>::iterator i = src.begin(), end = src.end(); i != end; ++i)
     {
-        i->create(srcSize, CC_MAKE_TYPE(depth, 1));
+        i->create(srcSize, CV_MAKE_TYPE(depth, 1));
         declare.in(*i, WARMUP_RNG);
     }
     declare.out(dst);
 
-    OCL_TEST_CYCLE() merge(src, dst);
+    OCL_TEST_CYCLE() cv::merge(src, dst);
 
     SANITY_CHECK(dst);
 }
@@ -86,24 +86,24 @@ typedef MergeParams SplitParams;
 typedef TestBaseWithParam<SplitParams> SplitFixture;
 
 OCL_PERF_TEST_P(SplitFixture, Split,
-                ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CC_8U, CC_32F), Values(2, 3)))
+                ::testing::Combine(OCL_TEST_SIZES, OCL_PERF_ENUM(CV_8U, CV_32F), Values(2, 3)))
 {
     const SplitParams params = GetParam();
     const Size srcSize = get<0>(params);
-    const int depth = get<1>(params), cn = get<2>(params), type = CC_MAKE_TYPE(depth, cn);
+    const int depth = get<1>(params), cn = get<2>(params), type = CV_MAKE_TYPE(depth, cn);
 
     ASSERT_TRUE(cn == 3 || cn == 2);
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
     UMat src(srcSize, type);
-    std::vector<UMat> dst(cn, UMat(srcSize, CC_MAKE_TYPE(depth, 1)));
+    std::vector<UMat> dst(cn, UMat(srcSize, CV_MAKE_TYPE(depth, 1)));
 
     declare.in(src, WARMUP_RNG);
     for (int i = 0; i < cn; ++i)
         declare.in(dst[i]);
 
-    OCL_TEST_CYCLE() split(src, dst);
+    OCL_TEST_CYCLE() cv::split(src, dst);
 
     ASSERT_EQ(cn, (int)dst.size());
 
@@ -129,11 +129,11 @@ typedef TestBaseWithParam<MixChannelsParams> MixChannelsFixture;
 
 OCL_PERF_TEST_P(MixChannelsFixture, MixChannels,
                 ::testing::Combine(Values(OCL_SIZE_1, OCL_SIZE_2, OCL_SIZE_3),
-                                   OCL_PERF_ENUM(CC_8U, CC_32F)))
+                                   OCL_PERF_ENUM(CV_8U, CV_32F)))
 {
     const MixChannelsParams params = GetParam();
     const Size srcSize = get<0>(params);
-    const int depth = get<1>(params), type = CC_MAKE_TYPE(depth, 2), n = 2;
+    const int depth = get<1>(params), type = CV_MAKE_TYPE(depth, 2), n = 2;
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
@@ -147,7 +147,7 @@ OCL_PERF_TEST_P(MixChannelsFixture, MixChannels,
 
     int fromTo[] = { 1,2, 2,0, 0,3, 3,1 };
 
-    OCL_TEST_CYCLE() mixChannels(src, dst, fromTo, 4);
+    OCL_TEST_CYCLE() cv::mixChannels(src, dst, fromTo, 4);
 
     UMat & dst0 = dst[0], & dst1 = dst[1];
     SANITY_CHECK(dst0);
@@ -156,25 +156,25 @@ OCL_PERF_TEST_P(MixChannelsFixture, MixChannels,
 
 ///////////// InsertChannel ////////////////////////
 
-typedef std::tr1::tuple<Size, MatDepth> Size_MatDepth_t;
+typedef tuple<cv::Size, MatDepth> Size_MatDepth_t;
 typedef TestBaseWithParam<Size_MatDepth_t> Size_MatDepth;
 
 typedef Size_MatDepth InsertChannelFixture;
 
 OCL_PERF_TEST_P(InsertChannelFixture, InsertChannel,
                 ::testing::Combine(Values(OCL_SIZE_1, OCL_SIZE_2, OCL_SIZE_3),
-                                   OCL_PERF_ENUM(CC_8U, CC_32F)))
+                                   OCL_PERF_ENUM(CV_8U, CV_32F)))
 {
     const Size_MatDepth_t params = GetParam();
     const Size srcSize = get<0>(params);
-    const int depth = get<1>(params), type = CC_MAKE_TYPE(depth, 3);
+    const int depth = get<1>(params), type = CV_MAKE_TYPE(depth, 3);
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
     UMat src(srcSize, depth), dst(srcSize, type, Scalar::all(17));
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() insertChannel(src, dst, 1);
+    OCL_TEST_CYCLE() cv::insertChannel(src, dst, 1);
 
     SANITY_CHECK(dst);
 }
@@ -185,22 +185,22 @@ typedef Size_MatDepth ExtractChannelFixture;
 
 OCL_PERF_TEST_P(ExtractChannelFixture, ExtractChannel,
                 ::testing::Combine(Values(OCL_SIZE_1, OCL_SIZE_2, OCL_SIZE_3),
-                                   OCL_PERF_ENUM(CC_8U, CC_32F)))
+                                   OCL_PERF_ENUM(CV_8U, CV_32F)))
 {
     const Size_MatDepth_t params = GetParam();
     const Size srcSize = get<0>(params);
-    const int depth = get<1>(params), type = CC_MAKE_TYPE(depth, 3);
+    const int depth = get<1>(params), type = CV_MAKE_TYPE(depth, 3);
 
     checkDeviceMaxMemoryAllocSize(srcSize, type);
 
     UMat src(srcSize, type), dst(srcSize, depth);
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() extractChannel(src, dst, 1);
+    OCL_TEST_CYCLE() cv::extractChannel(src, dst, 1);
 
     SANITY_CHECK(dst);
 }
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

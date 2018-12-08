@@ -39,8 +39,8 @@
 //
 //M*/
 
-#ifndef __OPENCC_CORE_OCL_RUNTIME_COMMON_HPP__
-#define __OPENCC_CORE_OCL_RUNTIME_COMMON_HPP__
+#ifndef __OPENCV_CORE_OCL_RUNTIME_COMMON_HPP__
+#define __OPENCV_CORE_OCL_RUNTIME_COMMON_HPP__
 
 namespace cv { namespace ocl { namespace runtime {
 
@@ -50,8 +50,8 @@ struct DynamicFnEntry
     void** ppFn; // &clCreateContext_pfn
 };
 
-} } } // namespace ocl::runtime
+} } } // namespace cv::ocl::runtime
 
-using namespace ocl::runtime;
+using namespace cv::ocl::runtime;
 
-#endif // __OPENCC_CORE_OCL_RUNTIME_COMMON_HPP__
+#endif // __OPENCV_CORE_OCL_RUNTIME_COMMON_HPP__

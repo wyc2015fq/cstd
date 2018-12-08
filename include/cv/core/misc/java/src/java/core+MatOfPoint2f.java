@@ -3,9 +3,9 @@ package org.opencv.core;
 import java.util.Arrays;
 import java.util.List;
 
-public class MatOfPoint2f extends CvMat {
+public class MatOfPoint2f extends Mat {
     // 32FC2
-    private static final int _depth = CvType.CC_32F;
+    private static final int _depth = CvType.CV_32F;
     private static final int _channels = 2;
 
     public MatOfPoint2f() {
@@ -15,7 +15,7 @@ public class MatOfPoint2f extends CvMat {
     protected MatOfPoint2f(long addr) {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
-            throw new IllegalArgumentException("Incompatible CvMat");
+            throw new IllegalArgumentException("Incompatible Mat");
         //FIXME: do we need release() here?
     }
 
@@ -23,10 +23,10 @@ public class MatOfPoint2f extends CvMat {
         return new MatOfPoint2f(addr);
     }
 
-    public MatOfPoint2f(CvMat m) {
+    public MatOfPoint2f(Mat m) {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
-            throw new IllegalArgumentException("Incompatible CvMat");
+            throw new IllegalArgumentException("Incompatible Mat");
         //FIXME: do we need release() here?
     }
 

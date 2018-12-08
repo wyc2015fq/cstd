@@ -1,7 +1,47 @@
+/*M///////////////////////////////////////////////////////////////////////////////////////
+//
+//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
+//
+//  By downloading, copying, installing or using the software you agree to this license.
+//  If you do not agree to this license, do not download, install,
+//  copy or use the software.
+//
+//
+//                           License Agreement
+//                For Open Source Computer Vision Library
+//
+// Copyright (C) 2000-2008, Intel Corporation, all rights reserved.
+// Copyright (C) 2009, Willow Garage Inc., all rights reserved.
+// Third party copyrights are property of their respective owners.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//   * Redistribution's of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//
+//   * Redistribution's in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//
+//   * The name of the copyright holders may not be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+//
+// This software is provided by the copyright holders and contributors "as is" and
+// any express or implied warranties, including, but not limited to, the implied
+// warranties of merchantability and fitness for a particular purpose are disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any direct,
+// indirect, incidental, special, exemplary, or consequential damages
+// (including, but not limited to, procurement of substitute goods or services;
+// loss of use, data, or profits; or business interruption) however caused
+// and on any theory of liability, whether in contract, strict liability,
+// or tort (including negligence or otherwise) arising in any way out of
+// the use of this software, even if advised of the possibility of such damage.
+//
+//M*/
 
-
-#ifndef OPENCC_CUDA_COLOR_DETAIL_HPP
-#define OPENCC_CUDA_COLOR_DETAIL_HPP
+#ifndef OPENCV_CUDA_COLOR_DETAIL_HPP
+#define OPENCV_CUDA_COLOR_DETAIL_HPP
 
 #include "../common.hpp"
 #include "../vec_traits.hpp"
@@ -13,8 +53,8 @@
 
 namespace cv { namespace cuda { namespace device
 {
-    #ifndef CC_DESCALE
-        #define CC_DESCALE(x, n) (((x) + (1 << ((n)-1))) >> (n))
+    #ifndef CV_DESCALE
+        #define CV_DESCALE(x, n) (((x) + (1 << ((n)-1))) >> (n))
     #endif
 
     namespace color_detail
@@ -105,10 +145,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_RGB2RGB_TRAITS(name, scn, dcn, bidx) \
+#define OPENCV_CUDA_IMPLEMENT_RGB2RGB_TRAITS(name, scn, dcn, bidx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::RGB2RGB<T, scn, dcn, bidx> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2RGB<T, scn, dcn, bidx> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -178,10 +218,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_RGB2RGB5x5_TRAITS(name, scn, bidx, green_bits) \
+#define OPENCV_CUDA_IMPLEMENT_RGB2RGB5x5_TRAITS(name, scn, bidx, green_bits) \
     struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::RGB2RGB5x5<scn, bidx, green_bits> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2RGB5x5<scn, bidx, green_bits> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -259,10 +299,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_RGB5x52RGB_TRAITS(name, dcn, bidx, green_bits) \
+#define OPENCV_CUDA_IMPLEMENT_RGB5x52RGB_TRAITS(name, dcn, bidx, green_bits) \
     struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::RGB5x52RGB<dcn, bidx, green_bits> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB5x52RGB<dcn, bidx, green_bits> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -305,10 +345,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_GRAY2RGB_TRAITS(name, dcn) \
+#define OPENCV_CUDA_IMPLEMENT_GRAY2RGB_TRAITS(name, dcn) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::Gray2RGB<T, dcn> functor_type; \
+        typedef ::cv::cuda::device::color_detail::Gray2RGB<T, dcn> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -347,10 +387,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_GRAY2RGB5x5_TRAITS(name, green_bits) \
+#define OPENCV_CUDA_IMPLEMENT_GRAY2RGB5x5_TRAITS(name, green_bits) \
     struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::Gray2RGB5x5<green_bits> functor_type; \
+        typedef ::cv::cuda::device::color_detail::Gray2RGB5x5<green_bits> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -366,7 +406,7 @@ namespace cv { namespace cuda { namespace device
         {
             static __device__ __forceinline__ uchar cvt(uint t)
             {
-                return (uchar)CC_DESCALE(((t << 3) & 0xf8) * B2Y + ((t >> 3) & 0xfc) * G2Y + ((t >> 8) & 0xf8) * R2Y, yuv_shift);
+                return (uchar)CV_DESCALE(((t << 3) & 0xf8) * B2Y + ((t >> 3) & 0xfc) * G2Y + ((t >> 8) & 0xf8) * R2Y, yuv_shift);
             }
         };
 
@@ -374,7 +414,7 @@ namespace cv { namespace cuda { namespace device
         {
             static __device__ __forceinline__ uchar cvt(uint t)
             {
-                return (uchar)CC_DESCALE(((t << 3) & 0xf8) * B2Y + ((t >> 2) & 0xf8) * G2Y + ((t >> 7) & 0xf8) * R2Y, yuv_shift);
+                return (uchar)CV_DESCALE(((t << 3) & 0xf8) * B2Y + ((t >> 2) & 0xf8) * G2Y + ((t >> 7) & 0xf8) * R2Y, yuv_shift);
             }
         };
 
@@ -389,10 +429,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_RGB5x52GRAY_TRAITS(name, green_bits) \
+#define OPENCV_CUDA_IMPLEMENT_RGB5x52GRAY_TRAITS(name, green_bits) \
     struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::RGB5x52Gray<green_bits> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB5x52Gray<green_bits> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -403,7 +443,7 @@ namespace cv { namespace cuda { namespace device
     {
         template <int bidx, typename T> static __device__ __forceinline__ T RGB2GrayConvert(const T* src)
         {
-            return (T)CC_DESCALE((unsigned)(src[bidx] * B2Y + src[1] * G2Y + src[bidx^2] * R2Y), yuv_shift);
+            return (T)CV_DESCALE((unsigned)(src[bidx] * B2Y + src[1] * G2Y + src[bidx^2] * R2Y), yuv_shift);
         }
 
         template <int bidx> static __device__ __forceinline__ uchar RGB2GrayConvert(uint src)
@@ -411,7 +451,7 @@ namespace cv { namespace cuda { namespace device
             uint b = 0xffu & (src >> (bidx * 8));
             uint g = 0xffu & (src >> 8);
             uint r = 0xffu & (src >> ((bidx ^ 2) * 8));
-            return CC_DESCALE((uint)(b * B2Y + g * G2Y + r * R2Y), yuv_shift);
+            return CV_DESCALE((uint)(b * B2Y + g * G2Y + r * R2Y), yuv_shift);
         }
 
         template <int bidx> static __device__ __forceinline__ float RGB2GrayConvert(const float* src)
@@ -440,10 +480,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_RGB2GRAY_TRAITS(name, scn, bidx) \
+#define OPENCV_CUDA_IMPLEMENT_RGB2GRAY_TRAITS(name, scn, bidx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::RGB2Gray<T, scn, bidx> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2Gray<T, scn, bidx> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -461,9 +501,9 @@ namespace cv { namespace cuda { namespace device
         {
             const int delta = ColorChannel<T>::half() * (1 << yuv_shift);
 
-            const int Y = CC_DESCALE(src[0] * c_RGB2YUVCoeffs_i[bidx^2] + src[1] * c_RGB2YUVCoeffs_i[1] + src[2] * c_RGB2YUVCoeffs_i[bidx], yuv_shift);
-            const int Cr = CC_DESCALE((src[bidx^2] - Y) * c_RGB2YUVCoeffs_i[3] + delta, yuv_shift);
-            const int Cb = CC_DESCALE((src[bidx] - Y) * c_RGB2YUVCoeffs_i[4] + delta, yuv_shift);
+            const int Y = CV_DESCALE(src[0] * c_RGB2YUVCoeffs_i[bidx^2] + src[1] * c_RGB2YUVCoeffs_i[1] + src[2] * c_RGB2YUVCoeffs_i[bidx], yuv_shift);
+            const int Cr = CV_DESCALE((src[bidx^2] - Y) * c_RGB2YUVCoeffs_i[3] + delta, yuv_shift);
+            const int Cb = CV_DESCALE((src[bidx] - Y) * c_RGB2YUVCoeffs_i[4] + delta, yuv_shift);
 
             dst.x = saturate_cast<T>(Y);
             dst.y = saturate_cast<T>(Cr);
@@ -491,10 +531,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_RGB2YUV_TRAITS(name, scn, dcn, bidx) \
+#define OPENCV_CUDA_IMPLEMENT_RGB2YUV_TRAITS(name, scn, dcn, bidx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::RGB2YUV<T, scn, dcn, bidx> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2YUV<T, scn, dcn, bidx> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -508,12 +548,12 @@ namespace cv { namespace cuda { namespace device
 
         template <int bidx, typename T, typename D> static __device__ void YUV2RGBConvert(const T& src, D* dst)
         {
-            const int b = src.x + CC_DESCALE((src.z - ColorChannel<D>::half()) * c_YUV2RGBCoeffs_i[3], yuv_shift);
+            const int b = src.x + CV_DESCALE((src.z - ColorChannel<D>::half()) * c_YUV2RGBCoeffs_i[3], yuv_shift);
 
-            const int g = src.x + CC_DESCALE((src.z - ColorChannel<D>::half()) * c_YUV2RGBCoeffs_i[2]
+            const int g = src.x + CV_DESCALE((src.z - ColorChannel<D>::half()) * c_YUV2RGBCoeffs_i[2]
                                              + (src.y - ColorChannel<D>::half()) * c_YUV2RGBCoeffs_i[1], yuv_shift);
 
-            const int r = src.x + CC_DESCALE((src.y - ColorChannel<D>::half()) * c_YUV2RGBCoeffs_i[0], yuv_shift);
+            const int r = src.x + CV_DESCALE((src.y - ColorChannel<D>::half()) * c_YUV2RGBCoeffs_i[0], yuv_shift);
 
             dst[bidx] = saturate_cast<D>(b);
             dst[1] = saturate_cast<D>(g);
@@ -526,12 +566,12 @@ namespace cv { namespace cuda { namespace device
             const int y = 0xff & (src >> 8);
             const int z = 0xff & (src >> 16);
 
-            const int b = x + CC_DESCALE((z - ColorChannel<uchar>::half()) * c_YUV2RGBCoeffs_i[3], yuv_shift);
+            const int b = x + CV_DESCALE((z - ColorChannel<uchar>::half()) * c_YUV2RGBCoeffs_i[3], yuv_shift);
 
-            const int g = x + CC_DESCALE((z - ColorChannel<uchar>::half()) * c_YUV2RGBCoeffs_i[2]
+            const int g = x + CV_DESCALE((z - ColorChannel<uchar>::half()) * c_YUV2RGBCoeffs_i[2]
                                          + (y - ColorChannel<uchar>::half()) * c_YUV2RGBCoeffs_i[1], yuv_shift);
 
-            const int r = x + CC_DESCALE((y - ColorChannel<uchar>::half()) * c_YUV2RGBCoeffs_i[0], yuv_shift);
+            const int r = x + CV_DESCALE((y - ColorChannel<uchar>::half()) * c_YUV2RGBCoeffs_i[0], yuv_shift);
 
             uint dst = 0xffu << 24;
 
@@ -579,10 +619,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_YUV2RGB_TRAITS(name, scn, dcn, bidx) \
+#define OPENCV_CUDA_IMPLEMENT_YUV2RGB_TRAITS(name, scn, dcn, bidx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::YUV2RGB<T, scn, dcn, bidx> functor_type; \
+        typedef ::cv::cuda::device::color_detail::YUV2RGB<T, scn, dcn, bidx> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -600,9 +640,9 @@ namespace cv { namespace cuda { namespace device
         {
             const int delta = ColorChannel<T>::half() * (1 << yuv_shift);
 
-            const int Y = CC_DESCALE(src[0] * c_RGB2YCrCbCoeffs_i[bidx^2] + src[1] * c_RGB2YCrCbCoeffs_i[1] + src[2] * c_RGB2YCrCbCoeffs_i[bidx], yuv_shift);
-            const int Cr = CC_DESCALE((src[bidx^2] - Y) * c_RGB2YCrCbCoeffs_i[3] + delta, yuv_shift);
-            const int Cb = CC_DESCALE((src[bidx] - Y) * c_RGB2YCrCbCoeffs_i[4] + delta, yuv_shift);
+            const int Y = CV_DESCALE(src[0] * c_RGB2YCrCbCoeffs_i[bidx^2] + src[1] * c_RGB2YCrCbCoeffs_i[1] + src[2] * c_RGB2YCrCbCoeffs_i[bidx], yuv_shift);
+            const int Cr = CV_DESCALE((src[bidx^2] - Y) * c_RGB2YCrCbCoeffs_i[3] + delta, yuv_shift);
+            const int Cb = CV_DESCALE((src[bidx] - Y) * c_RGB2YCrCbCoeffs_i[4] + delta, yuv_shift);
 
             dst.x = saturate_cast<T>(Y);
             dst.y = saturate_cast<T>(Cr);
@@ -613,9 +653,9 @@ namespace cv { namespace cuda { namespace device
         {
             const int delta = ColorChannel<uchar>::half() * (1 << yuv_shift);
 
-            const int Y = CC_DESCALE((0xffu & src) * c_RGB2YCrCbCoeffs_i[bidx^2] + (0xffu & (src >> 8)) * c_RGB2YCrCbCoeffs_i[1] + (0xffu & (src >> 16)) * c_RGB2YCrCbCoeffs_i[bidx], yuv_shift);
-            const int Cr = CC_DESCALE(((0xffu & (src >> ((bidx ^ 2) * 8))) - Y) * c_RGB2YCrCbCoeffs_i[3] + delta, yuv_shift);
-            const int Cb = CC_DESCALE(((0xffu & (src >> (bidx * 8))) - Y) * c_RGB2YCrCbCoeffs_i[4] + delta, yuv_shift);
+            const int Y = CV_DESCALE((0xffu & src) * c_RGB2YCrCbCoeffs_i[bidx^2] + (0xffu & (src >> 8)) * c_RGB2YCrCbCoeffs_i[1] + (0xffu & (src >> 16)) * c_RGB2YCrCbCoeffs_i[bidx], yuv_shift);
+            const int Cr = CV_DESCALE(((0xffu & (src >> ((bidx ^ 2) * 8))) - Y) * c_RGB2YCrCbCoeffs_i[3] + delta, yuv_shift);
+            const int Cb = CV_DESCALE(((0xffu & (src >> (bidx * 8))) - Y) * c_RGB2YCrCbCoeffs_i[4] + delta, yuv_shift);
 
             uint dst = 0;
 
@@ -658,10 +698,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_RGB2YCrCb_TRAITS(name, scn, dcn, bidx) \
+#define OPENCV_CUDA_IMPLEMENT_RGB2YCrCb_TRAITS(name, scn, dcn, bidx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::RGB2YCrCb<T, scn, dcn, bidx> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2YCrCb<T, scn, dcn, bidx> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -675,9 +715,9 @@ namespace cv { namespace cuda { namespace device
 
         template <int bidx, typename T, typename D> static __device__ void YCrCb2RGBConvert(const T& src, D* dst)
         {
-            const int b = src.x + CC_DESCALE((src.z - ColorChannel<D>::half()) * c_YCrCb2RGBCoeffs_i[3], yuv_shift);
-            const int g = src.x + CC_DESCALE((src.z - ColorChannel<D>::half()) * c_YCrCb2RGBCoeffs_i[2] + (src.y - ColorChannel<D>::half()) * c_YCrCb2RGBCoeffs_i[1], yuv_shift);
-            const int r = src.x + CC_DESCALE((src.y - ColorChannel<D>::half()) * c_YCrCb2RGBCoeffs_i[0], yuv_shift);
+            const int b = src.x + CV_DESCALE((src.z - ColorChannel<D>::half()) * c_YCrCb2RGBCoeffs_i[3], yuv_shift);
+            const int g = src.x + CV_DESCALE((src.z - ColorChannel<D>::half()) * c_YCrCb2RGBCoeffs_i[2] + (src.y - ColorChannel<D>::half()) * c_YCrCb2RGBCoeffs_i[1], yuv_shift);
+            const int r = src.x + CV_DESCALE((src.y - ColorChannel<D>::half()) * c_YCrCb2RGBCoeffs_i[0], yuv_shift);
 
             dst[bidx] = saturate_cast<D>(b);
             dst[1] = saturate_cast<D>(g);
@@ -690,9 +730,9 @@ namespace cv { namespace cuda { namespace device
             const int y = 0xff & (src >> 8);
             const int z = 0xff & (src >> 16);
 
-            const int b = x + CC_DESCALE((z - ColorChannel<uchar>::half()) * c_YCrCb2RGBCoeffs_i[3], yuv_shift);
-            const int g = x + CC_DESCALE((z - ColorChannel<uchar>::half()) * c_YCrCb2RGBCoeffs_i[2] + (y - ColorChannel<uchar>::half()) * c_YCrCb2RGBCoeffs_i[1], yuv_shift);
-            const int r = x + CC_DESCALE((y - ColorChannel<uchar>::half()) * c_YCrCb2RGBCoeffs_i[0], yuv_shift);
+            const int b = x + CV_DESCALE((z - ColorChannel<uchar>::half()) * c_YCrCb2RGBCoeffs_i[3], yuv_shift);
+            const int g = x + CV_DESCALE((z - ColorChannel<uchar>::half()) * c_YCrCb2RGBCoeffs_i[2] + (y - ColorChannel<uchar>::half()) * c_YCrCb2RGBCoeffs_i[1], yuv_shift);
+            const int r = x + CV_DESCALE((y - ColorChannel<uchar>::half()) * c_YCrCb2RGBCoeffs_i[0], yuv_shift);
 
             uint dst = 0xffu << 24;
 
@@ -737,10 +777,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_YCrCb2RGB_TRAITS(name, scn, dcn, bidx) \
+#define OPENCV_CUDA_IMPLEMENT_YCrCb2RGB_TRAITS(name, scn, dcn, bidx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::YCrCb2RGB<T, scn, dcn, bidx> functor_type; \
+        typedef ::cv::cuda::device::color_detail::YCrCb2RGB<T, scn, dcn, bidx> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -756,9 +796,9 @@ namespace cv { namespace cuda { namespace device
 
         template <int bidx, typename T, typename D> static __device__ __forceinline__ void RGB2XYZConvert(const T* src, D& dst)
         {
-            dst.z = saturate_cast<T>(CC_DESCALE(src[bidx^2] * c_RGB2XYZ_D65i[6] + src[1] * c_RGB2XYZ_D65i[7] + src[bidx] * c_RGB2XYZ_D65i[8], xyz_shift));
-            dst.x = saturate_cast<T>(CC_DESCALE(src[bidx^2] * c_RGB2XYZ_D65i[0] + src[1] * c_RGB2XYZ_D65i[1] + src[bidx] * c_RGB2XYZ_D65i[2], xyz_shift));
-            dst.y = saturate_cast<T>(CC_DESCALE(src[bidx^2] * c_RGB2XYZ_D65i[3] + src[1] * c_RGB2XYZ_D65i[4] + src[bidx] * c_RGB2XYZ_D65i[5], xyz_shift));
+            dst.z = saturate_cast<T>(CV_DESCALE(src[bidx^2] * c_RGB2XYZ_D65i[6] + src[1] * c_RGB2XYZ_D65i[7] + src[bidx] * c_RGB2XYZ_D65i[8], xyz_shift));
+            dst.x = saturate_cast<T>(CV_DESCALE(src[bidx^2] * c_RGB2XYZ_D65i[0] + src[1] * c_RGB2XYZ_D65i[1] + src[bidx] * c_RGB2XYZ_D65i[2], xyz_shift));
+            dst.y = saturate_cast<T>(CV_DESCALE(src[bidx^2] * c_RGB2XYZ_D65i[3] + src[1] * c_RGB2XYZ_D65i[4] + src[bidx] * c_RGB2XYZ_D65i[5], xyz_shift));
         }
 
         template <int bidx> static __device__ __forceinline__ uint RGB2XYZConvert(uint src)
@@ -767,9 +807,9 @@ namespace cv { namespace cuda { namespace device
             const uint g = 0xffu & (src >> 8);
             const uint r = 0xffu & (src >> ((bidx ^ 2) * 8));
 
-            const uint x = saturate_cast<uchar>(CC_DESCALE(r * c_RGB2XYZ_D65i[0] + g * c_RGB2XYZ_D65i[1] + b * c_RGB2XYZ_D65i[2], xyz_shift));
-            const uint y = saturate_cast<uchar>(CC_DESCALE(r * c_RGB2XYZ_D65i[3] + g * c_RGB2XYZ_D65i[4] + b * c_RGB2XYZ_D65i[5], xyz_shift));
-            const uint z = saturate_cast<uchar>(CC_DESCALE(r * c_RGB2XYZ_D65i[6] + g * c_RGB2XYZ_D65i[7] + b * c_RGB2XYZ_D65i[8], xyz_shift));
+            const uint x = saturate_cast<uchar>(CV_DESCALE(r * c_RGB2XYZ_D65i[0] + g * c_RGB2XYZ_D65i[1] + b * c_RGB2XYZ_D65i[2], xyz_shift));
+            const uint y = saturate_cast<uchar>(CV_DESCALE(r * c_RGB2XYZ_D65i[3] + g * c_RGB2XYZ_D65i[4] + b * c_RGB2XYZ_D65i[5], xyz_shift));
+            const uint z = saturate_cast<uchar>(CV_DESCALE(r * c_RGB2XYZ_D65i[6] + g * c_RGB2XYZ_D65i[7] + b * c_RGB2XYZ_D65i[8], xyz_shift));
 
             uint dst = 0;
 
@@ -813,10 +853,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_RGB2XYZ_TRAITS(name, scn, dcn, bidx) \
+#define OPENCV_CUDA_IMPLEMENT_RGB2XYZ_TRAITS(name, scn, dcn, bidx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::RGB2XYZ<T, scn, dcn, bidx> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2XYZ<T, scn, dcn, bidx> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -830,9 +870,9 @@ namespace cv { namespace cuda { namespace device
 
         template <int bidx, typename T, typename D> static __device__ __forceinline__ void XYZ2RGBConvert(const T& src, D* dst)
         {
-            dst[bidx^2] = saturate_cast<D>(CC_DESCALE(src.x * c_XYZ2sRGB_D65i[0] + src.y * c_XYZ2sRGB_D65i[1] + src.z * c_XYZ2sRGB_D65i[2], xyz_shift));
-            dst[1]      = saturate_cast<D>(CC_DESCALE(src.x * c_XYZ2sRGB_D65i[3] + src.y * c_XYZ2sRGB_D65i[4] + src.z * c_XYZ2sRGB_D65i[5], xyz_shift));
-            dst[bidx]   = saturate_cast<D>(CC_DESCALE(src.x * c_XYZ2sRGB_D65i[6] + src.y * c_XYZ2sRGB_D65i[7] + src.z * c_XYZ2sRGB_D65i[8], xyz_shift));
+            dst[bidx^2] = saturate_cast<D>(CV_DESCALE(src.x * c_XYZ2sRGB_D65i[0] + src.y * c_XYZ2sRGB_D65i[1] + src.z * c_XYZ2sRGB_D65i[2], xyz_shift));
+            dst[1]      = saturate_cast<D>(CV_DESCALE(src.x * c_XYZ2sRGB_D65i[3] + src.y * c_XYZ2sRGB_D65i[4] + src.z * c_XYZ2sRGB_D65i[5], xyz_shift));
+            dst[bidx]   = saturate_cast<D>(CV_DESCALE(src.x * c_XYZ2sRGB_D65i[6] + src.y * c_XYZ2sRGB_D65i[7] + src.z * c_XYZ2sRGB_D65i[8], xyz_shift));
         }
 
         template <int bidx> static __device__ __forceinline__ uint XYZ2RGBConvert(uint src)
@@ -841,9 +881,9 @@ namespace cv { namespace cuda { namespace device
             const int y = 0xff & (src >> 8);
             const int z = 0xff & (src >> 16);
 
-            const uint r = saturate_cast<uchar>(CC_DESCALE(x * c_XYZ2sRGB_D65i[0] + y * c_XYZ2sRGB_D65i[1] + z * c_XYZ2sRGB_D65i[2], xyz_shift));
-            const uint g = saturate_cast<uchar>(CC_DESCALE(x * c_XYZ2sRGB_D65i[3] + y * c_XYZ2sRGB_D65i[4] + z * c_XYZ2sRGB_D65i[5], xyz_shift));
-            const uint b = saturate_cast<uchar>(CC_DESCALE(x * c_XYZ2sRGB_D65i[6] + y * c_XYZ2sRGB_D65i[7] + z * c_XYZ2sRGB_D65i[8], xyz_shift));
+            const uint r = saturate_cast<uchar>(CV_DESCALE(x * c_XYZ2sRGB_D65i[0] + y * c_XYZ2sRGB_D65i[1] + z * c_XYZ2sRGB_D65i[2], xyz_shift));
+            const uint g = saturate_cast<uchar>(CV_DESCALE(x * c_XYZ2sRGB_D65i[3] + y * c_XYZ2sRGB_D65i[4] + z * c_XYZ2sRGB_D65i[5], xyz_shift));
+            const uint b = saturate_cast<uchar>(CV_DESCALE(x * c_XYZ2sRGB_D65i[6] + y * c_XYZ2sRGB_D65i[7] + z * c_XYZ2sRGB_D65i[8], xyz_shift));
 
             uint dst = 0xffu << 24;
 
@@ -888,10 +928,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_XYZ2RGB_TRAITS(name, scn, dcn, bidx) \
+#define OPENCV_CUDA_IMPLEMENT_XYZ2RGB_TRAITS(name, scn, dcn, bidx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::XYZ2RGB<T, scn, dcn, bidx> functor_type; \
+        typedef ::cv::cuda::device::color_detail::XYZ2RGB<T, scn, dcn, bidx> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1026,10 +1066,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_RGB2HSV_TRAITS(name, scn, dcn, bidx) \
+#define OPENCV_CUDA_IMPLEMENT_RGB2HSV_TRAITS(name, scn, dcn, bidx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::RGB2HSV<T, scn, dcn, bidx, 180> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2HSV<T, scn, dcn, bidx, 180> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1037,7 +1077,7 @@ namespace cv { namespace cuda { namespace device
     }; \
     template <typename T> struct name ## _full_traits \
     { \
-        typedef ::cuda::device::color_detail::RGB2HSV<T, scn, dcn, bidx, 256> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2HSV<T, scn, dcn, bidx, 256> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1045,7 +1085,7 @@ namespace cv { namespace cuda { namespace device
     }; \
     template <> struct name ## _traits<float> \
     { \
-        typedef ::cuda::device::color_detail::RGB2HSV<float, scn, dcn, bidx, 360> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2HSV<float, scn, dcn, bidx, 360> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1053,7 +1093,7 @@ namespace cv { namespace cuda { namespace device
     }; \
     template <> struct name ## _full_traits<float> \
     { \
-        typedef ::cuda::device::color_detail::RGB2HSV<float, scn, dcn, bidx, 360> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2HSV<float, scn, dcn, bidx, 360> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1166,10 +1206,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_HSV2RGB_TRAITS(name, scn, dcn, bidx) \
+#define OPENCV_CUDA_IMPLEMENT_HSV2RGB_TRAITS(name, scn, dcn, bidx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::HSV2RGB<T, scn, dcn, bidx, 180> functor_type; \
+        typedef ::cv::cuda::device::color_detail::HSV2RGB<T, scn, dcn, bidx, 180> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1177,7 +1217,7 @@ namespace cv { namespace cuda { namespace device
     }; \
     template <typename T> struct name ## _full_traits \
     { \
-        typedef ::cuda::device::color_detail::HSV2RGB<T, scn, dcn, bidx, 255> functor_type; \
+        typedef ::cv::cuda::device::color_detail::HSV2RGB<T, scn, dcn, bidx, 255> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1185,7 +1225,7 @@ namespace cv { namespace cuda { namespace device
     }; \
     template <> struct name ## _traits<float> \
     { \
-        typedef ::cuda::device::color_detail::HSV2RGB<float, scn, dcn, bidx, 360> functor_type; \
+        typedef ::cv::cuda::device::color_detail::HSV2RGB<float, scn, dcn, bidx, 360> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1193,7 +1233,7 @@ namespace cv { namespace cuda { namespace device
     }; \
     template <> struct name ## _full_traits<float> \
     { \
-        typedef ::cuda::device::color_detail::HSV2RGB<float, scn, dcn, bidx, 360> functor_type; \
+        typedef ::cv::cuda::device::color_detail::HSV2RGB<float, scn, dcn, bidx, 360> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1299,10 +1339,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_RGB2HLS_TRAITS(name, scn, dcn, bidx) \
+#define OPENCV_CUDA_IMPLEMENT_RGB2HLS_TRAITS(name, scn, dcn, bidx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::RGB2HLS<T, scn, dcn, bidx, 180> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2HLS<T, scn, dcn, bidx, 180> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1310,7 +1350,7 @@ namespace cv { namespace cuda { namespace device
     }; \
     template <typename T> struct name ## _full_traits \
     { \
-        typedef ::cuda::device::color_detail::RGB2HLS<T, scn, dcn, bidx, 256> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2HLS<T, scn, dcn, bidx, 256> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1318,7 +1358,7 @@ namespace cv { namespace cuda { namespace device
     }; \
     template <> struct name ## _traits<float> \
     { \
-        typedef ::cuda::device::color_detail::RGB2HLS<float, scn, dcn, bidx, 360> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2HLS<float, scn, dcn, bidx, 360> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1326,7 +1366,7 @@ namespace cv { namespace cuda { namespace device
     }; \
     template <> struct name ## _full_traits<float> \
     { \
-        typedef ::cuda::device::color_detail::RGB2HLS<float, scn, dcn, bidx, 360> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2HLS<float, scn, dcn, bidx, 360> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1439,10 +1479,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_HLS2RGB_TRAITS(name, scn, dcn, bidx) \
+#define OPENCV_CUDA_IMPLEMENT_HLS2RGB_TRAITS(name, scn, dcn, bidx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::HLS2RGB<T, scn, dcn, bidx, 180> functor_type; \
+        typedef ::cv::cuda::device::color_detail::HLS2RGB<T, scn, dcn, bidx, 180> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1450,7 +1490,7 @@ namespace cv { namespace cuda { namespace device
     }; \
     template <typename T> struct name ## _full_traits \
     { \
-        typedef ::cuda::device::color_detail::HLS2RGB<T, scn, dcn, bidx, 255> functor_type; \
+        typedef ::cv::cuda::device::color_detail::HLS2RGB<T, scn, dcn, bidx, 255> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1458,7 +1498,7 @@ namespace cv { namespace cuda { namespace device
     }; \
     template <> struct name ## _traits<float> \
     { \
-        typedef ::cuda::device::color_detail::HLS2RGB<float, scn, dcn, bidx, 360> functor_type; \
+        typedef ::cv::cuda::device::color_detail::HLS2RGB<float, scn, dcn, bidx, 360> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1466,7 +1506,7 @@ namespace cv { namespace cuda { namespace device
     }; \
     template <> struct name ## _full_traits<float> \
     { \
-        typedef ::cuda::device::color_detail::HLS2RGB<float, scn, dcn, bidx, 360> functor_type; \
+        typedef ::cv::cuda::device::color_detail::HLS2RGB<float, scn, dcn, bidx, 360> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1518,13 +1558,13 @@ namespace cv { namespace cuda { namespace device
                 R <<= 3;
             }
 
-            int fX = LabCbrt_b(CC_DESCALE(B * 778 + G * 1541 + R * 1777, lab_shift));
-            int fY = LabCbrt_b(CC_DESCALE(B * 296 + G * 2929 + R * 871, lab_shift));
-            int fZ = LabCbrt_b(CC_DESCALE(B * 3575 + G * 448 + R * 73, lab_shift));
+            int fX = LabCbrt_b(CV_DESCALE(B * 778 + G * 1541 + R * 1777, lab_shift));
+            int fY = LabCbrt_b(CV_DESCALE(B * 296 + G * 2929 + R * 871, lab_shift));
+            int fZ = LabCbrt_b(CV_DESCALE(B * 3575 + G * 448 + R * 73, lab_shift));
 
-            int L = CC_DESCALE(Lscale * fY + Lshift, lab_shift2);
-            int a = CC_DESCALE(500 * (fX - fY) + 128 * (1 << lab_shift2), lab_shift2);
-            int b = CC_DESCALE(200 * (fY - fZ) + 128 * (1 << lab_shift2), lab_shift2);
+            int L = CV_DESCALE(Lscale * fY + Lshift, lab_shift2);
+            int a = CV_DESCALE(500 * (fX - fY) + 128 * (1 << lab_shift2), lab_shift2);
+            int b = CV_DESCALE(200 * (fY - fZ) + 128 * (1 << lab_shift2), lab_shift2);
 
             dst.x = saturate_cast<uchar>(L);
             dst.y = saturate_cast<uchar>(a);
@@ -1608,10 +1648,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_RGB2Lab_TRAITS(name, scn, dcn, srgb, blueIdx) \
+#define OPENCV_CUDA_IMPLEMENT_RGB2Lab_TRAITS(name, scn, dcn, srgb, blueIdx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::RGB2Lab<T, scn, dcn, srgb, blueIdx> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2Lab<T, scn, dcn, srgb, blueIdx> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1721,10 +1761,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_Lab2RGB_TRAITS(name, scn, dcn, srgb, blueIdx) \
+#define OPENCV_CUDA_IMPLEMENT_Lab2RGB_TRAITS(name, scn, dcn, srgb, blueIdx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::Lab2RGB<T, scn, dcn, srgb, blueIdx> functor_type; \
+        typedef ::cv::cuda::device::color_detail::Lab2RGB<T, scn, dcn, srgb, blueIdx> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1820,10 +1860,10 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_RGB2Luv_TRAITS(name, scn, dcn, srgb, blueIdx) \
+#define OPENCV_CUDA_IMPLEMENT_RGB2Luv_TRAITS(name, scn, dcn, srgb, blueIdx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::RGB2Luv<T, scn, dcn, srgb, blueIdx> functor_type; \
+        typedef ::cv::cuda::device::color_detail::RGB2Luv<T, scn, dcn, srgb, blueIdx> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
@@ -1921,20 +1961,20 @@ namespace cv { namespace cuda { namespace device
         };
     }
 
-#define OPENCC_CUDA_IMPLEMENT_Luv2RGB_TRAITS(name, scn, dcn, srgb, blueIdx) \
+#define OPENCV_CUDA_IMPLEMENT_Luv2RGB_TRAITS(name, scn, dcn, srgb, blueIdx) \
     template <typename T> struct name ## _traits \
     { \
-        typedef ::cuda::device::color_detail::Luv2RGB<T, scn, dcn, srgb, blueIdx> functor_type; \
+        typedef ::cv::cuda::device::color_detail::Luv2RGB<T, scn, dcn, srgb, blueIdx> functor_type; \
         static __host__ __device__ __forceinline__ functor_type create_functor() \
         { \
             return functor_type(); \
         } \
     };
 
-    #undef CC_DESCALE
+    #undef CV_DESCALE
 
 }}} // namespace cv { namespace cuda { namespace cudev
 
 //! @endcond
 
-#endif // OPENCC_CUDA_COLOR_DETAIL_HPP
+#endif // OPENCV_CUDA_COLOR_DETAIL_HPP

@@ -5,4 +5,4 @@
 # endif
 #endif
 
-CC_PERF_TEST_MAIN(core)
+CV_PERF_TEST_MAIN(core)

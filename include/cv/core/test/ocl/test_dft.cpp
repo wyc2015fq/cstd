@@ -56,15 +56,15 @@ enum OCL_FFT_TYPE
     C2C = 3
 };
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ////////////////////////////////////////////////////////////////////////////
 // Dft
 
-PARAM_TEST_CASE(Dft, Size, OCL_FFT_TYPE, MatDepth, bool, bool, bool, bool)
+PARAM_TEST_CASE(Dft, cv::Size, OCL_FFT_TYPE, MatDepth, bool, bool, bool, bool)
 {
-    Size dft_size;
+    cv::Size dft_size;
     int	dft_flags, depth, cn, dft_type;
     bool hint;
     bool is1d;
@@ -81,43 +81,43 @@ PARAM_TEST_CASE(Dft, Size, OCL_FFT_TYPE, MatDepth, bool, bool, bool, bool)
         dft_flags = 0;
         switch (dft_type)
         {
-        case R2R: dft_flags |= DFT_REAL_OUTPUT; cn = 1; break;
-        case C2R: dft_flags |= DFT_REAL_OUTPUT; cn = 2; break;
-        case R2C: dft_flags |= DFT_COMPLEX_OUTPUT; cn = 1; break;
-        case C2C: dft_flags |= DFT_COMPLEX_OUTPUT; cn = 2; break;
+        case R2R: dft_flags |= cv::DFT_REAL_OUTPUT; cn = 1; break;
+        case C2R: dft_flags |= cv::DFT_REAL_OUTPUT; cn = 2; break;
+        case R2C: dft_flags |= cv::DFT_COMPLEX_OUTPUT; cn = 1; break;
+        case C2C: dft_flags |= cv::DFT_COMPLEX_OUTPUT; cn = 2; break;
         }
 
         if (GET_PARAM(3))
-            dft_flags |= DFT_INVERSE;
+            dft_flags |= cv::DFT_INVERSE;
         if (GET_PARAM(4))
-            dft_flags |= DFT_ROWS;
+            dft_flags |= cv::DFT_ROWS;
         if (GET_PARAM(5))
-            dft_flags |= DFT_SCALE;
+            dft_flags |= cv::DFT_SCALE;
         hint = GET_PARAM(6);
         is1d = (dft_flags & DFT_ROWS) != 0 || dft_size.height == 1;
     }
 
     void generateTestData()
     {
-        src = randomMat(dft_size, CC_MAKE_TYPE(depth, cn), 0.0, 100.0);
+        src = randomMat(dft_size, CV_MAKE_TYPE(depth, cn), 0.0, 100.0);
         usrc = src.getUMat(ACCESS_READ);
     }
 };
 
-OCL_TEST_P(Dft, CvMat)
+OCL_TEST_P(Dft, Mat)
 {
     generateTestData();
 
     int nonzero_rows = hint ? src.rows - randomInt(1, src.rows-1) : 0;
-    OCL_OFF(dft(src, dst, dft_flags, nonzero_rows));
-    OCL_ON(dft(usrc, udst, dft_flags, nonzero_rows));
+    OCL_OFF(cv::dft(src, dst, dft_flags, nonzero_rows));
+    OCL_ON(cv::dft(usrc, udst, dft_flags, nonzero_rows));
 
-    // In case forward R2C 1d tranform dst contains only half of output
+    // In case forward R2C 1d transform dst contains only half of output
     // without complex conjugate
-    if (dft_type == R2C && is1d && (dft_flags & DFT_INVERSE) == 0)
+    if (dft_type == R2C && is1d && (dft_flags & cv::DFT_INVERSE) == 0)
     {
-        dst = dst(Range(0, dst.rows), Range(0, dst.cols/2 + 1));
-        udst = udst(Range(0, udst.rows), Range(0, udst.cols/2 + 1));
+        dst = dst(cv::Range(0, dst.rows), cv::Range(0, dst.cols/2 + 1));
+        udst = udst(cv::Range(0, udst.rows), cv::Range(0, udst.cols/2 + 1));
     }
 
     double eps = src.size().area() * 1e-4;
@@ -145,14 +145,14 @@ PARAM_TEST_CASE(MulSpectrums, bool, bool)
     {
         Size srcRoiSize = randomSize(1, MAX_VALUE);
         Border src1Border = randomBorder(0, useRoi ? MAX_VALUE : 0);
-        randomSubMat(src1, src1_roi, srcRoiSize, src1Border, CC_32FC2, -11, 11);
+        randomSubMat(src1, src1_roi, srcRoiSize, src1Border, CV_32FC2, -11, 11);
 
 
         Border src2Border = randomBorder(0, useRoi ? MAX_VALUE : 0);
-        randomSubMat(src2, src2_roi, srcRoiSize, src2Border, CC_32FC2, -11, 11);
+        randomSubMat(src2, src2_roi, srcRoiSize, src2Border, CV_32FC2, -11, 11);
 
         Border dstBorder = randomBorder(0, useRoi ? MAX_VALUE : 0);
-        randomSubMat(dst, dst_roi, srcRoiSize, dstBorder, CC_32FC2, 5, 16);
+        randomSubMat(dst, dst_roi, srcRoiSize, dstBorder, CV_32FC2, 5, 16);
 
         UMAT_UPLOAD_INPUT_PARAMETER(src1);
         UMAT_UPLOAD_INPUT_PARAMETER(src2);
@@ -160,14 +160,14 @@ PARAM_TEST_CASE(MulSpectrums, bool, bool)
     }
 };
 
-OCL_TEST_P(MulSpectrums, CvMat)
+OCL_TEST_P(MulSpectrums, Mat)
 {
     for (int i = 0; i < test_loop_times; ++i)
     {
         generateTestData();
 
-        OCL_OFF(mulSpectrums(src1_roi, src2_roi, dst_roi, 0, ccorr));
-        OCL_ON(mulSpectrums(usrc1_roi, usrc2_roi, udst_roi, 0, ccorr));
+        OCL_OFF(cv::mulSpectrums(src1_roi, src2_roi, dst_roi, 0, ccorr));
+        OCL_ON(cv::mulSpectrums(usrc1_roi, usrc2_roi, udst_roi, 0, ccorr));
 
         OCL_EXPECT_MATS_NEAR_RELATIVE(dst, 1e-6);
     }
@@ -175,9 +175,9 @@ OCL_TEST_P(MulSpectrums, CvMat)
 
 OCL_INSTANTIATE_TEST_CASE_P(OCL_ImgProc, MulSpectrums, testing::Combine(Bool(), Bool()));
 
-OCL_INSTANTIATE_TEST_CASE_P(Core, Dft, Combine(Values(Size(45, 72), Size(36, 36), Size(512, 1), Size(1280, 768)),
+OCL_INSTANTIATE_TEST_CASE_P(Core, Dft, Combine(Values(cv::Size(45, 72), cv::Size(36, 36), cv::Size(512, 1), cv::Size(1280, 768)),
                                                Values((OCL_FFT_TYPE) R2C, (OCL_FFT_TYPE) C2C, (OCL_FFT_TYPE) R2R, (OCL_FFT_TYPE) C2R),
-                                               Values(CC_32F, CC_64F),
+                                               Values(CV_32F, CV_64F),
                                                Bool(), // DFT_INVERSE
                                                Bool(), // DFT_ROWS
                                                Bool(), // DFT_SCALE
@@ -185,6 +185,6 @@ OCL_INSTANTIATE_TEST_CASE_P(Core, Dft, Combine(Values(Size(45, 72), Size(36, 36)
                                                )
                             );
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

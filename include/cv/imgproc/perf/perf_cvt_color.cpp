@@ -1,10 +1,9 @@
+// This file is part of OpenCV project.
+// It is subject to the license terms in the LICENSE file found in the top-level directory
+// of this distribution and at http://opencv.org/license.html.
 #include "perf_precomp.hpp"
 
-using namespace std;
-using namespace cv;
-using namespace perf;
-using std::tr1::make_tuple;
-using std::tr1::get;
+namespace opencv_test {
 
 //extra color conversions supported implicitly
 enum
@@ -55,7 +54,7 @@ enum
     CX_YUV2RGBA      = COLOR_COLORCVT_MAX + COLOR_YUV2RGB
 };
 
-CC_ENUM(CvtMode,
+CV_ENUM(CvtMode,
     COLOR_BGR2BGR555, COLOR_BGR2BGR565, COLOR_BGR2BGRA, COLOR_BGR2GRAY,
     COLOR_BGR2HLS, COLOR_BGR2HLS_FULL, COLOR_BGR2HSV, COLOR_BGR2HSV_FULL,
     COLOR_BGR2Lab, COLOR_BGR2Luv, COLOR_BGR2RGB, COLOR_BGR2RGBA, COLOR_BGR2XYZ,
@@ -102,20 +101,20 @@ CC_ENUM(CvtMode,
     )
 
 
-CC_ENUM(CvtModeBayer,
-    COLOR_BayerBG2BGR, COLOR_BayerBG2BGR_VNG, COLOR_BayerBG2GRAY,
-    COLOR_BayerGB2BGR, COLOR_BayerGB2BGR_VNG, COLOR_BayerGB2GRAY,
-    COLOR_BayerGR2BGR, COLOR_BayerGR2BGR_VNG, COLOR_BayerGR2GRAY,
-    COLOR_BayerRG2BGR, COLOR_BayerRG2BGR_VNG, COLOR_BayerRG2GRAY
+CV_ENUM(CvtModeBayer,
+    COLOR_BayerBG2BGR, COLOR_BayerBG2BGRA, COLOR_BayerBG2BGR_VNG, COLOR_BayerBG2GRAY,
+    COLOR_BayerGB2BGR, COLOR_BayerGB2BGRA, COLOR_BayerGB2BGR_VNG, COLOR_BayerGB2GRAY,
+    COLOR_BayerGR2BGR, COLOR_BayerGR2BGRA, COLOR_BayerGR2BGR_VNG, COLOR_BayerGR2GRAY,
+    COLOR_BayerRG2BGR, COLOR_BayerRG2BGRA, COLOR_BayerRG2BGR_VNG, COLOR_BayerRG2GRAY
     )
 
 
-CC_ENUM(CvtMode2, COLOR_YUV2BGR_NV12, COLOR_YUV2BGRA_NV12, COLOR_YUV2RGB_NV12, COLOR_YUV2RGBA_NV12, COLOR_YUV2BGR_NV21, COLOR_YUV2BGRA_NV21, COLOR_YUV2RGB_NV21, COLOR_YUV2RGBA_NV21,
+CV_ENUM(CvtMode2, COLOR_YUV2BGR_NV12, COLOR_YUV2BGRA_NV12, COLOR_YUV2RGB_NV12, COLOR_YUV2RGBA_NV12, COLOR_YUV2BGR_NV21, COLOR_YUV2BGRA_NV21, COLOR_YUV2RGB_NV21, COLOR_YUV2RGBA_NV21,
                   COLOR_YUV2BGR_YV12, COLOR_YUV2BGRA_YV12, COLOR_YUV2RGB_YV12, COLOR_YUV2RGBA_YV12, COLOR_YUV2BGR_IYUV, COLOR_YUV2BGRA_IYUV, COLOR_YUV2RGB_IYUV, COLOR_YUV2RGBA_IYUV,
                   COLOR_YUV2GRAY_420, COLOR_YUV2RGB_UYVY, COLOR_YUV2BGR_UYVY, COLOR_YUV2RGBA_UYVY, COLOR_YUV2BGRA_UYVY, COLOR_YUV2RGB_YUY2, COLOR_YUV2BGR_YUY2, COLOR_YUV2RGB_YVYU,
                   COLOR_YUV2BGR_YVYU, COLOR_YUV2RGBA_YUY2, COLOR_YUV2BGRA_YUY2, COLOR_YUV2RGBA_YVYU, COLOR_YUV2BGRA_YVYU)
 
-CC_ENUM(CvtMode3, COLOR_RGB2YUV_IYUV, COLOR_BGR2YUV_IYUV, COLOR_RGBA2YUV_IYUV, COLOR_BGRA2YUV_IYUV,
+CV_ENUM(CvtMode3, COLOR_RGB2YUV_IYUV, COLOR_BGR2YUV_IYUV, COLOR_RGBA2YUV_IYUV, COLOR_BGRA2YUV_IYUV,
                   COLOR_RGB2YUV_YV12, COLOR_BGR2YUV_YV12, COLOR_RGBA2YUV_YV12, COLOR_BGRA2YUV_YV12)
 
 struct ChPair
@@ -124,7 +123,7 @@ struct ChPair
     int scn, dcn;
 };
 
-ChPair getConversionInfo(int cvtMode)
+static ChPair getConversionInfo(int cvtMode)
 {
     switch(cvtMode)
     {
@@ -149,6 +148,8 @@ ChPair getConversionInfo(int cvtMode)
     case COLOR_YUV2BGRA_NV21: case COLOR_YUV2RGBA_NV21:
     case COLOR_YUV2BGRA_YV12: case COLOR_YUV2RGBA_YV12:
     case COLOR_YUV2BGRA_IYUV: case COLOR_YUV2RGBA_IYUV:
+    case COLOR_BayerBG2BGRA: case COLOR_BayerGB2BGRA:
+    case COLOR_BayerGR2BGRA: case COLOR_BayerRG2BGRA:
         return ChPair(1,4);
     case COLOR_BGR5552GRAY: case COLOR_BGR5652GRAY:
         return ChPair(2,1);
@@ -237,7 +238,7 @@ ChPair getConversionInfo(int cvtMode)
     return ChPair(0,0);
 }
 
-typedef std::tr1::tuple<CvSize, CvtMode> Size_CvtMode_t;
+typedef tuple<Size, CvtMode> Size_CvtMode_t;
 typedef perf::TestBaseWithParam<Size_CvtMode_t> Size_CvtMode;
 
 PERF_TEST_P(Size_CvtMode, cvtColor8u,
@@ -247,13 +248,13 @@ PERF_TEST_P(Size_CvtMode, cvtColor8u,
                 )
             )
 {
-    CvSize sz = get<0>(GetParam());
+    Size sz = get<0>(GetParam());
     int _mode = get<1>(GetParam()), mode = _mode;
     ChPair ch = getConversionInfo(mode);
     mode %= COLOR_COLORCVT_MAX;
 
-    CvMat src(sz, CC_8UC(ch.scn));
-    CvMat dst(sz, CC_8UC(ch.dcn));
+    Mat src(sz, CV_8UC(ch.scn));
+    Mat dst(sz, CV_8UC(ch.dcn));
 
     declare.time(100);
     declare.in(src, WARMUP_RNG).out(dst);
@@ -273,7 +274,7 @@ PERF_TEST_P(Size_CvtMode, cvtColor8u,
 #endif
 }
 
-typedef std::tr1::tuple<CvSize, CvtModeBayer> Size_CvtMode_Bayer_t;
+typedef tuple<Size, CvtModeBayer> Size_CvtMode_Bayer_t;
 typedef perf::TestBaseWithParam<Size_CvtMode_Bayer_t> Size_CvtMode_Bayer;
 
 PERF_TEST_P(Size_CvtMode_Bayer, cvtColorBayer8u,
@@ -283,13 +284,13 @@ PERF_TEST_P(Size_CvtMode_Bayer, cvtColorBayer8u,
                 )
             )
 {
-    CvSize sz = get<0>(GetParam());
+    Size sz = get<0>(GetParam());
     int mode = get<1>(GetParam());
     ChPair ch = getConversionInfo(mode);
     mode %= COLOR_COLORCVT_MAX;
 
-    CvMat src(sz, CC_8UC(ch.scn));
-    CvMat dst(sz, CC_8UC(ch.dcn));
+    Mat src(sz, CV_8UC(ch.scn));
+    Mat dst(sz, CV_8UC(ch.dcn));
 
     declare.time(100);
     declare.in(src, WARMUP_RNG).out(dst);
@@ -299,22 +300,22 @@ PERF_TEST_P(Size_CvtMode_Bayer, cvtColorBayer8u,
     SANITY_CHECK(dst, 1);
 }
 
-typedef std::tr1::tuple<CvSize, CvtMode2> Size_CvtMode2_t;
+typedef tuple<Size, CvtMode2> Size_CvtMode2_t;
 typedef perf::TestBaseWithParam<Size_CvtMode2_t> Size_CvtMode2;
 
 PERF_TEST_P(Size_CvtMode2, cvtColorYUV420,
             testing::Combine(
-                testing::Values(szVGA, sz1080p, CvSize(130, 60)),
+                testing::Values(szVGA, sz1080p, Size(130, 60)),
                 CvtMode2::all()
                 )
             )
 {
-    CvSize sz = get<0>(GetParam());
+    Size sz = get<0>(GetParam());
     int mode = get<1>(GetParam());
     ChPair ch = getConversionInfo(mode);
 
-    CvMat src(sz.height + sz.height / 2, sz.width, CC_8UC(ch.scn));
-    CvMat dst(sz, CC_8UC(ch.dcn));
+    Mat src(sz.height + sz.height / 2, sz.width, CV_8UC(ch.scn));
+    Mat dst(sz, CV_8UC(ch.dcn));
 
     declare.in(src, WARMUP_RNG).out(dst);
 
@@ -324,22 +325,22 @@ PERF_TEST_P(Size_CvtMode2, cvtColorYUV420,
     SANITY_CHECK(dst, 1);
 }
 
-typedef std::tr1::tuple<CvSize, CvtMode3> Size_CvtMode3_t;
+typedef tuple<Size, CvtMode3> Size_CvtMode3_t;
 typedef perf::TestBaseWithParam<Size_CvtMode3_t> Size_CvtMode3;
 
 PERF_TEST_P(Size_CvtMode3, cvtColorRGB2YUV420p,
             testing::Combine(
-                testing::Values(szVGA, sz720p, sz1080p, CvSize(130, 60)),
+                testing::Values(szVGA, sz720p, sz1080p, Size(130, 60)),
                 CvtMode3::all()
                 )
             )
 {
-    CvSize sz = get<0>(GetParam());
+    Size sz = get<0>(GetParam());
     int mode = get<1>(GetParam());
     ChPair ch = getConversionInfo(mode);
 
-    CvMat src(sz, CC_8UC(ch.scn));
-    CvMat dst(sz.height + sz.height / 2, sz.width, CC_8UC(ch.dcn));
+    Mat src(sz, CV_8UC(ch.scn));
+    Mat dst(sz.height + sz.height / 2, sz.width, CV_8UC(ch.dcn));
 
     declare.time(100);
     declare.in(src, WARMUP_RNG).out(dst);
@@ -350,23 +351,23 @@ PERF_TEST_P(Size_CvtMode3, cvtColorRGB2YUV420p,
     SANITY_CHECK(dst, 1);
 }
 
-CC_ENUM(EdgeAwareBayerMode, COLOR_BayerBG2BGR_EA, COLOR_BayerGB2BGR_EA, COLOR_BayerRG2BGR_EA, COLOR_BayerGR2BGR_EA)
+CV_ENUM(EdgeAwareBayerMode, COLOR_BayerBG2BGR_EA, COLOR_BayerGB2BGR_EA, COLOR_BayerRG2BGR_EA, COLOR_BayerGR2BGR_EA)
 
-typedef std::tr1::tuple<CvSize, EdgeAwareBayerMode> EdgeAwareParams;
+typedef tuple<Size, EdgeAwareBayerMode> EdgeAwareParams;
 typedef perf::TestBaseWithParam<EdgeAwareParams> EdgeAwareDemosaicingTest;
 
 PERF_TEST_P(EdgeAwareDemosaicingTest, demosaicingEA,
             testing::Combine(
-                testing::Values(szVGA, sz720p, sz1080p, CvSize(130, 60)),
+                testing::Values(szVGA, sz720p, sz1080p, Size(130, 60)),
                 EdgeAwareBayerMode::all()
                 )
             )
 {
-    CvSize sz = get<0>(GetParam());
+    Size sz = get<0>(GetParam());
     int mode = get<1>(GetParam());
 
-    CvMat src(sz, CC_8UC1);
-    CvMat dst(sz, CC_8UC3);
+    Mat src(sz, CV_8UC1);
+    Mat dst(sz, CV_8UC3);
 
     declare.in(src, WARMUP_RNG).out(dst);
 
@@ -374,3 +375,5 @@ PERF_TEST_P(EdgeAwareDemosaicingTest, demosaicingEA,
 
     SANITY_CHECK(dst, 1);
 }
+
+} // namespace

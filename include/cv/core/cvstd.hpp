@@ -41,25 +41,21 @@
 //
 //M*/
 
-#ifndef OPENCC_CORE_CVSTD_HPP
-#define OPENCC_CORE_CVSTD_HPP
+#ifndef OPENCV_CORE_CVSTD_HPP
+#define OPENCV_CORE_CVSTD_HPP
 
 #ifndef __cplusplus
 #  error cvstd.hpp header must be compiled as C++
 #endif
 
 #include "opencv2/core/cvdef.h"
-
 #include <cstddef>
 #include <cstring>
 #include <cctype>
 
-#ifndef OPENCC_NOSTL
-#  include <string>
-#endif
+#include <string>
 
 // import useful primitives from stl
-#ifndef OPENCC_NOSTL_TRANSITIONAL
 #  include <algorithm>
 #  include <utility>
 #  include <cstdlib> //for abs(int)
@@ -72,8 +68,8 @@ namespace cv
     static inline unsigned abs(unsigned a) { return a; }
     static inline uint64 abs(uint64 a) { return a; }
 
-    using MIN;
-    using MAX;
+    using std::min;
+    using std::max;
     using std::abs;
     using std::swap;
     using std::sqrt;
@@ -81,21 +77,6 @@ namespace cv
     using std::pow;
     using std::log;
 }
-
-#else
-namespace cv
-{
-    template<typename T> static inline T min(T a, T b) { return a < b ? a : b; }
-    template<typename T> static inline T max(T a, T b) { return a > b ? a : b; }
-    template<typename T> static inline T abs(T a) { return a < 0 ? -a : a; }
-    template<typename T> static inline void swap(T& a, T& b) { T tmp = a; a = b; b = tmp; }
-
-    template<> inline uchar abs(uchar a) { return a; }
-    template<> inline ushort abs(ushort a) { return a; }
-    template<> inline unsigned abs(unsigned a) { return a; }
-    template<> inline uint64 abs(uint64 a) { return a; }
-}
-#endif
 
 namespace cv {
 
@@ -110,7 +91,7 @@ The function allocates the buffer of the specified size and returns it. When the
 bytes or more, the returned buffer is aligned to 16 bytes.
 @param bufSize Allocated buffer size.
  */
-CC_EXPORTS void* fastMalloc(size_t bufSize);
+CV_EXPORTS void* fastMalloc(size_t bufSize);
 
 /** @brief Deallocates a memory buffer.
 
@@ -119,10 +100,10 @@ function does nothing. C version of the function clears the pointer *pptr* to av
 double memory deallocation.
 @param ptr Pointer to the allocated buffer.
  */
-CC_EXPORTS void fastFree(void* ptr);
+CV_EXPORTS void fastFree(void* ptr);
 
 /*!
-  The STL-compilant memory Allocator based on fastMalloc() and fastFree()
+  The STL-compilant memory Allocator based on cv::fastMalloc() and cv::fastFree()
 */
 template<typename _Tp> class Allocator
 {
@@ -152,7 +133,7 @@ public:
     void construct(pointer p, const _Tp& v) { new(static_cast<void*>(p)) _Tp(v); }
     void destroy(pointer p) { p->~_Tp(); }
 
-    size_type max_size() const { return max(static_cast<_Tp>(-1)/sizeof(_Tp), 1); }
+    size_type max_size() const { return cv::max(static_cast<_Tp>(-1)/sizeof(_Tp), 1); }
 };
 
 //! @} core_utils
@@ -273,7 +254,7 @@ calls the appropriate release function:
 ownership (e.g. when object a contains a Ptr to object b, which contains a Ptr to object a) will
 lead to all involved objects never being cleaned up. Avoid such situations.
 @note It is safe to concurrently read (but not write) a Ptr instance from multiple threads and
-therefore it is normally safe to use it in multi-threaded applications. The same is true for CvMat and
+therefore it is normally safe to use it in multi-threaded applications. The same is true for Mat and
 other C++ OpenCV classes that use internal reference counts.
 */
 template<typename T>
@@ -300,7 +281,7 @@ struct Ptr
     @note It is often easier to use makePtr instead.
      */
     template<typename Y>
-#ifdef DISABLE_OPENCC_24_COMPATIBILITY
+#ifdef DISABLE_OPENCV_24_COMPATIBILITY
     explicit
 #endif
     Ptr(Y* p);
@@ -408,7 +389,7 @@ struct Ptr
     template<typename Y>
     Ptr<Y> dynamicCast() const;
 
-#ifdef CC_CXX_MOVE_SEMANTICS
+#ifdef CV_CXX_MOVE_SEMANTICS
     Ptr(Ptr&& o);
     Ptr& operator = (Ptr&& o);
 #endif
@@ -472,9 +453,9 @@ Ptr<T> makePtr(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5&
 
 //////////////////////////////// string class ////////////////////////////////
 
-class CC_EXPORTS FileNode; //for string constructor from FileNode
+class CV_EXPORTS FileNode; //for string constructor from FileNode
 
-class CC_EXPORTS String
+class CV_EXPORTS String
 {
 public:
     typedef char value_type;
@@ -489,7 +470,7 @@ public:
 
     static const size_t npos = size_t(-1);
 
-    explicit String();
+    String();
     String(const String& str);
     String(const String& str, size_t pos, size_t len = npos);
     String(const char* s);
@@ -556,7 +537,6 @@ public:
 
     String toLowerCase() const;
 
-#ifndef OPENCC_NOSTL
     String(const std::string& str);
     String(const std::string& str, size_t pos, size_t len = npos);
     String& operator=(const std::string& str);
@@ -565,7 +545,6 @@ public:
 
     friend String operator+ (const String& lhs, const std::string& rhs);
     friend String operator+ (const std::string& lhs, const String& rhs);
-#endif
 
 private:
     char*  cstr_;
@@ -579,7 +558,7 @@ private:
 
 //! @} core_basic
 
-////////////////////////// String implementation /////////////////////////
+////////////////////////// cv::String implementation /////////////////////////
 
 //! @cond IGNORED
 
@@ -593,7 +572,7 @@ String::String(const String& str)
     : cstr_(str.cstr_), len_(str.len_)
 {
     if (cstr_)
-        CC_XADD(((int*)cstr_)-1, 1);
+        CV_XADD(((int*)cstr_)-1, 1);
 }
 
 inline
@@ -605,7 +584,7 @@ String::String(const String& str, size_t pos, size_t len)
     if (!len) return;
     if (len == str.len_)
     {
-        CC_XADD(((int*)str.cstr_)-1, 1);
+        CV_XADD(((int*)str.cstr_)-1, 1);
         cstr_ = str.cstr_;
         len_ = str.len_;
         return;
@@ -619,6 +598,7 @@ String::String(const char* s)
 {
     if (!s) return;
     size_t len = strlen(s);
+    if (!len) return;
     memcpy(allocate(len), s, len);
 }
 
@@ -627,6 +607,7 @@ String::String(const char* s, size_t n)
     : cstr_(0), len_(0)
 {
     if (!n) return;
+    if (!s) return;
     memcpy(allocate(n), s, n);
 }
 
@@ -634,6 +615,7 @@ inline
 String::String(size_t n, char c)
     : cstr_(0), len_(0)
 {
+    if (!n) return;
     memset(allocate(n), c, n);
 }
 
@@ -642,6 +624,7 @@ String::String(const char* first, const char* last)
     : cstr_(0), len_(0)
 {
     size_t len = (size_t)(last - first);
+    if (!len) return;
     memcpy(allocate(len), first, len);
 }
 
@@ -650,6 +633,7 @@ String::String(Iterator first, Iterator last)
     : cstr_(0), len_(0)
 {
     size_t len = (size_t)(last - first);
+    if (!len) return;
     char* str = allocate(len);
     while (first != last)
     {
@@ -670,7 +654,7 @@ String& String::operator=(const String& str)
     if (&str == this) return *this;
 
     deallocate();
-    if (str.cstr_) CC_XADD(((int*)str.cstr_)-1, 1);
+    if (str.cstr_) CV_XADD(((int*)str.cstr_)-1, 1);
     cstr_ = str.cstr_;
     len_ = str.len_;
     return *this;
@@ -682,7 +666,7 @@ String& String::operator=(const char* s)
     deallocate();
     if (!s) return *this;
     size_t len = strlen(s);
-    memcpy(allocate(len), s, len);
+    if (len) memcpy(allocate(len), s, len);
     return *this;
 }
 
@@ -748,7 +732,7 @@ const char* String::begin() const
 inline
 const char* String::end() const
 {
-    return len_ ? cstr_ + 1 : 0;
+    return len_ ? cstr_ + len_ : NULL;
 }
 
 inline
@@ -766,8 +750,8 @@ const char* String::c_str() const
 inline
 void String::swap(String& str)
 {
-    swap(cstr_, str.cstr_);
-    swap(len_, str.len_);
+    cv::swap(cstr_, str.cstr_);
+    cv::swap(len_, str.len_);
 }
 
 inline
@@ -955,8 +939,9 @@ size_t String::find_last_of(const char* s, size_t pos) const
 inline
 String String::toLowerCase() const
 {
+    if (!cstr_)
+        return String();
     String res(cstr_, len_);
-
     for (size_t i = 0; i < len_; ++i)
         res.cstr_[i] = (char) ::tolower(cstr_[i]);
 
@@ -965,9 +950,9 @@ String String::toLowerCase() const
 
 //! @endcond
 
-// ************************* String non-member functions *************************
+// ************************* cv::String non-member functions *************************
 
-//! @relates String
+//! @relates cv::String
 //! @{
 
 inline
@@ -975,8 +960,8 @@ String operator + (const String& lhs, const String& rhs)
 {
     String s;
     s.allocate(lhs.len_ + rhs.len_);
-    memcpy(s.cstr_, lhs.cstr_, lhs.len_);
-    memcpy(s.cstr_ + lhs.len_, rhs.cstr_, rhs.len_);
+    if (lhs.len_) memcpy(s.cstr_, lhs.cstr_, lhs.len_);
+    if (rhs.len_) memcpy(s.cstr_ + lhs.len_, rhs.cstr_, rhs.len_);
     return s;
 }
 
@@ -986,8 +971,8 @@ String operator + (const String& lhs, const char* rhs)
     String s;
     size_t rhslen = strlen(rhs);
     s.allocate(lhs.len_ + rhslen);
-    memcpy(s.cstr_, lhs.cstr_, lhs.len_);
-    memcpy(s.cstr_ + lhs.len_, rhs, rhslen);
+    if (lhs.len_) memcpy(s.cstr_, lhs.cstr_, lhs.len_);
+    if (rhslen) memcpy(s.cstr_ + lhs.len_, rhs, rhslen);
     return s;
 }
 
@@ -997,8 +982,8 @@ String operator + (const char* lhs, const String& rhs)
     String s;
     size_t lhslen = strlen(lhs);
     s.allocate(lhslen + rhs.len_);
-    memcpy(s.cstr_, lhs, lhslen);
-    memcpy(s.cstr_ + lhslen, rhs.cstr_, rhs.len_);
+    if (lhslen) memcpy(s.cstr_, lhs, lhslen);
+    if (rhs.len_) memcpy(s.cstr_ + lhslen, rhs.cstr_, rhs.len_);
     return s;
 }
 
@@ -1007,7 +992,7 @@ String operator + (const String& lhs, char rhs)
 {
     String s;
     s.allocate(lhs.len_ + 1);
-    memcpy(s.cstr_, lhs.cstr_, lhs.len_);
+    if (lhs.len_) memcpy(s.cstr_, lhs.cstr_, lhs.len_);
     s.cstr_[lhs.len_] = rhs;
     return s;
 }
@@ -1018,7 +1003,7 @@ String operator + (char lhs, const String& rhs)
     String s;
     s.allocate(rhs.len_ + 1);
     s.cstr_[0] = lhs;
-    memcpy(s.cstr_ + 1, rhs.cstr_, rhs.len_);
+    if (rhs.len_) memcpy(s.cstr_ + 1, rhs.cstr_, rhs.len_);
     return s;
 }
 
@@ -1041,26 +1026,15 @@ static inline bool operator>= (const String& lhs, const String& rhs) { return lh
 static inline bool operator>= (const char*   lhs, const String& rhs) { return rhs.compare(lhs) <= 0; }
 static inline bool operator>= (const String& lhs, const char*   rhs) { return lhs.compare(rhs) >= 0; }
 
-//! @} relates String
+//! @} relates cv::String
 
 } // cv
 
-#ifndef OPENCC_NOSTL_TRANSITIONAL
 namespace std
 {
-    static inline void swap(String& a, String& b) { a.swap(b); }
+    static inline void swap(cv::String& a, cv::String& b) { a.swap(b); }
 }
-#else
-namespace cv
-{
-    template<> inline
-    void swap<String>(String& a, String& b)
-    {
-        a.swap(b);
-    }
-}
-#endif
 
 #include "opencv2/core/ptr.inl.hpp"
 
-#endif //OPENCC_CORE_CVSTD_HPP
+#endif //OPENCV_CORE_CVSTD_HPP

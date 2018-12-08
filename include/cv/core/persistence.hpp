@@ -1,1217 +1,324 @@
-
-
-#ifndef OPENCC_CORE_PERSISTENCE_HPP
-#define OPENCC_CORE_PERSISTENCE_HPP
-
-//#include "cfile.h"
-
-//! @addtogroup core_c
-//! @{
-
-/** @brief "black box" representation of the file storage associated with a file on disk.
-
-Several functions that are described below take CFileStorage\* as inputs and allow the user to
-save or to load hierarchical collections that consist of scalar values, standard CXCore objects
-(such as matrices, sequences, graphs), and user-defined objects.
-
-OpenCV can read and write data in XML (<http://www.w3c.org/XML>), YAML (<http://www.yaml.org>) or
-JSON (<http://www.json.org/>) formats. Below is an example of 3x3 floating-point identity matrix A,
-stored in XML and YAML files
-using CXCore functions:
-XML:
-@code{.xml}
-    <?xml version="1.0">
-    <opencv_storage>
-    <A type_id="opencv-matrix">
-      <rows>3</rows>
-      <cols>3</cols>
-      <dt>f</dt>
-      <data>1. 0. 0. 0. 1. 0. 0. 0. 1.</data>
-    </A>
-    </opencv_storage>
-@endcode
-YAML:
-@code{.yaml}
-    %YAML:1.0
-    A: !!opencv-matrix
-      rows: 3
-      cols: 3
-      dt: f
-      data: [ 1., 0., 0., 0., 1., 0., 0., 0., 1.]
-@endcode
-As it can be seen from the examples, XML uses nested tags to represent hierarchy, while YAML uses
-indentation for that purpose (similar to the Python programming language).
-
-The same functions can read and write data in both formats; the particular format is determined by
-the extension of the opened file, ".xml" for XML files, ".yml" or ".yaml" for YAML and ".json" for
-JSON.
- */
-//typedef struct CFileStorage CFileStorage;
-//typedef struct CFileNode CFileNode;
-//typedef struct CvMat CvMat;
-//typedef struct CvMatND CvMatND;
-
-//! @} core_c
-
-
-
-/** @addtogroup core_xml
-
-XML/YAML/JSON file storages.     {#xml_storage}
-=======================
-Writing to a file storage.
---------------------------
-You can store and then restore various OpenCV data structures to/from XML (<http://www.w3c.org/XML>),
-YAML (<http://www.yaml.org>) or JSON (<http://www.json.org/>) formats. Also, it is possible store
-and load arbitrarily complex data structures, which include OpenCV data structures, as well as
-primitive data types (integer and floating-point numbers and text strings) as their elements.
-
-Use the following procedure to write something to XML, YAML or JSON:
--# Create new FileStorage and open it for writing. It can be done with a single call to
-FileStorage::FileStorage constructor that takes a filename, or you can use the default constructor
-and then call FileStorage::open. Format of the file (XML, YAML or JSON) is determined from the filename
-extension (".xml", ".yml"/".yaml" and ".json", respectively)
--# Write all the data you want using the streaming operator `<<`, just like in the case of STL
-streams.
--# Close the file using FileStorage::release. FileStorage destructor also closes the file.
-
-Here is an example:
-@code
-    #include "opencv2/opencv.hpp"
-    #include <time.h>
-
-    int main(int, char** argv)
-    {
-        FileStorage fs("test.yml", FileStorage::WRITE);
-
-        fs << "frameCount" << 5;
-        time_t rawtime; time(&rawtime);
-        fs << "calibrationDate" << asctime(localtime(&rawtime));
-        CvMat cameraMatrix = (Mat_<double>(3,3) << 1000, 0, 320, 0, 1000, 240, 0, 0, 1);
-        CvMat distCoeffs = (Mat_<double>(5,1) << 0.1, 0.01, -0.001, 0, 0);
-        fs << "cameraMatrix" << cameraMatrix << "distCoeffs" << distCoeffs;
-        fs << "features" << "[";
-        for( int i = 0; i < 3; i++ )
-        {
-            int x = rand() % 640;
-            int y = rand() % 480;
-            uchar lbp = rand() % 256;
-
-            fs << "{:" << "x" << x << "y" << y << "lbp" << "[:";
-            for( int j = 0; j < 8; j++ )
-                fs << ((lbp >> j) & 1);
-            fs << "]" << "}";
-        }
-        fs << "]";
-        fs.release();
-        return 0;
-    }
-@endcode
-The sample above stores to XML and integer, text string (calibration date), 2 matrices, and a custom
-structure "feature", which includes feature coordinates and LBP (local binary pattern) value. Here
-is output of the sample:
-@code{.yaml}
-%YAML:1.0
-frameCount: 5
-calibrationDate: "Fri Jun 17 14:09:29 2011\n"
-cameraMatrix: !!opencv-matrix
-   rows: 3
-   cols: 3
-   dt: d
-   data: [ 1000., 0., 320., 0., 1000., 240., 0., 0., 1. ]
-distCoeffs: !!opencv-matrix
-   rows: 5
-   cols: 1
-   dt: d
-   data: [ 1.0000000000000001e-01, 1.0000000000000000e-02,
-       -1.0000000000000000e-03, 0., 0. ]
-features:
-   - { x:167, y:49, lbp:[ 1, 0, 0, 1, 1, 0, 1, 1 ] }
-   - { x:298, y:130, lbp:[ 0, 0, 0, 1, 0, 0, 1, 1 ] }
-   - { x:344, y:158, lbp:[ 1, 1, 0, 0, 0, 0, 1, 0 ] }
-@endcode
-
-As an exercise, you can replace ".yml" with ".xml" or ".json" in the sample above and see, how the
-corresponding XML file will look like.
-
-Several things can be noted by looking at the sample code and the output:
-
--   The produced YAML (and XML/JSON) consists of heterogeneous collections that can be nested. There are
-    2 types of collections: named collections (mappings) and unnamed collections (sequences). In mappings
-    each element has a name and is accessed by name. This is similar to structures and std::map in
-    C/C++ and dictionaries in Python. In sequences elements do not have names, they are accessed by
-    indices. This is similar to arrays and std::vector in C/C++ and lists, tuples in Python.
-    "Heterogeneous" means that elements of each single collection can have different types.
-
-    Top-level collection in YAML/XML/JSON is a mapping. Each matrix is stored as a mapping, and the matrix
-    elements are stored as a sequence. Then, there is a sequence of features, where each feature is
-    represented a mapping, and lbp value in a nested sequence.
-
--   When you write to a mapping (a structure), you write element name followed by its value. When you
-    write to a sequence, you simply write the elements one by one. OpenCV data structures (such as
-    CvMat) are written in absolutely the same way as simple C data structures - using `<<`
-    operator.
-
--   To write a mapping, you first write the special string `{` to the storage, then write the
-    elements as pairs (`fs << <element_name> << <element_value>`) and then write the closing
-    `}`.
-
--   To write a sequence, you first write the special string `[`, then write the elements, then
-    write the closing `]`.
-
--   In YAML/JSON (but not XML), mappings and sequences can be written in a compact Python-like inline
-    form. In the sample above matrix elements, as well as each feature, including its lbp value, is
-    stored in such inline form. To store a mapping/sequence in a compact form, put `:` after the
-    opening character, e.g. use `{:` instead of `{` and `[:` instead of `[`. When the
-    data is written to XML, those extra `:` are ignored.
-
-Reading data from a file storage.
----------------------------------
-To read the previously written XML, YAML or JSON file, do the following:
--#  Open the file storage using FileStorage::FileStorage constructor or FileStorage::open method.
-    In the current implementation the whole file is parsed and the whole representation of file
-    storage is built in memory as a hierarchy of file nodes (see FileNode)
-
--#  Read the data you are interested in. Use FileStorage::operator [], FileNode::operator []
-    and/or FileNodeIterator.
-
--#  Close the storage using FileStorage::release.
-
-Here is how to read the file created by the code sample above:
-@code
-    FileStorage fs2("test.yml", FileStorage::READ);
-
-    // first method: use (type) operator on FileNode.
-    int frameCount = (int)fs2["frameCount"];
-
-    char* date;
-    // second method: use FileNode::operator >>
-    fs2["calibrationDate"] >> date;
-
-    CvMat cameraMatrix2, distCoeffs2;
-    fs2["cameraMatrix"] >> cameraMatrix2;
-    fs2["distCoeffs"] >> distCoeffs2;
-
-    cout << "frameCount: " << frameCount << endl
-         << "calibration date: " << date << endl
-         << "camera matrix: " << cameraMatrix2 << endl
-         << "distortion coeffs: " << distCoeffs2 << endl;
-
-    FileNode features = fs2["features"];
-    FileNodeIterator it = features.begin(), it_end = features.end();
-    int idx = 0;
-    std::vector<uchar> lbpval;
-
-    // iterate through a sequence using FileNodeIterator
-    for( ; it != it_end; ++it, idx++ )
-    {
-        cout << "feature #" << idx << ": ";
-        cout << "x=" << (int)(*it)["x"] << ", y=" << (int)(*it)["y"] << ", lbp: (";
-        // you can also easily read numerical arrays using FileNode >> std::vector operator.
-        (*it)["lbp"] >> lbpval;
-        for( int i = 0; i < (int)lbpval.size(); i++ )
-            cout << " " << (int)lbpval[i];
-        cout << ")" << endl;
-    }
-    fs2.release();
-@endcode
-
-Format specification    {#format_spec}
---------------------
-`([count]{u|c|w|s|i|f|d})`... where the characters correspond to fundamental C++ types:
--   `u` 8-bit unsigned number
--   `c` 8-bit signed number
--   `w` 16-bit unsigned number
--   `s` 16-bit signed number
--   `i` 32-bit signed number
--   `f` single precision floating-point number
--   `d` double precision floating-point number
--   `r` pointer, 32 lower bits of which are written as a signed integer. The type can be used to
-    store structures with links between the elements.
-
-`count` is the optional counter of values of a given type. For example, `2if` means that each array
-element is a structure of 2 integers, followed by a single-precision floating-point number. The
-equivalent notations of the above specification are `iif`, `2i1f` and so forth. Other examples: `u`
-means that the array consists of bytes, and `2d` means the array consists of pairs of doubles.
-
-@see @ref filestorage.cpp
-*/
-
-//! @{
-
-/** @example filestorage.cpp
-A complete example using the FileStorage interface
-*/
-
-////////////////////////// XML & YAML I/O //////////////////////////
-
-#if 0
-class CC_EXPORTS FileNode;
-class CC_EXPORTS FileNodeIterator;
-
-/** @brief XML/YAML/JSON file storage class that encapsulates all the information necessary for writing or
-reading data to/from a file.
- */
-class CC_EXPORTS_W FileStorage
-{
-public:
-    //! file storage mode
-    enum Mode
-    {
-        READ        = 0, //!< value, open the file for reading
-        WRITE       = 1, //!< value, open the file for writing
-        APPEND      = 2, //!< value, open the file for appending
-        MEMORY      = 4, //!< flag, read data from source or write data to the internal buffer (which is
-                         //!< returned by FileStorage::release)
-        FORMAT_MASK = (7<<3), //!< mask for format flags
-        FORMAT_AUTO = 0,      //!< flag, auto format
-        FORMAT_XML  = (1<<3), //!< flag, XML format
-        FORMAT_YAML = (2<<3), //!< flag, YAML format
-        FORMAT_JSON = (3<<3), //!< flag, JSON format
-
-        BASE64      = 64,     //!< flag, write rawdata in Base64 by default. (consider using WRITE_BASE64)
-        WRITE_BASE64 = BASE64 | WRITE, //!< flag, enable both WRITE and BASE64
-    };
-    enum
-    {
-        UNDEFINED      = 0,
-        VALUE_EXPECTED = 1,
-        NAME_EXPECTED  = 2,
-        INSIDE_MAP     = 4
-    };
-
-    /** @brief The constructors.
-
-    The full constructor opens the file. Alternatively you can use the default constructor and then
-    call FileStorage::open.
-     */
-    CC_WRAP FileStorage();
-
-    /** @overload
-    @param source Name of the file to open or the text string to read the data from. Extension of the
-    file (.xml, .yml/.yaml, or .json) determines its format (XML, YAML or JSON respectively). Also you can
-    append .gz to work with compressed files, for example myHugeMatrix.xml.gz. If both FileStorage::WRITE
-    and FileStorage::MEMORY flags are specified, source is used just to specify the output file format (e.g.
-    mydata.xml, .yml etc.).
-    @param flags Mode of operation. See  FileStorage::Mode
-    @param encoding Encoding of the file. Note that UTF-16 XML encoding is not supported currently and
-    you should use 8-bit encoding instead of it.
-    */
-    CC_WRAP FileStorage(const char* source, int flags, const char* encoding=NULL);
-
-    /** @overload */
-    FileStorage(CFileStorage* fs, bool owning=true);
-
-    //! the destructor. calls release()
-    virtual ~FileStorage();
-
-    /** @brief Opens a file.
-
-    See description of parameters in FileStorage::FileStorage. The method calls FileStorage::release
-    before opening the file.
-    @param filename Name of the file to open or the text string to read the data from.
-       Extension of the file (.xml, .yml/.yaml or .json) determines its format (XML, YAML or JSON
-        respectively). Also you can append .gz to work with compressed files, for example myHugeMatrix.xml.gz. If both
-        FileStorage::WRITE and FileStorage::MEMORY flags are specified, source is used just to specify
-        the output file format (e.g. mydata.xml, .yml etc.). A file name can also contain parameters.
-        You can use this format, "*?base64" (e.g. "file.json?base64" (case sensitive)), as an alternative to
-        FileStorage::BASE64 flag.
-    @param flags Mode of operation. One of FileStorage::Mode
-    @param encoding Encoding of the file. Note that UTF-16 XML encoding is not supported currently and
-    you should use 8-bit encoding instead of it.
-     */
-    CC_WRAP virtual bool open(const char* filename, int flags, const char* encoding=NULL);
-
-    /** @brief Checks whether the file is opened.
-
-    @returns true if the object is associated with the current file and false otherwise. It is a
-    good practice to call this method after you tried to open a file.
-     */
-    CC_WRAP virtual bool isOpened() const;
-
-    /** @brief Closes the file and releases all the memory buffers.
-
-    Call this method after all I/O operations with the storage are finished.
-     */
-    CC_WRAP virtual void release();
-
-    /** @brief Closes the file and releases all the memory buffers.
-
-    Call this method after all I/O operations with the storage are finished. If the storage was
-    opened for writing data and FileStorage::WRITE was specified
-     */
-    CC_WRAP virtual char* releaseAndGetString();
-
-    /** @brief Returns the first element of the top-level mapping.
-    @returns The first element of the top-level mapping.
-     */
-    CC_WRAP FileNode getFirstTopLevelNode() const;
-
-    /** @brief Returns the top-level mapping
-    @param streamidx Zero-based index of the stream. In most cases there is only one stream in the file.
-    However, YAML supports multiple streams and so there can be several.
-    @returns The top-level mapping.
-     */
-    CC_WRAP FileNode root(int streamidx=0) const;
-
-    /** @brief Returns the specified element of the top-level mapping.
-    @param nodename Name of the file node.
-    @returns Node with the given name.
-     */
-    FileNode operator[](const char* nodename) const;
-
-    /** @brief Returns the obsolete C FileStorage structure.
-    @returns Pointer to the underlying C FileStorage structure
-     */
-    CFileStorage* operator *() { return fs; }
-
-    /** @overload */
-    const CFileStorage* operator *() const { return fs; }
-
-    /** @brief Writes multiple numbers.
-
-    Writes one or more numbers of the specified format to the currently written structure. Usually it is
-    more convenient to use operator `<<` instead of this method.
-    @param fmt Specification of each array element, see @ref format_spec "format specification"
-    @param vec Pointer to the written array.
-    @param len Number of the uchar elements to write.
-     */
-    void writeRaw( const char* fmt, const uchar* vec, size_t len );
-
-    /** @brief Writes the registered C structure (CvMat, CvMatND, CvSeq).
-    @param name Name of the written object.
-    @param obj Pointer to the object.
-    @see ocvWrite for details.
-     */
-    void writeObj( const char* name, const void* obj );
-
-    /**
-     * @brief Simplified writing API to use with bindings.
-     * @param name Name of the written object
-     * @param val Value of the written object
-     */
-    CC_WRAP void write(const char* name, double val);
-    /// @overload
-    CC_WRAP void write(const char* name, const char* val);
-    /// @overload
-    CC_WRAP void write(const char* name, const CvMat* val);
-
-    /** @brief Writes a comment.
-
-    The function writes a comment into file storage. The comments are skipped when the storage is read.
-    @param comment The written comment, single-line or multi-line
-    @param append If true, the function tries to put the comment at the end of current line.
-    Else if the comment is multi-line, or if it does not fit at the end of the current
-    line, the comment starts a new line.
-     */
-    CC_WRAP void writeComment(const char* comment, bool append = false);
-
-    /** @brief Returns the normalized object name for the specified name of a file.
-    @param filename Name of a file
-    @returns The normalized object name.
-     */
-    static char* getDefaultObjectName(const char* filename);
-
-    CFileStorage* fs; //!< the underlying C FileStorage structure
-    char* elname; //!< the currently written element
-    std::vector<char> structs; //!< the stack of written structures
-    int state; //!< the writer state
-};
-//template<> CC_EXPORTS void DefaultDeleter<CFileStorage>::operator ()(CFileStorage* obj) const;
-
-/** @brief File Storage Node class.
-
-The node is used to store each and every element of the file storage opened for reading. When
-XML/YAML file is read, it is first parsed and stored in the memory as a hierarchical collection of
-nodes. Each node can be a “leaf” that is contain a single number or a string, or be a collection of
-other nodes. There can be named collections (mappings) where each element has a name and it is
-accessed by a name, and ordered collections (sequences) where elements do not have names but rather
-accessed by index. Type of the file node can be determined using FileNode::type method.
-
-Note that file nodes are only used for navigating file storages opened for reading. When a file
-storage is opened for writing, no data is stored in memory after it is written.
- */
-class CC_EXPORTS_W_SIMPLE FileNode
-{
-public:
-    //! type of the file storage node
-    enum Type
-    {
-        NONE      = 0, //!< empty node
-        INT       = 1, //!< an integer
-        REAL      = 2, //!< floating-point number
-        FLOAT     = REAL, //!< synonym or REAL
-        STR       = 3, //!< text string in UTF-8 encoding
-        STRING    = STR, //!< synonym for STR
-        REF       = 4, //!< integer of size size_t. Typically used for storing complex dynamic structures where some elements reference the others
-        SEQ       = 5, //!< sequence
-        MAP       = 6, //!< mapping
-        TYPE_MASK = 7,
-        FLOW      = 8,  //!< compact representation of a sequence or mapping. Used only by YAML writer
-        USER      = 16, //!< a registered object (e.g. a matrix)
-        EMPTY     = 32, //!< empty structure (sequence or mapping)
-        NAMED     = 64  //!< the node has a name (i.e. it is element of a mapping)
-    };
-    /** @brief The constructors.
-
-    These constructors are used to create a default file node, construct it from obsolete structures or
-    from the another file node.
-     */
-    CC_WRAP FileNode();
-
-    /** @overload
-    @param fs Pointer to the obsolete file storage structure.
-    @param node File node to be used as initialization for the created file node.
-    */
-    FileNode(const CFileStorage* fs, const CFileNode* node);
-
-    /** @overload
-    @param node File node to be used as initialization for the created file node.
-    */
-    FileNode(const CFileNode* node);
-
-    /** @brief Returns element of a mapping node or a sequence node.
-    @param nodename Name of an element in the mapping node.
-    @returns Returns the element with the given identifier.
-     */
-    FileNode operator[](const char* nodename) const;
-
-    /** @overload
-    @param i Index of an element in the sequence node.
-    */
-    CC_WRAP_AS(at) FileNode operator[](int i) const;
-
-    /** @brief Returns type of the node.
-    @returns Type of the node. See FileNode::Type
-     */
-    CC_WRAP int type() const;
-
-    //! returns true if the node is empty
-    CC_WRAP bool empty() const;
-    //! returns true if the node is a "none" object
-    CC_WRAP bool isNone() const;
-    //! returns true if the node is a sequence
-    CC_WRAP bool isSeq() const;
-    //! returns true if the node is a mapping
-    CC_WRAP bool isMap() const;
-    //! returns true if the node is an integer
-    CC_WRAP bool isInt() const;
-    //! returns true if the node is a floating-point number
-    CC_WRAP bool isReal() const;
-    //! returns true if the node is a text string
-    CC_WRAP bool isString() const;
-    //! returns true if the node has a name
-    CC_WRAP bool isNamed() const;
-    //! returns the node name or an empty string if the node is nameless
-    CC_WRAP char* name() const;
-    //! returns the number of elements in the node, if it is a sequence or mapping, or 1 otherwise.
-    CC_WRAP size_t size() const;
-    //! returns the node content as an integer. If the node stores floating-point number, it is rounded.
-    operator int() const;
-    //! returns the node content as float
-    operator float() const;
-    //! returns the node content as double
-    operator double() const;
-    //! returns the node content as text string
-    operator char*() const;
-#ifndef OPENCC_NOSTL
-    operator std::string() const;
+// This file is part of OpenCV project.
+// It is subject to the license terms in the LICENSE file found in the top-level directory
+// of this distribution and at http://opencv.org/license.html
+
+
+#ifndef SRC_PERSISTENCE_HPP
+#define SRC_PERSISTENCE_HPP
+
+#include "opencv2/core/types_c.h"
+#include <deque>
+#include <sstream>
+#include <string>
+#include <iterator>
+
+#define USE_ZLIB 1
+#if USE_ZLIB
+#  ifndef _LFS64_LARGEFILE
+#    define _LFS64_LARGEFILE 0
+#  endif
+#  ifndef _FILE_OFFSET_BITS
+#    define _FILE_OFFSET_BITS 0
+#  endif
+#  include <zlib.h>
+#else
+typedef void* gzFile;
 #endif
 
-    //! returns pointer to the underlying file node
-    CFileNode* operator *();
-    //! returns pointer to the underlying file node
-    const CFileNode* operator* () const;
+//=====================================================================================
 
-    //! returns iterator pointing to the first node element
-    FileNodeIterator begin() const;
-    //! returns iterator pointing to the element following the last node element
-    FileNodeIterator end() const;
+static const size_t PARSER_BASE64_BUFFER_SIZE = 1024U * 1024U / 8U;
 
-    /** @brief Reads node elements to the buffer with the specified format.
+namespace base64 {
 
-    Usually it is more convenient to use operator `>>` instead of this method.
-    @param fmt Specification of each array element. See @ref format_spec "format specification"
-    @param vec Pointer to the destination array.
-    @param len Number of elements to read. If it is greater than number of remaining elements then all
-    of them will be read.
-     */
-    void readRaw( const char* fmt, uchar* vec, size_t len ) const;
-
-    //! reads the registered object and returns pointer to it
-    void* readObj() const;
-
-    //! Simplified reading API to use with bindings.
-    CC_WRAP double real() const;
-    //! Simplified reading API to use with bindings.
-    CC_WRAP char* string() const;
-    //! Simplified reading API to use with bindings.
-    CC_WRAP CvMat mat() const;
-
-    // do not use wrapper pointer classes for better efficiency
-    const CFileStorage* fs;
-    const CFileNode* node;
+namespace fs {
+enum State
+{
+    Uncertain,
+    NotUse,
+    InUse,
 };
+} // fs::
 
+static const size_t HEADER_SIZE         = 24U;
+static const size_t ENCODED_HEADER_SIZE = 32U;
 
-/** @brief used to iterate through sequences and mappings.
+size_t base64_encode(uint8_t const * src, uint8_t * dst, size_t off,      size_t cnt);
+size_t base64_encode(   char const * src,    char * dst, size_t off = 0U, size_t cnt = 0U);
+size_t base64_decode(uint8_t const * src, uint8_t * dst, size_t off,      size_t cnt);
+size_t base64_decode(   char const * src,    char * dst, size_t off = 0U, size_t cnt = 0U);
+bool   base64_valid (uint8_t const * src, size_t off,      size_t cnt);
+bool   base64_valid (   char const * src, size_t off = 0U, size_t cnt = 0U);
+size_t base64_encode_buffer_size(size_t cnt, bool is_end_with_zero = true);
+size_t base64_decode_buffer_size(size_t cnt, bool is_end_with_zero = true);
+size_t base64_decode_buffer_size(size_t cnt, char  const * src, bool is_end_with_zero = true);
+size_t base64_decode_buffer_size(size_t cnt, uchar const * src, bool is_end_with_zero = true);
+std::string make_base64_header(const char * dt);
+bool read_base64_header(std::vector<char> const & header, std::string & dt);
+void make_seq(void * binary_data, int elem_cnt, const char * dt, CvSeq & seq);
+void cvWriteRawDataBase64(::CvFileStorage* fs, const void* _data, int len, const char* dt);
 
-A standard STL notation, with node.begin(), node.end() denoting the beginning and the end of a
-sequence, stored in node. See the data reading sample in the beginning of the section.
- */
-class CC_EXPORTS FileNodeIterator
+class Base64ContextEmitter;
+
+class Base64Writer
 {
 public:
-    /** @brief The constructors.
+    Base64Writer(::CvFileStorage * fs);
+    ~Base64Writer();
+    void write(const void* _data, size_t len, const char* dt);
+    template<typename _to_binary_convertor_t> void write(_to_binary_convertor_t & convertor, const char* dt);
 
-    These constructors are used to create a default iterator, set it to specific element in a file node
-    or construct it from another iterator.
-     */
-    FileNodeIterator();
-
-    /** @overload
-    @param fs File storage for the iterator.
-    @param node File node for the iterator.
-    @param ofs Index of the element in the node. The created iterator will point to this element.
-    */
-    FileNodeIterator(const CFileStorage* fs, const CFileNode* node, size_t ofs=0);
-
-    /** @overload
-    @param it Iterator to be used as initialization for the created iterator.
-    */
-    FileNodeIterator(const FileNodeIterator& it);
-
-    //! returns the currently observed element
-    FileNode operator *() const;
-    //! accesses the currently observed element methods
-    FileNode operator ->() const;
-
-    //! moves iterator to the next node
-    FileNodeIterator& operator ++ ();
-    //! moves iterator to the next node
-    FileNodeIterator operator ++ (int);
-    //! moves iterator to the previous node
-    FileNodeIterator& operator -- ();
-    //! moves iterator to the previous node
-    FileNodeIterator operator -- (int);
-    //! moves iterator forward by the specified offset (possibly negative)
-    FileNodeIterator& operator += (int ofs);
-    //! moves iterator backward by the specified offset (possibly negative)
-    FileNodeIterator& operator -= (int ofs);
-
-    /** @brief Reads node elements to the buffer with the specified format.
-
-    Usually it is more convenient to use operator `>>` instead of this method.
-    @param fmt Specification of each array element. See @ref format_spec "format specification"
-    @param vec Pointer to the destination array.
-    @param maxCount Number of elements to read. If it is greater than number of remaining elements then
-    all of them will be read.
-     */
-    FileNodeIterator& readRaw( const char* fmt, uchar* vec,
-                               size_t maxCount=(size_t)INT_MAX );
-
-    struct SeqReader
-    {
-      int          header_size;
-      void*        seq;        /* sequence, beign read; CvSeq      */
-      void*        block;      /* current block;        CvSeqBlock */
-      schar*       ptr;        /* pointer to element be read next */
-      schar*       block_min;  /* pointer to the beginning of block */
-      schar*       block_max;  /* pointer to the end of block */
-      int          delta_index;/* = seq->first->start_index   */
-      schar*       prev_elem;  /* pointer to previous element */
-    };
-
-    const CFileStorage* fs;
-    const CFileNode* container;
-    SeqReader reader;
-    size_t remaining;
-};
-
-//! @} core_xml
-
-/////////////////// XML & YAML I/O implementation //////////////////
-
-//! @relates FileStorage
-//! @{
-
-CC_EXPORTS void write( CFileStorage* fs, const char* name, int value );
-CC_EXPORTS void write( CFileStorage* fs, const char* name, float value );
-CC_EXPORTS void write( CFileStorage* fs, const char* name, double value );
-CC_EXPORTS void write( CFileStorage* fs, const char* name, const char* value );
-CC_EXPORTS void write( CFileStorage* fs, const char* name, const CvMat& value );
-//CC_EXPORTS void write( CFileStorage* fs, const char* name, const SparseMat& value );
-//CC_EXPORTS void write( CFileStorage* fs, const char* name, const std::vector<KeyPoint>& value);
-//CC_EXPORTS void write( CFileStorage* fs, const char* name, const std::vector<DMatch>& value);
-
-CC_EXPORTS void writeScalar( CFileStorage* fs, int value );
-CC_EXPORTS void writeScalar( CFileStorage* fs, float value );
-CC_EXPORTS void writeScalar( CFileStorage* fs, double value );
-CC_EXPORTS void writeScalar( CFileStorage* fs, const char* value );
-
-//! @}
-
-//! @relates FileNode
-//! @{
-
-CC_EXPORTS void read(const CFileNode* node, int& value, int default_value);
-CC_EXPORTS void read(const CFileNode* node, float& value, float default_value);
-CC_EXPORTS void read(const CFileNode* node, double& value, double default_value);
-CC_EXPORTS void read(const CFileNode* node, char* value, const char* default_value);
-CC_EXPORTS void read(const CFileNode* node, CvMat& mat, const img_t* default_mat = NULL );
-//CC_EXPORTS void read(const CFileNode* node, SparseMat& mat, const SparseMat& default_mat = NULL );
-//CC_EXPORTS void read(const CFileNode* node, std::vector<KeyPoint>& keypoints);
-//CC_EXPORTS void read(const CFileNode* node, std::vector<DMatch>& matches);
-
-template<typename _Tp> static inline void read(const CFileNode* node, Point_<_Tp>& value, const Point_<_Tp>& default_value)
-{
-    std::vector<_Tp> temp; FileNodeIterator it = node.begin(); it >> temp;
-    value = temp.size() != 2 ? default_value : Point_<_Tp>(saturate_cast<_Tp>(temp[0]), saturate_cast<_Tp>(temp[1]));
-}
-
-template<typename _Tp> static inline void read(const CFileNode* node, Point3_<_Tp>& value, const Point3_<_Tp>& default_value)
-{
-    std::vector<_Tp> temp; FileNodeIterator it = node.begin(); it >> temp;
-    value = temp.size() != 3 ? default_value : Point3_<_Tp>(saturate_cast<_Tp>(temp[0]), saturate_cast<_Tp>(temp[1]),
-                                                            saturate_cast<_Tp>(temp[2]));
-}
-
-template<typename _Tp> static inline void read(const CFileNode* node, Size_<_Tp>& value, const Size_<_Tp>& default_value)
-{
-    std::vector<_Tp> temp; FileNodeIterator it = node.begin(); it >> temp;
-    value = temp.size() != 2 ? default_value : Size_<_Tp>(saturate_cast<_Tp>(temp[0]), saturate_cast<_Tp>(temp[1]));
-}
-
-template<typename _Tp> static inline void read(const CFileNode* node, Complex<_Tp>& value, const Complex<_Tp>& default_value)
-{
-    std::vector<_Tp> temp; FileNodeIterator it = node.begin(); it >> temp;
-    value = temp.size() != 2 ? default_value : Complex<_Tp>(saturate_cast<_Tp>(temp[0]), saturate_cast<_Tp>(temp[1]));
-}
-
-template<typename _Tp> static inline void read(const CFileNode* node, Rect_<_Tp>& value, const Rect_<_Tp>& default_value)
-{
-    std::vector<_Tp> temp; FileNodeIterator it = node.begin(); it >> temp;
-    value = temp.size() != 4 ? default_value : Rect_<_Tp>(saturate_cast<_Tp>(temp[0]), saturate_cast<_Tp>(temp[1]),
-                                                          saturate_cast<_Tp>(temp[2]), saturate_cast<_Tp>(temp[3]));
-}
-
-template<typename _Tp, int cn> static inline void read(const CFileNode* node, Vec<_Tp, cn>& value, const Vec<_Tp, cn>& default_value)
-{
-    std::vector<_Tp> temp; FileNodeIterator it = node.begin(); it >> temp;
-    value = temp.size() != cn ? default_value : Vec<_Tp, cn>(&temp[0]);
-}
-
-template<typename _Tp> static inline void read(const CFileNode* node, Scalar_<_Tp>& value, const Scalar_<_Tp>& default_value)
-{
-    std::vector<_Tp> temp; FileNodeIterator it = node.begin(); it >> temp;
-    value = temp.size() != 4 ? default_value : Scalar_<_Tp>(saturate_cast<_Tp>(temp[0]), saturate_cast<_Tp>(temp[1]),
-                                                            saturate_cast<_Tp>(temp[2]), saturate_cast<_Tp>(temp[3]));
-}
-
-static inline void read(const CFileNode* node, Range& value, const Range& default_value)
-{
-    Point2i temp(value.start, value.end); const Point2i default_temp = Point2i(default_value.start, default_value.end);
-    read(node, temp, default_temp);
-    value.start = temp.x; value.end = temp.y;
-}
-
-//! @}
-
-/** @brief Writes string to a file storage.
-@relates FileStorage
- */
-//CC_EXPORTS FileStorage& operator << (FileStorage& fs, const char* str);
-
-//! @cond IGNORED
-
-class CC_EXPORTS WriteStructContext
-{
-public:
-    WriteStructContext(FileStorage& _fs, const char* name, int flags, const char* typeName = NULL);
-    ~WriteStructContext();
 private:
-    FileStorage* fs;
+    void check_dt(const char* dt);
+
+private:
+    // disable copy and assignment
+    Base64Writer(const Base64Writer &);
+    Base64Writer & operator=(const Base64Writer &);
+
+private:
+
+    Base64ContextEmitter * emitter;
+    std::string data_type_string;
 };
 
-template<typename _Tp, int numflag> class VecWriterProxy
+class Base64ContextParser
 {
 public:
-    VecWriterProxy( FileStorage* _fs ) : fs(_fs) {}
-    void operator()(const std::vector<_Tp>& vec) const
-    {
-        size_t count = vec.size();
-        for (size_t i = 0; i < count; i++)
-            write(*fs, vec[i]);
-    }
+    explicit Base64ContextParser(uchar * buffer, size_t size);
+    ~Base64ContextParser();
+    Base64ContextParser & read(const uchar * beg, const uchar * end);
+    bool flush();
 private:
-    FileStorage* fs;
+    static const size_t BUFFER_LEN = 120U;
+    uchar * dst_cur;
+    uchar * dst_end;
+    std::vector<uchar> base64_buffer;
+    uchar * src_beg;
+    uchar * src_cur;
+    uchar * src_end;
+    std::vector<uchar> binary_buffer;
 };
 
-template<typename _Tp> class VecWriterProxy<_Tp, 1>
+} // base64::
+
+//=====================================================================================
+
+#define CV_FS_MAX_LEN 4096
+#define CV_FS_MAX_FMT_PAIRS  128
+
+#define CV_FILE_STORAGE ('Y' + ('A' << 8) + ('M' << 16) + ('L' << 24))
+
+#define CV_IS_FILE_STORAGE(fs) ((fs) != 0 && (fs)->flags == CV_FILE_STORAGE)
+
+#define CV_CHECK_FILE_STORAGE(fs)                       \
+{                                                       \
+    if( !CV_IS_FILE_STORAGE(fs) )                       \
+        CV_Error( (fs) ? CV_StsBadArg : CV_StsNullPtr,  \
+                  "Invalid pointer to file storage" );  \
+}
+
+#define CV_CHECK_OUTPUT_FILE_STORAGE(fs)                \
+{                                                       \
+    CV_CHECK_FILE_STORAGE(fs);                          \
+    if( !fs->write_mode )                               \
+        CV_Error( CV_StsError, "The file storage is opened for reading" ); \
+}
+
+#define CV_PARSE_ERROR( errmsg )                                    \
+    icvParseError( fs, CV_Func, (errmsg), __FILE__, __LINE__ )
+
+typedef struct CvGenericHash
 {
-public:
-    VecWriterProxy( FileStorage* _fs ) : fs(_fs) {}
-    void operator()(const std::vector<_Tp>& vec) const
+    CV_SET_FIELDS()
+    int tab_size;
+    void** table;
+}
+CvGenericHash;
+typedef CvGenericHash CvStringHash;
+
+//typedef void (*CvParse)( struct CvFileStorage* fs );
+typedef void (*CvStartWriteStruct)( struct CvFileStorage* fs, const char* key,
+                                    int struct_flags, const char* type_name );
+typedef void (*CvEndWriteStruct)( struct CvFileStorage* fs );
+typedef void (*CvWriteInt)( struct CvFileStorage* fs, const char* key, int value );
+typedef void (*CvWriteReal)( struct CvFileStorage* fs, const char* key, double value );
+typedef void (*CvWriteString)( struct CvFileStorage* fs, const char* key,
+                               const char* value, int quote );
+typedef void (*CvWriteComment)( struct CvFileStorage* fs, const char* comment, int eol_comment );
+typedef void (*CvStartNextStream)( struct CvFileStorage* fs );
+
+typedef struct CvFileStorage
+{
+    int flags;
+    int fmt;
+    int write_mode;
+    int is_first;
+    CvMemStorage* memstorage;
+    CvMemStorage* dststorage;
+    CvMemStorage* strstorage;
+    CvStringHash* str_hash;
+    CvSeq* roots;
+    CvSeq* write_stack;
+    int struct_indent;
+    int struct_flags;
+    CvString struct_tag;
+    int space;
+    char* filename;
+    FILE* file;
+    gzFile gzfile;
+    char* buffer;
+    char* buffer_start;
+    char* buffer_end;
+    int wrap_margin;
+    int lineno;
+    int dummy_eof;
+    const char* errmsg;
+    char errmsgbuf[128];
+
+    CvStartWriteStruct start_write_struct;
+    CvEndWriteStruct end_write_struct;
+    CvWriteInt write_int;
+    CvWriteReal write_real;
+    CvWriteString write_string;
+    CvWriteComment write_comment;
+    CvStartNextStream start_next_stream;
+
+    const char* strbuf;
+    size_t strbufsize, strbufpos;
+    std::deque<char>* outbuf;
+
+    base64::Base64Writer * base64_writer;
+    bool is_default_using_base64;
+    base64::fs::State state_of_writing_base64;  /**< used in WriteRawData only */
+
+    bool is_write_struct_delayed;
+    char* delayed_struct_key;
+    int   delayed_struct_flags;
+    char* delayed_type_name;
+
+    bool is_opened;
+}
+CvFileStorage;
+
+typedef struct CvFileMapNode
+{
+    CvFileNode value;
+    const CvStringHashNode* key;
+    struct CvFileMapNode* next;
+}
+CvFileMapNode;
+
+/****************************************************************************************\
+*                            Common macros and type definitions                          *
+\****************************************************************************************/
+
+#define cv_isprint(c)     ((uchar)(c) >= (uchar)' ')
+#define cv_isprint_or_tab(c)  ((uchar)(c) >= (uchar)' ' || (c) == '\t')
+
+inline bool cv_isalnum(char c)
+{
+    return ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
+}
+
+inline bool cv_isalpha(char c)
+{
+    return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
+}
+
+inline bool cv_isdigit(char c)
+{
+    return '0' <= c && c <= '9';
+}
+
+inline bool cv_isspace(char c)
+{
+    return (9 <= c && c <= 13) || c == ' ';
+}
+
+inline char* cv_skip_BOM(char* ptr)
+{
+    if((uchar)ptr[0] == 0xef && (uchar)ptr[1] == 0xbb && (uchar)ptr[2] == 0xbf) //UTF-8 BOM
     {
-        int _fmt = DataType<_Tp>::fmt;
-        char fmt[] = { (char)((_fmt >> 8) + '1'), (char)_fmt, '\0' };
-        fs->writeRaw(fmt, !vec.empty() ? (uchar*)&vec[0] : 0, vec.size() * sizeof(_Tp));
+      return ptr + 3;
     }
-private:
-    FileStorage* fs;
-};
-
-template<typename _Tp, int numflag> class VecReaderProxy
-{
-public:
-    VecReaderProxy( FileNodeIterator* _it ) : it(_it) {}
-    void operator()(std::vector<_Tp>& vec, size_t count) const
-    {
-        count = MIN(count, it->remaining);
-        vec.resize(count);
-        for (size_t i = 0; i < count; i++, ++(*it))
-            read(**it, vec[i], _Tp());
-    }
-private:
-    FileNodeIterator* it;
-};
-
-template<typename _Tp> class VecReaderProxy<_Tp, 1>
-{
-public:
-    VecReaderProxy( FileNodeIterator* _it ) : it(_it) {}
-    void operator()(std::vector<_Tp>& vec, size_t count) const
-    {
-        size_t remaining = it->remaining;
-        size_t cn = DataType<_Tp>::channels;
-        int _fmt = DataType<_Tp>::fmt;
-        char fmt[] = { (char)((_fmt >> 8)+'1'), (char)_fmt, '\0' };
-        size_t remaining1 = remaining / cn;
-        count = count < remaining1 ? count : remaining1;
-        vec.resize(count);
-        it->readRaw(fmt, !vec.empty() ? (uchar*)&vec[0] : 0, count*sizeof(_Tp));
-    }
-private:
-    FileNodeIterator* it;
-};
-
-
-
-//! @endcond
-
-//! @relates FileStorage
-//! @{
-
-template<typename _Tp> static inline
-void write(FileStorage& fs, const _Tp& value)
-{
-    write(fs, NULL, value);
+    return ptr;
 }
 
-template<> inline
-void write( FileStorage& fs, const int& value )
+char* icv_itoa( int _val, char* buffer, int /*radix*/ );
+double icv_strtod( CvFileStorage* fs, char* ptr, char** endptr );
+char* icvFloatToString( char* buf, float value );
+char* icvDoubleToString( char* buf, double value );
+
+char icvTypeSymbol(int depth);
+void icvClose( CvFileStorage* fs, cv::String* out );
+void icvCloseFile( CvFileStorage* fs );
+void icvPuts( CvFileStorage* fs, const char* str );
+char* icvGets( CvFileStorage* fs, char* str, int maxCount );
+int icvEof( CvFileStorage* fs );
+void icvRewind( CvFileStorage* fs );
+char* icvFSFlush( CvFileStorage* fs );
+void icvFSCreateCollection( CvFileStorage* fs, int tag, CvFileNode* collection );
+char* icvFSResizeWriteBuffer( CvFileStorage* fs, char* ptr, int len );
+int icvCalcStructSize( const char* dt, int initial_size );
+int icvCalcElemSize( const char* dt, int initial_size );
+void icvParseError( CvFileStorage* fs, const char* func_name, const char* err_msg, const char* source_file, int source_line );
+char* icvEncodeFormat( int elem_type, char* dt );
+int icvDecodeFormat( const char* dt, int* fmt_pairs, int max_len );
+int icvDecodeSimpleFormat( const char* dt );
+void icvWriteFileNode( CvFileStorage* fs, const char* name, const CvFileNode* node );
+void icvWriteCollection( CvFileStorage* fs, const CvFileNode* node );
+void switch_to_Base64_state( CvFileStorage* fs, base64::fs::State state );
+void make_write_struct_delayed( CvFileStorage* fs, const char* key, int struct_flags, const char* type_name );
+void check_if_write_struct_is_delayed( CvFileStorage* fs, bool change_type_to_base64 = false );
+CvGenericHash* cvCreateMap( int flags, int header_size, int elem_size, CvMemStorage* storage, int start_tab_size );
+
+//
+// XML
+//
+void icvXMLParse( CvFileStorage* fs );
+void icvXMLStartWriteStruct( CvFileStorage* fs, const char* key, int struct_flags, const char* type_name CV_DEFAULT(0));
+void icvXMLEndWriteStruct( CvFileStorage* fs );
+void icvXMLStartNextStream( CvFileStorage* fs );
+void icvXMLWriteScalar( CvFileStorage* fs, const char* key, const char* data, int len );
+void icvXMLWriteInt( CvFileStorage* fs, const char* key, int value );
+void icvXMLWriteReal( CvFileStorage* fs, const char* key, double value );
+void icvXMLWriteString( CvFileStorage* fs, const char* key, const char* str, int quote );
+void icvXMLWriteComment( CvFileStorage* fs, const char* comment, int eol_comment );
+
+typedef struct CvXMLStackRecord
 {
-    writeScalar(fs, value);
+    CvMemStoragePos pos;
+    CvString struct_tag;
+    int struct_indent;
+    int struct_flags;
 }
-
-template<> inline
-void write( FileStorage& fs, const float& value )
-{
-    writeScalar(fs, value);
-}
-
-template<> inline
-void write( FileStorage& fs, const double& value )
-{
-    writeScalar(fs, value);
-}
-
-template<> inline
-void write( FileStorage& fs, const char* value )
-{
-    writeScalar(fs, value);
-}
-
-template<typename _Tp> static inline
-void write(FileStorage& fs, const Point_<_Tp>& pt )
-{
-    write(fs, pt.x);
-    write(fs, pt.y);
-}
-
-template<typename _Tp> static inline
-void write(FileStorage& fs, const Point3_<_Tp>& pt )
-{
-    write(fs, pt.x);
-    write(fs, pt.y);
-    write(fs, pt.z);
-}
-
-template<typename _Tp> static inline
-void write(FileStorage& fs, const Size_<_Tp>& sz )
-{
-    write(fs, sz.width);
-    write(fs, sz.height);
-}
-
-template<typename _Tp> static inline
-void write(FileStorage& fs, const Complex<_Tp>& c )
-{
-    write(fs, c.re);
-    write(fs, c.im);
-}
-
-template<typename _Tp> static inline
-void write(FileStorage& fs, const Rect_<_Tp>& r )
-{
-    write(fs, r.x);
-    write(fs, r.y);
-    write(fs, r.width);
-    write(fs, r.height);
-}
-
-template<typename _Tp, int cn> static inline
-void write(FileStorage& fs, const Vec<_Tp, cn>& v )
-{
-    for(int i = 0; i < cn; i++)
-        write(fs, v.val[i]);
-}
-
-template<typename _Tp> static inline
-void write(FileStorage& fs, const Scalar_<_Tp>& s )
-{
-    write(fs, s.val[0]);
-    write(fs, s.val[1]);
-    write(fs, s.val[2]);
-    write(fs, s.val[3]);
-}
-
-static inline
-void write(FileStorage& fs, const Range& r )
-{
-    write(fs, r.start);
-    write(fs, r.end);
-}
-
-template<typename _Tp> static inline
-void write( FileStorage& fs, const std::vector<_Tp>& vec )
-{
-    internal::VecWriterProxy<_Tp, DataType<_Tp>::fmt != 0> w(&fs);
-    w(vec);
-}
-
-template<typename _Tp> static inline
-void write(FileStorage& fs, const char* name, const Point_<_Tp>& pt )
-{
-    internal::WriteStructContext ws(fs, name, FileNode::SEQ+FileNode::FLOW);
-    write(fs, pt);
-}
-
-template<typename _Tp> static inline
-void write(FileStorage& fs, const char* name, const Point3_<_Tp>& pt )
-{
-    internal::WriteStructContext ws(fs, name, FileNode::SEQ+FileNode::FLOW);
-    write(fs, pt);
-}
-
-template<typename _Tp> static inline
-void write(FileStorage& fs, const char* name, const Size_<_Tp>& sz )
-{
-    internal::WriteStructContext ws(fs, name, FileNode::SEQ+FileNode::FLOW);
-    write(fs, sz);
-}
-
-template<typename _Tp> static inline
-void write(FileStorage& fs, const char* name, const Complex<_Tp>& c )
-{
-    internal::WriteStructContext ws(fs, name, FileNode::SEQ+FileNode::FLOW);
-    write(fs, c);
-}
-
-template<typename _Tp> static inline
-void write(FileStorage& fs, const char* name, const Rect_<_Tp>& r )
-{
-    internal::WriteStructContext ws(fs, name, FileNode::SEQ+FileNode::FLOW);
-    write(fs, r);
-}
-
-template<typename _Tp, int cn> static inline
-void write(FileStorage& fs, const char* name, const Vec<_Tp, cn>& v )
-{
-    internal::WriteStructContext ws(fs, name, FileNode::SEQ+FileNode::FLOW);
-    write(fs, v);
-}
-
-template<typename _Tp> static inline
-void write(FileStorage& fs, const char* name, const Scalar_<_Tp>& s )
-{
-    internal::WriteStructContext ws(fs, name, FileNode::SEQ+FileNode::FLOW);
-    write(fs, s);
-}
-
-static inline
-void write(FileStorage& fs, const char* name, const Range& r )
-{
-    internal::WriteStructContext ws(fs, name, FileNode::SEQ+FileNode::FLOW);
-    write(fs, r);
-}
-
-template<typename _Tp> static inline
-void write( FileStorage& fs, const char* name, const std::vector<_Tp>& vec )
-{
-    internal::WriteStructContext ws(fs, name, FileNode::SEQ+(DataType<_Tp>::fmt != 0 ? FileNode::FLOW : 0));
-    write(fs, vec);
-}
-
-template<typename _Tp> static inline
-void write( FileStorage& fs, const char* name, const std::vector< std::vector<_Tp> >& vec )
-{
-    internal::WriteStructContext ws(fs, name, FileNode::SEQ);
-    for(size_t i = 0; i < vec.size(); i++)
-    {
-        internal::WriteStructContext ws_(fs, name, FileNode::SEQ+(DataType<_Tp>::fmt != 0 ? FileNode::FLOW : 0));
-        write(fs, vec[i]);
-    }
-}
-
-//! @} FileStorage
-
-//! @relates FileNode
-//! @{
-
-static inline
-void read(const CFileNode* node, bool& value, bool default_value)
-{
-    int temp;
-    read(node, temp, (int)default_value);
-    value = temp != 0;
-}
-
-static inline
-void read(const CFileNode* node, uchar& value, uchar default_value)
-{
-    int temp;
-    read(node, temp, (int)default_value);
-    value = saturate_cast<uchar>(temp);
-}
-
-static inline
-void read(const CFileNode* node, schar& value, schar default_value)
-{
-    int temp;
-    read(node, temp, (int)default_value);
-    value = saturate_cast<schar>(temp);
-}
-
-static inline
-void read(const CFileNode* node, ushort& value, ushort default_value)
-{
-    int temp;
-    read(node, temp, (int)default_value);
-    value = saturate_cast<ushort>(temp);
-}
-
-static inline
-void read(const CFileNode* node, short& value, short default_value)
-{
-    int temp;
-    read(node, temp, (int)default_value);
-    value = saturate_cast<short>(temp);
-}
-
-template<typename _Tp> static inline
-void read( FileNodeIterator& it, std::vector<_Tp>& vec, size_t maxCount = (size_t)INT_MAX )
-{
-    internal::VecReaderProxy<_Tp, DataType<_Tp>::fmt != 0> r(&it);
-    r(vec, maxCount);
-}
-
-template<typename _Tp> static inline
-void read( const CFileNode* node, std::vector<_Tp>& vec, const std::vector<_Tp>& default_value = std::vector<_Tp>() )
-{
-    if(!node.node)
-        vec = default_value;
-    else
-    {
-        FileNodeIterator it = node.begin();
-        read( it, vec );
-    }
-}
-
-//! @} FileNode
-
-//! @relates FileStorage
-//! @{
-
-/** @brief Writes data to a file storage.
- */
-template<typename _Tp> static inline
-FileStorage& operator << (FileStorage& fs, const _Tp& value)
-{
-    if( !fs.isOpened() )
-        return fs;
-    if( fs.state == FileStorage::NAME_EXPECTED + FileStorage::INSIDE_MAP )
-        CC_Error( Error::StsError, "No element name has been given" );
-    write( fs, fs.elname, value );
-    if( fs.state & FileStorage::INSIDE_MAP )
-        fs.state = FileStorage::NAME_EXPECTED + FileStorage::INSIDE_MAP;
-    return fs;
-}
-
-/** @brief Writes data to a file storage.
- */
-static inline
-FileStorage& operator << (FileStorage& fs, const char* str)
-{
-    return (fs << char*(str));
-}
-
-/** @brief Writes data to a file storage.
- */
-static inline
-FileStorage& operator << (FileStorage& fs, char* value)
-{
-    return (fs << char*(value));
-}
-
-//! @} FileStorage
-
-//! @relates FileNodeIterator
-//! @{
-
-/** @brief Reads data from a file storage.
- */
-template<typename _Tp> static inline
-FileNodeIterator& operator >> (FileNodeIterator& it, _Tp& value)
-{
-    read( *it, value, _Tp());
-    return ++it;
-}
-
-/** @brief Reads data from a file storage.
- */
-template<typename _Tp> static inline
-FileNodeIterator& operator >> (FileNodeIterator& it, std::vector<_Tp>& vec)
-{
-    internal::VecReaderProxy<_Tp, DataType<_Tp>::fmt != 0> r(&it);
-    r(vec, (size_t)INT_MAX);
-    return it;
-}
-
-//! @} FileNodeIterator
-
-//! @relates FileNode
-//! @{
-
-/** @brief Reads data from a file storage.
- */
-template<typename _Tp> static inline
-void operator >> (const CFileNode* n, _Tp& value)
-{
-    read( n, value, _Tp());
-}
-
-/** @brief Reads data from a file storage.
- */
-template<typename _Tp> static inline
-void operator >> (const CFileNode* n, std::vector<_Tp>& vec)
-{
-    FileNodeIterator it = n.begin();
-    it >> vec;
-}
-
-/** @brief Reads KeyPoint from a file storage.
-*/
-//It needs special handling because it contains two types of fields, int & float.
-static inline
-void operator >> (const CFileNode* n, std::vector<KeyPoint>& vec)
-{
-    read(n, vec);
-}
-/** @brief Reads DMatch from a file storage.
-*/
-//It needs special handling because it contains two types of fields, int & float.
-static inline
-void operator >> (const CFileNode* n, std::vector<DMatch>& vec)
-{
-    read(n, vec);
-}
-
-//! @} FileNode
-
-//! @relates FileNodeIterator
-//! @{
-
-static inline
-bool operator == (const FileNodeIterator& it1, const FileNodeIterator& it2)
-{
-    return it1.fs == it2.fs && it1.container == it2.container &&
-        it1.reader.ptr == it2.reader.ptr && it1.remaining == it2.remaining;
-}
-
-static inline
-bool operator != (const FileNodeIterator& it1, const FileNodeIterator& it2)
-{
-    return !(it1 == it2);
-}
-
-static inline
-ptrdiff_t operator - (const FileNodeIterator& it1, const FileNodeIterator& it2)
-{
-    return it2.remaining - it1.remaining;
-}
-
-static inline
-bool operator < (const FileNodeIterator& it1, const FileNodeIterator& it2)
-{
-    return it1.remaining > it2.remaining;
-}
-
-//! @} FileNodeIterator
-
-
-//! @cond IGNORED
-
-inline FileNode FileStorage::getFirstTopLevelNode() const { FileNode r = root(); FileNodeIterator it = r.begin(); return it != r.end() ? *it : FileNode(); }
-inline FileNode::FileNode() : fs(0), node(0) {}
-inline FileNode::FileNode(const CFileStorage* _fs, const CFileNode* _node) : fs(_fs), node(_node) {}
-inline FileNode::FileNode(const CFileNode* _node) : fs(_node.fs), node(_node.node) {}
-inline bool FileNode::empty() const    { return node   == 0;    }
-inline bool FileNode::isNone() const   { return type() == NONE; }
-inline bool FileNode::isSeq() const    { return type() == SEQ;  }
-inline bool FileNode::isMap() const    { return type() == MAP;  }
-inline bool FileNode::isInt() const    { return type() == INT;  }
-inline bool FileNode::isReal() const   { return type() == REAL; }
-inline bool FileNode::isString() const { return type() == STR;  }
-inline CFileNode* FileNode::operator *() { return (CFileNode*)node; }
-inline const CFileNode* FileNode::operator* () const { return node; }
-inline FileNode::operator int() const    { int value;    read(*this, value, 0);     return value; }
-inline FileNode::operator float() const  { float value;  read(*this, value, 0.f);   return value; }
-inline FileNode::operator double() const { double value; read(*this, value, 0.);    return value; }
-inline FileNode::operator char*() const { char* value; read(*this, value, value); return value; }
-inline double FileNode::real() const  { return double(*this); }
-inline char* FileNode::string() const { return char*(*this); }
-inline CvMat FileNode::mat() const { CvMat value; read(*this, value, value);    return value; }
-inline FileNodeIterator FileNode::begin() const { return FileNodeIterator(fs, node); }
-inline FileNodeIterator FileNode::end() const   { return FileNodeIterator(fs, node, size()); }
-inline void FileNode::readRaw( const char* fmt, uchar* vec, size_t len ) const { begin().readRaw( fmt, vec, len ); }
-inline FileNode FileNodeIterator::operator *() const  { return FileNode(fs, (const CFileNode*)(const void*)reader.ptr); }
-inline FileNode FileNodeIterator::operator ->() const { return FileNode(fs, (const CFileNode*)(const void*)reader.ptr); }
-inline char*::char*(const CFileNode* fn): cstr_(0), len_(0) { read(fn, *this, *this); }
-
-//! @endcond
-
-
-CC_EXPORTS void cvStartWriteRawData_Base64(::CFileStorage * fs, const char* name, int len, const char* dt);
-
-CC_EXPORTS void cvWriteRawData_Base64(::CFileStorage * fs, const void* _data, int len);
-
-CC_EXPORTS void cvEndWriteRawData_Base64(::CFileStorage * fs);
-
-CC_EXPORTS void cvWriteMat_Base64(::CFileStorage* fs, const char* name, const ::CvMat* mat);
-
-CC_EXPORTS void cvWriteMatND_Base64(::CFileStorage* fs, const char* name, const ::CvMatND* mat);
-
-#endif
-
-#endif // OPENCC_CORE_PERSISTENCE_HPP
+CvXMLStackRecord;
+
+//
+// YML
+//
+void icvYMLParse( CvFileStorage* fs );
+void icvYMLWrite( CvFileStorage* fs, const char* key, const char* data );
+void icvYMLStartWriteStruct( CvFileStorage* fs, const char* key, int struct_flags, const char* type_name CV_DEFAULT(0));
+void icvYMLEndWriteStruct( CvFileStorage* fs );
+void icvYMLStartNextStream( CvFileStorage* fs );
+void icvYMLWriteInt( CvFileStorage* fs, const char* key, int value );
+void icvYMLWriteReal( CvFileStorage* fs, const char* key, double value );
+void icvYMLWriteString( CvFileStorage* fs, const char* key, const char* str, int quote CV_DEFAULT(0));
+void icvYMLWriteComment( CvFileStorage* fs, const char* comment, int eol_comment );
+
+//
+// JSON
+//
+void icvJSONParse( CvFileStorage* fs );
+void icvJSONWrite( CvFileStorage* fs, const char* key, const char* data );
+void icvJSONStartWriteStruct( CvFileStorage* fs, const char* key, int struct_flags, const char* type_name CV_DEFAULT(0));
+void icvJSONEndWriteStruct( CvFileStorage* fs );
+void icvJSONStartNextStream( CvFileStorage* fs );
+void icvJSONWriteInt( CvFileStorage* fs, const char* key, int value );
+void icvJSONWriteReal( CvFileStorage* fs, const char* key, double value );
+void icvJSONWriteString( CvFileStorage* fs, const char* key, const char* str, int quote CV_DEFAULT(0));
+void icvJSONWriteComment( CvFileStorage* fs, const char* comment, int eol_comment );
+
+#endif // SRC_PERSISTENCE_HPP

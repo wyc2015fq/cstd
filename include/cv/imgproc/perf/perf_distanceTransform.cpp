@@ -1,61 +1,36 @@
-/*#include "perf_precomp.hpp"
-#include "distransform.cpp"
-
-using namespace std;
-using namespace cv;
-using namespace perf;
-
-typedef perf::TestBaseWithParam<CvSize> Size_DistanceTransform;
-
-PERF_TEST_P(Size_DistanceTransform, icvTrueDistTrans, testing::Values(TYPICAL_MAT_SIZES))
-{
-    CvSize size = GetParam();
-    CvMat src(size, CC_8UC1);
-    CvMat dst(size, CC_32FC1);
-    CvMat srcStub = src;
-    CvMat dstStub = dst;
-
-    declare.in(src, WARMUP_RNG).out(dst);
-
-    TEST_CYCLE() icvTrueDistTrans(&srcStub, &dstStub);
-
-    SANITY_CHECK(dst, 1);
-}*/
-
+// This file is part of OpenCV project.
+// It is subject to the license terms in the LICENSE file found in the top-level directory
+// of this distribution and at http://opencv.org/license.html.
 #include "perf_precomp.hpp"
 
-using namespace std;
-using namespace cv;
-using namespace perf;
-using std::tr1::make_tuple;
-using std::tr1::get;
+namespace opencv_test {
 
-CC_ENUM(DistanceType, DIST_L1, DIST_L2 , DIST_C)
-CC_ENUM(MaskSize, DIST_MASK_3, DIST_MASK_5, DIST_MASK_PRECISE)
-CC_ENUM(DstType, CC_8U, CC_32F)
-CC_ENUM(LabelType, DIST_LABEL_CCOMP, DIST_LABEL_PIXEL)
+CV_ENUM(DistanceType, DIST_L1, DIST_L2 , DIST_C)
+CV_ENUM(MaskSize, DIST_MASK_3, DIST_MASK_5, DIST_MASK_PRECISE)
+CV_ENUM(DstType, CV_8U, CV_32F)
+CV_ENUM(LabelType, DIST_LABEL_CCOMP, DIST_LABEL_PIXEL)
 
-typedef std::tr1::tuple<CvSize, DistanceType, MaskSize, DstType> SrcSize_DistType_MaskSize_DstType;
-typedef std::tr1::tuple<CvSize, DistanceType, MaskSize, LabelType> SrcSize_DistType_MaskSize_LabelType;
+typedef tuple<Size, DistanceType, MaskSize, DstType> SrcSize_DistType_MaskSize_DstType;
+typedef tuple<Size, DistanceType, MaskSize, LabelType> SrcSize_DistType_MaskSize_LabelType;
 typedef perf::TestBaseWithParam<SrcSize_DistType_MaskSize_DstType> DistanceTransform_Test;
 typedef perf::TestBaseWithParam<SrcSize_DistType_MaskSize_LabelType> DistanceTransform_NeedLabels_Test;
 
 PERF_TEST_P(DistanceTransform_Test, distanceTransform,
             testing::Combine(
-                testing::Values(CvSize(640, 480), CvSize(800, 600), CvSize(1024, 768), CvSize(1280, 1024)),
+                testing::Values(cv::Size(640, 480), cv::Size(800, 600), cv::Size(1024, 768), cv::Size(1280, 1024)),
                 DistanceType::all(),
                 MaskSize::all(),
                 DstType::all()
                 )
             )
 {
-    CvSize srcSize = get<0>(GetParam());
+    Size srcSize = get<0>(GetParam());
     int distanceType = get<1>(GetParam());
     int maskSize = get<2>(GetParam());
     int dstType = get<3>(GetParam());
 
-    CvMat src(srcSize, CC_8U);
-    CvMat dst(srcSize, dstType);
+    Mat src(srcSize, CV_8U);
+    Mat dst(srcSize, dstType);
 
     declare
         .in(src, WARMUP_RNG)
@@ -71,21 +46,21 @@ PERF_TEST_P(DistanceTransform_Test, distanceTransform,
 
 PERF_TEST_P(DistanceTransform_NeedLabels_Test, distanceTransform_NeedLabels,
             testing::Combine(
-                testing::Values(CvSize(640, 480), CvSize(800, 600), CvSize(1024, 768), CvSize(1280, 1024)),
+                testing::Values(cv::Size(640, 480), cv::Size(800, 600), cv::Size(1024, 768), cv::Size(1280, 1024)),
                 DistanceType::all(),
                 MaskSize::all(),
                 LabelType::all()
                 )
     )
 {
-    CvSize srcSize = get<0>(GetParam());
+    Size srcSize = get<0>(GetParam());
     int distanceType = get<1>(GetParam());
     int maskSize = get<2>(GetParam());
     int labelType = get<3>(GetParam());
 
-    CvMat src(srcSize, CC_8U);
-    CvMat label(srcSize, CC_32S);
-    CvMat dst(srcSize, CC_32F);
+    Mat src(srcSize, CV_8U);
+    Mat label(srcSize, CV_32S);
+    Mat dst(srcSize, CV_32F);
 
     declare
         .in(src, WARMUP_RNG)
@@ -100,3 +75,5 @@ PERF_TEST_P(DistanceTransform_NeedLabels_Test, distanceTransform_NeedLabels,
     SANITY_CHECK(label, eps);
     SANITY_CHECK(dst, eps);
 }
+
+} // namespace

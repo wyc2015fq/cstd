@@ -10,15 +10,15 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 TEST(Image2D, createAliasEmptyUMat)
 {
-    if (ocl::haveOpenCL())
+    if (cv::ocl::haveOpenCL())
     {
         UMat um;
-        EXPECT_FALSE(ocl::Image2D::canCreateAlias(um));
+        EXPECT_FALSE(cv::ocl::Image2D::canCreateAlias(um));
     }
     else
         std::cout << "OpenCL runtime not found. Test skipped." << std::endl;
@@ -26,10 +26,10 @@ TEST(Image2D, createAliasEmptyUMat)
 
 TEST(Image2D, createImage2DWithEmptyUMat)
 {
-    if (ocl::haveOpenCL())
+    if (cv::ocl::haveOpenCL())
     {
         UMat um;
-        EXPECT_ANY_THROW(ocl::Image2D image(um));
+        EXPECT_ANY_THROW(cv::ocl::Image2D image(um));
     }
     else
         std::cout << "OpenCL runtime not found. Test skipped." << std::endl;
@@ -37,23 +37,23 @@ TEST(Image2D, createImage2DWithEmptyUMat)
 
 TEST(Image2D, createAlias)
 {
-    if (ocl::haveOpenCL())
+    if (cv::ocl::haveOpenCL())
     {
-        const ocl::Device & d = ocl::Device::getDefault();
+        const cv::ocl::Device & d = cv::ocl::Device::getDefault();
         int minor = d.deviceVersionMinor(), major = d.deviceVersionMajor();
 
         // aliases is OpenCL 1.2 extension
         if (1 < major || (1 == major && 2 <= minor))
         {
-            UMat um(128, 128, CC_8UC1);
+            UMat um(128, 128, CV_8UC1);
             bool isFormatSupported = false, canCreateAlias = false;
 
-            EXPECT_NO_THROW(isFormatSupported = ocl::Image2D::isFormatSupported(CC_8U, 1, false));
-            EXPECT_NO_THROW(canCreateAlias = ocl::Image2D::canCreateAlias(um));
+            EXPECT_NO_THROW(isFormatSupported = cv::ocl::Image2D::isFormatSupported(CV_8U, 1, false));
+            EXPECT_NO_THROW(canCreateAlias = cv::ocl::Image2D::canCreateAlias(um));
 
             if (isFormatSupported && canCreateAlias)
             {
-                EXPECT_NO_THROW(ocl::Image2D image(um, false, true));
+                EXPECT_NO_THROW(cv::ocl::Image2D image(um, false, true));
             }
             else
                 std::cout << "Impossible to create alias for selected image. Test skipped." << std::endl;
@@ -65,32 +65,32 @@ TEST(Image2D, createAlias)
 
 TEST(Image2D, turnOffOpenCL)
 {
-    if (ocl::haveOpenCL())
+    if (cv::ocl::haveOpenCL())
     {
         // save the current state
-        bool useOCL = ocl::useOpenCL();
+        bool useOCL = cv::ocl::useOpenCL();
         bool isFormatSupported = false;
 
-        ocl::setUseOpenCL(true);
-        UMat um(128, 128, CC_8UC1);
+        cv::ocl::setUseOpenCL(true);
+        UMat um(128, 128, CV_8UC1);
 
-        ocl::setUseOpenCL(false);
-        EXPECT_NO_THROW(isFormatSupported = ocl::Image2D::isFormatSupported(CC_8U, 1, true));
+        cv::ocl::setUseOpenCL(false);
+        EXPECT_NO_THROW(isFormatSupported = cv::ocl::Image2D::isFormatSupported(CV_8U, 1, true));
 
         if (isFormatSupported)
         {
-            EXPECT_NO_THROW(ocl::Image2D image(um));
+            EXPECT_NO_THROW(cv::ocl::Image2D image(um));
         }
         else
-            std::cout << "CC_8UC1 is not supported for OpenCL images. Test skipped." << std::endl;
+            std::cout << "CV_8UC1 is not supported for OpenCL images. Test skipped." << std::endl;
     
         // reset state to the previous one
-        ocl::setUseOpenCL(useOCL);
+        cv::ocl::setUseOpenCL(useOCL);
     }
     else
         std::cout << "OpenCL runtime not found. Test skipped." << std::endl;
 }
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

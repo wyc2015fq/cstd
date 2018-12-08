@@ -49,20 +49,18 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
-
-using std::tr1::make_tuple;
 
 ///////////// cvtColor////////////////////////
 
-CC_ENUM(ConversionTypes, COLOR_RGB2GRAY, COLOR_RGB2BGR, COLOR_RGB2YUV, COLOR_YUV2RGB, COLOR_RGB2YCrCb,
+CV_ENUM(ConversionTypes, COLOR_RGB2GRAY, COLOR_RGB2BGR, COLOR_RGB2YUV, COLOR_YUV2RGB, COLOR_RGB2YCrCb,
         COLOR_YCrCb2RGB, COLOR_RGB2XYZ, COLOR_XYZ2RGB, COLOR_RGB2HSV, COLOR_HSV2RGB, COLOR_RGB2HLS,
         COLOR_HLS2RGB, COLOR_BGR5652BGR, COLOR_BGR2BGR565, COLOR_RGBA2mRGBA, COLOR_mRGBA2RGBA,
         COLOR_RGB2Lab, COLOR_Lab2BGR, COLOR_RGB2Luv, COLOR_Luv2LBGR, COLOR_YUV2RGB_NV12, COLOR_YUV2RGB_IYUV,
         COLOR_YUV2GRAY_420, COLOR_RGB2YUV_IYUV, COLOR_YUV2RGB_YUY2, COLOR_YUV2GRAY_YUY2)
 
-typedef tuple<CvSize, tuple<ConversionTypes, int, int> > CvtColorParams;
+typedef tuple<Size, tuple<ConversionTypes, int, int> > CvtColorParams;
 typedef TestBaseWithParam<CvtColorParams> CvtColorFixture;
 
 OCL_PERF_TEST_P(CvtColorFixture, CvtColor, testing::Combine(
@@ -97,19 +95,19 @@ OCL_PERF_TEST_P(CvtColorFixture, CvtColor, testing::Combine(
                     )))
 {
     CvtColorParams params = GetParam();
-    const CvSize srcSize = get<0>(params);
+    const Size srcSize = get<0>(params);
     const tuple<int, int, int> conversionParams = get<1>(params);
     const int code = get<0>(conversionParams), scn = get<1>(conversionParams),
             dcn = get<2>(conversionParams);
 
-    UMat src(srcSize, CC_8UC(scn)), dst(srcSize, CC_8UC(scn));
+    UMat src(srcSize, CV_8UC(scn)), dst(srcSize, CV_8UC(scn));
     declare.in(src, WARMUP_RNG).out(dst);
 
-    OCL_TEST_CYCLE() cvtColor(src, dst, code, dcn);
+    OCL_TEST_CYCLE() cv::cvtColor(src, dst, code, dcn);
 
     SANITY_CHECK(dst, 1);
 }
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

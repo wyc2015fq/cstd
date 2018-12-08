@@ -49,7 +49,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 PARAM_TEST_CASE(PyrTestBase, MatDepth, Channels, BorderType, bool)
@@ -68,13 +68,13 @@ PARAM_TEST_CASE(PyrTestBase, MatDepth, Channels, BorderType, bool)
         use_roi = GET_PARAM(3);
     }
 
-    void generateTestData(CvSize src_roiSize, CvSize dst_roiSize)
+    void generateTestData(Size src_roiSize, Size dst_roiSize)
     {
         Border srcBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
-        randomSubMat(src, src_roi, src_roiSize, srcBorder, CC_MAKETYPE(depth, channels), -MAX_VALUE, MAX_VALUE);
+        randomSubMat(src, src_roi, src_roiSize, srcBorder, CV_MAKETYPE(depth, channels), -MAX_VALUE, MAX_VALUE);
 
         Border dstBorder = randomBorder(0, use_roi ? MAX_VALUE : 0);
-        randomSubMat(dst, dst_roi, dst_roiSize, dstBorder, CC_MAKETYPE(depth, channels), -MAX_VALUE, MAX_VALUE);
+        randomSubMat(dst, dst_roi, dst_roiSize, dstBorder, CV_MAKETYPE(depth, channels), -MAX_VALUE, MAX_VALUE);
 
         UMAT_UPLOAD_INPUT_PARAMETER(src);
         UMAT_UPLOAD_OUTPUT_PARAMETER(dst);
@@ -90,25 +90,25 @@ PARAM_TEST_CASE(PyrTestBase, MatDepth, Channels, BorderType, bool)
 
 typedef PyrTestBase PyrDown;
 
-OCL_TEST_P(PyrDown, CvMat)
+OCL_TEST_P(PyrDown, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
-        CvSize src_roiSize = randomSize(1, MAX_VALUE);
-        CvSize dst_roiSize = CvSize(randomInt((src_roiSize.width - 1) / 2, (src_roiSize.width + 3) / 2),
+        Size src_roiSize = randomSize(1, MAX_VALUE);
+        Size dst_roiSize = Size(randomInt((src_roiSize.width - 1) / 2, (src_roiSize.width + 3) / 2),
                                 randomInt((src_roiSize.height - 1) / 2, (src_roiSize.height + 3) / 2));
-        dst_roiSize = dst_roiSize.area() == 0 ? CvSize((src_roiSize.width + 1) / 2, (src_roiSize.height + 1) / 2) : dst_roiSize;
+        dst_roiSize = dst_roiSize.area() == 0 ? Size((src_roiSize.width + 1) / 2, (src_roiSize.height + 1) / 2) : dst_roiSize;
         generateTestData(src_roiSize, dst_roiSize);
 
         OCL_OFF(pyrDown(src_roi, dst_roi, dst_roiSize, borderType));
         OCL_ON(pyrDown(usrc_roi, udst_roi, dst_roiSize, borderType));
 
-        Near(depth == CC_32F ? 1e-4f : 1.0f);
+        Near(depth == CV_32F ? 1e-4f : 1.0f);
     }
 }
 
 OCL_INSTANTIATE_TEST_CASE_P(ImgprocPyr, PyrDown, Combine(
-                            Values(CC_8U, CC_16U, CC_16S, CC_32F, CC_64F),
+                            Values(CV_8U, CV_16U, CV_16S, CV_32F, CV_64F),
                             Values(1, 2, 3, 4),
                             Values((BorderType)BORDER_REPLICATE,
                             (BorderType)BORDER_REFLECT, (BorderType)BORDER_REFLECT_101),
@@ -119,53 +119,53 @@ OCL_INSTANTIATE_TEST_CASE_P(ImgprocPyr, PyrDown, Combine(
 
 typedef PyrTestBase PyrUp;
 
-OCL_TEST_P(PyrUp, CvMat)
+OCL_TEST_P(PyrUp, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
-        CvSize src_roiSize = randomSize(1, MAX_VALUE);
-        CvSize dst_roiSize = CvSize(2 * src_roiSize.width, 2 * src_roiSize.height);
+        Size src_roiSize = randomSize(1, MAX_VALUE);
+        Size dst_roiSize = Size(2 * src_roiSize.width, 2 * src_roiSize.height);
         generateTestData(src_roiSize, dst_roiSize);
 
         OCL_OFF(pyrUp(src_roi, dst_roi, dst_roiSize, borderType));
         OCL_ON(pyrUp(usrc_roi, udst_roi, dst_roiSize, borderType));
 
-        Near(depth == CC_32F ? 1e-4f : 1.0f);
+        Near(depth == CV_32F ? 1e-4f : 1.0f);
     }
 }
 
 typedef PyrTestBase PyrUp_cols2;
 
-OCL_TEST_P(PyrUp_cols2, CvMat)
+OCL_TEST_P(PyrUp_cols2, Mat)
 {
     for (int j = 0; j < test_loop_times; j++)
     {
-        CvSize src_roiSize = randomSize(1, MAX_VALUE);
+        Size src_roiSize = randomSize(1, MAX_VALUE);
         src_roiSize.width += (src_roiSize.width % 2);
-        CvSize dst_roiSize = CvSize(2 * src_roiSize.width, 2 * src_roiSize.height);
+        Size dst_roiSize = Size(2 * src_roiSize.width, 2 * src_roiSize.height);
         generateTestData(src_roiSize, dst_roiSize);
 
         OCL_OFF(pyrUp(src_roi, dst_roi, dst_roiSize, borderType));
         OCL_ON(pyrUp(usrc_roi, udst_roi, dst_roiSize, borderType));
 
-        Near(depth == CC_32F ? 1e-4f : 1.0f);
+        Near(depth == CV_32F ? 1e-4f : 1.0f);
     }
 }
 
 OCL_INSTANTIATE_TEST_CASE_P(ImgprocPyr, PyrUp, Combine(
-                            Values(CC_8U, CC_16U, CC_16S, CC_32F, CC_64F),
+                            Values(CV_8U, CV_16U, CV_16S, CV_32F, CV_64F),
                             Values(1, 2, 3, 4),
                             Values((BorderType)BORDER_REFLECT_101),
                             Bool()
                             ));
 
 OCL_INSTANTIATE_TEST_CASE_P(ImgprocPyr, PyrUp_cols2, Combine(
-                            Values((MatDepth)CC_8U),
+                            Values((MatDepth)CV_8U),
                             Values((Channels)1),
                             Values((BorderType)BORDER_REFLECT_101),
                             Bool()
                             ));
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

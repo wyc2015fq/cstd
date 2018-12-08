@@ -79,6 +79,15 @@ struct ocr_detect {
             }
             Scalar color = Scalar(0, 0, 255);
             drawRotatedRects(dst_ok, gr.lines_ok, 2, &color);
+            double s = 0;
+            for (int i = 0; i < gr.lines_ok.size(); ++i) {
+              s += gr.lines_ok[i].center.x;
+              s += gr.lines_ok[i].center.y;
+              s += gr.lines_ok[i].size.width;
+              s += gr.lines_ok[i].size.height;
+              s += gr.lines_ok[i].angle;
+            }
+            printf("lines_ok avg = %lf\n", s);
             //drawDetectLines(dst_ok, gr.lines, 4);
             cardrect.push_back(r);
           }
@@ -101,10 +110,14 @@ struct ocr_detect {
 
 int test_detect_idcard()
 {
+  GaussianBlur;
   //return test_hsv_bin();
   //return test_myfindContours();
   //int k;
   RNG rng(12345);
+  Mat::convertTo;
+  Rect r;
+  r.center;
   /// ¼ÓÔØÔ´Í¼Ïñ
   string im_dir = "E:/data/ew_id/we-loan.oss-cn-shanghai.aliyuncs.com/";
   string fn = im_dir + "upload/backend/20160927235243069-2951.jpg";

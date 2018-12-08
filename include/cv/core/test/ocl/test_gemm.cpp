@@ -47,7 +47,7 @@
 
 #ifdef HAVE_OPENCL
 
-namespace cvtest {
+namespace opencv_test {
 namespace ocl {
 
 ////////////////////////////////////////////////////////////////////////////
@@ -133,8 +133,8 @@ OCL_TEST_P(Gemm, Accuracy)
     {
         generateTestData();
 
-        OCL_OFF(gemm(A_roi, B_roi, alpha, C_roi, beta, D_roi, flags));
-        OCL_ON(gemm(uA_roi, uB_roi, alpha, uC_roi, beta, uD_roi, flags));
+        OCL_OFF(cv::gemm(A_roi, B_roi, alpha, C_roi, beta, D_roi, flags));
+        OCL_ON(cv::gemm(uA_roi, uB_roi, alpha, uC_roi, beta, uD_roi, flags));
 
         double eps = D_roi.size().area() * 1e-4;
         OCL_EXPECT_MATS_NEAR(D, eps);
@@ -142,9 +142,9 @@ OCL_TEST_P(Gemm, Accuracy)
 }
 
 OCL_INSTANTIATE_TEST_CASE_P(Core, Gemm, ::testing::Combine(
-                            testing::Values(CC_32FC1, CC_32FC2, CC_64FC1, CC_64FC2),
+                            testing::Values(CV_32FC1, CV_32FC2, CV_64FC1, CV_64FC2),
                             Bool(), Bool(), Bool(), Bool()));
 
-} } // namespace cvtest::ocl
+} } // namespace opencv_test::ocl
 
 #endif // HAVE_OPENCL

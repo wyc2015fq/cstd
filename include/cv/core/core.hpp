@@ -42,8 +42,8 @@
 //
 //M*/
 
-#ifndef OPENCC_CORE_HPP
-#define OPENCC_CORE_HPP
+#ifndef OPENCV_CORE_HPP
+#define OPENCV_CORE_HPP
 
 #ifndef __cplusplus
 #  error core.hpp header must be compiled as C++
@@ -51,7 +51,7 @@
 
 #include "opencv2/core/cvdef.h"
 #include "opencv2/core/version.hpp"
-
+#include "opencv2/core/base.hpp"
 #include "opencv2/core/cvstd.hpp"
 #include "opencv2/core/traits.hpp"
 #include "opencv2/core/matx.hpp"
@@ -74,6 +74,7 @@
     @{
         @defgroup core_utils_sse SSE utilities
         @defgroup core_utils_neon NEON utilities
+        @defgroup core_utils_softfloat Softfloat support
     @}
     @defgroup core_opengl OpenGL interoperability
     @defgroup core_ipp Intel IPP Asynchronous C/C++ Converters
@@ -103,10 +104,10 @@ namespace cv {
 
 This class encapsulates all or almost all necessary
 information about the error happened in the program. The exception is
-usually constructed and thrown implicitly via CC_Error and CC_Error_ macros.
+usually constructed and thrown implicitly via CV_Error and CV_Error_ macros.
 @see error
  */
-class CC_EXPORTS Exception : public std::exception
+class CV_EXPORTS Exception : public std::exception
 {
 public:
     /*!
@@ -114,8 +115,8 @@ public:
      */
     Exception();
     /*!
-     Full constructor. Normally the constuctor is not called explicitly.
-     Instead, the macros CC_Error(), CC_Error_() and CC_Assert() are used.
+     Full constructor. Normally the constructor is not called explicitly.
+     Instead, the macros CV_Error(), CV_Error_() and CV_Assert() are used.
     */
     Exception(int _code, const String& _err, const String& _func, const String& _file, int _line);
     virtual ~Exception() throw();
@@ -131,19 +132,19 @@ public:
     int code; ///< error code @see CVStatus
     String err; ///< error description
     String func; ///< function name. Available only when the compiler supports getting it
-    String file; ///< source file name where the error has occured
-    int line; ///< line number in the source file where the error has occured
+    String file; ///< source file name where the error has occurred
+    int line; ///< line number in the source file where the error has occurred
 };
 
 /*! @brief Signals an error and raises the exception.
 
 By default the function prints information about the error to stderr,
-then it either stops if setBreakOnError() had been called before or raises the exception.
-It is possible to alternate error processing by using redirectError().
+then it either stops if cv::setBreakOnError() had been called before or raises the exception.
+It is possible to alternate error processing by using #redirectError().
 @param exc the exception raisen.
 @deprecated drop this version
  */
-CC_EXPORTS void error( const Exception& exc );
+CV_EXPORTS void error( const Exception& exc );
 
 enum SortFlags { SORT_EVERY_ROW    = 0, //!< each matrix row is sorted independently
                  SORT_EVERY_COLUMN = 1, //!< each matrix column is sorted
@@ -174,7 +175,7 @@ enum CovarFlags {
     /**The output covariance matrix is calculated as:
         \f[\texttt{scale}   \cdot  [  \texttt{vects}  [0]-  \texttt{mean}  , \texttt{vects}  [1]-  \texttt{mean}  ,...]  \cdot  [ \texttt{vects}  [0]- \texttt{mean}  , \texttt{vects}  [1]- \texttt{mean}  ,...]^T,\f]
         covar will be a square matrix of the same size as the total number of elements in each input
-        vector. One and only one of COVAR_SCRAMBLED and COVAR_NORMAL must be specified.*/
+        vector. One and only one of #COVAR_SCRAMBLED and #COVAR_NORMAL must be specified.*/
     COVAR_NORMAL    = 1,
     /** If the flag is specified, the function does not calculate mean from
         the input vectors but, instead, uses the passed mean vector. This is useful if mean has been
@@ -241,9 +242,9 @@ enum ReduceTypes { REDUCE_SUM = 0, //!< the output is the sum of all rows/column
 
 /** @brief Swaps two matrices
 */
-CC_EXPORTS void swap(CvMat& a, CvMat& b);
+CV_EXPORTS void swap(Mat& a, Mat& b);
 /** @overload */
-CC_EXPORTS void swap( UMat& a, UMat& b );
+CV_EXPORTS void swap( UMat& a, UMat& b );
 
 //! @} core
 
@@ -254,25 +255,28 @@ CC_EXPORTS void swap( UMat& a, UMat& b );
 
 The function computes and returns the coordinate of a donor pixel corresponding to the specified
 extrapolated pixel when using the specified extrapolation border mode. For example, if you use
-BORDER_WRAP mode in the horizontal direction, BORDER_REFLECT_101 in the vertical direction and
+cv::BORDER_WRAP mode in the horizontal direction, cv::BORDER_REFLECT_101 in the vertical direction and
 want to compute value of the "virtual" pixel Point(-5, 100) in a floating-point image img , it
 looks like:
 @code{.cpp}
-    float val = img.at<float>(borderInterpolate(100, img.rows, BORDER_REFLECT_101),
-                              borderInterpolate(-5, img.cols, BORDER_WRAP));
+    float val = img.at<float>(borderInterpolate(100, img.rows, cv::BORDER_REFLECT_101),
+                              borderInterpolate(-5, img.cols, cv::BORDER_WRAP));
 @endcode
 Normally, the function is not called directly. It is used inside filtering functions and also in
 copyMakeBorder.
 @param p 0-based coordinate of the extrapolated pixel along one of the axes, likely \<0 or \>= len
 @param len Length of the array along the corresponding axis.
-@param borderType Border type, one of the BorderTypes, except for BORDER_TRANSPARENT and
-BORDER_ISOLATED . When borderType==BORDER_CONSTANT , the function always returns -1, regardless
+@param borderType Border type, one of the #BorderTypes, except for #BORDER_TRANSPARENT and
+#BORDER_ISOLATED . When borderType==#BORDER_CONSTANT , the function always returns -1, regardless
 of p and len.
 
 @sa copyMakeBorder
 */
-CC_EXPORTS_W int borderInterpolate(int p, int len, int borderType);
+CV_EXPORTS_W int borderInterpolate(int p, int len, int borderType);
 
+/** @example copyMakeBorder_demo.cpp
+An example using copyMakeBorder function
+ */
 /** @brief Forms a border around an image.
 
 The function copies the source image into the middle of the destination image. The areas to the
@@ -287,9 +291,9 @@ function does not copy src itself but simply constructs the border, for example:
     // let border be the same in all directions
     int border=2;
     // constructs a larger image to fit both the image and the border
-    CvMat gray_buf(rgb.rows + border*2, rgb.cols + border*2, rgb.depth());
+    Mat gray_buf(rgb.rows + border*2, rgb.cols + border*2, rgb.depth());
     // select the middle part of it w/o copying data
-    CvMat gray(gray_canvas, Rect(border, border, rgb.cols, rgb.rows));
+    Mat gray(gray_canvas, Rect(border, border, rgb.cols, rgb.rows));
     // convert image from RGB to grayscale
     cvtColor(rgb, gray, COLOR_RGB2GRAY);
     // form a border in-place
@@ -300,7 +304,7 @@ function does not copy src itself but simply constructs the border, for example:
 @endcode
 @note When the source image is a part (ROI) of a bigger image, the function will try to use the
 pixels outside of the ROI to form a border. To disable this feature and always do extrapolation, as
-if src was not a ROI, use borderType | BORDER_ISOLATED.
+if src was not a ROI, use borderType | #BORDER_ISOLATED.
 
 @param src Source image.
 @param dst Destination image of the same type as src and the size Size(src.cols+left+right,
@@ -316,7 +320,7 @@ to be built.
 
 @sa  borderInterpolate
 */
-CC_EXPORTS_W void copyMakeBorder(const CvMat* src, CvMat* dst,
+CV_EXPORTS_W void copyMakeBorder(InputArray src, OutputArray dst,
                                  int top, int bottom, int left, int right,
                                  int borderType, const Scalar& value = Scalar() );
 
@@ -345,7 +349,7 @@ floating-point array. Depth of the output array is determined by the dtype param
 and third cases above, as well as in the first case, when src1.depth() == src2.depth(), dtype can
 be set to the default -1. In this case, the output array will have the same depth as the input
 array, be it src1, src2 or both.
-@note Saturation is not applied when the output array has the depth CC_32S. You may even get
+@note Saturation is not applied when the output array has the depth CV_32S. You may even get
 result of an incorrect sign in the case of overflow.
 @param src1 first input array or a scalar.
 @param src2 second input array or a scalar.
@@ -354,10 +358,10 @@ depth is defined by dtype or src1/src2.
 @param mask optional operation mask - 8-bit single channel array, that specifies elements of the
 output array to be changed.
 @param dtype optional depth of the output array (see the discussion below).
-@sa subtract, addWeighted, scaleAdd, CvMat::convertTo
+@sa subtract, addWeighted, scaleAdd, Mat::convertTo
 */
-CC_EXPORTS_W void add(const CvMat* src1, const CvMat* src2, CvMat* dst,
-                      const CvMat* mask = noArray(), int dtype = -1);
+CV_EXPORTS_W void add(InputArray src1, InputArray src2, OutputArray dst,
+                      InputArray mask = noArray(), int dtype = -1);
 
 /** @brief Calculates the per-element difference between two arrays or array and a scalar.
 
@@ -386,7 +390,7 @@ can subtract to 8-bit unsigned arrays and store the difference in a 16-bit signe
 the output array is determined by dtype parameter. In the second and third cases above, as well as
 in the first case, when src1.depth() == src2.depth(), dtype can be set to the default -1. In this
 case the output array will have the same depth as the input array, be it src1, src2 or both.
-@note Saturation is not applied when the output array has the depth CC_32S. You may even get
+@note Saturation is not applied when the output array has the depth CV_32S. You may even get
 result of an incorrect sign in the case of overflow.
 @param src1 first input array or a scalar.
 @param src2 second input array or a scalar.
@@ -394,10 +398,10 @@ result of an incorrect sign in the case of overflow.
 @param mask optional operation mask; this is an 8-bit single channel array that specifies elements
 of the output array to be changed.
 @param dtype optional depth of the output array
-@sa  add, addWeighted, scaleAdd, CvMat::convertTo
+@sa  add, addWeighted, scaleAdd, Mat::convertTo
   */
-CC_EXPORTS_W void subtract(const CvMat* src1, const CvMat* src2, CvMat* dst,
-                           const CvMat* mask = noArray(), int dtype = -1);
+CV_EXPORTS_W void subtract(InputArray src1, InputArray src2, OutputArray dst,
+                           InputArray mask = noArray(), int dtype = -1);
 
 
 /** @brief Calculates the per-element scaled product of two arrays.
@@ -406,12 +410,12 @@ The function multiply calculates the per-element product of two arrays:
 
 \f[\texttt{dst} (I)= \texttt{saturate} ( \texttt{scale} \cdot \texttt{src1} (I)  \cdot \texttt{src2} (I))\f]
 
-There is also a @ref MatrixExpressions -friendly variant of the first function. See CvMat::mul .
+There is also a @ref MatrixExpressions -friendly variant of the first function. See Mat::mul .
 
 For a not-per-element matrix product, see gemm .
 
 @note Saturation is not applied when the output array has the depth
-CC_32S. You may even get result of an incorrect sign in the case of
+CV_32S. You may even get result of an incorrect sign in the case of
 overflow.
 @param src1 first input array.
 @param src2 second input array of the same size and the same type as src1.
@@ -419,14 +423,14 @@ overflow.
 @param scale optional scale factor.
 @param dtype optional depth of the output array
 @sa add, subtract, divide, scaleAdd, addWeighted, accumulate, accumulateProduct, accumulateSquare,
-CvMat::convertTo
+Mat::convertTo
 */
-CC_EXPORTS_W void multiply(const CvMat* src1, const CvMat* src2,
-                           CvMat* dst, double scale = 1, int dtype = -1);
+CV_EXPORTS_W void multiply(InputArray src1, InputArray src2,
+                           OutputArray dst, double scale = 1, int dtype = -1);
 
 /** @brief Performs per-element division of two arrays or a scalar by an array.
 
-The function divide divides one array by another:
+The function cv::divide divides one array by another:
 \f[\texttt{dst(I) = saturate(src1(I)*scale/src2(I))}\f]
 or a scalar by an array when there is no src1 :
 \f[\texttt{dst(I) = saturate(scale/src2(I))}\f]
@@ -434,7 +438,7 @@ or a scalar by an array when there is no src1 :
 When src2(I) is zero, dst(I) will also be zero. Different channels of
 multi-channel arrays are processed independently.
 
-@note Saturation is not applied when the output array has the depth CC_32S. You may even get
+@note Saturation is not applied when the output array has the depth CV_32S. You may even get
 result of an incorrect sign in the case of overflow.
 @param src1 first input array.
 @param src2 second input array of the same size and type as src1.
@@ -444,12 +448,12 @@ result of an incorrect sign in the case of overflow.
 case of an array-by-array division, you can only pass -1 when src1.depth()==src2.depth().
 @sa  multiply, add, subtract
 */
-CC_EXPORTS_W void divide(const CvMat* src1, const CvMat* src2, CvMat* dst,
+CV_EXPORTS_W void divide(InputArray src1, InputArray src2, OutputArray dst,
                          double scale = 1, int dtype = -1);
 
 /** @overload */
-CC_EXPORTS_W void divide(double scale, const CvMat* src2,
-                         CvMat* dst, int dtype = -1);
+CV_EXPORTS_W void divide(double scale, InputArray src2,
+                         OutputArray dst, int dtype = -1);
 
 /** @brief Calculates the sum of a scaled array and another array.
 
@@ -459,7 +463,7 @@ the sum of a scaled array and another array:
 \f[\texttt{dst} (I)= \texttt{scale} \cdot \texttt{src1} (I) +  \texttt{src2} (I)\f]
 The function can also be emulated with a matrix expression, for example:
 @code{.cpp}
-    CvMat A(3, 3, CC_64F);
+    Mat A(3, 3, CV_64F);
     ...
     A.row(0) = A.row(1)*2 + A.row(2);
 @endcode
@@ -467,10 +471,13 @@ The function can also be emulated with a matrix expression, for example:
 @param alpha scale factor for the first array.
 @param src2 second input array of the same size and type as src1.
 @param dst output array of the same size and type as src1.
-@sa add, addWeighted, subtract, CvMat::dot, CvMat::convertTo
+@sa add, addWeighted, subtract, Mat::dot, Mat::convertTo
 */
-CC_EXPORTS_W void scaleAdd(const CvMat* src1, double alpha, const CvMat* src2, CvMat* dst);
+CV_EXPORTS_W void scaleAdd(InputArray src1, double alpha, InputArray src2, OutputArray dst);
 
+/** @example AddingImagesTrackbar.cpp
+
+ */
 /** @brief Calculates the weighted sum of two arrays.
 
 The function addWeighted calculates the weighted sum of two arrays as follows:
@@ -481,7 +488,7 @@ The function can be replaced with a matrix expression:
 @code{.cpp}
     dst = src1*alpha + src2*beta + gamma;
 @endcode
-@note Saturation is not applied when the output array has the depth CC_32S. You may even get
+@note Saturation is not applied when the output array has the depth CV_32S. You may even get
 result of an incorrect sign in the case of overflow.
 @param src1 first input array.
 @param alpha weight of the first array elements.
@@ -491,10 +498,10 @@ result of an incorrect sign in the case of overflow.
 @param dst output array that has the same size and number of channels as the input arrays.
 @param dtype optional depth of the output array; when both input arrays have the same depth, dtype
 can be set to -1, which will be equivalent to src1.depth().
-@sa  add, subtract, scaleAdd, CvMat::convertTo
+@sa  add, subtract, scaleAdd, Mat::convertTo
 */
-CC_EXPORTS_W void addWeighted(const CvMat* src1, double alpha, const CvMat* src2,
-                              double beta, double gamma, CvMat* dst, int dtype = -1);
+CV_EXPORTS_W void addWeighted(InputArray src1, double alpha, InputArray src2,
+                              double beta, double gamma, OutputArray dst, int dtype = -1);
 
 /** @brief Scales, calculates absolute values, and converts the result to 8-bit.
 
@@ -504,7 +511,7 @@ value, conversion to an unsigned 8-bit type:
 \f[\texttt{dst} (I)= \texttt{saturate\_cast<uchar>} (| \texttt{src} (I)* \texttt{alpha} +  \texttt{beta} |)\f]
 In case of multi-channel arrays, the function processes each channel
 independently. When the output is not 8-bit, the operation can be
-emulated by calling the CvMat::convertTo method (or by using matrix
+emulated by calling the Mat::convertTo method (or by using matrix
 expressions) and then by calculating an absolute value of the result.
 For example:
 @code{.cpp}
@@ -519,21 +526,21 @@ For example:
 @param dst output array.
 @param alpha optional scale factor.
 @param beta optional delta added to the scaled values.
-@sa  CvMat::convertTo, abs(const CvMat&)
+@sa  Mat::convertTo, cv::abs(const Mat&)
 */
-CC_EXPORTS_W void convertScaleAbs(const CvMat* src, CvMat* dst,
+CV_EXPORTS_W void convertScaleAbs(InputArray src, OutputArray dst,
                                   double alpha = 1, double beta = 0);
 
 /** @brief Converts an array to half precision floating number.
 
-This function converts FP32 (single precision floating point) from/to FP16 (half precision floating point).  The input array has to have type of CC_32F or
-CC_16S to represent the bit depth.  If the input array is neither of them, the function will raise an error.
+This function converts FP32 (single precision floating point) from/to FP16 (half precision floating point).  The input array has to have type of CV_32F or
+CV_16S to represent the bit depth.  If the input array is neither of them, the function will raise an error.
 The format of half precision floating point is defined in IEEE 754-2008.
 
 @param src input array.
 @param dst output array.
 */
-CC_EXPORTS_W void convertFp16(const CvMat* src, CvMat* dst);
+CV_EXPORTS_W void convertFp16(InputArray src, OutputArray dst);
 
 /** @brief Performs a look-up table transform of an array.
 
@@ -541,24 +548,24 @@ The function LUT fills the output array with values from the look-up table. Indi
 are taken from the input array. That is, the function processes each element of src as follows:
 \f[\texttt{dst} (I)  \leftarrow \texttt{lut(src(I) + d)}\f]
 where
-\f[d =  \fork{0}{if \(\texttt{src}\) has depth \(\texttt{CC_8U}\)}{128}{if \(\texttt{src}\) has depth \(\texttt{CC_8S}\)}\f]
+\f[d =  \fork{0}{if \(\texttt{src}\) has depth \(\texttt{CV_8U}\)}{128}{if \(\texttt{src}\) has depth \(\texttt{CV_8S}\)}\f]
 @param src input array of 8-bit elements.
 @param lut look-up table of 256 elements; in case of multi-channel input array, the table should
 either have a single channel (in this case the same table is used for all channels) or the same
 number of channels as in the input array.
 @param dst output array of the same size and number of channels as src, and the same depth as lut.
-@sa  convertScaleAbs, CvMat::convertTo
+@sa  convertScaleAbs, Mat::convertTo
 */
-CC_EXPORTS_W void LUT(const CvMat* src, const CvMat* lut, CvMat* dst);
+CV_EXPORTS_W void LUT(InputArray src, InputArray lut, OutputArray dst);
 
 /** @brief Calculates the sum of array elements.
 
-The function sum calculates and returns the sum of array elements,
+The function cv::sum calculates and returns the sum of array elements,
 independently for each channel.
 @param src input array that must have from 1 to 4 channels.
 @sa  countNonZero, mean, meanStdDev, norm, minMaxLoc, reduce
 */
-CC_EXPORTS_AS(sumElems) Scalar sum(const CvMat* src);
+CV_EXPORTS_AS(sumElems) Scalar sum(InputArray src);
 
 /** @brief Counts non-zero array elements.
 
@@ -567,39 +574,39 @@ The function returns the number of non-zero elements in src :
 @param src single-channel array.
 @sa  mean, meanStdDev, norm, minMaxLoc, calcCovarMatrix
 */
-CC_EXPORTS_W int countNonZero( const CvMat* src );
+CV_EXPORTS_W int countNonZero( InputArray src );
 
 /** @brief Returns the list of locations of non-zero pixels
 
 Given a binary matrix (likely returned from an operation such
 as threshold(), compare(), >, ==, etc, return all of
-the non-zero indices as a CvMat or std::vector<Point> (x,y)
+the non-zero indices as a cv::Mat or std::vector<cv::Point> (x,y)
 For example:
 @code{.cpp}
-    CvMat binaryImage; // input, binary image
-    CvMat locations;   // output, locations of non-zero pixels
-    findNonZero(binaryImage, locations);
+    cv::Mat binaryImage; // input, binary image
+    cv::Mat locations;   // output, locations of non-zero pixels
+    cv::findNonZero(binaryImage, locations);
 
     // access pixel coordinates
     Point pnt = locations.at<Point>(i);
 @endcode
 or
 @code{.cpp}
-    CvMat binaryImage; // input, binary image
+    cv::Mat binaryImage; // input, binary image
     vector<Point> locations;   // output, locations of non-zero pixels
-    findNonZero(binaryImage, locations);
+    cv::findNonZero(binaryImage, locations);
 
     // access pixel coordinates
     Point pnt = locations[i];
 @endcode
-@param src single-channel array (type CC_8UC1)
-@param idx the output array, type of CvMat or std::vector<Point>, corresponding to non-zero indices in the input
+@param src single-channel array (type CV_8UC1)
+@param idx the output array, type of cv::Mat or std::vector<Point>, corresponding to non-zero indices in the input
 */
-CC_EXPORTS_W void findNonZero( const CvMat* src, CvMat* idx );
+CV_EXPORTS_W void findNonZero( InputArray src, OutputArray idx );
 
 /** @brief Calculates an average (mean) of array elements.
 
-The function mean calculates the mean value M of array elements,
+The function cv::mean calculates the mean value M of array elements,
 independently for each channel, and return it:
 \f[\begin{array}{l} N =  \sum _{I: \; \texttt{mask} (I) \ne 0} 1 \\ M_c =  \left ( \sum _{I: \; \texttt{mask} (I) \ne 0}{ \texttt{mtx} (I)_c} \right )/N \end{array}\f]
 When all the mask elements are 0's, the function returns Scalar::all(0)
@@ -608,11 +615,11 @@ Scalar_ .
 @param mask optional operation mask.
 @sa  countNonZero, meanStdDev, norm, minMaxLoc
 */
-CC_EXPORTS_W Scalar mean(const CvMat* src, const CvMat* mask = noArray());
+CV_EXPORTS_W Scalar mean(InputArray src, InputArray mask = noArray());
 
 /** Calculates a mean and standard deviation of array elements.
 
-The function meanStdDev calculates the mean and the standard deviation M
+The function cv::meanStdDev calculates the mean and the standard deviation M
 of array elements independently for each channel and returns it via the
 output parameters:
 \f[\begin{array}{l} N =  \sum _{I, \texttt{mask} (I)  \ne 0} 1 \\ \texttt{mean} _c =  \frac{\sum_{ I: \; \texttt{mask}(I) \ne 0} \texttt{src} (I)_c}{N} \\ \texttt{stddev} _c =  \sqrt{\frac{\sum_{ I: \; \texttt{mask}(I) \ne 0} \left ( \texttt{src} (I)_c -  \texttt{mean} _c \right )^2}{N}} \end{array}\f]
@@ -626,84 +633,102 @@ then pass the matrix to calcCovarMatrix .
 @param src input array that should have from 1 to 4 channels so that the results can be stored in
 Scalar_ 's.
 @param mean output parameter: calculated mean value.
-@param stddev output parameter: calculateded standard deviation.
+@param stddev output parameter: calculated standard deviation.
 @param mask optional operation mask.
 @sa  countNonZero, mean, norm, minMaxLoc, calcCovarMatrix
 */
-CC_EXPORTS_W void meanStdDev(const CvMat* src, CvMat* mean, CvMat* stddev,
-                             const CvMat* mask=noArray());
+CV_EXPORTS_W void meanStdDev(InputArray src, OutputArray mean, OutputArray stddev,
+                             InputArray mask=noArray());
 
-/** @brief Calculates an absolute array norm, an absolute difference norm, or a
-relative difference norm.
+/** @brief Calculates the  absolute norm of an array.
 
-The function norm calculates an absolute norm of src1 (when there is no
-src2 ):
+This version of #norm calculates the absolute norm of src1. The type of norm to calculate is specified using #NormTypes.
 
-\f[norm =  \forkthree{\|\texttt{src1}\|_{L_{\infty}} =  \max _I | \texttt{src1} (I)|}{if  \(\texttt{normType} = \texttt{NORM_INF}\) }
-{ \| \texttt{src1} \| _{L_1} =  \sum _I | \texttt{src1} (I)|}{if  \(\texttt{normType} = \texttt{NORM_L1}\) }
-{ \| \texttt{src1} \| _{L_2} =  \sqrt{\sum_I \texttt{src1}(I)^2} }{if  \(\texttt{normType} = \texttt{NORM_L2}\) }\f]
-
-or an absolute or relative difference norm if src2 is there:
-
-\f[norm =  \forkthree{\|\texttt{src1}-\texttt{src2}\|_{L_{\infty}} =  \max _I | \texttt{src1} (I) -  \texttt{src2} (I)|}{if  \(\texttt{normType} = \texttt{NORM_INF}\) }
-{ \| \texttt{src1} - \texttt{src2} \| _{L_1} =  \sum _I | \texttt{src1} (I) -  \texttt{src2} (I)|}{if  \(\texttt{normType} = \texttt{NORM_L1}\) }
-{ \| \texttt{src1} - \texttt{src2} \| _{L_2} =  \sqrt{\sum_I (\texttt{src1}(I) - \texttt{src2}(I))^2} }{if  \(\texttt{normType} = \texttt{NORM_L2}\) }\f]
-
-or
-
-\f[norm =  \forkthree{\frac{\|\texttt{src1}-\texttt{src2}\|_{L_{\infty}}    }{\|\texttt{src2}\|_{L_{\infty}} }}{if  \(\texttt{normType} = \texttt{NORM_RELATIVE_INF}\) }
-{ \frac{\|\texttt{src1}-\texttt{src2}\|_{L_1} }{\|\texttt{src2}\|_{L_1}} }{if  \(\texttt{normType} = \texttt{NORM_RELATIVE_L1}\) }
-{ \frac{\|\texttt{src1}-\texttt{src2}\|_{L_2} }{\|\texttt{src2}\|_{L_2}} }{if  \(\texttt{normType} = \texttt{NORM_RELATIVE_L2}\) }\f]
-
-The function norm returns the calculated norm.
+As example for one array consider the function \f$r(x)= \begin{pmatrix} x \\ 1-x \end{pmatrix}, x \in [-1;1]\f$.
+The \f$ L_{1}, L_{2} \f$ and \f$ L_{\infty} \f$ norm for the sample value \f$r(-1) = \begin{pmatrix} -1 \\ 2 \end{pmatrix}\f$
+is calculated as follows
+\f{align*}
+    \| r(-1) \|_{L_1} &= |-1| + |2| = 3 \\
+    \| r(-1) \|_{L_2} &= \sqrt{(-1)^{2} + (2)^{2}} = \sqrt{5} \\
+    \| r(-1) \|_{L_\infty} &= \max(|-1|,|2|) = 2
+\f}
+and for \f$r(0.5) = \begin{pmatrix} 0.5 \\ 0.5 \end{pmatrix}\f$ the calculation is
+\f{align*}
+    \| r(0.5) \|_{L_1} &= |0.5| + |0.5| = 1 \\
+    \| r(0.5) \|_{L_2} &= \sqrt{(0.5)^{2} + (0.5)^{2}} = \sqrt{0.5} \\
+    \| r(0.5) \|_{L_\infty} &= \max(|0.5|,|0.5|) = 0.5.
+\f}
+The following graphic shows all values for the three norm functions \f$\| r(x) \|_{L_1}, \| r(x) \|_{L_2}\f$ and \f$\| r(x) \|_{L_\infty}\f$.
+It is notable that the \f$ L_{1} \f$ norm forms the upper and the \f$ L_{\infty} \f$ norm forms the lower border for the example function \f$ r(x) \f$.
+![Graphs for the different norm functions from the above example](pics/NormTypes_OneArray_1-2-INF.png)
 
 When the mask parameter is specified and it is not empty, the norm is
+
+If normType is not specified, #NORM_L2 is used.
 calculated only over the region specified by the mask.
 
-A multi-channel input arrays are treated as a single-channel, that is,
+Multi-channel input arrays are treated as single-channel arrays, that is,
 the results for all channels are combined.
 
-@param src1 first input array.
-@param normType type of the norm (see NormTypes).
-@param mask optional operation mask; it must have the same size as src1 and CC_8UC1 type.
-*/
-CC_EXPORTS_W double norm(const CvMat* src1, int normType = NORM_L2, const CvMat* mask = noArray());
+Hamming norms can only be calculated with CV_8U depth arrays.
 
-/** @overload
+@param src1 first input array.
+@param normType type of the norm (see #NormTypes).
+@param mask optional operation mask; it must have the same size as src1 and CV_8UC1 type.
+*/
+CV_EXPORTS_W double norm(InputArray src1, int normType = NORM_L2, InputArray mask = noArray());
+
+/** @brief Calculates an absolute difference norm or a relative difference norm.
+
+This version of cv::norm calculates the absolute difference norm
+or the relative difference norm of arrays src1 and src2.
+The type of norm to calculate is specified using #NormTypes.
+
 @param src1 first input array.
 @param src2 second input array of the same size and the same type as src1.
-@param normType type of the norm (NormTypes).
-@param mask optional operation mask; it must have the same size as src1 and CC_8UC1 type.
+@param normType type of the norm (see #NormTypes).
+@param mask optional operation mask; it must have the same size as src1 and CV_8UC1 type.
 */
-CC_EXPORTS_W double norm(const CvMat* src1, const CvMat* src2,
-                         int normType = NORM_L2, const CvMat* mask = noArray());
+CV_EXPORTS_W double norm(InputArray src1, InputArray src2,
+                         int normType = NORM_L2, InputArray mask = noArray());
 /** @overload
 @param src first input array.
-@param normType type of the norm (see NormTypes).
+@param normType type of the norm (see #NormTypes).
 */
-CC_EXPORTS double norm( const SparseMat& src, int normType );
+CV_EXPORTS double norm( const SparseMat& src, int normType );
 
-/** @brief computes PSNR image/video quality metric
+/** @brief Computes the Peak Signal-to-Noise Ratio (PSNR) image quality metric.
 
-see http://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio for details
-@todo document
+This function calculates the Peak Signal-to-Noise Ratio (PSNR) image quality metric in decibels (dB), between two input arrays src1 and src2. Arrays must have depth CV_8U.
+
+The PSNR is calculated as follows:
+
+\f[
+\texttt{PSNR} = 10 \cdot \log_{10}{\left( \frac{R^2}{MSE} \right) }
+\f]
+
+where R is the maximum integer value of depth CV_8U (255) and MSE is the mean squared error between the two arrays.
+
+@param src1 first input array.
+@param src2 second input array of the same size as src1.
+
   */
-CC_EXPORTS_W double PSNR(const CvMat* src1, const CvMat* src2);
+CV_EXPORTS_W double PSNR(InputArray src1, InputArray src2);
 
 /** @brief naive nearest neighbor finder
 
 see http://en.wikipedia.org/wiki/Nearest_neighbor_search
 @todo document
   */
-CC_EXPORTS_W void batchDistance(const CvMat* src1, const CvMat* src2,
-                                CvMat* dist, int dtype, CvMat* nidx,
+CV_EXPORTS_W void batchDistance(InputArray src1, InputArray src2,
+                                OutputArray dist, int dtype, OutputArray nidx,
                                 int normType = NORM_L2, int K = 0,
-                                const CvMat* mask = noArray(), int update = 0,
+                                InputArray mask = noArray(), int update = 0,
                                 bool crosscheck = false);
 
 /** @brief Normalizes the norm or value range of an array.
 
-The function normalize normalizes scale and shift the input array elements so that
+The function cv::normalize normalizes scale and shift the input array elements so that
 \f[\| \texttt{dst} \| _{L_p}= \texttt{alpha}\f]
 (where p=Inf, 1 or 2) when normType=NORM_INF, NORM_L1, or NORM_L2, respectively; or so that
 \f[\min _I  \texttt{dst} (I)= \texttt{alpha} , \, \, \max _I  \texttt{dst} (I)= \texttt{beta}\f]
@@ -711,7 +736,7 @@ The function normalize normalizes scale and shift the input array elements so th
 when normType=NORM_MINMAX (for dense arrays only). The optional mask specifies a sub-array to be
 normalized. This means that the norm or min-n-max are calculated over the sub-array, and then this
 sub-array is modified to be normalized. If you want to only use the mask to calculate the norm or
-min-max but modify the whole array, you can use norm and CvMat::convertTo.
+min-max but modify the whole array, you can use norm and Mat::convertTo.
 
 In case of sparse matrices, only the non-zero values are analyzed and transformed. Because of this,
 the range transformation for sparse matrices is not allowed since it can shift the zero level.
@@ -753,32 +778,32 @@ Possible usage with some positive example data:
 normalization.
 @param beta upper range boundary in case of the range normalization; it is not used for the norm
 normalization.
-@param norm_type normalization type (see NormTypes).
+@param norm_type normalization type (see cv::NormTypes).
 @param dtype when negative, the output array has the same type as src; otherwise, it has the same
-number of channels as src and the depth =CC_MAT_DEPTH(dtype).
+number of channels as src and the depth =CV_MAT_DEPTH(dtype).
 @param mask optional operation mask.
-@sa norm, CvMat::convertTo, SparseMat::convertTo
+@sa norm, Mat::convertTo, SparseMat::convertTo
 */
-CC_EXPORTS_W void normalize( const CvMat* src, InputOutputArray dst, double alpha = 1, double beta = 0,
-                             int norm_type = NORM_L2, int dtype = -1, const CvMat* mask = noArray());
+CV_EXPORTS_W void normalize( InputArray src, InputOutputArray dst, double alpha = 1, double beta = 0,
+                             int norm_type = NORM_L2, int dtype = -1, InputArray mask = noArray());
 
 /** @overload
 @param src input array.
 @param dst output array of the same size as src .
 @param alpha norm value to normalize to or the lower range boundary in case of the range
 normalization.
-@param normType normalization type (see NormTypes).
+@param normType normalization type (see cv::NormTypes).
 */
-CC_EXPORTS void normalize( const SparseMat& src, SparseMat& dst, double alpha, int normType );
+CV_EXPORTS void normalize( const SparseMat& src, SparseMat& dst, double alpha, int normType );
 
 /** @brief Finds the global minimum and maximum in an array.
 
-The function minMaxLoc finds the minimum and maximum element values and their positions. The
+The function cv::minMaxLoc finds the minimum and maximum element values and their positions. The
 extremums are searched across the whole array or, if mask is not an empty array, in the specified
 array region.
 
 The function do not work with multi-channel arrays. If you need to find minimum or maximum
-elements across all the channels, use CvMat::reshape first to reinterpret the array as
+elements across all the channels, use Mat::reshape first to reinterpret the array as
 single-channel. Or you may extract the particular channel using either extractImageCOI , or
 mixChannels , or split .
 @param src input single-channel array.
@@ -787,19 +812,19 @@ mixChannels , or split .
 @param minLoc pointer to the returned minimum location (in 2D case); NULL is used if not required.
 @param maxLoc pointer to the returned maximum location (in 2D case); NULL is used if not required.
 @param mask optional mask used to select a sub-array.
-@sa max, min, compare, inRange, extractImageCOI, mixChannels, split, CvMat::reshape
+@sa max, min, compare, inRange, extractImageCOI, mixChannels, split, Mat::reshape
 */
-CC_EXPORTS_W void minMaxLoc(const CvMat* src, CC_OUT double* minVal,
-                            CC_OUT double* maxVal = 0, CC_OUT Point* minLoc = 0,
-                            CC_OUT Point* maxLoc = 0, const CvMat* mask = noArray());
+CV_EXPORTS_W void minMaxLoc(InputArray src, CV_OUT double* minVal,
+                            CV_OUT double* maxVal = 0, CV_OUT Point* minLoc = 0,
+                            CV_OUT Point* maxLoc = 0, InputArray mask = noArray());
 
 
 /** @brief Finds the global minimum and maximum in an array
 
-The function minMaxIdx finds the minimum and maximum element values and their positions. The
+The function cv::minMaxIdx finds the minimum and maximum element values and their positions. The
 extremums are searched across the whole array or, if mask is not an empty array, in the specified
 array region. The function does not work with multi-channel arrays. If you need to find minimum or
-maximum elements across all the channels, use CvMat::reshape first to reinterpret the array as
+maximum elements across all the channels, use Mat::reshape first to reinterpret the array as
 single-channel. Or you may extract the particular channel using either extractImageCOI , or
 mixChannels , or split . In case of a sparse matrix, the minimum is found among non-zero elements
 only.
@@ -817,8 +842,8 @@ in each dimension are stored there sequentially.
 @param maxIdx pointer to the returned maximum location (in nD case). NULL is used if not required.
 @param mask specified array region
 */
-CC_EXPORTS void minMaxIdx(const CvMat* src, double* minVal, double* maxVal = 0,
-                          int* minIdx = 0, int* maxIdx = 0, const CvMat* mask = noArray());
+CV_EXPORTS void minMaxIdx(InputArray src, double* minVal, double* maxVal = 0,
+                          int* minIdx = 0, int* maxIdx = 0, InputArray mask = noArray());
 
 /** @overload
 @param a input single-channel array.
@@ -829,44 +854,55 @@ Otherwise, it must point to an array of src.dims elements, the coordinates of th
 in each dimension are stored there sequentially.
 @param maxIdx pointer to the returned maximum location (in nD case). NULL is used if not required.
 */
-CC_EXPORTS void minMaxLoc(const SparseMat& a, double* minVal,
+CV_EXPORTS void minMaxLoc(const SparseMat& a, double* minVal,
                           double* maxVal, int* minIdx = 0, int* maxIdx = 0);
 
 /** @brief Reduces a matrix to a vector.
 
-The function reduce reduces the matrix to a vector by treating the matrix rows/columns as a set of
+The function #reduce reduces the matrix to a vector by treating the matrix rows/columns as a set of
 1D vectors and performing the specified operation on the vectors until a single row/column is
 obtained. For example, the function can be used to compute horizontal and vertical projections of a
-raster image. In case of REDUCE_MAX and REDUCE_MIN , the output image should have the same type as the source one.
-In case of REDUCE_SUM and REDUCE_AVG , the output may have a larger element bit-depth to preserve accuracy.
+raster image. In case of #REDUCE_MAX and #REDUCE_MIN , the output image should have the same type as the source one.
+In case of #REDUCE_SUM and #REDUCE_AVG , the output may have a larger element bit-depth to preserve accuracy.
 And multi-channel arrays are also supported in these two reduction modes.
+
+The following code demonstrates its usage for a single channel matrix.
+@snippet snippets/core_reduce.cpp example
+
+And the following code demonstrates its usage for a two-channel matrix.
+@snippet snippets/core_reduce.cpp example2
+
 @param src input 2D matrix.
 @param dst output vector. Its size and type is defined by dim and dtype parameters.
 @param dim dimension index along which the matrix is reduced. 0 means that the matrix is reduced to
 a single row. 1 means that the matrix is reduced to a single column.
-@param rtype reduction operation that could be one of ReduceTypes
+@param rtype reduction operation that could be one of #ReduceTypes
 @param dtype when negative, the output vector will have the same type as the input matrix,
-otherwise, its type will be CC_MAKE_TYPE(CC_MAT_DEPTH(dtype), src.channels()).
+otherwise, its type will be CV_MAKE_TYPE(CV_MAT_DEPTH(dtype), src.channels()).
 @sa repeat
 */
-CC_EXPORTS_W void reduce(const CvMat* src, CvMat* dst, int dim, int rtype, int dtype = -1);
+CV_EXPORTS_W void reduce(InputArray src, OutputArray dst, int dim, int rtype, int dtype = -1);
 
 /** @brief Creates one multi-channel array out of several single-channel ones.
 
-The function merge merges several arrays to make a single multi-channel array. That is, each
+The function cv::merge merges several arrays to make a single multi-channel array. That is, each
 element of the output array will be a concatenation of the elements of the input arrays, where
 elements of i-th input array are treated as mv[i].channels()-element vectors.
 
-The function split does the reverse operation. If you need to shuffle channels in some other
-advanced way, use mixChannels.
+The function cv::split does the reverse operation. If you need to shuffle channels in some other
+advanced way, use cv::mixChannels.
+
+The following example shows how to merge 3 single channel matrices into a single 3-channel matrix.
+@snippet snippets/core_merge.cpp example
+
 @param mv input array of matrices to be merged; all the matrices in mv must have the same
 size and the same depth.
 @param count number of input matrices when mv is a plain C array; it must be greater than zero.
 @param dst output array of the same size and the same depth as mv[0]; The number of channels will
 be equal to the parameter count.
-@sa  mixChannels, split, CvMat::reshape
+@sa  mixChannels, split, Mat::reshape
 */
-CC_EXPORTS void merge(const CvMat* mv, size_t count, CvMat* dst);
+CV_EXPORTS void merge(const Mat* mv, size_t count, OutputArray dst);
 
 /** @overload
 @param mv input vector of matrices to be merged; all the matrices in mv must have the same
@@ -874,51 +910,55 @@ size and the same depth.
 @param dst output array of the same size and the same depth as mv[0]; The number of channels will
 be the total number of channels in the matrix array.
   */
-CC_EXPORTS_W void merge(InputArrayOfArrays mv, CvMat* dst);
+CV_EXPORTS_W void merge(InputArrayOfArrays mv, OutputArray dst);
 
 /** @brief Divides a multi-channel array into several single-channel arrays.
 
-The function split splits a multi-channel array into separate single-channel arrays:
+The function cv::split splits a multi-channel array into separate single-channel arrays:
 \f[\texttt{mv} [c](I) =  \texttt{src} (I)_c\f]
 If you need to extract a single channel or do some other sophisticated channel permutation, use
 mixChannels .
+
+The following example demonstrates how to split a 3-channel matrix into 3 single channel matrices.
+@snippet snippets/core_split.cpp example
+
 @param src input multi-channel array.
 @param mvbegin output array; the number of arrays must match src.channels(); the arrays themselves are
 reallocated, if needed.
 @sa merge, mixChannels, cvtColor
 */
-CC_EXPORTS void split(const CvMat& src, CvMat* mvbegin);
+CV_EXPORTS void split(const Mat& src, Mat* mvbegin);
 
 /** @overload
 @param m input multi-channel array.
 @param mv output vector of arrays; the arrays themselves are reallocated, if needed.
 */
-CC_EXPORTS_W void split(const CvMat* m, OutputArrayOfArrays mv);
+CV_EXPORTS_W void split(InputArray m, OutputArrayOfArrays mv);
 
 /** @brief Copies specified channels from input arrays to the specified channels of
 output arrays.
 
-The function mixChannels provides an advanced mechanism for shuffling image channels.
+The function cv::mixChannels provides an advanced mechanism for shuffling image channels.
 
-split,merge,extractChannel,insertChannel and some forms of cvtColor are partial cases of mixChannels.
+cv::split,cv::merge,cv::extractChannel,cv::insertChannel and some forms of cv::cvtColor are partial cases of cv::mixChannels.
 
 In the example below, the code splits a 4-channel BGRA image into a 3-channel BGR (with B and R
 channels swapped) and a separate alpha-channel image:
 @code{.cpp}
-    CvMat bgra( 100, 100, CC_8UC4, Scalar(255,0,0,255) );
-    CvMat bgr( bgra.rows, bgra.cols, CC_8UC3 );
-    CvMat alpha( bgra.rows, bgra.cols, CC_8UC1 );
+    Mat bgra( 100, 100, CV_8UC4, Scalar(255,0,0,255) );
+    Mat bgr( bgra.rows, bgra.cols, CV_8UC3 );
+    Mat alpha( bgra.rows, bgra.cols, CV_8UC1 );
 
     // forming an array of matrices is a quite efficient operation,
     // because the matrix data is not copied, only the headers
-    CvMat out[] = { bgr, alpha };
+    Mat out[] = { bgr, alpha };
     // bgra[0] -> bgr[2], bgra[1] -> bgr[1],
     // bgra[2] -> bgr[0], bgra[3] -> alpha[0]
     int from_to[] = { 0,2, 1,1, 2,0, 3,3 };
     mixChannels( &bgra, 1, out, 2, from_to, 4 );
 @endcode
 @note Unlike many other new-style C++ functions in OpenCV (see the introduction section and
-CvMat::create ), mixChannels requires the output arrays to be pre-allocated before calling the
+Mat::create ), cv::mixChannels requires the output arrays to be pre-allocated before calling the
 function.
 @param src input array or vector of matrices; all of the matrices must have the same size and the
 same depth.
@@ -936,7 +976,7 @@ filled with zero .
 @param npairs number of index pairs in `fromTo`.
 @sa split, merge, extractChannel, insertChannel, cvtColor
 */
-CC_EXPORTS void mixChannels(const CvMat* src, size_t nsrcs, CvMat* dst, size_t ndsts,
+CV_EXPORTS void mixChannels(const Mat* src, size_t nsrcs, Mat* dst, size_t ndsts,
                             const int* fromTo, size_t npairs);
 
 /** @overload
@@ -953,7 +993,7 @@ channels; as a special case, when fromTo[k\*2] is negative, the corresponding ou
 filled with zero .
 @param npairs number of index pairs in fromTo.
 */
-CC_EXPORTS void mixChannels(InputArrayOfArrays src, InputOutputArrayOfArrays dst,
+CV_EXPORTS void mixChannels(InputArrayOfArrays src, InputOutputArrayOfArrays dst,
                             const int* fromTo, size_t npairs);
 
 /** @overload
@@ -969,7 +1009,7 @@ src[0].channels() + src[1].channels()-1, and so on, the same scheme is used for 
 channels; as a special case, when fromTo[k\*2] is negative, the corresponding output channel is
 filled with zero .
 */
-CC_EXPORTS_W void mixChannels(InputArrayOfArrays src, InputOutputArrayOfArrays dst,
+CV_EXPORTS_W void mixChannels(InputArrayOfArrays src, InputOutputArrayOfArrays dst,
                               const std::vector<int>& fromTo);
 
 /** @brief Extracts a single channel from src (coi is 0-based index)
@@ -978,7 +1018,7 @@ CC_EXPORTS_W void mixChannels(InputArrayOfArrays src, InputOutputArrayOfArrays d
 @param coi index of channel to extract
 @sa mixChannels, split
 */
-CC_EXPORTS_W void extractChannel(const CvMat* src, CvMat* dst, int coi);
+CV_EXPORTS_W void extractChannel(InputArray src, OutputArray dst, int coi);
 
 /** @brief Inserts a single channel to dst (coi is 0-based index)
 @param src input array
@@ -986,11 +1026,11 @@ CC_EXPORTS_W void extractChannel(const CvMat* src, CvMat* dst, int coi);
 @param coi index of channel for insertion
 @sa mixChannels, merge
 */
-CC_EXPORTS_W void insertChannel(const CvMat* src, InputOutputArray dst, int coi);
+CV_EXPORTS_W void insertChannel(InputArray src, InputOutputArray dst, int coi);
 
 /** @brief Flips a 2D array around vertical, horizontal, or both axes.
 
-The function flip flips the array in one of three different ways (row
+The function cv::flip flips the array in one of three different ways (row
 and column indices are 0-based):
 \f[\texttt{dst} _{ij} =
 \left\{
@@ -1020,7 +1060,7 @@ flipping around y-axis. Negative value (for example, -1) means flipping
 around both axes.
 @sa transpose , repeat , completeSymm
 */
-CC_EXPORTS_W void flip(const CvMat* src, CvMat* dst, int flipCode);
+CV_EXPORTS_W void flip(InputArray src, OutputArray dst, int flipCode);
 
 enum RotateFlags {
     ROTATE_90_CLOCKWISE = 0, //Rotate 90 degrees clockwise
@@ -1038,11 +1078,11 @@ and the rows and cols are switched for ROTATE_90 and ROTATE_270.
 @param rotateCode an enum to specify how to rotate the array; see the enum RotateFlags
 @sa transpose , repeat , completeSymm, flip, RotateFlags
 */
-CC_EXPORTS_W void rotate(const CvMat* src, CvMat* dst, int rotateCode);
+CV_EXPORTS_W void rotate(InputArray src, OutputArray dst, int rotateCode);
 
 /** @brief Fills the output array with repeated copies of the input array.
 
-The function repeat duplicates the input array one or more times along each of the two axes:
+The function cv::repeat duplicates the input array one or more times along each of the two axes:
 \f[\texttt{dst} _{ij}= \texttt{src} _{i\mod src.rows, \; j\mod src.cols }\f]
 The second variant of the function is more convenient to use with @ref MatrixExpressions.
 @param src input array to replicate.
@@ -1051,9 +1091,9 @@ vertical axis.
 @param nx Flag to specify how many times the `src` is repeated along the
 horizontal axis.
 @param dst output array of the same type as `src`.
-@sa reduce
+@sa cv::reduce
 */
-CC_EXPORTS_W void repeat(const CvMat* src, int ny, int nx, CvMat* dst);
+CV_EXPORTS_W void repeat(InputArray src, int ny, int nx, OutputArray dst);
 
 /** @overload
 @param src input array to replicate.
@@ -1062,18 +1102,18 @@ vertical axis.
 @param nx Flag to specify how many times the `src` is repeated along the
 horizontal axis.
   */
-CC_EXPORTS CvMat repeat(const CvMat& src, int ny, int nx);
+CV_EXPORTS Mat repeat(const Mat& src, int ny, int nx);
 
 /** @brief Applies horizontal concatenation to given matrices.
 
-The function horizontally concatenates two or more CvMat matrices (with the same number of rows).
+The function horizontally concatenates two or more cv::Mat matrices (with the same number of rows).
 @code{.cpp}
-    CvMat matArray[] = { CvMat(4, 1, CC_8UC1, Scalar(1)),
-                           CvMat(4, 1, CC_8UC1, Scalar(2)),
-                           CvMat(4, 1, CC_8UC1, Scalar(3)),};
+    cv::Mat matArray[] = { cv::Mat(4, 1, CV_8UC1, cv::Scalar(1)),
+                           cv::Mat(4, 1, CV_8UC1, cv::Scalar(2)),
+                           cv::Mat(4, 1, CV_8UC1, cv::Scalar(3)),};
 
-    CvMat out;
-    hconcat( matArray, 3, out );
+    cv::Mat out;
+    cv::hconcat( matArray, 3, out );
     //out:
     //[1, 2, 3;
     // 1, 2, 3;
@@ -1083,20 +1123,20 @@ The function horizontally concatenates two or more CvMat matrices (with the same
 @param src input array or vector of matrices. all of the matrices must have the same number of rows and the same depth.
 @param nsrc number of matrices in src.
 @param dst output array. It has the same number of rows and depth as the src, and the sum of cols of the src.
-@sa vconcat(const CvMat*, size_t, CvMat*), @sa vconcat(InputArrayOfArrays, CvMat*) and @sa vconcat(const CvMat*, const CvMat*, CvMat*)
+@sa cv::vconcat(const Mat*, size_t, OutputArray), @sa cv::vconcat(InputArrayOfArrays, OutputArray) and @sa cv::vconcat(InputArray, InputArray, OutputArray)
 */
-CC_EXPORTS void hconcat(const CvMat* src, size_t nsrc, CvMat* dst);
+CV_EXPORTS void hconcat(const Mat* src, size_t nsrc, OutputArray dst);
 /** @overload
  @code{.cpp}
-    Mat_<float> A = (Mat_<float>(3, 2) << 1, 4,
+    cv::Mat_<float> A = (cv::Mat_<float>(3, 2) << 1, 4,
                                                   2, 5,
                                                   3, 6);
-    Mat_<float> B = (Mat_<float>(3, 2) << 7, 10,
+    cv::Mat_<float> B = (cv::Mat_<float>(3, 2) << 7, 10,
                                                   8, 11,
                                                   9, 12);
 
-    CvMat C;
-    hconcat(A, B, C);
+    cv::Mat C;
+    cv::hconcat(A, B, C);
     //C:
     //[1, 4, 7, 10;
     // 2, 5, 8, 11;
@@ -1106,15 +1146,15 @@ CC_EXPORTS void hconcat(const CvMat* src, size_t nsrc, CvMat* dst);
  @param src2 second input array to be considered for horizontal concatenation.
  @param dst output array. It has the same number of rows and depth as the src1 and src2, and the sum of cols of the src1 and src2.
  */
-CC_EXPORTS void hconcat(const CvMat* src1, const CvMat* src2, CvMat* dst);
+CV_EXPORTS void hconcat(InputArray src1, InputArray src2, OutputArray dst);
 /** @overload
  @code{.cpp}
-    std::vector<CvMat> matrices = { CvMat(4, 1, CC_8UC1, Scalar(1)),
-                                      CvMat(4, 1, CC_8UC1, Scalar(2)),
-                                      CvMat(4, 1, CC_8UC1, Scalar(3)),};
+    std::vector<cv::Mat> matrices = { cv::Mat(4, 1, CV_8UC1, cv::Scalar(1)),
+                                      cv::Mat(4, 1, CV_8UC1, cv::Scalar(2)),
+                                      cv::Mat(4, 1, CV_8UC1, cv::Scalar(3)),};
 
-    CvMat out;
-    hconcat( matrices, out );
+    cv::Mat out;
+    cv::hconcat( matrices, out );
     //out:
     //[1, 2, 3;
     // 1, 2, 3;
@@ -1125,18 +1165,18 @@ CC_EXPORTS void hconcat(const CvMat* src1, const CvMat* src2, CvMat* dst);
  @param dst output array. It has the same number of rows and depth as the src, and the sum of cols of the src.
 same depth.
  */
-CC_EXPORTS_W void hconcat(InputArrayOfArrays src, CvMat* dst);
+CV_EXPORTS_W void hconcat(InputArrayOfArrays src, OutputArray dst);
 
 /** @brief Applies vertical concatenation to given matrices.
 
-The function vertically concatenates two or more CvMat matrices (with the same number of cols).
+The function vertically concatenates two or more cv::Mat matrices (with the same number of cols).
 @code{.cpp}
-    CvMat matArray[] = { CvMat(1, 4, CC_8UC1, Scalar(1)),
-                           CvMat(1, 4, CC_8UC1, Scalar(2)),
-                           CvMat(1, 4, CC_8UC1, Scalar(3)),};
+    cv::Mat matArray[] = { cv::Mat(1, 4, CV_8UC1, cv::Scalar(1)),
+                           cv::Mat(1, 4, CV_8UC1, cv::Scalar(2)),
+                           cv::Mat(1, 4, CV_8UC1, cv::Scalar(3)),};
 
-    CvMat out;
-    vconcat( matArray, 3, out );
+    cv::Mat out;
+    cv::vconcat( matArray, 3, out );
     //out:
     //[1,   1,   1,   1;
     // 2,   2,   2,   2;
@@ -1145,20 +1185,20 @@ The function vertically concatenates two or more CvMat matrices (with the same n
 @param src input array or vector of matrices. all of the matrices must have the same number of cols and the same depth.
 @param nsrc number of matrices in src.
 @param dst output array. It has the same number of cols and depth as the src, and the sum of rows of the src.
-@sa hconcat(const CvMat*, size_t, CvMat*), @sa hconcat(InputArrayOfArrays, CvMat*) and @sa hconcat(const CvMat*, const CvMat*, CvMat*)
+@sa cv::hconcat(const Mat*, size_t, OutputArray), @sa cv::hconcat(InputArrayOfArrays, OutputArray) and @sa cv::hconcat(InputArray, InputArray, OutputArray)
 */
-CC_EXPORTS void vconcat(const CvMat* src, size_t nsrc, CvMat* dst);
+CV_EXPORTS void vconcat(const Mat* src, size_t nsrc, OutputArray dst);
 /** @overload
  @code{.cpp}
-    Mat_<float> A = (Mat_<float>(3, 2) << 1, 7,
+    cv::Mat_<float> A = (cv::Mat_<float>(3, 2) << 1, 7,
                                                   2, 8,
                                                   3, 9);
-    Mat_<float> B = (Mat_<float>(3, 2) << 4, 10,
+    cv::Mat_<float> B = (cv::Mat_<float>(3, 2) << 4, 10,
                                                   5, 11,
                                                   6, 12);
 
-    CvMat C;
-    vconcat(A, B, C);
+    cv::Mat C;
+    cv::vconcat(A, B, C);
     //C:
     //[1, 7;
     // 2, 8;
@@ -1171,15 +1211,15 @@ CC_EXPORTS void vconcat(const CvMat* src, size_t nsrc, CvMat* dst);
  @param src2 second input array to be considered for vertical concatenation.
  @param dst output array. It has the same number of cols and depth as the src1 and src2, and the sum of rows of the src1 and src2.
  */
-CC_EXPORTS void vconcat(const CvMat* src1, const CvMat* src2, CvMat* dst);
+CV_EXPORTS void vconcat(InputArray src1, InputArray src2, OutputArray dst);
 /** @overload
  @code{.cpp}
-    std::vector<CvMat> matrices = { CvMat(1, 4, CC_8UC1, Scalar(1)),
-                                      CvMat(1, 4, CC_8UC1, Scalar(2)),
-                                      CvMat(1, 4, CC_8UC1, Scalar(3)),};
+    std::vector<cv::Mat> matrices = { cv::Mat(1, 4, CV_8UC1, cv::Scalar(1)),
+                                      cv::Mat(1, 4, CV_8UC1, cv::Scalar(2)),
+                                      cv::Mat(1, 4, CV_8UC1, cv::Scalar(3)),};
 
-    CvMat out;
-    vconcat( matrices, out );
+    cv::Mat out;
+    cv::vconcat( matrices, out );
     //out:
     //[1,   1,   1,   1;
     // 2,   2,   2,   2;
@@ -1189,13 +1229,13 @@ CC_EXPORTS void vconcat(const CvMat* src1, const CvMat* src2, CvMat* dst);
  @param dst output array. It has the same number of cols and depth as the src, and the sum of rows of the src.
 same depth.
  */
-CC_EXPORTS_W void vconcat(InputArrayOfArrays src, CvMat* dst);
+CV_EXPORTS_W void vconcat(InputArrayOfArrays src, OutputArray dst);
 
 /** @brief computes bitwise conjunction of the two arrays (dst = src1 & src2)
 Calculates the per-element bit-wise conjunction of two arrays or an
 array and a scalar.
 
-The function bitwise_and calculates the per-element bit-wise logical conjunction for:
+The function cv::bitwise_and calculates the per-element bit-wise logical conjunction for:
 *   Two arrays when src1 and src2 have the same size:
     \f[\texttt{dst} (I) =  \texttt{src1} (I)  \wedge \texttt{src2} (I) \quad \texttt{if mask} (I) \ne0\f]
 *   An array and a scalar when src2 is constructed from Scalar or has
@@ -1216,13 +1256,13 @@ arrays.
 @param mask optional operation mask, 8-bit single channel array, that
 specifies elements of the output array to be changed.
 */
-CC_EXPORTS_W void bitwise_and(const CvMat* src1, const CvMat* src2,
-                              CvMat* dst, const CvMat* mask = noArray());
+CV_EXPORTS_W void bitwise_and(InputArray src1, InputArray src2,
+                              OutputArray dst, InputArray mask = noArray());
 
 /** @brief Calculates the per-element bit-wise disjunction of two arrays or an
 array and a scalar.
 
-The function bitwise_or calculates the per-element bit-wise logical disjunction for:
+The function cv::bitwise_or calculates the per-element bit-wise logical disjunction for:
 *   Two arrays when src1 and src2 have the same size:
     \f[\texttt{dst} (I) =  \texttt{src1} (I)  \vee \texttt{src2} (I) \quad \texttt{if mask} (I) \ne0\f]
 *   An array and a scalar when src2 is constructed from Scalar or has
@@ -1243,13 +1283,13 @@ arrays.
 @param mask optional operation mask, 8-bit single channel array, that
 specifies elements of the output array to be changed.
 */
-CC_EXPORTS_W void bitwise_or(const CvMat* src1, const CvMat* src2,
-                             CvMat* dst, const CvMat* mask = noArray());
+CV_EXPORTS_W void bitwise_or(InputArray src1, InputArray src2,
+                             OutputArray dst, InputArray mask = noArray());
 
 /** @brief Calculates the per-element bit-wise "exclusive or" operation on two
 arrays or an array and a scalar.
 
-The function bitwise_xor calculates the per-element bit-wise logical "exclusive-or"
+The function cv::bitwise_xor calculates the per-element bit-wise logical "exclusive-or"
 operation for:
 *   Two arrays when src1 and src2 have the same size:
     \f[\texttt{dst} (I) =  \texttt{src1} (I)  \oplus \texttt{src2} (I) \quad \texttt{if mask} (I) \ne0\f]
@@ -1271,12 +1311,12 @@ arrays.
 @param mask optional operation mask, 8-bit single channel array, that
 specifies elements of the output array to be changed.
 */
-CC_EXPORTS_W void bitwise_xor(const CvMat* src1, const CvMat* src2,
-                              CvMat* dst, const CvMat* mask = noArray());
+CV_EXPORTS_W void bitwise_xor(InputArray src1, InputArray src2,
+                              OutputArray dst, InputArray mask = noArray());
 
 /** @brief  Inverts every bit of an array.
 
-The function bitwise_not calculates per-element bit-wise inversion of the input
+The function cv::bitwise_not calculates per-element bit-wise inversion of the input
 array:
 \f[\texttt{dst} (I) =  \neg \texttt{src} (I)\f]
 In case of a floating-point input array, its machine-specific bit
@@ -1288,12 +1328,12 @@ array.
 @param mask optional operation mask, 8-bit single channel array, that
 specifies elements of the output array to be changed.
 */
-CC_EXPORTS_W void bitwise_not(const CvMat* src, CvMat* dst,
-                              const CvMat* mask = noArray());
+CV_EXPORTS_W void bitwise_not(InputArray src, OutputArray dst,
+                              InputArray mask = noArray());
 
 /** @brief Calculates the per-element absolute difference between two arrays or between an array and a scalar.
 
-The function absdiff calculates:
+The function cv::absdiff calculates:
 *   Absolute difference between two arrays when they have the same
     size and type:
     \f[\texttt{dst}(I) =  \texttt{saturate} (| \texttt{src1}(I) -  \texttt{src2}(I)|)\f]
@@ -1307,14 +1347,14 @@ The function absdiff calculates:
     \f[\texttt{dst}(I) =  \texttt{saturate} (| \texttt{src1} -  \texttt{src2}(I) |)\f]
     where I is a multi-dimensional index of array elements. In case of
     multi-channel arrays, each channel is processed independently.
-@note Saturation is not applied when the arrays have the depth CC_32S.
+@note Saturation is not applied when the arrays have the depth CV_32S.
 You may even get a negative value in the case of overflow.
 @param src1 first input array or a scalar.
 @param src2 second input array or a scalar.
 @param dst output array that has the same size and type as input arrays.
-@sa abs(const CvMat&)
+@sa cv::abs(const Mat&)
 */
-CC_EXPORTS_W void absdiff(const CvMat* src1, const CvMat* src2, CvMat* dst);
+CV_EXPORTS_W void absdiff(InputArray src1, InputArray src2, OutputArray dst);
 
 /** @brief  Checks if array elements lie between the elements of two other arrays.
 
@@ -1333,10 +1373,10 @@ When the lower and/or upper boundary parameters are scalars, the indexes
 @param src first input array.
 @param lowerb inclusive lower boundary array or a scalar.
 @param upperb inclusive upper boundary array or a scalar.
-@param dst output array of the same size as src and CC_8U type.
+@param dst output array of the same size as src and CV_8U type.
 */
-CC_EXPORTS_W void inRange(const CvMat* src, const CvMat* lowerb,
-                          const CvMat* upperb, CvMat* dst);
+CV_EXPORTS_W void inRange(InputArray src, InputArray lowerb,
+                          InputArray upperb, OutputArray dst);
 
 /** @brief Performs the per-element comparison of two arrays or an array and scalar value.
 
@@ -1353,22 +1393,22 @@ When the comparison result is true, the corresponding element of output
 array is set to 255. The comparison operations can be replaced with the
 equivalent matrix expressions:
 @code{.cpp}
-    CvMat dst1 = src1 >= src2;
-    CvMat dst2 = src1 < 8;
+    Mat dst1 = src1 >= src2;
+    Mat dst2 = src1 < 8;
     ...
 @endcode
 @param src1 first input array or a scalar; when it is an array, it must have a single channel.
 @param src2 second input array or a scalar; when it is an array, it must have a single channel.
-@param dst output array of type ref CC_8U that has the same size and the same number of channels as
+@param dst output array of type ref CV_8U that has the same size and the same number of channels as
     the input arrays.
-@param cmpop a flag, that specifies correspondence between the arrays (CmpTypes)
+@param cmpop a flag, that specifies correspondence between the arrays (cv::CmpTypes)
 @sa checkRange, min, max, threshold
 */
-CC_EXPORTS_W void compare(const CvMat* src1, const CvMat* src2, CvMat* dst, int cmpop);
+CV_EXPORTS_W void compare(InputArray src1, InputArray src2, OutputArray dst, int cmpop);
 
 /** @brief Calculates per-element minimum of two arrays or an array and a scalar.
 
-The function min calculates the per-element minimum of two arrays:
+The function cv::min calculates the per-element minimum of two arrays:
 \f[\texttt{dst} (I)= \min ( \texttt{src1} (I), \texttt{src2} (I))\f]
 or array and a scalar:
 \f[\texttt{dst} (I)= \min ( \texttt{src1} (I), \texttt{value} )\f]
@@ -1377,19 +1417,19 @@ or array and a scalar:
 @param dst output array of the same size and type as src1.
 @sa max, compare, inRange, minMaxLoc
 */
-CC_EXPORTS_W void min(const CvMat* src1, const CvMat* src2, CvMat* dst);
+CV_EXPORTS_W void min(InputArray src1, InputArray src2, OutputArray dst);
 /** @overload
-needed to avoid conflicts with const _Tp& MIN(const _Tp&, const _Tp&, _Compare)
+needed to avoid conflicts with const _Tp& std::min(const _Tp&, const _Tp&, _Compare)
 */
-CC_EXPORTS void min(const CvMat& src1, const CvMat& src2, CvMat& dst);
+CV_EXPORTS void min(const Mat& src1, const Mat& src2, Mat& dst);
 /** @overload
-needed to avoid conflicts with const _Tp& MIN(const _Tp&, const _Tp&, _Compare)
+needed to avoid conflicts with const _Tp& std::min(const _Tp&, const _Tp&, _Compare)
 */
-CC_EXPORTS void min(const UMat& src1, const UMat& src2, UMat& dst);
+CV_EXPORTS void min(const UMat& src1, const UMat& src2, UMat& dst);
 
 /** @brief Calculates per-element maximum of two arrays or an array and a scalar.
 
-The function max calculates the per-element maximum of two arrays:
+The function cv::max calculates the per-element maximum of two arrays:
 \f[\texttt{dst} (I)= \max ( \texttt{src1} (I), \texttt{src2} (I))\f]
 or array and a scalar:
 \f[\texttt{dst} (I)= \max ( \texttt{src1} (I), \texttt{value} )\f]
@@ -1398,30 +1438,30 @@ or array and a scalar:
 @param dst output array of the same size and type as src1.
 @sa  min, compare, inRange, minMaxLoc, @ref MatrixExpressions
 */
-CC_EXPORTS_W void max(const CvMat* src1, const CvMat* src2, CvMat* dst);
+CV_EXPORTS_W void max(InputArray src1, InputArray src2, OutputArray dst);
 /** @overload
-needed to avoid conflicts with const _Tp& MIN(const _Tp&, const _Tp&, _Compare)
+needed to avoid conflicts with const _Tp& std::min(const _Tp&, const _Tp&, _Compare)
 */
-CC_EXPORTS void max(const CvMat& src1, const CvMat& src2, CvMat& dst);
+CV_EXPORTS void max(const Mat& src1, const Mat& src2, Mat& dst);
 /** @overload
-needed to avoid conflicts with const _Tp& MIN(const _Tp&, const _Tp&, _Compare)
+needed to avoid conflicts with const _Tp& std::min(const _Tp&, const _Tp&, _Compare)
 */
-CC_EXPORTS void max(const UMat& src1, const UMat& src2, UMat& dst);
+CV_EXPORTS void max(const UMat& src1, const UMat& src2, UMat& dst);
 
 /** @brief Calculates a square root of array elements.
 
-The function sqrt calculates a square root of each input array element.
+The function cv::sqrt calculates a square root of each input array element.
 In case of multi-channel arrays, each channel is processed
 independently. The accuracy is approximately the same as of the built-in
 std::sqrt .
 @param src input floating-point array.
 @param dst output array of the same size and type as src.
 */
-CC_EXPORTS_W void sqrt(const CvMat* src, CvMat* dst);
+CV_EXPORTS_W void sqrt(InputArray src, OutputArray dst);
 
 /** @brief Raises every array element to a power.
 
-The function pow raises every element of the input array to power :
+The function cv::pow raises every element of the input array to power :
 \f[\texttt{dst} (I) =  \fork{\texttt{src}(I)^{power}}{if \(\texttt{power}\) is integer}{|\texttt{src}(I)|^{power}}{otherwise}\f]
 
 So, for a non-integer power exponent, the absolute values of input array
@@ -1429,7 +1469,7 @@ elements are used. However, it is possible to get true values for
 negative values using some extra operations. In the example below,
 computing the 5th root of array src shows:
 @code{.cpp}
-    CvMat mask = src < 0;
+    Mat mask = src < 0;
     pow(src, 1./5, dst);
     subtract(Scalar::all(0), dst, dst, mask);
 @endcode
@@ -1442,11 +1482,11 @@ Special values (NaN, Inf) are not handled.
 @param dst output array of the same size and type as src.
 @sa sqrt, exp, log, cartToPolar, polarToCart
 */
-CC_EXPORTS_W void pow(const CvMat* src, double power, CvMat* dst);
+CV_EXPORTS_W void pow(InputArray src, double power, OutputArray dst);
 
 /** @brief Calculates the exponent of every array element.
 
-The function exp calculates the exponent of every element of the input
+The function cv::exp calculates the exponent of every element of the input
 array:
 \f[\texttt{dst} [I] = e^{ src(I) }\f]
 
@@ -1458,11 +1498,11 @@ Inf) are not handled.
 @param dst output array of the same size and type as src.
 @sa log , cartToPolar , polarToCart , phase , pow , sqrt , magnitude
 */
-CC_EXPORTS_W void exp(const CvMat* src, CvMat* dst);
+CV_EXPORTS_W void exp(InputArray src, OutputArray dst);
 
 /** @brief Calculates the natural logarithm of every array element.
 
-The function log calculates the natural logarithm of every element of the input array:
+The function cv::log calculates the natural logarithm of every element of the input array:
 \f[\texttt{dst} (I) =  \log (\texttt{src}(I)) \f]
 
 Output on zero, negative and special (NaN, Inf) values is undefined.
@@ -1471,17 +1511,17 @@ Output on zero, negative and special (NaN, Inf) values is undefined.
 @param dst output array of the same size and type as src .
 @sa exp, cartToPolar, polarToCart, phase, pow, sqrt, magnitude
 */
-CC_EXPORTS_W void log(const CvMat* src, CvMat* dst);
+CV_EXPORTS_W void log(InputArray src, OutputArray dst);
 
 /** @brief Calculates x and y coordinates of 2D vectors from their magnitude and angle.
 
-The function polarToCart calculates the Cartesian coordinates of each 2D
+The function cv::polarToCart calculates the Cartesian coordinates of each 2D
 vector represented by the corresponding elements of magnitude and angle:
 \f[\begin{array}{l} \texttt{x} (I) =  \texttt{magnitude} (I) \cos ( \texttt{angle} (I)) \\ \texttt{y} (I) =  \texttt{magnitude} (I) \sin ( \texttt{angle} (I)) \\ \end{array}\f]
 
 The relative accuracy of the estimated coordinates is about 1e-6.
 @param magnitude input floating-point array of magnitudes of 2D vectors;
-it can be an empty matrix (=CvMat()), in this case, the function assumes
+it can be an empty matrix (=Mat()), in this case, the function assumes
 that all the magnitudes are =1; if it is not empty, it must have the
 same size and type as angle.
 @param angle input floating-point array of angles of 2D vectors.
@@ -1493,12 +1533,12 @@ size and type as angle.
 degrees, otherwise, they are measured in radians.
 @sa cartToPolar, magnitude, phase, exp, log, pow, sqrt
 */
-CC_EXPORTS_W void polarToCart(const CvMat* magnitude, const CvMat* angle,
-                              CvMat* x, CvMat* y, bool angleInDegrees = false);
+CV_EXPORTS_W void polarToCart(InputArray magnitude, InputArray angle,
+                              OutputArray x, OutputArray y, bool angleInDegrees = false);
 
 /** @brief Calculates the magnitude and angle of 2D vectors.
 
-The function cartToPolar calculates either the magnitude, angle, or both
+The function cv::cartToPolar calculates either the magnitude, angle, or both
 for every 2D vector (x(I),y(I)):
 \f[\begin{array}{l} \texttt{magnitude} (I)= \sqrt{\texttt{x}(I)^2+\texttt{y}(I)^2} , \\ \texttt{angle} (I)= \texttt{atan2} ( \texttt{y} (I), \texttt{x} (I))[ \cdot180 / \pi ] \end{array}\f]
 
@@ -1514,13 +1554,13 @@ x; the angles are measured in radians (from 0 to 2\*Pi) or in degrees (0 to 360 
 in radians (which is by default), or in degrees.
 @sa Sobel, Scharr
 */
-CC_EXPORTS_W void cartToPolar(const CvMat* x, const CvMat* y,
-                              CvMat* magnitude, CvMat* angle,
+CV_EXPORTS_W void cartToPolar(InputArray x, InputArray y,
+                              OutputArray magnitude, OutputArray angle,
                               bool angleInDegrees = false);
 
 /** @brief Calculates the rotation angle of 2D vectors.
 
-The function phase calculates the rotation angle of each 2D vector that
+The function cv::phase calculates the rotation angle of each 2D vector that
 is formed from the corresponding elements of x and y :
 \f[\texttt{angle} (I) =  \texttt{atan2} ( \texttt{y} (I), \texttt{x} (I))\f]
 
@@ -1534,12 +1574,12 @@ same type as x .
 @param angleInDegrees when true, the function calculates the angle in
 degrees, otherwise, they are measured in radians.
 */
-CC_EXPORTS_W void phase(const CvMat* x, const CvMat* y, CvMat* angle,
+CV_EXPORTS_W void phase(InputArray x, InputArray y, OutputArray angle,
                         bool angleInDegrees = false);
 
 /** @brief Calculates the magnitude of 2D vectors.
 
-The function magnitude calculates the magnitude of 2D vectors formed
+The function cv::magnitude calculates the magnitude of 2D vectors formed
 from the corresponding elements of x and y arrays:
 \f[\texttt{dst} (I) =  \sqrt{\texttt{x}(I)^2 + \texttt{y}(I)^2}\f]
 @param x floating-point array of x-coordinates of the vectors.
@@ -1548,11 +1588,11 @@ have the same size as x.
 @param magnitude output array of the same size and type as x.
 @sa cartToPolar, polarToCart, phase, sqrt
 */
-CC_EXPORTS_W void magnitude(const CvMat* x, const CvMat* y, CvMat* magnitude);
+CV_EXPORTS_W void magnitude(InputArray x, InputArray y, OutputArray magnitude);
 
 /** @brief Checks every element of an input array for invalid values.
 
-The function checkRange checks that every array element is neither NaN nor infinite. When minVal \>
+The function cv::checkRange checks that every array element is neither NaN nor infinite. When minVal \>
 -DBL_MAX and maxVal \< DBL_MAX, the function also checks that each value is between minVal and
 maxVal. In case of multi-channel arrays, each channel is processed independently. If some values
 are out of range, position of the first outlier is stored in pos (when pos != NULL). Then, the
@@ -1565,16 +1605,16 @@ elements.
 @param minVal inclusive lower boundary of valid values range.
 @param maxVal exclusive upper boundary of valid values range.
 */
-CC_EXPORTS_W bool checkRange(const CvMat* a, bool quiet = true, CC_OUT Point* pos = 0,
+CV_EXPORTS_W bool checkRange(InputArray a, bool quiet = true, CV_OUT Point* pos = 0,
                             double minVal = -DBL_MAX, double maxVal = DBL_MAX);
 
 /** @brief converts NaN's to the given number
 */
-CC_EXPORTS_W void patchNaNs(InputOutputArray a, double val = 0);
+CV_EXPORTS_W void patchNaNs(InputOutputArray a, double val = 0);
 
 /** @brief Performs generalized matrix multiplication.
 
-The function gemm performs generalized matrix multiplication similar to the
+The function cv::gemm performs generalized matrix multiplication similar to the
 gemm functions in BLAS level 3. For example,
 `gemm(src1, src2, alpha, src3, beta, dst, GEMM_1_T + GEMM_3_T)`
 corresponds to
@@ -1588,8 +1628,8 @@ above call can be replaced with:
 @code{.cpp}
     dst = alpha*src1.t()*src2 + beta*src3.t();
 @endcode
-@param src1 first multiplied input matrix that could be real(CC_32FC1,
-CC_64FC1) or complex(CC_32FC2, CC_64FC2).
+@param src1 first multiplied input matrix that could be real(CV_32FC1,
+CV_64FC1) or complex(CV_32FC2, CV_64FC2).
 @param src2 second multiplied input matrix of the same type as src1.
 @param alpha weight of the matrix product.
 @param src3 third optional delta matrix added to the matrix product; it
@@ -1597,15 +1637,15 @@ should have the same type as src1 and src2.
 @param beta weight of src3.
 @param dst output matrix; it has the proper size and the same type as
 input matrices.
-@param flags operation flags (GemmFlags)
+@param flags operation flags (cv::GemmFlags)
 @sa mulTransposed , transform
 */
-CC_EXPORTS_W void gemm(const CvMat* src1, const CvMat* src2, double alpha,
-                       const CvMat* src3, double beta, CvMat* dst, int flags = 0);
+CV_EXPORTS_W void gemm(InputArray src1, InputArray src2, double alpha,
+                       InputArray src3, double beta, OutputArray dst, int flags = 0);
 
 /** @brief Calculates the product of a matrix and its transposition.
 
-The function mulTransposed calculates the product of src and its
+The function cv::mulTransposed calculates the product of src and its
 transposition:
 \f[\texttt{dst} = \texttt{scale} ( \texttt{src} - \texttt{delta} )^T ( \texttt{src} - \texttt{delta} )\f]
 if aTa=true , and
@@ -1628,27 +1668,27 @@ output matrix. See the dtype parameter description below.
 @param scale Optional scale factor for the matrix product.
 @param dtype Optional type of the output matrix. When it is negative,
 the output matrix will have the same type as src . Otherwise, it will be
-type=CC_MAT_DEPTH(dtype) that should be either CC_32F or CC_64F .
+type=CV_MAT_DEPTH(dtype) that should be either CV_32F or CV_64F .
 @sa calcCovarMatrix, gemm, repeat, reduce
 */
-CC_EXPORTS_W void mulTransposed( const CvMat* src, CvMat* dst, bool aTa,
-                                 const CvMat* delta = noArray(),
+CV_EXPORTS_W void mulTransposed( InputArray src, OutputArray dst, bool aTa,
+                                 InputArray delta = noArray(),
                                  double scale = 1, int dtype = -1 );
 
 /** @brief Transposes a matrix.
 
-The function transpose transposes the matrix src :
+The function cv::transpose transposes the matrix src :
 \f[\texttt{dst} (i,j) =  \texttt{src} (j,i)\f]
-@note No complex conjugation is done in case of a complex matrix. It it
+@note No complex conjugation is done in case of a complex matrix. It
 should be done separately if needed.
 @param src input array.
 @param dst output array of the same type as src.
 */
-CC_EXPORTS_W void transpose(const CvMat* src, CvMat* dst);
+CV_EXPORTS_W void transpose(InputArray src, OutputArray dst);
 
 /** @brief Performs the matrix transformation of every array element.
 
-The function transform performs the matrix transformation of every
+The function cv::transform performs the matrix transformation of every
 element of the array src and stores the results in dst :
 \f[\texttt{dst} (I) =  \texttt{m} \cdot \texttt{src} (I)\f]
 (when m.cols=src.channels() ), or
@@ -1670,11 +1710,11 @@ many channels as m.rows.
 @param m transformation 2x2 or 2x3 floating-point matrix.
 @sa perspectiveTransform, getAffineTransform, estimateAffine2D, warpAffine, warpPerspective
 */
-CC_EXPORTS_W void transform(const CvMat* src, CvMat* dst, const CvMat* m );
+CV_EXPORTS_W void transform(InputArray src, OutputArray dst, InputArray m );
 
 /** @brief Performs the perspective matrix transformation of vectors.
 
-The function perspectiveTransform transforms every element of src by
+The function cv::perspectiveTransform transforms every element of src by
 treating it as a 2D or 3D vector, in the following way:
 \f[(x, y, z)  \rightarrow (x'/w, y'/w, z'/w)\f]
 where
@@ -1697,99 +1737,100 @@ element is a 2D/3D vector to be transformed.
 @param m 3x3 or 4x4 floating-point transformation matrix.
 @sa  transform, warpPerspective, getPerspectiveTransform, findHomography
 */
-CC_EXPORTS_W void perspectiveTransform(const CvMat* src, CvMat* dst, const CvMat* m );
+CV_EXPORTS_W void perspectiveTransform(InputArray src, OutputArray dst, InputArray m );
 
-/** @brief Copies the lower or the upper half of a square matrix to another half.
+/** @brief Copies the lower or the upper half of a square matrix to its another half.
 
-The function completeSymm copies the lower half of a square matrix to
+The function cv::completeSymm copies the lower or the upper half of a square matrix to
 its another half. The matrix diagonal remains unchanged:
-*   \f$\texttt{mtx}_{ij}=\texttt{mtx}_{ji}\f$ for \f$i > j\f$ if
+ - \f$\texttt{m}_{ij}=\texttt{m}_{ji}\f$ for \f$i > j\f$ if
     lowerToUpper=false
-*   \f$\texttt{mtx}_{ij}=\texttt{mtx}_{ji}\f$ for \f$i < j\f$ if
+ - \f$\texttt{m}_{ij}=\texttt{m}_{ji}\f$ for \f$i < j\f$ if
     lowerToUpper=true
-@param mtx input-output floating-point square matrix.
+
+@param m input-output floating-point square matrix.
 @param lowerToUpper operation flag; if true, the lower half is copied to
 the upper half. Otherwise, the upper half is copied to the lower half.
 @sa flip, transpose
 */
-CC_EXPORTS_W void completeSymm(InputOutputArray mtx, bool lowerToUpper = false);
+CV_EXPORTS_W void completeSymm(InputOutputArray m, bool lowerToUpper = false);
 
 /** @brief Initializes a scaled identity matrix.
 
-The function setIdentity initializes a scaled identity matrix:
+The function cv::setIdentity initializes a scaled identity matrix:
 \f[\texttt{mtx} (i,j)= \fork{\texttt{value}}{ if \(i=j\)}{0}{otherwise}\f]
 
 The function can also be emulated using the matrix initializers and the
 matrix expressions:
 @code
-    CvMat A = CvMat::eye(4, 3, CC_32F)*5;
+    Mat A = Mat::eye(4, 3, CV_32F)*5;
     // A will be set to [[5, 0, 0], [0, 5, 0], [0, 0, 5], [0, 0, 0]]
 @endcode
 @param mtx matrix to initialize (not necessarily square).
 @param s value to assign to diagonal elements.
-@sa CvMat::zeros, CvMat::ones, CvMat::setTo, CvMat::operator=
+@sa Mat::zeros, Mat::ones, Mat::setTo, Mat::operator=
 */
-CC_EXPORTS_W void setIdentity(InputOutputArray mtx, const Scalar& s = Scalar(1));
+CV_EXPORTS_W void setIdentity(InputOutputArray mtx, const Scalar& s = Scalar(1));
 
 /** @brief Returns the determinant of a square floating-point matrix.
 
-The function determinant calculates and returns the determinant of the
+The function cv::determinant calculates and returns the determinant of the
 specified matrix. For small matrices ( mtx.cols=mtx.rows\<=3 ), the
 direct method is used. For larger matrices, the function uses LU
 factorization with partial pivoting.
 
 For symmetric positively-determined matrices, it is also possible to use
 eigen decomposition to calculate the determinant.
-@param mtx input matrix that must have CC_32FC1 or CC_64FC1 type and
+@param mtx input matrix that must have CV_32FC1 or CV_64FC1 type and
 square size.
 @sa trace, invert, solve, eigen, @ref MatrixExpressions
 */
-CC_EXPORTS_W double determinant(const CvMat* mtx);
+CV_EXPORTS_W double determinant(InputArray mtx);
 
 /** @brief Returns the trace of a matrix.
 
-The function trace returns the sum of the diagonal elements of the
+The function cv::trace returns the sum of the diagonal elements of the
 matrix mtx .
 \f[\mathrm{tr} ( \texttt{mtx} ) =  \sum _i  \texttt{mtx} (i,i)\f]
 @param mtx input matrix.
 */
-CC_EXPORTS_W Scalar trace(const CvMat* mtx);
+CV_EXPORTS_W Scalar trace(InputArray mtx);
 
 /** @brief Finds the inverse or pseudo-inverse of a matrix.
 
-The function invert inverts the matrix src and stores the result in dst
+The function cv::invert inverts the matrix src and stores the result in dst
 . When the matrix src is singular or non-square, the function calculates
 the pseudo-inverse matrix (the dst matrix) so that norm(src\*dst - I) is
 minimal, where I is an identity matrix.
 
-In case of the DECOMP_LU method, the function returns non-zero value if
+In case of the #DECOMP_LU method, the function returns non-zero value if
 the inverse has been successfully calculated and 0 if src is singular.
 
-In case of the DECOMP_SVD method, the function returns the inverse
+In case of the #DECOMP_SVD method, the function returns the inverse
 condition number of src (the ratio of the smallest singular value to the
 largest singular value) and 0 if src is singular. The SVD method
 calculates a pseudo-inverse matrix if src is singular.
 
-Similarly to DECOMP_LU, the method DECOMP_CHOLESKY works only with
+Similarly to #DECOMP_LU, the method #DECOMP_CHOLESKY works only with
 non-singular square matrices that should also be symmetrical and
 positively defined. In this case, the function stores the inverted
 matrix in dst and returns non-zero. Otherwise, it returns 0.
 
 @param src input floating-point M x N matrix.
 @param dst output matrix of N x M size and the same type as src.
-@param flags inversion method (DecompTypes)
+@param flags inversion method (cv::DecompTypes)
 @sa solve, SVD
 */
-CC_EXPORTS_W double invert(const CvMat* src, CvMat* dst, int flags = DECOMP_LU);
+CV_EXPORTS_W double invert(InputArray src, OutputArray dst, int flags = DECOMP_LU);
 
 /** @brief Solves one or more linear systems or least-squares problems.
 
-The function solve solves a linear system or least-squares problem (the
+The function cv::solve solves a linear system or least-squares problem (the
 latter is possible with SVD or QR methods, or by specifying the flag
-CC_DECOMP_NORMAL ):
+#DECOMP_NORMAL ):
 \f[\texttt{dst} =  \arg \min _X \| \texttt{src1} \cdot \texttt{X} -  \texttt{src2} \|\f]
 
-If DECOMP_LU or DECOMP_CHOLESKY method is used, the function returns 1
+If #DECOMP_LU or #DECOMP_CHOLESKY method is used, the function returns 1
 if src1 (or \f$\texttt{src1}^T\texttt{src1}\f$ ) is non-singular. Otherwise,
 it returns 0. In the latter case, dst is not valid. Other methods find a
 pseudo-solution in case of a singular left-hand side part.
@@ -1801,15 +1842,15 @@ will not do the work. Use SVD::solveZ instead.
 @param src1 input matrix on the left-hand side of the system.
 @param src2 input matrix on the right-hand side of the system.
 @param dst output solution.
-@param flags solution (matrix inversion) method (DecompTypes)
+@param flags solution (matrix inversion) method (#DecompTypes)
 @sa invert, SVD, eigen
 */
-CC_EXPORTS_W bool solve(const CvMat* src1, const CvMat* src2,
-                        CvMat* dst, int flags = DECOMP_LU);
+CV_EXPORTS_W bool solve(InputArray src1, InputArray src2,
+                        OutputArray dst, int flags = DECOMP_LU);
 
 /** @brief Sorts each row or each column of a matrix.
 
-The function sort sorts each matrix row or each matrix column in
+The function cv::sort sorts each matrix row or each matrix column in
 ascending or descending order. So you should pass two operation flags to
 get desired behaviour. If you want to sort matrix rows or columns
 lexicographically, you can use STL std::sort generic function with the
@@ -1817,19 +1858,19 @@ proper comparison predicate.
 
 @param src input single-channel array.
 @param dst output array of the same size and type as src.
-@param flags operation flags, a combination of SortFlags
+@param flags operation flags, a combination of #SortFlags
 @sa sortIdx, randShuffle
 */
-CC_EXPORTS_W void sort(const CvMat* src, CvMat* dst, int flags);
+CV_EXPORTS_W void sort(InputArray src, OutputArray dst, int flags);
 
 /** @brief Sorts each row or each column of a matrix.
 
-The function sortIdx sorts each matrix row or each matrix column in the
+The function cv::sortIdx sorts each matrix row or each matrix column in the
 ascending or descending order. So you should pass two operation flags to
 get desired behaviour. Instead of reordering the elements themselves, it
 stores the indices of sorted elements in the output array. For example:
 @code
-    CvMat A = CvMat::eye(3,3,CC_32F), B;
+    Mat A = Mat::eye(3,3,CV_32F), B;
     sortIdx(A, B, SORT_EVERY_ROW + SORT_ASCENDING);
     // B will probably contain
     // (because of equal elements in A some permutations are possible):
@@ -1837,10 +1878,10 @@ stores the indices of sorted elements in the output array. For example:
 @endcode
 @param src input single-channel array.
 @param dst output integer array of the same size as src.
-@param flags operation flags that could be a combination of SortFlags
+@param flags operation flags that could be a combination of cv::SortFlags
 @sa sort, randShuffle
 */
-CC_EXPORTS_W void sortIdx(const CvMat* src, CvMat* dst, int flags);
+CV_EXPORTS_W void sortIdx(InputArray src, OutputArray dst, int flags);
 
 /** @brief Finds the real roots of a cubic equation.
 
@@ -1853,105 +1894,124 @@ The function solveCubic finds the real roots of a cubic equation:
 The roots are stored in the roots array.
 @param coeffs equation coefficients, an array of 3 or 4 elements.
 @param roots output array of real roots that has 1 or 3 elements.
+@return number of real roots. It can be 0, 1 or 2.
 */
-CC_EXPORTS_W int solveCubic(const CvMat* coeffs, CvMat* roots);
+CV_EXPORTS_W int solveCubic(InputArray coeffs, OutputArray roots);
 
 /** @brief Finds the real or complex roots of a polynomial equation.
 
-The function solvePoly finds real and complex roots of a polynomial equation:
+The function cv::solvePoly finds real and complex roots of a polynomial equation:
 \f[\texttt{coeffs} [n] x^{n} +  \texttt{coeffs} [n-1] x^{n-1} + ... +  \texttt{coeffs} [1] x +  \texttt{coeffs} [0] = 0\f]
 @param coeffs array of polynomial coefficients.
 @param roots output (complex) array of roots.
 @param maxIters maximum number of iterations the algorithm does.
 */
-CC_EXPORTS_W double solvePoly(const CvMat* coeffs, CvMat* roots, int maxIters = 300);
+CV_EXPORTS_W double solvePoly(InputArray coeffs, OutputArray roots, int maxIters = 300);
 
 /** @brief Calculates eigenvalues and eigenvectors of a symmetric matrix.
 
-The function eigen calculates just eigenvalues, or eigenvalues and eigenvectors of the symmetric
+The function cv::eigen calculates just eigenvalues, or eigenvalues and eigenvectors of the symmetric
 matrix src:
 @code
     src*eigenvectors.row(i).t() = eigenvalues.at<srcType>(i)*eigenvectors.row(i).t()
 @endcode
-@note in the new and the old interfaces different ordering of eigenvalues and eigenvectors
-parameters is used.
-@param src input matrix that must have CC_32FC1 or CC_64FC1 type, square size and be symmetrical
+
+@note Use cv::eigenNonSymmetric for calculation of real eigenvalues and eigenvectors of non-symmetric matrix.
+
+@param src input matrix that must have CV_32FC1 or CV_64FC1 type, square size and be symmetrical
 (src ^T^ == src).
 @param eigenvalues output vector of eigenvalues of the same type as src; the eigenvalues are stored
 in the descending order.
 @param eigenvectors output matrix of eigenvectors; it has the same size and type as src; the
 eigenvectors are stored as subsequent matrix rows, in the same order as the corresponding
 eigenvalues.
-@sa completeSymm , PCA
+@sa eigenNonSymmetric, completeSymm , PCA
 */
-CC_EXPORTS_W bool eigen(const CvMat* src, CvMat* eigenvalues,
-                        CvMat* eigenvectors = noArray());
+CV_EXPORTS_W bool eigen(InputArray src, OutputArray eigenvalues,
+                        OutputArray eigenvectors = noArray());
+
+/** @brief Calculates eigenvalues and eigenvectors of a non-symmetric matrix (real eigenvalues only).
+
+@note Assumes real eigenvalues.
+
+The function calculates eigenvalues and eigenvectors (optional) of the square matrix src:
+@code
+    src*eigenvectors.row(i).t() = eigenvalues.at<srcType>(i)*eigenvectors.row(i).t()
+@endcode
+
+@param src input matrix (CV_32FC1 or CV_64FC1 type).
+@param eigenvalues output vector of eigenvalues (type is the same type as src).
+@param eigenvectors output matrix of eigenvectors (type is the same type as src). The eigenvectors are stored as subsequent matrix rows, in the same order as the corresponding eigenvalues.
+@sa eigen
+*/
+CV_EXPORTS_W void eigenNonSymmetric(InputArray src, OutputArray eigenvalues,
+                                    OutputArray eigenvectors);
 
 /** @brief Calculates the covariance matrix of a set of vectors.
 
-The function calcCovarMatrix calculates the covariance matrix and, optionally, the mean vector of
+The function cv::calcCovarMatrix calculates the covariance matrix and, optionally, the mean vector of
 the set of input vectors.
 @param samples samples stored as separate matrices
 @param nsamples number of samples
 @param covar output covariance matrix of the type ctype and square size.
 @param mean input or output (depending on the flags) array as the average value of the input vectors.
-@param flags operation flags as a combination of CovarFlags
-@param ctype type of the matrixl; it equals 'CC_64F' by default.
+@param flags operation flags as a combination of #CovarFlags
+@param ctype type of the matrixl; it equals 'CV_64F' by default.
 @sa PCA, mulTransposed, Mahalanobis
 @todo InputArrayOfArrays
 */
-CC_EXPORTS void calcCovarMatrix( const CvMat* samples, int nsamples, CvMat& covar, CvMat& mean,
-                                 int flags, int ctype = CC_64F);
+CV_EXPORTS void calcCovarMatrix( const Mat* samples, int nsamples, Mat& covar, Mat& mean,
+                                 int flags, int ctype = CV_64F);
 
 /** @overload
-@note use COVAR_ROWS or COVAR_COLS flag
+@note use #COVAR_ROWS or #COVAR_COLS flag
 @param samples samples stored as rows/columns of a single matrix.
 @param covar output covariance matrix of the type ctype and square size.
 @param mean input or output (depending on the flags) array as the average value of the input vectors.
-@param flags operation flags as a combination of CovarFlags
-@param ctype type of the matrixl; it equals 'CC_64F' by default.
+@param flags operation flags as a combination of #CovarFlags
+@param ctype type of the matrixl; it equals 'CV_64F' by default.
 */
-CC_EXPORTS_W void calcCovarMatrix( const CvMat* samples, CvMat* covar,
-                                   InputOutputArray mean, int flags, int ctype = CC_64F);
+CV_EXPORTS_W void calcCovarMatrix( InputArray samples, OutputArray covar,
+                                   InputOutputArray mean, int flags, int ctype = CV_64F);
 
 /** wrap PCA::operator() */
-CC_EXPORTS_W void PCACompute(const CvMat* data, InputOutputArray mean,
-                             CvMat* eigenvectors, int maxComponents = 0);
+CV_EXPORTS_W void PCACompute(InputArray data, InputOutputArray mean,
+                             OutputArray eigenvectors, int maxComponents = 0);
 
 /** wrap PCA::operator() */
-CC_EXPORTS_W void PCACompute(const CvMat* data, InputOutputArray mean,
-                             CvMat* eigenvectors, double retainedVariance);
+CV_EXPORTS_W void PCACompute(InputArray data, InputOutputArray mean,
+                             OutputArray eigenvectors, double retainedVariance);
 
 /** wrap PCA::project */
-CC_EXPORTS_W void PCAProject(const CvMat* data, const CvMat* mean,
-                             const CvMat* eigenvectors, CvMat* result);
+CV_EXPORTS_W void PCAProject(InputArray data, InputArray mean,
+                             InputArray eigenvectors, OutputArray result);
 
 /** wrap PCA::backProject */
-CC_EXPORTS_W void PCABackProject(const CvMat* data, const CvMat* mean,
-                                 const CvMat* eigenvectors, CvMat* result);
+CV_EXPORTS_W void PCABackProject(InputArray data, InputArray mean,
+                                 InputArray eigenvectors, OutputArray result);
 
 /** wrap SVD::compute */
-CC_EXPORTS_W void SVDecomp( const CvMat* src, CvMat* w, CvMat* u, CvMat* vt, int flags = 0 );
+CV_EXPORTS_W void SVDecomp( InputArray src, OutputArray w, OutputArray u, OutputArray vt, int flags = 0 );
 
 /** wrap SVD::backSubst */
-CC_EXPORTS_W void SVBackSubst( const CvMat* w, const CvMat* u, const CvMat* vt,
-                               const CvMat* rhs, CvMat* dst );
+CV_EXPORTS_W void SVBackSubst( InputArray w, InputArray u, InputArray vt,
+                               InputArray rhs, OutputArray dst );
 
 /** @brief Calculates the Mahalanobis distance between two vectors.
 
-The function Mahalanobis calculates and returns the weighted distance between two vectors:
+The function cv::Mahalanobis calculates and returns the weighted distance between two vectors:
 \f[d( \texttt{vec1} , \texttt{vec2} )= \sqrt{\sum_{i,j}{\texttt{icovar(i,j)}\cdot(\texttt{vec1}(I)-\texttt{vec2}(I))\cdot(\texttt{vec1(j)}-\texttt{vec2(j)})} }\f]
-The covariance matrix may be calculated using the calcCovarMatrix function and then inverted using
-the invert function (preferably using the DECOMP_SVD method, as the most accurate).
+The covariance matrix may be calculated using the #calcCovarMatrix function and then inverted using
+the invert function (preferably using the #DECOMP_SVD method, as the most accurate).
 @param v1 first 1D input vector.
 @param v2 second 1D input vector.
 @param icovar inverse covariance matrix.
 */
-CC_EXPORTS_W double Mahalanobis(const CvMat* v1, const CvMat* v2, const CvMat* icovar);
+CV_EXPORTS_W double Mahalanobis(InputArray v1, InputArray v2, InputArray icovar);
 
 /** @brief Performs a forward or inverse Discrete Fourier transform of a 1D or 2D floating-point array.
 
-The function dft performs one of the following:
+The function cv::dft performs one of the following:
 -   Forward the Fourier transform of a 1D vector of N elements:
     \f[Y = F^{(N)}  \cdot X,\f]
     where \f$F^{(N)}_{jk}=\exp(-2\pi i j k/N)\f$ and \f$i=\sqrt{-1}\f$
@@ -1972,28 +2032,28 @@ is how 2D *CCS* spectrum looks:
 In case of 1D transform of a real vector, the output looks like the first row of the matrix above.
 
 So, the function chooses an operation mode depending on the flags and size of the input array:
--   If DFT_ROWS is set or the input array has a single row or single column, the function
-    performs a 1D forward or inverse transform of each row of a matrix when DFT_ROWS is set.
+-   If #DFT_ROWS is set or the input array has a single row or single column, the function
+    performs a 1D forward or inverse transform of each row of a matrix when #DFT_ROWS is set.
     Otherwise, it performs a 2D transform.
--   If the input array is real and DFT_INVERSE is not set, the function performs a forward 1D or
+-   If the input array is real and #DFT_INVERSE is not set, the function performs a forward 1D or
     2D transform:
-    -   When DFT_COMPLEX_OUTPUT is set, the output is a complex matrix of the same size as
+    -   When #DFT_COMPLEX_OUTPUT is set, the output is a complex matrix of the same size as
         input.
-    -   When DFT_COMPLEX_OUTPUT is not set, the output is a real matrix of the same size as
+    -   When #DFT_COMPLEX_OUTPUT is not set, the output is a real matrix of the same size as
         input. In case of 2D transform, it uses the packed format as shown above. In case of a
         single 1D transform, it looks like the first row of the matrix above. In case of
-        multiple 1D transforms (when using the DFT_ROWS flag), each row of the output matrix
+        multiple 1D transforms (when using the #DFT_ROWS flag), each row of the output matrix
         looks like the first row of the matrix above.
--   If the input array is complex and either DFT_INVERSE or DFT_REAL_OUTPUT are not set, the
+-   If the input array is complex and either #DFT_INVERSE or #DFT_REAL_OUTPUT are not set, the
     output is a complex array of the same size as input. The function performs a forward or
     inverse 1D or 2D transform of the whole input array or each row of the input array
     independently, depending on the flags DFT_INVERSE and DFT_ROWS.
--   When DFT_INVERSE is set and the input array is real, or it is complex but DFT_REAL_OUTPUT
+-   When #DFT_INVERSE is set and the input array is real, or it is complex but #DFT_REAL_OUTPUT
     is set, the output is a real array of the same size as input. The function performs a 1D or 2D
     inverse transformation of the whole input array or each individual row, depending on the flags
-    DFT_INVERSE and DFT_ROWS.
+    #DFT_INVERSE and #DFT_ROWS.
 
-If DFT_SCALE is set, the scaling is done after the transformation.
+If #DFT_SCALE is set, the scaling is done after the transformation.
 
 Unlike dct , the function supports arrays of arbitrary size. But only those arrays are processed
 efficiently, whose sizes can be factorized in a product of small prime numbers (2, 3, and 5 in the
@@ -2002,23 +2062,23 @@ method.
 
 The sample below illustrates how to calculate a DFT-based convolution of two 2D real arrays:
 @code
-    void convolveDFT(const CvMat* A, const CvMat* B, CvMat* C)
+    void convolveDFT(InputArray A, InputArray B, OutputArray C)
     {
         // reallocate the output array if needed
-        C.create(abs(A.rows - B.rows)+1, abs(A.cols - B.cols)+1, A CC_MAT_TYPE());
+        C.create(abs(A.rows - B.rows)+1, abs(A.cols - B.cols)+1, A.type());
         Size dftSize;
         // calculate the size of DFT transform
         dftSize.width = getOptimalDFTSize(A.cols + B.cols - 1);
         dftSize.height = getOptimalDFTSize(A.rows + B.rows - 1);
 
         // allocate temporary buffers and initialize them with 0's
-        CvMat tempA(dftSize, A CC_MAT_TYPE(), Scalar::all(0));
-        CvMat tempB(dftSize, CC_MAT_TYPE(B), Scalar::all(0));
+        Mat tempA(dftSize, A.type(), Scalar::all(0));
+        Mat tempB(dftSize, B.type(), Scalar::all(0));
 
         // copy A and B to the top-left corners of tempA and tempB, respectively
-        CvMat roiA(tempA, Rect(0,0,A.cols,A.rows));
+        Mat roiA(tempA, Rect(0,0,A.cols,A.rows));
         A.copyTo(roiA);
-        CvMat roiB(tempB, Rect(0,0,B.cols,B.rows));
+        Mat roiB(tempB, Rect(0,0,B.cols,B.rows));
         B.copyTo(roiB);
 
         // now transform the padded A & B in-place;
@@ -2059,7 +2119,7 @@ To optimize this sample, consider the following approaches:
 -   If different tiles in C can be calculated in parallel and, thus, the convolution is done by
     parts, the loop can be threaded.
 
-All of the above improvements have been implemented in matchTemplate and filter2D . Therefore, by
+All of the above improvements have been implemented in #matchTemplate and #filter2D . Therefore, by
 using them, you can get the performance even better than with the above theoretically optimal
 implementation. Though, those two functions actually calculate cross-correlation, not convolution,
 so you need to "flip" the second convolution operand B vertically and horizontally using flip .
@@ -2072,34 +2132,34 @@ so you need to "flip" the second convolution operand B vertically and horizontal
     opencv_source/samples/python/dft.py
 @param src input array that could be real or complex.
 @param dst output array whose size and type depends on the flags .
-@param flags transformation flags, representing a combination of the DftFlags
+@param flags transformation flags, representing a combination of the #DftFlags
 @param nonzeroRows when the parameter is not zero, the function assumes that only the first
-nonzeroRows rows of the input array (DFT_INVERSE is not set) or only the first nonzeroRows of the
-output array (DFT_INVERSE is set) contain non-zeros, thus, the function can handle the rest of the
+nonzeroRows rows of the input array (#DFT_INVERSE is not set) or only the first nonzeroRows of the
+output array (#DFT_INVERSE is set) contain non-zeros, thus, the function can handle the rest of the
 rows more efficiently and save some time; this technique is very useful for calculating array
 cross-correlation or convolution using DFT.
 @sa dct , getOptimalDFTSize , mulSpectrums, filter2D , matchTemplate , flip , cartToPolar ,
 magnitude , phase
 */
-CC_EXPORTS_W void dft(const CvMat* src, CvMat* dst, int flags = 0, int nonzeroRows = 0);
+CV_EXPORTS_W void dft(InputArray src, OutputArray dst, int flags = 0, int nonzeroRows = 0);
 
 /** @brief Calculates the inverse Discrete Fourier Transform of a 1D or 2D array.
 
-idft(src, dst, flags) is equivalent to dft(src, dst, flags | DFT_INVERSE) .
-@note None of dft and idft scales the result by default. So, you should pass DFT_SCALE to one of
+idft(src, dst, flags) is equivalent to dft(src, dst, flags | #DFT_INVERSE) .
+@note None of dft and idft scales the result by default. So, you should pass #DFT_SCALE to one of
 dft or idft explicitly to make these transforms mutually inverse.
 @sa dft, dct, idct, mulSpectrums, getOptimalDFTSize
 @param src input floating-point real or complex array.
 @param dst output array whose size and type depend on the flags.
-@param flags operation flags (see dft and DftFlags).
+@param flags operation flags (see dft and #DftFlags).
 @param nonzeroRows number of dst rows to process; the rest of the rows have undefined content (see
 the convolution sample in dft description.
 */
-CC_EXPORTS_W void idft(const CvMat* src, CvMat* dst, int flags = 0, int nonzeroRows = 0);
+CV_EXPORTS_W void idft(InputArray src, OutputArray dst, int flags = 0, int nonzeroRows = 0);
 
 /** @brief Performs a forward or inverse discrete Cosine transform of 1D or 2D array.
 
-The function dct performs a forward or inverse discrete Cosine transform (DCT) of a 1D or 2D
+The function cv::dct performs a forward or inverse discrete Cosine transform (DCT) of a 1D or 2D
 floating-point array:
 -   Forward Cosine transform of a 1D vector of N elements:
     \f[Y = C^{(N)}  \cdot X\f]
@@ -2116,9 +2176,9 @@ floating-point array:
     \f[X =  \left (C^{(N)} \right )^T  \cdot X  \cdot C^{(N)}\f]
 
 The function chooses the mode of operation by looking at the flags and size of the input array:
--   If (flags & DCT_INVERSE) == 0 , the function does a forward 1D or 2D transform. Otherwise, it
+-   If (flags & #DCT_INVERSE) == 0 , the function does a forward 1D or 2D transform. Otherwise, it
     is an inverse 1D or 2D transform.
--   If (flags & DCT_ROWS) != 0 , the function performs a 1D transform of each row.
+-   If (flags & #DCT_ROWS) != 0 , the function performs a 1D transform of each row.
 -   If the array is a single column or a single row, the function performs a 1D transform.
 -   If none of the above is true, the function performs a 2D transform.
 
@@ -2133,10 +2193,10 @@ of a vector of size N/2 . Thus, the optimal DCT size N1 \>= N can be calculated 
 @endcode
 @param src input floating-point array.
 @param dst output array of the same size and type as src .
-@param flags transformation flags as a combination of DftFlags (DCT_*)
+@param flags transformation flags as a combination of cv::DftFlags (DCT_*)
 @sa dft , getOptimalDFTSize , idct
 */
-CC_EXPORTS_W void dct(const CvMat* src, CvMat* dst, int flags = 0);
+CV_EXPORTS_W void dct(InputArray src, OutputArray dst, int flags = 0);
 
 /** @brief Calculates the inverse Discrete Cosine Transform of a 1D or 2D array.
 
@@ -2146,11 +2206,11 @@ idct(src, dst, flags) is equivalent to dct(src, dst, flags | DCT_INVERSE).
 @param flags operation flags.
 @sa  dct, dft, idft, getOptimalDFTSize
 */
-CC_EXPORTS_W void idct(const CvMat* src, CvMat* dst, int flags = 0);
+CV_EXPORTS_W void idct(InputArray src, OutputArray dst, int flags = 0);
 
 /** @brief Performs the per-element multiplication of two Fourier spectrums.
 
-The function mulSpectrums performs the per-element multiplication of the two CCS-packed or complex
+The function cv::mulSpectrums performs the per-element multiplication of the two CCS-packed or complex
 matrices that are results of a real or complex Fourier transform.
 
 The function, together with dft and idft , may be used to calculate convolution (pass conjB=false )
@@ -2160,12 +2220,12 @@ arrays are real, they are assumed to be CCS-packed (see dft for details).
 @param a first input array.
 @param b second input array of the same size and type as src1 .
 @param c output array of the same size and type as src1 .
-@param flags operation flags; currently, the only supported flag is DFT_ROWS, which indicates that
+@param flags operation flags; currently, the only supported flag is cv::DFT_ROWS, which indicates that
 each row of src1 and src2 is an independent 1D Fourier spectrum. If you do not want to use this flag, then simply add a `0` as value.
 @param conjB optional flag that conjugates the second input array before the multiplication (true)
 or not (false).
 */
-CC_EXPORTS_W void mulSpectrums(const CvMat* a, const CvMat* b, CvMat* c,
+CV_EXPORTS_W void mulSpectrums(InputArray a, InputArray b, OutputArray c,
                                int flags, bool conjB = false);
 
 /** @brief Returns the optimal DFT size for a given vector size.
@@ -2177,7 +2237,7 @@ original one. Arrays whose size is a power-of-two (2, 4, 8, 16, 32, ...) are the
 Though, the arrays whose size is a product of 2's, 3's, and 5's (for example, 300 = 5\*5\*3\*2\*2)
 are also processed quite efficiently.
 
-The function getOptimalDFTSize returns the minimum number N that is greater than or equal to vecsize
+The function cv::getOptimalDFTSize returns the minimum number N that is greater than or equal to vecsize
 so that the DFT of a vector of size N can be processed efficiently. In the current implementation N
 = 2 ^p^ \* 3 ^q^ \* 5 ^r^ for some integer p, q, r.
 
@@ -2189,26 +2249,26 @@ as getOptimalDFTSize((vecsize+1)/2)\*2.
 @param vecsize vector size.
 @sa dft , dct , idft , idct , mulSpectrums
 */
-CC_EXPORTS_W int getOptimalDFTSize(int vecsize);
+CV_EXPORTS_W int getOptimalDFTSize(int vecsize);
 
 /** @brief Returns the default random number generator.
 
-The function theRNG returns the default random number generator. For each thread, there is a
+The function cv::theRNG returns the default random number generator. For each thread, there is a
 separate random number generator, so you can use the function safely in multi-thread environments.
 If you just need to get a single random number using this generator or initialize an array, you can
 use randu or randn instead. But if you are going to generate many random numbers inside a loop, it
 is much faster to use this function to retrieve the generator and then use RNG::operator _Tp() .
 @sa RNG, randu, randn
 */
-CC_EXPORTS RNG& theRNG();
+CV_EXPORTS RNG& theRNG();
 
 /** @brief Sets state of default random number generator.
 
-The function setRNGSeed sets state of default random number generator to custom value.
+The function cv::setRNGSeed sets state of default random number generator to custom value.
 @param seed new state for default random number generator
 @sa RNG, randu, randn
 */
-CC_EXPORTS_W void setRNGSeed(int seed);
+CV_EXPORTS_W void setRNGSeed(int seed);
 
 /** @brief Generates a single uniformly-distributed random number or an array of random numbers.
 
@@ -2220,11 +2280,11 @@ random numbers from the specified range:
 @param high exclusive upper boundary of the generated random numbers.
 @sa RNG, randn, theRNG
 */
-CC_EXPORTS_W void randu(InputOutputArray dst, const CvMat* low, const CvMat* high);
+CV_EXPORTS_W void randu(InputOutputArray dst, InputArray low, InputArray high);
 
 /** @brief Fills the array with normally distributed random numbers.
 
-The function randn fills the matrix dst with normally distributed random numbers with the specified
+The function cv::randn fills the matrix dst with normally distributed random numbers with the specified
 mean vector and the standard deviation matrix. The generated random numbers are clipped to fit the
 value range of the output array data type.
 @param dst output array of random numbers; the array must be pre-allocated and have 1 to 4 channels.
@@ -2233,11 +2293,11 @@ value range of the output array data type.
 which case a diagonal standard deviation matrix is assumed) or a square matrix.
 @sa RNG, randu
 */
-CC_EXPORTS_W void randn(InputOutputArray dst, const CvMat* mean, const CvMat* stddev);
+CV_EXPORTS_W void randn(InputOutputArray dst, InputArray mean, InputArray stddev);
 
 /** @brief Shuffles the array elements randomly.
 
-The function randShuffle shuffles the specified 1D array by randomly choosing pairs of elements and
+The function cv::randShuffle shuffles the specified 1D array by randomly choosing pairs of elements and
 swapping them. The number of such swap operations will be dst.rows\*dst.cols\*iterFactor .
 @param dst input/output numerical 1D array.
 @param iterFactor scale factor that determines the number of random swap operations (see the details
@@ -2246,7 +2306,7 @@ below).
 instead.
 @sa RNG, sort
 */
-CC_EXPORTS_W void randShuffle(InputOutputArray dst, double iterFactor = 1., RNG* rng = 0);
+CV_EXPORTS_W void randShuffle(InputOutputArray dst, double iterFactor = 1., RNG* rng = 0);
 
 /** @brief Principal Component Analysis
 
@@ -2277,11 +2337,11 @@ and printed for each vector. :
 @code{.cpp}
 using namespace cv;
 
-PCA compressPCA(const CvMat& pcaset, int maxComponents,
-                const CvMat& testset, CvMat& compressed)
+PCA compressPCA(const Mat& pcaset, int maxComponents,
+                const Mat& testset, Mat& compressed)
 {
     PCA pca(pcaset, // pass the data
-            CvMat(), // we do not have a pre-computed mean vector,
+            Mat(), // we do not have a pre-computed mean vector,
                    // so let the PCA engine to compute it
             PCA::DATA_AS_ROW, // indicate that the vectors
                                 // are stored as matrix rows
@@ -2292,14 +2352,14 @@ PCA compressPCA(const CvMat& pcaset, int maxComponents,
     // if there is no test data, just return the computed basis, ready-to-use
     if( !testset.data )
         return pca;
-    CC_Assert( testset.cols == pcaset.cols );
+    CV_Assert( testset.cols == pcaset.cols );
 
-    compressed.create(testset.rows, maxComponents, testset CC_MAT_TYPE());
+    compressed.create(testset.rows, maxComponents, testset.type());
 
-    CvMat reconstructed;
+    Mat reconstructed;
     for( int i = 0; i < testset.rows; i++ )
     {
-        CvMat vec = testset.row(i), coeffs = compressed.row(i), reconstructed;
+        Mat vec = testset.row(i), coeffs = compressed.row(i), reconstructed;
         // compress the vector, the result will be stored
         // in the i-th row of the output matrix
         pca.project(vec, coeffs);
@@ -2313,7 +2373,7 @@ PCA compressPCA(const CvMat& pcaset, int maxComponents,
 @endcode
 @sa calcCovarMatrix, mulTransposed, SVD, dft, dct
 */
-class CC_EXPORTS PCA
+class CV_EXPORTS PCA
 {
 public:
     enum Flags { DATA_AS_ROW = 0, //!< indicates that the input samples are stored as matrix rows
@@ -2337,7 +2397,7 @@ public:
     @param maxComponents maximum number of components that %PCA should
     retain; by default, all the components are retained.
     */
-    PCA(const CvMat* data, const CvMat* mean, int flags, int maxComponents = 0);
+    PCA(InputArray data, InputArray mean, int flags, int maxComponents = 0);
 
     /** @overload
     @param data input samples stored as matrix rows or matrix columns.
@@ -2349,7 +2409,7 @@ public:
     Using this parameter will let the PCA decided how many components to
     retain but it will always keep at least 2.
     */
-    PCA(const CvMat* data, const CvMat* mean, int flags, double retainedVariance);
+    PCA(InputArray data, InputArray mean, int flags, double retainedVariance);
 
     /** @brief performs %PCA
 
@@ -2371,7 +2431,7 @@ public:
     @param maxComponents maximum number of components that PCA should
     retain; by default, all the components are retained.
     */
-    PCA& operator()(const CvMat* data, const CvMat* mean, int flags, int maxComponents = 0);
+    PCA& operator()(InputArray data, InputArray mean, int flags, int maxComponents = 0);
 
     /** @overload
     @param data input samples stored as the matrix rows or as the matrix
@@ -2384,7 +2444,7 @@ public:
     Using this parameter will let the %PCA decided how many components to
     retain but it will always keep at least 2.
      */
-    PCA& operator()(const CvMat* data, const CvMat* mean, int flags, double retainedVariance);
+    PCA& operator()(InputArray data, InputArray mean, int flags, double retainedVariance);
 
     /** @brief Projects vector(s) to the principal component subspace.
 
@@ -2400,7 +2460,7 @@ public:
     (vector dimensionality) and `vec.rows` is the number of vectors to
     project, and the same is true for the PCA::DATA_AS_COL case.
     */
-    CvMat project(const CvMat* vec) const;
+    Mat project(InputArray vec) const;
 
     /** @overload
     @param vec input vector(s); must have the same dimensionality and the
@@ -2414,7 +2474,7 @@ public:
     number of principal components (for example, `maxComponents` parameter
     passed to the constructor).
      */
-    void project(const CvMat* vec, CvMat* result) const;
+    void project(InputArray vec, OutputArray result) const;
 
     /** @brief Reconstructs vectors from their PC projections.
 
@@ -2429,7 +2489,7 @@ public:
     subspace, the layout and size are the same as of PCA::project output
     vectors.
      */
-    CvMat backProject(const CvMat* vec) const;
+    Mat backProject(InputArray vec) const;
 
     /** @overload
     @param vec coordinates of the vectors in the principal component
@@ -2438,7 +2498,7 @@ public:
     @param result reconstructed vectors; the layout and size are the same as
     of PCA::project input vectors.
      */
-    void backProject(const CvMat* vec, CvMat* result) const;
+    void backProject(InputArray vec, OutputArray result) const;
 
     /** @brief write PCA objects
 
@@ -2452,9 +2512,9 @@ public:
      */
     void read(const FileNode& fn);
 
-    CvMat eigenvectors; //!< eigenvectors of the covariation matrix
-    CvMat eigenvalues; //!< eigenvalues of the covariation matrix
-    CvMat mean; //!< mean value subtracted before the projection and added after the back projection
+    Mat eigenvectors; //!< eigenvectors of the covariation matrix
+    Mat eigenvalues; //!< eigenvalues of the covariation matrix
+    Mat mean; //!< mean value subtracted before the projection and added after the back projection
 };
 
 /** @example pca.cpp
@@ -2465,7 +2525,7 @@ public:
    @brief Linear Discriminant Analysis
    @todo document this class
  */
-class CC_EXPORTS LDA
+class CV_EXPORTS LDA
 {
 public:
     /** @brief constructor
@@ -2478,7 +2538,7 @@ public:
      in labels. If 0 (or less) number of components are given, they are
      automatically determined for given data in computation.
     */
-    LDA(InputArrayOfArrays src, const CvMat* labels, int num_components = 0);
+    LDA(InputArrayOfArrays src, InputArray labels, int num_components = 0);
 
     /** Serializes this object to a given filename.
       */
@@ -2488,11 +2548,11 @@ public:
       */
     void load(const String& filename);
 
-    /** Serializes this object to a given FileStorage.
+    /** Serializes this object to a given cv::FileStorage.
       */
     void save(FileStorage& fs) const;
 
-    /** Deserializes this object from a given FileStorage.
+    /** Deserializes this object from a given cv::FileStorage.
       */
     void load(const FileStorage& node);
 
@@ -2502,35 +2562,35 @@ public:
 
     /** Compute the discriminants for data in src (row aligned) and labels.
       */
-    void compute(InputArrayOfArrays src, const CvMat* labels);
+    void compute(InputArrayOfArrays src, InputArray labels);
 
     /** Projects samples into the LDA subspace.
         src may be one or more row aligned samples.
       */
-    CvMat project(const CvMat* src);
+    Mat project(InputArray src);
 
     /** Reconstructs projections from the LDA subspace.
         src may be one or more row aligned projections.
       */
-    CvMat reconstruct(const CvMat* src);
+    Mat reconstruct(InputArray src);
 
     /** Returns the eigenvectors of this LDA.
       */
-    CvMat eigenvectors() const { return _eigenvectors; }
+    Mat eigenvectors() const { return _eigenvectors; }
 
     /** Returns the eigenvalues of this LDA.
       */
-    CvMat eigenvalues() const { return _eigenvalues; }
+    Mat eigenvalues() const { return _eigenvalues; }
 
-    static CvMat subspaceProject(const CvMat* W, const CvMat* mean, const CvMat* src);
-    static CvMat subspaceReconstruct(const CvMat* W, const CvMat* mean, const CvMat* src);
+    static Mat subspaceProject(InputArray W, InputArray mean, InputArray src);
+    static Mat subspaceReconstruct(InputArray W, InputArray mean, InputArray src);
 
 protected:
     bool _dataAsRow; // unused, but needed for 3.0 ABI compatibility.
     int _num_components;
-    CvMat _eigenvectors;
-    CvMat _eigenvalues;
-    void lda(InputArrayOfArrays src, const CvMat* labels);
+    Mat _eigenvectors;
+    Mat _eigenvalues;
+    void lda(InputArrayOfArrays src, InputArray labels);
 };
 
 /** @brief Singular Value Decomposition
@@ -2547,7 +2607,7 @@ and vt must be computed, which is not necessary most of the time.
 
 @sa invert, solve, eigen, determinant
 */
-class CC_EXPORTS SVD
+class CV_EXPORTS SVD
 {
 public:
     enum Flags {
@@ -2571,10 +2631,10 @@ public:
 
     /** @overload
     initializes an empty SVD structure and then calls SVD::operator()
-    @param src decomposed matrix.
+    @param src decomposed matrix. The depth has to be CV_32F or CV_64F.
     @param flags operation flags (SVD::Flags)
       */
-    SVD( const CvMat* src, int flags = 0 );
+    SVD( InputArray src, int flags = 0 );
 
     /** @brief the operator that performs SVD. The previously allocated u, w and vt are released.
 
@@ -2583,11 +2643,11 @@ public:
     the structure. The same SVD structure can be reused many times with
     different matrices. Each time, if needed, the previous u,`vt` , and w
     are reclaimed and the new matrices are created, which is all handled by
-    CvMat::create.
-    @param src decomposed matrix.
+    Mat::create.
+    @param src decomposed matrix. The depth has to be CV_32F or CV_64F.
     @param flags operation flags (SVD::Flags)
       */
-    SVD& operator ()( const CvMat* src, int flags = 0 );
+    SVD& operator ()( InputArray src, int flags = 0 );
 
     /** @brief decomposes matrix and stores the results to user-provided matrices
 
@@ -2596,32 +2656,32 @@ public:
     matrices:
 
     @code{.cpp}
-    CvMat A, w, u, vt;
+    Mat A, w, u, vt;
     SVD::compute(A, w, u, vt);
     @endcode
 
-    @param src decomposed matrix
+    @param src decomposed matrix. The depth has to be CV_32F or CV_64F.
     @param w calculated singular values
     @param u calculated left singular vectors
-    @param vt transposed matrix of right singular values
-    @param flags operation flags - see SVD::SVD.
+    @param vt transposed matrix of right singular vectors
+    @param flags operation flags - see SVD::Flags.
       */
-    static void compute( const CvMat* src, CvMat* w,
-                         CvMat* u, CvMat* vt, int flags = 0 );
+    static void compute( InputArray src, OutputArray w,
+                         OutputArray u, OutputArray vt, int flags = 0 );
 
     /** @overload
     computes singular values of a matrix
-    @param src decomposed matrix
+    @param src decomposed matrix. The depth has to be CV_32F or CV_64F.
     @param w calculated singular values
     @param flags operation flags - see SVD::Flags.
       */
-    static void compute( const CvMat* src, CvMat* w, int flags = 0 );
+    static void compute( InputArray src, OutputArray w, int flags = 0 );
 
     /** @brief performs back substitution
       */
-    static void backSubst( const CvMat* w, const CvMat* u,
-                           const CvMat* vt, const CvMat* rhs,
-                           CvMat* dst );
+    static void backSubst( InputArray w, InputArray u,
+                           InputArray vt, InputArray rhs,
+                           OutputArray dst );
 
     /** @brief solves an under-determined singular linear system
 
@@ -2633,7 +2693,7 @@ public:
     @param src left-hand-side matrix.
     @param dst found solution.
       */
-    static void solveZ( const CvMat* src, CvMat* dst );
+    static void solveZ( InputArray src, OutputArray dst );
 
     /** @brief performs a singular value back substitution.
 
@@ -2655,9 +2715,9 @@ public:
     if you need to solve many linear systems with the same left-hand side
     (for example, src ). If all you need is to solve a single system
     (possibly with multiple rhs immediately available), simply call solve
-    add pass DECOMP_SVD there. It does absolutely the same thing.
+    add pass #DECOMP_SVD there. It does absolutely the same thing.
       */
-    void backSubst( const CvMat* rhs, CvMat* dst ) const;
+    void backSubst( InputArray rhs, OutputArray dst ) const;
 
     /** @todo document */
     template<typename _Tp, int m, int n, int nm> static
@@ -2671,7 +2731,7 @@ public:
     template<typename _Tp, int m, int n, int nm, int nb> static
     void backSubst( const Matx<_Tp, nm, 1>& w, const Matx<_Tp, m, nm>& u, const Matx<_Tp, n, nm>& vt, const Matx<_Tp, m, nb>& rhs, Matx<_Tp, n, nb>& dst );
 
-    CvMat u, w, vt;
+    Mat u, w, vt;
 };
 
 /** @brief Random Number Generator
@@ -2686,7 +2746,7 @@ Gaussian-distribution random numbers are generated using the Ziggurat
 algorithm ( <http://en.wikipedia.org/wiki/Ziggurat_algorithm> ),
 introduced by G. Marsaglia and W. W. Tsang.
 */
-class CC_EXPORTS RNG
+class CV_EXPORTS RNG
 {
 public:
     enum { UNIFORM = 0,
@@ -2762,7 +2822,7 @@ public:
     double a1 = rng.uniform((double)0, (double)1);
 
     // produces float from [0, 1)
-    double b = rng.uniform(0.f, 1.f);
+    float b = rng.uniform(0.f, 1.f);
 
     // produces double from [0, 1)
     double c = rng.uniform(0., 1.);
@@ -2778,8 +2838,8 @@ public:
     want a floating-point random number, but the range boundaries are
     integer numbers, either put dots in the end, if they are constants, or
     use explicit type cast operators, as in the a1 initialization above.
-    @param a lower inclusive boundary of the returned random numbers.
-    @param b upper non-inclusive boundary of the returned random numbers.
+    @param a lower inclusive boundary of the returned random number.
+    @param b upper non-inclusive boundary of the returned random number.
       */
     int uniform(int a, int b);
     /** @overload */
@@ -2790,7 +2850,7 @@ public:
     /** @brief Fills arrays with random numbers.
 
     @param mat 2D or N-dimensional matrix; currently matrices with more than
-    4 channels are not supported by the methods, use CvMat::reshape as a
+    4 channels are not supported by the methods, use Mat::reshape as a
     possible workaround.
     @param distType distribution type, RNG::UNIFORM or RNG::NORMAL.
     @param a first distribution parameter; in case of the uniform
@@ -2821,7 +2881,7 @@ public:
     with zero mean and identity covariation matrix, and then transforms them
     using transform to get samples from the specified Gaussian distribution.
     */
-    void fill( InputOutputArray mat, int distType, const CvMat* a, const CvMat* b, bool saturateRange = false );
+    void fill( InputOutputArray mat, int distType, InputArray a, InputArray b, bool saturateRange = false );
 
     /** @brief Returns the next random number sampled from the Gaussian distribution
     @param sigma standard deviation of the distribution.
@@ -2834,6 +2894,8 @@ public:
     double gaussian(double sigma);
 
     uint64 state;
+
+    bool operator ==(const RNG& other) const;
 };
 
 /** @brief Mersenne Twister random number generator
@@ -2841,7 +2903,7 @@ public:
 Inspired by http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/CODES/mt19937ar.c
 @todo document
  */
-class CC_EXPORTS RNG_MT19937
+class CV_EXPORTS RNG_MT19937
 {
 public:
     RNG_MT19937();
@@ -2897,10 +2959,10 @@ and groups the input samples around the clusters. As an output, \f$\texttt{label
     opencv_source_code/samples/python/kmeans.py
 @param data Data for clustering. An array of N-Dimensional points with float coordinates is needed.
 Examples of this array can be:
--   CvMat points(count, 2, CC_32F);
--   CvMat points(count, 1, CC_32FC2);
--   CvMat points(1, count, CC_32FC2);
--   std::vector\<Point2f\> points(sampleCount);
+-   Mat points(count, 2, CV_32F);
+-   Mat points(count, 1, CV_32FC2);
+-   Mat points(1, count, CV_32FC2);
+-   std::vector\<cv::Point2f\> points(sampleCount);
 @param K Number of clusters to split the set by.
 @param bestLabels Input/output integer array that stores the cluster indices for every sample.
 @param criteria The algorithm termination criteria, that is, the maximum number of iterations and/or
@@ -2909,29 +2971,29 @@ centers moves by less than criteria.epsilon on some iteration, the algorithm sto
 @param attempts Flag to specify the number of times the algorithm is executed using different
 initial labellings. The algorithm returns the labels that yield the best compactness (see the last
 function parameter).
-@param flags Flag that can take values of KmeansFlags
+@param flags Flag that can take values of cv::KmeansFlags
 @param centers Output matrix of the cluster centers, one row per each cluster center.
 @return The function returns the compactness measure that is computed as
 \f[\sum _i  \| \texttt{samples} _i -  \texttt{centers} _{ \texttt{labels} _i} \| ^2\f]
 after every attempt. The best (minimum) value is chosen and the corresponding labels and the
 compactness value are returned by the function. Basically, you can use only the core of the
 function, set the number of attempts to 1, initialize labels each time using a custom algorithm,
-pass them with the ( flags = KMEANS_USE_INITIAL_LABELS ) flag, and then choose the best
+pass them with the ( flags = #KMEANS_USE_INITIAL_LABELS ) flag, and then choose the best
 (most-compact) clustering.
 */
-CC_EXPORTS_W double kmeans( const CvMat* data, int K, InputOutputArray bestLabels,
+CV_EXPORTS_W double kmeans( InputArray data, int K, InputOutputArray bestLabels,
                             TermCriteria criteria, int attempts,
-                            int flags, CvMat* centers = noArray() );
+                            int flags, OutputArray centers = noArray() );
 
 //! @} core_cluster
 
 //! @addtogroup core_basic
 //! @{
 
-/////////////////////////////// Formatted output of CvMat ///////////////////////////
+/////////////////////////////// Formatted output of cv::Mat ///////////////////////////
 
 /** @todo document */
-class CC_EXPORTS Formatted
+class CV_EXPORTS Formatted
 {
 public:
     virtual const char* next() = 0;
@@ -2940,7 +3002,7 @@ public:
 };
 
 /** @todo document */
-class CC_EXPORTS Formatter
+class CV_EXPORTS Formatter
 {
 public:
     enum { FMT_DEFAULT = 0,
@@ -2953,7 +3015,7 @@ public:
 
     virtual ~Formatter();
 
-    virtual Ptr<Formatted> format(const CvMat& mtx) const = 0;
+    virtual Ptr<Formatted> format(const Mat& mtx) const = 0;
 
     virtual void set32fPrecision(int p = 8) = 0;
     virtual void set64fPrecision(int p = 16) = 0;
@@ -2968,19 +3030,19 @@ String& operator << (String& out, Ptr<Formatted> fmtd)
 {
     fmtd->reset();
     for(const char* str = fmtd->next(); str; str = fmtd->next())
-        out += String(str);
+        out += cv::String(str);
     return out;
 }
 
 static inline
-String& operator << (String& out, const CvMat& mtx)
+String& operator << (String& out, const Mat& mtx)
 {
     return out << Formatter::get()->format(mtx);
 }
 
 //////////////////////////////////////// Algorithm ////////////////////////////////////
 
-class CC_EXPORTS Algorithm;
+class CV_EXPORTS Algorithm;
 
 template<typename _Tp> struct ParamType {};
 
@@ -2993,33 +3055,10 @@ matching, graph-cut etc.), background subtraction (which can be done using mixtu
 models, codebook-based algorithm etc.), optical flow (block matching, Lucas-Kanade, Horn-Schunck
 etc.).
 
-Here is example of SIFT use in your application via Algorithm interface:
-@code
-    #include "opencv2/opencv.hpp"
-    #include "opencv2/xfeatures2d.hpp"
-    using namespace xfeatures2d;
-
-    Ptr<Feature2D> sift = SIFT::create();
-    FileStorage fs("sift_params.xml", FileStorage::READ);
-    if( fs.isOpened() ) // if we have file with parameters, read them
-    {
-        sift->read(fs["sift_params"]);
-        fs.release();
-    }
-    else // else modify the parameters and store them; user can later edit the file to use different parameters
-    {
-        sift->setContrastThreshold(0.01f); // lower the contrast threshold, compared to the default value
-        {
-            WriteStructContext ws(fs, "sift_params", CC_NODE_MAP);
-            sift->write(fs);
-        }
-    }
-    CvMat image = imread("myimage.png", 0), descriptors;
-    vector<KeyPoint> keypoints;
-    sift->detectAndCompute(image, noArray(), keypoints, descriptors);
-@endcode
+Here is example of SimpleBlobDetector use in your application via Algorithm interface:
+@snippet snippets/core_various.cpp Algorithm
  */
-class CC_EXPORTS_W Algorithm
+class CV_EXPORTS_W Algorithm
 {
 public:
     Algorithm();
@@ -3027,25 +3066,30 @@ public:
 
     /** @brief Clears the algorithm state
     */
-    CC_WRAP virtual void clear() {}
+    CV_WRAP virtual void clear() {}
 
     /** @brief Stores algorithm parameters in a file storage
     */
     virtual void write(FileStorage& fs) const { (void)fs; }
 
+    /** @brief simplified API for language bindings
+     * @overload
+     */
+    CV_WRAP void write(const Ptr<FileStorage>& fs, const String& name = String()) const;
+
     /** @brief Reads algorithm parameters from a file storage
     */
-    virtual void read(const FileNode& fn) { (void)fn; }
+    CV_WRAP virtual void read(const FileNode& fn) { (void)fn; }
 
     /** @brief Returns true if the Algorithm is empty (e.g. in the very beginning or after unsuccessful read
      */
-    virtual bool empty() const { return false; }
+    CV_WRAP virtual bool empty() const { return false; }
 
     /** @brief Reads algorithm from the file node
 
      This is static template method of Algorithm. It's usage is following (in the case of SVM):
      @code
-     FileStorage fsRead("example.xml", FileStorage::READ);
+     cv::FileStorage fsRead("example.xml", FileStorage::READ);
      Ptr<SVM> svm = Algorithm::read<SVM>(fsRead.root());
      @endcode
      In order to make this method work, the derived class must overwrite Algorithm::read(const
@@ -3074,6 +3118,7 @@ public:
     template<typename _Tp> static Ptr<_Tp> load(const String& filename, const String& objname=String())
     {
         FileStorage fs(filename, FileStorage::READ);
+        CV_Assert(fs.isOpened());
         FileNode fn = objname.empty() ? fs.getFirstTopLevelNode() : fs[objname];
         if (fn.empty()) return Ptr<_Tp>();
         Ptr<_Tp> obj = _Tp::create();
@@ -3102,11 +3147,11 @@ public:
 
     /** Saves the algorithm to a file.
      In order to make this method work, the derived class must implement Algorithm::write(FileStorage& fs). */
-    CC_WRAP virtual void save(const String& filename) const;
+    CV_WRAP virtual void save(const String& filename) const;
 
     /** Returns the algorithm string identifier.
      This string is used as top level xml/yml node tag when the object is saved to a file or string. */
-    CC_WRAP virtual String getDefaultName() const;
+    CV_WRAP virtual String getDefaultName() const;
 
 protected:
     void writeFormat(FileStorage& fs) const;
@@ -3151,18 +3196,18 @@ template<> struct ParamType<String>
     enum { type = Param::STRING };
 };
 
-template<> struct ParamType<CvMat>
+template<> struct ParamType<Mat>
 {
-    typedef const CvMat& const_param_type;
-    typedef CvMat member_type;
+    typedef const Mat& const_param_type;
+    typedef Mat member_type;
 
     enum { type = Param::MAT };
 };
 
-template<> struct ParamType<std::vector<CvMat> >
+template<> struct ParamType<std::vector<Mat> >
 {
-    typedef const std::vector<CvMat>& const_param_type;
-    typedef std::vector<CvMat> member_type;
+    typedef const std::vector<Mat>& const_param_type;
+    typedef std::vector<Mat> member_type;
 
     enum { type = Param::MAT_VECTOR };
 };
@@ -3217,4 +3262,4 @@ template<> struct ParamType<uchar>
 #include "opencv2/core/optim.hpp"
 #include "opencv2/core/ovx.hpp"
 
-#endif /*OPENCC_CORE_HPP*/
+#endif /*OPENCV_CORE_HPP*/

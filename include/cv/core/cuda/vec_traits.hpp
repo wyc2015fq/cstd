@@ -1,7 +1,47 @@
+/*M///////////////////////////////////////////////////////////////////////////////////////
+//
+//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
+//
+//  By downloading, copying, installing or using the software you agree to this license.
+//  If you do not agree to this license, do not download, install,
+//  copy or use the software.
+//
+//
+//                           License Agreement
+//                For Open Source Computer Vision Library
+//
+// Copyright (C) 2000-2008, Intel Corporation, all rights reserved.
+// Copyright (C) 2009, Willow Garage Inc., all rights reserved.
+// Third party copyrights are property of their respective owners.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//   * Redistribution's of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//
+//   * Redistribution's in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//
+//   * The name of the copyright holders may not be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+//
+// This software is provided by the copyright holders and contributors "as is" and
+// any express or implied warranties, including, but not limited to, the implied
+// warranties of merchantability and fitness for a particular purpose are disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any direct,
+// indirect, incidental, special, exemplary, or consequential damages
+// (including, but not limited to, procurement of substitute goods or services;
+// loss of use, data, or profits; or business interruption) however caused
+// and on any theory of liability, whether in contract, strict liability,
+// or tort (including negligence or otherwise) arising in any way out of
+// the use of this software, even if advised of the possibility of such damage.
+//
+//M*/
 
-
-#ifndef OPENCC_CUDA_VEC_TRAITS_HPP
-#define OPENCC_CUDA_VEC_TRAITS_HPP
+#ifndef OPENCV_CUDA_VEC_TRAITS_HPP
+#define OPENCV_CUDA_VEC_TRAITS_HPP
 
 #include "common.hpp"
 
@@ -88,7 +128,7 @@ namespace cv { namespace cuda { namespace device
         return val;
     }
 
-#define OPENCC_CUDA_IMPLEMENT_TYPE_VEC(type) \
+#define OPENCV_CUDA_IMPLEMENT_TYPE_VEC(type) \
     template<> struct TypeVec<type, 1> { typedef type vec_type; }; \
     template<> struct TypeVec<type ## 1, 1> { typedef type ## 1 vec_type; }; \
     template<> struct TypeVec<type, 2> { typedef type ## 2 vec_type; }; \
@@ -100,16 +140,16 @@ namespace cv { namespace cuda { namespace device
     template<> struct TypeVec<type, 8> { typedef type ## 8 vec_type; }; \
     template<> struct TypeVec<type ## 8, 8> { typedef type ## 8 vec_type; };
 
-    OPENCC_CUDA_IMPLEMENT_TYPE_VEC(uchar)
-    OPENCC_CUDA_IMPLEMENT_TYPE_VEC(char)
-    OPENCC_CUDA_IMPLEMENT_TYPE_VEC(ushort)
-    OPENCC_CUDA_IMPLEMENT_TYPE_VEC(short)
-    OPENCC_CUDA_IMPLEMENT_TYPE_VEC(int)
-    OPENCC_CUDA_IMPLEMENT_TYPE_VEC(uint)
-    OPENCC_CUDA_IMPLEMENT_TYPE_VEC(float)
-    OPENCC_CUDA_IMPLEMENT_TYPE_VEC(double)
+    OPENCV_CUDA_IMPLEMENT_TYPE_VEC(uchar)
+    OPENCV_CUDA_IMPLEMENT_TYPE_VEC(char)
+    OPENCV_CUDA_IMPLEMENT_TYPE_VEC(ushort)
+    OPENCV_CUDA_IMPLEMENT_TYPE_VEC(short)
+    OPENCV_CUDA_IMPLEMENT_TYPE_VEC(int)
+    OPENCV_CUDA_IMPLEMENT_TYPE_VEC(uint)
+    OPENCV_CUDA_IMPLEMENT_TYPE_VEC(float)
+    OPENCV_CUDA_IMPLEMENT_TYPE_VEC(double)
 
-    #undef OPENCC_CUDA_IMPLEMENT_TYPE_VEC
+    #undef OPENCV_CUDA_IMPLEMENT_TYPE_VEC
 
     template<> struct TypeVec<schar, 1> { typedef schar vec_type; };
     template<> struct TypeVec<schar, 2> { typedef char2 vec_type; };
@@ -125,7 +165,7 @@ namespace cv { namespace cuda { namespace device
 
     template<typename T> struct VecTraits;
 
-#define OPENCC_CUDA_IMPLEMENT_VEC_TRAITS(type) \
+#define OPENCV_CUDA_IMPLEMENT_VEC_TRAITS(type) \
     template<> struct VecTraits<type> \
     { \
         typedef type elem_type; \
@@ -175,15 +215,15 @@ namespace cv { namespace cuda { namespace device
         static __device__ __host__ __forceinline__ type ## 8 make(const type* v) {return make_ ## type ## 8(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7]);} \
     };
 
-    OPENCC_CUDA_IMPLEMENT_VEC_TRAITS(uchar)
-    OPENCC_CUDA_IMPLEMENT_VEC_TRAITS(ushort)
-    OPENCC_CUDA_IMPLEMENT_VEC_TRAITS(short)
-    OPENCC_CUDA_IMPLEMENT_VEC_TRAITS(int)
-    OPENCC_CUDA_IMPLEMENT_VEC_TRAITS(uint)
-    OPENCC_CUDA_IMPLEMENT_VEC_TRAITS(float)
-    OPENCC_CUDA_IMPLEMENT_VEC_TRAITS(double)
+    OPENCV_CUDA_IMPLEMENT_VEC_TRAITS(uchar)
+    OPENCV_CUDA_IMPLEMENT_VEC_TRAITS(ushort)
+    OPENCV_CUDA_IMPLEMENT_VEC_TRAITS(short)
+    OPENCV_CUDA_IMPLEMENT_VEC_TRAITS(int)
+    OPENCV_CUDA_IMPLEMENT_VEC_TRAITS(uint)
+    OPENCV_CUDA_IMPLEMENT_VEC_TRAITS(float)
+    OPENCV_CUDA_IMPLEMENT_VEC_TRAITS(double)
 
-    #undef OPENCC_CUDA_IMPLEMENT_VEC_TRAITS
+    #undef OPENCV_CUDA_IMPLEMENT_VEC_TRAITS
 
     template<> struct VecTraits<char>
     {
@@ -245,4 +285,4 @@ namespace cv { namespace cuda { namespace device
 
 //! @endcond
 
-#endif // OPENCC_CUDA_VEC_TRAITS_HPP
+#endif // OPENCV_CUDA_VEC_TRAITS_HPP

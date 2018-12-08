@@ -1,7 +1,49 @@
+/*M///////////////////////////////////////////////////////////////////////////////////////
+//
+//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
+//
+//  By downloading, copying, installing or using the software you agree to this license.
+//  If you do not agree to this license, do not download, install,
+//  copy or use the software.
+//
+//
+//                          License Agreement
+//                For Open Source Computer Vision Library
+//
+// Copyright (C) 2000-2008, Intel Corporation, all rights reserved.
+// Copyright (C) 2009, Willow Garage Inc., all rights reserved.
+// Copyright (C) 2013, OpenCV Foundation, all rights reserved.
+// Copyright (C) 2015, Itseez Inc., all rights reserved.
+// Third party copyrights are property of their respective owners.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//   * Redistribution's of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//
+//   * Redistribution's in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//
+//   * The name of the copyright holders may not be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+//
+// This software is provided by the copyright holders and contributors "as is" and
+// any express or implied warranties, including, but not limited to, the implied
+// warranties of merchantability and fitness for a particular purpose are disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any direct,
+// indirect, incidental, special, exemplary, or consequential damages
+// (including, but not limited to, procurement of substitute goods or services;
+// loss of use, data, or profits; or business interruption) however caused
+// and on any theory of liability, whether in contract, strict liability,
+// or tort (including negligence or otherwise) arising in any way out of
+// the use of this software, even if advised of the possibility of such damage.
+//
+//M*/
 
-
-#ifndef __OPENCC_ARITHM_CORE_HPP__
-#define __OPENCC_ARITHM_CORE_HPP__
+#ifndef __OPENCV_ARITHM_CORE_HPP__
+#define __OPENCV_ARITHM_CORE_HPP__
 
 #include "arithm_simd.hpp"
 
@@ -36,7 +78,7 @@ template<typename T> struct OpMin
     typedef T type1;
     typedef T type2;
     typedef T rtype;
-    T operator ()(const T a, const T b) const { return MIN(a, b); }
+    T operator ()(const T a, const T b) const { return std::min(a, b); }
 };
 
 template<typename T> struct OpMax
@@ -44,7 +86,7 @@ template<typename T> struct OpMax
     typedef T type1;
     typedef T type2;
     typedef T rtype;
-    T operator ()(const T a, const T b) const { return MAX(a, b); }
+    T operator ()(const T a, const T b) const { return std::max(a, b); }
 };
 
 template<typename T> struct OpAbsDiff
@@ -108,7 +150,7 @@ template<typename T> struct OpNot
 template<typename T, class Op, class VOp>
 void vBinOp(const T* src1, size_t step1, const T* src2, size_t step2, T* dst, size_t step, int width, int height)
 {
-#if CC_SSE2 || CC_NEON
+#if CV_SSE2 || CV_NEON
     VOp vop;
 #endif
     Op op;
@@ -119,8 +161,8 @@ void vBinOp(const T* src1, size_t step1, const T* src2, size_t step2, T* dst, si
     {
         int x = 0;
 
-#if CC_NEON || CC_SSE2
-#if CC_AVX2
+#if CV_NEON || CV_SSE2
+#if CV_AVX2
         if( USE_AVX2 )
         {
             for( ; x <= width - 32/(int)sizeof(T); x += 32/sizeof(T) )
@@ -131,10 +173,10 @@ void vBinOp(const T* src1, size_t step1, const T* src2, size_t step2, T* dst, si
             }
         }
 #else
-#if CC_SSE2
+#if CV_SSE2
         if( USE_SSE2 )
         {
-#endif // CC_SSE2
+#endif // CV_SSE2
             for( ; x <= width - 32/(int)sizeof(T); x += 32/sizeof(T) )
             {
                 typename VLoadStore128<T>::reg_type r0 = VLoadStore128<T>::load(src1 + x               );
@@ -144,15 +186,15 @@ void vBinOp(const T* src1, size_t step1, const T* src2, size_t step2, T* dst, si
                 VLoadStore128<T>::store(dst + x               , r0);
                 VLoadStore128<T>::store(dst + x + 16/sizeof(T), r1);
             }
-#if CC_SSE2
+#if CV_SSE2
         }
-#endif // CC_SSE2
-#endif // CC_AVX2
-#endif // CC_NEON || CC_SSE2
+#endif // CV_SSE2
+#endif // CV_AVX2
+#endif // CV_NEON || CV_SSE2
 
-#if CC_AVX2
+#if CV_AVX2
         // nothing
-#elif CC_SSE2
+#elif CV_SSE2
         if( USE_SSE2 )
         {
             for( ; x <= width - 8/(int)sizeof(T); x += 8/sizeof(T) )
@@ -164,7 +206,7 @@ void vBinOp(const T* src1, size_t step1, const T* src2, size_t step2, T* dst, si
         }
 #endif
 
-#if CC_ENABLE_UNROLLED
+#if CV_ENABLE_UNROLLED
         for( ; x <= width - 4; x += 4 )
         {
             T v0 = op(src1[x], src2[x]);
@@ -185,7 +227,7 @@ template<typename T, class Op, class Op32>
 void vBinOp32(const T* src1, size_t step1, const T* src2, size_t step2,
               T* dst, size_t step, int width, int height)
 {
-#if CC_SSE2 || CC_NEON
+#if CV_SSE2 || CV_NEON
     Op32 op32;
 #endif
     Op op;
@@ -196,7 +238,7 @@ void vBinOp32(const T* src1, size_t step1, const T* src2, size_t step2,
     {
         int x = 0;
 
-#if CC_AVX2
+#if CV_AVX2
         if( USE_AVX2 )
         {
             if( (((size_t)src1|(size_t)src2|(size_t)dst)&31) == 0 )
@@ -209,7 +251,7 @@ void vBinOp32(const T* src1, size_t step1, const T* src2, size_t step2,
                 }
             }
         }
-#elif CC_SSE2
+#elif CV_SSE2
         if( USE_SSE2 )
         {
             if( (((size_t)src1|(size_t)src2|(size_t)dst)&15) == 0 )
@@ -225,10 +267,10 @@ void vBinOp32(const T* src1, size_t step1, const T* src2, size_t step2,
                 }
             }
         }
-#endif // CC_AVX2
+#endif // CV_AVX2
 
-#if CC_NEON || CC_SSE2
-#if CC_AVX2
+#if CV_NEON || CV_SSE2
+#if CV_AVX2
         if( USE_AVX2 )
         {
             for( ; x <= width - 8; x += 8 )
@@ -239,10 +281,10 @@ void vBinOp32(const T* src1, size_t step1, const T* src2, size_t step2,
             }
         }
 #else
-#if CC_SSE2
+#if CV_SSE2
         if( USE_SSE2 )
         {
-#endif // CC_SSE2
+#endif // CV_SSE2
             for( ; x <= width - 8; x += 8 )
             {
                 typename VLoadStore128<T>::reg_type r0 = VLoadStore128<T>::load(src1 + x    );
@@ -252,13 +294,13 @@ void vBinOp32(const T* src1, size_t step1, const T* src2, size_t step2,
                 VLoadStore128<T>::store(dst + x    , r0);
                 VLoadStore128<T>::store(dst + x + 4, r1);
             }
-#if CC_SSE2
+#if CV_SSE2
         }
-#endif // CC_SSE2
-#endif // CC_AVX2
-#endif // CC_NEON || CC_SSE2
+#endif // CV_SSE2
+#endif // CV_AVX2
+#endif // CV_NEON || CV_SSE2
 
-#if CC_ENABLE_UNROLLED
+#if CV_ENABLE_UNROLLED
         for( ; x <= width - 4; x += 4 )
         {
             T v0 = op(src1[x], src2[x]);
@@ -280,7 +322,7 @@ template<typename T, class Op, class Op64>
 void vBinOp64(const T* src1, size_t step1, const T* src2, size_t step2,
                T* dst, size_t step, int width, int height)
 {
-#if CC_SSE2
+#if CV_SSE2
     Op64 op64;
 #endif
     Op op;
@@ -291,7 +333,7 @@ void vBinOp64(const T* src1, size_t step1, const T* src2, size_t step2,
     {
         int x = 0;
 
-#if CC_AVX2
+#if CV_AVX2
         if( USE_AVX2 )
         {
             if( (((size_t)src1|(size_t)src2|(size_t)dst)&31) == 0 )
@@ -304,7 +346,7 @@ void vBinOp64(const T* src1, size_t step1, const T* src2, size_t step2,
                 }
             }
         }
-#elif CC_SSE2
+#elif CV_SSE2
         if( USE_SSE2 )
         {
             if( (((size_t)src1|(size_t)src2|(size_t)dst)&15) == 0 )
@@ -345,8 +387,8 @@ cmp_(const T* src1, size_t step1, const T* src2, size_t step2,
     step2 /= sizeof(src2[0]);
     if( code == CMP_GE || code == CMP_LT )
     {
-        T_SWAP(_Tp, src1, src2);
-        T_SWAP(_Tp, step1, step2);
+        std::swap(src1, src2);
+        std::swap(step1, step2);
         code = code == CMP_GE ? CMP_LE : CMP_GT;
     }
 
@@ -358,7 +400,7 @@ cmp_(const T* src1, size_t step1, const T* src2, size_t step2,
         for( ; height--; src1 += step1, src2 += step2, dst += step )
         {
             int x = vop(src1, src2, dst, width);
-            #if CC_ENABLE_UNROLLED
+            #if CV_ENABLE_UNROLLED
             for( ; x <= width - 4; x += 4 )
             {
                 int t0, t1;
@@ -380,7 +422,7 @@ cmp_(const T* src1, size_t step1, const T* src2, size_t step2,
         for( ; height--; src1 += step1, src2 += step2, dst += step )
         {
             int x = 0;
-            #if CC_ENABLE_UNROLLED
+            #if CV_ENABLE_UNROLLED
             for( ; x <= width - 4; x += 4 )
             {
                 int t0, t1;
@@ -413,7 +455,7 @@ mul_( const T* src1, size_t step1, const T* src2, size_t step2,
         for( ; height--; src1 += step1, src2 += step2, dst += step )
         {
             int i = vop(src1, src2, dst, width, scale);
-            #if CC_ENABLE_UNROLLED
+            #if CV_ENABLE_UNROLLED
             for(; i <= width - 4; i += 4 )
             {
                 T t0;
@@ -438,7 +480,7 @@ mul_( const T* src1, size_t step1, const T* src2, size_t step2,
         for( ; height--; src1 += step1, src2 += step2, dst += step )
         {
             int i = vop(src1, src2, dst, width, scale);
-            #if CC_ENABLE_UNROLLED
+            #if CV_ENABLE_UNROLLED
             for(; i <= width - 4; i += 4 )
             {
                 T t0 = saturate_cast<T>(scale*(WT)src1[i]*src2[i]);
@@ -558,7 +600,7 @@ addWeighted_( const T* src1, size_t step1, const T* src2, size_t step2,
     for( ; height--; src1 += step1, src2 += step2, dst += step )
     {
         int x = vop(src1, src2, dst, width, alpha, beta, gamma);
-        #if CC_ENABLE_UNROLLED
+        #if CV_ENABLE_UNROLLED
         for( ; x <= width - 4; x += 4 )
         {
             T t0 = saturate_cast<T>(src1[x]*alpha + src2[x]*beta + gamma);
@@ -575,7 +617,7 @@ addWeighted_( const T* src1, size_t step1, const T* src2, size_t step2,
     }
 }
 
-} // 
+} // cv::
 
 
-#endif // __OPENCC_ARITHM_CORE_HPP__
+#endif // __OPENCV_ARITHM_CORE_HPP__

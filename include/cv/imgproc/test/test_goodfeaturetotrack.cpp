@@ -41,8 +41,7 @@
 
 #include "test_precomp.hpp"
 
-using namespace cv;
-using namespace std;
+namespace opencv_test { namespace {
 
 enum { MINEIGENVAL=0, HARRIS=1, EIGENVALSVECS=2 };
 
@@ -57,15 +56,18 @@ enum { MINEIGENVAL=0, HARRIS=1, EIGENVALSVECS=2 };
 
 /////////////////////ref//////////////////////
 
-struct greaterThanPtr :
-        public std::binary_function<const float *, const float *, bool>
+#ifdef CV_CXX11
+struct greaterThanPtr
+#else
+struct greaterThanPtr : public std::binary_function<const float *, const float *, bool>
+#endif
 {
     bool operator () (const float * a, const float * b) const
     { return *a > *b; }
 };
 
 static void
-test_cornerEigenValsVecs( const CvMat& src, CvMat& eigenv, int block_size,
+test_cornerEigenValsVecs( const Mat& src, Mat& eigenv, int block_size,
                           int _aperture_size, double k, int mode, int borderType, const Scalar& _borderValue )
 {
     int i, j;
@@ -73,16 +75,16 @@ test_cornerEigenValsVecs( const CvMat& src, CvMat& eigenv, int block_size,
     int aperture_size = _aperture_size < 0 ? 3 : _aperture_size;
     Point anchor( aperture_size/2, aperture_size/2 );
 
-    CC_Assert( src->tid == CC_8UC1 || src->tid == CC_32FC1 );
-    CC_Assert( eigenv->tid == CC_32FC1 );
-    CC_Assert( ( src.rows == eigenv.rows ) &&
+    CV_Assert( src.type() == CV_8UC1 || src.type() == CV_32FC1 );
+    CV_Assert( eigenv.type() == CV_32FC1 );
+    CV_Assert( ( src.rows == eigenv.rows ) &&
               (((mode == MINEIGENVAL)||(mode == HARRIS)) && (src.cols == eigenv.cols)) );
 
-    int type = src->tid;
-    int ftype = CC_32FC1;
+    int type = src.type();
+    int ftype = CV_32FC1;
     double kernel_scale = 1;
 
-    CvMat dx2, dy2, dxdy(src.size(), CC_32F), kernel;
+    Mat dx2, dy2, dxdy(src.size(), CV_32F), kernel;
 
     kernel = cvtest::calcSobelKernel2D( 1, 0, _aperture_size );
     cvtest::filter2D( src, dx2, ftype, kernel*kernel_scale, anchor, 0, borderType, borderValue );
@@ -114,7 +116,7 @@ test_cornerEigenValsVecs( const CvMat& src, CvMat& eigenv, int block_size,
         }
     }
 
-    kernel = CvMat::ones(block_size, block_size, CC_32F);
+    kernel = Mat::ones(block_size, block_size, CV_32F);
     anchor = Point(block_size/2, block_size/2);
 
     cvtest::filter2D( dx2, dx2, ftype, kernel, anchor, 0, borderType, borderValue );
@@ -159,23 +161,23 @@ test_cornerEigenValsVecs( const CvMat& src, CvMat& eigenv, int block_size,
 
 
 static void
-test_goodFeaturesToTrack( const CvArr* _image, CvArr* corners,
+test_goodFeaturesToTrack( InputArray _image, OutputArray _corners,
                               int maxCorners, double qualityLevel, double minDistance,
-                              const CvArr* _mask, int blockSize,
+                              InputArray _mask, int blockSize, int gradientSize,
                               bool useHarrisDetector, double harrisK )
 {
 
-    CC_Assert( qualityLevel > 0 && minDistance >= 0 && maxCorners >= 0 );
-    CC_Assert( _mask.empty() || (_mask->tid == CC_8UC1 && _mask.sameSize(_image)) );
+    CV_Assert( qualityLevel > 0 && minDistance >= 0 && maxCorners >= 0 );
+    CV_Assert( _mask.empty() || (_mask.type() == CV_8UC1 && _mask.sameSize(_image)) );
 
 
-    CvMat image = _image, mask = _mask;
-    int aperture_size = 3;
+    Mat image = _image.getMat(), mask = _mask.getMat();
+    int aperture_size = gradientSize;
     int borderType = BORDER_DEFAULT;
 
-    CvMat eig, tmp, tt;
+    Mat eig, tmp, tt;
 
-    eig.create( image.size(), CC_32F );
+    eig.create( image.size(), CV_32F );
 
     if( useHarrisDetector )
         test_cornerEigenValsVecs( image, eig, blockSize, aperture_size, harrisK, HARRIS, borderType, 0 );
@@ -186,9 +188,9 @@ test_goodFeaturesToTrack( const CvArr* _image, CvArr* corners,
 
     cvtest::minMaxIdx( eig, 0, &maxVal, 0, 0, mask );
     cvtest::threshold( eig, eig, (float)(maxVal*qualityLevel), 0.f,THRESH_TOZERO );
-    cvtest::dilate( eig, tmp, CvMat(),Point(-1,-1),borderType,0);
+    cvtest::dilate( eig, tmp, Mat(),Point(-1,-1),borderType,0);
 
-    CvSize imgsize = image.size();
+    Size imgsize = image.size();
 
     vector<const float*> tmpCorners;
 
@@ -245,10 +247,10 @@ test_goodFeaturesToTrack( const CvArr* _image, CvArr* corners,
             int y2 = y_cell + 1;
 
             // boundary check
-            x1 = MAX(0, x1);
-            y1 = MAX(0, y1);
-            x2 = MIN(grid_width-1, x2);
-            y2 = MIN(grid_height-1, y2);
+            x1 = std::max(0, x1);
+            y1 = std::max(0, y1);
+            x2 = std::min(grid_width-1, x2);
+            y2 = std::min(grid_height-1, y2);
 
             for( int yy = y1; yy <= y2; yy++ )
             {
@@ -302,7 +304,7 @@ test_goodFeaturesToTrack( const CvArr* _image, CvArr* corners,
         }
     }
 
-    CvMat(corners).convertTo(_corners, _corners.fixedType() ? _corners->tid : CC_32F);
+    Mat(corners).convertTo(_corners, _corners.fixedType() ? _corners.type() : CV_32F);
 
 }
 
@@ -310,19 +312,19 @@ test_goodFeaturesToTrack( const CvArr* _image, CvArr* corners,
 
 
 
-class CC_GoodFeatureToTTest : public cvtest::ArrayTest
+class CV_GoodFeatureToTTest : public cvtest::ArrayTest
 {
 public:
-    CC_GoodFeatureToTTest();
+    CV_GoodFeatureToTTest();
 
 protected:
     int prepare_test_case( int test_case_idx );
     void run_func();
     int validate_test_results( int test_case_idx );
 
-    CvMat src, src_gray;
-    CvMat src_gray32f, src_gray8U;
-    CvMat mask;
+    Mat src, src_gray;
+    Mat src_gray32f, src_gray8U;
+    Mat mask;
 
     int maxCorners;
     vector<Point2f> corners;
@@ -330,48 +332,50 @@ protected:
     double qualityLevel;
     double minDistance;
     int blockSize;
+    int gradientSize;
     bool useHarrisDetector;
     double k;
     int SrcType;
 };
 
 
-CC_GoodFeatureToTTest::CC_GoodFeatureToTTest()
+CV_GoodFeatureToTTest::CV_GoodFeatureToTTest()
 {
     RNG& rng = ts->get_rng();
     maxCorners = rng.uniform( 50, 100 );
     qualityLevel = 0.01;
     minDistance = 10;
     blockSize = 3;
+    gradientSize = 3;
     useHarrisDetector = false;
     k = 0.04;
-    mask = CvMat();
+    mask = Mat();
     test_case_count = 4;
     SrcType = 0;
 }
 
-int CC_GoodFeatureToTTest::prepare_test_case( int test_case_idx )
+int CV_GoodFeatureToTTest::prepare_test_case( int test_case_idx )
 {
-    const static int types[] = { CC_32FC1, CC_8UC1 };
+    const static int types[] = { CV_32FC1, CV_8UC1 };
 
     cvtest::TS& tst = *cvtest::TS::ptr();
     src = imread(string(tst.get_data_path()) + "shared/fruits.png", IMREAD_COLOR);
 
-    CC_Assert(src.data != NULL);
+    CV_Assert(src.data != NULL);
 
-    cvtColor( src, src_gray, CC_BGR2GRAY );
+    cvtColor( src, src_gray, CV_BGR2GRAY );
     SrcType = types[test_case_idx & 0x1];
     useHarrisDetector = test_case_idx & 2 ?  true : false;
     return 1;
 }
 
 
-void CC_GoodFeatureToTTest::run_func()
+void CV_GoodFeatureToTTest::run_func()
 {
     int cn = src_gray.channels();
 
-    CC_Assert( cn == 1 );
-    CC_Assert( ( CC_MAT_DEPTH(SrcType) == CC_32FC1 ) || ( CC_MAT_DEPTH(SrcType) == CC_8UC1 ));
+    CV_Assert( cn == 1 );
+    CV_Assert( ( CV_MAT_DEPTH(SrcType) == CV_32FC1 ) || ( CV_MAT_DEPTH(SrcType) == CV_8UC1 ));
 
     TEST_MESSAGEL ("             maxCorners = ", maxCorners)
     if (useHarrisDetector)
@@ -383,9 +387,9 @@ void CC_GoodFeatureToTTest::run_func()
         TEST_MESSAGE ("             useHarrisDetector = false\n");
     }
 
-    if( CC_MAT_DEPTH(SrcType) == CC_32FC1)
+    if( CV_MAT_DEPTH(SrcType) == CV_32FC1)
     {
-        if (src_gray.depth() != CC_32FC1 ) src_gray.convertTo(src_gray32f, CC_32FC1);
+        if (src_gray.depth() != CV_32FC1 ) src_gray.convertTo(src_gray32f, CV_32FC1);
         else   src_gray32f = src_gray.clone();
 
         TEST_MESSAGE ("goodFeaturesToTrack 32f\n")
@@ -395,14 +399,15 @@ void CC_GoodFeatureToTTest::run_func()
                maxCorners,
                qualityLevel,
                minDistance,
-               CvMat(),
+               Mat(),
                blockSize,
+               gradientSize,
                useHarrisDetector,
                k );
     }
     else
     {
-        if (src_gray.depth() != CC_8UC1 ) src_gray.convertTo(src_gray8U, CC_8UC1);
+        if (src_gray.depth() != CV_8UC1 ) src_gray.convertTo(src_gray8U, CV_8UC1);
         else   src_gray8U = src_gray.clone();
 
         TEST_MESSAGE ("goodFeaturesToTrack 8U\n")
@@ -412,21 +417,22 @@ void CC_GoodFeatureToTTest::run_func()
                maxCorners,
                qualityLevel,
                minDistance,
-               CvMat(),
+               Mat(),
                blockSize,
+               gradientSize,
                useHarrisDetector,
                k );
     }
 }
 
 
-int CC_GoodFeatureToTTest::validate_test_results( int test_case_idx )
+int CV_GoodFeatureToTTest::validate_test_results( int test_case_idx )
 {
     static const double eps = 2e-6;
 
-    if( CC_MAT_DEPTH(SrcType) == CC_32FC1 )
+    if( CV_MAT_DEPTH(SrcType) == CV_32FC1 )
     {
-        if (src_gray.depth() != CC_32FC1 ) src_gray.convertTo(src_gray32f, CC_32FC1);
+        if (src_gray.depth() != CV_32FC1 ) src_gray.convertTo(src_gray32f, CV_32FC1);
         else   src_gray32f = src_gray.clone();
 
         TEST_MESSAGE ("test_goodFeaturesToTrack 32f\n")
@@ -436,14 +442,15 @@ int CC_GoodFeatureToTTest::validate_test_results( int test_case_idx )
                maxCorners,
                qualityLevel,
                minDistance,
-               CvMat(),
+               Mat(),
                blockSize,
+               gradientSize,
                useHarrisDetector,
                k );
     }
     else
     {
-        if (src_gray.depth() != CC_8UC1 ) src_gray.convertTo(src_gray8U, CC_8UC1);
+        if (src_gray.depth() != CV_8UC1 ) src_gray.convertTo(src_gray8U, CV_8UC1);
         else   src_gray8U = src_gray.clone();
 
         TEST_MESSAGE ("test_goodFeaturesToTrack 8U\n")
@@ -453,13 +460,14 @@ int CC_GoodFeatureToTTest::validate_test_results( int test_case_idx )
                maxCorners,
                qualityLevel,
                minDistance,
-               CvMat(),
+               Mat(),
                blockSize,
+               gradientSize,
                useHarrisDetector,
                k );
     }
 
-    double e =norm(corners, Refcorners);
+    double e = cv::norm(corners, Refcorners); // TODO cvtest
 
     if (e > eps)
     {
@@ -470,7 +478,7 @@ int CC_GoodFeatureToTTest::validate_test_results( int test_case_idx )
         ts->printf(cvtest::TS::CONSOLE, "actual error: %g, expected: %g", e, eps);
         ts->set_failed_test_info(cvtest::TS::FAIL_BAD_ACCURACY);
 
-        for(int i = 0; i < (int)MIN((unsigned int)(corners.size()), (unsigned int)(Refcorners.size())); i++){
+        for(int i = 0; i < (int)std::min((unsigned int)(corners.size()), (unsigned int)(Refcorners.size())); i++){
             if ( (corners[i].x != Refcorners[i].x) || (corners[i].y != Refcorners[i].y))
                 printf("i = %i X %2.2f Xref %2.2f Y %2.2f Yref %2.2f\n",i,corners[i].x,Refcorners[i].x,corners[i].y,Refcorners[i].y);
         }
@@ -488,7 +496,8 @@ int CC_GoodFeatureToTTest::validate_test_results( int test_case_idx )
 
 }
 
-TEST(Imgproc_GoodFeatureToT, accuracy) { CC_GoodFeatureToTTest test; test.safe_run(); }
+TEST(Imgproc_GoodFeatureToT, accuracy) { CV_GoodFeatureToTTest test; test.safe_run(); }
 
 
-
+}} // namespace
+/* End of file. */

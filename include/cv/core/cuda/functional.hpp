@@ -1,7 +1,47 @@
+/*M///////////////////////////////////////////////////////////////////////////////////////
+//
+//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
+//
+//  By downloading, copying, installing or using the software you agree to this license.
+//  If you do not agree to this license, do not download, install,
+//  copy or use the software.
+//
+//
+//                           License Agreement
+//                For Open Source Computer Vision Library
+//
+// Copyright (C) 2000-2008, Intel Corporation, all rights reserved.
+// Copyright (C) 2009, Willow Garage Inc., all rights reserved.
+// Third party copyrights are property of their respective owners.
+//
+// Redistribution and use in source and binary forms, with or without modification,
+// are permitted provided that the following conditions are met:
+//
+//   * Redistribution's of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//
+//   * Redistribution's in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//
+//   * The name of the copyright holders may not be used to endorse or promote products
+//     derived from this software without specific prior written permission.
+//
+// This software is provided by the copyright holders and contributors "as is" and
+// any express or implied warranties, including, but not limited to, the implied
+// warranties of merchantability and fitness for a particular purpose are disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any direct,
+// indirect, incidental, special, exemplary, or consequential damages
+// (including, but not limited to, procurement of substitute goods or services;
+// loss of use, data, or profits; or business interruption) however caused
+// and on any theory of liability, whether in contract, strict liability,
+// or tort (including negligence or otherwise) arising in any way out of
+// the use of this software, even if advised of the possibility of such damage.
+//
+//M*/
 
-
-#ifndef OPENCC_CUDA_FUNCTIONAL_HPP
-#define OPENCC_CUDA_FUNCTIONAL_HPP
+#ifndef OPENCV_CUDA_FUNCTIONAL_HPP
+#define OPENCV_CUDA_FUNCTIONAL_HPP
 
 #include <functional>
 #include "saturate_cast.hpp"
@@ -18,8 +58,22 @@
 namespace cv { namespace cuda { namespace device
 {
     // Function Objects
+#ifdef CV_CXX11
+    template<typename Argument, typename Result> struct unary_function
+    {
+        typedef Argument argument_type;
+        typedef Result result_type;
+    };
+    template<typename Argument1, typename Argument2, typename Result> struct binary_function
+    {
+        typedef Argument1 first_argument_type;
+        typedef Argument2 second_argument_type;
+        typedef Result result_type;
+    };
+#else
     template<typename Argument, typename Result> struct unary_function : public std::unary_function<Argument, Result> {};
     template<typename Argument1, typename Argument2, typename Result> struct binary_function : public std::binary_function<Argument1, Argument2, Result> {};
+#endif
 
     // Arithmetic Operations
     template <typename T> struct plus : binary_function<T, T, T>
@@ -264,7 +318,7 @@ namespace cv { namespace cuda { namespace device
 
     // Min/Max Operations
 
-#define OPENCC_CUDA_IMPLEMENT_MINMAX(name, type, op) \
+#define OPENCV_CUDA_IMPLEMENT_MINMAX(name, type, op) \
     template <> struct name<type> : binary_function<type, type, type> \
     { \
         __device__ __forceinline__ type operator()(type lhs, type rhs) const {return op(lhs, rhs);} \
@@ -282,15 +336,15 @@ namespace cv { namespace cuda { namespace device
         __host__ __device__ __forceinline__ maximum(const maximum&) {}
     };
 
-    OPENCC_CUDA_IMPLEMENT_MINMAX(maximum, uchar, ::max)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(maximum, schar, ::max)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(maximum, char, ::max)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(maximum, ushort, ::max)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(maximum, short, ::max)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(maximum, int, ::max)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(maximum, uint, ::max)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(maximum, float, ::fmax)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(maximum, double, ::fmax)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(maximum, uchar, ::max)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(maximum, schar, ::max)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(maximum, char, ::max)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(maximum, ushort, ::max)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(maximum, short, ::max)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(maximum, int, ::max)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(maximum, uint, ::max)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(maximum, float, ::fmax)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(maximum, double, ::fmax)
 
     template <typename T> struct minimum : binary_function<T, T, T>
     {
@@ -302,17 +356,17 @@ namespace cv { namespace cuda { namespace device
         __host__ __device__ __forceinline__ minimum(const minimum&) {}
     };
 
-    OPENCC_CUDA_IMPLEMENT_MINMAX(minimum, uchar, ::min)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(minimum, schar, ::min)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(minimum, char, ::min)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(minimum, ushort, ::min)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(minimum, short, ::min)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(minimum, int, ::min)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(minimum, uint, ::min)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(minimum, float, ::fmin)
-    OPENCC_CUDA_IMPLEMENT_MINMAX(minimum, double, ::fmin)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(minimum, uchar, ::min)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(minimum, schar, ::min)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(minimum, char, ::min)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(minimum, ushort, ::min)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(minimum, short, ::min)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(minimum, int, ::min)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(minimum, uint, ::min)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(minimum, float, ::fmin)
+    OPENCV_CUDA_IMPLEMENT_MINMAX(minimum, double, ::fmin)
 
-#undef OPENCC_CUDA_IMPLEMENT_MINMAX
+#undef OPENCV_CUDA_IMPLEMENT_MINMAX
 
     // Math functions
 
@@ -417,7 +471,7 @@ namespace cv { namespace cuda { namespace device
         __host__ __device__ __forceinline__ abs_func(const abs_func&) {}
     };
 
-#define OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(name, func) \
+#define OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(name, func) \
     template <typename T> struct name ## _func : unary_function<T, float> \
     { \
         __device__ __forceinline__ float operator ()(typename TypeTraits<T>::ParameterType v) const \
@@ -437,7 +491,7 @@ namespace cv { namespace cuda { namespace device
         __host__ __device__ __forceinline__ name ## _func(const name ## _func&) {} \
     };
 
-#define OPENCC_CUDA_IMPLEMENT_BIN_FUNCTOR(name, func) \
+#define OPENCV_CUDA_IMPLEMENT_BIN_FUNCTOR(name, func) \
     template <typename T> struct name ## _func : binary_function<T, T, float> \
     { \
         __device__ __forceinline__ float operator ()(typename TypeTraits<T>::ParameterType v1, typename TypeTraits<T>::ParameterType v2) const \
@@ -457,33 +511,33 @@ namespace cv { namespace cuda { namespace device
         __host__ __device__ __forceinline__ name ## _func(const name ## _func&) {} \
     };
 
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(sqrt, ::sqrt)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(exp, ::exp)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(exp2, ::exp2)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(exp10, ::exp10)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(log, ::log)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(log2, ::log2)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(log10, ::log10)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(sin, ::sin)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(cos, ::cos)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(tan, ::tan)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(asin, ::asin)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(acos, ::acos)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(atan, ::atan)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(sinh, ::sinh)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(cosh, ::cosh)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(tanh, ::tanh)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(asinh, ::asinh)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(acosh, ::acosh)
-    OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR(atanh, ::atanh)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(sqrt, ::sqrt)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(exp, ::exp)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(exp2, ::exp2)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(exp10, ::exp10)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(log, ::log)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(log2, ::log2)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(log10, ::log10)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(sin, ::sin)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(cos, ::cos)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(tan, ::tan)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(asin, ::asin)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(acos, ::acos)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(atan, ::atan)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(sinh, ::sinh)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(cosh, ::cosh)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(tanh, ::tanh)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(asinh, ::asinh)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(acosh, ::acosh)
+    OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR(atanh, ::atanh)
 
-    OPENCC_CUDA_IMPLEMENT_BIN_FUNCTOR(hypot, ::hypot)
-    OPENCC_CUDA_IMPLEMENT_BIN_FUNCTOR(atan2, ::atan2)
-    OPENCC_CUDA_IMPLEMENT_BIN_FUNCTOR(pow, ::pow)
+    OPENCV_CUDA_IMPLEMENT_BIN_FUNCTOR(hypot, ::hypot)
+    OPENCV_CUDA_IMPLEMENT_BIN_FUNCTOR(atan2, ::atan2)
+    OPENCV_CUDA_IMPLEMENT_BIN_FUNCTOR(pow, ::pow)
 
-    #undef OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR
-    #undef OPENCC_CUDA_IMPLEMENT_UN_FUNCTOR_NO_DOUBLE
-    #undef OPENCC_CUDA_IMPLEMENT_BIN_FUNCTOR
+    #undef OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR
+    #undef OPENCV_CUDA_IMPLEMENT_UN_FUNCTOR_NO_DOUBLE
+    #undef OPENCV_CUDA_IMPLEMENT_BIN_FUNCTOR
 
     template<typename T> struct hypot_sqr_func : binary_function<T, T, float>
     {
@@ -748,10 +802,10 @@ namespace cv { namespace cuda { namespace device
 
     template <typename Func> struct TransformFunctorTraits : DefaultTransformFunctorTraits<Func> {};
 
-#define OPENCC_CUDA_TRANSFORM_FUNCTOR_TRAITS(type) \
+#define OPENCV_CUDA_TRANSFORM_FUNCTOR_TRAITS(type) \
     template <> struct TransformFunctorTraits< type > : DefaultTransformFunctorTraits< type >
 }}} // namespace cv { namespace cuda { namespace cudev
 
 //! @endcond
 
-#endif // OPENCC_CUDA_FUNCTIONAL_HPP
+#endif // OPENCV_CUDA_FUNCTIONAL_HPP
