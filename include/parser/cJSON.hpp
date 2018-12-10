@@ -36,7 +36,7 @@ void cJSON_AddStringArrayToObject(cJSON* object, const char* string, const std::
 }
 void cJSON_AddStringArrayToObject(cJSON* object, const char* string, const vector<std::string>& arr) {
   if (arr.size() > 0) {
-    cJSON_AddStringArrayToObject(object, string, &arr[0], arr.size());
+    cJSON_AddStringArrayToObject(object, string, &arr[0], (int)arr.size());
   }
 }
 
@@ -79,14 +79,14 @@ int cJSON_GetObjectBinaryDataSize(cJSON* object, const char* string) {
   CJSON* item = cJSON_GetObjectItem((cJSON*)object, string);
   int len = 0;
   if (item) {
-    len = strlen(item->valuestring)*3/4 + 4;
+    len = (int)strlen(item->valuestring)*3/4 + 4;
   }
   return len;
 }
 int cJSON_GetObjectBinaryData(cJSON* object, const char* string, void* data, int size) {
   CJSON* item = cJSON_GetObjectItem((cJSON*)object, string);
   if (item) {
-    int len = strlen(item->valuestring);
+    int len = (int)strlen(item->valuestring);
     base64_decode((char*)item->valuestring, len, data, &size);
   } else {
     size = 0;

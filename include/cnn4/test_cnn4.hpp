@@ -1,15 +1,18 @@
 
+#pragma warning(disable: 4267)
+#pragma warning(disable: 4244)
+
 #include "wstd/utime.hpp"
-#include "cnn4.hpp"
+#include "wstd/string.hpp"
+#include <direct.h>
+//#include "cnn4.hpp"
 //#include "test/test_all.hpp"
 
-void ClearParamDiffs(Blob** learnable_params_, int learnable_params_size)
-{
-  for (int i = 0; i < learnable_params_size; ++i) {
-    Blob* blob = learnable_params_[i];
-    cpu_caffe_set(blob->count(), (0), blob->cpu_mdiff());
-  }
-}
+struct Net;
+Net* net_new();
+void net_del(Net* net);
+int net_loadjson(Net* net, const char* fn);
+int net_train(Net* net);
 
 int test_cnn4() {
   const char* fn = NULL;
@@ -25,23 +28,10 @@ int test_cnn4() {
     _chdir("E:/OCR_Line/model/densenet-no-blstm/");
   }
 
-  CJSON* root = cJSON_OpenFile(fn);
-  typedef float Dtype;
-  Net* net = new Net;
-  DataShape d;
-  //im2col_nd<float>(GPUCONTEXT, 0, 0, 0, d, d, d, d, d, d, 0);
-  //im2col_nd<float>(CPUCONTEXT, 0, 0, 0, d, d, d, d, d, d, 0);
-  //caffe_copy<float>(GPUCONTEXT, 0, 0, 0);
-  //caffe_set<float>((GPUContext*)0, 0, 0, 0);
-  if (net->FromProto(root)) {
-    Solver* solver = new SGDSolver();
-    solver->init(net);
-    solver->Solve();
-    delete solver;
-    net->Free();
-    //ClearParamDiffs(net->layers_->blobs_, 1);
+  Net* net = net_new();
+  if (net_loadjson(net, fn)) {
+    net_train(net);
   }
-  cJSON_Delete(root);
-  delete net;
+  net_del(net);
   return 0;
 }

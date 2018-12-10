@@ -2,6 +2,8 @@
 #ifndef _STDC_H_
 #define _STDC_H_
 
+#include "config.h"
+
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -343,7 +345,7 @@ typedef uint64_t uint64;
 // typedef int vec4i[4];
 //
 
-#define VECN_DEF(name, n, type) struct Vec ## n ## name { type v[n]; };
+#define VECN_DEF(name, n, type) struct vec ## n ## name { type v[n]; };
 #define VECN_DEF_DEF(n) VECN_DEF(b, n, uchar)VECN_DEF(s, n, short)VECN_DEF(i, n, int)VECN_DEF(f, n, float)
 VECN_DEF_DEF(2);
 VECN_DEF_DEF(3);
@@ -583,7 +585,7 @@ static void* arrcvt(void* dst, TypeId dst_type, const void* src, TypeId src_type
   return dst;
 }
 static void* arrcvt2(void* dst, TypeId dst_type, const void* src, TypeId src_type, int n, double alpha, double beta) {
-  bool noScale = fabs(alpha - 1) < DBL_EPSILON && fabs(beta) < DBL_EPSILON;
+  BOOL noScale = fabs(alpha - 1) < DBL_EPSILON && fabs(beta) < DBL_EPSILON;
   if (noScale) {
     return arrcvt(dst, dst_type, src, src_type, n);
   }
@@ -810,34 +812,19 @@ CC_INLINE DRANGE dRANGE(double s, double e)
   return ra;
 }
 #define iPOINT_PT(pt)  iPOINT((int)(pt).x, (int)(pt).y)
-CC_INLINE IPOINT iPOINT(int x, int y)
-{
-  IPOINT pt;
-  pt.x = x, pt.y = y;
-  return pt;
-}
-CC_INLINE IPoint iPoint(int x, int y)
-{
-  IPOINT pt;
-  pt.x = x, pt.y = y;
-  return pt;
-}
+#define _POINT_DEF(pttype, name, type)   CC_INLINE pttype name(type x, type y) { pttype pt;  pt.x = x, pt.y = y; return pt; }
+#define _POINT_DEF2(pttype, name, name2, type)  _POINT_DEF(pttype, name, type) _POINT_DEF(pttype, name2, type) \
+  static pttype& operator += (pttype& a, const pttype& b) { a.x += b.x, a.y += b.y; return a; }
+
+_POINT_DEF2(IPOINT, iPOINT, iPoint, int);
+_POINT_DEF2(FPOINT, fPOINT, fPoint, float);
+_POINT_DEF2(DPOINT, dPOINT, dPoint, double);
+#undef _POINT_DEF
+#undef _POINT_DEF2
+
 CC_INLINE int iPOINT_cmp(IPOINT a, IPOINT b)
 {
   return a.y == b.y ? CC_CMP(a.x, b.x) : CC_CMP(a.y, b.y);
-}
-CC_INLINE FPOINT fPOINT(double x, double y)
-{
-  FPOINT p;
-  p.x = (float)x;
-  p.y = (float)y;
-  return p;
-}
-CC_INLINE DPOINT dPOINT(double x, double y)
-{
-  DPOINT pt;
-  pt.x = x, pt.y = y;
-  return pt;
 }
 CC_INLINE IRANGE cRANGE(int s, int e)
 {
@@ -1450,7 +1437,7 @@ CC_INLINE double iRectIOU(IRECT Reframe, IRECT GTframe) {
 struct IRect {
   int x, y, width, height;
 };
-IRect iRect(int _x, int _y, int _width, int _height) {
+static IRect iRect(int _x, int _y, int _width, int _height) {
   IRect r;
   r.x = _x;
   r.y = _y;
@@ -1458,7 +1445,7 @@ IRect iRect(int _x, int _y, int _width, int _height) {
   r.height = _height;
   return r;
 }
-IRect iRect(IPoint pt, ISize sz) {
+static IRect iRect(IPoint pt, ISize sz) {
   IRect r;
   r.x = pt.x;
   r.y = pt.y;
@@ -1466,19 +1453,19 @@ IRect iRect(IPoint pt, ISize sz) {
   r.height = sz.height;
   return r;
 }
-template <typename IRect, typename IPoint>
+template <typename IRect, typename IPoint> static
 bool contains(IRect r, IPoint pt) {
   return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height;
 }
-bool contains(IRect r, IPoint pt) {
+static bool contains(IRect r, IPoint pt) {
   return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height;
 }
-bool inside(IPoint pt, IRect r) {
+static bool inside(IPoint pt, IRect r) {
   return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height;
 }
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
-enum MemType {CPU, GPU};
+enum MemType {CPUMEM, GPUMEM};
 struct mem_t {
   MemType type_;
   void* (*realloc_)(void* p, size_t n);
@@ -1489,8 +1476,8 @@ static void cpu_free(void* p) { free(p); }
 static void* copy_cpu2cpu(void* dst, const void* src, size_t n) { return memcpy(dst, src, n); }
 typedef void* (*mem_copy_t)(void* dst, const void* src, size_t n);
 static mem_copy_t mem_copy[2][2] = { copy_cpu2cpu ,NULL, NULL, NULL};
-static mem_t cpu_mem[1] = { CPU, cpu_realloc , cpu_free };
-static mem_t cpu_mem_nul[1] = { CPU, NULL , NULL };
+static mem_t cpu_mem[1] = { CPUMEM, cpu_realloc , cpu_free };
+static mem_t cpu_mem_nul[1] = { CPUMEM, NULL , NULL };
 static void* mem_realloc(void* p, size_t newn, mem_t* newmem, size_t oldn, mem_t* oldmem) {
   void* newp = NULL;
   newmem = newmem ? newmem : cpu_mem;

@@ -56,7 +56,7 @@ public:
 #else
     puts(s.c_str());
 #endif
-    fappend("log.txt", s.c_str(), s.length());
+    fappend("log.txt", s.c_str(), (int)s.length());
   }
   std::stringstream& get() {
     return stream_;

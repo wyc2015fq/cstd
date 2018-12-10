@@ -275,7 +275,7 @@ Where \f$c\f$ is fixed `1`-by-`n` row-vector, \f$A\f$ is fixed `m`-by-`n` matrix
 column vector and \f$x\f$ is an arbitrary `n`-by-`1` column vector, which satisfies the constraints.
 
 Simplex algorithm is one of many algorithms that are designed to handle this sort of problems
-efficiently. Although it is not optimal in theoretical sense (there exist algorithms that can solve
+efficiently. Although it is not optimal in theoretical sense (there exist algorithms that can 
 any problem written as above in polynomial time, while simplex method degenerates to exponential
 time for some special cases), it is well-studied, easy to implement and is shown to work well for
 real-life purposes.

@@ -43,7 +43,7 @@ static void xtoa_c(unsigned long val, char *buf, unsigned radix, int is_neg) {
 /* Actual functions just call conversion helper with neg flag set correctly,
 and return pointer to buffer. */
 
-char * itoa_c(int val, char *buf, int radix) {
+static char * itoa_c(int val, char *buf, int radix) {
   if (radix == 10 && val < 0)
     xtoa_c((unsigned long)val, buf, radix, 1);
   else
@@ -51,12 +51,11 @@ char * itoa_c(int val, char *buf, int radix) {
   return buf;
 }
 
-char * ltoa_c(long val, char *buf, int radix) {
+static char * ltoa_c(long val, char *buf, int radix) {
   xtoa_c((unsigned long)val, buf, radix, (radix == 10 && val < 0));
   return buf;
 }
-
-char * ultoa_c(unsigned long val, char *buf, int radix)
+static char * ultoa_c(unsigned long val, char *buf, int radix)
 {
   xtoa_c(val, buf, radix, 0);
   return buf;
@@ -109,13 +108,11 @@ static void x64toa_c(uint64_t val, char *buf, unsigned radix, int is_neg)
 
 /* Actual functions just call conversion helper with neg flag set correctly,
 and return pointer to buffer. */
-
-char * i64toa_c(int64_t val, char *buf, int radix) {
+static char * i64toa_c(int64_t val, char *buf, int radix) {
   x64toa_c((uint64_t)val, buf, radix, (radix == 10 && val < 0));
   return buf;
 }
-
-char * ui64toa_c(uint64_t val, char *buf, int radix)
+static char * ui64toa_c(uint64_t val, char *buf, int radix)
 {
   x64toa_c(val, buf, radix, 0);
   return buf;

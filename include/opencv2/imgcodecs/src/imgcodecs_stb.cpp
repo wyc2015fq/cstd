@@ -38,18 +38,46 @@ namespace cv {
     }
     return req_comp;
   }
+  //typedef unsigned char uchar;
+  static void rgb2bgr(uchar* dst0, int dststep, int dstinc, const uchar* src0, int srcstep, int srcinc, int h, int w) {
+    int i, j;
+    for (j = 0; j < h; ++j) {
+      uchar* dst = dst0 + j*dststep;
+      const uchar* src = src0 + j*srcstep;
+      for (i = 0; i < w; ++i) {
+        char a = src[0], b = src[1], c = src[2];
+        dst[0] = c;
+        dst[1] = b;
+        dst[2] = a;
+        src += srcinc;
+        dst += dstinc;
+      }
+    }
+  }
 
+  static void* memcpy2d_(void* dst, int dl, const void* src, int sl, int h, int w)
+  {
+    char* d = (char*)(dst);
+    const char* s = (const char*)(src);
+    if (dl == sl && dl == w) {
+      return memcpy(dst, src, h * w);
+    }
+    for (; h--; s += sl, d += dl) {
+      memcpy(d, s, w);
+    }
+    return dst;
+  }
   Mat imread(const String& filename, int flags) {
-    int w, h, n, req_comp = get_comp(flags);
-    unsigned char *data = stbi_load("rgba.png", &w, &h, &n, req_comp);
-    Mat mat(h, w, CV_MAKETYPE(CV_8U, n), data);
+    int w=0, h=0, n=0, req_comp = get_comp(flags);
+    unsigned char *data = stbi_load(filename.c_str(), &w, &h, &n, req_comp);
+    Mat mat(h, w, CV_MAKETYPE(CV_8U, n));
+    //memcpy2d_(mat.data, mat.step, data, w*n, h, w*n);
+    rgb2bgr(mat.data, mat.step, 3, data, w*n, 3, h, w);
     stbi_image_free(data);
     return mat;
   }
-
-
   bool imwrite(const String& filename, InputArray img, const std::vector<int>& params) {
-#if 0
+#if 1
     std::vector<Mat> img_vec;
     if (img.isMatVector() || img.isUMatVector())
       img.getMatVector(img_vec);
@@ -57,13 +85,22 @@ namespace cv {
       img_vec.push_back(img.getMat());
 
     if (img_vec.size() > 0) {
-      stbi_write_png(filename.c_str(), w, h, n, data, w * 4);
+      const Mat& mat = img_vec[0];
+      int w = mat.cols;
+      int h = mat.rows;
+      int n = mat.channels();
+      uchar* data = mat.data;
+      int step = mat.step;
+      size_t pos = filename.rfind('.');
+      if (pos == String::npos) { return false; }
+      String ext = filename.substr(pos+1).toLowerCase();
 #if 0
       int stbi_write_png(char const *filename, int w, int h, int comp, const void *data, int stride_in_bytes);
       int stbi_write_bmp(char const *filename, int w, int h, int comp, const void *data);
       int stbi_write_tga(char const *filename, int w, int h, int comp, const void *data);
       int stbi_write_hdr(char const *filename, int w, int h, int comp, const void *data);
 #endif
+      stbi_write_png(filename.c_str(), w, h, n, data, step);
       return true;
     }
 #endif

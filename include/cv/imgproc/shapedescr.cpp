@@ -1,61 +1,21 @@
-/*M///////////////////////////////////////////////////////////////////////////////////////
-//
-//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
-//
-//  By downloading, copying, installing or using the software you agree to this license.
-//  If you do not agree to this license, do not download, install,
-//  copy or use the software.
-//
-//
-//                        Intel License Agreement
-//                For Open Source Computer Vision Library
-//
-// Copyright (C) 2000, Intel Corporation, all rights reserved.
-// Third party copyrights are property of their respective owners.
-//
-// Redistribution and use in source and binary forms, with or without modification,
-// are permitted provided that the following conditions are met:
-//
-//   * Redistribution's of source code must retain the above copyright notice,
-//     this list of conditions and the following disclaimer.
-//
-//   * Redistribution's in binary form must reproduce the above copyright notice,
-//     this list of conditions and the following disclaimer in the documentation
-//     and/or other materials provided with the distribution.
-//
-//   * The name of Intel Corporation may not be used to endorse or promote products
-//     derived from this software without specific prior written permission.
-//
-// This software is provided by the copyright holders and contributors "as is" and
-// any express or implied warranties, including, but not limited to, the implied
-// warranties of merchantability and fitness for a particular purpose are disclaimed.
-// In no event shall the Intel Corporation or contributors be liable for any direct,
-// indirect, incidental, special, exemplary, or consequential damages
-// (including, but not limited to, procurement of substitute goods or services;
-// loss of use, data, or profits; or business interruption) however caused
-// and on any theory of liability, whether in contract, strict liability,
-// or tort (including negligence or otherwise) arising in any way out of
-// the use of this software, even if advised of the possibility of such damage.
-//
-//M*/
-#include "precomp.hpp"
-namespace cv
-{
+
+#if 0
+//#include "precomp.hpp"
 
 const float EPS = 1.0e-4f;
 
-static void findCircle3pts(Point2f *pts, Point2f &center, float &radius)
+static void findCircle3pts(FPoint *pts, FPoint &center, float &radius)
 {
     // two edges of the triangle v1, v2
-    Point2f v1 = pts[1] - pts[0];
-    Point2f v2 = pts[2] - pts[0];
+    FPoint v1 = pts[1] - pts[0];
+    FPoint v2 = pts[2] - pts[0];
 
     // center is intersection of midperpendicular lines of the two edges v1, v2
     // a1*x + b1*y = c1 where a1 = v1.x, b1 = v1.y
     // a2*x + b2*y = c2 where a2 = v2.x, b2 = v2.y
-    Point2f midPoint1 = (pts[0] + pts[1]) / 2.0f;
+    FPoint midPoint1 = (pts[0] + pts[1]) / 2.0f;
     float c1 = midPoint1.x * v1.x + midPoint1.y * v1.y;
-    Point2f midPoint2 = (pts[0] + pts[2]) / 2.0f;
+    FPoint midPoint2 = (pts[0] + pts[2]) / 2.0f;
     float c2 = midPoint2.x * v2.x + midPoint2.y * v2.y;
     float det = v1.x * v2.y - v1.y * v2.x;
     float cx = (c1 * v2.y - c2 * v1.y) / det;
@@ -68,28 +28,28 @@ static void findCircle3pts(Point2f *pts, Point2f &center, float &radius)
 }
 
 template<typename PT>
-static void findThirdPoint(const PT *pts, int i, int j, Point2f &center, float &radius)
+static void findThirdPoint(const PT *pts, int i, int j, FPoint &center, float &radius)
 {
     center.x = (float)(pts[j].x + pts[i].x) / 2.0f;
     center.y = (float)(pts[j].y + pts[i].y) / 2.0f;
     float dx = (float)(pts[j].x - pts[i].x);
     float dy = (float)(pts[j].y - pts[i].y);
-    radius = (float)norm(Point2f(dx, dy)) / 2.0f + EPS;
+    radius = (float)norm(fPoint(dx, dy)) / 2.0f + EPS;
 
     for (int k = 0; k < j; ++k)
     {
         dx = center.x - (float)pts[k].x;
         dy = center.y - (float)pts[k].y;
-        if (norm(Point2f(dx, dy)) < radius)
+        if (norm(fPoint(dx, dy)) < radius)
         {
             continue;
         }
         else
         {
-            Point2f ptsf[3];
-            ptsf[0] = (Point2f)pts[i];
-            ptsf[1] = (Point2f)pts[j];
-            ptsf[2] = (Point2f)pts[k];
+            FPoint ptsf[3];
+            ptsf[0] = (FPoint)pts[i];
+            ptsf[1] = (FPoint)pts[j];
+            ptsf[2] = (FPoint)pts[k];
             findCircle3pts(ptsf, center, radius);
         }
     }
@@ -97,19 +57,19 @@ static void findThirdPoint(const PT *pts, int i, int j, Point2f &center, float &
 
 
 template<typename PT>
-void findSecondPoint(const PT *pts, int i, Point2f &center, float &radius)
+void findSecondPoint(const PT *pts, int i, FPoint &center, float &radius)
 {
     center.x = (float)(pts[0].x + pts[i].x) / 2.0f;
     center.y = (float)(pts[0].y + pts[i].y) / 2.0f;
     float dx = (float)(pts[0].x - pts[i].x);
     float dy = (float)(pts[0].y - pts[i].y);
-    radius = (float)norm(Point2f(dx, dy)) / 2.0f + EPS;
+    radius = (float)norm(fPoint(dx, dy)) / 2.0f + EPS;
 
     for (int j = 1; j < i; ++j)
     {
         dx = center.x - (float)pts[j].x;
         dy = center.y - (float)pts[j].y;
-        if (norm(Point2f(dx, dy)) < radius)
+        if (norm(fPoint(dx, dy)) < radius)
         {
             continue;
         }
@@ -122,19 +82,19 @@ void findSecondPoint(const PT *pts, int i, Point2f &center, float &radius)
 
 
 template<typename PT>
-static void findMinEnclosingCircle(const PT *pts, int count, Point2f &center, float &radius)
+static void findMinEnclosingCircle(const PT *pts, int count, FPoint &center, float &radius)
 {
     center.x = (float)(pts[0].x + pts[1].x) / 2.0f;
     center.y = (float)(pts[0].y + pts[1].y) / 2.0f;
     float dx = (float)(pts[0].x - pts[1].x);
     float dy = (float)(pts[0].y - pts[1].y);
-    radius = (float)norm(Point2f(dx, dy)) / 2.0f + EPS;
+    radius = (float)norm(fPoint(dx, dy)) / 2.0f + EPS;
 
     for (int i = 2; i < count; ++i)
     {
         dx = (float)pts[i].x - center.x;
         dy = (float)pts[i].y - center.y;
-        float d = (float)norm(Point2f(dx, dy));
+        float d = (float)norm(fPoint(dx, dy));
         if (d < radius)
         {
             continue;
@@ -145,17 +105,17 @@ static void findMinEnclosingCircle(const PT *pts, int count, Point2f &center, fl
         }
     }
 }
-} // namespace cv
+
 
 // see Welzl, Emo. Smallest enclosing disks (balls and ellipsoids). Springer Berlin Heidelberg, 1991.
-void cv::minEnclosingCircle( InputArray _points, Point2f& _center, float& _radius )
+void minEnclosingCircle( const img_t* _points, FPoint& _center, float& _radius )
 {
-    CV_INSTRUMENT_REGION()
+    CC_INSTRUMENT_REGION()
 
-    Mat points = _points.getMat();
-    int count = points.checkVector(2);
-    int depth = points.depth();
-    CV_Assert(count >= 0 && (depth == CV_32F || depth == CV_32S));
+    img_t*  points = _points->getMat();
+    int count = points->checkVector(2);
+    int depth = points->depth();
+    CC_Assert(count >= 0 && (depth == CC_32F || depth == CC_32S));
 
     _center.x = _center.y = 0.f;
     _radius = 0.f;
@@ -163,22 +123,22 @@ void cv::minEnclosingCircle( InputArray _points, Point2f& _center, float& _radiu
     if( count == 0 )
         return;
 
-    bool is_float = depth == CV_32F;
-    const Point* ptsi = points.ptr<Point>();
-    const Point2f* ptsf = points.ptr<Point2f>();
+    bool is_float = depth == CC_32F;
+    const IPoint* ptsi = points->ptr<IPoint>();
+    const FPoint* ptsf = points->ptr<FPoint>();
 
     switch (count)
     {
         case 1:
         {
-            _center = (is_float) ? ptsf[0] : Point2f((float)ptsi[0].x, (float)ptsi[0].y);
+            _center = (is_float) ? ptsf[0] : fPoint((float)ptsi[0].x, (float)ptsi[0].y);
             _radius = EPS;
             break;
         }
         case 2:
         {
-            Point2f p1 = (is_float) ? ptsf[0] : Point2f((float)ptsi[0].x, (float)ptsi[0].y);
-            Point2f p2 = (is_float) ? ptsf[1] : Point2f((float)ptsi[1].x, (float)ptsi[1].y);
+            FPoint p1 = (is_float) ? ptsf[0] : fPoint((float)ptsi[0].x, (float)ptsi[0].y);
+            FPoint p2 = (is_float) ? ptsf[1] : fPoint((float)ptsi[1].x, (float)ptsi[1].y);
             _center.x = (p1.x + p2.x) / 2.0f;
             _center.y = (p1.y + p2.y) / 2.0f;
             _radius = (float)(norm(p1 - p2) / 2.0) + EPS;
@@ -186,11 +146,11 @@ void cv::minEnclosingCircle( InputArray _points, Point2f& _center, float& _radiu
         }
         default:
         {
-            Point2f center;
+            FPoint center;
             float radius = 0.f;
             if (is_float)
             {
-                findMinEnclosingCircle<Point2f>(ptsf, count, center, radius);
+                findMinEnclosingCircle<FPoint>(ptsf, count, center, radius);
                 #if 0
                     for (size_t m = 0; m < count; ++m)
                     {
@@ -204,7 +164,7 @@ void cv::minEnclosingCircle( InputArray _points, Point2f& _center, float& _radiu
             }
             else
             {
-                findMinEnclosingCircle<Point>(ptsi, count, center, radius);
+                findMinEnclosingCircle<IPoint>(ptsi, count, center, radius);
                 #if 0
                     for (size_t m = 0; m < count; ++m)
                     {
@@ -227,14 +187,14 @@ void cv::minEnclosingCircle( InputArray _points, Point2f& _center, float& _radiu
 
 
 // calculates length of a curve (e.g. contour perimeter)
-double cv::arcLength( InputArray _curve, bool is_closed )
+double arcLength( const img_t* _curve, bool is_closed )
 {
-    CV_INSTRUMENT_REGION()
+    CC_INSTRUMENT_REGION()
 
-    Mat curve = _curve.getMat();
+    img_t*  curve = _curve.getMat();
     int count = curve.checkVector(2);
     int depth = curve.depth();
-    CV_Assert( count >= 0 && (depth == CV_32F || depth == CV_32S));
+    CC_Assert( count >= 0 && (depth == CC_32F || depth == CC_32S));
     double perimeter = 0;
 
     int i;
@@ -242,16 +202,16 @@ double cv::arcLength( InputArray _curve, bool is_closed )
     if( count <= 1 )
         return 0.;
 
-    bool is_float = depth == CV_32F;
+    bool is_float = depth == CC_32F;
     int last = is_closed ? count-1 : 0;
-    const Point* pti = curve.ptr<Point>();
-    const Point2f* ptf = curve.ptr<Point2f>();
+    const IPoint* pti = curve.ptr<IPoint>();
+    const FPoint* ptf = curve.ptr<FPoint>();
 
-    Point2f prev = is_float ? ptf[last] : Point2f((float)pti[last].x,(float)pti[last].y);
+    FPoint prev = is_float ? ptf[last] : fPoint((float)pti[last].x,(float)pti[last].y);
 
     for( i = 0; i < count; i++ )
     {
-        Point2f p = is_float ? ptf[i] : Point2f((float)pti[i].x,(float)pti[i].y);
+        FPoint p = is_float ? ptf[i] : fPoint((float)pti[i].x,(float)pti[i].y);
         float dx = p.x - prev.x, dy = p.y - prev.y;
         perimeter += std::sqrt(dx*dx + dy*dy);
 
@@ -262,27 +222,27 @@ double cv::arcLength( InputArray _curve, bool is_closed )
 }
 
 // area of a whole sequence
-double cv::contourArea( InputArray _contour, bool oriented )
+double contourArea( const img_t* _contour, bool oriented )
 {
-    CV_INSTRUMENT_REGION()
+    CC_INSTRUMENT_REGION()
 
-    Mat contour = _contour.getMat();
+    img_t*  contour = _contour.getMat();
     int npoints = contour.checkVector(2);
     int depth = contour.depth();
-    CV_Assert(npoints >= 0 && (depth == CV_32F || depth == CV_32S));
+    CC_Assert(npoints >= 0 && (depth == CC_32F || depth == CC_32S));
 
     if( npoints == 0 )
         return 0.;
 
     double a00 = 0;
-    bool is_float = depth == CV_32F;
-    const Point* ptsi = contour.ptr<Point>();
-    const Point2f* ptsf = contour.ptr<Point2f>();
-    Point2f prev = is_float ? ptsf[npoints-1] : Point2f((float)ptsi[npoints-1].x, (float)ptsi[npoints-1].y);
+    bool is_float = depth == CC_32F;
+    const IPoint* ptsi = contour.ptr<IPoint>();
+    const FPoint* ptsf = contour.ptr<FPoint>();
+    FPoint prev = is_float ? ptsf[npoints-1] : fPoint((float)ptsi[npoints-1].x, (float)ptsi[npoints-1].y);
 
     for( int i = 0; i < npoints; i++ )
     {
-        Point2f p = is_float ? ptsf[i] : Point2f((float)ptsi[i].x, (float)ptsi[i].y);
+        FPoint p = is_float ? ptsf[i] : fPoint((float)ptsi[i].x, (float)ptsi[i].y);
         a00 += (double)prev.x * p.y - (double)prev.y * p.x;
         prev = p;
     }
@@ -293,41 +253,43 @@ double cv::contourArea( InputArray _contour, bool oriented )
 
     return a00;
 }
+#endif
 
-
-cv::RotatedRect cv::fitEllipse( InputArray _points )
+CRotatedRect fitEllipse( const img_t* points)
 {
-    CV_INSTRUMENT_REGION()
+    CC_INSTRUMENT_REGION()
 
-    Mat points = _points.getMat();
-    int i, n = points.checkVector(2);
-    int depth = points.depth();
-    CV_Assert( n >= 0 && (depth == CV_32F || depth == CV_32S));
+    int i, n = points->checkVector(2);
+    int depth = points->depth();
+    CC_Assert( n >= 0 && (depth == CC_32F || depth == CC_32S));
 
-    RotatedRect box;
+    CRotatedRect box;
 
     if( n < 5 )
-        CV_Error( CV_StsBadSize, "There should be at least 5 points to fit the ellipse" );
+        CC_Error( CC_StsBadSize, "There should be at least 5 points to fit the ellipse" );
 
     // New fitellipse algorithm, contributed by Dr. Daniel Weiss
-    Point2f c(0,0);
+    FPoint c = fPoint(0,0);
     double gfp[5] = {0}, rp[5] = {0}, t;
     const double min_eps = 1e-8;
-    bool is_float = depth == CV_32F;
-    const Point* ptsi = points.ptr<Point>();
-    const Point2f* ptsf = points.ptr<Point2f>();
-
-    AutoBuffer<double> _Ad(n*5), _bd(n);
+    bool is_float = depth == CC_32F;
+    const IPoint* ptsi = img_ptr(IPoint, points);
+    const FPoint* ptsf = img_ptr(FPoint, points);
+    img_t tmp_[10];
+    img_t* tmp = tmp_;
+    //AutoBuffer<double> _Ad(n*5), _bd(n);
+    double* _Ad = MALLOC(double, n * 5);
+    double* _bd = MALLOC(double, n);
     double *Ad = _Ad, *bd = _bd;
 
     // first fit for parameters A - E
-    Mat A( n, 5, CV_64F, Ad );
-    Mat b( n, 1, CV_64F, bd );
-    Mat x( 5, 1, CV_64F, gfp );
+    img_t*  A = imcreate2(tmp++, n, 5, CC_64F, Ad );
+    img_t*  b = imcreate2(tmp++, n, 1, CC_64F, bd );
+    img_t*  x = imcreate2(tmp++, 5, 1, CC_64F, gfp );
 
     for( i = 0; i < n; i++ )
     {
-        Point2f p = is_float ? ptsf[i] : Point2f((float)ptsi[i].x, (float)ptsi[i].y);
+        FPoint p = is_float ? ptsf[i] : fPoint((float)ptsi[i].x, (float)ptsi[i].y);
         c += p;
     }
     c.x /= n;
@@ -335,7 +297,7 @@ cv::RotatedRect cv::fitEllipse( InputArray _points )
 
     for( i = 0; i < n; i++ )
     {
-        Point2f p = is_float ? ptsf[i] : Point2f((float)ptsi[i].x, (float)ptsi[i].y);
+        FPoint p = is_float ? ptsf[i] : fPoint((float)ptsi[i].x, (float)ptsi[i].y);
         p -= c;
 
         bd[i] = 10000.0; // 1.0?
@@ -346,13 +308,13 @@ cv::RotatedRect cv::fitEllipse( InputArray _points )
         Ad[i*5 + 4] = p.y;
     }
 
-    solve(A, b, x, DECOMP_SVD);
+    cv:solve(A, b, x, DECOMP_SVD);
 
     // now use general-form parameters A - E to find the ellipse center:
     // differentiate general form wrt x/y to get two equations for cx and cy
-    A = Mat( 2, 2, CV_64F, Ad );
-    b = Mat( 2, 1, CV_64F, bd );
-    x = Mat( 2, 1, CV_64F, rp );
+    A = img_t* ( 2, 2, CC_64F, Ad );
+    b = img_t* ( 2, 1, CC_64F, bd );
+    x = img_t* ( 2, 1, CC_64F, rp );
     Ad[0] = 2 * gfp[0];
     Ad[1] = Ad[2] = gfp[2];
     Ad[3] = 2 * gfp[1];
@@ -361,12 +323,12 @@ cv::RotatedRect cv::fitEllipse( InputArray _points )
     solve( A, b, x, DECOMP_SVD );
 
     // re-fit for parameters A - C with those center coordinates
-    A = Mat( n, 3, CV_64F, Ad );
-    b = Mat( n, 1, CV_64F, bd );
-    x = Mat( 3, 1, CV_64F, gfp );
+    A = img_t* ( n, 3, CC_64F, Ad );
+    b = img_t* ( n, 1, CC_64F, bd );
+    x = img_t* ( 3, 1, CC_64F, gfp );
     for( i = 0; i < n; i++ )
     {
-        Point2f p = is_float ? ptsf[i] : Point2f((float)ptsi[i].x, (float)ptsi[i].y);
+        FPoint p = is_float ? ptsf[i] : fPoint((float)ptsi[i].x, (float)ptsi[i].y);
         p -= c;
         bd[i] = 1.0;
         Ad[i * 3] = (p.x - rp[0]) * (p.x - rp[0]);
@@ -395,36 +357,40 @@ cv::RotatedRect cv::fitEllipse( InputArray _points )
     if( box.size.width > box.size.height )
     {
         float tmp;
-        CV_SWAP( box.size.width, box.size.height, tmp );
-        box.angle = (float)(90 + rp[4]*180/CV_PI);
+        CC_SWAP( box.size.width, box.size.height, tmp );
+        box.angle = (float)(90 + rp[4]*180/CC_PI);
     }
     if( box.angle < -180 )
         box.angle += 360;
     if( box.angle > 360 )
         box.angle -= 360;
 
+    FREE(_Ad);
+    FREE(_bd);
     return box;
 }
 
-cv::RotatedRect cv::fitEllipseAMS( InputArray _points )
-{
-    Mat points = _points.getMat();
-    int i, n = points.checkVector(2);
-    int depth = points.depth();
-    CV_Assert( n >= 0 && (depth == CV_32F || depth == CV_32S));
+#if 0
 
-    RotatedRect box;
+CRotatedRect fitEllipseAMS( const img_t* _points )
+{
+    img_t*  points = _points->getMat();
+    int i, n = points->checkVector(2);
+    int depth = points->depth();
+    CC_Assert( n >= 0 && (depth == CC_32F || depth == CC_32S));
+
+    CRotatedRect box;
 
     if( n < 5 )
-        CV_Error( CV_StsBadSize, "There should be at least 5 points to fit the ellipse" );
+        CC_Error( CC_StsBadSize, "There should be at least 5 points to fit the ellipse" );
 
-    Point2f c(0,0);
+    FPoint c(0,0);
 
-    bool is_float = depth == CV_32F;
-    const Point* ptsi = points.ptr<Point>();
-    const Point2f* ptsf = points.ptr<Point2f>();
+    bool is_float = depth == CC_32F;
+    const IPoint* ptsi = points->ptr<IPoint>();
+    const FPoint* ptsf = points->ptr<FPoint>();
 
-    Mat A( n, 6, CV_64F);
+    img_t*  A( n, 6, CC_64F);
     Matx<double, 6, 6> DM;
     Matx<double, 5, 5> M;
     Matx<double, 5, 1> pVec;
@@ -434,7 +400,7 @@ cv::RotatedRect cv::fitEllipseAMS( InputArray _points )
 
     for( i = 0; i < n; i++ )
     {
-        Point2f p = is_float ? ptsf[i] : Point2f((float)ptsi[i].x, (float)ptsi[i].y);
+        FPoint p = is_float ? ptsf[i] : fPoint((float)ptsi[i].x, (float)ptsi[i].y);
         c += p;
     }
     c.x /= (float)n;
@@ -442,7 +408,7 @@ cv::RotatedRect cv::fitEllipseAMS( InputArray _points )
 
     for( i = 0; i < n; i++ )
     {
-        Point2f p = is_float ? ptsf[i] : Point2f((float)ptsi[i].x, (float)ptsi[i].y);
+        FPoint p = is_float ? ptsf[i] : fPoint((float)ptsi[i].x, (float)ptsi[i].y);
         p -= c;
 
         A.at<double>(i,0) = (double)(p.x)*(p.x);
@@ -452,7 +418,7 @@ cv::RotatedRect cv::fitEllipseAMS( InputArray _points )
         A.at<double>(i,4) = (double)p.y;
         A.at<double>(i,5) = 1.0;
     }
-    cv::mulTransposed( A, DM, true, noArray(), 1.0, -1 );
+    mulTransposed( A, DM, true, noArray(), 1.0, -1 );
     DM *= (1.0/n);
     double dnm = ( DM(2,5)*(DM(0,5) + DM(2,5)) - (DM(1,5)*DM(1,5)) );
     double ddm =  (4.*(DM(0,5) + DM(2,5))*( (DM(0,5)*DM(2,5)) - (DM(1,5)*DM(1,5))));
@@ -490,8 +456,8 @@ cv::RotatedRect cv::fitEllipseAMS( InputArray _points )
     M(4,3)=DM(3,4);
     M(4,4)=DM(4,4);
 
-    if (fabs(cv::determinant(M)) > 1.0e-10) {
-            Mat eVal, eVec;
+    if (fabs(determinant(M)) > 1.0e-10) {
+            img_t*  eVal, eVec;
             eigenNonSymmetric(M, eVal, eVec);
 
             // Select the eigen vector {a,b,c,d,e} which has the lowest eigenvalue
@@ -552,10 +518,10 @@ cv::RotatedRect cv::fitEllipseAMS( InputArray _points )
                 if (pVec(0)  < pVec(2) ) {
                     theta = 0;
                 } else {
-                    theta = CV_PI/2.;
+                    theta = CC_PI/2.;
                 }
             } else {
-                theta = CV_PI/2. + 0.5*std::atan2(pVec(1) , (pVec(0)  - pVec(2) ));
+                theta = CC_PI/2. + 0.5*std::atan2(pVec(1) , (pVec(0)  - pVec(2) ));
             }
 
             box.center.x = (float)x0; // +c.x;
@@ -565,42 +531,42 @@ cv::RotatedRect cv::fitEllipseAMS( InputArray _points )
             if( box.size.width > box.size.height )
             {
                 float tmp;
-                CV_SWAP( box.size.width, box.size.height, tmp );
-                box.angle = (float)(90 + theta*180/CV_PI);
+                CC_SWAP( box.size.width, box.size.height, tmp );
+                box.angle = (float)(90 + theta*180/CC_PI);
             } else {
-                box.angle = (float)(fmod(theta*180/CV_PI,180.0));
+                box.angle = (float)(fmod(theta*180/CC_PI,180.0));
             };
 
 
         } else {
-            box = cv::fitEllipseDirect( points );
+            box = fitEllipseDirect( points );
         }
     } else {
-        box = cv::fitEllipse( points );
+        box = fitEllipse( points );
     }
 
     return box;
 }
 
-cv::RotatedRect cv::fitEllipseDirect( InputArray _points )
+CRotatedRect fitEllipseDirect( const img_t* _points )
 {
-    Mat points = _points.getMat();
-    int i, n = points.checkVector(2);
-    int depth = points.depth();
-    CV_Assert( n >= 0 && (depth == CV_32F || depth == CV_32S));
+    img_t*  points = _points->getMat();
+    int i, n = points->checkVector(2);
+    int depth = points->depth();
+    CC_Assert( n >= 0 && (depth == CC_32F || depth == CC_32S));
 
-    RotatedRect box;
+    CRotatedRect box;
 
     if( n < 5 )
-        CV_Error( CV_StsBadSize, "There should be at least 5 points to fit the ellipse" );
+        CC_Error( CC_StsBadSize, "There should be at least 5 points to fit the ellipse" );
 
-    Point2f c(0,0);
+    FPoint c(0,0);
 
-    bool is_float = (depth == CV_32F);
-    const Point*   ptsi = points.ptr<Point>();
-    const Point2f* ptsf = points.ptr<Point2f>();
+    bool is_float = (depth == CC_32F);
+    const IPoint*   ptsi = points->ptr<IPoint>();
+    const FPoint* ptsf = points->ptr<FPoint>();
 
-    Mat A( n, 6, CV_64F);
+    img_t*  A( n, 6, CC_64F);
     Matx<double, 6, 6> DM;
     Matx33d M, TM, Q;
     Matx<double, 3, 1> pVec;
@@ -609,7 +575,7 @@ cv::RotatedRect cv::fitEllipseDirect( InputArray _points )
 
     for( i = 0; i < n; i++ )
     {
-        Point2f p = is_float ? ptsf[i] : Point2f((float)ptsi[i].x, (float)ptsi[i].y);
+        FPoint p = is_float ? ptsf[i] : fPoint((float)ptsi[i].x, (float)ptsi[i].y);
         c += p;
     }
     c.x /= (float)n;
@@ -617,7 +583,7 @@ cv::RotatedRect cv::fitEllipseDirect( InputArray _points )
 
     for( i = 0; i < n; i++ )
     {
-        Point2f p = is_float ? ptsf[i] : Point2f((float)ptsi[i].x, (float)ptsi[i].y);
+        FPoint p = is_float ? ptsf[i] : fPoint((float)ptsi[i].x, (float)ptsi[i].y);
         p -= c;
 
         A.at<double>(i,0) = (double)(p.x)*(p.x);
@@ -627,7 +593,7 @@ cv::RotatedRect cv::fitEllipseDirect( InputArray _points )
         A.at<double>(i,4) = (double)p.y;
         A.at<double>(i,5) = 1.0;
     }
-    cv::mulTransposed( A, DM, true, noArray(), 1.0, -1 );
+    mulTransposed( A, DM, true, noArray(), 1.0, -1 );
     DM *= (1.0/n);
 
     TM(0,0) = DM(0,5)*DM(3,5)*DM(4,4) - DM(0,5)*DM(3,4)*DM(4,5) - DM(0,4)*DM(3,5)*DM(5,4) + \
@@ -662,8 +628,8 @@ cv::RotatedRect cv::fitEllipseDirect( InputArray _points )
     M(2,1) = (DM(0,1) + (DM(0,3)*TM(0,1) + DM(0,4)*TM(1,1) + DM(0,5)*TM(2,1))/Ts)/2.;
     M(2,2) = (DM(0,2) + (DM(0,3)*TM(0,2) + DM(0,4)*TM(1,2) + DM(0,5)*TM(2,2))/Ts)/2.;
 
-    if (fabs(cv::determinant(M)) > 1.0e-10) {
-        Mat eVal, eVec;
+    if (fabs(determinant(M)) > 1.0e-10) {
+        img_t*  eVal, eVec;
         eigenNonSymmetric(M, eVal, eVec);
 
         // Select the eigen vector {a,b,c} which satisfies 4ac-b^2 > 0
@@ -705,10 +671,10 @@ cv::RotatedRect cv::fitEllipseDirect( InputArray _points )
             if (pVec(0)  < pVec(2) ) {
                 theta = 0;
             } else {
-                theta = CV_PI/2.;
+                theta = CC_PI/2.;
             }
         } else {
-                theta = CV_PI/2. + 0.5*std::atan2(pVec(1) , (pVec(0)  - pVec(2) ));
+                theta = CC_PI/2. + 0.5*std::atan2(pVec(1) , (pVec(0)  - pVec(2) ));
         }
 
         box.center.x = (float)x0;
@@ -718,39 +684,37 @@ cv::RotatedRect cv::fitEllipseDirect( InputArray _points )
         if( box.size.width > box.size.height )
         {
             float tmp;
-            CV_SWAP( box.size.width, box.size.height, tmp );
-            box.angle = (float)(fmod((90 + theta*180/CV_PI),180.0)) ;
+            CC_SWAP( box.size.width, box.size.height, tmp );
+            box.angle = (float)(fmod((90 + theta*180/CC_PI),180.0)) ;
         } else {
-            box.angle = (float)(fmod(theta*180/CV_PI,180.0));
+            box.angle = (float)(fmod(theta*180/CC_PI,180.0));
         };
     } else {
-        box = cv::fitEllipse( points );
+        box = fitEllipse( points );
     }
     return box;
 }
 
 
-namespace cv
-{
 
 // Calculates bounding rectagnle of a point set or retrieves already calculated
-static Rect pointSetBoundingRect( const Mat& points )
+static Rect pointSetBoundingRect( const img_t* & points )
 {
-    int npoints = points.checkVector(2);
-    int depth = points.depth();
-    CV_Assert(npoints >= 0 && (depth == CV_32F || depth == CV_32S));
+    int npoints = points->checkVector(2);
+    int depth = points->depth();
+    CC_Assert(npoints >= 0 && (depth == CC_32F || depth == CC_32S));
 
     int  xmin = 0, ymin = 0, xmax = -1, ymax = -1, i;
-    bool is_float = depth == CV_32F;
+    bool is_float = depth == CC_32F;
 
     if( npoints == 0 )
         return Rect();
 
-    const Point* pts = points.ptr<Point>();
-    Point pt = pts[0];
+    const IPoint* pts = points->ptr<IPoint>();
+    IPoint pt = pts[0];
 
-#if CV_SSE4_2
-    if(cv::checkHardwareSupport(CV_CPU_SSE4_2))
+#if CC_SSE4_2
+    if(checkHardwareSupport(CC_CPU_SSE4_2))
     {
         if( !is_float )
         {
@@ -819,14 +783,14 @@ static Rect pointSetBoundingRect( const Mat& points )
         {
             Cv32suf v;
             // init values
-            xmin = xmax = CV_TOGGLE_FLT(pt.x);
-            ymin = ymax = CV_TOGGLE_FLT(pt.y);
+            xmin = xmax = CC_TOGGLE_FLT(pt.x);
+            ymin = ymax = CC_TOGGLE_FLT(pt.y);
 
             for( i = 1; i < npoints; i++ )
             {
                 pt = pts[i];
-                pt.x = CV_TOGGLE_FLT(pt.x);
-                pt.y = CV_TOGGLE_FLT(pt.y);
+                pt.x = CC_TOGGLE_FLT(pt.x);
+                pt.y = CC_TOGGLE_FLT(pt.y);
 
                 if( xmin > pt.x )
                     xmin = pt.x;
@@ -841,12 +805,12 @@ static Rect pointSetBoundingRect( const Mat& points )
                     ymax = pt.y;
             }
 
-            v.i = CV_TOGGLE_FLT(xmin); xmin = cvFloor(v.f);
-            v.i = CV_TOGGLE_FLT(ymin); ymin = cvFloor(v.f);
+            v.i = CC_TOGGLE_FLT(xmin); xmin = cvFloor(v.f);
+            v.i = CC_TOGGLE_FLT(ymin); ymin = cvFloor(v.f);
             // because right and bottom sides of the bounding rectangle are not inclusive
             // (note +1 in width and height calculation below), cvFloor is used here instead of cvCeil
-            v.i = CV_TOGGLE_FLT(xmax); xmax = cvFloor(v.f);
-            v.i = CV_TOGGLE_FLT(ymax); ymax = cvFloor(v.f);
+            v.i = CC_TOGGLE_FLT(xmax); xmax = cvFloor(v.f);
+            v.i = CC_TOGGLE_FLT(ymax); ymax = cvFloor(v.f);
         }
     }
 
@@ -854,9 +818,9 @@ static Rect pointSetBoundingRect( const Mat& points )
 }
 
 
-static Rect maskBoundingRect( const Mat& img )
+static Rect maskBoundingRect( const img_t* & img )
 {
-    CV_Assert( img.depth() <= CV_8S && img.channels() == 1 );
+    CC_Assert( img.depth() <= CC_8S && img.channels() == 1 );
 
     Size size = img.size();
     int xmin = size.width, ymin = -1, xmax = -1, ymax = -1, i, j, k;
@@ -947,27 +911,27 @@ static Rect maskBoundingRect( const Mat& img )
     return Rect(xmin, ymin, xmax - xmin + 1, ymax - ymin + 1);
 }
 
-}
 
-cv::Rect cv::boundingRect(InputArray array)
+
+Rect boundingRect(const img_t* array)
 {
-    CV_INSTRUMENT_REGION()
+    CC_INSTRUMENT_REGION()
 
-    Mat m = array.getMat();
-    return m.depth() <= CV_8U ? maskBoundingRect(m) : pointSetBoundingRect(m);
+    img_t*  m = array.getMat();
+    return m.depth() <= CC_8U ? maskBoundingRect(m) : pointSetBoundingRect(m);
 }
 
 ////////////////////////////////////////////// C API ///////////////////////////////////////////
 
-CV_IMPL int
+CC_IMPL int
 cvMinEnclosingCircle( const void* array, CvPoint2D32f * _center, float *_radius )
 {
-    cv::AutoBuffer<double> abuf;
-    cv::Mat points = cv::cvarrToMat(array, false, false, 0, &abuf);
-    cv::Point2f center;
+    AutoBuffer<double> abuf;
+    img_t*  points = cvarrToMat(array, false, false, 0, &abuf);
+    FPoint center;
     float radius;
 
-    cv::minEnclosingCircle(points, center, radius);
+    minEnclosingCircle(points, center, radius);
     if(_center)
         *_center = center;
     if(_radius)
@@ -978,7 +942,7 @@ cvMinEnclosingCircle( const void* array, CvPoint2D32f * _center, float *_radius 
 static void
 icvMemCopy( double **buf1, double **buf2, double **buf3, int *b_max )
 {
-    CV_Assert( (*buf1 != NULL || *buf2 != NULL) && *buf3 != NULL );
+    CC_Assert( (*buf1 != NULL || *buf2 != NULL) && *buf3 != NULL );
 
     int bb = *b_max;
     if( *buf2 == NULL )
@@ -1022,7 +986,7 @@ static double icvContourSecArea( CvSeq * contour, CvSlice slice )
     double *p_are1, *p_are2, *p_are;
     double area = 0;
 
-    CV_Assert( contour != NULL && CV_IS_SEQ_POINT_SET( contour ));
+    CC_Assert( contour != NULL && CC_IS_SEQ_POINT_SET( contour ));
 
     lpt = cvSliceLength( slice, contour );
     /*if( n2 >= n1 )
@@ -1044,10 +1008,10 @@ static double icvContourSecArea( CvSeq * contour, CvSlice slice )
 
     cvStartReadSeq( contour, &reader, 0 );
     cvSetSeqReaderPos( &reader, slice.start_index );
-    CV_READ_SEQ_ELEM( pt_s, reader );
+    CC_READ_SEQ_ELEM( pt_s, reader );
     p_ind = 0;
     cvSetSeqReaderPos( &reader, slice.end_index );
-    CV_READ_SEQ_ELEM( pt_e, reader );
+    CC_READ_SEQ_ELEM( pt_e, reader );
 
 /*    normal coefficients    */
     nx = pt_s.y - pt_e.y;
@@ -1056,7 +1020,7 @@ static double icvContourSecArea( CvSeq * contour, CvSlice slice )
 
     while( lpt-- > 0 )
     {
-        CV_READ_SEQ_ELEM( pt, reader );
+        CC_READ_SEQ_ELEM( pt, reader );
 
         if( flag == 0 )
         {
@@ -1166,7 +1130,7 @@ static double icvContourSecArea( CvSeq * contour, CvSlice slice )
 
 
 /* external contour area function */
-CV_IMPL double
+CC_IMPL double
 cvContourArea( const void *array, CvSlice slice, int oriented )
 {
     double area = 0;
@@ -1175,26 +1139,26 @@ cvContourArea( const void *array, CvSlice slice, int oriented )
     CvSeq* contour = 0;
     CvSeqBlock block;
 
-    if( CV_IS_SEQ( array ))
+    if( CC_IS_SEQ( array ))
     {
         contour = (CvSeq*)array;
-        if( !CV_IS_SEQ_POLYLINE( contour ))
-            CV_Error( CV_StsBadArg, "Unsupported sequence type" );
+        if( !CC_IS_SEQ_POLYLINE( contour ))
+            CC_Error( CC_StsBadArg, "Unsupported sequence type" );
     }
     else
     {
-        contour = cvPointSeqFromMat( CV_SEQ_KIND_CURVE, array, &contour_header, &block );
+        contour = cvPointSeqFromMat( CC_SEQ_KIND_CURVE, array, &contour_header, &block );
     }
 
     if( cvSliceLength( slice, contour ) == contour->total )
     {
-        cv::AutoBuffer<double> abuf;
-        cv::Mat points = cv::cvarrToMat(contour, false, false, 0, &abuf);
-        return cv::contourArea( points, oriented !=0 );
+        AutoBuffer<double> abuf;
+        img_t*  points = cvarrToMat(contour, false, false, 0, &abuf);
+        return contourArea( points, oriented !=0 );
     }
 
-    if( CV_SEQ_ELTYPE( contour ) != CV_32SC2 )
-        CV_Error( CV_StsUnsupportedFormat,
+    if( CC_SEQ_ELTYPE( contour ) != CC_32SC2 )
+        CC_Error( CC_StsUnsupportedFormat,
         "Only curves with integer coordinates are supported in case of contour slice" );
     area = icvContourSecArea( contour, slice );
     return oriented ? area : fabs(area);
@@ -1202,7 +1166,7 @@ cvContourArea( const void *array, CvSlice slice, int oriented )
 
 
 /* calculates length of a curve (e.g. contour perimeter) */
-CV_IMPL  double
+CC_IMPL  double
 cvArcLength( const void *array, CvSlice slice, int is_closed )
 {
     double perimeter = 0;
@@ -1210,31 +1174,31 @@ cvArcLength( const void *array, CvSlice slice, int is_closed )
     int i, j = 0, count;
     const int N = 16;
     float buf[N];
-    CvMat buffer = cvMat( 1, N, CV_32F, buf );
+    CvMat buffer = cvMat( 1, N, CC_32F, buf );
     CvSeqReader reader;
     CvContour contour_header;
     CvSeq* contour = 0;
     CvSeqBlock block;
 
-    if( CV_IS_SEQ( array ))
+    if( CC_IS_SEQ( array ))
     {
         contour = (CvSeq*)array;
-        if( !CV_IS_SEQ_POLYLINE( contour ))
-            CV_Error( CV_StsBadArg, "Unsupported sequence type" );
+        if( !CC_IS_SEQ_POLYLINE( contour ))
+            CC_Error( CC_StsBadArg, "Unsupported sequence type" );
         if( is_closed < 0 )
-            is_closed = CV_IS_SEQ_CLOSED( contour );
+            is_closed = CC_IS_SEQ_CLOSED( contour );
     }
     else
     {
         is_closed = is_closed > 0;
         contour = cvPointSeqFromMat(
-                                    CV_SEQ_KIND_CURVE | (is_closed ? CV_SEQ_FLAG_CLOSED : 0),
+                                    CC_SEQ_KIND_CURVE | (is_closed ? CC_SEQ_FLAG_CLOSED : 0),
                                     array, &contour_header, &block );
     }
 
     if( contour->total > 1 )
     {
-        int is_float = CV_SEQ_ELTYPE( contour ) == CV_32FC2;
+        int is_float = CC_SEQ_ELTYPE( contour ) == CC_32FC2;
 
         cvStartReadSeq( contour, &reader, 0 );
         cvSetSeqReaderPos( &reader, slice.start_index );
@@ -1244,7 +1208,7 @@ cvArcLength( const void *array, CvSlice slice, int is_closed )
 
         // scroll the reader by 1 point
         reader.prev_elem = reader.ptr;
-        CV_NEXT_SEQ_ELEM( sizeof(CvPoint), reader );
+        CC_NEXT_SEQ_ELEM( sizeof(CvPoint), reader );
 
         for( i = 0; i < count; i++ )
         {
@@ -1268,9 +1232,9 @@ cvArcLength( const void *array, CvSlice slice, int is_closed )
             }
 
             reader.prev_elem = reader.ptr;
-            CV_NEXT_SEQ_ELEM( contour->elem_size, reader );
+            CC_NEXT_SEQ_ELEM( contour->elem_size, reader );
             // Bugfix by Axel at rubico.com 2010-03-22, affects closed slices only
-            // wraparound not handled by CV_NEXT_SEQ_ELEM
+            // wraparound not handled by CC_NEXT_SEQ_ELEM
             if( is_closed && i == count - 2 )
                 cvSetSeqReaderPos( &reader, slice.start_index );
 
@@ -1289,16 +1253,16 @@ cvArcLength( const void *array, CvSlice slice, int is_closed )
 }
 
 
-CV_IMPL CvBox2D
+CC_IMPL CvBox2D
 cvFitEllipse2( const CvArr* array )
 {
-    cv::AutoBuffer<double> abuf;
-    cv::Mat points = cv::cvarrToMat(array, false, false, 0, &abuf);
-    return cv::fitEllipse(points);
+    AutoBuffer<double> abuf;
+    img_t*  points = cvarrToMat(array, false, false, 0, &abuf);
+    return fitEllipse(points);
 }
 
 /* Calculates bounding rectagnle of a point set or retrieves already calculated */
-CV_IMPL  CvRect
+CC_IMPL  CvRect
 cvBoundingRect( CvArr* array, int update )
 {
     CvRect  rect;
@@ -1309,11 +1273,11 @@ cvBoundingRect( CvArr* array, int update )
     CvMat stub, *mat = 0;
     int calculate = update;
 
-    if( CV_IS_SEQ( array ))
+    if( CC_IS_SEQ( array ))
     {
         ptseq = (CvSeq*)array;
-        if( !CV_IS_SEQ_POINT_SET( ptseq ))
-            CV_Error( CV_StsBadArg, "Unsupported sequence type" );
+        if( !CC_IS_SEQ_POINT_SET( ptseq ))
+            CC_Error( CC_StsBadArg, "Unsupported sequence type" );
 
         if( ptseq->header_size < (int)sizeof(CvContour))
         {
@@ -1324,15 +1288,15 @@ cvBoundingRect( CvArr* array, int update )
     else
     {
         mat = cvGetMat( array, &stub );
-        if( CV_MAT_TYPE(mat->type) == CV_32SC2 ||
-            CV_MAT_TYPE(mat->type) == CV_32FC2 )
+        if( CC_MAT_TYPE(mat->type) == CC_32SC2 ||
+            CC_MAT_TYPE(mat->type) == CC_32FC2 )
         {
-            ptseq = cvPointSeqFromMat(CV_SEQ_KIND_GENERIC, mat, &contour_header, &block);
+            ptseq = cvPointSeqFromMat(CC_SEQ_KIND_GENERIC, mat, &contour_header, &block);
             mat = 0;
         }
-        else if( CV_MAT_TYPE(mat->type) != CV_8UC1 &&
-                CV_MAT_TYPE(mat->type) != CV_8SC1 )
-            CV_Error( CV_StsUnsupportedFormat,
+        else if( CC_MAT_TYPE(mat->type) != CC_8UC1 &&
+                CC_MAT_TYPE(mat->type) != CC_8SC1 )
+            CC_Error( CC_StsUnsupportedFormat,
                 "The image/matrix format is not supported by the function" );
         update = 0;
         calculate = 1;
@@ -1343,12 +1307,12 @@ cvBoundingRect( CvArr* array, int update )
 
     if( mat )
     {
-        rect = cv::maskBoundingRect(cv::cvarrToMat(mat));
+        rect = maskBoundingRect(cvarrToMat(mat));
     }
     else if( ptseq->total )
     {
-        cv::AutoBuffer<double> abuf;
-        rect = cv::pointSetBoundingRect(cv::cvarrToMat(ptseq, false, false, 0, &abuf));
+        AutoBuffer<double> abuf;
+        rect = pointSetBoundingRect(cvarrToMat(ptseq, false, false, 0, &abuf));
     }
     if( update )
         ((CvContour*)ptseq)->rect = rect;
@@ -1356,3 +1320,5 @@ cvBoundingRect( CvArr* array, int update )
 }
 
 /* End of file. */
+
+#endif

@@ -1,5 +1,4 @@
 
-
 int learnable_params(vector<Blob* >& out) {
   out.resize(0);
   for (int i = 0; i < layers_.size(); ++i) {
@@ -99,7 +98,8 @@ int FromProto(CJSON* param) {
   Net* net = this;
   CJSON* layers_json = param->GetObjectItem("layers");
   int ret = 0;
-  net->param_ = param;
+  //net->param_ = param;
+  solver_param.init(param);
   if (layers_json) {
     int layer_size = layers_json->GetArraySize();
     //net->reset(n);

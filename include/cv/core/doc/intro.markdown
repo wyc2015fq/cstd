@@ -177,7 +177,7 @@ compact, 8- or 16-bit per channel, form and thus have a limited value range. Fur
 operations on images, like color space conversions, brightness/contrast adjustments, sharpening,
 complex interpolation (bi-cubic, Lanczos) can produce values out of the available range. If you just
 store the lowest 8 (16) bits of the result, this results in visual artifacts and may affect a
-further image analysis. To solve this problem, the so-called *saturation* arithmetics is used. For
+further image analysis. To  this problem, the so-called *saturation* arithmetics is used. For
 example, to store r, the result of an operation, to an 8-bit image, you find the nearest value
 within the 0..255 range:
 

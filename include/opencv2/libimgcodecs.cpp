@@ -16,7 +16,7 @@
 #include "imgcodecs\src\grfmt_tiff.cpp"
 #include "imgcodecs\src\grfmt_webp.cpp"
 #include "imgcodecs\src\loadsave.cpp"
+#endif
 #include "imgcodecs\src\rgbe.cpp"
 #include "imgcodecs\src\utils.cpp"
-#endif
 #include "imgcodecs\src\imgcodecs_stb.cpp"

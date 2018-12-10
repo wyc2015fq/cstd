@@ -316,9 +316,9 @@ bool binary_to_compressed_c(const char* filename, FILE* out, const char* symbol,
   FILE* f = fopen(filename, "rb");
   if (!f) return false;
   if (fseek(f, 0, SEEK_END) || (data_sz = (int)ftell(f)) == -1 || fseek(f, 0, SEEK_SET)) { fclose(f); return false; }
-  data = (char*)pmalloc(data_sz+4);
+  data = (char*)malloc(data_sz+4);
   if (fread(data, 1, data_sz, f) != (size_t)data_sz) {
-    fclose(f); pfree(data);
+    fclose(f); free(data);
     return false;
   }
   memset((void *)(((char*)data) + data_sz), 0, 4);
@@ -326,7 +326,7 @@ bool binary_to_compressed_c(const char* filename, FILE* out, const char* symbol,
   
   // Compress
   maxlen = data_sz + 512 + (data_sz >> 2) + sizeof(int); // total guess
-  compressed = use_compression ? (char*)pmalloc(maxlen) : data;
+  compressed = use_compression ? (char*)malloc(maxlen) : data;
   compressed_sz = use_compression ? stb_compress((stb_uchar*)compressed, (stb_uchar*)data, data_sz) : data_sz;
   if (use_compression)
     memset(compressed + compressed_sz, 0, maxlen - compressed_sz);
@@ -372,9 +372,9 @@ bool binary_to_compressed_c(const char* filename, FILE* out, const char* symbol,
   }
   
   // Cleanup
-  pfree(data);
+  free(data);
   if (use_compression)
-    pfree(compressed);
+    free(compressed);
   fflush(out);
   return true;
 }
@@ -523,7 +523,8 @@ int test_binary_to_compressed_c(int argc, char** argv)
   return 1;
 }
 
-#include "cfile.h"
+#if 0
+//#include "cfile.h"
 static const char compress_header[16] = "comp01";
 
 int compress_load(const char* fname, buf_t* bf) {
@@ -553,5 +554,6 @@ int compress_save(const char* fname, const void* data, int len) {
   }
   return 0;
 }
+#endif
 
 #endif // __COMPRESS_INL__

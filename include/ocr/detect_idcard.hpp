@@ -2,11 +2,6 @@
 #include "wstd/filesystem.hpp"
 //#include <iostream>
 #include "test_sub_match.hpp"
-#include "face/face.inl"
-#include "face/cascadearr.h"
-//#include "face/face_recog.inl"
-#include "face/face.inl"
-#include "face/cascadearr.h"
 //#include "face/DSP_feat.h"
 using namespace std;
 
@@ -35,12 +30,15 @@ RotatedRect face_rect_to_card_rect(const RotatedRect& face, double y_off_scale, 
   return RotatedRect(end, Size2f(w * 6* scalex, w * 4 * scaley), face.angle);
 }
 
+int face_detect(int height, int width, const unsigned char* data, int datastep,
+  const unsigned char* mask, int maskstep, double sc, double ssmin, double ssmax, double ss, int stepxy,
+  double thd, int mincnt, int* xywh, int xywh_len, int is_trans);
+
 struct FaceDetector {
   vector<RotatedRect> rects;
   int run(const Mat& src) {
-    buf_t bf[1] = { 0 };
-    bfsetsize(bf, 50 * _1M);
-    XRECT out[100];
+    //buf_t bf[1] = { 0 };
+    int out[600];
     rects.resize(0);
     Mat gray;
     //vector<Mat> vv;
@@ -49,11 +47,11 @@ struct FaceDetector {
       //vv.push_back(gray.clone());
       int n;
       double ss = 300. / gray.rows;
-      n = face_detect(bf, vis_nesting_face20110713, gray.rows, gray.cols, gray.data, gray.step1(),
+      n = face_detect(gray.rows, gray.cols, gray.data, gray.step1(),
         0, 0, ss, 1, 1000, 1.1, 1, 0.8, 5, out, countof(out), 0);
       for (int j = 0; j < n; j++) {
-        const XRECT& r = out[j];
-        RotatedRect rr(Point2f(r.x + r.w *0.5, r.y + r.h *0.5), Size2f(r.w, r.h), 0);
+        int x = out[j * 4 + 0], y = out[j * 4 + 1], w = out[j * 4 + 2], h = out[j * 4 + 3];
+        RotatedRect rr(Point2f(x + w *0.5, y + h *0.5), Size2f(w, h), 0);
         cv::Point2f center(gray.cols / 2., gray.rows / 2.);
 
         rr = rect_rotate90(rr, Size(gray.cols, gray.rows), -i);
@@ -62,7 +60,6 @@ struct FaceDetector {
     }
     //cv::imshow("srcImage", mergeImgs(10, 0, 200, vv));
     //cv::waitKey(0);
-    bffree(bf);
     return rects.size();
   }
 };

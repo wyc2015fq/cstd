@@ -259,9 +259,9 @@ void FUN(adagrad_update)(int N, Dtype* g, Dtype* h, Stype delta, Stype local_rat
 void FUN(adam_update)(int N, Dtype* g, Dtype* m, Dtype* v, Stype beta1,
   Stype beta2, Stype eps_hat, Stype corrected_local_rate) {
   CPU_KERNEL_LOOP(i, N) {
-    Stype gi = g[i];
-    Stype mi = m[i] = m[i] * beta1 + gi*(1 - beta1);
-    Stype vi = v[i] = v[i] * beta2 + gi*gi*(1 - beta2);
+    Dtype gi = g[i];
+    Dtype mi = m[i] = (Dtype)(m[i] * beta1 + gi*(1 - beta1));
+    Dtype vi = v[i] = (Dtype)(v[i] * beta2 + gi*gi*(1 - beta2));
     g[i] = corrected_local_rate * mi / (sqrt(vi) + eps_hat);
   }
 }

@@ -115,9 +115,9 @@ int test_detect_idcard()
   //return test_myfindContours();
   //int k;
   RNG rng(12345);
-  Mat::convertTo;
+  //Mat::convertTo;
   Rect r;
-  r.center;
+  //r.center;
   /// ¼ÓÔØÔ´Í¼Ïñ
   string im_dir = "E:/data/ew_id/we-loan.oss-cn-shanghai.aliyuncs.com/";
   string fn = im_dir + "upload/backend/20160927235243069-2951.jpg";

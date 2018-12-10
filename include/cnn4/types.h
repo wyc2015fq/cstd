@@ -305,5 +305,13 @@ static const char* VarianceNorm_Name[] = {
 };
 
 ///////////////////////////////////////////////////
+enum RegularizationType {
+  RegularizationType_L1, RegularizationType_L2,
+};
+static const char* RegularizationType_Name[] = {
+  "L1", "L2",
+};
+
+///////////////////////////////////////////////////
 
 #endif // _CNN4_TYPES_H_

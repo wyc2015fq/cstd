@@ -1,9 +1,9 @@
-#include "highgui\src\roiSelector.cpp"
-#include "highgui\src\window.cpp"
+#include "highgui\roiSelector.cpp"
+#include "highgui\window.cpp"
 
 
 #ifdef _WIN32
-#include "highgui\src\window_w32.cpp"
+#include "highgui\window_w32.cpp"
 #endif
 
 #if 0

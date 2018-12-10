@@ -457,6 +457,7 @@ void Hsv2Rgb(float H, float S, float V, float& R, float& G, float& B)
 #define CC_MAT_TYPE(type)          (type)
 #define CC_MAT_DEPTH(type)         CC_TYPECN_TYPE(type)
 #define CC_MAT_CN(type)            CC_TYPECN_CN(type)
+#define CC_ELEM_SIZE(type)         (CC_TYPECN_CN(type) * CC_TYPE_SIZE(CC_TYPECN_TYPE(type)))
 #endif
 #define CC_MAT_TOTAL(mat)         ((mat)->rows * (mat)->cols)
 #define CC_MAT_ELEM( mat, elemtype, row, col ) *img_at(elemtype, mat, row, col)
@@ -479,7 +480,7 @@ void Hsv2Rgb(float H, float S, float V, float& R, float& G, float& B)
 0x124489 = 1000 0100 0100 0010 0010 0001 0001 ~ array of sizeof(arr_type_elem) */
 //#define CC_ELEM_SIZE1(mat)   cvTypeSize(mat->tid)
 #define CC_ELEMTYPE_SIZE(mat)   cvTypeSize(mat->tid)
-#define CC_ELEM_SIZE_(mat)      mat->c
+//#define CC_ELEM_SIZE_(mat)      mat->c
 //#define CC_ELEM_SIZE(type)   (CC_ELEM_SIZE1(mat)*(mat)->c)
 /* 0x3a50 = 11 10 10 01 01 00 00 ~ array of log2(sizeof(arr_type_elem)) */
 #define CC_MAT_ELEM_PTR( mat, row, col )   CC_MAT_ELEM_PTR_FAST( mat, row, col, CC_ELEM_SIZE((mat).type) )
@@ -574,7 +575,8 @@ struct img_t {
   TypeId depth() const { return t; }
   int channels() const { return _MAT_CN(this->c, this->t); }
   ISize size() const { return iSIZE(w, h); }
-  img_t* create(ISize size, int type) {    return imcreate(this, size, type, NULL, 0);  }
+  img_t* create(ISize size, int type) { return imcreate(this, size, type, NULL, 0); }
+  img_t* create(int rows, int cols, int type) { return imcreate(this, iSize(cols, rows), type, NULL, 0); }
   img_t& getMat() { return *this; }
   const img_t& getMat() const { return *this; }
   bool isSubmatrix() const { return false; }
@@ -585,16 +587,29 @@ struct img_t {
   img_t* convertTo(img_t* _dst, TypeId _type, double alpha=1, double beta = 0) const {
     return imconvert(this, _dst, _type, alpha, beta);
   }
-  template <typename T> T* ptr() { return (T*)data; }
-  template <typename T> const T* ptr() const { return (const T*)data; }
-  template <typename T> T at(int row, int col) const { return *img_at(T, this, row, col); }
+  size_t total() const { return h*w; }
+  int checkVector(int _elemChannels, TypeId _depth= CC_NUL, bool _requireContinuous = true) const
+  {
+    int dims = 2;
+    return data && (depth() == _depth || _depth <= 0) &&
+      (isContinuous() || !_requireContinuous) &&
+      ((dims == 2 && (((rows == 1 || cols == 1) && channels() == _elemChannels) ||
+      (cols == _elemChannels && channels() == 1)))
+         //||(dims == 3 && channels() == 1 && size.p[2] == _elemChannels && (size.p[0] == 1 || size.p[1] == 1) && (isContinuous() || step.p[1] == step.p[2] * size.p[2]))
+        )
+      ? (int)(total()*channels() / _elemChannels) : -1;
+  }
+
+  //template <typename T> T* ptr() { return (T*)data; }
+  //template <typename T> const T* ptr() const { return (const T*)data; }
+  //template <typename T> T at(int row, int col) const { return *img_at(T, this, row, col); }
 #endif
 };
 
 CC_INLINE int imfree(img_t* im)
 {
   if (im) {
-    if (im->tt.data && im->mem->free_) {
+    if (im->tt.data && im->mem && im->mem->free_) {
       //fastFree(im->tt.data);
       im->mem->free_(im->tt.data);
     }
@@ -633,8 +648,8 @@ img_t* imcreate(img_t* im, ISize size, int type, const void* data, int step) {
   int s = c*size.h;
   if (data) {
     step = MAX(step, s);
-    if (im->mem->free_) { im->mem->free_(im->data); }
-    IMINIT(im, size.height, size.width, im->tt.data, step, c, 1);
+    if (im->mem && im->mem->free_) { im->mem->free_(im->data); }
+    IMINIT(im, size.height, size.width, data, step, c, 1);
   }
   else {
     imsetsize(im, size.height, size.width, c, 1);

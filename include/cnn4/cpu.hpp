@@ -78,7 +78,8 @@ static void Free(Buffer* ptr) {
 static void cpu_ReAlloc(Buffer* ptr, size_t nbytes) {
   ptr->brew = CPU;
   if (ptr->size<nbytes) {
-    ptr->data = realloc(ptr->data, ptr->size = nbytes);
+    ptr->size = (int)nbytes;
+    ptr->data = realloc(ptr->data, nbytes);
   }
 }
 static void ReAlloc(Brew brew, Buffer* ptr, size_t nbytes) {

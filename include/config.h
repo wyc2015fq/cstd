@@ -18,7 +18,7 @@
 #define CPU_ONLY
 #endif
 #else
-//#define USE_CBLAS
+#define USE_CBLAS
 #endif
 
 

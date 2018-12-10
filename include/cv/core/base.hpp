@@ -82,6 +82,7 @@ enum Code {
 
 //! @addtogroup core_array
 //! @{
+#endif
 
 //! matrix decomposition types
 enum DecompTypes {
@@ -104,6 +105,7 @@ enum DecompTypes {
     \f$\texttt{src1}\cdot\texttt{dst}=\texttt{src2}\f$ */
     DECOMP_NORMAL   = 16
 };
+#if 0
 
 /** norm types
 

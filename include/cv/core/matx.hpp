@@ -183,9 +183,9 @@ public:
     //! invert the matrix
     Matx<_Tp, n, m> inv(int method=DECOMP_LU, bool *p_is_ok = NULL) const;
 
-    //! solve linear system
-    template<int l> Matx<_Tp, n, l> solve(const Matx<_Tp, m, l>& rhs, int flags=DECOMP_LU) const;
-    Vec<_Tp, n> solve(const Vec<_Tp, m>& rhs, int method) const;
+    //!  linear system
+    template<int l> Matx<_Tp, n, l> (const Matx<_Tp, m, l>& rhs, int flags=DECOMP_LU) const;
+    Vec<_Tp, n> (const Vec<_Tp, m>& rhs, int method) const;
 
     //! multiply two matrices element-wise
     Matx<_Tp, m, n> mul(const Matx<_Tp, m, n>& a) const;
@@ -890,9 +890,9 @@ Matx<_Tp, n, m> Matx<_Tp, m, n>::t() const
 }
 
 template<typename _Tp, int m, int n> inline
-Vec<_Tp, n> Matx<_Tp, m, n>::solve(const Vec<_Tp, m>& rhs, int method) const
+Vec<_Tp, n> Matx<_Tp, m, n>::(const Vec<_Tp, m>& rhs, int method) const
 {
-    Matx<_Tp, n, 1> x = solve((const Matx<_Tp, m, 1>&)(rhs), method);
+    Matx<_Tp, n, 1> x = ((const Matx<_Tp, m, 1>&)(rhs), method);
     return (Vec<_Tp, n>&)(x);
 }
 

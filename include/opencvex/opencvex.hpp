@@ -1,3 +1,5 @@
+#pragma warning(disable:4996)
+#pragma warning(disable:4018)
 
 #include <iostream>
 #include <opencv2/opencv.hpp>

@@ -1698,7 +1698,7 @@ void Core_InvertTest::prepare_to_validation( int )
 }
 
 
-///////////////// solve /////////////////////
+/////////////////  /////////////////////
 
 class Core_SolveTest : public Core_MatrixTest
 {
@@ -2781,7 +2781,7 @@ TEST(Core_SVD, flt)
     Mat A(6, 6, CV_32F, a);
     Mat B(6, 1, CV_32F, b);
     Mat X, B1;
-    solve(A, B, X, DECOMP_SVD);
+    (A, B, X, DECOMP_SVD);
     B1 = A*X;
     EXPECT_LE(cvtest::norm(B1, B, NORM_L2 + NORM_RELATIVE), FLT_EPSILON*10);
 }
@@ -3100,8 +3100,8 @@ TEST(Core_QR_Solver, accuracy64f)
     A = A*A.t();
     Mat solutionQR;
 
-    //solve system with square matrix
-    solve(A, B, solutionQR, DECOMP_QR);
+    // system with square matrix
+    (A, B, solutionQR, DECOMP_QR);
     EXPECT_LE(cvtest::norm(A*solutionQR, B, CV_RELATIVE_L2), FLT_EPSILON);
 
     A = Mat(m, n, CV_64F);
@@ -3109,24 +3109,24 @@ TEST(Core_QR_Solver, accuracy64f)
     rng.fill(A, RNG::NORMAL, mean, dev);
     rng.fill(B, RNG::NORMAL, mean, dev);
 
-    //solve normal system
-    solve(A, B, solutionQR, DECOMP_QR | DECOMP_NORMAL);
+    // normal system
+    (A, B, solutionQR, DECOMP_QR | DECOMP_NORMAL);
     EXPECT_LE(cvtest::norm(A.t()*(A*solutionQR), A.t()*B, CV_RELATIVE_L2), FLT_EPSILON);
 
-    //solve overdeterminated system as a least squares problem
+    // overdeterminated system as a least squares problem
     Mat solutionSVD;
-    solve(A, B, solutionQR, DECOMP_QR);
-    solve(A, B, solutionSVD, DECOMP_SVD);
+    (A, B, solutionQR, DECOMP_QR);
+    (A, B, solutionSVD, DECOMP_SVD);
     EXPECT_LE(cvtest::norm(solutionQR, solutionSVD, CV_RELATIVE_L2), FLT_EPSILON);
 
-    //solve system with singular matrix
+    // system with singular matrix
     A = Mat(10, 10, CV_64F);
     B = Mat(10, 1, CV_64F);
     rng.fill(A, RNG::NORMAL, mean, dev);
     rng.fill(B, RNG::NORMAL, mean, dev);
     for (int i = 0; i < A.cols; i++)
       A.at<double>(0, i) = A.at<double>(1, i);
-    ASSERT_FALSE(solve(A, B, solutionQR, DECOMP_QR));
+    ASSERT_FALSE((A, B, solutionQR, DECOMP_QR));
 }
 
 softdouble naiveExp(softdouble x)

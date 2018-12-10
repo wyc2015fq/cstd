@@ -135,7 +135,7 @@ namespace wstd {
   }
   static int split(vector<string>& resultStringVector, const string& srcStr, const std::string& delimStr, int minLen = 0) {
     const char* s = srcStr.c_str();
-    IRANGE r = iRANGE(0, srcStr.size()), b;
+    IRANGE r = iRANGE(0, (int)srcStr.size()), b;
     uchar delims_set[256] = { 0 };
     uchar trims_set[256] = { 0 };
     get_delims_set(delims_set, delimStr.c_str());

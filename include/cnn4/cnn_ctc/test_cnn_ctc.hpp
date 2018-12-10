@@ -408,7 +408,7 @@ void test_ocr_english(const string& imgfolder, const string& modelfolder, const 
 	for (int i=0;i<(int)imgs.size();i++)
 	{
 		string imgfile = imgs[i];
-		cv::Mat img = cv::imread(imgfile, CV_LOAD_IMAGE_COLOR);
+		cv::Mat img = cv::imread(imgfile, cv::IMREAD_COLOR);
 		int w = img.cols, h = img.rows;
 		if (2 * w <= h)
 		{
@@ -533,7 +533,7 @@ int LoadTextFile(const char* folder, const char* testfile, std::vector<testdata_
       IRANGE r2 = out, out2, r1 = r0;
       testdata_t td = { 0 };
       split_c(buf, &r2, &out2, 1, " ", NULL, true);
-      strcpy_c(fname, &r1, buf+ out2.s, out2.l- out2.s);
+      strcpy_c(fname, &r1, buf+ out2.s, out2.e- out2.s);
 
       for (; split_c(buf, &r2, &out2, 1, " ", NULL, true); ) {
         int k = atoi(buf+out2.s);
@@ -672,7 +672,7 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 	for (int i = 0; i < imgs.size(); ++i)
 	{
 		string imgfile = imgs[i];
-		cv::Mat img = cv::imread(imgfile, CV_LOAD_IMAGE_COLOR);
+		cv::Mat img = cv::imread(imgfile, cv::IMREAD_COLOR);
 		int w = img.cols, h = img.rows;
     //OUT_FILE(__FILE__"_img.txt", w*h*img.channels(), img.data, "%d,\n");
     if (h < 1)continue;

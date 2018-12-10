@@ -173,7 +173,7 @@ namespace cv { namespace cuda { namespace device
     ///////////////////////////////////////////////////////////////////////////////
     // Solve linear system
 
-    // solve 2x2 linear system Ax=b
+    //  2x2 linear system Ax=b
     template <typename T> __device__ __forceinline__ bool solve2x2(const T A[2][2], const T b[2], T x[2])
     {
         T det = A[0][0] * A[1][1] - A[1][0] * A[0][1];
@@ -192,7 +192,7 @@ namespace cv { namespace cuda { namespace device
         return false;
     }
 
-    // solve 3x3 linear system Ax=b
+    //  3x3 linear system Ax=b
     template <typename T> __device__ __forceinline__ bool solve3x3(const T A[3][3], const T b[3], T x[3])
     {
         T det = A[0][0] * (A[1][1] * A[2][2] - A[1][2] * A[2][1])

@@ -724,8 +724,8 @@ static int preprocessMSER_8uC3( MSCRNode* node,
         GaussianBlur( dx, dx, iSIZE(edgeBlurSize, edgeBlurSize), 0 );
         GaussianBlur( dy, dy, iSIZE(edgeBlurSize, edgeBlurSize), 0 );
     }
-    dxptr = dx->ptr<double>();
-    dyptr = dy->ptr<double>();
+    dxptr = img_ptr(double, dx);
+    dyptr = img_ptr(double, dy);
     // assian dx, dy to proper edge list and initialize mscr node
     // the nasty code here intended to avoid extra loops
     MSCRNode* nodeptr = node;
@@ -1058,7 +1058,7 @@ void MSER::detect( const img_t* _image, vector<CKeyPoint>& keypoints, const img_
         float diam = std::sqrt(rect.size.height*rect.size.width);
 
         if( diam > std::numeric_limits<float>::epsilon() && contains(r, rect.center) &&
-            (!mask || mask->at<uchar>(cvRound(rect.center.y), cvRound(rect.center.x)) != 0) )
+            (!mask || img_at(uchar, mask, cvRound(rect.center.y), cvRound(rect.center.x)) != 0) )
             keypoints.push_back( cKeyPoint(rect.center, diam) );
     }
 }

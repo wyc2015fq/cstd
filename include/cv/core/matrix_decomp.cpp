@@ -5,7 +5,7 @@
 
 #include "precomp.hpp"
 
-namespace cv { namespace hal {
+
 
 /****************************************************************************************\
 *                     LU & Cholesky implementation for small matrices                    *
@@ -334,4 +334,4 @@ bool Cholesky(double* A, size_t astep, int m, double* b, size_t bstep, int n)
     return CholImpl(A, astep, m, b, bstep, n);
 }
 
-}} // cv::hal::
+

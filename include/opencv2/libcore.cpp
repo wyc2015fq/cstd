@@ -1,3 +1,6 @@
+#ifndef _LIBCORE_CPP_
+#define _LIBCORE_CPP_
+
 #include "core\src\algorithm.cpp"
 #include "core\src\alloc.cpp"
 #include "core\src\arithm.cpp"
@@ -87,3 +90,5 @@ Mat a;
 #endif
 
 #undef BLOCK_SIZE
+
+#endif // _LIBCORE_CPP_

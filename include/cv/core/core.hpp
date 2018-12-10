@@ -1783,7 +1783,7 @@ For symmetric positively-determined matrices, it is also possible to use
 eigen decomposition to calculate the determinant.
 @param mtx input matrix that must have CV_32FC1 or CV_64FC1 type and
 square size.
-@sa trace, invert, solve, eigen, @ref MatrixExpressions
+@sa trace, invert, , eigen, @ref MatrixExpressions
 */
 CV_EXPORTS_W double determinant(InputArray mtx);
 
@@ -1819,13 +1819,13 @@ matrix in dst and returns non-zero. Otherwise, it returns 0.
 @param src input floating-point M x N matrix.
 @param dst output matrix of N x M size and the same type as src.
 @param flags inversion method (cv::DecompTypes)
-@sa solve, SVD
+@sa , SVD
 */
 CV_EXPORTS_W double invert(InputArray src, OutputArray dst, int flags = DECOMP_LU);
 
 /** @brief Solves one or more linear systems or least-squares problems.
 
-The function cv::solve solves a linear system or least-squares problem (the
+The function cv:: solves a linear system or least-squares problem (the
 latter is possible with SVD or QR methods, or by specifying the flag
 #DECOMP_NORMAL ):
 \f[\texttt{dst} =  \arg \min _X \| \texttt{src1} \cdot \texttt{X} -  \texttt{src2} \|\f]
@@ -1836,7 +1836,7 @@ it returns 0. In the latter case, dst is not valid. Other methods find a
 pseudo-solution in case of a singular left-hand side part.
 
 @note If you want to find a unity-norm solution of an under-defined
-singular system \f$\texttt{src1}\cdot\texttt{dst}=0\f$ , the function solve
+singular system \f$\texttt{src1}\cdot\texttt{dst}=0\f$ , the function 
 will not do the work. Use SVD::solveZ instead.
 
 @param src1 input matrix on the left-hand side of the system.
@@ -1845,7 +1845,7 @@ will not do the work. Use SVD::solveZ instead.
 @param flags solution (matrix inversion) method (#DecompTypes)
 @sa invert, SVD, eigen
 */
-CV_EXPORTS_W bool solve(InputArray src1, InputArray src2,
+CV_EXPORTS_W bool (InputArray src1, InputArray src2,
                         OutputArray dst, int flags = DECOMP_LU);
 
 /** @brief Sorts each row or each column of a matrix.
@@ -2596,7 +2596,7 @@ protected:
 /** @brief Singular Value Decomposition
 
 Class for computing Singular Value Decomposition of a floating-point
-matrix. The Singular Value Decomposition is used to solve least-square
+matrix. The Singular Value Decomposition is used to  least-square
 problems, under-determined linear systems, invert matrices, compute
 condition numbers, and so on.
 
@@ -2605,7 +2605,7 @@ its determinant, you do not need `u` and `vt`. You can pass
 flags=SVD::NO_UV|... . Another flag SVD::FULL_UV indicates that full-size u
 and vt must be computed, which is not necessary most of the time.
 
-@sa invert, solve, eigen, determinant
+@sa invert, , eigen, determinant
 */
 class CV_EXPORTS SVD
 {
@@ -2712,9 +2712,9 @@ public:
     @param dst found solution of the system.
 
     @note Explicit SVD with the further back substitution only makes sense
-    if you need to solve many linear systems with the same left-hand side
-    (for example, src ). If all you need is to solve a single system
-    (possibly with multiple rhs immediately available), simply call solve
+    if you need to  many linear systems with the same left-hand side
+    (for example, src ). If all you need is to  a single system
+    (possibly with multiple rhs immediately available), simply call 
     add pass #DECOMP_SVD there. It does absolutely the same thing.
       */
     void backSubst( InputArray rhs, OutputArray dst ) const;

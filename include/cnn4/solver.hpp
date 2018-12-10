@@ -1,11 +1,12 @@
 
-struct Solver {
-  CJSON* param_;
+
+struct Solver : SolverBase {
   Net* net_;
   typedef Net::Dtype Dtype;
   //Solver(Net<Dtype>* net) {    init(net);  }
   void init(Net* net) {
-    param_ = net->param_->GetObjectItem("solver");
+    SolverBase& base = *this;
+    base = net->solver_param;
     net_ = net;
     smoothed_loss_ = 0;
   }
@@ -14,8 +15,6 @@ struct Solver {
   {
     Net* test_net = net_;
     Dtype loss = 0;
-    bool test_compute_loss = param_->getbool("test_compute_loss", false);
-    int test_iter = param_->GetObjectInt("test_iter", 1);
     vector<Dtype> test_score;
     test_score.assign(net_->blobs_.size(), 0);
     debug_info_ = 0;
@@ -69,30 +68,14 @@ struct Solver {
 
   int iter_ = 0;
   virtual void ApplyUpdate() = 0;
-  int iter_size;
-  int display;
-  int snapshot;
-  int test_interval;
-  int max_iter;
-  double average_loss;
+
   vector<Blob*> learnable_params_;
-  bool test_initialization;
 
   virtual void PreSolve() = 0;
   int Solve()
   {
-    LOG(INFO) << "Solving " << param_->GetObjectString("name", "");
-    double lr_policy = param_->GetObjectNumber("lr_policy", 0.001);
     LOG(INFO) << "Learning Rate Policy: " << lr_policy;
     int start_iter = iter_;
-    max_iter = (int)param_->GetObjectNumber("max_iter", 1000);
-    iter_size  = (int)param_->GetObjectNumber("iter_size", 1);
-    test_initialization = param_->getbool("test_initialization", true);
-    display = param_->GetObjectInt("display", 100);
-    snapshot = param_->GetObjectInt("snapshot", 100);
-    test_interval = param_->GetObjectInt("test_interval", 100);
-    average_loss = param_->GetObjectNumber("average_loss", 1);
-    debug_info_ = param_->GetObjectInt("debug_info", 0);
     int iters = max_iter - iter_;
     this->net_->learnable_params(learnable_params_);
 
@@ -166,8 +149,7 @@ struct Solver {
 
   void Snapshot() {
     char model_filename[256];
-    char* snapshot_prefix = param_->GetObjectString("snapshot_prefix", "");
-    _snprintf(model_filename, 256, "%s_iter_%d.json", snapshot_prefix, iter_);
-    cJSON_SaveFile(model_filename, net_->param_);
+    _snprintf(model_filename, 256, "%s_iter_%d.json", snapshot_prefix_, iter_);
+    //cJSON_SaveFile(model_filename, net_->param_);
   }
 };

@@ -433,7 +433,7 @@ void AKAZEFeatures::Do_Subpixel_Refinement(std::vector<KeyPoint>& kpts)
     b(0) = -Dx;
     b(1) = -Dy;
 
-    solve(A, b, dst, DECOMP_LU);
+    (A, b, dst, DECOMP_LU);
 
     if (fabs(dst(0)) <= 1.0f && fabs(dst(1)) <= 1.0f) {
         kpts[i].pt.x = x + dst(0);

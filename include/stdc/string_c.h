@@ -291,7 +291,7 @@ static int split_c_(const char* s, IRANGE* r, IRANGE* out, int maxout, const uch
   }
   return out_count;
 }
-char* strsep_c(char** p, const char* delims) {
+static char* strsep_c(char** p, const char* delims) {
   uchar delims_set[256] = { 0 };
   char* ret = NULL;
   get_delims_set(delims_set, delims);

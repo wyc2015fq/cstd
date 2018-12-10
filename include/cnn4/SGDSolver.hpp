@@ -23,11 +23,7 @@ struct SGDSolver : public Solver {
   virtual double GetLearningRate()
   {
     double rate;
-    const string & lr_policy = this->param_->GetObjectString("lr_policy", "inv");
-    double base_lr = this->param_->GetObjectNumber("base_lr", 0.01);
-    double gamma = this->param_->GetObjectNumber("gamma", 1);
-    double power = this->param_->GetObjectNumber("power", 1);
-    int stepsize = this->param_->GetObjectInt("stepsize", 1);
+    string lr_policy = lr_policy_;
     if (lr_policy == "fixed") {
       rate = base_lr;
     }
@@ -41,6 +37,7 @@ struct SGDSolver : public Solver {
     else if (lr_policy == "inv") {
       rate = base_lr * pow(Dtype(1) + gamma * this->iter_, -power);
     }
+#if 0
     else if (lr_policy == "multistep") {
       CJSON* item = this->param_->GetObjectItem("stepvalue");
       if (item) {
@@ -53,8 +50,8 @@ struct SGDSolver : public Solver {
       }
       rate = base_lr * pow(gamma, this->current_step_);
     }
+#endif
     else if (lr_policy == "poly") {
-      double max_iter = this->param_->GetObjectNumber("max_iter", 100);
       rate = base_lr * pow(1. - (this->iter_ / max_iter), power);
     }
     else if (lr_policy == "sigmoid") {
@@ -68,7 +65,6 @@ struct SGDSolver : public Solver {
 
   virtual void ClipGradients()
   {
-    double clip_gradients = this->param_->GetObjectNumber("clip_gradients", -1);
     if (clip_gradients < 0) { return; }
     Dtype sumsq_diff = 0;
     for (int i = 0; i < learnable_params_.size(); ++i) {
@@ -104,24 +100,22 @@ struct SGDSolver : public Solver {
   virtual void Regularize(int param_id)
   {
     Dtype decay_mult = learnable_params_[param_id]->decay_mult_;
-    Dtype weight_decay = this->param_->getfloat("weight_decay", 0.0005);
-    string regularization_type = param_->GetObjectString("regularization_type", "L2");
     Dtype local_decay = weight_decay * decay_mult;
     int count_ = learnable_params_[param_id]->count();
     const Dtype* learnable_params_data = learnable_params_[param_id]->data();
     Dtype* params_diff = learnable_params_[param_id]->mdiff();
     if (local_decay) {
-      if (regularization_type == "L2") {
+      if (regularization_type == RegularizationType_L2) {
         // add weight decay
         caffe_axpy(count_, local_decay, learnable_params_data, params_diff);
       }
-      else if (regularization_type == "L1") {
+      else if (regularization_type == RegularizationType_L1) {
         Dtype* temp_data = temp_[param_id]->mdata();
         caffe_sign(count_, learnable_params_data, temp_data);
         caffe_axpy(count_, local_decay, temp_data, params_diff);
       }
       else {
-        LOG(FATAL) << "Unknown regularization type: " << regularization_type;
+        LOG(FATAL) << "Unknown regularization type: " << RegularizationType_Name[regularization_type];
       }
     }
   }
@@ -129,7 +123,6 @@ struct SGDSolver : public Solver {
   virtual void ComputeUpdateValue(int param_id, Dtype rate)
   {
     //const vector<float> & net_params_lr = this->net_->params_lr();
-    Dtype momentum = this->param_->GetObjectNumber("momentum", 1);
     Dtype local_rate = rate;// net_params_lr[param_id];
 #if 0
     int count_ = learnable_params_[param_id]->count();
@@ -168,8 +161,6 @@ struct AdaDeltaSolver : public SGDSolver
   {
     const vector<Blob*> & net_params = learnable_params_;
     //const vector<float> & net_params_lr = this->net_->params_lr();
-    Dtype delta = this->param_->getfloat("delta", 1e-8);
-    Dtype momentum = this->param_->getfloat("momentum", 0.999);
     Dtype local_rate = rate * net_params[param_id]->lr_mult_;
     size_t update_history_offset = net_params.size();
     adadelta_update(net_params[param_id]->count(),
@@ -189,7 +180,6 @@ struct AdaGradSolver : public SGDSolver
     //const vector<float> & net_params_lr = this->net_->params_lr();
     //Dtype local_rate = rate * net_params_lr[param_id];
     Dtype local_rate = rate;
-    Dtype delta = this->param_->getfloat("delta", 1e-8);
     adagrad_update(net_params[param_id]->count(),
       net_params[param_id]->mdiff(),
       this->history_[param_id]->mdata(), delta, local_rate);
@@ -203,8 +193,8 @@ struct AdamSolver : public SGDSolver {
     const vector<Blob*> & net_params = learnable_params_;
     //const vector<float> & net_params_lr = this->net_->params_lr();
     Dtype local_rate = rate * net_params[param_id]->lr_mult_;
-    const Dtype beta1 = this->param_->getfloat("momentum", 0.999);
-    const Dtype beta2 = this->param_->getfloat("momentum2", 0.999);
+    const Dtype beta1 = momentum;
+    const Dtype beta2 = momentum2;
     // we create aliases for convenience
     size_t update_history_offset = net_params.size();
     Blob* val_m = this->history_[param_id];
@@ -214,7 +204,7 @@ struct AdamSolver : public SGDSolver {
     const Dtype correction = std::sqrt(Dtype(1) - pow(beta2, t)) /
       (Dtype(1.) - pow(beta1, t));
     const int N = net_params[param_id]->count();
-    const Dtype eps_hat = this->param_->getfloat("delta", 1e-8);
+    const Dtype eps_hat = delta;
 
     adam_update(N, net_params[param_id]->mdiff(),
       val_m->mdata(), val_v->mdata(), beta1, beta2,

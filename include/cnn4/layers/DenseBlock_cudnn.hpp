@@ -551,7 +551,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
     }
 #endif
     if (0) {
-      uutime a;
+      //uutime a;
       //     static void FUN(conv2d)(const Dtype* inData, float* outData, const Dtype* weights, const Dtype* biasData,
       // DataShape inSize, DataShape outSize, int kernel_h, int kernel_w, int stride_h, int stride_w,
       // int dilation_h, int dilation_w, int pad_h, int pad_w, int groups)
@@ -565,7 +565,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       const Dtype* w = conv_w->cpu_data();
       cpu_caffe_set(conv_y_shape.count(), 0, conv_y_local);
       cpu_conv2d(conv_x_local, conv_y_local, w, NULL, conv_x_shape, conv_y_shape, conv_w->shape_.h, conv_w->shape_.w, 1, 1, 1, 1, 1, 1, 1, false);
-      LOG(INFO) << a.elapsed();
+      //LOG(INFO) << a.elapsed();
       log_blob(this->postConv);
       1 == 1;
     }

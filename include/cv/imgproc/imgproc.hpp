@@ -58,7 +58,7 @@ In case when you specify the forward mapping \f$\left<g_x, g_y\right>: \texttt{s
 \f$\left<f_x, f_y\right>: \texttt{dst} \rightarrow \texttt{src}\f$ and then use the above formula.
 
 The actual implementations of the geometrical transformations, from the most generic remap and to
-the simplest and the fastest resize, need to solve two main problems with the above formula:
+the simplest and the fastest resize, need to  two main problems with the above formula:
 
 - Extrapolation of non-existing pixels. Similarly to the filtering functions described in the
 previous section, for some \f$(x,y)\f$, either one of \f$f_x(x,y)\f$, or \f$f_y(x,y)\f$, or both
@@ -4606,7 +4606,7 @@ parameter is only taken into account when there is hierarchy available.
 @note When thickness=#FILLED, the function is designed to handle connected components with holes correctly
 even when no hierarchy date is provided. This is done by analyzing all the outlines together
 using even-odd rule. This may give incorrect results if you have a joint collection of separately retrieved
-contours. In order to solve this problem, you need to call #drawContours separately for each sub-group
+contours. In order to  this problem, you need to call #drawContours separately for each sub-group
 of contours, or iterate over the collection using contourIdx parameter.
  */
 CV_EXPORTS_W void drawContours( InputOutputArray image, InputArrayOfArrays contours,

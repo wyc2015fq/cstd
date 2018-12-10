@@ -561,9 +561,66 @@ int CreateLayer(CJSON* param, Layer*& layer, const char* type) {
   return 1;
 }
 
+struct SolverBase {
+  bool test_compute_loss;
+  int test_iter;
+  double lr_policy;
+  int iter_size;
+  int display;
+  int snapshot;
+  int test_interval;
+  int max_iter;
+  double average_loss;
+  bool test_initialization;
+  char snapshot_prefix_[256];
+  char lr_policy_[256];
+  double base_lr;
+  double gamma;
+  double power;
+  int stepsize;
+  double clip_gradients;
+  double weight_decay;
+  RegularizationType regularization_type;
+  double momentum;
+  double momentum2;
+  double delta;
+  void init(CJSON* param_) {
+    param_ = param_->GetObjectItem("solver");
+    test_compute_loss = param_->getbool("test_compute_loss", false);
+    test_iter = param_->GetObjectInt("test_iter", 1);
+    LOG(INFO) << "Solving " << param_->GetObjectString("name", "");
+    lr_policy = param_->GetObjectNumber("lr_policy", 0.001);
+    max_iter = (int)param_->GetObjectNumber("max_iter", 100);
+    iter_size = (int)param_->GetObjectNumber("iter_size", 1);
+    test_initialization = param_->getbool("test_initialization", true);
+    display = param_->GetObjectInt("display", 100);
+    snapshot = param_->GetObjectInt("snapshot", 100);
+    test_interval = param_->GetObjectInt("test_interval", 100);
+    average_loss = param_->GetObjectNumber("average_loss", 1);
+    debug_info_ = param_->GetObjectInt("debug_info", 0);
+    strncpy(snapshot_prefix_, param_->GetObjectString("snapshot_prefix", ""), 256);
+    strncpy(lr_policy_, param_->GetObjectString("lr_policy", "inv"), 256);
+    base_lr = param_->GetObjectNumber("base_lr", 0.01);
+    gamma = param_->GetObjectNumber("gamma", 1);
+    power = param_->GetObjectNumber("power", 1);
+    stepsize = param_->GetObjectInt("stepsize", 1);
+    clip_gradients = param_->GetObjectNumber("clip_gradients", -1);
+    weight_decay = param_->getfloat("weight_decay", 0.0005);
+    //regularization_type  = param_->GetObjectString("regularization_type", "L2");
+    regularization_type = param_->getenum("regularization_type", RegularizationType_L2, RegularizationType_Name, countof(RegularizationType_Name));
+    momentum = param_->GetObjectNumber("momentum", 1);
+    delta = param_->getfloat("delta", 1e-8);
+    //delta = param_->getfloat("delta", 1e-8);
+    momentum = param_->getfloat("momentum", 0.999);
+    momentum = param_->getfloat("momentum", 0.999);
+    momentum2 = param_->getfloat("momentum2", 0.999);
+  }
+};
+
 
 struct Net {
-  cJSON* param_;
+  SolverBase solver_param;
+  //cJSON* param_;
   typedef Layer::Dtype Dtype;
   vector<Layer* > layers_;
   vector<Blob* > blobs_;
@@ -572,7 +629,7 @@ struct Net {
     init();
   }
   void init() {
-    param_ = NULL;
+    //param_ = NULL;
     reset(0);
   }
   void Free() {
@@ -595,6 +652,14 @@ struct Net {
   }
 #include "net.inl"
 };
+
+void ClearParamDiffs(Blob** learnable_params_, int learnable_params_size)
+{
+  for (int i = 0; i < learnable_params_size; ++i) {
+    Blob* blob = learnable_params_[i];
+    cpu_caffe_set(blob->count(), (0), blob->cpu_mdiff());
+  }
+}
 
 #include "layers/layers.hpp"
 

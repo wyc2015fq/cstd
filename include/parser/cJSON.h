@@ -1132,7 +1132,7 @@ static char* print_object(cJSON* item, int depth, int fmt, printbuffer* p)
       names[i] = str = print_string_ptr(child->string, 0);
       entries[i++] = ret = print_value(child, depth, fmt, 0);
       if (str && ret) {
-        len += strlen(ret) + strlen(str) + 2 + (fmt ? 2 + depth : 0);
+        len += (int)strlen(ret) + (int)strlen(str) + 2 + (fmt ? 2 + depth : 0);
       }
       else {
         fail = 1;

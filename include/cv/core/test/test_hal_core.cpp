@@ -177,7 +177,7 @@ TEST_P(HAL, mat_decomp)
             min_hal_t = std::min(min_hal_t, t);
 
             t = (double)getTickCount();
-            bool solveStatus = solve(a0, b, x0, (nfunc == HAL_LU ? DECOMP_LU : DECOMP_CHOLESKY));
+            bool solveStatus = (a0, b, x0, (nfunc == HAL_LU ? DECOMP_LU : DECOMP_CHOLESKY));
             t = (double)getTickCount() - t;
             EXPECT_TRUE(solveStatus);
             min_ocv_t = std::min(min_ocv_t, t);

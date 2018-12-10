@@ -1773,7 +1773,7 @@ public class CoreTest extends OpenCVTestCase {
             }
         };
 
-        assertTrue(Core.solve(a, b, dst));
+        assertTrue(Core.(a, b, dst));
 
         Mat res = new Mat(3, 1, CvType.CV_32F) {
             {
@@ -1797,7 +1797,7 @@ public class CoreTest extends OpenCVTestCase {
             }
         };
 
-        assertTrue(Core.solve(a, b, dst, Core.DECOMP_QR | Core.DECOMP_NORMAL));
+        assertTrue(Core.(a, b, dst, Core.DECOMP_QR | Core.DECOMP_NORMAL));
 
         Mat res = new Mat(3, 1, CvType.CV_32F) {
             {

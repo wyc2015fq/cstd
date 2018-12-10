@@ -1,5 +1,5 @@
 
-int atoi_c(const char *nptr)
+static int atoi_c(const char *nptr)
 {
   int c;              /* current char */
   int total;      /* current total */
@@ -27,7 +27,7 @@ int atoi_c(const char *nptr)
     return total;   /* return result, negated if necessary */
 }
 
-int64_t atoi64_c(const char *nptr)
+static int64_t atoi64_c(const char *nptr)
 {
   int c;              /* current char */
   int64_t total;      /* current total */

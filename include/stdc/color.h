@@ -3580,17 +3580,6 @@ static int imcolorcvt(const img_t* ims, img_t* imd, ColorSpace _SC, ColorSpace _
   imfree(im1);
   return 0;
 }
-static int bf_imcolorcvt(buf_t* bf, const img_t* ims, img_t* imd, ColorSpace _SC, ColorSpace _DC)
-{
-  int h = ims->f * ims->h, w = ims->w, dstcn;
-  uchar* buf = 0;
-  dstcn = colorcn(_DC);
-  bf_imsetsize(bf, imd, ims->h, ims->w, dstcn, ims->f);
-  BFMALLOC(bf, buf, h * w * 3);
-  colorcvt(h, w, ims->tt.data, ims->s, ims->c, imd->tt.data, imd->s, dstcn, _SC, _DC);
-  BFFREE(bf, buf);
-  return 0;
-}
 
 #undef ChannelBlend_Normal
 #undef ChannelBlend_Lighten

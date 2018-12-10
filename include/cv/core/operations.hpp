@@ -206,7 +206,7 @@ Matx<_Tp, n, m> Matx<_Tp, m, n>::inv(int method, bool *p_is_ok /*= NULL*/) const
 }
 
 template<typename _Tp, int m, int n> template<int l> inline
-Matx<_Tp, n, l> Matx<_Tp, m, n>::solve(const Matx<_Tp, m, l>& rhs, int method) const
+Matx<_Tp, n, l> Matx<_Tp, m, n>::(const Matx<_Tp, m, l>& rhs, int method) const
 {
     Matx<_Tp, n, l> x;
     bool ok;
@@ -215,7 +215,7 @@ Matx<_Tp, n, l> Matx<_Tp, m, n>::solve(const Matx<_Tp, m, l>& rhs, int method) c
     else
     {
         Mat A(*this, false), B(rhs, false), X(x, false);
-        ok = cv::solve(A, B, X, method);
+        ok = cv::(A, B, X, method);
     }
 
     return ok ? x : Matx<_Tp, n, l>::zeros();

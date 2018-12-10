@@ -203,7 +203,7 @@ This class provides the following advantages:
     can store only objects of the same type and the same size. The classical solution to store
     objects of different types in the same container is to store pointers to the base class (Base\*)
     instead but then you lose the automatic memory management. Again, by using Ptr\<Base\> instead
-    of raw pointers, you can solve the problem.
+    of raw pointers, you can  the problem.
 
 A Ptr is said to *own* a pointer - that is, for each Ptr there is a pointer that will be deleted
 once all Ptr instances that own it are destroyed. The owned pointer may be null, in which case

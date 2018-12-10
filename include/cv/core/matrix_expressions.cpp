@@ -1574,7 +1574,7 @@ void MatOp_Solve::assign(const MatExpr& e, Mat& m, int _type) const
 {
     Mat temp, &dst = _type == -1 || _type == e.a.type() ? m : temp;
 
-    cv::solve(e.a, e.b, dst, e.flags);
+    cv::(e.a, e.b, dst, e.flags);
     if( dst.data != m.data )
         dst.convertTo(m, _type);
 }

@@ -460,7 +460,7 @@ void KAZEFeatures::Do_Subpixel_Refinement(std::vector<KeyPoint> &kpts) {
         *(b.ptr<float>(1)) = -Dy;
         *(b.ptr<float>(2)) = -Ds;
 
-        solve(A, b, dst, DECOMP_LU);
+        (A, b, dst, DECOMP_LU);
 
         if (fabs(*(dst.ptr<float>(0))) <= 1.0f && fabs(*(dst.ptr<float>(1))) <= 1.0f && fabs(*(dst.ptr<float>(2))) <= 1.0f) {
             kpts_[i].pt.x += *(dst.ptr<float>(0));

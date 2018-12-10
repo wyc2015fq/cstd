@@ -241,7 +241,7 @@ static void FUN(gemm_nn)(int m, int n, int k, Dtype alpha, const Dtype *A, int i
 
     for (l = 0; l < kb; ++l) {
       int kc = (l != kb - 1 || _kc == 0) ? KC : _kc;
-      _beta = (l == 0) ? beta : 1.0;
+      _beta = (Dtype)((l == 0) ? beta : 1.0);
 
       FUN(pack)(nc, kc, &B[l * KC * incRowB + j * NC * incColB], incColB, incRowB, B_, NR);
 
