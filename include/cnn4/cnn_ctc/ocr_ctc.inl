@@ -8,11 +8,12 @@
 //typedef unsigned short ushort;
 
 struct Net;
+void set_debug_info(int level);
 Net* net_new();
 void net_del(Net* net);
 int net_loadjson(Net* net, const char* fn);
 int net_train(Net* net);
-int net_forward(Net* net);
+double net_forward(Net* net);
 const float* net_output(Net* net, int idx, int* pcount);
 int net_set_input_u8(Net* net, const unsigned char* img_data, const double* mean_values);
 
@@ -70,7 +71,7 @@ int ocr_run_w(wchar_t* str, int maxstrlen, Net* net, const double* mean_values, 
   //uutime a;
   utime_start(a);
   net_forward(net);
-  double t = utime_elapsed(a);  printf("time : %lf", t);
+  printf("time : %lf\n", utime_elapsed(a));
   //LOG(INFO) << a.elapsed();
   int count = 0;
   const float* pred = net_output(net, 0, &count);
@@ -84,4 +85,24 @@ int ocr_run_w(wchar_t* str, int maxstrlen, Net* net, const double* mean_values, 
 
 wchar_t labels_w[] = {
 #include "test_cnn_ctc.hpp_labels.txt"
+};
+
+struct ocr_net {
+  Net* net;
+  ocr_net() {
+    net = NULL;
+    net = net_new();
+  }
+  ~ocr_net() {
+    net_del(net);
+  }
+  int loadjson(const char* model_file) {
+    //const char* model_file = MODEL_PATH  "model.json";
+    return net_loadjson(net, model_file);
+  }
+  int run(wchar_t* wstr, int maxlen, const uchar* img_data) {
+    double mean_values[] = { 152,152,152 };
+    int n = ocr_run_w(wstr, maxlen, net, mean_values, img_data, labels_w);
+    return n;
+  }
 };

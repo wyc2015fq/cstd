@@ -5,23 +5,193 @@
 #include <ctype.h>
 #include <assert.h>
 #include <string.h>
-#include <inttypes.h>
-#include "xtoa_c.h"
-#include "atoi_c.h"
-#include "stdc.h"
+#include "inttypes_c.h"
+#include "stddef_c.h"
 
-#ifdef _WIN32
-#if _MSC_VER < 1300
-#define vsnprintf _vsnprintf
-#define snprintf _snprintf
-#endif
-#else
-#define _vsnprintf vsnprintf
-#define _snprintf snprintf
-#define _msize malloc_usable_size
+#ifdef __linux__
+int64 _atoi64(const char* str) {
+ return strtol(str, NULL, 10 );
+}
 #endif
 
-typedef unsigned char uchar;
+static int xtoa_c(unsigned long val, char *buf, unsigned radix, int is_neg) {
+  char *p;        /* pointer to traverse string */
+  char *firstdig;     /* pointer to first digit */
+  char temp;       /* temp char */
+  unsigned digval;    /* value of digit */
+
+  p = buf;
+
+  if (is_neg) {
+    /* negative, so output '-' and negate */
+    *p++ = '-';
+    val = (unsigned long)(-(long)val);
+  }
+
+  firstdig = p;      /* save pointer to first digit */
+
+  do {
+    digval = (unsigned)(val % radix);
+    val /= radix;    /* get next digit */
+
+              /* convert to ascii and store */
+    if (digval > 9)
+      *p++ = (char)(digval - 10 + 'a'); /* a letter */
+    else
+      *p++ = (char)(digval + '0');    /* a digit */
+  } while (val > 0);
+
+  /* We now have the digit of the number in the buffer, but in reverse
+  order. Thus we reverse them now. */
+
+  int len = p - buf;
+  *p-- = '\0';      /* terminate string; p points to last digit */
+
+  do {
+    temp = *p;
+    *p = *firstdig;
+    *firstdig = temp;  /* swap *p and *firstdig */
+    --p;
+    ++firstdig;     /* advance to next two digits */
+  } while (firstdig < p); /* repeat until halfway */
+  return len;
+}
+
+/* Actual functions just call conversion helper with neg flag set correctly,
+and return pointer to buffer. */
+
+static char * itoa_c(int val, char *buf, int radix) {
+  if (radix == 10 && val < 0)
+    xtoa_c((unsigned long)val, buf, radix, 1);
+  else
+    xtoa_c((unsigned long)(unsigned int)val, buf, radix, 0);
+  return buf;
+}
+
+static char * ltoa_c(long val, char *buf, int radix) {
+  xtoa_c((unsigned long)val, buf, radix, (radix == 10 && val < 0));
+  return buf;
+}
+static char * ultoa_c(unsigned long val, char *buf, int radix)
+{
+  xtoa_c(val, buf, radix, 0);
+  return buf;
+}
+
+#ifndef _NO_INT64
+
+/* stdcall is faster and smaller... Might as well use it for the helper. */
+static void x64toa_c(uint64 val, char *buf, unsigned radix, int is_neg)
+{
+  char *p;        /* pointer to traverse string */
+  char *firstdig;     /* pointer to first digit */
+  char temp;       /* temp char */
+  unsigned digval;    /* value of digit */
+
+  p = buf;
+
+  if (is_neg)
+  {
+    *p++ = '-';     /* negative, so output '-' and negate */
+    val = (uint64)(-(int64)val);
+  }
+
+  firstdig = p;      /* save pointer to first digit */
+
+  do {
+    digval = (unsigned)(val % radix);
+    val /= radix;    /* get next digit */
+
+              /* convert to ascii and store */
+    if (digval > 9)
+      *p++ = (char)(digval - 10 + 'a'); /* a letter */
+    else
+      *p++ = (char)(digval + '0');    /* a digit */
+  } while (val > 0);
+
+  /* We now have the digit of the number in the buffer, but in reverse
+  order. Thus we reverse them now. */
+
+  *p-- = '\0';      /* terminate string; p points to last digit */
+
+  do {
+    temp = *p;
+    *p = *firstdig;
+    *firstdig = temp;  /* swap *p and *firstdig */
+    --p;
+    ++firstdig;     /* advance to next two digits */
+  } while (firstdig < p); /* repeat until halfway */
+}
+
+/* Actual functions just call conversion helper with neg flag set correctly,
+and return pointer to buffer. */
+static char * i64toa_c(int64 val, char *buf, int radix) {
+  x64toa_c((uint64)val, buf, radix, (radix == 10 && val < 0));
+  return buf;
+}
+static char * ui64toa_c(uint64 val, char *buf, int radix)
+{
+  x64toa_c(val, buf, radix, 0);
+  return buf;
+}
+
+#endif /* _NO_INT64 */
+
+static int atoi_c(const char *nptr)
+{
+  int c;              /* current char */
+  int total;      /* current total */
+  int sign;           /* if '-', then negative, otherwise positive */
+  
+  /* skip whitespace */
+  while (isspace((int)(unsigned char)*nptr))
+    ++nptr;
+  
+  c = (int)(unsigned char)*nptr++;
+  sign = c;           /* save sign indication */
+  if (c == '-' || c == '+')
+    c = (int)(unsigned char)*nptr++;    /* skip sign */
+  
+  total = 0;
+  
+  while (isdigit(c)) {
+    total = 10 * total + (c - '0');     /* accumulate digit */
+    c = (int)(unsigned char)*nptr++;    /* get next char */
+  }
+  
+  if (sign == '-')
+    return -total;
+  else
+    return total;   /* return result, negated if necessary */
+}
+
+static int64 atoi64_c(const char *nptr)
+{
+  int c;              /* current char */
+  int64 total;      /* current total */
+  int sign;           /* if '-', then negative, otherwise positive */
+  
+  /* skip whitespace */
+  while (isspace((int)(unsigned char)*nptr))
+    ++nptr;
+  
+  c = (int)(unsigned char)*nptr++;
+  sign = c;           /* save sign indication */
+  if (c == '-' || c == '+')
+    c = (int)(unsigned char)*nptr++;    /* skip sign */
+  
+  total = 0;
+  
+  while (isdigit(c)) {
+    total = 10 * total + (c - '0');     /* accumulate digit */
+    c = (int)(unsigned char)*nptr++;    /* get next char */
+  }
+  
+  if (sign == '-')
+    return -total;
+  else
+    return total;   /* return result, negated if necessary */
+}
 
 CC_INLINE int strlen_c(const void* s)
 {
@@ -155,6 +325,13 @@ CC_INLINE int rfindchrs_c(const char* s, int i, int l, const uchar* chs_set) {
   }
   return -1;
 }
+static int find_last_of(const char* s, const char* chrs) {
+  int l = (int)strlen(s);
+  uchar chrs_set[256] = { 0 };
+  char* ret = NULL;
+  get_delims_set(chrs_set, chrs);
+  return rfindchrs_c(s, 0, l, chrs_set);
+}
 CC_INLINE int findstr_c(const char* s, int i, int l, const char* s2, int l2, int ignore_case)
 {
   l -= l2;
@@ -262,6 +439,13 @@ static void trim(const char* s, IRANGE* r, const char* trims)
   uchar trims_set[256] = { 0 };
   get_delims_set(trims_set, trims);
   trim_c(s, r, trims_set);
+}
+
+static const void strim(char** ps, int* plen, const char* trims) {
+  IRANGE r = iRANGE(0, *plen);
+  trim(*ps, &r, trims);
+  *ps = (*ps) + r.s;
+  *plen = r.e-r.s;
 }
 
 static int split_c_(const char* s, IRANGE* r, IRANGE* out, int maxout, const uchar* delims_set, const uchar* trims_set, int minLen)
@@ -415,5 +599,58 @@ CC_INLINE int splitfind_c(const char* s, int l, const char* s1, int l1, int igno
     }
   }
   return -1;
+}
+////////////////////////////////////////////////////
+
+static char* strend(const char* str) {
+  return (char*)str + strlen(str);
+}
+static void path_split(const char* s, IRANGE* path, IRANGE* filename, IRANGE* filenameext, IRANGE* ext) {
+  const char* p;
+  const char *e;
+  const char* ends = strend(s);
+  p = strrchr(s, '\\');
+  e = strrchr(s, '/');
+  p = MAX(p + 1, e + 1);
+  p = MAX(p, s);
+  e = (e = strrchr(p, '.')) ? e : strend(p);
+  if (path) *path = iRANGE(s-s, p-s);
+  if (filename) *filename = iRANGE(p-s, e-s);
+  if (filenameext) *filenameext = iRANGE(p-s, ends-s);
+  if (ext) *ext = iRANGE(e-s, ends-s);
+}
+static char* path_split_filename(const char* fullpath, char* buf, int len) {
+  IRANGE ret;
+  path_split(fullpath, NULL, &ret, NULL, NULL);
+  strncpy(buf, fullpath+ret.s, MIN(len, (ret.e-ret.s)));
+  return buf;
+}
+static char* path_split_filenameext(const char* fullpath, char* buf, int len) {
+  IRANGE ret;
+  path_split(fullpath, NULL, NULL, &ret, NULL);
+  strncpy(buf, fullpath+ret.s, MIN(len, (ret.e-ret.s)));
+  return buf;
+}
+static char* path_split_ext(const char* fullpath, char* buf, int len) {
+  IRANGE ret;
+  path_split(fullpath, NULL, NULL, NULL, &ret);
+  strncpy(buf, fullpath+ret.s, MIN(len, (ret.e-ret.s)));
+  return buf;
+}
+//////////////////////////////////////////////////////////////
+static char* aprintf(char** buf, int i, const char* fmt, ...)
+{
+  int bsize = 32;
+  int len = bsize;
+  for (; len>=bsize; ) {
+    va_list va;
+    va_start(va, fmt);
+    *buf = (char*)realloc((*buf), i + bsize + 1);
+    len = vsnprintf((*buf)+i, bsize, fmt, va);
+    va_end(va);
+    assert(len >= 0 && "Check format string for errors");
+  }
+  (*buf)[bsize - 1] = 0;
+  return *buf;
 }
 #endif // _STRING_C_H_

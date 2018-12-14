@@ -31,10 +31,11 @@ int NHWC2NCHW(TypeFlag flag, void* dst, const void* src, int dim_w, int dim_h = 
   return 0;
 }
 
+#define SET4(dim, a, b, c, d)  ((dim)[0]=a, (dim)[1]=b, (dim)[2]=c, (dim)[3]=d)
+
 struct BlobData {
   int nbytes_;
   union {
-    DataShape shape;
     int dim_[4];
     struct {
       int n, c, h, w;
@@ -54,7 +55,7 @@ struct BlobData {
   void set(DimType dimtype, TypeFlag flag, const void* data, int dim_w, int dim_h = 1, int dim_c = 1, int dim_n = 1) {
     int size = dim_w*dim_h*dim_c*dim_n;
     int elemsz = TypeSize[flag];
-    shape.set(dim_n, dim_c, dim_h, dim_w);
+    SET4(dim_, dim_n, dim_c, dim_h, dim_w);
     type_ = flag;
     nbytes_ = size*elemsz;
     data_ = (char*)realloc(data_, nbytes_);
@@ -202,7 +203,7 @@ template <typename Stype, typename Dtype> inline
 bool blob_data_transform_T(DataTransformerInfo* info, DataShape shape_, Dtype* transformed_data, const Stype* data, int h_off, int w_off) {
   if (info) {
     bool has_mean_file = info->mean != NULL;
-    Dtype scale = info->scale;
+    double scale = info->scale;
     int dn = shape_.n;
     int dc = shape_.c;
     int dh = shape_.h;
@@ -223,14 +224,14 @@ bool blob_data_transform_T(DataTransformerInfo* info, DataShape shape_, Dtype* t
             top_index = (c1 * dh + h) * dw + w1;
             Dtype datum_element = static_cast<Dtype>(data[data_index]);
             if (info->mean) {
-              transformed_data[top_index] = (datum_element - info->mean[data_index]) * scale;
+              transformed_data[top_index] = (Dtype)((datum_element - info->mean[data_index]) * scale);
             }
             else {
               if (info->mean_values_) {
-                transformed_data[top_index] = (datum_element - info->mean_values_[c]) * scale;
+                transformed_data[top_index] = (Dtype)((datum_element - info->mean_values_[c]) * scale);
               }
               else {
-                transformed_data[top_index] = datum_element * scale;
+                transformed_data[top_index] = (Dtype)(datum_element * scale);
               }
             }
           }
@@ -241,7 +242,7 @@ bool blob_data_transform_T(DataTransformerInfo* info, DataShape shape_, Dtype* t
   else {
     int count = shape_.count();
     for (int i = 0; i < count; ++i) {
-      transformed_data[i] = data[i];
+      transformed_data[i] = (Dtype)data[i];
     }
   }
   return 0;
@@ -312,7 +313,8 @@ int DataTransformer(DataTransformerInfo* info, const BlobData* src, Dtype* trans
       }
     }
   }
-  DataShape shape = src->shape;
+  DataShape shape;
+  shape.set(src->dim_, 4);
   shape.n = 1;
   blob_data_transform(info, shape, transformed_data, src->data_, (TypeFlag)src->type_, h_off, w_off);
   return 0;

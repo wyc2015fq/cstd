@@ -20,8 +20,8 @@ int test_cnn4() {
   char buf[256];
   itoa_c(1234, buf, 10);
   if (1) {
-    fn = "C:/caffe_train/mnist/lenet.json";
-    _chdir("C:/caffe_train/mnist/");
+    fn = "E:/caffe_train/mnist/lenet.json";
+    _chdir("E:/caffe_train/mnist/");
   }
   if (0) {
     fn = "E:/OCR_Line/model/densenet-no-blstm/densenet-no-blstm.json";

@@ -178,10 +178,11 @@ static void FUN(scal)(int N, Dtype alpha, Dtype *X, int incX) {
     X[i*incX] *= alpha;
   }
 }
+
 static void FUN(axpy)(int n, Dtype alpha, const Dtype *x, int incx, Dtype *y, int incy) {
   int i, n0 = n&(-3);
 #pragma omp parallel for
-  for (int i = 0; i<n0; i+=4) {
+  for (i = 0; i<n0; i+=4) {
     y[(i+0)*incy] += alpha * x[(i+0)*incx];
     y[(i+1)*incy] += alpha * x[(i+1)*incx];
     y[(i+2)*incy] += alpha * x[(i+2)*incx];

@@ -1,7 +1,6 @@
 #ifndef CAFFE_UTIL_DB_HPP
 #define CAFFE_UTIL_DB_HPP
 
-#include "wstd/logging.hpp"
 #include <string>
 #include <sys/stat.h>
 #include "stdc/fileio_c.h"
@@ -155,7 +154,7 @@ private:
     struct MDB_envinfo current_info;
     MDB_CHECK(mdb_env_info(mdb_env_, &current_info));
     size_t new_size = current_info.me_mapsize * 2;
-    DLOG(INFO) << "Doubling LMDB map size to " << (new_size >> 20) << "MB ...";
+    DLOG(INFO) << "Doubling LMDB map size to " << (int)(new_size >> 20) << "MB ...";
     MDB_CHECK(mdb_env_set_mapsize(mdb_env_, new_size));
   }
 };
@@ -201,7 +200,7 @@ public:
       mdb_env_ = NULL;
     }
   }
-  virtual LMDBCursor* NewCursor()
+  virtual Cursor* NewCursor()
   {
     MDB_txn* mdb_txn;
     MDB_cursor* mdb_cursor;
@@ -210,7 +209,7 @@ public:
     MDB_CHECK(mdb_cursor_open(mdb_txn, mdb_dbi_, &mdb_cursor));
     return new LMDBCursor(mdb_txn, mdb_cursor);
   }
-  virtual LMDBTransaction* NewTransaction()
+  virtual Transaction* NewTransaction()
   {
     return new LMDBTransaction(mdb_env_);
   }

@@ -6,7 +6,7 @@ int learnable_params(vector<Blob* >& out) {
       out.push_back(layers_[i]->blobs_[j]);
     }
   }
-  return out.size();
+  return (int)out.size();
 }
 
 
@@ -168,8 +168,8 @@ void Backward()
       sumsq_data += learnable_params_[i]->sumsq_data();
       sumsq_diff += learnable_params_[i]->sumsq_diff();
     }
-    const Dtype l2norm_data = std::sqrt(sumsq_data);
-    const Dtype l2norm_diff = std::sqrt(sumsq_diff);
+    const Dtype l2norm_data = sqrt(sumsq_data);
+    const Dtype l2norm_diff = sqrt(sumsq_diff);
     LOG(ERROR) << "    [Backward] All net params (data, diff): "
       << "L1 norm = (" << asum_data << ", " << asum_diff << "); "
       << "L2 norm = (" << l2norm_data << ", " << l2norm_diff << ")";

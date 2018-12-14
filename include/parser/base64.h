@@ -2,35 +2,6 @@
 #ifndef _BASE64_H_
 #define _BASE64_H_
 
-//
-//  base64.c
-//  base64
-//
-//  Created by guofu on 2017/5/25.
-//  Copyright © 2017年 guofu. All rights reserved.
-//
-/**
- *  转解码过程
- *  3 * 8 = 4 * 6; 3字节占24位, 4*6=24
- *  先将要编码的转成对应的ASCII值
- *  如编码: s 1 3
- *  对应ASCII值为: 115 49 51
- *  对应二进制为: 01110011 00110001 00110011
- *  将其6个分组分4组: 011100 110011 000100 110011
- *  而计算机是以8bit存储, 所以在每组的高位补两个0如下:
- *  00011100 00110011 00000100 00110011对应:28 51 4 51
- *  查找base64 转换表 对应 c z E z
- *  
- *  解码
- *  c z E z
- *  对应ASCII值为 99 122 69 122
- *  对应表base64_suffix_map的值为 28 51 4 51
- *  对应二进制值为 00011100 00110011 00000100 00110011
- *  依次去除每组的前两位, 再拼接成3字节
- *  即: 01110011 00110001 00110011
- *  对应的就是s 1 3
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -78,7 +49,7 @@ static char cmove_bits(unsigned char src, unsigned lnum, unsigned rnum) {
     return src;
 }
 
-int base64_encode(const void *indata0, int inlen, char *outdata, int *outlen) {
+static int base64_encode(const void *indata0, int inlen, char *outdata, int *outlen) {
   const unsigned char *indata = (const unsigned char *)(indata0);
     int ret = 0; // return value
     if (indata == NULL || inlen == 0) {
@@ -130,8 +101,7 @@ int base64_encode(const void *indata0, int inlen, char *outdata, int *outlen) {
     return ret;
 }
 
-
-int base64_decode(const char *indata, int inlen, void *outdata0, int *outlen) {
+static int base64_decode(const char *indata, int inlen, void *outdata0, int *outlen) {
   unsigned char *outdata = (unsigned char *)(outdata0);
     int ret = 0;
     if (indata == NULL || inlen <= 0 || outdata == NULL || outlen == NULL) {
@@ -175,7 +145,7 @@ int base64_decode(const char *indata, int inlen, void *outdata0, int *outlen) {
 #include <stdio.h>
 #include <string.h>
 
-
+#ifdef TEST
 int test_base64(int argc, const char * argv[]) {
     // insert code here...
     
@@ -194,5 +164,6 @@ int test_base64(int argc, const char * argv[]) {
     
     return 0;
 }
+#endif // TEST
 
 #endif // _BASE64_H_

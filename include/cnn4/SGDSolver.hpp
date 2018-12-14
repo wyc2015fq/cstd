@@ -8,7 +8,7 @@ struct SGDSolver : public Solver {
   {
     // Initialize the history
     const vector<Blob*>& net_params = learnable_params_;
-    int n = net_params.size();
+    int n = (int)net_params.size();
     blobs_reset(history_, n);
     blobs_reset(update_, n);
     blobs_reset(temp_, n);
@@ -66,13 +66,13 @@ struct SGDSolver : public Solver {
   virtual void ClipGradients()
   {
     if (clip_gradients < 0) { return; }
-    Dtype sumsq_diff = 0;
+    double sumsq_diff = 0;
     for (int i = 0; i < learnable_params_.size(); ++i) {
       sumsq_diff += learnable_params_[i]->sumsq_diff();
     }
-    const Dtype l2norm_diff = std::sqrt(sumsq_diff);
+    const double l2norm_diff = sqrt(sumsq_diff);
     if (l2norm_diff > clip_gradients) {
-      Dtype scale_factor = clip_gradients / l2norm_diff;
+      double scale_factor = clip_gradients / l2norm_diff;
       //     LOG(INFO) << "Gradient clipping: scaling down gradients (L2 norm "
       //         << l2norm_diff << " > " << clip_gradients << ") "
       //         << "by scale factor " << scale_factor;
@@ -99,8 +99,8 @@ struct SGDSolver : public Solver {
 
   virtual void Regularize(int param_id)
   {
-    Dtype decay_mult = learnable_params_[param_id]->decay_mult_;
-    Dtype local_decay = weight_decay * decay_mult;
+    double decay_mult = learnable_params_[param_id]->decay_mult_;
+    double local_decay = weight_decay * decay_mult;
     int count_ = learnable_params_[param_id]->count();
     const Dtype* learnable_params_data = learnable_params_[param_id]->data();
     Dtype* params_diff = learnable_params_[param_id]->mdiff();
@@ -120,10 +120,10 @@ struct SGDSolver : public Solver {
     }
   }
   
-  virtual void ComputeUpdateValue(int param_id, Dtype rate)
+  virtual void ComputeUpdateValue(int param_id, double rate)
   {
     //const vector<float> & net_params_lr = this->net_->params_lr();
-    Dtype local_rate = rate;// net_params_lr[param_id];
+    double local_rate = rate;// net_params_lr[param_id];
 #if 0
     int count_ = learnable_params_[param_id]->count();
     // Compute the update to history, then copy it to the parameter diff.
@@ -140,7 +140,7 @@ struct SGDSolver : public Solver {
   virtual void ApplyUpdate()
   {
     CHECK(root_solver());
-    Dtype rate = GetLearningRate();
+    double rate = GetLearningRate();
     if (display && this->iter_ % display == 0) {
       LOG(INFO) << "Iteration " << this->iter_ << ", lr = " << rate;
     }
@@ -192,19 +192,19 @@ struct AdamSolver : public SGDSolver {
   {
     const vector<Blob*> & net_params = learnable_params_;
     //const vector<float> & net_params_lr = this->net_->params_lr();
-    Dtype local_rate = rate * net_params[param_id]->lr_mult_;
-    const Dtype beta1 = momentum;
-    const Dtype beta2 = momentum2;
+    double local_rate = rate * net_params[param_id]->lr_mult_;
+    const double beta1 = momentum;
+    const double beta2 = momentum2;
     // we create aliases for convenience
     size_t update_history_offset = net_params.size();
     Blob* val_m = this->history_[param_id];
     Blob* val_v = this->history_[param_id + update_history_offset];
     Blob* val_t = this->temp_[param_id];
     const int t = this->iter_ + 1;
-    const Dtype correction = std::sqrt(Dtype(1) - pow(beta2, t)) /
-      (Dtype(1.) - pow(beta1, t));
+    const double correction = sqrt(double(1) - pow(beta2, t)) /
+      (double(1.) - pow(beta1, t));
     const int N = net_params[param_id]->count();
-    const Dtype eps_hat = delta;
+    const double eps_hat = delta;
 
     adam_update(N, net_params[param_id]->mdiff(),
       val_m->mdata(), val_v->mdata(), beta1, beta2,

@@ -1,5 +1,9 @@
 
 #include "http.h"
+#include <time.h>
+#include "stdc/net_c.h"
+#include "stdc/dir_c.h"
+//#include "socket.h"
 
 
 struct httpd {
@@ -104,7 +108,7 @@ static int _httpd_sendExpandedText(httpd* s, const char* buf, int bufLen)
       continue;
     }
     // Is this a known variable?
-    bzero(varName, HTTP_MAX_VAR_NAME_LEN);
+    memset(varName, 0, HTTP_MAX_VAR_NAME_LEN);
     strncpy(varName, varStart, varEnd - varStart + 1);
     offset += strlen(varName) + 3;
     var = httpdGetVariableByName(s, varName);
@@ -303,9 +307,9 @@ static int httpdAddVariable(httpd* s, const char* name, const char* value)
     name++;
   }
   newVar = (httpVar*)malloc(sizeof(httpVar));
-  bzero(newVar, sizeof(httpVar));
-  newVar->name = strdup(name);
-  newVar->value = strdup(value);
+  memset(newVar, 0, sizeof(httpVar));
+  newVar->name = _strdup(name);
+  newVar->value = _strdup(value);
   lastVar = NULL;
   curVar = s->variables;
   while (curVar) {
@@ -337,7 +341,7 @@ static void _httpd_storeData(httpd* s, char* query)
   }
   cp = query;
   cp2 = var;
-  bzero(var, sizeof(var));
+  memset(var, 0, sizeof(var));
   val = NULL;
   while (*cp) {
     if (*cp == '=') {
@@ -346,7 +350,7 @@ static void _httpd_storeData(httpd* s, char* query)
       val = cp;
       continue;
     }
-    if (*cp == '&') {
+    if (*cp == '&' || *cp =='\n') {
       *cp = 0;
       tmpVal = _httpd_unescape(val);
       httpdAddVariable(s, var, tmpVal);
@@ -433,8 +437,8 @@ static httpDir* _httpd_findContentDir(httpd* s, const char* dir, int createFlag)
     if (curChild == NULL) {
       if (createFlag == HTTP_TRUE) {
         curChild = (httpDir*)malloc(sizeof(httpDir));
-        bzero(curChild, sizeof(httpDir));
-        curChild->name = strdup(curDir);
+        memset(curChild, 0, sizeof(httpDir));
+        curChild->name = _strdup(curDir);
         curChild->next = curItem->children;
         curItem->children = curChild;
       }
@@ -652,7 +656,7 @@ static void _httpd_sendFile(httpd* s, char* path)
     _httpd_send304(s);
   }
   else {
-    _httpd_sendHeaders(s, sbuf->size, sbuf->mtime);
+    _httpd_sendHeaders(s, (int)sbuf->size, sbuf->mtime);
     if (strncmp(s->response.contentType, "text/", 5) == 0) {
       _httpd_catFile(s, path, HTTP_EXPAND_TEXT);
     }
@@ -951,7 +955,7 @@ static int httpdSetVariableValue(httpd* s, char* name, char* value)
     if (var->value) {
       free(var->value);
     }
-    var->value = strdup(value);
+    var->value = _strdup(value);
     return(0);
   }
   else {
@@ -974,11 +978,11 @@ static httpd* httpdCreate(const char* host, int port)
     s->host = HTTP_ANY_ADDR;
   }
   else {
-    s->host = strdup(host);
+    s->host = _strdup(host);
   }
   s->content = (httpDir*)malloc(sizeof(httpDir));
   bzero(s->content, sizeof(httpDir));
-  s->content->name = strdup("");
+  s->content->name = _strdup("");
   
   // Setup the socket
   sock = sock_open(s->host, port, SOCK_TCP, addr);
@@ -987,7 +991,7 @@ static httpd* httpdCreate(const char* host, int port)
     return(NULL);
   }
 #ifdef SO_REUSEADDR
-  opt = 1;
+  int opt = 1;
   setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(int));
 #endif
   s->serverSock = sock;
@@ -1116,6 +1120,7 @@ static int httpdReadRequest(httpd* s)
         }
         inHeaders = 0;
         break;
+#define STRNCASECMP2(a, b)  strncasecmp(a, b, strlen(b))
       } else if (STRNCASECMP2(buf, "Cookie:") == 0) {
         char* var, *val, *end;
         var = strchr(buf, ':');
@@ -1206,10 +1211,16 @@ static int httpdReadRequest(httpd* s)
     //_httpd_storeData(s, buf);
   }
   // Process any URL data
-  cp = strchr(s->request.path, '?');
+  if (HTTP_GET == s->request.method) {
+    cp = strchr(s->request.path, '?');
+    if (cp != NULL) {
+      *cp = 0;
+      cp++;
+    }
+  } else {
+    cp = s->request.content;
+  }
   if (cp != NULL) {
-    *cp = 0;
-    cp++;
     _httpd_storeData(s, cp);
   }
   return(0);
@@ -1246,7 +1257,7 @@ static int httpdAddFileContent(httpd* s, char* dir, char* name, int indexFlag, i
     return(-1);
   }
   bzero(newEntry, sizeof(httpContent));
-  newEntry->name = strdup(name);
+  newEntry->name = _strdup(name);
   newEntry->type = HTTP_FILE;
   newEntry->indexFlag = indexFlag;
   newEntry->preload = preload;
@@ -1254,7 +1265,7 @@ static int httpdAddFileContent(httpd* s, char* dir, char* name, int indexFlag, i
   dirPtr->entries = newEntry;
   if (*path == '/') {
     // Absolute path
-    newEntry->path = strdup(path);
+    newEntry->path = _strdup(path);
   }
   else {
     // Path relative to base path
@@ -1282,7 +1293,7 @@ static int httpdAddWildcardContent(httpd* s, char* dir, int (*preload)(httpd* s)
   dirPtr->entries = newEntry;
   if (*path == '/') {
     // Absolute path
-    newEntry->path = strdup(path);
+    newEntry->path = _strdup(path);
   }
   else {
     // Path relative to base path
@@ -1301,7 +1312,7 @@ static int httpdAddCContent(httpd* s, const char* dir, const char* name, int ind
     return(-1);
   }
   bzero(newEntry, sizeof(httpContent));
-  newEntry->name = strdup(name);
+  newEntry->name = _strdup(name);
   newEntry->type = HTTP_C_FUNCT;
   newEntry->indexFlag = indexFlag;
   newEntry->function = function;
@@ -1339,7 +1350,7 @@ static int httpdAddStaticContent(httpd* s, char* dir, char* name, int indexFlag,
     return(-1);
   }
   bzero(newEntry, sizeof(httpContent));
-  newEntry->name = strdup(name);
+  newEntry->name = _strdup(name);
   newEntry->type = HTTP_STATIC;
   newEntry->indexFlag = indexFlag;
   newEntry->data = data;
@@ -1358,7 +1369,7 @@ static int httpdAddEmberContect(httpd* s, char* dir, char* name, int indexFlag, 
     return(-1);
   }
   bzero(newEntry, sizeof(httpContent));
-  newEntry->name = strdup(name);
+  newEntry->name = _strdup(name);
   newEntry->type = HTTP_EMBER_FUNCT;
   newEntry->indexFlag = indexFlag;
   newEntry->data = script;
@@ -1416,7 +1427,7 @@ static void httpdSendFile(httpd* s, char* path)
     _httpd_send304(s);
   }
   else {
-    _httpd_sendHeaders(s, sbuf->size, sbuf->mtime);
+    _httpd_sendHeaders(s, (int)sbuf->size, sbuf->mtime);
     if (strncmp(s->response.contentType, "text/", 5) == 0) {
       _httpd_catFile(s, path, HTTP_EXPAND_TEXT);
     }

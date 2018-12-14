@@ -8,6 +8,7 @@ void FUN(pooling_forward)(PoolMethod pool, Phase phase, const Dtype* bottom_data
   int top_offset = pooled_height * pooled_width;
   bool use_top_mask = top_mask!=NULL;
   double aa = 0;
+  int i, n;
   switch (pool) {
   case PoolMethod_MAX:
     // Initialize
@@ -19,16 +20,16 @@ void FUN(pooling_forward)(PoolMethod pool, Phase phase, const Dtype* bottom_data
     }
     FUN(caffe_set)(top_count, Dtype(-FLT_MAX), top_data);
     // The main loop
-    for (int n = 0; n < num; ++n) {
+    for (n = 0; n < num; ++n) {
       for (int c = 0; c < channels; ++c) {
         for (int ph = 0; ph < pooled_height; ++ph) {
           for (int pw = 0; pw < pooled_width; ++pw) {
             int hstart = ph * stride_h - pad_h;
             int wstart = pw * stride_w - pad_w;
-            int hend = min(hstart + kernel_h, height);
-            int wend = min(wstart + kernel_w, width);
-            hstart = max(hstart, 0);
-            wstart = max(wstart, 0);
+            int hend = MIN(hstart + kernel_h, height);
+            int wend = MIN(wstart + kernel_w, width);
+            hstart = MAX(hstart, 0);
+            wstart = MAX(wstart, 0);
             const int poolindex = ph * pooled_width + pw;
             for (int h = hstart; h < hend; ++h) {
               for (int w = wstart; w < wend; ++w) {
@@ -63,23 +64,23 @@ void FUN(pooling_forward)(PoolMethod pool, Phase phase, const Dtype* bottom_data
     }
     break;
   case PoolMethod_AVE:
-    for (int i = 0; i < top_count; ++i) {
+    for (i = 0; i < top_count; ++i) {
       top_data[i] = 0;
     }
     // The main loop
-    for (int n = 0; n < num; ++n) {
+    for (n = 0; n < num; ++n) {
       for (int c = 0; c < channels; ++c) {
         for (int ph = 0; ph < pooled_height; ++ph) {
           for (int pw = 0; pw < pooled_width; ++pw) {
             int hstart = ph * stride_h - pad_h;
             int wstart = pw * stride_w - pad_w;
-            int hend = min(hstart + kernel_h, height + pad_h);
-            int wend = min(wstart + kernel_w, width + pad_w);
+            int hend = MIN(hstart + kernel_h, height + pad_h);
+            int wend = MIN(wstart + kernel_w, width + pad_w);
             int poolsize = (hend - hstart) * (wend - wstart);
-            hstart = max(hstart, 0);
-            wstart = max(wstart, 0);
-            hend = min(hend, height);
-            wend = min(wend, width);
+            hstart = MAX(hstart, 0);
+            wstart = MAX(wstart, 0);
+            hend = MIN(hend, height);
+            wend = MIN(wend, width);
             for (int h = hstart; h < hend; ++h) {
               for (int w = wstart; w < wend; ++w) {
                 top_data[ph * pooled_width + pw] +=
@@ -133,10 +134,11 @@ void FUN(pooling_backward)(PoolMethod pool, const Dtype* const rand_idx,
   FUN(caffe_set)(count, Dtype(0), bottom_diff);
   int bottom_offset = height*width;
   int top_offset = pooled_height*pooled_width;
+  int n;
   switch (pool) {
   case PoolMethod_MAX:
     // The main loop
-    for (int n = 0; n < num; ++n) {
+    for (n = 0; n < num; ++n) {
       for (int c = 0; c < channels; ++c) {
         for (int ph = 0; ph < pooled_height; ++ph) {
           for (int pw = 0; pw < pooled_width; ++pw) {
@@ -158,19 +160,19 @@ void FUN(pooling_backward)(PoolMethod pool, const Dtype* const rand_idx,
     break;
   case PoolMethod_AVE:
     // The main loop
-    for (int n = 0; n < num; ++n) {
+    for (n = 0; n < num; ++n) {
       for (int c = 0; c < channels; ++c) {
         for (int ph = 0; ph < pooled_height; ++ph) {
           for (int pw = 0; pw < pooled_width; ++pw) {
             int hstart = ph * stride_h - pad_h;
             int wstart = pw * stride_w - pad_w;
-            int hend = min(hstart + kernel_h, height + pad_h);
-            int wend = min(wstart + kernel_w, width + pad_w);
+            int hend = MIN(hstart + kernel_h, height + pad_h);
+            int wend = MIN(wstart + kernel_w, width + pad_w);
             int poolsize = (hend - hstart) * (wend - wstart);
-            hstart = max(hstart, 0);
-            wstart = max(wstart, 0);
-            hend = min(hend, height);
-            wend = min(wend, width);
+            hstart = MAX(hstart, 0);
+            wstart = MAX(wstart, 0);
+            hend = MIN(hend, height);
+            wend = MIN(wend, width);
             for (int h = hstart; h < hend; ++h) {
               for (int w = wstart; w < wend; ++w) {
                 bottom_diff[h * width + w] += top_diff[ph * pooled_width + pw] / poolsize;

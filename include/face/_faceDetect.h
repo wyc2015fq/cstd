@@ -9,7 +9,7 @@
 #include <assert.h>
 //#include "../cascade.h"
 //#include "../cstd.h"
-#include "../stdc/stdc.h"
+
 #include "../libfacerecog.h"
 //#include "../imresize.h"
 //#include "../sort.h"

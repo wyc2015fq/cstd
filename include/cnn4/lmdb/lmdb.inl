@@ -722,7 +722,7 @@ static txnid_t mdb_debug_start;
 	 */
 typedef uint16_t	 indx_t;
 
-typedef unsigned long long	mdb_hash_t;
+typedef uint64_t	mdb_hash_t;
 
 	/**	Default size of memory map.
 	 *	This is certainly too small for any actual applications. Apps should always set
@@ -1205,7 +1205,7 @@ typedef struct MDB_meta {
 	uint32_t	mm_version;
 #ifdef MDB_VL32
 	union {		/* always zero since we don't support fixed mapping in MDB_VL32 */
-		MDB_ID	mmun_ull;
+		MDB_ID	mmun_UL;
 		void *mmun_address;
 	} mm_un;
 #define	mm_address mm_un.mmun_address
@@ -1683,13 +1683,13 @@ static char *const mdb_errstr[] = {
 	"MDB_PANIC: Update of meta page failed or environment had fatal error",
 	"MDB_VERSION_MISMATCH: Database environment version mismatch",
 	"MDB_INVALID: File is not an LMDB file",
-	"MDB_MAP_FULL: Environment mapsize limit reached",
-	"MDB_DBS_FULL: Environment maxdbs limit reached",
-	"MDB_READERS_FULL: Environment maxreaders limit reached",
-	"MDB_TLS_FULL: Thread-local storage keys full - too many environments open",
-	"MDB_TXN_FULL: Transaction has too many dirty pages - transaction too big",
-	"MDB_CURSOR_FULL: Internal error - cursor stack limit reached",
-	"MDB_PAGE_FULL: Internal error - page has no more space",
+	"MDB_MAP_FULLL: Environment mapsize limit reached",
+	"MDB_DBS_FULLL: Environment maxdbs limit reached",
+	"MDB_READERS_FULLL: Environment maxreaders limit reached",
+	"MDB_TLS_FULLL: Thread-local storage keys full - too many environments open",
+	"MDB_TXN_FULLL: Transaction has too many dirty pages - transaction too big",
+	"MDB_CURSOR_FULLL: Internal error - cursor stack limit reached",
+	"MDB_PAGE_FULLL: Internal error - page has no more space",
 	"MDB_MAP_RESIZED: Database contents grew beyond environment mapsize",
 	"MDB_INCOMPATIBLE: Operation and DB incompatible, or DB flags changed",
 	"MDB_BAD_RSLOT: Invalid reuse of reader locktable slot",
@@ -2234,7 +2234,7 @@ mark_done:
 static int mdb_page_flush(MDB_txn *txn, int keep);
 
 /**	Spill pages from the dirty list back to disk.
- * This is intended to prevent running into #MDB_TXN_FULL situations,
+ * This is intended to prevent running into #MDB_TXN_FULLL situations,
  * but note that they may still occur in a few cases:
  *	1) our estimate of the txn size could be too small. Currently this
  *	 seems unlikely, except with a large number of #MDB_MULTIPLE items.
@@ -2244,7 +2244,7 @@ static int mdb_page_flush(MDB_txn *txn, int keep);
  *	 the parent's dirty_room is below a given threshold.
  *
  * Otherwise, if not using nested txns, it is expected that apps will
- * not run into #MDB_TXN_FULL any more. The pages are flushed to disk
+ * not run into #MDB_TXN_FULLL any more. The pages are flushed to disk
  * the same way as for a txn commit, e.g. their P_DIRTY flag is cleared.
  * If the txn never references them again, they can be left alone.
  * If the txn only reads them, they can be used without any fuss.
@@ -5088,12 +5088,12 @@ static mdb_hash_t
 mdb_hash(const void *val, size_t len)
 {
 	const unsigned char *s = (const unsigned char *) val, *end = s + len;
-	mdb_hash_t hval = 0xcbf29ce484222325ULL;
+	mdb_hash_t hval = 0xcbf29ce484222325UL;
 	/*
 	 * FNV-1a hash each octet of the buffer
 	 */
 	while (s < end) {
-		hval = (hval ^ *s++) * 0x100000001b3ULL;
+		hval = (hval ^ *s++) * 0x100000001b3UL;
 	}
 	/* return our new hash value */
 	return hval;
@@ -5110,7 +5110,7 @@ mdb_hash(const void *val, size_t len)
 static const char mdb_a85[]= "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+-;<=>?@^_`{|}~";
 
 static void ESECT
-mdb_pack85(unsigned long long l, char *out)
+mdb_pack85(uint64_t l, char *out)
 {
 	int i;
 
@@ -5960,7 +5960,7 @@ mdb_cursor_push(MDB_cursor *mc, MDB_page *mp)
  * and returns to its original value when enough pages were purged.
  *
  * If purging doesn't free any slots, filling the per-txn list will return
- * MDB_TXN_FULL, and filling the per-env list returns MDB_MAP_FULL.
+ * MDB_TXN_FULLL, and filling the per-env list returns MDB_MAP_FULLL.
  *
  * Reference tracking in a txn is imperfect, pages can linger with non-zero
  * refcnt even without active references. It was deemed to be too invasive
@@ -8129,7 +8129,7 @@ mdb_branch_size(MDB_env *env, MDB_val *key)
  * @return 0 on success, non-zero on failure. Possible errors are:
  * <ul>
  *	<li>ENOMEM - failed to allocate overflow pages for the node.
- *	<li>MDB_PAGE_FULL - there is insufficient room in the page. This error
+ *	<li>MDB_PAGE_FULLL - there is insufficient room in the page. This error
  *	should never happen since all callers already calculate the
  *	page's free space before calling this function.
  * </ul>

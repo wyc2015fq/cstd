@@ -1,8 +1,9 @@
 #ifndef _SEQPARTITION_H_
 #define _SEQPARTITION_H_
 
-#include "stdc/stdc.h"
-#include "stdc/bufmem.h"
+
+#include "stdc/stddef_c.h"
+#include "stdc/mem_c.h"
 #include "stdc/algo.h"
 
 #define REAL_TYPE double
@@ -138,7 +139,7 @@ typedef struct seqpartition_info_t {
 }
 seqpartition_info_t;
 #define SEQPARTITIONSIZE(_ELEMENT_SIZE, _TOTAL) (sizeof(seqpartition_info_t) + (2*sizeof(CvPTreeNode)+sizeof(int)+_ELEMENT_SIZE) * _TOTAL)
-static seqpartition_info_t* seqpartition_create(int total, const void* seq, int element_size, void* buf, int* pbuflen)
+static seqpartition_info_t* seqpartition_create(size_t total, const void* seq, int element_size, void* buf, int* pbuflen)
 {
   seqpartition_info_t* si = NULL;
   int buflen = SEQPARTITIONSIZE(element_size, total);
@@ -382,7 +383,8 @@ int rect_partition(XRECT* rc0, XRECT* B, REAL_TYPE thd, int mincnt, int sort, vo
   }
 #else
   {
-    int total = (B - rc0), i, j;
+    size_t total = (B - rc0);
+    int i, j;
     //char buf[SEQPARTITIONSIZE(sizeof(XRECT), 100)];
     CvPTreeNode* center;
     seqpartition_info_t* si;

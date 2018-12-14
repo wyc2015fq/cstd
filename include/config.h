@@ -2,6 +2,9 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
+#pragma warning(disable:4068 4756)
+
+#include "stdc/stddef_c.h"
 #define CPU_ONLY
 
 #ifdef __ARM_NEON
@@ -18,7 +21,7 @@
 #define CPU_ONLY
 #endif
 #else
-#define USE_CBLAS
+//#define USE_CBLAS
 #endif
 
 
@@ -28,18 +31,25 @@
 
 // USE_CBLAS
 
-#define countof(arr) sizeof(arr)/sizeof(arr[0])
-#define MIN(a, b)  ((a) < (b) ? (a) : (b))
-#define MAX(a, b)  ((a) > (b) ? (a) : (b))
-#define BOUND(x, a, b)   ((x)<(a) ? (a) : ((x)>(b) ? (b) :(x)) )
-#define ASSERT(x)  assert(x)
+#if __ARM_NEON
+#include <arm_neon.h>
+#endif // __ARM_NEON
+/////////////////////
+
+#if 1
+//#define countof(arr) sizeof(arr)/sizeof(arr[0])
+//#define MIN(a, b)  ((a) < (b) ? (a) : (b))
+//#define MAX(a, b)  ((a) > (b) ? (a) : (b))
+//#define BOUND(x, a, b)   ((x)<(a) ? (a) : ((x)>(b) ? (b) :(x)) )
+//#define ASSERT(x)  assert(x)
+//#define T_SWAP(T, a, b)   {T t = a; a=b; b=t;}
 #define CMP(a, b)  ((a)>(b)) - ((a)<(b))
-#define T_SWAP(T, a, b)   {T t = a; a=b; b=t;}
 #define IFRET(ret, comp)  ret = comp; if (ret) {return ret;}
 #define IFCMPRET(ret, a, b)  ret = CMP(a, b);if (ret) {return ret;}
-#define MYREALLOC(ptr, n)   *(void**)(&ptr) = realloc(ptr, n*sizeof(*ptr))
-#define FREE(ptr)   if (ptr) {free(ptr);ptr = NULL;}
+//#define MYREALLOC(ptr, n)   *(void**)(&ptr) = realloc(ptr, n*sizeof(*ptr))
+//#define FREE(ptr)   if (ptr) {free(ptr);ptr = NULL;}
 #define ABS(x)  (x)<0 ? -(x) : (x)
+#endif
 
 #include <stdio.h>
 #define OUT_FILE(name, n, a, fmt)  { FILE* pf = fopen(name, "wb"); if (pf) { \

@@ -1,4 +1,10 @@
 
+#if defined _WIN32 && _MSC_VER < 1300
+#define vec_data(vec)  vec.begin()
+#else
+#define vec_data(vec)  vec.data()
+#endif
+
 inline int num_axes() const { return shape_.num_axes(); }
 
 inline string shape_string() const {
@@ -19,14 +25,13 @@ void set_name(const char* name) {
   strncpy(name_, name, MAX_NAME);
 }
 
-string to_debug_string() {
+char* to_debug_string(char* str, int len) {
   Blob* blob = this;
-  char str[256];
   if (blob->diff_->state_ == UNINIT) {
-    _snprintf(str, 256, "%s %s [%lf]", blob->name_,
+    _snprintf(str, len, "%s %s [%lf]", blob->name_,
       DataShape_string(blob->shape_).c_str(), blob->amean_data());
   } else {
-    _snprintf(str, 256, "%s %s [%lf %lf]", blob->name_,
+    _snprintf(str, len, "%s %s [%lf %lf]", blob->name_,
       DataShape_string(blob->shape_).c_str(), blob->amean_data(), blob->amean_diff());
   }
   return str;
@@ -120,7 +125,7 @@ inline Dtype diff_at(const int n, const int c, const int h, const int w) {
 void Reshape(const vector<int> & shape) {
   ASSERT(shape.size()<=kMaxBlobAxes);
   DataShape dshape;
-  dshape.set(shape.data(), shape.size());
+  dshape.set(vec_data(shape), (int)shape.size());
   Reshape(dshape);
 }
 void set_lr_mult(float lr_mult) {

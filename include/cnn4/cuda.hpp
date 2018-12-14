@@ -174,7 +174,7 @@ static void gpu_set_random_seed(const unsigned int seed)
     }
   }
   // RNG seed
-  caffe_rng()->seed(seed);
+  //caffe_rng()->seed(seed);
 }
 
 static void SetDevice(const int device_id)

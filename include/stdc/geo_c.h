@@ -2,7 +2,7 @@
 #ifndef _GEO_C_H_
 #define _GEO_C_H_
 
-#include "stdc.h"
+#include "stddef_c.h"
 #include "error_c.h"
 #include <math.h>
 #include <float.h>
@@ -1104,8 +1104,8 @@ void cRotatedRect_points(CRotatedRect rr, FPOINT pt[])
 
 IRect cRotatedRect_boundingRect(CRotatedRect rr)
 {
-  FPOINT center = rr.center;
-  FSIZE size = rr.size;
+  //FPOINT center = rr.center;
+  //FSIZE size = rr.size;
   FPOINT pt[4];
   cRotatedRect_points(rr, pt);
   IRect r = iRect(floor(MIN(MIN(MIN(pt[0].x, pt[1].x), pt[2].x), pt[3].x)),

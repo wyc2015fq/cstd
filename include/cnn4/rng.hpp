@@ -1,9 +1,6 @@
 #ifndef _RNG_CPP_HPP_
 #define _RNG_CPP_HPP_
 
-#include <algorithm>
-#include <iterator>
-#include <random>
 #ifdef _WIN32
 #include <process.h> // _getpid
 #else
@@ -11,19 +8,21 @@
 #endif // _WIN32
 //#include <direct.h>
 
-typedef std::mt19937 rng_t;
+#include "stdc/rand_c.h"
+
+//typedef mt19937ar_t rng_t;
 
 inline rng_t* caffe_rng()
 {
-  static rng_t _rng_;
-  static unsigned int inited_rng = 0;
-  if (0 == inited_rng) {
-    inited_rng = std::random_device()();
-    _rng_.seed(inited_rng);
-  }
-  return &_rng_;
+  return mt_static();
+}
+unsigned int caffe_rng_rand()
+{
+  return rng_int32(caffe_rng());
 }
 
+
+#if 0
 // Fisher¨CYates algorithm
 template <class RandomAccessIterator, class RandomGenerator>
 inline void shuffle(RandomAccessIterator begin, RandomAccessIterator end,
@@ -45,11 +44,12 @@ inline void shuffle(RandomAccessIterator begin, RandomAccessIterator end)
 {
   shuffle(begin, end, caffe_rng());
 }
+#endif
 
 // random seeding
-static int64_t cluster_seedgen(void)
+static int64 cluster_seedgen(void)
 {
-  int64_t s, seed, pid;
+  int64 s, seed, pid;
 #ifndef _MSC_VER
   FILE* f = fopen("/dev/urandom", "rb");
   if (f && fread(&seed, 1, sizeof(seed), f) == sizeof(seed)) {
@@ -66,7 +66,8 @@ static int64_t cluster_seedgen(void)
   pid = _getpid();
 #endif
   s = time(NULL);
-  seed = std::abs(((s * 181) * ((pid - 83) * 359)) % 104729);
+  seed = (((s * 181) * ((pid - 83) * 359)) % 104729);
+  seed = ABS(seed);
   return seed;
 }
 

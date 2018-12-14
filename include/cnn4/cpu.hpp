@@ -3,9 +3,7 @@
 #define _CPU_HPP_
 
 #include "config.h"
-#include "wstd/logging.hpp"
 #include "rng.hpp"
-#include <random>
 #include <ctime>
 using namespace std;
 
@@ -59,7 +57,8 @@ static void set_random_seed(const unsigned int seed) {
 //Buffer() { context[CPU] = this;    }
 static void Memcpy(Buffer* dst, const Buffer* src, int nbytes) {
   if (GPU == dst->brew || GPU == src->brew) {
-    return gpu_Memcpy(dst, src, nbytes);
+    gpu_Memcpy(dst, src, nbytes);
+    return ;
   }
   CHECK_LE(nbytes, dst->size);
   CHECK_LE(nbytes, dst->size);
@@ -68,7 +67,8 @@ static void Memcpy(Buffer* dst, const Buffer* src, int nbytes) {
 static void Free(Buffer* ptr) {
   if (ptr->data) {
     if (GPU == ptr->brew) {
-      return gpu_Free(ptr);
+      gpu_Free(ptr);
+      return;
     }
     free(ptr->data);
     ptr->data = NULL;
@@ -87,9 +87,11 @@ static void ReAlloc(Brew brew, Buffer* ptr, size_t nbytes) {
     assert(brew==ptr->brew);
   }
   if (GPU == brew) {
-    return gpu_ReAlloc(ptr, nbytes);
+    gpu_ReAlloc(ptr, nbytes);
+    return;
   }
-  return cpu_ReAlloc(ptr, nbytes);
+  cpu_ReAlloc(ptr, nbytes);
+  return ;
 }
 static void cpu_Memset(Buffer* ptr, size_t nbytes) {
   CHECK_LE(nbytes, ptr->size);
@@ -97,9 +99,11 @@ static void cpu_Memset(Buffer* ptr, size_t nbytes) {
 }
 static void Memset(Buffer* ptr, size_t nbytes) {
   if (GPU == ptr->brew) {
-    return gpu_Memset(ptr, nbytes);
+    gpu_Memset(ptr, nbytes);
+    return;
   }
-  return cpu_Memset(ptr, nbytes);
+  cpu_Memset(ptr, nbytes);
+  return ;
 }
 #if 0
 static void MemcpyAsync(size_t nbytes, Buffer* dst, const void* src, void* stream) { memcpy(dst, src, nbytes); }

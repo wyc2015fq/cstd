@@ -3,14 +3,13 @@
 #include <algorithm>
 #pragma once
 
-#include <tuple>
 #include <cmath>
 #include <limits>
 #include <algorithm>
 #include <numeric>
 
 #if !defined(CTC_DISABLE_OMP) && !defined(APPLE)
-#include <omp.h>
+//#include <omp.h>
 #endif
 
 #include "ctc_helper.h"
@@ -28,16 +27,16 @@ public:
 #if defined(CTC_DISABLE_OMP) || defined(APPLE)
 #else
     if (num_threads > 0) {
-      omp_set_num_threads(num_threads);
+      //omp_set_num_threads(num_threads);
     }
     else {
-      num_threads_ = omp_get_max_threads();
+      //num_threads_ = omp_get_max_threads();
     }
 #endif
   };
 
-  CpuCTC(const CpuCTC &) = delete;
-  CpuCTC & operator=(const CpuCTC &) = delete;
+  //CpuCTC(const CpuCTC &) = delete;
+  //CpuCTC & operator=(const CpuCTC &) = delete;
 
   ctcStatus_t cost_and_grad(const Dtype* const activations,
     Dtype* grads,
@@ -84,10 +83,9 @@ private:
   void softmax(const Dtype* const activations, Dtype* probs,
     const int* const input_lengths);
 
-  std::tuple<Dtype, bool>
-    cost_and_grad_kernel(Dtype* grad, const Dtype* const probs,
+  bool cost_and_grad_kernel(Dtype* grad, const Dtype* const probs,
       const int* const labels, int T, int L,
-      int mb, size_t bytes_used);
+      int mb, size_t bytes_used, Dtype* out);
 
   Dtype compute_alphas(const Dtype* probs, int repeats, int S, int T,
     const int* const e_inc,
@@ -134,7 +132,8 @@ int CpuCTC::CpuCTC_metadata::setup_labels(const int* const labels, int blank_lab
   int s_counter = 0;
   s_inc[s_counter++] = 1;
   int repeats = 0;
-  for (int i = 1; i < L; ++i) {
+  int i;
+  for (i = 1; i < L; ++i) {
     if (labels[i - 1] == labels[i]) {
       s_inc[s_counter++] = 1;
       s_inc[s_counter++] = 1;
@@ -148,7 +147,7 @@ int CpuCTC::CpuCTC_metadata::setup_labels(const int* const labels, int blank_lab
     }
   }
   e_inc[e_counter++] = 1;
-  for (int i = 0; i < L; ++i) {
+  for (i = 0; i < L; ++i) {
     labels_w_blanks[2 * i] = blank_label;
     labels_w_blanks[2 * i + 1] = labels[i];
   }
@@ -162,33 +161,34 @@ void CpuCTC::softmax(const Dtype* const activations, Dtype* probs,
 #pragma omp parallel for
   for (int mb = 0; mb < minibatch_; ++mb) {
     for (int c = 0; c < input_lengths[mb]; ++c) {
+      int r;
       int col_offset = (mb + minibatch_ * c) * alphabet_size_;
       Dtype max_activation = -std::numeric_limits<Dtype>::infinity();
-      for (int r = 0; r < alphabet_size_; ++r) {
-        max_activation = std::max(max_activation, activations[r + col_offset]);
+      for (r = 0; r < alphabet_size_; ++r) {
+        max_activation = MAX(max_activation, activations[r + col_offset]);
       }
       Dtype denom = Dtype(0.);
-      for (int r = 0; r < alphabet_size_; ++r) {
-        probs[r + col_offset] = std::exp(activations[r + col_offset] - max_activation);
+      for (r = 0; r < alphabet_size_; ++r) {
+        probs[r + col_offset] = exp(activations[r + col_offset] - max_activation);
         denom += probs[r + col_offset];
       }
-      for (int r = 0; r < alphabet_size_; ++r) {
+      for (r = 0; r < alphabet_size_; ++r) {
         probs[r + col_offset] /= denom;
       }
     }
   }
 }
 
-std::tuple<Dtype, bool>
-CpuCTC::cost_and_grad_kernel(Dtype* grad, const Dtype* const probs,
+bool CpuCTC::cost_and_grad_kernel(Dtype* grad, const Dtype* const probs,
   const int* const labels,
-  int T, int L, int mb, size_t bytes_used)
+  int T, int L, int mb, size_t bytes_used, Dtype* out)
 {
   const int S = 2 * L + 1; // Number of labels with blanks
   CpuCTC_metadata ctcm(L, S, T, mb, alphabet_size_, workspace_, bytes_used, blank_label_, labels);
   bool over_threshold = false;
   if (L + ctcm.repeats > T) {
-    return std::make_tuple(Dtype(0), over_threshold); // TODO, not right to return 0
+    *out = 0;
+    return over_threshold; // TODO, not right to return 0
   }
   Dtype llForward = compute_alphas(probs, ctcm.repeats, S, T, ctcm.e_inc,
     ctcm.s_inc, ctcm.labels_w_blanks,
@@ -199,11 +199,12 @@ CpuCTC::cost_and_grad_kernel(Dtype* grad, const Dtype* const probs,
     ctcm.alphas,
     ctcm.betas,
     ctcm.output);
-  Dtype diff = std::abs(llForward - llBackward);
+  Dtype diff = (Dtype)fabs(llForward - llBackward);
   if (diff > ctc_helper::threshold) {
     over_threshold = true;
   }
-  return std::make_tuple(-llForward, over_threshold);
+  *out = -llForward;
+  return over_threshold;
 }
 
 // Computes forward probabilities
@@ -213,10 +214,11 @@ Dtype CpuCTC::compute_alphas(const Dtype* probs, int repeats, int S, int T,
   const int* const labels,
   Dtype* alphas)
 {
+  int i;
   int start = (((S / 2) + repeats - T) < 0) ? 0 : 1,
     end = S > 1 ? 2 : 1;
-  for (int i = start; i < end; ++i) {
-    alphas[i] = std::log(probs[labels[i]]);
+  for (i = start; i < end; ++i) {
+    alphas[i] = log(probs[labels[i]]);
   }
   for (int t = 1; t < T; ++t) {
     int remain = (S / 2) + repeats - (T - t);
@@ -229,20 +231,20 @@ Dtype CpuCTC::compute_alphas(const Dtype* probs, int repeats, int S, int T,
     int startloop = start;
     int idx1 = t * S, idx2 = (t - 1) * S, idx3 = t * (alphabet_size_ * minibatch_);
     if (start == 0) {
-      alphas[idx1] = alphas[idx2] + std::log(probs[blank_label_ + idx3]);
+      alphas[idx1] = alphas[idx2] + log(probs[blank_label_ + idx3]);
       startloop += 1;
     }
-    for (int i = startloop; i < end; ++i) {
+    for (i = startloop; i < end; ++i) {
       Dtype prev_sum = ctc_helper::log_plus<Dtype>()(alphas[i + idx2], alphas[(i - 1) + idx2]);
       // Skip two if not on blank and not on repeat.
       if (labels[i] != blank_label_ && i != 1 && labels[i] != labels[i - 2]) {
         prev_sum = ctc_helper::log_plus<Dtype>()(prev_sum, alphas[(i - 2) + idx2]);
       }
-      alphas[i + idx1] = prev_sum + std::log(probs[labels[i] + idx3]);
+      alphas[i + idx1] = prev_sum + log(probs[labels[i] + idx3]);
     }
   }
   Dtype loglike = ctc_helper::neg_inf<Dtype>();
-  for (int i = start; i < end; ++i) {
+  for (i = start; i < end; ++i) {
     loglike = ctc_helper::log_plus<Dtype>()(loglike, alphas[i + (T - 1) * S]);
   }
   return loglike;
@@ -262,12 +264,13 @@ Dtype CpuCTC::compute_betas_and_grad(Dtype* grad, const Dtype* const probs,
   Dtype* betas,
   Dtype* output)
 {
+  int i;
   int start = S > 1 ? (S - 2) : 0,
     end = (T > (S / 2) + repeats) ? S : S - 1;
   std::fill(output, output + alphabet_size_, ctc_helper::neg_inf<Dtype>());
   //set the starting values in the beta column at the very right edge
-  for (int i = start; i < end; ++i) {
-    betas[i] = std::log(probs[labels[i] + (T - 1) * (alphabet_size_ * minibatch_)]);
+  for (i = start; i < end; ++i) {
+    betas[i] = log(probs[labels[i] + (T - 1) * (alphabet_size_ * minibatch_)]);
     //compute alpha * beta in log space at this position in (S, T) space
     alphas[i + (T - 1) * S] += betas[i];
     //update the gradient associated with this label
@@ -276,15 +279,15 @@ Dtype CpuCTC::compute_betas_and_grad(Dtype* grad, const Dtype* const probs,
       ctc_helper::log_plus<Dtype>()(alphas[i + (T - 1) * S], output[labels[i]]);
   }
   //update the gradient wrt to each unique label
-  for (int i = 0; i < alphabet_size_; ++i) {
+  for (i = 0; i < alphabet_size_; ++i) {
     int idx3 = (T - 1) * alphabet_size_ * minibatch_ + i;
     if (/*output[i] == 0.0 || */output[i] == ctc_helper::neg_inf<Dtype>() ||
       probs[idx3] == 0.0) {
       grad[idx3] = probs[idx3];
     }
     else {
-      grad[idx3] = probs[idx3] - std::exp(output[i] -
-        std::log(probs[idx3]) - log_partition);
+      grad[idx3] = probs[idx3] - exp(output[i] -
+        log(probs[idx3]) - log_partition);
     }
   }
   //loop from the second to last column all the way to the left
@@ -305,7 +308,7 @@ Dtype CpuCTC::compute_betas_and_grad(Dtype* grad, const Dtype* const probs,
       if (labels[i] != blank_label_ && i != (S - 2) && labels[i] != labels[i + 2]) {
         next_sum = ctc_helper::log_plus<Dtype>()(next_sum, betas[(i + 2)]);
       }
-      betas[i] = next_sum + std::log(probs[labels[i] + idx3]);
+      betas[i] = next_sum + log(probs[labels[i] + idx3]);
       //compute alpha * beta in log space
       alphas[i + idx1] += betas[i];
       //update the gradient associated with this label
@@ -313,27 +316,27 @@ Dtype CpuCTC::compute_betas_and_grad(Dtype* grad, const Dtype* const probs,
         ctc_helper::log_plus<Dtype>()(alphas[i + idx1], output[labels[i]]);
     }
     if (end == S) {
-      betas[(S - 1)] = betas[(S - 1)] + std::log(probs[blank_label_ + idx3]);
+      betas[(S - 1)] = betas[(S - 1)] + log(probs[blank_label_ + idx3]);
       alphas[(S - 1) + idx1] += betas[(S - 1)];
       output[labels[S - 1]] =
         ctc_helper::log_plus<Dtype>()(alphas[S - 1 + idx1], output[labels[S - 1]]);
     }
     //go over the unique labels and compute the final grad
     // wrt to each one at this time step
-    for (int i = 0; i < alphabet_size_; ++i) {
+    for (i = 0; i < alphabet_size_; ++i) {
       if (/*output[i] == 0.0 || */output[i] == ctc_helper::neg_inf<Dtype>() ||
         probs[idx3] == 0.0) {
         grad[idx3] = probs[idx3];
       }
       else {
-        grad[idx3] = probs[idx3] - std::exp(output[i] -
-          std::log(probs[idx3]) - log_partition);
+        grad[idx3] = probs[idx3] - exp(output[i] -
+          log(probs[idx3]) - log_partition);
       }
       ++idx3;
     }
   }
   Dtype loglike = ctc_helper::neg_inf<Dtype>();
-  for (int i = start; i < end; ++i) {
+  for (i = start; i < end; ++i) {
     loglike = ctc_helper::log_plus<Dtype>()(loglike, betas[i]);
   }
   return loglike;
@@ -346,12 +349,12 @@ ctcStatus_t CpuCTC::cost_and_grad(const Dtype* const activations,
   const int* const label_lengths,
   const int* const input_lengths)
 {
-  if (activations == nullptr ||
-    grads == nullptr ||
-    costs == nullptr ||
-    flat_labels == nullptr ||
-    label_lengths == nullptr ||
-    input_lengths == nullptr
+  if (activations == NULL ||
+    grads == NULL ||
+    costs == NULL ||
+    flat_labels == NULL ||
+    label_lengths == NULL ||
+    input_lengths == NULL
     ) {
     return CTC_STATUS_INVALID_VALUE;
   }
@@ -376,12 +379,11 @@ ctcStatus_t CpuCTC::cost_and_grad(const Dtype* const activations,
     const int T = input_lengths[mb]; // Length of utterance (time)
     const int L = label_lengths[mb]; // Number of labels in transcription
     bool mb_status;
-    std::tie(costs[mb], mb_status) =
-      cost_and_grad_kernel(grads + mb * alphabet_size_,
+    mb_status =cost_and_grad_kernel(grads + mb * alphabet_size_,
         probs + mb * alphabet_size_,
         flat_labels + std::accumulate(label_lengths, label_lengths + mb, 0),
         T, L, mb,
-        bytes_used + mb * per_minibatch_bytes);
+        bytes_used + mb * per_minibatch_bytes, &costs[mb]);
   }
   return CTC_STATUS_SUCCESS;
 }
@@ -392,11 +394,11 @@ ctcStatus_t CpuCTC::score_forward(const Dtype* const activations,
   const int* const label_lengths,
   const int* const input_lengths)
 {
-  if (activations == nullptr ||
-    costs == nullptr ||
-    flat_labels == nullptr ||
-    label_lengths == nullptr ||
-    input_lengths == nullptr
+  if (activations == NULL ||
+    costs == NULL ||
+    flat_labels == NULL ||
+    label_lengths == NULL ||
+    input_lengths == NULL
     ) {
     return CTC_STATUS_INVALID_VALUE;
   }
@@ -470,12 +472,12 @@ ctcStatus_t compute_ctc_loss_cpu(const Dtype* const activations,
   void* workspace,
   ctcOptions options)
 {
-  if (activations == nullptr ||
-    flat_labels == nullptr ||
-    label_lengths == nullptr ||
-    input_lengths == nullptr ||
-    costs == nullptr ||
-    workspace == nullptr ||
+  if (activations == NULL ||
+    flat_labels == NULL ||
+    label_lengths == NULL ||
+    input_lengths == NULL ||
+    costs == NULL ||
+    workspace == NULL ||
     alphabet_size <= 0 ||
     minibatch <= 0) {
     return CTC_STATUS_INVALID_VALUE;
@@ -506,14 +508,14 @@ ctcStatus_t get_workspace_size(const int* const label_lengths,
   ctcOptions options,
   size_t* size_bytes)
 {
-  if (label_lengths == nullptr ||
-    input_lengths == nullptr ||
-    size_bytes == nullptr ||
+  if (label_lengths == NULL ||
+    input_lengths == NULL ||
+    size_bytes == NULL ||
     alphabet_size <= 0 ||
     minibatch <= 0) {
     return CTC_STATUS_INVALID_VALUE;
   }
-  // This is the max of all S and T for all examples in the minibatch.
+  // This is the MAX of all S and T for all examples in the minibatch.
   int maxL = *std::max_element(label_lengths, label_lengths + minibatch);
   int maxT = *std::max_element(input_lengths, input_lengths + minibatch);
   const int S = 2 * maxL + 1;
@@ -543,7 +545,7 @@ ctcStatus_t get_workspace_size(const int* const label_lengths,
   }
   else {
     //cpu can eventually replace all minibatch with
-    //max number of concurrent threads if memory is
+    //MAX number of concurrent threads if memory is
     //really tight
     //per minibatch memory
     size_t per_minibatch_bytes = 0;

@@ -6,7 +6,7 @@ int FromProto(CJSON* param, vector<Blob*>& net_blobs_) {
   strncpy(layer->name_, param->getstring("name", ""), MAX_NAME);
   //layer->loss_weight_ = param->GetObjectNumber("loss_weight", 0);
   if (param->has("phase")) {
-    Phase phase = param->getenum("phase", TEST, Phase_Name, countof(Phase_Name));
+    Phase phase = (Phase)param->getenum("phase", TEST, Phase_Name, countof(Phase_Name));
     layer->phase_mask_ = 1 << phase;
   }
   else {
@@ -137,14 +137,15 @@ double Forward(const vector<Blob*> & bottom, const vector<Blob*> & top )
   //debug_info_ = 2;
 #endif
   if (debug_info_) {
+    char buf[256];
     LOG_IF(INFO, root_solver()) << "  [Forward] " << type_ << "Layer " << name_ << "(" << t << ")";
     if (debug_info_ > 1) {
       for (int i = 0; i < top.size(); ++i) {
-        LOG_IF(INFO, root_solver()) << "    top blob " << i << " " << top[i]->to_debug_string();
+        LOG_IF(INFO, root_solver()) << "    top blob " << i << " " << top[i]->to_debug_string(buf, 256);
       }
       if (debug_info_ > 2) {
         for (int i = 0; i < blobs_.size(); ++i) {
-          LOG_IF(INFO, root_solver()) << "    param blob " << i << " " << blobs_[i]->to_debug_string();
+          LOG_IF(INFO, root_solver()) << "    param blob " << i << " " << blobs_[i]->to_debug_string(buf, 256);
         }
       }
     }
@@ -159,12 +160,13 @@ inline void Backward(const vector<Blob*> & top, const vector<Blob*> & bottom)
   Backward_(top, bottom);
 
   if (debug_info_) {
+    char buf[256];
     LOG_IF(INFO, root_solver()) << "  [Backward] " << type_ << "Layer " << name_;
     for (int i = 0; i < bottom.size(); ++i) {
-      LOG_IF(INFO, root_solver()) << "    bottom blob " << i << " " << bottom[i]->to_debug_string();
+      LOG_IF(INFO, root_solver()) << "    bottom blob " << i << " " << bottom[i]->to_debug_string(buf, 256);
     }
     for (int i = 0; i < blobs_.size(); ++i) {
-      LOG_IF(INFO, root_solver()) << "    param blob " << i << " " << blobs_[i]->to_debug_string();
+      LOG_IF(INFO, root_solver()) << "    param blob " << i << " " << blobs_[i]->to_debug_string(buf, 256);
     }
   }
 

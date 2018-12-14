@@ -36,7 +36,7 @@ public:
     inferred_axis_ = -1;
     copy_axes_.clear();
     const vector<int>& top_blob_shape = shape_;
-    const int top_num_axes = top_blob_shape.size();
+    const int top_num_axes = (int)top_blob_shape.size();
     constant_count_ = 1;
     for (int i = 0; i < top_num_axes; ++i) {
       const int top_dim = top_blob_shape[i];
@@ -71,7 +71,7 @@ public:
     const int num_axes_replaced = end_axis - start_axis;
     const int num_axes_retained = bottom[0]->num_axes() - num_axes_replaced;
     const vector<int>& top_blob_shape = shape_;
-    const int num_new_axes = top_blob_shape.size();
+    const int num_new_axes = (int)top_blob_shape.size();
     vector<int> top_shape(num_axes_retained + num_new_axes);
     int top_shape_index = 0;
     for (int i = 0; i < start_axis; ++i) {

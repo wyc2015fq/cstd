@@ -2,7 +2,7 @@
 #ifndef _FILEIO_C_H_
 #define _FILEIO_C_H_
 
-#include "bufmem.h"
+#include "mem_c.h"
 
 #ifdef _WIN32
 #include <io.h>

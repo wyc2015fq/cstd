@@ -46,7 +46,7 @@ public:
         NormalizationMode_BATCH_SIZE;
     }
     else {
-      normalization_ = param->getenum("normalization", NormalizationMode_VALID, NormalizationMode_Name, countof(NormalizationMode_Name));
+      normalization_ = (NormalizationMode)param->getenum("normalization", NormalizationMode_VALID, NormalizationMode_Name, countof(NormalizationMode_Name));
     }
   }
 
@@ -109,7 +109,7 @@ public:
       LOG(FATAL) << "Unknown normalization mode: "
         << NormalizationMode_Name[normalization_mode];
     }
-    return std::max(int(1), normalizer);
+    return MAX(int(1), normalizer);
   }
   virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top) {
     // The forward pass computes the softmax prob values.

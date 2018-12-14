@@ -1,7 +1,7 @@
 
 
 //#include "log.h"
-#include "wstd/logging.hpp"
+#include "stdc/log_c.h"
 #include "parser/cJSON.hpp"
 #include "cpu.hpp"
 #include <map>
@@ -12,11 +12,16 @@
 #include "math_functions.inl"
 
 
+
 int debug_info_ = 0;
 
 void Lock() {}
 void Unlock() {}
 void InitMutex() {}
+
+void set_debug_info(int level) {
+  debug_info_ = level;
+}
 
 inline string DataShape_string(const DataShape& shape) {
   char buf[256]="[";
@@ -116,7 +121,7 @@ struct DevMem {
   void* mptr(Brew brew) { return to(brew, brew==CPU ? AT_CPU : AT_GPU); }
 
   void reset(size_t size) {
-    nbytes_ = size;
+    nbytes_ = (int)size;
     state_ = UNINIT;
   }
 };
@@ -129,17 +134,21 @@ struct Blob {
   Dtype loss_;
   Dtype lr_mult_;
   Dtype decay_mult_;
+#if 0
   union {
     DataShape shape_;
     struct { int n, c, h, w; };
   };
+#else
+  DataShape shape_;
+#endif
   DevMem data_[1];
   DevMem diff_[1];
   bool propagate_down_;
   int top_cnt_;
   int bottom_cnt_;
   int offset(int i) {
-    return i*c*h*w;
+    return i*shape_.c*shape_.h*shape_.w;
   }
 
   int count() const { return shape_.count(); }
@@ -252,7 +261,7 @@ struct Blob {
 #define GetBool(name, def, type)  name##_ = param->getbool(#name, def);
 #define GetFloat(name, def, type)  name##_ = param->getfloat(#name, def);
 #define GetInt(name, def, type)  name##_ = param->getint(#name, def);
-#define GetEnum(name, def, type)  name##_ = param->getenum(#name, def, type##_Name, countof(type##_Name));
+#define GetEnum(name, def, type)  name##_ = (type)param->getenum(#name, def, type##_Name, countof(type##_Name));
 #define GetStruct(name, def, type)  name##_.init(param->get(#name ));
 
 #define DefString(name, def, type)  string name##_;
@@ -570,7 +579,7 @@ struct SolverBase {
   int snapshot;
   int test_interval;
   int max_iter;
-  double average_loss;
+  int average_loss;
   bool test_initialization;
   char snapshot_prefix_[256];
   char lr_policy_[256];
@@ -596,7 +605,7 @@ struct SolverBase {
     display = param_->GetObjectInt("display", 100);
     snapshot = param_->GetObjectInt("snapshot", 100);
     test_interval = param_->GetObjectInt("test_interval", 100);
-    average_loss = param_->GetObjectNumber("average_loss", 1);
+    average_loss = (int)param_->GetObjectNumber("average_loss", 1);
     debug_info_ = param_->GetObjectInt("debug_info", 0);
     strncpy(snapshot_prefix_, param_->GetObjectString("snapshot_prefix", ""), 256);
     strncpy(lr_policy_, param_->GetObjectString("lr_policy", "inv"), 256);
@@ -607,7 +616,7 @@ struct SolverBase {
     clip_gradients = param_->GetObjectNumber("clip_gradients", -1);
     weight_decay = param_->getfloat("weight_decay", 0.0005);
     //regularization_type  = param_->GetObjectString("regularization_type", "L2");
-    regularization_type = param_->getenum("regularization_type", RegularizationType_L2, RegularizationType_Name, countof(RegularizationType_Name));
+    regularization_type = (RegularizationType)param_->getenum("regularization_type", RegularizationType_L2, RegularizationType_Name, countof(RegularizationType_Name));
     momentum = param_->GetObjectNumber("momentum", 1);
     delta = param_->getfloat("delta", 1e-8);
     //delta = param_->getfloat("delta", 1e-8);
@@ -624,7 +633,7 @@ struct Net {
   typedef Layer::Dtype Dtype;
   vector<Layer* > layers_;
   vector<Blob* > blobs_;
-  int size() { return layers_.size(); }
+  int size() { return (int)layers_.size(); }
   Net() {
     init();
   }
@@ -637,7 +646,7 @@ struct Net {
     init();
   }
   void reset(int layer_size) {
-    int layer_size_ = layers_.size();
+    int layer_size_ = (int)layers_.size();
     for (; layer_size_>layer_size; ) {
       --layer_size_;
       delete layers_[layer_size_];

@@ -167,7 +167,7 @@
 #define _LMDB_H_
 
 #include <sys/types.h>
-#include <inttypes.h>
+//#include <inttypes.h>
 #include <limits.h>
 
 #ifdef __cplusplus

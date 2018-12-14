@@ -47,14 +47,14 @@ int FUN(PositiveUnitballFiller)(DataShape shape, Dtype* data) {
   FUN(caffe_rng_uniform)(count, 0, 1, data);
   // We expect the filler to not be called very frequently, so we will
   // just use a simple implementation
-  int dim = count / shape.num();
+  int i, j, dim = count / shape.num();
   CHECK(dim);
-  for (int i = 0; i < shape.num(); ++i) {
+  for (i = 0; i < shape.num(); ++i) {
     Dtype sum = 0;
-    for (int j = 0; j < dim; ++j) {
+    for (j = 0; j < dim; ++j) {
       sum += data[i * dim + j];
     }
-    for (int j = 0; j < dim; ++j) {
+    for (j = 0; j < dim; ++j) {
       data[i * dim + j] /= sum;
     }
   }

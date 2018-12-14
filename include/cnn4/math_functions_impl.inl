@@ -5,7 +5,7 @@ void FUN(caffe_copy)(const int N, const Dtype* X, Dtype* Y) {
   }
 }
 
-inline int8_t FUN(caffe_sign_)(Dtype val)
+inline int8 FUN(caffe_sign_)(Dtype val)
 {
   return (Dtype(0) < val) - (val < Dtype(0));
 }
@@ -19,8 +19,8 @@ inline int8_t FUN(caffe_sign_)(Dtype val)
   }
 
 DEFINE_CAFFE_CPU_UNARY_FUNC(caffe_sign, y[i] = FUN(caffe_sign_)(x[i]));
-DEFINE_CAFFE_CPU_UNARY_FUNC(caffe_sgnbit, y[i] = static_cast<bool>((std::signbit)(x[i])));
-DEFINE_CAFFE_CPU_UNARY_FUNC(caffe_fabs, y[i] = std::fabs(x[i]));
+DEFINE_CAFFE_CPU_UNARY_FUNC(caffe_sgnbit, y[i] = (x[i]<0));
+DEFINE_CAFFE_CPU_UNARY_FUNC(caffe_fabs, y[i] = fabs(x[i]));
 
 #undef DEFINE_CAFFE_CPU_UNARY_FUNC
 
@@ -32,7 +32,7 @@ void FUN(caffe_gemm)(const CBLAS_TRANSPOSE TransA,
   int lda = (TransA == CblasNoTrans) ? K : M;
   int ldb = (TransB == CblasNoTrans) ? N : K;
 #if 1
-  CBLASFUN(gemm)(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, N);
+  CBLASFUN(gemm)(CblasRowMajor, TransA, TransB, M, N, K, (Dtype)alpha, A, lda, B, ldb, (Dtype)beta, C, N);
   //my_sgemm(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, N);
 #else
   Dtype* D = NULL;
@@ -63,32 +63,36 @@ void FUN(caffe_gemv)(const CBLAS_TRANSPOSE TransA, const int M,
   const int N, const Stype alpha, const Dtype* A, const Dtype* x,
   const Stype beta, Dtype* y)
 {
-  CBLASFUN(gemv)(CblasRowMajor, TransA, M, N, alpha, A, N, x, 1, beta, y, 1);
+  CBLASFUN(gemv)(CblasRowMajor, TransA, M, N, (Dtype)alpha, A, N, x, 1, (Dtype)beta, y, 1);
 }
 
 void FUN(caffe_axpy)(const int N, const Stype alpha, const Dtype* X, Dtype* Y) {
-  CBLASFUN(axpy)(N, alpha, X, 1, Y, 1);
+  CBLASFUN(axpy)(N, (Dtype)alpha, X, 1, Y, 1);
 }
 void FUN(caffe_set)(const int N, const Stype alpha, Dtype* Y)
 {
   if (alpha == 0) {
     memset(Y, 0, sizeof(Dtype) * N);  // NOLINT(caffe/alt_fn)
-    return;
   }
-  for (int i = 0; i < N; ++i) {
-    Y[i] = alpha;
+  else {
+    Dtype alpha_ = (Dtype)alpha;
+    for (int i = 0; i < N; ++i) {
+      Y[i] = alpha_;
+    }
   }
 }
 void FUN(caffe_add_scalar)(const int N, const Stype alpha, Dtype* Y)
 {
+  Dtype alpha_ = (Dtype)alpha;
   for (int i = 0; i < N; ++i) {
-    Y[i] += alpha;
+    Y[i] += alpha_;
   }
 }
 
 void FUN(caffe_scal)(const int N, const Stype alpha, Dtype* X)
 {
-  CBLASFUN(scal)(N, alpha, X, 1);
+  Dtype alpha_ = (Dtype)alpha;
+  CBLASFUN(scal)(N, alpha_, X, 1);
 }
 
 Stype FUN(caffe_strided_dot)(const int n, const Dtype* x, const int incx, const Dtype* y, const int incy)
@@ -126,7 +130,7 @@ DEFINE_VSL_UNARY_FUNC(caffe_abs, y[i] = fabs(a[i]));
 // The operation should be in the form e.g. y[i] = pow(a[i], b)
 void FUN(caffe_powx)(const int n, const Dtype* a, const Stype b, Dtype* y) {
   CHECK_GT(n, 0); CHECK(a); CHECK(y);
-  for (int i = 0; i < n; ++i) { y[i] = pow(a[i], b); }
+  for (int i = 0; i < n; ++i) { y[i] = (Dtype)pow(a[i], b); }
 }
 
 // A simple way to define the vsl binary functions. The operation should
@@ -149,8 +153,8 @@ void CBLASFUN(axpby)(const int N, const Stype alpha, const Dtype* X,
   const int incX, const Stype beta, Dtype* Y,
   const int incY)
 {
-  CBLASFUN(scal)(N, beta, Y, incY);
-  CBLASFUN(axpy)(N, alpha, X, incX, Y, incY);
+  CBLASFUN(scal)(N, (Dtype)beta, Y, incY);
+  CBLASFUN(axpy)(N, (Dtype)alpha, X, incX, Y, incY);
 }
 // Y=alpha * X +beta*Y
 void FUN(caffe_axpby)(const int N, const Stype alpha, const Dtype* X, const Stype beta, Dtype* Y)
@@ -161,12 +165,14 @@ void FUN(caffe_axpby)(const int N, const Stype alpha, const Dtype* X, const Styp
 void FUN(caffe_bound)(const int N, const Dtype* a, const Stype min,
   const Stype max, Dtype* y)
 {
+  Dtype min_ = (Dtype)min;
+  Dtype max_ = (Dtype)max;
   for (int i = 0; i < N; ++i) {
-    y[i] = BOUND(a[i], min, max);
+    y[i] = BOUND(a[i], min_, max_);
   }
 }
 
-Dtype FUN(caffe_nextafter)(const Stype b)
+double FUN(caffe_nextafter)(const double b)
 {
   return nextafter(b, FLT_MAX);
 }
@@ -183,7 +189,7 @@ void FUN(caffe_rng_uniform)(const int n, const Stype a, const Stype b, Dtype* r)
   //caffe_rng();
   //rng_t* rng = caffe_rng();
   for (int i = 0; i < n; ++i) {
-    r[i] = a + (rand()*s/RAND_MAX);
+    r[i] = (Dtype)(a + (rand()*s / RAND_MAX));
   }
 }
 
@@ -192,12 +198,11 @@ void FUN(caffe_rng_gaussian)(const int n, const Stype _Mean0, const Stype sigma,
   CHECK_GE(n, 0);
   CHECK(r);
   CHECK_GT(sigma, 0);
-  std::normal_distribution<Dtype> random_distribution(_Mean0, sigma);
   //std::variate_generator<caffe::rng_t*, boost::normal_distribution<Dtype> >
   //variate_generator(caffe_rng(), random_distribution);
   rng_t* rng = caffe_rng();
   for (int i = 0; i < n; ++i) {
-    r[i] = random_distribution(*rng);
+    r[i] = (Dtype)rng_normal(rng, _Mean0, sigma);
   }
 }
 
@@ -207,23 +212,22 @@ void FUN(caffe_rng_bernoulli)(const int n, const Stype p, int* r)
   CHECK(r);
   CHECK_GE(p, 0);
   CHECK_LE(p, 1);
-  std::bernoulli_distribution random_distribution(p);
   rng_t* rng = caffe_rng();
   for (int i = 0; i < n; ++i) {
-    r[i] = random_distribution(*rng);
+    r[i] = rng_bernoulli(rng, p);
   }
 }
 
 void FUN(caffe_asum2)(const int n, const Dtype* x, Dtype* y)
 {
-  *y = CBLASFUN(asum)(n, x, 1);
+  *y = (Dtype)CBLASFUN(asum)(n, x, 1);
 }
 
 // y[i] = alpha * x[i]
 void FUN(caffe_scale)(const int n, const Stype alpha, const Dtype* x, Dtype* y)
 {
   CBLASFUN(copy)(n, x, 1, y, 1);
-  CBLASFUN(scal)(n, alpha, y, 1);
+  CBLASFUN(scal)(n, (Dtype)alpha, y, 1);
 }
 
 ////////////////////////////////////////

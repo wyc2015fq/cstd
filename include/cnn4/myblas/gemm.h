@@ -328,7 +328,4 @@ static void FUN(gemm1)(CBLAS_ORDER order, const CBLAS_TRANSPOSE TransA,
   }
   return ;
 }
-#undef Dtype
-#undef FUN
-#undef ISDOUBLE
 

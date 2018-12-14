@@ -72,7 +72,7 @@ public:
   int pad_h, pad_w, conv_verticalStride, conv_horizentalStride;
   int filter_H, filter_W;
   //Decay value used in EMA of BN
-  Dtype EMA_decay;
+  double EMA_decay;
 
   //end GPU specific data setion
 
@@ -80,8 +80,8 @@ public:
   int N, H, W; //N,H,W of the input tensor, inited in reshape phase
 
   bool useDropout;
-  float dropoutAmount;
-  unsigned long long DB_randomSeed;
+  double dropoutAmount;
+  uint64 DB_randomSeed;
   bool useBC;
   bool BC_ultra_spaceEfficient;
 
@@ -1147,7 +1147,7 @@ virtual void bottleneck_Forward_(int transitionIdx) {
     const Dtype* w = conv_w->cpu_data();
     cpu_caffe_set(conv_y_shape.count(), 0, conv_y_local);
     //cpu_conv2d(conv_x_local, conv_y_local, w, NULL, conv_x_shape, conv_y_shape, conv_w->shape_.h, conv_w->shape_.w, 1, 1, 1, 1, 1, 1, 1, false);
-    conv2d_gemm_fw(conv_x_local, conv_y_local, w, NULL, conv_x_shape, conv_y_shape, conv_w->shape_.h, conv_w->shape_.w, 1, 1, 1, 1, 1, 1, 1, false);
+    conv2d_fast(conv_x_local, conv_y_local, w, NULL, conv_x_shape, conv_y_shape, conv_w->shape_.h, conv_w->shape_.w, 1, 1, 1, 1, 1, 1, 1, false);
     //LOG(INFO) << utime_elapsed(a);
     //log_blob(this->postConv);
   }

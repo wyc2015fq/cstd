@@ -9,17 +9,18 @@ struct Solver : SolverBase {
     base = net->solver_param;
     net_ = net;
     smoothed_loss_ = 0;
+    iter_ = 0;
   }
 
   int Test()
   {
     Net* test_net = net_;
-    Dtype loss = 0;
-    vector<Dtype> test_score;
+    double loss = 0;
+    vector<double> test_score;
     test_score.assign(net_->blobs_.size(), 0);
     debug_info_ = 0;
     for (int j = 0; j < test_iter; ++j) {
-      Dtype iter_loss = test_net->Forward(TEST);
+      double iter_loss = test_net->Forward(TEST);
       for (int i = 0; i < net_->blobs_.size(); ++i) {
         Blob* blob = net_->blobs_[i];
         //auto layer = test_net->layers_[i];
@@ -35,10 +36,10 @@ struct Solver : SolverBase {
     for (int i = 0; i < net_->blobs_.size(); ++i) {
       Blob* blob = net_->blobs_[i];
       if (blob->loss_weight_ > 0 || blob->bottom_cnt_==0) {
-        const Dtype loss_weight = blob->loss_weight_;
+        const double loss_weight = blob->loss_weight_;
         const string output_name = blob->name_;
         ostringstream loss_msg_stream;
-        const Dtype mean_score = test_score[i] / test_iter;
+        const double mean_score = test_score[i] / test_iter;
         if (fabs(loss_weight) > 0) {
           loss_msg_stream << " (* " << loss_weight
             << " = " << loss_weight* mean_score << " loss)";
@@ -51,12 +52,12 @@ struct Solver : SolverBase {
     return 0;
   }
   vector<double> losses_;
-  Dtype smoothed_loss_;
-  void UpdateSmoothedLoss(Dtype loss, int start_iter,  int average_loss)
+  double smoothed_loss_;
+  void UpdateSmoothedLoss(double loss, int start_iter,  int average_loss)
   {
     if (losses_.size() < average_loss) {
       losses_.push_back(loss);
-      int size = losses_.size();
+      int size = (int)losses_.size();
       smoothed_loss_ = (smoothed_loss_ * (size - 1) + loss) / size;
     }
     else {
@@ -66,7 +67,7 @@ struct Solver : SolverBase {
     }
   }
 
-  int iter_ = 0;
+  int iter_;
   virtual void ApplyUpdate() = 0;
 
   vector<Blob*> learnable_params_;
@@ -136,7 +137,7 @@ struct Solver : SolverBase {
     }
 
     if (display && iter_ % display == 0) {
-      Dtype loss = net_->Forward(TRAIN);
+      double loss = net_->Forward(TRAIN);
       UpdateSmoothedLoss(loss, start_iter, average_loss);
       LOG(INFO) << "Iteration " << iter_ << ", loss = " << smoothed_loss_;
     }

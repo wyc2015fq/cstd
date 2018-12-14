@@ -28,6 +28,7 @@ typedef enum CBLAS_SIDE { CblasLeft = 141, CblasRight = 142 } CBLAS_SIDE;
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+//#include "../types.h"
 
 #define fequal(a, b)   ((a)==(b))
 
@@ -40,6 +41,9 @@ typedef enum CBLAS_SIDE { CblasLeft = 141, CblasRight = 142 } CBLAS_SIDE;
 #include "level1.h"
 //#include "gemv.h"
 #include "gemm.h"
+//#include "conv.h"
+
+
 #undef Dtype
 #undef Stype
 #undef FUN

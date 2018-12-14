@@ -34,13 +34,12 @@ void cJSON_AddStringArrayToObject(cJSON* object, const char* string, const std::
   }
   return;
 }
-void cJSON_AddStringArrayToObject(cJSON* object, const char* string, const vector<std::string>& arr) {
+static void cJSON_AddStringArrayToObject(cJSON* object, const char* string, const vector<std::string>& arr) {
   if (arr.size() > 0) {
     cJSON_AddStringArrayToObject(object, string, &arr[0], (int)arr.size());
   }
 }
-
-void cJSON_AddBinaryDataToObject(cJSON* object, const char* string, const void* data, int size) {
+static void cJSON_AddBinaryDataToObject(cJSON* object, const char* string, const void* data, int size) {
   char* buf = (char*)malloc(size * 3);
   int len = 0;
   base64_encode((char*)data, size, buf, &len);
@@ -48,7 +47,7 @@ void cJSON_AddBinaryDataToObject(cJSON* object, const char* string, const void* 
   cJSON_AddStringToObject(object, string, buf);
   free(buf);
 }
-CJSON* cJSON_gcObjectItem(cJSON* object, const char* string, int type = cJSON_Object) {
+static CJSON* cJSON_gcObjectItem(cJSON* object, const char* string, int type = cJSON_Object) {
   CJSON* item = cJSON_GetObjectItem((cJSON*)object, string);
   if (NULL == item) {
     //item = cJSON_CreateObject();
@@ -61,12 +60,12 @@ CJSON* cJSON_gcObjectItem(cJSON* object, const char* string, int type = cJSON_Ob
   }
   return item;
 }
-CJSON* cJSON_pushArrayItem(cJSON* object) {
+static CJSON* cJSON_pushArrayItem(cJSON* object) {
   CJSON *item = cJSON_CreateObject();
   cJSON_AddItemToArray(object, item);
   return item;
 }
-CJSON* cJSON_gcArrayItem(cJSON* object, int index) {
+static CJSON* cJSON_gcArrayItem(cJSON* object, int index) {
   int size = cJSON_GetArraySize(object);
   for (; size <= index; ++size) {
       cJSON_AddItemToArray(object, cJSON_CreateObject());
@@ -75,7 +74,7 @@ CJSON* cJSON_gcArrayItem(cJSON* object, int index) {
   assert(item);
   return item;
 }
-int cJSON_GetObjectBinaryDataSize(cJSON* object, const char* string) {
+static int cJSON_GetObjectBinaryDataSize(cJSON* object, const char* string) {
   CJSON* item = cJSON_GetObjectItem((cJSON*)object, string);
   int len = 0;
   if (item) {
@@ -83,7 +82,7 @@ int cJSON_GetObjectBinaryDataSize(cJSON* object, const char* string) {
   }
   return len;
 }
-int cJSON_GetObjectBinaryData(cJSON* object, const char* string, void* data, int size) {
+static int cJSON_GetObjectBinaryData(cJSON* object, const char* string, void* data, int size) {
   CJSON* item = cJSON_GetObjectItem((cJSON*)object, string);
   if (item) {
     int len = (int)strlen(item->valuestring);
@@ -94,7 +93,7 @@ int cJSON_GetObjectBinaryData(cJSON* object, const char* string, void* data, int
   return size;
 }
 
-int cJSON_GetObjectArraySize(const cJSON* object, const char* name) {
+static int cJSON_GetObjectArraySize(const cJSON* object, const char* name) {
   if (object) {
     CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
     if (item) {
@@ -104,7 +103,7 @@ int cJSON_GetObjectArraySize(const cJSON* object, const char* name) {
   return 0;
 }
 
-char* cJSON_GetObjectString(const cJSON* object, const char* name, const char* default_string) {
+static char* cJSON_GetObjectString(const cJSON* object, const char* name, const char* default_string) {
   if (object) {
     CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
     if (item) {
@@ -114,7 +113,7 @@ char* cJSON_GetObjectString(const cJSON* object, const char* name, const char* d
   return (char*)default_string;
 }
 
-double cJSON_GetObjectNumber(const cJSON* object, const char* name, double default_double) {
+static double cJSON_GetObjectNumber(const cJSON* object, const char* name, double default_double) {
   if (object) {
     CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
     if (item) {
@@ -123,7 +122,7 @@ double cJSON_GetObjectNumber(const cJSON* object, const char* name, double defau
   }
   return default_double;
 }
-int cJSON_GetObjectInt(const cJSON* object, const char* name, int default_int) {
+static int cJSON_GetObjectInt(const cJSON* object, const char* name, int default_int) {
   if (object) {
     CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
     if (item) {
@@ -133,33 +132,33 @@ int cJSON_GetObjectInt(const cJSON* object, const char* name, int default_int) {
   return default_int;
 }
 template <typename T>
-int cJSON_GetNumberArray(cJSON* object, T* arr, int n, double default_value) {
+static int cJSON_GetNumberArray(cJSON* object, T* arr, int n, double default_value) {
   int i;
   int size = cJSON_GetArraySize(object);
   size = MIN(size, n);
   for (i = 0; i < size; ++i) {
-    arr[i] = cJSON_GetArrayItem(object, i)->valuedouble;
+    arr[i] = (T)cJSON_GetArrayItem(object, i)->valuedouble;
   }
   for (; i < n; ++i) {
-    arr[i] = default_value;
+    arr[i] = (T)default_value;
   }
   return size;
 }
 
 template <typename T>
-int cJSON_GetObjectNumberArray(const cJSON* object, const char* name, T* arr, int n, double default_value) {
+static int cJSON_GetObjectNumberArray(const cJSON* object, const char* name, T* arr, int n, double default_value) {
   CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
   int i = 0;
   if (item) {
     i = cJSON_GetNumberArray(item, arr, n, default_value);
   }
   for (; i < n; ++i) {
-    arr[i] = default_value;
+    arr[i] = (T)default_value;
   }
   return i;
 }
 template <typename T>
-int cJSON_GetObjectNumberArray(cJSON* object, const char* name, vector<T>& arr) {
+static int cJSON_GetObjectNumberArray(cJSON* object, const char* name, vector<T>& arr) {
   CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
   int size = 0;
   if (item) {
@@ -171,7 +170,7 @@ int cJSON_GetObjectNumberArray(cJSON* object, const char* name, vector<T>& arr) 
   }
   return size;
 }
-int cJSON_GetObjectStringArray(cJSON* object, const char* name, vector<string>& arr) {
+static int cJSON_GetObjectStringArray(cJSON* object, const char* name, vector<string>& arr) {
   CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
   int size = 0;
   if (item) {
@@ -185,7 +184,7 @@ int cJSON_GetObjectStringArray(cJSON* object, const char* name, vector<string>& 
 }
 
 #define CJSON_GETOBJECTENUM(object, name, default_enum, type)  (type)cJSON_GetObjectEnum(object, name, default_enum, type ##_Name, countof( type ##_Name ))
-int cJSON_GetObjectEnum(const cJSON* object, const char* name, int default_enum, const char** enum_map, int enum_map_len) {
+static int cJSON_GetObjectEnum(const cJSON* object, const char* name, int default_enum, const char** enum_map, int enum_map_len) {
   if (object) {
     CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
     if (item) {

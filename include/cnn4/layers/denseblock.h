@@ -7,7 +7,7 @@ void FUN(BatchNormalizationForwardInference)(int num, int channels, int inner_nu
       int adsf = 0;
     }
     int k = (i / inner_num_) % channels;
-    y[i] = (bnScale[k] * (x[i] - estimatedMean[k]) / sqrt(epsilon + estimatedVariance[k])) + bnBias[k];
+    y[i] = (Dtype)((bnScale[k] * (x[i] - estimatedMean[k]) / sqrt(epsilon + estimatedVariance[k])) + bnBias[k]);
   }
 }
 void FUN(getMean)(int N, int C, int M, const Dtype* X, Dtype* mean, Stype factor) {

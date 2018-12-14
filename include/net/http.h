@@ -1,6 +1,5 @@
 
-#include "cstd.h"
-#include "net.h"
+//#include "cstd.h"
 //#define bzero(arr, n) memset(arr, 0, n)
 
 // Standard header preamble.  Ensure singular inclusion, setup for
@@ -79,9 +78,9 @@ typedef struct {
   int   responseLength;
   httpContent* content;
   char headersSent,
-       headers[HTTP_MAX_HEADERS],
-       response[HTTP_MAX_URL],
-       contentType[HTTP_MAX_URL];
+    headers[HTTP_MAX_HEADERS],
+    response[HTTP_MAX_URL],
+    contentType[HTTP_MAX_URL];
 } httpRes;
 
 typedef struct _httpd_dir {

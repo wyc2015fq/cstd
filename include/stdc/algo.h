@@ -5,8 +5,6 @@
 #define CC_INLINE static
 #define CC_DEFAULT(x) 
 
-#include "stdc.h"
-
 // 用宏判断计算机处理器是大端字节序
 static union { char c[4]; unsigned long mylong; } endian_test = { { 'l', '?', '?', 'b' } };
 #define ENDIANNESS ((char)endian_test.mylong)
@@ -715,20 +713,11 @@ enum {
 struct CvFeatureTree;
 struct CvLSH;
 struct CvLSHOperations;
+
+
 #include <stdio.h>
-#ifdef __GNUC__
-#define CC_Error( code, err ) printf("%s:%d: error: (%d) %s in function %s\n", __FILE__, __LINE__, code, err, __func__)
-#else
-#define CC_Error( code, err ) printf("%s:%d: error: (%d) %s\n", __FILE__, __LINE__, code, err)
-#endif
-#define CC_Error_( code, args ) CC_Error(code, _format args)
-#define CC_Assert( expr ) { if(!(expr)) CC_Error(CC_StsAssert, #expr); }
-#define CC_StaticAssert(condition, reason)    {int _a[condition]={0}; const char* _s=reason;}
-#ifdef _DEBUG
-#define CC_DbgAssert(expr) CC_Assert(expr)
-#else
-#define CC_DbgAssert(expr)
-#endif
+#include "error_c.h"
+
 #define BOUND_MAX(x, min, max)  x=((max)+(x)%(max))%(max)
 #define BOUND_CLIP(_x, _min, _max)  { if (_x<_min) _x = _min; if (_x>_max) _x = _max; }
 #define BOUND_NUL(x, min, max)

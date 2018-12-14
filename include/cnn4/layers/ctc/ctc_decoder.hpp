@@ -170,13 +170,13 @@ public:
           const int target = static_cast<int>(0.5 + dtarget);
           target_sequence.push_back(target);
         }
-        if (std::max(target_sequence.size(), output_sequences_[n].size()) == 0) {
+        if (MAX(target_sequence.size(), output_sequences_[n].size()) == 0) {
           // 0 length
           continue;
         }
         const int ed = EditDistance(target_sequence, output_sequences_[n]);
         acc += ed * 1.0 /
-          std::max(target_sequence.size(), output_sequences_[n].size());
+          MAX(target_sequence.size(), output_sequences_[n].size());
       }
       acc = 1 - acc / N_;
       CHECK_GE(acc, 0);
@@ -227,13 +227,13 @@ public:
             target_sequence.push_back(target);
           }
         }
-        if (std::max(target_sequence.size(), output_sequences_[n].size()) == 0) {
+        if (MAX(target_sequence.size(), output_sequences_[n].size()) == 0) {
           // 0 length
           continue;
         }
         const int ed = EditDistance(target_sequence, output_sequences_[n]);
         accedit += ed * 1.0 /
-          std::max(target_sequence.size(), output_sequences_[n].size());
+          MAX(target_sequence.size(), output_sequences_[n].size());
         if (ed == 0) {
           total_ok++;
         }
@@ -262,11 +262,11 @@ public:
     const size_t len2 = s2.size();
     Sequences d(len1 + 1, Sequence(len2 + 1));
     d[0][0] = 0;
-    for (size_t i = 1; i <= len1; ++i) { d[i][0] = i; }
-    for (size_t i = 1; i <= len2; ++i) { d[0][i] = i; }
+    for (size_t i = 1; i <= len1; ++i) { d[i][0] = (int)i; }
+    for (size_t i = 1; i <= len2; ++i) { d[0][i] = (int)i; }
     for (size_t i = 1; i <= len1; ++i) {
       for (size_t j = 1; j <= len2; ++j) {
-        d[i][j] = std::min(std::min(d[i - 1][j] + 1, d[i][j - 1] + 1),
+        d[i][j] = MIN(MIN(d[i - 1][j] + 1, d[i][j - 1] + 1),
           d[i - 1][j - 1] + (s1[i - 1] == s2[j - 1] ? 0 : 1));
       }
     }

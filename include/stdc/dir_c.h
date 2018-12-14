@@ -4,8 +4,13 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
-#include "stdc.h"
+#include "stddef_c.h"
+#include "inttypes_c.h"
+//#include "stdc.h"
 #include "path_c.h"
+#include <io.h>
+#include <direct.h>
+
 
 #ifndef MAX_PATH
 #define MAX_PATH 260
@@ -36,6 +41,7 @@ typedef struct dirlist_t {
   fileinfo_t* v;
   int n;
 } dirlist_t;
+
 CC_INLINE int dirlist_free(dirlist_t* s)
 {
   FREE(s->v);
@@ -179,7 +185,7 @@ static int dirlist(dirlist_t* s, const char* path, const char* filters, int flag
   }
   return 0;
 }
-#include "str.h"
+#include "str_c.h"
 static int dirvstr(vstr_t* sv, const char* path, const char* filters, int flag) {
   dirlist_t dl[1] = { 0 };
   int i;

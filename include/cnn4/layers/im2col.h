@@ -81,7 +81,8 @@ void FUN(im2col_nd_core)(const Dtype* data_input, const bool im2col,
       int index_col = c_col;
       int index_im = c_col / kernel_size;
       bool is_padding = false;
-      for (int d_i = 0; d_i < num_spatial_axes; ++d_i) {
+      int d_i;
+      for (d_i = 0; d_i < num_spatial_axes; ++d_i) {
         const int d = d_iter[d_i];
         const int d_im = d * stride.dim[d_i] - pad.dim[d_i] +
           d_offset[d_i] * dilation.dim[d_i];
@@ -105,7 +106,7 @@ void FUN(im2col_nd_core)(const Dtype* data_input, const bool im2col,
       // Loop over spatial axes in reverse order to choose an index,
       // like counting.
       incremented = false;
-      for (int d_i = num_spatial_axes - 1; d_i >= 0; --d_i) {
+      for (d_i = num_spatial_axes - 1; d_i >= 0; --d_i) {
         const int d_max = col_shape.dim[d_i + 1];
         DCHECK_LT(d_iter[d_i], d_max);
         if (d_iter[d_i] == d_max - 1) {

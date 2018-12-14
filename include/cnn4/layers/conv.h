@@ -1,4 +1,11 @@
 
+#include "stdc/types_c.h"
+#include "conv/conv_fast.h"
+
+//#define conv2d_fast cpu_conv2d
+#define conv2d_fast my_conv2d_fast
+//#define conv2d_fast conv2d_gemm_fw
+
 static void FUN(conv2d)(const Dtype* inData, float* outData, const Dtype* weights, const Dtype* biasData,
   DataShape inSize, DataShape outSize, int kernel_h, int kernel_w, int stride_h, int stride_w,
   int dilation_h, int dilation_w, int pad_h, int pad_w, int group_, bool cross_correlation) {
@@ -55,26 +62,15 @@ static void FUN(conv2d)(const Dtype* inData, float* outData, const Dtype* weight
 
 #if 1
 
-void FUN(rev)(int count, Dtype* f) {
-  Dtype* e = f + count;
-  for (; f < e--; ++f) {
-    Dtype t1 = *f;
-    Dtype t2 = *e;
-    *e = t1;
-    *f = t2;
-  }
-}
-void FUN(rev2d)(int N, int M, Dtype* f) {
-  int i;
-  for (i = 0; i < N; ++i) {
-    FUN(rev)(M, f);
-    f += M;
-  }
-}
-
-static void conv2d_gemm_fw(const Dtype* inData, float* outData, const Dtype* weights, const Dtype* biasData,
+static void conv2d_gemm_fw(const Dtype* inData, Dtype* outData, const Dtype* weights, const Dtype* biasData,
   DataShape inSize, DataShape outSize, int kernel_h, int kernel_w, int stride_h, int stride_w,
   int dilation_h, int dilation_w, int pad_h, int pad_w, int group_, bool cross_correlation) {
+  if (0) {
+    conv2d_fast(inData, outData, weights, biasData,
+      inSize, outSize, kernel_h, kernel_w, stride_h, stride_w,
+      dilation_h, dilation_w, pad_h, pad_w, group_, cross_correlation);
+    return;
+  }
   const Dtype* col_buff = inData;
   Dtype* col_buffer_ = NULL;
   bool skip_im2col = false;
@@ -91,7 +87,7 @@ static void conv2d_gemm_fw(const Dtype* inData, float* outData, const Dtype* wei
   is_1x1_ &= kernel_w == 1 && stride_w == 1 && pad_w == 0;
   //uutime a;
   //a.restart();
-  if (1) {
+  if (!cross_correlation) {
     int n = outSize.c*inSize.c, m = kernel_h*kernel_w;
     inv_kernel = (Dtype*)caffe_malloc(n*m * sizeof(Dtype));
     memcpy(inv_kernel, weights, n*m * sizeof(Dtype));

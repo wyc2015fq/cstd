@@ -1,7 +1,7 @@
 //ECHO·şÎñÆ÷¶Ë£º
-#include "socket.h"
-#include "thread.h"
-#include "threadpool.h"
+//#include "socket.h"
+#include "stdc/thread.h"
+//#include "threadpool.h"
 //#include "cmath.h"
 enum task_type {
   update_data,

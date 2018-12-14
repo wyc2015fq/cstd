@@ -2,7 +2,6 @@
 #ifndef _CNN4_TYPES_H_
 #define _CNN4_TYPES_H_
 
-#include "wstd/logging.hpp"
 
 typedef void void_type;
 typedef void void_float;
@@ -66,11 +65,17 @@ struct DataShape {
   const int& operator[](int index) const { return dim[index]; }
   void set(const int* dim2, int n) {
     assert(n<=kMaxBlobAxes);
-    for (int i = 0; i < n; ++i) { dim[i] = dim2[i]; }
-    for (int i = n; i < kMaxBlobAxes; ++i) { dim[i] = 0; }
+    int i;
+    for (i = 0; i < n; ++i) { dim[i] = dim2[i]; }
+    for (i = n; i < kMaxBlobAxes; ++i) { dim[i] = 0; }
   }
   void check() const {
     for (int i = 0; i < kMaxBlobAxes; ++i) { assert(dim[i]>=0); }
+  }
+  void push_back(int x) {
+    int n = num_axes();
+    assert(n<kMaxBlobAxes);
+    dim[n] = x;
   }
   int count() const {
     check();
@@ -111,8 +116,8 @@ struct DataShape {
     return axis_index;
   }
   inline int count(int start_axis, int end_axis) const {
-    start_axis = min(start_axis, num_axes());
-    end_axis = min(end_axis, num_axes());
+    start_axis = MIN(start_axis, num_axes());
+    end_axis = MIN(end_axis, num_axes());
     CHECK_LE(start_axis, end_axis);
     CHECK_GE(start_axis, 0);
     CHECK_GE(end_axis, 0);
@@ -210,7 +215,7 @@ enum DBMethod {
   DBMETHOD_DEF_DEF(DEF)
 #undef DEF
 };
-static const char* DBMethod_Name[] {
+static const char* DBMethod_Name[] = {
 #define DEF(a) #a ,
   DBMETHOD_DEF_DEF(DEF)
 #undef DEF
@@ -312,6 +317,12 @@ static const char* RegularizationType_Name[] = {
   "L1", "L2",
 };
 
+///////////////////////////////////////////////////
+
+inline bool is_a_ge_zero_and_a_lt_b(int a, int b)
+{
+  return static_cast<unsigned>(a) < static_cast<unsigned>(b);
+}
 ///////////////////////////////////////////////////
 
 #endif // _CNN4_TYPES_H_

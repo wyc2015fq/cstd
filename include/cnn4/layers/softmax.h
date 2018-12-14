@@ -2,19 +2,21 @@
 
 void FUN(softmax_forward)(int count, int channels, int outer_num_, int inner_num_, const Dtype* bottom_data, Dtype* top_data, Dtype* scale_data) {
   int dim = count / outer_num_;
+  int i, j;
   BufData<Dtype> sum_multiplier_buf(CPU, channels);
   Dtype* sum_multiplier_ = sum_multiplier_buf.get();
   icaffe_set<Dtype>(channels, Dtype(1), sum_multiplier_);
   FUN(caffe_copy)(count, bottom_data, top_data);
-  // We need to subtract the max to avoid numerical issues, compute the exp,
+  // We need to subtract the MAX to avoid numerical issues, compute the exp,
   // and then normalize.
-  for (int i = 0; i < outer_num_; ++i) {
+  for (i = 0; i < outer_num_; ++i) {
     // initialize scale_data to the first plane
     caffe_copy(inner_num_, bottom_data + i * dim, scale_data);
-    for (int j = 0; j < channels; j++) {
+    for (j = 0; j < channels; j++) {
       for (int k = 0; k < inner_num_; k++) {
-        scale_data[k] = std::max(scale_data[k],
-          bottom_data[i * dim + j * inner_num_ + k]);
+        Dtype a = scale_data[k];
+        Dtype b = bottom_data[i * dim + j * inner_num_ + k];
+        scale_data[k] = MAX(a, b);
       }
     }
     // subtraction
@@ -26,7 +28,7 @@ void FUN(softmax_forward)(int count, int channels, int outer_num_, int inner_num
     FUN(caffe_gemv)(CblasTrans, channels, inner_num_, 1.,
       top_data, sum_multiplier_, 0., scale_data);
     // division
-    for (int j = 0; j < channels; j++) {
+    for (j = 0; j < channels; j++) {
       FUN(caffe_div)(inner_num_, top_data, scale_data, top_data);
       top_data += inner_num_;
     }

@@ -1,5 +1,5 @@
 
-#include "cnn4/math_functions.inl"
+#include "cnn4/math_functions.h"
 
 int test_conv() {
   return 0;

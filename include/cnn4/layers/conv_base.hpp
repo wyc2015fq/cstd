@@ -274,13 +274,14 @@ public:
     // Shape the tops.
     const int* bottom_shape_ = in_shape.dim + channel_axis_;
     compute_output_shape(bottom_shape_);
-    vector<int> top_shape(in_shape.begin(), in_shape.begin() + channel_axis_);
+    DataShape top_shape;
+    top_shape.set(in_shape.begin(), channel_axis_);
     top_shape.push_back(num_output_);
     for (int i = 0; i < num_spatial_axes_; ++i) {
       top_shape.push_back(output_shape_.dim[i]);
     }
     DataShape out;
-    out.set(top_shape.data(), top_shape.size());
+    out.set(top_shape.begin(), top_shape.size());
     if (reverse_dimensions()) {
       conv_out_spatial_dim_ = in_shape.count(first_spatial_axis);
     }

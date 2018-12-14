@@ -1,6 +1,7 @@
 #ifndef CAFFE_DATA_LAYER_HPP_
 #define CAFFE_DATA_LAYER_HPP_
 
+#include "stdc/types_c.h"
 #include "../data_transformer.hpp"
 #include "../db.hpp"
 
@@ -14,11 +15,11 @@ DEF##Int(batch_size, 64, 0) \
 
 struct DataLayer : public Layer
 {
-  vector< std::pair<std::string, vector<int> > > lines_;
+  //vector< std::pair<std::string, vector<int> > > lines_;
   int line_id_;
   DB* db_;
   Cursor* cursor_;
-  uint64_t offset_;
+  uint64 offset_;
   DataParameter_DEF(Def);
 
   // DataLayer uses DataReader instead for sharing for parallelism
@@ -106,7 +107,8 @@ struct DataLayer : public Layer
     ParseFromString(value.c_str(), datum);
     CHECK_LE(top.size(), datum.size());
     for (int j = 0; j < top.size(); ++j) {
-      DataShape shape_ = datum[j].shape;
+      DataShape shape_;
+      shape_.set(datum[j].dim_, 4);
       if (j == 0) {
         shape_ = GetDataTransformerInfo(&transform_, &datum[j], phase_);
       }

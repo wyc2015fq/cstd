@@ -165,8 +165,8 @@ namespace wstd {
     const char *e;
     p = strrchr(fullpath, '\\');
     e = strrchr(fullpath, '/');
-    p = max(p + 1, e + 1);
-    p = max(p, fullpath);
+    p = MAX(p + 1, e + 1);
+    p = MAX(p, fullpath);
     e = (e = strrchr(p, '.')) ? e : strend(p);
     if (path) path->assign(fullpath, p);
     if (filename) filename->assign(p, e);
@@ -191,18 +191,18 @@ namespace wstd {
   static string path_fmt(const char* fullpath, const char* fmt) {
     char flag[256] = { 0 };
     string ret;
-    for (const char*p = fmt; *p; ++p) {
-      flag[(unsigned char)(*p)] = 1;
-    }
     const char* d;
     const char* p;
     const char *e;
+    for (p = fmt; *p; ++p) {
+      flag[(unsigned char)(*p)] = 1;
+    }
     d = strchr(fullpath, ':');
-    d = max(fullpath, d + 1);
+    d = MAX(fullpath, d + 1);
     p = strrchr(fullpath, '\\');
     e = strrchr(fullpath, '/');
-    p = max(p + 1, e + 1);
-    p = max(p, fullpath);
+    p = MAX(p + 1, e + 1);
+    p = MAX(p, fullpath);
     e = (e = strrchr(p, '.')) ? e : strend(p);
     if (flag['d']) ret.assign(fullpath, d);
     if (flag['p']) ret += string(d, p);

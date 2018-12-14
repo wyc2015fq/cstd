@@ -6,14 +6,16 @@
 
 
 struct Net;
+void set_debug_info(int level);
 Net* net_new();
 void net_del(Net* net);
 int net_loadjson(Net* net, const char* fn);
 int net_train(Net* net);
-int net_forward(Net* net);
+double net_forward(Net* net);
 const float* net_output(Net* net, int idx, int* pcount);
 int net_set_input_u8(Net* net, const unsigned char* img_data, const double* mean_values);
 
+#include "stdc/types_c.h"
 #include "utime.h"
 #include "proto.h"
 #include "solver.hpp"
@@ -44,7 +46,7 @@ int net_train(Net* net) {
   delete solver;
   return 0;
 }
-int net_forward(Net* net) {
+double net_forward(Net* net) {
   return net->Forward(TEST);
 }
 const float* net_output(Net* net, int idx, int* pcount) {
@@ -72,7 +74,5 @@ int net_set_input_u8(Net* net, const unsigned char* img_data, const double* mean
   }
   return 0;
 }
-
-
 
 #endif // _CNN4_HPP_

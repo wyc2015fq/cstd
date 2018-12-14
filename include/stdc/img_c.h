@@ -2,8 +2,8 @@
 #ifndef _IMG_C_H_
 #define _IMG_C_H_
 
-#include "stdc.h"
-#include "bufmem.h"
+#include "types_c.h"
+#include "mem_c.h"
 
 typedef struct PaletteEntry {
   uchar b, g, r, a;
@@ -105,55 +105,6 @@ PaletteEntry;
         (unsigned short)(bg)*(unsigned short)(255 - (unsigned short)(alpha)) + (unsigned short)128); \
     (composite) = (uchar)((temp + (temp >> 8)) >> 8); \
   }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-//#define CC_TYPE_NAME_IMAGE "opencv-image"
-//#define CC_IS_IMAGE_HDR(img)   ((img) != NULL && ((const IplImage*)(img))->nSize == sizeof(IplImage))
-//#define CC_IS_IMAGE(img)   (CC_IS_IMAGE_HDR(img) && ((IplImage*)img)->imageData != NULL)
-/* for storing double-precision
-floating point data in IplImage's */
-#define IMG_DEPTH_64F  64
-/* get reference to pixel at (col,row),
-for multi-channel images (col) should be multiplied by number of channels */
-#define CC_IMAGE_ELEM( image, elemtype, row, col )        *img_at(elemtype, image, row, col)
-#define COLOR_REV
-//#undef RGB
-//#define RGB(r,g,b)          ((COLORREF)(((BYTE)(b)|((uint16)((BYTE)(g))<<8))|(((uint32)(BYTE)(r))<<16)))
-#ifdef COLOR_REV
-#define _RGBA(r,g,b,a)         (((uint32)(((uint8)(b)|((uint16)((uint8)(g))<<8))|(((uint32)(uint8)(r))<<16)))|(( (uint32)(uint8)(a) )<<24))
-#define _RGBA16(r,g,b,a)       (((uint64)(((uint16)(b)|((uint32)((uint16)(g))<<16))|(((uint64)(uint16)(r))<<32)))|(( (uint64)(uint16)(a) )<<48))
-#else
-#define _RGBA(r,g,b,a)         (((uint32)(((uint8)(r)|((uint16)((uint8)(g))<<8))|(((uint32)(uint8)(b))<<16)))|(( (uint32)(uint8)(a) )<<24))
-#define _RGBA16(r,g,b,a)       (((uint64)(((uint16)(r)|((uint32)((uint16)(g))<<16))|(((uint64)(uint16)(b))<<32)))|(( (uint64)(uint16)(a) )<<48))
-#endif
-#define BOUND_RGBA(r,g,b,a)        _RGBA(BOUND(r, 0, 255), BOUND(g, 0, 255), BOUND(b, 0, 255), BOUND(a, 0, 255))
-#define _RGB(r,g,b)         _RGBA(r,g,b,255)
-#define _RGB16(r,g,b)         _RGBA16(r,g,b,255)
-#define INT2RGB(i)          _RGBA(((i>>16)&0xff), ((i>>8)&0xff), ((i)&0xff), 255)
-//#define HEX2INT1(H)   (('0'<=(H) && (H)<='9') ? (H)-'0' : ('a'<=(H) && (H)<='f') ? (H)-'a'+10 : ('A'<=(H) && (H)<='F') ? (H)-'A'+10 : 0)
-//#define HEX2INT2(H)   ((HEX2INT1((H)[0])<<4)|(HEX2INT1((H)[1])))
-//#define S_RGB(S)        _RGBA(HEX2INT2((S)),HEX2INT2((S)+2),HEX2INT2((S)+4),255)
-//#define CC_RGB( r, g, b )  cvScalar( (b), (g), (r), 0 )
-#define GetBV(rgb) ((BYTE)(rgb))
-#define GetGV(rgb) ((BYTE)(((uint16)(rgb)) >> 8))
-#define GetRV(rgb) ((BYTE)((rgb)>>16))
-#define GetAV(rgb) ((BYTE)((rgb)>>24))
-#define CC_RGB( r, g, b )  cScalar(b,g,r, 255)
-#define _rgb(r,g,b)  _RGB(255*(r), 255*(g), 255*(b))
-#define _rgba(r,g,b,a)  _RGBA(255*(r), 255*(g), 255*(b), 255*(a))
-#define _RGB_A(clr, _a)   _RGBA(GetRV(clr),GetGV(clr),GetBV(clr),_a)
-#define _rgb_a(clr, _a)   _RGBA(GetRV(clr),GetGV(clr),GetBV(clr),(_a)*255)
-#define _A_RGB(_a, clr)    ((clr&0x00ffffff)|(_a<<24))
-#define _ARGB(a,r,g,b)  _RGBA(r,g,b,a)
-#define _SetAlpha _RGB_A
-#define CVRGBDEF( r, g, b )  _RGB(r, g, b)
-#define GetRGBV(rgb) ((rgb)&_RGBA(255,255,255,0))
-#define SWAPRB(_COL)  _RGBA(GetBV(_COL), GetGV(_COL), GetRV(_COL), GetAV(_COL))
-#define CVSCALARDATA(scalar, _I) (((unsigned char*)scalar)[_I])
-#define RGBDEF _RGB
-#define SCALARDATA(scalar, _I) (((unsigned char*)(scalar))[_I])
-#define RGBMUL(rgb, _x)  CC_RGB(GetRV(rgb)*(_x), GetGV(rgb)*(_x), GetBV(rgb)*(_x))
-#define SCALARTORAWDATA(_scalar, _data, _cn) {int _cn1 = _cn; while(_cn1--) { (_data)[_cn1] = CVSCALARDATA(_scalar, _cn1); } }
 
 
 ////////////////////////////////////////////////////
