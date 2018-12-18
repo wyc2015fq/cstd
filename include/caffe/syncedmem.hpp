@@ -2,9 +2,8 @@
 #define CAFFE_SYNCEDMEM_HPP_
 
 #include <cstdlib>
-
+#include "std/log_c.h"
 #include "common.hpp"
-#include "wstd/logging.hpp"
 
 namespace caffe
 {
@@ -25,7 +24,7 @@ namespace caffe
 #endif
     *ptr = malloc(size);
     *use_cuda = false;
-    CHECK(*ptr) << "host allocation of size " << size << " failed";
+    CHECK(*ptr) << "host allocation of size " << (int)size << " failed";
   }
 
   inline void CaffeFreeHost(void* ptr, bool use_cuda)

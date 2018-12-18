@@ -5,7 +5,7 @@
 #include <cudnn.h>
 
 #include "caffe/common.hpp"
-#include "wstd/logging.hpp"
+#include "std/log_c.h"
 #include "caffe/proto/caffe_proto.h"
 
 #define CUDNN_VERSION_MIN(major, minor, patch) \

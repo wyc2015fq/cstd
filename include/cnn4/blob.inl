@@ -36,6 +36,10 @@ char* to_debug_string(char* str, int len) {
   }
   return str;
 }
+std::string to_debug_string() {
+  char buf[64];
+  return to_debug_string(buf, 64);
+}
 std::vector<int> shape_vec() {
   std::vector<int> out;
   out.assign(shape_.dim, shape_.dim + shape_.num_axes());

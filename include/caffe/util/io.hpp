@@ -11,7 +11,7 @@
 #include "caffe/common.hpp"
 #include "caffe/proto/caffe_proto.h"
 #include "wstd/string.hpp"
-#include "wstd/logging.hpp"
+//#include "wstd/logging.hpp"
 
 #ifndef CAFFE_TMP_DIR_RETRIES
 #define CAFFE_TMP_DIR_RETRIES 100

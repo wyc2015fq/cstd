@@ -3,6 +3,7 @@
 
 #include "ICNNPredict.h"
 #include "wstd/filesystem.hpp"
+#include "cnn4/cnn4.h"
 
 using namespace std;
 

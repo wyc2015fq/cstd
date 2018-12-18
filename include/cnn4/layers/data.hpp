@@ -1,7 +1,7 @@
 #ifndef CAFFE_DATA_LAYER_HPP_
 #define CAFFE_DATA_LAYER_HPP_
 
-#include "stdc/types_c.h"
+#include "std/types_c.h"
 #include "../data_transformer.hpp"
 #include "../db.hpp"
 

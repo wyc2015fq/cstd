@@ -14,7 +14,7 @@
 #include <iomanip>
 #include <sstream>
 
-#include "stdc/string_c.h"
+#include "std/string_c.h"
 
 typedef unsigned char uchar;
 #ifdef _WIN32

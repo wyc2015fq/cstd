@@ -7,15 +7,7 @@
 
 //typedef unsigned short ushort;
 
-struct Net;
-void set_debug_info(int level);
-Net* net_new();
-void net_del(Net* net);
-int net_loadjson(Net* net, const char* fn);
-int net_train(Net* net);
-double net_forward(Net* net);
-const float* net_output(Net* net, int idx, int* pcount);
-int net_set_input_u8(Net* net, const unsigned char* img_data, const double* mean_values);
+#include "cnn4/cnn4.h"
 
 #ifdef _WIN32
 void GetPredictString2(char* str, IRANGE* r, const char* const* labels, const float* fm, int size, int idxBlank) {
@@ -30,8 +22,8 @@ void GetPredictString2(char* str, IRANGE* r, const char* const* labels, const fl
   }
 }
 
-int ocr_run(char* str, int maxstrlen, Net* net, const double* mean_values, const uchar* img_data, const char*const * labels) {
-  net_set_input_u8(net, img_data, mean_values);
+int ocr_run(char* str, int maxstrlen, Net* net, const double* mean_values, const uchar* img_data, int w, const char*const * labels) {
+  net_set_input_u8(net, img_data, w, mean_values);
   //uutime a;
   net_forward(net);
   //LOG(INFO) << a.elapsed();
@@ -61,13 +53,13 @@ void GetPredictString2_w(wchar_t* str, IRANGE* r, const wchar_t* labels, const f
     int label = (int)(fm[i] + 0.5f);
     if (label >= 0 && label != idxBlank) {
       str[r->s++] = labels[label];
-      printf("%d\n", labels[label]);
+      //printf("%d\n", labels[label]);
     }
   }
 }
 
-int ocr_run_w(wchar_t* str, int maxstrlen, Net* net, const double* mean_values, const uchar* img_data, const wchar_t* labels_w) {
-  net_set_input_u8(net, img_data, mean_values);
+int ocr_run_w(wchar_t* str, int maxstrlen, Net* net, const double* mean_values, const uchar* img_data, int w, const wchar_t* labels_w) {
+  net_set_input_u8(net, img_data, w, mean_values);
   //uutime a;
   utime_start(a);
   net_forward(net);
@@ -100,9 +92,9 @@ struct ocr_net {
     //const char* model_file = MODEL_PATH  "model.json";
     return net_loadjson(net, model_file);
   }
-  int run(wchar_t* wstr, int maxlen, const uchar* img_data) {
+  int run(wchar_t* wstr, int maxlen, const uchar* img_data, int w) {
     double mean_values[] = { 152,152,152 };
-    int n = ocr_run_w(wstr, maxlen, net, mean_values, img_data, labels_w);
+    int n = ocr_run_w(wstr, maxlen, net, mean_values, img_data, w, labels_w);
     return n;
   }
 };

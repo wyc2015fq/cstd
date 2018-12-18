@@ -226,12 +226,16 @@ std::vector<Prediction> Classifier::Classify(const string& file, int N) {
 
 std::vector<Prediction> Classifier::Classify(const unsigned char* pJPGBuffer, int len, int N /*= 5*/)
 {
+#if 0
 	vector<uchar> jpg(len);
 	memcpy(&jpg[0], pJPGBuffer, len);
-
+  :ReadImageToBlob
 	cv::Mat img = cv::imdecode(jpg, CV_LOAD_IMAGE_COLOR);
-
 	return Classify(img, N);
+#else
+  std::vector<Prediction> ret;
+  return ret;
+#endif
 }
 
 std::vector<Prediction> Classifier::Classify(const cv::Mat& img, int N /*= 5*/)

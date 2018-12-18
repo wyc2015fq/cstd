@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "stdc/math_c.h"
+#include "std/math_c.h"
 #include "hostdevice.h"
 #include "ctc.h"
 

@@ -24,7 +24,7 @@
 #define LOADDLL_BEGIN(_x)
 #define LOADDLL_END()
 #endif
-#include "../distance.h"
+#include "distance.h"
 #include "../img/filters.h"
 //#include "../imresize.h"
 

@@ -11,7 +11,7 @@
 #define USE_CUDNN
 #endif
 #define USE_WARP_CTC
-#define USE_OPENCV
+//#define USE_OPENCV
 #define USE_PROTOBUF
 #if 1
 #define USE_PRO

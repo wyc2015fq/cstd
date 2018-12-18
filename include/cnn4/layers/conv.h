@@ -1,5 +1,5 @@
 
-#include "stdc/types_c.h"
+#include "std/types_c.h"
 #include "conv/conv_fast.h"
 
 //#define conv2d_fast cpu_conv2d

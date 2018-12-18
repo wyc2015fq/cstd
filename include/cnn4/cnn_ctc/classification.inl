@@ -2,7 +2,9 @@
 #include <io.h>
 #endif
 
+#include "cnn4/cnn4.hpp"
 #include "classification.hpp"
+#include "std/fileio_c.h"
 
 //#include "cblas.h"
 
@@ -19,12 +21,12 @@ bool Classifier::Init(const string& model_path, bool gpu_mode) {
 
 	if (!CheckFileExist(mean_file.c_str()))
 		mean_file = mean_value_file;
-
+#if 0
 	if (!gpu_mode)
 		set_mode(CPU);
 	else
 		set_mode(GPU);
-
+#endif
 	/* Load the network. */
   net_ = new Net;
   net_->FromJsonFile(model_file.c_str());
@@ -168,12 +170,17 @@ std::vector<Prediction> Classifier::Classify(const string& file, int N) {
 
 std::vector<Prediction> Classifier::Classify(const unsigned char* pJPGBuffer, int len, int N /*= 5*/)
 {
+#if 0
 	vector<uchar> jpg(len);
 	memcpy(&jpg[0], pJPGBuffer, len);
 
 	cv::Mat img = cv::imdecode(jpg, cv::IMREAD_COLOR);
 
 	return Classify(img, N);
+#else
+  std::vector<Prediction> ret;
+  return ret;
+#endif
 }
 
 std::vector<Prediction> Classifier::Classify(const cv::Mat& img, int N /*= 5*/)
@@ -924,12 +931,14 @@ void Classifier::PrepareBatchInputs(const vector<cv::Mat>& imgs)
 	}
 }
 
+#include "utime.h"
+
 std::vector<float> Classifier::GetOutputFeatureMap(const cv::Mat& img, std::vector<int>& outshape)
 {
 	PrepareInput(img);
-  uutime a;
+  utime_start(a);
 	net_->Forward(TEST);
-  LOG(INFO) << a.elapsed();
+  LOG(INFO) << utime_elapsed(a);
 	Blob* output_layer = net_->output_blobs(0);
 	const float* begin = output_layer->cpu_data();
 	const float* end = begin + output_layer->count();

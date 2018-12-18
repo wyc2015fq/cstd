@@ -667,7 +667,9 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 
 	FILE* pf = fopen(outfile, "wb");
 	int errcnt = 0;
-	int edtdistcnt = 0;
+  int edtdistcnt = 0;
+  int charcnt = 0;
+  int imgcnt = 0;
   alphabets[91] = alphabets[1];
 	for (int i = 0; i < imgs.size(); ++i)
 	{
@@ -695,18 +697,17 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 		sumspend += (end - start);
     testdata_t td = GetPredict(pred, idxBlank);
     string strpredict = GetPredictString(alphabets, td);
-
+    ++imgcnt;
+    charcnt += td1.n;
 		errcnt += !!testdata_cmp(td, td1);
 		edtdistcnt += ldistance(td, td1);
 		const char* fn = strrchr(imgs[i].c_str(), '\\');
 		++fn;
     string strpredict1 = GetPredictString(alphabets, td1);
-    if (strpredict == strpredict1) {
-      printf("%d[%d/%d/%d]%s: %s\n", edtdistcnt, errcnt, i + 1, (int)imgs.size(), fn, strpredict.c_str());
+    if (514 == i) {
+      int asdf = 0;
     }
-    else {
-      printf("%d[%d/%d/%d]%s: %s %s\n", edtdistcnt, errcnt, i + 1, (int)imgs.size(), fn, strpredict.c_str(), strpredict1.c_str());
-    }
+    printf("%d %6.3lf %6.3lf:%s: %s : %s\n", i, edtdistcnt*100. / charcnt, errcnt*100. / imgcnt, fn, strpredict.c_str(), strpredict1.c_str());
 
 		if (1) {
 			fprintf(pf, "%s ", fn);
@@ -725,7 +726,7 @@ void test_ocr_chinese(const char* imgfolder, const char* modelfolder, const char
 int test_cnn_ctc()
 {
 
-  if (1) {
+  if (0) {
     int n = countof(labels);
     FILE*pf = fopen(__FILE__"_labels.txt", "wb");
     for (int i = 0; i < n; ++i) {

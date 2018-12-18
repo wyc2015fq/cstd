@@ -47,6 +47,7 @@ struct httpd;
 
 typedef struct _httpd_var {
   char* name, *value;
+  int valuelen;
   struct  _httpd_var*  nextValue, *nextVariable;
 } httpVar;
 

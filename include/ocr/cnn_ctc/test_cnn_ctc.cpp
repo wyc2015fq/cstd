@@ -2,48 +2,8 @@
 //
 
 
-#include "caffe/libcaffe.cpp"
-//#include "ocr/dnn/caffe/pycaffe/caffe/_caffe.cpp"
-
-#include <map>
-#include "public.h"
-#undef min
-#undef max
-#include "ICNNPredict.h"
-
-//#define CPU_ONLY
-
-#if 0
-#ifndef CPU_ONLY
-#ifdef _DEBUG
-#pragma  comment(lib,"libClassificationd.lib")
-#else
-#pragma  comment(lib,"libClassification.lib")
-#endif
-
-#else
-
-#ifdef _DEBUG
-#pragma  comment(lib,"libClassificationCPU-MKLd.lib")
-#else
-#pragma  comment(lib,"libClassificationCPU-MKL.lib")
-#endif
-#endif
-#endif
-
-#include "bktree.inl"
-#include "levenshtein.inl"
-#include "classification.inl"
-
-#include <time.h>
-#include <string>
-#include <vector>
-#include <fstream>
-#include <iostream>
-#include <set>
-using namespace std;
-
-#include "caffe/ctcpp.h"
+#include "ocr_ctc.inl"
+#include "std/iconv_c.h"
 
 struct testdata_t {
 	int n;
@@ -65,7 +25,7 @@ int testdata_cmp(const struct testdata_t& a, const struct testdata_t& o) {
 	return 0;
 }
 //Ëã·¨
-int ldistance(const struct testdata_t& a, const struct testdata_t& o)
+int ldistance1(const struct testdata_t& a, const struct testdata_t& o)
 {
 	//step 1
 	const int* source = a.idx;
@@ -112,6 +72,48 @@ int ldistance(const struct testdata_t& a, const struct testdata_t& o)
 	return matrix[n][m];
 }
 
+int ldistance_s(const wchar_t* source, int n, const wchar_t* target, int m)
+{
+  //step 1
+  if (m == 0) return n;
+  if (n == 0) return m;
+  //Construct a matrix
+  typedef vector< vector<int> >  Tmatrix;
+  Tmatrix matrix(n + 1);
+  for (int i = 0; i <= n; i++)  matrix[i].resize(m + 1);
+
+  //step 2 Initialize
+
+  for (int i = 1; i <= n; i++) matrix[i][0] = i;
+  for (int i = 1; i <= m; i++) matrix[0][i] = i;
+
+  //step 3
+  for (int i = 1; i <= n; i++)
+  {
+    const char si = source[i - 1];
+    //step 4
+    for (int j = 1; j <= m; j++)
+    {
+
+      const char dj = target[j - 1];
+      //step 5
+      int cost;
+      if (si == dj) {
+        cost = 0;
+      }
+      else {
+        cost = 1;
+      }
+      //step 6
+      const int above = matrix[i - 1][j] + 1;
+      const int left = matrix[i][j - 1] + 1;
+      const int diag = matrix[i - 1][j - 1] + cost;
+      matrix[i][j] = min(above, min(left, diag));
+
+    }
+  }//step7
+  return matrix[n][m];
+}
 int GetUppercaseNum(const string& str)
 {
 	int n = 0;
@@ -315,6 +317,7 @@ float GetCTCLoss(float*activations, int timesteps, int alphabet_size, int blank_
 	return cost;
 }
 
+#if 0
 void test_ocr_english(const string& imgfolder, const string& modelfolder, const string& lexiconfile)
 {
 #ifdef CPU_ONLY
@@ -324,7 +327,7 @@ void test_ocr_english(const string& imgfolder, const string& modelfolder, const 
 #endif
 
 	//load model
-	ICNNPredict* pCNN = CreatePredictInstance(modelfolder.c_str(), usegpu);
+	ICNNPredict* pCNN = new Classifier(modelfolder.c_str(), usegpu);
 	int wstd = 0, hstd = 0;
 	pCNN->GetInputImageSize(wstd, hstd);
 
@@ -394,7 +397,7 @@ void test_ocr_english(const string& imgfolder, const string& modelfolder, const 
 	for (int i=0;i<(int)imgs.size();i++)
 	{
 		string imgfile = imgs[i];
-		cv::Mat img = cv::imread(imgfile, CV_LOAD_IMAGE_COLOR);
+		cv::Mat img = cv::imread(imgfile, cv::IMREAD_COLOR);
 		int w = img.cols, h = img.rows;
 		if (2 * w <= h)
 		{
@@ -455,8 +458,8 @@ void test_ocr_english(const string& imgfolder, const string& modelfolder, const 
 
 
 	bktree_destroy(pBKtree);
-
 }
+#endif
 
 int LoadTextFileList(const string& folder, const string& testfile, std::vector<string>& imgs) {
 	FILE* input = NULL;
@@ -507,43 +510,6 @@ int LoadTextFile(const string& folder, const string& testfile, std::vector<testd
 	return (int)testdata.size();
 }
 
-string ocr_chinese(cv::Mat img) {
-#ifdef CPU_ONLY
-	bool usegpu = false;
-#else
-	bool usegpu = true;
-#endif
-	static ICNNPredict* pCNN = NULL;
-	if (pCNN == NULL) {
-		string modelfolder = "C:\\OCR_Line\\model\\densenet-no-blstm\\";
-		pCNN = CreatePredictInstance(modelfolder.c_str(), usegpu);
-	}
-	int wstd = 0, hstd = 0;
-	pCNN->GetInputImageSize(wstd, hstd);
-	vector<string> alphabets = pCNN->GetLabels();
-
-	int w = img.cols, h = img.rows;
-	int w1 = hstd*w / h;
-	if (w1 != w && h != hstd) {
-		cv::resize(img, img, cv::Size(w1, hstd));
-	}
-
-	int start = clock();
-
-	vector<int> shape;
-	vector<float> pred = pCNN->GetOutputFeatureMap(img, shape);
-
-	int end = clock();
-	int idxBlank = 0;
-	testdata_t td;
-	vector<string>::const_iterator it = find(alphabets.begin(), alphabets.end(), "blank");
-	if (it != alphabets.end())
-		idxBlank = (int)(it - alphabets.begin());
-	string strpredict0 = GetPredictString(pred, idxBlank, alphabets, td);
-
-	return strpredict0;
-}
-
 void test_ocr_chinese(const string& imgfolder, const string& modelfolder, const string& outfile, const char* inputlistfile)
 {
 #ifdef CPU_ONLY
@@ -553,29 +519,8 @@ void test_ocr_chinese(const string& imgfolder, const string& modelfolder, const 
 #endif
 
 	//load model
-	ICNNPredict* pCNN = CreatePredictInstance(modelfolder.c_str(), usegpu);
-	int wstd = 0, hstd = 0;
-	pCNN->GetInputImageSize(wstd, hstd);
-
-	//get alphabet
-	vector<string> alphabets = pCNN->GetLabels();
-
-	int idxBlank = 0;
-	vector<string>::const_iterator it = find(alphabets.begin(), alphabets.end(), "blank");
-	if (it != alphabets.end())
-		idxBlank = (int)(it - alphabets.begin());
-
-
-	map<wchar_t, int> mapLabel2IDs;
-	for (int i = 0; i < (int)alphabets.size(); i++)
-	{
-		wchar_t c = 0;
-		if (alphabets[i] == "blank")
-			continue;
-		wstring wlabel = string2wstring(alphabets[i], true);
-		mapLabel2IDs.insert(make_pair(wlabel[0], i));
-	}
-
+  ocr_net ocr;
+  ocr.loadjson(modelfolder.c_str());
 
 	int sumspend = 0;
 	int nok_lexicon = 0;
@@ -596,10 +541,14 @@ void test_ocr_chinese(const string& imgfolder, const string& modelfolder, const 
 	FILE* pf = fopen(outfile.c_str(), "wb");
 	int errcnt = 0;
 	int edtdistcnt = 0;
+  int charcnt = 0;
+  int hstd = 32;
+  int wstd = 280;
+  int imgcnt = 0;
 	for (int i = 0; i < imgs.size(); ++i)
 	{
 		string imgfile = imgs[i];
-		cv::Mat img = cv::imread(imgfile, CV_LOAD_IMAGE_COLOR);
+		cv::Mat img = cv::imread(imgfile, cv::IMREAD_COLOR);
 		int w = img.cols, h = img.rows;
     if (h < 1)continue;
 		if (2 * w <= h)
@@ -615,20 +564,22 @@ void test_ocr_chinese(const string& imgfolder, const string& modelfolder, const 
 
 		int start = clock();
 
-		vector<int> shape;
-		vector<float> pred = pCNN->GetOutputFeatureMap(img, shape);
-
-		int end = clock();
-		sumspend += (end - start);
-
-		string strpredict0 = GetPredictString(pred, idxBlank, alphabets, td);
-
-		testdata_t td1 = testdata[i];
-		errcnt += !!testdata_cmp(td, td1);
-		edtdistcnt += ldistance(td, td1);
+    wchar_t out[256];
+    wchar_t out1[256];
+    testdata_t td1 = testdata[i];
+    int len = ocr.run(out, 256, img.data, w1);
+    int len1 = GetPredictString1_w(out1, td1.idx, td1.n, -1);
+		errcnt += len!=len1 || 0!=memcmp(out, out1, len*2);
+		edtdistcnt += ldistance_s(out, len, out1, len1);
+    charcnt += len1;
 		const char* fn = strrchr(imgs[i].c_str(), '\\');
 		++fn;
-		printf("%d[%d/%d/%d]%s: %s\n", edtdistcnt, errcnt, i + 1, (int)imgs.size(), fn, strpredict0.c_str());
+    ++imgcnt;
+    char strpredict[256];
+    char strpredict1[256];
+    iconv_c(ICONV_UCS2LE, ICONV_GB2312, (char*)out, len * 2, strpredict, 256);
+    iconv_c(ICONV_UCS2LE, ICONV_GB2312, (char*)out1, len1 * 2, strpredict1, 256);
+		printf("%6.3lf %6.3lf:%s: %s\n", edtdistcnt*100./charcnt, errcnt*100./ imgcnt, fn, strpredict1);
 
 		if (1) {
 			fprintf(pf, "%s ", fn);

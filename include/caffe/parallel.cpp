@@ -1,7 +1,7 @@
 #ifndef CPU_ONLY
 #include <cuda_runtime.h>
 #endif
-#include "wstd/logging.hpp"
+//#include "wstd/logging.hpp"
 #include <stdio.h>
 
 #include <sstream>

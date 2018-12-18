@@ -43,7 +43,7 @@
 #pragma warning(disable:4661)
 #include "proto/caffe_proto.h"
 #include "proto/caffe.pb.cc"
-#include "wstd/logging.hpp"
+#include "std/log_c.h"
 #include "blob.cpp"
 #include "common.cpp"
 #include "data_reader.cpp"
@@ -171,6 +171,7 @@
 #include "sgd_solvers.hpp"
 #include "solver.hpp"
 #include "solver_factory.hpp"
+#include "caffe_c.cpp"
 
 
 namespace boost

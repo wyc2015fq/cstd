@@ -22,7 +22,7 @@ int test_ocr_static1() {
 #ifdef _DEBUG
 #endif
     //set_debug_info(2);
-    int n = ocr_run_w(wstr, 256, net, mean_values, img_data, labels_w);
+    int n = ocr_run_w(wstr, 256, net, mean_values, img_data, 280, labels_w);
     setlocale(LC_ALL, "zh_CN.UTF-8");
     wprintf(L":%s\n", wstr); //输出 wts （字符串）
   }
@@ -42,7 +42,7 @@ int test_ocr_static() {
     wchar_t wstr[256] = { 0 };
     char str[256] = { 0 };
     //set_debug_info(2);
-    int n = ocr.run(wstr, 256, img_data);
+    int n = ocr.run(wstr, 256, img_data, 280);
     setlocale(LC_ALL, "zh_CN.UTF-8");
     wprintf(L":%s\n", wstr); //输出 wts （字符串）
   }

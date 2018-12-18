@@ -7,7 +7,7 @@
 
 #include "lmdb.h"
 
-#include "wstd/logging.hpp"
+//#include "wstd/logging.hpp"
 #include "caffe/util/db.hpp"
 
 namespace caffe

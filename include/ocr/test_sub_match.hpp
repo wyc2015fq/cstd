@@ -126,8 +126,9 @@ double sub_match(const double* a, int na, const double* b, int nb, int mincount,
   }
   return mindis;
 }
-
+#ifndef countof
 #define countof(arr)  sizeof(arr)/sizeof(arr[0])
+#endif
 
 int printAllCombination(const char* s, int mincount, int maxount, int ma) {
   int len = strlen(s);

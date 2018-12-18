@@ -8,7 +8,7 @@
 #endif // _WIN32
 //#include <direct.h>
 
-#include "stdc/rand_c.h"
+#include "std/rand_c.h"
 
 //typedef mt19937ar_t rng_t;
 
@@ -16,7 +16,7 @@ inline rng_t* caffe_rng()
 {
   return mt_static();
 }
-unsigned int caffe_rng_rand()
+static unsigned int caffe_rng_rand()
 {
   return rng_int32(caffe_rng());
 }

@@ -1,9 +1,6 @@
 #ifndef CAFFE_COMMON_HPP_
 #define CAFFE_COMMON_HPP_
 
-#include <wstd/flags.hpp>
-
-
 #include <climits>
 #include <cmath>
 #include <fstream>  // NOLINT(readability/streams)

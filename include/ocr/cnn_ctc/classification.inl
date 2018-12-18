@@ -2,30 +2,19 @@
 #include <io.h>
 #endif
 
+
+#include "utime.h"
 #include "classification.hpp"
 #include "wstd/filesystem.hpp"
+#include "std/fileio_c.h"
 
 //#include "cblas.h"
 
 //#include "glog/logging.h"
 
-
-extern "C" EXPORT ICNNPredict* CreatePredictInstance(const char* model_folder, bool use_gpu)
-{
-	Classifier* p = new Classifier();
-	if (!p->Init(model_folder, use_gpu))
-	{
-		delete p;
-		p = NULL;
-	}
-	return p;
-}
-
-Classifier::Classifier(){  }
+Classifier::Classifier(){}
 
 bool Classifier::Init(const string& model_path, bool gpu_mode) {
-
-
 	const string trained_file = model_path + "/model.caffemodel";
 	const string model_file = model_path + "/deploy.prototxt";
 	string mean_file = model_path + "/mean.binaryproto";
@@ -197,18 +186,23 @@ static std::vector<int> Argmax(const std::vector<float>& v, int N) {
 /* Return the top Na predictions. */
 std::vector<Prediction> Classifier::Classify(const string& file, int N) {
 
-	cv::Mat img = cv::imread(file, CV_LOAD_IMAGE_COLOR);
+	cv::Mat img = cv::imread(file, cv::IMREAD_COLOR);
 	return Classify(img, N);
 }
 
 std::vector<Prediction> Classifier::Classify(const unsigned char* pJPGBuffer, int len, int N /*= 5*/)
 {
+#if 0
 	vector<uchar> jpg(len);
 	memcpy(&jpg[0], pJPGBuffer, len);
 
-	cv::Mat img = cv::imdecode(jpg, CV_LOAD_IMAGE_COLOR);
+	cv::Mat img = cv::imdecode(jpg, cv::IMREAD_COLOR);
 
 	return Classify(img, N);
+#else
+  std::vector<Prediction> ret;
+  return ret;
+#endif
 }
 
 std::vector<Prediction> Classifier::Classify(const cv::Mat& img, int N /*= 5*/)
@@ -556,18 +550,17 @@ void Classifier::WrapInputLayer(std::vector<cv::Mat>* input_channels) {
 	
 }
 
-void Classifier::Preprocess(const cv::Mat& img,
-	std::vector<cv::Mat>* input_channels, bool resize_img) {
+void Classifier::Preprocess(const cv::Mat& img, std::vector<cv::Mat>* input_channels, bool resize_img) {
 	/* Convert the input image to the input image format of the network. */
 	cv::Mat sample;
 	if (img.channels() == 3 && num_channels_ == 1)
-		cv::cvtColor(img, sample, CV_BGR2GRAY);
+		cv::cvtColor(img, sample, cv::COLOR_BGR2GRAY);
 	else if (img.channels() == 4 && num_channels_ == 1)
-		cv::cvtColor(img, sample, CV_BGRA2GRAY);
+		cv::cvtColor(img, sample, cv::COLOR_BGRA2GRAY);
 	else if (img.channels() == 4 && num_channels_ == 3)
-		cv::cvtColor(img, sample, CV_BGRA2BGR);
+		cv::cvtColor(img, sample, cv::COLOR_BGRA2BGR);
 	else if (img.channels() == 1 && num_channels_ == 3)
-		cv::cvtColor(img, sample, CV_GRAY2BGR);
+		cv::cvtColor(img, sample, cv::COLOR_GRAY2BGR);
 	else
 		sample = img;
 
@@ -603,7 +596,6 @@ void Classifier::Preprocess(const cv::Mat& img,
 	}
  
 	cv::split(sample_normalized, *input_channels);
-
  }
 
 void Classifier::GetInputImageSize(int &w, int &h)
@@ -949,7 +941,6 @@ void Classifier::PrepareBatchInputs(const vector<cv::Mat>& imgs)
 	std::vector<cv::Mat> input_channels;
 	WrapInputLayer(&input_channels);
 
-
 	for (size_t i = 0; i < imgs.size(); i++)
 	{
 		vector<cv::Mat> vChannels;
@@ -961,10 +952,11 @@ void Classifier::PrepareBatchInputs(const vector<cv::Mat>& imgs)
 
 std::vector<float> Classifier::GetOutputFeatureMap(const cv::Mat& img, std::vector<int>& outshape)
 {
-	PrepareInput(img);
-	net_->Forward();
+  PrepareInput(img);
 
-	Blob<float>* output_layer = net_->output_blobs()[0];
+  net_->Forward();
+  Blob<float>* output_layer;
+  output_layer = net_->output_blobs()[0];
 	const float* begin = output_layer->cpu_data();
 	const float* end = begin + output_layer->count();
 

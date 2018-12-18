@@ -276,7 +276,7 @@ namespace caffe
     }
   }
 
-  unsigned int caffe_rng_rand()
+  static unsigned int caffe_rng_rand()
   {
     return (*caffe_rng())();
   }

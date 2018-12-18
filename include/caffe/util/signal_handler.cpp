@@ -1,5 +1,5 @@
 
-#include "wstd/logging.hpp"
+//#include "wstd/logging.hpp"
 
 #include <signal.h>
 #include <csignal>

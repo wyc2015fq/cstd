@@ -1,7 +1,7 @@
 
 
 //#include "log.h"
-#include "stdc/log_c.h"
+#include "std/log_c.h"
 #include "parser/cJSON.hpp"
 #include "cpu.hpp"
 #include <map>

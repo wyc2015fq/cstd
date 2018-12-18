@@ -3,7 +3,7 @@
 
 #include <string>
 #include <sys/stat.h>
-#include "stdc/fileio_c.h"
+#include "std/fileio_c.h"
 using namespace std;
 
 enum Mode { READ, WRITE, NEW };

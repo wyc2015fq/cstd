@@ -1,8 +1,9 @@
 
 #include "http.h"
 #include <time.h>
-#include "stdc/net_c.h"
-#include "stdc/dir_c.h"
+#include "std/net_c.h"
+#include "std/dir_c.h"
+#include "std/fileio_c.h"
 //#include "socket.h"
 
 
@@ -249,11 +250,12 @@ static char _httpd_from_hex(char c)
       : 0;
   // accept small letters just in case
 }
-static char* _httpd_unescape(char* str)
+static char* _httpd_unescape(char* str, int* plen)
 {
   char* p = str;
   char* q = str;
   static char blank[] = "";
+  *plen = 0;
   if (!str) {
     return(blank);
   }
@@ -278,7 +280,8 @@ static char* _httpd_unescape(char* str)
       }
     }
   }
-  *q++ = 0;
+  *plen = q - str;
+  *q = 0;
   return str;
 }
 static void _httpd_freeVariables(httpVar* var)
@@ -300,16 +303,25 @@ static void _httpd_freeVariables(httpVar* var)
   return;
 }
 
-static int httpdAddVariable(httpd* s, const char* name, const char* value)
-{
+void* memdup(const char* str, int len) {
+  char* ptr = (char*)malloc(len+1);
+  memcpy(ptr, str, len);
+  ptr[len] = 0;
+  return ptr;
+}
+
+static int httpdAddVariable(httpd* s, const char* name, const char* value, int valuelen) {
   httpVar* curVar, *lastVar, *newVar;
   while (*name == ' ' || *name == '\t') {
     name++;
   }
+  printf("var %s len=%d\n", name, valuelen);
   newVar = (httpVar*)malloc(sizeof(httpVar));
   memset(newVar, 0, sizeof(httpVar));
-  newVar->name = _strdup(name);
-  newVar->value = _strdup(value);
+  int namelen = strlen(name);
+  newVar->name = (char*)memdup(name, namelen);
+  newVar->value = (char*)memdup(value, valuelen);
+  newVar->valuelen = valuelen;
   lastVar = NULL;
   curVar = s->variables;
   while (curVar) {
@@ -331,11 +343,13 @@ static int httpdAddVariable(httpd* s, const char* name, const char* value)
   else {
     s->variables = newVar;
   }
-  return(0);
+  return 0;
 }
+
 static void _httpd_storeData(httpd* s, char* query)
 {
   char* cp, *cp2, var[50], *val, *tmpVal;
+  int len;
   if (!query) {
     return;
   }
@@ -352,8 +366,8 @@ static void _httpd_storeData(httpd* s, char* query)
     }
     if (*cp == '&' || *cp =='\n') {
       *cp = 0;
-      tmpVal = _httpd_unescape(val);
-      httpdAddVariable(s, var, tmpVal);
+      tmpVal = _httpd_unescape(val, &len);
+      httpdAddVariable(s, var, tmpVal, len);
       cp++;
       cp2 = var;
       val = NULL;
@@ -374,8 +388,8 @@ static void _httpd_storeData(httpd* s, char* query)
     }
   }
   *cp = 0;
-  tmpVal = _httpd_unescape(val);
-  httpdAddVariable(s, var, tmpVal);
+  tmpVal = _httpd_unescape(val, &len);
+  httpdAddVariable(s, var, tmpVal, len);
 }
 static void _httpd_formatTimeString(char* ptr, int len, int clock)
 {
@@ -959,7 +973,7 @@ static int httpdSetVariableValue(httpd* s, char* name, char* value)
     return(0);
   }
   else {
-    return(httpdAddVariable(s, name, value));
+    return httpdAddVariable(s, name, value, strlen(value));
   }
 }
 static httpd* httpdCreate(const char* host, int port)
@@ -1061,6 +1075,121 @@ static int httpdGetConnection(httpd* s, int time_ms)
   return(1);
 }
 
+#define strncasecmp2(a, b)  _strnicmp(a, b, strlen(b))
+
+int from_multipart_var(httpReq* req, char* s, int len) {
+  return 0;
+}
+
+int from_multipart(httpd* s) {
+  int nimgs = 0;
+  int i, j, nbfs = 0;
+  httpReq* req = &s->request;
+  if (0 == strncasecmp2(s->request.contentType, "multipart/form-data")) {
+    char* cp = NULL, *cp1, *cp2, *cpend;
+    const char* boundary = NULL;
+    {
+      cp = req->contentType;
+      //cp = "multipart/form-data; boundry=---------------------------7db1851cd1158";
+      cp1 = strchr(cp, ';');
+      if (cp1) {
+        cp1 += 1;
+        for (; *cp1 == ' '; ++cp1);
+        if (strncasecmp(cp1, "boundary", 8) == 0) {
+          cp2 = strchr(cp1, '=');
+          if (cp2) {
+            boundary = cp2 + 1;
+          }
+        }
+      }
+    }
+    //boundary = "-----------------------------7db1851cd1158";
+    int boundarylen = boundary ? strlen(boundary) : 0;
+    //str_t name[1] = {0};
+    //str_t filename[1] = {0};
+    int nimage = 0;
+    str_t bfs[10] = {0};
+    cp = req->content;
+    cpend = req->content + req->contentLength;
+    int pos = 0;
+    if (boundarylen>0) {
+      for (; (pos = findstr_c(req->content, pos, req->contentLength, boundary, boundarylen, 1)) >= 0; ) {
+        pos += boundarylen + 2;
+        bfs[nbfs++].s = req->content + pos;
+      }
+    }
+    else {
+      bfs[0].s = req->content;
+      bfs[0].l = req->contentLength;
+      nbfs = 1;
+    }
+    for (i = nbfs - 1; i >= 0; --i) {
+      bfs[i].l = cpend - bfs[i].s-2;
+      cpend = bfs[i].s - boundarylen - 2;
+    }
+    j = 0;
+    for (i = 0; i<nbfs; ++i) {
+      if (bfs[i].l>10) {
+        bfs[j++] = bfs[i];
+      }
+    }
+    nbfs = j;
+    cp = req->content;
+    int infolen = 0;
+    for (i = 0; i<nbfs; ++i) {
+      enum CONTENT_TYPE { CONTENT_NUL, CONTENT_IMAGE, CONTENT_TEXT };
+      CONTENT_TYPE content_type = CONTENT_NUL;
+      char* end = bfs[i].s + bfs[i].l;
+      char* name = NULL;
+      char* info = NULL;
+      *end = 0;
+      cp1 = bfs[i].s;
+      for (; NULL== info && cp1 && cp1<end;) {
+        if (0 == strncasecmp2(cp1, "Content-Disposition: ")) {
+          cp2 = cp1 + 21;
+          printf("%s\n", cp2);
+          for (; cp2 = strchr(cp2, ';');) {
+            cp2 += 1;
+            for (; *cp2 == ' '; ++cp2);
+            if (0 == strncasecmp2(cp2, "name=")) {
+              name = cp2 + 5;
+            }
+            else if (0 == strncasecmp2(cp2, "filename=")) {
+            }
+          }
+        }
+        else if (0 == strncasecmp2(cp1, "Content-Type: ")) {
+          cp2 = cp1 + 14;
+          if (0 == strncasecmp2(cp2, "image")) {
+            ++nimage;
+            content_type = CONTENT_IMAGE;
+          }
+          //printf("%s\n", cp2);
+          //cp1 = strstr(cp1, "\r\n");
+          //if (cp1) {cp1+=2;}
+        }
+        else if (NULL==info) {
+          info = cp1;
+        }
+        cp1 = strstr(cp1, "\r\n");
+        if (cp1) {
+          cp1 += 2;
+        }
+      }
+      if (name && info) {
+        infolen = end - info;
+        if (*name == '\"') ++name;
+        char* nameend = strchr(name, '\"');
+        *nameend = 0;
+        strim(&info, &infolen, "\r\n");
+        info[infolen] = 0;
+        httpdAddVariable(s, name, info, infolen);
+      }
+    }
+  }
+  return nimgs;
+}
+
 static int httpdReadRequest(httpd* s)
 {
   static char buf[HTTP_MAX_LEN];
@@ -1133,7 +1262,7 @@ static int httpdReadRequest(httpd* s)
           if (end) {
             *end = 0;
           }
-          httpdAddVariable(s, var, val);
+          httpdAddVariable(s, var, val, end-val);
           var = end;
         }
       } else if (STRNCASECMP2(buf, "Authorization:") == 0) {
@@ -1177,8 +1306,13 @@ static int httpdReadRequest(httpd* s)
         cp = strchr(buf, ':');
         if (cp) {
           cp += 1;
-          for (; *cp==' '; ++cp);
+          for (; *cp == ' '; ++cp);
+          int nch = 0;
+          //for (; cp[nch] != ';' && cp[nch] != '\n'; ++nch);
+          //nch = MIN(nch, HTTP_MAX_URL);
           strncpy(s->request.contentType, cp, HTTP_MAX_URL);
+          if (';' == cp[nch]) {
+          }
         }
       } else if (STRNCASECMP2(buf, "Content-Length:") == 0) {
         cp = strchr(buf, ':') + 2;
@@ -1221,6 +1355,8 @@ static int httpdReadRequest(httpd* s)
     cp = s->request.content;
   }
   if (cp != NULL) {
+    savefile("D:\\aaa.txt", s->request.content, s->request.contentLength);
+    from_multipart(s);
     _httpd_storeData(s, cp);
   }
   return(0);
@@ -1384,7 +1520,7 @@ static void httpdSetCookie(httpd* s, char* name, char* value)
   snprintf(buf, HTTP_MAX_URL, "Set-Cookie: %s=%s; path=/;", name, value);
   httpdAddHeader(s, buf);
 }
-static void httpdPrintf(httpd* s, char* fmt, ...)
+static void httpdPrintf(httpd* s, const char* fmt, ...)
 {
   va_list args;
   char buf[HTTP_MAX_LEN];

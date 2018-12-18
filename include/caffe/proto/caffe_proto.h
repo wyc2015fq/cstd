@@ -5,6 +5,7 @@
 #include "caffe/caffe_config.h"
 
 #ifdef USE_PRO
+#undef STRICT
 #include "caffe.pb.h"
 #endif
 

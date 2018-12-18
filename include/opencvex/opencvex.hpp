@@ -533,6 +533,12 @@ RotatedRect rotate(const RotatedRect& r, const Point2f& rotate_center, double an
   return RotatedRect(Point2f(x, y), r.size, r.angle+ angle);
 }
 
+RotatedRect scale(const RotatedRect& r, double x, double y) {
+  return RotatedRect(Point2f(r.center.x*x, r.center.y*y), Size2f(r.size.width*x, r.size.height*y), r.angle);
+}
+
+
+
 // flag 1-90 2-180 3-270
 RotatedRect rect_rotate90(const RotatedRect& r, Size2f size, int flag) {
   flag &= 3;

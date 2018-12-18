@@ -6,9 +6,16 @@
 //#include "cnn4/test_cnn4.hpp"
 //#include "cnn4/cnn_ctc/test_cnn_ctc2.hpp"
 
+#if 0
 #define test_iconv main
-#include "stdc/test_iconv.h"
-//#include "CString.h"
+#include "std/test_iconv.h"
+#endif
+
+#if 1
+#define test_std main
+//#include "std/String.hpp"
+#include "std/test_std.hpp"
+#endif
 
 int main1() {
   //test_ocr_static();

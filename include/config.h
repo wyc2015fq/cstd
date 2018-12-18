@@ -4,8 +4,8 @@
 
 #pragma warning(disable:4068 4756)
 
-#include "stdc/stddef_c.h"
-#define CPU_ONLY
+#include "std/stddef_c.h"
+//#define CPU_ONLY
 
 #ifdef __ARM_NEON
 #define __arm__

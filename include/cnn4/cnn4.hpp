@@ -4,18 +4,9 @@
 #ifndef _CNN4_HPP_
 #define _CNN4_HPP_
 
+#include "cnn4.h"
 
-struct Net;
-void set_debug_info(int level);
-Net* net_new();
-void net_del(Net* net);
-int net_loadjson(Net* net, const char* fn);
-int net_train(Net* net);
-double net_forward(Net* net);
-const float* net_output(Net* net, int idx, int* pcount);
-int net_set_input_u8(Net* net, const unsigned char* img_data, const double* mean_values);
-
-#include "stdc/types_c.h"
+#include "std/types_c.h"
 #include "utime.h"
 #include "proto.h"
 #include "solver.hpp"
@@ -56,13 +47,17 @@ const float* net_output(Net* net, int idx, int* pcount) {
   *pcount = count;
   return pred;
 }
-int net_set_input_u8(Net* net, const unsigned char* img_data, const double* mean_values) {
+int net_set_input_u8(Net* net, const unsigned char* img_data, int w, const double* mean_values) {
   Blob* input_layer = net->input_blobs(0);
   if (input_layer) {
     int num_channels_ = input_layer->channels();
     CHECK(num_channels_ == 3 || num_channels_ == 1)
       << "Input layer should have 1 or 3 channels.";
     //input_geometry_ = cv::Size(input_layer->width(), input_layer->height());
+
+    DataShape shape = input_layer->shape_;
+    shape.w = w;
+    input_layer->Reshape(shape);
 
     DataTransformerInfo di = { 0 };
     di.init();

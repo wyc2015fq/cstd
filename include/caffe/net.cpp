@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "hdf5.h"
-
+#include "utime.h"
 #include "caffe/common.hpp"
 #include "caffe/layer.hpp"
 #include "caffe/net.hpp"
@@ -60,8 +60,8 @@ namespace caffe
     NetParameter filtered_param;
     FilterNet(in_param, &filtered_param);
     LOG_IF(INFO, Caffe::root_solver())
-      << "Initializing net from parameters: " << std::endl
-      << filtered_param.DebugString();
+      << "Initializing net from parameters: \n"
+      << filtered_param.DebugString().c_str();
     // Create a copy of filtered_param with splits added where necessary.
     NetParameter param;
     InsertSplits(filtered_param, &param);
@@ -166,7 +166,7 @@ namespace caffe
         memory_used_ += top_vecs_[layer_id][top_id]->count();
       }
       LOG_IF(INFO, Caffe::root_solver())
-          << "Memory required for data: " << memory_used_ * sizeof(Dtype);
+          << "Memory required for data: " << (int)(memory_used_ * sizeof(Dtype));
       const int param_size = layer_param.param_size();
       const int num_param_blobs = layers_[layer_id]->blobs().size();
       CHECK_LE(param_size, num_param_blobs)
@@ -555,14 +555,18 @@ namespace caffe
     CHECK_GE(start, 0);
     CHECK_LT(end, layers_.size());
     Dtype loss = 0;
+    //utime_start(b);
     for (int i = start; i <= end; ++i) {
       // LOG(ERROR) << "Forwarding " << layer_names_[i];
+      //utime_start(a);
       Dtype layer_loss = layers_[i]->Forward(bottom_vecs_[i], top_vecs_[i]);
+      //double t = utime_elapsed(a)*1000;      printf("%d %lf %s\n", i, t, layers_[i]->type());
       loss += layer_loss;
-      if (debug_info_=1) {
+      if (debug_info_) {
         ForwardDebugInfo(i);
       }
     }
+    //double t = utime_elapsed(b) * 1000;    printf("all: %lf\n", t);
     return loss;
   }
 
@@ -889,7 +893,7 @@ namespace caffe
     param->Clear();
     param->set_name(name_);
     // Add bottom and top
-    DLOG(INFO) << "Serializing " << layers_.size() << " layers";
+    DLOG(INFO) << "Serializing " << (int)layers_.size() << " layers";
     for (int i = 0; i < layers_.size(); ++i) {
       LayerParameter* layer_param = param->add_layer();
       layers_[i]->ToProto(layer_param, write_diff);

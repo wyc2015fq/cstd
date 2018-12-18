@@ -10,11 +10,11 @@
 //#include "../codec/Huffman.inl"
 //#include "../codec/LZARI.h"
 //#include "../codec/LZF.h" UINT
-#include "../stdc/color.h"
+#include "../std/color.h"
 #include "../codec/huff.inl"
 //#include "SCIO_Export.h"
 
-#include "stdc/popcount.h"
+#include "std/popcount.h"
 #include "_faceRecognition.h"
 
 //int vvv;

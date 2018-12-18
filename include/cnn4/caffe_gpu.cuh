@@ -4,7 +4,7 @@
 #include <thrust/functional.h>  // thrust::plus
 #include <thrust/reduce.h>
 #include <cmath>
-#include "wstd/logging.hpp"
+#include "std/log_c.h"
 #include "cpu.hpp"
 #include "math_functions.h"
 

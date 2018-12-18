@@ -10,7 +10,7 @@ using namespace std;
 typedef cJSON CJSON;
 
 template <typename T>
-void cJSON_AddNumberArrayToObject(cJSON* object, const char* string, const T* arr, int n) {
+static void cJSON_AddNumberArrayToObject(cJSON* object, const char* string, const T* arr, int n) {
   int i;
   if (n > 0) {
     cJSON * json_arr = cJSON_CreateArray();
@@ -22,7 +22,7 @@ void cJSON_AddNumberArrayToObject(cJSON* object, const char* string, const T* ar
   }
   return;
 }
-void cJSON_AddStringArrayToObject(cJSON* object, const char* string, const std::string* arr, int n) {
+static void cJSON_AddStringArrayToObject(cJSON* object, const char* string, const std::string* arr, int n) {
   int i;
   if (n > 0) {
     cJSON * json_arr = cJSON_CreateArray();
@@ -122,7 +122,7 @@ static double cJSON_GetObjectNumber(const cJSON* object, const char* name, doubl
   }
   return default_double;
 }
-static int cJSON_GetObjectInt(const cJSON* object, const char* name, int default_int) {
+int cJSON_GetObjectInt(const cJSON* object, const char* name, int default_int) {
   if (object) {
     CJSON* item = cJSON_GetObjectItem((cJSON*)object, name);
     if (item) {

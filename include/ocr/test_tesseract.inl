@@ -12,8 +12,13 @@
 #include <iostream>
 #include <fstream>
 using namespace std;
+#ifdef _DEBUG
+#pragma comment(lib,"leptonica-1.77.0d.lib")
+#pragma comment(lib,"tesseract40d.lib")
+#else
 #pragma comment(lib,"leptonica-1.77.0.lib")
 #pragma comment(lib,"tesseract40.lib")
+#endif
 
 void die1(const char *errstr) {
     fputs(errstr, stderr);
@@ -184,3 +189,41 @@ int test_tesseract(int argc, char *argv[]) {
 
     return 0;
 }
+
+#if 0
+
+int test_tesseract2(int argc, char** argv)
+{
+  // Usage: tesscv image.png
+  if (argc != 2)
+  {
+    std::cout << "Please specify the input image!" << std::endl;
+    return -1;
+  }
+
+  // Load image
+  cv::Mat im = cv::imread(argv[1]);
+  if (im.empty())
+  {
+    std::cout << "Cannot open source image!" << std::endl;
+    return -1;
+  }
+
+  cv::Mat gray;
+  cv::cvtColor(im, gray, CV_BGR2GRAY);
+  // ...other image pre-processing here...
+
+  // Pass it to Tesseract API
+  tesseract::TessBaseAPI tess;
+  tess.Init(NULL, "eng", tesseract::OEM_DEFAULT);
+  tess.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
+  tess.SetImage((uchar*)gray.data, gray.cols, gray.rows, 1, gray.cols);
+
+  // Get the text
+  char* out = tess.GetUTF8Text();
+  std::cout << out << std::endl;
+
+  return 0;
+}
+
+#endif

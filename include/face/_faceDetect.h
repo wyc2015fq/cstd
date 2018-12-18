@@ -10,13 +10,13 @@
 //#include "../cascade.h"
 //#include "../cstd.h"
 
-#include "../libfacerecog.h"
+#include "libfacerecog.h"
 //#include "../imresize.h"
 //#include "../sort.h"
-#include "../seqpartition.h"
-#include "../stdc/objdetect.h"
-#include "../stdc/imgopt.h"
-#include "../stdc/img_c.h"
+#include "seqpartition.h"
+#include "../std/objdetect.h"
+#include "../std/imgopt.h"
+#include "../std/img_c.h"
 
 
 #ifndef WIN32 

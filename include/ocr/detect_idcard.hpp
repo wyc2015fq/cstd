@@ -1,4 +1,8 @@
 
+#ifndef __DETECT_IDCARD_HPP__
+#define __DETECT_IDCARD_HPP__
+
+
 #include "wstd/filesystem.hpp"
 //#include <iostream>
 #include "test_sub_match.hpp"
@@ -68,14 +72,17 @@ RNG rng(12345);
 
 struct get_angle_t {
   int iangle = 0;
-  double max_dis;;
+  double max_dis;
   double centor_dis;
   Vec4i botton_line;
   Mat color_edge;
   vector<Vec4i> lines;
   vector<RotatedRect> rects;
+  cv::Ptr<cv::MSER> mesr1;
+  get_angle_t() {
+    mesr1 = cv::MSER::create(2, 10, 200, 0.2, 0.3);
+  }
   int run(Mat src) {
-    cv::Ptr<cv::MSER> mesr1 = cv::MSER::create(2, 10, 200, 0.2, 0.3);
     Mat gray;
     std::vector<cv::Rect> bboxes1;
     std::vector<std::vector<cv::Point> > regContours;
@@ -136,7 +143,7 @@ struct get_angle_t {
     }
     cv::cvtColor(mserMapMat, color_edge, CV_GRAY2BGR);
     drawRotatedRects(color_edge, rects, 1);
-    imshow("color_edge", color_edge);// waitKey(0);
+    //imshow("color_edge", color_edge);// waitKey(0);
     if (0) {
       vector<vector<Point> > contours;
       vector<Vec4i> hierarchy;
@@ -600,3 +607,5 @@ struct get_rect_t {
     return ret;
   }
 };
+
+#endif // __DETECT_IDCARD_HPP__

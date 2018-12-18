@@ -67,6 +67,18 @@ namespace cv {
     }
     return dst;
   }
+  Mat imdecode(InputArray _buf, int flags) {
+    Mat buf = _buf.getMat(), img;
+    // stbi_load_from_memory
+    int w = 0, h = 0, n = 0, req_comp = get_comp(flags);
+    int size = buf.rows*buf.cols*buf.channels();
+    unsigned char *data = stbi_load_from_memory(buf.data, size, &w, &h, &n, req_comp);
+    Mat mat(h, w, CV_MAKETYPE(CV_8U, n));
+    //memcpy2d_(mat.data, mat.step, data, w*n, h, w*n);
+    rgb2bgr(mat.data, mat.step, 3, data, w*n, 3, h, w);
+    stbi_image_free(data);
+    return mat;
+  }
   Mat imread(const String& filename, int flags) {
     int w=0, h=0, n=0, req_comp = get_comp(flags);
     unsigned char *data = stbi_load(filename.c_str(), &w, &h, &n, req_comp);
@@ -85,12 +97,18 @@ namespace cv {
       img_vec.push_back(img.getMat());
 
     if (img_vec.size() > 0) {
-      const Mat& mat = img_vec[0];
+      Mat mat = img_vec[0];
+      //memcpy2d_(mat.data, mat.step, data, w*n, h, w*n);
+
       int w = mat.cols;
       int h = mat.rows;
       int n = mat.channels();
-      uchar* data = mat.data;
       int step = mat.step;
+      uchar* data = mat.data;
+      Mat mat2(h, w, CV_MAKETYPE(CV_8U, n));
+      rgb2bgr(mat2.data, mat2.step, 3, data, w*n, 3, h, w);
+      step = mat2.step;
+      data = mat2.data;
       size_t pos = filename.rfind('.');
       if (pos == String::npos) { return false; }
       String ext = filename.substr(pos+1).toLowerCase();
@@ -106,5 +124,5 @@ namespace cv {
 #endif
     return false;
   }
-}
+} // namespace cv
 
