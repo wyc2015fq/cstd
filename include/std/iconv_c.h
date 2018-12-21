@@ -155,7 +155,16 @@ static int iconv_my(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* sr
 }
 #endif
 
-int iconv_c(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* src, size_t srclen, char* dst, size_t dstlen) {
+int ustrlen(const char* str, ICONV_CODEPAGE cp) {
+  switch (cp) {
+  case ICONV_UCS2LE:
+    return 2*wcslen((const wchar_t*)str);
+  }
+  return strlen(str);
+}
+
+int iconv_c(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* src, int srclen, char* dst, int dstlen) {
+  srclen = srclen<0 ? ustrlen(src, src_cp) : srclen;
 #ifdef USE_MYCONV
   return iconv_my(src_cp, dst_cp, src, srclen, dst, dstlen);
 #endif
@@ -170,7 +179,7 @@ int iconv_c(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* src, size_
 
 //编码转换，src_charset是源编码，dst_charset是目标编码
 //src是源编码字符串
-int iconv_c(const char *src_charset, const char *dst_charset, const char* src, size_t srclen, char* dst, size_t dstlen)
+int iconv_c(const char *src_charset, const char *dst_charset, const char* src, int srclen, char* dst, int dstlen)
 {
   ICONV_CODEPAGE src_cp = mycodepage(src_charset);
   ICONV_CODEPAGE dst_cp = mycodepage(dst_charset);

@@ -33,6 +33,7 @@ static int sock_init()
   }
   return 0;
 }
+static int WSAStartuped = sock_init();
 #endif // _WIN32
 
 #ifdef __linux__
@@ -688,7 +689,7 @@ int select_start() {
   static int inited = 0;
   static select_thd_t st[1] = {0};
   if (0==inited) {
-    sys_thread_create(st->th);
+    //sys_thread_create(st->th, NULL, );
   }
   return 0;
 }

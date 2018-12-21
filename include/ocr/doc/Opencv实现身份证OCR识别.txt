@@ -1,0 +1,1709 @@
+Opencv实现身份证OCR识别
+2018年08月09日 09:49:33 落日流年 阅读数：1025更多
+个人分类： opencv ocr识别
+版权声明：本文为博主原创文章，未经博主允许不得转载。	https://blog.csdn.net/zwl18210851801/article/details/81530862
+Opencv 配置IDEA可参考：https://blog.csdn.net/zwl18210851801/article/details/81075781
+
+opencv位置：
+
+
+
+OpencvUtil类：
+
+package com.xinjian.x.common.utils;
+ 
+import org.opencv.core.*;
+import org.opencv.core.Point;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+ 
+public  class OpencvUtil {
+    private static final int BLACK = 0;
+    private static final int WHITE = 255;
+    /**
+     * 灰化处理
+     * @return
+     */
+    public static Mat gray (Mat mat){
+        Mat gray = new Mat();
+        Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY,1);
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/gray.jpg", gray);
+        return gray;
+    }
+ 
+    /**
+     * 二值化处理
+     * @return
+     */
+    public static Mat binary (Mat mat){
+        Mat binary = new Mat();
+        Imgproc.adaptiveThreshold(mat, binary, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY_INV, 25, 10);
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/binary.jpg", binary);
+        return binary;
+    }
+ 
+    /**
+     * 模糊处理
+     * @param mat
+     * @return
+     */
+    public static Mat blur (Mat mat) {
+        Mat blur = new Mat();
+        Imgproc.blur(mat,blur,new Size(5,5));
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/blur.jpg", blur);
+        return blur;
+    }
+ 
+    /**
+     *膨胀
+     * @param mat
+     * @return
+     */
+    public static Mat dilate (Mat mat,int size){
+        Mat dilate=new Mat();
+        Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size,size));
+        //膨胀
+        Imgproc.dilate(mat, dilate, element, new Point(-1, -1), 1);
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/dilate.jpg", dilate);
+        return dilate;
+    }
+ 
+    /**
+     * 腐蚀
+     * @param mat
+     * @return
+     */
+    public static Mat erode (Mat mat,int size){
+        Mat erode=new Mat();
+        Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(size,size));
+        //腐蚀
+        Imgproc.erode(mat, erode, element, new Point(-1, -1), 1);
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/erode.jpg", erode);
+        return erode;
+    }
+ 
+    /**
+     * 边缘检测
+     * @param mat
+     * @return
+     */
+    public static Mat carry(Mat mat){
+        Mat dst=new Mat();
+        //高斯平滑滤波器卷积降噪
+        Imgproc.GaussianBlur(mat, dst, new Size(3,3), 0);
+        //边缘检测
+        Imgproc.Canny(mat, dst, 50, 150);
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/canny.jpg",dst);
+        return dst;
+    }
+ 
+    /**
+     * 轮廓检测
+     * @param mat
+     * @return
+     */
+    public static List<MatOfPoint> findContours(Mat mat){
+        List<MatOfPoint> contours=new ArrayList<>();
+        Mat hierarchy = new Mat();
+        Imgproc.findContours(mat, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+        return contours;
+    }
+ 
+    /**
+     * 人脸识别
+     * @param mat
+     * @return
+     */
+    public static Mat face(Mat mat){
+        CascadeClassifier faceDetector = new CascadeClassifier(
+                System.getProperty("user.dir")+"\\opencv\\haarcascades\\haarcascade_frontalface_alt2.xml");
+        // 在图片中检测人脸
+        MatOfRect faceDetections = new MatOfRect();
+        //指定人脸识别的最大和最小像素范围
+        Size minSize = new Size(200, 200);
+        Size maxSize = new Size(500, 500);
+        //参数设置为scaleFactor=1.1f, minNeighbors=4, flags=0 以此来增加识别人脸的正确率
+        faceDetector.detectMultiScale(mat, faceDetections, 1.1f, 3, 0, minSize, maxSize);
+        Rect[] rects = faceDetections.toArray();
+        if(rects != null && rects.length == 1){
+            // 在每一个识别出来的人脸周围画出一个方框
+            Rect rect = rects[0];
+           /* Imgproc.rectangle(mat, new Point(rect.x, rect.y),
+                    new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0));
+            Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/face.jpg", mat);*/
+            return mat;
+        }else{
+            return null;
+        }
+    }
+ 
+    /**
+     * 循环进行人脸识别
+     * */
+    public static Mat faceLoop(Map src){
+        Mat face=new Mat();
+        //默认人脸识别失败时图像旋转90度
+        int k=90;
+        while (k>0){
+            double angel=0;
+            for(int i=0;i<360/k;i++){
+                //人脸识别
+                face= OpencvUtil.face(src);
+                angel=angel+k;
+                if(face==null){
+                    src = rotate3(src,angel);
+                }else{
+                    break;
+                }
+            }
+            if(face!=null){
+                break;
+            }else{
+                k=k-30;
+            }
+        }
+        return face;
+    }
+    /**
+     * 累计概率hough变换直线检测
+     * @param mat
+     */
+    public static Mat houghLinesP(Mat begin,Mat mat){
+        Mat storage = new Mat();
+        Imgproc.HoughLinesP(mat, storage, 1, Math.PI / 180, 10, 0, 10);
+        List<double[]> lines=new ArrayList<>();
+        //在mat上划线
+        for (int x = 0; x < storage.rows(); x++)
+        {
+            double[] vec = storage.get(x, 0);
+            double x1 = vec[0], y1 = vec[1], x2 = vec[2], y2 = vec[3];
+            Point start = new Point(x1, y1);
+            Point end = new Point(x2, y2);
+            //获取与图像x边缘近似平行的直线
+            if(Math.abs(start.y-end.y)<5){
+                if(Math.abs(x2-x1)>20){
+                    lines.add(vec);
+                    //Imgproc.line(mat, start, end, new Scalar(255), 10);
+                }
+            }
+            //获取与图像y边缘近似平行的直线
+            if(Math.abs(start.x-end.x)<5){
+                if(Math.abs(y2-y1)>20){
+                    lines.add(vec);
+                    //Imgproc.line(mat, start, end, new Scalar(255), 10);
+                }
+            }
+            Imgproc.line(mat, start, end, new Scalar(255), 10);
+        }
+        //获取最大的和最小的X,Y坐标
+        double maxX=0.0,minX=10000,minY=10000,maxY=0.0;
+        for(int i=0;i<lines.size();i++){
+            double[] vec = lines.get(i);
+            double x1 = vec[0], y1 = vec[1], x2 = vec[2], y2 = vec[3];
+            maxX=maxX>x1?maxX:x1;
+            maxX=maxX>x2?maxX:x2;
+            minX=minX>x1?x1:minX;
+            minX=minX>x2?x2:minX;
+            maxY=maxY>y1?maxY:y1;
+            maxY=maxY>y2?maxY:y2;
+            minY=minY>y1?y1:minY;
+            minY=minY>y2?y2:minY;
+        }
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/houghLines.jpg", mat);
+ 
+        if((maxX-minX)>mat.cols()*0.5&&(maxY-minY)>mat.rows()*0.5){
+            List<Point> list=new ArrayList<>();
+            Point point1=new Point(minX+10,minY+10);
+            Point point2=new Point(minX+10,maxY-10);
+            Point point3=new Point(maxX-10,minY+10);
+            Point point4=new Point(maxX-10,maxY-10);
+            list.add(point1);
+            list.add(point2);
+            list.add(point3);
+            list.add(point4);
+            mat=shear(begin,list);
+        }else{
+            mat=begin;
+        }
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/houghLinesP.jpg", mat);
+        return mat;
+    }
+ 
+    /**
+     * 判断集合中是否包含数字相差size范围的数字
+     * @param list
+     * @param num
+     * @param size
+     * @return
+     */
+    public static double number(List<Double> list,Double num,int size){
+        double res=0.0;
+        for(int i=0;i<list.size();i++){
+            if(Math.abs(list.get(i)-num)<size){
+                res=list.get(i);
+            }
+        }
+        return res;
+    }
+    /**
+     * 累计概率hough变换直线检测
+     * @param mat
+     */
+    public static Mat houghLines(Mat mat){
+        Mat storage = new Mat();
+        Imgproc.HoughLines(mat, storage, 1, Math.PI / 180, 50, 0, 0, 0, 1);
+        for (int x = 0; x < storage.rows(); x++) {
+            double[] vec = storage.get(x, 0);
+            double rho = vec[0];
+            double theta = vec[1];
+            Point pt1 = new Point();
+            Point pt2 = new Point();
+            double a = Math.cos(theta);
+            double b = Math.sin(theta);
+            double x0 = a * rho;
+            double y0 = b * rho;
+            pt1.x = Math.round(x0 + 1000 * (-b));
+            pt1.y = Math.round(y0 + 1000 * (a));
+            pt2.x = Math.round(x0 - 1000 * (-b));
+            pt2.y = Math.round(y0 - 1000 * (a));
+            if (theta >= 0)
+            {
+                Imgproc.line(mat, pt1, pt2, new Scalar(255), 3);
+            }
+        }
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/houghLines.jpg", mat);
+        return mat;
+    }
+ 
+ 
+    /**
+     * 根据四点坐标截取模板图片
+     * @param mat
+     * @param pointList
+     * @return
+     */
+    public static Mat shear (Mat mat,List<Point> pointList){
+        int x=minX(pointList);
+        int y=minY(pointList);
+        int xl=xLength(pointList)>mat.cols()-x?mat.cols()-x:xLength(pointList);
+        int yl=yLength(pointList)>mat.rows()-y?mat.rows()-y:yLength(pointList);
+        Rect re=new Rect(x,y,xl,yl);
+        Mat shear=new Mat(mat,re);
+        return shear;
+    }
+ 
+ 
+    /**
+     * 图片旋转
+     * @param splitImage
+     * @param angle
+     * @return
+     */
+    public static Mat rotate3(Mat splitImage, double angle){
+        double thera = angle * Math.PI / 180;
+        double a = Math.sin(thera);
+        double b = Math.cos(thera);
+ 
+        int wsrc = splitImage.width();
+        int hsrc = splitImage.height();
+ 
+        int wdst = (int) (hsrc * Math.abs(a) + wsrc * Math.abs(b));
+        int hdst = (int) (wsrc * Math.abs(a) + hsrc * Math.abs(b));
+        Mat imgDst = new Mat(hdst, wdst, splitImage.type());
+ 
+        Point pt = new Point(splitImage.cols() / 2, splitImage.rows() / 2);
+        // 获取仿射变换矩阵
+        Mat affineTrans = Imgproc.getRotationMatrix2D(pt, angle, 1.0);
+ 
+        //System.out.println(affineTrans.dump());
+        // 改变变换矩阵第三列的值
+        affineTrans.put(0, 2, affineTrans.get(0, 2)[0] + (wdst - wsrc) / 2);
+        affineTrans.put(1, 2, affineTrans.get(1, 2)[0] + (hdst - hsrc) / 2);
+ 
+        Imgproc.warpAffine(splitImage, imgDst, affineTrans, imgDst.size(),
+                Imgproc.INTER_CUBIC | Imgproc.WARP_FILL_OUTLIERS);
+        return imgDst;
+    }
+ 
+    /**
+     * 图像直方图处理
+     * @param mat
+     * @return
+     */
+    public static Mat equalizeHist(Mat mat){
+        Mat dst = new Mat();
+        List<Mat> mv = new ArrayList<>();
+        Core.split(mat, mv);
+        for (int i = 0; i < mat.channels(); i++)
+        {
+            Imgproc.equalizeHist(mv.get(i), mv.get(i));
+        }
+        Core.merge(mv, dst);
+        return dst;
+    }
+    /**
+     * 8邻域降噪,又有点像9宫格降噪;即如果9宫格中心被异色包围，则同化
+     * @param pNum 默认值为1
+     */
+    public static Mat navieRemoveNoise(Mat mat,int pNum) {
+        int i, j, m, n, nValue, nCount;
+        int nWidth = mat.cols();
+        int nHeight = mat.rows();
+       /* // 对图像的边缘进行预处理
+        for (i = 0; i < nWidth; ++i) {
+            mat.put(i, 0, WHITE);
+            mat.put(i, nHeight - 1, WHITE);
+        }
+        for (i = 0; i < nHeight; ++i) {
+            mat.put(0, i, WHITE);
+            mat.put(nWidth - 1, i, WHITE);
+        }*/
+        // 如果一个点的周围都是白色的，而它确是黑色的，删除它
+        for (j = 1; j < nHeight - 1; ++j) {
+            for (i = 1; i < nWidth - 1; ++i) {
+                nValue =  (int)mat.get(j, i)[0];
+                if (nValue == 0) {
+                    nCount = 0;
+                    // 比较以(j ,i)为中心的9宫格，如果周围都是白色的，同化
+                    for (m = j - 1; m <= j + 1; ++m) {
+                        for (n = i - 1; n <= i + 1; ++n) {
+                            if ((int)mat.get(m, n)[0] == 0) {
+                                nCount++;
+                            }
+                        }
+                    }
+                    if (nCount <= pNum) {
+                        // 周围黑色点的个数小于阀值pNum,把该点设置白色
+                        mat.put(j, i, WHITE);
+                    }
+                } else {
+                    nCount = 0;
+                    // 比较以(j ,i)为中心的9宫格，如果周围都是黑色的，同化
+                    for (m = j - 1; m <= j + 1; ++m) {
+                        for (n = i - 1; n <= i + 1; ++n) {
+                            if ((int)mat.get(m, n)[0] == 0) {
+                                nCount++;
+                            }
+                        }
+                    }
+                    if (nCount >= 7) {
+                        // 周围黑色点的个数大于等于7,把该点设置黑色;即周围都是黑色
+                        mat.put(j, i, BLACK);
+                    }
+                }
+            }
+        }
+        return mat;
+    }
+ 
+    /**
+     * 连通域降噪
+     * @param pArea 默认值为1
+     */
+    public static Mat contoursRemoveNoise(Mat mat,double pArea) {
+        //mat=floodFill(mat,mat.new Point(mat.cols()/2,mat.rows()/2),new Color(225,0,0));
+        int i, j, color = 1;
+        int nWidth =  mat.cols(), nHeight = mat.rows();
+ 
+        for (i = 0; i < nWidth; ++i) {
+            for (j = 0; j < nHeight; ++j) {
+                if ((int) mat.get(j, i)[0] == BLACK) {
+                    //用不同颜色填充连接区域中的每个黑色点
+                    //floodFill就是把一个点x的所有相邻的点都涂上x点的颜色，一直填充下去，直到这个区域内所有的点都被填充完为止
+                    Imgproc.floodFill(mat, new Mat(), new Point(i, j), new Scalar(color));
+                    color++;
+                }
+            }
+        }
+        //统计不同颜色点的个数
+        int[] ColorCount = new int[255];
+        for (i = 0; i < nWidth; ++i) {
+            for (j = 0; j < nHeight; ++j) {
+                if ((int) mat.get(j, i)[0] != 255) {
+                    ColorCount[(int) mat.get(j, i)[0] - 1]++;
+                }
+            }
+        }
+        //去除噪点
+        for (i = 0; i < nWidth; ++i) {
+            for (j = 0; j < nHeight; ++j) {
+                if (ColorCount[(int) mat.get(j, i)[0] - 1] <= pArea) {
+                    mat.put(j, i, WHITE);
+                }
+            }
+        }
+        for (i = 0; i < nWidth; ++i) {
+            for (j = 0; j < nHeight; ++j) {
+                if ((int) mat.get(j, i)[0] < WHITE) {
+                    mat.put(j, i, BLACK);
+                }
+            }
+        }
+        return mat;
+    }
+    /**
+     * Mat转换成BufferedImage
+     *
+     * @param matrix
+     *            要转换的Mat
+     * @param fileExtension
+     *            格式为 ".jpg", ".png", etc
+     * @return
+     */
+    public static BufferedImage Mat2BufImg (Mat matrix, String fileExtension) {
+        MatOfByte mob = new MatOfByte();
+        Imgcodecs.imencode(fileExtension, matrix, mob);
+        byte[] byteArray = mob.toArray();
+        BufferedImage bufImage = null;
+        try {
+            InputStream in = new ByteArrayInputStream(byteArray);
+            bufImage = ImageIO.read(in);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bufImage;
+    }
+    /**
+     * BufferedImage转换成Mat
+     *
+     * @param original
+     *            要转换的BufferedImage
+     * @param imgType
+     *            bufferedImage的类型 如 BufferedImage.TYPE_3BYTE_BGR
+     * @param matType
+     *            转换成mat的type 如 CvType.CV_8UC3
+     */
+    public static Mat BufImg2Mat (BufferedImage original, int imgType, int matType) {
+        if (original == null) {
+            throw new IllegalArgumentException("original == null");
+        }
+        if (original.getType() != imgType) {
+            BufferedImage image = new BufferedImage(original.getWidth(), original.getHeight(), imgType);
+            Graphics2D g = image.createGraphics();
+            try {
+                g.setComposite(AlphaComposite.Src);
+                g.drawImage(original, 0, 0, null);
+            } finally {
+                g.dispose();
+            }
+        }
+        DataBufferByte dbi =(DataBufferByte)original.getRaster().getDataBuffer();
+        byte[] pixels = dbi.getData();
+        Mat mat = Mat.eye(original.getHeight(), original.getWidth(), matType);
+        mat.put(0, 0, pixels);
+        return mat;
+    }
+    /**
+     * 人眼识别
+     * @param mat
+     * @return
+     */
+    public static List<Point> eye(Mat mat){
+        List<Point> eyeList=new ArrayList<>();
+        CascadeClassifier eyeDetector = new CascadeClassifier(
+                System.getProperty("user.dir")+"\\opencv\\haarcascades\\haarcascade_eye.xml");
+        // 在图片中检测人眼
+        MatOfRect eyeDetections = new MatOfRect();
+        //指定人脸识别的最大和最小像素范围
+        Size minSize = new Size(20, 20);
+        Size maxSize = new Size(30, 30);
+ 
+        eyeDetector.detectMultiScale(mat, eyeDetections, 1.1f, 3, 0, minSize, maxSize);
+        Rect[] rects = eyeDetections.toArray();
+        if(rects != null && rects.length == 2){
+            Point point1=new Point(rects[0].x,rects[0].y);
+            eyeList.add(point1);
+            Point point2=new Point(rects[1].x,rects[1].y);
+            eyeList.add(point2);
+        }else{
+            return null;
+        }
+        return eyeList;
+    }
+ 
+ 
+    /**
+     * 获取最大轮廓面积
+     * @param contours
+     * @return
+     */
+    public static Mat maxArea(Mat mat, List<MatOfPoint> contours){
+        double maxArea=0.0;
+        RotatedRect maxRect= new RotatedRect();
+        MatOfPoint mp=new MatOfPoint();
+        for(int i=0;i<contours.size();i++){
+            MatOfPoint2f mat2f=new MatOfPoint2f();
+            contours.get(i).convertTo(mat2f,CvType.CV_32FC1);
+            RotatedRect rect=Imgproc.minAreaRect(mat2f);
+            double area=rect.boundingRect().area();
+            if(area>maxArea){
+                maxArea=area;
+                maxRect=rect;
+                mp=contours.get(i);
+            }
+        }
+ 
+        //获取最大轮廓顶点坐标
+        MatOfPoint2f mat2f=new MatOfPoint2f();
+        mp.convertTo(mat2f,CvType.CV_32FC1);
+        RotatedRect rect=Imgproc.minAreaRect(mat2f);
+        Mat points=new Mat();
+        Imgproc.boxPoints(rect,points);
+        List<Point> pointList=getPoints(points.dump());
+        //返回截取的模板图片
+        return shear(mat,pointList);
+    }
+ 
+    /**
+     * 获取轮廓的顶点坐标
+     * @param contour
+     * @return
+     */
+    public static List<Point> getPointList(MatOfPoint contour){
+        MatOfPoint2f mat2f=new MatOfPoint2f();
+        contour.convertTo(mat2f,CvType.CV_32FC1);
+        RotatedRect rect=Imgproc.minAreaRect(mat2f);
+        Mat points=new Mat();
+        Imgproc.boxPoints(rect,points);
+        return getPoints(points.dump());
+    }
+ 
+    /**
+     * 获取轮廓的面积
+     * @param contour
+     * @return
+     */
+    public static double area (MatOfPoint contour){
+        MatOfPoint2f mat2f=new MatOfPoint2f();
+        contour.convertTo(mat2f,CvType.CV_32FC1);
+        RotatedRect rect=Imgproc.minAreaRect(mat2f);
+        return rect.boundingRect().area();
+    }
+ 
+    /**
+     * 获取点坐标集合
+     * @param str
+     * @return
+     */
+    public  static List<Point> getPoints(String str){
+        List<Point> points=new ArrayList<>();
+        str=str.replace("[","").replace("]","");
+        String[] pointStr=str.split(";");
+        for(int i=0;i<pointStr.length;i++){
+            double x=Double.parseDouble(pointStr[i].split(",")[0]);
+            double y=Double.parseDouble(pointStr[i].split(",")[1]);
+            Point po=new Point(x,y);
+            points.add(po);
+        }
+        return points;
+    }
+    /**
+     * 获取最小的X坐标
+     * @param points
+     * @return
+     */
+    public  static int minX(List<Point> points){
+        Collections.sort(points, new XComparator(false));
+        return (int)(points.get(0).x>0?points.get(0).x:-points.get(0).x);
+    }
+ 
+    /**
+     * 获取最小的Y坐标
+     * @param points
+     * @return
+     */
+    public  static int minY(List<Point> points){
+        Collections.sort(points, new YComparator(false));
+        return (int)(points.get(0).y>0?points.get(0).y:-points.get(0).y);
+    }
+ 
+    /**
+     * 获取最长的X坐标距离
+     * @param points
+     * @return
+     */
+    public static int xLength(List<Point> points){
+        Collections.sort(points, new XComparator(false));
+        return (int)(points.get(3).x-points.get(0).x);
+    }
+ 
+    /**
+     * 获取最长的Y坐标距离
+     * @param points
+     * @return
+     */
+    public  static int yLength(List<Point> points){
+        Collections.sort(points, new YComparator(false));
+        return (int)(points.get(3).y-points.get(0).y);
+    }
+ 
+    //集合排序规则（根据X坐标排序）
+    public static class XComparator implements Comparator<Point> {
+        private boolean reverseOrder; // 是否倒序
+        public XComparator(boolean reverseOrder) {
+            this.reverseOrder = reverseOrder;
+        }
+ 
+        public int compare(Point arg0, Point arg1) {
+            if(reverseOrder)
+                return (int)arg1.x - (int)arg0.x;
+            else
+                return (int)arg0.x - (int)arg1.x;
+        }
+    }
+ 
+    //集合排序规则（根据Y坐标排序）
+    public static class YComparator implements Comparator<Point> {
+        private boolean reverseOrder; // 是否倒序
+        public YComparator(boolean reverseOrder) {
+            this.reverseOrder = reverseOrder;
+        }
+ 
+        public int compare(Point arg0, Point arg1) {
+            if(reverseOrder)
+                return (int)arg1.y - (int)arg0.y;
+            else
+                return (int)arg0.y - (int)arg1.y;
+        }
+    }
+ 
+ 
+}
+OCRUtil类：
+
+package com.xinjian.x.common.ocr;
+ 
+ 
+import net.sourceforge.tess4j.ITesseract;
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.util.LoadLibs;
+ 
+import java.awt.image.BufferedImage;
+import java.io.File;
+ 
+public class OCRUtil {
+    /**
+     * 识别图片信息
+     * @param img
+     * @return
+     */
+    public static String getImageMessage(BufferedImage img,String language){
+        String result="end";
+        try{
+            ITesseract instance = new Tesseract();
+            File tessDataFolder = LoadLibs.extractTessResources("tessdata");
+            instance.setLanguage(language);
+            instance.setDatapath(tessDataFolder.getAbsolutePath());
+            result = instance.doOCR(img);
+            //System.out.println(result);
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+        return result;
+    }
+}
+language为语言包名称eng或者chi_sim,chi_sim语言包可能与jar包不匹配需要注意
+
+语言包下载地址：https://download.csdn.net/download/psdnfu/5187836
+
+
+
+<!--OCR  Tesseract-->
+<dependency>
+    <groupId>net.java.dev.jna</groupId>
+    <artifactId>jna</artifactId>
+    <version>4.1.0</version>
+</dependency>
+<dependency>
+    <groupId>net.sourceforge.tess4j</groupId>
+    <artifactId>tess4j</artifactId>
+    <version>2.0.1</version>
+    <exclusions>
+        <exclusion>
+            <groupId>com.sun.jna</groupId>
+            <artifactId>jna</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+Main 方法：
+
+package com.xinjian.x.modules.orc;
+ 
+import com.xinjian.x.common.ocr.OCRUtil;
+import com.xinjian.x.common.utils.OpencvUtil;
+import org.opencv.core.*;
+import org.opencv.core.Point;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
+ 
+public class OrcTest {
+    static {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        //注意程序运行的时候需要在VM option添加该行 指明opencv的dll文件所在路径
+        //-Djava.library.path=$PROJECT_DIR$\opencv\x64
+    }
+    public static void main(String[] args){
+        long start=System.currentTimeMillis();
+        String path="D:/Users/xinjian09/Desktop/b.jpg";
+        //根据边框线提取图片
+        Mat mat=lines(path);
+        //身份证正面识别
+        cardUp(mat);
+        //cardDown(mat);
+    }
+ 
+    /**
+     * 提取特征线条
+     */
+    public static Mat lines(String path){
+        Mat mat= Imgcodecs.imread(path);
+        //若图片比例过大，压缩比例
+        if(mat.cols()>2000){
+            Imgproc.resize(mat, mat,new Size(mat.cols()*0.5,mat.rows()*0.5));
+        }
+        if(mat.cols()<1000){
+            Imgproc.resize(mat, mat,new Size(mat.cols()*1.5,mat.rows()*1.5));
+        }
+        Mat begin=mat.clone();
+        //灰度
+        mat=OpencvUtil.gray(mat);
+        //二值化
+        mat=OpencvUtil.binary(mat);
+        //腐蚀
+        mat=OpencvUtil.erode(mat,3);
+        //轮廓检测,清除小的轮廓部分
+        List<MatOfPoint> list=OpencvUtil.findContours(mat);
+        for(int i=0;i<list.size();i++){
+            double area=OpencvUtil.area(list.get(i));
+            if(area<5000){
+                Imgproc.drawContours(mat, list, i, new Scalar( 0, 0, 0), -1);
+            }
+        }
+        //直线检测
+        return OpencvUtil.houghLinesP(begin,mat);
+    }
+    /**
+     * 身份证反面识别
+     */
+    public static void cardDown(Mat mat){
+        //灰度
+        mat=OpencvUtil.gray(mat);
+        //二值化
+        mat=OpencvUtil.binary(mat);
+        //腐蚀
+        mat=OpencvUtil.erode(mat,3);
+        //膨胀
+        mat=OpencvUtil.dilate(mat,3);
+        //检测是否有居民身份证字体，若有为正向，若没有则旋转图片
+        for(int i=0;i<4;i++){
+            String temp=temp(mat);
+            if(!temp.contains("居")&&!temp.contains("民")){
+                mat=OpencvUtil.rotate3(mat,90);
+            }else{
+                break;
+            }
+        }
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/result.jpg", mat);
+        String organization=organization (mat);
+        System.out.print("签发机关是："+organization);
+        String time=time (mat);
+        System.out.print("有效期限是："+time);
+    }
+    public static String temp (Mat mat){
+        Point point1=new Point(mat.cols()*0.30,mat.rows()*0.25);
+        Point point2=new Point(mat.cols()*0.30,mat.rows()*0.25);
+        Point point3=new Point(mat.cols()*0.90,mat.rows()*0.45);
+        Point point4=new Point(mat.cols()*0.90,mat.rows()*0.45);
+        List<Point> list=new ArrayList<>();
+        list.add(point1);
+        list.add(point2);
+        list.add(point3);
+        list.add(point4);
+        Mat temp=OpencvUtil.shear(mat,list);
+ 
+        List<MatOfPoint> nameContours=OpencvUtil.findContours(temp);
+        for (int i = 0; i < nameContours.size(); i++)
+        {
+            double area=OpencvUtil.area(nameContours.get(i));
+            if(area<100){
+                Imgproc.drawContours(temp, nameContours, i, new Scalar( 0, 0, 0), -1);
+            }
+        }
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/temp.jpg", temp);
+        BufferedImage nameBuffer=OpencvUtil.Mat2BufImg(temp,".jpg");
+        String nameStr=OCRUtil.getImageMessage(nameBuffer,"chi_sim");
+        nameStr=nameStr.replace("\n","");
+        return nameStr;
+    }
+    public static String organization (Mat mat){
+        Point point1=new Point(mat.cols()*0.36,mat.rows()*0.65);
+        Point point2=new Point(mat.cols()*0.36,mat.rows()*0.65);
+        Point point3=new Point(mat.cols()*0.80,mat.rows()*0.78);
+        Point point4=new Point(mat.cols()*0.80,mat.rows()*0.78);
+        List<Point> list=new ArrayList<>();
+        list.add(point1);
+        list.add(point2);
+        list.add(point3);
+        list.add(point4);
+        Mat name=OpencvUtil.shear(mat,list);
+ 
+        List<MatOfPoint> nameContours=OpencvUtil.findContours(name);
+        for (int i = 0; i < nameContours.size(); i++)
+        {
+            double area=OpencvUtil.area(nameContours.get(i));
+            if(area<100){
+                Imgproc.drawContours(name, nameContours, i, new Scalar( 0, 0, 0), -1);
+            }
+        }
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/organization.jpg", name);
+        BufferedImage nameBuffer=OpencvUtil.Mat2BufImg(name,".jpg");
+        String nameStr=OCRUtil.getImageMessage(nameBuffer,"chi_sim");
+        nameStr=nameStr.replace("\n","");
+        return nameStr+"\n";
+    }
+    public static String time (Mat mat){
+        Point point1=new Point(mat.cols()*0.38,mat.rows()*0.80);
+        Point point2=new Point(mat.cols()*0.38,mat.rows()*0.80);
+        Point point3=new Point(mat.cols()*0.85,mat.rows()*0.92);
+        Point point4=new Point(mat.cols()*0.85,mat.rows()*0.92);
+        List<Point> list=new ArrayList<>();
+        list.add(point1);
+        list.add(point2);
+        list.add(point3);
+        list.add(point4);
+        Mat time=OpencvUtil.shear(mat,list);
+ 
+        List<MatOfPoint> timeContours=OpencvUtil.findContours(time);
+        for (int i = 0; i < timeContours.size(); i++)
+        {
+            double area=OpencvUtil.area(timeContours.get(i));
+            if(area<100){
+                Imgproc.drawContours(time, timeContours, i, new Scalar( 0, 0, 0), -1);
+            }
+        }
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/time.jpg", time);
+        //起始日期
+        Point startPoint1=new Point(0,0);
+        Point startPoint2=new Point(0,time.rows());
+        Point startPoint3=new Point(time.cols()*0.47,0);
+        Point startPoint4=new Point(time.cols()*0.47,time.rows());
+        List<Point> startList=new ArrayList<>();
+        startList.add(startPoint1);
+        startList.add(startPoint2);
+        startList.add(startPoint3);
+        startList.add(startPoint4);
+        Mat start=OpencvUtil.shear(time,startList);
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/start.jpg", start);
+        BufferedImage yearBuffer=OpencvUtil.Mat2BufImg(start,".jpg");
+        String startStr=OCRUtil.getImageMessage(yearBuffer,"eng");
+        startStr=startStr.replace("-","");
+        startStr=startStr.replace(" ","");
+        startStr=startStr.replace("\n","");
+ 
+        //截止日期
+        Point endPoint1=new Point(time.cols()*0.47,0);
+        Point endPoint2=new Point(time.cols()*0.47,time.rows());
+        Point endPoint3=new Point(time.cols(),0);
+        Point endPoint4=new Point(time.cols(),time.rows());
+        List<Point> endList=new ArrayList<>();
+        endList.add(endPoint1);
+        endList.add(endPoint2);
+        endList.add(endPoint3);
+        endList.add(endPoint4);
+        Mat end=OpencvUtil.shear(time,endList);
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/end.jpg", end);
+        BufferedImage endBuffer=OpencvUtil.Mat2BufImg(end,".jpg");
+        String endStr=OCRUtil.getImageMessage(endBuffer,"chi_sim");
+        if(!endStr.contains("长")&&!endStr.contains("期")){
+            endStr=OCRUtil.getImageMessage(endBuffer,"eng");
+            endStr=endStr.replace("-","");
+            endStr=endStr.replace(" ","");
+        }
+ 
+        return startStr+"-"+endStr;
+    }
+ 
+    /**
+     * 身份证正面识别
+     */
+    public static void cardUp (Mat mat){
+        //循环进行人脸识别,调整图像为正面像
+        mat=OpencvUtil.faceLoop(mat);
+        //灰度
+        mat=OpencvUtil.gray(mat);
+        //二值化
+        mat=OpencvUtil.binary(mat);
+        //腐蚀
+        mat=OpencvUtil.erode(mat,3);
+        //膨胀
+        mat=OpencvUtil.dilate(mat,3);
+ 
+        //获取名称
+        String name=name(mat);
+        System.out.print("姓名是："+name);
+ 
+        //获取性别
+        String sex=sex(mat);
+        System.out.print("性别是："+sex);
+ 
+        //获取民族
+        String nation=nation(mat);
+        System.out.print("民族是："+nation);
+ 
+        //获取出生日期
+        String birthday=birthday(mat);
+        System.out.print("出生日期是："+birthday);
+ 
+        //获取住址
+        String address=address(mat);
+        System.out.print("住址是："+address);
+ 
+        //获取身份证
+        String card=card(mat);
+        System.out.print("身份证号是："+card);
+    }
+ 
+    public static String name(Mat mat){
+        Point point1=new Point(mat.cols()*0.18,mat.rows()*0.11);
+        Point point2=new Point(mat.cols()*0.18,mat.rows()*0.22);
+        Point point3=new Point(mat.cols()*0.4,mat.rows()*0.11);
+        Point point4=new Point(mat.cols()*0.4,mat.rows()*0.22);
+        List<Point> list=new ArrayList<>();
+        list.add(point1);
+        list.add(point2);
+        list.add(point3);
+        list.add(point4);
+        Mat name=OpencvUtil.shear(mat,list);
+ 
+        List<MatOfPoint> nameContours=OpencvUtil.findContours(name);
+        for (int i = 0; i < nameContours.size(); i++)
+        {
+            double area=OpencvUtil.area(nameContours.get(i));
+            if(area<100){
+                Imgproc.drawContours(name, nameContours, i, new Scalar( 0, 0, 0), -1);
+            }
+        }
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/name.jpg", name);
+        BufferedImage nameBuffer=OpencvUtil.Mat2BufImg(name,".jpg");
+        String nameStr=OCRUtil.getImageMessage(nameBuffer,"chi_sim");
+        nameStr=nameStr.replace("\n","");
+        return nameStr+"\n";
+    }
+    public static String sex(Mat mat){
+        Point point1=new Point(mat.cols()*0.18,mat.rows()*0.25);
+        Point point2=new Point(mat.cols()*0.18,mat.rows()*0.33);
+        Point point3=new Point(mat.cols()*0.25,mat.rows()*0.25);
+        Point point4=new Point(mat.cols()*0.25,mat.rows()*0.33);
+        List<Point> list=new ArrayList<>();
+        list.add(point1);
+        list.add(point2);
+        list.add(point3);
+        list.add(point4);
+        Mat sex=OpencvUtil.shear(mat,list);
+ 
+        sex=OpencvUtil.erode(sex,3);
+        List<MatOfPoint> sexContours=OpencvUtil.findContours(sex);
+        for (int i = 0; i < sexContours.size(); i++)
+        {
+            double area=OpencvUtil.area(sexContours.get(i));
+            if(area<100){
+                Imgproc.drawContours(sex, sexContours, i, new Scalar( 0, 0, 0), -1);
+            }
+        }
+        sex=OpencvUtil.dilate(sex,4);
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/sex.jpg", sex);
+        BufferedImage sexBuffer=OpencvUtil.Mat2BufImg(sex,".jpg");
+        String sexStr=OCRUtil.getImageMessage(sexBuffer,"chi_sim");
+        sexStr=sexStr.replace("\n","");
+        return sexStr+"\n";
+    }
+    public static String nation(Mat mat){
+        Point point1=new Point(mat.cols()*0.39,mat.rows()*0.25);
+        Point point2=new Point(mat.cols()*0.39,mat.rows()*0.34);
+        Point point3=new Point(mat.cols()*0.55,mat.rows()*0.25);
+        Point point4=new Point(mat.cols()*0.55,mat.rows()*0.34);
+        List<Point> list=new ArrayList<>();
+        list.add(point1);
+        list.add(point2);
+        list.add(point3);
+        list.add(point4);
+        Mat nation=OpencvUtil.shear(mat,list);
+        List<MatOfPoint> nationContours=OpencvUtil.findContours(nation);
+        for (int i = 0; i < nationContours.size(); i++)
+        {
+            double area=OpencvUtil.area(nationContours.get(i));
+            if(area<100){
+                Imgproc.drawContours(nation, nationContours, i, new Scalar( 0, 0, 0), -1);
+            }
+        }
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/nation.jpg", nation);
+        BufferedImage nationBuffer=OpencvUtil.Mat2BufImg(nation,".jpg");
+        String nationStr=OCRUtil.getImageMessage(nationBuffer,"chi_sim");
+        nationStr=nationStr.replace("\n","");
+        return nationStr+"\n";
+    }
+    public static String birthday(Mat mat){
+        Point point1=new Point(mat.cols()*0.18,mat.rows()*0.35);
+        Point point2=new Point(mat.cols()*0.18,mat.rows()*0.35);
+        Point point3=new Point(mat.cols()*0.55,mat.rows()*0.45);
+        Point point4=new Point(mat.cols()*0.55,mat.rows()*0.45);
+        List<Point> list=new ArrayList<>();
+        list.add(point1);
+        list.add(point2);
+        list.add(point3);
+        list.add(point4);
+        Mat birthday=OpencvUtil.shear(mat,list);
+        birthday=OpencvUtil.erode(birthday,3);
+        List<MatOfPoint> birthdayContours=OpencvUtil.findContours(birthday);
+        for (int i = 0; i < birthdayContours.size(); i++)
+        {
+            double area=OpencvUtil.area(birthdayContours.get(i));
+            if(area<150){
+                Imgproc.drawContours(birthday, birthdayContours, i, new Scalar( 0, 0, 0), -1);
+            }
+        }
+        birthday=OpencvUtil.dilate(birthday,3);
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/birthday.jpg", birthday);
+        //年份
+        Point yearPoint1=new Point(0,0);
+        Point yearPoint2=new Point(0,birthday.rows());
+        Point yearPoint3=new Point(birthday.cols()*0.29,0);
+        Point yearPoint4=new Point(birthday.cols()*0.29,birthday.rows());
+        List<Point> yearList=new ArrayList<>();
+        yearList.add(yearPoint1);
+        yearList.add(yearPoint2);
+        yearList.add(yearPoint3);
+        yearList.add(yearPoint4);
+        Mat year=OpencvUtil.shear(birthday,yearList);
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/year.jpg", year);
+        BufferedImage yearBuffer=OpencvUtil.Mat2BufImg(year,".jpg");
+        String yearStr=OCRUtil.getImageMessage(yearBuffer,"eng");
+ 
+        //月份
+        Point monthPoint1=new Point(birthday.cols()*0.44,0);
+        Point monthPoint2=new Point(birthday.cols()*0.44,birthday.rows());
+        Point monthPoint3=new Point(birthday.cols()*0.575,0);
+        Point monthPoint4=new Point(birthday.cols()*0.575,birthday.rows());
+        List<Point> monthList=new ArrayList<>();
+        monthList.add(monthPoint1);
+        monthList.add(monthPoint2);
+        monthList.add(monthPoint3);
+        monthList.add(monthPoint4);
+        Mat month=OpencvUtil.shear(birthday,monthList);
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/month.jpg", month);
+        BufferedImage monthBuffer=OpencvUtil.Mat2BufImg(month,".jpg");
+        String monthStr=OCRUtil.getImageMessage(monthBuffer,"eng");
+ 
+        //日期
+        Point dayPoint1=new Point(birthday.cols()*0.69,0);
+        Point dayPoint2=new Point(birthday.cols()*0.69,birthday.rows());
+        Point dayPoint3=new Point(birthday.cols()*0.82,0);
+        Point dayPoint4=new Point(birthday.cols()*0.82,birthday.rows());
+        List<Point> dayList=new ArrayList<>();
+        dayList.add(dayPoint1);
+        dayList.add(dayPoint2);
+        dayList.add(dayPoint3);
+        dayList.add(dayPoint4);
+        Mat day=OpencvUtil.shear(birthday,dayList);
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/day.jpg", day);
+        BufferedImage dayBuffer=OpencvUtil.Mat2BufImg(day,".jpg");
+        String dayStr=OCRUtil.getImageMessage(dayBuffer,"eng");
+ 
+        String birthdayStr=yearStr+"年"+monthStr+"月"+dayStr+"日";
+        birthdayStr=birthdayStr.replace("\n","");
+        return birthdayStr+"\n";
+    }
+ 
+    public static String address(Mat mat){
+        Point point1=new Point(mat.cols()*0.18,mat.rows()*0.48);
+        Point point2=new Point(mat.cols()*0.18,mat.rows()*0.48);
+        Point point3=new Point(mat.cols()*0.61,mat.rows()*0.76);
+        Point point4=new Point(mat.cols()*0.61,mat.rows()*0.76);
+        List<Point> list=new ArrayList<>();
+        list.add(point1);
+        list.add(point2);
+        list.add(point3);
+        list.add(point4);
+        Mat address=OpencvUtil.shear(mat,list);
+        List<MatOfPoint> addressContours=OpencvUtil.findContours(address);
+        for (int i = 0; i < addressContours.size(); i++)
+        {
+            double area=OpencvUtil.area(addressContours.get(i));
+            if(area<100){
+                Imgproc.drawContours(address, addressContours, i, new Scalar( 0, 0, 0),-1 );
+            }
+        }
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/address.jpg", address);
+        BufferedImage addressBuffer=OpencvUtil.Mat2BufImg(address,".jpg");
+        String addressStr=OCRUtil.getImageMessage(addressBuffer,"chi_sim");
+        addressStr=addressStr.replace("\n","");
+        return addressStr+"\n";
+    }
+    public static String card(Mat mat){
+        Point point1=new Point(mat.cols()*0.34,mat.rows()*0.75);
+        Point point2=new Point(mat.cols()*0.34,mat.rows()*0.75);
+        Point point3=new Point(mat.cols()*0.89,mat.rows()*0.91);
+        Point point4=new Point(mat.cols()*0.89,mat.rows()*0.91);
+        List<Point> list=new ArrayList<>();
+        list.add(point1);
+        list.add(point2);
+        list.add(point3);
+        list.add(point4);
+        Mat card=OpencvUtil.shear(mat,list);
+ 
+        card=OpencvUtil.erode(card,3);
+        List<MatOfPoint> cardContours=OpencvUtil.findContours(card);
+        for (int i = 0; i < cardContours.size(); i++)
+        {
+            double area=OpencvUtil.area(cardContours.get(i));
+            if(area<150){
+                Imgproc.drawContours(card, cardContours, i, new Scalar( 0, 0, 0),-1 );
+            }
+        }
+        card=OpencvUtil.dilate(card,3);
+        Imgcodecs.imwrite("D:/Users/xinjian09/Desktop/card.jpg", card);
+        BufferedImage cardBuffer=OpencvUtil.Mat2BufImg(card,".jpg");
+        String cardStr=OCRUtil.getImageMessage(cardBuffer,"eng");
+        return cardStr;
+    }
+}
+利用opencv库识别身份证图片
+8454
+
+一、前言 本文主要实现了对身份证图片上身份证号码的自动识别，在Qt平台上使用opencv进行图像处理，并绘制简单的用户界面，设计了一个基于Qt和opencv的身份证号码识别系统。 ... 来自：	huobanjishijian
+ 
+
+想对作者说点什么
+【OpenCV3.3】检测图像中的身份证区域
+ 1.8万
+
+假设现有一些含身份证前景以及不确定背景的图像，想通过计算机将身份证区域检测出来，实现诸如用户拍照定位提示、背景分离等业务，用OpenCV该如何做呢?如果输入图像前景和背景同时具有一定区分度，并且没有光... 来自：	Rprop
+VS2013+OpenCV3.0 之身份证分割算法
+ 452
+
+前言 本人c++小白，主要是做android这块的，底层涉及甚少，c++上学的时候自学过一点，还算有点基础。 之前有提过身份证识别的需求，考虑到用三方的需要收费，于是就自己研究下身份证识别喽。 ... 来自：	小强程序设计工作室 的博客
+基于opencv的身份证识别系统
+ 1.7万
+
+一、前言 本文主要实现了对身份证图片上身份证号码的自动识别，在Qt平台上使用opencv进行图像处理，并绘制简单的用户界面，设计了一个基于Qt和opencv的身份证号码识别系统。 二、用户界面   ... 来自：	AP1005834的博客
+
+基于OpenCV的身份证号自动识别应用开发
+ 1468
+
+??基于OpenCV机器学习算法实现身份证号自动识别1        前言本文基于OpenCV图像处理算法和OpenCV提供的机器学习算法实现身份证号的自动识别。应用（编程）环境：语言：Java, J... 来自：	wangyulj的专栏
+opencv-身份证文字提取
+ 994
+
+# -*- coding: UTF-8 -*- import cv2 import numpy as np def get_WH(w, h): return int(w*0.63),int... 来自：	u010379996的专栏
+Opencv+C++之身份证识别（一）
+ 4702
+
+五月份各种课程，也是最后一个学期了，所以就没有跟大家分享自己的一些所学。现在课程终于结束了，即将开始下一阶段的项目开发，所以趁这个间隙把前段时间做的一些东西做一个总结吧。 言归正传，对各种证件的识别... 来自：	dxmcu的专栏
+使用谷歌开源组件tesseract-OCR识别身份证，通过opencv处理图像后再进行识别（windows版本）
+ 1.3万
+
+1，前面有一篇已经介绍tesseract-OCR的简单实用和识别，因识别率不高，特意将图片实用opencv处理后，再次进行识别，经过测试，识别率高了30%左右 2，实用opcv整合tesseract... 来自：	xingfeichen的博客
+使用OpenCV的Haar特征训练身份证级联分类器
+ 727
+
+以下是我参考的几个人脸分类器的文章： http://blog.csdn.net/yangleo1987/article/details/52883864 http://m.blog.csdn.net... 来自：	每天多一点
+一根筷子一张卫生纸，就能鉴别真假蜂蜜？养蜂人教你如何区分！
+旭星华 · 燨燚
+调用opencv库进行身份证号码识别主要流程
+ 8257
+
+如题，就是对身份证拍照，处理相应照片，识别出身份证号码 这里需要调用opencv库。opencv库包含了许多处理图像的函数，功能全面而且强大，兼容多种语言。如何配置可以自行搜索。  主要流程如下：... 来自：	seekerhit的博客
+文章热词 机器学习	机器学习课程	机器学习教程	深度学习视频教程	深度学习学习 相关热词 c# ocr手写体识别 c# mvc 识别身份证 c#识别身份证 c#如何实现ocr识别 c++ ocr识别字符 opencv python识别股票价格 python识别手写数字教程
+利用Java进行身份证正反面信息识别
+ 348
+
+利用Java进行身份证正反面信息识别 1、百度授权信息准备 首先你得在百度AI开放平台上面注册一个账号，或者已经有百度账号了，网址是：https://ai.baidu.com/，如下图所示：  ... 来自：	wjbcy的专栏
+键盘舞者113关注
+键盘舞者113
+133篇文章
+
+排名:千里之外
+
+opskyzlt关注
+opskyzlt
+186篇文章
+
+排名:千里之外
+
+MrHaddis关注
+MrHaddis
+15篇文章
+
+排名:千里之外
+
+weixin_839602814关注
+weixin_839602814
+328篇文章
+
+排名:千里之外
+
+使用谷歌开源组件tesseract-OCR识别身份证（windows版本）
+ 2477
+
+1，前期准备（软件安装） 下载tesseract-OCR，我下载的是3.02.02，注意各个版本之间兼容性不太好，需要对应。 2，... 来自：	xingfeichen的博客
+OCR:iOS身份证（正反面）识别及银行卡识别
+ 1050
+
+场景 1、想要实现身份证识别及银行卡识别。 2、不想用第三方（免费识别有上限，要想更多识别需要花钱）只想实现身份证和银行卡识别，没必要花钱。 3、不想用第三方开源框架（OpenCV、Tesser... 来自：	tiantianios的博客
+tensorflow+行驶证目标信息检测+ocr
+ 1006
+
+tensorflow解读 来自：	一路走来
+一插上电,50平米内都暖和了!3天一度电,今日特惠!
+龙浔 · 燨燚
+iOS身份证识别（OCR源码）
+ 8291
+
+最近项目用到身份证识别，在github上搜了一堆demo，在Google上找了一堆代码，有能识别出证件照的，但是都是打包成.a的静态库，没有源码，我努力吃了几天书，有了一点研究成果，现在贴出来与大家分... 来自：	程序员小咖的博客
+基于qt+opencv的身份证识别
+下载
+
+11-29
+
+基于qt+opencv的身份证识别代码，对身份证数字、性别的识别并显示出来
+
+身份证号码识别 Opencv3.3.0(C++)
+ 370
+
+#pragma once #include #include #include #include #include #define OUT_PUT_IMG 10086 names... 来自：	老李2009
+手机身份证OCR扫描识别
+ 1063
+
+手机身份证OCR扫描识别介绍互联网的高速发展，让保险业拓宽了渠道，呈现出新的服务模式，让互联网保险开始沸腾起来，再加上形势和政策等多重刺激下，互联网保险将成为互联网金融的下一个风口，似乎已经成了业内的... 来自：	OCR识别技术
+安卓OCR身份证识别技术
+ 842
+
+这是APP获取Token的方法。 private void initAccessTokenWithAkSk() { OCR.getInstance().initAccessTok... 来自：	MrHaddis的博客
+一插上电,50平米内都暖和了!3天一度电,今日特惠!
+龙浔 · 燨燚
+移动端（离线）身份证识别OCR技术
+ 399
+
+一、移动端（离线）身份证识别OCR技术应用背景随着互联网的发展，需要网络实名认证的场景越来越多。当人们在享受互联网带来便利的同时，却不得不考虑到个人信息的甄别问题，这是网络实名认证过程中的难题和挑战，... 来自：	weixin_42029082的博客
+离线身份证ocr识别SDK
+ 1418
+
+一、离线身份证ocr识别应用背景 这些年，随着移动互联网的的发展，越来越多的企业都推出了自己的移动APP，这些APP多数都涉及到个人身份证信息的输入认证（即实名认证），如果手动去输入身份证号码和... 来自：	OCR识别技术
+身份证识别识别OCR技术解决方案
+ 907
+
+身份证识别识别OCR技术解决方案 　　身份证识别识别OCR技术率的因素有很多：其中重要因素是图片清晰度，决定因素为字符分割技术。图片清晰度在于拍摄手法、拍摄环境、拍摄人的熟练程度。身份证识别字符... 来自：	OCR13512721355的博客
+模式识别之身份证识别
+ 1万
+
+在各种证件识别中，身份证识别相对来讲还是比较简单的，因为字体及位置固定，而且颜色与背景差别较大。 识别流程：                                             ... 来自：	what_lei的博客
+下载 基于Qt和opencv的身份证号码识别系统 05-24
+本文主要实现了对身份证图片上身份证号码的自动识别，在Qt平台上使用opencv进行图像处理，并绘制简单的用户界面，设计了一个基于Qt和opencv的身份证号码识别系统。
+一根筷子一张卫生纸，就能鉴别真假蜂蜜？养蜂人教你如何区分！
+旭星华 · 燨燚
+机器视觉学习系列四：身份证识别
+ 1.2万
+
+项目背景：基于手机平台，识别身份证编号、姓名、年龄、地址，性别等； 具体实施方案： 1、基于身份证分类器检测身份证的位置，关于身份证分类器，采用的是HAAR+adaboost算法进行训练； 2、在已经... 来自：	opencv123456的专栏
+身份证图像识别的算法原理和应用
+ 787
+
+* 重点内容随着信息时代的飞速发展，作为人口信息行之有效的管理工具——身份证，已经深入到了社会生活的方方面面。身份证是我国居民身份的象征.* 目前身份证登记大多采用人工录入的方式。这不但耗时，而且效... 来自：	zz_zhou的博客
+腾讯OCR识别营业执照、身份证工具类
+ 868
+
+import com.yz.discount.common.basic.config.Config; import com.yz.discount.common.bean.MerchantOCRIn... 来自：	kanglovejava的博客
+阿里云 OCR身份证识别Api 使用（一）
+ 1.4万
+
+最近项目更新使用拍照识别身份证功能，为了省去用户手动输入身份证号码信息等。 从网上搜了一些方案，发现阿里云的非常便宜，果断采用。 但是没有android 的官方案例 ，只能自己搞了。 首选OCR 识别... 来自：	qq_34157567的博客
+H5界面身份证OCR识别接口API web端证件ocr识别
+ 3028
+
+摘要：由Web Service和其相关网站接收客户端上传的需要识别的图片。当Web Service接收到图片后将其转发给调度服务器，由任务调度程序再把识别请求分发给空闲的识别服务器，终由Web Ser... 来自：	OCR识别技术
+一个长期喝蜂蜜的人，竟然变成了这样！看到一定要告诉家人！！！
+崇贺商贸 · 燨燚
+身份证扫一扫识别的ocr技术背景
+ 185
+
+ 一、身份证扫一扫识别的技术应用背景这些年，随着移动互联网的的发展，越来越多的企业都推出了自己的移动APP，这些APP多数都涉及到个人身份证信息的输入认证（即实名认证），如果手动去输入身份证号码和姓名... 来自：	ZsHua_18519103264的博客
+android利用tesseract-ocr自己训练身份证号码识别库，并使用识别库识别身份证号码
+ 5649
+
+最近因为要用到扫描身份证号码这个功能，找了找网上的资料，发现用tesseract-ocr可以识别出需要的文字和数字，但是识别率是太低了，拍的很好地照片也不能准确识别，所以打算自己训练一个字库文件。借鉴... 来自：	w304970865rui的专栏
+android ocr 身份证识别
+ 13.5万
+
+ocr opencv 想必做过程图像识别的同学们都对这两个词不陌生吧。 ocr （optical character recognition ，光学字符识别） 是指电子设备（例如扫描仪或数码相机）检... 来自：	阳龙的移动互联天地
+Android Ocr文字识别 身份证识别 实时扫描
+ 370
+
+遇到一个需求需要扫描身份证，识别身份证号并进行查询，在网上百度需要用到文字识别技术，ocr tess-two，看到网上有关于中英文实时扫描和手机号实时扫描的功能，于是在这两者的基础上进行了改进，感谢顾... 来自：	weixin_41632509的博客
+身份证号码图像提取--基于canny边缘检测的连通域检测算法
+ 5619
+
+使用openv canny边缘检测，进行连通域探测提取。 来自：	u200814342A的博客
+
+下载 安卓集成二维码扫描，以及opencv实现银行卡和身份证的扫描，已导入全部所有用到的库或包代码可运行 06-03
+集成二维码扫描，以及opencv实现银行卡和身份证的扫描，已导入全部所有用到的库或包代码可运行。
+zxing和opencv实现身份识别
+ 1023
+
+基于opencv库和tess-two,Zxing在android平台上实现身份证号的识别!前言 : 最近因为公司项目的需要, 要做身份证号,银行卡号的识别, 集成zxing库,从网上搜了下资料有了大... 来自：	u010674648的博客
+下载 手机上的微信或支付宝等APP具有识别银行卡上账号的功能，以此为示例，请基于OpenCV编程自动识别身份证上面身份号码 01-15
+手机上的微信或支付宝等APP具有识别银行卡上账号的功能，以此为示例，请基于OpenCV编程自动识别身份证上面身份号码：通过身份证图片能够识别身份证号码，不限实现技术路线。
+下载 身份证信息提取工具 01-07
+excel工具，用函数及公式制作的能够提取批量身份证信息：出身日期、性别、年龄、归属地的表格工具。
+deep_ocr 是使得 OCR 比 tesseract 更好的中文识别、身份证识别等等
+ 5452
+
+deep ocr 估计很多开发员使用tesseract做中文识别，但是结果不是一般的差，譬如下面的图片 $ tesseract -l chi_sim test_data.png out_test... 来自：	c2a2o2的专栏
+傲游——浏览器中的瑞士军刀
+全球2亿用户和你的共同选择，连续三年荣获北美权威机构颁发的“最佳浏览器”奖项
+
+
+下载 android上基于tess-two 的ocr 身份证识别系统 10-17
+解决了原作者无法运行的问题，另外也没有android M 的限制，在时候的时候可以看到系统只是截取相关图片去做识别，我把截取的图片内容页显示在屏幕上。 使用的时候，需要把tessdata目录及里面的内容放到sdcard 根目录下才能使用。
+身份证识别OCR应用场景
+ 223
+
+新版身份证识别OCR APP“快证通”识别，该产品支持安卓、iOS平台，支持接口开发，通过智能手机或pad摄像头对准证件，采用视频预览模式识别，实现自动采集证件信息。旧版的身份证识别OCR软件，是拍照... 来自：	weixin_42029082的博客
+C#百度OCR-身份证图片识别提取信息
+ 301
+
+之前写了一篇利用百度OCR进行本地和网络图片识别文字的文章，点击查看。今天补充识别身份证图片的文章及demo 源码地址：https://download.csdn.net/download/hors... 来自：	马儿不吃草
+服务器后台身份证识别ocr
+ 238
+
+服务器后台身份证识别ocr技术顾名思义就是把OCR识别核心部署到服务器上的OCR识别技术。现如今在OCR识别技术如此火热的今天，各种OCR识别应用应运而生，而服务器端身份证识别技术也是在国内大环境大市... 来自：	OCR识别技术
+身份证识别
+ 271
+
+，前面有一篇已经介绍tesseract-OCR的简单实用和识别，因识别率不高，特意将图片实用opencv处理后，再次进行识别，经过测试，识别率高了30%左右 2，实用opcv整合tesserac... 来自：	u014379639的专栏
+
+分享一种身份证OCR识别技术
+ 1.1万
+
+为了提高在移动终端上输入身份证信息的速度和准确性，开发出身份证识别SDK，以满足各行业应用需求，给用户带来更好的体验。只需将身份证识别SDK集成到APP中，即可通过手机摄像头扫描识别身份信息。 二、产... 来自：	liao121176730的专栏
+身份证图像识别api
+ 9985
+
+详细介绍 身份证识别应用要求文字清晰的大陆二代身份证，文字朝向为正向，图像清晰。同时，身份证号码要求满足国标编码规范，否则不通过验证。API支持支持图片Base64编码和图片URL两种方法... 来自：	zhangzning的博客
+iOS-OpenCV之视频流身份证轮廓识别
+ 1256
+
+身份证就不发了，发个烟盒效果图吧 基础步骤： 一：导入OpenCV库，http://opencv.org下载即可，直接导入工程 二：写入C++命名空间：using namespace cv;... 来自：	党都挡不住的iOS博客
+OpenCV+OCR 图像处理字符识别原理及代码
+ 5.7万
+
+需配置好OpenCV和OCR环境下运行 1、OpenCV简介 OpenCV的全称是Open Source Computer Vision Library，是一个跨平台的计算机视觉库。 Ope... 来自：	静远小和尚的博客
+关于调用百度云OCR身份证识别接口，用Java语言，识别结果缺少身份证号码的问题解决
+ 139
+
+问题描述： 最近项目系统开发，使用到了相关证件的信息提取、识别，由于是学校科研使用，选择了百度云OCR文字识别的API。具体的相关识别身份等证件的代码将在另一篇文章中叙述，最近真的太忙了，草稿箱中还... 来自：	Joye-joy的博客
+
+Java实现百度云OCR接口识别图片文字信息（也包含身份证，银行卡识别,更新添加通用票据识别）
+ 531
+
+1.需求背景 因项目需求，需要提取身份证、发票（9/16更新内容）、荣誉证书上的文字信息，与相关文件进行匹配，而查阅相关资料，经过对比之后，发现用百度OCR文字识别API服务可以相应解决相关问题，识... 来自：	Joye-joy的博客
+很黄很暴力的十个网站
+ 64267
+
+13岁的北京学生张某，在去年12月27日19时新闻联播一则关于净化网络视听的新闻里，接受采访时说的话激起了轩然大波：“上次我上网查资料，突然弹出来一个网页，很黄很暴力，我赶紧把它给关了。”这个片段被C... 来自：	Kinb_huangwei的专栏
+门罗币 xmr 超级详细的CPU xmr挖矿教程
+ 79593
+
+门罗币 xmr 最详细的CPU 挖矿教程 基础 CUP 挖矿教程 如何挖矿？ Step1:获得一个钱包地址 钱包分为两个部分讲,一个是在线钱包,一个是本地钱包.(按需选择) 1.在线钱包 在 XMR ... 来自：	qq_39863517的博客
+微服务Springcloud超详细教程+实战（六）
+ 6210
+
+如在文档中遇到什么问题请联系作者 QQ：1172796094 本人正在找深圳Java实习工作，求大佬带飞 —————————————————————————————————————— 这章接着第五章没...
+
+docker入门+结合微服务实战（五）
+ 6899
+
+如在文档中遇到什么问题请联系作者 QQ：1172796094 本人正在找深圳Java实习工作，求大佬带飞 —————————————————————————————————————— 仓库 阿里云仓...
+
+SpringCloud教程之 负载均衡器 Ribbon实现（三）
+ 16
+
+在实际环境中，我们往往会开启很多个user-service的集群。此时我们获取的服务列表中就会有多个，到底该访问哪一个呢？ 一般这种情况下我们就需要编写负载均衡算法，在多个实例列表中进行选择。 不过S... 来自：	Miss.Fan的博客
+微服务Springcloud超详细教程+实战（八）
+ 7829
+
+如在文档中遇到什么问题请联系作者 QQ：1172796094 本人正在找深圳Java实习工作，求大佬带飞 —————————————————————————————————————— 消费者从Eure...
+
+Python编写一个简单的百度搜索应用
+ 17
+
+由于天气因素，无法外出，在家闲来无事，使用Python编写一个简单的百度搜索应用。 功能：打开默认浏览器，使用百度进行搜索 Python：2.7.13 第三方库：pyinstaller（打包软件... 来自：	zichehanTZ的博客
+2018最新Web前端经典面试试题及答案
+ 357050
+
+本篇收录了一些面试中经常会遇到的经典面试题以及自己面试过程中遇到的一些问题，并且都给出了我在网上收集的答案。马上就要过春节了，开年就是崭新的一年，相信很多的前端开发者会有一些跳槽的悸动，通过对本篇知识... 来自：	wdlhao的博客
+史上最简单的 SpringCloud 教程 | 终章
+ 1240046
+
+转载请标明出处： http://blog.csdn.net/forezp/article/details/70148833 本文出自方志朋的博客 错过了这一篇，你可能再也学不会 Sp... 来自：	方志朋的专栏
+【Android学习】第五章 · 网络编程
+ 306
+
+在老版本的android里，主线程可以不考虑用户体验，可以将耗时操作放在里面。而正确的做法是把耗时操作另外写入子线程里，这样程序就不会崩溃   通过Http的Get方式获取数据 （自定义子线程在... 来自：	唐三十胖子的博客
+微服务Springcloud超详细教程+实战（二）
+ 7745
+
+远程调用方式 无论是微服务还是分布式服务（都是SOA，都是面向服务编程），都面临着服务间的远程调用。那么服务间的远程调用方式有哪些呢？ 常见的远程调用方式有以下几种： RPC：Remote Pro...
+
+【《Unity Shader入门精要》 提炼总结】(九)第九章·UV贴图&纹理概念介绍&单张纹理的应用&Shader常见函数总结
+ 1229
+
+      本文由@唐三十胖子出品，转载请注明出处。  文章链接：https://blog.csdn.net/iceSony/article/details/84587428      ... 来自：	唐三十胖子的博客
+最新迅雷“应版权方要求，文件无法下载”的解决办法
+ 224096
+
+迅雷下载有的电影电视剧的时候会出现：应版权方要求，文件无法下载，或者显示迅雷任务包含违规内容 无法继续下载。这个是因为版权方和迅雷公司交涉，迅雷公司通过技术手段阻止了迅雷任务的下载，比如下载最近的《人... 来自：	徐奕的专栏
+微服务Springcloud超详细教程+实战（一）
+ 7535
+
+如在文档中遇到什么问题请联系作者 QQ：1172796094 本人正在找深圳Java实习工作，求大佬带飞 —————————————————————————————————————— 认识微服务系统架...
+
+整理了10个干净、好用的BT、磁力链搜索网站给大家
+ 97987
+
+现在越来越流行在线看视频了，但是对于我得收藏癖爱好者，还是希望可以有比较好的资源网站的，尤其是种子、磁力链网站。所以就整理了一份干净、好用的TOP10出来： 先推荐一个下载磁力链的工具： 马... 来自：	YXAPP的技术分享
+webstorm 2018 激活破解方法大全
+ 679633
+
+webstorm 作为最近最火的前端开发工具,也确实对得起那个价格,但是秉着勤俭节约的传统美德,我们肯定是能省则省啊。 方法一：（更新时间：2018/4/8）v3.3 注册时，在打开的Lice... 来自：	唐大帅的编程之路
+pyCharm最新2018激活码
+ 1248550
+
+本教程对jetbrains全系列可用例：IDEA、WebStorm、phpstorm、clion等 因公司的需求，需要做一个爬取最近上映的电影、列车号、航班号、机场、车站等信息，所以需要我做一个爬虫... 来自：	昌昌
+微服务Springcloud超详细教程+实战（五）
+ 7113
+
+如在文档中遇到什么问题请联系作者 QQ：1172796094 本人正在找深圳Java实习工作，求大佬带飞 —————————————————————————————————————— 微服务场景模拟 ...
+
+微服务Springcloud超详细教程+实战（十）
+ 5785
+
+本人正在找深圳Java实习工作，求大佬带飞 QQ：1172796094 如在文档中遇到什么问题请联系作者 —————————————————————————————————————— 服务消费者 获...
+
+批处理添加字段和删除字段
+ 18822
+
+在平时的工作中你或许会遇到这样的问题，给某个文件夹下面的所有的图片添加同一个字符串，如果一个一个去F2再CTRL+V这样就会烦得很，图片几个还好，如果是几百个图片那么工作的效率就会极低，windown... 来自：	pyf_914406232的博客
+容器将成为下一个“Linux”
+ 14800
+
+... 来自：	Docker的专栏
+【C#从入门到遛弯】第十一章 · 里式转换与常用类的使用
+ 1350
+
+1、里氏转换 1)、子类可以赋值给父类 2)、如果父类中装的是子类对象，那么可以讲这个父类强转为子类对象。   2、 子类对象可以调用父类中的成员，但是父类对象永远都只能调用自己的成员。   ... 来自：	唐三十胖子的博客
+项目部分展示-3D在线试衣系统解决方案
+ 2300
+
+郑重声明：发布此博客纯属技术展示和交流！未得本人同意，禁止转载！禁止商业目的！ 需要电子档书籍可以Q群：828202939   希望可以和大家一起学习、一起进步！！ 部分项目展示：  因为转化... 来自：	谷子的博客
+史上最全Java面试题（带全部答案）
+ 119891
+
+今天要谈的主题是关于求职，求职是在每个技术人员的生涯中都要经历多次。对于我们大部分人而言，在进入自己心仪的公司之前少不了准备工作，有一份全面细致面试题将帮助我们减少许多麻烦。在跳槽季来临之前,特地做这... 来自：	林老师带你学编程
+【《Unity Shader入门精要》 提炼总结】(八)第八章·Phong公式介绍&高光反射Shader编写&逐顶点光照&逐像素光照&Blinn-Phong光照
+ 217
+
+      本文由@唐三十胖子出品，转载请注明出处。  文章链接：https://blog.csdn.net/iceSony/article/details/84349017     这... 来自：	唐三十胖子的博客
+安装和激活Office 2019
+ 21843
+
+有条件请支持正版！相比费尽力气找一个可能不太安全的激活工具，直接买随时随地更新的Office 365确实是最好的办法。暂时没有经济实力的，可以看看这篇文章。 下载OTP工具 首先到Office Too... 来自：	过了即是客
+2018最好用百度云破解版，百度网盘不限速下载，教你如何解决百度网盘限速的方法。亲测完美使用
+ 64023
+
+百度网盘不限速 点击下载 提取码：jsk0 百度网盘不限速 点击下载 提取码：jsk0 对于大多数人来说，每次在百度网盘下载东西的时候总会被限速，如果不想被限速就要充值百度网盘的SVIP，... 来自：	qq_41925894的博客
+docker入门+结合微服务实战(一）
+ 7639
+
+docker入门（一） 如在文档中遇到什么问题请联系作者 QQ：1172796094 本人正在找深圳实习工作，求大佬带飞 docker简介 docker是一个开源的应用容器引擎，让开发者可以打...
+
+使用UTL_HTTP工具包发送含有CLOB的请求报错？
+ 311
+
+当我们将CLOB解析出来以后会出现一下的错误！ 程序的代码如下： DECLARE v_doc_fin CLOB; req utl_http.req; res... 来自：	雷鹏君の的博客
+FFmpeg详解及常用命令使用
+ 17056
+
+FFMPEG简介 FFMPEG堪称自由软件中最完备的一套多媒体支持库，它几乎实现了所有当下常见的数据封装格式、多媒体传输协议以及音视频编解码器，提供了录制、转换以及流化音视频的完整解决方案。市面上使... 来自：	qq_26464039的博客
+微服务Springcloud超详细教程+实战（七）
+ 6756
+
+如在文档中遇到什么问题请联系作者 QQ：1172796094 本人正在找深圳Java实习工作，求大佬带飞 —————————————————————————————————————— Eureka注册...
+
+军事理论课答案（西安交大版）
+ 1082825
+
+1.1 1 【单选题】我国陆地领土面积排名世界第几？（C） A、1 B、2 C、3 D、4 2 【单选题】以下哪个国家不属于金砖五国（BRICS）？（B） A、中国 B、日本 C... 来自：	ling_wang的博客
+Redis数据库(入门)
+ 39
+
+这几天开发中又要用到redis, 所以就回顾一下。 1.什么是redis 目前使用比较多的，Redis（ke-value数据库，缓存）、MongoDB（海量存储数据） Redis：内存数据库 （key... 来自：	weixin_43866856的博客
+Proxyee-down的下载与安装教程
+ 139833
+
+Proxyee-down是monkeyWie在Github上的一个开源项目，向作者致敬。 最新版的Proxyee-down为3.12（2018.10更新），因为作者在3.x后的版本中并未发布exe版... 来自：	shadandeajian的博客
+黄色-图片识别引擎的一些心得
+ 3151
+
+黄色-图片识别引擎的一些心得 博客分类：  图像识别、机器学习、数据挖掘 ITeye领域模型 黄色-图片自动识别是一个涉及到图像处理、模式识别、机器学习、统计概率的综合领域，其... 来自：	u011473714的专栏
+docker入门+结合微服务实战（八）
+ 6122
+
+如在文档中遇到什么问题请联系作者 QQ：1172796094 本人正在找深圳Java实习工作，求大佬带飞 —————————————————————————————————————— 实战：自己构建r...
+
+java缓冲区
+ 6625
+
+1 缓冲区的分类 ByteBuffer CharBuffer ShortBuffer IntBuffer LongBuffer FloatBuffer DoubleBuffer 2 ByteBuffe... 来自：	weixin_43694144的博客
+微服务Springcloud超详细教程+实战（九）
+ 6535
+
+如在文档中遇到什么问题请联系作者 QQ：1172796094 本人正在找深圳Java实习工作，求大佬带飞 —————————————————————————————————————— 八在审核中，请见...
+
+docker入门+结合微服务实战（七）
+ 6767
+
+如在文档中遇到什么问题请联系作者 QQ：1172796094 本人正在找深圳Java实习工作，求大佬带飞 —————————————————————————————————————— 构建镜像 前面我...
+
+军事理论课答案（中国国防史）
+ 263626
+
+中国国防史——秦至两晋南北朝已完成 成绩： 100.0分 1 【单选题】中国哪个历史时期的国防是“变法图强，改革军制；奖赏军功，百家论兵”？（） A、元朝时期 B、先秦时期 C、清朝时期 ... 来自：	ling_wang的博客
+
+落日流年
+
+关注
+原创
+58
+粉丝
+10
+喜欢
+6
+评论
+11
+等级： 访问： 5万+ 积分： 1047 排名： 5万+
+勋章：
+ 
+最新文章
+MD5加密方法
+微信公众号接收消息密文解密及明文加密后自动回复
+微信公众号服务器配置token验证
+Connection reset 异常原因及解决
+HttpRequest的GET和POST请求方法
+个人分类
+java19篇
+springmvc9篇
+git2篇
+jpa2篇
+数据库7篇
+dubbo2篇
+redis1篇
+ocr识别2篇
+前端4篇
+linux11篇
+opencv4篇
+nginx10篇
+oracle11g1篇
+swagger1篇
+展开
+
+归档
+2018年12月 5篇
+2018年10月 2篇
+2018年9月 5篇
+2018年8月 14篇
+2018年7月 5篇
+2018年6月 5篇
+2018年5月 1篇
+2018年4月 3篇
+2018年3月 2篇
+2018年2月 2篇
+2018年1月 2篇
+2017年12月 6篇
+2017年11月 7篇
+2017年8月 1篇
+展开
+
+热门文章
+git命令行解决冲突文件步骤
+阅读量：19046
+
+Caused by: org.hibernate.exception.SQLGrammarException: could not extract ResultSet 报错原因
+阅读量：9558
+
+jpa数据库增删改查基本操作
+阅读量：5865
+
+web.xml 各种配置整理
+阅读量：3796
+
+redis与springmvc整合完整过程，附带源码地址
+阅读量：3501
+
+最新评论
+Opencv实现身份证OCR识别
+cncore：Exception in thread "main" java.lang.Un...
+
+Opencv实现身份证OCR识别
+F_hawk189：老哥，找不到com/sun/jna/Pointer，这个类在哪里用的，你博文里面没见到有这个包呀，...
+
+Opencv实现身份证OCR识别
+zwl18210851801：[reply]an8695001[/reply] https://blog.csdn.net/qq...
+
+Opencv实现身份证OCR识别
+an8695001：老铁，OpenCV Error: Assertion failed (!empty()) in c...
+
+
+联系我们
+微信客服
+微信客服
+
+QQ客服
+QQ客服
+
+kefu@csdn.net QQ客服
+
+客服论坛400-660-0108
+
+工作时间 8:00-22:00
+
+关于我们招聘广告服务 网站地图
+
+百度提供站内搜索 京ICP证09002463号
+
+?1999-2018 江苏乐知网络技术有限公司
+
+江苏知之为计算机有限公司 北京创新乐知信息技术有限公司版权所有
+
+经营性网站备案信息 网络110报警服务
+
+北京互联网违法和不良信息举报中心
+
+中国互联网举报中心
+
+ 2
+  
+ 

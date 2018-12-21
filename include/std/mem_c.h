@@ -1,9 +1,14 @@
 
 #ifndef _STDC_MEM_C_H_
 #define _STDC_MEM_C_H_
+
+#include "stddef_c.h"
+#include "inttypes_c.h"
+
+
 /////////////////////////////////////////////////////////
 
-CC_INLINE void* matcpy(void* dst, int dl, const void* src, int sl, int h, int w)
+static void* matcpy(void* dst, int dl, const void* src, int sl, int h, int w)
 {
   char* d = (char*)(dst);
   const char* s = (const char*)(src);
@@ -15,7 +20,7 @@ CC_INLINE void* matcpy(void* dst, int dl, const void* src, int sl, int h, int w)
   }
   return dst;
 }
-CC_INLINE void* matmove(void* dst, int dl, const void* src, int sl, int h, int w)
+static void* matmove(void* dst, int dl, const void* src, int sl, int h, int w)
 {
   char* d = (char*)(dst);
   const char* s = (const char*)(src);
@@ -28,7 +33,7 @@ CC_INLINE void* matmove(void* dst, int dl, const void* src, int sl, int h, int w
   return dst;
 }
 
-CC_INLINE int memcpy2da(void* B, int bl, const void* A, int al, int h, int w)
+static int memcpy2da(void* B, int bl, const void* A, int al, int h, int w)
 {
   int i;
   for (i = 0; i < h; ++i) {
@@ -36,7 +41,7 @@ CC_INLINE int memcpy2da(void* B, int bl, const void* A, int al, int h, int w)
   }
   return 0;
 }
-CC_INLINE int copy2d(int h, int w, const void* A, int al, void* B, int bl)
+static int copy2d(int h, int w, const void* A, int al, void* B, int bl)
 {
   int i;
   for (i = 0; i < h; ++i) {
@@ -44,7 +49,7 @@ CC_INLINE int copy2d(int h, int w, const void* A, int al, void* B, int bl)
   }
   return 0;
 }
-CC_INLINE void* memcpy2d(void* dst, int dl, const void* src, int sl, int h, int w)
+static void* memcpy2d(void* dst, int dl, const void* src, int sl, int h, int w)
 {
   char* d = (char*)(dst);
   const char* s = (const char*)(src);
@@ -56,7 +61,7 @@ CC_INLINE void* memcpy2d(void* dst, int dl, const void* src, int sl, int h, int 
   }
   return dst;
 }
-CC_INLINE int mem_swap(int n, void* src, void* dst)
+static int mem_swap(int n, void* src, void* dst)
 {
   int i, t0, t1, t2, t3;
   int* s = (int*)src;
@@ -76,7 +81,7 @@ CC_INLINE int mem_swap(int n, void* src, void* dst)
   return 0;
 }
 // ÉÏÏÂµßµ¹
-CC_INLINE int matflip(int h, int w, void* src, int srcstep)
+static int matflip(int h, int w, void* src, int srcstep)
 {
   int i;
   char* cs = (char*)src;
@@ -86,7 +91,7 @@ CC_INLINE int matflip(int h, int w, void* src, int srcstep)
   }
   return 0;
 }
-CC_INLINE void* memflip(void* dst, int dl, const void* src, int sl, int h, int w)
+static void* memflip(void* dst, int dl, const void* src, int sl, int h, int w)
 {
   char* d = (char*)(dst);
   const char* s = (const char*)(src);
@@ -101,7 +106,7 @@ CC_INLINE void* memflip(void* dst, int dl, const void* src, int sl, int h, int w
   }
   return 0;
 }
-CC_INLINE void memset2(void* adr, int val, int count)
+static void memset2(void* adr, int val, int count)
 {
   int i, n, v;
   unsigned int* p;
@@ -122,7 +127,7 @@ CC_INLINE void memset2(void* adr, int val, int count)
     *q++ = val;
   }
 }
-CC_INLINE void memset4(void* adr, int val, int count)
+static void memset4(void* adr, int val, int count)
 {
   int i, n, v;
   unsigned int* p;
@@ -142,7 +147,7 @@ CC_INLINE void memset4(void* adr, int val, int count)
   }
 }
 /* count must be a multiple of 4 and >= 4 */
-CC_INLINE void memset3(void* adr, int r, int v, int b, long count)
+static void memset3(void* adr, int r, int v, int b, long count)
 {
   long i, n;
   register long v1, v2, v3, *pt = (long*)(adr);
@@ -222,7 +227,7 @@ typedef struct bf_mem_head_t {
 #define SYSFREE(_T, _P, _N)    (free(_P), _P=NULL)
 //static int bf_maxlen=0;
 //static int bf_malloc_maxlen=0;
-CC_INLINE int bf_malloc(buf_t* bf, void* p, int n)
+static int bf_malloc(buf_t* bf, void* p, int n)
 {
   uchar* p0 = 0;
   bf_mem_head_t* head;
@@ -246,7 +251,7 @@ CC_INLINE int bf_malloc(buf_t* bf, void* p, int n)
   }
   return 0;
 }
-CC_INLINE int bf_free(buf_t* bf, void* p)
+static int bf_free(buf_t* bf, void* p)
 {
   void** pp = (void**)p;
   uchar* p0 = (uchar*)(*pp);
@@ -254,9 +259,9 @@ CC_INLINE int bf_free(buf_t* bf, void* p)
     bf_mem_head_t* head = (bf_mem_head_t*)(p0 - sizeof(bf_mem_head_t));
     //bf_mem_tail_t* tail = (bf_mem_tail_t*)(p0 + head->size);
     int len = head->size + BF_MEM_INFO_LEN;
-    ASSERT((bf->data + bf->len + sizeof(bf_mem_head_t)) == p0 && "ÊÍ·ÅË³Ðò²»¶Ô");
+    //ASSERT((bf->data + bf->len + sizeof(bf_mem_head_t)) == p0 && "ÊÍ·ÅË³Ðò²»¶Ô");
     //ASSERT(head->size == n && "??ï¿½ï¿½?????");
-    ASSERT(head->magic == BF_MEM_MAGIC && "??????");
+    ASSERT(head->magic == BF_MEM_MAGIC && "?");
     ASSERT(((bf_mem_tail_t*)(p0 + head->size))->magic == BF_MEM_MAGIC && "ï¿½ï¿½?????");
     bf->len += len;
     *pp = NULL;

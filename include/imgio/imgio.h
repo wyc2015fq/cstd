@@ -5,9 +5,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 //#include "stb/stb_image.inl"
 //#undef e
-#include "stdc/fileio_c.h"
-#include "stdc/stream_c.h"
-#include "../stdc/imgopt.h"
+#include "std/stddef_c.h"
+#include "std/fileio_c.h"
+#include "std/stream_c.h"
+#include "std/imgopt.h"
 //#include "imgopt.inl"
 //#include "color.inl"
 //#include "sys\findfile.h"

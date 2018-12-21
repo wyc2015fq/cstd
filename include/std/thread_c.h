@@ -3,16 +3,29 @@
 
 #include "stddef_c.h"
 
-typedef struct thread_t thread_t;
-typedef int (*thread_callback)(void* arg);
-typedef int (*parallel_callback)(void* arg, int beg, int end);
+typedef struct { void* x; } handel_t;
+typedef handel_t thread_t;
+typedef handel_t job_t;
+typedef handel_t event_t;
+typedef handel_t lock_t;
+typedef handel_t mutex_t;
+typedef handel_t thread_attr_t;
+
+typedef void* (*thread_callback)(void* arg);
+typedef void* (*parallel_callback)(void* arg, int beg, int end);
 #define CC_INFINITE 0xffffffff
 #define PUSHARG(args, j, T, NAME)     args[j++] = &NAME;
 #define POPARG(args, j, T, NAME)      T& NAME = *(T*)args[j++];
 static int parallel_for(void* arg, int beg, int end, parallel_callback fun);
 
-struct thread_t {
+
+#define sys_thread_cancel(x)
+//////////////////////////////////////////////////////////////////////////
+// 
+
+struct _thread_t {
   thread_callback run;
+  void* handle;
   void* arg;
   void* security;
   unsigned stack_size;
@@ -20,57 +33,41 @@ struct thread_t {
   unsigned threadID;
   void* x;
   void* data[4];
-  struct thread_t* prev;
-  struct thread_t* next;
+  struct _thread_t* prev;
+  struct _thread_t* next;
 };
-typedef struct thread_t job_t;
-typedef struct {
-  void* x;
-} mutex_t;
-typedef struct {
-  void* x;
-} event_t;
-typedef struct {
-  void* x;
-} lock_t;
-
-static int sys_sleep(int ms);
-static int sys_spin_lock(volatile long *address);
-static int sys_spin_unlock(volatile long *address);
-static int sys_lock_init(lock_t* c);
-static int sys_lock_destroy(lock_t* c);
-static int sys_lock_lock(lock_t* c);
-static int sys_lock_unlock(lock_t* c);
-static int sys_event_init(event_t* c, bool manual_reset, bool init_state);
-static int sys_event_destroy(event_t* c);
-static int sys_event_wait(event_t* c, int dwMillises);
-static int sys_event_signal(event_t* c);
-static int sys_event_reset(event_t* c);
-static int sys_mutex_init(mutex_t* mut, const char* name);
-static int sys_mutex_destroy(mutex_t* mut);
-static int sys_mutex_lock(mutex_t* mut);
-static int sys_mutex_unlock(mutex_t* mut);
-static int sys_thread_create(thread_t* th);
-static int sys_thread_join(thread_t* th);
-static int sys_thread_id();
-static int sys_getpid();
-//////////////////////////////////////////////////////////////////////////
-// 
 
 #define MB
 #define WMB
 #define YIELDING
 
-/////////////////////////////////////////////////////////////////////////////////////////
-// win32
+#ifdef _WIN32
+#else
+#endif
+
 #ifdef _WIN32
 #include <windows.h>
+#else
+#include <pthread.h>
+typedef struct critical_section_t {
+  pthread_mutex_t   m_sect;
+} critical_section_t;
+#endif
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// win32
 int sys_sleep(int ms) {
+#ifdef _WIN32
   Sleep(ms);
+#else
+#endif
+
   return 0;
 }
 
 int sys_spin_lock(volatile long *address) {
+#ifdef _WIN32
   int ret;
   do {
     while (*address) {YIELDING;};
@@ -90,41 +87,78 @@ int sys_spin_lock(volatile long *address) {
     
   } while (ret);
   return ret;
+#else
+#endif
 }
 
 int sys_spin_unlock(volatile long *address) {
+#ifdef _WIN32
   MB;
   *address = 0;
+#else
+#endif
   return 0;
 }
-
 int sys_lock_init(lock_t* c)
 {
+#ifdef _WIN32
   CRITICAL_SECTION* cs = (CRITICAL_SECTION*)malloc(sizeof(CRITICAL_SECTION));
   c->x = cs;
   InitializeCriticalSection(cs);
   return 0;
+#else
+  critical_section_t* cs = (critical_section_t*)malloc(sizeof(critical_section_t));
+  pthread_mutexattr_t m_attr;
+  c->x = cs;
+  pthread_mutexattr_init(&m_attr);
+  pthread_mutexattr_settype(&m_attr, PTHREAD_MUTEX_RECURSIVE_NP);
+  pthread_mutex_init(&cs->m_sect, &m_attr);
+  pthread_mutexattr_destroy(&m_attr);
+  return 0;
+#endif
+
 }
 int sys_lock_destroy(lock_t* c)
 {
+#ifdef _WIN32
   CRITICAL_SECTION* cs = (CRITICAL_SECTION*)c->x;
   DeleteCriticalSection(cs);
   free(cs);
   c->x = NULL;
   return 0;
+#else
+  critical_section_t* cs = (critical_section_t*)c->x;
+  pthread_mutex_destroy(&cs->m_sect);
+  free(cs);
+  c->x = NULL;
+  return 0;
+#endif
 }
+
 int sys_lock_lock(lock_t* c)
 {
+#ifdef _WIN32
   CRITICAL_SECTION* cs = (CRITICAL_SECTION*)c->x;
   EnterCriticalSection(cs);
   return 0;
+#else
+  critical_section_t* cs = (critical_section_t*)c->x;
+  return pthread_mutex_lock(&cs->m_sect);
+#endif
 }
 int sys_lock_unlock(lock_t* c)
 {
+#ifdef _WIN32
   CRITICAL_SECTION* cs = (CRITICAL_SECTION*)c->x;
   LeaveCriticalSection(cs);
   return 0;
+#else
+  critical_section_t* cs = (critical_section_t*)c->x;
+  return pthread_mutex_unlock(&cs->m_sect);
+#endif
 }
+
+#ifdef _WIN32
 int sys_event_init(event_t* c, bool manual_reset, bool init_state) {
   c->x = CreateEventA(NULL, manual_reset, init_state, NULL);
   return 0;
@@ -181,28 +215,25 @@ int sys_mutex_unlock(mutex_t* c)
 }
 static DWORD WINAPI ThreadProxy(LPVOID args)
 {
-  thread_t* th = (thread_t*)(args);
-  DWORD ret = 0;
-  if (th && th->run) {
-    ret = th->run(th->arg);
+  _thread_t* _th = (_thread_t*)(args);
+  void* ret = 0;
+  if (_th && _th->run) {
+    ret = _th->run(_th->arg);
   }
-  return ret;
+  free(_th);
+  return (DWORD)ret;
 }
 
 //typedef void* uintptr_t;
-
-int sys_thread_create(thread_t* th) {
-  HANDLE hthread = CreateThread((LPSECURITY_ATTRIBUTES)(th->security), th->stack_size, ThreadProxy, th, th->initflag, (unsigned long *)&th->threadID);
-  th->x = hthread;
-  return 0;
-}
-static int sys_thread_creates(int n, thread_t* th)
-{
-  int i;
-  for (i = 0; i < n; ++i) {
-    sys_thread_create(th+i);
-  }
-  return 0;
+int sys_thread_create(thread_t *th, const thread_attr_t *attr, thread_callback start_rtn, void *arg) {
+  _thread_t* _th = (_thread_t*)malloc(sizeof(_thread_t));
+  memset(_th, 0, sizeof(*_th));
+  th->x = _th;
+  _th->arg = arg;
+  _th->run = start_rtn;
+  HANDLE handle = CreateThread((LPSECURITY_ATTRIBUTES)(0), 0, ThreadProxy, _th, _th->initflag, (unsigned long *)&_th->threadID);
+  _th->handle = handle;
+  return handle != INVALID_HANDLE_VALUE;
 }
 int sys_thread_join(thread_t* th)
 {
@@ -283,35 +314,6 @@ int sys_getpid() {
 ////////////////////////////////////////////////////////////////////
 #ifdef __linux__
 
-#include <pthread.h>
-typedef struct critical_section_t {
-  pthread_mutex_t   m_sect;
-} critical_section_t;
-int sys_lock_init(lock_t* c) {
-  critical_section_t* cs = (critical_section_t*)malloc(sizeof(critical_section_t));
-  pthread_mutexattr_t m_attr;
-  c->x = cs;
-  pthread_mutexattr_init(&m_attr);
-  pthread_mutexattr_settype(&m_attr, PTHREAD_MUTEX_RECURSIVE_NP);
-  pthread_mutex_init(&cs->m_sect, &m_attr);
-  pthread_mutexattr_destroy(&m_attr);
-  return 0;
-}
-int sys_lock_destroy(lock_t* c) {
-  critical_section_t* cs = (critical_section_t*)c->x;
-  pthread_mutex_destroy(&cs->m_sect);
-  free(cs);
-  c->x = NULL;
-  return 0;
-}
-int sys_lock_lock(lock_t* c) {
-  critical_section_t* cs = (critical_section_t*)c->x;
-  return pthread_mutex_lock(&cs->m_sect);
-}
-int sys_lock_unlock(lock_t* c) {
-  critical_section_t* cs = (critical_section_t*)c->x;
-  return pthread_mutex_unlock(&cs->m_sect);
-}
 #if 0
 typedef struct cond_t {
   pthread_cond_t    m_hEvent;

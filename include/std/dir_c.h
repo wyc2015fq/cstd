@@ -10,6 +10,7 @@
 #include "path_c.h"
 #include <io.h>
 #include <direct.h>
+#include "std/iconv_c.h"
 
 
 #ifndef MAX_PATH
@@ -20,17 +21,20 @@ typedef struct fileinfo_t {
   time_t ctime;//_create;    /* -1 for FAT file systems */
   time_t atime;//access;    /* -1 for FAT file systems */
   time_t wtime;//write;
+  int st_uid;
+  int st_gid;
+  int st_nlink;
   uint64 size;
   char name[MAX_PATH];
 } fileinfo_t;
-typedef struct findfile_t {
-  void* dir;
-  int count;
-} findfile_t;
+typedef struct dir_t {
+  void* x;
+} dir_t;
 #define FF_FULLNAME  (1<<0)
 #define FF_SUBDIR    (1<<1)
 #define FF_NODIR     (1<<3)
 #define FF_FILTERS   (1<<4)
+#define FF_UTF8      (1<<5)
 
 
 #define filefind_is_directory(s)  (FILE_ATTRIBUTE_DIRECTORY & s->info.dwFileAttributes)
@@ -72,7 +76,6 @@ typedef enum {
 #undef S_ISDIR
 #define S_ISDIR(x)  ((x)&AS_SUBDIR)
 
-
 #ifdef _WIN32
 #define S_IFMT         _S_IFMT           /* file type mask */
 #define S_IFDIR        _S_IFDIR          /* directory */
@@ -82,97 +85,142 @@ typedef enum {
 #define S_IREAD        _S_IREAD          /* read permission, owner */
 #define S_IWRITE       _S_IWRITE         /* write permission, owner */
 #define S_IEXEC        _S_IEXEC          /* execute/search permission, owner */
+//
+#define S_ISREG(x)  0
+#define S_ISBLK(x)  0
+#define S_ISCHR(x)  0
+#define S_ISLNK(x)  0
+#define S_ISFIFO(x)  0
+#define S_ISSOCK(x)  0
+///
+#define S_IRUSR  -1
+#define S_IWUSR  -1
+#define S_IXUSR  -1
+#define S_IRGRP  -1
+#define S_IWGRP  -1
+#define S_IXGRP  -1
+#define S_ISUID  -1
+#define S_ISGID  -1
+#define S_IROTH  -1
+#define S_IWOTH  -1
+#define S_ISVTX  -1
+#define S_IXOTH  -1
+
 static int win32_attrib_cvt(int attrib) {
   int attrib2 = 0;
 #define WIN32_ATTRIB_CVT(a, b) if (attrib&(a))  attrib2|=(b);
-  WIN32_ATTRIB_CVT(_A_RDONLY, AS_RDONLY);
-  WIN32_ATTRIB_CVT(_A_SUBDIR, AS_SUBDIR);
-  WIN32_ATTRIB_CVT(_A_HIDDEN, AS_HIDDEN);
+  if (0) {
+    WIN32_ATTRIB_CVT(_A_RDONLY, AS_RDONLY);
+    WIN32_ATTRIB_CVT(_A_SUBDIR, AS_SUBDIR);
+    WIN32_ATTRIB_CVT(_A_HIDDEN, AS_HIDDEN);
+  }
+  WIN32_ATTRIB_CVT(FILE_ATTRIBUTE_READONLY, AS_RDONLY);
+  WIN32_ATTRIB_CVT(FILE_ATTRIBUTE_DIRECTORY, AS_SUBDIR);
+  WIN32_ATTRIB_CVT(FILE_ATTRIBUTE_HIDDEN, AS_HIDDEN);
+  
   return attrib2;
 }
-int sys_find_close(findfile_t* s) {
-  if (s && s->dir) {
-    _findclose((intptr_t)s->dir);
-    s->dir = 0;
+int sys_find_close(dir_t* s) {
+  if (s && s->x) {
+    _findclose((intptr_t)s->x);
+    s->x = 0;
   }
   return 0;
 }
-
-int sys_find_next_file(findfile_t* s, const char* path, const char* filters, fileinfo_t* f, int flag) {
-  struct _finddata_t info[1];
-  char* name = f->name;
-  int maxnamelen = countof(f->name);
-  if (NULL == s->dir) {
-    char buf[256];
-    _snprintf(buf, 256, "%s/%s", path, filters ? filters : "*");
-    s->dir = (void*)_findfirst(buf, info);
-    s->count++;
-    f->size = info->size;
-    f->ctime = info->time_create;
-    f->atime = info->time_access;
-    f->wtime = info->time_write;
-    f->attrib = win32_attrib_cvt(info->attrib);
-    if (flag & (FF_FULLNAME | FF_SUBDIR)) {
-      _snprintf(name, maxnamelen, "%s/%s", path, info->name);
-    }
-    else {
-      strncpy(name, info->name, maxnamelen);
-    }
-    return ((void*)-1 != s->dir && NULL != s->dir);
-  }
-  else {
-    if (_findnext((intptr_t)s->dir, info) == 0) {
-      s->count++;
-      f->size = info->size;
-      f->ctime = info->time_create;
-      f->atime = info->time_access;
-      f->wtime = info->time_write;
-      f->attrib = win32_attrib_cvt(info->attrib);
-      if (flag & (FF_FULLNAME | FF_SUBDIR)) {
-        _snprintf(name, MAX_PATH, "%s/%s", path, info->name);
-      }
-      else {
-        strncpy(name, info->name, maxnamelen);
-      }
-      return TRUE;
-    }
-    else {
-      _findclose((intptr_t)s->dir);
-      s->dir = 0;
-    }
-  }
-  return FALSE;
+// FILETIME ת time_t
+static time_t FileTimeToTimet(FILETIME ft) {
+  time_t pt;
+  //LONGLONG nLL;
+  ULARGE_INTEGER ui;
+  ui.LowPart = ft.dwLowDateTime;
+  ui.HighPart = ft.dwHighDateTime;
+  //nLL = ((uint64)ft.dwHighDateTime << 32) + ft.dwLowDateTime;
+  pt = (long)((LONGLONG)(ui.QuadPart - 116444736000000000) / 10000000);
+  return pt;
 }
-#else
-// linux
 
+#else
 static int linux_attrib_cvt(int attrib) {
-  int attrib2=0;
+  int attrib2 = 0;
 #define LINUX_ATTRIB_CVT(a, b) if (a(attrib))  attrib2|=(b);
   LINUX_ATTRIB_CVT(S_ISDIR, AS_SUBDIR);
   return attrib2;
 }
 
-int sys_find_close(findfile_t* s) {
-  if (s && s->dir) {
-    closedir((DIR*)s->dir);
-    s->dir = NULL;
+int sys_find_close(dir_t* s) {
+  if (s && s->x) {
+    closedir((DIR*)s->x);
+    s->x = NULL;
   }
   return 0;
 }
-int sys_find_next_file(findfile_t* s, const char* path, const char* filters, fileinfo_t* f, int flag) {
+#endif
+
+int sys_find_next_file(dir_t* s, const char* path, const char* filters, fileinfo_t* f, int flag) {
+#ifdef _WIN32
+  WIN32_FIND_DATAW info[1];
+  char* name = f->name;
+  int len, maxnamelen = countof(f->name);
+  char buf[256];
+  ICONV_CODEPAGE cp = flag & FF_UTF8 ? ICONV_UTF8 : ICONV_GB2312;
+  if (NULL == s->x) {
+    WCHAR wbuf[256];
+    _snprintf(buf, 256, "%s/%s", path, filters ? filters : "*");
+    //len = MultiByteToWideChar(CP_ACP, 0, buf, -1, wbuf, 256);
+    len = iconv_c(cp, ICONV_UCS2LE, buf, strlen(buf), (char*)wbuf, 2*256)/2;
+    wbuf[len] = 0;
+    s->x = (void*)FindFirstFileW(wbuf, info);
+    f->size = info->nFileSizeLow;
+    f->ctime = FileTimeToTimet(info->ftCreationTime);
+    f->atime = FileTimeToTimet(info->ftLastAccessTime);
+    f->wtime = FileTimeToTimet(info->ftLastWriteTime);
+    f->attrib = win32_attrib_cvt(info->dwFileAttributes);
+    iconv_c(ICONV_UCS2LE, cp, (char*)info->cFileName, -1, buf, 256);
+    if (flag & (FF_FULLNAME | FF_SUBDIR)) {
+      _snprintf(name, maxnamelen, "%s/%s", path, buf);
+    }
+    else {
+      strncpy(name, buf, maxnamelen);
+    }
+    return (NULL != s->x);
+  }
+  else {
+    if (FindNextFileW((HANDLE)s->x, info)) {
+      f->size = info->nFileSizeLow;
+      f->ctime = FileTimeToTimet(info->ftCreationTime);
+      f->atime = FileTimeToTimet(info->ftLastAccessTime);
+      f->wtime = FileTimeToTimet(info->ftLastWriteTime);
+      f->attrib = win32_attrib_cvt(info->dwFileAttributes);
+      //WideCharToMultiByte(CP_UTF8, 0, info->cFileName, -1, buf, 256, NULL, NULL);
+      iconv_c(ICONV_UCS2LE, cp, (char*)info->cFileName, -1, buf, 256);
+      if (flag & (FF_FULLNAME | FF_SUBDIR)) {
+        _snprintf(name, maxnamelen, "%s/%s", path, buf);
+      }
+      else {
+        strncpy(name, buf, 256);
+      }
+      return TRUE;
+    }
+    else {
+      FindClose((HANDLE)s->x);
+      s->x = 0;
+    }
+  }
+  return FALSE;
+#else
   struct dirent* d_ent = NULL;
   filters = filters;
-  if (NULL==s->dir) {
-    if (!(s->dir = opendir(path))) {
+  if (NULL == s->x) {
+    if (!(s->x = opendir(path))) {
       return 0;
     }
   }
-  if ((d_ent = readdir((DIR*)s->dir)) != NULL) {
+  if ((d_ent = readdir((DIR*)s->x)) != NULL) {
     struct stat file_stat;
-    if (flag & (FF_FULLNAME|FF_SUBDIR)) {
+    if (flag & (FF_FULLNAME | FF_SUBDIR)) {
       snprintf(f->name, MAX_PATH, "%s/%s", path, d_ent->d_name);
-    } else {
+    }
+    else {
       strncpy(f->name, d_ent->d_name, MAX_PATH);
     }
     if (lstat(f->name, &file_stat) < 0) {
@@ -186,11 +234,11 @@ int sys_find_next_file(findfile_t* s, const char* path, const char* filters, fil
     f->attrib = linux_attrib_cvt(file_stat.st_mode);
     return 1;
   }
-  closedir((DIR*)s->dir);
-  s->dir = NULL;
+  closedir((DIR*)s->x);
+  s->x = NULL;
   return 0;
-}
 #endif
+}
 
 static int is_directory(const char* path) {
   struct stat info = { 0 };
@@ -204,7 +252,7 @@ static int is_directory(const char* path) {
 // flag - FF_FULLNAME | FF_SUBDIR
 static int dirlist(dirlist_t* s, const char* path, const char* filters, int flag)
 {
-  findfile_t finfo[1] = { 0 };
+  dir_t finfo[1] = { 0 };
   fileinfo_t info[1] = { 0 };
   for (; sys_find_next_file(finfo, path, "*", info, flag);) {
     BOOL isok = true;
@@ -264,7 +312,7 @@ static int dirlist_c(char*** plist, const char* path, const char* filters, int f
 }
 static int dirlistW(dirlist_t* s, const char* path, const char* filters, int flag)
 {
-  findfile_t finfo[1] = { 0 };
+  dir_t finfo[1] = { 0 };
   fileinfo_t info[1] = { 0 };
   for (; sys_find_next_file(finfo, path, "*", info, flag);) {
     BOOL isok = true;
@@ -432,6 +480,11 @@ int sys_filestat(const char* file, sys_stat* s) {
 #endif
   return ret;
 }
+static uint64 sys_filesize(const char* fn)  {
+  sys_stat s[1] = {0};
+  sys_filestat(fn, s);
+  return s->size;
+}
 int sys_mkdir(const char* fname) {
 #ifdef _WIN32
   return _mkdir(fname);
@@ -442,7 +495,7 @@ int sys_mkdir(const char* fname) {
 //////////////////////////
 static int rmdirs(const char* path) {
   if (is_directory(path)) {
-    findfile_t finfo[1] = { 0 };
+    dir_t finfo[1] = { 0 };
     fileinfo_t info[1] = { 0 };
     int flag = FF_FULLNAME;
     const char* filters = "";

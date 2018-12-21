@@ -1,6 +1,12 @@
 
 #define HAVE_CONFIG_H
 
+#include "config_auto.h"
+
+#ifdef _WIN32
+//#pragma comment(lib, "libjpeg.lib")
+#endif
+
 #include "adaptmap.c"
 #include "affine.c"
 #include "affinecompose.c"

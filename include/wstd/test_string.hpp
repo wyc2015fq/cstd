@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "stdc/test_string_c.h"
+#include "std/test_string_c.h"
 using namespace wstd;
 
 int test_string() {
@@ -30,6 +30,4 @@ int test_string_path() {
   assert("C:aaa.jpg" == wstd::path_fmt(str, "dxn"));
   return 0;
 }
-
-
 #endif
