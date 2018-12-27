@@ -87,31 +87,47 @@ int num_inputs() {
 }
 int FromJsonFile(const char* fn) {
   int ret = 0;
-  CJSON* root = cJSON_OpenFile(fn);
+  cjson* root = cjson_OpenFile(fn);
   if (root) {
-    ret = FromProto(root);
-    cJSON_Delete(root);
+    ret = FromJson(root);
+    cjson_Delete(root);
   }
   return ret;
 }
-int FromProto(CJSON* param) {
+
+cjson* ToJson() {
+  cjson* root = cjson_CreateObject();
+  cjson* solver_json = cjson_AddItemToObject(root, "solver", solver_param.ToJson());
+  cjson* layers_json = cjson_AddItemToObject(root, "layers", cjson_CreateArray());
+  int layer_size = (int)layers_.size();
+  for (int i = 0; i < layer_size; ++i) {
+    Layer* layer = layers_[i];
+    cjson* json_layer = cjson_AddItemToArray(layers_json, layer->ToJson());
+  }
+  return root;
+}
+
+int FromJson(cjson* param) {
   Net* net = this;
-  CJSON* layers_json = param->GetObjectItem("layers");
+  cjson* layers_json = cjson_GetObjectItem(param, "layers");
+  cjson* solver_json = cjson_GetObjectItem(param, "solver");
   int ret = 0;
   //net->param_ = param;
-  solver_param.init(param);
+  if (solver_json) {
+    solver_param.FromJson(solver_json);
+  }
   if (layers_json) {
-    int layer_size = layers_json->GetArraySize();
+    int layer_size = cjson_GetArraySize(layers_json);
     //net->reset(n);
     layers_.resize(layer_size);
     for (int i = 0; i < layer_size; ++i) {
-      CJSON* layer_json = layers_json->GetArrayItem(i);
-      const char* type = layer_json->getstring("type", NULL);
-      const char* name = layer_json->getstring("name", NULL);
-      CreateLayer(layer_json, net->layers_[i], type);
+      cjson* layer_json = cjson_GetArrayItem(layers_json, i);
+      const char* type = cjson_GetObjectString(layer_json, "type", NULL);
+      const char* name = cjson_GetObjectString(layer_json, "name", NULL);
+      CreateLayer(net->layers_[i], type);
       Layer* layer = net->layers_[i];
-      layer->FromProto(layer_json, blobs_);
-      layer->SetUp(layer->bottom_vecs_, layer->top_vecs_);
+      layer->net_blobs_ = &blobs_;
+      layer->FromJson(layer_json);
     }
     ret = 1;
   }
@@ -134,7 +150,7 @@ double ForwardFromTo(Phase phase, int start, int end)
   for (int i = start; i <= end; ++i) {
     // LOG(ERROR) << "Forwarding " << layer_names_[i];
     Layer* layer = net->layers_[i];
-    if (layer->phase_mask_ & (1 << phase)) {
+    if (layer->phase_ == TRAINorTEST || phase == TRAINorTEST || (layer->phase_ ==phase)) {
       double layer_loss = layer->Forward(layer->bottom_vecs_, layer->top_vecs_);
       loss += layer_loss;
     }
@@ -149,7 +165,7 @@ void BackwardFromTo(int start, int end)
   CHECK_LT(start, layers_.size());
   for (int i = start; i >= end; --i) {
     Layer* layer = net->layers_[i];
-    if (layer->phase_mask_ & (1<<TRAIN)) {
+    if (layer->phase_ == TRAIN || layer->phase_ == TRAINorTEST) {
       layers_[i]->Backward(layer->top_vecs_, layer->bottom_vecs_);
     }
   }

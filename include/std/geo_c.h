@@ -3,6 +3,7 @@
 #define _GEO_C_H_
 
 #include "stddef_c.h"
+#include "types_c.h"
 #include "error_c.h"
 #include <math.h>
 #include <float.h>
@@ -59,7 +60,7 @@ CC_INLINE int iRectLayout1D(int l, int r, int w, int fmt, int gap, int* pl, int*
   }
   return 0;
 }
-CC_INLINE int iRectLayout(IRECT rc, int cx, int cy, UINT fmt, int gap, IRECT* out, IRECT* rc2)
+CC_INLINE int iRectLayout(IRECT rc, int cx, int cy, int fmt, int gap, IRECT* out, IRECT* rc2)
 {
   int retx, rety;
   *out = *rc2 = rc;
@@ -92,7 +93,7 @@ typedef enum {
 } TextFormat_;
 
 // ½«¾ØÐÎ¿ò¶ÔÆë//²Ã¼ô
-CC_INLINE int iRectAlign(IRECT rc, int cx, int cy, UINT uFmt, IRECT* out)
+CC_INLINE int iRectAlign(IRECT rc, int cx, int cy, int uFmt, IRECT* out)
 {
   *out = iRECT2(rc.l, rc.t, cx, cy);
 
@@ -125,7 +126,7 @@ CC_INLINE int iRectAlign(IRECT rc, int cx, int cy, UINT uFmt, IRECT* out)
 
   return 0;
 }
-CC_INLINE int fRectAlign(FRECT rc, float cx, float cy, UINT uFmt, FRECT* out)
+CC_INLINE int fRectAlign(FRECT rc, float cx, float cy, int uFmt, FRECT* out)
 {
   *out = fRECT2(rc.l, rc.t, cx, cy);
 
@@ -330,7 +331,7 @@ CC_INLINE int iRectCutR(IRECT* rc, int d, int gap, IRECT* out)
   *out = *rc, out->l = rc->r + d, rc->r = out->l - gap;
   return rc->l <= rc->r;
 }
-CC_INLINE int iRectImageText(IRECT rc, int n, ISIZE* sz, int gap, UINT uFmt, BOOL ishoriz, IRECT* prc)
+CC_INLINE int iRectImageText(IRECT rc, int n, ISIZE* sz, int gap, int uFmt, BOOL ishoriz, IRECT* prc)
 {
   ISIZE szall = iSIZE(sz[0].w, sz[0].h);
   int i;
@@ -1052,7 +1053,7 @@ struct CRotatedRect
   float angle;    //< the rotation angle. When the angle is 0, 90, 180, 270 etc., the rectangle becomes an up-right rectangle.
 };
 
-CRotatedRect cRotatedRect(FPOINT center, FSIZE size, float angle) {
+static CRotatedRect cRotatedRect(FPOINT center, FSIZE size, float angle) {
   CRotatedRect rr;
   rr.center = center;
   rr.size = size;
@@ -1084,7 +1085,7 @@ static CRotatedRect cRotatedRect2(FPOINT _point1, FPOINT _point2, FPOINT _point3
   return cRotatedRect(_center, fSIZE(_width, _height), _angle);
 }
 
-void cRotatedRect_points(CRotatedRect rr, FPOINT pt[])
+static void cRotatedRect_points(CRotatedRect rr, FPOINT pt[])
 {
   FPOINT center = rr.center;
   FSIZE size = rr.size;
@@ -1102,7 +1103,7 @@ void cRotatedRect_points(CRotatedRect rr, FPOINT pt[])
   pt[3].y = 2 * center.y - pt[1].y;
 }
 
-IRect cRotatedRect_boundingRect(CRotatedRect rr)
+static IRect cRotatedRect_boundingRect(CRotatedRect rr)
 {
   //FPOINT center = rr.center;
   //FSIZE size = rr.size;
@@ -1131,7 +1132,8 @@ struct CKeyPoint
   int octave; //!< octave (pyramid layer) from which the keypoint has been extracted
   int class_id; //!< object class (if the keypoints need to be clustered by an object they belong to)
 };
-CKeyPoint cKeyPoint(FPoint _pt, float _size, float _angle = -1, float _response = 0, int _octave = 0, int _class_id = -1) {
+
+static CKeyPoint cKeyPoint(FPoint _pt, float _size, float _angle = -1, float _response = 0, int _octave = 0, int _class_id = -1) {
   CKeyPoint k;
   k.pt = _pt;
   k.size = _size;

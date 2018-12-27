@@ -80,12 +80,23 @@ static void myError404Handler(httpd* s, int error)
   httpdOutput(s, "Whoa there. You hit a page that doesn't exist! <P><BR><BR>\n");
   httpdOutput(s, "Or in other words : <B>Error 404</B>\n\n");
 }
+
+int httpdRequestProc(httpd* s) {
+  if (httpdReadRequest(s) < 0) {
+    httpdEndRequest(s);
+    return 0;
+  }
+  httpdProcessRequest(s);
+  httpdEndRequest(s);
+  return 0;
+}
+
 int test_httpd(int argc, char* argv[])
 {
   //CPCODE; ChangeDisplaySettings DEVMODE
   //sys_mkdir("C:/code/testc/root");
   //sys_chdir("C:/code/testc/root");
-  httpd* s = NULL;
+  httpSvr* svr = NULL;
   char* host = NULL;
   int port;
 #if 0
@@ -119,48 +130,52 @@ int test_httpd(int argc, char* argv[])
     //port = atoi(argv[1]);
   }
 #endif
-  s = httpdCreate(host, port);
-  if (s == NULL) {
+  svr = httpdCreate(host, port);
+  if (svr == NULL) {
     perror("Can't create server");
     exit(1);
   }
-  httpdSetAccessLog(s, stdout);
-  httpdSetErrorLog(s, stdout);
+  httpdSetAccessLog(svr, stdout);
+  httpdSetErrorLog(svr, stdout);
   // We are fussy and don't want the default Error 404 page
-  httpdSetErrorFunction(s, 404, myError404Handler);
+  httpdSetErrorFunction(svr, 404, myError404Handler);
   // Setup some content for the server
-  httpdAddCContent(s, "/", "index.html", HTTP_TRUE, NULL, index_html);
-  httpdAddCContent(s, "/", "test2.html", HTTP_FALSE, NULL, test2_html);
-  httpdAddCContent(s, "/", "test", HTTP_FALSE, NULL, test4_html);
-  httpdAddCContent(s, "/", "login.html", HTTP_FALSE, NULL, login_html);
-  httpdAddCContent(s, "/", "login2.html", HTTP_FALSE, NULL, login2_html);
-  httpdAddCWildcardContent(s, "/wildcard", NULL, test3_html);
-  httpdAddStaticContent(s, "/", "test1.html", HTTP_FALSE, NULL, test1_html);
-  httpdAddEmberContect(s, "/", "ember.html", HTTP_FALSE, NULL, ember_code);
+  httpdAddCContent(svr, "/", "index.html", HTTP_TRUE, NULL, index_html);
+  httpdAddCContent(svr, "/", "test2.html", HTTP_FALSE, NULL, test2_html);
+  httpdAddCContent(svr, "/", "test", HTTP_FALSE, NULL, test4_html);
+  httpdAddCContent(svr, "/", "login.html", HTTP_FALSE, NULL, login_html);
+  httpdAddCContent(svr, "/", "login2.html", HTTP_FALSE, NULL, login2_html);
+  httpdAddCWildcardContent(svr, "/wildcard", NULL, test3_html);
+  httpdAddStaticContent(svr, "/", "test1.html", HTTP_FALSE, NULL, test1_html);
+  httpdAddEmberContect(svr, "/", "ember.html", HTTP_FALSE, NULL, ember_code);
   // Go into our service loop
   printf("server start..... \n");
+  int count = 0;
   while (1 == 1) {
     int result;
     // Linux modifies the timouet value during the
     // select call so we must set it everyt ime. Most
     // other UNIX implementations do not modify timeout
     // but it doesn't hurt to set it each time anyway
-    result = httpdGetConnection(s, 5000);
+    httpd* s=0;
+    result = httpdGetConnection(svr, 5000, &s);
     if (result == 0) {
-      printf("Timeout ... \n");
+      //printf("Timeout ... \n");
       continue;
     }
     if (result < 0) {
       printf("Error ... \n");
       continue;
     }
+    printf("---------------%d\n", ++count);
     printf("%s connect\n", s->clientAddr);
-    if (httpdReadRequest(s) < 0) {
-      httpdEndRequest(s);
-      continue;
+    if (1) {
+      httpdRequestProc(s);
     }
-    httpdProcessRequest(s);
-    httpdEndRequest(s);
+    else {
+      thread_t th[1] = { 0 };
+      sys_thread_create(th, NULL, (thread_callback)httpdRequestProc, s);
+    }
   }
   return 0;
 }

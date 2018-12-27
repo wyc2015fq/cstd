@@ -9,8 +9,6 @@
 #include "std/types_c.h"
 #include "utime.h"
 #include "proto.h"
-#include "solver.hpp"
-#include "SGDSolver.hpp"
 #include "insert_splits.hpp"
 
 Net* net_new() {
@@ -21,15 +19,22 @@ void net_del(Net* net) {
   delete net;
 }
 int net_loadjson(Net* net, const char* fn) {
-  CJSON* root = cJSON_OpenFile(fn);
+  cjson* root = cjson_OpenFile(fn);
   int ret = 0;
   if (root) {
-    ret = net->FromProto(root);
-    cJSON_Delete(root);
+    ret = net->FromJson(root);
+    cjson_Delete(root);
   }
   return ret;
 }
-
+int net_savejson(Net* net, const char* fn) {
+  cjson* root = net->ToJson();
+  if (root) {
+    cjson_SaveFile(fn, root);
+    cjson_Delete(root);
+  }
+  return 1;
+}
 int net_train(Net* net) {
   Solver* solver = new SGDSolver();
   solver->init(net);
@@ -47,7 +52,7 @@ const float* net_output(Net* net, int idx, int* pcount) {
   *pcount = count;
   return pred;
 }
-int net_set_input_u8(Net* net, const unsigned char* img_data, int w, const double* mean_values) {
+int net_set_input_u8(Net* net, const unsigned char* img_data, int w, const double* mean_values, int mean_values_size) {
   Blob* input_layer = net->input_blobs(0);
   if (input_layer) {
     int num_channels_ = input_layer->channels();
@@ -61,7 +66,10 @@ int net_set_input_u8(Net* net, const unsigned char* img_data, int w, const doubl
 
     DataTransformerInfo di = { 0 };
     di.init();
-    di.mean_values_ = mean_values;
+    di.mean_values_size = mean_values_size;
+    for (int i = 0; i < mean_values_size; ++i) {
+      di.mean_values_[i] = mean_values[i];
+    }
     di.shape_type_ = NHWC;
     float* data = input_layer->cpu_mdata();
     blob_data_transform_T(&di, input_layer->shape_, data, img_data, 0, 0);

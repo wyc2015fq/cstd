@@ -1,7 +1,7 @@
 #ifndef CAFFE_TEST_GRADIENT_CHECK_UTIL_H_
 #define CAFFE_TEST_GRADIENT_CHECK_UTIL_H_
 
-#include "wstd/logging.hpp"
+#include "std/log_c.h"
 //#include <gtest/gtest.h>
 
 #include <algorithm>
@@ -31,6 +31,7 @@ typedef MultiDeviceTest CPUDeviceTest;
 #define EXPECT_NEAR(a, b, c)   CHECK(fabs((a)-(b))<c)
 #define EXPECT_GE(a, b)        CHECK_GE(a, b)
 #define EXPECT_LE(a, b)        CHECK_LE(a, b)
+#define EXPECT_LT(a, b)        CHECK_LT(a, b)
 
 #define TYPED_TEST_CASE(a, b)
 #define TYPED_TEST(a, b) struct a##b : public a {a##b() {SetUp();begin_test(__FILE__, __LINE__, #a, #b); run();end_test();}void run();}; a##b a##b##run##__LINE__; void a##b::run()
@@ -39,8 +40,6 @@ typedef MultiDeviceTest CPUDeviceTest;
 TYPED_TEST_CASE(TransposeLayerTest, TestDtypesAndDevices);
 
 
-
-typedef Blob::Dtype Dtype;
 
 // The gradient checker adds a L2 normalization loss function on top of the
 // top blobs, and checks the gradient.

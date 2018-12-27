@@ -91,4 +91,27 @@ CC_INLINE int loadfile(const char* fname, void* buf, int buflen, int pos)
   fclose(pf);
   return n;
 }
+static char* loaddata(const char* fname, int* pLen)
+{
+  int len, readed_len;
+  FILE* pf;
+  char* str;
+  if (!fname || !fname[0]) {
+    return 0;
+  }
+  pf = fopen(fname, "rb");
+  if (NULL == pf) {
+    return 0;
+  }
+  len = fsize(pf);
+  str = (char*)malloc(len + 1);
+  memset(str, 0, len + 1);
+  readed_len = fread(str, 1, len, pf);
+  assert(readed_len == len);
+  fclose(pf);
+  if (pLen) {
+    *pLen = len;
+  }
+  return str;
+}
 #endif // _FILEIO_C_H_

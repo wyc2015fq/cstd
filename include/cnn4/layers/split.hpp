@@ -1,12 +1,8 @@
 #ifndef CAFFE_SPLIT_LAYER_HPP_
 #define CAFFE_SPLIT_LAYER_HPP_
 
-/**
- * @brief Creates a "split" path in the network by copying the bottom Blob
- *        into multiple top Blob%s to be used by multiple consuming layers.
- *
- * TODO(dox): thorough documentation for Forward_, Backward_, and proto params.
- */
+
+
 class SplitLayer : public Layer
 {
 public:
@@ -17,8 +13,13 @@ public:
   virtual inline int MinTopBlobs() const { return 1; }
 
   SplitLayer() {}
-  void init(CJSON* param) {
+  virtual void init() {
   }
+  virtual void fromJson(cjson* param) {
+  }
+  virtual void toJson(cjson* param) {
+  }
+
 
   virtual void Reshape(const vector<Blob*> & bottom,
     const vector<Blob*> & top)

@@ -14,10 +14,21 @@ template <typename T> T* clone(const T* p) {
   return out;
 }
 
-int cJSON_GetShape2D(cJSON* param, const char* name, const char* name_h, const char* name_w, int defint, int& pad_h_, int& pad_w_) {
-  cJSON* item = param->get(name);
-  cJSON* item_h = param->get(name_h);
-  cJSON* item_w = param->get(name_w);
+int cjson_GetShape2D1(cjson* param, const char* name, const char* name_h, const char* name_w, int defint, int& pad_h_, int& pad_w_) {
+  cjson* item = cjson_GetObjectItem(param, name);
+  cjson* item_h = cjson_GetObjectItem(param, name_h);
+  cjson* item_w = cjson_GetObjectItem(param, name_w);
+  if (item_h || item_w) {
+    pad_h_ = item_h ? item_h->valueint : defint;
+    pad_w_ = item_h ? item_w->valueint : defint;
+  }
+  else {
+    pad_h_ = pad_w_ = item ? item->valueint : defint;
+  }
+  return 0;
+}
+
+int cjson_GetShape2D(cjson* item, cjson* item_h, cjson* item_w, int defint, int& pad_h_, int& pad_w_) {
   if (item_h || item_w) {
     pad_h_ = item_h ? item_h->valueint : defint;
     pad_w_ = item_h ? item_w->valueint : defint;
@@ -98,38 +109,48 @@ struct PoolingLayer : public Layer
     return (pool_ == PoolMethod_MAX) ? 2 : 1;
   }
   PoolingLayer() {
+    init();
+  }
+  virtual void init() {
+    PoolingParameter_DEF(Init);
+  }
+  virtual void toJson(cjson* param) {
     PoolingParameter_DEF(Set);
   }
-  void init(CJSON* param) {
+  void fromJson(cjson* param) {
     PoolingParameter_DEF(Get);
+    cjson* kernel_size_json = cjson_GetObjectItem(param, "kernel_size");
+    cjson* kernel_h_json = cjson_GetObjectItem(param, "kernel_h");
+    cjson* kernel_w_json = cjson_GetObjectItem(param, "kernel_w");
+    cjson* pad_json = cjson_GetObjectItem(param, "pad");
+    cjson* pad_h_json = cjson_GetObjectItem(param, "pad_h");
+    cjson* pad_w_json = cjson_GetObjectItem(param, "pad_w");
+    cjson* stride_json = cjson_GetObjectItem(param, "stride");
+    cjson* stride_h_json = cjson_GetObjectItem(param, "stride_h");
+    cjson* stride_w_json = cjson_GetObjectItem(param, "stride_w");
     if (global_pooling_) {
-      CHECK(!(param->has("kernel_size") ||
-        param->has("kernel_h") || param->has("kernel_w")))
+      CHECK(!(kernel_size_json || kernel_h_json || kernel_w_json))
         << "With Global_pooling: true Filter size cannot specified";
     }
     else {
-      CHECK(!param->has("kernel_size") !=
-        !(param->has("kernel_h") && param->has("kernel_w")))
+      CHECK(!kernel_size_json != !(kernel_h_json && kernel_w_json))
         << "Filter size is kernel_size OR kernel_h and kernel_w; not both";
-      CHECK(param->has("kernel_size") ||
-        (param->has("kernel_h") && param->has("kernel_w")))
+      CHECK(kernel_size_json || (kernel_h_json && kernel_w_json))
         << "For non-square filters both kernel_h and kernel_w are required.";
     }
-    CHECK((!param->has("pad") && param->has("pad_h")
-      && param->has("pad_w"))
-      || (!param->has("pad_h") && !param->has("pad_w")))
+    CHECK((!pad_json && pad_h_json && pad_w_json)
+      || (!pad_h_json && !pad_w_json))
       << "pad is pad OR pad_h and pad_w are required.";
-    CHECK((!param->has("stride") && param->has("stride_h")
-      && param->has("stride_w"))
-      || (!param->has("stride_h") && !param->has("stride_w")))
+    CHECK((!stride_json && stride_h_json && stride_w_json)
+      || (!stride_h_json && !stride_w_json))
       << "Stride is stride OR stride_h and stride_w are required.";
     if (global_pooling_) {
     }
     else {
-      cJSON_GetShape2D(param, "kernel_size", "kernel_h", "kernel_w", 0, kernel_h_, kernel_w_);
+      cjson_GetShape2D(kernel_size_json, kernel_h_json, kernel_w_json, 0, kernel_h_, kernel_w_);
     }
-    cJSON_GetShape2D(param, "pad", "pad_h", "pad_w", 0, pad_h_, pad_w_);
-    cJSON_GetShape2D(param, "stride", "stride_h", "stride_w", 0, stride_h_, stride_w_);
+    cjson_GetShape2D(pad_json, pad_h_json, pad_w_json, 0, pad_h_, pad_w_);
+    cjson_GetShape2D(stride_json, stride_h_json, stride_w_json, 0, stride_h_, stride_w_);
   }
   
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)

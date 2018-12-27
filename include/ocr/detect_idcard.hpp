@@ -142,7 +142,7 @@ struct get_angle_t {
       morphologyEx(mserMapMat, mserMapMat, MORPH_ERODE, element);
     }
     cv::cvtColor(mserMapMat, color_edge, CV_GRAY2BGR);
-    drawRotatedRects(color_edge, rects, 1);
+    //drawRotatedRects(color_edge, rects, 1);
     //imshow("color_edge", color_edge);// waitKey(0);
     if (0) {
       vector<vector<Point> > contours;
@@ -240,7 +240,7 @@ struct get_angle_t {
       }
       centor_dis = pt2Line(Point(src.cols*0.5, src.rows*0.5), botton_line);
       cv::putText(color_edge, wstd::format("%d %d", (int)max_dis, (int)centor_dis), Point(0, 50), FONT_HERSHEY_COMPLEX, 2, Scalar(0, 255, 255), 2, 8, 0);
-      drawDetectLines(color_edge, lines, 2);
+      //drawDetectLines(color_edge, lines, 2);
       //imshow("color_edge", color_edge);
     }
     return ret;
@@ -325,7 +325,7 @@ struct get_rect_t {
     }
 
     cv::cvtColor(mserMapMat, color_edge, CV_GRAY2BGR);
-    rectangle(color_edge, aRect, Scalar(0,0,255), 1);
+    //rectangle(color_edge, aRect, Scalar(0,0,255), 1);
     if (0) {
       Mat ttt;
       //bw = gray;
@@ -420,7 +420,7 @@ struct get_rect_t {
         if (cnt[idx] > 9 && lines[idx][1]>130) {
           linesxx.push_back(lines[idx]);
           lines.assign(1, lines[idx]);
-          drawDetectLines(color_edge, lines, 2);
+          //drawDetectLines(color_edge, lines, 2);
           ret = 1;
         }
         else {
@@ -541,7 +541,7 @@ struct get_rect_t {
         return a.center.y > b.center.y;
       });
       nclasses = lines_rect.size();
-      drawRotatedRects(color_edge, lines_rect, 2);
+      //drawRotatedRects(color_edge, lines_rect, 2);
       if (lines_rect.size()>3) {
         double gapy = (lines_rect[0].center.y - lines_rect[lines_rect.size() - 1].center.y)*0.2;
         vector<RotatedRect> lines_tmp;
@@ -601,7 +601,7 @@ struct get_rect_t {
       }
       drawRotatedRects(color_edge, rrects2, 1);
       drawRotatedRects(color_edge, lines_ok, 2);
-      //imshow("color_edge", color_edge);
+      //imshow("color_edge", color_edge); waitKey(0);
     }
 
     return ret;
@@ -609,3 +609,4 @@ struct get_rect_t {
 };
 
 #endif // __DETECT_IDCARD_HPP__
+//

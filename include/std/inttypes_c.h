@@ -18,7 +18,10 @@ typedef unsigned int uint32;
 #ifdef _WIN32
 typedef __int64 int64;
 typedef unsigned __int64 uint64;
+#if _MSC_VER < 1300
 typedef  INT_PTR intptr_t;
+#endif
+#include <windows.h>
 #else
 // linux
 #include <inttypes.h>

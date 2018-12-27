@@ -6,7 +6,7 @@
 #include "myblas/myblas.h"
 #include "types.h"
 #include "cpu.hpp"
-struct cJSON;
+struct cjson;
 
 
 //struct CPUContext;
@@ -86,7 +86,7 @@ DEF(void, BatchNormalizationForwardTraining, (int N, int C, int M, Dtype* X, Dty
 DEF(void, caffe_rng_bernoulli, (const int n, const Stype p, int* r)) \
 DEF(void, caffe_rng_bernoulli_u, (const int n, const Stype p, unsigned int* r)) \
 DEF(int, ConstantFiller, (DataShape shape, Dtype* data, const Stype value)) \
-DEF(int, Filler, (DataShape shape, Dtype* data, cJSON* param)) \
+DEF(int, Filler, (DataShape shape, Dtype* data, cjson* param)) \
 _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF, Dtype, Stype)
 
 

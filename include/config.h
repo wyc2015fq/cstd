@@ -5,6 +5,7 @@
 #pragma warning(disable:4068 4756)
 
 #include "std/stddef_c.h"
+//#define USE_OPENCV
 //#define CPU_ONLY
 
 #ifdef __ARM_NEON
@@ -21,7 +22,7 @@
 #define CPU_ONLY
 #endif
 #else
-//#define USE_CBLAS
+#define USE_CBLAS
 #endif
 
 

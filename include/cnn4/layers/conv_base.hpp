@@ -1,32 +1,33 @@
 #ifndef CAFFE_BASE_CONVOLUTION_LAYER_HPP_
 #define CAFFE_BASE_CONVOLUTION_LAYER_HPP_
 
-DataShape cJSON_GetShape(cJSON* param, int kDefaultPad, const char* name, const char* name_h = NULL, const char* name_w = NULL) {
+DataShape cjson_GetShape(cjson* param, int kDefaultPad, const char* name, const char* name_h = NULL, const char* name_w = NULL) {
   DataShape pad;
   int* pad_data = pad.dim;
   char buf[64];
-  cJSON* item = param->get(name);
+  cjson* item = cjson_GetObjectItem(param, name);
   if (!name_h) {
     _snprintf(buf, 64, "%s_h", name);
     name_h = buf;
   }
-  cJSON* h_json = param->get(name_h);
+  cjson* h_json = cjson_GetObjectItem(param, name_h);
   if (!name_w) {
     _snprintf(buf, 64, "%s_w", name);
     name_w = buf;
   }
-  cJSON* w_json = param->get(name_w);
+  cjson* w_json = cjson_GetObjectItem(param, name_w);
+  int item_size = cjson_GetArraySize(item);
   if (h_json || w_json) {
-    CHECK_EQ(0, item->size())
+    CHECK_EQ(0, item_size)
       << "Either pad or pad_h/w should be specified; not both.";
     pad_data[0] = h_json ? h_json->valueint : 0;
     pad_data[1] = w_json ? w_json->valueint : 0;
   }
   else {
-    const int num_pad_dims = item ? item->size() : 0;
+    const int num_pad_dims = item ? item_size : 0;
     for (int i = 0; i < 4; ++i) {
       pad_data[i] = (num_pad_dims == 0) ? kDefaultPad :
-        item->getint((num_pad_dims == 1) ? 0 : i, kDefaultPad);
+        cjson_GetArrayInt(item, (num_pad_dims == 1) ? 0 : i, kDefaultPad);
     }
   }
   return pad;
@@ -129,27 +130,33 @@ public:
         dilation_, data);
     }
   }
-  void init() {
-    ConvolutionParameter_DEF(Set);
+  virtual void init() {
+    ConvolutionParameter_DEF(Init);
     set_kernel_size(1);
     set_pad(0);
     set_stride(1);
     set_dilation(1);
   }
 
-  void init(CJSON* param) {
+  virtual void toJson(cjson* param) {
+    ConvolutionParameter_DEF(Set);
+    cjson_AddNumberArrayToObject(param, "kernel_size", kernel_.dim, kernel_.size());
+    cjson_AddNumberArrayToObject(param, "stride", stride_.dim, stride_.size());
+    cjson_AddNumberArrayToObject(param, "pad", pad_.dim, pad_.size());
+    cjson_AddNumberArrayToObject(param, "dilation", dilation_.dim, dilation_.size());
+  }
+  virtual void fromJson(cjson* param) {
     ConvolutionParameter_DEF(Get);
-    kernel_ = cJSON_GetShape(param, 1, "kernel_size", "kernel_h", "kernel_w");
+    kernel_ = cjson_GetShape(param, 1, "kernel_size", "kernel_h", "kernel_w");
     // Setup stride dimensions (stride_).
     //stride_.Reshape(spatial_dim_blob_shape);
-    stride_ = cJSON_GetShape(param, 1, "stride", "stride_h", "stride_w");
+    stride_ = cjson_GetShape(param, 1, "stride", "stride_h", "stride_w");
     // Setup pad dimensions (pad_).
     //pad_.Reshape(spatial_dim_blob_shape);
-    pad_ = cJSON_GetShape(param, 0, "pad", "pad_h", "pad_w");
-
+    pad_ = cjson_GetShape(param, 0, "pad", "pad_h", "pad_w");
     // Setup dilation dimensions (dilation_).
-    dilation_ = cJSON_GetShape(param, 1, "dilation", "dilation_h", "dilation_w");
-    CJSON* blobs_json = param->get("blobs");
+    dilation_ = cjson_GetShape(param, 1, "dilation", "dilation_h", "dilation_w");
+    //cjson* blobs_json = cjson_GetObjectItem(param, "blobs");
   }
   void set_group(int group) {  group_ = group;  }
   void set_force_nd_im2col(bool force_nd_im2col) { force_nd_im2col_ = force_nd_im2col; }
@@ -169,7 +176,6 @@ public:
     pad_ = dataShape(pad_h, pad_w);
     stride_ = dataShape(stride_h, stride_w);
     dilation_ = dataShape(dilation_h, dilation_w);
-
     num_output_ = num_output;
     group_ = group;
     bias_term_ = bias_term;
@@ -239,11 +245,11 @@ public:
       // Initialize and fill the weights:
       // output channels x input channels per-group x kernel height x kernel width
       w->Reshape(weight_shape);
-      weight_filler_.Fill(w);
+      Fill(w, &weight_filler_);
       // If necessary, initialize and fill the biases.
       if (b) {
         b->Reshape(bias_shape);
-        bias_filler_.Fill(b);
+        Fill(b, &bias_filler_);
       }
     }
     kernel_dim_ = w->count(1);

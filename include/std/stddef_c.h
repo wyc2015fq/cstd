@@ -16,7 +16,7 @@
 //#define UNUSED(x) (void)x
 #endif
 #ifdef __cplusplus
-#define _INIT0
+#define _INIT0  ={0}
 #else
 #define _INIT0   ={0}
 #endif

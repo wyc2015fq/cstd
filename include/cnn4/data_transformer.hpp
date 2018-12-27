@@ -158,10 +158,20 @@ int Rand(int n) {
   return (rand() % n);
 }
 
+#define DATATRANSFORMERINFO_DEF(DEF) \
+DEF##Enum(type, FillerMethod_constant, FillerMethod) \
+DEF##Float(crop_size, 0, 0) \
+DEF##Float(min, 0, 0) \
+DEF##Float(max, 1, 0) \
+DEF##Float(mean, 0, 0) \
+DEF##Float(std, 1, 0) \
+DEF##Float(sparse, -1, 0) \
+DEF##Enum(variance_norm, FAN_IN, VarianceNorm)
+
 struct DataTransformerInfo {
   //DataShape shape_;
-  double mean_values_vec[10];
-  const double* mean_values_;
+  double mean_values_[10];
+  int mean_values_size;
   int crop_size;
   double scale;
   bool do_mirror;
@@ -172,27 +182,40 @@ struct DataTransformerInfo {
   void init() {
     memset(this, 0, sizeof(*this));
     scale = 1;
+    mean_values_size = 0;
   }
-  int init(CJSON* param) {
-    CJSON* p = NULL;
+  void toJson(cjson* param) {
     DataTransformerInfo* info = this;
-    info->mean_values_ = NULL;
-    p = param->get("mean_value");
+    if (mean_values_size>0) {
+      cjson_AddItemToObject(param, "mean_value", cjson_CreateNumberArray(mean_values_, mean_values_size));
+    }
+    cjson_AddIntToObject(param, "crop_size", info->crop_size);
+    cjson_AddNumberToObject(param, "scale", info->scale);
+    cjson_AddNumberToObject(param, "mirror", info->do_mirror);
+  }
+  cjson* ToJson() {
+    cjson* param = cjson_CreateObject();
+    toJson(param);
+    return param;
+  }
+  int fromJson(cjson* param) {
+    cjson* p = NULL;
+    DataTransformerInfo* info = this;
+    info->mean_values_size = 0;
+    p = cjson_GetObjectItem(param, "mean_value");
     if (p) {
-      int n = p->GetArraySize();
-      n = MIN(10, n);
+      int n = cjson_GetArraySize(p);
+      mean_values_size = MIN(10, n);
       if (n > 0) {
         int i = 0;
-        for (; i < n; ++i) {
-          info->mean_values_vec[i] = p->get(i)->valuedouble;
+        for (; i < mean_values_size; ++i) {
+          info->mean_values_[i] = cjson_GetArrayItem(p, i)->valuedouble;
         }
-        double t = info->mean_values_vec[0];
-        info->mean_values_ = info->mean_values_vec;
       }
     }
-    info->crop_size = param->GetObjectInt("crop_size", 0);
-    info->scale = param->GetObjectNumber("scale", 1);
-    info->do_mirror = param->GetObjectBool("mirror", false) && Rand(2);
+    info->crop_size = cjson_GetObjectInt(param, "crop_size", 0);
+    info->scale = cjson_GetObjectNumber(param, "scale", 1);
+    info->do_mirror = cjson_GetObjectBool(param, "mirror", false) && Rand(2);
     info->has_mean_file = false;// param->has("mean_file");
     info->mean = NULL;
     return 0;

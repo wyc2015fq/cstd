@@ -27,14 +27,16 @@ public:
   virtual inline int ExactNumTopBlobs() const { return 1; }
 
   BatchNormLayer() {
+    BatchNormParameter_DEF(Init);
+  }
+  virtual void init() {
+    BatchNormParameter_DEF(Init);
+  }
+  virtual void toJson(cjson* param) {
     BatchNormParameter_DEF(Set);
   }
-  void init(cJSON* param) {
+  void fromJson(cjson* param) {
     BatchNormParameter_DEF(Get);
-    use_global_stats_ = this->phase_ == TEST;
-    if (param->has("use_global_stats")) {
-      use_global_stats_ = param->getbool("use_global_stats", false);
-    }
   }
 
   void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)

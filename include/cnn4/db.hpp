@@ -4,6 +4,7 @@
 #include <string>
 #include <sys/stat.h>
 #include "std/fileio_c.h"
+#include "types.h"
 using namespace std;
 
 enum Mode { READ, WRITE, NEW };
@@ -45,7 +46,6 @@ public:
 #endif
 #ifdef USE_LMDB
 #include "lmdb/lmdb.h"
-
 
 inline void MDB_CHECK(int mdb_status)
 {
@@ -227,11 +227,27 @@ DB* GetDB(DBMethod backend)
 {
 #ifdef USE_LEVELDB
   if (backend == DBMethod_LEVELDB)) {
-    return new LevelDB();
+  return new LevelDB();
   }
 #endif  // USE_LEVELDB
 #ifdef USE_LMDB
   if (backend == DBMethod_LMDB) {
+    return new LMDB();
+  }
+#endif  // USE_LMDB
+  LOG(FATAL) << "Unknown database backend";
+  return NULL;
+}
+
+DB* GetDB(const char* backend)
+{
+#ifdef USE_LEVELDB
+  if (0==stricmp(backend, "LEVELDB")) {
+    return new LevelDB();
+  }
+#endif  // USE_LEVELDB
+#ifdef USE_LMDB
+  if (0 == stricmp(backend, "LMDB")) {
     return new LMDB();
   }
 #endif  // USE_LMDB

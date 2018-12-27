@@ -1,8 +1,9 @@
 
 
-#include "std/time_c.h"
-#include "detect_idcard.hpp"
 
+#include "std/time_c.h"
+#include "utime.h"
+#include "detect_idcard.hpp"
 #include "parser\cJSON.hpp"
 #include "idcard.h"
 
@@ -21,10 +22,10 @@ struct idcard {
 
 
 
-struct ocr_seg {
+struct ocr_segchar {
   cv::Ptr<cv::MSER> mesr1;
   Mat color_edge;
-  ocr_seg() {
+  ocr_segchar() {
     mesr1 = cv::MSER::create(2, 50, 200, 0.2, 0.3);
   }
 
@@ -38,21 +39,67 @@ struct ocr_seg {
     cv::Mat mserMapMat = cv::Mat::zeros(src.size(), CV_8UC1);
     color_edge = src.clone();
 
-    for (int i = (int)bboxes1.size() - 1; i >= 0; i--)
-    {
+    for (int i = (int)bboxes1.size() - 1; i >= 0; i--) {
       // 根据检测区域点生成mser+结果
       const std::vector<cv::Point>& p = regContours[i];
       Rect rc = bboxes1[i];
-      if (1)
-      {
+      if (1) {
         //RotatedRect rectPoint = minAreaRect(p);
         Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
-        cv::rectangle(color_edge, bboxes1[i], color, 1);
+        //cv::rectangle(color_edge, bboxes1[i], color, 1);
       }
     }
 
+    std::vector<vector<cv::Rect> > rrects2;
+    if (bboxes1.size() > 10) {
+      vector<int> labels;
+      vector<int> cnt;
+      int nclasses = cv::partition(bboxes1, labels, [](const cv::Rect& r1, const cv::Rect& r2) {
+        double hd = 0.7;
+        double a1 = r1.x;
+        double b1 = r1.x + r1.width;
+        double a2 = r2.x;
+        double b2 = r2.x + r2.width;
+        double l = MAX(a1, a2);
+        double r = MIN(b1, b2);
+        double d = r - l;
+        double u = r1.width + r2.width - d;
+        double iou = d/u;
+        return iou>hd;
+      });
+      cnt.assign(nclasses, 0);
+      for (int i = 0; i < labels.size(); ++i) {
+        int j = labels[i];
+        ++cnt[j];
+      }
+      std::vector<int> index = argsort(cnt);
+      //nclasses = min(nclasses, 15);
+      for (int i = 0; i < nclasses; ++i) {
+        int idx = index[i];
+        int c = cnt[idx];
+        if (c > 1) {
+          vector<Rect> rrects;
+          for (int j = 0; j < bboxes1.size(); ++j) {
+            if (labels[j] == idx) {
+              rrects.push_back(bboxes1[j]);
+            }
+          }
+          rrects2.push_back(rrects);
+        }
+      }
+      nclasses = rrects2.size();
+      for (int i = 0; i < nclasses; ++i) {
+        RotatedRect r = minAreaRect(rrects2[i]);
+        r = curr(r);
+        //lines_rect.push_back(r);
+        //cv::rectangle(color_edge, bboxes1[i], color, 1);
+        //Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+        Scalar color = Scalar(255, 0, 0);
+        drawRotatedRect(color_edge, r, color, 1);
+      }
+    }
     //threshold(gray, bin, 0, 255, CV_THRESH_OTSU);
-
+    imshow("color_edge", color_edge); waitKey(-1);
     //imshow("color_edge", color_edge); 
     //imshow("bin", bin);
     //waitKey(-1);
@@ -85,9 +132,16 @@ struct oct_tess {
 };
 #endif
 
+#ifndef _OCR_CTC_INL_
+struct ocr_net {
+  int loadjson(const char* fn) { return 0; }
+  int run(wchar_t* wstr, int len, const uchar* data, int w) { return 0; }
+};
+#endif
+
 struct ocr_idcard_reg {
   ocr_net ocr;
-  ocr_seg seg;
+  ocr_segchar seg;
   //oct_tess tess;
   int init() {
     // Load the network. 
@@ -115,6 +169,9 @@ struct ocr_idcard_reg {
       w += 3;
       w &= ~3;
       resize(im, im2, Size(w, 32));
+      if (1) {
+        seg.run(im2);
+      }
       //imshow("adsfasdf", im); waitKey(-1);
       wchar_t wstr[256] = { 0 };
       char str[256] = { 0 };
@@ -361,6 +418,7 @@ int test_detect_idcard()
     wstd::split(strs, list[iline], " ");
     string fn = im_dir + strs[0];
     cv::Mat src;
+    //if (!strstr(fn.c_str(), "20161005101521422-4375")) { continue; }
     src = cv::imread(fn, 1);
     printf("%d %s %d %d\n", iline, wstd::path_split_filename(fn.c_str()).c_str(), src.rows, src.cols);
     if (src.empty()) {

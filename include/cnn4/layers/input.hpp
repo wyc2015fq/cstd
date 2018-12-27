@@ -14,8 +14,11 @@ public:
 
   std::vector<int> shape_;
 
-  void init(cJSON* param) {
-    cJSON_GetObjectNumberArray(param, "shape", shape_);
+  virtual void fromJson(cjson* param) {
+    cjson_GetObjectNumberArray(param, "shape", shape_);
+  }
+  virtual void toJson(cjson* param) {
+    cjson_AddNumberArrayToObject(param, "shape", shape_);
   }
 
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)

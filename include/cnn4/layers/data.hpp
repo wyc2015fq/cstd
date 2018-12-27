@@ -29,26 +29,35 @@ struct DataLayer : public Layer
   virtual inline int MinTopBlobs() const { return 1; }
   virtual inline int MaxTopBlobs() const { return 10; }
 
-  DataLayer() {
+  virtual void init() {
+    DataParameter_DEF(Init);
+    source_ = "";
+  }
+  virtual void fromJson(cjson* param) {
+    DataParameter_DEF(Get);
+  }
+  virtual void toJson(cjson* param) {
     DataParameter_DEF(Set);
   }
-  void init(CJSON* param) {
-    DataParameter_DEF(Get);
-    db_ = GetDB(backend_);
-    db_->Open(source_.c_str(), READ);
+
+  DataLayer() {
+    db_ = NULL;
+    cursor_ = NULL;
+    init();
   }
   ~DataLayer()
   {
-    delete cursor_;
-    delete db_;
+    if (cursor_)
+      delete cursor_;
+    if (db_)
+      delete db_;
   }
 
   void Next()
   {
     cursor_->Next();
     if (!cursor_->valid()) {
-      LOG_IF(INFO, root_solver())
-        << "Restarting data prefetching from start.";
+      //LOG_IF(INFO, root_solver())        << "Restarting data prefetching from start.";
       cursor_->SeekToFirst();
     }
     offset_++;
@@ -79,9 +88,6 @@ struct DataLayer : public Layer
     }
     Datum datum;
     for (int item_id = 0; item_id < batch_size_; ++item_id) {
-      while (Skip()) {
-        Next();
-      }
       ParseFromString(cursor_->value().c_str(), datum);
       CHECK_LE(top.size(), datum.size());
       for (int j = 0; j < top.size(); ++j) {
@@ -98,6 +104,11 @@ struct DataLayer : public Layer
   
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
+    if (NULL == db_) {
+      db_ = GetDB(backend_);
+      db_->Open(source_.c_str(), READ);
+    }
+    assert(db_);
     cursor_ = db_->NewCursor();
   }
 

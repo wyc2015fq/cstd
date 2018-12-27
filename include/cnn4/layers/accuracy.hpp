@@ -18,19 +18,20 @@ class AccuracyLayer : public Layer
 public:
   AccuracyParameter_DEF(Def);
   int label_axis_, outer_num_, inner_num_;
-  /// Whether to ignore instances with a certain label.
-  bool has_ignore_label_;
-  /// The label indicating that an instance should be ignored.
-  /// Keeps counts of the number of samples per class.
   Blob nums_buffer_;
 
 
   AccuracyLayer() {
+    AccuracyParameter_DEF(Init);
+  }
+  virtual void init() {
+    AccuracyParameter_DEF(Init);
+  }
+  virtual void toJson(cjson* param) {
     AccuracyParameter_DEF(Set);
   }
-  void init(CJSON* param) {
+  void fromJson(cjson* param) {
     AccuracyParameter_DEF(Get);
-    has_ignore_label_ = param->has("ignore_label");
   }
   /**
    * @param param provides AccuracyParameter accuracy_param,
@@ -107,7 +108,7 @@ public:
       for (int j = 0; j < inner_num_; ++j) {
         const int label_value =
           static_cast<int>(bottom_label[i * inner_num_ + j]);
-        if (has_ignore_label_ && label_value == ignore_label_) {
+        if (label_value == ignore_label_) {
           continue;
         }
         if (top.size() > 1) { ++nums_buffer_data[label_value]; }
@@ -158,10 +159,6 @@ public:
   int label_axis_, outer_num_, inner_num_, label_num_;
 
   int top_k_;
-
-  /// Whether to ignore instances with a certain label.
-  bool has_ignore_label_;
-  /// The label indicating that an instance should be ignored.
   int ignore_label_;
   /// Keeps counts of the number of samples per class.
   Blob nums_buffer_;

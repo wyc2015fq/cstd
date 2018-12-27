@@ -1360,4 +1360,6 @@ CV_EXPORTS void cvWriteMatND_Base64(::CvFileStorage* fs, const char* name, const
 
 } // cv
 
+#include "persistence1.hpp"
+
 #endif // OPENCV_CORE_PERSISTENCE_HPP

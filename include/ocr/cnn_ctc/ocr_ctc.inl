@@ -1,4 +1,7 @@
 
+#ifndef _OCR_CTC_INL_
+#define _OCR_CTC_INL_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -101,3 +104,5 @@ struct ocr_net {
     return n;
   }
 };
+
+#endif // _OCR_CTC_INL_

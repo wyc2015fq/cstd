@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-void * x_malloc(size_t size) {
+void * x_malloc1(size_t size) {
   void	*result;
   result = malloc(size);
   if (result == NULL) {
@@ -216,7 +216,7 @@ char *InitConfig(char *cfg_filename)
 		fsz = lseek(f_config, 0L, SEEK_END) + 1;
 		lseek(f_config, 0L, SEEK_SET);
 
-		buffer = (char*)x_malloc(fsz);
+		buffer = (char*)malloc(fsz);
 
 		fsz = read(f_config, buffer, fsz);
 		buffer[fsz] = 0;

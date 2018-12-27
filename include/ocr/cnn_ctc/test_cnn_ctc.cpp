@@ -8,7 +8,6 @@
 struct testdata_t {
 	int n;
 	int idx[20];
-public:
 };
 
 int testdata_cmp(const struct testdata_t& a, const struct testdata_t& o) {

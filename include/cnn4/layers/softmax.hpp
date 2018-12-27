@@ -1,12 +1,9 @@
 #ifndef CAFFE_SOFTMAX_LAYER_HPP_
 #define CAFFE_SOFTMAX_LAYER_HPP_
 
+#define SoftmaxLayer_DEF(DEF) \
+DEF##Int(axis, 1, 0) \
 
-/**
- * @brief Computes the softmax function.
- *
- * TODO(dox): thorough documentation for Forward_, Backward_, and proto params.
- */
 class SoftmaxLayer : public Layer
 {
 public:
@@ -27,8 +24,14 @@ public:
     axis_ = 1;
   }
 
-  void init(CJSON* param) {
-    axis_ = param->getint("axis", 1);
+  virtual void init() {
+    SoftmaxLayer_DEF(Init);
+  }
+  virtual void fromJson(cjson* param) {
+    SoftmaxLayer_DEF(Get);
+  }
+  virtual void toJson(cjson* param) {
+    SoftmaxLayer_DEF(Set);
   }
 
   void Reshape(const vector<Blob*> & bottom,

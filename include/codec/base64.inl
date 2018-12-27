@@ -55,7 +55,7 @@ static int base64_decode_map[256] = {
 static int base64_decode(const char* input, int input_len, void* output)  
 {  
   int len;
-  char _p[4] = {'=', '=', '=', '='};
+  //char _p[4] = {'=', '=', '=', '='};
   const char* p = input;
   const char *p_end = input + (input_len&~3);
   uchar *p_out = (uchar*)output;

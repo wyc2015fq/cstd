@@ -135,7 +135,14 @@ static int from_str(const char* str, _FLAGS_Type type, void* dst)
     *(int*)dst = (int)strtol(str, &endptr, 10);
     break;
   case _FLAGS_BOOLEAN:
-    *(bool*)dst = strtoul(str, &endptr, 10)!=0;
+    if (0 == stricmp(str, "true")) {
+      *(bool*)dst = true;
+    }
+    else if (0 == stricmp(str, "false")) {
+      *(bool*)dst = false;
+    } else {
+      *(bool*)dst = strtoul(str, &endptr, 10) != 0;
+    }
     break;
   case _FLAGS_UNSIGNED_INT:
     *(unsigned*)dst = (unsigned)strtoul(str, &endptr, 10);;
@@ -163,7 +170,6 @@ static int from_str(const char* str, _FLAGS_Type type, void* dst)
   default:
     CC_Error(CC_StsBadArg, "unknown/unsupported parameter type");
     return 0;
-    break;
   }
   return 1;
 }
@@ -208,6 +214,12 @@ static int ParseCommandLineFlags(int argc, const char* const argv[], bool flag)
     }
   }
   return 0;
+}
+
+static void SetUsageMessage(const char* msg) {
+  printf(msg);
+}
+static void ShowUsageWithFlagsRestrict(const char* msg, const char* ms) {
 }
 
 #endif // _STDC_FLAGS_C_H_

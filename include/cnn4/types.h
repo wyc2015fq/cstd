@@ -2,6 +2,7 @@
 #ifndef _CNN4_TYPES_H_
 #define _CNN4_TYPES_H_
 
+#include "std/log_c.h"
 
 typedef void void_type;
 typedef void void_float;
@@ -171,6 +172,7 @@ inline bool operator !=(const DataShape& a, const DataShape& b) {
 }
 ///////////////////////////////////////////////////
 #define PHASE_DEF_DEF(DEF) \
+DEF(TRAINorTEST) \
 DEF(TRAIN) \
 DEF(TEST)
 
@@ -315,6 +317,27 @@ enum RegularizationType {
 };
 static const char* RegularizationType_Name[] = {
   "L1", "L2",
+};
+///////////////////////////////////////////////////
+
+#define LR_POLICY_DEF_DEF(DEF) \
+DEF(fixed) \
+DEF(step) \
+DEF(exp) \
+DEF(multistep) \
+DEF(poly) \
+DEF(sigmoid) \
+DEF(inv)
+
+enum LrPolicy {
+#define DEF(a) LrPolicy_ ## a,
+  LR_POLICY_DEF_DEF(DEF)
+#undef DEF
+};
+static const char* LrPolicy_Name[] = {
+#define DEF(a) #a ,
+  LR_POLICY_DEF_DEF(DEF)
+#undef DEF
 };
 
 ///////////////////////////////////////////////////

@@ -319,7 +319,7 @@ static int rng_poisson_fill(rng_t* r, double lambda, int N, double* rs)
 // Return a bernoulli~(p) distributed pseudorandom sequence of size N.
 static int rng_bernoulli_fill(rng_t* r, double p, int N, double* rs)
 {
-  double u_0_1 = 0.0;
+  //double u_0_1 = 0.0;
   int i;
   unsigned int up = (unsigned int)(p * MYRANDMAX32);
   for (i = 0;i < N;++i) {

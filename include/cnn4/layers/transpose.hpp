@@ -1,6 +1,7 @@
 #ifndef CAFFE_TRANSPOSE_LAYER_HPP_
 #define CAFFE_TRANSPOSE_LAYER_HPP_
 
+
 class TransposeLayer : public Layer
 {
 public:
@@ -13,9 +14,15 @@ public:
   vector<int> dim_;
   TransposeLayer() {
   }
-  void init(CJSON* param) {
-    cJSON_GetObjectNumberArray(param, "dim", dim_);
+  virtual void init() {
   }
+  virtual void fromJson(cjson* param) {
+    cjson_GetObjectNumberArray(param, "dim", dim_);
+  }
+  virtual void toJson(cjson* param) {
+    cjson_AddNumberArrayToObject(param, "dim", dim_);
+  }
+
 
   virtual inline const char* type() const { return "Transpose"; }
   virtual inline int ExactNumBottomBlobs() const { return 1; }

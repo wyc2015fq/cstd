@@ -10,11 +10,51 @@ using namespace wstd;
 DEF##Struct(Filter_Filler, 0, Filler) \
 DEF##Struct(BN_Scaler_Filler, 0, Filler) \
 DEF##Struct(BN_Bias_Filler, 0, Filler) \
+DEF##Int(numtransition, 40, 0) \
 
 class DenseBlockLayer : public Layer
 {
 public:
   DenseBlockParameter_DEF(Def);
+
+#define BLOB_NAME(NAME)  NAME.set_name(#NAME);
+#define BLOB_DEF1(NAME)  Blob NAME;
+#define BLOB_DEF(DEF) \
+  DEF(postConv) \
+  DEF(postConv_4G) \
+  DEF(postReLU_4G) \
+  DEF(postDropout) \
+  DEF(postBN) \
+  DEF(postBN_4G) \
+  DEF(postReLU) \
+
+
+  BLOB_DEF(BLOB_DEF1);
+#undef BLOB_DEF1
+
+
+  virtual void init() {
+    DenseBlockParameter_DEF(Init);
+  }
+  virtual void toJson(cjson* param) {
+    DenseBlockParameter_DEF(Set);
+  }
+  virtual void fromJson(cjson* param) {
+    DenseBlockParameter_DEF(Get);
+    BLOB_DEF(BLOB_NAME);
+
+    this->growthRate = cjson_GetObjectInt(param, "growthrate", 12);
+    this->EMA_decay = cjson_GetObjectFloat(param, "moving_average_fraction", 0.1);
+
+    this->workspace_size_bytes = cjson_GetObjectInt(param, "workspace_mb", 8) * 1024 * 1024;
+    this->gpu_idx_ = cjson_GetObjectInt(param, "gpuidx", 0);
+    this->useDropout = cjson_GetObjectBool(param, "use_dropout", false);
+    this->dropoutAmount = cjson_GetObjectFloat(param, "dropout_amount", 0);
+    this->DB_randomSeed = 124816;
+    this->useBC = cjson_GetObjectBool(param, "use_bc", false);
+    this->BC_ultra_spaceEfficient = cjson_GetObjectBool(param, "bc_ultra_space_efficient", false);
+  }
+
   //start logging specific data: for debugging
   int logId;
   //end logging specific data
@@ -47,21 +87,6 @@ public:
   //end CPU specific data section
   ConvolutionLayer conv_FwdAlgo;
 
-#define BLOB_NAME(NAME)  NAME.set_name(#NAME);
-#define BLOB_DEF1(NAME)  Blob NAME;
-#define BLOB_DEF(DEF) \
-  DEF(postConv) \
-  DEF(postConv_4G) \
-  DEF(postReLU_4G) \
-  DEF(postDropout) \
-  DEF(postBN) \
-  DEF(postBN_4G) \
-  DEF(postReLU) \
-
-
-  BLOB_DEF(BLOB_DEF1);
-#undef BLOB_DEF1
-
   Dtype* Mean_tmp;
   Dtype* Var_tmp;
   vector<Dtype*> ResultSaveMean_gpu;
@@ -76,7 +101,7 @@ public:
 
   //end GPU specific data setion
 
-  int initChannel, growthRate, numTransition;
+  int initChannel, growthRate;
   int N, H, W; //N,H,W of the input tensor, inited in reshape phase
 
   bool useDropout;
@@ -95,24 +120,9 @@ public:
 public:
 
   DenseBlockLayer() {
-    DenseBlockParameter_DEF(Set);
+    DenseBlockParameter_DEF(Init);
   }
-  void init(CJSON* param) {
-    DenseBlockParameter_DEF(Get);
-    BLOB_DEF(BLOB_NAME);
 
-    this->numTransition = param->getint("numtransition", 40);
-    this->growthRate = param->getint("growthrate", 12);
-    this->EMA_decay = param->getfloat("moving_average_fraction", 0.1);
-
-    this->workspace_size_bytes = param->getint("workspace_mb", 8) * 1024 * 1024;
-    this->gpu_idx_ = param->getint("gpuidx", 0);
-    this->useDropout = param->getbool("use_dropout", false);
-    this->dropoutAmount = param->getfloat("dropout_amount", 0);
-    this->DB_randomSeed = 124816;
-    this->useBC = param->getbool("use_bc", false);
-    this->BC_ultra_spaceEfficient = param->getbool("bc_ultra_space_efficient", false);
-  }
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top) {
     this->cpuInited = false;
     // #ifndef CPU_ONLY
@@ -127,20 +137,20 @@ public:
     //Parameter Blobs
     //for transition i,
     //blobs_[i] is its filter blob
-    //blobs_[numTransition + i] is its scaler blob
-    //blobs_[2*numTransition + i] is its bias blob
-    //blobs_[3*numTransition + i] is its globalMean
-    //blobs_[4*numTransition + i] is its globalVar
+    //blobs_[numtransition_ + i] is its scaler blob
+    //blobs_[2*numtransition_ + i] is its bias blob
+    //blobs_[3*numtransition_ + i] is its globalMean
+    //blobs_[4*numtransition_ + i] is its globalVar
     int blobs_size = 0;
     if (useBC) {
-      blobs_size = 10 * this->numTransition + 1;
+      blobs_size = 10 * this->numtransition_ + 1;
     }
     else {
-      blobs_size = 5 * this->numTransition + 1;
+      blobs_size = 5 * this->numtransition_ + 1;
     }
     if (blobs_.size() < blobs_size) {
       blobs_reset(this->blobs_, blobs_size);
-      for (int transitionIdx = 0; transitionIdx < this->numTransition; ++transitionIdx) {
+      for (int transitionIdx = 0; transitionIdx < this->numtransition_; ++transitionIdx) {
         //filter
         //No BC case
         if (!useBC) {
@@ -160,55 +170,55 @@ public:
           int inChannels = initChannel + transitionIdx * growthRate;
           int filter_11_shapeArr[] = { 4 * growthRate, inChannels, 1, 1 };
           vector<int> filter11Shape(filter_11_shapeArr, filter_11_shapeArr + 4);
-          this->blobs_[5 * numTransition + transitionIdx]->Reshape((filter11Shape));
-          Fill(this->blobs_[5 * numTransition + transitionIdx], &Filter_Filler_);
+          this->blobs_[5 * numtransition_ + transitionIdx]->Reshape((filter11Shape));
+          Fill(this->blobs_[5 * numtransition_ + transitionIdx], &Filter_Filler_);
         }
         //scaler & bias
         int inChannels = initChannel + transitionIdx * growthRate;
         int BNparamShape_Arr[] = { 1, inChannels, 1, 1 };
         vector<int> BNparamShape(BNparamShape_Arr, BNparamShape_Arr + 4);
         //scaler
-        this->blobs_[numTransition + transitionIdx]->Reshape((BNparamShape));
-        Fill(this->blobs_[numTransition + transitionIdx], &BN_Scaler_Filler_);
+        this->blobs_[numtransition_ + transitionIdx]->Reshape((BNparamShape));
+        Fill(this->blobs_[numtransition_ + transitionIdx], &BN_Scaler_Filler_);
         int BN_4G_Shape[] = { 1, 4 * growthRate, 1, 1 };
         vector<int> BN_4Gparam_ShapeVec(BN_4G_Shape, BN_4G_Shape + 4);
         //scaler BC
         if (useBC) {
-          this->blobs_[6 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-          Fill(this->blobs_[6 * numTransition + transitionIdx], &BN_Scaler_Filler_);
+          this->blobs_[6 * numtransition_ + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
+          Fill(this->blobs_[6 * numtransition_ + transitionIdx], &BN_Scaler_Filler_);
         }
         //bias
-        this->blobs_[2 * numTransition + transitionIdx]->Reshape((BNparamShape));
-        Fill(this->blobs_[2 * numTransition + transitionIdx], &BN_Bias_Filler_);
+        this->blobs_[2 * numtransition_ + transitionIdx]->Reshape((BNparamShape));
+        Fill(this->blobs_[2 * numtransition_ + transitionIdx], &BN_Bias_Filler_);
         //bias BC
         if (useBC) {
-          this->blobs_[7 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-          Fill(this->blobs_[7 * numTransition + transitionIdx], &BN_Bias_Filler_);
+          this->blobs_[7 * numtransition_ + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
+          Fill(this->blobs_[7 * numtransition_ + transitionIdx], &BN_Bias_Filler_);
         }
         //globalMean
-        this->blobs_[3 * numTransition + transitionIdx]->Reshape((BNparamShape));
+        this->blobs_[3 * numtransition_ + transitionIdx]->Reshape((BNparamShape));
         for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
-          Blob* localB = this->blobs_[3 * numTransition + transitionIdx];
+          Blob* localB = this->blobs_[3 * numtransition_ + transitionIdx];
           localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 0;
         }
         //globalMean BC
         if (useBC) {
-          this->blobs_[8 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-          Blob* localB = this->blobs_[8 * numTransition + transitionIdx];
+          this->blobs_[8 * numtransition_ + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
+          Blob* localB = this->blobs_[8 * numtransition_ + transitionIdx];
           for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
             localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 0;
           }
         }
         //globalVar
-        this->blobs_[4 * numTransition + transitionIdx]->Reshape((BNparamShape));
+        this->blobs_[4 * numtransition_ + transitionIdx]->Reshape((BNparamShape));
         for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
-          Blob* localB = this->blobs_[4 * numTransition + transitionIdx];
+          Blob* localB = this->blobs_[4 * numtransition_ + transitionIdx];
           localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 1;
         }
         //globalVar BC
         if (useBC) {
-          this->blobs_[9 * numTransition + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-          Blob* localB = this->blobs_[9 * numTransition + transitionIdx];
+          this->blobs_[9 * numtransition_ + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
+          Blob* localB = this->blobs_[9 * numtransition_ + transitionIdx];
           for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
             localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 1;
           }
@@ -217,7 +227,7 @@ public:
       //final parameter for the equivalent of blobs_[2] in Caffe-BN
       vector<int> singletonShapeVec;
       singletonShapeVec.push_back(1);
-      int singletonIdx = useBC ? 10 * numTransition : 5 * numTransition;
+      int singletonIdx = useBC ? 10 * numtransition_ : 5 * numtransition_;
       this->blobs_[singletonIdx]->Reshape((singletonShapeVec));
       this->blobs_[singletonIdx]->cpu_mdata()[0] = Dtype(0);
       //parameter specification: globalMean/Var weight decay and lr is 0
@@ -225,12 +235,12 @@ public:
         for (int i = 0; i < this->blobs_.size(); ++i) {
           Blob* blob = blobs_[i];
           //global Mean/Var
-          if (i >= 3 * this->numTransition) {
+          if (i >= 3 * this->numtransition_) {
             blob->set_lr_mult(0.f);
             blob->set_decay_mult(0.f);
           }
           //BN Scaler and Bias
-          else if (i >= this->numTransition) {
+          else if (i >= this->numtransition_) {
             blob->set_lr_mult(1.f);
             blob->set_decay_mult(1.f);
           }
@@ -243,11 +253,11 @@ public:
       else {
         for (int i = 0; i < this->blobs_.size(); ++i) {
           Blob* blob = blobs_[i];
-          if ((i >= 3 * numTransition) && (i < 5 * numTransition)) {
+          if ((i >= 3 * numtransition_) && (i < 5 * numtransition_)) {
             blob->set_lr_mult(0.f);
             blob->set_decay_mult(0.f);
           }
-          else if (i >= 8 * numTransition) {
+          else if (i >= 8 * numtransition_) {
             blob->set_lr_mult(0.f);
             blob->set_decay_mult(0.f);
           }
@@ -274,7 +284,7 @@ public:
     this->N = batch_size;
     this->H = h;
     this->W = w;
-    int topShapeArr[] = { this->N, this->initChannel + this->numTransition* this->growthRate, this->H, this->W };
+    int topShapeArr[] = { this->N, this->initChannel + this->numtransition_* this->growthRate, this->H, this->W };
     vector<int> topShape(topShapeArr, topShapeArr + 4);
     top[0]->Reshape(topShape);
   }
@@ -369,45 +379,45 @@ public:
       }
     }
     //filter
-    for (int i = 0; i < this->numTransition; ++i) {
+    for (int i = 0; i < this->numtransition_; ++i) {
       string blobStr = localDir + "filter_" + itos(i);
       logBlob(this->blobs_[i], blobStr);
     }
     //scaler
-    for (int i = 0; i < this->numTransition; ++i) {
+    for (int i = 0; i < this->numtransition_; ++i) {
       string blobStr = localDir + "scaler_" + itos(i);
-      logBlob(this->blobs_[this->numTransition + i], blobStr);
+      logBlob(this->blobs_[this->numtransition_ + i], blobStr);
     }
     //bias
-    for (int i = 0; i < this->numTransition; ++i) {
+    for (int i = 0; i < this->numtransition_; ++i) {
       string blobStr = localDir + "bias_" + itos(i);
-      logBlob(this->blobs_[this->numTransition * 2 + i], blobStr);
+      logBlob(this->blobs_[this->numtransition_ * 2 + i], blobStr);
     }
     if (useBC) {
       //filter
-      for (int i = 0; i < this->numTransition; ++i) {
+      for (int i = 0; i < this->numtransition_; ++i) {
         string blobStr = localDir + "filter_BC_" + itos(i);
-        logBlob(this->blobs_[5 * numTransition + i], blobStr);
+        logBlob(this->blobs_[5 * numtransition_ + i], blobStr);
       }
       //scaler
-      for (int i = 0; i < this->numTransition; ++i) {
+      for (int i = 0; i < this->numtransition_; ++i) {
         string blobStr = localDir + "scaler_BC_" + itos(i);
-        logBlob(this->blobs_[6 * numTransition + i], blobStr);
+        logBlob(this->blobs_[6 * numtransition_ + i], blobStr);
       }
       //bias
-      for (int i = 0; i < this->numTransition; ++i) {
+      for (int i = 0; i < this->numtransition_; ++i) {
         string blobStr = localDir + "bias_BC_" + itos(i);
-        logBlob(this->blobs_[7 * numTransition + i], blobStr);
+        logBlob(this->blobs_[7 * numtransition_ + i], blobStr);
       }
       //Mean
-      for (int i = 0; i < this->numTransition; ++i) {
+      for (int i = 0; i < this->numtransition_; ++i) {
         string blobStr = localDir + "Mean_BC_" + itos(i);
-        logBlob(this->blobs_[8 * numTransition + i], blobStr);
+        logBlob(this->blobs_[8 * numtransition_ + i], blobStr);
       }
       //Var
-      for (int i = 0; i < this->numTransition; ++i) {
+      for (int i = 0; i < this->numtransition_; ++i) {
         string blobStr = localDir + "Var_BC_" + itos(i);
-        logBlob(this->blobs_[9 * numTransition + i], blobStr);
+        logBlob(this->blobs_[9 * numtransition_ + i], blobStr);
       }
     }
   }
@@ -417,22 +427,22 @@ public:
 
   void CPU_Initialization()
   {
-    this->batch_Mean.resize(this->numTransition);
-    this->batch_Var.resize(this->numTransition);
-    this->merged_conv.resize(this->numTransition + 1);
-    this->BN_XhatVec.resize(this->numTransition);
-    this->postBN_blobVec.resize(this->numTransition);
-    this->postReLU_blobVec.resize(this->numTransition);
-    this->postConv_blobVec.resize(this->numTransition);
+    this->batch_Mean.resize(this->numtransition_);
+    this->batch_Var.resize(this->numtransition_);
+    this->merged_conv.resize(this->numtransition_ + 1);
+    this->BN_XhatVec.resize(this->numtransition_);
+    this->postBN_blobVec.resize(this->numtransition_);
+    this->postReLU_blobVec.resize(this->numtransition_);
+    this->postConv_blobVec.resize(this->numtransition_);
     if (useBC) {
-      BC_BN_XhatVec.resize(this->numTransition);
-      postBN_BCVec.resize(this->numTransition);
-      postReLU_BCVec.resize(this->numTransition);
-      postConv_BCVec.resize(this->numTransition);
-      batch_Mean4G.resize(numTransition);
-      batch_Var4G.resize(numTransition);
+      BC_BN_XhatVec.resize(this->numtransition_);
+      postBN_BCVec.resize(this->numtransition_);
+      postReLU_BCVec.resize(this->numtransition_);
+      postConv_BCVec.resize(this->numtransition_);
+      batch_Mean4G.resize(numtransition_);
+      batch_Var4G.resize(numtransition_);
     }
-    for (int transitionIdx = 0; transitionIdx < this->numTransition; ++transitionIdx) {
+    for (int transitionIdx = 0; transitionIdx < this->numtransition_; ++transitionIdx) {
       int conv_y_Channels = this->growthRate;
       int mergeChannels = this->initChannel + this->growthRate * transitionIdx;
       int channelShapeArr[] = { 1, mergeChannels, 1, 1 };
@@ -462,13 +472,13 @@ public:
       }
     }
     //the last element of merged_conv serve as output of forward
-    int extraMergeOutputShapeArr[] = { this->N, this->initChannel + this->growthRate* this->numTransition, this->H, this->W };
+    int extraMergeOutputShapeArr[] = { this->N, this->initChannel + this->growthRate* this->numtransition_, this->H, this->W };
     vector<int> extraMergeOutputShapeVector(extraMergeOutputShapeArr, extraMergeOutputShapeArr + 4);
-    this->merged_conv[this->numTransition] = new Blob(extraMergeOutputShapeVector);
+    this->merged_conv[this->numtransition_] = new Blob(extraMergeOutputShapeVector);
 
 
 
-    DataShape shape = dataShape(N, (this->initChannel + this->growthRate*this->numTransition), H, W);
+    DataShape shape = dataShape(N, (this->initChannel + this->growthRate*this->numtransition_), H, W);
     postConv.Reshape(shape);
     if (useDropout) {
       postDropout.Reshape(shape);
@@ -484,7 +494,7 @@ public:
       postReLU_4G.Reshape(quadG_shape);
 #endif
     }
-    for (int i = 0; i < this->numTransition; ++i) {
+    for (int i = 0; i < this->numtransition_; ++i) {
       //Result Running/Saving Mean/Variance/InvVariance
       int localChannel = this->initChannel + i * this->growthRate;
       Dtype* local_SaveMean;
@@ -501,7 +511,7 @@ public:
     }
 
     //Mean and Var tmp
-    int totalNumChannel = this->initChannel + this->growthRate * this->numTransition;
+    int totalNumChannel = this->initChannel + this->growthRate * this->numtransition_;
     caffe_Malloc(&this->Mean_tmp, totalNumChannel * sizeof(Dtype));
     caffe_Malloc(&this->Var_tmp, totalNumChannel * sizeof(Dtype));
     cleanupBuffer(this->Mean_tmp, totalNumChannel);
@@ -553,16 +563,16 @@ public:
     const int count = bottom[0]->count();
     //copy to bottom_data to buffer with stride
     int chunkSize_copy_init = this->initChannel * this->H * this->W;
-    int chunkStride_copy = (this->initChannel + this->growthRate * this->numTransition) * this->H * this->W;
+    int chunkStride_copy = (this->initChannel + this->growthRate * this->numtransition_) * this->H * this->W;
     if ((this->phase_ == TRAIN) && useDropout) {
       copy_one_to_many(bottom_data, this->postDropout.mdata(), this->N, chunkSize_copy_init, chunkStride_copy);
     }
     else {
       copy_one_to_many(bottom_data, this->postConv.mdata(), this->N, chunkSize_copy_init, chunkStride_copy);
     }
-    int work_n = this->N * (this->initChannel + this->numTransition * this->growthRate) * this->H * this->W;
+    int work_n = this->N * (this->initChannel + this->numtransition_ * this->growthRate) * this->H * this->W;
     //work in the buffer, transition by transition
-    for (int transitionIdx = 0; transitionIdx < this->numTransition; ++transitionIdx) {
+    for (int transitionIdx = 0; transitionIdx < this->numtransition_; ++transitionIdx) {
       bottleneck_Forward_(transitionIdx);
     }
     //deploy top data
@@ -581,7 +591,7 @@ public:
   }
 
   virtual void LoopEndCleanup_gpu() {
-    int valsBuffer = this->N * (this->initChannel + this->growthRate * this->numTransition) * this->H * this->W;
+    int valsBuffer = this->N * (this->initChannel + this->growthRate * this->numtransition_) * this->H * this->W;
     cleanupBuffer(this->postConv.mdata(), valsBuffer);
     cleanupBuffer(this->postConv.mdiff(), valsBuffer);
     if (useDropout) {
@@ -992,7 +1002,7 @@ void BlobSetZero(Blob* B, int count)
 
 void LoopEndCleanup_cpu()
 {
-  for (int transitionIdx = 0; transitionIdx < this->numTransition; ++transitionIdx) {
+  for (int transitionIdx = 0; transitionIdx < this->numtransition_; ++transitionIdx) {
     int tensorCount = this->N * growthRate * this->H * this->W;
     int tensorMergeCount = this->N * (this->initChannel + this->growthRate * transitionIdx) * this->H * this->W;
     BlobSetZero(this->merged_conv[transitionIdx], tensorMergeCount);
@@ -1014,15 +1024,15 @@ virtual void bottleneck_Forward_(int transitionIdx) {
     BN_x_ptr = this->postConv.mdata();
   }
   Dtype* BN_y_ptr = this->postBN.mdata();
-  Dtype* BN_globalMean = this->blobs_[3 * this->numTransition + transitionIdx]->mdata();
-  Dtype* BN_globalVar = this->blobs_[4 * this->numTransition + transitionIdx]->mdata();
-  //Dtype* BC_filter = this->blobs_[5 * numTransition + transitionIdx]->mdata();
+  Dtype* BN_globalMean = this->blobs_[3 * this->numtransition_ + transitionIdx]->mdata();
+  Dtype* BN_globalVar = this->blobs_[4 * this->numtransition_ + transitionIdx]->mdata();
+  //Dtype* BC_filter = this->blobs_[5 * numtransition_ + transitionIdx]->mdata();
   int numChannels = initChannel + growthRate*transitionIdx;
   Dtype* local_MeanInf = this->Mean_tmp;
   Dtype* local_VarInf = this->Var_tmp;
 
-  const Dtype* bnScale = this->blobs_[this->numTransition + transitionIdx]->data();
-  const Dtype *bnBias = this->blobs_[2 * this->numTransition + transitionIdx]->data();
+  const Dtype* bnScale = this->blobs_[this->numtransition_ + transitionIdx]->data();
+  const Dtype *bnBias = this->blobs_[2 * this->numtransition_ + transitionIdx]->data();
   int localChannels = this->initChannel + transitionIdx * this->growthRate;
   int inner_num_ = this->H * this->W;
   if (this->phase_ == TEST) {
@@ -1065,7 +1075,7 @@ virtual void bottleneck_Forward_(int transitionIdx) {
       get_one(),
       this->tensorDescriptorVec_conv_x[transitionIdx], conv_x_4G,
       this->BC_filterDescriptorVec[transitionIdx],
-      this->blobs_[5 * numTransition + transitionIdx]->data(),
+      this->blobs_[5 * numtransition_ + transitionIdx]->data(),
       convBC_Descriptor, BC_FwdAlgoVec[transitionIdx],
       workspace, workspace_size_bytes, get_zero(),
       quadG_tensorDesc, conv_y_4G
@@ -1074,8 +1084,8 @@ virtual void bottleneck_Forward_(int transitionIdx) {
     //BN 4G Fwd
     Dtype* BN_x_4G = BC_ultra_spaceEfficient ? postConv_4G.mdata() : postConv_4GVec[transitionIdx];
     Dtype* BN_y_4G = postBN_4G.mdata();
-    Dtype* BN_BC_globalMean = this->blobs_[8 * numTransition + transitionIdx]->mdata();
-    Dtype* BN_BC_globalVar = this->blobs_[9 * numTransition + transitionIdx]->mdata();
+    Dtype* BN_BC_globalMean = this->blobs_[8 * numtransition_ + transitionIdx]->mdata();
+    Dtype* BN_BC_globalVar = this->blobs_[9 * numtransition_ + transitionIdx]->mdata();
     Dtype* localBC_MeanInf = BC_MeanInfVec[transitionIdx];
     Dtype* localBC_VarInf = BC_VarInfVec[transitionIdx];
     //std::cout<<"BC Fwd BN Prepared"<<std::endl;
@@ -1086,8 +1096,8 @@ virtual void bottleneck_Forward_(int transitionIdx) {
         quadG_tensorDesc, BN_x_4G,
         quadG_tensorDesc, BN_y_4G,
         quadG_paramDesc,
-        this->blobs_[6 * numTransition + transitionIdx]->data(),
-        this->blobs_[7 * numTransition + transitionIdx]->data(),
+        this->blobs_[6 * numtransition_ + transitionIdx]->data(),
+        this->blobs_[7 * numtransition_ + transitionIdx]->data(),
         BN_BC_globalMean, BN_BC_globalVar, CUDNN_BN_MIN_EPSILON)
       );
     }
@@ -1100,8 +1110,8 @@ virtual void bottleneck_Forward_(int transitionIdx) {
         quadG_tensorDesc, BN_x_4G,
         quadG_tensorDesc, BN_y_4G,
         quadG_paramDesc,
-        this->blobs_[6 * numTransition + transitionIdx]->mdata(),
-        this->blobs_[7 * numTransition + transitionIdx]->mdata(),
+        this->blobs_[6 * numtransition_ + transitionIdx]->mdata(),
+        this->blobs_[7 * numtransition_ + transitionIdx]->mdata(),
         Dtype(1), localBC_MeanInf, localBC_VarInf, CUDNN_BN_MIN_EPSILON,
         BC_batchMean, BC_batchInvVar
       ));
@@ -1177,24 +1187,24 @@ void Forward_1(const vector<Blob*> & bottom, const vector<Blob*> & top)
     this->cpuInited = true;
     //std::cout<<"fwd cpu init done"<<std::endl;
   }
-  int bnTimerIdx = useBC ? 10 * numTransition : 5 * numTransition;
+  int bnTimerIdx = useBC ? 10 * numtransition_ : 5 * numtransition_;
   //deploy init data
   this->merged_conv[0]->CopyFrom(bottom[0]);
   //init CPU finish
-  for (int transitionIdx = 0; transitionIdx < this->numTransition; ++transitionIdx) {
+  for (int transitionIdx = 0; transitionIdx < this->numtransition_; ++transitionIdx) {
     //BN
     Blob* BN_bottom = this->merged_conv[transitionIdx];
     Blob* BN_top = this->postBN_blobVec[transitionIdx];
-    Blob* Scaler = this->blobs_[numTransition + transitionIdx];
-    Blob* Bias = this->blobs_[2 * numTransition + transitionIdx];
+    Blob* Scaler = this->blobs_[numtransition_ + transitionIdx];
+    Blob* Bias = this->blobs_[2 * numtransition_ + transitionIdx];
     int localChannels = this->initChannel + transitionIdx * this->growthRate;
     if (this->phase_ == TEST) {
       //std::cout<<"cpu BN test forward"<<std::endl;
-      BN_inf_Fwd(BN_bottom, BN_top, this->N, localChannels, this->H, this->W, this->blobs_[3 * this->numTransition + transitionIdx], this->blobs_[4 * this->numTransition + transitionIdx], Scaler, Bias, this->blobs_[bnTimerIdx]);
+      BN_inf_Fwd(BN_bottom, BN_top, this->N, localChannels, this->H, this->W, this->blobs_[3 * this->numtransition_ + transitionIdx], this->blobs_[4 * this->numtransition_ + transitionIdx], Scaler, Bias, this->blobs_[bnTimerIdx]);
     }
     else {
       //std::cout<<"cpu BN train forward"<<std::endl;
-      BN_train_Fwd(BN_bottom, BN_top, this->BN_XhatVec[transitionIdx], this->blobs_[3 * this->numTransition + transitionIdx], this->blobs_[4 * this->numTransition + transitionIdx], this->batch_Mean[transitionIdx], this->batch_Var[transitionIdx], Scaler, Bias, this->N, localChannels, this->H, this->W, this->EMA_decay);
+      BN_train_Fwd(BN_bottom, BN_top, this->BN_XhatVec[transitionIdx], this->blobs_[3 * this->numtransition_ + transitionIdx], this->blobs_[4 * this->numtransition_ + transitionIdx], this->batch_Mean[transitionIdx], this->batch_Var[transitionIdx], Scaler, Bias, this->N, localChannels, this->H, this->W, this->EMA_decay);
     }
     //ReLU
     Blob* ReLU_top = this->postReLU_blobVec[transitionIdx];
@@ -1202,7 +1212,7 @@ void Forward_1(const vector<Blob*> & bottom, const vector<Blob*> & top)
     //if useBC, Conv1*1-BN(BC)-ReLU(BC)
     if (useBC) {
       //BC Conv 1*1
-      Blob* BC_filterBlob = this->blobs_[5 * numTransition + transitionIdx];
+      Blob* BC_filterBlob = this->blobs_[5 * numtransition_ + transitionIdx];
       Blob* BC_conv_x = postReLU_blobVec[transitionIdx];
       Blob* BC_conv_y = postConv_BCVec[transitionIdx];
       int BC_conv_inChannel = initChannel + growthRate * transitionIdx;
@@ -1211,10 +1221,10 @@ void Forward_1(const vector<Blob*> & bottom, const vector<Blob*> & top)
       //BC BN
       Blob* BC_BN_x = postConv_BCVec[transitionIdx];
       Blob* BC_BN_y = postBN_BCVec[transitionIdx];
-      Blob* BC_Scaler = this->blobs_[6 * numTransition + transitionIdx];
-      Blob* BC_Bias = this->blobs_[7 * numTransition + transitionIdx];
-      Blob* BC_Mean = this->blobs_[8 * numTransition + transitionIdx];
-      Blob* BC_Var = this->blobs_[9 * numTransition + transitionIdx];
+      Blob* BC_Scaler = this->blobs_[6 * numtransition_ + transitionIdx];
+      Blob* BC_Bias = this->blobs_[7 * numtransition_ + transitionIdx];
+      Blob* BC_Mean = this->blobs_[8 * numtransition_ + transitionIdx];
+      Blob* BC_Var = this->blobs_[9 * numtransition_ + transitionIdx];
       if (this->phase_ == TEST) {
         BN_inf_Fwd(BC_BN_x, BC_BN_y, N, 4 * growthRate, H, W, BC_Mean, BC_Var, BC_Scaler, BC_Bias, this->blobs_[bnTimerIdx]);
       }
@@ -1242,7 +1252,7 @@ void Forward_1(const vector<Blob*> & bottom, const vector<Blob*> & top)
     mergeChannelData(mergeOutput, mergeInputA, mergeInputB);
   }
   //deploy output data
-  top[0]->CopyFrom((this->merged_conv[this->numTransition]));
+  top[0]->CopyFrom((this->merged_conv[this->numtransition_]));
   if (this->phase_ == TRAIN) {
     this->blobs_[bnTimerIdx]->mdata()[0] *= this->EMA_decay;
     this->blobs_[bnTimerIdx]->mdata()[0] += 1;
@@ -1258,8 +1268,8 @@ void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom)
     this->cpuInited = true;
   }
   //deploy top diff
-  this->merged_conv[this->numTransition]->CopyFrom((top[0]), true);
-  for (int transitionIdx = this->numTransition - 1; transitionIdx >= 0; --transitionIdx) {
+  this->merged_conv[this->numtransition_]->CopyFrom((top[0]), true);
+  for (int transitionIdx = this->numtransition_ - 1; transitionIdx >= 0; --transitionIdx) {
     //distribute diff
     distributeChannelDiff(this->merged_conv[transitionIdx + 1], this->merged_conv[transitionIdx], this->postConv_blobVec[transitionIdx]);
     //Conv Bwd
@@ -1278,15 +1288,15 @@ void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom)
       Blob* BC_BN_y = postBN_BCVec[transitionIdx];
       Blob* BC_BN_x = postConv_BCVec[transitionIdx];
       Blob* BC_BN_xhat = BC_BN_XhatVec[transitionIdx];
-      Blob* BC_Scaler = this->blobs_[6 * numTransition + transitionIdx];
-      Blob* BC_Bias = this->blobs_[7 * numTransition + transitionIdx];
+      Blob* BC_Scaler = this->blobs_[6 * numtransition_ + transitionIdx];
+      Blob* BC_Bias = this->blobs_[7 * numtransition_ + transitionIdx];
       Blob* BC_batchMean = batch_Mean4G[transitionIdx];
       Blob* BC_batchVar = batch_Var4G[transitionIdx];
       BN_train_Bwd(BC_BN_x, BC_BN_xhat, BC_BN_y, BC_batchMean, BC_batchVar, BC_Scaler, BC_Bias, N, 4 * growthRate, H, W, false);
       //Conv1*1 BC Bwd
       Blob* BC_conv_x = postReLU_blobVec[transitionIdx];
       Blob* BC_conv_y = postConv_BCVec[transitionIdx];
-      Blob* BC_filter = this->blobs_[5 * numTransition + transitionIdx];
+      Blob* BC_filter = this->blobs_[5 * numtransition_ + transitionIdx];
       int BC_c_input = initChannel + growthRate * transitionIdx;
       int BC_c_output = 4 * growthRate;
       convolution_Bwd(BC_conv_x, BC_conv_y, BC_filter, N, BC_c_output, BC_c_input, H, W, 1, 1);
@@ -1296,17 +1306,14 @@ void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom)
     ReLU_Bwd(postBN_blobVec[transitionIdx], postReLU_blobVec[transitionIdx], this->N, localChannel, this->H, this->W);
     //BN Bwd
     Blob* BN_bottom = this->merged_conv[transitionIdx];
-    Blob* scaler = this->blobs_[this->numTransition + transitionIdx];
-    Blob* bias = this->blobs_[2 * this->numTransition + transitionIdx];
+    Blob* scaler = this->blobs_[this->numtransition_ + transitionIdx];
+    Blob* bias = this->blobs_[2 * this->numtransition_ + transitionIdx];
     BN_train_Bwd(BN_bottom, this->BN_XhatVec[transitionIdx], this->postBN_blobVec[transitionIdx], this->batch_Mean[transitionIdx], this->batch_Var[transitionIdx], scaler, bias, this->N, localChannel, this->H, this->W, true);
   }
   bottom[0]->CopyFrom((this->merged_conv[0]), true);
   //logInternal_cpu("TC_TrueBwdlog");
   this->LoopEndCleanup_cpu();
 }
-
-
-
 
 };
 

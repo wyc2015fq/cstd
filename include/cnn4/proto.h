@@ -126,14 +126,148 @@ struct DevMem {
   }
 };
 
+typedef float Dtype;
+
+
+#define InitString(name, def, type)  name##_ = (def);
+#define InitBool(name, def, type)  name##_ = (def);
+#define InitFloat(name, def, type)  name##_ = (def);
+#define InitInt(name, def, type)  name##_ = (def);
+#define InitEnum(name, def, type)  name##_ = (def);
+#define InitStruct(name, def, type)  name##_.init();
+
+#define GetString(name, def, type)  name##_ = cjson_GetObjectString(param, #name, def);
+#define GetBool(name, def, type)  name##_ = cjson_GetObjectBool(param, #name, def);
+#define GetInt(name, def, type)  name##_ = cjson_GetObjectInt(param, #name, def);
+#define GetFloat(name, def, type)  name##_ = cjson_GetObjectFloat(param, #name, def);
+#define GetEnum(name, def, type)  name##_ = (type)cjson_GetObjectEnum(param, #name, def, type##_Name, countof(type##_Name));
+#define GetStruct(name, def, type)  name##_.fromJson(cjson_GetObjectItem(param, #name ));
+
+#if 0
+#define SetString(name, def, type)  cjson_SetObjectString(param, #name, name##_);
+#define SetBool(name, def, type)    cjson_SetObjectInt(param, #name, name##_);
+#define SetInt(name, def, type)     cjson_SetObjectInt(param, #name, name##_);
+#define SetFloat(name, def, type)   cjson_SetObjectNumber(param, #name, name##_);
+#define SetEnum(name, def, type)    cjson_SetObjectString(param, #name, type##_Name[name##_]);
+#define SetStruct(name, def, type)  cjson_SetObjectItem(param, #name, name##_.ToJson() );
+#else
+#define SetString(name, def, type)  if ((name##_ != def)) cjson_SetObjectString(param, #name, name##_);
+#define SetBool(name, def, type)    if (name##_ != def) cjson_SetObjectInt(param, #name, name##_);
+#define SetInt(name, def, type)     if (name##_ != def) cjson_SetObjectInt(param, #name, name##_);
+#define SetFloat(name, def, type)   if (name##_ != def) cjson_SetObjectNumber(param, #name, name##_);
+#define SetEnum(name, def, type)    if (name##_ != def) cjson_SetObjectString(param, #name, type##_Name[name##_]);
+#define SetStruct(name, def, type)  cjson_SetObjectItem(param, #name, name##_.ToJson() );
+#endif
+
+
+#define DefString(name, def, type)  string name##_;
+#define DefBool(name, def, type)  bool name##_;
+#define DefInt(name, def, type)  int name##_;
+#define DefFloat(name, def, type)  double name##_;
+#define DefEnum(name, def, type)  type name##_;
+#define DefStruct(name, def, type)  type name##_;
+
+
+#define FILLER_PARAM_DEF(DEF) \
+DEF##Enum(type, FillerMethod_constant, FillerMethod) \
+DEF##Float(value, 0, 0) \
+DEF##Float(min, 0, 0) \
+DEF##Float(max, 1, 0) \
+DEF##Float(mean, 0, 0) \
+DEF##Float(std, 1, 0) \
+DEF##Float(sparse, -1, 0) \
+DEF##Enum(variance_norm, FAN_IN, VarianceNorm)
+
+#define STRUCT_DEF_DEF1(STRUCT_DEF)  \
+STRUCT_DEF(Def);  \
+ virtual void init() { STRUCT_DEF(Init); } \
+ virtual void fromJson(cjson* param) { STRUCT_DEF(Get); } \
+ virtual void toJson(cjson* param) {   STRUCT_DEF(Set);   }
+
+struct Filler {
+  FILLER_PARAM_DEF(Def);
+  cjson* ToJson() { cjson* param = cjson_CreateObject(); FILLER_PARAM_DEF(Set); return param; }
+  typedef double Stype;
+
+
+  void init() {
+    FILLER_PARAM_DEF(Init);
+  }
+  void fromJson(cjson* param) {
+    FILLER_PARAM_DEF(Get);
+  }
+  void toJson(cjson* param) {
+    FILLER_PARAM_DEF(Set);
+  }
+
+
+
+  Filler() {
+    init();
+  }
+  void set_value(double value) { value_ = value; }
+  bool set_type(FillerMethod type) {
+    type_ = type;
+  }
+  bool set_type(const char* name) {
+    for (int i = 0; i < countof(FillerMethod_Name); ++i) {
+      if (0 == strcmp(name, FillerMethod_Name[i])) {
+        type_ = (FillerMethod)i;
+        return true;
+      }
+    }
+    return false;
+  }
+  int Fill(DataShape shape, Dtype* data) {
+    //cpu_Filler(blob->shape_, blob->cpu_mdata(), param);
+    //Blob::Dtype* data = blob->cpu_mdata();
+    switch (type_) {
+    case FillerMethod_constant:
+      CHECK_EQ(sparse_, -1)
+        << "Sparsity not supported by this Filler.";
+      return cpu_ConstantFiller(shape, data, value_);
+    case FillerMethod_gaussian:
+      return (cpu_GaussianFiller)(shape, data, mean_, std_, sparse_);
+
+    case FillerMethod_positive_unitball:
+      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
+      return (cpu_PositiveUnitballFiller)(shape, data);
+
+    case FillerMethod_uniform:
+      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
+      return (cpu_UniformFiller)(shape, data, min_, max_);
+
+    case FillerMethod_xavier:
+      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
+      return (cpu_XavierFiller)(shape, data, variance_norm_);
+
+    case FillerMethod_msra:
+      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
+      return (cpu_MSRAFiller)(shape, data, variance_norm_);
+
+    case FillerMethod_bilinear:
+      CHECK_EQ(sparse_, -1)
+        << "Sparsity not supported by this Filler.";
+      return (cpu_BilinearFiller)(shape, data);
+
+    default:
+      CHECK(false) << "Unknown filler name: " << type_;
+      break;
+    }
+    return 0;
+  }
+
+};
+
 enum { MAX_NAME = 64 };
 struct Blob {
+  typedef Dtype Dtype;
   char name_[MAX_NAME];
-  typedef float Dtype;
   Dtype loss_weight_;
   Dtype loss_;
   Dtype lr_mult_;
   Dtype decay_mult_;
+  Filler filler_;
 #if 0
   union {
     DataShape shape_;
@@ -246,30 +380,15 @@ struct Blob {
     assert(count() == other->count());
     caffe_copy(count(), other->diff(), mdiff());
   }
+  int Fill(Filler* filler) {
+    Blob* blob = this;
+    DataShape shape = blob->shape_;
+    Dtype* data = blob->cpu_mdata();
+    return filler->Fill(shape, data);
+  }
+
 #include "blob.inl"
 };
-
-
-#define SetString(name, def, type)  name##_ = (def);
-#define SetBool(name, def, type)  name##_ = (def);
-#define SetFloat(name, def, type)  name##_ = (def);
-#define SetInt(name, def, type)  name##_ = (def);
-#define SetEnum(name, def, type)  name##_ = (def);
-#define SetStruct(name, def, type)  name##_.init();
-
-#define GetString(name, def, type)  name##_ = param->getstring(#name, def);
-#define GetBool(name, def, type)  name##_ = param->getbool(#name, def);
-#define GetFloat(name, def, type)  name##_ = param->getfloat(#name, def);
-#define GetInt(name, def, type)  name##_ = param->getint(#name, def);
-#define GetEnum(name, def, type)  name##_ = (type)param->getenum(#name, def, type##_Name, countof(type##_Name));
-#define GetStruct(name, def, type)  name##_.init(param->get(#name ));
-
-#define DefString(name, def, type)  string name##_;
-#define DefBool(name, def, type)  bool name##_;
-#define DefFloat(name, def, type)  double name##_;
-#define DefInt(name, def, type)  int name##_;
-#define DefEnum(name, def, type)  type name##_;
-#define DefStruct(name, def, type)  type name##_;
 
 static void ConstantFiller(Blob* blob, double x = 1) {
   cpu_ConstantFiller(blob->shape_, blob->cpu_mdata(), x);
@@ -281,84 +400,10 @@ static void GaussianFiller(Blob* blob, double mu = 0, double st = 1) {
   cpu_GaussianFiller(blob->shape_, blob->cpu_mdata(), mu, st, -1);
 }
 
-#define FILLER_PARAM_DEF(DEF) \
-DEF##Enum(type, FillerMethod_constant, FillerMethod) \
-DEF##Float(value, 0, 0) \
-DEF##Float(min, 0, 0) \
-DEF##Float(max, 1, 0) \
-DEF##Float(mean, 0, 0) \
-DEF##Float(std, 1, 0) \
-DEF##Float(sparse, -1, 0) \
-DEF##Enum(variance_norm, FAN_IN, VarianceNorm)
-
-struct Filler {
-  FILLER_PARAM_DEF(Def);
-  typedef Blob::Dtype Dtype;
-  typedef double Stype;
-  Filler() {
-    init();
-  }
-  void set_value(double value) {    value_ = value;  }
-  bool set_type(const char* name) {
-    for (int i = 0; i < countof(FillerMethod_Name); ++i) {
-      if (0==strcmp(name, FillerMethod_Name[i])) {
-        type_ = (FillerMethod)i;
-        return true;
-      }
-    }
-    return false;
-  }
-  void init() {
-    FILLER_PARAM_DEF(Set);
-  }
-  void init(CJSON* param) {
-    FILLER_PARAM_DEF(Get);
-  }
-  int Fill(Blob* blob) {
-    //cpu_Filler(blob->shape_, blob->cpu_mdata(), param);
-    DataShape shape = blob->shape_;
-    Dtype* data = blob->cpu_mdata();
-    //Blob::Dtype* data = blob->cpu_mdata();
-    switch(type_) {
-    case FillerMethod_constant:
-      CHECK_EQ(sparse_, -1)
-        << "Sparsity not supported by this Filler.";
-      return cpu_ConstantFiller(shape, data, value_);
-    case FillerMethod_gaussian:
-      return (cpu_GaussianFiller)(shape, data, mean_, std_, sparse_);
-
-    case FillerMethod_positive_unitball:
-      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
-      return (cpu_PositiveUnitballFiller)(shape, data);
-
-    case FillerMethod_uniform:
-      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
-      return (cpu_UniformFiller)(shape, data, min_, max_);
-
-    case FillerMethod_xavier:
-      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
-      return (cpu_XavierFiller)(shape, data, variance_norm_);
-
-    case FillerMethod_msra:
-      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
-      return (cpu_MSRAFiller)(shape, data, variance_norm_);
-
-    case FillerMethod_bilinear:
-      CHECK_EQ(sparse_, -1)
-        << "Sparsity not supported by this Filler.";
-      return (cpu_BilinearFiller)(shape, data);
-
-    default:
-      CHECK(false) << "Unknown filler name: " << type_;
-      break;
-    }
-    return 0;
-  }
-
-};
-
 static int Fill(Blob* blob, Filler* filler) {
-  return filler->Fill(blob);
+  DataShape shape = blob->shape_;
+  Dtype* data = blob->cpu_mdata();
+  return filler->Fill(shape, data);
 }
 
 bool dirExists(string dirStr)
@@ -468,89 +513,12 @@ Blob* blobs_aget(vector<Blob*>& blobs_, const char* name) {
   return bi;
 }
 
-struct Layer {
-  Phase phase_;
-  int phase_mask_;
-  char name_[MAX_NAME];
-  char type_[MAX_NAME];
-  //cJSON* param_;
-  typedef Blob::Dtype Dtype;
-  vector<Blob*> blobs_;
-  vector<Blob*> bottom_vecs_;
-  vector<Blob*> top_vecs_;
-  virtual inline const char* type() const { return ""; }
-  virtual inline int ExactNumBottomBlobs() const { return -1; }
-  virtual inline int MinBottomBlobs() const { return -1; }
-  virtual inline int MaxBottomBlobs() const { return -1; }
-  virtual inline int ExactNumTopBlobs() const { return -1; }
-  virtual inline int MinTopBlobs() const { return -1; }
-  virtual inline int MaxTopBlobs() const { return -1; }
-  virtual inline bool EqualNumBottomTopBlobs() const { return false; }
-  virtual inline bool AutoTopBlobs() const { return false; }
-  virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top) { }
-  virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top) { }
-  // bottom -> top
-  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top) {  }
-  // top -> bottom
-  virtual void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom) {  }
-
-  Layer() {
-    init();
-  }
-  //Vtbl* vtbl;
-  void init() {
-    //memset(this, 0, sizeof(Layer));
-    *name_ = 0;
-    *type_ = 0;
-    //vtbl = NULL;
-    phase_ = TEST;
-    phase_mask_ = (1 << TRAIN) | (1 << TEST);
-    phase_mask_ = 7;
-  }
-  void Free() {
-    reset(0);
-  }
-  void reset(int blob_size) {
-    blobs_reset(blobs_, blob_size);
-  }
-  typedef Layer* (*fun_type)(cJSON* param);
-
-  static fun_type reg(fun_type fun, const char* type) {
-    static map<string, fun_type>  fmap;
-    if (fun) {
-      fmap[type] = fun;
-    }
-    if (type) {
-      fun = fmap[type];
-    }
-    return fun;
-  }
-  static int AppendName(CJSON* param, Layer* layer, bool is_top, vector<Blob*>& net_blobs_) {
-    vector<string> vec;
-    const char* name = is_top ? "top" : "bottom";
-    cJSON_GetObjectStringArray(param, name, vec);
-    Blob* bi;
-    vector<Blob*>& blobvec = is_top ? layer->top_vecs_ : layer->bottom_vecs_;
-    for (int i = 0; i < vec.size(); ++i) {
-      bi = blobs_aget(net_blobs_, vec[i].c_str());
-      if (is_top) {
-        bi->top_cnt_++;
-      }
-      else {
-        bi->bottom_cnt_++;
-      }
-      blobvec.push_back(bi);
-    }
-    return 0;
-  }
-
 #include "layer.inl"
-};
 
 //#define REG_LAYER(name) Layer::fun_type f ## Bias = Layer::reg(new ## Bias, #name );
 
 #define log_blob(blob)    LOG_IF(INFO, root_solver()) << " denseblock blob " << (blob).to_debug_string()
-#define INSTANTIATE_CLASS(name, Class) Layer* new ## Class (cJSON* param) { Class * p = new Class(); p->init(param); return p;} \
+#define INSTANTIATE_CLASS(name, Class) Layer* new ## Class () { Class * p = new Class(); return p;} \
 Layer::fun_type f ## Class = Layer::reg(&new ## Class, #name );
 
 //#define INSTANTIATE_CLASS(Bias) INSTANTIATE_CLASS2(Bias, Bias)
@@ -558,79 +526,63 @@ Layer::fun_type f ## Class = Layer::reg(&new ## Class, #name );
 //Layer<double>::fun_type d ## Bias = Layer<double>::reg(&new ## Bias ## Layer<double>, #Bias )
 //#define REGISTER_LAYER_CLASS(Bias)
 
-int CreateLayer(CJSON* param, Layer*& layer, const char* type) {
+int CreateLayer(Layer*& layer, const char* type) {
   Layer::fun_type fun = Layer::reg(NULL, type);
   CHECK(fun) << "CreateLayer can not find unkown layer type = " << type;
   if (NULL == fun) {
     return 0;
   }
-  layer = fun(param);
+  layer = fun();
   //layer->type_ = (char*)type;
   strcpy(layer->type_, type);
   return 1;
 }
 
+#define SolverBase_DEF(DEF) \
+DEF##Bool(test_compute_loss, false, 0) \
+DEF##Bool(test_initialization, true, 0) \
+DEF##Int(test_iter, 1, 0) \
+DEF##Int(iter_size, 1, 0) \
+DEF##Int(stepsize, 1, 0) \
+DEF##Int(average_loss, 1, 0) \
+DEF##Int(max_iter, 100, 0) \
+DEF##Int(display, 100, 0) \
+DEF##Int(snapshot, 100, 0) \
+DEF##Int(test_interval, 100, 0) \
+DEF##Float(base_lr, 0.01, 0) \
+DEF##Float(gamma, 1, 0) \
+DEF##Float(power, 1, 0) \
+DEF##Float(momentum, 0.999, 0) \
+DEF##Float(momentum2, 0.999, 0) \
+DEF##Float(delta, 1e-8, 0) \
+DEF##Float(weight_decay, 0.0005, 0) \
+DEF##Float(clip_gradients, -1, 0) \
+DEF##Enum(regularization_type, RegularizationType_L2, RegularizationType) \
+DEF##Enum(lr_policy, LrPolicy_inv, LrPolicy) \
+
 struct SolverBase {
-  bool test_compute_loss;
-  int test_iter;
-  double lr_policy;
-  int iter_size;
-  int display;
-  int snapshot;
-  int test_interval;
-  int max_iter;
-  int average_loss;
-  bool test_initialization;
+  SolverBase_DEF(Def);
   char snapshot_prefix_[256];
-  char lr_policy_[256];
-  double base_lr;
-  double gamma;
-  double power;
-  int stepsize;
-  double clip_gradients;
-  double weight_decay;
-  RegularizationType regularization_type;
-  double momentum;
-  double momentum2;
-  double delta;
-  void init(CJSON* param_) {
-    param_ = param_->GetObjectItem("solver");
-    test_compute_loss = param_->getbool("test_compute_loss", false);
-    test_iter = param_->GetObjectInt("test_iter", 1);
-    LOG(INFO) << "Solving " << param_->GetObjectString("name", "");
-    lr_policy = param_->GetObjectNumber("lr_policy", 0.001);
-    max_iter = (int)param_->GetObjectNumber("max_iter", 100);
-    iter_size = (int)param_->GetObjectNumber("iter_size", 1);
-    test_initialization = param_->getbool("test_initialization", true);
-    display = param_->GetObjectInt("display", 100);
-    snapshot = param_->GetObjectInt("snapshot", 100);
-    test_interval = param_->GetObjectInt("test_interval", 100);
-    average_loss = (int)param_->GetObjectNumber("average_loss", 1);
-    debug_info_ = param_->GetObjectInt("debug_info", 0);
-    strncpy(snapshot_prefix_, param_->GetObjectString("snapshot_prefix", ""), 256);
-    strncpy(lr_policy_, param_->GetObjectString("lr_policy", "inv"), 256);
-    base_lr = param_->GetObjectNumber("base_lr", 0.01);
-    gamma = param_->GetObjectNumber("gamma", 1);
-    power = param_->GetObjectNumber("power", 1);
-    stepsize = param_->GetObjectInt("stepsize", 1);
-    clip_gradients = param_->GetObjectNumber("clip_gradients", -1);
-    weight_decay = param_->getfloat("weight_decay", 0.0005);
-    //regularization_type  = param_->GetObjectString("regularization_type", "L2");
-    regularization_type = (RegularizationType)param_->getenum("regularization_type", RegularizationType_L2, RegularizationType_Name, countof(RegularizationType_Name));
-    momentum = param_->GetObjectNumber("momentum", 1);
-    delta = param_->getfloat("delta", 1e-8);
-    //delta = param_->getfloat("delta", 1e-8);
-    momentum = param_->getfloat("momentum", 0.999);
-    momentum = param_->getfloat("momentum", 0.999);
-    momentum2 = param_->getfloat("momentum2", 0.999);
+  void init() {
+    SolverBase_DEF(Init);
+  }
+  void FromJson(cjson* param) {
+    SolverBase_DEF(Get);
+    LOG(INFO) << "Solving " << cjson_GetObjectString(param, "name", "");
+    debug_info_ = cjson_GetObjectInt(param, "debug_info", 0);
+    strncpy(snapshot_prefix_, cjson_GetObjectString(param, "snapshot_prefix", ""), 256);
+    //regularization_type_  = param->GetObjectString("regularization_type", "L2");
+  }
+  cjson* ToJson() {
+    cjson* param = cjson_CreateObject();
+    SolverBase_DEF(Set);
+    return param;
   }
 };
-
 
 struct Net {
   SolverBase solver_param;
   //cJSON* param_;
-  typedef Layer::Dtype Dtype;
   vector<Layer* > layers_;
   vector<Blob* > blobs_;
   int size() { return (int)layers_.size(); }
@@ -661,6 +613,9 @@ struct Net {
   }
 #include "net.inl"
 };
+
+
+#include "solver.hpp"
 
 void ClearParamDiffs(Blob** learnable_params_, int learnable_params_size)
 {
@@ -693,3 +648,5 @@ void ClearParamDiffs(Blob** learnable_params_, int learnable_params_size)
 #undef DefEnum
 #undef DefStruct
 #undef log_blob
+
+

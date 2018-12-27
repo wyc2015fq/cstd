@@ -101,21 +101,19 @@ static int base64_encode(const void *indata0, int inlen, char *outdata, int *out
     return ret;
 }
 
-static int base64_decode(const char *indata, int inlen, void *outdata0, int *outlen) {
+static int base64_decode(const char *indata, int inlen, void *outdata0, int outlen) {
   unsigned char *outdata = (unsigned char *)(outdata0);
     int ret = 0;
     if (indata == NULL || inlen <= 0 || outdata == NULL || outlen == NULL) {
         return ret = -1;
     }
-    if (inlen % 4 != 0) { // 需要解码的数据不是4字节倍数
-        return ret = -2;
-    }
+    //inlen = inlen&~3;
     
     int t = 0, x = 0, y = 0, i = 0;
     unsigned char c = 0;
     int g = 3;
     
-    while (indata[x] != 0) {
+    while (x < inlen) {
         // 需要解码的数据对应的ASCII值对应base64_suffix_map的值
         c = base64_suffix_map[indata[x++]];
         if (c == 255) return -1;// 对应的值不在转码表中
@@ -129,10 +127,7 @@ static int base64_decode(const char *indata, int inlen, void *outdata0, int *out
             y = t = 0;
         }
     }
-    if (outlen != NULL) {
-        *outlen = i;
-    }
-    return ret;
+    return i;
 }
 //
 //  main.c

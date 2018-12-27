@@ -6,13 +6,13 @@
 
 
 ////////////////////////////////////////////////////////////////////////
-// ¼ÆÊ±Àà (µ¥Î»ÎªÃë, ¾«È·µ½ºÁÃë)
+// è®¡æ—¶ç±» (å•ä½ä¸ºç§’, ç²¾ç¡®åˆ°æ¯«ç§’)
 ////////////////////////////////////////////////////////////////////////
 
 
 #ifdef _WIN32
 #include <windows.h>
-// ¸ß¾«¶È¼ÆÊ±Àà (µ¥Î»ÎªÃë, ¾«È·µ½Î¢Ãë)
+// é«˜ç²¾åº¦è®¡æ—¶ç±» (å•ä½ä¸ºç§’, ç²¾ç¡®åˆ°å¾®ç§’)
 static __int64 utime_frequency()
 {
   __int64  frequency;
@@ -26,7 +26,7 @@ static __int64 utime_counter()
   return counter;
 }
 #define utime_restart(_start_time)  _start_time = utime_counter()
-#define utime_start(_start_time)    int64 utime_restart(_start_time)
+#define utime_start(_start_time)    __int64 utime_restart(_start_time)
 #define utime_elapsed(_start_time)  ((double)(utime_counter() - _start_time) / utime_frequency())
 #endif
 
@@ -34,8 +34,8 @@ static __int64 utime_counter()
 typedef int64_t int64;
 #if !defined(__ARM_NEON)
 #include <sys/time.h>
-// »ñµÃ¼ÆÊıÆ÷µÄÊ±ÖÓÆµÂÊ
-// »ñµÃ³õÊ¼Öµ
+// è·å¾—è®¡æ•°å™¨çš„æ—¶é’Ÿé¢‘ç‡
+// è·å¾—åˆå§‹å€¼
 static int64_t utime_counter()
 {
   int64_t  counter;
@@ -65,7 +65,7 @@ static int64 utime_counter() {
 
 
 
-//¿ªÊ¼¼ÆÊ±
+//å¼€å§‹è®¡æ—¶
 #ifndef utime_restart
 #define utime_restart(_start_time)  _start_time = clock()
 #define utime_start(_start_time)    clock_t utime_restart(_start_time)

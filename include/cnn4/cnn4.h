@@ -7,6 +7,7 @@ void set_debug_info(int level);
 Net* net_new();
 void net_del(Net* net);
 int net_loadjson(Net* net, const char* fn);
+int net_savejson(Net* net, const char* fn);
 int net_train(Net* net);
 double net_forward(Net* net);
 const float* net_output(Net* net, int idx, int* pcount);

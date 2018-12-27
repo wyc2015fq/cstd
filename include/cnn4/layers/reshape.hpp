@@ -22,12 +22,20 @@ public:
 
 public:
   ReshapeLayer() {
-    ReshapeParameter_DEF(Set);
+    ReshapeParameter_DEF(Init);
   }
-  void init(CJSON* param) {
+  virtual void init() {
+    ReshapeParameter_DEF(Init);
+  }
+  virtual void fromJson(cjson* param) {
     ReshapeParameter_DEF(Get);
-    cJSON_GetObjectNumberArray(param, "shape", shape_);
+    cjson_GetObjectNumberArray(param, "shape", shape_);
   }
+  virtual void toJson(cjson* param) {
+    ReshapeParameter_DEF(Set);
+    cjson_AddNumberArrayToObject(param, "shape", shape_);
+  }
+
 
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {

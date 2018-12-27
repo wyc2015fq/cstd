@@ -472,7 +472,7 @@ void Hsv2Rgb(float H, float S, float V, float& R, float& G, float& B)
 #define img_row(type, img, row)       ((type*)((img)->tt.data + (row)*(img)->s))
 #define img_at(type, img, row, col)   ((type*)((img)->tt.data + (row)*(img)->s + (col)*(img)->c))
 
-int getElemSize(int type) {
+static int getElemSize(int type) {
   TypeId t = CC_TYPECN_TYPE(type);
   int cn = CC_TYPECN_CN(type);
   int size = cn * CC_TYPE_SIZE(t);
@@ -519,9 +519,11 @@ struct img_t {
 #else
   uchar* data;
 #endif
-#ifdef __cplusplus
-  img_t() { BZERO(this, 1); printf("img_t\n"); }
+#if defined __cplusplus
+#if 0
+  img_t() { BZERO(this, 1); }
   ~img_t() { FREE(data); BZERO(this, 1); }
+#endif
   int type() const {    return CC_MAKETYPECN(t, channels());  }
   TypeId depth() const { return t; }
   int channels() const { return _MAT_CN(this->c, this->t); }
@@ -608,7 +610,7 @@ img_t* imcreate(img_t* im, ISize size, int type, const void* data, int step) {
   im->t = t;
   return im;
 }
-img_t* imcreate2(img_t* im, int h, int w, int type, const void* data=0, int step=0) {
+CC_INLINE img_t* imcreate2(img_t* im, int h, int w, int type, const void* data=0, int step=0) {
   return imcreate(im, iSize(w, h), type, data, step);
 }
 

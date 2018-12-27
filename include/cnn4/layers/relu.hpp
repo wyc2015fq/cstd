@@ -8,14 +8,18 @@ class ReLULayer : public NeuronLayer
 {
 public:
   ReLUParameter_DEF(Def);
-  virtual inline const char* type() const { return "ReLU"; }
-
-  ReLULayer() {
-    ReLUParameter_DEF(Set);
+  virtual void init() {
+    ReLUParameter_DEF(Init);
   }
-  void init(CJSON* param) {
+  virtual void fromJson(cjson* param) {
     ReLUParameter_DEF(Get);
   }
+  virtual void toJson(cjson* param) {
+    ReLUParameter_DEF(Set);
+  }
+
+  virtual inline const char* type() const { return "ReLU"; }
+
   virtual void Forward_(const vector<Blob*> & bottom,
     const vector<Blob*> & top)
   {

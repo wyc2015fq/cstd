@@ -911,6 +911,7 @@ RotatedRect minAreaRect(const vector<RotatedRect>& vr) {
   r = curr(r);
   return r;
 }
+
 int selectRotatedRect(const vector<RotatedRect>& vec_rrect, double tty, double meanh, vector<RotatedRect>& lines_tmp) {
   lines_tmp.clear();
   for (int i = 0; i < vec_rrect.size(); ++i) {

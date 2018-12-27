@@ -371,7 +371,6 @@ CC_INLINE int rfindchrs_c(const char* s, int i, int l, const uchar* chs_set) {
 static int find_last_of(const char* s, const char* chrs) {
   int l = (int)strlen(s);
   uchar chrs_set[256] = { 0 };
-  char* ret = NULL;
   get_delims_set(chrs_set, chrs);
   return rfindchrs_c(s, 0, l, chrs_set);
 }
@@ -445,7 +444,7 @@ CC_INLINE int replacestr_c(char* s1, IRANGE* r, const char* s2, int l2, const ch
     r->s = (l1 + j * (l3 - l2));
   }
   else {
-    int pl1 = -1;
+    //int pl1 = -1;
     //if (pl1 <= 0)
     {
       j = strcount_c(s1, l1, s2, l2, ignore_case);
@@ -592,7 +591,7 @@ static char* strins_c(char* s, int i, IRANGE* r, const char* s1, int l1) {
   return s;
 }
 static char* strdel_c(char* s, IRANGE* r, IRANGE r1) {
-  int l = r->e - r->s;
+  //int l = r->e - r->s;
   int l1 = r1.e - r1.s;
   assert(r1.s<r1.e);
   assert(r1.e <= r->s);

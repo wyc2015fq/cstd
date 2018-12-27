@@ -138,23 +138,56 @@ void set_lr_mult(float lr_mult) {
 void set_decay_mult(float decay_mult) {
   decay_mult_ = decay_mult;
 }
-int FromProto(CJSON* proto) {
+cjson* ToJson() {
+  Blob* blob = this;
+  cjson* param = cjson_CreateObject();
+  cjson_AddNumberArrayToObject(param, "shape", shape_.dim, shape_.size());
+  cjson_SetObjectNumber(param, "lr_mult", blob->lr_mult_);
+  cjson_SetObjectNumber(param, "decay_mult", decay_mult_);
+  cjson* data_json = cjson_GetObjectItem(param, "data");
+  int count = shape_.count();
+  if (count > 0) {
+    int nbytes = count * sizeof(float);
+    Dtype* data = blob->cpu_mdata();
+    cjson_AddBinaryDataToObject(param, "data", data, nbytes);
+  }
+  cjson_AddItemToObject(param, "filler", filler_.ToJson());
+  return param;
+}
+int FromJson(cjson* param) {
   Blob* blob = this;
   DataShape shape;
-  cJSON_GetObjectNumberArray(proto, "shape", shape.dim, kMaxBlobAxes, 0);
-  blob->lr_mult_ = proto->getfloat("lr_mult", 1);
-  blob->decay_mult_ = proto->getfloat("decay_mult", 1);
+  cjson_GetObjectNumberArray(param, "shape", shape.dim, kMaxBlobAxes, 0);
+  blob->lr_mult_ = cjson_GetObjectFloat(param, "lr_mult", 1);
+  blob->decay_mult_ = cjson_GetObjectFloat(param, "decay_mult", 1);
   int count = shape.count();
   int nbytes = count * sizeof(float);
+  int initok = 0;
   blob->Reshape(shape);
-  if (proto->GetObjectItem("data")) {
+  cjson* data_json = cjson_GetObjectItem(param, "data");
+  if (data_json) {
     Dtype* data = blob->cpu_mdata();
-    nbytes = blob->shape_.count();
-    cJSON_GetObjectBinaryData(proto, "data", data, nbytes);
+    int n = cjson_GetBinaryData(data_json, data, nbytes);
+    initok = n == nbytes;
   }
-  if (proto->GetObjectItem("diff")) {
+  cjson* filler_json = cjson_GetObjectItem(param, "filler");
+  if (filler_json) {
+    filler_.fromJson(filler_json);
+  }
+  else {
+    filler_.set_type("xavier");
+  }
+  if (!initok) {
+    cjson* filler_json = cjson_GetObjectItem(param, "filler");
+    if (filler_json) {
+      filler_.fromJson(filler_json);
+    }
+    Fill(&filler_);
+  }
+  cjson* diff_json = cjson_GetObjectItem(param, "diff");
+  if (diff_json) {
     Dtype* data = blob->cpu_mdiff();
-    cJSON_GetObjectBinaryData(proto, "diff", data, count);
+    int n = cjson_GetBinaryData(diff_json, data, nbytes);
   }
   return 0;
 }

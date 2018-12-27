@@ -174,13 +174,13 @@ public:
     size_t total_workspace_bwd_data = 0;
     size_t total_workspace_bwd_filter = 0;
     for (size_t i = 0; i < bottom.size(); i++) {
-      total_workspace_fwd = std::max(total_workspace_fwd, algo[i].workspace_fwd_sizes_);
-      total_workspace_bwd_data = std::max(total_workspace_bwd_data, algo[i].workspace_bwd_data_sizes_);
-      total_workspace_bwd_filter = std::max(total_workspace_bwd_filter, algo[i].workspace_bwd_filter_sizes_);
+      total_workspace_fwd = MAX(total_workspace_fwd, algo[i].workspace_fwd_sizes_);
+      total_workspace_bwd_data = MAX(total_workspace_bwd_data, algo[i].workspace_bwd_data_sizes_);
+      total_workspace_bwd_filter = MAX(total_workspace_bwd_filter, algo[i].workspace_bwd_filter_sizes_);
     }
     // get max over all operations
-    size_t max_workspace = std::max(total_workspace_fwd, total_workspace_bwd_data);
-    max_workspace = std::max(max_workspace, total_workspace_bwd_filter);
+    size_t max_workspace = MAX(total_workspace_fwd, total_workspace_bwd_data);
+    max_workspace = MAX(max_workspace, total_workspace_bwd_filter);
     // ensure all groups have enough workspace
     size_t total_max_workspace = max_workspace * (this->group_ * CUDNN_STREAMS_PER_GROUP);
     // this is the total amount of storage needed over all groups + streams

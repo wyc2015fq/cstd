@@ -6,19 +6,15 @@
 #include "std/fileio_c.h"
 //#include "socket.h"
 
+struct httpd;
 
-struct httpd {
+struct httpSvr {
   int serverSock,
       //client->sock,
       //readBufRemain,
       startTime;
-  char clientAddr[HTTP_IP_ADDR_LEN],
-       fileBasePath[HTTP_MAX_URL],
-       *host;
-  sockbuf_t client[1];
-  httpReq request;
-  httpRes response;
-  httpVar* variables;
+  char fileBasePath[HTTP_MAX_URL];
+  char *host;
   httpDir* content;
   httpAcl* defaultAcl;
   FILE*  accessLog,
@@ -26,6 +22,16 @@ struct httpd {
   void (*errorFunction304)(struct httpd* server, int error),
        (*errorFunction403)(struct httpd* server, int error),
        (*errorFunction404)(struct httpd* server, int error);
+};
+
+struct httpd {
+  httpSvr* svr;
+  char clientAddr[HTTP_IP_ADDR_LEN];
+  char buf[HTTP_MAX_LEN];
+  sockbuf_t client[1];
+  httpReq request;
+  httpRes response;
+  httpVar* variables;
 };
 
 #define LEVEL_NOTICE  "notice"
@@ -39,8 +45,6 @@ char LIBHTTPD_VERSION[] = "1.3",
 
 //#define snprintf _snprintf
 //#define vsnprintf _vsnprintf
-
-
 
 static int _httpd_net_write(int sock, const char* buf, int len)
 {
@@ -134,8 +138,7 @@ static char* httpdRequestMethodName(httpd* s)
   case HTTP_POST:
     return("POST");
   default:
-    snprintf(tmpBuf, 255, "Invalid method '%d'",
-        s->request.method);
+    snprintf(tmpBuf, 255, "Invalid method '%d'", s->request.method);
     return(tmpBuf);
   }
 }
@@ -145,37 +148,40 @@ static void _httpd_writeAccessLog(httpd* s)
   struct tm* timePtr;
   time_t clock;
   int responseCode;
-  if (s->accessLog == NULL) {
+  if (s->svr->accessLog == NULL) {
     return;
   }
   clock = time(NULL);
   timePtr = localtime(&clock);
   strftime(dateBuf, 30, "%d/%b/%Y:%T %Z", timePtr);
   responseCode = atoi(s->response.response);
-  fprintf(s->accessLog, "%s - - [%s] %s \"%s\" %d %d\n",
+  fprintf(s->svr->accessLog, "%s - - [%s] %s \"%s\" %d %d\n",
       s->clientAddr, dateBuf, httpdRequestMethodName(s),
       httpdRequestPath(s), responseCode,
       s->response.responseLength);
 }
-static void _httpd_writeErrorLog(httpd* s, const char* level, const char* message)
+static void _httpd_writeErrorLog(httpSvr* svr, const char* level, const char* message, const char* clientAddr)
 {
   char dateBuf[30];
   struct tm* timePtr;
   time_t clock;
-  if (s->errorLog == NULL) {
+  if (svr->errorLog == NULL) {
     return;
   }
   clock = time(NULL);
   timePtr = localtime(&clock);
   strftime(dateBuf, 30, "%a %b %d %T %Y", timePtr);
-  if (*s->clientAddr != 0) {
-    fprintf(s->errorLog, "[%s] [%s] [client %s] %s\n",
-        dateBuf, level, s->clientAddr, message);
+  if (clientAddr && *clientAddr != 0) {
+    fprintf(svr->errorLog, "[%s] [%s] [client %s] %s\n",
+        dateBuf, level, clientAddr, message);
   }
   else {
-    fprintf(s->errorLog, "[%s] [%s] %s\n",
+    fprintf(svr->errorLog, "[%s] [%s] %s\n",
         dateBuf, level, message);
   }
+}
+static void _httpd_writeErrorLog(httpd* s, const char* level, const char* message) {
+  _httpd_writeErrorLog(s->svr, level, message, s->clientAddr);
 }
 static int _httpd_decode(const char* bufcoded, char* bufplain, int outbufsize)
 {
@@ -433,12 +439,12 @@ static void _httpd_sendHeaders(httpd* s, int contentLength, int modTime)
   }
   _httpd_net_write_str(s->client->sock, "\n");
 }
-static httpDir* _httpd_findContentDir(httpd* s, const char* dir, int createFlag)
+static httpDir* _httpd_findContentDir(httpSvr* svr, const char* dir, int createFlag)
 {
   char buffer[HTTP_MAX_URL], *curDir;
   httpDir* curItem, *curChild;
   strncpy(buffer, dir, HTTP_MAX_URL);
-  curItem = s->content;
+  curItem = svr->content;
   curDir = strtok(buffer, "/");
   while (curDir) {
     curChild = curItem->children;
@@ -505,8 +511,8 @@ static void httpdAddHeader(httpd* s, char* msg)
 static void _httpd_send304(httpd* s)
 {
   httpdSetResponse(s, "304 Not Modified\n");
-  if (s->errorFunction304) {
-    (s->errorFunction304)(s, 304);
+  if (s->svr->errorFunction304) {
+    (s->svr->errorFunction304)(s, 304);
   }
   else {
     _httpd_sendHeaders(s, 0, 0);
@@ -520,8 +526,8 @@ static void _httpd_sendText(httpd* s, const char* msg)
 void _httpd_send403(httpd* s)
 {
   httpdSetResponse(s, "403 Permission Denied\n");
-  if (s->errorFunction403) {
-    (s->errorFunction403)(s, 403);
+  if (s->svr->errorFunction403) {
+    (s->svr->errorFunction403)(s, 403);
   }
   else {
     _httpd_sendHeaders(s, 0, 0);
@@ -536,8 +542,8 @@ static void _httpd_send404(httpd* s)
       "File does not exist: %s", s->request.path);
   _httpd_writeErrorLog(s, LEVEL_ERROR, msg);
   httpdSetResponse(s, "404 Not Found\n");
-  if (s->errorFunction404) {
-    (s->errorFunction404)(s, 404);
+  if (s->svr->errorFunction404) {
+    (s->svr->errorFunction404)(s, 404);
   }
   else {
     _httpd_sendHeaders(s, 0, 0);
@@ -634,10 +640,10 @@ static void httpdOutput(httpd* s, char* msg)
 }
 static void _httpd_sendStatic(httpd* s, char* data)
 {
-  if (_httpd_checkLastModified(s, s->startTime) == 0) {
+  if (_httpd_checkLastModified(s, s->svr->startTime) == 0) {
     _httpd_send304(s);
   }
-  _httpd_sendHeaders(s, s->startTime, strlen(data));
+  _httpd_sendHeaders(s, s->svr->startTime, strlen(data));
   httpdOutput(s, data);
 }
 static void _httpd_sendFile(httpd* s, char* path)
@@ -976,17 +982,17 @@ static int httpdSetVariableValue(httpd* s, char* name, char* value)
     return httpdAddVariable(s, name, value, strlen(value));
   }
 }
-static httpd* httpdCreate(const char* host, int port)
+static httpSvr* httpdCreate(const char* host, int port)
 {
-  httpd* s;
+  httpSvr* s;
   int sock;
   addr_in addr[1] = {0};
   // Create the handle and setup it's basic config
-  s = (httpd*)malloc(sizeof(httpd));
+  s = (httpSvr*)malloc(sizeof(httpSvr));
   if (s == NULL) {
     return(NULL);
   }
-  bzero(s, sizeof(httpd));
+  bzero(s, sizeof(httpSvr));
   //port;
   if (host == NULL) {
     s->host = HTTP_ANY_ADDR;
@@ -1018,7 +1024,7 @@ static httpd* httpdCreate(const char* host, int port)
   s->startTime = time(NULL);
   return(s);
 }
-static void httpdDestroy(httpd* s)
+static void httpdDestroy(httpSvr* s)
 {
   if (s == NULL) {
     return;
@@ -1038,8 +1044,9 @@ static void httpdEndRequest(httpd* s)
     free(s->request.content);
   }
   bzero(&s->request, sizeof(s->request));
+  free(s);
 }
-static int httpdGetConnection(httpd* s, int time_ms)
+static int httpdGetConnection(httpSvr* svr, int time_ms, httpd** ps)
 {
   int result;
   sock_set fds[1] = {0};
@@ -1047,10 +1054,10 @@ static int httpdGetConnection(httpd* s, int time_ms)
   timeval_t timeout[1];
   timeout->tv_sec = time_ms/1000;
   timeout->tv_usec = time_ms%1000;
-  sock_set_add(s->serverSock, fds);
+  sock_set_add(svr->serverSock, fds);
   result = 0;
   while (result == 0) {
-    result = sock_select(s->serverSock + 1, fds, 0, 0, timeout);
+    result = sock_select(svr->serverSock + 1, fds, 0, 0, timeout);
     if (result < 0) {
       return(-1);
     }
@@ -1061,14 +1068,19 @@ static int httpdGetConnection(httpd* s, int time_ms)
       break;
     }
   }
-  s->client->sock = sock_accept(s->serverSock, addr);
+  httpd* s = (httpd*)malloc(sizeof(httpd));
+  *ps = s;
+  memset(s, 0, sizeof(httpd));
+  s->svr = svr;
+  s->client->sock = sock_accept(svr->serverSock, addr);
   addr_tostr(addr, s->clientAddr, countof(s->clientAddr));
   s->client->readBufRemain = 0;
   s->client->readBufPtr = NULL;
   // Check the default ACL
-  if (s->defaultAcl) {
-    if (httpdCheckAcl(s, s->defaultAcl) == HTTP_ACL_DENY) {
+  if (s->svr->defaultAcl) {
+    if (httpdCheckAcl(s, s->svr->defaultAcl) == HTTP_ACL_DENY) {
       httpdEndRequest(s);
+      *ps = NULL;
       return(-2);
     }
   }
@@ -1192,9 +1204,9 @@ int from_multipart(httpd* s) {
 
 static int httpdReadRequest(httpd* s)
 {
-  static char buf[HTTP_MAX_LEN];
   int count, inHeaders;
   char* cp, *cp2;
+  char* buf = s->buf;
   // Setup for a standard response
   strcpy(s->response.headers, "Server: Hughes Technologies Embedded Server\n");
   strcpy(s->response.contentType, "text/html");
@@ -1254,6 +1266,7 @@ static int httpdReadRequest(httpd* s)
         char* var, *val, *end;
         var = strchr(buf, ':');
         while (var) {
+          int len = 0;
           var++;
           val = strchr(var, '=');
           *val = 0;
@@ -1261,8 +1274,9 @@ static int httpdReadRequest(httpd* s)
           end = strchr(val, ';');
           if (end) {
             *end = 0;
+            len = end - val;
           }
-          httpdAddVariable(s, var, val, end-val);
+          httpdAddVariable(s, var, val, len);
           var = end;
         }
       } else if (STRNCASECMP2(buf, "Authorization:") == 0) {
@@ -1283,18 +1297,21 @@ static int httpdReadRequest(httpd* s)
           strncpy(s->request.authUser, authBuf, HTTP_MAX_AUTH);
         }
       } else if (STRNCASECMP2(buf, "Host:") == 0) {
-        cp = strchr(buf, ':') + 2;
+        cp = strchr(buf, ':');
         if (cp) {
+          cp += 2;
           strncpy(s->request.host, cp, HTTP_MAX_URL);
         }
       } else if (STRNCASECMP2(buf, "Referer:") == 0) {
-        cp = strchr(buf, ':') + 2;
+        cp = strchr(buf, ':');
         if (cp) {
+          cp += 2;
           strncpy(s->request.referer, cp, HTTP_MAX_URL);
         }
       } else if (STRNCASECMP2(buf, "If-Modified-Since:") == 0) {
-        cp = strchr(buf, ':') + 2;
+        cp = strchr(buf, ':');
         if (cp) {
+          cp += 2;
           strncpy(s->request.ifModified, cp, HTTP_MAX_URL);
           cp = strchr(s->request.ifModified, ';');
           if (cp) {
@@ -1361,6 +1378,7 @@ static int httpdReadRequest(httpd* s)
   }
   return(0);
 }
+
 static void httpdFreeVariables(httpd* s)
 {
   _httpd_freeVariables(s->variables);
@@ -1379,15 +1397,15 @@ static void httpdDumpVariables(httpd* s)
     curVar = curVar->nextVariable;
   }
 }
-static void httpdSetFileBase(httpd* s, char* path)
+static void httpdSetFileBase(httpSvr* svr, char* path)
 {
-  strncpy(s->fileBasePath, path, HTTP_MAX_URL);
+  strncpy(svr->fileBasePath, path, HTTP_MAX_URL);
 }
-static int httpdAddFileContent(httpd* s, char* dir, char* name, int indexFlag, int (*preload)(httpd* s), char* path)
+static int httpdAddFileContent(httpSvr* svr, char* dir, char* name, int indexFlag, int (*preload)(httpd* svr), char* path)
 {
   httpDir* dirPtr;
   httpContent* newEntry;
-  dirPtr = _httpd_findContentDir(s, dir, HTTP_TRUE);
+  dirPtr = _httpd_findContentDir(svr, dir, HTTP_TRUE);
   newEntry = (httpContent*)malloc(sizeof(httpContent));
   if (newEntry == NULL) {
     return(-1);
@@ -1405,13 +1423,13 @@ static int httpdAddFileContent(httpd* s, char* dir, char* name, int indexFlag, i
   }
   else {
     // Path relative to base path
-    newEntry->path = (char*)malloc(strlen(s->fileBasePath) + strlen(path) + 2);
+    newEntry->path = (char*)malloc(strlen(svr->fileBasePath) + strlen(path) + 2);
     snprintf(newEntry->path, HTTP_MAX_URL, "%s/%s",
-        s->fileBasePath, path);
+        svr->fileBasePath, path);
   }
   return(0);
 }
-static int httpdAddWildcardContent(httpd* s, char* dir, int (*preload)(httpd* s), char* path)
+static int httpdAddWildcardContent(httpSvr* s, char* dir, int (*preload)(httpd* s), char* path)
 {
   httpDir* dirPtr;
   httpContent* newEntry;
@@ -1438,7 +1456,7 @@ static int httpdAddWildcardContent(httpd* s, char* dir, int (*preload)(httpd* s)
   }
   return(0);
 }
-static int httpdAddCContent(httpd* s, const char* dir, const char* name, int indexFlag, int (*preload)(httpd* s), void (*function)(httpd* s))
+static int httpdAddCContent(httpSvr* s, const char* dir, const char* name, int indexFlag, int (*preload)(httpd* s), void (*function)(httpd* s))
 {
   httpDir* dirPtr;
   httpContent* newEntry;
@@ -1457,7 +1475,7 @@ static int httpdAddCContent(httpd* s, const char* dir, const char* name, int ind
   dirPtr->entries = newEntry;
   return(0);
 }
-static int httpdAddCWildcardContent(httpd* s, const char* dir, int (*preload)(httpd* s), void (*function)(httpd* s))
+static int httpdAddCWildcardContent(httpSvr* s, const char* dir, int (*preload)(httpd* s), void (*function)(httpd* s))
 {
   httpDir* dirPtr;
   httpContent* newEntry;
@@ -1476,7 +1494,7 @@ static int httpdAddCWildcardContent(httpd* s, const char* dir, int (*preload)(ht
   dirPtr->entries = newEntry;
   return(0);
 }
-static int httpdAddStaticContent(httpd* s, char* dir, char* name, int indexFlag, int (*preload)(httpd* s), char* data)
+static int httpdAddStaticContent(httpSvr* s, char* dir, char* name, int indexFlag, int (*preload)(httpd* s), char* data)
 {
   httpDir* dirPtr;
   httpContent* newEntry;
@@ -1495,7 +1513,7 @@ static int httpdAddStaticContent(httpd* s, char* dir, char* name, int indexFlag,
   dirPtr->entries = newEntry;
   return(0);
 }
-static int httpdAddEmberContect(httpd* s, char* dir, char* name, int indexFlag, int (*preload)(httpd* s), char* script)
+static int httpdAddEmberContect(httpSvr* s, char* dir, char* name, int indexFlag, int (*preload)(httpd* s), char* script)
 {
   httpDir* dirPtr;
   httpContent* newEntry;
@@ -1531,7 +1549,7 @@ static void httpdPrintf(httpd* s, const char* fmt, ...)
   vsnprintf(buf, HTTP_MAX_LEN, fmt, args);
   s->response.responseLength += strlen(buf);
   _httpd_net_write_str(s->client->sock, buf);
-  printf("%s\n", buf);
+  //printf("%s\n", buf);
 }
 static void httpdSendFile(httpd* s, char* path)
 {
@@ -1592,7 +1610,7 @@ static void httpdProcessRequest(httpd* s)
     *(cp + 1) = 0;
   }
 
-  dir = _httpd_findContentDir(s, dirName, HTTP_FALSE);
+  dir = _httpd_findContentDir(s->svr, dirName, HTTP_FALSE);
   if (dir == NULL) {
     _httpd_send404(s);
     _httpd_writeAccessLog(s);
@@ -1635,11 +1653,11 @@ static void httpdProcessRequest(httpd* s)
   }
   _httpd_writeAccessLog(s);
 }
-static void httpdSetAccessLog(httpd* s, FILE* fp)
+static void httpdSetAccessLog(httpSvr* s, FILE* fp)
 {
   s->accessLog = fp;
 }
-static void httpdSetErrorLog(httpd* s, FILE* fp)
+static void httpdSetErrorLog(httpSvr* s, FILE* fp)
 {
   s->errorLog = fp;
 }
@@ -1663,22 +1681,22 @@ static void httpdForceAuthenticate(httpd* s, char* realm)
   httpdAddHeader(s, buffer);
   httpdOutput(s, "\n");
 }
-static int httpdSetErrorFunction(httpd* s, int error, void (*function)(httpd* s, int error))
+static int httpdSetErrorFunction(httpSvr* svr, int error, void (*function)(httpd* svr, int error))
 {
   static char errBuf[80];
   switch (error) {
   case 304:
-    s->errorFunction304 = function;
+    svr->errorFunction304 = function;
     break;
   case 403:
-    s->errorFunction403 = function;
+    svr->errorFunction403 = function;
     break;
   case 404:
-    s->errorFunction404 = function;
+    svr->errorFunction404 = function;
     break;
   default:
     snprintf(errBuf, 80, "Invalid error code (%d) for custom callback", error);
-    _httpd_writeErrorLog(s, LEVEL_ERROR, errBuf);
+    _httpd_writeErrorLog(svr, LEVEL_ERROR, errBuf, NULL);
     return(-1);
     break;
   }

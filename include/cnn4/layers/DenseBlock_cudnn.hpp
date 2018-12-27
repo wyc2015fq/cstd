@@ -95,7 +95,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
     this->tensorDescriptor_conv_y = NULL;
     createTensor4dDesc(&this->tensorDescriptor_conv_y);
 #if 1
-    setTensor4dDesc(this->tensorDescriptor_conv_y, type, this->N, this->growthRate, this->H, this->W, (this->numTransition*this->growthRate + this->initChannel)*this->H*this->W, this->H*this->W, this->W, 1);
+    setTensor4dDesc(this->tensorDescriptor_conv_y, type, this->N, this->growthRate, this->H, this->W, (this->numtransition_*this->growthRate + this->initChannel)*this->H*this->W, this->H*this->W, this->W, 1);
 #endif
     //BC
     int quadG_numValues = 4 * N*growthRate*H*W;
@@ -114,14 +114,14 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       CUDNN_CHECK(cudnnSetConvolution2dDescriptor(convBC_Descriptor, 0, 0, 1, 1, 1, 1, CUDNN_CONVOLUTION, dataType<Dtype>::type));
     }
     //per transition variables
-    for (int i = 0; i < this->numTransition; ++i) {
+    for (int i = 0; i < this->numtransition_; ++i) {
       //conv_x descriptor
       int conv_x_channels = this->initChannel + this->growthRate * i;
       cudnnTensorDescriptor_t  wide_Desc_local_x = NULL;
       createTensor4dDesc(&wide_Desc_local_x);
 #if 1
       setTensor4dDesc(wide_Desc_local_x, type, this->N, conv_x_channels, this->H, this->W,
-        (this->numTransition*this->growthRate + this->initChannel)*this->H*this->W, this->H*this->W, this->W, 1);
+        (this->numtransition_*this->growthRate + this->initChannel)*this->H*this->W, this->H*this->W, this->W, 1);
       this->tensorDescriptorVec_conv_x.push_back(wide_Desc_local_x);
 #endif
       //filter Descriptor for Convolution
@@ -202,7 +202,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
 
 
     //Convolution Algorithms
-    for (int transitionIdx = 0; transitionIdx < numTransition; ++transitionIdx) {
+    for (int transitionIdx = 0; transitionIdx < numtransition_; ++transitionIdx) {
       cudnnTensorDescriptor_t conv_x_desc;
       cudnnTensorDescriptor_t conv_y_desc;
       cudnnFilterDescriptor_t conv_w_desc;
@@ -283,7 +283,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
   }
 
   virtual void resetDropoutDesc() {
-    for (int transitionIdx = 0; transitionIdx < numTransition; ++transitionIdx) {
+    for (int transitionIdx = 0; transitionIdx < numtransition_; ++transitionIdx) {
       std::cout << &(dropout_state_gpu[transitionIdx]) << "," << dropout_stateSize[transitionIdx] << std::endl;
       CUDNN_CHECK(cudnnSetDropoutDescriptor(
         (dropoutDescriptorVec[transitionIdx]),
@@ -307,16 +307,16 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       BN_x_ptr = this->postConv.gpu_mdata();
     }
     Dtype* BN_y_ptr = this->postBN.gpu_mdata();
-    Dtype* BN_globalMean = this->blobs_[3 * this->numTransition + transitionIdx]->gpu_mdata();
-    Dtype* BN_globalVar = this->blobs_[4 * this->numTransition + transitionIdx]->gpu_mdata();
-    //Dtype* BC_filter = this->blobs_[5 * numTransition + transitionIdx]->gpu_mdata();
+    Dtype* BN_globalMean = this->blobs_[3 * this->numtransition_ + transitionIdx]->gpu_mdata();
+    Dtype* BN_globalVar = this->blobs_[4 * this->numtransition_ + transitionIdx]->gpu_mdata();
+    //Dtype* BC_filter = this->blobs_[5 * numtransition_ + transitionIdx]->gpu_mdata();
     cudnnTensorDescriptor_t BN_paramDesc = tensorDescriptor_BN[transitionIdx];
     int numChannels = initChannel + growthRate*transitionIdx;
     Dtype* local_MeanInf = this->Mean_tmp;
     Dtype* local_VarInf = this->Var_tmp;
 
-    const Dtype* bnScale = this->blobs_[this->numTransition + transitionIdx]->gpu_data();
-    const Dtype *bnBias = this->blobs_[2 * this->numTransition + transitionIdx]->gpu_data();
+    const Dtype* bnScale = this->blobs_[this->numtransition_ + transitionIdx]->gpu_data();
+    const Dtype *bnBias = this->blobs_[2 * this->numtransition_ + transitionIdx]->gpu_data();
     int localChannels = this->initChannel + transitionIdx * this->growthRate;
     int inner_num_ = this->H * this->W;
     if (this->phase_ == TEST) {
@@ -328,7 +328,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
           (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
           BN_paramDesc,
           bnScale,
-          this->blobs_[2 * this->numTransition + transitionIdx]->gpu_data(),
+          this->blobs_[2 * this->numtransition_ + transitionIdx]->gpu_data(),
           BN_globalMean, BN_globalVar, CUDNN_BN_MIN_EPSILON)
         );
         //log_blob(this->postBN);
@@ -385,10 +385,10 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
           BN_x_ptr = this->postConv.cpu_mdata();
         }
         Dtype* BN_y_ptr = this->postBN.cpu_mdata();
-        Dtype* BN_globalMean = this->blobs_[3 * this->numTransition + transitionIdx]->cpu_mdata();
-        Dtype* BN_globalVar = this->blobs_[4 * this->numTransition + transitionIdx]->cpu_mdata();
-        const Dtype* bnScale = this->blobs_[this->numTransition + transitionIdx]->cpu_data();
-        const Dtype *bnBias = this->blobs_[2 * this->numTransition + transitionIdx]->cpu_data();
+        Dtype* BN_globalMean = this->blobs_[3 * this->numtransition_ + transitionIdx]->cpu_mdata();
+        Dtype* BN_globalVar = this->blobs_[4 * this->numtransition_ + transitionIdx]->cpu_mdata();
+        const Dtype* bnScale = this->blobs_[this->numtransition_ + transitionIdx]->cpu_data();
+        const Dtype *bnBias = this->blobs_[2 * this->numtransition_ + transitionIdx]->cpu_data();
         Dtype local_MeanInf[64] = { 0 };
         Dtype local_VarInf[64] = { 0 };
         Dtype batchMean[64] = { 0 };
@@ -435,7 +435,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         gpu_get_one(),
         this->tensorDescriptorVec_conv_x[transitionIdx], conv_x_4G,
         this->BC_filterDescriptorVec[transitionIdx],
-        this->blobs_[5 * numTransition + transitionIdx]->gpu_data(),
+        this->blobs_[5 * numtransition_ + transitionIdx]->gpu_data(),
         convBC_Descriptor, BC_FwdAlgoVec[transitionIdx],
         workspace, workspace_size_bytes, gpu_get_zero(),
         quadG_tensorDesc, conv_y_4G
@@ -444,8 +444,8 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       //BN 4G Fwd
       Dtype* BN_x_4G = BC_ultra_spaceEfficient ? postConv_4G.gpu_mdata() : postConv_4GVec[transitionIdx];
       Dtype* BN_y_4G = postBN_4G.gpu_mdata();
-      Dtype* BN_BC_globalMean = this->blobs_[8 * numTransition + transitionIdx]->gpu_mdata();
-      Dtype* BN_BC_globalVar = this->blobs_[9 * numTransition + transitionIdx]->gpu_mdata();
+      Dtype* BN_BC_globalMean = this->blobs_[8 * numtransition_ + transitionIdx]->gpu_mdata();
+      Dtype* BN_BC_globalVar = this->blobs_[9 * numtransition_ + transitionIdx]->gpu_mdata();
       Dtype* localBC_MeanInf = BC_MeanInfVec[transitionIdx];
       Dtype* localBC_VarInf = BC_VarInfVec[transitionIdx];
       //std::cout<<"BC Fwd BN Prepared"<<std::endl;
@@ -456,8 +456,8 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
           quadG_tensorDesc, BN_x_4G,
           quadG_tensorDesc, BN_y_4G,
           quadG_paramDesc,
-          this->blobs_[6 * numTransition + transitionIdx]->gpu_data(),
-          this->blobs_[7 * numTransition + transitionIdx]->gpu_data(),
+          this->blobs_[6 * numtransition_ + transitionIdx]->gpu_data(),
+          this->blobs_[7 * numtransition_ + transitionIdx]->gpu_data(),
           BN_BC_globalMean, BN_BC_globalVar, CUDNN_BN_MIN_EPSILON)
         );
       }
@@ -470,8 +470,8 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
           quadG_tensorDesc, BN_x_4G,
           quadG_tensorDesc, BN_y_4G,
           quadG_paramDesc,
-          this->blobs_[6 * numTransition + transitionIdx]->gpu_mdata(),
-          this->blobs_[7 * numTransition + transitionIdx]->gpu_mdata(),
+          this->blobs_[6 * numtransition_ + transitionIdx]->gpu_mdata(),
+          this->blobs_[7 * numtransition_ + transitionIdx]->gpu_mdata(),
           Dtype(1), localBC_MeanInf, localBC_VarInf, CUDNN_BN_MIN_EPSILON,
           BC_batchMean, BC_batchInvVar
         ));
@@ -604,7 +604,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
     //clock_t begin_bwd = std::clock();
     //assuming buffers store already computed value, always propagate down
     Dtype* bottom_diff = bottom[0]->gpu_mdiff();
-    int work_n = N * (initChannel + growthRate*numTransition) * H * W;
+    int work_n = N * (initChannel + growthRate*numtransition_) * H * W;
     //deploy top diff
     if (useDropout) {
       cudaMemcpy(postDropout.gpu_mdiff(), top[0]->gpu_mdiff(), work_n * sizeof(Dtype), cudaMemcpyDeviceToDevice);
@@ -613,7 +613,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       cudaMemcpy(postConv.gpu_mdiff(), top[0]->gpu_mdiff(), work_n * sizeof(Dtype), cudaMemcpyDeviceToDevice);
     }
     //Backward_, transition by transition
-    for (int transitionIdx = this->numTransition - 1; transitionIdx >= 0; --transitionIdx) {
+    for (int transitionIdx = this->numtransition_ - 1; transitionIdx >= 0; --transitionIdx) {
       int channelsBefore_self = this->initChannel + transitionIdx * this->growthRate;
       //Using BN & ReLU Fwd to generate corresponding postBN,postReLU data for this transition 
       //BN Fwd
@@ -625,8 +625,8 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         BN_x_ptr = postConv.gpu_mdata();
       }
       Dtype* BN_y_ptr = postBN.gpu_mdata();
-      Dtype* BN_globalMean = this->blobs_[3 * this->numTransition + transitionIdx]->gpu_mdata();
-      Dtype* BN_globalVar = this->blobs_[4 * this->numTransition + transitionIdx]->gpu_mdata();
+      Dtype* BN_globalMean = this->blobs_[3 * this->numtransition_ + transitionIdx]->gpu_mdata();
+      Dtype* BN_globalVar = this->blobs_[4 * this->numtransition_ + transitionIdx]->gpu_mdata();
       cudnnTensorDescriptor_t BN_paramDesc = tensorDescriptor_BN[transitionIdx];
       Dtype* local_MeanInf = Mean_tmp;
       Dtype* local_VarInf = Var_tmp;
@@ -638,8 +638,8 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_ptr,
         (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
         BN_paramDesc,
-        this->blobs_[this->numTransition + transitionIdx]->gpu_mdata(),
-        this->blobs_[2 * this->numTransition + transitionIdx]->gpu_mdata(),
+        this->blobs_[this->numtransition_ + transitionIdx]->gpu_mdata(),
+        this->blobs_[2 * this->numtransition_ + transitionIdx]->gpu_mdata(),
         Dtype(1), local_MeanInf, local_VarInf, CUDNN_BN_MIN_EPSILON,
         batchMean, batchInvVar)
       );
@@ -650,8 +650,8 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       *(this->tensorDescriptorVec_conv_x[transitionIdx]),BN_x_ptr,
       *(this->tensorDescriptorVec_conv_x[transitionIdx]),BN_y_ptr,
       BN_paramDesc,
-      this->blobs_[this->numTransition+transitionIdx]->gpu_data(),
-        this->blobs_[2*this->numTransition+transitionIdx]->gpu_data(),
+      this->blobs_[this->numtransition_+transitionIdx]->gpu_data(),
+        this->blobs_[2*this->numtransition_+transitionIdx]->gpu_data(),
       local_MeanInf,local_VarInf,CUDNN_BN_MIN_EPSILON)
     );*/
     //ReLU Fwd
@@ -674,7 +674,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
             gpu_get_one(),
             this->tensorDescriptorVec_conv_x[transitionIdx], conv_x_4G,
             (BC_filterDescriptorVec[transitionIdx]),
-            this->blobs_[5 * numTransition + transitionIdx]->gpu_data(),
+            this->blobs_[5 * numtransition_ + transitionIdx]->gpu_data(),
             (convBC_Descriptor), BC_FwdAlgoVec[transitionIdx],
             workspace, workspace_size_bytes, gpu_get_zero(),
             quadG_tensorDesc, conv_y_4G
@@ -695,8 +695,8 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
           quadG_tensorDesc, BN_x_4G,
           quadG_tensorDesc, BN_y_4G,
           quadG_paramDesc,
-          this->blobs_[6 * numTransition + transitionIdx]->gpu_mdata(),
-          this->blobs_[7 * numTransition + transitionIdx]->gpu_mdata(),
+          this->blobs_[6 * numtransition_ + transitionIdx]->gpu_mdata(),
+          this->blobs_[7 * numtransition_ + transitionIdx]->gpu_mdata(),
           Dtype(1), localBC_MeanInf, localBC_VarInf, CUDNN_BN_MIN_EPSILON,
           BC_batchMean, BC_batchInvVar
         ));
@@ -706,8 +706,8 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
           quadG_tensorDesc,BN_x_4G,
           quadG_tensorDesc,BN_y_4G,
           quadG_paramDesc,
-          this->blobs_[6*numTransition+transitionIdx]->gpu_data(),
-          this->blobs_[7*numTransition+transitionIdx]->gpu_data(),
+          this->blobs_[6*numtransition_+transitionIdx]->gpu_data(),
+          this->blobs_[7*numtransition_+transitionIdx]->gpu_data(),
           localBC_MeanInf,localBC_VarInf,CUDNN_BN_MIN_EPSILON
         ));*/
         //BC ReLU Fwd reconstruction
@@ -804,9 +804,9 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
             quadG_tensorDesc,
             BC_BN_dx_local,
             quadG_paramDesc,
-            this->blobs_[6 * numTransition + transitionIdx]->gpu_data(),
-            this->blobs_[6 * numTransition + transitionIdx]->gpu_mdiff(),
-            this->blobs_[7 * numTransition + transitionIdx]->gpu_mdiff(),
+            this->blobs_[6 * numtransition_ + transitionIdx]->gpu_data(),
+            this->blobs_[6 * numtransition_ + transitionIdx]->gpu_mdiff(),
+            this->blobs_[7 * numtransition_ + transitionIdx]->gpu_mdiff(),
             CUDNN_BN_MIN_EPSILON,
             BC_saveMean_local,
             BC_saveInvVar_local
@@ -814,8 +814,8 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         //);	
 
       //BC Conv 1*1 Bwd
-        Dtype* BC_filterGrad = this->blobs_[5 * numTransition + transitionIdx]->gpu_mdiff();
-        Dtype* BC_filterData = this->blobs_[5 * numTransition + transitionIdx]->gpu_mdata();
+        Dtype* BC_filterGrad = this->blobs_[5 * numtransition_ + transitionIdx]->gpu_mdiff();
+        Dtype* BC_filterData = this->blobs_[5 * numtransition_ + transitionIdx]->gpu_mdata();
         Dtype* BC_conv_x_local = postReLU.gpu_mdata();
         Dtype* BC_conv_dy_local = postConv_4G.gpu_mdiff();
         Dtype* BC_conv_dx_local = postReLU.gpu_mdiff();
@@ -881,9 +881,9 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_dy_local,
         (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_dx_local,
         BN_paramDesc,
-        this->blobs_[this->numTransition + transitionIdx]->gpu_data(),
-        this->blobs_[this->numTransition + transitionIdx]->gpu_mdiff(),
-        this->blobs_[2 * this->numTransition + transitionIdx]->gpu_mdiff(),
+        this->blobs_[this->numtransition_ + transitionIdx]->gpu_data(),
+        this->blobs_[this->numtransition_ + transitionIdx]->gpu_mdiff(),
+        this->blobs_[2 * this->numtransition_ + transitionIdx]->gpu_mdiff(),
         CUDNN_BN_MIN_EPSILON, saveMean_local, saveInvVar_local
       );
       //);
@@ -893,7 +893,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
     //deploy buffer to bottom diff
     //this->logInternal_gpu("TClogBwd",-1,false,false);
     int chunkSize_copy_init = this->initChannel * this->H * this->W;
-    int chunkStride_copy = (this->initChannel + this->numTransition * this->growthRate) * this->H * this->W;
+    int chunkStride_copy = (this->initChannel + this->numtransition_ * this->growthRate) * this->H * this->W;
     if (useDropout) {
       copy_many_to_one(postDropout.mdiff(), bottom_diff, this->N, chunkSize_copy_init, chunkStride_copy);
       //this->resetDropoutDesc();
@@ -901,7 +901,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
     else {
       copy_many_to_one(postConv.mdiff(), bottom_diff, this->N, chunkSize_copy_init, chunkStride_copy);
     }
-    int numTotalChannels = initChannel + growthRate*numTransition;
+    int numTotalChannels = initChannel + growthRate*numtransition_;
     cleanupBuffer(this->Mean_tmp, numTotalChannels);
     cleanupBuffer(this->Var_tmp, numTotalChannels);
     this->LoopEndCleanup_gpu();
@@ -920,9 +920,9 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
   virtual void reshape_data(int oldh, int oldw, int oldn, int h, int w, int newn)
   {
     cudnnDataType_t type = dataType<Dtype>::type;
-    int bufferSize_byte_old = oldn*(this->initChannel + this->growthRate*this->numTransition)*oldh*oldw * sizeof(Dtype);
-    int bufferSize_byte_new = newn*(this->initChannel + this->growthRate*this->numTransition)*h*w * sizeof(Dtype);
-    DataShape shape_new = dataShape(newn, (this->initChannel + this->growthRate*this->numTransition), h, w);
+    int bufferSize_byte_old = oldn*(this->initChannel + this->growthRate*this->numtransition_)*oldh*oldw * sizeof(Dtype);
+    int bufferSize_byte_new = newn*(this->initChannel + this->growthRate*this->numtransition_)*h*w * sizeof(Dtype);
+    DataShape shape_new = dataShape(newn, (this->initChannel + this->growthRate*this->numtransition_), h, w);
     if (bufferSize_byte_new > bufferSize_byte_old)
     {
       int bufferSize_byte = bufferSize_byte_new;
@@ -936,7 +936,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       postReLU.Reshape(shape_new);
     }
 
-    setTensor4dDesc(this->tensorDescriptor_conv_y, type, newn, this->growthRate, h, w, (this->numTransition*this->growthRate + this->initChannel)*h*w, h*w, w, 1);
+    setTensor4dDesc(this->tensorDescriptor_conv_y, type, newn, this->growthRate, h, w, (this->numtransition_*this->growthRate + this->initChannel)*h*w, h*w, w, 1);
 
     int quadG_numValues_old = 4 * newn*growthRate*oldh*oldw;
     int quadG_numValues = 4 * newn*growthRate*h*w;
@@ -960,10 +960,10 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       setTensor4dDesc(quadG_tensorDesc, type, newn, 4 * growthRate, h, w, 4 * growthRate*h*w, h*w, w, 1);
     }
 
-    for (int i = 0; i < this->numTransition; ++i)
+    for (int i = 0; i < this->numtransition_; ++i)
     {
       int conv_x_channels = this->initChannel + this->growthRate * i;
-      setTensor4dDesc(this->tensorDescriptorVec_conv_x[i], type, newn, conv_x_channels, h, w, (this->numTransition*this->growthRate + this->initChannel)*h*w, h*w, w, 1);
+      setTensor4dDesc(this->tensorDescriptorVec_conv_x[i], type, newn, conv_x_channels, h, w, (this->numtransition_*this->growthRate + this->initChannel)*h*w, h*w, w, 1);
     }
   }
 

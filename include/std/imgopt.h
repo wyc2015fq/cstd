@@ -3,6 +3,7 @@
 
 #include "img_c.h"
 #include "geo_c.h"
+#include "types_c.h"
 #include "error_c.h"
 #include <math.h>
 
@@ -622,7 +623,7 @@ static int imgsetbitmap(int m_height, int m_width, uchar* data, int step, int cn
 
   return 0;
 }
-static BOOL imsetbitmap(img_t* im, int nWidth, int nHeight, UINT nPlanes, UINT nBitcount, const void* lpBits, const void* bmiColors)
+static BOOL imsetbitmap(img_t* im, int nWidth, int nHeight, int nPlanes, int nBitcount, const void* lpBits, const void* bmiColors)
 {
   int cn = (nBitcount > 8 || palette_is_color(1 << nBitcount, (uchar*)bmiColors)) ? 4 : 1;
   imsetsize(im, nWidth, nHeight, cn, 1);

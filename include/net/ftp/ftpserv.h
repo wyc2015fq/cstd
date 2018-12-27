@@ -328,7 +328,8 @@ char *finalpath(char *root_dir, char *current_dir, char *params, char *result_pa
   if (total_len >= SIZE_OF_GPBUFFER)
     return NULL;
 
-  tmp = (char*)x_malloc(SIZE_OF_GPBUFFER);
+  tmp = (char*)malloc(SIZE_OF_GPBUFFER);
+  *tmp = 0;
 
   strcpy(result_path, root_dir);
   add_last_slash(result_path);
@@ -1666,7 +1667,7 @@ int ftpRNFR(PFTPCONTEXT context, const char *params)
 
 int ftpRNTO(PFTPCONTEXT context, const char *params)
 {
-  char *_text;
+  char *_text = 0;
 
   if (context->Access == FTP_ACCESS_NOT_LOGGED_IN)
     return sendstring(context, error530);
@@ -1675,7 +1676,7 @@ int ftpRNTO(PFTPCONTEXT context, const char *params)
   if (params == NULL)
     return sendstring(context, error501);
 
-  _text = (char*)x_malloc(SIZE_OF_GPBUFFER);
+  _text = (char*)malloc(SIZE_OF_GPBUFFER);
 
   if (finalpath(
     context->RootDir,
@@ -1964,8 +1965,9 @@ void *ftp_client_thread(SOCKET *s)
   memset(&ctx, 0, sizeof(ctx));
   ctx.Access = FTP_ACCESS_NOT_LOGGED_IN;
   ctx.ControlSocket = *s;
-  ctx.GPBuffer = (char*)x_malloc(SIZE_OF_GPBUFFER);
+  ctx.GPBuffer = (char*)malloc(SIZE_OF_GPBUFFER);
   ctx.utf8 = 0;
+  *ctx.GPBuffer = 0;
 
   memset(&laddr, 0, sizeof(laddr));
   asz = sizeof(laddr);
@@ -2085,7 +2087,7 @@ void *ftpmain(void *p)
   rv = 1;
   setsockopt(ftpsocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&rv, sizeof(rv));
 
-  scb = (SOCKET *)x_malloc(sizeof(SOCKET)*g_cfg.MaxUsers);
+  scb = (SOCKET *)malloc(sizeof(SOCKET)*g_cfg.MaxUsers);
   for (i = 0; i < g_cfg.MaxUsers; i++)
     scb[i] = INVALID_SOCKET;
 
@@ -2221,7 +2223,7 @@ int ftpserv(int argc, char *argv[])
 
   if (cfg != NULL)
   {
-    textbuf = (char*)x_malloc(bufsize);
+    textbuf = (char*)malloc(bufsize);
 
     g_cfg.ConfigFile = cfg;
 
@@ -2275,9 +2277,7 @@ int ftpserv(int argc, char *argv[])
     if (g_log != NULL)
       fseek(g_log, 0L, SEEK_END);
 
-    printf("\r\n    [ LightFTP server v2.0 ]\r\n\r\n");
     printf("Log file        : %s\r\n", textbuf);
-
     getcwd(textbuf, bufsize);
     printf("Working dir     : %s\r\n", textbuf);
 

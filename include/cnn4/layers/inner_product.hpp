@@ -30,11 +30,17 @@ struct InnerProductLayer : public Layer
 
   //bool has_data_;
   InnerProductLayer() {
+    InnerProductParameter_DEF(Init);
+  }
+  virtual void init() {
+    InnerProductParameter_DEF(Init);
+  }
+  virtual void toJson(cjson* param) {
     InnerProductParameter_DEF(Set);
   }
-  void init(CJSON* param) {
+  void fromJson(cjson* param) {
     InnerProductParameter_DEF(Get);
-    CJSON* blobs_json = param->get("blobs");
+    cjson* blobs_json = cjson_GetObjectItem(param, "blobs");
     //has_data_ = blobs_json && blobs_json->GetArraySize() > 0 && blobs_json->GetArrayItem(0)->has("data");
   }
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
@@ -60,12 +66,12 @@ struct InnerProductLayer : public Layer
       DataShape weight_shape = transpose_ ? dataShape(K_, N_) : dataShape(N_, K_);
       this->blobs_[0]->Reshape(weight_shape);
       // fill the weights
-      weight_filler_.Fill(this->blobs_[0]);
+      Fill(this->blobs_[0], &weight_filler_);
       // If necessary, intiialize and fill the bias term
       if (bias_term_) {
         DataShape bias_shape = dataShape(1, N_);
         this->blobs_[1]->Reshape(bias_shape);
-        bias_filler_.Fill(this->blobs_[1]);
+        Fill(this->blobs_[1], &bias_filler_);
       }
     }  // parameter initialization
     //this->param_propagate_down_.resize(this->blobs_.size(), true);

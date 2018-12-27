@@ -28,9 +28,9 @@ public:
   virtual inline int MinBottomBlobs() const { return 1; }
   virtual inline int MaxBottomBlobs() const { return 2; }
   virtual inline int ExactNumTopBlobs() const { return 1; }
-  
+
   ScaleLayer() {
-    ScaleParameter_DEF(Set);
+    ScaleParameter_DEF(Init);
     bias_layer_ = NULL;
   }
   ~ScaleLayer() {
@@ -38,9 +38,16 @@ public:
       delete bias_layer_;
     }
   }
-  void init(cJSON* param) {
+
+  virtual void init() {
+    ScaleParameter_DEF(Init);
+  }
+  virtual void toJson(cjson* param) {
+    ScaleParameter_DEF(Set);
+  }
+  void fromJson(cjson* param) {
     ScaleParameter_DEF(Get);
-    if (!param->has("filler")) {
+    if (!cjson_HasObjectItem(param, "filler")) {
       // Default to unit (1) filler_ for identity operation.
       //filler_param->set_type("constant");
       //filler_param->set_value(1);

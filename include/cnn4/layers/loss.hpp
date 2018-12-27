@@ -15,7 +15,6 @@ const double kLOG_THRESHOLD = 1e-20;
 
 #define LossParameter_DEF(DEF) \
 DEF##Int(ignore_label, -1, 0) \
-DEF##Bool(normalize, false, 0) \
 DEF##Enum(normalization, NormalizationMode_VALID, NormalizationMode) \
 
 class LossLayer : public Layer
@@ -24,11 +23,14 @@ public:
   LossParameter_DEF(Def);
   virtual inline int ExactNumBottomBlobs() const { return 2; }
 
-  void init() {
-    LossParameter_DEF(Set);
+  virtual void init() {
+    LossParameter_DEF(Init);
   }
-  void init(CJSON* param) {
+  virtual void fromJson(cjson* param) {
     LossParameter_DEF(Get);
+  }
+  virtual void toJson(cjson* param) {
+    LossParameter_DEF(Set);
   }
   /**
    * @brief For convenience and backwards compatibility, instruct the Net to

@@ -14,16 +14,22 @@ public:
   /// the probability @f$ p @f$ of dropping any input
   //Dtype dropout_ratio_;
   /// the scale for undropped inputs at train time @f$ 1 / (1 - p) @f$
-  Dtype scale_;
 
   virtual inline const char* type() const { return "Dropout"; }
 public:
   DropoutLayer() {
-    DropoutParameter_DEF(Set);
+    DropoutParameter_DEF(Init);
   }
-  void init(CJSON* param) {
+  virtual void init() {
+    DropoutParameter_DEF(Init);
+  }
+  virtual void fromJson(cjson* param) {
     DropoutParameter_DEF(Get);
   }
+  virtual void toJson(cjson* param) {
+    DropoutParameter_DEF(Set);
+  }
+
 
   virtual void LayerSetUp(const vector<Blob*> & bottom,
     const vector<Blob*> & top)
@@ -31,7 +37,6 @@ public:
     NeuronLayer::LayerSetUp(bottom, top);
     DCHECK(dropout_ratio_ > 0.);
     DCHECK(dropout_ratio_ < 1.);
-    scale_ = 1. / (1. - dropout_ratio_);
   }
 
   virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top)
@@ -46,6 +51,7 @@ public:
     const Dtype* bottom_data = bottom[0]->data();
     Dtype* top_data = top[0]->mdata();
     const int count = bottom[0]->count();
+    Dtype scale_ = 1. / (1. - dropout_ratio_);
     if (this->phase_ == TRAIN) {
       unsigned int* mask = (unsigned int*)(rand_vec_.mdata());
       // set thresholds
@@ -62,6 +68,7 @@ public:
     if (bottom[0]->propagate_down_) {
       const Dtype* top_diff = top[0]->diff();
       Dtype* bottom_diff = bottom[0]->mdiff();
+      Dtype scale_ = 1. / (1. - dropout_ratio_);
       if (this->phase_ == TRAIN) {
         const unsigned int* mask = (const unsigned int*)(rand_vec_.data());
         const int count = bottom[0]->count();

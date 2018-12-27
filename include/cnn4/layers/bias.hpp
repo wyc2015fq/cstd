@@ -9,21 +9,25 @@ DEF##Struct(filler, 1, Filler)
 struct BiasLayer : public Layer
 {
 public:
+  BiasParameter_DEF(Def);
+  virtual void init() {
+    BiasParameter_DEF(Init);
+  }
+  virtual void fromJson(cjson* param) {
+    BiasParameter_DEF(Get);
+  }
+  virtual void toJson(cjson* param) {
+    BiasParameter_DEF(Set);
+  }
+
+
   virtual inline const char* type() const { return "Bias"; }
   virtual inline int MinBottomBlobs() const { return 1; }
   virtual inline int MaxBottomBlobs() const { return 2; }
   virtual inline int ExactNumTopBlobs() const { return 1; }
-  BiasParameter_DEF(Def);
   Blob bias_multiplier_;
   int outer_dim_, bias_dim_, inner_dim_, dim_;
 
-  BiasLayer() {
-    BiasParameter_DEF(Set);
-  }
-
-  void init(CJSON* param) {
-    BiasParameter_DEF(Get);
-  }
 
   void LayerSetUp(Blob* in, Blob* out, Blob* bias)
   {
@@ -42,7 +46,7 @@ public:
       const int* shape_end = (num_axes_ == -1) ? in->shape().end() : (shape_start + num_axes_);
       vector<int> bias_shape(shape_start, shape_end);
       bias->Reshape(bias_shape);
-      filler_.Fill(bias);
+      Fill(bias, &filler_);
     }
   }
 

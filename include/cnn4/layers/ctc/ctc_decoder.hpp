@@ -20,7 +20,10 @@ public:
   int score_index_;
   int accuracy_index_;
   CTCGreedyDecoderLayer() {
-    CTCDecoderParameter_DEF(Set);
+    init();
+  }
+  virtual void init() {
+    CTCDecoderParameter_DEF(Init);
     T_ = (0);
     N_ = (0);
     C_ = (0);
@@ -28,9 +31,13 @@ public:
     score_index_ = (-1);
     accuracy_index_ = (-1);
   }
-  void init(CJSON* param) {
+  virtual void fromJson(cjson* param) {
     CTCDecoderParameter_DEF(Get);
   }
+  virtual void toJson(cjson* param) {
+    CTCDecoderParameter_DEF(Set);
+  }
+
 public:
   virtual inline const char* type() const { return "CTCDecoder"; }
 

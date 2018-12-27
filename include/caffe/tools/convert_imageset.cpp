@@ -24,7 +24,7 @@
 //#include "caffe/libcaffe.cpp"
 
 #include "caffe/common.cpp"
-#include "caffe/proto/caffe_proto.cc"
+//#include "caffe/proto/caffe_proto.cc"
 #include "caffe/util/db.cpp"
 #include "../util/io.cpp"
 //#include "caffe/util/db_leveldb.cpp"
@@ -37,8 +37,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #endif  // USE_OPENCV
 
-#include "wstd/flags.hpp"
-#include "wstd/logging.hpp"
+#include "std/flags_c.h"
+#include "std/log_c.h"
 #include "wstd/string.hpp"
 #include "wstd/filesystem.hpp"
 
@@ -73,7 +73,7 @@ size_t rfind_splash(const std::string& line, size_t pos) {
 
 int str2vec(const char* str, vector<float>& vec) {
   vector<string> strs;
-  wstd::split(strs, str, " ");
+  split(strs, str, " ");
   vec.resize(strs.size());
   int i;
   for (i = 0; i < vec.size(); ++i) {
@@ -103,7 +103,7 @@ int save_db(const char* db_fn, const char* encode_type, bool is_color, const cha
   for (int line_id = 0; line_id < lines.size(); ++line_id) {
     bool status;
     vector<string> strs;
-    wstd::split(strs, lines[line_id], ";");
+    split(strs, lines[line_id], ";");
     LOG_IF(INFO, strs.size() != n) << "strs.size()!=n";
     for (i=0; i<n; ++i) {
       string fn = strs[i];
@@ -144,7 +144,7 @@ int save_db(const char* db_fn, const char* encode_type, bool is_color, const cha
       }
     }
     // sequential
-    string key_str = wstd::format_int(line_id, 8);
+    string key_str = format_int(line_id, 8);
     // Put in db
     string out;
     CHECK(datum.SerializeToString(&out));
@@ -191,15 +191,15 @@ int read_db(const char* db_fn)
 
 int convert_db_mutil(int argc, char** argv)
 {
-  wstd::SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
+  SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
     "format used as input for Caffe.\n"
     "Usage:\n"
     "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
     "The ImageNet dataset for the training demo is at\n"
     "    http://www.image-net.org/download-images\n");
-  wstd::ParseCommandLineFlags(argc, argv, true);
+  ParseCommandLineFlags(argc, argv, true);
   if (argc < 4) {
-    wstd::ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
+    ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
     return 1;
   }
   const bool is_color = !FLAGS_gray;
@@ -210,26 +210,26 @@ int convert_db_mutil(int argc, char** argv)
     FLAGS_shuffle, is_color, check_size, encoded,
     FLAGS_resize_width, FLAGS_resize_height);
   std::vector<string> strs;
-  int len = wstd::readlines(argv[2], strs);
+  int len = readlines(argv[2], strs);
   if (len<=0) {
     printf("failed to open %s\n", argv[2]);
   }
   //const char* typelist = "ifff";
-  save_db(argv[3], NULL, is_color, argv[1], FLAGS_typelist.c_str(), strs);
+  save_db(argv[3], NULL, is_color, argv[1], FLAGS_typelist, strs);
   return 0;
 }
 
 int convert_db(int argc, char** argv)
 {
-  wstd::SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
+  SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
                           "format used as input for Caffe.\n"
                           "Usage:\n"
                           "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
                           "The ImageNet dataset for the training demo is at\n"
                           "    http://www.image-net.org/download-images\n");
-  wstd::ParseCommandLineFlags(argc, argv, true);
+  ParseCommandLineFlags(argc, argv, true);
   if (argc < 4) {
-    wstd::ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
+    ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
     return 1;
   }
   const bool is_color = !FLAGS_gray;
@@ -324,7 +324,7 @@ int convert_db(int argc, char** argv)
       }
     }
     // sequential
-    string key_str = wstd::format_int(line_id, 8) + "_" + lines[line_id].first;
+    string key_str = format_int(line_id, 8) + "_" + lines[line_id].first;
     // Put in db
     string out;
     CHECK(datum.SerializeToString(&out));
@@ -394,7 +394,7 @@ int read2img_db(int argc, char** argv)
 int convert_imageset(int argc, char** argv)
 {
 #ifdef USE_OPENCV
-  wstd::InitGoogleLogging(argv[0]);
+  InitGoogleLogging(argv[0]);
   // Print output to stderr (while still logging)
   FLAGS_alsologtostderr = 1;
   //FLAGS_alsologtostderr
