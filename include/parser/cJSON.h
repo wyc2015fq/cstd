@@ -109,7 +109,7 @@ static cjson* cjson_New_Item(void)
   return node;
 }
 static void cjson_Delete(cjson* c);
-void cjson_Clear(cjson* c) {
+static void cjson_Clear(cjson* c) {
   if (!(c->type & cjson_IsReference) && c->child) {
     cjson_Delete(c->child);
     c->child = NULL;
@@ -119,7 +119,7 @@ void cjson_Clear(cjson* c) {
     c->valuestring = NULL;
   }
 }
-void cjson_DeleteOne(cjson* c) {
+static void cjson_DeleteOne(cjson* c) {
   if (c->next) {
     c->next->prev = c->prev;
   }
@@ -1174,7 +1174,7 @@ static cjson* cjson_GetArrayItem(cjson* array, int item)
   }
   return NULL;
 }
-cjson* cjson_GetObjectItem(cjson* object, const char* string)
+static cjson* cjson_GetObjectItem(cjson* object, const char* string)
 {
   if (object) {
     cjson* c = object->child;
@@ -1812,33 +1812,33 @@ static int cjson_GetFloat(cjson* item, double default_double) {
 }
 //////////////////////////////////////////////////////
 // Object
-bool cjson_HasObjectItem(cjson* object, const char* name) {
+static bool cjson_HasObjectItem(cjson* object, const char* name) {
   return cjson_GetObjectItem(object, name) != NULL;
 }
-int cjson_GetObjectInt(cjson* object, const char* name, int default_int) {
+static int cjson_GetObjectInt(cjson* object, const char* name, int default_int) {
   cjson* item = cjson_GetObjectItem(object, name);
   return item ? item->valueint : default_int;
 }
-double cjson_GetObjectFloat(cjson* object, const char* name, double default_double) {
+static double cjson_GetObjectFloat(cjson* object, const char* name, double default_double) {
   cjson* item = cjson_GetObjectItem(object, name);
   return item ? item->valuedouble : default_double;
 }
-bool cjson_GetObjectBool(cjson* object, const char* name, bool default_bool) {
+static bool cjson_GetObjectBool(cjson* object, const char* name, bool default_bool) {
   cjson* item = cjson_GetObjectItem(object, name);
   return cjson_GetBool(item, default_bool);
 }
-cjson* cjson_SetObjectItem(cjson* object, const char* name, cjson* new_item) {
+static cjson* cjson_SetObjectItem(cjson* object, const char* name, cjson* new_item) {
   cjson* item = cjson_GetObjectItem(object, name);
   return item ? cjson_SetItem(item, new_item) : cjson_AddItemToObject(object, name, new_item);
 }
-cjson* cjson_AddObjectNumber(cjson* object, const char* name, double num) {
+static cjson* cjson_AddObjectNumber(cjson* object, const char* name, double num) {
   return cjson_AddItemToObject(object, name, cjson_CreateNumber(num));
 }
-cjson* cjson_SetObjectNumber(cjson* object, const char* name, double num) {
+static cjson* cjson_SetObjectNumber(cjson* object, const char* name, double num) {
   cjson* item = cjson_GetObjectItem(object, name);
   return item ? cjson_SetNumber(item, num) : cjson_AddObjectNumber(object, name, num);
 }
-cjson* cjson_SetObjectInt(cjson* object, const char* name, int num) {
+static cjson* cjson_SetObjectInt(cjson* object, const char* name, int num) {
   cjson* item = cjson_GetObjectItem(object, name);
   return item ? cjson_SetNumber(item, num) : cjson_AddIntToObject(object, name, num);
 }
@@ -1855,7 +1855,7 @@ static cjson* cjson_SetObjectString(cjson* object, const char* name, const char*
   cjson* item = cjson_GetObjectItem(object, name);
   return item ? cjson_SetString(item, string) : cjson_AddObjectString(object, name, string);
 }
-int cjson_GetObjectArraySize(cjson* object, const char* string) {
+static int cjson_GetObjectArraySize(cjson* object, const char* string) {
   cjson* item = cjson_GetObjectItem(object, string);
   return item ? cjson_GetArraySize(item) : 0;
 }
@@ -1879,11 +1879,11 @@ static int cjson_GetObjectEnum(const cjson* object, const char* name, int defaul
 }
 
 //////////////////////////////////////////////////////
-int cjson_GetArrayInt(cjson* array, int index, int default_int) {
+static int cjson_GetArrayInt(cjson* array, int index, int default_int) {
   cjson* item = cjson_GetArrayItem(array, index);
   return item ? item->valueint : default_int;
 }
-double cjson_GetArrayFloat(cjson* array, int index, double default_double) {
+static double cjson_GetArrayFloat(cjson* array, int index, double default_double) {
   cjson* item = cjson_GetArrayItem(array, index);
   return item ? item->valuedouble : default_double;
 }

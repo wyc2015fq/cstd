@@ -19,6 +19,8 @@
 //#include "boost/scoped_ptr.hpp"
 
 #include "std/flags_c.h"
+#include "std/dir_c.h"
+#include "imgio/imgio.h"
 #include "parser/cJSON.hpp"
 #include "../types.h"
 #include "../db.hpp"
@@ -87,10 +89,19 @@ int convert_dataset(const char* image_filename, const char* label_filename,
       cursor->Next();
     }
   }
+  if (1) {
+  }
   for (int item_id = 0; item_id < (int)num_items; ++item_id) {
     printf("item_id=%d\n", item_id);
     image_file.read(pixels, rows * cols);
     label_file.read(&label, 1);
+    if (1) {
+      char buf[256];
+      _snprintf(buf, 256, "E:/OCR_Line/chars/mnist/%d/", label);
+      mkdirs(buf);
+      _snprintf(buf, 256, "E:/OCR_Line/chars/mnist/%d/%d.jpg", label, item_id);
+      imwrite4(buf, rows, cols, (uchar*)pixels, cols, 1);
+    }
     blob_img->set(NCHW, TF_U8, pixels, cols, rows);
     blob_labels->set(NCHW, TF_U8, &label, 1);
     //datum.set_label(label);

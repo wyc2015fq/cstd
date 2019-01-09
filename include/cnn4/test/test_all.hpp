@@ -1,13 +1,13 @@
 
 #include "cnn4/cnn4.hpp"
 #include "test_gradient_check_util.hpp"
+#include "test_scale_layer.hpp"
 #if 0
 #include "test_reshape_layer.hpp"
 #include "test_transpose_layer.hpp"
 #include "test_batch_norm_layer.hpp"
 #include "test_inner_product_layer.hpp"
 #include "test_pooling_layer.hpp"
-#include "test_scale_layer.hpp"
 #include "test_bias_layer.hpp"
 #include "test_accuracy_layer.hpp"
 #include "test_softmax_layer.hpp"

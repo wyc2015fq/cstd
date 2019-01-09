@@ -211,8 +211,8 @@ public:
     }
     // compute accuracy
     if (accuracy_index_ >= 0) {
-      Dtype & accedit = top[0]->mdata()[0];
-      Dtype & accline = top[0]->mdata()[1];
+      Dtype & accedit = top[0]->cpu_mdata()[0];
+      Dtype & accline = top[0]->cpu_mdata()[1];
       accedit = 0;
       accline = 0;
       int total_ok = 0;

@@ -138,12 +138,8 @@ struct PoolingLayer : public Layer
       CHECK(kernel_size_json || (kernel_h_json && kernel_w_json))
         << "For non-square filters both kernel_h and kernel_w are required.";
     }
-    CHECK((!pad_json && pad_h_json && pad_w_json)
-      || (!pad_h_json && !pad_w_json))
-      << "pad is pad OR pad_h and pad_w are required.";
-    CHECK((!stride_json && stride_h_json && stride_w_json)
-      || (!stride_h_json && !stride_w_json))
-      << "Stride is stride OR stride_h and stride_w are required.";
+    CHECK((!pad_json && pad_h_json && pad_w_json) || (!pad_h_json && !pad_w_json)) << "pad is pad OR pad_h and pad_w are required.";
+    //CHECK((!stride_json && stride_h_json && stride_w_json) || (!stride_h_json && !stride_w_json)) << "Stride is stride OR stride_h and stride_w are required.";
     if (global_pooling_) {
     }
     else {

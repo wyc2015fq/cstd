@@ -27,12 +27,12 @@ protected:
     filler.type_ = FillerMethod_uniform;
     filler.min_ = (1);
     filler.max_ = (10);
-    filler.Fill(this->blob_bottom_);
-    filler.Fill(this->blob_bottom_eltwise_);
-    filler.Fill(this->blob_bottom_broadcast_0_);
-    filler.Fill(this->blob_bottom_broadcast_1_);
-    filler.Fill(this->blob_bottom_broadcast_2_);
-    filler.Fill(this->blob_bottom_scale_);
+    Fill(this->blob_bottom_, &filler);
+    Fill(this->blob_bottom_broadcast_0_, &filler);
+    Fill(this->blob_bottom_eltwise_, &filler);
+    Fill(this->blob_bottom_broadcast_1_, &filler);
+    Fill(this->blob_bottom_broadcast_2_, &filler);
+    Fill(this->blob_bottom_scale_, &filler);
     blob_bottom_vec_.push_back(blob_bottom_);
     blob_top_vec_.push_back(blob_top_);
   }

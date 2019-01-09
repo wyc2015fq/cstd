@@ -56,14 +56,18 @@ namespace wstd {
     wstd::split(strs, str, "\n");
     return strs.size();
   }
-  static int readlines(const char* testfile, std::vector<string>& strs, int maxline) {
+  static int readlines(const char* testfile, std::vector<string>& strs, int begline, int maxline) {
     FILE* pf = NULL;
     pf = fopen(testfile, "rb");
     if (pf) {
       char buf[1024];
       int i = 0;
+      int endline = begline + maxline;
       for (; fgets(buf, 1024, pf) > 0; ++i) {
-        if (maxline>0 && i >= maxline) {
+        if (begline>0 && i < begline) {
+          continue;
+        }
+        if (maxline>0 && i >= endline) {
           break;
         }
         string str = trim(buf, "\r\n");

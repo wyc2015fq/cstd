@@ -11,9 +11,7 @@
 DEF##Int(num_output, 0, 0) \
 DEF##Int(axis, 1, 0) \
 DEF##Bool(bias_term, true, 0) \
-DEF##Bool(transpose, false, 0) \
-DEF##Struct(weight_filler, 0, Filler) \
-DEF##Struct(bias_filler, 0, Filler) \
+DEF##Bool(transpose, false, 0)
 
 
 struct InnerProductLayer : public Layer
@@ -65,13 +63,16 @@ struct InnerProductLayer : public Layer
       // Initialize the weights
       DataShape weight_shape = transpose_ ? dataShape(K_, N_) : dataShape(N_, K_);
       this->blobs_[0]->Reshape(weight_shape);
+      this->blobs_[0]->filler_.set_type("xavier");
       // fill the weights
-      Fill(this->blobs_[0], &weight_filler_);
+      //Fill(this->blobs_[0], &weight_filler_);
       // If necessary, intiialize and fill the bias term
       if (bias_term_) {
         DataShape bias_shape = dataShape(1, N_);
         this->blobs_[1]->Reshape(bias_shape);
-        Fill(this->blobs_[1], &bias_filler_);
+        this->blobs_[1]->filler_.set_type("constant");
+        this->blobs_[1]->filler_.set_value(0);
+        //Fill(this->blobs_[1], &bias_filler_);
       }
     }  // parameter initialization
     //this->param_propagate_down_.resize(this->blobs_.size(), true);

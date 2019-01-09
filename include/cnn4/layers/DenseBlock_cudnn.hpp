@@ -323,7 +323,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       if (1) {
         CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
           cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
-          gpu_get_one(), gpu_get_zero(),
+          cuda_get_one(), cuda_get_zero(),
           (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_ptr,
           (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
           BN_paramDesc,
@@ -345,7 +345,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       if (1) {
         CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
           cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
-          gpu_get_one(), gpu_get_zero(),
+          cuda_get_one(), cuda_get_zero(),
           (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_ptr,
           (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
           BN_paramDesc,
@@ -356,9 +356,9 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         );
         //update global Mean/Var manually
         //Mean:
-        gpu_caffe_axpby(numChannels, EMA_decay, local_MeanInf, Dtype(1.0 - EMA_decay), BN_globalMean);
+        cuda_caffe_axpby(numChannels, EMA_decay, local_MeanInf, Dtype(1.0 - EMA_decay), BN_globalMean);
         //Var:
-        gpu_caffe_axpby(numChannels, EMA_decay, local_VarInf, Dtype(1.0 - EMA_decay), BN_globalVar);
+        cuda_caffe_axpby(numChannels, EMA_decay, local_VarInf, Dtype(1.0 - EMA_decay), BN_globalVar);
 #define DEBUG_cudnnBatchNormalizationForwardTraining \
       LOG(INFO) << caffe_asum(numChannels, local_MeanInf); \
       LOG(INFO) << caffe_asum(numChannels, batchMean); \
@@ -372,9 +372,9 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         BatchNormalizationForwardTraining(this->N, localChannels, inner_num_, BN_x_ptr, BN_y_ptr, bnScale, bnBias, Dtype(1), local_MeanInf, local_VarInf, CUDNN_BN_MIN_EPSILON, batchMean, batchInvVar);
         //update global Mean/Var manually
         //Mean:
-        gpu_caffe_axpby(numChannels, EMA_decay, local_MeanInf, Dtype(1.0 - EMA_decay), BN_globalMean);
+        cuda_caffe_axpby(numChannels, EMA_decay, local_MeanInf, Dtype(1.0 - EMA_decay), BN_globalMean);
         //Var:
-        gpu_caffe_axpby(numChannels, EMA_decay, local_VarInf, Dtype(1.0 - EMA_decay), BN_globalVar);
+        cuda_caffe_axpby(numChannels, EMA_decay, local_VarInf, Dtype(1.0 - EMA_decay), BN_globalVar);
         //DEBUG_cudnnBatchNormalizationForwardTraining;
       }
       if (0) {
@@ -409,9 +409,9 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
     Dtype* ReLU_y_ptr = this->postReLU.gpu_mdata();
     if (0) {
       CUDNN_CHECK(cudnnActivationForward(cudnnHandlePtr, ReLUDesc,
-        gpu_get_one(),
+        cuda_get_one(),
         (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_x_ptr,
-        gpu_get_zero(),
+        cuda_get_zero(),
         (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_y_ptr)
       );
     }
@@ -432,12 +432,12 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       }
       //CONV_ALGO
       CUDNN_CHECK(cudnnConvolutionForward(cudnnHandlePtr,
-        gpu_get_one(),
+        cuda_get_one(),
         this->tensorDescriptorVec_conv_x[transitionIdx], conv_x_4G,
         this->BC_filterDescriptorVec[transitionIdx],
         this->blobs_[5 * numtransition_ + transitionIdx]->gpu_data(),
         convBC_Descriptor, BC_FwdAlgoVec[transitionIdx],
-        workspace, workspace_size_bytes, gpu_get_zero(),
+        workspace, workspace_size_bytes, cuda_get_zero(),
         quadG_tensorDesc, conv_y_4G
       ));
       //std::cout<<"BC Fwd Conv Done"<<std::endl;
@@ -452,7 +452,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       if (this->phase_ == TEST) {
         CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
           cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
-          gpu_get_one(), gpu_get_zero(),
+          cuda_get_one(), cuda_get_zero(),
           quadG_tensorDesc, BN_x_4G,
           quadG_tensorDesc, BN_y_4G,
           quadG_paramDesc,
@@ -466,7 +466,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         Dtype* BC_batchInvVar = ResultSaveInvVariance_BC[transitionIdx];
         CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
           cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
-          gpu_get_one(), gpu_get_zero(),
+          cuda_get_one(), cuda_get_zero(),
           quadG_tensorDesc, BN_x_4G,
           quadG_tensorDesc, BN_y_4G,
           quadG_paramDesc,
@@ -475,17 +475,17 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
           Dtype(1), localBC_MeanInf, localBC_VarInf, CUDNN_BN_MIN_EPSILON,
           BC_batchMean, BC_batchInvVar
         ));
-        gpu_caffe_axpby(4 * growthRate, EMA_decay, localBC_MeanInf, Dtype(1.0 - EMA_decay), BN_BC_globalMean);
-        gpu_caffe_axpby(4 * growthRate, EMA_decay, localBC_VarInf, Dtype(1.0 - EMA_decay), BN_BC_globalVar);
+        cuda_caffe_axpby(4 * growthRate, EMA_decay, localBC_MeanInf, Dtype(1.0 - EMA_decay), BN_BC_globalMean);
+        cuda_caffe_axpby(4 * growthRate, EMA_decay, localBC_VarInf, Dtype(1.0 - EMA_decay), BN_BC_globalVar);
       }
       //std::cout<<"BC Fwd BN Done"<<std::endl;
       //ReLU 4G Fwd
       Dtype* ReLU_BC_x = postBN_4G.gpu_mdata();
       Dtype* ReLU_BC_y = postReLU_4G.gpu_mdata();
       CUDNN_CHECK(cudnnActivationForward(cudnnHandlePtr, ReLUDesc,
-        gpu_get_one(),
+        cuda_get_one(),
         quadG_tensorDesc, ReLU_BC_x,
-        gpu_get_zero(),
+        cuda_get_zero(),
         quadG_tensorDesc, ReLU_BC_y
       ));
       //std::cout<<"BC Fwd ReLU Done"<<std::endl;
@@ -510,12 +510,12 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
     if (1) {
       //uutime a;
       CUDNN_CHECK(cudnnConvolutionForward(cudnnHandlePtr,
-        gpu_get_one(),
+        cuda_get_one(),
         conv_x_localDesc, conv_x_local,
         filterDescriptorVec[transitionIdx],
         this->blobs_[transitionIdx]->gpu_data(),
         conv_Descriptor, conv_FwdAlgoVec[transitionIdx],
-        workspace, workspace_size_bytes, gpu_get_zero(),
+        workspace, workspace_size_bytes, cuda_get_zero(),
         tensorDescriptor_conv_y, conv_y_local
       )
       );
@@ -543,7 +543,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       Dtype* conv_x_local = postReLU.gpu_mdata();
       Dtype* conv_y_local = this->postConv.gpu_mdata() + delayChannel * this->H * this->W;
       const Dtype* w = conv_w->gpu_data();
-      //gpu_caffe_set(conv_y_shape.count(), 0, conv_y_local);
+      //cuda_caffe_set(conv_y_shape.count(), 0, conv_y_local);
       cudnn_conv2d(conv_x_local, conv_y_local, w, NULL, conv_x_shape, conv_y_shape, conv_w->shape_.h, conv_w->shape_.w, 1, 1, 1, 1, 1, 1, 1, false);
       LOG(INFO) << a.elapsed();
       log_blob(this->postConv);
@@ -634,7 +634,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       Dtype* batchInvVar = this->ResultSaveInvVariance_gpu[transitionIdx];
       CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
         cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
-        gpu_get_one(), gpu_get_zero(),
+        cuda_get_one(), cuda_get_zero(),
         (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_ptr,
         (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_y_ptr,
         BN_paramDesc,
@@ -646,7 +646,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
 
       /*CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
       cudnnHandlePtr,CUDNN_BATCHNORM_SPATIAL,
-      gpu_get_one(),gpu_get_zero(),
+      cuda_get_one(),cuda_get_zero(),
       *(this->tensorDescriptorVec_conv_x[transitionIdx]),BN_x_ptr,
       *(this->tensorDescriptorVec_conv_x[transitionIdx]),BN_y_ptr,
       BN_paramDesc,
@@ -658,9 +658,9 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       Dtype* ReLU_x_ptr = this->postBN.gpu_mdata();
       Dtype* ReLU_y_ptr = this->postReLU.gpu_mdata();
       CUDNN_CHECK(cudnnActivationForward(cudnnHandlePtr, ReLUDesc,
-        gpu_get_one(),
+        cuda_get_one(),
         (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_x_ptr,
-        gpu_get_zero(),
+        cuda_get_zero(),
         (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_y_ptr)
       );
       if (useBC) {
@@ -671,12 +671,12 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
           Dtype* conv_x_4G = postReLU.gpu_mdata();
           Dtype* conv_y_4G = postConv_4G.gpu_mdata();
           CUDNN_CHECK(cudnnConvolutionForward(cudnnHandlePtr,
-            gpu_get_one(),
+            cuda_get_one(),
             this->tensorDescriptorVec_conv_x[transitionIdx], conv_x_4G,
             (BC_filterDescriptorVec[transitionIdx]),
             this->blobs_[5 * numtransition_ + transitionIdx]->gpu_data(),
             (convBC_Descriptor), BC_FwdAlgoVec[transitionIdx],
-            workspace, workspace_size_bytes, gpu_get_zero(),
+            workspace, workspace_size_bytes, cuda_get_zero(),
             quadG_tensorDesc, conv_y_4G
           ));
         }
@@ -691,7 +691,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         Dtype* BC_batchInvVar = ResultSaveInvVariance_BC[transitionIdx];
         CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
           cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
-          gpu_get_one(), gpu_get_zero(),
+          cuda_get_one(), cuda_get_zero(),
           quadG_tensorDesc, BN_x_4G,
           quadG_tensorDesc, BN_y_4G,
           quadG_paramDesc,
@@ -702,7 +702,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         ));
         /*CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
           localFwdHandle,CUDNN_BATCHNORM_SPATIAL,
-          gpu_get_one(),gpu_get_zero(),
+          cuda_get_one(),cuda_get_zero(),
           quadG_tensorDesc,BN_x_4G,
           quadG_tensorDesc,BN_y_4G,
           quadG_paramDesc,
@@ -714,9 +714,9 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         Dtype* ReLU_BC_x = postBN_4G.gpu_mdata();
         Dtype* ReLU_BC_y = postReLU_4G.gpu_mdata();
         CUDNN_CHECK(cudnnActivationForward(localFwdHandle, ReLUDesc,
-          gpu_get_one(),
+          cuda_get_one(),
           quadG_tensorDesc, ReLU_BC_x,
-          gpu_get_zero(),
+          cuda_get_zero(),
           quadG_tensorDesc, ReLU_BC_y
         ));
       }
@@ -744,24 +744,24 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       //Conv w.r.t. filter
       //CONV_ALGO
       CUDNN_CHECK(cudnnConvolutionBackwardFilter(cudnnHandlePtr,
-        gpu_get_one(),
+        cuda_get_one(),
         conv_x_localDesc, conv_x_local,
         (this->tensorDescriptor_conv_y), conv_dy_local,
         (this->conv_Descriptor), conv_BwdFilterAlgoVec[transitionIdx],
         this->workspace, this->workspace_size_bytes,
-        gpu_get_one(),
+        cuda_get_one(),
         (this->filterDescriptorVec[transitionIdx]), filterGrad_local
       )
       );
       //Conv w.r.t. x
         //CONV_ALGO
       CUDNN_CHECK(cudnnConvolutionBackwardData(this->extraHandles,
-        gpu_get_one(),
+        cuda_get_one(),
         this->filterDescriptorVec[transitionIdx], filterData_local,
         this->tensorDescriptor_conv_y, conv_dy_local,
         this->conv_Descriptor, conv_BwdDataAlgoVec[transitionIdx],
         this->workspace2, this->workspace_size_bytes,
-        gpu_get_zero(),
+        cuda_get_zero(),
         conv_x_localDesc, conv_dx_local
       )
       );
@@ -773,11 +773,11 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         Dtype* BC_ReLU_x_local = postBN_4G.gpu_mdata();
         Dtype* BC_ReLU_dx_local = postBN_4G.gpu_mdiff();
         CUDNN_CHECK(cudnnActivationBackward(cudnnHandlePtr, ReLUDesc,
-          gpu_get_one(),
+          cuda_get_one(),
           quadG_tensorDesc, BC_ReLU_y_local,
           quadG_tensorDesc, BC_ReLU_dy_local,
           quadG_tensorDesc, BC_ReLU_x_local,
-          gpu_get_zero(),
+          cuda_get_zero(),
           quadG_tensorDesc, BC_ReLU_dx_local
         ));
         //BC BN Bwd
@@ -791,11 +791,11 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
           cudnnBatchNormalizationBackward(
             cudnnHandlePtr,
             CUDNN_BATCHNORM_SPATIAL,
-            gpu_get_one(),
-            gpu_get_zero(),
+            cuda_get_one(),
+            cuda_get_zero(),
 #if CUDNN_VERSION >= 4005
-            gpu_get_one(),
-            gpu_get_one(),
+            cuda_get_one(),
+            cuda_get_one(),
 #endif
             quadG_tensorDesc,
             BC_BN_x_local,
@@ -822,23 +822,23 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         //Conv Bwd w.r.t. filter
         //CONV_ALGO
         CUDNN_CHECK(cudnnConvolutionBackwardFilter(cudnnHandlePtr,
-          gpu_get_one(),
+          cuda_get_one(),
           tensorDescriptorVec_conv_x[transitionIdx], BC_conv_x_local,
           quadG_tensorDesc, BC_conv_dy_local,
           convBC_Descriptor, BC_BwdFilterAlgoVec[transitionIdx],
           workspace, workspace_size_bytes,
-          gpu_get_one(),
+          cuda_get_one(),
           BC_filterDescriptorVec[transitionIdx], BC_filterGrad
         ));
         //Conv Bwd w.r.t. data
         //CONV_ALGO
         CUDNN_CHECK(cudnnConvolutionBackwardData(extraHandles,
-          gpu_get_one(),
+          cuda_get_one(),
           BC_filterDescriptorVec[transitionIdx], BC_filterData,
           quadG_tensorDesc, BC_conv_dy_local,
           convBC_Descriptor, BC_BwdDataAlgoVec[transitionIdx],
           workspace2, workspace_size_bytes,
-          gpu_get_zero(),
+          cuda_get_zero(),
           tensorDescriptorVec_conv_x[transitionIdx], BC_conv_dx_local
         ));
         //sync_streams << <1, 1 >> > ();
@@ -849,11 +849,11 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       Dtype* ReLU_dy_local = postReLU.gpu_mdiff();
       Dtype* ReLU_dx_local = postBN.gpu_mdiff();
       CUDNN_CHECK(cudnnActivationBackward(cudnnHandlePtr, ReLUDesc,
-        gpu_get_one(),
+        cuda_get_one(),
         (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_y_local,
         (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_dy_local,
         (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_x_local,
-        gpu_get_zero(),
+        cuda_get_zero(),
         (this->tensorDescriptorVec_conv_x[transitionIdx]), ReLU_dx_local)
       );
       //BN Bwd
@@ -873,9 +873,9 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       //CUDNN_CHECK(
       cudnnBatchNormalizationBackward(cudnnHandlePtr,
         CUDNN_BATCHNORM_SPATIAL,
-        gpu_get_one(), gpu_get_one(),
+        cuda_get_one(), cuda_get_one(),
 #if CUDNN_VERSION >= 4005
-        gpu_get_one(), gpu_get_one(),
+        cuda_get_one(), cuda_get_one(),
 #endif	  
         (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_x_local,
         (this->tensorDescriptorVec_conv_x[transitionIdx]), BN_dy_local,

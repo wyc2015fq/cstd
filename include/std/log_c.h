@@ -96,14 +96,23 @@ static const char* strtime(const char* fmt) {
   return buf;
 }
 
-static int log_puts(const char* s) {
-#ifdef _WIN32
-    OutputDebugString(s);
-#else
-    puts(s);
+static int dbg_puts(const char* s) {
+#if defined _WIN32 && defined _DEBUG
+  OutputDebugString(s);
 #endif
-    fappend("log.txt", s, (int)strlen(s));
-	return 0;
+  return 0;
+}
+
+static int log_puts(const char* s) {
+  const char* stime = strtime(NULL);
+  char* buf=0;
+  dbg_puts(s);
+  aprintf(&buf, 0, "[%s]%s", stime, s);
+  s = buf;
+  printf(s);
+  fappend("log.txt", s, (int)strlen(s));
+  free(buf);
+  return 0;
 }
 
 #define TRACE0(x)  log_puts(x)
@@ -113,7 +122,6 @@ static int log_puts(const char* s) {
 struct LogHelp {
 public:
   LogHelp(const char* options, const char* file, int line) {
-    const char* stime = strtime(NULL);
     char buf[256];
     //const char* fnext = path_split_filenameext(file, buf, 256);
     //stream_ << format("%s %s(%d) %s:", stime.c_str(), fnext.c_str(), line, options);
@@ -123,7 +131,7 @@ public:
   ~LogHelp() {
     stream_ << "\n";
     const char* s = stream_.str();
-	log_puts(s);
+    log_puts(s);
   }
   sstream& get() {
     return stream_;

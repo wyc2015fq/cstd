@@ -328,9 +328,9 @@ static int rng_bernoulli_fill(rng_t* r, double p, int N, double* rs)
   return 0;
 }
 
-typedef int (Vec2i)[2];
-typedef float (Vec2f)[2];
-typedef double (Vec2d)[2];
+typedef int (VEC2I)[2];
+typedef float (VEC2F)[2];
+typedef double (VEC2D)[2];
 
 ///////////////////////////// Functions Declaration //////////////////////////////////////
 /*
@@ -352,7 +352,7 @@ typedef struct DivStruct {
 #define RANDI_IMPL(T)  \
 static void randi_##T(T* arr, int len, uint64* state, const void* pv, BOOL fast_int_mode, BOOL small_flag ) {\
   if (fast_int_mode) {\
-    const Vec2i* p = (const Vec2i*)pv;\
+    const VEC2I* p = (const VEC2I*)pv;\
     uint64 temp = *state;\
     int i;\
     if (!small_flag) {  \
@@ -449,7 +449,7 @@ RANDI_IMPL(uint32)
 
 static void randi_T_fast(int* arr, int len, uint64* state, const void* pv, BOOL small_flag ) {
   typedef int T;
-  const Vec2i* p = (const Vec2i*)pv;
+  const VEC2I* p = (const VEC2I*)pv;
   uint64 temp = *state;
   int i;
   if (!small_flag) {  
@@ -539,7 +539,7 @@ static void randi_T(int* arr, int len, uint64* state, const void* pv, BOOL small
   return ;
 }
 
-static void randf_32f(float* arr, int len, uint64* state, const Vec2f* p)
+static void randf_32f(float* arr, int len, uint64* state, const VEC2F* p)
 {
   uint64 temp = *state;
   int i = 0;
@@ -564,7 +564,7 @@ static void randf_32f(float* arr, int len, uint64* state, const Vec2f* p)
   }
   *state = temp;
 }
-static void randf_64f(double* arr, int len, uint64* state, const Vec2d* p)
+static void randf_64f(double* arr, int len, uint64* state, const VEC2D* p)
 {
   uint64 temp = *state;
   int64 v = 0;
@@ -790,7 +790,7 @@ template <typename T, int intmin, int intmax>
 static void RNG_fill_unifrom(int total, T* arr, int cn, const double* p1, const double* p2, int n, uint64* state, bool saturateRange) {
   uchar _buf[BLOCK_SIZE];
   int j, fast_int_mode = 0, smallFlag = 1, blockSize=0;
-  Vec2i* ip = 0, *ip2=0;
+  VEC2I* ip = 0, *ip2=0;
   void* param = NULL;
   BUFUSEBEGIN(_buf, BLOCK_SIZE);
   BUFMALLOC2(ip, n);
@@ -863,7 +863,7 @@ static void RNG_fill_unifrom(int total, T* arr, int cn, const double* p1, const 
 }
 #endif
 static void RNG_fill_unifrom_float(int total, float* arr, int cn, const double* p1, const double* p2, int n, uint64* state) {
-  Vec2f* ip2 = 0;
+  VEC2F* ip2 = 0;
   int j, blockSize;
   uchar _buf[BLOCK_SIZE];
   BUFUSEBEGIN(_buf, BLOCK_SIZE);
@@ -890,7 +890,7 @@ static void RNG_fill_unifrom_float(int total, float* arr, int cn, const double* 
   return ;
 }
 static void RNG_fill_unifrom_double(int total, double* arr, int cn, const double* p1, const double* p2, int n, uint64* state) {
-  Vec2d* ip2 = 0;
+  VEC2D* ip2 = 0;
   int j, blockSize;
   uchar _buf[BLOCK_SIZE];
   BUFUSEBEGIN(_buf, BLOCK_SIZE);
@@ -958,9 +958,9 @@ static void RNG_fill(T* _mat, int disttype, const double* _param1, int n1, const
   enum {BLOCK_SIZE=1024};
   uchar _parambuf[BLOCK_SIZE];
   int j, k, fast_int_mode = 0, smallFlag = 1;
-  Vec2i* ip = 0;
-  Vec2d* dp = 0;
-  Vec2f* fp = 0;
+  VEC2I* ip = 0;
+  VEC2D* dp = 0;
+  VEC2F* fp = 0;
   DivStruct* ds = 0;
   uchar* mean = 0;
   uchar* stddev = 0;
@@ -1055,7 +1055,7 @@ static void RNG_fill(T* _mat, int disttype, const double* _param1, int n1, const
         }
       }
       else {
-        Vec2i* p = (Vec2i*)param;
+        VEC2I* p = (VEC2I*)param;
         for (j = 0;j < blockSize * cn;j += cn) {
           for (k = 0;k < cn;k++) {
             p[j + k] = ip[k];
@@ -1064,7 +1064,7 @@ static void RNG_fill(T* _mat, int disttype, const double* _param1, int n1, const
       }
     }
     else if (fp) {
-      Vec2f* p = (Vec2f*)param;
+      VEC2F* p = (VEC2F*)param;
       for (j = 0;j < blockSize * cn;j += cn) {
         for (k = 0;k < cn;k++) {
           p[j + k] = fp[k];
@@ -1072,7 +1072,7 @@ static void RNG_fill(T* _mat, int disttype, const double* _param1, int n1, const
       }
     }
     else {
-      Vec2d* p = (Vec2d*)param;
+      VEC2D* p = (VEC2D*)param;
       for (j = 0;j < blockSize * cn;j += cn) {
         for (k = 0;k < cn;k++) {
           p[j + k] = dp[k];

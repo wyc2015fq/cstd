@@ -9,19 +9,19 @@
 #include "math_functions.h"
 
 
+#define FUN(NAME) cuda_##NAME
 
-void gpu_caffe_memset(const size_t N, const int alpha, void* X) {
+void FUN(caffe_memset)(const size_t N, const int alpha, void* X) {
   CUDA_CHECK(cudaMemset(X, alpha, N));
 }
 
-void gpu_caffe_memcpy(const size_t N, const void* X, void* Y) {
+void FUN(caffe_memcpy)(const size_t N, const void* X, void* Y) {
   if (X != Y) {
     CUDA_CHECK(cudaMemcpy(Y, X, N, cudaMemcpyDefault));  // NOLINT(caffe/alt_fn)
   }
 }
 
-#define FUN(NAME) gpu_##NAME
-#define DEF(RET, NAME, ARGS)  RET gpu_ ## NAME ARGS
+#define DEF(RET, NAME, ARGS)  RET FUN(NAME) ARGS
 #define Stype double
 #define Dtype float
 #define CBLASFUN(NAME)  cublasS##NAME

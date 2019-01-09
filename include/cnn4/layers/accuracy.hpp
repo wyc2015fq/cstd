@@ -114,6 +114,9 @@ public:
         if (top.size() > 1) { ++nums_buffer_data[label_value]; }
         DCHECK_GE(label_value, 0);
         DCHECK_LT(label_value, num_labels);
+        if (label_value > num_labels) {
+          int asdf = 0;
+        }
         // Top-k accuracy
         std::vector<std::pair<Dtype, int> > bottom_data_vector;
         for (int k = 0; k < num_labels; ++k) {

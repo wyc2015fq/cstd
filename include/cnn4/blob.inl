@@ -144,6 +144,7 @@ cjson* ToJson() {
   cjson_AddNumberArrayToObject(param, "shape", shape_.dim, shape_.size());
   cjson_SetObjectNumber(param, "lr_mult", blob->lr_mult_);
   cjson_SetObjectNumber(param, "decay_mult", decay_mult_);
+  cjson_AddItemToObject(param, "filler", filler_.ToJson());
   cjson* data_json = cjson_GetObjectItem(param, "data");
   int count = shape_.count();
   if (count > 0) {
@@ -151,36 +152,33 @@ cjson* ToJson() {
     Dtype* data = blob->cpu_mdata();
     cjson_AddBinaryDataToObject(param, "data", data, nbytes);
   }
-  cjson_AddItemToObject(param, "filler", filler_.ToJson());
   return param;
 }
 int FromJson(cjson* param) {
   Blob* blob = this;
   DataShape shape;
-  cjson_GetObjectNumberArray(param, "shape", shape.dim, kMaxBlobAxes, 0);
   blob->lr_mult_ = cjson_GetObjectFloat(param, "lr_mult", 1);
   blob->decay_mult_ = cjson_GetObjectFloat(param, "decay_mult", 1);
-  int count = shape.count();
-  int nbytes = count * sizeof(float);
+  cjson_GetObjectNumberArray(param, "shape", shape.dim, kMaxBlobAxes, 0);
   int initok = 0;
-  blob->Reshape(shape);
-  cjson* data_json = cjson_GetObjectItem(param, "data");
-  if (data_json) {
-    Dtype* data = blob->cpu_mdata();
-    int n = cjson_GetBinaryData(data_json, data, nbytes);
-    initok = n == nbytes;
-  }
-  cjson* filler_json = cjson_GetObjectItem(param, "filler");
-  if (filler_json) {
-    filler_.fromJson(filler_json);
-  }
-  else {
-    filler_.set_type("xavier");
+  int count = shape_.count();
+  int nbytes = count * sizeof(float);
+  if (shape == shape_) {
+    //blob->Reshape(shape);
+    cjson* data_json = cjson_GetObjectItem(param, "data");
+    if (data_json) {
+      Dtype* data = blob->cpu_mdata();
+      int n = cjson_GetBinaryData(data_json, data, nbytes);
+      initok = n == nbytes;
+    }
   }
   if (!initok) {
     cjson* filler_json = cjson_GetObjectItem(param, "filler");
     if (filler_json) {
       filler_.fromJson(filler_json);
+    }
+    else {
+      filler_.set_type("xavier");
     }
     Fill(&filler_);
   }

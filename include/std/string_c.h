@@ -687,6 +687,7 @@ static char* aprintf(char** buf, int i, const char* fmt, ...)
   for (; len>=bsize; ) {
     va_list va;
     va_start(va, fmt);
+    bsize = len + 10;
     *buf = (char*)realloc((*buf), i + bsize + 1);
     len = vsnprintf((*buf)+i, bsize, fmt, va);
     va_end(va);

@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <numeric>
 
+typedef float(*f32_10_t)[1000];
+
 #if !defined(CTC_DISABLE_OMP) && !defined(APPLE)
 //#include <omp.h>
 #endif
@@ -444,24 +446,7 @@ int get_warpctc_version()
   return 2;
 }
 
-const char* ctcGetStatusString(ctcStatus_t status)
-{
-  switch (status) {
-  case CTC_STATUS_SUCCESS:
-    return "no error";
-  case CTC_STATUS_MEMOPS_FAILED:
-    return "cuda memcpy or memset failed";
-  case CTC_STATUS_INVALID_VALUE:
-    return "invalid value";
-  case CTC_STATUS_EXECUTION_FAILED:
-    return "execution failed";
-  case CTC_STATUS_UNKNOWN_ERROR:
-  default:
-    return "unknown error";
-  }
-}
-
-ctcStatus_t compute_ctc_loss_cpu(const Dtype* const activations,
+ctcStatus_t FUN(compute_ctc_loss)(const Dtype* const activations,
   Dtype* gradients,
   const int* const flat_labels,
   const int* const label_lengths,
@@ -486,8 +471,7 @@ ctcStatus_t compute_ctc_loss_cpu(const Dtype* const activations,
     CpuCTC ctc(alphabet_size, minibatch, workspace, options.num_threads,
       options.blank_label);
     if (gradients != NULL)
-      return ctc.cost_and_grad(activations, gradients,
-        costs,
+      return ctc.cost_and_grad(activations, gradients, costs,
         flat_labels, label_lengths,
         input_lengths);
     else
@@ -563,3 +547,173 @@ ctcStatus_t get_workspace_size(const int* const label_lengths,
   }
   return CTC_STATUS_SUCCESS;
 }
+
+
+void FUN(ExtractInputData)(int T_, int N_, int C_, int blank_index_, const Dtype* seq_ind_data, const Dtype* labels_data, vector<int>* flat_labels, vector<int>* label_lengths, vector<int>* input_lengths) {
+  const Dtype* seq_ind = seq_ind_data;
+  const Dtype* target_seq = labels_data;
+  flat_labels->clear();
+  flat_labels->reserve(T_ * N_);  // maximum required
+  label_lengths->resize(N_);
+  input_lengths->resize(N_);
+  // compute the sequence length and label length
+  int* seq_len = input_lengths->data();
+  int* label_len = label_lengths->data();
+  int label_offset = 0;
+  //if (blank_index_ == -1) {
+  if (blank_index_ == 0) {//modified by jxs
+    label_offset = 1;
+  }
+  for (int n = 0; n < N_; ++n) {
+    seq_len[n] = T_;  // default value is maximal allowed length
+    label_len[n] = T_;  // default value is maximal allowed length
+    const Dtype* seq = seq_ind + n;
+    const Dtype* label = target_seq + n;
+    // sequence indicators start with seq == 0.0 to indicate the start of a
+    // sequence. Skip at t = 0, so start at t = 1
+    seq += N_;
+    for (int t = 1; t < T_; ++t) {
+      if (static_cast<int>(*seq + 0.5) == 0) {
+        seq_len[n] = t;
+        break;
+      }
+      seq += N_;
+    }
+    // label indicators are negative if the sequence has ended
+    for (int t = 0; t < T_; ++t) {
+      if (*label < 0.0) {
+        label_len[n] = t;
+        break;
+      }
+      // Note that the blank label will be 0
+      flat_labels->push_back(static_cast<int>(*label + 0.5) + label_offset);
+      label += N_;
+    }
+    // if the label length is 0, the seq_len is 1 (0 following 0)
+    // set seq_len to 0 in this case aswell, to skip this example
+    if (label_len[n] == 0) {
+      CHECK_LE(seq_len[n], 1);
+      seq_len[n] = 0;
+    }
+    CHECK_LE(label_len[n], seq_len[n])
+      << "The label length must be smaller or equals the sequence length!";
+  }
+}
+
+void FUN(warp_ctc_loss_fwd)(int T_, int N_, int C_, int count, int blank_index_,
+  const Dtype* bottom0_data, Dtype* bottom0_mdiff, const Dtype* bottom1_data, 
+  const Dtype* bottom2_data, const Dtype* bottom3_data, Dtype* top) {
+  const Dtype* activations = bottom0_data;
+  Dtype* gradients = bottom0_mdiff;
+  const int alphabet_size = C_;
+  const int minibatch = N_;
+  int bottom_size = (bottom0_data != NULL)+ (bottom1_data != NULL)+ (bottom2_data != NULL)+ (bottom3_data != NULL);
+  vector<int> flat_labels_;
+  vector<int> label_lengths_;
+  vector<int> input_lengths_;
+  label_lengths_.resize(N_);
+  input_lengths_.resize(N_);
+  vector<Dtype> costs(N_);
+  flat_labels_.clear();
+  if (bottom_size == 2) {//bottom[0]=activations, bottom[1] is labels, shape: Batchsize*seq len
+    const Dtype* label_seq_d = bottom1_data;
+    int label_len_per_batch = count/N_;
+    for (int n = 0; n < N_; ++n) {
+      int curlen = 0;
+      for (int l = 0; l < label_len_per_batch; ++l) {
+        int label = (int)label_seq_d[n * label_len_per_batch + l];
+        if (label <= blank_index_) {
+          continue;
+        }
+        flat_labels_.push_back(label);
+        curlen++;
+      }
+      label_lengths_[n] = curlen;
+      input_lengths_[n] = T_;
+    }
+  }
+  else if (bottom_size == 3) {
+    FUN(ExtractInputData)(T_, N_, C_, blank_index_, bottom1_data, bottom2_data, &flat_labels_, &label_lengths_, &input_lengths_);
+  }
+  else if (bottom_size == 4) {
+    //Blob* seq_len_blob = bottom1_data;
+    //Blob* lab_len_blob = bottom2_data;
+    //Blob* label_seq_blob = bottom3_data;
+    const Dtype* seq_len_d = bottom1_data;
+    const Dtype* lab_len_d = bottom2_data;
+    const Dtype* label_seq_d = bottom3_data;
+    int accumulated = 0;
+    int label_len_per_batch = count / N_;
+    //CHECK_EQ(seq_len_blob->count(), lab_len_blob->count());
+    for (int i = 0; i < count; ++i) {
+      label_lengths_[i] = (int)lab_len_d[i];
+      input_lengths_[i] = (int)seq_len_d[i];
+      accumulated += (int)lab_len_d[i];
+    }
+    flat_labels_.clear();
+    flat_labels_.reserve(accumulated);
+    for (int n = 0; n < N_; ++n) {
+      for (int t = 0; t < label_lengths_[n]; ++t) {
+        flat_labels_.push_back((int)label_seq_d[n*label_len_per_batch + t]);
+      }
+    }
+  }
+  else {
+    LOG(FATAL) << "Unsupported blobs shape";
+  }
+  //remove repeat blank labels
+  size_t workspace_alloc_bytes_;
+  ctcOptions options;
+
+    options.loc = CTC_CPU;
+    options.num_threads = 8;
+
+  options.blank_label = blank_index_;
+  ctcStatus_t status = get_workspace_size(label_lengths_.data(),
+    input_lengths_.data(),
+    alphabet_size,
+    minibatch,
+    options,
+    &workspace_alloc_bytes_);
+  CHECK_EQ(status, CTC_STATUS_SUCCESS) << "CTC Error: " << ctcGetStatusString(status);
+  Buffer workspace_[1] = { 0 };
+  if (workspace_->size< workspace_alloc_bytes_) {
+    cpu_ReAlloc(workspace_, workspace_alloc_bytes_ * sizeof(char));
+  }
+  status = FUN(compute_ctc_loss)(activations,
+    gradients,
+    flat_labels_.data(),
+    label_lengths_.data(),
+    input_lengths_.data(),
+    alphabet_size,
+    minibatch,
+    costs.data(),
+    workspace_->data,
+    options
+  );
+  CHECK_EQ(status, CTC_STATUS_SUCCESS) << "CTC Error: " << ctcGetStatusString(status);
+  // output loss
+  Dtype loss;// = top_mdata()[0];
+  loss = 0;
+  int num = 0;
+  for (int n = 0; n < N_; ++n) {
+    if (costs[n] < std::numeric_limits<Dtype>::infinity()) {
+      loss += costs[n];
+      ++num;
+    }
+  }
+  loss /= num;
+  *top = loss;
+  Free(workspace_);
+#if 0
+  int gcnt = bottom[0]->count();
+  Dtype sumg = 0;
+  for (int i = 0; i < gcnt; i++) {
+    sumg += fabs(gradients[i]);
+  }
+  //LOG(INFO) << "mean ctc loss=" << loss << ",N_="<<N_<<",num="<<num << ", mean gradients="<<sumg/gcnt;
+#endif
+  return ;
+}
+
+

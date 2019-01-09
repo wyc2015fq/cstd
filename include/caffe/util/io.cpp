@@ -151,19 +151,7 @@ namespace caffe
   {
     cv::Mat cv_img = ReadImageToCVMat(filename, height, width, is_color);
     if (cv_img.data) {
-      if (encoding.size()) {
-        if ((cv_img.channels() == 3) == is_color && !height && !width &&
-            matchExt(filename, encoding)) {
-          return ReadFileToBlob(filename, blob_img);
-        }
-        std::vector<uchar> buf;
-        cv::imencode("." + encoding, cv_img, buf);
-        blob_img->set_data(std::string(reinterpret_cast<char*>(&buf[0]),
-                                    buf.size()));
-        blob_img->set_encoded(true);
-      } else {
-        CVMatToBlob(cv_img, blob_img);
-      }
+      CVMatToBlob(cv_img, blob_img);
       return true;
     } else {
       return false;

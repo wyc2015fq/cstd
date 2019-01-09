@@ -1,12 +1,10 @@
 
 #include "wstd/string.hpp"
 
-
-
 struct Solver : SolverBase {
-  Net* net_;
-  //Solver(Net<Dtype>* net) {    init(net);  }
-  void init(Net* net) {
+  CnnNet* net_;
+  //Solver(CnnNet<Dtype>* net) {    init(net);  }
+  void init(CnnNet* net) {
     SolverBase& base = *this;
     base = net->solver_param;
     net_ = net;
@@ -16,11 +14,10 @@ struct Solver : SolverBase {
 
   int Test()
   {
-    Net* test_net = net_;
+    CnnNet* test_net = net_;
     double loss = 0;
     vector<double> test_score;
     test_score.assign(net_->blobs_.size(), 0);
-    debug_info_ = 0;
     for (int j = 0; j < test_iter_; ++j) {
       double iter_loss = test_net->Forward(TEST);
       for (int i = 0; i < net_->blobs_.size(); ++i) {
@@ -148,7 +145,7 @@ struct Solver : SolverBase {
     return 0;
   }
 
-  int saveJson(Net* net, const char* fn) {
+  int saveJson(CnnNet* net, const char* fn) {
     cjson* root = net->ToJson();
     if (root) {
       cjson_SaveFile(fn, root);
@@ -192,41 +189,40 @@ struct SGDSolver : public Solver {
   virtual double GetLearningRate()
   {
     double rate;
-    if (lr_policy_ == LrPolicy_fixed) {
+    switch(lr_policy_) {
+    case LrPolicy_fixed:
       rate = base_lr_;
-    }
-    else if (lr_policy_ == LrPolicy_step) {
+      break;
+    case LrPolicy_step:
       this->current_step_ = this->iter_ / stepsize_;
       rate = base_lr_ * pow(gamma_, this->current_step_);
-    }
-    else if (lr_policy_ == LrPolicy_exp) {
+      break;
+    case LrPolicy_exp:
       rate = base_lr_ * pow(gamma_, this->iter_);
-    }
-    else if (lr_policy_ == LrPolicy_inv) {
+      break;
+    case LrPolicy_inv:
       rate = base_lr_ * pow(Dtype(1) + gamma_ * this->iter_, -power_);
-    }
-#if 0
-    else if (lr_policy_ == LrPolicy_multistep) {
-      CJSON* item = this->param_->GetObjectItem("stepvalue");
-      if (item) {
-        int stepvalue_size = item->GetArraySize();
-        if (this->current_step_ < stepvalue_size && this->iter_ >= item->GetArrayItem(this->current_step_)->valueint) {
+      break;
+    case LrPolicy_multistep:
+    {
+      int stepvalue_size = stepvalue.size();
+        if (this->current_step_ < stepvalue_size && this->iter_ >= this->stepvalue[current_step_]) {
           this->current_step_++;
-          LOG(INFO) << "MultiStep Status: Iteration " <<
-            this->iter_ << ", step = " << this->current_step_;
+          LOG(INFO) << "MultiStep Status: Iteration " << this->iter_ << ", step = " << this->current_step_;
         }
-      }
-      rate = base_lr_ * pow(gamma_, this->current_step_);
+        rate = base_lr_ * pow(gamma_, this->current_step_);
     }
-#endif
-    else if (lr_policy_ == LrPolicy_poly) {
+    break;
+    case LrPolicy_poly:
       rate = base_lr_ * pow(1. - (this->iter_ / max_iter_), power_);
-    }
-    else if (lr_policy_ == LrPolicy_sigmoid) {
+      break;
+    case LrPolicy_sigmoid:
       rate = base_lr_ * (1. / (1. + exp(-gamma_ * (this->iter_ - stepsize_))));
-    }
-    else {
+      break;
+    default:
       LOG(FATAL) << "Unknown learning rate policy: " << LrPolicy_Name[lr_policy_];
+      ASSERT(0);
+      break;
     }
     return rate;
   }

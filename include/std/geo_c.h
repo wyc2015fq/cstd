@@ -219,13 +219,13 @@ CC_INLINE double iRectSplit(IRECT rcIn, BOOL horz, float gap, int count, float* 
   int len = horz ? RCW(&rcIn) : RCH(&rcIn);
   int i;
   if (len <= 0) { return 0; }
-  for (i = 0; i<count; ++i) {
+  for (i = 0; i < count; ++i) {
     sum1 += v[i];
   }
   sum1 = MAX(1, sum1);
   ss = (len - gap*(count - 1)) / sum1;
   x = horz ? rcIn.l : rcIn.t;
-  for (i = 0; i<count; ++i) {
+  for (i = 0; i < count; ++i) {
     w = (ss*v[i]);
     if (horz) {
       pout[i] = iRECT((int)x, rcIn.t, (int)(x + w), rcIn.b);
@@ -242,16 +242,16 @@ CC_INLINE float iRectSplitUpdate(BOOL horz, float gap, int count, float* v, floa
   float sum1 = 0, ss;
   int i;
   UNUSED(gap);
-  for (i = 0; i<count; ++i) {
+  for (i = 0; i < count; ++i) {
     if (v[i] <= max_v) {
       if (horz) {
         sum1 += horz ? RCW(rc + i) : RCH(rc + i);
       }
     }
   }
-  if (sum1>0) {
+  if (sum1 > 0) {
     ss = 1 / sum1;
-    for (i = 0; i<count; ++i) {
+    for (i = 0; i < count; ++i) {
       if (v[i] <= max_v) {
         v[i] = (horz ? RCW(rc + i) : RCH(rc + i))*ss;
       }
@@ -376,7 +376,7 @@ CC_INLINE int iRectCut(IRECT* rc, int cmd, int d, int gap, int x, int y, int s, 
   switch (cmd) {
   case 'l':
   {
-    if (d>0) {
+    if (d > 0) {
       d = BOUND(d, s, RCW(rc));
       out->r = rc->l + d, rc->l = out->r + gap;
     }
@@ -389,7 +389,7 @@ CC_INLINE int iRectCut(IRECT* rc, int cmd, int d, int gap, int x, int y, int s, 
   break;
   case 'r':
   {
-    if (d>0) {
+    if (d > 0) {
       d = BOUND(d, s, RCW(rc));
       out->l = rc->r - d, rc->r = out->l - gap;
     }
@@ -402,7 +402,7 @@ CC_INLINE int iRectCut(IRECT* rc, int cmd, int d, int gap, int x, int y, int s, 
   break;
   case 't':
   {
-    if (d>0) {
+    if (d > 0) {
       d = BOUND(d, s, RCH(rc));
       out->b = rc->t + d, rc->t = out->b + gap;
     }
@@ -416,7 +416,7 @@ CC_INLINE int iRectCut(IRECT* rc, int cmd, int d, int gap, int x, int y, int s, 
   break;
   case 'b':
   {
-    if (d>0) {
+    if (d > 0) {
       d = BOUND(d, s, RCH(rc));
       out->t = rc->b - d, rc->b = out->t - gap;
     }
@@ -716,7 +716,7 @@ CC_INLINE int dPOLYGON_setpts_f32(DPOLYGON* s, int n, int npt, int* len, const F
 {
   int i;
   dPOLYGON_setsize(s, n, npt);
-  for (i = 0; i<npt; ++i) {
+  for (i = 0; i < npt; ++i) {
     s->pt[i].x = pt[i].x;
     s->pt[i].y = pt[i].y;
   }

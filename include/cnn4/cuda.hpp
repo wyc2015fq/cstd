@@ -13,9 +13,8 @@
 #include "cudnn.hpp"
 #endif
 
-//
 // CUDA macros
-//
+
 
 // CUDA: various checks for different function calls.
 #define CUDA_CHECK(condition) \
@@ -157,7 +156,7 @@ struct CudaObject {
 
 static CudaObject& g_cuda = CUDAOBJECT;
 
-static void gpu_set_random_seed(const unsigned int seed)
+static void cuda_set_random_seed(const unsigned int seed)
 {
   // Curand seed
   static bool g_curand_availability_logged = false;
@@ -317,9 +316,9 @@ inline int NUM_DEVICES() {
 }
 
 inline int CURRENT_DEVICE() {
-  int gpu_id;
-  cudaGetDevice(&gpu_id);
-  return gpu_id;
+  int cuda_id;
+  cudaGetDevice(&cuda_id);
+  return cuda_id;
 }
 
 inline int POINTER_DEVICE(const void* ptr) {
@@ -344,7 +343,7 @@ private:
 static int allsz = 0;
 static int freesz = 0;
 //CPUContext() { context[CPU] = this;    }
-static void gpu_ReAlloc(Buffer* ptr, size_t nbytes) {
+static void cuda_ReAlloc(Buffer* ptr, size_t nbytes) {
   //nbytes *= 10;
   ptr->brew = GPU;
   if (ptr->size < nbytes) {
@@ -369,19 +368,19 @@ static void gpu_ReAlloc(Buffer* ptr, size_t nbytes) {
   return ;
 }
 
-static void gpu_Free(Buffer* ptr) {
+static void cuda_Free(Buffer* ptr) {
   if (ptr->data) {
     cudaFree(ptr->data);
     ptr->data = NULL;
     ptr->size = 0;
   }
 }
-static void gpu_Memset(Buffer* ptr, size_t nbytes) {
+static void cuda_Memset(Buffer* ptr, size_t nbytes) {
   CHECK_LE(nbytes, ptr->size);
   cudaMemset(ptr->data, 0, nbytes);
 }
 
-static void gpu_Memcpy(Buffer* dst, const Buffer* src, int nbytes) {
+static void cuda_Memcpy(Buffer* dst, const Buffer* src, int nbytes) {
   enum cudaMemcpyKind kind;
   CHECK_LE(nbytes, src->size);
   CHECK_LE(nbytes, dst->size);

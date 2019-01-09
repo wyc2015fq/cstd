@@ -20,7 +20,7 @@
 #include "reshape.hpp"
 #include "deconv.hpp"
 #include "ctc/ctc_decoder.hpp"
-//#include "warp_ctc_loss.hpp"
+#include "warp_ctc_loss.hpp"
 #include "denseblock.hpp"
 
 #ifdef USE_CUDNN

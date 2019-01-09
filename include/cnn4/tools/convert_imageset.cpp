@@ -98,7 +98,7 @@ int save_db(const char* db_fn, const vector<string>& lines) {
       } else if ('f' == c) {
         vector<float> vec;
         str2vec(fn.c_str(), vec);
-        blob->set(NCHW, TF_F32, vec.data(), (int)vec.size(), 1);
+        blob->set(NCHW, TF_F32, vec.data(), 1, 1, (int)vec.size(), 1);
       }
     }
     // sequential
@@ -116,6 +116,9 @@ int save_db(const char* db_fn, const vector<string>& lines) {
     txn->Commit();
     LOG(INFO) << "Processed " << count << " files.";
   }
+  db->Close();
+  delete db;
+  delete txn;
   return 0;
 }
 
@@ -171,12 +174,16 @@ int test_dbread()
 
 int test_convert_imageset() {
   //test_dbread();
+#ifdef _DEBUG
   _chdir("E:/OCR_Line/chars/");
+  _chdir("E:/OCR_Line/hans/");
+  _chdir("E:/OCR_Line/lines/");
+#endif
   char* test[] = { "",
-    "test.txt", "./chars_test_lmdb","--backend=lmdb", "--typelist=if", "--resize_width=28", "--resize_height=28", "--gray=true"
+    "test.txt", "./dbtest","--backend=lmdb", "--typelist=if", "--resize_width=280", "--resize_height=32", "--gray=false"
   };
   char* train[] = { "",
-    "test.txt", "./chars_train_lmdb","--backend=lmdb", "--typelist=if", "--resize_width=28", "--resize_height=28", "--gray=true"
+    "train.txt", "./dbtrain","--backend=lmdb", "--typelist=if", "--resize_width=280", "--resize_height=32", "--gray=false"
   };
   convert_imageset(countof(test), test);
   convert_imageset(countof(train), train);

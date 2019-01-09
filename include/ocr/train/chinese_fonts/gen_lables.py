@@ -5,7 +5,7 @@ import time
 import random
 
 root = 'E:/OCR_Line/chars/'
-path = root+'fz-v4.0/'
+path = root+'images/'
 cate = [path+x for x in os.listdir(path) if os.path.isdir(path+x)]
 labels = []
 for idx, folder in enumerate(cate):
@@ -17,14 +17,18 @@ for idx, folder in enumerate(cate):
 random.shuffle(labels)
 
 
+def savelines(labels, outtxt):
+    f = open(outtxt, 'w')
+    for s in labels:
+        #print(s)
+        f.write(s+'\n')
+    f.close()
+
+
+count = len(labels)
+count_train = int(count*0.8)
+count_test = count - count_train
+
 outtxt = root+'list.txt'
-f = open(outtxt, 'w')
-for s in labels:
-    print(s)
-    f.write(s+'\n')
-
-f.close()
-
-
-
-
+savelines(labels[:count_train], root+'train.txt')
+savelines(labels[count_train:], root+'test.txt')

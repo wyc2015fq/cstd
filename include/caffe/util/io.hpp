@@ -1,6 +1,7 @@
 #ifndef CAFFE_UTIL_IO_H_
 #define CAFFE_UTIL_IO_H_
 
+#include "std/log_c.h"
 #include "wstd/filesystem.hpp"
 #include <iomanip>
 #include <iostream>  // NOLINT(readability/streams)

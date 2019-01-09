@@ -78,9 +78,9 @@ void WarpCTCLossLayer::Forward_(GPUContext* context, const vector<Blob*>& bottom
 
     ctcOptions options;
     options.loc = CTC_GPU;
-    options.blank_label = blank_index_;
     options.stream = stream;
-
+	
+    options.blank_label = blank_index_;
     ctcStatus_t status = get_workspace_size<Dtype>(label_lengths_.data(),
                                             input_lengths_.data(),
                                             alphabet_size,

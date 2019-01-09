@@ -10,7 +10,7 @@
 // #include <helper_cuda.h>
 
 // For the functors
-#include "detail/ctc_helper.h"
+#include "ctc_helper.h"
 #include "ctc.h"
 
 const int warp_size = 32;

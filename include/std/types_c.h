@@ -257,8 +257,8 @@ static void* arrcvt2d(void* dst, TypeId dsttype, int dl, const void* src, TypeId
   const char* s = (const char*)(src);
   int dw = w*(dsttype >> 16);
   int sw = w*(srctype >> 16);
-  dl = dl>0 ? dl : dw;
-  sl = sl>0 ? sl : sw;
+  dl = dl > 0 ? dl : dw;
+  sl = sl > 0 ? sl : sw;
   if (dl == dw && sl == sw) {
     return arrcvt2(dst, dsttype, src, srctype, h * w, alpha, beta);
   }
@@ -639,16 +639,16 @@ CC_INLINE int iRectInclude(IRECT r1, IRECT r2)
   return r1.l <= r2.l && r1.t <= r2.l && r1.r >= r2.r && r1.b >= r2.b;
 }
 CC_INLINE int iRectBoundUpdate(IRECT* prc, int x, int y) {
-  if (x<prc->l) {
+  if (x < prc->l) {
     prc->l = x;
   }
-  else if (x>prc->r) {
+  else if (x > prc->r) {
     prc->r = x;
   }
-  if (y<prc->t) {
+  if (y < prc->t) {
     prc->t = y;
   }
-  else if (y>prc->b) {
+  else if (y > prc->b) {
     prc->b = y;
   }
   return 0;
@@ -791,20 +791,20 @@ CC_INLINE int iPtInRectsBorder(IRECT rc, BOOL horz, int n, const float* v, int g
   float l = (float)rc.l;
   float t = (float)rc.t;
   if (horz) {
-    for (i = 0; i<(n - 1); ++i) {
+    for (i = 0; i < (n - 1); ++i) {
       float r = l + v[i];
       float l1 = r + gap;
-      if (x>(r - ex) && x<(l1 + ex) && y>rc.t && y<rc.b) {
+      if (x > (r - ex) && x<(l1 + ex) && y>rc.t && y < rc.b) {
         return i;
       }
       l = l1;
     }
   }
   else {
-    for (i = 0; i<(n - 1); ++i) {
+    for (i = 0; i < (n - 1); ++i) {
       float b = t + v[i];
       float t1 = b + gap;
-      if (y>(b - ex) && y<(t1 + ex) && x>rc.l && x<rc.r) {
+      if (y > (b - ex) && y<(t1 + ex) && x>rc.l && x < rc.r) {
         return i;
       }
       t = t1;

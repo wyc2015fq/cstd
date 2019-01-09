@@ -1,6 +1,26 @@
 #ifndef CAFFE_BASE_CONVOLUTION_LAYER_HPP_
 #define CAFFE_BASE_CONVOLUTION_LAYER_HPP_
 
+// num_output 卷积核的个数 【生成特征图的个数】
+// kernel_size 卷积核的大小
+// stride 卷积核的步长，默认为1
+// pad 扩充边缘，默认为0，不扩充 （比如卷积核的大小为55，那么pad设置为2，则四个边缘都扩充2个像素，即宽度和高度都扩充了4个像素, 如果步长为1的话，这样卷积运算之后的特征图就不会变小）
+// bias_term : true 是否开启偏置项，默认为true, 开启
+//   bias_filler : 偏置项的初始化。一般设置为"constant", 值全为0。
+//   weight_filler 权值初始化的算法方式 默认为“constant",值全为0，很多时候我们用"xavier"算法来进行初始化，也可以设置为”gaussian"
+//   例如
+//   输入：n×C0×w0×h0
+//   输出：n×C1×w1×h1
+//   其中，c1就是参数中的num_output，生成的特征图个数
+//   w1 = (w0 + 2pad - kernel_size) / stride + 1;
+// h1 = (h0 + 2 * pad - kernel_size) / stride + 1;
+// 如果设置stride为1，前后两次卷积部分存在重叠。如果设置pad = (kernel_size - 1) / 2, 则运算后，宽度和高度不变
+//
+// 卷积和反卷积的参数结构完全一样，就是计算输出的方式不太一样
+// convolution : output = (input + 2 * pads - kernal_size) / stride + 1;
+// deconvolution: output = (input - 1) * stride + kernal_size - 2 * pads
+
+
 DataShape cjson_GetShape(cjson* param, int kDefaultPad, const char* name, const char* name_h = NULL, const char* name_w = NULL) {
   DataShape pad;
   int* pad_data = pad.dim;
@@ -38,9 +58,7 @@ DEF##Bool(force_nd_im2col, false, 0) \
 DEF##Bool(bias_term, true, 0) \
 DEF##Int(axis, 1, 0) \
 DEF##Int(num_output, 0, 0) \
-DEF##Int(group, 1, 0) \
-DEF##Struct(weight_filler, 0, Filler) \
-DEF##Struct(bias_filler, 0, Filler) \
+DEF##Int(group, 1, 0)
 
 
 struct ConvolutionLayerBase : public Layer
@@ -245,11 +263,14 @@ public:
       // Initialize and fill the weights:
       // output channels x input channels per-group x kernel height x kernel width
       w->Reshape(weight_shape);
-      Fill(w, &weight_filler_);
+      w->filler_.set_type("xavier");
+      //Fill(w, &weight_filler_);
       // If necessary, initialize and fill the biases.
       if (b) {
         b->Reshape(bias_shape);
-        Fill(b, &bias_filler_);
+        b->filler_.set_type("constant");
+        b->filler_.set_value(0);
+        //Fill(b, &bias_filler_);
       }
     }
     kernel_dim_ = w->count(1);

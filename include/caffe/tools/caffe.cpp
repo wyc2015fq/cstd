@@ -1,7 +1,7 @@
 //#ifdef WITH_PYTHON_LAYER
 #include "../libcaffe.cpp"
-#include "wstd/flags.hpp"
-#include "wstd/logging.hpp"
+#include "std/flags_c.h"
+#include "std/log_c.h"
 //#include "caffe/util/logging.hpp"
 
 #include <cstring>
@@ -14,9 +14,11 @@
 #include "caffe/caffe.hpp"
 #include "caffe/util/signal_handler.h"
 
+using namespace caffe;
+
 using caffe::Blob;
 using caffe::Caffe;
-using caffe::Net;
+//using caffe::Net;
 using caffe::Layer;
 using caffe::Solver;
 //using caffe::SHARED_PTR;
@@ -25,7 +27,8 @@ using caffe::Timer;
 using caffe::vector;
 using std::ostringstream;
 
-DEFINE_string(gpu, "",
+
+DEFINE_string(gpu, "gpu",
               "Optional; run in GPU mode on given device IDs separated by ','."
               "Use '-gpu all' to run on all available GPUs. The effective training "
               "batch size is multiplied by the number of devices.");
@@ -88,7 +91,8 @@ static BrewFunction GetBrewFunction(const char* name)
 // Parse GPU ids or use all available devices
 static void get_gpus(vector<int>* gpus)
 {
-  if (FLAGS_gpu == "all") {
+  string flags_gpu = FLAGS_gpu ? FLAGS_gpu : "";
+  if (flags_gpu == "all") {
     int count = 0;
 #ifndef CPU_ONLY
     CUDA_CHECK(cudaGetDeviceCount(&count));
@@ -98,7 +102,7 @@ static void get_gpus(vector<int>* gpus)
     for (int i = 0; i < count; ++i) {
       gpus->push_back(i);
     }
-  } else if (FLAGS_gpu.size()) {
+  } else if (flags_gpu.size()!=0) {
     vector<string> strings;
     wstd::split(strings, FLAGS_gpu, (","));
     for (int i = 0; i < strings.size(); ++i) {
@@ -189,8 +193,8 @@ caffe::SolverAction::Enum GetRequestedAction(
 // Train / Finetune a model.
 int train()
 {
-  CHECK_GT(FLAGS_solver.size(), 0) << "Need a solver definition to train.";
-  CHECK(!FLAGS_snapshot.size() || !FLAGS_weights.size())
+  CHECK_NE(FLAGS_solver, 0) << "Need a solver definition to train.";
+  CHECK(!FLAGS_snapshot || !FLAGS_weights)
       << "Give a snapshot to resume training or weights to finetune "
       "but not both.";
   FLAGS_alsologtostderr = 1;
@@ -203,17 +207,17 @@ int train()
   }
   // If the gpus flag is not provided, allow the mode and device to be set
   // in the solver prototxt.
-  if (FLAGS_gpu.size() == 0
-      && solver_param.solver_mode() == caffe::SolverParameter_SolverMode_GPU) {
+  string flags_gpu = FLAGS_gpu ? FLAGS_gpu : "";
+  if (flags_gpu.size() == 0 && solver_param.solver_mode() == caffe::SolverParameter_SolverMode_GPU) {
     if (solver_param.has_device_id()) {
-      FLAGS_gpu = "" + wstd::itos(solver_param.device_id());
+      flags_gpu = "" + wstd::itos(solver_param.device_id());
     } else {  // Set default GPU if unspecified
-      FLAGS_gpu = "0";
+      flags_gpu = "0";
     }
   }
 #ifdef USE_CUDNN
-  size_t cudnn_v = cudnnGetVersion();
-  LOG(INFO) << "CUDNN version: " << cudnn_v << std::endl;
+  int cudnn_v = cudnnGetVersion();
+  LOG(INFO) << "CUDNN version: " << cudnn_v;
 #endif
   vector<int> gpus;
 #ifndef CPU_ONLY
@@ -246,10 +250,10 @@ int train()
   SHARED_PTR<caffe::Solver<float> >
   solver(caffe::SolverRegistry<float>::CreateSolver(solver_param));
   solver->SetActionFunction(signal_handler.GetActionFunction());
-  if (FLAGS_snapshot.size()) {
+  if (strlen(FLAGS_snapshot)) {
     LOG(INFO) << "Resuming from " << FLAGS_snapshot;
-    solver->Restore(FLAGS_snapshot.c_str());
-  } else if (FLAGS_weights.size()) {
+    solver->Restore(FLAGS_snapshot);
+  } else if (strlen(FLAGS_weights)) {
     CopyLayers(solver.get(), FLAGS_weights);
   }
   if (gpus.size() > 1) {
@@ -268,8 +272,8 @@ RegisterBrewFunction(train);
 // Test: score a model.
 int test()
 {
-  CHECK_GT(FLAGS_model.size(), 0) << "Need a model definition to score.";
-  CHECK_GT(FLAGS_weights.size(), 0) << "Need model weights to score.";
+  CHECK_GT(strlen(FLAGS_model), 0) << "Need a model definition to score.";
+  CHECK_GT(strlen(FLAGS_weights), 0) << "Need model weights to score.";
   vector<string> stages = get_stages_from_flags();
   // Set device id and mode
   vector<int> gpus;
@@ -339,7 +343,7 @@ RegisterBrewFunction(test);
 // Time: benchmark the execution time of a model.
 int time()
 {
-  CHECK_GT(FLAGS_model.size(), 0) << "Need a model definition to time.";
+  CHECK_GT(strlen(FLAGS_model), 0) << "Need a model definition to time.";
   caffe::Phase phase = get_phase_from_flags(caffe::TRAIN);
   vector<string> stages = get_stages_from_flags();
   // Set device id and mode
@@ -404,10 +408,10 @@ int time()
   LOG(INFO) << "Average time per layer: ";
   for (int i = 0; i < layers.size(); ++i) {
     const caffe::string & layername = layers[i]->layer_param().name();
-    LOG(INFO) << std::setfill(' ') << std::setw(10) << layername <<
+    LOG(INFO) << wstd::format("%10s", layername) <<
               "\tforward: " << forward_time_per_layer[i] / 1000 /
               FLAGS_iterations << " ms.";
-    LOG(INFO) << std::setfill(' ') << std::setw(10) << layername  <<
+    LOG(INFO) << wstd::format("%10s", layername) <<
               "\tbackward: " << backward_time_per_layer[i] / 1000 /
               FLAGS_iterations << " ms.";
   }
@@ -429,9 +433,9 @@ int test_caffe(int argc, char** argv)
   // Print output to stderr (while still logging).
   FLAGS_alsologtostderr = 1;
   // Set version
-  wstd::SetVersionString(AS_STRING(CAFFE_VERSION));
+  SetVersionString(AS_STRING(CAFFE_VERSION));
   // Usage message.
-  wstd::SetUsageMessage("command line brew\n"
+  SetUsageMessage("command line brew\n"
                           "usage: caffe <command> <args>\n\n"
                           "commands:\n"
                           "  train           train or finetune a model\n"
@@ -441,7 +445,7 @@ int test_caffe(int argc, char** argv)
   // Run tool or show usage.
   caffe::GlobalInit(argc, argv);
   if (argc <= 2) {
-    wstd::ShowUsageWithFlagsRestrict(argv[0], "tools/caffe");
+    ShowUsageWithFlagsRestrict(argv[0], "tools/caffe");
     return 0;
   }
   int ret = GetBrewFunction(argv[1])();

@@ -8,6 +8,7 @@
 #include "cpu.hpp"
 struct cjson;
 
+#include "layers/ctc/ctc.h"
 
 //struct CPUContext;
 //struct GPUContext;
@@ -81,6 +82,8 @@ DEF(void, dropout_backward, (const int n, const Dtype* in_diff, const unsigned i
 DEF(void, transpose, (const int nthreads, const Dtype* from_data, Dtype* to_data, const DataShape from_counts, const DataShape to_counts, const DataShape map, const int num_axes)) \
 DEF(void, BatchNormalizationForwardInference, (int num, int channels, int inner_num_, const Dtype *x, Dtype *y, const Dtype *bnScale, const Dtype *bnBias, const Dtype *estimatedMean, const Dtype *estimatedVariance, Stype epsilon)) \
 DEF(void, BatchNormalizationForwardTraining, (int N, int C, int M, Dtype* X, Dtype* Y, const Dtype* scaler, const Dtype* bias, Stype factor, Dtype* runningMean, Dtype* runningVar, Stype epsilon, Dtype* batchMean, Dtype* batchVar)) \
+DEF(void, warp_ctc_loss_fwd, (int T_, int N_, int C_, int count, int blank_index_, const Dtype* bottom0_data, Dtype* bottom0_mdiff, const Dtype* bottom1_data, const Dtype* bottom2_data, const Dtype* bottom3_data, Dtype* top)) \
+
 //
 #define _MATH_FUNCTIONS_TYPE_CPU_DEF(DEF, Dtype, Stype)  \
 DEF(void, caffe_rng_bernoulli, (const int n, const Stype p, int* r)) \
@@ -107,14 +110,26 @@ _MATH_FUNCTIONS_TYPE_CPU_DEF(DEF, float, double)
 #undef DEF
 
 #ifndef CPU_ONLY
-#define DEF(RET, NAME, ARGS)  RET gpu_ ## NAME ARGS;
+#ifdef USE_CUDA
+#define DEF(RET, NAME, ARGS)  RET cuda_ ## NAME ARGS;
 _MATH_FUNCTIONS_MEM_CPU_GPU_DEF(DEF)
 _MATH_FUNCTIONS_TYPE_CPU_DEF(DEF, float, double)
 #undef DEF
-#define DEF(RET, NAME, ARGS)  typedef RET (*NAME ## t) ARGS;static NAME ## t NAME = (NAME ## t)gpu_ ## NAME;
+#define DEF(RET, NAME, ARGS)  typedef RET (*NAME ## t) ARGS;static NAME ## t NAME = (NAME ## t)cuda_ ## NAME;
 _MATH_FUNCTIONS_MEM_CPU_GPU_DEF(DEF)
 _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF, void, double)
 #undef DEF
+#endif
+#ifdef USE_OCL
+#define DEF(RET, NAME, ARGS)  RET ocl_ ## NAME ARGS;
+_MATH_FUNCTIONS_MEM_CPU_GPU_DEF(DEF)
+_MATH_FUNCTIONS_TYPE_CPU_DEF(DEF, float, double)
+#undef DEF
+#define DEF(RET, NAME, ARGS)  typedef RET (*NAME ## t) ARGS;static NAME ## t NAME = (NAME ## t)ocl_ ## NAME;
+_MATH_FUNCTIONS_MEM_CPU_GPU_DEF(DEF)
+_MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF, void, double)
+#undef DEF
+#endif
 #else
 #define DEF(RET, NAME, ARGS)  typedef RET (*NAME ## t) ARGS;static NAME ## t NAME = (NAME ## t)cpu_ ## NAME;
 _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF, void, double)

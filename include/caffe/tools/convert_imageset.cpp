@@ -18,6 +18,7 @@
 #include <direct.h>
 
 #include "caffe/proto/caffe_proto.h"
+#include "caffe/proto/caffe.pb.cc"
 #include "caffe/util/db.hpp"
 #include "caffe/util/io.hpp"
 #include "caffe/util/rng.hpp"
@@ -43,6 +44,7 @@
 #include "wstd/filesystem.hpp"
 
 using namespace std;
+using namespace wstd;
 using namespace caffe;  // NOLINT(build/namespaces)
 using std::pair;
 
@@ -140,7 +142,7 @@ int save_db(const char* db_fn, const char* encode_type, bool is_color, const cha
       } else if ('f' == c) {
         vector<float> vec;
         str2vec(fn.c_str(), vec);
-        Blob_NCHW(blob, false, vec.data(), (int)vec.size());
+        Blob_NCHW(blob, false, vec.data(), 1, 1, (int)vec.size());
       }
     }
     // sequential
@@ -311,8 +313,8 @@ int convert_db(int argc, char** argv)
       std::transform(enc.begin(), enc.end(), enc.begin(), ::tolower);
     }
     status = ReadImageToBlob(root_folder + lines[line_id].first, resize_height, resize_width, is_color, enc, blob_img);
-    LabelsToBlob(lines[line_id].second, blob_labels);
     if (status == false) { continue; }
+    LabelsToBlob(lines[line_id].second, blob_labels);
     if (check_size) {
       if (!data_size_initialized) {
         data_size = blob_channels(*blob_img) * blob_height(*blob_img) * blob_width(*blob_img);
@@ -369,7 +371,8 @@ int read2img_db(int argc, char** argv)
     Datum datum;
     // TODO deserialize in-place instead of copy?
     datum.ParseFromString(cursor->value());
-    cv::Mat img = DecodeDatumToCVMat(datum.blob(0), true);
+    //cv::Mat img;
+    // = DecodeDatumToCVMat(datum.blob(0), true);
     char name[100];
     sprintf(name, "%05d.png", i);
     ofs << name;
@@ -381,7 +384,7 @@ int read2img_db(int argc, char** argv)
     }
     ofs << std::endl;
     string dstfile = dstfolder + name;
-    cv::imwrite(dstfile, img);
+    //cv::imwrite(dstfile, img);
     // go to the next iter
     cursor->Next();
     if (!cursor->valid()) {
@@ -393,26 +396,26 @@ int read2img_db(int argc, char** argv)
 
 int convert_imageset(int argc, char** argv)
 {
-#ifdef USE_OPENCV
   InitGoogleLogging(argv[0]);
   // Print output to stderr (while still logging)
   FLAGS_alsologtostderr = 1;
   //FLAGS_alsologtostderr
-#ifdef _DEBUG
-  const char* path;
-  path = "C:/caffe_train/ocr";
-  path = "E:/data/ew_id/mtcnn/48";
-  _chdir(path);
-  char* imdir = "E:/data/ew_id/mtcnn/48/";
-  char* argv_[] = {"<bin>", imdir, "images/train.txt", "lmdb/train1", "--gray=false", "--resize_width=48", "--resize_height=48", "--typelist=ifff" };
-    argc = countof(argv_);
-    argv = argv_;
-#endif
   convert_db_mutil(argc, argv);
   //read_db(argv_[3]);
   //convert_db(argc, argv);
-#else
-  LOG(FATAL) << "This tool requires OpenCV; compile with USE_OPENCV.";
-#endif  // USE_OPENCV
+  //LOG(FATAL) << "This tool requires OpenCV; compile with USE_OPENCV.";
+  return 0;
+}
+
+int test_convert_imageset() {
+  const char* path = 0;
+  if (1) {
+    path = "C:/caffe_train/ocr";
+    path = "E:/OCR_Line/lines/densenet-no-blstm_caffe";
+    _chdir(path);
+    char* argv[] = { "<bin>", "", "../train.txt", "dbtrain", "--gray=false", "--resize_width=280", "--resize_height=32", "--typelist=if" };
+    int argc = countof(argv);
+    convert_imageset(argc, argv);
+  }
   return 0;
 }

@@ -19,7 +19,7 @@ void Lock() {}
 void Unlock() {}
 void InitMutex() {}
 
-void set_debug_info(int level) {
+void cnnnet_set_debug_info(int level) {
   debug_info_ = level;
 }
 
@@ -62,7 +62,7 @@ struct DevMem {
   }
   DevMem() { init(); }
   ~DevMem() { free(); }
-
+  int size() const {    return nbytes_;  }
   void* to(Brew brew, MemStage state) {
     if (CPU == brew) {
       switch (state_) {
@@ -118,7 +118,9 @@ struct DevMem {
   void* gpu_mptr() {    return to(GPU, AT_GPU);  }
 
   void* ptr(Brew brew) { return to(brew, SYNCED); }
-  void* mptr(Brew brew) { return to(brew, brew==CPU ? AT_CPU : AT_GPU); }
+  void* mptr(Brew brew) { return to(brew, brew == CPU ? AT_CPU : AT_GPU); }
+  void* ptr() { return to(BREW, SYNCED); }
+  void* mptr() { return to(BREW, BREW == CPU ? AT_CPU : AT_GPU); }
 
   void reset(size_t size) {
     nbytes_ = (int)size;
@@ -170,12 +172,12 @@ typedef float Dtype;
 
 #define FILLER_PARAM_DEF(DEF) \
 DEF##Enum(type, FillerMethod_constant, FillerMethod) \
+DEF##Int(sparse, -1, 0) \
 DEF##Float(value, 0, 0) \
 DEF##Float(min, 0, 0) \
 DEF##Float(max, 1, 0) \
 DEF##Float(mean, 0, 0) \
 DEF##Float(std, 1, 0) \
-DEF##Float(sparse, -1, 0) \
 DEF##Enum(variance_norm, FAN_IN, VarianceNorm)
 
 #define STRUCT_DEF_DEF1(STRUCT_DEF)  \
@@ -200,8 +202,6 @@ struct Filler {
     FILLER_PARAM_DEF(Set);
   }
 
-
-
   Filler() {
     init();
   }
@@ -223,31 +223,23 @@ struct Filler {
     //Blob::Dtype* data = blob->cpu_mdata();
     switch (type_) {
     case FillerMethod_constant:
-      CHECK_EQ(sparse_, -1)
-        << "Sparsity not supported by this Filler.";
       return cpu_ConstantFiller(shape, data, value_);
     case FillerMethod_gaussian:
       return (cpu_GaussianFiller)(shape, data, mean_, std_, sparse_);
 
     case FillerMethod_positive_unitball:
-      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
       return (cpu_PositiveUnitballFiller)(shape, data);
 
     case FillerMethod_uniform:
-      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
       return (cpu_UniformFiller)(shape, data, min_, max_);
 
     case FillerMethod_xavier:
-      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
       return (cpu_XavierFiller)(shape, data, variance_norm_);
 
     case FillerMethod_msra:
-      CHECK_EQ(sparse_, -1) << "Sparsity not supported by this Filler.";
       return (cpu_MSRAFiller)(shape, data, variance_norm_);
 
     case FillerMethod_bilinear:
-      CHECK_EQ(sparse_, -1)
-        << "Sparsity not supported by this Filler.";
       return (cpu_BilinearFiller)(shape, data);
 
     default:
@@ -259,13 +251,25 @@ struct Filler {
 
 };
 
+// 参数说明
+// name 根据网络总的位置可自定义一个相关的名字
+// type Convolution caffe内置的卷积层
+// bottle 前一层的输入
+// top 这一层的输出
+
+// param 设置通用参数
+// lr_mult 学习率系数， 最终学习率是lr_multsolver.prototxt配置文件中的base_lr
+// decay_mult 权值衰减 最终权值衰减decay_multsolver.prototxt的weight_dacay
+// 所以权值更新 wi = wi - (base_lr * lr_mult) *dwi - (weight_dacay * decay_mult) * wi(dwi是误差关于wi的偏导数)
+// 如果有两个lr_mult, 则第一个表示权值的学习率，第二个表示偏置项的学习率。
+
 enum { MAX_NAME = 64 };
 struct Blob {
   typedef Dtype Dtype;
   char name_[MAX_NAME];
   Dtype loss_weight_;
   Dtype loss_;
-  Dtype lr_mult_;
+  Dtype lr_mult_; 
   Dtype decay_mult_;
   Filler filler_;
 #if 0
@@ -308,6 +312,7 @@ struct Blob {
     bottom_cnt_ = top_cnt_ = 0;
     propagate_down_ = true;
     loss_weight_ = 0;
+    filler_.init();
   }
   ~Blob() {
     free();
@@ -385,6 +390,9 @@ struct Blob {
     DataShape shape = blob->shape_;
     Dtype* data = blob->cpu_mdata();
     return filler->Fill(shape, data);
+  }
+  int Fill() {
+    return Fill(&filler_);
   }
 
 #include "blob.inl"
@@ -561,6 +569,7 @@ DEF##Enum(regularization_type, RegularizationType_L2, RegularizationType) \
 DEF##Enum(lr_policy, LrPolicy_inv, LrPolicy) \
 
 struct SolverBase {
+  vector<int>  stepvalue;
   SolverBase_DEF(Def);
   char snapshot_prefix_[256];
   void init() {
@@ -580,18 +589,19 @@ struct SolverBase {
   }
 };
 
-struct Net {
+struct CnnNet {
   SolverBase solver_param;
   //cJSON* param_;
   vector<Layer* > layers_;
   vector<Blob* > blobs_;
   int size() { return (int)layers_.size(); }
-  Net() {
+  CnnNet() {
     init();
   }
   void init() {
     //param_ = NULL;
     reset(0);
+    solver_param.init();
   }
   void Free() {
     reset(0);

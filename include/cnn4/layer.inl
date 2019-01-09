@@ -125,10 +125,17 @@ struct Layer {
     layer->SetUp(layer->bottom_vecs_, layer->top_vecs_);
     if (blobs_json) {
       int blob_size = cjson_GetArraySize(blobs_json);
-      layer->reset(blob_size);
+      blob_size = MIN(blob_size, layer->blobs_.size());
+      //layer->reset(blob_size);
       for (int j = 0; j < blob_size; ++j) {
         cjson* blob_json = cjson_GetArrayItem(blobs_json, j);
         layer->blobs_[j]->FromJson(blob_json);
+      }
+    }
+    else {
+      int blob_size = layer->blobs_.size();
+      for (int j = 0; j < blob_size; ++j) {
+        layer->blobs_[j]->Fill();
       }
     }
     {

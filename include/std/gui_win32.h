@@ -1,5 +1,26 @@
 
+#ifndef _GUI_WIN32_H_
+#define _GUI_WIN32_H_
 
+///////////////////////////////////////////////////////////////////////////////////////////
+#include <winuser.h>
+#include <commctrl.h>
+#include <CommDlg.h>
+#ifdef _MSC_VER
+#pragma warning(disable : 4305)
+#pragma warning(disable : 4996)
+#pragma warning(disable : 4819)
+#pragma warning(disable : 4018)
+
+// kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib
+#pragma comment(lib, "comdlg32.lib")
+#pragma comment(lib, "gdi32.lib")
+#pragma comment(lib, "comctl32.lib")
+#pragma comment(lib, "advapi32.lib")
+#pragma comment(lib, "kernel32.lib")
+#pragma comment(lib, "user32.lib")
+#endif // _MSC_VER
+///////////////////////////////////////////////////////////////////////////////////////////
 #ifndef AC_SRC_ALPHA
 #define AC_SRC_ALPHA 0x01
 #endif
@@ -10,7 +31,7 @@
 #pragma warning( disable: 4710 )
 #endif
 
-typedef int (* CvWin32WindowCB)(HWND, UINT, WPARAM, LPARAM, int*);
+typedef int(*CvWin32WindowCB)(HWND, UINT, WPARAM, LPARAM, int*);
 static const char* trackbar_text = " ";
 static const char* icvWindowPosRootKey = "Software\\OpenCV\\HighGUI\\Windows\\";
 
@@ -33,7 +54,7 @@ static const char* icvWindowPosRootKey = "Software\\OpenCV\\HighGUI\\Windows\\";
 #define CC_HCURSOR GCL_HCURSOR
 #define CC_HBRBACKGROUND GCL_HBRBACKGROUND
 struct CvWindow;
-typedef int (*notify2_t)(int, int*);;
+typedef int(*notify2_t)(int, int*);;
 typedef struct CvTrackbar {
   int signature;
   HWND hwnd;
@@ -44,7 +65,7 @@ typedef struct CvTrackbar {
   int* data;
   int pos;
   int maxval;
-  int (*notify)(int);
+  int(*notify)(int);
   notify2_t notify2;
   int* userdata;
   int id;
@@ -143,12 +164,12 @@ static int InitSystem(int a, char** b)
     wndc.lpszMenuName = highGUIclassName;
     wndc.hIcon = LoadIcon(0, IDI_APPLICATION);
     //wndc.hCursor = ( HCURSOR ) LoadCursorA( 0, ( LPSTR ) ( size_t ) IDC_CROSS );
-    wndc.hCursor = (HCURSOR) LoadCursorA(0, (char*)(size_t) IDC_ARROW);
-    wndc.hbrBackground = (HBRUSH) GetStockObject(GRAY_BRUSH);
+    wndc.hCursor = (HCURSOR)LoadCursorA(0, (char*)(size_t)IDC_ARROW);
+    wndc.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
     RegisterClassA(&wndc);
     wndc.lpszClassName = mainHighGUIclassName;
     wndc.lpszMenuName = mainHighGUIclassName;
-    wndc.hbrBackground = (HBRUSH) GetStockObject(GRAY_BRUSH);
+    wndc.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
     wndc.lpfnWndProc = MainWindowProc;
     RegisterClassA(&wndc);
     atexit(icvCleanupHighgui);
@@ -174,13 +195,13 @@ BOOL CreateCaret1(HBITMAP hBitmap, int nWidth, int nHeight)
 }
 POINT GetCaretPos1()
 {
-  POINT pt = {0, 0};
+  POINT pt = { 0, 0 };
   GetCaretPos(&pt);
   return pt;
 }
 BOOL CreateSolidCaret1(int nWidth, int nHeight)
 {
-  return focus_window ? CreateCaret(focus_window->hwnd, (HBITMAP) 0, nWidth, nHeight) : 0;
+  return focus_window ? CreateCaret(focus_window->hwnd, (HBITMAP)0, nWidth, nHeight) : 0;
 }
 BOOL ShowCaret1()
 {
@@ -197,15 +218,15 @@ BOOL SetCaretPos1(POINT pt)
 #endif
 static CvWindow* icvWindowByHWND(HWND hwnd)
 {
-  CvWindow* window = (CvWindow*) GetWindowLongPtrA(hwnd, GWLP_USERDATA);
+  CvWindow* window = (CvWindow*)GetWindowLongPtrA(hwnd, GWLP_USERDATA);
   return window != 0 && hg_windows != 0 &&
-      window->signature == CC_WINDOW_MAGIC_VAL ? window : 0;
+    window->signature == CC_WINDOW_MAGIC_VAL ? window : 0;
 }
 static CvTrackbar* icvTrackbarByHWND(HWND hwnd)
 {
-  CvTrackbar* trackbar = (CvTrackbar*) GetWindowLongPtrA(hwnd, GWLP_USERDATA);
+  CvTrackbar* trackbar = (CvTrackbar*)GetWindowLongPtrA(hwnd, GWLP_USERDATA);
   return trackbar != 0 && trackbar->signature == CC_TRACKBAR_MAGIC_VAL &&
-      trackbar->hwnd == hwnd ? trackbar : 0;
+    trackbar->hwnd == hwnd ? trackbar : 0;
 }
 // Window positions saving/loading added by Philip Gruebele.
 //<a href="mailto:pgruebele@cox.net">pgruebele@cox.net</a>
@@ -213,8 +234,8 @@ static CvTrackbar* icvTrackbarByHWND(HWND hwnd)
 static int icvLoadWindowPos(const char* name, IRECT* prect)
 {
   HKEY hkey;
-  char szKey[ 1024 ];
-  IRECT rect = {100, 100, 500, 500};
+  char szKey[1024];
+  IRECT rect = { 100, 100, 500, 500 };
   int def = 640;
   strcpy(szKey, icvWindowPosRootKey);
   strcat(szKey, name);
@@ -222,20 +243,20 @@ static int icvLoadWindowPos(const char* name, IRECT* prect)
     // Yes we are installed.
     DWORD dwType = 0;
     DWORD dwSize = sizeof(int);
-    RegQueryValueExA(hkey, "Left", NULL, &dwType, (BYTE*) & rect.l, &dwSize);
-    RegQueryValueExA(hkey, "Top", NULL, &dwType, (BYTE*) & rect.t, &dwSize);
-    RegQueryValueExA(hkey, "Right", NULL, &dwType, (BYTE*) & rect.r, &dwSize);
-    RegQueryValueExA(hkey, "Bottom", NULL, &dwType, (BYTE*) & rect.b, &dwSize);
-    if (rect.l != (int) CW_USEDEFAULT && (rect.l < -200 || rect.l > 3000)) {
+    RegQueryValueExA(hkey, "Left", NULL, &dwType, (BYTE*)& rect.l, &dwSize);
+    RegQueryValueExA(hkey, "Top", NULL, &dwType, (BYTE*)& rect.t, &dwSize);
+    RegQueryValueExA(hkey, "Right", NULL, &dwType, (BYTE*)& rect.r, &dwSize);
+    RegQueryValueExA(hkey, "Bottom", NULL, &dwType, (BYTE*)& rect.b, &dwSize);
+    if (rect.l != (int)CW_USEDEFAULT && (rect.l < -200 || rect.l > 3000)) {
       rect.l = 100;
     }
-    if (rect.r != (int) CW_USEDEFAULT && (rect.r < -200 || rect.r > 3000)) {
+    if (rect.r != (int)CW_USEDEFAULT && (rect.r < -200 || rect.r > 3000)) {
       rect.r = 100 + def;
     }
-    if (rect.t != (int) CW_USEDEFAULT && (rect.t < -200 || rect.t > 3000)) {
+    if (rect.t != (int)CW_USEDEFAULT && (rect.t < -200 || rect.t > 3000)) {
       rect.t = 100;
     }
-    if (rect.b != (int) CW_USEDEFAULT && (rect.b < -200 || rect.b > 3000)) {
+    if (rect.b != (int)CW_USEDEFAULT && (rect.b < -200 || rect.b > 3000)) {
       rect.b = 100 + def;
     }
     RegCloseKey(hkey);
@@ -250,18 +271,18 @@ static int icvSaveWindowPos(const char* name, IRECT rect)
 {
   static const DWORD MAX_RECORD_COUNT = 100;
   HKEY hkey;
-  char szKey[ 1024 ];
-  char rootKey[ 1024 ];
+  char szKey[1024];
+  char rootKey[1024];
   strcpy(szKey, icvWindowPosRootKey);
   strcat(szKey, name);
   if (RegOpenKeyExA(HKEY_CURRENT_USER, szKey, 0, KEY_READ, &hkey) != ERROR_SUCCESS) {
     HKEY hroot;
     DWORD count = 0;
     FILETIME oldestTime = { UINT_MAX, UINT_MAX };
-    char oldestKey[ 1024 ];
-    char currentKey[ 1024 ];
+    char oldestKey[1024];
+    char currentKey[1024];
     strcpy(rootKey, icvWindowPosRootKey);
-    rootKey[ strlen(rootKey) - 1 ] = '\0';
+    rootKey[strlen(rootKey) - 1] = '\0';
     if (RegCreateKeyExA(HKEY_CURRENT_USER, rootKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ + KEY_WRITE, 0, &hroot, NULL) != ERROR_SUCCESS)
       //RegOpenKeyEx( HKEY_CURRENT_USER,rootKey,0,KEY_READ,&hroot) != ERROR_SUCCESS )
     {
@@ -276,8 +297,8 @@ static int icvSaveWindowPos(const char* name, IRECT rect)
       }
       count++;
       if (oldestTime.dwHighDateTime > accesstime.dwHighDateTime ||
-          (oldestTime.dwHighDateTime == accesstime.dwHighDateTime &&
-              oldestTime.dwLowDateTime > accesstime.dwLowDateTime)) {
+        (oldestTime.dwHighDateTime == accesstime.dwHighDateTime &&
+          oldestTime.dwLowDateTime > accesstime.dwLowDateTime)) {
         oldestTime = accesstime;
         strcpy(oldestKey, currentKey);
       }
@@ -296,10 +317,10 @@ static int icvSaveWindowPos(const char* name, IRECT rect)
       return 0;
     }
   }
-  RegSetValueExA(hkey, "Left", 0, REG_DWORD, (BYTE*) & rect.l, sizeof(rect.l));
-  RegSetValueExA(hkey, "Top", 0, REG_DWORD, (BYTE*) & rect.t, sizeof(rect.t));
-  RegSetValueExA(hkey, "Right", 0, REG_DWORD, (BYTE*) & rect.r, sizeof(rect.r));
-  RegSetValueExA(hkey, "Bottom", 0, REG_DWORD, (BYTE*) & rect.b, sizeof(rect.b));
+  RegSetValueExA(hkey, "Left", 0, REG_DWORD, (BYTE*)& rect.l, sizeof(rect.l));
+  RegSetValueExA(hkey, "Top", 0, REG_DWORD, (BYTE*)& rect.t, sizeof(rect.t));
+  RegSetValueExA(hkey, "Right", 0, REG_DWORD, (BYTE*)& rect.r, sizeof(rect.r));
+  RegSetValueExA(hkey, "Bottom", 0, REG_DWORD, (BYTE*)& rect.b, sizeof(rect.b));
   RegCloseKey(hkey);
   return 0;
 }
@@ -342,7 +363,7 @@ static int ChangeMode_W32(const char* name, double prop_value) //Yannick Verdie
     if (window->status == CC_WINDOW_FULLSCREEN && prop_value == CC_WINDOW_NORMAL) {
       icvLoadWindowPos(window->name, &position);
       SetWindowLongPtr(window->frame, GWL_STYLE, dwStyle | WS_CAPTION);
-      SetWindowPos(window->frame, HWND_TOP, position.l, position.t , RCW(&position), RCH(&position), SWP_NOZORDER | SWP_FRAMECHANGED);
+      SetWindowPos(window->frame, HWND_TOP, position.l, position.t, RCW(&position), RCH(&position), SWP_NOZORDER | SWP_FRAMECHANGED);
       window->status = CC_WINDOW_NORMAL;
       EXIT;
     }
@@ -362,7 +383,7 @@ static int ChangeMode_W32(const char* name, double prop_value) //Yannick Verdie
       //fullscreen
       position = *(IRECT*)&mi.rcMonitor;
       SetWindowLongPtr(window->frame, GWL_STYLE, dwStyle & ~WS_CAPTION);
-      SetWindowPos(window->frame, HWND_TOP, position.l, position.t , RCW(&position), RCH(&position), SWP_NOZORDER | SWP_FRAMECHANGED);
+      SetWindowPos(window->frame, HWND_TOP, position.l, position.t, RCW(&position), RCH(&position), SWP_NOZORDER | SWP_FRAMECHANGED);
       window->status = CC_WINDOW_FULLSCREEN;
       EXIT;
     }
@@ -408,7 +429,7 @@ int NamedWindow(const char* name, int flags)
   }
   icvLoadWindowPos(name, &rect);
   mainhWnd = CreateWindowA("Main HighGUI struct", name, defStyle | WS_OVERLAPPED,
-      rect.l, rect.t, RCW(&rect), RCH(&rect), 0, 0, hg_hinstance, 0);
+    rect.l, rect.t, RCW(&rect), RCH(&rect), 0, 0, hg_hinstance, 0);
   if (!mainhWnd) {
     CC_ERROR(CC_StsError, "Frame window can not be created");
   }
@@ -419,8 +440,8 @@ int NamedWindow(const char* name, int flags)
     CC_ERROR(CC_StsError, "Frame window can not be created");
   }
   ShowWindow(hwnd, SW_SHOW);
-  len = (int) strlen(name);
-  CC_CALL(window = (CvWindow*) malloc(sizeof(CvWindow) + len + 1));
+  len = (int)strlen(name);
+  CC_CALL(window = (CvWindow*)malloc(sizeof(CvWindow) + len + 1));
   memset(window, 0, sizeof(CvWindow));
   window->signature = CC_WINDOW_MAGIC_VAL;
   window->hwnd = hwnd;
@@ -453,7 +474,7 @@ int NamedWindow(const char* name, int flags)
 static int icvRemoveWindow(CvWindow* window)
 {
   CvTrackbar* trackbar = NULL;
-  IRECT wrect = {0, 0, 0, 0};
+  IRECT wrect = { 0, 0, 0, 0 };
   if (window->frame) {
     GetWindowRect(window->frame, (RECT*)&wrect);
   }
@@ -552,26 +573,114 @@ static IRECT icvCalcWindowRect(CvWindow* window)
   rect.r -= gutter;
   return rect;
 }
+
+
+#define  BMPMARK(A)  (((A)+3)&~3)
+
+// returns TRUE if there is a problem such as ERROR_IO_PENDING.
+static BOOL GetBitmapData(HDC dc, int* pwidth, int* pheight, int* channels, int** data)
+{
+  BITMAP bmp;
+  HGDIOBJ h;
+  GdiFlush();
+  h = GetCurrentObject(dc, OBJ_BITMAP);
+
+  if (pwidth) {
+    *pwidth = 0;
+  }
+  if (pheight) {
+    *pheight = 0;
+  }
+
+
+  if (data) {
+    *data = 0;
+  }
+
+  if (h == NULL) {
+    return TRUE;
+  }
+
+  if (GetObject(h, sizeof(bmp), &bmp) == 0) {
+    return TRUE;
+  }
+
+  if (pwidth) {
+    *pwidth = abs(bmp.bmWidth);
+  }
+  if (pheight) {
+    *pheight = abs(bmp.bmHeight);
+  }
+
+  if (channels) {
+    *channels = bmp.bmBitsPixel / 8;
+  }
+
+  if (data) {
+    *data = (int*)bmp.bmBits;
+  }
+
+  return FALSE;
+}
+static void FillSolidRect(HDC m_hDC, void* lpRect, COLORREF clr)
+{
+  SetBkColor(m_hDC, clr);
+  ExtTextOutA(m_hDC, 0, 0, ETO_OPAQUE, (RECT*)lpRect, NULL, 0, NULL);
+}
+static int FillBitmapInfo(BITMAPINFO* bmi, int width, int height, int bpp, int origin, const RGBQUAD* inpal)
+{
+  BITMAPINFOHEADER* bmih;
+  assert(bmi && width >= 0 && height >= 0 && (bpp == 8 || bpp == 24 || bpp == 32));
+  bmih = &(bmi->bmiHeader);
+  memset(bmih, 0, sizeof(*bmih));
+  bmih->biSize = sizeof(BITMAPINFOHEADER);
+  bmih->biWidth = width;
+  bmih->biHeight = origin ? abs(height) : -abs(height);
+  bmih->biPlanes = 1;
+  bmih->biBitCount = (unsigned short)bpp;
+  bmih->biCompression = BI_RGB;
+
+  if (bpp <= 8) {
+    RGBQUAD* palette = bmi->bmiColors;
+
+    if (inpal) {
+      memcpy(palette, inpal, 256 * sizeof(RGBQUAD));
+    }
+    else {
+      int i;
+
+      for (i = 0; i < 256; i++) {
+        palette[i].rgbBlue = palette[i].rgbGreen = palette[i].rgbRed = (BYTE)i;
+        palette[i].rgbReserved = 0;
+      }
+    }
+  }
+
+  return 0;
+}
+
+
+
 static int icvUpdateWindowPos(CvWindow* window)
 {
   IRECT rect;
   assert(window);
   if ((window->flags & CC_WINDOW_AUTOSIZE) && window->image) {
     int i;
-    ISIZE size = {0, 0};
+    ISIZE size = { 0, 0 };
     GetBitmapData(window->dc, &size.w, &size.h, 0, 0);
     // Repeat two times because after the first resizing of the mainhWnd window
     // toolbar may resize too
     for (i = 0; i < (window->toolbar.toolbar ? 2 : 1); i++) {
       IRECT rmw, rw = icvCalcWindowRect(window);
       MoveWindow(window->hwnd, rw.l, rw.t,
-          rw.r - rw.l + 1, rw.b - rw.t + 1, FALSE);
+        rw.r - rw.l + 1, rw.b - rw.t + 1, FALSE);
       GetClientRect(window->hwnd, (RECT*)&rw);
       GetWindowRect(window->frame, (RECT*)&rmw);
       // Resize the mainhWnd window in order to make the bitmap fit into the child window
       MoveWindow(window->frame, rmw.l, rmw.t,
-          rmw.r - rmw.l + size.w - rw.r + rw.l,
-          rmw.b - rmw.t + size.h - rw.b + rw.t, TRUE);
+        rmw.r - rmw.l + size.w - rw.r + rw.l,
+        rmw.b - rmw.t + size.h - rw.b + rw.t, TRUE);
     }
   }
   rect = icvCalcWindowRect(window);
@@ -607,8 +716,8 @@ static int NameWindowImage(const char* name, int height, int width)
     }
   if (height > 0 && width > 0) {
     if (size.w != width || size.h != height || channels != channels0) {
-      uchar buffer[ sizeof(BITMAPINFO) + 255 * sizeof(RGBQUAD) ];
-      BITMAPINFO* binfo = (BITMAPINFO*) buffer;
+      uchar buffer[sizeof(BITMAPINFO) + 255 * sizeof(RGBQUAD)];
+      BITMAPINFO* binfo = (BITMAPINFO*)buffer;
       changed_size = TRUE;
       DeleteObject(SelectObject(window->dc, window->image));
       window->image = 0;
@@ -728,8 +837,8 @@ static int ShowDC(const char* name, HDC hDC, IRECT rc)
     return 0;
   }
   if (size.w != width || size.h != height || channels != channels0) {
-    uchar buffer[ sizeof(BITMAPINFO) + 255 * sizeof(RGBQUAD) ];
-    BITMAPINFO* binfo = (BITMAPINFO*) buffer;
+    uchar buffer[sizeof(BITMAPINFO) + 255 * sizeof(RGBQUAD)];
+    BITMAPINFO* binfo = (BITMAPINFO*)buffer;
     changed_size = TRUE;
     DeleteObject(SelectObject(window->dc, window->image));
     window->image = 0;
@@ -747,6 +856,76 @@ static int ShowDC(const char* name, HDC hDC, IRECT rc)
   InvalidateRect(window->hwnd, 0, 0);
   // philipg: this is not needed and just slows things down
   // UpdateWindow(window->hwnd);
+  __END__;
+  return 0;
+}
+
+static void iResizeWindow(CvWindow* window, int width, int height) {
+  // Repeat two times because after the first resizing of the mainhWnd window
+  // toolbar may resize too
+  int i;
+  IRECT rmw, rw, rect;
+  for (i = 0; i < (window->toolbar.toolbar ? 2 : 1); i++) {
+    rw = icvCalcWindowRect(window);
+    MoveWindow(window->hwnd, rw.l, rw.t,
+      rw.r - rw.l + 1, rw.b - rw.t + 1, FALSE);
+    GetClientRect(window->hwnd, (RECT*)&rw);
+    GetWindowRect(window->frame, (RECT*)&rmw);
+    // Resize the mainhWnd window in order to make the bitmap fit into the child window
+    MoveWindow(window->frame, rmw.l, rmw.t,
+      rmw.r - rmw.l + width - rw.r + rw.l,
+      rmw.b - rmw.t + height - rw.b + rw.t, TRUE);
+  }
+  rect = icvCalcWindowRect(window);
+  MoveWindow(window->hwnd, rect.l, rect.t,
+    rect.r - rect.l + 1, rect.b - rect.t + 1, TRUE);
+}
+
+// 设定窗口大小
+//
+// int ResizeWindow( const TCHAR* name, int width, int height );
+// name 将被设置窗口的名字。
+// width 新的窗口宽度。
+// height 新的窗口高度。
+// 函数cvResizeWindow改变窗口的大小。
+static int ResizeWindow(const char* name, int width, int height)
+{
+  CvWindow* window;
+  CC_FUNCNAME("cvResizeWindow");
+  __BEGIN__;
+  if (!name) {
+    CC_ERROR(CC_StsNullPtr, "NULL name");
+  }
+  window = icvFindWindowByName(name);
+  if (window) {
+    iResizeWindow(window, width, height);
+  }
+  __END__;
+  return 0;
+}
+// cvMoveWindow
+// 设定窗口的位置
+//
+// int MoveWindow( const TCHAR* name, int x, int y );
+// name 将被设置的窗口的名字。
+// x 窗口左上角的x坐标。
+// y 窗口左上角的y坐标。
+// 函数cvMoveWindow改变窗口的位置。
+static int cMoveWindow(const char* name, int x, int y)
+{
+  CvWindow* window;
+  IRECT rect;
+  CC_FUNCNAME("cvMoveWindow");
+  __BEGIN__;
+  if (!name) {
+    CC_ERROR(CC_StsNullPtr, "NULL name");
+  }
+  window = icvFindWindowByName(name);
+  if (!window) {
+    EXIT;
+  }
+  GetWindowRect(window->frame, (RECT*)&rect);
+  MoveWindow(window->frame, x, y, rect.r - rect.l, rect.b - rect.t, TRUE);
   __END__;
   return 0;
 }
@@ -781,6 +960,7 @@ int ShowImagePal(const char* name, int height, int width, const unsigned char* a
   if (!window || !arr) {
     return 0; // keep silence here.
   }
+  iResizeWindow(window, width, height);
   if (window->image) {
     // if there is something wrong with these system calls, we cannot display image...
     if (GetBitmapData(window->dc, &size.w, &size.h, &channels, &dst_ptr)) {
@@ -788,20 +968,20 @@ int ShowImagePal(const char* name, int height, int width, const unsigned char* a
     }
   }
   if (size.w != width || size.h != height || channels != cn) {
-    uchar buffer[ sizeof(BITMAPINFO) + 255 * sizeof(RGBQUAD) ];
-    BITMAPINFO* binfo = (BITMAPINFO*) buffer;
+    uchar buffer[sizeof(BITMAPINFO) + 255 * sizeof(RGBQUAD)];
+    BITMAPINFO* binfo = (BITMAPINFO*)buffer;
     //int cnbit[] = {1, 1, 1, 3, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
     if (inpal) {
       LPLOGPALETTE lpPal = (LPLOGPALETTE)buffer; // 指向逻辑调色板的指针
       HPALETTE hPal = NULL; // 调色板的句柄
       int i;
       lpPal->palVersion = 0x300; // 设置版本号
-      lpPal->palNumEntries = (WORD) 256; // 设置颜色数目
-      for (i = 0; i < (int) 256; i++) {
-        lpPal->palPalEntry[ i ].peRed = inpal[ i ].rgbRed;
-        lpPal->palPalEntry[ i ].peGreen = inpal[ i ].rgbGreen;
-        lpPal->palPalEntry[ i ].peBlue = inpal[ i ].rgbBlue;
-        lpPal->palPalEntry[ i ].peFlags = 0;
+      lpPal->palNumEntries = (WORD)256; // 设置颜色数目
+      for (i = 0; i < (int)256; i++) {
+        lpPal->palPalEntry[i].peRed = inpal[i].rgbRed;
+        lpPal->palPalEntry[i].peGreen = inpal[i].rgbGreen;
+        lpPal->palPalEntry[i].peBlue = inpal[i].rgbBlue;
+        lpPal->palPalEntry[i].peFlags = 0;
       }
       hPal = CreatePalette(lpPal);
       DeleteObject(SelectPalette(window->dc, hPal, TRUE));
@@ -814,11 +994,11 @@ int ShowImagePal(const char* name, int height, int width, const unsigned char* a
     FillBitmapInfo(binfo, width, height, 32, 1, inpal);
     window->image = SelectObject(window->dc, CreateDIBSection(window->dc, binfo, DIB_RGB_COLORS, (void**)&dst_ptr, 0, 0));
   }
-  if ((fmt&0xff)>=PixFmtMax) {
-    fmt = fmt<PixFmtMax ? fmt : cn2PixFmt(cn);
-    fmt = cn==4 ? PF_32bppRGB : fmt;
+  if ((fmt & 0xff) >= PixFmtMax) {
+    fmt = fmt < PixFmtMax ? fmt : cn2PixFmt(cn);
+    fmt = cn == 4 ? PF_32bppRGB : fmt;
   }
-  img_setbitmap_cn4(height, width, arr, step, cn, fmt, 1, 1, (uchar*)dst_ptr, width*4, inpal);
+  img_setbitmap_cn4(height, width, arr, step, cn, fmt, 1, 1, (uchar*)dst_ptr, width * 4, inpal);
   //memset(dst_ptr, 255, height*width*4);
   // ony resize window if needed
   if (changed_size) {
@@ -856,72 +1036,7 @@ static int cSetWindowText(const char* name, const char* text)
   __END__;
   return 0;
 }
-// 设定窗口大小
-//
-// int ResizeWindow( const TCHAR* name, int width, int height );
-// name 将被设置窗口的名字。
-// width 新的窗口宽度。
-// height 新的窗口高度。
-// 函数cvResizeWindow改变窗口的大小。
-static int ResizeWindow(const char* name, int width, int height)
-{
-  int i;
-  CvWindow* window;
-  IRECT rmw, rw, rect;
-  CC_FUNCNAME("cvResizeWindow");
-  __BEGIN__;
-  if (!name) {
-    CC_ERROR(CC_StsNullPtr, "NULL name");
-  }
-  window = icvFindWindowByName(name);
-  if (!window) {
-    EXIT;
-  }
-  // Repeat two times because after the first resizing of the mainhWnd window
-  // toolbar may resize too
-  for (i = 0; i < (window->toolbar.toolbar ? 2 : 1); i++) {
-    rw = icvCalcWindowRect(window);
-    MoveWindow(window->hwnd, rw.l, rw.t,
-        rw.r - rw.l + 1, rw.b - rw.t + 1, FALSE);
-    GetClientRect(window->hwnd, (RECT*)&rw);
-    GetWindowRect(window->frame, (RECT*)&rmw);
-    // Resize the mainhWnd window in order to make the bitmap fit into the child window
-    MoveWindow(window->frame, rmw.l, rmw.t,
-        rmw.r - rmw.l + width - rw.r + rw.l,
-        rmw.b - rmw.t + height - rw.b + rw.t, TRUE);
-  }
-  rect = icvCalcWindowRect(window);
-  MoveWindow(window->hwnd, rect.l, rect.t,
-      rect.r - rect.l + 1, rect.b - rect.t + 1, TRUE);
-  __END__;
-  return 0;
-}
-// cvMoveWindow
-// 设定窗口的位置
-//
-// int MoveWindow( const TCHAR* name, int x, int y );
-// name 将被设置的窗口的名字。
-// x 窗口左上角的x坐标。
-// y 窗口左上角的y坐标。
-// 函数cvMoveWindow改变窗口的位置。
-static int cMoveWindow(const char* name, int x, int y)
-{
-  CvWindow* window;
-  IRECT rect;
-  CC_FUNCNAME("cvMoveWindow");
-  __BEGIN__;
-  if (!name) {
-    CC_ERROR(CC_StsNullPtr, "NULL name");
-  }
-  window = icvFindWindowByName(name);
-  if (!window) {
-    EXIT;
-  }
-  GetWindowRect(window->frame, (RECT*)&rect);
-  MoveWindow(window->frame, x, y, rect.r - rect.l, rect.b - rect.t, TRUE);
-  __END__;
-  return 0;
-}
+
 static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   CvWindow* window = icvWindowByHWND(hwnd);
@@ -935,21 +1050,21 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
     if (window->on_mouse) {
       POINT pt;
       IRECT rect;
-      ISIZE size = {0, 0};
+      ISIZE size = { 0, 0 };
       int flags = (wParam & MK_LBUTTON ? MSG_FLAG_LBUTTON : 0) |
-          (wParam & MK_RBUTTON ? MSG_FLAG_RBUTTON : 0) |
-          (wParam & MK_MBUTTON ? MSG_FLAG_MBUTTON : 0) |
-          (wParam & MK_CONTROL ? MSG_FLAG_CTRLKEY : 0) |
-          (wParam & MK_SHIFT ? MSG_FLAG_SHIFTKEY : 0) |
-          (GetKeyState(VK_MENU) < 0 ? MSG_FLAG_ALTKEY : 0);
+        (wParam & MK_RBUTTON ? MSG_FLAG_RBUTTON : 0) |
+        (wParam & MK_MBUTTON ? MSG_FLAG_MBUTTON : 0) |
+        (wParam & MK_CONTROL ? MSG_FLAG_CTRLKEY : 0) |
+        (wParam & MK_SHIFT ? MSG_FLAG_SHIFTKEY : 0) |
+        (GetKeyState(VK_MENU) < 0 ? MSG_FLAG_ALTKEY : 0);
       int event = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? MSG_MOUSEWHEELUP : MSG_MOUSEWHEELDOWN;
       pt.x = LOWORD(lParam);
       pt.y = HIWORD(lParam);
       GetClientRect(window->hwnd, (RECT*)&rect);
       GetBitmapData(window->dc, &size.w, &size.h, 0, 0);
       window->on_mouse(event, pt.x * size.w / MAX(rect.r - rect.l, 1),
-          pt.y * size.h / MAX(rect.b - rect.t, 1), flags,
-          window->on_mouse_param);
+        pt.y * size.h / MAX(rect.b - rect.t, 1), flags,
+        window->on_mouse_param);
     }
     break;
 #endif
@@ -957,7 +1072,7 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
 #if 0
     if (window->image != 0 && 0) {
       int nchannels = 3;
-      ISIZE size = {0, 0};
+      ISIZE size = { 0, 0 };
       PAINTSTRUCT paint;
       HDC hDC;
       // Determine the bitmap's dimensions
@@ -966,11 +1081,11 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
       SetStretchBltMode(hDC, COLORONCOLOR);
       if (nchannels == 1) {
         int i;
-        RGBQUAD table[ 256 ];
+        RGBQUAD table[256];
         for (i = 0; i < 256; i++) {
-          table[ i ].rgbBlue = (unsigned char) i;
-          table[ i ].rgbGreen = (unsigned char) i;
-          table[ i ].rgbRed = (unsigned char) i;
+          table[i].rgbBlue = (unsigned char)i;
+          table[i].rgbGreen = (unsigned char)i;
+          table[i].rgbRed = (unsigned char)i;
         }
         //SetDIBColorTable( window->dc, 0, 255, table );
       }
@@ -978,11 +1093,11 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         BLENDFUNCTION m_Blend;
         int m_BakWidth = size.w, m_BakHeight = size.h;
         IRECT rct;
-        POINT ptSrc = {0, 0};
+        POINT ptSrc = { 0, 0 };
         POINT ptWinPos;
         ISIZE sizeWindow;
         DWORD dwExStyle;
-        typedef BOOL (WINAPI * MYFUNC)(HWND, HDC, POINT*, ISIZE*, HDC, POINT*, COLORREF, BLENDFUNCTION*, DWORD);
+        typedef BOOL(WINAPI * MYFUNC)(HWND, HDC, POINT*, ISIZE*, HDC, POINT*, COLORREF, BLENDFUNCTION*, DWORD);
         MYFUNC UpdateLayeredWindow = 0;
         HINSTANCE hFuncInst;
         // TODO: Add your specialized creation code here
@@ -1028,7 +1143,7 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
       }
       EndPaint(hwnd, &paint);
     }
-    else 
+    else
 #endif
     {
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -1041,7 +1156,7 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
     break;
   case WM_GETMINMAXINFO:
     if (!(window->flags & CC_WINDOW_AUTOSIZE)) {
-      MINMAXINFO* minmax = (MINMAXINFO*) lParam;
+      MINMAXINFO* minmax = (MINMAXINFO*)lParam;
       IRECT rect;
       LRESULT retval = DefWindowProc(hwnd, uMsg, wParam, lParam);
       minmax->ptMinTrackSize.y = 100;
@@ -1055,7 +1170,7 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
     }
     break;
   case WM_WINDOWPOSCHANGED: {
-    WINDOWPOS* pos = (WINDOWPOS*) lParam;
+    WINDOWPOS* pos = (WINDOWPOS*)lParam;
     // Update the toolbar position/size
     if (window->toolbar.toolbar) {
       IRECT rect;
@@ -1076,7 +1191,7 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
     IRECT cr, tr, wrc;
     HRGN rgn, rgn1, rgn2;
     int ret;
-    HDC hDC = (HDC) wParam;
+    HDC hDC = (HDC)wParam;
     GetWindowRect(window->hwnd, (RECT*)&cr);
     icvScreenToClient(window->frame, &cr);
     if (window->toolbar.toolbar) {
@@ -1099,7 +1214,7 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
     DeleteObject(rgn1);
     DeleteObject(rgn2);
   }
-  return 1;
+                      return 1;
   }
   return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
@@ -1121,23 +1236,23 @@ static LRESULT CALLBACK HighGUIProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
   }
   // Process the message
   {
-LRESULT WINAPI imuiWndProc_impl(window_host_t* host, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    imuiWndProc_impl(NULL, hwnd, uMsg, wParam, lParam);
+    //LRESULT WINAPI imuiWndProc_impl(window_host_t* host, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+        //imuiWndProc_impl(NULL, hwnd, uMsg, wParam, lParam);
   }
   switch (uMsg) {
   case WM_WINDOWPOSCHANGING: {
-    LPWINDOWPOS pos = (LPWINDOWPOS) lParam;
+    LPWINDOWPOS pos = (LPWINDOWPOS)lParam;
     IRECT rect = icvCalcWindowRect(window);
     pos->x = rect.l;
     pos->y = rect.t;
     pos->cx = rect.r - rect.l + 1;
     pos->cy = rect.b - rect.t + 1;
   }
-  break;
+                             break;
   case WM_SETFOCUS: {
     focus_window = window;
   }
-  break;
+                    break;
   case WM_LBUTTONDOWN:
   case WM_RBUTTONDOWN:
   case WM_MBUTTONDOWN:
@@ -1151,23 +1266,23 @@ LRESULT WINAPI imuiWndProc_impl(window_host_t* host, HWND hWnd, UINT uMsg, WPARA
     if (1) {
       POINT pt;
       IRECT rect;
-      ISIZE size = {0, 0};
+      ISIZE size = { 0, 0 };
       int flags = (wParam & MK_LBUTTON ? MSG_FLAG_LBUTTON : 0) |
-          (wParam & MK_RBUTTON ? MSG_FLAG_RBUTTON : 0) |
-          (wParam & MK_MBUTTON ? MSG_FLAG_MBUTTON : 0) |
-          (wParam & MK_CONTROL ? MSG_FLAG_CTRLKEY : 0) |
-          (wParam & MK_SHIFT ? MSG_FLAG_SHIFTKEY : 0) |
-          (GetKeyState(VK_MENU) < 0 ? MSG_FLAG_ALTKEY : 0);
+        (wParam & MK_RBUTTON ? MSG_FLAG_RBUTTON : 0) |
+        (wParam & MK_MBUTTON ? MSG_FLAG_MBUTTON : 0) |
+        (wParam & MK_CONTROL ? MSG_FLAG_CTRLKEY : 0) |
+        (wParam & MK_SHIFT ? MSG_FLAG_SHIFTKEY : 0) |
+        (GetKeyState(VK_MENU) < 0 ? MSG_FLAG_ALTKEY : 0);
       int event = uMsg == WM_LBUTTONDOWN ? MSG_LBUTTONDOWN :
-          uMsg == WM_RBUTTONDOWN ? MSG_RBUTTONDOWN :
-          uMsg == WM_MBUTTONDOWN ? MSG_MBUTTONDOWN :
-          uMsg == WM_LBUTTONUP ? MSG_LBUTTONUP :
-          uMsg == WM_RBUTTONUP ? MSG_RBUTTONUP :
-          uMsg == WM_MBUTTONUP ? MSG_MBUTTONUP :
-          uMsg == WM_LBUTTONDBLCLK ? MSG_LBUTTONDBLCLK :
-          uMsg == WM_RBUTTONDBLCLK ? MSG_RBUTTONDBLCLK :
-          uMsg == WM_MBUTTONDBLCLK ? MSG_MBUTTONDBLCLK :
-          MSG_MOUSEMOVE;
+        uMsg == WM_RBUTTONDOWN ? MSG_RBUTTONDOWN :
+        uMsg == WM_MBUTTONDOWN ? MSG_MBUTTONDOWN :
+        uMsg == WM_LBUTTONUP ? MSG_LBUTTONUP :
+        uMsg == WM_RBUTTONUP ? MSG_RBUTTONUP :
+        uMsg == WM_MBUTTONUP ? MSG_MBUTTONUP :
+        uMsg == WM_LBUTTONDBLCLK ? MSG_LBUTTONDBLCLK :
+        uMsg == WM_RBUTTONDBLCLK ? MSG_RBUTTONDBLCLK :
+        uMsg == WM_MBUTTONDBLCLK ? MSG_MBUTTONDBLCLK :
+        MSG_MOUSEMOVE;
       if (uMsg == WM_LBUTTONDOWN || uMsg == WM_RBUTTONDOWN || uMsg == WM_MBUTTONDOWN) {
         SetCapture(hwnd);
       }
@@ -1221,7 +1336,7 @@ LRESULT WINAPI imuiWndProc_impl(window_host_t* host, HWND hWnd, UINT uMsg, WPARA
   case WM_PAINT:
     if (window->image != 0) {
       int nchannels = 3;
-      ISIZE size = {0, 0};
+      ISIZE size = { 0, 0 };
       PAINTSTRUCT paint;
       HDC hDC;
       // Determine the bitmap's dimensions
@@ -1230,11 +1345,11 @@ LRESULT WINAPI imuiWndProc_impl(window_host_t* host, HWND hWnd, UINT uMsg, WPARA
       SetStretchBltMode(hDC, COLORONCOLOR);
       if (nchannels == 1) {
         int i;
-        RGBQUAD table[ 256 ];
+        RGBQUAD table[256];
         for (i = 0; i < 256; i++) {
-          table[ i ].rgbBlue = (unsigned char) i;
-          table[ i ].rgbGreen = (unsigned char) i;
-          table[ i ].rgbRed = (unsigned char) i;
+          table[i].rgbBlue = (unsigned char)i;
+          table[i].rgbGreen = (unsigned char)i;
+          table[i].rgbRed = (unsigned char)i;
         }
         //SetDIBColorTable( window->dc, 0, 255, table );
       }
@@ -1294,7 +1409,7 @@ LRESULT WINAPI imuiWndProc_impl(window_host_t* host, HWND hWnd, UINT uMsg, WPARA
     //SetCursor((HCURSOR) icvGetClassLongPtr(hwnd, CC_HCURSOR));
     return 0;
   case WM_KEYDOWN:
-    window->last_key = (int) wParam;
+    window->last_key = (int)wParam;
     return 0;
   }
   return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -1323,10 +1438,10 @@ static int icvUpdateTrackbar(CvTrackbar* trackbar, int pos)
 {
   const int max_name_len = 10;
   const char* suffix = "";
-  char pos_text[ 32 ];
+  char pos_text[32];
   int name_len;
   if (trackbar->data) {
-    * trackbar->data = pos;
+    *trackbar->data = pos;
   }
   if (trackbar->pos != pos) {
     trackbar->pos = pos;
@@ -1336,7 +1451,7 @@ static int icvUpdateTrackbar(CvTrackbar* trackbar, int pos)
     if (trackbar->notify) {
       trackbar->notify(pos);
     }
-    name_len = (int) strlen(trackbar->name);
+    name_len = (int)strlen(trackbar->name);
     if (name_len > max_name_len) {
       int start_len = max_name_len * 2 / 3;
       int end_len = max_name_len - start_len - 2;
@@ -1362,40 +1477,40 @@ static LRESULT CALLBACK HGToolbarProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
   switch (uMsg) {
     // Slider processing
   case WM_HSCROLL:
-    {
-      HWND slider = (HWND) lParam;
-      int pos = (int) SendMessageA(slider, TBM_GETPOS, 0, 0);
-      CvTrackbar* trackbar = icvTrackbarByHWND(slider);
-      if (trackbar) {
-        if (trackbar->pos != pos) {
-          icvUpdateTrackbar(trackbar, pos);
-        }
+  {
+    HWND slider = (HWND)lParam;
+    int pos = (int)SendMessageA(slider, TBM_GETPOS, 0, 0);
+    CvTrackbar* trackbar = icvTrackbarByHWND(slider);
+    if (trackbar) {
+      if (trackbar->pos != pos) {
+        icvUpdateTrackbar(trackbar, pos);
       }
-      SetFocus(window->hwnd);
-      return 0;
     }
+    SetFocus(window->hwnd);
+    return 0;
+  }
   case WM_NCCALCSIZE:
-    {
-      LRESULT ret = CallWindowProc(window->toolbar.toolBarProc, hwnd, uMsg, wParam, lParam);
-      int rows = (int) SendMessageA(hwnd, TB_GETROWS, 0, 0);
-      if (window->toolbar.rows != rows) {
-        CvTrackbar* trackbar;
-        SendMessageA(window->toolbar.toolbar, TB_BUTTONCOUNT, 0, 0);
-        trackbar = window->toolbar.first;
-        for (; trackbar != 0; trackbar = trackbar->next) {
-          IRECT rect;
-          SendMessageA(window->toolbar.toolbar, TB_GETITEMRECT,
-            (WPARAM) trackbar->id, (LPARAM) & rect);
-          MoveWindow(trackbar->hwnd, rect.l + HG_BUDDY_WIDTH, rect.t,
-            rect.r - rect.l - HG_BUDDY_WIDTH,
-            rect.b - rect.t, FALSE);
-          MoveWindow(trackbar->buddy, rect.l, rect.t,
-            HG_BUDDY_WIDTH, rect.b - rect.t, FALSE);
-        }
-        window->toolbar.rows = rows;
+  {
+    LRESULT ret = CallWindowProc(window->toolbar.toolBarProc, hwnd, uMsg, wParam, lParam);
+    int rows = (int)SendMessageA(hwnd, TB_GETROWS, 0, 0);
+    if (window->toolbar.rows != rows) {
+      CvTrackbar* trackbar;
+      SendMessageA(window->toolbar.toolbar, TB_BUTTONCOUNT, 0, 0);
+      trackbar = window->toolbar.first;
+      for (; trackbar != 0; trackbar = trackbar->next) {
+        IRECT rect;
+        SendMessageA(window->toolbar.toolbar, TB_GETITEMRECT,
+          (WPARAM)trackbar->id, (LPARAM)& rect);
+        MoveWindow(trackbar->hwnd, rect.l + HG_BUDDY_WIDTH, rect.t,
+          rect.r - rect.l - HG_BUDDY_WIDTH,
+          rect.b - rect.t, FALSE);
+        MoveWindow(trackbar->buddy, rect.l, rect.t,
+          HG_BUDDY_WIDTH, rect.b - rect.t, FALSE);
       }
-      return ret;
+      window->toolbar.rows = rows;
     }
+    return ret;
+  }
   }
   return CallWindowProc(window->toolbar.toolBarProc, hwnd, uMsg, wParam, lParam);
 }
@@ -1415,10 +1530,8 @@ int WaitMsg(int delay, bool bWaitMouseMsg)
     CvWindow* win = NULL;
     int is_processed = 0;
     {
-      sysio_t* io = sys_getio();
-      if (!(io->mouse->down[0] || io->mouse->down[1] || io->mouse->down[2])) {
-        io->hitid = NULL;
-      }
+      //sysio_t* io = sys_getio();
+      //if (!(io->mouse->down[0] || io->mouse->down[1] || io->mouse->down[2])) {        io->hitid = NULL;      }
     }
     if ((delay > 0 && abs((int)(GetTickCount() - time0)) >= delay) || hg_windows == 0) {
       return -1;
@@ -1439,13 +1552,13 @@ int WaitMsg(int delay, bool bWaitMouseMsg)
         }
       }
     }
-    
+
     if (win) {
       switch (message.message) {
       case WM_DESTROY:
       case WM_CHAR:
         DispatchMessage(&message);
-        return (int) message.wParam;
+        return (int)message.wParam;
       case WM_SYSKEYDOWN:
         if (message.wParam == VK_F10) {
           is_processed = 1;
@@ -1462,7 +1575,8 @@ int WaitMsg(int delay, bool bWaitMouseMsg)
           TranslateMessage(&message);
           DispatchMessage(&message);
           return (int)(message.wParam << 16);
-        } else {
+        }
+        else {
           DispatchMessage(&message);
           is_processed = 1;
         }
@@ -1513,10 +1627,10 @@ typedef struct {
 }
 ButtonInfo;
 static int icvCreateTrackbar(const char* trackbar_name, const char* window_name,
-    int* val, int count, TrackbarCB on_notify,
-    TrackbarCB2 on_notify2, int* userdata)
+  int* val, int count, TrackbarCB on_notify,
+  TrackbarCB2 on_notify2, int* userdata)
 {
-  char slider_name[ 32 ];
+  char slider_name[32];
   CvWindow* window = 0;
   CvTrackbar* trackbar = 0;
   int pos = 0;
@@ -1539,30 +1653,30 @@ static int icvCreateTrackbar(const char* trackbar_name, const char* window_name,
     ButtonInfo tbis;
     IRECT rect;
     int bcount;
-    int len = (int) strlen(trackbar_name);
+    int len = (int)strlen(trackbar_name);
     // create toolbar if it is not created yet
     if (!window->toolbar.toolbar) {
       const int default_height = 30;
       window->toolbar.toolbar = CreateToolbarEx(
-          window->frame, WS_CHILD | CCS_TOP | TBSTYLE_WRAPABLE,
-          1, 0, 0, 0, 0, 0, 16, 20, 16, 16, sizeof(TBBUTTON));
+        window->frame, WS_CHILD | CCS_TOP | TBSTYLE_WRAPABLE,
+        1, 0, 0, 0, 0, 0, 16, 20, 16, 16, sizeof(TBBUTTON));
       GetClientRect(window->frame, (RECT*)&rect);
       MoveWindow(window->toolbar.toolbar, 0, 0,
-          rect.r - rect.l, default_height, TRUE);
+        rect.r - rect.l, default_height, TRUE);
       SendMessageA(window->toolbar.toolbar, TB_AUTOSIZE, 0, 0);
       ShowWindow(window->toolbar.toolbar, SW_SHOW);
       window->toolbar.first = 0;
       window->toolbar.pos = 0;
       window->toolbar.rows = 0;
       window->toolbar.toolBarProc =
-          (WNDPROC) GetWindowLongPtrA(window->toolbar.toolbar, GWLP_WNDPROC);
+        (WNDPROC)GetWindowLongPtrA(window->toolbar.toolbar, GWLP_WNDPROC);
       icvUpdateWindowPos(window);
       // Subclassing from toolbar
       SetWindowLongPtrA(window->toolbar.toolbar, GWLP_WNDPROC, (LONG_PTR)HGToolbarProc);
       SetWindowLongPtrA(window->toolbar.toolbar, GWLP_USERDATA, (LONG_PTR)window);
     }
     /* Retrieve current buttons count */
-    bcount = (int) SendMessageA(window->toolbar.toolbar, TB_BUTTONCOUNT, 0, 0);
+    bcount = (int)SendMessageA(window->toolbar.toolbar, TB_BUTTONCOUNT, 0, 0);
     if (bcount > 1) {
       /* If this is not the first button then we need to
       separate it from the previous one */
@@ -1571,9 +1685,9 @@ static int icvCreateTrackbar(const char* trackbar_name, const char* window_name,
       tbs.iString = 0;
       tbs.fsStyle = TBSTYLE_SEP;
       tbs.fsState = TBSTATE_ENABLED;
-      SendMessageA(window->toolbar.toolbar, TB_ADDBUTTONS, 1, (LPARAM) & tbs);
+      SendMessageA(window->toolbar.toolbar, TB_ADDBUTTONS, 1, (LPARAM)& tbs);
       // Retrieve current buttons count
-      bcount = (int) SendMessageA(window->toolbar.toolbar, TB_BUTTONCOUNT, 0, 0);
+      bcount = (int)SendMessageA(window->toolbar.toolbar, TB_BUTTONCOUNT, 0, 0);
     }
     /* Add a button which we're going to cover with the slider */
     tbs.iBitmap = 0;
@@ -1591,21 +1705,21 @@ static int icvCreateTrackbar(const char* trackbar_name, const char* window_name,
 #endif
     //tbs.fsStyle = TBSTYLE_AUTOSIZE;
     tbs.fsStyle = TBSTYLE_GROUP;
-    tbs.iString = (INT_PTR) trackbar_text;
+    tbs.iString = (INT_PTR)trackbar_text;
 #endif
-    SendMessageA(window->toolbar.toolbar, TB_ADDBUTTONS, 1, (LPARAM) & tbs);
+    SendMessageA(window->toolbar.toolbar, TB_ADDBUTTONS, 1, (LPARAM)& tbs);
     /* Adjust button size to the slider */
     tbis.cbSize = sizeof(tbis);
     tbis.dwMask = TBIF_SIZE;
     GetClientRect(window->hwnd, (RECT*)&rect);
     tbis.cx = (unsigned short)(rect.r - rect.l);
     SendMessageA(window->toolbar.toolbar, TB_SETBUTTONINFO,
-        (WPARAM) tbs.idCommand, (LPARAM) & tbis);
+      (WPARAM)tbs.idCommand, (LPARAM)& tbis);
     /* Get button position */
     SendMessageA(window->toolbar.toolbar, TB_GETITEMRECT,
-        (WPARAM) tbs.idCommand, (LPARAM) & rect);
+      (WPARAM)tbs.idCommand, (LPARAM)& rect);
     /* Create a slider */
-    trackbar = (CvTrackbar*) malloc(sizeof(CvTrackbar) + len + 1);
+    trackbar = (CvTrackbar*)malloc(sizeof(CvTrackbar) + len + 1);
     trackbar->signature = CC_TRACKBAR_MAGIC_VAL;
     trackbar->notify = 0;
     trackbar->notify2 = 0;
@@ -1619,22 +1733,22 @@ static int icvCreateTrackbar(const char* trackbar_name, const char* window_name,
     window->toolbar.first = trackbar;
     sprintf(slider_name, "Trackbar%p", val);
     trackbar->hwnd = CreateWindowExA(0, TRACKBAR_CLASSA, slider_name,
-        WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS |
-        TBS_FIXEDLENGTH | TBS_HORZ | TBS_BOTTOM,
-        rect.l + HG_BUDDY_WIDTH, rect.t,
-        rect.r - rect.l - HG_BUDDY_WIDTH,
-        rect.b - rect.t, window->toolbar.toolbar,
-        (HMENU)(size_t) bcount, hg_hinstance, 0);
+      WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS |
+      TBS_FIXEDLENGTH | TBS_HORZ | TBS_BOTTOM,
+      rect.l + HG_BUDDY_WIDTH, rect.t,
+      rect.r - rect.l - HG_BUDDY_WIDTH,
+      rect.b - rect.t, window->toolbar.toolbar,
+      (HMENU)(size_t)bcount, hg_hinstance, 0);
     sprintf(slider_name, "Buddy%p", val);
     trackbar->buddy = CreateWindowExA(0, "STATIC", slider_name,
-        WS_CHILD | SS_RIGHT,
-        rect.l, rect.t,
-        HG_BUDDY_WIDTH, rect.b - rect.t,
-        window->toolbar.toolbar, 0, hg_hinstance, 0);
+      WS_CHILD | SS_RIGHT,
+      rect.l, rect.t,
+      HG_BUDDY_WIDTH, rect.b - rect.t,
+      window->toolbar.toolbar, 0, hg_hinstance, 0);
     SetWindowLongPtrA(trackbar->hwnd, GWLP_USERDATA, (LONG_PTR)trackbar);
     /* Minimize the number of rows */
     SendMessageA(window->toolbar.toolbar, TB_SETROWS,
-        MAKEWPARAM(1, FALSE), (LPARAM) & rect);
+      MAKEWPARAM(1, FALSE), (LPARAM)& rect);
   }
   else {
     trackbar->data = 0;
@@ -1643,12 +1757,12 @@ static int icvCreateTrackbar(const char* trackbar_name, const char* window_name,
   }
   trackbar->maxval = count;
   /* Adjust slider parameters */
-  SendMessageA(trackbar->hwnd, TBM_SETRANGE, (WPARAM) TRUE, (LPARAM) MAKELONG(0, count));
-  SendMessageA(trackbar->hwnd, TBM_SETTICFREQ, (WPARAM) 1, (LPARAM) 0);
+  SendMessageA(trackbar->hwnd, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, count));
+  SendMessageA(trackbar->hwnd, TBM_SETTICFREQ, (WPARAM)1, (LPARAM)0);
   if (val) {
     pos = *val;
   }
-  SendMessageA(trackbar->hwnd, TBM_SETPOS, (WPARAM) TRUE, (LPARAM) pos);
+  SendMessageA(trackbar->hwnd, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)pos);
   SendMessageA(window->toolbar.toolbar, TB_AUTOSIZE, 0, 0);
   trackbar->pos = -1;
   icvUpdateTrackbar(trackbar, pos);
@@ -1769,7 +1883,7 @@ static int SetTrackbarPos(const char* trackbar_name, const char* window_name, in
     if (pos > trackbar->maxval) {
       pos = trackbar->maxval;
     }
-    SendMessageA(trackbar->hwnd, TBM_SETPOS, (WPARAM) TRUE, (LPARAM) pos);
+    SendMessageA(trackbar->hwnd, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)pos);
     icvUpdateTrackbar(trackbar, pos);
   }
   __END__;
@@ -1791,7 +1905,7 @@ static int* GetWindowHandle(const char* window_name)
   }
   window = icvFindWindowByName(window_name);
   if (window) {
-    hwnd = (int*) window->hwnd;
+    hwnd = (int*)window->hwnd;
   }
   __END__;
   return hwnd;
@@ -1810,14 +1924,14 @@ static const char* GetWindowName(int* window_handle)
   if (window_handle == 0) {
     CC_ERROR(CC_StsNullPtr, "NULL window");
   }
-  window = icvWindowByHWND((HWND) window_handle);
+  window = icvWindowByHWND((HWND)window_handle);
   if (window) {
     window_name = window->name;
   }
   __END__;
   return window_name;
 }
-static int SetPreprocessFuncWin32(int (* on_preprocess)(HWND, UINT, WPARAM, LPARAM, int*))
+static int SetPreprocessFuncWin32(int(*on_preprocess)(HWND, UINT, WPARAM, LPARAM, int*))
 {
   if (on_preprocess) {
     hg_on_preprocess = on_preprocess;
@@ -1827,7 +1941,7 @@ static int SetPreprocessFuncWin32(int (* on_preprocess)(HWND, UINT, WPARAM, LPAR
   }
   return 0;
 }
-static int SetPostprocessFuncWin32(int (* on_postprocess)(HWND, UINT, WPARAM, LPARAM, int*))
+static int SetPostprocessFuncWin32(int(*on_postprocess)(HWND, UINT, WPARAM, LPARAM, int*))
 {
   if (on_postprocess) {
     hg_on_postprocess = on_postprocess;
@@ -1842,7 +1956,7 @@ static CvScalar hsv2rgb2(float hue)
 {
   int rgb[3], p, sector;
   static const int sector_data[][3] =
-  {{0, 2, 1}, {1, 2, 0}, {1, 0, 2}, {2, 0, 1}, {2, 1, 0}, {0, 1, 2}};
+  { {0, 2, 1}, {1, 2, 0}, {1, 0, 2}, {2, 0, 1}, {2, 1, 0}, {0, 1, 2} };
   hue *= 0.033333333333333333333333333333333f;
   sector = cvFloor(hue);
   p = cvRound(255 * (hue - sector));
@@ -1854,10 +1968,10 @@ static CvScalar hsv2rgb2(float hue)
 }
 int imshowhist(const char* name, int h, int w, const unsigned char* a, int al, int ai, int l, int r)
 {
-  int hist[256] = {0};
-  int back[256] = {0};
-  enum {cc = 2, hh = 100 * cc, ww = 256 * cc, hdims = 256};
-  unsigned char bb[hh * ww * 3] = {0};
+  int hist[256] = { 0 };
+  int back[256] = { 0 };
+  enum { cc = 2, hh = 100 * cc, ww = 256 * cc, hdims = 256 };
+  unsigned char bb[hh * ww * 3] = { 0 };
   int i, j, maxval, bin_w;
   if (l > r) {
     CC_SWAP(l, r, i);
@@ -1870,12 +1984,12 @@ int imshowhist(const char* name, int h, int w, const unsigned char* a, int al, i
   maxval = hist[j];
   bin_w = ww / hdims;
   DrawRectangle(hh, ww, bb, ww * 3, 3, iPOINT(l * bin_w, hh),
-      iPOINT(r * bin_w, 0), CC_RGB(255, 255, 255), -1, 8, 0);
+    iPOINT(r * bin_w, 0), CC_RGB(255, 255, 255), -1, 8, 0);
   for (i = 0; i < hdims; i++) {
     int val = cvRound(hist[i] * hh * 0.9 / maxval);
     CvScalar color = hsv2rgb2(i * 180.f / hdims);
     DrawRectangle(hh, ww, bb, ww * 3, 3, iPOINT(i * bin_w, hh),
-        iPOINT((i + 1)*bin_w, hh - val), color, -1, 8, 0);
+      iPOINT((i + 1)*bin_w, hh - val), color, -1, 8, 0);
   }
   {
     double sc = 800. / MAX(h, w);
@@ -1968,8 +2082,8 @@ int imcalchist(int h, int w, const unsigned char* a, int al, int ai)
 }
 static int ShowTaskBar(BOOL bShow)
 {
-  IRECT rectWorkArea = {0, 0, 0, 0};
-  IRECT rectTaskBar = {0, 0, 0, 0};
+  IRECT rectWorkArea = { 0, 0, 0, 0 };
+  IRECT rectTaskBar = { 0, 0, 0, 0 };
   HWND pWnd = FindWindowA("Shell_TrayWnd", "");
   if (!bShow) { //隐藏
     SystemParametersInfo(SPI_GETWORKAREA, 0, (LPVOID)&rectWorkArea, 0);
@@ -1996,7 +2110,7 @@ static int SetFullScreen(const char* name)
 {
   CvWindow* window;
   HWND hwnd = 0;
-  static IRECT rc_back = {0, 0, 300, 300};
+  static IRECT rc_back = { 0, 0, 300, 300 };
   static int is_FullScreen = 0;
   IRECT rect;
   if (!name) {
@@ -2057,16 +2171,16 @@ static int SetListLable(const char* name, int n, const char** lable, int nColumn
     RECT rc;
     DWORD dwStyle = WS_TABSTOP | LVS_SINGLESEL | LVS_REPORT | LVS_SHOWSELALWAYS | WS_CHILD | WS_VISIBLE;
     DWORD dwExStyle =
-        #if 0
-        LVS_EX_FULLROWSELECT | //设置可选整行
-        LVS_EX_GRIDLINES | //listView的item的每个栏目之间添加分割线
-        LVS_EX_HEADERDRAGDROP |//允许litview的目录通过拖放重排序
-        #endif
-        LVS_EDITLABELS;
+#if 0
+      LVS_EX_FULLROWSELECT | //设置可选整行
+      LVS_EX_GRIDLINES | //listView的item的每个栏目之间添加分割线
+      LVS_EX_HEADERDRAGDROP |//允许litview的目录通过拖放重排序
+#endif
+      LVS_EDITLABELS;
     //dwStyle |= WS_BORDER;
     GetClientRect(window->hwnd, &rc);
     window->hList = CreateWindowA(WC_LISTVIEWA, ("ListView"), dwStyle,
-        0, 0, rc.right - rc.left, rc.bottom - rc.top, window->hwnd, 0, hg_hinstance, 0);
+      0, 0, rc.right - rc.left, rc.bottom - rc.top, window->hwnd, 0, hg_hinstance, 0);
     //ListView_SetExtendedListViewStyle(window->hList, dwExStyle);
     //ListView_SetTextColor(hList,RGB(12,12,12));//字体颜色
   }
@@ -2075,11 +2189,11 @@ static int SetListLable(const char* name, int n, const char** lable, int nColumn
   }
   if (n > 0) {
     int k = 0, nCol;
-    char buf2[256] = {0};
-    LVCOLUMNA lvColumn = {0};
+    char buf2[256] = { 0 };
+    LVCOLUMNA lvColumn = { 0 };
     HWND hList = window->hList;
     HWND hHeader = 0;//ListView_GetHeader(window->hList);
-    HD_ITEM hdr[1] = {0};
+    HD_ITEM hdr[1] = { 0 };
     nCol = Header_GetItemCount(hHeader);
     lvColumn.mask = LVCF_TEXT | LVCF_FMT | LVCF_WIDTH | LVCF_SUBITEM;
     lvColumn.cx = nColumnWidth;
@@ -2149,7 +2263,7 @@ static int SetListItemText(const char* name, int iRow, int iCol, const char* tex
   //int nCol = Header_GetItemCount(hHeader);
   int nRow = ListView_GetItemCount(window->hList);
   if (iRow >= nRow) {
-    LV_ITEMA item = {0}; // 项
+    LV_ITEMA item = { 0 }; // 项
     item.mask = LVIF_TEXT; // 文字
     item.cchTextMax = MAX_PATH; // 文字长度
     item.iItem = 0;
@@ -2164,6 +2278,7 @@ static int SetListItemText(const char* name, int iRow, int iCol, const char* tex
   ListView_SetColumnWidth(window->hList, iCol, -1);
   return 0;
 }
+#if 0
 static int SetList_strv(const char* name, int iCol, const vstr_t* sv)
 {
   CvWindow* window = cvGetWindowByName(name);
@@ -2171,7 +2286,7 @@ static int SetList_strv(const char* name, int iCol, const vstr_t* sv)
   int iRow;
   for (iRow = 0; iRow < sv->n; ++iRow) {
     if (iRow == nRow) {
-      LV_ITEMA item = {0}; // 项
+      LV_ITEMA item = { 0 }; // 项
       item.mask = LVIF_TEXT; // 文字
       item.cchTextMax = MAX_PATH; // 文字长度
       item.iItem = 0;
@@ -2199,8 +2314,8 @@ static int ShowMat(const char* name, const char* fmt, int h, int w, const void* 
   }
   {
     int j, n = 0, k = 0;
-    char buf2[256] = {0};
-    LV_ITEMA item = {0}; // 项
+    char buf2[256] = { 0 };
+    LV_ITEMA item = { 0 }; // 项
     for (j = 0; j < w; ++j) {
       ListView_DeleteColumn(window->hList, 0);
     }
@@ -2234,3 +2349,6 @@ static int ShowMat(const char* name, const char* fmt, int h, int w, const void* 
   }
   return 0;
 }
+#endif
+
+#endif // _GUI_WIN32_H_

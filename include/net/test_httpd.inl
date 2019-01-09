@@ -30,8 +30,8 @@ static void test2_html(httpd* s)
     return;
   }
   // Use httpdOutput() rather than httpdPrintf() so that the variable embedded in the text is expanded automatically
-  //httpdOutput(s, "Hello $name ´óÉµ±Æ");
-  httpdPrintf(s, "<P>Hello %s ´óÉµ±Æ!</P>", variable->value);
+  //httpdOutput(s, "Hello $name å¤§å‚»é€¼");
+  httpdPrintf(s, "<P>Hello %s å¤§å‚»é€¼!</P>", variable->value);
 }
 static void test3_html(httpd* s)
 {

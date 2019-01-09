@@ -12,6 +12,7 @@
 #include <winsock.h>
 #undef max
 #undef min
+#undef STRICT
 //#pragma comment(lib, "ws32_2.lib")
 #pragma comment(lib,"ws2_32.lib")
 #else

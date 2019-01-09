@@ -83,8 +83,7 @@ public:
   // layers or loss layers, since the function does not explicitly deal with
   // such cases yet. All input blobs and parameter blobs are going to be
   // checked, layer-by-layer to avoid numerical problems to accumulate.
-  void CheckGradientNet(const Net & net,
-    const vector<Blob*> & input);
+  void CheckGradientNet(const CnnNet & net, const vector<Blob*> & input);
 
 protected:
   Dtype GetObjAndGradient(const Layer & layer,
@@ -243,7 +242,7 @@ void GradientChecker::CheckGradientEltwise(Layer* layer,
   }
 }
 
-void GradientChecker::CheckGradientNet(const Net & net, const vector<Blob*> & input)
+void GradientChecker::CheckGradientNet(const CnnNet & net, const vector<Blob*> & input)
 {
 #if 0
   for (int i = 0; i < net.layers_.size(); ++i) {

@@ -219,6 +219,9 @@ static int ParseCommandLineFlags(int argc, const char* const argv[], bool flag)
 static void SetUsageMessage(const char* msg) {
   printf(msg);
 }
+static void SetVersionString(const char* msg) {
+  printf(msg);
+}
 static void ShowUsageWithFlagsRestrict(const char* msg, const char* ms) {
 }
 

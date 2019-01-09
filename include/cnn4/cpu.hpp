@@ -45,7 +45,22 @@ static void gpu_ReAlloc(Buffer* ptr, size_t nbytes) NOT_IMPL;
 static void gpu_Free(Buffer* ptr) NOT_IMPL;
 static void gpu_set_random_seed(const unsigned int seed) NOT_IMPL;
 #else
+#ifdef USE_CUDA
 #include "cuda.hpp"
+#define gpu_Free cuda_Free
+#define gpu_Memcpy cuda_Memcpy
+#define gpu_Memset cuda_Memset
+#define gpu_ReAlloc cuda_ReAlloc
+#define gpu_set_random_seed cuda_set_random_seed
+#endif
+#ifdef USE_OCL
+#include "ocl.hpp"
+#define gpu_Free ocl_Free
+#define gpu_Memcpy ocl_Memcpy
+#define gpu_Memset ocl_Memset
+#define gpu_ReAlloc ocl_ReAlloc
+#define gpu_set_random_seed ocl_set_random_seed
+#endif
 #endif
 
 #define CPUFUN(NAME)  cpu_##NAME

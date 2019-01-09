@@ -8,3 +8,4 @@
 #include "dropout.cuh"
 #include "transpose.cuh"
 #include "denseblock.cuh"
+#include "ctc/ctcpp_entrypoint.cu"

@@ -2943,7 +2943,7 @@ CC_INLINE uint32 hash96mix(uint32 a, uint32 b, uint32 c)
 // getline : get line into s, return length
 CC_INLINE int mygetline(char* s, int len) {
   int c, i = 0;
-  while (i<(len - 1) && (c = getchar()) != EOF && c != '\n') {
+  while (i < (len - 1) && (c = getchar()) != EOF && c != '\n') {
     s[i++] = c;
   }
   // if (c == '\n') {    s[i++] = c;  }

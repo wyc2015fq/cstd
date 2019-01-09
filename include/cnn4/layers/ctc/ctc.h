@@ -1,4 +1,7 @@
 
+
+#ifndef __CTC_H__
+#define __CTC_H__
 //forward declare of CUDA typedef to avoid needing to pull in CUDA headers
 #pragma once
 
@@ -12,6 +15,23 @@ typedef enum {
   CTC_STATUS_UNKNOWN_ERROR = 4
 } ctcStatus_t;
 
+
+static const char* ctcGetStatusString(ctcStatus_t status)
+{
+  switch (status) {
+  case CTC_STATUS_SUCCESS:
+    return "no error";
+  case CTC_STATUS_MEMOPS_FAILED:
+    return "cuda memcpy or memset failed";
+  case CTC_STATUS_INVALID_VALUE:
+    return "invalid value";
+  case CTC_STATUS_EXECUTION_FAILED:
+    return "execution failed";
+  case CTC_STATUS_UNKNOWN_ERROR:
+  default:
+    return "unknown error";
+  }
+}
 
 
 typedef enum {
@@ -38,3 +58,5 @@ struct ctcOptions {
   /// the label value/index that the CTC calculation should use as the blank label
   int blank_label;
 };
+
+#endif // __CTC_H__

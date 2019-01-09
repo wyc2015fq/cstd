@@ -98,9 +98,6 @@ namespace caffe
      * @param end_axis The first axis to exclude from the slice.
      */
     inline int count(int start_axis, int end_axis) const {
-      if (end_axis > num_axes()) {
-        int asdf = 0;
-      }
       start_axis = min(start_axis, num_axes());
       end_axis = min(end_axis, num_axes());
       CHECK_LE(start_axis, end_axis);

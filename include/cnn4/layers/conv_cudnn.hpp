@@ -31,8 +31,8 @@ struct CuDNNConvolutionAlgo {
     const void                         *w,
     void                               *workSpace,
     void                               *y) {
-    CUDNN_CHECK(cudnnConvolutionForward(handle, gpu_get_one(), bottom_descs_, x, wDesc, w,
-      conv_descs_, fwd_algo_, workSpace, workspace_fwd_sizes_, gpu_get_zero(), top_descs_, y));
+    CUDNN_CHECK(cudnnConvolutionForward(handle, cuda_get_one(), bottom_descs_, x, wDesc, w,
+      conv_descs_, fwd_algo_, workSpace, workspace_fwd_sizes_, cuda_get_zero(), top_descs_, y));
   }
 };
 
@@ -246,20 +246,20 @@ public:
       // Filters.
       //algo[i].Forward(handle_[g], bottom_data + bottom_offset_ * g, filter_desc_, weight + this->weight_offset_ * g, workspace[g], top_data + top_offset_ * g);
       CUDNN_CHECK(cudnnConvolutionForward(handle_[g],
-        gpu_get_one(),
+        cuda_get_one(),
         algo[i].bottom_descs_, in + bottom_offset_ * g,
         filter_desc_, w + this->weight_offset_ * g,
         algo[i].conv_descs_,
         algo[i].fwd_algo_, workspace[g], algo[i].workspace_fwd_sizes_,
-        gpu_get_zero(),
+        cuda_get_zero(),
         algo[i].top_descs_, out + top_offset_ * g));
 
       // Bias.
       if (b) {
         CUDNN_CHECK(cudnnAddTensor(handle_[g],
-          gpu_get_one(),
+          cuda_get_one(),
           bias_desc_, b + bias_offset_ * g,
-          gpu_get_one(),
+          cuda_get_one(),
           algo[i].top_descs_, out + top_offset_ * g));
       }
     }
@@ -276,21 +276,21 @@ public:
         // Filters.
         //algo[i].Forward(handle_[g], bottom_data + bottom_offset_ * g, filter_desc_, weight + this->weight_offset_ * g, workspace[g], top_data + top_offset_ * g);
         CUDNN_CHECK(cudnnConvolutionForward(handle_[g],
-          gpu_get_one(),
+          cuda_get_one(),
           algo[i].bottom_descs_, bottom_data + bottom_offset_ * g,
           filter_desc_, weight + this->weight_offset_ * g,
           algo[i].conv_descs_,
           algo[i].fwd_algo_, workspace[g], algo[i].workspace_fwd_sizes_,
-          gpu_get_zero(),
+          cuda_get_zero(),
           algo[i].top_descs_, top_data + top_offset_ * g));
 
         // Bias.
         if (this->bias_term_) {
           const Dtype* bias_data = this->blobs_[1]->data();
           CUDNN_CHECK(cudnnAddTensor(handle_[g],
-            gpu_get_one(),
+            cuda_get_one(),
             bias_desc_, bias_data + bias_offset_ * g,
-            gpu_get_one(),
+            cuda_get_one(),
             algo[i].top_descs_, top_data + top_offset_ * g));
         }
       }
@@ -320,9 +320,9 @@ public:
         // Gradient w.r.t. bias.
         if (this->bias_term_ && this->blobs_[1]->propagate_down_) {
           CUDNN_CHECK(cudnnConvolutionBackwardBias(handle_[0 * this->group_ + g],
-            gpu_get_one(),
+            cuda_get_one(),
             algo[i].top_descs_, top_diff + top_offset_ * g,
-            gpu_get_one(),
+            cuda_get_one(),
             bias_desc_, bias_diff + bias_offset_ * g));
         }
 
@@ -331,13 +331,13 @@ public:
           const Dtype* bottom_data = bottom[i]->data();
           CUDNN_CHECK(cudnnConvolutionBackwardFilter(
             handle_[1 * this->group_ + g],
-            gpu_get_one(),
+            cuda_get_one(),
             algo[i].bottom_descs_, bottom_data + bottom_offset_ * g,
             algo[i].top_descs_, top_diff + top_offset_ * g,
             algo[i].conv_descs_,
             algo[i].bwd_filter_algo_, workspace[1 * this->group_ + g],
             algo[i].workspace_bwd_filter_sizes_,
-            gpu_get_one(),
+            cuda_get_one(),
             filter_desc_, weight_diff + this->weight_offset_ * g));
         }
 
@@ -349,13 +349,13 @@ public:
           Dtype* bottom_diff = bottom[i]->gpu_mdiff();
           CUDNN_CHECK(cudnnConvolutionBackwardData(
             handle_[2 * this->group_ + g],
-            gpu_get_one(),
+            cuda_get_one(),
             filter_desc_, weight + this->weight_offset_ * g,
             algo[i].top_descs_, top_diff + top_offset_ * g,
             algo[i].conv_descs_,
             algo[i].bwd_data_algo_, workspace[2 * this->group_ + g],
             algo[i].workspace_bwd_data_sizes_,
-            gpu_get_zero(),
+            cuda_get_zero(),
             algo[i].bottom_descs_, bottom_diff + bottom_offset_ * g));
         }
       }

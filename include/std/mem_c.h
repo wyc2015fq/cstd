@@ -270,7 +270,7 @@ static int bf_free(buf_t* bf, void* p)
 }
 
 /////////////////////////////////////////////////////////
-enum MemType {CPUMEM, GPUMEM};
+enum MemType { CPUMEM, GPUMEM };
 struct mem_t {
   MemType type_;
   void* (*realloc_)(void* p, size_t n);
@@ -280,7 +280,7 @@ static void* cpu_realloc(void* p, size_t n) { return realloc(p, n); }
 static void cpu_free(void* p) { free(p); }
 static void* copy_cpu2cpu(void* dst, const void* src, size_t n) { return memcpy(dst, src, n); }
 typedef void* (*mem_copy_t)(void* dst, const void* src, size_t n);
-static mem_copy_t mem_copy[2][2] = { copy_cpu2cpu ,NULL, NULL, NULL};
+static mem_copy_t mem_copy[2][2] = { copy_cpu2cpu ,NULL, NULL, NULL };
 static mem_t cpu_mem[1] = { CPUMEM, cpu_realloc , cpu_free };
 static mem_t cpu_mem_nul[1] = { CPUMEM, NULL , NULL };
 static void* mem_realloc(void* p, size_t newn, mem_t* newmem, size_t oldn, mem_t* oldmem) {

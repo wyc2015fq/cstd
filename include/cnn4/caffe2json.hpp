@@ -14,9 +14,9 @@
 
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/proto/caffe.pb.cc"
-#include "parser/cJSON.hpp"
-#define CJSON_ADDNUMBERARRAYTOOBJECT(json, name, arr)  cJSON_AddNumberArrayToObject(json, name, arr.begin(), arr.size())
-#define CJSON_ADDSTRINGARRAYTOOBJECT(json, name, arr)  cJSON_AddStringArrayToObject(json, name, tostdvecstr(arr.begin(), arr.size()))
+#include "parser/cjson.hpp"
+#define CJSON_ADDNUMBERARRAYTOOBJECT(json, name, arr)  cjson_AddNumberArrayToObject(json, name, arr.begin(), arr.size())
+#define CJSON_ADDSTRINGARRAYTOOBJECT(json, name, arr)  cjson_AddStringArrayToObject(json, name, tostdvecstr(arr.begin(), arr.size()))
 
 #ifdef _DEBUG
 #pragma comment(lib,"libprotobufd.lib")
@@ -199,11 +199,11 @@ static bool read_proto_from_binary(const char* filepath, google::protobuf::Messa
   return success;
 }
 
-#define DefBool(name)  if (param.has_##name ()) { cJSON_AddBoolToObject(json_layer, #name , param.name()); }
-#define DefNumber(name)  if (param.has_##name ()) { cJSON_AddNumberToObject(json_layer, #name , param.name()); }
-#define DefString(name)  if (param.has_##name ()) { cJSON_AddStringToObject(json_layer, #name , param.name().c_str()); }
-#define DefEnum(name, TYPE)  if (param.has_##name ()) { cJSON_AddStringToObject(json_layer, #name , param.TYPE ## _Name(param.name()).c_str()); }
-#define DefEnum2(name, TYPE, _Name)  if (param.has_##name ()) { cJSON_AddStringToObject(json_layer, #name , _Name(param.name()).c_str()); }
+#define DefBool(name)  if (param.has_##name ()) { cjson_AddBoolToObject(json_layer, #name , param.name()); }
+#define DefNumber(name)  if (param.has_##name ()) { cjson_AddNumberToObject(json_layer, #name , param.name()); }
+#define DefString(name)  if (param.has_##name ()) { cjson_AddStringToObject(json_layer, #name , param.name().c_str()); }
+#define DefEnum(name, TYPE)  if (param.has_##name ()) { cjson_AddStringToObject(json_layer, #name , param.TYPE ## _Name(param.name()).c_str()); }
+#define DefEnum2(name, TYPE, _Name)  if (param.has_##name ()) { cjson_AddStringToObject(json_layer, #name , _Name(param.name()).c_str()); }
 #define DefNumberArray(name)  { CJSON_ADDNUMBERARRAYTOOBJECT(json_layer, #name , param.name()); }
 #define DefStringArray(name)  { CJSON_ADDSTRINGARRAYTOOBJECT(json_layer, #name , param.name()); }
 
@@ -219,9 +219,9 @@ vector<string> tostdvecstr(F f, int size) {
   return out;
 }
 
-void FillerParameter(CJSON* root, const char* name, caffe::FillerParameter param) {
-  //cJSON_AddStringToObject(json_layer, "filter_filler", param.filter_filler().type().c_str());
-  cJSON * json_layer = cJSON_AddItemToObject(root, name, cJSON_CreateObject());
+void FillerParameter(cjson* root, const char* name, caffe::FillerParameter param) {
+  //cjson_AddStringToObject(json_layer, "filter_filler", param.filter_filler().type().c_str());
+  cjson * json_layer = cjson_AddItemToObject(root, name, cjson_CreateObject());
   DefString(type);
   DefNumber(value);
   DefNumber(min);
@@ -231,31 +231,10 @@ void FillerParameter(CJSON* root, const char* name, caffe::FillerParameter param
   DefNumber(sparse);
   DefEnum(variance_norm, VarianceNorm);
 }
-void ParamSpec(CJSON* json_layer, caffe::ParamSpec param) {
+void ParamSpec(cjson* json_layer, caffe::ParamSpec param) {
   DefString(name);
   DefNumber(lr_mult);
   DefNumber(decay_mult);
-}
-
-int caffe2json(int argc, char** argv);
-int test_caffe2json() {
-  if (0) {
-    _chdir("C:/caffe_train");
-    char* test[] = { "",
-      "lenet_train_test.prototxt","lenet_iter_0_.caffemodel","lenet_solver.prototxt","mnist/lenet.json", "0"
-    };
-#define TESTCALL(fun, args)    fun(countof(args), args)
-    TESTCALL(caffe2json, test);
-  }
-  if (1) {
-    _chdir("E:/OCR_Line/model/densenet-no-blstm/");
-    char* test[] = { "",
-      "deploy.prototxt","model.caffemodel","solver.prototxt","model.json", "0"
-    };
-#define TESTCALL(fun, args)    fun(countof(args), args)
-    TESTCALL(caffe2json, test);
-  }
-  return 0;
 }
 
 int caffe2json(int argc, char** argv)
@@ -279,7 +258,8 @@ int caffe2json(int argc, char** argv)
   }
 
   caffe::NetParameter proto;
-  caffe::NetParameter net;
+  caffe::NetParameter net_;
+  caffe::NetParameter* net = NULL;
   
   // load
   bool s0 = read_proto_from_text(caffeproto, &proto);
@@ -289,20 +269,24 @@ int caffe2json(int argc, char** argv)
     return -1;
   }
 
-  bool s1 = read_proto_from_binary(caffemodel, &net);
-  if (!s1)
-  {
-    fprintf(stderr, "read_proto_from_binary failed\n");
-    //return -1;
+  if (caffemodel) {
+    bool s1 = read_proto_from_binary(caffemodel, &net_);
+    if (!s1) {
+      fprintf(stderr, "read_proto_from_binary failed\n");
+      //return -1;
+    }
+    else {
+      net = &net_;
+    }
   }
-  cJSON * root = cJSON_CreateObject();
+  cjson * root = cjson_CreateObject();
   int layer_count = proto.layer_size();
-  cJSON * json_root = cJSON_CreateObject();
-  cJSON * json_layers = cJSON_CreateArray();
+  cjson * json_root = cjson_CreateObject();
+  cjson * json_layers = cjson_CreateArray();
 
   if (1) {
     caffe::SolverParameter param;
-    cJSON * json_layer = cJSON_gcObjectItem(json_root, "solver");
+    cjson * json_layer = cjson_gcObjectItem(json_root, "solver");
     bool s0 = read_proto_from_text(solverproto, &param);
     if (!s0)
     {
@@ -328,39 +312,39 @@ int caffe2json(int argc, char** argv)
   int input_size = proto.input_size();
   int input_dim_size = proto.input_dim_size();
   if (input_size>0) {
-    cJSON * json_layer = cJSON_pushArrayItem(json_layers);
-    cJSON_AddStringToObject(json_layer, "name", "input");
-    cJSON_AddStringToObject(json_layer, "type", "Input");
-    cJSON * top_json = cJSON_gcObjectItem(json_layer, "top", cJSON_Array);
+    cjson * json_layer = cjson_pushArrayItem(json_layers);
+    cjson_AddStringToObject(json_layer, "name", "input");
+    cjson_AddStringToObject(json_layer, "type", "Input");
+    cjson * top_json = cjson_gcObjectItem(json_layer, "top", cjson_Array);
     for (int i = 0; i < input_size; ++i) {
-      top_json->AddItemToArray(cJSON_CreateString(proto.input(i).c_str()));
+      cjson_AddItemToArray(top_json, cjson_CreateString(proto.input(i).c_str()));
     }
-    cJSON * shape_json = cJSON_gcObjectItem(json_layer, "shape", cJSON_Array);
+    cjson * shape_json = cjson_gcObjectItem(json_layer, "shape", cjson_Array);
     for (int i = 0; i < input_dim_size; ++i) {
-      shape_json->AddItemToArray(cJSON_CreateNumber(proto.input_dim(i)));
+      cjson_AddItemToArray(shape_json, cjson_CreateNumber(proto.input_dim(i)));
     }
   }
 
   for (int layer_i = 0; layer_i < layer_count; layer_i++) {
     const caffe::LayerParameter& layer = proto.layer(layer_i);
     string layer_type = layer.type();
-    cJSON * json_layer = cJSON_pushArrayItem(json_layers);
+    cjson * json_layer = cjson_pushArrayItem(json_layers);
     // find blob binary by layer name
-    cJSON_AddStringToObject(json_layer, "name", layer.name().c_str());
-    cJSON_AddStringToObject(json_layer, "type", layer_type.c_str());
+    cjson_AddStringToObject(json_layer, "name", layer.name().c_str());
+    cjson_AddStringToObject(json_layer, "type", layer_type.c_str());
     CJSON_ADDSTRINGARRAYTOOBJECT(json_layer, "top", layer.top());
     CJSON_ADDSTRINGARRAYTOOBJECT(json_layer, "bottom", layer.bottom());
     int netidx;
     //printf("%d\n", layer_i);    if (layer_i == 22) {      int asdf = 0;    }
-    if (s1) {
-      for (netidx = 0; netidx < net.layer_size(); netidx++)
+    if (net) {
+      for (netidx = 0; netidx < net->layer_size(); netidx++)
       {
-        if (net.layer(netidx).name() == layer.name())
+        if (net->layer(netidx).name() == layer.name())
         {
           break;
         }
       }
-      if (netidx == net.layer_size()) {
+      if (netidx == net->layer_size()) {
         continue;
       }
     }
@@ -377,9 +361,9 @@ int caffe2json(int argc, char** argv)
     }
     if (layer.has_transform_param()) {
       const caffe::TransformationParameter& param = layer.transform_param();
-      cJSON * json_transform = cJSON_gcObjectItem(json_layer, "transform");
+      cjson * json_transform = cjson_gcObjectItem(json_layer, "transform");
       {
-        cJSON * json_layer = json_transform;
+        cjson * json_layer = json_transform;
         DefNumber(scale);
         DefBool(mirror);
         DefNumber(crop_size);
@@ -407,7 +391,7 @@ int caffe2json(int argc, char** argv)
       const caffe::BatchNormParameter& param = layer.batch_norm_param();
       //const caffe::BlobProto& mean_blob = binlayer.blobs(0);
       //const caffe::BlobProto& var_blob = binlayer.blobs(1);
-      //cJSON_AddNumberToObject(json_layer, " %d", (int)mean_blob.data_size());
+      //cjson_AddNumberToObject(json_layer, " %d", (int)mean_blob.data_size());
 
       //const caffe::BatchNormParameter& batch_norm_param = layer.batch_norm_param();
       //float eps = batch_norm_param.eps();
@@ -419,7 +403,7 @@ int caffe2json(int argc, char** argv)
     {
       const caffe::ConcatParameter& param = layer.concat_param();
       int dim = param.axis() - 1;
-      //cJSON_AddNumberToObject(json_layer, " axis=%d", dim);
+      //cjson_AddNumberToObject(json_layer, " axis=%d", dim);
     }
     else if (layer_type == "Convolution")
     {
@@ -493,7 +477,7 @@ int caffe2json(int argc, char** argv)
       const caffe::PoolingParameter& param = layer.pooling_param();
       //std::string pool_name = param.PoolMethod_Name(param.pool());
       DefEnum(pool, PoolMethod);
-      //cJSON_AddStringToObject(json_layer, "pool", pool_name.c_str());
+      //cjson_AddStringToObject(json_layer, "pool", pool_name.c_str());
       DefNumber(kernel_size);
       DefNumber(kernel_h);
       DefNumber(kernel_w);
@@ -566,20 +550,20 @@ int caffe2json(int argc, char** argv)
     }
 
     if (layer.param_size()>0) {
-      cJSON * json_blobs = cJSON_gcObjectItem(json_layer, "blobs", cJSON_Array);
+      cjson * json_blobs = cjson_gcObjectItem(json_layer, "blobs", cjson_Array);
       for (int i = 0; i<layer.param_size(); ++i) {
-        cJSON * json_blob = cJSON_gcArrayItem(json_blobs, i);
+        cjson * json_blob = cjson_gcArrayItem(json_blobs, i);
         ParamSpec(json_blob, layer.param(i));
       }
     }
-    if (s1) {
-      const caffe::LayerParameter& binlayer = net.layer(netidx);
+    if (net) {
+      const caffe::LayerParameter& binlayer = net->layer(netidx);
       if (binlayer.blobs_size() > 0) {
         char* buf = 0;
         int len = 0;
-        cJSON * json_blobs = cJSON_gcObjectItem(json_layer, "blobs", cJSON_Array);
+        cjson * json_blobs = cjson_gcObjectItem(json_layer, "blobs", cjson_Array);
         for (int i = 0; i < binlayer.blobs_size(); ++i) {
-          cJSON * json_blob = cJSON_gcArrayItem(json_blobs, i);
+          cjson * json_blob = cjson_gcArrayItem(json_blobs, i);
           const caffe::BlobProto& blob = binlayer.blobs(i);
           CJSON_ADDNUMBERARRAYTOOBJECT(json_blob, "shape", blob.shape().dim());
           if (0) {
@@ -588,26 +572,26 @@ int caffe2json(int argc, char** argv)
             len = 0;
             base64_encode((char*)blob.data().data(), size, buf, &len);
             buf[len] = 0;
-            cJSON_AddStringToObject(json_blob, "data", buf);
+            cjson_AddStringToObject(json_blob, "data", buf);
           }
           if (1) {
-            cJSON_AddBinaryDataToObject(json_blob, "data", blob.data().data(), blob.data_size() * sizeof(float));
+            cjson_AddBinaryDataToObject(json_blob, "data", blob.data().data(), blob.data_size() * sizeof(float));
           }
           if (0) {
-            cJSON_AddNumberArrayToObject(json_blob, "data", blob.data().data(), blob.data_size());
+            cjson_AddNumberArrayToObject(json_blob, "data", blob.data().data(), blob.data_size());
           }
           //fwrite(blob.data().data(), sizeof(float), blob.data_size(), bp);
-          //cJSON_AddItemToArray(json_blobs, json_blob);
+          //cjson_AddItemToArray(json_blobs, json_blob);
         }
         free(buf);
       }
     }
   }
-  cJSON_AddItemToObject(json_root, "layers", json_layers);
-  //printf("%s\n", cJSON_Print(json_root));
-  cJSON_SaveFile(jsonoutfile, json_root);
+  cjson_AddItemToObject(json_root, "layers", json_layers);
+  //printf("%s\n", cjson_Print(json_root));
+  cjson_SaveFile(jsonoutfile, json_root);
   //fclose(bp);
-  cJSON_Delete(root);
+  cjson_Delete(root);
   return 0;
 }
 
@@ -618,4 +602,35 @@ int caffe2json(int argc, char** argv)
 #undef DefEnum2
 #undef DefNumberArray
 #undef DefStringArray
+
+
+
+
+#define TESTCALL(fun, args)    fun(countof(args), args)
+int test_caffe2json() {
+  if (0) {
+    _chdir("C:/caffe_train");
+    char* test[] = { "",
+      "lenet_train_test.prototxt","lenet_iter_0_.caffemodel","lenet_solver.prototxt","mnist/lenet->json", "0"
+    };
+    TESTCALL(caffe2json, test);
+  }
+  if (0) {
+    _chdir("E:/OCR_Line/model/densenet-no-blstm/");
+    char* test[] = { "",
+      "deploy.prototxt","model.caffemodel","solver.prototxt","model.json", "0"
+    };
+    TESTCALL(caffe2json, test);
+  }
+  if (1) {
+    _chdir("E:/OCR_Line/lines/densenet-no-blstm");
+    char* test[] = { "",
+      "train-val.prototxt", NULL, "solver.prototxt","train-val.json", "0"
+    };
+    TESTCALL(caffe2json, test);
+  }
+  return 0;
+}
+#undef TESTCALL
+
 

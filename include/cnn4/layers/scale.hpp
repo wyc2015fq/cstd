@@ -76,7 +76,8 @@ public:
       const int* shape_end = (num_axes_ == -1) ? bottom[0]->shape().end() : (shape_start + num_axes_);
       vector<int> scale_shape(shape_start, shape_end);
       this->blobs_[0]->Reshape((scale_shape));
-      Fill(this->blobs_[0], &filler_);
+      this->blobs_[0]->filler_ = filler_;
+      this->blobs_[0]->Fill();
     }
     if (bias_term_) {
       bias_layer_ = new BiasLayer();

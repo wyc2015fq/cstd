@@ -1,4 +1,19 @@
 
+__global__ void FUN(set_kernel)(const int n, const Dtype alpha, Dtype* y) {
+  CUDA_KERNEL_LOOP(index, n) {
+    y[index] = alpha;
+  }
+}
+
+void FUN(caffe_set)(const int N, const Stype alpha, Dtype* Y) {
+  if (alpha == 0) {
+    CUDA_CHECK(cudaMemset(Y, 0, sizeof(Dtype) * N));  // NOLINT(caffe/alt_fn)
+    return;
+  }
+  // NOLINT_NEXT_LINE(whitespace/operators)
+  FUN(set_kernel) << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(N, alpha, Y);
+}
+
 struct FUN(ones_t) {
   Buffer buf;
   FUN(ones_t)() {
@@ -10,7 +25,7 @@ struct FUN(ones_t) {
   Dtype* get(int n) {
     int size = n * sizeof(Dtype);
     if (size > buf.size) {
-      gpu_ReAlloc(&buf, size);
+      FUN(ReAlloc)(&buf, size);
       FUN(caffe_set)(n, 1, (Dtype*)buf.data);
     }
     return (Dtype*)buf.data;
@@ -133,21 +148,6 @@ void FUN(caffe_scale)(const int n, const Stype alpha, const Dtype* x,
   Dtype alpha_ = (Dtype)alpha;
   CUBLAS_CHECK(CBLASFUN(copy)(cublas_handle(), n, x, 1, y, 1));
   CUBLAS_CHECK(CBLASFUN(scal)(cublas_handle(), n, &alpha_, y, 1));
-}
-
-__global__ void FUN(set_kernel)(const int n, const Dtype alpha, Dtype* y) {
-  CUDA_KERNEL_LOOP(index, n) {
-    y[index] = alpha;
-  }
-}
-
-void FUN(caffe_set)(const int N, const Stype alpha, Dtype* Y) {
-  if (alpha == 0) {
-    CUDA_CHECK(cudaMemset(Y, 0, sizeof(Dtype) * N));  // NOLINT(caffe/alt_fn)
-    return;
-  }
-  // NOLINT_NEXT_LINE(whitespace/operators)
- FUN(set_kernel) << <CAFFE_GET_BLOCKS(N), CAFFE_CUDA_NUM_THREADS >> >(N, alpha, Y);
 }
 
 __global__ void FUN(add_scalar_kernel)(const int n, const Dtype alpha, Dtype* y) {

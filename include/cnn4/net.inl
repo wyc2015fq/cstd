@@ -11,7 +11,7 @@ int learnable_params(vector<Blob* >& out) {
 
 
 int SetUp() {
-  Net* net = this;
+  CnnNet* net = this;
   for (int i = 0; i < layers_.size(); ++i) {
     // LOG(ERROR) << "Forwarding " << layer_names_[i];
     Layer* layer = net->layers_[i];
@@ -108,7 +108,7 @@ cjson* ToJson() {
 }
 
 int FromJson(cjson* param) {
-  Net* net = this;
+  CnnNet* net = this;
   cjson* layers_json = cjson_GetObjectItem(param, "layers");
   cjson* solver_json = cjson_GetObjectItem(param, "solver");
   int ret = 0;
@@ -142,7 +142,7 @@ Dtype Forward(Phase phase) {
 
 double ForwardFromTo(Phase phase, int start, int end)
 {
-  Net* net = this;
+  CnnNet* net = this;
   CHECK_GE(start, 0);
   CHECK_LT(end, net->layers_.size());
   double loss = 0;
@@ -160,7 +160,7 @@ double ForwardFromTo(Phase phase, int start, int end)
 
 void BackwardFromTo(int start, int end)
 {
-  Net* net = this;
+  CnnNet* net = this;
   CHECK_GE(end, 0);
   CHECK_LT(start, layers_.size());
   for (int i = start; i >= end; --i) {

@@ -20,8 +20,7 @@ public:
 
   virtual inline const char* type() const { return "ReLU"; }
 
-  virtual void Forward_(const vector<Blob*> & bottom,
-    const vector<Blob*> & top)
+  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {
     const Dtype* bottom_data = bottom[0]->data();
     Dtype* top_data = top[0]->mdata();
@@ -29,8 +28,7 @@ public:
     relu_forward(count, bottom_data, top_data, negative_slope_);
   }
 
-  virtual void Backward_(const vector<Blob*> & top,
-    const vector<Blob*> & bottom)
+  virtual void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom)
   {
     if (bottom[0]->propagate_down_) {
       const Dtype* bottom_data = bottom[0]->data();

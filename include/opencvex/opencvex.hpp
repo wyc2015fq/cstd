@@ -9,6 +9,33 @@
 using namespace std;
 using namespace cv;
 
+Rect rectSplitH(Rect r, int i, int n) {
+  float w = r.width*1./n;
+  float x = r.x + w*i;
+  return Rect((int)x, r.y, (int)w, r.height);
+}
+
+Rect rectExt(Rect boundRect, int ex, int ey, int h, int w) {
+  int r = boundRect.x + boundRect.width;
+  int b = boundRect.y + boundRect.height;
+  boundRect.x -= 2;
+  boundRect.y -= 2;
+  r += 2;
+  b += 2;
+  if (r < 0) {
+    int asdf = 0;
+  }
+  boundRect.x = MAX(boundRect.x, 0);
+  boundRect.y = MAX(boundRect.y, 0);
+  r = MIN(w, r);
+  b = MIN(h, b);
+  r = MAX(boundRect.x, r);
+  b = MAX(boundRect.y, b);
+  boundRect.width = r - boundRect.x;
+  boundRect.height = b - boundRect.y;
+  return boundRect;
+}
+
 // ÈÆpt(x, y) Ðý×ªt¶È
 //  cos(t), sin(t), 0
 // -sin(t), cos(t), 0

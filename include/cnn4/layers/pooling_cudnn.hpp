@@ -48,9 +48,9 @@ public:
     const Dtype* bottom_data = bottom[0]->data();
     Dtype* top_data = top[0]->mdata();
     CUDNN_CHECK(cudnnPoolingForward(handle_, pooling_desc_,
-      gpu_get_one(),
+      cuda_get_one(),
       bottom_desc_, bottom_data,
-      gpu_get_zero(),
+      cuda_get_zero(),
       top_desc_, top_data));
   }
 
@@ -63,10 +63,10 @@ public:
     const Dtype* bottom_data = bottom[0]->data();
     Dtype* bottom_diff = bottom[0]->gpu_mdiff();
     CUDNN_CHECK(cudnnPoolingBackward(handle_, pooling_desc_,
-      gpu_get_one(),
+      cuda_get_one(),
       top_desc_, top_data, top_desc_, top_diff,
       bottom_desc_, bottom_data,
-      gpu_get_zero(),
+      cuda_get_zero(),
       bottom_desc_, bottom_diff));
   }
 

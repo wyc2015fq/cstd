@@ -33,6 +33,25 @@ def getpages(html):
     ret = int(tr)
     return ret
 
+
+def printhtml(htm):
+    print(etree.tostring(htm,method='html'))
+
+# 1406763582
+
+def getpages2(html):
+    aa = '/html/body/div[3]/div[3]/div[2]/div[1]/div[1]/div/div[3]/div/a'
+    aa = './/div[@class="vd_page"]/a'
+    tr = html.xpath(aa)
+    #printhtml(tr[0])
+    #print(tr)
+    #print(len(tr))
+    if len(tr)==0:
+        return 1
+    tr = html.xpath(aa + '[%d]/text()'% (len(tr)-1))[0]
+    ret = int(tr)
+    return ret
+
 def getu1(html):
     ret = []
     tr = html.xpath('//*[@id="share_table"]/tbody/tr')
@@ -74,12 +93,11 @@ def getu(url):
 
     return ret, name
 
-def gets(url):
+def gets1(html):
     ret = []
     # //*[@id="file_share_list_0"]/td[2]/div/div[2]/div/a
     # //*[@id="file_share_list_0"]
     #
-    html = gethtml(url)
     tr = html.xpath('//*[@id="fileListBody"]/tr')
     for itr in tr:
         aa = itr.xpath('td[2]/div/div[2]/div/a/@title')[0]
@@ -92,6 +110,25 @@ def gets(url):
         else:
             cc = cc[0]
         ret.append({"url":hh, "class":cc, "name":aa})
+
+    return ret
+
+def gets(url):
+    ret = []
+    # //*[@id="file_share_list_0"]/td[2]/div/div[2]/div/a
+    # //*[@id="file_share_list_0"]
+    #
+    html = gethtml(url)
+    n = getpages2(html)
+    ret = gets1(html)
+    #n=1000
+    print('pns=%d'% n)
+    for i in range(2, n+1):
+        print('pn=%d'% i)
+        ret1 = gets1(gethtml(url + '?pn=%d'%(i)))
+        if len(ret1)==0:
+            return ret;
+        ret = ret + ret1
 
     return ret
 
@@ -110,20 +147,29 @@ def save_txt(t, fn):
             pass
     f.close()
 
+import os
+
+def str2name(str):
+    str = str.strip()
+    str = str.replace('*','')
+    str = str.replace('?','？')
+    return str
+
 
 def runalls(url, path):
     ret = gets(url)
+    path = str2name(path)
     mkdir(path)
     save_txt(ret, path + '/list.txt')
     for s in ret:
         if s['class'] == 'vd_icon32_v2 vd_folder':
             runalls(s['url'], path + '/' + s['name'])
 
-import os
-
 
 def runallu(url, path):
     ret,name = getu(url)
+    path = str2name(path)
+    name = str2name(name)
     path = path + name
     mkdir(path)
     save_txt(ret, path + '/list.txt')

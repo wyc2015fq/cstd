@@ -54,6 +54,21 @@ namespace cv {
       }
     }
   }
+  static void gray2bgr(uchar* dst0, int dststep, int dstinc, const uchar* src0, int srcstep, int srcinc, int h, int w) {
+    int i, j;
+    for (j = 0; j < h; ++j) {
+      uchar* dst = dst0 + j*dststep;
+      const uchar* src = src0 + j*srcstep;
+      for (i = 0; i < w; ++i) {
+        char a = src[0];
+        dst[0] = a;
+        dst[1] = a;
+        dst[2] = a;
+        src += srcinc;
+        dst += dstinc;
+      }
+    }
+  }
 
   static void* memcpy2d_(void* dst, int dl, const void* src, int sl, int h, int w)
   {
@@ -82,9 +97,24 @@ namespace cv {
   Mat imread(const String& filename, int flags) {
     int w=0, h=0, n=0, req_comp = get_comp(flags);
     unsigned char *data = stbi_load(filename.c_str(), &w, &h, &n, req_comp);
-    Mat mat(h, w, CV_MAKETYPE(CV_8U, n));
+    int nn = n * 10 + req_comp;
+    Mat mat(h, w, CV_MAKETYPE(CV_8U, req_comp));
     //memcpy2d_(mat.data, mat.step, data, w*n, h, w*n);
-    rgb2bgr(mat.data, mat.step, 3, data, w*n, 3, h, w);
+    switch(nn) {
+    case 14:
+    case 13:
+      gray2bgr(mat.data, mat.step, req_comp, data, w*n, n, h, w);
+      break;
+    case 34:
+    case 44:
+    case 43:
+    case 33:
+      rgb2bgr(mat.data, mat.step, req_comp, data, w*n, n, h, w);
+      break;
+    default:
+      assert(0);
+      break;
+    }
     stbi_image_free(data);
     return mat;
   }
