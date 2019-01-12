@@ -192,6 +192,7 @@ def renalllist(flvpath, l2, ss):
 
 import clip
 #print(clip.gettext().decode('gbk'))
+import sys
 if 1:
     flvpath = 'E:/_new/_ok1/考研计算机网络'
     flvpath = 'F:/kk/_unname/期权、期货及其他衍生产品'
@@ -199,7 +200,10 @@ if 1:
     #with open((os.path.join('rename_bilibili.txt')), 'rb') as f:
     #    data = f.read()
     #flvpath = data.decode('utf-8')
-    flvpath = clip.gettext().decode('gbk')
+    if len(sys.argv)>1:
+        flvpath = sys.argv[1]
+    else:
+        flvpath = clip.gettext().decode('gbk').trip('\r\n')
     l1 = loadlist_firefox(flvpath + '/新建文本文档.txt', encoding='gbk')
     l2 = dirlist(flvpath)
     print(l1)

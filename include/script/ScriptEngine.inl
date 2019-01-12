@@ -1,7 +1,428 @@
 #if !defined(AFX_SCRIPTENGINE_H__20050805_F673_570F_6CD8_0080AD509054__INCLUDED_)
 #define AFX_SCRIPTENGINE_H__20050805_F673_570F_6CD8_0080AD509054__INCLUDED_
-#include "Tokenizer.inl"
-int Clear(CScriptEngine* env)
+
+#define MAX_KEYWORD_LEN 32
+#define MAX_STRING_LEN 300
+#include "std/string_c.h"
+typedef enum {
+  OP_END = 0,
+  OP_EOL,
+  OP_INDENTIFIER,
+  OP_COMMA,
+  OP_DOT,
+  OP_COLON,
+  OP_SEMICOLON,
+  OP_CHAR,
+  OP_PAREN_L,
+  OP_PAREN_R,
+  OP_BRACE_L,
+  OP_BRACE_R,
+  OP_INTEGER,
+  OP_NUMBER,
+  OP_STRING,
+  OP_EQUAL,
+  OP_NOT,
+  OP_PLUS,
+  OP_MINUS,
+  OP_PLUSEQUAL,
+  OP_MINUSEQUAL,
+  OP_DIV,
+  OP_MUL,
+  OP_MOD, //%
+  OP_OR, //||
+  OP_AND,
+  OP_XOR,
+  OP_INC,
+  OP_DEC,
+  OP_CMP_EQU,//等于
+  OP_CMP_NEQ,//不等于
+  OP_CMP_LSS,//小于
+  OP_CMP_LEQ,//小于或等于
+  OP_CMP_GTR,//大于
+  OP_CMP_GEQ,//大于或等于
+  //
+  OP_IF,
+  OP_ELSE,
+  OP_FUNCTION,
+  OP_SWITCH,
+  OP_CASE,
+  OP_DEFAULT,
+  OP_WHILE,
+  OP_FOR,
+  OP_BREAK,
+  OP_FOREACH,
+  //OP_VAR,
+  OP_RETURN,
+  OP_USES,
+} OPTYPE;
+#define tok_free(x)
+#define tok_cpy(a, b) *(a) = *(b)
+#define THROW(x) {throw_error(env, env->m_tok->m_iLineNo, #x );} return x
+typedef struct tok_t {
+  int type;
+  char* s;
+  int l;
+} tok_t;
+#define tok_set_t(tok, t) tok_set_tp(tok, t, 0, 0)
+#define tok_eqstr(tok, str) (0==strnicmp_c((tok)->s, (tok)->l, str, strlen(str), -1, 0, 0))
+int tok_set_tp(tok_t* tok, int t, const void* p, int len)
+{
+  tok->type = t;
+  tok->s = (char*)p;
+  tok->l = len;
+  return t;
+}
+typedef struct CTokenizer {
+  const char* m_pstr;
+  int m_iLineNo;
+} CTokenizer;
+void Assign(CTokenizer* s, const char* pstr, int iLineNo)
+{
+  s->m_pstr = (pstr);
+  s->m_iLineNo = iLineNo;
+}
+int GetToken(CTokenizer* s, tok_t* tok)
+{
+  int type = 0, stop = 0;
+  while (!stop) {
+    stop = 1;
+    while (*s->m_pstr && (*s->m_pstr == ' ' || *s->m_pstr == '\t' || *s->m_pstr == '\r')) {
+      s->m_pstr++;
+    }
+    if (*s->m_pstr == '\0') {
+      return tok_set_t(tok, OP_END);
+    }
+    switch (*s->m_pstr) {
+    case '\n':
+      s->m_pstr++;
+      s->m_iLineNo++;
+      stop = 0;
+      break;
+    case ',':
+      return s->m_pstr++, tok_set_t(tok, OP_COMMA);
+    case '.':
+      return s->m_pstr++, tok_set_t(tok, OP_DOT);
+    case ':':
+      return s->m_pstr++, tok_set_t(tok, OP_COLON);
+    case ';':
+      return s->m_pstr++, tok_set_t(tok, OP_SEMICOLON);
+    case '(':
+      return s->m_pstr++, tok_set_t(tok, OP_PAREN_L);
+    case ')':
+      return s->m_pstr++, tok_set_t(tok, OP_PAREN_R);
+    case '{':
+      return s->m_pstr++, tok_set_t(tok, OP_BRACE_L);
+    case '}':
+      return s->m_pstr++, tok_set_t(tok, OP_BRACE_R);
+    case '-':
+      s->m_pstr++;
+      if (*s->m_pstr == '-') {
+        return s->m_pstr++, tok_set_t(tok, OP_DEC);
+      }
+      if (*s->m_pstr == '=') {
+        return s->m_pstr++, tok_set_t(tok, OP_MINUSEQUAL);
+      }
+      return tok_set_t(tok, OP_MINUS);
+    case '+':
+      s->m_pstr++;
+      if (*s->m_pstr == '+') {
+        return s->m_pstr++, tok_set_t(tok, OP_INC);
+      }
+      if (*s->m_pstr == '=') {
+        return s->m_pstr++, tok_set_t(tok, OP_PLUSEQUAL);
+      }
+      return tok_set_t(tok, OP_PLUS);
+    case '&':
+      s->m_pstr++;
+      if (*s->m_pstr == '&') {
+        s->m_pstr++;
+      }
+      return tok_set_t(tok, OP_AND);
+    case '|':
+      s->m_pstr++;
+      if (*s->m_pstr == '|') {
+        s->m_pstr++;
+      }
+      return tok_set_t(tok, OP_OR);
+    case '~':
+      s->m_pstr++;
+      return tok_set_t(tok, OP_XOR);
+    case '*':
+      s->m_pstr++;
+      return tok_set_t(tok, OP_MUL);
+    case '%':
+      s->m_pstr++;
+      return tok_set_t(tok, OP_MOD);
+    case '/': {
+      s->m_pstr++;
+      if (*s->m_pstr == '/') {
+        while (*s->m_pstr != '\0' && *s->m_pstr != '\n') {
+          s->m_pstr++;
+        }
+        stop = 0;
+        break;
+      }
+      if (*s->m_pstr == '*') {
+        s->m_pstr++;
+        while (*s->m_pstr != '\0' && !(*s->m_pstr == '*' && *(s->m_pstr + 1) == '/')) {
+          s->m_pstr++;
+        }
+        if (*s->m_pstr != '\0') {
+          s->m_pstr += 2;
+        }
+        stop = 0;
+        break;
+      }
+      return tok_set_t(tok, OP_DIV);
+    }
+    break;
+    case '=':
+    case '<':
+    case '>':
+    case '!': {
+      const char* p = s->m_pstr++;
+      if (*s->m_pstr == '<' || *s->m_pstr == '>' || *s->m_pstr == '=') {
+        s->m_pstr++;
+      }
+      tok_set_tp(tok, type, p, s->m_pstr - p);
+      if (tok_eqstr(tok, "!")) {
+        type = OP_NOT;
+      }
+      else if (tok_eqstr(tok, "=")) {
+        type = OP_EQUAL;
+      }
+      else if (tok_eqstr(tok, "==")) {
+        type = OP_CMP_EQU;
+      }
+      else if (tok_eqstr(tok, "!=")) {
+        type = OP_CMP_NEQ;
+      }
+      else if (tok_eqstr(tok, "<")) {
+        type = OP_CMP_LSS;
+      }
+      else if (tok_eqstr(tok, ">")) {
+        type = OP_CMP_GTR;
+      }
+      else if (tok_eqstr(tok, "<=")) {
+        type = OP_CMP_LEQ;
+      }
+      else if (tok_eqstr(tok, ">=")) {
+        type = OP_CMP_GEQ;
+      }
+      else {
+        ASSERT(0);
+      }
+      tok->type = type;
+      return tok->type;
+    }
+    break;
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9': {
+      const char* p = s->m_pstr;
+      int cCount = 0;
+      type = OP_INTEGER;
+      while (*s->m_pstr && *s->m_pstr >= '0' && *s->m_pstr <= '9') {
+        s->m_pstr++;
+        if (*s->m_pstr == '.') {
+          type = OP_NUMBER, s->m_pstr++;
+        }
+        if (++cCount >= MAX_KEYWORD_LEN) {
+          return tok_set_t(tok, OP_END);
+        }
+      }
+      return tok_set_tp(tok, type, p, s->m_pstr - p);
+    }
+    break;
+    case '\"': {
+      char chDelim = *s->m_pstr;
+      const char* p;
+      int cCount = 0;
+      s->m_pstr++; // skip quote
+      type = OP_STRING;
+      p = s->m_pstr;
+      while (*s->m_pstr && *s->m_pstr != chDelim) {
+        s->m_pstr++;
+      }
+      if (*s->m_pstr != chDelim) {
+        return tok_set_t(tok, OP_END);
+      }
+      tok_set_tp(tok, type, p, s->m_pstr - p);
+      s->m_pstr++; // skip quote
+      return tok->type;
+    }
+    break;
+    }
+  }
+  {
+    int cCount = 0;
+    const char* p = s->m_pstr;
+    type = OP_INDENTIFIER;
+    while (*s->m_pstr && (isalnum(*s->m_pstr) || *s->m_pstr == '_')) {
+      s->m_pstr++;
+    }
+    tok_set_tp(tok, type, p, s->m_pstr - p);
+    {
+      typedef struct {
+        char* pstrName;
+        OPTYPE Op;
+      } KEYWORD;
+      static KEYWORD Keywords[] = {
+        { "break", OP_BREAK },
+        { "case", OP_CASE },
+        { "default", OP_DEFAULT },
+        { "else", OP_ELSE },
+        { "for", OP_FOR },
+        { "foreach", OP_FOREACH },
+        { "function", OP_FUNCTION },
+        { "if", OP_IF },
+        { "return", OP_RETURN },
+        { "switch", OP_SWITCH },
+        { "uses", OP_USES },
+        //{ "var", OP_VAR },
+        { "while", OP_WHILE },
+        { NULL, OP_END }
+      };
+      KEYWORD* k;
+      for (k = Keywords; k->Op != OP_END; k++) {
+        if (tok_eqstr(tok, k->pstrName)) {
+          tok->type = k->Op;
+          return tok->type;
+        }
+      }
+    }
+  }
+  if (tok->l == 0) {
+    return tok_set_tp(tok, OP_CHAR, s->m_pstr++, 1);
+  }
+  return tok->type;
+}
+int PeekToken(CTokenizer* s, tok_t* tok)
+{
+  const char* pstrOld = s->m_pstr; // backup old text position
+  GetToken(s, tok);
+  s->m_pstr = pstrOld;
+  return tok->type;
+}
+int SkipTo(CTokenizer* s, tok_t* tok, OPTYPE Stop)
+{
+  int iBrace = 0;
+  int iParen = 0;
+  for (; ;) {
+    if (tok->type == OP_BRACE_R) {
+      iBrace--;
+    }
+    else if (tok->type == OP_PAREN_R) {
+      iParen--;
+    }
+    if (tok->type == Stop && iBrace <= 0 && iParen <= 0) {
+      return GetToken(s, tok);
+    }
+    if (tok->type == OP_END) {
+      return tok->type;
+    }
+    else if (tok->type == OP_BRACE_L) {
+      iBrace++;
+    }
+    else if (tok->type == OP_PAREN_L) {
+      iParen++;
+    }
+    GetToken(s, tok);
+  }
+  return tok->type;
+}
+struct IScriptCallback
+{
+  virtual bool GetProperty(char* s, var_t* out, int nout) = 0;
+  virtual bool SetProperty(char* s, const var_t* vValue) = 0;
+  virtual bool Method(char* s, var_t* pvArgs, int nArgs, var_t* out, int nout) = 0;
+};
+enum { MAX_VARIABLES = 100 };
+enum { MAX_FUNCTIONS = 50 };
+enum { MAX_OBJECTS = 20 };
+enum { MAX_STACKDEPTH = 20 };
+enum { MAX_ARGUMENTS = 12 };
+typedef enum EXCEP {
+  EXCEP_NOP = 0,
+  EXCEP_SYNTAXERROR,
+  EXCEP_TYPEMISMATCH,
+  EXCEP_NAMEEXPECTED,
+  EXCEP_CODEOVERFLOW,
+  EXCEP_PARAMOVERFLOW,
+  EXCEP_STACKOVERFLOW,
+  EXCEP_SCOPE,
+  EXCEP_NOTFOUND,
+  EXCEP_KEYWORD,
+  EXCEP_DUPLICATE,
+  EXCEP_ERROR,
+  EXCEP_PAREN,
+  EXCEP_ARGUMENTS,
+  EXCEP_BREAK,
+  EXCEP_RETURN,
+  EXCEP_CANCELLED,
+};
+typedef struct VARIABLE {
+  char szName[MAX_KEYWORD_LEN];
+  var_t vValue;
+} VARIABLE;
+typedef struct CALLBACKDEF {
+  char szName[MAX_KEYWORD_LEN];
+  IScriptCallback* pCallback;
+} CALLBACKDEF;
+typedef struct FUNCTIONDEF {
+  char szName[MAX_KEYWORD_LEN];
+  const char* pstrCode;
+  int iLineNo;
+  int iArgs; // 输入参数个数
+  int oArgs; // 输出参数个数
+} FUNCTIONDEF;
+typedef struct STACKLEVEL {
+  const char* pstrCode;
+  int iLineNo;
+  int iVarIndex;
+  int iStackVarIndex;
+  int t;
+} STACKLEVEL;
+typedef struct ScriptEngine {
+  char* m_pstrScript;
+  char* m_pstrStore;
+  CTokenizer m_tok[1];
+  tok_t m_t[1];
+  char m_szErrorMsg[64];
+  char m_szErrorCode[40];
+  char m_szErrorLine[100];
+  int m_iErrorLineNum;
+  VARIABLE m_vars[MAX_VARIABLES];
+  int m_nVars;
+  CALLBACKDEF m_Objects[MAX_OBJECTS];
+  int m_nObjects;
+  FUNCTIONDEF m_Functions[MAX_FUNCTIONS];
+  int m_nFunctions;
+  STACKLEVEL m_Stack[MAX_STACKDEPTH];
+  int m_nStackLevel;
+  var_t m_StackVars[MAX_STACKDEPTH];
+  int m_nStackVars;
+  bool m_bCancelled;
+} ScriptEngine;
+int try_ret()
+{
+  int adsf = 0;
+  return 0;
+}
+
+int throw_error(ScriptEngine* env, int n, const char* nstr) {
+  printf("line: %d err: %s", env->m_tok->m_iLineNo, nstr );
+  return 0;
+}
+#define TRY_RETURN(x) {int ret = x; if (EXCEP_NOP!=ret) { try_ret(); return ret; } }
+int Clear(ScriptEngine* env)
 {
   int i;
   for (i = 0; i < env->m_nVars; i++) {
@@ -25,16 +446,16 @@ int Clear(CScriptEngine* env)
   env->m_pstrScript = NULL;
   return EXCEP_NOP;
 }
-int Cancel(CScriptEngine* env)
+int Cancel(ScriptEngine* env)
 {
   env->m_bCancelled = true;
   return EXCEP_NOP;
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-int __level1(CScriptEngine* env, var_t* out);
-int __var_assign(CScriptEngine* env, var_t* out);
-int __var_retrieve(CScriptEngine* env, var_t* out, int nout);
-int __level6(CScriptEngine* env, var_t* out)
+int __level1(ScriptEngine* env, var_t* out);
+int __var_assign(ScriptEngine* env, var_t* out);
+int __var_retrieve(ScriptEngine* env, var_t* out, int nout);
+int __level6(ScriptEngine* env, var_t* out)
 {
   switch (env->m_t->type) {
   case OP_PAREN_L: {
@@ -49,18 +470,18 @@ int __level6(CScriptEngine* env, var_t* out)
   }
   break;
   case OP_STRING: {
-    char* p = strdup_nop(env->m_t->s.s, env->m_t->s.l);
+    char* p = strdup_nop(env->m_t->s, env->m_t->l);
     var_set_lpstr(out, p);
     free(p);
   }
   break;
   case OP_INTEGER: {
-    int var = atoi(env->m_t->s.s);
+    int var = atoi(env->m_t->s);
     var_set_i4(out, var);
   }
   break;
   case OP_NUMBER: {
-    double var = atof(env->m_t->s.s);
+    double var = atof(env->m_t->s);
     var_set_r8(out, var);
   }
   break;
@@ -113,7 +534,7 @@ int __level6(CScriptEngine* env, var_t* out)
   GetToken(env->m_tok, env->m_t);
   return EXCEP_NOP;
 }
-int __level5(CScriptEngine* env, var_t* out)
+int __level5(ScriptEngine* env, var_t* out)
 {
   bool bUnary = false;
   if (env->m_t->type == OP_PLUS || env->m_t->type == OP_MINUS) {
@@ -126,7 +547,7 @@ int __level5(CScriptEngine* env, var_t* out)
   }
   return EXCEP_NOP;
 }
-int __level4(CScriptEngine* env, var_t* out)
+int __level4(ScriptEngine* env, var_t* out)
 {
   TRY_RETURN(__level5(env, out));
   while (env->m_t->type == OP_NOT) {
@@ -135,7 +556,7 @@ int __level4(CScriptEngine* env, var_t* out)
   }
   return EXCEP_NOP;
 }
-int __level3(CScriptEngine* env, var_t* out)
+int __level3(ScriptEngine* env, var_t* out)
 {
   TRY_RETURN(__level4(env, out));
   while (env->m_t->type == OP_MUL || env->m_t->type == OP_DIV || env->m_t->type == OP_MOD) {
@@ -159,7 +580,7 @@ int __level3(CScriptEngine* env, var_t* out)
   }
   return EXCEP_NOP;
 }
-int __level2(CScriptEngine* env, var_t* out)
+int __level2(ScriptEngine* env, var_t* out)
 {
   TRY_RETURN(__level3(env, out));
   while (env->m_t->type == OP_PLUS || env->m_t->type == OP_MINUS) {
@@ -181,7 +602,7 @@ int __level2(CScriptEngine* env, var_t* out)
   }
   return EXCEP_NOP;
 }
-int __level1(CScriptEngine* env, var_t* out)
+int __level1(ScriptEngine* env, var_t* out)
 {
   TRY_RETURN(__level2(env, out));
   while (env->m_t->type == OP_CMP_EQU || env->m_t->type == OP_CMP_NEQ || env->m_t->type == OP_CMP_LSS || env->m_t->type == OP_CMP_GTR || env->m_t->type == OP_CMP_LEQ || env->m_t->type == OP_CMP_GEQ) {
@@ -218,7 +639,7 @@ int __level1(CScriptEngine* env, var_t* out)
   }
   return EXCEP_NOP;
 }
-int __level0(CScriptEngine* env, var_t* out)
+int __level0(ScriptEngine* env, var_t* out)
 {
   TRY_RETURN(__level1(env, out));
   while (env->m_t->type == OP_AND || env->m_t->type == OP_OR || env->m_t->type == OP_XOR) {
@@ -241,7 +662,7 @@ int __level0(CScriptEngine* env, var_t* out)
   }
   return EXCEP_NOP;
 }
-int __eval(CScriptEngine* env, var_t* out)
+int __eval(ScriptEngine* env, var_t* out)
 {
   TRY_RETURN(__level0(env, out));
   while (env->m_t->type == OP_COMMA) {
@@ -250,7 +671,7 @@ int __eval(CScriptEngine* env, var_t* out)
   }
   return EXCEP_NOP;
 }
-int __pushstack(CScriptEngine* env)
+int __pushstack(ScriptEngine* env)
 {
   STACKLEVEL& stack = env->m_Stack[env->m_nStackLevel];
   memset(&stack, 0, sizeof(STACKLEVEL));
@@ -264,7 +685,7 @@ int __pushstack(CScriptEngine* env)
   }
   return env->m_nStackLevel;
 }
-int __popstack(CScriptEngine* env, int iStack)
+int __popstack(ScriptEngine* env, int iStack)
 {
   STACKLEVEL& stack = env->m_Stack[iStack - 1];
   int i;
@@ -281,9 +702,9 @@ int __popstack(CScriptEngine* env, int iStack)
   env->m_nStackLevel = iStack - 1;
   return EXCEP_NOP;
 }
-int __statement(CScriptEngine* env);
-int __exec(CScriptEngine* env, OPTYPE Stop);
-int __block(CScriptEngine* env)
+int __statement(ScriptEngine* env);
+int __exec(ScriptEngine* env, OPTYPE Stop);
+int __block(ScriptEngine* env)
 {
   if (env->m_t->type == OP_SEMICOLON) {
     return EXCEP_NOP;
@@ -304,8 +725,8 @@ int __block(CScriptEngine* env)
   }
   return EXCEP_NOP;
 }
-int __var_find_define(CScriptEngine* env, str_t tName);
-int __var_assign(CScriptEngine* env, var_t* out)
+int __var_find_define(ScriptEngine* env, const char* tName, int tNameLen);
+int __var_assign(ScriptEngine* env, var_t* out)
 {
   int i;
   tok_t tName[1] = {0};
@@ -338,7 +759,7 @@ int __var_assign(CScriptEngine* env, var_t* out)
   }
   //for (int i = env->m_nVars - 1; i >= 0; --i)
   {
-    i = __var_find_define(env, tName->s);
+    i = __var_find_define(env, tName->s, tName->l);
     //if (tok_eqstr(tName, env->m_vars[i].szName))
     {
       switch (tOp) {
@@ -396,10 +817,10 @@ int __var_assign(CScriptEngine* env, var_t* out)
   tok_free(t);
   return EXCEP_NOP;
 }
-int __var_getargs(CScriptEngine* env, var_t* pArgs, int& nArgs);
-int __var_define(CScriptEngine* env);
-int __var_define(CScriptEngine* env, str_t pstrName, var_t* vValue);
-int __fun_call(CScriptEngine* env, FUNCTIONDEF* pFunction, const var_t* args, int nArgs, var_t* out, int nout)
+int __var_getargs(ScriptEngine* env, var_t* pArgs, int& nArgs);
+int __var_define(ScriptEngine* env);
+int __var_define(ScriptEngine* env, const char* pstrName, int NameLen, var_t* vValue);
+int __fun_call(ScriptEngine* env, FUNCTIONDEF* pFunction, const var_t* args, int nArgs, var_t* out, int nout)
 {
   int iStack = __pushstack(env);
   int j = 0;
@@ -411,7 +832,7 @@ int __fun_call(CScriptEngine* env, FUNCTIONDEF* pFunction, const var_t* args, in
     if (t->type != OP_INDENTIFIER) {
       THROW(EXCEP_SYNTAXERROR);
     }
-    TRY_RETURN(__var_define(env, t->s, v));
+    TRY_RETURN(__var_define(env, t->s, t->l, v));
     GetToken(env->m_tok, t);
     if (t->type == OP_COMMA) {
     }
@@ -423,7 +844,7 @@ int __fun_call(CScriptEngine* env, FUNCTIONDEF* pFunction, const var_t* args, in
   if (t->type != OP_INDENTIFIER) {
     THROW(EXCEP_SYNTAXERROR);
   }
-  if (str_cmp_c(t->s, pFunction->szName) != 0) {
+  if (strcmp_c(t->s, t->l, pFunction->szName, -1) != 0) {
     THROW(EXCEP_SYNTAXERROR);
   }
   GetToken(env->m_tok, t);
@@ -436,7 +857,7 @@ int __fun_call(CScriptEngine* env, FUNCTIONDEF* pFunction, const var_t* args, in
     if (j < nArgs) {
       var_copy(v, &args[j++]);
     }
-    TRY_RETURN(__var_define(env, env->m_t->s, v));
+    TRY_RETURN(__var_define(env, env->m_t->s, env->m_t->l, v));
     GetToken(env->m_tok, env->m_t);
     if (env->m_t->type == OP_COMMA) {
       GetToken(env->m_tok, env->m_t);
@@ -473,7 +894,7 @@ int __fun_call(CScriptEngine* env, FUNCTIONDEF* pFunction, const var_t* args, in
   __popstack(env, iStack);
   return EXCEP_NOP;
 }
-int __var_retrieve(CScriptEngine* env, var_t* out, int nout)
+int __var_retrieve(ScriptEngine* env, var_t* out, int nout)
 {
   int i;
   tok_t tName[1] = {0};
@@ -541,11 +962,11 @@ int __var_retrieve(CScriptEngine* env, var_t* out, int nout)
   }
   THROW(EXCEP_NOTFOUND);
 }
-int __break(CScriptEngine* env)
+int __break(ScriptEngine* env)
 {
   return EXCEP_BREAK;
 }
-int __return(CScriptEngine* env)
+int __return(ScriptEngine* env)
 {
   if (env->m_nStackLevel == 0) {
     THROW(EXCEP_SCOPE);
@@ -566,7 +987,7 @@ int __return(CScriptEngine* env)
   THROW(EXCEP_RETURN);
 }
 //
-int __func_define(CScriptEngine* env)
+int __func_define(ScriptEngine* env)
 {
   if (env->m_nStackLevel != 0) {
     THROW(EXCEP_SCOPE);
@@ -611,7 +1032,7 @@ int __func_define(CScriptEngine* env)
     }
   }
   FUNCTIONDEF& func = env->m_Functions[env->m_nFunctions];
-  cstr_cpy(func.szName, MAX_KEYWORD_LEN, tName->s.s, tName->s.l);
+  strcpy_c(func.szName, 0, MAX_KEYWORD_LEN, tName->s, tName->l);
   func.iArgs = iargs;
   func.oArgs = oargs;
   if (tOp != OP_PAREN_L) {
@@ -629,7 +1050,7 @@ int __func_define(CScriptEngine* env)
   }
   return EXCEP_NOP;
 }
-int __var_getargs(CScriptEngine* env, var_t* pArgs, int& nArgs)
+int __var_getargs(ScriptEngine* env, var_t* pArgs, int& nArgs)
 {
   int nMaxArgs = nArgs;
   nArgs = 0;
@@ -651,7 +1072,7 @@ int __var_getargs(CScriptEngine* env, var_t* pArgs, int& nArgs)
   GetToken(env->m_tok, env->m_t);
   return EXCEP_NOP;
 }
-int __var_define(CScriptEngine* env)
+int __var_define(ScriptEngine* env)
 {
   do {
     tok_t tName[1] = {0};
@@ -667,7 +1088,7 @@ int __var_define(CScriptEngine* env)
     }
     VARIABLE& var = env->m_vars[env->m_nVars];
     var_t v[1] = {0};
-    TRY_RETURN(__var_define(env, tName->s, v));
+    TRY_RETURN(__var_define(env, tName->s, tName->l, v));
     GetToken(env->m_tok, env->m_t);
     if (env->m_t->type == OP_EQUAL) {
       GetToken(env->m_tok, env->m_t);
@@ -681,11 +1102,11 @@ int __var_define(CScriptEngine* env)
   //GetToken(env->m_tok, env->m_t);
   return EXCEP_NOP;
 }
-int __var_define(CScriptEngine* env, str_t pstrName, var_t* vValue)
+int __var_define(ScriptEngine* env, const char* pstrName, int pstrNameLen, var_t* vValue)
 {
   VARIABLE& var = env->m_vars[env->m_nVars];
   memset(&var.vValue, 0, sizeof(VARIABLE));
-  cstr_cpy(var.szName, MAX_KEYWORD_LEN, pstrName.s, pstrName.l);
+  strcpy_c(var.szName, 0, MAX_KEYWORD_LEN, pstrName, pstrNameLen);
   if (vValue) {
     ::var_copy(&var.vValue, vValue);
   }
@@ -694,30 +1115,29 @@ int __var_define(CScriptEngine* env, str_t pstrName, var_t* vValue)
   }
   return EXCEP_NOP;
 }
-int __var_find_define(CScriptEngine* env, str_t tName)
+int __var_find_define(ScriptEngine* env, const char* tName, int tNameLen)
 {
   int i;
   for (i = env->m_nVars; --i >= 0;) {
-    if (0 == str_cmp_c(tName, env->m_vars[i].szName)) {
+    if (0 == strcmp_c(tName, tNameLen, env->m_vars[i].szName, -1)) {
       return i;
     }
   }
-  __var_define(env, tName, NULL);
+  __var_define(env, tName, tNameLen, NULL);
   return env->m_nVars - 1;
 }
-int env_var_get(CScriptEngine* env, const char* name, var_t* v)
+int env_var_get(ScriptEngine* env, const char* tName, int tNameLen, var_t* v)
 {
   int i;
-  str_t tName = STR1(name);
   for (i = env->m_nVars; --i > 0;) {
-    if (0 == str_cmp_c(tName, env->m_vars[i].szName)) {
+    if (0 == strcmp_c(tName, tNameLen, env->m_vars[i].szName, -1)) {
       var_copy(v, &env->m_vars[i].vValue);
       return i;
     }
   }
   return 0;
 }
-int __forloop(CScriptEngine* env)
+int __forloop(ScriptEngine* env)
 {
   tok_t t[1] = {0};
   var_t tmp[1] = {0};
@@ -773,7 +1193,7 @@ int __forloop(CScriptEngine* env)
   SkipTo(env->m_tok, env->m_t, OP_BRACE_R);
   return EXCEP_NOP;
 }
-int __whileloop(CScriptEngine* env)
+int __whileloop(ScriptEngine* env)
 {
   GetToken(env->m_tok, env->m_t);
   if (env->m_t->type != OP_PAREN_L) {
@@ -806,7 +1226,7 @@ int __whileloop(CScriptEngine* env)
   SkipTo(env->m_tok, env->m_t, OP_BRACE_R);
   return EXCEP_NOP;
 }
-int __skipblock(CScriptEngine* env)
+int __skipblock(ScriptEngine* env)
 {
   if (env->m_t->type == OP_BRACE_L) {
     SkipTo(env->m_tok, env->m_t, OP_BRACE_R);
@@ -816,7 +1236,7 @@ int __skipblock(CScriptEngine* env)
   }
   return EXCEP_NOP;
 }
-int __ifcondit(CScriptEngine* env)
+int __ifcondit(ScriptEngine* env)
 {
   tok_t t[1] = {0};
   int x;
@@ -854,7 +1274,7 @@ int __ifcondit(CScriptEngine* env)
   var_free(eval);
   return EXCEP_NOP;
 }
-int __switchcondit(CScriptEngine* env)
+int __switchcondit(ScriptEngine* env)
 {
   tok_t t[1] = {0};
   if (GetToken(env->m_tok, t) != OP_PAREN_L) {
@@ -905,7 +1325,7 @@ int __switchcondit(CScriptEngine* env)
   var_free(eval);
   return EXCEP_NOP;
 }
-int __statement(CScriptEngine* env)
+int __statement(ScriptEngine* env)
 {
   switch (env->m_t->type) {
     //case OP_VAR: TRY_RETURN(__var_define(env)); break;
@@ -948,7 +1368,7 @@ int __statement(CScriptEngine* env)
   }
   return EXCEP_NOP;
 }
-int __exec(CScriptEngine* env, OPTYPE Stop)
+int __exec(ScriptEngine* env, OPTYPE Stop)
 {
   GetToken(env->m_tok, env->m_t);
   while (env->m_t->type != OP_END && env->m_t->type != Stop) {
@@ -959,13 +1379,13 @@ int __exec(CScriptEngine* env, OPTYPE Stop)
   }
   return EXCEP_NOP;
 }
-int __run(CScriptEngine* env, const char* pstrCode)
+int __run(ScriptEngine* env, const char* pstrCode)
 {
   Assign(env->m_tok, pstrCode, 1);
   TRY_RETURN(__exec(env, OP_END));
   return EXCEP_NOP;
 }
-int RunScript(CScriptEngine* env, LPCSTR pstrCode)
+int RunScript(ScriptEngine* env, const char* pstrCode)
 {
   Clear(env);
   int cchLen = strlen(pstrCode) + 1;
@@ -978,13 +1398,14 @@ int RunScript(CScriptEngine* env, LPCSTR pstrCode)
   TRY_RETURN(__run(env, env->m_pstrStore));
   return EXCEP_NOP;
 }
-int RunScriptFromFile(CScriptEngine* env, LPCSTR pstrFilename)
+#include "std/fileio_c.h"
+int RunScriptFromFile(ScriptEngine* env, const char* pstrFilename)
 {
   FILE* hFile = fopen(pstrFilename, "rb");
   if (hFile == NULL) {
     return false;
   }
-  DWORD dwSize = fsize(hFile);
+  size_t dwSize = fsize(hFile);
   char* pstrCode = (char*) malloc(dwSize + 1);
   DWORD dwRead = 0;
   dwRead = fread(pstrCode, dwSize, 1, hFile);
@@ -998,7 +1419,7 @@ int RunScriptFromFile(CScriptEngine* env, LPCSTR pstrFilename)
   free(pstrCode);
   return bRes;
 }
-bool Evaluate(CScriptEngine* env, LPCSTR pstrCode)
+bool Evaluate(ScriptEngine* env, const char* pstrCode)
 {
   ::ZeroMemory(env->m_szErrorMsg, sizeof(env->m_szErrorMsg));
   int cchLen = strlen(pstrCode) + 1;
@@ -1014,7 +1435,7 @@ bool Evaluate(CScriptEngine* env, LPCSTR pstrCode)
   free(pwstr);
   return strlen(env->m_szErrorMsg) == 0;
 }
-bool RegisterObject(CScriptEngine* env, LPCSTR pstrName, IScriptCallback* pCallback)
+bool RegisterObject(ScriptEngine* env, const char* pstrName, IScriptCallback* pCallback)
 {
   if (env->m_nObjects >= MAX_OBJECTS) {
     return false;
@@ -1026,11 +1447,11 @@ bool RegisterObject(CScriptEngine* env, LPCSTR pstrName, IScriptCallback* pCallb
   env->m_nObjects++;
   return true;
 }
-bool RegisterGlobals(CScriptEngine* env, IScriptCallback* pCallback)
+bool RegisterGlobals(ScriptEngine* env, IScriptCallback* pCallback)
 {
   return RegisterObject(env, "", pCallback);
 }
-int GetErrorMessage(CScriptEngine* env, int& iLineNum, char* pstrMessage, int cchMessage, char* pstrCode, int cchCode, char* pstrLine, int cchLine)
+int GetErrorMessage(ScriptEngine* env, int& iLineNum, char* pstrMessage, int cchMessage, char* pstrCode, int cchCode, char* pstrLine, int cchLine)
 {
   iLineNum = env->m_iErrorLineNum;
   if (pstrMessage != NULL) {
@@ -1044,7 +1465,7 @@ int GetErrorMessage(CScriptEngine* env, int& iLineNum, char* pstrMessage, int cc
   }
   return 0;
 }
-int _InterpretError(CScriptEngine* env, EXCEP e)
+int _InterpretError(ScriptEngine* env, EXCEP e)
 {
   struct {
     EXCEP e;
@@ -1073,7 +1494,7 @@ int _InterpretError(CScriptEngine* env, EXCEP e)
     }
   }
   env->m_iErrorLineNum = env->m_tok->m_iLineNo;
-  const char* p = env->m_tok->m_pstr - env->m_t->s.l;
+  const char* p = env->m_tok->m_pstr - env->m_t->l;
   if (p < env->m_pstrScript) {
     p = env->m_pstrScript;
   }

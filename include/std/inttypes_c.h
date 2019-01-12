@@ -19,7 +19,20 @@ typedef unsigned int uint32;
 typedef __int64 int64;
 typedef unsigned __int64 uint64;
 #if _MSC_VER < 1300
+#if defined(_WIN64)
+typedef __int64 INT_PTR;
+#else
+typedef int INT_PTR;
+#endif
 typedef  INT_PTR intptr_t;
+typedef char int8_t;
+typedef unsigned char uint8_t;
+typedef short int16_t;
+typedef unsigned short uint16_t;
+typedef int int32_t;
+typedef unsigned int uint32_t;
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
 #endif
 #include <windows.h>
 #else

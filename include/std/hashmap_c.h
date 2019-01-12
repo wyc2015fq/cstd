@@ -4,341 +4,299 @@
 //对于新的key类型来说，需要自定义HashCode函数和equal函数。
 //在HashSet的实现中给出了几个常见的hashCode函数和equal函数。参见：http://blog.csdn.net/swwlqw/article/details/22664129。
 
-#ifndef MYHASHMAP_H_INCLUDED
-#define MYHASHMAP_H_INCLUDED
-#include "list_c.h"
-#include "hashset_c.h"
- 
- 
-typedef struct entry
-{
-    void * key;
-    void * value;
-} Entry;
- 
-typedef struct myHashMap
-{
-    int size;   //大小
-    int initialCapacity; //初始容量
-    float loadFactor;   //加载因子
-    int (*hashCode)(void *key);
-    int (*equal)(void *key1,void *key2);
-    MyList ** entryList;
-} MyHashMap;
- 
+#include "inttypes_c.h"
+#include "algo.h"
+#include "list.h"
+#include "hashcode_c.h"
+
+typedef struct kvnode {
+  size_t hash;
+  void* key;
+  void* value;
+  struct kvnode* next;
+} kvnode;
+
+typedef int(*cmp_fun_t)(const void *key1, const void *key2);
+typedef size_t (*hash_fun_t)(void* key);
+typedef void (*setkv_fun_t)(kvnode* kv, void* key, void* value);
+typedef void (*delkv_fun_t)(kvnode* kv);
+
+typedef struct hashmap_t {
+  hash_fun_t hash;
+  cmp_fun_t cmp;
+  setkv_fun_t setkv;
+  delkv_fun_t delkv;
+  int count;         //大小
+  int bucket_size;    //初始容量
+  float loadFactor;   //加载因子
+  kvnode** bucket;
+} hashmap_t;
+
 typedef struct myHashMapEntryIterator
 {
-    int index;       //第几个链表
-    MyHashMap *map;
-    MyNode *current;
-    int count;        //第几个数据
+  int index;       //第几个链表
+  hashmap_t *map;
+  kvnode *current;
+  int count;        //第几个数据
 } MyHashMapEntryIterator;
- 
-//创建HashMap
-MyHashMap *createMyHashMap(int (*hashCode)(void *key),int (*equal)(void *key1,void *key2));
- 
-//使用全部参数创建HashMap
-MyHashMap *createMyHashMapForAll(int initialCapacity,float loadFactor,int (*hashCode)(void *key),int (*equal)(void *key1,void *key2));
- 
-//释放HashMap
-void freeMyHashMap(MyHashMap * map);
- 
-//是否包含某个key
-int myHashMapContainsKey(MyHashMap *const map,void * const key);
- 
-//增加一条映射
-void myHashMapPutData(MyHashMap *const map,void * const key,void * const value);
- 
-//通过key得到数据，如果没有数据则返回null
-void* myHashMapGetDataByKey(MyHashMap * const map,void *const key);
- 
-//数据的容量
-int myHashMapGetSize(const MyHashMap * const map);
- 
-//创建Entry迭代器
-MyHashMapEntryIterator* createMyHashMapEntryIterator( MyHashMap *const map);
- 
-//释放Entry迭代器
-void freeMyHashMapEntryIterator(MyHashMapEntryIterator* iterator);
- 
-//Entry迭代器是否有下一个
-int myHashMapEntryIteratorHasNext(MyHashMapEntryIterator* iterator);
- 
-//遍历下一个Entry元素
-Entry* myHashMapEntryIteratorNext(MyHashMapEntryIterator* iterator);
- 
-//删除一条数据，返回是否删除成功
-int myHashMapRemoveDataByKey(MyHashMap *const map,void * const key);
- 
-//遍历
-void myHashMapOutput(MyHashMap *map, void(*pt)(Entry*));
- 
-#endif // MYHASHMAP_H_INCLUDED
 
-#include <stdlib.h>
- 
-//某条Entry链表上是否包含某个key值。
-Entry* listContainsEntry(MyList * list, void * key,
-		int(*equal)(void *key1, void *key2)) {
-	MyListIterator* it = createMyListIterator(list);
-	while (myListIteratorHasNext(it)) {
-		Entry * entry = (Entry *) (myListIteratorNext(it));
-		if (entry->key == key || (equal != NULL && (*equal)(entry->key, key))) {
-			return entry;
-		}
-	}
-	freeMyListIterator(it);
-	return NULL;
+
+//某条kvnode链表上是否包含某个key值。
+kvnode** list_find(kvnode** it, size_t h, const void* key, cmp_fun_t cmp) {
+  for (; *it; it = &((*it)->next)) {
+    if ((*it)->key == key || (h==(*it)->hash && 0==cmp((*it)->key, key))) {
+      return it;
+    }
+  }
+  return it;
 }
- 
-void rebuildMyHashMap(MyHashMap * map) {
-	int newSize = map->initialCapacity * 2;
-	MyList **newentryList = (MyList **) malloc(sizeof(MyList*) * newSize);
-	for (int i = 0; i < newSize; i++) {
-		newentryList[i] = createMyList();
-	}
-	MyHashMapEntryIterator* it = createMyHashMapEntryIterator(map);
-	while (myHashMapEntryIteratorHasNext(it)) {
-		Entry * entry = myHashMapEntryIteratorNext(it);
-		int hasCode = (*(map->hashCode))(entry->key);
-		hasCode %= newSize;
-		if (hasCode < 0)
-			hasCode += newSize;
-		myListInsertDataAtLast(newentryList[hasCode], entry);
-	}
-	freeMyHashMapEntryIterator(it);
-	for (int i = 0; i < map->initialCapacity; i++) {
-		freeMyList(map->entryList[i]);
-	}
-	free(map->entryList);
-	map->entryList = newentryList;
-	map->initialCapacity = newSize;
-}
- 
-//创建HashMap
-MyHashMap *createMyHashMap(int(*hashCode)(void *key),
-		int(*equal)(void *key1, void *key2)) {
-	MyHashMap *re = (MyHashMap *) malloc(sizeof(MyHashMap));
-	re->size = 0;
-	re->loadFactor = DEFAULT_LOAD_FACTOR;
-	re->initialCapacity = DEFAULT_INITIAL_CAPACITY;
-	re->entryList = (MyList **) malloc(sizeof(MyList*) * re->initialCapacity);
-	re->hashCode = hashCode;
-	re->equal = equal;
-	for (int i = 0; i < re->initialCapacity; i++) {
-		re->entryList[i] = createMyList();
-	}
-	return re;
-}
- 
-//使用全部参数创建HashMap
-MyHashMap *createMyHashMapForAll(int initialCapacity, float loadFactor,
-		int(*hashCode)(void *key), int(*equal)(void *key1, void *key2)) {
-	MyHashMap *re = createMyHashMap(hashCode, equal);
-	re->initialCapacity = initialCapacity;
-	re->loadFactor = loadFactor;
-	return re;
-}
- 
-//是否包含某个key
-int myHashMapContainsKey(MyHashMap * const map, void * const key) {
-	int hasCode = (*(map->hashCode))(key);
-	hasCode %= map->initialCapacity;
-	if (hasCode < 0)
-		hasCode += map->initialCapacity;
-	Entry * re = listContainsEntry(map->entryList[hasCode], key, map->equal);
-	return re != NULL;
-}
- 
-//增加一条映射
-void myHashMapPutData(MyHashMap * const map, void * const key,
-		void * const value) {
-	int hasCode = (*(map->hashCode))(key);
-	hasCode %= map->initialCapacity;
-	if (hasCode < 0)
-		hasCode += map->initialCapacity;
-	Entry * re = listContainsEntry(map->entryList[hasCode], key, map->equal);
-	if (re == NULL) {
-		Entry * entry = (Entry*) malloc(sizeof(Entry));
-		entry->key = key;
-		entry->value = value;
-		myListInsertDataAtLast(map->entryList[hasCode], entry);
-		(map->size)++;
-		if (map->size > map->initialCapacity * map->loadFactor) {
-			rebuildMyHashMap(map);
-		}
-	} else {
-		re->value = value;
-	}
-}
- 
-//通过key得到数据，如果没有数据则返回null
-void* myHashMapGetDataByKey(MyHashMap * const map, void * const key) {
-	int hasCode = (*(map->hashCode))(key);
-	hasCode %= map->initialCapacity;
-	if (hasCode < 0)
-		hasCode += map->initialCapacity;
-	Entry * re = listContainsEntry(map->entryList[hasCode], key, map->equal);
-	if (re == NULL) {
-		return NULL;
-	}
-	return re->value;
-}
- 
-//数据的容量
-int myHashMapGetSize(const MyHashMap * const map) {
-	return map->size;
-}
- 
-//创建Entry迭代器
-MyHashMapEntryIterator* createMyHashMapEntryIterator(MyHashMap * const map) {
-	MyHashMapEntryIterator* re = (MyHashMapEntryIterator*) malloc(
-			sizeof(MyHashMapEntryIterator));
-	re->count = 0;
-	re->index = 0;
-	re->map = map;
-	re->current = map->entryList[0]->first;
-	return re;
-}
- 
-//释放Entry迭代器
-void freeMyHashMapEntryIterator(MyHashMapEntryIterator* iterator) {
-	free(iterator);
-}
- 
-//Entry迭代器是否有下一个
-int myHashMapEntryIteratorHasNext(MyHashMapEntryIterator* iterator) {
-	return iterator->count < iterator->map->size;
-}
- 
-//遍历下一个Entry元素
-Entry* myHashMapEntryIteratorNext(MyHashMapEntryIterator* iterator) {
-	(iterator->count)++;
-	while (!(iterator->current)) {
-		(iterator->index)++;
-		iterator->current = iterator->map->entryList[iterator->index]->first;
-	}
-	Entry * re = (Entry *) iterator->current->data;
-	iterator->current = iterator->current->next;
-	return re;
-}
- 
-//删除一条数据，返回是否删除成功
-int myHashMapRemoveDataByKey(MyHashMap * const map, void * const key) {
-	int hasCode = (*(map->hashCode))(key);
-	hasCode %= map->initialCapacity;
-	if (hasCode < 0)
-		hasCode += map->initialCapacity;
-	MyListIterator* it = createMyListIterator(map->entryList[hasCode]);
-	int re = 0;
-	while (myListIteratorHasNext(it)) {
-		Entry * entry = (Entry *) (myListIteratorNext(it));
-		if ((*(map->equal))(entry->key, key)) {
-			myListRemoveDataAt(map->entryList[hasCode], it->count - 1);
-			re = 1;
-			(map->size)--;
-			break;
-		}
-	}
-	freeMyListIterator(it);
-	return re;
-}
- 
-void myFree(Entry * p){
+void list_free(kvnode** it) {
+  kvnode* p = *it;
+  *it = 0;
+  for (; p; ) {
+    kvnode* next = p->next;
     free(p);
-}
- 
-//释放HashMap
-void freeMyHashMap(MyHashMap * map) {
-	myHashMapOutput(map, myFree);
-	for (int i = 0; i < map->initialCapacity; i++) {
-		freeMyList(map->entryList[i]);
-	}
-	free(map->entryList);
-	free(map);
-}
- 
-//遍历
-void myHashMapOutput(MyHashMap *map, void(*pt)(Entry*)) {
-	MyHashMapEntryIterator* iterator = createMyHashMapEntryIterator(map);
-	while (myHashMapEntryIteratorHasNext(iterator)) {
-		pt(myHashMapEntryIteratorNext(iterator));
-	}
-	freeMyHashMapEntryIterator(iterator);
+    p = next;
+  }
 }
 
+void hashmap_resize(hashmap_t* map) {
+  static const float DEFAULT_LOAD_FACTOR = 0.75f;
+  if (map->count==0 || map->count > map->bucket_size * DEFAULT_LOAD_FACTOR) {
+    static const int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
+    static const int MAXIMUM_CAPACITY = 1 << 30;
+    int new_bucket_size = map->bucket_size * 2;
+    //new_bucket_size = MAX(new_bucket_size, aa);
+    new_bucket_size = MAX(new_bucket_size, DEFAULT_INITIAL_CAPACITY);
+    new_bucket_size = MIN(new_bucket_size, MAXIMUM_CAPACITY);
+    kvnode **new_bucket = (kvnode **) malloc(sizeof(kvnode*) * new_bucket_size);
+    memset(new_bucket, 0, (sizeof(kvnode*) * new_bucket_size));
+    for (int i = 0; i < map->bucket_size; ++i) {
+      kvnode* it = map->bucket[i];
+      for (; it; ) {
+        size_t hasCode = it->hash % new_bucket_size;
+        kvnode* next = it->next;
+        it->next = NULL;
+        LIST_ADDFRONT1(new_bucket[hasCode], it);
+        it = next;
+      }
+    }
+    if (map->bucket) {
+      free(map->bucket);}
+    map->bucket = new_bucket;
+    map->bucket_size = new_bucket_size;
+  }
+}
+
+//增加一条映射
+kvnode** hashmap_put_or_get(hashmap_t* map, void* key, bool put) {
+  size_t h = map->hash ? map->hash(key) : myHashCodeDefault(key);
+  hashmap_resize(map);
+  size_t hasCode = h % map->bucket_size;
+  kvnode** first = map->bucket+hasCode;
+  kvnode** re = list_find(first, h, key, map->cmp);
+  if ((*re) == NULL && put) {
+    kvnode* node = (kvnode*) malloc(sizeof(kvnode));
+    memset(node, 0, sizeof(*node));
+    node->hash = h;
+    LIST_ADDFRONT1((*first), node);
+    map->count++;
+    re = first;
+  }
+  return re;
+}
+
+//是否包含某个key
+kvnode** hashmap_find(hashmap_t * map, void* key) {
+  kvnode** re = hashmap_put_or_get(map, key, false);
+  return re;
+}
+
+//通过key得到数据，如果没有数据则返回null
+void* hashmap_get(hashmap_t * map, void* key) {
+  kvnode** re = hashmap_put_or_get(map, key, false);
+  if (*re) {
+    return (*re)->value;
+  }
+  return NULL;
+}
+void* hashmap_put(hashmap_t * map, void* key, void* value) {
+  kvnode** re = hashmap_put_or_get(map, key, true);
+  void* old_value = (*re)->value;
+  if (map->setkv) {
+    map->setkv(*re, key, value);
+  } else {
+    (*re)->key = key;
+    (*re)->key = value;
+  }
+  return old_value;
+}
+
+//删除一条数据，返回是否删除成功
+void hashmap_del(hashmap_t* map, void* key) {
+  kvnode** re = hashmap_put_or_get(map, key, false);
+  if (*re) {
+    kvnode* p = *re;
+    if (map->delkv) {
+      map->delkv(p);
+    }
+    LIST_DEL1(*re);
+    map->count--;
+    free(p);
+  }
+}
+
+//释放HashMap
+void hashmap_free(hashmap_t* map) {
+  for (int i = 0; i < map->bucket_size; i++) {
+    list_free(map->bucket+i);
+  }
+  free(map->bucket);
+  memset(map, 0, sizeof(*map));
+}
+
+//遍历
+void hashmap_foreach(hashmap_t *map, void(*pt)(kvnode*)) {
+  for (int i = 0; i < map->bucket_size; ++i) {
+    kvnode* it = map->bucket[i];
+    for (; it; it = it->next) {
+      pt(it);
+    }
+  }
+}
+
+void mySetKV(kvnode* kv, void* key, void* value) {
+  if (key && kv->key==NULL) {
+    kv->key = strdup((char*)key);
+  }
+  kv->value = value;
+}
+
+void myDelKV(kvnode* kv) {
+  free(kv->key);
+}
+
+void myprintKV(kvnode* kv) {
+    printf("%s(%d)\n", (char*)kv->key, (int)(kv->value));
+}
+
+#if 1
 
 
 /*************************
 *** File main.c
-*** test for MyHashMap
+*** test for hashmap_t
 **************************/
 #include <stdio.h>
 #include <stdlib.h>
 //#include "myEqual.h"
-//#include "myHashCode.h"
-//#include "myHashMap.h"
- 
- 
+#include "inttypes_c.h"
+#include "hashcode_c.h"
+#include "utime.h"
+#include <map>
+#include <string>
+//#include "hashmap_t.h"
+
 int test_hashmap()
-{  
-  char* strs[]=
-  {
-    "abc",
-      "qq",
-      "hello",
+{
+  if (0) {
+    char* strs[]=
+    {
       "abc",
-      "lmy",
-      "ab",
-      "qq",
-      "lqw",
-      "sww",
-      "lqw"
-  };
- int S = countof(strs);
+        "qq",
+        "hello",
+        "abc",
+        "lmy",
+        "ab",
+        "qq",
+        "lqw",
+        "sww",
+        "lqw"
+    };
+    int S = countof(strs);
     int*  data = (int*)malloc(sizeof(int)* S);
     for (int i=0; i<S; i++)
     {
-        data[i]=i;
+      data[i]=i;
     }
- 
+    
     //创建映射需要指定两个函数，hashCode函数和equal函数。
-    MyHashMap * map = createMyHashMap(myHashCodeString, myEqualString);
- 
+    hashmap_t map[1] = {{myHashCodeString, myCmpString, mySetKV, myDelKV, 0}};
+    
     //插入数据
     for (int i=0; i<S; i++)
     {
-        myHashMapPutData(map, strs[i], &data[i]);
+      hashmap_put(map, strs[i], (void*)i);
     }
- 
+    
     //输出大小
-    printf("size=%d\n",myHashMapGetSize(map));
- 
+    printf("size=%d\n",map->count);
+    
     //测试删除
-    myHashMapRemoveDataByKey(map,"qq");
-    myHashMapRemoveDataByKey(map,"ab");
-    myHashMapRemoveDataByKey(map,"qwert");
- 
+    hashmap_del(map,"qq");
+    hashmap_del(map,"ab");
+    hashmap_del(map,"qwert");
+    
     //输出大小
-    printf("after remove size=%d\n",myHashMapGetSize(map));
- 
+    printf("after remove size=%d\n",map->count);
+    
     //遍历
-    MyHashMapEntryIterator * it = createMyHashMapEntryIterator(map);
-    while(myHashMapEntryIteratorHasNext(it))
-    {
-        Entry * pp= myHashMapEntryIteratorNext(it);
-        char * key = (char*)pp->key;
-        int* value = (int*)pp->value;
-        printf("%s(%d)\n", key, *value);
-    }
+    hashmap_foreach(map, myprintKV);
     //释放遍历器
-    freeMyHashMapEntryIterator(it);
- 
+    
     //释放映射
-    freeMyHashMap(map);
- 
+    hashmap_free(map);
+    
     //释放数据
     free(data);
-    return 0;
+  }
+    int n = 10000;
+  if (1) {
+    //创建映射需要指定两个函数，hashCode函数和equal函数。
+    //using namespace std;
+    std::map<std::string, int> map2;
+    char buf[100] = {0};
+    int k = 3;
+    {utime_start(_start_time);
+    for (int i=0; i<n; i++) {
+      _snprintf(buf, 100, "%d", i);
+      map2[buf] = i;
+      //printf("%d\n", i);
+    }
+    printf("%lf\n", utime_elapsed(_start_time));};
+    printf("after remove count=%d\n",map2.size());
+    {utime_start(_start_time);
+    for (int i=0; i<n; i++) {
+      _snprintf(buf, 100, "%d", i);
+      map2.erase(buf);
+    }
+    printf("%lf\n", utime_elapsed(_start_time));};
+    printf("after remove count=%d\n",map2.size());
+  }
+  if (1) {
+    //创建映射需要指定两个函数，hashCode函数和equal函数。
+    hashmap_t map[1] = {{myHashCodeString, myCmpString, mySetKV, myDelKV, 0}};
+    char buf[100] = {0};
+    int k = 3;
+    {utime_start(_start_time);
+    for (int i=0; i<n; i++) {
+      _snprintf(buf, 100, "%d", i);
+      hashmap_put(map, buf, (void*)i);
+      //printf("%d\n", i);
+    }
+    printf("%lf\n", utime_elapsed(_start_time));};
+    printf("after remove count=%d\n",map->count);
+    {utime_start(_start_time);
+    for (int i=0; i<n; i++) {
+      _snprintf(buf, 100, "%d", i);
+      hashmap_del(map, buf);
+    }
+    printf("%lf\n", utime_elapsed(_start_time));};
+    printf("after remove count=%d\n",map->count);
+    hashmap_free(map);
+  }
+  return 0;
 }
 
+
+#endif

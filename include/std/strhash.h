@@ -1,4 +1,6 @@
 
+#include "inttypes_c.h"
+
 // 字符串Hash函数对比
 // http://www.byvoid.com/blog/string-hash-compare/
 //我对这些hash的散列质量及效率作了一个简单测试，测试结果如下：
@@ -78,10 +80,10 @@
 // 当乘数24-31位都为1或0时，需要3个时钟周期
 // 否则，需要4个时钟周期
 // 因此，虽然我没有实际测试，但是我依然认为二者效率上差别不大
-static unsigned int BKDRHash(const char* str, unsigned int len)
+static size_t BKDRHash(const char* str, size_t len)
 {
-  unsigned int hash = 0;
-  unsigned int i = 0;
+  size_t hash = 0;
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     /* 31 131 1313 13131 131313 etc.. */
     hash = (hash * 131) + (*str);
@@ -90,10 +92,10 @@ static unsigned int BKDRHash(const char* str, unsigned int len)
 }
 /// @brief SDBM Hash Function
 /// @detail 本算法是由于在开源项目SDBM（一种简单的数据库引擎）中被应用而得名，它与BKDRHash思想一致，只是种子不同而已。
-static unsigned int SDBMHash(const char* str, unsigned int len)
+static size_t SDBMHash(const char* str, size_t len)
 {
-  unsigned int hash = 0;
-  unsigned int i = 0;
+  size_t hash = 0;
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     hash = 65599 * hash + (*str);
     //hash = (*str) + (hash << 6) + (hash << 16) - hash;
@@ -102,11 +104,11 @@ static unsigned int SDBMHash(const char* str, unsigned int len)
 }
 /// @brief RS Hash Function
 /// @detail 因Robert Sedgwicks在其《Algorithms in C》一书中展示而得名。
-static unsigned int RSHash(const char* str, unsigned int len)
+static size_t RSHash(const char* str, size_t len)
 {
-  unsigned int a = 63689;
-  unsigned int hash = 0;
-  unsigned int i = 0;
+  size_t a = 63689;
+  size_t hash = 0;
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     hash = hash * a + (*str);
     a = a * 378551;
@@ -116,10 +118,10 @@ static unsigned int RSHash(const char* str, unsigned int len)
 /// @brief AP Hash Function
 /// @detail 由Arash Partow发明的一种hash算法。
 /* End Of FNV Hash Function */
-static unsigned int APHash(const char* str, unsigned int len)
+static size_t APHash(const char* str, size_t len)
 {
-  unsigned int hash = 0xAAAAAAAA;
-  unsigned int i = 0;
+  size_t hash = 0xAAAAAAAA;
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     hash ^= ((i & 1) == 0) ? ((hash << 7) ^ (*str) * (hash >> 3)) : ((~((hash << 11)) + ((*str) ^ (hash >> 5))));
   }
@@ -127,10 +129,10 @@ static unsigned int APHash(const char* str, unsigned int len)
 }
 /// @brief JS Hash Function
 /// 由Justin Sobel发明的一种hash算法。
-static unsigned int JSHash(const char* str, unsigned int len)
+static size_t JSHash(const char* str, size_t len)
 {
-  unsigned int hash = 1315423911;
-  unsigned int i = 0;
+  size_t hash = 1315423911;
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     hash ^= ((hash << 5) + (*str) + (hash >> 2));
   }
@@ -138,10 +140,10 @@ static unsigned int JSHash(const char* str, unsigned int len)
 }
 /// @brief DEK Function
 /// @detail 本算法是由于Donald E. Knuth在《Art Of Computer Programming Volume 3》中展示而得名。
-static unsigned int DEKHash(const char* str, unsigned int len)
+static size_t DEKHash(const char* str, size_t len)
 {
-  unsigned int hash = 1315423911; // len
-  unsigned int i = 0;
+  size_t hash = 1315423911; // len
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     hash = ((hash << 5) ^ (hash >> 27)) ^ (*str);
   }
@@ -149,10 +151,10 @@ static unsigned int DEKHash(const char* str, unsigned int len)
 }
 /// @brief FNV Hash Function
 /// @detail Unix system系统中使用的一种著名hash算法，后来微软也在其hash_map中实现。
-static unsigned int FNVHash(const char* str, unsigned int len)
+static size_t FNVHash(const char* str, size_t len)
 {
-  unsigned int hash = 0x811c9dc5;
-  unsigned int i = 0;
+  size_t hash = 0x811c9dc5;
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     hash *= 16777619;
     hash ^= (*str);
@@ -160,11 +162,11 @@ static unsigned int FNVHash(const char* str, unsigned int len)
   return hash;
 }
 /* End Of BP Hash Function */
-static unsigned int FNVHash1(const char* str, unsigned int len)
+static size_t FNVHash1(const char* str, size_t len)
 {
-  const unsigned int fnv_prime = 0x811C9DC5;
-  unsigned int hash = 0;
-  unsigned int i = 0;
+  const size_t fnv_prime = 0x811C9DC5;
+  size_t hash = 0;
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     hash *= fnv_prime;
     hash ^= (*str);
@@ -174,10 +176,10 @@ static unsigned int FNVHash1(const char* str, unsigned int len)
 /// @brief DJB Hash Function
 /// @detail 由Daniel J. Bernstein教授发明的一种hash算法。
 /* End Of SDBM Hash Function */
-static unsigned int DJBHash(const char* str, unsigned int len)
+static size_t DJBHash(const char* str, size_t len)
 {
-  unsigned int hash = 5381;
-  unsigned int i = 0;
+  size_t hash = 5381;
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     hash = ((hash << 5) + hash) + (*str);
   }
@@ -185,10 +187,10 @@ static unsigned int DJBHash(const char* str, unsigned int len)
 }
 /// @brief DJB Hash Function 2
 /// @detail 由Daniel J. Bernstein 发明的另一种hash算法。
-static unsigned int DJB2Hash(const char* str, unsigned int len)
+static size_t DJB2Hash(const char* str, size_t len)
 {
-  register unsigned int hash = 5381;
-  unsigned int i = 0;
+  register size_t hash = 5381;
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     hash = hash * 33 ^ (*str);
   }
@@ -197,15 +199,15 @@ static unsigned int DJB2Hash(const char* str, unsigned int len)
 /// @brief PJW Hash Function
 /// @detail 本算法是基于AT&T贝尔实验室的Peter J. Weinberger的论文而发明的一种hash算法。
 /* End Of JS Hash Function */
-static unsigned int PJWHash(const char* str, unsigned int len)
+static size_t PJWHash(const char* str, size_t len)
 {
-  const unsigned int BitsInUnsignedInt = (unsigned int)(sizeof(unsigned int) * 8);
-  const unsigned int ThreeQuarters = (unsigned int)((BitsInUnsignedInt * 3) / 4);
-  const unsigned int OneEighth = (unsigned int)(BitsInUnsignedInt / 8);
-  const unsigned int HighBits = (unsigned int)(0xFFFFFFFF) << (BitsInUnsignedInt - OneEighth);
-  unsigned int hash = 0;
-  unsigned int test = 0;
-  unsigned int i = 0;
+  const size_t BitsInUnsignedInt = (size_t)(sizeof(size_t) * 8);
+  const size_t ThreeQuarters = (size_t)((BitsInUnsignedInt * 3) / 4);
+  const size_t OneEighth = (size_t)(BitsInUnsignedInt / 8);
+  const size_t HighBits = (size_t)(0xFFFFFFFF) << (BitsInUnsignedInt - OneEighth);
+  size_t hash = 0;
+  size_t test = 0;
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     hash = (hash << OneEighth) + (*str);
     if ((test = hash & HighBits) != 0) {
@@ -216,17 +218,17 @@ static unsigned int PJWHash(const char* str, unsigned int len)
 }
 /// @brief ELF Hash Function
 /// @detail 由于在Unix的Extended Library Function被附带而得名的一种hash算法，它其实就是PJW Hash的变形。
-static unsigned int ELFHash(const char* str, unsigned int len)
+static size_t ELFHash(const char* str, size_t len)
 {
   enum {
-    TotalBits = sizeof(unsigned int) * 8,
+    TotalBits = sizeof(size_t) * 8,
     ThreeQuarters = (TotalBits * 3) / 4,
     OneEighth = TotalBits / 8,
-    HighBits = ((unsigned int)-1) << (TotalBits - OneEighth)
+    HighBits = ((size_t)-1) << (TotalBits - OneEighth)
   };
-  register unsigned int hash = 0;
-  unsigned int magic = 0;
-  unsigned int i = 0;
+  register size_t hash = 0;
+  size_t magic = 0;
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     hash = (hash << OneEighth) + (*str);
     if ((magic = hash & HighBits) != 0) {
@@ -237,11 +239,11 @@ static unsigned int ELFHash(const char* str, unsigned int len)
   return hash;
 }
 /* End Of P. J. Weinberger Hash Function */
-static unsigned int ELFHash2(const char* str, unsigned int len)
+static size_t ELFHash2(const char* str, size_t len)
 {
-  unsigned int hash = 0;
-  unsigned int x = 0;
-  unsigned int i = 0;
+  size_t hash = 0;
+  size_t x = 0;
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     hash = (hash << 4) + (*str);
     if ((x = hash & 0xF0000000L) != 0) {
@@ -252,10 +254,10 @@ static unsigned int ELFHash2(const char* str, unsigned int len)
   return hash;
 }
 /* End Of DEK Hash Function */
-static unsigned int BPHash(const char* str, unsigned int len)
+static size_t BPHash(const char* str, size_t len)
 {
-  unsigned int hash = 0;
-  unsigned int i = 0;
+  size_t hash = 0;
+  size_t i = 0;
   for (i = 0; i < len; str++, i++) {
     hash = hash << 7 ^ (*str);
   }
@@ -264,9 +266,9 @@ static unsigned int BPHash(const char* str, unsigned int len)
 /* End Of AP Hash Function */
 //几种经典的Hash算法的实现(源代码)
 //●PHP中出现的字符串Hash函数
-static uint32_t hashpjw(char* arKey, unsigned int nKeyLength)
+static size_t hashpjw(char* arKey, size_t nKeyLength)
 {
-  uint32_t h = 0, g;
+  size_t h = 0, g;
   char* arEnd = arKey + nKeyLength;
   while (arKey < arEnd) {
     h = (h << 4) + *arKey++;
@@ -278,10 +280,10 @@ static uint32_t hashpjw(char* arKey, unsigned int nKeyLength)
   return h;
 }
 //●OpenSSL中出现的字符串Hash函数
-static uint32_t lh_strhash11(const char* str)
+static size_t lh_strhash11(const char* str)
 {
   int i, l;
-  uint32_t ret = 0;
+  size_t ret = 0;
   unsigned short* s;
   if (str == NULL) {
     return(0);
@@ -297,11 +299,11 @@ static uint32_t lh_strhash11(const char* str)
 * no collisions on /usr/dict/words and it distributes on %2^n quite
 * well, not as good as MD5, but still good.
 */
-static uint32_t lh_strhash1(const char* c)
+static size_t lh_strhash1(const char* c)
 {
-  uint32_t ret = 0;
+  size_t ret = 0;
   long n;
-  uint32_t v;
+  size_t v;
   int r;
   if ((c == NULL) || (*c == '\0')) {
     return(ret);
@@ -326,24 +328,24 @@ static uint32_t lh_strhash1(const char* c)
 //●MySql中出现的字符串Hash函数
 #ifndef NEW_HASH_FUNCTION
 /* Calc hashvalue for a key */
-static uint32_t calc_hashnr(const char* key, uint32_t length)
+static size_t calc_hashnr(const char* key, size_t length)
 {
-  register uint32_t nr = 1, nr2 = 4;
+  register size_t nr = 1, nr2 = 4;
   while (length--) {
-    nr ^= (((nr & 63) + nr2) * ((uint32_t)(uint8_t)* key++)) + (nr << 8);
+    nr ^= (((nr & 63) + nr2) * ((size_t)(uint8_t)* key++)) + (nr << 8);
     nr2 += 3;
   }
-  return((uint32_t)nr);
+  return((size_t)nr);
 }
 /* Calc hashvalue for a key, case indepenently */
-static uint32_t calc_hashnr_caseup(const char* key, uint32_t length)
+static size_t calc_hashnr_caseup(const char* key, size_t length)
 {
-  register uint32_t nr = 1, nr2 = 4;
+  register size_t nr = 1, nr2 = 4;
   while (length--) {
-    nr ^= (((nr & 63) + nr2) * ((uint32_t)(uint8_t)toupper(*key++))) + (nr << 8);
+    nr ^= (((nr & 63) + nr2) * ((size_t)(uint8_t)toupper(*key++))) + (nr << 8);
     nr2 += 3;
   }
-  return((uint32_t)nr);
+  return((size_t)nr);
 }
 #else
 /*
@@ -360,34 +362,34 @@ static uint32_t calc_hashnr_caseup(const char* key, uint32_t length)
 * This hash produces the fewest collisions of any function that we've seen so
 * far, and works well on both numbers and strings.
 */
-static uint32_t calc_hashnr(const byte* key, uint32_t len)
+static size_t calc_hashnr(const byte* key, size_t len)
 {
   const byte* end = key + len;
-  uint32_t hash;
+  size_t hash;
   for (hash = 0; key < end; key++) {
     hash *= 16777619;
-    hash ^= (uint32_t) * (uint8_t*)key;
+    hash ^= (size_t) * (uint8_t*)key;
   }
   return (hash);
 }
-static uint32_t calc_hashnr_caseup(const byte* key, uint32_t len)
+static size_t calc_hashnr_caseup(const byte* key, size_t len)
 {
   const byte* end = key + len;
-  uint32_t hash;
+  size_t hash;
   for (hash = 0; key < end; key++) {
     hash *= 16777619;
-    hash ^= (uint32_t)(uint8_t)toupper(*key);
+    hash ^= (size_t)(uint8_t)toupper(*key);
   }
   return (hash);
 }
 #endif
 //Mysql中对字符串Hash函数还区分了大小写
 //●另一个经典字符串Hash函数
-static unsigned int MysqlHash(const char* str, uint32_t len)
+static size_t MysqlHash(const char* str, size_t len)
 {
-  register unsigned int h = 0;
+  register size_t h = 0;
   register const unsigned char* p = (const unsigned char*)str;
-  uint32_t i = 0;
+  size_t i = 0;
   for (; i<len; ++i, ++p) {
     h = 31 * h + *p;
   }
@@ -408,7 +410,7 @@ static unsigned int MysqlHash(const char* str, uint32_t len)
 // http://murmurhash.googlepages.com/ 
 static uint64_t MurMurHash(const char* key, int len) {
   uint8_t* buf = (uint8_t*)key;
-  uint32_t seed = 0x1234ABCD;
+  size_t seed = 0x1234ABCD;
   uint64_t m = 0xc6a4a7935bd1e995L;
   int r = 47, remaining = len;
   uint64_t h = seed ^ (len * m);
@@ -438,17 +440,17 @@ static uint64_t MurMurHash(const char* key, int len) {
   h ^= h >> r;
   return h;
 }
-static unsigned int murMurHash(const void *key, int len)
+static size_t murMurHash(const void *key, int len)
 {
-  const unsigned int m = 0x5bd1e995;
+  const size_t m = 0x5bd1e995;
   const int r = 24;
   const int seed = 97;
-  unsigned int h = seed ^ len;
+  size_t h = seed ^ len;
   // Mix 4 bytes at a time into the hash
   const unsigned char *data = (const unsigned char *)key;
   while (len >= 4)
   {
-    unsigned int k = *(unsigned int *)data;
+    size_t k = *(size_t *)data;
     k *= m;
     k ^= k >> r;
     k *= m;

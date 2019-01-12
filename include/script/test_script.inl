@@ -1,8 +1,8 @@
 // App.cpp : Defines the entry point for the console application.
 //
-#include "cstd.h"
-#include "cfile.h"
-#include "str.h"
+#include "std/types_c.h"
+//#include "cfile.h"
+//#include "str.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -254,6 +254,7 @@ bool __func_print(var_t* pvArgs, int nArgs, var_t* out)
   printf(buf);
   return true;
 }
+#if 0
 class Globals : public IScriptCallback
 {
 public:
@@ -403,4 +404,6 @@ int test_script()
   str_free(code);
   return 0;
 }
+#else
 
+#endif

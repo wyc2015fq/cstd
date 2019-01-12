@@ -2,6 +2,8 @@
 #ifndef _ALGO_H_
 #define _ALGO_H_
 
+#include "types_c.h"
+
 #define CC_INLINE static
 #define CC_DEFAULT(x) 
 

@@ -7,6 +7,15 @@
 #include <string.h>
 #include "inttypes_c.h"
 #include "stddef_c.h"
+#define static_strlen(STR)   (sizeof(STR)-1)
+#ifdef _TEST
+int test_static_strlen() {
+#define CHECK(STR)  assert(static_strlen(STR)==strlen(STR));
+  CHECK("test_static_strlen");
+  return 0;
+}
+#endif
+
 
 #ifdef __linux__
 int64 _atoi64(const char* str) {
@@ -321,6 +330,9 @@ CC_INLINE int strnicmp_c(const char* s1, int l1, const char* s2, int l2, int n, 
 CC_INLINE int stricmp_c(const char* s1, int l1, const char* s2, int l2, int ignore_case) {
   return strnicmp_c(s1, l1, s2, l2, -1, 0, ignore_case);
 }
+CC_INLINE int strcmp_c(const char* s1, int l1, const char* s2, int l2) {
+  return strnicmp_c(s1, l1, s2, l2, -1, 0, 0);
+}
 #if 0
 CC_INLINE int str_icmp(const char* s1, const char* s2, int ignore_case) {
   return strnicmp_c(s1, -1, s2, -1, -1, 0, ignore_case);
@@ -568,13 +580,17 @@ static char* strcat3_c(char* s, IRANGE* r, const char* s1, int l1, const char* s
   s[r->s] = 0;
   return s;
 }
-static char* strcpy_c(char* s, IRANGE* r, const char* s1, int l1) {
-  int l = r->e - r->s;
+static int strcpy_c(char* s, int rs, int re, const char* s1, int l1) {
+  int l = re - rs;
   //int l1 = r1.e - r1.s;
   assert(l > l1);
-  memcpy(s + r->s, s1, l1);
-  r->s += l1;
-  s[r->s] = 0;
+  memcpy(s + rs, s1, l1);
+  rs += l1;
+  s[rs] = 0;
+  return rs;
+}
+static char* strcpy_c(char* s, IRANGE* r, const char* s1, int l1) {
+  r->s = strcpy_c(s, r->s, r->e, s1, l1);
   return s;
 }
 static char* strins_c(char* s, int i, IRANGE* r, const char* s1, int l1) {

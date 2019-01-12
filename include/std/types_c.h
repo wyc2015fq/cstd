@@ -909,5 +909,15 @@ VECN_DEF_DEF(16);
 #undef VECN_DEF
 /////////////////////////////////////////////////////////
 
+#include <malloc.h>
+size_t my_msize(const void* p) {
+#ifdef _WIN32
+    return _msize((void*)p);
+#else
+    return malloc_usable_size((void*)p);
+#endif
+}
+
+
 
 #endif // _STDC_TYPES_H_
