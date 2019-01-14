@@ -26,8 +26,6 @@ typedef int(*cmp_fun_t)( void* key1,  void* key2);
 
 struct _HashNode {
   struct _HashNode* next;
-  struct _HashNode* prev;
-  void* key;
 };
 
 enum {
