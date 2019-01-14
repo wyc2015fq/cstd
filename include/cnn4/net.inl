@@ -150,7 +150,8 @@ double ForwardFromTo(Phase phase, int start, int end)
   for (int i = start; i <= end; ++i) {
     // LOG(ERROR) << "Forwarding " << layer_names_[i];
     Layer* layer = net->layers_[i];
-    if (layer->phase_ == TRAINorTEST || phase == TRAINorTEST || (layer->phase_ ==phase)) {
+    layer->phase_cur_ = phase;
+    if (layer->phase_def_ == TRAINorTEST || phase == TRAINorTEST || (layer->phase_def_ ==phase)) {
       double layer_loss = layer->Forward(layer->bottom_vecs_, layer->top_vecs_);
       loss += layer_loss;
     }
@@ -165,7 +166,7 @@ void BackwardFromTo(int start, int end)
   CHECK_LT(start, layers_.size());
   for (int i = start; i >= end; --i) {
     Layer* layer = net->layers_[i];
-    if (layer->phase_ == TRAIN || layer->phase_ == TRAINorTEST) {
+    if (layer->phase_def_ == TRAIN || layer->phase_def_ == TRAINorTEST) {
       layers_[i]->Backward(layer->top_vecs_, layer->bottom_vecs_);
     }
   }

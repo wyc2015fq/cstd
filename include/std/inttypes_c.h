@@ -35,6 +35,7 @@ typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 #endif
 #include <windows.h>
+#include <stdint.h>
 #else
 // linux
 #include <inttypes.h>

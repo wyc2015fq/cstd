@@ -389,7 +389,15 @@ struct Blob {
     Blob* blob = this;
     DataShape shape = blob->shape_;
     Dtype* data = blob->cpu_mdata();
+    if (filler != &filler_) {
+      filler_ = *filler;
+    }
     return filler->Fill(shape, data);
+  }
+  int FillConstant(Dtype value) {
+    filler_.type_ = FillerMethod_constant;
+    filler_.value_ = 1;
+    return Fill(&filler_);
   }
   int Fill() {
     return Fill(&filler_);
@@ -408,7 +416,7 @@ static void GaussianFiller(Blob* blob, double mu = 0, double st = 1) {
   cpu_GaussianFiller(blob->shape_, blob->cpu_mdata(), mu, st, -1);
 }
 
-static int Fill(Blob* blob, Filler* filler) {
+static int Fill1(Blob* blob, Filler* filler) {
   DataShape shape = blob->shape_;
   Dtype* data = blob->cpu_mdata();
   return filler->Fill(shape, data);

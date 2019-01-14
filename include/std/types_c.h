@@ -915,7 +915,7 @@ VECN_DEF_DEF(16);
 /////////////////////////////////////////////////////////
 
 #include <malloc.h>
-size_t my_msize(const void* p)
+static size_t my_msize(const void* p)
 {
 #ifdef _WIN32
   return _msize((void*)p);

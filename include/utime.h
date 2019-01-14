@@ -28,6 +28,7 @@ static __int64 utime_counter()
   QueryPerformanceCounter((LARGE_INTEGER*)(&counter));
   return counter;
 }
+typedef __int64 uclock_t;
 #define utime_restart(_start_time)  _start_time = utime_counter()
 #define utime_start(_start_time)    __int64 utime_restart(_start_time)
 #define utime_elapsed(_start_time)  ((double)(utime_counter() - _start_time) / utime_frequency())
@@ -48,6 +49,7 @@ static int64_t utime_counter()
   //printf("%lu %d\n", counter, sizeof(t.tv_sec));
   return counter;
 }
+typedef int64_t uclock_t;
 #define utime_restart(_start_time)  _start_time = utime_counter()
 #define utime_start(_start_time)    int64_t utime_restart(_start_time)
 #define utime_elapsed(_start_time)  ((double)(utime_counter() - _start_time) / 1000000)
@@ -70,6 +72,7 @@ static int64 utime_counter() {
 
 //开始计时
 #ifndef utime_restart
+typedef clock_t uclock_t;
 #define utime_restart(_start_time)  _start_time = clock()
 #define utime_start(_start_time)    clock_t utime_restart(_start_time)
 #define utime_elapsed(_start_time)  (double)(clock() - _start_time) / CLOCKS_PER_SEC
@@ -78,7 +81,7 @@ static int64 utime_counter() {
 
 #ifdef __cplusplus
 struct utime_test {
-  int64_t aa1;
+  uclock_t aa1;
   utime_test() {
     utime_restart(aa1);
   }

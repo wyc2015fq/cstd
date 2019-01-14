@@ -695,7 +695,7 @@ void FUN(warp_ctc_loss_fwd)(int T_, int N_, int C_, int count, int blank_index_,
   // output loss
   Dtype loss;// = top_mdata()[0];
   loss = 0;
-  int num = 0;
+  int num = 1;
   for (int n = 0; n < N_; ++n) {
     if (costs[n] < std::numeric_limits<Dtype>::infinity()) {
       loss += costs[n];

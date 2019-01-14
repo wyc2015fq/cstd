@@ -124,6 +124,8 @@ public:
     const Dtype* bottom2_data = bottom_size>2 ? bottom[2]->cpu_data() : NULL;
     const Dtype* bottom3_data = bottom_size>3 ? bottom[3]->cpu_data() : NULL;
     Dtype* top_data = top[0]->cpu_mdata();
+    const Dtype* bottom0_data_cpu = bottom[0]->cpu_data();
+    std::vector<Dtype> vec(bottom0_data_cpu, bottom0_data_cpu+count);
     warp_ctc_loss_fwd(T_, N_, C_, count, blank_index_, bottom0_data, bottom0_mdiff, bottom1_data, bottom2_data, bottom3_data, top_data);
     return;
   }

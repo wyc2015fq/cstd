@@ -243,7 +243,7 @@ struct PoolingLayer : public Layer
     else {
       mask = (int*)max_idx_.mdata();
     }
-    pooling_forward(pool_, phase_, bottom_data,
+    pooling_forward(pool_, phase_cur_, bottom_data,
       num, channels_, height_, width_, pooled_height_, pooled_width_,
       kernel_h_, kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_,
       rand_idx, top_data, mask, top_mask);

@@ -1,6 +1,7 @@
 #ifndef _LIBCORE_CPP_
 #define _LIBCORE_CPP_
 
+#include "core\precomp.hpp"
 #include "core\algorithm.cpp"
 #include "core\alloc.cpp"
 #include "core\arithm.cpp"
@@ -88,6 +89,7 @@ Mat a;
 #include "core\opencv_perf_core_pch.cpp"
 #include "core\opencv_test_core_pch.cpp"
 #endif
+
 
 #undef BLOCK_SIZE
 
