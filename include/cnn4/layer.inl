@@ -1,6 +1,7 @@
 
 struct Layer {
-  Phase phase_;
+  Phase phase_cur_;
+  Phase phase_def_;
   char name_[MAX_NAME];
   char type_[MAX_NAME];
   //cJSON* param_;
@@ -92,8 +93,8 @@ struct Layer {
     cjson_AddStringToObject(param, "type", layer->type_);
     AddBlobNamesToJson(param, "top", layer->top_vecs_);
     AddBlobNamesToJson(param, "bottom", layer->bottom_vecs_);
-    if (phase_!=TRAINorTEST) {
-      cjson_AddObjectString(param, "phase", Phase_Name[phase_]);
+    if (phase_def_ !=TRAINorTEST) {
+      cjson_AddObjectString(param, "phase", Phase_Name[phase_def_]);
     }
     toJson(param);
     int blob_size = (int)layer->blobs_.size();
@@ -118,9 +119,9 @@ struct Layer {
     //layer->param_ = param;
     strncpy(layer->name_, cjson_GetObjectString(param, "name", ""), MAX_NAME);
     //layer->loss_weight_ = param->GetObjectNumber("loss_weight", 0);
-    phase_ = TRAINorTEST;
+    phase_def_ = TRAINorTEST;
     if (phase_json) {
-      phase_ = (Phase)cjson_GetEnum(phase_json, TRAINorTEST, Phase_Name, countof(Phase_Name));
+      phase_def_ = (Phase)cjson_GetEnum(phase_json, TRAINorTEST, Phase_Name, countof(Phase_Name));
     }
     layer->SetUp(layer->bottom_vecs_, layer->top_vecs_);
     if (blobs_json) {
@@ -226,6 +227,10 @@ struct Layer {
     Lock();
     Dtype loss = 0;
     utime_start(a);
+    char buf[256];
+    for (int i = 0; i < blobs_.size(); ++i) {
+      //LOG_IF(INFO, root_solver()) << "    param blob " << i << " " << blobs_[i]->to_debug_string(buf, 256);
+    }
     Reshape(bottom, top);
     Forward_(bottom, top);
     double t = utime_elapsed(a);

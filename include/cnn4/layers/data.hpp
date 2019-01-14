@@ -69,7 +69,7 @@ struct DataLayer : public Layer
     int rank = solver_rank();
     bool keep = (offset_ % size) == rank ||
       // In test mode, only rank 0 runs, so avoid skipping
-      this->phase_ == TEST;
+      this->phase_def_ == TEST;
     return !keep;
   }
 
@@ -121,7 +121,7 @@ struct DataLayer : public Layer
       DataShape shape_;
       shape_.set(datum[j].dim_, 4);
       if (j == 0) {
-        shape_ = GetDataTransformerInfo(&transform_, &datum[j], phase_);
+        shape_ = GetDataTransformerInfo(&transform_, &datum[j], phase_cur_);
       }
       shape_.n = batch_size_;
       top[j]->Reshape(shape_);

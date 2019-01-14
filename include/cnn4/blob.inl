@@ -4,7 +4,6 @@
 #else
 #define vec_data(vec)  vec.data()
 #endif
-
 inline int num_axes() const { return shape_.num_axes(); }
 
 inline string shape_string() const {
@@ -200,7 +199,7 @@ double amean_diff() {
 
 double asum_data() {
   int count_ = count();
-  Dtype asum = caffe_asum(count_, data());
+  Dtype asum = cpu_caffe_asum(count_, cpu_data());
   return asum;
 }
 double asum_diff() {

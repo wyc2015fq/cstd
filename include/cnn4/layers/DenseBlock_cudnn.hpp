@@ -300,7 +300,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
   virtual void bottleneck_Forward_(int transitionIdx) {
     //BN Fwd 
     Dtype* BN_x_ptr;
-    if (this->phase_ == TRAIN && useDropout) {
+    if (this->phase_cur_ == TRAIN && useDropout) {
       BN_x_ptr = this->postDropout.gpu_mdata();
     }
     else {
@@ -319,7 +319,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
     const Dtype *bnBias = this->blobs_[2 * this->numtransition_ + transitionIdx]->gpu_data();
     int localChannels = this->initChannel + transitionIdx * this->growthRate;
     int inner_num_ = this->H * this->W;
-    if (this->phase_ == TEST) {
+    if (this->phase_cur_ == TEST) {
       if (1) {
         CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
           cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
@@ -378,7 +378,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
         //DEBUG_cudnnBatchNormalizationForwardTraining;
       }
       if (0) {
-        if (this->phase_ == TRAIN && useDropout) {
+        if (this->phase_cur_ == TRAIN && useDropout) {
           BN_x_ptr = this->postDropout.cpu_mdata();
         }
         else {
@@ -449,7 +449,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       Dtype* localBC_MeanInf = BC_MeanInfVec[transitionIdx];
       Dtype* localBC_VarInf = BC_VarInfVec[transitionIdx];
       //std::cout<<"BC Fwd BN Prepared"<<std::endl;
-      if (this->phase_ == TEST) {
+      if (this->phase_cur_ == TEST) {
         CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
           cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
           cuda_get_one(), cuda_get_zero(),
@@ -581,7 +581,7 @@ struct DenseBlock_cudnn : public DenseBlockLayer {
       log_blob(this->postConv);
     }
     //Dropout
-    if ((this->phase_ == TRAIN) && useDropout) {
+    if ((this->phase_cur_ == TRAIN) && useDropout) {
       Dtype* dropout_x_local = postConv.gpu_mdata() + delayChannel*H*W;
       Dtype* dropout_y_local = postDropout.gpu_mdata() + delayChannel*H*W;
       CUDNN_CHECK(cudnnDropoutForward(cudnnHandlePtr,

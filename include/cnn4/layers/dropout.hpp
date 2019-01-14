@@ -52,7 +52,7 @@ public:
     Dtype* top_data = top[0]->mdata();
     const int count = bottom[0]->count();
     Dtype scale_ = 1. / (1. - dropout_ratio_);
-    if (this->phase_ == TRAIN) {
+    if (this->phase_cur_ == TRAIN) {
       unsigned int* mask = (unsigned int*)(rand_vec_.mdata());
       // set thresholds
       // NOLINT_NEXT_LINE(whitespace/operators)
@@ -69,7 +69,7 @@ public:
       const Dtype* top_diff = top[0]->diff();
       Dtype* bottom_diff = bottom[0]->mdiff();
       Dtype scale_ = 1. / (1. - dropout_ratio_);
-      if (this->phase_ == TRAIN) {
+      if (this->phase_cur_ == TRAIN) {
         const unsigned int* mask = (const unsigned int*)(rand_vec_.data());
         const int count = bottom[0]->count();
         // NOLINT_NEXT_LINE(whitespace/operators)

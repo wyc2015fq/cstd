@@ -46,7 +46,7 @@ public:
       const int* shape_end = (num_axes_ == -1) ? in->shape().end() : (shape_start + num_axes_);
       vector<int> bias_shape(shape_start, shape_end);
       bias->Reshape(bias_shape);
-      Fill(bias, &filler_);
+      bias->Fill(&filler_);
     }
   }
 

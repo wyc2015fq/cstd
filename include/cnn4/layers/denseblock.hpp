@@ -150,6 +150,7 @@ public:
     }
     if (blobs_.size() < blobs_size) {
       blobs_reset(this->blobs_, blobs_size);
+      Blob* localB;
       for (int transitionIdx = 0; transitionIdx < this->numtransition_; ++transitionIdx) {
         //filter
         //No BC case
@@ -158,20 +159,20 @@ public:
           int filterShape_Arr[] = { growthRate, inChannels, 3, 3 };
           vector<int> filterShape(filterShape_Arr, filterShape_Arr + 4);
           this->blobs_[transitionIdx]->Reshape((filterShape));
-          Fill(this->blobs_[transitionIdx], &Filter_Filler_);
+          this->blobs_[transitionIdx]->Fill(&Filter_Filler_);
         }
         else {
           //3*3 kernel
           int filter_33_shapeArr[] = { growthRate, 4 * growthRate, 3, 3 };
           vector<int> filter33Shape(filter_33_shapeArr, filter_33_shapeArr + 4);
           this->blobs_[transitionIdx]->Reshape((filter33Shape));
-          Fill(this->blobs_[transitionIdx], &Filter_Filler_);
+          this->blobs_[transitionIdx]->Fill(&Filter_Filler_);
           //1*1 kernel
           int inChannels = initChannel + transitionIdx * growthRate;
           int filter_11_shapeArr[] = { 4 * growthRate, inChannels, 1, 1 };
           vector<int> filter11Shape(filter_11_shapeArr, filter_11_shapeArr + 4);
           this->blobs_[5 * numtransition_ + transitionIdx]->Reshape((filter11Shape));
-          Fill(this->blobs_[5 * numtransition_ + transitionIdx], &Filter_Filler_);
+          this->blobs_[5 * numtransition_ + transitionIdx]->Fill(&Filter_Filler_);
         }
         //scaler & bias
         int inChannels = initChannel + transitionIdx * growthRate;
@@ -179,49 +180,44 @@ public:
         vector<int> BNparamShape(BNparamShape_Arr, BNparamShape_Arr + 4);
         //scaler
         this->blobs_[numtransition_ + transitionIdx]->Reshape((BNparamShape));
-        Fill(this->blobs_[numtransition_ + transitionIdx], &BN_Scaler_Filler_);
+        this->blobs_[numtransition_ + transitionIdx]->Fill(&BN_Scaler_Filler_);
         int BN_4G_Shape[] = { 1, 4 * growthRate, 1, 1 };
         vector<int> BN_4Gparam_ShapeVec(BN_4G_Shape, BN_4G_Shape + 4);
         //scaler BC
         if (useBC) {
-          this->blobs_[6 * numtransition_ + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-          Fill(this->blobs_[6 * numtransition_ + transitionIdx], &BN_Scaler_Filler_);
+          localB = this->blobs_[6 * numtransition_ + transitionIdx];
+          localB->Reshape((BN_4Gparam_ShapeVec));
+          localB->Fill(&BN_Scaler_Filler_);
         }
         //bias
-        this->blobs_[2 * numtransition_ + transitionIdx]->Reshape((BNparamShape));
-        Fill(this->blobs_[2 * numtransition_ + transitionIdx], &BN_Bias_Filler_);
+        localB = this->blobs_[2 * numtransition_ + transitionIdx];
+        localB->Reshape((BNparamShape));
+        localB->Fill(&BN_Bias_Filler_);
         //bias BC
         if (useBC) {
-          this->blobs_[7 * numtransition_ + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-          Fill(this->blobs_[7 * numtransition_ + transitionIdx], &BN_Bias_Filler_);
+          localB = this->blobs_[7 * numtransition_ + transitionIdx];
+          localB->Reshape((BN_4Gparam_ShapeVec));
+          localB->Fill(&BN_Bias_Filler_);
         }
         //globalMean
-        this->blobs_[3 * numtransition_ + transitionIdx]->Reshape((BNparamShape));
-        for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
-          Blob* localB = this->blobs_[3 * numtransition_ + transitionIdx];
-          localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 0;
-        }
+        localB = this->blobs_[3 * numtransition_ + transitionIdx];
+        localB->Reshape((BNparamShape));
+        localB->FillConstant(0);
         //globalMean BC
         if (useBC) {
-          this->blobs_[8 * numtransition_ + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-          Blob* localB = this->blobs_[8 * numtransition_ + transitionIdx];
-          for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
-            localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 0;
-          }
+          localB = this->blobs_[8 * numtransition_ + transitionIdx];
+          localB->Reshape((BN_4Gparam_ShapeVec));
+          localB->FillConstant(0);
         }
         //globalVar
-        this->blobs_[4 * numtransition_ + transitionIdx]->Reshape((BNparamShape));
-        for (int blobIdx = 0; blobIdx < inChannels; ++blobIdx) {
-          Blob* localB = this->blobs_[4 * numtransition_ + transitionIdx];
-          localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 1;
-        }
+        localB = this->blobs_[4 * numtransition_ + transitionIdx];
+        localB->Reshape((BNparamShape));
+        localB->FillConstant(1);
         //globalVar BC
         if (useBC) {
-          this->blobs_[9 * numtransition_ + transitionIdx]->Reshape((BN_4Gparam_ShapeVec));
-          Blob* localB = this->blobs_[9 * numtransition_ + transitionIdx];
-          for (int blobIdx = 0; blobIdx < 4 * growthRate; ++blobIdx) {
-            localB->cpu_mdata()[localB->offset(0, blobIdx, 0, 0)] = 1;
-          }
+          localB  = this->blobs_[9 * numtransition_ + transitionIdx];
+          localB->Reshape((BN_4Gparam_ShapeVec));
+          localB->FillConstant(1);
         }
       }
       //final parameter for the equivalent of blobs_[2] in Caffe-BN
@@ -564,7 +560,7 @@ public:
     //copy to bottom_data to buffer with stride
     int chunkSize_copy_init = this->initChannel * this->H * this->W;
     int chunkStride_copy = (this->initChannel + this->growthRate * this->numtransition_) * this->H * this->W;
-    if ((this->phase_ == TRAIN) && useDropout) {
+    if ((this->phase_cur_ == TRAIN) && useDropout) {
       copy_one_to_many(bottom_data, this->postDropout.mdata(), this->N, chunkSize_copy_init, chunkStride_copy);
     }
     else {
@@ -576,7 +572,7 @@ public:
       bottleneck_Forward_(transitionIdx);
     }
     //deploy top data
-    if ((this->phase_ == TRAIN) && useDropout) {
+    if ((this->phase_cur_ == TRAIN) && useDropout) {
       //cudaMemcpy(top[0]->gpu_mdata(), postDropout.gpu_mdata(), work_n * sizeof(Dtype), cudaMemcpyDeviceToDevice);
       caffe_memcpy(work_n * sizeof(Dtype), postDropout.data(), top[0]->mdata());
     }
@@ -1017,7 +1013,7 @@ void LoopEndCleanup_cpu()
 virtual void bottleneck_Forward_(int transitionIdx) {
   //BN Fwd
   Dtype* BN_x_ptr;
-  if (this->phase_ == TRAIN && useDropout) {
+  if (this->phase_cur_ == TRAIN && useDropout) {
     BN_x_ptr = this->postDropout.mdata();
   }
   else {
@@ -1035,7 +1031,7 @@ virtual void bottleneck_Forward_(int transitionIdx) {
   const Dtype *bnBias = this->blobs_[2 * this->numtransition_ + transitionIdx]->data();
   int localChannels = this->initChannel + transitionIdx * this->growthRate;
   int inner_num_ = this->H * this->W;
-  if (this->phase_ == TEST) {
+  if (this->phase_cur_ == TEST) {
     int count = this->N*localChannels*inner_num_;
     BatchNormalizationForwardInference(this->N, localChannels, inner_num_, BN_x_ptr, BN_y_ptr, bnScale, bnBias, BN_globalMean, BN_globalVar, BN_MIN_EPSILON);
     //log_blob(this->postBN);
@@ -1089,7 +1085,7 @@ virtual void bottleneck_Forward_(int transitionIdx) {
     Dtype* localBC_MeanInf = BC_MeanInfVec[transitionIdx];
     Dtype* localBC_VarInf = BC_VarInfVec[transitionIdx];
     //std::cout<<"BC Fwd BN Prepared"<<std::endl;
-    if (this->phase_ == TEST) {
+    if (this->phase_cur_ == TEST) {
       CUDNN_CHECK(cudnnBatchNormalizationForwardInference(
         cudnnHandlePtr, CUDNN_BATCHNORM_SPATIAL,
         get_one(), get_zero(),
@@ -1163,7 +1159,7 @@ virtual void bottleneck_Forward_(int transitionIdx) {
   }
 #if 0
   //Dropout
-  if ((this->phase_ == TRAIN) && useDropout) {
+  if ((this->phase_cur_ == TRAIN) && useDropout) {
     Dtype* dropout_x_local = postConv.mdata() + delayChannel*H*W;
     Dtype* dropout_y_local = postDropout.mdata() + delayChannel*H*W;
     CUDNN_CHECK(cudnnDropoutForward(cudnnHandlePtr,
@@ -1198,7 +1194,7 @@ void Forward_1(const vector<Blob*> & bottom, const vector<Blob*> & top)
     Blob* Scaler = this->blobs_[numtransition_ + transitionIdx];
     Blob* Bias = this->blobs_[2 * numtransition_ + transitionIdx];
     int localChannels = this->initChannel + transitionIdx * this->growthRate;
-    if (this->phase_ == TEST) {
+    if (this->phase_cur_ == TEST) {
       //std::cout<<"cpu BN test forward"<<std::endl;
       BN_inf_Fwd(BN_bottom, BN_top, this->N, localChannels, this->H, this->W, this->blobs_[3 * this->numtransition_ + transitionIdx], this->blobs_[4 * this->numtransition_ + transitionIdx], Scaler, Bias, this->blobs_[bnTimerIdx]);
     }
@@ -1225,7 +1221,7 @@ void Forward_1(const vector<Blob*> & bottom, const vector<Blob*> & top)
       Blob* BC_Bias = this->blobs_[7 * numtransition_ + transitionIdx];
       Blob* BC_Mean = this->blobs_[8 * numtransition_ + transitionIdx];
       Blob* BC_Var = this->blobs_[9 * numtransition_ + transitionIdx];
-      if (this->phase_ == TEST) {
+      if (this->phase_cur_ == TEST) {
         BN_inf_Fwd(BC_BN_x, BC_BN_y, N, 4 * growthRate, H, W, BC_Mean, BC_Var, BC_Scaler, BC_Bias, this->blobs_[bnTimerIdx]);
       }
       else {
@@ -1253,7 +1249,7 @@ void Forward_1(const vector<Blob*> & bottom, const vector<Blob*> & top)
   }
   //deploy output data
   top[0]->CopyFrom((this->merged_conv[this->numtransition_]));
-  if (this->phase_ == TRAIN) {
+  if (this->phase_cur_ == TRAIN) {
     this->blobs_[bnTimerIdx]->mdata()[0] *= this->EMA_decay;
     this->blobs_[bnTimerIdx]->mdata()[0] += 1;
     this->trainCycleIdx += 1;
