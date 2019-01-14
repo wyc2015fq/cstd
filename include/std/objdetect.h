@@ -22,7 +22,7 @@ typedef double FIX_FLOAT;
 typedef struct lut_detect_param_t {
   //????
   int height, width, datastep, maskstep, stepxy,
-    mincnt, fastmode, maxoutlen, casnum;
+      mincnt, fastmode, maxoutlen, casnum;
   int is_trans, is_flop, is_flip; // ??????????
   double sc, ssmin, ssmax, ss, thd;
   const unsigned char* data, *mask;
@@ -34,7 +34,7 @@ typedef struct lut_detect_param_t {
   int buflen;
   unsigned char* buf;
   //
-  //int isc, issmin, issmax, iss, ithd; 
+  //int isc, issmin, issmax, iss, ithd;
   int h, w; //h=height*sc; w=width*sc;
   void* pWirk[MAX_CAS_NUM]; // = MALLOC( iHaarWork, ca->ihlen );
   FIX_FLOAT* inter; // = MALLOC( FIX_FLOAT, ( h + 1 ) * ( w + 1 ) );
@@ -62,7 +62,7 @@ typedef struct lbpex_param_t {
   const unsigned char* src;
   int do_pp; // pplight
   int fillborder; //
-                  //lbp????
+  //lbp????
   int select_type;
   int isall;
   //int* lbp_Feature_idyw; // len=[featurelen]

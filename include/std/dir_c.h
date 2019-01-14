@@ -106,7 +106,8 @@ typedef enum {
 #define S_ISVTX  -1
 #define S_IXOTH  -1
 
-static int win32_attrib_cvt(int attrib) {
+static int win32_attrib_cvt(int attrib)
+{
   int attrib2 = 0;
 #define WIN32_ATTRIB_CVT(a, b) if (attrib&(a))  attrib2|=(b);
   if (0) {
@@ -117,10 +118,10 @@ static int win32_attrib_cvt(int attrib) {
   WIN32_ATTRIB_CVT(FILE_ATTRIBUTE_READONLY, AS_RDONLY);
   WIN32_ATTRIB_CVT(FILE_ATTRIBUTE_DIRECTORY, AS_SUBDIR);
   WIN32_ATTRIB_CVT(FILE_ATTRIBUTE_HIDDEN, AS_HIDDEN);
-  
   return attrib2;
 }
-int sys_find_close(dir_t* s) {
+int sys_find_close(dir_t* s)
+{
   if (s && s->x) {
     _findclose((intptr_t)s->x);
     s->x = 0;
@@ -128,7 +129,8 @@ int sys_find_close(dir_t* s) {
   return 0;
 }
 // FILETIME 转 time_t
-static time_t FileTimeToTimet(FILETIME ft) {
+static time_t FileTimeToTimet(FILETIME ft)
+{
   time_t pt;
   //LONGLONG nLL;
   ULARGE_INTEGER ui;
@@ -140,14 +142,16 @@ static time_t FileTimeToTimet(FILETIME ft) {
 }
 
 #else
-static int linux_attrib_cvt(int attrib) {
+static int linux_attrib_cvt(int attrib)
+{
   int attrib2 = 0;
 #define LINUX_ATTRIB_CVT(a, b) if (a(attrib))  attrib2|=(b);
   LINUX_ATTRIB_CVT(S_ISDIR, AS_SUBDIR);
   return attrib2;
 }
 
-int sys_find_close(dir_t* s) {
+int sys_find_close(dir_t* s)
+{
   if (s && s->x) {
     closedir((DIR*)s->x);
     s->x = NULL;
@@ -156,7 +160,8 @@ int sys_find_close(dir_t* s) {
 }
 #endif
 
-int sys_find_next_file(dir_t* s, const char* path, const char* filters, fileinfo_t* f, int flag) {
+int sys_find_next_file(dir_t* s, const char* path, const char* filters, fileinfo_t* f, int flag)
+{
 #ifdef _WIN32
   WIN32_FIND_DATAW info[1];
   char* name = f->name;
@@ -167,7 +172,7 @@ int sys_find_next_file(dir_t* s, const char* path, const char* filters, fileinfo
     WCHAR wbuf[256];
     _snprintf(buf, 256, "%s/%s", path, filters ? filters : "*");
     //len = MultiByteToWideChar(CP_ACP, 0, buf, -1, wbuf, 256);
-    len = iconv_c(cp, ICONV_UCS2LE, buf, strlen(buf), (char*)wbuf, 2*256)/2;
+    len = iconv_c(cp, ICONV_UCS2LE, buf, strlen(buf), (char*)wbuf, 2 * 256) / 2;
     wbuf[len] = 0;
     s->x = (void*)FindFirstFileW(wbuf, info);
     f->size = info->nFileSizeLow;
@@ -178,13 +183,11 @@ int sys_find_next_file(dir_t* s, const char* path, const char* filters, fileinfo
     iconv_c(ICONV_UCS2LE, cp, (char*)info->cFileName, -1, buf, 256);
     if (flag & (FF_FULLNAME | FF_SUBDIR)) {
       _snprintf(name, maxnamelen, "%s/%s", path, buf);
-    }
-    else {
+    } else {
       strncpy(name, buf, maxnamelen);
     }
     return (NULL != s->x);
-  }
-  else {
+  } else {
     if (FindNextFileW((HANDLE)s->x, info)) {
       f->size = info->nFileSizeLow;
       f->ctime = FileTimeToTimet(info->ftCreationTime);
@@ -195,13 +198,11 @@ int sys_find_next_file(dir_t* s, const char* path, const char* filters, fileinfo
       iconv_c(ICONV_UCS2LE, cp, (char*)info->cFileName, -1, buf, 256);
       if (flag & (FF_FULLNAME | FF_SUBDIR)) {
         _snprintf(name, maxnamelen, "%s/%s", path, buf);
-      }
-      else {
+      } else {
         strncpy(name, buf, 256);
       }
       return TRUE;
-    }
-    else {
+    } else {
       FindClose((HANDLE)s->x);
       s->x = 0;
     }
@@ -219,8 +220,7 @@ int sys_find_next_file(dir_t* s, const char* path, const char* filters, fileinfo
     struct stat file_stat;
     if (flag & (FF_FULLNAME | FF_SUBDIR)) {
       snprintf(f->name, MAX_PATH, "%s/%s", path, d_ent->d_name);
-    }
-    else {
+    } else {
       strncpy(f->name, d_ent->d_name, MAX_PATH);
     }
     if (lstat(f->name, &file_stat) < 0) {
@@ -240,7 +240,8 @@ int sys_find_next_file(dir_t* s, const char* path, const char* filters, fileinfo
 #endif
 }
 
-static int is_directory(const char* path) {
+static int is_directory(const char* path)
+{
   struct stat info = { 0 };
   int ret = stat(path, &info);
   int IsDirPath = 0;
@@ -257,15 +258,14 @@ static int dirlist(dirlist_t* s, const char* path, const char* filters, int flag
   for (; sys_find_next_file(finfo, path, "*", info, flag);) {
     BOOL isok = true;
     //printf("%s %d\n", info->name, info->attrib);
-    if (info->attrib&AS_SUBDIR) {
+    if (info->attrib & AS_SUBDIR) {
       char* name = GetFileNameExt(info->name);
       if (!FN_IS_DOTS(name)) {
         if ((flag & FF_SUBDIR) && filters) {
           dirlist(s, info->name, filters, flag);
         }
         isok = !(flag & FF_NODIR);
-      }
-      else {
+      } else {
         isok = false;
       }
     }
@@ -287,24 +287,26 @@ static int dirlist(dirlist_t* s, const char* path, const char* filters, int flag
   return 0;
 }
 #include "str_c.h"
-static int dirvstr(vstr_t* sv, const char* path, const char* filters, int flag) {
+static int dirvstr(vstr_t* sv, const char* path, const char* filters, int flag)
+{
   dirlist_t dl[1] = { 0 };
   int i;
   dirlist(dl, path, filters, flag);
   vstr_setsize(sv, dl->n);
-  for (i = 0; i<dl->n; ++i) {
+  for (i = 0; i < dl->n; ++i) {
     vstr_set_str(sv, i, STR1(dl->v[i].name));
   }
   dirlist_free(dl);
   return 0;
 }
 #if 0
-static int dirlist_c(char*** plist, const char* path, const char* filters, int flag) {
+static int dirlist_c(char** * plist, const char* path, const char* filters, int flag)
+{
   dirlist_t s[1] = { 0 };
   int i;
   dirlist(s, path, filters, flag);
   vcstr_setsize(plist, s->n);
-  for (i = 0; i<s->n; ++i) {
+  for (i = 0; i < s->n; ++i) {
     cstr_redup((*plist) + i, s->v[i].name);
   }
   dirlist_free(s);
@@ -325,7 +327,7 @@ static int dirlistW(dirlist_t* s, const char* path, const char* filters, int fla
     }
     if (isok) {
       char* ext = strrchr(info->name, '.');
-      isok = ext ? (cstr_find(filters, -1, ext, -1, 1, 0)>0) : 0;
+      isok = ext ? (cstr_find(filters, -1, ext, -1, 1, 0) > 0) : 0;
     }
     if (isok) {
       int n = s->n++;
@@ -340,7 +342,8 @@ static int dirlistW(dirlist_t* s, const char* path, const char* filters, int fla
 
 //////////////////////////////////////////////////
 
-static int sys_rmfile(const char *pathname) {
+static int sys_rmfile(const char* pathname)
+{
 #ifdef _WIN32
   return DeleteFileA(pathname);
 #else
@@ -357,10 +360,9 @@ int sys_rmdir(const char* dir_full_path)
   if (!dirp) {
     return -1;
   }
-  struct dirent *dir;
+  struct dirent* dir;
   struct stat st;
-  while ((dir = readdir(dirp)) != NULL)
-  {
+  while ((dir = readdir(dirp)) != NULL) {
     if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
       continue;
     }
@@ -376,17 +378,14 @@ int sys_rmdir(const char* dir_full_path)
         return -1;
       }
       rmdir(sub_path);
-    }
-    else if (S_ISREG(st.st_mode)) {
+    } else if (S_ISREG(st.st_mode)) {
       unlink(sub_path);     // 如果是普通文件，则unlink
-    }
-    else {
+    } else {
       printf("sys_rmdir:st_mode %s error", sub_path);
       continue;
     }
   }
-  if (rmdir(dir_full_path) == -1)//delete dir itself.
-  {
+  if (rmdir(dir_full_path) == -1) { //delete dir itself.
     closedir(dirp);
     return -1;
   }
@@ -438,7 +437,8 @@ typedef struct {
 } sys_stat;
 
 //////////////////////////
-int sys_filestat(const char* file, sys_stat* s) {
+int sys_filestat(const char* file, sys_stat* s)
+{
 #ifdef _WIN32
   struct _stat st;
   int ret = _stat(file, &st);
@@ -458,7 +458,7 @@ int sys_filestat(const char* file, sys_stat* s) {
     COPYMEMBER(mtime);
     COPYMEMBER(ctime);
 #undef COPYMEMBER
-}
+  }
 #else
   struct stat st;
   int ret = stat(file, &st);
@@ -480,12 +480,14 @@ int sys_filestat(const char* file, sys_stat* s) {
 #endif
   return ret;
 }
-static uint64 sys_filesize(const char* fn)  {
+static uint64 sys_filesize(const char* fn)
+{
   sys_stat s[1] = {0};
   sys_filestat(fn, s);
   return s->size;
 }
-int sys_mkdir(const char* fname) {
+int sys_mkdir(const char* fname)
+{
 #ifdef _WIN32
   return _mkdir(fname);
 #else
@@ -493,7 +495,8 @@ int sys_mkdir(const char* fname) {
 #endif
 }
 //////////////////////////
-static int rmdirs(const char* path) {
+static int rmdirs(const char* path)
+{
   if (is_directory(path)) {
     dir_t finfo[1] = { 0 };
     fileinfo_t info[1] = { 0 };
@@ -502,20 +505,18 @@ static int rmdirs(const char* path) {
     for (; sys_find_next_file(finfo, path, "*", info, flag);) {
       BOOL isok = true;
       //printf("%s %d\n", info->name, info->attrib);
-      if (info->attrib&AS_SUBDIR) {
+      if (info->attrib & AS_SUBDIR) {
         char* name = GetFileNameExt(info->name);
         isok = !FN_IS_DOTS(name);
         if (isok) {
           rmdirs(info->name);
         }
-      }
-      else {
+      } else {
         sys_rmfile(info->name);
       }
     }
     sys_rmdir(path);
-  }
-  else {
+  } else {
     sys_rmfile(path);
   }
   return 0;

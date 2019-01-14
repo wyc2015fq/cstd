@@ -5,7 +5,7 @@
 #include "types_c.h"
 
 #define CC_INLINE static
-#define CC_DEFAULT(x) 
+#define CC_DEFAULT(x)
 
 // 用宏判断计算机处理器是大端字节序
 static union { char c[4]; unsigned long mylong; } endian_test = { { 'l', '?', '?', 'b' } };
@@ -13,7 +13,8 @@ static union { char c[4]; unsigned long mylong; } endian_test = { { 'l', '?', '?
 #define BIGENDIANNESS ('b'==ENDIANNESS)
 
 
-CC_INLINE int nulprintf(const char* fmt, ...) {
+CC_INLINE int nulprintf(const char* fmt, ...)
+{
   (void)fmt;
   return 0;
 }
@@ -559,8 +560,7 @@ enum {
   CC_BILATERAL = 4
 };
 /* Filters used in pyramid decomposition */
-typedef enum CvFilter
-{
+typedef enum CvFilter {
   CC_GAUSSIAN_5x5 = 7
 }
 CvFilter;
@@ -1546,7 +1546,7 @@ struct CvLSHOperations;
   } while(0)
 // ???????
 #define FLIP1D(_N, _A, _AI, t) do {int _I=0; for (; _I<(_N)/2; _I+=_AI) CC_SWAP(*(_A+_I), *(_A+(_N)-(_AI)-_I), t); } while(0)
-// 
+//
 #define FLIP2D(_M, _N, _A, _AL, _AI, t) \
   do { \
     int _LA, _IA; \
@@ -1796,7 +1796,7 @@ if s == 0, then h = -1 (undefined)
   } while(0)
 #if 0
 // HSV??????????RGB?????????
-void Hsv2Rgb(float H, float S, float V, float& R, float& G, float& B)
+void Hsv2Rgb(float H, float S, float V, float & R, float & G, float & B)
 {
   int i;
   float f, p, q, t;
@@ -2716,15 +2716,14 @@ CC_INLINE int ilog2(int value)
   }
   return x;
 }
-CC_INLINE int NextPowerOfTwo(int x) {
-
+CC_INLINE int NextPowerOfTwo(int x)
+{
   int z = (x > 0) ? x - 1 : 0;
   z |= z >> 1;
   z |= z >> 2;
   z |= z >> 4;
   z |= z >> 8;
   z |= z >> 16;
-
   return (int)(z + 1);
 }
 CC_INLINE size_t next_power(size_t x)
@@ -2768,7 +2767,8 @@ CC_INLINE size_t next_power_1_5(size_t n)
 #define FP_ZERO      0        /*是0*/
 #endif
 
-CC_INLINE int fpclassify_f32(float t) {
+CC_INLINE int fpclassify_f32(float t)
+{
   union {
     float f;
     unsigned int i;
@@ -2782,7 +2782,8 @@ CC_INLINE int fpclassify_f32(float t) {
   }
   return 0 == u.i ? FP_ZERO : FP_NORMAL;
 }
-CC_INLINE int fpclassify_f64(double t) {
+CC_INLINE int fpclassify_f64(double t)
+{
   union {
     double d;
     unsigned int i[2];
@@ -2790,21 +2791,20 @@ CC_INLINE int fpclassify_f64(double t) {
   u.d = t;
   if ('b' != ENDIANNESS) {
     if (((u.i[1] & 0x7ff00000) == 0x7ff00000)
-      && (((u.i[1] & 0x000fffff) == 0) && (u.i[0] == 0))) {
+        && (((u.i[1] & 0x000fffff) == 0) && (u.i[0] == 0))) {
       return FP_INFINITE;
     }
     if (((u.i[1] & 0x7ff00000) == 0x7ff00000)
-      && (((u.i[1] & 0x000fffff) != 0) || (u.i[0] != 0))) {
+        && (((u.i[1] & 0x000fffff) != 0) || (u.i[0] != 0))) {
       return FP_NAN;
     }
-  }
-  else {
+  } else {
     if (((u.i[0] & 0x7ff00000) == 0x7ff00000)
-      && (((u.i[0] & 0x000fffff) == 0) && (u.i[1] == 0))) {
+        && (((u.i[0] & 0x000fffff) == 0) && (u.i[1] == 0))) {
       return FP_INFINITE;
     }
     if (((u.i[0] & 0x7ff00000) == 0x7ff00000)
-      && (((u.i[0] & 0x000fffff) != 0) || (u.i[1] != 0))) {
+        && (((u.i[0] & 0x000fffff) != 0) || (u.i[1] != 0))) {
       return FP_NAN;
     }
   }
@@ -2849,8 +2849,7 @@ CC_INLINE double NaN_f64()
   if ('b' != ENDIANNESS) {
     u.i[0] = 0;
     u.i[1] = 0x7ffc0000;
-  }
-  else {
+  } else {
     u.i[0] = 0x7ffc0000;
     u.i[1] = 0;
   }
@@ -2865,8 +2864,7 @@ CC_INLINE double Inf_f64()
   if ('b' != ENDIANNESS) {
     u.i[0] = 0;
     u.i[1] = 0x7ff00000;
-  }
-  else {
+  } else {
     u.i[0] = 0x7ff00000;
     u.i[1] = 0;
   }
@@ -2930,20 +2928,39 @@ CC_INLINE uint32 hash64_32shift(uint64 key)
 // Bob Jenkins' 96 bit Mix Function
 CC_INLINE uint32 hash96mix(uint32 a, uint32 b, uint32 c)
 {
-  a = a - b;  a = a - c;  a = a ^ (c >> 13);
-  b = b - c;  b = b - a;  b = b ^ (a << 8);
-  c = c - a;  c = c - b;  c = c ^ (b >> 13);
-  a = a - b;  a = a - c;  a = a ^ (c >> 12);
-  b = b - c;  b = b - a;  b = b ^ (a << 16);
-  c = c - a;  c = c - b;  c = c ^ (b >> 5);
-  a = a - b;  a = a - c;  a = a ^ (c >> 3);
-  b = b - c;  b = b - a;  b = b ^ (a << 10);
-  c = c - a;  c = c - b;  c = c ^ (b >> 15);
+  a = a - b;
+  a = a - c;
+  a = a ^ (c >> 13);
+  b = b - c;
+  b = b - a;
+  b = b ^ (a << 8);
+  c = c - a;
+  c = c - b;
+  c = c ^ (b >> 13);
+  a = a - b;
+  a = a - c;
+  a = a ^ (c >> 12);
+  b = b - c;
+  b = b - a;
+  b = b ^ (a << 16);
+  c = c - a;
+  c = c - b;
+  c = c ^ (b >> 5);
+  a = a - b;
+  a = a - c;
+  a = a ^ (c >> 3);
+  b = b - c;
+  b = b - a;
+  b = b ^ (a << 10);
+  c = c - a;
+  c = c - b;
+  c = c ^ (b >> 15);
   return c;
 }
 
 // getline : get line into s, return length
-CC_INLINE int mygetline(char* s, int len) {
+CC_INLINE int mygetline(char* s, int len)
+{
   int c, i = 0;
   while (i < (len - 1) && (c = getchar()) != EOF && c != '\n') {
     s[i++] = c;
@@ -2952,7 +2969,8 @@ CC_INLINE int mygetline(char* s, int len) {
   s[i] = '\0';
   return i;
 }
-CC_INLINE int file_putline(const char* fn, const char* str) {
+CC_INLINE int file_putline(const char* fn, const char* str)
+{
   FILE* pf;
   pf = fopen(fn, "a");
   if (pf) {

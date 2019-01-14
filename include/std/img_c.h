@@ -33,7 +33,7 @@ PaletteEntry;
   PIXFMTDEF(20, 128, ARGBFloat, PixelFormatAlpha | PixelFormatCanonical | PixelFormatExtended) \
   PIXFMTDEF(21, 128, ABGRFloat, PixelFormatAlpha | PixelFormatCanonical | PixelFormatExtended) \
   PIXFMTDEF(22, 96, BGRFloat, PixelFormatAlpha | PixelFormatCanonical | PixelFormatExtended) \
-
+ 
 typedef enum {
   PixelFormatIndexed = 0x00010000, // Indexes into a palette
   PixelFormatAlpha = 0x00040000, // Has an alpha component
@@ -178,8 +178,7 @@ COLOR_TYPE_DEF(20, 2, YCrYCb) \
 COLOR_TYPE_DEF(21, 2, SN9C10X) \
 COLOR_TYPE_DEF(22, 2, SGBRG) \
 COLOR_TYPE_DEF(23, 12, HSV32F)
-typedef enum //
-{
+typedef enum { //
 #define COLOR_TYPE_DEF(a, b, c)  T_##c = a,
   COLOR_TYPE_DEF_DEF(COLOR_TYPE_DEF)
 #undef COLOR_TYPE_DEF
@@ -350,7 +349,7 @@ if s == 0, then h = -1 (undefined)
   } while(0)
 #if 0
 // HSV??????????RGB?????????
-void Hsv2Rgb(float H, float S, float V, float& R, float& G, float& B)
+void Hsv2Rgb(float H, float S, float V, float & R, float & G, float & B)
 {
   int i;
   float f, p, q, t;
@@ -516,7 +515,8 @@ void Hsv2Rgb(float H, float S, float V, float& R, float& G, float& B)
 #define img_row(type, img, row)       ((type*)((img)->tt.data + (row)*(img)->s))
 #define img_at(type, img, row, col)   ((type*)((img)->tt.data + (row)*(img)->s + (col)*(img)->c))
 
-static int getElemSize(int type) {
+static int getElemSize(int type)
+{
   TypeId t = CC_TYPECN_TYPE(type);
   int cn = CC_TYPECN_CN(type);
   int size = cn * CC_TYPE_SIZE(t);
@@ -574,27 +574,26 @@ struct img_t {
   ISize size() const { return iSIZE(w, h); }
   img_t* create(ISize size, int type) { return imcreate(this, size, type, NULL, 0); }
   img_t* create(int rows, int cols, int type) { return imcreate(this, iSize(cols, rows), type, NULL, 0); }
-  img_t& getMat() { return *this; }
-  const img_t& getMat() const { return *this; }
+  img_t & getMat() { return *this; }
+  const img_t & getMat() const { return *this; }
   bool isSubmatrix() const { return false; }
   img_t* copyTo(img_t* _dst) const { return imcreate(_dst, size(), type(), data, s); }
-  bool isContinuous() const { return w*c == s; }
-  void locateROI(ISize& wsz, IPoint& ofs) const { wsz = size(); ofs = iPOINT(0, 0); }
+  bool isContinuous() const { return w * c == s; }
+  void locateROI(ISize & wsz, IPoint & ofs) const { wsz = size(); ofs = iPOINT(0, 0); }
   img_t* clone(img_t* _dst) const { return copyTo(_dst); }
   img_t* convertTo(img_t* _dst, TypeId _type, double alpha = 1, double beta = 0) const {
     return imconvert(this, _dst, _type, alpha, beta);
   }
-  size_t total() const { return h*w; }
-  int checkVector(int _elemChannels, TypeId _depth = CC_NUL, bool _requireContinuous = true) const
-  {
+  size_t total() const { return h * w; }
+  int checkVector(int _elemChannels, TypeId _depth = CC_NUL, bool _requireContinuous = true) const {
     int dims = 2;
     return data && (depth() == _depth || _depth <= 0) &&
-      (isContinuous() || !_requireContinuous) &&
-      ((dims == 2 && (((rows == 1 || cols == 1) && channels() == _elemChannels) ||
-      (cols == _elemChannels && channels() == 1)))
-        //||(dims == 3 && channels() == 1 && size.p[2] == _elemChannels && (size.p[0] == 1 || size.p[1] == 1) && (isContinuous() || step.p[1] == step.p[2] * size.p[2]))
-        )
-      ? (int)(total()*channels() / _elemChannels) : -1;
+           (isContinuous() || !_requireContinuous) &&
+           ((dims == 2 && (((rows == 1 || cols == 1) && channels() == _elemChannels) ||
+                           (cols == _elemChannels && channels() == 1)))
+            //||(dims == 3 && channels() == 1 && size.p[2] == _elemChannels && (size.p[0] == 1 || size.p[1] == 1) && (isContinuous() || step.p[1] == step.p[2] * size.p[2]))
+           )
+           ? (int)(total() * channels() / _elemChannels) : -1;
   }
 
   //template <typename T> T* ptr() { return (T*)data; }
@@ -620,8 +619,7 @@ CC_INLINE int imsetsize(img_t* im, int height, int width, int channels, int fram
     int step = width * channels;
     int n = height * step * frames;
     if (im->h == height && im->w == width && im->c == channels && im->f == frames && im->tt.data != NULL) {
-    }
-    else {
+    } else {
       int oldn = im->h * im->s * im->f;
       //int step = (width*channels+3) & ~3;
       if (n > oldn) {
@@ -638,23 +636,24 @@ CC_INLINE int imsetsize(img_t* im, int height, int width, int channels, int fram
   return 0;
 }
 
-img_t* imcreate(img_t* im, ISize size, int type, const void* data, int step) {
+img_t* imcreate(img_t* im, ISize size, int type, const void* data, int step)
+{
   int _cn = CC_TYPECN_CN(type);
   TypeId t = CC_TYPECN_TYPE(type);
   int c = _cn * CC_TYPE_SIZE(im->t);
-  int s = c*size.h;
+  int s = c * size.h;
   if (data) {
     step = MAX(step, s);
     if (im->mem && im->mem->free_) { im->mem->free_(im->data); }
     IMINIT(im, size.height, size.width, data, step, c, 1);
-  }
-  else {
+  } else {
     imsetsize(im, size.height, size.width, c, 1);
   }
   im->t = t;
   return im;
 }
-CC_INLINE img_t* imcreate2(img_t* im, int h, int w, int type, const void* data = 0, int step = 0) {
+CC_INLINE img_t* imcreate2(img_t* im, int h, int w, int type, const void* data = 0, int step = 0)
+{
   return imcreate(im, iSize(w, h), type, data, step);
 }
 
@@ -678,16 +677,18 @@ CC_INLINE img_t imroi(const img_t* im, IRECT rc)
   return *im2;
 }
 
-CC_INLINE int imzeros(img_t* im, int height, int width, int channels, int frames) {
+CC_INLINE int imzeros(img_t* im, int height, int width, int channels, int frames)
+{
   if (imsetsize(im, height, width, channels, frames)) {
-    memset(im->tt.data, 0, height*width*channels*frames);
+    memset(im->tt.data, 0, height * width * channels * frames);
     return 1;
   }
   return 0;
 }
-CC_INLINE int imsetdata(img_t* im, int height, int width, int channels, int frames, void* data) {
+CC_INLINE int imsetdata(img_t* im, int height, int width, int channels, int frames, void* data)
+{
   if (imsetsize(im, height, width, channels, frames)) {
-    memcpy(im->tt.data, data, height*width*channels*frames);
+    memcpy(im->tt.data, data, height * width * channels * frames);
     return 1;
   }
   return 0;
@@ -714,7 +715,8 @@ CC_INLINE int imsetframe(img_t* im, int iframe, img_t* im2)
   memcpy(im->tt.data + n * iframe, im2->tt.data, n);
   return 0;
 }
-static img_t* imconvert(const img_t* src, img_t* _dst, TypeId _type, double alpha, double beta) {
+static img_t* imconvert(const img_t* src, img_t* _dst, TypeId _type, double alpha, double beta)
+{
   _dst->create(src->size(), CC_MAKETYPECN(_type, src->channels()));
   arrcvt2d(_dst->data, _type, _dst->s, src->data, src->t, src->s, src->h, src->w, alpha, beta);
   return _dst;
@@ -814,7 +816,8 @@ static const COLOR map32_1bppGray[] = { 0x00000000, 0xFFFFFFFF };
 static const uchar map8_1bppGray[] = { 0, 0xff };
 
 static const COLOR map32_4bppGray[] = { 0xff000000, 0xff111111, 0xff222222, 0xff333333, 0xff444444, 0xff555555, 0xff666666, 0xff777777,
-0xff888888, 0xff999999, 0xffaaaaaa, 0xffbbbbbb, 0xffcccccc, 0xffdddddd, 0xffeeeeee, 0xffffffff };
+                                        0xff888888, 0xff999999, 0xffaaaaaa, 0xffbbbbbb, 0xffcccccc, 0xffdddddd, 0xffeeeeee, 0xffffffff
+                                      };
 static const uchar map8_4bppGray[] = { 0x00, 0x11, 0x22, 0x33,  0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff };
 
 #define RGB_GRAY(r, g, b)       ( ((r)+((g)<<1)+(b))>>2 )
@@ -877,26 +880,35 @@ static const uchar map8_4bppGray[] = { 0x00, 0x11, 0x22, 0x33,  0x44, 0x55, 0x66
 #define GetPixFmtBpp(fmt)  (((fmt)>>8)&0xff)
 #define GetPixFmtId(fmt)  ((fmt)&0xff)
 
-CC_INLINE PixFmt cn2PixFmt(int cn) {
-  const PixFmt cn2pf[] = { PF_8bppGray, PF_8bppGray, PF_16bppRGB565,PF_24bppRGB, PF_32bppPARGB, };
+CC_INLINE PixFmt cn2PixFmt(int cn)
+{
+  const PixFmt cn2pf[] = { PF_8bppGray, PF_8bppGray, PF_16bppRGB565, PF_24bppRGB, PF_32bppPARGB, };
   return cn <= 4 ? cn2pf[cn] : PF_32bppARGB;
 }
-CC_INLINE PixFmt bpp2PixFmt(int bpp) {
+CC_INLINE PixFmt bpp2PixFmt(int bpp)
+{
   switch (bpp) {
-  case 1: return PF_1bppGray;
-  case 4: return PF_4bppGray;
+  case 1:
+    return PF_1bppGray;
+  case 4:
+    return PF_4bppGray;
     //case 8: return PF_8bppIndexed;
-  case 8: return PF_8bppGray;
-  case 16: return PF_16bppGray;
-  case 24: return PF_24bppRGB;
-  case 32: return PF_32bppARGB;
+  case 8:
+    return PF_8bppGray;
+  case 16:
+    return PF_16bppGray;
+  case 24:
+    return PF_24bppRGB;
+  case 32:
+    return PF_32bppARGB;
   default:
     return PixFmtMax;
   }
   return PixFmtMax;
 }
 
-CC_INLINE int img_setbitmap_cn4(int h, int w, const void* data, int step, int cn, PixFmt fmt, bool flip_y, bool scaling, uchar* outdata, int outstep, const void* pal) {
+CC_INLINE int img_setbitmap_cn4(int h, int w, const void* data, int step, int cn, PixFmt fmt, bool flip_y, bool scaling, uchar* outdata, int outstep, const void* pal)
+{
   int i, j;
   const uchar* srcarr = (const uchar*)data;
   double smin[4] = { DBL_MAX, DBL_MAX, DBL_MAX, DBL_MAX };
@@ -906,8 +918,7 @@ CC_INLINE int img_setbitmap_cn4(int h, int w, const void* data, int step, int cn
     return 0;
   }
   switch (fmt) {
-  case PF_64bppGrayDouble:
-  {
+  case PF_64bppGrayDouble: {
     typedef double arrtype;
     ASSERT(cn >= (int)sizeof(arrtype));
     if (scaling) {
@@ -936,8 +947,7 @@ CC_INLINE int img_setbitmap_cn4(int h, int w, const void* data, int step, int cn
     }
   }
   break;
-  case PF_32bppGrayFloat:
-  {
+  case PF_32bppGrayFloat: {
     typedef float arrtype;
     ASSERT(cn >= (int)sizeof(arrtype));
     if (scaling) {
@@ -966,8 +976,7 @@ CC_INLINE int img_setbitmap_cn4(int h, int w, const void* data, int step, int cn
     }
   }
   break;
-  case PF_16bppGray:
-  {
+  case PF_16bppGray: {
     typedef short arrtype;
     ASSERT(cn >= (int)sizeof(arrtype));
     if (scaling) {
@@ -996,8 +1005,7 @@ CC_INLINE int img_setbitmap_cn4(int h, int w, const void* data, int step, int cn
     }
   }
   break;
-  case PF_8bppGray:
-  {
+  case PF_8bppGray: {
     typedef uchar arrtype;
     ASSERT(cn >= (int)sizeof(arrtype));
     if (scaling) {
@@ -1145,8 +1153,7 @@ CC_INLINE int img_setbitmap_cn4(int h, int w, const void* data, int step, int cn
           dst1[j] = upal[t];
         }
       }
-    }
-    else {
+    } else {
       for (i = 0; i < h; ++i) {
         uchar* dst1 = (uchar*)(outdata + (flip_y ? (h - 1 - i) : i) * outstep);
         const uchar* src1 = (const uchar*)(srcarr + i * step);

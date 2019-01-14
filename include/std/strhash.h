@@ -224,7 +224,7 @@ static size_t ELFHash(const char* str, size_t len)
     TotalBits = sizeof(size_t) * 8,
     ThreeQuarters = (TotalBits * 3) / 4,
     OneEighth = TotalBits / 8,
-    HighBits = ((size_t)-1) << (TotalBits - OneEighth)
+    HighBits = ((size_t) - 1) << (TotalBits - OneEighth)
   };
   register size_t hash = 0;
   size_t magic = 0;
@@ -332,7 +332,7 @@ static size_t calc_hashnr(const char* key, size_t length)
 {
   register size_t nr = 1, nr2 = 4;
   while (length--) {
-    nr ^= (((nr & 63) + nr2) * ((size_t)(uint8_t)* key++)) + (nr << 8);
+    nr ^= (((nr & 63) + nr2) * ((size_t)(uint8_t) * key++)) + (nr << 8);
     nr2 += 3;
   }
   return((size_t)nr);
@@ -390,7 +390,7 @@ static size_t MysqlHash(const char* str, size_t len)
   register size_t h = 0;
   register const unsigned char* p = (const unsigned char*)str;
   size_t i = 0;
-  for (; i<len; ++i, ++p) {
+  for (; i < len; ++i, ++p) {
     h = 31 * h + *p;
   }
   return h;
@@ -402,13 +402,14 @@ static size_t MysqlHash(const char* str, size_t len)
 //一般认为SHA不会有冲突，因为它发生冲突的概率远远小于硬件发生错误的概率。
 //另外，我做过一个实验，哈希函数用java实现，输入是一千三百多万条字符串，哈希值是int型，整数，范围是0~0x7fffffff。
 //除了SuperFastHash，其他的哈希函数的冲突率是0.3%左右，如果我对某个函数稍加修改，
-//比如把murmurhash中的乘法操作换为异或操作，或者把XXHash中某一行代码去掉，冲突率一般会变大不少，比较神奇。 
+//比如把murmurhash中的乘法操作换为异或操作，或者把XXHash中某一行代码去掉，冲突率一般会变大不少，比较神奇。
 
-// MurMurHash 算法，是非加密HASH算法，性能很高， 
-// 比传统的CRC32,MD5，SHA-1（这两个算法都是加密HASH算法，复杂度本身就很高，带来的性能上的损害也不可避免） 
-// 等HASH算法要快很多，而且据说这个算法的碰撞率很低. 
-// http://murmurhash.googlepages.com/ 
-static uint64_t MurMurHash(const char* key, int len) {
+// MurMurHash 算法，是非加密HASH算法，性能很高，
+// 比传统的CRC32,MD5，SHA-1（这两个算法都是加密HASH算法，复杂度本身就很高，带来的性能上的损害也不可避免）
+// 等HASH算法要快很多，而且据说这个算法的碰撞率很低.
+// http://murmurhash.googlepages.com/
+static uint64_t MurMurHash(const char* key, int len)
+{
   uint8_t* buf = (uint8_t*)key;
   size_t seed = 0x1234ABCD;
   uint64_t m = 0xc6a4a7935bd1e995L;
@@ -425,32 +426,29 @@ static uint64_t MurMurHash(const char* key, int len) {
     remaining -= sizeof(k);
     buf += sizeof(k);
   }
-
   if (remaining > 0) {
     uint64_t finish = 0;
     memcpy(&finish, buf, remaining);
-    // for big-endian version, do this first:   
-    // finish.position(8-buf.remaining());  
+    // for big-endian version, do this first:
+    // finish.position(8-buf.remaining());
     h ^= finish;
     h *= m;
   }
-
   h ^= h >> r;
   h *= m;
   h ^= h >> r;
   return h;
 }
-static size_t murMurHash(const void *key, int len)
+static size_t murMurHash(const void* key, int len)
 {
   const size_t m = 0x5bd1e995;
   const int r = 24;
   const int seed = 97;
   size_t h = seed ^ len;
   // Mix 4 bytes at a time into the hash
-  const unsigned char *data = (const unsigned char *)key;
-  while (len >= 4)
-  {
-    size_t k = *(size_t *)data;
+  const unsigned char* data = (const unsigned char*)key;
+  while (len >= 4) {
+    size_t k = *(size_t*)data;
     k *= m;
     k ^= k >> r;
     k *= m;
@@ -460,11 +458,13 @@ static size_t murMurHash(const void *key, int len)
     len -= 4;
   }
   // Handle the last few bytes of the input array
-  switch (len)
-  {
-  case 3: h ^= data[2] << 16;
-  case 2: h ^= data[1] << 8;
-  case 1: h ^= data[0];
+  switch (len) {
+  case 3:
+    h ^= data[2] << 16;
+  case 2:
+    h ^= data[1] << 8;
+  case 1:
+    h ^= data[0];
     h *= m;
   };
   // Do a few final mixes of the hash to ensure the last few

@@ -73,9 +73,9 @@ int popcnt_lookup(unsigned int n)
 #endif
   };
   return TABLE[n                 & UCHAR_MAX] +
-      TABLE[(n >> CHAR_BIT)     & UCHAR_MAX] +
-      TABLE[(n >> (CHAR_BIT * 2)) & UCHAR_MAX] +
-      TABLE[(n >> (CHAR_BIT * 3)) & UCHAR_MAX];
+         TABLE[(n >> CHAR_BIT)     & UCHAR_MAX] +
+         TABLE[(n >> (CHAR_BIT * 2)) & UCHAR_MAX] +
+         TABLE[(n >> (CHAR_BIT * 3)) & UCHAR_MAX];
 #undef TBL_LEN
 #undef BIT2
 #undef BIT4
@@ -278,16 +278,17 @@ int popcnt_hakmem(unsigned int n)
 //
 
 
-static int hamming_distance(const void* a, const void* b, int n) {
+static int hamming_distance(const void* a, const void* b, int n)
+{
   int i, n2 = n / 4, dis = 0;
   const unsigned int* ua = (const unsigned int*)a;
   const unsigned int* ub = (const unsigned int*)b;
   const unsigned char* ca = (const unsigned char*)(ua + n2);
   const unsigned char* cb = (const unsigned char*)(ub + n2);
-  for (i = 0; i<n2; ++i) {
+  for (i = 0; i < n2; ++i) {
     dis += popcnt_lookup2(ua[i] ^ ub[i]);
   }
-  for (i = n2 * 4; i<n; ++i) {
+  for (i = n2 * 4; i < n; ++i) {
     dis += popcnt_lookup2(ca[i] ^ cb[i]);
   }
   return dis;

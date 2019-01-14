@@ -9,7 +9,8 @@
 #include "stddef_c.h"
 #define static_strlen(STR)   (sizeof(STR)-1)
 #ifdef _TEST
-int test_static_strlen() {
+int test_static_strlen()
+{
 #define CHECK(STR)  assert(static_strlen(STR)==strlen(STR));
   CHECK("test_static_strlen");
   return 0;
@@ -18,34 +19,39 @@ int test_static_strlen() {
 
 
 #ifdef __linux__
-int64 _atoi64(const char* str) {
- return strtol(str, NULL, 10 );
+int64 _atoi64(const char* str)
+{
+  return strtol(str, NULL, 10 );
 }
-char *strupr(char *str) {
-  char *ptr = str;
+char* strupr(char* str)
+{
+  char* ptr = str;
   while (*ptr != '\0') {
-    if (islower(*ptr)) 
+    if (islower(*ptr)) {
       *ptr = toupper(*ptr);
+    }
     ptr++;
   }
   return str;
 }
-char *strlwr(char *str) {
-  char *ptr = str;
+char* strlwr(char* str)
+{
+  char* ptr = str;
   while (*ptr != '\0') {
-    if (isupper(*ptr)) 
+    if (isupper(*ptr)) {
       *ptr = tolower(*ptr);
+    }
     ptr++;
   }
   return str;
 }
-char *strrev(char *str) {
-  char *p1, *p2;
-  
-  if (! str || ! *str)
+char* strrev(char* str)
+{
+  char* p1, *p2;
+  if (! str || ! *str) {
     return str;
-  for (p1 = str, p2 = str + strlen(str) - 1; p2 > p1; ++p1, --p2)
-  {
+  }
+  for (p1 = str, p2 = str + strlen(str) - 1; p2 > p1; ++p1, --p2) {
     *p1 ^= *p2;
     *p2 ^= *p1;
     *p1 ^= *p2;
@@ -55,9 +61,10 @@ char *strrev(char *str) {
 
 #endif
 
-CC_INLINE void memunroll(void* p, int n, int unroll_to) {
+CC_INLINE void memunroll(void* p, int n, int unroll_to)
+{
   char* ptr = (char*)p;
-  if (1==n) {
+  if (1 == n) {
     memset(p, *(unsigned char*)p, unroll_to);
     return ;
   }
@@ -66,39 +73,33 @@ CC_INLINE void memunroll(void* p, int n, int unroll_to) {
     n *= 2;
   }
 }
-static int xtoa_c(unsigned long val, char *buf, unsigned radix, int is_neg) {
-  char *p;        /* pointer to traverse string */
-  char *firstdig;     /* pointer to first digit */
+static int xtoa_c(unsigned long val, char* buf, unsigned radix, int is_neg)
+{
+  char* p;        /* pointer to traverse string */
+  char* firstdig;     /* pointer to first digit */
   char temp;       /* temp char */
   unsigned digval;    /* value of digit */
-
   p = buf;
-
   if (is_neg) {
     /* negative, so output '-' and negate */
     *p++ = '-';
     val = (unsigned long)(-(long)val);
   }
-
   firstdig = p;      /* save pointer to first digit */
-
   do {
     digval = (unsigned)(val % radix);
     val /= radix;    /* get next digit */
-
-              /* convert to ascii and store */
-    if (digval > 9)
-      *p++ = (char)(digval - 10 + 'a'); /* a letter */
-    else
-      *p++ = (char)(digval + '0');    /* a digit */
+    /* convert to ascii and store */
+    if (digval > 9) {
+      *p++ = (char)(digval - 10 + 'a');  /* a letter */
+    } else {
+      *p++ = (char)(digval + '0');  /* a digit */
+    }
   } while (val > 0);
-
   /* We now have the digit of the number in the buffer, but in reverse
   order. Thus we reverse them now. */
-
   int len = (int)(p - buf);
   *p-- = '\0';      /* terminate string; p points to last digit */
-
   do {
     temp = *p;
     *p = *firstdig;
@@ -112,19 +113,22 @@ static int xtoa_c(unsigned long val, char *buf, unsigned radix, int is_neg) {
 /* Actual functions just call conversion helper with neg flag set correctly,
 and return pointer to buffer. */
 
-static char * itoa_c(int val, char *buf, int radix) {
-  if (radix == 10 && val < 0)
+static char* itoa_c(int val, char* buf, int radix)
+{
+  if (radix == 10 && val < 0) {
     xtoa_c((unsigned long)val, buf, radix, 1);
-  else
+  } else {
     xtoa_c((unsigned long)(unsigned int)val, buf, radix, 0);
+  }
   return buf;
 }
 
-static char * ltoa_c(long val, char *buf, int radix) {
+static char* ltoa_c(long val, char* buf, int radix)
+{
   xtoa_c((unsigned long)val, buf, radix, (radix == 10 && val < 0));
   return buf;
 }
-static char * ultoa_c(unsigned long val, char *buf, int radix)
+static char* ultoa_c(unsigned long val, char* buf, int radix)
 {
   xtoa_c(val, buf, radix, 0);
   return buf;
@@ -133,39 +137,31 @@ static char * ultoa_c(unsigned long val, char *buf, int radix)
 #ifndef _NO_INT64
 
 /* stdcall is faster and smaller... Might as well use it for the helper. */
-static void x64toa_c(uint64 val, char *buf, unsigned radix, int is_neg)
+static void x64toa_c(uint64 val, char* buf, unsigned radix, int is_neg)
 {
-  char *p;        /* pointer to traverse string */
-  char *firstdig;     /* pointer to first digit */
+  char* p;        /* pointer to traverse string */
+  char* firstdig;     /* pointer to first digit */
   char temp;       /* temp char */
   unsigned digval;    /* value of digit */
-
   p = buf;
-
-  if (is_neg)
-  {
+  if (is_neg) {
     *p++ = '-';     /* negative, so output '-' and negate */
     val = (uint64)(-(int64)val);
   }
-
   firstdig = p;      /* save pointer to first digit */
-
   do {
     digval = (unsigned)(val % radix);
     val /= radix;    /* get next digit */
-
-              /* convert to ascii and store */
-    if (digval > 9)
-      *p++ = (char)(digval - 10 + 'a'); /* a letter */
-    else
-      *p++ = (char)(digval + '0');    /* a digit */
+    /* convert to ascii and store */
+    if (digval > 9) {
+      *p++ = (char)(digval - 10 + 'a');  /* a letter */
+    } else {
+      *p++ = (char)(digval + '0');  /* a digit */
+    }
   } while (val > 0);
-
   /* We now have the digit of the number in the buffer, but in reverse
   order. Thus we reverse them now. */
-
   *p-- = '\0';      /* terminate string; p points to last digit */
-
   do {
     temp = *p;
     *p = *firstdig;
@@ -177,11 +173,12 @@ static void x64toa_c(uint64 val, char *buf, unsigned radix, int is_neg)
 
 /* Actual functions just call conversion helper with neg flag set correctly,
 and return pointer to buffer. */
-static char * i64toa_c(int64 val, char *buf, int radix) {
+static char* i64toa_c(int64 val, char* buf, int radix)
+{
   x64toa_c((uint64)val, buf, radix, (radix == 10 && val < 0));
   return buf;
 }
-static char * ui64toa_c(uint64 val, char *buf, int radix)
+static char* ui64toa_c(uint64 val, char* buf, int radix)
 {
   x64toa_c(val, buf, radix, 0);
   return buf;
@@ -189,60 +186,56 @@ static char * ui64toa_c(uint64 val, char *buf, int radix)
 
 #endif /* _NO_INT64 */
 
-static int atoi_c(const char *nptr)
+static int atoi_c(const char* nptr)
 {
   int c;              /* current char */
   int total;      /* current total */
   int sign;           /* if '-', then negative, otherwise positive */
-  
   /* skip whitespace */
-  while (isspace((int)(unsigned char)*nptr))
+  while (isspace((int)(unsigned char)*nptr)) {
     ++nptr;
-  
-  c = (int)(unsigned char)*nptr++;
+  }
+  c = (int)(unsigned char) * nptr++;
   sign = c;           /* save sign indication */
-  if (c == '-' || c == '+')
-    c = (int)(unsigned char)*nptr++;    /* skip sign */
-  
+  if (c == '-' || c == '+') {
+    c = (int)(unsigned char) * nptr++;  /* skip sign */
+  }
   total = 0;
-  
   while (isdigit(c)) {
     total = 10 * total + (c - '0');     /* accumulate digit */
-    c = (int)(unsigned char)*nptr++;    /* get next char */
+    c = (int)(unsigned char) * nptr++;  /* get next char */
   }
-  
-  if (sign == '-')
+  if (sign == '-') {
     return -total;
-  else
-    return total;   /* return result, negated if necessary */
+  } else {
+    return total;  /* return result, negated if necessary */
+  }
 }
 
-static int64 atoi64_c(const char *nptr)
+static int64 atoi64_c(const char* nptr)
 {
   int c;              /* current char */
   int64 total;      /* current total */
   int sign;           /* if '-', then negative, otherwise positive */
-  
   /* skip whitespace */
-  while (isspace((int)(unsigned char)*nptr))
+  while (isspace((int)(unsigned char)*nptr)) {
     ++nptr;
-  
-  c = (int)(unsigned char)*nptr++;
+  }
+  c = (int)(unsigned char) * nptr++;
   sign = c;           /* save sign indication */
-  if (c == '-' || c == '+')
-    c = (int)(unsigned char)*nptr++;    /* skip sign */
-  
+  if (c == '-' || c == '+') {
+    c = (int)(unsigned char) * nptr++;  /* skip sign */
+  }
   total = 0;
-  
   while (isdigit(c)) {
     total = 10 * total + (c - '0');     /* accumulate digit */
-    c = (int)(unsigned char)*nptr++;    /* get next char */
+    c = (int)(unsigned char) * nptr++;  /* get next char */
   }
-  
-  if (sign == '-')
+  if (sign == '-') {
     return -total;
-  else
-    return total;   /* return result, negated if necessary */
+  } else {
+    return total;  /* return result, negated if necessary */
+  }
 }
 
 CC_INLINE int strlen_c(const void* s)
@@ -257,18 +250,21 @@ CC_INLINE int strlen_c(const void* s)
 //#define strlen_c(s)  (int)strlen(s)
 //IRANGE { int s, l; };
 //CC_INLINE IRANGE iRANGE(int s, int e) {  IRANGE r;  r.s = s, r.e = e;  return r;}
-CC_INLINE IRANGE iRANGE_c(const char* s) {
+CC_INLINE IRANGE iRANGE_c(const char* s)
+{
   IRANGE r;
   r.s = 0, r.e = (int)strlen(s);
   return r;
 }
-CC_INLINE uchar* get_delims_set(uchar* delims_set, const char* delims) {
+CC_INLINE uchar* get_delims_set(uchar* delims_set, const char* delims)
+{
   for (; *delims;) {
     delims_set[(uchar)(*delims++)] = 1;
   }
   return delims_set;
 }
-CC_INLINE int memcmp_c(const char* s1, const char* s2, int n) {
+CC_INLINE int memcmp_c(const char* s1, const char* s2, int n)
+{
   while (--n && *s1 == *s2) {
     s1++;
     s2++;
@@ -290,7 +286,7 @@ CC_INLINE int memicmp_c(const char* s1, const char* s2, int n, int ignore_case)
       s1++;
       s2++;
     }
-    return(map[(uchar)* s1] - map[(uchar)* s2]);
+    return(map[(uchar) * s1] - map[(uchar) * s2]);
   }
   return memcmp_c(s1, s2, n);
 }
@@ -306,15 +302,13 @@ CC_INLINE int strnicmp_c(const char* s1, int l1, const char* s2, int l2, int n, 
         return -1;
       }
       n = l2;
-    }
-    else {
+    } else {
       if (l1 != l2) {
         return CC_CMP(l1, l2);
       }
       n = l2;
     }
-  }
-  else {
+  } else {
     n = MIN(n, l1);
     n = MIN(n, l2);
   }
@@ -327,21 +321,26 @@ CC_INLINE int strnicmp_c(const char* s1, int l1, const char* s2, int l2, int n, 
   }
   return memicmp_c(s1, s2, n, ignore_case);
 }
-CC_INLINE int stricmp_c(const char* s1, int l1, const char* s2, int l2, int ignore_case) {
+CC_INLINE int stricmp_c(const char* s1, int l1, const char* s2, int l2, int ignore_case)
+{
   return strnicmp_c(s1, l1, s2, l2, -1, 0, ignore_case);
 }
-CC_INLINE int strcmp_c(const char* s1, int l1, const char* s2, int l2) {
+CC_INLINE int strcmp_c(const char* s1, int l1, const char* s2, int l2)
+{
   return strnicmp_c(s1, l1, s2, l2, -1, 0, 0);
 }
 #if 0
-CC_INLINE int str_icmp(const char* s1, const char* s2, int ignore_case) {
+CC_INLINE int str_icmp(const char* s1, const char* s2, int ignore_case)
+{
   return strnicmp_c(s1, -1, s2, -1, -1, 0, ignore_case);
 }
-CC_INLINE int str_cmp(const char* s1, const char* s2) {
+CC_INLINE int str_cmp(const char* s1, const char* s2)
+{
   return strnicmp_c(s1, -1, s2, -1, -1, 0, 0);
 }
 #endif
-static int endwith(const char* s1, const char* s2, int ignore_case) {
+static int endwith(const char* s1, const char* s2, int ignore_case)
+{
   return (0 == strnicmp_c(s1, -1, s2, -1, -1, 1, ignore_case));
 }
 CC_INLINE int findchr_c(const char* s, int i, int l, int ch)
@@ -362,7 +361,8 @@ CC_INLINE int rfindchr_c(const char* s, int i, int l, int ch)
   }
   return -1;
 }
-CC_INLINE int findchrs_c(const char* s, int i, int l, const uchar* chs_set) {
+CC_INLINE int findchrs_c(const char* s, int i, int l, const uchar* chs_set)
+{
   //i = i<0 ? 0 : i;
   for (; i < l; ++i) {
     if (chs_set[(uchar)s[i]]) {
@@ -371,7 +371,8 @@ CC_INLINE int findchrs_c(const char* s, int i, int l, const uchar* chs_set) {
   }
   return -1;
 }
-CC_INLINE int rfindchrs_c(const char* s, int i, int l, const uchar* chs_set) {
+CC_INLINE int rfindchrs_c(const char* s, int i, int l, const uchar* chs_set)
+{
   //i = i<0 ? 0 : i;
   for (; i < l--; ) {
     if (chs_set[(uchar)s[l]]) {
@@ -380,7 +381,8 @@ CC_INLINE int rfindchrs_c(const char* s, int i, int l, const uchar* chs_set) {
   }
   return -1;
 }
-static int find_last_of(const char* s, const char* chrs) {
+static int find_last_of(const char* s, const char* chrs)
+{
   int l = (int)strlen(s);
   uchar chrs_set[256] = { 0 };
   get_delims_set(chrs_set, chrs);
@@ -396,7 +398,8 @@ CC_INLINE int findstr_c(const char* s, int i, int l, const char* s2, int l2, int
   }
   return -1;
 }
-CC_INLINE int findstr(const char* s, const char* s2, int ignore_case) {
+CC_INLINE int findstr(const char* s, const char* s2, int ignore_case)
+{
   int l = (int)strlen(s);
   int l2 = (int)strlen(s2);
   return findstr_c(s, 0, l, s2, l2, ignore_case);
@@ -418,24 +421,25 @@ CC_INLINE int strcount_c(const char* s1, int l1, const char* s2, int l2, int ign
     if (0 == memicmp_c(s1 + i, s2, l2, ignore_case)) {
       ++j;
       i += l2;
-    }
-    else {
+    } else {
       ++i;
     }
   }
   return j;
 }
-CC_INLINE int delchr_c(char* s, int i, int l, int ch) {
+CC_INLINE int delchr_c(char* s, int i, int l, int ch)
+{
   int j = i;
   CSTRINITLEN(s, l);
-  for (; i<l; ++i) {
+  for (; i < l; ++i) {
     if (s[i] != ch) {
       s[j++] = s[i];
     }
   }
   return j;
 }
-CC_INLINE int replacestr_c(char* s1, IRANGE* r, const char* s2, int l2, const char* s3, int l3, int ignore_case) {
+CC_INLINE int replacestr_c(char* s1, IRANGE* r, const char* s2, int l2, const char* s3, int l3, int ignore_case)
+{
   int l1 = r->s;
   int i, j = 0, m;
   if (l2 >= l3) {
@@ -445,8 +449,7 @@ CC_INLINE int replacestr_c(char* s1, IRANGE* r, const char* s2, int l2, const ch
         m += l3;
         ++j;
         i += l2;
-      }
-      else {
+      } else {
         s1[m++] = s1[i++];
       }
     }
@@ -454,8 +457,7 @@ CC_INLINE int replacestr_c(char* s1, IRANGE* r, const char* s2, int l2, const ch
       s1[m++] = s1[i++];
     }
     r->s = (l1 + j * (l3 - l2));
-  }
-  else {
+  } else {
     //int pl1 = -1;
     //if (pl1 <= 0)
     {
@@ -470,8 +472,7 @@ CC_INLINE int replacestr_c(char* s1, IRANGE* r, const char* s2, int l2, const ch
           memcpy(s1 + m, s3, l3);
           i -= l2;
           ++j;
-        }
-        else {
+        } else {
           s1[--m] = s1[--i];
         }
       }
@@ -495,7 +496,8 @@ static void trim(const char* s, IRANGE* r, const char* trims)
   trim_c(s, r, trims_set);
 }
 
-static const void strim(char** ps, int* plen, const char* trims) {
+static const void strim(char** ps, int* plen, const char* trims)
+{
   IRANGE r = iRANGE(0, *plen);
   trim(*ps, &r, trims);
   *ps = (*ps) + r.s;
@@ -522,14 +524,14 @@ static int split_c_(const char* s, IRANGE* r, IRANGE* out, int maxout, const uch
       if ((ret.e - ret.s) >= minLen) {
         out[out_count++] = ret;
       }
-    }
-    else {
+    } else {
       out_count++;
     }
   }
   return out_count;
 }
-static char* strsep_c(char** p, const char* delims) {
+static char* strsep_c(char** p, const char* delims)
+{
   uchar delims_set[256] = { 0 };
   char* ret = NULL;
   get_delims_set(delims_set, delims);
@@ -538,8 +540,7 @@ static char* strsep_c(char** p, const char* delims) {
     ret = *p + out.s;;
     (*p)[out.e] = 0;
     *p = *p + r.s;
-  }
-  else {
+  } else {
     *p = ret = NULL;
   }
   if (r.s == r.e) {
@@ -547,7 +548,8 @@ static char* strsep_c(char** p, const char* delims) {
   }
   return ret;
 }
-static char* strcat_c(char* s, IRANGE* r, const char* s1, int l1) {
+static char* strcat_c(char* s, IRANGE* r, const char* s1, int l1)
+{
   int l = r->e - r->s;
   //int l1 = r1.e - r1.s;
   assert(l > l1);
@@ -556,7 +558,8 @@ static char* strcat_c(char* s, IRANGE* r, const char* s1, int l1) {
   s[r->s] = 0;
   return s;
 }
-static char* strcat2_c(char* s, IRANGE* r, const char* s1, int l1, const char* s2, int l2) {
+static char* strcat2_c(char* s, IRANGE* r, const char* s1, int l1, const char* s2, int l2)
+{
   int l = r->e - r->s;
   //int l1 = r1.e - r1.s;
   assert(l > (l1 + l2));
@@ -567,7 +570,8 @@ static char* strcat2_c(char* s, IRANGE* r, const char* s1, int l1, const char* s
   s[r->s] = 0;
   return s;
 }
-static char* strcat3_c(char* s, IRANGE* r, const char* s1, int l1, const char* s2, int l2, const char* s3, int l3) {
+static char* strcat3_c(char* s, IRANGE* r, const char* s1, int l1, const char* s2, int l2, const char* s3, int l3)
+{
   int l = r->e - r->s;
   //int l1 = r1.e - r1.s;
   assert(l > (l1 + l2 + l3));
@@ -580,7 +584,8 @@ static char* strcat3_c(char* s, IRANGE* r, const char* s1, int l1, const char* s
   s[r->s] = 0;
   return s;
 }
-static int strcpy_c(char* s, int rs, int re, const char* s1, int l1) {
+static int strcpy_c(char* s, int rs, int re, const char* s1, int l1)
+{
   int l = re - rs;
   //int l1 = r1.e - r1.s;
   assert(l > l1);
@@ -589,11 +594,13 @@ static int strcpy_c(char* s, int rs, int re, const char* s1, int l1) {
   s[rs] = 0;
   return rs;
 }
-static char* strcpy_c(char* s, IRANGE* r, const char* s1, int l1) {
+static char* strcpy_c(char* s, IRANGE* r, const char* s1, int l1)
+{
   r->s = strcpy_c(s, r->s, r->e, s1, l1);
   return s;
 }
-static char* strins_c(char* s, int i, IRANGE* r, const char* s1, int l1) {
+static char* strins_c(char* s, int i, IRANGE* r, const char* s1, int l1)
+{
   int l = r->e - r->s;
   //int l1 = r1.e - r1.s;
   assert(i <= r->s);
@@ -606,10 +613,11 @@ static char* strins_c(char* s, int i, IRANGE* r, const char* s1, int l1) {
   s[r->s] = 0;
   return s;
 }
-static char* strdel_c(char* s, IRANGE* r, IRANGE r1) {
+static char* strdel_c(char* s, IRANGE* r, IRANGE r1)
+{
   //int l = r->e - r->s;
   int l1 = r1.e - r1.s;
-  assert(r1.s<r1.e);
+  assert(r1.s < r1.e);
   assert(r1.e <= r->s);
   memmove(s + r1.s, s + r1.e, r->s - r1.e);
   r->s -= l1;
@@ -617,7 +625,8 @@ static char* strdel_c(char* s, IRANGE* r, IRANGE r1) {
   return s;
 }
 #define GET_DELIMS_SET(nameset, str)  uchar nameset[256] = {0};uchar* p##nameset = get_delims_set(nameset, str)
-static int split_c(const char* s, IRANGE* r, IRANGE* out, int maxout, const char* delims, const char* trims, int minLen) {
+static int split_c(const char* s, IRANGE* r, IRANGE* out, int maxout, const char* delims, const char* trims, int minLen)
+{
   uchar delims_set[256] = { 0 };
   uchar trims_set[256] = { 0 };
   get_delims_set(delims_set, delims);
@@ -631,8 +640,8 @@ static int split_count_c(const char* s, int i, int l, const uchar* delims_set, c
   IRANGE r = iRANGE(i, l);
   return split_c_(s, &r, NULL, MAX_INT, delims_set, trims_set, minlen);
 }
-// s="|str1|str2|str3|" 
-// ignore_case  
+// s="|str1|str2|str3|"
+// ignore_case
 CC_INLINE int splitfind_c(const char* s, int l, const char* s1, int l1, int ignore_case, int* ppos)
 {
   int i, j = 0, delims;
@@ -660,39 +669,44 @@ CC_INLINE int splitfind_c(const char* s, int l, const char* s1, int l1, int igno
 }
 ////////////////////////////////////////////////////
 
-static char* strend(const char* str) {
+static char* strend(const char* str)
+{
   return (char*)str + strlen(str);
 }
-static void path_split(const char* s, IRANGE* path, IRANGE* filename, IRANGE* filenameext, IRANGE* ext) {
+static void path_split(const char* s, IRANGE* path, IRANGE* filename, IRANGE* filenameext, IRANGE* ext)
+{
   const char* p;
-  const char *e;
+  const char* e;
   const char* ends = strend(s);
   p = strrchr(s, '\\');
   e = strrchr(s, '/');
   p = MAX(p + 1, e + 1);
   p = MAX(p, s);
   e = (e = strrchr(p, '.')) ? e : strend(p);
-  if (path) *path = iRANGE(s-s, p-s);
-  if (filename) *filename = iRANGE(p-s, e-s);
-  if (filenameext) *filenameext = iRANGE(p-s, ends-s);
-  if (ext) *ext = iRANGE(e-s, ends-s);
+  if (path) { *path = iRANGE(s - s, p - s); }
+  if (filename) { *filename = iRANGE(p - s, e - s); }
+  if (filenameext) { *filenameext = iRANGE(p - s, ends - s); }
+  if (ext) { *ext = iRANGE(e - s, ends - s); }
 }
-static char* path_split_filename(const char* fullpath, char* buf, int len) {
+static char* path_split_filename(const char* fullpath, char* buf, int len)
+{
   IRANGE ret;
   path_split(fullpath, NULL, &ret, NULL, NULL);
-  strncpy(buf, fullpath+ret.s, MIN(len, (ret.e-ret.s)));
+  strncpy(buf, fullpath + ret.s, MIN(len, (ret.e-ret.s)));
   return buf;
 }
-static char* path_split_filenameext(const char* fullpath, char* buf, int len) {
+static char* path_split_filenameext(const char* fullpath, char* buf, int len)
+{
   IRANGE ret;
   path_split(fullpath, NULL, NULL, &ret, NULL);
-  strncpy(buf, fullpath+ret.s, MIN(len, (ret.e-ret.s)));
+  strncpy(buf, fullpath + ret.s, MIN(len, (ret.e-ret.s)));
   return buf;
 }
-static char* path_split_ext(const char* fullpath, char* buf, int len) {
+static char* path_split_ext(const char* fullpath, char* buf, int len)
+{
   IRANGE ret;
   path_split(fullpath, NULL, NULL, NULL, &ret);
-  strncpy(buf, fullpath+ret.s, MIN(len, (ret.e-ret.s)));
+  strncpy(buf, fullpath + ret.s, MIN(len, (ret.e-ret.s)));
   return buf;
 }
 //////////////////////////////////////////////////////////////
@@ -700,12 +714,12 @@ static char* aprintf(char** buf, int i, const char* fmt, ...)
 {
   int bsize = 32;
   int len = bsize;
-  for (; len>=bsize; ) {
+  for (; len >= bsize; ) {
     va_list va;
     va_start(va, fmt);
     bsize = len + 10;
     *buf = (char*)realloc((*buf), i + bsize + 1);
-    len = vsnprintf((*buf)+i, bsize, fmt, va);
+    len = vsnprintf((*buf) + i, bsize, fmt, va);
     va_end(va);
     assert(len >= 0 && "Check format string for errors");
   }

@@ -76,6 +76,19 @@ static int64 utime_counter() {
 #endif
 
 
+#ifdef __cplusplus
+struct utime_test {
+  int64_t aa1;
+  utime_test() {
+    utime_restart(aa1);
+  }
+  ~utime_test() {
+    double t = utime_elapsed(aa1);
+    printf("%lf\n", t);
+  }
+};
+#endif
+
 
 
 #endif // _UTIME_H_

@@ -53,18 +53,22 @@ static uint32 stream_filesize(stream_t* fp)
   stream_seek(fp, pos_cur, SEEK_SET);
   return pos;
 }
-CC_INLINE int stream_puts(stream_t* fp, const char* str) {
+CC_INLINE int stream_puts(stream_t* fp, const char* str)
+{
   int len = strlen(str);
   return stream_write(fp, str, len);
 }
-CC_INLINE int stream_rewind(stream_t* fp) {
+CC_INLINE int stream_rewind(stream_t* fp)
+{
   return stream_seek(fp, 0, SEEK_SET);
 }
-CC_INLINE int stream_puts2(const char* str, stream_t* fp) {
-	int len = strlen(str);
+CC_INLINE int stream_puts2(const char* str, stream_t* fp)
+{
+  int len = strlen(str);
   return stream_write(fp, str, len);
 }
-CC_INLINE char* stream_gets(char* buf, int bufsize, stream_t* fp) {
+CC_INLINE char* stream_gets(char* buf, int bufsize, stream_t* fp)
+{
   return fp->gets(fp, buf, bufsize);
 }
 static int fstream_eof(stream_t* s)
@@ -115,7 +119,7 @@ static int fstream_init(stream_t* s, FILE* pf)
     stream_init_func(s, f);
     s->x = pf;
   }
-  return pf!=NULL;
+  return pf != NULL;
 }
 static int memstream_eof(stream_t* s)
 {
@@ -158,20 +162,20 @@ static char* memstream_gets(stream_t* s, char* buf, int bufsize)
 {
   int i;
   uchar* f = s->x1 + (uchar*)s->x;
-  int len = s->x2-s->x1;
-  len = MIN(len, bufsize-1);
-  for (i=0; i<len; ++i) {
+  int len = s->x2 - s->x1;
+  len = MIN(len, bufsize - 1);
+  for (i = 0; i < len; ++i) {
     buf[i] = f[i];
-    if (f[i]!='\n') {
+    if (f[i] != '\n') {
       break;
     }
   }
-  buf[i+1] = 0;
+  buf[i + 1] = 0;
   return buf;
 }
 static int memstream_unget8(int ch, stream_t* s)
 {
-  if (s->x1>0) {
+  if (s->x1 > 0) {
     s->x1--;
   }
   return s->x1;
@@ -261,16 +265,17 @@ static uint32 stream_put32le(stream_t* s, int val)
   stream_put8(s, val >> 24);
   return 4;
 }
-static int stream_savefile(stream_t* s, const char* fname, int size) {
+static int stream_savefile(stream_t* s, const char* fname, int size)
+{
   char buf[10240] = {0};
   int i;
   FILE* pf = NULL;
   mkdirs(fname);
-  if ((pf = fopen(fname, "wb"))!=NULL) {
-    for (i=0; i<size; ) {
-      int sz = MIN((int)(size-i), (int)countof(buf));
+  if ((pf = fopen(fname, "wb")) != NULL) {
+    for (i = 0; i < size; ) {
+      int sz = MIN((int)(size - i), (int)countof(buf));
       int readsz = stream_read(s, buf, sz);
-      if (readsz>0) {
+      if (readsz > 0) {
         int wrt = fwrite(buf, 1, readsz, pf);
         i += readsz;
       } else {

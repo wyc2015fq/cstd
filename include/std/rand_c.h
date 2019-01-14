@@ -54,21 +54,21 @@ struct rng_t_ {
   void* x;
 };
 
-// uniform_smallint：在小整数域内的均匀分布  
-// uniform_int：在整数域上的均匀分布  
-// uniform_01：在区间[0,1]上的实数连续均匀分布  
-// uniform_real：在区间[min,max]上的实数连续均匀分布  
-// bernoulli_distribution：伯努利分布  
-// binomial_distribution：二项分布  
-// cauchy_distribution：柯西（洛伦兹）分布  
-// gamma_distribution：伽马分布  
-// poisson_distribution：泊松分布  
-// geometric_distribution：几何分布  
-// triangle_distribution：三角分布  
-// exponential_distribution：指数分布  
-// normal_distribution：正态分布  
-// lognormal_distribution：对数正态分布  
-// uniform_on_sphere：球面均匀分布 
+// uniform_smallint：在小整数域内的均匀分布
+// uniform_int：在整数域上的均匀分布
+// uniform_01：在区间[0,1]上的实数连续均匀分布
+// uniform_real：在区间[min,max]上的实数连续均匀分布
+// bernoulli_distribution：伯努利分布
+// binomial_distribution：二项分布
+// cauchy_distribution：柯西（洛伦兹）分布
+// gamma_distribution：伽马分布
+// poisson_distribution：泊松分布
+// geometric_distribution：几何分布
+// triangle_distribution：三角分布
+// exponential_distribution：指数分布
+// normal_distribution：正态分布
+// lognormal_distribution：对数正态分布
+// uniform_on_sphere：球面均匀分布
 
 // Linear congruential generator
 // 线性同余伪随机数生成器
@@ -95,16 +95,19 @@ CC_INLINE unsigned int lcg64_int32(uint64* r)
   (*r) = (uint64)(unsigned) (*r) * CC_RNG_COEFF + ((*r) >> 32);
   return (unsigned) (*r);
 }
-CC_INLINE double lcg_i32(uint32* r) {
+CC_INLINE double lcg_i32(uint32* r)
+{
   return (*r) = (*r) * 1664525 + 1013904223; // Numerical Recipes
 }
-CC_INLINE double lcg_f32(uint32* r) {
+CC_INLINE double lcg_f32(uint32* r)
+{
   suf32_t u;
   (*r) = (*r) * 1664525 + 1013904223; // Numerical Recipes
   u.u = ((*r) >> 9) | 0x3F800000;
   return u.f - 1.0f;
 }
-CC_INLINE double lcg_f64(uint64* r) {
+CC_INLINE double lcg_f64(uint64* r)
+{
   suf64_t u;
   (*r) = (*r) * 2862933555777941757UL + 3037000493UL; // http://nuclear.llnl.gov/CNP/rng/rngman/node4.html
   u.u = ((*r) >> 12) | ((uint64)(0x3FF00000) << 32);
@@ -112,20 +115,23 @@ CC_INLINE double lcg_f64(uint64* r) {
 }
 /* Returns random floating-point number between 0 and 1: */
 
-static uint32 rng_lcg64_gen_int32(rng_t* r) {
+static uint32 rng_lcg64_gen_int32(rng_t* r)
+{
   return lcg64_int32((uint64*)r->x);
 }
 
-static int rng_lcg64_init(rng_t* r, uint64* s) {
+static int rng_lcg64_init(rng_t* r, uint64* s)
+{
   r->x = s;
   r->gen_int32 = rng_lcg64_gen_int32;
   return 0;
 }
 
-static rng_t* rng_static() {
+static rng_t* rng_static()
+{
   static rng_t rng[1] = {0};
   static uint64 seed = 100;
-  if (NULL==rng->gen_int32) {
+  if (NULL == rng->gen_int32) {
     rng_lcg64_init(rng, &seed);
     //rng_lcg64_init(rng, time(NULL));
   }
@@ -178,28 +184,30 @@ static double rng_res53(rng_t* r)
 //#include "ziggurat2.inl"
 
 // compute next value
-static double rng_normal(rng_t* r, double _Mean, double _Sigma) {
+static double rng_normal(rng_t* r, double _Mean, double _Sigma)
+{
   // Knuth, vol. 2, p. 122, alg. P
   double _Res, _V1, _V2, _Sx, _Fx;
   RNG_STATIC(r);
-  for (; ; )
-  {	// reject bad values
+  for (; ; ) {
+    // reject bad values
     _V1 = 2 * rng_real(r) - 1.0;
     _V2 = 2 * rng_real(r) - 1.0;
     _Sx = _V1 * _V1 + _V2 * _V2;
-    if (_Sx < 1.0)
+    if (_Sx < 1.0) {
       break;
+    }
   }
   _Fx = sqrt(-2.0 * log(_Sx) / _Sx);
   _Res = _Fx * _V1;
   return (_Res * _Sigma + _Mean);
 }
 
-static void rng_normal_boxmuller_fill(rng_t* r, double* data, int count) {
+static void rng_normal_boxmuller_fill(rng_t* r, double* data, int count)
+{
   int i;
   static const double twopi = (double)(2.0 * 3.14159265358979323846);
   assert(count % 2 == 0);
-  
   for (i = 0; i < count; i += 2) {
     double u1 = 1.0f - rng_real(r); // [0, 1) -> (0, 1]
     double u2 = rng_real(r);
@@ -211,7 +219,8 @@ static void rng_normal_boxmuller_fill(rng_t* r, double* data, int count) {
 }
 
 #if 0
-static double rng_normal_ziggurat(rng_t* r, double _Mean, double _Sigma) {
+static double rng_normal_ziggurat(rng_t* r, double _Mean, double _Sigma)
+{
   double _Res = ziggurat(r, r);
   return (_Res * _Sigma + _Mean);
 }
@@ -261,7 +270,7 @@ static int rng_uniform_fill(rng_t* r, double low, double high, int N, double* rs
 {
   double u_0_1 = 0.0;
   int i;
-  for (i = 0;i < N;++i) {
+  for (i = 0; i < N; ++i) {
     u_0_1 = rng_real(r);
     rs[i] = low + (u_0_1 * (high - low));
   }
@@ -271,7 +280,7 @@ static int rng_uniform_fill(rng_t* r, double low, double high, int N, double* rs
 static int rng_normal_fill(rng_t* r, double mu, double sigma, int N, double* rs)
 {
   int i;
-  for (i = 0;i < N;++i) {
+  for (i = 0; i < N; ++i) {
     rs[i] = rng_normal(r, mu, sigma);
   }
   return 0;
@@ -281,7 +290,7 @@ static int rng_exponential_fill(rng_t* r, double beta, int N, double* rs)
 {
   double u_0_1 = 0.0;
   int i;
-  for (i = 0;i < N;++i) {
+  for (i = 0; i < N; ++i) {
     u_0_1 = rng_real(r);
     rs[i] = (-beta * log(u_0_1));
   }
@@ -292,7 +301,7 @@ static int vec_randr(rng_t* r, double sigma, int N, double* rs)
 {
   double u_0_1 = 0.0;
   int i;
-  for (i = 0;i < N;++i) {
+  for (i = 0; i < N; ++i) {
     u_0_1 = rng_real(r);
     rs[i] = (sigma * sqrt(-2.0 * log(u_0_1)));
   }
@@ -304,7 +313,7 @@ static int rng_poisson_fill(rng_t* r, double lambda, int N, double* rs)
   double u_0_1 = 0.0, q = exp(-lambda), p = 1.0;
   int k = 0;
   int i;
-  for (i = 0;i < N;++i) {
+  for (i = 0; i < N; ++i) {
     k = 0;
     p = 1.0;
     while (p >= q) {
@@ -322,7 +331,7 @@ static int rng_bernoulli_fill(rng_t* r, double p, int N, double* rs)
   //double u_0_1 = 0.0;
   int i;
   unsigned int up = (unsigned int)(p * MYRANDMAX32);
-  for (i = 0;i < N;++i) {
+  for (i = 0; i < N; ++i) {
     rs[i] = (rng_int32(r) <= up);
   }
   return 0;
@@ -447,13 +456,14 @@ RANDI_IMPL(uint32)
 #undef RANDI_IMPL
 
 
-static void randi_T_fast(int* arr, int len, uint64* state, const void* pv, BOOL small_flag ) {
+static void randi_T_fast(int* arr, int len, uint64* state, const void* pv, BOOL small_flag )
+{
   typedef int T;
   const VEC2I* p = (const VEC2I*)pv;
   uint64 temp = *state;
   int i;
-  if (!small_flag) {  
-    for (i = 0; i <= len - 4;i += 4) {  
+  if (!small_flag) {
+    for (i = 0; i <= len - 4; i += 4) {
       int t0, t1;
       RNG_NEXT(temp);
       t0 = ((int)temp & p[i][0]) + p[i][1];
@@ -467,10 +477,9 @@ static void randi_T_fast(int* arr, int len, uint64* state, const void* pv, BOOL 
       t1 = ((int)temp & p[i + 3][0]) + p[i + 3][1];
       arr[i + 2] = (T)(t0);
       arr[i + 3] = (T)(t1);
-    }  
-  }
-  else {
-    for (i = 0;i <= len - 4;i += 4) {
+    }
+  } else {
+    for (i = 0; i <= len - 4; i += 4) {
       int t0, t1, t;
       RNG_NEXT(temp);
       t = (int)temp;
@@ -482,26 +491,26 @@ static void randi_T_fast(int* arr, int len, uint64* state, const void* pv, BOOL 
       t1 = ((t >> 24) & p[i + 3][0]) + p[i + 3][1];
       arr[i + 2] = (T)(t0);
       arr[i + 3] = (T)(t1);
-    }  
-  }  
-  for (;i < len;i++) {
+    }
+  }
+  for (; i < len; i++) {
     int t0;
     RNG_NEXT(temp);
     t0 = ((int)temp & p[i][0]) + p[i][1];
     arr[i] = (T)(t0);
-  }  
+  }
   *state = temp;
-  
   return ;
 }
 
-static void randi_T(int* arr, int len, uint64* state, const void* pv, BOOL small_flag ) {
+static void randi_T(int* arr, int len, uint64* state, const void* pv, BOOL small_flag )
+{
   typedef int T;
   const DivStruct* p = (const DivStruct*)pv;
   uint64 temp = *state;
   int i = 0;
   unsigned t0, t1, v0, v1;
-  for (i = 0;i <= len - 4;i += 4) {
+  for (i = 0; i <= len - 4; i += 4) {
     RNG_NEXT(temp);
     t0 = (unsigned)temp;
     RNG_NEXT(temp);
@@ -527,7 +536,7 @@ static void randi_T(int* arr, int len, uint64* state, const void* pv, BOOL small
     arr[i + 2] = (T)((int)v0);
     arr[i + 3] = (T)((int)v1);
   }
-  for (;i < len;i++) {
+  for (; i < len; i++) {
     RNG_NEXT(temp);
     t0 = (unsigned)temp;
     v0 = (unsigned)(((uint64)t0 * p[i].M) >> 32);
@@ -543,7 +552,7 @@ static void randf_32f(float* arr, int len, uint64* state, const VEC2F* p)
 {
   uint64 temp = *state;
   int i = 0;
-  for (;i <= len - 4;i += 4) {
+  for (; i <= len - 4; i += 4) {
     float f[4];
     f[0] = (float)(int)(RNG_NEXT(temp));
     f[1] = (float)(int)(RNG_NEXT(temp));
@@ -558,7 +567,7 @@ static void randf_32f(float* arr, int len, uint64* state, const VEC2F* p)
     arr[i + 2] = f[2] * p[i + 2][0] + p[i + 2][1];
     arr[i + 3] = f[3] * p[i + 3][0] + p[i + 3][1];
   }
-  for (;i < len;i++) {
+  for (; i < len; i++) {
     RNG_NEXT(temp);
     arr[i] = (int)temp * p[i][0] + p[i][1];
   }
@@ -569,7 +578,7 @@ static void randf_64f(double* arr, int len, uint64* state, const VEC2D* p)
   uint64 temp = *state;
   int64 v = 0;
   int i;
-  for (i = 0;i <= len - 4;i += 4) {
+  for (i = 0; i <= len - 4; i += 4) {
     double f0, f1;
     RNG_NEXT(temp);
     v = (temp >> 32) | (temp << 32);
@@ -588,7 +597,7 @@ static void randf_64f(double* arr, int len, uint64* state, const VEC2D* p)
     arr[i + 2] = f0;
     arr[i + 3] = f1;
   }
-  for (;i < len;i++) {
+  for (; i < len; i++) {
     RNG_NEXT(temp);
     v = (temp >> 32) | (temp << 32);
     arr[i] = v * p[i][0] + p[i][1];
@@ -619,7 +628,7 @@ static void randn_0_1_32f(float* arr, int len, uint64* state)
     wn[127] = (float)(dn / m1);
     fn[0] = 1.f;
     fn[127] = (float)exp(-.5 * dn * dn);
-    for (i = 126;i >= 1;i--) {
+    for (i = 126; i >= 1; i--) {
       dn = sqrt(-2.*log(vn / dn + exp(-.5 * dn * dn)));
       kn[i + 1] = (unsigned)((dn / tn) * m1);
       tn = dn;
@@ -628,7 +637,7 @@ static void randn_0_1_32f(float* arr, int len, uint64* state)
     }
     initialized = true;
   }
-  for (i = 0;i < len;i++) {
+  for (i = 0; i < len; i++) {
     float x, y;
     for (;;) {
       int iz, hz = (int)temp;
@@ -720,23 +729,21 @@ static void randnScale_flaot(const float* src, float* dst, int len, int cn, cons
   if (!stdmtx) {
     if (cn == 1) {
       double b = mean[0], a = stddev[0];
-      for (i = 0;i < len;i++) {
+      for (i = 0; i < len; i++) {
         dst[i] = (T)(src[i] * a + b);
       }
-    }
-    else {
-      for (i = 0;i < len;i++, src += cn, dst += cn) {
-        for (k = 0;k < cn;k++) {
+    } else {
+      for (i = 0; i < len; i++, src += cn, dst += cn) {
+        for (k = 0; k < cn; k++) {
           dst[k] = (T)(src[k] * stddev[k] + mean[k]);
         }
       }
     }
-  }
-  else {
-    for (i = 0;i < len;i++, src += cn, dst += cn) {
-      for (j = 0;j < cn;j++) {
+  } else {
+    for (i = 0; i < len; i++, src += cn, dst += cn) {
+      for (j = 0; j < cn; j++) {
         double s = mean[j];
-        for (k = 0;k < cn;k++) {
+        for (k = 0; k < cn; k++) {
           s += src[k] * stddev[j * cn + k];
         }
         dst[j] = (T)(s);
@@ -751,23 +758,21 @@ static void randnScale_double(const float* src, double* dst, int len, int cn, co
   if (!stdmtx) {
     if (cn == 1) {
       double b = mean[0], a = stddev[0];
-      for (i = 0;i < len;i++) {
+      for (i = 0; i < len; i++) {
         dst[i] = (T)(src[i] * a + b);
       }
-    }
-    else {
-      for (i = 0;i < len;i++, src += cn, dst += cn) {
-        for (k = 0;k < cn;k++) {
+    } else {
+      for (i = 0; i < len; i++, src += cn, dst += cn) {
+        for (k = 0; k < cn; k++) {
           dst[k] = (T)(src[k] * stddev[k] + mean[k]);
         }
       }
     }
-  }
-  else {
-    for (i = 0;i < len;i++, src += cn, dst += cn) {
-      for (j = 0;j < cn;j++) {
+  } else {
+    for (i = 0; i < len; i++, src += cn, dst += cn) {
+      for (j = 0; j < cn; j++) {
         double s = mean[j];
-        for (k = 0;k < cn;k++) {
+        for (k = 0; k < cn; k++) {
           s += src[k] * stddev[j * cn + k];
         }
         dst[j] = (T)(s);
@@ -787,14 +792,15 @@ RNG_FILL_IMPL(uint32, 0, _UI32_MAX)
 
 #if 0
 template <typename T, int intmin, int intmax>
-static void RNG_fill_unifrom(int total, T* arr, int cn, const double* p1, const double* p2, int n, uint64* state, bool saturateRange) {
+static void RNG_fill_unifrom(int total, T* arr, int cn, const double* p1, const double* p2, int n, uint64* state, bool saturateRange)
+{
   uchar _buf[BLOCK_SIZE];
-  int j, fast_int_mode = 0, smallFlag = 1, blockSize=0;
-  VEC2I* ip = 0, *ip2=0;
+  int j, fast_int_mode = 0, smallFlag = 1, blockSize = 0;
+  VEC2I* ip = 0, *ip2 = 0;
   void* param = NULL;
   BUFUSEBEGIN(_buf, BLOCK_SIZE);
   BUFMALLOC2(ip, n);
-  for (j = 0, fast_int_mode = 1;j < n;j++) {
+  for (j = 0, fast_int_mode = 1; j < n; j++) {
     double a = MIN(p1[j], p2[j]);
     double b = MAX(p1[j], p2[j]);
     if (saturateRange) {
@@ -807,8 +813,7 @@ static void RNG_fill_unifrom(int total, T* arr, int cn, const double* p1, const 
     fast_int_mode &= diff <= 4294967296. && (idiff & (idiff + 1)) == 0;
     if (fast_int_mode) {
       smallFlag &= idiff <= 255;
-    }
-    else {
+    } else {
       if (diff > INT_MAX) {
         ip[j][0] = INT_MAX;
       }
@@ -819,9 +824,9 @@ static void RNG_fill_unifrom(int total, T* arr, int cn, const double* p1, const 
   }
   if (!fast_int_mode) {
     DivStruct* ds = 0;
-    blockSize = MIN(GETBUFLEN() / (cn*sizeof(*ds)), total);
-    BUFMALLOC2(ds, cn*blockSize);
-    for (j = 0;j < n;++j) {
+    blockSize = MIN(GETBUFLEN() / (cn * sizeof(*ds)), total);
+    BUFMALLOC2(ds, cn * blockSize);
+    for (j = 0; j < n; ++j) {
       ds[j].delta = ip[j][1];
       unsigned d = ds[j].d = (unsigned)(ip[j][0] + 1);
       int l = 0;
@@ -832,28 +837,28 @@ static void RNG_fill_unifrom(int total, T* arr, int cn, const double* p1, const 
       ds[j].sh1 = min(l, 1);
       ds[j].sh2 = max(l - 1, 0);
     }
-    for (j = n;j < cn;++j) {
-      ds[j] = ds[j-n];
+    for (j = n; j < cn; ++j) {
+      ds[j] = ds[j - n];
     }
-    for (j = cn;j < cn*blockSize;++j) {
-      ds[j] = ds[j-cn];
+    for (j = cn; j < cn * blockSize; ++j) {
+      ds[j] = ds[j - cn];
     }
     param = ds;
   } else {
-    blockSize = MIN(GETBUFLEN() / (cn*sizeof(*ip)), total);
-    BUFMALLOC2(ip2, cn*blockSize);
+    blockSize = MIN(GETBUFLEN() / (cn * sizeof(*ip)), total);
+    BUFMALLOC2(ip2, cn * blockSize);
     MEMCPY(ip2, ip, n);
-    for (j = n;j < cn;++j) {
-      ip2[j][0] = ip2[j-n][0];
-      ip2[j][1] = ip2[j-n][1];
+    for (j = n; j < cn; ++j) {
+      ip2[j][0] = ip2[j - n][0];
+      ip2[j][1] = ip2[j - n][1];
     }
-    for (j = cn;j < cn*blockSize;++j) {
-      ip2[j][0] = ip2[j-cn][0];
-      ip2[j][1] = ip2[j-cn][1];
+    for (j = cn; j < cn * blockSize; ++j) {
+      ip2[j][0] = ip2[j - cn][0];
+      ip2[j][1] = ip2[j - cn][1];
     }
     param = ip2;
   }
-  for (j = 0;j < total;j += blockSize) {
+  for (j = 0; j < total; j += blockSize) {
     int len = MIN(total - j, blockSize);
     randi_T(arr, len * cn, state, param, fast_int_mode, smallFlag != 0);
     arr += len;
@@ -862,26 +867,27 @@ static void RNG_fill_unifrom(int total, T* arr, int cn, const double* p1, const 
   return ;
 }
 #endif
-static void RNG_fill_unifrom_float(int total, float* arr, int cn, const double* p1, const double* p2, int n, uint64* state) {
+static void RNG_fill_unifrom_float(int total, float* arr, int cn, const double* p1, const double* p2, int n, uint64* state)
+{
   VEC2F* ip2 = 0;
   int j, blockSize;
   uchar _buf[BLOCK_SIZE];
   BUFUSEBEGIN(_buf, BLOCK_SIZE);
-  blockSize = MIN((int)(GETBUFLEN() / (cn*sizeof(*ip2))), total);
-  BUFMALLOC2(ip2, cn*blockSize);
-  for (j = 0;j < n;j++) {
+  blockSize = MIN((int)(GETBUFLEN() / (cn * sizeof(*ip2))), total);
+  BUFMALLOC2(ip2, cn * blockSize);
+  for (j = 0; j < n; j++) {
     ip2[j][0] = (float)(MIN(FLT_MAX, p2[j] - p1[j]) * INV_2_32);
     ip2[j][1] = (float)((p2[j] + p1[j]) * 0.5);
   }
-  for (j = n;j < cn;++j) {
-    ip2[j][0] = ip2[j-n][0];
-    ip2[j][1] = ip2[j-n][1];
+  for (j = n; j < cn; ++j) {
+    ip2[j][0] = ip2[j - n][0];
+    ip2[j][1] = ip2[j - n][1];
   }
-  for (j = cn;j < cn*blockSize;++j) {
-    ip2[j][0] = ip2[j-cn][0];
-    ip2[j][1] = ip2[j-cn][1];
+  for (j = cn; j < cn * blockSize; ++j) {
+    ip2[j][0] = ip2[j - cn][0];
+    ip2[j][1] = ip2[j - cn][1];
   }
-  for (j = 0;j < total;j += blockSize) {
+  for (j = 0; j < total; j += blockSize) {
     int len = MIN(total - j, blockSize);
     randf_32f(arr, len * cn, state, ip2);
     arr += len;
@@ -889,26 +895,27 @@ static void RNG_fill_unifrom_float(int total, float* arr, int cn, const double* 
   BUFUSEEND();
   return ;
 }
-static void RNG_fill_unifrom_double(int total, double* arr, int cn, const double* p1, const double* p2, int n, uint64* state) {
+static void RNG_fill_unifrom_double(int total, double* arr, int cn, const double* p1, const double* p2, int n, uint64* state)
+{
   VEC2D* ip2 = 0;
   int j, blockSize;
   uchar _buf[BLOCK_SIZE];
   BUFUSEBEGIN(_buf, BLOCK_SIZE);
-  blockSize = MIN((int)(GETBUFLEN() / (cn*sizeof(*ip2))), total);
-  BUFMALLOC2(ip2, cn*blockSize);
-  for (j = 0;j < cn;j++) {
+  blockSize = MIN((int)(GETBUFLEN() / (cn * sizeof(*ip2))), total);
+  BUFMALLOC2(ip2, cn * blockSize);
+  for (j = 0; j < cn; j++) {
     ip2[j][0] = MIN(DBL_MAX, p2[j] - p1[j]) * INV_2_64;
     ip2[j][1] = ((p2[j] + p1[j]) * 0.5);
   }
-  for (j = n;j < cn;++j) {
-    ip2[j][0] = ip2[j-n][0];
-    ip2[j][1] = ip2[j-n][1];
+  for (j = n; j < cn; ++j) {
+    ip2[j][0] = ip2[j - n][0];
+    ip2[j][1] = ip2[j - n][1];
   }
-  for (j = cn;j < cn*blockSize;++j) {
-    ip2[j][0] = ip2[j-cn][0];
-    ip2[j][1] = ip2[j-cn][1];
+  for (j = cn; j < cn * blockSize; ++j) {
+    ip2[j][0] = ip2[j - cn][0];
+    ip2[j][1] = ip2[j - cn][1];
   }
-  for (j = 0;j < total;j += blockSize) {
+  for (j = 0; j < total; j += blockSize) {
     int len = MIN(total - j, blockSize);
     randf_64f(arr, len * cn, state, ip2);
     arr += len;
@@ -917,14 +924,15 @@ static void RNG_fill_unifrom_double(int total, double* arr, int cn, const double
   return ;
 }
 
-static void RNG_fill_normal_float(int total, float* arr, int cn, const double* mean, const double* stddev, int n, uint64* state, BOOL stdmtx) {
+static void RNG_fill_normal_float(int total, float* arr, int cn, const double* mean, const double* stddev, int n, uint64* state, BOOL stdmtx)
+{
   uchar _buf[BLOCK_SIZE];
   int j, blockSize;
-  float *nbuf=0;
+  float* nbuf = 0;
   BUFUSEBEGIN(_buf, BLOCK_SIZE);
-  blockSize = cn*MIN((int)(GETBUFLEN() / (cn*sizeof(float))), total);
+  blockSize = cn * MIN((int)(GETBUFLEN() / (cn * sizeof(float))), total);
   BUFMALLOC2(nbuf, blockSize);
-  for (j = 0;j < total;j += blockSize) {
+  for (j = 0; j < total; j += blockSize) {
     int len = MIN(total - j, blockSize);
     randn_0_1_32f(nbuf, len * cn, state);
     randnScale_flaot(nbuf, arr, len, cn, mean, stddev, stdmtx);
@@ -934,14 +942,15 @@ static void RNG_fill_normal_float(int total, float* arr, int cn, const double* m
   return ;
 }
 
-static void RNG_fill_normal_double(int total, double* arr, int cn, const double* mean, const double* stddev, int n, uint64* state, BOOL stdmtx) {
+static void RNG_fill_normal_double(int total, double* arr, int cn, const double* mean, const double* stddev, int n, uint64* state, BOOL stdmtx)
+{
   uchar _buf[BLOCK_SIZE];
   int j, blockSize;
-  float *nbuf=0;
+  float* nbuf = 0;
   BUFUSEBEGIN(_buf, BLOCK_SIZE);
-  blockSize = cn*MIN((int)(GETBUFLEN() / (cn*sizeof(float))), total);
+  blockSize = cn * MIN((int)(GETBUFLEN() / (cn * sizeof(float))), total);
   BUFMALLOC2(nbuf, blockSize);
-  for (j = 0;j < total;j += blockSize) {
+  for (j = 0; j < total; j += blockSize) {
     int len = MIN(total - j, blockSize);
     randn_0_1_32f(nbuf, len * cn, state);
     randnScale_double(nbuf, arr, len, cn, mean, stddev, stdmtx);
@@ -955,7 +964,7 @@ static void RNG_fill_normal_double(int total, double* arr, int cn, const double*
 template <typename T, int intmin, int intmax>
 static void RNG_fill(T* _mat, int disttype, const double* _param1, int n1, const double* _param2, int n2, bool saturateRange, int cn)
 {
-  enum {BLOCK_SIZE=1024};
+  enum {BLOCK_SIZE = 1024};
   uchar _parambuf[BLOCK_SIZE];
   int j, k, fast_int_mode = 0, smallFlag = 1;
   VEC2I* ip = 0;
@@ -965,76 +974,66 @@ static void RNG_fill(T* _mat, int disttype, const double* _param1, int n1, const
   uchar* mean = 0;
   uchar* stddev = 0;
   bool stdmtx = false;
-  int depth=0;
+  int depth = 0;
   BUFUSEBEGIN(_parambuf, BLOCK_SIZE);
   if (disttype == CC_RAND_UNI) {
     const double* p1 = _param1;
     const double* p2 = _param2;
-
-    if( n1 < cn )
-    {
+    if ( n1 < cn ) {
       double* p1a = NULL;
       BUFMALLOC2(p1a, cn);
       MEMCPY(p1a, p1, n1);
       p1 = p1a;
-      for( j = n1;j < cn;j++ ) {
-        p1a[j] = p1a[j-n1];
+      for ( j = n1; j < cn; j++ ) {
+        p1a[j] = p1a[j - n1];
       }
     }
-    
-    if( n2 < cn )
-    {
+    if ( n2 < cn ) {
       double* p2a = NULL;
       BUFMALLOC2(p2a, cn);
       MEMCPY(p2a, p2, n2);
       p2 = p2a;
-      for( j = n2;j < cn;j++ ){
-        p2a[j] = p2a[j-n2];
+      for ( j = n2; j < cn; j++ ) {
+        p2a[j] = p2a[j - n2];
       }
     }
-
     if (depth <= 1) {
       func = randTab[fast_int_mode];
-    }
-    else {
+    } else {
       func = randTab[0][depth];
     }
     CC_Assert(func != 0);
-  }
-  else if (disttype == CC_RAND_NORMAL) {
+  } else if (disttype == CC_RAND_NORMAL) {
     _parambuf.allocate(MAX(n1, cn) + MAX(n2, cn));
     double* parambuf = _parambuf;
     int ptype = depth == CC_64F ? CC_64F : CC_32F;
     int esz = (int)CC_ELEM_SIZE(ptype);
     if (_param1.isContinuous() && _param1.type() == ptype) {
       mean = _param1_ptr;
-    }
-    else {
+    } else {
       Mat tmp(_param1.size(), ptype, parambuf);
       _param1.convertTo(tmp, ptype);
       mean = (uchar*)parambuf;
     }
     if (n1 < cn) {
-      for (j = n1 * esz;j < cn * esz;j++) {
+      for (j = n1 * esz; j < cn * esz; j++) {
         mean[j] = mean[j - n1 * esz];
       }
     }
     if (_param2.isContinuous() && _param2.type() == ptype) {
       stddev = _param2_ptr;
-    }
-    else {
+    } else {
       Mat tmp(_param2.size(), ptype, parambuf + cn);
       _param2.convertTo(tmp, ptype);
       stddev = (uchar*)(parambuf + cn);
     }
     if (n2 < cn) {
-      for (j = n1 * esz;j < cn * esz;j++) {
+      for (j = n1 * esz; j < cn * esz; j++) {
         stddev[j] = stddev[j - n1 * esz];
       }
     }
     stdmtx = _param2_rows == cn && _param2_cols == cn;
-  }
-  else {
+  } else {
     CC_Error(CC_StsBadArg, "Unknown distribution type");
   }
   uchar* ptr;
@@ -1048,49 +1047,44 @@ static void RNG_fill(T* _mat, int disttype, const double* _param1, int n1, const
     if (ip) {
       if (ds) {
         DivStruct* p = (DivStruct*)param;
-        for (j = 0;j < blockSize * cn;j += cn) {
-          for (k = 0;k < cn;k++) {
+        for (j = 0; j < blockSize * cn; j += cn) {
+          for (k = 0; k < cn; k++) {
             p[j + k] = ds[k];
           }
         }
-      }
-      else {
+      } else {
         VEC2I* p = (VEC2I*)param;
-        for (j = 0;j < blockSize * cn;j += cn) {
-          for (k = 0;k < cn;k++) {
+        for (j = 0; j < blockSize * cn; j += cn) {
+          for (k = 0; k < cn; k++) {
             p[j + k] = ip[k];
           }
         }
       }
-    }
-    else if (fp) {
+    } else if (fp) {
       VEC2F* p = (VEC2F*)param;
-      for (j = 0;j < blockSize * cn;j += cn) {
-        for (k = 0;k < cn;k++) {
+      for (j = 0; j < blockSize * cn; j += cn) {
+        for (k = 0; k < cn; k++) {
           p[j + k] = fp[k];
         }
       }
-    }
-    else {
+    } else {
       VEC2D* p = (VEC2D*)param;
-      for (j = 0;j < blockSize * cn;j += cn) {
-        for (k = 0;k < cn;k++) {
+      for (j = 0; j < blockSize * cn; j += cn) {
+        for (k = 0; k < cn; k++) {
           p[j + k] = dp[k];
         }
       }
     }
-  }
-  else {
+  } else {
     buf.allocate((blockSize * cn + 1) / 2);
     nbuf = (float*)(double*)buf;
   }
-  for (size_t i = 0;i < nplanes;i++) {
-    for (j = 0;j < total;j += blockSize) {
+  for (size_t i = 0; i < nplanes; i++) {
+    for (j = 0; j < total; j += blockSize) {
       int len = MIN(total - j, blockSize);
       if (disttype == CC_RAND_UNI) {
         func(ptr, len * cn, &state, param, fast_int_mode, smallFlag != 0);
-      }
-      else {
+      } else {
         randn_0_1_32f(nbuf, len * cn, &state);
         scaleFunc(nbuf, ptr, len, cn, mean, stddev, stdmtx);
       }
@@ -1107,18 +1101,17 @@ static void randShuffle(int _arr_rows, int _arr_cols, uchar* _arr_ptr, int _arr_
   typedef int arr_type;
   uint64 rng = *r;
   arr_type t;
-  if ((_arr_cols*cn)==_arr_step) {
+  if ((_arr_cols * cn) == _arr_step) {
     arr_type* arr = (arr_type*)_arr_ptr;
-    for (i = 0;i < iters;i++) {
+    for (i = 0; i < iters; i++) {
       int j = (unsigned)RNG_NEXT(rng) % sz, k = (unsigned)RNG_NEXT(rng) % sz;
       CC_SWAP(arr[j], arr[k], t);
     }
-  }
-  else {
+  } else {
     uchar* data = _arr_ptr;
     size_t step = _arr_step;
     int cols = _arr_cols;
-    for (i = 0;i < iters;i++) {
+    for (i = 0; i < iters; i++) {
       int j1 = (unsigned)RNG_NEXT(rng) % sz, k1 = (unsigned)RNG_NEXT(rng) % sz;
       int j0 = j1 / cols, k0 = k1 / cols;
       j1 -= j0 * cols;
@@ -1259,8 +1252,7 @@ static int icvRandn_0_1_32f_C1R_(float* arr, int len, uint64* state)
         temp = ICC_RNG_NEXT(temp);
         y = -log(((unsigned) temp) * 2.328306e-10);
         temp = ICC_RNG_NEXT(temp);
-      }
-      while (y + y < x * x);
+      } while (y + y < x * x);
       x = v > 0 ? 2.506628 + x : -2.506628 - x;
       break;
     }
@@ -1424,12 +1416,14 @@ static int iRandArr(rng_t* r, int count, int dim, void* arr, int step, const int
 
 #include "random/mt19937ar.h"
 
-static uint32 rng_mt19937_gen_int32(rng_t* r) {
+static uint32 rng_mt19937_gen_int32(rng_t* r)
+{
   return mt19937ar_int32((mt19937ar_t*)(r->x));
 }
-static int rng_mt19937_init(rng_t* r, unsigned long s) {
+static int rng_mt19937_init(rng_t* r, unsigned long s)
+{
   mt19937ar_t* mt = (mt19937ar_t*)(r->x);
-  mt->mti = MT19937AR_N+1;
+  mt->mti = MT19937AR_N + 1;
   mt19937ar_init(mt, s);
   r->gen_int32 = rng_mt19937_gen_int32;
   return 0;
@@ -1440,13 +1434,11 @@ static rng_t* mt_static()
   static rng_t g_r[1] = {0};
   static mt19937ar_t mt[1] = {0};
   static int inited = 0;
-  
   if (!inited) {
     g_r->x = mt;
     rng_mt19937_init(g_r, 10);
     inited = 1;
   }
-  
   return g_r;
 }
 static void mtsrand(unsigned long s)

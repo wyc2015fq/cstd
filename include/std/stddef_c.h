@@ -93,7 +93,8 @@
 
 #define GETBUFBEG()                 (__BUFBEG__)
 #define GETBUFLEN()                 (__BUFEND__-__BUFBEG__)
-CC_INLINE void ptr2ptr(void* pp, void* p) {
+CC_INLINE void ptr2ptr(void* pp, void* p)
+{
   *(void**)pp = p;
 }
 #define BUFMALLOC2(_P, _N)          ptr2ptr(&_P, (void*)(__BUFBEG__+=SIZEOFARR(*_P, _N), __BUFBEG__-SIZEOFARR(*_P, _N)))
@@ -366,8 +367,7 @@ CC_INLINE void iRANGE_clame(IRANGE* r, int s, int e)
   r->s = BOUND(r->s, s, e);
   if (r->e < s) {
     r->e = e;
-  }
-  else {
+  } else {
     r->e = BOUND(r->e, s, e);
   }
 }

@@ -54,8 +54,8 @@ CC_INLINE COLOR PixelAlpha3(COLOR srcPixel, COLOR dstPixel, int percent)
 {
   int ipercent = 100 - percent;
   COLOR clrFinal = _RGB((GetRV(srcPixel) * percent + GetRV(dstPixel) * ipercent) / 100,
-      (GetGV(srcPixel) * percent + GetGV(dstPixel) * ipercent) / 100,
-      (GetBV(srcPixel) * percent + GetBV(dstPixel) * ipercent) / 100);
+                        (GetGV(srcPixel) * percent + GetGV(dstPixel) * ipercent) / 100,
+                        (GetBV(srcPixel) * percent + GetBV(dstPixel) * ipercent) / 100);
   return (clrFinal);
 }
 // Conversion between the HSL (Hue, Saturation, and LuMINosity)
@@ -70,93 +70,72 @@ CC_INLINE double HuetoRGB(double m1, double m2, double h)
   if (h < 0) {
     h += 1.0;
   }
-
   if (h > 1) {
     h -= 1.0;
   }
-
   if (6.0 * h < 1) {
     return (m1 + (m2 - m1) * h * 6.0);
   }
-
   if (2.0 * h < 1) {
     return m2;
   }
-
   if (3.0 * h < 2.0) {
     return (m1 + (m2 - m1) * ((2.0 / 3.0) - h) * 6.0);
   }
-
   return m1;
 }
 CC_INLINE BYTE HueToRGB(float rm1, float rm2, float rh)
 {
   if (rh > 360.0f) {
     rh -= 360.0f;
-  }
-  else if (rh < 0.0f) {
+  } else if (rh < 0.0f) {
     rh += 360.0f;
   }
-
   if (rh < 60.0f) {
     rm1 = rm1 + (rm2 - rm1) * rh / 60.0f;
-  }
-  else if (rh < 180.0f) {
+  } else if (rh < 180.0f) {
     rm1 = rm2;
-  }
-  else if (rh < 240.0f) {
+  } else if (rh < 240.0f) {
     rm1 = rm1 + (rm2 - rm1) * (240.0f - rh) / 60.0f;
   }
-
   return (BYTE)(rm1 * 255);
 }
 CC_INLINE COLOR HLStoRGB_ONE(double H, double L, double S)
 {
   double r, g, b;
   double m1, m2;
-
   if (S == 0) {
     r = g = b = L;
-  }
-  else {
+  } else {
     if (L <= 0.5) {
       m2 = L * (1.0 + S);
-    }
-    else {
+    } else {
       m2 = L + S - L * S;
     }
-
     m1 = 2.0 * L - m2;
     r = HuetoRGB(m1, m2, H + 1.0 / 3.0);
     g = HuetoRGB(m1, m2, H);
     b = HuetoRGB(m1, m2, H - 1.0 / 3.0);
   }
-
   return _RGB((BYTE)(r * 255), (BYTE)(g * 255), (BYTE)(b * 255));
 }
 CC_INLINE COLOR HLStoRGB_TWO(double H, double L, double S)
 {
   WORD R, G, B; // _RGB component values
-
   if (S == 0.0) {
     R = G = B = (unsigned char)(L * 255.0);
-  }
-  else {
+  } else {
     float rm1, rm2;
-
     if (L <= 0.5f) {
       rm2 = (float)(L + L * S);
-    }
-    else {
+    } else {
       rm2 = (float)(L + S - L * S);
     }
-
     rm1 = (float)(2.0f * L - rm2);
     R = HueToRGB(rm1, rm2, (float)(H + 120.0f));
     G = HueToRGB(rm1, rm2, (float)(H));
     B = HueToRGB(rm1, rm2, (float)(H - 120.0f));
   }
-
   return _RGB(R, G, B);
 }
 CC_INLINE void RGBtoHSL(COLOR rgb, double* H, double* S, double* L)
@@ -168,33 +147,24 @@ CC_INLINE void RGBtoHSL(COLOR rgb, double* H, double* S, double* L)
   double cmax = MAX(r, MAX(g, b));
   double cMIN = MIN(r, MIN(g, b));
   *L = (cmax + cMIN) / 2.0;
-
   if (cmax == cMIN) {
     *S = 0;
     *H = 0; // it's really undefined
-  }
-  else {
+  } else {
     if (*L < 0.5) {
       *S = (cmax - cMIN) / (cmax + cMIN);
-    }
-    else {
+    } else {
       *S = (cmax - cMIN) / (2.0 - cmax - cMIN);
     }
-
     delta = cmax - cMIN;
-
     if (r == cmax) {
       *H = (g - b) / delta;
-    }
-    else if (g == cmax) {
+    } else if (g == cmax) {
       *H = 2.0 + (b - r) / delta;
-    }
-    else {
+    } else {
       *H = 4.0 + (r - g) / delta;
     }
-
     *H /= 6.0;
-
     if (*H < 0.0) {
       *H += 1;
     }
@@ -211,34 +181,26 @@ CC_INLINE void RGBtoHSV(COLOR rgb, double* H, double* S, double* V)
   double dblMax = MAX(r, MAX(g, b));
   double delta = dblMax - dblMin;
   *V = dblMax; // v
-
   if (dblMax != 0) {
     *S = delta / dblMax; // s
-  }
-  else {
+  } else {
     // r = g = b = 0 // s = 0, v is undefined
     *S = 0;
     *H = -1;
     return;
   }
-
   if (delta == 0.) {
     *H = 1;
-  }
-  else {
+  } else {
     if (r == dblMax) {
       *H = (g - b) / delta; // between yellow & magenta
-    }
-    else if (g == dblMax) {
+    } else if (g == dblMax) {
       *H = 2 + (b - r) / delta; // between cyan & yellow
-    }
-    else {
+    } else {
       *H = 4 + (r - g) / delta; // between magenta & cyan
     }
   }
-
   *H *= 60; // degrees
-
   if (*H < 0) {
     *H += 360;
   }
@@ -249,50 +211,42 @@ CC_INLINE COLOR HSVtoRGB(double h, double s, double v)
   int i;
   double f, p, q, t;
   double r, g, b;
-
   if (s == 0) {
     // achromatic (grey)
     r = g = b = v;
-  }
-  else {
+  } else {
     h /= 60; // sector 0 to 5
     i = (int) floor(h);
     f = h - i; // factorial part of h
     p = v * (1 - s);
     q = v * (1 - s * f);
     t = v * (1 - s * (1 - f));
-
     switch (i) {
     case 0:
       r = v;
       g = t;
       b = p;
       break;
-
     case 1:
       r = q;
       g = v;
       b = p;
       break;
-
     case 2:
       r = p;
       g = v;
       b = t;
       break;
-
     case 3:
       r = p;
       g = q;
       b = v;
       break;
-
     case 4:
       r = t;
       g = p;
       b = v;
       break;
-
     default: // case 5:
       r = v;
       g = p;
@@ -300,11 +254,10 @@ CC_INLINE COLOR HSVtoRGB(double h, double s, double v)
       break;
     }
   }
-
   return _RGB(
-      (int)(.5 + r * 255),
-      (int)(.5 + g * 255),
-      (int)(.5 + b * 255));
+           (int)(.5 + r * 255),
+           (int)(.5 + g * 255),
+           (int)(.5 + b * 255));
 }
 CC_INLINE COLOR SmartMixColors(COLOR color1, COLOR color2, double dblLumRatio, int k1, int k2)
 {
@@ -313,47 +266,41 @@ CC_INLINE COLOR SmartMixColors(COLOR color1, COLOR color2, double dblLumRatio, i
   double h2, s2, v2;
   ASSERT(k1 >= 0);
   ASSERT(k2 >= 0);
-
   if (k1 + k2 == 0) {
     ASSERT(FALSE);
     return _RGB(0, 0, 0);
   }
-
   color = _RGB(
-      (GetRV(color1) * k1 + GetRV(color2) * k2) / (k1 + k2),
-      (GetGV(color1) * k1 + GetGV(color2) * k2) / (k1 + k2),
-      (GetBV(color1) * k1 + GetBV(color2) * k2) / (k1 + k2));
+            (GetRV(color1) * k1 + GetRV(color2) * k2) / (k1 + k2),
+            (GetGV(color1) * k1 + GetGV(color2) * k2) / (k1 + k2),
+            (GetBV(color1) * k1 + GetBV(color2) * k2) / (k1 + k2));
   RGBtoHSV(color, &h1, &s1, &v1);
   RGBtoHSV(color2, &h2, &s2, &v2);
   v1 = v2;
   s1 = (s1 * k1 + s2 * k2) / (k1 + k2);
   color = HSVtoRGB(h1, s1, v1);
-
   if (dblLumRatio != 1.) {
     double H, S, L;
     RGBtoHSL(color, &H, &S, &L);
     color = HLStoRGB_ONE(H, MIN(1., L * dblLumRatio), S);
   }
-
   return color;
 }
 CC_INLINE COLOR MixColors(COLOR clr1, COLOR clr2, double dblRatio)
 {
   ASSERT(dblRatio > 0.0f && dblRatio <= 1.0f);
   return _RGB(
-      GetRV(clr1) + dblRatio * (GetRV(clr2) - GetRV(clr1)),
-      GetGV(clr1) + dblRatio * (GetGV(clr2) - GetGV(clr1)),
-      GetBV(clr1) + dblRatio * (GetBV(clr2) - GetBV(clr1))
-      );
+           GetRV(clr1) + dblRatio * (GetRV(clr2) - GetRV(clr1)),
+           GetGV(clr1) + dblRatio * (GetGV(clr2) - GetGV(clr1)),
+           GetBV(clr1) + dblRatio * (GetBV(clr2) - GetBV(clr1))
+         );
 }
 CC_INLINE int AdjustChannel(int nValue, double nPercent)
 {
   int nNewValue = (int)(.5 + nPercent * nValue);
-
   if (nValue == 0 && nPercent > 1.) {
     nNewValue = (int)(.5 + (nPercent - 1.) * 255);
   }
-
   return MIN(nNewValue, 255);
 }
 CC_INLINE COLOR PixelAlpha4(COLOR srcPixel, double percentR, double percentG, double percentB)
@@ -365,11 +312,9 @@ CC_INLINE COLOR PixelAlpha4(COLOR srcPixel, double percentR, double percentG, do
 CC_INLINE int dv_toint(int n, const double* a, int* b, int shi)
 {
   int i;
-
   for (i = 0; i < 5; ++i) {
     b[i] = (int)(a[i] * shi);
   }
-
   return 0;
 }
 
@@ -410,7 +355,7 @@ typedef struct ColTable {
 } ColTable;
 static ColTable g_ColTable[] = {
 #define COLORTABLEDEF(a, b)  {#a, b},
-COLORTABLEDEF_DEF(COLORTABLEDEF)
+  COLORTABLEDEF_DEF(COLORTABLEDEF)
 #undef COLORTABLEDEF
   {NULL, 0}
 };
@@ -427,7 +372,6 @@ CC_INLINE int colorcn(ColorSpace type)
     COLOR_TYPE_DEF_DEF(COLOR_TYPE_DEF)
 #undef COLOR_TYPE_DEF
   }
-
   return (_any_code_cn[BOUND(type, 0, T_MaxColorSpace - 1)]);
 }
 
@@ -448,20 +392,18 @@ static float scbrt(float value)
   shx -= shx >= 0 ? 3 : 0;
   ex = (ex - shx) / 3;   /* exponent of cube root */
   fr.i = (ix & ((1 << 23) - 1)) | ((shx + 127) << 23);
-
   // 0.125 <= fr < 1.0
   /* Use quartic rational polynomial with error < 2^(-24) */
   fr.f = (float)(((((45.2548339756803022511987494 * fr.f +
-      192.2798368355061050458134625) * fr.f +
-      119.1654824285581628956914143) * fr.f +
-      13.43250139086239872172837314) * fr.f +
-      0.1636161226585754240958355063) /
-      ((((14.80884093219134573786480845 * fr.f +
-          151.9714051044435648658557668) * fr.f +
-          168.5254414101568283957668343) * fr.f +
-          33.9905941350215598754191872) * fr.f +
-          1.0));
-
+                     192.2798368355061050458134625) * fr.f +
+                    119.1654824285581628956914143) * fr.f +
+                   13.43250139086239872172837314) * fr.f +
+                  0.1636161226585754240958355063) /
+                 ((((14.80884093219134573786480845 * fr.f +
+                     151.9714051044435648658557668) * fr.f +
+                    168.5254414101568283957668343) * fr.f +
+                   33.9905941350215598754191872) * fr.f +
+                  1.0));
   // fr *= 2^ex * sign
   fr.i = (fr.i + (ex << 23) + s) & (fv.i * 2 != 0 ? -1 : 0);
   return fr.f;
@@ -479,7 +421,6 @@ static CStatus icvBGRA2BGR_8u(COLOR_FUN_ARGDEF)
   int i;
   srcstep -= width * srccn;
   dststep -= width * dstcn;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i++, src += srccn, dst += dstcn) {
       uchar t0 = src[blue_idx], t1 = src[1], t2 = src[2 ^ blue_idx];
@@ -488,7 +429,6 @@ static CStatus icvBGRA2BGR_8u(COLOR_FUN_ARGDEF)
       dst[2] = t2;
     }
   }
-
   return CC_OK;
 }
 
@@ -497,7 +437,6 @@ static CStatus icvBGRA2RGB_8u(COLOR_FUN_ARGDEF)
   int i;
   srcstep -= width * srccn;
   dststep -= width * dstcn;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i++, src += srccn, dst += dstcn) {
       uchar t0 = src[blue_idx], t1 = src[1], t2 = src[2 ^ blue_idx];
@@ -506,7 +445,6 @@ static CStatus icvBGRA2RGB_8u(COLOR_FUN_ARGDEF)
       dst[0] = t2;
     }
   }
-
   return CC_OK;
 }
 
@@ -516,7 +454,6 @@ static CStatus icvRGB2BGRA_8u(COLOR_FUN_ARGDEF)
   int i;
   srcstep -= width * srccn;
   dststep -= width * dstcn;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i++, src += srccn, dst += dstcn) {
       uchar t0 = src[0], t1 = src[1], t2 = src[2];
@@ -525,7 +462,6 @@ static CStatus icvRGB2BGRA_8u(COLOR_FUN_ARGDEF)
       dst[blue_idx] = t2;
     }
   }
-
   return CC_OK;
 }
 
@@ -534,7 +470,6 @@ static CStatus icvBGR2BGRA_8u(COLOR_FUN_ARGDEF)
   int i;
   srcstep -= width * srccn;
   dststep -= width * dstcn;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; ++i, src += srccn, dst += dstcn) {
       uchar t0 = src[0], t1 = src[1], t2 = src[2];
@@ -544,20 +479,16 @@ static CStatus icvBGR2BGRA_8u(COLOR_FUN_ARGDEF)
       dst[3] = 0;
     }
   }
-
   return CC_OK;
 }
 
 static CStatus icvBGRA2RGBA_8u_C4R_(COLOR_FUN_ARGDEF)
 {
   int i;
-
   width *= 4;
-
   for (; height--; src += srcstep, dst += dststep) {
     const uchar* s = (src);
     uchar* d = (dst);
-
     for (i = 0; i < width; s += srccn, d += dstcn) {
       uchar t0 = s[2], t1 = s[1], t2 = s[0], t3 = s[3];
       d[0] = t0;
@@ -566,7 +497,6 @@ static CStatus icvBGRA2RGBA_8u_C4R_(COLOR_FUN_ARGDEF)
       d[3] = t3;
     }
   }
-
   return CC_OK;
 }
 
@@ -579,7 +509,6 @@ static CStatus icvBGR5652BGRA_8u(COLOR_FUN_ARGDEF)
 {
   int i;
   dststep -= width * dstcn;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i++, dst += dstcn) {
       unsigned t = ((const ushort*) src) [ i ];
@@ -589,7 +518,6 @@ static CStatus icvBGR5652BGRA_8u(COLOR_FUN_ARGDEF)
       // dst[ 3 ] = 0;
     }
   }
-
   return CC_OK;
 }
 
@@ -597,7 +525,6 @@ static CStatus icvBGR5552BGRA_8u(COLOR_FUN_ARGDEF)
 {
   int i;
   dststep -= width * dstcn;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i++, dst += dstcn) {
       unsigned t = ((const ushort*) src) [ i ];
@@ -607,7 +534,6 @@ static CStatus icvBGR5552BGRA_8u(COLOR_FUN_ARGDEF)
       // dst[ 3 ] = 0;
     }
   }
-
   return CC_OK;
 }
 
@@ -615,16 +541,13 @@ static CStatus icvBGR5552BGRA_8u(COLOR_FUN_ARGDEF)
 static CStatus icvBGRA2BGR565_8u(COLOR_FUN_ARGDEF)
 {
   int i;
-
   srcstep -= width * srccn;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i++, src += srccn) {
       int t = (src[ 0 ] >> 3) | ((src[ 1 ] & ~3) << 3) | ((src[ 2 ] & ~7) << 8);
       ((ushort*) dst) [ i ] = (ushort) t;
     }
   }
-
   return CC_OK;
 }
 
@@ -633,16 +556,13 @@ static CStatus icvBGRA2BGR565_8u(COLOR_FUN_ARGDEF)
 static CStatus icvBGRA2BGR555_8u(COLOR_FUN_ARGDEF)
 {
   int i;
-
   srcstep -= width * srccn;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i++, src += srccn) {
       int t = (src[ 0 ] >> 3) | ((src[ 1 ] & ~7) << 2) | ((src[ 2 ] & ~7) << 7);
       ((ushort*) dst) [ i ] = (ushort) t;
     }
   }
-
   return CC_OK;
 }
 
@@ -670,13 +590,11 @@ static CStatus icvGRAY2BGRA_8u(COLOR_FUN_ARGDEF)
 {
   int i;
   dststep -= width * dstcn;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i++, dst += dstcn) {
       dst[0] = dst[1] = dst[2] = src[i];
     }
   }
-
   return CC_OK;
 }
 
@@ -685,35 +603,28 @@ static CStatus icvGRAY2BGRA_8u(COLOR_FUN_ARGDEF)
 static CStatus icvBGRA2GRAY_8u(COLOR_FUN_ARGDEF)
 {
   int i;
-
   srcstep -= width * srccn;
-
   if (width * height >= 1024) {
     int tab[ 256 * 3 ]; // = ( int* ) cvStackAlloc( 256 * 3 * sizeof( tab[ 0 ] ) );
     int r = 0, g = 0, b = (1 << (csc_shift - 1));
-
     for (i = 0; i < 256; i++) {
       tab[ i ] = b;
       tab[ i + 256 ] = g;
       tab[ i + 512 ] = r;
       g += cscGg;
-
       if (!blue_idx) {
         b += cscGb, r += cscGr;
-      }
-      else {
+      } else {
         b += cscGr, r += cscGb;
       }
     }
-
     for (; height--; src += srcstep, dst += dststep) {
       for (i = 0; i < width; i++, src += srccn) {
         int t0 = tab[ src[ 0 ] ] + tab[ src[ 1 ] + 256 ] + tab[ src[ 2 ] + 512 ];
         dst[ i ] = (uchar)(t0 >> csc_shift);
       }
     }
-  }
-  else {
+  } else {
     for (; height--; src += srcstep, dst += dststep) {
       for (i = 0; i < width; i++, src += srccn) {
         int t0 = src[ blue_idx ] * cscGb + src[ 1 ] * cscGg + src[ 2 ^ blue_idx ] * cscGr;
@@ -721,7 +632,6 @@ static CStatus icvBGRA2GRAY_8u(COLOR_FUN_ARGDEF)
       }
     }
   }
-
   return CC_OK;
 }
 
@@ -729,13 +639,11 @@ static CStatus icvBGRA2GRAY_16u(COLOR_FUN_ARGDEF)
 {
   int i;
   srcstep -= width * srccn;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i++, src += srccn) {
       dst[ i ] = (uchar) CC_DESCALE((unsigned)(src[ 0 ] * cscGb + src[ 1 ] * cscGg + src[ 2 ] * cscGr), csc_shift);
     }
   }
-
   return CC_OK;
 }
 
@@ -864,7 +772,7 @@ static CStatus icvYCrYCb2BGRA_##flavor(COLOR_FUN_ARGDEF)                        
 }
 
 CC_IMPL_YCrYCb2BGRA(8u, uchar, int, yuv_prescale, yuv_descale, CC_CAST_8U,
-    yuvBCb, yuvGCr, yuvGCb, yuvRCr, 128)
+                    yuvBCb, yuvGCr, yuvGCb, yuvRCr, 128)
 
 
 /****************************************************************************************\
@@ -1014,14 +922,11 @@ static CStatus icvABC2BGRA_8u(COLOR_FUN_ARGDEF, color_cvt_32f_f cvtfunc_32f, con
   float buffer[(1 << 8) * 3 ];    // = ( float* ) cvStackAlloc( block_size * 3 * sizeof( buffer[ 0 ] ) );
   int i, di, k;
   CStatus status = CC_OK;
-
   dststep -= width * dstcn;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i += block_size) {
       const uchar* src1 = src + i * 3;
       di = MIN(block_size, width - i);
-
       for (k = 0; k < di * 3; k += 3) {
         float a = CC_8TO32F(src1[ k ]) * pre_coeffs[ 0 ] + pre_coeffs[ 1 ];
         float b = CC_8TO32F(src1[ k + 1 ]) * pre_coeffs[ 2 ] + pre_coeffs[ 3 ];
@@ -1030,38 +935,30 @@ static CStatus icvABC2BGRA_8u(COLOR_FUN_ARGDEF, color_cvt_32f_f cvtfunc_32f, con
         buffer[ k + 1 ] = b;
         buffer[ k + 2 ] = c;
       }
-
       status = cvtfunc_32f(1, di, buffer, srcstep, srccn, buffer, dststep, dstcn, blue_idx);
-
       if (status < 0) {
         return status;
       }
-
       if (postscale) {
         for (k = 0; k < di * 3; k += 3, dst += dstcn) {
           int b = ROUND(buffer[ k ] * 255.);
           int g = ROUND(buffer[ k + 1 ] * 255.);
           int r = ROUND(buffer[ k + 2 ] * 255.);
-
           dst[ 0 ] = CC_CAST_8U(b);
           dst[ 1 ] = CC_CAST_8U(g);
           dst[ 2 ] = CC_CAST_8U(r);
-
           if (dstcn == 4) {
             dst[ 3 ] = 0;
           }
         }
-      }
-      else {
+      } else {
         for (k = 0; k < di * 3; k += 3, dst += dstcn) {
           int b = ROUND(buffer[ k ]);
           int g = ROUND(buffer[ k + 1 ]);
           int r = ROUND(buffer[ k + 2 ]);
-
           dst[ 0 ] = CC_CAST_8U(b);
           dst[ 1 ] = CC_CAST_8U(g);
           dst[ 2 ] = CC_CAST_8U(r);
-
           if (dstcn == 4) {
             dst[ 3 ] = 0;
           }
@@ -1069,7 +966,6 @@ static CStatus icvABC2BGRA_8u(COLOR_FUN_ARGDEF, color_cvt_32f_f cvtfunc_32f, con
       }
     }
   }
-
   return CC_OK;
 }
 
@@ -1082,43 +978,34 @@ static CStatus icvBGRA2ABC_8u(COLOR_FUN_ARGDEF, color_cvt_32f_f cvtfunc_32f, int
   float buffer[(1 << 8) * 3 ];    // = ( float* ) cvStackAlloc( block_size * 3 * sizeof( buffer[ 0 ] ) );
   int i, di, k;
   CStatus status = CC_OK;
-
   srcstep -= width * srccn;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i += block_size) {
       uchar* dst1 = dst + i * 3;
       di = MIN(block_size, width - i);
-
       if (prescale) {
         for (k = 0; k < di * 3; k += 3, src += srccn) {
           float b = CC_8TO32F(src[ 0 ]) * 0.0039215686274509803f;
           float g = CC_8TO32F(src[ 1 ]) * 0.0039215686274509803f;
           float r = CC_8TO32F(src[ 2 ]) * 0.0039215686274509803f;
-
           buffer[ k ] = b;
           buffer[ k + 1 ] = g;
           buffer[ k + 2 ] = r;
         }
-      }
-      else {
+      } else {
         for (k = 0; k < di * 3; k += 3, src += srccn) {
           float b = CC_8TO32F(src[ 0 ]);
           float g = CC_8TO32F(src[ 1 ]);
           float r = CC_8TO32F(src[ 2 ]);
-
           buffer[ k ] = b;
           buffer[ k + 1 ] = g;
           buffer[ k + 2 ] = r;
         }
       }
-
       status = cvtfunc_32f(1, di, buffer, srcstep, srccn, buffer, dststep, dstcn, blue_idx);
-
       if (status < 0) {
         return status;
       }
-
       for (k = 0; k < di * 3; k += 3) {
         int a = ROUND(buffer[ k ] * post_coeffs[ 0 ] + post_coeffs[ 1 ]);
         int b = ROUND(buffer[ k + 1 ] * post_coeffs[ 2 ] + post_coeffs[ 3 ]);
@@ -1129,7 +1016,6 @@ static CStatus icvBGRA2ABC_8u(COLOR_FUN_ARGDEF, color_cvt_32f_f cvtfunc_32f, int
       }
     }
   }
-
   return CC_OK;
 }
 
@@ -1180,9 +1066,7 @@ static const uchar icHue180To255[] = { //
 static CStatus icvBGRA2HSV_8u(COLOR_FUN_ARGDEF)
 {
   int i;
-
   const int hsv_shift = 12;
-
   static const int div_table[] = { //
     0, 1044480, 522240, 348160, 261120, 208896, 174080, 149211,
     130560, 116053, 104448, 94953, 87040, 80345, 74606, 69632,
@@ -1217,38 +1101,31 @@ static CStatus icvBGRA2HSV_8u(COLOR_FUN_ARGDEF)
     4352, 4334, 4316, 4298, 4281, 4263, 4246, 4229,
     4212, 4195, 4178, 4161, 4145, 4128, 4112, 4096
   };
-
   srcstep -= width * srccn;
   width *= 3;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i += 3, src += srccn) {
       int b = (src) [ 0 ], g = (src) [ 1 ], r = (src) [ 2 ^ 0 ];
       int h, s, v = b;
       int vmin = b, diff;
       int vr, vg;
-
       CC_CALC_MAX_8U(v, g);
       CC_CALC_MAX_8U(v, r);
       CC_CALC_MIN_8U(vmin, g);
       CC_CALC_MIN_8U(vmin, r);
-
       diff = v - vmin;
       vr = v == r ? -1 : 0;
       vg = v == g ? -1 : 0;
-
       s = diff * div_table[ v ] >> hsv_shift;
       h = (vr & (g - b)) +
           (~vr & ((vg & (b - r + 2 * diff)) + ((~vg) & (r - g + 4 * diff))));
       h = ((h * div_table[ diff ] * 15 + (1 << (hsv_shift + 6))) >> (7 + hsv_shift)) \
           + (h < 0 ? 30 * 6 : 0);
-
       dst[ i ] = (uchar) h;
       dst[ i + 1 ] = (uchar) s;
       dst[ i + 2 ] = (uchar) v;
     }
   }
-
   return CC_OK;
 }
 
@@ -1260,56 +1137,42 @@ static CStatus icvBGRA2HSV_32f(COLOR_FUN_ARGDEF_32F)
   dststep /= dstcn;
   srcstep -= width * srccn;
   width *= 3;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i += 3, src += srccn) {
       float b = src[ 0 ], g = src[ 1 ], r = src[ 2 ^ 0 ];
       float h, s, v;
-
       float vmin, diff;
-
       v = vmin = r;
-
       if (v < g) {
         v = g;
       }
-
       if (v < b) {
         v = b;
       }
-
       if (vmin > g) {
         vmin = g;
       }
-
       if (vmin > b) {
         vmin = b;
       }
-
       diff = v - vmin;
       s = diff / (float)(fabs(v) + FLT_EPSILON);
       diff = (float)(60. / (diff + FLT_EPSILON));
-
       if (v == r) {
         h = (g - b) * diff;
-      }
-      else if (v == g) {
+      } else if (v == g) {
         h = (b - r) * diff + 120.f;
-      }
-      else {
+      } else {
         h = (r - g) * diff + 240.f;
       }
-
       if (h < 0) {
         h += 360.f;
       }
-
       dstf[ i ] = h;
       dstf[ i + 1 ] = s;
       dstf[ i + 2 ] = v;
     }
   }
-
   return CC_OK;
 }
 
@@ -1318,51 +1181,40 @@ static CStatus icvHSV2BGRA_32f(COLOR_FUN_ARGDEF_32F)
   int i;
   dststep -= width * dstcn;
   width *= 3;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i += 3, dst += dstcn) {
       float h = src[ i ], s = src[ i + 1 ], v = src[ i + 2 ];
       float b, g, r;
-
       if (s == 0) {
         b = g = r = v;
-      }
-      else {
+      } else {
         static const int sector_data[][ 3 ] = { {1, 3, 0}, {1, 0, 2}, {3, 0, 1}, {0, 2, 1}, {0, 1, 3}, {2, 1, 0} };
         float tab[ 4 ];
         int sector;
         h *= 0.016666666666666666f; // h /= 60;
-
         if (h < 0)
           do {
             h += 6;
-          }
-          while (h < 0);
+          } while (h < 0);
         else if (h >= 6)
           do {
             h -= 6;
-          }
-          while (h >= 6);
-
+          } while (h >= 6);
         sector = FLOOR(h);
         h -= sector;
-
         tab[ 0 ] = v;
         tab[ 1 ] = v * (1.f - s);
         tab[ 2 ] = v * (1.f - s * h);
         tab[ 3 ] = v * (1.f - s * (1.f - h));
-
         b = tab[ sector_data[ sector ][ 0 ] ];
         g = tab[ sector_data[ sector ][ 1 ] ];
         r = tab[ sector_data[ sector ][ 2 ] ];
       }
-
       dst[ 0 ] = b;
       dst[ 1 ] = g;
       dst[ 2 ] = r;
     }
   }
-
   return CC_OK;
 }
 
@@ -1382,59 +1234,45 @@ static CStatus icvBGRA2HLS_32f(COLOR_FUN_ARGDEF_32F)
   int i;
   srcstep -= width * srccn;
   width *= 3;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i += 3, src += srccn) {
       float b = src[ 0 ], g = src[ 1 ], r = src[ 2 ^ 0 ];
       float h = 0.f, s = 0.f, l;
       float vmin, vmax, diff;
-
       vmax = vmin = r;
-
       if (vmax < g) {
         vmax = g;
       }
-
       if (vmax < b) {
         vmax = b;
       }
-
       if (vmin > g) {
         vmin = g;
       }
-
       if (vmin > b) {
         vmin = b;
       }
-
       diff = vmax - vmin;
       l = (vmax + vmin) * 0.5f;
-
       if (diff > FLT_EPSILON) {
         s = l < 0.5f ? diff / (vmax + vmin) : diff / (2 - vmax - vmin);
         diff = 60.f / diff;
-
         if (vmax == r) {
           h = (g - b) * diff;
-        }
-        else if (vmax == g) {
+        } else if (vmax == g) {
           h = (b - r) * diff + 120.f;
-        }
-        else {
+        } else {
           h = (r - g) * diff + 240.f;
         }
-
         if (h < 0.f) {
           h += 360.f;
         }
       }
-
       dst[ i ] = h;
       dst[ i + 1 ] = l;
       dst[ i + 2 ] = s;
     }
   }
-
   return CC_OK;
 }
 
@@ -1444,16 +1282,13 @@ static CStatus icvHLS2BGRA_32f(COLOR_FUN_ARGDEF_32F)
   int i;
   dststep -= width * dstcn;
   width *= 3;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i += 3, dst += dstcn) {
       float h = src[ i ], l = src[ i + 1 ], s = src[ i + 2 ];
       float b, g, r;
-
       if (s == 0) {
         b = g = r = l;
-      }
-      else {
+      } else {
         static const int sector_data[][ 3 ] = { {
             1, 3, 0
           }
@@ -1461,47 +1296,36 @@ static CStatus icvHLS2BGRA_32f(COLOR_FUN_ARGDEF_32F)
         };
         float tab[ 4 ];
         int sector;
-
         float p2 = l <= 0.5f ? l * (1 + s) : l + s - l * s;
         float p1 = 2 * l - p2;
-
         h *= 0.016666666666666666f; // h /= 60;
-
         if (h < 0)
           do {
             h += 6;
-          }
-          while (h < 0);
+          } while (h < 0);
         else if (h >= 6)
           do {
             h -= 6;
-          }
-          while (h >= 6);
-
+          } while (h >= 6);
         assert(0 <= h && h < 6);
         sector = FLOOR(h);
         h -= sector;
-
         tab[ 0 ] = p2;
         tab[ 1 ] = p1;
         tab[ 2 ] = p1 + (p2 - p1) * (1 - h);
         tab[ 3 ] = p1 + (p2 - p1) * h;
-
         b = tab[ sector_data[ sector ][ 0 ] ];
         g = tab[ sector_data[ sector ][ 1 ] ];
         r = tab[ sector_data[ sector ][ 2 ] ];
       }
-
       dst[ 0 ] = b;
       dst[ 1 ] = g;
       dst[ 2 ] = r;
-
       if (dstcn == 4) {
         dst[ 3 ] = 0;
       }
     }
   }
-
   return CC_OK;
 }
 
@@ -1510,7 +1334,6 @@ static CStatus icvBGRA2HLS_8u(COLOR_FUN_ARGDEF)
   static const float post_coeffs[] = {
     0.5f, 0.f, 255.f, 0.f, 255.f, 0.f
   };
-
   return icvBGRA2ABC_8u(COLOR_FUN_ARG, icvBGRA2HLS_32f, 1, post_coeffs);
 }
 
@@ -1521,7 +1344,6 @@ static CStatus icvHLS2BGRA_8u(COLOR_FUN_ARGDEF)
     2.f, 0.f, 0.0039215686274509803f, 0.f,
     0.0039215686274509803f, 0.f
   };
-
   return icvABC2BGRA_8u(COLOR_FUN_ARG, icvHLS2BGRA_32f, pre_coeffs, 1);
 }
 
@@ -1625,110 +1447,84 @@ static CStatus icvBGRA2Lab_8u(COLOR_FUN_ARGDEF)
   int i;
   srcstep -= width * srccn;
   width *= 3;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i += 3, src += srccn) {
       int b = src[ 0 ], g = src[ 1 ], r = src[ 2 ^ 0 ];
       int x, y, z, f;
       int L, a;
-
       x = b * labXb + g * labXg + r * labXr;
       y = b * labYb + g * labYg + r * labYr;
       z = b * labZb + g * labZg + r * labZr;
-
       f = x > labT;
       x = CC_DESCALE(x, lab_shift);
-
       if (f) {
         assert((unsigned) x < 512), x = icLabCubeRootTab[ x ];
-      }
-      else {
+      } else {
         x = CC_DESCALE(x * labSmallScale + labSmallShift, lab_shift);
       }
-
       f = z > labT;
       z = CC_DESCALE(z, lab_shift);
-
       if (f) {
         assert((unsigned) z < 512), z = icLabCubeRootTab[ z ];
-      }
-      else {
+      } else {
         z = CC_DESCALE(z * labSmallScale + labSmallShift, lab_shift);
       }
-
       f = y > labT;
       y = CC_DESCALE(y, lab_shift);
-
       if (f) {
         assert((unsigned) y < 512), y = icLabCubeRootTab[ y ];
         L = CC_DESCALE(y * labLScale - labLShift, 2 * lab_shift);
-      }
-      else {
+      } else {
         L = CC_DESCALE(y * labLScale2, lab_shift);
         y = CC_DESCALE(y * labSmallScale + labSmallShift, lab_shift);
       }
-
       a = CC_DESCALE(500 * (x - y), lab_shift) + 128;
       b = CC_DESCALE(200 * (y - z), lab_shift) + 128;
-
       dst[ i ] = CC_CAST_8U(L);
       dst[ i + 1 ] = CC_CAST_8U(a);
       dst[ i + 2 ] = CC_CAST_8U(b);
     }
   }
-
   return CC_OK;
 }
 
 static CStatus icvBGRA2Lab_32f(COLOR_FUN_ARGDEF_32F)
 {
   int i;
-
   srcstep -= width * srccn;
   width *= 3;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i += 3, src += srccn) {
       float b = src[ 0 ], g = src[ 1 ], r = src[ 2 ^ 0 ];
       float x, y, z;
       float L, a;
-
       x = b * labXb_32f + g * labXg_32f + r * labXr_32f;
       y = b * labYb_32f + g * labYg_32f + r * labYr_32f;
       z = b * labZb_32f + g * labZg_32f + r * labZr_32f;
-
       if (x > labT_32f) {
         x = scbrt(x);
-      }
-      else {
+      } else {
         x = x * labSmallScale_32f + labSmallShift_32f;
       }
-
       if (z > labT_32f) {
         z = scbrt(z);
-      }
-      else {
+      } else {
         z = z * labSmallScale_32f + labSmallShift_32f;
       }
-
       if (y > labT_32f) {
         y = scbrt(y);
         L = y * labLScale_32f - labLShift_32f;
-      }
-      else {
+      } else {
         L = y * labLScale2_32f;
         y = y * labSmallScale_32f + labSmallShift_32f;
       }
-
       a = 500.f * (x - y);
       b = 200.f * (y - z);
-
       dst[ i ] = L;
       dst[ i + 1 ] = a;
       dst[ i + 2 ] = b;
     }
   }
-
   return CC_OK;
 }
 
@@ -1736,37 +1532,30 @@ static CStatus icvBGRA2Lab_32f(COLOR_FUN_ARGDEF_32F)
 static CStatus icvLab2BGRA_32f(COLOR_FUN_ARGDEF_32F)
 {
   int i;
-
   dststep -= width * dstcn;
   width *= 3;
-
   for (; height--; src += srcstep, dst += dststep) {
     for (i = 0; i < width; i += 3, dst += dstcn) {
       float L = src[ i ], a = src[ i + 1 ], b = src[ i + 2 ];
       float x, y, z;
       float g, r;
-
       L = (L + labLShift_32f) * (1.f / labLScale_32f);
       x = (L + a * 0.002f);
       z = (L - b * 0.005f);
       y = L * L * L;
       x = x * x * x;
       z = z * z * z;
-
       b = x * labBx_32f + y * labBy_32f + z * labBz_32f;
       g = x * labGx_32f + y * labGy_32f + z * labGz_32f;
       r = x * labRx_32f + y * labRy_32f + z * labRz_32f;
-
       dst[ 0 ] = b;
       dst[ 1 ] = g;
       dst[ 2 ] = r;
-
       if (dstcn == 4) {
         dst[ 3 ] = 0;
       }
     }
   }
-
   return CC_OK;
 }
 
@@ -1859,25 +1648,20 @@ static CStatus icvBayer2BGRA_8u_impl(COLOR_FUN_ARGDEF, int src_type)
   int bayer_step = srcstep;
   int blue = src_type == T_BayerBG || src_type == T_BayerGB ? -1 : 1;
   int start_with_green = src_type == T_BayerGB || src_type == T_BayerGR;
-
   memset(dst0, 0, width * 3 * sizeof(dst0[ 0 ]));
   memset(dst0 + (height - 1) * dststep, 0, width * 3 * sizeof(dst0[ 0 ]));
   dst0 += dststep + 3 + 1;
   height -= 2;
   width -= 2;
-
   for (; height-- > 0; bayer0 += bayer_step, dst0 += dststep) {
     int t0, t1;
     const uchar* bayer = bayer0;
     uchar* dst = dst0;
     const uchar* bayer_end = bayer + width;
-
     dst[ -4 ] = dst[ -3 ] = dst[ -2 ] = dst[ width * 3 - 1 ] = dst[ width * 3 ] = dst[ width * 3 + 1 ] = 0;
-
     if (width <= 0) {
       continue;
     }
-
     if (start_with_green) {
       t0 = (bayer[ 1 ] + bayer[ bayer_step * 2 + 1 ] + 1) >> 1;
       t1 = (bayer[ bayer_step ] + bayer[ bayer_step + 2 ] + 1) >> 1;
@@ -1887,7 +1671,6 @@ static CStatus icvBayer2BGRA_8u_impl(COLOR_FUN_ARGDEF, int src_type)
       bayer++;
       dst += 3;
     }
-
     if (blue > 0) {
       for (; bayer <= bayer_end - 2; bayer += 2, dst += 6) {
         t0 = (bayer[ 0 ] + bayer[ 2 ] + bayer[ bayer_step * 2 ] + bayer[ bayer_step * 2 + 2 ] + 2) >> 2;
@@ -1895,22 +1678,19 @@ static CStatus icvBayer2BGRA_8u_impl(COLOR_FUN_ARGDEF, int src_type)
         dst[ -1 ] = (uchar) t0;
         dst[ 0 ] = (uchar) t1;
         dst[ 1 ] = bayer[ bayer_step + 1 ];
-
         t0 = (bayer[ 2 ] + bayer[ bayer_step * 2 + 2 ] + 1) >> 1;
         t1 = (bayer[ bayer_step + 1 ] + bayer[ bayer_step + 3 ] + 1) >> 1;
         dst[ 2 ] = (uchar) t0;
         dst[ 3 ] = bayer[ bayer_step + 2 ];
         dst[ 4 ] = (uchar) t1;
       }
-    }
-    else {
+    } else {
       for (; bayer <= bayer_end - 2; bayer += 2, dst += 6) {
         t0 = (bayer[ 0 ] + bayer[ 2 ] + bayer[ bayer_step * 2 ] + bayer[ bayer_step * 2 + 2 ] + 2) >> 2;
         t1 = (bayer[ 1 ] + bayer[ bayer_step ] + bayer[ bayer_step + 2 ] + bayer[ bayer_step * 2 + 1 ] + 2) >> 2;
         dst[ 1 ] = (uchar) t0;
         dst[ 0 ] = (uchar) t1;
         dst[ -1 ] = bayer[ bayer_step + 1 ];
-
         t0 = (bayer[ 2 ] + bayer[ bayer_step * 2 + 2 ] + 1) >> 1;
         t1 = (bayer[ bayer_step + 1 ] + bayer[ bayer_step + 3 ] + 1) >> 1;
         dst[ 4 ] = (uchar) t0;
@@ -1918,7 +1698,6 @@ static CStatus icvBayer2BGRA_8u_impl(COLOR_FUN_ARGDEF, int src_type)
         dst[ 2 ] = (uchar) t1;
       }
     }
-
     if (bayer < bayer_end) {
       t0 = (bayer[ 0 ] + bayer[ 2 ] + bayer[ bayer_step * 2 ] + bayer[ bayer_step * 2 + 2 ] + 2) >> 2;
       t1 = (bayer[ 1 ] + bayer[ bayer_step ] + bayer[ bayer_step + 2 ] + bayer[ bayer_step * 2 + 1 ] + 2) >> 2;
@@ -1928,11 +1707,9 @@ static CStatus icvBayer2BGRA_8u_impl(COLOR_FUN_ARGDEF, int src_type)
       bayer++;
       dst += 3;
     }
-
     blue = -blue;
     start_with_green = !start_with_green;
   }
-
   return CC_OK;
 }
 
@@ -1993,7 +1770,6 @@ CC_INLINE void move_420_block(int yTL, int yTR, int yBL, int yBR, int u, int v, 
   int r, g, b;
   unsigned char* rgb0 = rgb;
   unsigned char* rgb1 = rgb + dstcn;
-
   g = guScale * u + gvScale * v;
   //  if (force_rgb) {
   //      r = buScale * u;
@@ -2002,27 +1778,22 @@ CC_INLINE void move_420_block(int yTL, int yTR, int yBL, int yBR, int u, int v, 
   r = rvScale * v;
   b = buScale * u;
   //  }
-
   yTL *= yScale;
   yTR *= yScale;
   yBL *= yScale;
   yBR *= yScale;
-
   /* Write out top two pixels */
   rgb0[ blue_idx ] = LIMIT(b + yTL);
   rgb0[ 1 ] = LIMIT(g + yTL);
   rgb0[ 2 ^ blue_idx ] = LIMIT(r + yTL);
-
   rgb1[ blue_idx ] = LIMIT(b + yTR);
   rgb1[ 1 ] = LIMIT(g + yTR);
   rgb1[ 2 ^ blue_idx ] = LIMIT(r + yTR);
-
   /* Skip down to next line to write out bottom two pixels */
   rgb0 += dststep;
   rgb0[ blue_idx ] = LIMIT(b + yBL);
   rgb0[ 1 ] = LIMIT(g + yBL);
   rgb0[ 2 ^ blue_idx ] = LIMIT(r + yBL);
-
   rgb1[ blue_idx ] = LIMIT(b + yBR);
   rgb1[ 1 ] = LIMIT(g + yBR);
   rgb1[ 2 ^ blue_idx ] = LIMIT(r + yBR);
@@ -2038,7 +1809,6 @@ CC_INLINE void move_411_block(int yTL, int yTR, int yBL, int yBR, int u, int v, 
   int r, g, b;
   unsigned char* rgb0 = rgb;
   unsigned char* rgb1 = rgb + dstcn;
-
   g = guScale * u + gvScale * v;
   //  if (force_rgb) {
   //      r = buScale * u;
@@ -2047,27 +1817,22 @@ CC_INLINE void move_411_block(int yTL, int yTR, int yBL, int yBR, int u, int v, 
   r = rvScale * v;
   b = buScale * u;
   //  }
-
   yTL *= yScale;
   yTR *= yScale;
   yBL *= yScale;
   yBR *= yScale;
-
   /* Write out top two first pixels */
   rgb0[ blue_idx ] = LIMIT(b + yTL);
   rgb0[ 1 ] = LIMIT(g + yTL);
   rgb0[ 2 ^ blue_idx ] = LIMIT(r + yTL);
-
   rgb1[ blue_idx ] = LIMIT(b + yTR);
   rgb1[ 1 ] = LIMIT(g + yTR);
   rgb1[ 2 ^ blue_idx ] = LIMIT(r + yTR);
-
   /* Write out top two last pixels */
   rgb += 6;
   rgb0[ blue_idx ] = LIMIT(b + yBL);
   rgb0[ 1 ] = LIMIT(g + yBL);
   rgb0[ 2 ^ blue_idx ] = LIMIT(r + yBL);
-
   rgb1[ blue_idx ] = LIMIT(b + yBR);
   rgb1[ 1 ] = LIMIT(g + yBR);
   rgb1[ 2 ^ blue_idx ] = LIMIT(r + yBR);
@@ -2087,14 +1852,12 @@ CC_INLINE void move_411_block(int yTL, int yTR, int yBL, int yBR, int u, int v, 
 /* Converts from planar YUV420P to RGB24. */
 CC_INLINE int icvYUV420P2BGRA_8u_(COLOR_FUN_ARGDEF)
 {
-
   const int numpix = width * height;
   int i, j, y00, y01, y10, y11, u, v;
   const unsigned char* pY = src;
   const unsigned char* pU = pY + numpix;
   const unsigned char* pV = pU + numpix / 4;
   unsigned char* pOut = dst;
-
   for (j = 0; j <= height - 2; j += 2) {
     for (i = 0; i <= width - 2; i += 2) {
       y00 = *pY;
@@ -2103,18 +1866,13 @@ CC_INLINE int icvYUV420P2BGRA_8u_(COLOR_FUN_ARGDEF)
       y11 = *(pY + width + 1);
       u = (*pU++) - 128;
       v = (*pV++) - 128;
-
       move_420_block(y00, y01, y10, y11, u, v, dststep, dstcn, blue_idx, pOut);
-
       pY += 2;
       pOut += 2 * dstcn;
-
     }
-
     pY += width;
     pOut += dststep;
   }
-
   return CC_OK;
 }
 
@@ -2130,15 +1888,12 @@ CC_INLINE int icvYUV420P2BGRA_8u_(COLOR_FUN_ARGDEF)
 /* [FD] untested... */
 CC_INLINE int icvYUV4202BGRA_8u(COLOR_FUN_ARGDEF)
 {
-
   const int bytes = 24 >> 3;
   int i, j, y00, y01, y10, y11, u, v;
   const unsigned char* pY = src;
   const unsigned char* pU = pY + 4;
   const unsigned char* pV = pU + width;
   unsigned char* pOut = dst;
-
-
   for (j = 0; j <= height - 2; j += 2) {
     for (i = 0; i <= width - 4; i += 4) {
       y00 = *pY;
@@ -2147,30 +1902,22 @@ CC_INLINE int icvYUV4202BGRA_8u(COLOR_FUN_ARGDEF)
       y11 = *(pY + width + 1);
       u = (*pU++) - 128;
       v = (*pV++) - 128;
-
       move_420_block(y00, y01, y10, y11, u, v, dststep, dstcn, blue_idx, pOut);
-
       pY += 2;
       pOut += 2 * bytes;
-
       y00 = *pY;
       y01 = *(pY + 1);
       y10 = *(pY + width);
       y11 = *(pY + width + 1);
       u = (*pU++) - 128;
       v = (*pV++) - 128;
-
       move_420_block(y00, y01, y10, y11, u, v, dststep, dstcn, blue_idx, pOut);
-
       pY += 4; // skip UV
       pOut += 2 * bytes;
-
     }
-
     pY += width;
     pOut += width * bytes;
   }
-
   return CC_OK;
 }
 
@@ -2198,7 +1945,6 @@ CC_INLINE int icvYUV411P2BGRA_8u(COLOR_FUN_ARGDEF)
   const unsigned char* pU = pY + numpix;
   const unsigned char* pV = pU + numpix / 4;
   unsigned char* pOut = dst;
-
   for (j = 0; j < height; j++) {
     for (i = 0; i < width - 4; i += 4) {
       y00 = *pY;
@@ -2207,14 +1953,11 @@ CC_INLINE int icvYUV411P2BGRA_8u(COLOR_FUN_ARGDEF)
       y11 = *(pY + 3);
       u = (*pU++) - 128;
       v = (*pV++) - 128;
-
       move_411_block(y00, y01, y10, y11, u, v, dststep, dstcn, blue_idx, pOut);
-
       pY += 4;
       pOut += 4 * bytes;
     }
   }
-
   return CC_OK;
 }
 
@@ -2225,12 +1968,10 @@ CC_INLINE int icvYUV411P2BGRA_8u(COLOR_FUN_ARGDEF)
 CC_INLINE int icvYUYV2BGRA_8u(COLOR_FUN_ARGDEF)
 {
   int i, c, r, g, b, cr, cg, cb, y1, y2;
-
-  for (i=0; i<height; ++i) {
-    const unsigned char* s = src + i*srcstep;
-    unsigned char* d = dst + i*dststep;
+  for (i = 0; i < height; ++i) {
+    const unsigned char* s = src + i * srcstep;
+    unsigned char* d = dst + i * dststep;
     c = width >> 1;
-    
     while (c--) {
       y1 = *s++;
       cb = ((*s - 128) * 454) >> 8;
@@ -2238,45 +1979,38 @@ CC_INLINE int icvYUYV2BGRA_8u(COLOR_FUN_ARGDEF)
       y2 = *s++;
       cr = ((*s - 128) * 359) >> 8;
       cg = (cg + (*s++ - 128) * 183) >> 8;
-
       r = y1 + cr;
       b = y1 + cb;
       g = y1 - cg;
       SAT(r);
       SAT(g);
       SAT(b);
-      
       d[blue_idx] = b;
       d[1] = g;
       d[2 ^ blue_idx] = r;
       d += dstcn;
-
       r = y2 + cr;
       b = y2 + cb;
       g = y2 - cg;
       SAT(r);
       SAT(g);
       SAT(b);
-      
       d[blue_idx] = b;
       d[1] = g;
       d[2 ^ blue_idx] = r;
       d += dstcn;
     }
   }
-
   return CC_OK;
 }
 
 CC_INLINE int icvUYVY2BGRA_8u(COLOR_FUN_ARGDEF)
 {
   int i, c, r, g, b, cr, cg, cb, y1, y2;
-  
-  for (i=0; i<height; ++i) {
-    const uchar* s = src + i*srcstep;
-    unsigned char* d = dst + i*dststep;
+  for (i = 0; i < height; ++i) {
+    const uchar* s = src + i * srcstep;
+    unsigned char* d = dst + i * dststep;
     c = width >> 1;
-
     while (c--) {
       cb = ((*s - 128) * 454) >> 8;
       cg = (*s++ - 128) * 88;
@@ -2284,97 +2018,76 @@ CC_INLINE int icvUYVY2BGRA_8u(COLOR_FUN_ARGDEF)
       cr = ((*s - 128) * 359) >> 8;
       cg = (cg + (*s++ - 128) * 183) >> 8;
       y2 = *s++;
-
       r = y1 + cr;
       b = y1 + cb;
       g = y1 - cg;
       SAT(r);
       SAT(g);
       SAT(b);
-      
       d[blue_idx] = b;
       d[1] = g;
       d[2 ^ blue_idx] = r;
       d += dstcn;
-
       r = y2 + cr;
       b = y2 + cb;
       g = y2 - cg;
       SAT(r);
       SAT(g);
       SAT(b);
-      
       d[blue_idx] = b;
       d[1] = g;
       d[2 ^ blue_idx] = r;
       d += dstcn;
     }
   }
-
   return CC_OK;
 }
 
 CC_INLINE int icvYUYV2GRAY_8u(COLOR_FUN_ARGDEF)
 {
-
   const unsigned char* s;
   unsigned char* d;
   int l, c, y1, y2;
-
   for (l = 0; l < height; ++l) {
     s = src + l * srcstep;
     d = dst + l * dststep;
-
     for (c = 0; c < width; c += 4) {
       y1 = s[0];
       y2 = s[2];
-
       d[0] = y1;
       d[1] = y2;
-
       y1 = s[4];
       y2 = s[6];
-
       d[2] = y1;
       d[3] = y2;
-
       s += 8;
       d += 4;
     }
   }
-
   return CC_OK;
 }
 
 CC_INLINE int icvUYVY2GRAY_8u(COLOR_FUN_ARGDEF)
 {
-
   const unsigned char* s;
   unsigned char* d;
   int l, c, y1, y2;
-
   for (l = 0; l < height; ++l) {
     s = src + l * srcstep;
     d = dst + l * dststep;
-
     for (c = 0; c < width; c += 4) {
       y1 = s[1];
       y2 = s[3];
-
       d[0] = y1;
       d[1] = y2;
-
       y1 = s[5];
       y2 = s[7];
-
       d[2] = y1;
       d[3] = y2;
-
       s += 8;
       d += 4;
     }
   }
-
   return CC_OK;
 }
 
@@ -2383,29 +2096,22 @@ CC_INLINE int icvGRAY2UYVY_8u(COLOR_FUN_ARGDEF)
   const unsigned char* s;
   unsigned char* d;
   int l, c, y1, y2;
-
   for (l = 0; l < height; ++l) {
     s = src + l * srcstep;
     d = dst + l * dststep;
-
     for (c = 0; c < width; c += 4) {
       y1 = s[0];
       y2 = s[1];
-
       d[1] = y1;
       d[3] = y2;
-
       y1 = s[2];
       y2 = s[3];
-
       d[5] = y1;
       d[7] = y2;
-
       s += 4;
       d += 8;
     }
   }
-
   return CC_OK;
 }
 
@@ -2414,29 +2120,22 @@ CC_INLINE int icvGRAY2YUYV_8u(COLOR_FUN_ARGDEF)
   const unsigned char* s;
   unsigned char* d;
   int l, c, y1, y2;
-  
   for (l = 0; l < height; ++l) {
     s = src + l * srcstep;
     d = dst + l * dststep;
-    
     for (c = 0; c < width; c += 4) {
       y1 = s[0];
       y2 = s[1];
-      
       d[0] = y1;
       d[2] = y2;
-      
       y1 = s[2];
       y2 = s[3];
-      
       d[4] = y1;
       d[6] = y2;
-      
       s += 4;
       d += 8;
     }
   }
-  
   return CC_OK;
 }
 
@@ -2449,69 +2148,60 @@ CC_INLINE int bayer2rgb24(COLOR_FUN_ARGDEF)
   const unsigned char* rawpt;
   unsigned char* scanpt;
   long int size;
-
   rawpt = src;
   scanpt = dst;
   size = width * height;
-
   for (i = 0; i < size; i++) {
     if ((i / width) % 2 == 0) {
       if ((i % 2) == 0) {
         /* B */
         if ((i > width) && ((i % width) > 0)) {
           *scanpt++ = (*(rawpt - width - 1) + * (rawpt - width + 1) +
-              * (rawpt + width - 1) + * (rawpt + width + 1)) / 4;             /* R */
+                       * (rawpt + width - 1) + * (rawpt + width + 1)) / 4;             /* R */
           *scanpt++ = (*(rawpt - 1) + * (rawpt + 1) +
-              * (rawpt + width) + * (rawpt - width)) / 4;                 /* G */
+                       * (rawpt + width) + * (rawpt - width)) / 4;                 /* G */
           *scanpt++ = *rawpt;                             /* B */
-        }
-        else {
+        } else {
           /* first line or left column */
           *scanpt++ = *(rawpt + width + 1);                     /* R */
           *scanpt++ = (*(rawpt + 1) + * (rawpt + width)) / 2;           /* G */
           *scanpt++ = *rawpt;                             /* B */
         }
-      }
-      else {
+      } else {
         /* (B)G */
         if ((i > width) && ((i % width) < (width - 1))) {
           *scanpt++ = (*(rawpt + width) + * (rawpt - width)) / 2;       /* R */
           *scanpt++ = *rawpt;                             /* G */
           *scanpt++ = (*(rawpt - 1) + * (rawpt + 1)) / 2;               /* B */
-        }
-        else {
+        } else {
           /* first line or right column */
           *scanpt++ = *(rawpt + width);       /* R */
           *scanpt++ = *rawpt;             /* G */
           *scanpt++ = *(rawpt - 1);           /* B */
         }
       }
-    }
-    else {
+    } else {
       if ((i % 2) == 0) {
         /* G(R) */
         if ((i < (width * (height - 1))) && ((i % width) > 0)) {
           *scanpt++ = (*(rawpt - 1) + * (rawpt + 1)) / 2;               /* R */
           *scanpt++ = *rawpt;                                     /* G */
           *scanpt++ = (*(rawpt + width) + * (rawpt - width)) / 2;       /* B */
-        }
-        else {
+        } else {
           /* bottom line or left column */
           *scanpt++ = *(rawpt + 1);           /* R */
           *scanpt++ = *rawpt;                     /* G */
           *scanpt++ = *(rawpt - width);               /* B */
         }
-      }
-      else {
+      } else {
         /* R */
         if (i < (width * (height - 1)) && ((i % width) < (width - 1))) {
           *scanpt++ = *rawpt;                                     /* R */
           *scanpt++ = (*(rawpt - 1) + * (rawpt + 1) +
-              * (rawpt - width) + * (rawpt + width)) / 4;         /* G */
+                       * (rawpt - width) + * (rawpt + width)) / 4;         /* G */
           *scanpt++ = (*(rawpt - width - 1) + * (rawpt - width + 1) +
-              * (rawpt + width - 1) + * (rawpt + width + 1)) / 4;     /* B */
-        }
-        else {
+                       * (rawpt + width - 1) + * (rawpt + width + 1)) / 4;     /* B */
+        } else {
           /* bottom line or right column */
           *scanpt++ = *rawpt;                             /* R */
           *scanpt++ = (*(rawpt - 1) + * (rawpt - width)) / 2;           /* G */
@@ -2519,10 +2209,8 @@ CC_INLINE int bayer2rgb24(COLOR_FUN_ARGDEF)
         }
       }
     }
-
     rawpt++;
   }
-
   return CC_OK;
 }
 
@@ -2537,11 +2225,9 @@ CC_INLINE int icvSGBRG2BGRA_8u(COLOR_FUN_ARGDEF)
   const unsigned char* rawpt;
   unsigned char* scanpt;
   long int size;
-
   rawpt = src;
   scanpt = dst;
   size = width * height;
-
   for (i = 0; i < size; i++) {
     if ((i / width) % 2 == 0) {    //even row
       if ((i % 2) == 0) {    //even pixel
@@ -2549,63 +2235,51 @@ CC_INLINE int icvSGBRG2BGRA_8u(COLOR_FUN_ARGDEF)
           *scanpt++ = (*(rawpt - 1) + * (rawpt + 1)) / 2;            /* R */
           *scanpt++ = *(rawpt);                          /* G */
           *scanpt++ = (*(rawpt - width) + * (rawpt + width)) / 2;           /* B */
-        }
-        else {
+        } else {
           /* first line or left column */
           *scanpt++ = *(rawpt + 1);            /* R */
           *scanpt++ = *(rawpt);                /* G */
           *scanpt++ = *(rawpt + width);        /* B */
         }
-      }
-      else { //odd pixel
+      } else { //odd pixel
         if ((i > width) && ((i % width) < (width - 1))) {
           *scanpt++ = *(rawpt);         /* R */
           *scanpt++ = (*(rawpt - 1) + * (rawpt + 1) + * (rawpt - width) + * (rawpt + width)) / 4;        /* G */
           *scanpt++ = (*(rawpt - width - 1) + * (rawpt - width + 1) + * (rawpt + width - 1) + * (rawpt + width + 1)) / 4;             /* B */
-        }
-        else {
+        } else {
           /* first line or right column */
-
           *scanpt++ = *(rawpt);         /* R */
           *scanpt++ = (*(rawpt - 1) + * (rawpt + width)) / 2;      /* G */
           *scanpt++ = *(rawpt + width - 1);        /* B */
         }
       }
-    }
-    else {   //odd row
+    } else { //odd row
       if ((i % 2) == 0) {    //even pixel
         if ((i < (width * (height - 1))) && ((i % width) > 0)) {
           *scanpt++ = (*(rawpt - width - 1) + * (rawpt - width + 1) + * (rawpt + width - 1) + * (rawpt + width + 1)) / 4;                 /* R */
           *scanpt++ = (*(rawpt - 1) + * (rawpt + 1) + * (rawpt - width) + * (rawpt + width)) / 4;             /* G */
           *scanpt++ = *(rawpt);   /* B */
-        }
-        else {
+        } else {
           /* bottom line or left column */
-
           *scanpt++ = *(rawpt - width + 1);            /* R */
           *scanpt++ = (*(rawpt + 1) + * (rawpt - width)) / 2;           /* G */
           *scanpt++ = *(rawpt);   /* B */
         }
-      }
-      else {   //odd pixel
+      } else { //odd pixel
         if (i < (width * (height - 1)) && ((i % width) < (width - 1))) {
           *scanpt++ = (*(rawpt - width) + * (rawpt + width)) / 2;       /* R */
           *scanpt++ = *(rawpt);        /* G */
           *scanpt++ = (*(rawpt - 1) + * (rawpt + 1)) / 2;      /* B */
-        }
-        else {
+        } else {
           /* bottom line or right column */
-
           *scanpt++ = (*(rawpt - width));      /* R */
           *scanpt++ = *(rawpt);        /* G */
           *scanpt++ = (*(rawpt - 1));     /* B */
         }
       }
     }
-
     rawpt++;
   }
-
   return CC_OK;
 }
 
@@ -2633,64 +2307,52 @@ CC_INLINE void sonix_decompress_init(void)
 {
   int i;
   int is_abs, val, len;
-
   for (i = 0; i < 256; i++) {
     is_abs = 0;
     val = 0;
     len = 0;
-
     if ((i & 0x80) == 0) {
       /* code 0 */
       val = 0;
       len = 1;
-    }
-    else if ((i & 0xE0) == 0x80) {
+    } else if ((i & 0xE0) == 0x80) {
       /* code 100 */
       val = + 4;
       len = 3;
-    }
-    else if ((i & 0xE0) == 0xA0) {
+    } else if ((i & 0xE0) == 0xA0) {
       /* code 101 */
       val = -4;
       len = 3;
-    }
-    else if ((i & 0xF0) == 0xD0) {
+    } else if ((i & 0xF0) == 0xD0) {
       /* code 1101 */
       val = + 11;
       len = 4;
-    }
-    else if ((i & 0xF0) == 0xF0) {
+    } else if ((i & 0xF0) == 0xF0) {
       /* code 1111 */
       val = -11;
       len = 4;
-    }
-    else if ((i & 0xF8) == 0xC8) {
+    } else if ((i & 0xF8) == 0xC8) {
       /* code 11001 */
       val = + 20;
       len = 5;
-    }
-    else if ((i & 0xFC) == 0xC0) {
+    } else if ((i & 0xFC) == 0xC0) {
       /* code 110000 */
       val = -20;
       len = 6;
-    }
-    else if ((i & 0xFC) == 0xC4) {
+    } else if ((i & 0xFC) == 0xC4) {
       /* code 110001xx: unknown */
       val = 0;
       len = 8;
-    }
-    else if ((i & 0xF0) == 0xE0) {
+    } else if ((i & 0xF0) == 0xE0) {
       /* code 1110xxxx */
       is_abs = 1;
       val = (i & 0x0F) << 4;
       len = 8;
     }
-
     table[ i ].is_abs = is_abs;
     table[ i ].val = val;
     table[ i ].len = len;
   }
-
   init_done = 1;
 }
 
@@ -2710,7 +2372,6 @@ CC_INLINE void sonix_decompress_init(void)
 */
 CC_INLINE int sonix_decompress(COLOR_FUN_ARGDEF)
 {
-
   int row, col;
   int val;
   int bitpos;
@@ -2718,66 +2379,51 @@ CC_INLINE int sonix_decompress(COLOR_FUN_ARGDEF)
   const unsigned char* addr;
   const unsigned char* inp = src;
   unsigned char* outp = dst;
-
   if (!init_done) {
     /* do sonix_decompress_init first! */
     return -1;
   }
-
   bitpos = 0;
-
   for (row = 0; row < height; row++) {
-
     col = 0;
-
     /* first two pixels in first two rows are stored as raw 8-bit */
     if (row < 2) {
       addr = inp + (bitpos >> 3);
       code = (addr[ 0 ] << (bitpos & 7)) | (addr[ 1 ] >> (8 - (bitpos & 7)));
       bitpos += 8;
       *outp++ = code;
-
       addr = inp + (bitpos >> 3);
       code = (addr[ 0 ] << (bitpos & 7)) | (addr[ 1 ] >> (8 - (bitpos & 7)));
       bitpos += 8;
       *outp++ = code;
-
       col += 2;
     }
-
     while (col < width) {
       /* get bitcode from bitstream */
       addr = inp + (bitpos >> 3);
       code = (addr[ 0 ] << (bitpos & 7)) | (addr[ 1 ] >> (8 - (bitpos & 7)));
-
       /* update bit position */
       bitpos += table[ code ].len;
-
       /* calculate pixel value */
       val = table[ code ].val;
-
       if (!table[ code ].is_abs) {
         /* value is relative to top and left pixel */
         if (col < 2) {
           /* left column: relative to top pixel */
           val += outp[ -2 * width ];
-        }
-        else if (row < 2) {
+        } else if (row < 2) {
           /* top row: relative to left pixel */
           val += outp[ -2 ];
-        }
-        else {
+        } else {
           /* main area: average of left pixel and top pixel */
           val += (outp[ -2 ] + outp[ -2 * width ]) / 2;
         }
       }
-
       /* store pixel */
       *outp++ = CLAMP255(val);
       col++;
     }
   }
-
   return CC_OK;
 }
 
@@ -2805,12 +2451,10 @@ CC_INLINE int icvYUVInitTable()
 {
   int crv, cbu, cgu, cgv;
   int i, ind;
-
   crv = 104597;
   cbu = 132201;  /* fra matrise i global.h */
   cgu = 25675;
   cgv = 53279;
-
   for (i = 0; i < 256; i++) {
     YUV2RGB_RV[ i ] = (i - 128) * crv;
     YUV2RGB_BU[ i ] = (i - 128) * cbu;
@@ -2818,23 +2462,17 @@ CC_INLINE int icvYUVInitTable()
     YUV2RGB_GV[ i ] = (i - 128) * cgv;
     YUV2RGB_76309[ i ] = 76309 * (i - 16);
   }
-
   for (i = 0; i < 384; i++) {
     YUV2RGB_CLP[ i ] = 0;
   }
-
   ind = 384;
-
   for (i = 0; i < 256; i++) {
     YUV2RGB_CLP[ ind++ ] = i;
   }
-
   ind = 640;
-
   for (i = 0; i < 384; i++) {
     YUV2RGB_CLP[ ind++ ] = 255;
   }
-
   {
     for (i = 0; i < 256; ++i) {
       YUV2RGB_YY[ i ] = (4767 * i) >> 12;
@@ -2844,7 +2482,6 @@ CC_INLINE int icvYUVInitTable()
       YUV2RGB_VR[ i ] = (4747 * (i - 128)) >> 12;
     }
   }
-
   // Table used for RGB to YUV420 conversion
   for (i = 0; i < 256; i++) {
     RGB2YUV_YR[ i ] = (int)((float) 65.481 * (i << 8));
@@ -2856,7 +2493,6 @@ CC_INLINE int icvYUVInitTable()
     RGB2YUV_VB[ i ] = (int)((float) 18.214 * (i << 8));
     RGB2YUV_UBVR[ i ] = (int)((float) 112 * (i << 8));
   }
-
   return CC_OK;
 }
 
@@ -2901,25 +2537,21 @@ CC_INLINE int icvYUYV2BGRA_8u_table(COLOR_FUN_ARGDEF)
 {
   int i, j;
   static int inityuvtab = 0;
-
   if (inityuvtab == 0) {
     icvYUVInitTable();
     inityuvtab = 1;
   }
-
   //printf("%d\n", inittab);
   for (i = 0; i < height; ++i) {
     unsigned int yuv_uv[ 2 ] = {0, 0}; // {u0, v1};
     const unsigned char* src0 = src + i * srcstep;
     unsigned char* dst0 = dst + i * dststep;
-
     for (j = 0; j < width; ++j, src0 += srccn, dst0 += dstcn) {
       // UYVY标准  [U0 Y0 V0 Y1] [U1 Y2 V1 Y3] [U2 Y4 V2 Y5] 每像素点两个字节，[内]为四个字节
       yuv_uv[(j & 1) ] = src0[ 1 ];
       YUV2RGB(src0[ 0 ], yuv_uv[ 0 ], yuv_uv[ 1 ], dst0[ 2 ], dst0[ 1 ], dst0[ 0 ]);
     }
   }
-
   return CC_OK;
 }
 
@@ -2927,23 +2559,18 @@ CC_INLINE int icvYUYV2BGRA_8u_table(COLOR_FUN_ARGDEF)
 
 CC_INLINE int icvPYUV4222BGR_8u(COLOR_FUN_ARGDEF)
 {
-
   int i, j, offset1, offset2, index;
   int y, u, v, yy, b, g, r;
   static int inityuvtab = 0;
-
   if (inityuvtab == 0) {
     icvYUVInitTable();
     inityuvtab = 1;
   }
-
   offset1 = width * height;
   offset2 = offset1 + (width >> 1) * height;
-
   for (i = 0; i < height; i++) {
     int widthOffset1 = i * width;
     int index1 = widthOffset1 * dstcn;
-
     for (j = 0; j < width; j += 2) {
       y = src[ widthOffset1 + j ];
       u = src[ offset1 + ((widthOffset1 + j) >> 1) ];
@@ -2952,12 +2579,10 @@ CC_INLINE int icvPYUV4222BGR_8u(COLOR_FUN_ARGDEF)
       b = YUV2RGB_YY[ yy ] + YUV2RGB_UB[ u ];
       g = YUV2RGB_YY[ yy ] - YUV2RGB_UG[ u ] - YUV2RGB_VG[ v ];
       r = YUV2RGB_YY[ yy ] + YUV2RGB_VR[ v ];
-
       index = index1 + j * dstcn;
       dst[ index ]     = CC_CAST_8U(b);
       dst[ index + 1 ] = CC_CAST_8U(g);
       dst[ index + 2 ] = CC_CAST_8U(r);
-
       y = src[ widthOffset1 + (j + 1) ];
       u = src[ offset1 + ((widthOffset1 + (j + 1)) >> 1) ];
       v = src[ offset2 + ((widthOffset1 + (j + 1)) >> 1) ];
@@ -2965,14 +2590,12 @@ CC_INLINE int icvPYUV4222BGR_8u(COLOR_FUN_ARGDEF)
       b = YUV2RGB_YY[ yy ] + YUV2RGB_UB[ u ];
       g = YUV2RGB_YY[ yy ] - YUV2RGB_UG[ u ] - YUV2RGB_VG[ v ];
       r = YUV2RGB_YY[ yy ] + YUV2RGB_VR[ v ];
-
       index = index1 + (j + 1) * dstcn;
       dst[ index ]     = CC_CAST_8U(b);
       dst[ index + 1 ] = CC_CAST_8U(g);
       dst[ index + 2 ] = CC_CAST_8U(r);
     }
   }
-
   return CC_OK;
 }
 
@@ -2984,7 +2607,6 @@ CC_INLINE int icvYUV420P2BGR_8u(COLOR_FUN_ARGDEF)
   const unsigned char* py1, *py2;
   const unsigned char* src0, *src1, *src2;
   unsigned char* d1, *d2;
-
   src0 = src;
   src1 = src + height * width;
   src2 = src1 + (width >> 1) * height;
@@ -2992,7 +2614,6 @@ CC_INLINE int icvYUV420P2BGR_8u(COLOR_FUN_ARGDEF)
   py2 = py1 + width;
   d1 = dst;
   d2 = d1 + dststep;
-
   for (j = 0; j < height; j += 2) {
     for (i = 0; i < width; i += 2) {
       u = *src1++;
@@ -3001,38 +2622,32 @@ CC_INLINE int icvYUV420P2BGR_8u(COLOR_FUN_ARGDEF)
       c2 = YUV2RGB_GU[ u ];
       c3 = YUV2RGB_GV[ v ];
       c4 = YUV2RGB_BU[ u ];
-
       //up-left
       y1 = YUV2RGB_76309[ *py1++ ];
       *d1++ = YUV2RGB_CLP[ 384 + ((y1 + c4) >> 16) ];
       *d1++ = YUV2RGB_CLP[ 384 + ((y1 - c2 - c3) >> 16) ];
       *d1++ = YUV2RGB_CLP[ 384 + ((y1 + c1) >> 16) ];
-
       //down-left
       y2 = YUV2RGB_76309[ *py2++ ];
       *d2++ = YUV2RGB_CLP[ 384 + ((y2 + c4) >> 16) ];
       *d2++ = YUV2RGB_CLP[ 384 + ((y2 - c2 - c3) >> 16) ];
       *d2++ = YUV2RGB_CLP[ 384 + ((y2 + c1) >> 16) ];
-
       //up-right
       y1 = YUV2RGB_76309[ *py1++ ];
       *d1++ = YUV2RGB_CLP[ 384 + ((y1 + c4) >> 16) ];
       *d1++ = YUV2RGB_CLP[ 384 + ((y1 - c2 - c3) >> 16) ];
       *d1++ = YUV2RGB_CLP[ 384 + ((y1 + c1) >> 16) ];
-
       //down-right
       y2 = YUV2RGB_76309[ *py2++ ];
       *d2++ = YUV2RGB_CLP[ 384 + ((y2 + c4) >> 16) ];
       *d2++ = YUV2RGB_CLP[ 384 + ((y2 - c2 - c3) >> 16) ];
       *d2++ = YUV2RGB_CLP[ 384 + ((y2 + c1) >> 16) ];
     }
-
     d1 += dststep;
     d2 += dststep;
     py1 += width;
     py2 += width;
   }
-
   return CC_OK;
 }
 
@@ -3074,17 +2689,14 @@ CC_INLINE int icvBGRA2YUV420P_8u_(COLOR_FUN_ARGDEF)
   UNUSED(y10);
   icvYUVInitTable();
   srcstep -= width * srccn;
-
   // planar YUV420P
   pY = dst, pU = pY + numpix, pV = pU + numpix / 4;
-
   //Get YUV values for rgb values...
   for (i = 0; i < height; i += 2, src += srcstep) {
     for (j = 0; j < width;) {
       YUV420_3x2_BLOCK();
     }
   }
-
   return CC_OK;
 }
 
@@ -3099,9 +2711,7 @@ CC_INLINE int icvBGRA2YUV420_8u(COLOR_FUN_ARGDEF)
   UNUSED(y10);
   icvYUVInitTable();
   srcstep -= width * srccn;
-
   pY = dst, pU = pY + 4, pV = pU + dststep;
-
   //Get YUV values for rgb values...
   for (i = 0; i < height; i += 2, src += srcstep) {
     for (j = 0; j < width;) {
@@ -3110,8 +2720,6 @@ CC_INLINE int icvBGRA2YUV420_8u(COLOR_FUN_ARGDEF)
       pY += 2, pU += 4, pV += 4, j += 2;
     }
   }
-
-
   return CC_OK;
 }
 
@@ -3142,16 +2750,13 @@ CC_INLINE int icvYUV420P2BGRA_8u(COLOR_FUN_ARGDEF)
   const uchar* u1 = src + sz;
   const uchar* v1 = src + sz + sz / 4;
   const int bIdx = blue_idx;
-
   for (j = 0; j < height - 1; j += 2, y1 += 2 * stride, u1 += stride2, v1 += stride2) {
     uchar* row1 = dst + (j) * dststep;
     uchar* row2 = dst + (j + 1) * dststep;
     const uchar* y2 = y1 + stride;
-
     for (i = 0; i < width / 2; i += 1, row1 += dstcn * 2, row2 += dstcn * 2) {
       int u = (u1[i]) - 128;
       int v = (v1[i]) - 128;
-
       int ruv = (1 << (ITUR_BT_601_SHIFT - 1)) + ITUR_BT_601_CVR * v;
       int guv = (1 << (ITUR_BT_601_SHIFT - 1)) + ITUR_BT_601_CVG * v + ITUR_BT_601_CUG * u;
       int buv = (1 << (ITUR_BT_601_SHIFT - 1)) + ITUR_BT_601_CUB * u;
@@ -3160,26 +2765,22 @@ CC_INLINE int icvYUV420P2BGRA_8u(COLOR_FUN_ARGDEF)
       uchar* row11 = row1 + dstcn;
       uchar* row21 = row2 + dstcn;
       int y00, y01, y10, y11;
-
 #define CLIP255(x)   ((uchar)BOUND(x, 0, 255))
       y00 = (int)(y1[2 * i]) - 16;
       y00 = MAX(0, y00) * ITUR_BT_601_CY;
       row10[2 - bIdx] = CLIP255((y00 + ruv) >> ITUR_BT_601_SHIFT);
       row10[1]      = CLIP255((y00 + guv) >> ITUR_BT_601_SHIFT);
       row10[bIdx]   = CLIP255((y00 + buv) >> ITUR_BT_601_SHIFT);
-
       y01 = (int)(y1[2 * i + 1]) - 16;
       y01 = MAX(0, y01) * ITUR_BT_601_CY;
       row11[2 - bIdx] = CLIP255((y01 + ruv) >> ITUR_BT_601_SHIFT);
       row11[1]      = CLIP255((y01 + guv) >> ITUR_BT_601_SHIFT);
       row11[bIdx]   = CLIP255((y01 + buv) >> ITUR_BT_601_SHIFT);
-
       y10 = (int)(y2[2 * i]) - 16;
       y10 = MAX(0, y10) * ITUR_BT_601_CY;
       row20[2 - bIdx] = CLIP255((y10 + ruv) >> ITUR_BT_601_SHIFT);
       row20[1]      = CLIP255((y10 + guv) >> ITUR_BT_601_SHIFT);
       row20[bIdx]   = CLIP255((y10 + buv) >> ITUR_BT_601_SHIFT);
-
       y11 = (int)(y2[2 * i + 1]) - 16;
       y11 = MAX(0, y11) * ITUR_BT_601_CY;
       row21[2 - bIdx] = CLIP255((y11 + ruv) >> ITUR_BT_601_SHIFT);
@@ -3187,7 +2788,6 @@ CC_INLINE int icvYUV420P2BGRA_8u(COLOR_FUN_ARGDEF)
       row21[bIdx]   = CLIP255((y11 + buv) >> ITUR_BT_601_SHIFT);
     }
   }
-
   return 0;
 }
 
@@ -3202,17 +2802,13 @@ CC_INLINE int icvBGRA2YUV420P_8u(COLOR_FUN_ARGDEF)
   uchar* y = dst;
   uchar* u = dst + sz;
   uchar* v = dst + sz + sz / 4;
-
   enum { shifted16 = (16 << ITUR_BT_601_SHIFT), halfShift = (1 << (ITUR_BT_601_SHIFT - 1)), shifted128 = (128 << ITUR_BT_601_SHIFT) };
-
   for (i = 0; i < height / 2; i++, y += 2 * stride, u += stride2, v += stride2) {
     const uchar* row0 = src + (2 * i) * srcstep;
     const uchar* row1 = src + (2 * i + 1) * srcstep;
-
     if (uIdx == 2) {
       T_SWAP(uchar*, u, v);
     }
-
     for (j = 0, k = 0; j < width * cn; j += 2 * cn, k++) {
       int r00 = row0[2 - bIdx + j];
       int g00 = row0[1 + j];
@@ -3226,26 +2822,21 @@ CC_INLINE int icvBGRA2YUV420P_8u(COLOR_FUN_ARGDEF)
       int r11 = row1[2 - bIdx + cn + j];
       int g11 = row1[1 + cn + j];
       int b11 = row1[bIdx + cn + j];
-
       int y00 = ITUR_BT_601_CRY * r00 + ITUR_BT_601_CGY * g00 + ITUR_BT_601_CBY * b00 + halfShift + shifted16;
       int y01 = ITUR_BT_601_CRY * r01 + ITUR_BT_601_CGY * g01 + ITUR_BT_601_CBY * b01 + halfShift + shifted16;
       int y10 = ITUR_BT_601_CRY * r10 + ITUR_BT_601_CGY * g10 + ITUR_BT_601_CBY * b10 + halfShift + shifted16;
       int y11 = ITUR_BT_601_CRY * r11 + ITUR_BT_601_CGY * g11 + ITUR_BT_601_CBY * b11 + halfShift + shifted16;
       int u00, v00;
-
       y[2 * k + 0]         = CLIP255(y00 >> ITUR_BT_601_SHIFT);
       y[2 * k + 1]         = CLIP255(y01 >> ITUR_BT_601_SHIFT);
       y[2 * k + width + 0] = CLIP255(y10 >> ITUR_BT_601_SHIFT);
       y[2 * k + width + 1] = CLIP255(y11 >> ITUR_BT_601_SHIFT);
-
       u00 = ITUR_BT_601_CRU * r00 + ITUR_BT_601_CGU * g00 + ITUR_BT_601_CBU * b00 + halfShift + shifted128;
       v00 = ITUR_BT_601_CBU * r00 + ITUR_BT_601_CGV * g00 + ITUR_BT_601_CBV * b00 + halfShift + shifted128;
-
       u[k] = CLIP255(u00 >> ITUR_BT_601_SHIFT);
       v[k] = CLIP255(v00 >> ITUR_BT_601_SHIFT);
     }
   }
-
   return 0;
 }
 
@@ -3260,11 +2851,8 @@ CC_INLINE int icvRGBA2YUV420P_8u(COLOR_FUN_ARGDEF)
   int r00, r01, r10, r11, y00, y01, y10, y11;
   int g00, g01, g10, g11, u00, u01, u10, u11;
   int b00, b01, b10, b11, v00, v01, v10, v11;
-
   srcstep -= width * srccn;
-
   pY = dst, pU = pY + width * height, pV = pU + width * height /;
-
   //Get YUV values for rgb values...
   for (i = 0; i < height; i += 2, src += srcstep) {
     for (j = 0; j < width; j += 2) {
@@ -3273,8 +2861,6 @@ CC_INLINE int icvRGBA2YUV420P_8u(COLOR_FUN_ARGDEF)
       pY += 2, pU += 4, pV += 4;
     }
   }
-
-
   return CC_OK;
 }
 #endif
@@ -3296,22 +2882,18 @@ CC_INLINE int icvBGRA2YUV_8u(COLOR_FUN_ARGDEF)
 {
   int i, j;
   int Y, U, V;
-
   // [Y U V]
   for (i = 0; i < height; ++i, src += srcstep, dst += dststep) {
     for (j = 0; j < width; ++j, src += srccn, dst += dstcn) {
       int B = (src) [ blue_idx ], G = (src) [ 1 ], R = (src) [ 2 ^ blue_idx ];
-
       Y = (unsigned char)((66 * R + 129 * G + 25 * B + 128) >> 8) + 16;
       U = (unsigned char)((-38 * R - 74 * G + 112 * B + 128) >> 8) + 128;
       V = (unsigned char)((112 * R - 94 * G - 18 * B + 128) >> 8) + 128;
-
       dst[ 0 ] = CC_CAST_8U(Y);
       dst[ 1 ] = CC_CAST_8U(V);
       dst[ 2 ] = CC_CAST_8U(U);
     }
   }
-
   return CC_OK;
 }
 
@@ -3323,24 +2905,20 @@ CC_INLINE int icvBGRA2YUYV_8u(COLOR_FUN_ARGDEF)
   // [Y U Y V]
   srcstep -= width * srccn;
   dststep -= width * dstcn;
-
   for (i = 0; i < height; ++i, src += srcstep, YUV += dststep) {
     for (j = 0; j < width; ++j, src += srccn, YUV += dstcn) {
       int B = (src) [ blue_idx ], G = (src) [ 1 ], R = (src) [ 2 ^ blue_idx ];
       Y = (unsigned char)((66 * R + 129 * G + 25 * B + 128) >> 8) + 16;
       YUV[ 0 ] = CC_CAST_8U(Y);
-
       if (j & 1) {
         V = ((112 * R - 94 * G - 18 * B + 128) >> 8) + 128;
         YUV[ 1 ] = CC_CAST_8U(V);
-      }
-      else {
+      } else {
         U = ((-38 * R - 74 * G + 112 * B + 128) >> 8) + 128;
         YUV[ 1 ] = CC_CAST_8U(U);
       }
     }
   }
-
   return CC_OK;
 }
 
@@ -3352,24 +2930,20 @@ CC_INLINE int icvBGRA2UYVY_8u(COLOR_FUN_ARGDEF)
   // [U Y V Y]
   srcstep -= width * srccn;
   dststep -= width * dstcn;
-
   for (i = 0; i < height; ++i, src += srcstep, uyvy += dststep) {
     for (j = 0; j < width; ++j, src += srccn, uyvy += dstcn) {
       int B = (src) [ blue_idx ], G = (src) [ 1 ], R = (src) [ 2 ^ blue_idx ];
       Y = (unsigned char)((66 * R + 129 * G + 25 * B + 128) >> 8) + 16;
       uyvy[ 1 ] = CC_CAST_8U(Y);
-
       if (j & 1) {
         V = ((112 * R - 94 * G - 18 * B + 128) >> 8) + 128;
         uyvy[ 0 ] = CC_CAST_8U(V);
-      }
-      else {
+      } else {
         U = ((-38 * R - 74 * G + 112 * B + 128) >> 8) + 128;
         uyvy[ 0 ] = CC_CAST_8U(U);
       }
     }
   }
-
   return CC_OK;
 }
 
@@ -3378,41 +2952,35 @@ CC_INLINE int yuv4222yuv420a(COLOR_FUN_ARGDEF)
   //#define iSourLinePitch  720
   int iSourLoc = 0;
   int iDstLoc = 0;
-
   //  while()
   int ilineNum = 0;
   int iRow = 0;
   iSourLoc = 0;
   iDstLoc = 0;
-
   iSourLoc += srcstep * height;
   iDstLoc += srcstep * height;
-
   for (ilineNum = 0; ilineNum < height / 2; ilineNum++) {
     for (iRow = 0; iRow < width / 2; iRow++) {
       *(dst + iDstLoc + ilineNum * dststep / 2 + iRow) = (
-          *(src + iSourLoc + (ilineNum * 2 + 0) * srcstep / 2 + iRow * 2 + 0) +
-          * (src + iSourLoc + (ilineNum * 2 + 0) * srcstep / 2 + iRow * 2 + 1) +
-          * (src + iSourLoc + (ilineNum * 2 + 1) * srcstep / 2 + iRow * 2 + 0) +
-          * (src + iSourLoc + (ilineNum * 2 + 1) * srcstep / 2 + iRow * 2 + 1)
+            *(src + iSourLoc + (ilineNum * 2 + 0) * srcstep / 2 + iRow * 2 + 0) +
+            * (src + iSourLoc + (ilineNum * 2 + 0) * srcstep / 2 + iRow * 2 + 1) +
+            * (src + iSourLoc + (ilineNum * 2 + 1) * srcstep / 2 + iRow * 2 + 0) +
+            * (src + iSourLoc + (ilineNum * 2 + 1) * srcstep / 2 + iRow * 2 + 1)
           ) >> 2;
     }
   }
-
   iSourLoc += srcstep / 2 * height;
   iDstLoc += width * height / 4;
-
   for (ilineNum = 0; ilineNum < height / 2; ilineNum++) {
     for (iRow = 0; iRow < width / 2; iRow++) {
       *(dst + iDstLoc + ilineNum * dststep / 2 + iRow) = (
-          *(src + iSourLoc + (ilineNum * 2 + 0) * srcstep / 2 + iRow * 2 + 0) +
-          * (src + iSourLoc + (ilineNum * 2 + 0) * srcstep / 2 + iRow * 2 + 1) +
-          * (src + iSourLoc + (ilineNum * 2 + 1) * srcstep / 2 + iRow * 2 + 0) +
-          * (src + iSourLoc + (ilineNum * 2 + 1) * srcstep / 2 + iRow * 2 + 1)
+            *(src + iSourLoc + (ilineNum * 2 + 0) * srcstep / 2 + iRow * 2 + 0) +
+            * (src + iSourLoc + (ilineNum * 2 + 0) * srcstep / 2 + iRow * 2 + 1) +
+            * (src + iSourLoc + (ilineNum * 2 + 1) * srcstep / 2 + iRow * 2 + 0) +
+            * (src + iSourLoc + (ilineNum * 2 + 1) * srcstep / 2 + iRow * 2 + 1)
           ) >> 2;
     }
   }
-
   return 1;
 }
 
@@ -3421,14 +2989,12 @@ CC_INLINE int yuyv2uyvy(COLOR_FUN_ARGDEF)
   int i, numpix = width * height;
   const unsigned char* yuyv = (uchar*)src;
   unsigned char* uyvy = dst, t0, t1;
-
   for (i = 0; i < numpix * 2; i += 2) {
     t0 = yuyv[i];
     t1 = yuyv[i + 1];
     uyvy[i + 1] = t0;
     uyvy[i] = t1;
   }
-
   return 0;
 }
 
@@ -3441,7 +3007,6 @@ CC_INLINE int yuv4222yuv420(COLOR_FUN_ARGDEF)
   unsigned char* poutU = poutY + numpix;
   unsigned char* poutV = poutU + numpix / 4;
   //unsigned char* pOut = dst;
-
   for (j = 0; j <= height - 2; j += 2) {
     for (i = 0; i <= width - 2; i += 2) {
       y00 = *pY;
@@ -3461,15 +3026,14 @@ CC_INLINE int yuv4222yuv420(COLOR_FUN_ARGDEF)
       pY += 4;
       poutY += 2;
     }
-
     pY += 2 * width;
     poutY += width;
   }
-
   return 0;
 }
 
-static int get_blue_idx(ColorSpace c) {
+static int get_blue_idx(ColorSpace c)
+{
   int idx = -1;
   switch (c) {
   case T_RGB:
@@ -3478,10 +3042,10 @@ static int get_blue_idx(ColorSpace c) {
   case T_BGRA:
   case T_BGR:
     idx = 0;
-  break;
+    break;
   default:
-	  idx = -1;
-	  break;
+    idx = -1;
+    break;
   }
   return idx;
 }
@@ -3491,22 +3055,20 @@ static int colorcvt(int height, int width, const uchar* src, int srcstep, int sr
 {
   int src_blue_idx = get_blue_idx(srctype);
   int dst_blue_idx = get_blue_idx(dsttype);
-  int i, blue_idx = src_blue_idx>=0 ? src_blue_idx : dst_blue_idx;
+  int i, blue_idx = src_blue_idx >= 0 ? src_blue_idx : dst_blue_idx;
   int scn = colorcn(srctype);
   int dcn = colorcn(dsttype);
   srccn = MAX(srccn, scn);
   dstcn = MAX(dstcn, dcn);
-  srctype = src_blue_idx<0 ? srctype : T_BGRA;
-  dsttype = dst_blue_idx<0 ? dsttype : T_BGRA;
-  srcstep = MAX(srcstep, srccn*width);
-  dststep = MAX(dststep, dstcn*width);
-  
-  if (src_blue_idx>=0 && dst_blue_idx>=0) {
+  srctype = src_blue_idx < 0 ? srctype : T_BGRA;
+  dsttype = dst_blue_idx < 0 ? dsttype : T_BGRA;
+  srcstep = MAX(srcstep, srccn * width);
+  dststep = MAX(dststep, dstcn * width);
+  if (src_blue_idx >= 0 && dst_blue_idx >= 0) {
     if (src_blue_idx == dst_blue_idx) {
-      if (srccn==dstcn) {
+      if (srccn == dstcn) {
         matcpy(dst, dststep, src, srcstep, height, width * srccn);
-      }
-      else {
+      } else {
         srcstep -= width * srccn;
         dststep -= width * dstcn;
         for (; height--; src += srcstep, dst += dststep) {
@@ -3532,10 +3094,9 @@ static int colorcvt(int height, int width, const uchar* src, int srcstep, int sr
     }
     return 1;
   }
-  
 #define COLORCVT_CASE(A, B)  case ((T_##A << 8) | T_##B): { icv##A##2##B##_8u(COLOR_FUN_ARG); } break
 #define COLORCVT_CASE2(A, B)  COLORCVT_CASE(A, B);COLORCVT_CASE(B, A)
-  switch ((srctype<<8) | dsttype) {
+  switch ((srctype << 8) | dsttype) {
     COLORCVT_CASE(RGB, BGR);
     COLORCVT_CASE(RGB, BGRA);
     COLORCVT_CASE(BayerGR, BGRA);
@@ -3563,7 +3124,6 @@ static int colorcvt(int height, int width, const uchar* src, int srcstep, int sr
     printf("colorcvt not suppot %d type to %d type\n", srctype, dsttype);
     break;
   }
-
   return dstcn;
 }
 
@@ -3571,7 +3131,7 @@ static int imcolorcvt(const img_t* ims, img_t* imd, ColorSpace _SC, ColorSpace _
 {
   int dstcn = colorcn(_DC);
   img_t im1[1] _INIT0;
-  if (ims==imd) {
+  if (ims == imd) {
     imclone2(ims, im1);
     ims = im1;
   }

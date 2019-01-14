@@ -97,8 +97,7 @@ static void* memflip(void* dst, int dl, const void* src, int sl, int h, int w)
   const char* s = (const char*)(src);
   if (d == s && dl == sl) {
     matflip(h, w, dst, dl);
-  }
-  else {
+  } else {
     d += (h - 1) * dl;
     for (; h--; s += sl, d -= dl) {
       memcpy(d, s, w);
@@ -192,7 +191,7 @@ typedef struct buf_t {
 #define BF_MEM_MAGIC  (0x55667788)
 #define ALIGN_TO(_X, ALIGN) ( ((size_t)(_X) + ALIGN - 1) & ~(size_t)(ALIGN - 1) )
 typedef struct bf_mem_tail_t {
-  uint magic;
+  uint32_t magic;
   //int line;
   //char file[256];
 } bf_mem_tail_t;
@@ -204,7 +203,7 @@ typedef struct bf_mem_head_t {
   int line;
   struct bf_mem_head_t* next, *prev;
   bf_mem_tail_t* tail;
-  uint magic;
+  uint32_t magic;
 } bf_mem_head_t;
 //
 #define bfinit(bf, _p, _n)  ((bf)->len=_n, (bf)->data = (unsigned char*)_p)
@@ -237,8 +236,7 @@ static int bf_malloc(buf_t* bf, void* p, int n)
     //ASSERT(len <= bf->len && "¿Õ¼ä²»¹»");
     printf("bf_malloc error : Memory space is not enough!!\n");
     *(void**)p = NULL;
-  }
-  else {
+  } else {
     //bf_maxlen = MAX(bf_maxlen, bf->len);
     //bf_malloc_maxlen = MAX(bf_maxlen, bf->len-len);
     bf->len -= len;
@@ -280,17 +278,17 @@ static void* cpu_realloc(void* p, size_t n) { return realloc(p, n); }
 static void cpu_free(void* p) { free(p); }
 static void* copy_cpu2cpu(void* dst, const void* src, size_t n) { return memcpy(dst, src, n); }
 typedef void* (*mem_copy_t)(void* dst, const void* src, size_t n);
-static mem_copy_t mem_copy[2][2] = { copy_cpu2cpu ,NULL, NULL, NULL };
+static mem_copy_t mem_copy[2][2] = { copy_cpu2cpu , NULL, NULL, NULL };
 static mem_t cpu_mem[1] = { CPUMEM, cpu_realloc , cpu_free };
 static mem_t cpu_mem_nul[1] = { CPUMEM, NULL , NULL };
-static void* mem_realloc(void* p, size_t newn, mem_t* newmem, size_t oldn, mem_t* oldmem) {
+static void* mem_realloc(void* p, size_t newn, mem_t* newmem, size_t oldn, mem_t* oldmem)
+{
   void* newp = NULL;
   newmem = newmem ? newmem : cpu_mem;
   oldmem = oldmem ? oldmem : cpu_mem;
   if (newmem == oldmem) {
     newp = newmem->realloc_(p, newn);
-  }
-  else {
+  } else {
     newp = newmem->realloc_(NULL, newn);
     mem_copy[newmem->type_][oldmem->type_](newp, p, oldn);
     if (oldmem->free_) { oldmem->free_(p); }

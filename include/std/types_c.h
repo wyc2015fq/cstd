@@ -13,8 +13,7 @@ typedef union suf32_t {
   uint32 u;
   float f;
   uchar c[4];
-  struct _fp32Format
-  {
+  struct _fp32Format {
     unsigned int significand : 23;
     unsigned int exponent : 8;
     unsigned int sign : 1;
@@ -94,7 +93,8 @@ typedef enum {
 } TypeCnId;
 
 
-CC_INLINE int cvTypeSize(TypeId type) {
+CC_INLINE int cvTypeSize(TypeId type)
+{
   static int _type_size_tab[16] = { 0 };
   if (0 == _type_size_tab[CC_8U]) {
 #define TYPEDEF(a,b,c,d)  _type_size_tab[a]=c;
@@ -104,7 +104,8 @@ CC_INLINE int cvTypeSize(TypeId type) {
   return _type_size_tab[type];
 }
 
-CC_INLINE char* cvTypeName(TypeId type) {
+CC_INLINE char* cvTypeName(TypeId type)
+{
   static char* _type_name_tab[16] = { 0 };
   if (NULL == _type_name_tab[CC_8U]) {
 #define TYPEDEF(a,b,c,d)  _type_name_tab[a]= (char*)#a ;
@@ -222,7 +223,8 @@ TYPECVTDEF(CC_64F,f8,8,double,CC_64S,s8,8,int64) \
 TYPECVTDEF(CC_64F,f8,8,double,CC_32F,f4,4,float) \
 TYPECVTDEF(CC_64F,f8,8,double,CC_64F,f8,8,double)
 
-static void* arrcvt(void* dst, TypeId dst_type, const void* src, TypeId src_type, int n) {
+static void* arrcvt(void* dst, TypeId dst_type, const void* src, TypeId src_type, int n)
+{
   int i = 0;
   if (NULL == dst) {}
   switch ((dst_type << 8) | src_type) {
@@ -233,12 +235,12 @@ static void* arrcvt(void* dst, TypeId dst_type, const void* src, TypeId src_type
   }
   return dst;
 }
-static void* arrcvt2(void* dst, TypeId dst_type, const void* src, TypeId src_type, int n, double alpha, double beta) {
+static void* arrcvt2(void* dst, TypeId dst_type, const void* src, TypeId src_type, int n, double alpha, double beta)
+{
   BOOL noScale = fabs(alpha - 1) < DBL_EPSILON && fabs(beta) < DBL_EPSILON;
   if (noScale) {
     return arrcvt(dst, dst_type, src, src_type, n);
-  }
-  else {
+  } else {
     int i = 0;
     if (NULL == dst) {}
     switch ((dst_type << 8) | src_type) {
@@ -252,11 +254,12 @@ static void* arrcvt2(void* dst, TypeId dst_type, const void* src, TypeId src_typ
     return dst;
   }
 }
-static void* arrcvt2d(void* dst, TypeId dsttype, int dl, const void* src, TypeId srctype, int sl, int h, int w, double alpha, double beta) {
+static void* arrcvt2d(void* dst, TypeId dsttype, int dl, const void* src, TypeId srctype, int sl, int h, int w, double alpha, double beta)
+{
   char* d = (char*)(dst);
   const char* s = (const char*)(src);
-  int dw = w*(dsttype >> 16);
-  int sw = w*(srctype >> 16);
+  int dw = w * (dsttype >> 16);
+  int sw = w * (srctype >> 16);
   dl = dl > 0 ? dl : dw;
   sl = sl > 0 ? sl : sw;
   if (dl == dw && sl == sw) {
@@ -402,7 +405,8 @@ static DataSize dataSize(int _number, int _channels, int _height, int _width)
   ret.w = _width;
   return ret;
 }
-static int dataCount(DataSize size, int start, int end) {
+static int dataCount(DataSize size, int start, int end)
+{
   int count = 1;
   start = BOUND(start, 0, end);
   end = BOUND(end, start, 4);
@@ -527,7 +531,8 @@ CC_INLINE ISize iSize(int w, int h)
   sz.w = w, sz.h = h;
   return sz;
 }
-CC_INLINE FSIZE fSIZE(float w, float h) {
+CC_INLINE FSIZE fSIZE(float w, float h)
+{
   FSIZE s;
   s.w = w;
   s.h = h;
@@ -638,24 +643,23 @@ CC_INLINE int iRectInclude(IRECT r1, IRECT r2)
   iRectNormalize(&r2);
   return r1.l <= r2.l && r1.t <= r2.l && r1.r >= r2.r && r1.b >= r2.b;
 }
-CC_INLINE int iRectBoundUpdate(IRECT* prc, int x, int y) {
+CC_INLINE int iRectBoundUpdate(IRECT* prc, int x, int y)
+{
   if (x < prc->l) {
     prc->l = x;
-  }
-  else if (x > prc->r) {
+  } else if (x > prc->r) {
     prc->r = x;
   }
   if (y < prc->t) {
     prc->t = y;
-  }
-  else if (y > prc->b) {
+  } else if (y > prc->b) {
     prc->b = y;
   }
   return 0;
 }
 CC_INLINE IRECT iRectInter(IRECT r1, IRECT r2)
 {
-  IRECT temp = { 0,0,0,0 };
+  IRECT temp = { 0, 0, 0, 0 };
   iRectNormalize(&r1);
   iRectNormalize(&r2);
   // check for total exclusion
@@ -669,7 +673,7 @@ CC_INLINE IRECT iRectInter(IRECT r1, IRECT r2)
 }
 CC_INLINE FRECT fRectInter(FRECT r1, FRECT r2)
 {
-  FRECT temp = { 0,0,0,0 };
+  FRECT temp = { 0, 0, 0, 0 };
   fRectNormalize(&r1);
   fRectNormalize(&r2);
   // check for total exclusion
@@ -711,7 +715,8 @@ CC_INLINE IRECT iRectOffset2(IRECT rc, int x, int y)
   rc.r += x, rc.b += y;
   return rc;
 }
-CC_INLINE IRECT iRectOffsetTo2(IRECT rc, int x, int y) {
+CC_INLINE IRECT iRectOffsetTo2(IRECT rc, int x, int y)
+{
   rc.l += x, rc.t += y;
   rc.r += x, rc.b += y;
   return rc;
@@ -786,7 +791,8 @@ CC_INLINE int iPtInRects(int n, const IRECT* rc, int x, int y)
   }
   return -1;
 }
-CC_INLINE int iPtInRectsBorder(IRECT rc, BOOL horz, int n, const float* v, int gap, int x, int y, int ex) {
+CC_INLINE int iPtInRectsBorder(IRECT rc, BOOL horz, int n, const float* v, int gap, int x, int y, int ex)
+{
   int i;
   float l = (float)rc.l;
   float t = (float)rc.t;
@@ -794,17 +800,16 @@ CC_INLINE int iPtInRectsBorder(IRECT rc, BOOL horz, int n, const float* v, int g
     for (i = 0; i < (n - 1); ++i) {
       float r = l + v[i];
       float l1 = r + gap;
-      if (x > (r - ex) && x<(l1 + ex) && y>rc.t && y < rc.b) {
+      if (x > (r - ex) && x < (l1 + ex) && y > rc.t && y < rc.b) {
         return i;
       }
       l = l1;
     }
-  }
-  else {
+  } else {
     for (i = 0; i < (n - 1); ++i) {
       float b = t + v[i];
       float t1 = b + gap;
-      if (y > (b - ex) && y<(t1 + ex) && x>rc.l && x < rc.r) {
+      if (y > (b - ex) && y < (t1 + ex) && x > rc.l && x < rc.r) {
         return i;
       }
       t = t1;
@@ -816,11 +821,9 @@ CC_INLINE int iPtInRectsBorder(IRECT rc, BOOL horz, int n, const float* v, int g
 CC_INLINE int iPtInRectBorder(const IRECT* prc, int x, int y, int l, int t, int r, int b)
 {
   IRECT rc = iRectOffset(*prc, -l, -t, r, b);
-
   if (iPtInRect(&rc, x, y) && !iPtInRect(prc, x, y)) {
     return (x < prc->l) << 0 | (x > prc->r) << 1 | (y < prc->t) << 2 | (y > prc->b) << 3;
   }
-
   return 0;
 }
 CC_INLINE IRECT iRectToSquare(IRECT rc)
@@ -832,7 +835,8 @@ CC_INLINE IRECT iRectToSquare(IRECT rc)
 }
 
 // 自定义函数，计算两矩形 IOU，传入为均为矩形对角线，（x,y）  坐标。·
-CC_INLINE double iRectIOU(IRECT Reframe, IRECT GTframe) {
+CC_INLINE double iRectIOU(IRECT Reframe, IRECT GTframe)
+{
   double ratio;
   int x1 = Reframe.l;
   int y1 = Reframe.t;
@@ -842,23 +846,19 @@ CC_INLINE double iRectIOU(IRECT Reframe, IRECT GTframe) {
   int y2 = GTframe.t;
   int width2 = GTframe.r - GTframe.l;
   int height2 = GTframe.b - GTframe.t;
-
   int endx = MAX(x1 + width1, x2 + width2);
   int startx = MIN(x1, x2);
   int width = width1 + width2 - (endx - startx);
-
   int endy = MAX(y1 + height1, y2 + height2);
   int starty = MIN(y1, y2);
   int height = height1 + height2 - (endy - starty);
-
   if (width <= 0 || height <= 0) {
     ratio = 0; // 重叠率为 0
-  }
-  else {
-    int Area = width*height; // 两矩形相交面积
-    int Area1 = width1*height1;
-    int Area2 = width2*height2;
-    ratio = Area*1. / (Area1 + Area2 - Area);
+  } else {
+    int Area = width * height; // 两矩形相交面积
+    int Area1 = width1 * height1;
+    int Area2 = width2 * height2;
+    ratio = Area * 1. / (Area1 + Area2 - Area);
   }
   // return IOU
   return ratio;
@@ -868,7 +868,8 @@ CC_INLINE double iRectIOU(IRECT Reframe, IRECT GTframe) {
 struct IRect {
   int x, y, width, height;
 };
-static IRect iRect(int _x, int _y, int _width, int _height) {
+static IRect iRect(int _x, int _y, int _width, int _height)
+{
   IRect r;
   r.x = _x;
   r.y = _y;
@@ -876,7 +877,8 @@ static IRect iRect(int _x, int _y, int _width, int _height) {
   r.height = _height;
   return r;
 }
-static IRect iRect2(IPoint pt, ISize sz) {
+static IRect iRect2(IPoint pt, ISize sz)
+{
   IRect r;
   r.x = pt.x;
   r.y = pt.y;
@@ -885,13 +887,16 @@ static IRect iRect2(IPoint pt, ISize sz) {
   return r;
 }
 template <typename IRect, typename IPoint> static
-bool contains(IRect r, IPoint pt) {
+bool contains(IRect r, IPoint pt)
+{
   return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height;
 }
-static bool contains(IRect r, IPoint pt) {
+static bool contains(IRect r, IPoint pt)
+{
   return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height;
 }
-static bool inside(IPoint pt, IRect r) {
+static bool inside(IPoint pt, IRect r)
+{
   return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height;
 }
 
@@ -910,11 +915,12 @@ VECN_DEF_DEF(16);
 /////////////////////////////////////////////////////////
 
 #include <malloc.h>
-size_t my_msize(const void* p) {
+size_t my_msize(const void* p)
+{
 #ifdef _WIN32
-    return _msize((void*)p);
+  return _msize((void*)p);
 #else
-    return malloc_usable_size((void*)p);
+  return malloc_usable_size((void*)p);
 #endif
 }
 

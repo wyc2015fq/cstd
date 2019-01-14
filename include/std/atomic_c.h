@@ -35,9 +35,9 @@ typedef volatile int atomic_t;
  * @param i integer value to add
  * @param v pointer of type atomic_t
  */
-static inline int atomic_add( int i, atomic_t *v )
+static inline int atomic_add( int i, atomic_t* v )
 {
-	return __sync_add_and_fetch(v, i);
+  return __sync_add_and_fetch(v, i);
 }
 
 /**
@@ -47,9 +47,9 @@ static inline int atomic_add( int i, atomic_t *v )
  *
  * Atomically subtracts @i from @v.
  */
-static inline int atomic_sub( int i, atomic_t *v )
+static inline int atomic_sub( int i, atomic_t* v )
 {
-	return __sync_sub_and_fetch(v, i);
+  return __sync_sub_and_fetch(v, i);
 }
 
 /**
@@ -61,9 +61,9 @@ static inline int atomic_sub( int i, atomic_t *v )
  * true if the result is zero, or false for all
  * other cases.
  */
-static inline int atomic_sub_and_test( int i, atomic_t *v )
+static inline int atomic_sub_and_test( int i, atomic_t* v )
 {
-	return !(__sync_sub_and_fetch(v, i));
+  return !(__sync_sub_and_fetch(v, i));
 }
 
 /**
@@ -72,9 +72,9 @@ static inline int atomic_sub_and_test( int i, atomic_t *v )
  *
  * Atomically increments @v by 1.
  */
-static inline int atomic_inc( atomic_t *v )
+static inline int atomic_inc( atomic_t* v )
 {
-	return __sync_fetch_and_add(v, 1);
+  return __sync_fetch_and_add(v, 1);
 }
 
 /**
@@ -84,9 +84,9 @@ static inline int atomic_inc( atomic_t *v )
  * Atomically decrements @v by 1.  Note that the guaranteed
  * useful range of an atomic_t is only 24 bits.
  */
-static inline int atomic_dec( atomic_t *v )
+static inline int atomic_dec( atomic_t* v )
 {
-	return __sync_fetch_and_sub(v, 1);
+  return __sync_fetch_and_sub(v, 1);
 }
 
 /**
@@ -97,9 +97,9 @@ static inline int atomic_dec( atomic_t *v )
  * returns true if the result is 0, or false for all other
  * cases.
  */
-static inline int atomic_dec_and_test( atomic_t *v )
+static inline int atomic_dec_and_test( atomic_t* v )
 {
-	return !(__sync_sub_and_fetch(v, 1));
+  return !(__sync_sub_and_fetch(v, 1));
 }
 
 /**
@@ -110,9 +110,9 @@ static inline int atomic_dec_and_test( atomic_t *v )
  * and returns true if the result is zero, or false for all
  * other cases.
  */
-static inline int atomic_inc_and_test( atomic_t *v )
+static inline int atomic_inc_and_test( atomic_t* v )
 {
-	return !(__sync_add_and_fetch(v, 1));
+  return !(__sync_add_and_fetch(v, 1));
 }
 
 /**
@@ -124,9 +124,9 @@ static inline int atomic_inc_and_test( atomic_t *v )
  * if the result is negative, or false when
  * result is greater than or equal to zero.
  */
-static inline int atomic_add_negative( int i, atomic_t *v )
+static inline int atomic_add_negative( int i, atomic_t* v )
 {
-	return (__sync_add_and_fetch(v, i) < 0);
+  return (__sync_add_and_fetch(v, i) < 0);
 }
 #endif //
 

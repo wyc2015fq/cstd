@@ -4,11 +4,11 @@
 
 #include "stddef_c.h"
 
-enum ICONV_CODEPAGE{
+enum ICONV_CODEPAGE {
   ICONV_NULL,
-    ICONV_GB2312,
-    ICONV_UTF8,
-    ICONV_UCS2LE,
+  ICONV_GB2312,
+  ICONV_UTF8,
+  ICONV_UCS2LE,
 };
 
 #define USE_MYCONV
@@ -20,7 +20,8 @@ enum ICONV_CODEPAGE{
 
 #ifdef USE_WINCONV
 #include <windows.h>
-static int codepage_w32(ICONV_CODEPAGE src_charset) {
+static int codepage_w32(ICONV_CODEPAGE src_charset)
+{
 #define CVTCODEPAGE_DEF(DEF) \
   DEF(-1, ICONV_UCS2LE) \
   DEF(CP_ACP, ICONV_GB2312) \
@@ -31,46 +32,48 @@ static int codepage_w32(ICONV_CODEPAGE src_charset) {
 #undef CVTCODEPAGE_DEF
   return -1;
 }
-static int iconv_win32(ICONV_CODEPAGE src_cp0, ICONV_CODEPAGE dst_cp0, const char* src, size_t srclen, char* dst, size_t dstlen) {
-  int outlen=0;
+static int iconv_win32(ICONV_CODEPAGE src_cp0, ICONV_CODEPAGE dst_cp0, const char* src, size_t srclen, char* dst, size_t dstlen)
+{
+  int outlen = 0;
   int src_cp = codepage_w32(src_cp0);
   int dst_cp = codepage_w32(dst_cp0);
-  if (src_cp==dst_cp) {
+  if (src_cp == dst_cp) {
     srclen = MIN(srclen, dstlen);
     memcpy(dst, src, srclen);
     return srclen;
   }
-  if (src_cp!=-1 && dst_cp!=-1) {
+  if (src_cp != -1 && dst_cp != -1) {
 #if 1
     wchar_t* tmp_ = NULL;
     int count = srclen;
-    tmp_ = (wchar_t*)malloc(count*sizeof(wchar_t));
+    tmp_ = (wchar_t*)malloc(count * sizeof(wchar_t));
     count = MultiByteToWideChar(src_cp, 0, src, srclen, tmp_, count);
     outlen = WideCharToMultiByte(dst_cp, 0, tmp_, count, dst, dstlen, NULL, NULL);
-    if (tmp_) {free(tmp_);tmp_=NULL;}
+    if (tmp_) {free(tmp_); tmp_ = NULL;}
 #else
     wchar_t* tmp_[256];
     int srci = 0;
     for () {
       count = 256;
-      int srclen0 = MIN(srclen-srci, 256);
-      count = MultiByteToWideChar(src_cp, 0, src+srci, srclen0, tmp_, count);
+      int srclen0 = MIN(srclen - srci, 256);
+      count = MultiByteToWideChar(src_cp, 0, src + srci, srclen0, tmp_, count);
       outlen = WideCharToMultiByte(dst_cp, 0, tmp_, count, dst, dstlen, NULL, NULL);
     }
 #endif
-  } else if (src_cp!=-1) {
-    outlen = 2*MultiByteToWideChar(src_cp, 0, src, srclen, (wchar_t*)dst, dstlen/2);
-  } else if (dst_cp!=-1) {
-    outlen = WideCharToMultiByte(dst_cp, 0, (wchar_t*)src, srclen/2, dst, dstlen, NULL, NULL);
+  } else if (src_cp != -1) {
+    outlen = 2 * MultiByteToWideChar(src_cp, 0, src, srclen, (wchar_t*)dst, dstlen / 2);
+  } else if (dst_cp != -1) {
+    outlen = WideCharToMultiByte(dst_cp, 0, (wchar_t*)src, srclen / 2, dst, dstlen, NULL, NULL);
   }
-  dst[outlen]=0;
+  dst[outlen] = 0;
   return outlen;
 }
 #endif
 
 #ifdef USE_ICONV
 #include <iconv.h>
-static const char* codepage_linux(ICONV_CODEPAGE src_charset) {
+static const char* codepage_linux(ICONV_CODEPAGE src_charset)
+{
 #define CVTCODEPAGE_DEF(DEF) \
   DEF("UCS-2LE", ICONV_UCS2LE) \
   DEF("gb2312", ICONV_GB2312) \
@@ -81,26 +84,28 @@ static const char* codepage_linux(ICONV_CODEPAGE src_charset) {
 #undef CVTCODEPAGE_DEF
   return -1;
 }
-static int iconv_linux(ICONV_CODEPAGE src_cp0, ICONV_CODEPAGE dst_cp0, const char* src, size_t srclen, char* dst, size_t dstlen) {
+static int iconv_linux(ICONV_CODEPAGE src_cp0, ICONV_CODEPAGE dst_cp0, const char* src, size_t srclen, char* dst, size_t dstlen)
+{
   char* inbuf = (char*)(src);
   size_t inlen = srclen;
   const char* dst_charset = codepage_linux(src_cp0);
   const char* dst_charset = codepage_linux(dst_cp0);
   iconv_t cd = iconv_open(dst_charset, src_charset);//获取转换句柄，void*类型
-  if (cd == 0)
+  if (cd == 0) {
     return 0;
+  }
 #if 0
   char outbuf[255];//这里实在不知道需要多少个字节，这是个问题
   while (1) {
     size_t buflen = 255;
-    char *poutbuf = outbuf;
+    char* poutbuf = outbuf;
     memset(outbuf, 0, dstlen);
-    if (iconv(cd, &inbuf, &inlen, &poutbuf,&buflen) == -1) {
+    if (iconv(cd, &inbuf, &inlen, &poutbuf, &buflen) == -1) {
       break;
     }
-    int len = 255-buflen;
-    if (len<(dstlen-outlen)) {
-      memcpy(dst+outlen, outbuf, len);
+    int len = 255 - buflen;
+    if (len < (dstlen - outlen)) {
+      memcpy(dst + outlen, outbuf, len);
       outlen += len;
     } else {
       break;
@@ -108,22 +113,22 @@ static int iconv_linux(ICONV_CODEPAGE src_cp0, ICONV_CODEPAGE dst_cp0, const cha
   }
 #else
   size_t buflen = dstlen;
-  char *poutbuf = dst;
-  if (iconv(cd, &inbuf, &inlen, &poutbuf,&buflen) == -1) {
+  char* poutbuf = dst;
+  if (iconv(cd, &inbuf, &inlen, &poutbuf, &buflen) == -1) {
     printf("error: iconv\n");
   }
-  outlen = dstlen-buflen;
+  outlen = dstlen - buflen;
 #endif
-  
   iconv_close(cd);
-  dst[outlen]=0;
+  dst[outlen] = 0;
   return outlen;
 }
 #endif // USE_ICONV
 
 #ifdef USE_MYCONV
 #include "unicode.h"
-static ICONV_CODEPAGE mycodepage(const char *src_charset) {
+static ICONV_CODEPAGE mycodepage(const char* src_charset)
+{
 #define CVTCODEPAGE_DEF(DEF) \
   DEF(ICONV_UCS2LE, "UCS-2LE") \
   DEF(ICONV_GB2312, "gb2312") \
@@ -150,21 +155,23 @@ static int iconv_my(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* sr
   CODE_CONVERT_DEF(DEF);
 #undef DEF
 #undef CODE_CONVERT_DEF
-  dst[outlen]=0;
+  dst[outlen] = 0;
   return outlen;
 }
 #endif
 
-int ustrlen(const char* str, ICONV_CODEPAGE cp) {
+int ustrlen(const char* str, ICONV_CODEPAGE cp)
+{
   switch (cp) {
   case ICONV_UCS2LE:
-    return 2*wcslen((const wchar_t*)str);
+    return 2 * wcslen((const wchar_t*)str);
   }
   return strlen(str);
 }
 
-int iconv_c(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* src, int srclen, char* dst, int dstlen) {
-  srclen = srclen<0 ? ustrlen(src, src_cp) : srclen;
+int iconv_c(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* src, int srclen, char* dst, int dstlen)
+{
+  srclen = srclen < 0 ? ustrlen(src, src_cp) : srclen;
 #ifdef USE_MYCONV
   return iconv_my(src_cp, dst_cp, src, srclen, dst, dstlen);
 #endif
@@ -179,7 +186,7 @@ int iconv_c(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* src, int s
 
 //编码转换，src_charset是源编码，dst_charset是目标编码
 //src是源编码字符串
-int iconv_c(const char *src_charset, const char *dst_charset, const char* src, int srclen, char* dst, int dstlen)
+int iconv_c(const char* src_charset, const char* dst_charset, const char* src, int srclen, char* dst, int dstlen)
 {
   ICONV_CODEPAGE src_cp = mycodepage(src_charset);
   ICONV_CODEPAGE dst_cp = mycodepage(dst_charset);
@@ -189,23 +196,25 @@ int iconv_c(const char *src_charset, const char *dst_charset, const char* src, i
 /////////////////////////////////////////////////////////////////////////////
 int _wcstombsz(char* mbstr, const wchar_t* wcstr, size_t count)
 {
-  if (count == 0 && mbstr != NULL)
+  if (count == 0 && mbstr != NULL) {
     return 0;
-  
-  int result = iconv_c("UCS-2LE", "gb2312", (const char*)wcstr, count*2, mbstr, count*4);
-  if (result > 0)
+  }
+  int result = iconv_c("UCS-2LE", "gb2312", (const char*)wcstr, count * 2, mbstr, count * 4);
+  if (result > 0) {
     mbstr[result] = 0;
+  }
   return result;
 }
 
 int _mbstowcsz(wchar_t* wcstr, const char* mbstr, size_t count)
 {
-  if (count == 0 && wcstr != NULL)
+  if (count == 0 && wcstr != NULL) {
     return 0;
-  
-  int result = iconv_c("gb2312", "UCS-2LE", mbstr, count, (char*)wcstr, count*2);
-  if (result > 0)
-    wcstr[result/2] = 0;
+  }
+  int result = iconv_c("gb2312", "UCS-2LE", mbstr, count, (char*)wcstr, count * 2);
+  if (result > 0) {
+    wcstr[result / 2] = 0;
+  }
   return result;
 }
 

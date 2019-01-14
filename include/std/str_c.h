@@ -7,7 +7,7 @@
 
 typedef struct str_t {
   union { int l; int len; };
-  union { char* s; char*str; char* ptr; };
+  union { char* s; char* str; char* ptr; };
 } str_t;
 
 #define SKIPSPACE1 for (; i < len && ((uchar)buf[i]) <= 32; ++i)
@@ -71,7 +71,8 @@ static int str_del(str_t* s, int i, int l)
   s->l -= l;
   return 0;
 }
-static int str_delchr(str_t* s, int ch) {
+static int str_delchr(str_t* s, int ch)
+{
   s->l = delchr_c(s->s, 0, s->l, ch);
   s->s[s->l] = 0;
   return 0;
@@ -209,7 +210,7 @@ static int str_trim(str_t* str, const char* sp)
   IRANGE r = iRANGE(0, str->l);
   trim(str->s, &r, sp);
   l = r.e - r.s;
-  memcpy(str->s, str->s+r.s, l);
+  memcpy(str->s, str->s + r.s, l);
   str->s[l] = 0;
   return l;
 }
@@ -234,14 +235,14 @@ static int STRsplit_find(str_t s, str_t s2, int i, int ignore_case, const char* 
   }
   j = findstr_c(s.s, i, s.l, s2.s, s2.l, ignore_case);
   if (j >= 0 && ps) {
-    for (k = j; k>i; --k) {
+    for (k = j; k > i; --k) {
       if (delims_set[(uint8_t)s.s[k]]) {
         ++k;
         break;
       }
     }
     ps->s = s.s + k;
-    for (k = j + s2.l; k<s.l; ++k) {
+    for (k = j + s2.l; k < s.l; ++k) {
       if (delims_set[(uint8_t)s.s[k]]) {
         break;
       }
@@ -250,7 +251,7 @@ static int STRsplit_find(str_t s, str_t s2, int i, int ignore_case, const char* 
     if (trims) {
       *ps = trim_c(ps->s, ps->l, trims_set);
     }
-    for (; k<s.l; ++k) {
+    for (; k < s.l; ++k) {
       if (!delims_set[(uint8_t)s.s[k]]) {
         break;
       }
@@ -382,9 +383,10 @@ static int vstr_free(vstr_t* sv)
   sv->n = 0;
   return 0;
 }
-static int vstr_frees(vstr_t* sv, int n) {
+static int vstr_frees(vstr_t* sv, int n)
+{
   int i;
-  for (i = 0; i<n; ++i) {
+  for (i = 0; i < n; ++i) {
     vstr_free(sv + i);
   }
   return 0;
@@ -393,14 +395,13 @@ static int vstr_setsize(vstr_t* sv, int n)
 {
 #if 0
   int i, old_n = sv->n;
-  if (n<old_n) {
+  if (n < old_n) {
     for (i = n; i < sv->n; ++i) {
       str_free(sv->v + i);
     }
-  }
-  else if (n>old_n) {
+  } else if (n > old_n) {
     //myrealloc((void**)&(sv->v), n * sizeof(str_t), __FILE__, __LINE__);
-    sv->v = (str_t*)prealloc(sv->v, sizeof(str_t)*n);
+    sv->v = (str_t*)prealloc(sv->v, sizeof(str_t) * n);
     memset(sv->v + old_n, 0, (n - old_n) * sizeof(str_t));
   }
   sv->n = n;
@@ -460,7 +461,8 @@ static int vstr_ins_cstr(vstr_t* sv, int i, const char* s0, int l0)
   sv->v[i] = *s;
   return 0;
 }
-static int strv_find(const str_t* sv, int n, str_t s, int i, int ignore_case) {
+static int strv_find(const str_t* sv, int n, str_t s, int i, int ignore_case)
+{
   ASSERT(i >= 0);
   for (; i < n; ++i) {
     if (0 == stricmp_c(sv[i].s, sv[i].l, s.s, s.l, ignore_case)) {
@@ -507,7 +509,8 @@ static int vstr_merge(const vstr_t* sv, str_t* s, const char* delims)
   }
   return k;
 }
-static int str_splitv(str_t* sv, int n, const char* s, int i, int l, const uchar* delims_set, const uchar* trims_set, int minlen) {
+static int str_splitv(str_t* sv, int n, const char* s, int i, int l, const uchar* delims_set, const uchar* trims_set, int minlen)
+{
   IRANGE r = iRANGE(i, l), r1;
   int j;
   for (j = 0; j < n && split_c_(s, &r, &r1, 1, delims_set, trims_set, minlen); ++j) {
@@ -545,7 +548,7 @@ static int vstr_split_str_add(vstr_t* vs, const char* s, int i, int l, const cha
     int old_n = vs->n;
     int n = split_c_(s, &r, NULL, MAX_INT, delims_set, trims_set, minlen);
     vstr_setsize(vs, old_n + n);
-    n = str_splitv(vs->v+ old_n, n, s, i, l, delims_set, trims_set, minlen);
+    n = str_splitv(vs->v + old_n, n, s, i, l, delims_set, trims_set, minlen);
     vstr_setsize(vs, old_n + n);
   }
   return 0;
@@ -593,12 +596,10 @@ static char* memfind(const char* buf, unsigned int buf_len, const char* byte_seq
     if ((p = (char*)memchr(p, b, buf_len - (p - bf))) != NULL) {
       if ((memcmp(p, byte_sequence, byte_sequence_len)) == 0) {
         return p;
-      }
-      else {
+      } else {
         ++p;
       }
-    }
-    else {
+    } else {
       break;
     }
   }
@@ -613,7 +614,7 @@ static int str_replace_str(str_t* s1, str_t s2, str_t s3, int ignore_case)
   int j = 0, l = s1->l;
   IRANGE r = iRANGE(l, l);
   replacestr_c(s1->s, &r, s2.s, s2.l, s3.s, s3.l, ignore_case);
-  if (r.s>r.e) {
+  if (r.s > r.e) {
     str_setsize(s1, r.s);
     r = iRANGE(l, r.s);
     replacestr_c(s1->s, &r, s2.s, s2.l, s3.s, s3.l, ignore_case);
@@ -633,8 +634,7 @@ static int str_formatv(str_t* s, int isadd, const char* lpszFormat, va_list argL
   str_setsize(s2, nMaxLen);
   if (isadd) {
     str_cat(s, *s2);
-  }
-  else {
+  } else {
     CC_SWAP(*s2, *s, t);
   }
   str_free(s2);
@@ -699,8 +699,7 @@ static IPOINT str_pos2pt(const char* s, int l, const char* trims)
         ++pt.y;
         i0 = i;
         pt.x = 0;
-      }
-      else {
+      } else {
         pt.x = i - i0;
       }
       chr_next(s, i, &i);
@@ -803,7 +802,7 @@ static int str_interface(void* s0, int opt, int param1, int* param2)
     str_t* s1 = (str_t*)param2;
     str_ins(s, param1, 0, s1->s, s1->l);
   }
-                      break;
+  break;
   case STROPT_DELETE:
     //str_del(s, param1, (int)param2);
     break;
@@ -840,9 +839,8 @@ static int isutf16(const uint8_t* src, int srclen)
     }
     if (!(*(_PCS) & 0xff80)) {
       if (0 == (*(_PCS) & 0x80) ||
-        (FONT_ROW_BEGIN <= *(_PCS) && *(_PCS) <= FONT_ROW_END && FONT_COL_BEGIN <= *(_PCS + 1) && *(_PCS + 1) <= FONT_COL_END)) {
-      }
-      else {
+          (FONT_ROW_BEGIN <= *(_PCS) && *(_PCS) <= FONT_ROW_END && FONT_COL_BEGIN <= *(_PCS + 1) && *(_PCS + 1) <= FONT_COL_END)) {
+      } else {
         return 0;
       }
     }
@@ -864,26 +862,20 @@ static int istutf8(const uint8_t* str, int length)
       if (chr >= 0x80) {
         if (chr >= 0xFC && chr <= 0xFD) {
           nBytes = 6;
-        }
-        else if (chr >= 0xF8) {
+        } else if (chr >= 0xF8) {
           nBytes = 5;
-        }
-        else if (chr >= 0xF0) {
+        } else if (chr >= 0xF0) {
           nBytes = 4;
-        }
-        else if (chr >= 0xE0) {
+        } else if (chr >= 0xE0) {
           nBytes = 3;
-        }
-        else if (chr >= 0xC0) {
+        } else if (chr >= 0xC0) {
           nBytes = 2;
-        }
-        else {
+        } else {
           return FALSE;
         }
         nBytes--;
       }
-    }
-    else { //多字节符的非首字节,应为 10xxxxxx
+    } else { //多字节符的非首字节,应为 10xxxxxx
       if ((chr & 0xC0) != 0x80) {
         return FALSE;
       }
@@ -902,27 +894,24 @@ static bool is_utf8(const char* str, unsigned int len)
 {
   const unsigned char* ustr = (const unsigned char*)(str);
   const unsigned char* end = ustr + len;
-
-  while (ustr < end)
-  {
+  while (ustr < end) {
     const int uv = *ustr;
-    if (uv < 0x80)
-    {
+    if (uv < 0x80) {
       ++ustr;
       continue;
     }
-
-    if (uv < 0xC0)
+    if (uv < 0xC0) {
       return false;
-
-    if ((uv < 0xE0) && (end - ustr > 1))
+    }
+    if ((uv < 0xE0) && (end - ustr > 1)) {
       ustr += 2;
-    else if ((uv < 0xF0) && (end - ustr > 2))
+    } else if ((uv < 0xF0) && (end - ustr > 2)) {
       ustr += 3;
-    else if ((uv < 0x1F) && (end - ustr > 3))
+    } else if ((uv < 0x1F) && (end - ustr > 3)) {
       ustr += 4;
-    else
+    } else {
       return false;
+    }
   }
   return true;
 }
@@ -933,98 +922,84 @@ static const char* utf_char_ptr(const char* text, int pos)
   const unsigned char* ustr = (const unsigned char*)(text);
   const unsigned char* const end = ustr + strlen(text);
   int i;
-
-  for (i = 0; i != pos; ++i)
-  {
+  for (i = 0; i != pos; ++i) {
     const unsigned char uch = *ustr;
-    if (uch < 0x80)
-    {
+    if (uch < 0x80) {
       ++ustr;
       continue;
     }
-
-    if (uch < 0xC0)        // use police ?
+    if (uch < 0xC0) {      // use police ?
       return NULL;
-
-    if ((uch < 0xE0) && (ustr + 1 < end)) //? *(ustr + 1) < 0xE0 
+    }
+    if ((uch < 0xE0) && (ustr + 1 < end)) { //? *(ustr + 1) < 0xE0
       ustr += 2;
-    else if (uch < 0xF0 && (ustr + 2 <= end))
+    } else if (uch < 0xF0 && (ustr + 2 <= end)) {
       ustr += 3;
-    else if (uch < 0x1F && (ustr + 3 <= end))
+    } else if (uch < 0x1F && (ustr + 3 <= end)) {
       ustr += 4;
-    else
+    } else {
       return NULL;
+    }
   }
-
   return (const char*)(ustr);
 }
 
 /// return a code point (max 16 bits?) and the len in code units of the character at pos
-static ushort utf_char_at(const char* text_utf8, unsigned pos, unsigned * len)
+static ushort utf_char_at(const char* text_utf8, unsigned pos, unsigned* len)
 {
   const char* end;
   ushort uch;
-  if (!text_utf8)
+  if (!text_utf8) {
     return 0;
-
-  if (pos)
-  {
-    text_utf8 = utf_char_ptr(text_utf8, pos);
-    if (!text_utf8)
-      return 0;
   }
-
+  if (pos) {
+    text_utf8 = utf_char_ptr(text_utf8, pos);
+    if (!text_utf8) {
+      return 0;
+    }
+  }
   uch = *(const ushort*)(text_utf8);
-  if (uch < 0x80)
-  {
-    if (len)
+  if (uch < 0x80) {
+    if (len) {
       *len = 1;
-
+    }
     return *text_utf8;  // uch ?
   }
-
-  if (uch < 0xC0)    // use police or ??
-  {
-    if (len)
+  if (uch < 0xC0) {  // use police or ??
+    if (len) {
       *len = 0;
-
+    }
     return 0;
   }
-
   end = text_utf8 + strlen(text_utf8);
-
-  if (uch < 0xE0 && (text_utf8 + 1 <= end))
-  {
-    if (len)
+  if (uch < 0xE0 && (text_utf8 + 1 <= end)) {
+    if (len) {
       *len = 2;
+    }
     return ((wchar_t)(uch & 0x1F) << 6) | ((text_utf8)[1] & 0x3F);
-  }
-  else if (uch < 0xF0 && (text_utf8 + 2 <= end))
-  {
-    if (len)
+  } else if (uch < 0xF0 && (text_utf8 + 2 <= end)) {
+    if (len) {
       *len = 3;
-
+    }
     return ((((uch & 0xF) << 6) | ((text_utf8)[1] & 0x3F)) << 6) | ((text_utf8)[2] & 0x3F);
-  }
-  else if (uch < 0x1F && (text_utf8 + 3 <= end))
-  {
-    if (len)
+  } else if (uch < 0x1F && (text_utf8 + 3 <= end)) {
+    if (len) {
       *len = 4;
+    }
     return ((((((uch & 0x7) << 6) | ((text_utf8)[1] & 0x3F)) << 6) | ((text_utf8)[2] & 0x3F)) << 6) | ((text_utf8)[3] & 0x3F);
   }
-
-  if (len)
+  if (len) {
     *len = 0;
-
+  }
   return 0;
 }
-static uint32_t nextCharA(const void* str, int len, int* i) {
-  if (*i<len) {
+static uint32_t nextCharA(const void* str, int len, int* i)
+{
+  if (*i < len) {
     uint8_t* s = (uint8_t*)str;
     uint32_t code = s[(*i)++];
     if (code < 0x80) {
-    }
-    else {
+    } else {
       code = (code << 8) | s[(*i)++];
     }
     return code;
@@ -1036,38 +1011,27 @@ static uint32_t utf8char(const unsigned char** pp, const unsigned char* end)
 {
   const unsigned char* p = *pp;
   uint32_t ch, code = 0;
-  if (p != end)
-  {
-    if (*p < 0x80)        // ASCII char   0-127 or 0-0x80
-    {
+  if (p != end) {
+    if (*p < 0x80) {      // ASCII char   0-127 or 0-0x80
       *pp = p;
       return *(p++);
     }
     ch = *p;
-    if (ch < 0xC0)       // error? - move to end. Posible ANSI or ISO code-page 
-    {
+    if (ch < 0xC0) {     // error? - move to end. Posible ANSI or ISO code-page
       //return *(p++); // temp: assume equal
       //p = end;
       //return 0;
       return 0;//def_encoding_error_police->next_code_point(p, end);
-    }
-    else if (ch < 0xE0 && (p + 1 <= end))      // two byte chararcter
-    {
+    } else if (ch < 0xE0 && (p + 1 <= end)) {  // two byte chararcter
       code = ((ch & 0x1F) << 6) | (p[1] & 0x3F);
       p += 2;
-    }
-    else if (ch < 0xF0 && (p + 2 <= end))     // 3 byte character
-    {
+    } else if (ch < 0xF0 && (p + 2 <= end)) { // 3 byte character
       code = ((((ch & 0xF) << 6) | (p[1] & 0x3F)) << 6) | (p[2] & 0x3F);
       p += 3;
-    }
-    else if (ch < 0x1F && (p + 3 <= end))   // 4 byte character
-    {
+    } else if (ch < 0x1F && (p + 3 <= end)) { // 4 byte character
       code = ((((((ch & 0x7) << 6) | (p[1] & 0x3F)) << 6) | (p[2] & 0x3F)) << 6) | (p[3] & 0x3F);
       p += 4;
-    }
-    else    //  error, go to end
-    {
+    } else { //  error, go to end
       p = end;
       code = 0;
     }
@@ -1080,44 +1044,30 @@ static uint32_t utf16char(const unsigned char** pbytes, const unsigned char* end
 {
   const unsigned char* bytes = *pbytes;
   uint32_t code = 0;
-  if (le_or_be)
-  {
-    if ((end - bytes >= 4) && ((bytes[1] & 0xFC) == 0xD8))
-    {
+  if (le_or_be) {
+    if ((end - bytes >= 4) && ((bytes[1] & 0xFC) == 0xD8)) {
       //32bit encoding
       uint32_t ch0 = bytes[0] | (bytes[1] << 8);
       uint32_t ch1 = bytes[2] | (bytes[3] << 8);
-
       code = ((ch0 & 0x3FF) << 10) | (ch1 & 0x3FF);
       bytes += 4;
-    }
-    else if (end - bytes >= 2)
-    {
+    } else if (end - bytes >= 2) {
       code = bytes[0] | (bytes[1] << 8);
       bytes += 2;
-    }
-    else
-    {
+    } else {
       bytes = end;
     }
-  }
-  else
-  {
-    if ((end - bytes >= 4) && ((bytes[0] & 0xFC) == 0xD8))
-    {
+  } else {
+    if ((end - bytes >= 4) && ((bytes[0] & 0xFC) == 0xD8)) {
       //32bit encoding
       uint32_t ch0 = (bytes[0] << 8) | bytes[1];
       uint32_t ch1 = (bytes[2] << 8) | bytes[3];
       code = (((ch0 & 0x3FF) << 10) | (ch1 & 0x3FF)) + 0x10000;
       bytes += 4;
-    }
-    else if (end - bytes >= 2)
-    {
+    } else if (end - bytes >= 2) {
       code = (bytes[0] << 8) | bytes[1];
       bytes += 2;
-    }
-    else
-    {
+    } else {
       bytes = end;
     }
   }
@@ -1129,15 +1079,14 @@ static uint32_t utf32char(const unsigned char** pbytes, const unsigned char* end
 {
   const unsigned char* bytes = *pbytes;
   uint32_t code = 0;
-  if (end - bytes >= 4)
-  {
-    if (le_or_be)
+  if (end - bytes >= 4) {
+    if (le_or_be) {
       code = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24);
-    else
+    } else {
       code = bytes[3] | (bytes[2] << 8) | (bytes[1] << 16) | (bytes[0] << 24);
+    }
     bytes += 4;
-  }
-  else {
+  } else {
     bytes = end;
   }
   *pbytes = bytes;
@@ -1146,23 +1095,16 @@ static uint32_t utf32char(const unsigned char** pbytes, const unsigned char* end
 
 static int put_utf8char(char* s, int i, uint32_t code)
 {
-  if (code < 0x80)
-  {
+  if (code < 0x80) {
     s[i++] = (char)(code);
-  }
-  else if (code < 0x800)
-  {
+  } else if (code < 0x800) {
     s[i++] = (char)(0xC0 | (code >> 6));
     s[i++] = (char)(0x80 | (code & 0x3F));
-  }
-  else if (code < 0x10000)
-  {
+  } else if (code < 0x10000) {
     s[i++] = (char)(0xE0 | (code >> 12));
     s[i++] = (char)(0x80 | ((code >> 6) & 0x3F));
     s[i++] = (char)(0x80 | (code & 0x3F));
-  }
-  else
-  {
+  } else {
     s[i++] = (char)(0xF0 | (code >> 18));
     s[i++] = (char)(0x80 | ((code >> 12) & 0x3F));
     s[i++] = (char)(0x80 | ((code >> 6) & 0x3F));
@@ -1174,37 +1116,25 @@ static int put_utf8char(char* s, int i, uint32_t code)
 //le_or_be, true = le, false = be
 static int put_utf16char(char* s, int i, uint32_t code, bool le_or_be)
 {
-  if (code <= 0xFFFF)
-  {
-    if (le_or_be)
-    {
+  if (code <= 0xFFFF) {
+    if (le_or_be) {
       s[i++] = (char)(code & 0xFF);
       s[i++] = (char)((code & 0xFF00) >> 8);
-    }
-    else
-    {
+    } else {
       s[i++] = (char)((code & 0xFF00) >> 8);
       s[i++] = (char)(code & 0xFF);
     }
-  }
-  else
-  {
+  } else {
     uint32_t ch0 = (0xD800 | ((code - 0x10000) >> 10));
     uint32_t ch1 = (0xDC00 | ((code - 0x10000) & 0x3FF));
-
-    if (le_or_be)
-    {
+    if (le_or_be) {
       s[i++] = (char)(ch0 & 0xFF);
       s[i++] = (char)((ch0 & 0xFF00) >> 8);
-
       s[i++] = (char)(ch1 & 0xFF);
       s[i++] = (char)((ch1 & 0xFF00) >> 8);
-    }
-    else
-    {
+    } else {
       s[i++] = (char)((ch0 & 0xFF00) >> 8);
       s[i++] = (char)(ch0 & 0xFF);
-
       s[i++] = (char)((ch1 & 0xFF00) >> 8);
       s[i++] = (char)(ch1 & 0xFF);
     }
@@ -1214,15 +1144,12 @@ static int put_utf16char(char* s, int i, uint32_t code, bool le_or_be)
 
 static int put_utf32char(char* s, int i, uint32_t code, bool le_or_be)
 {
-  if (le_or_be)
-  {
+  if (le_or_be) {
     s[i++] = (char)(code & 0xFF);
     s[i++] = (char)((code & 0xFF00) >> 8);
     s[i++] = (char)((code & 0xFF0000) >> 16);
     s[i++] = (char)((code & 0xFF000000) >> 24);
-  }
-  else
-  {
+  } else {
     s[i++] = (char)((code & 0xFF000000) >> 24);
     s[i++] = (char)((code & 0xFF0000) >> 16);
     s[i++] = (char)((code & 0xFF00) >> 8);
@@ -1234,23 +1161,17 @@ static int put_utf32char(char* s, int i, uint32_t code, bool le_or_be)
 static int utf8_to_utf16(const char* s, bool le_or_be, char** putf16str)
 {
   int i = 0, s_len = (int)strlen(s);
-  const unsigned char * bytes = (const unsigned char*)(s);
-  const unsigned char * end = bytes + s_len;
-
+  const unsigned char* bytes = (const unsigned char*)(s);
+  const unsigned char* end = bytes + s_len;
   MYREALLOC(*putf16str, s_len * 2);
-
   //If there is a BOM, ignore it.
-  if (s_len >= 3)
-  {
-    if (bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF)
-    {
+  if (s_len >= 3) {
+    if (bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF) {
       bytes += 3;
       i = put_utf16char(*putf16str, i, 0xFEFF, le_or_be);
     }
   }
-
-  while (bytes != end)
-  {
+  while (bytes != end) {
     i = put_utf16char(*putf16str, i, utf8char(&bytes, end), le_or_be);
   }
   (*putf16str)[i] = 0;
@@ -1260,22 +1181,17 @@ static int utf8_to_utf16(const char* s, bool le_or_be, char** putf16str)
 static int utf8_to_utf32(const char* s, bool le_or_be, char** putf32str)
 {
   int i = 0, s_len = (int)strlen(s);
-  const unsigned char * bytes = (const unsigned char*)(s);
-  const unsigned char * end = bytes + s_len;
-
+  const unsigned char* bytes = (const unsigned char*)(s);
+  const unsigned char* end = bytes + s_len;
   MYREALLOC(*putf32str, s_len * 2);
   //If there is a BOM, ignore it.
-  if (s_len >= 3)
-  {
-    if (bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF)
-    {
+  if (s_len >= 3) {
+    if (bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF) {
       bytes += 3;
       i = put_utf32char(*putf32str, i, 0xFEFF, le_or_be);
     }
   }
-
-  while (bytes != end)
-  {
+  while (bytes != end) {
     i = put_utf32char(*putf32str, i, utf8char(&bytes, end), le_or_be);
   }
   return i;
@@ -1284,24 +1200,19 @@ static int utf8_to_utf32(const char* s, bool le_or_be, char** putf32str)
 static int utf16_to_utf8(const char* s, char** putf8str)
 {
   int i = 0, s_len = (int)strlen(s);
-  const unsigned char * bytes = (const unsigned char*)(s);
-  const unsigned char * end = bytes + s_len;
+  const unsigned char* bytes = (const unsigned char*)(s);
+  const unsigned char* end = bytes + s_len;
   bool le_or_be = true;
   MYREALLOC(*putf8str, s_len * 2);
   //If there is a BOM, ignore it
-  if (s_len >= 2)
-  {
-    if (bytes[0] == 0xFF && bytes[1] == 0xFE)
-    {
+  if (s_len >= 2) {
+    if (bytes[0] == 0xFF && bytes[1] == 0xFE) {
       bytes += 2;
       le_or_be = true;
-
       (*putf8str)[i++] = (char)0xEF;
       (*putf8str)[i++] = (char)0xBB;
       (*putf8str)[i++] = (char)0xBF;
-    }
-    else if (bytes[0] == 0xFE && bytes[1] == 0xFF)
-    {
+    } else if (bytes[0] == 0xFE && bytes[1] == 0xFF) {
       bytes += 2;
       le_or_be = false;
       (*putf8str)[i++] = (char)(0xEF);
@@ -1309,9 +1220,7 @@ static int utf16_to_utf8(const char* s, char** putf8str)
       (*putf8str)[i++] = (char)(0xBF);
     }
   }
-
-  while (bytes != end)
-  {
+  while (bytes != end) {
     i = put_utf8char(*putf8str, i, utf16char(&bytes, end, le_or_be));
   }
   return i;
@@ -1320,30 +1229,23 @@ static int utf16_to_utf8(const char* s, char** putf8str)
 static int utf16_to_utf32(const char* s, char** putf32str)
 {
   int i = 0, s_len = (int)strlen(s);
-  const unsigned char * bytes = (const unsigned char*)(s);
-  const unsigned char * end = bytes + s_len;
+  const unsigned char* bytes = (const unsigned char*)(s);
+  const unsigned char* end = bytes + s_len;
   bool le_or_be = true;
-
   MYREALLOC(*putf32str, s_len * 2);
   //If there is a BOM, ignore it
-  if (s_len >= 2)
-  {
-    if (bytes[0] == 0xFF && bytes[1] == 0xFE)
-    {
+  if (s_len >= 2) {
+    if (bytes[0] == 0xFF && bytes[1] == 0xFE) {
       bytes += 2;
       le_or_be = true;
       i = put_utf32char(*putf32str, i, 0xFEFF, true);
-    }
-    else if (bytes[0] == 0xFE && bytes[1] == 0xFF)
-    {
+    } else if (bytes[0] == 0xFE && bytes[1] == 0xFF) {
       bytes += 2;
       le_or_be = false;
       i = put_utf32char(*putf32str, i, 0xFEFF, false);
     }
   }
-
-  while (bytes != end)
-  {
+  while (bytes != end) {
     i = put_utf32char(*putf32str, i, utf16char(&bytes, end, le_or_be), le_or_be);
   }
   return i;
@@ -1352,24 +1254,19 @@ static int utf16_to_utf32(const char* s, char** putf32str)
 static int utf32_to_utf8(const char* s, char** putf8str)
 {
   int i = 0, s_len = (int)strlen(s);
-  const unsigned char * bytes = (const unsigned char*)(s);
-  const unsigned char * end = bytes + (s_len & (~4 + 1));
-
+  const unsigned char* bytes = (const unsigned char*)(s);
+  const unsigned char* end = bytes + (s_len & (~4 + 1));
   bool le_or_be = true;
   MYREALLOC(*putf8str, s_len * 2);
   //If there is a BOM, ignore it
-  if (s_len >= 4)
-  {
-    if (bytes[0] == 0 && bytes[1] == 0 && bytes[2] == 0xFE && bytes[3] == 0xFF)
-    {
+  if (s_len >= 4) {
+    if (bytes[0] == 0 && bytes[1] == 0 && bytes[2] == 0xFE && bytes[3] == 0xFF) {
       le_or_be = false;
       bytes += 4;
       (*putf8str)[i++] = (char)0xEF;
       (*putf8str)[i++] = (char)0xBB;
       (*putf8str)[i++] = (char)0xBF;
-    }
-    else if (bytes[0] == 0xFF && bytes[1] == 0xFE && bytes[2] == 0 && bytes[3] == 0)
-    {
+    } else if (bytes[0] == 0xFF && bytes[1] == 0xFE && bytes[2] == 0 && bytes[3] == 0) {
       le_or_be = true;
       bytes += 4;
       (*putf8str)[i++] = (char)0xEF;
@@ -1377,9 +1274,7 @@ static int utf32_to_utf8(const char* s, char** putf8str)
       (*putf8str)[i++] = (char)0xBF;
     }
   }
-
-  while (bytes < end)
-  {
+  while (bytes < end) {
     i = put_utf8char(*putf8str, i, utf32char(&bytes, end, le_or_be));
   }
   return i;
@@ -1388,30 +1283,23 @@ static int utf32_to_utf8(const char* s, char** putf8str)
 static int utf32_to_utf16(const char* s, char** putf16str)
 {
   int i = 0, s_len = (int)strlen(s);
-  const unsigned char * bytes = (const unsigned char*)(s);
-  const unsigned char * end = bytes + (s_len & (~4 + 1));
-
+  const unsigned char* bytes = (const unsigned char*)(s);
+  const unsigned char* end = bytes + (s_len & (~4 + 1));
   bool le_or_be = true;
   MYREALLOC(*putf16str, s_len * 2);
   //If there is a BOM, ignore it
-  if (s_len >= 4)
-  {
-    if (bytes[0] == 0 && bytes[1] == 0 && bytes[2] == 0xFE && bytes[3] == 0xFF)
-    {
+  if (s_len >= 4) {
+    if (bytes[0] == 0 && bytes[1] == 0 && bytes[2] == 0xFE && bytes[3] == 0xFF) {
       le_or_be = false;
       bytes += 4;
       i = put_utf16char(*putf16str, i, 0xFEFF, false);
-    }
-    else if (bytes[0] == 0xFF && bytes[1] == 0xFE && bytes[2] == 0 && bytes[3] == 0)
-    {
+    } else if (bytes[0] == 0xFF && bytes[1] == 0xFE && bytes[2] == 0 && bytes[3] == 0) {
       le_or_be = true;
       bytes += 4;
       i = put_utf16char(*putf16str, i, 0xFEFF, true);
     }
   }
-
-  while (bytes < end)
-  {
+  while (bytes < end) {
     i = put_utf16char(*putf16str, i, utf32char(&bytes, end, le_or_be), le_or_be);
   }
   (*putf16str)[i] = 0;
@@ -1452,8 +1340,8 @@ static int isBIG5(byte head, byte tail)
   int iHead = head & 0xff;
   int iTail = tail & 0xff;
   return ((iHead >= 0xa1 && iHead <= 0xf9 &&
-    ((iTail >= 0x40 && iTail <= 0x7e) ||
-    (iTail >= 0xa1 && iTail <= 0xfe))) ? TRUE : FALSE);
+           ((iTail >= 0x40 && iTail <= 0x7e) ||
+            (iTail >= 0xa1 && iTail <= 0xfe))) ? TRUE : FALSE);
 }
 static int chr_mbtowc(const void* s, int slen, wchar_t* d, int dlen)
 {
@@ -1503,26 +1391,20 @@ static int isTextUTF8(const void* str0, int length)
       if (chr >= 0x80) {
         if (chr >= 0xFC && chr <= 0xFD) {
           nBytes = 6;
-        }
-        else if (chr >= 0xF8) {
+        } else if (chr >= 0xF8) {
           nBytes = 5;
-        }
-        else if (chr >= 0xF0) {
+        } else if (chr >= 0xF0) {
           nBytes = 4;
-        }
-        else if (chr >= 0xE0) {
+        } else if (chr >= 0xE0) {
           nBytes = 3;
-        }
-        else if (chr >= 0xC0) {
+        } else if (chr >= 0xC0) {
           nBytes = 2;
-        }
-        else {
+        } else {
           return FALSE;
         }
         nBytes--;
       }
-    }
-    else {
+    } else {
       if ((chr & 0xC0) != 0x80) {
         return FALSE;
       }
@@ -1597,8 +1479,7 @@ static int str_toasni(const str_t* s, str_t* d)
     str_setsize(dd, wide);
     wc2mb(CE_GB2312, w_str, nWide, dd->s, wide);
     FREE(w_str);
-  }
-  else if (encoding == XMLFILE_ENCODING_UNICODE) {
+  } else if (encoding == XMLFILE_ENCODING_UNICODE) {
     if (dwSize >= 2 && ((pByte[0] == 0xFE && pByte[1] == 0xFF) || (pByte[0] == 0xFF && pByte[1] == 0xFE))) {
       uint32_t nWide;
       BYTE* pByte1 = (BYTE*)memdup1(pByte, dwSize);
@@ -1612,8 +1493,7 @@ static int str_toasni(const str_t* s, str_t* d)
           pByte2[(nSwap << 1) + 0] = pByte2[(nSwap << 1) + 1];
           pByte2[(nSwap << 1) + 1] = nTemp;
         }
-      }
-      else {
+      } else {
         pByte2 += 2;
       }
       nWide = wc2mb(CE_GB2312, (const wchar_t*)pByte2, dwSize, NULL, 0);
@@ -1621,8 +1501,7 @@ static int str_toasni(const str_t* s, str_t* d)
       wc2mb(CE_GB2312, (const wchar_t*)pByte2, dwSize, dd->s, nWide);
       FREE(pByte1);
     }
-  }
-  else {
+  } else {
     str_setsize(dd, dwSize);
     memcpy(dd->s, pByte, dwSize);
   }
@@ -1647,21 +1526,18 @@ static int url2gb(const char* url, int urllen, char* gb)
         gb[j++] = '%';
         DEC2HEX(url[i], gb + j);
         j += 2;
-      }
-      else {
+      } else {
         // Safe Character
         gb[j] = url[i];
         ++j;
       }
     }
     gb[j] = '\0';
-  }
-  else {
+  } else {
     for (i = 0; i < urllen; ++i) {
       if (ISUNSAFE(url[i])) {
         j += 3;
-      }
-      else {
+      } else {
         ++j;
       }
     }
@@ -1678,7 +1554,7 @@ static BYTE SZHEX[] = {
   0 , 10, 11, 12, 13, 14, 15, 0
 }; //sizeof(SZHEX)=0x68
 #define HEXChar(c) ((c)>0x68 ? 0 : SZHEX[(uint8_t)c])
-   // UrlDecode URL解码函数
+// UrlDecode URL解码函数
 static int url2any(const void* src, int srclen, char* dst)
 {
   char* srcc = (char*)src;
@@ -1692,11 +1568,9 @@ static int url2any(const void* src, int srclen, char* dst)
     if (ch == '%') {
       *dstc++ = ((HEXChar(srcc[0]) << 4) | HEXChar(srcc[1]));
       srcc += 2;
-    }
-    else if (ch == '+') {
+    } else if (ch == '+') {
       *dstc++ = ' ';
-    }
-    else {
+    } else {
       *dstc++ = ch;
     }
   }
@@ -1737,8 +1611,7 @@ static int gb2uni_code(int code)
   if ((code >> 8) & 0x80) {
     str[1] = code & 0xff;
     str[0] = (code >> 8) & 0xff;
-  }
-  else {
+  } else {
     str[0] = code & 0xff;
   }
   //MultiByteToWideChar(CP_ACP, 0, str, 2, uni, 2);
@@ -1806,8 +1679,7 @@ static int trie_set(trie_t* t, const char* str)
     for (i = 0; i < t->maxnode; ++i) {
       t->smap[ustr[i]] = i;
     }
-  }
-  else {
+  } else {
     t->maxnode = 256;
     for (i = 0; i < t->maxnode; ++i) {
       t->smap[i] = i;
@@ -1859,14 +1731,15 @@ static trie_node_t* trie_find(const trie_t* t, const void* str, int len)
   }
   return (p && (p->id != -1)) ? p : NULL;   //此串是字符集中某串的前缀
 }
-static int trie_have_instr(const trie_t* t, const void* str, int len) {
+static int trie_have_instr(const trie_t* t, const void* str, int len)
+{
   int i, j;
   const uint8_t* ustr = (const uint8_t*)str;
   trie_node_t* ps[256];
   int np = 0;
   if (t->root) {
     ps[np++] = t->root;
-    for (; np>0;) {
+    for (; np > 0;) {
       trie_node_t* p = ps[--np];
       for (i = 0; i < len && p == NULL; ++i) {
         int id = t->smap[ustr[i]];
@@ -1874,7 +1747,7 @@ static int trie_have_instr(const trie_t* t, const void* str, int len) {
       }
       if (p) {
         for (; p && p->id == -1; ) {
-          for (j = 0; j<t->maxnode && NULL == p->next[j]; ++j) {}
+          for (j = 0; j < t->maxnode && NULL == p->next[j]; ++j) {}
           p = p->next[j];
         }
         return p->id;
@@ -1893,13 +1766,12 @@ static int TextCharFrom(unsigned int* out_char, const char* in_text, const char*
 {
   unsigned int c = 0;
   const unsigned char* str = (const unsigned char*)in_text;
-  if (in_text<in_text_end) {
+  if (in_text < in_text_end) {
     if (!(*str & 0x80)) {
       c = (unsigned int)(*str++);
       *out_char = c;
       return 1;
-    }
-    else {
+    } else {
       c = (*str++) << 8;
       c |= (*str++);
       *out_char = c;
@@ -1910,7 +1782,7 @@ static int TextCharFrom(unsigned int* out_char, const char* in_text, const char*
 }
 static int TextCharFromUtf8(unsigned int* out_char, const char* in_text, const char* in_text_end)
 {
-  unsigned int c = (unsigned int)-1;
+  unsigned int c = (unsigned int) - 1;
   const unsigned char* str = (const unsigned char*)in_text;
   return TextCharFrom(out_char, in_text, in_text_end);
   if (!(*str & 0x80)) {
@@ -2092,8 +1964,7 @@ static int ImTextStrToUtf8(char* buf, int buf_size, const wchar_t* in_text, cons
     unsigned int c = (unsigned int)(*in_text++);
     if (c < 0x80) {
       *buf_out++ = (char)c;
-    }
-    else {
+    } else {
       buf_out += TextCharToUtf8(buf_out, (int)(buf_end - buf_out - 1), c);
     }
   }
@@ -2107,8 +1978,7 @@ static int ImTextCountUtf8BytesFromStr(const wchar_t* in_text, const wchar_t* in
     unsigned int c = (unsigned int)(*in_text++);
     if (c < 0x80) {
       bytes_count++;
-    }
-    else {
+    } else {
       bytes_count += ImTextCountUtf8BytesFromChar(c);
     }
   }
@@ -2156,7 +2026,7 @@ static int utf8_cnt(const char* str)
   int clen = (int)strlen(str);
   int len = 0;
   const char* ptr = str;
-  for (; *ptr != 0 && len < clen; len++, ptr += UTFLEN((unsigned char)* ptr));
+  for (; *ptr != 0 && len < clen; len++, ptr += UTFLEN((unsigned char) * ptr));
   return len;
 }
 //get子串
@@ -2173,9 +2043,9 @@ static char* utf8_substring(const char* str, int start, int end)
     end = len;
   }
   sptr = str;
-  for (i = 0; i < start; ++i, sptr += UTFLEN((unsigned char)* sptr));
+  for (i = 0; i < start; ++i, sptr += UTFLEN((unsigned char) * sptr));
   eptr = sptr;
-  for (i = start; i < end; ++i, eptr += UTFLEN((unsigned char)* eptr));
+  for (i = start; i < end; ++i, eptr += UTFLEN((unsigned char) * eptr));
   retLen = eptr - sptr;
   retStr = (char*)pmalloc(retLen + 1);
   memcpy(retStr, sptr, retLen);
@@ -2190,10 +2060,10 @@ static int test_utf8()
 {
   const char* str = "我的a测试工具阿斯顿aaab123阿斯顿个流氓了卡斯！";
   char* sub;
-  const char *ptr;
+  const char* ptr;
   printf("%s\n", str);
   for (ptr = str; *ptr != 0;) {
-    unsigned char c = (unsigned char)* ptr;
+    unsigned char c = (unsigned char) * ptr;
     printf("str[%d] is a word character with %d bytes\n", c, UTFLEN(c));
     ptr += UTFLEN(c);
   }
@@ -2206,17 +2076,19 @@ static int test_utf8()
   }
   return 0;
 }
-static int vstrlen_c(const char*const* strs) {
+static int vstrlen_c(const char* const* strs)
+{
   int i = 0;
   if (strs) {
     for (; *strs; ++i);
   }
   return i;
 }
-static int vcstr_setsize(char*** vstrs, int newn) {
+static int vcstr_setsize(char** * vstrs, int newn)
+{
   char** p = *vstrs;
   int n = vstrlen_c(p);
-  if (newn<n) {
+  if (newn < n) {
     int i;
     for (i = newn; i < n; ++i) {
       if ((*vstrs)[i]) {
@@ -2224,15 +2096,15 @@ static int vcstr_setsize(char*** vstrs, int newn) {
         (*vstrs)[i] = NULL;
       }
     }
-  }
-  else if (newn>n) {
+  } else if (newn > n) {
     ++newn;
     MYREALLOC((*vstrs), newn);
     memset((*vstrs) + n, 0, (newn - n) * sizeof(char*));
   }
   return 0;
 }
-static int vcstr_free(char** vstrs) {
+static int vcstr_free(char** vstrs)
+{
   if (vstrs) {
     int i = 0;
     for (; vstrs[i]; ++i) {

@@ -220,13 +220,13 @@ static CvWindow* icvWindowByHWND(HWND hwnd)
 {
   CvWindow* window = (CvWindow*)GetWindowLongPtrA(hwnd, GWLP_USERDATA);
   return window != 0 && hg_windows != 0 &&
-    window->signature == CC_WINDOW_MAGIC_VAL ? window : 0;
+         window->signature == CC_WINDOW_MAGIC_VAL ? window : 0;
 }
 static CvTrackbar* icvTrackbarByHWND(HWND hwnd)
 {
   CvTrackbar* trackbar = (CvTrackbar*)GetWindowLongPtrA(hwnd, GWLP_USERDATA);
   return trackbar != 0 && trackbar->signature == CC_TRACKBAR_MAGIC_VAL &&
-    trackbar->hwnd == hwnd ? trackbar : 0;
+         trackbar->hwnd == hwnd ? trackbar : 0;
 }
 // Window positions saving/loading added by Philip Gruebele.
 //<a href="mailto:pgruebele@cox.net">pgruebele@cox.net</a>
@@ -297,8 +297,8 @@ static int icvSaveWindowPos(const char* name, IRECT rect)
       }
       count++;
       if (oldestTime.dwHighDateTime > accesstime.dwHighDateTime ||
-        (oldestTime.dwHighDateTime == accesstime.dwHighDateTime &&
-          oldestTime.dwLowDateTime > accesstime.dwLowDateTime)) {
+          (oldestTime.dwHighDateTime == accesstime.dwHighDateTime &&
+           oldestTime.dwLowDateTime > accesstime.dwLowDateTime)) {
         oldestTime = accesstime;
         strcpy(oldestKey, currentKey);
       }
@@ -310,8 +310,7 @@ static int icvSaveWindowPos(const char* name, IRECT rect)
     if (RegCreateKeyExA(HKEY_CURRENT_USER, szKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, 0, &hkey, NULL) != ERROR_SUCCESS) {
       return 0;
     }
-  }
-  else {
+  } else {
     RegCloseKey(hkey);
     if (RegOpenKeyExA(HKEY_CURRENT_USER, szKey, 0, KEY_WRITE, &hkey) != ERROR_SUCCESS) {
       return 0;
@@ -429,7 +428,7 @@ int NamedWindow(const char* name, int flags)
   }
   icvLoadWindowPos(name, &rect);
   mainhWnd = CreateWindowA("Main HighGUI struct", name, defStyle | WS_OVERLAPPED,
-    rect.l, rect.t, RCW(&rect), RCH(&rect), 0, 0, hg_hinstance, 0);
+                           rect.l, rect.t, RCW(&rect), RCH(&rect), 0, 0, hg_hinstance, 0);
   if (!mainhWnd) {
     CC_ERROR(CC_StsError, "Frame window can not be created");
   }
@@ -492,8 +491,7 @@ static int icvRemoveWindow(CvWindow* window)
   }
   if (window->prev) {
     window->prev->next = window->next;
-  }
-  else {
+  } else {
     hg_windows = window->next;
   }
   if (window->next) {
@@ -563,8 +561,7 @@ static IRECT icvCalcWindowRect(CvWindow* window)
     GetWindowRect(window->toolbar.toolbar, (RECT*)&trect);
     icvScreenToClient(window->frame, &trect);
     SubtractRect((RECT*)&rect, (RECT*)&crect, (RECT*)&trect);
-  }
-  else {
+  } else {
     rect = crect;
   }
   rect.t += gutter;
@@ -584,42 +581,33 @@ static BOOL GetBitmapData(HDC dc, int* pwidth, int* pheight, int* channels, int*
   HGDIOBJ h;
   GdiFlush();
   h = GetCurrentObject(dc, OBJ_BITMAP);
-
   if (pwidth) {
     *pwidth = 0;
   }
   if (pheight) {
     *pheight = 0;
   }
-
-
   if (data) {
     *data = 0;
   }
-
   if (h == NULL) {
     return TRUE;
   }
-
   if (GetObject(h, sizeof(bmp), &bmp) == 0) {
     return TRUE;
   }
-
   if (pwidth) {
     *pwidth = abs(bmp.bmWidth);
   }
   if (pheight) {
     *pheight = abs(bmp.bmHeight);
   }
-
   if (channels) {
     *channels = bmp.bmBitsPixel / 8;
   }
-
   if (data) {
     *data = (int*)bmp.bmBits;
   }
-
   return FALSE;
 }
 static void FillSolidRect(HDC m_hDC, void* lpRect, COLORREF clr)
@@ -639,23 +627,18 @@ static int FillBitmapInfo(BITMAPINFO* bmi, int width, int height, int bpp, int o
   bmih->biPlanes = 1;
   bmih->biBitCount = (unsigned short)bpp;
   bmih->biCompression = BI_RGB;
-
   if (bpp <= 8) {
     RGBQUAD* palette = bmi->bmiColors;
-
     if (inpal) {
       memcpy(palette, inpal, 256 * sizeof(RGBQUAD));
-    }
-    else {
+    } else {
       int i;
-
       for (i = 0; i < 256; i++) {
         palette[i].rgbBlue = palette[i].rgbGreen = palette[i].rgbRed = (BYTE)i;
         palette[i].rgbReserved = 0;
       }
     }
   }
-
   return 0;
 }
 
@@ -674,13 +657,13 @@ static int icvUpdateWindowPos(CvWindow* window)
     for (i = 0; i < (window->toolbar.toolbar ? 2 : 1); i++) {
       IRECT rmw, rw = icvCalcWindowRect(window);
       MoveWindow(window->hwnd, rw.l, rw.t,
-        rw.r - rw.l + 1, rw.b - rw.t + 1, FALSE);
+                 rw.r - rw.l + 1, rw.b - rw.t + 1, FALSE);
       GetClientRect(window->hwnd, (RECT*)&rw);
       GetWindowRect(window->frame, (RECT*)&rmw);
       // Resize the mainhWnd window in order to make the bitmap fit into the child window
       MoveWindow(window->frame, rmw.l, rmw.t,
-        rmw.r - rmw.l + size.w - rw.r + rw.l,
-        rmw.b - rmw.t + size.h - rw.b + rw.t, TRUE);
+                 rmw.r - rmw.l + size.w - rw.r + rw.l,
+                 rmw.b - rmw.t + size.h - rw.b + rw.t, TRUE);
     }
   }
   rect = icvCalcWindowRect(window);
@@ -727,8 +710,7 @@ static int NameWindowImage(const char* name, int height, int width)
       FillBitmapInfo(binfo, size.w, size.h, channels * 8, 1, 0);
       window->image = SelectObject(window->dc, CreateDIBSection(window->dc, binfo, DIB_RGB_COLORS, (void**)&dst_ptr, 0, 0));
     }
-  }
-  else {
+  } else {
     width = size.w;
     height = size.h;
   }
@@ -860,7 +842,8 @@ static int ShowDC(const char* name, HDC hDC, IRECT rc)
   return 0;
 }
 
-static void iResizeWindow(CvWindow* window, int width, int height) {
+static void iResizeWindow(CvWindow* window, int width, int height)
+{
   // Repeat two times because after the first resizing of the mainhWnd window
   // toolbar may resize too
   int i;
@@ -868,17 +851,17 @@ static void iResizeWindow(CvWindow* window, int width, int height) {
   for (i = 0; i < (window->toolbar.toolbar ? 2 : 1); i++) {
     rw = icvCalcWindowRect(window);
     MoveWindow(window->hwnd, rw.l, rw.t,
-      rw.r - rw.l + 1, rw.b - rw.t + 1, FALSE);
+               rw.r - rw.l + 1, rw.b - rw.t + 1, FALSE);
     GetClientRect(window->hwnd, (RECT*)&rw);
     GetWindowRect(window->frame, (RECT*)&rmw);
     // Resize the mainhWnd window in order to make the bitmap fit into the child window
     MoveWindow(window->frame, rmw.l, rmw.t,
-      rmw.r - rmw.l + width - rw.r + rw.l,
-      rmw.b - rmw.t + height - rw.b + rw.t, TRUE);
+               rmw.r - rmw.l + width - rw.r + rw.l,
+               rmw.b - rmw.t + height - rw.b + rw.t, TRUE);
   }
   rect = icvCalcWindowRect(window);
   MoveWindow(window->hwnd, rect.l, rect.t,
-    rect.r - rect.l + 1, rect.b - rect.t + 1, TRUE);
+             rect.r - rect.l + 1, rect.b - rect.t + 1, TRUE);
 }
 
 // 设定窗口大小
@@ -1052,19 +1035,19 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
       IRECT rect;
       ISIZE size = { 0, 0 };
       int flags = (wParam & MK_LBUTTON ? MSG_FLAG_LBUTTON : 0) |
-        (wParam & MK_RBUTTON ? MSG_FLAG_RBUTTON : 0) |
-        (wParam & MK_MBUTTON ? MSG_FLAG_MBUTTON : 0) |
-        (wParam & MK_CONTROL ? MSG_FLAG_CTRLKEY : 0) |
-        (wParam & MK_SHIFT ? MSG_FLAG_SHIFTKEY : 0) |
-        (GetKeyState(VK_MENU) < 0 ? MSG_FLAG_ALTKEY : 0);
+                  (wParam & MK_RBUTTON ? MSG_FLAG_RBUTTON : 0) |
+                  (wParam & MK_MBUTTON ? MSG_FLAG_MBUTTON : 0) |
+                  (wParam & MK_CONTROL ? MSG_FLAG_CTRLKEY : 0) |
+                  (wParam & MK_SHIFT ? MSG_FLAG_SHIFTKEY : 0) |
+                  (GetKeyState(VK_MENU) < 0 ? MSG_FLAG_ALTKEY : 0);
       int event = GET_WHEEL_DELTA_WPARAM(wParam) > 0 ? MSG_MOUSEWHEELUP : MSG_MOUSEWHEELDOWN;
       pt.x = LOWORD(lParam);
       pt.y = HIWORD(lParam);
       GetClientRect(window->hwnd, (RECT*)&rect);
       GetBitmapData(window->dc, &size.w, &size.h, 0, 0);
       window->on_mouse(event, pt.x * size.w / MAX(rect.r - rect.l, 1),
-        pt.y * size.h / MAX(rect.b - rect.t, 1), flags,
-        window->on_mouse_param);
+                       pt.y * size.h / MAX(rect.b - rect.t, 1), flags,
+                       window->on_mouse_param);
     }
     break;
 #endif
@@ -1104,8 +1087,7 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         hFuncInst = LoadLibraryA("User32.DLL");
         if (hFuncInst) {
           UpdateLayeredWindow = (MYFUNC)GetProcAddress(hFuncInst, "UpdateLayeredWindow");
-        }
-        else {
+        } else {
           printf("User32.dll ERROR!");
           exit(0);
         }
@@ -1142,8 +1124,7 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         UpdateLayeredWindow(hwnd, hDC, &ptWinPos, &sizeWindow, window->dc, &ptSrc, 0, &m_Blend, 2);
       }
       EndPaint(hwnd, &paint);
-    }
-    else
+    } else
 #endif
     {
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -1197,8 +1178,7 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
     if (window->toolbar.toolbar) {
       GetWindowRect(window->toolbar.toolbar, (RECT*)&tr);
       icvScreenToClient(window->frame, &tr);
-    }
-    else {
+    } else {
       tr.l = tr.t = tr.r = tr.b = 0;
     }
     GetClientRect(window->frame, (RECT*)&wrc);
@@ -1214,7 +1194,7 @@ static LRESULT CALLBACK MainWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
     DeleteObject(rgn1);
     DeleteObject(rgn2);
   }
-                      return 1;
+  return 1;
   }
   return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
@@ -1237,7 +1217,7 @@ static LRESULT CALLBACK HighGUIProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
   // Process the message
   {
     //LRESULT WINAPI imuiWndProc_impl(window_host_t* host, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-        //imuiWndProc_impl(NULL, hwnd, uMsg, wParam, lParam);
+    //imuiWndProc_impl(NULL, hwnd, uMsg, wParam, lParam);
   }
   switch (uMsg) {
   case WM_WINDOWPOSCHANGING: {
@@ -1248,11 +1228,11 @@ static LRESULT CALLBACK HighGUIProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
     pos->cx = rect.r - rect.l + 1;
     pos->cy = rect.b - rect.t + 1;
   }
-                             break;
+  break;
   case WM_SETFOCUS: {
     focus_window = window;
   }
-                    break;
+  break;
   case WM_LBUTTONDOWN:
   case WM_RBUTTONDOWN:
   case WM_MBUTTONDOWN:
@@ -1268,21 +1248,21 @@ static LRESULT CALLBACK HighGUIProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
       IRECT rect;
       ISIZE size = { 0, 0 };
       int flags = (wParam & MK_LBUTTON ? MSG_FLAG_LBUTTON : 0) |
-        (wParam & MK_RBUTTON ? MSG_FLAG_RBUTTON : 0) |
-        (wParam & MK_MBUTTON ? MSG_FLAG_MBUTTON : 0) |
-        (wParam & MK_CONTROL ? MSG_FLAG_CTRLKEY : 0) |
-        (wParam & MK_SHIFT ? MSG_FLAG_SHIFTKEY : 0) |
-        (GetKeyState(VK_MENU) < 0 ? MSG_FLAG_ALTKEY : 0);
+                  (wParam & MK_RBUTTON ? MSG_FLAG_RBUTTON : 0) |
+                  (wParam & MK_MBUTTON ? MSG_FLAG_MBUTTON : 0) |
+                  (wParam & MK_CONTROL ? MSG_FLAG_CTRLKEY : 0) |
+                  (wParam & MK_SHIFT ? MSG_FLAG_SHIFTKEY : 0) |
+                  (GetKeyState(VK_MENU) < 0 ? MSG_FLAG_ALTKEY : 0);
       int event = uMsg == WM_LBUTTONDOWN ? MSG_LBUTTONDOWN :
-        uMsg == WM_RBUTTONDOWN ? MSG_RBUTTONDOWN :
-        uMsg == WM_MBUTTONDOWN ? MSG_MBUTTONDOWN :
-        uMsg == WM_LBUTTONUP ? MSG_LBUTTONUP :
-        uMsg == WM_RBUTTONUP ? MSG_RBUTTONUP :
-        uMsg == WM_MBUTTONUP ? MSG_MBUTTONUP :
-        uMsg == WM_LBUTTONDBLCLK ? MSG_LBUTTONDBLCLK :
-        uMsg == WM_RBUTTONDBLCLK ? MSG_RBUTTONDBLCLK :
-        uMsg == WM_MBUTTONDBLCLK ? MSG_MBUTTONDBLCLK :
-        MSG_MOUSEMOVE;
+                  uMsg == WM_RBUTTONDOWN ? MSG_RBUTTONDOWN :
+                  uMsg == WM_MBUTTONDOWN ? MSG_MBUTTONDOWN :
+                  uMsg == WM_LBUTTONUP ? MSG_LBUTTONUP :
+                  uMsg == WM_RBUTTONUP ? MSG_RBUTTONUP :
+                  uMsg == WM_MBUTTONUP ? MSG_MBUTTONUP :
+                  uMsg == WM_LBUTTONDBLCLK ? MSG_LBUTTONDBLCLK :
+                  uMsg == WM_RBUTTONDBLCLK ? MSG_RBUTTONDBLCLK :
+                  uMsg == WM_MBUTTONDBLCLK ? MSG_MBUTTONDBLCLK :
+                  MSG_MOUSEMOVE;
       if (uMsg == WM_LBUTTONDOWN || uMsg == WM_RBUTTONDOWN || uMsg == WM_MBUTTONDOWN) {
         SetCapture(hwnd);
       }
@@ -1301,8 +1281,7 @@ static LRESULT CALLBACK HighGUIProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
         ty = size.h * dw;
         if (tx > ty) {
           tx = dw, ty /= size.w, y = (dh - ty) / 2;
-        }
-        else {
+        } else {
           ty = dh, tx /= size.h, x = (dw - tx) / 2;
         }
         x1 = pt.x * size.w / tx;
@@ -1355,8 +1334,7 @@ static LRESULT CALLBACK HighGUIProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
       }
       if (window->flags & CC_WINDOW_AUTOSIZE) {
         BitBlt(hDC, 0, 0, size.w, size.h, window->dc, 0, 0, SRCCOPY);
-      }
-      else {
+      } else {
         IRECT rect;
         IRECT rc;
         int dw, dh;
@@ -1390,8 +1368,7 @@ static LRESULT CALLBACK HighGUIProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
       }
       //DeleteDC(hDC);
       EndPaint(hwnd, &paint);
-    }
-    else {
+    } else {
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
     return 0;
@@ -1458,8 +1435,7 @@ static int icvUpdateTrackbar(CvTrackbar* trackbar, int pos)
       memcpy(pos_text, trackbar->name, start_len);
       memcpy(pos_text + start_len, "...", 3);
       memcpy(pos_text + start_len + 3, trackbar->name + name_len - end_len, end_len + 1);
-    }
-    else {
+    } else {
       memcpy(pos_text, trackbar->name, name_len + 1);
     }
     sprintf(pos_text + strlen(pos_text), "%s: %d\n", suffix, pos);
@@ -1476,8 +1452,7 @@ static LRESULT CALLBACK HGToolbarProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
   // Control messages processing
   switch (uMsg) {
     // Slider processing
-  case WM_HSCROLL:
-  {
+  case WM_HSCROLL: {
     HWND slider = (HWND)lParam;
     int pos = (int)SendMessageA(slider, TBM_GETPOS, 0, 0);
     CvTrackbar* trackbar = icvTrackbarByHWND(slider);
@@ -1489,8 +1464,7 @@ static LRESULT CALLBACK HGToolbarProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
     SetFocus(window->hwnd);
     return 0;
   }
-  case WM_NCCALCSIZE:
-  {
+  case WM_NCCALCSIZE: {
     LRESULT ret = CallWindowProc(window->toolbar.toolBarProc, hwnd, uMsg, wParam, lParam);
     int rows = (int)SendMessageA(hwnd, TB_GETROWS, 0, 0);
     if (window->toolbar.rows != rows) {
@@ -1500,12 +1474,12 @@ static LRESULT CALLBACK HGToolbarProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
       for (; trackbar != 0; trackbar = trackbar->next) {
         IRECT rect;
         SendMessageA(window->toolbar.toolbar, TB_GETITEMRECT,
-          (WPARAM)trackbar->id, (LPARAM)& rect);
+                     (WPARAM)trackbar->id, (LPARAM)& rect);
         MoveWindow(trackbar->hwnd, rect.l + HG_BUDDY_WIDTH, rect.t,
-          rect.r - rect.l - HG_BUDDY_WIDTH,
-          rect.b - rect.t, FALSE);
+                   rect.r - rect.l - HG_BUDDY_WIDTH,
+                   rect.b - rect.t, FALSE);
         MoveWindow(trackbar->buddy, rect.l, rect.t,
-          HG_BUDDY_WIDTH, rect.b - rect.t, FALSE);
+                   HG_BUDDY_WIDTH, rect.b - rect.t, FALSE);
       }
       window->toolbar.rows = rows;
     }
@@ -1538,8 +1512,7 @@ int WaitMsg(int delay, bool bWaitMouseMsg)
     }
     if (delay <= 0) {
       GetMessage(&message, 0, 0, 0);
-    }
-    else if (PeekMessage(&message, 0, 0, 0, PM_REMOVE) == FALSE) {
+    } else if (PeekMessage(&message, 0, 0, 0, PM_REMOVE) == FALSE) {
       Sleep(1);
       continue;
     }
@@ -1552,7 +1525,6 @@ int WaitMsg(int delay, bool bWaitMouseMsg)
         }
       }
     }
-
     if (win) {
       switch (message.message) {
       case WM_DESTROY:
@@ -1575,8 +1547,7 @@ int WaitMsg(int delay, bool bWaitMouseMsg)
           TranslateMessage(&message);
           DispatchMessage(&message);
           return (int)(message.wParam << 16);
-        }
-        else {
+        } else {
           DispatchMessage(&message);
           is_processed = 1;
         }
@@ -1584,11 +1555,11 @@ int WaitMsg(int delay, bool bWaitMouseMsg)
       case WM_KEYDOWN:
         TranslateMessage(&message);
         if ((message.wParam >= VK_F1 && message.wParam <= VK_F24) ||
-          message.wParam == VK_HOME || message.wParam == VK_END ||
-          message.wParam == VK_UP || message.wParam == VK_DOWN ||
-          message.wParam == VK_LEFT || message.wParam == VK_RIGHT ||
-          message.wParam == VK_INSERT || message.wParam == VK_DELETE ||
-          message.wParam == VK_PRIOR || message.wParam == VK_NEXT) {
+            message.wParam == VK_HOME || message.wParam == VK_END ||
+            message.wParam == VK_UP || message.wParam == VK_DOWN ||
+            message.wParam == VK_LEFT || message.wParam == VK_RIGHT ||
+            message.wParam == VK_INSERT || message.wParam == VK_DELETE ||
+            message.wParam == VK_PRIOR || message.wParam == VK_NEXT) {
           DispatchMessage(&message);
           is_processed = 1;
           return (int)(message.wParam << 16);
@@ -1627,8 +1598,8 @@ typedef struct {
 }
 ButtonInfo;
 static int icvCreateTrackbar(const char* trackbar_name, const char* window_name,
-  int* val, int count, TrackbarCB on_notify,
-  TrackbarCB2 on_notify2, int* userdata)
+                             int* val, int count, TrackbarCB on_notify,
+                             TrackbarCB2 on_notify2, int* userdata)
 {
   char slider_name[32];
   CvWindow* window = 0;
@@ -1658,11 +1629,11 @@ static int icvCreateTrackbar(const char* trackbar_name, const char* window_name,
     if (!window->toolbar.toolbar) {
       const int default_height = 30;
       window->toolbar.toolbar = CreateToolbarEx(
-        window->frame, WS_CHILD | CCS_TOP | TBSTYLE_WRAPABLE,
-        1, 0, 0, 0, 0, 0, 16, 20, 16, 16, sizeof(TBBUTTON));
+                                  window->frame, WS_CHILD | CCS_TOP | TBSTYLE_WRAPABLE,
+                                  1, 0, 0, 0, 0, 0, 16, 20, 16, 16, sizeof(TBBUTTON));
       GetClientRect(window->frame, (RECT*)&rect);
       MoveWindow(window->toolbar.toolbar, 0, 0,
-        rect.r - rect.l, default_height, TRUE);
+                 rect.r - rect.l, default_height, TRUE);
       SendMessageA(window->toolbar.toolbar, TB_AUTOSIZE, 0, 0);
       ShowWindow(window->toolbar.toolbar, SW_SHOW);
       window->toolbar.first = 0;
@@ -1714,10 +1685,10 @@ static int icvCreateTrackbar(const char* trackbar_name, const char* window_name,
     GetClientRect(window->hwnd, (RECT*)&rect);
     tbis.cx = (unsigned short)(rect.r - rect.l);
     SendMessageA(window->toolbar.toolbar, TB_SETBUTTONINFO,
-      (WPARAM)tbs.idCommand, (LPARAM)& tbis);
+                 (WPARAM)tbs.idCommand, (LPARAM)& tbis);
     /* Get button position */
     SendMessageA(window->toolbar.toolbar, TB_GETITEMRECT,
-      (WPARAM)tbs.idCommand, (LPARAM)& rect);
+                 (WPARAM)tbs.idCommand, (LPARAM)& rect);
     /* Create a slider */
     trackbar = (CvTrackbar*)malloc(sizeof(CvTrackbar) + len + 1);
     trackbar->signature = CC_TRACKBAR_MAGIC_VAL;
@@ -1733,24 +1704,23 @@ static int icvCreateTrackbar(const char* trackbar_name, const char* window_name,
     window->toolbar.first = trackbar;
     sprintf(slider_name, "Trackbar%p", val);
     trackbar->hwnd = CreateWindowExA(0, TRACKBAR_CLASSA, slider_name,
-      WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS |
-      TBS_FIXEDLENGTH | TBS_HORZ | TBS_BOTTOM,
-      rect.l + HG_BUDDY_WIDTH, rect.t,
-      rect.r - rect.l - HG_BUDDY_WIDTH,
-      rect.b - rect.t, window->toolbar.toolbar,
-      (HMENU)(size_t)bcount, hg_hinstance, 0);
+                                     WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS |
+                                     TBS_FIXEDLENGTH | TBS_HORZ | TBS_BOTTOM,
+                                     rect.l + HG_BUDDY_WIDTH, rect.t,
+                                     rect.r - rect.l - HG_BUDDY_WIDTH,
+                                     rect.b - rect.t, window->toolbar.toolbar,
+                                     (HMENU)(size_t)bcount, hg_hinstance, 0);
     sprintf(slider_name, "Buddy%p", val);
     trackbar->buddy = CreateWindowExA(0, "STATIC", slider_name,
-      WS_CHILD | SS_RIGHT,
-      rect.l, rect.t,
-      HG_BUDDY_WIDTH, rect.b - rect.t,
-      window->toolbar.toolbar, 0, hg_hinstance, 0);
+                                      WS_CHILD | SS_RIGHT,
+                                      rect.l, rect.t,
+                                      HG_BUDDY_WIDTH, rect.b - rect.t,
+                                      window->toolbar.toolbar, 0, hg_hinstance, 0);
     SetWindowLongPtrA(trackbar->hwnd, GWLP_USERDATA, (LONG_PTR)trackbar);
     /* Minimize the number of rows */
     SendMessageA(window->toolbar.toolbar, TB_SETROWS,
-      MAKEWPARAM(1, FALSE), (LPARAM)& rect);
-  }
-  else {
+                 MAKEWPARAM(1, FALSE), (LPARAM)& rect);
+  } else {
     trackbar->data = 0;
     trackbar->notify = 0;
     trackbar->notify2 = 0;
@@ -1935,8 +1905,7 @@ static int SetPreprocessFuncWin32(int(*on_preprocess)(HWND, UINT, WPARAM, LPARAM
 {
   if (on_preprocess) {
     hg_on_preprocess = on_preprocess;
-  }
-  else {
+  } else {
     assert(on_preprocess);
   }
   return 0;
@@ -1945,8 +1914,7 @@ static int SetPostprocessFuncWin32(int(*on_postprocess)(HWND, UINT, WPARAM, LPAR
 {
   if (on_postprocess) {
     hg_on_postprocess = on_postprocess;
-  }
-  else {
+  } else {
     assert(on_postprocess);
   }
   return 0;
@@ -1984,12 +1952,12 @@ int imshowhist(const char* name, int h, int w, const unsigned char* a, int al, i
   maxval = hist[j];
   bin_w = ww / hdims;
   DrawRectangle(hh, ww, bb, ww * 3, 3, iPOINT(l * bin_w, hh),
-    iPOINT(r * bin_w, 0), CC_RGB(255, 255, 255), -1, 8, 0);
+                iPOINT(r * bin_w, 0), CC_RGB(255, 255, 255), -1, 8, 0);
   for (i = 0; i < hdims; i++) {
     int val = cvRound(hist[i] * hh * 0.9 / maxval);
     CvScalar color = hsv2rgb2(i * 180.f / hdims);
     DrawRectangle(hh, ww, bb, ww * 3, 3, iPOINT(i * bin_w, hh),
-      iPOINT((i + 1)*bin_w, hh - val), color, -1, 8, 0);
+                  iPOINT((i + 1)*bin_w, hh - val), color, -1, 8, 0);
   }
   {
     double sc = 800. / MAX(h, w);
@@ -2093,8 +2061,7 @@ static int ShowTaskBar(BOOL bShow)
       SystemParametersInfo(SPI_SETWORKAREA, 0, (LPVOID)&rectWorkArea, 0);
       ShowWindow(pWnd, SW_HIDE);
     }
-  }
-  else { //显示
+  } else { //显示
     SystemParametersInfo(SPI_GETWORKAREA, 0, (LPVOID)&rectWorkArea, 0);
     if (pWnd) {
       GetWindowRect(pWnd, (RECT*)&rectTaskBar);
@@ -2124,8 +2091,7 @@ static int SetFullScreen(const char* name)
     SetWindowLongA(hwnd, GWL_STYLE, GetWindowLongA(hwnd, GWL_STYLE) | ((WS_CAPTION | WS_BORDER)));
     ShowWindow(hwnd, SW_HIDE);
     SetWindowPos(hwnd, 0, rect.l, rect.t, RCW(&rect), RCH(&rect), SWP_SHOWWINDOW);
-  }
-  else {
+  } else {
     int frameWidth = GetSystemMetrics(SM_CXFRAME);
     int frameHeight = GetSystemMetrics(SM_CYFRAME);
     int captionHeight = GetSystemMetrics(SM_CYCAPTION);
@@ -2180,7 +2146,7 @@ static int SetListLable(const char* name, int n, const char** lable, int nColumn
     //dwStyle |= WS_BORDER;
     GetClientRect(window->hwnd, &rc);
     window->hList = CreateWindowA(WC_LISTVIEWA, ("ListView"), dwStyle,
-      0, 0, rc.right - rc.left, rc.bottom - rc.top, window->hwnd, 0, hg_hinstance, 0);
+                                  0, 0, rc.right - rc.left, rc.bottom - rc.top, window->hwnd, 0, hg_hinstance, 0);
     //ListView_SetExtendedListViewStyle(window->hList, dwExStyle);
     //ListView_SetTextColor(hList,RGB(12,12,12));//字体颜色
   }
@@ -2211,8 +2177,7 @@ static int SetListLable(const char* name, int n, const char** lable, int nColumn
         hdr->pszText = (char*)lable[k];
         Header_InsertItem(hHeader, k, (LPARAM)hdr);
       }
-    }
-    else {
+    } else {
       _snprintf(buf2, 256, "");
       lvColumn.pszText = buf2;
       hdr->pszText = buf2;
@@ -2230,8 +2195,7 @@ static int SetListLable(const char* name, int n, const char** lable, int nColumn
         lvColumn.pszText = (char*)lable[k];
         ListView_InsertColumn(hList, k, (LPARAM)&lvColumn);
       }
-    }
-    else {
+    } else {
       _snprintf(buf2, 256, "");
       lvColumn.pszText = buf2;
       ListView_InsertColumn(hList, 0, (LPARAM)&lvColumn);
@@ -2333,8 +2297,7 @@ static int ShowMat(const char* name, const char* fmt, int h, int w, const void* 
           item.iItem = j;
           item.pszText = buf2;
           now = ListView_InsertItem(window->hList, (LPARAM)&item);
-        }
-        else {
+        } else {
           va_list arglist = (va_list)((uchar*)arr + j * al + (k - 1) * ai);
           arglist = cstr_vnprintf_arr(buf2, 256, fmt, arglist, NULL);
           ListView_SetItemTextA(window->hList, now, k, buf2);

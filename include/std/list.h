@@ -9,7 +9,8 @@
 #define LIST_ADDFRONT1(list, item) if (list) { item->next = list; list = item; } else { item->next = NULL; list = item; }
 #define LIST_ADDFRONT(list, item) if (list) { item->prev = NULL; item->next = list; list->prev = item; list = item; } else { item->prev = item->next = NULL; list = item; }
 #define LIST_DEL1(item)   if (item) { item = (item)->next; }
-#define LIST_DEL(list, item) if (list==item) { list->prev = NULL; list = item->next; } else { if (item->prev) { item->prev->next = item->next; } if (item->next) { item->next->prev = item->prev; } }
+#define LIST_DEL0(item)   if (item->prev) { item->prev->next = item->next; } if (item->next) { item->next->prev = item->prev; }
+#define LIST_DEL(list, item) if (list==item) { list->prev = NULL; list = item->next; } else { LIST_DEL0(item); }
 
 
 #endif // _LIST_H_

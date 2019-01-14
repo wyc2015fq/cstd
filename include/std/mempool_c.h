@@ -1,571 +1,214 @@
+// 内存池
 
-#define MEM_ALIGN(size,boundary) (((size) + ((boundary)-1)) & ~((boundary)-1))
-#define MEM_ALIGN_DEFAULT(size) MEM_ALIGN(size,8)
-#define BOUNDARY_INDEX  12
-#define MAX_INDEX       20
+//#include "mem_c.h"
 
-typedef struct _MEMNODE
+#include "types_c.h"
+#include "bit_c.h"
+
+typedef int (*alloc_fun_t)(void** pp, size_t n);
+struct mem_head_t {
+  void* x;
+  int (*free_)(void** pp);
+  size_t size;
+  size_t used;
+  size_t id;
+};
+
+int defult_free(void** pp)
 {
-    struct _MEMNODE         *next;
-    struct _MEMNODE         **ref;
-    unsigned int            index;
-    unsigned int            free_index;
-    char                    *first_avail;
-    char                    *endp;
-} MEMNODE;
-
-
-typedef struct _ALLOCATOR
+  mem_head_t* h = ((mem_head_t*)(*pp)) - 1;
+  free(h);
+  *pp = NULL;
+  return 0;
+}
+int defult_alloc(void** pp, size_t n)
 {
-    unsigned int            max_index;
-    unsigned int            max_free_index;
-    unsigned int            current_free_index;
-    CRITICAL_SECTION        *pcs;
-    struct _MEMPOOL         *owner;
-    struct _MEMNODE         *pfree[MAX_INDEX];
-} ALLOCATOR;
+  mem_head_t* h = *pp ? ((mem_head_t*)(*pp)) - 1 : NULL;
+  int n1 = n + sizeof(mem_head_t);
+  h = (mem_head_t*)realloc(h, n1);
+  *pp = h + 1;
+  h->x = NULL;
+  h->size = n1;
+  h->used = n1;
+  h->free_ = defult_free;
+  return 0;
+}
 
-const unsigned int BOUNDARY_SIZE    = 1 << BOUNDARY_INDEX;  //4096
-const unsigned int MIN_ALLOC        = 2 * BOUNDARY_SIZE;    //8192
-const unsigned int SIZEOF_MEMNODE   = MEM_ALIGN_DEFAULT(sizeof(MEMNODE));//MEMNODE大小
+#define MAPSIZE   (32)
+struct mem_block_head_t {
+  struct mem_block_head_t* next;
+  struct mem_block_head_t* prev;
+  int unit_size;
+  unsigned char map[MAPSIZE];
+};
+#include "list.h"
 
+static const size_t unit_size[] = {1 << 4, 1 << 5, 1 << 6, 1 << 7, 1 << 8, 1 << 9, 1 << 10};
 
-MEMNODE *Allocator_alloc(ALLOCATOR *allocator, size_t in_size)
+struct mempool_t {
+  mem_block_head_t* blks[countof(unit_size)];
+  size_t size_of_unit;
+};
+size_t nextpow2(size_t v)
 {
-    MEMNODE *node, **ref;
-    unsigned int max_index;
-    size_t size, i, index;
+  v--;
+  v |= v >> 1;
+  v |= v >> 2;
+  v |= v >> 4;
+  v |= v >> 8;
+  v |= v >> 16;
+  v++;
+  return v;
+}
 
-    //4096的倍数，不满8192，则分配8192
-    size = MEM_ALIGN(in_size + SIZEOF_MEMNODE, BOUNDARY_SIZE);
-    if (size < in_size) return NULL;
-    if (size < MIN_ALLOC)   size = MIN_ALLOC;
-
-    //将大小转为下标
-    index = (size >> BOUNDARY_INDEX) - 1;
-
-    //小于当前最大节点
-    if (index <= allocator->max_index) 
-    {
-        if (allocator->pcs)
-            EnterCriticalSection(allocator->pcs);
-
-        //找到第一个可用的不为空节点
-        max_index = allocator->max_index;
-        ref = &allocator->pfree[index];
-        i = index;
-        while (*ref == NULL && i < max_index) 
-        {
-           ref++;
-           i++;
+#define mfree(pp)   (*(pp)) ? (((mem_head_t*)(*(pp)))-1)->free_(pp) : 0
+mempool_t mp[1] = {0};
+int mempool_free(void** pp)
+{
+  mem_head_t* h = ((mem_head_t*)(*pp)) - 1;
+  uchar* ptr = (uchar*)h;
+  if (h->x) {
+    mem_block_head_t* p = (mem_block_head_t*)h->x;
+    uchar* ptr0 = (uchar*)((p) + 1);
+    size_t size = h->size + sizeof(mem_head_t);
+    size_t off = ptr - ptr0;
+    size_t id = off / size;
+    mem_block_head_t* b = p;
+    ASSERT(id == h->id);
+    ASSERT((off & (size - 1)) == 0);
+    b->map[id >> 3] &= ~(1 << (id & 7));
+    size_t k = 0;
+    int  i;
+    for (i = 0; i < MAPSIZE; ++i) {
+      k |= b->map[i] != 0;
+    }
+    if (0 == k) {
+      int j = -1;
+      for (i = 0; i < countof(unit_size); ++i) {
+        if (size == unit_size[i]) {
+          j = i;
+          break;
         }
-
-        //找到一个非空的链表
-        if ( (node = *ref) ) 
-        {
-            if ((*ref = node->next) == NULL && i >= max_index) 
-            {//当前链表没有后续node，并且拿走的node属于当前最大索引节点，则调整最大索引节点
-                do 
-                {
-                    ref--;
-                    max_index--;
-                }
-                while (*ref == NULL && max_index > 0);
-
-                allocator->max_index = max_index;
-            }
-
-            allocator->current_free_index += node->index + 1;
-            if (allocator->current_free_index > allocator->max_free_index)
-                allocator->current_free_index = allocator->max_free_index;
-
-            if (allocator->pcs)
-                LeaveCriticalSection(allocator->pcs);
-
-            node->next = NULL;
-            node->first_avail = (char *)node + SIZEOF_MEMNODE;
-
-            return node;
-        }
-
-        if (allocator->pcs)
-            LeaveCriticalSection(allocator->pcs);
+      }
+      ASSERT(j >= 0);
+      LIST_DEL(mp->blks[j], b);
+      free(b);
     }
-    //大于当前最大节点,则用0索引 如果它不为空
-    else if (allocator->pfree[0]) 
-    {
-        if (allocator->pcs)
-            EnterCriticalSection(allocator->pcs);
+  }
+  *pp = NULL;
+  return 0;
+}
 
-        //找到第一个满足大小的不为空节点
-        ref = &allocator->pfree[0];
-        while (  (node = *ref)  && index > node->index)
-            ref = &node->next;
-
-        if (node) 
-        {
-            *ref = node->next;
-
-            allocator->current_free_index += node->index + 1;
-            if (allocator->current_free_index > allocator->max_free_index)
-                allocator->current_free_index = allocator->max_free_index;
-
-            if (allocator->pcs)
-                LeaveCriticalSection(allocator->pcs);
-
-
-            node->next = NULL;
-            node->first_avail = (char *)node + SIZEOF_MEMNODE;
-
-            return node;
-        }
-
-        if (allocator->pcs)
-            LeaveCriticalSection(allocator->pcs);
-
+mem_head_t* get_block1(mem_block_head_t** p, size_t unit_size)
+{
+  unsigned char* ptr = NULL;
+  mem_head_t* h = NULL;
+  size_t num = (MAPSIZE * 8);
+  mem_block_head_t* p1 = *p;
+  for (; p1; p1 = p1->next) {
+    unsigned char* map = p1->map;
+    for (int i = 0; i < num; ++i) {
+      if ( !((map[i >> 3] >> (i & 7)) & 1) ) {
+        map[i >> 3] |= 1 << (i & 7);
+        ptr = (unsigned char*)(p1 + 1);
+        ptr += i * unit_size;
+        h = (mem_head_t*)ptr;
+        h->x = p1;
+        h->id = i;
+        return h;
+      }
     }
-
-    //什么都没找到，直接申请
-    if ((node = (MEMNODE*)malloc(size)) == NULL)
-        return NULL;
-
-    node->next = NULL;
-    node->index = index;
-    node->first_avail = (char *)node + SIZEOF_MEMNODE;
-    node->endp = (char *)node + size;
-
-    return node;
+  }
+  return h;
+}
+mem_head_t* get_block(mem_block_head_t** p, size_t unit_size)
+{
+  mem_head_t* h = get_block1(p, unit_size);
+  if (h == NULL) {
+    size_t num = (MAPSIZE * 8);
+    mem_block_head_t* p1 = *p;
+    unsigned char* ptr = NULL;
+    p1 = (mem_block_head_t*)malloc(sizeof(mem_block_head_t) + num * unit_size);
+    memset(p1, 0, sizeof(mem_block_head_t));
+    LIST_ADDFRONT((*p), p1);
+    p1->map[0] = 1;
+    p1->unit_size = unit_size;
+    ptr = (unsigned char*)(p1 + 1);
+    h = (mem_head_t*)ptr;
+    h->x = p1;
+    h->id = 0;
+  }
+  return h;
+}
+int mempool_alloc(void** pp, size_t n)
+{
+  if (*pp) {
+    mem_head_t* h = ((mem_head_t*)(*pp)) - 1;
+    if (n < h->size) {
+      h->used = n;
+      return 0;
+    }
+  }
+  size_t n1 = n + sizeof(mem_head_t);
+  for (int i = 0; i < countof(unit_size); ++i) {
+    if (n1 < unit_size[i]) {
+      mem_head_t* h = get_block(mp->blks + i, unit_size[i]);
+      h->size = unit_size[i] - sizeof(mem_head_t);
+      h->used = n;
+      h->free_ = mempool_free;
+      if (*pp) {
+        mem_head_t* h0 = ((mem_head_t*)(*pp)) - 1;
+        memcpy(h + 1, h0 + 1, MIN(h0->used, h->used));
+        mempool_free(pp);
+      }
+      *pp = h + 1;
+      return 0;
+    }
+  }
+  defult_alloc(pp, n);
+  return 0;
 }
 
 
-void Allocator_free(ALLOCATOR *allocator, MEMNODE *node)
+int test_alloc(alloc_fun_t alloc)
 {
-    MEMNODE *next, *freelist = NULL;
-    unsigned int index, max_index;
-    unsigned int max_free_index, current_free_index;
-
-    if (allocator->pcs)
-        EnterCriticalSection(allocator->pcs);
-
-    max_index = allocator->max_index;
-    max_free_index = allocator->max_free_index;
-    current_free_index = allocator->current_free_index;
-
-    do 
-    {
-        next = node->next;
-        index = node->index;
-
-        if (max_free_index != 0
-            && index + 1 > current_free_index) 
-        {//已经超过最大容量，归还给系统
-            node->next = freelist;
-            freelist = node;
-        }
-        else if (index < MAX_INDEX) 
-        {//小于80K，属于规则节点(1-19) 
-            if ((node->next = allocator->pfree[index]) == NULL
-                && index > max_index) 
-            {//属于当前最大节点，更新max_index。
-                max_index = index;
-            }
-            allocator->pfree[index] = node;
-            if (current_free_index >= (index + 1))
-                current_free_index -= (index + 1);
-            else
-                current_free_index = 0;
-        }
-        else 
-        {//大于80K,挂到0索引中
-            node->next = allocator->pfree[0];
-            allocator->pfree[0] = node;
-            if (current_free_index >= (index + 1))
-                current_free_index -= (index + 1);
-            else
-                current_free_index = 0;
-        }
-    } while ( (node = next)  );
-
-    allocator->max_index = max_index;
-    allocator->current_free_index = current_free_index;
-
-    if (allocator->pcs)
-        LeaveCriticalSection(allocator->pcs);
-
-
-    while (freelist != NULL) 
-    {
-        node = freelist;
-        freelist = node->next;
-        free(node);
+  enum {NN = 1000};
+  void* p[NN] = {0};
+  int i;
+  for (i = 0; i < NN; ++i) {
+    int sz = rand() % 1000;
+    sz = 10;
+    alloc(p + i, sz);
+  }
+  for (int k = 2; k < 10; ++k) {
+    for (i = 0; i < NN; i += k) {
+      mfree(p + i);
     }
+    for (i = 0; i < NN; i += k) {
+      int sz = rand() % 1000;
+      sz = 10;
+      alloc(p + i, sz);
+    }
+  }
+  for (i = 0; i < NN; ++i) {
+    mfree(p + i);
+  }
+  return 0;
 }
 
+#include "utime.h"
 
-
-typedef struct _MEMPOOL 
+int test_mempool()
 {
-    struct _MEMPOOL         *parent;
-    struct _MEMPOOL         *child;
-    struct _MEMPOOL         *sibling;
-    struct _MEMPOOL         **ref;
-
-    struct _CLEANUP         *cleanups;
-    struct _CLEANUP         *free_cleanups;
-
-    struct _ALLOCATOR       *allocator;
-    struct _MEMNODE         *active;
-} MEMPOOL;
-
-
-#define node_free_space(node_) ((size_t)(node_->endp - node_->first_avail))
-
-#define list_remove(node) do {      \
-    *node->ref = node->next;        \
-    node->next->ref = node->ref;    \
-} while (0)
-
-#define list_insert(node, point) do {           \
-    node->ref = point->ref;                     \
-    *node->ref = node;                          \
-    node->next = point;                         \
-    point->ref = &node->next;                   \
-} while (0)
-
-
-const unsigned int SIZEOF_MEMPOOL   = MEM_ALIGN_DEFAULT(sizeof(MEMPOOL));//MEMPOOL大小
-static int          pools_initialized   = 0;
-static ALLOCATOR    *global_allocator   = NULL;
-static MEMPOOL      *global_pool        = NULL;
-
-
-BOOL Pool_Create(MEMPOOL **newpool,MEMPOOL *parent,ALLOCATOR *allocator /* = NULL */)
-{
-    MEMPOOL *pool;
-    MEMNODE *node;
-
-    if (newpool==NULL)
-        return FALSE;
-
-    if (parent == NULL)
-        parent = global_pool;
-
-    if (allocator == NULL)
-        allocator = parent->allocator;
-
-
-    if ((node = Allocator_alloc(allocator,MIN_ALLOC - SIZEOF_MEMNODE)) == NULL) 
-        return FALSE;
-
-    node->next = node;
-    node->ref = &node->next;
-
-    //正如步骤1中所说，将MEMPOOL紧跟MEMNODE之后
-    pool = (MEMPOOL *)node->first_avail;
-    node->first_avail = (char *)pool + SIZEOF_MEMPOOL;
-
-    pool->allocator     = allocator;
-    pool->active        = node;
-    pool->child         = NULL;
-    pool->cleanups      = NULL;
-    pool->free_cleanups = NULL;
-
-    //以下代码则是在构建MEMPOOL之间的树型结构
-    if (  (pool->parent = parent) ) 
+  if (1) {
     {
-        CRITICAL_SECTION *pcs;
-
-        if ( (pcs = Allocator_CS_Get(parent->allocator)) )
-            EnterCriticalSection(pcs);
-
-
-        if ( (pool->sibling = parent->child) )
-            pool->sibling->ref = &pool->sibling;
-
-        parent->child = pool;
-        pool->ref = &parent->child;
-
-
-        if (pcs)
-            LeaveCriticalSection(pcs);
-
+      utime_test a;
+      test_alloc(defult_alloc);
     }
-    else 
     {
-        pool->sibling = NULL;
-        pool->ref = NULL;
+      utime_test a;
+      test_alloc(mempool_alloc);
     }
-
-    *newpool = pool;
-
-    return TRUE;
+  }
+  return 0;
 }
-
-//最后就是大家最关心的实际内存申请的函数：
-
-void * Mem_Alloc(MEMPOOL *pool, size_t in_size)
-{
-    MEMNODE *active, *node;
-    void *mem;
-    size_t size, free_index;
-
-    size = MEM_ALIGN_DEFAULT(in_size);      //最接近的不小于8的倍数
-    if (size < in_size) return NULL;
-
-    active = pool->active;
-
-    //如果有剩余空间，直接使用
-    if (size <= node_free_space(active)) 
-    {
-        mem = active->first_avail;
-        active->first_avail += size;
-
-        memset(mem,0,in_size);
-        return mem;
-    }
-
-    node = active->next;//查看下一个剩余空间是否够用
-    if (size <= node_free_space(node)) 
-    {
-        list_remove(node);
-    }
-    else 
-    {//还是不够用则后面的肯定也不够用，因为剩余空间大小是排过序的
-        if ((node = Allocator_alloc(pool->allocator, size)) == NULL) 
-            return NULL;
-    }
-
-    node->free_index = 0;   
-
-    mem = node->first_avail;
-    node->first_avail += size;
-
-    list_insert(node, active);
-
-    pool->active = node;
-
-    free_index = (MEM_ALIGN(active->endp - active->first_avail + 1,
-        BOUNDARY_SIZE) - BOUNDARY_SIZE) >> BOUNDARY_INDEX;  //最近的小于4096的倍数
-
-    active->free_index = free_index;
-    node = active->next;
-    if (free_index >= node->free_index)
-    {
-        memset(mem,0,in_size);
-        return mem;
-    }
-
-    //按剩余空间从大到小排序
-    do 
-    {
-        node = node->next;
-    }
-    while (free_index < node->free_index);
-
-    list_remove(active);
-    list_insert(active, node);
-
-    memset(mem,0,in_size);
-    return mem;
-}
-
-
-BOOL Allocator_Create(ALLOCATOR **allocator)
-{
-    ALLOCATOR *new_allocator;
-
-    if (allocator == NULL)
-        return FALSE;
-
-    if ((new_allocator = (ALLOCATOR*)malloc(SIZEOF_ALLOCATOR)) == NULL)
-        return FALSE;
-
-    memset(new_allocator, 0, SIZEOF_ALLOCATOR);
-
-    *allocator = new_allocator;
-
-    return TRUE;
-}
-void Allocator_Destroy(ALLOCATOR *allocator)
-{
-    unsigned int index;
-    MEMNODE *node, **ref;
-
-    for (index = 0; index < MAX_INDEX; index++) 
-    {
-        ref = &allocator->pfree[index];
-        while ( (node = *ref) ) 
-        {
-            *ref = node->next;
-            free(node);
-        }
-    }
-
-    free(allocator);
-}
-
-void Allocator_max_free_Set(ALLOCATOR *allocator,size_t in_size)
-{
-    unsigned int max_free_index;
-    unsigned int size = in_size;
-
-    CRITICAL_SECTION *pcs;
-
-    pcs = Allocator_CS_Get(allocator);
-    if (pcs)
-        EnterCriticalSection(pcs);
-
-
-    max_free_index = MEM_ALIGN(size, BOUNDARY_SIZE) >> BOUNDARY_INDEX;
-    allocator->current_free_index += max_free_index;
-    allocator->current_free_index -= allocator->max_free_index;
-    allocator->max_free_index = max_free_index;
-    if (allocator->current_free_index > max_free_index)
-        allocator->current_free_index = max_free_index;
-
-
-    if (pcs)
-        LeaveCriticalSection(pcs);
-}
-
-
-void Pool_Cleanup_Register(MEMPOOL *p, const void *data,CLEANUP_FUNC cleanup_fnc)
-{
-    CLEANUP *c;
-
-    if ( p ) 
-    {
-        c =(CLEANUP *) Mem_Alloc(p, sizeof(CLEANUP));
-
-        c->data = data;
-        c->cleanup_func = cleanup_fnc;
-
-        c->next = p->cleanups;
-        p->cleanups = c;
-    }
-}
-static void Run_Cleanups(CLEANUP **cref)
-{
-    CLEANUP *c = *cref;
-
-    while (c) 
-    {
-        *cref = c->next;
-        c->cleanup_func((void*)c->data);
-        c = *cref;
-    }
-}
-
-BOOL CriticalSection_Create(CRITICAL_SECTION **ppCS,MEMPOOL *pool)
-{
-    (*ppCS) = (CRITICAL_SECTION *)Mem_Alloc(pool, sizeof(**ppCS));
-
-    InitializeCriticalSection(*ppCS);
-
-    Pool_Cleanup_Register(pool, (*ppCS), thread_mutex_cleanup);
-    return TRUE;
-}
-static int thread_mutex_cleanup(void *data)
-{
-    CRITICAL_SECTION *pcs = (CRITICAL_SECTION *)data;
-
-    DeleteCriticalSection(pcs);
-
-    return true;
-}
-
-void Pool_Destroy(MEMPOOL *pool)
-{
-    MEMNODE *active;
-    ALLOCATOR *allocator;
-
-    while (pool->child)
-        Pool_Destroy(pool->child);
-
-    Run_Cleanups(&pool->cleanups);
-
-    if (pool->parent) 
-    {
-
-        CRITICAL_SECTION *pcs;
-
-        if ( (pcs = Allocator_CS_Get(pool->parent->allocator)) )
-            EnterCriticalSection(pcs);
-
-
-        if ( (*pool->ref = pool->sibling) )
-            pool->sibling->ref = pool->ref;
-
-        if (pcs)
-            LeaveCriticalSection(pcs);
-
-    }
-
-
-    allocator = pool->allocator;
-    active = pool->active;
-    *active->ref = NULL;
-
-
-    if (Allocator_owner_Get(allocator) == pool)
-    { 
-        Allocator_CS_Set(allocator, NULL);
-    }
-
-    Allocator_free(allocator, active);
-
-
-    if (Allocator_owner_Get(allocator) == pool) 
-    {
-        Allocator_Destroy(allocator);
-    }
-}
-
-
-BOOL Pool_Initialize(void)
-{
-    if (pools_initialized++)
-        return TRUE;
-
-    if (Allocator_Create(&global_allocator) == FALSE) 
-    {
-        pools_initialized = 0;
-        return FALSE;
-    }
-
-    if ( Pool_Create(&global_pool, NULL,global_allocator) == FALSE) 
-    {
-        Allocator_Destroy(global_allocator);
-        global_allocator = NULL;
-        pools_initialized = 0;
-        return FALSE;
-    }
-
-    CRITICAL_SECTION* pcs;
-
-    if ( CriticalSection_Create(&pcs,global_pool) == FALSE) 
-    {
-        return FALSE;
-    }
-
-    Allocator_CS_Set(global_allocator, pcs);
-
-    Allocator_owner_Set(global_allocator, global_pool);
-
-    return TRUE;
-}
-
-void Pool_Terminate(void)
-{
-    if (pools_initialized==0)
-        return;
-
-    if (--pools_initialized)
-        return;
-
-    Pool_Destroy(global_pool); /* This will also destroy the mutex */
-    global_pool = NULL;
-
-    global_allocator = NULL;
-}
-

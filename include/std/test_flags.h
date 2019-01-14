@@ -10,13 +10,12 @@ int test_flags()
 {
   char* argv[] = {
     "test_flags",
-      "-confPath",  "C:/conf/setup.ini",
-      "-port = 888",
-      "-daemon",  "false",
+    "-confPath",  "C:/conf/setup.ini",
+    "-port = 888",
+    "-daemon",  "false",
   };
   int argc = countof(argv);
   ParseCommandLineFlags(argc, argv, true);
-  
   printf("confPath = %s\n", FLAGS_confPath);
   printf("port = %d\n", FLAGS_port);
   LOG(INFO) << "asdfasf" << 123 << 345.2345;

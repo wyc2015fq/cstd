@@ -51,11 +51,11 @@ typedef enum {
   KEY_DELETE, // FOR TEXT EDIT
   KEY_BACK, // FOR TEXT EDIT
   KEY_ESCAPE, // FOR TEXT EDIT
-              //KEY_CTRL,
-              //KEY_SHIFT,
-              //KEY_ALT,
-              //KEY_SUPER,
-              KEY_COUNT
+  //KEY_CTRL,
+  //KEY_SHIFT,
+  //KEY_ALT,
+  //KEY_SUPER,
+  KEY_COUNT
 } KeyCode;
 typedef enum {
   MOUSE_LBUTTON,

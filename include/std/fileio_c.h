@@ -9,7 +9,7 @@
 #include <direct.h>
 #else
 #include <sys/types.h>
-#include <sys/stat.h> 
+#include <sys/stat.h>
 #include <unistd.h>
 
 
@@ -84,7 +84,7 @@ CC_INLINE int loadfile(const char* fname, void* buf, int buflen, int pos)
   if (NULL == pf) {
     return 0;
   }
-  if (pos>0) {
+  if (pos > 0) {
     fseek(pf, pos, SEEK_SET);
   }
   n = fread(buf, 1, buflen, pf);
