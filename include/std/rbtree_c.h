@@ -52,7 +52,7 @@ static rbnodeptr _Min(rbnodeptr _P)
   return (_P);
 }
 
-rbnodeptr _Dec(rbnodeptr& _Ptr)
+rbnodeptr _Dec(rbnodeptr & _Ptr)
 {
   if (_Color(_Ptr) == _Red && _Parent(_Parent(_Ptr)) == _Ptr) {
     _Ptr = _Right(_Ptr);
@@ -68,7 +68,7 @@ rbnodeptr _Dec(rbnodeptr& _Ptr)
   return _Ptr;
 }
 
-rbnodeptr _Inc(rbnodeptr& _Ptr)
+rbnodeptr _Inc(rbnodeptr & _Ptr)
 {
   if (_Right(_Ptr) != _Nil) {
     _Ptr = _Min(_Right(_Ptr));
@@ -83,12 +83,14 @@ rbnodeptr _Inc(rbnodeptr& _Ptr)
   }
   return _Ptr;
 }
-rbnodeptr Dec_(rbnodeptr& _Ptr) {
+rbnodeptr Dec_(rbnodeptr & _Ptr)
+{
   rbnodeptr ret = _Ptr;
   _Dec(_Ptr);
   return ret;
 }
-rbnodeptr Inc_(rbnodeptr& _Ptr) {
+rbnodeptr Inc_(rbnodeptr & _Ptr)
+{
   rbnodeptr ret = _Ptr;
   _Inc(_Ptr);
   return ret;
@@ -99,7 +101,7 @@ struct _Lockit {};
 #define _Destval(_P)         if (Freenode) Freenode(*(_P), NULL)
 #define _Freenode(_S)        if (Freenode) Freenode(_S, NULL)
 #define _Copynode(_S, from)  if (Freenode) Freenode(_S, from)
-typedef void (*set_rbtree_fun_t)(rbnodeptr& _S, rbnodeptr x);
+typedef void (*set_rbtree_fun_t)(rbnodeptr & _S, rbnodeptr x);
 
 rbnodeptr _Buynode(rbnodeptr _Parg, _Redbl _Carg, rbnodeptr x)
 {

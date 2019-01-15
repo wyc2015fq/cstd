@@ -42,8 +42,8 @@ struct _Acc {
 
 typedef _Nodeptr iterator;
 
-iterator& begin(list_t* list) {return (iterator(_Acc::_Next(list->_Head))); }
-iterator& end(list_t* list) {return (iterator(list->_Head)); }
+iterator & begin(list_t* list) {return (iterator(_Acc::_Next(list->_Head))); }
+iterator & end(list_t* list) {return (iterator(list->_Head)); }
 size_t size(list_t* list) {return (list->_Size); }
 bool empty(list_t* list) {return (size(list) == 0); }
 
@@ -77,8 +77,9 @@ void insert(iterator _P, size_t _M,  void* _X)
 
 void insert(iterator _P, iterator _F, iterator _L)
 {
-  for (; _F != _L; ++_F)
+  for (; _F != _L; ++_F) {
     insert(_P, _Acc::_Value(_F));
+  }
 }
 
 iterator erase(iterator _P)
@@ -143,7 +144,8 @@ void list_free(list_t* list)
   _Freenode(_Head);
   _Head = 0, _Size = 0;
 }
-void clear(list_t* list) {
+void clear(list_t* list)
+{
   erase(begin(list), end(list));
 }
 void _Splice(iterator _P, iterator _F, iterator _L)
@@ -155,9 +157,8 @@ void _Splice(iterator _P, iterator _F, iterator _L)
   _Acc::_Prev(_P) = _Acc::_Prev(_L);
   _Acc::_Prev(_L) = _Acc::_Prev(_F);
   _Acc::_Prev(_F) = _S;
-  
 }
-void _Xran() 
+void _Xran()
 {}
 
 void splice(iterator _P, list_t* _X)
@@ -184,24 +185,24 @@ void remove_if(list_t* list, void* _V, cmp_fun_t cmp)
 {
   iterator _L = end(list);
   for (iterator _F = begin(list); _F != _L; ) {
-    if (0==cmp(_Acc::_Value(_F), _V)) {
+    if (0 == cmp(_Acc::_Value(_F), _V)) {
       erase(_F++);
     } else {
       ++_F;
     }
   }
 }
-void unique(list_t* list, cmp_fun_t cmp) {
+void unique(list_t* list, cmp_fun_t cmp)
+{
   iterator _F = begin(list), _L = end(list);
   for (iterator _M = _F; _M != _L; _M = _F) {
     _M = _Acc::_Next(_M);
-    if (0==cmp(_Acc::_Value(_F), _Acc::_Value(_M))) {
+    if (0 == cmp(_Acc::_Value(_F), _Acc::_Value(_M))) {
       erase(_M);
     } else {
       _F = _M;
     }
   }
-  
 }
 
 void merge(list_t* list, list_t* _X, cmp_fun_t cmp)
@@ -230,7 +231,7 @@ void merge(list_t* list, list_t* _X, cmp_fun_t cmp)
 void sort(list_t* list)
 {
   if (2 <= size(list)) {
-     size_t _MAXN = 15;
+    size_t _MAXN = 15;
     list_t _X(allocator), _A[_MAXN + 1];
     size_t _N = 0;
     while (!empty()) {
@@ -257,7 +258,7 @@ void sort(list_t* list)
 void sort(_Pr3 _Pr)
 {
   if (2 <= size(list)) {
-     size_t _MAXN = 15;
+    size_t _MAXN = 15;
     list_t _X(allocator), node_alloc_fun_t[_MAXN + 1];
     size_t _N = 0;
     while (!empty()) {
