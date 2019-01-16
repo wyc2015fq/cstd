@@ -1,342 +1,532 @@
+// array standard header
+#pragma once
+#ifndef _ARRAY_
+#define _ARRAY_
+#ifndef RC_INVOKED
+#include <algorithm>
+#include <iterator>
+#include <tuple>
 
-#ifndef __ARRAY_HPP__
-#define __ARRAY_HPP__
+#pragma pack(push,_CRT_PACKING)
+#pragma warning(push,3)
+#pragma push_macro("new")
+#undef new
 
-#include "templ.hpp"
+#pragma warning(disable: 4702 6385)
 
-template <class TYPE, class ARG_TYPE>
-class CArray {
+_STD_BEGIN
+// TEMPLATE CLASS array
+template < class _Ty,
+         size_t _Size >
+class array
+{
+  // fixed size array of values
 public:
-  TYPE* m_pData;   // the actual array of data
-  int m_nSize;     // # of elements (upperBound - 1)
-  int m_nMaxSize;  // max allocated
-  int m_nGrowBy;   // grow amount
-// CArray<TYPE, ARG_TYPE> inline functions
-    AFX_INLINE int GetSize() const
-  { return m_nSize; }
-  
-    AFX_INLINE int GetUpperBound() const
-  { return m_nSize-1; }
-  
-    AFX_INLINE void RemoveAll()
-  { SetSize(0, -1); }
-  
-    AFX_INLINE TYPE GetAt(int nIndex) const
-  { ASSERT(nIndex >= 0 && nIndex < m_nSize);
-		return m_pData[nIndex]; }
-  
-    AFX_INLINE void SetAt(int nIndex, ARG_TYPE newElement)
-  { ASSERT(nIndex >= 0 && nIndex < m_nSize);
-		m_pData[nIndex] = newElement; }
-  
-    AFX_INLINE TYPE& ElementAt(int nIndex)
-  { ASSERT(nIndex >= 0 && nIndex < m_nSize);
-		return m_pData[nIndex]; }
-  
-    AFX_INLINE const TYPE* GetData() const
-  { return (const TYPE*)m_pData; }
-  
-    AFX_INLINE TYPE* GetData()
-  { return (TYPE*)m_pData; }
-  
-    AFX_INLINE int Add(ARG_TYPE newElement)
-  { int nIndex = m_nSize;
-		SetAtGrow(nIndex, newElement);
-    return nIndex; }
-  
-    AFX_INLINE TYPE operator[](int nIndex) const
-  { return GetAt(nIndex); }
-  
-    AFX_INLINE TYPE& operator[](int nIndex)
-  { return ElementAt(nIndex); }
+  typedef array<_Ty, _Size> _Myt;
+  typedef _Ty value_type;
+  typedef size_t size_type;
+  typedef ptrdiff_t difference_type;
+  typedef _Ty* pointer;
+  typedef const _Ty* const_pointer;
+  typedef _Ty & reference;
+  typedef const _Ty & const_reference;
 
+  typedef _Array_iterator<_Ty, _Size> iterator;
+  typedef _Array_const_iterator<_Ty, _Size> const_iterator;
 
-    
-/////////////////////////////////////////////////////////////////////////////
-// CArray<TYPE, ARG_TYPE> out-of-line functions
+  typedef _STD reverse_iterator<iterator> reverse_iterator;
+  typedef _STD reverse_iterator<const_iterator> const_reverse_iterator;
 
+#if _HAS_TR1_NAMESPACE
+  void assign(const _Ty & _Value) {
+    // assign value to all elements
+    _Fill_n_unchecked(_Elems, _Size, _Value);
+  }
+#endif /* _HAS_TR1_NAMESPACE */
 
-CArray()
-{
-	m_pData = NULL;
-	m_nSize = m_nMaxSize = m_nGrowBy = 0;
-}
+  void fill(const _Ty & _Value) {
+    // assign value to all elements
+    _Fill_n_unchecked(_Elems, _Size, _Value);
+  }
 
+  iterator begin() _NOEXCEPT {
+    // return iterator for beginning of mutable sequence
+    return (iterator(_STD addressof(_Elems[0]), 0));
+  }
 
-~CArray()
-{
-	ASSERT_VALID(this);
+  const_iterator begin() const _NOEXCEPT {
+    // return iterator for beginning of nonmutable sequence
+    return (const_iterator(_STD addressof(_Elems[0]), 0));
+  }
 
-	if (m_pData != NULL)
-	{
-		DestructElements<TYPE>(m_pData, m_nSize);
-		delete[] (BYTE*)m_pData;
-	}
-}
+  iterator end() _NOEXCEPT {
+    // return iterator for end of mutable sequence
+    return (iterator(_STD addressof(_Elems[0]), _Size));
+  }
 
+  const_iterator end() const _NOEXCEPT {
+    // return iterator for beginning of nonmutable sequence
+    return (const_iterator(_STD addressof(_Elems[0]), _Size));
+  }
 
-void SetSize(int nNewSize, int nGrowBy = -1)
-{
-	ASSERT_VALID(this);
-	ASSERT(nNewSize >= 0);
+  reverse_iterator rbegin() _NOEXCEPT {
+    // return iterator for beginning of reversed mutable sequence
+    return (reverse_iterator(end()));
+  }
 
-	if (nGrowBy != -1)
-		m_nGrowBy = nGrowBy;  // set new size
+  const_reverse_iterator rbegin() const _NOEXCEPT {
+    // return iterator for beginning of reversed nonmutable sequence
+    return (const_reverse_iterator(end()));
+  }
 
-	if (nNewSize == 0)
-	{
-		// shrink to nothing
-		if (m_pData != NULL)
-		{
-			DestructElements<TYPE>(m_pData, m_nSize);
-			delete[] (BYTE*)m_pData;
-			m_pData = NULL;
-		}
-		m_nSize = m_nMaxSize = 0;
-	}
-	else if (m_pData == NULL)
-	{
-		// create one with exact size
-#ifdef SIZE_T_MAX
-		ASSERT(nNewSize <= SIZE_T_MAX/sizeof(TYPE));    // no overflow
-#endif
-		m_pData = (TYPE*) new BYTE[nNewSize * sizeof(TYPE)];
-		ConstructElements<TYPE>(m_pData, nNewSize);
-		m_nSize = m_nMaxSize = nNewSize;
-	}
-	else if (nNewSize <= m_nMaxSize)
-	{
-		// it fits
-		if (nNewSize > m_nSize)
-		{
-			// initialize the new elements
-			ConstructElements<TYPE>(&m_pData[m_nSize], nNewSize-m_nSize);
-		}
-		else if (m_nSize > nNewSize)
-		{
-			// destroy the old elements
-			DestructElements<TYPE>(&m_pData[nNewSize], m_nSize-nNewSize);
-		}
-		m_nSize = nNewSize;
-	}
-	else
-	{
-		// otherwise, grow array
-		int nGrowBy = m_nGrowBy;
-		if (nGrowBy == 0)
-		{
-			// heuristically determine growth when nGrowBy == 0
-			//  (this avoids heap fragmentation in many situations)
-			nGrowBy = m_nSize / 8;
-			nGrowBy = (nGrowBy < 4) ? 4 : ((nGrowBy > 1024) ? 1024 : nGrowBy);
-		}
-		int nNewMax;
-		if (nNewSize < m_nMaxSize + nGrowBy)
-			nNewMax = m_nMaxSize + nGrowBy;  // granularity
-		else
-			nNewMax = nNewSize;  // no slush
+  reverse_iterator rend() _NOEXCEPT {
+    // return iterator for end of reversed mutable sequence
+    return (reverse_iterator(begin()));
+  }
 
-		ASSERT(nNewMax >= m_nMaxSize);  // no wrap around
-#ifdef SIZE_T_MAX
-		ASSERT(nNewMax <= SIZE_T_MAX/sizeof(TYPE)); // no overflow
-#endif
-		TYPE* pNewData = (TYPE*) new BYTE[nNewMax * sizeof(TYPE)];
+  const_reverse_iterator rend() const _NOEXCEPT {
+    // return iterator for end of reversed nonmutable sequence
+    return (const_reverse_iterator(begin()));
+  }
 
-		// copy new data from old
-		memcpy(pNewData, m_pData, m_nSize * sizeof(TYPE));
+  const_iterator cbegin() const _NOEXCEPT {
+    // return iterator for beginning of nonmutable sequence
+    return (begin());
+  }
 
-		// construct remaining elements
-		ASSERT(nNewSize > m_nSize);
-		ConstructElements<TYPE>(&pNewData[m_nSize], nNewSize-m_nSize);
+  const_iterator cend() const _NOEXCEPT {
+    // return iterator for end of nonmutable sequence
+    return (end());
+  }
 
-		// get rid of old stuff (note: no destructors called)
-		delete[] (BYTE*)m_pData;
-		m_pData = pNewData;
-		m_nSize = nNewSize;
-		m_nMaxSize = nNewMax;
-	}
-}
+  const_reverse_iterator crbegin() const _NOEXCEPT {
+    // return iterator for beginning of reversed nonmutable sequence
+    return (rbegin());
+  }
 
+  const_reverse_iterator crend() const _NOEXCEPT {
+    // return iterator for end of reversed nonmutable sequence
+    return (rend());
+  }
 
-int Append(const CArray& src)
-{
-	ASSERT_VALID(this);
-	ASSERT(this != &src);   // cannot append to itself
+  constexpr size_type size() const _NOEXCEPT {
+    // return length of sequence
+    return (_Size);
+  }
 
-	int nOldSize = m_nSize;
-	SetSize(m_nSize + src.m_nSize);
-	CopyElements<TYPE>(m_pData + nOldSize, src.m_pData, src.m_nSize);
-	return nOldSize;
-}
+  constexpr size_type max_size() const _NOEXCEPT {
+    // return maximum possible length of sequence
+    return (_Size);
+  }
 
+  constexpr bool empty() const _NOEXCEPT {
+    // test if sequence is empty
+    return (false);
+  }
 
-void Copy(const CArray& src)
-{
-	ASSERT_VALID(this);
-	ASSERT(this != &src);   // cannot append to itself
+  reference at(size_type _Pos) {
+    // subscript mutable sequence with checking
+    if (_Size <= _Pos) {
+      _Xran();
+    }
+    return (_Elems[_Pos]);
+  }
 
-	SetSize(src.m_nSize);
-	CopyElements<TYPE>(m_pData, src.m_pData, src.m_nSize);
-}
+  constexpr const_reference at(size_type _Pos) const {
+    // subscript nonmutable sequence with checking
+    return (_Size <= _Pos
+            ? (_Xran(), _Elems[_Pos])
+            : _Elems[_Pos]);
+  }
 
+  reference operator[](size_type _Pos) {
+    // subscript mutable sequence
+#if _ITERATOR_DEBUG_LEVEL == 2
+    if (_Size <= _Pos) {
+      _DEBUG_ERROR("array subscript out of range");
+    }
+#elif _ITERATOR_DEBUG_LEVEL == 1
+    _SCL_SECURE_VALIDATE_RANGE(_Pos < _Size);
+#endif /* _ITERATOR_DEBUG_LEVEL */
+    _Analysis_assume_(_Pos < _Size);
+    return (_Elems[_Pos]);
+  }
 
-void FreeExtra()
-{
-	ASSERT_VALID(this);
+  static void _Bad_subscript() {
+    // report invalid subscript
+#if _ITERATOR_DEBUG_LEVEL == 2
+    _DEBUG_ERROR("array subscript out of range");
+#elif _ITERATOR_DEBUG_LEVEL == 1
+    _SCL_SECURE_VALIDATE_RANGE(false);
+#endif /* _ITERATOR_DEBUG_LEVEL */
+  }
 
-	if (m_nSize != m_nMaxSize)
-	{
-		// shrink to desired size
-#ifdef SIZE_T_MAX
-		ASSERT(m_nSize <= SIZE_T_MAX/sizeof(TYPE)); // no overflow
-#endif
-		TYPE* pNewData = NULL;
-		if (m_nSize != 0)
-		{
-			pNewData = (TYPE*) new BYTE[m_nSize * sizeof(TYPE)];
-			// copy new data from old
-			memcpy(pNewData, m_pData, m_nSize * sizeof(TYPE));
-		}
+  constexpr const_reference operator[](size_type _Pos) const {
+    // subscript nonmutable sequence
+#if _ITERATOR_DEBUG_LEVEL == 0
+    return (_Elems[_Pos]);
+#else /* _ITERATOR_DEBUG_LEVEL == 0 */
+    return (_Size <= _Pos
+            ? (_Bad_subscript(), _Elems[_Pos])
+            : _Elems[_Pos]);
+#endif /* _ITERATOR_DEBUG_LEVEL == 0 */
+  }
 
-		// get rid of old stuff (note: no destructors called)
-		delete[] (BYTE*)m_pData;
-		m_pData = pNewData;
-		m_nMaxSize = m_nSize;
-	}
-}
+  reference front() {
+    // return first element of mutable sequence
+    return (_Elems[0]);
+  }
 
+  constexpr const_reference front() const {
+    // return first element of nonmutable sequence
+    return (_Elems[0]);
+  }
 
-void SetAtGrow(int nIndex, ARG_TYPE newElement)
-{
-	ASSERT_VALID(this);
-	ASSERT(nIndex >= 0);
+  reference back() {
+    // return last element of mutable sequence
+    return (_Elems[_Size - 1]);
+  }
 
-	if (nIndex >= m_nSize)
-		SetSize(nIndex+1, -1);
-	m_pData[nIndex] = newElement;
-}
+  constexpr const_reference back() const {
+    // return last element of nonmutable sequence
+    return (_Elems[_Size - 1]);
+  }
 
+  _Ty* data() _NOEXCEPT {
+    // return pointer to mutable data array
+    return (_Elems);
+  }
 
-void InsertAt(int nIndex, ARG_TYPE newElement, int nCount = 1)
-{
-	ASSERT_VALID(this);
-	ASSERT(nIndex >= 0);    // will expand to meet need
-	ASSERT(nCount > 0);     // zero or negative size not allowed
+  const _Ty* data() const _NOEXCEPT {
+    // return pointer to nonmutable data array
+    return (_Elems);
+  }
 
-	if (nIndex >= m_nSize)
-	{
-		// adding after the end of the array
-		SetSize(nIndex + nCount, -1);   // grow so nIndex is valid
-	}
-	else
-	{
-		// inserting in the middle of the array
-		int nOldSize = m_nSize;
-		SetSize(m_nSize + nCount, -1);  // grow it to new size
-		// destroy intial data before copying over it
-		DestructElements<TYPE>(&m_pData[nOldSize], nCount);
-		// shift old data up to fill gap
-		memmove(&m_pData[nIndex+nCount], &m_pData[nIndex],
-			(nOldSize-nIndex) * sizeof(TYPE));
+  [[noreturn]] void _Xran() const {
+    // report an out_of_range error
+    _Xout_of_range("invalid array<T, N> subscript");
+  }
 
-		// re-init slots we copied from
-		ConstructElements<TYPE>(&m_pData[nIndex], nCount);
-	}
+  _Ty _Elems[_Size];
 
-	// insert new value in the gap
-	ASSERT(nIndex + nCount <= m_nSize);
-	while (nCount--)
-		m_pData[nIndex++] = newElement;
-}
-
-
-void RemoveAt(int nIndex, int nCount = 1)
-{
-	ASSERT_VALID(this);
-	ASSERT(nIndex >= 0);
-	ASSERT(nCount >= 0);
-	ASSERT(nIndex + nCount <= m_nSize);
-
-	// just remove a range
-	int nMoveCount = m_nSize - (nIndex + nCount);
-	DestructElements<TYPE>(&m_pData[nIndex], nCount);
-	if (nMoveCount)
-		memmove(&m_pData[nIndex], &m_pData[nIndex + nCount],
-			nMoveCount * sizeof(TYPE));
-	m_nSize -= nCount;
-}
-
-
-void InsertAt(int nStartIndex, CArray* pNewArray)
-{
-	ASSERT_VALID(this);
-	ASSERT(pNewArray != NULL);
-	ASSERT_VALID(pNewArray);
-	ASSERT(nStartIndex >= 0);
-
-	if (pNewArray->GetSize() > 0)
-	{
-		InsertAt(nStartIndex, pNewArray->GetAt(0), pNewArray->GetSize());
-		for (int i = 0; i < pNewArray->GetSize(); i++)
-			SetAt(nStartIndex + i, pNewArray->GetAt(i));
-	}
-}
-
-
-void Serialize(CArchive& ar)
-{
-	ASSERT_VALID(this);
-
-	CObject::Serialize(ar);
-	if (ar.IsStoring())
-	{
-		ar.WriteCount(m_nSize);
-	}
-	else
-	{
-		DWORD nOldSize = ar.ReadCount();
-		SetSize(nOldSize, -1);
-	}
-	SerializeElements<TYPE>(ar, m_pData, m_nSize);
-}
-
-#ifdef _DEBUG
-
-void Dump(CDumpContext& dc) const
-{
-	CObject::Dump(dc);
-
-	dc << "with " << m_nSize << " elements";
-	if (dc.GetDepth() > 0)
-	{
-		dc << "\n";
-		DumpElements<TYPE>(dc, m_pData, m_nSize);
-	}
-
-	dc << "\n";
-}
-
-
-void AssertValid() const
-{
-	CObject::AssertValid();
-
-	if (m_pData == NULL)
-	{
-		ASSERT(m_nSize == 0);
-		ASSERT(m_nMaxSize == 0);
-	}
-	else
-	{
-		ASSERT(m_nSize >= 0);
-		ASSERT(m_nMaxSize >= 0);
-		ASSERT(m_nSize <= m_nMaxSize);
-		ASSERT(AfxIsValidAddress(m_pData, m_nMaxSize * sizeof(TYPE)));
-	}
-}
-#endif //_DEBUG
-
+  void swap(_Myt & _Other)
+  _NOEXCEPT_OP(_Is_nothrow_swappable<_Ty>::value) {
+    // swap contents with _Other
+    _Swap_ranges_unchecked(_STD addressof(_Elems[0]),
+                           _STD addressof(_Elems[0]) + _Size,
+                           _STD addressof(_Other._Elems[0]));
+  }
 };
 
+template<class _Ty>
+class array<_Ty, 0>
+{
+  // zero size array of values
+public:
+  typedef array<_Ty, 0> _Myt;
+  typedef _Ty value_type;
+  typedef size_t size_type;
+  typedef ptrdiff_t difference_type;
+  typedef _Ty* pointer;
+  typedef const _Ty* const_pointer;
+  typedef _Ty & reference;
+  typedef const _Ty & const_reference;
 
-#endif // __ARRAY_HPP__
+  typedef _Array_iterator<_Ty, 0> iterator;
+  typedef _Array_const_iterator<_Ty, 0> const_iterator;
+  typedef _STD reverse_iterator<iterator> reverse_iterator;
+  typedef _STD reverse_iterator<const_iterator> const_reverse_iterator;
+
+#if _HAS_TR1_NAMESPACE
+  void assign(const _Ty &) {
+    // assign value to all elements
+  }
+#endif /* _HAS_TR1_NAMESPACE */
+
+  void fill(const _Ty &) {
+    // assign value to all elements
+  }
+
+  void swap(_Myt &) _NOEXCEPT {
+    // swap contents with _Other
+  }
+
+  iterator begin() {
+    // return iterator for beginning of mutable sequence
+    return (iterator(0, 0));
+  }
+
+  const_iterator begin() const {
+    // return iterator for beginning of nonmutable sequence
+    return (iterator(0, 0));
+  }
+
+  iterator end() {
+    // return iterator for end of mutable sequence
+    return (iterator(0, 0));
+  }
+
+  const_iterator end() const {
+    // return iterator for beginning of nonmutable sequence
+    return (iterator(0, 0));
+  }
+
+  reverse_iterator rbegin() {
+    // return iterator for beginning of reversed mutable sequence
+    return (reverse_iterator(end()));
+  }
+
+  const_reverse_iterator rbegin() const {
+    // return iterator for beginning of reversed nonmutable sequence
+    return (const_reverse_iterator(end()));
+  }
+
+  reverse_iterator rend() {
+    // return iterator for end of reversed mutable sequence
+    return (reverse_iterator(begin()));
+  }
+
+  const_reverse_iterator rend() const {
+    // return iterator for end of reversed nonmutable sequence
+    return (const_reverse_iterator(begin()));
+  }
+
+  const_iterator cbegin() const {
+    // return iterator for beginning of nonmutable sequence
+    return (iterator(0, 0));
+  }
+
+  const_iterator cend() const {
+    // return iterator for end of nonmutable sequence
+    return (iterator(0, 0));
+  }
+
+  const_reverse_iterator crbegin() const {
+    // return iterator for beginning of reversed nonmutable sequence
+    return (rbegin());
+  }
+
+  const_reverse_iterator crend() const {
+    // return iterator for end of reversed nonmutable sequence
+    return (rend());
+  }
+
+  constexpr size_type size() const {
+    // return length of sequence
+    return (0);
+  }
+
+  constexpr size_type max_size() const {
+    // return maximum possible length of sequence
+    return (0);
+  }
+
+  constexpr bool empty() const {
+    // test if sequence is empty
+    return (true);
+  }
+
+  [[noreturn]] reference at(size_type) {
+    // subscript mutable sequence with checking
+    _Xran();
+  }
+
+  [[noreturn]] const_reference at(size_type) const {
+    // subscript nonmutable sequence with checking
+    _Xran();
+  }
+
+  reference operator[](size_type) {
+    // subscript mutable sequence
+#if _ITERATOR_DEBUG_LEVEL == 2
+    _DEBUG_ERROR("array subscript out of range");
+#elif _ITERATOR_DEBUG_LEVEL == 1
+    _SCL_SECURE_VALIDATE_RANGE(false);
+#endif /* _ITERATOR_DEBUG_LEVEL */
+    return (_Elems[0]);
+  }
+
+  const_reference operator[](size_type) const {
+    // subscript nonmutable sequence
+#if _ITERATOR_DEBUG_LEVEL == 2
+    _DEBUG_ERROR("array subscript out of range");
+#elif _ITERATOR_DEBUG_LEVEL == 1
+    _SCL_SECURE_VALIDATE_RANGE(false);
+#endif /* _ITERATOR_DEBUG_LEVEL */
+    return (_Elems[0]);
+  }
+
+  reference front() {
+    // return first element of mutable sequence
+#if _ITERATOR_DEBUG_LEVEL == 2
+    _DEBUG_ERROR("array<T, 0>::front() invalid");
+#elif _ITERATOR_DEBUG_LEVEL == 1
+    _SCL_SECURE_VALIDATE_RANGE(false);
+#endif /* _ITERATOR_DEBUG_LEVEL */
+    return (_Elems[0]);
+  }
+
+  const_reference front() const {
+    // return first element of nonmutable sequence
+#if _ITERATOR_DEBUG_LEVEL == 2
+    _DEBUG_ERROR("array<T, 0>::front() invalid");
+#elif _ITERATOR_DEBUG_LEVEL == 1
+    _SCL_SECURE_VALIDATE_RANGE(false);
+#endif /* _ITERATOR_DEBUG_LEVEL */
+    return (_Elems[0]);
+  }
+
+  reference back() {
+    // return last element of mutable sequence
+#if _ITERATOR_DEBUG_LEVEL == 2
+    _DEBUG_ERROR("array<T, 0>::back() invalid");
+#elif _ITERATOR_DEBUG_LEVEL == 1
+    _SCL_SECURE_VALIDATE_RANGE(false);
+#endif /* _ITERATOR_DEBUG_LEVEL */
+    return (_Elems[0]);
+  }
+
+  const_reference back() const {
+    // return last element of nonmutable sequence
+#if _ITERATOR_DEBUG_LEVEL == 2
+    _DEBUG_ERROR("array<T, 0>::back() invalid");
+#elif _ITERATOR_DEBUG_LEVEL == 1
+    _SCL_SECURE_VALIDATE_RANGE(false);
+#endif /* _ITERATOR_DEBUG_LEVEL */
+    return (_Elems[0]);
+  }
+
+  _Ty* data() {
+    // return pointer to mutable data array
+    return (_Elems);
+  }
+
+  const _Ty* data() const {
+    // return pointer to nonmutable data array
+    return (_Elems);
+  }
+
+  [[noreturn]] void _Xran() const {
+    // report an out_of_range error
+    _Xout_of_range("invalid array<T, 0> subscript");
+  }
+
+  _Ty _Elems[1];
+};
+
+template < class _Ty,
+         size_t _Size,
+         class = enable_if_t < _Size == 0 || _Is_swappable<_Ty>::value >>
+         void swap(array<_Ty, _Size> & _Left,
+                   array<_Ty, _Size> & _Right)
+         _NOEXCEPT_OP(_NOEXCEPT_OP(_Left.swap(_Right)))
+{
+  // swap arrays
+  return (_Left.swap(_Right));
+}
+
+template < class _Ty,
+size_t _Size >
+bool operator==(const array<_Ty, _Size> & _Left,
+                const array<_Ty, _Size> & _Right)
+{
+  // test for array equality
+  return (_STD equal(_Left.begin(), _Left.end(), _Right.begin()));
+}
+
+template < class _Ty,
+size_t _Size >
+bool operator!=(const array<_Ty, _Size> & _Left,
+                const array<_Ty, _Size> & _Right)
+{
+  // test for array inequality
+  return (!(_Left == _Right));
+}
+
+template < class _Ty,
+size_t _Size >
+bool operator<(const array<_Ty, _Size> & _Left,
+               const array<_Ty, _Size> & _Right)
+{
+  // test if _Left < _Right for arrays
+  return (_STD lexicographical_compare(_Left.begin(), _Left.end(),
+                                       _Right.begin(), _Right.end()));
+}
+
+template < class _Ty,
+size_t _Size >
+bool operator>(const array<_Ty, _Size> & _Left,
+               const array<_Ty, _Size> & _Right)
+{
+  // test if _Left > _Right for arrays
+  return (_Right < _Left);
+}
+
+template < class _Ty,
+size_t _Size >
+bool operator<=(const array<_Ty, _Size> & _Left,
+                const array<_Ty, _Size> & _Right)
+{
+  // test if _Left <= _Right for arrays
+  return (!(_Right < _Left));
+}
+
+template < class _Ty,
+size_t _Size >
+bool operator>=(const array<_Ty, _Size> & _Left,
+                const array<_Ty, _Size> & _Right)
+{
+  // test if _Left >= _Right for arrays
+  return (!(_Left < _Right));
+}
+
+// TUPLE INTERFACE TO array
+template < size_t _Idx,
+class _Ty,
+size_t _Size >
+constexpr _Ty & get(array<_Ty, _Size> & _Arr) _NOEXCEPT
+{
+  // return element at _Idx in array _Arr
+  static_assert(_Idx < _Size, "array index out of bounds");
+  return (_Arr._Elems[_Idx]);
+}
+
+template < size_t _Idx,
+class _Ty,
+size_t _Size >
+constexpr const _Ty & get(const array<_Ty, _Size> & _Arr) _NOEXCEPT
+{
+  // return element at _Idx in array _Arr
+  static_assert(_Idx < _Size, "array index out of bounds");
+  return (_Arr._Elems[_Idx]);
+}
+
+template < size_t _Idx,
+class _Ty,
+size_t _Size >
+constexpr _Ty && get(array<_Ty, _Size> && _Arr) _NOEXCEPT
+{
+  // return element at _Idx in array _Arr
+  static_assert(_Idx < _Size, "array index out of bounds");
+  return (_STD move(_Arr._Elems[_Idx]));
+}
+
+#if _HAS_TR1_NAMESPACE
+namespace tr1  	// TR1 ADDITIONS
+{
+  using _STD array;
+  using _STD get;
+} // namespace tr1
+#endif /* _HAS_TR1_NAMESPACE */
+_STD_END
+
+#pragma pop_macro("new")
+#pragma warning(pop)
+#pragma pack(pop)
+#endif /* RC_INVOKED */
+#endif /* _ARRAY_ */
+
+/*
+ * Copyright (c) by P.J. Plauger. All rights reserved.
+ * Consult your license regarding permissions and restrictions.
+V6.50:0009 */

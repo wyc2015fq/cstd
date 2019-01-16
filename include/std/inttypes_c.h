@@ -33,9 +33,10 @@ typedef int int32_t;
 typedef unsigned int uint32_t;
 typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
-#endif
-#include <windows.h>
+#else
 #include <stdint.h>
+#endif // _MSC_VER < 1300
+#include <windows.h>
 #else
 // linux
 #include <inttypes.h>

@@ -1,11 +1,11 @@
-// map standard header
+// set standard header
 
 #if     _MSC_VER > 1000
 #pragma once
 #endif
 
-#ifndef _MAP_
-#define _MAP_
+#ifndef _SET_
+#define _SET_
 #include <functional>
 #include <xtree>
 
@@ -14,36 +14,22 @@
 #endif  /* _MSC_VER */
 
 _STD_BEGIN
-// TEMPLATE CLASS map
-template < class _K, class _Ty, class _Pr = less<_K>,
-         class _A = allocator<_Ty> >
-class map
+// TEMPLATE CLASS set
+template < class _K, class _Pr = less<_K>,
+         class _A = allocator<_K> >
+class set
 {
 public:
-  typedef map<_K, _Ty, _Pr, _A> _Myt;
-  typedef pair<const _K, _Ty> value_type;
+  typedef set<_K, _Pr, _A> _Myt;
+  typedef _K value_type;
   struct _Kfn : public unary_function<value_type, _K> {
     const _K & operator()(const value_type & _X) const
-    {return (_X.first); }
+    {return (_X); }
   };
-  class value_compare
-    : public binary_function<value_type, value_type, bool>
-  {
-    friend class map<_K, _Ty, _Pr, _A>;
-  public:
-    bool operator()(const value_type & _X,
-                    const value_type & _Y) const
-    {return (comp(_X.first, _Y.first)); }
-  _PROTECTED:
-    value_compare(_Pr _Pred)
-      : comp(_Pred) {}
-    _Pr comp;
-  };
+  typedef _Pr value_compare;
   typedef _K key_type;
-  typedef _Ty referent_type;
   typedef _Pr key_compare;
   typedef _A allocator_type;
-  typedef _A::reference _Tref;
   typedef _Tree<_K, value_type, _Kfn, _Pr, _A> _Imp;
   typedef _Imp::size_type size_type;
   typedef _Imp::difference_type difference_type;
@@ -56,10 +42,10 @@ public:
   typedef pair<iterator, bool> _Pairib;
   typedef pair<iterator, iterator> _Pairii;
   typedef pair<const_iterator, const_iterator> _Paircc;
-  explicit map(const _Pr & _Pred = _Pr(), const _A & _Al = _A())
+  explicit set(const _Pr & _Pred = _Pr(), const _A & _Al = _A())
     : _Tr(_Pred, false, _Al) {}
   typedef const value_type* _It;
-  map(_It _F, _It _L, const _Pr & _Pred = _Pr(),
+  set(_It _F, _It _L, const _Pr & _Pred = _Pr(),
       const _A & _Al = _A())
     : _Tr(_Pred, false, _Al) {
     for (; _F != _L; ++_F) {
@@ -94,10 +80,6 @@ public:
   {return (_Tr.empty()); }
   _A get_allocator() const
   {return (_Tr.get_allocator()); }
-  _Tref operator[](const key_type & _Kv) {
-    iterator _P = insert(value_type(_Kv, _Ty())).first;
-    return ((*_P).second);
-  }
   _Pairib insert(const value_type & _X) {
     _Imp::_Pairib _Ans = _Tr.insert(_X);
     return (_Pairib(_Ans.first, _Ans.second));
@@ -126,10 +108,10 @@ public:
   key_compare key_comp() const
   {return (_Tr.key_comp()); }
   value_compare value_comp() const
-  {return (value_compare(_Tr.key_comp())); }
-  iterator find(const _K & _Kv)
-  {return (_Tr.find(_Kv)); }
+  {return (_Tr.key_comp()); }
   const_iterator find(const _K & _Kv) const
+  {return (_Tr.find(_Kv)); }
+  iterator find(const _K & _Kv)
   {return (_Tr.find(_Kv)); }
   size_type count(const _K & _Kv) const
   {return (_Tr.count(_Kv)); }
@@ -148,64 +130,51 @@ public:
 protected:
   _Imp _Tr;
 };
-// map TEMPLATE OPERATORS
-template<class _K, class _Ty, class _Pr, class _A> inline
-bool operator==(const map<_K, _Ty, _Pr, _A> & _X,
-                const map<_K, _Ty, _Pr, _A> & _Y)
+// set TEMPLATE OPERATORS
+template<class _K, class _Pr, class _A> inline
+bool operator==(const set<_K, _Pr, _A> & _X,
+                const set<_K, _Pr, _A> & _Y)
 {
   return (_X.size() == _Y.size()
           && equal(_X.begin(), _X.end(), _Y.begin()));
 }
-template<class _K, class _Ty, class _Pr, class _A> inline
-bool operator!=(const map<_K, _Ty, _Pr, _A> & _X,
-                const map<_K, _Ty, _Pr, _A> & _Y)
+template<class _K, class _Pr, class _A> inline
+bool operator!=(const set<_K, _Pr, _A> & _X,
+                const set<_K, _Pr, _A> & _Y)
 {return (!(_X == _Y)); }
-template<class _K, class _Ty, class _Pr, class _A> inline
-bool operator<(const map<_K, _Ty, _Pr, _A> & _X,
-               const map<_K, _Ty, _Pr, _A> & _Y)
+template<class _K, class _Pr, class _A> inline
+bool operator<(const set<_K, _Pr, _A> & _X,
+               const set<_K, _Pr, _A> & _Y)
 {
   return (lexicographical_compare(_X.begin(), _X.end(),
                                   _Y.begin(), _Y.end()));
 }
-template<class _K, class _Ty, class _Pr, class _A> inline
-bool operator>(const map<_K, _Ty, _Pr, _A> & _X,
-               const map<_K, _Ty, _Pr, _A> & _Y)
+template<class _K, class _Pr, class _A> inline
+bool operator>(const set<_K, _Pr, _A> & _X,
+               const set<_K, _Pr, _A> & _Y)
 {return (_Y < _X); }
-template<class _K, class _Ty, class _Pr, class _A> inline
-bool operator<=(const map<_K, _Ty, _Pr, _A> & _X,
-                const map<_K, _Ty, _Pr, _A> & _Y)
+template<class _K, class _Pr, class _A> inline
+bool operator<=(const set<_K, _Pr, _A> & _X,
+                const set<_K, _Pr, _A> & _Y)
 {return (!(_Y < _X)); }
-template<class _K, class _Ty, class _Pr, class _A> inline
-bool operator>=(const map<_K, _Ty, _Pr, _A> & _X,
-                const map<_K, _Ty, _Pr, _A> & _Y)
+template<class _K, class _Pr, class _A> inline
+bool operator>=(const set<_K, _Pr, _A> & _X,
+                const set<_K, _Pr, _A> & _Y)
 {return (!(_X < _Y)); }
-// TEMPLATE CLASS multimap
-template < class _K, class _Ty, class _Pr = less<_K>,
-         class _A = allocator<_Ty> >
-class multimap
+// TEMPLATE CLASS multiset
+template < class _K, class _Pr = less<_K>,
+         class _A = allocator<_K> >
+class multiset
 {
 public:
-  typedef multimap<_K, _Ty, _Pr, _A> _Myt;
-  typedef pair<const _K, _Ty> value_type;
+  typedef multiset<_K, _Pr, _A> _Myt;
+  typedef _K value_type;
   struct _Kfn : public unary_function<value_type, _K> {
     const _K & operator()(const value_type & _X) const
-    {return (_X.first); }
+    {return (_X); }
   };
-  class value_compare
-    : public binary_function<value_type, value_type, bool>
-  {
-    friend class map<_K, _Ty, _Pr, _A>;
-  public:
-    bool operator()(const value_type & _X,
-                    const value_type & _Y) const
-    {return (comp(_X.first, _Y.first)); }
-  _PROTECTED:
-    value_compare(_Pr _Pred)
-      : comp(_Pred) {}
-    _Pr comp;
-  };
+  typedef _Pr value_compare;
   typedef _K key_type;
-  typedef _Ty referent_type;
   typedef _Pr key_compare;
   typedef _A allocator_type;
   typedef _Tree<_K, value_type, _Kfn, _Pr, _A> _Imp;
@@ -219,11 +188,11 @@ public:
   typedef _Imp::const_reverse_iterator const_reverse_iterator;
   typedef pair<iterator, iterator> _Pairii;
   typedef pair<const_iterator, const_iterator> _Paircc;
-  explicit multimap(const _Pr & _Pred = _Pr(),
+  explicit multiset(const _Pr & _Pred = _Pr(),
                     const _A & _Al = _A())
     : _Tr(_Pred, true, _Al) {}
   typedef const value_type* _It;
-  multimap(_It _F, _It _L, const _Pr & _Pred = _Pr(),
+  multiset(_It _F, _It _L, const _Pr & _Pred = _Pr(),
            const _A & _Al = _A())
     : _Tr(_Pred, true, _Al) {
     for (; _F != _L; ++_F) {
@@ -273,7 +242,7 @@ public:
     return (_Tr.erase((_Imp::iterator &)_F,
                       (_Imp::iterator &)_L));
   }
-  size_type erase(const _K & _Kv = _K())
+  size_type erase(const _K & _Kv)
   {return (_Tr.erase(_Kv)); }
   void clear()
   {_Tr.clear(); }
@@ -284,7 +253,7 @@ public:
   key_compare key_comp() const
   {return (_Tr.key_comp()); }
   value_compare value_comp() const
-  {return (value_compare(_Tr.key_comp())); }
+  {return (_Tr.key_comp()); }
   iterator find(const _K & _Kv)
   {return (_Tr.find(_Kv)); }
   const_iterator find(const _K & _Kv) const
@@ -306,43 +275,43 @@ public:
 protected:
   _Imp _Tr;
 };
-// multimap TEMPLATE OPERATORS
-template<class _K, class _Ty, class _Pr, class _A> inline
-bool operator==(const multimap<_K, _Ty, _Pr, _A> & _X,
-                const multimap<_K, _Ty, _Pr, _A> & _Y)
+// multiset TEMPLATE OPERATORS
+template<class _K, class _Pr, class _A> inline
+bool operator==(const multiset<_K, _Pr, _A> & _X,
+                const multiset<_K, _Pr, _A> & _Y)
 {
   return (_X.size() == _Y.size()
           && equal(_X.begin(), _X.end(), _Y.begin()));
 }
-template<class _K, class _Ty, class _Pr, class _A> inline
-bool operator!=(const multimap<_K, _Ty, _Pr, _A> & _X,
-                const multimap<_K, _Ty, _Pr, _A> & _Y)
+template<class _K, class _Pr, class _A> inline
+bool operator!=(const multiset<_K, _Pr, _A> & _X,
+                const multiset<_K, _Pr, _A> & _Y)
 {return (!(_X == _Y)); }
-template<class _K, class _Ty, class _Pr, class _A> inline
-bool operator<(const multimap<_K, _Ty, _Pr, _A> & _X,
-               const multimap<_K, _Ty, _Pr, _A> & _Y)
+template<class _K, class _Pr, class _A> inline
+bool operator<(const multiset<_K, _Pr, _A> & _X,
+               const multiset<_K, _Pr, _A> & _Y)
 {
   return (lexicographical_compare(_X.begin(), _X.end(),
                                   _Y.begin(), _Y.end()));
 }
-template<class _K, class _Ty, class _Pr, class _A> inline
-bool operator>(const multimap<_K, _Ty, _Pr, _A> & _X,
-               const multimap<_K, _Ty, _Pr, _A> & _Y)
+template<class _K, class _Pr, class _A> inline
+bool operator>(const multiset<_K, _Pr, _A> & _X,
+               const multiset<_K, _Pr, _A> & _Y)
 {return (_Y < _X); }
-template<class _K, class _Ty, class _Pr, class _A> inline
-bool operator<=(const multimap<_K, _Ty, _Pr, _A> & _X,
-                const multimap<_K, _Ty, _Pr, _A> & _Y)
+template<class _K, class _Pr, class _A> inline
+bool operator<=(const multiset<_K, _Pr, _A> & _X,
+                const multiset<_K, _Pr, _A> & _Y)
 {return (!(_Y < _X)); }
-template<class _K, class _Ty, class _Pr, class _A> inline
-bool operator>=(const multimap<_K, _Ty, _Pr, _A> & _X,
-                const multimap<_K, _Ty, _Pr, _A> & _Y)
+template<class _K, class _Pr, class _A> inline
+bool operator>=(const multiset<_K, _Pr, _A> & _X,
+                const multiset<_K, _Pr, _A> & _Y)
 {return (!(_X < _Y)); }
 _STD_END
 #ifdef  _MSC_VER
 #pragma pack(pop)
 #endif  /* _MSC_VER */
 
-#endif /* _MAP_ */
+#endif /* _SET_ */
 
 /*
  * Copyright (c) 1995 by P.J. Plauger.  ALL RIGHTS RESERVED.
