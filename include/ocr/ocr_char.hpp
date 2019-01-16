@@ -26,6 +26,7 @@ struct ocr_char_recog {
     modelfn = "E:/OCR_Line/chars/char_28_28_1.json";
 #else
     modelfn = "./model/char_28_28_1.json";
+    modelfn = "E:/OCR_Line/chars/char_28_28_1.json";
 #endif
 
     loadok = cnnnet_loadjson(net, modelfn);
@@ -53,6 +54,7 @@ struct ocr_hans_recog {
     modelfn = "E:/OCR_Line/hans/han_28_28_1.json";
 #else
     modelfn = "./model/han_28_28_1.json";
+    modelfn = "E:/OCR_Line/hans/han_28_28_1.json";
 #endif
 
     loadok = cnnnet_loadjson(net, modelfn);

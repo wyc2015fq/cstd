@@ -146,7 +146,7 @@ namespace wstd {
     return (int)resultStringVector.size();
   }
 
-  static std::string strtime(const char* fmt) {
+  static std::string strtime1(const char* fmt) {
     time_t rawtime;
     tm *time1;
     char buf[256];

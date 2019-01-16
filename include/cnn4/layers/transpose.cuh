@@ -16,7 +16,7 @@ __global__ void FUN(transpose_gpu)(const int nthreads, const Dtype* from_data, D
   }
 }
 
-void FUN(transpose)(const int nthreads, const Dtype* from_data, Dtype* to_data, const DataShape from_counts, const DataShape to_counts, const DataShape map, const int num_axes) {
+void FUN(transpose_fwd_bak)(const int nthreads, const Dtype* from_data, Dtype* to_data, const DataShape from_counts, const DataShape to_counts, const DataShape map, const int num_axes) {
   FUN(transpose_gpu) << <CAFFE_GET_BLOCKS(nthreads), CAFFE_CUDA_NUM_THREADS >> >
     (nthreads, from_data, to_data, from_counts, to_counts, map, num_axes);
 }

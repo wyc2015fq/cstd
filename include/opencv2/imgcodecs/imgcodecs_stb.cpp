@@ -82,6 +82,11 @@ namespace cv {
     }
     return dst;
   }
+  bool imencode(const String& ext, InputArray _image,
+    std::vector<uchar>& buf, const std::vector<int>& params) {
+    assert(0);
+    return false;
+  }
   Mat imdecode(InputArray _buf, int flags) {
     Mat buf = _buf.getMat(), img;
     // stbi_load_from_memory

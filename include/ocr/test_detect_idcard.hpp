@@ -9,7 +9,10 @@
 #include "std/iconv_c.h"
 #include "std/dir_c.h"
 #include "wstd/string.hpp"
+#include "ocr_caffe.hpp"
 using namespace wstd;
+
+
 #if 1
 #include "ocr_char.hpp"
 #endif
@@ -491,6 +494,7 @@ struct ocr_idcard_reg {
   }
   int run(const Mat& mat, const RotatedRect* r, int n, idcard* out) {
     int i, j=0;
+    if (n <= 0) return 0;
     Mat im;
     Mat im2;
     double ss = 1.9;
@@ -544,6 +548,7 @@ struct ocr_idcard_reg {
     Rect ridnum = seg.rrect2[0];
     int ridnum_w = (seg.rrect2[17].x + seg.rrect2[17].width - ridnum.x);
     int ridnum_x = ridnum_rect.x + (ridnum.x - ridnum_w*0.35)*ridnum_ss;
+    int ridnum_r = ridnum_rect.x + (ridnum.x + ridnum_w*0.5)*ridnum_ss;
     if (!idcard_get_info(seg.idnumber, out)) {
       printf("idcard_get_info fail! number:\n", seg.idnumber);
       return 0;
@@ -551,7 +556,7 @@ struct ocr_idcard_reg {
     printf("%s %s %s\n", seg.idnumber, out->birthday, out->gender);
     strcpy(out->number, seg.idnumber);
     vector<Rect> r_ok;
-    ss = 1.5;
+    ss = 1.2;
     if (1) {
       for (i = 0; i < n; ++i) {
         RotatedRect r2 = r[i];
@@ -560,6 +565,9 @@ struct ocr_idcard_reg {
         {
           Rect r = r2.boundingRect();
           int right = r.x + r.width;
+          if (i > 3) {
+            right = MAX(right, ridnum_r);
+          }
           r.x = MAX(r.x, ridnum_x);
           r.x = (ridnum_x);
           r.width = right - r.x;
@@ -600,12 +608,25 @@ struct ocr_idcard_reg {
           //seg.run(im2);
           //imshow("im2", im2);  waitKey(-1);
           len = ocr.run(wstr, 256, im2.data, w);
-          //n = ocr.run(wstr, 256, img_data, 280);
-          //tess.run(im2);
-          len = iconv_c("UCS-2LE", "gb2312", (char*)wstr, len * 2, str, 256);
+            //n = ocr.run(wstr, 256, img_data, 280);
+            //tess.run(im2);
+            len = iconv_c("UCS-2LE", "gb2312", (char*)wstr, len * 2, str, 256);
           str[len] = 0;
         }
         if (1) {
+          Rect r = r_ok[i];
+          im = mat(r);
+          //imshow("im", im); waitKey(-1);
+          int len = 0;
+          //seg.run(im2);
+          //imshow("im2", im2);  waitKey(-1);
+          string ss = ocr_caffe1.run(im);
+
+          //n = ocr.run(wstr, 256, img_data, 280);
+          //tess.run(im2);
+          strcpy(str, ss.c_str());
+        }
+        if (0) {
           Rect r = r_ok[i];
           r.width += 20;
           im2 = mat(r);
@@ -822,11 +843,11 @@ struct ocr_detect {
         circle(color_edge, fourPoint2f[1], 5, color, -1);
       }
     }
-#ifdef _DEBUG
     drawRotatedRects(color_edge, face_etector.rects, 2);
     drawRotatedRects(color_edge, cardrect, 2);
     vecdst.push_back(color_edge);
     dst  = mergeImgs(03, 0, 600, vecdst);
+#ifdef _DEBUG
 #endif
     return ret;
   }
@@ -857,7 +878,7 @@ int test_detect_idcard()
   iline = 1229;
   iline = 113;
 #endif
-  iline = 0;
+  iline = 30;
   //iline = 2;
   int c = 0;
   int n = list.size();
@@ -882,8 +903,8 @@ int test_detect_idcard()
 
     od.run(src);
 #ifdef _DEBUG
-    isdebug = 1;
 #endif
+    isdebug = 1;
     if (1) {
       string fn = wstd::format("C:\\outpic\\dst_ok\\src_%03d_z.jpg", iline);
       cv::imwrite(fn, src);

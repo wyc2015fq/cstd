@@ -6,7 +6,8 @@
 
 #include "std/stddef_c.h"
 #define USE_OPENCV
-//#define CPU_ONLY
+#define CPU_ONLY
+#define USE_LMDB
 
 #ifdef __ARM_NEON
 #define __arm__

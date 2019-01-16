@@ -1,5 +1,8 @@
 
 
+#ifndef __IDCARD_H__
+#define __IDCARD_H__
+
 struct idcard {
   char gender[32]; // ÐÔ±ð
   char name[32]; // Ãû×Ö
@@ -298,3 +301,4 @@ static int isDate(String strDate) {
 }
 
 #endif
+#endif // __IDCARD_H__

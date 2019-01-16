@@ -236,3 +236,5 @@ void Update()
   const int count_ = this->count();
   caffe_axpy(count_, Dtype(-1), diff(), mdata());
 }
+
+#undef vec_data

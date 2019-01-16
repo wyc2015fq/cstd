@@ -86,7 +86,7 @@ public:
   void Forward_(const vector<Blob*>& bottom, const vector<Blob*>& top) {
     const int nthreads = bottom[0]->count();
 
-    transpose(nthreads, bottom[0]->data(), top[0]->mdata(),
+    transpose_fwd_bak(nthreads, bottom[0]->data(), top[0]->mdata(),
         bottom_counts_, top_counts_, forward_map_, (int)bottom[0]->shape_.num_axes());
   }
 
@@ -96,7 +96,7 @@ public:
     }
     const int nthreads = bottom[0]->count();
 
-    transpose(nthreads, top[0]->diff(), bottom[0]->mdiff(), top_counts_, bottom_counts_, backward_map_, (int)bottom[0]->shape().num_axes() );
+    transpose_fwd_bak(nthreads, top[0]->diff(), bottom[0]->mdiff(), top_counts_, bottom_counts_, backward_map_, (int)bottom[0]->shape().num_axes() );
   }
 
 
