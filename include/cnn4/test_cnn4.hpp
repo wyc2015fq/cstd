@@ -20,9 +20,9 @@ int test_cnn4(int argn, char* argc[]) {
   }
   _chdir("E:/OCR_Line/hans/20_50_500");
   _chdir("E:/OCR_Line/chars/20_50_500");
-  _chdir("E:/caffe_train/mnist/20_50_500");
   _chdir("E:/caffe_train/mnist/20_50_500bn");
   _chdir("E:/OCR_Line/lines/densenet-no-blstm");
+  _chdir("E:/OCR_Line/mnist/20_50_500");
 #endif
 
   CnnNet* net = cnnnet_new();
@@ -80,7 +80,7 @@ int test_cnn4_recog(int argn, char* argc[]) {
     modelfn = "train-val.json";
     testfn = "test.txt";
     _chdir("E:/OCR_Line/lines");
-}
+  }
 #else
 #endif // _DEBUG
   CnnNet* net = cnnnet_new();

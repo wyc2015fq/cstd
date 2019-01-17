@@ -93,9 +93,8 @@ int cnnnet_set_input_u8(CnnNet* net, const unsigned char* img_data, int h, int w
       di.mean_values_[i] = mean_values[i];
     }
     di.scale = scale;
-    di.shape_type_ = NHWC;
     float* data = input_layer->cpu_mdata();
-    blob_data_transform_T(&di, input_layer->shape_, data, img_data, 0, 0);
+    blob_data_transform_T(&di, NHWC, input_layer->shape_, data, img_data, 0, 0);
     if (img_temp) free(img_temp);
     return 1;
   }

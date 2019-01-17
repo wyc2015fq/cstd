@@ -17,14 +17,25 @@ struct Solver : SolverBase {
     CnnNet* test_net = net_;
     double loss = 0;
     vector<double> test_score;
-    test_score.assign(net_->blobs_.size(), 0);
+    size_t test_score_size = 0;
+    for (int i = 0; i < net_->blobs_.size(); ++i) {
+      Blob* blob = net_->blobs_[i];
+      //auto layer = test_net->layers_[i];
+      if (blob->loss_weight_ > 0 || blob->bottom_cnt_ == 0) {
+        test_score_size += blob->count();
+      }
+    }
+    test_score.assign(test_score_size, 0);
     for (int j = 0; j < test_iter_; ++j) {
       double iter_loss = test_net->Forward(TEST);
+      int idx = 0;
       for (int i = 0; i < net_->blobs_.size(); ++i) {
         Blob* blob = net_->blobs_[i];
         //auto layer = test_net->layers_[i];
         if (blob->loss_weight_ > 0 || blob->bottom_cnt_ == 0) {
-          test_score[i] += blob->amean_data();
+          for (int k = 0; k < blob->count(); ++k) {
+            test_score[idx++] += blob->cpu_data()[k];
+          }
         }
       }
       loss += iter_loss;
@@ -38,13 +49,15 @@ struct Solver : SolverBase {
         const double loss_weight = blob->loss_weight_;
         const string output_name = blob->name_;
         string loss_msg_stream;
-        const double mean_score = test_score[i] / test_iter_;
-        if (fabs(loss_weight) > 0) {
-          loss_msg_stream = wstd::format(" (* %lf = %lf loss)", loss_weight, loss_weight* mean_score);
+        for (int k = 0; k < blob->count(); ++k) {
+          const double mean_score = test_score[idx] / test_iter_;
+          if (fabs(loss_weight) > 0) {
+            loss_msg_stream = wstd::format(" (* %lf = %lf loss)", loss_weight, loss_weight* mean_score);
+          }
+          LOG(INFO) << "    Test net output #" << idx << ": " << output_name << " = "
+            << mean_score << loss_msg_stream.c_str();
+          ++idx;
         }
-        LOG(INFO) << "    Test net output #" << idx << ": " << output_name << " = "
-          << mean_score << loss_msg_stream.c_str();
-        ++idx;
       }
     }
     return 0;

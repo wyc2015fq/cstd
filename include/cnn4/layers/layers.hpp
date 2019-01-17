@@ -4,6 +4,8 @@
 #include "relu.hpp"
 #include "bias.hpp"
 #include "data.hpp"
+#include "mnist_data.hpp"
+#include "image_data.hpp"
 #include "conv_base.hpp"
 #include "conv.hpp"
 #include "pooling.hpp"

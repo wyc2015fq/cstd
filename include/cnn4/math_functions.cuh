@@ -1,4 +1,10 @@
 
+__global__ void sync_streams_kernel() {}
+
+void FUN(sync_streams)() {
+  sync_streams_kernel << <1, 1 >> > ();
+}
+
 __global__ void FUN(set_kernel)(const int n, const Dtype alpha, Dtype* y) {
   CUDA_KERNEL_LOOP(index, n) {
     y[index] = alpha;

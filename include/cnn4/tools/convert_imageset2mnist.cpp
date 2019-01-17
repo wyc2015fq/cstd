@@ -17,6 +17,8 @@
 #include "wstd/filesystem.hpp"
 #include "imgio/imgio.h"
 
+
+
 using namespace std;
 using namespace wstd;
 
@@ -56,7 +58,26 @@ int str2vec(const char* str, vector<float>& vec) {
   return vec.size();
 }
 
-int save_db(const char* db_fn, const vector<string>& lines) {
+int convert_imageset2mnist(int argc, char** argv)
+{
+  SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
+    "format used as input for Caffe.\n"
+    "Usage:\n"
+    "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
+    "The ImageNet dataset for the training demo is at\n"
+    "    http://www.image-net.org/download-images\n");
+  ParseCommandLineFlags(argc, argv, true);
+
+  std::vector<string> strs;
+  int len = readlines(argv[1], strs);
+  if (len<=0) {
+    printf("failed to open %s\n", argv[2]);
+  }
+  //const char* typelist = "ifff";
+  save_db(argv[2], strs);
+  const char* db_fn = argv[2];
+  vector<string>& lines = strs;
+
   const char* typelist = FLAGS_typelist;
   const char* root_folder = FLAGS_root_folder;
   // Create new DB
@@ -78,7 +99,7 @@ int save_db(const char* db_fn, const vector<string>& lines) {
     vector<string> strs;
     split(strs, lines[line_id], ";");
     LOG_IF(INFO, strs.size() != n) << "strs.size()!=n";
-    for (i=0; i<n; ++i) {
+    for (i = 0; i<n; ++i) {
       string fn = strs[i];
       BlobData* blob = &datum[i];
       char c = typelist[i];
@@ -93,7 +114,8 @@ int save_db(const char* db_fn, const vector<string>& lines) {
             blob->set(NCHW, TF_U8, im->data, w, h, cn);
           }
         }
-      } else if ('f' == c) {
+      }
+      else if ('f' == c) {
         vector<float> vec;
         str2vec(fn.c_str(), vec);
         blob->set(NCHW, TF_F32, vec.data(), 1, 1, (int)vec.size(), 1);
@@ -114,63 +136,10 @@ int save_db(const char* db_fn, const vector<string>& lines) {
     txn->Commit();
     LOG(INFO) << "Processed " << count << " files.";
   }
-  db->Close();
-  delete db;
-  delete txn;
   return 0;
 }
 
-int convert_imageset(int argc, char** argv)
-{
-  SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
-    "format used as input for Caffe.\n"
-    "Usage:\n"
-    "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
-    "The ImageNet dataset for the training demo is at\n"
-    "    http://www.image-net.org/download-images\n");
-  ParseCommandLineFlags(argc, argv, true);
-
-  std::vector<string> strs;
-  int len = readlines(argv[1], strs);
-  if (len<=0) {
-    printf("failed to open %s\n", argv[2]);
-  }
-  //const char* typelist = "ifff";
-  save_db(argv[2], strs);
-  return 0;
-}
-
-int test_dbread()
-{
-  _chdir("E:/OCR_Line/chars/");
-  const char* dbfolder = NULL;
-#ifdef _DEBUG
-#endif
-  dbfolder = "./test_lmdb";
-  char* backend = "LMDB";
-  backend = "leveldb";
-  backend = "LMDB";
-  int num = 1000000;
-  DB* db = GetDB(backend);
-  db->Open(dbfolder, READ);
-  Cursor* cursor = db->NewCursor();
-  for (int i = 0; i < num; i++) {
-    Datum datum;
-    // TODO deserialize in-place instead of copy?
-    ParseFromString(cursor->value().c_str(), datum);
-    printf("%d %d\n", i, (int)datum.size());
-    // go to the next iter
-    cursor->Next();
-    if (!cursor->valid()) {
-      //break;
-      cursor->SeekToFirst();
-      printf("===========cursor valid\n");
-    }
-  }
-  return 0;
-}
-
-int test_convert_imageset() {
+int test_convert_imageset2mnist() {
   //test_dbread();
 #ifdef _DEBUG
   _chdir("E:/OCR_Line/chars/");
@@ -183,8 +152,8 @@ int test_convert_imageset() {
   char* train[] = { "",
     "train.txt", "./dbtrain","--backend=lmdb", "--typelist=if", "--resize_width=280", "--resize_height=32", "--gray=false"
   };
-  convert_imageset(countof(test), test);
-  convert_imageset(countof(train), train);
+  convert_imageset2mnist(countof(test), test);
+  convert_imageset2mnist(countof(train), train);
   return 0;
 }
 

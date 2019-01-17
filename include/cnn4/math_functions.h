@@ -15,6 +15,7 @@ struct cjson;
 #define BN_MIN_EPSILON  (1e-5)
 
 #define _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF, Dtype, Stype)  \
+DEF(void, sync_streams, (void)) \
 DEF(const Dtype*, get_ones, (int n)) \
 DEF(const Dtype*, get_one, ()) \
 DEF(const Dtype*, get_zero, ()) \

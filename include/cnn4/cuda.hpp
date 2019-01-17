@@ -350,7 +350,7 @@ static void cuda_ReAlloc(Buffer* ptr, size_t nbytes) {
     void* newdata = NULL;
     CUDA_CHECK(cudaMalloc(&newdata, nbytes));
     if (NULL == newdata) {
-      //int asdf = 0;
+      int asdf = 0;
     }
     CHECK(newdata) << "Malloc cuda mem: " << nbytes << " bytes failed.";
     allsz += nbytes;

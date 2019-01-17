@@ -211,6 +211,28 @@ namespace wstd {
     return ret;
   }
 
+  int atovf(const char* str, vector<float>& vec) {
+    vector<string> strs;
+    split(strs, str, " ");
+    vec.resize(strs.size());
+    int i;
+    for (i = 0; i < vec.size(); ++i) {
+      vec[i] = atof(strs[i].c_str());
+    }
+    return vec.size();
+  }
+
+  int atovi(const char* str, vector<float>& vec) {
+    vector<string> strs;
+    split(strs, str, " ");
+    vec.resize(strs.size());
+    int i;
+    for (i = 0; i < vec.size(); ++i) {
+      vec[i] = atoi(strs[i].c_str());
+    }
+    return vec.size();
+  }
+
 } // namespace wstd
 
 #endif // _WSTD_STRING_HPP_

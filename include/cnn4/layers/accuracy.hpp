@@ -74,7 +74,8 @@ public:
       << "e.g., if label axis == 1 and prediction shape is (N, C, H, W), "
       << "label count (number of labels) must be N*H*W, "
       << "with integer values in {0, 1, ..., C-1}.";
-    vector<int> top_shape(0);  // Accuracy is a scalar; 0 axes.
+    vector<int> top_shape(1);  // Accuracy is a scalar; 0 axes.
+    top_shape[0] = 1;
     top[0]->Reshape(top_shape);
     if (top.size() > 1) {
       // Per-class accuracy is a vector; 1 axes.

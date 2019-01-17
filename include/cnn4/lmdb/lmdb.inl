@@ -3700,6 +3700,9 @@ mdb_page_flush(MDB_txn *txn, int keep)
 			pos = pgno * psize;
 			size = psize;
 			if (IS_OVERFLOW(dp)) size *= dp->mp_pages;
+      if (size % psize) {
+        int asdf = 0;
+      }
 		}
 #ifdef _WIN32
 		else break;

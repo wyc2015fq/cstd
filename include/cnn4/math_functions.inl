@@ -9,6 +9,9 @@
 #define FUN(NAME)  cpu_##NAME
 #define DEF(RET, NAME, ARGS)  RET cpu_ ## NAME ARGS
 
+void FUN(sync_streams)() {
+}
+
 void* FUN(caffe_malloc)(const int N) {
   return malloc(N);
 }

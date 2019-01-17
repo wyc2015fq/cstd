@@ -4,8 +4,8 @@
 #include <vector>
 #include "types.h"
 
-template <typename T> static
-int NHWC2NCHW_T(T* dst, const T* src, int dim_w, int dim_h = 1, int dim_c = 1, int dim_n = 1) {
+template <typename T, typename Y> static
+int NHWC2NCHW_T(T* dst, const Y* src, int dim_w, int dim_h = 1, int dim_c = 1, int dim_n = 1) {
   int img_index = 0;
   for (int i = 0; i < dim_n; ++i) {
     for (int h = 0; h < dim_h; ++h) {
@@ -43,6 +43,7 @@ struct BlobData {
   };
   int type_;
   char* data_;
+  DimType dimtype_;
   BlobData() { memset(this, 0, sizeof(*this)); }
   ~BlobData() { Free(); }
   void Free() {
@@ -60,6 +61,7 @@ struct BlobData {
     nbytes_ = size*elemsz;
     data_ = (char*)realloc(data_, nbytes_);
     if (data) {
+      dimtype_ = NCHW;
       if (dimtype == NCHW) {
         memcpy(data_, data, nbytes_);
       }
@@ -178,7 +180,6 @@ struct DataTransformerInfo {
   bool has_mean_file;
   double* mean;
   Phase phase_;
-  DimType shape_type_;
   void init() {
     memset(this, 0, sizeof(*this));
     scale = 1;
@@ -223,24 +224,24 @@ struct DataTransformerInfo {
 };
 
 template <typename Stype, typename Dtype> inline
-bool blob_data_transform_T(DataTransformerInfo* info, DataShape shape_, Dtype* transformed_data, const Stype* data, int h_off, int w_off) {
+bool blob_data_transform_T(DataTransformerInfo* info, DimType dimtype_, DataShape shape_, Dtype* transformed_data, const Stype* data, int h_off, int w_off) {
+  int dn = shape_.n;
+  int dc = shape_.c;
+  int dh = shape_.h;
+  int dw = shape_.w;
   if (info) {
     bool has_mean_file = info->mean != NULL;
     double scale = info->scale;
-    int dn = shape_.n;
-    int dc = shape_.c;
-    int dh = shape_.h;
-    int dw = shape_.w;
     for (int n = 0; n < dn; ++n) {
       for (int c = 0; c < dc; ++c) {
         int c1 = (n * dc + c);
         for (int h = 0; h < dh; ++h) {
           for (int w = 0; w < dw; ++w) {
             int top_index = 0, data_index = 0;
-            if (info->shape_type_ == NCHW) {
+            if (dimtype_ == NCHW) {
               data_index = (c1 * dh + h_off + h) * dw + w_off + w;
             }
-            if (info->shape_type_ == NHWC) {
+            if (dimtype_ == NHWC) {
               data_index = ((n * dh + h_off + h) * dw + w_off + w)*dc+c;
             }
             int w1 = info->do_mirror ? (dw - 1 - w) : w;
@@ -263,18 +264,23 @@ bool blob_data_transform_T(DataTransformerInfo* info, DataShape shape_, Dtype* t
     }
   }
   else {
-    int count = shape_.count();
-    for (int i = 0; i < count; ++i) {
-      transformed_data[i] = (Dtype)data[i];
+    if (dimtype_ == NCHW) {
+      int i, count = shape_.count();
+      for (i = 0; i < count; ++i) {
+        transformed_data[i] = (Dtype)data[i];
+      }
+    }
+    else {
+      NHWC2NCHW_T(transformed_data, data, dw, dh, dc, dn);
     }
   }
   return 0;
 }
 
 template <typename Dtype> inline
-bool blob_data_transform(DataTransformerInfo* info, DataShape shape_, Dtype* transformed_data, const void* data, TypeFlag flag, int h_off, int w_off) {
+bool blob_data_transform(DataTransformerInfo* info, DimType dimtype_, DataShape shape_, Dtype* transformed_data, const void* data, TypeFlag flag, int h_off, int w_off) {
   switch (flag) {
-#define TYPEFLAGDEF(F, T, c)   case TF_ ## F: blob_data_transform_T(info, shape_, transformed_data, (T*)data, h_off, w_off); break;
+#define TYPEFLAGDEF(F, T, c)   case TF_ ## F: blob_data_transform_T(info, dimtype_, shape_, transformed_data, (T*)data, h_off, w_off); break;
     TYPEFLAGDEF_DEF(TYPEFLAGDEF)
 #undef TYPEFLAGDEF
   default:
@@ -339,10 +345,34 @@ int DataTransformer(DataTransformerInfo* info, const BlobData* src, Dtype* trans
   DataShape shape;
   shape.set(src->dim_, 4);
   shape.n = 1;
-  blob_data_transform(info, shape, transformed_data, src->data_, (TypeFlag)src->type_, h_off, w_off);
+  blob_data_transform(info, src->dimtype_, shape, transformed_data, src->data_, (TypeFlag)src->type_, h_off, w_off);
   return 0;
 }
 
+int DataTransformer(DataTransformerInfo* info, DimType dimtype, DataShape shape_, const void* data_, TypeFlag type_, Dtype* transformed_data)
+{
+  // Check dimensions.
+  int h_off = 0;
+  int w_off = 0;
+  if (info) {
+    int crop_size = info->crop_size;
+    if (crop_size) {
+      // We only do random crop when we do training.
+      if (info->phase_ == TRAIN) {
+        h_off = Rand(shape_.h - crop_size + 1);
+        w_off = Rand(shape_.w - crop_size + 1);
+      }
+      else {
+        h_off = (shape_.h - crop_size) / 2;
+        w_off = (shape_.w - crop_size) / 2;
+      }
+    }
+  }
+  DataShape shape = shape_;
+  shape.n = 1;
+  blob_data_transform(info, dimtype, shape, transformed_data, data_, type_, h_off, w_off);
+  return 0;
+}
 
 
 #endif  // CAFFE_DATA_TRANSFORMER_HPP_
