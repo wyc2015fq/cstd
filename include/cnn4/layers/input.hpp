@@ -20,6 +20,7 @@ public:
   virtual void toJson(cjson* param) {
     cjson_AddNumberArrayToObject(param, "shape", shape_);
   }
+  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top) {}
 
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top)
   {

@@ -28,8 +28,10 @@ bool Classifier::Init(const string& model_path, bool gpu_mode) {
 		set_mode(GPU);
 #endif
 	/* Load the network. */
-  net_ = new Net;
-  net_->FromJsonFile(model_file.c_str());
+  net_ = new CnnNet;
+  int ret = net_->FromJsonFile(model_file.c_str());
+  if (!ret) {
+    return 0; }
 
 	CHECK_EQ(net_->num_inputs(), 1) << "Network should have exactly one input.";
 	CHECK_EQ(net_->num_outputs(), 1) << "Network should have exactly one output.";
@@ -83,7 +85,7 @@ bool Classifier::Init(const string& trained_file, const string& model_file,
 
 
 	/* Load the network. */
-  net_ = new Net;
+  net_ = new CnnNet;
   net_->FromJsonFile(model_file.c_str());
 
 	CHECK_EQ(net_->num_inputs(), 1) << "Network should have exactly one input.";

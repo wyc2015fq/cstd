@@ -65,7 +65,7 @@ class DenseBlockLayer : public Layer {
 
   virtual void Forward_cpu_public(const vector<Blob*>& bottom, const vector<Blob*>& top);
 
-  virtual void Backward_cpu_public(const vector<Blob*>& top, const vector<bool>& propagate_down, const vector<Blob*>& bottom);
+  virtual void Backward_cpu_public(const vector<Blob*>& top, const vector<Blob*>& bottom);
 
   void Forward_gpu_public(const vector<Blob*>& bottom, const vector<Blob*>& top);
 
@@ -101,18 +101,18 @@ class DenseBlockLayer : public Layer {
 
   void resetDropoutDesc(); 
 
-  virtual void Forward_cpu(const vector<Blob*>& bottom,
-      const vector<Blob*>& top);
-  
-  virtual void Forward_gpu(const vector<Blob*>& bottom,
-      const vector<Blob*>& top);
+  virtual void Forward_cpu(const vector<Blob*>& bottom, const vector<Blob*>& top);
+  virtual void Forward_gpu(const vector<Blob*>& bottom, const vector<Blob*>& top);
+  virtual void Backward_cpu(const vector<Blob*>& top, const vector<Blob*>& bottom);
+  virtual void Backward_gpu(const vector<Blob*>& top, const vector<Blob*>& bottom);
 
-  virtual void Backward_cpu(const vector<Blob*>& top,
-      const vector<bool>& propagate_down, const vector<Blob*>& bottom);
-  
-  virtual void Backward_gpu(const vector<Blob*>& top,
-      const vector<bool>& propagate_down, const vector<Blob*>& bottom);
-  
+  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top) {
+    Forward_gpu(bottom, top);
+  }
+  virtual void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom) {
+    Backward_gpu(top, bottom);
+  }
+
   //start logging specific data: for debugging
   int logId;
   //end logging specific data
@@ -250,12 +250,14 @@ void DenseBlockLayer::LayerSetUp(const vector<Blob*>& bottom, const vector<Blob*
   //blobs_[2*numTransition + i] is its bias blob
   //blobs_[3*numTransition + i] is its globalMean
   //blobs_[4*numTransition + i] is its globalVar
+  int blobs_size = 0;
   if (useBC) {
-    this->blobs_.resize(10 * this->numTransition + 1);
+    blobs_size = (10 * this->numTransition + 1);
   }
   else {
-    this->blobs_.resize(5 * this->numTransition + 1);
+    blobs_size = (5 * this->numTransition + 1);
   }
+  blobs_reset(this->blobs_, blobs_size);
   for (int transitionIdx = 0; transitionIdx < this->numTransition; ++transitionIdx) {
     //filter
     //No BC case
@@ -1078,9 +1080,7 @@ void DenseBlockLayer::Forward_cpu(const vector<Blob*>& bottom,
 
 
 
-void DenseBlockLayer::Backward_cpu(const vector<Blob*>& top,
-  const vector<bool>& propagate_down,
-  const vector<Blob*>& bottom)
+void DenseBlockLayer::Backward_cpu(const vector<Blob*>& top, const vector<Blob*>& bottom)
 {
   if (!this->cpuInited) {
     this->CPU_Initialization();
@@ -1140,8 +1140,8 @@ void DenseBlockLayer::Forward_cpu_public(const vector<Blob*>& bottom, const vect
 }
 
 
-void DenseBlockLayer::Backward_cpu_public(const vector<Blob*>& top, const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
-  this->Backward_cpu(top, propagate_down, bottom);
+void DenseBlockLayer::Backward_cpu_public(const vector<Blob*>& top, const vector<Blob*>& bottom) {
+  this->Backward_cpu(top, bottom);
 }
 
 

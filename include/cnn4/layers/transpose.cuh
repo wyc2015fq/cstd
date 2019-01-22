@@ -1,7 +1,7 @@
 
 __global__ void FUN(transpose_gpu)(const int nthreads, const Dtype* from_data, Dtype* to_data,
 	const DataShape from_counts, const DataShape to_counts, const DataShape map, const int num_axes) {
-  int from_inds[kMaxBlobAxes] = { 0 };
+  int from_inds[MaxBlobAxes] = { 0 };
   CUDA_KERNEL_LOOP(index, nthreads) {
   	int from_index = index, to_index = 0;
   	for(int i = 0; i < num_axes; i++) {

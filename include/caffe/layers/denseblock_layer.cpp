@@ -86,7 +86,6 @@ namespace caffe
     } else {
       this->blobs_.resize(5 * this->numTransition + 1);
     }
-    
     for (int transitionIdx = 0; transitionIdx < this->numTransition; ++transitionIdx) {
       //filter
       //No BC case
@@ -942,6 +941,7 @@ namespace caffe
     }
     //logInternal_cpu("TC_TrueFwdlog");
   }
+
 
   template <typename Dtype>
   void DenseBlockLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*> & top,

@@ -1,4 +1,5 @@
 #include <thread>
+#include "wstd/logging.hpp"
 #include <cmath>
 #include <cstdio>
 #include <ctime>
@@ -52,7 +53,7 @@ namespace caffe
   void initGlog()
   {
     FLAGS_log_dir = ".\\log\\";
-    _mkdir(FLAGS_log_dir);
+    _mkdir(FLAGS_log_dir.c_str());
     std::string LOG_INFO_FILE;
     std::string LOG_WARNING_FILE;
     std::string LOG_ERROR_FILE;
@@ -60,25 +61,25 @@ namespace caffe
     std::string now_time = "";// boost::posix_time::to_iso_extended_string(boost::posix_time::second_clock::local_time());
     //now_time[13] = '-';
     //now_time[16] = '-';
-    LOG_INFO_FILE = string(FLAGS_log_dir) + "INFO" + now_time + ".txt";
-    SetLogDestination(GLOG_INFO, LOG_INFO_FILE.c_str());
-    LOG_WARNING_FILE = string(FLAGS_log_dir) + "WARNING" + now_time + ".txt";
-    SetLogDestination(GLOG_WARNING, LOG_WARNING_FILE.c_str());
-    LOG_ERROR_FILE = string(FLAGS_log_dir) + "ERROR" + now_time + ".txt";
-    SetLogDestination(GLOG_ERROR, LOG_ERROR_FILE.c_str());
-    LOG_FATAL_FILE = string(FLAGS_log_dir) + "FATAL" + now_time + ".txt";
-    SetLogDestination(GLOG_FATAL, LOG_FATAL_FILE.c_str());
+    LOG_INFO_FILE = FLAGS_log_dir + "INFO" + now_time + ".txt";
+    wstd::SetLogDestination(wstd::GLOG_INFO, LOG_INFO_FILE.c_str());
+    LOG_WARNING_FILE = FLAGS_log_dir + "WARNING" + now_time + ".txt";
+    wstd::SetLogDestination(wstd::GLOG_WARNING, LOG_WARNING_FILE.c_str());
+    LOG_ERROR_FILE = FLAGS_log_dir + "ERROR" + now_time + ".txt";
+    wstd::SetLogDestination(wstd::GLOG_ERROR, LOG_ERROR_FILE.c_str());
+    LOG_FATAL_FILE = FLAGS_log_dir + "FATAL" + now_time + ".txt";
+    wstd::SetLogDestination(wstd::GLOG_FATAL, LOG_FATAL_FILE.c_str());
   }
 
   void GlobalInit(int argc, char** argv)
   {
     // wstd flags.
-    ParseCommandLineFlags(argc, argv, true);
+    wstd::ParseCommandLineFlags(argc, argv, true);
     // Provide a backtrace on segfault.
     //::wstd::InstallFailureSignalHandler();
     // wstd logging.
     initGlog();
-    InitGoogleLogging(argv[0]);
+    ::wstd::InitGoogleLogging(argv[0]);
   }
 
 #ifdef CPU_ONLY  // CPU-only Caffe.

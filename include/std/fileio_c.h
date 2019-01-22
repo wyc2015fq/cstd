@@ -50,6 +50,15 @@ static long fsize(FILE* stream)
   fseek(stream, pos, SEEK_SET);
   return size;
 }
+static int64_t fsize64(FILE* stream)
+{
+  int64_t pos, size;
+  pos = _ftelli64(stream);
+  _fseeki64(stream, 0, SEEK_END);
+  size = _ftelli64(stream);
+  _fseeki64(stream, pos, SEEK_SET);
+  return size;
+}
 static int buf_load(const char* fname, buf_t* bf)
 {
   int len, readed_len;

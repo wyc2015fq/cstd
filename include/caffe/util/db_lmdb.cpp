@@ -8,6 +8,7 @@
 #ifdef _WIN32
 #pragma comment(lib,"Advapi32.lib")
 #endif
+extern "C" void set_mdb_debug(int x);
 
 namespace caffe
 {
@@ -112,7 +113,7 @@ namespace caffe
       struct MDB_envinfo current_info;
       MDB_CHECK(mdb_env_info(mdb_env_, &current_info));
       size_t new_size = current_info.me_mapsize * 2;
-      DLOG(INFO) << "Doubling LMDB map size to " << (int)(new_size >> 20) << "MB ...";
+      DLOG(INFO) << "Doubling LMDB map size to " << (new_size >> 20) << "MB ...";
       MDB_CHECK(mdb_env_set_mapsize(mdb_env_, new_size));
     }
 

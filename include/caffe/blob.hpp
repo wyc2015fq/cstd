@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-//#include "proto.h"
-#include "common.hpp"
-#include "syncedmem.hpp"
+#include "caffe/common.hpp"
+#include "caffe/proto/caffe.pb.h"
+#include "caffe/syncedmem.hpp"
 
 const int kMaxBlobAxes = 32;
 
@@ -51,25 +51,14 @@ namespace caffe
      * propagate the new input shape to higher layers.
      */
     void Reshape(const vector<int> & shape);
-#ifdef USE_PRO
     void Reshape(const BlobShape & shape);
-    void FromProto(const BlobProto & proto, bool reshape = true);
-    void ToProto(BlobProto* proto, bool write_diff = false) const;
-#endif
-#ifdef USE_JSON
-    void Reshape(const cJSON* shape);
-    void FromProto(const cJSON* proto, bool reshape = true);
-    void ToProto(cJSON* proto, bool write_diff = false) const;
-#endif
-
     void ReshapeLike(const Blob & other);
     inline string shape_string() const {
       ostringstream stream;
-      stream << "[";
       for (int i = 0; i < shape_.size(); ++i) {
         stream << shape_[i] << " ";
       }
-      stream << "(" << count_ << ")]";
+      stream << "(" << count_ << ")";
       return stream.str();
     }
     inline const vector<int> & shape() const { return shape_; }
@@ -98,6 +87,9 @@ namespace caffe
      * @param end_axis The first axis to exclude from the slice.
      */
     inline int count(int start_axis, int end_axis) const {
+      if (end_axis > num_axes()) {
+        int asdf = 0;
+      }
       start_axis = min(start_axis, num_axes());
       end_axis = min(end_axis, num_axes());
       CHECK_LE(start_axis, end_axis);
@@ -245,6 +237,8 @@ namespace caffe
     Dtype* mutable_cpu_diff();
     Dtype* mutable_gpu_diff();
     void Update();
+    void FromProto(const BlobProto & proto, bool reshape = true);
+    void ToProto(BlobProto* proto, bool write_diff = false) const;
 
     /// @brief Compute the sum of absolute values (L1 norm) of the data.
     Dtype asum_data() const;

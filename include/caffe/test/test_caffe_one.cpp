@@ -3,7 +3,7 @@
 #include "wstd/logging.hpp"
 #include "caffe/util/math_functions.cpp"
 #include "caffe/common.cpp"
-#include "caffe/proto/caffe_proto.cc"
+#include "caffe/proto/caffe.pb.cc"
 #include "caffe/blob.hpp"
 #include "caffe/blob.cpp"
 #include "caffe/syncedmem.cpp"

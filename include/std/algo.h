@@ -8,8 +8,8 @@
 #define CC_DEFAULT(x)
 
 // 用宏判断计算机处理器是大端字节序
-static union { char c[4]; unsigned long mylong; } endian_test = { { 'l', '?', '?', 'b' } };
-#define ENDIANNESS ((char)endian_test.mylong)
+//static union { char c[4]; unsigned long mylong; } endian_test = { { 'l', '?', '?', 'b' } };
+#define ENDIANNESS ((char)*(int*)"l??b")
 #define BIGENDIANNESS ('b'==ENDIANNESS)
 
 

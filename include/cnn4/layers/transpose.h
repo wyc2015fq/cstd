@@ -1,7 +1,7 @@
 
 
 void FUN(transpose_fwd_bak)(const int count, const Dtype* from_data, Dtype* to_data, const DataShape from_counts, const DataShape to_counts, const DataShape map, const int num_axes) {
-  int from_inds[kMaxBlobAxes] = { 0 };
+  int from_inds[MaxBlobAxes] = { 0 };
   int index, i;
   for (index = 0; index < count; index++) {
     int from_index = index, to_index = 0;

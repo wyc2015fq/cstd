@@ -604,8 +604,6 @@ int caffe2json(int argc, char** argv)
 #undef DefStringArray
 
 
-
-
 #define TESTCALL(fun, args)    fun(countof(args), args)
 int test_caffe2json() {
   if (0) {
@@ -622,10 +620,17 @@ int test_caffe2json() {
     };
     TESTCALL(caffe2json, test);
   }
-  if (1) {
+  if (0) {
     _chdir("E:/OCR_Line/lines/densenet-no-blstm");
     char* test[] = { "",
       "train-val.prototxt", NULL, "solver.prototxt","train-val.json", "0"
+    };
+    TESTCALL(caffe2json, test);
+  }
+  if (1) {
+    _chdir("D:/OCR_Line/lines/han200w/densenet-no-blstm_caffe5");
+    char* test[] = { "",
+      "train.prototxt", "model.caffemodel", "solver.prototxt","train.json", "0"
     };
     TESTCALL(caffe2json, test);
   }

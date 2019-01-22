@@ -1,7 +1,6 @@
 #ifndef CAFFE_UTIL_IO_H_
 #define CAFFE_UTIL_IO_H_
 
-#include "std/log_c.h"
 #include "wstd/filesystem.hpp"
 #include <iomanip>
 #include <iostream>  // NOLINT(readability/streams)
@@ -10,9 +9,9 @@
 #include "google/protobuf/message.h"
 
 #include "caffe/common.hpp"
-#include "caffe/proto/caffe_proto.h"
+#include "caffe/proto/caffe.pb.h"
 #include "wstd/string.hpp"
-//#include "wstd/logging.hpp"
+#include "wstd/logging.hpp"
 
 #ifndef CAFFE_TMP_DIR_RETRIES
 #define CAFFE_TMP_DIR_RETRIES 100

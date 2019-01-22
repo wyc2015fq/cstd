@@ -22,13 +22,14 @@ void GetPredictString2(char* str, IRANGE* r, const char* const* labels, const fl
   }
 }
 
-int ocr_run(char* str, int maxstrlen, Net* net, const double* mean_values, const uchar* img_data, int w, const char*const * labels) {
-  net_set_input_u8(net, img_data, w, mean_values);
+int ocr_run(char* str, int maxstrlen, CnnNet* net, const double* mean_values, int mean_values_size,
+  const uchar* img_data, int h, int w, int c, const char*const * labels) {
+  cnnnet_set_input_u8(net, img_data, h, w, c, 1, mean_values, mean_values_size);
   //uutime a;
-  net_forward(net);
+  cnnnet_forward(net);
   //LOG(INFO) << a.elapsed();
   int count = 0;
-  const float* pred = net_output(net, 0, &count);
+  const float* pred = cnnnet_output(net, 0, &count);
   //outshape = output_layer->shape_vec();
   int idxBlank = 0;
   IRANGE r = iRANGE(0, maxstrlen);
@@ -58,15 +59,16 @@ void GetPredictString2_w(wchar_t* str, IRANGE* r, const wchar_t* labels, const f
   }
 }
 
-int ocr_run_w(wchar_t* str, int maxstrlen, Net* net, const double* mean_values, const uchar* img_data, int w, const wchar_t* labels_w) {
-  net_set_input_u8(net, img_data, w, mean_values);
+int ocr_run_w(wchar_t* str, int maxstrlen, CnnNet* net, const double* mean_values, int mean_values_size,
+  const uchar* img_data, int h, int w, int c, const wchar_t* labels_w) {
+  cnnnet_set_input_u8(net, img_data, h, w, c, 1, mean_values, mean_values_size);
   //uutime a;
   utime_start(a);
-  net_forward(net);
+  cnnnet_forward(net);
   printf("time : %lf\n", utime_elapsed(a));
   //LOG(INFO) << a.elapsed();
   int count = 0;
-  const float* pred = net_output(net, 0, &count);
+  const float* pred = cnnnet_output(net, 0, &count);
   //outshape = output_layer->shape_vec();
   int idxBlank = 0;
   IRANGE r = iRANGE(0, maxstrlen);
@@ -80,21 +82,21 @@ wchar_t labels_w[] = {
 };
 
 struct ocr_net {
-  Net* net;
+  CnnNet* net;
   ocr_net() {
     net = NULL;
-    net = net_new();
+    net = cnnnet_new();
   }
   ~ocr_net() {
-    net_del(net);
+    cnnnet_del(net);
   }
   int loadjson(const char* model_file) {
     //const char* model_file = MODEL_PATH  "model.json";
-    return net_loadjson(net, model_file);
+    return cnnnet_loadjson(net, model_file);
   }
-  int run(wchar_t* wstr, int maxlen, const uchar* img_data, int w) {
+  int run(wchar_t* wstr, int maxlen, const uchar* img_data, int h, int w, int c) {
     double mean_values[] = { 152,152,152 };
-    int n = ocr_run_w(wstr, maxlen, net, mean_values, img_data, w, labels_w);
+    int n = ocr_run_w(wstr, maxlen, net, mean_values, 3, img_data, h, w, c, labels_w);
     return n;
   }
 };

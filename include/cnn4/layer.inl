@@ -24,9 +24,9 @@ struct Layer {
   virtual void LayerSetUp(const vector<Blob*> & bottom, const vector<Blob*> & top) { }
   virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top) { }
   // bottom -> top
-  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top) {  }
+  virtual void Forward_(const vector<Blob*> & bottom, const vector<Blob*> & top) { assert(0); }
   // top -> bottom
-  virtual void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom) {  }
+  virtual void Backward_(const vector<Blob*> & top, const vector<Blob*> & bottom) { assert(0); }
 
   Layer() {
     init();

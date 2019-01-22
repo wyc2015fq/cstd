@@ -5,22 +5,9 @@
 
 //#define __CUDACC_VER__ 9200
 
-//#define WITH_PYTHON_LAYER
-//#define CPU_ONLY
-#ifndef CPU_ONLY
-#define USE_CUDNN
-#endif
-#define USE_WARP_CTC
-//#define USE_OPENCV
-#define USE_PROTOBUF
-#if 1
-#define USE_PRO
-#else
-#define USE_JSON
-#endif
+#include "config.h"
 
-#define USE_LMDB
-//#define USE_LEVELDB
+#define USE_WARP_CTC
 
 #if 0
 #include "boost/shared_ptr.hpp"

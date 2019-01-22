@@ -140,7 +140,6 @@ namespace caffe
     Dtype* top_mask = NULL;
     // Different pooling methods. We explicitly do the switch outside the for
     // loop to save time, although this results in more code.
-    double aa = 0;
     switch (this->layer_param_.pooling_param().pool()) {
     case PoolingParameter_PoolMethod_MAX:
       // Initialize
@@ -169,10 +168,6 @@ namespace caffe
                   const int index = h * width_ + w;
                   if (bottom_data[index] > top_data[pool_index]) {
                     top_data[pool_index] = bottom_data[index];
-                    aa += fabs(top_data[pool_index]);
-                    if (aa > 0) {
-                      int asdf = 0;
-                    }
                     if (use_top_mask) {
                       top_mask[pool_index] = static_cast<Dtype>(index);
                     } else {

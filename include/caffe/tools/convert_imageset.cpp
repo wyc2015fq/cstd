@@ -17,15 +17,14 @@
 #include <vector>
 #include <direct.h>
 
-#include "caffe/proto/caffe_proto.h"
-#include "caffe/proto/caffe.pb.cc"
+#include "caffe/proto/caffe.pb.h"
 #include "caffe/util/db.hpp"
 #include "caffe/util/io.hpp"
 #include "caffe/util/rng.hpp"
 //#include "caffe/libcaffe.cpp"
 
 #include "caffe/common.cpp"
-//#include "caffe/proto/caffe_proto.cc"
+#include "caffe/proto/caffe.pb.cc"
 #include "caffe/util/db.cpp"
 #include "../util/io.cpp"
 //#include "caffe/util/db_leveldb.cpp"
@@ -38,13 +37,12 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #endif  // USE_OPENCV
 
-#include "std/flags_c.h"
-#include "std/log_c.h"
+#include "wstd/flags.hpp"
+#include "wstd/logging.hpp"
 #include "wstd/string.hpp"
 #include "wstd/filesystem.hpp"
 
 using namespace std;
-using namespace wstd;
 using namespace caffe;  // NOLINT(build/namespaces)
 using std::pair;
 
@@ -52,7 +50,7 @@ using std::pair;
 DEFINE_bool(gray, false, "When this option is on, treat images as grayscale ones");
 DEFINE_bool(shuffle, true, "Randomly shuffle the order of images and their labels");
 DEFINE_string(backend, "lmdb", "The backend (lmdb, leveldb) for storing the result");
-DEFINE_string(typelist, "ifff", "typelist");
+DEFINE_string(typelist, "if", "typelist");
 DEFINE_int32(resize_width, 0, "Width images are resized to");
 DEFINE_int32(resize_height, 0, "Height images are resized to");
 DEFINE_bool(check_size, false, "When this option is on, check that all the datum have the same size");
@@ -75,7 +73,7 @@ size_t rfind_splash(const std::string& line, size_t pos) {
 
 int str2vec(const char* str, vector<float>& vec) {
   vector<string> strs;
-  split(strs, str, " ");
+  wstd::split(strs, str, " ");
   vec.resize(strs.size());
   int i;
   for (i = 0; i < vec.size(); ++i) {
@@ -105,7 +103,15 @@ int save_db(const char* db_fn, const char* encode_type, bool is_color, const cha
   for (int line_id = 0; line_id < lines.size(); ++line_id) {
     bool status;
     vector<string> strs;
-    split(strs, lines[line_id], ";");
+    if (n==2) {
+      string line = lines[line_id];
+      size_t firstblank = line.find(' ', 0);
+      strs.push_back(line.substr(0, firstblank));
+      strs.push_back(line.substr(firstblank+1));
+    }
+    else {
+      wstd::split(strs, lines[line_id], ";");
+    }
     LOG_IF(INFO, strs.size() != n) << "strs.size()!=n";
     for (i=0; i<n; ++i) {
       string fn = strs[i];
@@ -113,7 +119,7 @@ int save_db(const char* db_fn, const char* encode_type, bool is_color, const cha
       char c = typelist[i];
       if ('i' == c) {
         std::string enc = encode_type ? encode_type : "";
-        printf("%s\n", fn.c_str());
+        //printf("%s\n", fn.c_str());
         if (encoded && !enc.size()) {
           // Guess the encoding type from the file name
           size_t p = fn.rfind('.');
@@ -142,11 +148,11 @@ int save_db(const char* db_fn, const char* encode_type, bool is_color, const cha
       } else if ('f' == c) {
         vector<float> vec;
         str2vec(fn.c_str(), vec);
-        Blob_NCHW(blob, false, vec.data(), 1, 1, (int)vec.size());
+        Blob_NCHW(blob, false, vec.data(), (int)vec.size());
       }
     }
     // sequential
-    string key_str = format_int(line_id, 8);
+    string key_str = wstd::format_int(line_id, 8);
     // Put in db
     string out;
     CHECK(datum.SerializeToString(&out));
@@ -193,15 +199,15 @@ int read_db(const char* db_fn)
 
 int convert_db_mutil(int argc, char** argv)
 {
-  SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
+  wstd::SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
     "format used as input for Caffe.\n"
     "Usage:\n"
     "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
     "The ImageNet dataset for the training demo is at\n"
     "    http://www.image-net.org/download-images\n");
-  ParseCommandLineFlags(argc, argv, true);
+  wstd::ParseCommandLineFlags(argc, argv, true);
   if (argc < 4) {
-    ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
+    wstd::ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
     return 1;
   }
   const bool is_color = !FLAGS_gray;
@@ -212,26 +218,26 @@ int convert_db_mutil(int argc, char** argv)
     FLAGS_shuffle, is_color, check_size, encoded,
     FLAGS_resize_width, FLAGS_resize_height);
   std::vector<string> strs;
-  int len = readlines(argv[2], strs);
+  int len = wstd::readlines(argv[2], strs);
   if (len<=0) {
     printf("failed to open %s\n", argv[2]);
   }
   //const char* typelist = "ifff";
-  save_db(argv[3], NULL, is_color, argv[1], FLAGS_typelist, strs);
+  save_db(argv[3], NULL, is_color, argv[1], FLAGS_typelist.c_str(), strs);
   return 0;
 }
 
 int convert_db(int argc, char** argv)
 {
-  SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
+  wstd::SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
                           "format used as input for Caffe.\n"
                           "Usage:\n"
                           "    convert_imageset [FLAGS] ROOTFOLDER/ LISTFILE DB_NAME\n"
                           "The ImageNet dataset for the training demo is at\n"
                           "    http://www.image-net.org/download-images\n");
-  ParseCommandLineFlags(argc, argv, true);
+  wstd::ParseCommandLineFlags(argc, argv, true);
   if (argc < 4) {
-    ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
+    wstd::ShowUsageWithFlagsRestrict(argv[0], "tools/convert_imageset");
     return 1;
   }
   const bool is_color = !FLAGS_gray;
@@ -313,8 +319,8 @@ int convert_db(int argc, char** argv)
       std::transform(enc.begin(), enc.end(), enc.begin(), ::tolower);
     }
     status = ReadImageToBlob(root_folder + lines[line_id].first, resize_height, resize_width, is_color, enc, blob_img);
-    if (status == false) { continue; }
     LabelsToBlob(lines[line_id].second, blob_labels);
+    if (status == false) { continue; }
     if (check_size) {
       if (!data_size_initialized) {
         data_size = blob_channels(*blob_img) * blob_height(*blob_img) * blob_width(*blob_img);
@@ -326,7 +332,7 @@ int convert_db(int argc, char** argv)
       }
     }
     // sequential
-    string key_str = format_int(line_id, 8) + "_" + lines[line_id].first;
+    string key_str = wstd::format_int(line_id, 8) + "_" + lines[line_id].first;
     // Put in db
     string out;
     CHECK(datum.SerializeToString(&out));
@@ -371,8 +377,7 @@ int read2img_db(int argc, char** argv)
     Datum datum;
     // TODO deserialize in-place instead of copy?
     datum.ParseFromString(cursor->value());
-    //cv::Mat img;
-    // = DecodeDatumToCVMat(datum.blob(0), true);
+    cv::Mat img = DecodeDatumToCVMat(datum.blob(0), true);
     char name[100];
     sprintf(name, "%05d.png", i);
     ofs << name;
@@ -384,7 +389,7 @@ int read2img_db(int argc, char** argv)
     }
     ofs << std::endl;
     string dstfile = dstfolder + name;
-    //cv::imwrite(dstfile, img);
+    cv::imwrite(dstfile, img);
     // go to the next iter
     cursor->Next();
     if (!cursor->valid()) {
@@ -396,26 +401,28 @@ int read2img_db(int argc, char** argv)
 
 int convert_imageset(int argc, char** argv)
 {
-  InitGoogleLogging(argv[0]);
+#ifdef USE_OPENCV
+  wstd::InitGoogleLogging(argv[0]);
   // Print output to stderr (while still logging)
   FLAGS_alsologtostderr = 1;
   //FLAGS_alsologtostderr
+#ifdef _DEBUG
+  if (0) {
+    const char* path;
+    path = "C:/caffe_train/ocr";
+    path = "E:/data/ew_id/mtcnn/48";
+    _chdir(path);
+    char* imdir = "E:/data/ew_id/mtcnn/48/";
+    char* argv_[] = { "<bin>", imdir, "images/train.txt", "lmdb/train1", "--gray=false", "--resize_width=48", "--resize_height=48", "--typelist=ifff" };
+    argc = countof(argv_);
+    argv = argv_;
+  }
+#endif
   convert_db_mutil(argc, argv);
   //read_db(argv_[3]);
   //convert_db(argc, argv);
-  //LOG(FATAL) << "This tool requires OpenCV; compile with USE_OPENCV.";
-  return 0;
-}
-
-int test_convert_imageset() {
-  const char* path = 0;
-  if (1) {
-    path = "C:/caffe_train/ocr";
-    path = "E:/OCR_Line/lines/densenet-no-blstm_caffe";
-    _chdir(path);
-    char* argv[] = { "<bin>", "", "../train.txt", "dbtrain", "--gray=false", "--resize_width=280", "--resize_height=32", "--typelist=if" };
-    int argc = countof(argv);
-    convert_imageset(argc, argv);
-  }
+#else
+  LOG(FATAL) << "This tool requires OpenCV; compile with USE_OPENCV.";
+#endif  // USE_OPENCV
   return 0;
 }

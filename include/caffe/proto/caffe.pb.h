@@ -1393,6 +1393,7 @@ class FillerParameter : public ::google::protobuf::Message {
   bool has_min() const;
   void clear_min();
   static const int kMinFieldNumber = 3;
+#undef min
   float min() const;
   void set_min(float value);
 
@@ -2727,6 +2728,7 @@ class ParamSpec : public ::google::protobuf::Message {
   // nested types ----------------------------------------------------
 
   typedef ParamSpec_DimCheckMode DimCheckMode;
+#undef STRICT
   static const DimCheckMode STRICT = ParamSpec_DimCheckMode_STRICT;
   static const DimCheckMode PERMISSIVE = ParamSpec_DimCheckMode_PERMISSIVE;
   static inline bool DimCheckMode_IsValid(int value) {

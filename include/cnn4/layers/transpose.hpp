@@ -49,8 +49,8 @@ public:
     int num_axes = shape.num_axes();
     CHECK_GT(num_axes, 0) << "the dimension of the transposed blob should "
       "be greater than 0.";
-    CHECK_LE(num_axes, kMaxBlobAxes) << "the dimension of the transposed blob should "
-      "be less than kMaxBlobAxes (" << kMaxBlobAxes << ").";
+    CHECK_LE(num_axes, MaxBlobAxes) << "the dimension of the transposed blob should "
+      "be less than kMaxBlobAxes (" << MaxBlobAxes << ").";
     CHECK_EQ(num_axes, dim_.size()) << "the dimensions of "
       "the top blob and bottom blob must be equal.";
     DataShape top_shape = shape;

@@ -3,7 +3,7 @@
 #ifndef CAFFE_TEST_TEST_CAFFE_MAIN_HPP_
 #define CAFFE_TEST_TEST_CAFFE_MAIN_HPP_
 
-//#include "wstd/logging.hpp"
+#include "wstd/logging.hpp"
 #include "gtest/gtest.h"
 
 #include <cstdio>

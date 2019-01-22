@@ -705,9 +705,7 @@
 
 
 
-	void DenseBlockLayer::Backward_gpu(const vector<Blob*>& top,
-		const vector<bool>& propagate_down,
-		const vector<Blob*>& bottom) {
+	void DenseBlockLayer::Backward_gpu(const vector<Blob*>& top, const vector<Blob*>& bottom) {
 #if 0
 		if (!this->gpuInited) {
 			this->GPU_Initialization();
@@ -1030,7 +1028,7 @@
 
 
 	void DenseBlockLayer::Backward_gpu_public(const vector<Blob*>& top, const vector<bool>& propagate_down, const vector<Blob*>& bottom) {
-		this->Backward_gpu(top, propagate_down, bottom);
+		this->Backward_gpu(top, bottom);
 	}
 
 

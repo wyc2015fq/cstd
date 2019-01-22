@@ -52,8 +52,8 @@ namespace caffe
   }
 
   template <>
-  void caffe_axpy<float>(const int N, const float alpha, const float* X, float* Y) {
-    cblas_saxpy(N, alpha, X, 1, Y, 1); }
+  void caffe_axpy<float>(const int N, const float alpha, const float* X,
+                         float* Y) { cblas_saxpy(N, alpha, X, 1, Y, 1); }
 
   template <>
   void caffe_axpy<double>(const int N, const double alpha, const double* X,
@@ -276,7 +276,7 @@ namespace caffe
     }
   }
 
-  static unsigned int caffe_rng_rand()
+  unsigned int caffe_rng_rand()
   {
     return (*caffe_rng())();
   }

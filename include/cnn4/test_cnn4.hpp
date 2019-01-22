@@ -81,6 +81,11 @@ int test_cnn4_recog(int argn, char* argc[]) {
     testfn = "test.txt";
     _chdir("E:/OCR_Line/lines");
   }
+  if (1) {
+    modelfn = "deploy.json";
+    testfn = "../test.txt";
+    _chdir("D:/OCR_Line/lines/han200w/densenet-no-blstm_caffe5");
+}
 #else
 #endif // _DEBUG
   CnnNet* net = cnnnet_new();

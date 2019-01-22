@@ -2,7 +2,7 @@
 #ifndef _CNN4_TYPES_H_
 #define _CNN4_TYPES_H_
 
-#include "std/log_c.h"
+//#include "std/log_c.h"
 
 typedef void void_type;
 typedef void void_float;
@@ -49,33 +49,33 @@ TYPEFLAGDEF_DEF(TYPEFLAGDEF)
 //shape[3] = width;
 
 enum DimType { NCHW, NHWC };
-enum { kMaxBlobAxes = 8 };
+enum { MaxBlobAxes = 8 };
 
 struct DataShape {
   //TypeFlag t;
   DataShape() { set(1); }
   union {
-    int dim[kMaxBlobAxes];
+    int dim[MaxBlobAxes];
     struct { int n, c, h, w; };
   };
   void set(int n, int c = 0, int h = 0, int w = 0) {
     dim[0] = n, dim[1] = c, dim[2] = h, dim[3] = w;
-    for (int i = 4; i < kMaxBlobAxes; ++i) { dim[i] = 0; }
+    for (int i = 4; i < MaxBlobAxes; ++i) { dim[i] = 0; }
   }
   int& operator[](int index) { return dim[index]; }
   const int& operator[](int index) const { return dim[index]; }
   void set(const int* dim2, int n) {
-    assert(n<=kMaxBlobAxes);
+    assert(n<=MaxBlobAxes);
     int i;
     for (i = 0; i < n; ++i) { dim[i] = dim2[i]; }
-    for (i = n; i < kMaxBlobAxes; ++i) { dim[i] = 0; }
+    for (i = n; i < MaxBlobAxes; ++i) { dim[i] = 0; }
   }
   void check() const {
-    for (int i = 0; i < kMaxBlobAxes; ++i) { assert(dim[i]>=0); }
+    for (int i = 0; i < MaxBlobAxes; ++i) { assert(dim[i]>=0); }
   }
   void push_back(int x) {
     int n = num_axes();
-    assert(n<kMaxBlobAxes);
+    assert(n<MaxBlobAxes);
     dim[n] = x;
   }
   int count() const {
@@ -91,10 +91,10 @@ struct DataShape {
   int* end() { return dim + num_axes(); }
   const int* begin() const { return dim; }
   const int* end() const { return dim + num_axes(); }
-  int at(int i) const { assert(i<kMaxBlobAxes);  return dim[i]; }
+  int at(int i) const { assert(i<MaxBlobAxes);  return dim[i]; }
   void resize(int k) {
-    assert(k <= kMaxBlobAxes);
-    for (; k < kMaxBlobAxes; ++k) {
+    assert(k <= MaxBlobAxes);
+    for (; k < MaxBlobAxes; ++k) {
       dim[k] = 0;
     }
   }
@@ -103,7 +103,7 @@ struct DataShape {
   }
   inline int num_axes() const {
     check();
-    int i = kMaxBlobAxes;
+    int i = MaxBlobAxes;
     for (; i > 0 && dim[i - 1] <= 0; --i);
     return i;
   }
@@ -116,6 +116,11 @@ struct DataShape {
     }
     return axis_index;
   }
+#ifndef CHECK_LE
+#define CHECK_LE(a, b)  
+#define CHECK_GE(a, b)  
+#define CHECK_LT(a, b) 
+#endif
   inline int count(int start_axis, int end_axis) const {
     start_axis = MIN(start_axis, num_axes());
     end_axis = MIN(end_axis, num_axes());
@@ -142,8 +147,7 @@ struct DataShape {
   /// @brief Deprecated legacy shape accessor width: use shape(3) instead.
   inline int width() const { return LegacyShape(3); }
   inline int LegacyShape(int index) const {
-    CHECK_LE(num_axes(), 4)
-      << "Cannot use legacy accessors on Blobs with > 4 axes.";
+    //CHECK_LE(num_axes(), 4) << "Cannot use legacy accessors on Blobs with > 4 axes.";
     CHECK_LT(index, 4);
     CHECK_GE(index, -4);
     if (index >= num_axes() || index < -num_axes()) {
@@ -155,6 +159,11 @@ struct DataShape {
     return shape(index);
   }
 };
+
+#ifndef CMP
+#define CMP(a, b)  ((a)>(b)) - ((a)<(b))
+#define IFCMPRET(ret, a, b)  ret = CMP(a, b);if (ret) {return ret;}
+#endif
 
 static int DataShape_cmp(const DataShape& a, const DataShape& b) {
   int ret = 0;

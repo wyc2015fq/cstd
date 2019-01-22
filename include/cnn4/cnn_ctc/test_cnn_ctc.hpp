@@ -252,7 +252,7 @@ void GetPredictString1(char* str, IRANGE* r, const char* const* labels, const in
 
 testdata_t GetPredict(const vector<float>& fm, int idxBlank)
 {
-  testdata_t td;
+  testdata_t td = {0};
   td.n = GetPredict(fm.data(), fm.size(), idxBlank, td.idx);
   return td;
 }
@@ -315,7 +315,7 @@ float GetCTCLoss(float*activations, int timesteps, int alphabet_size, int blank_
 	if (flat_labels.size() != strlabel.size())
 		return 0;
 	float cost = 0;
-	status = compute_ctc_loss_cpu(activations,
+	status = cpu_compute_ctc_loss(activations,
 		0,
 		flat_labels.data(),
 		&len,
@@ -744,12 +744,23 @@ int test_cnn_ctc()
     test_ocr_english(imgfolder, modelfolder, lexiconfile);
   }
 
-  if (1) {
+  if (0) {
 #define ROOTPATH "E:\\OCR_Line\\"
     const char* imgfolder = ROOTPATH"images\\";
     const char* modelfolder = ROOTPATH"model\\densenet-no-blstm\\";
     const char* outfile = ROOTPATH"out.txt";
     const char* testfile = ROOTPATH"test.txt";
+
+    test_ocr_chinese(imgfolder, modelfolder, outfile, testfile);
+#undef ROOTPATH
+  }
+
+  if (1) {
+#define ROOTPATH "D:/OCR_Line/lines/han200w/"
+    const char* imgfolder = "";
+    const char* modelfolder = ROOTPATH"densenet-no-blstm_caffe5/";
+    const char* outfile = ROOTPATH"out.txt";
+    const char* testfile = ROOTPATH"test1.txt";
 
     test_ocr_chinese(imgfolder, modelfolder, outfile, testfile);
 #undef ROOTPATH

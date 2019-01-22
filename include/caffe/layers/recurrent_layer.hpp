@@ -9,7 +9,7 @@
 #include "caffe/common.hpp"
 #include "caffe/layer.hpp"
 #include "caffe/net.hpp"
-#include "caffe/proto/caffe_proto.h"
+#include "caffe/proto/caffe.pb.h"
 #include "wstd/string.hpp"
 
 namespace caffe

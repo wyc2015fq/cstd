@@ -289,10 +289,7 @@ bool blob_data_transform(DataTransformerInfo* info, DimType dimtype_, DataShape 
   }
   return 0;
 }
-
 DataShape GetDataTransformerInfo(DataTransformerInfo* info, const BlobData* src, Phase phase) {
-  //src<Dtype> data_mean_;
-  // Check dimensions.
   DataShape shape_;
   shape_.set(1);
   info->phase_ = phase;

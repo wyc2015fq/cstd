@@ -8,15 +8,17 @@
 
 //#include "boost/scoped_ptr.hpp"
 
+#include "std/log_c.h"
 #include "std/flags_c.h"
-#include "parser/cJSON.hpp"
-#include "../types.h"
-#include "../db.hpp"
-#include "../data_transformer.hpp"
+#include "std/fileio_c.h"
+//#include "../types.h"
 #include "wstd/string.hpp"
 #include "wstd/filesystem.hpp"
 #include "imgio/imgio.h"
-
+#include "../blobdata.h"
+#ifdef _DEBUG
+#include "std/gui_c.h"
+#endif
 
 
 using namespace std;
@@ -32,7 +34,6 @@ DEFINE_int32(resize_height, 32, "Height images are resized to");
 //DEFINE_bool(encoded, true, "When this option is on, the encoded image will be save in datum");
 //DEFINE_string(encode_type, "", "Optional: What type should we encode the image as ('png','jpg',...).");
 DEFINE_string(root_folder, "", "root_folder");
-
 
 size_t rfind_splash(const std::string& line, size_t pos) {
   size_t pos1 = line.rfind('/', pos);
@@ -58,6 +59,7 @@ int str2vec(const char* str, vector<float>& vec) {
   return vec.size();
 }
 
+
 int convert_imageset2mnist(int argc, char** argv)
 {
   SetUsageMessage("Convert a set of images to the leveldb/lmdb\n"
@@ -68,16 +70,12 @@ int convert_imageset2mnist(int argc, char** argv)
     "    http://www.image-net.org/download-images\n");
   ParseCommandLineFlags(argc, argv, true);
 
-  std::vector<string> strs;
-  int len = readlines(argv[1], strs);
-  if (len<=0) {
+  FILE* pf = fopen(argv[1], "rb");
+  if (NULL==pf) {
     printf("failed to open %s\n", argv[2]);
   }
   //const char* typelist = "ifff";
-  save_db(argv[2], strs);
   const char* db_fn = argv[2];
-  vector<string>& lines = strs;
-
   const char* typelist = FLAGS_typelist;
   const char* root_folder = FLAGS_root_folder;
   // Create new DB
@@ -85,72 +83,143 @@ int convert_imageset2mnist(int argc, char** argv)
   int w = FLAGS_resize_width;
   bool is_color = !FLAGS_gray;
   int cn = is_color ? 3 : 1;
-  DB* db = GetDB(FLAGS_backend);
-  db->Open(db_fn, NEW);
-  Transaction* txn = db->NewTransaction();
   // Storing to db
-  Datum datum;
   int count = 0;
   int i, n = strlen(typelist);
-  datum.resize(n);
   img_t im[1] = { 0 };
-  for (int line_id = 0; line_id < lines.size(); ++line_id) {
+  char buf[1024];
+  int inited = 0;
+  DataInfo info[1];
+  int img_size = h*w*cn;
+  memset(info, 0, sizeof(info));
+  info->shape.set(1, cn, h, w);
+  const char* outfilename = argv[2];
+  FILE* out_pf = NULL;
+  if (CheckFileExist(outfilename)) {
+    DataInfo info2[1];
+    int64_t db_file_size = 0;
+    {
+      FILE* pf2 = fopen(outfilename, "rb");
+      int64_t off = 0;
+      db_file_size = fsize(pf2);
+      if (db_file_size > sizeof(DataInfo)) {
+        int t = mnist_read_head(pf2, info2);
+        bool t1 = info2->shape == info->shape;
+        bool t2 = info2->label_num == info2->label_num;
+        int size1 = img_size;
+        for (i = 0; i < n - 1; ++i) {
+          size1 += info2->label_dim[i] * sizeof(float);
+        }
+        if (info2->shape==info->shape && info2->label_num== info2->label_num) {
+          int num = (db_file_size - t) / size1;
+          off = t + (num - 1)*size1;
+#ifdef _DEBUG
+          if (1) {
+            _fseeki64(pf2, off, SEEK_SET);
+            imsetsize(im, h, w, cn, 1);
+            int tt = fread(im->data, 1, img_size, pf2);
+            imshow_(im); waitkey(-1);
+          }
+#endif
+          for (; fgets(buf, 1024, pf) && count<num; ) {
+            ++count;
+          }
+        }
+      }
+      fclose(pf2);
+      if (off > 0) {
+        out_pf = fopen(outfilename, "wb+");
+        _fseeki64(out_pf, off, SEEK_SET);
+      }
+    }
+  }
+  if (NULL== out_pf) {
+    out_pf = fopen(outfilename, "wb");
+  }
+  for (; fgets(buf, 1024, pf); ) {
     bool status;
+    vector<vector<float> > vecs;
     vector<string> strs;
-    split(strs, lines[line_id], ";");
+    split(strs, buf, ";");
+    if (1 == strs.size()) {
+      char* p = strchr(buf, ' ');
+      strs.resize(2);
+      strs[0].assign(buf, p);
+      strs[1].assign(p+1);
+    }
     LOG_IF(INFO, strs.size() != n) << "strs.size()!=n";
     for (i = 0; i<n; ++i) {
       string fn = strs[i];
-      BlobData* blob = &datum[i];
       char c = typelist[i];
       if ('i' == c) {
-        printf("%s\n", fn.c_str());
-        if (1) {
-          string fullfn = root_folder + fn;
-          if (imread(fullfn.c_str(), cn, 1, im)) {
-            if (im->h != h || im->w != w) {
-              imresize(im, h, w, im);
-            }
-            blob->set(NCHW, TF_U8, im->data, w, h, cn);
+        //printf("%s\n", fn.c_str());
+        string fullfn = root_folder + fn;
+        if (imread(fullfn.c_str(), cn, 1, im)) {
+          if (im->h != h || im->w != w) {
+            imresize(im, h, w, im);
           }
+        }
+        else {
+          continue;
         }
       }
       else if ('f' == c) {
         vector<float> vec;
         str2vec(fn.c_str(), vec);
-        blob->set(NCHW, TF_F32, vec.data(), 1, 1, (int)vec.size(), 1);
+        vecs.push_back(vec);
       }
     }
-    // sequential
-    string key_str = format_int(line_id, 8);
-    string value;
-    str_append_datum(&value, datum);
-    txn->Put(key_str, value);
-
-    if (++count % 1000 == 0) {
-      txn->Commit();
+    ++count;
+    LOG_IF(INFO, vecs.size() != (n-1)) << "vecs.size()!=n-1";
+    if (!inited) {
+      inited = 1;
+      info->dimtype_ = NCHW;
+      info->type_ = TF_U8;
+      info->label_num = n-1;
+      info->shape.n = count;
+      for (i = 0; i < (n - 1); ++i) {
+        info->label_dim[i] = vecs[i].size();
+      }
+      mnist_write_head(out_pf, info);
     }
+    fwrite(im->data, 1, img_size, out_pf);
+    for (i = 0; i < (n - 1); ++i) {
+      LOG_IF(INFO, vecs[i].size() != info->label_dim[i]) << "vecs[i].size() != info->label_dim[i]";
+      fwrite(vecs[i].data(), sizeof(float), info->label_dim[i], out_pf);
+    }
+    if (count % 1000 == 0) {
+      // Commit db
+      //fseek(out_pf, 0, SEEK_SET);
+      //mnist_write_head(out_pf, info);
+      fflush(out_pf);
+      LOG(INFO) << "Processed " << count << " files.";
+    }
+    // sequential
+    // set(NCHW, TF_U8, im->data, w, h, cn);
+    // set(NCHW, TF_F32, vec.data(), 1, 1, (int)vec.size(), 1);
   }
+  fclose(pf);
+  fclose(out_pf);
   // write the last batch
-  if (count % 1000 != 0) {
-    txn->Commit();
-    LOG(INFO) << "Processed " << count << " files.";
-  }
   return 0;
 }
 
 int test_convert_imageset2mnist() {
   //test_dbread();
+  char a = ENDIANNESS;
+  char b = (char)*(int*)"l??b";
+  char c = b;
 #ifdef _DEBUG
   _chdir("E:/OCR_Line/chars/");
   _chdir("E:/OCR_Line/hans/");
   _chdir("E:/OCR_Line/lines/");
+  _chdir("D:/OCR_Line/lines/han200w/");
 #endif
   char* test[] = { "",
-    "test.txt", "./dbtest","--backend=lmdb", "--typelist=if", "--resize_width=280", "--resize_height=32", "--gray=false"
+    "test.txt", "./dbtest.mnist","--typelist=if", "--resize_width=280", "--resize_height=32", "--gray=true"
   };
   char* train[] = { "",
-    "train.txt", "./dbtrain","--backend=lmdb", "--typelist=if", "--resize_width=280", "--resize_height=32", "--gray=false"
+    "train.txt", "./dbtrain.mnist","--typelist=if", "--resize_width=280", "--resize_height=32", "--gray=true"
   };
   convert_imageset2mnist(countof(test), test);
   convert_imageset2mnist(countof(train), train);

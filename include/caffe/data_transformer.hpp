@@ -5,7 +5,7 @@
 
 #include "caffe/blob.hpp"
 #include "caffe/common.hpp"
-#include "caffe/proto/caffe_proto.h"
+#include "caffe/proto/caffe.pb.h"
 
 namespace caffe
 {

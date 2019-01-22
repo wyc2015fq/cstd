@@ -126,7 +126,7 @@ inline Dtype diff_at(const int n, const int c, const int h, const int w) {
 }
 
 void Reshape(const vector<int> & shape) {
-  ASSERT(shape.size()<=kMaxBlobAxes);
+  ASSERT(shape.size()<=MaxBlobAxes);
   DataShape dshape;
   dshape.set(vec_data(shape), (int)shape.size());
   Reshape(dshape);
@@ -158,7 +158,7 @@ int FromJson(cjson* param) {
   DataShape shape;
   blob->lr_mult_ = cjson_GetObjectFloat(param, "lr_mult", 1);
   blob->decay_mult_ = cjson_GetObjectFloat(param, "decay_mult", 1);
-  cjson_GetObjectNumberArray(param, "shape", shape.dim, kMaxBlobAxes, 0);
+  cjson_GetObjectNumberArray(param, "shape", shape.dim, MaxBlobAxes, 0);
   int initok = 0;
   int count = shape_.count();
   int nbytes = count * sizeof(float);

@@ -28,7 +28,7 @@ static std::vector<int> Argmax(const std::vector<float>& v, int N) {
 class Classifier //: public ICNNPredict
 {
 public:
-  Net* net_;
+  CnnNet* net_;
   cv::Size input_geometry_;
   int num_channels_;
   cv::Mat mean_;

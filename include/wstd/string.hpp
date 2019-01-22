@@ -211,7 +211,7 @@ namespace wstd {
     return ret;
   }
 
-  int atovf(const char* str, vector<float>& vec) {
+  static int atovf(const char* str, vector<float>& vec) {
     vector<string> strs;
     split(strs, str, " ");
     vec.resize(strs.size());
@@ -221,8 +221,7 @@ namespace wstd {
     }
     return vec.size();
   }
-
-  int atovi(const char* str, vector<float>& vec) {
+  static int atovi(const char* str, vector<float>& vec) {
     vector<string> strs;
     split(strs, str, " ");
     vec.resize(strs.size());

@@ -6,12 +6,12 @@
 #include <vector>
 
 #include "hdf5.h"
-#include "utime.h"
+
 #include "caffe/common.hpp"
 #include "caffe/layer.hpp"
 #include "caffe/net.hpp"
 #include "caffe/parallel.hpp"
-#include "caffe/proto/caffe_proto.h"
+#include "caffe/proto/caffe.pb.h"
 #include "caffe/util/hdf5.hpp"
 #include "caffe/util/insert_splits.hpp"
 #include "caffe/util/math_functions.hpp"
@@ -60,8 +60,8 @@ namespace caffe
     NetParameter filtered_param;
     FilterNet(in_param, &filtered_param);
     LOG_IF(INFO, Caffe::root_solver())
-      << "Initializing net from parameters: \n"
-      << filtered_param.DebugString().c_str();
+      << "Initializing net from parameters: " << std::endl
+      << filtered_param.DebugString();
     // Create a copy of filtered_param with splits added where necessary.
     NetParameter param;
     InsertSplits(filtered_param, &param);
@@ -166,7 +166,7 @@ namespace caffe
         memory_used_ += top_vecs_[layer_id][top_id]->count();
       }
       LOG_IF(INFO, Caffe::root_solver())
-          << "Memory required for data: " << (int)(memory_used_ * sizeof(Dtype));
+          << "Memory required for data: " << memory_used_ * sizeof(Dtype);
       const int param_size = layer_param.param_size();
       const int num_param_blobs = layers_[layer_id]->blobs().size();
       CHECK_LE(param_size, num_param_blobs)
@@ -555,18 +555,12 @@ namespace caffe
     CHECK_GE(start, 0);
     CHECK_LT(end, layers_.size());
     Dtype loss = 0;
-    //utime_start(b);
     for (int i = start; i <= end; ++i) {
       // LOG(ERROR) << "Forwarding " << layer_names_[i];
-      //utime_start(a);
       Dtype layer_loss = layers_[i]->Forward(bottom_vecs_[i], top_vecs_[i]);
-      //double t = utime_elapsed(a)*1000;      printf("%d %lf %s\n", i, t, layers_[i]->type());
       loss += layer_loss;
-      if (debug_info_) {
-        ForwardDebugInfo(i);
-      }
+      if (debug_info_) { ForwardDebugInfo(i); }
     }
-    //double t = utime_elapsed(b) * 1000;    printf("all: %lf\n", t);
     return loss;
   }
 
@@ -615,9 +609,7 @@ namespace caffe
       if (layer_need_backward_[i]) {
         layers_[i]->Backward(
           top_vecs_[i], bottom_need_backward_[i], bottom_vecs_[i]);
-        if (debug_info_) {
-          BackwardDebugInfo(i);
-        }
+        if (debug_info_) { BackwardDebugInfo(i); }
       }
     }
   }
@@ -632,7 +624,7 @@ namespace caffe
       LOG_IF(INFO, Caffe::root_solver())
           << "    [Forward] "
           << "Layer " << layer_names_[layer_id]
-          << ", top blob " << blob_name << blob.shape_string()
+          << ", top blob " << blob_name
           << " data: " << data_abs_val_mean;
     }
     for (int param_id = 0; param_id < layers_[layer_id]->blobs().size();
@@ -644,7 +636,7 @@ namespace caffe
       LOG_IF(INFO, Caffe::root_solver())
           << "    [Forward] "
           << "Layer " << layer_names_[layer_id]
-          << ", param blob " << param_id << blob.shape_string()
+          << ", param blob " << blob_name
           << " data: " << data_abs_val_mean;
     }
   }
@@ -661,7 +653,7 @@ namespace caffe
       LOG_IF(INFO, Caffe::root_solver())
           << "    [Backward] "
           << "Layer " << layer_names_[layer_id]
-          << ", bottom blob " << blob_name << blob.shape_string()
+          << ", bottom blob " << blob_name
           << " diff: " << diff_abs_val_mean;
     }
     for (int param_id = 0; param_id < layers_[layer_id]->blobs().size();
@@ -672,7 +664,7 @@ namespace caffe
       LOG_IF(INFO, Caffe::root_solver())
           << "    [Backward] "
           << "Layer " << layer_names_[layer_id]
-          << ", param blob " << param_id << blob.shape_string()
+          << ", param blob " << param_id
           << " diff: " << diff_abs_val_mean;
     }
   }
@@ -893,7 +885,7 @@ namespace caffe
     param->Clear();
     param->set_name(name_);
     // Add bottom and top
-    DLOG(INFO) << "Serializing " << (int)layers_.size() << " layers";
+    DLOG(INFO) << "Serializing " << layers_.size() << " layers";
     for (int i = 0; i < layers_.size(); ++i) {
       LayerParameter* layer_param = param->add_layer();
       layers_[i]->ToProto(layer_param, write_diff);
