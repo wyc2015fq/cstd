@@ -170,47 +170,6 @@ typedef enum {
 #define SCALARTORAWDATA(_scalar, _data, _cn) {int _cn1 = _cn; while(_cn1--) { (_data)[_cn1] = CVSCALARDATA(_scalar, _cn1); } }
 
 
-CC_INLINE int fill_color_array(int n, COLOR* array, COLOR clr1, COLOR clr2)
-{
-  int i;
-  for (i = 0; i < n; ++i) {
-    array[i] = RGBABLEN2(clr1, clr2, i, (n-1));
-  }
-  return 0;
-}
-CC_INLINE int fill_color_array2(int n, COLOR* array, int m, const COLOR* clrs, const float* pos)
-{
-  int i, a, b;
-  if (pos) {
-    for (i = 0; i < m - 1; ++i) {
-      ASSERT(pos[i]<=1. && pos[i+1]<=1.);
-      a = (int)(pos[i] * n);
-      b = (int)(pos[i + 1] * n);
-      fill_color_array(b - a, array + a, clrs[i], clrs[i + 1]);
-    }
-  } else {
-    for (i = 0; i < m - 1; ++i) {
-      a = (i * n)/(m-1);
-      b = ((i + 1) * n)/(m-1);
-      fill_color_array(b - a, array + a, clrs[i], clrs[i + 1]);
-    }
-  }
-  return 0;
-}
-CC_INLINE int fill_color_array3(int n, COLOR* array, COLOR clr1, COLOR clr2, int m, const double* pos, const double* fac)
-{
-  int i, a, b;
-  COLOR clra, clrb;
-  for (i = 0; i < m - 1; ++i) {
-    clra = RGBABLEN2(clr2, clr1, (fac[i]), 1);
-    clrb = RGBABLEN2(clr2, clr1, (fac[i + 1]), 1);
-    a = (int)(pos[i] * n);
-    b = (int)(pos[i + 1] * n);
-    fill_color_array(b - a, array + a, clra, clrb);
-  }
-  return 0;
-}
-
 
 #define INTER_NEARSAMPLE(in, x1, y1, wl, bi, B) \
   do { \
@@ -2171,33 +2130,6 @@ CC_INLINE void* memcat(void* pDest, size_t Len, const void* pSrc, size_t Len2)
   return pDest;
 }
 
-//|xa, ya, za|
-//|xb, yb, zb|
-//|xc, yc, zc|
-//#define DET3(xa, ya, za, xb, yb, zb, xc, yc, zc) (xa*yb*zc-xa*yc*zb+yc*xb*za+xc*ya*zb-yb*xc*za-xb*ya*zc)
-
-#define DET1(A00)  (A00)
-#define DET2(A00,A01,A10,A11)   (+(A00)*DET1(A11)-(A01)*DET1(A10))
-#define DET3(A00,A01,A02,A10,A11,A12,A20,A21,A22)   (+(A00)*DET2(A11,A12,A21,A22)-(A01)*DET2(A10,A12,A20,A22)+(A02)*DET2(A10,A11,A20,A21))
-#define DET3x(x, y, z) DET3((x)[0], (y)[0], (z)[0], (x)[1], (y)[1], (z)[1], (x)[2], (y)[2], (z)[2])
-//#define DET3x(x, y, z) DET3((x)[0], (x)[1], (x)[2], (y)[0], (y)[1], (y)[2], (z)[0], (z)[1], (z)[2])
-// Ax=b   xi=Di/D  D=det(A) Di=det(Ai) 
-CC_INLINE double slove3(const double* A, const double* b, double* x)
-{
-  double d = DET3x(A, A + 3, A + 6);
-  x[0] = DET3x(b, A + 3, A + 6) / d;
-  x[1] = DET3x(A + 0, b, A + 6) / d;
-  x[2] = DET3x(A + 0, A + 3, b) / d;
-  return d;
-}
-CC_INLINE double slove3n(const double* A, const double* b, double* x, int n)
-{
-  int i;
-  for (i = 0; i < n; ++i) {
-    slove3(A, b + i * 3, x + i * 3);
-  }
-  return 0;
-}
 CC_INLINE int popcnt_lookup2(unsigned int u)
 {
   static const uchar poptable[256] = {

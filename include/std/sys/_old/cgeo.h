@@ -1,6 +1,4 @@
 
-#define deg2rad(deg) ((deg) * CC_PI / 180.0)
-#define rad2deg(rad) ((rad) * 180.0 / CC_PI)
 //                   ???
 typedef struct IDIM {
   int len[2];
@@ -358,42 +356,22 @@ typedef struct {
 typedef struct {
   int l, t, r, b;
 } IMRECT;
-typedef FPOINT ImVec2;
-typedef FPOINT4 ImVec4;
-typedef struct {
-  ImVec4 pos;
-  ImVec4 n;
-  ImVec2 uv;
-  uint32 col;
-  float rhw;
-} ImVertex;
-typedef struct {
-  ImVec2 a, c, uv_a, uv_c;
-  COLOR clr;
-} PrimRectUV;
-CC_INLINE void PrimRectUV_set(PrimRectUV* g, ImVec2 a, ImVec2 c, ImVec2 uv_a, ImVec2 uv_c)
-{
-  g->a = a;
-  g->c = c;
-  g->uv_a = uv_a;
-  g->uv_c = uv_c;
-}
 #define fVec2opt(a, op, b) fVec2((a).x op (b).x, (a).y op (b).y)
 #define fVec2opt_s(a, op, b) fVec2((a).x op (b), (a).y op (b))
 #define fVec2Add(c, _x, _y) fVec2((c).x + (_x), (c).y + (_y))
-CC_INLINE ImVec2 fVec2(float _x, float _y)
+CC_INLINE FPOINT fVec2(float _x, float _y)
 {
-  ImVec2 v;
+  FPOINT v;
   v.x = _x, v.y = _y;
   return v;
 }
-CC_INLINE ImVec2 fVec2mul_s1(ImVec2 a, float s)
+CC_INLINE FPOINT fVec2mul_s1(FPOINT a, float s)
 {
   return fVec2(a.x * s, a.y * s);
 }
-CC_INLINE ImVec4 fVec4(float _x, float _y, float _z, float _w)
+CC_INLINE FPOINT4 fVec4(float _x, float _y, float _z, float _w)
 {
-  ImVec4 v;
+  FPOINT4 v;
   v.x = _x, v.y = _y, v.z = _z, v.w = _w;
   return v;
 }

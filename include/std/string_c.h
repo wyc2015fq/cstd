@@ -8,6 +8,17 @@
 #include "inttypes_c.h"
 #include "stddef_c.h"
 #define static_strlen(STR)   (sizeof(STR)-1)
+
+static bool ImCharIsSpace(int c)
+{
+  return c == ' ' || c == '\t' || c == 0x3000;
+}
+
+static bool ImCharIsSpaceW(int c)
+{
+  return c == L' ' || c == L'\t' || c == 0x3000;
+}
+
 #ifdef _TEST
 int test_static_strlen()
 {
@@ -710,20 +721,43 @@ static char* path_split_ext(const char* fullpath, char* buf, int len)
   return buf;
 }
 //////////////////////////////////////////////////////////////
-static char* aprintf(char** buf, int i, const char* fmt, ...)
-{
+static char* avprintf(char** buf, int i, char const* const _Format, va_list  _ArgList) {
   int bsize = 32;
   int len = bsize;
   for (; len >= bsize; ) {
-    va_list va;
-    va_start(va, fmt);
     bsize = len + 10;
     *buf = (char*)realloc((*buf), i + bsize + 1);
-    len = vsnprintf((*buf) + i, bsize, fmt, va);
-    va_end(va);
+    len = vsnprintf((*buf) + i, bsize, _Format, _ArgList);
     assert(len >= 0 && "Check format string for errors");
   }
   (*buf)[bsize - 1] = 0;
+  return *buf;
+}
+static char* aprintf(char** buf, int i, const char* fmt, ...)
+{
+  va_list va;
+  va_start(va, fmt);
+  avprintf(buf, i, fmt, va);
+  va_end(va);
+  return *buf;
+}
+static wchar_t* avwprintf(wchar_t** buf, int i, wchar_t const* const _Format, va_list  _ArgList) {
+  int bsize = 32;
+  int len = bsize;
+  for (; len >= bsize; ) {
+    bsize = len + 10;
+    *buf = (wchar_t*)realloc((*buf), (i + bsize + 1) * sizeof(wchar_t));
+    len = _vsnwprintf((*buf) + i, bsize, _Format, _ArgList);
+    assert(len >= 0 && "Check format string for errors");
+  }
+  (*buf)[bsize - 1] = 0;
+}
+static wchar_t* awprintf(wchar_t** buf, int i, const wchar_t* fmt, ...)
+{
+  va_list va;
+  va_start(va, fmt);
+  avwprintf(buf, i, fmt, va);
+  va_end(va);
   return *buf;
 }
 #endif // _STRING_C_H_

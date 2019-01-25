@@ -11,8 +11,9 @@ enum ICONV_CODEPAGE {
   ICONV_UCS2LE,
 };
 
-#define USE_MYCONV
-//#define USE_WINCONV
+//#define USE_MYCONV
+#define USE_WINCONV
+
 
 #ifdef _WIN32
 //#define USE_WINCONV
@@ -125,8 +126,6 @@ static int iconv_linux(ICONV_CODEPAGE src_cp0, ICONV_CODEPAGE dst_cp0, const cha
 }
 #endif // USE_ICONV
 
-#ifdef USE_MYCONV
-#include "unicode.h"
 static ICONV_CODEPAGE mycodepage(const char* src_charset)
 {
 #define CVTCODEPAGE_DEF(DEF) \
@@ -140,6 +139,9 @@ static ICONV_CODEPAGE mycodepage(const char* src_charset)
 #undef CVTCODEPAGE_DEF
   return ICONV_NULL;
 }
+
+#ifdef USE_MYCONV
+#include "unicode.h"
 
 static int iconv_my(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* src, size_t srclen, char* dst, size_t dstlen)
 {
@@ -194,7 +196,7 @@ int iconv_c(const char* src_charset, const char* dst_charset, const char* src, i
 }
 
 /////////////////////////////////////////////////////////////////////////////
-int _wcstombsz(char* mbstr, const wchar_t* wcstr, size_t count)
+int iconv_wcstombsz(char* mbstr, const wchar_t* wcstr, size_t count)
 {
   if (count == 0 && mbstr != NULL) {
     return 0;
@@ -206,7 +208,7 @@ int _wcstombsz(char* mbstr, const wchar_t* wcstr, size_t count)
   return result;
 }
 
-int _mbstowcsz(wchar_t* wcstr, const char* mbstr, size_t count)
+int iconv_mbstowcsz(wchar_t* wcstr, const char* mbstr, size_t count)
 {
   if (count == 0 && wcstr != NULL) {
     return 0;
@@ -216,6 +218,18 @@ int _mbstowcsz(wchar_t* wcstr, const char* mbstr, size_t count)
     wcstr[result / 2] = 0;
   }
   return result;
+}
+wchar_t* iconv_a2w(const char* a, size_t count) {
+  count = count <= 0 ? strlen(a) : count;
+  wchar_t* w = (wchar_t*)malloc(count * sizeof(wchar_t));
+  iconv_mbstowcsz(w, a, count);
+  return w;
+}
+char* iconv_w2a(const wchar_t* w, size_t count) {
+  count = count <= 0 ? wcslen(w) : count;
+  char* a = (char*)malloc(count * sizeof(char));
+  iconv_wcstombsz(a, w, count);
+  return a;
 }
 
 #endif // _STDC_ICONV_C_H_

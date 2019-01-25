@@ -103,6 +103,7 @@ namespace cv {
     int w=0, h=0, n=0, req_comp = get_comp(flags);
     unsigned char *data = stbi_load(filename.c_str(), &w, &h, &n, req_comp);
     int nn = n * 10 + req_comp;
+    if (!data) { return Mat(); }
     Mat mat(h, w, CV_MAKETYPE(CV_8U, req_comp));
     //memcpy2d_(mat.data, mat.step, data, w*n, h, w*n);
     switch(nn) {

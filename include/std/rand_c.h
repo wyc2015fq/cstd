@@ -51,7 +51,6 @@ typedef struct rng_t_ rng_t;
 
 struct rng_t_ {
   uint32 (*gen_int32)(rng_t* r);
-  void* x;
 };
 
 // uniform_smallint：在小整数域内的均匀分布
@@ -114,28 +113,29 @@ CC_INLINE double lcg_f64(uint64* r)
   return u.f - 1;
 }
 /* Returns random floating-point number between 0 and 1: */
-
+struct lcg64_t {
+  rng_t rng[1];
+  uint64 x;
+};
 static uint32 rng_lcg64_gen_int32(rng_t* r)
 {
-  return lcg64_int32((uint64*)r->x);
+  lcg64_t* r64 = container_of(r, lcg64_t, rng);
+  return lcg64_int32(&r64->x);
 }
 
-static int rng_lcg64_init(rng_t* r, uint64* s)
+static rng_t* rng_lcg64_init(lcg64_t* r, uint64 x)
 {
-  r->x = s;
-  r->gen_int32 = rng_lcg64_gen_int32;
-  return 0;
+  r->rng->gen_int32 = rng_lcg64_gen_int32;
+  return r->rng;
 }
 
 static rng_t* rng_static()
 {
-  static rng_t rng[1] = {0};
-  static uint64 seed = 100;
-  if (NULL == rng->gen_int32) {
-    rng_lcg64_init(rng, &seed);
-    //rng_lcg64_init(rng, time(NULL));
+  static lcg64_t lcg64[1] = {0};
+  if (NULL == lcg64->rng->gen_int32) {
+    rng_lcg64_init(lcg64, 100);
   }
-  return rng;
+  return lcg64->rng;
 }
 #define RNG_STATIC(r)  r = r ? r : rng_static()
 // generates a random number on [0,0x7fffffff]-interval
@@ -226,9 +226,13 @@ static double rng_normal_ziggurat(rng_t* r, double _Mean, double _Sigma)
 }
 #endif
 
-/**
- * Return an Uniform[low, high] distributed pseudorandom number.
- */
+static int rng_uniform(rng_t* r, int low, int high)
+{
+  int t = high - low;
+  uint32 x = rng_int32(r);
+  return low + (x%t);
+}
+// Return an Uniform[low, high] distributed pseudorandom number.
 static double rng_uniform(rng_t* r, double low, double high)
 {
   double u_0_1 = rng_real3(r);
@@ -1418,33 +1422,32 @@ static int iRandArr(rng_t* r, int count, int dim, void* arr, int step, const int
 
 static uint32 rng_mt19937_gen_int32(rng_t* r)
 {
-  return mt19937ar_int32((mt19937ar_t*)(r->x));
+  mt19937ar_t* x = container_of(r, mt19937ar_t, rng);
+  return mt19937ar_int32(x);
 }
-static int rng_mt19937_init(rng_t* r, unsigned long s)
+static rng_t* rng_mt19937_init(mt19937ar_t* mt, unsigned long s)
 {
-  mt19937ar_t* mt = (mt19937ar_t*)(r->x);
   mt->mti = MT19937AR_N + 1;
   mt19937ar_init(mt, s);
-  r->gen_int32 = rng_mt19937_gen_int32;
-  return 0;
+  mt->rng->gen_int32 = rng_mt19937_gen_int32;
+  return mt->rng;
 }
 
 static rng_t* mt_static()
 {
-  static rng_t g_r[1] = {0};
   static mt19937ar_t mt[1] = {0};
   static int inited = 0;
   if (!inited) {
-    g_r->x = mt;
-    rng_mt19937_init(g_r, 10);
+    rng_mt19937_init(mt, 10);
     inited = 1;
   }
-  return g_r;
+  return mt->rng;
 }
 static void mtsrand(unsigned long s)
 {
   rng_t* r = mt_static();
-  rng_mt19937_init(r, s);
+  mt19937ar_t* x = container_of(r, mt19937ar_t, rng);
+  rng_mt19937_init(x, s);
 }
 
 

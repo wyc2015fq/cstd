@@ -981,7 +981,9 @@ int ShowImagePal(const char* name, int height, int width, const unsigned char* a
     fmt = fmt < PixFmtMax ? fmt : cn2PixFmt(cn);
     fmt = cn == 4 ? PF_32bppRGB : fmt;
   }
-  img_setbitmap_cn4(height, width, arr, step, cn, fmt, 1, 1, (uchar*)dst_ptr, width * 4, inpal);
+  bool flip_y = true;
+  bool scaling = cn>1;
+  img_setbitmap_cn4(height, width, arr, step, cn, fmt, flip_y, scaling, (uchar*)dst_ptr, width * 4, inpal);
   //memset(dst_ptr, 255, height*width*4);
   // ony resize window if needed
   if (changed_size) {

@@ -5,8 +5,12 @@
 #include "stddef_c.h"
 #include "types_c.h"
 #include "error_c.h"
+#include "math_c.h"
 #include <math.h>
 #include <float.h>
+
+#define deg2rad(deg) ((deg) * CC_PI / 180.0)
+#define rad2deg(rad) ((rad) * 180.0 / CC_PI)
 
 // 根据父容器来定位:
 typedef enum {
@@ -96,7 +100,7 @@ typedef enum {
 // 将矩形框对齐//裁剪
 CC_INLINE int iRectAlign(IRECT rc, int cx, int cy, int uFmt, IRECT* out)
 {
-  *out = iRECT2(rc.l, rc.t, cx, cy);
+  *out = iRECT(rc.l, rc.t, rc.x+cx, rc.y+cy);
   if (TF_CENTER & uFmt) {
     out->l = rc.l + (RCW(&rc) - cx) / 2;
   }
@@ -122,7 +126,7 @@ CC_INLINE int iRectAlign(IRECT rc, int cx, int cy, int uFmt, IRECT* out)
 }
 CC_INLINE int fRectAlign(FRECT rc, float cx, float cy, int uFmt, FRECT* out)
 {
-  *out = fRECT2(rc.l, rc.t, cx, cy);
+  *out = fRECT(rc.l, rc.t, rc.x+cx, rc.y+cy);
   if (TF_CENTER & uFmt) {
     out->l = rc.l + (RCW(&rc) - cx) / 2;
   }
@@ -430,7 +434,7 @@ CC_INLINE IPOINT iRectCover(IRECT rc1, IRECT rc2, IRECT* outrc1, int fmt)
   ISIZE sz = RCSZ(&rc1);
   pt.x = x_cover(rc1.l, RCW(&rc1), rc2.l, RCW(&rc2), fmtx);
   pt.y = x_cover(rc1.t, RCH(&rc1), rc2.t, RCH(&rc2), fmty);
-  *outrc1 = iRECT3(pt, sz);
+  *outrc1 = iRECT(pt.x, pt.y, pt.x+sz.w, pt.y+sz.h);
   return pt;
 }
 
@@ -921,14 +925,14 @@ CC_INLINE int dPOLYGON2_add(DPOLYGON2* po, DPOINT2 pt)
 }
 
 typedef struct {
-  QPOINT* pt;
+  LPOINT* pt;
   int* len;
   int n;
 } QPOLYGON;
 CC_INLINE int qPOLYGON_setsize(QPOLYGON* s, int n, int npt)
 {
   REALLOC(int, s->len, n);
-  REALLOC(QPOINT, s->pt, npt);
+  REALLOC(LPOINT, s->pt, npt);
   memset(s->len, 0, sizeof(int)*n);
   s->n = n;
   return npt;
@@ -1065,8 +1069,6 @@ static IRect cRotatedRect_boundingRect(CRotatedRect rr)
   return r;
 }
 
-
-
 ///////////////////////////////////
 struct CKeyPoint {
   FPoint pt; //!< coordinates of the keypoints
@@ -1090,8 +1092,159 @@ static CKeyPoint cKeyPoint(FPoint _pt, float _size, float _angle = -1, float _re
   return k;
 }
 ///////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+typedef COLOR ARGB;
+typedef ARGB Color;
+//--------------------------------------------------------------------------
+// Fill mode constants
+//--------------------------------------------------------------------------
+typedef enum {
+  FillModeAlternate, // 0
+  FillModeWinding // 1
+} FillMode;
+//--------------------------------------------------------------------------
+// Quality mode constants
+//--------------------------------------------------------------------------
+typedef enum {
+  QualityModeInvalid = -1,
+  QualityModeDefault = 0,
+  QualityModeLow = 1, // Best performance
+  QualityModeHigh = 2 // Best rendering quality
+} QualityMode;
+//--------------------------------------------------------------------------
+// Alpha Compositing mode constants
+//--------------------------------------------------------------------------
+typedef enum {
+  CompositingModeSourceOver, // 0
+  CompositingModeSourceCopy // 1
+} CompositingMode;
+//--------------------------------------------------------------------------
+// Alpha Compositing quality constants
+//--------------------------------------------------------------------------
+typedef enum {
+  CompositingQualityInvalid = QualityModeInvalid,
+  CompositingQualityDefault = QualityModeDefault,
+  CompositingQualityHighSpeed = QualityModeLow,
+  CompositingQualityHighQuality = QualityModeHigh,
+  CompositingQualityGammaCorrected,
+  CompositingQualityAssumeLinear
+} CompositingQuality;
+//--------------------------------------------------------------------------
+// Unit constants
+//--------------------------------------------------------------------------
+typedef enum {
+  UnitWorld, // 0 -- World coordinate (non-physical unit)
+  UnitDisplay, // 1 -- Variable -- for PageTransform only
+  UnitPixel, // 2 -- Each unit is one device pixel.
+  UnitPoint, // 3 -- Each unit is a printer's point, or 1/72 inch.
+  UnitInch, // 4 -- Each unit is 1 inch.
+  UnitDocument, // 5 -- Each unit is 1/300 inch.
+  UnitMillimeter // 6 -- Each unit is 1 millimeter.
+} Unit;
+//--------------------------------------------------------------------------
+// MetafileFrameUnit
+//
+// The frameRect for creating a metafile can be specified in any of these
+// units. There is an extra frame unit value (MetafileFrameUnitGdi) so
+// that units can be supplied in the same units that GDI expects for
+// frame rects -- these units are in .01 (1/100ths) millimeter units
+// as defined by GDI.
+//--------------------------------------------------------------------------
+typedef enum {
+  MetafileFrameUnitPixel = UnitPixel,
+  MetafileFrameUnitPoint = UnitPoint,
+  MetafileFrameUnitInch = UnitInch,
+  MetafileFrameUnitDocument = UnitDocument,
+  MetafileFrameUnitMillimeter = UnitMillimeter,
+  MetafileFrameUnitGdi // GDI compatible .01 MM units
+} MetafileFrameUnit;
+//--------------------------------------------------------------------------
+// Coordinate space identifiers
+//--------------------------------------------------------------------------
+typedef enum {
+  CoordinateSpaceWorld, // 0
+  CoordinateSpacePage, // 1
+  CoordinateSpaceDevice // 2
+} CoordinateSpace;
 ///////////////////////////////////
+
+CC_INLINE double dpolygon_area(int n, FPOINT* pt)
+{
+  int i;
+  double s;
+  if (n < 3) {
+    return 0;
+  }
+  s = pt[0].y * (pt[n - 1].x - pt[1].x);
+  for (i = 1; i < n; i++) {
+    s += pt[i].y * (pt[(i - 1)].x - pt[(i + 1) % n].x);
+  }
+  return s;
+}
+CC_INLINE double fpolygon_area(int n, const FPOINT* pt)
+{
+  int i;
+  double s;
+  if (n < 3) {
+    return 0;
+  }
+  s = pt[0].y * (pt[n - 1].x - pt[1].x);
+  for (i = 1; i < n; i++) {
+    s += pt[i].y * (pt[(i - 1)].x - pt[(i + 1) % n].x);
+  }
+  return s;
+}
+CC_INLINE int cici2_intersection_point(const FCIRCLE* circle1, const FCIRCLE* circle2, FPOINT* out)
+{
+  double dist = calc_distance(circle1->x, circle1->y, circle2->x, circle2->y);
+
+  double dstsqr = dist * dist;
+  double r1sqr = circle1->r * circle1->r;
+  double r2sqr = circle2->r * circle2->r;
+
+  double a = (dstsqr - r2sqr + r1sqr) / (2 * dist);
+  double h = sqrt(r1sqr - (a * a));
+
+  double ratio_a = a / dist;
+  double ratio_h = h / dist;
+
+  double dx = circle2->x - circle1->x;
+  double dy = circle2->y - circle1->y;
+
+  double phix = circle1->x + (ratio_a * dx);
+  double phiy = circle1->y + (ratio_a * dy);
+
+  dx = dx * ratio_h;
+  dy = dy * ratio_h;
+
+  out[0].x = phix + dy;
+  out[0].y = phiy - dx;
+
+  out[1].x = phix - dy;
+  out[1].y = phiy + dx;
+  return 2;
+}
+
 ///////////////////////////////////
+typedef struct {
+  FPOINT4 pos;
+  FPOINT4 n;
+  FPOINT uv;
+  uint32 col;
+  float rhw;
+} ImVertex;
+typedef struct {
+  FPOINT a, c, uv_a, uv_c;
+  COLOR clr;
+} PrimRectUV;
+CC_INLINE void PrimRectUV_set(PrimRectUV* g, FPOINT a, FPOINT c, FPOINT uv_a, FPOINT uv_c)
+{
+  g->a = a;
+  g->c = c;
+  g->uv_a = uv_a;
+  g->uv_c = uv_c;
+}
 ///////////////////////////////////
 ///////////////////////////////////
 ///////////////////////////////////

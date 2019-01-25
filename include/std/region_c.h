@@ -1,6 +1,7 @@
 #ifndef _REGION_INL_
 #define _REGION_INL_
 #include "list.h"
+#include "span_c.h"
 typedef int64 INT64;
 #define TRACE_ON(x) (1)
 #define ERROR 0
@@ -112,7 +113,7 @@ static BOOL add_rect(region_t* reg, int l, int t, int r, int b)
 {
   IRECT* rect;
   if (reg->numRects >= reg->size) {
-    IRECT* newrects = (IRECT*)prealloc(reg->rects, 2 * sizeof(IRECT) * reg->size);
+    IRECT* newrects = (IRECT*)realloc(reg->rects, 2 * sizeof(IRECT) * reg->size);
     if (!newrects) {
       return FALSE;
     }
@@ -146,7 +147,7 @@ struct point_block {
 };
 static struct point_block* add_point(struct point_block* block, int x, int y) {
   if (block->count == NUMPTSTOBUFFER) {
-    struct point_block* new_block = (struct point_block*)pmalloc(sizeof(*new_block));
+    struct point_block* new_block = (struct point_block*)malloc(sizeof(*new_block));
     if (!new_block) {
       return NULL;
     }
@@ -164,7 +165,7 @@ static void free_point_blocks(struct point_block* block)
 {
   while (block) {
     struct point_block* tmp = block->next;
-    pfree(block);
+    free(block);
     block = tmp;
   }
 }
@@ -260,50 +261,7 @@ CC_INLINE void bres_incr_polygon(struct bres_info* bres)
     }
   }
 }
-// These are the data structures needed to scan
-// convert regions. Two different scan conversion
-// methods are available -- the even-odd method, and
-// the winding number method.
-// The even-odd rule states that a point is inside
-// the polygon if a ray drawn from that point in any
-// direction will pass through an odd number of
-// path segments.
-// By the winding number rule, a point is decided
-// to be inside the polygon if a ray drawn from that
-// point in any direction passes through a different
-// number of clockwise and counter-clockwise path
-// segments.
-//
-// These data structures are adapted somewhat from
-// the algorithm in (Foley/Van Dam) for scan converting
-// polygons.
-// The basic algorithm is to start at the t (smallest y)
-// of the polygon, stepping down to the b of
-// the polygon by incrementing the y coordinate. We
-// keep a list of edges which the current scanline crosses,
-// sorted by x. This list is called the Active Edge Table (AET)
-// As we change the y-coordinate, we update each entry in
-// in the active edge table to reflect the edges new xcoord.
-// This list must be sorted at each scanline in case
-// two edges intersect.
-// We also keep a data structure known as the Edge Table (ET),
-// which keeps track of all the edges which the current
-// scanline has not yet reached. The ET is basically a
-// list of ScanLineList structures containing a list of
-// edges which are entered at a given scanline. There is one
-// ScanLineList per scanline at which an edge is entered.
-// When we enter a new edge, we move it from the ET to the AET.
-//
-// From the AET, we can implement the even-odd rule as in
-// (Foley/Van Dam).
-// The winding number rule is a little trickier. We also
-// keep the EdgeTableEntries in the AET linked by the
-// nextWETE (winding EdgeTableEntry) link. This allows
-// the edges to be linked just as before for updating
-// purposes, but only uses the edges linked by the nextWETE
-// link as edges representing spans of the polygon to
-// drawn (as with the even-odd rule).
-//
+
 typedef struct edge_table_entry {
   struct list entry;
   struct list winding_entry;
@@ -361,7 +319,7 @@ static void region_DumpRegion(const region_t* pReg)
 static BOOL region_SetSize(region_t* pReg, int n)
 {
   if (pReg->size < n) {
-    if (!(pReg->rects = (IRECT*)prealloc(pReg->rects, n * sizeof(IRECT)))) {
+    if (!(pReg->rects = (IRECT*)realloc(pReg->rects, n * sizeof(IRECT)))) {
       return FALSE;
     }
   }
@@ -373,14 +331,14 @@ static BOOL region_SetSize(region_t* pReg, int n)
 // region_free
 static void region_free(region_t* pReg)
 {
-  pfree(pReg->rects);
+  free(pReg->rects);
 }
 // region_CopyRegion
 static BOOL region_CopyRegion(region_t* dst, const region_t* src)
 {
   if (dst != src) { /* don't want to copy to itself */
     if (dst->size < src->numRects) {
-      IRECT* rects = (IRECT*)prealloc(dst->rects, src->numRects * sizeof(IRECT));
+      IRECT* rects = (IRECT*)realloc(dst->rects, src->numRects * sizeof(IRECT));
       if (!rects) {
         return FALSE;
       }
@@ -505,7 +463,7 @@ BOOL region_SetRectRgn(region_t* obj, int l, int t, int r, int b)
 {
   /* Allocate 2 rects by default to reduce the number of reallocs */
   if (!region_SetSize(obj, Rgn_DEFAULT_RECTS)) {
-    pfree(obj);
+    free(obj);
     return 0;
   }
   TRACE("%p %d,%d-%d,%d\n", obj, l, t, r, b);
@@ -1752,7 +1710,7 @@ static BOOL region_MirrorRegion(region_t* dst, region_t* src, int width)
       rects[start + i].b = src->rects[end - i - 1].b;
     }
   }
-  pfree(dst->rects);
+  free(dst->rects);
   region_free(dst);
   *dst = *tmp;
   dst->rects = rects;
@@ -1785,7 +1743,7 @@ static void InsertEdgeInET(EdgeTable* ET, EdgeTableEntry* ETE,
   // reassign pSLL (pointer to ScanLineList) if necessary
   if ((!pSLL) || (pSLL->scanline > scanline)) {
     if (*iSLLBlock > SLLSPERBLOCK - 1) {
-      tmpSLLBlock = (ScanLineListBlock*)pmalloc(sizeof(ScanLineListBlock));
+      tmpSLLBlock = (ScanLineListBlock*)malloc(sizeof(ScanLineListBlock));
       if (!tmpSLLBlock) {
         WARN("Can't alloc SLLB\n");
         return;
@@ -1972,7 +1930,7 @@ static void region_FreeStorage(ScanLineListBlock* pSLLBlock)
   ScanLineListBlock* tmpSLLBlock;
   while (pSLLBlock) {
     tmpSLLBlock = pSLLBlock->next;
-    pfree(pSLLBlock);
+    free(pSLLBlock);
     pSLLBlock = tmpSLLBlock;
   }
 }
@@ -2069,7 +2027,7 @@ int region_SetPolyPolygonRgn(region_t* obj, const IPOINT* Pts, const int* Count,
   for (poly = total = 0; poly < nbpolygons; poly++) {
     total += Count[poly];
   }
-  if (!(pETEs = (EdgeTableEntry*)pmalloc(sizeof(EdgeTableEntry) * total))) {
+  if (!(pETEs = (EdgeTableEntry*)malloc(sizeof(EdgeTableEntry) * total))) {
     return 0;
   }
   region_CreateEdgeTable(Count, nbpolygons, Pts, &ET, pETEs, &SLLBlock);
@@ -2138,13 +2096,13 @@ int region_SetPolyPolygonRgn(region_t* obj, const IPOINT* Pts, const int* Count,
     }
   }
   if (!region_PtsToRegion(&FirstPtBlock, obj)) {
-    pfree(obj);
+    free(obj);
     goto done;
   }
 done:
   region_FreeStorage(SLLBlock.next);
   free_point_blocks(FirstPtBlock.next);
-  pfree(pETEs);
+  free(pETEs);
   return 0;
 }
 // region_SetPolygonRgn (GDI32.@)
@@ -2159,13 +2117,13 @@ int region_set_poly(region_t* obj, const FPOINT* Pts, const int* Count, int nbpo
   for (i = 0; i < nbpolygons; ++i) {
     n += Count[i];
   }
-  ipt = (IPOINT*)pmalloc(n * sizeof(IPOINT));
+  ipt = (IPOINT*)malloc(n * sizeof(IPOINT));
   for (i = 0; i < n; ++i) {
     ipt[i].x = (int)(Pts[i].x + 0.5);
     ipt[i].y = (int)(Pts[i].y + 0.5);
   }
   ret = region_SetPolyPolygonRgn(obj, ipt, Count, nbpolygons, mode);
-  pfree(ipt);
+  free(ipt);
   return ret;
 }
 // region_SetPolygonRgn (GDI32.@)

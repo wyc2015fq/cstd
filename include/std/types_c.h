@@ -74,8 +74,21 @@ typedef enum {
   cc_short = CC_8S,
   cc_uint = CC_32U,
   cc_int = CC_32S,
+  cc_int32 = CC_32S,
   cc_float = CC_32F,
   cc_double = CC_64F,
+
+  CC_UCHAR = CC_8U,
+  CC_SCHAR = CC_8S,
+  CC_CHAR = CC_8S,
+  CC_USHORT = CC_8U,
+  CC_SHORT = CC_8S,
+  CC_UINT = CC_32U,
+  CC_INT = CC_32S,
+  CC_INT32 = CC_32S,
+  CC_FLOAT = CC_32F,
+  CC_DOUBLE = CC_64F,
+
 } TypeId;
 
 #define CC_CN_MAX     64
@@ -273,81 +286,78 @@ static void* arrcvt2d(void* dst, TypeId dsttype, int dl, const void* src, TypeId
 
 /////////////////////////////////////////////////////////
 
-#define _POINT_DEF(pttype, name, type)   CC_INLINE pttype name(type x, type y) { pttype pt;  pt.x = x, pt.y = y; return pt; }
-#define _POINT_DEF2(pttype, name, name2, type)  typedef struct pttype { type x, y;\
-  pttype& operator += (const pttype& b) { x += b.x, y += b.y; return *this; } \
-  } pttype;  _POINT_DEF(pttype, name, type) _POINT_DEF(pttype, name2, type)
+#define _POINT_DEF2(Tfix, tfix, type)  \
+  struct Tfix##POINT { type x, y;\
+  Tfix##POINT& operator += (const Tfix##POINT& b) { x += b.x, y += b.y; return *this; } \
+  Tfix##POINT& operator -= (const Tfix##POINT& b) { x -= b.x, y -= b.y; return *this; } \
+  type norm() {return x*x+y*y;} \
+  };  \
+  Tfix##POINT operator - (const Tfix##POINT& a, const Tfix##POINT& b) { Tfix##POINT c; c.x = a.x - b.x, c.y = a.y - b.y; return c; } \
+  type norm(const Tfix##POINT& a) {return a.x*a.x+a.y*a.y;} \
+  typedef struct Tfix##POINT3 { type x, y, z;\
+  Tfix##POINT3& operator += (const Tfix##POINT3& b) { x += b.x, y += b.y, z += b.z; return *this; } \
+  } Tfix##Point3;  \
+  typedef struct Tfix##POINT4 { type x, y, z, w;\
+  Tfix##POINT4& operator += (const Tfix##POINT4& b) { x += b.x, y += b.y, z += b.z, w += b.w; return *this; } \
+  } Tfix##Point4;  \
+  typedef struct Tfix##SIZE {  \
+    union { type x; type cx; type w; type width; type c; }; \
+    union { type y; type cy; type h; type height; type r; }; \
+  } Tfix##Size;  \
+  struct Tfix##RECT { \
+    union { type l; type x; type left; }; \
+    union { type t; type y; type top; }; \
+    union { type r; type right; }; \
+    union { type b; type bottom; }; \
+};  \
+  struct Tfix##Rect { \
+    union { type l; type x; type left; }; \
+    union { type t; type y; type top; }; \
+    union { type cx; type w; type width; type c; }; \
+    union { type cy; type h; type height; type r; }; \
+    type area() {return w*h;} \
+    Tfix##POINT tl() {Tfix##POINT p;p.x=x, p.y=y;return p;} \
+    Tfix##POINT br() {Tfix##POINT p;p.x=x+w, p.y=y+h;return p;} \
+}; \
+  typedef struct Tfix##POINT Point2##tfix; \
+  typedef struct Tfix##SIZE Size2##tfix; \
+  typedef struct Tfix##POINT Tfix##Point; \
+  typedef struct Tfix##POINT Tfix##Vec2; \
+  typedef struct Tfix##POINT3 Tfix##Vec3; \
+  typedef struct Tfix##POINT4 Tfix##Vec4; \
+  typedef struct Tfix##POINT Tfix##POINT2; \
+  typedef Tfix##POINT Tfix##2VECTOR; \
+  typedef Tfix##POINT3 Tfix##3VECTOR; \
+  typedef Tfix##POINT4 Tfix##4VECTOR; \
+  CC_INLINE Tfix##POINT tfix##POINT(type x, type y) { Tfix##POINT pt;  pt.x = x, pt.y = y; return pt; } \
+  CC_INLINE Tfix##Point tfix##Point(type x, type y) { Tfix##Point pt;  pt.x = x, pt.y = y; return pt; } \
+  CC_INLINE Tfix##Vec2 tfix##Vec2(type x, type y) { Tfix##Vec2 pt;  pt.x = x, pt.y = y; return pt; } \
+  CC_INLINE Tfix##POINT3 tfix##POINT3(type x, type y, type z) { Tfix##POINT3 pt;  pt.x = x, pt.y = y, pt.z = z; return pt; } \
+  CC_INLINE Tfix##Point3 tfix##Point3(type x, type y, type z) { Tfix##Point3 pt;  pt.x = x, pt.y = y, pt.z = z; return pt; } \
+  CC_INLINE Tfix##Vec3 tfix##Vec3(type x, type y, type z) { Tfix##Vec3 pt;  pt.x = x, pt.y = y, pt.z = z; return pt; } \
+  CC_INLINE Tfix##POINT4 tfix##POINT4(type x, type y, type z, type w) { Tfix##POINT4 pt;  pt.x = x, pt.y = y, pt.z = z, pt.w = w; return pt; } \
+  CC_INLINE Tfix##Point4 tfix##Point4(type x, type y, type z, type w) { Tfix##Point4 pt;  pt.x = x, pt.y = y, pt.z = z, pt.w = w; return pt; } \
+  CC_INLINE Tfix##Vec4 tfix##Vec4(type x, type y, type z, type w) { Tfix##Vec4 pt;  pt.x = x, pt.y = y, pt.z = z, pt.w = w; return pt; } \
+  CC_INLINE Tfix##SIZE tfix##SIZE(type w, type h) { Tfix##SIZE o;  o.w = w, o.h = h; return o; } \
+  CC_INLINE Tfix##Size tfix##Size(type w, type h) { Tfix##Size o;  o.w = w, o.h = h; return o; } \
+  CC_INLINE Tfix##RECT tfix##RECT(type l, type t, type r, type b) { Tfix##RECT o;  o.l = l, o.t = t, o.r = r, o.b = b; return o; } \
+  CC_INLINE Tfix##RECT tfix##RECT2(type l, type t, type w, type h) { Tfix##RECT o;  o.l = l, o.t = t, o.r = l+w, o.b = t+h; return o; } \
+  CC_INLINE Tfix##Rect tfix##Rect(type x, type y, type w, type h) { Tfix##Rect o;  o.l = x, o.t = y, o.w = w, o.h = h; return o; } \
+  CC_INLINE bool operator==(Tfix##POINT a, Tfix##POINT b) { return a.x==b.x && a.y==b.y; } \
+  CC_INLINE bool operator!=(Tfix##POINT a, Tfix##POINT b) { return a.x!=b.x || a.y!=b.y; } \
+  CC_INLINE bool contains(Tfix##RECT r, Tfix##POINT pt) { return r.x <= pt.x && pt.x < r.r && r.y <= pt.y && pt.y < r.b; } \
+  CC_INLINE bool contains(Tfix##Rect r, Tfix##POINT pt) { return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height; } \
+  CC_INLINE bool inside(Tfix##Point pt, Tfix##Rect r) {  return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height; } \
+  CC_INLINE Tfix##POINT tfix##POINT(Tfix##Rect r) { Tfix##POINT pt;  pt.x = r.x, pt.y = r.y; return pt; } \
+  CC_INLINE Tfix##SIZE tfix##SIZE(Tfix##Rect r) { Tfix##SIZE pt;  pt.w = r.w, pt.h = r.h; return pt; } \
 
-_POINT_DEF2(IPOINT, iPOINT, iPoint, int);
-_POINT_DEF2(FPOINT, fPOINT, fPoint, float);
-_POINT_DEF2(DPOINT, dPOINT, dPoint, double);
-#undef _POINT_DEF
+
+_POINT_DEF2(I, i, int);
+_POINT_DEF2(S, s, short);
+_POINT_DEF2(L, l, int64_t);
+_POINT_DEF2(F, f, float);
+_POINT_DEF2(D, d, double);
 #undef _POINT_DEF2
-typedef struct IPOINT IPOINT2;
-typedef struct IPOINT IPoint;
-typedef struct IPOINT IPoint2;
-
-typedef struct DPOINT3 {
-  double x, y, z;
-} DPOINT3;
-typedef DPOINT3 D3VECTOR;
-typedef struct FPOINT3 {
-  float x, y, z;
-} FPOINT3;
-typedef FPOINT3 F3VECTOR;
-typedef struct DPOINT4 {
-  double x, y, z, w;
-} DPOINT4;
-typedef DPOINT4 D4VECTOR;
-typedef struct FPOINT4 {
-  float x, y, z, w;
-} FPOINT4, FPoint4;
-typedef FPOINT4 F4VECTOR;
-typedef struct {
-  short x, y;
-} SPOINT, SPoint;
-typedef struct IPOINT3 {
-  int x, y, z;
-} IPOINT3, IPoint3;
-typedef struct {
-  int64 x, y;
-} QPOINT, QPoint;
-typedef QPOINT LPOINT2;
-typedef struct {
-  int64 x, y, z;
-} QPOINT3;
-typedef QPOINT3 LPOINT3;
-typedef struct DPOINT DPoint;
-typedef DPOINT D2VECTOR;
-typedef struct FPOINT FPoint;
-typedef struct FPOINT FPOINT2;
-typedef struct FPOINT FPoint2;
-typedef FPOINT F2VECTOR;
-typedef struct ISize {
-  union { int cx; int w; int width; int c; };
-  union { int cy; int h; int height; int r; };
-} ISIZE;
-typedef struct {
-  union { int64 w; int64 width; };
-  union { int64 h; int64 height; };
-} LSIZE;
-typedef struct {
-  union { float w; float width; };
-  union { float h; float height; };
-} FSIZE;
-typedef struct {
-  union { double w; float width; };
-  union { double h; float height; };
-} DSIZE;
-typedef struct {
-  int l, t, r, b;
-} IRECT;
-typedef struct {
-  float l, t, r, b;
-} FRECT;
-typedef struct {
-  double l, t, r, b;
-} DRECT;
 typedef struct {
   double a00, a01, a02, a10, a11, a12, a20, a21, a22;
 } DMATRIX33;
@@ -465,19 +475,6 @@ CC_INLINE IPOINT fPointToi(FPOINT point)
   ipt.y = (int)(point.y + .5);
   return ipt;
 }
-CC_INLINE FPOINT3 fPOINT3(double x, double y, double z)
-{
-  FPOINT3 p;
-  p.x = (float)x, p.y = (float)y, p.z = (float)z;
-  return p;
-}
-#define cPoint3d dPOINT3
-CC_INLINE DPOINT3 dPOINT3(double x, double y, double z)
-{
-  DPOINT3 p;
-  p.x = x, p.y = y, p.z = z;
-  return p;
-}
 CC_INLINE DSEGMENT dSEGMENT(double x0, double y0, double x1, double y1)
 {
   DSEGMENT d;
@@ -519,31 +516,7 @@ CC_INLINE ISEGMENT iSEGMENT(int x0, int y0, int x1, int y1)
 #define RCCENTER(rc)    iPOINT(RCX(rc)/2, RCY(rc)/2)
 #define RCCENTERF(rc)   dPOINT(RCX(rc)/2., RCY(rc)/2.)
 #define RCEQ(R1, R2)   (((R1)->l==(R2)->l) && ((R1)->t==(R2)->t) && ((R1)->r==(R2)->r) && ((R1)->b==(R2)->b))
-CC_INLINE ISIZE iSIZE(int w, int h)
-{
-  ISIZE sz;
-  sz.w = w, sz.h = h;
-  return sz;
-}
-CC_INLINE ISize iSize(int w, int h)
-{
-  ISize sz;
-  sz.w = w, sz.h = h;
-  return sz;
-}
-CC_INLINE FSIZE fSIZE(float w, float h)
-{
-  FSIZE s;
-  s.w = w;
-  s.h = h;
-  return s;
-}
-CC_INLINE IRECT iRECT(int l, int t, int r, int b)
-{
-  IRECT rc;
-  RCSET(&rc, l, t, r, b);
-  return rc;
-}
+
 CC_INLINE IRECT iRECT1(int x)
 {
   IRECT rc;
@@ -568,40 +541,7 @@ CC_INLINE IRECT iRECT_pp(IPOINT p1, IPOINT p2)
   RCSET(&rc, p1.x, p1.y, p2.x, p2.y);
   return rc;
 }
-#define iRECT3(pt, sz) iRECT2(pt.x, pt.y, sz.w, sz.h)
-CC_INLINE IRECT iRECT2(int x, int y, int w, int h)
-{
-  IRECT rc;
-  RCSET(&rc, x, y, x + w, y + h);
-  return rc;
-}
-CC_INLINE FRECT fRECT(float l, float t, float r, float b)
-{
-  FRECT rc;
-  RCSET(&rc, l, t, r, b);
-  return rc;
-}
-CC_INLINE FRECT fRECT2(float l, float t, float w, float h)
-{
-  FRECT rc;
-  RCSET(&rc, l, t, l + w, t + h);
-  return rc;
-}
-
 #define RECT2RECT(fun, T, rc) fun((T)((rc)->l), (T)((rc)->t), (T)((rc)->r), (T)((rc)->b));
-
-CC_INLINE DRECT dRECT(double l, double t, double r, double b)
-{
-  DRECT rc;
-  RCSET(&rc, l, t, r, b);
-  return rc;
-}
-CC_INLINE DRECT dRECT2(double x, double y, double w, double h)
-{
-  DRECT rc;
-  RCSET(&rc, x, y, x + w, y + h);
-  return rc;
-}
 
 CC_INLINE int iRectIsEmpty(const IRECT* rc)
 {
@@ -865,41 +805,6 @@ CC_INLINE double iRectIOU(IRECT Reframe, IRECT GTframe)
 }
 /////////////////////////////////////////////////////////
 
-struct IRect {
-  int x, y, width, height;
-};
-static IRect iRect(int _x, int _y, int _width, int _height)
-{
-  IRect r;
-  r.x = _x;
-  r.y = _y;
-  r.width = _width;
-  r.height = _height;
-  return r;
-}
-static IRect iRect2(IPoint pt, ISize sz)
-{
-  IRect r;
-  r.x = pt.x;
-  r.y = pt.y;
-  r.width = sz.width;
-  r.height = sz.height;
-  return r;
-}
-template <typename IRect, typename IPoint> static
-bool contains(IRect r, IPoint pt)
-{
-  return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height;
-}
-static bool contains(IRect r, IPoint pt)
-{
-  return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height;
-}
-static bool inside(IPoint pt, IRect r)
-{
-  return r.x <= pt.x && pt.x < r.x + r.width && r.y <= pt.y && pt.y < r.y + r.height;
-}
-
 /////////////////////////////////////////////////////////
 
 #define VECN_DEF(name, n, type) struct vec ## n ## name { type v[n]; };
@@ -923,7 +828,80 @@ static size_t my_msize(const void* p)
   return malloc_usable_size((void*)p);
 #endif
 }
+/////////////////////////////////////////////////////////
 
+//--------------------------------------------------------------------------
+// Various wrap modes for brushes
+//--------------------------------------------------------------------------
+typedef enum {
+  WrapModeSame, //普通平铺
+  WrapModeTile, //普通平铺
+  WrapModeTileFlip, //翻转并平铺
+  WrapModeClamp, //不进行平铺，只在以（0，0）位置为原点显示一张图片
+  WrapModeReflect = WrapModeTileFlip,
+  WrapModeRepeat = WrapModeTile,
+  WrapModeDefault = WrapModeSame,
+  //WrapModeTileFlipX = WrapModeTileFlip, // 1
+  //WrapModeTileFlipY = WrapModeTileFlip<<8, // 2
+  //WrapModeTileFlipXY = WrapModeTileFlip|(WrapModeTileFlip<<8), // 3
+} WrapMode;
+
+CC_INLINE int WrapPix1D(int x, int w, WrapMode wrap) {
+  switch (wrap) {
+  case WrapModeSame:
+    return BOUND(x, 0, w - 1);
+    break;
+  case WrapModeTile:
+    return x % w;
+    break;
+  case WrapModeTileFlip:
+  {
+    int w2 = w * 2;
+    x = x % (w2);
+    if (x >= w) {
+      x = w2 - 1 - x;
+    }
+    return x;
+  }
+  case WrapModeClamp:
+    return (x >= 0 && x < w) ? x : -1;
+    break;
+  }
+  return -1;
+}
+//
+CC_INLINE int wrap_index(int* p, int n, int size, int idx, int step, int wrap_mode)
+{
+  int i, size2;
+  switch (wrap_mode) {
+  case WrapModeClamp:
+    for (i = 0; i < n; ++i) {
+      p[i] = (idx >= 0 && idx < size) ? idx * step : -1;
+      ++idx;
+    }
+    break;
+  case WrapModeTile:
+    for (i = 0; i < n; ++i) {
+      idx %= size;
+      p[i] = idx * step;
+      ++idx;
+    }
+    break;
+  case WrapModeReflect:
+    size2 = size * 2;
+    for (i = 0; i < n; ++i) {
+      idx %= size2;
+      p[i] = ((idx >= size) ? size2 - idx - 1 : idx) * step;
+      ++idx;
+    }
+    break;
+  default:
+    ASSERT(0);
+    break;
+  }
+  return 0;
+}
+////////////////////////////////////////////////////////////////////////////////
 
 
 #endif // _STDC_TYPES_H_

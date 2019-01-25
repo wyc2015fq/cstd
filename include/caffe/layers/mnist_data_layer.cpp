@@ -45,9 +45,9 @@ void MnistDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
   mnist_read_head(f_, info);
   offset_ = _ftelli64(f_);
   int64_t file_size = fsize64(f_);
-  int h = info->shape.h;
-  int w = info->shape.w;
-  int cn = info->shape.c;
+  int h = info->h;
+  int w = info->w;
+  int cn = info->c;
   int img_size = h*w*cn;
   int size1 = img_size;
   size_t i;
@@ -60,7 +60,10 @@ void MnistDataLayer<Dtype>::DataLayerSetUp(const vector<Blob<Dtype>*>& bottom,
   for (int j = 0; j < top.size(); ++j) {
     vector<int> top_shape;
     if (j == 0) {
-      top_shape.assign(info->shape.dim, info->shape.dim + 4);
+      top_shape.push_back(info->n);
+      top_shape.push_back(info->c);
+      top_shape.push_back(info->h);
+      top_shape.push_back(info->w);
       this->transformed_data_[j].Reshape(top_shape);
       // Reshape top[0] and prefetch_data according to the batch_size.
       top_shape[0] = batch_size;
@@ -117,7 +120,7 @@ void MnistDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
   }
   Datum datum;
   batch->data_size = datum.blob_size();
-  size_t img_size = info->shape.w*info->shape.h*info->shape.c;
+  size_t img_size = info->w*info->h*info->c;
   size_t lab_size = 0;
   size_t i;
   for (i = 0; i < info->label_num; ++i) {
@@ -151,7 +154,7 @@ void MnistDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
       for (i = 0; i<info->label_num+1; ++i) {
         BlobData* blob = datum.mutable_blob(i);
         if (0 == i) {
-          Blob_NCHW(blob, false, pixels, info->shape.w, info->shape.h, info->shape.c, 1);
+          Blob_NCHW(blob, false, pixels, info->w, info->h, info->c, 1);
         }
         else {
           Blob_NCHW(blob, false, labels+ labels_off, 1, 1, info->label_dim[i-1], 1);

@@ -1,8 +1,8 @@
 
 #ifndef _VCGEN_INL_
 #define _VCGEN_INL_
-#include "m23.inl"
-#include "geo.inl"
+#include "matrix23_c.h"
+#include "geo_c.h"
 
 #define vcgen_line_to(_x, _y)        if (Points) { Points[ipos].x = _x; Points[ipos].y = _y;} ++ipos
 #define vcgen_addpoint(_x, _y, _t)   if (Points) { Points[ipos].x = _x; Points[ipos].y = _y; Types[ipos] = _t; } ++ipos
@@ -37,9 +37,9 @@ CC_INLINE float bezier3funcY(float uu, FPOINT *controlP){
 //控制点收缩系数 ，经调试0.6较好
 static int createCurve(const FPOINT *originPoint, int originCount, FPOINT* curvePoint, int maxCurveCount){  
   int i, curveCount=0;
-  float scale = 0.6;
-  FPOINT* midpoints = (FPOINT*)pmalloc(sizeof(FPOINT*)*originCount);
-  FPOINT* extrapoints = (FPOINT*)pmalloc(sizeof(FPOINT*)* 2 * originCount);
+  float scale = 0.6f;
+  FPOINT* midpoints = (FPOINT*)malloc(sizeof(FPOINT*)*originCount);
+  FPOINT* extrapoints = (FPOINT*)malloc(sizeof(FPOINT*)* 2 * originCount);
   //生成中点       
   for(i = 0 ;i < originCount ; i++){      
     int nexti = (i + 1) % originCount;  
@@ -94,7 +94,7 @@ static int createCurve(const FPOINT *originPoint, int originCount, FPOINT* curve
       int px = bezier3funcX(u,controlPoint);
       int py = bezier3funcY(u,controlPoint);
       // u的步长决定曲线的疏密
-      u -= 0.005;
+      u -= 0.005f;
       tempP.x = px;
       tempP.y = py;
       //存入曲线点
@@ -104,8 +104,8 @@ static int createCurve(const FPOINT *originPoint, int originCount, FPOINT* curve
       ++curveCount;
     }
   }
-  pfree(extrapoints);
-  pfree(midpoints);
+  free(extrapoints);
+  free(midpoints);
   return curveCount;
 }  
 
@@ -670,7 +670,7 @@ static int vcgen_stroke(FPOINT* Points, BYTE* Types, int ipos, int* lens, const 
     ipos += 8 + n * 2 * (int)MAX(10, s->lineWidth);
     return ipos;
   }
-  vpt = (vertex_dist*)pmalloc(n*sizeof(*vpt));
+  vpt = (vertex_dist*)malloc(n*sizeof(*vpt));
   vpt_size = vertex_dist_init2(n, pt, closed, vpt, NULL);
   if (vpt_size<=0) {
     return ipos;
@@ -707,7 +707,7 @@ static int vcgen_stroke(FPOINT* Points, BYTE* Types, int ipos, int* lens, const 
       lens[0] = ipos - start;
     }
   }
-  pfree(vpt);
+  free(vpt);
   return ipos;
 }
 // 虚线
@@ -735,10 +735,10 @@ CC_INLINE int vcgen_dash1(FPOINT* Points, BYTE* Types, int ipos, const FPOINT* p
     ipos += n + 10;
     return ipos;
   }
-  vpt = (vertex_dist*)pmalloc(n*sizeof(*vpt));
+  vpt = (vertex_dist*)malloc(n*sizeof(*vpt));
   vpt_size = vertex_dist_init2(n, pt, m_closed, vpt, &distsum);
   if(vpt_size < 2) {
-    pfree(vpt);
+    free(vpt);
     return 0;
   }
   i = 1;
@@ -799,7 +799,7 @@ CC_INLINE int vcgen_dash1(FPOINT* Points, BYTE* Types, int ipos, const FPOINT* p
     }
   }
   // vertex
-  pfree(vpt);
+  free(vpt);
   return ipos;
 }
 CC_INLINE int vcgen_dash(const FPOINT* pt, int n, int m_closed, const float* m_dashes, int m_num_dashes, double m_dash_start, int maxout, int maxlens, FPOINT* out, int* lens)
@@ -969,20 +969,22 @@ CC_INLINE int vcgen_strokerect(FPOINT* pt, int* lens, double x1, double y1, doub
 }
 
 #define vcgen_ellipseR(pt, m_num, rc) vcgen_ellipse(pt, m_num, 0, ((rc)->l+(rc)->r)*0.5,((rc)->t+(rc)->b)*0.5,((rc)->r-(rc)->l)*0.5,((rc)->b-(rc)->t)*0.5)
-CC_INLINE int vcgen_ellipse(FPOINT* out, int m_num, BOOL m_cw, double m_x, double m_y, double m_rx, double m_ry)
+CC_INLINE int vcgen_ellipse(FPOINT* out, int m_num, BOOL m_cw, double m_x, double m_y, double m_rx, double m_ry, double begin_angle, double end_angle)
 {
   double m_scale = 1;
   int m_step = 0;
   double ra = (fabs(m_rx) + fabs(m_ry)) / 2;
   double da = acos(ra / (ra + 0.125 / m_scale)) * 2;
-  int m_num1 = (int)(4 * CC_PI / da)/2;
+  double rad_angle = fabs(deg2rad((end_angle - begin_angle)));
+  int m_num1 = (int)(rad_angle / da);
   enum {min_ellipse_edge = 4};
   m_num1 = MAX(m_num1, min_ellipse_edge);
   m_num = BOUND(m_num, min_ellipse_edge, m_num1);
   if (out) {
     int m_step = 0;
+    double rad_begin_angle = deg2rad(begin_angle);
     for (; m_step < m_num; ++m_step) {
-      double angle = 2.0 * CC_PI * m_step / m_num;
+      double angle = rad_begin_angle + 2.0 * CC_PI * m_step / m_num;
       if (m_cw) {
         angle = 2.0 * CC_PI - angle;
       }
@@ -1187,7 +1189,7 @@ int vcgen_round_poly(FPOINT* Points, int ipos, const FPOINT* pt, int ptlen, BOOL
 {
   int i = 0;
   const vertex_dist* v0, *v1, *v2;
-  vertex_dist* vpt = (vertex_dist*)pmalloc(sizeof(vertex_dist)*ptlen);
+  vertex_dist* vpt = (vertex_dist*)malloc(sizeof(vertex_dist)*ptlen);
   int vpt_size = vertex_dist_init2(ptlen, pt, m_closed, vpt, NULL);
   if (m_closed) {
     for (i=0; i<vpt_size; ++i) {
@@ -1201,7 +1203,7 @@ int vcgen_round_poly(FPOINT* Points, int ipos, const FPOINT* pt, int ptlen, BOOL
       ipos = vcgen_round_join_add_arc(Points, ipos, vpt + i - 1, vpt + i, vpt + i +1, vpt[i - 1].dist, vpt[i].dist, radius);
     }
   }
-  pfree(vpt);
+  free(vpt);
   return ipos;
 }
 
@@ -1756,7 +1758,7 @@ static int trans_single_path_transform(int n, const vertex_dist* vpt, double m_b
 }
 
 static int trans_single_path(int n, const FPOINT* pt, double m_base_length, BOOL m_preserve_x_scale, FPOINT* Points, int Count) {
-  vertex_dist* vpt = (vertex_dist*)pmalloc(sizeof(vertex_dist)*n);
+  vertex_dist* vpt = (vertex_dist*)malloc(sizeof(vertex_dist)*n);
   double m_kindex = vertex_dist_init(n, pt, vpt);
   int i;
   for (i=0; i<Count; ++i) {
@@ -1766,7 +1768,7 @@ static int trans_single_path(int n, const FPOINT* pt, double m_base_length, BOOL
     Points[i].x = x;
     Points[i].y = y;
   }
-  pfree(vpt);
+  free(vpt);
   return 0;
 }
 
@@ -1847,7 +1849,7 @@ static void trans_double_path_transform1(int vertices_size, const vertex_dist* v
 
 
 static int trans_double_path(int n1, const FPOINT* pt1, int n2, const FPOINT* pt2, double m_base_length, double m_base_height, BOOL m_preserve_x_scale, FPOINT* Points, int Count) {
-  vertex_dist* vpt1 = (vertex_dist*)pmalloc(sizeof(vertex_dist)*(n1+n2));
+  vertex_dist* vpt1 = (vertex_dist*)malloc(sizeof(vertex_dist)*(n1+n2));
   vertex_dist* vpt2 = vpt1 + n1;
   double m_kindex1 = vertex_dist_init(n1, pt1, vpt1);
   double m_kindex2 = vertex_dist_init(n2, pt2, vpt2);
@@ -1872,7 +1874,7 @@ static int trans_double_path(int n1, const FPOINT* pt1, int n2, const FPOINT* pt
     Points[i].x = x1 + y * (x2 - x1) / m_base_height;
     Points[i].y = y1 + y * (y2 - y1) / m_base_height;
   }
-  pfree(vpt1);
+  free(vpt1);
   return 0;
 }
 //------------------------------------------------------------------------
@@ -1893,7 +1895,7 @@ static void vcgen_smooth_poly1_calculate(const vertex_dist* v0,const vertex_dist
 }
 static int vcgen_smooth_poly1(int n, const FPOINT* pt1, BOOL m_closed, double m_smooth_value, FPOINT* Points, BYTE* Types, int i)
 {
-  vertex_dist* vpt = (vertex_dist*)pmalloc(sizeof(vertex_dist)*n);
+  vertex_dist* vpt = (vertex_dist*)malloc(sizeof(vertex_dist)*n);
   //vertex_storage vpt;
   //double         m_smooth_value = 0.5;
   //status_e       m_status;
@@ -1977,7 +1979,7 @@ static int vcgen_smooth_poly1(int n, const FPOINT* pt1, BOOL m_closed, double m_
     }
   }
   
-  pfree(vpt);
+  free(vpt);
   return i;
 }
 

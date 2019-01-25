@@ -9,13 +9,13 @@
 
 //-------------------------------------------------------------------------------------------------
 #ifndef IMPORT
-#define IMPORT __declspec(dllimport)
+#define IMPORT 
 #endif
 
 
 //-------------------------------------------------------------------------------------------------
 #ifndef EXPORT
-#define EXPORT __declspec(dllexport)
+#define EXPORT 
 #endif
 
 #include <vector>
@@ -27,9 +27,6 @@ typedef std::pair<int, float> PredictionIdx;
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-
-
-
 
  interface ICNNPredict
 {

@@ -1,8 +1,8 @@
 #ifdef _WIN32
 #include <io.h>
 #endif
-
 #include "classification.hpp"
+#undef TEST
 
 //#include "cblas.h"
 
@@ -220,7 +220,7 @@ static std::vector<int> Argmax(const std::vector<float>& v, int N) {
 /* Return the top Na predictions. */
 std::vector<Prediction> Classifier::Classify(const string& file, int N) {
 
-	cv::Mat img = cv::imread(file, CV_LOAD_IMAGE_COLOR);
+	cv::Mat img = cv::imread(file, cv::IMREAD_COLOR);
 	return Classify(img, N);
 }
 
@@ -588,13 +588,13 @@ void Classifier::Preprocess(const cv::Mat& img,
 	/* Convert the input image to the input image format of the network. */
 	cv::Mat sample;
 	if (img.channels() == 3 && num_channels_ == 1)
-		cv::cvtColor(img, sample, CV_BGR2GRAY);
+		cv::cvtColor(img, sample, cv::COLOR_BGR2GRAY);
 	else if (img.channels() == 4 && num_channels_ == 1)
-		cv::cvtColor(img, sample, CV_BGRA2GRAY);
+		cv::cvtColor(img, sample, cv::COLOR_BGRA2GRAY);
 	else if (img.channels() == 4 && num_channels_ == 3)
-		cv::cvtColor(img, sample, CV_BGRA2BGR);
+		cv::cvtColor(img, sample, cv::COLOR_BGRA2BGR);
 	else if (img.channels() == 1 && num_channels_ == 3)
-		cv::cvtColor(img, sample, CV_GRAY2BGR);
+		cv::cvtColor(img, sample, cv::COLOR_GRAY2BGR);
 	else
 		sample = img;
 

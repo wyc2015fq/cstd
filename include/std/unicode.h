@@ -183,7 +183,6 @@ int enc_utf8_to_ucs_one(const unsigned char* pInput, unsigned long* unic)
   switch ( utfbytes ) {
   case 1:
     *pOutput = *pInput;
-    utfbytes += 1;
     break;
   case 2:
     b1 = *pInput;

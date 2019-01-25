@@ -297,4 +297,222 @@ static void* mem_realloc(void* p, size_t newn, mem_t* newmem, size_t oldn, mem_t
 }
 /////////////////////////////////////////////////////////
 
+#define MULTIALLOC2(buf, p1, n1, p2, n2)   multialloc(&buf, &p1, (n1)*sizeof(*p1), &p2, (n2)*sizeof(*p2), NULL)
+#define MULTIALLOC3(buf, p1, n1, p2, n2, p3, n3)   multialloc(&buf, &p1, (n1)*sizeof(*p1), &p2, (n2)*sizeof(*p2), &p3, (n3)*sizeof(*p3), NULL)
+#define MULTIALLOC4(buf, p1, n1, p2, n2, p3, n3, p4, n4)   multialloc(&buf, &p1, (n1)*sizeof(*p1), &p2, (n2)*sizeof(*p2), &p3, (n3)*sizeof(*p3), &p4, (n4)*sizeof(*p4), NULL)
+#define MULTIALLOC5(buf, p1, n1, p2, n2, p3, n3, p4, n4, p5, n5)   multialloc(&buf, &p1, (n1)*sizeof(*p1), &p2, (n2)*sizeof(*p2), &p3, (n3)*sizeof(*p3), &p4, (n4)*sizeof(*p4), &p5, (n5)*sizeof(*p5), NULL)
+CC_INLINE void* multialloc(void* p, ...) {
+  int n = 0, n1 = 0;
+  void** pp = (void**)p;
+  char* pc = (char*)*pp;
+  void** pp1;
+  va_list arglist;
+  {
+    va_start(arglist, p);
+    for (; (pp1 = (void**)va_arg(arglist, char*)) != NULL;) {
+      n1 = va_arg(arglist, int);
+      n += n1;
+    }
+    va_end(arglist);
+  }
+  MYREALLOC(pc, n);
+  *pp = pc;
+  {
+    va_start(arglist, p);
+    for (; (pp1 = va_arg(arglist, void**)) != NULL;) {
+      n1 = va_arg(arglist, int);
+      *pp1 = pc;
+      pc += n1;
+    }
+    va_end(arglist);
+  }
+  return *pp;
+}
+/////////////////////////////////////////////////////////
+
+static int fillImage(int h, int w, uchar* dst, int dststep, int cn, COLOR color) {
+  int i, j;
+  uchar* c = (uchar*)(&color);
+  uchar r = c[0];
+  uchar g = c[1];
+  uchar b = c[2];
+  uchar a = c[3];
+  switch (cn) {
+  case 1:
+    r = (r + (g << 1) + b) >> 2;
+    for (i = 0; i < h; ++i) {
+      uchar* d = dst + dststep*i;
+      for (j = 0; j < w; ++j) {
+        d[j] = r;
+      }
+    }
+    break;
+  case 3:
+    for (i = 0; i < h; ++i) {
+      uchar* d = dst + dststep*i;
+      for (j = 0; j < w; ++j, d += cn) {
+        d[0] = r;
+        d[1] = g;
+        d[2] = b;
+      }
+    }
+    break;
+  case 4:
+    for (i = 0; i < h; ++i) {
+      uchar* d = dst + dststep*i;
+      for (j = 0; j < w; ++j, d += cn) {
+        d[0] = r;
+        d[1] = g;
+        d[2] = b;
+        d[3] = a;
+      }
+    }
+    break;
+  default:
+    assert(0);
+    break;
+  }
+  return 0;
+}
+
+
+void* blend(void* dst, const void* src, int a, size_t size ) {
+  uchar* tptr = (uchar*)dst;
+  const uchar* tsrc = (const uchar*)src;
+  for (size_t i = 0; i < size; ++i) {
+    int _cb = tptr[i];
+    int cb = tsrc[i];
+    _cb += ((cb - _cb)*a + 127) >> 8;
+    tptr[i] = (uchar)_cb;
+  }
+  return dst;
+}
+
+void* set_line(void* dst, const void* color, int pix_size, size_t pix_num) {
+  uchar* hline_min_ptr = (uchar*)dst;
+  uchar* hline_end_ptr = (uchar*)dst + (pix_num)*(pix_size);
+  uchar* hline_ptr = (uchar*)dst;
+  if (pix_size == 1) {
+    memset(hline_min_ptr, *(uchar*)color, hline_end_ptr - hline_min_ptr);
+  }
+  else//if (pix_size != 1)
+  {
+    if (hline_min_ptr < hline_end_ptr)
+    {
+      memcpy(hline_ptr, color, pix_size);
+      hline_ptr += pix_size;
+    }//end if (hline_min_ptr < hline_end_ptr)
+    size_t sizeToCopy = pix_size;
+    while (hline_ptr < hline_end_ptr) {
+      memcpy(hline_ptr, hline_min_ptr, sizeToCopy);
+      hline_ptr += sizeToCopy;
+      sizeToCopy = MIN(2 * sizeToCopy, static_cast<size_t>(hline_end_ptr - hline_ptr));
+    }//end while(hline_ptr < hline_end_ptr)
+  }//end if (pix_size != 1)
+  return dst;
+}
+
+void* blend_line(void* dst, const void* color, int pix_size, size_t pix_num) {
+  int a = ((uchar*)color)[3];
+  if (255 == a) return set_line(dst, color, pix_size, pix_num);
+  int cb = ((uchar*)color)[0], cg = ((uchar*)color)[1], cr = ((uchar*)color)[2], ca = ((uchar*)color)[3];
+  uchar* tptr = (uchar*)dst;
+  int _cb, _cg, _cr, _ca;
+  size_t i;
+  switch (pix_size) {
+  case 1:
+    for (i = 0; i < pix_num; ++i) {
+      int _cb = tptr[i];
+      _cb += ((cb - _cb)*a + 127) >> 8;
+      tptr[i] = (uchar)_cb;
+    }
+    break;
+  case 3:
+    for (i = 0; i < pix_num; ++i, tptr += 3) {
+      _cb = tptr[0];
+      _cg = tptr[1];
+      _cr = tptr[2];
+      _cb += ((cb - _cb)*a + 127) >> 8;
+      _cg += ((cg - _cg)*a + 127) >> 8;
+      _cr += ((cr - _cr)*a + 127) >> 8;
+      tptr[0] = (uchar)_cb;
+      tptr[1] = (uchar)_cg;
+      tptr[2] = (uchar)_cr;
+    }
+    break;
+  case 4:
+    for (i = 0; i < pix_num; ++i, tptr += 3) {
+      _cb = tptr[0];
+      _cg = tptr[1];
+      _cr = tptr[2];
+      _ca = tptr[3];
+      _cb += ((cb - _cb)*a + 127) >> 8;
+      _cg += ((cg - _cg)*a + 127) >> 8;
+      _cr += ((cr - _cr)*a + 127) >> 8;
+      _ca += ((ca - _ca)*a + 127) >> 8;
+      tptr[0] = (uchar)_cb;
+      tptr[1] = (uchar)_cg;
+      tptr[2] = (uchar)_cr;
+      tptr[3] = (uchar)_ca;
+    }
+    break;
+  default:
+    assert(0);
+    break;
+  }
+  return dst;
+}
+
+
+static int draw_font_bitmap(int h, int w, uchar* dst, int dststep, int cn, const uchar* bit, int bitstep, COLOR color) {
+  int i, j;
+  uchar* c = (uchar*)(&color);
+  uchar r = c[0];
+  uchar g = c[1];
+  uchar b = c[2];
+  uchar a = c[3];
+  switch (cn) {
+  case 1:
+    r = (r + (g << 1) + b) >> 2;
+    for (i = 0; i < h; ++i) {
+      uchar* d = dst + dststep*i;
+      const uchar* s = bit + bitstep*i;
+      for (j = 0; j < w; ++j) {
+        int ss = s[j], s1 = 256 - ss;
+        d[j] = (ss*r + d[j] * s1) >> 8;
+      }
+    }
+    break;
+  case 3:
+    for (i = 0; i < h; ++i) {
+      uchar* d = dst + dststep*i;
+      const uchar* s = bit + bitstep*i;
+      for (j = 0; j < w; ++j, d += cn) {
+        int ss = (s[j] * a) >> 8, s1 = 256 - ss;
+        d[0] = (ss * r + d[0] * s1) >> 8;
+        d[1] = (ss * g + d[1] * s1) >> 8;
+        d[2] = (ss * b + d[2] * s1) >> 8;
+      }
+    }
+    break;
+  case 4:
+    for (i = 0; i < h; ++i) {
+      uchar* d = dst + dststep*i;
+      const uchar* s = bit + bitstep*i;
+      for (j = 0; j < w; ++j, d += cn) {
+        int ss = (s[j] * a) >> 8, s1 = 256 - ss;
+        d[0] = (ss * r + d[0] * s1) >> 8;
+        d[1] = (ss * g + d[1] * s1) >> 8;
+        d[2] = (ss * b + d[2] * s1) >> 8;
+        d[3] = (ss * b + d[3] * s1) >> 8;
+      }
+    }
+    break;
+  default:
+    assert(0);
+    break;
+  }
+  return 0;
+}
+
 #endif // _STDC_MEM_C_H_

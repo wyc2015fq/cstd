@@ -1,4 +1,69 @@
 
+#include "img_c.h"
+#include "gdi_c.h"
+#include "math_c.h"
+
+typedef enum {
+  textAlign_left,
+  textAlign_start,
+  textAlign_end,
+  textAlign_right,
+  textAlign_center,
+} textAlign_;
+
+typedef struct brush_t brush_t;
+struct brush_t {
+  union {
+    struct {
+      COLOR clr;
+    } solid;
+    struct {
+      int fill_area_x, fill_area_y;
+      COLOR clrs[2];
+      const uchar* hatch_data;
+      uchar datay;
+    } hatch;
+    struct {
+      int it, ix, iy;
+      COLOR clrs[256];
+    } lut_gradient;
+    struct {
+      int iA[12];
+    } colormatrix;
+    struct {
+      COLOR bgclr;
+      texture_t tex[1];
+      int im23[6];
+      IRECT rcSrc;
+      COLOR palette[256];
+    } texture;
+    struct {
+      int ix, iy, invrx, invry;
+      COLOR clrs[256];
+    } lut_radial;
+    struct {
+      int ix, iy, invrx, invry;
+      COLOR clrs[256];
+    } lut_swirled;
+    struct {
+      int ix, iy;
+      int invr[256];
+      COLOR clrs[256];
+      COLOR clrcenter;
+    } path_gradient;
+    struct {
+      int ix, iy;
+      int invr[256];
+      COLOR clrs[256];
+    } path_radial;
+  };
+  bool blend;
+  WrapMode wrapX;
+  WrapMode wrapY;
+  int(*fillline)(const brush_t* br, COLOR* pix_x, int b, int e, int y);
+};
+
+
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 #define PIXBLENDA3_4(dst, _0, _1, _2, _a) (PIXBLEND(dst[0], _0, _a), PIXBLEND(dst[1], _1, _a), PIXBLEND(dst[2], _2, _a))
@@ -2027,6 +2092,48 @@ int brush_set_lut_gradient2(brush_t* br, double x1, double y1, double x2, double
   return 0;
 }
 
+CC_INLINE int fill_color_array(int n, COLOR* array, COLOR clr1, COLOR clr2)
+{
+  int i;
+  for (i = 0; i < n; ++i) {
+    array[i] = RGBABLEN2(clr1, clr2, i, (n - 1));
+  }
+  return 0;
+}
+CC_INLINE int fill_color_array2(int n, COLOR* array, int m, const COLOR* clrs, const float* pos)
+{
+  int i, a, b;
+  if (pos) {
+    for (i = 0; i < m - 1; ++i) {
+      ASSERT(pos[i] <= 1. && pos[i + 1] <= 1.);
+      a = (int)(pos[i] * n);
+      b = (int)(pos[i + 1] * n);
+      fill_color_array(b - a, array + a, clrs[i], clrs[i + 1]);
+    }
+  }
+  else {
+    for (i = 0; i < m - 1; ++i) {
+      a = (i * n) / (m - 1);
+      b = ((i + 1) * n) / (m - 1);
+      fill_color_array(b - a, array + a, clrs[i], clrs[i + 1]);
+    }
+  }
+  return 0;
+}
+CC_INLINE int fill_color_array3(int n, COLOR* array, COLOR clr1, COLOR clr2, int m, const double* pos, const double* fac)
+{
+  int i, a, b;
+  COLOR clra, clrb;
+  for (i = 0; i < m - 1; ++i) {
+    clra = RGBABLEN2(clr2, clr1, (fac[i]), 1);
+    clrb = RGBABLEN2(clr2, clr1, (fac[i + 1]), 1);
+    a = (int)(pos[i] * n);
+    b = (int)(pos[i + 1] * n);
+    fill_color_array(b - a, array + a, clra, clrb);
+  }
+  return 0;
+}
+
 CC_INLINE int brush_set_gradient(brush_t* br, double x1, double y1, double x2, double y2, COLOR clr1, COLOR clr2)
 {
   COLOR* clrs = br->lut_gradient.clrs;
@@ -2338,7 +2445,6 @@ double m23_invert(double* matrix)
   }
   return 0;
 }
-#include "pixel.inl"
 int texture_fillline(const brush_t* br, COLOR* pix, int b, int e, int y)
 {
   int x;

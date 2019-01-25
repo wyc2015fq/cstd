@@ -565,8 +565,10 @@ struct ocr_idcard_reg {
         {
           Rect r = r2.boundingRect();
           int right = r.x + r.width;
+          r.x = MAX(r.x, 0);
           if (i > 3) {
             right = MAX(right, ridnum_r);
+            right = MIN(right, mat.cols);
           }
           r.x = MAX(r.x, ridnum_x);
           r.x = (ridnum_x);

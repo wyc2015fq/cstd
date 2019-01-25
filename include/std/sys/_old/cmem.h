@@ -339,37 +339,6 @@ CC_INLINE void* realloc_push(void* ptr, int* poldsz, int newsz, int elemsz, int 
   }
   return (char*)(*pptr) + (retoff * elemsz);
 }
-#define MULTIALLOC2(buf, p1, n1, p2, n2)   multialloc(&buf, &p1, (n1)*sizeof(*p1), &p2, (n2)*sizeof(*p2), NULL)
-#define MULTIALLOC3(buf, p1, n1, p2, n2, p3, n3)   multialloc(&buf, &p1, (n1)*sizeof(*p1), &p2, (n2)*sizeof(*p2), &p3, (n3)*sizeof(*p3), NULL)
-#define MULTIALLOC4(buf, p1, n1, p2, n2, p3, n3, p4, n4)   multialloc(&buf, &p1, (n1)*sizeof(*p1), &p2, (n2)*sizeof(*p2), &p3, (n3)*sizeof(*p3), &p4, (n4)*sizeof(*p4), NULL)
-#define MULTIALLOC5(buf, p1, n1, p2, n2, p3, n3, p4, n4, p5, n5)   multialloc(&buf, &p1, (n1)*sizeof(*p1), &p2, (n2)*sizeof(*p2), &p3, (n3)*sizeof(*p3), &p4, (n4)*sizeof(*p4), &p5, (n5)*sizeof(*p5), NULL)
-CC_INLINE void* multialloc(void* p, ...) {
-  int n = 0, n1=0;
-  void** pp = (void**)p;
-  char* pc = (char*)*pp;
-  void** pp1;
-  va_list arglist;
-  {
-    va_start(arglist, p);
-    for (;(pp1 = (void**)va_arg(arglist, char*))!=NULL;) {
-      n1 = va_arg(arglist, int);
-      n += n1;
-    }
-    va_end(arglist);
-  }
-  MYREALLOC(pc, n);
-  *pp = pc;
-  {
-    va_start(arglist, p);
-    for (;(pp1 = va_arg(arglist, void**))!=NULL;) {
-      n1 = va_arg(arglist, int);
-      *pp1 = pc;
-      pc += n1;
-    }
-    va_end(arglist);
-  }
-  return *pp;
-}
 
 #define BF_MEM_MAGIC  (0x55667788)
 #define ALIGN_TO(_X, ALIGN) ( ((size_t)(_X) + ALIGN - 1) & ~(size_t)(ALIGN - 1) )

@@ -38,6 +38,11 @@ CC_INLINE int nulprintf(const char* fmt, ...)
 #endif //DEBUG
 #endif // ASSERT
 
+#ifndef TRACE
+static void tracenull(void* a, ...) {}
+#define TRACE  tracenull
+#endif // TRACE
+
 // additional macros
 #define ASSERT_BREAK( exp )             { ASSERT(exp); if( !(exp) ) break; }
 #define ASSERT_CONTINUE( exp )          { ASSERT(exp); if( !(exp) ) continue; }

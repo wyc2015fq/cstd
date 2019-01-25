@@ -106,7 +106,7 @@ typedef enum WindowMsg_ {
 #define imshow_f(_IM, f) ShowImagePal(#_IM, (_IM)->h, (_IM)->w, (_IM)->tt.data+f*(_IM)->h*(_IM)->s, (_IM)->s, (_IM)->c, PixFmtMax, 0)
 #define imshowfmt(_IM, fmt) ShowImagePal(#_IM, (_IM)->h, (_IM)->w, (_IM)->tt.data, (_IM)->s, (_IM)->c, fmt, 0)
 #define imshowrc(_IM, rc) ShowImagePal(#_IM, RCH(&rc), RCW(&rc), (_IM)->tt.data + (_IM)->s*(rc).t + (_IM)->c*(rc).l, (_IM)->s, (_IM)->c, 0)
-#define imshow2(_NAME, _IM) ShowImage(_NAME, (_IM)->h, (_IM)->w, (_IM)->tt.data, (_IM)->s, (_IM)->c)
+#define imshow2(_NAME, _IM) ShowImagePal(_NAME, (_IM)->h, (_IM)->w, (_IM)->tt.data, (_IM)->s, (_IM)->c, PixFmtMax, 0)
 #define imshow_cn(_NAME, _IM, icn) ShowImagePal(_NAME, (_IM)->h, (_IM)->w, (_IM)->tt.data+icn, (_IM)->s, (_IM)->c, PF_8bppGrayUchar, NULL)
 //
 #define imshowmat_u1(mm) cvShowMat( #mm , "%I8u", mm->h, mm->w*mm->c, mm->tt.data, mm->s, 1, -1)

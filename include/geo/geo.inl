@@ -2449,32 +2449,6 @@ CC_INLINE int hull_Graham_scan(FPOINT* PointSet, FPOINT* ch, int n)
   }
   return top + 1;
 }
-CC_INLINE double dpolygon_area(int n, FPOINT* pt)
-{
-  int i;
-  double s;
-  if (n < 3) {
-    return 0;
-  }
-  s = pt[0].y * (pt[n - 1].x - pt[1].x);
-  for (i = 1; i < n; i++) {
-    s += pt[i].y * (pt[(i - 1)].x - pt[(i + 1) % n].x);
-  }
-  return s;
-}
-CC_INLINE double fpolygon_area(int n, const FPOINT* pt)
-{
-  int i;
-  double s;
-  if (n < 3) {
-    return 0;
-  }
-  s = pt[0].y * (pt[n - 1].x - pt[1].x);
-  for (i = 1; i < n; i++) {
-    s += pt[i].y * (pt[(i - 1)].x - pt[(i + 1) % n].x);
-  }
-  return s;
-}
 CC_INLINE int test_geometry1()
 {
   enum { MAX_points = 100 };
@@ -3696,37 +3670,6 @@ CC_INLINE double dist_line2line(double a, double b, double c1, double c2)
 CC_INLINE double dist_line_angle(double a1, double b1, double a2, double b2)
 {
   return fabs((a1 * b2 - a2 * b1) / (a1 * a2 + b1 * b2));
-}
-
-CC_INLINE int cici2_intersection_point(const FCIRCLE* circle1, const FCIRCLE* circle2, FPOINT* out)
-{
-  double dist = calc_distance(circle1->x, circle1->y, circle2->x, circle2->y);
-  
-  double dstsqr = dist * dist;
-  double r1sqr = circle1->r * circle1->r;
-  double r2sqr = circle2->r * circle2->r;
-  
-  double a = (dstsqr - r2sqr + r1sqr) / (2 * dist);
-  double h = sqrt(r1sqr - (a * a));
-  
-  double ratio_a = a / dist;
-  double ratio_h = h / dist;
-  
-  double dx = circle2->x - circle1->x;
-  double dy = circle2->y - circle1->y;
-  
-  double phix = circle1->x + (ratio_a * dx);
-  double phiy = circle1->y + (ratio_a * dy);
-  
-  dx = dx * ratio_h;
-  dy = dy * ratio_h;
-  
-  out[0].x = phix + dy;
-  out[0].y = phiy - dx;
-  
-  out[1].x = phix - dy;
-  out[1].y = phiy + dx;
-  return 2;
 }
 
 //////////////////////////////////////////////////////////////////////////////////

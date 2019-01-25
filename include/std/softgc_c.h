@@ -1,13 +1,13 @@
 
-#include "cmath.h"
-#include "geo/geo.inl"
-#include "font/font.inl"
-#include "scancell.inl"
-#include "brush.inl"
-#include "scanline.inl"
+#include "std/math_c.h"
+#include "std/geo_c.h"
+//#include "font/font.inl"
+#include "scancell.h"
+#include "brush_c.h"
+#include "scanline.h"
 //#include "region.inl"
-#include "cmdgc.inl"
-#include "tridraw.inl"
+//#include "cmdgc.inl"
+//#include "tridraw.inl"
 
 typedef void (*blender_type)(uchar* p, const uchar* s, unsigned width, const uchar* covers);
 
@@ -16,7 +16,7 @@ typedef struct {
   BOOL flip_y;
   uchar* covers;
   COLOR* colors;
-  uchar m_gamma[256];
+  uchar* m_gamma;
   img_t im[1];
   brush_t brush[1];
   brush_t pen[1];
@@ -91,8 +91,11 @@ int softgc_reset(softgc* ss) {
   int i;
   scanline* s = ss->sl;
   //ss->path->Count = 0;
-  for (i=0; i<256; ++i) {
-    ss->m_gamma[i] = i;
+  ss->m_gamma = NULL;
+  if (ss->m_gamma) {
+    for (i = 0; i < 256; ++i) {
+      ss->m_gamma[i] = i;
+    }
   }
   brush_set_solid(ss->brush, _rgb(0, 0, 0));
   brush_set_solid(ss->pen, _rgb(0, 0, 0));
@@ -427,15 +430,15 @@ int draw_textureR1(img_t* im, const IRECT* pclip, IRECT drc, const texture_t* te
   }
   return 0;
 }
-int spanv_ellipse(spanv_t* sp, img_t* im, bool flip_y, const IRECT* pclip, BOOL m_cw, double m_x, double m_y, double m_rx, double m_ry)
+int spanv_ellipse(spanv_t* sp, img_t* im, bool flip_y, const IRECT* pclip, BOOL m_cw, double m_x, double m_y, double m_rx, double m_ry, double begin_angle, double end_angle)
 {
   FPOINT pt[64];
-  int n = vcgen_ellipse(pt, countof(pt), m_cw, m_x, m_y, m_rx, m_ry);
+  int n = vcgen_ellipse(pt, countof(pt), m_cw, m_x, m_y, m_rx, m_ry, begin_angle, end_angle);
   return spanv_set_poly(sp, im, pclip, pt, &n, 1, false);
 }
-int spanv_ellipseR(spanv_t* sp, img_t* im, bool flip_y, const IRECT* pclip, IRECT rc)
+int spanv_ellipseR(spanv_t* sp, img_t* im, bool flip_y, const IRECT* pclip, IRECT rc, double begin_angle, double end_angle)
 {
-  return spanv_ellipse(sp, im, flip_y, pclip, 0, RCX(&rc) * .5, RCY(&rc) * .5, RCW(&rc) * .5, RCH(&rc) * .5);
+  return spanv_ellipse(sp, im, flip_y, pclip, 0, RCX(&rc) * .5, RCY(&rc) * .5, RCW(&rc) * .5, RCH(&rc) * .5, begin_angle, end_angle);
 }
 
 int draw_rasterize_text1(img_t* im, const IRECT* pclip, brush_t* br, int flip_y,
@@ -629,6 +632,7 @@ int draw_rasterize1(img_t* im, const IRECT* pclip, brush_t* br, scancell* s, boo
 #endif
   return 0;
 }
+#if 0
 void PrimRectUV_RenderChar(PrimRectUV* g, const texfont_t* font, float size, ImVec2 pos, unsigned short c)
 {
   const font_glyph_t* glyph;
@@ -793,6 +797,7 @@ int PrimRectUV_RenderText(PrimRectUV* g, const texfont_t* font, float size, ImVe
   // Give back unused vertices
   return g - g0;
 }
+#endif
 
 
 #ifdef _WIN32
@@ -1008,7 +1013,7 @@ CC_INLINE void sgEllipse(gc_t* g, int opt, float x, float y, float w, float h)
   SOFTGC_ARG;
   FPOINT pt[64];
   float rx = w/2, ry = h/2;
-  int n = vcgen_ellipse(pt, countof(pt), 1, x+rx, y+ry, rx, ry);
+  int n = vcgen_ellipse(pt, countof(pt), 1, x+rx, y+ry, rx, ry, 0, 360);
   
   if (GcOptFill&opt) {
     sg->br = sg->brush;
@@ -1049,8 +1054,10 @@ CC_INLINE void sgTextAlign(gc_t* g, int textAlign)
 }
 CC_INLINE void sgText(gc_t* g, int opt, const char* text, const char* text_end, font_t* font, float size, float x, float y, float w, float h, int formatFlags)
 {
+#if 0
   SOFTGC_ARG;
   scanline_set_string(sg->sl, opt, text, text_end, font, size, x, y, w, h, formatFlags);
+#endif
 }
 CC_INLINE void sgPrimRectUV(gc_t* g, const PrimRectUV* pr, int npr, texture_t* tex)
 {
@@ -1069,8 +1076,10 @@ CC_INLINE void sgQuadImage(gc_t* g, const ImVertex* vtx4, const texture_t* tex) 
 CC_INLINE void sgRectImage(gc_t* g, const ImVertex* vtx, const texture_t* tex) {
   SOFTGC_ARG;
   PrimRectUV uv[1];
-  SETPT(uv->a, vtx[0].pos.x, vtx[0].pos.y);
-  SETPT(uv->c, vtx[1].pos.x, vtx[1].pos.y);
+  uv->a.x = vtx[0].pos.x;
+  uv->a.y = vtx[0].pos.y;
+  uv->c.x = vtx[1].pos.x;
+  uv->c.y = vtx[1].pos.y;
   uv->uv_a = vtx[0].uv;
   uv->uv_c = vtx[1].uv;
   uv->clr = vtx[0].col;
@@ -1129,6 +1138,7 @@ int imclear(img_t* im, const IRECT* pclip, COLOR clr)
 
 #define VA_ARG_EQ(T, A) T A = VA_ARG(T)
 
+#if 0
 int softgc_run(softgc* sp, const char* va, const char* vb) {
   int i;
   //imclear(sp->sp->im, &drv->rcDirty, soft_color(clrbg));
@@ -1367,62 +1377,9 @@ int trirun(ImDrawList* g, const char* va, const char* vb)
   triAddCmd(g);
   return 0;
 }
+#endif
 ///////////////////////////////////////////////////////////////////
 
-#define UICOLORDEF_DEF(COLORDEF) \
-  COLORDEF(Col_Text,0.90f,0.90f,0.90f,1.00f)\
-  COLORDEF(Col_TextDisabled,0.60f,0.60f,0.60f,1.00f)\
-  COLORDEF(Col_WindowBg,0.00f,0.00f,0.00f,0.70f)\
-  COLORDEF(Col_ChildWindowBg,0.00f,0.00f,0.00f,0.00f)\
-  COLORDEF(Col_PopupBg,0.05f,0.05f,0.10f,0.90f)\
-  COLORDEF(Col_Border,0.70f,0.70f,0.70f,0.65f)\
-  COLORDEF(Col_BorderShadow,0.00f,0.00f,0.00f,0.00f)\
-  COLORDEF(Col_FrameBg,0.80f,0.80f,0.80f,0.30f)\
-  COLORDEF(Col_FrameBgHovered,0.90f,0.80f,0.80f,0.40f)\
-  COLORDEF(Col_FrameBgActive,0.90f,0.65f,0.65f,0.45f)\
-  COLORDEF(Col_TitleBg,0.27f,0.27f,0.54f,0.83f)\
-  COLORDEF(Col_TitleBgCollapsed,0.40f,0.40f,0.80f,0.20f)\
-  COLORDEF(Col_TitleBgActive,0.32f,0.32f,0.63f,0.87f)\
-  COLORDEF(Col_MenuBarBg,0.40f,0.40f,0.55f,0.80f)\
-  COLORDEF(Col_ScrollbarBg,0.20f,0.25f,0.30f,0.60f)\
-  COLORDEF(Col_ScrollbarGrab,0.40f,0.40f,0.80f,0.30f)\
-  COLORDEF(Col_ScrollbarGrabHovered,0.40f,0.40f,0.80f,0.40f)\
-  COLORDEF(Col_ScrollbarGrabActive,0.80f,0.50f,0.50f,0.40f)\
-  COLORDEF(Col_ComboBg,0.20f,0.20f,0.20f,0.99f)\
-  COLORDEF(Col_CheckMark,0.90f,0.90f,0.90f,0.50f)\
-  COLORDEF(Col_SliderGrab,1.00f,1.00f,1.00f,0.30f)\
-  COLORDEF(Col_SliderGrabHovered,0.80f,0.50f,0.50f,0.50f)\
-  COLORDEF(Col_SliderGrabActive,0.80f,0.50f,0.50f,1.00f)\
-  COLORDEF(Col_LayoutSplit,1.00f,1.00f,1.00f,0.30f)\
-  COLORDEF(Col_LayoutSplitHovered,1.0f,1.0f,1.0f,0.60f)\
-  COLORDEF(Col_LayoutSplitActive,1.0f,1.0f,1.0f,0.90f)\
-  COLORDEF(Col_Button,0.67f,0.40f,0.40f,0.60f)\
-  COLORDEF(Col_ButtonHovered,0.67f,0.40f,0.40f,1.00f)\
-  COLORDEF(Col_ButtonActive,0.80f,0.50f,0.50f,1.00f)\
-  COLORDEF(Col_Header,0.40f,0.40f,0.90f,0.45f)\
-  COLORDEF(Col_HeaderHovered,0.45f,0.45f,0.90f,0.80f)\
-  COLORDEF(Col_HeaderActive,0.53f,0.53f,0.87f,0.80f)\
-  COLORDEF(Col_Column,0.50f,0.50f,0.50f,1.00f)\
-  COLORDEF(Col_ColumnHovered,0.70f,0.60f,0.60f,1.00f)\
-  COLORDEF(Col_ColumnActive,0.90f,0.70f,0.70f,1.00f)\
-  COLORDEF(Col_ResizeGrip,1.00f,1.00f,1.00f,0.30f)\
-  COLORDEF(Col_ResizeGripHovered,1.00f,1.00f,1.00f,0.60f)\
-  COLORDEF(Col_ResizeGripActive,1.00f,1.00f,1.00f,0.90f)\
-  COLORDEF(Col_CloseButton,0.50f,0.50f,0.90f,0.50f)\
-  COLORDEF(Col_CloseButtonHovered,0.70f,0.70f,0.90f,0.60f)\
-  COLORDEF(Col_CloseButtonActive,0.70f,0.70f,0.70f,1.00f)\
-  COLORDEF(Col_PlotLines,1.00f,1.00f,1.00f,1.00f)\
-  COLORDEF(Col_PlotLinesHovered,0.90f,0.70f,0.00f,1.00f)\
-  COLORDEF(Col_PlotHistogram,0.90f,0.70f,0.00f,1.00f)\
-  COLORDEF(Col_PlotHistogramHovered,1.00f,0.60f,0.00f,1.00f)\
-  COLORDEF(Col_TextSelectedBg,0.00f,0.00f,1.00f,0.35f)\
-  COLORDEF(Col_ModalWindowDarkening,0.20f,0.20f,0.20f,0.35f)
-enum GuiCol_ {
-#define COLORDEF(id, r, g, b, a) id = _rgba(r, g, b, a),
-  UICOLORDEF_DEF(COLORDEF)
-#undef COLORDEF
-  ImGuiCol_COUNT
-};
 static COLOR ColorMul(COLOR clr, double a)
 {
   double r = GetRV(clr) * a, g = GetGV(clr) * a, b = GetBV(clr) * a;
@@ -1537,6 +1494,7 @@ enum BorderMark {
 #define RCDEFLATE4(rc, l, t, r, b) ((rc)->l += l,(rc)->t += t,(rc)->r -= r,(rc)->b -= b)
 #define RCDEFLATER(rc, rc2) RCDEFLATE4(rc, (rc2)->l,(rc2)->t,(rc2)->r,(rc2)->b)
 
+#include "color_c.h"
 CC_INLINE IRECT gcEdgeRectSys(gc_t* g, IRECT rc, BorderStyle m_border_style, uint flag, COLOR clr)
 {
 #define BORDERSTYLEDEF(a, b0, c0, b1, c1, b2, c2) if (a == m_border_style) { \

@@ -1,6 +1,8 @@
 
-#include "path.inl"
-#include "region.inl"
+#include "gdi_c.h"
+#include "path_c.h"
+#include "region_c.h"
+#include "iconv_c.h"
 
 #define scanline_free(s)  if (s && s->free) {s->free(s);}
 #define addspan_aa(_b, _e, _y, _a)  sl->addspan(sl, _b, _e, _y, _a)
@@ -175,9 +177,9 @@ int scanline_set_rect(scanline* s, double x, double y, double w, double h)
   int n = vcgen_rect(pt, 0, x, y, x + w, y + h);
   return scanline_set_poly(s, pt, &n, 1, false);
 }
-int scanline_set_ellipse(scanline* s, double x, double y, double rx, double ry) {
+int scanline_set_ellipse(scanline* s, double x, double y, double rx, double ry, double begin_angle, double end_angle) {
   FPOINT pt[64];
-  int n = vcgen_ellipse(pt, countof(pt), 0, x, y, rx, ry);
+  int n = vcgen_ellipse(pt, countof(pt), 0, x, y, rx, ry, begin_angle, end_angle);
   return scanline_set_poly(s, pt, &n, 1, false);
 }
 int scanline_set_triangle(scanline* s, double x1, double y1, double x2, double y2, double x3, double y3) {
@@ -238,7 +240,6 @@ int scanline_set_poly_dash_stroke_i(scanline* sl, const IPOINT* pt, int ptlen, B
   FREE(fpt);
   return ret;
 }
-
 int scanline_set_glyph(scanline* sl, const IRECT* pclip, const PrimRectUV* prcuv, int nrcuv, const bitmap_t* tex1) {
   int w = sl->im->w, h = sl->im->h;
   int i, j, y;
@@ -279,48 +280,38 @@ int scanline_set_glyph(scanline* sl, const IRECT* pclip, const PrimRectUV* prcuv
   FREE(buf);
   return 0;
 }
-//#include "font/font.inl"
-const char* font_CalcWordWrapPositionA(const font_t* g, float scale, const char* text, const char* text_end, float wrap_width)
+const wchar_t* font_CalcWordWrapPositionW(const font_t* g, float scale, const wchar_t* text, const wchar_t* text_end, float wrap_width)
 {
   float line_width = 0.0f;
   float word_width = 0.0f;
   float blank_width = 0.0f;
-  const char* word_end = text;
-  const char* prev_word_end = NULL;
+  const wchar_t* word_end = text;
+  const wchar_t* prev_word_end = NULL;
   BOOL inside_word = true;
-  const char* s = text;
-  while (s < text_end) {
-    unsigned int c = (unsigned int) * s;
-    const char* next_s;
+  const wchar_t* s = text;
+  for (; s < text_end; ) {
+    unsigned int c = (unsigned int) *s;
+    const wchar_t* next_s = s+1;
     float char_width;
-    if (c < 0x80) {
-      next_s = s + 1;
-    }
-    else {
-      next_s = s + TextCharFromUtf8(&c, s, text_end);
-    }
+    int advance, lsb;
     if (c == 0) {
       break;
     }
     if (c < 32) {
-      if (c == '\n') {
+      if (c == L'\n') {
         line_width = word_width = blank_width = 0.0f;
         inside_word = true;
         s = next_s;
         continue;
       }
-      if (c == '\r') {
+      if (c == L'\r') {
         s = next_s;
         continue;
       }
     }
-    if (g->getbit) {
-      char_width = g->getbit(g, c, NULL);
-    } else {
-      char_width = ((int)c < 128 ? g->h/2 : g->h);
-    }
-    char_width *= scale;
-    if (ImCharIsSpace(c)) {
+    g->fun->GetCodepointHMetrics(g, c, &advance, &lsb);
+    char_width = advance*scale;
+    if (ImCharIsSpaceW(c)) {
       if (inside_word) {
         line_width += blank_width;
         blank_width = 0.0f;
@@ -353,30 +344,32 @@ const char* font_CalcWordWrapPositionA(const font_t* g, float scale, const char*
   }
   return s;
 }
-ImVec2 font_CalcTextSizeA(const font_t* g, float size, float max_width, float wrap_width, const char* text_begin, const char* text_end, const char** remaining)
+ImVec2 font_CalcTextSizeW(const font_t* g, float size, float max_width, float wrap_width, const wchar_t* text_begin, const wchar_t* text_end, const wchar_t** remaining)
 {
-  const float font_size = size>0.f ? size : g->h;
+  const float font_size = size;
   const float line_height = font_size;
-  const float scale = font_size / g->h;
+  const float scale = g->fun->ScaleForPixelHeight(g, font_size);
   ImVec2 text_size = fVec2(0, 0);
   float char_width, line_width = 0.0f;
   const BOOL word_wrap_enabled = (wrap_width > 0.0f);
-  const char* word_wrap_eol = NULL;
-  const char* s;
-  const char* prev_s;
+  const wchar_t* word_wrap_eol = NULL;
+  const wchar_t* s;
+  const wchar_t* prev_s;
   unsigned int c;
+  int advance, lsb;
   if (NULL==text_begin) {
-    text_begin = "test";
+    text_begin = L"test";
+    return text_size;
   }
   s = text_begin;
   if (!text_end) {
-    text_end = text_begin + strlen(text_begin); // FIXME-OPT: Need to avoid this.
+    text_end = text_begin + wcslen(text_begin); // FIXME-OPT: Need to avoid this.
   }
   while (s < text_end) {
     if (word_wrap_enabled) {
       // Calculate how far we can render. Requires two passes on the string data but keeps the code simple and not intrusive for what's essentially an uncommon feature.
       if (!word_wrap_eol) {
-        word_wrap_eol = font_CalcWordWrapPositionA(g, scale, s, text_end, wrap_width - line_width);
+        word_wrap_eol = font_CalcWordWrapPositionW(g, scale, s, text_end, wrap_width - line_width);
         if (word_wrap_eol == s) { // Wrap_width is too small to fit anything. Force displaying 1 character to minimize the height discontinuity.
           word_wrap_eol++; // +1 may not be a character start point in UTF-8 but it's ok because we use s >= word_wrap_eol below
         }
@@ -391,7 +384,7 @@ ImVec2 font_CalcTextSizeA(const font_t* g, float size, float max_width, float wr
         // Wrapping skips upcoming blanks
         while (s < text_end) {
           const char c = *s;
-          if (ImCharIsSpace(c)) {
+          if (ImCharIsSpaceW(c)) {
             s++;
           }
           else if (c == '\n') {
@@ -407,16 +400,8 @@ ImVec2 font_CalcTextSizeA(const font_t* g, float size, float max_width, float wr
     }
     // Decode and advance source
     prev_s = s;
-    c = (unsigned int) * s;
-    if (c < 0x80) {
-      s += 1;
-    }
-    else {
-      s += TextCharFromUtf8(&c, s, text_end);
-      if (c == 0) {
-        break;
-      }
-    }
+    c = (unsigned int) * s++;
+    if (!c) { break; }
     if (c < 32) {
       if (c == '\n') {
         text_size.x = MAX(text_size.x, line_width);
@@ -428,12 +413,8 @@ ImVec2 font_CalcTextSizeA(const font_t* g, float size, float max_width, float wr
         continue;
       }
     }
-    if (g->getbit) {
-      char_width = g->getbit(g, c, NULL);
-    } else {
-      char_width = ((int)c < 128 ? g->h/2 : g->h);
-    }
-    char_width *= scale;
+    g->fun->GetCodepointHMetrics(g, c, &advance, &lsb);
+    char_width = advance * scale;
     if (line_width + char_width >= (max_width)) {
       s = prev_s;
       break;
@@ -451,35 +432,33 @@ ImVec2 font_CalcTextSizeA(const font_t* g, float size, float max_width, float wr
   }
   return text_size;
 }
-
-int scanline_rendertext(scanline* sl, const font_t* font, float size, ImVec2 pos, FRECT clip_rect, const char* text_begin, const char* text_end, float wrap_width, BOOL cpu_fine_clip)
+int scanline_rendertext(scanline* sl, const font_t* font, float size, ImVec2 pos, FRECT clip_rect, const wchar_t* text_begin, const wchar_t* text_end, float wrap_width, BOOL cpu_fine_clip)
 {
-  float x, y;
-  float scale;
+  float xpos, ypos;
   float line_height;
   BOOL word_wrap_enabled;
-  const char* word_wrap_eol = NULL;
-  const char* s;
-  float font_size = font->h;
+  const wchar_t* word_wrap_eol = NULL;
+  const wchar_t* s;
+  float font_size = size;
+  const float scale = font->fun->ScaleForPixelHeight(font, font_size);
   IPOINT DisplayOffset = {0, 0};
-  font_bit_t bit[1] = {0};
+  uchar* bit = NULL;
   if (!text_end) {
-    text_end = text_begin + strlen(text_begin);
+    text_end = text_begin + wcslen(text_begin);
   }
   // Align to be pixel perfect
   pos.x = (float)(int)pos.x + DisplayOffset.x;
   pos.y = (float)(int)pos.y + DisplayOffset.y;
-  x = pos.x;
-  y = pos.y;
-  if (y > clip_rect.b) {
+  xpos = pos.x;
+  ypos = pos.y;
+  if (ypos > clip_rect.b) {
     return 0;
   }
-  scale = (size > 0.0f) ? (size / font_size) : 1.0f;
   line_height = font_size * scale;
   word_wrap_enabled = (wrap_width > 0.0f);
   // Skip non-visible lines
   s = text_begin;
-  if (!word_wrap_enabled && y + line_height < clip_rect.t) {
+  if (!word_wrap_enabled && ypos + line_height < clip_rect.t) {
     while (s < text_end && *s != '\n') { // Fast-forward to next line
       s++;
     }
@@ -488,24 +467,25 @@ int scanline_rendertext(scanline* sl, const font_t* font, float size, ImVec2 pos
     // Reserve vertices for remaining worse case (over-reserving is useful and easily amortized)
     while (s < text_end) {
       unsigned int c;
+      int advance, lsb, x0, y0, x1, y1;
       float char_width;
       int XAdvance = 0;
       if (word_wrap_enabled) {
         // Calculate how far we can render. Requires two passes on the string data but keeps the code simple and not intrusive for what's essentially an uncommon feature.
         if (!word_wrap_eol) {
-          word_wrap_eol = font_CalcWordWrapPositionA(font, scale, s, text_end, wrap_width - (x - pos.x));
+          word_wrap_eol = font_CalcWordWrapPositionW(font, scale, s, text_end, wrap_width - (xpos - pos.x));
           if (word_wrap_eol == s) { // Wrap_width is too small to fit anything. Force displaying 1 character to minimize the height discontinuity.
             word_wrap_eol++; // +1 may not be a character start point in UTF-8 but it's ok because we use s >= word_wrap_eol below
           }
         }
         if (s >= word_wrap_eol) {
-          x = pos.x;
-          y += line_height;
+          xpos = pos.x;
+          ypos += line_height;
           word_wrap_eol = NULL;
           // Wrapping skips upcoming blanks
           while (s < text_end) {
             const char c = *s;
-            if (ImCharIsSpace(c)) {
+            if (ImCharIsSpaceW(c)) {
               s++;
             }
             else if (c == '\n') {
@@ -520,24 +500,18 @@ int scanline_rendertext(scanline* sl, const font_t* font, float size, ImVec2 pos
         }
       }
       // Decode and advance source
-      c = (unsigned int) * s;
-      if (c < 0x80) {
-        s += 1;
-      }
-      else {
-        s += TextCharFromUtf8(&c, s, text_end);
-        if (c == 0) {
-          break;
-        }
+      c = (unsigned int) *s++;
+      if (c == 0) {
+        break;
       }
       if (c < 32) {
         if (c == '\n') {
-          x = pos.x;
-          y += line_height;
-          if (y > clip_rect.b) {
+          xpos = pos.x;
+          ypos += line_height;
+          if (ypos > clip_rect.b) {
             break;
           }
-          if (!word_wrap_enabled && y + line_height < clip_rect.t)
+          if (!word_wrap_enabled && ypos + line_height < clip_rect.t)
             while (s < text_end && *s != '\n') { // Fast-forward to next line
               s++;
             }
@@ -547,18 +521,26 @@ int scanline_rendertext(scanline* sl, const font_t* font, float size, ImVec2 pos
           continue;
         }
       }
-      char_width = 0.0f;
-	  XAdvance = font->getbit(font, (unsigned short)c, bit);
+      float x_shift = xpos - (float)floor(xpos);
+      font->fun->GetCodepointHMetrics(font, c, &advance, &lsb);
+      char_width = advance * scale;
+      font->fun->GetCodepointBitmapBoxSubpixel(font, c, x_shift, 0, &x0, &y0, &x1, &y1);
+      x0 += xpos;
+      x1 += xpos;
+      y0 += ypos;
+      y1 += ypos;
+      if (x1<clip_rect.l || y1<clip_rect.t || x0 > clip_rect.r || y0>clip_rect.b) break;
+      x0 = BOUND(x0, clip_rect.l, clip_rect.r);
+      x1 = BOUND(x1, clip_rect.l, clip_rect.r);
+      y0 = BOUND(y0, clip_rect.t, clip_rect.b);
+      y1 = BOUND(y1, clip_rect.t, clip_rect.b);
+
       if (XAdvance) {
         char_width = XAdvance * scale;
         // Arbitrarily assume that both space and tabs are empty glyphs as an optimization
         if (c != ' ' && c != '\t') {
           // We don't do a second finer clipping test on the Y axis as we've already skipped anything before clip_rect.t and exit once we pass clip_rect.b
-          float x1 = x + bit->x * scale;
-          float x2 = x + (bit->x + bit->bx) * scale;
-          float y1 = y + (font->bl - bit->y) * scale;
-          float y2 = y + (font->bl - bit->y + bit->by) * scale;
-          if (x1 <= clip_rect.r && x2 >= clip_rect.l) {
+          if (1) {
             // Render a character
             float u1 = 0;
             float v1 = 0;
@@ -566,24 +548,24 @@ int scanline_rendertext(scanline* sl, const font_t* font, float size, ImVec2 pos
             float v2 = 1;
             // CPU side clipping used to fit text in their frame when the frame is too small. Only does clipping for axis aligned quads.
             if (cpu_fine_clip) {
-              if (x1 < clip_rect.l) {
-                u1 = u1 + (1.0f - (x2 - clip_rect.l) / (x2 - x1)) * (u2 - u1);
-                x1 = clip_rect.l;
+              if (x0 < clip_rect.l) {
+                u1 = u1 + (1.0f - (x1 - clip_rect.l) / (x1 - x0)) * (u2 - u1);
+                x0 = clip_rect.l;
               }
-              if (y1 < clip_rect.t) {
-                v1 = v1 + (1.0f - (y2 - clip_rect.t) / (y2 - y1)) * (v2 - v1);
-                y1 = clip_rect.t;
+              if (y0 < clip_rect.t) {
+                v1 = v1 + (1.0f - (y1 - clip_rect.t) / (y1 - y0)) * (v2 - v1);
+                y0 = clip_rect.t;
               }
-              if (x2 > clip_rect.r) {
-                u2 = u1 + ((clip_rect.r - x1) / (x2 - x1)) * (u2 - u1);
-                x2 = clip_rect.r;
+              if (x1 > clip_rect.r) {
+                u2 = u1 + ((clip_rect.r - x0) / (x1 - x0)) * (u2 - u1);
+                x1 = clip_rect.r;
               }
-              if (y2 > clip_rect.b) {
-                v2 = v1 + ((clip_rect.b - y1) / (y2 - y1)) * (v2 - v1);
-                y2 = clip_rect.b;
+              if (y1 > clip_rect.b) {
+                v2 = v1 + ((clip_rect.b - y0) / (y1 - y0)) * (v2 - v1);
+                y1 = clip_rect.b;
               }
-              if (y1 >= y2) {
-                x += char_width;
+              if (y0 >= y1) {
+                xpos += char_width;
                 continue;
               }
             }
@@ -592,43 +574,54 @@ int scanline_rendertext(scanline* sl, const font_t* font, float size, ImVec2 pos
             {
               PrimRectUV uv[1];
               texture_t tex[1] = {0};
-              BMPINIT(tex, bit->by, bit->bx, bit->bit, bit->step, font->bpp);
-              tex->fmt = bpp2PixFmt(font->bpp);
-              PrimRectUV_set(uv, fVec2(x1, y1), fVec2(x2, y2), fVec2(u1, v1), fVec2(u2, v2));
+              int hh = y1 - y0, ww = x1 - x0;
+              bit = (uchar*)realloc(bit, hh*ww);
+              memset(bit, 0, hh*ww);
+              font->fun->MakeCodepointBitmapSubpixel(font, bit, ww, hh, ww, scale, scale, x_shift, 0, c);
+              BMPINIT(tex, hh, ww, bit, ww, 8);
+              tex->fmt = bpp2PixFmt(8);
+              PrimRectUV_set(uv, fVec2(x1, y0), fVec2(x1, y1), fVec2(u1, v1), fVec2(u2, v2));
               //softgc_rander_text(sg, uv, 1, tex);
               scanline_set_glyph(sl, sl->pclip, uv, 1, tex);
             }
           }
         }
       }
-      x += char_width;
+      xpos += char_width;
     }
   }
+  if (bit) free(bit);
   // Give back unused vertices
   return 0;
 }
-
-CC_INLINE void scanline_set_string(scanline* sl, int opt, const char* text, const char* text_end, font_t* font, float size, float x, float y, float w, float h, int formatFlags)
+CC_INLINE void scanline_set_string(scanline* sl, int opt, const wchar_t* text, const wchar_t* text_end, font_t* font, float size, float x, float y, float w, float h, int formatFlags)
 {
   if (text && font) {
     ImVec2 sz;
     FRECT rc = fRECT2(x, y, w, h);
-    int textlen = text_end ? (text_end - text) : strlen(text);
-    sz = font_CalcTextSizeA(font, size, w, w, text, text + textlen, NULL);
+    int textlen = text_end ? (text_end - text) : wcslen(text);
+    sz = font_CalcTextSizeW(font, size, w, w, text, text + textlen, NULL);
     fRectAlign(rc, sz.x, sz.y, formatFlags, &rc);
     scanline_rendertext(sl, font, size, fVec2(rc.l, rc.t), rc, text, text + textlen, w, TRUE);
   }
+}
+CC_INLINE void scanline_set_string(scanline* sl, int opt, const char* text, const char* text_end, font_t* font, float size, float x, float y, float w, float h, int formatFlags)
+{
+  text_end = text_end ? text_end : (text + strlen(text));
+  int len = text_end - text;
+  wchar_t* wtext = iconv_a2w(text, len);
+  scanline_set_string(sl, opt, wtext, NULL, font, size, x, y, w, h, formatFlags);
+  free(wtext);
 }
 CC_INLINE void scanline_set_string_format(scanline* sl, IRECT rc, font_t* font, int formatFlags, const char* fmt, ...) {
   char* buf = NULL;
   va_list arglist;
   va_start(arglist, fmt);
-  buf = cstr_vsprintf_dup(fmt, arglist);
+  avprintf(&buf, 0, fmt, arglist);
   va_end(arglist);
   scanline_set_string(sl, 1, buf, NULL, font, 0, (float)(rc).l, (float)(rc).t, (float)RCW(&rc), (float)RCH(&rc), formatFlags);
-  pfree(buf);
+  free(buf);
 }
-
 typedef struct {
   spanv_t* sp;
   span_t* span;
@@ -2957,7 +2950,7 @@ static BOOL scanline_bin_edge(scanline* sl, IRECT rc, UINT edge, UINT flags)
   return FALSE;
 }
 
-CC_INLINE int scanline_bin_xrects(scanline* sl, const XRECT* r, int n)
+CC_INLINE int scanline_bin_xrects(scanline* sl, const IRect* r, int n)
 {
   //画出矩形框
   int i;
@@ -3140,6 +3133,7 @@ CC_INLINE int scanline_bin_bit(scanline* sl, IRECT rc, int fmt, int cx, int cy, 
 
 #define CBCGPMenuImages_Size()  iSIZE(MENUIMAGES_W, MENUIMAGES_H)
 
+#if 0
 CC_INLINE int scanline_bin_menuimg(scanline* sl, IRECT rc, int id)
 {
   static const uchar menuimg_9x324[] = {
@@ -3149,6 +3143,7 @@ CC_INLINE int scanline_bin_menuimg(scanline* sl, IRECT rc, int id)
   scanline_bin_bit(sl, rc, TF_VCENTER | TF_CENTER, cx, cy, menuimg_9x324 + (id * cx) / 8, (bl + 7) >> 3, (id * cx) & 7, 0, 1);
   return 0;
 }
+#endif
 
 CC_INLINE int scanline_bin_dpoint(scanline* sl, const DPOINT* pts, int n, COLOR crFg)
 {
@@ -3168,8 +3163,9 @@ CC_INLINE int scanline_bin_dpoint(scanline* sl, const DPOINT* pts, int n, COLOR 
   return 0;
 }
 
+#if 0
 // 矢量字体
-#include "cv/imgproc/drawing.inl"
+//#include "cv/imgproc/drawing.inl"
 CC_INLINE int scanline_bin_text_v(scanline* sl, const char* text, int org_x, int org_y, enum CC_FONT_FACE fontFace, double fontScale, PenStyle* penstyle)
 {
   int bottomLeftOrigin = 0;
@@ -3224,6 +3220,7 @@ CC_INLINE int scanline_bin_text_v(scanline* sl, const char* text, int org_x, int
 
   return 0;
 }
+#endif
 
 #undef BDR_OUTER
 #undef BDR_INNER

@@ -3,36 +3,7 @@
 #define _CNN4_TYPES_H_
 
 //#include "std/log_c.h"
-
-typedef void void_type;
-typedef void void_float;
-
-struct int8x4 { unsigned char v[4]; };
-//DEF(U8x4, int8x4, CUDNN_DATA_INT8x4)
-
-#define TYPEFLAGDEF_DEF(DEF) \
-DEF(S8, char, CUDNN_DATA_INT8) \
-DEF(U8, unsigned char, CUDNN_DATA_UINT8) \
-DEF(S16, short, CUDNN_DATA_HALF) \
-DEF(U16, unsigned short, CUDNN_DATA_HALF) \
-DEF(S32, int, CUDNN_DATA_INT32) \
-DEF(U32, unsigned int, CUDNN_DATA_INT32) \
-DEF(F32, float, CUDNN_DATA_FLOAT) \
-DEF(F64, double, CUDNN_DATA_DOUBLE)
-
-
-enum TypeFlag //枚举消息类型
-{
-#define TYPEFLAGDEF(a, b, c)  TF_ ## a,
-  TYPEFLAGDEF_DEF(TYPEFLAGDEF)
-#undef TYPEFLAGDEF
-};
-
-static const int TypeSize[] = {
-#define TYPEFLAGDEF(a, b, c)  sizeof(b),
-  TYPEFLAGDEF_DEF(TYPEFLAGDEF)
-#undef TYPEFLAGDEF
-};
+#include "std/mnistdata_c.h"
 
 #if 1
 template <typename T>
@@ -48,7 +19,6 @@ TYPEFLAGDEF_DEF(TYPEFLAGDEF)
 //shape[2] = height;
 //shape[3] = width;
 
-enum DimType { NCHW, NHWC };
 enum { MaxBlobAxes = 8 };
 
 struct DataShape {

@@ -41,9 +41,6 @@ public:
   virtual Transaction* NewTransaction() = 0;
 };
 
-#ifdef _WIN32
-#define USE_LMDB
-#endif
 #ifdef USE_LMDB
 #include "lmdb/lmdb.h"
 

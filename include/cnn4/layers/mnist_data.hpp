@@ -4,7 +4,7 @@
 #include "std/types_c.h"
 #include "std/algo.h"
 #include "../data_transformer.hpp"
-#include "../blobdata.h"
+#include "std/mnistdata_c.h"
 #include "std/gui_c.h"
 
 #define MnistDataLayer_DEF(DEF) \
@@ -43,7 +43,11 @@ struct MnistDataLayer : public Layer
     num_ = MAX_INT;
     size_t size = 0;
     int ret = mnist_read_head(fp_, info_);
-    DataShape shape = info_->shape;
+    DataShape shape;
+    shape.n = info_->n;
+    shape.c = info_->c;
+    shape.h = info_->h;
+    shape.w = info_->w;
     DimType dimtype = info_->dimtype_;
     LOG_IF(FATAL, !(dimtype == NCHW || dimtype == NHWC));
     CHECK_NE(ret, 0) << "mnist_read_head fail";
@@ -69,7 +73,7 @@ struct MnistDataLayer : public Layer
   virtual void Reshape(const vector<Blob*> & bottom, const vector<Blob*> & top) {
     CHECK_EQ(top.size(), info_->label_num+1);
     for (int i = 0; i < top.size(); ++i) {
-      DataShape shape = i==0 ? info_->shape : dataShape(batch_size_, info_->label_dim[i-1], 1, 1);
+      DataShape shape = i==0 ? dataShape(info_->n, info_->c, info_->h, info_->w) : dataShape(batch_size_, info_->label_dim[i-1], 1, 1);
       shape.n = batch_size_;
       top[i]->Reshape(shape);
     }
@@ -80,7 +84,7 @@ struct MnistDataLayer : public Layer
       for (int i = 0; i < top.size(); ++i) {
         Blob* blob = top[i];
         Dtype* data = blob->cpu_mdata() + blob->offset(item_id);
-        DataShape shape = i == 0 ? info_->shape : dataShape(batch_size_, info_->label_dim[i - 1], 1, 1);
+        DataShape shape = i == 0 ? dataShape(info_->n, info_->c, info_->h, info_->w) : dataShape(batch_size_, info_->label_dim[i - 1], 1, 1);
         if (i == 0) {
           size_t size = shape.c*shape.h*shape.w;
           fread(buf_, size, 1, fp_);

@@ -2052,10 +2052,6 @@ static char* utf8_substring(const char* str, int start, int end)
   retStr[retLen] = 0;
   return retStr;
 }
-static bool ImCharIsSpace(int c)
-{
-  return c == ' ' || c == '\t' || c == 0x3000;
-}
 static int test_utf8()
 {
   const char* str = "我的a测试工具阿斯顿aaab123阿斯顿个流氓了卡斯！";

@@ -162,6 +162,7 @@ static double RNG_MT19937_uniform_double(RNG_MT19937* g, double a, double b)
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
 typedef struct {
+  rng_t rng[1];
   int mti;//=MT19937AR_N+1; /* r->mti==N+1 means mt[N] is not initialized */
   unsigned long mt[MT19937AR_N]; /* the array for the state vector  */
 } mt19937ar_t;

@@ -283,7 +283,7 @@ enum { FALSE = 0, TRUE = 1 };
             (_MAX) = (_I); \
   } while(0)
 /////////////////////////////////////////////////////////////////////////////////////////////////
-#define offset_of(TYPE, MEMBER) ((int) &((TYPE *)0)->MEMBER)
+#define offset_of(TYPE, MEMBER) ((intptr_t) &((TYPE *)0)->MEMBER)
 #define container_of(ptr, type, member)   (type *)((char *)(ptr) - offset_of(type, member))
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

@@ -18,10 +18,6 @@ typedef int ImDrawStyle;
 //指示绘图填充色的 颜色值。默认值是 #000000
 //#define gcSolidBrush(g, clr) gcSolidBrush(g, 1, clr)
 //#define gcSolidBrush(g, clr) gcSolidBrush(g, 1, clr)
-#define gcStrokeColor(g, clr)  gcPenColor(g, clr)
-#define gcHatchBrush1(g, hatchstyle, forecol, backcol) gcHatchBrush(g, 0, 0, forecol, backcol, hatchstyle)
-#define gcFillGradient(g, x0, y0, x1, y1, blendPositions, presetColors, count) gcGradientBrush(g, x0, y0, x1, y1, blendPositions, presetColors, count)
-#define gcStrokeGradient(g, x0, y0, x1, y1, blendPositions, presetColors, count) gcGradientBrush(g, x0, y0, x1, y1, blendPositions, presetColors, count)
 CC_INLINE int cmdSolidBrush(gc_t* g, bool fill, COLOR clr)
 {
   VA_BEG(16, ImDrawCmd_Solid);
@@ -355,19 +351,6 @@ CC_INLINE void cmdPushClipRect(gc_t* g, float x, float y, float w, float h)
   VA_ARG_EQ(float, h);
   VA_END();
 }
-CC_INLINE void gcEllipse2(gc_t* g, int opt, float x, float y, float rx, float ry)
-{
-  gcEllipse(g, opt, x-rx, y-ry, rx*2, ry*2);
-}
-CC_INLINE void gcCircle(gc_t* g, int opt, float x, float y, float r)
-{
-  gcEllipse2(g, opt, x, y, r, r);
-}
-CC_INLINE void gcIsPointInPath(gc_t* g, float x, float y)
-{
-  ASSERT(0);
-  // 如果指定的点位于当前路径中，则返回 true，否则返回 false
-}
 CC_INLINE void cmdTextAlign(gc_t* g, int textAlign)
 {
   VA_BEG(16, ImDrawCmd_TextAlign);
@@ -459,34 +442,6 @@ CC_INLINE void cmdPath(gc_t* g, int opt, const FPOINT* Points, const BYTE* Types
   VA_END1();
 }
 
-#define gcPath2(g, opt, path)  gcPath(g, opt, path->Points, path->Types, path->Count)
-#define gcFillPath2(g, path)  gcPath2(g, GcOptFill, path)
-#define gcStrokePath2(g, path)  gcPath2(g, GcOptStroke, path)
-#define gcFillPath(g, Points, Types, Count)   gcPath(g, GcOptFill, Points, Types, Count)
-
-CC_INLINE void gcPolygons(gc_t* g, int opt, const void* pt, const int* lens, int c, GCTYPE type, int step)
-{
-  Path path[1] = {0};
-  PathAddPolygonX(path, pt, lens, c, type, step);
-  gcPath2(g, opt, path);
-  PathFree(path);
-}
-CC_INLINE void gcPolygon(gc_t* g, int opt, const void* pt, int n, int closed, GCTYPE type, int step)
-{
-  if (!closed) {
-    n = -abs(n);
-  }
-  gcPolygons(g, opt, pt, &n, 1, type, step);
-}
-CC_INLINE void gcFillPolygon(gc_t* g, const void* pt, int n, int closed, GCTYPE type, int step)
-{
-  gcPolygon(g, GcOptFill, pt, n, closed, type, step);
-}
-
-CC_INLINE void gcDrawPolygon(gc_t* g, const void* pt, int n, int closed, GCTYPE type, int step)
-{
-  gcPolygon(g, GcOptStroke, pt, n, closed, type, step);
-}
 CC_INLINE void cmdPrimitive(gc_t* g, info3d_t* info) {
   VA_BEG(4 + sizeof(info3d_t), ImDrawCmd_Primitive);
   VA_ARG_EQ(info3d_t*, info);
@@ -539,167 +494,4 @@ CC_INLINE void cmdPrimRectUV(gc_t* g, const PrimRectUV* pr, int npr, texture_t* 
   memcpy(va, pr, npr * sizeof(PrimRectUV));
   va += npr * sizeof(PrimRectUV);
   VA_END1();
-}
-CC_INLINE void gcRoundRect(gc_t* g, int opt, float x, float y, float w, float h, float lt, float rt, float lb, float rb)
-{
-#if 0
-  gcArc2(g, x + lt, y + lt, lt, lt, 180, 270);
-  gcLineTo(g, w - rt + x, y);
-  gcArc2(g, w - rt + x, rt + y, rt, rt, 270, 360);
-  gcLineTo(g, w + x, h + y - rb);
-  gcArc2(g, w - rb + x, h - rb + y, rb, rb, 0, 90);
-  gcLineTo(g, lb + x, h + y);
-  gcArc2(g, lb + x, h - lb + y, lb, lb, 90, 180);
-#endif
-}
-CC_INLINE void gcFillRoundRect(gc_t* g, float x, float y, float w, float h, float lt, float rt, float lb, float rb)
-{
-  gcRoundRect(g, GcOptFill, x, y, w, h, lt, rt, lb, rb);
-}
-CC_INLINE void gcStrokeRoundRect(gc_t* g, float x, float y, float w, float h, float lt, float rt, float lb, float rb)
-{
-  gcRoundRect(g, GcOptStroke, x, y, w, h, lt, rt, lb, rb);
-}
-#define gcFillRoundRect2(g, x, y, w, h, r, flag) gcFillRoundRect(g, x, y, w, h, (flag)&1?0:r, (flag)&2?0:r, (flag)&4?0:r, (flag)&8?0:r)
-#define gcStrokeRoundRect2(g, x, y, w, h, r, flag) gcStrokeRoundRect(g, x, y, w, h, (flag)&1?0:r, (flag)&2?0:r, (flag)&4?0:r, (flag)&8?0:r)
-//CC_INLINE int ImDraw_edgeRect(gc_t* g, float x, float y, float w, float h)
-#undef VA_ARG_EQ
-#undef VA_BEG
-#undef VA_END
-#undef VA_BEG1
-#undef VA_END1
-#define gcFillRect(g, x, y, w, h)  gcRect(g, GcOptFill, x, y, w, h)
-#define gcFillRect2(g, rc)  gcRect(g, GcOptFill, rc.l, rc.t, RCW(&rc), RCH(&rc))
-#define gcStrokeRect(g, x, y, w, h)  gcRect(g, GcOptStroke, x, y, w, h)
-#define gcStrokeRect2(g, rc)  gcRect(g, GcOptStroke, rc.l, rc.t, RCW(&rc), RCH(&rc))
-CC_INLINE void gcSolidRect(gc_t* g, float x, float y, float w, float h, COLOR clr)
-{
-  gcSolidBrush(g, clr);
-  gcFillRect(g, x, y, w, h);
-}
-CC_INLINE void gcGradientRect(gc_t* g, IRECT rc, BOOL horz, const float* blendPositions, const COLOR* presetColors, int count)
-{
-  gcFillGradient(g, (float)rc.l, (float)rc.t, (float)(horz ? rc.r : rc.l), (float)(horz ? rc.t : rc.b), blendPositions, presetColors, count);
-  gcFillRect(g, (float)rc.l, (float)rc.t, (float)RCW(&rc), (float)RCH(&rc));
-}
-CC_INLINE void gcSolidRect2(gc_t* g, IRECT rc, COLOR clr)
-{
-  gcSolidBrush(g, clr);
-  gcFillRect(g, (float)rc.l, (float)rc.t, (float)RCW(&rc), (float)RCH(&rc));
-}
-CC_INLINE void gcGradientRect2(gc_t* g, IRECT rc, COLOR clr1, COLOR clr2, BOOL horz)
-{
-  if (clr1 == clr2) {
-    gcSolidRect2(g, rc, clr1);
-  }
-  else {
-    COLOR clrs[] = {clr1, clr2};
-    gcGradientRect(g, rc, horz, NULL, clrs, 2);
-  }
-}
-
-#define gcDrawPath(g, Points, Types, Count)  gcPath(g, GcOptStroke, Points, Types, Count)
-#define gcDrawPath2(g, path)  gcPath(g, GcOptStroke, path->Points, path->Types, path->Count)
-CC_INLINE void gcDrawLine(gc_t* g, float x1, float y1, float x2, float y2) {
-  FPOINT pt[] = {x1, y1, x2, y2};
-  BYTE ty[] = {PathPointTypeStart, PathPointTypeLine};
-  gcDrawPath(g, pt, ty, countof(pt));
-}
-CC_INLINE void gcDrawLine3(gc_t* g, float x1, float y1, float x2, float y2, float x3, float y3) {
-  FPOINT pt[] = {x1, y1, x2, y2, x3, y3};
-  BYTE ty[] = {PathPointTypeStart, PathPointTypeLine, PathPointTypeLine};
-  gcDrawPath(g, pt, ty, countof(pt));
-}
-CC_INLINE void gcDrawLine4(gc_t* g, float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
-  FPOINT pt[] = {x1, y1, x2, y2, x3, y3, x4, y4};
-  BYTE ty[] = {PathPointTypeStart, PathPointTypeLine, PathPointTypeLine, PathPointTypeLine};
-  gcDrawPath(g, pt, ty, countof(pt));
-}
-CC_INLINE void gcDrawLine5(gc_t* g, float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4, float x5, float y5) {
-  FPOINT pt[] = {x1, y1, x2, y2, x3, y3, x4, y4, x5, y5};
-  BYTE ty[] = {PathPointTypeStart, PathPointTypeLine, PathPointTypeLine, PathPointTypeLine, PathPointTypeLine};
-  gcDrawPath(g, pt, ty, countof(pt));
-}
-//#define GCDRAWPOLYLINE(g, closed, PT)  {FPOINT pt[] = PT; gcDrawPolygon(g, pt, countof(pt), closed, GC_FLOAT, sizeof(*pt));}
-#if 0
-CC_INLINE void gcDrawPolyline(gc_t* g, int closed, int n) {
-  FPOINT pt[100];
-  ASSERT(n<100);
-  va_list arglist;
-  int i;
-  va_start(arglist, fmt);
-  for (i=0; i<n; ++i) {
-    pt[i].x = va_arg(arglist, double);
-    pt[i].y = va_arg(arglist, double);
-  }
-  va_end(arglist);
-  gcDrawPolygon(g, pt, n, closed, GC_FLOAT, sizeof(*pt));
-}
-#endif
-void gcSolidLine(gc_t* g, float x1, float y1, float x2, float y2, COLOR line, double wline)
-{
-  if (GetAV(line) && wline > 0) {
-    gcStrokeColor(g, line);
-    gcLineWidth(g, (float)wline);
-    gcDrawLine(g, x1, y1, x2, y2);
-  }
-}
-void gcSolidPolygons(gc_t* g, const void* pt, const int* ln, int c, GCTYPE type, int step, COLOR fill, COLOR line, double wline)
-{
-  if (fill) {
-    gcSolidBrush(g, fill);
-    gcPolygons(g, GcOptFill, pt, ln, c, type, step);
-  }
-  if (line) {
-    gcStrokeColor(g, line);
-    gcLineWidth(g, (float)wline);
-    gcPolygons(g, GcOptStroke, pt, ln, c, type, step);
-  }
-}
-void gcSolidPolygon(gc_t* g, const void* pt, int n, bool closed, GCTYPE type, int step, COLOR fill, COLOR line, double wline)
-{
-  if (!closed) {
-    n = -abs(n);
-  }
-  gcSolidPolygons(g, pt, &n, 1, type, step, fill, line, wline);
-}
-void gcSolidCircle(gc_t* g, float x, float y, float radius, COLOR fill, COLOR line, double wline)
-{
-  int opt=0;
-  if (GetAV(fill)) {
-    gcSolidBrush(g, fill);
-    opt |= GcOptFill;
-  }
-  if (GetAV(line) && wline > 0) {
-    gcPenColor(g, line);
-    gcLineWidth(g, (float)wline);
-    opt |= GcOptStroke;
-  }
-  gcCircle(g, opt, x, y, radius);
-}
-CC_INLINE void gcDrawRectangle(gc_t* g, float x, float y, float w, float h) {
-  gcRect(g, GcOptStroke, x, y, w, h);
-}
-#define gcFillRectangle(g, x, y, w, h)   gcRect(g, GcOptFill, x, y, w, h)
-#define gcFillRectangle2(g, r) gcRect(g, GcOptFill, r.l, r.t, RCW(&r), RCH(&r))
-CC_INLINE void gcDrawEllipse(gc_t* g, float x, float y, float w, float h) {
-  gcEllipse(g, GcOptStroke, x, y, w, h);
-}
-CC_INLINE void gcFillEllipse(gc_t* g, float x, float y, float w, float h) {
-  gcEllipse(g, GcOptFill, x, y, w, h);
-}
-#define gcFillEllipseRect(g, rc)  gcFillEllipse(g, rc.l, rc.t, RCW(&rc), RCH(&rc))
-CC_INLINE void gcFillEllipse2(gc_t* g, float x, float y, float rx, float ry) {
-  gcEllipse2(g, GcOptFill, x, y, rx, ry);
-}
-void gcPen(gc_t* g, COLOR clr, float wline) {
-  gcPenColor(g, clr);
-  gcLineWidth(g, wline);
-}
-CC_INLINE void gcTextureBrush(gc_t* g, const texture_t* tex, const float* m23) {
-  gcPatternBrush(g, tex, NULL, _RGB(0,0,0), NULL, m23);
-}
-CC_INLINE void gcTextureBrushRect(gc_t* g, const texture_t* tex, int x, int y, int w, int h, const float* m23) {
-  IRECT rc = iRECT2(x, y, w, h);
-  gcPatternBrush(g, tex, &rc, _RGB(0,0,0), NULL, m23);
 }
