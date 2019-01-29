@@ -23,6 +23,31 @@ def rand():
     return random.random()
 
 
+def randn(mu, sig):
+    return random.gauss(sig)
+
+
+def randn_c(mu, sig):
+    while(1):
+        t = random.gauss(mu, sig)
+        t = abs(t)
+        if t >= 0 and t < 1:
+            return t
+
+
+def randn_int(min_int, max_int, mu, sig):
+    return int(min_int + (max_int-min_int)*randn_c(mu, sig))
+
+if 0:
+    cnt = np.zeros((100))
+
+    for i in range(10000):
+        t = randn_int(0, 100, 0, 0.5)
+        cnt[t] = cnt[t] + 1
+
+    print(cnt)
+
+
 def randint(min_int, max_int):
     return int(min_int + (max_int-min_int)*random.random())
 
@@ -38,6 +63,7 @@ def mkdir(path):
     isExists = os.path.exists(path)
     if not isExists:
         os.makedirs(path)
+
 
 def gauss_blur(image, ksize, sigma):
     return cv2.GaussianBlur(image, (ksize, ksize), sigma, sigma)
@@ -86,6 +112,7 @@ def add_dilate(img, k):
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (k, k))
     img = cv2.dilate(img, kernel)
     return img
+
 
 def YUVequalizeHist(img):
     imgYUV = cv2.cvtColor(img, cv2.COLOR_BGR2YCrCb)
@@ -172,3 +199,74 @@ def add_shader(img):
         k = 1+random.random()
     img3 = np.power(img3/float(np.max(img3)), k)
     return img3
+
+
+def randpt(w, h):
+    return (randint(0, w), randint(0, h))
+
+
+
+def bound(x, a, b):
+    if x < a:
+        return a
+    if x > b:
+        return b
+    return x
+
+def randline(w, h):
+    if w>h:
+        t0 = randpt(h, h)
+        t1 = randpt(h, h)
+        off = randint(0, w-h)
+        return (t0[0]+off, t0[1]), (t1[0]+off, t1[1])
+    else:
+        t0 = randpt(w, w)
+        t1 = randpt(w, w)
+        off = randint(0, h-w)
+        return (t0[0], t0[1]+off), (t1[0], t1[1]+off)
+
+def add_line2(img, k, t):
+    h = img.shape[0]
+    w = img.shape[1]
+    for i in range(k):
+        p = randline(w, h)
+        cv2.line(img, p[0], p[1], (t, t, t), 1)
+    return img
+
+
+def add_line2b(img, k, t):
+    h = img.shape[0]
+    w = img.shape[1]
+    for i in range(k):
+        cv2.line(img, randpt(w, h), randpt(w, h), (t, t, t), 1)
+    return img
+
+def add_line(img, k):
+    h = img.shape[0]
+    w = img.shape[1]
+    for i in range(k):
+        t = randint(0, 255)
+        cv2.line(img, randpt(w, h), randpt(w, h), (t, t, t), 1)
+    return img
+
+
+def savelines(infos, outtxt):
+    f = open(outtxt, 'w')
+    for s in infos:
+        # print(s)
+        f.write(s+'\n')
+    f.close()
+
+
+def dirlist(filepath):
+    # 遍历filepath下所有文件，包括子目录
+    files = os.listdir(filepath)
+    res = []
+    for fi in files:
+        fi_d = os.path.join(filepath, fi)
+        if os.path.isdir(fi_d):
+            res = res + dirlist(fi_d)
+        else:
+            res.append(os.path.join(filepath, fi_d))
+
+    return res

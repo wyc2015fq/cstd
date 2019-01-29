@@ -2,10 +2,12 @@
 #include "std/math_c.h"
 #include "std/geo_c.h"
 //#include "font/font.inl"
+#include "gdi_c.h"
 #include "scancell.h"
 #include "brush_c.h"
 #include "scanline.h"
-//#include "region.inl"
+#include "region_c.h"
+#include "span_c.h"
 //#include "cmdgc.inl"
 //#include "tridraw.inl"
 
@@ -43,10 +45,10 @@ void softgc_addspans(scanline* s, int b, int e, int y, const uchar* covers) {
   softgc* ss = (softgc*)(s->x);
   int len = e - b;
   img_t* im = s->im;
-  COLOR* pix_x = (COLOR*)(im->tt.data + (ss->flip_y ? (im->h - y - 1) : y) * im->s + b * im->c);
+  uchar* pix_x = (uchar*)(im->tt.data + (ss->flip_y ? (im->h - y - 1) : y) * im->s + b * im->c);
   //memset(ss->colors, 0, len*sizeof(COLOR));
   ss->br->fillline(ss->br, ss->colors, b, e, y);
-  ss->blender((uchar*)pix_x, (uchar*)ss->colors, len, covers);
+  ss->blender(pix_x, (uchar*)ss->colors, len, covers);
 }
 void softgc_addspan(scanline* s, int b, int e, int y, int cover) {
   softgc* ss = (softgc*)(s->x);
@@ -169,25 +171,21 @@ int scanline_set_path2(scanline* sl, const Path* path, BOOL fill_even_odd) {
   PathFree(flat_path);
   return ret;
 }
-
-#if 0
 int region_brush(region_t* re, img_t* im, bool flip_y, const brush_t* br)
 {
   int y, i;
   IRECT clip = iRectClip(&re->extents, 0, 0, im->w, im->h);
-  uchar* covers = (uchar*)pmalloc(RCW(&clip));
-  memset(covers, 255, RCW(&clip));
   ASSERT(4 == im->c);
   for (i = 0; i < re->numRects; ++i) {
     IRECT rc = iRectInter(re->rects[i], clip);
     for (y = rc.t; y < rc.b; ++y) {
       COLOR* pix_x = (COLOR*)(im->tt.data + (flip_y ? (im->h - y - 1) : y) * im->s + rc.l * im->c);
-      br->fillline(br, pix_x, rc.t, rc.b, y, covers);
+      br->fillline(br, pix_x, rc.t, rc.b, y);
     }
   }
-  pfree(covers);
   return 0;
 }
+#if 0
 int spanv_solid(spanv_t* sp, img_t* im, bool flip_y, COLOR clr)
 {
   brush_t br[1] = {0};
@@ -1111,29 +1109,6 @@ int gc_set_softgc(gc_t* g, softgc* sg) {
   return 0;
 }
 
-
-int memset_color(int n, uchar* ptr, int cn, COLOR clr) {
-  uchar* ptr_end = ptr + cn*n - cn;
-  memcpy(ptr, &clr, cn);
-  for (; ptr!=ptr_end; ++ptr) {
-    ptr[cn] = *ptr;
-  }
-  return 0;
-}
-int imclear(img_t* im, const IRECT* pclip, COLOR clr)
-{
-  IRECT clip = iRectClip(pclip, 0, 0, im->w, im->h);
-  int y, w;
-  uchar* ptr1;
-  w = RCW(&clip);
-  ptr1 = im->tt.data + clip.t * im->s + clip.l * im->c;
-  memset_color(w, ptr1, im->c, clr);
-  for (y = clip.t + 1; y < clip.b; ++y) {
-    uchar* pix_x = im->tt.data + y * im->s + clip.l * im->c;
-    memcpy(pix_x, ptr1, w * im->c);
-  }
-  return 0;
-}
 ////////////////////////////////////////////////////////////////////////
 
 #define VA_ARG_EQ(T, A) T A = VA_ARG(T)
@@ -1380,212 +1355,4 @@ int trirun(ImDrawList* g, const char* va, const char* vb)
 #endif
 ///////////////////////////////////////////////////////////////////
 
-static COLOR ColorMul(COLOR clr, double a)
-{
-  double r = GetRV(clr) * a, g = GetGV(clr) * a, b = GetBV(clr) * a;
-  return _RGBA(MIN(r, 255), MIN(g, 255), MIN(b, 255), GetAV(clr));
-}
-#define gcEdgeRect1(g, rc, fill_color, crBorder, b) gcEdgeRect(g, rc, fill_color, crBorder, crBorder, crBorder, crBorder, b)
-static IRECT gcEdgeRect(gc_t* g, IRECT rc, COLOR fill_color, COLOR crL, COLOR crT, COLOR crR, COLOR crB, int b)
-{
-  int x = rc.l, y = rc.t, w = RCW(&rc), h = RCH(&rc);
-  b = MIN(b, w / 2);
-  b = MIN(b, h / 2);
-  if (GetAV(crT)) {
-    gcSolidRect(g, x, y, w, b, crT);
-    y += b, h -= b;
-  }
-  if (GetAV(crB)) {
-    gcSolidRect(g, x, y + h - b, w, b, crB);
-    h -= b;
-  }
-  if (GetAV(crL)) {
-    gcSolidRect(g, x, y, b, h, crL);
-    x += b, w -= b;
-  }
-  if (GetAV(crR)) {
-    gcSolidRect(g, x + w - b, y, b, h, crR);
-    w -= b;
-  }
-  if (GetAV(fill_color)) {
-    gcSolidRect(g, x, y, w, h, fill_color);
-  }
-  return iRECT2(x, y, w, h);
-}
-static IRECT gcEdgeRect2(gc_t* g, IRECT rc, int b, COLOR fill_color, const COLOR* crL, const COLOR* crT, const COLOR* crR, const COLOR* crB)
-{
-  int i;
-  for (i = 0; i < b; ++i) {
-    rc = gcEdgeRect(g, rc, i == (b - 1) ? fill_color : 0, crL ? crL[i] : 0, crT ? crT[i] : 0, crR ? crR[i] : 0, crB ? crB[i] : 0, 1);
-  }
-  return rc;
-}
-
-#define BORDERSTYLEDEF_DEF(BORDERSTYLEDEF) \
-  BORDERSTYLEDEF(BDS_SUNKEN, CLR_3DSHADOW, CLR_3DHILIGHT, CLR_3DDKSHADOW, CLR_3DLIGHT, 0, 0 ) \
-  BORDERSTYLEDEF(BDS_LOW, CLR_3DSHADOW, CLR_3DHILIGHT, 0, 0, 0, 0) \
-  BORDERSTYLEDEF(BDS_UP, CLR_3DHILIGHT, CLR_3DSHADOW, 0, 0, 0, 0) \
-  BORDERSTYLEDEF(BDS_HIGH, CLR_3DHILIGHT, CLR_3DDKSHADOW, CLR_3DLIGHT, CLR_3DSHADOW, 0, 0) \
-  BORDERSTYLEDEF(BDS_HIGH2, CLR_3DLIGHT, CLR_3DDKSHADOW, CLR_3DHILIGHT, CLR_3DSHADOW, 0, 0) \
-  BORDERSTYLEDEF(BDS_SIMPLE, CLR_3DDKSHADOW, CLR_3DDKSHADOW, 0, 0, 0, 0) \
-  BORDERSTYLEDEF(BDS_SIMPLE_DOT, CLR_3DDKSHADOW, CLR_3DDKSHADOW, 0, 0, 0, 0) \
-  BORDERSTYLEDEF(BDS_FLAT, CLR_3DDKSHADOW, CLR_3DDKSHADOW, CLR_3DDKSHADOW, CLR_3DDKSHADOW, 0, 0) \
-  BORDERSTYLEDEF(BDS_FRAME, CLR_3DHILIGHT, CLR_3DDKSHADOW, CLR_3DFACE, CLR_3DFACE, CLR_3DDKSHADOW, CLR_3DHILIGHT) \
-  BORDERSTYLEDEF(BDS_LIGHT_FRAME, CLR_3DHILIGHT, CLR_3DSHADOW, CLR_3DFACE, CLR_3DFACE, CLR_3DSHADOW, CLR_3DHILIGHT) \
-  BORDERSTYLEDEF(BDS_THIN_FRAME, CLR_3DHILIGHT, CLR_3DDKSHADOW, CLR_3DDKSHADOW, CLR_3DHILIGHT, 0, 0) \
-  BORDERSTYLEDEF(BDS_THIN_LIGHT_FRAME, CLR_3DHILIGHT, CLR_3DSHADOW, CLR_3DSHADOW, CLR_3DHILIGHT, 0, 0) \
-  BORDERSTYLEDEF(BDS_ETCHED, CLR_3DSHADOW, CLR_3DHILIGHT, CLR_3DHILIGHT, CLR_3DSHADOW, 0, 0) \
-  BORDERSTYLEDEF(BDS_ETCHED2, CLR_3DSHADOW, CLR_3DHILIGHT, CLR_3DDKSHADOW, CLR_3DDKSHADOW, CLR_3DHILIGHT, CLR_3DSHADOW)
-typedef enum {
-#define BORDERSTYLEDEF(a, b0, c0, b1, c1, b2, c2) a,
-  BORDERSTYLEDEF_DEF(BORDERSTYLEDEF)
-#undef BORDERSTYLEDEF
-} BorderStyle;
-
-// ControlBar styles
-#define CBRS_ALIGN_LEFT 0x1000L
-#define CBRS_ALIGN_TOP 0x2000L
-#define CBRS_ALIGN_RIGHT 0x4000L
-#define CBRS_ALIGN_BOTTOM 0x8000L
-#define CBRS_ALIGN_ANY 0xF000L
-#define CBRS_BORDER_LEFT 0x0100L
-#define CBRS_BORDER_TOP 0x0200L
-#define CBRS_BORDER_RIGHT 0x0400L
-#define CBRS_BORDER_BOTTOM 0x0800L
-#define CBRS_BORDER_ANY 0x0F00L
-#define CBRS_TOOLTIPS 0x0010L
-#define CBRS_FLYBY 0x0020L
-#define CBRS_FLOAT_MULTI 0x0040L
-#define CBRS_BORDER_3D 0x0080L
-#define CBRS_HIDE_INPLACE 0x0008L
-#define CBRS_SIZE_DYNAMIC 0x0004L
-#define CBRS_SIZE_FIXED 0x0002L
-#define CBRS_FLOATING 0x0001L
-#define CBRS_GRIPPER 0x00400000L
-#define CBRS_ORIENT_HORZ (CBRS_ALIGN_TOP|CBRS_ALIGN_BOTTOM)
-#define CBRS_ORIENT_VERT (CBRS_ALIGN_LEFT|CBRS_ALIGN_RIGHT)
-#define CBRS_ORIENT_ANY (CBRS_ORIENT_HORZ|CBRS_ORIENT_VERT)
-#define CBRS_ALL 0x0040FFFFL
-// the CBRS_ style is made up of an alignment style and a draw border style
-// the alignment styles are mutually exclusive
-// the draw border styles may be combined
-#define CBRS_NOALIGN 0x00000000L
-#define CBRS_LEFT (CBRS_ALIGN_LEFT|CBRS_BORDER_RIGHT)
-#define CBRS_TOP (CBRS_ALIGN_TOP|CBRS_BORDER_BOTTOM)
-#define CBRS_RIGHT (CBRS_ALIGN_RIGHT|CBRS_BORDER_LEFT)
-#define CBRS_BOTTOM (CBRS_ALIGN_BOTTOM|CBRS_BORDER_TOP)
-enum BorderMark {
-  BDM_L = 0x0001,
-    BDM_T = 0x0002,
-    BDM_R = 0x0004,
-    BDM_B = 0x0008,
-    BDM_ALL = BDM_L | BDM_T | BDM_R | BDM_B,
-    BDM_ROUND_TOP = 0x0010,
-    BDM_ROUND_BOTTOM = 0x0020
-};
-
-
-#define MinMax( a, b, _min, _max) (_min=MIN(a, b), _max=MAX(a, b))
-#define RCINFLATE4(RC, L, T, R, B)   ( (RC)->l -= L,(RC)->t -= T,(RC)->r += R,(RC)->b += B)
-#define RCINFLATE(rc, lr, tb)  RCINFLATE4(rc, lr, tb, lr, tb)
-#define RCINFLATER(rc, rc2) RCINFLATE4(rc, (rc2)->l,(rc2)->t,(rc2)->r,(rc2)->b)
-#define RCOFFSET4(rc, x, y) ( (rc)->l += x,(rc)->t += y,(rc)->r += x,(rc)->b += y)
-#define RCDEFLATE(RC, X, Y) RCINFLATE(RC, -(X), -(Y))
-#define RCDEFLATE4(rc, l, t, r, b) ((rc)->l += l,(rc)->t += t,(rc)->r -= r,(rc)->b -= b)
-#define RCDEFLATER(rc, rc2) RCDEFLATE4(rc, (rc2)->l,(rc2)->t,(rc2)->r,(rc2)->b)
-
-#include "color_c.h"
-CC_INLINE IRECT gcEdgeRectSys(gc_t* g, IRECT rc, BorderStyle m_border_style, uint flag, COLOR clr)
-{
-#define BORDERSTYLEDEF(a, b0, c0, b1, c1, b2, c2) if (a == m_border_style) { \
-    COLOR clrLT[]= { myGetSysColor(b0), myGetSysColor(b1), myGetSysColor(b2) }, clrRB[]= { myGetSysColor(c0), myGetSysColor(c1), myGetSysColor(c2) }; \
-    int nlr=countof(clrLT)-(!b1)-(!b2), nrb=countof(clrRB)-(!c1)-(!c2); \
-    rc = gcEdgeRect2(g, rc, nlr, clr, flag&BDM_L?clrLT:0, flag&BDM_T ? clrLT:0, flag&BDM_R ? clrRB : 0, flag&BDM_B ? clrRB : 0); }
-  BORDERSTYLEDEF_DEF(BORDERSTYLEDEF);
-#undef BORDERSTYLEDEF
-  return rc;
-}
-CC_INLINE int gcDrawGripper(gc_t* g, IRECT rc, int n, int b, int d, int isv)
-{
-  if (isv) {
-    int i = 0, r = rc.b;
-    
-    for (; i < n && rc.t < r; ++i) {
-      rc.b = rc.t + b;
-      gcEdgeRectSys(g, rc, BDS_UP, BDM_ALL, 0);
-      rc.t += b + d;
-    }
-  }
-  else {
-    int i = 0, r = rc.r;
-    
-    for (; i < n && rc.l < r; ++i) {
-      rc.r = rc.l + b;
-      gcEdgeRectSys(g, rc, BDS_UP, BDM_ALL, 0);
-      rc.l += b + d;
-    }
-  }
-  
-  return 0;
-}
-
-CC_INLINE int gcDrawMenuimg(gc_t* g, IRECT rc, IMAGES_IDS id, COLOR clr)
-{
-  static const uchar menuimg_9x324[] = {
-#include "draw/menuimg_9x324.txt"
-  };
-  static texture_t menuimg_tex[1] = {0};
-  enum { www = 324, cx = MENUIMAGES_W, cy = MENUIMAGES_H, MAXid = countof(menuimg_9x324) * 8 / (cx * cy), bl = countof(menuimg_9x324) * 8 / (cy)};
-  PrimRectUV pr[1] = {0};
-  int fmt = TF_VCENTER|TF_CENTER;
-  if (NULL==menuimg_tex->data) {
-
-  }
-  //imdraw_bit(im, pclip, rc, DT_VCENTER | DT_CENTER, cx, cy, menuimg_9x324 + (id * cx) / 8, (bl+7)>>3, (id * cx) & 7, 0, 1, clr);
-  iRectAlign(rc, cx, cy, fmt, &rc);
-  pr->a = fVec2(rc.l, rc.t);
-  pr->c = fVec2(rc.r, rc.b);
-  pr->uv_a = fVec2(id * cx * 1. / www, 0);
-  pr->uv_c = fVec2((id + 1) * cx * 1. / www, 1.f);
-  //imuiCreateImage(&img_id, "menuimg_9x324", cy, www, (bl + 7) >> 3, 1, menuimg_9x324);
-  //gcPrimRectUV(g, pr, 1, img_id);
-  return 0;
-}
-
-// »­Ö±·½Í¼
-CC_INLINE int gcDrawHist(gc_t* g, IRECT rect, const uchar* f, int hdims)
-{
-  int w = RCW(&rect), h = RCH(&rect);
-  double bin_w;
-  int i;
-  bin_w = (double) w / hdims;
-  
-  for (i = 0; i < hdims; ++i) {
-    double val = (f[ i ] * h);
-    COLOR color = _RGB(255, 255, 0);   //(hsv2rgb(i*180.f/hdims);
-    IRECT rc = iRECT((int)(i * bin_w), h, (int)((i + 1) * bin_w), (int)(h - val));
-    gcSolidBrush(g, color);
-    gcFillRect2(g, rc);
-  }
-  
-  return 0;
-}
-
-CC_INLINE int gcDrawHisthsv(gc_t* g, IRECT rect, const int* hist, int hdims)
-{
-  int w = RCW(&rect), h = RCH(&rect);
-  int i, bin_w = w / hdims;
-  //int maxid = 0;
-  //float ss = 0.f;
-  
-  for (i = 0; i < hdims; i++) {
-    int val = ROUND((hist[ i ]) * h / 255);
-    COLOR color = hsv2rgb(i * 180.f / hdims);
-    IRECT rc = iRECT(i * bin_w, h, (i + 1) * bin_w, h - val);
-    gcSolidBrush(g, color);
-    gcFillRect2(g, rc);
-  }
-  
-  return 0;
-}
 

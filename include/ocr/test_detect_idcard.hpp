@@ -573,7 +573,7 @@ struct ocr_idcard_reg {
           r.x = MAX(r.x, ridnum_x);
           r.x = (ridnum_x);
           r.width = right - r.x;
-          if (r.width > 0 && r.height > 0) {
+          if (r.width > 10 && r.height > 10) {
             r_ok.push_back(r);
           }
         }
@@ -831,7 +831,9 @@ struct ocr_detect {
             ret = ocr.run(dst_ok2, rr_ok.data(), rr_ok.size(), &out);
             //vecdst.push_back(dst_ok);
             vecdst.push_back(ocr.color_edge);
-            vid.push_back(out);
+            if (ret) {
+              vid.push_back(out);
+            }
             //drawDetectLines(dst_ok, gr.lines, 4);
             cardrect.push_back(r);
           }
@@ -854,6 +856,50 @@ struct ocr_detect {
     return ret;
   }
 };
+
+//Ëã·¨
+int ldistance1(const char* source, int n, const char* target, int m)
+{
+  //step 1
+  if (m == 0) return n;
+  if (n == 0) return m;
+  //Construct a matrix
+  typedef vector< vector<int> >  Tmatrix;
+  Tmatrix matrix(n + 1);
+  for (int i = 0; i <= n; i++)  matrix[i].resize(m + 1);
+
+  //step 2 Initialize
+
+  for (int i = 1; i <= n; i++) matrix[i][0] = i;
+  for (int i = 1; i <= m; i++) matrix[0][i] = i;
+
+  //step 3
+  for (int i = 1; i <= n; i++)
+  {
+    const char si = source[i - 1];
+    //step 4
+    for (int j = 1; j <= m; j++)
+    {
+
+      const char dj = target[j - 1];
+      //step 5
+      int cost;
+      if (si == dj) {
+        cost = 0;
+      }
+      else {
+        cost = 1;
+      }
+      //step 6
+      const int above = matrix[i - 1][j] + 1;
+      const int left = matrix[i][j - 1] + 1;
+      const int diag = matrix[i - 1][j - 1] + cost;
+      matrix[i][j] = min(above, min(left, diag));
+
+    }
+  }//step7
+  return matrix[n][m];
+}
 
 
 int test_detect_idcard()
@@ -887,17 +933,25 @@ int test_detect_idcard()
   //n = min(iline+300, n);
   ocr_detect od;
   srand(11);
+  int errcnt = 0;
+  int allcnt = 0;
+  char linebuf[512];
   for (; iline < n; ) {
     vector<string> strs;
-    wstd::split(strs, list[iline], " \t");
+    int len = iconv_c("utf-8", "gb2312", list[iline].c_str(), -1, linebuf, 512);
+    linebuf[len] = 0;
+    wstd::split(strs, linebuf, "\t");
     g_imgfn = strs[1];
     string fn = im_dir + strs[1];
-    string idcard = strs[2];
-    g_idcard = idcard;
+    string idcard_no = strs[2];
+    g_idcard = idcard_no;
     cv::Mat src;
+    {
+    }
     //if (!strstr(fn.c_str(), "20161005101521422-4375")) { continue; }
     src = cv::imread(fn, 1);
-    printf("%d %s %d %d %s\n", iline, wstd::path_split_filename(fn.c_str()).c_str(), src.rows, src.cols, idcard.c_str());
+
+    printf("%d %s %d %d %s\n", iline, wstd::path_split_filename(fn.c_str()).c_str(), src.rows, src.cols, idcard_no.c_str());
     if (src.empty()) {
       proc_key(c, list.size(), iline);
       continue;
@@ -906,13 +960,22 @@ int test_detect_idcard()
     od.run(src);
 #ifdef _DEBUG
 #endif
+    if (od.vid.size()==1) {
+      const idcard* id = od.vid.data();
+      const char* addr = strs[6].c_str();
+      //int levenshtein(char * s1, int l1, char * s2, int l2, int threshold);
+      //int levenshtein_distance(const char *s, int n, const char*t, int m, int noop);
+      allcnt += strlen(id->address);
+      errcnt += ldistance1(id->address, strlen(id->address), (char*)addr, strlen(addr));
+    }
+    printf("---------------------- %lf\n", errcnt*1./allcnt);
     isdebug = 1;
     if (1) {
       string fn = wstd::format("C:\\outpic\\dst_ok\\src_%03d_z.jpg", iline);
       cv::imwrite(fn, src);
     }
     if (isdebug) {
-      if (1) {
+      if (0) {
         cv::imshow("vecdst", od.dst);
         c = cv::waitKey(0);
       }

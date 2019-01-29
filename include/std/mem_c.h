@@ -376,7 +376,7 @@ static int fillImage(int h, int w, uchar* dst, int dststep, int cn, COLOR color)
 }
 
 
-void* blend(void* dst, const void* src, int a, size_t size ) {
+static void* blend(void* dst, const void* src, int a, size_t size ) {
   uchar* tptr = (uchar*)dst;
   const uchar* tsrc = (const uchar*)src;
   for (size_t i = 0; i < size; ++i) {
@@ -388,7 +388,7 @@ void* blend(void* dst, const void* src, int a, size_t size ) {
   return dst;
 }
 
-void* set_line(void* dst, const void* color, int pix_size, size_t pix_num) {
+static void* set_line(void* dst, const void* color, int pix_size, size_t pix_num) {
   uchar* hline_min_ptr = (uchar*)dst;
   uchar* hline_end_ptr = (uchar*)dst + (pix_num)*(pix_size);
   uchar* hline_ptr = (uchar*)dst;
@@ -411,8 +411,7 @@ void* set_line(void* dst, const void* color, int pix_size, size_t pix_num) {
   }//end if (pix_size != 1)
   return dst;
 }
-
-void* blend_line(void* dst, const void* color, int pix_size, size_t pix_num) {
+static void* blend_line(void* dst, const void* color, int pix_size, size_t pix_num) {
   int a = ((uchar*)color)[3];
   if (255 == a) return set_line(dst, color, pix_size, pix_num);
   int cb = ((uchar*)color)[0], cg = ((uchar*)color)[1], cr = ((uchar*)color)[2], ca = ((uchar*)color)[3];
@@ -462,8 +461,6 @@ void* blend_line(void* dst, const void* color, int pix_size, size_t pix_num) {
   }
   return dst;
 }
-
-
 static int draw_font_bitmap(int h, int w, uchar* dst, int dststep, int cn, const uchar* bit, int bitstep, COLOR color) {
   int i, j;
   uchar* c = (uchar*)(&color);

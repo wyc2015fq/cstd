@@ -772,6 +772,14 @@ static int imfill(img_t* im, COLOR color) {
   fillImage(im->h, im->w, im->data, im->s, im->c, color);
   return 0;
 }
+static int memset_color(int n, uchar* ptr, int cn, COLOR clr) {
+  uchar* ptr_end = ptr + cn*n - cn;
+  memcpy(ptr, &clr, cn);
+  for (; ptr != ptr_end; ++ptr) {
+    ptr[cn] = *ptr;
+  }
+  return 0;
+}
 
 
 #endif // _IMG_C_H_

@@ -292,8 +292,8 @@ static void* arrcvt2d(void* dst, TypeId dsttype, int dl, const void* src, TypeId
   Tfix##POINT& operator -= (const Tfix##POINT& b) { x -= b.x, y -= b.y; return *this; } \
   type norm() {return x*x+y*y;} \
   };  \
-  Tfix##POINT operator - (const Tfix##POINT& a, const Tfix##POINT& b) { Tfix##POINT c; c.x = a.x - b.x, c.y = a.y - b.y; return c; } \
-  type norm(const Tfix##POINT& a) {return a.x*a.x+a.y*a.y;} \
+  CC_INLINE Tfix##POINT operator - (const Tfix##POINT& a, const Tfix##POINT& b) { Tfix##POINT c; c.x = a.x - b.x, c.y = a.y - b.y; return c; } \
+  CC_INLINE type norm(const Tfix##POINT& a) {return a.x*a.x+a.y*a.y;} \
   typedef struct Tfix##POINT3 { type x, y, z;\
   Tfix##POINT3& operator += (const Tfix##POINT3& b) { x += b.x, y += b.y, z += b.z; return *this; } \
   } Tfix##Point3;  \
@@ -305,10 +305,10 @@ static void* arrcvt2d(void* dst, TypeId dsttype, int dl, const void* src, TypeId
     union { type y; type cy; type h; type height; type r; }; \
   } Tfix##Size;  \
   struct Tfix##RECT { \
-    union { type l; type x; type left; }; \
-    union { type t; type y; type top; }; \
-    union { type r; type right; }; \
-    union { type b; type bottom; }; \
+    union { type x0; type l; type x; type left; }; \
+    union { type y0; type t; type y; type top; }; \
+    union { type x1; type r; type right; }; \
+    union { type y1; type b; type bottom; }; \
 };  \
   struct Tfix##Rect { \
     union { type l; type x; type left; }; \
@@ -319,13 +319,14 @@ static void* arrcvt2d(void* dst, TypeId dsttype, int dl, const void* src, TypeId
     Tfix##POINT tl() {Tfix##POINT p;p.x=x, p.y=y;return p;} \
     Tfix##POINT br() {Tfix##POINT p;p.x=x+w, p.y=y+h;return p;} \
 }; \
-  typedef struct Tfix##POINT Point2##tfix; \
-  typedef struct Tfix##SIZE Size2##tfix; \
+  typedef struct Tfix##POINT _Point2##tfix; \
+  typedef struct Tfix##SIZE _Size2##tfix; \
   typedef struct Tfix##POINT Tfix##Point; \
   typedef struct Tfix##POINT Tfix##Vec2; \
   typedef struct Tfix##POINT3 Tfix##Vec3; \
   typedef struct Tfix##POINT4 Tfix##Vec4; \
   typedef struct Tfix##POINT Tfix##POINT2; \
+  typedef struct Tfix##RECT Tfix##BBox; \
   typedef Tfix##POINT Tfix##2VECTOR; \
   typedef Tfix##POINT3 Tfix##3VECTOR; \
   typedef Tfix##POINT4 Tfix##4VECTOR; \

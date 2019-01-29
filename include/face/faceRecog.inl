@@ -10,7 +10,7 @@
 //#include "../codec/Huffman.inl"
 //#include "../codec/LZARI.h"
 //#include "../codec/LZF.h" UINT
-#include "../std/color.h"
+#include "../std/colorcvt.h"
 #include "../codec/huff.inl"
 //#include "SCIO_Export.h"
 

@@ -181,7 +181,7 @@ PIXFMTDEF_DEF(PIXFMTDEF2)
 
 #undef PIXFMTDEF2
 
-struct pixfun_t* get_pixfun(PixFmt fmt) {
+static struct pixfun_t* get_pixfun(PixFmt fmt) {
   static struct pixfun_t pixfun[PixFmtMax] = {0};
   static int inited = 0;
   if (!inited) {
@@ -195,7 +195,7 @@ struct pixfun_t* get_pixfun(PixFmt fmt) {
   return pixfun + (fmt&0xff);
 }
 
-COLOR bitmap_getpixel(const texture_t* bitmap, const IRECT* prcSrc, int x, int y, WrapMode wrapX, WrapMode wrapY, COLOR bgclr, const COLOR* palette)
+static COLOR bitmap_getpixel(const texture_t* bitmap, const IRECT* prcSrc, int x, int y, WrapMode wrapX, WrapMode wrapY, COLOR bgclr, const COLOR* palette)
 {
   BYTE* row;
   int sw = RCW(prcSrc), sh = RCH(prcSrc);

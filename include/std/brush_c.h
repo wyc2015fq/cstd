@@ -72,9 +72,6 @@ struct brush_t {
 #define PIXBLENDA4(dst, _a) (PIXBLEND(dst[0], pclr[0], _a), PIXBLEND(dst[1], pclr[1], _a), PIXBLEND(dst[2], pclr[2], _a), dst[3] = 255)
 
 ///////////////////////////////////////////////////
-
-#ifndef _BLEND_INL_
-#define _BLEND_INL_
 #define alpha_cover(a, cover)  ((a) * ((cover) + 1)) >> 8
 enum {Order_R = 0, Order_G = 1, Order_B = 2, Order_A = 3,
 base_shift = 8, base_mask = (1<<base_shift)-1,
@@ -1992,7 +1989,6 @@ void gamma_set(uchar* m_dir_gamma, uchar* m_inv_gamma, double g)
   }
 }
 
-#endif // _BLEND_INL_
 ///////////////////////////////////////////////////
 #define BRUSH_FUN_TABLE(name) br->fillline = name##_fillline
 #define PIXBLENDA1(dst, _a) (dst[0] = (dst[0] * _a)/255)

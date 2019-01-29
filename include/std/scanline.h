@@ -251,6 +251,7 @@ int scanline_set_glyph(scanline* sl, const IRECT* pclip, const PrimRectUV* prcuv
   if (pclip) {
     clip = iRectInter(clip, *pclip);
   }
+  //ShowImagePal("adsf", tex1->h, tex1->w, tex1->data, tex1->s, 1, PixFmtMax, NULL); waitkey(0);
   for (i = 0; i < nrcuv; ++i) {
     IRECT drc = iRECT((int)prcuv[i].a.x, (int)prcuv[i].a.y, (int)prcuv[i].c.x, (int)prcuv[i].c.y);
     int dw = RCW(&drc), dh = RCH(&drc);
@@ -262,10 +263,10 @@ int scanline_set_glyph(scanline* sl, const IRECT* pclip, const PrimRectUV* prcuv
     rect = iRectInter(clip, drc);
     multialloc(&buf, &xoff, dw*sizeof(int), &yoff, dh*sizeof(int), &covers, dw, NULL);
     for (j = 0; j < dw; ++j) {
-      xoff[j] = (int)((uv_a.x + uv_w * j) * tex1->w);
+      xoff[j] = (int)((uv_a.x + uv_w * j) * tex1->w+0.5);
     }
     for (j = 0; j < dh; ++j) {
-      yoff[j] = (int)((uv_a.y + uv_h * j) * tex1->h);
+      yoff[j] = (int)((uv_a.y + uv_h * j) * tex1->h + 0.5);
     }
     memset(covers, 255, dw);
     
@@ -289,11 +290,11 @@ const wchar_t* font_CalcWordWrapPositionW(const font_t* g, float scale, const wc
   const wchar_t* prev_word_end = NULL;
   BOOL inside_word = true;
   const wchar_t* s = text;
+  GlyphBox box;
   for (; s < text_end; ) {
     unsigned int c = (unsigned int) *s;
     const wchar_t* next_s = s+1;
     float char_width;
-    int advance, lsb;
     if (c == 0) {
       break;
     }
@@ -309,8 +310,8 @@ const wchar_t* font_CalcWordWrapPositionW(const font_t* g, float scale, const wc
         continue;
       }
     }
-    g->fun->GetCodepointHMetrics(g, c, &advance, &lsb);
-    char_width = advance*scale;
+    g->fun->GetGlyphBox(g, c, &box);
+    char_width = box.advanceWidth*scale;
     if (ImCharIsSpaceW(c)) {
       if (inside_word) {
         line_width += blank_width;
@@ -348,7 +349,7 @@ ImVec2 font_CalcTextSizeW(const font_t* g, float size, float max_width, float wr
 {
   const float font_size = size;
   const float line_height = font_size;
-  const float scale = g->fun->ScaleForPixelHeight(g, font_size);
+  const float scale = size / g->height;
   ImVec2 text_size = fVec2(0, 0);
   float char_width, line_width = 0.0f;
   const BOOL word_wrap_enabled = (wrap_width > 0.0f);
@@ -356,7 +357,6 @@ ImVec2 font_CalcTextSizeW(const font_t* g, float size, float max_width, float wr
   const wchar_t* s;
   const wchar_t* prev_s;
   unsigned int c;
-  int advance, lsb;
   if (NULL==text_begin) {
     text_begin = L"test";
     return text_size;
@@ -413,8 +413,9 @@ ImVec2 font_CalcTextSizeW(const font_t* g, float size, float max_width, float wr
         continue;
       }
     }
-    g->fun->GetCodepointHMetrics(g, c, &advance, &lsb);
-    char_width = advance * scale;
+    GlyphBox box;
+    g->fun->GetGlyphBox(g, c, &box);
+    char_width = box.advanceWidth * scale;
     if (line_width + char_width >= (max_width)) {
       s = prev_s;
       break;
@@ -435,12 +436,13 @@ ImVec2 font_CalcTextSizeW(const font_t* g, float size, float max_width, float wr
 int scanline_rendertext(scanline* sl, const font_t* font, float size, ImVec2 pos, FRECT clip_rect, const wchar_t* text_begin, const wchar_t* text_end, float wrap_width, BOOL cpu_fine_clip)
 {
   float xpos, ypos;
-  float line_height;
+  float line_height = size;
   BOOL word_wrap_enabled;
   const wchar_t* word_wrap_eol = NULL;
   const wchar_t* s;
   float font_size = size;
-  const float scale = font->fun->ScaleForPixelHeight(font, font_size);
+  const float scale = font_size / font->height;
+  float char_width = (font->bbox.r - font->bbox.l)*scale;
   IPOINT DisplayOffset = {0, 0};
   uchar* bit = NULL;
   if (!text_end) {
@@ -450,11 +452,10 @@ int scanline_rendertext(scanline* sl, const font_t* font, float size, ImVec2 pos
   pos.x = (float)(int)pos.x + DisplayOffset.x;
   pos.y = (float)(int)pos.y + DisplayOffset.y;
   xpos = pos.x;
-  ypos = pos.y;
+  ypos = pos.y + font->ascent * scale;
   if (ypos > clip_rect.b) {
     return 0;
   }
-  line_height = font_size * scale;
   word_wrap_enabled = (wrap_width > 0.0f);
   // Skip non-visible lines
   s = text_begin;
@@ -467,9 +468,8 @@ int scanline_rendertext(scanline* sl, const font_t* font, float size, ImVec2 pos
     // Reserve vertices for remaining worse case (over-reserving is useful and easily amortized)
     while (s < text_end) {
       unsigned int c;
-      int advance, lsb, x0, y0, x1, y1;
+      int x0, y0, x1, y1;
       float char_width;
-      int XAdvance = 0;
       if (word_wrap_enabled) {
         // Calculate how far we can render. Requires two passes on the string data but keeps the code simple and not intrusive for what's essentially an uncommon feature.
         if (!word_wrap_eol) {
@@ -522,46 +522,45 @@ int scanline_rendertext(scanline* sl, const font_t* font, float size, ImVec2 pos
         }
       }
       float x_shift = xpos - (float)floor(xpos);
-      font->fun->GetCodepointHMetrics(font, c, &advance, &lsb);
-      char_width = advance * scale;
-      font->fun->GetCodepointBitmapBoxSubpixel(font, c, x_shift, 0, &x0, &y0, &x1, &y1);
-      x0 += xpos;
-      x1 += xpos;
-      y0 += ypos;
-      y1 += ypos;
+      GlyphBox box = {0};
+      font->fun->GetGlyphBox(font, c, &box);
+      char_width = box.advanceWidth * scale;
+      x0 = (int)(box.bbox.x0 * scale + xpos);
+      x1 = (int)(box.bbox.x1 * scale + xpos);
+      y0 = (int)(box.bbox.y0 * scale + ypos);
+      y1 = (int)(box.bbox.y1 * scale + ypos);
       if (x1<clip_rect.l || y1<clip_rect.t || x0 > clip_rect.r || y0>clip_rect.b) break;
       x0 = BOUND(x0, clip_rect.l, clip_rect.r);
       x1 = BOUND(x1, clip_rect.l, clip_rect.r);
       y0 = BOUND(y0, clip_rect.t, clip_rect.b);
       y1 = BOUND(y1, clip_rect.t, clip_rect.b);
 
-      if (XAdvance) {
-        char_width = XAdvance * scale;
+      if (x0 < x1 && y0<y1) {
         // Arbitrarily assume that both space and tabs are empty glyphs as an optimization
         if (c != ' ' && c != '\t') {
           // We don't do a second finer clipping test on the Y axis as we've already skipped anything before clip_rect.t and exit once we pass clip_rect.b
           if (1) {
             // Render a character
-            float u1 = 0;
-            float v1 = 0;
-            float u2 = 1;
-            float v2 = 1;
+            float u0 = 0;
+            float v0 = 0;
+            float u1 = 1;
+            float v1 = 1;
             // CPU side clipping used to fit text in their frame when the frame is too small. Only does clipping for axis aligned quads.
             if (cpu_fine_clip) {
               if (x0 < clip_rect.l) {
-                u1 = u1 + (1.0f - (x1 - clip_rect.l) / (x1 - x0)) * (u2 - u1);
+                u0 = u0 + (1.0f - (x1 - clip_rect.l) / (x1 - x0)) * (u1 - u0);
                 x0 = clip_rect.l;
               }
               if (y0 < clip_rect.t) {
-                v1 = v1 + (1.0f - (y1 - clip_rect.t) / (y1 - y0)) * (v2 - v1);
+                v0 = v0 + (1.0f - (y1 - clip_rect.t) / (y1 - y0)) * (v1 - v0);
                 y0 = clip_rect.t;
               }
               if (x1 > clip_rect.r) {
-                u2 = u1 + ((clip_rect.r - x0) / (x1 - x0)) * (u2 - u1);
+                u1 = u0 + ((clip_rect.r - x0) / (x1 - x0)) * (u1 - u0);
                 x1 = clip_rect.r;
               }
               if (y1 > clip_rect.b) {
-                v2 = v1 + ((clip_rect.b - y0) / (y1 - y0)) * (v2 - v1);
+                v1 = v0 + ((clip_rect.b - y0) / (y1 - y0)) * (v1 - v0);
                 y1 = clip_rect.b;
               }
               if (y0 >= y1) {
@@ -572,15 +571,15 @@ int scanline_rendertext(scanline* sl, const font_t* font, float size, ImVec2 pos
             // We are NOT calling PrimRectUV() here because non-inlined causes too much overhead in a debug build.
             // Inlined here:
             {
-              PrimRectUV uv[1];
+              PrimRectUV uv[1] = {0};
               texture_t tex[1] = {0};
               int hh = y1 - y0, ww = x1 - x0;
               bit = (uchar*)realloc(bit, hh*ww);
               memset(bit, 0, hh*ww);
-              font->fun->MakeCodepointBitmapSubpixel(font, bit, ww, hh, ww, scale, scale, x_shift, 0, c);
+              font->fun->GetGlyphBitmap(font, bit, ww, hh, ww, scale, scale, x_shift, 0, c);
               BMPINIT(tex, hh, ww, bit, ww, 8);
               tex->fmt = bpp2PixFmt(8);
-              PrimRectUV_set(uv, fVec2(x1, y0), fVec2(x1, y1), fVec2(u1, v1), fVec2(u2, v2));
+              PrimRectUV_set(uv, fVec2(x0, y0), fVec2(x1, y1), fVec2(u0, v0), fVec2(u1, v1));
               //softgc_rander_text(sg, uv, 1, tex);
               scanline_set_glyph(sl, sl->pclip, uv, 1, tex);
             }
@@ -939,24 +938,6 @@ typedef struct PolyEdge {
   struct PolyEdge* next;
 }
 PolyEdge;
-
-CC_INLINE COLOR hsv2rgb(float hue)
-{
-  int rgb[ 3 ], p, sector;
-  static const int sector_data[][ 3 ] = { {0, 2, 1}, {1, 2, 0}, {1, 0, 2}, {2, 0, 1}, {2, 1, 0}, {0, 1, 2} };
-  hue *= 0.033333333333333333333333333333333f;
-  sector = FLOOR(hue);
-  p = ROUND(255 * (hue - sector));
-  p ^= sector & 1 ? 255 : 0;
-
-  rgb[ sector_data[ sector ][ 0 ] ] = 255;
-  rgb[ sector_data[ sector ][ 1 ] ] = 0;
-  rgb[ sector_data[ sector ][ 2 ] ] = p;
-
-  return _RGB(rgb[ 0 ], rgb[ 1 ], rgb[ 1 ]);
-}
-
-
 
 CC_INLINE int scanline_bin_function(scanline* sl, double(*fun)(double), int wline)
 {
@@ -3069,57 +3050,6 @@ CC_INLINE int PutOneChar2(scanline* sl, IRECT rc, const int* mat, COLOR clr, int
 
   return 0;
 }
-
-
-#define MENUIMAGES_W 9
-#define MENUIMAGES_H 9
-#define CBCGPMenuImages_Size() iSIZE(MENUIMAGES_W, MENUIMAGES_H)
-typedef enum {
-  IdArowDown,
-  IdArowRight,
-  IdCheck,
-  IdMinimize,
-  IdRestore,
-  IdClose,
-  IdMaximize,
-  IdArowUp,
-  IdArowShowAll,
-  IdArowLeft,
-  IdCloseSmall,
-  IdMoreButtons,
-  IdRadio,
-  IdArowDownLarge,
-  IdArowRightLarge,
-  IdPinHorz,
-  IdPinVert,
-  IdArowLeftLarge,
-  IdArowFirst,
-  IdArowLast,
-  IdArowRightTab3d,
-  IdArowLeftTab3d,
-  IdArowRightDsbldTab3d,
-  IdArowLeftDsbldTab3d,
-  IdArowUpLarge,
-  IdArowPageLeft,
-  IdArowPageRight,
-  IdArowBack,
-  IdArowForward,
-  IdCustomizeArowDown,
-  IdCustomizeArowLeft,
-  IdCustomizeMoreButtonsHorz,
-  IdCustomizeMoreButtonsVert,
-  IdCustomizeArowDownBold,
-  IdCloseBold,
-  IdLaunchArrow,
-} IMAGES_IDS;
-enum IMAGE_STATE {
-  ImageBlack,
-  ImageGray,
-  ImageLtGray,
-  ImageWhite,
-  ImageDkGray,
-  ImageBlack2,
-};
 
 CC_INLINE int scanline_bin_bit(scanline* sl, IRECT rc, int fmt, int cx, int cy, const uchar* bit, int bl, int tx, int ty, int bpp)
 {

@@ -1,5 +1,5 @@
-#ifndef _REGION_INL_
-#define _REGION_INL_
+#ifndef _STD_REGION_C_H_
+#define _STD_REGION_C_H_
 #include "list.h"
 #include "span_c.h"
 typedef int64 INT64;
@@ -773,13 +773,16 @@ static int region_Coalesce(region_t* pReg, int prevStart, int curStart)
 // to reduce the number of rectangles in the region.
 //
 //
+typedef BOOL(*overlapFunc_t)(region_t*, IRECT*, IRECT*, IRECT*, IRECT*, int, int);
+typedef BOOL(*nonOverlap1Func_t)(region_t*, IRECT*, IRECT*, int, int);
+typedef BOOL(*nonOverlap2Func_t)(region_t*, IRECT*, IRECT*, int, int);
 static BOOL region_RegionOp(
     region_t* destReg, /* Place to store result */
     const region_t* reg1, /* First region in operation */
     const region_t* reg2, /* 2nd region in operation */
-    BOOL (*overlapFunc)(region_t*, IRECT*, IRECT*, IRECT*, IRECT*, int, int), /* Function to call for over-lapping bands */
-    BOOL (*nonOverlap1Func)(region_t*, IRECT*, IRECT*, int, int), /* Function to call for non-overlapping bands in region 1 */
-    BOOL (*nonOverlap2Func)(region_t*, IRECT*, IRECT*, int, int) /* Function to call for non-overlapping bands in region 2 */
+  overlapFunc_t overlapFunc, /* Function to call for over-lapping bands */
+  nonOverlap1Func_t nonOverlap1Func, /* Function to call for non-overlapping bands in region 1 */
+  nonOverlap2Func_t nonOverlap2Func/* Function to call for non-overlapping bands in region 2 */
 )
 {
   region_t newReg[1] = {0};
@@ -1527,14 +1530,6 @@ static BOOL region_IntersectO(region_t* pReg, IRECT* r1, IRECT* r1End,
   }
   return TRUE;
 }
-static BOOL region_RegionOp(
-    region_t* destReg, /* Place to store result */
-    const region_t* reg1, /* First region in operation */
-    const region_t* reg2, /* 2nd region in operation */
-    BOOL (*overlapFunc)(region_t*, IRECT*, IRECT*, IRECT*, IRECT*, int, int), /* Function to call for over-lapping bands */
-    BOOL (*nonOverlap1Func)(region_t*, IRECT*, IRECT*, int, int), /* Function to call for non-overlapping bands in region 1 */
-    BOOL (*nonOverlap2Func)(region_t*, IRECT*, IRECT*, int, int) /* Function to call for non-overlapping bands in region 2 */
-);
 // region_IntersectRegion
 static BOOL region_IntersectRegion(region_t* newReg, const region_t* reg1, const region_t* reg2)
 {

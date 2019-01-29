@@ -102,7 +102,7 @@ int test_stb_truetype()
   ttf_buffer = (uchar*)loaddata(fontfile, &len);
   stbtt_InitFont(font, ttf_buffer, stbtt_GetFontOffsetForIndex(ttf_buffer, 0));
   wstr = L"13843213251X";
-  wstr = L"a1gf取1得着色器中的顶123fdf点的索引";
+  wstr = L"gf我取1得着色器中的顶123fdf点的索引";
   if (0) {
     unsigned char *bitmap;
     int k;
@@ -184,7 +184,7 @@ int test_stb_truetype()
       get_idcard(gbbuf, id);
       len = iconv_c(ICONV_GB2312, ICONV_UCS2LE, id->address, -1, (char*)wbuf, 2 * 1024) / 2;
       wbuf[len] = 0;
-      int k = drawText(font, h, 0, 0, wbuf, -1, im->data, im->h, im->w, im->s, im->c, rand_rgb());
+      int k = drawText(font, h, 0, 0, wstr, -1, im->data, im->h, im->w, im->s, im->c, rand_rgb());
       imshow_(im); waitkey(-1);
     }
     imfree(im);

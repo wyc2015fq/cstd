@@ -13,7 +13,7 @@ static int minimum(int a,int b,int c)
   return min;
 }
 
-int levenshtein_distance(char *s, int n, char*t, int m, int noop)
+int levenshtein_distance(const char *s, int n, const char*t, int m, int noop)
 /*Compute levenshtein distance between s and t*/
 {
   //Step 1

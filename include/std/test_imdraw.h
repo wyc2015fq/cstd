@@ -7,6 +7,7 @@
 #include "std/gui_c.h"
 #include "std/gdi_c.h"
 #include "std/imdraw.h"
+#include "std/region_c.h"
 #include "std/stb_ttffont.h"
 #include "utime.h"
 //#include "ui/window.inl"
@@ -48,25 +49,23 @@ int test_imdraw()
   int wline;
   mt19937ar_t mt19937ar[1];
   rng_t* rng = rng_mt19937_init(mt19937ar, 11);
-  imsetsize(im, 801, 1001, 3, 1);
-  for (; frame < 100; frame++) {
+  imsetsize(im, 800, 1000, 3, 1);
+  for (; frame < 1; frame++) {
     int h = im->h, w = im->w;
     rng = rng_mt19937_init(mt19937ar, 123);
     imfill(im, rgb(1, 1, 1));
-
+    brush_t a;
     if (0) {
       {
         utime_start(_start_time);
-
-        for (i = 0; i < 100; ++i) {
+        for (i = 0; i < 1; ++i) {
           //imdraw(im, "wline:i;solidfill:i;solidline:i;circle:i;", wline, clr, clr1, im->w/2, im->h/2, im->h/2);
           //icvDrawCircle(im, im->w/2, im->h/2, im->w/2, _RGB(255, 0, 0), 1);
-          imdraw_ellipse(im, false, NULL, im->w / 2, im->h / 2, im->w / 2, im->h / 2, 0, 360, _RGB(255, 0, 0), _RGB(0, 255, 0), -1);
+          imdraw_ellipse(im, false, NULL, im->w / 2, im->h / 2, im->w / 3, im->h / 3, 0, 360, _RGB(255, 0, 0), _RGB(0, 255, 0), 5);
           //imshow(im);cvWaitKey(-1);
           //imdraw_eee1(im, 0, 0, im->w, im->h, _RGB(255, 0, 0));
         }
         printf("%f\n", utime_elapsed(_start_time));
-        return 0;
       }
       imshow_(im);
       waitkey(-1);
@@ -93,17 +92,16 @@ int test_imdraw()
       }
     }
 
-#if 0
     if (0) {
       utime_start(_start_time);
 
       for (j = 0; j < 100; ++j) {
-        randpt(1, pts, -im->w, 2 * im->w, -im->h, 2 * im->h);
+        randpt(rng,1, pts, -im->w, 2 * im->w, -im->h, 2 * im->h);
         clr = random_color(rng);
         clr1 = random_color(rng);
         wline = rng_int32(rng) % 10 - 1;
         r = rng_int32(rng) % 300;
-        imdraw(im, "wline:i;solidfill:i;solidline:i;circle:i;", wline, clr, clr1, pts[0].x, pts[0].y, r);
+        //imdraw(im, "wline:i;solidfill:i;solidline:i;circle:i;", wline, clr, clr1, pts[0].x, pts[0].y, r);
       }
 
       printf("%.4f ", utime_elapsed(_start_time));
@@ -114,10 +112,10 @@ int test_imdraw()
 
       for (j = 0; j < 100; ++j) {
         wline = rng_int32(rng) % 10;
-        randpt(2, pts, -im->w, 2 * im->w, -im->h, 2 * im->h);
+        randpt(rng,2, pts, -im->w, 2 * im->w, -im->h, 2 * im->h);
         clr = random_color(rng);
-        clr = CC_RGB(255, 0, 0);
-        imdraw_line(im, pts[0], pts[1], clr, wline);
+        clr = _RGB(255, 0, 0);
+        imdraw_line(im, NULL, pts[0], pts[1], clr, wline);
       }
 
       printf("%.4f ", utime_elapsed(_start_time));
@@ -128,7 +126,7 @@ int test_imdraw()
 
       for (j = 0; j < 100; ++j) {
         wline = rng_int32(rng) % 10;
-        randpt(2, pts, -im->w, 2 * im->w, -im->h, 2 * im->h);
+        randpt(rng,2, pts, -im->w, 2 * im->w, -im->h, 2 * im->h);
         clr = random_color(rng);
         //drawaa_strokeline(hdc, pts[0].x, pts[0].y, pts[1].x, pts[1].y, clr, wline);
       }
@@ -141,7 +139,7 @@ int test_imdraw()
 
       for (j = 0; j < 100; ++j) {
         wline = rng_int32(rng) % 10;
-        randpt(2, pts, -im->w, 2 * im->w, -im->h, 2 * im->h);
+        randpt(rng,2, pts, -im->w, 2 * im->w, -im->h, 2 * im->h);
         clr = random_color(rng);
         wline = rng_int32(rng) % 10 + 1;
         //imdraw_rect(im, pts[0].x, pts[0].y, pts[1].x, pts[1].y, random_color(rng), wline);
@@ -156,9 +154,9 @@ int test_imdraw()
       for (j = 0; j < 100; ++j) {
         double angle;
         wline = rng_int32(rng) % 10;
-        randpt(1, pts, -im->w, 2 * im->w, -im->h, 2 * im->h);
-        //randpt(1, pts, 0, w, 0, h);
-        randpt(1, pts + 1, 0, 200, 0, 200);
+        randpt(rng,1, pts, -im->w, 2 * im->w, -im->h, 2 * im->h);
+        //randpt(rng,1, pts, 0, w, 0, h);
+        randpt(rng,1, pts + 1, 0, 200, 0, 200);
         clr = random_color(rng);
         wline = rng_int32(rng) % 10 - 1;
         wline = -1;
@@ -174,8 +172,8 @@ int test_imdraw()
 
       for (j = 0; j < 100; ++j) {
         int arr[2];
-        arr[0] = randpt(3, pts, -w, 2 * w, -h, 2 * h);
-        arr[1] = randpt(3, pts + 3, -w, 2 * w, -h, 2 * h);
+        arr[0] = randpt(rng,3, pts, -w, 2 * w, -h, 2 * h);
+        arr[1] = randpt(rng,3, pts + 3, -w, 2 * w, -h, 2 * h);
         clr = random_color(rng);
         wline = rng_int32(rng) % 10;
         //imdraw_poly(im, pts, arr, 2, 1, random_color(rng), wline);
@@ -192,7 +190,7 @@ int test_imdraw()
         double hscale = (rng_int32(rng) % 100) * 0.05 + 0.1, vscale = (rng_int32(rng) % 100) * 0.05 + 0.1, shear = (rng_int32(rng) % 5) * 0.1;
         //CvSize text_size;
         wline = rng_int32(rng) % 10;
-        randpt(1, pts, 0, w, 0, h);
+        randpt(rng,1, pts, 0, w, 0, h);
         clr = random_color(rng);
         wline = rng_int32(rng) % 10 - 1;
         wline = MAX(1, (int)hscale);
@@ -204,15 +202,12 @@ int test_imdraw()
 
       printf("%.4f ", utime_elapsed(_start_time));
     }
-#endif
 
-#if 1
-
-    if (0) {
+    if (1) {
       //CvFont font[1] = {0};
-      char buf[256];
+      char buf[256] = {0};
       DWORD bgclr;
-      const char* astr = "gg(!@#$%^&*(){}[] \n0123456789 \nabcdefghijklmnopqrstuvwxyz \nABCDEFGHIJKLMNOPQRSTUVWXYZ\n";
+      const char* astr = "我";// "我gf体结构中abcdefghijklmnopqrstuvwxyz 0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       int alen = strlen(astr);
       double hscale = (rng_int32(rng) % 100) * 0.05 + 0.1, vscale = (rng_int32(rng) % 100) * 0.05 + 0.1, shear = (rng_int32(rng) % 5) * 0.1;
       //CvSize text_size;
@@ -227,33 +222,34 @@ int test_imdraw()
       vscale = hscale;
       shear = 0;
       randstr_cn(rng, buf, countof(buf));
-      memcpy(buf + 140, astr, alen);
+      memcpy(buf + 0, astr, alen);
       bool flip_y = false;
       const char* fontfile = "D:/code/git/cstd/include/ocr/train/chinese_fonts/huawenxihei.ttf";
       stb_ttffont_t ttffont[1] = {0};
       font_t* font = stb_ttffont_init(ttffont, fontfile);
       //randstr_cn(buf, countof(buf));
       //for (j = 0; j < 100; ++j)
-      {
+      if (1) {
         utime_start(_start_time);
         int x, y, ww = 200, k = 0;
 
-        for (y = -50; y < h; y += ww) {
-          for (x = -50; x < w; x += ww) {
+        for (y = 0; y < h; y += ww) {
+          for (x = 0; x < w; x += ww) {
             clr = random_color(rng);
             bgclr = ~clr;
-            imdraw_rect(im, flip_y, NULL, iRECT(x, y, x + ww, y + ww), rgb(1, 1, 1), 0, 1);
-            imdraw_text(im, flip_y, NULL, buf, iRECT(x + 2, y + 2, x + ww - 2, y + ww - 2), clr, 0, font);
+            IRECT rc = iRECT(x, y, x + ww, y + ww);
+            IRECT rc2 = iRECT(x + 2, y + 2, x + ww - 2, y + ww - 2);
+            //imdraw_rect(im, flip_y, NULL, rc, rgb(1, 1, 1), 0, 1);
+            imdraw_text(im, flip_y, NULL, buf, rc2, clr, 0, font, 32);
           }
         }
 
         //y+=12;
         printf("%.4f ", utime_elapsed(_start_time));
       }
-
+      font->fun->Release(font);
     }
 
-#endif
 
     printf("\n");
     imshow_(im);

@@ -75,10 +75,10 @@ int imdraw_rect_stroke(img_t* im, bool flip_y, const IRECT* pclip, DRECT drect, 
   vcgen_rect(pt, 0, drect.l, drect.t, drect.r, drect.b);
   return imdraw_poly_stroke(im, flip_y, pclip, pt, 4, true, clr, lineWidth);
 }
-int imdraw_text(img_t* im, bool flip_y, const IRECT* pclip, const char* text, IRECT rc, COLOR clr, int fmt, font_t* font) {
+int imdraw_text(img_t* im, bool flip_y, const IRECT* pclip, const char* text, IRECT rc, COLOR clr, int fmt, font_t* font, float size) {
   IMDRAWAA_BEGIN;
   brush_set_solid(s->brush, clr);
-  scanline_set_string(s->sl, 0, text, NULL, font, 0, rc.l, rc.t, RCW(&rc), RCH(&rc), fmt);
+  scanline_set_string(s->sl, 0, text, NULL, font, size, rc.l, rc.t, RCW(&rc), RCH(&rc), fmt);
   IMDRAWAA_END;
   return 0;
 }
@@ -102,7 +102,11 @@ int imdraw_circle(img_t* im, const IRECT* pclip, double x, double y, double r, C
   return imdraw_ellipse(im, false, pclip, x, y, r, r, clrFill, clrLine, lineWidth, 0, 360);
 }
 int imdraw_line(img_t* im, const IRECT* pclip, double x1, double y1, double x2, double y2, COLOR clrLine, double lineWidth) {
-  FPOINT pt[2] = {(float)x1, (float)y1, (float)x2, (float)y2};
+  FPOINT pt[2] = { (float)x1, (float)y1, (float)x2, (float)y2 };
+  return imdraw_poly_stroke(im, false, pclip, pt, 2, false, clrLine, lineWidth);
+}
+int imdraw_line(img_t* im, const IRECT* pclip, IPOINT p1, IPOINT p2, COLOR clrLine, double lineWidth) {
+  FPOINT pt[2] = { (float)p1.x, (float)p1.y, (float)p2.x, (float)p2.y };
   return imdraw_poly_stroke(im, false, pclip, pt, 2, false, clrLine, lineWidth);
 }
 int imdraw_rect(img_t* im, bool flip_y, const IRECT* pclip, DRECT drect, COLOR clrFill, COLOR clrLine, float lineWidth) {

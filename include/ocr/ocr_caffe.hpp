@@ -34,6 +34,8 @@ struct ocr_caffe {
     model_folder = "E:/OCR_Line/model/resnet-res-blstm/";
     model_folder = "E:/OCR_Line/model/inception-bn-res-blstm/";
     model_folder = "D:/OCR_Line/lines/han200w/densenet-sum-blstm-full-res-blstm/";
+    model_folder = "D:/OCR_Line/lines/han200w/densenet-sum-blstm-full-res-blstm0/";
+    model_folder = "D:/OCR_Line/lines/han200w/densenet-sum-blstm-full-res-blstm2/";
     pCNN = CreatePredictInstance(model_folder, true);
     pCNN->GetInputImageSize(wstd, hstd);
     alphabets  = pCNN->GetLabels();
