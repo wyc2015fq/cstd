@@ -13,7 +13,7 @@
 using namespace wstd;
 
 
-#if 1
+#if 0
 #include "ocr_char.hpp"
 #endif
 
@@ -353,7 +353,8 @@ struct ocr_segchar {
         int i = 0;
         int j = 0;
         i = MAX(nclasses - 18, 0);
-        for (; i < nclasses; ++i) {
+        Rect boundrc = rrect2[0];
+        for (; i < nclasses && 0; ++i) {
           Rect boundRect = rrect2[i];
           //rrect2[j++] = boundRect;
           if (1) {
@@ -388,6 +389,19 @@ struct ocr_segchar {
 #endif
             }
           }
+        }
+        if (1) {
+          boundrc.width = rrect2[nclasses - 1].x + rrect2[nclasses - 1].width - boundrc.x;
+          boundrc = rectExt(boundrc, 20, 6, src.rows, src.cols);
+          Mat im4 = src(boundrc).clone();
+          string ss = ocrnum_caffe1.run(im4);
+          strcpy(idnumber, ss.c_str());
+          if (17 == strlen(idnumber)) {
+            int cd = get_check_digit(idnumber);
+            idnumber[17] = cd < 10 ? ('0' + cd) : 'X';
+          }
+          idnumber[18] = 0;
+          //printf("%s\n", idnumber);   imshow("im4", im4); waitKey(-1);
         }
         idnumber[18] = 0;
         //printf("\n");
@@ -550,7 +564,7 @@ struct ocr_idcard_reg {
     int ridnum_x = ridnum_rect.x + (ridnum.x - ridnum_w*0.35)*ridnum_ss;
     int ridnum_r = ridnum_rect.x + (ridnum.x + ridnum_w*0.5)*ridnum_ss;
     if (!idcard_get_info(seg.idnumber, out)) {
-      printf("idcard_get_info fail! number:\n", seg.idnumber);
+      printf("idcard_get_info fail! number:%s\n", seg.idnumber);
       return 0;
     }
     printf("%s %s %s\n", seg.idnumber, out->birthday, out->gender);
@@ -571,7 +585,8 @@ struct ocr_idcard_reg {
             right = MIN(right, mat.cols);
           }
           r.x = MAX(r.x, ridnum_x);
-          r.x = (ridnum_x);
+          r.x = MAX(r.x, 0);
+          r.y = MAX(r.y, 0);
           r.width = right - r.x;
           if (r.width > 10 && r.height > 10) {
             r_ok.push_back(r);
@@ -638,6 +653,14 @@ struct ocr_idcard_reg {
           }
         }
         printf("%s\n", str);
+        if (1) {
+          char* aa = out->address;
+          replace_str(aa, -1, "四儿", -1, "四川", -1, 1);
+          replace_str(aa, 18, "具", -1, "县", -1, 1);
+          replace_str(aa, 18, "巿", -1, "市", -1, 1);
+          replace_str(aa, 18, "渐", -1, "浙", -1, 1);
+          replace_str(aa, -1, "多", -1, "乡", -1, 1);
+        }
         if (strlen(str) > 0) {
           out->type = 1;
           strncpy(out->side, "front", 32);
@@ -683,7 +706,7 @@ struct ocr_detect {
     idcard id = vid[index];
     char* number = id.number;
     int i, j = 0;
-    for (i = 0, j=0; id.number[i]; ++i) {
+    for (i = 0, j = 0; id.number[i]; ++i) {
       char c = number[i];
       if (('0' <= c && c <= '9') || 'x' == c || 'X' == c) {
         number[j++] = c;
@@ -693,17 +716,20 @@ struct ocr_detect {
     char* name = id.name;
     char* p;
     if (p = strstr(name, "名")) {
-      strcpy(name, p+2);
+      strcpy(name, p + 2);
     }
     return id;
   }
 
   std::string getjson(const cv::Mat& src) {
     const char* nowstr = timenow();
+    int ret = 0;
     utime_start(a);
-    int ret = run(src);
+    ret = run(src);
     time_used = 1000 * utime_elapsed(a);
-    if (ret) {
+    switch (ret) {
+    case 1:
+    {
       cjson * root = cjson_CreateObject();
       cjson * cards = cjson_CreateArray();
       cjson_AddItemToObject(root, "cards", cards);
@@ -726,7 +752,20 @@ struct ocr_detect {
       printf("%s\n", jsonstr.c_str());
       cjson_Delete(root);
     }
-    else {
+    break;
+    case -1:
+    {
+      cjson * root = cjson_CreateObject();
+      cjson_AddItemToObject(root, "time_used", cjson_CreateNumber(time_used));
+      cjson_AddItemToObject(root, "error_message", cjson_CreateString("IMAGE_TOO_VAGUE"));
+      cjson_AddItemToObject(root, "request_id", cjson_CreateString(nowstr));
+      jsonstr = cjson_Print(root);
+      printf("%s\n", jsonstr.c_str());
+      cjson_Delete(root);
+    }
+    break;
+    default:
+    {
       cjson * root = cjson_CreateObject();
       cjson_AddItemToObject(root, "time_used", cjson_CreateNumber(time_used));
       cjson_AddItemToObject(root, "error_message", cjson_CreateString("MISSING_ARGUMENTS: image_url, image_file, image_base64"));
@@ -735,8 +774,10 @@ struct ocr_detect {
       printf("%s\n", jsonstr.c_str());
       cjson_Delete(root);
     }
-    return jsonstr;
+    break;
   }
+  return jsonstr;
+}
   int run(const cv::Mat& src) {
     vector<Mat> vecdst;
     int ret = 0;
@@ -823,19 +864,24 @@ struct ocr_detect {
               printf("lines_ok avg = %lf\n", s);
             }
             Mat dst_ok2 = getSubImage(src, r, Size(300*2, 200*2));
-            vector<RotatedRect> rr_ok;
-            for (int i = 0; i < gr.lines_ok.size(); ++i) {
-              rr_ok.push_back(scale(gr.lines_ok[i], 2, 2));
+            double tt_b = imArticulation(dst_ok2);
+            if (tt_b > 1.) {// 清晰度
+              vector<RotatedRect> rr_ok;
+              for (int i = 0; i < gr.lines_ok.size(); ++i) {
+                rr_ok.push_back(scale(gr.lines_ok[i], 2, 2));
+              }
+              idcard out;
+              ret = ocr.run(dst_ok2, rr_ok.data(), rr_ok.size(), &out);
+              //vecdst.push_back(dst_ok);
+              vecdst.push_back(ocr.color_edge);
+              if (ret) {
+                vid.push_back(out);
+              }
+              //drawDetectLines(dst_ok, gr.lines, 4);
+              cardrect.push_back(r);
+            } else {
+              ret = -1;
             }
-            idcard out;
-            ret = ocr.run(dst_ok2, rr_ok.data(), rr_ok.size(), &out);
-            //vecdst.push_back(dst_ok);
-            vecdst.push_back(ocr.color_edge);
-            if (ret) {
-              vid.push_back(out);
-            }
-            //drawDetectLines(dst_ok, gr.lines, 4);
-            cardrect.push_back(r);
           }
         }
       }
@@ -946,7 +992,8 @@ int test_detect_idcard()
     string idcard_no = strs[2];
     g_idcard = idcard_no;
     cv::Mat src;
-    {
+    if (1) {
+      fn = "D:/code/testc_vc2015/testc/20190215104426.jpg";
     }
     //if (!strstr(fn.c_str(), "20161005101521422-4375")) { continue; }
     src = cv::imread(fn, 1);
@@ -957,16 +1004,29 @@ int test_detect_idcard()
       continue;
     }
 
-    od.run(src);
+    int ret = od.run(src);
 #ifdef _DEBUG
 #endif
-    if (od.vid.size()==1) {
-      const idcard* id = od.vid.data();
-      const char* addr = strs[6].c_str();
-      //int levenshtein(char * s1, int l1, char * s2, int l2, int threshold);
-      //int levenshtein_distance(const char *s, int n, const char*t, int m, int noop);
-      allcnt += strlen(id->address);
-      errcnt += ldistance1(id->address, strlen(id->address), (char*)addr, strlen(addr));
+    if (ret==1) {
+      if (1) {
+        if (od.vid.size() == 1) {
+          const idcard* id = od.vid.data();
+          const char* addr = strs[6].c_str();
+          //int levenshtein(char * s1, int l1, char * s2, int l2, int threshold);
+          //int levenshtein_distance(const char *s, int n, const char*t, int m, int noop);
+          allcnt += strlen(id->address) + strlen(addr);
+          errcnt += ldistance1(id->address, strlen(id->address), (char*)addr, strlen(addr));
+        }
+      }
+      if (0) {
+        if (od.vid.size() == 1) {
+          const idcard* id = od.vid.data();
+          const char* a = strs[2].c_str();
+          const char* b = id->number;
+          allcnt += strlen(b) + strlen(a);
+          errcnt += ldistance1(b, strlen(b), (char*)a, strlen(a));
+        }
+      }
     }
     printf("---------------------- %lf\n", errcnt*1./allcnt);
     isdebug = 1;
@@ -975,7 +1035,7 @@ int test_detect_idcard()
       cv::imwrite(fn, src);
     }
     if (isdebug) {
-      if (0) {
+      if (1) {
         cv::imshow("vecdst", od.dst);
         c = cv::waitKey(0);
       }

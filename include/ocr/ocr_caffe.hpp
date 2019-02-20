@@ -65,4 +65,47 @@ struct ocr_caffe {
 
 ocr_caffe ocr_caffe1;
 
+struct ocrnum_caffe {
+  ICNNPredict* pCNN;
+  int wstd = 0, hstd = 0;
+  vector<string> alphabets;
+  int idxBlank = 0;
+  ocrnum_caffe() {
+    string imgfolder = "D:/OCR_Line/lines/han200w/imgtest/";
+    const char* model_folder;
+    model_folder = "D:/OCR_Line/lines/han200w/densenet-no-blstm_caffe4/";
+    model_folder = "E:/OCR_Line/model/resnet-res-blstm/";
+    model_folder = "E:/OCR_Line/model/inception-bn-res-blstm/";
+    model_folder = "D:/OCR_Line/lines/han200w/densenet-sum-blstm-full-res-blstm/";
+    model_folder = "D:/OCR_Line/lines/han200w/densenet-sum-blstm-full-res-blstm0/";
+    model_folder = "D:/OCR_Line/lines/han200w/densenet-sum-blstm-full-res-blstm-09X/";
+    pCNN = CreatePredictInstance(model_folder, true);
+    pCNN->GetInputImageSize(wstd, hstd);
+    alphabets = pCNN->GetLabels();
+    vector<string>::const_iterator it = find(alphabets.begin(), alphabets.end(), "blank");
+    if (it != alphabets.end())
+      idxBlank = (int)(it - alphabets.begin());
+  }
+  string run(const Mat& im) {
+    Mat img = im;
+    int w = img.cols, h = img.rows;
+    int w1 = hstd*w / h;
+    if (w1 != w && h != hstd)
+      cv::resize(img, img, cv::Size(w1, hstd));
+
+    cvtColor(img, img, CV_BGR2GRAY);
+    //cvtColor(img, img, CV_GRAY2BGR);
+
+    //imshow("asdfasdf", img); waitKey(-1);
+
+    vector<int> shape;
+    vector<float> pred = pCNN->GetOutputFeatureMap(img, shape);
+
+    string strpredict0 = GetPredictString(pred, idxBlank, alphabets);
+    return strpredict0;
+  }
+};
+
+ocrnum_caffe ocrnum_caffe1;
+
 #endif // __OCR_CAFFE_HPP__

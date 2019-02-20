@@ -290,6 +290,8 @@ enum { FALSE = 0, TRUE = 1 };
 #ifndef countof
 #define countof(_ARR)  (int)(sizeof(_ARR)/sizeof((_ARR)[0]))
 #endif // countof
+//template <typename T, size_t N> constexpr size_t countof(T const (&)[N]) noexcept { return N; }
+
 #ifndef _countof
 #define _countof(_ARR)  (int)(sizeof(_ARR)/sizeof((_ARR)[0]))
 #endif // _countof

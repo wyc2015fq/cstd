@@ -125,7 +125,7 @@ int test_ew_id() {
   const char* file = "E:/data/ew_id/t1_0911.txt";
   const char* outlist = "E:/data/ew_id/outlist.txt";
   const char* addrfile = "D:/code/git/cstd/include/ocr/train/nlp/addr.txt";
-  if (1) {
+  if (0) {
     FILE* pf = fopen(file, "rb");
     char buf[1024];
     char gbbuf[1024];
@@ -148,11 +148,12 @@ int test_ew_id() {
     vstr_free(vs);
     fclose(pf);
   }
-  if (0) {
+  if (1) {
     FILE* pf = fopen(file, "rb");
     char buf[1024];
+    char buf2[256];
     char gbbuf[1024];
-    wchar_t wbuf[1024];
+    wchar_t wbuf[256];
     size_t* cnt = (size_t*)malloc(sizeof(size_t)*(1 << 16));
     wchar_t* idx = (wchar_t*)malloc(sizeof(wchar_t)*(1 << 16));
     int j = 0;
@@ -161,17 +162,19 @@ int test_ew_id() {
     for (size_t i = 0; i < (1 << 16); ++i) {
       idx[i] = i;
     }
-    for (j = 0; fgets(buf, 1024, pf) > 0 && j < 100000; ++j) {
+    for (j = 0; fgets(buf, 1024, pf) > 0 && j < 10000000; ++j) {
       int len = strlen(buf);
       len = iconv_c(ICONV_UTF8, ICONV_GB2312, buf, len, gbbuf, 1024);
       gbbuf[len] = 0;
+      buf2[0] = 0;
       get_idcard(gbbuf, id);
-      len = iconv_c(ICONV_GB2312, ICONV_UCS2LE, id->name, -1, (char*)wbuf, 1024) / 2;
+      strcat(buf2, id->name);
+      strcat(buf2, id->address);
+      len = iconv_c(ICONV_GB2312, ICONV_UCS2LE, buf2, -1, (char*)wbuf, 1024) / 2;
       wbuf[len] = 0;
       for (int i = 0; i < len; ++i) {
-        if (L'¿≠' == wbuf[i]) {
-          int asdf = 0;
-          printf("%s\n", id->name);
+        if (L'†ç' == wbuf[i]) {
+          printf("%s\n", buf2);
         }
         cnt[wbuf[i]]++;
       }
@@ -181,8 +184,18 @@ int test_ew_id() {
     QSORT(idx, idx + (1 << 16), IDXGRT, wchar_t);
 #undef IDXGRT
     size_t i = 0;
-    for (i = 0; i < (1 << 16) && cnt[idx[i]]; ++i) {
+    FILE* p = fopen("D:\\out.txt", "wb");
+    for (i = 0; i < (1 << 16) && cnt[idx[i]]>2; ++i) {
+      char buf3[8] = { 0 };
+      wchar_t ww = idx[i];
+      int len = iconv_c(ICONV_UCS2LE, ICONV_GB2312, (char*)&ww, 2, (char*)buf3, 8);
+      buf3[len] = 0;
+      printf("%3d %s\n", i, buf3);
+      if (ww > 256) {
+        fprintf(p, "%s", buf3);
+      }
     }
+    fclose(p);
     free(idx);
     free(cnt);
     fclose(pf);

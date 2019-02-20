@@ -270,3 +270,11 @@ def dirlist(filepath):
             res.append(os.path.join(filepath, fi_d))
 
     return res
+
+def fullpath(path, files):
+    for i in range(len(files)):
+        files[i] = path + files[i]
+    return files
+
+def listdir(path):
+    return fullpath(path, os.listdir(path))

@@ -99,24 +99,45 @@ int myatoi(const char* number, int n) {
   return 0;
 }
 
-  int idcard_get_info(const char* number, idcard* out) {
+// 通过身份证号获取校验码
+int get_check_digit(const char* id) {
+  int check_sum = 0, check_digit;
+  for (int i = 0; i < 17; ++i) {
+    check_sum += ((1 << (17 - i)) % 11) * int(id[i]-'0');
+  }
+  check_digit = (12 - (check_sum % 11)) % 11;
+  return check_digit;
+}
+
+
+int idcard_get_info(char* number, idcard* out) {
   int len = strlen(number);
   if (len != 18) return 0;
-  int k;
+  int k, ret = 1;
+  if (number[10] == '4') {
+    number[10] = '1';
+  }
+  if (number[12] == '4') {
+    number[12] = '1';
+  }
   if (1) {
     k = myatoi(number + 6, 4);
-    if (k < 1800 || k>3000) return 0;
+    if (k < 1800 || k>3000) ret = 0;
     k = myatoi(number + 10, 2);
-    if (k>13) return 0;
+    if (k > 13) {
+      ret = 0;
+    }
     k = myatoi(number + 12, 2);
-    if (k>33) return 0;
+    if (k > 33) {
+      ret = 0;
+    }
+    memcpy(out->birthday, number + 6, 8);
+    out->birthday[8] = 0;
+    k = myatoi(number + 14, 3);
+    const char* gender = k & 1 ? "男" : "女";
+    strcpy(out->gender, gender);
   }
-  memcpy(out->birthday, number + 6, 8);
-  out->birthday[8] = 0;
-  k = myatoi(number +14, 3);
-  const char* gender = k & 1 ? "男" : "女";
-  strcpy(out->gender, gender);
-  return 1;
+  return ret;
 }
 
 #if 0

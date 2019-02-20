@@ -449,10 +449,13 @@ CC_INLINE int delchr_c(char* s, int i, int l, int ch)
   }
   return j;
 }
+
 CC_INLINE int replacestr_c(char* s1, IRANGE* r, const char* s2, int l2, const char* s3, int l3, int ignore_case)
 {
   int l1 = r->s;
   int i, j = 0, m;
+  l2 = l2 < 0 ? strlen(s2) : l2;
+  l3 = l3 < 0 ? strlen(s3) : l3;
   if (l2 >= l3) {
     for (i = 0, m = 0; i <= l1 - l2;) {
       if (0 == memicmp_c(s1 + i, s2, l2, ignore_case)) {
@@ -495,6 +498,12 @@ CC_INLINE int replacestr_c(char* s1, IRANGE* r, const char* s2, int l2, const ch
   return j;
 }
 
+CC_INLINE int replace_str(char* s1, int l, const char* s2, int l2, const char* s3, int l3, int ignore_case) {
+  l = l < 0 ? strlen(s1) : l;
+  IRANGE r = iRANGE(l, l);
+  replacestr_c(s1, &r, s2, l2, s3, l3, ignore_case);
+  return r.e;
+}
 static void trim_c(const char* s, IRANGE* r, const uchar* trims_set)
 {
   for (; r->s < r->e && trims_set[(uchar)s[r->e - 1]]; r->e--);

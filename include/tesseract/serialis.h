@@ -39,10 +39,9 @@ Replace <parm> with "<parm>".  <parm> may be an arbitrary number of tokens
 namespace tesseract {
 
 // Return number of elements of an array.
-template <typename T, size_t N>
-constexpr size_t countof(T const (&)[N]) noexcept {
-  return N;
-}
+#ifndef countof
+template <typename T, size_t N> constexpr size_t countof(T const (&)[N]) noexcept {  return N; }
+#endif
 
 // Function to read a GenericVector<char> from a whole file.
 // Returns false on failure.

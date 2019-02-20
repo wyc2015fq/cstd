@@ -15,7 +15,7 @@
 #define LIST_DEL(list, item) if (list==item) { list->prev = NULL; list = item->next; } else { LIST_DEL0(item); }
 
 
-
+#if 0
 struct list {
   struct list* next;
   struct list* prev;
@@ -234,5 +234,7 @@ CC_INLINE void list_move_head(struct list* dst, struct list* src)
 #undef LIST_ENTRY
 #define LIST_ENTRY(elem, type, field) \
   ((type *)((char *)(elem) - offsetof(type, field)))
+
+#endif
 
 #endif  /* __WINE_SERVER_LIST_H */

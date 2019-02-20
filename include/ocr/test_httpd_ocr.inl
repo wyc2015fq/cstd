@@ -109,6 +109,15 @@ static void ocridcard(httpd* s) {
     }
 #endif
   }
+  else {
+    static ocr_detect od;
+    string str = "{"
+      "\"time_used\": 3,"
+      "\"error_message\" : \"IMAGE_ERROR_UNSUPPORTED_FORMAT\","
+      "}";
+    string str_utf8 = gb2utf8(str);
+    httpdPrintf(s, str_utf8.c_str());
+  }
   if (tmpbuf) {
     free(tmpbuf);
   }

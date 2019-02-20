@@ -72,8 +72,8 @@ bool apply_deltas_to_anchors(vector< vector<float> >& res, vector<float>& bb_del
 }
 
 bool ProposalLayerForward(int originimgh, int originimgw,
-		boost::shared_ptr<caffe::Blob<float> > rpn_cls_prob,
-		boost::shared_ptr<caffe::Blob<float> > rpn_bbox_pred,
+		SHARED_PTR<caffe::Blob<float> > rpn_cls_prob,
+		SHARED_PTR<caffe::Blob<float> > rpn_bbox_pred,
 		vector< vector<float> >& rois,
 		vector<float>& scores, float min_score)
 {

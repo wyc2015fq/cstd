@@ -11,12 +11,15 @@
 #include <iostream>
 #include <fstream>
 using namespace std;
+
+#if 0
 #ifdef _DEBUG
 #pragma comment(lib,"leptonica-1.77.0d.lib")
 #pragma comment(lib,"tesseract40d.lib")
 #else
 #pragma comment(lib,"leptonica-1.77.0.lib")
 #pragma comment(lib,"tesseract40.lib")
+#endif
 #endif
 
 void die1(const char *errstr) {

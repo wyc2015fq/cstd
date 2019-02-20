@@ -18,10 +18,10 @@ Rect rectSplitH(Rect r, int i, int n) {
 Rect rectExt(Rect boundRect, int ex, int ey, int h, int w) {
   int r = boundRect.x + boundRect.width;
   int b = boundRect.y + boundRect.height;
-  boundRect.x -= 2;
-  boundRect.y -= 2;
-  r += 2;
-  b += 2;
+  boundRect.x -= ex;
+  boundRect.y -= ey;
+  r += ex;
+  b += ey;
   if (r < 0) {
     int asdf = 0;
   }
@@ -1424,4 +1424,60 @@ Rect getbw_rect(const Mat& src, double thd) {
   return r;
 }
 
+double imArticulation(const Mat& imageSource)
+{
+  //Mat imageSource = imread("2.jpg");
+  Mat imageGrey;
+  cvtColor(imageSource, imageGrey, CV_RGB2GRAY);
+  Mat imageSobel;
+  Sobel(imageGrey, imageSobel, CV_16U, 1, 1);
+
+  //图像的平均灰度
+  double meanValue = 0.0;
+  meanValue = mean(imageSobel)[0];
+  return meanValue;
+}
+
+double imArticulation2(const Mat& imageSource)
+{
+  //Mat imageSource = imread("2.jpg");
+  Mat imageGrey;
+  cvtColor(imageSource, imageGrey, CV_RGB2GRAY);
+  Mat imageSobel_x;
+  Sobel(imageGrey, imageSobel_x, CV_16U, 1, 0, 5);
+  Mat imageSobel_y;
+  Sobel(imageGrey, imageSobel_y, CV_16U, 0, 1, 5);
+
+  //图像的平均灰度
+  double meanValue = 0.0;
+  meanValue = mean(imageSobel_x)[0] + mean(imageSobel_y)[0];
+  meanValue*=0.5;
+  return meanValue;
+}
+
+double DefRto(Mat frame)
+{
+  Mat gray;
+  cvtColor(frame, gray, CV_BGR2GRAY);
+  IplImage *img = &(IplImage(gray));
+  double temp = 0;
+  double DR = 0;
+  int i, j;//循环变量 
+  int height = img->height;
+  int width = img->width;
+  int step = img->widthStep / sizeof(uchar);
+  uchar *data = (uchar*)img->imageData;
+  double num = width*height;
+
+  for (i = 0; i < img->height - 1; ++i)  {
+    for (j = 0; j < img->width - 1; ++j)    {
+      temp += sqrt((pow((double)(data[(i + 1)*step + j] - data[i*step + j]), 2)
+
+        + pow((double)(data[i*step + j + 1] - data[i*step + j]), 2)));
+      temp += abs(data[(i + 1)*step + j] - data[i*step + j]) + abs(data[i*step + j + 1] - data[i*step + j]);
+    }
+  }
+  DR = temp / num;
+  return DR;
+}
 #include "hough.hpp"

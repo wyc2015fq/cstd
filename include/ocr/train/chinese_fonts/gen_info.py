@@ -4,7 +4,7 @@ from gen_utils import *
 from allcharset import *
 import os
 
-outpath = 'E:/OCR_Line/lines/han200w/'
+outpath = 'E:/OCR_Line/lines/han100w/'
 imgoutpath = outpath+'img'
 root = outpath
 if 0:
@@ -41,7 +41,7 @@ f_infos = open(root+'infos.txt', 'w')
 f_train = open(root+'train.txt', 'w')
 f_test = open(root+'test.txt', 'w')
 
-num = 100
+num = 200
 count_train = int(num*0.8)
 for i in range(0,num):
     filepath = "%s/%d"%(imgoutpath, i)

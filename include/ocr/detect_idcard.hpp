@@ -350,7 +350,7 @@ struct get_rect_t {
           vec_rrect.push_back(r);
         }
       }
-      drawRotatedRects(color_edge, vec_rrect, 1);
+      //drawRotatedRects(color_edge, vec_rrect, 1);
     }
     if (1) {
       // 检测直线，最小投票为90，线条不短于50，间隙不小于10
@@ -441,7 +441,7 @@ struct get_rect_t {
       if (ret && linesxx.size() > 0) {
         const Vec4i& l = linesxx[0];
         double maxy = (l[1] - 20);
-        double miny = (200 - l[1] - 30);
+        double miny = (200 - l[1] - 50);///20190213
         for (int i = 0; i < vec_rrect2.size(); ++i) {
           const RotatedRect& r = vec_rrect2[i];
           if (miny < r.center.y && r.center.y < maxy) {
@@ -479,6 +479,7 @@ struct get_rect_t {
     }
 
     if (ret && linesxx.size() > 0) {
+      //drawRotatedRects(color_edge, vec_rrect, 1);
       //rrects.resize();
       int nclasses = cv::partition(vec_rrect, labels, [&meanh](const RotatedRect& r1, const RotatedRect& r2) {
         double minh = meanh*0.5;
@@ -551,7 +552,7 @@ struct get_rect_t {
           if (lines_tmp.size() > 1) {
             RotatedRect r = minAreaRect(lines_tmp);
             r = curr(r);
-            if (r.center.x<150 && r.size.height >(meanh)) {
+            if (r.center.x<150 && r.size.height >(meanh) && r.size.width>r.size.height*2.5) {
               lines_rect.push_back(r);
             }
           }
@@ -599,8 +600,10 @@ struct get_rect_t {
       else {
         ret = 0;
       }
-      drawRotatedRects(color_edge, rrects2, 1);
-      drawRotatedRects(color_edge, lines_ok, 2);
+      if (isdebug) {
+        drawRotatedRects(color_edge, rrects2, 1);
+        drawRotatedRects(color_edge, lines_ok, 2);
+      }
       //imshow("color_edge", color_edge); waitKey(0);
     }
 

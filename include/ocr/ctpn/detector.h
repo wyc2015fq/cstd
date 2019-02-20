@@ -33,7 +33,7 @@ using caffe::Net;
 
 class TextProposalDetector{
 	public:
-		TextProposalDetector(boost::shared_ptr< Net<float> > net){
+		TextProposalDetector(SHARED_PTR< Net<float> > net){
 			m_caffenet = net;
 		}
 		bool detect(const Mat& img1, vector< vector<float> >& rois, vector<float>& scores){
@@ -47,12 +47,12 @@ class TextProposalDetector{
 			m_caffenet->input_blobs()[0]->Reshape(num, channel, height, width);
 			resize(img,img,cv::Size(width,height));
 /*
-			boost::shared_ptr<caffe::Blob<float> > info_blob=Net->blob_by_name("im_info");
+			SHARED_PTR<caffe::Blob<float> > info_blob=Net->blob_by_name("im_info");
 			int * info_data = info_blob->mutable_cpu_data();
 			info_data[0] = height;
 			info_data[1] = width;
 */			
-			boost::shared_ptr<caffe::Blob<float> > input_blob = m_caffenet->blob_by_name("data");
+			SHARED_PTR<caffe::Blob<float> > input_blob = m_caffenet->blob_by_name("data");
 			float * input_data = input_blob->mutable_cpu_data();
 			vector<Mat> mat_vec;
 			cv::split(img, mat_vec);//(224,224,CV_32FC3,input_data);
@@ -67,12 +67,12 @@ class TextProposalDetector{
 			
 			std::vector<caffe::Blob<float>* > input_vec;
 			m_caffenet->Forward(input_vec);
-			boost::shared_ptr<caffe::Blob<float> > rpn_cls_blob = m_caffenet->blob_by_name("rpn_cls_prob_reshape");
+			SHARED_PTR<caffe::Blob<float> > rpn_cls_blob = m_caffenet->blob_by_name("rpn_cls_prob_reshape");
 			//const float * rpn_cls = rpn_cls_blob->cpu_data();
 			//for(int i=0;i<10;i++)
 			//	cout<<*(rpn_cls+i)<<endl;
 			//cout<<rpn_cls_blob->shape_string()<<endl;
-			boost::shared_ptr<caffe::Blob<float> > rpn_bbox_blob = m_caffenet->blob_by_name("rpn_bbox_pred");
+			SHARED_PTR<caffe::Blob<float> > rpn_bbox_blob = m_caffenet->blob_by_name("rpn_bbox_pred");
 			//const float * rpn_bbox = rpn_bbox_blob->cpu_data();
 			//cout<<rpn_cls_blob->shape_string()<<endl;
 			
@@ -84,14 +84,14 @@ class TextProposalDetector{
 		}
 		~TextProposalDetector(){};
 	private:
-		boost::shared_ptr< Net<float> > m_caffenet;
+		SHARED_PTR< Net<float> > m_caffenet;
 };
 
 int detect_tline(const Mat& img, vector< vector<float> >& tlines)
 {
-	string deployfile = "C:/OCR_Line/model/ctpn/deploy.prototxt";
-	string modelfile = "C:/OCR_Line/model/ctpn/ctpn_trained_model.caffemodel";
-	boost::shared_ptr< Net<float> > net(new Net<float>(deployfile,caffe::TEST));
+	string deployfile = "E:/OCR_Line/model/ctpn/deploy.prototxt";
+	string modelfile = "E:/OCR_Line/model/ctpn/ctpn_trained_model.caffemodel";
+	SHARED_PTR< Net<float> > net(new Net<float>(deployfile,caffe::TEST));
 	net->CopyTrainedLayersFrom(modelfile);
 	TextProposalDetector tpd(net);
 
