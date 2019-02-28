@@ -1,8 +1,9 @@
 #ifndef _ATOMIC_H
 #define _ATOMIC_H
 
+#include "sys_c.h"
+
 #ifdef _WIN32
-#include <windows.h>
 typedef volatile long atomic_t;
 #define atomic_inc InterlockedIncrement
 #define atomic_dec InterlockedDecrement

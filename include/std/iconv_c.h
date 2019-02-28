@@ -2,6 +2,7 @@
 #ifndef _STDC_ICONV_C_H_
 #define _STDC_ICONV_C_H_
 
+#include "sys_c.h"
 #include "stddef_c.h"
 
 enum ICONV_CODEPAGE {
@@ -20,7 +21,6 @@ enum ICONV_CODEPAGE {
 #endif
 
 #ifdef USE_WINCONV
-#include <windows.h>
 static int codepage_w32(ICONV_CODEPAGE src_charset)
 {
 #define CVTCODEPAGE_DEF(DEF) \

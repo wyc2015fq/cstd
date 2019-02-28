@@ -2,6 +2,7 @@
 #ifndef _STDC_INTTYPES_H_
 #define _STDC_INTTYPES_H_
 
+#include "sys_c.h"
 #include <limits.h>
 
 typedef signed char schar;
@@ -36,7 +37,7 @@ typedef unsigned __int64 uint64_t;
 #else
 #include <stdint.h>
 #endif // _MSC_VER < 1300
-#include <windows.h>
+
 #else
 // linux
 #include <inttypes.h>

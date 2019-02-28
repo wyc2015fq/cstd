@@ -1,6 +1,7 @@
 #ifndef _THREAD_H_
 #define _THREAD_H_
 
+#include "sys_c.h"
 #include "stddef_c.h"
 
 typedef struct { void* x; } handel_t;
@@ -46,7 +47,6 @@ struct _thread_t {
 #endif
 
 #ifdef _WIN32
-#include <windows.h>
 #else
 #include <pthread.h>
 typedef struct critical_section_t {
@@ -225,7 +225,7 @@ static DWORD WINAPI ThreadProxy(LPVOID args)
     ret = _th->run(_th->arg);
   }
   free(_th);
-  return (DWORD)ret;
+  return (DWORD)(int)ret;
 }
 
 //typedef void* uintptr_t;

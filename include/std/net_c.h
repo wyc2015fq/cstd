@@ -15,6 +15,7 @@
 #include <io.h>
 #define SOCK_LENTH int
 
+
 #ifdef _WIN32
 static int sock_init()
 {

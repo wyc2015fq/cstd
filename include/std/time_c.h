@@ -4,6 +4,7 @@
 #define __TIME_C_H__
 
 #include <time.h>
+#include <stdio.h>
 
 static char* strtime2(char* buf, int len)
 {

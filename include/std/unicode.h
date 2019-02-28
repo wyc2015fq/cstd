@@ -7,8 +7,6 @@
 //#include <netinet/in.h>
 #endif
 
-//#include<Winsock2.h>
-//#include <windows.h>
 
 // gb uni
 unsigned short giGB2312[21243][2] = {

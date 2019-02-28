@@ -105,17 +105,6 @@ CC_INLINE void ptr2ptr(void* pp, void* p)
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-#if 0
-#ifdef _WIN32
-#include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <winsock.h>
-//#pragma comment(lib, "ws32_2.lib")
-#pragma comment(lib,"ws2_32.lib")
-#endif
-#endif
-/////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef _WIN32
 #if _MSC_VER < 1300
