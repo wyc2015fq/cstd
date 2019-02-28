@@ -36,9 +36,15 @@
 
 例如：
 
-for(int i=0;i<10;i++){   for(intj=0;j<10;j++){
-
-​       System.out.println(“i=” + i + “,j=” + j);       if(j == 5) break ok;   }}
+```java
+for(int i=0;i<10;i++){
+    for(intj=0;j<10;j++){
+        System.out.println(“i=” + i + “,j=” + j);
+        if(j == 5)
+            break ok;
+    }
+}
+```
 
 ​        另外，我个人通常并不使用标号这种方式，而是让外层的循环条件表达式的结果可以受到里层循环体代码的控制，例如，要在二维数组中查找到某个数字。
 
@@ -84,16 +90,22 @@ for(int i=0;i<arr.length&&!found;i++)       {
 
 执行如下语句将报告编译期错误：
 
+```java
 a=new StringBuffer("");
+```
+
 但是，执行如下语句则可以通过编译：
 
+```java
 a.append(" broken!");
+```
 
 有人在定义方法的参数时，可能想采用如下形式来阻止方法内部修改传进来的参数对象：
 
+```java
 public void method(final  StringBuffer param){
-
 }
+```
 
 实际上，这是办不到的，在该方法内部仍然可以增加如下代码来修改参数对象：
 
@@ -107,23 +119,19 @@ public void method(final  StringBuffer param){
 
 ​        例如，对于下面的程序，无论创建多少个实例对象，永远都只分配了一个staticVar变量，并且每创建一个实例对象，这个staticVar就会加1；但是，每创建一个实例对象，就会分配一个instanceVar，即可能分配多个instanceVar，并且每个instanceVar的值都只自加了1次。
 
+```java
 public class VariantTest{
-
-​        *publicstatic int staticVar = 0;*
-
-​        *publicint instanceVar = 0;*
-
-​        *publicVariantTest(){*
-
-​              *staticVar++;*
-
-​              *instanceVar++;*
-
-​              *System.out.println(staticVar +instanceVar);*
-
-​        *}*
-
+        publicstatic int staticVar = 0;
+        publicint instanceVar = 0;
+        publicVariantTest(){
+              staticVar++;
+              instanceVar++;
+              System.out.println(staticVar +instanceVar);
+        }
 }
+```
+
+
 
 ------
 
@@ -227,27 +235,19 @@ private native void open(Stringname) throwsFileNotFoundException;
 
 ​        如果你把静态嵌套类当作内部类的一种特例，那在这种情况下不可以访问外部类的普通成员变量，而只能访问外部类中的静态成员，例如，下面的代码：
 
+```java
 class Outer
-
-*{*
-
-*static int x;*
-
-*static class Inner*
-
-​    *{*
-
-​        *voidtest()*
-
-​        *{*
-
-​              *syso(x);*
-
-​        *}*
-
-​    *}*
-
-*}*
+{
+    static int x;
+    static class Inner
+    {
+        voidtest()
+        {
+              syso(x);
+        }
+    }
+}
+```
 
 **20、String s = "Hello";s = s + "world!";这两行代码执行后，原始的String对象中的内容到底变了没有？**
 
@@ -328,19 +328,15 @@ HashMap把Hashtable的contains方法去掉了，改成containsvalue和containsKe
 
 **27、去掉一个Vector集合中重复的元素**
 
+```java
 Vector newVector = new Vector();
-
-*For (int i=0;i<vector.size();i++)*
-
-*{*
-
-*Object obj = vector.get(i);*
-
-​       *if(!newVector.contains(obj);*
-
-​             *newVector.add(obj);*
-
+For (int i=0;i<vector.size();i++)
+{
+    Object obj = vector.get(i);
+    if(!newVector.contains(obj);
+         newVector.add(obj);
 }
+```
 
 还有一种简单的方式，利用了Set不允许重复元素：
 
@@ -416,41 +412,25 @@ HashSetset = new HashSet(vector);
 
 ​        我们知道finally{}中的语句是一定会执行的，那么这个可能正常脱口而出就是return之前，return之后可能就出了这个方法了，鬼知道跑哪里去了，但更准确的应该是在return中间执行，请看下面程序代码的运行结果：
 
-*public classTest {*
-
-​    *public static void main(String[]args) {*
-
-​       *System.out.println(newTest().test());;*
-
-​    *}*
-
-​    *static int test()*
-
-​    *{*
-
-​       *intx = 1;*
-
-​       *try*
-
-​       *{*
-
-​          *returnx;*
-
-​       *}*
-
-​       *finally*
-
-​       *{*
-
-​          *++x;*
-
-​       *}*
-
-​    *}*
-
-  
-
-*}*
+```java
+public classTest {
+    public static void main(String[]args) {
+       System.out.println(newTest().test());;
+    }
+    static int test()
+    {
+       intx = 1;
+       try
+       {
+          returnx;
+       }
+       finally
+       {
+          ++x;
+       }
+    }
+}
+```
 
  
 
@@ -731,11 +711,11 @@ Post请求则作为http消息的实际内容发送给web服务器，数据放置
 2，数据库连接池的基本思想就是为数据库连接建立一个“缓冲池”。预先在缓冲池中放入一定数量的连接，当需要建立数据库连接时，只需从“缓冲池”中取出一个，使用完毕之后再放回去。我们可以通过设定连接池最大连接数来防止系统无尽的与数据库连接。更为重要的是我们可以通过连接池的管理机制监视数据库的连接的数量、使用情况，为系统开发，测试及性能调整提供依据。
 3，使用连接池是为了提高对数据库连接资源的管理
 
-### **65，JDBC的脏读是什么？哪种数据库隔离级别能防止脏读？**
+**65，JDBC的脏读是什么？哪种数据库隔离级别能防止脏读？**
 
 　　当我们使用事务时，有可能会出现这样的情况，有一行数据刚更新，与此同时另一个查询读到了这个刚更新的值。这样就导致了脏读，因为更新的数据还没有进行持久化，更新这行数据的业务可能会进行回滚，这样这个数据就是无效的。数据库的*TRANSACTIONREADCOMMITTED*，*TRANSACTIONREPEATABLEREAD*，和*TRANSACTION_SERIALIZABLE*隔离级别可以防止脏读。
 
-### **66，什么是幻读，哪种隔离级别可以防止幻读？**
+**66，什么是幻读，哪种隔离级别可以防止幻读？**
 
 　　幻读是指一个事务多次执行一条查询返回的却是不同的值。假设一个事务正根据某个条件进行数据查询，然后另一个事务插入了一行满足这个查询条件的数据。之后这个事务再次执行了这条查询，返回的结果集中会包含刚插入的那条新数据。这行新数据被称为幻行，而这种现象就叫做幻读。
 
@@ -820,17 +800,13 @@ ResultSet对象维护了一个游标，指向当前的数据行。开始的时�
 
 **74，谈谈Struts的优缺点**
 优点：
-\1. 实现MVC模式，结构清晰,使开发者只关注业务逻辑的实现.
 
-2．有丰富的tag可以用 ,Struts的标记库(Taglib)，如能灵活动用，则能大大提高开发效率
-
-\3. 页面导航使系统的脉络更加清晰。通过一个配置文件，即可把握整个系统各部分之间的联系，这对于后期的维护有着莫大的好处。尤其是当另一批开发者接手这个项目时，这种优势体现得更加明显。
-
-\4. 提供Exception处理机制 .
-
-\5. 数据库链接池管理
-
-\6. 支持I18N
+1. 实现MVC模式，结构清晰,使开发者只关注业务逻辑的实现.
+2. 有丰富的tag可以用 ,Struts的标记库(Taglib)，如能灵活动用，则能大大提高开发效率
+3. 页面导航使系统的脉络更加清晰。通过一个配置文件，即可把握整个系统各部分之间的联系，这对于后期的维护有着莫大的好处。尤其是当另一批开发者接手这个项目时，这种优势体现得更加明显。
+4. 提供Exception处理机制 .
+5. 数据库链接池管理
+6. 支持I18N
 
 缺点：
 
@@ -862,13 +838,11 @@ ResultSet对象维护了一个游标，指向当前的数据行。开始的时�
 
 ​        Hibernate是一个全自动的orm映射工具，它可以自动生成sql语句,ibatis需要我们自己在xml配置文件中写sql语句，hibernate要比ibatis功能负责和强大很多。因为hibernate自动生成sql语句，我们无法控制该语句，我们就无法去写特定的高效率的sql。对于一些不太复杂的sql查询，hibernate可以很好帮我们完成，但是，对于特别复杂的查询，hibernate就很难适应了，这时候用ibatis就是不错的选择，因为ibatis还是由我们自己写sql语句。
 
-**76，****在hibernate进行多表查询每个表中各取几个字段，也就是说查询出来的结果集没有一个实体类与之对应如何解决？**
+**76，在hibernate进行多表查询每个表中各取几个字段，也就是说查询出来的结果集没有一个实体类与之对应如何解决？**
 
 解决方案一,：按照Object[]数据取出数据，然后自己组bean
 
-解决方案二：对每个表的bean写构造函数，比如表一要查出field1,field2两个字段，那么有一个构造函数就是Bean(type1filed1,type2
-
-field2) ，然后在hql里面就可以直接生成这个bean了。
+解决方案二：对每个表的bean写构造函数，比如表一要查出field1,field2两个字段，那么有一个构造函数就是Bean(type1filed1,type2 field2) ，然后在hql里面就可以直接生成这个bean了。
 
 **77，介绍一下Hibernate的二级缓存**
 
@@ -934,7 +908,7 @@ field2) ，然后在hql里面就可以直接生成这个bean了。
 
 ​        **异常处理：**Spring 提供方便的API把具体技术相关的异常（比如由JDBC，Hibernate or JDO抛出的）转化为一致的unchecked 异常。
 
-### **82. ApplicationContext通常的实现是什么?**
+**82. ApplicationContext通常的实现是什么?**
 
 ​        **FileSystemXmlApplicationContext ：**此容器从一个XML文件中加载beans的定义，XML Bean 配置文件的全路径名必须提供给它的构造函数。
 
@@ -942,7 +916,7 @@ field2) ，然后在hql里面就可以直接生成这个bean了。
 
 ​        **WebXmlApplicationContext：**此容器加载一个XML文件，此文件定义了一个WEB应用的所有bean。
 
-### **83，什么是Spring的依赖注入****？有哪些方法进行依赖注入**
+**83，什么是Spring的依赖注入****？有哪些方法进行依赖注入**
 
 ​        依赖注入，是IOC的一个方面，是个通常的概念，它有多种解释。这概念是说你不用创建对象，而只需要描述它如何被创建。你不在代码里直接组装你的组件和服务，但是要在配置文件里描述哪些组件需要哪些服务，之后一个容器（IOC容器）负责把他们组装起来。
 
@@ -950,7 +924,7 @@ field2) ，然后在hql里面就可以直接生成这个bean了。
 
 ​        **Setter方法注入：**Setter方法注入是容器通过调用无参构造器或无参static工厂 方法实例化bean之后，调用该bean的setter方法，即实现了基于setter的依赖注入。
 
-### **84，什么是Spring beans?**
+**84，什么是Spring beans?**
 
 ​        Spring beans 是那些形成Spring应用的主干的java对象。它们被Spring IOC容器初始化，装配，和管理。这些beans通过容器中配置的元数据创建。比如，以XML文件中<bean/> 的形式定义。
 
@@ -990,7 +964,7 @@ field2) ，然后在hql里面就可以直接生成这个bean了。
 
 ​       8，如果bean实现了 DisposableBean，它将调用destroy()方法。
 
-### **87，在 Spring中如何注入一个java集合？**
+**87，在 Spring中如何注入一个java集合？**
 
 Spring提供以下几种集合的配置元素：
 
@@ -1002,7 +976,7 @@ Spring提供以下几种集合的配置元素：
 
 ​    <props>类型用于注入一组键值对，键和值都只能为String类型。
 
-### **88，解释不同方式的自动装配 。**
+**88，解释不同方式的自动装配 。**
 
 有五种自动装配的方式，用来指导Spring容器用自动装配方式进行依赖注入。
 
@@ -1016,7 +990,7 @@ Spring提供以下几种集合的配置元素：
 
 ​        **autodetect：**首先尝试使用constructor来自动装配，如果无法工作，则使用byType方式。
 
-### **89，Spring框架的事务管理有哪些优点？**
+**89，Spring框架的事务管理有哪些优点？**
 
 ​        它为不同的事务API  如 JTA，JDBC，Hibernate，JPA 和JDO，提供一个不变的编程模式。
 
@@ -1026,7 +1000,7 @@ Spring提供以下几种集合的配置元素：
 
 ​        它和Spring各种数据访问抽象层很好得集成。
 
-### **90.什么是基于Java的Spring注解配置? 给一些注解的例子.**
+**90.什么是基于Java的Spring注解配置? 给一些注解的例子.**
 
 ​        基于Java的配置，允许你在少量的Java注解的帮助下，进行你的大部分Spring配置而非通过XML文件。
 
@@ -1094,7 +1068,7 @@ Spring提供以下几种集合的配置元素：
 
 *用法举例：*
 
-```
+```xml
    <select id="foo" parameterType="Blog" resultType="Blog">        
    select * from t_blog where 1 = 1
         <if test="title != null">            
@@ -1111,7 +1085,7 @@ Spring提供以下几种集合的配置元素：
 
 ##  
 
-## **98，JDBC编程有哪些不足之处，MyBatis是如何解决这些问题的？**
+**98，JDBC编程有哪些不足之处，MyBatis是如何解决这些问题的？**
 
 ​        1、JDBC：数据库链接创建、释放频繁造成系统资源浪费从而影响系统性能，如果使用数据库链接池可解决此问题。
 
@@ -1127,7 +1101,7 @@ Spring提供以下几种集合的配置元素：
 
 ​        MyBatis：Mybatis自动将sql执行结果映射至java对象。
 
-## **99，****MyBatis与Hibernate有哪些不同？**
+**99，MyBatis与Hibernate有哪些不同？**
 
 ​        1、Mybatis和hibernate不同，它不完全是一个ORM框架，因为MyBatis需要程序员自己编写Sql语句，不过mybatis可以通过XML或注解方式灵活配置要运行的sql语句，并将java对象和sql语句映射生成最终执行的sql，最后将sql执行的结果再映射生成java对象。           
         2、Mybatis学习门槛低，简单易学，程序员直接编写原生态sql，可严格控制sql执行性能，灵活度高，非常适合对关系数据模型要求不高的软件开发，例如互联网软件、企业运营类软件等，因为这类软件需求变化频繁，一但需求变化要求成果输出迅速。但是灵活的前提是mybatis无法做到数据库无关性，如果需要实现支持多种数据库的软件则需要自定义多套sql映射文件，工作量大。                3、Hibernate对象/关系映射能力强，数据库无关性好，对于关系模型要求高的软件（例如需求固定的定制化软件）如果用hibernate开发可以节省很多代码，提高效率。但是Hibernate的缺点是学习门槛高，要精通门槛更高，而且怎么设计O/R映射，在性能和对象模型之间如何权衡，以及怎样用好Hibernate需要具有很强的经验和能力才行。           
@@ -1135,7 +1109,7 @@ Spring提供以下几种集合的配置元素：
 
 *（这里也可以结合自己的理解说，别说的收不住）*
 
-## **100，简单的说一下MyBatis的一级缓存和二级缓存？**
+**100，简单的说一下MyBatis的一级缓存和二级缓存？**
 
 ​        Mybatis首先去缓存中查询结果集，如果没有则查询数据库，如果有则从缓存取出返回结果集就不走数据库。Mybatis内部存储缓存使用一个HashMap，key为hashCode+sqlId+Sql语句。value为从查询出来映射生成的java对象
         Mybatis的二级缓存即查询缓存，它的作用域是一个mapper的namespace，即在同一个namespace中查询sql可以从缓存中获取数据。二级缓存是可以跨SqlSession的。
@@ -1165,7 +1139,9 @@ Spring提供以下几种集合的配置元素：
 
 或者：
 
-*selectstudent.sno as 学号, student.sname as 姓名, count(sc.cno) as 选课数, sum(score) as 总成绩from student left Outer join sc on student.sno = sc.snogroup by student.sno, sname***104，查询姓“张”的老师的个数**
+*selectstudent.sno as 学号, student.sname as 姓名, count(sc.cno) as 选课数, sum(score) as 总成绩from student left Outer join sc on student.sno = sc.snogroup by student.sno, sname*
+
+**104，查询姓“张”的老师的个数**
 
 selectcount(distinct(tname)) from teacher where tname like '张%‘
 或者：
@@ -1289,9 +1265,7 @@ where r1.sno=s.sno
 
 ## 赢在面试之Java多线程（13）
 
-
-
-#### **121，什么是线程？**
+**121，什么是线程？**
 
 ​        线程是操作系统能够进行运算调度的最小单位，它被包含在进程之中，是进程中的实际运作单位。程序员可以通过它进行多处理器编程，你可以使用多线程对运算密集型任务提速。比如，如果一个线程完成一个任务要100毫秒，那么用十个线程完成改任务只需10毫秒。
 
@@ -1326,13 +1300,11 @@ where r1.sno=s.sno
 
 ​        当我们在Java程序中新建一个线程时，它的状态是*New。*当我们调用线程的start()方法时，状态被改变为*Runnable*。线程调度器会为*Runnable*线程池中的线程分配CPU时间并且讲它们的状态改变为*Running。*其他的线程状态还有*Waiting，Blocked* 和*Dead*。
 
-​        
-
-#### **126，你对线程优先级的理解是什么？**
+**126，你对线程优先级的理解是什么？**
 
 ​        每一个线程都是有优先级的，一般来说，高优先级的线程在运行时会具有优先权，但这依赖于线程调度的实现，这个实现是和操作系统相关的(OS dependent)。我们可以定义线程的优先级，但是这并不能保证高优先级的线程会在低优先级的线程前执行。线程优先级是一个int变量(从1-10)，1代表最低优先级，10代表最高优先级。
 
-### **127，什么是死锁(Deadlock)？如何分析和避免死锁？**
+**127，什么是死锁(Deadlock)？如何分析和避免死锁？**
 
 ​        死锁是指两个以上的线程永远阻塞的情况，这种情况产生至少需要两个以上的线程和两个以上的资源。
 
@@ -1340,7 +1312,7 @@ where r1.sno=s.sno
 
 ​        避免嵌套锁，只在需要的地方使用锁和避免无限期等待是避免死锁的通常办法。
 
-#### **128，什么是线程安全？Vector是一个线程安全类吗？**  
+**128，什么是线程安全？Vector是一个线程安全类吗？**
 
 ​        如果你的代码所在的进程中有多个线程在同时运行，而这些线程可能会同时运行这段代码。如果每次运行结果和单线程运行的结果是一样的，而且其他的变量的值也和预期的是一样的，就是线程安全的。一个线程安全的计数器类的同一个实例对象在被多个线程使用的情况下也不会出现计算失误。很显然你可以将集合类分成两组，线程安全和非线程安全的。Vector 是用同步方法来实现线程安全的, 而和它相似的ArrayList不是线程安全的。
 
@@ -1354,7 +1326,7 @@ where r1.sno=s.sno
 
 ​        每个线程都会拥有他们自己的Thread变量，它们可以使用get()\set()方法去获取他们的默认值或者在线程内部改变他们的值。ThreadLocal实例通常是希望它们同线程状态关联起来是private static属性。
 
-**131，****Sleep()、suspend()和wait()之间有什么区别？**
+**131，Sleep()、suspend()和wait()之间有什么区别？**
 
 ​        Thread.sleep()使当前线程在指定的时间处于“非运行”（Not Runnable）状态。线程一直持有对象的监视器。比如一个线程当前在一个同步块或同步方法中，其它线程不能进入该块或方法中。如果另一线程调用了interrupt()方法，它将唤醒那个“睡眠的”线程。
 
@@ -1370,13 +1342,13 @@ where r1.sno=s.sno
 
 ​        2，当所有线程卡在无限循环中。
 
-### **133，什么是Java Timer类？如何创建一个有特定时间间隔的任务？**
+**133，什么是Java Timer类？如何创建一个有特定时间间隔的任务？**
 
 ​        java.util.Timer是一个工具类，可以用于安排一个线程在未来的某个特定时间执行。Timer类可以用安排一次性任务或者周期任务。
 
 ​        java.util.TimerTask是一个实现了Runnable接口的抽象类，我们需要去继承这个类来创建我们自己的定时任务并使用Timer去安排它的执行。
 
-#### **134，Java中的同步集合与并发集合有什么区别？**
+**134，Java中的同步集合与并发集合有什么区别？**
 
 ​        同步集合与并发集合都为多线程和并发提供了合适的线程安全的集合，不过并发集合的可扩展性更高。
 
@@ -1384,11 +1356,11 @@ where r1.sno=s.sno
 
 ​        Java5介绍了并发集合像ConcurrentHashMap，不仅提供线程安全还用锁分离和    内部分区等现代技术提高了可扩展性。
 
-#### **135，同步方法和同步块，哪个是更好的选择？**
+**135，同步方法和同步块，哪个是更好的选择？**
 
 ​        同步块是更好的选择，因为它不会锁住整个对象（当然你也可以让它锁住整个对象）。同步方法会锁住整个对象，哪怕这个类中有多个不相关联的同步块，这通常会导致他们停止执行并需要等待获得这个对象上的锁。
 
-#### **136，什么是线程池？ 为什么要使用它？**
+**136，什么是线程池？ 为什么要使用它？**
 
 ​        创建线程要花费昂贵的资源和时间，如果任务来了才创建线程那么响应时间会变长，而且一个进程能创建的线程数有限。
 
@@ -1396,7 +1368,7 @@ where r1.sno=s.sno
 
 ​        从JDK1.5开始，Java API提供了Executor框架让你可以创建不同的线程池。比如单线程池，每次处理一个任务；数目固定的线程池或者是缓存线程池（一个适合很多生存期短的任务的程序的可扩展线程池）。
 
-#### **137，Java中invokeAndWait 和 invokeLater有什么区别？**
+**137，Java中invokeAndWait 和 invokeLater有什么区别？**
 
 ​        这两个方法是Swing API 提供给Java开发者用来从当前线程而不是事件派发线程更新GUI组件用的。InvokeAndWait()同步更新GUI组件，比如一个进度条，一旦进度更新了，进度条也要做出相应改变。如果进度被多个线程跟踪，那么就调用invokeAndWait()方法请求事件派发线程对组件进行相应更新。而invokeLater()方法是异步调用更新组件的。
 
