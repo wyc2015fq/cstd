@@ -5,14 +5,14 @@
 #include <utility>
 #include <vector>
 
-#include "hdf5.h"
+//#include "hdf5.h"
 
 #include "caffe/common.hpp"
 #include "caffe/layer.hpp"
 #include "caffe/net.hpp"
 #include "caffe/parallel.hpp"
 #include "caffe/proto/caffe.pb.h"
-#include "caffe/util/hdf5.hpp"
+//#include "caffe/util/hdf5.hpp"
 #include "caffe/util/insert_splits.hpp"
 #include "caffe/util/math_functions.hpp"
 #include "caffe/util/upgrade_proto.hpp"
@@ -827,10 +827,10 @@ namespace caffe
     ReadNetParamsFromBinaryFileOrDie(trained_filename, &param);
     CopyTrainedLayersFrom(param);
   }
-
   template <typename Dtype>
   void Net<Dtype>::CopyTrainedLayersFromHDF5(const string trained_filename)
   {
+#ifdef HAS_HDF5
     hid_t file_hid = H5Fopen(trained_filename.c_str(), H5F_ACC_RDONLY,
                              H5P_DEFAULT);
     CHECK_GE(file_hid, 0) << "Couldn't open " << trained_filename;
@@ -877,24 +877,15 @@ namespace caffe
     }
     H5Gclose(data_hid);
     H5Fclose(file_hid);
-  }
-
-  template <typename Dtype>
-  void Net<Dtype>::ToProto(NetParameter* param, bool write_diff) const
-  {
-    param->Clear();
-    param->set_name(name_);
-    // Add bottom and top
-    DLOG(INFO) << "Serializing " << layers_.size() << " layers";
-    for (int i = 0; i < layers_.size(); ++i) {
-      LayerParameter* layer_param = param->add_layer();
-      layers_[i]->ToProto(layer_param, write_diff);
-    }
+#else
+	  LOG(FATAL) << "Unsupported snapshot format.";
+#endif // HAS_HDF5
   }
 
   template <typename Dtype>
   void Net<Dtype>::ToHDF5(const string & filename, bool write_diff) const
   {
+#ifdef HAS_HDF5
     hid_t file_hid = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT,
                                H5P_DEFAULT);
     CHECK_GE(file_hid, 0)
@@ -948,8 +939,23 @@ namespace caffe
       H5Gclose(diff_hid);
     }
     H5Fclose(file_hid);
+#else
+	  LOG(FATAL) << "Unsupported snapshot format.";
+#endif // HAS_HDF5
   }
 
+  template <typename Dtype>
+  void Net<Dtype>::ToProto(NetParameter* param, bool write_diff) const
+  {
+	  param->Clear();
+	  param->set_name(name_);
+	  // Add bottom and top
+	  DLOG(INFO) << "Serializing " << layers_.size() << " layers";
+	  for (int i = 0; i < layers_.size(); ++i) {
+		  LayerParameter* layer_param = param->add_layer();
+		  layers_[i]->ToProto(layer_param, write_diff);
+	  }
+  }
   template <typename Dtype>
   void Net<Dtype>::Update()
   {

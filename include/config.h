@@ -38,6 +38,8 @@
 
 // USE_CBLAS
 
+// #define HAS_HDF5
+
 #if __ARM_NEON
 #include <arm_neon.h>
 #endif // __ARM_NEON

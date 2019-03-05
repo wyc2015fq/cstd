@@ -45,7 +45,7 @@
 
 #include "caffe/common.hpp"
 #include "caffe/layer.hpp"
-#include "caffe/proto/caffe.pb.h"
+#include "caffe/proto/caffe.pb.hpp"
 
 namespace caffe
 {

@@ -10,7 +10,7 @@
 #include "caffe/blob.hpp"
 #include "caffe/common.hpp"
 #include "caffe/layer.hpp"
-#include "caffe/proto/caffe.pb.h"
+#include "caffe/proto/caffe.pb.hpp"
 
 namespace caffe
 {
@@ -116,11 +116,13 @@ namespace caffe
     void CopyTrainedLayersFrom(const NetParameter & param);
     void CopyTrainedLayersFrom(const string trained_filename);
     void CopyTrainedLayersFromBinaryProto(const string trained_filename);
-    void CopyTrainedLayersFromHDF5(const string trained_filename);
     /// @brief Writes the net to a proto.
     void ToProto(NetParameter* param, bool write_diff = false) const;
+
+    void CopyTrainedLayersFromHDF5(const string trained_filename);
     /// @brief Writes the net to an HDF5 file.
     void ToHDF5(const string & filename, bool write_diff = false) const;
+
 
     /// @brief returns the network name.
     inline const string & name() const { return name_; }

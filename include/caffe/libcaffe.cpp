@@ -45,7 +45,7 @@
 #include "util\blocking_queue.cpp"
 #include "util\db.cpp"
 #include "util\db_lmdb.cpp"
-#include "util\hdf5.cpp"
+//#include "util\hdf5.cpp"
 #include "util\im2col.cpp"
 #include "util\insert_splits.cpp"
 #include "util\io.cpp"

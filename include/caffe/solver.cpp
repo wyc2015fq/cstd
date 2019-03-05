@@ -5,7 +5,7 @@
 
 #include "caffe/solver.hpp"
 #include "wstd/string.hpp"
-#include "caffe/util/hdf5.hpp"
+//#include "caffe/util/hdf5.hpp"
 #include "caffe/util/io.hpp"
 #include "caffe/util/upgrade_proto.hpp"
 
@@ -471,10 +471,15 @@ namespace caffe
   template <typename Dtype>
   string Solver<Dtype>::SnapshotToHDF5()
   {
+#ifdef HDF5
     string model_filename = SnapshotFilename(".caffemodel.h5");
     LOG(INFO) << "Snapshotting to HDF5 file " << model_filename;
     net_->ToHDF5(model_filename, param_.snapshot_diff());
     return model_filename;
+#else
+	LOG(INFO) << "Snapshotting to HDF5 file ";
+	return "";
+#endif
   }
 
   template <typename Dtype>
