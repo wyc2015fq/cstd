@@ -119,7 +119,7 @@ def get_image(str1, chars, fonts):
     idnum = rand_str(nums, 18)
     drawtext(draw, pos_x0+10.5*fontsize, pos_y0+13*fontsize, 2*maxw, lineh, idnum, font, fillColor)
 
-
+    draw.polygon()
     im = np.asarray(img_PIL)
     im = cv2.cvtColor(im, cv2.COLOR_RGB2GRAY)
 

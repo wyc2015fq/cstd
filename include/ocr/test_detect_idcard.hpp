@@ -992,7 +992,7 @@ int test_detect_idcard()
     string idcard_no = strs[2];
     g_idcard = idcard_no;
     cv::Mat src;
-    if (1) {
+    if (0) {
       fn = "D:/code/testc_vc2015/testc/20190215104426.jpg";
     }
     //if (!strstr(fn.c_str(), "20161005101521422-4375")) { continue; }

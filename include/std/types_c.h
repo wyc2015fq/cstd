@@ -355,7 +355,7 @@ static void* arrcvt2d(void* dst, TypeId dsttype, int dl, const void* src, TypeId
 
 _POINT_DEF2(I, i, int);
 _POINT_DEF2(S, s, short);
-_POINT_DEF2(L, l, int64_t);
+_POINT_DEF2(L, l, int64);
 _POINT_DEF2(F, f, float);
 _POINT_DEF2(D, d, double);
 #undef _POINT_DEF2

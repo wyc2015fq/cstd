@@ -21,6 +21,12 @@ string GetPredictString(const vector<float>& fm, int idxBlank, const vector<stri
   return str;
 }
 
+#ifdef _DEBUG
+#define MODELPATH "E:/OCR_Line/bin/model/"
+#else
+#define MODELPATH "./model/"
+#endif
+
 
 struct ocr_caffe {
   ICNNPredict* pCNN;
@@ -28,14 +34,9 @@ struct ocr_caffe {
   vector<string> alphabets;
   int idxBlank = 0;
   ocr_caffe() {
-    string imgfolder = "D:/OCR_Line/lines/han200w/imgtest/";
     const char* model_folder;
-    model_folder = "D:/OCR_Line/lines/han200w/densenet-no-blstm_caffe4/";
-    model_folder = "E:/OCR_Line/model/resnet-res-blstm/";
-    model_folder = "E:/OCR_Line/model/inception-bn-res-blstm/";
-    model_folder = "D:/OCR_Line/lines/han200w/densenet-sum-blstm-full-res-blstm/";
-    model_folder = "D:/OCR_Line/lines/han200w/densenet-sum-blstm-full-res-blstm0/";
-    model_folder = "D:/OCR_Line/lines/han200w/densenet-sum-blstm-full-res-blstm2/";
+    model_folder = MODELPATH"densenet-sum-blstm-full-res-blstm2/";
+    model_folder = MODELPATH"densenet-sum-blstm-full-res-blstm8000";
     pCNN = CreatePredictInstance(model_folder, true);
     pCNN->GetInputImageSize(wstd, hstd);
     alphabets  = pCNN->GetLabels();
@@ -71,14 +72,8 @@ struct ocrnum_caffe {
   vector<string> alphabets;
   int idxBlank = 0;
   ocrnum_caffe() {
-    string imgfolder = "D:/OCR_Line/lines/han200w/imgtest/";
     const char* model_folder;
-    model_folder = "D:/OCR_Line/lines/han200w/densenet-no-blstm_caffe4/";
-    model_folder = "E:/OCR_Line/model/resnet-res-blstm/";
-    model_folder = "E:/OCR_Line/model/inception-bn-res-blstm/";
-    model_folder = "D:/OCR_Line/lines/han200w/densenet-sum-blstm-full-res-blstm/";
-    model_folder = "D:/OCR_Line/lines/han200w/densenet-sum-blstm-full-res-blstm0/";
-    model_folder = "D:/OCR_Line/lines/han200w/densenet-sum-blstm-full-res-blstm-09X/";
+    model_folder = MODELPATH"densenet-sum-blstm-full-res-blstm-09X";
     pCNN = CreatePredictInstance(model_folder, true);
     pCNN->GetInputImageSize(wstd, hstd);
     alphabets = pCNN->GetLabels();
