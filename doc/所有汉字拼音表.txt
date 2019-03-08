@@ -1,0 +1,1354 @@
+ËùÓÐºº×ÖÆ´Òô±í
+
+¡¾a1¡¿ ß¹ °¢ ºÇ °¡ åH áZ
+¡¾a2¡¿ °¡ àÄ
+¡¾a3¡¿ °¢ °¡ 
+¡¾a4¡¿ °¢ °¡ 
+¡¾a ¡¿ ºÇ °¡ 
+¡¾ai1¡¿ °¥ °§ °£ °¤ °¦ ŠÖ ÕO ‡† æX
+¡¾ai2¡¿ °¤ òI °} °©
+¡¾ai3¡¿ Ì šG ‡† °« Ì@ ì\
+¡¾ai4¡¿ °¬ êi íÁ °¦ Û ƒv ðg °¯ ËB µK ‡† àÉ ‹Ü ìa ­a •á èP àæ 
+¡¾an1¡¿ S V °² èñ °± âÖ ÖO ‹j ùg ÄW õc °° ±V 
+¡¾an2¡¿ †±
+¡¾an3¡¿ ˆ °³ ˆ †† ä@ Þî ••
+¡¾an4¡¿ áí °¶ °´ °· °¸ •• éœ °µ ÷ö 
+¡¾ang1¡¿ °¹ 
+¡¾ang2¡¿ …n Ñö °º 
+¡¾ang4¡¿ –‹ °» ál
+¡¾ao1¡¿ °¼ °¾  n
+¡¾ao2¡¿ °½ ëJ å åÛ à» âÚ ­H éá °¾ ñú òü °¿ Ö’ ü ‡Ì ÷é
+¡¾ao3¡¿ Ø² Æb ÞÖ Ò\ ‹‹
+¡¾ao4¡¿ ŽS ˆ Ûê ÞÖ ŠS °Á ŠW òˆ ‰¥ °Ã °Ä öË
+¡¾ba1¡¿ °Ë °Í °È –[ °Å ŠB °É á± °Ì °Æ °Ê ôÎ Ø^ ÷„
+¡¾ba2¡¿ ÜØ °Î Ã_ ÝÃ °Ï ÷É ü–
+¡¾ba3¡¿ °Ñ âZ °Ð
+¡¾ba4¡¿ ‰Î °Ñ ²® y èË °Ö °Ò ÁT °Ð õE °Ô å± °È 
+¡¾ba¡¿ °É ÁT °Ç 
+¡¾bai1¡¿ êþ 
+¡¾bai2¡¿ °× 
+¡¾bai3¡¿ °Ù ²® °Û Ä° °Ø Þã ”[ 
+¡¾bai4¡¿ †h ”¡ °Ý °Þ ív 
+¡¾ban1¡¿ °â ”‘ °à °ã îC °ß °á ”Ê ñ£ ñ­
+¡¾ban3¡¿ Úæ Úæ °å °æ âk ô² ÎZ ô‘ 
+¡¾ban4¡¿ Þk °ë °ç °é ˆm °è Š” ½O –® œ° °ê 
+¡¾bang1¡¿ °î ŽÍ °ð äº 
+¡¾bang3¡¿ ½‰ °ñ °ò 
+¡¾bang4¡¿ °ö ÅÔ °ô —” °ø Ör ‰Y Ýò °ñ “s ¶œ °ò °õ æ^
+¡¾bao1¡¿ Ùè °ü °ú æß –¢ °û ÅÚ „ƒ ý_ ìÒ °ý 
+¡¾bao2¡¿ ±¢ ±¡ 
+¡¾bao3¡¿ ï– Œš ±£ ød Ýá ±¤ ñÙ 
+¡¾bao4¡¿ ˆó ÅÙ ±§ õÀ ±ª Ç˜ õU ±© Ì™ ÆÙ ÆØ ±¬ 
+¡¾bei1¡¿Úé ±­ ±° ±³ —G —À ±¯ ±® ùl 
+¡¾bei3¡¿ ±± 
+¡¾bei4¡¿ Ø ØÃ Úý ªN ‚ä ±³ ä^ ±¶ ã£ ‚³ ±» ¬i —” Ý… ‘v ±º Ýí íÕ óc ñØ ¼L íx öÍ
+¡¾bei¡¿ †h ±Û
+¡¾ben1¡¿ ±¼ ÙS åQ
+¡¾ben3¡¿ ±¾ ±½ ÛÎ
+¡¾ben4¡¿ º» ÛÐ ±¼ ‚– ±¿
+¡¾beng1¡¿ È µp ½l ±À ¿‡ àÔ 
+¡¾beng2¡¿ ±Â
+¡¾beng3¡¿ ÈE ¿‡ ¬e
+¡¾beng4¡¿ ±Ã ±Å °ö ¿‡ ê´ ça ±Ä
+¡¾bi1¡¿ ŒÂ °n ±Æ ös æq
+¡¾bi2¡¿ Ý© ±Ç
+¡¾bi3¡¿ Ø° ±È ßÁ Ó åþ ±Ë ïõ ¹P ÙÂ ô° ¹u ±É 
+¡¾bi4¡¿ ŽÅ ±Ø ®… é] ÜÅ ±Ó ß› Ôv Æƒ î¯ és ÃÚ ñƒ « –Ä ÙS Éœ ±Ñ †ô ð{ ±Ý ”À ãG ÃØ ¸“ áù ÝÉ —a âØ ±Ö æ¾ ˆã °z ÚF º` Ï ã¹ åö ±Í î¢ Û‹ Äb ±Ô Ÿ• § ñÔ ±Ù õI ±Ì ñE ±Î ±× ó Þµ Óv ó÷ ú‡ ±Ú æÔ ±Ü ÷Â å¨ ±Û Š` èµ Òg ôÅ ÜL 
+¡¾bian1¡¿ ß… í¾ »e Èq ¾Ž ìÔ òù ¹ öc ±Þ 
+¡¾bian3¡¿ ÙH ñ¹ ±â ØÒ Èq Æ íÜ ·H ñÛ Ëx 
+¡¾bian4¡¿ ±å ÛÍ ÜÐ ’\ âí ›M ãê ×ƒ •c ±ã “O ±é ¾œ ÅŒ ±æ Þq Þp 
+¡¾biao1¡¿ è¼ ˜Ë ïR óQ ÷Ô ±ë ªY “¿ Ž¼ œý òŠ ±ì û ŸÏ çS ïj ñ¦ Ë‘ žd ·… ès 
+¡¾biao3¡¿ ±í æ» ñÑ ÒF ™~ 
+¡¾biao4¡¿ ‚l “¿ ÷B 
+¡¾bie1¡¿ °T ±ï ÷M 
+¡¾bie2¡¿ „e õ¿ 
+¡¾bie3¡¿ °T 
+¡¾bi34¡¿ „e 
+¡¾bin1¡¿ ß“ çã Ùe ±ò ƒ† ±ó žI À_ ™‰ è\ Ï™ žl áÙ
+¡¾bin4¡¿ ”P š› Äœ ôW
+¡¾bing1¡¿ ±ù K ±ø ÆÁ –Þ ™‰ 
+¡¾bing3¡¿ ±û Úû ±ü ±ú ïž ±þ ÆÁ ½Ž Ís ·A í@ 
+¡¾bing4¡¿ K ²¡ Þð
+¡¾bo1¡¿ “Ü ²¨ ²£ ³j †\ õÀ ðG À °ã „ƒ ²¤ à£ õE ²¥ ó Þ¬
+¡¾bo2¡¿ ØÃ ²® ñg ²¯ ­“ ²´ °Ø ²ª â“ ãK Ùñ ›Â ÒU ²° ²± ²© È• ùP ²³ ²« õN ðo ƒk ²­ ÆÇ ²² õÛ æn ±¡ ñF Òq íç
+¡¾bo3¡¿ õË ô¤
+¡¾bo4¡¿ °Ø ±¡ éÞ ë¢ ô¤
+¡¾bo¡¿ ÊN à£ ²²
+¡¾bu1¡¿ â˜ åÍ m Žï êÎ ðJ
+¡¾bu2¡¿ õ³
+¡¾bu3¡¿ ÊN ß² Ña ²¶ ²¸ ùL ±¤
+¡¾bu4¡¿ ²» ²¼ ²½ …Ä ²À âb ÆÒ ²¿ ²º ê³ Éž º^ ²¾ 
+¡¾ca1¡¿ ²ð ²Á àê 
+¡¾ca3¡¿ íå 
+¡¾cai1¡¿ ‚Æ ²Â 
+¡¾cai2¡¿ ²Å ²Ä Ø” ²Ã
+¡¾cai3¡¿ ²É ²Ê ¾Z ²Ç ²È
+¡¾cai4¡¿ ²É ²Ë ²Ì ¿n 
+¡¾can1¡¿ …¢ ò‰ ²Í
+¡¾can2¡¿ šˆ ÐQ ‘M
+¡¾can3¡¿ ‘K ·_ ºd ‘” üo
+¡¾can4¡¿  N “½ åî ôÓ è²
+¡¾cang1¡¿ ‚} ‚á Én œæ úI Å“
+¡¾cang2¡¿ ê° ²Ø è†
+¡¾cao1¡¿ ²Ú ²Ù
+¡¾cao2¡¿ ²Ü àÐ äî ²Û ó© ô½
+¡¾cao3¡¿ ²Ý ‘¨
+¡¾cao4¡¿ ÃH
+¡¾ce4¡¿ ƒÔ Žú ‚È Å œy ²ß ¹k ¹‹
+¡¾cen1¡¿ …¢
+¡¾cen2¡¿ á¯ ä¹ —q
+¡¾ceng1¡¿ àá 
+¡¾ceng2¡¿ ŒÓ Ôø ò 
+¡¾ceng4¡¿ ²ä 
+¡¾cha1¡¿ ²æ ’Q è¾ Åa ²î ²å †â Ôû ðl ²ê åš Å‘ àê
+¡¾cha2¡¿ ²æ ˆ“ ²ç ²é ²è ²ë ¿ âª é« é¶ ²ê ²ì éß 
+¡¾cha3¡¿ ²æ ñÃ Û‚ èd 
+¡¾cha4¡¿ ²æ ãâ è¾ ²í ÷ É² ñÃ ÔŒ ß¸ ²î æ±
+¡¾chai1¡¿ ²ð âO ²î
+¡¾chai2¡¿ ƒŠ ²ñ ²ò
+¡¾chai3¡¿ Æ
+¡¾chai4¡¿ ²î ÏŠ ðû
+¡¾chan1¡¿ Ò— “½ ”v ŽÊ Òb 
+¡¾chan2¡¿ †Î ×‹ ‹È äa ð’ ¶U åî Àp Ïs ƒ] âÜ äý å¤ že ó¸ Žf õð è
+¡¾chan3¡¿ ®a „} I Õ~ ÀA çP êU Êr ‡Ï 
+¡¾chan4¡¿ ‘Ô „} î åñ í]
+¡¾chang1¡¿ ‚t ²ý ³« ÝÅ ²þ é‹ æ½ öK
+¡¾chang2¡¿ éL ˆö ÈO Äc ‡L ÌÈ ³£ ƒ” áä ÉÑ æÏ ÷l 
+¡¾chang3¡¿ S ˆö ä êÆ ã® ³¨ ë© 
+¡¾chang4¡¿ ¬„  ío •³ ³« ÛË ³ª 
+¡¾chang¡¿ ˆö 
+¡¾chao1¡¿ ³­ ³³ â÷ € ân ¾b ³¬ ìÌ ½Ë
+¡¾chao2¡¿ êË ³² ³¯ ü{ ³° ³±
+¡¾chao3¡¿ ³³ ³´ ±| ûž
+¡¾chao4¡¿ ñé 
+¡¾che1¡¿ Ü‡ ¼ †q ³Œ 
+¡¾che3¡¿ ³ß ³¶ 
+¡¾che4¡¿ Ø Ûå ³¸ ³· ³º 
+¡¾chen1¡¿ ÞÓ ³» ¾D è¡ àÁ ²_ 
+¡¾chen2¡¿ ³¼ ‰m ³½ ³À ³Á ê å· ³¿ ÖR 
+¡¾chen3¡¿ ‰} Ú’ ´~ Û{ 
+¡¾chen4¡¿ Òr ¯M ýZ ·Q ƒ¡ ³Ã ™Â × 
+¡¾chen¡¿ ‚á 
+¡¾cheng1¡¿ ™f ¬b ³Ó ·Q Ï| èK ‚   ª ÚX éÌ “Î àá îª
+¡¾cheng2¡¿ ³É Ø© ³Ê —– Õ\ ³Ð ³Ç Œk Ûô ³Ë Ê¢ ä… Ã” ³Ì ‘Í ñÎ ëó õ¨ ³Î ³È 
+¡¾cheng3¡¿ ³Ñ òG ñÎ
+¡¾cheng4¡¿ ³Ó ·Q  ª
+¡¾chi1¡¿ ³Ô ßê Ãq ø| ò¿ ½‚ í÷ ó× ®E “¤ àÍ °V æÊ ó¤ ÷Î
+¡¾chi2¡¿ ³Ø ³Ú ñY ßt Ûæ ³Ö ³× k Ü¯ õØ óø
+¡¾chi3¡¿ ³ß ýX ³Þ u ôù ñÝ 
+¡¾chi4¡¿ áÜ ß³ ³â ³à ï† ’x Ÿë ³á ë· à´ ÙÑ ¯€ ‘y ñ¡ 
+¡¾chong1¡¿ ³ä ›_ âç Üû œ¥ Áˆ ô© ã¿ ‘o ô¾ 
+¡¾chong2¡¿ Ïx ÖØ ·N ³ç
+¡¾chong3¡¿ Œ™
+¡¾chong4¡¿ ›_ ã|
+¡¾chou1¡¿ ³é ¼— “o ºN ñ¬  ß 
+¡¾chou2¡¿ ³ð ¼— ƒ‰ ŽÎ ã° ‘À ¾I ®  »I ³ê ³î ³í Ñn ÜP ×‡ 
+¡¾chou3¡¿ áh –ƒ ‚¸ ³ò 
+¡¾chou4¡¿ ³ô šŽ 
+¡¾chu1¡¿ ³ö ³õ “¹ éË
+¡¾chu2¡¿ Æc Öú ³ý N äz ³ü òÜ ër ŽÐ ™» ³ù ÜX ÌŽ 
+¡¾chu3¡¿ èÆ µA èú ƒ¦ ñÒ ³þ ýƒ 
+¡¾chu4¡¿ Ø¡ ÌŽ ½I âð ‚m Õ‘ Ðó ´¤ Ó| œä âð ÷í ´£ 
+¡¾chua1¡¿ šH 
+¡¾chuai1¡¿ ´§ Þõ 
+¡¾chuai2¡¿ Äu
+¡¾chuai3¡¿ ´§
+¡¾chuai4¡¿ à¨ ´§ àÜ õß ëú 
+¡¾chuan1¡¿ ´¨ ë° ´©
+¡¾chuan2¡¿ ‚÷ ô­ ´¬ å× ´ª º@ 
+¡¾chuan3¡¿ â¶ ÇF ´­ ƒb Ûw 
+¡¾chuan4¡¿ ´® âA 
+¡¾chuang1¡¿ „“ “œ ¯ ´° 
+¡¾chuang2¡¿ ´² ´± ‡l 
+¡¾chuang3¡¿ êJ 
+¡¾chuang4¡¿ „“ í
+¡¾chui1¡¿ ´µ ´¶
+¡¾chui2¡¿ ´¹ Úï ´· Ç” é¢ ×µ ‡ù é³ åN 
+¡¾chun1¡¿ ´º ‰@ ´» Ý òí öj 
+¡¾chun2¡¿ ¼ƒ É” ´½ ´¾ åT ù‡ _ ´¼ 
+¡¾chun3¡¿ ´À 
+¡¾chuo1¡¿ ßO õÖ ´Á 
+¡¾chuo4¡¿ Þu ŠÆ à¨ · ‹S ¾b Ýz ýp šf
+¡¾chuo¡¿ ¾b
+¡¾ci1¡¿ ´Ì ²î ßÚ «u ´Ã Ú ód
+¡¾ci2¡¿ Ô~ Üë ´Ä Æ ìô ´É ËF Þo ´È ´Å ´Æ ú\ ôÙ 
+¡¾ci3¡¿ ´Ë Õ › «u Ú
+¡¾ci4¡¿ ´Î ËÅ ´Ì è Ùn
+¡¾cong1¡¿ ´Ò É ‡è ­B ˜º çW Ê[ ˜B è® ò‹ Â” ²j 
+¡¾cong2¡¿ Ä …² › äÈ çý | Ëq
+¡¾cou4¡¿ œ Ý ëí
+¡¾cu1¡¿ ´Ö
+¡¾cu2¡¿ áÞ éã 
+¡¾cu4¡¿ ×ä ´Ù â§ õ¡ Ýý ´× È¤ Ûq ´Ø î• õ¾ õí
+¡¾cuan1¡¿ Ùà ”x è‰ Üf 
+¡¾cuan2¡¿ Çˆ ”€ ™« 
+¡¾cuan4¡¿ ¸Z ´Û è‰ ìà 
+¡¾cui1¡¿ Ë¥ ¿\ éÁ ´Þ ´ß ´Ý ª‰
+¡¾cui3¡¿ y è­
+¡¾cui4¡¿ ´à ‚y ÝÍ ßý ã² ´ã ¾\ Ÿn ë¥ ´á ´â ´ä Ä‹ 
+¡¾cun1¡¿ ´å ñå ÛZ ‰– 
+¡¾cun2¡¿ ´æ ¶×
+¡¾cun3¡¿ „Y ââ
+¡¾cun4¡¿ ´ç
+¡¾cuo1¡¿ ´ê ¬› ´è õã ´é 
+¡¾cuo2¡¿ ïó ðî áÏ ðû ûz àŸ
+¡¾cuo3¡¿ ëâ
+¡¾cuo4¡¿ „v Çs ´ì „z ØÈ ´ë äS åe ‰è
+¡¾da1¡¿ …ö ÞÇ ‡} ´î àª ´ð æp ñ× 
+¡¾da2¡¿ ´ò ß_ âò æ§ ße ËR ÇE žØ óÎ ‘„ ´ð ÷° ´ñ í^ 
+¡¾da3¡¿ ´ò
+¡¾da4¡¿ ´ó šù ‰¡
+¡¾da¡¿ ÀJ ðã Ëþ ´ñ
+¡¾dai1¡¿ ´ô ß¾ ´ý 
+¡¾dai3¡¿ ´õ ´þ ´ö 
+¡¾dai4¡¿ ´ó ´ú Ü ß° á· åÊ ½H ñ~ çé Ž§ ´ù ÙJ ´ý µ¡ Ü¤ ´ü ´þ ì^ ´÷ ÷ì Òy
+¡¾dan1¡¿ µ¤ “ú †Î íñ µ¢ à ñõ áG š— °D Ñ º„ ÙÙ ®X
+¡¾dan3¡¿ ¼ Ä‘ ðã “Û Ùy  ü^ ül ür
+¡¾dan4¡¿ Ê¯ µ© µ« “ú ÕQ ¯D ÝÌ à¢ ðZ ‘„ µ­ — µ° µª  °D ó‡ ÙÙ Ùœ ‘ž å£ ¶V 
+¡¾dang1¡¿ ®” ­c èK Òd ºš 
+¡¾dang3¡¿ “õ üh ×• 
+¡¾dang4¡¿ ®” šë ´X å´ ‰³“õ ÊŽ ™n ÝÐ 
+¡¾dao1¡¿ µ¶ ß¶ âá ë® ô€ 
+¡¾dao2¡¿ ’Ò 
+¡¾dao3¡¿ Œ§ u “v µ¹ ¶\ µ¸
+¡¾dao4¡¿ µ½ ŽÎ µ¹  c µ¿ ±I µÀ µ¾ ôî 
+¡¾de2¡¿ µÃ åu µÂ
+¡¾de¡¿ µØ µÄ µ× µÃ
+¡¾dei3¡¿ µÃ
+¡¾den4¡¿ ’Y 
+¡¾deng1¡¿ Ÿô µÇ ƒ\ àâ ô£ µÅ 
+¡¾deng3¡¿ µÈ ê­ 
+¡¾deng4¡¿ à‡ µÊ áØ ³Î íã µÉ ç‹ µÅ 
+¡¾di1¡¿ Øµ µÍ ôÆ µÌ Ìá ´” àÖ µÎ çC íL 
+¡¾di2¡¿ µÒ µÏ µÄ ¼e Ý¶ ”³ œì îE µÑ Ó] óƒ àÖ µÕ µÔ ˜µ çC Û— 
+¡¾di3¡¿ Øµ Û¡ Ôg Ûæ µÖ µ× èÜ íÆ ÷¾ 
+¡¾di4¡¿ µØ «Z –m µÜ âK µÄ ‚d µÛ ßf æ· Ç… µÚ ÖB µÙ é¦ “W íû ¾† ¶E íÚ ÏE Ûy 
+¡¾dia3¡¿ àÇ 
+¡¾dian1¡¿ ”“ µà ‚Ù µá î Û† ”„ Žp °d 
+¡¾dian3¡¿ µä üc µâ õÚ 
+¡¾dian4¡¿ ëŠ µè µé Úç Ûã µê çè ‰| âš µë Õ µì µî µå ô¡ ñ° 
+¡¾dian¡¿ üc 
+¡¾diao1¡¿ µó µð šô µò Íq ¬ ¬h õõ µï µñ õ 
+¡¾diao3¡¿ øB ŒÅ
+¡¾diao4¡¿ µõ áž É‰ ·– Õ{ µô äH ã“ 
+¡¾die1¡¿ µù µø 
+¡¾die2¡¿ µü Ûì •i †A ½x ð¬ Õ™ Ü¦ ñó Þé à© Û@ Û Â ëº ¯B µú µû ÅŽ õÞ ÏH öl šÛ 
+¡¾ding1¡¿ ¶¡ Øê ¶£ çà ¶¢ î® á” ðÛ ñô ôú ìw 
+¡¾ding3¡¿ í” ôú ¶¦ 
+¡¾ding4¡¿ Ó† ï} á” ¶¨ à¤ äb ëë íÖ åV 
+¡¾diu1¡¿ G ïM äA 
+¡¾dong1¡¿–| ¶¬ ßË – ë± ù… ÎX 
+¡¾dong3¡¿¶­ ¶® 
+¡¾dong4¡¿ „Ó ƒö ¶± Ûí — ’œ á¼ ÄL ¶² ¶´ ëØ íÏ œ§
+¡¾dou1¡¿ ¶¼ †t ¶µ Ýú óû 
+¡¾dou3¡¿ ôY ¶¶ –’ ¶¸ â^ ò½ 
+¡¾dou4¡¿ ôY ¶¹ ¶º ðL ×x áH Ã– ž^ ¶» ¸]
+¡¾du1¡¿ …  ¶¼ êA ¶½ à½
+¡¾du2¡¿ ¶¾ ªš îD ×x ž^ ™³  Ù  © ×˜ üt ÷Ç 
+¡¾du3¡¿ ¶Ç ºV ¶Â Ù€ ¶Ã 
+¡¾du4¡¿ Ü¶ ¶Å ¶Ç ¶Ê ¶È ”¾ ¶É åƒ ó¼ 
+¡¾duan1¡¿ ÂZ ¶Ë 
+¡¾duan3¡¿ ¶Ì
+¡¾duan4¡¿ ¶Î ”à ‰F ¾„ é² Ÿ ´V å‘ »f 
+¡¾dui1¡¿ ¶Ñ 
+¡¾dui4¡¿ ê  Œ¦ ƒ¶ ‘» ¶Ø íÔ åT í­ ç…
+¡¾dun1¡¿ ‡ ª ¶Ø ¶Õ “æ ò— “Ç íâ ç… ÜH ¶× 
+¡¾dun3¡¿ íï ÜO 
+¡¾dun4¡¿ ¶Ú ãç Ÿõ í» âg ¶Ü îD ¶Ý ˜J 
+¡¾duo1¡¿ ¶à ßÍ ¶ß „„ ¶Þ ”¦ ñÖ 
+¡¾duo2¡¿ ŠZ É ¶È èI ”£ õâ 
+¡¾duo3¡¿ ¶ä ¶â ßá ˆÊ ¶ã ‡¾ Ü€ Šb ôD 
+¡¾duo4¡¿ ñW –m ¶ç ï˜ ãõ ¶â –Ã –ª ¶æ ‰™ ¶è ‹s ¶å 
+¡¾duo¡¿ ¶Þ 
+¡¾e1¡¿ °¢ åí Šã æ¹ 
+¡¾e2¡¿ Óž ‡ê …Å ¶í Ý­ ¶ë Å¶ ›á ¶ð ±“ ä~ ùZ ¶ê î~
+¡¾e3¡¿ º ‡f
+¡¾e4¡¿ ¶ò êq ÜÃ ¶ó ßÀ Ü— ˆ× º ðI °· ¶õ é‘ Ö@ Ýà ß] ¶ô ¬ ãµ ð_ îO ý| ù˜ åŠ î€ Ø¬ ÷{
+¡¾e¡¿ ßÀ 
+¡¾ei1¡¿ šG
+¡¾en1¡¿ ŠC ¶÷ Ýì
+¡¾en4¡¿ Þô
+¡¾eng1¡¿ íE
+¡¾er2¡¿ ƒº ¶ø ÂY ›˜ –é Ý[ Ãs ø õb Äž 
+¡¾er3¡¿ – ¶ú Ën ßƒ ðD ¶ý ñ“ çí ãs
+¡¾er4¡¿ ¶þ p Ù¦ ÙE …þ ãs Ð^ ˜Þ
+¡¾fa1¡¿ °l áw 
+¡¾fa2¡¿ ·¦ ·¥ ÛÒ ·¤ ÁP éy 
+¡¾fa3¡¿ ·¨ íÀ 
+¡¾fa4¡¿ °l ¬m 
+¡¾fan1¡¿ ·« ïc ·¬ Þ¬ á¦ ¿œ ”õ ·ª ·­
+¡¾fan2¡¿ ·² µ\ âC Ÿ© ñÈ ‰“ Þ¬ ·® ­[ Ä‡ ìÜ ·± ú‹ õì ÞÀ 
+¡¾fan3¡¿ ·´ ·µ 
+¡¾fan4¡¿ ·¸ šï ïˆ ·º ¹  Øœ î² èó ‹Ë
+¡¾fang1¡¿ ·½ Úú ·» ·¼ èÊ  ° â[ 
+¡¾fang2¡¿ ·À ·Á ·» ·¾ ·¿ ô™ 
+¡¾fang3¡¿ ·Â ÔL áÝ ¼ •P ô³ 
+¡¾fang4¡¿ ·Å
+¡¾fei1¡¿ ïw åú ·Ç ·Æ ·È òW ¾p ìé òã öE ö­ 
+¡¾fei2¡¿ ·Ê äÇ ëè ÎN 
+¡¾fei3¡¿ –F ·Ë Õu ·Æ ã­ —’ ì³ é¼ òã ôä óõ 
+¡¾fei4¡¿ °l ÜÀ ·Í ·Î áô U âö ·Ð ÙM „| ðò çš 
+¡¾fen1¡¿ ·Ö ·Ò ·Ô ¼Š çã •S ·Õ —± ·Ó
+¡¾fen2¡¿ ‰ž ·Ú –Œ Í` Êˆ èû ·Ù å ÞM Ør ÷÷ 
+¡¾fen3¡¿ ·Û 
+¡¾fen4¡¿ ·Ö ·Ý ˆe Š^ ·Þ ƒf ‘¼S ÷a å¯ 
+¡¾feng1¡¿ ØS ïL ž– —÷ ·â ´^ ¯‚ ·å ·é Ý× äh ·ä  È Ûº 
+¡¾feng2¡¿ ñT œt ·ê ¿p 
+¡¾feng3¡¿ ïL ÖS Òƒ ßô 
+¡¾feng4¡¿ ïL øP ·î Ùº Ý× Ùˆ ¿p
+¡¾fo2¡¿ ·ð
+¡¾fou3¡¿ ó¾ ·ñ À
+¡¾fu1¡¿ ·ò ¸ ß» æÚ Šm «c Äw –´ ³Q âa Ðu ûŸ õÃ õÆ ïû ·õ à~ ·ó 
+¡¾fu2¡¿ ·ò Žˆ ¸¥ ·ü øD Ü½ ÜÀ Æ] ·ö ·ð æÚ „_ ÜÞ Æ… ·÷ …ò ·þ âö ›Š ¼› ½E íh Üò –¢ î· ·ú ·ý Û® ›š ìð Ý³ –ó íÉ ò¶ ¸¡ ÝÊ èõ ·û ¹A Ùë ¸¤ ¸¢ åõ Èƒ ·ù õÆ ÁJ Ý— òÝ ùf õH ¸£ Å€ ˜_ ¹… òð ÒL íê 
+¡¾fu3¡¿ ¸¸ ¸¦ “á ÞÔ ¸« ¸® ‚a ¸© ¸ª Ýo ¸¬ ¸­ äæ ¸¯ ôf º… íë 
+¡¾fu4¡¿ ¸¸ Ó‡ ¸¶ Ø“ ‹D ¸½ ¸À ¸· ·þ ñ€ ¸° Ñ} ›š µy ¸± Îl Ùx ¸µ ¸» ¸¹ õV ¿` Ý• ÙŽ òó öv ¸² ð¥
+¡¾ga1¡¿ ŠA ê¸ Ù¤ ßÈ ¿§ ¸Â
+¡¾ga2¡¿ Üˆ á æÙ ¸Á 
+¡¾ga3¡¿ «V æØ ¸Â 
+¡¾ga4¡¿ ÞÎ 
+¡¾gai1¡¿ Ô“ ëB Úë Ûò ÇD ÙW
+¡¾gai3¡¿ ¸Ä
+¡¾gai4¡¿ Ø¤ ½æ â} Éw “© ¸È ¸Å ê®
+¡¾gan1¡¿ ŽÖ ¸Ê å «\ ¸Ë ¼é ¸Î Ûá ÜÕ í· ãï ¸Ì ¸Í ôû ðá ŒÀ l 
+¡¾gan3¡¿ ¸Ë ¶’ Ús ¹C ¸Ò ¸Ð ä÷ éÏ ß¦ ÷h
+¡¾gan4¡¿ ŽÖ êº ½C äÆ ó_ ÚM 
+¡¾gang1¡¿ Œù ƒé ¿¸ „‚ ¸Ü ’â ¸Ø  ¾V —ž ³M âG ä“ ¸× î¸ ˆþ 
+¡¾gang3¡¿  ¸Û 
+¡¾gang4¡¿ ¸Ü  ä“ óà ‘ß 
+¡¾gao1¡¿ ¸Þ ¸ß ¸á éÀ Øº ¸à ¸Ý ¸â ™²
+¡¾gao3¡¿ ê½ ¸ã ¿c éÂ •± æ€ ¸å ·X éÂ 
+¡¾gao4¡¿ ¸æ Û¬ Õa ä† ¸à 
+¡¾ge1¡¿ ¸ê Øî ÛÙ ’M ¼v ¸í ¿© ðE ¸ñ ¸ç ¸ì ø ñË ”R ¸î ¸è
+¡¾ge2¡¿ ¸ï ÆŒ ’š éx éw ¸ñ Øª ¸ì ¸ð ”R ¸ò îM ¸ô Üª àÃ œè ˜† ë¡ ëõ ÷À æk ÞP
+¡¾ge3¡¿ ‚€ ºÏ ¸÷ ÛÁ ô´ Éw ¸ð
+¡¾ge4¡¿ ‚€ ¸÷ò´ íÑ ãt
+¡¾gei3¡¿ ½o
+¡¾gen1¡¿ ¸ù ¸ú
+¡¾gen2¡¿ ßç
+¡¾gen3¡¿ ôÞ
+¡¾gen4¡¿ ƒ ôÞ Ý¢
+¡¾geng1¡¿ ¸ü ¸ý ¸û Ùs ¿K ùˆ ¸þ 
+¡¾geng3¡¿ ¹¡ ¹¢ ßì ½Ž ¹£ îi õ†
+¡¾geng4¡¿ ¸ü ˆí •œ 
+¡¾gong1¡¿ ¹¤ ¹­ ¹« ¹¦ ¹² ¼t ¹¥ ¹© ëÅ Œm ¹§ ò¼ ¹ª ý ‰b ö¡ 
+¡¾gong3¡¿ ì– ¹² ¹¯ ¹° çî –í 
+¡¾gong4¡¿ ¹² Ø• ¹© †ß ÚM 
+¡¾gou1¡¿ ¹´ ¾ä Øþ œÏ èÛ ã^ ¾— ÷¸ óô 
+¡¾gou3¡¿ ¹¶ á¸ ¹· ÂT èÛ óÑ
+¡¾gou4¡¿ ¹´ ˜‹ Ù Ô ¹¸ Š¥ ƒÚ ‰ò åÜ ì° ëg æÅ ÓM
+¡¾gu1¡¿ ¹À ¹¾ ßÉ ¹Á ¹Â ¹Ã ÝM ÝL ¹Ç ø ÁB ¼Ò ÝÔ ¹½ òÁ Éu ¹¼ ôþ õý Ýž ¹¿
+¡¾gu2¡¿ úX
+¡¾gu3¡¿ ¹Å ·Y ãé Ôb ¿à ¹É ¹Ç êô ÙZ î¹ â’ Ál òÁ ÐM ù] ðk ¹Ä Ýž ˜€ ·Y ØÅ ëû î­ ±W žJ
+¡¾gu4¡¿ ¹À ¹Ì ¹Ê î™ ˆØ èô áÄ êö ¹Í åd ðó öA 
+¡¾gua1¡¿ ¹Ï ¹Î ßÉ ëÒ èé òm ¾  øŽ „œ
+¡¾gua3¡¿ ßÉ „Ž ¹Ñ 
+¡¾gua4¡¿ ØÔ ÔŸ ’ì ½\ ¹Ó 
+¡¾guai1¡¿ ¹Ô 
+¡¾guai3¡¿ ¹Õ 
+¡¾guai4¡¿ ‰ø ¹Ö
+¡¾guan1¡¿ êP Ó^ ¾] ¹Ù ¹Ú ñæ Ý¸ ÙÄ ¹× ¯ öŠ 
+¡¾guan3¡¿ Ý¸ ð^ ¬g ¹` ¯p ¹Ü øA 
+¡¾guan4¡¿ š¯ ao1 Ó^ ´® Øž ¹Ú “¥ ‘T äÊ µ îÂ ¹à ­ ûX ¹Þ
+¡¾guang1¡¿ ¹â ßÛ ›² èæ ë×
+¡¾guang3¡¿ V «E
+¡¾guang4¡¿ èæ ¹ä
+¡¾gui1¡¿ šw ¹ç ý” ‹‚ ÒŽ ßž ð§ é| Îù ÑO @ ¹å õq ôh
+¡¾gui3¡¿ šð å³ Ü‰ âÑ …Q æ ÔŽ ˆ’ ¹í ¹ï Š¹ êÐ óþ
+¡¾gui4¡¿ ™™ êÁ „¥ „£ È² ÙF ¹ð ™u ¶W ¹K ¹ò ²Z ÷i ÷Z
+¡¾gun3¡¿ Ð– ¾i ¹÷ Ý L L õ… 
+¡¾gun4¡¿ ¹÷ 
+¡¾guo1¡¿ ß^ œ †J †F ˆå ¹ù œu †© áÆ ñø å ÏX 
+¡¾guo2¡¿ ‡ø “ Ž½ X Äs ë½ Ùå 
+¡¾guo3¡¿ ¹û Ç‘ ðR ˜¡ ¹üòä
+¡¾guo4¡¿ ß^
+¡¾ha1¡¿ ºÇ ¹þ ãx
+¡¾ha2¡¿ Îr ¸ò
+¡¾ha3¡¿ ¹þ ŠU 
+¡¾ha4¡¿ ¹þ 
+¡¾hai1¡¿ …õ ¿È àË 
+¡¾hai2¡¿ ß€ ¿È º¢ º¡ 
+¡¾hai3¡¿ ëÜ º£ õ° 
+¡¾hai4¡¿ º¥ ñ” º¤ º¦ †ã 
+¡¾han1¡¿ áí í™ òÀ º¨ º© ÷ý
+¡¾han2¡¿ Úõ º¹ ºª º¬ º¯ †i ›¿ ¬H êÏ ìÊ º­ ín º® ®] 
+¡¾han3¡¿ º± º° ÊG
+¡¾han4¡¿ h ’I é\ º¹ ºµ º¬ ˆ¥ º´ †i º· ›¿ ÝÕ º¸ ±Ž ¸Ð îh Þþ •Â Ÿß º² º³ º¶ å« 
+¡¾hang1¡¿ º» ¿» 
+¡¾hang2¡¿ ÐÐ ¿Ô Þ† º¼ °¹ ½W çñ èì º½ î@ 
+¡¾hang4¡¿ ÐÐ ãì Ïï 
+¡¾hao1¡¿ Ýï Þ¶ àã 
+¡¾hao2¡¿ ¸Þ Ï– ºÁ àÆ ºÑ ºÀ º¾ º¿ å© 
+¡¾hao3¡¿ ºÃ ºÂ 
+¡¾hao4¡¿ Ì– ºÃ ê» ºÄ ˆ ºÆ •‰ œB ð© àz œé æ€ °… » î— ž®
+¡¾he1¡¿ ºÇ šB ºÈ Ïš
+¡¾he2¡¿ ºÌ ºÏ ¼v ºÎ ÔZ ºÍ àA ÛÀ ºÓ êÂ ï éu îÁ ºÉ ºË º¦ ±B ºÊ ý[ †  ºÐ ºÔ îM ðg êH ºÑ ùŸ ôç íH Ò‡ ý˜
+¡¾he4¡¿ ‡˜ ºÎ ºÍ Þ ÙR ºÉ ù] ºÈ ªn ºÕ ŸÀ ºÖ úQ ÂG ÛÖ
+¡¾hei1¡¿ ºÚ àË ºÙ 
+¡¾hen2¡¿ ºÛ
+¡¾hen3¡¿ ä ßç ºÜ ºÝ
+¡¾hen4¡¿ ºÞ
+¡¾heng1¡¿ ºà ºß Ã†
+¡¾heng2¡¿ ÐÐ ºã Š¬ çñ èì Ãt ø’ ™M ºâ Þ¿ 
+¡¾heng4¡¿ †‘ ™M 
+¡¾heng¡¿ ºß 
+¡¾hong1¡¿ …Ë ÞZ ºå Ùê ºæ “E œ‚ Þ° 
+¡¾hong2¡¿ ºë ¼t …Æ éb ºê ¼‡ ãü È‡ ºç âv ¸f ºé ÁŠ ³{ ãp ô„ ø™ Èˆ Þ® üZ 
+¡¾hong3¡¿ ºå †ß 
+¡¾hong4¡¿ Ó ºå ¹ Þ® 
+¡¾hou1¡¿ ýJ 
+¡¾hou2¡¿ ºî ºí ºï ðú ÷¿ óó ðf 
+¡¾hou3¡¿ ºð  ê 
+¡¾hou4¡¿ áá àC ºñ ºî ˆ‹ åË ºò Ü© ÷c õ` 
+¡¾hu1¡¿ ºõ ‘ò ÜÌ ŽÄ •U ºô •÷ ºö Ü  ìÃ ºô ã± œX äï ºý
+¡¾hu2¡¿ àñ ºÍ ºü »¡ ºú ‰Ø ºË õú ºù “‡ ù] â© ðb ºþ º÷ ºý ù– ‡P úXéÎ ºû Ðk ºý ¿e õ­ ì²
+¡¾hu3¡¿ »¢ G »£ çú
+¡¾hu4¡¿ »¥ ‘ô Ùü ×o œû – »¢ á² âï ìæ ìï óË ð­ ìè —ü ¹Í à‚ ºý ûI ÷s 
+¡¾hua1¡¿ »¯ ÈA »¨ í¹ ‡W 
+¡¾hua2¡¿ „ ÈA ‡W ò‘ çf »« »¬ “Š õq
+¡¾hua4¡¿ »¯ „ ÈA ®‹ Ô’ ˜å ‹½
+¡¾huai2¡¿ ‘Ñ »² »´ »± õ× Âj
+¡¾huai4¡¿ ‰Ä
+¡¾huai¡¿ „
+¡¾huan1¡¿ šg ªB ×’ ‡È âµ 
+¡¾huan2¡¿ ß€ ­h Û¨ ÇB ä¡ »¸ ÝÈ Ø} æD à÷ êX × å¾ ­h ÀQ ­’ ÞS ûq èG ÷ß 
+¡¾huan3¡¿ ± ¾ 
+¡¾huan4¡¿ »Ã ŠJ »Â “Q †¾ Ñ£ œo ä½ »¼ Ÿ¨ åÕ ¯ˆ »¿ äñ õŒ ß§ ÞS
+¡¾huang1¡¿ ëÁ »Ä ‰E »Å
+¡¾huang2¡¿ »Ê üS ‚µ »Ë Úò †Å åØ áå ðc »Ì äÒ »Í å– ª äê è« »È óò ÅŠ »Ç çu ñ¥ ó¨ »É öm
+¡¾huang3¡¿ »Ð »Î Öe »Ï »Å
+¡¾huang4¡¿ »Î œê ˜n °
+¡¾huang¡¿ »Ä »Å 
+¡¾hui1¡¿ »Ò ‘ò “Ö Ÿ˜ Ôœ ò³ “] ‡j »Ö Ñ‹ ¬q ØY •Ÿ Ýx ÂE î¡ ‰™ ÷â »Õ ãÄ 
+¡¾hui2¡¿ »Ø Ý Üî o ä§ »× õt 
+¡¾hui3¡¿ Ïx ò³ »Ú š§  S
+¡¾hui4¡¿ »Ü ¡ •þ ÖM ËC ‡‚ Ò Õd ÀL í£ ™u ÙV  Z åç »Þ ·x »Ý à¹ ÂP @ êT ÀD î_ Ê] ‡G »Û ˜ž Þ¥ ‘} Œ ó³ ìu 
+¡¾hun1¡¿ »è È ¸ é’ »é —• 
+¡¾hun2¡¿ œ† ¬q ðQ »ì »ê 
+¡¾hun4¡¿ ÕŸ œ† ‚[ ‡õ »ì äã ù 
+¡¾huo1¡¿ ñë òd åx Øå ‡— »í ß« 
+¡¾huo2¡¿ ºÍ »î »í 
+¡¾huo3¡¿ »ð â· â€ t â· 
+¡¾huo4¡¿ »ò ºÍ Ø› «@ µœ »ó Öf »ô É^ ‡— »í ëo èZ Þ½ Öo ó¶ «@ ÅG 
+¡¾huo¡¿ â· ºÍ 
+¡¾ji1¡¿ Ž× ×I “ô ‡\ ð‡ ­^ »ø Ü¸ ™C ØÀ ¼¡ ´‰ ëu Æä Ææ ®‚ ßÒ ØÞ ßó ·e óÇ åì ¼§ »ù ýV ê÷ ïú ¾ƒ »û ÜQ åZ ÒH »þ »ü Ós ýW çÜ ÛÔ ¼¤ Áb Áa 
+¡¾ji2¡¿ ¼° ¼ª ³á§ î ¼³ ¼‰ ˜O ¼´ Ø½ Ù¥ ¸ï óÅ ¼± Š  ¼² ¼¬ éê ê« ¼¯ Ýð é® Ý‹ ¼¹ ¼µ Þª Ûa ñ¤ úW ½å Ûˆ ¼® 
+¡¾ji3¡¿ Ž× ¼º ¼o Ïl ”D ú ½o ¼¹ Þá ô‡ êª ÷ä 
+¡¾ji4¡¿ Ó‹ Ó› ¼¿ ýR ¼o ¼¼ ÜÁ Ïµ ¼É ëH ¼Ë ¼¾ „© ˆ… Ëj ‡ ä© ú ¼È ÛE ÓJ À^ ÙÊ Â ¼À ¼Â ¼Ä ¼Å ¿ƒ ¯ ¯s ËE ìVõÕ ÷q T ôß ·b ð¢ öa ÷Ù ¼½ ·] ÁY ™‹ ö›
+¡¾ji¡¿ »þ Ý‹
+¡¾jia1¡¿ ¼Ó ŠA Ù¤ ÇÑ ¼Ñ åÈ çì ¼Ï ›Ñ ðè ¼Ò óÕ ôÂ Ýç Â_ õÊ ¹k ‚í ¼Î æ‰ Øj
+¡¾jia2¡¿ ŠA àP Çv í¢ ê© äe îa Í ÛO ¼×
+¡¾jia3¡¿ áµ ëÎ ÙZ â› ¼Ù ”Ð ØÅ ™x ðý
+¡¾jia4¡¿ ƒr ñ{ ¼Ü ÙZ ¼Ù ¼Þ ¼Ú
+¡¾jian1¡¿ ‘â ¼â ¼é šž ˆÔ ég œ\ ¼ç ÆD ±O ¼æ ÝÑ ˜Ù Ø] ¹{ u êù žR äÕ ¾} ¾} ¬{ Þö Ýó ¼å ¿V öž úY Ÿæ íK íd ™Ò
+¡¾jian3¡¿ àî ’þ —g ÀO ¼í ƒ€ “ì ¹a ™z õÂ œp ¼ô “B ²€ ç™ ÒM º† º† ×v ‘ì ‰A ôå å¿ åÀ ôC ž
+¡¾jian4¡¿ ÒŠ ¼þ ég Õ ðT ½¨ Ë] Ùv êð „¦ ±O ±O ½¡ Åž ¾ u ÖG é¥ Û` ´ ç™ ë¦ ëì žR èb æI ™‘ ÙÔ õÝ ¼ý
+¡¾jiang1¡¿ ½­ Üü Œ¢ ËK ôø { ½© í\ ÷F íä ½® 
+¡¾jiang3¡¿ Öv ª„ ˜ª ÊY îŽ ñð Äv 
+¡¾jiang4¡¿ ½³ ½µ ½{ Œ¢ ‰ Š áu Š ôÝ
+¡¾jiao1¡¿ Ü´ ½» ½¼ Üú j ² òœ ‹É æ¯ Äz ½Ì øŸ ½· òÔ ½¹ õÓ ÙÕ õo ½¶ ÞB áè ½¸ ú„
+¡¾jiao2¡¿ ³C ½À 
+¡¾jiao3¡¿ ½Ç ƒe Ù® “× ½Æ ïœ ½g ãq ³C ð¨ Ä_ ”‡ ¸‹ äÐ ë¸ ½Ë ƒ‚ áè ÀU °‰
+¡¾jiao4¡¿ ½Ð þ ÓX Ð£ ÞI Ý^ ·• ½Ì ½Ñ œò ”Ò ½Í ] àÝ ‡„ áè ËŠ õ´ ½À ° á†
+¡¾jie1¡¿ ¹ ëA °X ½Ô ½Y ½Õ ½Ó ¯^ ¯^ ½Ò àµ à® ½Ö œœ ¿¬
+¡¾jie2¡¿ æÝ ¹ Ó“½Ù „Â ‚Ü ¯C Ô‘ Ç Þ×  ½Y ½Y ½Û ‚Œ èî ½Ý ½Ó ÙÊ ÑK æ¼ ½e îR ˜H ½Þ Í ½Ø ˜m íÙ õ^ ½ß ôÉ
+¡¾jie3¡¿ ½ã š² ½â ™w
+¡¾jie4¡¿ ½é ƒr ½ä ½æ «d ŒÃ ½ç ½ê Õ] ò» ½è †‡ ÷º ½â Ñ› ½å 
+¡¾jie¡¿ ƒr ¼Ò 
+¡¾jin1¡¿ ½í ½ñ ½ï ¼Ž ½ð ½ò ñÆ ñæ Ób ­\ ½î ½û ½ó 
+¡¾jin3¡¿ ƒH ±M Ž„ ¾o ÝÀ å\ Ö” ð~ âÛ èª éÈ 
+¡¾jin4¡¿ ƒH ±M ßM ½ü „Å æ¡ Ë| ø •x ÚB  a ½þ †‚ µ‰ ½ù ½û “| ¿N ¬’ ‰ƒ ÓP š àä
+¡¾jin¡¿ ½ï
+¡¾jing1¡¿ Žy Ço ½ ¾© ›Ü ½› ÇG Ý¼ ªS ìº ó@ ¾§ ëæ ù‚ ¾¦ ¾¬ ¾¤ ¾« öL û ü 
+¡¾jing3¡¿ ¾® Úå ›G „q ëÂ îi ¾° ÙÓ ã½ ­Z ¾¯
+¡¾jing4¡¿ „Å ½ œQ † ½› Ã„ ‚Š ¯d ¸‚ ¾¹ æº ìn ¾´ ¾¸ ìo ¾³ â° çR 
+¡¾jiong1¡¿ ˆs ño ìç 
+¡¾jiong3¡¿ ƒ× êÁ åÄ ›s ½N ¾¼ Ÿ  Ÿâ ¾½ Ñ• 
+¡¾jiu1¡¿ „ó ¼m øF ¾¿ ôñ ôb ¾¾ à± äÐ ˜Í ÷Ý
+¡¾jiu3¡¿ ¾Å ¾Ã šð ¾Á ¾Ä ¾Â ¾Æ 
+¡¾jiu4¡¿ Åf ¾Ê ¾Ì ¾Î èÑ èê ¾È Žý ¾Í ¾Ë ÙÖ ú 
+¡¾jiu¡¿ õí 
+¡¾ju1¡¿ Ü‡ ÇÒ ÜÚ ¾Ð ¾Ñ ›t ¾Ó ñx ’º ’± ÁD ¾Ò —x Þä “þ Çù ‡ è¢ ŠÛ ôò é§ Ú  ä| ÄK öÂ õL ñÕ ¾Ï ÷¶ 
+¡¾ju2¡¿ ¾Ö ‚I ùV ½Û Ý] ¾Õ Ÿh —» ä| œ¦ ÛR éÙ 
+¡¾ju3¡¿ l ™™ ¾× ¾Ú Üì èÛ ¾Ø Åe ¹_ —º ÉX ™Î ýe õá »c 
+¡¾ju4¡¿ ¾Þ ¾ä Ôn ÜÄ ¾Ü ¾ß ¾æ ¾Ú îÒ ¶€ ¾ã ÙÆ »‰ „¡ “þ ¾à ‘Ö êø ïZ Ì˜ ä ¾Û ¸M ¾á ŒÕ åá Þ èL õ¶
+¡¾ju¡¿ ¾Ø
+¡¾juan1¡¿ ¾è ä¸ ¾ê È¦ –K ùN ç îÃ
+¡¾juan3¡¿ ¾í Ž™ äŸ Ûm
+¡¾juan4¡¿ ¾í Ž™ ëh áú € —¨ ½ Û² È¦ ¾ë ¾ì ±’ ÁI 
+¡¾jue1¡¿ ŒÖ ¾ï “Þ àÙ 
+¡¾jue2¡¿ æÞ ›Q ÔE ¾ñ ½Ç ñi «i «k ³O ø` ÓX ½^ ¾ó èö ¾ò Ä_ áÈ õû ØÊ ‚àêI Øã ×H Þ§ â± éÓ àå ç~ ¾ô è‘ õê ÜF ÛÇ ½À ÷Z ìß ¾ð è‘ 
+¡¾jue4¡¿ ¾ó 
+¡¾jun1¡¿ ÜŠ ¾ù ý” ¾ý âx Çq ¾ú °— óÞ õz ÷å 
+¡¾jun4¡¿ ¿¡ ¿¤ ÞÜ ¾þ ëh ðK ¿£ òE ¬B ¾ú ¹„ Ÿa ® ¿¢ Œ” 
+¡¾ka1¡¿ †U ¿§ ¿¦
+¡¾ka3¡¿ ¿¨ Øû †U ¿© ëÌ
+¡¾kai1¡¿ é_ ¿« ç˜
+¡¾kai3¡¿ „’ „P ‰N ð êG æz ÝÜ ¿® ¿¬ å|
+¡¾kai4¡¿ ÷ ™ü 
+¡¾kan1¡¿ ¿¯ ¿´ ¿± ý ¿° ® ê¬
+¡¾kan3¡¿ ¿² Ù© ¿³ Ý¨ šK ™‘ îƒ
+¡¾kan4¡¿ ¿´ Ðb € êR ´| ‰{ î«
+¡¾kang1¡¿ ¿µ ¿¶ ˜± ¿· Ü{ ÷K
+¡¾kang2¡¿ ¿¸
+¡¾kang4¡¿ ¿º Øø ¿¹ ‡ã é` ¿» â‚ 
+¡¾kao1¡¿ åê
+¡¾kao3¡¿ ¿¼ ¿½ èà ¿¾
+¡¾kao4¡¿ äD êû ¿¿ ŸÀ 
+¡¾ke1¡¿ ¿À ¿Á …\ ºÇ çæ ¿Â ÝV ¿Æ  ˜ ³` âŽ åí ¿Ã îW “t ïý  É ñ½ ˜} îw ¿Ä î§ òò ÷Á
+¡¾ke2¡¿ š¤ ¿È “U îW
+¡¾ke3¡¿ ¿É ¿À á³ ¿Ê
+¡¾ke4¡¿ ¿É ¿Ë ¿Ì ã¡ ¿Í Õn ë´ òS ¾~ à¾ äÛ ä˜ 
+¡¾kei1¡¿ „w 
+¡¾ken3¡¿ ¿Ï ‰¨ ‘© ¿Ð 
+¡¾ken4¡¿ ’õ ñÌ 
+¡¾keng1¡¿ êl ¿Ó ¿Ô  ¾ ³ çH 
+¡¾kong1¡¿ ¿Õ ÙÅ £ áÇ ³œ óí 
+¡¾kong3¡¿ ¿× ¿Õ ¿Ö 
+¡¾kong4¡¿ ¿Õ ¿Ø ì 
+¡¾kou1¡¿ ÜÒ “¸ “ ²g 
+¡¾kou3¡¿ ¿Ú 
+¡¾kou4¡¿ ßµ ¿Û ¿Ü Þ¢ úd 
+¡¾ku1¡¿ ³L ØÚ ¿Ý ¿Þ Ü¥ ¿ß ÷¼ 
+¡¾ku3¡¿ ¿à —ü
+¡¾ku4¡¿ Žì ½f ÑF ‡¿ Ñ ¿á
+¡¾kua1¡¿ ÕF Š¯ 
+¡¾kua3¡¿ Ù¨ ¿å 
+¡¾kua4¡¿ ¿æ ¿è ¿ç 
+¡¾kuai3¡¿ “ù Øá 
+¡¾kuai4¡¿ „S •þ ¿ì ‰K ƒ~ à” ‡ˆ ªœ X Ò Ä’ ¿ê ÷d 
+¡¾kuan1¡¿ Œ’ óy 
+¡¾kuan3¡¿ ¿î ¸U 
+¡¾kuang1¡¿ ¿ï „Á ÕE ßÑ b ›¬ ¿ð 
+¡¾kuang2¡¿ ¿ñ ÕN
+¡¾kuang3¡¿ ÞÅ
+¡¾kuang4¡¿ à— ‰¿ Àk •ç ›r µV ÙL ¿ò ¿ô
+¡¾kui1¡¿ Ì „l Žh ã¦ ¿ø ¸Q
+¡¾kui2¡¿ ¿ü åÓ Ø¸ Úó ¿û Þñà­ òj êÒ ¿ý ‘è î¥ òñ ™œ Ùç
+¡¾kui3¡¿ ¿þ õÍ ´j
+¡¾kui4¡¿ šw …T Ê‰ à° ð ‘| À¢ ¢ ‹ Â˜ ºˆ
+¡¾kun1¡¿ À¤ À¥ Ñ‚ çû Ÿj ÷Õ ù{ åK õ« öH
+¡¾kun3¡¿ À¦ ã§ é€ ‰Ú —y ¶‘
+¡¾kun4¡¿ À§ 
+¡¾kuo4¡¿ ”U À¨ èé òÒ ¹Q éŸ Àª íA 
+¡¾la1¡¿ À¬ À­ À² À® åå 
+¡¾la2¡¿ ê¹ À­ ØÝ íÇ “X À®
+¡¾la3¡¿ À­ À®
+¡¾la4¡¿ ØÝ Âä ÅD Ïž ðø À± À® ö_ °] ôF èn 
+¡¾la¡¿ À² À® íB 
+¡¾lai2¡¿ í ‚g ÈR ˆ Æ œZ —® ån 
+¡¾lai4¡¿í †‹ Æ Ùl ²A Ù‡ ž| °] »[ 
+¡¾lan2¡¿ Ìm ¹ ”r ™Ú À· ê@ Ë{ ×Ž ž‘ ”Ì Òh »@ Òw è| »_
+¡¾lan3¡¿ Ó[ ”ˆ À| ™ì î½ žE ‰° áY ‘Ð 
+¡¾lan4¡¿  € žE ž° 
+¡¾lang1¡¿ à¥ 
+¡¾lang2¡¿ ÀÉ Ý¹ ÀÇ ÀÅ —O ÀÈ ‹™ ÀÆ ³„ äZ ïü æƒ òë Üq 
+¡¾lang3¡¿ ÀÊ ŸR ‰i
+¡¾lang4¡¿ ˆ° Ý¹ ~ é ÀË Ýõ
+¡¾lao1¡¿ “Æ 
+¡¾lao2¡¿ „Ú ÀÎ ‡Z ÷ ³ ç„ °A ºŒ ÁÊ õ² 
+¡¾lao3¡¿ ÀÏ ÀÐ ÇN ÀÑ èá ã™ â² ÁÊ
+¡¾lao4¡¿ ½j ‡Z ÀÓ ³ Âä Âg ÀÒ ‹ª ÁÊ 
+¡¾le1¡¿ Àß àÏ 
+¡¾le4¡¿ Øì ÆI ß· ˜· ãî ¸… ÀÕ º{ 
+¡¾le¡¿ ÁË ðE 
+¡¾lei1¡¿ ÀÕ 
+¡¾lei2¡¿ ÀÛ À× ¿w æÐ ÀÞ ÀÜ ‚ñ ´  èD Ùú Àœ ™ï 
+¡¾lei3¡¿ ñç ÕC ‰¾ ÀÛ ÀÚ ÀÙ ÀÜ Ë‰ ƒ± äð 
+¡¾lei4¡¿ Àß œI î ÀÛ À× õª ÀÞ éÛ Àh
+¡¾lei¡¿ ÀÕ àÏ
+¡¾leng1¡¿ Àâ
+¡¾leng2¡¿ Ü¨ Àã ËJ
+¡¾leng3¡¿ Àä
+¡¾leng4¡¿ ˆÙ ã¶ Àã ±œ
+¡¾li1¡¿ Á¨
+¡¾li2¡¿ û Àå Àê ëx óP Àæ Àç ûZ à¬ „˜ Ìy òÛ Àì ¿r Á§ æË  Ó Àè ÷~ î¾ ÑŸ »h ár Þ¼ ÷ó ó» „° 
+¡¾li3¡¿ ¶Y Àî ÑY Ùµ ßŠ æ² Àí ä‡ õŽ å¢ õ· ÷k ó» 
+¡¾li4¡¿ Á¦ •Ñ …– Á¢ Àô ‰È Ëž û „î ‡³ Àû žr ™À Àý °O ›l ìå ë` ­| Àó ™µ áB Þ] ƒ« Àþ óœÀò ÉW Øª Àõ µZ µ[ ”ƒ áû ›ã ™æ Ï  à¦ óÒ ¼c Á£ ìZ ÜV îº Àü Á¡ äà óö óœ ±X
+¡¾li¡¿ Á¨
+¡¾lia3¡¿ ‚z
+¡¾lian2¡¿ ŠY ßB ‘z ºŸ É i —† Â“ Ñž Á® ´n ö– å¥ ì¡ ç  ó¹ ôH
+¡¾lian3¡¿ ­I ”¿ Ä˜ Òc Ì` 
+¡¾lian4¡¿ ¾š Ÿ’ ‘Ù šš æœ é¬ ž‡ ön 
+¡¾liang2¡¿ Á¼ ‚Z Ý¹ ›ö Áº é£ Á¿ ¼Z Á» Ü® õÔ 
+¡¾liang3¡¿ ƒÉ ‚z ¾n Ño ÎW ôu 
+¡¾liang4¡¿ ÁÁ ‚Š ” ›ö Õ Ýv ìn Á¿ ÁÀ †È õÔ 
+¡¾liang¡¿ Á¿ 
+¡¾liao1¡¿ ÁÃ ÜG 
+¡¾liao2¡¿ ß| ¯Ÿ Äk ÁÄ ÁÅ ‘l ÁÈ ÁÃ àÚ â² ïf ÁÊ å¼ ‹» ¿ Ä‚ ÁÇ ú ós
+¡¾liao3¡¿ ÁË á‘ Þ¤ ÁÃ ‘’ ÁÇ ²t 
+¡¾liao4¡¿ ÞÍ á‘ ÁÏ ÁÌ ÁÎ ÁÃ ÁÇ ²t ç‚ 
+¡¾lie2¡¿ ßÖ 
+¡¾lie3¡¿ ÁÑ
+¡¾lie4¡¿ ÁÐ ÁÓ Ùý ä£ Ûø ÁÒ ø• Þæ «C ÁÑ ôó õñ ÷v ÷à 
+¡¾lie¡¿ ßÖ
+¡¾lin1¡¿ Áà
+¡¾lin2¡¿ à ÁÖ ÅR ßø ÁÜ ÁÕ ôÔ á× åà « ­U ÁØ ÞO Á× î¬ çl ÷[ ÷ë 
+¡¾lin3¡¿ ÈH „C [ ‘¬ ™_ 
+¡¾lin4¡¿ Áß ÅR ÙU ßø ÁÜ ÌA ì¢ Þ` Ük
+¡¾ling2¡¿ Áî Áæ ì` Üß àò ßÊ ãö Áá èÚ ê² â øo œR Áê ñö Áâ ™ô òÈ ’ ¸  Åz ôá Áç œR ¾c Àâ Áã ýg öN Û¹ 
+¡¾ling3¡¿ Áî ŽX îI 
+¡¾ling4¡¿ Áí Áî ßÊ 
+¡¾liu1¡¿ Áï Áï Û‰ 
+¡¾liu2¡¿ „¢ žg Áô Á÷ Áð Áò åÞ ðs ì¼ òt Áñ ïd æy úV Áö çB öÌ
+¡¾liu3¡¿ Áø ¾^ ä ÁS
+¡¾liu4¡¿ Áù ê‘ Âµ ðs åÞ Áï æy ïf úw Û‰ ìC
+¡¾lo¡¿ ¿©
+¡¾long2¡¿ ýˆ Ìd ‡µ ž{ ­‡ ™É •î –V µa ²” Ã@ »\ Â¡ ñª Áþ 
+¡¾long3¡¿ ƒ¥ ë] ‰Å ”n »\ ºT
+¡¾long4¡¿ Åª †U
+¡¾lou1¡¿ “§ ²k
+¡¾lou2¡¿ Šä ƒE ÊV ‡D U ˜Ç Âe ÏN ót 
+¡¾lou3¡¿ “§ â ºt 
+¡¾lou4¡¿ Âª çU ¯› Â© Â¶
+¡¾lou¡¿ ‡D ²k
+¡¾lu1¡¿ ”] ‡£
+¡¾lu2¡¿ ±R ÌJ ] ‰À  t žoÀr ™¾ ÅF ûR ïB Àž ÆA «S ÷| 
+¡¾lu3¡¿ ûu Ì” “ï ³” ô” ™© èu 
+¡¾lu4¡¿ Áù ®f ê‘ ä› Ý` ÙT ÇŠ Â¹ œO åÖ ¾G ¬f µ“ Âµ ²F Â· ƒJ ±J Þ¤ äõ áX ÞA Â¾ Ê€ Âº è´ óü ú˜ Â´ Â¶
+¡¾lu¡¿ šÚ Þ_ 
+¡¾luan2¡¿Žn ŒD Œ\ ™è ” ž¤ Ã‡ û[ ÅL ˆK ž´ èŽ 
+¡¾luan3¡¿ ÂÑ
+¡¾luan4¡¿ y
+¡¾lun1¡¿ ’à
+¡¾lun2¡¿ ö ‚ Õ“ ’à ‡÷ œS ¾] Ý†
+¡¾lun3¡¿ ˆÀ
+¡¾lun4¡¿ Õ“
+¡¾luo1¡¿ ÞÛ ‡Ó Âä
+¡¾luo2¡¿ Á_ ÓZ ƒ¬ Ì} ‡Ó ß‰ ÄT «M ð” ™å èŒ »j ò… ÂÝ ó»
+¡¾luo3¡¿ ÙÀ Éz Âã ñ§
+¡¾luo4¡¿ žT  Î ¿© Âå ñ˜ ½j ½j çó ÀÓ íÑ Âä ÜV Þû öÃ äð ¹J
+¡¾luo¡¿ ‡Ó
+¡¾lv¡¿ óH é‚ ™°
+¡¾lv3¡¿ …Î ‚H ÞÛ ÂÃ äX ·„ ƒE ŒÒ ¿| ëö Ò@ ÂÄ
+¡¾lv4¡¿ ÂÉ ‘] ÂÊ ¾G È„ ÂÈ žV èr 
+¡¾lve4¡¿ ÂÓ ÂÔ äs ˆG
+¡¾m2¡¿ Ä· ‡` …Þ
+¡¾ma1¡¿ ‹Œ ŒI Ä¨ Î› Âé Ä¦ 
+¡¾ma2¡¿ †á Âé ¯q ó¡ 
+¡¾ma3¡¿ ñR †á ªw ¬” ´a Î› 
+¡¾ma4¡¿ ˜q µl Î› ÁR ‡O 
+¡¾ma¡¿ †á Âï 
+¡¾mai2¡¿ Âñ ö² 
+¡¾mai3¡¿ ÙI Ê{ 
+¡¾mai4¡¿ „ê ß~ ûœ Ùu Ã} ìA 
+¡¾man1¡¿ ‹  î” Âñ 
+¡¾man2¡¿ ÐU Ö™ Âû ðz ÷´ ²m ö  ôN
+¡¾man3¡¿ M Ï\
+¡¾man4¡¿ Âü Ö™ Ü¬ Âû á£ Âý Âþ ‹  ¿z ì× çN
+¡¾mang1¡¿  ¯ Úø
+¡¾mang2¡¿ Ã¦ Ã¢ –x Œ´ Ã¤ Ã¥ Ã£ ñ  íË ä€  ½
+¡¾mang3¡¿ Ã§ äÝ òþ 
+¡¾mao1¡¿ Øˆ 
+¡¾mao2¡¿ Ã« Ã¬ Üâ Ã©  Ó ì¸ áF Øˆ å^ ÷Ö ó òú ó±
+¡¾mao3¡¿ ƒÓ Ã® Üâ á¹ ã÷ êÄ ãT
+¡¾mao4¡¿ Æd Ã¯ ±g Ã° ÙQ ë£ Ùó ì¸ à| Ã± ‹u è£ šÊ Ã² î¦ í®
+¡¾me¡¿ üN ‡ª 
+¡¾mei2¡¿ ›] Ãµ Ã¶ Ã¼ Ý® Ã· ÃŠ àd áÒ â­ äØ Ã½ Ãº é¹ ¶C Ã¸ æ[ úB üq ÃÓ 
+¡¾mei3¡¿ Ã¿ ÃÀ ä¼ œ„ æV 
+¡¾mei4¡¿ ›i ÃÃÃÁ ñÇ ±t Öi ¯c ÃÂ ÃÄ ÷È
+¡¾men1¡¿ ž
+¡¾men2¡¿ éT ’Ð ãë å{ ­J  
+¡¾men4¡¿ ž  F ‘¿ 
+¡¾men¡¿ ‚ƒ 
+¡¾meng1¡¿ ÃÉ 
+¡¾meng2¡¿ Œ´ Ã¥ ®m òµ ÃÈ ÃÉ ÃË Ýù Þ« ŽÌ ÷ ÃÊ •ä ëü ²‰ ûL íæ ô¿
+¡¾meng3¡¿ üw ÃÍ ÃÍ ÃÉ åi òì ô» «B ãÂ ó·
+¡¾meng4¡¿ ÃÏ ‰ô
+¡¾mi1¡¿ ßä ÃÐ
+¡¾mi2¡¿ › ÃÔ ¶[ «J ÃÐ Öi ÃÑ ÃÓ ÷ã ÷ç ÃÒ ÞÂ á‚ 
+¡¾mi3¡¿ Ã× Ád ð ›¦ ßä åô ëß ôÍ ÃÐ ÃÒ 
+¡¾mi4¡¿ ôé ãè Ò’ ÃÚ åµ ÃØ ÃÜ ƒç Ök Éq ‰Q à× ÃÛ 
+¡¾mian2¡¿ Ãß ¾d ÃÞ ™† 
+¡¾mian3¡¿ D Ãâ ãæ íí ‚a Ãã Ãä „Ò ‚Á Ãá Æ äÏ ¾’ ìt õ|
+¡¾mian4¡¿ Ãæ
+¡¾miao1¡¿ ß÷
+¡¾miao2¡¿ Ãç Ãè Ãé ù‘ 
+¡¾miao3¡¿ èÂ íð Ãë Ãì ¾˜ íµ Ãê åã
+¡¾miao4¡¿ Ãî R ¿Š 
+¡¾mie1¡¿ Ø¿ ßã
+¡¾mie4¡¿ œç Ãï óú óº
+¡¾min2¡¿ Ãñ Üå •F áº ¬z ¾‡ 
+¡¾min3¡¿ Ãó éh Ãò üw ãý é} ao3 ‘‘ ¸œ Ãô œ¡ •¡ œ¡ ‘O öš 
+¡¾ming2¡¿ Ãû Ã÷ øQ Üø ›³ Ú¤ ã‘ Éq äé ˜i êÔ î¨ Ãø
+¡¾ming3¡¿ õ¤
+¡¾ming4¡¿ Ãü
+¡¾miu4¡¿ Ö‡ ¿Š
+¡¾mo1¡¿ Ãþ 
+¡¾mo2¡¿ Ÿo Öƒ ðx æÆ Ä¡ Ä£ Ä¤ ÷á Ä¦ Ä¥ ‹ß Ä¢ Ä§ „¯ 
+¡¾mo3¡¿Ä¨ Èf 
+¡¾mo4¡¿Ä© ›] ÜÔ š{ Ä¨ Ä­ Ä° Š‹ Ã° Ã} Äª ±u ï÷ Òm ±‰ ò‡ õö Ä® Ä¯ ñ¢ ì… ºÙ Ä« æŸ Ä¬ Ä¥ õø Àg µc ñò
+¡¾mou1¡¿ ßè
+¡¾mou2¡¿ Ä² Ù° íø Ö\ òÖ üE ¿Š öÊ 
+¡¾mou3¡¿ Ä³ 
+¡¾mu2¡¿ ë¤ Ä£ 
+¡¾mu3¡¿ Ä¸ Äµ ®€ Ä´ Ä·  ¸ ÀÑ ãa
+¡¾mu4¡¿ Ä¾ Ä¿ Øï Ä² ãå ÜÙ ÄÁ Äª ãf Ä¼ Ä¹ Ä» ÄÀ Äº Ä½ ëŽ ÄÂ
+¡¾n2¡¿ àÅ
+¡¾na1¡¿ ÄÇ ÄÏ
+¡¾na2¡¿ ’‚ ÄÃ æ“
+¡¾na3¡¿ p ÄÄ 
+¡¾na4¡¿ ƒÈ ÄÇ ÄÅ Š{ ¼{ ëÇ âc ñÄ ÄÈ Éi Þà 
+¡¾na¡¿ ÄÄ
+¡¾nai3¡¿ ÄË Üµ ÄÌ ÄÊ Þ• ÄÄ ‚™ 
+¡¾nai4¡¿ ÄÎ Ù¦ èÍ ÄÍ ÝÁ Ø¾ Ñ” 
+¡¾nan1¡¿ àï àî 
+¡¾nan2¡¿ ÄÐ ÄÏ ëy à« éª 
+¡¾nan3¡¿ ôö ëî òï
+¡¾nan4¡¿ ëy
+¡¾nang1¡¿ ÄÒ àì
+¡¾nang2¡¿ ÄÒ ð–
+¡¾nang3¡¿ êÙ ß­ ð–
+¡¾nang4¡¿ ýQ
+¡¾nang¡¿ àì
+¡¾nao1¡¿ Ø«
+¡¾nao2¡¿ ßÎ ×D “Ï p íÐ çt Ïu â® ‰ë Žj 
+¡¾nao3¡¿ˆß À ÄX è§ 
+¡¾nao4¡¿ ô[ Ä× Äž
+¡¾ne2¡¿ ÄÄ
+¡¾ne4¡¿ ÔG ÄÇ ÄÅ
+¡¾ne¡¿ ÄØ
+¡¾nei3¡¿ ÄÄ ðH
+¡¾nei4¡¿ ƒÈ ÄÇ
+¡¾nen4¡¿ í¥ ÄÛ
+¡¾neng2¡¿ ¶ø ÄÜ
+¡¾ng2¡¿ àÅ 
+¡¾ni1¡¿ ÄÝ 
+¡¾ni2¡¿ Äá ÄØ ƒº âõ Ûè Äà â‰ Äß â¥ Šö Ýr ÎU ÄÞ ýu öF ûŒ 
+¡¾ni3¡¿ Äá ”M Äã Ù£ –« ì» Ëo 
+¡¾ni4¡¿ Ù£ Äà êÇ Äæ Ää ˆÓ © íþ Ä Äç ™ áÚ
+¡¾nian1¡¿ Äé Äè
+¡¾nian2¡¿ Äê Õ³ öT ð¤
+¡¾nian3¡¿ ›Ý “Ó Ý‚ Ýš Äë ”f “Ó Û…
+¡¾nian4¡¿ Ø¥ Äî ‰| Äï
+¡¾niang4¡¿ á„
+¡¾niao3¡¿ øB ‹– Ê\ æÕ
+¡¾niao4¡¿ Äò ëå Äç
+¡¾nie1¡¿ Äó “Ó
+¡¾nie2¡¿ Æ}
+¡¾nie4¡¿ Ø¿ êŸ Â™ ô« ¯[ Äù ým »H ‡Ë Ô ˜® è‡ æ‡ ïD Üb ÅY Äõ ÞÁ
+¡¾nin2¡¿ Äú 
+¡¾ning2¡¿ ŒŽ ƒ‘ Ær ”Q ‡“ ªŸ ™Ž Âœ ôV Äý
+¡¾ning3¡¿ ”Q 
+¡¾ning4¡¿ ŒŽ Øú ”Q ô
+¡¾niu1¡¿ æ¤
+¡¾niu2¡¿ Å£
+¡¾niu3¡¿ Å¤ áð âî ¼~ –ƒ âo
+¡¾niu4¡¿ ÞÖ
+¡¾nong2¡¿ Þr ƒz ‡ â Ä“ ·v áx
+¡¾nong4¡¿ Åª
+¡¾nou4¡¿ ññ
+¡¾nu2¡¿ Å« æÛ ñw ¹@
+¡¾nu3¡¿ Å¬ ßÎ åó ³e æÀ
+¡¾nu4¡¿ Å­ ‚Õ
+¡¾nuan3¡¿ Å¯
+¡¾nun2¡¿ üQ 
+¡¾nuo2¡¿ ÄÇ Å² ÄÈ ƒ®
+¡¾nuo4¡¿ ‘Â ÖZ ’ý ßö Þù åŸ Å³ Å´ 
+¡¾nv3¡¿ Å® âS »s
+¡¾nv4¡¿ í¤ ô¬ –H
+¡¾nve4¡¿ ¯‘ Å°
+¡¾o1¡¿ àÞ
+¡¾o2¡¿ Å¶
+¡¾ou1¡¿ …^ ÖŽ a ®T šW šª Ÿà út
+¡¾ou3¡¿ ‡IÅ¼ ñî Åº 
+¡¾ou4¡¿ ‘Y a 
+¡¾pa1¡¿ °È šñ Å¿ ÅÉ Å¾ Ýâ 
+¡¾pa2¡¿ °Ç èË ÅÀ °Ò ÅÃ ’ö óá 
+¡¾pa4¡¿ šñ Ž ÅÁ ÅÂ
+¡¾pai1¡¿ ÅÄ 
+¡¾pai2¡¿ Ù½ ÅÅ ÅÇ ªT —“ Ý‡ ÅÆ ¹u º’ 
+¡¾pai3¡¿ ÆÈ ÅÅ 
+¡¾pai4¡¿ ßÉ ÅÉ Ýå ÅÈ 
+¡¾pan1¡¿ °â °è ·¬ ÅË ÅÊ 
+¡¾pan2¡¿ ãÝ –® ÅÖ °ã ±P ˜„ ÅÍ ´‘ Û˜ ó´ íQ 
+¡¾pan3¡¿ ˆm 
+¡¾pan4¡¿ °é ÅÐ °è ÞÕ ãú ÅÎ  ž ÅÑ ÅÏ ñÈ äƒ ñá 
+¡¾pang1¡¿ ÅÒ ë„ äè °ò 
+¡¾pang2¡¿ ·Â áÝ ý‹ åÌ ÅÔ °ò °õ ó¦ ö„ 
+¡¾pang3¡¿ †ç ÅÕ óo 
+¡¾pang4¡¿ ÅÖ 
+¡¾pao1¡¿ ’ ÅÝ ëã
+¡¾pao2¡¿ ÅÙ ÅØ ûƒ âÒ ÅÚ ÅÛ ÞË ÅÜ û ûƒ
+¡¾pao3¡¿ ÅÜ
+¡¾pao4¡¿ ŠE ÅÝ ÅÚ °’
+¡¾pei1¡¿ ÅÞ Åß Ð[ õ¬ 
+¡¾pei2¡¿ Åã Åà Ùr šÅ äž Åá 
+¡¾pei4¡¿ Åæ àú Åå Åä ì· Þ\ ö¬ 
+¡¾pen1¡¿ ‡Š å
+¡¾pen2¡¿ Åè äÔ
+¡¾pen4¡¿ ‡Š
+¡¾peng1¡¿ „ú Åë Åê âñ ›€ y Åé p àØ 
+¡¾peng2¡¿ ÆM Åó Ü¡ ‹ Åí Åï Ý~ Åî Åð “s ùi Åì Åñ Åò óŸ ó² 
+¡¾peng3¡¿ Åõ 
+¡¾peng4¡¿ —Õ Åö 
+¡¾pi1¡¿ Ø§ Úü Åú É ¼„ Å÷ Åû  ò ñy Åø ât â”  ±» Åü õB Åü Åù æq 
+¡¾pi2¡¿ Æ¤ ÜÅ Úé ¼„ èÁ Åþ ò· â” Û¯ Æ£ Úð Ûý Æ¡ Åý —À Æ¢ õQ ñÔ òç Á` Äm õù Ü± 
+¡¾pi3¡¿ Æ¥ âÏ ÛÜ Øò Æk ·ñ ßÁ Æ¦ Åü ß¨ ñ± 
+¡¾pi4¡¿ Æ¨ Ûý äÄ î¢ ±Ù æÇ Æ§ Ý ê¶ ûG Æ©
+¡¾pian1¡¿ Æ¬ ±â Æ« êú Æª ôæ
+¡¾pian2¡¿ ±ã ñ‰ ëÝ ¾œ —è ñÛ õä
+¡¾pian3¡¿ Õ›
+¡¾pian4¡¿ Æ¬ ò_
+¡¾piao1¡¿ Æ± Øâ àÑ Æ¯ ¿~ ïh óª
+¡¾piao2¡¿ ˜ã æÎ Æ° Ëi
+¡¾piao3¡¿ Ý³ éè Æ¯ ¿~ î© î’
+¡¾piao4¡¿ Æ± ƒG àÑ ‘G Æ¯ òŠ
+¡¾pie1¡¿ ë­ Æ² Æ³
+¡¾pie3¡¿ ÜÖ Æ² çv
+¡¾pie4¡¿ ‹±
+¡¾pin1¡¿ ÞÕ Æ´ æ°
+¡¾pin2¡¿ «n Øš îl‹å ‡¹ ïA
+¡¾pin3¡¿ Æ· é¯
+¡¾pin4¡¿ êò æ³ Æ¸
+¡¾ping1¡¿ Æ¹ ³f Ù· æ³ 
+¡¾ping2¡¿ Æ½ ñT Ôu Æº ÌO ‘{ èÒ Ž£ ›¯ ÆÁ ÝZ Æ¿ Æ¼ Íg Ž± õG
+¡¾po1¡¿ ˜ã á• Úé ÆÂ ²´ Š çk îH áw
+¡¾po2¡¿ ÆÅ Û¶ ·± ð« 
+¡¾po3¡¿ ØÏ ãO óÍ 
+¡¾po4¡¿ ˜ã ÆÈ çê ÆÆ ÆÉ ÆÇ 
+¡¾po¡¿ —K
+¡¾pou1¡¿ ÆÊ
+¡¾pou2¡¿ ’g Þå Ùö
+¡¾pou3¡¿ Þå
+¡¾pu1¡¿ ÆÍ “ä ’p ä ¯j àÛ ª
+¡¾pu2¡¿ ÆÍ Ùé ÆÎ ÆÐ ¸¬ ÆÏ Éh ÆÑ áT è± çh å§ Àb 
+¡¾pu3¡¿ ˜ã ÆÒ ÆÔ ÆÖ ÆÕ äß ×V ë« ç’ õë 
+¡¾pu4¡¿ ä ±¤ ±© ÆÙ ÆØ 
+¡¾qi1¡¿ Æß Æã ÆÞ Æâ —« ˜ àV œD ÝÂ —R ¢ ÆÝ ÆÚ ÆÛ ”Œ ¾ƒ àÒ Æá ‘h Ûp çK õè 
+¡¾qi2¡¿ ØÁ ýR Æî Ûß ÜÎ áª Æä Ææ Æç Æí µo Ëj Ù¹ ¯O êÈ í  ”ç Ý½ Æè ÍT Ú– Æé Äš ä¿ òU òT ç÷ çù Æå Ï“ ì÷ ´J åW ôë òà Æì ÌI õš ö’ ÷è
+¡¾qi3¡¿ Æò Ü» ØM á¨ Æó è½ «^ †¢ Æð ¾_ —¤ •’ ôì »ü 
+¡¾qi4¡¿ šâ Ó™ Æù ãà —‰ Æû ÆÞ žÅ Æü Ø½ Æõ Æö Ú– ÝÝ ´ƒ ´\ ´w éÊ Æ÷ í¬ 
+¡¾qi¡¿ ßý 
+¡¾qia1¡¿ Æþ ñÊ ÝÖ 
+¡¾qia2¡¿ ’‰ 
+¡¾qia3¡¿ ¿¨ 
+¡¾qia4¡¿ Ç¡ Ç¢ ÷Ä 
+¡¾qian1¡¿ Ç§ Çª Úä Ü· ’L ßw á© ƒL ›F âT  ¿ ãU ‘a Öt †é ºž í© ùk òq åº å½ ía 
+¡¾qian2¡¿ ’ƒ Ên âj Ç° ò¯ åX ãQ Ç¬ Þç ìy êù ‰‰ “ Ç­ ž 
+¡¾qian3¡¿ Äd œ\ Ç² †é Äd ×l À` 
+¡¾qian4¡¿ Ç· Àw ÜÍ Üç Ù» ‰q ¾P ˜  Ç¶ ã» Ç¸
+¡¾qian¡¿ Ç·
+¡¾qiang1¡¿ “Œ †Ü Ç¼ ¬š ˜Œ ‘ê ãÞ Œ¢ Û„ Ç» òÞ ä çI çj Û–
+¡¾qiang2¡¿ Š   ËN ‹Ô ™{
+¡¾qiang3¡¿ “Œ Áu Š çj ¿‹ ÀH
+¡¾qiang4¡¿ †Ü ‘ê ŸÍ Û„
+¡¾qian1wa3¡¿ ­™ 
+¡¾qiao1¡¿ ‰Œ ÇÄ ´“ È¸ ÜE æ@ Øä ÇÃ ÇÁ ŽÉ ÀR 
+¡¾qiao2¡¿ †ÌƒS Êw ÇJ þ ˜ò ´™ ÂN Úˆ ×S Øä íX ½¶ ã¾ éÔ Ÿ÷ ÇÆ 
+¡¾qiao3¡¿ ÇÉ ÇÄ È¸ ã¸ 
+¡¾qiao4¡¿ š¤ ÇÎ ÕV ÇÍ Ž ¸[ ÂN ×S ÇË ÇÊ “ê ÜN
+¡¾qie1¡¿ ÇÐ
+¡¾qie2¡¿ Ù¤ ÇÑ
+¡¾qie3¡¿ ÇÒ
+¡¾qie4¡¿ ÇÐ æª ÇÓ Æö ¸` êü ›­ Ü ôò ã» –A å› ºD 
+¡¾qie¡¿ ôò 
+¡¾qin1¡¿ šJ ÇÖ ÓH ôÀ ñŸ ô
+¡¾qin2¡¿ ÇÛ ÜË ñæ ÇØ ÇÙ ñû ÇÝ ÇÚ àº äÚ âÛ ‘¥ ÇÜ àß éÕ òû 
+¡¾qin3¡¿ —v äu Œ‹ 
+¡¾qin4¡¿ †w Çß “å 
+¡¾qing1¡¿ Çà Ýp šä í• ƒA Çä àõ Çå òß õ› 
+¡¾qing2¡¿ „Í š„ Çé Çç Çè éÑ Çæ ÷ô
+¡¾qing3¡¿ ™” í• Õˆ F ö¥
+¡¾qing4¡¿ ‘c ÓH Ù» óä ôì íà óÀ
+¡¾qiong1¡¿ öÆ
+¡¾qiong2¡¿ Úö ¸F Ÿ¦ ñ· óÌ ­‚ òË Í‹ õ¼ Ë}
+¡¾qiu1¡¿ Çð Çñ ý” Çï òÇ Èc äÐ é± öp íF íG
+¡¾qiu2¡¿ ³ð Çô áì Çó ÍA Çö Ù´ Óˆ Çõ åÏ Çò Ùg šÂ äM åÙ Ž€ ôÃ ­G òø ÷ü
+¡¾qiu3¡¿ ôÜ
+¡¾qu1¡¿ …^ Çú ç Ò Ôx òŒ Çü Ãl ìî Ð  Çù Ü| Ÿa Ú… òÐ ôð ÷ñ
+¡¾qu2¡¿ Ú Û¾ ëÔ øz Çþ Þ¡ íá è³ öÄ üš Þ¾ ™á ë¬ »c ÅJ áé
+¡¾qu3¡¿ Çú ÜÄ È¡ È¢ ýx
+¡¾qu4¡¿ È¥ …í é˜ È¤ ÓU
+¡¾qu¡¿ Ðç
+¡¾quan1¡¿ ƒ ãª È¦ —¨ 
+¡¾quan2¡¿ ™à È« ç ¾í Ô Üõ Èª Ýb È­  » ãŒ È¬ ³ óÜ òé Ûm È© öe ÷Ü ïE 
+¡¾quan3¡¿ È® î° ¾J 
+¡¾quan4¡¿ „ñ È¯ ¿X 
+¡¾que1¡¿ È² È± êI 
+¡¾que2¡¿ È³ 
+¡¾que4¡¿ ÉÖ …s ˆ« È¸ â ´_ é  ùo ´F êI un3 È¶
+¡¾qun1¡¿ ‡ï åÒ
+¡¾qun2¡¿ Œl È¹ Èº ÷å
+¡¾ran2¡¿ …ß òÅ È» ÷× È¼
+¡¾ran3¡¿ È½ ÜÛ Š˜ È¾ ™L 
+¡¾rang1¡¿ ÈÂ 
+¡¾rang2¡¿ ƒ¨ „ð ÌZ ž ìü ð¦ È¿ 
+¡¾rang3¡¿ ÈÀ ÈÁ ÈÂ ð¦
+¡¾rang4¡¿ ×Œ ž
+¡¾rao2¡¿ Ê ðˆ ‹Æ ˜ï
+¡¾rao3¡¿ ”_‹Æ
+¡¾rao4¡¿ À@
+¡¾re3¡¿ Èô ßö ÈÇ
+¡¾re4¡¿ Ÿá
+¡¾ren2¡¿ ÈË ÈÉ ÈÊ ÈÎ 
+¡¾ren3¡¿ ÈÌ Üó ïþ 
+¡¾ren4¡¿ ÈÐ ÕJ Øð Ó• ÈÎ ¼x íg Ü  ® ïƒ ÈÑ ¼Œ ñÅ ÝØ
+¡¾reng1¡¿ ÈÓ
+¡¾reng2¡¿ ÈÔ µi
+¡¾reng4¡¿ Üµ
+¡¾ri4¡¿ ÈÕ ñ_
+¡¾rong2¡¿ ÈÖ ëÀ È× ˜s áõ ½q ÈÝ ŽV ÈØ ÈÜ ¬Œ éÅ ÈÛ Ï” ÈÚ
+¡¾rong3¡¿ Èß šÕ
+¡¾rou2¡¿ Èá È| Èà ÝŠ Ÿ§ ôÛ õå ök ÷·
+¡¾rou4¡¿ Èâ
+¡¾ru2¡¿ Èç Èã Žš ãœ Èå Þ¸ àé å¦ Èæ ñà îž Èä 
+¡¾ru3¡¿ Èê Èé Èè àr ”J 
+¡¾ru4¡¿ Èë ä² Ýê äá ¿d Èì
+¡¾ruan2¡¿ ˆë
+¡¾ruan3¡¿ Èî Ü› ÂX ëÃ ¾
+¡¾rui2¡¿ ¾q Þ¨ 
+¡¾rui3¡¿ —M Èï ™G
+¡¾rui4¡¿ ÜÇ ›I èÄ ò¸ äJ Èð î£
+¡¾run4¡¿ éc ™
+¡¾ruo2¡¿ ’µ
+¡¾ruo4¡¿ Èô Ù¼ Èõ ‹S Ém óè  k
+¡¾sa1¡¿ Øí Èö 
+¡¾sa3¡¿ ž¢ ìƒ Èö ¥ 
+¡¾sa4¡¿ Ø¦ “— ïS ëÛ Ë_ 
+¡¾sai1¡¿ Ë¼ “H šË Èù Èû àç î| öw 
+¡¾sai4¡¿ Èû Ù ƒw 
+¡¾san1¡¿ Èý q Èý …¢ šÐ
+¡¾san3¡¿ ‚ã É¢ ¼R ð€
+¡¾san4¡¿ É¢
+¡¾sang1¡¿ †Ê É£
+¡¾sang3¡¿ Þú É¤ ær íß î‹
+¡¾sang4¡¿ †Ê
+¡¾sao1¡¿ É¦ ý ò} ¿‰
+¡¾sao3¡¿ ’ß É©
+¡¾sao4¡¿ ’ß Ü£ ðþ š× ëý Ôï
+¡¾se4¡¿ É« ­ †Ý äC Éª Èû ÞQ ·w 
+¡¾sen1¡¿ É­ 
+¡¾seng1¡¿ É® ôO 
+¡¾sha1¡¿ š¢ É¼ É³ ¼† É² É° “— É¯ †~ æ| êý ðð É· ôÄ õ Ò­ 
+¡¾sha2¡¿ É¶ ÉÝ
+¡¾sha3¡¿ Éµ
+¡¾sha4¡¿ É³ ÈS †— ßþ B àÄ ì¦ É· ¹€ Á  ö®
+¡¾shai1¡¿ ºY á‡
+¡¾shai3¡¿ É«
+¡¾shai4¡¿ •ñ 
+¡¾shan1¡¿ É½ ÜÏ É¼ „h É» áŸ ÉÀ Š™ Éº –Å ô® ¯Z ÉÈ “½ õÇ É¿ äú ëþ 
+¡¾shan3¡¿ éW ê„ “½ ±˜ 
+¡¾shan4¡¿ Ó˜ ÉÇ É» áŸ ðÞ †Î Ú] Øß ÉÈ ‰ “Û ’ï ÉÆ ¶U ò~ Û· ‰Ž ¿˜ ÉÃ ÉÅ æÓÙ  ç— óµ ÷X 
+¡¾shang1¡¿ ‚û œ« š‘ ÉÌ Óx ÉÊ ìØ 
+¡¾shang3¡¿ ÉÏ ˆs ÉÎ Ùp
+¡¾shang4¡¿ ÉÏ ÉÐ ¾y
+¡¾shang¡¿ ÉÑ
+¡¾shao1¡¿ ÉÓ Ÿý ÉÒ ÉÔ òÙ óâ ô¹ ÇÊ 
+¡¾shao2¡¿É× ÉÖ è¼ Üæ ÉØ 
+¡¾shao3¡¿ ÉÙ
+¡¾shao4¡¿ ÉÛ Û¿ ½B ÉÓ ÉÚ ± ÉÔ äû
+¡¾she1¡¿ ÉÝ Ùd â¦ ®Œ ÙÜ ™ 
+¡¾she2¡¿ Éà ÕÛ ÙÜ Éß êA Þé 
+¡¾she3¡¿ Éá 
+¡¾she4¡¿ È~ …‡ ÔO Éç Éá Ê° Éä Éæ Éâ ”z ‘Ø ž— ì¨ ÷ê 
+¡¾shei2¡¿ Õl 
+¡¾shen1¡¿ Éê Éì Éí Éë ê Ô– …¢ ¼ «| ñ‘ Ý· Éé ®` Éï Éî —ª ¼R Ÿö 
+¡¾shen2¡¿ Ê² Éõ Éñ ãh 
+¡¾shen3¡¿ Éò Œ ßÓ ïò Õ” ×Ÿ ‹ð ²s
+¡¾shen4¡¿ ÄI Éõ ëÏ ÃŒ B ÝØ é© ò× ¯” É÷ 
+¡¾sheng1¡¿ Éý Éú Â•  õ Éü óÏ Éû ü›
+¡¾sheng2¡¿ Æ ÀK 
+¡¾sheng3¡¿Ê¡ íò 
+¡¾sheng4¡¿Â} „Ù êÉ ³Ë Ê¢ Ê£ áÓ 
+¡¾shi1¡¿ ŒÆ Ê§ ŽŸ ÔŠ Ê­ øO ½J ÉN ø[ ª{ Ê© œÛ Èž ñ Ýé á‡ ‡u öX
+¡¾shi2¡¿ Ê® Ê² Ê¯ •r ×R Œ Ê° Ê³ Îg ìÂ µu ‰P ÉP œ› Œ öˆ üœ
+¡¾shi3¡¿ Ê· Ê¸ õ¹ Ê¹ Ê¼ ñ‚ Êº
+¡¾shi4¡¿ Ê¿ ÊÏ Ê¾ ÊÀ ÊË ÊÐ Ê½ ËÆ „Ý ÊÂ ÊÌ ï— Ô‡ Ò• ÙB ÊÁ ÊÃ •g ÊÇ ÖÅ ßm ÊÑ ÊÒ ÉP ÝY ÊÅ â‹ óÂ ß± áŒ Õž ÊÈ óß ÊÄ Š] ÊÉ Ì ó§ Òn
+¡¾shi¡¿ ³× Ö³
+¡¾shou1¡¿ ÊÕ
+¡¾shou2¡¿ Êì
+¡¾shou3¡¿ ÊÖ ÊØ Ê× ô¼
+¡¾shou4¡¿ ‰Û ÊÜ á÷ ÊÚ ÊÛ «F ¾R ÊÝ
+¡¾shu1¡¿ ì¯ •ø Êã ¼‚ ˜Ð Êå –€ æ­ Ý± Êâ Ù¿ ÝÄ Êá àg Êç Êæ Êè ”d Ý” ë¨ Êß 
+¡¾shu2¡¿ ïø Êë ÚH ÛÓ Êì 
+¡¾shu3¡¿ Êî Êò ŒÙ Êð Êñ Êó ”µ Êí Êï
+¡¾shu4¡¿ Ðg Êù Êø Êö ãð ˜ä ØQ ã_ Ë¡ Êü ÑV ëò ”µ Êû Êþ äø
+¡¾shua1¡¿ Ë¢ à§
+¡¾shu3¡¿ Ë£
+¡¾shua4¡¿ Ë¢
+¡¾shuai1¡¿ Ë¥ Ë¤ 
+¡¾shuai3¡¿ Ë¦ 
+¡¾shuai4¡¿ Ž› ÂÊ ó° 
+¡¾shuan1¡¿ éV Ë© Ë¨ 
+¡¾shuan4¡¿ äÌ 
+¡¾shuang1¡¿ ëp ž{ Ë¬ Ëª óL æ× µd ûU
+¡¾shuang3¡¿ Ë¬ ‰u
+¡¾shui2¡¿ Õl
+¡¾shui3¡¿ Ë®
+¡¾shui4¡¿ Õf Žœ ¶ Ë¯ 
+¡¾shun3¡¿ Ë± 
+¡¾shun1¡¿ ˜J 
+¡¾shun4¡¿ í˜ ²p Ë´ ÊŠ Ë² ²i 
+¡¾shuo1¡¿ Õf 
+¡¾shuo4¡¿ åù  q èp Ë· ´T ² Ýô Þ÷ éÃ 
+¡¾si1¡¿ ÛÌ Ë¾ ½z Ë½ ‡z Ë¼ úƒ ‚Æ Ë¹ Î‡ ¾Œ —ö ï\ P ÁQ æJ „@ Ëº Ë» äù 
+¡¾si3¡¿ ËÀ 
+¡¾si4¡¿ ËÈ ËÄ ËÂ ËÆ ãá Ùî ËÅ ìë æ¦ ï• ãô ñ† Ù¹ Ê³ Ò– ›å ñê óÓ ËÁ ËÃ
+¡¾si¡¿ Žú
+¡¾song1¡¿ âì ËÉ Š» Ú¡ Ý¿ äÁ áÔ 
+¡¾song3¡¿ ‘Z Â– ã¤ ñµ ˜B 
+¡¾song4¡¿ ÔA ËÎ ËÍ Õb íž
+¡¾sou1¡¿ ÛÅ àn ÉL ËÑ à² ðt C äÑ ï` æ} òô ËÒ
+¡¾sou3¡¿ ÛÅ î¤ àÕ Ë’ ”\
+¡¾sou4¡¿ ËÔ ”\
+¡¾su1¡¿ ÌK ËÖ ·d ¸@
+¡¾su2¡¿ Ë×
+¡¾su4¡¿ Ùí ÔV ÃC ËØ ËÙ ðM ä³ ËÞ ò“ ËÚ Öq à¼ ãº ËÜ ËÝ ú‰ Ýø ËÛ ö¢ ¿s óù 
+¡¾suan1¡¿ â¡ ¯i Ëá 
+¡¾suan4¡¿ Ëâ ¹g Ëã 
+¡¾sui1¡¿ Äò ëm íõ Ëå î¡ å¡ 
+¡¾sui2¡¿ ½— Ëå ëS Ëì
+¡¾sui3¡¿ Ëè
+¡¾sui4¡¿ šq Ëî Õr Ëì Ëé ²B ´â Ëí ¿… ¿“ ÀZ ìÝ Ëë ·u åä Ò` 
+¡¾sui¡¿ Ý´ 
+¡¾sun1¡¿ ŒO Ép ªs â¸ 
+¡¾sun3¡¿ “p ¹S öÀ é¾ 
+¡¾sun4¡¿ – 
+¡¾suo1¡¿ É¯ Ëô æ¶ èø Ëó êý íü Ëò àÊ ôÈ Út ¿s 
+¡¾suo3¡¿ Ëù Ë÷ †î ¬ æi ­F 
+¡¾suo¡¿ àÂ 
+¡¾ta1¡¿ Ëû Ëü Ëý  ­ ãB õÁ Ëú äâ Ì¤ ¶N 
+¡¾ta3¡¿ Ëþ œÍ «H ö 
+¡¾ta4¡¿ ÍØ ße “é êY ß àª ße êF åJ é½ äð Ì¤ Ì£ 
+¡¾ta¡¿ße åÝ 
+¡¾tai1¡¿ Ì¨ Ì¦ Ì¥
+¡¾tai2¡¿ Ì¨ Û¢ Ì¦ Ì§ ñ~ ìÆ õT ƒˆ Þ·
+¡¾tai3¡¿ ß¾ 
+¡¾tai4¡¿ Ì« šù Ì­ ‘B ëÄ â Ì© Ìª 
+¡¾tan1¡¿ Ì® Ø Z ‡c ”‚ž© °c
+¡¾tan2¡¿ ‰¯ •Ò Û° — ñû ˜W åU Ìµ ×T Ì¶ å£ Ì´ áv 
+¡¾tan3¡¿ìþ Ì¹ ãg Ì» ÈI Ìº 
+¡¾tan4¡¿šU Ì¿ Ì½ œž Ì¼ 
+¡¾tang1¡¿ œ« ç| ‡R ÌË ôÊ çM Û 
+¡¾tang2¡¿ ÌÆ ÌÃ ÌÄ ào ÌÁ ÌÂ äç è© éÌ ÌÅ ó¥ çM ÌÇ õ± ÚZ ó« 
+¡¾tang3¡¿ àû ÌÈ ã® ÌÊ ƒ¯ ñí è’ ÌÉ 
+¡¾tang4¡¿ œ«  C ÌË ç| 
+¡¾tao1¡¿ ß¶ | ý ½d  c ÌÍ Öz þ ÌÏ ¿_ íw ˜… ÷Ò
+¡¾tao2¡¿ „ü †G ÌÓ ä¬ ÌÒ ÌÕ ÌÑ ™„ ßû ÌÔ ¾T µŽ á[ ìŠ 
+¡¾tao3¡¿ Ó‘ 
+¡¾tao4¡¿ Ì× 
+¡¾te4¡¿ ìý ß¯ ÌØ äˆ í« Ïc
+¡¾te¡¿ ÃŽ
+¡¾teng1¡¿ ü’
+¡¾teng2¡¿ ÌÛ òv Ö` ëø ÎŸ ¿g ÌÙ öŒ
+¡¾ti1¡¿ ów ÌÞ ÌÝ äR Ìß úf ”`
+¡¾ti2¡¿ Üè ½ Ìá Ìä ßX ùY òf ¾Ÿ ù• î} õ® Ìã ö[
+¡¾ti3¡¿ ów õ®
+¡¾ti4¡¿ ŒÏ Ìê ›¢ ‚m ÙÃ åÑ ã© Ìé ½ Ìè Ìæ “W š ñÓ ËS †— Ìç »G ÚŒ
+¡¾tian1¡¿ Ìì Ìí üV
+¡¾tian2¡¿ Ìï µè î± Ìñ ®x âš ®ƒ ÈJ Ìð œ Ìî àÁ êD 
+¡¾tian3¡¿ ãÃ éå ï› œL ÓC Ìó Ìò ¬™
+¡¾tian4¡¿ ÞÝ
+¡¾tiao1¡¿ Ù¬ Ìô f ìö
+¡¾tiao2¡¿ —l Üæ Œý Ìö Õ{ óÔ ÉŠ ýf òè ÷Ø öœ 
+¡¾tiao3¡¿ Ìô –I ñ» ”Ó
+¡¾tiao4¡¿ Ì÷ ¼g Ìø
+¡¾tie1¡¿ Ìû G ÙN ÝÆ 
+¡¾tie3¡¿ Ìû èF 
+¡¾tie4¡¿ Ìû …ã ÷Ñ 
+¡¾ting1¡¿ d Í¡ Â  î® ŸN —H ì˜
+¡¾ting2¡¿ Í¢ Üð Í¤ Í¥ Í£ Ýã òÑ ¹j œs æÃ ÂŠ öª 
+¡¾ting3¡¿ ‚K Í¦ ¬E èè Ã‰ äb îc Í§
+¡¾ting4¡¿ èè
+¡¾tong1¡¿ ¶² Í¨ ˜¿ Ÿ× 
+¡¾tong2¡¿ ÙÚ Í¬ Ù¡ Í® M ¶± Ûí Üí á¼ Í© íÅ ã~ Í¯ Íª Ù× õj äü ™H •Ó Í«
+¡¾tong3¡¿ ¶± ½y Í± Í° Í² 
+¡¾tong4¡¿ Í¬ ‘Q Í¨ Í´
+¡¾tou1¡¿ Íµ æB
+¡¾tou2¡¿ î^ Í¶ ÷» 
+¡¾tou4¡¿ Í¸
+¡¾tou¡¿ î^
+¡¾tu1¡¿ Í¹ ¶d Í» È‹
+¡¾tu2¡¿ ˆD Ý±Í½ Í¾ ‰T ÝË ÍÀ Ä] õ© 
+¡¾tu3¡¿ ÍÁ ÍÂ âQ 
+¡¾tu4¡¿ ÍÂ ÍÃ ÝË Ü¢ 
+¡¾tuan1¡¿ ÍÄ Ø‡ 
+¡¾tuan2¡¿ ˆF “» ` ºi 
+¡¾tuan3¡¿ î¶ 
+¡¾tuan4¡¿ åè
+¡¾tui1¡¿ ß¯ ÍÆ É—
+¡¾tui2¡¿ ëP îj ôs
+¡¾tui3¡¿ ÍÈ
+¡¾tui4¡¿ ‚M ÍË Í‘ ÍË ÍÊ 
+¡¾tun1¡¿ ÍÌ êÕ 
+¡¾tun2¡¿ ÍÍ ¶Ú ëà ô ÍÎ 
+¡¾tun3¡¿ ÙÛ 
+¡¾tun4¡¿ ÍÊ 
+¡¾tun¡¿ ï‚ 
+¡¾tuo1¡¿ Ø± ÍÐ ï€ Ù¢ ÍÏ ë Õf ‚M ’É Ã“
+¡¾tuo2¡¿ ñW Ù¢ êu ÍÓ Ûç ãû ñ„ èÞ íÈ ør ˆ÷ õ¢ õÉ ùK õD éÒ ü˜ üƒ 
+¡¾tuo3¡¿ Í× âÕ ™E 
+¡¾tuo4¡¿ ÍØ èØ ÌE ÍÙ Ú— »X ÆÇ 
+¡¾wa1¡¿ ·Š ÍÚ ÍÛ ¸D ®| ·“ ‹z †œ ÍÜ 
+¡¾wa2¡¿ ÍÞ 
+¡¾wa3¡¿ Íß Øô
+¡¾wa4¡¿ Íß Òm Âv †ì Äe
+¡¾wa¡¿ ÍÛ
+¡¾wai1¡¿ Íá †· 
+¡¾wai3¡¿ Íá áË
+¡¾wai4¡¿ Íâ
+¡¾wan1¡¿  Øà Šþ ‰Ï ž³ òê Íã Ÿ
+¡¾wan2¡¿ Íè „\ Ü¹ š÷ ¼w ’e Íê Íæ îB Íé
+¡¾wan3¡¿ Íð Ý¸ Íì ÝÒ Íí ëä Íï Íñ ¾U çþ Íî Íë îµ Ûl 
+¡¾wan4¡¿ Èf …e Ï ñ Íó Âû 
+¡¾wang1¡¿ÞÌ Íô Œ¶ 
+¡¾wang2¡¿Íö Íõ 
+¡¾wang3¡¿ ¾W Í÷ Øè Íù ÈD ã¯ Ýy Í‡ ÷Í
+¡¾wang4¡¿ Íõ Íý Íü Íú Íû 
+¡¾wei1¡¿ Î£ Î¯ Íþ åÔ ÙË Úñ ÝÚ “f áË —Ü Î¢ ìÐ œÕ Þ± ög Î¡
+¡¾wei2¡¿ íf žé Û× ß` ‡ú Ž® é œ‘ œ¿ ›” Î¦ ¬ Î¨ á¡ Î© ¾S áÍ õd žH
+¡¾wei3¡¿ ‚¥ ‚Î È” Î² ¾• ¬| •¥ Î¯ Ÿ˜ ä¢ í| Õ† æ¸ Î® ¯_ Úó ó] îQ â« @ ít ôº ðô õn Ëe  
+¡¾wei4¡¿ Ðl žé Î´ Î» Î¶ Î· Î¸ Ç‹ Ö^ Î¾ ßz Î¹ Îo Î¼ ‹y õK Îµ ´S ÞE Î¿ ÁW Îº ÒE ìG ÷ ×~ 
+¡¾wen1¡¿ œØ ¿A ˜v Ýœ ÎÁ Ê• ö“
+¡¾wen2¡¿ ÎÄ ¼y žÉ Â„ ÎÃ é” ö© ü•
+¡¾wen3¡¿ ØØ ’^ ÎÇ ÎÉ ·€ 
+¡¾wen4¡¿ †– Ãâ ãë ½ƒ “h è· 
+¡¾weng1¡¿ ÎÌÎË œå æf úO ÎŠ
+¡¾weng3¡¿ ‰R Ýî œå
+¡¾weng4¡¿ ®Y Þ³ ýN 
+¡¾wo1¡¿ “ë Èn ÙÁ œu ¸C à¸ Î Ûb
+¡¾wo3¡¿ ÎÒ
+¡¾wo4¡¿ ë¿ ÎÖ ÅP ‚¬ ›ð íÒ ÎÕ á¢ ä× ÎÓ ý}
+¡¾wu1¡¿ Ø£ žõ ÛØ àw ›@ †è Î× ì¶ æu ›´ Õ_ ÎÝ º
+¡¾wu2¡¿ Ÿo Íö Îã Ê Îá …Ç àN ßí ä´ Îà äo ùM òÚ ÷ù
+¡¾wu3¡¿ Îå Îç Îé Øõ åÃ T ‘“ âè Ž ‹³ Îä Îê Îæ êõ «  ù^ ´I Îè ƒ
+¡¾wu4¡¿ Ø£ Îð žõ Îì „Õ Úã un2 Œä ‰] ÜÌ è» Îï Õ` º Îò š Îî ìÉ ì} ðí æÄ ò\ ìF å» úF öÈ
+¡¾xi¡¿ Ï¦ Ùâ Î÷ Îü Ï« Ï£ Îô Îö Îù ÃZ Ã[ ñ¶ Üç Û­ ðF —« ßñ šã  Þ Ï¢ ÞÉ ä» ŠÖ Ý¾ Îø •„ ì¤ Ï¤ Ï§ Ï© äÀ Îú ±– Ï¡ ‚Ý ô¸ ôâ ÅD ôÑ Ï¬ ðª åa Ð Ïª ñÓ Îõ Øg òá ÙÒ Ï¨ Îû Ž` ‡q Ï¥ ” æÒ ìä éØ ó£ ì¨ ôË õè ó¬ ØG Ž` õµ êØ Žd ÐP ÷û Ó„ 
+¡¾xi2¡¿ Á• àE Ï¯ Ò  Òu Ï± í Úô ñÞ Ï­ ÷@ 
+¡¾xi3¡¿ Ï´ ­t ãŠ áã Ï² Ýß È} Ýû åï ‘ƒ ìû Ïk ÷^ 
+¡¾xi4¡¿ …c ‘ò ðq Ïµ ŒÚ ¼š ±_ àS †A àS ½” ô] ôª Ï¶ ÚV ìù ëK • ÌŸ Ða
+¡¾xia1¡¿ ßÈ Îr Ï¹ öy
+¡¾xia2¡¿ Ï» ‚b áò èÔ { ªM µ„ ³ˆ ÁŽ ¼Ù Ýç åÚ òh è¦ Ï¾ Ý  Ï¼ ÷ï
+¡¾xia4¡¿ ÏÂ ‡˜ ÏÄ »£ B óÁ 
+¡¾xian1¡¿ ÏÉ ÏÈ Àw ‹ü ë¯ ü ìì ¶i ËW ÏÆ ã” õ£ Ü] åv ‡J õr åß úN 
+¡¾xian2¡¿ ée Ùt ÏÒ ûy “Í ÏÑ ‹¹ ã• ã• Íp ÏÏ ÖP °B ú‘ †é ÏÓ á_ 
+¡¾xian3¡¿ ªž Ùþ ï@ Ï´ ëU Í˜ šÀ ª ãŠ óÚ õÐ õr Ì\ ìÞ ŽÒ ™Ì 
+¡¾xian4¡¿ ÒŠ Ç{ ¿h †Z s ¬F • ÏÞ ¾€ ±• ‘— »˜ ÏÝ ðW Áw ¾€ «I ÏÙ ö± 
+¡¾xiang1¡¿ àl ËG Ïà Ïã Žû ÝÙ Ïæ ¾| Ïä Ïå óJ è‚ 
+¡¾xiang2¡¿Ô” ½µ âÔÏé Ïè 
+¡¾xiang3¡¿ Ïí í‘ ðA ÍJ ð‹ Ïë õœ 
+¡¾xiang4¡¿ Ïò í— Ïï Ïà Ïó À‘ Ði Ïñ Ïð ÒV ó­ 
+¡¾xiao1¡¿ Ð¤ —n èÕ Ï÷ ‡^ ø{ ò” åÐ Šë Ïû Ïü ½‹ Ê’ ªV Ïõ äN Á› òÙ ‡E º žt Ïö óu ÷Ì ÐD ‡Ì 
+¡¾xiao2¡¿ ›© áÅ Ïý 
+¡¾xiao3¡¿ Ð¡ •Ô Öj óã ºS 
+¡¾xiao4¡¿ Ð¢ Ð¤ †D Ð£ Ïø Ð¦ Ð§ ‡[ ”¬
+¡¾xie1¡¿ Ð© “a ªn Ð¨ Ðª Ï 
+¡¾xie2¡¿ È~ …f Ð° Ã{ ’¶ Ð~ ÙÉ Ð± ÖC ½e îR ”y õq Ð¬ ”X Ài ÛÄ Òp
+¡¾xie3¡¿ Œ‘ Ñª
+¡¾xie4¡¿ Œ‘ žÂ Ð¹ ža ½X Æõ …l Ð¶ Ð¼ Ðµ ý^ ÒC äÍ Öx ŒÑ ‰f ½â é¿ éÇ Þ¯ ËZ ŽO â³ åâ âÝ Ð¸ Ê ¼I ÛÆ Ð· å¬ õó
+¡¾xin1¡¿ ÐÄ ÔD Ð¾ ÐÁ ÐÃ ê¿ ÐÀ žÔ Ý· ä\ ÐÂ ì§ Ð½ Ü° öÎ
+¡¾xin2¡¿ ç†
+¡¾xin3¡¿ ²
+¡¾xin4¡¿ Ø¶ Ð¾ ÐÅ á… Ÿ{
+¡¾xing1¡¿ Åd  õ ÐÇ òH ÐÉ ÐÊ ÐÈ ¹ž
+¡¾xing2¡¿ ÐÌ ÐÏ ÐÐ ðh ÐÎ ê€ ÐÍ œî â] íÊ ão
+¡¾xing3¡¿ Ê¡ ÐÑ ß© 
+¡¾xing4¡¿ Åd ÐÓ ÐÒ ÐÔ ÐÕ Üô ‚† ã¬ Šü 
+¡¾xiong¡¿ 
+¡¾xiong1¡¿ Ð× ÐÖ Üº ÐÙ ÔK ›° r ÐØ 
+¡¾xiong2¡¿ ÐÛ ÐÜ 
+¡¾xiong4¡¿ Ôw ‰é 
+¡¾xiu1¡¿ ÐÝ ßÝ ÐÞ âÓ Ã‘ Ðß ø  õ÷ ð} ÷Û 
+¡¾xiu3¡¿ Ðà ËÞ œú 
+¡¾xiu4¡¿ Ðã á¶ ³ô Ðä ÀC ¬L ËÞ çn Ðá äå Ñ… Ñ„ 
+¡¾xu1¡¿ Ó’ Û× Ðç »n íì í¹ íš ñã íœ Ì“ Õš ‹€ šH œ• ¾– Ðæ Ðè ‡u ôq š[ À]
+¡¾xu2¡¿ Ðì
+¡¾xu3¡¿ ÔS Ô‚ Š G èò œ• ±S ôÚ õ¯ 
+¡¾xu4¡¿ Ðñ Æ^ Ðò •d ”¢ Ðô äª ˆ¦ Ðó Ðï ôˆ ÛÃ ¾w Àm s Ðõ Ðö Ðî ìã 
+¡¾xu¡¿ œä 
+¡¾xuan1¡¿ ÜŽ Ðû •t ÖX Õ Ýæ Þï Ðú äm ¬u êÑ Ÿœ ìÓ ÙØ ¶P ×X ‘¤ ÂQ ² 
+¡¾xuan2¡¿ Ðþ ¿h ðç ‘Ò Ðý äö ­v 
+¡¾xuan3¡¿ ßx •t Ÿ@ °_ 
+¡¾xuan4¡¿ È¯ ãù •] ìÅ ½kÑ£ ãC Ðf Ðý äÖ é¸ ïà 
+¡¾xue1¡¿ Ï÷ Ñ¥ Ñ¦ 
+¡¾xue2¡¿ Ñ¨ Æ‹ ŽG ŒW Í øŠ Ó{ õ½ àå 
+¡¾xue3¡¿ Ñ© ÷L 
+¡¾xue4¡¿ Ñª …É Öo 
+¡¾xun1¡¿ È „ì ‰_ Ñ¬ ñ¿ Þ¹ â´ Àc êÖ  ` õ¸
+¡¾xun2¡¿ Ñ® Œ¤ ¼r Ñ² Û¨ Ôƒ Ü÷ Ên á¾ âþ ä­ ¡ «‘ ­R –Õ  @ Ñ­ Ì¶ ÷\
+¡¾xun4¡¿ Ó Ó– Ñ´ Ñ¸ ñZ áß ßd Ñ³ ¿£ Ùã Ñ¬ Þ¦ ‡e
+¡¾ya1¡¿ Ñ¾ ‰º …’ ß¹ Ñ½ Ñº øf †¡ —¿ ø† ÑÅ
+¡¾ya2¡¿ ÑÀ Øó Ñ¿ á¬ «e âX ÑÁ ÑÂ ÑÄ íý ÑÃ
+¡¾ya3¡¿ ñâ †¡ ÑÅ
+¡¾ya4¡¿ Üˆ † ‰º Ó  åÂ «e ˆº ’é í¼ ‹I šå Þë ªm
+¡¾ya¡¿ Ñ½
+¡¾yan1¡¿ ÑÊ ‘Ã ‹é ŸŸ Òó ëÙ ÑÉ áÃ é‘ éŽ ÑÍ áZ äÎ Û³ æÌ Ñà
+¡¾yan2¡¿ ÑÓ Ü¾ ‡À ÑÔ Úç åû ÑÒ ÑØ Ñ× ÑÐ û} Ûï ãU é ÑÑ óÛ î º™
+¡¾yan3¡¿ ÑÙ ƒ¼ …] ƒ° ÑÜ m Øß …˜ ÑÚ Û± ÑÛ ÙÈ çü —¦ “R •• œ{ ‘þ î» ÑÝ ¿t ô| Îi üs ®[ ük ýB
+¡¾yan4¡¿ …’ Ò ÑÐ ³Ž ÑÊ © ØW êÌ Ñä Ñç òž ø‘ ÖV Ñß Ñã †Í Ñæ ìÍ ž¹ ‰† á‰ ð  w ×— Ñà ÚI 
+¡¾yang1¡¿ Ñë ãó Ñê ø„ Ñí ÷± 
+¡¾yang2¡¿ “P Ñò ê– ¬„ —î •ª ï^ Ÿ¬ å Ñð ¯ƒ ˆ” áà Ñó ìÈ òÕ 
+¡¾yang3¡¿ …n Ñö ðB Ñõ °W žY 
+¡¾yang4¡¿âó Ÿ¬ ˜Ó í¦ ìÈ Ák ÷± Ñú 
+¡¾yao1¡¿ Ã´ Ø² ßº ¼s Ñý Òª †º Ñü áè Ñû
+¡¾yao2¡¿ Ø³ ˆò ëÈ ƒe ˆ Ê ÝU ŽA Ò¦ çò ÌÕ ã“ ¸G Ö{ “u áæ ßb ªr ¬Ž ï_ ôí öŽ 
+¡¾yao3¡¿ èÃ Ò§ Ò¨ · ñº
+¡¾yao4¡¿ ¯‘ ËŽ Òª è€ ì‰ ú_ ê× Ò« 
+¡¾ye1¡¿ Ò® ‚œ Ò´ Ò¬ •¢ Ò­ 
+¡¾ye2¡¿ Ð°  ” Ò® ÞÞ äy 
+¡¾ye3¡¿ Ò² Ò± Ò°
+¡¾ye4¡¿ ˜I È~ í“ Ò· ŽI ×§ à’ Ò¹ ÑÊ •Ï Ÿî Ò´ Òº Ö] š‡ Ò¸ ìv ðv 
+¡¾yi1¡¿ Ò» ÒÁ ÒÂ át ÒÀ ¶B ßÞ ™} ãž â¢ÒÎ Ò¼ Ò¾ ‹¡ äô àæ ús ¿ˆ ÷ð 
+¡¾yi2¡¿ Áx …F ƒx Ó” ÛÝ ÒÄ Ø— ÒÊ Ôr åÆ ï âù ÒË Üè –s ß× ÙO Þ– ÒÌ –Ø íô ÒÈ Œh ‘ü Éß ÒÆ ðê ßz —à îU ÒÉ áÚ »J ÒÍ Ó~ 
+¡¾yi3¡¿ ÒÒ ÒÑ ÒÔ ÒÀ á Þ~ ÜÓ Ì ™} Î² ÒÓ Æq Ï Åœ ôý ÒÐ ‘ý ÒÎ î‰ ¶ê ì½ Ûp ýt 
+¡¾yi4¡¿ V ß® ƒ| Áx Ë‡ Ø× ‘› °¬ Øî ×h ÒÙ Òà ÒÂ ® –p ÒÖ ‡Ò ÒØ Ø— Øý ÒÛ ×g Ò× ŽF Ù« ‘« ›u Ô„ óA À[ –¤ ÝW •i Ê³ Òß ÞÄ ôà ÞÈ ”¾ ÞÚ ã¨ Òæ ›Å Õx Ûü „ã ÒÝ ñ´ Òî àÉ ù€ Òç ÒÞ Ñ` Òá Òâ ¿O Ë‡ òæ õl ¯Ž ‹ úg æ„ ð† Òã ú^ ìÚ Þ² éì •Ë Îœ àæ Øæ ÙŒ ÒÜ ôè Œ• Òí Ìˆ èO ñ¯ Ü² ús
+¡¾yin1¡¿ Òò êŽ Òð Òô ä¦ Òö ñ— ½s ë³ Òó ãŸ ÑP Ü§ à³ Ö éž œÞ µš ‘@
+¡¾yin2¡¿ Ûß Ò÷ Ûó áþ Ó • ãy Òù Òú ‹H ý] Û´ â¹ ýl Ïr ö¯ ‡¨
+¡¾yin3¡¿ Òü Òý ßÅ ï‹ ò¾ ë[ ì‚ × ™a °a ÏP 
+¡¾yin4¡¿ Ó¡ ï‹ Üá Êa Ø· ˆ¤ õg ñ¿ ‘€ 
+¡¾ying1¡¿ ‘ª Ó¢ úL À” ‹ë ‹k çø å} Ìc ”t ‡Â À› Àt ­‹ ™Ñ ûW âß ú— 
+¡¾ying2¡¿ Ó­ ‰L ŸÉ œî Ó¯ ¬“ Îž  I ¿M æv éº ž] Ï‰ žu Ùø ÚA å­ »Y
+¡¾ying3¡¿ Û« } ·f Ó° °`
+¡¾ying4¡¿ ‘ª Ó³ Ó² ëô 
+¡¾yo1¡¿ Óý †Ñ à¡ 
+¡¾yo¡¿ †Ñ 
+¡¾yong1¡¿ ‚ò “í °b çß Ó¹ †Þ à{ Óº Ü­ ã¼ çO ÛÕ Ó· ët ÷Ó 
+¡¾yong2¡¿ à¯ î„ 
+¡¾yong3¡¿ ÓÀ ð® Ó¾ Ù¸ ÓÂ œ¥ ÓÁ Ó¼ œ¥ Ûx õ— 
+¡¾yong4¡¿ÓÃ ‚ò ák 
+¡¾you1¡¿ ƒž ‘n Øü ßÏ ÓÄ ÓÆ û~ à› Âi
+¡¾you2¡¿ ÞÌ ÓÈ ÓÉ à] ªq ÓÍ èÖ ðà É‰ Ê~ â™ òÄ ôœ ß[ ˜A Ý’ õO éà òö òø ôí
+¡¾you3¡¿ ÓÑ ÓÐ ÓÏ ØÕ Áh Ý¬ äB ë» ÷î
+¡¾you4¡¿ ÓÖ ÓÒ Ó× ÓÐ ÓÓ Ù§ û èÖ àó å¶ µv ÕT òÊ ÓÔ Ñ„ ÷ø
+¡¾yu1¡¿ ÓØ »n ¼u ì¶ ÝÎ ÓÙ ðö
+¡¾yu2¡¿ ì¶ Åc Óè ßŽ ­ ­m še ðN æ¥ ÓÛ ô§ ô~ Ø® óÄ ô¨ Óá áü ðN Õ˜ ŠÊ ÝÇ ö§ O Óç Þí à¯ · £ ®Œ Óâ ëé Óä Óå è¤ ÓÜ ÓÝ ÓÞ Å„ ÓD šQ Ý› ñ¾ òõ ók
+¡¾yu3¡¿ Åc Óè ŽZ ‚ø Óî Óð ‹ž Óê ‚R Óí ÕZ àô ”  àö ‚¦ àh â× äo ¬r ðõ ýr ñÁ
+¡¾yu4¡¿ Åc Óñ ñS Óó »n í² ·Y ï„ ãé Óê ôd Óý êÅ Ø® ªz ÕZ ª Óø â• Ô¡ îA Óò ˆÖ ÝÒ Óû é“ œU ÖI Î¾ —§ Óö Ó÷ ¶R ùO Ô¢ Ô£ Öà ²œ Êš ÁN Óú ìÏ Ë ×u Îµ òâ Ø¹ ëT Ê  ìÙ ßy Ô¥ ìÛ Ÿú ú– å÷ 
+¡¾yuan1¡¿ øS íó øx Ô© œY ›ð Í› ùt Ñr óî 
+¡¾yuan2¡¿ Ôª Ü¾ ˆ@ †T ãä Ô« ë¼ Ô¬ Ô­ ˆA üx Ô® œ® æÂ ¾‰ Ô­ Ô³ Ô´ ‹ Þ@ ™´ ó¢ à÷ 
+¡¾yuan3¡¿ ßh 
+¡¾yuan4¡¿ Ô· Ô¹ Ôº Ûù Ðc æÂ Þò ¾‰ è¥ îŠ 
+¡¾yue1¡¿ Ô» ¼s ³E 
+¡¾yue3¡¿ ‡‚ 
+¡¾yue4¡¿ ÔÂ ‘à ˜· ë¾ ’` Ü‹ «h Ž[ ™µ è€ Õf ‚ é† ãX ÜS Ô½ »› ûN éÐ Ž[ Ùß å® üg  ~ »a »l
+¡¾yun1¡¿ •ž ¿Z šè Ÿ± Ùš
+¡¾yun2¡¿ ë… „ò Ü¿ †T ›V Šu ¼‹ êÀ ÔÅ ®s ày œÝ óÞ ¹o ä] 
+¡¾yun3¡¿ ÔÊ áñ ëE šŒ 
+¡¾yun4¡¿ ÔÐ ß\ Ü¿ †T ài Á •ž áj ‘C ¿Z íy í Ÿ± ÑŽ ÌN ìÙ
+¡¾za1¡¿ ¼™ ÔÑ ßÆ ÞÙ ÅN
+¡¾za2¡¿ ës ÔÒ ‡Ô
+¡¾za3¡¿ Õ¦
+¡¾zai1¡¿ žÄ çÞ ÔÕ ÔÔ 
+¡¾zai3¡¿ ×Ð Ýd Ô× áÌ
+¡¾zai4¡¿ ÔÙ ÔÚ Ýd
+¡¾zan1¡¿ ºd ôØ ô¢ 
+¡¾zan2¡¿ ÔÛ
+¡¾zan3¡¿ ÞÙ êÃ ƒ› ”€ ÚŽ
+¡¾zan4¡¿ •º çY Ù àŸ ‡Ô žU ­‘ 
+¡¾zang1¡¿ ÚE óv  ™ ê° 
+¡¾zang3¡¿ ñz 
+¡¾zang4¡¿ óv ÞÊ Ôá ²Ø
+¡¾zao1¡¿ Ôâ Ôã
+¡¾zao2¡¿ è
+¡¾zao3¡¿ Ôç —— ÔéÔè ­b Ôå 
+¡¾zao4¡¿ Ôí Ôî †r Ôì ‘V ºr ×Y Ôë Ôï Ôê 
+¡¾ze2¡¿ „t ØŸ “ñ Õ¦ åÅ É ‡K Ž¾ óÐ ô· ºj Ù‘ ýv
+¡¾ze4¡¿ ØÆ ê¾ ‚È
+¡¾zei2¡¿ Ù\ öf
+¡¾zen3¡¿ Ôõ
+¡¾zen4¡¿ ×P
+¡¾zeng1¡¿ Ôø Ôö Ô÷ ¿• îÀ ³D
+¡¾zeng4¡¿ ¾C ¿• Ù› êµ
+¡¾zha1¡¿ ¼™ ß¸ Õ¦ ²é ŠL ’Ÿ ßî “« Ôû âª Ôü œÑ é« „ž ýO
+¡¾zha2¡¿ ¼™ „ž Üˆ él Õ¨ åŽ à© „ž  £ 
+¡¾zha3¡¿ Æz ’€ Õ£ íÄ õW õ~ 
+¡¾zha4¡¿ Õ§ Ôp Õ¦ ×õ –Å ŠL ß¸ Õ¨ ðä òÆ é¶ Õ¥ Ïž ë ám 
+¡¾zhai1¡¿ ‚È ýS Õª
+¡¾zhai2¡¿ Õ¬ “ñ µÔ
+¡¾zhai3¡¿ Õ­
+¡¾zhai4¡¿ ØŸ ‚ù ²ñ íÎ ¼À Õ¯
+¡¾zhai¡¿ ñ©
+¡¾zhan1¡¿ Õ¼ Õ´ šÖ ì¹ Õ³ Õ² ×d ðŒ ß Õ° ûD ÷g 
+¡¾zhan3¡¿ ”Ø ïQ ±K Õ¹ ä Þø Ýš ür 
+¡¾zhan4¡¿ Õ¼ —£ ‘ð Ýu Õ¾ ¾` Õ¿ Òf î 
+¡¾zhan¡¿ Õº 
+¡¾zhang1¡¿ ð\ ˆ ÕÂ Ûµ â¯ ÕÃ ÕÄ æÑ è° ÕÁ ó¯ Øë
+¡¾zhang3¡¿ éL q ÕÆ ´˜ 
+¡¾zhang4¡¿ ÕÉ ÕÌ ÕÈ ˆ Ž¤ Ù~ Ã› q ÕÏ áÖ á¤ ÕÎ 
+¡¾zhao1¡¿ á“ ÕÐ ÕÑ ßú Öø ³¯ ³° ü{ 
+¡¾zhao2¡¿ Öø 
+¡¾zhao3¡¿ ×¦ ÕÒ ÕÓ 
+¡¾zhao4¡¿ ÕÙ Õ× Ôt Úw óÉ èþ ”í ÕÕ ÕÖ õe ÕØ ² 
+¡¾zhe1¡¿ ÕÛ òØ †ø ÕÚ ó§
+¡¾zhe2¡¿ ÕÛ ÕÜ Ým •† ×„ ÏU òØ Ö† íÝ ÞH 
+¡¾zhe3¡¿ Õß æN ñÒ ô÷ ñÞ 
+¡¾zhe4¡¿ ß@ èÏ Õã Õá †ø úp ÏV 
+¡¾zhe¡¿ Öø 
+¡¾zhei4¡¿ ß@ 
+¡¾zhen1¡¿ Ø‘ á˜ ‚É Õä ëÓ Ž¬ œ Õæ ˜E Õè µ Ýè Õå é© Õç é» äÚ Õé óð 
+¡¾zhen3¡¿ Ô\ Õí Õî ÝF Ð ëÓ î³ ¿b ð¡ 
+¡¾zhen4¡¿ ê‡ æ‚ Õñ Õð Õñ ëÞ Ùc ÛÚ ¼… øc
+¡¾zheng1¡¿ ¶¡ Õý  Ž Õ÷ Õú ÕŠ ’ê ˜ ªb Õþ ã` Ö¢ ŸA ±  åP ¹~ Õô õ›
+¡¾zheng3¡¿ Õü Õû
+¡¾zheng4¡¿ Õý  Ž ×CÕú à ÕŠ Õþ ’ê Ö¢ åP
+¡¾zhi1¡¿ Ö® Ö§ ÊÏ Ö­ Ö» Ø´ Ö¥ Ö¨ Ö¦ Öª Ö« ¿— ›E —d ëÕ ìó Ö¬ —Ð ¶ž ¶A “w ˜u Ö©
+¡¾zhi2¡¿ ˆÌ Ö± Ö¶ Öµ Ûú Âš Ö² Ö³ ¿{ Û• Þý ÜU Û—
+¡¾zhi3¡¿ Ö¹ Ö» Ö¼ Ö· ÜÆ ’W ›b ¼ˆ ìí è× Ö¸ ÝT d åë Æ ¯W Öº íé õ¥ áç
+¡¾zhi4¡¿ ÖÁ Ö¾ õô âå ×R …„ Û¤ ŽÃ ¿— àù ÖÆ Ù| ÖË ÖÎ ¼• ™± –» ÖÅ Úì èä Ýe Ù— “´ ÖÂ ÖÈ ªO —„ úv ”S ®‡ ã‡ ‚À ÖÌ ªa ÖÏ òÎ ðë ÖÇ œþ òs åé ÖÃ èe ÖÉ ïô œí Œ… ¯F ¯€ ÜW ëù Óz ÏH ”`
+¡¾zhong1¡¿ ÖÐ âì ÖÒ ½K ÖÑ æR –° ô± ÖÔ ó®
+¡¾zhong3¡¿ Ä[ ·N ‰V õà
+¡¾zhong4¡¿ ÖÐ ÖÙ ±Š ·N ÖØ Í\ ÖÔ 
+¡¾zhou1¡¿ ÖÝ ÖÛ Öa ú ÖÜ ÖÞ ×p Ýc Õ{ ßú ù@ Ùk †µ Öà ±T 
+¡¾zhou2¡¿ æ¨ ÝS 
+¡¾zhou3¡¿ Öâ Öã 
+¡¾zhou4¡¿ ¼q Öä Öæ ¿U È’ ÝS ëÐ †B ×£ •ƒ ôü °™ ô¶ ®L ƒu ‡€ ôí óE ô¦ 
+¡¾zhou¡¿ íØ
+¡¾zhu1¡¿ Öì Û¥ Ùª ÕD Üï ä¨ ½Z Öé Öê ÖT ã Øi ÑN Öë ™½ žz ™Á
+¡¾zhu2¡¿ Ðg Öñ óÃ èÖ Öð  T ðñ „± ÏŽ õî 
+¡¾zhu3¡¿ Ö÷ Ô} Öô Öù ä¾ Öó ŒÙ ñÒ ‡Ú ÷æ ²š 
+¡¾zhu4¡¿ ŒŽ Ö÷ Ð Ær Æ^ Öú ×¡ ¼Ÿ èÌ ÙA ×¢ ñv Öù ìÄ ×£ ³d ðæ Öø Öû Êü èT ºB ôã óç
+¡¾zhu¡¿ ô¶
+¡¾zhua1¡¿ ×¥ “ë ™t ºœ ó˜ 
+¡¾zhua3¡¿ ×¦
+¡¾zhuai1¡¿ ×§ ÛJ
+¡¾zhuai3¡¿ ÞD
+¡¾zhuai4¡¿ ×§ 
+¡¾zhuan1¡¿ Œ£ Äx ´u î…
+¡¾zhuan3¡¿ ÞD
+¡¾zhuan4¡¿ ‚÷ ãç ÞD ‡Ê ¬ƒ Ù ×N ×« ð‚ ×­ ºe »M
+¡¾zhuang1¡¿ Çf Šy ˜¶ Ñb 
+¡¾zhuang3¡¿ ÞÊ
+¡¾zhuang4¡¿ ‰Ñ  î Ù× ×² ´± ‘ß
+¡¾zhui1¡¿ ö¿ ×· òK ×µ åF 
+¡¾zhui4¡¿ ‰‹ ¾Y ã· ¿P åY Äi Ù˜ á^ 
+¡¾zhun1¡¿ÍÍ Þ„ ëÆ ñ¸ Õ Ðq 
+¡¾zhun3¡¿ ×¼ ˆÍ 
+¡¾zhuo1¡¿ ×¾ ×½ ×À Ù¾ —‡ äÃ ìÌ è@ ßª 
+¡¾zhuo2¡¿ ×Æ ×Â ×¿ í½ á ×Ã ä· ÕŽ ×Ä Öø ×Á ”Ù —Á är ìú ”Û ú| ÀU åª èC õî 
+¡¾zi1¡¿ ×Ð ŒI Ö¨ ×Î çÞ ×É ×Ë Æ ÙD ÙY Ç ×Í ÖJ ¾l Ýw †ê áÑ ôÒ æÜ ×Ì ôô õþ ö¤ åO ýb æt üˆ ÷Ú õ™ 
+¡¾zi3¡¿ ×Ó ×Ð æ¢ ñè ÍI Üë …è ïö ×Ñ óÊ è÷ † ×Ï ö¤ ×Ò 
+¡¾zi4¡¿ ×Ô ×Ö „  ¼ ‚• í§ ±{ n Ãu Ãh ×Ó 
+¡¾zong1¡¿˜º ×Ú ¾C ×Ø ëê È òi Ù Û™ ƒ ÂC ×× 
+¡¾zong3¡¿ ¿‚ ’Ö ‚ô
+¡¾zong4¡¿ ¿v ¯S ôÕ Øq
+¡¾zou1¡¿ àu ò| ÕŒ Úî Çˆ ¾j öO Û¸ 
+¡¾zou3¡¿ ×ß 
+¡¾zou4¡¿ ×à ×á 
+¡¾zu1¡¿ ÜÚ ×â ÝÏ 
+¡¾zu2¡¿ ×ã ×ä Œ ×å æ—
+¡¾zu3¡¿ Ô{ ×è ½M ÙÞ ×æ
+¡¾zuan1¡¿ è Üg 
+¡¾zuan3¡¿ ºe Ày ×ë
+¡¾zuan4¡¿ è Ù ß¬
+¡¾zui1¡¿ Ã ôÈ ¾× 
+¡¾zui3¡¿ õþ ×ì
+¡¾zui4¡¿ ×î • ×ï ™d Þ© ×í
+¡¾zun1¡¿ ×ð ý ×ñ é× ÷V
+¡¾zun3¡¿ ƒV ß¤ ‡g
+¡¾zun4¡¿ ’Ä
+¡¾zuo1¡¿ ×÷ àÜ 
+¡¾zuo2¡¿ ×ò ’Û óÐ ×Á
+¡¾zuo3¡¿ ×ó ×ô ´é
+¡¾zuo4¡¿ ×÷ ×ø 
+¡¾zuan3¡¿ ºe Ày ×ë
+¡¾zuan4¡¿ è Ù ß¬
+¡¾zui1¡¿ Ã ôÈ ¾× 
+¡¾zui3¡¿ õþ ×ì
+¡¾zui4¡¿ ×î • ×ï ™d Þ© ×í
+¡¾zun1¡¿ ×ð ý ×ñ é× ÷V
+¡¾zun3¡¿ ƒV ß¤ ‡g
+¡¾zun4¡¿ ’Ä
+¡¾zuo1¡¿ ×÷ àÜ 
+¡¾zuo2¡¿ ×ò ’Û óÐ ×Á
+¡¾zuo3¡¿ ×ó ×ô ´é
+¡¾zuo4¡¿ ×÷ ×ø

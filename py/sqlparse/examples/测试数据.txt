@@ -1,0 +1,78 @@
+    SQL = """
+  CREATE TABLE `sys_user222` (
+  `id` bigint(20)  unsigned NOT NULL AUTO_INCREMENT  COMMENT 'ID'  ,
+  gmt_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '建立时间',
+  gmt_modified timestamp NOT NULL COMMENT '修改时间',
+  user_name varchar(30) DEFAULT NULL COMMENT '用户登陆名',
+  `name` varchar(32) DEFAULT NULL COMMENT '用户中文名',
+  `passwd` varchar(64) DEFAULT NULL COMMENT '密码',
+  `email` varchar(127) DEFAULT NULL COMMENT '邮箱', 
+  `emp_level` tinyint(3) unsigned DEFAULT '0' COMMENT  '职级 （0员工 1架构师 2部门领导）',
+  `dept_id` int(10) unsigned DEFAULT '0' COMMENT '部门ID',
+   aa   decimal(5,2) COMMENT '有小数的类型字段',
+  `leader` varchar(30) DEFAULT NULL COMMENT '领导',
+  `status` tinyint(3) unsigned DEFAULT NULL COMMENT '状态(1正常 0禁用)',
+  `role_name` varchar(16) DEFAULT NULL COMMENT '职位（employee/ leader/dba)',
+  `group_id` int(11) DEFAULT '0' COMMENT '组ID（dba组ID 1312）',
+  `mobile` varchar(16) DEFAULT NULL COMMENT '手机号码',
+  `post_name` varchar(32) DEFAULT NULL COMMENT '岗位',
+  CONSTRAINT pk_sys_user222 PRIMARY KEY (`id`),
+  CONSTRAINT uk_sys_user222 UNIQUE KEY `uk_sys_user` USING BTREE (`user_name`(10) asc) ,
+  KEY `idx_SYS_USER_DEPT` (`dept_id`) ,
+  CONSTRAINT `FK_SYS_USER_DEPT22` FOREIGN KEY (`dept_id`) REFERENCES `sys_department` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1105 DEFAULT CHARSET=utf8 COMMENT='用户表';
+    """
+
+# column=["column_position": 0, "column_name": "name","column_type":"tinyint(3) unsigned", "data_type":"tinyint", "length": 3 ,"dot_len": NULL ,
+#          "is_nullable":"NOT NULL", "is_auto_inc": 1, "column_key":"PRIMARY","column_comment": "用户中文名","column_default":"AA" ]
+#columnList=[column1,column2....]
+#table = ["table_name": "sys_user","engine":"InnoDB","auto_increment":"1105","":"","":"","":""]
+
+
+#     dateType=['bigint','int','mediumint','smallint','tinyint','decimal', #数值类型
+#               'char','varchar','varbinary','text','longtext','blob',     #字符串类型
+#               'date','datetime','timestamp','time','year'                #时间类型
+#               ]
+#
+# column_definition:
+#  data_type[NOT NULL | NULL] [DEFAULT default_value]
+#     [AUTO_INCREMENT][UNIQUE[KEY]][[PRIMARY] KEY]
+#     [COMMENT 'string']
+#
+#     [COLLATE collation_name]
+#     [COLUMN_FORMAT {FIXED | DYNAMIC | DEFAULT}]
+#     [STORAGE {DISK | MEMORY | DEFAULT}]
+#     [reference_definition]
+# | data_type
+#     [COLLATE collation_name]
+#     [GENERATED ALWAYS] AS(expr)
+#     [VIRTUAL | STORED][NOT NULL | NULL]
+#     [UNIQUE[KEY]][[PRIMARY] KEY]
+#     [COMMENT 'string']
+#     [reference_definition]
+#
+# table_option:
+#     AUTO_INCREMENT [=] value
+#   | AVG_ROW_LENGTH [=] value
+#   | [DEFAULT] CHARACTER SET [=] charset_name
+#   | CHECKSUM [=] {0 | 1}
+#   | [DEFAULT] COLLATE [=] collation_name
+#   | COMMENT [=] 'string'
+#   | COMPRESSION [=] {'ZLIB'|'LZ4'|'NONE'}
+#   | CONNECTION [=] 'connect_string'
+#   | {DATA|INDEX} DIRECTORY [=] 'absolute path to directory'
+#   | DELAY_KEY_WRITE [=] {0 | 1}
+#   | ENCRYPTION [=] {'Y' | 'N'}
+#   | ENGINE [=] engine_name
+#   | INSERT_METHOD [=] { NO | FIRST | LAST }
+#   | KEY_BLOCK_SIZE [=] value
+#   | MAX_ROWS [=] value
+#   | MIN_ROWS [=] value
+#   | PACK_KEYS [=] {0 | 1 | DEFAULT}
+#   | PASSWORD [=] 'string'
+#   | ROW_FORMAT [=] {DEFAULT|DYNAMIC|FIXED|COMPRESSED|REDUNDANT|COMPACT}
+#   | STATS_AUTO_RECALC [=] {DEFAULT|0|1}
+#   | STATS_PERSISTENT [=] {DEFAULT|0|1}
+#   | STATS_SAMPLE_PAGES [=] value
+#   | TABLESPACE tablespace_name [STORAGE {DISK|MEMORY|DEFAULT}]
+#   | UNION [=] (tbl_name[,tbl_name]...)
