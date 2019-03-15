@@ -611,7 +611,8 @@ struct ocr_idcard_reg {
     }
     if (1) {
       for (i = 1; i < n; ++i) {
-        if (i == 2 || i == 3) continue;
+		  //if (i == 2) continue;
+		  if (i == 3) continue;
         str[0] = 0;
         if (0) {
           Rect r = r_ok[i];
@@ -630,11 +631,20 @@ struct ocr_idcard_reg {
             len = iconv_c("UCS-2LE", "gb2312", (char*)wstr, len * 2, str, 256);
           str[len] = 0;
         }
+		if (i == 2) {
+			int r = r_ok[i].x + r_ok[i].width;
+			r_ok[i].x = ridnum.x+ ridnum.height;
+			r_ok[i].width = r - r_ok[i].x;
+		}
         if (1) {
           Rect r = r_ok[i];
           im = mat(r);
           //imshow("im", im); waitKey(-1);
           int len = 0;
+		  if (i == 2) {
+			  //cv::imshow("asdf", im);
+			  //cv::waitKey(-1);
+		  }
           //seg.run(im2);
           //imshow("im2", im2);  waitKey(-1);
           string ss = ocr_caffe1.run(im);
@@ -673,7 +683,19 @@ struct ocr_idcard_reg {
             strncpy(out->name, str, 16);
             break;
           case 2:
-            strncpy(out->gender, str, 32);
+		  {
+			  strncpy(out->race, str, 32);
+			  char*p = strstr(str, "Ãñ");
+			  if (p) {
+				  strncpy(out->race, p + 4, 32);
+			  }
+			  else {
+				  char*p = strstr(str, "×å");
+				  if (p) {
+					  strncpy(out->race, p + 2, 32);
+				  }
+			  }
+		  }
             break;
           case 3:
             strncpy(out->birthday, str, 32);
@@ -992,8 +1014,8 @@ int test_detect_idcard()
     string idcard_no = strs[2];
     g_idcard = idcard_no;
     cv::Mat src;
-    if (0) {
-      fn = "D:/code/testc_vc2015/testc/20190215104426.jpg";
+    if (1) {
+      fn = "E:/OCR_Line/bin/20190312091804.jpg";
     }
     //if (!strstr(fn.c_str(), "20161005101521422-4375")) { continue; }
     src = cv::imread(fn, 1);

@@ -28,6 +28,7 @@ string GetPredictString(const vector<float>& fm, int idxBlank, const vector<stri
 #endif
 
 
+#if 1
 struct ocr_caffe {
   ICNNPredict* pCNN;
   int wstd = 0, hstd = 0;
@@ -64,8 +65,6 @@ struct ocr_caffe {
   }
 };
 
-ocr_caffe ocr_caffe1;
-
 struct ocrnum_caffe {
   ICNNPredict* pCNN;
   int wstd = 0, hstd = 0;
@@ -100,7 +99,20 @@ struct ocrnum_caffe {
     return strpredict0;
   }
 };
+#else
+struct ocr_caffe {
+	string run(const Mat& im) {
+		return "";
+	}
+};
+struct ocrnum_caffe {
+	string run(const Mat& im) {
+		return "433022198202080916";
+	}
+};
+#endif
 
+ocr_caffe ocr_caffe1;
 ocrnum_caffe ocrnum_caffe1;
 
 #endif // __OCR_CAFFE_HPP__
