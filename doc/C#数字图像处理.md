@@ -96,8 +96,8 @@ private async void OpenImage()
             byte[] pixels = dataprovider.DetachPixelData();
             wbsrcImage = newWriteableBitmap(width, height);
             Stream pixelStream = wbsrcImage.PixelBuffer.AsStream();
-            //rgba in original  
-            //to display ,convert tobgra  
+            //rgba in original
+            //to display ,convert tobgra
             for (int i = 0; i < pixels.Length; i += 4)
             {
                 byte temp = pixels[i];
@@ -248,7 +248,7 @@ public static WriteableBitmap GrayProcess(WriteableBitmap src) ////1 灰度化�
 
 ![img](https://img-my.csdn.net/uploads/201211/09/1352439621_3515.JPG)
 
- 
+
 
 ## C#数字图像处理--2.2图像二值化函数
 
@@ -264,7 +264,7 @@ public static WriteableBitmap GrayProcess(WriteableBitmap src) ////1 灰度化�
 /// <param name="src">Source image.</param>
 /// <param name="threshould">Define a threshould value for binary processing, from 0 to 255.</param>
 /// <returns></returns>
-public static WriteableBitmap BinaryProcess(WriteableBitmap src, int threshould)////2 二值化处理 
+public static WriteableBitmap BinaryProcess(WriteableBitmap src, int threshould)////2 二值化处理
 {
 	if (src != null)
 	{
@@ -355,7 +355,7 @@ public static WriteableBitmap ContraryProcess(WriteableBitmap src)////3反色处
 
 
 
- 
+
 
 ## C#数字图像处理--2.4图像颜色聚类
 
@@ -393,7 +393,7 @@ public static WriteableBitmap ContraryProcess(WriteableBitmap src)////3反色处
 
 **[函数代码]**
 
- 
+
 
 ```csharp
 ///<summary>
@@ -549,7 +549,7 @@ public static WriteableBitmap ContrastAdjustProcess(WriteableBitmap src, double 
 
 
 
- 
+
 
 ﻿﻿Win8Metro(C#)数字图像处理--2.7图像伪彩色
 
@@ -1181,7 +1181,7 @@ public static WriteableBitmap RobertEdgeProcess(WriteableBitmap src)////13 Rober
            else
            {
                returnnull;
-           }  
+           }
        }
 
 ```
@@ -1365,7 +1365,7 @@ public static WriteableBitmap ReliefProcess(WriteableBitmap src, int reliefValue
            else
            {
                returnnull;
-           }  
+           }
        }
 ```
 
@@ -1439,7 +1439,6 @@ public static WriteableBitmap TranslationProcess(WriteableBitmap src, int x, int
 
 ## C#数字图像处理--2.19图像水平镜像
 
-
 **[函数名称]**
 
 图像水平镜像函数*MirrorXProcess(**WriteableBitmap* *src)*
@@ -1450,7 +1449,7 @@ public static WriteableBitmap TranslationProcess(WriteableBitmap src, int x, int
 
 **[函数代码]**
 
-```
+```csharp
        ///<summary>
        /// Horizontal mirror process.
        ///</summary>
@@ -1483,7 +1482,7 @@ public static WriteableBitmap TranslationProcess(WriteableBitmap src, int x, int
            else
            {
                returnnull;
-           }  
+           }
        }
 
 ```
@@ -1582,7 +1581,7 @@ public static WriteableBitmap MirrorYProcess(WriteableBitmap src)////20垂直镜
 
 **[函数代码]**
 
-```
+```csharp
        ///<summary>
        /// Corrosion process.
        ///</summary>
@@ -1633,7 +1632,7 @@ public static WriteableBitmap MirrorYProcess(WriteableBitmap src)////20垂直镜
            else
            {
                returnnull;
-           }  
+           }
        }
 
 ```
@@ -1672,7 +1671,7 @@ public static WriteableBitmap MirrorYProcess(WriteableBitmap src)////20垂直镜
 
 **[函数代码]**
 
-```
+```csharp
        ///<summary>
        /// Dilation process.
        ///</summary>
@@ -1835,11 +1834,11 @@ public static WriteableBitmap CloseOperateProcess(WriteableBitmap src)////24图�
 
 
 
- 
+
 
   ![img](https://img-blog.csdn.net/20150410111742625?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
- 
+
 
 距离变换的具体步骤为：
 
@@ -1859,7 +1858,7 @@ public static WriteableBitmap CloseOperateProcess(WriteableBitmap src)////24图�
 
 ![img](https://img-blog.csdn.net/20150410112127765?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
- 
+
 
  计算步骤如下*:*
 
@@ -1871,9 +1870,9 @@ public static WriteableBitmap CloseOperateProcess(WriteableBitmap src)////24图�
 
 
 
- 
 
-​                         ![img](https://img-blog.csdn.net/20150410112200416?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center) 
+
+​                         ![img](https://img-blog.csdn.net/20150410112200416?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
 
 
@@ -2039,7 +2038,7 @@ public static WriteableBitmap SubtractionProcess(WriteableBitmap src, WriteableB
 
 
 
- 
+
 
 ![img](https://img-blog.csdn.net/20150410112410926?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
@@ -2057,14 +2056,14 @@ public static WriteableBitmap SubtractionProcess(WriteableBitmap src, WriteableB
 
 **[函数代码]**
 
-```
+```csharp
         /// <summary>
         /// Add procession of two images(Both of them should be in same size).
         /// </summary>
         /// <param name="src">The first source image.</param>
         /// <param name="addSrc">The second source iamge.</param>
         /// <returns></returns>
-        public static WriteableBitmap AddProcess(WriteableBitmap src,WriteableBitmap addSrc)////27图像加法 
+        public static WriteableBitmap AddProcess(WriteableBitmap src,WriteableBitmap addSrc)////27图像加法
         {
             if (src != null)
             {
@@ -2097,7 +2096,7 @@ public static WriteableBitmap SubtractionProcess(WriteableBitmap src, WriteableB
             else
             {
                 return null;
-            }      
+            }
         }
 
 ```
@@ -2243,7 +2242,7 @@ public static WriteableBitmap DivisionProcess(WriteableBitmap src, WriteableBitm
 
 **[函数代码]**
 
-```
+```csharp
         /// <summary>
         /// Histogram equalization process.
         /// </summary>
@@ -2295,7 +2294,7 @@ public static WriteableBitmap DivisionProcess(WriteableBitmap src, WriteableBitm
             else
             {
                 return null;
-            }         
+            }
         }
 
 ```
@@ -2375,7 +2374,7 @@ public static WriteableBitmap GrayStretchProcess(WriteableBitmap src)////31图�
 
 **[函数名称]**
 
-图像曝光函数ExposureProcess(WriteableBitmap src,int exposureValue) 
+图像曝光函数ExposureProcess(WriteableBitmap src,int exposureValue)
 
 **![img](https://img-blog.csdn.net/20150411090740661?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)**
 
@@ -2434,7 +2433,7 @@ public static WriteableBitmap ExposureProcess(WriteableBitmap src, int exposureV
 
 **[函数名称]**
 
-图像非线性变换函数NonlinearTransformProcess(WriteableBitmap src,int k ) 
+图像非线性变换函数NonlinearTransformProcess(WriteableBitmap src,int k )
 
 **![img](https://img-blog.csdn.net/20150412104414206?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)**
 
@@ -2497,7 +2496,7 @@ WriteableBitmap HistogramSpecificateProcess(WriteableBitmap src, WriteableBitmap
 /// <param name="src">The source image.</param>
 /// <param name="dst">The image to get histogram to use.</param>
 /// <returns></returns>
-public static WriteableBitmap HistogramSpecificateProcess(WriteableBitmap src, WriteableBitmap dst)////38图像直方图规定化 
+public static WriteableBitmap HistogramSpecificateProcess(WriteableBitmap src, WriteableBitmap dst)////38图像直方图规定化
 {
 	if (src != null)
 	{
@@ -2572,13 +2571,13 @@ public static byte[] HistogramMap(WriteableBitmap src)
 
 ![img](https://img-blog.csdn.net/20150412105217959?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-	```csharp
-	/// <summary>
-	/// Skin detection.
-	/// </summary>
-	/// <param name="src">The source image.</param>
-	/// <returns></returns>
-	public static WriteableBitmap SkinDetectProcess(WriteableBitmap src)////36肤色检测 
+```csharp
+/// <summary>
+/// Skin detection.
+/// </summary>
+/// <param name="src">The source image.</param>
+/// <returns></returns>
+public static WriteableBitmap SkinDetectProcess(WriteableBitmap src)////36肤色检测
 {
 	if (src != null)
 	{
@@ -2630,12 +2629,13 @@ public static byte[] HistogramMap(WriteableBitmap src)
 		return null;
 	}
 }
+
 ```
 
 ![img](https://img-blog.csdn.net/20150412105222440?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
 ## C#数字图像处理--2.36角点检测算法
-﻿﻿
+
 
 **[函数名称]**
 
@@ -2649,7 +2649,7 @@ Harris角点检测函数    HarrisDetect(WriteableBitmap src, int CRF)
 
 [函数代码]
 
-​```csharp
+```csharp
 /// <summary>
 /// Harris counter-detect.
 /// </summary>
@@ -2765,8 +2765,8 @@ private static double GetMax(params double[] src)
 	}
 	return tMax;
 }
-
 ```
+
 
 [图像效果]
 
@@ -2795,7 +2795,7 @@ Wallis图象锐化        WallisSharpen(WriteableBitmap src)
 /// </summary>
 /// <param name="src">The source image.</param>
 /// <returns></returns>
-public static WriteableBitmap WallisSharpen(WriteableBitmap src)////37Wallis锐化函数 
+public static WriteableBitmap WallisSharpen(WriteableBitmap src)////37Wallis锐化函数
 {
 	if (src != null)
 	{
@@ -2832,7 +2832,6 @@ public static WriteableBitmap WallisSharpen(WriteableBitmap src)////37Wallis锐�
 		return null;
 	}
 }
-
 ```
 
 [图象效果]
@@ -2926,8 +2925,8 @@ Hough 变换直线检测         HoughLineDetect(WriteableBitmap src, int thresh
 		return null;
 	}
 }
-
 ```
+
 
 [图像效果]
 ![img](https://img-blog.csdn.net/20150413130155609?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
@@ -2953,7 +2952,7 @@ Hough 变换直线检测         HoughLineDetect(WriteableBitmap src, int thresh
 
 ```csharp
 /// <summary>
-/// Get projections of X and Y direction. 
+/// Get projections of X and Y direction.
 /// </summary>
 /// <param name="src">The source image.</param>
 /// <returns></returns>
@@ -3001,7 +3000,6 @@ public static int[][] ImageProjection(WriteableBitmap src)////二值图像投影
 		return null;
 	}
 }
-
 ```
 
 ![img](https://img-blog.csdn.net/20150414123415129?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
@@ -3011,7 +3009,7 @@ public static int[][] ImageProjection(WriteableBitmap src)////二值图像投影
 
 **[函数名称]**
 
-  二值图像轮廓提取         ContourExtraction(WriteableBitmap src) 
+  二值图像轮廓提取         ContourExtraction(WriteableBitmap src)
 
 **[算法说明]**
 
@@ -3095,7 +3093,7 @@ public static WriteableBitmap ContourExtraction(WriteableBitmap src)
  /// </summary>
  /// <param name="src">The source image.</param>
  /// <returns></returns>
-	public static WriteableBitmap DensitySegmentProcess(WriteableBitmap src)////彩色图像密度分割 
+	public static WriteableBitmap DensitySegmentProcess(WriteableBitmap src)////彩色图像密度分割
 {
 	if (src != null)
 	{
@@ -3212,7 +3210,7 @@ private static int GetColor(int v)
  /// <param name="B">Y location of light source.</param>
  /// <param name="thresould">Light intensity value.</param>
  /// <returns></returns>
-	public static WriteableBitmap SunlightProcess(WriteableBitmap src, int X, int Y, float thresould)////41图像光照函数 
+	public static WriteableBitmap SunlightProcess(WriteableBitmap src, int X, int Y, float thresould)////41图像光照函数
 {
 	if (src != null)
 	{
@@ -3494,7 +3492,7 @@ RGB分量调整         RGBAdjustProcess(WriteableBitmap src, int value,int thre
 /// <param name="value">To judge which one to adjust, R is 3, G is 2, B is 1.</param>
 /// <param name="threshould">It is a value to adjust the result image.</param>
 /// <returns></returns>
-public static WriteableBitmap RGBAdjustProcess(WriteableBitmap src, int value, int threshould)////41 RGB分量调整 
+public static WriteableBitmap RGBAdjustProcess(WriteableBitmap src, int value, int threshould)////41 RGB分量调整
 {
 	if (src != null)
 	{
@@ -3968,8 +3966,8 @@ private static int CountT(params int[] src)
 
 ![img](https://img-blog.csdn.net/20150417133645685?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-	```csharp
-	/// <summary>
+```csharp
+/// <summary>
 	 /// Motion blur process.
 	 /// </summary>
 	 /// <param name="src">The source image.</param>
@@ -4083,7 +4081,7 @@ private static int CountT(params int[] src)
 ![img](https://img-blog.csdn.net/20150417133744653?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
 ## C#数字图像处理--2.51图像统计滤波算法
-﻿﻿
+
 
 **[函数名称]**
 
@@ -4091,13 +4089,13 @@ private static int CountT(params int[] src)
 
 ![img](https://img-blog.csdn.net/20150418092915678?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-​```csharp
+```csharp
 /// <summary>
-		/// Statistical filtering process.
-		/// </summary>
-		/// <param name="src">The source image.</param>
-		/// <param name="T">The threshould to adjust filter effect.</param>
-		/// <returns></returns>
+	/// Statistical filtering process.
+	/// </summary>
+	/// <param name="src">The source image.</param>
+	/// <param name="T">The threshould to adjust filter effect.</param>
+	/// <returns></returns>
 	public static WriteableBitmap StatisticalFilter(WriteableBitmap src, double T)////图像统计滤波
 {
 	if (src != null)
@@ -4177,13 +4175,13 @@ private static int CountT(params int[] src)
 
 ![img](https://img-blog.csdn.net/20150418093158340?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-```csharp
+​```csharp
 /// <summary>
-		/// KMeans Cluster process.
-		/// </summary>
-		/// <param name="src">The source image.</param>
-		/// <param name="k">Cluster threshould, from 2 to 255.</param>
-		/// <returns></returns>
+	/// KMeans Cluster process.
+	/// </summary>
+	/// <param name="src">The source image.</param>
+	/// <param name="k">Cluster threshould, from 2 to 255.</param>
+	/// <returns></returns>
 	public static WriteableBitmap KMeansCluster(WriteableBitmap src, int k)////KMeansCluster
 {
 	if (src != null)
@@ -4215,7 +4213,7 @@ private static int CountT(params int[] src)
 		double[] mJduge = new double[k];
 		double tempV = 0;
 		int cou = 0;
-		//获取灰度图像信息 
+		//获取灰度图像信息
 		for (int j = 0; j < h; j++)
 		{
 			for (int i = 0; i < w; i++)
@@ -4325,7 +4323,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
- 
+
 namespace Win8ImageProcess
 {
     class Complex
@@ -4334,7 +4332,7 @@ namespace Win8ImageProcess
         private double real = 0.0;
         //复数虚部
         private double imaginary = 0.0;
- 
+
         public double Real
         {
             get
@@ -4346,7 +4344,7 @@ namespace Win8ImageProcess
                 real = value;
             }
         }
- 
+
         public double Imaginary
         {
             get
@@ -4358,17 +4356,17 @@ namespace Win8ImageProcess
                 imaginary = value;
             }
         }
- 
+
         public Complex()
         {
         }
- 
+
         public Complex(double dbreal, double dbimag)
         {
             real = dbreal;
             imaginary = dbimag;
         }
- 
+
         public Complex(Complex other)
         {
             real = other.real;
@@ -4389,28 +4387,28 @@ namespace Win8ImageProcess
         {
             return comp1.Multiply(comp2);
         }
- 
+
         public Complex Add(Complex comp)
         {
             double x = real + comp.real;
             double y = imaginary + comp.imaginary;
- 
+
             return new Complex(x, y);
         }
- 
+
         public Complex Subtract(Complex comp)
         {
             double x = real - comp.real;
             double y = imaginary - comp.imaginary;
- 
+
             return new Complex(x, y);
         }
- 
+
         public Complex Multiply(Complex comp)
         {
             double x = real * comp.real - imaginary * comp.imaginary;
             double y = real * comp.imaginary + imaginary * comp.real;
- 
+
             return new Complex(x, y);
         }
         //幅值
@@ -4418,7 +4416,7 @@ namespace Win8ImageProcess
         {
             double x = Math.Abs(real);
             double y = Math.Abs(imaginary);
- 
+
             if (real == 0)
             {
                 return y;
@@ -4427,7 +4425,7 @@ namespace Win8ImageProcess
             {
                 return x;
             }
- 
+
             if (x > y)
             {
                 return (x * Math.Sqrt(1 + (y / x) * (y / x)));
@@ -4442,7 +4440,7 @@ namespace Win8ImageProcess
         {
             if (real == 0 && imaginary == 0)
                 return 0;
- 
+
             if (real == 0)
             {
                 if (imaginary > 0)
@@ -4478,8 +4476,8 @@ using System.Threading.Tasks;
 using System.IO;
 using Windows.UI.Xaml.Media.Imaging;
 using System.Runtime.InteropServices.WindowsRuntime;
- 
- 
+
+
 namespace Win8ImageProcess
 {
     public sealed class DFTClass
@@ -4488,14 +4486,14 @@ namespace Win8ImageProcess
         private static byte[] imageData;
         private static int w = 0;
         private static int h = 0;
- 
+
         public DFTClass(WriteableBitmap image)
         {
             srcImage = image;
             w = image.PixelWidth;
             h = image.PixelHeight;
         }
-        //一维FFT变换 
+        //一维FFT变换
         private Complex[] FFT(Complex[] sourceData, int countN)
         {
             //求fft的级数
@@ -5036,7 +5034,7 @@ public static WriteableBitmap OstuThSegment(WriteableBitmap src) ////Ostu法阈�
 		int Th = 0;
 		//定义直方图存储变量
 		int[] histogram = new int[256];
-		//定义熵值变量 
+		//定义熵值变量
 		double Ht = 0.0;
 		double Hl = 0.0;
 		double sigma = 0.0;
@@ -5314,16 +5312,16 @@ public static WriteableBitmap PParameterThSegment(WriteableBitmap src, double P)
 
  **[函数代码]**
 
-	  ```csharp
-	  /// <summary>
-	  /// Partial color process.
-	  /// </summary>
-	  /// <param name="src">The source image.</param>
-	  /// <param name="rValue">R channel of pixel.</param>
-	  /// <param name="gValue">G channel of pixel.</param>
-	   /// <param name="bValue">B channel of pixel.</param>
-	  /// <returns></returns>
-	  public static WriteableBitmap PartialcolorProcess(WriteableBitmap src, int rValue, int gValue, int bValue)////部分彩色
+```csharp
+/// <summary>
+/// Partial color process.
+/// </summary>
+/// <param name="src">The source image.</param>
+/// <param name="rValue">R channel of pixel.</param>
+/// <param name="gValue">G channel of pixel.</param>
+/// <param name="bValue">B channel of pixel.</param>
+/// <returns></returns>
+public static WriteableBitmap PartialcolorProcess(WriteableBitmap src, int rValue, int gValue, int bValue)////部分彩色
   {
 	  if (src != null)
 	  {
@@ -5362,12 +5360,12 @@ public static WriteableBitmap PParameterThSegment(WriteableBitmap src, double P)
 		  return null;
 	  }
   }
-  ```
+```
 
 ![img](https://img-blog.csdn.net/20150422123355195?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
 ## C#数字图像处理--2.61哈哈镜效果
-﻿﻿
+
 
 **[函数名称]**
 
@@ -5387,14 +5385,14 @@ public static WriteableBitmap PParameterThSegment(WriteableBitmap src, double P)
 
 
 
-	```csharp
-	/// <summary>
-	/// Distorting mirror process.
-	/// </summary>
-	/// <param name="src">The source image.</param>
-	/// <param name="x">Origin of coordinates in x direction.</param>
-	/// <param name="y">Origin of coordinates in y direction.</param>
-	/// <returns></returns>
+```csharp
+/// <summary>
+/// Distorting mirror process.
+/// </summary>
+/// <param name="src">The source image.</param>
+/// <param name="x">Origin of coordinates in x direction.</param>
+/// <param name="y">Origin of coordinates in y direction.</param>
+/// <returns></returns>
 	public static WriteableBitmap DistortingMirrorProcess(WriteableBitmap src, int x, int y)////哈哈镜特效
 {
 	if (src != null)
@@ -5437,7 +5435,7 @@ public static WriteableBitmap PParameterThSegment(WriteableBitmap src, double P)
 		return null;
 	}
 }
-  ```
+```
 
 **[图像效果]**
 
@@ -6316,15 +6314,15 @@ public static WriteableBitmap SigmaFilterProcess(WriteableBitmap src)////Sigma�
 
 
 
-	```csharp
-	/// <summary>
-	/// Noise process.
-	/// </summary>
-	/// <param name="src">The source image.</param>
+```csharp
+/// <summary>
+/// Noise process.
+/// </summary>
+/// <param name="src">The source image.</param>
 	 /// <param name="flagNoise">One parameter to choose noise mode,0--Gauss noise,1--Rayleigh noise,2--Noise index,3--alt and pepper noise.</param>
-	/// <param name="meanValue">Mean value or alt value.</param>
-	/// <param name="varianceValue">Variance value or pepper value.</param>
-	/// <returns></returns>
+/// <param name="meanValue">Mean value or alt value.</param>
+/// <param name="varianceValue">Variance value or pepper value.</param>
+/// <returns></returns>
 	public static WriteableBitmap NoiseProcess(WriteableBitmap src, byte flagNoise, double meanValue, double varianceValue)////噪声
 {
 	if (src != null)
@@ -6418,7 +6416,7 @@ public static WriteableBitmap SigmaFilterProcess(WriteableBitmap src)////Sigma�
 
 
 
-​```csharp
+```csharp
 /// <summary>
 /// Image merge process.
 /// </summary>
@@ -6481,7 +6479,7 @@ public static WriteableBitmap ImageMerge(WriteableBitmap bacImage, WriteableBitm
 
 
 
-```csharp
+​```csharp
 /// <summary>
 /// Convex Hull compute.
 /// </summary>
@@ -6618,7 +6616,7 @@ public static double GetMeanProcess(WriteableBitmap src) ////32 图像均值计�
 
 ```csharp
 /// <summary>
- /// 
+ ///
  /// </summary>Variance computing.
  /// <param name="src">The source image.</param>
  /// <returns></returns>
@@ -7064,12 +7062,12 @@ public static double[] YUVtoRGB(byte[] yuvValue, int w, int h)
 
 
 
-	```csharp
-	/// <summary>
-	/// Get his information.
-	/// </summary>
-	/// <param name="src">The source image.</param>
-	/// <returns></returns>
+```csharp
+/// <summary>
+/// Get his information.
+/// </summary>
+/// <param name="src">The source image.</param>
+/// <returns></returns>
 	public static double[] HISValue(WriteableBitmap src)
 {
 	if (src != null)
@@ -7206,7 +7204,7 @@ public static double[] HIStoRGB(byte[] hisValue, int w, int h)
 
 
 
-​```csharp
+```csharp
 /// <summary>
 /// Get YIQ information.
 /// </summary>
@@ -7327,7 +7325,7 @@ public static double[] YIQtoRGB(byte[] yiqValue, int w, int h)
 
 
 
-```csharp
+​```csharp
 /// <summary>
 /// Get HSV information.
 /// </summary>
