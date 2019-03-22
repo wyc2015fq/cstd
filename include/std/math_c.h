@@ -94,7 +94,7 @@
 #ifndef M_PI_2
 #define M_PI_2 (M_PI*2)
 #endif // M_PI_2
-//Ò»¸ö´ÖÂªµ«Í¨³£ÓÐÐ§µÄ²âÊÔNaNµÄ·½·¨£º
+//?????????????§¹?????NaN???????
 #define ISNAN(x)    ((x) != (x))
 static int dayofweek(int y, int m, int d)  /* 0 = Sunday */ 
 { 
@@ -192,7 +192,7 @@ static double log1p(double x)
     fnstsw  ax
     fld        st
     sahf
-    jc        l3        // in case x is NaN or ï¿½Inf
+    jc        l3        // in case x is NaN or ?Inf
     l4:
     fabs
     fcomp        limit
@@ -208,7 +208,7 @@ static double log1p(double x)
     fstp x
     jmp l5
     l3:
-    jp        l4        // in case x is ï¿½Inf
+    jp        l4        // in case x is ?Inf
     fstp        st(1)
     fstp        st(1)
     l5:
@@ -632,7 +632,7 @@ CC_INLINE BOOL ipoint_in_triangle(int x1, int y1, int x2, int y2, int x3, int y3
   BOOL cp3 = icross_product(x3, y3, x1, y1, x, y) < 0;
   return cp1 == cp2 && cp2 == cp3 && cp3 == cp1;
 }
-//ï¿½Ð¶Ïµï¿½qï¿½Ç·ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½ï¿½ï¿½Ú£ï¿?
+//?§Ø??q?????????????
 CC_INLINE BOOL ipoint_in_poly(const IPOINT* pt, int len, int x, int y)
 {
   int i, j, k = 0;
@@ -904,10 +904,10 @@ CC_INLINE double slove3n(const double* A, const double* b, double* x, int n)
   }
   return 0;
 }
-// ï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½ï¿½
-// ï¿½ï¿½ï¿½Ô·ï¿½
-// ï¿½ï¿½ï¿½ÃµÈ²î¼¶ï¿½ï¿½ï¿½ï¿½Ê½:
-//  ï¿½ï¿½ï¿½ï¿½ï¿½Ä»ï¿½, ï¿½ï¿½1ï¿½ï¿½Ê¼Ò»Ö±ï¿½ãµ½ï¿½ï¿½ï¿½Ðµï¿½Ç°ï¿½ï¿½Íµï¿½Ò»ï¿½Î´ï¿½ï¿½ï¿½xï¿½ï¿½Ê±ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½source code(C):
+// ?????????
+// ?????
+// ???????????:
+//  ???????, ??1??????????§Ö????????¦Ä???x?????,???????????????source code(C):
 CC_INLINE uint32 isqrt_linear_search(uint32 x)
 {
   uint32 sum_n = 1;
@@ -951,17 +951,17 @@ CC_INLINE uint32 isqrt_bi_search(uint32 x)
     }
   }
 }
-// Newton ï¿½ï¿½
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½Îªï¿½ï¿½ï¿½?¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â£¬ï¿½ï¿?ï¿½ï¿½ï¿½ï¿½xï¿½ï¿½
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Newton ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ã²»Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¿ï¿½ï¿½Ô·ï¿½ï¿½Ö£ï¿½Newtonï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿?
-// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã´Ö¤ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½Ô²Î¿ï¿½hackerï¿½ï¿½s delightï¿½ï¿½
-// ï¿½ï¿½ï¿½â£¬ï¿½ï¿½Öµï¿½ï¿½Ñ¡ï¿½ï¿½Ò²ï¿½Çºï¿½ï¿½ï¿½Òªï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½Úµï¿½ï¿½Úµï¿½ï¿½ï¿½Ð¡ï¿½ï¿?ï¿½ï¿½ï¿½Ý´ï¿½ï¿½ï¿½ï¿½ï¿½
+// Newton ??
+// ?????????????????????????????????x??
+// ????????????????????Newton ?????????????????????????????????????????????????????????????????Newton??????????????????????????????§µ??
+// ???????????????????¦Ï?hacker??s delight??
+// ??????????????????????????????????????????????§³????????????
 CC_INLINE uint32 isqrt_newton_method(uint32 x)
 {
   uint32 x1 = x - 1;
   uint32 s = 1;
   uint32 g0, g1;
-  /* ï¿½ï¿½Öµï¿½è¶¨ */
+  /* ????Ú… */
   if (x1 > 65535) {
     s += 8;
     x1 >>= 16;
@@ -978,7 +978,7 @@ CC_INLINE uint32 isqrt_newton_method(uint32 x)
     s += 1;
     x1 >>= 2;
   }
-  /*ï¿½ï¿½ï¿½ï¿½*/
+  /*????*/
   g0 = 1 << s;
   g1 = (g0 + (x >> s)) >> 1;
   while (g1 < g0) {
@@ -987,9 +987,9 @@ CC_INLINE uint32 isqrt_newton_method(uint32 x)
   }
   return g0;
 }
-// ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½Ï·ï¿?
-// ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½Ï·ï¿½ï¿½ï¿½ÎªÒ»ï¿½ï¿?2Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½16Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿?6Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½Ã¿Î»ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½1.ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÓµÄ²ï¿½ï¿½Ö£ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½Ïµï¿½Öµï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î´È·ï¿½Ïµï¿½Öµï¿½ï¿½ï¿½Ó¸ï¿½Î»ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½Ã¿ï¿½Îµï¿½ï¿½ï¿½È·ï¿½ï¿½Ò»Î»ï¿½ï¿½ï¿½ï¿½Ê¼Ê±ï¿½ï¿½ï¿½ï¿½È·ï¿½Ï²ï¿½ï¿½ï¿½Îª0ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä³ï¿½Ê¼ï¿½ï¿½Ê½Îªï¿½ï¿?
-//  ï¿½ã·¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½James Ulery ï¿½ï¿½ï¿½ï¿½:Computing Integer Square Roots
+// ??????????
+// ????????????????2¦Ë????????????????????16¦Ë????????????6¦Ë?????????????????¦Ë???????0????1.??????????????????????????????????????????????????¦Ä??????????¦Ë????¦Ë????¦Å???????¦Ë?????????????????0??????????????????
+//  ???????????James Ulery ????:Computing Integer Square Roots
 CC_INLINE uint32 isqrt_bitwise_verification(uint32 x)
 {
   uint32 temp = 0;
@@ -1014,9 +1014,9 @@ CC_INLINE float InvSqrt(float x)
   float xhalf = 0.5f * x;
   suf32_t i;
   i.f = x;
-  i.i = 0x5f3759df - (i.i >> 1);// ¼ÆËãµÚÒ»¸ö½üËÆ¸ù
+  i.i = 0x5f3759df - (i.i >> 1);// ?????????????
   x = i.f;
-  x = x * (1.5f - xhalf * x * x); // Å£¶Ùµü´ú·¨
+  x = x * (1.5f - xhalf * x * x); // ????????
   return x;
 }
 CC_INLINE float CarmSqrt(float x)
@@ -1035,16 +1035,16 @@ CC_INLINE float CarmSqrt(float x)
   convertor2.intPart = 0x5f3759df - (convertor2.intPart >> 1);
   return 0.5f * (convertor.floatPart + (x * convertor2.floatPart));
 }
-// ï¿½ï¿½ï¿½ï¿½(0,0,0)ï¿½ï¿½(x,y,z)ï¿½Ä¾ï¿½ï¿½ë£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª8%
+// ????(0,0,0)??(x,y,z)????????????8%
 CC_INLINE float FastDistance3D(float fx, float fy, float fz)
 {
   int temp, dist;
   int x, y, z;
-  // È·ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ÖµÎªï¿½ï¿½
+  // ??????§Ö?????
   x = (int)(fabs(fx) * 1024);
   y = (int)(fabs(fy) * 1024);
   z = (int)(fabs(fz) * 1024);
-  // ï¿½ï¿½ï¿½ï¿½
+  // ????
   if (y < x) {
     CC_SWAP(x, y, temp);
   }
@@ -1058,7 +1058,7 @@ CC_INLINE float FastDistance3D(float fx, float fy, float fz)
   return((float)(dist >> 10));
 }
 /****************************************************************************************\
-***Í¨ï¿½Ãºï¿½ï¿½ï¿½
+***??¨²???
 \****************************************************************************************/
 static const float table_fsin[] = { //
 #include "math/table/table_fsin.txt"
@@ -1188,7 +1188,7 @@ CC_INLINE double solve_4x4_1(double* a, double* b, double* c, double* d, double*
   }
   return dd;
 }
-// ï¿½ï¿½ï¿½ÔªÒ»ï¿½ï¿½ï¿½ï¿½ï¿½Ô·ï¿½ï¿½ï¿½ï¿½ï¿?
+// ?????????????????
 // a*x+b*y = 1;
 // |a1, b1|  |x|  |1|
 // |   | * | | = | |
@@ -1202,7 +1202,7 @@ CC_INLINE void liear_slove(double a1, double b1, double a2, double b2,          
   return ;
 }
 /****************************************************************************************\
-***2dï¿½ï¿½Ñ§
+***2d???
 \****************************************************************************************/
 CC_INLINE double NegativeInfinity()
 {
@@ -1213,7 +1213,7 @@ CC_INLINE double NegativeInfinity()
   num.i = 0x7FF0000000000000UL;
   return num.d;
 }
-//ï¿½ä»»ï¿½ï¿½Ê½:ï¿½ï¿½PÎªï¿½ä»»Ç°ï¿½Äµï¿½,P1Îªï¿½ä»»ï¿½ï¿½Äµï¿?AÎªï¿½ä»»ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½
+//?ÈÎ???:??P??ÈÎ????,P1??ÈÎ?????A??ÈÎ????,??
 //  P1 = P * A
 //|P1.x|   |P.x|   |a00,a01,a02|
 //|P1.y| = |P.y| * |a10,a11,a12|
@@ -1343,7 +1343,7 @@ CC_INLINE BOOL point_in_triangle1(double x1, double y1,
   BOOL cp3 = cross_product(x3, y3, x1, y1, x, y) < 0.0;
   return cp1 == cp2 && cp2 == cp3 && cp3 == cp1;
 }
-//ï¿½Ð¶Ïµï¿½qï¿½Ç·ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½ï¿½ï¿½Ú£ï¿?
+//?§Ø??q?????????????
 CC_INLINE BOOL point_in_poly(const DPOINT* pt, int len, double x, double y)
 {
   int i, j, k = 0;
@@ -2394,7 +2394,7 @@ CC_INLINE int fvec_modulate(float* v, const float* v1, const float* v2)
   M300(_C) = A00,M301(_C) = A01,M302(_C) = A02, \
       M310(_C) = A10,M311(_C) = A11,M312(_C) = A12, \
           M320(_C) = A20,M321(_C) = A21,M322(_C) = A22
-//ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½
+//??¦Ë????
 //#define M3ID(_C)   M3SET(_C, 1.f,0.f,0.f,0.f,1.f,0.f,0.f,0.f,1.f)
 #define M4MULM4(c, a, b) {float tmp[16]; M4MUL(tmp, a, b); M4SETV(c, tmp);}
 #define M4MULM4(c, a, b) {float tmp[16]; M4MUL(tmp, a, b); M4SETV(c, tmp);}
@@ -2405,7 +2405,7 @@ BOOL m4_inv(const float* s, float* d)
   tmp[0] = M422(s) * M433(s), tmp[1] = M432(s) * M423(s), tmp[2] = M412(s) * M433(s), tmp[3] = M413(s) * M432(s);
   tmp[4] = M412(s) * M423(s), tmp[5] = M422(s) * M413(s), tmp[6] = M402(s) * M433(s), tmp[7] = M432(s) * M403(s);
   tmp[8] = M402(s) * M423(s), tmp[9] = M422(s) * M403(s), tmp[10] = M402(s) * M413(s), tmp[11] = M412(s) * M403(s);  // # 12*
-  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ (ï¿½ï¿½ï¿½Ã°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿?
+  // ????????? (???????????
   M400(d) = M411(s) * (tmp[0] - tmp[1]) + M421(s) * (tmp[3] - tmp[2]) + M431(s) * (tmp[4] - tmp[5]); // 3* 3- 2+
   M401(d) = M401(s) * (tmp[1] - tmp[0]) + M421(s) * (tmp[6] - tmp[7]) + M431(s) * (tmp[9] - tmp[8]);
   M402(d) = M401(s) * (tmp[2] - tmp[3]) + M411(s) * (tmp[7] - tmp[6]) + M431(s) * (tmp[10] - tmp[11]);
@@ -2452,12 +2452,8 @@ BOOL m4_inv(const float* s, float* d)
               V3(o) = V0(v) * M430(m) + V1(v) * M431(m) + V2(v) * M432(m) + M433(m)
 #endif
 
-
-
-
-#ifdef _WIN32
+#ifdef _MSC_VER
 #if _MSC_VER < 1300
-
 #include "math_vc6.h"
 #endif
 #endif

@@ -1,5 +1,7 @@
 #ifdef _WIN32
 #include <io.h>
+#else
+#include <unistd.h>
 #endif
 #include "classification.hpp"
 #undef TEST
@@ -29,7 +31,6 @@ bool CheckFileExist(const char* szFile)
 #else
 	return access(szFile, F_OK) != -1;
 #endif
-
 }
 
 

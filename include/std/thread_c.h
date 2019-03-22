@@ -520,9 +520,10 @@ int sys_mutex_unlock(mutex_t* mut)
 {
   return 0;
 }
+#if 0
 static void* ThreadProxy(void* args)
 {
-  thread_t* th = (thread_t*)(args);
+  pthread_t* th = (thread_t*)(args);
   int ret = 0;
   UNUSED(ret);
   if (th && th->run) {
@@ -530,11 +531,13 @@ static void* ThreadProxy(void* args)
   }
   return NULL;
 }
+#endif
 
-int sys_thread_create(thread_t* th)
+int sys_thread_create(thread_t* th, const thread_attr_t* attr, thread_callback start_rtn, void* arg)
 {
   pthread_t pth = 0;
-  int ret = pthread_create(&pth, NULL, ThreadProxy, th);
+  typedef void *(*pthread_start_routine) (void *);
+  int ret = pthread_create(&pth, (pthread_attr_t*)attr, (pthread_start_routine)start_rtn, arg);
   th->x = (void*)pth;
   return ret;
 }

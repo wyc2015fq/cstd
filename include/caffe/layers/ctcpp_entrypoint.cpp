@@ -2,9 +2,9 @@
 #include <iostream>
 #include <algorithm>
 
-#include "ctcpp.h"
+#include "caffe/ctcpp.h"
 
-#include "detail/cpu_ctc.h"
+#include "caffe/detail/cpu_ctc.h"
 
 
 namespace CTC

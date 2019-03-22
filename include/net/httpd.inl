@@ -722,7 +722,7 @@ static char* _httpd_escape(const char* str)
     }
   }
   result = (char*) malloc(p - str + unacceptable + 1);
-  bzero(result, (p - str + unacceptable + 1));
+  memset(result, 0, (p - str + unacceptable + 1));
   if (result == NULL) {
     return(NULL);
   }
@@ -992,7 +992,7 @@ static httpSvr* httpdCreate(const char* host, int port)
   if (s == NULL) {
     return(NULL);
   }
-  bzero(s, sizeof(httpSvr));
+  memset(s, 0, sizeof(httpSvr));
   //port;
   if (host == NULL) {
     s->host = HTTP_ANY_ADDR;
@@ -1001,7 +1001,7 @@ static httpSvr* httpdCreate(const char* host, int port)
     s->host = _strdup(host);
   }
   s->content = (httpDir*)malloc(sizeof(httpDir));
-  bzero(s->content, sizeof(httpDir));
+  memset(s->content, 0, sizeof(httpDir));
   s->content->name = _strdup("");
   
   // Setup the socket
@@ -1043,7 +1043,7 @@ static void httpdEndRequest(httpd* s)
   if (s->request.content) {
     free(s->request.content);
   }
-  bzero(&s->request, sizeof(s->request));
+  memset(&s->request, 0, sizeof(s->request));
   free(s);
 }
 static int httpdGetConnection(httpSvr* svr, int time_ms, httpd** ps)
@@ -1354,7 +1354,7 @@ static int httpdReadRequest(httpd* s)
   }
   // Process and POST data
   if (s->request.contentLength > 0) {
-    //bzero(buf, HTTP_MAX_LEN);
+    //memset(buf, 0, HTTP_MAX_LEN);
     s->request.content = (char*)malloc(s->request.contentLength+1);
     sockbuf_readBuf(s->client, s->request.content, s->request.contentLength);
     s->request.content[s->request.contentLength]=0;
@@ -1410,7 +1410,7 @@ static int httpdAddFileContent(httpSvr* svr, char* dir, char* name, int indexFla
   if (newEntry == NULL) {
     return(-1);
   }
-  bzero(newEntry, sizeof(httpContent));
+  memset(newEntry, 0, sizeof(httpContent));
   newEntry->name = _strdup(name);
   newEntry->type = HTTP_FILE;
   newEntry->indexFlag = indexFlag;
@@ -1438,7 +1438,7 @@ static int httpdAddWildcardContent(httpSvr* s, char* dir, int (*preload)(httpd* 
   if (newEntry == NULL) {
     return(-1);
   }
-  bzero(newEntry, sizeof(httpContent));
+  memset(newEntry, 0, sizeof(httpContent));
   newEntry->name = NULL;
   newEntry->type = HTTP_WILDCARD;
   newEntry->indexFlag = HTTP_FALSE;
@@ -1465,7 +1465,7 @@ static int httpdAddCContent(httpSvr* s, const char* dir, const char* name, int i
   if (newEntry == NULL) {
     return(-1);
   }
-  bzero(newEntry, sizeof(httpContent));
+  memset(newEntry, 0, sizeof(httpContent));
   newEntry->name = _strdup(name);
   newEntry->type = HTTP_C_FUNCT;
   newEntry->indexFlag = indexFlag;
@@ -1484,7 +1484,7 @@ static int httpdAddCWildcardContent(httpSvr* s, const char* dir, int (*preload)(
   if (newEntry == NULL) {
     return(-1);
   }
-  bzero(newEntry, sizeof(httpContent));
+  memset(newEntry, 0, sizeof(httpContent));
   newEntry->name = NULL;
   newEntry->type = HTTP_C_WILDCARD;
   newEntry->indexFlag = HTTP_FALSE;
@@ -1503,7 +1503,7 @@ static int httpdAddStaticContent(httpSvr* s, char* dir, char* name, int indexFla
   if (newEntry == NULL) {
     return(-1);
   }
-  bzero(newEntry, sizeof(httpContent));
+  memset(newEntry, 0, sizeof(httpContent));
   newEntry->name = _strdup(name);
   newEntry->type = HTTP_STATIC;
   newEntry->indexFlag = indexFlag;
@@ -1522,7 +1522,7 @@ static int httpdAddEmberContect(httpSvr* s, char* dir, char* name, int indexFlag
   if (newEntry == NULL) {
     return(-1);
   }
-  bzero(newEntry, sizeof(httpContent));
+  memset(newEntry, 0, sizeof(httpContent));
   newEntry->name = _strdup(name);
   newEntry->type = HTTP_EMBER_FUNCT;
   newEntry->indexFlag = indexFlag;

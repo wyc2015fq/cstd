@@ -1,5 +1,5 @@
 #undef CV_CPU_SIMD_FILENAME
-#define CV_CPU_SIMD_FILENAME "stat.simd.hpp"
+#define CV_CPU_SIMD_FILENAME "opencv2/core/stat.simd.hpp"
 
 #undef CV_CPU_DISPATCH_MODE
 #include "opencv2/core/private/cv_cpu_include_simd_declarations.hpp"

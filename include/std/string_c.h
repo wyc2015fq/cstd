@@ -5,6 +5,8 @@
 #include <ctype.h>
 #include <assert.h>
 #include <string.h>
+#include <stdarg.h>
+
 #include "inttypes_c.h"
 #include "stddef_c.h"
 #define static_strlen(STR)   (sizeof(STR)-1)
@@ -30,11 +32,11 @@ int test_static_strlen()
 
 
 #ifdef __linux__
-int64 _atoi64(const char* str)
+static int64 _atoi64(const char* str)
 {
   return strtol(str, NULL, 10 );
 }
-char* strupr(char* str)
+static char* strupr(char* str)
 {
   char* ptr = str;
   while (*ptr != '\0') {
@@ -45,7 +47,7 @@ char* strupr(char* str)
   }
   return str;
 }
-char* strlwr(char* str)
+static char* strlwr(char* str)
 {
   char* ptr = str;
   while (*ptr != '\0') {
@@ -56,7 +58,7 @@ char* strlwr(char* str)
   }
   return str;
 }
-char* strrev(char* str)
+static char* strrev(char* str)
 {
   char* p1, *p2;
   if (! str || ! *str) {
@@ -72,7 +74,7 @@ char* strrev(char* str)
 
 #endif
 
-CC_INLINE void memunroll(void* p, int n, int unroll_to)
+static void memunroll(void* p, int n, int unroll_to)
 {
   char* ptr = (char*)p;
   if (1 == n) {
@@ -222,7 +224,6 @@ static int atoi_c(const char* nptr)
     return total;  /* return result, negated if necessary */
   }
 }
-
 static int64 atoi64_c(const char* nptr)
 {
   int c;              /* current char */
@@ -302,7 +303,7 @@ CC_INLINE int memicmp_c(const char* s1, const char* s2, int n, int ignore_case)
   return memcmp_c(s1, s2, n);
 }
 #define CSTRINITLEN(str, len)   (len = ((len)<0 ? strlen_c((const char*)(str)) : len))
-// _isend ´ÓÄ©Î²¿ªÊ¼±È½Ï
+// _isend ï¿½ï¿½Ä©Î²ï¿½ï¿½Ê¼ï¿½È½ï¿½
 CC_INLINE int strnicmp_c(const char* s1, int l1, const char* s2, int l2, int n, int _isend, int ignore_case)
 {
   CSTRINITLEN(s1, l1);
@@ -750,6 +751,8 @@ static char* aprintf(char** buf, int i, const char* fmt, ...)
   va_end(va);
   return *buf;
 }
+
+#ifdef _WIN32
 static wchar_t* avwprintf(wchar_t** buf, int i, wchar_t const* const _Format, va_list  _ArgList) {
   int bsize = 32;
   int len = bsize;
@@ -769,4 +772,5 @@ static wchar_t* awprintf(wchar_t** buf, int i, const wchar_t* fmt, ...)
   va_end(va);
   return *buf;
 }
+#endif
 #endif // _STRING_C_H_

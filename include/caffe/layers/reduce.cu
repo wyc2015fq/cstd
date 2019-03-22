@@ -10,8 +10,8 @@
 // #include <helper_cuda.h>
 
 // For the functors
-#include "detail/ctc_helper.h"
-#include "ctc.h"
+#include "caffe/detail/ctc_helper.h"
+#include "caffe/ctc.h"
 
 const int warp_size = 32;
 
@@ -52,7 +52,8 @@ struct CTAReduce {
 template <int NT, typename Iop, typename Rop, typename T>
 __global__ void reduce_rows(Iop f, Rop g, const T* input, T* output,
                             int num_rows, int num_cols) {
-
+#if 0
+    typedef CTAReduce<128, float, ctc_helper::add<float, float> > R1;
     typedef CTAReduce<NT, T, Rop> R;
     __shared__ typename R::Storage storage;
 
@@ -78,6 +79,7 @@ __global__ void reduce_rows(Iop f, Rop g, const T* input, T* output,
     // Store result in out
     if (tid == 0)
         output[col] = curr;
+#endif
 }
 
 template <int NT, typename Iop, typename Rop, typename T>
@@ -120,13 +122,13 @@ struct ReduceHelper {
 
         if (axis) {
             grid_size = num_cols;
-            reduce_rows<128><<<grid_size, 128, 0, stream>>>
+            reduce_rows<128, Iof, Rof, T><<<grid_size, 128, 0, stream>>>
                (f, g, input, output, num_rows, num_cols);
 
         } else {
             dim3 tpb(warp_size, 128 / warp_size);
             grid_size = (num_cols + warp_size - 1)/warp_size;
-            reduce_cols<128><<<grid_size, tpb, 0, stream>>>
+            reduce_cols<128, Iof, Rof, T><<<grid_size, tpb, 0, stream>>>
                 (f, g, input, output, num_rows, num_cols);
 
         }

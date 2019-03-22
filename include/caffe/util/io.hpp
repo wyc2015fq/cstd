@@ -12,13 +12,22 @@
 //#include "caffe/proto/caffe.pb.h"
 #include "wstd/string.hpp"
 #include "wstd/logging.hpp"
+#include "std/dir_c.h"
 
 #ifndef CAFFE_TMP_DIR_RETRIES
 #define CAFFE_TMP_DIR_RETRIES 100
 #endif
 using namespace std;
-using namespace std::experimental;
-using namespace std::experimental::filesystem;
+
+
+string temp_directory_path() {
+  char dir[256] = "/tmp";
+  #ifdef _WIN32
+  strcpy(dir, getenv("windir"));
+  #endif
+  return strcat(dir, "/temp/");
+}
+
 
 
 namespace caffe
@@ -28,13 +37,12 @@ namespace caffe
   inline void MakeTempDir(string* temp_dirname)
   {
     temp_dirname->clear();
-    const path & model =
-      filesystem::temp_directory_path() / "caffe_test.%%%%-%%%%";
+    const string model = temp_directory_path() + "/caffe_test.%%%%-%%%%";
     for ( int i = 0; i < CAFFE_TMP_DIR_RETRIES; i++ ) {
-      const path & dir = wstd::filesystem::unique_path(model).string();
-      bool done = filesystem::create_directory(dir);
+      const string dir = wstd::filesystem::unique_path(model);
+      int done = mkdirs(dir.c_str());
       if ( done ) {
-        *temp_dirname = dir.string();
+        *temp_dirname = dir;
         return;
       }
     }
@@ -43,7 +51,7 @@ namespace caffe
 
   inline void MakeTempFilename(string* temp_filename)
   {
-    static path temp_files_subpath;
+    static string temp_files_subpath;
     static uint64_t next_temp_file = 0;
     temp_filename->clear();
     if ( temp_files_subpath.empty() ) {
@@ -51,7 +59,7 @@ namespace caffe
       MakeTempDir(&path_string);
       temp_files_subpath = path_string;
     }
-    *temp_filename = (temp_files_subpath / wstd::format("%09u", next_temp_file++)).string();
+    *temp_filename = (temp_files_subpath + "/" + wstd::format("%09u", next_temp_file++));
   }
 
   bool ReadProtoFromTextFile(const char* filename, Message* proto);
@@ -223,7 +231,7 @@ namespace caffe
       }
     }
     blob->set_data(buffer, size * sizeof(T));
-    Blob_NCHW(blob, encoded, buffer, dim2, dim3, dim1, dim4);
+    Blob_NCHW(blob, encoded, buffer, dim_w, dim_h, dim_c, dim_n);
     free(buffer);
     return true;
   }

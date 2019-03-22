@@ -29,4 +29,4 @@
 #ifdef _MSC_VER
 #endif
 
-#pragma warning(disable:4819) //È«²¿¹Øµô
+#pragma warning(disable:4819) //å…¨éƒ¨å…³æŽ‰

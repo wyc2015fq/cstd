@@ -20,49 +20,37 @@
 
 但是GB毕竟只是一种求解 Boosting 的思想，到底是怎么用在分类与回归中的，将在这一部分介绍。**这一部分不会介绍决策树相关概念，一个是它相对简单，网上也有大量教程，但如果有机会以后出一个系列来进行更深入的介绍。**
 
-首先我们回顾一下Gradient Boosting 的本质，就是训练出![F^*](https://www.zhihu.com/equation?tex=F%5E%2A)，使损失函数![\psi(y,F(x))](https://www.zhihu.com/equation?tex=%5Cpsi%28y%2CF%28x%29%29)最小，即
-
-
-
+首先我们回顾一下Gradient Boosting 的本质，就是训练出$F^*$，使损失函数$\psi(y,F(x))$最小，即
+$$
+F^*=\underset{F(x)}{\arg\min}E_{y,x}\psi(y,F(x))
+$$
 其求解步骤如下：
 
 
 
 ![img](https://pic2.zhimg.com/80/v2-9fbb970e03e82b6d6ef4040c1c7c0fad_hd.png)
 
-所以，我们首先得定义出损失函数
-
-
-
-，才能谈求解的事情。接下来我们针对不同场景，介绍相应的损失函数。
+所以，我们首先得定义出损失函数$\psi(y,F(x))$，才能谈求解的事情。接下来我们针对不同场景，介绍相应的损失函数。
 
 
 
 ## 回归
 
-对于回归问题，定义好损失函数![\psi(y,F(x))](https://www.zhihu.com/equation?tex=%5Cpsi%28y%2CF%28x%29%29)后，Gradient Boosting 不需要作出什么修改，计算出来的结果就是预测值。
+对于回归问题，定义好损失函数$\psi(y,F(x))$后，Gradient Boosting 不需要作出什么修改，计算出来的结果就是预测值。
 
 **平方损失**
 
-在实际回归中，最常用的![\psi(y,F(x))](https://www.zhihu.com/equation?tex=%5Cpsi%28y%2CF%28x%29%29)之一，就是平方损失，即
-
-![img](https://pic1.zhimg.com/80/v2-8df00ab71316784953c937bd404c04d8_hd.png)
-
+在实际回归中，最常用的$\psi(y,F(x))$之一，就是平方损失，即
+$$
+\psi(y,F)=(y-F)^2/2
+$$
 将它画出来，形状大致如下
 
 
 
 ![img](https://pic3.zhimg.com/80/v2-50ad07d8ef3b5e3c9334568c32cde0de_hd.png)
 
-能看出来，它含义就是对较大的偏差有着很强的惩罚，并相对忽略较小的偏差。容易得到，
-
-
-
-的梯度为
-
-
-
-
+能看出来，它含义就是对较大的偏差有着很强的惩罚，并相对忽略较小的偏差。容易得到，$\psi(y,F(x))$的梯度为
 
 ![img](https://pic2.zhimg.com/80/v2-c2280be09605acbb85f189f3aa3d4da1_hd.png)
 
@@ -112,6 +100,14 @@
 
 ![img](https://pic2.zhimg.com/80/v2-8cb6283bbf2e1077dfb02daf722c69d9_hd.png)
 
+| Setting    | Loss Function | -    |
+| ---------- | ------------- | ---- |
+| Regression |               |      |
+| Regression |               |      |
+| Regression |               |      |
+
+
+
 ## 分类
 
 在说明分类之前，我们先介绍一种损失函数。与常见的直接求预测与真实值的偏差不同，这种损失函数的目的是最大化预测值为真实值的概率。这种损失函数叫做对数损失函数（Log-Likehood Loss），定义如下
@@ -126,11 +122,11 @@
 
 
 
-对于![p(x)](https://www.zhihu.com/equation?tex=p%28x%29)与![F(x)](https://www.zhihu.com/equation?tex=F%28x%29)的关系，我们定义为
+对于$p(x)​$与![F(x)](https://www.zhihu.com/equation?tex=F%28x%29)的关系，我们定义为
 
 
 
-即，![F(x)=\frac{1}{2}log(\frac{p(x)}{1-p(x)})](https://www.zhihu.com/equation?tex=F%28x%29%3D%5Cfrac%7B1%7D%7B2%7Dlog%28%5Cfrac%7Bp%28x%29%7D%7B1-p%28x%29%7D%29)。当![p(x)=1](https://www.zhihu.com/equation?tex=p%28x%29%3D1)，![F(x)\to\infty](https://www.zhihu.com/equation?tex=F%28x%29%5Cto%5Cinfty)；当![p(x)=0](https://www.zhihu.com/equation?tex=p%28x%29%3D0)，![F(x)\to-\infty](https://www.zhihu.com/equation?tex=F%28x%29%5Cto-%5Cinfty)
+即，$F(x)=\frac{1}{2}log(\frac{p(x)}{1-p(x)})$ 当![p(x)=1](https://www.zhihu.com/equation?tex=p%28x%29%3D1)，![F(x)\to\infty](https://www.zhihu.com/equation?tex=F%28x%29%5Cto%5Cinfty)；当![p(x)=0](https://www.zhihu.com/equation?tex=p%28x%29%3D0)，![F(x)\to-\infty](https://www.zhihu.com/equation?tex=F%28x%29%5Cto-%5Cinfty)
 
 **两类分类**
 

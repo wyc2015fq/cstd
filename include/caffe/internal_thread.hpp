@@ -2,7 +2,7 @@
 #define CAFFE_INTERNAL_THREAD_HPP_
 
 #include "caffe/common.hpp"
-
+#include <thread>
 /**
  Forward declare boost::thread instead of including boost/thread.hpp
  to avoid a boost/NVCC issues (#1009, #1010) on OSX.

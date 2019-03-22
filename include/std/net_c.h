@@ -12,7 +12,9 @@
 //#include <Iphlpapi.h>
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef _WIN32
 #include <io.h>
+#endif
 #define SOCK_LENTH int
 
 
@@ -45,7 +47,7 @@ static int WSAStartuped = sock_init();
 #include <sys/wait.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-
+typedef int        SOCKET;
 #define SOCK_LENTH socklen_t
 #define closesocket(x)  close(x)
 int sock_init()
@@ -680,7 +682,7 @@ int sock_open(const char* ip, int port, SOCK_TYPE type, addr_in* addr)
 }
 int sock_connect(int s, const addr_in* addr)
 {
-  //sock_ioctl (sock, FIONBIO , true ); //´ËÉèÖÃµ¼ÖÂSSLÎÕÊÖÊ§°Ü
+  //sock_ioctl (sock, FIONBIO , true ); //ï¿½ï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½SSLï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½
   int ret = connect(s, (const struct sockaddr*)addr, sizeof(addr_in));
   return ret;
 }

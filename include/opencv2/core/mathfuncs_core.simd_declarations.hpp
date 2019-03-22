@@ -1,4 +1,4 @@
-#define CV_CPU_SIMD_FILENAME "mathfuncs_core.simd.hpp"
+#define CV_CPU_SIMD_FILENAME "opencv2/core/mathfuncs_core.simd.hpp"
 
 #undef CV_CPU_DISPATCH_MODE
 #include "opencv2/core/private/cv_cpu_include_simd_declarations.hpp"

@@ -187,7 +187,9 @@
 /* #undef HAVE_VIDEOIO */
 
 /* Win32 UI */
+#ifdef _WIN32
 #define HAVE_WIN32UI
+#endif
 
 /* XIMEA camera support */
 /* #undef HAVE_XIMEA */

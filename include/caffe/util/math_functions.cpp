@@ -1,5 +1,4 @@
 #include <random>
-
 #include <limits>
 
 #include "caffe/common.hpp"
@@ -288,35 +287,22 @@ namespace caffe
              b, std::numeric_limits<Dtype>::max());
   }
 
-  template
-  float caffe_nextafter(const float b);
-
-  template
-  double caffe_nextafter(const double b);
-
   template <typename Dtype>
   void caffe_rng_uniform(const int n, const Dtype a, const Dtype b, Dtype* r)
   {
     CHECK_GE(n, 0);
     CHECK(r);
     CHECK_LE(a, b);
-    std::uniform_real<Dtype> random_distribution(a, caffe_nextafter<Dtype>(b));
+    Dtype x = caffe_nextafter(b);
+    //std::uniform_real<Dtype> random_distribution(a, x);
     //std::variate_generator<caffe::rng_t*, std::uniform_real<Dtype> >
     //variate_generator(caffe_rng(), random_distribution);
     caffe_rng();
     rng_t* rng = caffe_rng();
     for (int i = 0; i < n; ++i) {
-      r[i] = random_distribution(*rng);
+      r[i] = (*rng)();
     }
   }
-
-  template
-  void caffe_rng_uniform<float>(const int n, const float a, const float b,
-                                float* r);
-
-  template
-  void caffe_rng_uniform<double>(const int n, const double a, const double b,
-                                 double* r);
 
   template <typename Dtype>
   void caffe_rng_gaussian(const int n, const Dtype a,

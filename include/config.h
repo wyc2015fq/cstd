@@ -26,7 +26,6 @@
 #define USE_CBLAS
 #endif
 
-
 #ifndef CPU_ONLY
 #if 1
 #define USE_CUDA

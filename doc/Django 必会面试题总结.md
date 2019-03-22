@@ -1,74 +1,4 @@
-## Django 必会面试题总结
-
-**目录**
-
-- 1 列举Http请求中常见的请求方式
-- [2 谈谈你对HTTP协议的认识。1.1 长连接](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label1)
-- [3 简述MVC模式和MVT模式](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label2)
-- [4 简述Django请求生命周期](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label3)
-- [5 简述什么是FBV和CBV](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label4)
-- [6 谈一谈你对ORM的理解](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label5)
-- [7 rest_framework 认证组件的流程](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label6)
-- [8 什么是中间件并简述其作用](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label7)
-- [9 django 中间件生命周期](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label8)
-- 10 django中怎么写原生SQL
-- [11 如何使用django orm批量创建数据](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label10)
-- [ ](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label11)
-- [12 命令migrate 和makemigrations的差别](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label12)
-- [14 常用视图响应的方式是什么？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label13)
-- [15 HTTP响应常见状态码分类](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label14)
-- [16 路由匹配原则是什么？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label15)
-- [17 缓存系统类型有哪些](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label16)
-- [18 解决跨域的常用方式是什么？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label17)
-- [19 信号的作用是什么？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label18)
-- [ ](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label19)
-- [ ](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label20)
-- [20 Django的Model的继承有几种形式，分别是什么](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label21)
-- [21 Django中查询queryset时什么情况下用Q](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label22)
-- [22 Django中想验证表单提交是否格式正确需要用到Form中的哪个函数](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label23)
-- [23 orm如何取消级联](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label24)
-- [24 Django中如何读取和保存session，整个session的运行机制是什么](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label25)
-- [25 简述Django对http请求的执行流程](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label26)
-- [25 Django中当用户登录到A服务器进入登陆状态，下次被nginx代理到B服务器会出现什么影响](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label27)
-- [26 跨域请求Django是如何处理的](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label28)
-- [27 查询集的两大特性？什么是惰性执行](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label29)
-- [28 查询集返回的列表过滤器有哪些](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label30)
-- [29 如何获取django urlpatterns里面注册的所有url?](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label31)
-- [30 django路由系统中include是干嘛用的？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label32)
-- [31 django2.0中的path与django1.xx里面的url有什么区别？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label33)
-- [32 urlpatterns中的name与namespace有什么作用？你是如何使用的？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label34)
-- [34 如何给一个字段设置一个主键？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label35)
-- [35 如何设置一个带有枚举值的字典？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label36)
-- [36 DateTimeField类型中的auto_now与auto_now_add有什么区别](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label37)
-- [37 values()与values_list()有什么区别？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label38)
-- [38 selected_related与prefetch_related有什么区别？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label39)
-- [39 当删除一个外键的时候，如何把与其关联的对应关系删除](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label40)
-- [40 class Meta中的元信息字段有哪些](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label41)
-- [41 多对多关联的表，如何插入数据？如何删除数据？如何更新数据？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label42)
-- [42 django的M2M关系，如何手动生成第三张表？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label43)
-- [43 在Django中，服务端给客户端响应信息有几种方式？分别是什么？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label44)
-- [44 在视图函数中，常用的验证装饰器有哪些？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label45)
-- [45 如何给一个视图函数加上缓存？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label46)
-- [46 web框架的本质是什么？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label47)
-- [47 创建Django工程、Django app、以及运行的命令](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label48)
-- [48 django中csrf的实现机制](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label49)
-- [49 Django App的目录结构](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label50)
-- [50 Django 获取用户前端请求数据的几种方式](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label51)
-- [51 描述下 自定义simple_tag](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label52)
-- [52 什么是Cookie、如何获取、设置Cookie](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label53)
-- [53 什么是session，与cookie的对比、设置、获取、清空session](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label54)
-- [54 什么是CSRF，及防范方式](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label55)
-- [55 get请求和post请求的区别](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label56)
-- [56 图书管理系统的表结构是怎么设计的？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label57)
-- [57 WSGI / uwsgi/ uWSGI区分](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label58)
-- [59 解释blank和null](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label59)
-- [60 QueryDict和dict区别](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label60)
-- [61 谈谈你对restful规范的认识？](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label61)
-- [62 Django 本身提供了 runserver，为什么不能用来部署？  ](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label62)
-- [63 Tornado 的核是什么？ ](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label63)
-- [64  Django重定向你是如何实现的？用的什么状态码？  ](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label64)
-- [65 Django中如何加载初始化数据  ](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_label65)
-- 66 简述Django下的（内建）缓存机制  
+# Django 必会面试题总结
 
  
 
@@ -114,7 +44,7 @@ HTTP协议工作于客户端-服务端架构为上。浏览器作为HTTP客户�
 
 ​    HTTP协议规定,请求从客户端发出,最后服务器端响应该请求并 返回
 
-- 无状态保存
+- **无状态保存**
 
 ​    HTTP是一种不保存状态,即无状态(stateless)协议。HTTP协议自身不对请求和响应之间的通信状态进行保存。也就是说在HTTP这个级别,协议对于发送过的请求或响应都不做持久化处理。
 
@@ -170,41 +100,24 @@ MTV
 
 ## 5 简述什么是FBV和CBV
 
- 
+ FBV（function base views）就是在视图函面使用函数处理请求
+ CBV（class base views）就是在视图里面使用类处理请求
 
  
-
- 
-
-------
-
-
 
 ## 6 谈一谈你对ORM的理解
-
- 
 
 ORM是“对象-关系-映射”的简称。
 
 MVC或者MVC框架中包括一个重要的部分，就是ORM，它实现了数据模型与数据库的解耦，即数据模型的设计不需要依赖于特定的数据库，通过简单的配置就可以轻松更换数据库，这极大的减轻了开发人员的工作量，不需要面对因数据库变更而导致的无效劳动
 
- 
-
- 
-
-------
-
 
 
 ## 7 rest_framework 认证组件的流程
 
- 
+ 4.认证组件 写一个类并注册到认证类(authentication_classes)，在类的的authticate方法中编写认证逻
 
  
-
-------
-
-
 
 ## 8 什么是中间件并简述其作用
 
@@ -221,8 +134,6 @@ MVC或者MVC框架中包括一个重要的部分，就是ORM，它实现了数�
 
 
 ## 9 django 中间件生命周期
-
- 
 
  
 
@@ -244,35 +155,25 @@ MVC或者MVC框架中包括一个重要的部分，就是ORM，它实现了数�
 
 使用extra：查询人民邮电出版社出版并且价格大于50元的书籍
 
+```python
 Book.objects.filter(publisher__name='人民邮电出版社').extra(where=['price>50']) 
-
 使用raw
-
 books=Book.objects.raw('select * from hello_book')  
-
 for book in books:  
-
    print book  
-
-自定义sql
+# 自定义sql
 
 from django.db import connection  
-
-  
-
 cursor = connection.cursor()  
-
 cursor.execute("insert into hello_author(name) VALUES ('郭敬明')")  
-
 cursor.execute("update hello_author set name='韩寒' WHERE name='郭敬明'")  
-
 cursor.execute("delete from hello_author where name='韩寒'")  
-
 cursor.execute("select * from hello_author")  
-
 cursor.fetchone()  
-
 cursor.fetchall() 
+```
+
+
 
 ------
 
@@ -280,23 +181,14 @@ cursor.fetchall()
 
 ## 11 如何使用django orm批量创建数据
 
-
-
-##  
-
 使用django.db.models.query.QuerySet.bulk_create()批量创建对象，减少SQL查询次数。改进如下：
 
- 
-
+```python
 querysetlist=[]
-
 for i in resultlist:
-
-​    querysetlist.append(Account(name=i))        
-
+    querysetlist.append(Account(name=i))
 Account.objects.bulk_create(querysetlist)
-
-------
+```
 
 
 
@@ -306,88 +198,48 @@ Account.objects.bulk_create(querysetlist)
 
 执行迁移
 
-------
 
- 
 
-13 视图函数中，接收的请求对象常用方法和属性有哪些
+## 13 视图函数中，接收的请求对象常用方法和属性有哪些
 
 - path属性，获取请求页面的全路径，不包括域名
 
 - method属性，获取请求中使用的HTTP方式的字符串表示。全大写表示
 - GET属性，获取HTTP GET方式请求传参，的参数（字典类型）
 
- 
-
- 
+  
 
 如：http://127.0.0.1:8000/bug/articles/?mch=123 & mim=456
 
-复制代码
-
+```python
 from django.shortcuts import render,HttpResponse
 
- 
-
 def special(request):
-
-​    print(request.GET)
-
-​    return render(request,'index.html') #向用户显示一个html页面
-
-\#返回：
-
-\#<QueryDict: {' mim': ['456'], 'mch': ['123 ']}>
-
-\# POST： 包含所有HTTP POST参数的类字典对象
-
-\#
-
-\# 服务器收到空的POST请求的情况也是可能发生的，也就是说，表单form通过
-
-\# HTTP POST方法提交请求，但是表单中可能没有数据，因此不能使用
-
-\# if req.POST来判断是否使用了HTTP POST 方法；应该使用 if req.method=="POST"
-
-COOKIES: 包含所有cookies的标准Python字典对象；keys和values都是字符串。
-
-\#
-
-\# FILES： 包含所有上传文件的类字典对象；FILES中的每一个Key都是<input type="file" name="" />标签中name属性的值，FILES中的每一个value同时也是一个标准的python字典对象，包含下面三个Keys：
-
-\#
-
-\# filename： 上传文件名，用字符串表示
-
-\# content_type: 上传文件的Content Type
-
-\# content： 上传文件的原始内容
-
-\#
-
-\#
-
-\# user： 是一个django.contrib.auth.models.User对象，代表当前登陆的用户。如果访问用户当前
-
-\# 没有登陆，user将被初始化为django.contrib.auth.models.AnonymousUser的实例。你
-
-\# 可以通过user的is_authenticated()方法来辨别用户是否登陆：
-
-\# if req.user.is_authenticated();只有激活Django中的AuthenticationMiddleware
-
-\# 时该属性才可用
-
-\#
-
-\# session： 唯一可读写的属性，代表当前会话的字典对象；自己有激活Django中的session支持时该属性才可用。
-
-get_full_path()方法，获取HTTP GET方式请求传参，的URL地址
-
- 
-
- 
-
-------
+    print(request.GET)
+    return render(request,'index.html') #向用户显示一个html页面
+#返回：
+#<QueryDict: {' mim': ['456'], 'mch': ['123 ']}>
+# POST： 包含所有HTTP POST参数的类字典对象
+#
+# 服务器收到空的POST请求的情况也是可能发生的，也就是说，表单form通过
+# HTTP POST方法提交请求，但是表单中可能没有数据，因此不能使用
+# if req.POST来判断是否使用了HTTP POST 方法；应该使用 if req.method=="POST" COOKIES: 包含所有cookies的标准Python字典对象；keys和values都是字符串。
+#
+# FILES： 包含所有上传文件的类字典对象；FILES中的每一个Key都是<input type="file" name="" />标签中name属性的值，FILES中的每一个value同时也是一个标准的python字典对象，包含下面三个Keys：
+#
+# filename： 上传文件名，用字符串表示
+# content_type: 上传文件的Content Type
+# content： 上传文件的原始内容
+#
+#
+# user： 是一个django.contrib.auth.models.User对象，代表当前登陆的用户。如果访问用户当前
+# 没有登陆，user将被初始化为django.contrib.auth.models.AnonymousUser的实例。你
+# 可以通过user的is_authenticated()方法来辨别用户是否登陆：
+# if req.user.is_authenticated();只有激活Django中的AuthenticationMiddleware
+# 时该属性才可用
+#
+# session： 唯一可读写的属性，代表当前会话的字典对象；自己有激活Django中的session支持时该属性才可用。get_full_path()方法，获取HTTP GET方式请求传参，的URL地址
+```
 
 
 
@@ -395,17 +247,14 @@ get_full_path()方法，获取HTTP GET方式请求传参，的URL地址
 
 **视图的响应返回使用HttpResponse**
 
+```python
 HttpResponse(content=响应体, content_type=响应体数据类型, status=状态码) 
-
-一般不用这种方式，我习惯使用： 
-
- response = HttpResponse(‘language python’) 
-
- response.status_code = 400 
-
- response[‘languaget’] = ‘Python’ 
-
- return response
+# 一般不用这种方式，我习惯使用： 
+response = HttpResponse(‘language python’) 
+response.status_code = 400 
+response[‘languaget’] = ‘Python’ 
+return response
+```
 
 **返回json数据，可以使用JsonResponse来构造响应对象**
 
@@ -415,25 +264,25 @@ HttpResponse(content=响应体, content_type=响应体数据类型, status=状�
 
 设置响应头Content-Type为 application/json 
 
-例子：from django.http import JsonResponse 
+例子：
 
-​           def demo_view(request): 
-
-​               return JsonResponse({‘city’: ‘beijing’, ‘subject’: ‘python’})
+```python
+from django.http import JsonResponse 
+def demo_view(request): 
+    return JsonResponse({‘city’: ‘beijing’, ‘subject’: ‘python’})
+```
 
 **redirect重定向**
 
- 
+ 我们也可以将返回的结果重定向到另一个页面或接口， 
 
-我们也可以将返回的结果重定向到另一个页面或接口， 
+例子：
 
-例子：from django.shortcuts import redirect 
-
-​           def demo_view(request): 
-
-​               return redirect(‘/index.html’)
-
-------
+```python
+from django.shortcuts import redirect 
+def demo_view(request): 
+    return redirect(‘/index.html’)
+```
 
 
 
@@ -467,35 +316,22 @@ HttpResponse(content=响应体, content_type=响应体数据类型, status=状�
 
  
 
-\# 全站缓存
-
+```python
+# 全站缓存
 MIDDLEWARE_CLASSES = (
-
-​    ‘django.middleware.cache.UpdateCacheMiddleware’, #第一
-
-​    'django.middleware.common.CommonMiddleware',
-
-​    ‘django.middleware.cache.FetchFromCacheMiddleware’, #最后
-
+    'django.middleware.cache.UpdateCacheMiddleware’, #第一
+    'django.middleware.common.CommonMiddleware',
+    ‘django.middleware.cache.FetchFromCacheMiddleware’, #最后
 )
-
- 
-
-\# 视图缓存
-
+# 视图缓存
 from django.views.decorators.cache import cache_page
-
 import time
 
-  
-
 @cache_page(15) #超时时间为15秒
-
 def index(request):
-
- t=time.time() #获取当前时间
-
- return render(request,"index.html",locals())
+    t=time.time() #获取当前时间
+    return render(request,"index.html",locals())
+```
 
  
 
@@ -641,43 +477,23 @@ jsonp有个缺陷就是只能get
 
 
 
-##  
-
-------
-
-
-
 ## 20 Django的Model的继承有几种形式，分别是什么
 
  
 
 1.通常，你只是想用父 model 来保存那些你不想在子 model 中重复录入的信息。父类是不使用的也就是不生成单独的数据表，这种情况下使用抽象基类继承 Abstract base classes。
 
- 
+ 2.如果你想从现有的Model继承并让每个Model都有自己的数据表，那么使用多重表继承Multi-table inheritance。
 
-2.如果你想从现有的Model继承并让每个Model都有自己的数据表，那么使用多重表继承Multi-table inheritance。
-
- 
-
-3.最后，如果你只想在 model 中修改 Python-level 级的行为，而不涉及字段改变。 代理 model (Proxy models) 适用于这种场合
+ 3.最后，如果你只想在 model 中修改 Python-level 级的行为，而不涉及字段改变。 代理 model (Proxy models) 适用于这种场合
 
  
-
-------
-
-
 
 ## 21 Django中查询queryset时什么情况下用Q
-
- 
 
 \#F:对数据本身的不同字段进行操作 如:比较和更新，对数据进行加减操作
 
 \#Q：用于构造复杂的查询条件 如：& |操作
-
- 
-
-------
 
 
 
@@ -685,15 +501,9 @@ jsonp有个缺陷就是只能get
 
   form.is_valid() :返回布尔值
 
- 
-
-------
-
 
 
 ## 23 orm如何取消级联
-
- 
 
 Django取消级联删除
 
@@ -702,10 +512,6 @@ Django取消级联删除
 ![来自非专业Python讲师的一份Django考题，面试无忧！](https://img2018.cnblogs.com/blog/1165731/201810/1165731-20181004144651570-697816999.png)
 
 并且SET_NULL只有在null为True的时候，才可以使用。
-
- 
-
-------
 
 
 
@@ -726,8 +532,6 @@ else:
        ltv8zy1kh5lxj1if1fcs2pqwodumr45t       {"is_login":True,"username":"yuan"}
 ```
 
-------
-
 
 
 ## 25 简述Django对http请求的执行流程
@@ -740,19 +544,11 @@ else:
 
 ​    在Handler中对已经符合WSGI协议标准规定的http请求进行分析，比如加载Django提供的中间件，路由分配，调用路由匹配的视图等。 返回一个可以被浏览器解析的符合Http协议的HttpResponse。
 
- 
-
-------
-
 
 
 ## 25 Django中当用户登录到A服务器进入登陆状态，下次被nginx代理到B服务器会出现什么影响
 
- 
-
- 
-
-------
+ 如果用户在A应用服务器登陆的session数据没有共享到B应用服务器，那么之前的登录状态就没有了。
 
 
 
@@ -763,18 +559,10 @@ else:
 - 验证码
 - 表单中添加{%csrf_token%}标签
 
-------
-
-
-
 ## 27 查询集的两大特性？什么是惰性执行
 
 - 惰性执行、缓存 。  
 - 创建查询集不会访问数据库，直到调用数据时，才会访问数据库，调用数据的情况包括迭代、序列化、与if合用
-
- 
-
-------
 
 
 
@@ -785,93 +573,44 @@ else:
 - exclude()：返回满足条件之外的数据，相当于sql语句中where部分的not关键字  
 - order_by()：排序
 
- 
-
- 
-
- 
-
- 
-
-------
-
-
-
 ## 29 如何获取django urlpatterns里面注册的所有url?
 
- 
-
+```python
 from django.conf.urls import url,include
-
 from arya.service.sites import site
-
 from django.urls.resolvers import RegexURLPattern
-
 from django.urls.resolvers import RegexURLResolver
-
 from django.shortcuts import HttpResponse
 
- 
-
 def index(request):
+    print(get_all_url(urlpatterns,prev='/'))
+    return HttpResponse('...')
 
-  print(get_all_url(urlpatterns,prev='/'))
-
-  return HttpResponse('...')
-
- 
 
 def get_all_url(urlparrentens,prev,is_first=False,result=[]):
-
-  if is_first:
-
-​    result.clear()
-
-  for item in urlparrentens:
-
-​    v = item._regex.strip('^')    #去掉url中的^和')    #去掉url中的^和
-
-​    if isinstance(item,RegexURLPattern):
-
-​      result.append(prev + v)
-
-​    else:
-
-​      get_all_url(item.urlconf_name,prev + v)
-
-  return result
-
- 
+    if is_first:
+    result.clear()
+    for item in urlparrentens:
+        v = item._regex.strip('^')    #去掉url中的^和')    #去掉url中的^和
+        if isinstance(item,RegexURLPattern):
+            result.append(prev + v)
+        else:
+            get_all_url(item.urlconf_name,prev + v)
+    return result
 
 urlpatterns = [
-
   url(r'^arya/', site.urls),
-
   url(r'^index/', index),
-
 ]
-
- 
+```
 
 
 
 ##  30 django路由系统中include是干嘛用的？
 
- 
-
 include路由转发
 
 通常，我们会在每个app里，各自创建一个urls.py路由模块，然后从根路由出发，将app所属的url请求，全部转发到相应的urls.py模块中。
-
- 
-
- 
-
- 
-
-------
-
-
 
 ## 31 django2.0中的path与django1.xx里面的url有什么区别？
 
@@ -883,8 +622,6 @@ url(regex, view, kwargs=None, name=None)[source]
 
 This function is an alias to django.urls.re_path(). It's likely to be deprecated in a future release.
 
-------
-
 
 
 ## 32 urlpatterns中的name与namespace有什么作用？你是如何使用的？
@@ -895,7 +632,7 @@ This function is an alias to django.urls.re_path(). It's likely to be deprecated
 
 ------
 
-33 如何根据urlpatterns中的name反向生成url,这样反向生成url的方式有几种？
+## 33 如何根据urlpatterns中的name反向生成url,这样反向生成url的方式有几种？
 
 使用HttpResponseRedirect redirect和reverse 状态码：302,301
 
@@ -907,23 +644,11 @@ This function is an alias to django.urls.re_path(). It's likely to be deprecated
 
 ​    primary_key
 
- 
-
- 
-
-------
-
-
-
 ## 35 如何设置一个带有枚举值的字典？
 
 ![img](https://img2018.cnblogs.com/blog/1165731/201810/1165731-20181004144652113-1730714562.png)
 
  
-
-------
-
-
 
 ## 36 DateTimeField类型中的auto_now与auto_now_add有什么区别
 
@@ -937,17 +662,11 @@ DateTimeField.auto_now_add
 
 这个参数的默认值也为False，设置为True时，会在model对象第一次被创建时，将字段的值设置为创建时的时间，以后修改对象时，字段的值不会再更新。该属性通常被用在存储“创建时间”的场景下。与auto_now类似，auto_now_add也具有强制性，一旦被设置为True，就无法在程序中手动为字段赋值，在admin中字段也会成为只读的。
 
- 
-
-------
-
 
 
 ## 37 values()与values_list()有什么区别？
 
 \#values : 取字典的queryset
-
-------
 
 
 
@@ -961,13 +680,9 @@ DateTimeField.auto_now_add
 
 ​    在查询对象集合的时候，把指定的外键对象也一并完整查询加载，避免后续的重复查询。
 
- 
+1. select_related适用于外键和多对一的关系查询；
 
-1，select_related适用于外键和多对一的关系查询；
-
-2，prefetch_related适用于一对多或者多对多的查询。
-
-------
+2. prefetch_related适用于一对多或者多对多的查询。
 
 
 
@@ -977,29 +692,21 @@ DateTimeField.auto_now_add
 
 \#django2.0之后，表与表之间关联的时候,必须要写on_delete参数,否则会报异常
 
-------
-
 
 
 ## 40 class Meta中的元信息字段有哪些
 
- 
-
 通过一个内嵌类 "class Meta" 给你的 model 定义元数据, 类似下面这样:
 
+```python
 class Foo(models.Model): 
+    bar = models.CharField(maxlength=30)
 
-​    bar = models.CharField(maxlength=30)
-
- 
-
-​    class Meta: 
-
-​        # ...
+    class Meta: 
+        # ...
+```
 
 Model 元数据就是 "不是一个字段的任何数据" -- 比如排序选项, admin 选项等等.
-
- 
 
 下面是所有可能用到的 Meta 选项. 没有一个选项是必需的. 是否添加 class Meta 到你的 model 完全是可选的.
 
@@ -1139,111 +846,49 @@ verbose_name_plural = "stories"
 
 若未提供该选项, Django 会使用 verbose_name + "s".
 
- 
-
- 
-
- 
-
- 
-
-------
-
-
-
 ## 41 多对多关联的表，如何插入数据？如何删除数据？如何更新数据？
 
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
-------
-
-
+  
 
 ## 42 django的M2M关系，如何手动生成第三张表？
 
+```python
  tags = models.ManyToManyField(
-
-​        to="Tag",
-
-​        through='Article2Tag',
-
-​        through_fields=('article', 'tag'),
+        to="Tag",
+        through='Article2Tag',
+        through_fields=('article', 'tag'),
+ )
+```
 
  
-
-------
-
-
 
 ## 43 在Django中，服务端给客户端响应信息有几种方式？分别是什么？
-
- 
-
- 
 
 - HTTPresponse，
 - jsonresponse,
 - redirect
 
- 
-
- 
-
-------
-
 
 
 ## 44 在视图函数中，常用的验证装饰器有哪些？
-
- 
-
- 
-
- 
-
-------
 
 
 
 ## 45 如何给一个视图函数加上缓存？
 
- 
-
- 
-
- 
-
-------
-
-
+  
 
 ## 46 web框架的本质是什么？
 
- 
+ 本质上其实就是一个socket服务端，用户的浏览器其实就是一个socket客户端。
 
 ------
-
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
 
 ## 47 创建Django工程、Django app、以及运行的命令
 
  
 
- 
-
 ------
-
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
 
 ## 48 django中csrf的实现机制
 
@@ -1265,21 +910,12 @@ verbose_name_plural = "stories"
 
 ------
 
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
-
 ## 50 Django 获取用户前端请求数据的几种方式
 
- 
-
 @get和@post使用
-
-1：在views模板下编写测试函数(记得在urls.py文件中进行相应配置) 
-
-2：将刚刚封装的函数所在模板引入views.py 
-
-3：使用@get进行拦截
-
- 
+1. 在views模板下编写测试函数(记得在urls.py文件中进行相应配置) 
+2. 将刚刚封装的函数所在模板引入views.py 
+3. 使用@get进行拦截
 
 @params，response_success，response_failure使用
 
@@ -1287,21 +923,21 @@ verbose_name_plural = "stories"
 
 第一种
 
+```python
 @login_required
-
 def simple_view(request):
-
-​       return HttpResponse()123
+    return HttpResponse()
+```
 
 2 通过对基于函数视图或者基于类视图使用一个装饰器实现控制：  
 
-@login_required(MyView.as_view())1
+```python
+@login_required(MyView.as_view())
+```
 
 3 通过覆盖mixin的类视图的dispatch方法实现控制：
 
 ------
-
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
 
 ## 51 描述下 自定义simple_tag
 
@@ -1328,8 +964,6 @@ def multi_tag(x,y):
 
 ------
 
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
-
 ## 52 什么是Cookie、如何获取、设置Cookie
 
 Cookie是由服务器创建，然?后通过响应发送给客户端?的一个键值对。
@@ -1339,8 +973,6 @@ response.set_cookie("is_login",True)
 request.COOKIES.get("is_login")
 
 ------
-
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
 
 ## 53 什么是session，与cookie的对比、设置、获取、清空session
 
@@ -1354,8 +986,6 @@ Session是服务器端技术，利用这个技术，服务器在运行时可以 
 
 ------
 
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
-
 ## 54 什么是CSRF，及防范方式
 
  
@@ -1368,8 +998,6 @@ Session是服务器端技术，利用这个技术，服务器在运行时可以 
  
 
 ------
-
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
 
 ## 55 get请求和post请求的区别
 
@@ -1386,31 +1014,15 @@ Session是服务器端技术，利用这个技术，服务器在运行时可以 
 
 ------
 
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
-
 ##  56 图书管理系统的表结构是怎么设计的？
 
- 
+   图书管理系统路由系统你用到了name了吗？ 为什么要使用呢？
+
+  图书管理系统的模板你是怎么用的？ 重复的代码怎么解决？  
 
  
-
- 
-
- 
-
- 
-
- 
-
- 
-
-------
-
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
 
 ## 57 WSGI / uwsgi/ uWSGI区分
-
- 
 
 - WSGI
 
@@ -1430,7 +1042,7 @@ server和application的规范在PEP3333中有具体描述，要实现WSGI协议�
 
 ------
 
-58 如何使用django加密
+## 58 如何使用django加密
 
 Django 内置的User类提供了用户密码的存储、验证、修改等功能，默认使用pbkdf2_sha256方式来存储和管理用的密码。
 
@@ -1442,39 +1054,26 @@ django通过setting.py文件中的PASSWORD_HASHERS来设置选择要使用的算
 
  
 
- 
-
+```python
 PASSWORD_HASHERS = (
-
- 
-
-​    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-
-​    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
-
-​    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
-
-​    'django.contrib.auth.hashers.BCryptPasswordHasher',
-
-​    'django.contrib.auth.hashers.SHA1PasswordHasher',
-
-​    'django.contrib.auth.hashers.MD5PasswordHasher',
-
-​    'django.contrib.auth.hashers.CryptPasswordHasher',
-
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    'django.contrib.auth.hashers.BCryptPasswordHasher',
+    'django.contrib.auth.hashers.SHA1PasswordHasher',
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+    'django.contrib.auth.hashers.CryptPasswordHasher',
 )
+```
 
 具体的密码生成以及验证实现
 
+```python
 from django.contrib.auth.hashers import make_password,check_password
-
 pwd='4562154'
-
 mpwd=make_password(pwd,None,'pbkdf2_sha256') # 创建django密码，第三个参数为加密算法
-
-pwd_bool=check_password(pwd,mpwd) # 返回的是一个bool类型的值，验证密码正确与否
-
- 
+pwd_bool=check_password(pwd,mpwd) # 返回的是一个bool类型的值，验证密码正确与否 
+```
 
  
 
@@ -1482,65 +1081,43 @@ Django之密码加密
 
 通过django自带的类库，来加密解密很方便，下面来简单介绍下；
 
- 
-
 导入包：
 
- 
-
+```
 from django.contrib.auth.hashers import make_password, check_password
+```
 
 从名字就可以看出来他们的作用了。
 
- 
-
 一个是生成密码，一个是核对密码。
-
- 
 
 例如：
 
- 
-
+```
 make_password("123456")
+```
 
 得到结果：
-
- 
 
 u'pbkdf2_sha25615000MAjic3nDGFoi$qbclz+peplspCbRF6uoPZZ42aJIIkMpGt6lQ+Iq8nfQ='
 
 另外也可以通过参数来生成密码：
 
- 
-
-\>>> make_password("123456", None, 'pbkdf2_sha256')
+```
+>>> make_password("123456", None, 'pbkdf2_sha256')
+```
 
 校验:
 
- 
-
 校验就是通过check_password(原始值, 生成的密文)来校验密码的。
 
- 
+```python
+>>> check_password("123456","pbkdf2_sha25615000MAjic3nDGFoi$qbclz+peplspCbRF6uoPZZ42aJIIkMpGt6lQ+Iq8nfQ=")
 
-\>>> check_password("123456","pbkdf2_sha25615000MAjic3nDGFoi$qbclz+peplspCbRF6uoPZZ42aJIIkMpGt6lQ+Iq8nfQ=")
-
-True
-
- 
-
- 
-
- 
-
-------
-
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
+True 
+```
 
 ## 59 解释blank和null
-
-blank
 
 设置为True时，字段可以为空。设置为False时，字段是必须填写的。字符型字段CharField和TextField是用空字符串来存储空值的。如果为True，字段允许为空，默认不允许。
 
@@ -1560,8 +1137,6 @@ null
 - blank 是针对表单的，如果 blank=True，表示你的表单填写该字段的时候可以不填。比如 admin 界面下增加 model 一条记录的时候。直观的看到就是该字段不是粗体
 
 ------
-
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
 
 ## 60 QueryDict和dict区别
 
@@ -1619,71 +1194,49 @@ django QuerySet对象转换成字典对象
 
 ## 61 谈谈你对restful规范的认识？
 
-\#首先restful是一种软件架构风格或者说是一种设计风格，并不是标准，它只是提供了一组设计#原则和约束条件，主要用于客户端和服务器交互类的软件。     
+\#首先restful是一种软件架构风格或者说是一种设计风格，并不是标准，它只是提供了一组设计原则和约束条件，主要用于客户端和服务器交互类的软件。     
 
 \#就像设计模式一样，并不是一定要遵循这些原则，而是基于这个风格设计的软件可以更简洁，更#有层次，我们可以根据开发的实际情况，做相应的改变。
 
 \#它里面提到了一些规范，例如：
 
-\#1.restful 提倡面向资源编程,在url接口中尽量要使用名词，不要使用动词             
+- restful 提倡面向资源编程,在url接口中尽量要使用名词，不要使用动词             
+- 在url接口中推荐使用Https协议，让网络接口更加安全
+  https://www.bootcss.com/v1/mycss？page=3
+- （Https是Http的安全版，即HTTP下加入SSL层，HTTPS的安全基础是SSL，
+- 因此加密的详细内容就需要SSL（安全套接层协议））                          
+- 在url中可以体现版本号
+- https://v1.bootcss.com/mycss
+- 不同的版本可以有不同的接口，使其更加简洁，清晰             
+- url中可以体现是否是API接口 
+- https://www.bootcss.com/api/mycss            
+- url中可以添加条件去筛选匹配
+- https://www.bootcss.com/v1/mycss？page=3             
+- 可以根据Http不同的method，进行不同的资源操作
+- （5种方法：GET / POST / PUT / DELETE / PATCH）             
+- 响应式应该设置状态码
+- 有返回值，而且格式为统一的json格式             
+- 返回错误信息
+- 返回值携带错误信息             
+- 返回结果中要提供帮助链接，即API最好做到Hypermedia
+- 如果遇到需要跳转的情况 携带调转接口的URL
 
-\#2、在url接口中推荐使用Https协议，让网络接口更加安全
+ 
 
-\#https://www.bootcss.com/v1/mycss？page=3
+```json
+ret = {
+     code: 1000,
+     data:{
+         id:1,
+         name:'小强',
+         depart_id: 'http://www.luffycity.com/api/v1/depart/8/'
+     }
+}
+```
 
-\#（Https是Http的安全版，即HTTP下加入SSL层，HTTPS的安全基础是SSL，
 
-\#因此加密的详细内容就需要SSL（安全套接层协议））                          
-
-\#3、在url中可以体现版本号
-
-\#https://v1.bootcss.com/mycss
-
-\#不同的版本可以有不同的接口，使其更加简洁，清晰             
-
-\#4、url中可以体现是否是API接口 
-
-\#https://www.bootcss.com/api/mycss            
-
-\#5、url中可以添加条件去筛选匹配
-
-\#https://www.bootcss.com/v1/mycss？page=3             
-
-\#6、可以根据Http不同的method，进行不同的资源操作
-
-\#（5种方法：GET / POST / PUT / DELETE / PATCH）             
-
-\#7、响应式应该设置状态码
-
-\#8、有返回值，而且格式为统一的json格式             
-
-\#9、返回错误信息
-
-\#返回值携带错误信息             
-
-\#10、返回结果中要提供帮助链接，即API最好做到Hypermedia
-
-\#如果遇到需要跳转的情况 携带调转接口的URL
-
-​    　　ret = {
-
-​            code: 1000,
-
-​            data:{
-
-​            id:1,
-
-​            name:'小强',
-
-​            depart_id:http://www.luffycity.com/api/v1/depart/8/
-
-​            }
-
-​    }
 
 ------
-
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
 
 ## 62 Django 本身提供了 runserver，为什么不能用来部署？  
 
@@ -1695,15 +1248,11 @@ django QuerySet对象转换成字典对象
 
 ------
 
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
-
 ## 63 Tornado 的核是什么？ 
 
  Tornado 的核心是 ioloop 和 iostream 这两个模块，前者提供了一个高效的 I/O 事件循环，后者则封装了 一个无阻塞的 socket 。通过向 ioloop 中添加网络 I/O 事件，利用无阻塞的 socket ，再搭配相应的回调 函数，便可达到梦寐以求的高效异步执行。
 
 ------
-
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
 
 ## 64  Django重定向你是如何实现的？用的什么状态码？  
 
@@ -1714,20 +1263,10 @@ django QuerySet对象转换成字典对象
 
 ------
 
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
-
-## 65 Django中如何加载初始化数据  
-
- 
+## 65 Django中如何加载初始化数据 
 
 ​    Django在创建对象时在掉用save()方法后，ORM框架会把对象的属性转换为写入到数据库中，实现对数据库的初始化；通过操作对象，查询数据库，将查询集返回给视图函数，通过模板语言展现在前端页面
 
-------
-
-[反回顶部](https://www.cnblogs.com/wenyule/articles/699aa722eb4f9b16acf554df2337ec6f.html#_labelTop)
-
 ## 66 简述Django下的（内建）缓存机制  
-
-------
 
      Django根据设置的缓存方式，浏览器第一次请求时，cache会缓存单个变量或整个网页等内容到硬盘或者内存中，同时设置response头部，当浏览器再次发起请求时，附带f-Modified-Since请求时间到Django，Django 发现f-Modified-Since会先去参数之后，会与缓存中的过期时间相比较，如果缓存时间比较新，则会重新请求数据，并缓存起来然后返回response给客户端，如果缓存没有过期，则直接从缓存中提取数据，返回给response给客户端。 

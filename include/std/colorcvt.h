@@ -34,7 +34,7 @@
 #define ChannelBlend_Alpha(A,B,O)      ((uint8)(O * A + (1 - O) * B))
 #define ChannelBlend_AlphaF(A,B,F,O)   (ChannelBlend_Alpha(F(A,B),A,O))
 
-typedef USHORT COLOR16;
+typedef unsigned short COLOR16;
 
 typedef struct _TRIVER_TEX {
   int x, y;

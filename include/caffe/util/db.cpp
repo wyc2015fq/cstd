@@ -1,6 +1,10 @@
 #include "caffe/util/db.hpp"
+#ifdef USE_LMDB
 #include "caffe/util/db_leveldb.hpp"
+#endif
+#ifdef USE_LMDB
 #include "caffe/util/db_lmdb.hpp"
+#endif
 
 #include <string>
 

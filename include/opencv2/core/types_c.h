@@ -90,11 +90,11 @@
 #endif
 
 #ifndef CVAPI
-#  define CVAPI(rettype) CV_EXTERN_C CV_EXPORTS rettype CV_CDECL
+#  define CVAPI(rettype)  rettype CV_CDECL //CV_EXTERN_C CV_EXPORTS rettype CV_CDECL
 #endif
 
 #ifndef CV_IMPL
-#  define CV_IMPL static //CV_EXTERN_C
+#  define CV_IMPL  //CV_EXTERN_C
 #endif
 
 #ifdef __cplusplus

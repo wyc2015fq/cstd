@@ -4,7 +4,7 @@
 
 #include "caffe/ctcpp.h"
 
-#include "detail/gpu_ctc.h"
+#include "caffe/detail/gpu_ctc.h"
 
 namespace CTC {
 

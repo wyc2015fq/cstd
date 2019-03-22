@@ -11,10 +11,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
-
-#define _mkdir(a) mkdir(a, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)
-#define _chdir(a) chdir(a)
 #endif // 
 
 

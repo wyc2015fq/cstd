@@ -17,7 +17,7 @@
 
 #include "caffe/blob.hpp"
 #include "caffe/filler.hpp"
-#include "caffe/layers/DenseBlock_layer.hpp"
+#include "caffe/layers/denseblock_layer.hpp"
 
 namespace caffe
 {

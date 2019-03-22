@@ -8,8 +8,14 @@
 #include "inttypes_c.h"
 //#include "stdc.h"
 #include "string_c.h"
+#ifdef _WIN32
 #include <io.h>
 #include <direct.h>
+#else
+#include <dirent.h>
+#include <unistd.h>
+#endif
+
 #include "std/iconv_c.h"
 
 
@@ -229,7 +235,7 @@ static int win32_attrib_cvt(int attrib)
   WIN32_ATTRIB_CVT(FILE_ATTRIBUTE_HIDDEN, AS_HIDDEN);
   return attrib2;
 }
-int sys_find_close(dir_t* s)
+static int sys_find_close(dir_t* s)
 {
   if (s && s->x) {
     _findclose((intptr_t)s->x);
@@ -259,7 +265,7 @@ static int linux_attrib_cvt(int attrib)
   return attrib2;
 }
 
-int sys_find_close(dir_t* s)
+static int sys_find_close(dir_t* s)
 {
   if (s && s->x) {
     closedir((DIR*)s->x);
@@ -269,7 +275,7 @@ int sys_find_close(dir_t* s)
 }
 #endif
 
-int sys_find_next_file(dir_t* s, const char* path, const char* filters, fileinfo_t* f, int flag)
+static int sys_find_next_file(dir_t* s, const char* path, const char* filters, fileinfo_t* f, int flag)
 {
 #ifdef _WIN32
   WIN32_FIND_DATAW info[1];
@@ -460,7 +466,7 @@ static int sys_rmfile(const char* pathname)
 #endif
 }
 //recursively delete all the file in the directory.
-int sys_rmdir(const char* dir_full_path)
+static int sys_rmdir(const char* dir_full_path)
 {
 #ifdef _WIN32
   return RemoveDirectoryA(dir_full_path);
@@ -546,7 +552,7 @@ typedef struct {
 } sys_stat;
 
 //////////////////////////
-int sys_filestat(const char* file, sys_stat* s)
+static int sys_filestat(const char* file, sys_stat* s)
 {
 #ifdef _WIN32
   struct _stat st;
@@ -595,7 +601,7 @@ static uint64 sys_filesize(const char* fn)
   sys_filestat(fn, s);
   return s->size;
 }
-int sys_mkdir(const char* fname)
+static int sys_mkdir(const char* fname)
 {
 #ifdef _WIN32
   return _mkdir(fname);
