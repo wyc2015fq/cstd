@@ -8,13 +8,13 @@ int test_strsep()
   char* p = str;
   char* key_point;
   while (p) {
-    //关键字为c或d，它们连续出现了
+    //鍏抽敭瀛椾负c鎴杁锛屽畠浠繛缁嚭鐜颁簡
     while (key_point = strsep_c(&p, "cd")) {
-      //函数遇到c时，key_point指向c返回，遇到d时key_point指向d返回（注意此时d已经被改写为'\0'了）
+      //鍑芥暟閬囧埌c鏃讹紝key_point鎸囧悜c杩斿洖锛岄亣鍒癲鏃秌ey_point鎸囧悜d杩斿洖锛堟敞鎰忔鏃禿宸茬粡琚敼鍐欎负'\0'浜嗭級
       if (*key_point == 0) {
-        continue;  //遇到连续的关键字，返回一个指向\0的指针，继续往后找就是
+        continue;  //閬囧埌杩炵画鐨勫叧閿瓧锛岃繑鍥炰竴涓寚鍚慭0鐨勬寚閽堬紝缁х画寰�鍚庢壘灏辨槸
       } else {
-        break;  //分割出一个正常的字符串，快去打印吧！
+        break;  //鍒嗗壊鍑轰竴涓甯哥殑瀛楃涓诧紝蹇幓鎵撳嵃鍚э紒
       }
     }
     printf("%s\n", key_point);

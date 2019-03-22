@@ -51,7 +51,7 @@ int feature_gen_init() {
 }
 #endif
 
-  /* ÂË²¨²âÊÔº¯Êý£¨ÎÞÓÃ£© */
+  /* æ»¤æ³¢æµ‹è¯•å‡½æ•°ï¼ˆæ— ç”¨ï¼‰ */
 int imfilter( int ah, int aw, const unsigned char* A, int al, int ai,
                           unsigned char* B, int bl, int bi, int x, int y ) {
 #if 0
@@ -85,14 +85,14 @@ static int get_gauss( double* A, int mu, double sigma ) {
 //#include "pplight_32f.inl"
 
 
-#include "faceRecog_txt.inl"
+#include "facerecog_txt.inl"
 #include "faceRecog_feat.inl"
 
-// º¯Êý¹¦ÄÜ£º·µ»ØÍ¼ÏñAºÍÍ¼ÏñAµÄ×óÓÒ¶Ô³ÆÍ¼ÏñµÄ¾àÀë
-// ²ÎÊýËµÃ÷£º
-// type    - ÌØÕ÷ÀàÐÍ(ÍÆ¼öÖµÎª£º LBP59RECTBIN)
-// º¯Êý·µ»Ø£ºÍ¼ÏñAºÍÍ¼ÏñAµÄ×óÓÒ¶Ô³ÆÍ¼ÏñµÄ¾àÀë
-// Ê¹ÓÃËµÃ÷£ºÈç¹ûtype·Ç·¨Ôò¸øÄ¬ÈÏÖµ£º LBP59RECTBIN
+// å‡½æ•°åŠŸèƒ½ï¼šè¿”å›žå›¾åƒAå’Œå›¾åƒAçš„å·¦å³å¯¹ç§°å›¾åƒçš„è·ç¦»
+// å‚æ•°è¯´æ˜Žï¼š
+// type    - ç‰¹å¾ç±»åž‹(æŽ¨èå€¼ä¸ºï¼š LBP59RECTBIN)
+// å‡½æ•°è¿”å›žï¼šå›¾åƒAå’Œå›¾åƒAçš„å·¦å³å¯¹ç§°å›¾åƒçš„è·ç¦»
+// ä½¿ç”¨è¯´æ˜Žï¼šå¦‚æžœtypeéžæ³•åˆ™ç»™é»˜è®¤å€¼ï¼š LBP59RECTBIN
 double CPM_SymmetryDist( int h, int w, const unsigned char* A, int al, int type ) {
   unsigned char * A2 = MALLOC( unsigned char, h * w );
   int i, j, len;
@@ -130,7 +130,7 @@ double CPM_SymmetryDist( int h, int w, const unsigned char* A, int al, int type 
   return dis;
 }
 
-// Ö±·½Í¼½»¼¯¾àÀë
+// ç›´æ–¹å›¾äº¤é›†è·ç¦»
 double CPM_Histinter( int n, const FEAT_T* a, const FEAT_T* b ) {
   int i;
   FEAT_T out = 0;
@@ -201,7 +201,7 @@ double CPM_AbsSub_32f( int n, const FEAT_T* a, const FEAT_T* b ) {
   return (double)CPM_AbsSub(n, a, b);
 }
 
-/* ¿¨·½¾àÀë */
+/* å¡æ–¹è·ç¦» */
 double CPM_Chisquare( int n, const FEAT_T* A, const FEAT_T* B ) {
   int i = 0;
   double d = 0.f;
@@ -251,16 +251,16 @@ static int CPM_ChiSquare16s( int n, const short* a, const short* b ) {
 
 typedef double (*distance_fun_t)(int n, const FEAT_T* a, const FEAT_T* b);
 
-// º¯Êý¹¦ÄÜ£ºÏòÁ¿¾àÀë
-// ²ÎÊýËµÃ÷£º
-// n    - ÌØÕ÷Êý×é´óÐ¡
-// a, b - Ö¸ÏòÌØÕ÷
-// type - ¾àÀëÀàÐÍ
-// º¯Êý·µ»Ø£º
-// ·µ»Ø¸¡µã¾àÀëÖµ(ÖµÔ½Ð¡±íÊ¾aºÍbÔ½ÏàËÆ)
-// ¾àÀëÖµÓò:D=[0,+inf]
-// Ó³Éäµ½[0,1]µÄ¹«Ê½: S=1/(1+D)
-// Ê¹ÓÃËµÃ÷£º
+// å‡½æ•°åŠŸèƒ½ï¼šå‘é‡è·ç¦»
+// å‚æ•°è¯´æ˜Žï¼š
+// n    - ç‰¹å¾æ•°ç»„å¤§å°
+// a, b - æŒ‡å‘ç‰¹å¾
+// type - è·ç¦»ç±»åž‹
+// å‡½æ•°è¿”å›žï¼š
+// è¿”å›žæµ®ç‚¹è·ç¦»å€¼(å€¼è¶Šå°è¡¨ç¤ºaå’Œbè¶Šç›¸ä¼¼)
+// è·ç¦»å€¼åŸŸ:D=[0,+inf]
+// æ˜ å°„åˆ°[0,1]çš„å…¬å¼: S=1/(1+D)
+// ä½¿ç”¨è¯´æ˜Žï¼š
 double CPM_Distance( int n, const void* a, const void* b, int type ) {
   static distance_fun_t distance_table[4] = {0};
   static int distance_table_inited=0;
@@ -412,7 +412,7 @@ int facerecog_process( void* p0 ) {
       ret = colorcvt(p->height, p->width, p->data, p->datastep, 0, gray, p->width, 1, (ColorSpace)p->datacode, T_GRAY);
       //imwrite("./graya.bmp", p->height, p->width, gray, p->width, 1);
       if (!ret) {
-        mode = 0; // Ê§°Ü
+        mode = 0; // å¤±è´¥
       }
     }
 #if 0
@@ -529,7 +529,7 @@ int facerecog_process( void* p0 ) {
     p->face.count=pp.outlen;
   }
 #if 0
-  {// ÈËÁ³½Ç¶È¼ì²â Ê§°Ü
+  {// äººè„¸è§’åº¦æ£€æµ‹ å¤±è´¥
 #define SSH 10
 #define SSW 10
     unsigned char stdface[SSH*SSW];

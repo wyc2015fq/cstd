@@ -38,8 +38,10 @@
 #define MEMMOVE(_P, _F, _N)    memmove(_P, _F, sizeof(*(_F))*(_N))
 #endif
 /////
+#ifdef _WIN32
 #ifndef bzero
-#define bzero(arr, n)  memset(arr, 0, n)
+//#define bzero(arr, n)  memset(arr, 0, n)
+#endif
 #endif
 #define BZERO(arr, n)  memset(arr, 0, sizeof(*arr)*n)
 #define BZERO1(arr)  memset(arr, 0, sizeof(*arr))
@@ -118,6 +120,13 @@ CC_INLINE void ptr2ptr(void* pp, void* p)
 #define _vsnprintf vsnprintf
 #define _snprintf snprintf
 #define _msize malloc_usable_size
+#define _fseeki64 fseeko64
+#define _ftelli64 ftello64
+#define _open open
+#define _close close
+#ifndef O_BINARY
+ #define O_BINARY 0 
+#endif
 #endif
 
 #ifdef _WIN32
@@ -126,8 +135,14 @@ CC_INLINE void ptr2ptr(void* pp, void* p)
 #define strcasecmp _stricmp
 #else
 #define strnicmp strncasecmp
+#define _strnicmp strncasecmp
 #define stricmp strcasecmp
+#define _stricmp strcasecmp
 #define _stricoll strcasecoll
+#define _strdup strdup
+
+#define _mkdir(a) mkdir(a, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)
+#define _chdir(a) chdir(a)
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

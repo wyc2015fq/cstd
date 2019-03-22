@@ -3,30 +3,30 @@
 #ifndef _FILESYSTEM_HPP_
 #define _FILESYSTEM_HPP_
 
-#include <filesystem>
+//#include <filesystem>
 #include <time.h>
 #include <math.h>
-#include <io.h>
+//#include <io.h>
 #include <stdio.h>
 #include "os.hpp"
 #include "string.hpp"
 
 //using namespace 
-using namespace std::experimental;
-using filesystem::path;
+//using namespace std::experimental;
+//using filesystem::path;
 
 namespace wstd {
   namespace filesystem {
-    static path unique_path(const path& model) {
-      std::wstring s(model.wstring());  // std::string ng for MBCS encoded POSIX
+    static string unique_path(const string& model) {
+      std::string s(model);  // std::string ng for MBCS encoded POSIX
       const wchar_t hex[] = L"0123456789abcdef";
       char ran[] = "123456789abcdef";  // init to avoid clang static analyzer message
                                        // see ticket #8954
       assert(sizeof(ran) == 16);
       srand((unsigned int)time(NULL));
-      for (std::wstring::size_type i = 0; i < s.size(); ++i)
+      for (std::string::size_type i = 0; i < s.size(); ++i)
       {
-        if (s[i] == L'%')                        // digit request
+        if (s[i] == '%')                        // digit request
         {
           int c = rand();
           s[i] = hex[c & 0xf];             // convert to hex digit and replace
@@ -42,10 +42,10 @@ namespace wstd {
     pf = fopen(testfile, "rb");
     string str;
     if (pf) {
-      fseek(pf, 0, SEEK_END);   ///½«ÎÄ¼þÖ¸ÕëÒÆ¶¯ÎÄ¼þ½áÎ²
-      int size = ftell(pf); ///Çó³öµ±Ç°ÎÄ¼þÖ¸Õë¾àÀëÎÄ¼þ¿ªÊ¼µÄ×Ö½ÚÊý
+      fseek(pf, 0, SEEK_END);   ///å°†æ–‡ä»¶æŒ‡é’ˆç§»åŠ¨æ–‡ä»¶ç»“å°¾
+      int size = ftell(pf); ///æ±‚å‡ºå½“å‰æ–‡ä»¶æŒ‡é’ˆè·ç¦»æ–‡ä»¶å¼€å§‹çš„å­—èŠ‚æ•°
       str.resize(size);
-      fseek(pf, 0, SEEK_SET);   ///½«ÎÄ¼þÖ¸ÕëÒÆ¶¯ÎÄ¼þ½áÎ²
+      fseek(pf, 0, SEEK_SET);   ///å°†æ–‡ä»¶æŒ‡é’ˆç§»åŠ¨æ–‡ä»¶ç»“å°¾
       fread(&str[0], size, 1, pf);
       fclose(pf);
     }

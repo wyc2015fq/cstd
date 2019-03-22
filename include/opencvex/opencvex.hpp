@@ -36,12 +36,12 @@ Rect rectExt(Rect boundRect, int ex, int ey, int h, int w) {
   return boundRect;
 }
 
-// ÈÆpt(x, y) Ðý×ªt¶È
+// ï¿½ï¿½pt(x, y) ï¿½ï¿½×ªtï¿½ï¿½
 //  cos(t), sin(t), 0
 // -sin(t), cos(t), 0
 // x*(1-cos(t))+y*sin(t), -x*sin(t)+y*(1-cos(t)), 1
-// ¶ÔÖ±Ïß(A*x+B*y+C=0)µÄ¶Ô³Æ±ä»»
-// Ö±ÏßÓëxÖá½»µã-C/A, ÓëyÖáµÄ½Ø¾à -C/B, ÓëxÖá¼Ð½Ç a = arctg(-A/B)
+// ï¿½ï¿½Ö±ï¿½ï¿½(A*x+B*y+C=0)ï¿½Ä¶Ô³Æ±ä»»
+// Ö±ï¿½ï¿½ï¿½ï¿½xï¿½á½»ï¿½ï¿½-C/A, ï¿½ï¿½yï¿½ï¿½Ä½Ø¾ï¿½ -C/B, ï¿½ï¿½xï¿½ï¿½Ð½ï¿½ a = arctg(-A/B)
 // t = 2*a
 // cos(t), sin(t), 0
 // sin(t), -cos(t), 0
@@ -169,9 +169,9 @@ double ptDot(Point p1, Point p2) {
 
 double pt2Line(Point p1, Point lp1, Point lp2)
 {
-  // »¯¼òÁ½µãÊ½ÎªÒ»°ãÊ½
-  // Á½µãÊ½¹«Ê½Îª(y - y1)/(x - x1) = (y2 - y1)/ (x2 - x1)
-  // »¯¼òÎªÒ»°ãÊ½Îª(y2 - y1)x + (x1 - x2)y + (x2y1 - x1y2) = 0
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ÎªÒ»ï¿½ï¿½Ê½
+  // ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½Ê½Îª(y - y1)/(x - x1) = (y2 - y1)/ (x2 - x1)
+  // ï¿½ï¿½ï¿½ï¿½ÎªÒ»ï¿½ï¿½Ê½Îª(y2 - y1)x + (x1 - x2)y + (x2y1 - x1y2) = 0
   // A = y2 - y1
   // B = x1 - x2
   // C = x2y1 - x1y2
@@ -179,7 +179,7 @@ double pt2Line(Point p1, Point lp1, Point lp2)
   double b = lp1.x - lp2.x;
   double c = lp2.x * lp1.y - lp1.x * lp2.y;
   double d = a * p1.x + b * p1.y + c;
-  // ¾àÀë¹«Ê½Îªd = |A*x0 + B*y0 + C|/¡Ì(A^2 + B^2)
+  // ï¿½ï¿½ï¿½ë¹«Ê½Îªd = |A*x0 + B*y0 + C|/ï¿½ï¿½(A^2 + B^2)
   double dis = fabs(d) / sqrt(a * a + b * b);
   //double dis2 = (d*d) / (a * a + b * b);
   return dis;
@@ -197,10 +197,10 @@ void drawArrow(cv::Mat& img, cv::Point pStart, cv::Point pEnd, int len, int alph
   cv::Scalar& color, int thickness = 1, int lineType = 8)
 {
   Point2f arrow;
-  //¼ÆËã ¦È ½Ç£¨×î¼òµ¥µÄÒ»ÖÖÇé¿öÔÚÏÂÃæÍ¼Ê¾ÖÐÒÑ¾­Õ¹Ê¾£¬¹Ø¼üÔÚÓÚ atan2 º¯Êý£¬ÏêÇé¼ûÏÂÃæ£©   
+  //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ç£ï¿½ï¿½ï¿½òµ¥µï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Ê¾ï¿½ï¿½ï¿½Ñ¾ï¿½Õ¹Ê¾ï¿½ï¿½ï¿½Ø¼ï¿½ï¿½ï¿½ï¿½ï¿½ atan2 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ£©   
   double angle = atan2((double)(pStart.y - pEnd.y), (double)(pStart.x - pEnd.x));
   line(img, pStart, pEnd, color, thickness, lineType);
-  //¼ÆËã¼ý½Ç±ßµÄÁíÒ»¶ËµÄ¶ËµãÎ»ÖÃ£¨ÉÏÃæµÄ»¹ÊÇÏÂÃæµÄÒª¿´¼ýÍ·µÄÖ¸Ïò£¬Ò²¾ÍÊÇpStartºÍpEndµÄÎ»ÖÃ£© 
+  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç±ßµï¿½ï¿½ï¿½Ò»ï¿½ËµÄ¶Ëµï¿½Î»ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½Ö¸ï¿½ï¿½Ò²ï¿½ï¿½ï¿½ï¿½pStartï¿½ï¿½pEndï¿½ï¿½Î»ï¿½Ã£ï¿½ 
   double a = CV_PI * alpha / 180;
   arrow.x = pEnd.x + len * cos(angle + a);
   arrow.y = pEnd.y + len * sin(angle + a);
@@ -221,12 +221,12 @@ Vec4f getLine(Point2f pt, double angle, double len) {
 }
 
 void drawRotatedRect(Mat& srcImage, RotatedRect rectPoint, Scalar color, int lw) {
-  //¶¨ÒåÒ»¸ö´æ´¢ÒÔÉÏËÄ¸öµãµÄ×ø±êµÄ±äÁ¿
+  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½æ´¢ï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½
   Point2f fourPoint2f[4];
-  //½«rectPoint±äÁ¿ÖÐ´æ´¢µÄ×ø±êÖµ·Åµ½ fourPointµÄÊý×éÖÐ
+  //ï¿½ï¿½rectPointï¿½ï¿½ï¿½ï¿½ï¿½Ð´æ´¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½Åµï¿½ fourPointï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   rectPoint.points(fourPoint2f);
 
-  //¸ù¾ÝµÃµ½µÄËÄ¸öµãµÄ×ø±ê  »æÖÆ¾ØÐÎ
+  //ï¿½ï¿½ï¿½ÝµÃµï¿½ï¿½ï¿½ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½Æ¾ï¿½ï¿½ï¿½
   for (int i = 0; i < 3; i++)
   {
     line(srcImage, fourPoint2f[i], fourPoint2f[i + 1], color, lw);
@@ -392,7 +392,7 @@ struct SimilarLine2 {
   }
   inline bool operator()(const cv::Vec4i& r1, const cv::Vec4i& r2) const
   {
-    // deltaÎª×îÐ¡³¤¿íµÄeps±¶
+    // deltaÎªï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½epsï¿½ï¿½
     Point p1 = Point(r1[0], r1[1]);
     Point p2 = Point(r1[2], r1[3]);
     Point a1 = Point(r2[0], r2[1]);
@@ -480,7 +480,7 @@ struct SimilarRect {
   }
   inline bool operator()(const cv::Rect& r1, const cv::Rect& r2) const
   {
-    // deltaÎª×îÐ¡³¤¿íµÄeps±¶
+    // deltaÎªï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½epsï¿½ï¿½
     Point p1 = rect_center(r1);
     Point p2 = rect_center(r2);
     double d1 = ptdist(p1, p2);
@@ -498,9 +498,9 @@ struct SimilarLine {
   }
   inline bool operator()(const cv::Rect& r1, const cv::Rect& r2) const
   {
-    // deltaÎª×îÐ¡³¤¿íµÄeps±¶
+    // deltaÎªï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½epsï¿½ï¿½
     double delta = eps*((r1.height+ r2.height));
-    // Èç¹û¾ØÐÎµÄËÄ¸ö¶¥µãµÄÎ»ÖÃ²î±ð¶¼Ð¡ÓÚdelta£¬Ôò±íÊ¾ÏàËÆµÄ¾ØÐÎ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îµï¿½ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½Ã²ï¿½ï¿½Ð¡ï¿½ï¿½deltaï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ÆµÄ¾ï¿½ï¿½ï¿½
     int t = MAX(r1.y, r2.y);
     int b = MIN(r1.y + r1.height, r2.y + r2.height);
     int d = b - t;
@@ -617,20 +617,20 @@ double angle(Point pt1, Point pt2, Point pt0) {
   double dy2 = pt2.y - pt0.y;
 
   double ratio;
-  //¾ØÐÎ³¤ºÍ¿íÆ½·½µÄ±È
+  //ï¿½ï¿½ï¿½Î³ï¿½ï¿½Í¿ï¿½Æ½ï¿½ï¿½ï¿½Ä±ï¿½
   ratio = (dx1*dx1 + dy1*dy1) / (dx2*dx2 + dy2*dy2);
-  if (ratio < 0.8 || 1.2 < ratio) { //¸ù¾Ý¾ØÐÎ³¤¿íÆ½·½±ÈÌÔÌ­ËÄ±ßÐÎreturn 1.0;
+  if (ratio < 0.8 || 1.2 < ratio) { //ï¿½ï¿½ï¿½Ý¾ï¿½ï¿½Î³ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì­ï¿½Ä±ï¿½ï¿½ï¿½return 1.0;
   }
 
   return (dx1*dx2 + dy1*dy2) / sqrt((dx1*dx1 + dy1*dy1)*(dx2*dx2 + dy2*dy2) + 1e-10);//???
 }
 
-// ½Ç¶ÈÓàÏÒ
+// ï¿½Ç¶ï¿½ï¿½ï¿½ï¿½ï¿½
 double angle(double dx1, double dy1, double dx2, double dy2) {
   double ratio;
-  //¾ØÐÎ³¤ºÍ¿íÆ½·½µÄ±È
+  //ï¿½ï¿½ï¿½Î³ï¿½ï¿½Í¿ï¿½Æ½ï¿½ï¿½ï¿½Ä±ï¿½
   ratio = (dx1*dx1 + dy1*dy1) / (dx2*dx2 + dy2*dy2);
-  //¸ù¾Ý¾ØÐÎ³¤¿íÆ½·½±ÈÌÔÌ­ËÄ±ßÐÎ
+  //ï¿½ï¿½ï¿½Ý¾ï¿½ï¿½Î³ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì­ï¿½Ä±ï¿½ï¿½ï¿½
   //if (ratio < 0.8 || 1.2 < ratio) {     return 1.0;  }
 
   return (dx1*dx2 + dy1*dy2) / sqrt((dx1*dx1 + dy1*dy1)*(dx2*dx2 + dy2*dy2) + 1e-10);//???
@@ -643,7 +643,7 @@ struct SimilarLine3 {
   }
   inline bool operator()(const cv::Vec4i& r1, const cv::Vec4i& r2) const
   {
-    // deltaÎª×îÐ¡³¤¿íµÄeps±¶
+    // deltaÎªï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½epsï¿½ï¿½
     double s3 = angle(r1[2] - r1[0], r1[3] - r1[1], r2[2] - r2[0], r2[3] - r2[1]);
     s3 = fabs(1-fabs(s3));
     double d1 = pt2Line(Point(r1[0], r1[1]), Point(r2[0], r2[1]), Point(r2[2], r2[3]));
@@ -814,9 +814,9 @@ int run(const vector<Vec4i>& lines, const vector<RotatedRect>& pts, double thd) 
 }
 };
 
-// 3ÖÖÇåÎú¶ÈÆÀ¼Û·½·¨£¬·Ö±ðÊÇTenengradÌÝ¶È·½·¨¡¢LaplacianÌÝ¶È·½·¨ºÍ·½²î·½·¨
-// TenengradÌÝ¶È·½·¨
-// µÃ·ÖÔ½¸ßÔ½ÇåÎú
+// 3ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½Tenengradï¿½Ý¶È·ï¿½ï¿½ï¿½ï¿½ï¿½Laplacianï¿½Ý¶È·ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½î·½ï¿½ï¿½
+// Tenengradï¿½Ý¶È·ï¿½ï¿½ï¿½
+// ï¿½Ã·ï¿½Ô½ï¿½ï¿½Ô½ï¿½ï¿½ï¿½ï¿½
 double clarityTenengrad(const Mat& imageGrey, int method = 0) {
   double meanValue = 0;
   Mat imageSobel;
@@ -837,7 +837,7 @@ double clarityTenengrad(const Mat& imageGrey, int method = 0) {
       meanValue = meanStdValueImage.at<double>(0, 0);
       break;
   }
-  //Í¼ÏñµÄÆ½¾ù»Ò¶È
+  //Í¼ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½Ò¶ï¿½
   return meanValue;
 }
 
@@ -1010,12 +1010,12 @@ vector<T> select_index_all(const vector<T>& src, const vector<int>& index) {
   }
   return dst;
 }
-    // ¼ÆËã |p1 p2| X |p1 p|
+    // ï¿½ï¿½ï¿½ï¿½ |p1 p2| X |p1 p|
 double ptCross(Point p1, Point p2, Point p) {
   return (p2.x - p1.x) * (p.y - p1.y) - (p.x - p1.x) * (p2.y - p1.y);
 }
 
-    //ÅÐ¶ÏµãpÊÇ·ñÔÚp1p2p3p4µÄÕý·½ÐÎÄÚ
+    //ï¿½Ð¶Ïµï¿½pï¿½Ç·ï¿½ï¿½ï¿½p1p2p3p4ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 double ptInMatrix(Point p, Point p1, Point p2, Point p3, Point p4) {
   bool isPointIn = ptCross(p1, p2, p) * ptCross(p3, p4, p) >= 0 && ptCross(p2, p3, p) * ptCross(p4, p1, p) >= 0;
   return isPointIn;
@@ -1237,7 +1237,7 @@ struct rrects_w_part {
 
 void drawDetectLines(Mat& image, const Vec4i* it, int len, int lw)
 {
-  // ½«¼ì²âµ½µÄÖ±ÏßÔÚÍ¼ÉÏ»­³öÀ´
+  // ï¿½ï¿½ï¿½ï¿½âµ½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½Í¼ï¿½Ï»ï¿½ï¿½ï¿½ï¿½ï¿½
   const Vec4i* end = it + len;
   RNG rng(12345);
   while (it != end)
@@ -1245,13 +1245,13 @@ void drawDetectLines(Mat& image, const Vec4i* it, int len, int lw)
     Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
     Point pt1((*it)[0], (*it)[1]);
     Point pt2((*it)[2], (*it)[3]);
-    line(image, pt1, pt2, color, lw); //  ÏßÌõ¿í¶ÈÉèÖÃÎª2
+    line(image, pt1, pt2, color, lw); //  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª2
     ++it;
   }
 }
 void drawDetectLines(Mat& image, const vector<Vec4i>& lines, int lw)
 {
-  // ½«¼ì²âµ½µÄÖ±ÏßÔÚÍ¼ÉÏ»­³öÀ´
+  // ï¿½ï¿½ï¿½ï¿½âµ½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½Í¼ï¿½Ï»ï¿½ï¿½ï¿½ï¿½ï¿½
   vector<Vec4i>::const_iterator it = lines.begin();
   RNG rng(12345);
   while (it != lines.end())
@@ -1259,7 +1259,7 @@ void drawDetectLines(Mat& image, const vector<Vec4i>& lines, int lw)
     Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
     Point pt1((*it)[0], (*it)[1]);
     Point pt2((*it)[2], (*it)[3]);
-    line(image, pt1, pt2, color, lw); //  ÏßÌõ¿í¶ÈÉèÖÃÎª2
+    line(image, pt1, pt2, color, lw); //  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª2
     ++it;
   }
 }
@@ -1267,7 +1267,7 @@ void drawDetectLines(Mat& image, const vector<Vec4i>& lines, int lw)
 Mat projectHistogram(const Mat &img, int t)
 {
   Mat lowData;
-  cv::resize(img, lowData, Size(8, 16)); //Ëõ·Åµ½8*16
+  cv::resize(img, lowData, Size(8, 16)); //ï¿½ï¿½ï¿½Åµï¿½8*16
 
   int sz = (t) ? lowData.rows : lowData.cols;
   Mat mhist = Mat::zeros(1, sz, CV_32F);
@@ -1293,7 +1293,7 @@ void drawHist(Mat& histImg, const Mat& hist, int t) {
   double minVal = 0;
   double absVal = 0;
 
-  //ÕÒµ½Ö±·½Í¼ÖÐµÄ×î´óÖµºÍ×îÐ¡Öµ
+  //ï¿½Òµï¿½Ö±ï¿½ï¿½Í¼ï¿½Ðµï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½Ð¡Öµ
   minMaxLoc(hist, &minVal, &maxVal, 0, 0);
   absVal = max(fabs(minVal), fabs(maxVal));
   float hpt = (0.45*histW);
@@ -1432,7 +1432,7 @@ double imArticulation(const Mat& imageSource)
   Mat imageSobel;
   Sobel(imageGrey, imageSobel, CV_16U, 1, 1);
 
-  //Í¼ÏñµÄÆ½¾ù»Ò¶È
+  //Í¼ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½Ò¶ï¿½
   double meanValue = 0.0;
   meanValue = mean(imageSobel)[0];
   return meanValue;
@@ -1448,13 +1448,14 @@ double imArticulation2(const Mat& imageSource)
   Mat imageSobel_y;
   Sobel(imageGrey, imageSobel_y, CV_16U, 0, 1, 5);
 
-  //Í¼ÏñµÄÆ½¾ù»Ò¶È
+  //Í¼ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½Ò¶ï¿½
   double meanValue = 0.0;
   meanValue = mean(imageSobel_x)[0] + mean(imageSobel_y)[0];
   meanValue*=0.5;
   return meanValue;
 }
 
+#if 0
 double DefRto(Mat frame)
 {
   Mat gray;
@@ -1462,7 +1463,7 @@ double DefRto(Mat frame)
   IplImage *img = &(IplImage(gray));
   double temp = 0;
   double DR = 0;
-  int i, j;//Ñ­»·±äÁ¿ 
+  int i, j;//Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
   int height = img->height;
   int width = img->width;
   int step = img->widthStep / sizeof(uchar);
@@ -1480,4 +1481,5 @@ double DefRto(Mat frame)
   DR = temp / num;
   return DR;
 }
+#endif
 #include "hough.hpp"

@@ -321,7 +321,7 @@ public:
 
   //#define this this
 
-  void CommandLineParser::getByName(const string & name, bool space_delete, int type, void* dst) const
+  void getByName(const string & name, bool space_delete, int type, void* dst) const
   {
     {
       for (size_t i = 0; i < this->data.size(); i++) {
@@ -354,7 +354,7 @@ public:
   }
 
 
-  void CommandLineParser::getByIndex(int index, bool space_delete, int type, void* dst) const
+  void getByIndex(int index, bool space_delete, int type, void* dst) const
   {
     {
       for (size_t i = 0; i < this->data.size(); i++) {
@@ -382,7 +382,7 @@ public:
   }
 
 
-  CommandLineParser::CommandLineParser(int argc, const char* const argv[], const string & keys)
+  CommandLineParser(int argc, const char* const argv[], const string & keys)
   {
     // path to application
     size_t pos_s = string(argv[0]).find_last_of("/\\");
@@ -439,15 +439,15 @@ public:
     this->sort_params();
   }
 
-  CommandLineParser::~CommandLineParser()
+  ~CommandLineParser()
   {
   }
 
-  CommandLineParser::CommandLineParser(const CommandLineParser & parser)
+  CommandLineParser(const CommandLineParser & parser)
   {
   }
 
-  void CommandLineParser::apply_params(const string & key, const string & value)
+  void apply_params(const string & key, const string & value)
   {
     for (size_t i = 0; i < data.size(); i++) {
       for (size_t k = 0; k < data[i].keys.size(); k++) {
@@ -459,7 +459,7 @@ public:
     }
   }
 
-  void CommandLineParser::apply_params(int i, string value)
+  void apply_params(int i, string value)
   {
     for (size_t j = 0; j < data.size(); j++) {
       if (data[j].number == i) {
@@ -469,7 +469,7 @@ public:
     }
   }
 
-  void CommandLineParser::sort_params()
+  void sort_params()
   {
     for (size_t i = 0; i < data.size(); i++) {
       std::sort(data[i].keys.begin(), data[i].keys.end());
@@ -477,12 +477,12 @@ public:
     std::sort(data.begin(), data.end(), cmp_params);
   }
 
-  string CommandLineParser::getPathToApplication() const
+  string getPathToApplication() const
   {
     return this->path_to_app;
   }
 
-  bool CommandLineParser::has(const string & name) const
+  bool has(const string & name) const
   {
     for (size_t i = 0; i < this->data.size(); i++) {
       for (size_t j = 0; j < this->data[i].keys.size(); j++) {
@@ -497,7 +497,7 @@ public:
   }
 
 
-  void CommandLineParser::printMessage() const
+  void printMessage() const
   {
     if (this->about_message != "") {
       printf("%s\n", this->about_message.c_str());
@@ -549,7 +549,7 @@ public:
     }
   }
 
-  std::vector<string> CommandLineParser::split_range_string(const string & _str, char fs, char ss) const
+  std::vector<string> split_range_string(const string & _str, char fs, char ss) const
   {
     string str = _str;
     std::vector<string> vec;
@@ -615,7 +615,7 @@ public:
     return vec;
   }
 
-  std::vector<string> CommandLineParser::split_string(const string & _str, char symbol = ' ', bool create_empty_item = false) const
+  std::vector<string> split_string(const string & _str, char symbol = ' ', bool create_empty_item = false) const
   {
     string str = _str;
     std::vector<string> vec;

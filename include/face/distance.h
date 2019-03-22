@@ -1,6 +1,6 @@
 #ifndef _DISTANCE_H_
 #define _DISTANCE_H_
-// Õ≥º∆chi squareæ‡¿Î
+// ÁªüËÆ°chi squareË∑ùÁ¶ª
 #define CHI_SQUARE(_N, _A, _B, _D, TYPE) do {                                 \
     int _I=0;                                                                   \
     _D=0;                                                                       \
@@ -17,7 +17,7 @@
       if (t0) { TYPE _t = *(_A+_I  ) - *(_B+_I  ); _D += (_t*_t)/ t0; }         \
     }                                                                           \
   } while(0)
-// ≈∑ œæ‡¿Î (a-b)^2
+// Ê¨ßÊ∞èË∑ùÁ¶ª (a-b)^2
 #define EUCLID_DISTOR2(_N, _A, _B, _D, TYPE) do {                             \
     int _I;                                                                     \
     _D=0;                                                                       \

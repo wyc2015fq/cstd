@@ -2,6 +2,8 @@
 #include <inttypes.h>
 #include <ctime>
 #include "os.hpp"
+#include <sys/time.h>
+
 
 namespace wstd {
 
@@ -40,27 +42,27 @@ namespace wstd {
   class utime
   {
   public:
-    typedef __int64 value_type;
-    // »ñµÃ¼ÆÊıÆ÷µÄÊ±ÖÓÆµÂÊ
+    typedef int64_t value_type;
+    // è·å¾—è®¡æ•°å™¨çš„æ—¶é’Ÿé¢‘ç‡
     utime() : freq(frequency()) { restart(); }
-    // »ñµÃ³õÊ¼Öµ
+    // è·å¾—åˆå§‹å€¼
     void restart() { start_time = counter(); }
-    // »ñµÃ¶ÔÓ¦µÄÊ±¼äÖµ£¬µ¥Î»ÎªÃë
+    // è·å¾—å¯¹åº”çš„æ—¶é—´å€¼ï¼Œå•ä½ä¸ºç§’
     double elapsed() const { return static_cast<double>((double)(counter() - start_time) / freq); }
     double operator()() const { return elapsed(); }
 
     value_type  start_time, freq;
     static value_type frequency()
     {
+      value_type  freq;
 #if defined(OS_WINDOWS)
-      value_type  frequency;
-      ::QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&frequency));
+      ::QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&freq));
 #elif defined(OS_LINUX)
-      struct timeval tvStart;
+      struct timeval tvStop;
       gettimeofday(&tvStop, NULL);
-      frequency = ((value_type)tvStop.tv_sec) * 1000000 + (tvStop.tv_usec);
+      freq = ((value_type)tvStop.tv_sec) * 1000000 + (tvStop.tv_usec);
 #endif
-      return frequency;
+      return freq;
     }
     static value_type counter()
     {

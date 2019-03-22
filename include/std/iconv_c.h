@@ -13,11 +13,13 @@ enum ICONV_CODEPAGE {
 };
 
 //#define USE_MYCONV
-#define USE_WINCONV
+//#define USE_WINCONV
 
 
 #ifdef _WIN32
-//#define USE_WINCONV
+#define USE_WINCONV
+#else
+#define USE_ICONV
 #endif
 
 #ifdef USE_WINCONV
@@ -83,20 +85,21 @@ static const char* codepage_linux(ICONV_CODEPAGE src_charset)
   CVTCODEPAGE_DEF(DEF);
 #undef DEF
 #undef CVTCODEPAGE_DEF
-  return -1;
+  return "utf-8";
 }
 static int iconv_linux(ICONV_CODEPAGE src_cp0, ICONV_CODEPAGE dst_cp0, const char* src, size_t srclen, char* dst, size_t dstlen)
 {
+  int outlen = 0;
   char* inbuf = (char*)(src);
   size_t inlen = srclen;
-  const char* dst_charset = codepage_linux(src_cp0);
+  const char* src_charset = codepage_linux(src_cp0);
   const char* dst_charset = codepage_linux(dst_cp0);
-  iconv_t cd = iconv_open(dst_charset, src_charset);//»ñÈ¡×ª»»¾ä±ú£¬void*ÀàĞÍ
+  iconv_t cd = iconv_open(dst_charset, src_charset);//è·å–è½¬æ¢å¥æŸ„ï¼Œvoid*ç±»å‹
   if (cd == 0) {
     return 0;
   }
 #if 0
-  char outbuf[255];//ÕâÀïÊµÔÚ²»ÖªµÀĞèÒª¶àÉÙ¸ö×Ö½Ú£¬ÕâÊÇ¸öÎÊÌâ
+  char outbuf[255];//è¿™é‡Œå®åœ¨ä¸çŸ¥é“éœ€è¦å¤šå°‘ä¸ªå­—èŠ‚ï¼Œè¿™æ˜¯ä¸ªé—®é¢˜
   while (1) {
     size_t buflen = 255;
     char* poutbuf = outbuf;
@@ -162,7 +165,7 @@ static int iconv_my(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* sr
 }
 #endif
 
-int ustrlen(const char* str, ICONV_CODEPAGE cp)
+static int ustrlen(const char* str, ICONV_CODEPAGE cp)
 {
   switch (cp) {
   case ICONV_UCS2LE:
@@ -171,7 +174,7 @@ int ustrlen(const char* str, ICONV_CODEPAGE cp)
   return strlen(str);
 }
 
-int iconv_c(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* src, int srclen, char* dst, int dstlen)
+static int iconv_c(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* src, int srclen, char* dst, int dstlen)
 {
   srclen = srclen < 0 ? ustrlen(src, src_cp) : srclen;
 #ifdef USE_MYCONV
@@ -186,9 +189,9 @@ int iconv_c(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* src, int s
   return 0;
 }
 
-//±àÂë×ª»»£¬src_charsetÊÇÔ´±àÂë£¬dst_charsetÊÇÄ¿±ê±àÂë
-//srcÊÇÔ´±àÂë×Ö·û´®
-int iconv_c(const char* src_charset, const char* dst_charset, const char* src, int srclen, char* dst, int dstlen)
+//ç¼–ç è½¬æ¢ï¼Œsrc_charsetæ˜¯æºç¼–ç ï¼Œdst_charsetæ˜¯ç›®æ ‡ç¼–ç 
+//srcæ˜¯æºç¼–ç å­—ç¬¦ä¸²
+static int iconv_c(const char* src_charset, const char* dst_charset, const char* src, int srclen, char* dst, int dstlen)
 {
   ICONV_CODEPAGE src_cp = mycodepage(src_charset);
   ICONV_CODEPAGE dst_cp = mycodepage(dst_charset);
@@ -196,7 +199,7 @@ int iconv_c(const char* src_charset, const char* dst_charset, const char* src, i
 }
 
 /////////////////////////////////////////////////////////////////////////////
-int iconv_wcstombsz(char* mbstr, const wchar_t* wcstr, size_t count)
+static int iconv_wcstombsz(char* mbstr, const wchar_t* wcstr, size_t count)
 {
   if (count == 0 && mbstr != NULL) {
     return 0;
@@ -208,7 +211,7 @@ int iconv_wcstombsz(char* mbstr, const wchar_t* wcstr, size_t count)
   return result;
 }
 
-int iconv_mbstowcsz(wchar_t* wcstr, const char* mbstr, size_t count)
+static int iconv_mbstowcsz(wchar_t* wcstr, const char* mbstr, size_t count)
 {
   if (count == 0 && wcstr != NULL) {
     return 0;
@@ -219,13 +222,13 @@ int iconv_mbstowcsz(wchar_t* wcstr, const char* mbstr, size_t count)
   }
   return result;
 }
-wchar_t* iconv_a2w(const char* a, size_t count) {
+static wchar_t* iconv_a2w(const char* a, size_t count) {
   count = count <= 0 ? strlen(a) : count;
   wchar_t* w = (wchar_t*)malloc(count * sizeof(wchar_t));
   iconv_mbstowcsz(w, a, count);
   return w;
 }
-char* iconv_w2a(const wchar_t* w, size_t count) {
+static char* iconv_w2a(const wchar_t* w, size_t count) {
   count = count <= 0 ? wcslen(w) : count;
   char* a = (char*)malloc(count * sizeof(char));
   iconv_wcstombsz(a, w, count);

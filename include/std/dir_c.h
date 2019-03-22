@@ -8,8 +8,14 @@
 #include "inttypes_c.h"
 //#include "stdc.h"
 #include "string_c.h"
+#ifdef _WIN32
 #include <io.h>
 #include <direct.h>
+#else
+#include <dirent.h>
+#include <unistd.h>
+#endif
+
 #include "std/iconv_c.h"
 
 
@@ -237,7 +243,7 @@ int sys_find_close(dir_t* s)
   }
   return 0;
 }
-// FILETIME ×ª time_t
+// FILETIME è½¬ time_t
 static time_t FileTimeToTimet(FILETIME ft)
 {
   time_t pt;
@@ -259,7 +265,7 @@ static int linux_attrib_cvt(int attrib)
   return attrib2;
 }
 
-int sys_find_close(dir_t* s)
+static int sys_find_close(dir_t* s)
 {
   if (s && s->x) {
     closedir((DIR*)s->x);
@@ -269,7 +275,7 @@ int sys_find_close(dir_t* s)
 }
 #endif
 
-int sys_find_next_file(dir_t* s, const char* path, const char* filters, fileinfo_t* f, int flag)
+static int sys_find_next_file(dir_t* s, const char* path, const char* filters, fileinfo_t* f, int flag)
 {
 #ifdef _WIN32
   WIN32_FIND_DATAW info[1];
@@ -460,7 +466,7 @@ static int sys_rmfile(const char* pathname)
 #endif
 }
 //recursively delete all the file in the directory.
-int sys_rmdir(const char* dir_full_path)
+static int sys_rmdir(const char* dir_full_path)
 {
 #ifdef _WIN32
   return RemoveDirectoryA(dir_full_path);
@@ -481,14 +487,14 @@ int sys_rmdir(const char* dir_full_path)
       printf("sys_rmdir:lstat %s error", sub_path);
       continue;
     }
-    if (S_ISDIR(st.st_mode)) { // Èç¹ûÊÇÄ¿Â¼ÎÄ¼þ£¬µÝ¹éÉ¾³ý
+    if (S_ISDIR(st.st_mode)) { // å¦‚æžœæ˜¯ç›®å½•æ–‡ä»¶ï¼Œé€’å½’åˆ é™¤
       if (sys_rmdir(sub_path) == -1) {
         closedir(dirp);
         return -1;
       }
       rmdir(sub_path);
     } else if (S_ISREG(st.st_mode)) {
-      unlink(sub_path);     // Èç¹ûÊÇÆÕÍ¨ÎÄ¼þ£¬Ôòunlink
+      unlink(sub_path);     // å¦‚æžœæ˜¯æ™®é€šæ–‡ä»¶ï¼Œåˆ™unlink
     } else {
       printf("sys_rmdir:st_mode %s error", sub_path);
       continue;
@@ -514,39 +520,39 @@ enum SYS_MODE {
   AS_IWRITE = 0000200,  /* write permission, owner */
   AS_IEXEC = 0000100,  /* execute/search permission, owner */
 
-  AS_ISUID = 04000, //ÎÄ¼þµÄ (set user-id on execution)Î»
-  AS_ISGID = 02000, //ÎÄ¼þµÄ (set group-id on execution)Î»
-  AS_ISVTX = 01000, //ÎÄ¼þµÄsticky Î»
-  AS_IRUSR = 00400, //ÎÄ¼þËùÓÐÕß¾ß¿É¶ÁÈ¡È¨ÏÞ
-  AS_IWUSR = 00200, //ÎÄ¼þËùÓÐÕß¾ß¿ÉÐ´ÈëÈ¨ÏÞ
-  AS_IXUSR = 00100, //ÎÄ¼þËùÓÐÕß¾ß¿ÉÖ´ÐÐÈ¨ÏÞ
-  AS_IRGRP = 00040, //ÓÃ»§×é¾ß¿É¶ÁÈ¡È¨ÏÞ
-  AS_IWGRP = 00020, //ÓÃ»§×é¾ß¿ÉÐ´ÈëÈ¨ÏÞ
-  AS_IXGRP = 00010, //ÓÃ»§×é¾ß¿ÉÖ´ÐÐÈ¨ÏÞ
-  AS_IROTH = 00004, //ÆäËûÓÃ»§¾ß¿É¶ÁÈ¡È¨ÏÞ
-  AS_IWOTH = 00002, //ÆäËûÓÃ»§¾ß¿ÉÐ´ÈëÈ¨ÏÞ
-  AS_IXOTH = 00001, //ÆäËûÓÃ»§¾ß¿ÉÖ´ÐÐÈ¨ÏÞ
+  AS_ISUID = 04000, //æ–‡ä»¶çš„ (set user-id on execution)ä½
+  AS_ISGID = 02000, //æ–‡ä»¶çš„ (set group-id on execution)ä½
+  AS_ISVTX = 01000, //æ–‡ä»¶çš„sticky ä½
+  AS_IRUSR = 00400, //æ–‡ä»¶æ‰€æœ‰è€…å…·å¯è¯»å–æƒé™
+  AS_IWUSR = 00200, //æ–‡ä»¶æ‰€æœ‰è€…å…·å¯å†™å…¥æƒé™
+  AS_IXUSR = 00100, //æ–‡ä»¶æ‰€æœ‰è€…å…·å¯æ‰§è¡Œæƒé™
+  AS_IRGRP = 00040, //ç”¨æˆ·ç»„å…·å¯è¯»å–æƒé™
+  AS_IWGRP = 00020, //ç”¨æˆ·ç»„å…·å¯å†™å…¥æƒé™
+  AS_IXGRP = 00010, //ç”¨æˆ·ç»„å…·å¯æ‰§è¡Œæƒé™
+  AS_IROTH = 00004, //å…¶ä»–ç”¨æˆ·å…·å¯è¯»å–æƒé™
+  AS_IWOTH = 00002, //å…¶ä»–ç”¨æˆ·å…·å¯å†™å…¥æƒé™
+  AS_IXOTH = 00001, //å…¶ä»–ç”¨æˆ·å…·å¯æ‰§è¡Œæƒé™
 };
 
 typedef struct {
-  uint dev;      //ÎÄ¼þµÄÉè±¸±àºÅ
-  uint ino; //½Úµã
-  uint mode; //ÎÄ¼þµÄÀàÐÍºÍ´æÈ¡µÄÈ¨ÏÞ
-  int nlink;  //Á¬µ½¸ÃÎÄ¼þµÄÓ²Á¬½ÓÊýÄ¿£¬¸Õ½¨Á¢µÄÎÄ¼þÖµÎª1
-  int uid;//ÓÃ»§ID
-  int gid;//×éID
-  uint rdev; //(Éè±¸ÀàÐÍ)Èô´ËÎÄ¼þÎªÉè±¸ÎÄ¼þ£¬ÔòÎªÆäÉè±¸±àºÅ
-  uint64 size;//ÎÄ¼þ×Ö½ÚÊý(ÎÄ¼þ´óÐ¡)
-  uint blksize;   //¿é´óÐ¡(ÎÄ¼þÏµÍ³µÄI/O »º³åÇø´óÐ¡)
-  uint blocks;    //¿éÊý
-  time_t atime; //×îºóÒ»´Î·ÃÎÊÊ±¼ä
-  time_t mtime;//×îºóÒ»´ÎÐÞ¸ÄÊ±¼ä
-  time_t ctime;//×îºóÒ»´Î¸Ä±äÊ±¼ä(Ö¸ÊôÐÔ)
+  uint dev;      //æ–‡ä»¶çš„è®¾å¤‡ç¼–å·
+  uint ino; //èŠ‚ç‚¹
+  uint mode; //æ–‡ä»¶çš„ç±»åž‹å’Œå­˜å–çš„æƒé™
+  int nlink;  //è¿žåˆ°è¯¥æ–‡ä»¶çš„ç¡¬è¿žæŽ¥æ•°ç›®ï¼Œåˆšå»ºç«‹çš„æ–‡ä»¶å€¼ä¸º1
+  int uid;//ç”¨æˆ·ID
+  int gid;//ç»„ID
+  uint rdev; //(è®¾å¤‡ç±»åž‹)è‹¥æ­¤æ–‡ä»¶ä¸ºè®¾å¤‡æ–‡ä»¶ï¼Œåˆ™ä¸ºå…¶è®¾å¤‡ç¼–å·
+  uint64 size;//æ–‡ä»¶å­—èŠ‚æ•°(æ–‡ä»¶å¤§å°)
+  uint blksize;   //å—å¤§å°(æ–‡ä»¶ç³»ç»Ÿçš„I/O ç¼“å†²åŒºå¤§å°)
+  uint blocks;    //å—æ•°
+  time_t atime; //æœ€åŽä¸€æ¬¡è®¿é—®æ—¶é—´
+  time_t mtime;//æœ€åŽä¸€æ¬¡ä¿®æ”¹æ—¶é—´
+  time_t ctime;//æœ€åŽä¸€æ¬¡æ”¹å˜æ—¶é—´(æŒ‡å±žæ€§)
   unsigned attrib; // _A_SUBDIR
 } sys_stat;
 
 //////////////////////////
-int sys_filestat(const char* file, sys_stat* s)
+static int sys_filestat(const char* file, sys_stat* s)
 {
 #ifdef _WIN32
   struct _stat st;
@@ -595,7 +601,7 @@ static uint64 sys_filesize(const char* fn)
   sys_filestat(fn, s);
   return s->size;
 }
-int sys_mkdir(const char* fname)
+static int sys_mkdir(const char* fname)
 {
 #ifdef _WIN32
   return _mkdir(fname);

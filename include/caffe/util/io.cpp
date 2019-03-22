@@ -19,7 +19,12 @@
 #include "caffe/proto/caffe.pb.h"
 #include "caffe/util/io.hpp"
 //#include "glog/port.h"
-#include <io.h>
+//#include <io.h>
+#ifdef __linux__
+#include <unistd.h>
+#endif
+
+
 
 const int kProtoReadBytesLimit = INT_MAX;  // Max size of 2 GB minus 1 byte.
 
@@ -88,7 +93,7 @@ namespace caffe
     }
     if (height > 0 && width > 0) {
       cv::resize(cv_img_origin, cv_img, cv::Size(width, height));
-    } else if (height > 0 && width == -1) { //¸ß¶ÈÍ³Ò»£¬¿í¶È°´¿í¸ß±È¼ÆËã
+    } else if (height > 0 && width == -1) { //é«˜åº¦ç»Ÿä¸€ï¼Œå®½åº¦æŒ‰å®½é«˜æ¯”è®¡ç®—
       int w0 = cv_img_origin.cols, h0 = cv_img_origin.rows;
       int h1 = height;
       int  w1 = h1 * w0 / h0;

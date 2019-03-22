@@ -6,7 +6,7 @@
 
 #include <climits>
 #include <cmath>
-#include <fstream>  // NOLINT(readability/streams)
+#include <fstream>   // NOLINT(readability/streams)
 #include <iostream>  // NOLINT(readability/streams)
 #include <map>
 #include <set>
@@ -117,7 +117,13 @@ namespace caffe
     // into the program since that may cause allocation of pinned memory being
     // freed in a non-pinned way, which may cause problems - I haven't verified
     // it personally but better to note it here in the header file.
-    inline static void set_mode(Brew mode) { Get().mode_ = mode; }
+    inline static void set_mode(Brew mode) {
+#ifndef CPU_ONLY
+		Get().mode_ = mode;
+#else
+		Get().mode_ = Brew::CPU;
+#endif
+	}
     // Sets the random seed of both boost and curand
     static void set_random_seed(const unsigned int seed);
     // Sets the device. Since we have cublas and curand stuff, set device also

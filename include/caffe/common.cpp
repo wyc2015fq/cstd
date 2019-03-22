@@ -7,9 +7,13 @@
 #include "caffe/common.hpp"
 #include "caffe/util/rng.hpp"
 
-
+#ifdef _WIN32
 #include <process.h>
 #include <direct.h>
+#else
+#include <unistd.h>
+#include <sys/stat.h> 
+#endif
 #include "caffe/solver.hpp"
 
 namespace caffe

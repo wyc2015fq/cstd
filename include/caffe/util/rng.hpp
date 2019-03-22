@@ -30,12 +30,11 @@ namespace caffe
   {
     typedef typename std::iterator_traits<RandomAccessIterator>::difference_type
     difference_type;
-    typedef typename std::uniform_int<difference_type> dist_type;
     difference_type length = std::distance(begin, end);
     if (length <= 0) { return; }
     for (difference_type i = length - 1; i > 0; --i) {
-      dist_type dist(0, i);
-      std::iter_swap(begin + i, begin + dist(*gen));
+      int t = rand()%i;
+      std::iter_swap(begin + i, begin + t);
     }
   }
 

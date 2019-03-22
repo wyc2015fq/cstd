@@ -112,7 +112,7 @@ struct ocrnum_caffe {
 };
 #endif
 
-ocr_caffe ocr_caffe1;
-ocrnum_caffe ocrnum_caffe1;
+
+
 
 #endif // __OCR_CAFFE_HPP__

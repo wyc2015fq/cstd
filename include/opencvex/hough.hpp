@@ -9,7 +9,7 @@ struct KVNode
   int index;
   int pixelSum;
 };
-//¾­µäÏßĞÔ»ô·ò±ä»»È±µã£ºÔËĞĞºÄÊ±£¬²»ÄÜ¶¨Î»Ïß¶ÎµÄÆğÊ¼ÖÕÖ¹µã¡£
+//ç»å…¸çº¿æ€§éœå¤«å˜æ¢ç¼ºç‚¹ï¼šè¿è¡Œè€—æ—¶ï¼Œä¸èƒ½å®šä½çº¿æ®µçš„èµ·å§‹ç»ˆæ­¢ç‚¹ã€‚
 
 
 void drawLine(cv::Mat& img, const Vec2f& lines, cv::Scalar& color, int thickness = 1, int lineType = 8)
@@ -18,7 +18,7 @@ void drawLine(cv::Mat& img, const Vec2f& lines, cv::Scalar& color, int thickness
   Point pt1, pt2;
   double a = cos(theta), b = sin(theta);
   double x0 = a*rho, y0 = b*rho;
-  pt1.x = cvRound(x0 + 2000 * (-b));  //°Ñ¸¡µãÊı×ª»¯³ÉÕûÊı
+  pt1.x = cvRound(x0 + 2000 * (-b));  //æŠŠæµ®ç‚¹æ•°è½¬åŒ–æˆæ•´æ•°
   pt1.y = cvRound(y0 + 2000 * (a));
   pt2.x = cvRound(x0 - 2000 * (-b));
   pt2.y = cvRound(y0 - 2000 * (a));
@@ -26,14 +26,14 @@ void drawLine(cv::Mat& img, const Vec2f& lines, cv::Scalar& color, int thickness
 }
 
 
-bool Compare(KVNode& aNode, KVNode& bNode)
+bool Compare(const KVNode& aNode, const KVNode& bNode)
 {
   return (aNode.pixelSum > bNode.pixelSum);
 }
 
  int HoughLinesByPoints(const Point* pts, int npt, int height, int width, float rho, float theta, int threshold, Vec2f* pLines, int linesMax)
 {
-	//tho±íÊ¾¾àÀë¿Ì¶È£¬theta±íÊ¾½Ç¶È¿Ì¶È£¬pLines±íÊ¾·µ»ØµÄÖ±ÏßÊı×éÖ¸Õë,threshold±íÊ¾Ö±ÏßµÄ×îÉÙÏñËØÖµ£¬linesMax±íÊ¾Òª·µ»ØµÄ×î´ó±ßÊıÄ¿¡£
+	//thoè¡¨ç¤ºè·ç¦»åˆ»åº¦ï¼Œthetaè¡¨ç¤ºè§’åº¦åˆ»åº¦ï¼ŒpLinesè¡¨ç¤ºè¿”å›çš„ç›´çº¿æ•°ç»„æŒ‡é’ˆ,thresholdè¡¨ç¤ºç›´çº¿çš„æœ€å°‘åƒç´ å€¼ï¼ŒlinesMaxè¡¨ç¤ºè¦è¿”å›çš„æœ€å¤§è¾¹æ•°ç›®ã€‚
 	int* pAccm = NULL;
 	KVNode* pKVNodeSort = NULL;
 	float* tabSin = NULL;
@@ -54,13 +54,13 @@ bool Compare(KVNode& aNode, KVNode& bNode)
 	tabSin = new float[numAngle]{0.0f};
 	tabCos = new float[numAngle]{0.0f};
 
-	float ang = 0;//±ÜÃâÖØ¸´¼ÆËã½Ç¶È£¬ÊÂÏÈ¼ÆËãºÃsin¦Èi/¦ÑºÍcos¦Èi/¦Ñ
+	float ang = 0;//é¿å…é‡å¤è®¡ç®—è§’åº¦ï¼Œäº‹å…ˆè®¡ç®—å¥½sinÎ¸i/Ïå’ŒcosÎ¸i/Ï
 	for (int n = 0; n < numAngle; ang += theta, n++)
 	{
 		tabSin[n] = sinf(ang)*iRho;
 		tabCos[n] = cosf(ang)*iRho;
 	}
-	//µÚÒ»²½£ºÖğµã½øĞĞ»ò»ô·ò¿Õ¼ä±ä»»£¬²¢½«½á¹ûĞ´ÈëÀÛ¼ÓÆ÷Êı×éÄÚ
+	//ç¬¬ä¸€æ­¥ï¼šé€ç‚¹è¿›è¡Œæˆ–éœå¤«ç©ºé—´å˜æ¢ï¼Œå¹¶å°†ç»“æœå†™å…¥ç´¯åŠ å™¨æ•°ç»„å†…
 	for (int k = 0; k < npt; ++k)
   {
     int i = pts[k].y;
@@ -72,7 +72,7 @@ bool Compare(KVNode& aNode, KVNode& bNode)
       ++pAccm[(n + 1)*(numRho + 2) + r + 1];
     }
   }
-	//µÚ¶ş²½£ºÕÒµ½¾Ö²¿¼«´óÖµ£¬¼´×öËÄ·½ÏòµÄ·Ç¼«´óÖµÒÖÖÆ
+	//ç¬¬äºŒæ­¥ï¼šæ‰¾åˆ°å±€éƒ¨æå¤§å€¼ï¼Œå³åšå››æ–¹å‘çš„éæå¤§å€¼æŠ‘åˆ¶
 	for (int r = 0; r < numRho; ++r)
 	{
 		for (int n = 0; n < numAngle; ++n)
@@ -88,10 +88,10 @@ bool Compare(KVNode& aNode, KVNode& bNode)
 		}
 	}
  
-	//µÚÈı²½£º¶ÔÀÛ¼ÓÆ÷Öµ°´ÓÉ´óµ½Ğ¡ÅÅĞò
+	//ç¬¬ä¸‰æ­¥ï¼šå¯¹ç´¯åŠ å™¨å€¼æŒ‰ç”±å¤§åˆ°å°æ’åº
 	sort(pKVNodeSort, pKVNodeSort + total, Compare);
  
-	//µÚËÄ²½£ºÊä³ölinesMaxÌõÖ±Ïß£¬Èç¹ûlinesMaxµÈÓÚtotal,ÔòÊä³öËùÓĞÖ±Ïß
+	//ç¬¬å››æ­¥ï¼šè¾“å‡ºlinesMaxæ¡ç›´çº¿ï¼Œå¦‚æœlinesMaxç­‰äºtotal,åˆ™è¾“å‡ºæ‰€æœ‰ç›´çº¿
 	linesMax = (linesMax <= total) ? linesMax : total;
 	//pLines = new Vec2f[linesMax];
 	scale = 1.0 / (numRho + 2);
@@ -99,7 +99,7 @@ bool Compare(KVNode& aNode, KVNode& bNode)
 	for (int i = 0; i < linesMax; ++i)
 	{
 		Vec2f tempVec2f;
-		int index = pKVNodeSort[i].index;//·ÖÀë³ö¸Ã¼«´óÖµÔÚ»ô·ò¿Õ¼äÖĞµÄÎ»ÖÃ
+		int index = pKVNodeSort[i].index;//åˆ†ç¦»å‡ºè¯¥æå¤§å€¼åœ¨éœå¤«ç©ºé—´ä¸­çš„ä½ç½®
 		int n = floor(index*scale) - 1;
 		int r = index - (n + 1)*(numRho + 2) - 1;
 		tempVec2f[0] = (r - (numRho - 1)*0.5f)*rho;
@@ -117,62 +117,62 @@ bool Compare(KVNode& aNode, KVNode& bNode)
   return linesMax;
 }
 
- //int width, height;        //Í¼ÏñµÄ¿íºÍ¸ß
+ //int width, height;        //å›¾åƒçš„å®½å’Œé«˜
 static int icvHoughLinesProbabilistic(const Point* pts, int npt, int height, int width,
   float rho, float theta, int threshold,
   int lineLength, int lineGap,
   vector<Vec4i>& lines, int linesMax)
 {
-   //accumÎªÀÛ¼ÓÆ÷¾ØÕó£¬maskÎªÑÚÂë¾ØÕó
+   //accumä¸ºç´¯åŠ å™¨çŸ©é˜µï¼Œmaskä¸ºæ©ç çŸ©é˜µ
    Mat accum, mask;
-   vector<float> trigtab;    //ÓÃÓÚ´æ´¢ÊÂÏÈ¼ÆËãºÃµÄÕıÏÒºÍÓàÏÒÖµ
-                             //¿ª±ÙÒ»¶ÎÄÚ´æ¿Õ¼ä
+   vector<float> trigtab;    //ç”¨äºå­˜å‚¨äº‹å…ˆè®¡ç®—å¥½çš„æ­£å¼¦å’Œä½™å¼¦å€¼
+                             //å¼€è¾Ÿä¸€æ®µå†…å­˜ç©ºé—´
 
-   int numangle, numrho;     //½Ç¶ÈºÍ¾àÀëµÄÀëÉ¢ÊıÁ¿
+   int numangle, numrho;     //è§’åº¦å’Œè·ç¦»çš„ç¦»æ•£æ•°é‡
    float ang;
    int r, n, count;
    CvPoint pt;
-   float irho = 1 / rho;     //¾àÀë·Ö±æÂÊµÄµ¹Êı
-   CvRNG rng = cvRNG(-1);    //Ëæ»úÊı
-   const float* ttab;        //ÏòÁ¿trigtabµÄµØÖ·Ö¸Õë
-   uchar* mdata0;    //¾ØÕómaskµÄµØÖ·Ö¸Õë
-                     //È·±£ÊäÈëÍ¼ÏñµÄÕıÈ·ĞÔ
+   float irho = 1 / rho;     //è·ç¦»åˆ†è¾¨ç‡çš„å€’æ•°
+   CvRNG rng = cvRNG(-1);    //éšæœºæ•°
+   const float* ttab;        //å‘é‡trigtabçš„åœ°å€æŒ‡é’ˆ
+   uchar* mdata0;    //çŸ©é˜µmaskçš„åœ°å€æŒ‡é’ˆ
+                     //ç¡®ä¿è¾“å…¥å›¾åƒçš„æ­£ç¡®æ€§
    //CV_Assert(CV_IS_MAT(image) && CV_MAT_TYPE(image->type) == CV_8UC1);
 
-                            //ÓÉ½Ç¶ÈºÍ¾àÀë·Ö±æÂÊ£¬µÃµ½½Ç¶ÈºÍ¾àÀëµÄÀëÉ¢ÊıÁ¿
+                            //ç”±è§’åº¦å’Œè·ç¦»åˆ†è¾¨ç‡ï¼Œå¾—åˆ°è§’åº¦å’Œè·ç¦»çš„ç¦»æ•£æ•°é‡
    numangle = cvRound(CV_PI / theta);
    numrho = cvRound(((width + height) * 2 + 1) / rho);
-   //´´½¨ÀÛ¼ÓÆ÷¾ØÕó£¬¼´»ô·ò¿Õ¼ä
+   //åˆ›å»ºç´¯åŠ å™¨çŸ©é˜µï¼Œå³éœå¤«ç©ºé—´
    accum.create(numangle, numrho, CV_32SC1);
-   //´´½¨ÑÚÂë¾ØÕó£¬´óĞ¡ÓëÊäÈëÍ¼ÏñÏàÍ¬
+   //åˆ›å»ºæ©ç çŸ©é˜µï¼Œå¤§å°ä¸è¾“å…¥å›¾åƒç›¸åŒ
    mask.create(height, width, CV_8UC1);
-   //¶¨ÒåtrigtabµÄ´óĞ¡£¬ÒòÎªÒª´æ´¢ÕıÏÒºÍÓàÏÒÖµ£¬ËùÒÔ³¤¶ÈÎª½Ç¶ÈÀëÉ¢ÊıµÄ2±¶
+   //å®šä¹‰trigtabçš„å¤§å°ï¼Œå› ä¸ºè¦å­˜å‚¨æ­£å¼¦å’Œä½™å¼¦å€¼ï¼Œæ‰€ä»¥é•¿åº¦ä¸ºè§’åº¦ç¦»æ•£æ•°çš„2å€
    trigtab.resize(numangle * 2);
-   //ÀÛ¼ÓÆ÷¾ØÕóÇåÁã
+   //ç´¯åŠ å™¨çŸ©é˜µæ¸…é›¶
    mask = cv::Scalar(1);
    accum = cv::Scalar(0);
-   //±ÜÃâÖØ¸´¼ÆËã£¬ÊÂÏÈ¼ÆËãºÃËùĞèµÄËùÓĞÕıÏÒºÍÓàÏÒÖµ
+   //é¿å…é‡å¤è®¡ç®—ï¼Œäº‹å…ˆè®¡ç®—å¥½æ‰€éœ€çš„æ‰€æœ‰æ­£å¼¦å’Œä½™å¼¦å€¼
    for (ang = 0, n = 0; n < numangle; ang += theta, n++)
    {
      trigtab[n * 2] = (float)(cos(ang) * irho);
      trigtab[n * 2 + 1] = (float)(sin(ang) * irho);
    }
-   //¸³ÖµÊ×µØÖ·
+   //èµ‹å€¼é¦–åœ°å€
    ttab = &trigtab[0];
    mdata0 = mask.data;
 
    // stage 1. collect non-zero image points
-   //ÊÕ¼¯Í¼ÏñÖĞµÄËùÓĞ·ÇÁãµã£¬ÒòÎªÊäÈëÍ¼ÏñÊÇ±ßÔµÍ¼Ïñ£¬ËùÒÔ·ÇÁãµã¾ÍÊÇ±ßÔµµã
+   //æ”¶é›†å›¾åƒä¸­çš„æ‰€æœ‰éé›¶ç‚¹ï¼Œå› ä¸ºè¾“å…¥å›¾åƒæ˜¯è¾¹ç¼˜å›¾åƒï¼Œæ‰€ä»¥éé›¶ç‚¹å°±æ˜¯è¾¹ç¼˜ç‚¹
    if (0) {
      for (int i = 0; i < npt; ++i)
      {
-       //ÌáÈ¡³öÊäÈëÍ¼ÏñºÍÑÚÂë¾ØÕóµÄÃ¿ĞĞµØÖ·Ö¸Õë
+       //æå–å‡ºè¾“å…¥å›¾åƒå’Œæ©ç çŸ©é˜µçš„æ¯è¡Œåœ°å€æŒ‡é’ˆ
        Point pt = pts[i];
        if (pt.x > 0 && pt.y > 0 && pt.x < width - 1 && pt.y < height - 1) {
          uchar* mdata = mdata0 + pt.y*width + pt.x;
          uchar* mdata1 = mdata - width;
          uchar* mdata2 = mdata + width;
-         //ÑÚÂëµÄÏàÓ¦Î»ÖÃÇå0
+         //æ©ç çš„ç›¸åº”ä½ç½®æ¸…0
          mdata[0] = 1;
          mdata[1] = 1;
          mdata[-1] = 1;
@@ -187,53 +187,53 @@ static int icvHoughLinesProbabilistic(const Point* pts, int npt, int height, int
        }
      }
    }
-   //ÖÕÖ¹Ğ´ĞòÁĞ£¬seqÎªËùÓĞ±ßÔµµã×ø±êÎ»ÖÃµÄĞòÁĞ
-   count = npt;    //µÃµ½±ßÔµµãµÄÊıÁ¿
+   //ç»ˆæ­¢å†™åºåˆ—ï¼Œseqä¸ºæ‰€æœ‰è¾¹ç¼˜ç‚¹åæ ‡ä½ç½®çš„åºåˆ—
+   count = npt;    //å¾—åˆ°è¾¹ç¼˜ç‚¹çš„æ•°é‡
    CvPoint* seq = (CvPoint*)malloc(npt * sizeof(CvPoint));
    memcpy(seq, pts, npt * sizeof(CvPoint));
    // stage 2. process all the points in random order
-   //Ëæ»ú´¦ÀíËùÓĞµÄ±ßÔµµã
+   //éšæœºå¤„ç†æ‰€æœ‰çš„è¾¹ç¼˜ç‚¹
    for (; count > 0; count--)
    {
      // choose random point out of the remaining ones
-     //²½Öè1£¬ÔÚÊ£ÏÂµÄ±ßÔµµãÖĞËæ»úÑ¡ÔñÒ»¸öµã£¬idxÎª²»´óÓÚcountµÄËæ»úÊı
+     //æ­¥éª¤1ï¼Œåœ¨å‰©ä¸‹çš„è¾¹ç¼˜ç‚¹ä¸­éšæœºé€‰æ‹©ä¸€ä¸ªç‚¹ï¼Œidxä¸ºä¸å¤§äºcountçš„éšæœºæ•°
      int idx = cvRandInt(&rng) % count;
-     //max_valÎªÀÛ¼ÓÆ÷µÄ×î´óÖµ£¬max_nÎª×î´óÖµËù¶ÔÓ¦µÄ½Ç¶È
+     //max_valä¸ºç´¯åŠ å™¨çš„æœ€å¤§å€¼ï¼Œmax_nä¸ºæœ€å¤§å€¼æ‰€å¯¹åº”çš„è§’åº¦
      int max_val = threshold - 1, max_n = 0;
-     //ÓÉËæ»úÊıidxÔÚĞòÁĞÖĞÌáÈ¡³öËù¶ÔÓ¦µÄ×ø±êµã
+     //ç”±éšæœºæ•°idxåœ¨åºåˆ—ä¸­æå–å‡ºæ‰€å¯¹åº”çš„åæ ‡ç‚¹
      CvPoint* point = seq + idx;
-     //¶¨ÒåÖ±ÏßµÄÁ½¸ö¶Ëµã
+     //å®šä¹‰ç›´çº¿çš„ä¸¤ä¸ªç«¯ç‚¹
      CvPoint line_end[2] = { { 0,0 },{ 0,0 } };
      float a, b;
-     //ÀÛ¼ÓÆ÷µÄµØÖ·Ö¸Õë£¬Ò²¾ÍÊÇ»ô·ò¿Õ¼äµÄµØÖ·Ö¸Õë
+     //ç´¯åŠ å™¨çš„åœ°å€æŒ‡é’ˆï¼Œä¹Ÿå°±æ˜¯éœå¤«ç©ºé—´çš„åœ°å€æŒ‡é’ˆ
      int* adata = (int*)accum.data;
      int i, j, k, x0, y0, dx0, dy0, xflag;
      int good_line;
      const int shift = 16;
-     //ÌáÈ¡³ö×ø±êµãµÄºá¡¢×İ×ø±ê
+     //æå–å‡ºåæ ‡ç‚¹çš„æ¨ªã€çºµåæ ‡
      i = point->y;
      j = point->x;
 
      // "remove" it by overriding it with the last element
-     //ÓÃĞòÁĞÖĞµÄ×îºóÒ»¸öÔªËØ¸²¸Çµô¸Õ²ÅÌáÈ¡³öÀ´µÄËæ»ú×ø±êµã
+     //ç”¨åºåˆ—ä¸­çš„æœ€åä¸€ä¸ªå…ƒç´ è¦†ç›–æ‰åˆšæ‰æå–å‡ºæ¥çš„éšæœºåæ ‡ç‚¹
      *point = *(CvPoint*)(seq + count - 1);
 
      // check if it has been excluded already (i.e. belongs to some other line)
-     //¼ì²âÕâ¸ö×ø±êµãÊÇ·ñÒÑ¾­¼ÆËã¹ı£¬Ò²¾ÍÊÇËüÒÑ¾­ÊôÓÚÆäËûÖ±Ïß
-     //ÒòÎª¼ÆËã¹ıµÄ×ø±êµã»áÔÚÑÚÂë¾ØÕómaskµÄÏà¶ÔÓ¦Î»ÖÃÇåÁã
-     if (!mdata0[i*width + j])    //¸Ã×ø±êµã±»´¦Àí¹ı
-       continue;    //²»×öÈÎºÎ´¦Àí£¬¼ÌĞøÖ÷Ñ­»·
+     //æ£€æµ‹è¿™ä¸ªåæ ‡ç‚¹æ˜¯å¦å·²ç»è®¡ç®—è¿‡ï¼Œä¹Ÿå°±æ˜¯å®ƒå·²ç»å±äºå…¶ä»–ç›´çº¿
+     //å› ä¸ºè®¡ç®—è¿‡çš„åæ ‡ç‚¹ä¼šåœ¨æ©ç çŸ©é˜µmaskçš„ç›¸å¯¹åº”ä½ç½®æ¸…é›¶
+     if (!mdata0[i*width + j])    //è¯¥åæ ‡ç‚¹è¢«å¤„ç†è¿‡
+       continue;    //ä¸åšä»»ä½•å¤„ç†ï¼Œç»§ç»­ä¸»å¾ªç¯
 
                     // update accumulator, find the most probable line
-                    //²½Öè2£¬¸üĞÂÀÛ¼ÓÆ÷¾ØÕó£¬ÕÒµ½×îÓĞ¿ÉÄÜµÄÖ±Ïß
+                    //æ­¥éª¤2ï¼Œæ›´æ–°ç´¯åŠ å™¨çŸ©é˜µï¼Œæ‰¾åˆ°æœ€æœ‰å¯èƒ½çš„ç›´çº¿
      for (n = 0; n < numangle; n++, adata += numrho)
      {
-       //ÓÉ½Ç¶È¼ÆËã¾àÀë
+       //ç”±è§’åº¦è®¡ç®—è·ç¦»
        r = cvRound(j * ttab[n * 2] + i * ttab[n * 2 + 1]);
        r += (numrho - 1) / 2;
-       //ÔÚÀÛ¼ÓÆ÷¾ØÕóµÄÏàÓ¦Î»ÖÃÉÏÊıÖµ¼Ó1£¬²¢¸³Öµ¸øval
+       //åœ¨ç´¯åŠ å™¨çŸ©é˜µçš„ç›¸åº”ä½ç½®ä¸Šæ•°å€¼åŠ 1ï¼Œå¹¶èµ‹å€¼ç»™val
        int val = ++adata[r];
-       //¸üĞÂ×î´óÖµ£¬²¢µÃµ½ËüµÄ½Ç¶È
+       //æ›´æ–°æœ€å¤§å€¼ï¼Œå¹¶å¾—åˆ°å®ƒçš„è§’åº¦
        if (max_val < val)
        {
          max_val = val;
@@ -242,54 +242,54 @@ static int icvHoughLinesProbabilistic(const Point* pts, int npt, int height, int
      }
 
      // if it is too "weak" candidate, continue with another point
-     //²½Öè3£¬Èç¹ûÉÏÃæµÃµ½µÄ×î´óÖµĞ¡ÓÚãĞÖµ£¬Ôò·ÅÆú¸Ãµã£¬¼ÌĞøÏÂÒ»¸öµãµÄ¼ÆËã
+     //æ­¥éª¤3ï¼Œå¦‚æœä¸Šé¢å¾—åˆ°çš„æœ€å¤§å€¼å°äºé˜ˆå€¼ï¼Œåˆ™æ”¾å¼ƒè¯¥ç‚¹ï¼Œç»§ç»­ä¸‹ä¸€ä¸ªç‚¹çš„è®¡ç®—
      if (max_val < threshold)
        continue;
 
      // from the current point walk in each direction
      // along the found line and extract the line segment
-     //²½Öè4£¬´Óµ±Ç°µã³ö·¢£¬ÑØ×ÅËüËùÔÚÖ±ÏßµÄ·½ÏòÇ°½ø£¬Ö±µ½´ïµ½¶ËµãÎªÖ¹
-     a = -ttab[max_n * 2 + 1];    //a=-sin¦È
-     b = ttab[max_n * 2];    //b=cos¦È
-                             //µ±Ç°µãµÄºá¡¢×İ×ø±êÖµ
+     //æ­¥éª¤4ï¼Œä»å½“å‰ç‚¹å‡ºå‘ï¼Œæ²¿ç€å®ƒæ‰€åœ¨ç›´çº¿çš„æ–¹å‘å‰è¿›ï¼Œç›´åˆ°è¾¾åˆ°ç«¯ç‚¹ä¸ºæ­¢
+     a = -ttab[max_n * 2 + 1];    //a=-sinÎ¸
+     b = ttab[max_n * 2];    //b=cosÎ¸
+                             //å½“å‰ç‚¹çš„æ¨ªã€çºµåæ ‡å€¼
      x0 = j;
      y0 = i;
-     //È·¶¨µ±Ç°µãËùÔÚÖ±ÏßµÄ½Ç¶ÈÊÇÔÚ45¶È¡«135¶ÈÖ®¼ä£¬»¹ÊÇÔÚ0¡«45»ò135¶È¡«180¶ÈÖ®¼ä
-     if (fabs(a) > fabs(b))    //ÔÚ45¶È¡«135¶ÈÖ®¼ä
+     //ç¡®å®šå½“å‰ç‚¹æ‰€åœ¨ç›´çº¿çš„è§’åº¦æ˜¯åœ¨45åº¦ï½135åº¦ä¹‹é—´ï¼Œè¿˜æ˜¯åœ¨0ï½45æˆ–135åº¦ï½180åº¦ä¹‹é—´
+     if (fabs(a) > fabs(b))    //åœ¨45åº¦ï½135åº¦ä¹‹é—´
      {
-       xflag = 1;    //ÖÃ±êÊ¶Î»£¬±êÊ¶Ö±ÏßµÄ´ÖÂÔ·½Ïò
-                     //È·¶¨ºá¡¢×İ×ø±êµÄÎ»ÒÆÁ¿
+       xflag = 1;    //ç½®æ ‡è¯†ä½ï¼Œæ ‡è¯†ç›´çº¿çš„ç²—ç•¥æ–¹å‘
+                     //ç¡®å®šæ¨ªã€çºµåæ ‡çš„ä½ç§»é‡
        dx0 = a > 0 ? 1 : -1;
        dy0 = cvRound(b*(1 << shift) / fabs(a));
-       //È·¶¨×İ×ø±ê
+       //ç¡®å®šçºµåæ ‡
        y0 = (y0 << shift) + (1 << (shift - 1));
      }
-     else    //ÔÚ0¡«45»ò135¶È¡«180¶ÈÖ®¼ä
+     else    //åœ¨0ï½45æˆ–135åº¦ï½180åº¦ä¹‹é—´
      {
-       xflag = 0;   //Çå±êÊ¶Î»
-                    //È·¶¨ºá¡¢×İ×ø±êµÄÎ»ÒÆÁ¿
+       xflag = 0;   //æ¸…æ ‡è¯†ä½
+                    //ç¡®å®šæ¨ªã€çºµåæ ‡çš„ä½ç§»é‡
        dy0 = b > 0 ? 1 : -1;
        dx0 = cvRound(a*(1 << shift) / fabs(b));
-       //È·¶¨ºá×ø±ê
+       //ç¡®å®šæ¨ªåæ ‡
        x0 = (x0 << shift) + (1 << (shift - 1));
      }
-     //ËÑË÷Ö±ÏßµÄÁ½¸ö¶Ëµã
+     //æœç´¢ç›´çº¿çš„ä¸¤ä¸ªç«¯ç‚¹
      for (k = 0; k < 2; k++)
      {
-       //gap±íÊ¾Á½ÌõÖ±ÏßµÄ¼äÏ¶£¬xºÍyÎªËÑË÷Î»ÖÃ£¬dxºÍdyÎªÎ»ÒÆÁ¿
+       //gapè¡¨ç¤ºä¸¤æ¡ç›´çº¿çš„é—´éš™ï¼Œxå’Œyä¸ºæœç´¢ä½ç½®ï¼Œdxå’Œdyä¸ºä½ç§»é‡
        int gap = 0, x = x0, y = y0, dx = dx0, dy = dy0;
-       //ËÑË÷µÚ¶ş¸ö¶ËµãµÄÊ±ºò£¬·´·½ÏòÎ»ÒÆ
+       //æœç´¢ç¬¬äºŒä¸ªç«¯ç‚¹çš„æ—¶å€™ï¼Œåæ–¹å‘ä½ç§»
        if (k > 0)
          dx = -dx, dy = -dy;
 
        // walk along the line using fixed-point arithmetics,
        // stop at the image border or in case of too big gap
-       //ÑØ×ÅÖ±ÏßµÄ·½ÏòÎ»ÒÆ£¬Ö±µ½µ½´ïÍ¼ÏñµÄ±ß½ç»ò´óµÄ¼äÏ¶ÎªÖ¹
+       //æ²¿ç€ç›´çº¿çš„æ–¹å‘ä½ç§»ï¼Œç›´åˆ°åˆ°è¾¾å›¾åƒçš„è¾¹ç•Œæˆ–å¤§çš„é—´éš™ä¸ºæ­¢
        for (;; x += dx, y += dy)
        {
          uchar* mdata;
          int i1, j1;
-         //È·¶¨ĞÂµÄÎ»ÒÆºóµÄ×ø±êÎ»ÖÃ
+         //ç¡®å®šæ–°çš„ä½ç§»åçš„åæ ‡ä½ç½®
          if (xflag)
          {
            j1 = x;
@@ -300,34 +300,34 @@ static int icvHoughLinesProbabilistic(const Point* pts, int npt, int height, int
            j1 = x >> shift;
            i1 = y;
          }
-         //Èç¹ûµ½´ïÁËÍ¼ÏñµÄ±ß½ç£¬Í£Ö¹Î»ÒÆ£¬ÍË³öÑ­»·
+         //å¦‚æœåˆ°è¾¾äº†å›¾åƒçš„è¾¹ç•Œï¼Œåœæ­¢ä½ç§»ï¼Œé€€å‡ºå¾ªç¯
          if (j1 < 0 || j1 >= width || i1 < 0 || i1 >= height)
            break;
-         //¶¨Î»Î»ÒÆºóÑÚÂë¾ØÕóÎ»ÖÃ
+         //å®šä½ä½ç§»åæ©ç çŸ©é˜µä½ç½®
          mdata = mdata0 + i1*width + j1;
 
          // for each non-zero point:
          //    update line end,
          //    clear the mask element
          //    reset the gap
-         //¸ÃÑÚÂë²»Îª0£¬ËµÃ÷¸Ãµã¿ÉÄÜÊÇÔÚÖ±ÏßÉÏ
+         //è¯¥æ©ç ä¸ä¸º0ï¼Œè¯´æ˜è¯¥ç‚¹å¯èƒ½æ˜¯åœ¨ç›´çº¿ä¸Š
          if (*mdata)
          {
-           gap = 0;    //ÉèÖÃ¼äÏ¶Îª0
-                       //¸üĞÂÖ±ÏßµÄ¶ËµãÎ»ÖÃ
+           gap = 0;    //è®¾ç½®é—´éš™ä¸º0
+                       //æ›´æ–°ç›´çº¿çš„ç«¯ç‚¹ä½ç½®
            line_end[k].y = i1;
            line_end[k].x = j1;
          }
-         //ÑÚÂëÎª0£¬ËµÃ÷²»ÊÇÖ±Ïß£¬µ«ÈÔ¼ÌĞøÎ»ÒÆ£¬Ö±µ½¼äÏ¶´óÓÚËùÉèÖÃµÄãĞÖµÎªÖ¹
-         else if (++gap > lineGap)    //¼äÏ¶¼Ó1
+         //æ©ç ä¸º0ï¼Œè¯´æ˜ä¸æ˜¯ç›´çº¿ï¼Œä½†ä»ç»§ç»­ä½ç§»ï¼Œç›´åˆ°é—´éš™å¤§äºæ‰€è®¾ç½®çš„é˜ˆå€¼ä¸ºæ­¢
+         else if (++gap > lineGap)    //é—´éš™åŠ 1
            break;
        }
      }
-     //²½Öè5£¬ÓÉ¼ì²âµ½µÄÖ±ÏßµÄÁ½¸ö¶Ëµã´ÖÂÔ¼ÆËãÖ±ÏßµÄ³¤¶È
-     //µ±Ö±Ïß³¤¶È´óÓÚËùÉèÖÃµÄãĞÖµÊ±£¬good_lineÎª1£¬·ñÔòÎª0
+     //æ­¥éª¤5ï¼Œç”±æ£€æµ‹åˆ°çš„ç›´çº¿çš„ä¸¤ä¸ªç«¯ç‚¹ç²—ç•¥è®¡ç®—ç›´çº¿çš„é•¿åº¦
+     //å½“ç›´çº¿é•¿åº¦å¤§äºæ‰€è®¾ç½®çš„é˜ˆå€¼æ—¶ï¼Œgood_lineä¸º1ï¼Œå¦åˆ™ä¸º0
      good_line = abs(line_end[1].x - line_end[0].x) >= lineLength ||
        abs(line_end[1].y - line_end[0].y) >= lineLength;
-     //ÔÙ´ÎËÑË÷¶Ëµã£¬Ä¿µÄÊÇ¸üĞÂÀÛ¼ÓÆ÷¾ØÕóºÍ¸üĞÂÑÚÂë¾ØÕó£¬ÒÔ±¸ÏÂÒ»´ÎÑ­»·Ê¹ÓÃ
+     //å†æ¬¡æœç´¢ç«¯ç‚¹ï¼Œç›®çš„æ˜¯æ›´æ–°ç´¯åŠ å™¨çŸ©é˜µå’Œæ›´æ–°æ©ç çŸ©é˜µï¼Œä»¥å¤‡ä¸‹ä¸€æ¬¡å¾ªç¯ä½¿ç”¨
      for (k = 0; k < 2; k++)
      {
        int x = x0, y = y0, dx = dx0, dy = dy0;
@@ -361,34 +361,34 @@ static int icvHoughLinesProbabilistic(const Point* pts, int npt, int height, int
          //    reset the gap
          if (*mdata)
          {
-           //ifÓï¾äµÄ×÷ÓÃÊÇÇå³ıÄÇĞ©ÒÑ¾­ÅĞ¶¨ÊÇºÃµÄÖ±ÏßÉÏµÄµã¶ÔÓ¦µÄÀÛ¼ÓÆ÷µÄÖµ£¬±ÜÃâÔÙ´ÎÀûÓÃÕâĞ©ÀÛ¼ÓÖµ
-           if (good_line)    //ÔÚµÚÒ»´ÎËÑË÷ÖĞÒÑ¾­È·¶¨ÊÇºÃµÄÖ±Ïß
+           //ifè¯­å¥çš„ä½œç”¨æ˜¯æ¸…é™¤é‚£äº›å·²ç»åˆ¤å®šæ˜¯å¥½çš„ç›´çº¿ä¸Šçš„ç‚¹å¯¹åº”çš„ç´¯åŠ å™¨çš„å€¼ï¼Œé¿å…å†æ¬¡åˆ©ç”¨è¿™äº›ç´¯åŠ å€¼
+           if (good_line)    //åœ¨ç¬¬ä¸€æ¬¡æœç´¢ä¸­å·²ç»ç¡®å®šæ˜¯å¥½çš„ç›´çº¿
            {
-             //µÃµ½ÀÛ¼ÓÆ÷¾ØÕóµØÖ·Ö¸Õë
+             //å¾—åˆ°ç´¯åŠ å™¨çŸ©é˜µåœ°å€æŒ‡é’ˆ
              adata = (int*)accum.data;
              for (n = 0; n < numangle; n++, adata += numrho)
              {
                r = cvRound(j1 * ttab[n * 2] + i1 * ttab[n * 2 + 1]);
                r += (numrho - 1) / 2;
-               adata[r]--;    //ÏàÓ¦µÄÀÛ¼ÓÆ÷¼õ1
+               adata[r]--;    //ç›¸åº”çš„ç´¯åŠ å™¨å‡1
              }
            }
-           //ËÑË÷¹ıµÄÎ»ÖÃ£¬²»¹ÜÊÇºÃµÄÖ±Ïß£¬»¹ÊÇ»µµÄÖ±Ïß£¬ÑÚÂëÏàÓ¦Î»ÖÃ¶¼Çå0£¬ÕâÑùÏÂ´Î¾Í²»»áÔÙÖØ¸´ËÑË÷ÕâĞ©Î»ÖÃÁË£¬´Ó¶ø´ïµ½¼õĞ¡¼ÆËã±ßÔµµãµÄÄ¿µÄ
+           //æœç´¢è¿‡çš„ä½ç½®ï¼Œä¸ç®¡æ˜¯å¥½çš„ç›´çº¿ï¼Œè¿˜æ˜¯åçš„ç›´çº¿ï¼Œæ©ç ç›¸åº”ä½ç½®éƒ½æ¸…0ï¼Œè¿™æ ·ä¸‹æ¬¡å°±ä¸ä¼šå†é‡å¤æœç´¢è¿™äº›ä½ç½®äº†ï¼Œä»è€Œè¾¾åˆ°å‡å°è®¡ç®—è¾¹ç¼˜ç‚¹çš„ç›®çš„
            *mdata = 0;
          }
-         //Èç¹ûÒÑ¾­µ½´ïÁËÖ±ÏßµÄ¶Ëµã£¬ÔòÍË³öÑ­»·
+         //å¦‚æœå·²ç»åˆ°è¾¾äº†ç›´çº¿çš„ç«¯ç‚¹ï¼Œåˆ™é€€å‡ºå¾ªç¯
          if (i1 == line_end[k].y && j1 == line_end[k].x)
            break;
        }
      }
-     //Èç¹ûÊÇºÃµÄÖ±Ïß
+     //å¦‚æœæ˜¯å¥½çš„ç›´çº¿
      if (good_line)
      {
        Vec4i lr(line_end[0].x, line_end[0].y, line_end[1].x, line_end[1].y );
-       //°ÑÁ½¸ö¶ËµãÑ¹ÈëĞòÁĞÖĞ
+       //æŠŠä¸¤ä¸ªç«¯ç‚¹å‹å…¥åºåˆ—ä¸­
        //cvSeqPush(lines, &lr);
        lines.push_back(lr);
-       //Èç¹û¼ì²âµ½µÄÖ±ÏßÊıÁ¿´óÓÚãĞÖµ£¬ÔòÍË³ö¸Ãº¯Êı
+       //å¦‚æœæ£€æµ‹åˆ°çš„ç›´çº¿æ•°é‡å¤§äºé˜ˆå€¼ï¼Œåˆ™é€€å‡ºè¯¥å‡½æ•°
        if (lines.size() >= linesMax)
          return linesMax;
      }

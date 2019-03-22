@@ -4,7 +4,7 @@
 #include "std/time_c.h"
 #include "utime.h"
 #include "detect_idcard.hpp"
-#include "parser\cjson.hpp"
+#include "parser/cjson.hpp"
 #include "idcard.h"
 #include "std/iconv_c.h"
 #include "std/dir_c.h"
@@ -32,10 +32,12 @@ int argmax(int n, const T* arr) {
 string g_idcard;
 string g_imgfn;
 
+#if 0
 #include "hanz_charset.h"
 #define DEF(a, b, c, d, e, f)   L##a L##c L##e L##f
 static const wchar_t hanz_charset[] = HANZ_CHARSET_DEF(DEF);
 #undef DEF
+#endif
 
 #ifdef _OCR_CHAR_HPP_
 ocr_char_recog ocr_c;
@@ -67,7 +69,7 @@ struct ocr_seghans {
     cv::Mat mserMapMat = cv::Mat::zeros(src.size(), CV_8UC1);
     color_edge = src.clone();
     for (int i = (int)bboxes1.size() - 1; i >= 0; i--) {
-      // ¸ù¾Ý¼ì²âÇøÓòµãÉú³Émser+½á¹û
+      // ï¿½ï¿½ï¿½Ý¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mser+ï¿½ï¿½ï¿½
       const std::vector<cv::Point>& p = regContours[i];
       Rect rc = bboxes1[i];
       if (1) {
@@ -179,7 +181,7 @@ struct ocr_seghans {
       whans[j] = 0;
       int len = iconv_c(ICONV_UCS2LE, ICONV_GB2312, (char*)whans, j * 2, hans, 256);
       hans[len] = 0;
-      //printf("%s\n", hans);
+      //printf("%s/n", hans);
       imshow("color_edge", color_edge); waitKey(-1);
     }
     return wlen;
@@ -207,7 +209,7 @@ struct ocr_segchar {
     color_edge = src.clone();
 
     for (int i = (int)bboxes1.size() - 1; i >= 0; i--) {
-      // ¸ù¾Ý¼ì²âÇøÓòµãÉú³Émser+½á¹û
+      // ï¿½ï¿½ï¿½Ý¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½mser+ï¿½ï¿½ï¿½
       const std::vector<cv::Point>& p = regContours[i];
       Rect rc = bboxes1[i];
       if (1) {
@@ -394,6 +396,7 @@ struct ocr_segchar {
           boundrc.width = rrect2[nclasses - 1].x + rrect2[nclasses - 1].width - boundrc.x;
           boundrc = rectExt(boundrc, 20, 6, src.rows, src.cols);
           Mat im4 = src(boundrc).clone();
+          static ocrnum_caffe ocrnum_caffe1;
           string ss = ocrnum_caffe1.run(im4);
           strcpy(idnumber, ss.c_str());
           if (17 == strlen(idnumber)) {
@@ -401,10 +404,10 @@ struct ocr_segchar {
             idnumber[17] = cd < 10 ? ('0' + cd) : 'X';
           }
           idnumber[18] = 0;
-          //printf("%s\n", idnumber);   imshow("im4", im4); waitKey(-1);
+          //printf("%s/n", idnumber);   imshow("im4", im4); waitKey(-1);
         }
         idnumber[18] = 0;
-        //printf("\n");
+        //printf("/n");
         //imshow("color_edge", color_edge); waitKey(-1);
         //imshow("color_edge", color_edge); waitKey(-1);
         return i > 0;
@@ -447,7 +450,7 @@ struct ocr_segchar {
         idnumber[18] = 0;
       }
 #endif
-      printf("\n");
+      printf("/n");
     }
     //threshold(gray, bin, 0, 255, CV_THRESH_OTSU);
     //imshow("color_edge", color_edge); waitKey(-1);
@@ -477,7 +480,7 @@ struct oct_tess {
 
     // Get the text
     char* out = tess.GetUTF8Text();
-    printf("out = %s\n", out);
+    printf("out = %s/n", out);
     return 0;
   }
 };
@@ -543,8 +546,8 @@ struct ocr_idcard_reg {
               r.height = stdh;
               Mat im3 = im2(r);
               w = r.width;
-              void cv::copyMakeBorder(InputArray _src, OutputArray _dst, int top, int bottom,
-                int left, int right, int borderType, const Scalar& value);
+              //void cv::copyMakeBorder(InputArray _src, OutputArray _dst, int top, int bottom,
+              //  int left, int right, int borderType, const Scalar& value);
               copyMakeBorder(im3, im3, 0, 0, 5, 5, cv::BORDER_CONSTANT, Scalar(222, 222, 222));
               n = ocr.run(wstr, 256, im3.data, im3.cols);
               char buf[32];
@@ -554,7 +557,7 @@ struct ocr_idcard_reg {
             }
           }
         }
-        //printf("%s\n", str);
+        //printf("%s/n", str);
         //waitKey(-1);
         //int n = seg.rrect2.size();
       }
@@ -564,10 +567,10 @@ struct ocr_idcard_reg {
     int ridnum_x = ridnum_rect.x + (ridnum.x - ridnum_w*0.35)*ridnum_ss;
     int ridnum_r = ridnum_rect.x + (ridnum.x + ridnum_w*0.5)*ridnum_ss;
     if (!idcard_get_info(seg.idnumber, out)) {
-      printf("idcard_get_info fail! number:%s\n", seg.idnumber);
+      printf("idcard_get_info fail! number:%s/n", seg.idnumber);
       return 0;
     }
-    printf("%s %s %s\n", seg.idnumber, out->birthday, out->gender);
+    printf("%s %s %s/n", seg.idnumber, out->birthday, out->gender);
     strcpy(out->number, seg.idnumber);
     vector<Rect> r_ok;
     ss = 1.2;
@@ -645,6 +648,7 @@ struct ocr_idcard_reg {
 			  //cv::imshow("asdf", im);
 			  //cv::waitKey(-1);
 		  }
+      static ocr_caffe ocr_caffe1;
           //seg.run(im2);
           //imshow("im2", im2);  waitKey(-1);
           string ss = ocr_caffe1.run(im);
@@ -662,14 +666,14 @@ struct ocr_idcard_reg {
             strcpy(str, segh.hans);
           }
         }
-        printf("%s\n", str);
+        printf("%s/n", str);
         if (1) {
           char* aa = out->address;
-          replace_str(aa, -1, "ËÄ¶ù", -1, "ËÄ´¨", -1, 1);
-          replace_str(aa, 18, "¾ß", -1, "ÏØ", -1, 1);
-          replace_str(aa, 18, "Žˆ", -1, "ÊÐ", -1, 1);
-          replace_str(aa, 18, "½¥", -1, "Õã", -1, 1);
-          replace_str(aa, -1, "¶à", -1, "Ïç", -1, 1);
+          replace_str(aa, -1, "ï¿½Ä¶ï¿½", -1, "ï¿½Ä´ï¿½", -1, 1);
+          replace_str(aa, 18, "ï¿½ï¿½", -1, "ï¿½ï¿½", -1, 1);
+          replace_str(aa, 18, "ï¿½ï¿½", -1, "ï¿½ï¿½", -1, 1);
+          replace_str(aa, 18, "ï¿½ï¿½", -1, "ï¿½ï¿½", -1, 1);
+          replace_str(aa, -1, "ï¿½ï¿½", -1, "ï¿½ï¿½", -1, 1);
         }
         if (strlen(str) > 0) {
           out->type = 1;
@@ -685,12 +689,12 @@ struct ocr_idcard_reg {
           case 2:
 		  {
 			  strncpy(out->race, str, 32);
-			  char*p = strstr(str, "Ãñ");
+			  char*p = strstr(str, "ï¿½ï¿½");
 			  if (p) {
 				  strncpy(out->race, p + 4, 32);
 			  }
 			  else {
-				  char*p = strstr(str, "×å");
+				  char*p = strstr(str, "ï¿½ï¿½");
 				  if (p) {
 					  strncpy(out->race, p + 2, 32);
 				  }
@@ -737,7 +741,7 @@ struct ocr_detect {
     number[j] = 0;
     char* name = id.name;
     char* p;
-    if (p = strstr(name, "Ãû")) {
+    if (p = strstr(name, "ï¿½ï¿½")) {
       strcpy(name, p + 2);
     }
     return id;
@@ -771,7 +775,7 @@ struct ocr_detect {
       cjson_AddItemToObject(root, "time_used", cjson_CreateNumber(time_used));
       cjson_AddItemToObject(root, "request_id", cjson_CreateString(nowstr));
       jsonstr = cjson_Print(root);
-      printf("%s\n", jsonstr.c_str());
+      printf("%s/n", jsonstr.c_str());
       cjson_Delete(root);
     }
     break;
@@ -782,7 +786,7 @@ struct ocr_detect {
       cjson_AddItemToObject(root, "error_message", cjson_CreateString("IMAGE_TOO_VAGUE"));
       cjson_AddItemToObject(root, "request_id", cjson_CreateString(nowstr));
       jsonstr = cjson_Print(root);
-      printf("%s\n", jsonstr.c_str());
+      printf("%s/n", jsonstr.c_str());
       cjson_Delete(root);
     }
     break;
@@ -793,7 +797,7 @@ struct ocr_detect {
       cjson_AddItemToObject(root, "error_message", cjson_CreateString("MISSING_ARGUMENTS: image_url, image_file, image_base64"));
       cjson_AddItemToObject(root, "request_id", cjson_CreateString(nowstr));
       jsonstr = cjson_Print(root);
-      printf("%s\n", jsonstr.c_str());
+      printf("%s/n", jsonstr.c_str());
       cjson_Delete(root);
     }
     break;
@@ -868,7 +872,7 @@ struct ocr_detect {
             //imshow("color_edge1", get_angle.color_edge);
             vecdst.push_back(gr.color_edge);
             if (0) {
-              string fn = wstd::format("C:\\outpic\\dst_ok_%03d_%d.jpg", iline, i);
+              string fn = wstd::format("C://outpic//dst_ok_%03d_%d.jpg", iline, i);
               cv::imwrite(fn, dst_ok);
             }
             Scalar color = Scalar(0, 0, 255);
@@ -883,11 +887,11 @@ struct ocr_detect {
                 s += gr.lines_ok[i].size.height;
                 s += gr.lines_ok[i].angle;
               }
-              printf("lines_ok avg = %lf\n", s);
+              printf("lines_ok avg = %lf/n", s);
             }
             Mat dst_ok2 = getSubImage(src, r, Size(300*2, 200*2));
             double tt_b = imArticulation(dst_ok2);
-            if (tt_b > 1.) {// ÇåÎú¶È
+            if (tt_b > 1.) {// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
               vector<RotatedRect> rr_ok;
               for (int i = 0; i < gr.lines_ok.size(); ++i) {
                 rr_ok.push_back(scale(gr.lines_ok[i], 2, 2));
@@ -925,7 +929,7 @@ struct ocr_detect {
   }
 };
 
-//Ëã·¨
+//ï¿½ã·¨
 int ldistance1(const char* source, int n, const char* target, int m)
 {
   //step 1
@@ -979,7 +983,7 @@ int test_detect_idcard()
   //Mat::convertTo;
   Rect r;
   //r.center;
-  /// ¼ÓÔØÔ´Í¼Ïñ
+  /// ï¿½ï¿½ï¿½ï¿½Ô´Í¼ï¿½ï¿½
   string im_dir = "E:/data/ew_id/we-loan.oss-cn-shanghai.aliyuncs.com/";
   string fn = im_dir + "upload/backend/20160927235243069-2951.jpg";
   vector<string> list;
@@ -1008,7 +1012,7 @@ int test_detect_idcard()
     vector<string> strs;
     int len = iconv_c("utf-8", "gb2312", list[iline].c_str(), -1, linebuf, 512);
     linebuf[len] = 0;
-    wstd::split(strs, linebuf, "\t");
+    wstd::split(strs, linebuf, "/t");
     g_imgfn = strs[1];
     string fn = im_dir + strs[1];
     string idcard_no = strs[2];
@@ -1020,7 +1024,7 @@ int test_detect_idcard()
     //if (!strstr(fn.c_str(), "20161005101521422-4375")) { continue; }
     src = cv::imread(fn, 1);
 
-    printf("%d %s %d %d %s\n", iline, wstd::path_split_filename(fn.c_str()).c_str(), src.rows, src.cols, idcard_no.c_str());
+    printf("%d %s %d %d %s/n", iline, wstd::path_split_filename(fn.c_str()).c_str(), src.rows, src.cols, idcard_no.c_str());
     if (src.empty()) {
       proc_key(c, list.size(), iline);
       continue;
@@ -1050,10 +1054,10 @@ int test_detect_idcard()
         }
       }
     }
-    printf("---------------------- %lf\n", errcnt*1./allcnt);
+    printf("---------------------- %lf/n", errcnt*1./allcnt);
     isdebug = 1;
     if (1) {
-      string fn = wstd::format("C:\\outpic\\dst_ok\\src_%03d_z.jpg", iline);
+      string fn = wstd::format("C://outpic//dst_ok//src_%03d_z.jpg", iline);
       cv::imwrite(fn, src);
     }
     if (isdebug) {
@@ -1064,7 +1068,7 @@ int test_detect_idcard()
       proc_key(c, list.size(), iline);
     }
     else {
-      string fn = wstd::format("C:\\outpic\\out_%03d_z.jpg", iline);
+      string fn = wstd::format("C://outpic//out_%03d_z.jpg", iline);
       cv::imwrite(fn, od.dst);
       ++iline;
     }

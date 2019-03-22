@@ -1,6 +1,9 @@
 #ifdef _WIN32
 #include <io.h>
+#else
+#include <unistd.h>
 #endif
+#include "wstd/string.hpp"
 #include "classification.hpp"
 #undef TEST
 
@@ -29,7 +32,6 @@ bool CheckFileExist(const char* szFile)
 #else
 	return access(szFile, F_OK) != -1;
 #endif
-
 }
 
 
@@ -86,8 +88,10 @@ bool Classifier::Init(const string& model_path, bool gpu_mode) {
 		std::ifstream labels(label_file.c_str());
 		CHECK(labels) << "Unable to open labels file " << label_file;
 		string line;
-		while (std::getline(labels, line))
+		while (std::getline(labels, line)) {
+			line = wstd::trim(line, "\r\n ");
 			labels_.push_back(string(line));
+		}
 	}
 	else
 	{
@@ -709,14 +713,14 @@ float Classifier::Pruning(float weight_t, const char* saveas_name)
 	return sum ? float(pruned) / sum:0;
 }
 
-//¸ÐÊÜÒ°¹À¼Æ£¬ÐèÒªÊÂÏÈ¼ÓÔØÄ£ÐÍ
-//img£ºÊäÈëÍ¼Ïñ
-//layerName:ÄÄÒ»²ãµÄ¸Ð¾õÒ°
-//x,y£º×ø±ê
-//idxNeuron:Éñ¾­ÔªË÷Òý£¬-1Ê±»áºÏ²¢ËùÓÐÉñ¾­ÔªµÄ¸Ð¾õÒ°£¬
+//ï¿½ï¿½ï¿½ï¿½Ò°ï¿½ï¿½ï¿½Æ£ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½È¼ï¿½ï¿½ï¿½Ä£ï¿½ï¿½
+//imgï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
+//layerName:ï¿½ï¿½Ò»ï¿½ï¿½Ä¸Ð¾ï¿½Ò°
+//x,yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//idxNeuron:ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-1Ê±ï¿½ï¿½Ï²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½Ä¸Ð¾ï¿½Ò°ï¿½ï¿½
 cv::Mat Classifier::EstimateReceptiveField(const cv::Mat& img, const string& layerName, int xo, int yo, int idxNeuron, bool islstm, int* width_parts)
 {
-	//Í¨¹ý¶ÔÈ«Í¼ÏñËØ×öÐÞ¸Ä£¬¿´Ö¸¶¨²ãfeature mapµÄ±ä»¯Çé¿ö£¬À´È·¶¨Ö¸¶¨²ãÖ¸¶¨Éñ¾­ÔªµÄ¸Ð¾õÒ°
+	//Í¨ï¿½ï¿½ï¿½ï¿½È«Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸Ä£ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½feature mapï¿½Ä±ä»¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ôªï¿½Ä¸Ð¾ï¿½Ò°
 	Forward(img, layerName);
 	const shared_ptr<Blob<float> >& blob = net_->blob_by_name(layerName);
 	const float* begin = blob->cpu_data();
@@ -757,7 +761,7 @@ cv::Mat Classifier::EstimateReceptiveField(const cv::Mat& img, const string& lay
 	if (islstm)
 		dim_feature = outshape[2];
 
-	if (h1 > 1)//¸ß¶È²»ÊÇ1
+	if (h1 > 1)//ï¿½ß¶È²ï¿½ï¿½ï¿½1
 	{
 		const int batch_size = std::min(32,w*h);
 		vector<cv::Mat> vImages(batch_size);
@@ -982,9 +986,9 @@ void Classifier::PrepareBatchInputs(const vector<cv::Mat>& imgs)
 	for (size_t i = 0; i < imgs.size(); i++)
 	{
 		vector<cv::Mat> vChannels;
-		Preprocess(imgs[i], &vChannels,false);//¼õ¾ùÖµÍ¼¡¢¸¡µã»¯¡¢·ÖÍ¨µÀ
+		Preprocess(imgs[i], &vChannels,false);//ï¿½ï¿½ï¿½ï¿½ÖµÍ¼ï¿½ï¿½ï¿½ï¿½ï¿½ã»¯ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½
 		for (int j = 0; j < num_channels_; j++)
-			vChannels[j].copyTo(input_channels[i*num_channels_ + j]);//±ØÐëÓÃcopyTo£¬¸³Öµ²Ù×÷ÊÇÄÚ´æ½»»»£¬¸³Öµ²»»áÐÞ¸Äinput_layerµÄÄÚÈÝ
+			vChannels[j].copyTo(input_channels[i*num_channels_ + j]);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½copyToï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú´æ½»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½input_layerï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	}
 }
 

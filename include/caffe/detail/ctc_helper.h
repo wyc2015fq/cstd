@@ -5,7 +5,7 @@
 #include <cmath>
 
 #include "hostdevice.h"
-#include "ctc.h"
+#include "../ctc.h"
 
 namespace ctc_helper
 {
@@ -58,7 +58,7 @@ namespace ctc_helper
       if (p2 == neg_inf<Arg2>()) {
         return p1;
       }
-      Res result = log1p(exp(-fabs(p1 - p2))) + maximum<Res>()(p1, p2);
+      Res result = ::log1p(exp(-fabs(p1 - p2))) + maximum<Res>()(p1, p2);
       return result;
     }
   };
