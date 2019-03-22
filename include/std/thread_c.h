@@ -187,31 +187,31 @@ int sys_event_signal(event_t* c)
 int sys_event_reset(event_t* c)
 {
   int ret = ResetEvent((HANDLE)c->x);
-  //ResetEvent ·µ»Ø·ÇÁã±íÊ¾³É¹¦
+  //ResetEvent è¿”å›žéžé›¶è¡¨ç¤ºæˆåŠŸ
   if (ret) { return 0; }
   return -1;
 }
 //typedef WINAPI void* (*thread_cb)(void* pParam);
-//´´½¨Ò»¸öÄäÃû»¥³â¶ÔÏó
+//åˆ›å»ºä¸€ä¸ªåŒ¿åäº’æ–¥å¯¹è±¡
 int sys_mutex_init(mutex_t* c, const char* name)
 {
   c->x = CreateMutex(NULL, FALSE, NULL);
   return 0;
 }
-//Ïú»Ù»¥³â¶ÔÏó£¬ÊÍ·Å×ÊÔ´
+//é”€æ¯äº’æ–¥å¯¹è±¡ï¼Œé‡Šæ”¾èµ„æº
 int sys_mutex_destroy(mutex_t* c)
 {
   CloseHandle((HANDLE)c->x);
   c->x = 0;
   return 0;
 }
-//È·±£ÓµÓÐ»¥³â¶ÔÏóµÄÏß³Ì¶Ô±»±£»¤×ÊÔ´µÄ¶À×Ô·ÃÎÊ
+//ç¡®ä¿æ‹¥æœ‰äº’æ–¥å¯¹è±¡çš„çº¿ç¨‹å¯¹è¢«ä¿æŠ¤èµ„æºçš„ç‹¬è‡ªè®¿é—®
 int sys_mutex_lock(mutex_t* c)
 {
   DWORD d = WaitForSingleObject((HANDLE)c->x, INFINITE);
   return 0;
 }
-//ÊÍ·Åµ±Ç°Ïß³ÌÓµÓÐµÄ»¥³â¶ÔÏó£¬ÒÔÊ¹ÆäËüÏß³Ì¿ÉÒÔÓµÓÐ»¥³â¶ÔÏó£¬¶Ô±»±£»¤×ÊÔ´½øÐÐ·ÃÎÊ
+//é‡Šæ”¾å½“å‰çº¿ç¨‹æ‹¥æœ‰çš„äº’æ–¥å¯¹è±¡ï¼Œä»¥ä½¿å…¶å®ƒçº¿ç¨‹å¯ä»¥æ‹¥æœ‰äº’æ–¥å¯¹è±¡ï¼Œå¯¹è¢«ä¿æŠ¤èµ„æºè¿›è¡Œè®¿é—®
 int sys_mutex_unlock(mutex_t* c)
 {
   ReleaseMutex((HANDLE)c->x);

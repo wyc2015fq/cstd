@@ -2506,10 +2506,10 @@ CC_INLINE int icvYUVInitTable()
 
 #define CLP(_X) YUV2RGB_CLP[(_X)+384]
 
-// YUV◊™ªªŒ™RGB
-// R = Y + 1.4075 *£®V-128£©
-// G = Y ®C0.3455 *£®U ®C128£©®C0.7169 *£®V ®C128£©
-// B = Y + 1.779 *£®U ®C 128£©
+// YUVËΩ¨Êç¢‰∏∫RGB
+// R = Y + 1.4075 *ÔºàV-128Ôºâ
+// G = Y ‚Äì0.3455 *ÔºàU ‚Äì128Ôºâ‚Äì0.7169 *ÔºàV ‚Äì128Ôºâ
+// B = Y + 1.779 *ÔºàU ‚Äì 128Ôºâ
 #define YUV2RGB(Y, U, V, R, G, B)                                             \
   do {                                                                          \
     int y, u, v;                                                                \
@@ -2547,7 +2547,7 @@ CC_INLINE int icvYUYV2BGRA_8u_table(COLOR_FUN_ARGDEF)
     const unsigned char* src0 = src + i * srcstep;
     unsigned char* dst0 = dst + i * dststep;
     for (j = 0; j < width; ++j, src0 += srccn, dst0 += dstcn) {
-      // UYVY±Í◊º  [U0 Y0 V0 Y1] [U1 Y2 V1 Y3] [U2 Y4 V2 Y5] √øœÒÀÿµ„¡Ω∏ˆ◊÷Ω⁄£¨[ƒ⁄]Œ™Àƒ∏ˆ◊÷Ω⁄
+      // UYVYÊ†áÂáÜ  [U0 Y0 V0 Y1] [U1 Y2 V1 Y3] [U2 Y4 V2 Y5] ÊØèÂÉèÁ¥†ÁÇπ‰∏§‰∏™Â≠óËäÇÔºå[ÂÜÖ]‰∏∫Âõõ‰∏™Â≠óËäÇ
       yuv_uv[(j & 1) ] = src0[ 1 ];
       YUV2RGB(src0[ 0 ], yuv_uv[ 0 ], yuv_uv[ 1 ], dst0[ 2 ], dst0[ 1 ], dst0[ 0 ]);
     }
@@ -2865,7 +2865,7 @@ CC_INLINE int icvRGBA2YUV420P_8u(COLOR_FUN_ARGDEF)
 }
 #endif
 
-// RGB◊™YUVµƒπ´ Ω
+// RGBËΩ¨YUVÁöÑÂÖ¨Âºè
 // From RGB to YUV
 // Y = 0.299R + 0.587G + 0.114B
 // U = 0.492 (B-Y)

@@ -32,7 +32,7 @@
 #define GETFUN(_FUNNAME)  0
 #define LOADDLL_BEGIN(_x)
 #define LOADDLL_END()
-#include "../distance.h"
+#include "distance.h"
 #include "../img/filters.h"
 
 //#define utime_start(_start_count)    int _start_count = CLK_gethtime()

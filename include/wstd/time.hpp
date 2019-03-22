@@ -2,7 +2,11 @@
 #include <inttypes.h>
 #include <ctime>
 #include "os.hpp"
+<<<<<<< HEAD
 //#include <sys/time.h>
+=======
+#include <sys/time.h>
+>>>>>>> aa5c8bea907c2c9ef806cc4a153cc214ef54cb5d
 
 
 namespace wstd {
@@ -43,10 +47,17 @@ namespace wstd {
   {
   public:
     typedef int64_t value_type;
+<<<<<<< HEAD
 	// 获得初始值
 	void restart() { start_time = counter(); }
     // 获得计数器的时钟频率
     utime() : freq(frequency()) { start_time = counter(); }
+=======
+    // 获得计数器的时钟频率
+    utime() : freq(frequency()) { restart(); }
+    // 获得初始值
+    void restart() { start_time = counter(); }
+>>>>>>> aa5c8bea907c2c9ef806cc4a153cc214ef54cb5d
     // 获得对应的时间值，单位为秒
     double elapsed() const { return static_cast<double>((double)(counter() - start_time) / freq); }
     double operator()() const { return elapsed(); }
@@ -54,6 +65,7 @@ namespace wstd {
     value_type  start_time, freq;
     static value_type frequency()
     {
+<<<<<<< HEAD
       value_type  freq1;
 #if defined(OS_WINDOWS)
       ::QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&freq1));
@@ -63,6 +75,17 @@ namespace wstd {
 	  freq1 = ((value_type)tvStop.tv_sec) * 1000000 + (tvStop.tv_usec);
 #endif
       return freq1;
+=======
+      value_type  freq;
+#if defined(OS_WINDOWS)
+      ::QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&freq));
+#elif defined(OS_LINUX)
+      struct timeval tvStop;
+      gettimeofday(&tvStop, NULL);
+      freq = ((value_type)tvStop.tv_sec) * 1000000 + (tvStop.tv_usec);
+#endif
+      return freq;
+>>>>>>> aa5c8bea907c2c9ef806cc4a153cc214ef54cb5d
     }
     static value_type counter()
     {

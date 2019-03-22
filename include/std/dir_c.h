@@ -243,7 +243,7 @@ static int sys_find_close(dir_t* s)
   }
   return 0;
 }
-// FILETIME ×ª time_t
+// FILETIME è½¬ time_t
 static time_t FileTimeToTimet(FILETIME ft)
 {
   time_t pt;
@@ -487,14 +487,14 @@ static int sys_rmdir(const char* dir_full_path)
       printf("sys_rmdir:lstat %s error", sub_path);
       continue;
     }
-    if (S_ISDIR(st.st_mode)) { // Èç¹ûÊÇÄ¿Â¼ÎÄ¼ş£¬µİ¹éÉ¾³ı
+    if (S_ISDIR(st.st_mode)) { // å¦‚æœæ˜¯ç›®å½•æ–‡ä»¶ï¼Œé€’å½’åˆ é™¤
       if (sys_rmdir(sub_path) == -1) {
         closedir(dirp);
         return -1;
       }
       rmdir(sub_path);
     } else if (S_ISREG(st.st_mode)) {
-      unlink(sub_path);     // Èç¹ûÊÇÆÕÍ¨ÎÄ¼ş£¬Ôòunlink
+      unlink(sub_path);     // å¦‚æœæ˜¯æ™®é€šæ–‡ä»¶ï¼Œåˆ™unlink
     } else {
       printf("sys_rmdir:st_mode %s error", sub_path);
       continue;
@@ -520,34 +520,34 @@ enum SYS_MODE {
   AS_IWRITE = 0000200,  /* write permission, owner */
   AS_IEXEC = 0000100,  /* execute/search permission, owner */
 
-  AS_ISUID = 04000, //ÎÄ¼şµÄ (set user-id on execution)Î»
-  AS_ISGID = 02000, //ÎÄ¼şµÄ (set group-id on execution)Î»
-  AS_ISVTX = 01000, //ÎÄ¼şµÄsticky Î»
-  AS_IRUSR = 00400, //ÎÄ¼şËùÓĞÕß¾ß¿É¶ÁÈ¡È¨ÏŞ
-  AS_IWUSR = 00200, //ÎÄ¼şËùÓĞÕß¾ß¿ÉĞ´ÈëÈ¨ÏŞ
-  AS_IXUSR = 00100, //ÎÄ¼şËùÓĞÕß¾ß¿ÉÖ´ĞĞÈ¨ÏŞ
-  AS_IRGRP = 00040, //ÓÃ»§×é¾ß¿É¶ÁÈ¡È¨ÏŞ
-  AS_IWGRP = 00020, //ÓÃ»§×é¾ß¿ÉĞ´ÈëÈ¨ÏŞ
-  AS_IXGRP = 00010, //ÓÃ»§×é¾ß¿ÉÖ´ĞĞÈ¨ÏŞ
-  AS_IROTH = 00004, //ÆäËûÓÃ»§¾ß¿É¶ÁÈ¡È¨ÏŞ
-  AS_IWOTH = 00002, //ÆäËûÓÃ»§¾ß¿ÉĞ´ÈëÈ¨ÏŞ
-  AS_IXOTH = 00001, //ÆäËûÓÃ»§¾ß¿ÉÖ´ĞĞÈ¨ÏŞ
+  AS_ISUID = 04000, //æ–‡ä»¶çš„ (set user-id on execution)ä½
+  AS_ISGID = 02000, //æ–‡ä»¶çš„ (set group-id on execution)ä½
+  AS_ISVTX = 01000, //æ–‡ä»¶çš„sticky ä½
+  AS_IRUSR = 00400, //æ–‡ä»¶æ‰€æœ‰è€…å…·å¯è¯»å–æƒé™
+  AS_IWUSR = 00200, //æ–‡ä»¶æ‰€æœ‰è€…å…·å¯å†™å…¥æƒé™
+  AS_IXUSR = 00100, //æ–‡ä»¶æ‰€æœ‰è€…å…·å¯æ‰§è¡Œæƒé™
+  AS_IRGRP = 00040, //ç”¨æˆ·ç»„å…·å¯è¯»å–æƒé™
+  AS_IWGRP = 00020, //ç”¨æˆ·ç»„å…·å¯å†™å…¥æƒé™
+  AS_IXGRP = 00010, //ç”¨æˆ·ç»„å…·å¯æ‰§è¡Œæƒé™
+  AS_IROTH = 00004, //å…¶ä»–ç”¨æˆ·å…·å¯è¯»å–æƒé™
+  AS_IWOTH = 00002, //å…¶ä»–ç”¨æˆ·å…·å¯å†™å…¥æƒé™
+  AS_IXOTH = 00001, //å…¶ä»–ç”¨æˆ·å…·å¯æ‰§è¡Œæƒé™
 };
 
 typedef struct {
-  uint dev;      //ÎÄ¼şµÄÉè±¸±àºÅ
-  uint ino; //½Úµã
-  uint mode; //ÎÄ¼şµÄÀàĞÍºÍ´æÈ¡µÄÈ¨ÏŞ
-  int nlink;  //Á¬µ½¸ÃÎÄ¼şµÄÓ²Á¬½ÓÊıÄ¿£¬¸Õ½¨Á¢µÄÎÄ¼şÖµÎª1
-  int uid;//ÓÃ»§ID
-  int gid;//×éID
-  uint rdev; //(Éè±¸ÀàĞÍ)Èô´ËÎÄ¼şÎªÉè±¸ÎÄ¼ş£¬ÔòÎªÆäÉè±¸±àºÅ
-  uint64 size;//ÎÄ¼ş×Ö½ÚÊı(ÎÄ¼ş´óĞ¡)
-  uint blksize;   //¿é´óĞ¡(ÎÄ¼şÏµÍ³µÄI/O »º³åÇø´óĞ¡)
-  uint blocks;    //¿éÊı
-  time_t atime; //×îºóÒ»´Î·ÃÎÊÊ±¼ä
-  time_t mtime;//×îºóÒ»´ÎĞŞ¸ÄÊ±¼ä
-  time_t ctime;//×îºóÒ»´Î¸Ä±äÊ±¼ä(Ö¸ÊôĞÔ)
+  uint dev;      //æ–‡ä»¶çš„è®¾å¤‡ç¼–å·
+  uint ino; //èŠ‚ç‚¹
+  uint mode; //æ–‡ä»¶çš„ç±»å‹å’Œå­˜å–çš„æƒé™
+  int nlink;  //è¿åˆ°è¯¥æ–‡ä»¶çš„ç¡¬è¿æ¥æ•°ç›®ï¼Œåˆšå»ºç«‹çš„æ–‡ä»¶å€¼ä¸º1
+  int uid;//ç”¨æˆ·ID
+  int gid;//ç»„ID
+  uint rdev; //(è®¾å¤‡ç±»å‹)è‹¥æ­¤æ–‡ä»¶ä¸ºè®¾å¤‡æ–‡ä»¶ï¼Œåˆ™ä¸ºå…¶è®¾å¤‡ç¼–å·
+  uint64 size;//æ–‡ä»¶å­—èŠ‚æ•°(æ–‡ä»¶å¤§å°)
+  uint blksize;   //å—å¤§å°(æ–‡ä»¶ç³»ç»Ÿçš„I/O ç¼“å†²åŒºå¤§å°)
+  uint blocks;    //å—æ•°
+  time_t atime; //æœ€åä¸€æ¬¡è®¿é—®æ—¶é—´
+  time_t mtime;//æœ€åä¸€æ¬¡ä¿®æ”¹æ—¶é—´
+  time_t ctime;//æœ€åä¸€æ¬¡æ”¹å˜æ—¶é—´(æŒ‡å±æ€§)
   unsigned attrib; // _A_SUBDIR
 } sys_stat;
 
