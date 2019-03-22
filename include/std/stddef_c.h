@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <malloc.h>
 
 #undef ASSERT
 #define ASSERT assert
@@ -118,13 +119,13 @@ CC_INLINE void ptr2ptr(void* pp, void* p)
 #else
 #define _vsnprintf vsnprintf
 #define _snprintf snprintf
-#define _msize malloc_usable_size
+//#define _msize malloc_usable_size
 #define _fseeki64 fseeko64
 #define _ftelli64 ftello64
 #define _open open
 #define _close close
 #ifndef O_BINARY
- #define O_BINARY 0 
+ #define O_BINARY 0
 #endif
 #endif
 

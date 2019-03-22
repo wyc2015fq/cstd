@@ -192,7 +192,7 @@ int sys_event_reset(event_t* c)
   return -1;
 }
 //typedef WINAPI void* (*thread_cb)(void* pParam);
-//创建一个匿名互斥对象
+//创建一个匿名互斥对�?
 int sys_mutex_init(mutex_t* c, const char* name)
 {
   c->x = CreateMutex(NULL, FALSE, NULL);
@@ -211,7 +211,7 @@ int sys_mutex_lock(mutex_t* c)
   DWORD d = WaitForSingleObject((HANDLE)c->x, INFINITE);
   return 0;
 }
-//释放当前线程拥有的互斥对象，以使其它线程可以拥有互斥对象，对被保护资源进行访问
+//释放当前线程拥有的互斥对象，以使其它线程可以拥有互斥对象，对被保护资源进行访�?
 int sys_mutex_unlock(mutex_t* c)
 {
   ReleaseMutex((HANDLE)c->x);
@@ -225,7 +225,7 @@ static DWORD WINAPI ThreadProxy(LPVOID args)
     ret = _th->run(_th->arg);
   }
   free(_th);
-  return (DWORD)(int)ret;
+  return (DWORD)(intptr_t)ret;
 }
 
 //typedef void* uintptr_t;

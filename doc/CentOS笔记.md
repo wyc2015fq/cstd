@@ -618,7 +618,7 @@ sudo yum install code
 
 完成后，就可以用vscode了
 
-## protobuf的源码编译安装
+## 编译protobuf
 
 protobuf的github地址：https://github.com/google/protobuf支持多种语言，有多个语言的版本，本文采用的是在[CentOS](http://www.linuxidc.com/topicnews.aspx?tid=14) 7下编译源码进行安装。
 

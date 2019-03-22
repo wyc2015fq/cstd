@@ -85,7 +85,7 @@ Add a license选择添加许可协议文件
 ```shell
 mkdir nnn #仓库名
 cd hhh
-git init #初始化仓库
+git init #初始化本地仓库
 git status #查看仓库状态
 touch README.md #创建READEME.md文件
 git add ERADME.md #添加ERADME.md至暂存区
@@ -100,21 +100,18 @@ git diff HEAD #查看工作树与最新提交的差别
 git clone git@github.com:XXX/yyyy.git #XXX为github的用户名，yyy为仓库名
 ```
 
-### 在对应的文件夹中添加新有项
-
-```shell
-git status
-```
-
 ### 提交
 
 ```shell
-git add mmm.sss #mmm为文件名称，sss为文件拓展名（常用git add .）
-git add -A  #提交所有变化
-git add -u  #提交被修改(modified)和被删除(deleted)文件，不包括新文件(new)
-git add .  #提交新文件(new)和被修改(modified)文件，不包括被删除(deleted)文件
-git commit -m "hhh" #hhh为git commit 提交信息，是对这个提交的概述
-git log  #用于查看提交日志
+git status  #查看状态
+git diff    #查看变更内容
+git add <file> #跟踪文件
+git add -A  #跟踪所有变化
+git add -u  #跟踪被修改(modified)和被删除(deleted)文件，不包括新文件(new)
+git add .   #跟踪新文件(new)和被修改(modified)文件，不包括被删除(deleted)文件
+git mv <old> <new> #文件改名
+git rm <file>
+git commit -m "msg" # 提交修改
 git push #更新GitHub上的仓库 = git fetch + git merge
 ```
 
@@ -127,31 +124,63 @@ git log ggg #ggg是指指定的文件或目录，用于查看指定的目录、�
 git log -p #查看提交所带来的改动
 git log -p ggg #查看指定文件的改动
 git log --graph #以图表形式查看分支
+git blame <file> #查看指定文件的提交历史
 ```
 
-### 分支操作
+### 撤销
 
 ```shell
-git branch #显示分支一览表，同时确认当前所在的分支
-git checkout -b aaa #创建名为aaa的分支，并且切换到aaa分支
-git branch aaa #创建名为aaa的分支
-git checkout aaa # 切换到aaa分支
+git reset --hard HEAD # 撤销工作目录中所有未提交文件的修改内容
+git checkout HEAD <file>  # 撤销指定未提交文件的修改
+git revert <commit> # 撤销指定的提交
+```
+
+### 标签
+
+```shell
+git tag  # 列出本地标签
+git tag <tagname> # 基于最新提交创建标签
+git tag -d <tagname> # 删除标签
+```
+
+### 分支
+
+```shell
+git branch #显示本地分支
+git branch <branch/tag> #创建指定分支
+git checkout <branch/tag> # 切换到指定分支
+git checkout -b <branch/tag> #创建指定分支，并且切换这个分支
 #能和git branch -b aaa 得到同样的效果
 git checkout - #切换到上一分支
 ```
 
-### 合并分支
+### 分支与衍和
 
 ```shell
-git checkout master //切换到master分支
-git merge --no--ff aaa // 加--no--ff 参数可以在历史记录中明确地记录本次分支的合并
+git checkout master #切换到master分支
+git merge <branch> #合并指定分支到当前分支
+git merge --no--ff aaa # 加--no--ff 参数可以在历史记录中明确地记录本次分支的合并
+git rebase <branch>  #衍和指定分支
+```
+
+### 远程操作
+
+```shell
+git remote -v #查看远程版本库信息
+git remote show <remote> #查看指定远程版本库信息
+git remote add <remote> <url> #添加远程版本库
+
+git fetch <remote> # 从远程获取代码
+git pull <remote> <branch> # 下载代码快速合并
+git push <remote> <branch> # 上传代码快速合并
+git push --tags #上传所有标签
 ```
 
 ### 更改提交的操作
 
 ```shell
-git reset //回溯历史版本
-git reset --hrad //回溯到指定状态，只要提供目标时间点的哈希值
+git reset #回溯历史版本
+git reset --hrad #回溯到指定状态，只要提供目标时间点的哈希值
 ```
 
 ### 推进历史
