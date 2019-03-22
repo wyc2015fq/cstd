@@ -1,11 +1,10 @@
 # C#数字图像处理
 
-## C#数字图像处理--1 图像打开，保存
+## 1 图像打开，保存
 
 所属专栏： [Win8Metro图像处理（C#）](https://blog.csdn.net/column/details/image-c.html)
 
-
-#### 作为本专栏的第一篇，必不可少的需要介绍一下图像的打开与保存，一便大家后面DEMO的制作。
+**作为本专栏的第一篇，必不可少的需要介绍一下图像的打开与保存，一便大家后面DEMO的制作。**
 
 **图像**
 
@@ -51,7 +50,7 @@ imageBox.Source=srcImage;//将图像显示在imageBox控件中
 
   还有一种方法则是使用WriteableBitmap对象，这也是我这里要详细介绍的方法。
 
-## 1.图像打开
+### 1.图像打开
 
 ```csharp
 private static BitmapImage srcImage = newBitmapImage();
@@ -117,7 +116,7 @@ private async void OpenImage()
 
 
 
-## 2.图像保存
+### 2.图像保存
 
 ```csharp
 //save image fuction definition
@@ -181,7 +180,7 @@ private async void SaveImage(WriteableBitmap src)
 
 
 
-## C#数字图像处理--2.1图像灰度化
+## 2.1图像灰度化
 
 
 
@@ -250,7 +249,7 @@ public static WriteableBitmap GrayProcess(WriteableBitmap src) ////1 灰度化�
 
 
 
-## C#数字图像处理--2.2图像二值化函数
+## 2.2图像二值化函数
 
 
 ![img](https://img-my.csdn.net/uploads/201211/20/1353398253_1029.JPG)
@@ -299,7 +298,7 @@ public static WriteableBitmap BinaryProcess(WriteableBitmap src, int threshould)
 
 
 
-## C#数字图像处理--2.3图像反色
+## 2.3图像反色
 
 
 
@@ -357,13 +356,13 @@ public static WriteableBitmap ContraryProcess(WriteableBitmap src)////3反色处
 
 
 
-## C#数字图像处理--2.4图像颜色聚类
+## 2.4图像颜色聚类
 
 
 
 **[函数名称]**
 
-图像颜色聚类函数*ClusterProcess(**WriteableBitmap* *src,**int* *value)*
+图像颜色聚类函数ClusterProcess(WriteableBitmap* *src,int* *value)
 
 
 
@@ -377,17 +376,13 @@ public static WriteableBitmap ContraryProcess(WriteableBitmap src)////3反色处
 
   一个像素的RGBA分量各占一个字节(这里指32位格式)，对于每一个字节，它的大小为[0,255]，用二进制位表示如下：
 
-​                        0000 0000——1111 1111
+```
+        0000 0000——1111 1111
+```
 
   比如11111111移位3位为11111000，按这个方法，我们可以将其移位N(0<N<=7)位，在C#中表现为&操作，如11111111位移3位可表示为：255&248。
 
   用上述这个移位屏蔽算法,我们可以对彩色图像中的每一个像素进行这样的移位操作,那么图像像素值就会得到相应的颜色空间的压缩,从而达到聚类的效果。
-
-
-
-
-
-
 
 
 
@@ -439,7 +434,7 @@ public static WriteableBitmap ClusterProcess(WriteableBitmap src, int value)////
 
 
 
-## C#数字图像处理--2.5图像亮度调整
+## 2.5图像亮度调整
 
 
 
@@ -495,11 +490,9 @@ public static WriteableBitmap BrightnessAdjustProcess(WriteableBitmap src, int b
 
 
 
-## C#数字图像处理--2.6图像对比度调整
+## 2.6图像对比度调整
 
 ﻿﻿
-
-## *2.6*图像对比度调整函数
 
 **[函数名称]**
 
@@ -630,16 +623,15 @@ public static WriteableBitmap ContrastAdjustProcess(WriteableBitmap src, double 
 	 }
  }
 
-```
+
 
 **![img](https://img-blog.csdn.net/20150410104125030?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)**
 
 
 
- Win8Metro(C#)数字图像处理--2.8图像线性变换
-﻿﻿
+## 2.8图像线性变换
 
-**2.8图像线性变换**
+
 
 **[函数名称]**
 
@@ -653,7 +645,7 @@ public static WriteableBitmap ContrastAdjustProcess(WriteableBitmap src, double 
 
 **[函数代码]**
 
-​```csharp
+```csharp
 ///<summary>
 /// Linear transform process(f=kf+v).
 ///</summary>
@@ -692,11 +684,11 @@ public static WriteableBitmap LinearTransformProcess(WriteableBitmap src, double
 
 **![img](https://img-blog.csdn.net/20150410104646363?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)**
 
-﻿﻿
 
 
 
-## C#数字图像处理--2.9图像均值滤波
+
+## 2.9图像均值滤波
 
 
 **[函数名称]**
@@ -762,7 +754,7 @@ public static WriteableBitmap MeanFilterProcess(WriteableBitmap src)////9均值�
 
 
 
-## C#数字图像处理--2.10图像中值滤波
+## 2.10图像中值滤波
 
 
 **[函数名称]**
@@ -894,7 +886,7 @@ privatestaticint GetMedianValue(paramsint[] src)
 
 
 
-## C#数字图像处理--2.11图像锐化
+## 2.11图像锐化
 
 
 **[函数名称]**
@@ -963,7 +955,7 @@ public static WriteableBitmap SharpeningProcess(WriteableBitmap src)////11锐化
 
 
 
-## C#数字图像处理--2.12Sobel边缘检测
+## 2.12Sobel边缘检测
 
 ﻿﻿
 
@@ -1040,7 +1032,7 @@ public static WriteableBitmap SobelEdgeProcess(WriteableBitmap src)////12 Sobel�
 
 
 
-## C#数字图像处理--2.13Roberts边缘检测
+## 2.13Roberts边缘检测
 
 
 **[函数名称]**
@@ -1110,7 +1102,7 @@ public static WriteableBitmap RobertEdgeProcess(WriteableBitmap src)////13 Rober
 
 
 
-## C#数字图像处理--2.14Prewitt 边缘检测
+## 2.14Prewitt 边缘检测
 
 ﻿﻿
 
@@ -1188,7 +1180,7 @@ public static WriteableBitmap RobertEdgeProcess(WriteableBitmap src)////13 Rober
 
 **![img](https://img-blog.csdn.net/20150410105842260?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)**
 
-## C#数字图像处理--2.15图像霓虹效果
+## 2.15图像霓虹效果
 
 
 **[函数名称]**
@@ -1261,7 +1253,7 @@ public static WriteableBitmap NeonProcess(WriteableBitmap src)////15霓虹处理
 
 ![img](https://img-blog.csdn.net/20150410110040118?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.16图像浮雕效果
+## 2.16图像浮雕效果
 
 
 **[函数名称]**
@@ -1321,7 +1313,7 @@ public static WriteableBitmap ReliefProcess(WriteableBitmap src, int reliefValue
 
 ![img](https://img-blog.csdn.net/20150410110127920?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.17图像木刻效果
+## 2.17图像木刻效果
 
 
 **[函数名称]**
@@ -1373,7 +1365,7 @@ public static WriteableBitmap ReliefProcess(WriteableBitmap src, int reliefValue
 
 ![img](https://img-blog.csdn.net/20150410110324059?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.18图像平移变换
+## 2.18图像平移变换
 
 ﻿﻿
 
@@ -1437,7 +1429,7 @@ public static WriteableBitmap TranslationProcess(WriteableBitmap src, int x, int
 
 ![img](https://img-blog.csdn.net/20150410110445132?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.19图像水平镜像
+## 2.19图像水平镜像
 
 **[函数名称]**
 
@@ -1493,7 +1485,7 @@ public static WriteableBitmap TranslationProcess(WriteableBitmap src, int x, int
 
 
 
-## C#数字图像处理--2.20图像垂直镜像
+## 2.20图像垂直镜像
 
 
 **[函数名称]**
@@ -1550,7 +1542,7 @@ public static WriteableBitmap MirrorYProcess(WriteableBitmap src)////20垂直镜
 
 
 
-## C#数字图像处理--2.21二值图像腐蚀
+## 2.21二值图像腐蚀
 
 
 **[函数名称]**
@@ -1641,7 +1633,7 @@ public static WriteableBitmap MirrorYProcess(WriteableBitmap src)////20垂直镜
 
 ![img](https://img-blog.csdn.net/20150410111112434?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.22二值图像膨胀
+## 2.22二值图像膨胀
 
 ﻿﻿
 
@@ -1731,7 +1723,7 @@ public static WriteableBitmap MirrorYProcess(WriteableBitmap src)////20垂直镜
 
 ![img](https://img-blog.csdn.net/20150410111305441?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.23二值图像开运算
+## 2.23二值图像开运算
 
 
 **[函数名称]**
@@ -1773,7 +1765,7 @@ public static WriteableBitmap OpenOperateProcess(WriteableBitmap src)////23图�
 
 ![img](https://img-blog.csdn.net/20150410111441475?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.24二值图像闭运算
+## 2.24二值图像闭运算
 
 ﻿﻿
 
@@ -1816,7 +1808,7 @@ public static WriteableBitmap CloseOperateProcess(WriteableBitmap src)////24图�
 
 ![img](https://img-blog.csdn.net/20150410111627352?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.25二值图像距离变换
+## 2.25二值图像距离变换
 
 ﻿﻿
 
@@ -1971,7 +1963,7 @@ privatestaticint GetMin(int a, int b, int c, int d, int e)
 
 
 
-## C#数字图像处理--2.26图像减法
+## 2.26图像减法
 
 
 **[函数名称]**
@@ -2042,7 +2034,7 @@ public static WriteableBitmap SubtractionProcess(WriteableBitmap src, WriteableB
 
 ![img](https://img-blog.csdn.net/20150410112410926?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.27图像加法运算
+## 2.27图像加法运算
 
 ﻿﻿
 
@@ -2103,7 +2095,7 @@ public static WriteableBitmap SubtractionProcess(WriteableBitmap src, WriteableB
 
 ![img](https://img-blog.csdn.net/20150410125315476?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.28图像乘法运算
+## 2.28图像乘法运算
 
 
 **[函数名称]**
@@ -2161,7 +2153,7 @@ public static WriteableBitmap MultiplicationProcess(WriteableBitmap src, Writeab
 
 ![img](https://img-blog.csdn.net/20150410125643596?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.29图像除法运算
+## 2.29图像除法运算
 
 
 **[函数名称]**
@@ -2223,7 +2215,7 @@ public static WriteableBitmap DivisionProcess(WriteableBitmap src, WriteableBitm
 
 ![img](https://img-blog.csdn.net/20150410130008085?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-#  Win8Metro(C#)数字图像处理--2.30直方图均衡化
+##  2.30直方图均衡化
 
 
 **[函数名称]**
@@ -2303,7 +2295,7 @@ public static WriteableBitmap DivisionProcess(WriteableBitmap src, WriteableBitm
 
 ![img](https://img-blog.csdn.net/20150411090221613?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.31灰度拉伸算法
+## 2.31灰度拉伸算法
 
 
 **[函数名称]**
@@ -2369,7 +2361,7 @@ public static WriteableBitmap GrayStretchProcess(WriteableBitmap src)////31图�
 
 ![img](https://img-blog.csdn.net/20150411090519360?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.32图像曝光算法
+## 2.32图像曝光算法
 
 
 **[函数名称]**
@@ -2428,7 +2420,7 @@ public static WriteableBitmap ExposureProcess(WriteableBitmap src, int exposureV
 
 ![img](https://img-blog.csdn.net/20150411090819506?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.33图像非线性变换
+## 2.33图像非线性变换
 
 
 **[函数名称]**
@@ -2476,7 +2468,7 @@ public static WriteableBitmap NonlinearTransformProcess(WriteableBitmap src, int
 
 ![img](https://img-blog.csdn.net/20150412104537522?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.34直方图规定化
+## 2.34直方图规定化
 
 
 **[函数名称]**
@@ -2557,7 +2549,7 @@ public static byte[] HistogramMap(WriteableBitmap src)
 
   <img src="https://img-blog.csdn.net/20150412104816739?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="" />
 
-## C#数字图像处理--2.35图像肤色检测算法
+## 2.35图像肤色检测算法
 
 ﻿﻿
 
@@ -2634,7 +2626,7 @@ public static WriteableBitmap SkinDetectProcess(WriteableBitmap src)////36肤色
 
 ![img](https://img-blog.csdn.net/20150412105222440?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.36角点检测算法
+## 2.36角点检测算法
 
 
 **[函数名称]**
@@ -2774,7 +2766,7 @@ private static double GetMax(params double[] src)
 
 
 
-## C#数字图像处理--2.37Wallis图象锐化
+## 2.37Wallis图象锐化
 
 
 **[函数名称]**
@@ -2838,7 +2830,7 @@ public static WriteableBitmap WallisSharpen(WriteableBitmap src)////37Wallis锐�
 
 ![img](https://img-blog.csdn.net/20150413125804011?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.38Hough变换直线检测
+## 2.38Hough变换直线检测
 
 
 **[函数名称]**
@@ -2933,7 +2925,7 @@ Hough 变换直线检测         HoughLineDetect(WriteableBitmap src, int thresh
 
 注意：图中没有标红的线，是因为threshold=80，如果这个值改变，会影响检测结果，这个值足够小，另外两条直线也将被标红。
 
-## C#数字图像处理--2.39二值图像投影
+## 2.39二值图像投影
 
 
 **[函数名称]**
@@ -3004,7 +2996,7 @@ public static int[][] ImageProjection(WriteableBitmap src)////二值图像投影
 
 ![img](https://img-blog.csdn.net/20150414123415129?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.40二值图像轮廓提取算法
+## 2.40二值图像轮廓提取算法
 
 
 **[函数名称]**
@@ -3072,7 +3064,7 @@ public static WriteableBitmap ContourExtraction(WriteableBitmap src)
 
 ![img](https://img-blog.csdn.net/20150414123931323?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.41彩色图像密度分割算法
+## 2.41彩色图像密度分割算法
 
 
 **[函数名称]**
@@ -3174,7 +3166,7 @@ private static int GetColor(int v)
 
 ![img](https://img-blog.csdn.net/20150414124156154?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.42图像光照效果算法
+## 2.42图像光照效果算法
 
 
 **[函数名称]**
@@ -3264,7 +3256,7 @@ private static int GetColor(int v)
 
 ![img](https://img-blog.csdn.net/20150415123214934?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.43图像马赛克效果算法
+## 2.43图像马赛克效果算法
 
 
 **[函数名称]**
@@ -3348,7 +3340,7 @@ private static int GetColor(int v)
 
 ![img](https://img-blog.csdn.net/20150415123458014?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.44图像油画效果算法
+## 2.44图像油画效果算法
 
 ﻿﻿
 
@@ -3409,7 +3401,7 @@ public static WriteableBitmap OilpaintingProcess(WriteableBitmap src)////图像�
 
 ![img](https://img-blog.csdn.net/20150416094529563?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.45图像雾化效果算法
+## 2.45图像雾化效果算法
 
 
 **[函数名称]**
@@ -3468,7 +3460,7 @@ public static WriteableBitmap AtomizationProcess(WriteableBitmap src, int v)////
 
 ![img](https://img-blog.csdn.net/20150416095022987?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.46图像RGB分量增强效果
+## 2.46图像RGB分量增强效果
 
 ﻿﻿
 
@@ -3535,7 +3527,7 @@ public static WriteableBitmap RGBAdjustProcess(WriteableBitmap src, int value, i
 
 ![img](https://img-blog.csdn.net/20150417132624405?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.47人脸红眼去除算法
+## 2.47人脸红眼去除算法
 
 ﻿﻿
 
@@ -3595,7 +3587,7 @@ public static WriteableBitmap RedeyeRemoveProcess(WriteableBitmap src)////红眼
 
 **![img](https://img-blog.csdn.net/20150417132816235?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)**
 
-## C#数字图像处理--2.48Canny边缘检测算法
+## 2.48Canny边缘检测算法
 
 ﻿﻿
 
@@ -3800,7 +3792,7 @@ private static void TwoThreshouldJudge(int highThreshold, int lowThreshould, ref
 
 ![img](https://img-blog.csdn.net/20150417133259210?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.49Zhang二值图像细化算法
+## 2.49Zhang二值图像细化算法
 
 
 **[函数名称]**
@@ -3942,7 +3934,7 @@ private static int CountT(params int[] src)
 
 ![img](https://img-blog.csdn.net/20150417133359248?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.50图像运动模糊
+## 2.50图像运动模糊
 
 ﻿﻿
 
@@ -4080,7 +4072,7 @@ private static int CountT(params int[] src)
 
 ![img](https://img-blog.csdn.net/20150417133744653?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.51图像统计滤波算法
+## 2.51图像统计滤波算法
 
 
 **[函数名称]**
@@ -4166,7 +4158,7 @@ private static int CountT(params int[] src)
 
 ![img](https://img-blog.csdn.net/20150418093012306?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.52图像K均值聚类
+## 2.52图像K均值聚类
 
 
 **[函数名称]**
@@ -4175,7 +4167,7 @@ private static int CountT(params int[] src)
 
 ![img](https://img-blog.csdn.net/20150418093158340?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-​```csharp
+```csharp
 /// <summary>
 	/// KMeans Cluster process.
 	/// </summary>
@@ -4295,7 +4287,7 @@ private static int CountT(params int[] src)
 
 ![img](https://img-blog.csdn.net/20150418093305404?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.53图像傅立叶变换
+## 2.53图像傅立叶变换
 
 
 **[函数名称]**
@@ -4344,7 +4336,7 @@ namespace Win8ImageProcess
                 real = value;
             }
         }
-
+    
         public double Imaginary
         {
             get
@@ -4356,17 +4348,17 @@ namespace Win8ImageProcess
                 imaginary = value;
             }
         }
-
+    
         public Complex()
         {
         }
-
+    
         public Complex(double dbreal, double dbimag)
         {
             real = dbreal;
             imaginary = dbimag;
         }
-
+    
         public Complex(Complex other)
         {
             real = other.real;
@@ -4387,28 +4379,28 @@ namespace Win8ImageProcess
         {
             return comp1.Multiply(comp2);
         }
-
+    
         public Complex Add(Complex comp)
         {
             double x = real + comp.real;
             double y = imaginary + comp.imaginary;
-
+    
             return new Complex(x, y);
         }
-
+    
         public Complex Subtract(Complex comp)
         {
             double x = real - comp.real;
             double y = imaginary - comp.imaginary;
-
+    
             return new Complex(x, y);
         }
-
+    
         public Complex Multiply(Complex comp)
         {
             double x = real * comp.real - imaginary * comp.imaginary;
             double y = real * comp.imaginary + imaginary * comp.real;
-
+    
             return new Complex(x, y);
         }
         //幅值
@@ -4416,7 +4408,7 @@ namespace Win8ImageProcess
         {
             double x = Math.Abs(real);
             double y = Math.Abs(imaginary);
-
+    
             if (real == 0)
             {
                 return y;
@@ -4425,7 +4417,7 @@ namespace Win8ImageProcess
             {
                 return x;
             }
-
+    
             if (x > y)
             {
                 return (x * Math.Sqrt(1 + (y / x) * (y / x)));
@@ -4440,7 +4432,7 @@ namespace Win8ImageProcess
         {
             if (real == 0 && imaginary == 0)
                 return 0;
-
+    
             if (real == 0)
             {
                 if (imaginary > 0)
@@ -4727,7 +4719,7 @@ namespace Win8ImageProcess
 
 ![img](https://img-blog.csdn.net/20150420125354715?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.54迭代法图像二值化
+## 2.54迭代法图像二值化
 
 ﻿﻿
 
@@ -4826,7 +4818,7 @@ namespace Win8ImageProcess
 
 ![img](https://img-blog.csdn.net/20150420125932057?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.55OSTU法图像二值化
+## 2.55OSTU法图像二值化
 
 ﻿﻿
 
@@ -4918,7 +4910,7 @@ public static WriteableBitmap OstuThSegment(WriteableBitmap src) ////Ostu法阈�
 
 ![img](https://img-blog.csdn.net/20150421124707324?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.56简单统计法图像二值化
+## 2.56简单统计法图像二值化
 
 
 **[函数名称]**
@@ -4991,7 +4983,7 @@ public static WriteableBitmap OstuThSegment(WriteableBitmap src) ////Ostu法阈�
 
 ![img](https://img-blog.csdn.net/20150421124905759?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.57一维最大熵法图像二值化
+## 2.57一维最大熵法图像二值化
 
 ﻿﻿
 
@@ -5013,7 +5005,7 @@ public static WriteableBitmap OstuThSegment(WriteableBitmap src) ////Ostu法阈�
 
 **[函数代码]**
 
-```csharp
+​```csharp
 /// <summary>
  /// Entropy max method of image segmention.
  /// </summary>
@@ -5109,7 +5101,7 @@ public static WriteableBitmap OstuThSegment(WriteableBitmap src) ////Ostu法阈�
 
 ![img](https://img-blog.csdn.net/20150421125154505?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.58双峰法图像二值化
+## 2.58双峰法图像二值化
 
 ﻿﻿
 
@@ -5198,7 +5190,7 @@ public static WriteableBitmap  PeakshistogramThSegment(WriteableBitmap src) ////
 
 ![img](https://img-blog.csdn.net/20150421125550196?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.59 P分位法图像二值化
+## 2.59 P分位法图像二值化
 
 ﻿﻿
 
@@ -5288,7 +5280,7 @@ public static WriteableBitmap PParameterThSegment(WriteableBitmap src, double P)
 
 ![img](https://img-blog.csdn.net/20150421125729297?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.60部分彩色保留算法
+## 2.60部分彩色保留算法
 
 ﻿﻿
 
@@ -5364,7 +5356,7 @@ public static WriteableBitmap PartialcolorProcess(WriteableBitmap src, int rValu
 
 ![img](https://img-blog.csdn.net/20150422123355195?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.61哈哈镜效果
+## 2.61哈哈镜效果
 
 
 **[函数名称]**
@@ -5441,7 +5433,7 @@ public static WriteableBitmap PartialcolorProcess(WriteableBitmap src, int rValu
 
 ![img](https://img-blog.csdn.net/20150422123625033?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.62图像对数增强
+## 2.62图像对数增强
 
 ﻿﻿
 
@@ -5486,7 +5478,7 @@ public static WriteableBitmap LogenhanceProcess(WriteableBitmap src)////对数�
 
 ![img](https://img-blog.csdn.net/20150424124232647?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.63图像指数增强
+## 2.63图像指数增强
 
 
 **[函数名称]**
@@ -5538,7 +5530,7 @@ public static WriteableBitmap IndexenhanceProcess(WriteableBitmap src)////指数
 
 ![img](https://img-blog.csdn.net/20150424124539161?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.64图像高斯滤波算法
+## 2.64图像高斯滤波算法
 
 
 **[函数名称]**
@@ -5708,7 +5700,7 @@ public static WriteableBitmap GaussFilter(WriteableBitmap src, int radius, doubl
 
 ![img](https://img-blog.csdn.net/20150424125757042?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.65形态学轮廓提取算法
+## 2.65形态学轮廓提取算法
 
 
 **[函数名称]**
@@ -5782,7 +5774,7 @@ public static WriteableBitmap GaussFilter(WriteableBitmap src, int radius, doubl
 
 ![img](https://img-blog.csdn.net/20150425085150846?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.66FloodFill算法
+## 2.66FloodFill算法
 
 
 **[函数名称]**
@@ -5883,7 +5875,7 @@ WriteableBitmap FloodfillProcess(WriteableBitmap src,Point location, Color fillC
 
 ![img](https://img-blog.csdn.net/20150425085342068?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.67图像最大值滤波器
+## 2.67图像最大值滤波器
 
 
 **[函数名称]**
@@ -5971,7 +5963,7 @@ public static WriteableBitmap MaxFilterProcess(WriteableBitmap src)////最大值
 
 ![img](https://img-blog.csdn.net/20150426131442642?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.68图像最小值滤波器
+## 2.68图像最小值滤波器
 
 
 ![img](https://img-blog.csdn.net/20150427115931956?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
@@ -6129,7 +6121,7 @@ public static WriteableBitmap MidPointFilterProcess(WriteableBitmap src)////中�
 
 
 
-## C#数字图像处理--2.70修正后的阿尔法滤波器
+## 2.70修正后的阿尔法滤波器
 
 
 ![img](https://img-blog.csdn.net/20150427120345015?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
@@ -6219,7 +6211,7 @@ public static WriteableBitmap AlphaFilterProcess(WriteableBitmap src, int tNumbe
 
 ![img](https://img-blog.csdn.net/20150427120322138?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.71Sigma平滑滤波器
+## 2.71Sigma平滑滤波器
 
 
 **[算法说明]**
@@ -6299,7 +6291,7 @@ public static WriteableBitmap SigmaFilterProcess(WriteableBitmap src)////Sigma�
 
 ![img](https://img-blog.csdn.net/20150427163223816?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.72图像噪声
+## 2.72图像噪声
 
 
 **[函数名称]**
@@ -6409,7 +6401,7 @@ public static WriteableBitmap SigmaFilterProcess(WriteableBitmap src)////Sigma�
 
 ![img](https://img-blog.csdn.net/20150427163651736?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.73一种背景图像融合特效
+## 2.73一种背景图像融合特效
 
 
 ![img](https://img-blog.csdn.net/20150427163803287?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
@@ -6472,14 +6464,14 @@ public static WriteableBitmap ImageMerge(WriteableBitmap bacImage, WriteableBitm
 
 ![img](https://img-blog.csdn.net/20150427163854387?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.74图像凸包计算
+## 2.74图像凸包计算
 
 
 ![img](https://img-blog.csdn.net/20150428123650270?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
 
 
-​```csharp
+```csharp
 /// <summary>
 /// Convex Hull compute.
 /// </summary>
@@ -6547,7 +6539,7 @@ private static void ConvexhullCompute(ref Point[] srcPoints, ref List<Point>star
 
 ![img](https://img-blog.csdn.net/20150428123740517?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-## C#数字图像处理--2.75灰度图像的形态学算法
+## 2.75灰度图像的形态学算法
 
 
 前面章节中介绍了二值图像的形态学算法，这里讲一下灰度图的形态学算法，主要是公式，代码略。
@@ -6570,7 +6562,7 @@ private static void ConvexhullCompute(ref Point[] srcPoints, ref List<Point>star
 
 以上就是灰度图像的形态学算法。
 
-## C#数字图像处理--3.1图像均值计算
+## 3.1图像均值计算
 
 
 ![img](https://img-blog.csdn.net/20150428123921543?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
@@ -6607,7 +6599,7 @@ public static double GetMeanProcess(WriteableBitmap src) ////32 图像均值计�
 }
 ```
 
-## C#数字图像处理--3.2图像方差计算
+## 3.2图像方差计算
 
 
 ![img](https://img-blog.csdn.net/20150428124202580?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
@@ -6645,7 +6637,7 @@ public static double GetMeanProcess(WriteableBitmap src) ////32 图像均值计�
 }
 ```
 
-## C#数字图像处理--3.3图像直方图计算
+## 3.3图像直方图计算
 
 
 ![img](https://img-blog.csdn.net/20150429115010331?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
@@ -6679,7 +6671,7 @@ public static int[] GetHistogramArray(WriteableBitmap src) ////34 图像直方�
 }
 ```
 
-## C#数字图像处理--3.4图像信息熵计算
+## 3.4图像信息熵计算
 
 
 ![img](https://img-blog.csdn.net/20150429115148876?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
@@ -6726,14 +6718,14 @@ public static double GetEntropy(WriteableBitmap src)
 }
 ```
 
-## C#数字图像处理--3.5图像形心计算
+## 3.5图像形心计算
 
 
 ![img](https://img-blog.csdn.net/20150429115217754?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvVHJlbnQxOTg1/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
 
 
-```csharp
+​```csharp
 /// <summary>
 /// Get the center of the object in an image.
 /// </summary>
@@ -6775,7 +6767,7 @@ public static int[] CenterPoints(WriteableBitmap src)
 }
 ```
 
-## C#数字图像处理--4图像颜色空间描述
+## 4图像颜色空间描述
 
 
 图像颜色空间是图像颜色集合的数学表示，本小节将针对几种常见颜色空间做个简单介绍。
@@ -6826,7 +6818,7 @@ public static int[] CenterPoints(WriteableBitmap src)
 
 
 
-## **4.2 XYZ颜色空间**
+### **4.2 XYZ颜色空间**
 
 **[空间解析]**
 
@@ -7048,7 +7040,7 @@ public static double[] YUVtoRGB(byte[] yuvValue, int w, int h)
 
 
 
-## **4.4 HIS颜色空间**
+### **4.4 HIS颜色空间**
 
  **[空间解析]**
 
@@ -7310,7 +7302,7 @@ public static double[] YIQtoRGB(byte[] yiqValue, int w, int h)
 
 
 
-## **4.6 HSV颜色空间**
+### **4.6 HSV颜色空间**
 
 **[空间解析]**
 
@@ -7325,7 +7317,7 @@ public static double[] YIQtoRGB(byte[] yiqValue, int w, int h)
 
 
 
-​```csharp
+```csharp
 /// <summary>
 /// Get HSV information.
 /// </summary>
@@ -7658,3 +7650,7 @@ public static double[] CMYKtoRGB(byte[] cmykValue, int w, int h)
 
 
 
+
+```
+
+```
