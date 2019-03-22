@@ -81,11 +81,7 @@ static int mem_swap(int n, void* src, void* dst)
   }
   return 0;
 }
-<<<<<<< HEAD
-// ????????
-=======
-// 上下颠倒
->>>>>>> aa5c8bea907c2c9ef806cc4a153cc214ef54cb5d
+
 static int matflip(int h, int w, void* src, int srcstep)
 {
   int i;
@@ -238,11 +234,6 @@ static int bf_malloc(buf_t* bf, void* p, int n)
   bf_mem_tail_t* tail;
   int len = (n + BF_MEM_INFO_LEN);
   if (len > bf->len) {
-<<<<<<< HEAD
-    //ASSERT(len <= bf->len && "????????");
-=======
-    //ASSERT(len <= bf->len && "空间不够");
->>>>>>> aa5c8bea907c2c9ef806cc4a153cc214ef54cb5d
     printf("bf_malloc error : Memory space is not enough!!\n");
     *(void**)p = NULL;
   } else {
@@ -266,17 +257,8 @@ static int bf_free(buf_t* bf, void* p)
     bf_mem_head_t* head = (bf_mem_head_t*)(p0 - sizeof(bf_mem_head_t));
     //bf_mem_tail_t* tail = (bf_mem_tail_t*)(p0 + head->size);
     int len = head->size + BF_MEM_INFO_LEN;
-<<<<<<< HEAD
-    //ASSERT((bf->data + bf->len + sizeof(bf_mem_head_t)) == p0 && "??��????��????");
-    //ASSERT(head->size == n && "?????????????");
-    ASSERT(head->magic == BF_MEM_MAGIC && "?");
-    ASSERT(((bf_mem_tail_t*)(p0 + head->size))->magic == BF_MEM_MAGIC && "???????????");
-=======
-    //ASSERT((bf->data + bf->len + sizeof(bf_mem_head_t)) == p0 && "释放顺序不对");
-    //ASSERT(head->size == n && "??锟斤拷?????");
-    ASSERT(head->magic == BF_MEM_MAGIC && "?");
-    ASSERT(((bf_mem_tail_t*)(p0 + head->size))->magic == BF_MEM_MAGIC && "锟斤拷?????");
->>>>>>> aa5c8bea907c2c9ef806cc4a153cc214ef54cb5d
+    ASSERT(head->magic == BF_MEM_MAGIC && "");
+    ASSERT(((bf_mem_tail_t*)(p0 + head->size))->magic == BF_MEM_MAGIC && "");
     bf->len += len;
     *pp = NULL;
   }

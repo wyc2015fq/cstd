@@ -303,11 +303,7 @@ CC_INLINE int memicmp_c(const char* s1, const char* s2, int n, int ignore_case)
   return memcmp_c(s1, s2, n);
 }
 #define CSTRINITLEN(str, len)   (len = ((len)<0 ? strlen_c((const char*)(str)) : len))
-<<<<<<< HEAD
-// _isend ��ĩβ��ʼ�Ƚ�
-=======
-// _isend 锟斤拷末尾锟斤拷始锟饺斤拷
->>>>>>> aa5c8bea907c2c9ef806cc4a153cc214ef54cb5d
+// _isend
 CC_INLINE int strnicmp_c(const char* s1, int l1, const char* s2, int l2, int n, int _isend, int ignore_case)
 {
   CSTRINITLEN(s1, l1);
