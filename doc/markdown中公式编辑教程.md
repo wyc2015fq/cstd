@@ -6,68 +6,15 @@
 
  
 
-关注
+## 在线工具
 
- 0.8 2018.10.10 20:11* 字数 2672 阅读 1370评论 1喜欢 7
+[在线 LaTex 公式编辑器](http://latex.codecogs.com/eqneditor/editor.php)
 
-标签： Mathjax 公式编辑 markdown
+http://latex.codecogs.com/eqneditor/editor.php
 
-------
+在线表格编辑工具   [Tables Generator](http://www.tablesgenerator.com/markdown_tables)
 
-| Author | shaniadolphin                               |
-| ------ | ------------------------------------------- |
-| e-mail | [349948204@qq.com](mailto:349948204@qq.com) |
-| github | <https://github.com/shaniadolphin/>         |
 
-------
-
-## **目录**
-
-- 希腊字母
-- 上标与下标
-- 括号
-  - 小括号与方括号
-  - 大括号
-  - 尖括号
-  - 上取整
-  - 下取整
-- 求和与积分
-  - 求和
-  - 积分
-  - 其他
-- 分式与根式
-  - 分式
-  - 连分数
-  - 根式
-- 多行表达式
-  - 分类表达式
-  - 多行表达式
-  - 方程组
-- 特殊函数与符号
-  - 三角函数
-  - 比较运算符
-  - 集合关系与运算
-  - 排列
-  - 箭头
-  - 逻辑运算符
-  - 操作符
-  - 等于
-  - 范围
-  - 模运算
-  - 点
-- 顶部符号
-- 表格
-- 矩阵
-  - 基本内容
-  - 括号
-  - 元素省略
-  - 增广矩阵
-- 公式标记与引用
-- 字体
-  - 黑板粗体字
-  - 黑体字
-  - 打印机字体
-- 参考文档
 
 ------
 
