@@ -1,4 +1,6 @@
 
+#include "std/algo.h"
+
 typedef float base_feat_type;
 // h_feat
 typedef struct BASE_FEAT_T {

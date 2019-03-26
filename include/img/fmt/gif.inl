@@ -47,6 +47,12 @@ typedef struct tag_image { /* Image Descriptor */
   uint8 pf;
 } struct_image;
 
+typedef struct rgb_color { /* Image Descriptor */
+	uint8 r;
+	uint8 g;
+	uint8 b;
+} rgb_color;
+
 typedef struct tag_TabCol { /* Tabla de colores */
   short colres; /* color resolution */
   short sogct; /* size of global color table */

@@ -3,8 +3,7 @@
 #define _CASCADE_INL_
 #include "adaboost.h"
 #include "img/imgopt.inl"
-
-#include "seqpartition.h"
+#include "face/seqpartition.h"
 
 int cascade_pass_img(CASCADE* ca, const uchar* im1_data, int al, double* pscore) {
   double* inter = 0;
@@ -35,7 +34,7 @@ int cascade_pass_img(CASCADE* ca, const uchar* im1_data, int al, double* pscore)
 }
 // HAAR 检测
 // [h, w, mag, al] 梯度积分图 通道数=10
-int cascade_detect(buf_t* bf, CASCADE* ca, const img_t* im0, double ssmin, double ssmax, double ss, int stepxy, XRECT* B, int B_len)
+int cascade_detect(CASCADE* ca, const img_t* im0, double ssmin, double ssmax, double ss, int stepxy, XRECT* B, int B_len)
 {
   int i, len = 0;
   const int cx = ca->w, cy = ca->h;
@@ -49,9 +48,9 @@ int cascade_detect(buf_t* bf, CASCADE* ca, const img_t* im0, double ssmin, doubl
   uchar* im1_data = 0;
   int im1sz = h * w * im0->c;
   assert(INTEGRAL_CN != 0);
-  bf_imresize(bf, im0, h, w, im);
-  BFMALLOC(bf, im1_data, im1sz);
-  BFMALLOC(bf, inter, siz);
+  imresize(im0, h, w, im);
+  MYREALLOC(im1_data, im1sz);
+  MYREALLOC(inter, siz);
   
   for (; len < B_len && h >= cy && w >= cx; ssmin *= ss, w = FLOOR(im0->w / ssmin), h = FLOOR(im0->h / ssmin)) {
     int ranx = w - cx + 1, rany = h - cy + 1;
@@ -97,16 +96,16 @@ int cascade_detect(buf_t* bf, CASCADE* ca, const img_t* im0, double ssmin, doubl
     }
   }
   
-  BFFREE(bf, inter);
-  BFFREE(bf, im1_data, im1sz);
-  bf_imfree(bf, im);
+  FREE(inter);
+  FREE(im1_data, im1sz);
+  imfree(im);
   
   if (1 && len > 0) {
     char* pabuf = 0;
     int pabuflen = SEQPARTITIONSIZE(sizeof(XRECT), len), plen;
-    BFMALLOC(bf, pabuf, pabuflen);
+    MYMALLOC(pabuf, pabuflen);
     len = rect_partition(B, B + len, 0.5, 1, 1, pabuf, &plen);
-    BFFREE(bf, pabuf, pabuflen);
+    FREE(pabuf, pabuflen);
   }
   
   return len;

@@ -119,4 +119,39 @@ static char* loaddata(const char* fname, int* pLen)
   }
   return str;
 }
+//////////////////////////////////////////////////////
+
+CC_INLINE int savedata2txt_impl(FILE* pf, int h, int w, const void* A, int al,
+	const char* szBegL, const char* szFmt, const char* szEndL)
+{
+	int i, j;
+	const uchar* A0 = (const uchar*)A;
+
+	for (i = 0; i < h; ++i, A0 += al) {
+		fprintf(pf, "%s", szBegL);
+
+		for (j = 0; j < w; ++j) {
+			fprintf(pf, szFmt, A0[j]);
+		}
+
+		fprintf(pf, "%s", szEndL);
+	}
+
+	return 0;
+}
+//"%02x" "\n"
+CC_INLINE int savedata2txt(const char* fn, int h, int w, const void* A, int al, const char* szBegL, const char* szFmt, const char* szEndL)
+{
+	FILE* pf;
+	pf = fopen(fn, "wb");
+
+	if (NULL == pf) {
+		return 0;
+	}
+
+	savedata2txt_impl(pf, h, w, A, al, szBegL, szFmt, szEndL);
+	fclose(pf);
+	return 0;
+}
+
 #endif // _FILEIO_C_H_

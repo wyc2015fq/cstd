@@ -1376,57 +1376,6 @@ enum {
   XMLFILE_ENCODING_UNICODE = CE_UTF16,
   XMLFILE_ENCODING_ASNI = CE_GB2312
 };
-static int isTextUTF8(const void* str0, int length)
-{
-  int i;
-  uint32_t nBytes = 0;
-  const uint8_t* str = (const uint8_t*)str0;
-  BOOL bAllAscii = TRUE;
-  for (i = 0; i < length; i++) {
-    uint8_t chr = *(str + i);
-    if ((chr & 0x80) != 0) {
-      bAllAscii = FALSE;
-    }
-    if (nBytes == 0) {
-      if (chr >= 0x80) {
-        if (chr >= 0xFC && chr <= 0xFD) {
-          nBytes = 6;
-        } else if (chr >= 0xF8) {
-          nBytes = 5;
-        } else if (chr >= 0xF0) {
-          nBytes = 4;
-        } else if (chr >= 0xE0) {
-          nBytes = 3;
-        } else if (chr >= 0xC0) {
-          nBytes = 2;
-        } else {
-          return FALSE;
-        }
-        nBytes--;
-      }
-    } else {
-      if ((chr & 0xC0) != 0x80) {
-        return FALSE;
-      }
-      nBytes--;
-    }
-  }
-  if (nBytes > 0) {
-    return FALSE;
-  }
-  if (bAllAscii) {
-    return FALSE;
-  }
-  return TRUE;
-}
-static CodePage GetCodePage(const void* str, int len)
-{
-  if (isTextUTF8(str, len)) {
-    return CE_UTF8;
-  }
-  return CE_GB2312;
-  return (CodePage)XMLFILE_ENCODING_ASNI;
-}
 static int iconv_s(CodePage scode, const void* s, int sl, CodePage dcode, void* d, int dl)
 {
   wchar_t* t;
@@ -1461,53 +1410,6 @@ static int iconv(CodePage scode, const str_t s, CodePage dcode, str_t* d)
   d->l = dlen = wc2mb(dcode, t, tlen, (uint8_t*)d->s, d->l);
   FREE(t);
   return dlen;
-}
-static int str_toasni(const str_t* s, str_t* d)
-{
-  const BYTE* pByte = (BYTE*)s->s;
-  uint32_t dwSize = s->l;
-  str_t t, dd[1] = { 0 };
-  wchar_t* w_str;
-  int encoding = GetCodePage(pByte, dwSize);
-  if (encoding == XMLFILE_ENCODING_UTF8) {
-    uint32_t wide, nWide;
-    nWide = mb2wc(CE_UTF8, pByte, dwSize, NULL, 0);
-    w_str = (wchar_t*)(pmalloc((nWide + 1) * sizeof(wchar_t)));
-    mb2wc(CE_UTF8, pByte, dwSize, w_str, nWide);
-    w_str[nWide] = L'\0';
-    wide = wc2mb(CE_GB2312, w_str, nWide, NULL, 0);
-    str_setsize(dd, wide);
-    wc2mb(CE_GB2312, w_str, nWide, dd->s, wide);
-    FREE(w_str);
-  } else if (encoding == XMLFILE_ENCODING_UNICODE) {
-    if (dwSize >= 2 && ((pByte[0] == 0xFE && pByte[1] == 0xFF) || (pByte[0] == 0xFF && pByte[1] == 0xFE))) {
-      uint32_t nWide;
-      BYTE* pByte1 = (BYTE*)memdup1(pByte, dwSize);
-      BYTE* pByte2 = pByte1;
-      dwSize = dwSize / 2 - 1;
-      if (pByte2[0] == 0xFE && pByte2[1] == 0xFF) {
-        uint32_t nSwap;
-        pByte2 += 2;
-        for (nSwap = 0; nSwap < dwSize; nSwap++) {
-          register CHAR nTemp = pByte2[(nSwap << 1) + 0];
-          pByte2[(nSwap << 1) + 0] = pByte2[(nSwap << 1) + 1];
-          pByte2[(nSwap << 1) + 1] = nTemp;
-        }
-      } else {
-        pByte2 += 2;
-      }
-      nWide = wc2mb(CE_GB2312, (const wchar_t*)pByte2, dwSize, NULL, 0);
-      str_setsize(dd, nWide);
-      wc2mb(CE_GB2312, (const wchar_t*)pByte2, dwSize, dd->s, nWide);
-      FREE(pByte1);
-    }
-  } else {
-    str_setsize(dd, dwSize);
-    memcpy(dd->s, pByte, dwSize);
-  }
-  t = dd[0], dd[0] = d[0], d[0] = t;
-  str_free(dd);
-  return 0;
 }
 static const char* hexVals = "0123456789ABCDEF";
 // UNSAFE String

@@ -313,7 +313,7 @@ static short LZW_decode(gif_load_t* fmt, stream_t* file, image_iterator* iter, s
   oc = fc = 0;
 
   /* Allocate space for the decode buffer */
-  if ((buf = NEW(uint8, linewidth + 1)) == NULL) {
+  if ((buf = MALLOC(uint8, linewidth + 1)) == NULL) {
     return(OUT_OF_MEMORY);
   }
 

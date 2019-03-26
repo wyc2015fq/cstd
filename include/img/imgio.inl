@@ -1,14 +1,21 @@
-
 #ifndef _IMGIO_INL_
 #define _IMGIO_INL_
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
 //#include "stb/stb_image.inl"
 //#undef e
-#include "cfile.h"
-#include "imgopt.inl"
-#include "color.inl"
+
+#define pmalloc malloc
+#define pfree free
+
+
+#include "std/fileio_c.h"
+#include "std/imgopt.h"
+#include "std/color_c.h"
+#include "std/stream_c.h"
+#include "std/imgopt.h"
 //#include "sys\findfile.h"
+
 
 #define imio_err(a, b)  0
 
@@ -1236,6 +1243,7 @@ static img_t* imload_mem(void* buf, int len, int cn_req, img_t* im)
   return ret;
 }
 
+#if 0
 static int imfile_to_inlfile(const char* imfile, const char* inlfile, uchar* map1)
 {
   img_t im[1] = {0};
@@ -1252,6 +1260,7 @@ static int test_imfile_to_inlfile()
   imfile_to_inlfile("D:/code/c/GUI/bcgsoft/BCG/BCGCBPro/res/menuimg-pro.bmp", "menuimg_9x324.inl", map);
   return 0;
 }
+#endif
 // 把横向排列的图片序列换成列向的
 static int imlist_trans(const img_t* im, img_t* im2, int w)
 {
@@ -1358,7 +1367,7 @@ static int test_stbi()
 static int imsave_stream(stream_t* s, const char* ext, int height, int width, const uchar* data, int step, int channels) {
   int ret = 0;
   if (ext) {
-    int type = cstr_splitfind("|bmp|png|jpg|jpeg|", -1, ext, -1, 1, 0);
+    int type = splitfind_c("|bmp|png|jpg|jpeg|", -1, ext, -1, 1, 0);
     
     switch (type) {
     case 0:
@@ -1403,6 +1412,7 @@ static int imwrite(const char* filename, const img_t* im)
   return imsave(filename, im->h, im->w, im->tt.data, im->s, im->c);
 }
 
+#if 0
 static int imsavetxt(const char* filename, const img_t* im, const char* fmt) {
   FILE* pf = fopen(filename, "wb");
   if (pf) {
@@ -1413,7 +1423,7 @@ static int imsavetxt(const char* filename, const img_t* im, const char* fmt) {
       const uchar* im1 = img_row(uchar, im, j);
       for (i = 0; i < im->w; ++i) {
         char* arglist = (char*)im1 + i*im->c;
-        arglist = cstr_vnprintf_arr(buf, 256, fmt, arglist, NULL);
+        arglist = vsnprintf(buf, 256, fmt, arglist);
         fprintf(pf, "%s", buf);
       }
       fprintf(pf, "\n");
@@ -1423,6 +1433,7 @@ static int imsavetxt(const char* filename, const img_t* im, const char* fmt) {
   }
   return 0;
 }
+#endif
 #define imwrite2(filename, im)   imwrite_file(fopen(filename, "wb"), im, 0)
 
 static int imwrite4(const char* filename, int h, int w, const unsigned char* data, int step, int cn)

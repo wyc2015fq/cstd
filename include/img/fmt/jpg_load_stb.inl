@@ -3,9 +3,9 @@
 #define STBI_NOTUSED(v)  (void)(v)
 
 #ifndef STBI_MALLOC
-#define STBI_MALLOC(sz)    pmalloc(sz)
-#define STBI_REALLOC(p,sz) prealloc(p,sz)
-#define STBI_FREE(p)       pfree(p)
+#define STBI_MALLOC(sz)    malloc(sz)
+#define STBI_REALLOC(p,sz) realloc(p,sz)
+#define STBI_FREE(p)       free(p)
 #endif
 
 #define stbi__err(a, b)  (printf("%s, %s", a, b), 0)

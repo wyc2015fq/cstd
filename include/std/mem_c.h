@@ -510,4 +510,6 @@ static int draw_font_bitmap(int h, int w, uchar* dst, int dststep, int cn, const
   return 0;
 }
 
+#define prealloc realloc
+
 #endif // _STDC_MEM_C_H_

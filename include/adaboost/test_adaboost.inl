@@ -1,11 +1,11 @@
 
 //#include "debug.h"
-#include "cstd.h"
+#include "std/stddef_c.h"
 
 #include <direct.h>
 //#include "ui/window.inl"
-#include "cfile.h"
-#include "inifile.h"
+#include "std/fileio_c.h"
+#include "std/inifile.h"
 #include "adaboost.inl"
 #include "basefeatlib.inl"
 //#include "lobofeatlib.inl"
@@ -17,7 +17,13 @@
 //#include "cap.h"
 
 //#include "img/color.inl"
-#include "draw/imdraw.inl"
+//#include "std/imdraw.h"
+#include "std/drawing_c.h"
+#include "std/gui_c.h"
+#include "std/log_c.h"
+#include "std/objdetect.h"
+#include "std/colorcvt.h"
+#include "std/fileioex.h"
 //#include "test_luobo.inl"
 
 int detect_idcard(int h, int w, const uchar* data, int step, XRECT* out, int maxout) {
@@ -33,7 +39,7 @@ int detect_idcard(int h, int w, const uchar* data, int step, XRECT* out, int max
   img_t gry[1] = {0};
   *bf = *bf1;
   IMINIT(gry, h, w, data, step, 1, 1);
-  int n = cascade_detect(bf, ca, gry, 1, 1000, 1.1, 1, out, maxout);
+  int n = cascade_detect(ca, gry, 1, 1000, 1.1, 1, out, maxout);
   return n;
 }
 
@@ -45,11 +51,12 @@ int test_cascade1() {
   img_t* gry = im+1;
   int i, n;
   XRECT out[10000];
-  buf_t bf[1] = {0};
+  //buf_t bf[1] = {0};
   sys_chdir("D:/pub/bin/adaboost/lobo");
   sys_chdir("D:/pub/faceplusplus/gender/out");
   sys_chdir("E:/OCR_Line/adaboost");
-  vstr_load("testlist.ini", sv);
+  sys_chdir("E:/data/ew_id/we-loan.oss-cn-shanghai.aliyuncs.com");
+  vstr_load("../backend_2.txt", sv);
 
   if (1) {
     fn = "haar_LUT_nesting_cas.dat";
@@ -61,7 +68,12 @@ int test_cascade1() {
     fn = "cas.dat";
     INIT_CA_FUN(ca, HAAR, GEN);
     INIT_CA_FUN(ca, HAAR, LUT);
-    cascade_load(fn, ca);
+    //cascade_load(fn, ca);
+	if (1) {
+		fn = "cas.txt";
+		cascade_load_txt(fn, ca);
+		cascade_save_inl("cas.inl", ca);
+	}
     //ca->w = 100, ca->h = 100;
     //ca->w = 30, ca->h = 20;
   } 
@@ -81,7 +93,7 @@ int test_cascade1() {
 #endif
     //ca->stagelen = 3;
   }
-  bfsetsize(bf, 20*_1M);
+ // bfsetsize(bf, 20*_1M);
 #ifdef _CAP_H_
   if (0) {
     cap_t cap[1] = { 0 };
@@ -104,28 +116,37 @@ int test_cascade1() {
 
   for (i=0; i<sv->n; ++i) {
     if (!imread((char*)sv->v[i].s, 3, 1, im)) continue;
-    if (im->h>600) {
-      imresize1(im, 600./im->h, im);
+	if (im->h < 400) {
+		continue;
+	}
+	//imshow2("im1", im);
+    if (im->h>400) {
+      imresize1(im, 400./im->h, im);
     }
     imcolorcvt(im, gry, T_BGR, T_GRAY);
+	n = 0;
+	memset(out, 0, sizeof(out));
     if (ca->w == 80) {
       //n = lobo_detect(ca, im, out, countof(out));
     } else {
-      n = cascade_detect(bf, ca, gry, 1, 1000, 1.1, 1, out, countof(out));
+		double t = gry->w / (ca->w*3.);
+		//t = MAX(t, 1);
+      n = cascade_detect(ca, gry, 1, 1000, 1.1, 1, out, countof(out));
     }
     printf("%d\n", n);
     int j;
     for (j=0; j<n; ++j) {
       //imdraw_xrects(im, out, n);
       if (out[j].count>5) {
-        DRECT rc = dRECT2(out[j].x, out[j].y, out[j].w, out[j].h);
-        imdrawaa_rect(im, 0, NULL, rc, 0, _RGB(255, 0, 0), 1);
+        Rect rc = iRect(out[j].x, out[j].y, out[j].w, out[j].h);
+        //imdraw_rect(im, 0, NULL, rc, 0, _RGB(255, 0, 0), 1);
+		rectangle(im, rc, _RGB(255, 0, 0), 1, 8, 0);
       }
     }
     imshow_(im);
     waitkey(-1);
   }
-  bffree(bf);
+  //bffree(bf);
   freeims(im, 2);
   vstr_free(sv);
   return 0;
@@ -364,16 +385,16 @@ int test_adaboost() {
 #ifdef _DEBUG
   
   if (1) {
-    sys_chdir("D:/pub/bin/iris/adaboost");
-    sys_chdir("D:/pub/bin/iris/adaboost_om");
-    sys_chdir("D:/pub/bin/iris/adaboost_om2");
-    sys_chdir("D:/pub/bin/iris/testPic/feat");
-    sys_chdir("D:/pub/bin/iris/adaboost");
-    sys_chdir("D:/pub/bin/adaboost/lobo");
-    sys_chdir("D:/pub/bin/adaboost/data");
-    sys_chdir("D:/pub/bin/adaboost/gender");
-    sys_chdir("D:/pub/faceplusplus/gender/out");
-    sys_chdir("E:/OCR_Line/adaboost");
+    _chdir("D:/pub/bin/iris/adaboost");
+    _chdir("D:/pub/bin/iris/adaboost_om");
+    _chdir("D:/pub/bin/iris/adaboost_om2");
+    _chdir("D:/pub/bin/iris/testPic/feat");
+    _chdir("D:/pub/bin/iris/adaboost");
+    _chdir("D:/pub/bin/adaboost/lobo");
+    _chdir("D:/pub/bin/adaboost/data");
+    _chdir("D:/pub/bin/adaboost/gender");
+    _chdir("D:/pub/faceplusplus/gender/out");
+    _chdir("E:/OCR_Line/adaboost");
   }
   
 #endif // _DEBUG

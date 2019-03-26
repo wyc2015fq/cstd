@@ -17,15 +17,6 @@ typedef struct stat stat_t;
 static char* strend(const char* str) {
   return (char*)str + strlen(str);
 }
-#define FN_IS_DOTS(_FN)      (((_FN)[0] == '.') && ((_FN)[1] == '\0' || ((_FN)[1] == '.' && (_FN)[2] == '\0')))
-
-#define file_exist(name)       (0 == sys_access(name, AS_EXIST))
-#define file_execute(name)     (0 == sys_access(name, AS_EXECUTE))
-#define file_write(name)       (0 == sys_access(name, AS_WRITE))
-#define file_read(name)        (0 == sys_access(name, AS_READ))
-#define file_write_read(name)  (0 == sys_access(name, AS_WRITE_READ))
-//#define file_subdir(name)      (0 == sys_access(name, AS_SUBDIR))
-#define fileok(name)           (file_exist( name ) && filesize(name)>0)
 static char* find_not_eixst_file(const char* filename, char* buf, int buflen)
 {
   int i = 0;
@@ -40,72 +31,6 @@ static char* find_not_eixst_file(const char* filename, char* buf, int buflen)
       return buf;
     }
   }
-}
-CC_INLINE int savefile(const char* fname, const void* buf, int buflen)
-{
-  FILE* pf = fopen(fname, "wb");
-  int n = 0;
-  if (NULL == pf) {
-    return 0;
-  }
-  n = fwrite(buf, 1, buflen, pf);
-  fclose(pf);
-  return n;
-}
-CC_INLINE int loadfile(const char* fname, void* buf, int buflen, int pos)
-{
-  FILE* pf = fopen(fname, "rb");
-  int n = 0;
-  if (NULL == pf) {
-    return 0;
-  }
-  if (pos>0) {
-    fseek(pf, pos, SEEK_SET);
-  }
-  n = fread(buf, 1, buflen, pf);
-  fclose(pf);
-  return n;
-}
-CC_INLINE int savedata2txt_impl(FILE* pf, int h, int w, const void* A, int al,
-                                 const char* szBegL, const char* szFmt, const char* szEndL)
-{
-  int i, j;
-  const uchar* A0 = (const uchar*)A;
-  
-  for (i = 0; i < h; ++i, A0 += al) {
-    fprintf(pf, "%s", szBegL);
-    
-    for (j = 0; j < w; ++j) {
-      fprintf(pf, szFmt, A0[j]);
-    }
-    
-    fprintf(pf, "%s", szEndL);
-  }
-  
-  return 0;
-}
-//"%02x" "\n"
-CC_INLINE int savedata2txt(const char* fn, int h, int w, const void* A, int al, const char* szBegL, const char* szFmt, const char* szEndL)
-{
-  FILE* pf;
-  pf = fopen(fn, "wb");
-  
-  if (NULL == pf) {
-    return 0;
-  }
-  
-  savedata2txt_impl(pf, h, w, A, al, szBegL, szFmt, szEndL);
-  fclose(pf);
-  return 0;
-}
-static long fsize(FILE* stream)
-{
-  long pos, size;
-  pos = ftell(stream);
-  fseek(stream, 0, SEEK_END);
-  size = ftell(stream);
-  fseek(stream, pos, SEEK_SET);
-  return size;
 }
 #ifndef FILESIZE
 #define FILESIZE(_PF, _SZ)               { int _cur = ftell(_PF); fpos_t pos; fseek(_PF, 0, SEEK_END); fgetpos(_PF, &pos); _SZ = (int)pos; fseek(_PF, _cur, SEEK_SET); }
@@ -589,60 +514,6 @@ CC_INLINE int asprintf(char** pStr, const char* fmt, ...)
   return len;
 }
 #endif
-CC_INLINE int str_load(const char* fname, str_t* s)
-{
-  int len, readed_len;
-  FILE* pf;
-  pf = fopen(fname, "rb");
-  if (pf) {
-    len = fsize(pf);
-    str_setsize(s, len);
-    readed_len = fread(s->s, 1, len, pf);
-    assert(readed_len == len);
-    fclose(pf);
-    return 1;
-  }
-  return 0;
-}
-CC_INLINE int str_loadasni(const char* fn, str_t* s)
-{
-  if (str_load(fn, s)) {
-    str_toasni(s, s);
-    return 1;
-  }
-  return 0;
-}
-CC_INLINE int str_save(const char* fname, const str_t* s)
-{
-	int writeed_len;
-  FILE* pf;
-  pf = fopen(fname, "wb");
-  if (pf) {
-    writeed_len = (int)fwrite(s->s, 1, s->l, pf);
-    printf("%d %d", writeed_len, s->l);
-    //ASSERT(writeed_len == s->l);
-    fclose(pf);
-    return 1;
-  }
-  return 0;
-}
-CC_INLINE int vstr_save(const char* fname, vstr_t* sv) {
-  str_t s[1] = {0};
-  vstr_merge(sv, s, "\n");
-  str_save(fname, s);
-  str_free(s);
-  return 0;
-}
-CC_INLINE int vstr_load(const char* fname, vstr_t* sv)
-{
-  str_t s[1] = {0};
-  if (str_load(fname, s)) {
-    vstr_split_str(sv, *s, "\n", "\r\n", 1);
-    str_free(s);
-    return 1;
-  }
-  return 0;
-}
 CC_INLINE char* splitname(const char* path, char* name)
 {
   const char* namebeg;

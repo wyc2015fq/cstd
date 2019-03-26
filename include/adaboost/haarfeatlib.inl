@@ -340,8 +340,14 @@ int HAAR_find_samp(BOOST* hh, int type)
         }
 
         if (-1 == type) {
-          double ss = MIN(fs->h * 1. / im->h, fs->w * 1. / im->w);
+		  double ss = MIN(fs->h * 1. / im->h, fs->w * 1. / im->w);
           img_t im2[1] = {0};
+		  double minss = 0.3;
+		  if (ss<minss) {
+			  double s1 = ss/ minss;
+			  imresize1(im, s1, im);
+			  ss = MIN(fs->h * 1. / im->h, fs->w * 1. / im->w);
+		  }
 
           for (; j < SampNum && ss <= 1; ss *= zoom) {
             img_t* tt = imresize1(im, ss, im2);

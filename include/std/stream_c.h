@@ -1,6 +1,7 @@
 
 #include "dir_c.h"
 
+
 typedef struct stream_t_ stream_t;
 struct stream_t_ {
   int (*eof)(stream_t* stream);

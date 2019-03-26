@@ -2,7 +2,7 @@
 #ifndef _LZW_INL_
 #define _LZW_INL_
 
-#include "cstd.h"
+#include "std/stddef_c.h"
 /*
  * TIFF Library.
  * Rev 5.0 Lempel-Ziv & Welch Compression Support

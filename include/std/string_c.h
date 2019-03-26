@@ -516,13 +516,18 @@ static void trim(const char* s, IRANGE* r, const char* trims)
   get_delims_set(trims_set, trims);
   trim_c(s, r, trims_set);
 }
-
 static const void strim(char** ps, int* plen, const char* trims)
 {
   IRANGE r = iRANGE(0, *plen);
   trim(*ps, &r, trims);
   *ps = (*ps) + r.s;
   *plen = r.e-r.s;
+}
+static const char* strim2(char* s, int len, const char* trims) {
+	IRANGE r = iRANGE(0, len);
+	trim(s, &r, trims);
+	s[r.e] = 0;
+	return s + r.s;
 }
 
 static int split_c_(const char* s, IRANGE* r, IRANGE* out, int maxout, const uchar* delims_set, const uchar* trims_set, int minLen)

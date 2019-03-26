@@ -14,9 +14,9 @@
 #endif
 
 #ifndef STBIW_MALLOC
-#define STBIW_MALLOC(sz)    pmalloc(sz)
-#define STBIW_REALLOC(p,sz) prealloc(p,sz)
-#define STBIW_FREE(p)       pfree(p)
+#define STBIW_MALLOC(sz)    malloc(sz)
+#define STBIW_REALLOC(p,sz) realloc(p,sz)
+#define STBIW_FREE(p)       free(p)
 #endif
 #ifndef STBIW_MEMMOVE
 #define STBIW_MEMMOVE(a,b,sz) memmove(a,b,sz)

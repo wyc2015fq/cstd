@@ -2,10 +2,17 @@
 #ifndef _ADABOOST_H_
 #define _ADABOOST_H_
 #include <stdio.h>
-#include "cstd.h"
-#include "inifile.h"
+#include "std/algo.h"
+#include "std/fileio_c.h"
+#include "std/inifile.h"
+#include "std/objdetect.h"
 #define X_ESP   (0.00001f)
 #define STATIC static
+
+
+
+#define MALLOCSET(_TYPE, _N, _X)      (_TYPE*)memset(malloc((unsigned int)(sizeof(_TYPE)*(_N)) ), _X, (sizeof(_TYPE)*(_N)) )
+
 
 typedef double(*_FEAT_VAL_FUN_T)(double* samp, int al, void* feat, int i, double iv);
 typedef double(*_WEAK_VAL_FUN_T)(double featval, void*, int i);
@@ -81,11 +88,11 @@ typedef struct _STAGE {
 STAGE;
 
 typedef struct cascade_t {
+  int w, h;       // 最小检测框
   int stagelen;     // 强分类器数
   int weaklen;      // 弱分类器数
   int maxstagelen;  // 最大强分类器数
   int maxweaklen;   // 最大弱分类器数
-  int w, h;       // 最小检测框
   int is_nesting;   // 使用nesting结构
   feat_fun_t featfun[1];
   weak_fun_t weakfun[1];

@@ -156,7 +156,7 @@ static size_t my_strlcpy(char* __restrict dst, const char* __restrict src, size_
  * author:
  * Paul Vixie, 1996.
  */
-static char* inet_ntop4(const uchar* src, char* dst, int size)
+static char* inet_ntop4(const uchar* src, char* dst, size_t size)
 {
   static const char fmt[] = "%u.%u.%u.%u";
   char tmp[sizeof "255.255.255.255"];
@@ -342,14 +342,14 @@ static int inet_pton4(const char* src, uchar* dst)
   while ((ch = *src++) != '\0') {
     const char* pch;
     if ((pch = strchr(digits, ch)) != NULL) {
-      uint newt = *tp * 10 + (pch - digits);
+      size_t newt = *tp * 10 + (pch - digits);
       if (saw_digit && *tp == 0) {
         return (0);
       }
       if (newt > 255) {
         return (0);
       }
-      *tp = newt;
+      *tp = (char)newt;
       if (!saw_digit) {
         if (++octets > 4) {
           return (0);

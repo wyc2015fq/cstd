@@ -1,7 +1,10 @@
 
 #include <stdio.h>
-#include "cstd.h"
-#include "inifile.h"
+#include "std/stddef_c.h"
+#include "std/inifile.h"
+#include "std/log_c.h"
+#include "std/dir_c.h"
+#include "utime.h"
 
 #define CAS_DAT "cas.dat"
 #define CAS_TXT "cas.txt"

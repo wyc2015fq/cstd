@@ -1,562 +1,12 @@
 #ifndef _IMOPT_INL_
 #define _IMOPT_INL_
 
-#include "stdc/img_c.h"
-#include "stdc/geo_c.h"
-
-static int mat_add_row(int row_a, int col_a, const double* A, int al, const double* dst, double* C, int cl) {
-  int i, j;
-  
-  for (i = 0; i < row_a; i++) {
-    for (j = 0; j < col_a; j++) {
-      C[i * cl + j] = A[i * al + j] + dst[i];
-    }
-  }
-  return 0;
-}
-static int mat_add_col(int row_a, int col_a, const double* A, int al, const double* dst, double* C, int cl) {
-  int i, j;
-  
-  for (i = 0; i < row_a; i++) {
-    for (j = 0; j < col_a; j++) {
-      C[i * cl + j] = A[i * al + j] + dst[j];
-    }
-  }
-  return 0;
-}
-// ¾ØÕó³Ë·¨ÔËËãº¯Êý
-static int mat_mul_AB(int row_c, int col_c, int col_a, const double* A, int al, const double* dst, int bl, double* C, int cl)
-{
-  int i, j, k;
-  
-  for (i = 0; i < row_c; i++) {
-    for (k = 0; k < col_a; k++) {
-      for (j = 0; j < col_c; j++) {
-        C[i * cl + j] += A[i * al + k] * dst[k * bl + j];
-      }
-    }
-  }
-  
-  return 0;
-}
-// ¾ØÕó³Ë·¨ÔËËãº¯Êý
-static int mat_mul_ATBT(int row_c, int col_c, int len, const double* A, int al, const double* dst, int bl, double* C, int cl)
-{
-  int i, j, k;
-  
-  for (j = 0; j < col_c; j++) {
-    for (k = 0; k < len; k++) {
-      for (i = 0; i < row_c; i++) {
-        C[i * cl + j] += A[j * al + k] * dst[k * bl + i];
-      }
-    }
-  }
-  
-  return 0;
-}
-#define mat_mul_ATA(row_a, col_a, A, al, C, cl)  mat_mul_ATB(col_a, col_a, row_a, A, al, A, al, C, cl)
-static int mat_mul_ATB(int row_c, int col_c, int n, const double* A, int al, const double* dst, int bl, double* C, int cl)
-{
-  int i, j, k;
-  for (i = 0; i < row_c; i++) {
-    for (j = 0; j < col_c; j++) {
-      C[i * cl + j] = 0;
-    }
-  }
-  
-  for (k = 0; k < n; k++) {
-    for (i = 0; i < row_c; i++) {
-      for (j = 0; j < col_c; j++) {
-        C[i * cl + j] += A[k * al + i] * dst[k * bl + j];
-      }
-    }
-  }
-  
-  return 0;
-}
-static int mat_mul_ABT(int row_c, int col_c, int n, const double* A, int al, const double* dst, int bl, double* C, int cl)
-{
-  int i, j, k;
-  for (i = 0; i < row_c; i++) {
-    for (j = 0; j < col_c; j++) {
-      for (k = 0; k < n; k++) {
-        C[i * cl + j] += A[i * al + k] * dst[j * bl + k];
-      }
-    }
-  }
-  
-  return 0;
-}
-static int mat_mul_Ab(int row_a, int col_a, const double* A, int al, const double* dst, double* C)
-{
-  int i, j;
-  for (i = 0; i < row_a; i++) {
-    C[i] = 0;
-    for (j = 0; j < col_a; j++) {
-      C[i] += A[i * al + j] * dst[j];
-    }
-  }
-  
-  return 0;
-}
-static int mat_dot_Ab(int row_c, int col_c, const double* A, int al, const double* dst, double* C, int cl)
-{
-  int i, j;
-  for (i = 0; i < row_c; i++) {
-    for (j = 0; j < col_c; j++) {
-      C[i * cl + j] = A[i * al + j] * dst[j];
-    }
-  }
-  
-  return 0;
-}
-static int immul_ABT_f8(const img_t* A, const img_t* dst, img_t* C) {
-  img_t C1[1] = {0}, *C0 = C;
-  ASSERT(A->c==sizeof(double) && dst->c==A->c);
-  if (A==C0 || dst==C0) {
-    C = C1;
-  }
-  imsetsize(C, A->h, dst->h, A->c, 1);
-  mat_mul_ABT(C->h, C->w, A->w, A->tt.f64, A->w, dst->tt.f64, dst->w, C->tt.f64, C->w);
-  if (A==C0 || dst==C0) {
-    imclone2(C1, C0);
-  }
-  imfree(C1);
-  return 0;
-}
-#define mat_mul_AATw(row_a, col_a, A, al, W, C, cl)  mat_mul_ABTw(row_a, row_a, col_a, A, al, A, al, W, C, cl)
-static int mat_mul_ABTw(int row_c, int col_c, int n, const double* A, int al, const double* dst, int bl, const double* W, double* C, int cl)
-{
-  int i, j, k;
-  for (i = 0; i < row_c; i++) {
-    for (j = 0; j < col_c; j++) {
-      for (k = 0; k < n; k++) {
-        C[i * cl + j] += A[i * al + k] * dst[j * bl + k] * W[k];
-      }
-    }
-  }
-  
-  return 0;
-}
-static int immul_f8(const img_t* A, const img_t* dst, img_t* C) {
-  //CC_GEMM_A_T
-  return 0;
-}
-static int mat_scale(int row_c, int col_c, const double* A, int al, double bb, double dd, double* C, int cl)
-{
-  int i, j;
-  
-  for (i = 0; i < row_c; i++) {
-    for (j = 0; j < col_c; j++) {
-      C[i * cl + j] = A[i * al + j] * bb + dd;
-    }
-  }
-  
-  return 0;
-}
-static int mat_scale2(int row_c, int col_c, const double* A, int al, double sa, const double* dst, int bl, double sb, double dd, double* C, int cl)
-{
-  int i, j;
-  
-  for (i = 0; i < row_c; i++) {
-    for (j = 0; j < col_c; j++) {
-      C[i * cl + j] = A[i * al + j] * sa + dst[i * al + j] * sb + dd;
-    }
-  }
-  
-  return 0;
-}
-static int imscale2(const img_t* A, double sa, const img_t* dst, double sb, double dd, img_t* C) {
-  imsetsize(C, A->h, A->w, A->c, 1);
-  mat_scale2(A->h, A->w*A->c/sizeof(double), A->tt.f64, A->s/sizeof(double), sa, dst->tt.f64, dst->s/sizeof(double), sb, dd, C->tt.f64, C->s/sizeof(double));
-  return 0;
-}
-
-static int mat_dotmul(int row_c, int col_c, const double* A, int al, const double* dst, int bl, double ss, double dd, double* C, int cl)
-{
-  int i, j;
-  
-  for (i = 0; i < row_c; i++) {
-    for (j = 0; j < col_c; j++) {
-      C[i * cl + j] = A[i * al + j] * dst[i * al + j] * ss + dd;
-    }
-  }
-  
-  return 0;
-}
-static int imdotmul(const img_t* A, const img_t* dst, double ss, double dd, img_t* C) {
-  imsetsize(C, A->h, A->w, sizeof(double), 1);
-  mat_dotmul(A->h, A->w, A->tt.f64, A->s/sizeof(double), dst->tt.f64, dst->s/sizeof(double), ss, dd, C->tt.f64, C->s/sizeof(double));
-  return 0;
-}
-static int swap_rb(uchar* data, int step, int cn, int w, int h)
-{
-  int i, j;
-
-  for (i = 0; i < h; ++i) {
-    uchar* prgb = data + i * step;
-
-    for (j = 0; j < w; ++j, prgb += cn) {
-      uchar t = prgb[0];
-      prgb[0] = prgb[2];
-      prgb[2] = t;
-    }
-  }
-
-  return 0;
-}
-static int imswap_rb(img_t* im) {
-  return swap_rb(im->tt.data, im->s, im->c, im->w, im->h);
-}
-static int palette_is_color(int n, const uchar* palette)
-{
-  int i;
-
-  for (i = 0; i < n; ++i) {
-    const uchar* p = palette + i * 4;
-
-    if (p[0] != p[1] || p[2] != p[1]) {
-      return TRUE;
-    }
-  }
-
-  return FALSE;
-}
-static int palette_fillgray(int n, uchar* palette, int negative)
-{
-  int i;
-  int xor_mask = negative ? 255 : 0;
-
-  for (i = 0; i < n; i++) {
-    uchar* p = palette + i * 4;
-    int val = (i * 255 / (n - 1)) ^ xor_mask;
-    p[0] = p[1] = p[2] = (unsigned char) val;
-    palette[3] = 0;
-  }
-
-  return 0;
-}
-
-static unsigned char* fill_unicolor(unsigned char* data, unsigned char** line_end, int step, int width3, int* y, int height, int count3, PaletteEntry clr)
-{
-  do {
-    unsigned char* end = data + count3;
-
-    if (end > *line_end) {
-      end = *line_end;
-    }
-
-    count3 -= (int)(end - data);
-
-    for (; data < end; data += 3) {
-      *(data + 0) = clr.b;
-      *(data + 1) = clr.g;
-      *(data + 2) = clr.r;
-    }
-
-    if (data >= *line_end) {
-      *line_end += step;
-      data = *line_end - width3;
-
-      if (++(*y) >= height) {
-        break;
-      }
-    }
-  }
-  while (count3 > 0);
-
-  return data;
-}
-
-static unsigned char* fill_unigray(unsigned char* data, unsigned char** line_end, int step, int width,
-    int* y, int height, int count, unsigned char clr)
-{
-  do {
-    unsigned char* end = data + count;
-
-    if (end > *line_end) {
-      end = *line_end;
-    }
-
-    count -= (int)(end - data);
-
-    for (; data < end; data++) {
-      *data = clr;
-    }
-
-    if (data >= *line_end) {
-      *line_end += step;
-      data = *line_end - width;
-
-      if (++(*y) >= height) {
-        break;
-      }
-    }
-  }
-  while (count > 0);
-
-  return data;
-}
-
-#define PALETTE_FILLROW_IMPL(CN, PUTPIX) \
-  switch (bpp) { \
-  case 1: \
-    for (i=0; i<len/8; ++i, data +=8*CN) { \
-      idx = indices[i]; \
-      PUTPIX(0,(idx & 128) != 0); \
-      PUTPIX(1,(idx & 64) != 0 ); \
-      PUTPIX(2,(idx & 32) != 0 ); \
-      PUTPIX(3,(idx & 16) != 0 ); \
-      PUTPIX(4,(idx & 8) != 0 ); \
-      PUTPIX(5,(idx & 4) != 0 ); \
-      PUTPIX(6,(idx & 2) != 0 ); \
-      PUTPIX(7,(idx & 1)); \
-    } \
-    idx = indices[i]; \
-    for (i=0; i<(len&7); ++i) { \
-      PUTPIX(i, (idx>>(7-i))&1); \
-    } \
-    break; \
-  case 2: \
-    for (i=0; i<len/4; ++i, data +=4*CN) { \
-      idx = indices[i]; \
-      PUTPIX(0,(idx>>6)&3); \
-      PUTPIX(1,(idx>>4)&3); \
-      PUTPIX(2,(idx>>2)&3); \
-      PUTPIX(3,idx & 3); \
-    } \
-    idx = indices[i]; \
-    for (i=0; i<(len&3); ++i) { \
-      PUTPIX(i, (idx>>(6-i*2))&3); \
-    } \
-    break; \
-  case 4: \
-    for (i=0; i<len/2; ++i, data +=2*CN) { \
-      idx = indices[i]; \
-      PUTPIX(0,idx>>4); \
-      PUTPIX(1,idx&15); \
-    } \
-    if (len&1) { \
-      idx = indices[i]; \
-      PUTPIX(0, idx>>4); \
-    } \
-    break; \
-  case 8: \
-    for (i=0; i<len; ++i, data +=CN) { \
-      idx = indices[i]; \
-      PUTPIX(0, idx); \
-    } \
-    break; \
-  }
-
-static int palette_fillrow(int len, uchar* data, int cn, const uchar* src, int bpp, const uchar* palette)
-{
-  int i, idx;
-  uchar mm4[] = {6, 4, 2, 1};
-  
-  if (bpp<=8) {
-    const uchar* indices = src;
-    if (1 == cn) {
-#define PUTPIX(_I, _J)   data[_I] = palette[_J]
-      PALETTE_FILLROW_IMPL(1, PUTPIX);
-#undef PUTPIX
-    }
-    else {
-#define PUTPIX(_I, _J)   memcpy(data+(_I)*cn, palette+(_J)*4, 3)
-      PALETTE_FILLROW_IMPL(cn, PUTPIX);
-#undef PUTPIX
-    }
-  } else {
-    if (1 == cn) {
-      switch (bpp) {
-      case 15:
-        IMTRANS1D(len, src, 2, data, 1, BGR5552GRAY);
-        break;
-        
-      case 16:
-        IMTRANS1D(len, src, 2, data, 1, BGR5652GRAY);
-        break;
-        
-      case 24:
-        IMTRANS1D(len, src, 3, data, 1, BGR2GRAY);
-        break;
-        
-      case 32:
-        IMTRANS1D(len, src, 4, data, 1, BGRA2GRAY);
-        break;
-      }
-    }
-    else {
-      switch (bpp) {
-      case 15:
-        IMTRANS1D(len, src, 2, data, cn, BGR5552BGR);
-        break;
-        
-      case 16:
-        IMTRANS1D(len, src, 2, data, cn, BGR5652BGR);
-        break;
-        
-      case 24:
-        IMTRANS1D(len, src, 3, data, cn, BGRA2BGR);
-        break;
-        
-      case 32:
-        IMTRANS1D(len, src, 4, data, cn, BGRA2BGR);
-        break;
-      }
-    }
-  }
-  
-  return 0;
-}
-
-#undef PALETTE_FILLROW_IMPL
-
-static int imgsetbitmap(int m_height, int m_width, uchar* data, int step, int cn_req, const uchar* src, int src_pitch, int m_bpp, const uchar* m_palette)
-{
-  int y;
-
-  if (src_pitch <= 0) {
-    src_pitch = (m_width * m_bpp + 7) >> 3;
-    src_pitch = (src_pitch + 3) & (~3);
-  }
-
-  if (m_bpp <= 8) {
-    uchar palette[1024];
-
-    if (NULL == m_palette) {
-      palette_fillgray(256, palette, 0);
-      m_palette = palette;
-    }
-
-    if (1 == cn_req) {
-      int clr_used = 1 << m_bpp;
-      IMTRANS1D(clr_used, m_palette, 4, palette, 1, BGR2GRAY);
-      m_palette = palette;
-    }
-  }
-  for (y = 0; y < m_height; y++, data += step) {
-    const uchar* src_line = src + y * src_pitch;
-    palette_fillrow(m_width, data, cn_req, src_line, m_bpp, m_palette);
-  }
-
-  return 0;
-}
-static BOOL imsetbitmap(img_t* im, int nWidth, int nHeight, UINT nPlanes, UINT nBitcount, const void* lpBits, const void* bmiColors)
-{
-  int cn = (nBitcount > 8 || palette_is_color(1 << nBitcount, (uchar*)bmiColors)) ? 4 : 1;
-  imsetsize(im, nWidth, nHeight, cn, 1);
-  imgsetbitmap(im->h, im->w, im->tt.data, im->s, im->c, (const uchar*)lpBits, -1, nBitcount, (const uchar*)bmiColors);
-  return 1;
-}
-static int imprint(const img_t* im, int maxh, int maxw)
-{
-  int i, j;
-  printf("[%3d %3d]\n", im->h, im->w);
-
-  for (i = 0; i < MIN(maxh, im->h); ++i) {
-    for (j = 0; j < MIN(maxw, im->s); ++j) {
-      printf("%3d,", im->tt.data[i * im->s + j]);
-    }
-
-    printf("\n");
-  }
-
-  return 0;
-}
-
-static int trans_copy_cn3(int h, int w, const unsigned char* src, int srcstep, unsigned char* dst, int dststep)
-{
-  int i, j = 0;
-
-  for (j = 0; j < h; ++j) {
-    for (i = 0; i < w; i += 2) {
-      dst[(i + 0) * dststep + j * 3 + 0] = src[j * srcstep + (w - 1 - (i + 0)) * 3 + 0];
-      dst[(i + 0) * dststep + j * 3 + 1] = src[j * srcstep + (w - 1 - (i + 0)) * 3 + 1];
-      dst[(i + 0) * dststep + j * 3 + 2] = src[j * srcstep + (w - 1 - (i + 0)) * 3 + 2];
-
-      dst[(i + 1) * dststep + j * 3 + 0] = src[j * srcstep + (w - 1 - (i + 1)) * 3 + 0];
-      dst[(i + 1) * dststep + j * 3 + 1] = src[j * srcstep + (w - 1 - (i + 1)) * 3 + 1];
-      dst[(i + 1) * dststep + j * 3 + 2] = src[j * srcstep + (w - 1 - (i + 1)) * 3 + 2];
-    }
-  }
-
-  return 0;
-}
-
-#define ISMIRRX  1
-#define ISMIRRY  2
-#define ISTRANS  4
-#define ISROT1   (ISTRANS|ISMIRRX)
-#define ISROT2   (ISMIRRY|ISMIRRX)
-#define ISROT3   (ISTRANS|ISMIRRY)
-
-#define TRANS_COPY(TCOPY) \
-{\
-  int i, j;\
-  if (istrans) {\
-    for (j=0; j<h; ++j) {\
-      const uchar* s0 = (const uchar*)(src + j * srcstep);\
-      uchar* d0 = (uchar*)(dst + (ismirry ? (h-1-j) : j)*dstcn);\
-      if (ismirrx) {\
-        for (i=0; i<w; ++i) {\
-          TCOPY(d0+(w-1-i)*dststep, s0 + i*srccn);\
-        }\
-      } else {\
-        for (i=0; i<w; ++i) {\
-          TCOPY(d0+i*dststep, s0 + i*srccn);\
-        }\
-      }\
-    }\
-  } else {\
-    for (j=0; j<h; ++j) {\
-      const uchar* s0 = (const uchar*)(src + j * srcstep);\
-      uchar* d0 = (uchar*)(dst + (ismirry ? (h-1-j) : j) * dststep);\
-      if (ismirrx) {\
-        for (i=0; i<w; ++i) {\
-          TCOPY(d0+(w-1-i)*dstcn, s0+i*srccn);\
-        }\
-      } else {\
-        for (i=0; i<w; ++i) {\
-          TCOPY(d0+i*dstcn, s0+i*srccn);\
-        }\
-      }\
-    }\
-  }\
-}
-
-static int trans_copy(int h, int w, const uchar* src, int srcstep, int srccn, uchar* dst, int dststep, int dstcn, int cn, int istrans, int ismirrx, int ismirry)
-{
-//#include "impl/trans_copy.inl"
-  switch (cn) {
-#define TCOPY(dd, ss)   (*(T*)(dd) = *(const T*)(ss))
-#define IMTRANSCASE(N)  case N: {typedef struct {uchar t[N];} T; TRANS_COPY(TCOPY); } break
-    IMTRANSCASE(1);
-    IMTRANSCASE(2);
-    IMTRANSCASE(3);
-    IMTRANSCASE(4);
-    IMTRANSCASE(5);
-    IMTRANSCASE(6);
-    IMTRANSCASE(7);
-    IMTRANSCASE(8);
-    IMTRANSCASE(12);
-    IMTRANSCASE(16);
-    IMTRANSCASE(20);
-    IMTRANSCASE(24);
-    IMTRANSCASE(28);
-    IMTRANSCASE(32);
-  default:
-#define TCOPY2(dd, ss)   memcpy(dd, ss, cn)
-    TRANS_COPY(TCOPY2);
-    break;
-  }
-#undef IMTRANSCASE
-#undef TCOPY2
-#undef TCOPY
-  return 0;
-}
+#include "std/img_c.h"
+#include "std/geo_c.h"
+#include "std/imgopt.h"
 
 
+#if 0
 static int imtrans(const img_t* im, img_t* im2, int istrans, int ismirrx, int ismirry) {
   img_t im1[1] = {0};
   if (im==im2) {
@@ -586,7 +36,7 @@ static img_t* im_trans(const img_t* im, img_t* dst, int flag)
   imfree(im2);
   return dst;
 }
-
+#if 0
 static int bf_im_trans(buf_t* bf, const img_t* im, img_t* im1, int flag)
 {
   int hw[] = {im->h, im->w};
@@ -599,6 +49,7 @@ static int bf_im_trans(buf_t* bf, const img_t* im, img_t* im1, int flag)
   trans_copy(im->h, im->w, im->tt.data, im->s, im->c, im1->tt.data, im1->s, im1->c, im->c, istrans, ismirrx, ismirry);
   return 0;
 }
+#endif
 
 
 #define MAT_TRANS_CASE_IMPL(T) \
@@ -1106,13 +557,6 @@ static int imresize_n(const img_t* im, int h, int w, img_t* im2, int n)
 }
 #define imresize_1(im, h, w, im2) imresize_n(im, h, w, im2, 1)
 
-static int bf_imresize_1(buf_t* bf, const img_t* im, int h, int w, img_t* im2)
-{
-  bf_imsetsize(bf, im2, h, w, im->c, 1);
-  imresize_impl(im->h, im->w, im->tt.data, im->s, im->c, h, w, im2->tt.data, im2->s, im2->c, CC_INTER_AREA);
-  return 0;
-}
-
 static int imresizen(const img_t* a, double scaling, img_t* b, int n)
 {
   int h = (int)(a->h * scaling), w = (int)(a->w * scaling);
@@ -1121,6 +565,13 @@ static int imresizen(const img_t* a, double scaling, img_t* b, int n)
 
 #define imresize1(im, scaling, im2) imresize(im, im->h*scaling, im->w*scaling, im2)
 
+#if 0
+static int bf_imresize_1(buf_t* bf, const img_t* im, int h, int w, img_t* im2)
+{
+	bf_imsetsize(bf, im2, h, w, im->c, 1);
+	imresize_impl(im->h, im->w, im->tt.data, im->s, im->c, h, w, im2->tt.data, im2->s, im2->c, CC_INTER_AREA);
+	return 0;
+}
 static int bf_imresize_impl(int ah, int aw, const uchar* A, int al, int ai, int bh, int bw, uchar* dst, int bl, int bi, int type)
 {
 #define IMMALLOC  BF_MALLOC
@@ -1154,7 +605,6 @@ static int bf_imresize(buf_t* bf, const img_t* s, int dh, int dw, img_t* d) {
   imfree(imt);
   return 0;
 }
-#if 0
 static int bf_imresize(buf_t* bf, const img_t* im, int h, int w, img_t* im2)
 {
   ASSERT(im->tt.data != im2->tt.data);
@@ -2612,6 +2062,8 @@ static int imgprint(const img_t* im) {
   str_free(s);
   return 0;
 }
+#endif
+
 #endif
 
 #endif // _IMOPT_INL_

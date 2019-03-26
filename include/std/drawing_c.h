@@ -2,12 +2,15 @@
 #ifndef _STD_DRAWING_C_H_
 #define _STD_DRAWING_C_H_
 
+#include "algo.h"
 #include "img_c.h"
+#include "geo_c.h"
 #include <vector>
 #include <algorithm>
 
 #define CC_FILLED -1
 #define CC_AA 16
+typedef COLOR color_t;
 
 #if 0
 #define BLEND_LINE blend_line
@@ -306,7 +309,7 @@ ISIZE iSIZE(img_t* im) {
     p.x = (int)(((ptr - ptr0) - p.y*step) / elemSize);
     return p;
   }
-//#define CC_Assert assert
+//#define ASSERT assert
   /*
   Initializes line iterator.
   Returns number of points on the line or negative number if error.
@@ -316,7 +319,7 @@ ISIZE iSIZE(img_t* im) {
   {
     count = -1;
 
-    CC_Assert(connectivity == 8 || connectivity == 4);
+    ASSERT(connectivity == 8 || connectivity == 4);
 
     if ((unsigned)pt1.x >= (unsigned)(img->cols) ||
       (unsigned)pt2.x >= (unsigned)(img->cols) ||
@@ -1101,7 +1104,8 @@ ISIZE iSIZE(img_t* im) {
     1.0000000f
   };
 
-
+  typedef DPOINT Point2d;
+  typedef DSIZE Size2d;
   static void
     sincos(int angle, float& cosval, float& sinval)
   {
@@ -1881,7 +1885,7 @@ ISIZE iSIZE(img_t* im) {
     int i = is_closed ? count - 1 : 0;
     int flags = 2 + !is_closed;
     IPOINT p0;
-    CC_Assert(0 <= shift && shift <= XY_SHIFT && thickness >= 0);
+    ASSERT(0 <= shift && shift <= XY_SHIFT && thickness >= 0);
 
     p0 = v[i];
     for (i = !is_closed; i < count; i++)
@@ -1893,7 +1897,6 @@ ISIZE iSIZE(img_t* im) {
     }
   }
 
-  typedef COLOR color_t;
   /****************************************************************************************\
   *                              External functions                                        *
   \****************************************************************************************/
@@ -1906,8 +1909,8 @@ ISIZE iSIZE(img_t* im) {
     if (line_type == CC_AA && img->depth() != CC_8U)
       line_type = 8;
 
-    CC_Assert(0 < thickness && thickness <= MAX_THICKNESS);
-    CC_Assert(0 <= shift && shift <= XY_SHIFT);
+    ASSERT(0 < thickness && thickness <= MAX_THICKNESS);
+    ASSERT(0 <= shift && shift <= XY_SHIFT);
 
     ThickLine(img, pt1, pt2, &color, thickness, line_type, 3, shift);
   }
@@ -2005,8 +2008,8 @@ ISIZE iSIZE(img_t* im) {
     if (lineType == CC_AA && img->depth() != CC_8U)
       lineType = 8;
 
-    CC_Assert(thickness <= MAX_THICKNESS);
-    CC_Assert(0 <= shift && shift <= XY_SHIFT);
+    ASSERT(thickness <= MAX_THICKNESS);
+    ASSERT(0 <= shift && shift <= XY_SHIFT);
 
     IPOINT pt[4];
 
@@ -2047,7 +2050,7 @@ ISIZE iSIZE(img_t* im) {
     if (line_type == CC_AA && img->depth() != CC_8U)
       line_type = 8;
 
-    CC_Assert(radius >= 0 && thickness <= MAX_THICKNESS &&
+    ASSERT(radius >= 0 && thickness <= MAX_THICKNESS &&
       0 <= shift && shift <= XY_SHIFT);
 
     void* buf = &color;
@@ -2076,7 +2079,7 @@ ISIZE iSIZE(img_t* im) {
     if (line_type == CC_AA && img->depth() != CC_8U)
       line_type = 8;
 
-    CC_Assert(axes.width >= 0 && axes.height >= 0 &&
+    ASSERT(axes.width >= 0 && axes.height >= 0 &&
       thickness <= MAX_THICKNESS && 0 <= shift && shift <= XY_SHIFT);
 
     void* buf = &color;
@@ -2094,8 +2097,7 @@ ISIZE iSIZE(img_t* im) {
     EllipseEx(img, _center, _axes, _angle, _start_angle, _end_angle, buf, thickness, line_type);
   }
 
-  void ellipse(img_t* img, const CRotatedRect& box, color_t color,
-    int thickness = 1, int lineType = LINE_8)
+  void ellipse(img_t* img, const CRotatedRect& box, color_t color, int thickness = 1, int lineType = LINE_8)
   {
     CC_INSTRUMENT_REGION()
 
@@ -2104,7 +2106,7 @@ ISIZE iSIZE(img_t* im) {
     if (lineType == CC_AA && img->depth() != CC_8U)
       lineType = 8;
 
-    CC_Assert(box.size.width >= 0 && box.size.height >= 0 &&
+    ASSERT(box.size.width >= 0 && box.size.height >= 0 &&
       thickness <= MAX_THICKNESS);
 
     void* buf = &color;
@@ -2132,7 +2134,7 @@ ISIZE iSIZE(img_t* im) {
       line_type = 8;
 
     void* buf = &color;
-    CC_Assert(0 <= shift && shift <= XY_SHIFT);
+    ASSERT(0 <= shift && shift <= XY_SHIFT);
     std::vector<IPOINT> _pts(npts);
     for (int i = 0; i < npts; ++i) {
       _pts[i].x = pts[i].x;
@@ -2150,7 +2152,7 @@ ISIZE iSIZE(img_t* im) {
       if (line_type == CC_AA && img->depth() != CC_8U)
         line_type = 8;
 
-    CC_Assert(pts && npts && ncontours >= 0 && 0 <= shift && shift <= XY_SHIFT);
+    ASSERT(pts && npts && ncontours >= 0 && 0 <= shift && shift <= XY_SHIFT);
 
     void* buf = &color;
 
@@ -2179,7 +2181,7 @@ ISIZE iSIZE(img_t* im) {
       if (line_type == CC_AA && img->depth() != CC_8U)
         line_type = 8;
 
-    CC_Assert(pts && npts && ncontours >= 0 &&
+    ASSERT(pts && npts && ncontours >= 0 &&
       0 <= thickness && thickness <= MAX_THICKNESS &&
       0 <= shift && shift <= XY_SHIFT);
 
@@ -2528,7 +2530,7 @@ void cv::fillConvexPoly(img_t* img, InputArray _points,
   CC_INSTRUMENT_REGION()
 
     Mat img = _img->getMat(), points = _points.getMat();
-  CC_Assert(points.checkVector(2, CC_32S) >= 0);
+  ASSERT(points.checkVector(2, CC_32S) >= 0);
   fillConvexPoly(img, points.ptr<Point>(), points.rows*points.cols*points.channels() / 2, color, lineType, shift);
 }
 
@@ -2550,7 +2552,7 @@ void cv::fillPoly(img_t* img, InputArrayOfArrays pts,
   for (i = 0; i < ncontours; i++)
   {
     Mat p = pts.getMat(i);
-    CC_Assert(p.checkVector(2, CC_32S) >= 0);
+    ASSERT(p.checkVector(2, CC_32S) >= 0);
     ptsptr[i] = p.ptr<Point>();
     npts[i] = p.rows*p.cols*p.channels() / 2;
   }
@@ -2584,7 +2586,7 @@ void cv::polylines(img_t* img, InputArrayOfArrays pts,
       npts[i] = 0;
       continue;
     }
-    CC_Assert(p.checkVector(2, CC_32S) >= 0);
+    ASSERT(p.checkVector(2, CC_32S) >= 0);
     ptsptr[i] = p.ptr<Point>();
     npts[i] = p.rows*p.cols*p.channels() / 2;
   }
@@ -2647,7 +2649,7 @@ void cv::drawContours(img_t* _image, InputArrayOfArrays _contours,
 
   if (contourIdx >= 0)
   {
-    CC_Assert(0 <= contourIdx && contourIdx < (int)last);
+    ASSERT(0 <= contourIdx && contourIdx < (int)last);
     first = contourIdx;
     last = contourIdx + 1;
   }
@@ -2658,7 +2660,7 @@ void cv::drawContours(img_t* _image, InputArrayOfArrays _contours,
     if (ci.empty())
       continue;
     int npoints = ci.checkVector(2, CC_32S);
-    CC_Assert(npoints > 0);
+    ASSERT(npoints > 0);
     cvMakeSeqHeaderForArray(CC_SEQ_POLYGON, sizeof(CvSeq), sizeof(Point),
       ci.ptr(), npoints, &seq[i], &block[i]);
   }
@@ -2672,7 +2674,7 @@ void cv::drawContours(img_t* _image, InputArrayOfArrays _contours,
   else
   {
     size_t count = last - first;
-    CC_Assert(hierarchy.total() == ncontours && hierarchy.type() == CC_32SC4);
+    ASSERT(hierarchy.total() == ncontours && hierarchy.type() == CC_32SC4);
     const Vec4i* h = hierarchy.ptr<Vec4i>();
 
     if (count == ncontours)
@@ -2736,7 +2738,7 @@ cvDrawContours(void* _img, CvSeq* contour,
   if (!contour)
     return;
 
-  CC_Assert(thickness <= MAX_THICKNESS);
+  ASSERT(thickness <= MAX_THICKNESS);
 
   scalarToRawData(externalColor, ext_buf, img->type(), 0);
   scalarToRawData(holeColor, hole_buf, img->type(), 0);
@@ -2760,7 +2762,7 @@ cvDrawContours(void* _img, CvSeq* contour,
     void* clr = (contour->flags & CC_SEQ_FLAG_HOLE) == 0 ? ext_buf : hole_buf;
 
     cvStartReadSeq(contour, &reader, 0);
-    CC_Assert(reader.ptr != NULL);
+    ASSERT(reader.ptr != NULL);
     if (thickness < 0)
       pts.resize(0);
 
@@ -2803,7 +2805,7 @@ cvDrawContours(void* _img, CvSeq* contour,
     }
     else if (CC_IS_SEQ_POLYLINE(contour))
     {
-      CC_Assert(elem_type == CC_32SC2);
+      ASSERT(elem_type == CC_32SC2);
       cv::Point pt1, pt2;
       int shift = 0;
 
@@ -2839,7 +2841,7 @@ cvDrawContours(void* _img, CvSeq* contour,
 CC_IMPL int
 cvClipLine(CvSize size, CvPoint* pt1, CvPoint* pt2)
 {
-  CC_Assert(pt1 && pt2);
+  ASSERT(pt1 && pt2);
   return cv::clipLine(size, *(cv::Point*)pt1, *(cv::Point*)pt2);
 }
 
@@ -2923,7 +2925,7 @@ cvInitLineIterator(const CvArr* img, CvPoint pt1, CvPoint pt2,
   CvLineIterator* iterator, int connectivity,
   int left_to_right)
 {
-  CC_Assert(iterator != 0);
+  ASSERT(iterator != 0);
   cv::LineIterator li(cv::cvarrToMat(img), pt1, pt2, connectivity, left_to_right != 0);
 
   iterator->err = li.err;
@@ -3013,7 +3015,7 @@ CC_IMPL void
 cvPutText(CvArr* _img, const char *text, CvPoint org, const CvFont *_font, CvScalar color)
 {
   cv::Mat img = cv::cvarrToMat(_img);
-  CC_Assert(text != 0 && _font != 0);
+  ASSERT(text != 0 && _font != 0);
   cv::putText(img, text, org, _font->font_face, (_font->hscale + _font->vscale)*0.5,
     color, _font->thickness, _font->line_type,
     CC_IS_IMAGE(_img) && ((IplImage*)_img)->origin != 0);
@@ -3024,7 +3026,7 @@ CC_IMPL void
 cvInitFont(CvFont *font, int font_face, double hscale, double vscale,
   double shear, int thickness = 1, int line_type = LINE_8)
 {
-  CC_Assert(font != 0 && hscale > 0 && vscale > 0 && thickness >= 0);
+  ASSERT(font != 0 && hscale > 0 && vscale > 0 && thickness >= 0);
 
   font->ascii = cv::getFontData(font_face);
   font->font_face = font_face;
@@ -3039,7 +3041,7 @@ cvInitFont(CvFont *font, int font_face, double hscale, double vscale,
 CC_IMPL void
 cvGetTextSize(const char *text, const CvFont *_font, CvSize *_size, int *_base_line)
 {
-  CC_Assert(text != 0 && _font != 0);
+  ASSERT(text != 0 && _font != 0);
   cv::Size size = cv::getTextSize(text, _font->font_face, (_font->hscale + _font->vscale)*0.5,
     _font->thickness, _base_line);
   if (_size)

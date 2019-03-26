@@ -673,32 +673,42 @@ static int cvFaceDetect( const void* cas, const img_t* im, const img_t* mask, do
   return ret;
 }
 
+int objdetect(const void* cas, int height, int width, const unsigned char* data, int datastep,
+	const unsigned char* mask, int maskstep, double sc, double ssmin, double ssmax, double ss, int stepxy,
+	double thd, int mincnt, int* xywh, int xywh_len, int is_trans) {
+	//int fastmode = sc < 0.001; //快速模式
+	lut_detect_param_t p = { 0 };
+	XRECT* B = (XRECT*)xywh;
+	int B_len = xywh_len * sizeof(int) / sizeof(XRECT);
+	if (sc<0.01) {
+		sc = 1. / ssmin;
+		ssmin = 1.;
+	}
+	detect_init(&p, &cas, 1, height, width, data, datastep, mask, maskstep, sc, ssmin, ssmax, ss, stepxy, thd, mincnt, 0, B, B_len, is_trans, 0, 0);
+	MYREALLOC(p.buf, p.buflen);
+	if (NULL != p.buf) {
+		detect_process(&p);
+		FREE(p.buf);
+	}
+	for (int i = 0; i < p.outlen; ++i) {
+		int x = B[i].x, y = B[i].y, w = B[i].w, h = B[i].h;
+		xywh[i * 4 + 0] = x;
+		xywh[i * 4 + 1] = y;
+		xywh[i * 4 + 2] = w;
+		xywh[i * 4 + 3] = h;
+	}
+	return p.outlen;
+}
+
 int face_detect(int height, int width, const unsigned char* data, int datastep,
                 const unsigned char* mask, int maskstep, double sc, double ssmin, double ssmax, double ss, int stepxy,
                 double thd, int mincnt, int* xywh, int xywh_len, int is_trans ) {
   //int fastmode = sc < 0.001; //快速模式
   const void* cas = vis_nesting_face20110713;
-  lut_detect_param_t p={0};
-  XRECT* B = (XRECT*)xywh;
-  int B_len = xywh_len *sizeof(int)/sizeof(XRECT);
-  if (sc<0.01) {
-    sc = 1./ssmin;
-    ssmin = 1.;
-  }
-  detect_init(&p, &cas, 1, height, width, data, datastep, mask, maskstep, sc, ssmin, ssmax, ss, stepxy, thd, mincnt, 0, B, B_len, is_trans, 0, 0);
-  MYREALLOC(p.buf, p.buflen);
-  if (NULL!=p.buf) {
-    detect_process(&p);
-    FREE(p.buf);
-  }
-  for (int i = 0; i < p.outlen; ++i) {
-    int x = B[i].x, y = B[i].y, w = B[i].w, h = B[i].h;
-    xywh[i * 4 + 0] = x;
-    xywh[i * 4 + 1] = y;
-    xywh[i * 4 + 2] = w;
-    xywh[i * 4 + 3] = h;
-  }
-  return p.outlen;
+  int ret = objdetect(cas, height, width, data, datastep,
+	  mask, maskstep, sc, ssmin, ssmax, ss, stepxy,
+	  thd, mincnt, xywh, xywh_len, is_trans);
+  return ret;
 }
 
 int cas_ihlen(const void* cas[], int casnum);

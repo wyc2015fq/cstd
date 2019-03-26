@@ -9,7 +9,7 @@
 #ifndef OutputDebugString
 #define OutputDebugString printf
 #endif
-
+//////////////////////////////////////////////////
 DEFINE_bool(logtostderr, true, "Set whether log messages go to stderr instead of logfiles");
 DEFINE_bool(alsologtostderr, true, "Set whether log messages go to stderr in addition to logfiles.");
 DEFINE_bool(colorlogtostderr, true, "Set color messages logged to stderr (if supported by terminal).");
@@ -193,5 +193,76 @@ enum GLOGTYPE {
 static void SetLogDestination(enum GLOGTYPE type, const char* str) {}
 static void InitGoogleLogging(const char* str) {}
 
+//////////////////////////////////////////////////
+
+
+//static const char* logname(const char*) {}
+CC_INLINE char* _logfilename()
+{
+	static char __logfilename[256] = ".\\log.txt";
+	return __logfilename;
+}
+#define LOGFILENAME _logfilename()
+CC_INLINE int fclear(const char* fname)
+{
+	FILE* pf = fopen(fname, "wb");
+	if (pf) {
+		fclose(pf);
+		return 1;
+	}
+	return 0;
+}
+#define logclear()   fclear(LOGFILENAME)
+#define logset(_name)   strcpy(LOGFILENAME, _name)
+CC_INLINE int* get__logecho()
+{
+	static int __logecho = 1;
+	return &__logecho;
+}
+CC_INLINE int* get__logtime()
+{
+	static int __logtime = 1;
+	return &__logtime;
+}
+#define __logecho  (*(get__logecho()))
+#define __logtime  (*(get__logtime()))
+#define logecho(_ON_OFF)   (__logecho=_ON_OFF)
+#define logtime(_ON_OFF)   (__logtime=_ON_OFF)
+// pf - stdout?
+#ifndef PTTIME
+#include <time.h>
+//#define STRDATE()  _strdate(_time_buffer)
+//#define STRTIME()  _strtime(_time_buffer)
+//#define PTTIME STRTIME()
+#endif
+
+CC_INLINE int logprintf(const char* fmt, ...)
+{
+	FILE* pf;
+	//static char _time_buffer[ 16 ];
+	static char buf[4096];
+	pf = fopen(LOGFILENAME, "a");
+	if (pf) {
+		int len;
+		va_list arglist;
+		va_start(arglist, fmt);
+		if (__logtime) {
+			fprintf(pf, "%8s ", strtime(NULL));
+		}
+		len = vsnprintf(buf, countof(buf), fmt, arglist);
+		char* p = buf;
+		strim(&p, &len, "\r\n");
+		p[len] = 0;
+		fwrite(p, len, 1, pf);
+		fwrite("\r\n", 2, 1, pf);
+		fflush(pf);
+		if (__logecho) {
+			puts(p);
+		}
+		va_end(arglist);
+		fclose(pf);
+	}
+	return 0;
+}
 
 #endif // _LOGGING_HPP_

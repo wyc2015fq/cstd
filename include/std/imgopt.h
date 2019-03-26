@@ -1,5 +1,5 @@
-#ifndef _IMOPT_INL_
-#define _IMOPT_INL_
+#ifndef _IMOPT_H_
+#define _IMOPT_H_
 
 #include "img_c.h"
 #include "geo_c.h"
@@ -2551,5 +2551,5 @@ static int imgprint(const img_t* im)
 }
 #endif
 
-#endif // _IMOPT_INL_
+#endif // _IMOPT_H_
 

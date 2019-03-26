@@ -16,6 +16,67 @@ enum ICONV_CODEPAGE {
 //#define USE_WINCONV
 
 
+
+static int isTextUTF8(const void* str0, int length)
+{
+	int i;
+	uint32_t nBytes = 0;
+	const uint8_t* str = (const uint8_t*)str0;
+	BOOL bAllAscii = TRUE;
+	for (i = 0; i < length; i++) {
+		uint8_t chr = *(str + i);
+		if ((chr & 0x80) != 0) {
+			bAllAscii = FALSE;
+		}
+		if (nBytes == 0) {
+			if (chr >= 0x80) {
+				if (chr >= 0xFC && chr <= 0xFD) {
+					nBytes = 6;
+				}
+				else if (chr >= 0xF8) {
+					nBytes = 5;
+				}
+				else if (chr >= 0xF0) {
+					nBytes = 4;
+				}
+				else if (chr >= 0xE0) {
+					nBytes = 3;
+				}
+				else if (chr >= 0xC0) {
+					nBytes = 2;
+				}
+				else {
+					return FALSE;
+				}
+				nBytes--;
+			}
+		}
+		else {
+			if ((chr & 0xC0) != 0x80) {
+				return FALSE;
+			}
+			nBytes--;
+		}
+	}
+	if (nBytes > 0) {
+		return FALSE;
+	}
+	if (bAllAscii) {
+		return FALSE;
+	}
+	return TRUE;
+}
+typedef ICONV_CODEPAGE CodePage;
+static CodePage GetCodePage(const void* str, int len)
+{
+	if (isTextUTF8(str, len)) {
+		return ICONV_UTF8;
+	}
+	return ICONV_GB2312;
+}
+
+
+
 #ifdef _WIN32
 #define USE_WINCONV
 #else
@@ -191,7 +252,7 @@ static int iconv_c(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* src
 
 //编码转换，src_charset是源编码，dst_charset是目标编码
 //src是源编码字符串
-static int iconv_c(const char* src_charset, const char* dst_charset, const char* src, int srclen, char* dst, int dstlen)
+static int iconv_cs(const char* src_charset, const char* dst_charset, const char* src, int srclen, char* dst, int dstlen)
 {
   ICONV_CODEPAGE src_cp = mycodepage(src_charset);
   ICONV_CODEPAGE dst_cp = mycodepage(dst_charset);
@@ -204,7 +265,7 @@ static int iconv_wcstombsz(char* mbstr, const wchar_t* wcstr, size_t count)
   if (count == 0 && mbstr != NULL) {
     return 0;
   }
-  int result = iconv_c("UCS-2LE", "gb2312", (const char*)wcstr, count * 2, mbstr, count * 4);
+  int result = iconv_cs("UCS-2LE", "gb2312", (const char*)wcstr, count * 2, mbstr, count * 4);
   if (result > 0) {
     mbstr[result] = 0;
   }
@@ -216,7 +277,7 @@ static int iconv_mbstowcsz(wchar_t* wcstr, const char* mbstr, size_t count)
   if (count == 0 && wcstr != NULL) {
     return 0;
   }
-  int result = iconv_c("gb2312", "UCS-2LE", mbstr, count, (char*)wcstr, count * 2);
+  int result = iconv_cs("gb2312", "UCS-2LE", mbstr, count, (char*)wcstr, count * 2);
   if (result > 0) {
     wcstr[result / 2] = 0;
   }
