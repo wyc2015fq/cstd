@@ -6,6 +6,8 @@
 #include "wstd/filesystem.hpp"
 //#include <iostream>
 #include "test_sub_match.hpp"
+#include "face/face.h"
+#include "ocr_detect_back.hpp"
 //#include "face/DSP_feat.h"
 using namespace std;
 
@@ -34,20 +36,34 @@ RotatedRect face_rect_to_card_rect(const RotatedRect& face, double y_off_scale, 
   return RotatedRect(end, Size2f(w * 6* scalex, w * 4 * scaley), face.angle);
 }
 
-int face_detect(int height, int width, const unsigned char* data, int datastep,
-  const unsigned char* mask, int maskstep, double sc, double ssmin, double ssmax, double ss, int stepxy,
-  double thd, int mincnt, int* xywh, int xywh_len, int is_trans);
+#ifndef MODELPATH
+#ifdef _DEBUG
+#define MODELPATH "E:/OCR_Line/bin/model/"
+#else
+#define MODELPATH "./model/"
+#endif
+#endif // MODELPATH
+
 
 struct FaceDetector {
   vector<RotatedRect> rects;
-  int run(const Mat& src) {
+  vector<RotatedRect> rect_pairs;
+  IdCardBackDetecter back_detecter;
+  FaceDetector() {
+	  back_detecter.init(MODELPATH "idcard_back_cas_20190326.txt");
+  }
+  int run(Mat& src) {
     //buf_t bf[1] = { 0 };
     int out[600];
-    rects.resize(0);
+	rects.resize(0);
+	rect_pairs.resize(0);
     Mat gray;
     //vector<Mat> vv;
     for (int i = 0; i < 4; ++i) {
       rotate90(src, gray, i);
+	  if (1) {
+		  back_detecter.run(src, rect_pairs, i);
+	  }
       //vv.push_back(gray.clone());
       int n;
       double ss = 300. / gray.rows;
@@ -62,6 +78,8 @@ struct FaceDetector {
         rects.push_back(rr);
       }
     }
+	drawRotatedRects(src, rect_pairs, 1);
+	//imshow("src", src); waitKey(-1);
     //cv::imshow("srcImage", mergeImgs(10, 0, 200, vv));
     //cv::waitKey(0);
     return rects.size();
@@ -82,7 +100,7 @@ struct get_angle_t {
   get_angle_t() {
     mesr1 = cv::MSER::create(2, 10, 200, 0.2, 0.3);
   }
-  int run(Mat src) {
+  int run(const Mat& src) {
     Mat gray;
     std::vector<cv::Rect> bboxes1;
     std::vector<std::vector<cv::Point> > regContours;
@@ -239,7 +257,7 @@ struct get_angle_t {
         }
       }
       centor_dis = pt2Line(Point(src.cols*0.5, src.rows*0.5), botton_line);
-      cv::putText(color_edge, wstd::format("%d %d", (int)max_dis, (int)centor_dis), Point(0, 50), FONT_HERSHEY_COMPLEX, 2, Scalar(0, 255, 255), 2, 8, 0);
+      //cv::putText(color_edge, wstd::format("%d %d", (int)max_dis, (int)centor_dis), Point(0, 50), FONT_HERSHEY_COMPLEX, 2, Scalar(0, 255, 255), 2, 8, 0);
       //drawDetectLines(color_edge, lines, 2);
       //imshow("color_edge", color_edge);
     }

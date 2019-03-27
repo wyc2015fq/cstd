@@ -219,7 +219,7 @@ typedef struct iHaar {
 }
 iHaar;
 
-typedef struct tagHAARCASCADE {
+typedef struct HAARCASCADE {
   int w;
   int h;
   int stagelen;

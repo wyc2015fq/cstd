@@ -676,9 +676,9 @@ static int mkdirs(const char* filename)
 //#define file_subdir(name)      (0 == sys_access(name, AS_SUBDIR))
 #define fileok(name)           (file_exist( name ) && filesize(name)>0)
 
-#ifdef _WIN32
-static int filemode_to_sysmode(int mode) {
+static int sys_access(const char* filename, int mode) {
 	int mode1 = 0;
+#ifdef _WIN32
 #define FILE_ACCESS_MODEDEF(a, b) if (mode&a) {mode1|=b;}
 	FILE_ACCESS_MODEDEF(AS_EXIST, _A_NORMAL);
 	FILE_ACCESS_MODEDEF(AS_RDONLY, _A_RDONLY);
@@ -686,30 +686,19 @@ static int filemode_to_sysmode(int mode) {
 	FILE_ACCESS_MODEDEF(AS_WRITE, 0);
 	FILE_ACCESS_MODEDEF(AS_READ, 0);
 	FILE_ACCESS_MODEDEF(AS_SUBDIR, _A_SUBDIR);
-	return mode1;
-}
-int sys_access(const char* filename, int mode) {
-	return _access(filename, filemode_to_sysmode(mode));
-}
+#undef FILE_ACCESS_MODEDEF
 #else
-
 #define FILE_ACCESS_MODEDEF(a, b) if (mode&a) {mode1|=b;}
-static int filemode_to_sysmode(int mode) {
-	int mode1 = 0;
 	FILE_ACCESS_MODEDEF(AS_EXIST, F_OK);
 	FILE_ACCESS_MODEDEF(AS_EXECUTE, X_OK);
 	FILE_ACCESS_MODEDEF(AS_WRITE, W_OK);
 	FILE_ACCESS_MODEDEF(AS_READ, R_OK);
-	return mode1;
-}
 #undef FILE_ACCESS_MODEDEF
-int sys_access(const char* filename, int mode) {
-	//FILE_ACCESS_MODEDEF(AS_SUBDIR, 0);
-	return _access(filename, filemode_to_sysmode(mode));
-}
 #endif
+	return _access(filename, mode1);
+}
 
-int sys_chdir(const char* name) {
+static int sys_chdir(const char* name) {
 #ifdef __linux__
 	return chdir(name);
 #else

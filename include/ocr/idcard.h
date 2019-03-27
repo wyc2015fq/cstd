@@ -4,15 +4,43 @@
 #define __IDCARD_H__
 
 struct idcard {
-  char gender[32]; // 性别
-  char name[32]; // 名字
-  char number[32];// 号码
-  char birthday[32];// 出生日期
-  char race[32];// 民族
-  char address[128]; //地址
-  char side[32];// front: 人像面back: 国徽面
-  int type; // 证件类型。返回1，代表是身份证
+	char gender[32]; // 性别
+	char name[32]; // 名字
+	char number[32];// 号码
+	char birthday[32];// 出生日期
+	char race[32];// 民族
+	char address[128]; //地址
+	char side[32];// front: 人像面back: 国徽面
+	int type; // 证件类型。返回1，代表是身份证
 };
+struct idcard_back {
+	char side[32];// front: 人像面back: 国徽面
+	char issued_by[64];// 签发机关
+	char valid_date[32]; // 有效日期
+	int type; // 证件类型。返回1，代表是身份证
+};
+
+int valid_date_curr(char* valid_date) {
+	int len = strlen(valid_date), j=0;
+	for (int i = 0; i < len; ++i) {
+		char c = valid_date[i];
+		if (c >= '0' && c <= '9') {
+			valid_date[j++] = c;
+		}
+	}
+	valid_date[j] = 0;
+	if (j < 15) { return 0; }
+	char buf[32] = {0};
+	memcpy(buf, valid_date, 8);
+	buf[8] = 0;
+	int date0 = atoi(buf);
+	if (date0 < 19201111 || date0>29001111) {
+		return 0;
+	}
+	int date1 = atoi(valid_date+8);
+	sprintf(valid_date, "%d-%d", date0, date1);
+	return 1;
+}
 
 
 int idcard_curr(char* aa) { return 0; }

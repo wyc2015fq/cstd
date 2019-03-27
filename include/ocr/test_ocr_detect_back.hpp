@@ -1,32 +1,67 @@
 
-//#include "debug.h"
-#include "std/stddef_c.h"
+#include "ocr_detect_back.hpp"
+//#include "ocr/ocr_caffe.hpp"
 
-#include <direct.h>
-//#include "ui/window.inl"
-#include "std/fileio_c.h"
-#include "std/inifile.h"
-//#include "cap.h"
-
-#include "img/imgio.inl"
-//#include "std/imdraw.h"
-#include "std/drawing_c.h"
-#include "std/gui_c.h"
-#include "std/dir_c.h"
-#include "std/log_c.h"
-#include "std/objdetect.h"
-#include "std/colorcvt.h"
-#include "std/fileioex.h"
-
-#include "face/face.inl"
-#include "face/casio.inl"
-// idcard_back_20190326
-
-uchar idcard_back_20190326[] = {
-#include "face/cas/idcard_back_20190326.inl"
-};
-// face_detect
-
+int test_ocr_detect_back() {
+	char* fn = NULL;
+	vstr_t sv[1] = { 0 };
+	int i, n;
+	//buf_t bf[1] = {0};
+	sys_chdir("D:/pub/bin/adaboost/lobo");
+	sys_chdir("D:/pub/faceplusplus/gender/out");
+	sys_chdir("E:/OCR_Line/adaboost");
+	sys_chdir("E:/data/ew_id/we-loan.oss-cn-shanghai.aliyuncs.com");
+	vstr_load("../backend_2.txt", sv);
+	IdCardBackDetecter idcard_back_detecter;
+	if (1) {
+		fn = "haar_LUT_nesting_cas.dat";
+		fn = "cas.dat";
+		fn = "haar_gen_cas.dat";
+		fn = "gender_cas.dat";
+		fn = "idcard_cas.dat";
+		fn = "idcard_cas.dat";
+		fn = "cas.txt";
+		//ca->w = 100, ca->h = 100;
+		//ca->w = 30, ca->h = 20;
+		// idcard_back_20190326
+		idcard_back_detecter.init("cas.txt");
+	}
+	i = 0;
+	i = 55;
+	for (; i<sv->n; ++i) {
+		Mat im = imread((char*)sv->v[i].s, cv::IMREAD_COLOR);
+		if (im.rows < 400) {
+			continue;
+		}
+		//imshow2("im1", im);
+		if (im.rows>800) {
+			im = resize(im, 800. / im.rows);
+		}
+		n = 0;
+		std::vector<RotatedRect> rr;
+		for (int i = 0; i < 4; ++i) {
+			Mat im1;
+			rotate90(im, im1, i);
+			n += idcard_back_detecter.run(im1, rr, i);
+			//n = cvFaceDetect(ca, gry, NULL, 0.5, NULL, out, countof(out));
+		}
+		drawRotatedRects(im, rr, 1);
+		printf("%d, %d\n", i, n);
+		int j;
+		for (j = 0; j<n; ++j) {
+			//imdraw_xrects(im, out, n);
+			//imdraw_rect(im, 0, NULL, rc, 0, _RGB(255, 0, 0), 1);
+			//Rect rc = idcard_back_detecter.rect[j];
+			//rectangle(im, rc, CV_RGB(255, 0, 0), 1, 8, 0);
+		}
+		imshow("im", im);
+		waitKey(-1);
+	}
+	//bffree(bf);
+	vstr_free(sv);
+	return 0;
+}
+#if 0
 int test_ocr_detect_back() {
 	char* fn = NULL;
 	vstr_t sv[1] = { 0 };
@@ -40,7 +75,7 @@ int test_ocr_detect_back() {
 	sys_chdir("E:/OCR_Line/adaboost");
 	sys_chdir("E:/data/ew_id/we-loan.oss-cn-shanghai.aliyuncs.com");
 	vstr_load("../backend_2.txt", sv);
-	HAARCASCADE* ca = NULL;
+	IdCardBackDetecter idcard_back_detecter;
 	if (1) {
 		fn = "haar_LUT_nesting_cas.dat";
 		fn = "cas.dat";
@@ -52,7 +87,7 @@ int test_ocr_detect_back() {
 		//ca->w = 100, ca->h = 100;
 		//ca->w = 30, ca->h = 20;
 		// idcard_back_20190326
-		ca = cas_load("cas.txt");
+		idcard_back_detecter.init("cas.txt");
 	}
 
 	for (i = 0; i<sv->n; ++i) {
@@ -69,15 +104,15 @@ int test_ocr_detect_back() {
 		memset(out, 0, sizeof(out));
 
 		if (1) {
-			//n = objdetect(idcard_back_20190326, gry->h, gry->w, gry->data, gry->s, NULL, 0, 0.5, 1, 100, 1.1, 1, 0.8, 5, );
-			n = cvFaceDetect(ca, gry, NULL, 0.5, NULL, out, countof(out));
+			n = objdetect(ca, gry->h, gry->w, gry->data, gry->s, NULL, 0, 0.5, 1, 100, 1.1, 1, 0.8, 5, );
+			//n = cvFaceDetect(ca, gry, NULL, 0.5, NULL, out, countof(out));
 		}
 		printf("%d\n", n);
 		int j;
 		for (j = 0; j<n; ++j) {
 			//imdraw_xrects(im, out, n);
 			if (out[j].count>5) {
-				Rect rc = iRect(out[j].x, out[j].y, out[j].w, out[j].h);
+				IRect rc = iRect(out[j].x, out[j].y, out[j].w, out[j].h);
 				//imdraw_rect(im, 0, NULL, rc, 0, _RGB(255, 0, 0), 1);
 				rectangle(im, rc, _RGB(255, 0, 0), 1, 8, 0);
 			}
@@ -90,5 +125,5 @@ int test_ocr_detect_back() {
 	vstr_free(sv);
 	return 0;
 }
-
+#endif
 

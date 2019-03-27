@@ -3,6 +3,15 @@
 #define __OCR_CAFFE_HPP__
 
 #include "caffe/classification/ICNNPredict.h"
+using namespace std;
+
+#ifdef _DEBUG
+#define MODELPATH "E:/OCR_Line/bin/model/"
+#else
+#define MODELPATH "./model/"
+#endif
+
+
 //#include "classification/libClassification.hpp"
 //#pragma comment (lib,"libClassification.lib")
 
@@ -20,13 +29,6 @@ string GetPredictString(const vector<float>& fm, int idxBlank, const vector<stri
   }
   return str;
 }
-
-#ifdef _DEBUG
-#define MODELPATH "E:/OCR_Line/bin/model/"
-#else
-#define MODELPATH "./model/"
-#endif
-
 
 #if 1
 struct ocr_caffe {
@@ -99,6 +101,20 @@ struct ocrnum_caffe {
     return strpredict0;
   }
 };
+
+string run_ocrnum_caffe(const Mat& im4) {
+	static ocrnum_caffe ocrnum_caffe1;
+	string ss = ocrnum_caffe1.run(im4);
+	return ss;
+}
+
+string run_ocr_caffe(const Mat& im4) {
+	static ocr_caffe ocr_caffe1;
+	string ss = ocr_caffe1.run(im4);
+	return ss;
+}
+
+
 #else
 struct ocr_caffe {
 	string run(const Mat& im) {

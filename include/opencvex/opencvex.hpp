@@ -1,3 +1,7 @@
+
+#ifndef __OPENCVEX_HPP__
+#define __OPENCVEX_HPP__
+
 #pragma warning(disable:4996)
 #pragma warning(disable:4018)
 
@@ -8,6 +12,24 @@
 #include <opencv2/imgproc/imgproc.hpp>
 using namespace std;
 using namespace cv;
+
+Mat mastbegray(const Mat& mat) {
+	Mat gry;
+	int c = mat.channels();
+	if (c == 3) {
+		cv::cvtColor(mat, gry, cv::COLOR_BGR2GRAY);
+	}
+	else if (c == 1) {
+		gry = mat;
+	}
+	return gry;
+}
+
+Mat resize(const Mat& mat, double x) {
+	Mat ret;
+	resize(mat, ret, Size(x*mat.cols, x*mat.rows));
+	return ret;
+}
 
 Rect rectSplitH(Rect r, int i, int n) {
   float w = r.width*1./n;
@@ -294,6 +316,38 @@ Point rect_center(Rect r) {
   return Point(r.x+r.width/2, r.y+r.height/2);
 }
 
+
+vector<float> project_H(const Mat& binary, int k)
+{
+	vector<float> blackcout(binary.cols, 0);
+	vector<float> sumcnt(binary.cols + 1, 0);
+	//memset(blackcout, 0, binary.cols * 4);
+	int n = binary.rows;
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < binary.cols; j++) {
+			if (binary.at<uchar>(i, j)) {
+				blackcout[j]++;
+			}
+		}
+	}
+	if (k > 1) {
+		for (int i = 0; i < n; ++i) {
+			sumcnt[i + 1] = sumcnt[i] + blackcout[i];
+		}
+		for (int i = 0; i < n; ++i) {
+			int a = i - k / 2;
+			int b = a + k;
+			a = MAX(a, 0);
+			b = MIN(b, n - 1);
+			if (a < b) {
+				blackcout[i] = (sumcnt[b] - sumcnt[a]) / (b - a);
+			}
+		}
+	}
+	return blackcout;
+}
+
+
 double rcdist(Rect r1, Rect r2) {
   Rect rect = r1 & r2;
   double mindis = 99999;
@@ -561,9 +615,27 @@ RotatedRect rotate(const RotatedRect& r, const Point2f& rotate_center, double an
 }
 
 RotatedRect scale(const RotatedRect& r, double x, double y) {
-  return RotatedRect(Point2f(r.center.x*x, r.center.y*y), Size2f(r.size.width*x, r.size.height*y), r.angle);
+	return RotatedRect(Point2f(r.center.x*x, r.center.y*y), Size2f(r.size.width*x, r.size.height*y), r.angle);
 }
 
+RotatedRect scale_size(const RotatedRect& r, double x, double y) {
+	return RotatedRect(Point2f(r.center.x, r.center.y), Size2f(r.size.width*x, r.size.height*y), r.angle);
+}
+
+
+RotatedRect& curr(RotatedRect& rr) {
+	if (rr.size.height > rr.size.width) {
+		std::swap(rr.size.height, rr.size.width);
+		rr.angle += 90;
+		if (rr.angle > 360) {
+			rr.angle -= 360;
+		}
+		if (rr.angle > 180) {
+			rr.angle -= 180;
+		}
+	}
+	return rr;
+}
 
 
 // flag 1-90 2-180 3-270
@@ -573,7 +645,7 @@ RotatedRect rect_rotate90(const RotatedRect& r, Size2f size, int flag) {
   o.angle += flag*90;
   if (flag & 1) {
     std::swap(o.center.x, o.center.y);
-    std::swap(o.size.width, o.size.height);
+    //std::swap(o.size.width, o.size.height);
     std::swap(size.width, size.height);
     if (flag == 3) {
       o.center.y = size.height - o.center.y;
@@ -591,6 +663,30 @@ RotatedRect rect_rotate90(const RotatedRect& r, Size2f size, int flag) {
   return o;
 }
 
+RotatedRect rect_rotate90a(const RotatedRect& r, Size2f size, int flag) {
+	flag &= 3;
+	RotatedRect o = r;
+	o.angle += flag * 90;
+	if (flag & 1) {
+		std::swap(o.center.x, o.center.y);
+		//std::swap(o.size.width, o.size.height);
+		//std::swap(size.width, size.height);
+		if (flag == 3) {
+			o.center.y = size.height - o.center.y;
+		}
+		else {
+			o.center.x = size.width - o.center.x;
+		}
+	}
+	else if (flag == 2) {
+		o.center.x = size.width - o.center.x;
+		o.center.y = size.height - o.center.y;
+	}
+	else {
+	}
+	o = curr(o);
+	return o;
+}
 // flag 1-90 2-180 3-270
 int rotate90(const Mat& matSrc, Mat& matDst, int flag) {
   flag &= 3;
@@ -857,6 +953,12 @@ Mat getSubImage(const Mat& src, RotatedRect r) {
 Mat getSubImage(const Mat& src, RotatedRect r, Size size) {
   Point2f dstTri[4];
   Point2f srcTri[4];
+  if (size.height == 0) {
+	  size.height = size.width * r.size.height / r.size.width;
+  }
+  if (size.width == 0) {
+	  size.width = size.height * r.size.width / r.size.height;
+  }
   RotatedRect d(Point2f(size.width / 2., size.height / 2.), size, 0);
   d.points(dstTri);
   r.points(srcTri);
@@ -906,14 +1008,6 @@ void drawRotatedRects(Mat& color_edge, const vector<RotatedRect>& lines_class, i
     RotatedRect r = lines_class[j];
     drawRotatedRect(color_edge, r, color, lw);
   }
-}
-
-RotatedRect& curr(RotatedRect& rr) {
-  if (rr.size.height > rr.size.width) {
-    std::swap(rr.size.height, rr.size.width);
-    rr.angle += 90;
-  }
-  return rr;
 }
 
 RotatedRect minAreaRect(const vector<RotatedRect>& vr) {
@@ -1293,7 +1387,7 @@ void drawHist(Mat& histImg, const Mat& hist, int t) {
   double minVal = 0;
   double absVal = 0;
 
-  //�ҵ�ֱ��ͼ�е����ֵ����Сֵ
+  //
   minMaxLoc(hist, &minVal, &maxVal, 0, 0);
   absVal = max(fabs(minVal), fabs(maxVal));
   float hpt = (0.45*histW);
@@ -1483,3 +1577,5 @@ double DefRto(Mat frame)
 }
 #endif
 #include "hough.hpp"
+
+#endif // __OPENCVEX_HPP__

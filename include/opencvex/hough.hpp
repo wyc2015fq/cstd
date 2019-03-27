@@ -26,6 +26,7 @@ void drawLine(cv::Mat& img, const Vec2f& lines, cv::Scalar& color, int thickness
 }
 
 
+
 bool Compare(const KVNode& aNode, const KVNode& bNode)
 {
   return (aNode.pixelSum > bNode.pixelSum);

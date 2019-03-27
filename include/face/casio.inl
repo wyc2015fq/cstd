@@ -15,7 +15,7 @@ int fgetf_i6(FILE* pf, double deff) {
 	return _SHIFT_TOINT(d);
 }
 
-HAARCASCADE* cas_load(const char* fn)
+struct HAARCASCADE* cas_load(const char* fn)
 {
 	FILE* pf = fopen(fn, "rb");
 	if (NULL == pf) return 0;
