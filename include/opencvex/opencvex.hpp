@@ -13,6 +13,12 @@
 using namespace std;
 using namespace cv;
 
+Rect curr(Rect r) {
+	r.width = abs(r.width);
+	r.height = abs(r.height);
+	return r;
+}
+
 Mat mastbegray(const Mat& mat) {
 	Mat gry;
 	int c = mat.channels();

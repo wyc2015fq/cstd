@@ -276,7 +276,7 @@ struct IdCardBackDetecter {
 						r = rect_rotate90(r, Size(mat.cols, mat.rows), -rotid);
 						out.push_back(r);
 					}
-					//drawRotatedRects(mat, split_line.lines_ok, 1);					imshow("mat", mat);					waitKey(0);
+					//drawRotatedRects(mat, split_line.lines_ok, 1);	imshow("mat", mat);	waitKey(0);
 				}
 			}
 		}

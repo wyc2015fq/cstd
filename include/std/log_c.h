@@ -114,7 +114,7 @@ static int log_puts(const char* s)
   aprintf(&buf, 0, "[%s]%s", stime, s);
   s = buf;
   printf(s);
-  fappend("log.txt", s, (int)strlen(s));
+  //fappend("log.txt", s, (int)strlen(s));
   free(buf);
   return 0;
 }

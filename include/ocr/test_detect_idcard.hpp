@@ -182,11 +182,50 @@ struct ocr_seghans {
       int len = iconv_c(ICONV_UCS2LE, ICONV_GB2312, (char*)whans, j * 2, hans, 256);
       hans[len] = 0;
       //printf("%s\n", hans);
-      imshow("color_edge", color_edge); waitKey(-1);
+      //imshow("color_edge", color_edge); waitKey(-1);
     }
     return wlen;
   }
 };
+
+Mat mesr_bin(const Mat& mat) {
+	cv::Ptr<cv::MSER> mesr1;
+	std::vector<std::vector<cv::Point> > regContours;
+	std::vector<cv::Rect> bboxes1;
+	mesr1 = cv::MSER::create(2, 50, 200, 0.2, 0.3);
+	Mat gray = mastbegray(mat);
+	mesr1->detectRegions(gray, regContours, bboxes1);
+	cv::Mat mserMapMat = cv::Mat::zeros(mat.size(), CV_8UC1);
+	const Mat& src = mat;
+	for (int i = (int)regContours.size() - 1; i >= 0; i--)
+	{
+		// 根据检测区域点生成mser+结果
+		const std::vector<cv::Point>& p = regContours[i];
+		Rect rc = bboxes1[i];
+		//if (r.width > 30 || r.height > 30 || r.height<2 || r.width<2)        continue;
+		RotatedRect r(Point2f(rc.x + rc.width / 2, rc.y + rc.height / 2), Size2f(rc.width, rc.height), 0);
+		r = minAreaRect(p);
+		//int k = 10;
+		//if (rr.size.height < k || rr.size.width < k) { continue; }
+		double aa = r.size.width*1. / r.size.height;
+		double d = ptdist(r.center, Point(src.cols*0.8, src.rows*0.4))*1. / src.cols;
+		int angle = mymodi(r.angle - 90, 90);
+		if (aa>0.7 && r.size.width>5 && r.size.height>5) {
+			RotatedRect rectPoint = minAreaRect(p);
+			//Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+			//drawRotatedRect(color_edge, rectPoint, color, 1);
+			//vrr.push_back(r);
+			for (int j = 0; j < (int)p.size(); j++)
+			{
+				cv::Point pt = p[j];
+				//if (ptInRect(pt.x, pt.y, r))
+				mserMapMat.at<unsigned char>(pt) = 255;
+			}
+		}
+	}
+	return mserMapMat;
+}
+
 struct ocr_segchar {
   cv::Ptr<cv::MSER> mesr1;
   Mat color_edge;
@@ -196,12 +235,12 @@ struct ocr_segchar {
     cjson_Clear;
     mesr1 = cv::MSER::create(2, 50, 200, 0.2, 0.3);
   }
-  char idnumber[20];
+  Rect idnumber_rect;
   int run(const Mat& src, int iline) {
     Mat gray;
     Mat bin;
-    *idnumber = 0;
     std::vector<cv::Rect> bboxes1;
+	idnumber_rect = Rect();
     std::vector<std::vector<cv::Point> > regContours;
     cv::cvtColor(src, gray, CV_BGR2GRAY);
     mesr1->detectRegions(gray, regContours, bboxes1);
@@ -356,100 +395,19 @@ struct ocr_segchar {
         int j = 0;
         i = MAX(nclasses - 18, 0);
         Rect boundrc = rrect2[0];
-        for (; i < nclasses && 0; ++i) {
-          Rect boundRect = rrect2[i];
-          //rrect2[j++] = boundRect;
-          if (1) {
-            boundRect = rectExt(boundRect, 2, 2, src.rows, src.cols);
-
-            if (boundRect.width > 0 && boundRect.height > 0) {
-              //Scalar color = Scalar(230, 0, 0);
-              //rectangle(color_edge, boundRect, color, 1);
-
-              if (0) {
-                string fn = wstd::format("E:/OCR_Line/chars_idcard/%c", g_idcard[i]);
-                mkdirs(fn.c_str());
-                static int ii = 0;
-                char buf[256] = { 0 };
-                path_split_filename(g_imgfn.c_str(), buf, 256);
-                fn = wstd::format("E:/OCR_Line/chars_idcard/%c/%s_%s.jpg", g_idcard[i], timenow(), buf);
-
-                Mat im4 = src(boundRect).clone();
-                imwrite(fn, im4);
-              }
-#ifdef _OCR_CHAR_HPP_
-              if (1) {
-                Mat im4 = src(boundRect).clone();
-                Mat imchar = gray(boundRect).clone();
-                int idx = ocr_c.run(imchar.data, imchar.rows, imchar.cols, imchar.channels());
-                char chs[] = "0123456789X";
-                assert(idx < strlen(chs));
-                idnumber[j++] = chs[idx];
-                //printf("%c", chs[idx]);
-                //imshow("imchar", imchar); waitKey(-1);
-              }
-#endif
-            }
-          }
-        }
+        
         if (1) {
           boundrc.width = rrect2[nclasses - 1].x + rrect2[nclasses - 1].width - boundrc.x;
           boundrc = rectExt(boundrc, 20, 6, src.rows, src.cols);
-          Mat im4 = src(boundrc).clone();
-          string ss = run_ocrnum_caffe(im4);
-          strcpy(idnumber, ss.c_str());
-          if (17 == strlen(idnumber)) {
-            int cd = get_check_digit(idnumber);
-            idnumber[17] = cd < 10 ? ('0' + cd) : 'X';
-          }
-          idnumber[18] = 0;
+		  idnumber_rect = boundrc;
           //printf("%s\n", idnumber);   imshow("im4", im4); waitKey(-1);
         }
-        idnumber[18] = 0;
         //printf("\n");
         //imshow("color_edge", color_edge); waitKey(-1);
         //imshow("color_edge", color_edge); waitKey(-1);
         return i > 0;
       }
-#ifdef _OCR_CHAR_HPP_
-      if (0) {
-        avgh /= nclasses;
-        avgw /= nclasses;
-        avgh *= 1.2;
-        avgw *= 1.2;
-        for (int i = 0; i < nclasses; ++i) {
-          //rrect2[i].x -= avgw - rrect2[i].width;
-          rrect2[i].y -= avgh - rrect2[i].height;
-          rrect2[i].height = avgh;
-          //rrect2[i].width = avgw;
-          rrect2[i].height = avgh;
-        }
-        imshow("color_edge", color_edge);
-        sort(rrect2.begin(), rrect2.end(), [](const Rect& a, const Rect& b) {
-          return a.x < b.x;
-        });
-        int i = 0;
-        i = MAX(nclasses - 18, 0);
-        for (; i < nclasses; ++i) {
-          //r = minAreaRect(rrects2[i]);
-          Rect boundRect = rrect2[i];
-          //lines_rect.push_back(r);
-          //cv::rectangle(color_edge, bboxes1[i], color, 1);
-          //Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
-          Mat imchar = gray(boundRect);
-          resize(imchar, imchar, Size(28, 28));
-          threshold(imchar, imchar, 0, 255, CV_THRESH_OTSU | CV_THRESH_BINARY_INV);
-          int idx = ocr_c.run(imchar.data, imchar.rows, imchar.cols, imchar.channels());
-          char chs[] = "0123456789X";
-          assert(idx < strlen(chs));
-          idnumber[idx] = chs[idx];
-          //printf("%c", chs[idx]);
-          //imshow("imchar", imchar); waitKey(-1);
-        }
-        idnumber[18] = 0;
-      }
-#endif
-      printf("\n");
+      //printf("\n");
     }
     //threshold(gray, bin, 0, 255, CV_THRESH_OTSU);
     //imshow("color_edge", color_edge); waitKey(-1);
@@ -521,6 +479,7 @@ struct ocr_idcard_reg {
     memset(out, 0, sizeof(*out));
     float ridnum_ss = 0;
     Rect ridnum_rect;
+	vector<Rect> r_ok2;
     if (1) {
       for (i = 0; i < 1; ++i) {
         RotatedRect r2 = r[i];
@@ -536,25 +495,6 @@ struct ocr_idcard_reg {
         if (0 == i) {
           seg.run(im2, i);
           str[0] = 0;
-          if (0) {
-            for (int i = 0; i < seg.rrect2.size(); ++i) {
-              Rect r = seg.rrect2[i];
-              r.x -= 0;
-              r.width += 2;
-              r.y = 0;
-              r.height = stdh;
-              Mat im3 = im2(r);
-              w = r.width;
-              //void cv::copyMakeBorder(InputArray _src, OutputArray _dst, int top, int bottom,
-              //  int left, int right, int borderType, const Scalar& value);
-              copyMakeBorder(im3, im3, 0, 0, 5, 5, cv::BORDER_CONSTANT, Scalar(222, 222, 222));
-              n = ocr.run(wstr, 256, im3.data, im3.cols);
-              char buf[32];
-              int len = iconv_cs("UCS-2LE", "gb2312", (char*)wstr, n * 2, buf, 32);
-              buf[len] = 0;
-              strcat(str, buf);
-            }
-          }
         }
         //printf("%s\n", str);
         //waitKey(-1);
@@ -565,12 +505,6 @@ struct ocr_idcard_reg {
     int ridnum_w = (seg.rrect2[17].x + seg.rrect2[17].width - ridnum.x);
     int ridnum_x = ridnum_rect.x + (ridnum.x - ridnum_w*0.35)*ridnum_ss;
     int ridnum_r = ridnum_rect.x + (ridnum.x + ridnum_w*0.5)*ridnum_ss;
-    if (!idcard_get_info(seg.idnumber, out)) {
-      printf("idcard_get_info fail! number:%s\n", seg.idnumber);
-      return 0;
-    }
-    printf("%s %s %s\n", seg.idnumber, out->birthday, out->gender);
-    strcpy(out->number, seg.idnumber);
     vector<Rect> r_ok;
     ss = 1.2;
     if (1) {
@@ -597,7 +531,33 @@ struct ocr_idcard_reg {
       }
       n = r_ok.size();
     }
-    if (1) {
+	if (1) {
+		Rect r = r_ok[2];
+		r = curr(r);
+		r.x += r.height * 4;
+		r.width -= r.height * 4;
+		Mat gray = mat(r);
+		gray = mesr_bin(gray);
+		//imshow("gray", gray); waitKey(0);
+		vector<float> ph = project_H(gray, 20);
+		//Mat ph = projectHistogram(mserMapMat, 1);
+		//drawHist(color_edge, ph, 1);
+		int xpos = 0;
+		int nnn = MIN(r.height, r.width);
+		//int begpos = gray.rows * 4;
+		for (int i = 1; i < nnn; ++i) {
+			if (ph[i] < ph[xpos]) {
+				xpos = i;
+			}
+		}
+		r.x += xpos;
+		r.width -= xpos;
+		r = curr(r);
+		r_ok[2] = r;
+		gray = mat(r);
+		//imshow("gray", gray); waitKey(0);
+	}
+    if (0) {
       color_edge  = mat.clone();
       for (i = 0; i < seg.rrect2.size(); ++i) {
         Scalar color = Scalar(230, 230, 0);
@@ -609,8 +569,28 @@ struct ocr_idcard_reg {
         Scalar color = Scalar(230, 0, 0);
         rectangle(color_edge, r, color, 2);
       }
-      //imshow("color_edge", color_edge); waitKey(-1);
+      imshow("color_edge", color_edge); waitKey(-1);
     }
+	if (1) {
+		char idnumber[32] = { 0 };
+		if (1) {
+			Rect boundrc = seg.idnumber_rect;
+			Mat im4 = im2(boundrc).clone();
+			string ss = run_ocrnum_caffe(im4);
+			strcpy(idnumber, ss.c_str());
+			if (17 == strlen(idnumber)) {
+				int cd = get_check_digit(idnumber);
+				idnumber[17] = cd < 10 ? ('0' + cd) : 'X';
+			}
+			idnumber[18] = 0;
+		}
+		if (!idcard_get_info(idnumber, out)) {
+			printf("idcard_get_info fail! number:%s\n", idnumber);
+			return 0;
+		}
+		printf("%s %s %s\n", idnumber, out->birthday, out->gender);
+		strcpy(out->number, idnumber);
+	}
     if (1) {
       for (i = 1; i < n; ++i) {
 		  //if (i == 2) continue;
@@ -626,26 +606,27 @@ struct ocr_idcard_reg {
           //imshow("im", im); waitKey(-1);
           int len = 0;
           //seg.run(im2);
-          //imshow("im2", im2);  waitKey(-1);
-          len = ocr.run(wstr, 256, im2.data, w);
-            //n = ocr.run(wstr, 256, img_data, 280);
-            //tess.run(im2);
-            len = iconv_cs("UCS-2LE", "gb2312", (char*)wstr, len * 2, str, 256);
-          str[len] = 0;
+		  //imshow("im2", im2);  waitKey(-1);
+		  len = ocr.run(wstr, 256, im2.data, w);
+		  //n = ocr.run(wstr, 256, img_data, 280);
+		  //tess.run(im2);
+		  len = iconv_cs("UCS-2LE", "gb2312", (char*)wstr, len * 2, str, 256);
+		  str[len] = 0;
         }
-		if (i == 2) {
+		if (i == 20) {
 			int r = r_ok[i].x + r_ok[i].width;
 			r_ok[i].x = ridnum.x+ ridnum.height;
 			r_ok[i].width = r - r_ok[i].x;
 		}
         if (1) {
           Rect r = r_ok[i];
+		  r = curr(r);
           im = mat(r);
           //imshow("im", im); waitKey(-1);
           int len = 0;
-		  if (i == 2) {
-			  //cv::imshow("asdf", im);
-			  //cv::waitKey(-1);
+		  if (i == 20) {
+			  cv::imshow("asdf", im);
+			  cv::waitKey(-1);
 		  }
           //seg.run(im2);
           //imshow("im2", im2);  waitKey(-1);
@@ -665,14 +646,6 @@ struct ocr_idcard_reg {
           }
         }
         printf("%s\n", str);
-        if (0) {
-          char* aa = out->address;
-          replace_str(aa, -1, "�Ķ�", -1, "�Ĵ�", -1, 1);
-          replace_str(aa, 18, "��", -1, "��", -1, 1);
-          replace_str(aa, 18, "��", -1, "��", -1, 1);
-          replace_str(aa, 18, "��", -1, "��", -1, 1);
-          replace_str(aa, -1, "��", -1, "��", -1, 1);
-        }
         if (strlen(str) > 0) {
           out->type = 1;
           strncpy(out->side, "front", 32);
@@ -687,16 +660,6 @@ struct ocr_idcard_reg {
           case 2:
 		  {
 			  strncpy(out->race, str, 32);
-			  char*p = strstr(str, "��");
-			  if (p) {
-				  strncpy(out->race, p + 4, 32);
-			  }
-			  else {
-				  char*p = strstr(str, "��");
-				  if (p) {
-					  strncpy(out->race, p + 2, 32);
-				  }
-			  }
 		  }
             break;
           case 3:
@@ -826,6 +789,7 @@ struct ocr_detect {
     vecdst.clear();
 	vid.clear();
 	vidb.clear();
+
 	for (int i = 0; i < face_etector.rect_pairs.size(); i+=2) {
 		RotatedRect r0 = face_etector.rect_pairs[i + 0];
 		RotatedRect r1 = face_etector.rect_pairs[i + 1];
@@ -1028,7 +992,7 @@ int test_detect_idcard()
   txtfn = "E:/data/ew_id/list1.txt";
   txtfn = "E:/data/ew_id/t1_0911.txt";
   int pic_index = 1;
-  if (1) {
+  if (0) {
 	  txtfn = "E:/data/ew_id/backend_2.txt";
 	  pic_index = 0;
   }
@@ -1058,9 +1022,9 @@ int test_detect_idcard()
     g_imgfn = strs[pic_index];
     string fn = im_dir + g_imgfn;
     cv::Mat src;
-    if (0) {
+    if (1) {
 		fn = "E:/OCR_Line/bin/20190312091804.jpg";
-		fn = "E:/OCR_Line/bin/20190312091804.jpg";
+		fn = "E:/OCR_Line/bin/20181224133435.jpg";
     }
     //if (!strstr(fn.c_str(), "20161005101521422-4375")) { continue; }
     src = cv::imread(fn, 1);

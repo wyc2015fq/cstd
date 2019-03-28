@@ -62,7 +62,7 @@ struct FaceDetector {
     for (int i = 0; i < 4; ++i) {
       rotate90(src, gray, i);
 	  if (1) {
-		  back_detecter.run(src, rect_pairs, i);
+		  back_detecter.run(gray, rect_pairs, i);
 	  }
       //vv.push_back(gray.clone());
       int n;

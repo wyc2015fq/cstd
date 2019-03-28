@@ -189,6 +189,9 @@ int test_httpd_ocr(int argc, char* argv[])
   httpSvr* svr = NULL;
   char* host = NULL;
   int port;
+  ocr_caffe_init();
+#ifndef _DEBUG
+#endif
 #if 0
   int errFlag = 0;
   extern char* optarg;

@@ -50,6 +50,7 @@ struct ocr_caffe {
   string run(const Mat& im) {
     Mat img = im;
     int w = img.cols, h = img.rows;
+	if (h*w == 0)return "";
     int w1 = hstd*w / h;
     if (w1 != w && h != hstd)
       cv::resize(img, img, cv::Size(w1, hstd));
@@ -85,6 +86,7 @@ struct ocrnum_caffe {
   string run(const Mat& im) {
     Mat img = im;
     int w = img.cols, h = img.rows;
+	if (h*w == 0)return "";
     int w1 = hstd*w / h;
     if (w1 != w && h != hstd)
       cv::resize(img, img, cv::Size(w1, hstd));
@@ -114,6 +116,12 @@ string run_ocr_caffe(const Mat& im4) {
 	return ss;
 }
 
+int ocr_caffe_init() {
+	Mat mat(32, 32, CV_8UC3);
+	run_ocr_caffe(mat);
+	run_ocrnum_caffe(mat);
+	return 0;
+}
 
 #else
 struct ocr_caffe {
