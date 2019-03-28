@@ -5,7 +5,7 @@
 //#include "debug.h"
 #include "std/stddef_c.h"
 
-#include <direct.h>
+//#include <direct.h>
 //#include "ui/window.inl"
 #include "std/fileio_c.h"
 #include "std/inifile.h"

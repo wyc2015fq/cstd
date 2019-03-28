@@ -1372,7 +1372,7 @@ static int httpdReadRequest(httpd* s)
     cp = s->request.content;
   }
   if (cp != NULL) {
-    savefile("D:\\aaa.txt", s->request.content, s->request.contentLength);
+    //savefile("D:\\aaa.txt", s->request.content, s->request.contentLength);
     from_multipart(s);
     _httpd_storeData(s, cp);
   }
