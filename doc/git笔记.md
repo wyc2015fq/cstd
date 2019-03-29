@@ -67,6 +67,42 @@ Hi xxx! You've successfully authenticated, but GitHub does not provide shell acc
 
 到这里，git相关的所有配置已经完成，下面我将给大家介绍最常使用的命令
 
+### 5、本地git push免用户名和密码的配置
+
+1. 在命令行输入命令:
+
+    ```shell
+    git config --global credential.helper store
+    ```
+
+    ☞ 这一步会在用户目录下的.gitconfig文件最后添加:
+
+```ini
+[credential]
+    helper = store
+```
+
+1. 现在push你的代码 (`git push`),  这时会让你输入用户名密码, 这一步输入的用户名密码会被记住, 下次再push代码时就不用输入用户名密码啦!
+    这一步会在用户目录下生成文件`.git-credential`记录用户名密码的信息.
+    `git config --global` 命令实际上在操作用户目录下的`.gitconfig`文件, 我们cat一下此文件(`cat .gitconfig`), 其内容如下:
+
+```ini
+[user]
+    name = alice
+    email = alice@aol.com
+[push]
+    default = simple
+[credential]
+    helper = store
+```
+
+```shell
+git config --global user.email "alice@aol.com"` # 操作的就是上面的email
+git config --global push.default matching # 操作的就是上面的push段中的#default字段
+git config --global credential.helper store # 操作的就是上面最后一行的值
+```
+
+
 ## 常用命令
 
 ### 在GitHub创建仓库（公开）

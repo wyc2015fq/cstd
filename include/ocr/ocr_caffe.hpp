@@ -52,6 +52,7 @@ struct ocr_caffe {
     int w = img.cols, h = img.rows;
 	if (h*w == 0)return "";
     int w1 = hstd*w / h;
+	if (w1 <10)return "";
     if (w1 != w && h != hstd)
       cv::resize(img, img, cv::Size(w1, hstd));
 
@@ -88,6 +89,7 @@ struct ocrnum_caffe {
     int w = img.cols, h = img.rows;
 	if (h*w == 0)return "";
     int w1 = hstd*w / h;
+	if (w1 <10)return "";
     if (w1 != w && h != hstd)
       cv::resize(img, img, cv::Size(w1, hstd));
 

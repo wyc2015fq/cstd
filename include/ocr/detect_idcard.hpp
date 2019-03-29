@@ -496,7 +496,7 @@ struct get_rect_t {
       }
     }
 
-    if (ret && linesxx.size() > 0) {
+    if (ret && vec_rrect.size() > 0) {
       //drawRotatedRects(color_edge, vec_rrect, 1);
       //rrects.resize();
       int nclasses = cv::partition(vec_rrect, labels, [&meanh](const RotatedRect& r1, const RotatedRect& r2) {

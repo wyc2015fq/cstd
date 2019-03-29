@@ -189,8 +189,10 @@ struct IdCardBackSplitLine {
 		if (1) {
 			double ang = 0;
 			double hh = 0;
-			int angcnt = 0;
-			for (int i = 0; i < 2; ++i) {
+			int angcnt = 1;
+			ang += lines_ok[0].angle;
+			hh += lines_ok[0].size.height;
+			for (int i = 1; i < 2; ++i) {
 				if (lines_ok[i].size.width > 50) {
 					ang += lines_ok[i].angle;
 					hh += lines_ok[i].size.height;

@@ -394,8 +394,10 @@ static void _httpd_storeData(httpd* s, char* query)
     }
   }
   *cp = 0;
-  tmpVal = _httpd_unescape(val, &len);
-  httpdAddVariable(s, var, tmpVal, len);
+  if (val) {
+	  tmpVal = _httpd_unescape(val, &len);
+	  httpdAddVariable(s, var, tmpVal, len);
+  }
 }
 static void _httpd_formatTimeString(char* ptr, int len, int clock)
 {

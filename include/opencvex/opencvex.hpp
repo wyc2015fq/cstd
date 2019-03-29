@@ -328,8 +328,8 @@ vector<float> project_H(const Mat& binary, int k)
 	vector<float> blackcout(binary.cols, 0);
 	vector<float> sumcnt(binary.cols + 1, 0);
 	//memset(blackcout, 0, binary.cols * 4);
-	int n = binary.rows;
-	for (int i = 0; i < n; i++) {
+	int n = binary.cols;
+	for (int i = 0; i < binary.rows; i++) {
 		for (int j = 0; j < binary.cols; j++) {
 			if (binary.at<uchar>(i, j)) {
 				blackcout[j]++;

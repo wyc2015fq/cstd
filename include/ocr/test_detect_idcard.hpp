@@ -480,6 +480,7 @@ struct ocr_idcard_reg {
     float ridnum_ss = 0;
     Rect ridnum_rect;
 	vector<Rect> r_ok2;
+	out->type = 1;
     if (1) {
       for (i = 0; i < 1; ++i) {
         RotatedRect r2 = r[i];
@@ -534,8 +535,11 @@ struct ocr_idcard_reg {
 	if (1) {
 		Rect r = r_ok[2];
 		r = curr(r);
-		r.x += r.height * 4;
-		r.width -= r.height * 4;
+		int off1 = MIN(r.height * 4, r.width- r.height);
+		off1 = MAX(0, off1);
+		r.x += off1;
+		r.width -= off1;
+		r = curr(r);
 		Mat gray = mat(r);
 		gray = mesr_bin(gray);
 		//imshow("gray", gray); waitKey(0);
@@ -730,7 +734,7 @@ struct ocr_detect {
         cjson_AddItemToObject(card, "birthday", cjson_CreateString(id.birthday));
         cjson_AddItemToObject(card, "race", cjson_CreateString(id.race));
         cjson_AddItemToObject(card, "address", cjson_CreateString(id.address));
-        cjson_AddItemToObject(card, "type", cjson_CreateNumber(id.type));
+        cjson_AddItemToObject(card, "type", cjson_CreateNumber(1));
         cjson_AddItemToObject(card, "side", cjson_CreateString(id.side));
         cjson_AddItemToArray(cards, card);
       }
@@ -739,7 +743,7 @@ struct ocr_detect {
 		  idcard_back idb = vidb[i];
 		  cjson_AddItemToObject(card, "issued_by", cjson_CreateString(idb.issued_by));
 		  cjson_AddItemToObject(card, "valid_date", cjson_CreateString(idb.valid_date));
-		  cjson_AddItemToObject(card, "type", cjson_CreateNumber(idb.type));
+		  cjson_AddItemToObject(card, "type", cjson_CreateNumber(1));
 		  cjson_AddItemToObject(card, "side", cjson_CreateString(idb.side));
 		  cjson_AddItemToArray(cards, card);
 	  }
@@ -1024,7 +1028,7 @@ int test_detect_idcard()
     cv::Mat src;
     if (1) {
 		fn = "E:/OCR_Line/bin/20190312091804.jpg";
-		fn = "E:/OCR_Line/bin/20181224133435.jpg";
+		fn = "E:/OCR_Line/bin/285133_235119.jpg";
     }
     //if (!strstr(fn.c_str(), "20161005101521422-4375")) { continue; }
     src = cv::imread(fn, 1);
