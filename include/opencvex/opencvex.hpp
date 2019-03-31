@@ -322,21 +322,10 @@ Point rect_center(Rect r) {
   return Point(r.x+r.width/2, r.y+r.height/2);
 }
 
-
-vector<float> project_H(const Mat& binary, int k)
-{
-	vector<float> blackcout(binary.cols, 0);
-	vector<float> sumcnt(binary.cols + 1, 0);
-	//memset(blackcout, 0, binary.cols * 4);
-	int n = binary.cols;
-	for (int i = 0; i < binary.rows; i++) {
-		for (int j = 0; j < binary.cols; j++) {
-			if (binary.at<uchar>(i, j)) {
-				blackcout[j]++;
-			}
-		}
-	}
+int smooth1d(vector<float>&blackcout, int k) {
 	if (k > 1) {
+		int n = blackcout.size();
+		vector<float> sumcnt(n + 1, 0);
 		for (int i = 0; i < n; ++i) {
 			sumcnt[i + 1] = sumcnt[i] + blackcout[i];
 		}
@@ -349,7 +338,40 @@ vector<float> project_H(const Mat& binary, int k)
 				blackcout[i] = (sumcnt[b] - sumcnt[a]) / (b - a);
 			}
 		}
+		return 1;
 	}
+	return 0;
+}
+
+vector<float> project_H(const Mat& binary, int k)
+{
+	int n = binary.cols;
+	vector<float> blackcout(binary.cols, 0);
+	//memset(blackcout, 0, binary.cols * 4);
+	for (int i = 0; i < binary.rows; i++) {
+		for (int j = 0; j < binary.cols; j++) {
+			if (binary.at<uchar>(i, j)) {
+				blackcout[j]++;
+			}
+		}
+	}
+	smooth1d(blackcout, k);
+	return blackcout;
+}
+
+vector<float> project_V(const Mat& binary, int k)
+{
+	int n = binary.rows;
+	vector<float> blackcout(n, 0);
+	//memset(blackcout, 0, binary.cols * 4);
+	for (int i = 0; i < binary.rows; i++) {
+		for (int j = 0; j < binary.cols; j++) {
+			if (binary.at<uchar>(i, j)) {
+				blackcout[i]++;
+			}
+		}
+	}
+	smooth1d(blackcout, k);
 	return blackcout;
 }
 
@@ -477,6 +499,25 @@ int argmax(const vector<T>& v) {
   }
   return idx;
 }
+
+vector<RotatedRect> nms(const vector<RotatedRect>& vrr) {
+	vector<RotatedRect> out;
+	if (vrr.size() == 0) return out;
+	out.push_back(vrr[0]);
+	for (int i = 0; i < vrr.size(); ++i) {
+		const RotatedRect& rr = vrr[i];
+		if ((rr.center.x - out.back().center.x) < rr.size.width*0.5) {
+			if (rr.size.width > out.back().size.width) {
+				out.back() = rr;
+			}
+		}
+		else {
+			out.push_back(rr);
+		}
+	}
+	return out;
+}
+
 template<typename T>
 vector<int> argsort(const vector<T>& v) {
   int Len = v.size();
@@ -693,6 +734,15 @@ RotatedRect rect_rotate90a(const RotatedRect& r, Size2f size, int flag) {
 	o = curr(o);
 	return o;
 }
+RotatedRect r2rr(Rect r, Size2f size, int rotid) {
+	//RotatedRect rr(Point2f(r.x+, );
+	RotatedRect rr(Point2f(r.x + r.width *0.5, r.y + r.height *0.5), Size2f(r.width, r.height), 0);
+	//RotatedRect rr(Point2f(r.x + r.w *0.5, r.y + r.h *0.5), Size2f(r.w, r.h), 0);
+	rr = rect_rotate90(rr, size, -rotid);
+	return rr;
+}
+
+
 // flag 1-90 2-180 3-270
 int rotate90(const Mat& matSrc, Mat& matDst, int flag) {
   flag &= 3;
@@ -1555,6 +1605,7 @@ double imArticulation2(const Mat& imageSource)
   return meanValue;
 }
 
+
 #if 0
 double DefRto(Mat frame)
 {
@@ -1582,6 +1633,153 @@ double DefRto(Mat frame)
   return DR;
 }
 #endif
+
+
+
+
+static int CalcMaxValue(int a, int b)
+{
+	return (a > b) ? a : b;
+}
+
+static double CalcMaxValue(double a, double b)
+{
+	return (a > b) ? a : b;
+}
+
+static int CalcMinValue(int a, int b)
+{
+	return (a < b) ? a : b;
+}
+
+static double CalcMinValue(double a, double b)
+{
+	return (a < b) ? a : b;
+}
+
+
+/** @brief SauvolaThresh二值算法
+
+此代码不适用与分辨率较大的图像, 此bug准备有空再处理
+
+@param src 单通道灰度图
+@param dst 单通道处理后的图
+@param k  threshold = mean*(1 + k*((std / 128) - 1))
+@param wndSize 处理区域宽高, 一定是奇数
+
+*/
+void SauvolaThresh(const cv::Mat& src, cv::Mat& dst, const int k, const cv::Size wndSize)
+{
+	CV_Assert(src.type() == CV_8UC1);
+	CV_Assert((wndSize.width % 2 == 1) && (wndSize.height % 2 == 1));
+	CV_Assert((wndSize.width <= src.cols) && (wndSize.height <= src.rows));
+
+	dst = cv::Mat::zeros(src.rows, src.cols, CV_8UC1);
+
+	// 产生标志位图像
+	unsigned long* integralImg = new unsigned long[src.rows * src.cols];
+	unsigned long* integralImgSqrt = new unsigned long[src.rows * src.cols];
+	std::memset(integralImg, 0, src.rows *src.cols * sizeof(unsigned long));
+	std::memset(integralImgSqrt, 0, src.rows *src.cols * sizeof(unsigned long));
+
+	// 计算直方图和图像值平方的和
+	for (int y = 0; y < src.rows; ++y)
+	{
+		unsigned long sum = 0;
+		unsigned long sqrtSum = 0;
+		for (int x = 0; x < src.cols; ++x)
+		{
+			int index = y * src.cols + x;
+			sum += src.at<uchar>(y, x);
+			sqrtSum += src.at<uchar>(y, x)*src.at<uchar>(y, x);
+			if (y == 0)
+			{
+				integralImg[index] = sum;
+				integralImgSqrt[index] = sqrtSum;
+			}
+			else
+			{
+				integralImgSqrt[index] = integralImgSqrt[(y - 1)*src.cols + x] + sqrtSum;
+				integralImg[index] = integralImg[(y - 1)*src.cols + x] + sum;
+			}
+		}
+	}
+
+	double diff = 0.0;
+	double sqDiff = 0.0;
+	double diagSum = 0.0;
+	double iDiagSum = 0.0;
+	double sqDiagSum = 0.0;
+	double sqIDiagSum = 0.0;
+	for (int x = 0; x < src.cols; ++x)
+	{
+		for (int y = 0; y < src.rows; ++y)
+		{
+			int xMin = CalcMaxValue(0, x - wndSize.width / 2);
+			int yMin = CalcMaxValue(0, y - wndSize.height / 2);
+			int xMax = CalcMinValue(src.cols - 1, x + wndSize.width / 2);
+			int yMax = CalcMinValue(src.rows - 1, y + wndSize.height / 2);
+			double area = (xMax - xMin + 1)*(yMax - yMin + 1);
+			if (area <= 0)
+			{
+				// blog提供源码是biImage[i * IMAGE_WIDTH + j] = 255;但是i表示的是列, j是行
+				dst.at<uchar>(y, x) = 255;
+				continue;
+			}
+
+			if (xMin == 0 && yMin == 0)
+			{
+				diff = integralImg[yMax*src.cols + xMax];
+				sqDiff = integralImgSqrt[yMax*src.cols + xMax];
+			}
+			else if (xMin > 0 && yMin == 0)
+			{
+				diff = integralImg[yMax*src.cols + xMax] - integralImg[yMax*src.cols + xMin - 1];
+				sqDiff = integralImgSqrt[yMax * src.cols + xMax] - integralImgSqrt[yMax * src.cols + xMin - 1];
+			}
+			else if (xMin == 0 && yMin > 0)
+			{
+				diff = integralImg[yMax * src.cols + xMax] - integralImg[(yMin - 1) * src.cols + xMax];
+				sqDiff = integralImgSqrt[yMax * src.cols + xMax] - integralImgSqrt[(yMin - 1) * src.cols + xMax];;
+			}
+			else
+			{
+				diagSum = integralImg[yMax * src.cols + xMax] + integralImg[(yMin - 1) * src.cols + xMin - 1];
+				iDiagSum = integralImg[(yMin - 1) * src.cols + xMax] + integralImg[yMax * src.cols + xMin - 1];
+				diff = diagSum - iDiagSum;
+				sqDiagSum = integralImgSqrt[yMax * src.cols + xMax] + integralImgSqrt[(yMin - 1) * src.cols + xMin - 1];
+				sqIDiagSum = integralImgSqrt[(yMin - 1) * src.cols + xMax] + integralImgSqrt[yMax * src.cols + xMin - 1];
+				sqDiff = sqDiagSum - sqIDiagSum;
+			}
+			double mean = diff / area;
+			double stdValue = sqrt((sqDiff - diff*diff / area) / (area - 1));
+			double threshold = mean*(1 + k*((stdValue / 128) - 1));
+			if (src.at<uchar>(y, x) < threshold)
+			{
+				dst.at<uchar>(y, x) = 0;
+			}
+			else
+			{
+				dst.at<uchar>(y, x) = 255;
+			}
+
+		}
+	}
+
+	delete[] integralImg;
+	delete[] integralImgSqrt;
+}
+
+
+
+
+
+
 #include "hough.hpp"
+#include "binarizewolfjolion.hpp"
+
+
+
+
 
 #endif // __OPENCVEX_HPP__

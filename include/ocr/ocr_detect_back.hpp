@@ -26,33 +26,9 @@
 //#include "detect_idcard.hpp"
 // idcard_back_20190326
 
-uchar idcard_back_20190326[] = {
-#include "face/cas/idcard_back_20190326.inl"
-};
-
 
 // face_detect
 
-struct IdCardBackSplitRect {
-	vector<RotatedRect> lines_rect;
-	vector<RotatedRect> lines_ok;
-	vector<Vec4i> lines;
-	vector<Vec4i> linesxx;
-	Mat color_edge;
-	int run(const Mat& src) {
-		int ret = 1;
-		cv::Ptr<cv::MSER> mesr1 = cv::MSER::create(2, 10, 200, 0.2, 0.3);
-		Mat gray;
-		std::vector<cv::Rect> bboxes1;
-		std::vector<cv::RotatedRect> vrr;
-		std::vector<std::vector<cv::Point> > regContours;
-		cv::cvtColor(src, gray, CV_BGR2GRAY);
-		Rect aRect(0, 0, src.cols, src.rows);
-		mesr1->detectRegions(gray, regContours, bboxes1);
-		cv::Mat mserMapMat = cv::Mat::zeros(src.size(), CV_8UC1);
-		Mat bw;
-	}
-};
 struct IdCardBackSplitLine {
 	//Rect rect[2];	int size;
 	//vector<RotatedRect> lines_rect;
@@ -250,14 +226,15 @@ struct IdCardBackSplitLine {
 struct IdCardBackDetecter {
 	HAARCASCADE* ca;
 	IdCardBackDetecter() { ca = NULL; }
-	std::vector<Rect> rect;
+	
 	IdCardBackSplitLine split_line;
 	void init(const char* fn) {
-		ca = cas_load(fn);
+		if (NULL == ca) {
+			ca = cas_load(fn);
+		}
 	}
-	int run(cv::Mat& mat, std::vector<RotatedRect>& out, int rotid) {
+	int run(cv::Mat& mat, std::vector<vector<RotatedRect> >& rect, int rotid) {
 		int n = 0;
-		rect.clear();
 		if (ca) {
 			Mat gry = mastbegray(mat);
 			int xywh[1000];
@@ -270,16 +247,19 @@ struct IdCardBackDetecter {
 			for (int i = 0; i<n; ++i) {
 				int* p = xywh + i * 4;
 				Rect rc = Rect(p[0], p[1], p[2], p[3]);
+				Size size(mat.cols, mat.rows);
+				vector<RotatedRect> one;
+				one.push_back(r2rr(rc, size, rotid));
 				if (split_line.run(mat, rc)==2) {
-					rect.push_back(rc);
 					for (int j = 0; j < 2; ++j) {
 						RotatedRect r = split_line.lines_ok[j];
 						//RotatedRect rr(Point2f(r.x + r.w *0.5, r.y + r.h *0.5), Size2f(r.w, r.h), 0);
 						r = rect_rotate90(r, Size(mat.cols, mat.rows), -rotid);
-						out.push_back(r);
+						one.push_back(r);
 					}
 					//drawRotatedRects(mat, split_line.lines_ok, 1);	imshow("mat", mat);	waitKey(0);
 				}
+				rect.push_back(one);
 			}
 		}
 		return rect.size();

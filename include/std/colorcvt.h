@@ -2521,6 +2521,18 @@ CC_INLINE int icvYUVInitTable()
     (B) = CLP(y + ((u * 455) >> 8)         );                                   \
   } while(0)
 
+#define YUV2RGB1(Y, U, V, R, G, B)                                             \
+  do {                                                                          \
+    int y, u, v;                                                                \
+    y = (Y);                                                                    \
+    u = (U) - 128;                                                              \
+    v = (V) - 128;                                                              \
+    (R) = CLP(y + ((v * 360) >> 8)         );                                   \
+    (G) = CLP(y - ((u * 88 + v * 184) >> 8));                                   \
+    (B) = CLP(y + ((u * 455) >> 8)         );                                   \
+  } while(0)
+
+
 #define YUV2RGB2(Y, U, V, R, G, B)                                            \
   do {                                                                          \
     int y, u, v, yy;                                                            \
@@ -2549,7 +2561,7 @@ CC_INLINE int icvYUYV2BGRA_8u_table(COLOR_FUN_ARGDEF)
     for (j = 0; j < width; ++j, src0 += srccn, dst0 += dstcn) {
       // UYVY标准  [U0 Y0 V0 Y1] [U1 Y2 V1 Y3] [U2 Y4 V2 Y5] 每像素点两个字节，[内]为四个字节
       yuv_uv[(j & 1) ] = src0[ 1 ];
-      YUV2RGB(src0[ 0 ], yuv_uv[ 0 ], yuv_uv[ 1 ], dst0[ 2 ], dst0[ 1 ], dst0[ 0 ]);
+      YUV2RGB1(src0[ 0 ], yuv_uv[ 0 ], yuv_uv[ 1 ], dst0[ 2 ], dst0[ 1 ], dst0[ 0 ]);
     }
   }
   return CC_OK;

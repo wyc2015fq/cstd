@@ -4,6 +4,7 @@
 #include "sys_c.h"
 #include "stddef_c.h"
 
+
 typedef struct { void* x; } handel_t;
 typedef handel_t thread_t;
 typedef handel_t job_t;
@@ -49,6 +50,11 @@ struct _thread_t {
 #ifdef _WIN32
 #else
 #include <pthread.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/time.h>
 typedef struct critical_section_t {
   pthread_mutex_t   m_sect;
 } critical_section_t;

@@ -2,9 +2,9 @@
 #ifndef __FILEIOEX_H__
 #define __FILEIOEX_H__
 
-#include "std\fileio_c.h"
-#include "std\str_c.h"
-#include "std\iconv_c.h"
+#include "std/fileio_c.h"
+#include "std/str_c.h"
+#include "std/iconv_c.h"
 
 static int str_toasni(const str_t* s, str_t* d)
 {

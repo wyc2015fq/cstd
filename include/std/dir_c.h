@@ -244,7 +244,7 @@ static int sys_find_close(dir_t* s)
   }
   return 0;
 }
-// FILETIME 转 time_t
+// FILETIME �? time_t
 static time_t FileTimeToTimet(FILETIME ft)
 {
   time_t pt;
@@ -488,14 +488,14 @@ static int sys_rmdir(const char* dir_full_path)
       printf("sys_rmdir:lstat %s error", sub_path);
       continue;
     }
-    if (S_ISDIR(st.st_mode)) { // 如果是目录文件，递归删除
+    if (S_ISDIR(st.st_mode)) { // 如果�?�?录文件，递归删除
       if (sys_rmdir(sub_path) == -1) {
         closedir(dirp);
         return -1;
       }
       rmdir(sub_path);
     } else if (S_ISREG(st.st_mode)) {
-      unlink(sub_path);     // 如果是普通文件，则unlink
+      unlink(sub_path);     // 如果�?�?通文件，则unlink
     } else {
       printf("sys_rmdir:st_mode %s error", sub_path);
       continue;
@@ -521,34 +521,34 @@ enum SYS_MODE {
   AS_IWRITE = 0000200,  /* write permission, owner */
   AS_IEXEC = 0000100,  /* execute/search permission, owner */
 
-  AS_ISUID = 04000, //文件的 (set user-id on execution)位
-  AS_ISGID = 02000, //文件的 (set group-id on execution)位
-  AS_ISVTX = 01000, //文件的sticky 位
-  AS_IRUSR = 00400, //文件所有者具可读取权限
-  AS_IWUSR = 00200, //文件所有者具可写入权限
-  AS_IXUSR = 00100, //文件所有者具可执行权限
-  AS_IRGRP = 00040, //用户组具可读取权限
-  AS_IWGRP = 00020, //用户组具可写入权限
-  AS_IXGRP = 00010, //用户组具可执行权限
+  AS_ISUID = 04000, //文件�? (set user-id on execution)�?
+  AS_ISGID = 02000, //文件�? (set group-id on execution)�?
+  AS_ISVTX = 01000, //文件的sticky �?
+  AS_IRUSR = 00400, //文件所有者具�?读取权限
+  AS_IWUSR = 00200, //文件所有者具�?写入权限
+  AS_IXUSR = 00100, //文件所有者具�?执�?�权�?
+  AS_IRGRP = 00040, //用户组具�?读取权限
+  AS_IWGRP = 00020, //用户组具�?写入权限
+  AS_IXGRP = 00010, //用户组具�?执�?�权�?
   AS_IROTH = 00004, //其他用户具可读取权限
   AS_IWOTH = 00002, //其他用户具可写入权限
-  AS_IXOTH = 00001, //其他用户具可执行权限
+  AS_IXOTH = 00001, //其他用户具可执�?�权�?
 };
 
 typedef struct {
-  uint dev;      //文件的设备编号
+  uint dev;      //文件的�?��?�编�?
   uint ino; //节点
-  uint mode; //文件的类型和存取的权限
-  int nlink;  //连到该文件的硬连接数目，刚建立的文件值为1
+  uint mode; //文件的类型和存取的权�?
+  int nlink;  //连到该文件的�?连接数目，刚建立的文件值为1
   int uid;//用户ID
   int gid;//组ID
-  uint rdev; //(设备类型)若此文件为设备文件，则为其设备编号
-  uint64 size;//文件字节数(文件大小)
-  uint blksize;   //块大小(文件系统的I/O 缓冲区大小)
+  uint rdev; //(设�?�类�?)若�?�文件为设�?�文件，则为其�?��?�编�?
+  uint64 size;//文件字节�?(文件大小)
+  uint blksize;   //块大�?(文件系统的I/O 缓冲区大�?)
   uint blocks;    //块数
-  time_t atime; //最后一次访问时间
-  time_t mtime;//最后一次修改时间
-  time_t ctime;//最后一次改变时间(指属性)
+  time_t atime; //最后一次�?�问时间
+  time_t mtime;//最后一次修改时�?
+  time_t ctime;//最后一次改变时�?(指属�?)
   unsigned attrib; // _A_SUBDIR
 } sys_stat;
 
@@ -687,6 +687,7 @@ static int sys_access(const char* filename, int mode) {
 	FILE_ACCESS_MODEDEF(AS_READ, 0);
 	FILE_ACCESS_MODEDEF(AS_SUBDIR, _A_SUBDIR);
 #undef FILE_ACCESS_MODEDEF
+	return _access(filename, mode1);
 #else
 #define FILE_ACCESS_MODEDEF(a, b) if (mode&a) {mode1|=b;}
 	FILE_ACCESS_MODEDEF(AS_EXIST, F_OK);
@@ -694,8 +695,8 @@ static int sys_access(const char* filename, int mode) {
 	FILE_ACCESS_MODEDEF(AS_WRITE, W_OK);
 	FILE_ACCESS_MODEDEF(AS_READ, R_OK);
 #undef FILE_ACCESS_MODEDEF
+	return access(filename, mode1);
 #endif
-	return _access(filename, mode1);
 }
 
 static int sys_chdir(const char* name) {

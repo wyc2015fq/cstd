@@ -2,6 +2,7 @@
 #ifndef __OCR_CAFFE_HPP__
 #define __OCR_CAFFE_HPP__
 
+#include <string>
 #include "caffe/classification/ICNNPredict.h"
 using namespace std;
 
@@ -55,8 +56,7 @@ struct ocr_caffe {
 	if (w1 <10)return "";
     if (w1 != w && h != hstd)
       cv::resize(img, img, cv::Size(w1, hstd));
-
-    cvtColor(img, img, CV_BGR2GRAY);
+	img = mastbegray(img);
     //cvtColor(img, img, CV_GRAY2BGR);
 
     //imshow("asdfasdf", img); waitKey(-1);
@@ -93,7 +93,7 @@ struct ocrnum_caffe {
     if (w1 != w && h != hstd)
       cv::resize(img, img, cv::Size(w1, hstd));
 
-    cvtColor(img, img, CV_BGR2GRAY);
+	img = mastbegray(img);
     //cvtColor(img, img, CV_GRAY2BGR);
 
     //imshow("asdfasdf", img); waitKey(-1);

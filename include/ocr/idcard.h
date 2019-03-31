@@ -140,6 +140,12 @@ int get_check_digit(const char* id) {
 
 int idcard_get_info(char* number, idcard* out) {
   int len = strlen(number);
+  if (17 == len) {
+	  int cd = get_check_digit(number);
+	  number[17] = cd < 10 ? ('0' + cd) : 'X';
+	  number[18] = 0;
+  }
+  len = strlen(number);
   if (len != 18) return 0;
   int k, ret = 1;
   if (number[10] == '4') {

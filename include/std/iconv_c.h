@@ -136,6 +136,8 @@ static int iconv_win32(ICONV_CODEPAGE src_cp0, ICONV_CODEPAGE dst_cp0, const cha
 
 #ifdef USE_ICONV
 #include <iconv.h>
+#include <wchar.h>
+
 static const char* codepage_linux(ICONV_CODEPAGE src_charset)
 {
 #define CVTCODEPAGE_DEF(DEF) \
@@ -155,12 +157,12 @@ static int iconv_linux(ICONV_CODEPAGE src_cp0, ICONV_CODEPAGE dst_cp0, const cha
   size_t inlen = srclen;
   const char* src_charset = codepage_linux(src_cp0);
   const char* dst_charset = codepage_linux(dst_cp0);
-  iconv_t cd = iconv_open(dst_charset, src_charset);//获取转换句柄，void*类型
+  iconv_t cd = iconv_open(dst_charset, src_charset);//获取�?换句柄，void*类型
   if (cd == 0) {
     return 0;
   }
 #if 0
-  char outbuf[255];//这里实在不知道需要多少个字节，这是个问题
+  char outbuf[255];//这里实在不知道需要�?�少�?字节，这�?�?�?�?
   while (1) {
     size_t buflen = 255;
     char* poutbuf = outbuf;
@@ -250,8 +252,8 @@ static int iconv_c(ICONV_CODEPAGE src_cp, ICONV_CODEPAGE dst_cp, const char* src
   return 0;
 }
 
-//编码转换，src_charset是源编码，dst_charset是目标编码
-//src是源编码字符串
+//编码�?�?，src_charset�?源编码，dst_charset�?�?标编�?
+//src�?源编码字符串
 static int iconv_cs(const char* src_charset, const char* dst_charset, const char* src, int srclen, char* dst, int dstlen)
 {
   ICONV_CODEPAGE src_cp = mycodepage(src_charset);

@@ -23,7 +23,7 @@ DEFINE_bool(stop_logging_if_full_disk, true, "Sets whether to avoid logging to t
 namespace wstd
 {
   static int fappend(const char* filename, const void* buf, int len) {
-#ifdef _DEBUG
+#if 0
     FILE* pf = fopen(filename, "a");
     if (pf) {
       fwrite(buf, len, 1, pf);

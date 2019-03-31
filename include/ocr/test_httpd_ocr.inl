@@ -15,6 +15,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "codec/base64.inl"
+#include "ocr_idcard.hpp"
 
 #define test1_html "<HTML><BODY>This is just a test</BODY>"
 #define ember_code1 "printf(\"This is from ember in process %d\n\",getpid());"
@@ -107,6 +108,14 @@ static void ocridcard(httpd* s) {
       string str_utf8 = gb2utf8(str);
       httpdPrintf(s, str_utf8.c_str());
     }
+#endif
+#ifdef __OCR_IDCARD_HPP__
+	if (1) {
+		static OcrIdCard od;
+		string str = od.getjson(cv_img);
+		string str_utf8 = gb2utf8(str);
+		httpdPrintf(s, str_utf8.c_str());
+	}
 #endif
   }
   else {
