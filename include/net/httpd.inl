@@ -48,12 +48,16 @@ char LIBHTTPD_VERSION[] = "1.3",
 
 static int _httpd_net_write(int sock, const char* buf, int len)
 {
-  return sock_send(sock, buf, len, 0);
+  int ret=0;
+  // MSG_NOSIGNAL  ignore SIGPIPE
+  // error : Broken pipe
+  ret = sock_send(sock, buf, len, MSG_NOSIGNAL);
+  return ret;
 }
 static int _httpd_net_write_str(int sock, const char* buf)
 {
   int len = strlen(buf);
-  return sock_send(sock, buf, len, 0);
+  return _httpd_net_write(sock, buf, len);
 }
 static httpVar* httpdGetVariableByName(httpd* s, const char* name)
 {
@@ -201,7 +205,7 @@ static int _httpd_decode(const char* bufcoded, char* bufplain, int outbufsize)
   register const char* bufin = bufcoded;
   register char* bufout = bufplain;
   register int nprbytes;
-  
+
   // If this is the first call, initialize the mapping table. This code should work even on non-ASCII machines.
   if (first) {
     first = 0;
@@ -216,7 +220,7 @@ static int _httpd_decode(const char* bufcoded, char* bufplain, int outbufsize)
   while (*bufcoded == ' ' || *bufcoded == '\t') {
     bufcoded++;
   }
-  
+
   // Figure out how many characters are in the input buffer.
   // If this would decode into more bytes than would fit into
   // the output buffer, adjust the number of input bytes downwards.
@@ -355,6 +359,7 @@ static int httpdAddVariable(httpd* s, const char* name, const char* value, int v
 static void _httpd_storeData(httpd* s, char* query)
 {
   char* cp, *cp2, var[50], *val, *tmpVal;
+  char* var_end = var + sizeof(var);
   int len;
   if (!query) {
     return;
@@ -363,7 +368,7 @@ static void _httpd_storeData(httpd* s, char* query)
   cp2 = var;
   memset(var, 0, sizeof(var));
   val = NULL;
-  while (*cp) {
+  while (*cp  && cp2<var_end) {
     if (*cp == '=') {
       cp++;
       *cp2 = 0;
@@ -1005,7 +1010,7 @@ static httpSvr* httpdCreate(const char* host, int port)
   s->content = (httpDir*)malloc(sizeof(httpDir));
   memset(s->content, 0, sizeof(httpDir));
   s->content->name = _strdup("");
-  
+
   // Setup the socket
   sock = sock_open(s->host, port, SOCK_TCP, addr);
   if (sock < 0) {

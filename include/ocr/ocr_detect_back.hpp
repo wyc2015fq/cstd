@@ -43,43 +43,48 @@ struct IdCardBackSplitLine {
 		Mat src = mat(roi);
 		double ss = 100. / src.rows;
 		src = resize(src, ss);
-		cv::Ptr<cv::MSER> mesr1 = cv::MSER::create(2, 20, 200, 0.2, 0.3);
 
-		std::vector<cv::Rect> bboxes1;
-		std::vector<cv::RotatedRect> vrr;
-		std::vector<std::vector<cv::Point> > regContours;
 		lines_ok.clear();
 		Mat gry = mastbegray(src);
-
-		mesr1->detectRegions(gry, regContours, bboxes1);
 		cv::Mat mserMapMat = cv::Mat::zeros(src.size(), CV_8UC1);
 
-		for (int i = (int)regContours.size() - 1; i >= 0; i--)
-		{
-			// 根据检测区域点生成mser+结果
-			const std::vector<cv::Point>& p = regContours[i];
-			Rect rc = bboxes1[i];
-			//if (r.width > 30 || r.height > 30 || r.height<2 || r.width<2)        continue;
-			RotatedRect r(Point2f(rc.x + rc.width / 2, rc.y + rc.height / 2), Size2f(rc.width, rc.height), 0);
-			r = minAreaRect(p);
-			//int k = 10;
-			//if (rr.size.height < k || rr.size.width < k) { continue; }
-			double aa = r.size.width*1. / r.size.height;
-			double d = ptdist(r.center, Point(src.cols*0.8, src.rows*0.4))*1. / src.cols;
-			int angle = mymodi(r.angle - 90, 90);
-			if (aa>0.7 && r.size.width>5 && r.size.height>5) {
-				RotatedRect rectPoint = minAreaRect(p);
-				//Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
-				//drawRotatedRect(color_edge, rectPoint, color, 1);
-				vrr.push_back(r);
-				for (int j = 0; j < (int)p.size(); j++)
-				{
-					cv::Point pt = p[j];
-					//if (ptInRect(pt.x, pt.y, r))
-					mserMapMat.at<unsigned char>(pt) = 255;
+		if (0) {
+			std::vector<cv::Rect> bboxes1;
+			std::vector<cv::RotatedRect> vrr;
+			std::vector<std::vector<cv::Point> > regContours;
+			cv::Ptr<cv::MSER> mesr1 = cv::MSER::create(2, 20, 200, 0.2, 0.3);
+			mesr1->detectRegions(gry, regContours, bboxes1);
+			for (int i = (int)regContours.size() - 1; i >= 0; i--)
+			{
+				// 根据检测区域点生成mser+结果
+				const std::vector<cv::Point>& p = regContours[i];
+				Rect rc = bboxes1[i];
+				//if (r.width > 30 || r.height > 30 || r.height<2 || r.width<2)        continue;
+				RotatedRect r(Point2f(rc.x + rc.width / 2, rc.y + rc.height / 2), Size2f(rc.width, rc.height), 0);
+				r = minAreaRect(p);
+				//int k = 10;
+				//if (rr.size.height < k || rr.size.width < k) { continue; }
+				double aa = r.size.width*1. / r.size.height;
+				double d = ptdist(r.center, Point(src.cols*0.8, src.rows*0.4))*1. / src.cols;
+				int angle = mymodi(r.angle - 90, 90);
+				if (aa > 0.7 && r.size.width > 5 && r.size.height > 5) {
+					RotatedRect rectPoint = minAreaRect(p);
+					//Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+					//drawRotatedRect(color_edge, rectPoint, color, 1);
+					vrr.push_back(r);
+					for (int j = 0; j < (int)p.size(); j++)
+					{
+						cv::Point pt = p[j];
+						//if (ptInRect(pt.x, pt.y, r))
+						mserMapMat.at<unsigned char>(pt) = 255;
+					}
 				}
 			}
 		}
+
+		NiblackSauvolaWolfJolion(gry, mserMapMat, WOLFJOLION, 7, 7, 0.25, 128);
+		mserMapMat = 255 - mserMapMat;
+
 		cv::cvtColor(mserMapMat, color_edge, CV_GRAY2BGR);
 		vector<float> ph = project_H(mserMapMat, 10);
 		//Mat ph = projectHistogram(mserMapMat, 1);
@@ -103,14 +108,22 @@ struct IdCardBackSplitLine {
 				cv::RotatedRect r = minAreaRect(contours[i]);
 				r = curr(r);
 				double aa = r.size.width*1. / r.size.height;
-				if (r.center.x>xpos)
+				double area = r.size.width*1. * r.size.height;
+				if (r.center.x>xpos && (r.size.width>5 || r.size.height>5))
 				{
 					r.size.height = MIN(r.size.height, 20);
 					r.size.width = MIN(r.size.width, 20);
 					vec_rrect.push_back(r);
 				}
 			}
+			//drawRotatedRects(color_edge, vec_rrect, 1);
+		}
+		if (0) {
+			drawRotatedRects(src, vec_rrect, 1);
+			imshow("src", src);
 			drawRotatedRects(color_edge, vec_rrect, 1);
+			imshow("color_edge", color_edge);
+			waitKey(0);
 		}
 		if (vec_rrect.size() < 3) { return 0; }
 		vector<vector<RotatedRect>> rrects2;
@@ -118,7 +131,7 @@ struct IdCardBackSplitLine {
 		int nclasses = 0;
 		nclasses = cv::partition(vec_rrect, labels, [](const RotatedRect& r1, const RotatedRect& r2) {
 			double dy = fabs(r1.center.y - r2.center.y);
-			double hd = MIN(r1.size.height, r2.size.height);
+			double hd = MAX(r1.size.height, r2.size.height);
 			return dy < hd;
 		});
 		if (nclasses >= 2) {
@@ -149,20 +162,43 @@ struct IdCardBackSplitLine {
 			}
 		}
 
+		if (rrects2.size() != 2) {
+			return 0;
+		}
+		if (rrects2[0].size() < 15 && rrects2[1].size() < 15) {
+			return 0;
+		}
+		if (0) {
+			drawRotatedRects(src, lines_ok, 1);
+			imshow("src", src);
+			drawRotatedRects(color_edge, lines_ok, 1);
+			imshow("color_edge", color_edge);
+			waitKey(0);
+		}
 		if (lines_ok.size() != 2) {
 			return 0;
 		}
 		if (lines_ok[0].center.y > lines_ok[1].center.y) {
 			std::swap(lines_ok[0], lines_ok[1]);
 		}
-		for (int i = 0; i < lines_ok.size(); ++i) {
-			int h = lines_ok[i].size.height;
-			if (h < 10 || h>40) {
-				lines_ok.clear();
-				return 0;
-			}
+		if (1) {
+			float hh = (lines_ok[0].size.height + lines_ok[1].size.height)*0.5;
+			lines_ok[0].size.height = lines_ok[1].size.height = hh;
 		}
 		if (1) {
+			float minleft = 1000;
+			for (int i = 0; i < 2; ++i) {
+				float left1 = lines_ok[1].center.x - lines_ok[1].size.width*0.5;
+				minleft = MIN(minleft, left1);
+			}
+			for (int i = 0; i < 2; ++i) {
+				float left1 = lines_ok[1].center.x - lines_ok[1].size.width*0.5;
+				float t = (left1 - minleft);
+				lines_ok[0].size.width -= t;
+				lines_ok[0].center.x -= t*0.5;
+			}
+		}
+		if (0) {
 			double ang = 0;
 			double hh = 0;
 			int angcnt = 1;
@@ -193,7 +229,7 @@ struct IdCardBackSplitLine {
 			}
 		}
 
-		if (0 && lines_ok.size()>1) {
+		if (0) {
 			drawRotatedRects(color_edge, lines_ok, 1);
 			drawRotatedRects(src, lines_ok, 1);
 
@@ -261,6 +297,10 @@ struct IdCardBackDetecter {
 				}
 				rect.push_back(one);
 			}
+		}
+		if (rect.size() == 0) {
+			int asdf = 0;
+			//imshow("mat", mat); waitKey(0);
 		}
 		return rect.size();
 	}

@@ -119,6 +119,7 @@ struct OcrIdCard {
 					strcpy(idb.side, "back");
 					strcpy(idb.issued_by, ss0.c_str());
 					strcpy(idb.valid_date, ss1.c_str());
+					//imshow("im0", im0); imshow("im1", im1); waitKey(0);
 					int ret = valid_date_curr(idb.valid_date);
 					printf("issued_by: %s  valid_date:%s\n", idb.issued_by, idb.valid_date);
 					if (ret) {

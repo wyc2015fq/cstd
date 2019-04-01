@@ -49,44 +49,45 @@ struct IdCardFrontSplitLine {
 		Mat src = mat(roi);
 		double ss = 200. / src.rows;
 		src = resize(src, ss);
-		cv::Ptr<cv::MSER> mesr1 = cv::MSER::create(2, 20, 200, 0.2, 0.3, 5);
 
-		std::vector<cv::Rect> bboxes1;
-		std::vector<cv::RotatedRect> vrr;
-		std::vector<std::vector<cv::Point> > regContours;
-		lines_ok.clear();
 		Mat gry = mastbegray(src);
-
-		mesr1->detectRegions(gry, regContours, bboxes1);
 		cv::Mat mserMapMat = cv::Mat::zeros(src.size(), CV_8UC1);
+		if (0) {
+			std::vector<cv::Rect> bboxes1;
+			std::vector<cv::RotatedRect> vrr;
+			std::vector<std::vector<cv::Point> > regContours;
+			lines_ok.clear();
 
-		for (int i = (int)regContours.size() - 1; i >= 0; i--)
-		{
-			// 根据检测区域点生成mser+结果
-			const std::vector<cv::Point>& p = regContours[i];
-			Rect rc = bboxes1[i];
-			//if (r.width > 30 || r.height > 30 || r.height<2 || r.width<2)        continue;
-			RotatedRect r(Point2f(rc.x + rc.width / 2, rc.y + rc.height / 2), Size2f(rc.width, rc.height), 0);
-			r = minAreaRect(p);
-			//int k = 10;
-			//if (rr.size.height < k || rr.size.width < k) { continue; }
-			double aa = r.size.width*1. / r.size.height;
-			double d = ptdist(r.center, Point(src.cols*0.8, src.rows*0.4))*1. / src.cols;
-			int angle = mymodi(r.angle - 90, 90);
-			if (aa>0.7 && r.size.width>5 && r.size.height>5 && (r.center.x<src.cols*0.7 || r.center.y>src.rows*0.8)) {
-				RotatedRect rectPoint = minAreaRect(p);
-				//Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
-				//drawRotatedRect(color_edge, rectPoint, color, 1);
-				vrr.push_back(r);
-				for (int j = 0; j < (int)p.size(); j++)
-				{
-					cv::Point pt = p[j];
-					//if (ptInRect(pt.x, pt.y, r))
-					mserMapMat.at<unsigned char>(pt) = 255;
+			cv::Ptr<cv::MSER> mesr1 = cv::MSER::create(2, 20, 200, 0.2, 0.3, 5);
+			mesr1->detectRegions(gry, regContours, bboxes1);
+
+			for (int i = (int)regContours.size() - 1; i >= 0; i--)
+			{
+				// 根据检测区域点生成mser+结果
+				const std::vector<cv::Point>& p = regContours[i];
+				Rect rc = bboxes1[i];
+				//if (r.width > 30 || r.height > 30 || r.height<2 || r.width<2)        continue;
+				RotatedRect r(Point2f(rc.x + rc.width / 2, rc.y + rc.height / 2), Size2f(rc.width, rc.height), 0);
+				r = minAreaRect(p);
+				//int k = 10;
+				//if (rr.size.height < k || rr.size.width < k) { continue; }
+				double aa = r.size.width*1. / r.size.height;
+				double d = ptdist(r.center, Point(src.cols*0.8, src.rows*0.4))*1. / src.cols;
+				int angle = mymodi(r.angle - 90, 90);
+				if (aa > 0.7 && r.size.width > 5 && r.size.height > 5 && (r.center.x<src.cols*0.7 || r.center.y>src.rows*0.8)) {
+					RotatedRect rectPoint = minAreaRect(p);
+					//Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+					//drawRotatedRect(color_edge, rectPoint, color, 1);
+					vrr.push_back(r);
+					for (int j = 0; j < (int)p.size(); j++)
+					{
+						cv::Point pt = p[j];
+						//if (ptInRect(pt.x, pt.y, r))
+						mserMapMat.at<unsigned char>(pt) = 255;
+					}
 				}
 			}
 		}
-
 		//SauvolaThresh(gry, mserMapMat, 0, Size(17, 17));
 		NiblackSauvolaWolfJolion(gry, mserMapMat, WOLFJOLION, 11, 11, 0.2, 128);
 		mserMapMat = 255 - mserMapMat;

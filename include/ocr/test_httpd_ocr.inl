@@ -11,9 +11,11 @@
 #include "std/time_c.h"
 #include "net/httpd.inl"
 #include "parser/cjson.hpp"
+#if 1
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#endif
 #include "codec/base64.inl"
 #include "ocr_idcard.hpp"
 
@@ -71,7 +73,6 @@ static void ocridcard(httpd* s) {
   if (api_secret) {
     printf("api_secret = %s\n", api_secret->value);
   }
-  cv::Mat cv_img;
   httpVar* image_file;
   char* imgbuf = NULL;
   char* tmpbuf = NULL;
@@ -88,19 +89,27 @@ static void ocridcard(httpd* s) {
     imgbuf = tmpbuf = (char*)malloc(image_file->valuelen);
     imgbuflen = base64_decode(image_file->value, imgbuflen, imgbuf);
   }
+#ifdef OPENCV_CORE_HPP
+  cv::Mat cv_img;
   if (imgbuf && imgbuflen>10) {
     std::vector<char> vec_data(imgbuf, imgbuf + imgbuflen);
+    printf("cv::imdecode begin\n");
+    fflush(stdout);
     cv_img = cv::imdecode(vec_data, cv::IMREAD_COLOR);
+    printf("cv::imdecode end\n");
   }
   if (cv_img.rows>10 && cv_img.cols>10) {
     char buf[256];
+    printf("height=%d width=%d\n", cv_img.rows, cv_img.cols);
     if (0) {
       cv::imshow("image_file", cv_img);
       cv::waitKey(-1);
     }
-    char* nowstr = timenow();
-    _snprintf(buf, 256, BIN_PIC"%s.jpg", nowstr);
-    cv::imwrite(buf, cv_img);
+    if (0) {
+      char* nowstr = timenow();
+      _snprintf(buf, 256, BIN_PIC"%s.jpg", nowstr);
+      cv::imwrite(buf, cv_img);
+    }
 #ifdef __DETECT_IDCARD_HPP__
     if (1) {
       static ocr_detect od;
@@ -118,7 +127,9 @@ static void ocridcard(httpd* s) {
 	}
 #endif
   }
-  else {
+  else
+#endif // OPENCV_CORE_HPP
+  {
     //static ocr_detect od;
     string str = "{"
       "\"time_used\": 3,"
@@ -198,7 +209,9 @@ int test_httpd_ocr(int argc, char* argv[])
   httpSvr* svr = NULL;
   char* host = NULL;
   int port;
+#ifdef __OCR_CAFFE_HPP__
   ocr_caffe_init();
+#endif
 #ifndef _DEBUG
 #endif
 #if 0
