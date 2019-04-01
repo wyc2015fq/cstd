@@ -314,6 +314,7 @@ struct IdCardFrontSplitLine {
 						}
 					}
 				}
+				if (vec_rrect.size() < 2) return 0;
 				int nclasses = 0;
 				nclasses = cv::partition(vec_rrect, labels, [](const RotatedRect& r1, const RotatedRect& r2) {
 					double dy = fabs(r1.center.y - r2.center.y);
@@ -542,6 +543,8 @@ struct IdCardFrontSplitLine {
 				}
 			}
 			xpos += off1;
+			xpos = MIN(lines_ok[1].size.width - lines_ok[1].size.height*0.5, xpos);
+			xpos = MAX(0, xpos);
 			lines_ok[1].size.width -= xpos;
 			lines_ok[1].center.x += xpos*0.5;
 			//imshow("gray", gray); waitKey(0);
