@@ -1,0 +1,95 @@
+## [JavaScript学习总结(二)——逻辑Not运算符详解](https://www.cnblogs.com/xdp-gacl/p/3677502.html)
+
+　　在JavaScript 中，逻辑NOT运算符与C和Java中的逻辑 NOT 运算符相同，都由感叹号（!）表示。与逻辑 OR 和逻辑 AND 运算符不同的是，**逻辑 NOT 运算符返回的一定是 Boolean 值**。
+
+逻辑 NOT 运算符的行为如下：
+
+- 如果运算数是对象，返回 false 
+- 如果运算数是数字 0，返回 true 
+- 如果运算数是 0 以外的任何数字，返回 false 
+- 如果运算数是 null，返回 true 
+- 如果运算数是 NaN，返回 true 
+- 如果运算数是 undefined，发生错误 
+
+**测试脚本如下：**
+
+[![复制代码](https://common.cnblogs.com/images/copycode.gif)](javascript:void(0);)
+
+```
+ 1  <script type="text/javascript">
+ 2      var bFalse = false;//运算数是bool类型的数
+ 3      var sRed = "red";//运算数是字符串
+ 4      var iZero = 0;//运算数是0
+ 5      var iThreeFourFive = 345;//运算数是 0 以外的任何数字
+ 6      var oObject = new Object();//对象
+ 7      var oNull=null;//运算数是null
+ 8      var oUndefined;//运算数是undifined
+ 9      var oNaN=parseInt("abc");//使用parseInt方法把尝试字符串abc转换成整数，因为abc不是数字，因此是转不了的，所以返回的结果就是NaN
+10     
+11      /*
+12      writeln() 方法与 write() 方法几乎一样，差别仅在于是前者将在所提供的任何字符串后添加一个换行符。在HTML中，这通常只会在后面产生一个空格；
+13      不过如果使用了 <PRE> 和 <XMP> 标识，这个换行符会被解释，且在浏览器中显示。
+14      */
+15     document.writeln("<XMP>");
+16     document.writeln("oNaN=parseInt(\"abc\")返回的结果是"+oNaN);
+17     document.writeln("bool类型的数false与!运算符运算之后的结果是：" + (!bFalse));
+18     document.writeln("字符串sRed与!运算符运算之后的结果是： " + (!sRed));
+19     document.writeln("数字0与!运算符运算之后的结果是：" + (!iZero));//如果运算数是数字 0，返回 true 
+20     document.writeln("数字345与!运算符运算之后的结果是：" + (!iThreeFourFive));//如果运算数是 0 以外的任何数字，返回 false 
+21     document.writeln("对象oObject与!运算符运算之后的结果是：" + (!oObject));//如果运算数是对象，返回 false 
+22     document.writeln("NaN与!运算符运算之后的结果是：" + (!oNaN));//如果运算数是NaN，返回 true 
+23     document.writeln("null与!运算符运算之后的结果是：" + (!oNull));//如果运算数是 null，返回 true 
+24     document.writeln("undifined与!运算符运算之后的结果是：" + (!oUndefined));
+25     //document.writeln("未定义的字符串sBule与!运算符运算之后的结果是：" + (!sBule));//sBule前面没有定义，也就是sBule运算数是 undefined，因此这里发生错误 
+26     document.writeln("</XMP>");
+27   </script>
+```
+
+[![复制代码](https://common.cnblogs.com/images/copycode.gif)](javascript:void(0);)
+
+运行结果：
+
+　　![img](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWIAAACRCAIAAAB2TyUuAAAU7UlEQVR4nO1Z27brOqrM//90+uF0+2gL6oIkO8nc1MMaiowKBAUz8Xq9G41Gg+L16QAajca3o8dEo9EQ6DHRaDQEekw0Gg2BHhM/jNcrKd/rfzhFS6h8y5L3iH3axg66AGWMqv2/9VkdR07ZqLKj0t5Lj0SG/TFhul4IoPEM3AKMdTUVKS2fxKm/TgszouQRcXIGJwbnUZolOVBKowetUQwp209L8RdRyNoknSOWD8MMxm8qk/OBMeE3KmHmt0vXsu1ReKhpnbv/ASn+FnpMFMyW73IkCfyPqjSeTsk+57OmNIzkrEnvRabJH5Dib4H9kZkqNCqSKyZapoUnUkg5x1PRUoo4DfsdlMTVidLlBE+u6TCnNqQo6VmyQOvUMj7ieUMQdwYgt46ZTy0bJRTGf5px37LqKF0j9TvH04/OKbm/FpLjUXpPy8H7mYeR9nBKu9Z15BSZJk7zb0qxQbA7Jq5HseWWx0TKiajS2ZFqK3XhRCL3UVT+mDA50aaTpSkwHlu6nnZGHp5zjtJ9YzxcNsSy4aM8Jt6hM1ODyRKJQ2pUNsCymeOdH5de+C2qqk3tpwZA/bCQuiMkKFSHio+e0Sbd55aNEnbHRGmgVB2R9cJx/nFt0HADf0yUaKf9hYvLgNMj6U5sezLO0oW05DanpNggYJWYakBKkiJaEi9R1tOj1FIedwhHg8k+DZhcpxR8GifhRJsLIcUIUeQoBv9gtESPphuhe8XCyWtGy0YJH07cL1bu+ZjJjLjWpPkRQ8pD+M0IfUtOwm/UeBKfTH2Xv9H4CXSLNhoNgR4TjUZD4GNjYvm3Bn+1Jpn9X9HPYCcG/6xMGto3XyWc8r5APh5Bv2GXL3VEIX/gPcvH3sbx989pWsd/IyHZGfcJ1UewGcOYRqLC+AgZx5xz2rPeU3JisMbjGxMtIWwG8J2ALbpFSiv38hp1lFQ8ODnyJTgdX7uCbyPhC27ZEcpk5ESp3rmj732Zmdv4CkkNuCVZoxj2NfM8rG+ei9T4z1SpK5B20zV5Gt05cqles4TS2c2ifFaspndfHu96dRz9EIODce6Xcuf4isf74iApfmc1Gw3S7Msyv0C3pzapLHjk5Dpr2HE0ZUbqtXRNM5M3eTctcauuKCSNnLiWax4nuVH6yInqPugCpPty841ThhampawQYh41TQhLd0/jR3olnI6MnE0iINMLupFjecS76Zo/Sm2kQqZHJNRS4XxIBuTr+hgXkXYh1MKw9DfTj+mOY0loSdZ4wPHfI/Fwp4g8IrWRm1JhJuGoM94Dx72XbEwGUyEmYSmMNIcknzseI+ERKf7XUsbBHfj9Q1yUHiGPUgQoQl/BaXXT49GmJA6kA7Ipy+/IdCEhB72bTmO0hNlXyHSchJp6dO4lb2SCKyHdGSvll+D/j8s4uBSIPh5ILvEen0Zfr6AV4jG9MgmPxxZDGmMzdTBeQebTvOY7S4u0POjdeYrijGd9hZgkKACHSgqeNwKPx8yDw5+QyzhSB3xTBuRklnQRj1PGIxXgK49/9D3KAKqWk0cOdFZq6w7vhJYHibwT2nQnipMH6WdJ3gslRIadbh6R4n8tURyoLZ1NooPUUoRoTxN5MHqPZvLuo5KicSl1pSujCxaK7UnEyeTd3n1VvDKMZqZC/IOpitJH03X8XEmQaKMZkmjB3ZGgLU84Ml4hLgK0JqWNNTtYvx2U6iczRuzjR8n8jHdOi8w4CSFPY3BcIEtOIrP0tfiZQBuNxqfQY6LRaAj0mGg0GgIH3rr7P3oXzM5ix6l/Vv4yR/vmr9xT3hfIxyPo1/XypY5I4qdfAXwtDrT0VA9SobSETxZy09F1nAcfHzkJcWjPek/JicEaj2+MLDO9wDBKATRMlAszlWfUYvwYaeXaice6Gf7/Dkdwy9qKGUA5KaXuuPdlZm4TU4qSnBpwS7JGMZQEU4JDfmsAT8L6Mlx6ah6U9TbP3nGqapwef0asO95TM2Ls+J3WsuJOgTbjvCPzafzS+Hdx7AJTLvZ1Sfj9vK+disZjnE78JbHK1N3q3bR0ajetyb3SyIlrueZxkhuljyR2tPSLcF86yIzLnZJB9Ihi4JupNJ1LOZvkCnek7g7vpmv+KLUZC4cY0uKmZn7hfKwxkABI/IREHv8GHBiK1914IUmxo2VcXy5QSK9Mjk7SUxu5yZkdrbzt1N3kvWRjMpCCktr5IKd8ge2jVJ07RPswDnwXTZ/KHfkRGUwJjTp4YExIF37b+y191rvpNEZLmPkaFS7Syrs495I32gGpUXqF1Cw96BTreYjbmrVJdZDamB/j5qvSJOkpdBFJMm36CZGEby9193l3nqI449mSABwSFIBDxVN0GSAeDq4ZR9tv79ZfAis4eYeYoFQlHKm7lHBhc+d20nLyaF4The14OeWd0PIgkXdCiyQhD6YByGzIe6GEOPDzwD8ui/ZhHB4T/g7P3STr9GP6KDIsBE/i90toFt5J3d3e/RTx0cPTHi2dg9ESPZquc1+z8VDHR+m95PGbwt6BNXF9Ga0d+QhKVSGali0RP0rmZ7xzWmTGSQh5GoPjAllyEpmlho/OXaPREOgx0Wg0BHpMNBoNgdpLB9+4FsTG70b/rPwNj/bN38OnvC+Qj0fQ7/DlSx35Vd8vC34a1jvw8V9Bt1T7TcVcx+WLvekRMp72Je1Z7yk5MVjj8Y2R5QtjM4DGt2H32wTRSlSM00JccMvaGpsTLdJ9ZHaT92VmbhNTSmqUniKWZI1iSIvb+Fq4fyjeQFi82I6SSnLZb6oPitX0npoRY8fvtJa1cAq0Ged+KXeON0oQTR51s1yeO8bEqEtHryWxRl/R4D7vpqXTq9Oa3CuNnLiWax4nuVH6yImqcQf0u4nXPwfEsgi4cE0ZOZtEQCWxOq5v8m665o9Sm6maKcP4iBfUL5wPyYB8XR/jItIeCfXfAyH91zAaxn8FqWrmIyQLzGbzTzqT3XLWe8nGZEB9FRnWOoecItNkp1F54VKzSdUy8saFggTNMYEMHhgT0oXf9n5Ln/VuOo3REma+nnbG4yTU1KNzL3kjE1wJ6c5YKb8EjTf5NhHzGFUVLatiJadMHby9VkHHkUpiDNLyoHfnKYoznuW3IF5K1zepeIouA8TD4zHz4PA3Rlh1jZvyFH+0rIOS5eSRA52V2rrDO6HlQSLvhDbdiW3Pg/Sz5EjoyTHRI8OB+GsWE8rTKp+aIkBUSAdrM8UcajKem7w7HXUtyOgxB+I7qzg6mGojfTRd52Bbkmij2fSoJMUG+9Fxrd+Gvk/lvcRDNC1bIn6UzM9457TIjJMQ8jQGxwWy5CQyS40vRBep0WgI9JhoNBoCPSYajYZA4X8u5M/IB35n7rjwz8rXCmjf/Il+yvsC+XgEvRpYvtQRAfT7iy+E9bJ9/FfQ3VzRTf7ruHzXOD1CxtO+pD3rPSUnBms8vjGyfGFsBtB4BrvfJogCog5McTgMUnDL2noNzYkW6T4yu8n7MjO3iSkltUhPEUuyRjEgwZTg8Jzy9Sfhjv83kItMvVxfzJKzVML9pjou1uPeUzNi7Pid1rKCZuF24twvpc/zZJV/CHq+XutpseXVliM6VXLx/uffCkevJbFGX9HgPu+mpdOr05rcK43cKZwstJMfFKH0ftb43wP9buJK3Cv082i8VtqJPLJJL8iXs0k0UbqR4/om76Zr/ii1iaUhN+WhlgrnQzIQXyRUQiKP/1UIQb+G0TD+K0iVDZcgWpfcyU2pMJPwSovsgePeSzYmA+qKyLDWJOQUnCV7PVkqBPkotfqHURCWOSZ8QTvpvmlMSNd+2/stfda76TRGS5j5etoZj5NQU4/OveSNTJBypNGmZulBpy5/A9bv2GvzHfK4JoKRM1qma8KfeiGbTpzOzsTpWx707jxFccaz/BbES+n6JpUUEhGYDHv0Io3f3gX/MKxqxU15ij/aEWvJqWk5eeRAZ5HybvVOaHmQyDuhTXdi25ttKbPhiG1NHiRa8nGtI/4GxN+omBGeF/kUdVr0ZYoAOUXi8OtqqsFpp7u9Ox11Lcjo4SMpWjoHUxWlj6brHOlAHtX4KL2CPL4f4U+A/ei41m9Dtc8nruSRaFq2RPwomZ/xzmmRGSch5GkMjgtkyUlklhqPoVPfaDQEekw0Gg2BHhONRkOgPCac38m/hZ3I/bPyBQTaN3/Mn/K+QD4eQS8Rli91RFf9pmMTZ8bET9dgM9rruHwrOT1CxtO+pD3rPSUnBms8vjGyjJIjYZQCaERYNZgeRWO5wyL4pwsuuCq5H4AjuGXXY3OiRbqPzG7yvszMbWJKpbpkOSbN8JCc4lbh8Jzy9XFYZX7jwQH6y81Oqteb0ooEtMlQOn5crMe9l6pZKvH7Pc8+tHbEsBnnfil9nierfBPKl+QZL3U7Yv6VMTHq0tFrSaxO2u/zblo6vTqtyb3SyIlrueZxkhulj5yo9o2/E7UaxI/v4pf2cR8xI4aFzZf6ee8Hn97dyQ/3hSwd1zd5N13zR6lNLD25KQ+1VDgfkoH4IqESEnn8GyAU4NT12ueSjXJBBqmwCI95vFSA1FhuSoWZhFd+ZA8c916yMRlQV0SGtSYhp9IcknwueySFkI3Aj38D3DGR7lz7zjS5aUzEkqMs3z0mZKX9tvdb+qx302mMljDzNapmpJV3ce4lb2SClCONNjVLDzp1eR6FvxWxrtPTsbqcLaV6eYrnT3mEacypyHzmVNNpEpydidO3POjdeYrijGf9apokKACHSnaj2aVcHkjYhOQLR8OIwreJcX/amcogD8aErgmLc0oqAt/YFAEHOouUd6t3QsuDRN4JLZGTrN1CluS9lscEiZZ8lKL9ElgDON2P9lN1Y8ZTXRIzR8GEk0hQwmyeKGiflpxy2ulu705HXQsyetB+GpJ5MFqiR9N1/FwR8KjGR+kV5PH9CI+j8HXIudsD97yVv1QqoumUJJWvz/yMd06LzDgJIU9jcFwgS04is9RI8TNp6ro2Gp9Cd12j0RDoMdFoNATu/Z3/wFn5Ixztmz9oT3lfIB+PoB9cy5c68vOtf+3/S/ClY2I8Lt/MTY+Q8bQvac96T8mJwRqPb4wss8aHYZQCaPwu8trHXsoPU0tfcMvaGpsTLdJ9ZHaT92VmbhNTipKcGnBLskYxEKk0fhqs/681Ow8sS3LZb6oPitX0npoRY8fvtJYd7hRoM879Uu4cb9yEbxwToy4dvZbEGn1Fg/u8m5ZOr05rcq80cuJarnmc5EbpIyeqxmfBtDL+e+2nYiWWjoycTSKgklgd1zd5N13zR6nNtY6L1IaEWiqcD8mAfF0f4yLSHgm1EVEYE0SXkyXztzQmpMJMwlFnslvOei/ZmAyoryLDWueQU2Sa7DQqL1xqxvXZOILat4l3GNgPjAlZfr/t/ZY+6910GqMlzHw97YzHSaipR+de8kYmuBLSnbFSfgkaJegmQSUhlkRkpg7eXqug40glMQZpedC78xTFGc/yW5gt7STKoZItarauKQ+uycZxFMaEnBfLOihZTmFwoLNSW3d4J7Q8SOSd0KY7se15kH6W5L0eHhM9Ms6CfYu+PsZHaT8c14FfbFMiTjvd7d3pqGtBRg8fSdHSORgt0aPpOgfbkkQbzaIC02w0NvFQQkv1I5qWLRE/SuZnvHNaZMZJCHkag+MCWXISmaXGT6PL2Wg0BHpMNBoNgR4TjUZD4OkxsfOr1T8r3yCgffPX+CnvC+TjEfQWYPlSR94p9KuKv4dfGhPjcflacXqEjKd9SXvWe0pODNZ4fGNkmTU+DKMUQOMnsFs/3nvEXgpuWVtjc6JFuo/MbvK+zMxt/CGVGnBLskYxICU0fghn6nfHX5X9pvqgWE3vqRkxdvxOa9nhsu3349wv5c7xxj5+ZkyMunT0WvIefUWD+7yblk6vTmtyrzRy4lqueZzkRukjJ6rGY4Blfv+zimh97aQ8KbMpI2eTCKgkVsf1Td5N1/xRajPWCzFMNUWhlgrnQzIgX9fHuIi0R0L9l0OP+VRkTsP4hfGPkxjkcUQ46kx2y1nvJRuTAfVVZFjrHHKKTJOdRuWFS80c0TZ8FL5kftWYkOX3295v6bPeTacxWsLM19POeJyEmnp07iVvZIIrId0ZK+WXoIHw3JggIjN18PZaBR1HKklbiFse9O48RXHGs/wWZks7iXKoZIuarbs5JiR/Q+J7v02ULKfYONBZqa07vBNaHiTyTmjTndj2PEg/S/JeD4+JHhnLYF+Yx4/To1FesQdkY0SPzmYUtE9LTjntdLd3p6OuBRk9PPPR0jkYLdGj6ToH25JEG82QGk8F8y/EJ3NXqh/RtGyJ+FEyP+Od0yIzTkLI0xgcF8iSk8gsNX4FXblGoyHQY6LRaAj0mGg0GgJ/dkzs/BL2z8q3Emjf/IV/yvsC+XgEvVlYvtSR9xT9+uMx/Nm0birmOi5fVU6PkPG0L2nPek/JicEaj2+MLLPGh2GUAmjs4K7/snrj/1Y0Lfe9m4Jb9j42J1qk+8jsJu/LzNzGH1KpgVQCWqMY0DRp7ONkWmWRTulYei/x7zfVB8Vqek/NiLHjd1rLDncKtBnnfil3jv9hfGZM3IFTY2LUpaPXklijr2hwn3fT0unVaU3ulUZOXMs1j5PcKH3kRNWA2Z/WcTHZx1OpVtB+9E4cce/RHZeRs0kEZHpJSUzLI95N1/xRajPWHTG8gjbSUEuF8yEZkK/rY1xE2iOhficKQ31KELFMP6Y76KDpiHh3HJmbUmEm4agz2S1nvZdsTAbUV5FhrXPIqTSHJJ87HiPhESn+FmpjwtxMP6Y78uA0pCYdPDAmpAu/7RcScsS76TRGS5j5etoZj5NQU4/OveSNTHAlpDsvqs8/g18aE36cSGSmDt5vq1XWrkkydqt35ymKM57ltzBb2kmUQyVb1GxdUx6+Pv8MfnJMON4dRwuWk0cOdFZq6w7vhJYHibwT2nQntj0P0s+SvNfDY+LvjQw2qon44no0IEemgpGzxBGJU9y2ogO/2KZEuOCe8e6niFQ/PuUhmQejJXo0XcfPlQSJNpqlWj0YzPfgD14polQ/omnZEvGjZH7GO6dFZpyEkKcxOC6QJSeRWWpsohPaaDQEekw0Gg2BHhONRkOgx0Sj0RDoMdFoNAR6TDQaDYEeE41GQ6DHRKPREPgPfU1n0YnJ3+QAAAAASUVORK5CYII=)
+
+　　**判断JavaScript变量的Boolean 值时，也可以使用逻辑NOT运算符**。这样做需要在一行代码中使用两个 NOT 运算符。无论运算数是什么类型，第一个NOT运算符返回 Boolean值，第二个NOT将对该Boolean值取反，从而给出变量真正的Boolean值。**使用not运算符判断JavaScript变量的Boolean值是一个非常有用的技巧，只要知道了变量的boolean值，那么当使用变量进行&&或者||运算时，就可以很快知道运算的结果了。**
+
+测试脚本如下：
+
+[![复制代码](https://common.cnblogs.com/images/copycode.gif)](javascript:void(0);)
+
+```
+ 1  <script type="text/javascript">
+ 2      var bFalse = false;//运算数是bool类型的数
+ 3      var sRed = "red";//运算数是字符串
+ 4      var iZero = 0;//运算数是0
+ 5      var iThreeFourFive = 345;//运算数是 0 以外的任何数字
+ 6      var oObject = new Object();//对象
+ 7      var oNull=null;//运算数是null
+ 8      var oUndefined;//运算数是undifined
+ 9      var oNaN=parseInt("abc");//使用parseInt方法把尝试字符串abc转换成整数，因为abc不是数字，因此是转不了的，所以返回的结果就是NaN
+10     /*
+11     判断JavaScript 变量的 Boolean 值时，也可以使用逻辑 NOT 运算符。这样做需要在一行代码中使用两个 NOT 运算符。
+12     无论运算数是什么类型，第一个 NOT 运算符返回 Boolean 值。第二个 NOT 将对该 Boolean 值取反，从而给出变量真正的 Boolean 值。
+13     */
+14     document.write("<PRE>");
+15     document.writeln("布尔数false 的逻辑值是 " + (!!bFalse));
+16     document.writeln("字符串sRed 的逻辑值是 " + (!!sRed));
+17     document.writeln("数字0 的逻辑值是 " + (!!iZero));
+18     document.writeln("数字345 的逻辑值是 " + (!!iThreeFourFive));
+19     document.writeln("对象Object 的逻辑值是 " + (!!oObject));
+20     document.writeln("NaN的逻辑值是 ：" + (!!oNaN));
+21     document.writeln("null 的逻辑值是 " + (!!oNull));
+22     document.writeln("undefined 的逻辑值是 " + (!!oUndefined));
+23     document.write("</PRE>");
+24   </script>
+```
+
+[![复制代码](https://common.cnblogs.com/images/copycode.gif)](javascript:void(0);)
+
+运行结果：
+
+　　![img](data:image/png;base64,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)
+
+
+
+分类: [JavaScript](https://www.cnblogs.com/xdp-gacl/category/431982.html)

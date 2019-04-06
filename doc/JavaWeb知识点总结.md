@@ -2,7 +2,7 @@
 
 
 
-**》一：**
+## **》一：**
 
 创建Web项目
 项目说明：
@@ -184,7 +184,7 @@ post:传输，将传递的参数以流的形式传输
 
  
 
-**》二 CSS**
+## **》二 CSS**
 
 HTML:超文本标记语言
 描述内容显示在网页中
@@ -403,7 +403,7 @@ italic和oblique的区别？
 
  
 
-**》三HTML+CSS综合案例**
+## **》三HTML+CSS综合案例**
 
  
 
@@ -540,7 +540,7 @@ x=5；
 运算符            描述                                 例子 
  ==      等于                                 x==8 为 false 
  ===     全等（值和类型）          x===5 为 true；x==="5" 为 false 
- 
+
 1.1 逻辑运算符&&和||和！
   逻辑运算符
     逻辑运算符用于测定变量或值之间的逻辑。
@@ -695,8 +695,8 @@ JAVA和JS没任何关系
 ​		</script>
 ​		</body>
 ​	3.2、在<head>引用
-		<head>
-		<script type="text/javascript">
+​		<head>
+​		<script type="text/javascript">
 
 ​		</script>
 ​		</head>
@@ -820,6 +820,7 @@ js主要提供了三种消息框
 	}
 
  
+
 
 8、JS事件
 就是HTML的事件属性
@@ -976,26 +977,26 @@ JS中的正则语法：/正则语法/属性
 	decodeURI() 解码某个编码的 URI。 	
 
 
-	
+​	
 10、JS的DOM
 Document：文档
 通过DOM可以获取并操作HTML的元素
 10.1DOM获取HTML标签对象的方式
-	10.1.1:通过ID
-		返回的是一个HTML元素对象
-		document.getElementById("id值");
-	10.1.2:通过name
-		返回的是网页网页中所有此name值的HTML元素数组
-		document.getElementsByName("name值");	
-	10.1.3:通过HTML标签名称
-		返回的是网页中所有此标签的元素数组
-		document.getElementsByTagName("name值");
+​	10.1.1:通过ID
+​		返回的是一个HTML元素对象
+​		document.getElementById("id值");
+​	10.1.2:通过name
+​		返回的是网页网页中所有此name值的HTML元素数组
+​		document.getElementsByName("name值");	
+​	10.1.3:通过HTML标签名称
+​		返回的是网页中所有此标签的元素数组
+​		document.getElementsByTagName("name值");
 10.2DOM创建HTML元素
-	10.2.1、通过元素的innerHTML属性添加
-	10.2.2、通过document的createElement方法创建并通过appenChild添加到指定元素下
-	方法说明：
-		1、createElement：创建元素，参数说明：1、元素名称
-		2、appenChild：添加子元素，参数说明：1、要添加的子元素的对象
+​	10.2.1、通过元素的innerHTML属性添加
+​	10.2.2、通过document的createElement方法创建并通过appenChild添加到指定元素下
+​	方法说明：
+​		1、createElement：创建元素，参数说明：1、元素名称
+​		2、appenChild：添加子元素，参数说明：1、要添加的子元素的对象
 
 10.3DOM设置HTML属性	
 	1、通过对象的style类设置
@@ -2017,7 +2018,7 @@ java中括号：
 1.4C3P0连接池
    常用类：
    ComboPooledDataSource:这是DataSource的子类，直接创建该类对象获取数据库连接池，加载默认配置文件
-   
+
 使用时，需要导入jar和对应的配置文件
 
 二、JDBC工具类Dbutils
@@ -2038,23 +2039,24 @@ java中括号：
 		4、BeanListHandler：将结果集中的每一行数据都封装到一个对应的JavaBean实例中，存放到List里
 		5、ColumnListHandler：将结果集中某一列的数据存放到List中。
 		6、KeyedHandler(name)：将结果集中的每一行数据都封装到一个Map<列名,列值>里，再把这些map再存到一个map里，其key为指定的key
-		
-		
+
+
+​		
 三、特殊的数据类型的对应：
-		PreparedStatement ps;
-		1.DATA,TIME,TIMESTAMP date,time,datetime
-			存：ps.setDate(i,d); ps.setTime(i,t); ps.setTimestamp(i, ts);
+​		PreparedStatement ps;
+​		1.DATA,TIME,TIMESTAMP date,time,datetime
+​			存：ps.setDate(i,d); ps.setTime(i,t); ps.setTimestamp(i, ts);
   	  	取：rs.getDate(i); rs.getTime(i); rs.getTimestamp(i);
-	2.CLOB  text
-	  	存：ps.setCharacterStream(index, reader, length);
-	         	         ps.setString(i, s);
-	  	取：reader = rs. getCharacterStream(i);
-	        	        reader = rs.getClob(i).getCharacterStream();
-	                          string = rs.getString(i);
-	3.BLOB  blob
-	 	存：ps.setBinaryStream(i, inputStream, length);
-       			取：rs.getBinaryStream(i);
-	        	    rs.getBlob(i).getBinaryStream(); 
+​	2.CLOB  text
+​	  	存：ps.setCharacterStream(index, reader, length);
+​	         	         ps.setString(i, s);
+​	  	取：reader = rs. getCharacterStream(i);
+​	        	        reader = rs.getClob(i).getCharacterStream();
+​	                          string = rs.getString(i);
+​	3.BLOB  blob
+​	 	存：ps.setBinaryStream(i, inputStream, length);
+​       			取：rs.getBinaryStream(i);
+​	        	    rs.getBlob(i).getBinaryStream(); 
 Project项目，一般都会框架
 三层架构：
 1、显示层---H5或JSP
@@ -2405,6 +2407,7 @@ RandomAccessFile:随机读取文件类
 
  
 
+
 **》十二**
 
  
@@ -2747,6 +2750,7 @@ getAttribute(key):获取指定key的值
 	格式：<jsp:param name="key" value="value"/>
 
  
+
 
 二、EL
 EL：Expression Language：EL表达式，简化JSP表达式
@@ -3813,7 +3817,7 @@ return
 		
 	6、window
 	7、Date
-	
+
 9、document
 	常用方法：
 		1、getElementById
@@ -3828,9 +3832,10 @@ return
 	src
 	innerHTML
 	href
-	
-	
-	
+
+
+​	
+​	
 
 
 2、数据库
@@ -3852,7 +3857,7 @@ insert into 表名(字段) values(值)
 update 表名 set 
 delete from 表名 
 select 字段 from 表名 [where] [order by] [group by] [having] [limit] 
- 
+
 约束条件：
 1、主键 
 2、唯一
@@ -3935,9 +3940,10 @@ QueryRunner:工具类
 	
 	BeanHander:将结果从ResultSet中转换为实体对象
 	BeanListHander：将结果从ResultSet中转换为list
-	
-	
-	
+
+
+​	
+​	
 
 3、后端
 Tomcat:服务器
