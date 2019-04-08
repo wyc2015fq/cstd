@@ -267,7 +267,7 @@ Cv64suf;
 #endif
 
 #ifndef CV_EXPORTS
-# define CV_EXPORTS
+# define CV_EXPORTS// __declspec(deprecated)
 #endif
 
 #ifdef _MSC_VER

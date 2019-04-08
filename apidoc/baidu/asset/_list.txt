@@ -1,0 +1,1 @@
+http:/aipe-easyedge.cdn.bcebos.com/doc/demo_object_detection_result.png

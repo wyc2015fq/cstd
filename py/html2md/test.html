@@ -1,0 +1,404 @@
+﻿
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="dns-prefetch" href="//apps.bdimg.com">
+<meta http-equiv="X-UA-Compatible" content="IE=11,IE=10,IE=9,IE=8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-title" content="大数据算法">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+<title>语音识别解码器(1)—自动机与半环-大数据算法</title>
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/72x72\/","ext":".png","source":{"concatemoji":"https:\/\/x-algo.cn\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.4.1"}};
+			!function(a,b,c){function d(a){var c,d=b.createElement("canvas"),e=d.getContext&&d.getContext("2d");return e&&e.fillText?(e.textBaseline="top",e.font="600 32px Arial","flag"===a?(e.fillText(String.fromCharCode(55356,56806,55356,56826),0,0),d.toDataURL().length>3e3):"diversity"===a?(e.fillText(String.fromCharCode(55356,57221),0,0),c=e.getImageData(16,16,1,1).data.toString(),e.fillText(String.fromCharCode(55356,57221,55356,57343),0,0),c!==e.getImageData(16,16,1,1).data.toString()):("simple"===a?e.fillText(String.fromCharCode(55357,56835),0,0):e.fillText(String.fromCharCode(55356,57135),0,0),0!==e.getImageData(16,16,1,1).data[0])):!1}function e(a){var c=b.createElement("script");c.src=a,c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g;c.supports={simple:d("simple"),flag:d("flag"),unicode8:d("unicode8"),diversity:d("diversity")},c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.simple&&c.supports.flag&&c.supports.unicode8&&c.supports.diversity||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel='stylesheet' id='crayon-css'  href='https://x-algo.cn/wp-content/plugins/crayon-syntax-highlighter/css/min/crayon.min.css?ver=_2.7.2_beta' type='text/css' media='all' />
+<link rel='stylesheet' id='toc-screen-css'  href='https://x-algo.cn/wp-content/plugins/table-of-contents-plus/screen.min.css?ver=1509' type='text/css' media='all' />
+<link rel='stylesheet' id='_bootstrap-css'  href='https://x-algo.cn/wp-content/themes/dux/css/bootstrap.min.css?ver=1.3' type='text/css' media='all' />
+<link rel='stylesheet' id='_fontawesome-css'  href='https://x-algo.cn/wp-content/themes/dux/css/font-awesome.min.css?ver=1.3' type='text/css' media='all' />
+<link rel='stylesheet' id='_main-css'  href='https://x-algo.cn/wp-content/themes/dux/css/main.css?ver=1.3' type='text/css' media='all' />
+<script type='text/javascript' src='https://x-algo.cn/wp-content/themes/dux/js/libs/jquery.min.js?ver=1.3'></script>
+<script type='text/javascript'>
+/* <![CDATA[ */
+var CrayonSyntaxSettings = {"version":"_2.7.2_beta","is_admin":"0","ajaxurl":"https:\/\/x-algo.cn\/wp-admin\/admin-ajax.php","prefix":"crayon-","setting":"crayon-setting","selected":"crayon-setting-selected","changed":"crayon-setting-changed","special":"crayon-setting-special","orig_value":"data-orig-value","debug":""};
+var CrayonSyntaxStrings = {"copy":"\u4f7f\u7528 %s \u590d\u5236\uff0c\u4f7f\u7528 %s \u7c98\u8d34\u3002","minimize":"\u70b9\u51fb\u5c55\u5f00\u4ee3\u7801"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://x-algo.cn/wp-content/plugins/crayon-syntax-highlighter/js/min/crayon.min.js?ver=_2.7.2_beta'></script>
+<link rel='https://api.w.org/' href='https://x-algo.cn/wp-json/' />
+<link rel='prev' title='强化学习(4)-动态规划' href='https://x-algo.cn/index.php/2017/04/29/reinforcement-learning-4-dynamic-programming/' />
+<link rel='next' title='tensorflow-serving源码理解' href='https://x-algo.cn/index.php/2017/05/02/2221/' />
+<link rel="canonical" href="https://x-algo.cn/index.php/2017/04/29/speech-recognition-decoder-1-automata-and-semi-circular/" />
+<link rel='shortlink' href='https://x-algo.cn/?p=2234' />
+<link rel="alternate" type="application/json+oembed" href="https://x-algo.cn/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fx-algo.cn%2Findex.php%2F2017%2F04%2F29%2Fspeech-recognition-decoder-1-automata-and-semi-circular%2F" />
+<link rel="alternate" type="text/xml+oembed" href="https://x-algo.cn/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fx-algo.cn%2Findex.php%2F2017%2F04%2F29%2Fspeech-recognition-decoder-1-automata-and-semi-circular%2F&#038;format=xml" />
+<meta name="keywords" content="语音识别">
+<meta name="description" content="主流的语音识别解码器都是根据H(HMM)，C(上下文)，L(发音字典)，G(语言模型)构建一个WFST解码网络，介绍语音识别解码器之前，有必要先了解自动机的定义、基本概率、操作等。  有限状态接收器（Finite-State Acceptor，FSA） 有限自动机（Finite Automata, FA）是由一组有限的状态和状态转移的集合组成，其每一个转移都">
+<style>a:hover, .site-navbar li:hover > a, .site-navbar li.active a:hover, .site-navbar a:hover, .search-on .site-navbar li.navto-search a, .topbar a:hover, .site-nav li.current-menu-item > a, .site-nav li.current-menu-parent > a, .site-search-form a:hover, .branding-primary .btn:hover, .title .more a:hover, .excerpt h2 a:hover, .excerpt .meta a:hover, .excerpt-minic h2 a:hover, .excerpt-minic .meta a:hover, .article-content .wp-caption:hover .wp-caption-text, .article-content a, .article-nav a:hover, .relates a:hover, .widget_links li a:hover, .widget_categories li a:hover, .widget_ui_comments strong, .widget_ui_posts li a:hover .text, .widget_ui_posts .nopic .text:hover , .widget_meta ul a:hover, .tagcloud a:hover, .textwidget a:hover, .sign h3, #navs .item li a, .url, .url:hover{color: #FF5E52;}.btn-primary, .label-primary, .branding-primary, .post-copyright:hover, .article-tags a, .pagination ul > .active > a, .pagination ul > .active > span, .pagenav .current, .widget_ui_tags .items a:hover, .sign .close-link, .pagemenu li.active a, .pageheader, .resetpasssteps li.active, #navs h2, #navs nav, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open > .dropdown-toggle.btn-primary, .tag-clouds a:hover{background-color: #FF5E52;}.btn-primary, .search-input:focus, #bdcs .bdcs-search-form-input:focus, #submit, .plinks ul li a:hover,.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open > .dropdown-toggle.btn-primary{border-color: #FF5E52;}.search-btn, .label-primary, #bdcs .bdcs-search-form-submit, #submit, .excerpt .cat{background-color: #FF5E52;}.excerpt .cat i{border-left-color:#FF5E52;}@media (max-width: 720px) {.site-navbar li.active a, .site-navbar li.active a:hover, .m-nav-show .m-icon-nav{color: #FF5E52;}}@media (max-width: 480px) {.pagination ul > li.next-page a{background-color:#FF5E52;}}</style>
+<!--HEADER_CODE_START-->
+<link rel="Bookmark" href="favicon.ico">
+
+<!--HEADER_CODE_END-->
+<link rel="shortcut icon" href="https://x-algo.cn/favicon.ico">
+<!--[if lt IE 9]><script src="https://x-algo.cn/wp-content/themes/dux/js/libs/html5.min.js"></script><![endif]-->
+</head>
+<body class="single single-post postid-2234 single-format-standard comment-open site-layout-2">
+<header class="header">
+	<div class="container">
+		<div class="logo"><a href="https://x-algo.cn" title="大数据算法-一个关注大数据算法在工业界应用的网站"><img src="https://x-algo.cn/wp-content/uploads/2016/02/算法3.png">大数据算法</a></div>		<div class="brand">欢迎光临 x-algo<br>关注算法在工业界应用</div>		<ul class="site-nav site-navbar">
+			<li id="menu-item-25" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-home menu-item-25"><a href="http://x-algo.cn">首页</a></li>
+<li id="menu-item-13" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-13"><a href="https://x-algo.cn/index.php/category/rcm/">推荐系统</a></li>
+<li id="menu-item-17" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-17"><a href="https://x-algo.cn/index.php/category/adalgo/">计算广告</a></li>
+<li id="menu-item-12" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-12"><a href="https://x-algo.cn/index.php/category/nlp/">NLP</a></li>
+<li id="menu-item-1633" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1633"><a href="https://x-algo.cn/index.php/category/tuxiang/">图像</a></li>
+<li id="menu-item-946" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-946"><a href="https://x-algo.cn/index.php/category/model/">模型</a></li>
+<li id="menu-item-15" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-15"><a href="https://x-algo.cn/index.php/category/opt/">最优化</a></li>
+<li id="menu-item-1184" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-has-children menu-item-1184"><a href="https://x-algo.cn/index.php/category/read/">读书</a>
+<ul class="sub-menu">
+	<li id="menu-item-2071" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-2071"><a href="https://x-algo.cn/index.php/category/read/qianghuaxuexi/">强化学习</a></li>
+	<li id="menu-item-1185" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-1185"><a href="https://x-algo.cn/index.php/category/read/line-algebra/">线性代数</a></li>
+</ul>
+</li>
+							<li class="navto-search"><a href="javascript:;" class="search-show active"><i class="fa fa-search"></i></a></li>
+					</ul>
+		<div class="topbar">
+			<ul class="site-nav topmenu">
+								<li class="menusns">
+					<a href="javascript:;">关注本站 <i class="fa fa-angle-down"></i></a>
+					<ul class="sub-menu">
+																																				<li><a target="_blank" href="http://x-algo.cn/index.php/feed/"><i class="fa fa-rss"></i> RSS订阅</a></li>					</ul>
+				</li>
+			</ul>
+											Hi, 这是一个关注大数据算法在工业界应用的网站
+					</div>
+		<i class="fa fa-bars m-icon-nav"></i>
+	</div>
+</header>
+<div class="site-search">
+	<div class="container">
+		<form method="get" class="site-search-form" action="https://x-algo.cn/" ><input class="search-input" name="s" type="text" placeholder="输入关键字" value=""><button class="search-btn" type="submit"><i class="fa fa-search"></i></button></form>	</div>
+</div>
+<section class="container">
+	<div class="content-wrap">
+	<div class="content">
+				<header class="article-header">
+			<h1 class="article-title"><a href="https://x-algo.cn/index.php/2017/04/29/speech-recognition-decoder-1-automata-and-semi-circular/">语音识别解码器(1)—自动机与半环</a></h1>
+			<div class="article-meta">
+				<span class="item">2017-04-29</span>
+												<span class="item">分类：<a href="https://x-algo.cn/index.php/category/deep-learning/yuyinshibie/" rel="category tag">语音识别</a></span>
+								<span class="item post-views">阅读(5074)</span>				<span class="item">评论(0)</span>
+				<span class="item"></span>
+			</div>
+		</header>
+		<article class="article-content">
+						<p style="text-align: left;">主流的语音识别解码器都是根据H(HMM)，C(上下文)，L(发音字典)，G(语言模型)构建一个WFST解码网络，介绍语音识别解码器之前，有必要先了解自动机的定义、基本概率、操作等。</p>
+<div id="toc_container" class="toc_white no_bullets"><p class="toc_title">文章目录</p><ul class="toc_list"><li><a href="#Finite-State_AcceptorFSA"><span class="toc_number toc_depth_1">1</span> 有限状态接收器（Finite-State Acceptor，FSA）</a></li><li><a href="#Finite-State_Transducers_FST"><span class="toc_number toc_depth_1">2</span> 有限状态转移器（Finite-State Transducers, FST）</a></li><li><a href="#Weighted_Finite-State_Acceptors_WFSA"><span class="toc_number toc_depth_1">3</span> 加权有限状态接收机（Weighted Finite-State Acceptors, WFSA）</a></li><li><a href="#Weighted_Finite-State_Transducers_WFST"><span class="toc_number toc_depth_1">4</span> 加权有限状态转移器（Weighted Finite-State Transducers, WFST）</a></li><li><a href="#Semiring"><span class="toc_number toc_depth_1">5</span> 半环（Semiring）</a></li><li><a href="#i"><span class="toc_number toc_depth_1">6</span> 半环的性质</a></li><li><a href="#i-2"><span class="toc_number toc_depth_1">7</span> 总结</a></li><li><a href="#i-3"><span class="toc_number toc_depth_1">8</span> 参考文献</a></li></ul></div>
+<h2 style="text-align: left;"><span id="Finite-State_AcceptorFSA"><span style="font-size: 14pt;"><strong>有限状态接收器（Finite-State Acceptor，FSA）</strong></span></span></h2>
+<p style="text-align: left;">有限自动机（Finite Automata, FA）是由一组有限的状态和状态转移的集合组成，其每一个转移都至少有一个标签。最基本的FA是FSA。对于给定的输入序列，FSA返回“接收”或者“不接收”两种状态。</p>
+<p>图1（a）是一个FSA的示例，其节点和弧分别对应状态与状态的转移。例如，FSA可通过0,1,1,2,5接收一个符号序列“a,b,c,d”，但是无法接收到“a,b,d”序列，因此FSA表示了一组能被接收到的符号序列集合。图1（a）的FSA对应于正则表达式“ab*cd|bcd*”。我们假设状态0代表初始状态，状态5代表终止状态，如果不特别指出，本文中粗线单线圆代表初始状态，细线双线圆代表终止状态。
+<img class="alignnone size-large wp-image-2236" src="http://x-algo.cn/wp-content/uploads/2017/04/1-1024x541.jpg" alt="图1. FSA，FST，WFSA，WFST的基本区别" width="1024" height="541" srcset="https://x-algo.cn/wp-content/uploads/2017/04/1-300x158.jpg 300w, https://x-algo.cn/wp-content/uploads/2017/04/1-768x406.jpg 768w, https://x-algo.cn/wp-content/uploads/2017/04/1-1024x541.jpg 1024w, https://x-algo.cn/wp-content/uploads/2017/04/1-220x116.jpg 220w, https://x-algo.cn/wp-content/uploads/2017/04/1.jpg 1223w" sizes="(max-width: 1024px) 100vw, 1024px" /></p>
+<p>&nbsp;</p>
+<h2><span id="Finite-State_Transducers_FST"><span style="font-size: 14pt;"><strong>有限状态转移器（Finite-State Transducers, FST）</strong></span></span></h2>
+<p>FST是FSA的扩展，其每一次状态转移时都有一个输出标签，叫做输入输出标签对，如图1（b）就是一个FST的例子。通过这样的标签对，FST可描述一组规则的转换或一组符号序列到另一组符号序列的转换。图1（b）的FST将符号序列“a,b,c,d”转换为另一个符号序列“z,y,x,w”。</p>
+<h2><span id="Weighted_Finite-State_Acceptors_WFSA"><span style="font-size: 14pt;"><strong>加权有限状态接收机（Weighted Finite-State Acceptors, WFSA）</strong></span></span></h2>
+<p>WFSA在每一次状态转移时都有一个权重，在每次的初始状态都有初始权重，在每次的终止状态都有终止权重，权重一般是转移或初始/终止状态的概率或损失，权重会延每条路径进行累积，并在不同路径进行累加。图1（c）是一个WFSA的例子，每次状态转移的权重表示为“输入-标签/权重”，而初始和终止状态的权重表示为“状态 数量/权重”，在上图中，初始状态0的初始权重为0.5，终止状态5的终止权重为0.1。例如，上图中的WFSA沿着转移状态“0,1,1,2,5”以累积权重0.5*1.2*0.7*3*2*0.1=0.252接收到一个序列“a,b,c,d”。</p>
+<h2><span id="Weighted_Finite-State_Transducers_WFST"><span style="font-size: 14pt;"><strong>加权有限状态转移器（Weighted Finite-State Transducers, WFST）</strong></span></span></h2>
+<p>WFST在每次状态转移时同时具有输出标签和权重，同时具有FST和WFSA的特性，图1（d）是一个WFST的例子，这里每次的状态转移标签都以“输入-标签: 输出-标签/权重”的形式进行转移，初始和终止状态也相应的分类了权重。在该图中的WFST，将符号序列“a,b,c,d”以0.252的累积权重转换为序列“z,y,x,w”。</p>
+<p>WFST通过一个8元组 <span class='MathJax_Preview'>\((\sum ,\Lambda ,Q,I,F,E,\lambda ,\rho)\)</span><script type='math/tex'>(\sum ,\Lambda ,Q,I,F,E,\lambda ,\rho)</script> 定义，其中 <span class='MathJax_Preview'>\(\mathbb{K}\)</span><script type='math/tex'>\mathbb{K}</script> 是一组权重元素集合：</p>
+<p>(1)  <span class='MathJax_Preview'>\(\sum\)</span><script type='math/tex'>\sum</script> 是一组有限的输入标签；</p>
+<p>(2)  <span class='MathJax_Preview'>\(\Lambda\)</span><script type='math/tex'>\Lambda</script> 是一组有限的输出标签；</p>
+<p>(3)  <span class='MathJax_Preview'>\(Q\)</span><script type='math/tex'>Q</script> 是一组有限的状态；</p>
+<p>(4) <span class='MathJax_Preview'>\(I\subseteq Q\)</span><script type='math/tex'>I\subseteq Q</script>  是一组初始状态；</p>
+<p>(5)  <span class='MathJax_Preview'>\(F\subseteq Q\)</span><script type='math/tex'>F\subseteq Q</script> 是一组终止状态；</p>
+<p>(6)  <span class='MathJax_Preview'>\(E\subseteq Q\times (\sum\cup \{\epsilon \})\times\mathbb{K}\times Q\)</span><script type='math/tex'>E\subseteq Q\times (\sum\cup \{\epsilon \})\times\mathbb{K}\times Q</script> 是多组有限的转移；</p>
+<p>(7)  <span class='MathJax_Preview'>\(\lambda :I\rightarrow \mathbb{K}\)</span><script type='math/tex'>\lambda :I\rightarrow \mathbb{K}</script> 是权重初始函数；</p>
+<p>(8)  <span class='MathJax_Preview'>\(\rho :F\rightarrow \mathbb{K}\)</span><script type='math/tex'>\rho :F\rightarrow \mathbb{K}</script> 是权重终止函数；</p>
+<p>" <span class='MathJax_Preview'>\(\epsilon\)</span><script type='math/tex'>\epsilon</script> "是一个元符号标签，它代表了无符号的输入输出，通过以上定义，图1（d）的WFST可以被定义如下：</p>
+<p>(1)  <span class='MathJax_Preview'>\(\sum = \{a,b,c,d,e\}\)</span><script type='math/tex'>\sum = \{a,b,c,d,e\}</script> </p>
+<p>(2)  <span class='MathJax_Preview'>\(\Lambda = \{v,x,y,w,z\}\)</span><script type='math/tex'>\Lambda = \{v,x,y,w,z\}</script> </p>
+<p>(3)  <span class='MathJax_Preview'>\(Q = \{0,1,2,3,4,5\}\)</span><script type='math/tex'>Q = \{0,1,2,3,4,5\}</script> </p>
+<p>(4) <span class='MathJax_Preview'>\(I = \{0\}\)</span><script type='math/tex'>I = \{0\}</script> </p>
+<p>(5)  <span class='MathJax_Preview'>\(F = \{5\}\)</span><script type='math/tex'>F = \{5\}</script> </p>
+<p>(6)  <span class='MathJax_Preview'>\(E = \{(0,a,z,1.2,1),(0,b,y,0.8,3),(1,b,y,0.7,1),(1,c,x,3,2),(2,d,w,2,5),(3,c,x,0.2,4),(4,d,w,1.2,4),(4,e,v,0.6,5)\}\)</span><script type='math/tex'>E = \{(0,a,z,1.2,1),(0,b,y,0.8,3),(1,b,y,0.7,1),(1,c,x,3,2),(2,d,w,2,5),(3,c,x,0.2,4),(4,d,w,1.2,4),(4,e,v,0.6,5)\}</script> </p>
+<p>(7)  <span class='MathJax_Preview'>\(\lambda (0) = 0.5\)</span><script type='math/tex'>\lambda (0) = 0.5</script> </p>
+<p>(8)  <span class='MathJax_Preview'>\(\rho (5) = 0.1\)</span><script type='math/tex'>\rho (5) = 0.1</script> </p>
+<p>其中 <span class='MathJax_Preview'>\(E\)</span><script type='math/tex'>E</script> 中的每次转移由（源状态，输入标签，输出标签，权重，目标状态）组成，可以从以上描述中可知，FSA, FST, WFSA都是WFST的特殊形式，这些形式也可以由上述相似的元组表示。</p>
+<h2><span id="Semiring"><span style="font-size: 14pt;"><strong>半环（Semiring）</strong></span></span></h2>
+<p>半环是一种抽象代数的代数结构，在此用来定义WFST的加权值。半环一般定义为 <span class='MathJax_Preview'>\((\mathbb {K},\bigoplus ,\bigotimes ,\bar{0},\bar{1})\)</span><script type='math/tex'>(\mathbb {K},\bigoplus ,\bigotimes ,\bar{0},\bar{1})</script> ，这里 <span class='MathJax_Preview'>\(\mathbb {K}\)</span><script type='math/tex'>\mathbb {K}</script> 是一组数集， <span class='MathJax_Preview'>\(\bigoplus\)</span><script type='math/tex'>\bigoplus</script> 和 <span class='MathJax_Preview'>\(\bigotimes\)</span><script type='math/tex'>\bigotimes</script> 是定义在 <span class='MathJax_Preview'>\(\mathbb {K}\)</span><script type='math/tex'>\mathbb {K}</script> 上的两种二元运算，例如“加法”和“乘法”（不一定是真正的加法和乘法）， <span class='MathJax_Preview'>\(\bar{0}\)</span><script type='math/tex'>\bar{0}</script> 和 <span class='MathJax_Preview'>\(\bar{1}\)</span><script type='math/tex'>\bar{1}</script> 是特定的零元素和幺元素（不一定是真正的数0和数1）。形成半环的条件如下：</p>
+<p><img class="alignnone size-full wp-image-2248" src="http://x-algo.cn/wp-content/uploads/2017/04/2.jpg" alt="2" width="970" height="348" srcset="https://x-algo.cn/wp-content/uploads/2017/04/2-300x108.jpg 300w, https://x-algo.cn/wp-content/uploads/2017/04/2-768x276.jpg 768w, https://x-algo.cn/wp-content/uploads/2017/04/2-220x79.jpg 220w, https://x-algo.cn/wp-content/uploads/2017/04/2.jpg 970w" sizes="(max-width: 970px) 100vw, 970px" /></p>
+<p>WFST中常用的半环类型包括概率半环、对数半环、热带半环等，下表是这几种半环的定义：</p>
+<p><img class="alignnone size-large wp-image-2249" src="http://x-algo.cn/wp-content/uploads/2017/04/3-1024x274.jpg" alt="常用半环形式" width="1024" height="274" srcset="https://x-algo.cn/wp-content/uploads/2017/04/3-300x80.jpg 300w, https://x-algo.cn/wp-content/uploads/2017/04/3-768x205.jpg 768w, https://x-algo.cn/wp-content/uploads/2017/04/3-1024x274.jpg 1024w, https://x-algo.cn/wp-content/uploads/2017/04/3-220x59.jpg 220w, https://x-algo.cn/wp-content/uploads/2017/04/3.jpg 1028w" sizes="(max-width: 1024px) 100vw, 1024px" /></p>
+<p>其中， <span class='MathJax_Preview'>\(\bigoplus _{log}\)</span><script type='math/tex'>\bigoplus _{log}</script> 表示 <span class='MathJax_Preview'>\(\mathbb {K}\)</span><script type='math/tex'>\mathbb {K}</script> 上的任意 <span class='MathJax_Preview'>\(x\)</span><script type='math/tex'>x</script> 和 <span class='MathJax_Preview'>\(y\)</span><script type='math/tex'>y</script> 的二元操作 <span class='MathJax_Preview'>\(x\bigoplus _{log}y=-log(e^{-x}+e^{-y})\)</span><script type='math/tex'>x\bigoplus _{log}y=-log(e^{-x}+e^{-y})</script> 。在语音识别中主要使用热带半环，热带半环是由一组实数权重值组成，其“加法”操作对应取两数最小值，“乘法”操作就是普通的加法运算，而在一些WFST的优化步骤中也经常使用对数半环。</p>
+<h2><span id="i"><span style="font-size: 14pt;"><strong>半环的性质</strong></span></span></h2>
+<p>(1) 交换律</p>
+<p>如果半环 <span class='MathJax_Preview'>\(\mathbb {K},\bigoplus,\bigotimes,\bar{0},\bar{1}\)</span><script type='math/tex'>\mathbb {K},\bigoplus,\bigotimes,\bar{0},\bar{1}</script> 中的 <span class='MathJax_Preview'>\(\bigotimes\)</span><script type='math/tex'>\bigotimes</script> 满足交换律，则半环满足交换律，例如，对于所有 <span class='MathJax_Preview'>\(x,y\sqsubseteq?\mathbb {K}\)</span><script type='math/tex'>x,y\sqsubseteq?\mathbb {K}</script> ，有： <span class='MathJax_Preview'>\(x\bigotimes y=y\bigotimes x\)</span><script type='math/tex'>x\bigotimes y=y\bigotimes x</script> </p>
+<p>显然，热带半环和对数半环都满足交换律。</p>
+<p>(2) 幂等律</p>
+<p>如果半环 <span class='MathJax_Preview'>\(\mathbb {K},\bigoplus,\bigotimes,\bar{0},\bar{1}\)</span><script type='math/tex'>\mathbb {K},\bigoplus,\bigotimes,\bar{0},\bar{1}</script> 中的 <span class='MathJax_Preview'>\(\bigoplus\)</span><script type='math/tex'>\bigoplus</script> 满足 <span class='MathJax_Preview'>\(x=x\bigoplus x\)</span><script type='math/tex'>x=x\bigoplus x</script> ，则半环就满足幂等律。其中热带半环就满足幂等律，例如： <span class='MathJax_Preview'>\(x=min(x,x)\)</span><script type='math/tex'>x=min(x,x)</script> ,而对数半环不满足，例如： <span class='MathJax_Preview'>\(x\neq x\oplus _{log}x\)</span><script type='math/tex'>x\neq x\oplus _{log}x</script> 。</p>
+<p>(3) k闭半环</p>
+<p>对于大于等于0的整数k，对于所有 <span class='MathJax_Preview'>\(x\subset \mathbb {K}\)</span><script type='math/tex'>x\subset \mathbb {K}</script> ，当 <span class='MathJax_Preview'>\(\bigoplus _{n=0}^{k+1}x^{n}=\bigoplus _{n=0}^{k}x^{n}\)</span><script type='math/tex'>\bigoplus _{n=0}^{k+1}x^{n}=\bigoplus _{n=0}^{k}x^{n}</script> 时，半环 <span class='MathJax_Preview'>\(\mathbb {K},\bigoplus,\bigotimes,\bar{0},\bar{1}\)</span><script type='math/tex'>\mathbb {K},\bigoplus,\bigotimes,\bar{0},\bar{1}</script> 是k闭半环。</p>
+<p>(4) 弱左整除</p>
+<p>对于 <span class='MathJax_Preview'>\(x,y\subseteq \mathbb {K}\)</span><script type='math/tex'>x,y\subseteq \mathbb {K}</script> ，如果 <span class='MathJax_Preview'>\(x\bigoplus y\neq \bar{0}\)</span><script type='math/tex'>x\bigoplus y\neq \bar{0}</script> ,并且存在至少一个 <span class='MathJax_Preview'>\(z\)</span><script type='math/tex'>z</script> ，满足：</p>
+<p> <span class='MathJax_Preview'>\(x=(x\bigoplus y)\bigotimes z\)</span><script type='math/tex'>x=(x\bigoplus y)\bigotimes z</script> ，则半环 <span class='MathJax_Preview'>\(\mathbb {K},\bigoplus,\bigotimes,\bar{0},\bar{1}\)</span><script type='math/tex'>\mathbb {K},\bigoplus,\bigotimes,\bar{0},\bar{1}</script> 是弱左整除，</p>
+<p>显然热带半环和对数半环都是弱左整除。</p>
+<p>(5) 零和自由</p>
+<p>如果半环 <span class='MathJax_Preview'>\(\mathbb {K},\bigoplus,\bigotimes,\bar{0},\bar{1}\)</span><script type='math/tex'>\mathbb {K},\bigoplus,\bigotimes,\bar{0},\bar{1}</script> 能从 <span class='MathJax_Preview'>\(x\bigoplus y\neq \bar{0}\)</span><script type='math/tex'>x\bigoplus y\neq \bar{0}</script> 推导出 <span class='MathJax_Preview'>\(x=y=\bar{0}\)</span><script type='math/tex'>x=y=\bar{0}</script> ，</p>
+<p>则半环是零和自由。</p>
+<h2><span id="i-2"><span style="font-size: 14pt;"><strong>总结</strong></span></span></h2>
+<p>本文简单介绍了自动机的基本类型、半环的概念和基本性质，对群论（我也不知道这是个什么鬼）有一个初步认识，下篇将介绍WFST的基本操作、转移器的组成。</p>
+<h2><span id="i-3"><span style="font-size: 14pt;"><strong>参考文献</strong></span></span></h2>
+<p>Speech Recognition Algorithms Using Weighted Finite-State Transducers.</p>
+<p class="post-copyright">未经允许不得转载：<a href="https://x-algo.cn">大数据算法</a> &raquo; <a href="https://x-algo.cn/index.php/2017/04/29/speech-recognition-decoder-1-automata-and-semi-circular/">语音识别解码器(1)—自动机与半环</a></p>		</article>
+								<div class="action-share bdsharebuttonbox">
+					</div>
+		<div class="article-tags"></div>
+				<div class="relates"><div class="title"><h3>相关推荐</h3></div><ul><li><a href="https://x-algo.cn/index.php/2017/05/31/2345/">CTC原理</a></li><li><a href="https://x-algo.cn/index.php/2017/05/29/2380/">语音识别解码器(2)—WFST基本操作</a></li></ul></div>				<div class="title" id="comments">
+	<h3>评论 <small>抢沙发</small></h3>
+</div>
+<div id="respond" class="no_webshot">
+		
+	<form action="https://x-algo.cn/wp-comments-post.php" method="post" id="commentform">
+		<div class="comt">
+			<div class="comt-title">
+				<img alt='' src='https://secure.gravatar.com/avatar/?s=50&#038;d=https%3A%2F%2Fx-algo.cn%2Fwp-content%2Fthemes%2Fdux%2Fimg%2Favatar-default.png&#038;r=g' srcset='https://secure.gravatar.com/avatar/?s=100&amp;d=https%3A%2F%2Fx-algo.cn%2Fwp-content%2Fthemes%2Fdux%2Fimg%2Favatar-default.png&amp;r=g 2x' class='avatar avatar-50 photo avatar-default' height='50' width='50' />				<p><a id="cancel-comment-reply-link" href="javascript:;">取消</a></p>
+			</div>
+			<div class="comt-box">
+				<textarea placeholder="你的评论可以一针见血" class="input-block-level comt-area" name="comment" id="comment" cols="100%" rows="3" tabindex="1" onkeydown="if(event.ctrlKey&amp;&amp;event.keyCode==13){document.getElementById('submit').click();return false};"></textarea>
+				<div class="comt-ctrl">
+					<div class="comt-tips"><input type='hidden' name='comment_post_ID' value='2234' id='comment_post_ID' />
+<input type='hidden' name='comment_parent' id='comment_parent' value='0' />
+
+<div id="captchaImgDiv">
+
+<div class="captchaSizeDivLarge"><img id="si_image_com" class="si-captcha" src="https://x-algo.cn/wp-content/plugins/si-captcha-for-wordpress/captcha/securimage_show.php?si_form_id=com&amp;prefix=6ereaMO0qzlKdGZk" width="175" height="60" alt="验证图片" title="验证图片" />
+    <input id="si_code_com" name="si_code_com" type="hidden"  value="6ereaMO0qzlKdGZk" />
+    <div id="si_refresh_com">
+<a href="#" rel="nofollow" title="刷新验证码" onclick="si_captcha_refresh('si_image_com','com','/wp-content/plugins/si-captcha-for-wordpress/captcha','https://x-algo.cn/wp-content/plugins/si-captcha-for-wordpress/captcha/securimage_show.php?si_form_id=com&amp;prefix='); return false;">
+      <img class="captchaImgRefresh" src="https://x-algo.cn/wp-content/plugins/si-captcha-for-wordpress/captcha/images/refresh.png" width="22" height="20" alt="刷新验证码" onclick="this.blur();" /></a>
+  </div>
+  </div>
+<div id="captchaInputDiv"><input id="captcha_code" name="captcha_code" type="text" value="" tabindex="4"  />
+ <label id="captcha_code_label" for="captcha_code">验证码</label><span class="required">*</span>
+ </div>
+</div>
+      <script type='text/javascript'>
+          var sUrlInput = document.getElementById("comment");
+                  var oParent = sUrlInput.parentNode;
+          var sSubstitue = document.getElementById("captchaImgDiv");
+                  oParent.appendChild(sSubstitue, sUrlInput);
+      </script>
+            <noscript>
+          <style type='text/css'>#submit {display:none;}</style><br />           <input name="submit" type="submit" id="submit-alt" tabindex="6" value="提交" />
+          </noscript>
+  <p style="display: none;"><input type="hidden" id="akismet_comment_nonce" name="akismet_comment_nonce" value="b992907238" /></p><label for="comment_mail_notify" class="checkbox inline hide" style="padding-top:0"><input type="checkbox" name="comment_mail_notify" id="comment_mail_notify" value="comment_mail_notify" checked="checked"/>有人回复时邮件通知我</label><p style="display: none;"><input type="hidden" id="ak_js" name="ak_js" value="53"/></p></div>
+					<button type="submit" name="submit" id="submit" tabindex="5">提交评论</button>
+					<!-- <span data-type="comment-insert-smilie" class="muted comt-smilie"><i class="icon-thumbs-up icon12"></i> 表情</span> -->
+				</div>
+			</div>
+
+												<div class="comt-comterinfo" id="comment-author-info" >
+						<ul>
+							<li class="form-inline"><label class="hide" for="author">昵称</label><input class="ipt" type="text" name="author" id="author" value="" tabindex="2" placeholder="昵称"><span class="text-muted">昵称 (必填)</span></li>
+							<li class="form-inline"><label class="hide" for="email">邮箱</label><input class="ipt" type="text" name="email" id="email" value="" tabindex="3" placeholder="邮箱"><span class="text-muted">邮箱 (必填)</span></li>
+							<li class="form-inline"><label class="hide" for="url">网址</label><input class="ipt" type="text" name="url" id="url" value="" tabindex="4" placeholder="网址"><span class="text-muted">网址</span></li>
+						</ul>
+					</div>
+									</div>
+
+	</form>
+	</div>
+	</div>
+	</div>
+	<aside class="sidebar">
+<div class="widget widget_ui_tags"><h3>热门标签</h3><div class="items"><a href="https://x-algo.cn/index.php/tag/crf/">CRF (6)</a><a href="https://x-algo.cn/index.php/tag/jufafenxi/">句法分析 (3)</a><a href="https://x-algo.cn/index.php/tag/tensorflow/">Tensorflow (3)</a><a href="https://x-algo.cn/index.php/tag/cnn/">CNN (3)</a><a href="https://x-algo.cn/index.php/tag/gan/">GAN (3)</a><a href="https://x-algo.cn/index.php/tag/rl/">rl (3)</a><a href="https://x-algo.cn/index.php/tag/ch_seg/">中文分词 (2)</a><a href="https://x-algo.cn/index.php/tag/word2vec/">word2vec (2)</a><a href="https://x-algo.cn/index.php/tag/nlp/">nlp (2)</a><a href="https://x-algo.cn/index.php/tag/zuiyouhua/">最优化 (2)</a><a href="https://x-algo.cn/index.php/tag/learning-to-rank/">learning to rank (2)</a><a href="https://x-algo.cn/index.php/tag/gpu/">GPU (2)</a><a href="https://x-algo.cn/index.php/tag/lstm/">LSTM (2)</a><a href="https://x-algo.cn/index.php/tag/ocr/">OCR (2)</a><a href="https://x-algo.cn/index.php/tag/post_dic/">词性表 (1)</a><a href="https://x-algo.cn/index.php/tag/sousuo/">搜索 (1)</a><a href="https://x-algo.cn/index.php/tag/iis/">iis (1)</a><a href="https://x-algo.cn/index.php/tag/hmm/">HMM (1)</a><a href="https://x-algo.cn/index.php/tag/yinma/">隐马 (1)</a><a href="https://x-algo.cn/index.php/tag/yinmaerkefumoxing/">隐马尔科夫模型 (1)</a><a href="https://x-algo.cn/index.php/tag/em/">EM (1)</a><a href="https://x-algo.cn/index.php/tag/crf_post/">CRF词性标注 (1)</a><a href="https://x-algo.cn/index.php/tag/post/">词性标注 (1)</a><a href="https://x-algo.cn/index.php/tag/ner/">实体识别 (1)</a><a href="https://x-algo.cn/index.php/tag/dimingshitishibie/">地名实体识别 (1)</a><a href="https://x-algo.cn/index.php/tag/crfshitishibie/">CRF实体识别 (1)</a><a href="https://x-algo.cn/index.php/tag/crfjufafenxi/">CRF句法分析 (1)</a><a href="https://x-algo.cn/index.php/tag/huizhijufashu/">绘制句法树 (1)</a><a href="https://x-algo.cn/index.php/tag/js/">js (1)</a><a href="https://x-algo.cn/index.php/tag/css/">css (1)</a></div></div><div class="widget widget_categories"><h3>分类目录</h3>		<ul>
+	<li class="cat-item cat-item-51"><a href="https://x-algo.cn/index.php/category/deep-learning/" >Deep Learning</a> (29)
+<ul class='children'>
+	<li class="cat-item cat-item-87"><a href="https://x-algo.cn/index.php/category/deep-learning/cnn/" >CNN</a> (12)
+</li>
+	<li class="cat-item cat-item-121"><a href="https://x-algo.cn/index.php/category/deep-learning/lstm/" >LSTM</a> (2)
+</li>
+	<li class="cat-item cat-item-55"><a href="https://x-algo.cn/index.php/category/deep-learning/rnn/" >RNN</a> (3)
+</li>
+	<li class="cat-item cat-item-126"><a href="https://x-algo.cn/index.php/category/deep-learning/yuyinshibie/" >语音识别</a> (3)
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-135"><a href="https://x-algo.cn/index.php/category/gan/" >GAN</a> (3)
+</li>
+	<li class="cat-item cat-item-105"><a href="https://x-algo.cn/index.php/category/gpucoding/" >GPU编程</a> (4)
+</li>
+	<li class="cat-item cat-item-5"><a href="https://x-algo.cn/index.php/category/nlp/" >NLP</a> (24)
+<ul class='children'>
+	<li class="cat-item cat-item-139"><a href="https://x-algo.cn/index.php/category/nlp/machine-comprehension/" >Machine comprehension</a> (1)
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-101"><a href="https://x-algo.cn/index.php/category/tuxiang/" >图像</a> (11)
+</li>
+	<li class="cat-item cat-item-3"><a href="https://x-algo.cn/index.php/category/rcm/" >推荐系统</a> (9)
+</li>
+	<li class="cat-item cat-item-80"><a href="https://x-algo.cn/index.php/category/%e6%95%b0%e5%ad%a6/" >数学</a> (1)
+<ul class='children'>
+	<li class="cat-item cat-item-81"><a href="https://x-algo.cn/index.php/category/%e6%95%b0%e5%ad%a6/%e7%ba%bf%e6%80%a7%e4%bb%a3%e6%95%b0/" >线性代数</a> (1)
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-4"><a href="https://x-algo.cn/index.php/category/datastruct/" >数据结构</a> (1)
+<ul class='children'>
+	<li class="cat-item cat-item-11"><a href="https://x-algo.cn/index.php/category/datastruct/tree/" >树</a> (1)
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-6"><a href="https://x-algo.cn/index.php/category/opt/" >最优化</a> (10)
+</li>
+	<li class="cat-item cat-item-79"><a href="https://x-algo.cn/index.php/category/%e6%9d%82/" >杂</a> (1)
+</li>
+	<li class="cat-item cat-item-21"><a href="https://x-algo.cn/index.php/category/model/" >模型</a> (18)
+</li>
+	<li class="cat-item cat-item-14"><a href="https://x-algo.cn/index.php/category/algo/" >算法</a> (7)
+<ul class='children'>
+	<li class="cat-item cat-item-18"><a href="https://x-algo.cn/index.php/category/algo/dp/" >动态规划</a> (1)
+</li>
+	<li class="cat-item cat-item-19"><a href="https://x-algo.cn/index.php/category/algo/sousuo/" >搜索</a> (2)
+</li>
+	<li class="cat-item cat-item-15"><a href="https://x-algo.cn/index.php/category/algo/yuyanrumen/" >语言入门</a> (2)
+</li>
+	<li class="cat-item cat-item-17"><a href="https://x-algo.cn/index.php/category/algo/tanxinsuanfa/" >贪心算法</a> (2)
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-2"><a href="https://x-algo.cn/index.php/category/adalgo/" >计算广告</a> (2)
+</li>
+	<li class="cat-item cat-item-47"><a href="https://x-algo.cn/index.php/category/word_dic/" >词表</a> (2)
+</li>
+	<li class="cat-item cat-item-82"><a href="https://x-algo.cn/index.php/category/read/" >读书</a> (19)
+<ul class='children'>
+	<li class="cat-item cat-item-124"><a href="https://x-algo.cn/index.php/category/read/qianghuaxuexi/" >强化学习</a> (17)
+</li>
+	<li class="cat-item cat-item-83"><a href="https://x-algo.cn/index.php/category/read/line-algebra/" >线性代数</a> (2)
+</li>
+</ul>
+</li>
+	<li class="cat-item cat-item-90"><a href="https://x-algo.cn/index.php/category/schedule/" >调度系统</a> (1)
+</li>
+		</ul>
+</div><div class="widget widget_archive"><h3>文章归档</h3>		<ul>
+			<li><a href='https://x-algo.cn/index.php/2018/11/'>2018年十一月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2018/07/'>2018年七月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2018/06/'>2018年六月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2018/05/'>2018年五月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2018/04/'>2018年四月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2018/03/'>2018年三月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2018/02/'>2018年二月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2017/10/'>2017年十月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2017/08/'>2017年八月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2017/07/'>2017年七月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2017/05/'>2017年五月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2017/04/'>2017年四月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2017/03/'>2017年三月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2017/02/'>2017年二月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2017/01/'>2017年一月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2016/12/'>2016年十二月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2016/11/'>2016年十一月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2016/09/'>2016年九月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2016/08/'>2016年八月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2016/07/'>2016年七月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2016/06/'>2016年六月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2016/04/'>2016年四月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2016/03/'>2016年三月</a></li>
+	<li><a href='https://x-algo.cn/index.php/2016/02/'>2016年二月</a></li>
+		</ul>
+		</div></aside></section>
+
+<div class="branding branding-black">
+	<div class="container">
+		<h2>关注大数据算法在工业界应用</h2>
+		<a target="blank" class="btn btn-lg" href="https://github.com/adleihao">本站的GitHub</a><a target="blank" class="btn btn-lg" href="http://x-algo.cn/index.php/about-site">关于本站</a>	</div>
+</div>
+<footer class="footer">
+	<div class="container">
+		<div class="fcode">
+					</div>
+		<p>&copy; 2019 <a href="https://x-algo.cn">大数据算法</a> &nbsp; <a href="https://x-algo.cn/sitemap.xml">网站地图</a> 
+ &nbsp; 
+<a href="http://www.miitbeian.gov.cn/" target="_blank"  >
+ 京ICP备16006270号-1
+</a></p>
+		<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?9a06be92d96326f22fe7f2e9b4425d23";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+	</div>
+</footer>
+
+<script>
+window.jsui={
+    www: 'https://x-algo.cn',
+    uri: 'https://x-algo.cn/wp-content/themes/dux',
+    ver: '1.3',
+	roll: ["1","2"],
+    ajaxpager: '0',
+    url_rp: 'https://x-algo.cn/index.php/2024/'
+};
+</script>
+<script type="text/x-mathjax-config"> 
+        MathJax.Hub.Config({ 
+                TeX: {equationNumbers: {autoNumber: ["AMS"], useLabelIds: true}}, 
+                "HTML-CSS": {linebreaks: {automatic: true}}, 
+                SVG: {linebreaks: {automatic: true}}
+        }); 
+</script><script type="text/javascript" src="https://x-algo.cn/mathjs/MathJax-master/MathJax.js?config=TeX-AMS-MML_HTMLorMML">MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+</script><script type='text/javascript' src='https://x-algo.cn/wp-content/plugins/si-captcha-for-wordpress/captcha/si_captcha.js?ver=1.0'></script>
+<script type="text/javascript">
+//<![CDATA[
+var si_captcha_styles = "\
+<!-- begin SI CAPTCHA Anti-Spam - comment form style -->\
+<style type='text/css'>\
+div#captchaImgDiv { display:block; }\
+.captchaSizeDivSmall { width:175px; height:45px; padding-top:10px; }\
+.captchaSizeDivLarge { width:250px; height:60px; padding-top:10px; }\
+img#si_image_com,#si_image_reg,#si_image_log,#si_image_side_login { border-style:none; margin:0; padding-right:5px; float:left; }\
+.captchaImgRefresh { border-style:none; margin:0; vertical-align:bottom; }\
+div#captchaInputDiv { display:block; padding-top:15px; padding-bottom:5px; }\
+label#captcha_code_label { margin:0; }\
+input#captcha_code { width:65px; }\
+</style>\
+<!-- end SI CAPTCHA Anti-Spam - comment form style -->\
+";
+jQuery(document).ready(function($) {
+$('head').append(si_captcha_styles);
+});
+//]]>
+</script>
+<script type='text/javascript' src='https://x-algo.cn/wp-content/plugins/akismet/_inc/form.js?ver=3.1.7'></script>
+<script type='text/javascript'>
+/* <![CDATA[ */
+var tocplus = {"smooth_scroll":"1","visibility_show":"\u5c55\u5f00","visibility_hide":"\u9690\u85cf","visibility_hide_by_default":"1","width":"Auto"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://x-algo.cn/wp-content/plugins/table-of-contents-plus/front.min.js?ver=1509'></script>
+<script type='text/javascript' src='https://x-algo.cn/wp-content/themes/dux/js/libs/bootstrap.min.js?ver=1.3'></script>
+<script type='text/javascript' src='https://x-algo.cn/wp-content/themes/dux/js/loader.js?ver=1.3'></script>
+<script type='text/javascript' src='https://x-algo.cn/wp-includes/js/wp-embed.min.js?ver=4.4.1'></script>
+</body>
+</html>

@@ -632,9 +632,9 @@ void Classifier::Preprocess(const cv::Mat& img,
 		cv::Mat curmean = cv::Mat(cv::Size(img.cols, img.rows), imgtype, channel_mean);
 		cv::subtract(sample_float, curmean, sample_normalized);
 	}
-  if (scale > 0.000001) {
-    sample_normalized *= scale;
-  }
+	if (scale > 0.000001) {
+		sample_normalized *= scale;
+	}
  
 	cv::split(sample_normalized, *input_channels);
 
@@ -642,10 +642,8 @@ void Classifier::Preprocess(const cv::Mat& img,
 
 void Classifier::GetInputImageSize(int &w, int &h)
 {
-
 	w = input_geometry_.width;
 	h = input_geometry_.height;
-
 }
 
 
@@ -825,7 +823,6 @@ cv::Mat Classifier::EstimateReceptiveField(const cv::Mat& img, const string& lay
 
 					num = 0;
 				}
-				 
 			}
 		}
 	}
@@ -849,8 +846,7 @@ cv::Mat Classifier::EstimateReceptiveField(const cv::Mat& img, const string& lay
 				pdst += ws;
 				//psrc += ws;
 			}
-			 
-			
+
 			Forward(matTemp, layerName);
 
 			if (!islstm)
@@ -906,7 +902,7 @@ cv::Mat Classifier::EstimateReceptiveField(const cv::Mat& img, const string& lay
 		}
 		
 	}
-	 
+
 	return matRF; 
 }
 
@@ -982,13 +978,12 @@ void Classifier::PrepareBatchInputs(const vector<cv::Mat>& imgs)
 	std::vector<cv::Mat> input_channels;
 	WrapInputLayer(&input_channels);
 
-
 	for (size_t i = 0; i < imgs.size(); i++)
 	{
 		vector<cv::Mat> vChannels;
-		Preprocess(imgs[i], &vChannels,false);//����ֵͼ�����㻯����ͨ��
+		Preprocess(imgs[i], &vChannels,false);//减均值图、浮点化、分通道
 		for (int j = 0; j < num_channels_; j++)
-			vChannels[j].copyTo(input_channels[i*num_channels_ + j]);//������copyTo����ֵ�������ڴ潻������ֵ�����޸�input_layer������
+			vChannels[j].copyTo(input_channels[i*num_channels_ + j]);//必须用copyTo，赋值操作是内存交换，赋值不会修改input_layer的内
 	}
 }
 
