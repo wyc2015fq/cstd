@@ -46,6 +46,10 @@ char LIBHTTPD_VERSION[] = "1.3",
 //#define snprintf _snprintf
 //#define vsnprintf _vsnprintf
 
+#ifdef _WIN32
+#define MSG_NOSIGNAL 0
+#endif
+
 static int _httpd_net_write(int sock, const char* buf, int len)
 {
   int ret=0;

@@ -20,6 +20,10 @@
 
 [孤傲苍狼](https://www.cnblogs.com/xdp-gacl/)
 
+[博客园嘎嘣脆](https://www.cnblogs.com/LyShark/) 安全
+
+[程序心声](https://me.csdn.net/guoduhua) C++
+
 [一个处女座的程序猿](https://blog.csdn.net/qq_41185868)
 
 [Inside_Zhang](https://me.csdn.net/lanchunhui)****
