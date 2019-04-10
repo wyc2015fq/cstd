@@ -20,3 +20,6 @@
 
 [孤傲苍狼](https://www.cnblogs.com/xdp-gacl/)
 
+[博客园嘎嘣脆](https://www.cnblogs.com/LyShark/) 安全
+
+[程序心声](https://me.csdn.net/guoduhua) C++
