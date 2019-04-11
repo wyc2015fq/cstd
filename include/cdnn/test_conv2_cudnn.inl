@@ -132,7 +132,7 @@ int test_conv2_cudnn() {
 		&convolution_algorithm));
  
 	// 计算 cuDNN 它的操作需要多少内存
-	size_t workspace_bytes{ 0 };
+	size_t workspace_bytes = 0;
 	checkCUDNN(cudnnGetConvolutionForwardWorkspaceSize(cudnn,
 		input_descriptor,
 		kernel_descriptor,
@@ -141,11 +141,11 @@ int test_conv2_cudnn() {
 		convolution_algorithm,
 		&workspace_bytes));
 	printf("Workspace size: %lf MB\n", (workspace_bytes / 1048576.0));
-	assert(workspace_bytes > 0);
+	//assert(workspace_bytes > 0);
  
 	// *************************************************************************
 	// 分配内存， 从 cudnnGetConvolutionForwardWorkspaceSize 计算而得
-	void* d_workspace{ nullptr };
+	void* d_workspace = NULL;
 	cudaMalloc(&d_workspace, workspace_bytes);
  
 	// 从 cudnnGetConvolution2dForwardOutputDim 计算而得
@@ -167,22 +167,23 @@ int test_conv2_cudnn() {
 	};
 	// clang-format on
  
-	float h_kernel[3][3][3][3]; // NCHW
-	for (int kernel = 0; kernel < 3; ++kernel) {
-		for (int channel = 0; channel < 3; ++channel) {
-			for (int row = 0; row < 3; ++row) {
-				for (int column = 0; column < 3; ++column) {
-					h_kernel[kernel][channel][row][column] = kernel_template[row][column];
+	int ker_count = in_n*out_n*ker_h*ker_w;
+	int ker_bytes = ker_count * sizeof(float);
+	float* cpu_kernel = (float*)malloc(ker_bytes); // NCHW
+	for (int kernel = 0; kernel < out_n; ++kernel) {
+		for (int channel = 0; channel < in_n; ++channel) {
+			for (int row = 0; row < ker_h; ++row) {
+				for (int column = 0; column < ker_w; ++column) {
+					cpu_kernel[(((kernel * in_n) + channel)*ker_h + row)*ker_w+column] = kernel_template[row][column];
 				}
 			}
 		}
 	}
  
-	float* d_kernel{ nullptr };
-	cudaMalloc(&d_kernel, sizeof(h_kernel));
-	cudaMemcpy(d_kernel, h_kernel, sizeof(h_kernel), cudaMemcpyHostToDevice);
-	// *************************************************************************
- 
+	float* gpu_kernel = NULL;
+	cudaMalloc(&gpu_kernel, ker_bytes);
+	cudaMemcpy(gpu_kernel, cpu_kernel, ker_bytes, cudaMemcpyHostToDevice);
+	
 	const float alpha = 1.0f, beta = 0.0f;
  
 	// 真正的卷积操作 ！！！前向卷积
@@ -191,7 +192,7 @@ int test_conv2_cudnn() {
 		input_descriptor,
 		gpu_input,
 		kernel_descriptor,
-		d_kernel,
+		gpu_kernel,
 		convolution_descriptor,
 		convolution_algorithm,
 		d_workspace, // 注意，如果我们选择不需要额外内存的卷积算法，d_workspace可以为nullptr。
@@ -201,7 +202,6 @@ int test_conv2_cudnn() {
 		gpu_output));
  
 	if (with_sigmoid) {
-		
 		// 描述激活
 		cudnnActivationDescriptor_t activation_descriptor;
 		checkCUDNN(cudnnCreateActivationDescriptor(&activation_descriptor));
@@ -227,9 +227,10 @@ int test_conv2_cudnn() {
 
 	free(cpu_input);
 	free(cpu_output);
+	free(cpu_kernel);
 	//save_image("../cudnn-out.png", cpu_output, out_h, out_w);
  
-	cudaFree(d_kernel);
+	cudaFree(gpu_kernel);
 	cudaFree(gpu_input);
 	cudaFree(gpu_output);
 	cudaFree(d_workspace);
@@ -243,3 +244,8 @@ int test_conv2_cudnn() {
 	cudnnDestroy(cudnn);
 	return 0;
 }
+
+#pragma comment(lib,"cudart.lib")
+#pragma comment(lib,"cublas.lib")
+#pragma comment(lib,"curand.lib")
+#pragma comment(lib,"cudnn.lib")

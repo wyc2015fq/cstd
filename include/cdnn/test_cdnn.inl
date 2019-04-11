@@ -1,6 +1,6 @@
 
+#include "cdnn.h"
 
-
-int test_xblas() {
+int test_cdnn() {
 	return 0;
 }

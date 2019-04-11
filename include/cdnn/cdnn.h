@@ -144,6 +144,22 @@ typedef enum
 	CDNN_DATA_UINT8x4 = 7
 } cdnnDataType_t;
 
+typedef enum {
+	CDNN_DEFAULT_MATH = 0,
+	CDNN_TENSOR_OP_MATH = 1,
+} cdnnMathType_t;
+
+typedef enum {
+	CDNN_NOT_PROPAGATE_NAN = 0,
+	CDNN_PROPAGATE_NAN = 1,
+} cdnnNanPropagation_t;
+
+typedef enum
+{
+	CDNN_NON_DETERMINISTIC = 0,
+	CDNN_DETERMINISTIC = 1,
+} cdnnDeterminism_t;
+
 typedef enum
 {
 	CDNN_CONVOLUTION = 0,
@@ -170,9 +186,37 @@ typedef enum
 	CDNN_CONVOLUTION_FWD_ALGO_COUNT = 8
 } cdnnConvolutionFwdAlgo_t;
 
-#define CDNN_DIM_MAX 8
+/* helper function to provide the convolution algo that fit best the requirement */
+typedef enum
+{
+	CDNN_CONVOLUTION_BWD_FILTER_NO_WORKSPACE = 0,
+	CDNN_CONVOLUTION_BWD_FILTER_PREFER_FASTEST = 1,
+	CDNN_CONVOLUTION_BWD_FILTER_SPECIFY_WORKSPACE_LIMIT = 2,
+} cdnnConvolutionBwdFilterPreference_t;
 
-enum cdnnBrew_t { CDNN_CPU=0, CDNN_GPU=1 };
+typedef enum
+{
+	CDNN_CONVOLUTION_BWD_FILTER_ALGO_0 = 0,  /* non-deterministic */
+	CDNN_CONVOLUTION_BWD_FILTER_ALGO_1 = 1,
+	CDNN_CONVOLUTION_BWD_FILTER_ALGO_FFT = 2,
+	CDNN_CONVOLUTION_BWD_FILTER_ALGO_3 = 3,  /* non-deterministic */
+	CDNN_CONVOLUTION_BWD_FILTER_ALGO_WINOGRAD = 4,  /* not implemented */
+	CDNN_CONVOLUTION_BWD_FILTER_ALGO_WINOGRAD_NONFUSED = 5,
+	CDNN_CONVOLUTION_BWD_FILTER_ALGO_FFT_TILING = 6,
+	CDNN_CONVOLUTION_BWD_FILTER_ALGO_COUNT = 7
+} cdnnConvolutionBwdFilterAlgo_t;
+
+typedef enum
+{
+	CDNN_ACTIVATION_SIGMOID = 0,
+	CDNN_ACTIVATION_RELU = 1,
+	CDNN_ACTIVATION_TANH = 2,
+	CDNN_ACTIVATION_CLIPPED_RELU = 3,
+	CDNN_ACTIVATION_ELU = 4,
+	CDNN_ACTIVATION_IDENTITY = 5
+} cdnnActivationMode_t;
+
+#define CDNN_DIM_MAX 8
 
 typedef struct cdnnTensorStruct*             cdnnTensorDescriptor_t;
 typedef struct cdnnConvolutionStruct*        cdnnConvolutionDescriptor_t;
@@ -185,45 +229,6 @@ typedef struct cdnnOpTensorStruct*           cdnnOpTensorDescriptor_t;
 typedef struct cdnnReduceTensorStruct*       cdnnReduceTensorDescriptor_t;
 typedef struct cdnnCTCLossStruct*            cdnnCTCLossDescriptor_t;
 
-struct CDnn {
-	virtual cdnnBrew_t GetBrew() = 0;
-	// cudaSuccess, cudaErrorInvalidDevicePointer
-	virtual cdnnError_t Free(void *devPtr) = 0;
-	// cudaSuccess, cdnnErrorInvalidValue, cdnnErrorMemoryAllocation
-	virtual cdnnError_t Malloc(void **devPtr, size_t size) = 0;
-	template <typename T>
-	cdnnError_t Malloc(T **devPtr, size_t size) {
-		return Malloc((void **)devPtr, size);
-	}
-	virtual cdnnError_t Memcpy(void *dst, const void *src, size_t count, enum cdnnMemcpyKind kind) = 0;
 
-	virtual cdnnStatus_t Create(cdnnHandle_t* handle) = 0;
-	virtual	cdnnStatus_t Destroy(cdnnHandle_t handle) = 0;
-	virtual cdnnStatus_t CreateTensorDescriptor(cdnnTensorDescriptor_t *tensorDesc) = 0;
-	virtual cdnnStatus_t DestroyTensorDescriptor(cdnnTensorDescriptor_t tensorDesc);
-	virtual cdnnStatus_t SetTensor4dDescriptor(cdnnTensorDescriptor_t tensorDesc, cdnnTensorFormat_t format, cdnnDataType_t dataType, int n, int c, int h, int w) = 0;
-#if 0
-	virtual cdnnStatus_t SetTensor4dDescriptorEx(cdnnTensorDescriptor_t tensorDesc, cdnnDataType_t dataType, int n, int c, int h, int w, int nStride, int cStride, int hStride, int wStride);
-	virtual cdnnStatus_t GetTensor4dDescriptor(const cdnnTensorDescriptor_t tensorDesc, cdnnDataType_t *dataType, int *n, int *c, int *h, int *w, int *nStride, int *cStride, int *hStride, int *wStride);
-	virtual cdnnStatus_t SetTensorNdDescriptor(cdnnTensorDescriptor_t tensorDesc, cdnnDataType_t dataType, int nbDims, const int dimA[], const int strideA[]);
-	virtual cdnnStatus_t SetTensorNdDescriptorEx(cdnnTensorDescriptor_t tensorDesc, cdnnTensorFormat_t format, cdnnDataType_t dataType, int nbDims, const int dimA[]);
-	virtual cdnnStatus_t GetTensorNdDescriptor(const cdnnTensorDescriptor_t tensorDesc, int nbDimsRequested, cdnnDataType_t *dataType, int *nbDims, int dimA[], int strideA[]);
-	virtual cdnnStatus_t GetTensorSizeInBytes(const cdnnTensorDescriptor_t tensorDesc, size_t *size);
-#endif
-
-	//conv
-	virtual cdnnStatus_t CreateFilterDescriptor(cdnnFilterDescriptor_t *filterDesc) = 0;
-	virtual cdnnStatus_t SetFilter4dDescriptor(cdnnFilterDescriptor_t filterDesc, cdnnDataType_t dataType, cdnnTensorFormat_t format, int k, int c, int h, int w) = 0;
-	virtual	cdnnStatus_t DestroyFilterDescriptor(cdnnFilterDescriptor_t filterDesc) = 0;
-	virtual cdnnStatus_t CreateConvolutionDescriptor(cdnnConvolutionDescriptor_t *convDesc) = 0;
-	virtual cdnnStatus_t SetConvolution2dDescriptor(cdnnConvolutionDescriptor_t convDesc, int pad_h, int pad_w, int u, int v, int dilation_h, int dilation_w, cdnnConvolutionMode_t mode, cdnnDataType_t computeType) = 0;
-	virtual cdnnStatus_t GetConvolution2dForwardOutputDim(const cdnnConvolutionDescriptor_t convDesc, const cdnnTensorDescriptor_t inputTensorDesc, const cdnnFilterDescriptor_t filterDesc, int *n, int *c, int *h, int *w) = 0;
-	virtual cdnnStatus_t GetConvolutionForwardAlgorithm(cdnnHandle_t handle, const cdnnTensorDescriptor_t xDesc, const cdnnFilterDescriptor_t wDesc, const cdnnConvolutionDescriptor_t convDesc, const cdnnTensorDescriptor_t yDesc, cdnnConvolutionFwdPreference_t preference, size_t memoryLimitInBytes, cdnnConvolutionFwdAlgo_t *algo) = 0;
-	virtual cdnnStatus_t GetConvolutionForwardWorkspaceSize(cdnnHandle_t handle, const cdnnTensorDescriptor_t xDesc, const cdnnFilterDescriptor_t wDesc, const cdnnConvolutionDescriptor_t convDesc, const cdnnTensorDescriptor_t yDesc, cdnnConvolutionFwdAlgo_t algo, size_t *sizeInBytes) = 0;
-	virtual cdnnStatus_t ConvolutionForward(cdnnHandle_t handle, const void *alpha, const cdnnTensorDescriptor_t xDesc, const void *x, const cdnnFilterDescriptor_t wDesc, const void *w, const cdnnConvolutionDescriptor_t convDesc, cdnnConvolutionFwdAlgo_t algo, void *workSpace, size_t workSpaceSizeInBytes, const void *beta, const cdnnTensorDescriptor_t yDesc, void *y) = 0;
-	virtual cdnnStatus_t DestroyConvolutionDescriptor(cdnnConvolutionDescriptor_t convDesc) = 0;
-};
-
-CDnn* GetCDnn(cdnnBrew_t brew);
 
 #endif // __CSTD_CDNN_H__

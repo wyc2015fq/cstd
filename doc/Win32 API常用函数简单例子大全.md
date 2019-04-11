@@ -13,13 +13,13 @@
 FindWindow例子：已知一个窗口名称，写一个程序关闭该窗口，假设当前电脑正有一个窗口名为"无标题.txt - 记事本"的记事本程序运行
 
 ```cpp
-#include <windows.h>                          //API函数的头文件
+#include <windows.h>    //API函数的头文件
 int main()
 {
-  HWND wnd;                                   //定义一个窗口句柄变量，用以存储找到的窗口句柄
-  wnd=FindWindow(NULL,"无标题.txt - 记事本");   //获得窗口名为"无标题.txt - 记事本"的窗口句柄
-  SendMessage(wnd,WM_CLOSE,0,0);              //调用SendMessage函数，发送一个WM_CLOSE（关闭）消息给wnd窗口句柄。
-  return 0;
+	HWND wnd;     //定义一个窗口句柄变量，用以存储找到的窗口句柄
+	wnd = FindWindow(NULL, "无标题.txt - 记事本"); //获得窗口名为"无标题.txt - 记事本"的窗口句柄
+	SendMessage(wnd, WM_CLOSE, 0, 0);  //调用SendMessage函数，发送一个WM_CLOSE（关闭）消息给wnd窗口句柄。
+	return 0;
 }
 ```
 
@@ -46,14 +46,14 @@ SendMessage例子：模仿键盘按键
 #include <windows.h>
 int main()
 {
-  HWND wnd;
-  wnd=FindWindow(NULL,"无标题.txt - 记事本");
-  while(1)
-  {
-    SendMessage(wnd,WM_CHAR,WPARAM('a'),0);
-    Sleep(300);
-  }
-  return 0;
+	HWND wnd;
+	wnd = FindWindow(NULL, "无标题.txt - 记事本");
+	while (1)
+	{
+		SendMessage(wnd, WM_CHAR, WPARAM('a'), 0);
+		Sleep(300);
+	}
+	return 0;
 }
 ```
 
@@ -63,18 +63,18 @@ int main()
 可行的例子：模仿键盘按键：
 
 ```cpp
- #include <windows.h>
- int main()
- {
-   POINT curpos;                            //一个可储存坐标点的结构体变量，x横坐标，y,纵坐标，如curpos.x   curpos.y
-  while(1)
-  {
-  GetCursorPos(&curpos);                    //获取当前鼠标的位置，位置将储存在curpos里。
-  HWND hWnd = WindowFromPoint(curpos);      //根据curpos所指的坐标点获取窗口句柄
-  SendMessage(hWnd,WM_CHAR,WPARAM('g'),0);  //发送一个字符（按键）消息g给当前鼠标所指向的窗口句柄
-  Sleep(300);                               //睡眠三百毫秒，相当于等待三分之一秒
-  }
- }
+#include <windows.h>
+int main()
+{
+	POINT curpos;    //一个可储存坐标点的结构体变量，x横坐标，y,纵坐标，如curpos.x curpos.y
+	while (1)
+	{
+		GetCursorPos(&curpos);   //获取当前鼠标的位置，位置将储存在curpos里。
+		HWND hWnd = WindowFromPoint(curpos); //根据curpos所指的坐标点获取窗口句柄
+		SendMessage(hWnd, WM_CHAR, WPARAM('g'), 0); //发送一个字符（按键）消息g给当前鼠标所指向的窗口句柄
+		Sleep(300);    //睡眠三百毫秒，相当于等待三分之一秒
+	}
+}
 ```
 
 
@@ -103,14 +103,14 @@ int main()
 #include <stdio.h>
 int main()
 {
-  POINT curpos;
-  while(1)
-  {
-    GetCursorPos(&curpos);
-    printf("x:%d,y:%d",curpos.x,curpos.y);
-    Sleep(300);
-    printf("\n");
-  }
+	POINT curpos;
+	while (1)
+	{
+		GetCursorPos(&curpos);
+		printf("x:%d,y:%d", curpos.x, curpos.y);
+		Sleep(300);
+		printf("\n");
+	}
 }
 ```
 
@@ -121,19 +121,19 @@ int main()
 在SendMessage有解释，这里仅举一个例子，鼠标指向哪个窗口，就关闭哪个窗口。
 
 ```cpp
- #include <windows.h>
- int main()
- {
- Sleep(2500);                                   //等待一会儿，用于把鼠标移到其它窗口上去，避免指向本身进程的窗口，关掉自己的窗口。
- POINT curpos;
- while(1)
- {
- GetCursorPos(&curpos);
- HWND wnd=WindowFromPoint(curpos);
- SendMessage(wnd,WM_CLOSE,0,0);
- Sleep(300);
- }
- }
+#include <windows.h>
+int main()
+{
+	Sleep(2500);     //等待一会儿，用于把鼠标移到其它窗口上去，避免指向本身进程的窗口，关掉自己的窗口。
+	POINT curpos;
+	while (1)
+	{
+		GetCursorPos(&curpos);
+		HWND wnd = WindowFromPoint(curpos);
+		SendMessage(wnd, WM_CLOSE, 0, 0);
+		Sleep(300);
+	}
+}
 ```
 
 ------
@@ -145,14 +145,14 @@ hWnd是要改变大小的窗口的句柄，x,y相对于屏幕的坐标，窗口�
 这里依旧以"无标题.txt - 记事本"为例子，改变这个窗口大小，并把窗口移到左上角去。
 
 ```cpp
- #include <windows.h>
- int main()
- {
- HWND wnd;
- wnd=FindWindow(NULL,"无标题.txt - 记事本");
- MoveWindow(wnd,0,0,220,120,NULL);
-  return 0;
- }
+#include <windows.h>
+int main()
+{
+	HWND wnd;
+	wnd = FindWindow(NULL, "无标题.txt - 记事本");
+	MoveWindow(wnd, 0, 0, 220, 120, NULL);
+	return 0;
+}
 ```
 
 ------
@@ -168,16 +168,16 @@ hWnd是要改变大小的窗口的句柄，x,y相对于屏幕的坐标，窗口�
 ShowWindow例子：程序运行后，在桌面上隐藏一个指定的窗口，并在4秒后再将其显示
 
 ```cpp
- #include <windows.h>
- int main()
- {
-  HWND wnd;
-  wnd=FindWindow(NULL,"无标题.txt - 记事本");
-  ShowWindow(wnd,SW_HIDE);
-  Sleep(5000);
-  ShowWindow(wnd,SW_SHOW);
-  return 0;
- }
+#include <windows.h>
+int main()
+{
+	HWND wnd;
+	wnd = FindWindow(NULL, "无标题.txt - 记事本");
+	ShowWindow(wnd, SW_HIDE);
+	Sleep(5000);
+	ShowWindow(wnd, SW_SHOW);
+	return 0;
+}
 ```
 
 ------
@@ -194,14 +194,14 @@ ShowWindow例子：程序运行后，在桌面上隐藏一个指定的窗口，�
 #include <windows.h>
 int main()
 {
-  int sec=0;
-  while(sec<200)
-  {
-    SetCursorPos(rand()%1024,rand()%768);    //随机设置鼠标的位置
-    Sleep(20);
-    sec++;
-  }
-  return 0;
+	int sec = 0;
+	while (sec<200)
+	{
+		SetCursorPos(rand() % 1024, rand() % 768);    //随机设置鼠标的位置
+		Sleep(20);
+		sec++;
+	}
+	return 0;
 }
 ```
 
@@ -246,20 +246,20 @@ CreateDirectory("e:\\aaa\\bbb",NULL);这样是错的，不能同时建两个文�
 看例子：
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main(int argc, char* argv[])
- {
-  HWND wnd;
-  while(1)
-  {
-  wnd=FindWindow(NULL,"无标题.txt - 记事本");
-  RECT rect;                                                             //专门用来存储窗口大小
-  GetClientRect(wnd,&rect);                                              //获取窗口大小
-  printf("%d,%d,%d,%d\n",rect.left,rect.top,rect.right,rect.bottom);     //输出窗口大小，试着用鼠标改变窗口大小
-  Sleep(300);
-  }
-  }
+#include <windows.h>
+#include <stdio.h>
+int main(int argc, char* argv[])
+{
+	HWND wnd;
+	while (1)
+	{
+		wnd = FindWindow(NULL, "无标题.txt - 记事本");
+		RECT rect;                                                             //专门用来存储窗口大小
+		GetClientRect(wnd, &rect);                                              //获取窗口大小
+		printf("%d,%d,%d,%d\n", rect.left, rect.top, rect.right, rect.bottom);     //输出窗口大小，试着用鼠标改变窗口大小
+		Sleep(300);
+	}
+}
 ```
 
 ------
@@ -271,20 +271,20 @@ CreateDirectory("e:\\aaa\\bbb",NULL);这样是错的，不能同时建两个文�
 例子：
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main(int argc, char* argv[])
- {
-  HWND wnd;
-  while(1)
-  {
-  wnd=FindWindow(NULL,"无标题.txt - 记事本");
-  RECT rect;                                                            //专门用来存储窗口大小
-  GetWindowRect(wnd,&rect);                                             //获取窗口大小
-  printf("%d,%d,%d,%d\n",rect.left,rect.top,rect.right,rect.bottom);    //输出窗口大小，试着用鼠标改变窗口大小
-  Sleep(300);
-  }
-  }
+#include <windows.h>
+#include <stdio.h>
+int main(int argc, char* argv[])
+{
+	HWND wnd;
+	while (1)
+	{
+		wnd = FindWindow(NULL, "无标题.txt - 记事本");
+		RECT rect;    //专门用来存储窗口大小
+		GetWindowRect(wnd, &rect);   //获取窗口大小
+		printf("%d,%d,%d,%d\n", rect.left, rect.top, rect.right, rect.bottom); //输出窗口大小，试着用鼠标改变窗口大小
+		Sleep(300);
+	}
+}
 ```
 
 试着去找一下GetClientRect和GetWindowRect之间有什么区别；
@@ -298,20 +298,20 @@ CreateDirectory("e:\\aaa\\bbb",NULL);这样是错的，不能同时建两个文�
 这里举一个例子吧，列举E盘第一目录下的所有文件，包括文件夹，结合FindNextFile
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
- BOOL done=TRUE;
- WIN32_FIND_DATA fd;
- HANDLE hFind = FindFirstFile("e:\\*.*", &fd);  //第一个参数是路径名，可以使用通配符，懂DOS的人应该知道吧！fd存储有文件的信息
- while (done)
- {
- printf("%s\n",fd.cFileName);
- done=FindNextFile(hFind, &fd);                 //返回的值如果为0则没有文件要寻了
- }
- return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	BOOL done = TRUE;
+	WIN32_FIND_DATA fd;
+	HANDLE hFind = FindFirstFile("e:\\*.*", &fd);  //第一个参数是路径名，可以使用通配符，懂DOS的人应该知道吧！fd存储有文件的信息
+	while (done)
+	{
+		printf("%s\n", fd.cFileName);
+		done = FindNextFile(hFind, &fd);     //返回的值如果为0则没有文件要寻了
+	}
+	return 0;
+}
 ```
 
 当然也可以直接找一个文件，不使用通配符，但这样有什么意义呢？，如FindFirstFile("e:\\aaa.txt",&fd);其实这个可以获取一个文件的信息，如文件是不是隐藏的，或者有没有只读属性等。
@@ -381,15 +381,15 @@ SetFileAttributes("e:\\a.txt",FILE_ATTRIBUTE_READONLY）;这样的话，虽然�
 假设e盘的a.txt文件属性为隐藏，给它增加只读属性：
 
 ```cpp
- #include <windows.h>
- int main()
- {
- WIN32_FIND_DATA fd;
- FindFirstFile("e:\\a.txt",&fd);
- fd.dwFileAttributes|=FILE_ATTRIBUTE_READONLY;         //在原来的属性下增加只读属性
- SetFileAttributes("e:\\a.txt",fd.dwFileAttributes);   //设置文件的属性
- return 0;
- }
+#include <windows.h>
+int main()
+{
+	WIN32_FIND_DATA fd;
+	FindFirstFile("e:\\a.txt", &fd);
+	fd.dwFileAttributes |= FILE_ATTRIBUTE_READONLY;         //在原来的属性下增加只读属性
+	SetFileAttributes("e:\\a.txt", fd.dwFileAttributes);   //设置文件的属性
+	return 0;
+}
 ```
 
 第二个例子：如何去掉一个文件的属性
@@ -405,15 +405,15 @@ SetFileAttributes("e:\\a.txt",FILE_ATTRIBUTE_READONLY）;这样的话，虽然�
 清除一个文件的隐藏属性，假设a.txt为隐藏文件：
 
 ```cpp
- #include <windows.h>
- int main()
- {
- WIN32_FIND_DATA fd;
- FindFirstFile("e:\\a.txt",&fd);                     //获取文件信息
- fd.dwFileAttributes^=FILE_ATTRIBUTE_HIDDEN;         //在原来的属性下删除隐藏属性
- SetFileAttributes("e:\\a.txt",fd.dwFileAttributes); //设置文件的属性
- return 0;
- }
+#include <windows.h>
+int main()
+{
+	WIN32_FIND_DATA fd;
+	FindFirstFile("e:\\a.txt", &fd);                     //获取文件信息
+	fd.dwFileAttributes ^= FILE_ATTRIBUTE_HIDDEN;         //在原来的属性下删除隐藏属性
+	SetFileAttributes("e:\\a.txt", fd.dwFileAttributes); //设置文件的属性
+	return 0;
+}
 ```
 
 如果单单只针对文件的属性进行操作的话，可以用GetFileAttributes函数获取文件的属性，该函数只一个参数，那就是文件的路径，函数返回一个DWORD值，包含文件属性信息。
@@ -467,14 +467,14 @@ SetFileAttributes("e:\\a.txt",FILE_ATTRIBUTE_READONLY）;这样的话，虽然�
 假如E盘有个a.wav文件，下面这个例子播放这个文件：
 
 ```cpp
- #include <windows.h>
- #include <mmsystem.h>                 //PlaySound函数的头文件
- #pragma comment(lib, "winmm.lib")    //链接库，PlaySound函数必须使用
- int main() 
- {
- PlaySound("e:\\19.wav",NULL,SND_SYNC);
- return 0;
- }
+#include <windows.h>
+#include <mmsystem.h>                 //PlaySound函数的头文件
+#pragma comment(lib, "winmm.lib")    //链接库，PlaySound函数必须使用
+int main()
+{
+	PlaySound("e:\\19.wav", NULL, SND_SYNC);
+	return 0;
+}
 ```
 
 ------
@@ -492,14 +492,14 @@ SetFileAttributes("e:\\a.txt",FILE_ATTRIBUTE_READONLY）;这样的话，虽然�
 这个举个例子，运行后，把自身程序移动到e盘下，并改名为a.exe;
 
 ```cpp
- #include <windows.h>
- int main()
- {
- char szAppName[128]={0};
- GetModuleFileName(NULL,szAppName,128);
- MoveFile(szAppName,"e:\\a.exe");
- return 0;
- }
+#include <windows.h>
+int main()
+{
+	char szAppName[128] = { 0 };
+	GetModuleFileName(NULL, szAppName, 128);
+	MoveFile(szAppName, "e:\\a.exe");
+	return 0;
+}
 ```
 
 ------
@@ -525,16 +525,16 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, instance LPSTR
  简单的例子如下：
 
 ```cpp
- #include "stdafx.h"
- int APIENTRY WinMain(HINSTANCE hInstance,
-                      HINSTANCE hPrevInstance,
-                      LPSTR     lpCmdLine,
-                      int       nCmdShow)
- {
-  while(1)
-  Sleep(100);
-  return 0;
- }
+#include "stdafx.h"
+int APIENTRY WinMain(HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR     lpCmdLine,
+	int       nCmdShow)
+{
+	while (1)
+		Sleep(100);
+	return 0;
+}
 ```
 
 怎么样够简单吧，是不是觉得奇怪，怎么没有窗口，因为窗口要自己创建，不像控制台程序，只要一运行便会有窗口。虽然没有窗口，但你创建了一个进程，打开任务管理器，可以找到你所创建的那个进程，其实也没什么奇怪的，像WINDOWS本身的一些系统服务，也是只有进程，没有窗口的像spoolsv.exe,svchost.exe。
@@ -544,18 +544,18 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, instance LPSTR
 现给出这个结构的定义。
 
 ```cpp
-   typedef struct _WNDCLASS { 
-     UINT style;            //描述类风格
-     WNDPROC lpfnWndProc;   //窗口处理函数
-     int cbClsExtra;        //表示窗口类结构之后分配的额外的字节数。系统将该值初始化为0
-     int cbWndExtra;        //表示窗口实例之后分配的额外的字节数。系统将该值初始化为0
-     HINSTANCE hInstance;   // 应用程序实例句柄由WinMain函数传进来 
-     HICON hIcon;           //窗口图标句柄 
-     HCURSOR hCursor;       //窗口光标句柄
-     HBRUSH hbrBackground;  //画刷句柄
-     LPCTSTR lpszMenuName;  //窗口菜单名
-     LPCTSTR lpszClassName; //窗口类名
-     } WNDCLASS, *PWNDCLASS; 
+typedef struct _WNDCLASS {
+	UINT style;            //描述类风格
+	WNDPROC lpfnWndProc;   //窗口处理函数
+	int cbClsExtra;        //表示窗口类结构之后分配的额外的字节数。系统将该值初始化为0
+	int cbWndExtra;        //表示窗口实例之后分配的额外的字节数。系统将该值初始化为0
+	HINSTANCE hInstance;   // 应用程序实例句柄由WinMain函数传进来 
+	HICON hIcon;           //窗口图标句柄 
+	HCURSOR hCursor;       //窗口光标句柄
+	HBRUSH hbrBackground;  //画刷句柄
+	LPCTSTR lpszMenuName;  //窗口菜单名
+	LPCTSTR lpszClassName; //窗口类名
+} WNDCLASS, *PWNDCLASS;
 ```
 
 好了，如果我们已经把窗口信息填好了，那我们要怎样把这个信息告诉系统呢，也就是把要创建窗口的信息传给系统。这里我们调用RegisterClass函数就能实现这个功能。注册完窗口，我们就要创建窗口,用CreateWindow函数就能实现，不要问为什么注册窗口后直接显示不就行了，还要搞什么创建窗口。这我也不知道，反正你只要记住这格式就行了，硬式规定的，你想创建一个窗口，就必须按这些步骤来。
@@ -565,33 +565,33 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, instance LPSTR
 以下详细实现代码：
 
 ```cpp
- #include "stdafx.h"
- #include <windows.h>
- int APIENTRY WinMain(HINSTANCE hInstance,
-                      HINSTANCE hPrevInstance,
-                      LPSTR     lpCmdLine,
-                      int       nCmdShow)
- {
-   WNDCLASS wndcls;                                          //定义一个存储窗口信息WNDCLASS变量
-   wndcls.cbClsExtra=0;                                      //默认为0
-   wndcls.cbWndExtra=0;                                      //默认为0
-   wndcls.hbrBackground=(HBRUSH)GetStockObject(GRAY_BRUSH);  //背景画刷
-   wndcls.hCursor=LoadCursor(NULL,IDC_CROSS);                //十字光标
-   wndcls.hIcon=LoadIcon(NULL,IDI_ERROR);                    //窗口图标
-   wndcls.hInstance=hInstance;                               //应用程序实例句柄由WinMain函数传进来 
-   wndcls.lpfnWndProc=NULL;                                  //窗口消息处理函数
-   wndcls.lpszClassName="windowclass";                       //窗口类名
-   wndcls.lpszMenuName=NULL;                                 //窗口菜单名，没有菜单，为NULL
-   wndcls.style=CS_HREDRAW | CS_VREDRAW;                     //窗口类型，CS_HREDRAW和CS_VERDRAW 表明
- //当窗口水平方向垂直方向的宽度变化时重绘整个窗口
-   RegisterClass(&wndcls);                                   //把窗口信息提交给系统，注册窗口类
-   HWND hwnd;                                                //用以存储CreateWindow函数所创建的窗口句柄
-    hwnd=CreateWindow("windowclass","first windows", 
-   WS_OVERLAPPEDWINDOW,0,0,600,400,NULL,NULL,hInstance,NULL);//创建窗口
-    ShowWindow(hwnd,SW_SHOWNORMAL);                          //窗口创建完了，显示它
-    UpdateWindow(hwnd);                                      //更新窗口，让窗口毫无延迟的显示
-   return 0;
- }
+#include "stdafx.h"
+#include <windows.h>
+int APIENTRY WinMain(HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR lpCmdLine,
+	int   nCmdShow)
+{
+	WNDCLASS wndcls;          //定义一个存储窗口信息WNDCLASS变量
+	wndcls.cbClsExtra = 0;          //默认为0
+	wndcls.cbWndExtra = 0;          //默认为0
+	wndcls.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);  //背景画刷
+	wndcls.hCursor = LoadCursor(NULL, IDC_CROSS);    //十字光标
+	wndcls.hIcon = LoadIcon(NULL, IDI_ERROR);    //窗口图标
+	wndcls.hInstance = hInstance;       //应用程序实例句柄由WinMain函数传进来 
+	wndcls.lpfnWndProc = NULL;          //窗口消息处理函数
+	wndcls.lpszClassName = "windowclass";       //窗口类名
+	wndcls.lpszMenuName = NULL;         //窗口菜单名，没有菜单，为NULL
+	wndcls.style = CS_HREDRAW | CS_VREDRAW;     //窗口类型，CS_HREDRAW和CS_VERDRAW 表明
+		 //当窗口水平方向垂直方向的宽度变化时重绘整个窗口
+	RegisterClass(&wndcls);       //把窗口信息提交给系统，注册窗口类
+	HWND hwnd;            //用以存储CreateWindow函数所创建的窗口句柄
+	hwnd = CreateWindow("windowclass", "first windows",
+		WS_OVERLAPPEDWINDOW, 0, 0, 600, 400, NULL, NULL, hInstance, NULL);//创建窗口
+	ShowWindow(hwnd, SW_SHOWNORMAL);      //窗口创建完了，显示它
+	UpdateWindow(hwnd);          //更新窗口，让窗口毫无延迟的显示
+	return 0;
+}
 ```
 
 是不是出错了，内存不能读取，为什么了呢，因为你创建的窗口没有消息处理函数，windows系统当然不允许这样一个窗口存在，对按键，鼠标都没有反应，这样的窗口是没有实际意义的。  wndcls.lpfnWndProc=NULL; //窗口消息处理函数，就是前面这句，必须要填
@@ -603,44 +603,44 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, instance LPSTR
 下面的这个是一个窗口创建的完整例子：
 
 ```cpp
- #include "stdafx.h"
- #include <windows.h>
- LRESULT CALLBACK WinSunProc(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
- {
-  if(uMsg==WM_LBUTTONDOWN) MessageBox(NULL,"kdjfkdf","Kjdfkdfj",MB_OK);  //处理鼠标按下消息，弹出消息框
-  return DefWindowProc(hwnd,uMsg,wParam,lParam);                         //未处理的消息通过DefWindowProc函数交给系统处理
- }
- int APIENTRY WinMain(HINSTANCE hInstance,
-                      HINSTANCE hPrevInstance,
-                      LPSTR     lpCmdLine,
-                      int       nCmdShow)
- {
-   WNDCLASS wndcls;                                           //定义一个存储窗口信息WNDCLASS变量
-   wndcls.cbClsExtra=0;                                       //默认为0
-   wndcls.cbWndExtra=0;                                       //默认为0
-   wndcls.hbrBackground=(HBRUSH)GetStockObject(GRAY_BRUSH);   //背景画刷
-   wndcls.hCursor=LoadCursor(NULL,IDC_ARROW);                 //光标
-   wndcls.hIcon=LoadIcon(NULL,IDI_ERROR);                     //窗口图标
-   wndcls.hInstance=hInstance;                                //应用程序实例句柄由WinMain函数传进来 
-   wndcls.lpfnWndProc=WinSunProc;                             //窗口消息处理函数
-   wndcls.lpszClassName="windowclass";                        //窗口类名
-   wndcls.lpszMenuName=NULL;                                  //窗口菜单名，没有菜单，为NULL
-   wndcls.style=CS_HREDRAW | CS_VREDRAW;                      //窗口类型，CS_HREDRAW和CS_VERDRAW 表明
- //当窗口水平方向垂直方向的宽度变化时重绘整个窗口
-   RegisterClass(&wndcls);                                    //把窗口信息提交给系统，注册窗口类
-   HWND hwnd;                                                 //用以存储CreateWindow函数所创建的窗口句柄
-    hwnd=CreateWindow("windowclass","first windows", 
-   WS_OVERLAPPEDWINDOW,0,0,600,400,NULL,NULL,hInstance,NULL); //创建窗口
-    ShowWindow(hwnd,SW_SHOWNORMAL);                           //窗口创建完了，显示它
-    UpdateWindow(hwnd);                                       //更新窗口，让窗口毫无延迟的显示
-    MSG msg;                                                  //消息结构类型
-    while(GetMessage(&msg,NULL,0,0))                          //获取消息
-    {
-     //TranslateMessage(&msg);                                //此函数用于把键盘消息(WM_KEYDOWN,WM_KEYUP)转换成字符消息WM_CHAR
-     DispatchMessage(&msg);                                   //这个函数调用窗口过程处理函数，并把MSG里的信息处理后传给过程函数的四个参数
-  }
-   return 0;
- }
+#include "stdafx.h"
+#include <windows.h>
+LRESULT CALLBACK WinSunProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if (uMsg == WM_LBUTTONDOWN) MessageBox(NULL, "kdjfkdf", "Kjdfkdfj", MB_OK);  //处理鼠标按下消息，弹出消息框
+	return DefWindowProc(hwnd, uMsg, wParam, lParam); //未处理的消息通过DefWindowProc函数交给系统处理
+}
+int APIENTRY WinMain(HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR lpCmdLine,
+	int   nCmdShow)
+{
+	WNDCLASS wndcls;   //定义一个存储窗口信息WNDCLASS变量
+	wndcls.cbClsExtra = 0;   //默认为0
+	wndcls.cbWndExtra = 0;   //默认为0
+	wndcls.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);   //背景画刷
+	wndcls.hCursor = LoadCursor(NULL, IDC_ARROW); //光标
+	wndcls.hIcon = LoadIcon(NULL, IDI_ERROR); //窗口图标
+	wndcls.hInstance = hInstance;    //应用程序实例句柄由WinMain函数传进来 
+	wndcls.lpfnWndProc = WinSunProc;     //窗口消息处理函数
+	wndcls.lpszClassName = "windowclass";    //窗口类名
+	wndcls.lpszMenuName = NULL;  //窗口菜单名，没有菜单，为NULL
+	wndcls.style = CS_HREDRAW | CS_VREDRAW;  //窗口类型，CS_HREDRAW和CS_VERDRAW 表明
+																 //当窗口水平方向垂直方向的宽度变化时重绘整个窗口
+	RegisterClass(&wndcls);    //把窗口信息提交给系统，注册窗口类
+	HWND hwnd;     //用以存储CreateWindow函数所创建的窗口句柄
+	hwnd = CreateWindow("windowclass", "first windows",
+		WS_OVERLAPPEDWINDOW, 0, 0, 600, 400, NULL, NULL, hInstance, NULL); //创建窗口
+	ShowWindow(hwnd, SW_SHOWNORMAL);   //窗口创建完了，显示它
+	UpdateWindow(hwnd);   //更新窗口，让窗口毫无延迟的显示
+	MSG msg;  //消息结构类型
+	while (GetMessage(&msg, NULL, 0, 0))  //获取消息
+	{
+		//TranslateMessage(&msg);    //此函数用于把键盘消息(WM_KEYDOWN,WM_KEYUP)转换成字符消息WM_CHAR
+		DispatchMessage(&msg);   //这个函数调用窗口过程处理函数，并把MSG里的信息处理后传给过程函数的四个参数
+	}
+	return 0;
+}
 ```
 
 WinSunProc函数的四个参数，分别对应着SendMessage函数四个参数，详情参见SendMessage函数参数解释。
@@ -650,15 +650,15 @@ MSG类型解释 ：
 结构定义：
 
 ```cpp
- typedef struct tagMSG 
-        {
-         HWND hwnd;    //hwnd表示消息将要发送给的窗口句柄
-        UINT message;  //消息类型，如WM_WMCLOSE,WM_CHAR,WM_LBUTTONDOWN,参见消息表
-        WPARAM wParam; //消息附带信息，取值的意思具体依据消息类型而定
-        LPARAM lParam; //消息附带信息，取值的意思具体依据消息类型而定
-        DWORD time;    //消息的发送时间，不常用
-        POINT pt;      //消息发送时，鼠标所在的位置，不常用
-        }MSG; 
+typedef struct tagMSG
+{
+	HWND hwnd;    //hwnd表示消息将要发送给的窗口句柄
+	UINT message;  //消息类型，如WM_WMCLOSE,WM_CHAR,WM_LBUTTONDOWN,参见消息表
+	WPARAM wParam; //消息附带信息，取值的意思具体依据消息类型而定
+	LPARAM lParam; //消息附带信息，取值的意思具体依据消息类型而定
+	DWORD time;    //消息的发送时间，不常用
+	POINT pt;      //消息发送时，鼠标所在的位置，不常用
+}MSG;
 ```
 
 大家试着把上面的例子运行一遍，然后关掉窗口，再运行一遍，是不是出错了，因为前一个程序虽然窗口关闭了，但进程还在运行，还记得那个循环语句吗？while(GetMessage(&msg,NULL,0,0))就是这个。只要条件成立，进程就会一直运行下去。如何让这个循环结束呢？用 PostQuitMessage(0); 这个语句就行了，参数0表示给自身窗口发送一个退出消息，当GetMessage函数接到PostQuitMessage函数发出的消息后，就会返回0值。
@@ -668,17 +668,17 @@ MSG类型解释 ：
 接下来解释一下CreateWindow函数参数的意思,函数定义
 
 ```cpp
- HWND CreateWindow(LPCTSTR lpClassName, //窗口类名，应与WNDCLASS结构里的成员lpszClassName一致
- LPCTSTR lpWindowName,,                 //窗口标题名
- DWORD dwStyle，                        //窗口的风格，取值参见表Style
- int x,
- int y,                                 //x,y表示所创建窗口左上角位置
- int nWidth,
- int nHeight,                           //nWidth,nHeight表示窗口的宽高
- HWND hWndParent,                       //父窗口句柄，如果不是子窗口，这里取值为NULL
- HMENU hMenu,                           //菜单句柄，没菜单的话，取NULL值
- HANDLE hlnstance,                      //对应着WinMain函数的第一个参数
- LPVOID lpParam);                       //NULL
+HWND CreateWindow(LPCTSTR lpClassName, //窗口类名，应与WNDCLASS结构里的成员lpszClassName一致
+	LPCTSTR lpWindowName, , //窗口标题名
+	DWORD dwStyle，    //窗口的风格，取值参见表Style
+	int x,
+	int y,     //x,y表示所创建窗口左上角位置
+	int nWidth,
+	int nHeight,   //nWidth,nHeight表示窗口的宽高
+	HWND hWndParent,   //父窗口句柄，如果不是子窗口，这里取值为NULL
+	HMENU hMenu,   //菜单句柄，没菜单的话，取NULL值
+	HANDLE hlnstance,  //对应着WinMain函数的第一个参数
+	LPVOID lpParam);   //NULL
 ```
 
 表Style：（参考：百度）
@@ -750,8 +750,8 @@ WS_VSCROLL：创建一个有垂直滚动条的窗口。
  
 
 ```cpp
- HCURSOR cursor                              //定义一个光标句柄，用于存放LoadCursorFromFile函数返回的光标句柄
- cursor=LoadCursorFromFile("e:\\a.cur");
+HCURSOR cursor;  //定义一个光标句柄，用于存放LoadCursorFromFile函数返回的光标句柄
+cursor=LoadCursorFromFile("e:\\a.cur");
 ```
 
 获得了光标句柄有什么用呢？看一下窗口类WNDCLASS里的hCursor成员，这个成员也是一个光标句柄，明白了吧！
@@ -761,7 +761,7 @@ WS_VSCROLL：创建一个有垂直滚动条的窗口。
  
 
 ```cpp
- HBRUSH hbr=CreateSolidBrush(RGB(12,172,59));//三个数字分别表明RGB的颜色值，RGB根据三种颜色值返回一个COLORREF类型的值
+HBRUSH hbr=CreateSolidBrush(RGB(12,172,59));//三个数字分别表明RGB的颜色值，RGB根据三种颜色值返回一个COLORREF类型的值
 ```
 
 ------
@@ -779,53 +779,53 @@ WS_VSCROLL：创建一个有垂直滚动条的窗口。
 好了，假设e盘下有一个c.cur和i.ico文件。例子：设置窗口图标和光标，还有背景色
 
 ```cpp
- #include "stdafx.h"                      //这个头文件是编译器自动生成的，不是空工程，都会有，
-                                          //如果是直接建C++源文件，包含这个头文件，会出错
- #include <windows.h> 
- #include <stdio.h> 
- LRESULT CALLBACK WinSunProc( 
-   HWND hwnd,                            // handle to window 
-   UINT uMsg,                            // message identifier 
-   WPARAM wParam,                        // first message parameter 
-   LPARAM lParam                         // second message parameter 
- ); //窗口过程函数声明
- int WINAPI WinMain( 
-   HINSTANCE hInstance,                  // handle to current instance 
-   HINSTANCE hPrevInstance,              // handle to previous instance 
-   LPSTR lpCmdLine,                      // command line 
-   int nCmdShow                          // show state 
- ) 
- { 
-   //设计一个窗口类 
-   WNDCLASS wndcls; 
-   wndcls.cbClsExtra=0; 
-   wndcls.cbWndExtra=0; 
-   wndcls.hbrBackground=CreateSolidBrush(RGB(12,172,59));                                   //画刷
-   wndcls.hCursor=(HCURSOR)LoadImage(NULL,"e:\\c.cur",IMAGE_CURSOR,24,24,LR_LOADFROMFILE);  //加载光标
-   wndcls.hIcon=(HICON)LoadImage(NULL,"e:\\i.ico",IMAGE_ICON,48,48,LR_LOADFROMFILE);        //加载图标
-   wndcls.hInstance=hInstance;                                                              //应用程序实例句柄由WinMain函数传进来 
-   wndcls.lpfnWndProc=WinSunProc;                                                           //定义窗口处理函数
-   wndcls.lpszClassName="windowclass"; 
-   wndcls.lpszMenuName=NULL; 
-   wndcls.style=CS_HREDRAW | CS_VREDRAW; 
-   RegisterClass(&wndcls); 
-   
-   //创建窗口，定义一个变量用来保存成功创建窗口后返回的句柄 
-   HWND hwnd; 
-   hwnd=CreateWindow("windowclass","first window", 
- WS_OVERLAPPEDWINDOW,0,0,600,400,NULL,NULL,hInstance,NULL);
-  //显示及刷新窗口 
-   ShowWindow(hwnd,SW_SHOWNORMAL); 
-   UpdateWindow(hwnd);
-   //定义消息结构体，开始消息循环 
-   MSG msg; 
-   while(GetMessage(&msg,NULL,0,0)) 
-   { 
-     TranslateMessage(&msg); 
-     DispatchMessage(&msg); 
-   } 
-   return msg.wParam; 
- } 
+#include "stdafx.h"      //这个头文件是编译器自动生成的，不是空工程，都会有，
+//如果是直接建C++源文件，包含这个头文件，会出错
+#include <windows.h> 
+#include <stdio.h> 
+LRESULT CALLBACK WinSunProc(
+	HWND hwnd,        // handle to window 
+	UINT uMsg,        // message identifier 
+	WPARAM wParam,        // first message parameter 
+	LPARAM lParam     // second message parameter 
+); //窗口过程函数声明
+int WINAPI WinMain(
+	HINSTANCE hInstance,      // handle to current instance 
+	HINSTANCE hPrevInstance,      // handle to previous instance 
+	LPSTR lpCmdLine,      // command line 
+	int nCmdShow      // show state 
+)
+{
+	//设计一个窗口类 
+	WNDCLASS wndcls;
+	wndcls.cbClsExtra = 0;
+	wndcls.cbWndExtra = 0;
+	wndcls.hbrBackground = CreateSolidBrush(RGB(12, 172, 59));       //画刷
+	wndcls.hCursor = (HCURSOR)LoadImage(NULL, "e:\\c.cur", IMAGE_CURSOR, 24, 24, LR_LOADFROMFILE);  //加载光标
+	wndcls.hIcon = (HICON)LoadImage(NULL, "e:\\i.ico", IMAGE_ICON, 48, 48, LR_LOADFROMFILE);    //加载图标
+	wndcls.hInstance = hInstance;              //应用程序实例句柄由WinMain函数传进来 
+	wndcls.lpfnWndProc = WinSunProc;               //定义窗口处理函数
+	wndcls.lpszClassName = "windowclass";
+	wndcls.lpszMenuName = NULL;
+	wndcls.style = CS_HREDRAW | CS_VREDRAW;
+	RegisterClass(&wndcls);
+
+	//创建窗口，定义一个变量用来保存成功创建窗口后返回的句柄 
+	HWND hwnd;
+	hwnd = CreateWindow("windowclass", "first window",
+		WS_OVERLAPPEDWINDOW, 0, 0, 600, 400, NULL, NULL, hInstance, NULL);
+	//显示及刷新窗口 
+	ShowWindow(hwnd, SW_SHOWNORMAL);
+	UpdateWindow(hwnd);
+	//定义消息结构体，开始消息循环 
+	MSG msg;
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	return msg.wParam;
+}
 ```
 
  
@@ -833,38 +833,38 @@ WS_VSCROLL：创建一个有垂直滚动条的窗口。
  
 
 ```cpp
- //编写窗口过程函数 
- LRESULT CALLBACK WinSunProc( 
-   HWND hwnd,      // handle to window 
-   UINT uMsg,      // message identifier 
-   WPARAM wParam,  // first message parameter 
-   LPARAM lParam   // second message parameter 
- ) 
- { 
-   switch(uMsg) 
-   { 
-   case WM_CHAR:                                                     //字符消息
-     char szChar[20]; 
-     sprintf(szChar,"char code is %c",wParam); 
-     MessageBox(hwnd,szChar,"char",0); 
-     break; 
-    case WM_LBUTTONDOWN:                                             //鼠标左键按下消息
-     MessageBox(hwnd,"mouse clicked","message",0); 
-     break; 
-   case WM_CLOSE: 
-     if(IDYES==MessageBox(hwnd,"是否真的结束？","message",MB_YESNO))
-     { 
-       DestroyWindow(hwnd);                                         //销毁窗口，并发送WM_DESTROY消息给自身窗口
-     } 
-     break; 
-   case WM_DESTROY:
-     PostQuitMessage(0); 
-     break; 
-   default: 
-     return DefWindowProc(hwnd,uMsg,wParam,lParam); 
-   } 
-   return 0; 
- }
+//编写窗口过程函数 
+LRESULT CALLBACK WinSunProc(
+	HWND hwnd,  // handle to window 
+	UINT uMsg,  // message identifier 
+	WPARAM wParam,  // first message parameter 
+	LPARAM lParam   // second message parameter 
+)
+{
+	switch (uMsg)
+	{
+	case WM_CHAR:     //字符消息
+		char szChar[20];
+		sprintf(szChar, "char code is %c", wParam);
+		MessageBox(hwnd, szChar, "char", 0);
+		break;
+	case WM_LBUTTONDOWN:     //鼠标左键按下消息
+		MessageBox(hwnd, "mouse clicked", "message", 0);
+		break;
+	case WM_CLOSE:
+		if (IDYES == MessageBox(hwnd, "是否真的结束？", "message", MB_YESNO))
+		{
+			DestroyWindow(hwnd);     //销毁窗口，并发送WM_DESTROY消息给自身窗口
+		}
+		break;
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	}
+	return 0;
+}
 ```
 
 ------
@@ -876,10 +876,9 @@ WS_VSCROLL：创建一个有垂直滚动条的窗口。
 得到了一个窗口的设备上下文，就可以进行画图操作了，像画圆，画正方形，显示图片等函数都是要设备上下文(DC）句柄做参数的。
 
 ```cpp
- HDC dc                                          //定义一个DC句柄
-
- HWND wnd=FindWindow(NULL,"无标题.txt - 记事本"); //获取窗口句柄
- dc=GetDC(wnd)                                  //获取这个窗口的设备上下文
+HDC dc                                          //定义一个DC句柄
+HWND wnd=FindWindow(NULL,"无标题.txt - 记事本"); //获取窗口句柄
+dc=GetDC(wnd)                                  //获取这个窗口的设备上下文
 ```
 
 ------
@@ -891,18 +890,18 @@ WS_VSCROLL：创建一个有垂直滚动条的窗口。
 以"无标题.txt - 记事本"窗口为例，在这个窗口简单的画一个矩形
 
 ```cpp
- #include <windows.h>
- void main()
- {
-  HDC dc;
-  HWND wnd=FindWindow(NULL,"无标题.txt - 记事本");
-  dc=GetDC(wnd);                                  //获取窗口设备上下文（DC）
-  while(1)                                        //用循环语句重复画，是为了确保不会被窗口刷新给刷掉
-  {
-  Rectangle(dc,50,50,200,200);                    //画一个矩形
-  Sleep(200);
-  }
- }
+#include <windows.h>
+void main()
+{
+	HDC dc;
+	HWND wnd = FindWindow(NULL, "无标题.txt - 记事本");
+	dc = GetDC(wnd);          //获取窗口设备上下文（DC）
+	while (1)        //用循环语句重复画，是为了确保不会被窗口刷新给刷掉
+	{
+		Rectangle(dc, 50, 50, 200, 200);    //画一个矩形
+		Sleep(200);
+	}
+}
 ```
 
 ------
@@ -927,25 +926,25 @@ WS_VSCROLL：创建一个有垂直滚动条的窗口。
 看完整例子：显示系统进程名，以及进程ID号
 
 ```cpp
- #include <windows.h>
- #include <tlhelp32.h>      //声明快照函数的头文件
- #include <stdio.h>
- int main()
- {
-  PROCESSENTRY32 pe32;    //进程的信息将会存储在这个结构里
-  //在使用这个结构之前，先设置它的大小
-  pe32.dwSize=sizeof(pe32);
-  //给系统内的所有进程拍一个快照
-  HANDLE hProcessSnap=::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
-  BOOL bMore=::Process32First(hProcessSnap,&pe32);  //第一次查找
-  while(bMore)
-  {
-   printf("进程名称:%s\n",pe32.szExeFile);           //szExeFile是进程名
-   printf("进程ID号:%u\n\n",pe32.th32ProcessID);     //th32ProcessID是进程ID号
-   bMore=::Process32Next(hProcessSnap,&pe32);       //寻找下个进程，函数返回0，则没有进程可寻
-  }
-  return 0;
- }
+#include <windows.h>
+#include <tlhelp32.h>      //声明快照函数的头文件
+#include <stdio.h>
+int main()
+{
+	PROCESSENTRY32 pe32;    //进程的信息将会存储在这个结构里
+							//在使用这个结构之前，先设置它的大小
+	pe32.dwSize = sizeof(pe32);
+	//给系统内的所有进程拍一个快照
+	HANDLE hProcessSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	BOOL bMore = ::Process32First(hProcessSnap, &pe32);  //第一次查找
+	while (bMore)
+	{
+		printf("进程名称:%s\n", pe32.szExeFile);           //szExeFile是进程名
+		printf("进程ID号:%u\n\n", pe32.th32ProcessID);     //th32ProcessID是进程ID号
+		bMore = ::Process32Next(hProcessSnap, &pe32);       //寻找下个进程，函数返回0，则没有进程可寻
+	}
+	return 0;
+}
 ```
 
 ------
@@ -969,28 +968,28 @@ WS_VSCROLL：创建一个有垂直滚动条的窗口。
 现在给个例子：假设当前有一个进程名为abc.exe的进程正在运行，编一个程序结束它。
 
 ```cpp
- #include <windows.h>
- #include <tlhelp32.h>                                                           //声明快照函数的头文件
- int main(int argc,char *argv[])
- { 
-  PROCESSENTRY32 pe32;
-  //在使用这个结构之前，先设置它的大小
-  pe32.dwSize=sizeof(pe32);
-  //给系统内的所有进程拍一个快照
-  HANDLE hProcessSnap=::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
-  //遍历进程快照，轮流显示每个进程的信息
-  BOOL bMore=::Process32First(hProcessSnap,&pe32);
-  while(bMore)
-  {
-       if(strcmp("abc.exe",pe32.szExeFile)==0)                                  //如果找到进程名为abc.exe
-    {
-     HANDLE hProcess=OpenProcess(PROCESS_ALL_ACCESS,FALSE,pe32.th32ProcessID);  //获取句柄
-      ::TerminateProcess(hProcess,0);                                           //结束它
-    }
-   bMore=::Process32Next(hProcessSnap,&pe32);                                   //寻找下一个
-  }
-  return 0;
- }
+#include <windows.h>
+#include <tlhelp32.h>   //声明快照函数的头文件
+int main(int argc, char *argv[])
+{
+	PROCESSENTRY32 pe32;
+	//在使用这个结构之前，先设置它的大小
+	pe32.dwSize = sizeof(pe32);
+	//给系统内的所有进程拍一个快照
+	HANDLE hProcessSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	//遍历进程快照，轮流显示每个进程的信息
+	BOOL bMore = ::Process32First(hProcessSnap, &pe32);
+	while (bMore)
+	{
+		if (strcmp("abc.exe", pe32.szExeFile) == 0)  //如果找到进程名为abc.exe
+		{
+			HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe32.th32ProcessID);  //获取句柄
+			::TerminateProcess(hProcess, 0);   //结束它
+		}
+		bMore = ::Process32Next(hProcessSnap, &pe32);   //寻找下一个
+	}
+	return 0;
+}
 ```
 
 上面的这个例子，只能结束普通权限进程，如果为系统进程的话，则没有用，结束不了。在后面的提升权限函数，会有例子说明如何结束系统进程。
@@ -1025,66 +1024,66 @@ HBRUSH brush=CreateSolidBrush(RGB(22,182,111));
 
  
 
-## **第三十六个SelectObject把GDI对象选入相应的DC中
+## SelectObject把GDI对象选入相应的DC中
 
 像画笔(句柄HPEN），画刷（HBURSH），位图（HBITMAP）等都是GID对象。因为画图函数，如画圆，画矩形，画直线，它们所画出图形，默认属性都是不变的，如线的宽度。那么想要改变画出来时线的宽度，比如我想画出来的图形它的线条宽度为5（像素），那么就要创建一个宽度为5的画笔，然后再通过SelectObject函数，给这个画笔选入，就可以了.
 
 接下举个例子:SelectObject应用
 
 ```cpp
- #include "stdafx.h"
- #include <windows.h>
- LRESULT CALLBACK WinSunProc(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
- {
-  static HPEN pen=CreatePen(PS_SOLID,3,RGB(255,78,99));       //创建画笔
-  static HBRUSH brush=CreateSolidBrush(RGB(22,182,111));      //创建画刷
-  if(uMsg==WM_PAINT)                                          //窗口需要重画的时候
-  {
-     HDC hDC; 
-     PAINTSTRUCT ps; 
-     hDC=BeginPaint(hwnd,&ps);                                //BeginPaint只能在响应WM_PAINT,不能用GetDC获取设备上下文
-  SelectObject(hDC,pen);                                      //选入画笔
-  SelectObject(hDC,brush);                                    //选入画刷
-  Rectangle(hDC,100,100,200,200);
-     EndPaint(hwnd,&ps); 
- }
- else if(uMsg==WM_CLOSE)                                     //用户关闭了窗口
-  DestroyWindow(hwnd);                                       //销毁窗口，并发送WM_DESTROY消息
- else if(uMsg==WM_DESTROY)                                   //如果窗口被销毁
-  PostQuitMessage(0);                                        //让进程退出
-  return DefWindowProc(hwnd,uMsg,wParam,lParam);             //未处理的消息通过DefWindowProc函数交给系统处理
- }
- int APIENTRY WinMain(HINSTANCE hInstance,
-                      HINSTANCE hPrevInstance,
-                      LPSTR     lpCmdLine,
-                      int       nCmdShow)
- {
-   WNDCLASS wndcls;                                           //定义一个存储窗口信息WNDCLASS变量
-   wndcls.cbClsExtra=0;                                       //默认为0
-   wndcls.cbWndExtra=0;                                       //默认为0
-   wndcls.hbrBackground=(HBRUSH)GetStockObject(GRAY_BRUSH);   //背景画刷
-   wndcls.hCursor=LoadCursor(NULL,IDC_ARROW);                 //光标
-   wndcls.hIcon=LoadIcon(NULL,IDI_ERROR);                     //窗口图标
-   wndcls.hInstance=hInstance;                                //应用程序实例句柄由WinMain函数传进来 
-   wndcls.lpfnWndProc=WinSunProc;                             //窗口消息处理函数
-   wndcls.lpszClassName="windowclass";                        //窗口类名
-   wndcls.lpszMenuName=NULL;                                  //窗口菜单名，没有菜单，为NULL
-   wndcls.style=CS_HREDRAW | CS_VREDRAW;                      //窗口类型，CS_HREDRAW和CS_VERDRAW 表明
-   //当窗口水平方向垂直方向的宽度变化时重绘整个窗口
-   RegisterClass(&wndcls);                                    //把窗口信息提交给系统，注册窗口类
-   HWND hwnd;                                                 //用以存储CreateWindow函数所创建的窗口句柄
-    hwnd=CreateWindow("windowclass","first windows", 
-   WS_OVERLAPPEDWINDOW,0,0,600,400,NULL,NULL,hInstance,NULL); //创建窗口
-    ShowWindow(hwnd,SW_SHOWNORMAL);                           //窗口创建完了，显示它
-    UpdateWindow(hwnd);                                       //更新窗口，让窗口毫无延迟的显示
-    MSG msg;                                                  //消息结构类型
-    while(GetMessage(&msg,NULL,0,0))                          //获取消息
-    {
-     //TranslateMessage(&msg);                                //此函数用于把键盘消息(WM_KEYDOWN,WM_KEYUP)转换成字符消息WM_CHAR
-     DispatchMessage(&msg);                                   //这个函数调用窗口过程处理函数，并把MSG里的信息处理后传给过程函数的四个参数
-  }
-   return 0;
- }
+#include "stdafx.h"
+#include <windows.h>
+LRESULT CALLBACK WinSunProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	static HPEN pen = CreatePen(PS_SOLID, 3, RGB(255, 78, 99));   //创建画笔
+	static HBRUSH brush = CreateSolidBrush(RGB(22, 182, 111));  //创建画刷
+	if (uMsg == WM_PAINT)  //窗口需要重画的时候
+	{
+		HDC hDC;
+		PAINTSTRUCT ps;
+		hDC = BeginPaint(hwnd, &ps);    //BeginPaint只能在响应WM_PAINT,不能用GetDC获取设备上下文
+		SelectObject(hDC, pen);  //选入画笔
+		SelectObject(hDC, brush);    //选入画刷
+		Rectangle(hDC, 100, 100, 200, 200);
+		EndPaint(hwnd, &ps);
+	}
+	else if (uMsg == WM_CLOSE)     //用户关闭了窗口
+		DestroyWindow(hwnd);   //销毁窗口，并发送WM_DESTROY消息
+	else if (uMsg == WM_DESTROY)   //如果窗口被销毁
+		PostQuitMessage(0);    //让进程退出
+	return DefWindowProc(hwnd, uMsg, wParam, lParam); //未处理的消息通过DefWindowProc函数交给系统处理
+}
+int APIENTRY WinMain(HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR lpCmdLine,
+	int   nCmdShow)
+{
+	WNDCLASS wndcls;   //定义一个存储窗口信息WNDCLASS变量
+	wndcls.cbClsExtra = 0;   //默认为0
+	wndcls.cbWndExtra = 0;   //默认为0
+	wndcls.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);   //背景画刷
+	wndcls.hCursor = LoadCursor(NULL, IDC_ARROW); //光标
+	wndcls.hIcon = LoadIcon(NULL, IDI_ERROR); //窗口图标
+	wndcls.hInstance = hInstance;    //应用程序实例句柄由WinMain函数传进来 
+	wndcls.lpfnWndProc = WinSunProc;     //窗口消息处理函数
+	wndcls.lpszClassName = "windowclass";    //窗口类名
+	wndcls.lpszMenuName = NULL;  //窗口菜单名，没有菜单，为NULL
+	wndcls.style = CS_HREDRAW | CS_VREDRAW;  //窗口类型，CS_HREDRAW和CS_VERDRAW 表明
+																 //当窗口水平方向垂直方向的宽度变化时重绘整个窗口
+	RegisterClass(&wndcls);    //把窗口信息提交给系统，注册窗口类
+	HWND hwnd;     //用以存储CreateWindow函数所创建的窗口句柄
+	hwnd = CreateWindow("windowclass", "first windows",
+		WS_OVERLAPPEDWINDOW, 0, 0, 600, 400, NULL, NULL, hInstance, NULL); //创建窗口
+	ShowWindow(hwnd, SW_SHOWNORMAL);   //窗口创建完了，显示它
+	UpdateWindow(hwnd);   //更新窗口，让窗口毫无延迟的显示
+	MSG msg;  //消息结构类型
+	while (GetMessage(&msg, NULL, 0, 0))  //获取消息
+	{
+		//TranslateMessage(&msg);    //此函数用于把键盘消息(WM_KEYDOWN,WM_KEYUP)转换成字符消息WM_CHAR
+		DispatchMessage(&msg);   //这个函数调用窗口过程处理函数，并把MSG里的信息处理后传给过程函数的四个参数
+	}
+	return 0;
+}
 ```
 
 ------
@@ -1112,17 +1111,17 @@ pdwNumBytesRead是实际读取的内容（函数执行后，实际读了多少�
 被读的程序代码如下：假设该进程名为：BeRead.exe
 
 ```cpp
- #include <stdio.h>
- int main()
- {
-  int a=10;           //要读取的变量。
-   printf("%x\n",&a); //输出这个变量的起始地址，假设输出为12ff7c
-   while(1)
-   {
-    Sleep(1000);
-   }
-  return 0;
- }
+#include <stdio.h>
+int main()
+{
+	int a = 10;           //要读取的变量。
+	printf("%x\n", &a); //输出这个变量的起始地址，假设输出为12ff7c
+	while (1)
+	{
+		Sleep(1000);
+	}
+	return 0;
+}
 ```
 
 必须先让这个程序运行，然后根据输出的地址值，才能在下面的程序填入地址值。
@@ -1130,33 +1129,33 @@ pdwNumBytesRead是实际读取的内容（函数执行后，实际读了多少�
 读取的程序代码如下：
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- #include <tlhelp32.h>
- int main()
- {
- //先要获取进程句柄，如何获取，参照TerminateProcess函数，结束一个进程
-  HANDLE ReProcess;
-  PROCESSENTRY32 pe32;
-  pe32.dwSize=sizeof(pe32);
-  HANDLE hProcessSnap=CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
-  BOOL bMore=::Process32First(hProcessSnap,&pe32);
-  while(bMore)
-  {
-   if(strcmp(pe32.szExeFile,"BeRead.exe")==0)                             //如果是BeRead.exe
-   {
-    ReProcess=::OpenProcess(PROCESS_ALL_ACCESS,FALSE,pe32.th32ProcessID); //获取该进程句柄
-    break;
-   }
-   bMore=Process32Next(hProcessSnap,&pe32);
-  }
-  int *ReAddress=(int *)0x12ff7c;                                         //要读取的内存的地址值
-  int  *p=new int;
-     unsigned long size;
-  ReadProcessMemory(ReProcess,ReAddress,p,4,&size);                       //读取BeRead进程的内存
-  printf("%d\n",*p);                                                      //输出读取来的值
-  return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+#include <tlhelp32.h>
+int main()
+{
+	//先要获取进程句柄，如何获取，参照TerminateProcess函数，结束一个进程
+	HANDLE ReProcess;
+	PROCESSENTRY32 pe32;
+	pe32.dwSize = sizeof(pe32);
+	HANDLE hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	BOOL bMore = ::Process32First(hProcessSnap, &pe32);
+	while (bMore)
+	{
+		if (strcmp(pe32.szExeFile, "BeRead.exe") == 0)                             //如果是BeRead.exe
+		{
+			ReProcess = ::OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe32.th32ProcessID); //获取该进程句柄
+			break;
+		}
+		bMore = Process32Next(hProcessSnap, &pe32);
+	}
+	int *ReAddress = (int *)0x12ff7c;                                         //要读取的内存的地址值
+	int  *p = new int;
+	unsigned long size;
+	ReadProcessMemory(ReProcess, ReAddress, p, 4, &size);                       //读取BeRead进程的内存
+	printf("%d\n", *p);                                                      //输出读取来的值
+	return 0;
+}
 ```
 
 ------
@@ -1169,48 +1168,47 @@ pdwNumBytesRead是实际读取的内容（函数执行后，实际读了多少�
 
 下面直接举个例子，形式跟读内存函数的例子一样。
 
-被写的程序代码如下：假设该进程名为：BeWrite.exe
-
 ```cpp
- #include <stdio.h>
- int main()
- {
-  int a=10;
-   printf("%x\n",&a);    //假设输出为12ff7c
-   while(1)
-   { 
-    printf("%d\n",a);    //每隔一秒输出，查看值有没有改变
-    Sleep(1000);
-   }
-  return 0;
- }
- 写入的代码如下：
- #include <windows.h>
- #include <stdio.h>
- #include <tlhelp32.h>
- int main()
- {
-  HANDLE ReProcess;
-  PROCESSENTRY32 pe32;
-  pe32.dwSize=sizeof(pe32);
-  HANDLE hProcessSnap=CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
-  BOOL bMore=::Process32First(hProcessSnap,&pe32);
-  while(bMore)
-  {
-   if(strcmp(pe32.szExeFile,"BeWrite.exe")==0)
-   {
-    ReProcess=::OpenProcess(PROCESS_ALL_ACCESS,FALSE,pe32.th32ProcessID);
-    break;
-   }
-   bMore=Process32Next(hProcessSnap,&pe32);
-  }
-  int *ReAddress=(int *)0x12ff7c;
-  int  *p=new int;
-  *p=300;
-     unsigned long size;
-  WriteProcessMemory(ReProcess,ReAddress,p,4,&size);
-  return 0;
- }
+//被写的程序代码如下：假设该进程名为：BeWrite.exe 
+#include <stdio.h>
+int main()
+{
+	int a = 10;
+	printf("%x\n", &a);    //假设输出为12ff7c
+	while (1)
+	{
+		printf("%d\n", a);    //每隔一秒输出，查看值有没有改变
+		Sleep(1000);
+	}
+	return 0;
+}
+//写入的代码如下：
+#include <windows.h>
+#include <stdio.h>
+#include <tlhelp32.h>
+int main()
+{
+	HANDLE ReProcess;
+	PROCESSENTRY32 pe32;
+	pe32.dwSize = sizeof(pe32);
+	HANDLE hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	BOOL bMore = ::Process32First(hProcessSnap, &pe32);
+	while (bMore)
+	{
+		if (strcmp(pe32.szExeFile, "BeWrite.exe") == 0)
+		{
+			ReProcess = ::OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe32.th32ProcessID);
+			break;
+		}
+		bMore = Process32Next(hProcessSnap, &pe32);
+	}
+	int *ReAddress = (int *)0x12ff7c;
+	int  *p = new int;
+	*p = 300;
+	unsigned long size;
+	WriteProcessMemory(ReProcess, ReAddress, p, 4, &size);
+	return 0;
+}
 ```
 
 ------
@@ -1228,29 +1226,29 @@ pdwNumBytesRead是实际读取的内容（函数执行后，实际读了多少�
 现举个例子，两个线程同时每隔一秒输出一个数字，也就是一秒会有两数字输出。
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- DWORD _stdcall ThreadProc(LPVOID lpParameter)     //线程执行函数
- {
-  int si=100;
-  while(si>0)
-  {
-   printf("子线程输出数字:%d\n",si--);
-   Sleep(1000);
-  }
-  return 0;
- }
- int main()
- {
-  int mi=0;
-  CreateThread(NULL,0,ThreadProc,NULL,0,NULL);    //创建一个线程，去执行ThreadProc函数
-  while(mi<100)
-  {
-   printf("主线程输出数字:%d\n",mi++);
-   Sleep(1000);
-  }
-  return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+DWORD _stdcall ThreadProc(LPVOID lpParameter)     //线程执行函数
+{
+	int si = 100;
+	while (si>0)
+	{
+		printf("子线程输出数字:%d\n", si--);
+		Sleep(1000);
+	}
+	return 0;
+}
+int main()
+{
+	int mi = 0;
+	CreateThread(NULL, 0, ThreadProc, NULL, 0, NULL);    //创建一个线程，去执行ThreadProc函数
+	while (mi<100)
+	{
+		printf("主线程输出数字:%d\n", mi++);
+		Sleep(1000);
+	}
+	return 0;
+}
 ```
 
 ------
@@ -1260,9 +1258,9 @@ pdwNumBytesRead是实际读取的内容（函数执行后，实际读了多少�
 ## GetCurrentProcessId获得当前进程ID
 
 ```cpp
-  DWORD currentPID;
-  currentPID=::GetCurrentProcessId(); //返回进程ID号
-  cout<<currentPID<<endl;
+DWORD currentPID;
+currentPID = ::GetCurrentProcessId(); //返回进程ID号
+cout << currentPID << endl;
 ```
 
 ------
@@ -1286,17 +1284,17 @@ pdwNumBytesRead是实际读取的内容（函数执行后，实际读了多少�
 这里举一个获取位图的信息，获取位图的大小，假设E盘下有一个aa.bmp的位图文件，输出位图的宽高
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
-  BITMAP bmInfo;   //这个结构存储位图信息
-  HBITMAP bmp;
-  bmp=(HBITMAP)LoadImage(NULL,"e:\\aa.bmp",IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
-  GetObject(bmp,sizeof(BITMAP),&bmInfo);
-  printf("位图宽：%d,位图高：%d\n",bmInfo.bmWidth,bmInfo.bmHeight);
-  return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	BITMAP bmInfo;   //这个结构存储位图信息
+	HBITMAP bmp;
+	bmp = (HBITMAP)LoadImage(NULL, "e:\\aa.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+	GetObject(bmp, sizeof(BITMAP), &bmInfo);
+	printf("位图宽：%d,位图高：%d\n", bmInfo.bmWidth, bmInfo.bmHeight);
+	return 0;
+}
 ```
 
 ------
@@ -1318,26 +1316,26 @@ BitBlt的作用跟把两幅图片合在一起一样，合并两幅图片。可�
 好了，直接举个例子，在窗口输出一副图片，假设e盘下有一个aa.bmp的位图。为了方便，我们直接在记事本窗口输出位图，先运行一个窗口名为"无标题.txt - 记事本"记事本窗口程序。
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
-  BITMAP bmInfo;                                                                 //这个结构存储位图信息
-  HBITMAP bmp;
-  bmp=(HBITMAP)LoadImage(NULL,"e:\\aa.bmp",IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
-     GetObject(bmp,sizeof(BITMAP),&bmInfo);                                      //获取位图信息
-  HWND wnd=FindWindow(NULL,"无标题.txt - 记事本");
-  HDC hdc=GetDC(wnd);
-     HDC memDC=::CreateCompatibleDC(hdc);                                        //创造兼容的DC
-  SelectObject(memDC,bmp);                                                       //选入位图
-  while(1)
-  {
-  BitBlt(hdc,0,0,bmInfo.bmWidth,bmInfo.bmHeight,memDC,0,0,SRCCOPY);              //输出位图
-  Sleep(200);
-  
-  }
-  return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	BITMAP bmInfo;     //这个结构存储位图信息
+	HBITMAP bmp;
+	bmp = (HBITMAP)LoadImage(NULL, "e:\\aa.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+	GetObject(bmp, sizeof(BITMAP), &bmInfo);   //获取位图信息
+	HWND wnd = FindWindow(NULL, "无标题.txt - 记事本");
+	HDC hdc = GetDC(wnd);
+	HDC memDC = ::CreateCompatibleDC(hdc);   //创造兼容的DC
+	SelectObject(memDC, bmp);    //选入位图
+	while (1)
+	{
+		BitBlt(hdc, 0, 0, bmInfo.bmWidth, bmInfo.bmHeight, memDC, 0, 0, SRCCOPY); //输出位图
+		Sleep(200);
+
+	}
+	return 0;
+}
 ```
 
 下面介绍一下BitBlt函数最后一个参数的常用取值及意思。
@@ -1368,23 +1366,23 @@ WHITENESS：使用与物理调色板中索引1有关的颜色填充目标矩形�
 下面结合GetCursorPos和WindowFromPoint举个例子，鼠标指向哪个窗口，就在界面显示那窗口的标题名
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
-  char Text[256]={0};
-  HWND wnd;
-  POINT curpos;
-  while(1)
-  {
-  GetCursorPos(&curpos);
-  wnd = WindowFromPoint(curpos);
-  GetWindowText(wnd,Text,256);
-  printf("%s\n",Text);
-  Sleep(300);
-  }
- return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	char Text[256] = { 0 };
+	HWND wnd;
+	POINT curpos;
+	while (1)
+	{
+		GetCursorPos(&curpos);
+		wnd = WindowFromPoint(curpos);
+		GetWindowText(wnd, Text, 256);
+		printf("%s\n", Text);
+		Sleep(300);
+	}
+	return 0;
+}
 ```
 
 ------
@@ -1398,15 +1396,15 @@ WHITENESS：使用与物理调色板中索引1有关的颜色填充目标矩形�
 "无标题.txt - 记事本"为例。
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main(int argc, char* argv[])
- {
-    HWND wnd;
-    wnd=FindWindow(NULL,"无标题.txt - 记事本");  //获取窗口句柄
-    SetWindowText(wnd,"新的窗口标题");           //设置窗口标题名
-     return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main(int argc, char* argv[])
+{
+	HWND wnd;
+	wnd = FindWindow(NULL, "无标题.txt - 记事本");  //获取窗口句柄
+	SetWindowText(wnd, "新的窗口标题");           //设置窗口标题名
+	return 0;
+}
 ```
 
 ------
@@ -1459,13 +1457,13 @@ OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES,&hToken);
 那么结束上面两个函数，提升一个进程权限制，让它能够结束系统进程的代码就是：
 
 ```cpp
-      HANDLE hToken;
-      OpenProcessToken( GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &hToken );
-      TOKEN_PRIVILEGES tp;
-      LookupPrivilegeValue( NULL, SE_DEBUG_NAME, &tp.Privileges[0].Luid );
-      tp.PrivilegeCount = 1;                                                                   //tp里其它一些属性设置
-      tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-      AdjustTokenPrivileges( hToken, FALSE, &tp, sizeof( TOKEN_PRIVILEGES ), NULL, NULL );
+HANDLE hToken;
+OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &hToken);
+TOKEN_PRIVILEGES tp;
+LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &tp.Privileges[0].Luid);
+tp.PrivilegeCount = 1;                                                                   //tp里其它一些属性设置
+tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), NULL, NULL);
 ```
 
 只上把上面的代码，加入结束普通进程例子的前面，那么就能结束系统进程了。
@@ -1502,18 +1500,18 @@ DLL_THREAD_DETACH（线程释放），DLL_PROCESS_DETACH（进程释放）
 动态链接里的代码：
 
 ```cpp
- #include "stdafx.h"
- BOOL APIENTRY DllMain( HANDLE hModule,
-                        DWORD  ul_reason_for_call,
-                        LPVOID lpReserved
-       )
- {
-     return TRUE;
- }
- extern "C" __declspec(dllexport) int Add(int a,int b)
- {
-  return a+b;
- }
+#include "stdafx.h"
+BOOL APIENTRY DllMain(HANDLE hModule,
+	DWORD  ul_reason_for_call,
+	LPVOID lpReserved
+)
+{
+	return TRUE;
+}
+extern "C" __declspec(dllexport) int Add(int a, int b)
+{
+	return a + b;
+}
 ```
 
 点编译执行，然后就会弹出一个调试对话框，直接点取消，接着便生成了动态链接库DLL，然后到你的工程里把后缀名为dll的文件找到，
@@ -1523,10 +1521,10 @@ DLL_THREAD_DETACH（线程释放），DLL_PROCESS_DETACH（进程释放）
 假设这个文件名为"sss.dll",那么要调用里面的Add函数便是如下代码：
 
 ```cpp
-  HMODULE hmod=::LoadLibrary("sss.dll");          //获取sss.dll的模块，加载sss.dll动态链接库
-  typedef int (*pAdd)(int a,int b);               //定义一个对应的函数型，以便识别
-  pAdd add=(pAdd)GetProcAddress(hmod,"Add");      //获取hmod模块里的Add函数地址
-  int a=add(3,5);                                 //调用模块里的Add函数
+HMODULE hmod = ::LoadLibrary("sss.dll");   //获取sss.dll的模块，加载sss.dll动态链接库
+typedef int(*pAdd)(int a, int b); //定义一个对应的函数型，以便识别
+pAdd add = (pAdd)GetProcAddress(hmod, "Add");      //获取hmod模块里的Add函数地址
+int a = add(3, 5);                                 //调用模块里的Add函数
 ```
 
 ------
@@ -1552,29 +1550,29 @@ HHOOK WINAPI SetWindowsHookEx(int idHook,HOOKPROC lpfn,HINSTANCE hmod,DWORD dwTh
 现给出动态链接库的所有代码：(KeyDll.dll)
 
 ```cpp
- #include "stdafx.h"
- #include <windows.h>
- BOOL APIENTRY DllMain( HANDLE hModule,
-                        DWORD  ul_reason_for_call,
-                        LPVOID lpReserved
-       )
- {
-     return TRUE;
- }
- HMODULE WINAPI ModuleFromAddress(PVOID pv)                              //该函数根据内存地址，获得其所在的模块句柄
- {
-  MEMORY_BASIC_INFORMATION mbi;
-  VirtualQuery(pv,&mbi,sizeof(mbi));
-  return (HMODULE)mbi.AllocationBase;
- }
- LRESULT CALLBACK HookKey(int nCode,WPARAM wParam,LPARAM lParam)
- {
-  return TRUE;                                                          //返回真，扔掉该消息
- }
- extern "C" __declspec(dllexport) void SetHook(void)
- {
-  SetWindowsHookEx(WH_KEYBOARD,HookKey,ModuleFromAddress(HookKey),0);
- }
+#include "stdafx.h"
+#include <windows.h>
+BOOL APIENTRY DllMain(HANDLE hModule,
+	DWORD  ul_reason_for_call,
+	LPVOID lpReserved
+)
+{
+	return TRUE;
+}
+HMODULE WINAPI ModuleFromAddress(PVOID pv)   //该函数根据内存地址，获得其所在的模块句柄
+{
+	MEMORY_BASIC_INFORMATION mbi;
+	VirtualQuery(pv, &mbi, sizeof(mbi));
+	return (HMODULE)mbi.AllocationBase;
+}
+LRESULT CALLBACK HookKey(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	return TRUE;     //返回真，扔掉该消息
+}
+extern "C" __declspec(dllexport) void SetHook(void)
+{
+	SetWindowsHookEx(WH_KEYBOARD, HookKey, ModuleFromAddress(HookKey), 0);
+}
 ```
 
 生成dll文件后，把它复制到相应的目录下去。
@@ -1582,31 +1580,31 @@ HHOOK WINAPI SetWindowsHookEx(int idHook,HOOKPROC lpfn,HINSTANCE hmod,DWORD dwTh
 再新建一个工程，调用用动态链接库里的函数，代码如下：
 
 ```cpp
- #include <windows.h>
- int main()
- {
-  HMODULE hMod=LoadLibrary("KeyDll.dll");
-  typedef void(*pSetHook)(void);
-  pSetHook SetHook=(pSetHook)GetProcAddress(hMod,"SetHook");
-  SetHook();
-  while(1)
-  {
-   Sleep(1000);                                                  //避免程序结束，自动释放动态链接库
-  }
-  return 0;
- }
+#include <windows.h>
+int main()
+{
+	HMODULE hMod = LoadLibrary("KeyDll.dll");
+	typedef void(*pSetHook)(void);
+	pSetHook SetHook = (pSetHook)GetProcAddress(hMod, "SetHook");
+	SetHook();
+	while (1)
+	{
+		Sleep(1000);      //避免程序结束，自动释放动态链接库
+	}
+	return 0;
+}
 ```
 
 这样当按下了一个键后，接收该按键消息的进程，会先去执行钩子处理函数，然后再处理消息，而钩子处理函数的几个参数说明了按键的详细信息，如按了哪个键，是按下（KEYDOWN）还是松开（KEYUP）。如果有兴趣的话，把上面那钩子处理函数的代码换成下面这个
 
 ```cpp
- LRESULT CALLBACK HookKey(int nCode,WPARAM wParam,LPARAM lParam)
- {
-  char sz[25];
-  sprintf(sz,"%c",wParam);                                        //这个函数头文件#include <stdio.h>
-  MessageBox(NULL,sz,sz,MB_OK);
-  return FALSE;
- }
+LRESULT CALLBACK HookKey(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	char sz[25];
+	sprintf(sz, "%c", wParam);      //这个函数头文件#include <stdio.h>
+	MessageBox(NULL, sz, sz, MB_OK);
+	return FALSE;
+}
 ```
 
 每按下一个键，就会弹出一个提示框，并输出所按下的键，只对字符键有用。
@@ -1620,27 +1618,27 @@ HHOOK WINAPI SetWindowsHookEx(int idHook,HOOKPROC lpfn,HINSTANCE hmod,DWORD dwTh
 pszPath是文件的路径，dwFileAttributes一般取0，如果想要获取文件夹信息的话，则取值为FILE_ATTRIBUTE_DIRECTORY，psfi是一个SHFILEINFO结构的指针，该结构存储文件信息，定义如下：
 
 ```cpp
- typedef struct _SHFILEINFOA
- {
-         HICON       hIcon;                      // 文件关联图标句柄
-         int         iIcon;                      // 系统图标列表索引
-         DWORD       dwAttributes;               // 文件的属性
-         CHAR        szDisplayName[MAX_PATH];    // 文件的路径名
-         CHAR        szTypeName[80];             // 文件的类型名，如是bmp文件，还是执行文件exe，或者其它
- } SHFILEINFO;
+typedef struct _SHFILEINFOA
+{
+	HICON   hIcon;        // 文件关联图标句柄
+	int   iIcon;        // 系统图标列表索引
+	DWORD   dwAttributes;     // 文件的属性
+	CHAR    szDisplayName[MAX_PATH];  // 文件的路径名
+	CHAR    szTypeName[80];     // 文件的类型名，如是bmp文件，还是执行文件exe，或者其它
+} SHFILEINFO;
 ```
 
 第四个参数cbFileInfo指明SHFILEINFO结构的大小，填sizoef(SHFILEINFO);
 最后一个参数uFlags指定获取文件的什么信息，可选取值如下：（对应着SHFILEINFO里的成员）
 
 ```cpp
- SHGFI_ICON; //获得图标　　
- SHGFI_DISPLAYNAME; //获得显示名　　
- SHGFI_TYPENAME; //获得类型名　　
- SHGFI_USEFILEATTRIBUTES; //获得属性　　
- SHGFI_LARGEICON; //获得大图标　　
- SHGFI_SMALLICON; //获得小图标　　
- SHGFI_PIDL; // pszPath是一个标识符
+SHGFI_ICON; //获得图标  
+SHGFI_DISPLAYNAME; //获得显示名  
+SHGFI_TYPENAME; //获得类型名  
+SHGFI_USEFILEATTRIBUTES; //获得属性  
+SHGFI_LARGEICON; //获得大图标 
+SHGFI_SMALLICON; //获得小图标 
+SHGFI_PIDL; // pszPath是一个标识符
 ```
 
 比如，我只要获取文件图标，那么参数填SHGFI_LARGEICON就行了。如果又想获取文件关联的图标，又想获取文件类型名，那么就是
@@ -1648,9 +1646,9 @@ SHGFI_LARGEICON|SHGFI_TYPENAME;
 函数例子：
 
 ```cpp
-   SHFILEINFO   sfi;
-   SHGetFileInfo("e:\\aa.bmp",0,&sfi,sizeof(sfi),
-   SHGFI_ICON|SHGFI_LARGEICON|SHGFI_USEFILEATTRIBUTES|SHGFI_TYPENAME);
+SHFILEINFO   sfi;
+SHGetFileInfo("e:\\aa.bmp", 0, &sfi, sizeof(sfi),
+	SHGFI_ICON | SHGFI_LARGEICON | SHGFI_USEFILEATTRIBUTES | SHGFI_TYPENAME);
 ```
 
 接着可以用DrawIcon函数画出文件关联图标：该函数定义：BOOL DrawIcon（HDC hDC，int X，int Y, HICON hlcon );
@@ -1671,17 +1669,17 @@ HKEY_CURRENT_CONFIG
 了解了上面这些东西，接着就来了解下RegCreateKeyEx函数的各个参数吧,先来看一下函数定义：
 
 ```cpp
- LONG RegCreateKeyEx (
-     HKEY hKey,                                   //根键句柄，指明要在哪个根键下创建子键，填根键名既可
-     LPCSTR lpSubKey,                             //子键名，包含完整路径名
-     DWORD Reserved,.                             //一般取0
-     LPSTR lpClass,                               //一般取NULL
-     DWORD dwOptions,                             //创建子键时的选项,可选值REG_OPTION_NON_VOLATILE，REG_OPTION_VOLATILE，这里取0既可
-     REGSAM samDesired,                           //打开方式，填KEY_ALL_ACCESS，在任何情况都行。
-     LPSECURITY_ATTRIBUTES lpSecurityAttributes,  //指定继承性,还是取0
-     PHKEY phkResult,                             //子键对应句柄，待创建或打开的子键句柄将存储在该句柄里
-     LPDWORD lpdwDisposition                      //打开还是创建子键,对应REG_CREATED_NEW_KEY和REG_OPENED_EXISTING_KEY
-     );
+LONG RegCreateKeyEx(
+	HKEY hKey,   //根键句柄，指明要在哪个根键下创建子键，填根键名既可
+	LPCSTR lpSubKey,  //子键名，包含完整路径名
+	DWORD Reserved, .  //一般取0
+	LPSTR lpClass,  //一般取NULL
+	DWORD dwOptions,  //创建子键时的选项,可选值REG_OPTION_NON_VOLATILE，REG_OPTION_VOLATILE，这里取0既可
+	REGSAM samDesired,  //打开方式，填KEY_ALL_ACCESS，在任何情况都行。
+	LPSECURITY_ATTRIBUTES lpSecurityAttributes, //指定继承性,还是取0
+	PHKEY phkResult,  //子键对应句柄，待创建或打开的子键句柄将存储在该句柄里
+	LPDWORD lpdwDisposition  //打开还是创建子键,对应REG_CREATED_NEW_KEY和REG_OPENED_EXISTING_KEY
+);
 ```
 
 在这里举一个例子，以便我们能更好的理解该函数。
@@ -1689,14 +1687,14 @@ HKEY_CURRENT_CONFIG
 在HKEY_CURRENT_CONFIG根键下的Software主键里创建一个名为MySelf的子键。
 
 ```cpp
- #include <windows.h>
- int main()
- {
-   HKEY hroot;                //子键句柄
-  DWORD dwDisposition;        //对应着最后一个参数
-  RegCreateKeyEx(HKEY_CURRENT_CONFIG,"Software\\MySelf",0,NULL,0,KEY_ALL_ACCESS,NULL,&hroot,&dwDisposition);
-   return 0;
- }
+#include <windows.h>
+int main()
+{
+	HKEY hroot;                //子键句柄
+	DWORD dwDisposition;        //对应着最后一个参数
+	RegCreateKeyEx(HKEY_CURRENT_CONFIG, "Software\\MySelf", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hroot, &dwDisposition);
+	return 0;
+}
 ```
 
 ------
@@ -1723,16 +1721,16 @@ HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run下添加�
 假设e盘下有一个AutoRun.exe的应用程序，让电脑开机时自动运行它。
 
 ```cpp
- #include <windows.h>
- int main()
- {
-   HKEY hroot;           //子键句柄
-   DWORD dwDisposition;
-   RegCreateKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",0,
-    NULL,0,KEY_ALL_ACCESS,NULL,&hroot,&dwDisposition);
-   RegSetValueEx(hroot,"AutoRun",0,REG_SZ,(BYTE *)"e:\\AutoRun.exe",sizeof("e:\\AutoRun.exe"));
-   return 0;
- }
+#include <windows.h>
+int main()
+{
+	HKEY hroot;           //子键句柄
+	DWORD dwDisposition;
+	RegCreateKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0,
+		NULL, 0, KEY_ALL_ACCESS, NULL, &hroot, &dwDisposition);
+	RegSetValueEx(hroot, "AutoRun", 0, REG_SZ, (BYTE *)"e:\\AutoRun.exe", sizeof("e:\\AutoRun.exe"));
+	return 0;
+}
 ```
 
 ------
@@ -1744,16 +1742,16 @@ HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run下添加�
 这里直接举一个例子，删除RegSetValueEx函数创建的键值
 
 ```cpp
- #include <windows.h>
- int main()
- {
-   HKEY hroot;                                                                               //子键句柄
-   DWORD dwDisposition;
-   RegCreateKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",0,
-    NULL,0,KEY_ALL_ACCESS,NULL,&hroot,&dwDisposition);
-   RegDeleteValue(hroot,"AutoRun");                                                          //删除子键下名为AutoRun的键值
-   return 0;
- }
+#include <windows.h>
+int main()
+{
+	HKEY hroot;          //子键句柄
+	DWORD dwDisposition;
+	RegCreateKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0,
+		NULL, 0, KEY_ALL_ACCESS, NULL, &hroot, &dwDisposition);
+	RegDeleteValue(hroot, "AutoRun");        //删除子键下名为AutoRun的键值
+	return 0;
+}
 ```
 
 ------
@@ -1778,27 +1776,27 @@ HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run下添加�
 例子，获取RegSetValueEx函数创建的键值的类型，数据
 
 ```cpp
- int main()
- {
-   char Data[52];
-   DWORD Size,Type;
-   HKEY hroot;                                                                               //子键句柄
-   DWORD dwDisposition;
-   RegCreateKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",0,
-    NULL,0,KEY_ALL_ACCESS,NULL,&hroot,&dwDisposition);                                       //获取根键句柄
-   RegQueryValueEx(hroot,"AutoRun",0,&Type,(BYTE *)Data,&Size);                              //获取AutoRun的信息
-   printf("键值名称：AutoRun ");
-    switch(Type)
-    {
-    case REG_SZ:printf("键值类型：REG_SZ");break;
-    case REG_BINARY:printf("键值类型:REG_BINARY");break;
-    case REG_DWORD:printf("键值类型:REG_DWORD");break;
-    case REG_MULTI_SZ:printf("键值类型:REG_MULTI_SZ");break;
-    case REG_EXPAND_SZ:printf("键值类型:REG_EXPAND");break;
-    }
-    printf(" 键值数据：%s  %d\n",Data,Size);
-   return 0;
- }
+int main()
+{
+	char Data[52];
+	DWORD Size, Type;
+	HKEY hroot;          //子键句柄
+	DWORD dwDisposition;
+	RegCreateKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0,
+		NULL, 0, KEY_ALL_ACCESS, NULL, &hroot, &dwDisposition);     //获取根键句柄
+	RegQueryValueEx(hroot, "AutoRun", 0, &Type, (BYTE *)Data, &Size);    //获取AutoRun的信息
+	printf("键值名称：AutoRun ");
+	switch (Type)
+	{
+	case REG_SZ:printf("键值类型：REG_SZ"); break;
+	case REG_BINARY:printf("键值类型:REG_BINARY"); break;
+	case REG_DWORD:printf("键值类型:REG_DWORD"); break;
+	case REG_MULTI_SZ:printf("键值类型:REG_MULTI_SZ"); break;
+	case REG_EXPAND_SZ:printf("键值类型:REG_EXPAND"); break;
+	}
+	printf(" 键值数据：%s %d\n", Data, Size);
+	return 0;
+}
 ```
 
 ------
@@ -1825,25 +1823,25 @@ HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run下添加�
 例子：输出Run下的所有键值名
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
-   char Name[52];
-   int Index=0;
-   DWORD dwSize=52;
-   DWORD Size,Type;
-   HKEY hroot;                                                                               //子键句柄
-   DWORD dwDisposition;
-   RegCreateKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",0,
-    NULL,0,KEY_ALL_ACCESS,NULL,&hroot,&dwDisposition);                                       //获取根键句柄
-   while(RegEnumValue(hroot,Index,Name,&dwSize,NULL,NULL,NULL,NULL)==ERROR_SUCCESS)
-   {
-    printf("%s\n",Name);
-    Index++;                                                                                 //索引从0开始每次自增一，函数如果执行失败，则索引已到头
-   }
-   return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	char Name[52];
+	int Index = 0;
+	DWORD dwSize = 52;
+	DWORD Size, Type;
+	HKEY hroot;          //子键句柄
+	DWORD dwDisposition;
+	RegCreateKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", 0,
+		NULL, 0, KEY_ALL_ACCESS, NULL, &hroot, &dwDisposition);     //获取根键句柄
+	while (RegEnumValue(hroot, Index, Name, &dwSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+	{
+		printf("%s\n", Name);
+		Index++;           //索引从0开始每次自增一，函数如果执行失败，则索引已到头
+	}
+	return 0;
+}
 ```
 
 其实也还可以扩充一下，可以像msconfig程序那样列出当前计算机的所有开机自启动程序，当然，注册表也不只就前面的那一个子键下可以添加自启动程序，在HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run下也可以添加，所以这些子键都需要去查看，更多添加自启动程序的子键可以到百度里去搜一下，大家如果掌握前面那几个注册表操作函数，可以结合起来试着做一个可以添加，查看，删除开机自启动程序的小程序。
@@ -1861,19 +1859,19 @@ EWX_LOGOFF//注销    EWX_REBOOT//重启 NT系统中需SE_SHUTDOWN_NAME 特权 E
 例子：关闭计算机，由于需要SE_SHUTDOWN_NAME权限，所以我们得先提升权限，代码如下：
 
 ```cpp
- #include <windows.h>
- int main()
- {
- HANDLE hToken;
- TOKEN_PRIVILEGES tkp;
- OpenProcessToken(GetCurrentProcess(),TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY,&hToken);
- LookupPrivilegeValue(NULL,SE_SHUTDOWN_NAME,&tkp.Privileges[0].Luid);
- tkp.PrivilegeCount=1;
- tkp.Privileges[0].Attributes=SE_PRIVILEGE_ENABLED;
- AdjustTokenPrivileges(hToken,FALSE,&tkp,0,(PTOKEN_PRIVILEGES)NULL,0);
- ::ExitWindowsEx(EWX_SHUTDOWN,0);
-   return 0;
- }
+#include <windows.h>
+int main()
+{
+	HANDLE hToken;
+	TOKEN_PRIVILEGES tkp;
+	OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken);
+	LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
+	tkp.PrivilegeCount = 1;
+	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
+	::ExitWindowsEx(EWX_SHUTDOWN, 0);
+	return 0;
+}
 ```
 
 ------
@@ -1905,15 +1903,15 @@ EWX_LOGOFF//注销    EWX_REBOOT//重启 NT系统中需SE_SHUTDOWN_NAME 特权 E
 函数定义：
 
 ```cpp
- HANDLE WINAPI
- CreateRemoteThread(HANDLE hProcess,           //进程句柄，函数将在这个进程句柄关联的进程创建线程
- LPSECURITY_ATTRIBUTES lpThreadAttributes,
-  DWORD dwStackSize,
-     LPTHREAD_START_ROUTINE lpStartAddress,
-     LPVOID lpParameter,
-     DWORD dwCreationFlags,
-     LPDWORD lpThreadId
-     );
+HANDLE WINAPI
+CreateRemoteThread(HANDLE hProcess,           //进程句柄，函数将在这个进程句柄关联的进程创建线程
+	LPSECURITY_ATTRIBUTES lpThreadAttributes,
+	DWORD dwStackSize,
+	LPTHREAD_START_ROUTINE lpStartAddress,
+	LPVOID lpParameter,
+	DWORD dwCreationFlags,
+	LPDWORD lpThreadId
+);
 ```
 
 这个函数比CreateThread函数多了一个参数，就是这个函数的第一个hProcess（函数在该进程里创建线程），后面的六个参数跟第三十九个函数CreateThread的六个参数一样，这里就不再解释了。
@@ -1927,19 +1925,19 @@ EWX_LOGOFF//注销    EWX_REBOOT//重启 NT系统中需SE_SHUTDOWN_NAME 特权 E
 假设动态链接库为“ReCode.dll”它的代码如下：
 
 ```cpp
- #include <windows.h>
- BOOL APIENTRY DllMain( HANDLE hModule,
-                        DWORD  ul_reason_for_call,
-                        LPVOID lpReserved
-       )                                            //DllMain函数，只要加载这个动态链接库的程序，都会跑来执行这个函数
- {                                                  //在这里填让其它程序执行的代码
-  while(1)
-  {
-  MessageBox(NULL,"aaaa","aaaa",MB_OK);             //简单的让其它程序每隔3秒弹出一个提示框
-  Sleep(3000);
-  }
-     return TRUE;
- }
+#include <windows.h>
+BOOL APIENTRY DllMain(HANDLE hModule,
+	DWORD ul_reason_for_call,
+	LPVOID lpReserved
+)      //DllMain函数，只要加载这个动态链接库的程序，都会跑来执行这个函数
+{       //在这里填让其它程序执行的代码
+	while (1)
+	{
+		MessageBox(NULL, "aaaa", "aaaa", MB_OK);  //简单的让其它程序每隔3秒弹出一个提示框
+		Sleep(3000);
+	}
+	return TRUE;
+}
 ```
 
 编译运行，然后把生成的“ReCode.dll”文件复制到c:\\windows\\system23下去。
@@ -1947,46 +1945,46 @@ EWX_LOGOFF//注销    EWX_REBOOT//重启 NT系统中需SE_SHUTDOWN_NAME 特权 E
 注入线程的代码：
 
 ```cpp
- //选择ctfmon.exe（输入法管理）作为我们要注入进线程的程序
- #include <windows.h>
- #include <tlhelp32.h>
- #include <stdio.h>
- int main()
- { 
-   char DllName[25]="ReCode.dll";
-  HANDLE hProcess;                                                                              //用于存储ctfmon.exe的进程句柄
- //先提升进程权限，使其能获取任何进程句柄，并对其进行操作
-   HANDLE hToken;
-      OpenProcessToken( GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &hToken );
-      TOKEN_PRIVILEGES tp;
-      LookupPrivilegeValue( NULL, SE_DEBUG_NAME, &tp.Privileges[0].Luid );
-      tp.PrivilegeCount = 1;
-      tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-      AdjustTokenPrivileges( hToken, FALSE, &tp, sizeof( TOKEN_PRIVILEGES ), NULL, NULL );
-   ////////////////////////////////////////////////////////////////////////////
- //Process32First和Process32Next函数结合（寻找）获取ctfmon.exe进程ID号
- //再调用OpenProcess函数根据进程ID获得进程句柄
-      PROCESSENTRY32 pe32;                                                                      //进程相关信息存储这个结构里
-      pe32.dwSize=sizeof(pe32);
- //给系统内的所有进程拍一个快照
-      HANDLE hProcessSnap=::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
-      BOOL bMore=::Process32First(hProcessSnap,&pe32);
-       while(bMore)
-    {
-       if(strcmp("ctfmon.exe",pe32.szExeFile)==0)                                               //如果找到进程名为ctfmon.exe
-       hProcess=OpenProcess(PROCESS_ALL_ACCESS,FALSE,pe32.th32ProcessID);                       //获取句柄
-        bMore=::Process32Next(hProcessSnap,&pe32);                                              //寻找下一个
-    }
-  
-//在ctfmon进程中分配空间
-   LPVOID lpBuf=VirtualAllocEx(hProcess,NULL,strlen(DllName),MEM_COMMIT, PAGE_READWRITE );
-   DWORD WrSize;
- //把DllName里的数据写入到分配的空间里
-    WriteProcessMemory(hProcess, lpBuf, (LPVOID)DllName, strlen(DllName), &WrSize);
-//创建远程线程
-    CreateRemoteThread(hProcess,NULL,0,(LPTHREAD_START_ROUTINE)LoadLibraryA,lpBuf,0,NULL);
-    return 0;                                                                                   //程序使命完成，结束
- }
+//选择ctfmon.exe（输入法管理）作为我们要注入进线程的程序
+#include <windows.h>
+#include <tlhelp32.h>
+#include <stdio.h>
+int main()
+{
+	char DllName[25] = "ReCode.dll";
+	HANDLE hProcess;          //用于存储ctfmon.exe的进程句柄
+																								 //先提升进程权限，使其能获取任何进程句柄，并对其进行操作
+	HANDLE hToken;
+	OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &hToken);
+	TOKEN_PRIVILEGES tp;
+	LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &tp.Privileges[0].Luid);
+	tp.PrivilegeCount = 1;
+	tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), NULL, NULL);
+	////////////////////////////////////////////////////////////////////////////
+	//Process32First和Process32Next函数结合（寻找）获取ctfmon.exe进程ID号
+	//再调用OpenProcess函数根据进程ID获得进程句柄
+	PROCESSENTRY32 pe32;         //进程相关信息存储这个结构里
+	pe32.dwSize = sizeof(pe32);
+	//给系统内的所有进程拍一个快照
+	HANDLE hProcessSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	BOOL bMore = ::Process32First(hProcessSnap, &pe32);
+	while (bMore)
+	{
+		if (strcmp("ctfmon.exe", pe32.szExeFile) == 0)      //如果找到进程名为ctfmon.exe
+			hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pe32.th32ProcessID);   //获取句柄
+		bMore = ::Process32Next(hProcessSnap, &pe32);      //寻找下一个
+	}
+
+	//在ctfmon进程中分配空间
+	LPVOID lpBuf = VirtualAllocEx(hProcess, NULL, strlen(DllName), MEM_COMMIT, PAGE_READWRITE);
+	DWORD WrSize;
+	//把DllName里的数据写入到分配的空间里
+	WriteProcessMemory(hProcess, lpBuf, (LPVOID)DllName, strlen(DllName), &WrSize);
+	//创建远程线程
+	CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)LoadLibraryA, lpBuf, 0, NULL);
+	return 0;           //程序使命完成，结束
+}
 ```
 
 当然,给一个程序安装钩子,也可以让指定的应用程序加载特定的动态链接库,但要了解,加载动态链接库的是是应用程序的主程序,你总不能让应用程序不干它自己的事,而来一直执行DllMain函数里的代码吧!而且即使这样,当安装钩子的程序退出或卸载钩子的时候，那么被系统强迫加载动态链接库的程序，也会自动释放动态链库，退出DllMain函数。如此，那就没有办法了吗？，办法肯定是有的，用CreateThread函数。当其它程序主线程执行DllMain函数的时候，使其调用CreateThread再创建一个线程，就行了
@@ -2021,24 +2019,24 @@ EnumWindows函数有两个参数，第一个就是回调函数的地址，另一
 例子：枚举窗口
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- BOOL CALLBACK lpEnumFunc(HWND hwnd, LPARAM lParam);
- int main()
- {
-  ::EnumWindows(lpEnumFunc,0);
-  return 0;
- }
- BOOL CALLBACK lpEnumFunc(HWND wnd, LPARAM lParam)
- {
-  char WindowName[52]={0};
-  GetWindowText(wnd,WindowName,sizeof(WindowName));         //根据窗口句柄获得窗口名
-     printf("窗口句柄:%d   窗口名称:%s\n,",wnd,WindowName);
- //可以在这里加个判断当前是否有一个窗口正在运行
- 
- //如if(strcmp(WindowName,"Windows 任务管理器")==0) return 0;结束枚举，
-     return 1;
- }
+#include <windows.h>
+#include <stdio.h>
+BOOL CALLBACK lpEnumFunc(HWND hwnd, LPARAM lParam);
+int main()
+{
+	::EnumWindows(lpEnumFunc, 0);
+	return 0;
+}
+BOOL CALLBACK lpEnumFunc(HWND wnd, LPARAM lParam)
+{
+	char WindowName[52] = { 0 };
+	GetWindowText(wnd, WindowName, sizeof(WindowName));         //根据窗口句柄获得窗口名
+	printf("窗口句柄:%d   窗口名称:%s\n,", wnd, WindowName);
+	//可以在这里加个判断当前是否有一个窗口正在运行
+
+	//如if(strcmp(WindowName,"Windows 任务管理器")==0) return 0;结束枚举，
+	return 1;
+}
 ```
 
 ------
@@ -2097,23 +2095,24 @@ IDYES       是
 这里举一个例子：每当切换窗口的时候弹出一个消息提示框
 
 ```cpp
- #include <windows.h>
- int main()
- {
-  char WindowName[52];
-  HWND wnd,Orgwnd;
-  wnd=Orgwnd=NULL;
-  while(1)
-  {
-   wnd=GetForegroundWindow();
-   if(wnd!=Orgwnd)
-   { GetWindowText(wnd,WindowName,sizeof(WindowName));
-   MessageBox(NULL,WindowName,"切换窗口到",MB_OK);
-   Orgwnd=wnd;
-   }
-   Sleep(200);
-  }
- }
+#include <windows.h>
+int main()
+{
+	char WindowName[52];
+	HWND wnd, Orgwnd;
+	wnd = Orgwnd = NULL;
+	while (1)
+	{
+		wnd = GetForegroundWindow();
+		if (wnd != Orgwnd)
+		{
+			GetWindowText(wnd, WindowName, sizeof(WindowName));
+			MessageBox(NULL, WindowName, "切换窗口到", MB_OK);
+			Orgwnd = wnd;
+		}
+		Sleep(200);
+	}
+}
 ```
 
 ------
@@ -2131,15 +2130,15 @@ IDYES       是
 例子：改变一个主窗口下的第一子窗口的显示内容（前提得它有），这里就以上面那个abc对话框为例：
 
 ```cpp
- #include <windows.h>
- int main()
- {
-  HWND wnd;
-  wnd=FindWindow(NULL,"abc");
-  HWND FirstWnd=GetTopWindow(wnd);
-  SetWindowText(FirstWnd,"first");
-  return 0;
- }
+#include <windows.h>
+int main()
+{
+	HWND wnd;
+	wnd = FindWindow(NULL, "abc");
+	HWND FirstWnd = GetTopWindow(wnd);
+	SetWindowText(FirstWnd, "first");
+	return 0;
+}
 ```
 
 执行效果：
@@ -2161,22 +2160,22 @@ IDYES       是
  
 
 ```cpp
- #include <stdio.h>
- #include <windows.h>
- int main()
- {
- char Name[52];
- HWND wnd;
- wnd=FindWindow(NULL,"abc"); 
- wnd=GetTopWindow(wnd);
- while(wnd!=NULL)
- {
- GetWindowText(wnd,Name,sizeof(Name));
- printf("窗口句柄:%d,名称:%s\n",wnd,Name);
- wnd=GetNextWindow(wnd,GW_HWNDNEXT);           //GW_HWNDNEXT获取下一个
- }
- return 0;
- }
+#include <stdio.h>
+#include <windows.h>
+int main()
+{
+	char Name[52];
+	HWND wnd;
+	wnd = FindWindow(NULL, "abc");
+	wnd = GetTopWindow(wnd);
+	while (wnd != NULL)
+	{
+		GetWindowText(wnd, Name, sizeof(Name));
+		printf("窗口句柄:%d,名称:%s\n", wnd, Name);
+		wnd = GetNextWindow(wnd, GW_HWNDNEXT);           //GW_HWNDNEXT获取下一个
+	}
+	return 0;
+}
 ```
 
 ------
@@ -2217,80 +2216,83 @@ IDYES       是
 例子：在用w,a,s,d键控制一个矩形移动的同时，一个相同的矩形自动移动。
 
 ```cpp
- #include <windows.h>
- LRESULT CALLBACK WinSunProc(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam);//函数声明
- VOID CALLBACK TimerProc(HWND hwnd,UINT uMsg,UINT_PTR idEvent, DWORD dwTime);
- int APIENTRY WinMain(HINSTANCE hInstance,
-                      HINSTANCE hPrevInstance,
-                      LPSTR     lpCmdLine,
-                      int       nCmdShow)
- {
-   WNDCLASS wndcls;                                           //定义一个存储窗口信息WNDCLASS变量
-   wndcls.cbClsExtra=0;                                       //默认为0
-   wndcls.cbWndExtra=0;                                       //默认为0
-   wndcls.hbrBackground=(HBRUSH)GetStockObject(GRAY_BRUSH);   //背景画刷
-   wndcls.hCursor=LoadCursor(NULL,IDC_ARROW);                 //光标
-   wndcls.hIcon=LoadIcon(NULL,IDI_ERROR);                     //窗口图标
-   wndcls.hInstance=hInstance;                                //应用程序实例句柄由WinMain函数传进来 
-   wndcls.lpfnWndProc=WinSunProc;                             //窗口消息处理函数
-   wndcls.lpszClassName="windowclass";                        //窗口类名
-   wndcls.lpszMenuName=NULL;                                  //窗口菜单名，没有菜单，为NULL
-   wndcls.style=CS_HREDRAW | CS_VREDRAW;                      //窗口类型，CS_HREDRAW和CS_VERDRAW 表明
-                                                              //当窗口水平方向垂直方向的宽度变化时重绘整个窗口
-   RegisterClass(&wndcls);                                    //把窗口信息提交给系统，注册窗口类
-   HWND hwnd;                                                 //用以存储CreateWindow函数所创建的窗口句柄
-    hwnd=CreateWindow("windowclass","first windows", 
-   WS_OVERLAPPEDWINDOW,0,0,600,400,NULL,NULL,hInstance,NULL); //创建窗口
-    ShowWindow(hwnd,SW_SHOWNORMAL);                           //窗口创建完了，显示它
-    UpdateWindow(hwnd);                                       //更新窗口，让窗口毫无延迟的显示
-    SetTimer(hwnd,1,200,(TIMERPROC)TimerProc);                //设置定时器
-    MSG msg;                                                  //消息结构类型
-    while(GetMessage(&msg,NULL,0,0))                          //获取消息
-    {
-     TranslateMessage(&msg);                                  //此函数用于把键盘消息(WM_KEYDOWN,WM_KEYUP)转换成字符消息WM_CHAR
-     DispatchMessage(&msg);                                   //这个函数调用窗口过程处理函数，并把MSG里的信息处理后传给过程函数的四个参数
-  }
-   return 0;
- }
- VOID CALLBACK TimerProc(HWND hwnd,UINT uMsg,UINT_PTR idEvent, DWORD dwTime)     //定时器函数
- {
-  static int x=0,y=0;
-  x+=15;
-  if(x>500)
-  {y+=15;x=0;}
-  HDC dc=GetDC(hwnd);
-  Rectangle(dc,x,y,x+30,y+30);
- }
- LRESULT CALLBACK WinSunProc(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
- { static int x=0,y=0;
-  switch(uMsg)
-  {
-  case WM_CHAR:
-   {
-    if(wParam=='a') x-=10;
-    else if(wParam=='d') x+=10;
-    else if(wParam=='w') y-=10;
-    else if(wParam=='s') y+=10;
-       RECT rect;
-   GetClientRect(hwnd,&rect);
-   ::InvalidateRect(hwnd,&rect,TRUE);                                             //发送WM_PAINT消息，刷新窗口
-   }
-   break;
-  case WM_PAINT:
-    HDC dc; 
-     PAINTSTRUCT ps; 
-     dc=BeginPaint(hwnd,&ps);                                                     //BeginPaint只能在响应WM_PAINT,不能用GetDC获取设备上下文
-  Rectangle(dc,x,y,x+30,y+30);
-  break;
-   case WM_CLOSE:                                                                 //用户关闭了窗口
-     DestroyWindow(hwnd);                                                         //销毁窗口，并发送WM_DESTROY消息
-     break;
-   case WM_DESTROY:                                                               //如果窗口被销毁
-     PostQuitMessage(0);                                                          //让进程退出
-    break;
-  }
-  return DefWindowProc(hwnd,uMsg,wParam,lParam);                                  //未处理的消息通过DefWindowProc函数交给系统处理
- }
+#include <windows.h>
+LRESULT CALLBACK WinSunProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);//函数声明
+VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+int APIENTRY WinMain(HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR lpCmdLine,
+	int nCmdShow)
+{
+	WNDCLASS wndcls;   //定义一个存储窗口信息WNDCLASS变量
+	wndcls.cbClsExtra = 0;   //默认为0
+	wndcls.cbWndExtra = 0;   //默认为0
+	wndcls.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH); //背景画刷
+	wndcls.hCursor = LoadCursor(NULL, IDC_ARROW);  //光标
+	wndcls.hIcon = LoadIcon(NULL, IDI_ERROR);  //窗口图标
+	wndcls.hInstance = hInstance;  //应用程序实例句柄由WinMain函数传进来 
+	wndcls.lpfnWndProc = WinSunProc;  //窗口消息处理函数
+	wndcls.lpszClassName = "windowclass";  //窗口类名
+	wndcls.lpszMenuName = NULL;   //窗口菜单名，没有菜单，为NULL
+	wndcls.style = CS_HREDRAW | CS_VREDRAW;  //窗口类型，CS_HREDRAW和CS_VERDRAW 表明
+																 //当窗口水平方向垂直方向的宽度变化时重绘整个窗口
+	RegisterClass(&wndcls);   //把窗口信息提交给系统，注册窗口类
+	HWND hwnd;    //用以存储CreateWindow函数所创建的窗口句柄
+	hwnd = CreateWindow("windowclass", "first windows",
+		WS_OVERLAPPEDWINDOW, 0, 0, 600, 400, NULL, NULL, hInstance, NULL); //创建窗口
+	ShowWindow(hwnd, SW_SHOWNORMAL);  //窗口创建完了，显示它
+	UpdateWindow(hwnd);   //更新窗口，让窗口毫无延迟的显示
+	SetTimer(hwnd, 1, 200, (TIMERPROC)TimerProc); //设置定时器
+	MSG msg;    //消息结构类型
+	while (GetMessage(&msg, NULL, 0, 0))  //获取消息
+	{
+		TranslateMessage(&msg);   //此函数用于把键盘消息(WM_KEYDOWN,WM_KEYUP)转换成字符消息WM_CHAR
+		DispatchMessage(&msg);   //这个函数调用窗口过程处理函数，并把MSG里的信息处理后传给过程函数的四个参数
+	}
+	return 0;
+}
+VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime) //定时器函数
+{
+	static int x = 0, y = 0;
+	x += 15;
+	if (x>500)
+	{
+		y += 15; x = 0;
+	}
+	HDC dc = GetDC(hwnd);
+	Rectangle(dc, x, y, x + 30, y + 30);
+}
+LRESULT CALLBACK WinSunProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	static int x = 0, y = 0;
+	switch (uMsg)
+	{
+	case WM_CHAR:
+	{
+		if (wParam == 'a') x -= 10;
+		else if (wParam == 'd') x += 10;
+		else if (wParam == 'w') y -= 10;
+		else if (wParam == 's') y += 10;
+		RECT rect;
+		GetClientRect(hwnd, &rect);
+		::InvalidateRect(hwnd, &rect, TRUE);   //发送WM_PAINT消息，刷新窗口
+	}
+	break;
+	case WM_PAINT:
+		HDC dc;
+		PAINTSTRUCT ps;
+		dc = BeginPaint(hwnd, &ps);    //BeginPaint只能在响应WM_PAINT,不能用GetDC获取设备上下文
+		Rectangle(dc, x, y, x + 30, y + 30);
+		break;
+	case WM_CLOSE:     //用户关闭了窗口
+		DestroyWindow(hwnd);    //销毁窗口，并发送WM_DESTROY消息
+		break;
+	case WM_DESTROY:    //如果窗口被销毁
+		PostQuitMessage(0);    //让进程退出
+		break;
+	}
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);   //未处理的消息通过DefWindowProc函数交给系统处理
+}
 ```
 
 ------
@@ -2321,28 +2323,28 @@ IDYES       是
 例子：按下ctrl+alt+x热键，弹出消息提示框，询问是否要退出。
 
 ```cpp
- //#include "stdafx.h" 新建空工程，不需要该头文件
- #include <windows.h>
- int APIENTRY WinMain(HINSTANCE hInstance,
-                      HINSTANCE hPrevInstance,
-                      LPSTR     lpCmdLine,
-                      int       nCmdShow)
- {
-  RegisterHotKey(NULL,0x0001,MOD_CONTROL|MOD_ALT,'X');    //注册热键
-  MSG msg;
-  while(GetMessage(&msg,NULL,0,0))                        //从消息队伍获取消息
-  {
-   if(msg.message==WM_HOTKEY)                             //热键消息
-   {
-    if(MessageBox(NULL,"你确定要退出程序吗？","热键提示",MB_YESNO|MB_SYSTEMMODAL)==IDYES)
-    {
-     UnregisterHotKey(NULL,0x0001);                      //卸载热键
-     break;
-    }
-   }
-  }
-  return 0;
- }
+//#include "stdafx.h" 新建空工程，不需要该头文件
+#include <windows.h>
+int APIENTRY WinMain(HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	LPSTR  lpCmdLine,
+	int  nCmdShow)
+{
+	RegisterHotKey(NULL, 0x0001, MOD_CONTROL | MOD_ALT, 'X'); //注册热键
+	MSG msg;
+	while (GetMessage(&msg, NULL, 0, 0))      //从消息队伍获取消息
+	{
+		if (msg.message == WM_HOTKEY)        //热键消息
+		{
+			if (MessageBox(NULL, "你确定要退出程序吗？", "热键提示", MB_YESNO | MB_SYSTEMMODAL) == IDYES)
+			{
+				UnregisterHotKey(NULL, 0x0001);      //卸载热键
+				break;
+			}
+		}
+	}
+	return 0;
+}
 ```
 
 记得要退出程序 
@@ -2370,32 +2372,32 @@ IDYES       是
 函数定义:
 
 ```cpp
- BOOL TextOut(HDC hdc,  // 设备DC
- int nXStart,           // 窗口x坐标
- int nYStart,           // 窗口y坐标，字符串左上角是将是x,y
- LPCTSTR lpString,      // 字符串
- int cbString           // 字符串中字符的个数
- );
+BOOL TextOut(HDC hdc,  // 设备DC
+	int nXStart,           // 窗口x坐标
+	int nYStart,           // 窗口y坐标，字符串左上角是将是x,y
+	LPCTSTR lpString,      // 字符串
+	int cbString           // 字符串中字符的个数
+);
 ```
 
 例子：在窗口输出文字，为了方便，这里依旧在"无标题.txt - 记事本",窗口里输出文字
 
 ```cpp
- #include <windows.h>
- #include <string.h>
- int main()
- {
-  char Text[52]="从坐标点50,50开始输出文字";
-  HWND wnd=FindWindow(NULL,"无标题.txt - 记事本");
-  HDC dc=GetDC(wnd);
-  SetTextColor(dc,RGB(255,0,0));                   //设置文字颜色
-  while(1)
-  {
-   TextOut(dc,50,50,Text,strlen(Text));
-   Sleep(200);
-  }
-  return 0;
- }
+#include <windows.h>
+#include <string.h>
+int main()
+{
+	char Text[52] = "从坐标点50,50开始输出文字";
+	HWND wnd = FindWindow(NULL, "无标题.txt - 记事本");
+	HDC dc = GetDC(wnd);
+	SetTextColor(dc, RGB(255, 0, 0));                   //设置文字颜色
+	while (1)
+	{
+		TextOut(dc, 50, 50, Text, strlen(Text));
+		Sleep(200);
+	}
+	return 0;
+}
 ```
 
 ------
@@ -2439,29 +2441,29 @@ DT_WORD_ELLIPSIS 截短不符合矩形的正文，并增加省略号。
 函数定义：
 
 ```cpp
- DWORD GetLogicalDriveStrings(
- DWORD nBufferLength,            //指明lpBuffer参数大小
- LPSTR lpBuffer                  //分区信息将会存储在这个参数，格式是“分区NULL分区NULL分区NULL NULL”两个NULL结尾
-                                 //假设当前电脑有C，D，E分区，那字符串的存储格式是 "C:\\\0D:\\\0E:\\\0\0";      ('\\'转义字符\)
- );
+DWORD GetLogicalDriveStrings(
+	DWORD nBufferLength,   //指明lpBuffer参数大小
+	LPSTR lpBuffer     //分区信息将会存储在这个参数，格式是“分区NULL分区NULL分区NULL NULL”两个NULL结尾
+ //假设当前电脑有C，D，E分区，那字符串的存储格式是 "C:\\\0D:\\\0E:\\\0\0";  ('\\'转义字符\)
+);
 ```
 
 例子：枚举当前磁盘所有分区
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
-  char *szBuffer=new char[52];
-  GetLogicalDriveStrings(52,szBuffer);
-      while(*szBuffer!='\0')
-   {
-      printf("%s\n",szBuffer);
-   szBuffer+=strlen(szBuffer)+1;
-   }
-  return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	char *szBuffer = new char[52];
+	GetLogicalDriveStrings(52, szBuffer);
+	while (*szBuffer != '\0')
+	{
+		printf("%s\n", szBuffer);
+		szBuffer += strlen(szBuffer) + 1;
+	}
+	return 0;
+}
 ```
 
 ------
@@ -2479,38 +2481,38 @@ GetDiskFreeSpaceEx("c:\\",&dwAvailable,&dwTotal,&dwFree);//获取分区信息
 下面结合GetLogicalDriveStrings举个例子：获取当前磁盘所有分区信息并输出
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int GetSpace(char *P);
- int main()
- {
-  char *szBuffer=new char[52];
-  GetLogicalDriveStrings(52,szBuffer);
-      while(*szBuffer!='\0')
-   {
-      printf("%s  ",szBuffer);
-      GetSpace(szBuffer);
-   szBuffer+=strlen(szBuffer)+1;
-   }
-  return 0;
- }
- int GetSpace(char *Par)
- {
- ULARGE_INTEGER dwAvailable,dwFree,dwTotal;
- double fDwa,fDwf,fDwt;
- char szSize[128]={0};
- int Size;
- GetDiskFreeSpaceEx(Par,&dwAvailable,&dwTotal,&dwFree);  //获取分区信息
- Size=dwTotal.QuadPart/1024/1024;                        //获取总大小
- fDwt=Size/1024.0;
- Size=dwAvailable.QuadPart/1024/1024;                    //获取已用空间
- fDwa=Size/1024.0;
- Size=dwFree.QuadPart/1024/1024;                         //获取可用空间
- fDwf=Size/1024.0;
- sprintf(szSize,"总大小:%0.2fGB   已用空间:%0.2fGB  可用空间:%0.2fGB",fDwt,fDwa,fDwf);
- printf("%s\n",szSize);
- return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int GetSpace(char *P);
+int main()
+{
+	char *szBuffer = new char[52];
+	GetLogicalDriveStrings(52, szBuffer);
+	while (*szBuffer != '\0')
+	{
+		printf("%s  ", szBuffer);
+		GetSpace(szBuffer);
+		szBuffer += strlen(szBuffer) + 1;
+	}
+	return 0;
+}
+int GetSpace(char *Par)
+{
+	ULARGE_INTEGER dwAvailable, dwFree, dwTotal;
+	double fDwa, fDwf, fDwt;
+	char szSize[128] = { 0 };
+	int Size;
+	GetDiskFreeSpaceEx(Par, &dwAvailable, &dwTotal, &dwFree);  //获取分区信息
+	Size = dwTotal.QuadPart / 1024 / 1024;                        //获取总大小
+	fDwt = Size / 1024.0;
+	Size = dwAvailable.QuadPart / 1024 / 1024;                    //获取已用空间
+	fDwa = Size / 1024.0;
+	Size = dwFree.QuadPart / 1024 / 1024;                         //获取可用空间
+	fDwf = Size / 1024.0;
+	sprintf(szSize, "总大小:%0.2fGB   已用空间:%0.2fGB  可用空间:%0.2fGB", fDwt, fDwa, fDwf);
+	printf("%s\n", szSize);
+	return 0;
+}
 ```
 
 ------
@@ -2592,15 +2594,15 @@ Weight=55kg
 如果我想要获取节名为"ZhengYong"下的键名QQ的键值，那么就是：
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
-  char KeyValue[252];
-     ::GetPrivateProfileString("ZhengYong","QQ",0,KeyValue,252,"d:\\Info.ini");
-  printf("%s\n",KeyValue);
-  return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	char KeyValue[252];
+	::GetPrivateProfileString("ZhengYong", "QQ", 0, KeyValue, 252, "d:\\Info.ini");
+	printf("%s\n", KeyValue);
+	return 0;
+}
 ```
 
 同WritePrivateProfileString类似，如果提供的节名，或键名为NULL，则获取当前所有的节名或键名。跟分区信息存储格式一样，字符串里，多个节名，或键名以'\0'间隔，字符串最终以两个'\0'结束。
@@ -2608,20 +2610,20 @@ Weight=55kg
 例子：枚举ZhengYong节名下的所有键名：
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
-  char Data[252];
-     ::GetPrivateProfileString("ZhengYong",NULL,0,Data,252,"d:\\Info.ini");
-  char *pKey=Data;
-  while(*pKey!='\0')
-  {
-   printf("%s\n",pKey);
-   pKey+=strlen(pKey)+1;
-  }
-  return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	char Data[252];
+	::GetPrivateProfileString("ZhengYong", NULL, 0, Data, 252, "d:\\Info.ini");
+	char *pKey = Data;
+	while (*pKey != '\0')
+	{
+		printf("%s\n", pKey);
+		pKey += strlen(pKey) + 1;
+	}
+	return 0;
+}
 ```
 
 那么枚举节名只要在上面的例子中，把函数的节名参数设为NULL就行了，如：
@@ -2652,15 +2654,15 @@ SM_CYBORDER窗口边框高度
 例子：获取屏幕分辨率（桌面宽高度）
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
-  int ScreenX=::GetSystemMetrics(SM_CXSCREEN);
-  int ScreenY=::GetSystemMetrics(SM_CYSCREEN);
-  printf("屏幕分辨率:%dX%d\n",ScreenX,ScreenY);
-  return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	int ScreenX = ::GetSystemMetrics(SM_CXSCREEN);
+	int ScreenY = ::GetSystemMetrics(SM_CYSCREEN);
+	printf("屏幕分辨率:%dX%d\n", ScreenX, ScreenY);
+	return 0;
+}
 ```
 
 ------
@@ -2717,13 +2719,13 @@ SWP_NOZORDER指明hWndInsertAfter参数无效
 以"无标题.txt - 记事本"窗口为例
 
 ```cpp
- #include <windows.h>
- int main()
- {
-  HWND wnd=::FindWindow(NULL,"无标题.txt - 记事本");
-  ::SetWindowPos(wnd,HWND_TOPMOST,0,0,0,0,SWP_SHOWWINDOW|SWP_NOMOVE|SWP_NOSIZE);
-  return 0;
- }
+#include <windows.h>
+int main()
+{
+	HWND wnd = ::FindWindow(NULL, "无标题.txt - 记事本");
+	::SetWindowPos(wnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_SHOWWINDOW | SWP_NOMOVE | SWP_NOSIZE);
+	return 0;
+}
 ```
 
 例子2：全屏一个窗口
@@ -2731,15 +2733,15 @@ SWP_NOZORDER指明hWndInsertAfter参数无效
 依旧以"无标题.txt - 记事本"窗口为例：
 
 ```cpp
- #include <windows.h>
- int main()
- {
-  int ScreenX=::GetSystemMetrics(SM_CXSCREEN);
-  int ScreenY=::GetSystemMetrics(SM_CYSCREEN);
-  HWND wnd=::FindWindow(NULL,"无标题.txt - 记事本");
-  ::SetWindowPos(wnd,HWND_TOPMOST,0,0,ScreenX,ScreenY,SWP_SHOWWINDOW);
-  return 0;
- }
+#include <windows.h>
+int main()
+{
+	int ScreenX = ::GetSystemMetrics(SM_CXSCREEN);
+	int ScreenY = ::GetSystemMetrics(SM_CYSCREEN);
+	HWND wnd = ::FindWindow(NULL, "无标题.txt - 记事本");
+	::SetWindowPos(wnd, HWND_TOPMOST, 0, 0, ScreenX, ScreenY, SWP_SHOWWINDOW);
+	return 0;
+}
 ```
 
 ------
@@ -2751,15 +2753,15 @@ SWP_NOZORDER指明hWndInsertAfter参数无效
 函数定义：
 
 ```cpp
- HANDLE CreateFile(
-     LPCSTR lpFileName,                           //文件名
-     DWORD dwDesiredAccess,                       //指明对文件进行何种操作，是要读它（GENERIC_READ）还是要写入（GENERIC_WRITE）
-     DWORD dwShareMode,                           //指明文件可以同时被多个程序读写吗？FILE_SHARE_READ可以同时读，FILE_SHARE_WRITED可以同时写
-     LPSECURITY_ATTRIBUTES lpSecurityAttributes,  //指向一个SECURITY_ATTRIBUTES结构的指针，一般为NULL
-     DWORD dwCreationDisposition,                 //安全属性，指明以何种方式打开或创建文件
-     DWORD dwFlagsAndAttributes,                  //指明文件的属性，隐藏？只读？系统文件？为NULL表示默认属性
-     HANDLE hTemplateFile                         //如果不为零，则指定一个文件句柄。新文件将从这个文件中复制扩展属性 
-     );
+HANDLE CreateFile(
+	LPCSTR lpFileName,    //文件名
+	DWORD dwDesiredAccess,   //指明对文件进行何种操作，是要读它（GENERIC_READ）还是要写入（GENERIC_WRITE）
+	DWORD dwShareMode,    //指明文件可以同时被多个程序读写吗？FILE_SHARE_READ可以同时读，FILE_SHARE_WRITED可以同时写
+	LPSECURITY_ATTRIBUTES lpSecurityAttributes, //指向一个SECURITY_ATTRIBUTES结构的指针，一般为NULL
+	DWORD dwCreationDisposition,   //安全属性，指明以何种方式打开或创建文件
+	DWORD dwFlagsAndAttributes,   //指明文件的属性，隐藏？只读？系统文件？为NULL表示默认属性
+	HANDLE hTemplateFile    //如果不为零，则指定一个文件句柄。新文件将从这个文件中复制扩展属性 
+);
 ```
 
 第五个参数dwCreationDisposition的常用取值及意思
@@ -2805,18 +2807,18 @@ FILE_ATTRIBUTE_SYSTEM 系统文件
 例子：读取txt文件的内容，假设E盘下有一个名a.txt的文件，文件内容为123456789
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
- char Text[25]={0};
- DWORD dwSize;
- HANDLE FileHandle=CreateFile("e:\\a.txt",GENERIC_READ,0,NULL,OPEN_EXISTING
- ,FILE_ATTRIBUTE_NORMAL ,NULL);                                              //获取文件句柄
- ReadFile(FileHandle,Text,15,&dwSize,NULL);                                  //从文件中读取15个字节
- printf("内容：%s 实际读入字节：%d\n",Text,dwSize);
- return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	char Text[25] = { 0 };
+	DWORD dwSize;
+	HANDLE FileHandle = CreateFile("e:\\a.txt", GENERIC_READ, 0, NULL, OPEN_EXISTING
+		, FILE_ATTRIBUTE_NORMAL, NULL);            //获取文件句柄
+	ReadFile(FileHandle, Text, 15, &dwSize, NULL);         //从文件中读取15个字节
+	printf("内容：%s 实际读入字节：%d\n", Text, dwSize);
+	return 0;
+}
 ```
 
 ------
@@ -2840,17 +2842,17 @@ FILE_ATTRIBUTE_SYSTEM 系统文件
 例子：在E盘创建一个名为aa.txt的文件，并向其写入数据
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
- char Text[25]="123456789";
- DWORD dwSize;
- HANDLE FileHandle=CreateFile("e:\\aa.txt",GENERIC_WRITE,0,NULL,CREATE_ALWAYS,
-         FILE_ATTRIBUTE_NORMAL,NULL);
- ::WriteFile(FileHandle,Text,9,&dwSize,0);
- return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	char Text[25] = "123456789";
+	DWORD dwSize;
+	HANDLE FileHandle = CreateFile("e:\\aa.txt", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL, NULL);
+	::WriteFile(FileHandle, Text, 9, &dwSize, 0);
+	return 0;
+}
 ```
 
 ------
@@ -2875,34 +2877,35 @@ FILE_ATTRIBUTE_SYSTEM 系统文件
 例子：假设E盘下有一个名为a.txt的文件，内容为"123456789",读取该文件第四个字节到第七个字节的数据
 
 ```cpp
- #include <stdio.h>
- int main()
- {
- char Text[25]={0};
- DWORD dwSize;
- HANDLE FileHandle=CreateFile("e:\\a.txt",GENERIC_READ,0,NULL,OPEN_ALWAYS,
-         FILE_ATTRIBUTE_NORMAL,NULL);
- SetFilePointer(FileHandle,3,NULL,FILE_BEGIN);
- ReadFile(FileHandle,Text,4,&dwSize,NULL);
- printf("%s\n",Text);
- return 0;
+#include <stdio.h>
+int main()
+{
+	char Text[25] = { 0 };
+	DWORD dwSize;
+	HANDLE FileHandle = CreateFile("e:\\a.txt", GENERIC_READ, 0, NULL, OPEN_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL, NULL);
+	SetFilePointer(FileHandle, 3, NULL, FILE_BEGIN);
+	ReadFile(FileHandle, Text, 4, &dwSize, NULL);
+	printf("%s\n", Text);
+	return 0;
+}
 ```
 
 例子2：从文件中第四个字节开始写入数据，被新数据所占位置的数据会被覆盖掉，依旧以上面a.txt文件为例子
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
-  char Text[25]={"abcd"};
- DWORD dwSize;
- HANDLE FileHandle=CreateFile("e:\\a.txt",GENERIC_WRITE,0,NULL,OPEN_ALWAYS,
-         FILE_ATTRIBUTE_NORMAL,NULL);
- SetFilePointer(FileHandle,3,NULL,FILE_BEGIN);
- WriteFile(FileHandle,Text,4,&dwSize,NULL);
- return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	char Text[25] = { "abcd" };
+	DWORD dwSize;
+	HANDLE FileHandle = CreateFile("e:\\a.txt", GENERIC_WRITE, 0, NULL, OPEN_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL, NULL);
+	SetFilePointer(FileHandle, 3, NULL, FILE_BEGIN);
+	WriteFile(FileHandle, Text, 4, &dwSize, NULL);
+	return 0;
+}
 ```
 
 则写入后a.txt文件里的数据为123abcd89
@@ -2927,17 +2930,17 @@ FILE_ATTRIBUTE_SYSTEM 系统文件
 如获取a.txt文件的大小：
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
- DWORD FileSize;
- HANDLE FileHandle=CreateFile("e:\\a.txt",GENERIC_WRITE,0,NULL,OPEN_ALWAYS,
-         FILE_ATTRIBUTE_NORMAL,NULL);
- FileSize=GetFileSize(FileHandle,NULL);
- printf("%d字节\n",FileSize);
- return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	DWORD FileSize;
+	HANDLE FileHandle = CreateFile("e:\\a.txt", GENERIC_WRITE, 0, NULL, OPEN_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL, NULL);
+	FileSize = GetFileSize(FileHandle, NULL);
+	printf("%d字节\n", FileSize);
+	return 0;
+}
 ```
 
 ------
@@ -2967,20 +2970,20 @@ FILE_ATTRIBUTE_SYSTEM 系统文件
 例子：在一个窗口的标题栏输出文字
 
 ```cpp
- #include <windows.h>
- int main()
- {
- HWND wnd=FindWindow(NULL,"无标题.txt - 记事本");
- HDC dc=GetWindowDC(wnd);
- SetTextColor(dc,RGB(255,0,0));                    //文本颜色设置为红色
- ::SetBkColor(dc,RGB(0,0,255));                    //文本背景颜色设置为蓝色
- while(1)
- {
-  TextOut(dc,0,0,"123456",6);
-  Sleep(200);
- }
-  return 0;
- }
+#include <windows.h>
+int main()
+{
+	HWND wnd = FindWindow(NULL, "无标题.txt - 记事本");
+	HDC dc = GetWindowDC(wnd);
+	SetTextColor(dc, RGB(255, 0, 0));                    //文本颜色设置为红色
+	::SetBkColor(dc, RGB(0, 0, 255));                    //文本背景颜色设置为蓝色
+	while (1)
+	{
+		TextOut(dc, 0, 0, "123456", 6);
+		Sleep(200);
+	}
+	return 0;
+}
 ```
 
 ------
@@ -2994,20 +2997,20 @@ FILE_ATTRIBUTE_SYSTEM 系统文件
 例子：
 
 ```cpp
- #include <windows.h>
- int main()
- {  
-  HWND DeskWnd=GetDesktopWindow();               //获取桌面窗口句柄
-  HDC  DeskDC=GetWindowDC(DeskWnd);              //获取DC
-  HBRUSH brush=::CreateSolidBrush(RGB(255,0,0)); //红色画刷
-  SelectObject(DeskDC,brush);                    //选入画刷
-  while(1)
-  {
-   ::Rectangle(DeskDC,50,50,200,200);
-   Sleep(200);
-  }
- return 0;
- }
+#include <windows.h>
+int main()
+{
+	HWND DeskWnd = GetDesktopWindow();               //获取桌面窗口句柄
+	HDC  DeskDC = GetWindowDC(DeskWnd);              //获取DC
+	HBRUSH brush = ::CreateSolidBrush(RGB(255, 0, 0)); //红色画刷
+	SelectObject(DeskDC, brush);                    //选入画刷
+	while (1)
+	{
+		::Rectangle(DeskDC, 50, 50, 200, 200);
+		Sleep(200);
+	}
+	return 0;
+}
 ```
 
 ------
@@ -3040,30 +3043,30 @@ FILE_ATTRIBUTE_SYSTEM 系统文件
 为了方便，在记事本窗口输出图像，自己就不创建窗口了（打开"无标题.txt - 记事本")
 
 ```cpp
- #include <windows.h>
- int main()
- {  
-  HWND TextWnd=FindWindow(NULL,"无标题.txt - 记事本");
-     HDC TextDC=GetDC(TextWnd);
-  HWND DeskWnd=::GetDesktopWindow();
-  RECT DeskRC;
-  ::GetClientRect(DeskWnd,&DeskRC);
-  HDC DeskDC=GetDC(DeskWnd);
-  HBITMAP DeskBmp=::CreateCompatibleBitmap(DeskDC,DeskRC.right,DeskRC.bottom);
-  HDC memDC;
-  memDC=::CreateCompatibleDC(DeskDC);
-  SelectObject(memDC,DeskBmp);
-  while(1)
-  {
-   StretchBlt(memDC,0,0,DeskRC.right,DeskRC.bottom,DeskDC,0,0,DeskRC.right,DeskRC.bottom,SRCCOPY);
-   RECT TextRC;
-   GetClientRect(TextWnd,&TextRC);
-   ::StretchBlt(TextDC,0,0,TextRC.right,TextRC.bottom,memDC,0,0,DeskRC.right,
-    DeskRC.bottom,SRCCOPY);
-   Sleep(300);
-  }
-  return 0;
- }
+#include <windows.h>
+int main()
+{
+	HWND TextWnd = FindWindow(NULL, "无标题.txt - 记事本");
+	HDC TextDC = GetDC(TextWnd);
+	HWND DeskWnd = ::GetDesktopWindow();
+	RECT DeskRC;
+	::GetClientRect(DeskWnd, &DeskRC);
+	HDC DeskDC = GetDC(DeskWnd);
+	HBITMAP DeskBmp = ::CreateCompatibleBitmap(DeskDC, DeskRC.right, DeskRC.bottom);
+	HDC memDC;
+	memDC = ::CreateCompatibleDC(DeskDC);
+	SelectObject(memDC, DeskBmp);
+	while (1)
+	{
+		StretchBlt(memDC, 0, 0, DeskRC.right, DeskRC.bottom, DeskDC, 0, 0, DeskRC.right, DeskRC.bottom, SRCCOPY);
+		RECT TextRC;
+		GetClientRect(TextWnd, &TextRC);
+		::StretchBlt(TextDC, 0, 0, TextRC.right, TextRC.bottom, memDC, 0, 0, DeskRC.right,
+			DeskRC.bottom, SRCCOPY);
+		Sleep(300);
+	}
+	return 0;
+}
 ```
 
 ------
@@ -3100,40 +3103,40 @@ FILE_ATTRIBUTE_SYSTEM 系统文件
 读取一个真彩位图的文件信息头。
 
 ```cpp
- #include <windows.h>
- #include <stdio.h>
- int main()
- {
- BITMAPFILEHEADER bfh;
- HANDLE hFile=CreateFile("e:\\aa.bmp",GENERIC_READ,0,NULL,OPEN_EXISTING,
-       FILE_ATTRIBUTE_NORMAL,0);
- DWORD dwSize;
- ReadFile(hFile,(void *)&bfh,sizeof(BITMAPFILEHEADER),&dwSize,0);
- printf("bfType:%x\n",bfh.bfType);
- printf("bfSize:%d\n",bfh.bfSize);
- printf("bfReserved1:%d\n",bfh.bfReserved1);
- printf("bfReserved2:%d\n",bfh.bfReserved2);
- printf("bfOffbits:%d\n",bfh.bfOffBits);
- return 0;
- }
+#include <windows.h>
+#include <stdio.h>
+int main()
+{
+	BITMAPFILEHEADER bfh;
+	HANDLE hFile = CreateFile("e:\\aa.bmp", GENERIC_READ, 0, NULL, OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL, 0);
+	DWORD dwSize;
+	ReadFile(hFile, (void *)&bfh, sizeof(BITMAPFILEHEADER), &dwSize, 0);
+	printf("bfType:%x\n", bfh.bfType);
+	printf("bfSize:%d\n", bfh.bfSize);
+	printf("bfReserved1:%d\n", bfh.bfReserved1);
+	printf("bfReserved2:%d\n", bfh.bfReserved2);
+	printf("bfOffbits:%d\n", bfh.bfOffBits);
+	return 0;
+}
 ```
 
 再来看一下BITMAPINFOHEADER这个结构以及它成员的意思和取值
 
 ```cpp
- typedef struct tagBITMAPINFOHEADER{
-         DWORD      biSize;            //本结构大小，为40
-         LONG       biWidth;           //位图的宽度，以像素为单位
-         LONG       biHeight;          //位图的高度，以像素为单位
-         WORD       biPlanes;          //目标设备的级别，必须是1
-         WORD       biBitCount;        //每个像素所占的位数，24表示真彩位图
-         DWORD      biCompression;     //位图压缩类型，一般为BI_RGB（未经压缩）
-         DWORD      biSizeImage;       //实际位图数据这部分的所占用的字节数
-         LONG       biXPelsPerMeter;   //指定目标设备水平分辨率，单位像素/米，为0
-         LONG       biYPelsPerMeter;   //指定目标垂直分辨率真，单位像素/米，为0
-         DWORD      biClrUsed;         //指定目标设备实际用到的颜色数，如果该值为0，则用到的颜色数为2的biBitCount方
-         DWORD      biClrImportant;    //表示图像中重要的颜色数，如果为0，则所有颜色都是重要的。
- } BITMAPINFOHEADER;
+typedef struct tagBITMAPINFOHEADER {
+	DWORD  biSize;   //本结构大小，为40
+	LONG  biWidth;   //位图的宽度，以像素为单位
+	LONG  biHeight;   //位图的高度，以像素为单位
+	WORD  biPlanes;   //目标设备的级别，必须是1
+	WORD  biBitCount;  //每个像素所占的位数，24表示真彩位图
+	DWORD  biCompression;  //位图压缩类型，一般为BI_RGB（未经压缩）
+	DWORD  biSizeImage;  //实际位图数据这部分的所占用的字节数
+	LONG  biXPelsPerMeter; //指定目标设备水平分辨率，单位像素/米，为0
+	LONG  biYPelsPerMeter; //指定目标垂直分辨率真，单位像素/米，为0
+	DWORD  biClrUsed;   //指定目标设备实际用到的颜色数，如果该值为0，则用到的颜色数为2的biBitCount方
+	DWORD  biClrImportant; //表示图像中重要的颜色数，如果为0，则所有颜色都是重要的。
+} BITMAPINFOHEADER;
 ```
 
 调色板（LOGPALLETE）由于大部分都是针对真彩位图操作，此部分略过
@@ -3141,15 +3144,15 @@ FILE_ATTRIBUTE_SYSTEM 系统文件
 GetDIBits函数定义：
 
 ```cpp
- int GetDIBits(
- HDC hdc,             //位图兼容的DC
- HBITMAP hbmp,        //位图句柄
- UINT uStartScan,    //从哪行开始扫描
- UINT cScanLines,    //扫描多少行数据
- LPVOID lpvBits,     //接收数据的缓存区
- LPBITMAPINFO lpbi,  //真彩位图，此处填文件信息头就行了
- UINT uUsage         //真彩位图填DIB_RGB_COLORS，表示由R,G,B三色直接构成
- );
+int GetDIBits(
+	HDC hdc,             //位图兼容的DC
+	HBITMAP hbmp,        //位图句柄
+	UINT uStartScan,    //从哪行开始扫描
+	UINT cScanLines,    //扫描多少行数据
+	LPVOID lpvBits,     //接收数据的缓存区
+	LPBITMAPINFO lpbi,  //真彩位图，此处填文件信息头就行了
+	UINT uUsage         //真彩位图填DIB_RGB_COLORS，表示由R,G,B三色直接构成
+);
 ```
 
 例子：截屏，并把屏幕图片保存成位图
@@ -3157,131 +3160,56 @@ GetDIBits函数定义：
  
 
 ```cpp
- #include <windows.h>
- void ScreenSnap(HBITMAP hBitmap,char *bmpPath,HDC dc);
- int main()
- {  
-  HWND DeskWnd=::GetDesktopWindow();                                             //获取桌面窗口句柄
-  RECT DeskRC;
-  ::GetClientRect(DeskWnd,&DeskRC);                                              //获取窗口大小
-  HDC DeskDC=GetDC(DeskWnd);                                                     //获取窗口DC
-  HBITMAP DeskBmp=::CreateCompatibleBitmap(DeskDC,DeskRC.right,DeskRC.bottom);   //兼容位图
-  HDC memDC=::CreateCompatibleDC(DeskDC);                                        //兼容DC
-  SelectObject(memDC,DeskBmp);                                                   //把兼容位图选入兼容DC中
-  BitBlt(memDC,0,0,DeskRC.right,DeskRC.bottom,DeskDC,0,0,SRCCOPY);               //拷贝DC
-  ScreenSnap(DeskBmp,"d:\\Screen.bmp",DeskDC);
-  return 0;
- }
- void ScreenSnap(HBITMAP hBitmap,char *bmpPath,HDC dc)
- {
- BITMAP bmInfo;
- DWORD bmDataSize;
- char *bmData;                                                                   //位图数据
- GetObject(hBitmap,sizeof(BITMAP),&bmInfo);                                      //根据位图句柄，获取位图信息
- bmDataSize=bmInfo.bmWidthBytes*bmInfo.bmHeight;                                 //计算位图数据大小
- bmData=new char[bmDataSize];                                                    //分配数据
- BITMAPFILEHEADER bfh;                                                           //位图文件头
- bfh.bfType=0x4d42;
- bfh.bfSize=bmDataSize+54;
- bfh.bfReserved1=0;
- bfh.bfReserved2=0;
- bfh.bfOffBits=54;
- BITMAPINFOHEADER bih;                                                            //位图信息头
- bih.biSize=40;
- bih.biWidth=bmInfo.bmWidth;
- bih.biHeight=bmInfo.bmHeight;
- bih.biPlanes=1;
- bih.biBitCount=24;
- bih.biCompression=BI_RGB;
- bih.biSizeImage=bmDataSize;
- bih.biXPelsPerMeter=0;
- bih.biYPelsPerMeter=0;
- bih.biClrUsed=0;
- bih.biClrImportant=0;
- ::GetDIBits(dc,hBitmap,0,bmInfo.bmHeight,bmData,(BITMAPINFO *)&bih,DIB_RGB_COLORS);//获取位图数据部分
- HANDLE hFile=CreateFile(bmpPath,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,
-       FILE_ATTRIBUTE_NORMAL,0);                                                    //创建文件
- DWORD dwSize;
- WriteFile(hFile,(void *)&bfh,sizeof(BITMAPFILEHEADER),&dwSize,0);                  //写入位图文件头
- WriteFile(hFile,(void *)&bih,sizeof(BITMAPINFOHEADER),&dwSize,0);                  //写入位图信息头
- WriteFile(hFile,(void *)bmData,bmDataSize,&dwSize,0);                              //写入位图数据
- ::CloseHandle(hFile);                                                              //关闭文件句柄
- }
-```
-
-
-
-## CreateToolhelp32Snapshot给系统内的所有进程拍一个快照
-
-函数通过获取进程信息为指定的进程、进程使用的堆[HEAP]、模块[MODULE]、[线程](https://baike.baidu.com/item/%E7%BA%BF%E7%A8%8B)建立一个快照
-
-```cpp
-HANDLE WINAPI CreateToolhelp32Snapshot(
-DWORD dwFlags, //用来指定“快照”中需要返回的对象，可以是TH32CS_SNAPPROCESS等
-DWORD th32ProcessID //一个进程ID号，用来指定要获取哪一个进程的快照，当获取系统进程列表或获取 当前进程快照时可以设为0
-);
-dwFlags编辑
-指定快照中包含的系统内容，这个参数能够使用下列数值（常量）中的一个或多个。
-TH32CS_INHERIT - 声明快照句柄是可继承的。
-TH32CS_SNAPALL - 在快照中包含系统中所有的进程和线程。
-TH32CS_SNAPHEAPLIST - 在快照中包含在th32ProcessID中指定的进程的所有的堆。
-TH32CS_SNAPMODULE - 在快照中包含在th32ProcessID中指定的进程的所有的模块。
-TH32CS_SNAPPROCESS - 在快照中包含系统中所有的进程。
-TH32CS_SNAPTHREAD - 在快照中包含系统中所有的线程。
-Const TH32CS_SNAPHEAPLIST = &H1
-Const TH32CS_SNAPPROCESS = &H2
-Const TH32CS_SNAPTHREAD = &H4
-Const TH32CS_SNAPMODULE = &H8
-Const TH32CS_SNAPALL = (TH32CS_SNAPHEAPLIST | TH32CS_SNAPPROCESS | TH32CS_SNAPTHREAD | TH32CS_SNAPMODULE)
-Const TH32CS_INHERIT = &H80000000
-th32ProcessID编辑
-指定将要快照的进程ID。如果该参数为0表示快照当前进程。该参数只有在设置了TH32CS_SNAPHEAPLIST或者TH32CS_SNAPMODULE后才有效，在其他情况下该参数被忽略，所有的进程都会被快照。
-返回值：编辑
-解释
-调用成功，返回快照的句柄，调用失败，返回INVALID_HANDLE_VALUE 。
-备注：
-使用GetLastError函数查找该函数产生的错误状态码。
-注意，在Win NT中，要删除快照，使用CloseHandle函数；在Win CE中，要删除快照，使用CloseToolhelp32Snapshot函数。
-```
-
-例子：
-
-```cpp
-#include "StdAfx.h"
-#include "windows.h"
-#include "tlhelp32.h"
-#include "stdio.h"
-int main(int argc, char* argv[])
+#include <windows.h>
+void ScreenSnap(HBITMAP hBitmap, char *bmpPath, HDC dc);
+int main()
 {
-    PROCESSENTRY32 pe32;
-    //在使用这个结构前，先设置它的大小
-    pe32.dwSize = sizeof(pe32);
-    //给系统内所有的进程拍个快照
-    HANDLE hProcessSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
-    if (hProcessSnap == INVALID_HANDLE_VALUE)
-    {
-        printf("CreateToolhelp32Snapshot 调用失败.\n");
-        return -1;
-    }
-    //遍历进程快照，轮流显示每个进程的信息
-    BOOL bMore = ::Process32First(hProcessSnap,&pe32);
-    while (bMore)
-    {
-        printf("进程名称：%ls\n",pe32.szExeFile); //这里得到的应该是宽字符，用%ls,不然无法正常打印
-        printf("进程ID：%u\n\n",pe32.th32ProcessID);
-        bMore = ::Process32Next(hProcessSnap,&pe32);
-    }
-    //不要忘记清除掉snapshot对象
-    ::CloseHandle(hProcessSnap);
-    return 0;
+	HWND DeskWnd = ::GetDesktopWindow();   //获取桌面窗口句柄
+	RECT DeskRC;
+	::GetClientRect(DeskWnd, &DeskRC);   //获取窗口大小
+	HDC DeskDC = GetDC(DeskWnd);    //获取窗口DC
+	HBITMAP DeskBmp = ::CreateCompatibleBitmap(DeskDC, DeskRC.right, DeskRC.bottom); //兼容位图
+	HDC memDC = ::CreateCompatibleDC(DeskDC);   //兼容DC
+	SelectObject(memDC, DeskBmp);    //把兼容位图选入兼容DC中
+	BitBlt(memDC, 0, 0, DeskRC.right, DeskRC.bottom, DeskDC, 0, 0, SRCCOPY); //拷贝DC
+	ScreenSnap(DeskBmp, "d:\\Screen.bmp", DeskDC);
+	return 0;
+}
+void ScreenSnap(HBITMAP hBitmap, char *bmpPath, HDC dc)
+{
+	BITMAP bmInfo;
+	DWORD bmDataSize;
+	char *bmData;     //位图数据
+	GetObject(hBitmap, sizeof(BITMAP), &bmInfo);   //根据位图句柄，获取位图信息
+	bmDataSize = bmInfo.bmWidthBytes*bmInfo.bmHeight;   //计算位图数据大小
+	bmData = new char[bmDataSize];    //分配数据
+	BITMAPFILEHEADER bfh;    //位图文件头
+	bfh.bfType = 0x4d42;
+	bfh.bfSize = bmDataSize + 54;
+	bfh.bfReserved1 = 0;
+	bfh.bfReserved2 = 0;
+	bfh.bfOffBits = 54;
+	BITMAPINFOHEADER bih;    //位图信息头
+	bih.biSize = 40;
+	bih.biWidth = bmInfo.bmWidth;
+	bih.biHeight = bmInfo.bmHeight;
+	bih.biPlanes = 1;
+	bih.biBitCount = 24;
+	bih.biCompression = BI_RGB;
+	bih.biSizeImage = bmDataSize;
+	bih.biXPelsPerMeter = 0;
+	bih.biYPelsPerMeter = 0;
+	bih.biClrUsed = 0;
+	bih.biClrImportant = 0;
+	::GetDIBits(dc, hBitmap, 0, bmInfo.bmHeight, bmData, (BITMAPINFO *)&bih, DIB_RGB_COLORS);//获取位图数据部分
+	HANDLE hFile = CreateFile(bmpPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL, 0);    //创建文件
+	DWORD dwSize;
+	WriteFile(hFile, (void *)&bfh, sizeof(BITMAPFILEHEADER), &dwSize, 0);  //写入位图文件头
+	WriteFile(hFile, (void *)&bih, sizeof(BITMAPINFOHEADER), &dwSize, 0);  //写入位图信息头
+	WriteFile(hFile, (void *)bmData, bmDataSize, &dwSize, 0);  //写入位图数据
+	::CloseHandle(hFile);    //关闭文件句柄
 }
 ```
-
-
-
-## Process32First获取第一个进程信息
-
-## Process32Next遍历下一个进程信息
-
 
 

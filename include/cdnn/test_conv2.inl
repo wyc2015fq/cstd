@@ -1,218 +1,282 @@
-#include <cudnn.h>
- 
-// http://www.goldsborough.me/cuda/ml/cudnn/c++/2017/10/01/14-37-23-convolutions_with_cudnn/
- 
-#define checkCUDNN(expression)                                  \
-  {                                                             \
-    cudnnStatus_t status = (expression);                        \
-    if (status != CUDNN_STATUS_SUCCESS) {                       \
-	    std::cerr << "Error on line " << __LINE__ << ": "       \
-	    << cudnnGetErrorString(status) << std::endl;            \
-	    std::exit(EXIT_FAILURE);                                \
-    }                                                           \
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
+#include "dnn.h"
+
+
+#define checkCUDNN(expression)                                 \
+  {                                                            \
+    cdnnStatus_t status = (expression);                        \
+    if (status != CDNN_STATUS_SUCCESS) {                       \
+	    printf("Error on line %d : %s\n", __LINE__,            \
+	    dnn->GetErrorString(status) );                         \
+	    return (EXIT_FAILURE);                                 \
+    }                                                          \
  }
- 
-int main(int argc, const char* argv[]) {
+
+int test_conv2() {
+	IDnn* dnn;
+	dnn = GetDnnCpu();
+	dnn = GetDnnCuda();
+	int gpu_id = 0;
+	bool with_sigmoid = false;
+#if 0
 	if (argc < 2) {
 		std::cerr << "usage: conv <image> [gpu=0] [sigmoid=0]" << std::endl;
 		std::exit(EXIT_FAILURE);
 	}
- 
-	int gpu_id = (argc > 2) ? std::atoi(argv[2]) : 0;
-	std::cerr << "GPU: " << gpu_id << std::endl;
- 
-	bool with_sigmoid = (argc > 3) ? std::atoi(argv[3]) : 0;
-	std::cerr << "With sigmoid: " << std::boolalpha << with_sigmoid << std::endl;
- 
-	cv::Mat image = load_image(argv[1]);
- 
-	cudaSetDevice(gpu_id);
- 
-	cudnnHandle_t cudnn;
-	cudnnCreate(&cudnn);
- 
+
+	gpu_id = (argc > 2) ? std::atoi(argv[2]) : 0;
+	with_sigmoid = (argc > 3) ? std::atoi(argv[3]) : 0;
+#endif
+	printf("GPU: %d\n", gpu_id);
+
+	printf("With sigmoid: %d\n", with_sigmoid);
+	int in_n = 2;
+	int in_c = 3;
+	int in_h = 4;
+	int in_w = 4;
+	//cv::Mat image = load_image(argv[1]);
+	int ker_n = 2;
+	int ker_c = in_c;
+	int ker_h = 3;
+	int ker_w = 3;
+
+	int out_n = 0;
+	int out_c = 0;
+	int out_h = 0;
+	int out_w = 0;
+
+	int in_count = in_n * in_c * in_h * in_w;
+	int in_bytes = in_count * sizeof(float);
+	float* cpu_input = (float*)malloc(in_bytes);
+
+	if (NULL == cpu_input) {
+		printf("cpu_input==NULL\n");
+		return 0;
+	}
+	for (int i = 0; i < in_count; ++i) {
+		cpu_input[i] = 1;
+	}
+
+	dnn->SetDevice(gpu_id);
+
+	cdnnHandle_t cdnn;
+	dnn->Create(&cdnn);
+
 	// 输入张量的描述
-	cudnnTensorDescriptor_t input_descriptor;
-	checkCUDNN(cudnnCreateTensorDescriptor(&input_descriptor));
-	checkCUDNN(cudnnSetTensor4dDescriptor(input_descriptor,
-		/*format=*/CUDNN_TENSOR_NHWC,	// 注意是 NHWC，TensorFlow更喜欢以 NHWC 格式存储张量(通道是变化最频繁的地方，即 BGR)，而其他一些更喜欢将通道放在前面
-		/*dataType=*/CUDNN_DATA_FLOAT,
-		/*batch_size=*/1,
-		/*channels=*/3,
-		/*image_height=*/image.rows,
-		/*image_width=*/image.cols));
- 
+	cdnnTensorDescriptor_t input_descriptor;
+	checkCUDNN(dnn->CreateTensorDescriptor(&input_descriptor));
+	checkCUDNN(dnn->SetTensor4dDescriptor(input_descriptor,
+		/*format=*/CDNN_TENSOR_NCHW,	// 注意是 NHWC，TensorFlow更喜欢以 NHWC 格式存储张量(通道是变化最频繁的地方，即 BGR)，而其他一些更喜欢将通道放在前面
+		/*dataType=*/CDNN_DATA_FLOAT,
+		/*out_n=*/in_n,
+		/*channels=*/in_c,
+		/*image_height=*/in_h,
+		/*image_width=*/in_w));
+
 	// 卷积核的描述（形状、格式）
-	cudnnFilterDescriptor_t kernel_descriptor;
-	checkCUDNN(cudnnCreateFilterDescriptor(&kernel_descriptor));
-	checkCUDNN(cudnnSetFilter4dDescriptor(kernel_descriptor,
-		/*dataType=*/CUDNN_DATA_FLOAT,
-		/*format=*/CUDNN_TENSOR_NCHW,	// 注意是 NCHW
-		/*out_channels=*/3,
-		/*in_channels=*/3,
-		/*kernel_height=*/3,
-		/*kernel_width=*/3));
- 
+	cdnnFilterDescriptor_t kernel_descriptor;
+	checkCUDNN(dnn->CreateFilterDescriptor(&kernel_descriptor));
+	checkCUDNN(dnn->SetFilter4dDescriptor(kernel_descriptor,
+		/*dataType=*/CDNN_DATA_FLOAT,
+		/*format=*/CDNN_TENSOR_NCHW,	// 注意是 NCHW
+		/*out_c=*/ker_n,
+		/*in_channels=*/ker_c,
+		/*kernel_height=*/ker_h,
+		/*kernel_width=*/ker_w));
+
 	// 卷积操作的描述（步长、填充等等）
-	cudnnConvolutionDescriptor_t convolution_descriptor;
-	checkCUDNN(cudnnCreateConvolutionDescriptor(&convolution_descriptor));
-	checkCUDNN(cudnnSetConvolution2dDescriptor(convolution_descriptor,
+	cdnnConvolutionDescriptor_t convolution_descriptor;
+	checkCUDNN(dnn->CreateConvolutionDescriptor(&convolution_descriptor));
+	checkCUDNN(dnn->SetConvolution2dDescriptor(convolution_descriptor,
 		/*pad_height=*/1,
 		/*pad_width=*/1,
 		/*vertical_stride=*/1,
 		/*horizontal_stride=*/1,
 		/*dilation_height=*/1,
 		/*dilation_width=*/1,
-		/*mode=*/CUDNN_CROSS_CORRELATION, // CUDNN_CONVOLUTION
-		/*computeType=*/CUDNN_DATA_FLOAT));
- 
+		/*mode=*/CDNN_CROSS_CORRELATION, // CDNN_CONVOLUTION
+		/*computeType=*/CDNN_DATA_FLOAT));
+
 	// 计算卷积后图像的维数
-	int batch_size{ 0 }, channels{ 0 }, height{ 0 }, width{ 0 };
-	checkCUDNN(cudnnGetConvolution2dForwardOutputDim(convolution_descriptor,
-		input_descriptor,
-		kernel_descriptor,
-		&batch_size,
-		&channels,
-		&height,
-		&width));
- 
-	std::cerr << "Output Image: " << height << " x " << width << " x " << channels
-		<< std::endl;
- 
+	checkCUDNN(dnn->GetConvolution2dForwardOutputDim(convolution_descriptor,input_descriptor,kernel_descriptor,&out_n,&out_c,&out_h,&out_w));
+
+	printf("Output Image[NHWC]: %d %d %d %d\n", out_n, out_h, out_w, out_c);
+
 	// 卷积输出张量的描述
-	cudnnTensorDescriptor_t output_descriptor;
-	checkCUDNN(cudnnCreateTensorDescriptor(&output_descriptor));
-	checkCUDNN(cudnnSetTensor4dDescriptor(output_descriptor,
-		/*format=*/CUDNN_TENSOR_NHWC,
-		/*dataType=*/CUDNN_DATA_FLOAT,
-		/*batch_size=*/1,
-		/*channels=*/3,
-		/*image_height=*/image.rows,
-		/*image_width=*/image.cols));
- 
+	cdnnTensorDescriptor_t output_descriptor;
+	checkCUDNN(dnn->CreateTensorDescriptor(&output_descriptor));
+	checkCUDNN(dnn->SetTensor4dDescriptor(output_descriptor,
+		/*format=*/CDNN_TENSOR_NCHW,
+		/*dataType=*/CDNN_DATA_FLOAT,
+		/*out_n=*/out_n,
+		/*channels=*/out_c,
+		/*image_height=*/out_h,
+		/*image_width=*/out_w));
+
 	// 卷积算法的描述
-	// cudnn_tion_fwd_algo_gemm——将卷积建模为显式矩阵乘法，
-	// cudnn_tion_fwd_algo_fft——它使用快速傅立叶变换(FFT)进行卷积或
-	// cudnn_tion_fwd_algo_winograd——它使用Winograd算法执行卷积。
-	cudnnConvolutionFwdAlgo_t convolution_algorithm;
-	checkCUDNN(
-		cudnnGetConvolutionForwardAlgorithm(cudnn,
-		input_descriptor,
-		kernel_descriptor,
-		convolution_descriptor,
-		output_descriptor,
-		CUDNN_CONVOLUTION_FWD_PREFER_FASTEST, // CUDNN_CONVOLUTION_FWD_SPECIFY_?WORKSPACE_LIMIT（在内存受限的情况下，memoryLimitInBytes 设置非 0 值）
-		/*memoryLimitInBytes=*/0,
-		&convolution_algorithm));
- 
+	// cdnn_tion_fwd_algo_gemm——将卷积建模为显式矩阵乘法，
+	// cdnn_tion_fwd_algo_fft——它使用快速傅立叶变换(FFT)进行卷积或
+	// cdnn_tion_fwd_algo_winograd——它使用Winograd算法执行卷积。
+	cdnnConvolutionFwdAlgo_t convolution_algorithm;
+	checkCUDNN(dnn->GetConvolutionForwardAlgorithm(cdnn,
+			input_descriptor,
+			kernel_descriptor,
+			convolution_descriptor,
+			output_descriptor,
+			CDNN_CONVOLUTION_FWD_PREFER_FASTEST, // CDNN_CONVOLUTION_FWD_SPECIFY_?WORKSPACE_LIMIT（在内存受限的情况下，memoryLimitInBytes 设置非 0 值）
+			/*memoryLimitInBytes=*/0,
+			&convolution_algorithm));
+
 	// 计算 cuDNN 它的操作需要多少内存
-	size_t workspace_bytes{ 0 };
-	checkCUDNN(cudnnGetConvolutionForwardWorkspaceSize(cudnn,
+	size_t workspace_bytes = 0;
+	checkCUDNN(dnn->GetConvolutionForwardWorkspaceSize(cdnn,
 		input_descriptor,
 		kernel_descriptor,
 		convolution_descriptor,
 		output_descriptor,
 		convolution_algorithm,
 		&workspace_bytes));
-	std::cerr << "Workspace size: " << (workspace_bytes / 1048576.0) << "MB"
-		<< std::endl;
-	assert(workspace_bytes > 0);
- 
+	printf("Workspace size: %d bytes\n", workspace_bytes);
+	//assert(workspace_bytes > 0);
+
 	// *************************************************************************
-	// 分配内存， 从 cudnnGetConvolutionForwardWorkspaceSize 计算而得
-	void* d_workspace{ nullptr };
-	cudaMalloc(&d_workspace, workspace_bytes);
- 
-	// 从 cudnnGetConvolution2dForwardOutputDim 计算而得
-	int image_bytes = batch_size * channels * height * width * sizeof(float);
- 
-	float* d_input{ nullptr };
-	cudaMalloc(&d_input, image_bytes);
-	cudaMemcpy(d_input, image.ptr<float>(0), image_bytes, cudaMemcpyHostToDevice);
- 
-	float* d_output{ nullptr };
-	cudaMalloc(&d_output, image_bytes);
-	cudaMemset(d_output, 0, image_bytes);
+	// 分配内存， 从 cdnnGetConvolutionForwardWorkspaceSize 计算而得
+	void* gpu_workspace = NULL;
+	dnn->Malloc(&gpu_workspace, workspace_bytes);
+
+	// 从 cdnnGetConvolution2dForwardOutputDim 计算而得
+	int out_bytes = out_n * out_c * out_h * out_w * sizeof(float);
+
+	float* gpu_input{ nullptr };
+	dnn->Malloc(&gpu_input, in_bytes);
+	dnn->Memcpy(gpu_input, cpu_input, in_bytes, cdnnMemcpyHostToDevice);
+
+	float* gpu_output = NULL;
+	dnn->Malloc(&gpu_output, out_bytes);
+	dnn->Memset(gpu_output, 0, out_bytes);
 	// *************************************************************************
 	// clang-format off
 	const float kernel_template[3][3] = {
 		{ 1, 1, 1 },
-		{ 1, -8, 1 },
+		{ 1, 1, 1 },
 		{ 1, 1, 1 }
 	};
 	// clang-format on
- 
-	float h_kernel[3][3][3][3]; // NCHW
-	for (int kernel = 0; kernel < 3; ++kernel) {
-		for (int channel = 0; channel < 3; ++channel) {
-			for (int row = 0; row < 3; ++row) {
-				for (int column = 0; column < 3; ++column) {
-					h_kernel[kernel][channel][row][column] = kernel_template[row][column];
+
+	int ker_count = ker_n*ker_c*ker_h*ker_w;
+	int ker_bytes = ker_count * sizeof(float);
+	float* cpu_kernel = (float*)malloc(ker_bytes); // NCHW
+	for (int kernel = 0; kernel < ker_n; ++kernel) {
+		for (int channel = 0; channel < ker_c; ++channel) {
+			for (int row = 0; row < ker_h; ++row) {
+				for (int column = 0; column < ker_w; ++column) {
+					cpu_kernel[(((kernel * ker_c) + channel)*ker_h + row)*ker_w + column] = kernel_template[row][column];
 				}
 			}
 		}
 	}
- 
-	float* d_kernel{ nullptr };
-	cudaMalloc(&d_kernel, sizeof(h_kernel));
-	cudaMemcpy(d_kernel, h_kernel, sizeof(h_kernel), cudaMemcpyHostToDevice);
-	// *************************************************************************
- 
+
+	float* gpu_kernel = NULL;
+	dnn->Malloc(&gpu_kernel, ker_bytes);
+	dnn->Memcpy(gpu_kernel, cpu_kernel, ker_bytes, cdnnMemcpyHostToDevice);
+
 	const float alpha = 1.0f, beta = 0.0f;
- 
+
 	// 真正的卷积操作 ！！！前向卷积
-	checkCUDNN(cudnnConvolutionForward(cudnn,
+	checkCUDNN(dnn->ConvolutionForward(cdnn,
 		&alpha,
 		input_descriptor,
-		d_input,
+		gpu_input,
 		kernel_descriptor,
-		d_kernel,
+		gpu_kernel,
 		convolution_descriptor,
 		convolution_algorithm,
-		d_workspace, // 注意，如果我们选择不需要额外内存的卷积算法，d_workspace可以为nullptr。
+		gpu_workspace, // 注意，如果我们选择不需要额外内存的卷积算法，gpu_workspace可以为nullptr。
 		workspace_bytes,
 		&beta,
 		output_descriptor,
-		d_output));
- 
+		gpu_output));
+
 	if (with_sigmoid) {
-		
 		// 描述激活
-		cudnnActivationDescriptor_t activation_descriptor;
-		checkCUDNN(cudnnCreateActivationDescriptor(&activation_descriptor));
-		checkCUDNN(cudnnSetActivationDescriptor(activation_descriptor,
-			CUDNN_ACTIVATION_SIGMOID,
-			CUDNN_PROPAGATE_NAN,
+		cdnnActivationDescriptor_t activation_descriptor;
+		checkCUDNN(dnn->CreateActivationDescriptor(&activation_descriptor));
+		checkCUDNN(dnn->SetActivationDescriptor(activation_descriptor,
+			CDNN_ACTIVATION_SIGMOID,
+			CDNN_PROPAGATE_NAN,
 			/*relu_coef=*/0));
- 
+
 		// 前向 sigmoid 激活函数
-		checkCUDNN(cudnnActivationForward(cudnn,
+		checkCUDNN(dnn->ActivationForward(cdnn,
 			activation_descriptor,
 			&alpha,
 			output_descriptor,
-			d_output,
+			gpu_output,
 			&beta,
 			output_descriptor,
-			d_output));
-		cudnnDestroyActivationDescriptor(activation_descriptor);
+			gpu_output));
+		dnn->DestroyActivationDescriptor(activation_descriptor);
 	}
- 
-	float* h_output = new float[image_bytes];
-	cudaMemcpy(h_output, d_output, image_bytes, cudaMemcpyDeviceToHost);
- 
-	save_image("../cudnn-out.png", h_output, height, width);
- 
-	delete[] h_output;
-	cudaFree(d_kernel);
-	cudaFree(d_input);
-	cudaFree(d_output);
-	cudaFree(d_workspace);
- 
+
+	float* cpu_output = (float*)malloc(out_bytes);
+	dnn->Memcpy(cpu_output, gpu_output, out_bytes, cdnnMemcpyDeviceToHost);
+
+	if (1) {
+		for (int kernel = 0; kernel < ker_n; ++kernel) {
+			for (int channel = 0; channel < ker_c; ++channel) {
+				for (int row = 0; row < ker_h; ++row) {
+					for (int column = 0; column < ker_w; ++column) {
+						float t = cpu_kernel[(((kernel * ker_c) + channel)*ker_h + row)*ker_w + column];
+						printf("%g ", t);
+					}
+					printf("\n");
+				}
+			}
+		}
+	}
+	for (int kernel = 0; kernel < in_n; ++kernel) {
+		for (int channel = 0; channel < in_c; ++channel) {
+			for (int row = 0; row < out_h; ++row) {
+				for (int column = 0; column < in_w; ++column) {
+					float t = cpu_input[(((kernel * in_c) + channel)*in_h + row)*in_w + column];
+					printf("%g ", t);
+				}
+				printf("\n");
+			}
+		}
+	}
+	for (int kernel = 0; kernel < out_n; ++kernel) {
+		for (int channel = 0; channel < out_c; ++channel) {
+			for (int row = 0; row < out_h; ++row) {
+				for (int column = 0; column < out_w; ++column) {
+					float t = cpu_output[(((kernel * out_c) + channel)*out_h + row)*out_w + column];
+					printf("%g ", t);
+				}
+				printf("\n");
+			}
+		}
+	}
+	free(cpu_input);
+	free(cpu_output);
+	free(cpu_kernel);
+	//save_image("../cdnn-out.png", cpu_output, out_h, out_w);
+
+	dnn->Free(gpu_kernel);
+	dnn->Free(gpu_input);
+	dnn->Free(gpu_output);
+	dnn->Free(gpu_workspace);
+
 	// 销毁
-	cudnnDestroyTensorDescriptor(input_descriptor);
-	cudnnDestroyTensorDescriptor(output_descriptor);
-	cudnnDestroyFilterDescriptor(kernel_descriptor);
-	cudnnDestroyConvolutionDescriptor(convolution_descriptor);
- 
-	cudnnDestroy(cudnn);
+	dnn->DestroyTensorDescriptor(input_descriptor);
+	dnn->DestroyTensorDescriptor(output_descriptor);
+	dnn->DestroyFilterDescriptor(kernel_descriptor);
+	dnn->DestroyConvolutionDescriptor(convolution_descriptor);
+
+	dnn->Destroy(cdnn);
+	return 0;
 }
+

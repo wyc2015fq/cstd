@@ -7036,8 +7036,7 @@ This function returns the dimensions of the resulting 4D tensor of a 2D convolut
 Each dimension h and w of the output images is computed as followed:
 
 ```cpp
-    outputDim = 1 + ( inputDim + 2*pad - (((filterDim-1)*dilation)+1) )/convolutionStride;
-    
+outputDim = 1 + ( inputDim + 2*pad - (((filterDim-1)*dilation)+1) )/convolutionStride;
 ```
 
 **Note:** The dimensions provided by this routine must be strictly respected when calling cudnnConvolutionForward() or cudnnConvolutionBackwardBias(). Providing a smaller or larger output tensor is not supported by the convolution routines.
