@@ -60,21 +60,23 @@ static void FUN(conv2d)(const Dtype* inData, float* outData, const Dtype* weight
     }
   }
 }
+
 void FUN(caffe_gemm)(const CBLAS_TRANSPOSE TransA,
 	const CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
-	const Stype alpha, const Dtype* A, const Dtype* B, const Stype beta,
+	const Dtype* alpha, const Dtype* A, const Dtype* B, const Dtype* beta,
 	Dtype* C) {
 	int lda = (TransA == CblasNoTrans) ? K : M;
 	int ldb = (TransB == CblasNoTrans) ? N : K;
-	CBLASFUN(gemm)(CblasRowMajor, TransA, TransB, M, N, K, (Dtype)alpha, A, lda, B, ldb, (Dtype)beta, C, N);
+	FUN(gemm)(CblasRowMajor, TransA, TransB, M, N, K, *alpha, A, lda, B, ldb, *beta, C, N);
 	//my_sgemm(CblasRowMajor, TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, N);
 }
 
 
 #if 1
 
-
-cdnnStatus_t FUN(ConvolutionForward)(cdnnHandle_t handle, const void *alpha, const cdnnTensorDescriptorCpu* xDesc, const void *x, const cdnnFilterDescriptorCpu* wDesc, const void *w, const cdnnConvolutionDescriptorCpu* convDesc, cdnnConvolutionFwdAlgo_t algo, void *workSpace, size_t workSpaceSizeInBytes, const void *beta, const cdnnTensorDescriptorCpu* yDesc, void *y)
+cdnnStatus_t FUN(ConvolutionForward)(cdnnHandle_t handle, const Dtype *alpha, const cdnnTensorDescriptorCpu* xDesc, const Dtype *x,
+	const cdnnFilterDescriptorCpu* wDesc, const Dtype *w, const cdnnConvolutionDescriptorCpu* convDesc, cdnnConvolutionFwdAlgo_t algo,
+	void *workSpace, size_t workSpaceSizeInBytes, const Dtype *beta, const cdnnTensorDescriptorCpu* yDesc, Dtype *y)
 {
 	//static void FUN(conv_forward_gemm)(const Dtype* inData, Dtype* outData, const Dtype* weights, const Dtype* biasData,
     // DataShape inSize, DataShape outSize, int kernel_h, int kernel_w, int stride_h, int stride_w,
@@ -131,6 +133,7 @@ cdnnStatus_t FUN(ConvolutionForward)(cdnnHandle_t handle, const void *alpha, con
   //a.restart();
   int in_size2 = dim_count(inSize.dim, 1, ndim);
   int out_size2 = dim_count(outSize.dim, 1, ndim);
+
   for (int i = 0; i < inSize.n; ++i) {
 	  const Dtype* in_data = inData + i*in_size2;
 	  Dtype* out_data = outData + i*out_size2;
@@ -144,8 +147,13 @@ cdnnStatus_t FUN(ConvolutionForward)(cdnnHandle_t handle, const void *alpha, con
 	  //a.restart();
 	  for (int g = 0; g < group_; ++g) {
 		  FUN(caffe_gemm)(CblasNoTrans, CblasNoTrans, conv_out_channels_ / group_, conv_out_spatial_dim_, kernel_dim_,
-			  (Dtype)1., weights + weight_offset_ * g, col_buff + col_offset_ * g, (Dtype)0., out_data + output_offset_ * g);
+			  alpha, weights + weight_offset_ * g, col_buff + col_offset_ * g, beta, out_data + output_offset_ * g);
 	  }
+  }
+  if (1. != *alpha && 0 != *beta) {
+	  int count = dim_count(outSize.dim, 0, ndim);
+	  //FUN(axpy)();
+	  //my_sscalb(count, alpha, outData, 1, beta);
   }
   //LOG(INFO) << "caffe_gemm " << a.elapsed();
   if (col_buffer_) { free(col_buffer_); }

@@ -49,6 +49,7 @@ struct IDnn {
 	virtual	cdnnStatus_t CreateActivationDescriptor(cdnnActivationDescriptor_t *activationDesc) = 0;
 	virtual cdnnStatus_t SetActivationDescriptor(cdnnActivationDescriptor_t activationDesc, cdnnActivationMode_t mode, cdnnNanPropagation_t reluNanOpt, double coef) = 0;
 	virtual	cdnnStatus_t ActivationForward(cdnnHandle_t handle, cdnnActivationDescriptor_t activationDesc, const void *alpha, const cdnnTensorDescriptor_t xDesc, const void *x, const void *beta, const cdnnTensorDescriptor_t yDesc, void *y) = 0;
+	virtual cdnnStatus_t ActivationBackward(cdnnHandle_t handle, cdnnActivationDescriptor_t activationDesc, const void *alpha, const cdnnTensorDescriptor_t yDesc, const void *y, const cdnnTensorDescriptor_t dyDesc, const void *dy, const cdnnTensorDescriptor_t xDesc, const void *x, const void *beta, const cdnnTensorDescriptor_t dxDesc, void *dx) = 0;
 	virtual cdnnStatus_t DestroyActivationDescriptor(cdnnActivationDescriptor_t activationDesc) = 0;
 };
 

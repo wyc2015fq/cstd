@@ -5,15 +5,18 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "config.h"
 #include "dnn.h"
 #include "cdnn_def.h"
 #include "myblas.h"
-#define cpu_sgemm my_sgemm
-#define cpu_dgemm my_dgemm
 
 #define Stype double
 #define _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF)  \
-DEF(cdnnStatus_t, ConvolutionForward, (cdnnHandle_t handle, const void *alpha, const cdnnTensorDescriptor_t xDesc, const void *x, const cdnnFilterDescriptor_t wDesc, const void *w, const cdnnConvolutionDescriptor_t convDesc, cdnnConvolutionFwdAlgo_t algo, void *workSpace, size_t workSpaceSizeInBytes, const void *beta, const cdnnTensorDescriptor_t yDesc, void *y))
+DEF(cdnnStatus_t, ConvolutionForward, (cdnnHandle_t handle, const void *alpha, const cdnnTensorDescriptor_t xDesc, const void *x, const cdnnFilterDescriptor_t wDesc, const void *w, const cdnnConvolutionDescriptor_t convDesc, cdnnConvolutionFwdAlgo_t algo, void *workSpace, size_t workSpaceSizeInBytes, const void *beta, const cdnnTensorDescriptor_t yDesc, void *y)) \
+DEF(cdnnStatus_t, ActivationForward, (cdnnHandle_t handle, cdnnActivationDescriptor_t activationDesc, const void *alpha, const cdnnTensorDescriptor_t xDesc, const void *x, const void *beta, const cdnnTensorDescriptor_t yDesc, void *y))\
+DEF(cdnnStatus_t, ActivationBackward, (cdnnHandle_t handle, cdnnActivationDescriptor_t activationDesc, const void *alpha, const cdnnTensorDescriptor_t yDesc, const void *y, const cdnnTensorDescriptor_t dyDesc, const void *dy, const cdnnTensorDescriptor_t xDesc, const void *x, const void *beta, const cdnnTensorDescriptor_t dxDesc, void *dx)) \
+
+
 
 #define FUN(fun)  cpu_s##fun
 #define Dtype float
@@ -21,13 +24,14 @@ DEF(cdnnStatus_t, ConvolutionForward, (cdnnHandle_t handle, const void *alpha, c
 #undef Dtype
 #undef FUN
 
-#if 0
+#ifdef USE_DOUBLE
 #define FUN(fun)  cpu_d##fun
 #define Dtype double
-#define Stype double
+#define IS_DOUBLE
 #include "cdnn.inl"
 #undef Dtype
 #undef FUN
+#undef IS_DOUBLE
 #endif
 
 #define DEF(RET, NAME, ARGS)  typedef RET (*NAME##_func_t)ARGS;
@@ -40,19 +44,24 @@ _MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF)
 #undef DEF
 };
 
-dnn_cpu_func_table_t* dnn_cpu_func_get(cdnnDataType_t type) {
-	static int inited = 0;
-	static dnn_cpu_func_table_t func_table[8] = { 0 };
-	if (0 == inited) {
-		inited = 1;
+static dnn_cpu_func_table_t func_table[8] = { 0 };
+
+int dnn_cpu_func_init() {
+#ifdef USE_DOUBLE
+#define DEF(RET, NAME, ARGS)  func_table[CDNN_DATA_FLOAT].NAME = (NAME##_func_t)cpu_s ## NAME;\
+func_table[CDNN_DATA_DOUBLE].NAME = (NAME##_func_t)cpu_d ## NAME;
+#else
 #define DEF(RET, NAME, ARGS)  func_table[CDNN_DATA_FLOAT].NAME = (NAME##_func_t)cpu_s ## NAME;
-		_MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF)
+#endif
+	_MATH_FUNCTIONS_TYPE_CPU_GPU_DEF(DEF);
 #undef DEF
-	}
-	return func_table+ type;
+	return 0;
 }
 
 struct DnnCpu : public IDnn {
+	DnnCpu() {
+		dnn_cpu_func_init();
+	}
 	virtual cdnnError_t Free(void *devPtr) {
 		if (devPtr == NULL) { return cdnnErrorInvalidDevicePointer; }
 		free(devPtr);
@@ -214,24 +223,14 @@ struct DnnCpu : public IDnn {
 		return CDNN_STATUS_SUCCESS;
 	}
 	virtual cdnnStatus_t ConvolutionForward(cdnnHandle_t handle, const void *alpha, const cdnnTensorDescriptor_t xDesc, const void *x, const cdnnFilterDescriptor_t wDesc, const void *w, const cdnnConvolutionDescriptor_t convDesc, cdnnConvolutionFwdAlgo_t algo, void *workSpace, size_t workSpaceSizeInBytes, const void *beta, const cdnnTensorDescriptor_t yDesc, void *y) {
-		//cdnnTensorDescriptorCpu* x_desc = (cdnnTensorDescriptorCpu*)xDesc;
-		//cdnnTensorDescriptorCpu* y_desc = (cdnnTensorDescriptorCpu*)yDesc;
-		//cdnnFilterDescriptorCpu* w_desc = (cdnnFilterDescriptorCpu*)wDesc;
 		cdnnConvolutionDescriptorCpu* conv_desc = (cdnnConvolutionDescriptorCpu*)convDesc;
-		conv_desc->num_spatial_axes_;
-		dnn_cpu_func_get(conv_desc->compute_type)->ConvolutionForward(handle, alpha, xDesc, x, wDesc, w, convDesc, algo, workSpace, workSpaceSizeInBytes, beta, yDesc, y);
-		return CDNN_STATUS_SUCCESS;
+		return func_table[conv_desc->compute_type].ConvolutionForward(handle, alpha, xDesc, x, wDesc, w, convDesc, algo, workSpace, workSpaceSizeInBytes, beta, yDesc, y);
 	}
 	virtual cdnnStatus_t DestroyConvolutionDescriptor(cdnnConvolutionDescriptor_t convDesc) {
 		free(convDesc);
 		return CDNN_STATUS_SUCCESS;
 	}
 	//
-	struct cdnnActivationDescriptorCpu {
-		cdnnActivationMode_t mode;
-		cdnnNanPropagation_t reluNanOpt;
-		double coef;
-	};
 	virtual	cdnnStatus_t CreateActivationDescriptor(cdnnActivationDescriptor_t *activationDesc) {
 		cdnnActivationDescriptorCpu* desc = (cdnnActivationDescriptorCpu*)malloc(sizeof(cdnnActivationDescriptorCpu));
 		if (desc == NULL) return CDNN_STATUS_ALLOC_FAILED;
@@ -248,7 +247,12 @@ struct DnnCpu : public IDnn {
 		return CDNN_STATUS_SUCCESS;
 	}
 	virtual	cdnnStatus_t ActivationForward(cdnnHandle_t handle, cdnnActivationDescriptor_t activationDesc, const void *alpha, const cdnnTensorDescriptor_t xDesc, const void *x, const void *beta, const cdnnTensorDescriptor_t yDesc, void *y) {
-		return CDNN_STATUS_SUCCESS;
+		cdnnTensorDescriptorCpu* x_desc = (cdnnTensorDescriptorCpu*)xDesc;
+		return func_table[x_desc->data_type].ActivationForward(handle, activationDesc, alpha, xDesc, x, beta, yDesc, y);
+	}
+	virtual cdnnStatus_t ActivationBackward(cdnnHandle_t handle, cdnnActivationDescriptor_t activationDesc, const void *alpha, const cdnnTensorDescriptor_t yDesc, const void *y, const cdnnTensorDescriptor_t dyDesc, const void *dy, const cdnnTensorDescriptor_t xDesc, const void *x, const void *beta, const cdnnTensorDescriptor_t dxDesc, void *dx) {
+        cdnnTensorDescriptorCpu* x_desc = (cdnnTensorDescriptorCpu*)xDesc;
+		return func_table[x_desc->data_type].ActivationBackward(handle, activationDesc, alpha, yDesc, y, dyDesc, dy, xDesc, x, beta, dxDesc, dx);
 	}
 	virtual cdnnStatus_t DestroyActivationDescriptor(cdnnActivationDescriptor_t activationDesc) {
 		free(activationDesc);
@@ -261,7 +265,8 @@ struct DnnCpu : public IDnn {
 
 
 IDnn* GetDnnCpu() {
-	return new DnnCpu();
+	static DnnCpu g_dnn_cpu;
+	return &g_dnn_cpu;
 }
 
 

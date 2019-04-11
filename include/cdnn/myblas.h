@@ -1,4 +1,5 @@
 
+#include "config.h"
 //#define USE_CBLAS
 #ifdef USE_CBLAS
 
@@ -12,9 +13,12 @@ extern "C" {
 #endif  // USE_MKL
 
 #define CBLASFUN(NAME)  cblas_s##NAME
+
+#define cpu_sgemm cblas_sgemm
+#define cpu_dgemm cblas_dgemm
+
 #else
 //#define CBLASFUN(NAME)  cblas_s##NAME
-#define ASSERT assert
 #define CBLASFUN(NAME)  my_s##NAME
 
 
@@ -23,16 +27,20 @@ typedef enum CBLAS_TRANSPOSE { CblasNoTrans = 111, CblasTrans = 112, CblasConjTr
 typedef enum CBLAS_UPLO { CblasUpper = 121, CblasLower = 122 } CBLAS_UPLO;
 typedef enum CBLAS_DIAG { CblasNonUnit = 131, CblasUnit = 132 } CBLAS_DIAG;
 typedef enum CBLAS_SIDE { CblasLeft = 141, CblasRight = 142 } CBLAS_SIDE;
-#endif // USE_CBLAS
+#define cpu_sgemm my_sgemm
+#define cpu_dgemm my_dgemm
 
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
 #include <assert.h>
+#define ASSERT assert
+#include "config.h"
 //#include "../types.h"
 
 #define fequal(a, b)   ((a)==(b))
+
 
 #define Dtype float
 #define Stype double
@@ -43,15 +51,36 @@ typedef enum CBLAS_SIDE { CblasLeft = 141, CblasRight = 142 } CBLAS_SIDE;
 #include "level1.h"
 //#include "gemv.h"
 #include "gemm.h"
-//#include "conv.h"
-
 
 #undef Dtype
 #undef Stype
 #undef FUN
 #undef ISDOUBLE
 
+
+
+#ifdef USE_DOUBLE
+#define Dtype double
+#define Stype double
+#define ISDOUBLE 1
+#define FUN(NAME) my_d##NAME
+//#undef CBLASFUN 
+//typedef long BLASLONG;
+#include "level1.h"
+//#include "gemv.h"
+#include "gemm.h"
+
+#undef Dtype
+#undef Stype
+#undef FUN
+#undef ISDOUBLE
+#endif
+
 #undef fequal
+
+
+#endif // USE_CBLAS
+
 
 #if 0
 // 44.857143

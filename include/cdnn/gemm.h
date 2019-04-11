@@ -32,9 +32,10 @@ static Dtype* FUN(pack)(int mc, int kc, const Dtype *A, int incRowA, int incColA
   return buffer;
 }
 
-static void FUN(gemm_kernel_4x4)(int kc, Dtype alpha, const Dtype *A, const Dtype *B, Dtype beta, Dtype *C, int incRowC, int incColC) {
+static void FUN(gemm_kernel_4x4)(int kc, const Dtype* alpha, const Dtype *A, const Dtype *B, Dtype beta, Dtype *C, int incRowC, int incColC) {
   int i, j, l = 0;
   enum { MR = 4, NR = 4};
+  Dtype a = *alpha;
   Dtype AB_[MR * NR] = {0};
 #if defined(__ARM_V8) && !ISDOUBLE
   float32x4_t abv0 = vdupq_n_f32(0);
@@ -201,10 +202,10 @@ static void FUN(gemm_kernel_4x4)(int kc, Dtype alpha, const Dtype *A, const Dtyp
     }
   }
 
-  if (!fequal(alpha, 1.0)) {
+  if (!fequal(a, 1.0)) {
     for (j = 0; j < NR; ++j) {
       for (i = 0; i < MR; ++i) {
-        C[i * incRowC + j * incColC] += alpha * AB_[i + j * MR];
+        C[i * incRowC + j * incColC] += a * AB_[i + j * MR];
       }
     }
   } else {
@@ -216,8 +217,10 @@ static void FUN(gemm_kernel_4x4)(int kc, Dtype alpha, const Dtype *A, const Dtyp
   }
 }
 
-static void FUN(gemm_nn)(int m, int n, int k, Dtype alpha, const Dtype *A, int incRowA, int incColA,
-              const Dtype *B, int incRowB, int incColB, Dtype beta, Dtype *C, int incRowC, int incColC, int MC, int NC, int KC, Dtype* A_, Dtype* B_) {
+static int FUN(gemm_nn)(int m, int n, int k, const Dtype* alpha, const Dtype *A, int incRowA, int incColA,
+              const Dtype *B, int incRowB, int incColB, const Dtype* beta, Dtype *C, int incRowC, int incColC, int MC, int NC, int KC, Dtype* A_, Dtype* B_) {
+	Dtype a = *alpha;
+	Dtype b = *beta;
   int mb = (m + MC - 1) / MC;
   int nb = (n + NC - 1) / NC;
   int kb = (k + KC - 1) / KC;
@@ -230,10 +233,11 @@ static void FUN(gemm_nn)(int m, int n, int k, Dtype alpha, const Dtype *A, int i
   enum { MR = 4, NR = 4};
   Dtype C_[MR * NR];
   Dtype _beta;
+  Dtype alpha1 = 1.0;
 
-  if (fequal(alpha, 0.0) ||  k == 0) {
+  if (fequal(a, 0.0) ||  k == 0) {
     FUN(gescal)(m, n, beta, C, incRowC, incColC);
-    return;
+    return 0;
   }
 
   for (j = 0; j < nb; ++j) {
@@ -241,7 +245,7 @@ static void FUN(gemm_nn)(int m, int n, int k, Dtype alpha, const Dtype *A, int i
 
     for (l = 0; l < kb; ++l) {
       int kc = (l != kb - 1 || _kc == 0) ? KC : _kc;
-      _beta = (Dtype)((l == 0) ? beta : 1.0);
+      _beta = (Dtype)((l == 0) ? b : 1.0);
 
       FUN(pack)(nc, kc, &B[l * KC * incRowB + j * NC * incColB], incColB, incRowB, B_, NR);
 
@@ -265,14 +269,15 @@ static void FUN(gemm_nn)(int m, int n, int k, Dtype alpha, const Dtype *A, int i
               FUN(gemm_kernel_4x4)(kc, alpha, &A_[mm * kc * MR], &B_[nn * kc * NR], _beta, &C0[mm * MR * incRowC + nn * NR * incColC], incRowC, incColC);
             } else {
               FUN(gemm_kernel_4x4)(kc, alpha, &A_[mm * kc * MR], &B_[nn * kc * NR], 0.0, C_, 1, MR);
-              FUN(gescal)(mr, nr, _beta, &C0[mm * MR * incRowC + nn * NR * incColC], incRowC, incColC);
-              FUN(geaxpy)(mr, nr, 1.0, C_, 1, MR, &C0[mm * MR * incRowC + nn * NR * incColC], incRowC, incColC);
+              FUN(gescal)(mr, nr, &_beta, &C0[mm * MR * incRowC + nn * NR * incColC], incRowC, incColC);
+              FUN(geaxpy)(mr, nr, &alpha1, C_, 1, MR, &C0[mm * MR * incRowC + nn * NR * incColC], incRowC, incColC);
             }
           }
         }
       }
     }
   }
+  return 0;
 }
 
 static void FUN(gemm)(CBLAS_ORDER order, const CBLAS_TRANSPOSE TransA, const CBLAS_TRANSPOSE TransB, int M, int N, int K,
@@ -293,13 +298,14 @@ static void FUN(gemm)(CBLAS_ORDER order, const CBLAS_TRANSPOSE TransA, const CBL
 
   if (NULL==fast_sgemm_buf) {
     int size = MC * KC + KC * NC;
+	Dtype zero = 0;
 	fast_sgemm_buf = (Dtype*)malloc(size*sizeof(Dtype));
-    FUN(set)(size, 0, fast_sgemm_buf);
+    FUN(set)(size, &zero, fast_sgemm_buf);
   }
 
   A_ = fast_sgemm_buf;
   B_ = fast_sgemm_buf + MC * KC;
-  FUN(gemm_nn)(M, N, K, alpha, A, lda, ida, B, ldb, idb, beta, C, ldc, idc, MC, NC, KC, A_, B_);
+  FUN(gemm_nn)(M, N, K, &alpha, A, lda, ida, B, ldb, idb, &beta, C, ldc, idc, MC, NC, KC, A_, B_);
   if (fast_sgemm_buf) {
 	  free(fast_sgemm_buf);
   }

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-
+#include <math.h>
 #include "dnn.h"
 
 
@@ -16,7 +16,8 @@
     }                                                          \
  }
 
-int print_tensor(const float* cpu_output, const int* dim) {
+template <typename Dtype>
+int print_tensor(const Dtype* cpu_output, const int* dim) {
 	int out_n = dim[0];
 	int out_c = dim[1];
 	int out_h = dim[2];
@@ -25,7 +26,7 @@ int print_tensor(const float* cpu_output, const int* dim) {
 		for (int channel = 0; channel < out_c; ++channel) {
 			for (int row = 0; row < out_h; ++row) {
 				for (int column = 0; column < out_w; ++column) {
-					float t = cpu_output[(((kernel * out_c) + channel)*out_h + row)*out_w + column];
+					Dtype t = cpu_output[(((kernel * out_c) + channel)*out_h + row)*out_w + column];
 					printf("%g ", t);
 				}
 				printf("\n");
@@ -35,9 +36,18 @@ int print_tensor(const float* cpu_output, const int* dim) {
 	return 0;
 }
 
-int test_conv2_one(IDnn* dnn, const float* cpu_input, const int* in_dim, float*& cpu_output, int* out_dim) {
+template <typename T> struct cdnnDataTypeTrais { enum { type = -1}; };
+template<> struct cdnnDataTypeTrais<float> { enum { type = CDNN_DATA_FLOAT }; };
+template<> struct cdnnDataTypeTrais<double> { enum { type = CDNN_DATA_DOUBLE}; };
+
+template <typename Dtype>
+int test_conv2_one(IDnn* dnn, const Dtype* cpu_input, const int* in_dim, Dtype*& cpu_output, int* out_dim) {
 	int gpu_id = 0;
-	bool with_sigmoid = false;
+	bool with_sigmoid = true;
+	cdnnDataType_t data_type_id = (cdnnDataType_t)cdnnDataTypeTrais<Dtype>::type;
+	if (data_type_id != CDNN_DATA_FLOAT && data_type_id != CDNN_DATA_DOUBLE) {
+		return 0;
+	}
 #if 0
 	if (argc < 2) {
 		std::cerr << "usage: conv <image> [gpu=0] [sigmoid=0]" << std::endl;
@@ -72,7 +82,7 @@ int test_conv2_one(IDnn* dnn, const float* cpu_input, const int* in_dim, float*&
 	out_w = 0;
 
 	int in_count = in_n * in_c * in_h * in_w;
-	int in_bytes = in_count * sizeof(float);
+	int in_bytes = in_count * sizeof(Dtype);
 
 
 	dnn->SetDevice(gpu_id);
@@ -85,7 +95,7 @@ int test_conv2_one(IDnn* dnn, const float* cpu_input, const int* in_dim, float*&
 	checkCUDNN(dnn->CreateTensorDescriptor(&input_descriptor));
 	checkCUDNN(dnn->SetTensor4dDescriptor(input_descriptor,
 		/*format=*/CDNN_TENSOR_NCHW,	// 注意是 NHWC，TensorFlow更喜欢以 NHWC 格式存储张量(通道是变化最频繁的地方，即 BGR)，而其他一些更喜欢将通道放在前面
-		/*dataType=*/CDNN_DATA_FLOAT,
+		/*dataType=*/data_type_id,
 		/*out_n=*/in_n,
 		/*channels=*/in_c,
 		/*image_height=*/in_h,
@@ -95,7 +105,7 @@ int test_conv2_one(IDnn* dnn, const float* cpu_input, const int* in_dim, float*&
 	cdnnFilterDescriptor_t kernel_descriptor;
 	checkCUDNN(dnn->CreateFilterDescriptor(&kernel_descriptor));
 	checkCUDNN(dnn->SetFilter4dDescriptor(kernel_descriptor,
-		/*dataType=*/CDNN_DATA_FLOAT,
+		/*dataType=*/data_type_id,
 		/*format=*/CDNN_TENSOR_NCHW,	// 注意是 NCHW
 		/*out_c=*/ker_n,
 		/*in_channels=*/ker_c,
@@ -113,7 +123,7 @@ int test_conv2_one(IDnn* dnn, const float* cpu_input, const int* in_dim, float*&
 		/*dilation_height=*/1,
 		/*dilation_width=*/1,
 		/*mode=*/CDNN_CROSS_CORRELATION, // CDNN_CONVOLUTION
-		/*computeType=*/CDNN_DATA_FLOAT));
+		/*computeType=*/data_type_id));
 
 	// 计算卷积后图像的维数
 	checkCUDNN(dnn->GetConvolution2dForwardOutputDim(convolution_descriptor, input_descriptor, kernel_descriptor, &out_n, &out_c, &out_h, &out_w));
@@ -125,7 +135,7 @@ int test_conv2_one(IDnn* dnn, const float* cpu_input, const int* in_dim, float*&
 	checkCUDNN(dnn->CreateTensorDescriptor(&output_descriptor));
 	checkCUDNN(dnn->SetTensor4dDescriptor(output_descriptor,
 		/*format=*/CDNN_TENSOR_NCHW,
-		/*dataType=*/CDNN_DATA_FLOAT,
+		/*dataType=*/data_type_id,
 		/*out_n=*/out_n,
 		/*channels=*/out_c,
 		/*image_height=*/out_h,
@@ -163,18 +173,18 @@ int test_conv2_one(IDnn* dnn, const float* cpu_input, const int* in_dim, float*&
 	dnn->Malloc(&gpu_workspace, workspace_bytes);
 
 	// 从 cdnnGetConvolution2dForwardOutputDim 计算而得
-	int out_bytes = out_n * out_c * out_h * out_w * sizeof(float);
+	int out_bytes = out_n * out_c * out_h * out_w * sizeof(Dtype);
 
-	float* gpu_input{ nullptr };
+	Dtype* gpu_input{ nullptr };
 	dnn->Malloc(&gpu_input, in_bytes);
 	dnn->Memcpy(gpu_input, cpu_input, in_bytes, cdnnMemcpyHostToDevice);
 
-	float* gpu_output = NULL;
+	Dtype* gpu_output = NULL;
 	dnn->Malloc(&gpu_output, out_bytes);
 	dnn->Memset(gpu_output, 0, out_bytes);
 	// *************************************************************************
 	// clang-format off
-	const float kernel_template[3][3] = {
+	const Dtype kernel_template[3][3] = {
 		{ 1, 1, 1 },
 		{ 1, 1, 1 },
 		{ 1, 1, 1 }
@@ -182,8 +192,8 @@ int test_conv2_one(IDnn* dnn, const float* cpu_input, const int* in_dim, float*&
 	// clang-format on
 
 	int ker_count = ker_n*ker_c*ker_h*ker_w;
-	int ker_bytes = ker_count * sizeof(float);
-	float* cpu_kernel = (float*)malloc(ker_bytes); // NCHW
+	int ker_bytes = ker_count * sizeof(Dtype);
+	Dtype* cpu_kernel = (Dtype*)malloc(ker_bytes); // NCHW
 	for (int kernel = 0; kernel < ker_n; ++kernel) {
 		for (int channel = 0; channel < ker_c; ++channel) {
 			for (int row = 0; row < ker_h; ++row) {
@@ -194,11 +204,12 @@ int test_conv2_one(IDnn* dnn, const float* cpu_input, const int* in_dim, float*&
 		}
 	}
 
-	float* gpu_kernel = NULL;
+	Dtype* gpu_kernel = NULL;
 	dnn->Malloc(&gpu_kernel, ker_bytes);
 	dnn->Memcpy(gpu_kernel, cpu_kernel, ker_bytes, cdnnMemcpyHostToDevice);
 
-	const float alpha = 1.0f, beta = 0.0f;
+	Dtype alpha = 1.0f, beta = 0.0f;
+	alpha = 0.9, beta = 0.8;
 
 	// 真正的卷积操作 ！！！前向卷积
 	checkCUDNN(dnn->ConvolutionForward(cdnn,
@@ -216,11 +227,17 @@ int test_conv2_one(IDnn* dnn, const float* cpu_input, const int* in_dim, float*&
 		gpu_output));
 
 	if (with_sigmoid) {
+		alpha = 0.9, beta = 0.8;
+		//alpha = 1, beta = 0.;
 		// 描述激活
+		cdnnActivationMode_t mode;
+		mode = CDNN_ACTIVATION_SIGMOID;
+		mode = CDNN_ACTIVATION_RELU;
+		mode = CDNN_ACTIVATION_ELU;
 		cdnnActivationDescriptor_t activation_descriptor;
 		checkCUDNN(dnn->CreateActivationDescriptor(&activation_descriptor));
 		checkCUDNN(dnn->SetActivationDescriptor(activation_descriptor,
-			CDNN_ACTIVATION_SIGMOID,
+			mode,
 			CDNN_PROPAGATE_NAN,
 			/*relu_coef=*/0));
 
@@ -236,7 +253,7 @@ int test_conv2_one(IDnn* dnn, const float* cpu_input, const int* in_dim, float*&
 		dnn->DestroyActivationDescriptor(activation_descriptor);
 	}
 
-	cpu_output = (float*)realloc(cpu_output, out_bytes);
+	cpu_output = (Dtype*)realloc(cpu_output, out_bytes);
 	dnn->Memcpy(cpu_output, gpu_output, out_bytes, cdnnMemcpyDeviceToHost);
 
 
@@ -259,20 +276,23 @@ int test_conv2_one(IDnn* dnn, const float* cpu_input, const int* in_dim, float*&
 	return 0;
 }
 
-int dim_count(const int* dim, int ndim) {
+int dim_count(const int* dim, int i, int ndim);
+int dim_count1(const int* dim, int i, int ndim) {
 	int count = 1;
-	for (int i = 0; i < ndim; ++i) {
+	for (; i < ndim; ++i) {
 		count *= dim[i];
 	}
 	return count;
 }
 
-int test_conv2() {
+
+template <typename Dtype>
+int test_conv2_type() {
 	int in_dim[8] = { 2, 3, 4, 4 };
 
-	int in_count = dim_count(in_dim, 4);
-	int in_bytes = in_count * sizeof(float);
-	float* cpu_input = (float*)malloc(in_bytes);
+	int in_count = dim_count(in_dim, 0, 4);
+	int in_bytes = in_count * sizeof(Dtype);
+	Dtype* cpu_input = (Dtype*)malloc(in_bytes);
 	if (NULL == cpu_input) {
 		printf("cpu_input==NULL\n");
 		return 0;
@@ -281,11 +301,10 @@ int test_conv2() {
 		cpu_input[i] = 1;
 	}
 
-
 	IDnn* dnn;
 	dnn = GetDnnCpu();
-	float* cpu_out = NULL;
-	float* gpu_out = NULL;
+	Dtype* cpu_out = NULL;
+	Dtype* gpu_out = NULL;
 	int cpu_out_dim[8] = { 0 };
 	int gpu_out_dim[8] = { 0 };
 
@@ -296,10 +315,23 @@ int test_conv2() {
 	dnn = GetDnnCuda();
 	test_conv2_one(dnn, cpu_input, in_dim, gpu_out, gpu_out_dim);
 	print_tensor(gpu_out, gpu_out_dim);
-
+	for (int i = 0; i < 4; ++i) {
+		assert(cpu_out_dim[i]== gpu_out_dim[i]);
+	}
+	int out_count = dim_count(gpu_out_dim, 0, 4);
+	double eps = 1e-5;
+	for (int i = 0; i < out_count; ++i) {
+		double t = fabs(cpu_out[i] - gpu_out[i]);
+		assert(t<eps);
+	}
 	free(cpu_out);
 	free(gpu_out);
 	free(cpu_input);
+}
+int test_conv2() {
+	// int test_conv2_cudnn();
+	test_conv2_type<float>();
+	//test_conv2_type<double>();
 	return 0;
 }
 

@@ -1,19 +1,4 @@
 
-//! Various border types, image boundaries are denoted with `|`
-//! @see borderInterpolate, copyMakeBorder
-enum CBorderTypes {
-  CC_BORDER_CONSTANT = 0, //!< `iiiiii|abcdefgh|iiiiiii`  with some specified `i`
-  CC_BORDER_REPLICATE = 1, //!< `aaaaaa|abcdefgh|hhhhhhh`
-  CC_BORDER_REFLECT = 2, //!< `fedcba|abcdefgh|hgfedcb`
-  CC_BORDER_WRAP = 3, //!< `cdefgh|abcdefgh|abcdefg`
-  CC_BORDER_REFLECT_101 = 4, //!< `gfedcb|abcdefgh|gfedcba`
-  CC_BORDER_TRANSPARENT = 5, //!< `uvwxyz|absdefgh|ijklmno`
-
-  CC_BORDER_REFLECT101 = CC_BORDER_REFLECT_101, //!< same as BORDER_REFLECT_101
-  CC_BORDER_DEFAULT = CC_BORDER_REFLECT_101, //!< same as BORDER_REFLECT_101
-  CC_BORDER_ISOLATED = 16 //!< do not look outside of ROI
-};
-
 #if 0
 inline bool is_a_ge_zero_and_a_lt_b(int a, int b)
 {
@@ -52,10 +37,10 @@ void FUN(caffe_set)(const int N, const Stype alpha, Dtype* Y)
 
 
 // mat process
-static void copy_make_border_image(const float* src, float* dst, int src_w, int src_h, int dst_w, int dst_h, int top, int left, enum CBorderTypes type, float v)
+static void FUN(copy_make_border_image)(const Dtype* src, Dtype* dst, int src_w, int src_h, int dst_w, int dst_h, int top, int left, enum CBorderTypes type, Dtype v)
 {
-  const float* ptr = (src);
-  float* outptr = (dst);
+  const Dtype* ptr = (src);
+  Dtype* outptr = (dst);
 
   if (type == CC_BORDER_CONSTANT) {
     int y = 0;
@@ -167,12 +152,12 @@ static void copy_make_border_image(const float* src, float* dst, int src_w, int 
   }
 }
 
-static float* copy_cut_border_image(const float* src, float* dst, int src_w, int src_h, int dst_w, int dst_h, int top, int left)
+static Dtype* FUN(copy_cut_border_image)(const Dtype* src, Dtype* dst, int src_w, int src_h, int dst_w, int dst_h, int top, int left)
 {
   int x, y;
 
-  const float* ptr = src + left + src_w * top;
-  float* outptr = (dst);
+  const Dtype* ptr = src + left + src_w * top;
+  Dtype* outptr = (dst);
 
   for (y = 0; y < dst_h; y++) {
     for (x = 0; x < dst_w; x++) {

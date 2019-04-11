@@ -95,6 +95,9 @@ struct DnnCuda : public IDnn {
 	virtual	cdnnStatus_t ActivationForward(cdnnHandle_t handle, cdnnActivationDescriptor_t activationDesc, const void *alpha, const cdnnTensorDescriptor_t xDesc, const void *x, const void *beta, const cdnnTensorDescriptor_t yDesc, void *y) {
 		return (cdnnStatus_t)cudnnActivationForward((cudnnHandle_t)handle, (cudnnActivationDescriptor_t)activationDesc, alpha, (const cudnnTensorDescriptor_t)xDesc, x, beta, (const cudnnTensorDescriptor_t)yDesc, y);
 	}
+	virtual cdnnStatus_t ActivationBackward(cdnnHandle_t handle, cdnnActivationDescriptor_t activationDesc, const void *alpha, const cdnnTensorDescriptor_t yDesc, const void *y, const cdnnTensorDescriptor_t dyDesc, const void *dy, const cdnnTensorDescriptor_t xDesc, const void *x, const void *beta, const cdnnTensorDescriptor_t dxDesc, void *dx) {
+		return (cdnnStatus_t)cudnnActivationBackward((cudnnHandle_t)handle, (cudnnActivationDescriptor_t)activationDesc, alpha, (const cudnnTensorDescriptor_t)yDesc, y, (const cudnnTensorDescriptor_t)dyDesc, dy, (const cudnnTensorDescriptor_t)xDesc, x, beta, (const cudnnTensorDescriptor_t)dxDesc, dx);
+	}
 	virtual cdnnStatus_t DestroyActivationDescriptor(cdnnActivationDescriptor_t activationDesc) {
 		return (cdnnStatus_t)cudnnDestroyActivationDescriptor((cudnnActivationDescriptor_t)activationDesc);
 	}
@@ -104,7 +107,8 @@ struct DnnCuda : public IDnn {
 /////////////
 
 IDnn* GetDnnCuda() {
-	return new DnnCuda();
+	static DnnCuda dnn_cuda;
+	return &dnn_cuda;
 }
 
 

@@ -4,10 +4,11 @@
 
 #pragma warning(disable:4068 4756)
 
-#include "std/stddef_c.h"
+//#include "std/stddef_c.h"
 //#define USE_OPENCV
 //#define CPU_ONLY
 //#define USE_LMDB
+//#define USE_DOUBLE
 
 #ifdef __ARM_NEON
 #define __arm__
