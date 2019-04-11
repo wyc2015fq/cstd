@@ -16,10 +16,26 @@
     }                                                          \
  }
 
-int test_conv2() {
-	IDnn* dnn;
-	dnn = GetDnnCpu();
-	dnn = GetDnnCuda();
+int print_tensor(const float* cpu_output, const int* dim) {
+	int out_n = dim[0];
+	int out_c = dim[1];
+	int out_h = dim[2];
+	int out_w = dim[3];
+	for (int kernel = 0; kernel < out_n; ++kernel) {
+		for (int channel = 0; channel < out_c; ++channel) {
+			for (int row = 0; row < out_h; ++row) {
+				for (int column = 0; column < out_w; ++column) {
+					float t = cpu_output[(((kernel * out_c) + channel)*out_h + row)*out_w + column];
+					printf("%g ", t);
+				}
+				printf("\n");
+			}
+		}
+	}
+	return 0;
+}
+
+int test_conv2_one(IDnn* dnn, const float* cpu_input, const int* in_dim, float*& cpu_output, int* out_dim) {
 	int gpu_id = 0;
 	bool with_sigmoid = false;
 #if 0
@@ -34,32 +50,30 @@ int test_conv2() {
 	printf("GPU: %d\n", gpu_id);
 
 	printf("With sigmoid: %d\n", with_sigmoid);
-	int in_n = 2;
-	int in_c = 3;
-	int in_h = 4;
-	int in_w = 4;
 	//cv::Mat image = load_image(argv[1]);
+	int in_n = in_dim[0];
+	int in_c = in_dim[1];
+	int in_h = in_dim[2];
+	int in_w = in_dim[3];
+
+	int& out_n = out_dim[0];
+	int& out_c = out_dim[1];
+	int& out_h = out_dim[2];
+	int& out_w = out_dim[3];
+
 	int ker_n = 2;
 	int ker_c = in_c;
 	int ker_h = 3;
 	int ker_w = 3;
 
-	int out_n = 0;
-	int out_c = 0;
-	int out_h = 0;
-	int out_w = 0;
+	out_n = 0;
+	out_c = 0;
+	out_h = 0;
+	out_w = 0;
 
 	int in_count = in_n * in_c * in_h * in_w;
 	int in_bytes = in_count * sizeof(float);
-	float* cpu_input = (float*)malloc(in_bytes);
 
-	if (NULL == cpu_input) {
-		printf("cpu_input==NULL\n");
-		return 0;
-	}
-	for (int i = 0; i < in_count; ++i) {
-		cpu_input[i] = 1;
-	}
 
 	dnn->SetDevice(gpu_id);
 
@@ -102,7 +116,7 @@ int test_conv2() {
 		/*computeType=*/CDNN_DATA_FLOAT));
 
 	// 计算卷积后图像的维数
-	checkCUDNN(dnn->GetConvolution2dForwardOutputDim(convolution_descriptor,input_descriptor,kernel_descriptor,&out_n,&out_c,&out_h,&out_w));
+	checkCUDNN(dnn->GetConvolution2dForwardOutputDim(convolution_descriptor, input_descriptor, kernel_descriptor, &out_n, &out_c, &out_h, &out_w));
 
 	printf("Output Image[NHWC]: %d %d %d %d\n", out_n, out_h, out_w, out_c);
 
@@ -123,13 +137,13 @@ int test_conv2() {
 	// cdnn_tion_fwd_algo_winograd——它使用Winograd算法执行卷积。
 	cdnnConvolutionFwdAlgo_t convolution_algorithm;
 	checkCUDNN(dnn->GetConvolutionForwardAlgorithm(cdnn,
-			input_descriptor,
-			kernel_descriptor,
-			convolution_descriptor,
-			output_descriptor,
-			CDNN_CONVOLUTION_FWD_PREFER_FASTEST, // CDNN_CONVOLUTION_FWD_SPECIFY_?WORKSPACE_LIMIT（在内存受限的情况下，memoryLimitInBytes 设置非 0 值）
-			/*memoryLimitInBytes=*/0,
-			&convolution_algorithm));
+		input_descriptor,
+		kernel_descriptor,
+		convolution_descriptor,
+		output_descriptor,
+		CDNN_CONVOLUTION_FWD_PREFER_FASTEST, // CDNN_CONVOLUTION_FWD_SPECIFY_?WORKSPACE_LIMIT（在内存受限的情况下，memoryLimitInBytes 设置非 0 值）
+		/*memoryLimitInBytes=*/0,
+		&convolution_algorithm));
 
 	// 计算 cuDNN 它的操作需要多少内存
 	size_t workspace_bytes = 0;
@@ -222,46 +236,11 @@ int test_conv2() {
 		dnn->DestroyActivationDescriptor(activation_descriptor);
 	}
 
-	float* cpu_output = (float*)malloc(out_bytes);
+	cpu_output = (float*)realloc(cpu_output, out_bytes);
 	dnn->Memcpy(cpu_output, gpu_output, out_bytes, cdnnMemcpyDeviceToHost);
 
-	if (1) {
-		for (int kernel = 0; kernel < ker_n; ++kernel) {
-			for (int channel = 0; channel < ker_c; ++channel) {
-				for (int row = 0; row < ker_h; ++row) {
-					for (int column = 0; column < ker_w; ++column) {
-						float t = cpu_kernel[(((kernel * ker_c) + channel)*ker_h + row)*ker_w + column];
-						printf("%g ", t);
-					}
-					printf("\n");
-				}
-			}
-		}
-	}
-	for (int kernel = 0; kernel < in_n; ++kernel) {
-		for (int channel = 0; channel < in_c; ++channel) {
-			for (int row = 0; row < out_h; ++row) {
-				for (int column = 0; column < in_w; ++column) {
-					float t = cpu_input[(((kernel * in_c) + channel)*in_h + row)*in_w + column];
-					printf("%g ", t);
-				}
-				printf("\n");
-			}
-		}
-	}
-	for (int kernel = 0; kernel < out_n; ++kernel) {
-		for (int channel = 0; channel < out_c; ++channel) {
-			for (int row = 0; row < out_h; ++row) {
-				for (int column = 0; column < out_w; ++column) {
-					float t = cpu_output[(((kernel * out_c) + channel)*out_h + row)*out_w + column];
-					printf("%g ", t);
-				}
-				printf("\n");
-			}
-		}
-	}
-	free(cpu_input);
-	free(cpu_output);
+
+	//free(cpu_output);
 	free(cpu_kernel);
 	//save_image("../cdnn-out.png", cpu_output, out_h, out_w);
 
@@ -277,6 +256,50 @@ int test_conv2() {
 	dnn->DestroyConvolutionDescriptor(convolution_descriptor);
 
 	dnn->Destroy(cdnn);
+	return 0;
+}
+
+int dim_count(const int* dim, int ndim) {
+	int count = 1;
+	for (int i = 0; i < ndim; ++i) {
+		count *= dim[i];
+	}
+	return count;
+}
+
+int test_conv2() {
+	int in_dim[8] = { 2, 3, 4, 4 };
+
+	int in_count = dim_count(in_dim, 4);
+	int in_bytes = in_count * sizeof(float);
+	float* cpu_input = (float*)malloc(in_bytes);
+	if (NULL == cpu_input) {
+		printf("cpu_input==NULL\n");
+		return 0;
+	}
+	for (int i = 0; i < in_count; ++i) {
+		cpu_input[i] = 1;
+	}
+
+
+	IDnn* dnn;
+	dnn = GetDnnCpu();
+	float* cpu_out = NULL;
+	float* gpu_out = NULL;
+	int cpu_out_dim[8] = { 0 };
+	int gpu_out_dim[8] = { 0 };
+
+	print_tensor(cpu_input, in_dim);
+	test_conv2_one(dnn, cpu_input, in_dim, cpu_out, cpu_out_dim);
+	print_tensor(cpu_out, cpu_out_dim);
+
+	dnn = GetDnnCuda();
+	test_conv2_one(dnn, cpu_input, in_dim, gpu_out, gpu_out_dim);
+	print_tensor(gpu_out, gpu_out_dim);
+
+	free(cpu_out);
+	free(gpu_out);
+	free(cpu_input);
 	return 0;
 }
 

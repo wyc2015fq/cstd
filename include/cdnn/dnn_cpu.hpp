@@ -158,7 +158,7 @@ struct DnnCpu : public IDnn {
 	}
 	//conv
 	virtual cdnnStatus_t CreateConvolutionDescriptor(cdnnConvolutionDescriptor_t *convDesc) {
-		cdnnConvolutionDescriptorCpu* desc = (cdnnConvolutionDescriptorCpu*)malloc(sizeof(cdnnConvolutionDescriptor_t));
+		cdnnConvolutionDescriptorCpu* desc = (cdnnConvolutionDescriptorCpu*)malloc(sizeof(cdnnConvolutionDescriptorCpu));
 		if (desc == NULL) return CDNN_STATUS_ALLOC_FAILED;
 		memset(desc, 0, sizeof(cdnnConvolutionDescriptorCpu));
 		*convDesc = (cdnnConvolutionDescriptor_t)desc;
@@ -242,6 +242,9 @@ struct DnnCpu : public IDnn {
 	virtual cdnnStatus_t SetActivationDescriptor(cdnnActivationDescriptor_t activationDesc, cdnnActivationMode_t mode, cdnnNanPropagation_t reluNanOpt, double coef) {
 		if (activationDesc == NULL) return CDNN_STATUS_ALLOC_FAILED;
 		cdnnActivationDescriptorCpu* desc = (cdnnActivationDescriptorCpu*)activationDesc;
+		desc->coef = coef;
+		desc->mode = mode;
+		desc->reluNanOpt = reluNanOpt;
 		return CDNN_STATUS_SUCCESS;
 	}
 	virtual	cdnnStatus_t ActivationForward(cdnnHandle_t handle, cdnnActivationDescriptor_t activationDesc, const void *alpha, const cdnnTensorDescriptor_t xDesc, const void *x, const void *beta, const cdnnTensorDescriptor_t yDesc, void *y) {

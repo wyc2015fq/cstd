@@ -4,6 +4,50 @@
 
 # 技术博客
 
+[元气少女wuqh](https://blog.csdn.net/tsinghuahui) ML
+
+[机器人之家](https://www.jqr.com/ai/article)
+
+[Wanna_Go](https://www.cnblogs.com/wxshi/) ML
+
+[simplex](https://www.cnblogs.com/simplex/) ML [优化方法](https://www.cnblogs.com/simplex/p/6777705.html) [数值优化](https://www.cnblogs.com/simplex/tag/%E6%95%B0%E5%80%BC%E4%BC%98%E5%8C%96/)
+
+[Hungryof](https://blog.csdn.net/Hungryof) pytorch
+
+[AI之路](https://blog.csdn.net/u014380165) 
+
+[梦溪笔记](https://blog.csdn.net/tanmx219) CV
+
+[zqh_zy](https://www.jianshu.com/u/0a00a0ea2759) DL
+
+[比特字节](https://blog.csdn.net/u010435562) halcon 机器视觉
+
+[panda1234lee](https://blog.csdn.net/panda1234lee) android 图像 opencv
+
+[ffiirree](https://me.csdn.net/ice__snow)  飞控 导航 ML C++
+
+[jacob_wjj](https://me.csdn.net/jiangbo1017) CUDA leetcode dl 图形
+
+[一葉知秋](https://www.cnblogs.com/rwxwsblog/) java 架构 spring mysql
+
+[行者小朱](https://me.csdn.net/u012050154) 大数据 GO redis 爬虫
+
+[田神](https://blog.csdn.net/StreamRock) ML
+
+[lunar](http://www.lunarnai.cn/2019/03/25/simple_EM/) NLP ML 数学
+
+[Liang_Ling](https://me.csdn.net/Liang_Ling) 数学 泛函分析
+
+[Inside_Zhang](https://blog.csdn.net/lanchunhui) ML 数学
+
+[NirHeavenX](https://me.csdn.net/qsczse943062710) ML 
+
+[颹蕭蕭](https://blog.csdn.net/itnerd) 数学 ML
+
+[J-A](https://blog.csdn.net/lxy_2011) ROS
+
+[Matrix67: The Aha Moments](http://www.matrix67.com/blog/)  数学 科普
+
 [我爱自然语言处理](http://www.52nlp.cn/)
 
 [白马负金羁](https://blog.csdn.net/baimafujinji)

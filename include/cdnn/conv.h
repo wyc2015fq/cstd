@@ -102,8 +102,8 @@ cdnnStatus_t FUN(ConvolutionForward)(cdnnHandle_t handle, const void *alpha, con
     return;
   }
 #endif
+  int ndim = dim_ndim(inSize.dim);
   int group_ = 1;
-  const Dtype* col_buff = inData;
   Dtype* col_buffer_ = NULL;
   bool skip_im2col = false;
   int conv_out_channels_ = outSize.c;
@@ -129,16 +129,23 @@ cdnnStatus_t FUN(ConvolutionForward)(cdnnHandle_t handle, const void *alpha, con
   //LOG(INFO) << "rev2d " << a.elapsed();
 
   //a.restart();
-  if (!is_1x1_) {
-	  col_buffer_ = (Dtype*)malloc(col_buffer_size_ * sizeof(Dtype));
-	  FUN(im2col)(inData, inSize.c, inSize.h, inSize.w, kernel_h, kernel_w, pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w, col_buffer_);
-      col_buff = col_buffer_;
-  }
-  //LOG(INFO) << "im2col " << a.elapsed();
-  //a.restart();
-  for (int g = 0; g < group_; ++g) {
-    FUN(caffe_gemm)(CblasNoTrans, CblasNoTrans, conv_out_channels_ / group_, conv_out_spatial_dim_, kernel_dim_,
-      (Dtype)1., weights + weight_offset_ * g, col_buff + col_offset_ * g, (Dtype)0., outData + output_offset_ * g);
+  int in_size2 = dim_count(inSize.dim, 1, ndim);
+  int out_size2 = dim_count(outSize.dim, 1, ndim);
+  for (int i = 0; i < inSize.n; ++i) {
+	  const Dtype* in_data = inData + i*in_size2;
+	  Dtype* out_data = outData + i*out_size2;
+	  const Dtype* col_buff = in_data;
+	  if (!is_1x1_) {
+		  col_buffer_ = (Dtype*)malloc(col_buffer_size_ * sizeof(Dtype));
+		  FUN(im2col)(in_data, inSize.c, inSize.h, inSize.w, kernel_h, kernel_w, pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w, col_buffer_);
+		  col_buff = col_buffer_;
+	  }
+	  //LOG(INFO) << "im2col " << a.elapsed();
+	  //a.restart();
+	  for (int g = 0; g < group_; ++g) {
+		  FUN(caffe_gemm)(CblasNoTrans, CblasNoTrans, conv_out_channels_ / group_, conv_out_spatial_dim_, kernel_dim_,
+			  (Dtype)1., weights + weight_offset_ * g, col_buff + col_offset_ * g, (Dtype)0., out_data + output_offset_ * g);
+	  }
   }
   //LOG(INFO) << "caffe_gemm " << a.elapsed();
   if (col_buffer_) { free(col_buffer_); }

@@ -7,7 +7,7 @@
 struct cdnnContextCpu {
 	int x;
 };
-struct cdnnDimCpu {
+union cdnnDimCpu {
 	int data[CDNN_DIM_MAX];
 	struct { int n, c, h, w; };
 	struct { int dim[CDNN_DIM_MAX]; };
@@ -32,5 +32,18 @@ struct cdnnConvolutionDescriptorCpu {
 	int num_spatial_axes_;
 };
 
+
+int dim_count(const int* dim, int i, int end) {
+	int count = 1;
+	for (; i < end; ++i) {
+		count *= dim[i];
+	}
+	return count;
+}
+int dim_ndim(const int* dim) {
+	int i = 0;
+	for (; i < CDNN_DIM_MAX && dim[i]>0; ++i) {}
+	return i;
+}
 
 #endif // __CSTD_CDNN_CPU_H__
