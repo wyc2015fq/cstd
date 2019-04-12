@@ -1,0 +1,215 @@
+﻿
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="referrer" content="origin" />
+    <title>EM算法通俗解释 - simplex - 博客园</title>
+<meta property="og:description" content="前言 EM算法大家应该都耳熟能详了，不过很多关于算法的介绍都有很多公式。当然严格的证明肯定少不了公式，不过推公式也是得建立在了解概念的基础上是吧。所以本文就试图以比较直观的方式谈下对EM算法的理解，尽" />
+    <link type="text/css" rel="stylesheet" href="/bundles/blog-common.css?v=svlZeZMvc3He7PqOD4T7SOuQn0_kIfLBYiy3idqd35Y1"/>
+<link id="MainCss" type="text/css" rel="stylesheet" href="/skins/BlackSun/bundle-BlackSun.css?v=cjspy28G783rIsTSXk7szarHiaYj1T6WUxovI8nmoCg1"/>
+<link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/BlackSun/bundle-BlackSun-mobile.css?v=n4b9ucK_QQ68Oh4-FM9d-4C-6ek2ijoiAqiCYiZF2Co1"/>
+    <link title="RSS" type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/simplex/rss"/>
+    <link title="RSD" type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/simplex/rsd.xml"/>
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/simplex/wlwmanifest.xml"/>
+    <script src="//common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script>var currentBlogId=299322;var currentBlogApp='simplex',cb_enable_mathjax=true;var isLogined=false;</script>
+    <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']], processClass: 'math', processEscapes: true },
+        TeX: { 
+            equationNumbers: { autoNumber: ['AMS'], useLabelIds: true }, 
+            extensions: ['extpfeil.js'],
+            Macros: {bm: "\\boldsymbol"}
+        },
+        'HTML-CSS': { linebreaks: { automatic: true } },
+        SVG: { linebreaks: { automatic: true } }
+        });
+    </script><script src="//mathjax.cnblogs.com/2_7_2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="/bundles/blog-common.js?v=OFBZTzkHKauV7mtIFLF9jlqrX-sesK9-mY9KjurLrq01" type="text/javascript"></script>
+</head>
+<body>
+<a name="top"></a>
+
+
+<div id="top">
+	
+<div>
+	<table class="HeaderTitles">
+		<tr>
+			<td>
+				<h1 class="HeaderTitle"><a id="Header1_HeaderTitle" class="HeaderMainTitle" href="https://www.cnblogs.com/simplex/">simplex</a></h1>
+				<p id="tagline"></p>
+			</td>
+		</tr>
+	</table>
+</div>
+<div>
+	<table id="HeaderBar" class="HeaderBar">
+		<tr>
+			<td class="HeaderBarTab" nowrap>
+				
+&nbsp;
+<a id="blog_nav_sitehome" href="https://www.cnblogs.com/">博客园</a>&nbsp;::
+<a id="blog_nav_myhome" href="https://www.cnblogs.com/simplex/">首页</a>&nbsp;::
+<a id="blog_nav_newpost" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a>&nbsp;::
+<a id="blog_nav_contact" accesskey="9" rel="nofollow" href="https://msg.cnblogs.com/send/simplex">联系</a>&nbsp;::
+<a id="blog_nav_rss" href="https://www.cnblogs.com/simplex/rss">订阅</a>
+<a id="blog_nav_rss_image" class="XMLLink" href="https://www.cnblogs.com/simplex/rss"><img src="//www.cnblogs.com/images/xml.gif" alt="订阅" /></a>&nbsp;::
+<a id="blog_nav_admin" rel="nofollow" href="https://i.cnblogs.com/">管理</a>
+
+			</td>
+			
+			<td class="HeaderBarTabBack" nowrap width="100%">
+				<div id="blog_stats">
+
+	<table class="BlogStatsBar">
+		<tr>
+			<td width="100%">
+			</td>
+			<td class="BlogStatsBar" nowrap>
+				&nbsp;
+				17 
+				Posts&nbsp;::
+				0 Stories
+				::
+				5 Comments
+				::
+				0 Trackbacks
+			</td>
+		</tr>
+	</table>
+</div>
+			</td>
+		</tr>
+	</table>
+</div>
+
+</div>
+<table id="maintable">
+	<tr><td id="leftmenu">
+	
+		
+<h3>公告</h3>
+<div class="News">
+	<div id="blog-news"></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+		<div id="blog-sidecolumn"></div><script type="text/javascript">loadBlogSideColumn();</script>
+	
+</td><td id="main">
+	
+        <div id="post_detail">
+<div class="post">
+			<div class="postTitle">
+				<a id="cb_post_title_url" href="https://www.cnblogs.com/simplex/p/9893386.html">EM算法通俗解释</a>
+			</div>
+	
+	<div class="postText">
+		<div id="cnblogs_post_body" class="blogpost-body"><h3>前言</h3>
+<p>　　EM算法大家应该都耳熟能详了，不过很多关于算法的介绍都有很多公式。当然严格的证明肯定少不了公式，不过推公式也是得建立在了解概念的基础上是吧。所以本文就试图以比较直观的方式谈下对EM算法的理解，尽量不引入推导和证明，希望可以有助理解算法的思路。</p>
+<h3>介绍</h3>
+<p>　　EM方法是专门为优化似然函数设计的一种优化算法。它的主要应用场景是在用缺失数据训练模型时。由于数据的缺失，我们只能把似然函数在这些缺失数据上边缘化，这就造成带有缺失值的似然函数具有多个完备数据似然函数之和的形式。这种求和造成两个后果：一是本来可能因子分解的形式被打破（本来独立的变量耦合在一起了），二是本来具有的凸性被打破（加法运算不具有保凸性）。因此，优化带有缺失值的似然函数一般是一个高维的非凸优化问题，换句话说就是比较难的问题。</p>
+<p><br />　　EM算法的思路基于以下观察：</p>
+<ul>
+<li>在给定模型参数的情况下，执行推理比较简单</li>
+<li>在给定完备数据的情况下，执行极大似然优化也比较简单</li>
+</ul>
+<p>　　不幸的是，带有缺失值的似然函数以上两个条件都不满足。因此，EM算法采用了一种自举(bootstrap)的方式来进行逐步优化：</p>
+<p><br />1. 任选一组模型参数，执行推理，得到各个缺失值的概率分布，然后认为一个缺失值是由所有可能的观测值组成的，每个观测值的权重为其概率。这样我们就把缺失数据的问题转换成了完备数据的问题。这一步称作E步。<br /><br />　　关于E步，可以举一个简单的例子。</p>
+<p>　　比如我们想优化似然函数\(P(x,y,z|\mathbf{\theta})\)，但是数据有一个缺失值\(x=0,y=1,z=?\)。我们可以这么处理：</p>
+<p>　　通过任选一组\(\mathbf{\theta}=\mathbf{\theta}_0\)，我们推理得出\(P(z=0|x=0,y=1,\mathbf{\theta}_0)=0.3\)，\(P(z=1|x=0,y=1,\mathbf{\theta}_0)=0.7\)。</p>
+<p>　　据此我们可以认为这个缺失数据是由0.3个\(x=0,y=1,z=0\)和0.7个\(x=0,y=1,z=1\)组成的，这样就完成了缺失数据的补全。</p>
+<p>　　现在，似然函数可以表示为：</p>
+<p style="text-align: center;">\(P(x=0,y=1,z=?|\mathbf{\theta})=0.3P(x=0,y=1,z=0|\mathbf{\theta})+0.7P(x=0,y=1,z=1|\mathbf{\theta})=E_z[P(x=0,y=1,z=?|\mathbf{\theta})]\)</p>
+<p>　　可见新的似然函数就是对带有缺失值的似然函数关于缺失数据求期望而来，这也是E步名称的由来。</p>
+<p>2. 对于E步得到的似然函数，已经没有缺失值了，所以可以执行一次对完整数据的极大似然优化，对模型参数进行更新。</p>
+<p>EM算法就是循环执行步骤12，不断逼近某个局部极值的过程。可以证明EM算法每步都更接近局部极值，就是所谓的&ldquo;爬山&rdquo;过程</p>
+<p><br />注意在执行步骤2时，似然函数=所有数据点的似然函数之积，对于缺失值，改为用<br /><br /><br />先把缺失数据填充上， 执行步骤1，得到模型参数；然后用得到的模型参数执行步骤2，得到缺失值的数据...如此反复迭代，以实现优化的目的。<br />可以证明EM算法的每一步都是往更好的结果走，因此可以实现优化的目的。</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory"></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info">
+</div>
+<div class="clear"></div>
+<div id="post_next_prev"></div>
+</div>
+
+
+	</div>
+	
+	<div class="postfoot">
+		posted on <span id="post-date">2018-11-01 23:37</span> <a href='https://www.cnblogs.com/simplex/'>simplex</a> 阅读(<span id="post_view_count">...</span>) 评论(<span id="post_comment_count">...</span>)  <a href ="https://i.cnblogs.com/EditPosts.aspx?postid=9893386" rel="nofollow">编辑</a> <a href="#" onclick="AddToWz(9893386);return false;">收藏</a>
+	</div>
+</div>
+<script type="text/javascript">var allowComments=true,cb_blogId=299322,cb_entryId=9893386,cb_blogApp=currentBlogApp,cb_blogUserGuid='b511ba23-035e-e611-9fc1-ac853d9f53cc',cb_entryCreatedDate='2018/11/1 23:37:00';loadViewCount(cb_entryId);var cb_postType=1;var isMarkdown=false;</script>
+
+</div><a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id='comment_form' class='commentform'>
+<a name='commentform'></a>
+<div id='divCommentShow'></div>
+<div id='comment_nav'><span id='span_refresh_tips'></span><a href='javascript:void(0);' onclick='return RefreshCommentList();' id='lnk_RefreshComments' runat='server' clientidmode='Static'>刷新评论</a><a href='#' onclick='return RefreshPage();'>刷新页面</a><a href='#top'>返回顶部</a></div>
+<div id='comment_form_container'></div>
+<div class='ad_text_commentbox' id='ad_text_under_commentbox'></div>
+<div id='ad_t2'></div>
+<div id='opt_under_post'></div>
+<script async='async' src='https://www.googletagservices.com/tag/js/gpt.js'></script>
+<script>
+  var googletag = googletag || {};
+  googletag.cmd = googletag.cmd || [];
+</script>
+<script>
+  googletag.cmd.push(function() {
+        googletag.defineSlot('/1090369/C1', [300, 250], 'div-gpt-ad-1546353474406-0').addService(googletag.pubads());
+        googletag.defineSlot('/1090369/C2', [468, 60], 'div-gpt-ad-1539008685004-0').addService(googletag.pubads());
+        googletag.pubads().enableSingleRequest();
+        googletag.enableServices();
+  });
+</script>
+<div id='cnblogs_c1' class='c_ad_block'>
+    <div id='div-gpt-ad-1546353474406-0' style='height:250px; width:300px;'></div>
+</div>
+<div id='under_post_news'></div>
+<div id='cnblogs_c2' class='c_ad_block'>
+    <div id='div-gpt-ad-1539008685004-0' style='height:60px; width:468px;'></div>
+</div>
+<div id='under_post_kb'></div>
+<div id='HistoryToday' class='c_ad_block'></div>
+<script type='text/javascript'>
+ if(enablePostBottom()) {
+    codeHighlight();
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverT2();
+    deliverC1();
+    deliverC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);  
+}
+</script>
+</div>
+
+    
+</tr>
+</table>
+
+<p id="footer">
+	Copyright @
+	simplex<BR>
+	Powered by:
+	<a href="http://scottwater.com/blog" target=_blank>.Text</a> and 
+	<a href="http://asp.net" target=_blank>ASP.NET</a>
+	<br>
+	Theme by: <a href="http://www.DotNetMonster.com" target=_blank>.NET Monster</a>
+</p>
+
+
+
+</body>
+</html>

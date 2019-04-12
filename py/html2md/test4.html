@@ -1,0 +1,3740 @@
+﻿
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="canonical" href="https://blog.csdn.net/lin_tuer/article/details/80830485"/>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="renderer" content="webkit"/>
+    <meta name="force-rendering" content="webkit"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="referrer" content="always">
+    <meta http-equiv="Cache-Control" content="no-siteapp" /><link rel="alternate" media="handheld" href="#" />
+    <meta name="shenma-site-verification" content="5a59773ab8077d4a62bf469ab966a63b_1497598848">
+        <meta name="csdn-baidu-search"  content='{"autorun":true,"install":true,"keyword":"python 删除字符串多余空格及删除多余的空格与空行 - lin_tuer的博客"}'>
+    
+    <link href="https://csdnimg.cn/public/favicon.ico" rel="SHORTCUT ICON">
+    <title>python 删除字符串多余空格及删除多余的空格与空行 - lin_tuer的博客 - CSDN博客</title>
+
+        
+                    <link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/detail-7b6c1cb5d6.min.css">
+            
+        
+          <link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/themes/skin-yellow/skin-yellow-2eefd34acf.min.css">
+        <script type="text/javascript">
+        var username = "lin_tuer";
+        var userPermission = false;
+        var blog_address = "https://blog.csdn.net/lin_tuer";
+        var static_host = "https://csdnimg.cn/release/phoenix/";
+        var currentUserName = "u014528142";
+        var currentUserPermission = false;
+        var isShowAds = true;
+        var isOwner = false;
+        var loginUrl = "http://passport.csdn.net/account/login?from=https://blog.csdn.net/lin_tuer/article/details/80830485"
+        var blogUrl = "https://blog.csdn.net/";
+        //页面皮肤样式
+        var curSkin = "skin-yellow";
+        // 第四范式所需数据
+        var articleTitles = "python 删除字符串多余空格及删除多余的空格与空行 - lin_tuer的博客";
+        var articleID = "80830485";
+        
+        var nickName = "lin_tuer";
+        var isCorporate = false;
+        var subDomainBlogUrl = "https://blog.csdn.net/"
+        var digg_base_url = "https://blog.csdn.net/lin_tuer/phoenix/comment";
+    </script>
+    <script type="text/javascript">
+        // Traffic Stats of the entire Web site By baidu
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?6bcd52f51e9b3dce32bec4a3997715ac";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+        // Traffic Stats of the entire Web site By baidu end
+    </script>
+    <script src="https://csdnimg.cn/public/common/libs/jquery/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="https://csdnimg.cn/rabbit/exposure-click/main-1.0.6.js"></script>
+    <script src="//g.csdnimg.cn/fixed-sidebar/1.1.3/fixed-sidebar.js" type="text/javascript"></script>
+    <!-- 新版上报 -->
+          <script type="text/javascript" src="https://csdnimg.cn/release/phoenix/production/track-c86a2663d0.js" /></script>
+        <!-- 新版上报end -->
+
+    <link rel="stylesheet" href="https://csdnimg.cn/public/sandalstrap/1.4/css/sandalstrap.min.css">
+    <style>
+        .MathJax, .MathJax_Message, .MathJax_Preview{
+            display: none
+        }
+    </style>
+</head>
+<!-- nodata 第三栏接口无数据时样式不变 -->
+<body class="nodata " > 
+    <link rel="stylesheet" href="https://csdnimg.cn/public/common/toolbar/content_toolbar_css/content_toolbar.css">
+    <script id="toolbar-tpl-scriptId" src="https://csdnimg.cn/public/common/toolbar/js/content_toolbar.js" type="text/javascript" domain="https://blog.csdn.net/"></script>
+<div id="kp_box_476" data-pid="476" data-track-view='{"mod":"kp_popu_476-865","con":",,"}' data-track-click='{"mod":"kp_popu_476-865","con":",,"}'><script src="//csdnimg.cn/public/common/indexSuperise/1.0.3/indexSuperise.js?20190103190825"></script>
+<script>
+ window.csdn.indexSuperise({
+      smallMoveImg: '//img-ads.csdn.net/2019/201904041737196130.jpg',
+      bigMoveImg: '//img-ads.csdn.net/2019/201904041737454399.jpg',
+     link:'//j.youzan.com/MZVGx9',
+boxStyle:140,
+trackSuperId:476,
+smallMove:'notMove',  
+trackSId:865
+    });
+</script></div><link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/blog_code-c3a0c33d5c.css">
+<link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/vendor/pagination/paging.css">
+<script type="text/javascript">
+	// 容错处理
+	var NEWS_FEED = function(){}
+</script>
+<script type="text/javascript" src="//static.mediav.com/js/mvf_news_feed.js"></script>
+<script type="text/javascript" src="//g.csdnimg.cn/copyright/1.0.3/copyright.js"></script>
+<div style="display:none;">
+	<img src="" onerror='setTimeout(function(){if(!/(csdn.net|iteye.com|baiducontent.com|googleusercontent.com|360webcache.com|sogoucdn.com|bingj.com|baidu.com)$/.test(window.location.hostname)){window.location.href="\x68\x74\x74\x70\x73\x3a\x2f\x2f\x77\x77\x77\x2e\x63\x73\x64\x6e\x2e\x6e\x65\x74"}},3000);'>
+</div>
+<link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/chart-3456820cac.css" />
+<script src="https://dup.baidustatic.com/js/ds.js"></script>
+<div class="container clearfix" id="mainBox">
+			<div class="recommend-right">
+  <ul class="recommend-fixed-box">
+    
+  </ul>
+</div>	
+    <main>
+        <div class="blog-content-box">
+	<div class="article-header-box">
+		<div class="article-header">
+			<div class="article-title-box">
+				<span class="article-type type-1 float-left">原</span>				<h1 class="title-article">python 删除字符串多余空格及删除多余的空格与空行</h1>
+			</div>
+			<div class="article-info-box">
+				<div class="article-bar-top">
+																									<span class="time">2018年06月27日 16:28:49</span>
+					<a class="follow-nickName" href="https://me.csdn.net/lin_tuer" target="_blank">lin_tuer</a>
+						<span class="read-count">阅读数：3032</span>
+										</div>
+				<div class="operating">
+									</div>
+			</div>
+		</div>
+	</div>
+	<article class="baidu_pl">
+		<div id="article_content" class="article_content clearfix csdn-tracking-statistics" data-pid="blog"  data-mod=popu_307  data-dsm = "post" >
+								<link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/ck_htmledit_views-f57960eb32.css" />
+								            <link rel="stylesheet" href="https://csdnimg.cn/release/phoenix/template/css/ck_htmledit_views-f57960eb32.css" />
+						<div class="htmledit_views" id="content_views">
+                <p>这个功能我用了几次了，但是自己不去记录，一直需要查找，因此，特意来记录一下。</p><p>要实现这个功能可以有多种方法：</p><p>1. 通过字符串的 replace</p><pre><code class="language-python">test = 'I love python'
+print(test.replace(' ','')))</code></pre><p>2. 通过字符串的 split 与 join 结合</p><pre><code class="language-python">test = 'I love python'
+test = test.split(' ') # 这里变成了 list ['I','love','python']
+test = ''.join(test) # list 拼接成 str,'Ilovepython'</code></pre><br /><p>3. 使用 python 的正则表达式 re</p><pre><code class="language-python">import re
+test = 'I love python'
+strinfo = re.compile(' ')
+test = strinfo.sub('',test)
+</code></pre><p>------------------</p><p>如要要删除文字中多余的空格和空行：</p><pre><code class="language-python">import re
+</code></pre><p class="p1"><span class="s1"><span> </span>re.sub('[\n]+', '\n', 'dfadf <span>  </span>d\n \n\n \nfa<span>  </span>ds ')</span></p>
+<p></p><br /><br />            </div>
+                      </div>
+	</article>
+</div>
+  <div class="hide-article-box hide-article-pos text-center">
+    <div class="border"></div>
+        <a class="btn article-footer-btn" id="btn-readmore" data-track-view='{"mod":"popu_376","con":",https://blog.csdn.net/lin_tuer/article/details/80830485,"}' data-track-click='{"mod":"popu_376","con":",https://blog.csdn.net/lin_tuer/article/details/80830485,"}'>阅读更多</a>
+        <a class="btn article-footer-btn article-footer-bookmark-btn" >
+      <svg class="icon no-active hover-hide" aria-hidden="true">
+        <use xlink:href="#csdnc-bookmark"></use>
+      </svg>
+      <span>收藏</span>
+    </a>
+    <div class="btn article-footer-btn  bds_weixin article-footer-share-btn" data-cmd="weixin" title="分享">
+      <svg class="icon no-active hover-hide" aria-hidden="true">
+        <use xlink:href="#csdnc-share"></use>
+      </svg>
+      <span>分享</span>
+      <div class="bdsharebuttonbox">
+        <a href="#"class="bds_weixin clear-share-style-article-footer" data-cmd="weixin" title="分享"></a>
+      </div>
+    </div>
+    
+  </div>
+  <script>
+  (function(){
+    function collection(){
+      if (currentUserName) {
+        var markObj = {};
+            markObj.imgUrl ='https://csdnimg.cn/release/phoenix/static_blog/images/appqr.png';
+        var markPrompt = (new window.csdn.publicPrompt).init(markObj);
+        var maeked = '您已经收藏过';
+        if (!$(this).hasClass("liked")) {
+          $.ajax({
+            url: 'https://my.csdn.net/my/favorite/do_add/2',
+            dataType: 'json',
+            type: 'POST',
+            xhrFields: {
+              withCredentials: true
+            },
+            data: {
+              title: articleTit,
+              url: 'https://blog.csdn.net/lin_tuer/article/details/80830485',
+              share: 1,
+              map_name: ''
+            },
+            success: function(data) {
+              
+              if (data.succ == 1) {
+                $('.btn-bookmark').addClass("liked");
+                $('.article-footer-bookmark-btn').addClass("liked").children('span').text('已收藏');
+                markPrompt.show({})
+                // alert('收藏成功,可以在个人中心查看我的收藏');
+              } else {
+                if (data.msg === "您已经收藏过") {
+                  $('.btn-bookmark').addClass("liked");
+                  $('.article-footer-bookmark-btn').addClass("liked").children('span').text('已收藏');
+                  markPrompt.show({
+                    titleStr: maeked
+                  })
+                }else{
+                  alert(data.msg);
+                  
+                }
+              }
+            }
+          });
+        } else {
+          markPrompt.show({
+            titleStr: maeked
+          })
+        }
+      } else {
+        window.csdn.loginBox.show();
+      }
+    }
+    function permissionCheck(dom){
+      var returnData = false;
+      switch (true) {
+        case currentUserPermission && userPermission:
+          clearReadMoreBtn(dom)
+          returnData = true;
+          break;
+        case userPermission:
+          dom.text('VIP阅读');
+          returnData = false;
+          break;
+        default:
+          
+      }
+      return returnData;
+    }
+    window.csdn = window.csdn ? window.csdn : {};
+    window.csdn.articleCollection = collection;
+    function clearReadMoreBtn(dom) {
+      if(userPermission && !(dom instanceof jQuery)) {
+        window.open('https://mall.csdn.net/vip_code?utm_source=brv')
+        return false;
+      }
+      dom = dom instanceof jQuery ? dom : $(this);
+      $("div.article_content").removeAttr("style");
+      dom.parent().remove();
+    }
+    function setArticleH(btnReadmore,posi){
+      var winH = $(window).height();
+      var articleBox = $("div.article_content");
+      var artH = articleBox.height();
+      if(artH > winH*posi){
+        articleBox.css({
+          'height':winH*posi+'px',
+          'overflow':'hidden'
+        })
+        btnReadmore.click(clearReadMoreBtn)
+      }else{
+        btnReadmore.parent().remove()
+      }
+    }
+    var btnReadmore = $("#btn-readmore");
+    $('.article-footer-bookmark-btn').click(window.csdn.articleCollection)
+    if(btnReadmore.length>0){
+      if (permissionCheck(btnReadmore)) {
+        return false;
+      }
+      if(currentUserName){
+        setArticleH(btnReadmore,3);
+      }else{
+        setArticleH(btnReadmore,1.2);
+      }
+    }else{
+      $('.hide-article-box').addClass('hide-article-style');
+    }
+  })()
+</script>
+<script>
+		$(".MathJax").remove();
+		if($('div.markdown_views pre.prettyprint code.hljs').length > 0 ){
+				$('div.markdown_views')[0].className = 'markdown_views';
+		}
+</script>
+        <div id="dmp_ad_58"><div id="kp_box_58" data-pid="58" data-track-view='{"mod":"kp_popu_58-402","con":",,"}' data-track-click='{"mod":"kp_popu_58-402","con":",,"}'><div style="width:100%;background:#fff;border:3px solid #fff;">
+<script type="text/javascript" src="//static.mediav.com/js/mvf_news_feed.js"></script>
+<div id="three_ad1" class="mediav_ad" ></div>
+<script>
+                                               NEWS_FEED({
+                w: 900,
+                h : 100,
+                showid : 'ztvJV8',
+                placeholderId: "three_ad1",
+                inject : 'define',
+                define : {
+                    imagePosition : 'left',
+                    imageBorderRadius : 0,
+                    imageWidth: 90,
+                    imageHeight: 68,
+                    imageFill : 'clip',
+                    displayImage : true,
+                    displayTitle : true,
+                    titleFontSize: 18,
+                    titleFontColor: '#000',
+                    titleFontFamily : 'Lato,-apple-system,SF UI Text,Arial,PingFang SC,Hiragino Sans GB,Microsoft YaHei,WenQuanYi Micro Hei,sans-serif',
+                    titleFontWeight: 'bold',
+                    titlePaddingTop : 0,
+                    titlePaddingRight : 0,
+                    titlePaddingBottom : 5,
+                    titlePaddingLeft : 16,
+                    displayDesc : true,
+                    descFontSize: 14,
+                    descFontColor: '#8e959a',
+                    descFontFamily : 'Microsoft YaHei',
+                    paddingTop : 20,
+                    paddingRight : 0,
+                    paddingBottom : 0,
+                    paddingLeft : 20,
+                    backgroundColor: '#fff',
+                    hoverColor: '#000'
+                      }
+                  })
+                                        </script>
+</div></div></div>        <a id="commentBox"></a>
+<div class="comment-box">
+	
+	<div class="comment-edit-box d-flex">
+		<a id="commentsedit"></a>
+		<div class="user-img">
+			<a href="//me.csdn.net/u014528142" target="_blank">
+				<img class="" src="https://avatar.csdn.net/C/B/2/3_u014528142.jpg">
+			</a>
+		</div>
+		<form id="commentform">
+			<input type="hidden" id="comment_replyId">
+			<textarea class="comment-content" name="comment_content" id="comment_content" placeholder="想对作者说点什么"></textarea>
+			<div class="opt-box"> <!-- d-flex -->
+				<div id="ubbtools" class="add_code">
+					<a href="#insertcode" code="code" target="_self"><i class="icon iconfont icon-daima"></i></a>
+				</div>
+				<input type="hidden" id="comment_replyId" name="comment_replyId">
+				<input type="hidden" id="article_id" name="article_id" value="80830485">
+				<input type="hidden" id="comment_userId" name="comment_userId" value="">
+				<input type="hidden" id="commentId" name="commentId" value="">
+				<div style="display: none;" class="csdn-tracking-statistics tracking-click" data-mod="popu_384"><a href="#" target="_blank" class="comment_area_btn">发表评论</a></div>
+				<div class="dropdown" id="myDrap">
+					<a class="dropdown-face d-flex align-items-center" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+					<div class="txt-selected text-truncate">添加代码片</div>
+					<svg class="icon d-block" aria-hidden="true">
+						<use xlink:href="#csdnc-triangledown"></use>
+					</svg>
+					</a>
+					<ul class="dropdown-menu" id="commentCode" aria-labelledby="drop4">
+						<li><a data-code="html">HTML/XML</a></li>
+						<li><a data-code="objc">objective-c</a></li>
+						<li><a data-code="ruby">Ruby</a></li>
+						<li><a data-code="php">PHP</a></li>
+						<li><a data-code="csharp">C</a></li>
+						<li><a data-code="cpp">C++</a></li>
+						<li><a data-code="javascript">JavaScript</a></li>
+						<li><a data-code="python">Python</a></li>
+						<li><a data-code="java">Java</a></li>
+						<li><a data-code="css">CSS</a></li>
+						<li><a data-code="sql">SQL</a></li>
+						<li><a data-code="plain">其它</a></li>
+					</ul>
+				</div>  
+				<div class="right-box">
+					<span id="tip_comment" class="tip">还能输入<em>1000</em>个字符</span>
+					<input type="submit" class="btn btn-sm btn-red btn-comment" value="发表评论">
+				</div>
+			</div>
+		</form>
+	</div>
+
+		<div class="comment-list-container">
+		<a id="comments"></a>
+		<div class="comment-list-box">
+		</div>
+		<div id="commentPage" class="pagination-box d-none"></div>
+		<div class="opt-box text-center">
+			<button class="btn btn-sm btn-link-blue" id="btnMoreComment"></button>
+		</div>
+	</div>
+</div>
+        <div class="recommend-box">
+            		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/LUFANGBO/article/details/79308359,BlogCommendFromThirdService_0"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/LUFANGBO/article/details/79308359,BlogCommendFromThirdService_0"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/LUFANGBO/article/details/79308359" target="_blank" title="python：删除字符串中连续多个空格并保留一个">
+				<h4 class="text-truncate oneline">
+						<em>python</em>：<em>删除</em><em>字符串</em>中连续多个<em>空格</em>并保留一个				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">02-11</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							4815</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/LUFANGBO/article/details/79308359" target="_blank" title="python：删除字符串中连续多个空格并保留一个">
+							<span class="desc oneline">''.join(line.split())例如：'line   dd',运行line.split()得到只有两个元素的列表['line','dd']...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/LUFANGBO">来自：	<span class="blog_title"> AI百科的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/xiangxianghehe/article/details/77965008,BlogCommendFromThirdService_1"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/xiangxianghehe/article/details/77965008,BlogCommendFromThirdService_1"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/xiangxianghehe/article/details/77965008" target="_blank" title="python去除文本多余空格">
+				<h4 class="text-truncate oneline">
+						<em>python</em>去除文本<em>多余</em><em>空格</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">09-13</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							4911</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/xiangxianghehe/article/details/77965008" target="_blank" title="python去除文本多余空格">
+							<span class="desc oneline">原来的文本如下：Linux于1991年诞生于芬兰。大学生LinusTorvalds，由于没有足够的钱购买昂贵的商用操作系统，于是自己编写了一个小的操作系统内核，这就是Linux的前身。LinusTor...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/xiangxianghehe">来自：	<span class="blog_title"> xiangxianghehe的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/Fortune_yang/article/details/78902762,BlogCommendFromThirdService_2"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/Fortune_yang/article/details/78902762,BlogCommendFromThirdService_2"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/Fortune_yang/article/details/78902762" target="_blank" title="Python 列表去重去除空字符">
+				<h4 class="text-truncate oneline">
+						<em>Python</em> 列表去重去除空字符				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">12-26</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							8710</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/Fortune_yang/article/details/78902762" target="_blank" title="Python 列表去重去除空字符">
+							<span class="desc oneline">#x=['cba',&quot;edf&quot;]#y=[]#foriinx:#foriiini:##print(ii)#ifii=='':#pass#else:#y.append(ii)#print(y)#pytho...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/Fortune_yang">来自：	<span class="blog_title"> Fortune_yang的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    <div class="recommend-item-box recommend-ad-box"><div id="kp_box_59" data-pid="59" data-track-view='{"mod":"kp_popu_59-861","con":",,python"}' data-track-click='{"mod":"kp_popu_59-861","con":",,python"}'><iframe src="https://kunpeng-sc.csdnimg.cn/#/preview/60?positionId=59" frameborder="0" width= "100%"  height= "75px" scrolling="no" ></iframe></div></div>
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/qq_28304687/article/details/77719178,BlogCommendFromThirdService_3"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/qq_28304687/article/details/77719178,BlogCommendFromThirdService_3"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/qq_28304687/article/details/77719178" target="_blank" title="python 四种方法删除列表里所有空格项">
+				<h4 class="text-truncate oneline">
+						<em>python</em> 四种方法<em>删除</em>列表里所有<em>空格</em>项				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">08-30</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							2万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/qq_28304687/article/details/77719178" target="_blank" title="python 四种方法删除列表里所有空格项">
+							<span class="desc oneline">首先，我们来随便写一个带空格的列表：list1=['122','2333','3444','','422','','','54','']相信已经有人尝试过，诸如以下的方式去删掉空格，例如：#-*-co...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/qq_28304687">来自：	<span class="blog_title"> 苏酒酒的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/qq_20317319/article/details/69358223,BlogCommendFromThirdService_4"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/qq_20317319/article/details/69358223,BlogCommendFromThirdService_4"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/qq_20317319/article/details/69358223" target="_blank" title="Python 删除整个文本中的空格，并按行显示">
+				<h4 class="text-truncate oneline">
+						<em>Python</em> <em>删除</em>整个文本中的<em>空格</em>，并按行显示				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">04-05</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							5871</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/qq_20317319/article/details/69358223" target="_blank" title="Python 删除整个文本中的空格，并按行显示">
+							<span class="desc oneline">python文本处理小demo</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/qq_20317319">来自：	<span class="blog_title"> 小孟飞飞的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/three_co/article/details/78369436,BlogCommendFromBaidu_5"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/three_co/article/details/78369436,BlogCommendFromBaidu_5"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/three_co/article/details/78369436" target="_blank" title="关于Python去掉字符串中的空格">
+				<h4 class="text-truncate oneline">
+						关于<em>Python</em>去掉<em>字符串</em>中的<em>空格</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">10-27</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/three_co/article/details/78369436" target="_blank" title="关于Python去掉字符串中的空格">
+							<span class="desc oneline">经常会遇到需要将字符串中的空格去掉的情况，通常我们有三种解决方法：1、strip(char)方法：该方法是不能将字符串中间的空格去掉的！！strip()：把头和尾的空格去掉&gt;&gt;&gt;A=' wode ge...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/three_co">来自：	<span class="blog_title"> three_co的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/u010098331/article/details/52086787,BlogCommendFromBaidu_6"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/u010098331/article/details/52086787,BlogCommendFromBaidu_6"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/u010098331/article/details/52086787" target="_blank" title="Python怎样去掉空格">
+				<h4 class="text-truncate oneline">
+						<em>Python</em>怎样去掉<em>空格</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">08-01</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							4786</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/u010098331/article/details/52086787" target="_blank" title="Python怎样去掉空格">
+							<span class="desc oneline">用Python去掉字符串两边的空格我们经常在处理字符串时遇到有很多空格的问题，一个一个的去手动删除不是我们程序员应该做的事情如果用Python去除字符串两边的空格。我们先创建一个左右都有N个空格的字符...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/u010098331">来自：	<span class="blog_title"> 白及</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/steft/article/details/55189232,BlogCommendFromBaidu_7"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/steft/article/details/55189232,BlogCommendFromBaidu_7"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/steft/article/details/55189232" target="_blank" title="python各种删除空格符号的方法汇总">
+				<h4 class="text-truncate oneline">
+						<em>python</em>各种<em>删除</em><em>空格</em>符号的方法汇总				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">02-15</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1638</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/steft/article/details/55189232" target="_blank" title="python各种删除空格符号的方法汇总">
+							<span class="desc oneline">方法一&quot;xyz&quot;.strip()  #returns&quot;xyz&quot; 方法二 &quot;xyz&quot;.lstrip()#returns&quot;xyz&quot; 方法三 &quot;xyz&quot;.rstrip()#returns&quot;xyz&quot; 方法四 ...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/steft">来自：	<span class="blog_title"> steft的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    <div class="recommend-item-box recommend-ad-box"><div id="kp_box_60" data-pid="60" data-track-view='{"mod":"kp_popu_60-43","con":",,"}' data-track-click='{"mod":"kp_popu_60-43","con":",,"}'><div id="three_ad8" class="mediav_ad" ></div>
+<script type="text/javascript" src="//static.mediav.com/js/mvf_news_feed.js"></script>
+<script>
+                                               NEWS_FEED({
+                w: 900,
+                h : 84,
+                showid : 'Afihld',
+                placeholderId: "three_ad8",
+                inject : 'define',
+                define : {
+                    imagePosition : 'left',
+                    imageBorderRadius : 3,
+                    imageWidth: 90,
+                    imageHeight: 60,
+                    imageFill : 'clip',
+                    displayImage : true,
+                    displayTitle : true,
+                    titleFontSize: 18,
+                    titleFontColor: '#000',
+                    titleFontFamily : 'Lato,-apple-system,SF UI Text,Arial,PingFang SC,Hiragino Sans GB,Microsoft YaHei,WenQuanYi Micro Hei,sans-serif',
+                    titleFontWeight: 'bold',
+                    titlePaddingTop : 0,
+                    titlePaddingRight : 0,
+                    titlePaddingBottom : 5,
+                    titlePaddingLeft : 16,
+                    displayDesc : true,
+                    descFontSize: 14,
+                    descFontColor: '#8e959a',
+                    descFontFamily : 'Microsoft Yahei',
+                    paddingTop : 10,
+                    paddingRight : 0,
+                    paddingBottom : 0,
+                    paddingLeft : 0,
+                    backgroundColor: '#fff',
+                    hoverColor: '#000'
+                      }
+                  })
+                                        </script></div></div>
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/u013066730/article/details/73459788,BlogCommendFromBaidu_8"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/u013066730/article/details/73459788,BlogCommendFromBaidu_8"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/u013066730/article/details/73459788" target="_blank" title="python去除空格">
+				<h4 class="text-truncate oneline">
+						<em>python</em>去除<em>空格</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">06-19</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							3115</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/u013066730/article/details/73459788" target="_blank" title="python去除空格">
+							<span class="desc oneline">一、去除空格　　strip()&quot;xyz&quot;.strip()#returns&quot;xyz&quot;&quot;xyz&quot;.lstrip()#returns&quot;xyz&quot;&quot;xyz&quot;.rstrip()#returns&quot;xyz&quot;&quot;xyz&quot;...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/u013066730">来自：	<span class="blog_title"> mjiansun的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/NextAction/article/details/78048753,BlogCommendFromBaidu_9"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/NextAction/article/details/78048753,BlogCommendFromBaidu_9"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/NextAction/article/details/78048753" target="_blank" title="【Python-2.7】删除空格">
+				<h4 class="text-truncate oneline">
+						【<em>Python</em>-2.7】<em>删除</em><em>空格</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">09-21</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							523</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/NextAction/article/details/78048753" target="_blank" title="【Python-2.7】删除空格">
+							<span class="desc oneline">有时我们在编程过程中，需要去除字符串两边的空格，可以用如下函数解决问题：rstrip()：去除字符串右边的空格；lstrip()：去除字符串左边的空格；strip()：去除字符串两边的空格。示例如下：...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/NextAction">来自：	<span class="blog_title"> Just Do IT</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+          <div class="recommend-item-box blog-expert-recommend-box">
+				<div class="d-flex">
+					<div class="blog-expert-recommend">
+						<div class="blog-expert">
+							<div class="blog-expert-flexbox"></div>
+						</div>
+					</div>
+				</div>
+      </div>
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/CHCH998/article/details/81004826,BlogCommendESEnWordWeight_10"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/CHCH998/article/details/81004826,BlogCommendESEnWordWeight_10"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/CHCH998/article/details/81004826" target="_blank" title="python字符串替换的2种有效方法">
+				<h4 class="text-truncate oneline">
+						<em>python</em><em>字符串</em>替换的2种有效方法				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">07-11</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1091</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/CHCH998/article/details/81004826" target="_blank" title="python字符串替换的2种有效方法">
+							<span class="desc oneline">python字符串替换是python操作字符串的时候经常会碰到的问题，这里简单介绍下字符串替换方法。python字符串替换可以用2种方法实现:1是用字符串本身的方法。2用正则来替换字符串下面...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/CHCH998">来自：	<span class="blog_title"> CHCH998的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/qq_30638831/article/details/79631938,BlogCommendESEnWordWeight_11"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/qq_30638831/article/details/79631938,BlogCommendESEnWordWeight_11"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/qq_30638831/article/details/79631938" target="_blank" title="利用python对字符串处理，取中间的字符">
+				<h4 class="text-truncate oneline">
+						利用<em>python</em>对<em>字符串</em>处理，取中间的字符				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">03-20</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							3503</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/qq_30638831/article/details/79631938" target="_blank" title="利用python对字符串处理，取中间的字符">
+							<span class="desc oneline">比如str=&amp;quot;(sdadsafsfsdfdgfdghfhfghgjg)&amp;quot;取出括号里面的内容:str.strip()[1:-1]</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/qq_30638831">来自：	<span class="blog_title"> 编程之路</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/qysh123/article/details/80636946,BlogCommendFromGuangxin_12"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/qysh123/article/details/80636946,BlogCommendFromGuangxin_12"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/qysh123/article/details/80636946" target="_blank" title="Python字符串中大写字母前增加空格的方法（字符串用大写字母分割）">
+				<h4 class="text-truncate oneline">
+						<em>Python</em><em>字符串</em>中大写字母前增加<em>空格</em>的方法（<em>字符串</em>用大写字母分割）				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">06-09</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1366</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/qysh123/article/details/80636946" target="_blank" title="Python字符串中大写字母前增加空格的方法（字符串用大写字母分割）">
+							<span class="desc oneline">这也是最近处理数据的实际需求，找了一些网页，发现大家都总结得不是很清楚，最后参考几位朋友的文章，例如这里：https://blog.csdn.net/oh5W6HinUg43JvRhhB/articl...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/qysh123">来自：	<span class="blog_title"> qysh123的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    <div class="recommend-item-box recommend-ad-box"><div id="kp_box_61" data-pid="61" data-track-view='{"mod":"kp_popu_61-557","con":",,"}' data-track-click='{"mod":"kp_popu_61-557","con":",,"}'><div id="three_ad13" class="mediav_ad" ></div>
+<script type="text/javascript" src="//static.mediav.com/js/mvf_news_feed.js"></script>
+<script>
+                                               NEWS_FEED({
+                w: 852,
+                h : 60,
+                showid : 'GNKXx7',
+                placeholderId: "three_ad13",
+                inject : 'define',
+                define : {
+                    imagePosition : 'left',
+                    imageBorderRadius : 3,
+                    imageWidth: 90,
+                    imageHeight: 60,
+                    imageFill : 'clip',
+                    displayImage : true,
+                    displayTitle : true,
+                    titleFontSize: 18,
+                    titleFontColor: '#000',
+                    titleFontFamily : 'Lato,-apple-system,SF UI Text,Arial,PingFang SC,Hiragino Sans GB,Microsoft YaHei,WenQuanYi Micro Hei,sans-serif',
+                    titleFontWeight: 'bold',
+                    titlePaddingTop : 0,
+                    titlePaddingRight : 0,
+                    titlePaddingBottom : 5,
+                    titlePaddingLeft : 16,
+                    displayDesc : true,
+                    descFontSize: 14,
+                    descFontColor: '#8e959a',
+                    descFontFamily : 'Microsoft Yahei',
+                    paddingTop : 0,
+                    paddingRight : 0,
+                    paddingBottom : 0,
+                    paddingLeft : 0,
+                    backgroundColor: '#fff',
+                    hoverColor: '#000'
+                      }
+                  })
+                                        </script></div></div>
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/qq_32716885/article/details/80308577,BlogCommendFromGuangxin_13"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/qq_32716885/article/details/80308577,BlogCommendFromGuangxin_13"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/qq_32716885/article/details/80308577" target="_blank" title="python中字符串的逐个读取">
+				<h4 class="text-truncate oneline">
+						<em>python</em>中<em>字符串</em>的逐个读取				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">05-14</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							6329</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/qq_32716885/article/details/80308577" target="_blank" title="python中字符串的逐个读取">
+							<span class="desc oneline">现在有一个字符串，str---&amp;amp;gt;&amp;amp;gt;'百业从药药业利润大因此钻空子的人也多徐大毅想要发财很容易'功能：将字符串的内容逐个录入到列表中labelsWord=[]foriword...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/qq_32716885">来自：	<span class="blog_title"> 糯诺诺米团</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/LIUSHAO123456789/article/details/79669369,BlogCommendFromGuangxin_14"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/LIUSHAO123456789/article/details/79669369,BlogCommendFromGuangxin_14"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/LIUSHAO123456789/article/details/79669369" target="_blank" title="python去掉字符串中某些特定的字符">
+				<h4 class="text-truncate oneline">
+						<em>python</em>去掉<em>字符串</em>中某些特定的字符				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">03-23</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							860</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/LIUSHAO123456789/article/details/79669369" target="_blank" title="python去掉字符串中某些特定的字符">
+							<span class="desc oneline">1.去掉一行字符串中的汉字english_only=''.join(xforxinstr(col)iford(x)</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/LIUSHAO123456789">来自：	<span class="blog_title"> 物理小乾乾</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/weixin_41869941/article/details/82350168,BlogCommendFromQuerySearch_15"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/weixin_41869941/article/details/82350168,BlogCommendFromQuerySearch_15"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/weixin_41869941/article/details/82350168" target="_blank" title="vscode 清除多余空行">
+				<h4 class="text-truncate oneline">
+						vscode 清除<em>多余</em><em>空行</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">09-03</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							3083</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/weixin_41869941/article/details/82350168" target="_blank" title="vscode 清除多余空行">
+							<span class="desc oneline">使用正则表达式^\s*(?=\r?$)\n​​​​</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/weixin_41869941">来自：	<span class="blog_title"> FangYifei的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/qq_32723451/article/details/80675504,BlogCommendFromQuerySearch_16"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/qq_32723451/article/details/80675504,BlogCommendFromQuerySearch_16"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/qq_32723451/article/details/80675504" target="_blank" title="phpstrom快捷键 删除空行 + 格式化代码快捷键+移除项目 整理中……">
+				<h4 class="text-truncate oneline">
+						phpstrom快捷键 <em>删除</em><em>空行</em> + 格式化代码快捷键+移除项目 整理中……				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">06-13</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							704</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/qq_32723451/article/details/80675504" target="_blank" title="phpstrom快捷键 删除空行 + 格式化代码快捷键+移除项目 整理中……">
+							<span class="desc oneline">心情不好！今天不带表情记录！！！！格式化代码：Ctrl+Alt+L删除空行：Ctrl+r1）将Regex打钩2）然后输入正则^\n3）replaceall搞定……移除项目：win键+delete......</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/qq_32723451">来自：	<span class="blog_title"> Ella</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/kaukiyou/article/details/46829375,BlogCommendFromQuerySearch_17"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/kaukiyou/article/details/46829375,BlogCommendFromQuerySearch_17"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/kaukiyou/article/details/46829375" target="_blank" title="Java正则表达式替换移除空行和多余的空格">
+				<h4 class="text-truncate oneline">
+						Java正则表达式替换移除<em>空行</em>和<em>多余</em>的<em>空格</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">07-10</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							2万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/kaukiyou/article/details/46829375" target="_blank" title="Java正则表达式替换移除空行和多余的空格">
+							<span class="desc oneline">这几天重拾Java写代码，需要操作文本文件中的内容。最终，要把内容里的空行和多余的连续空格移除，使用String里的replace或者replaceAll，试了很多次都没有成功。最后发现需要使用正则表...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/kaukiyou">来自：	<span class="blog_title"> kaukiyou的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    <div class="recommend-item-box recommend-ad-box"><div id="kp_box_62" data-pid="62" data-track-view='{"mod":"kp_popu_62-556","con":",,"}' data-track-click='{"mod":"kp_popu_62-556","con":",,"}'><div id="three_ad18" class="mediav_ad" ></div>
+<script type="text/javascript" src="//static.mediav.com/js/mvf_news_feed.js"></script>
+<script>
+                                               NEWS_FEED({
+                w: 852,
+                h : 60,
+                showid : 'Afihld',
+                placeholderId: "three_ad18",
+                inject : 'define',
+                define : {
+                    imagePosition : 'left',
+                    imageBorderRadius : 3,
+                    imageWidth: 90,
+                    imageHeight: 60,
+                    imageFill : 'clip',
+                    displayImage : true,
+                    displayTitle : true,
+                    titleFontSize: 18,
+                    titleFontColor: '#000',
+                    titleFontFamily : 'Lato,-apple-system,SF UI Text,Arial,PingFang SC,Hiragino Sans GB,Microsoft YaHei,WenQuanYi Micro Hei,sans-serif',
+                    titleFontWeight: 'bold',
+                    titlePaddingTop : 0,
+                    titlePaddingRight : 0,
+                    titlePaddingBottom : 5,
+                    titlePaddingLeft : 16,
+                    displayDesc : true,
+                    descFontSize: 14,
+                    descFontColor: '#8e959a',
+                    descFontFamily : 'Microsoft Yahei',
+                    paddingTop : 0,
+                    paddingRight : 0,
+                    paddingBottom : 0,
+                    paddingLeft : 0,
+                    backgroundColor: '#fff',
+                    hoverColor: '#000'
+                      }
+                  })
+                                        </script></div></div>
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/coffeesweet/article/details/50430028,BlogCommendFromQuerySearch_18"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/coffeesweet/article/details/50430028,BlogCommendFromQuerySearch_18"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/coffeesweet/article/details/50430028" target="_blank" title="Java 去除字符串中多余的空格，只留一个">
+				<h4 class="text-truncate oneline">
+						Java 去除<em>字符串</em>中<em>多余</em>的<em>空格</em>，只留一个				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">12-29</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							4006</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/coffeesweet/article/details/50430028" target="_blank" title="Java 去除字符串中多余的空格，只留一个">
+							<span class="desc oneline">string.replaceAll(&quot;\\s{1,}&quot;,&quot;&quot;)//就可以了。</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/coffeesweet">来自：	<span class="blog_title"> coffeesweet的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/u011146423/article/details/85762614,BlogCommendFromQuerySearch_19"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/u011146423/article/details/85762614,BlogCommendFromQuerySearch_19"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/u011146423/article/details/85762614" target="_blank" title="Sublime 利用正则批量去除多余空白行">
+				<h4 class="text-truncate oneline">
+						Sublime 利用正则批量去除<em>多余</em>空白行				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">01-04</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							145</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/u011146423/article/details/85762614" target="_blank" title="Sublime 利用正则批量去除多余空白行">
+							<span class="desc oneline">sublimetext批量删除空白行CTRL+H打开replace功能，勾选上左侧的regularexpression，并填写 findwhat栏：\s+$ （正则表达式）replacewith栏：（...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/u011146423">来自：	<span class="blog_title"> 爱人BT的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/u011653701/article/details/45340687,BlogCommendFromThirdService_20"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/u011653701/article/details/45340687,BlogCommendFromThirdService_20"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/u011653701/article/details/45340687" target="_blank" title="python 删除字符串中的连续空格只保留一个">
+				<h4 class="text-truncate oneline">
+						<em>python</em> <em>删除</em><em>字符串</em>中的连续<em>空格</em>只保留一个				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">04-28</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							9600</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/u011653701/article/details/45340687" target="_blank" title="python 删除字符串中的连续空格只保留一个">
+							<span class="desc oneline">目标是要去掉多余的空格字符，在相邻字符串中，只保留一个空格rootfs                           17772841443560   333724 82%/可以利用如下方式：不...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/u011653701">来自：	<span class="blog_title"> u011653701的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/weixin_40269581/article/details/83450694,BlogCommendFromThirdService_21"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/weixin_40269581/article/details/83450694,BlogCommendFromThirdService_21"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/weixin_40269581/article/details/83450694" target="_blank" title="python 去除空格">
+				<h4 class="text-truncate oneline">
+						<em>python</em> 去除<em>空格</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">10-27</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							632</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/weixin_40269581/article/details/83450694" target="_blank" title="python 去除空格">
+							<span class="desc oneline">strip()函数去空格\n\r\t函数的用法strip同时去掉左右两边的空格lstrip去掉左边的空格rstrip去掉右边的空格具体示例如下：&amp;amp;gt;&amp;amp;gt;&amp;amp;gt;a=&amp;q...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/weixin_40269581">来自：	<span class="blog_title"> weixin_40269581的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/depers15/article/details/52223956,BlogCommendFromThirdService_22"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/depers15/article/details/52223956,BlogCommendFromThirdService_22"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/depers15/article/details/52223956" target="_blank" title="python清除字符串中间空格的方法">
+				<h4 class="text-truncate oneline">
+						<em>python</em>清除<em>字符串</em>中间<em>空格</em>的方法				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">08-16</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							3万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/depers15/article/details/52223956" target="_blank" title="python清除字符串中间空格的方法">
+							<span class="desc oneline">python去除字符串中间空格的方法1、使用字符串函数replace&gt;&gt;&gt;a='helloworld'&gt;&gt;&gt;a.replace('','')'helloworld'看上这种方法真的是很笨。2、使用字符...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/depers15">来自：	<span class="blog_title"> depers15的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    <div class="recommend-item-box recommend-ad-box"><div id="kp_box_63" data-pid="63" data-track-view='{"mod":"kp_popu_63-555","con":",,"}' data-track-click='{"mod":"kp_popu_63-555","con":",,"}'><div id="three_ad23" class="mediav_ad" ></div>
+<script type="text/javascript" src="//static.mediav.com/js/mvf_news_feed.js"></script>
+<script>
+                                               NEWS_FEED({
+                w: 852,
+                h : 60,
+                showid : 'GNKXx7',
+                placeholderId: "three_ad23",
+                inject : 'define',
+                define : {
+                    imagePosition : 'left',
+                    imageBorderRadius : 3,
+                    imageWidth: 90,
+                    imageHeight: 60,
+                    imageFill : 'clip',
+                    displayImage : true,
+                    displayTitle : true,
+                    titleFontSize: 18,
+                    titleFontColor: '#000',
+                    titleFontFamily : 'Lato,-apple-system,SF UI Text,Arial,PingFang SC,Hiragino Sans GB,Microsoft YaHei,WenQuanYi Micro Hei,sans-serif',
+                    titleFontWeight: 'bold',
+                    titlePaddingTop : 0,
+                    titlePaddingRight : 0,
+                    titlePaddingBottom : 5,
+                    titlePaddingLeft : 16,
+                    displayDesc : true,
+                    descFontSize: 14,
+                    descFontColor: '#8e959a',
+                    descFontFamily : 'Microsoft Yahei',
+                    paddingTop : 0,
+                    paddingRight : 0,
+                    paddingBottom : 0,
+                    paddingLeft : 0,
+                    backgroundColor: '#fff',
+                    hoverColor: '#000'
+                      }
+                  })
+                                        </script></div></div>
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/u011330736/article/details/51783898,BlogCommendFromBaidu_23"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/u011330736/article/details/51783898,BlogCommendFromBaidu_23"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/u011330736/article/details/51783898" target="_blank" title="python 去除空格和换行">
+				<h4 class="text-truncate oneline">
+						<em>python</em> 去除<em>空格</em>和换行				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">06-29</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							5503</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/u011330736/article/details/51783898" target="_blank" title="python 去除空格和换行">
+							<span class="desc oneline">join:在序列中添加元素 split:将字符串分解成序列 两者为互逆方法 Python代码            s = &quot;as, asdas \r\nasda&quot;      print s.spli...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/u011330736">来自：	<span class="blog_title"> u011330736的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/dahaiyudong/article/details/80669941,BlogCommendFromBaidu_24"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/dahaiyudong/article/details/80669941,BlogCommendFromBaidu_24"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/dahaiyudong/article/details/80669941" target="_blank" title="python去掉字符串中空格的方法">
+				<h4 class="text-truncate oneline">
+						<em>python</em>去掉<em>字符串</em>中<em>空格</em>的方法				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">06-12</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							345</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/dahaiyudong/article/details/80669941" target="_blank" title="python去掉字符串中空格的方法">
+							<span class="desc oneline">原文链接地址1.strip()：把头和尾的空格去掉2.lstrip()：把左边的空格去掉3.rstrip()：把右边的空格去掉4.replace(‘c1’,’c2’)：把字符串里的c1替换成c2。故可...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/dahaiyudong">来自：	<span class="blog_title"> dahaiyudong的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/qq_39708579/article/details/79358966,BlogCommendFromBaidu_25"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/qq_39708579/article/details/79358966,BlogCommendFromBaidu_25"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/qq_39708579/article/details/79358966" target="_blank" title="python去除字符串中空格和特殊符号的方法">
+				<h4 class="text-truncate oneline">
+						<em>python</em>去除<em>字符串</em>中<em>空格</em>和特殊符号的方法				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">02-24</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							9251</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/qq_39708579/article/details/79358966" target="_blank" title="python去除字符串中空格和特殊符号的方法">
+							<span class="desc oneline">一、去除空格　　strip()  去除头尾的空格，中间部分不去除&amp;quot;xyz&amp;quot;.strip()#returns&amp;quot;xyz&amp;quot;&amp;quot;xyz&amp;quot;.lstrip...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/qq_39708579">来自：	<span class="blog_title"> qq_39708579的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/ithongchou/article/details/83411690,BlogCommendFromBaidu_26"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/ithongchou/article/details/83411690,BlogCommendFromBaidu_26"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/ithongchou/article/details/83411690" target="_blank" title="Python去除多余空格">
+				<h4 class="text-truncate oneline">
+						<em>Python</em>去除<em>多余</em><em>空格</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">10-26</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							90</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/ithongchou/article/details/83411690" target="_blank" title="Python去除多余空格">
+							<span class="desc oneline">Python去除多余空格1、去除字符串首尾空格&amp;quot;abc	&amp;quot;.strip()#returns&amp;quot;abc&amp;quot;2、去除字符串左边空格&amp;quot;abc&amp;quot;.lst...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/ithongchou">来自：	<span class="blog_title"> ithongchou的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/qq_37050372/article/details/81050876,BlogCommendFromBaidu_27"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/qq_37050372/article/details/81050876,BlogCommendFromBaidu_27"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/qq_37050372/article/details/81050876" target="_blank" title="python使用转移字符去除多个空格">
+				<h4 class="text-truncate oneline">
+						<em>python</em>使用转移字符去除多个<em>空格</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">07-15</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							223</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/qq_37050372/article/details/81050876" target="_blank" title="python使用转移字符去除多个空格">
+							<span class="desc oneline">1.假设有这样的字符串 '早餐服务                                                                                   ...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/qq_37050372">来自：	<span class="blog_title"> qq_37050372的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    <div class="recommend-item-box recommend-ad-box"><div id="kp_box_64" data-pid="64" data-track-view='{"mod":"kp_popu_64-901","con":",,"}' data-track-click='{"mod":"kp_popu_64-901","con":",,"}'><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-format="fluid"
+     data-ad-layout-key="-gc+3r+68-9q-29"
+     data-ad-client="ca-pub-1076724771190722"
+     data-ad-slot="4012648776"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></div>
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/xuplus/article/details/22717593,BlogCommendFromQuerySearch_28"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/xuplus/article/details/22717593,BlogCommendFromQuerySearch_28"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/xuplus/article/details/22717593" target="_blank" title="dreamweaver 去空行技巧，清除代码中多余空行 正则表达">
+				<h4 class="text-truncate oneline">
+						dreamweaver 去<em>空行</em>技巧，清除代码中<em>多余</em><em>空行</em> 正则表达				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">04-01</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							6130</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/xuplus/article/details/22717593" target="_blank" title="dreamweaver 去空行技巧，清除代码中多余空行 正则表达">
+							<span class="desc oneline">dreamweaver去空行方法，清除代码中多余空行\n\s*\n替换成\n使用DW自带的搜索功能,利用正则表达式改后效果使用正则表达式搜索：\s*即可搜到代码中的空行，再用回车符替换即可消除代码中的...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/xuplus">来自：	<span class="blog_title"> xuplus的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/HuYingJie_1995/article/details/83791074,BlogCommendFromQuerySearch_29"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/HuYingJie_1995/article/details/83791074,BlogCommendFromQuerySearch_29"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/HuYingJie_1995/article/details/83791074" target="_blank" title="《Word中批量去除多余空格、空行、换行》">
+				<h4 class="text-truncate oneline">
+						《Word中批量去除<em>多余</em><em>空格</em>、<em>空行</em>、换行》				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">11-06</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							251</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/HuYingJie_1995/article/details/83791074" target="_blank" title="《Word中批量去除多余空格、空行、换行》">
+							<span class="desc oneline">当我们从pdf文件中复制文字时往往会出现有很多多余空格符、空行符、换行符号的情况：下面记录一下在word中如何批量去除多余空格、空行、换行等符号：1.去多余换行符：按下快捷键：Ctril+H，在查找内...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/HuYingJie_1995">来自：	<span class="blog_title"> HuYingJie_1995的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/kaixin123456_csdn/article/details/78728930,BlogCommendFromQuerySearch_30"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/kaixin123456_csdn/article/details/78728930,BlogCommendFromQuerySearch_30"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/kaixin123456_csdn/article/details/78728930" target="_blank" title="Eclipse怎么设置自动删除空白行和语句后多余空格?">
+				<h4 class="text-truncate oneline">
+						Eclipse怎么设置自动<em>删除</em>空白行和语句后<em>多余</em><em>空格</em>?				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">12-06</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							536</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/kaixin123456_csdn/article/details/78728930" target="_blank" title="Eclipse怎么设置自动删除空白行和语句后多余空格?">
+							<span class="desc oneline">eclipse–&gt;window–&gt;Preferences–&gt;java–&gt;Editor–&gt;SaveActions,勾选AdditionalActions,点击Configure…,只要勾选Removet...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/kaixin123456_csdn">来自：	<span class="blog_title"> kaixin123456_csdn的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/lx1441070490/article/details/78292357,BlogCommendFromQuerySearch_31"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/lx1441070490/article/details/78292357,BlogCommendFromQuerySearch_31"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/lx1441070490/article/details/78292357" target="_blank" title="java去除字符串中多余空格，只留一个">
+				<h4 class="text-truncate oneline">
+						java去除<em>字符串</em>中<em>多余</em><em>空格</em>，只留一个				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">10-20</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1022</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/lx1441070490/article/details/78292357" target="_blank" title="java去除字符串中多余空格，只留一个">
+							<span class="desc oneline">替换: string.replaceAll(&amp;quot;{2,}&amp;quot;,&amp;quot;&amp;quot;);自己写方法：  	StringBuffersb=newStringBuffer();//用其他...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/lx1441070490">来自：	<span class="blog_title"> 58946的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/Teng_s2000/article/details/5820764,BlogCommendFromQuerySearch_32"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/Teng_s2000/article/details/5820764,BlogCommendFromQuerySearch_32"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/Teng_s2000/article/details/5820764" target="_blank" title="Visual Studio如何删除多余的空行">
+				<h4 class="text-truncate oneline">
+						Visual Studio如何<em>删除</em><em>多余</em>的<em>空行</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">08-18</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							8916</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/Teng_s2000/article/details/5820764" target="_blank" title="Visual Studio如何删除多余的空行">
+							<span class="desc oneline">VisualStudio如何删除多余的空行</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/Teng_s2000">来自：	<span class="blog_title"> Teng_s2000的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    <div class="recommend-item-box recommend-ad-box"><div id="kp_box_65" data-pid="65" data-track-view='{"mod":"kp_popu_65-900","con":",,"}' data-track-click='{"mod":"kp_popu_65-900","con":",,"}'><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-format="fluid"
+     data-ad-layout-key="-h5-e+23-3z+3s"
+     data-ad-client="ca-pub-1076724771190722"
+     data-ad-slot="4012648776"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script></div></div>
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/zhe_ge_sha_shou/article/details/78919127,BlogCommendFromBaidu_33"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/zhe_ge_sha_shou/article/details/78919127,BlogCommendFromBaidu_33"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/zhe_ge_sha_shou/article/details/78919127" target="_blank" title="Python去掉文件中空行">
+				<h4 class="text-truncate oneline">
+						<em>Python</em>去掉文件中<em>空行</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">12-28</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/zhe_ge_sha_shou/article/details/78919127" target="_blank" title="Python去掉文件中空行">
+							<span class="desc oneline">#coding=utf-8defclearBlankLine():file1=open('text1.txt','r',encoding='utf-8')#要去掉的文件file2=open('text...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/zhe_ge_sha_shou">来自：	<span class="blog_title"> 这个杀手不太累的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/JNingWei/article/details/78746157,BlogCommendFromBaidu_34"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/JNingWei/article/details/78746157,BlogCommendFromBaidu_34"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/JNingWei/article/details/78746157" target="_blank" title="python: 自动去除空行">
+				<h4 class="text-truncate oneline">
+						<em>python</em>: 自动去除<em>空行</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">12-07</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							4580</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/JNingWei/article/details/78746157" target="_blank" title="python: 自动去除空行">
+							<span class="desc oneline">code原文档1.txt：HelloNanjing100实现代码：file_=&quot;1.txt&quot;r_file=open(file_,&quot;r&quot;)lines=r_file.readlines()r_file.c...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/JNingWei">来自：	<span class="blog_title"> Memo</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/jet19810906/article/details/79621830,BlogCommendFromBaidu_35"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/jet19810906/article/details/79621830,BlogCommendFromBaidu_35"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/jet19810906/article/details/79621830" target="_blank" title="python脚本去除文本中的空行">
+				<h4 class="text-truncate oneline">
+						<em>python</em>脚本去除文本中的<em>空行</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">03-20</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							936</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/jet19810906/article/details/79621830" target="_blank" title="python脚本去除文本中的空行">
+							<span class="desc oneline">[root@zabbix-serverpy]#vimkongge.py#!/usr/bin/envpython#-*-codingUTF-8-*-importsys,osdefreadLines(fn...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/jet19810906">来自：	<span class="blog_title"> jet19810906的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/Dolphin_h/article/details/21516413,BlogCommendFromBaidu_36"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/Dolphin_h/article/details/21516413,BlogCommendFromBaidu_36"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/Dolphin_h/article/details/21516413" target="_blank" title="python--删除文本中的空行">
+				<h4 class="text-truncate oneline">
+						<em>python</em>--<em>删除</em>文本中的<em>空行</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">03-19</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/Dolphin_h/article/details/21516413" target="_blank" title="python--删除文本中的空行">
+							<span class="desc oneline">#coding:utf-8importsysdefdelete(filepath):	f=open(filepath,'a+')	fnew=open(filepath+'_new.txt','wb')...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/Dolphin_h">来自：	<span class="blog_title"> 黑猫警长</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/amqvje/article/details/46922991,BlogCommendFromQuerySearch_37"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/amqvje/article/details/46922991,BlogCommendFromQuerySearch_37"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/amqvje/article/details/46922991" target="_blank" title="sublime插件：DeleteBlankLines；功能：删除多余空行">
+				<h4 class="text-truncate oneline">
+						sublime插件：DeleteBlankLines；功能：<em>删除</em><em>多余</em><em>空行</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">07-17</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							8738</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/amqvje/article/details/46922991" target="_blank" title="sublime插件：DeleteBlankLines；功能：删除多余空行">
+							<span class="desc oneline">sublimetext中没有直接可以删除空行的功能和快捷键,但我们可以安装一个插件&quot;DeleteBlankLines&quot;来实现.插件地址:https://github.com/NicholasBuse/...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/amqvje">来自：	<span class="blog_title"> 疯狂的简洁</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    <div class="recommend-item-box recommend-ad-box"><div id="kp_box_66" data-pid="66" data-track-view='{"mod":"kp_popu_66-881","con":",,"}' data-track-click='{"mod":"kp_popu_66-881","con":",,"}'><script src="https://nbrecsys.4paradigm.com/resource/cus/csdn/sdk-csdn-render.js"></script>
+<div
+  id="_4paradigm_T38_render"
+  class="_paradigm_T_ads_render _4paradigm_box recommend-item-box clearfix"
+></div>
+<script>
+  //  渲染T38  传入 渲染位置的id和渲染位置的标记
+  p4CSDNRender_T("_4paradigm_T38_render", "T38");
+</script></div></div>
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/u010884130/article/details/50972015,BlogCommendFromQuerySearch_38"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/u010884130/article/details/50972015,BlogCommendFromQuerySearch_38"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/u010884130/article/details/50972015" target="_blank" title="phpstorm用正则删除PHP代码空行小技巧">
+				<h4 class="text-truncate oneline">
+						phpstorm用正则<em>删除</em>PHP代码<em>空行</em>小技巧				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">03-24</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							5778</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/u010884130/article/details/50972015" target="_blank" title="phpstorm用正则删除PHP代码空行小技巧">
+							<span class="desc oneline">有很多小伙伴会遇到代码空行特别多，但是一行一行删除肯定很烦躁，这时候就需要用到批量删除空行。怎么批量删除空行呢？我的办法是用正则把所有空行找到，然后一键全部替换。首先把MatchCase和Regex打...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/u010884130">来自：	<span class="blog_title"> 竹音林的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/qq_37705048/article/details/79925992,BlogCommendFromQuerySearch_39"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/qq_37705048/article/details/79925992,BlogCommendFromQuerySearch_39"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/qq_37705048/article/details/79925992" target="_blank" title="vscode中检测代码中的空白行并去除的方法">
+				<h4 class="text-truncate oneline">
+						vscode中检测代码中的空白行并去除的方法				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">04-13</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							7802</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/qq_37705048/article/details/79925992" target="_blank" title="vscode中检测代码中的空白行并去除的方法">
+							<span class="desc oneline">按下ctrl+h键进行正则匹配：^\s*(?=\r?$)\n然后直接替换，再看代码发现空行已经不见了。...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/qq_37705048">来自：	<span class="blog_title"> qq_37705048的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/zyghs/article/details/54343314,BlogCommendFromQuerySearch_40"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/zyghs/article/details/54343314,BlogCommendFromQuerySearch_40"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/zyghs/article/details/54343314" target="_blank" title="VS删除空白行">
+				<h4 class="text-truncate oneline">
+						VS<em>删除</em>空白行				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">01-11</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							8929</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/zyghs/article/details/54343314" target="_blank" title="VS删除空白行">
+							<span class="desc oneline">在vs编辑器中有时需要批量删除无用的空白行，为此，可以使用vs编辑器的查找替换功能：1.Ctrl+H，打开替换功能框。2.选择“使用正则表达式”，“当前文档”。3.在查找框中输入：(?4.全部替换...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/zyghs">来自：	<span class="blog_title"> 海绵酱</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/haibo0668/article/details/83105217,BlogCommendFromQuerySearch_41"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/haibo0668/article/details/83105217,BlogCommendFromQuerySearch_41"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/haibo0668/article/details/83105217" target="_blank" title="Dreamweaver DW中清除代码中多余空行的方法(去除空行)">
+				<h4 class="text-truncate oneline">
+						Dreamweaver DW中清除代码中<em>多余</em><em>空行</em>的方法(去除<em>空行</em>)				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">10-17</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							443</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/haibo0668/article/details/83105217" target="_blank" title="Dreamweaver DW中清除代码中多余空行的方法(去除空行)">
+							<span class="desc oneline">如下代码，可以看到空行好多，而且不规律有的空一行有的空两三行，非常的不美观使用dreamweaver打开你的网页代码，然后用ctrl+f打开搜索功能在查找里面输入：\r\n\s*\r\n在替换里面输入...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/haibo0668">来自：	<span class="blog_title"> php菜鸟技术天地</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    			<div class="recommend-item-box recommend-box-ident recommend-download-box clearfix" data-track-view='{"mod":"popu_614","con":",https://download.csdn.net/download/yanglei5658/4601046,BlogCommendFromBaidu_42"}' data-track-click='{"mod":"popu_614","con":",https://download.csdn.net/download/yanglei5658/4601046,BlogCommendFromBaidu_42"}'>
+			<a href="https://download.csdn.net/download/yanglei5658/4601046" target="_blank">
+				<div class="content clearfix">
+					<div class="">
+						<h4 class="text-truncate oneline clearfix">
+							运用<em>Python</em><em>删除</em>txt文件的<em>多余</em><em>空行</em>						</h4>
+						<span class="data float-right">09-26</span>
+					</div>
+					<div class="desc oneline">
+							简单的删除txt文件中的多余空行，可以参考来写其他的操作。					</div>
+          <span class="type-show type-show-download">下载</span>
+				</div>
+			</a>
+		</div>
+	
+    <div class="recommend-item-box recommend-ad-box"><div id="kp_box_67" data-pid="67" data-track-view='{"mod":"kp_popu_67-882","con":",,"}' data-track-click='{"mod":"kp_popu_67-882","con":",,"}'><script src="https://nbrecsys.4paradigm.com/resource/cus/csdn/sdk-csdn-render.js"></script>
+<div
+  id="_4paradigm_T43_render"
+  class="_paradigm_T_ads_render _4paradigm_box recommend-item-box clearfix"
+></div>
+<script>
+  //  渲染T43  传入 渲染位置的id和渲染位置的标记
+  p4CSDNRender_T("_4paradigm_T43_render", "T43");
+</script></div></div>
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/qq_26707695/article/details/79784389,BlogCommendFromBaidu_43"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/qq_26707695/article/details/79784389,BlogCommendFromBaidu_43"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/qq_26707695/article/details/79784389" target="_blank" title="使用python将文档当中的空行全部去掉">
+				<h4 class="text-truncate oneline">
+						使用<em>python</em>将文档当中的<em>空行</em>全部去掉				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">04-02</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							2267</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/qq_26707695/article/details/79784389" target="_blank" title="使用python将文档当中的空行全部去掉">
+							<span class="desc oneline">python学习当中的一个小应用最近要发布应用，然后需要黏贴代码，申请软件著作权，代码当中有好些的空行，不是很适合，然后就使用python写啦个简单的demo，使用python去掉当中的空行，不得不说...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/qq_26707695">来自：	<span class="blog_title"> qq_26707695的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/huangyingleo/article/details/54235654,BlogCommendFromBaidu_44"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/huangyingleo/article/details/54235654,BlogCommendFromBaidu_44"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/huangyingleo/article/details/54235654" target="_blank" title="用Python将注释行和空行去掉">
+				<h4 class="text-truncate oneline">
+						用<em>Python</em>将注释行和<em>空行</em>去掉				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">01-08</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1905</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/huangyingleo/article/details/54235654" target="_blank" title="用Python将注释行和空行去掉">
+							<span class="desc oneline">os模块，\cp的用法，文件的读取</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/huangyingleo">来自：	<span class="blog_title"> huangyingleo的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/u011997078/article/details/51303888,BlogCommendFromBaidu_45"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/u011997078/article/details/51303888,BlogCommendFromBaidu_45"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/u011997078/article/details/51303888" target="_blank" title="Python读取数据集并消除数据中的空行">
+				<h4 class="text-truncate oneline">
+						<em>Python</em>读取数据集并消除数据中的<em>空行</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">05-03</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							9463</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/u011997078/article/details/51303888" target="_blank" title="Python读取数据集并消除数据中的空行">
+							<span class="desc oneline">#-*-coding:utf-8-*-#@authorhulei2016-5-3fromnumpyimport*importoperatorfromosimportlistdirimportsysre...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/u011997078">来自：	<span class="blog_title"> u011997078的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/imzoer/article/details/7524129,BlogCommendFromQuerySearch_46"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/imzoer/article/details/7524129,BlogCommendFromQuerySearch_46"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/imzoer/article/details/7524129" target="_blank" title="shell去掉空白行、多余空格">
+				<h4 class="text-truncate oneline">
+						shell去掉空白行、<em>多余</em><em>空格</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">04-30</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							3万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/imzoer/article/details/7524129" target="_blank" title="shell去掉空白行、多余空格">
+							<span class="desc oneline">去掉空白行：tr-s[&quot;\012&quot;]newtest.txtsed-n'/./p'temp_file5&gt;newtest.txtgrep.temp_file5&gt;newtest.txtgrep-v'^$'t...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/imzoer">来自：	<span class="blog_title"> imzoer的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/Angel_guoo/article/details/78986329,BlogCommendFromQuerySearch_47"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/Angel_guoo/article/details/78986329,BlogCommendFromQuerySearch_47"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/Angel_guoo/article/details/78986329" target="_blank" title="Eclipse中，去除空白行">
+				<h4 class="text-truncate oneline">
+						Eclipse中，去除空白行				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">01-06</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1127</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/Angel_guoo/article/details/78986329" target="_blank" title="Eclipse中，去除空白行">
+							<span class="desc oneline">再网上搜了一下，有一下集中方法先贴上原帖，三篇：一、Eclipse怎么设置自动删除空白行和语句后多余空格? http://www.jb51.net/softjc/425405.html二、eclips...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/Angel_guoo">来自：	<span class="blog_title"> 十里の清风</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    <div class="recommend-item-box recommend-ad-box"><div id="kp_box_68" data-pid="68" data-track-view='{"mod":"kp_popu_68-883","con":",,"}' data-track-click='{"mod":"kp_popu_68-883","con":",,"}'><!-- T48 位置 -->
+<script src="https://nbrecsys.4paradigm.com/resource/cus/csdn/sdk-csdn-render.js"></script>
+<div
+  id="_4paradigm_T48_render"
+  class="_paradigm_T_ads_render _4paradigm_box recommend-item-box clearfix"
+></div>
+<script>
+  //  渲染T48  传入 渲染位置的id和渲染位置的标记
+  p4CSDNRender_T("_4paradigm_T48_render", "T48");
+</script></div></div>
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/kof820/article/details/49902013,BlogCommendFromQuerySearch_48"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/kof820/article/details/49902013,BlogCommendFromQuerySearch_48"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/kof820/article/details/49902013" target="_blank" title="在editplus中删除多余空行">
+				<h4 class="text-truncate oneline">
+						在editplus中<em>删除</em><em>多余</em><em>空行</em>				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">11-18</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							5157</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/kof820/article/details/49902013" target="_blank" title="在editplus中删除多余空行">
+							<span class="desc oneline">今天网上下载了一个程序源码，但是文件中多余的空行太多了，在网上搜了一下巧用editplus解决了问题：editplus中的替换：(1)选择“行首”，则查找内容组合框中出现字符“^”，表示待查找的字符串...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/kof820">来自：	<span class="blog_title"> BILL-博客-LLIB</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/s_p_j/article/details/79409315,BlogCommendFromQuerySearch_49"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/s_p_j/article/details/79409315,BlogCommendFromQuerySearch_49"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/s_p_j/article/details/79409315" target="_blank" title="Sublime Text批量删除空白行">
+				<h4 class="text-truncate oneline">
+						Sublime Text批量<em>删除</em>空白行				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">03-01</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							2591</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/s_p_j/article/details/79409315" target="_blank" title="Sublime Text批量删除空白行">
+							<span class="desc oneline">1)替换处理CTRL+H打开replace功能，勾选上左侧的regularexpression，并填写 findwhat栏:\s+$	（正则表达式）replacewith栏:	（这行留空） 接着点re...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/s_p_j">来自：	<span class="blog_title"> s_p_j的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/VBcom/article/details/7245186,BlogCommendHotData_0"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/VBcom/article/details/7245186,BlogCommendHotData_0"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/VBcom/article/details/7245186" target="_blank" title="DirectX修复工具增强版">
+				<h4 class="text-truncate oneline">
+						DirectX修复工具增强版				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">02-09</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							193万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/VBcom/article/details/7245186" target="_blank" title="DirectX修复工具增强版">
+							<span class="desc oneline">最后更新：2018-12-20
+
+DirectX修复工具最新版：DirectX Repair V3.8 增强版  NEW!
+
+版本号：V3.8.0.11638
+
+大小: 107MB/7z格式压缩，18...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/VBcom">来自：	<span class="blog_title"> VBcom的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/autocyz/article/details/48136473,BlogCommendHotData_1"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/autocyz/article/details/48136473,BlogCommendHotData_1"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/autocyz/article/details/48136473" target="_blank" title="相关滤波跟踪（MOSSE）">
+				<h4 class="text-truncate oneline">
+						相关滤波跟踪（MOSSE）				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">08-31</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							2万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/autocyz/article/details/48136473" target="_blank" title="相关滤波跟踪（MOSSE）">
+							<span class="desc oneline">相关滤波跟踪（MOSSE）
+
+在信号处理中，有这么一个概念——相关性（correlation），用来描述两个因素之间的联系。而相关性又分为cross-correlation（互相关，两个信号之间的联系...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/autocyz">来自：	<span class="blog_title"> autocyz</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/legend12300/article/details/52385473,BlogCommendHotData_2"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/legend12300/article/details/52385473,BlogCommendHotData_2"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/legend12300/article/details/52385473" target="_blank" title="Eclipse 经常 突然卡死，占用CPU非常高，无响应。">
+				<h4 class="text-truncate oneline">
+						Eclipse 经常 突然卡死，占用CPU非常高，无响应。				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">08-31</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/legend12300/article/details/52385473" target="_blank" title="Eclipse 经常 突然卡死，占用CPU非常高，无响应。">
+							<span class="desc oneline">Eclipse 经常 突然卡死，占用CPU非常高，无响应。
+可能是
+eclipse.ini
+
+文件中配置的缓存大小过小。
+更改文件为
+
+
+-startup
+plugins/org.e...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/legend12300">来自：	<span class="blog_title"> legend12300的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/u010785685/article/details/52366977,BlogCommendHotData_3"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/u010785685/article/details/52366977,BlogCommendHotData_3"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/u010785685/article/details/52366977" target="_blank" title="redis两种持久化策略">
+				<h4 class="text-truncate oneline">
+						redis两种持久化策略				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">08-30</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							2万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/u010785685/article/details/52366977" target="_blank" title="redis两种持久化策略">
+							<span class="desc oneline">reids是一个key-value存储系统，为了保证效率，缓存在内存中，但是redis会周期性的把更新的数据写入磁盘或者把修改操作写入追加的记录文件，以保证数据的持久化。
+ 
+所以：redis是一...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/u010785685">来自：	<span class="blog_title"> 那么好,</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/csu_yang/article/details/5912659,BlogCommendHotData_4"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/csu_yang/article/details/5912659,BlogCommendHotData_4"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/csu_yang/article/details/5912659" target="_blank" title="[转]wince 蓝牙 ">
+				<h4 class="text-truncate oneline">
+						[转]wince 蓝牙 				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">09-28</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							3342</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/csu_yang/article/details/5912659" target="_blank" title="[转]wince 蓝牙 ">
+							<span class="desc oneline">[转]wince 蓝牙  上面是WinCE中蓝牙协议栈的架构图：      可以看到，HCI传输层以上的协议层全部由WinCE实现了，所以蓝牙模块只需要实现了基带层和链路管理层，并提供HCI传输接口给...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/csu_yang">来自：	<span class="blog_title"> csu_yang的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/sfeng95/article/details/62239539,BlogCommendHotData_5"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/sfeng95/article/details/62239539,BlogCommendHotData_5"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/sfeng95/article/details/62239539" target="_blank" title="centos7 开启网络连接">
+				<h4 class="text-truncate oneline">
+						centos7 开启网络连接				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">03-15</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							2万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/sfeng95/article/details/62239539" target="_blank" title="centos7 开启网络连接">
+							<span class="desc oneline">1.当我们发现无法联网时，我们运行下面命令或者ping命令
+ip  addr
+
+结果没有显示局域网的IP地址
+2.我们去修改网卡配置文件，把网络连接打开
+cd /
+cd  /etc/sys...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/sfeng95">来自：	<span class="blog_title"> sfeng95的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/ymj7150697/article/details/7384126,BlogCommendHotData_6"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/ymj7150697/article/details/7384126,BlogCommendHotData_6"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/ymj7150697/article/details/7384126" target="_blank" title="expat介绍文档翻译">
+				<h4 class="text-truncate oneline">
+						expat介绍文档翻译				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">03-22</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							3万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/ymj7150697/article/details/7384126" target="_blank" title="expat介绍文档翻译">
+							<span class="desc oneline">原文地址：http://www.xml.com/pub/a/1999/09/expat/index.html
+
+
+因为需要用，所以才翻译了这个文档。但总归赖于英语水平很有限，翻译出来的中文有可能...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/ymj7150697">来自：	<span class="blog_title"> ymj7150697的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/themagickeyjianan/article/details/52386981,BlogCommendHotData_7"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/themagickeyjianan/article/details/52386981,BlogCommendHotData_7"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/themagickeyjianan/article/details/52386981" target="_blank" title="python图片处理类之~PIL.Image模块(ios android icon图标自动生成处理)">
+				<h4 class="text-truncate oneline">
+						python图片处理类之~PIL.Image模块(ios android icon图标自动生成处理)				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">08-31</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							6万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/themagickeyjianan/article/details/52386981" target="_blank" title="python图片处理类之~PIL.Image模块(ios android icon图标自动生成处理)">
+							<span class="desc oneline">1.从pyCharm提示下载PIL包
+
+ http://www.pythonware.com/products/pil/
+
+ 
+
+2.解压后，进入到目录下
+
+
+cd /Users/jianan/Dow...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/themagickeyjianan">来自：	<span class="blog_title"> 专注于cocos+unity+服务器全栈</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/u011726984/article/details/78432431,BlogCommendHotData_8"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/u011726984/article/details/78432431,BlogCommendHotData_8"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/u011726984/article/details/78432431" target="_blank" title="将数据从Java Bean复制到另一个Java Bean">
+				<h4 class="text-truncate oneline">
+						将数据从Java Bean复制到另一个Java Bean				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">11-03</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							7628</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/u011726984/article/details/78432431" target="_blank" title="将数据从Java Bean复制到另一个Java Bean">
+							<span class="desc oneline">将数据从一个对象复制到另一个对象使用Spring的BeanUtils在开发中我们常会在对象之间设置属性值：Order order = new Order();
+order.setOrderAmount...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/u011726984">来自：	<span class="blog_title"> yidasanqian's blog</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/m0_37739193/article/details/78779686,BlogCommendHotData_9"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/m0_37739193/article/details/78779686,BlogCommendHotData_9"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/m0_37739193/article/details/78779686" target="_blank" title="Flume断点续传深入研究">
+				<h4 class="text-truncate oneline">
+						Flume断点续传深入研究				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">12-12</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1651</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/m0_37739193/article/details/78779686" target="_blank" title="Flume断点续传深入研究">
+							<span class="desc oneline">方法一：在excel source中运用复杂的tail命令
+在百度中搜索到一篇文章：https://my.oschina.net/leejun2005/blog/288136
+可以在tail传的时候记...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/m0_37739193">来自：	<span class="blog_title"> 小强签名设计 的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/liufanghuangdi/article/details/52957094,BlogCommendHotData_10"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/liufanghuangdi/article/details/52957094,BlogCommendHotData_10"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/liufanghuangdi/article/details/52957094" target="_blank" title="java+opencv 目标图像调整">
+				<h4 class="text-truncate oneline">
+						java+opencv 目标图像调整				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">10-28</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							6007</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/liufanghuangdi/article/details/52957094" target="_blank" title="java+opencv 目标图像调整">
+							<span class="desc oneline">java+opencv 进行图像匹配，FeatureDetector ，DescriptorExtractor 
+        DescriptorMatcher 配合使用。分别进行关键点检测，提取...</span>
+						</a>
+						  <span class="blog_title_box oneline no-title">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/clover_hxy/article/details/50683832,BlogCommendHotData_11"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/clover_hxy/article/details/50683832,BlogCommendHotData_11"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/clover_hxy/article/details/50683832" target="_blank" title="bsgs算法">
+				<h4 class="text-truncate oneline">
+						bsgs算法				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">02-18</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/clover_hxy/article/details/50683832" target="_blank" title="bsgs算法">
+							<span class="desc oneline">bsgs算法
+bsgs算法，又称大小步算法（某大神称拔山盖世算法）。
+主要用来解决
+   A^x=B(mod C)(C是质数)，都是整数，已知A、B、C求x。（poj 2417 Discrete Lo...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/clover_hxy">来自：	<span class="blog_title"> clover_hxy的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/t247555529/article/details/48046859,BlogCommendHotData_12"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/t247555529/article/details/48046859,BlogCommendHotData_12"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/t247555529/article/details/48046859" target="_blank" title="opencv 双目相机标定 自带例子程序的使用">
+				<h4 class="text-truncate oneline">
+						opencv 双目相机标定 自带例子程序的使用				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">08-28</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/t247555529/article/details/48046859" target="_blank" title="opencv 双目相机标定 自带例子程序的使用">
+							<span class="desc oneline">有了上篇单目标定示例程序的经验，双目标定就是小菜一碟哈。
+本人目前菜鸟，但还是愿意厚着脸皮分享我一下午的成果。不要拍我...
+
+
+1.找到目录   ...\opencv\sources\sam...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/t247555529">来自：	<span class="blog_title"> t247555529的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/u011860731/article/details/48733073,BlogCommendHotData_13"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/u011860731/article/details/48733073,BlogCommendHotData_13"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/u011860731/article/details/48733073" target="_blank" title="ThreadLocal的设计理念与作用">
+				<h4 class="text-truncate oneline">
+						ThreadLocal的设计理念与作用				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">09-25</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							6万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/u011860731/article/details/48733073" target="_blank" title="ThreadLocal的设计理念与作用">
+							<span class="desc oneline">Java中的ThreadLocal类允许我们创建只能被同一个线程读写的变量。因此，如果一段代码含有一个ThreadLocal变量的引用，即使两个线程同时执行这段代码，它们也无法访问到对方的Thread...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/u011860731">来自：	<span class="blog_title"> u011860731的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/terry_water/article/details/39377255,BlogCommendHotData_14"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/terry_water/article/details/39377255,BlogCommendHotData_14"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/terry_water/article/details/39377255" target="_blank" title="file_get_contents 得到https类型url失败的方法">
+				<h4 class="text-truncate oneline">
+						file_get_contents 得到https类型url失败的方法				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">09-18</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/terry_water/article/details/39377255" target="_blank" title="file_get_contents 得到https类型url失败的方法">
+							<span class="desc oneline">把file
+
+
+function getSSLPage($url) {
+    $ch = curl_init();
+	curl_setopt($ch, CURLOPT_RETURNTRANSF...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/terry_water">来自：	<span class="blog_title"> Terry - 专注外贸B2C</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/heroacool/article/details/51023921,BlogCommendHotData_15"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/heroacool/article/details/51023921,BlogCommendHotData_15"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/heroacool/article/details/51023921" target="_blank" title="MATLAB--相机标定教程">
+				<h4 class="text-truncate oneline">
+						MATLAB--相机标定教程				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">03-31</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							2万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/heroacool/article/details/51023921" target="_blank" title="MATLAB--相机标定教程">
+							<span class="desc oneline">对相机标定原理不熟悉的同学可以参考张正友标记法的译文 
+MATLAB：2014a待标记图像：http://download.csdn.net/detail/heroacool/9477530
+应用程序...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/heroacool">来自：	<span class="blog_title"> heroacool的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/Giraffe_zj/article/details/3343143,BlogCommendHotData_16"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/Giraffe_zj/article/details/3343143,BlogCommendHotData_16"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/Giraffe_zj/article/details/3343143" target="_blank" title="JSON传送与接收(java)">
+				<h4 class="text-truncate oneline">
+						JSON传送与接收(java)				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">11-20</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							2万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/Giraffe_zj/article/details/3343143" target="_blank" title="JSON传送与接收(java)">
+							<span class="desc oneline">在 JSON 中我们已经介绍过其基本格式，与XML相同，JSON只是一个文字格式，只要客户端与伺服端可以剖析它，就可以利用它作为传送数据的格式，但它是JavaScript的核心特性之一，所以在Java...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/Giraffe_zj">来自：	<span class="blog_title"> Giraffe_zj的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/qq_36892341/article/details/73918672,BlogCommendHotData_17"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/qq_36892341/article/details/73918672,BlogCommendHotData_17"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/qq_36892341/article/details/73918672" target="_blank" title="linux上安装Docker(非常简单的安装方法)">
+				<h4 class="text-truncate oneline">
+						linux上安装Docker(非常简单的安装方法)				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">06-29</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							20万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/qq_36892341/article/details/73918672" target="_blank" title="linux上安装Docker(非常简单的安装方法)">
+							<span class="desc oneline">最近比较有空，大四出来实习几个月了，作为实习狗的我，被叫去研究Docker了，汗汗！
+
+Docker的三大核心概念：镜像、容器、仓库
+镜像：类似虚拟机的镜像、用俗话说就是安装文件。
+容器：类似一个轻量...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/qq_36892341">来自：	<span class="blog_title"> 我走小路的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/u012373815/article/details/54632176,BlogCommendHotData_18"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/u012373815/article/details/54632176,BlogCommendHotData_18"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/u012373815/article/details/54632176" target="_blank" title="springboot+mybatis＋SpringSecurity 实现用户角色数据库管理(一)">
+				<h4 class="text-truncate oneline">
+						springboot+mybatis＋SpringSecurity 实现用户角色数据库管理(一)				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">01-20</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							6万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/u012373815/article/details/54632176" target="_blank" title="springboot+mybatis＋SpringSecurity 实现用户角色数据库管理(一)">
+							<span class="desc oneline">本文使用springboot+mybatis＋SpringSecurity 实现用户权限数据库管理实现用户和角色用数据库存储，而资源(url)和权限的对应采用硬编码配置。 也就是角色可以访问的权限通过...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/u012373815">来自：	<span class="blog_title"> 哎幽的成长</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/standmyground/article/details/52576934,BlogCommendHotData_19"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/standmyground/article/details/52576934,BlogCommendHotData_19"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/standmyground/article/details/52576934" target="_blank" title="QEMU 简单使用">
+				<h4 class="text-truncate oneline">
+						QEMU 简单使用				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">09-18</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							8325</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/standmyground/article/details/52576934" target="_blank" title="QEMU 简单使用">
+							<span class="desc oneline">安装：  yum install qemu
+创建image文件：  qemu-img create -f qcow2 guest.qcow2 3G
+安装linux：  1）下载一个镜像文件，http:...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/standmyground">来自：	<span class="blog_title"> 务远的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/gefangshuai/article/details/50328451,BlogCommendHotData_20"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/gefangshuai/article/details/50328451,BlogCommendHotData_20"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/gefangshuai/article/details/50328451" target="_blank" title="关于SpringBoot bean无法注入的问题（与文件包位置有关）">
+				<h4 class="text-truncate oneline">
+						关于SpringBoot bean无法注入的问题（与文件包位置有关）				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">12-16</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							17万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/gefangshuai/article/details/50328451" target="_blank" title="关于SpringBoot bean无法注入的问题（与文件包位置有关）">
+							<span class="desc oneline">问题场景描述整个项目通过Maven构建，大致结构如下：
+核心Spring框架一个module spring-boot-base
+service和dao一个module server-core
+提供系统...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/gefangshuai">来自：	<span class="blog_title"> 开发随笔</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/qq574857122/article/details/16361033,BlogCommendHotData_21"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/qq574857122/article/details/16361033,BlogCommendHotData_21"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/qq574857122/article/details/16361033" target="_blank" title="强连通分量及缩点tarjan算法解析">
+				<h4 class="text-truncate oneline">
+						强连通分量及缩点tarjan算法解析				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">11-16</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							57万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/qq574857122/article/details/16361033" target="_blank" title="强连通分量及缩点tarjan算法解析">
+							<span class="desc oneline">强连通分量：
+简言之 就是找环（每条边只走一次，两两可达）
+孤立的一个点也是一个连通分量 
+ 
+使用tarjan算法 在嵌套的多个环中优先得到最大环( 最小环就是每个孤立点）
+ 
+定义：
+int Ti...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/qq574857122">来自：	<span class="blog_title"> 九野的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/pingnanlee/article/details/68065535,BlogCommendHotData_22"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/pingnanlee/article/details/68065535,BlogCommendHotData_22"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/pingnanlee/article/details/68065535" target="_blank" title="java session基于redis共享方案">
+				<h4 class="text-truncate oneline">
+						java session基于redis共享方案				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">03-29</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							8450</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/pingnanlee/article/details/68065535" target="_blank" title="java session基于redis共享方案">
+							<span class="desc oneline">session基于redis共享有两种基本的方案 
+1、基于容器自身的扩展，比如tomcat的session-manage，可以参考如下 
+地址进行配置https://github.com/jcole...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/pingnanlee">来自：	<span class="blog_title"> pingnanlee的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/wuchengzeng/article/details/50037611,BlogCommendHotData_23"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/wuchengzeng/article/details/50037611,BlogCommendHotData_23"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/wuchengzeng/article/details/50037611" target="_blank" title="jquery/js实现一个网页同时调用多个倒计时(最新的)">
+				<h4 class="text-truncate oneline">
+						jquery/js实现一个网页同时调用多个倒计时(最新的)				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">11-25</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							44万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/wuchengzeng/article/details/50037611" target="_blank" title="jquery/js实现一个网页同时调用多个倒计时(最新的)">
+							<span class="desc oneline">jquery/js实现一个网页同时调用多个倒计时(最新的)
+
+最近需要网页添加多个倒计时. 查阅网络,基本上都是千遍一律的不好用. 自己按需写了个.希望对大家有用. 有用请赞一个哦!
+
+
+
+//js
+...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/wuchengzeng">来自：	<span class="blog_title"> Websites</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/Ape55/article/details/73530419,BlogCommendHotData_24"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/Ape55/article/details/73530419,BlogCommendHotData_24"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/Ape55/article/details/73530419" target="_blank" title="plsql的命令（command）窗口与sql窗口有什么区别20170620">
+				<h4 class="text-truncate oneline">
+						plsql的命令（command）窗口与sql窗口有什么区别20170620				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">06-21</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							3万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/Ape55/article/details/73530419" target="_blank" title="plsql的命令（command）窗口与sql窗口有什么区别20170620">
+							<span class="desc oneline">command窗口是命令窗口，即为sqplus窗口，有命令提示符，识别sqlplus命令，基本的命令都可以执行
+sql仅可执行DDL、select、DML等...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/Ape55">来自：	<span class="blog_title"> Ape55的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/zhmxy555/article/details/40955607,BlogCommendHotData_25"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/zhmxy555/article/details/40955607,BlogCommendHotData_25"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/zhmxy555/article/details/40955607" target="_blank" title="【Unity3D Shader编程】之二 雪山飞狐篇：Unity的基本Shader框架写法&amp;颜色、光照与材质">
+				<h4 class="text-truncate oneline">
+						【Unity3D Shader编程】之二 雪山飞狐篇：Unity的基本Shader框架写法&amp;颜色、光照与材质				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">11-09</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							7万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/zhmxy555/article/details/40955607" target="_blank" title="【Unity3D Shader编程】之二 雪山飞狐篇：Unity的基本Shader框架写法&amp;颜色、光照与材质">
+							<span class="desc oneline">本篇文章中，我们学习了Unity Shader的基本写法框架，以及学习了Shader中Properties（属性）的详细写法，光照、材质与颜色的具体写法。写了6个Shader作为本文Shader讲解的...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/zhmxy555">来自：	<span class="blog_title"> 【浅墨的游戏编程Blog】毛星云（浅墨）的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/u011046042/article/details/47067037,BlogCommendHotData_26"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/u011046042/article/details/47067037,BlogCommendHotData_26"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/u011046042/article/details/47067037" target="_blank" title="基于Linux的智能家居的设计(5)">
+				<h4 class="text-truncate oneline">
+						基于Linux的智能家居的设计(5)				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">07-26</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/u011046042/article/details/47067037" target="_blank" title="基于Linux的智能家居的设计(5)">
+							<span class="desc oneline">4  软件设计
+ 
+软件设计部分主要包括uboot移植、内核编译、系统移植、设备驱动编程、应用程序编程（QT编程、mysql数据库编程、控制系统编程）、各个模块的功能函数（部分是在windows下面的...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/u011046042">来自：	<span class="blog_title"> 求是07的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/hero_fantao/article/details/34533533,BlogCommendHotData_27"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/hero_fantao/article/details/34533533,BlogCommendHotData_27"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/hero_fantao/article/details/34533533" target="_blank" title="连续特征离散化和归一化">
+				<h4 class="text-truncate oneline">
+						连续特征离散化和归一化				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">06-25</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							3万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/hero_fantao/article/details/34533533" target="_blank" title="连续特征离散化和归一化">
+							<span class="desc oneline">连续特征进行离散化处理。</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/hero_fantao">来自：	<span class="blog_title"> hero_fantao的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/Seenway/article/details/49797921,BlogCommendHotData_28"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/Seenway/article/details/49797921,BlogCommendHotData_28"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/Seenway/article/details/49797921" target="_blank" title="钻一钻Tomcat 之 MyEclipse+Tomcat解压版（Ⅲ）">
+				<h4 class="text-truncate oneline">
+						钻一钻Tomcat 之 MyEclipse+Tomcat解压版（Ⅲ）				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">11-12</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							901</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/Seenway/article/details/49797921" target="_blank" title="钻一钻Tomcat 之 MyEclipse+Tomcat解压版（Ⅲ）">
+							<span class="desc oneline">在实际的开发中，大多数人其实更倾向于用解压版的Tomcat，在搭配Eclipse或MyEclipse使用时，只需解压tomcat的压缩包，在Eclipse或MyEclipse中配置一下就可以用了
+
+ ...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/Seenway">来自：	<span class="blog_title"> Seenway的专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/qq_30822013/article/details/53436772,BlogCommendHotData_29"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/qq_30822013/article/details/53436772,BlogCommendHotData_29"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/qq_30822013/article/details/53436772" target="_blank" title="AS 常用快捷键">
+				<h4 class="text-truncate oneline">
+						AS 常用快捷键				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">12-02</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							2872</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/qq_30822013/article/details/53436772" target="_blank" title="AS 常用快捷键">
+							<span class="desc oneline">上篇中我们讲了Android Studio如何添加插件，这篇我们讲讲AS的快捷键，这里我说明的快捷键都是最最实用的，希望刚刚加入AS的朋友尽快的熟悉一下这几个快捷键，这样可以帮助你提高coding的效...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/qq_30822013">来自：	<span class="blog_title"> Simidas</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/Tiaaaaa/article/details/58116346,BlogCommendHotData_30"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/Tiaaaaa/article/details/58116346,BlogCommendHotData_30"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/Tiaaaaa/article/details/58116346" target="_blank" title="R语言逻辑回归、ROC曲线和十折交叉验证">
+				<h4 class="text-truncate oneline">
+						R语言逻辑回归、ROC曲线和十折交叉验证				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">02-27</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							5万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/Tiaaaaa/article/details/58116346" target="_blank" title="R语言逻辑回归、ROC曲线和十折交叉验证">
+							<span class="desc oneline">自己整理编写的逻辑回归模板，作为学习笔记记录分享。数据集用的是14个自变量Xi，一个因变量Y的australian数据集。
+
+
+1. 测试集和训练集3、7分组
+australian ...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/Tiaaaaa">来自：	<span class="blog_title"> Tiaaaaa的博客</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/liminlu0314/article/details/7276954,BlogCommendHotData_31"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/liminlu0314/article/details/7276954,BlogCommendHotData_31"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/liminlu0314/article/details/7276954" target="_blank" title="GDAL算法进度条使用说明">
+				<h4 class="text-truncate oneline">
+						GDAL算法进度条使用说明				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">02-20</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							1万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/liminlu0314/article/details/7276954" target="_blank" title="GDAL算法进度条使用说明">
+							<span class="desc oneline">在调用GDAL算法的时候，希望能够显示其处理进度信息，其实在GDAL的算法API中，一般最后两个参数就是进度信息的指针。下面分别实现两种进度条信息，一种是在控制台中的进度条，一种是基于QT界面的进度条...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/liminlu0314">来自：	<span class="blog_title"> GDAL专栏</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+    		<div class="recommend-item-box recommend-box-ident type_blog clearfix" data-track-view='{"mod":"popu_614","con":",https://blog.csdn.net/zd0303/article/details/7058457,BlogCommendHotData_32"}' data-track-click='{"mod":"popu_614","con":",https://blog.csdn.net/zd0303/article/details/7058457,BlogCommendHotData_32"}'>
+			<div class="content">
+				<a href="https://blog.csdn.net/zd0303/article/details/7058457" target="_blank" title="MATLAB中注释一段程序">
+				<h4 class="text-truncate oneline">
+						MATLAB中注释一段程序				</h4>
+				<div class="info-box d-flex align-content-center">
+					<p class="date-and-readNum oneline">
+						<span class="date hover-show">12-09</span>
+						<span class="read-num hover-hide">
+              阅读数 
+							2万+</span>
+						</p>
+					</div>
+				</a>
+					<p class="content">
+						<a href="https://blog.csdn.net/zd0303/article/details/7058457" target="_blank" title="MATLAB中注释一段程序">
+							<span class="desc oneline">在MATLAB中，可以注释一段程序。
+使用“%{”和“%}”。
+例如
+%{
+。。。
+%}
+即可。
+经典方法是用 if 0，但缺点是不够直观，注释掉的内容仍然保持代码的颜色。现在可以用
+...</span>
+						</a>
+						  <span class="blog_title_box oneline ">
+							                <span class="type-show type-show-blog type-show-after">博文</span>
+                                  <a target="_blank" href="https://blog.csdn.net/zd0303">来自：	<span class="blog_title"> 知识小屋</span></a>
+                							              </span>
+					</p>
+			</div>
+					</div>
+	
+    
+    
+        <div class="recommend-item-box type_hot_word">
+            <div class="content clearfix">
+        <div class="word float-left">
+                          <span>
+            <a href="https://edu.csdn.net/courses/o280_s355_k " target="_blank">
+            Python          </a></span>
+                                  <span>
+            <a href="https://edu.csdn.net/combos/o280_s355_l0_t " target="_blank">
+            Python视频教程          </a></span>
+                                  <span>
+            <a href="https://edu.csdn.net/courses/o280_s355_k " target="_blank">
+            Python入门教程          </a></span>
+                                  <span>
+            <a href="https://edu.csdn.net/course/play/8562/176218 " target="_blank">
+            python基础          </a></span>
+                                  <span>
+            <a href="https://edu.csdn.net/course/play/6449/128272 " target="_blank">
+            solidity结构类型字符串          </a></span>
+                        </div>
+      </div>
+                  <div class="content clearfix">
+        <div class="float-left">
+                  <span>
+            <a href="https://www.csdn.net/gather_1a/MtjaEg4sMDU2My1kb3dubG9hZAO0O0OO0O0O.html" target="_blank">
+            ios获取idfa</a>
+          </span>
+                  <span>
+            <a href="https://www.csdn.net/gather_10/MtTaYgwsNzkyMS1kb3dubG9hZAO0O0OO0O0O.html" target="_blank">
+            server的安全控制模型是什么 sql</a>
+          </span>
+                  <span>
+            <a href="https://www.csdn.net/gather_12/MtTakgxsODg1Ni1kb3dubG9hZAO0O0OO0O0O.html" target="_blank">
+            android title搜索</a>
+          </span>
+                  <span>
+            <a href="https://www.csdn.net/gather_11/MtjaIgwsNzk3Ni1kb3dubG9hZAO0O0OO0O0O.html" target="_blank">
+            ios 动态修改约束</a>
+          </span>
+                  <span>
+            <a href="https://www.csdn.net/gather_4a/MtTacg3sNS1lZHUO0O0O.html" target="_blank">
+            python删除空白教程</a>
+          </span>
+                  <span>
+            <a href="https://www.csdn.net/gather_4a/NtTaMgxsOS1lZHUO0O0O.html" target="_blank">
+            python爬取价格是空的</a>
+          </span>
+                </div>
+      </div>
+          </div>
+
+
+            <div class="recommend-loading-box">
+                <img src='https://csdnimg.cn/release/phoenix/images/feedLoading.gif'>
+            </div>
+            <div class="recommend-end-box">
+                <p class="text-center">没有更多推荐了，<a href="https://blog.csdn.net/" class="c-blue c-blue-hover c-blue-focus">返回首页</a></p>
+            </div>
+        </div>
+    </main>
+
+    <aside>
+		    <div id="asideProfile" class="aside-box">
+    <!-- <h3 class="aside-title">个人资料</h3> -->
+    <div class="profile-intro d-flex">
+        <div class="avatar-box d-flex justify-content-center flex-column">
+            <a href="https://blog.csdn.net/lin_tuer">
+                <img src="https://avatar.csdn.net/1/7/B/3_lin_tuer.jpg" class="avatar_pic">
+            </a>
+            
+        </div>
+        <div class="user-info d-flex justify-content-center flex-column">
+            <p class="name csdn-tracking-statistics tracking-click" data-mod="popu_379">
+                <a href="https://blog.csdn.net/lin_tuer" target="_blank" class="" id="uid">lin_tuer</a>
+            </p>
+                    </div>
+                <div class="opt-box d-flex justify-content-center flex-column">
+            <span  class="csdn-tracking-statistics tracking-click" data-mod="popu_379">
+                <a class="btn btn-sm btn-red-hollow attention" id="btnAttent">关注</a>
+            </span>
+        </div>
+            </div>
+    <div class="data-info d-flex item-tiling">
+                <dl class="text-center" title="65">
+                        <dt><a href="https://blog.csdn.net/lin_tuer?t=1">原创</a></dt>
+            <dd><a href="https://blog.csdn.net/lin_tuer?t=1"><span class="count">65</span></a></dd>
+                    </dl>
+        <dl class="text-center" id="fanBox" title="7">
+            <dt>粉丝</dt>
+            <dd><span class="count" id="fan">7</span></dd>
+        </dl>
+        <dl class="text-center" title="12">
+            <dt>喜欢</dt>
+            <dd><span class="count">12</span></dd>
+        </dl>
+        <dl class="text-center" title="8">
+            <dt>评论</dt>
+            <dd><span class="count">8</span></dd>
+        </dl>
+    </div>
+    <div class="grade-box clearfix">
+        <dl>
+            <dt>等级：</dt>
+            <dd>
+                <a href="https://blog.csdn.net/home/help.html#level" title="4级,点击查看等级说明" target="_blank">
+                    <svg class="icon icon-level" aria-hidden="true">
+                        <use xlink:href="#csdnc-bloglevel-4"></use>
+                    </svg>
+                </a>
+            </dd>
+        </dl>
+        <dl>
+            <dt>访问：</dt>
+            <dd title="96174">
+                9万+            </dd>
+        </dl>
+        <dl>
+            <dt>积分：</dt>
+            <dd title="1562">
+                1562            </dd>
+        </dl>
+        <dl title="42808">
+            <dt>排名：</dt>
+            <dd>4万+</dd>
+        </dl>
+    </div>
+        <div class="badge-box d-flex">
+        <span>勋章：</span>
+                        <div class="icon-badge" title="持之以恒">
+            <div class="mouse-box">
+                <svg class="icon" aria-hidden="true">
+                    <use xlink:href="#csdnc-m-lasting"></use>
+                </svg>
+                <div class="icon-arrow"></div>
+            </div>
+            <div class="grade-detail-box">
+                <div class="pos-box">
+                    <div class="left-box d-flex justify-content-center align-items-center flex-column">
+                        <svg class="icon" aria-hidden="true">
+                            <use xlink:href="#csdnc-m-lasting"></use>
+                        </svg>
+                        <p>持之以恒</p>
+                    </div>
+                    <div class="right-box d-flex justify-content-center align-items-center">
+                        授予每个自然月内发布4篇或4篇以上原创或翻译IT博文的用户。不积跬步无以至千里，不积小流无以成江海，程序人生的精彩需要坚持不懈地积累！
+                    </div>
+                </div>
+            </div>
+        </div>
+                                                <script>
+            (function ($) {
+                setTimeout(function(){
+                    $('div.icon-badge.show-moment').removeClass('show-moment');
+                }, 5000);
+            })(window.jQuery)
+        </script>
+    </div>
+    </div>
+		    <div class="csdn-tracking-statistics mb8 box-shadow" data-pid="blog" data-mod="popu_4" style="height:250px;">
+    <div class="aside-content text-center" id="cpro_u2734133">
+      <div id="kp_box_56" data-pid="56" data-track-view='{"mod":"kp_popu_56-876","con":",,"}' data-track-click='{"mod":"kp_popu_56-876","con":",,"}'><!-- 广告位：PC-博客内页左上视窗 -->
+<script>
+(function() {
+    var s = "_" + Math.random().toString(36).slice(2);
+    document.write('<div id="' + s + '"></div>');
+    (window.slotbydup=window.slotbydup || []).push({
+        id: '6096221',
+        container: s,
+        size: '300,250',
+        display: 'inlay-fix'
+    });
+})();
+</script>
+<script src="//dup.baidustatic.com/js/os.js"></script></div>    </div>
+</div>
+		    <div id="asideNewArticle" class="aside-box">
+    <h3 class="aside-title">最新文章</h3>
+    <div class="aside-content">
+        <ul class="inf_list clearfix csdn-tracking-statistics tracking-click" data-mod="popu_382">
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/lin_tuer/article/details/85273481" target="_blank">[重拾 leetcode - go] [array]31. Next Permutation</a>
+            </li>
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/lin_tuer/article/details/85239570" target="_blank">[重拾 leetcode - go] [array]18. 4Sum</a>
+            </li>
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/lin_tuer/article/details/85239535" target="_blank">[重拾 leetcode - go] [array] 16. 3Sum Closest</a>
+            </li>
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/lin_tuer/article/details/85106796" target="_blank">go-基础概念：包，可见性，程序执行过程</a>
+            </li>
+                        <li class="clearfix">
+                <a href="https://blog.csdn.net/lin_tuer/article/details/85103176" target="_blank">kill批量终止进程</a>
+            </li>
+                    </ul>
+    </div>
+</div>
+		    		    <div id="asideCategory" class="aside-box flexible-box">
+    <h3 class="aside-title">个人分类</h3>
+    <div class="aside-content">
+        <ul>
+                        <li>
+                <a class="clearfix" href="https://blog.csdn.net/lin_tuer/article/category/6365164">
+                    <span class="title oneline">C++</span>
+                    <span class="count float-right">7篇</span>
+                </a>
+            </li>
+                        <li>
+                <a class="clearfix" href="https://blog.csdn.net/lin_tuer/article/category/6407722">
+                    <span class="title oneline">JAVA</span>
+                    <span class="count float-right">25篇</span>
+                </a>
+            </li>
+                        <li>
+                <a class="clearfix" href="https://blog.csdn.net/lin_tuer/article/category/6507028">
+                    <span class="title oneline">thinkphp</span>
+                    <span class="count float-right">5篇</span>
+                </a>
+            </li>
+                        <li>
+                <a class="clearfix" href="https://blog.csdn.net/lin_tuer/article/category/6555707">
+                    <span class="title oneline">js</span>
+                    <span class="count float-right">9篇</span>
+                </a>
+            </li>
+                        <li>
+                <a class="clearfix" href="https://blog.csdn.net/lin_tuer/article/category/7198287">
+                    <span class="title oneline">linux</span>
+                    <span class="count float-right">8篇</span>
+                </a>
+            </li>
+                        <li>
+                <a class="clearfix" href="https://blog.csdn.net/lin_tuer/article/category/7202087">
+                    <span class="title oneline">python</span>
+                    <span class="count float-right">4篇</span>
+                </a>
+            </li>
+                        <li>
+                <a class="clearfix" href="https://blog.csdn.net/lin_tuer/article/category/7269803">
+                    <span class="title oneline">mysql</span>
+                    <span class="count float-right">3篇</span>
+                </a>
+            </li>
+                        <li>
+                <a class="clearfix" href="https://blog.csdn.net/lin_tuer/article/category/7557760">
+                    <span class="title oneline">hive</span>
+                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <li>
+                <a class="clearfix" href="https://blog.csdn.net/lin_tuer/article/category/7708805">
+                    <span class="title oneline">WLAN</span>
+                    <span class="count float-right">2篇</span>
+                </a>
+            </li>
+                        <li>
+                <a class="clearfix" href="https://blog.csdn.net/lin_tuer/article/category/7753966">
+                    <span class="title oneline">redis</span>
+                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <li>
+                <a class="clearfix" href="https://blog.csdn.net/lin_tuer/article/category/7818942">
+                    <span class="title oneline">面试</span>
+                    <span class="count float-right">4篇</span>
+                </a>
+            </li>
+                        <li>
+                <a class="clearfix" href="https://blog.csdn.net/lin_tuer/article/category/8333997">
+                    <span class="title oneline">go</span>
+                    <span class="count float-right">8篇</span>
+                </a>
+            </li>
+                        <li>
+                <a class="clearfix" href="https://blog.csdn.net/lin_tuer/article/category/8545651">
+                    <span class="title oneline">git</span>
+                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                    </ul>
+    </div>
+        <p class="text-center">
+        <a class="btn btn-link-blue flexible-btn" data-fbox="aside-archive">展开</a>
+    </p>
+    </div>
+		    <div id="asideArchive" class="aside-box flexible-box">
+    <h3 class="aside-title">归档</h3>
+    <div class="aside-content">
+        <ul class="archive-list">
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2018/12">
+                    2018年12月                    <span class="count float-right">7篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2018/11">
+                    2018年11月                    <span class="count float-right">7篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2018/10">
+                    2018年10月                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2018/09">
+                    2018年9月                    <span class="count float-right">4篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2018/07">
+                    2018年7月                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2018/06">
+                    2018年6月                    <span class="count float-right">3篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2018/04">
+                    2018年4月                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2018/03">
+                    2018年3月                    <span class="count float-right">4篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2018/02">
+                    2018年2月                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2018/01">
+                    2018年1月                    <span class="count float-right">2篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2017/12">
+                    2017年12月                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2017/11">
+                    2017年11月                    <span class="count float-right">8篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2017/10">
+                    2017年10月                    <span class="count float-right">2篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2017/09">
+                    2017年9月                    <span class="count float-right">3篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2017/07">
+                    2017年7月                    <span class="count float-right">2篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2017/04">
+                    2017年4月                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2017/02">
+                    2017年2月                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2017/01">
+                    2017年1月                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2016/12">
+                    2016年12月                    <span class="count float-right">6篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2016/11">
+                    2016年11月                    <span class="count float-right">2篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2016/10">
+                    2016年10月                    <span class="count float-right">1篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2016/09">
+                    2016年9月                    <span class="count float-right">6篇</span>
+                </a>
+            </li>
+                        <!--归档统计-->
+            <li>
+                <a href="https://blog.csdn.net/lin_tuer/article/month/2016/08">
+                    2016年8月                    <span class="count float-right">7篇</span>
+                </a>
+            </li>
+                    </ul>
+    </div>
+        <p class="text-center">
+        <a class="btn btn-link-blue flexible-btn" data-fbox="aside-archive">展开</a>
+    </p>
+    </div>
+		    <div id="asideHotArticle" class="aside-box">
+	<h3 class="aside-title">热门文章</h3>
+	<div class="aside-content">
+		<ul class="hotArticle-list csdn-tracking-statistics tracking-click" data-mod="popu_521">
+							<li>
+					<a href="https://blog.csdn.net/lin_tuer/article/details/78443481">supervisor更改某项目配置后 需要重新启动才有效</a>
+					<p class="read">阅读数 <span>16456</span></p>
+				</li>
+							<li>
+					<a href="https://blog.csdn.net/lin_tuer/article/details/53453952">js 用window.open打开新窗口，父窗口怎么向子窗口传值，子窗口怎么接收父窗口传来的参数</a>
+					<p class="read">阅读数 <span>8812</span></p>
+				</li>
+							<li>
+					<a href="https://blog.csdn.net/lin_tuer/article/details/54809330">node-mysql中防止SQL注入</a>
+					<p class="read">阅读数 <span>7520</span></p>
+				</li>
+							<li>
+					<a href="https://blog.csdn.net/lin_tuer/article/details/78470000">spring boot @Value() 不识别</a>
+					<p class="read">阅读数 <span>6331</span></p>
+				</li>
+							<li>
+					<a href="https://blog.csdn.net/lin_tuer/article/details/53454138">js一维数组转二维数组 及 二维数组排序</a>
+					<p class="read">阅读数 <span>4401</span></p>
+				</li>
+					</ul>
+	</div>
+</div>
+		    <div id="asideNewComments" class="aside-box">
+    <h3 class="aside-title">最新评论</h3>
+    <div class="aside-content">
+        <ul class="newcomment-list">
+                        <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/lin_tuer/article/details/78436077#comments">报错：JPA-style posi...</a>
+                <p class="comment ellipsis">
+                    <a href="https://my.csdn.net/java_sparrow" class="user-name" target="_blank">java_sparrow：</a>哈哈，同样的问题，我也很服气                </p>
+            </li>
+                        <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/lin_tuer/article/details/80830485#comments">python 删除字符串多余空格及...</a>
+                <p class="comment ellipsis">
+                    <a href="https://my.csdn.net/weixin_43971764" class="user-name" target="_blank">weixin_43971764：</a>太棒了，完美解决我的问题，在网上搜索了半天，终于解决了，点赞                </p>
+            </li>
+                        <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/lin_tuer/article/details/78436077#comments">报错：JPA-style posi...</a>
+                <p class="comment ellipsis">
+                    <a href="https://my.csdn.net/VitoYi" class="user-name" target="_blank">VitoYi：</a>谢谢，我也遇到了，这问题我也是服气                </p>
+            </li>
+                        <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/lin_tuer/article/details/53454028#comments">数据库的两列交换顺序</a>
+                <p class="comment ellipsis">
+                    <a href="https://my.csdn.net/lin_tuer" class="user-name" target="_blank">lin_tuer：</a>[reply]sinat_37857328[/reply]
+这个问题对我有点难~很抱歉提供不了帮助                </p>
+            </li>
+                        <li>
+                <a class="title text-truncate" target="_blank" href="https://blog.csdn.net/lin_tuer/article/details/53454028#comments">数据库的两列交换顺序</a>
+                <p class="comment ellipsis">
+                    <a href="https://my.csdn.net/sinat_37857328" class="user-name" target="_blank">sinat_37857328：</a>那请问撸主，要怎么在数据库中筛查两个字段的内容放反了呢（比如一个数据库中两个字段的内容，你怀疑部分放反了，但是不知道放没放反）                </p>
+            </li>
+                    </ul>
+    </div>
+</div>
+		<div id="asideFooter">
+			
+		<div class="aside-box">
+			<div id="kp_box_57" data-pid="57" data-track-view='{"mod":"kp_popu_57-707","con":",,"}' data-track-click='{"mod":"kp_popu_57-707","con":",,"}'><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 博客内页左下视窗-20181130 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:300px;height:250px"
+     data-ad-client="ca-pub-1076724771190722"
+     data-ad-slot="1894159733"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script></div>		</div>
+				<div class="aside-box">
+			<div class="persion_article">
+			</div>
+		</div>
+	</div>
+</aside>
+<script src="https://csdnimg.cn/pubfooter/js/publib_footer-1.0.3.js" data-isfootertrack="false" type="text/javascript"></script>
+<script>
+	$("a.flexible-btn").click(function(){
+		$(this).parents('div.aside-box').removeClass('flexible-box');
+		$(this).remove();
+	})
+</script>
+</div>
+<div class="mask-dark"></div>
+<div class="tool-box">
+	<ul class="meau-list">
+		<li class="btn-like-box long-width">
+			<button class=" long-height hover-box btn-like " title="点赞">
+				<svg class="icon active hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-thumbsup-ok"></use>
+				</svg>
+				<svg class="icon no-active hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-thumbsup"></use>
+				</svg>
+				<span class="hover-show text-box text">
+					<span class="no-active">点赞</span>
+					<span class="active">取消点赞</span>
+				</span>
+				<p>2</p>
+			</button>
+		</li>
+		<li class="">
+						<a class="btn-comments long-height hover-box" title="写评论" href="#commentBox">
+				<svg class="icon hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-comments"></use>
+				</svg>
+				<span class="hover-show text">评论</span>
+				<p class="">
+						1				</p>
+			</a>
+		</li>
+		<li class="toc-container-box" id="liTocBox">
+			<button class="btn-toc low-height hover-box" title="目录">
+				<svg class="icon hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-contents"></use>
+				</svg>
+				<span class="hover-show text">目录</span>
+			</button>
+			<div class="toc-container">
+				<div class="pos-box">
+					<div class="icon-arrow"></div>
+					<div class="scroll-box">
+						<div class="toc-box"></div>
+					</div>
+				</div>
+				<div class="opt-box">
+					<button class="btn-opt prev nomore" title="向上">
+						<svg class="icon" aria-hidden="true">
+							<use xlink:href="#csdnc-chevronup"></use>
+						</svg>
+					</button>
+					<button class="btn-opt next">
+						<svg class="icon" aria-hidden="true">
+							<use xlink:href="#csdnc-chevrondown"></use>
+						</svg>
+					</button>
+				</div>
+			</div>
+		</li>
+		<li>
+			<button class="btn-bookmark low-height hover-box" title="收藏">
+				<svg class="icon active hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-bookmark-ok"></use>
+				</svg>
+				<svg class="icon no-active hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-bookmark"></use>
+				</svg>
+					<span class="hover-show text">收藏</span>
+				<!-- <span class="hover-show text-box text">
+					<span class="no-active">收藏</span>
+					<span class="active">取消收藏</span>
+				</span> -->
+			</button>
+		</li>
+		<li class="bdsharebuttonbox">
+			<div class="weixin-qr btn-comments low-height hover-box" >
+        <a href="#" class="bds_weixin clear-share-style" data-cmd="weixin" title="手机看"></a>
+				<svg class="icon hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-usephone"></use>
+				</svg>
+				<span class="hover-show text text3">
+					手机看
+				</span>
+			</div>
+		</li>
+							<li class="widescreen-hide">
+				<a class="btn-comments low-height hover-box" href="https://blog.csdn.net/lin_tuer/article/details/80784987" title="Redis 五种数据结构">
+					<svg class="icon hover-hide" aria-hidden="true">
+						<use xlink:href="#csdnc-chevronleft"></use>
+					</svg>
+					<span class="hover-show text text3">上一篇</span>
+				</a>
+			</li>
+								<li class="widescreen-hide">
+			<a class="btn-comments hover-box low-height" href="https://blog.csdn.net/lin_tuer/article/details/81097426" title="How to make docker image and">
+				<svg class="icon hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-chevronright"></use>
+				</svg>
+				<span class="hover-show text text3">下一篇</span>
+			</a>
+		</li>
+						<!-- 宽屏更多按钮 -->
+		<li class="widescreen-more">
+			<a class="btn-comments chat-ask-button low-height hover-box" title="快问" href="#chatqa">
+				<svg class="icon hover-hide" aria-hidden="true">
+					<use xlink:href="#csdnc-more"></use>
+				</svg>
+				<span class="hover-show text">更多</span>
+				
+			</a>
+			<ul class="widescreen-more-box">
+													<li class="widescreen-more">
+						<a class="btn-comments low-height hover-box" href="https://blog.csdn.net/lin_tuer/article/details/80784987" title="Redis 五种数据结构">
+							<svg class="icon hover-hide" aria-hidden="true">
+								<use xlink:href="#csdnc-chevronleft"></use>
+							</svg>
+							<span class="hover-show text text3">上一篇</span>
+						</a>
+					</li>
+																<li class="widescreen-more">
+					<a class="btn-comments hover-box low-height" href="https://blog.csdn.net/lin_tuer/article/details/81097426" title="How to make docker image and">
+						<svg class="icon hover-hide" aria-hidden="true">
+							<use xlink:href="#csdnc-chevronright"></use>
+						</svg>
+						<span class="hover-show text text3">下一篇</span>
+					</a>
+				</li>
+							</ul>
+		</li>
+	</ul>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "1", "bdMiniList": false, "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'https://csdnimg.cn/static/api/js/share.js?v=89860594'];</script>
+<script>
+    var recommendCount = 83;
+    recommendCount = recommendCount > 1 ? (recommendCount + (recommendCount>6 ? 2 : 1)) : recommendCount;
+    var articleTit = articleTitles;
+    var ChannelId = 16;
+    var articleId = "80830485";
+    var commentscount = 1;
+    var islock = false;
+    var curentUrl = "https://blog.csdn.net/lin_tuer/article/details/80830485";
+    var myUrl = "https://my.csdn.net/";
+    //1禁止评论，2正常
+    var commentAuth = 2;
+    //百度搜索
+    var baiduKey = "python 删除字符串多余空格及删除多余的空格与空行 - lin_tuer的博客";
+    var needInsertBaidu = true;
+    // 代码段样式
+    var codeStyle = 'atom-one-dark';
+		var highlight = ["python","\u5220\u9664","\u5b57\u7b26\u4e32","\u591a\u4f59","\u7a7a\u683c","\u5220\u9664","\u591a\u4f59","\u7a7a\u683c","\u7a7a\u884c"];//高亮数组
+		// 相关推荐博主数据
+    var RecommendBlogExpertList = [{"user_name":"csharp25","nick_name":"_iorilan","avatar":"https:\/\/avatar.csdn.net\/E\/C\/C\/3_csharp25.jpg","is_expert":true,"article_count":1189,"rank":"294"},{"user_name":"weixin_41869941","nick_name":"FangYifei_","avatar":"https:\/\/avatar.csdn.net\/D\/5\/7\/3_weixin_41869941.jpg","is_expert":false,"article_count":14,"rank":"\u5343\u91cc\u4e4b\u5916"},{"user_name":"qq_32723451","nick_name":"\u8981\u52a0\u6cb9\u9e2d\uff01","avatar":"https:\/\/avatar.csdn.net\/0\/B\/6\/3_qq_32723451.jpg","is_expert":false,"article_count":48,"rank":"\u5343\u91cc\u4e4b\u5916"},{"user_name":"kaukiyou","nick_name":"kaukiyou","avatar":"https:\/\/avatar.csdn.net\/3\/7\/1\/3_kaukiyou.jpg","is_expert":false,"article_count":73,"rank":"\u5343\u91cc\u4e4b\u5916"},{"user_name":"coffeesweet","nick_name":"coffeesweet","avatar":"https:\/\/avatar.csdn.net\/C\/5\/3\/3_coffeesweet.jpg","is_expert":false,"article_count":25,"rank":"\u5343\u91cc\u4e4b\u5916"},{"user_name":"u011146423","nick_name":"\u7231\u4ebaBT","avatar":"https:\/\/avatar.csdn.net\/A\/D\/7\/3_u011146423.jpg","is_expert":false,"article_count":121,"rank":"\u5343\u91cc\u4e4b\u5916"},{"user_name":"xuplus","nick_name":"xuplus","avatar":"https:\/\/avatar.csdn.net\/9\/4\/D\/3_xuplus.jpg","is_expert":false,"article_count":142,"rank":"7000+"},{"user_name":"HuYingJie_1995","nick_name":"\u4ece\u5fc3\u5f00\u59cbyjh","avatar":"https:\/\/avatar.csdn.net\/7\/D\/A\/3_huyingjie_1995.jpg","is_expert":false,"article_count":71,"rank":"\u5343\u91cc\u4e4b\u5916"},{"user_name":"kaixin123456_csdn","nick_name":"kaixin123456_csdn","avatar":"https:\/\/avatar.csdn.net\/0\/9\/8\/3_kaixin123456_csdn.jpg","is_expert":false,"article_count":50,"rank":"\u5343\u91cc\u4e4b\u5916"},{"user_name":"lx1441070490","nick_name":"58946","avatar":"https:\/\/avatar.csdn.net\/1\/6\/3\/3_lx1441070490.jpg","is_expert":false,"article_count":2,"rank":"\u5343\u91cc\u4e4b\u5916"}];
+	var articleType = 1;
+	var CopyrightContent = '';
+    var current_user_name = 'u014528142';
+</script>
+<script src="https://csdnimg.cn/public/sandalstrap/1.4/js/sandalstrap.min.js"></script>
+<script src="https://csdnimg.cn/release/phoenix/vendor/pagination/paging.js"></script>
+<script src='https://csdnimg.cn/public/common/gotop/js/goTop-v1.0.min.js?v201811201455'></script>
+<script>
+    GoTop({
+        right: 8,
+        hasReport: true,
+        reportFun: function() {
+            showReport(false,articleTit);
+        }
+    })
+</script>
+</body>
+
+<!-- 高亮未与 markdown兼容  -->
+	<link rel="stylesheet" href="https://csdnimg.cn/release/blog_editor_html/release1.3.8/ckeditor/plugins/chart/chart.css" />
+	<script type="text/javascript" src="https://csdnimg.cn/release/blog_editor_html/release1.3.8/ckeditor/plugins/chart/lib/chart.min.js"></script>
+	<script type="text/javascript" src="https://csdnimg.cn/release/blog_editor_html/release1.3.8/ckeditor/plugins/chart/widget2chart.js"></script>
+	<link rel="stylesheet" href="https://csdnimg.cn/release/blog_editor_html/release1.3.8/ckeditor/plugins/codesnippet/lib/highlight/styles/atom-one-dark.css">
+	<script type="text/javascript" src="https://csdnimg.cn/release/phoenix/production/pc_wap_common-3bc59f8f2b.js" /></script>
+
+	<script type="text/javascript">
+	$(function(){
+		var allEscRegex = /&(lt|gt|amp|quot|nbsp|shy|#\d{1,5});/g,
+		    namedEntities = {
+					lt: '<',
+					gt: '>',
+					amp: '&',
+					quot: '"',
+					nbsp: '\u00a0',
+					shy: '\u00ad'
+				}
+		var allEscDecode = function( match, code ) {
+				return namedEntities[ code ];
+		};
+		htmlDecodeAttr = function( text ) {
+				return text.replace( allEscRegex, allEscDecode );
+		}
+	  hljs.initHighlighting();
+	  hljs.initCopyButtonOnLoad();
+	  hljs.initLineNumbersOnLoad();
+		if($('pre .language-plain').length>0){
+			$('pre .language-plain').each(function(i,e){
+				var highlightRe = hljs.highlightAuto(htmlDecodeAttr(e.innerHTML))
+				e.innerHTML = highlightRe.value;
+				e.className = 'language-'+highlightRe.language;
+			});
+		}
+	})
+	</script>
+
+<script src="//g.csdnimg.cn/??login-box/1.0.5/login-box.js,login-box/1.0.5/login-auto.js?t=20190307095522"></script>
+<script src="https://csdnimg.cn/release/phoenix/template/js/common-cca3af63ea.min.js"></script>
+<script src="https://csdnimg.cn/release/phoenix/template/js/detail-e1115dc4b3.min.js"></script>
+
+	<script src="https://csdnimg.cn/release/phoenix/themes/skin-yellow/skin-yellow-fc7383b956.min.js"></script>
+
+<script src="//g.csdnimg.cn/baidu-search/1.0.0/baidu-search.js"  type="text/javascript"></script>
+
+
+<!-- <script type="text/javascript" src="//g.csdnimg.cn/check-adb/1.0.2/check-adb.js"></script> -->
+
+<script type="text/javascript" src="https://csdnimg.cn/release/blog_mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+            "HTML-CSS": {
+                    linebreaks: { automatic: true, width: "94%container" },
+                    imageFont: null
+            },
+            tex2jax: {
+                preview: "none"
+            },
+            mml2jax: {
+                preview: 'none'
+            }
+    });
+</script>
+<script type="text/javascript">
+    </script>
+<script src="https://gh.bdstatic.com/static/gh/js/sdk/bword.min.js"></script>
+</html>

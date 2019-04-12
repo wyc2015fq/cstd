@@ -1,0 +1,640 @@
+﻿
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="gb2312" />
+<meta name="applicable-device" content="pc">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<meta http-equiv="Cache-Control" content="no-transform" />
+<title>python中map的基本用法示例_python_脚本之家</title>
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+<meta name="keywords" content="python中map函数,python中map的用法大全,python中map集合" />
+<meta name="description" content="map函数的原型是map(function, iterable, …)，它的返回结果是一个列表。下面这篇文章主要给大家介绍了关于python中map的基本用法，文中通过示例代码介绍的非常详细，需要的朋友可以参考下" />
+<link rel="alternate" media="only screen and(max-width: 640px)" href="https://m.jb51.net/article/147143.htm" />
+<meta http-equiv="mobile-agent" content="format=html5; url=https://m.jb51.net/article/147143.htm" />
+<meta http-equiv="mobile-agent" content="format=xhtml; url=https://m.jb51.net/article/147143.htm" />
+<script type="text/javascript">
+var tougao="daisy",lmname="python",suoyin="no";
+(function(){var reWriteUrl=function(url){if(url){var Splits=url.split("/"),siteName=window.location.pathname;if(typeof siteName!=="undefined"){return "https://m.jb51.net"+siteName}}};if(/Android|webOS|iPhone|iPad|Windows Phone|iPod|BlackBerry|SymbianOS|Nokia|Mobile/i.test(navigator.userAgent)){var url=window.location.href;var pathname=window.location.pathname;if(url.indexOf("?pc")<0){try{window.location.href=reWriteUrl(url)}catch(e){}}}})();
+</script>
+<meta name="referrer" content="always">
+<link type="text/css" href="/skin/2018/css/base.css" rel="stylesheet" />
+<link type="text/css" href="/skin/2018/css/common.css" rel="stylesheet" />
+<script type="text/javascript" src="//apps.bdimg.com/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript">
+    if (typeof jQuery == 'undefined') {
+        document.write(unescape("%3Cscript src='/skin/js/jquery.js' type='text/javascript'%3E%3C/script%3E"));
+    }
+</script>
+<script type=text/javascript src="/js/function.js"></script> 
+</head>
+<body>
+<!--topTools Start -->
+<div class="topTools">
+    <div class="wrap clear_fix">
+		<div class="topToolsLeft">
+			<a href="/" target="_blank">脚本之家</a>
+			<a href="http://s.jb51.net" target="_blank" rel="nofollow">服务器常用软件</a>
+		</div>
+		<div class="right">
+			<ul>
+				<li><i class="sprite md left"></i><a target="_blank" href="https://m.jb51.net/" rel="nofollow">手机版</a></li>
+				<li><i class="sprite tg left"></i><a href="http://tougao.jb51.net" rel="nofollow" target="_blank">投稿中心</a></li>
+				<li id="wxHide"><i class="sprite wx left"></i><a href="javascript:void(0)" target="_blank">关注微信</a>
+					<div id="wxShow" class="wxHide_box"><img src="//files.jb51.net/skin/2018/images/erwm.jpg" alt="扫一扫" width="84" hight="84" data-baiduimageplus-ignore></div>
+				</li>
+			</ul>
+			<!--快捷导航 开始 -->
+			<div class="text_d right" id="navHide">
+        <a rel="nofollow" href="javascript:void(0);">快捷导航 <i id="icon" class="sprite arrowRight"></i></a>
+        <div id="navBox" class="nwebNav" style="display: none;">
+                <div class="ndealList clear_fix">
+                        <div class="navTitle left">
+                                <h4>
+                                        <a rel="nofollow" href="/softs/" target="_blank">软件下载</a></h4>
+                        </div>
+                        <dl class="right">
+                                <dd>
+                                        <a rel="nofollow" href="/softs/android.html" target="_blank">android</a>
+                                        <a rel="nofollow" href="/softs/mac.html" target="_blank">MAC</a>
+                                        <a rel="nofollow" href="/qudong/" target="_blank">驱动下载</a>
+                                        <a rel="nofollow" href="/fonts/" target="_blank">字体下载</a>
+                                        <a rel="nofollow" href="/dll/" target="_blank">DLL</a></dd>
+                        </dl>
+                </div>
+                <div class="ndealList clear_fix">
+                        <div class="navTitle left">
+                                <h4>
+                                        <a rel="nofollow" href="/codes/" target="_blank">源码下载</a></h4>
+                        </div>
+                        <dl class="right">
+                                <dd>
+                                        <a rel="nofollow" href="/codes/php.html" target="_blank">PHP</a>
+                                        <a rel="nofollow" href="/codes/aspnet.html" target="_blank">ASP.NET</a>
+                                        <a rel="nofollow" href="/codes/asp.html" target="_blank">ASP</a>
+                                        <a rel="nofollow" href="/codes/jsp.html" target="_blank">JSP</a></dd>
+                        </dl>
+                </div>
+                <div class="ndealList clear_fix">
+                        <div class="navTitle left">
+                                <h4><a rel="nofollow" href="/list/index_84.htm" target="_blank">软件编程</a></h4>
+                        </div>
+                        <dl class="right">
+                                <dd>
+                                        <a rel="nofollow" href="/list/list_85_1.htm" target="_blank">C#</a>
+                                        <a rel="nofollow" href="/list/list_134_1.htm" target="_blank">JAVA</a>
+                                        <a rel="nofollow" href="/list/list_159_1.htm" target="_blank">C 语言</a>
+                                        <a rel="nofollow" href="/list/list_206_1.htm" target="_blank">Delphi</a>
+                                        <a rel="nofollow" href="/list/list_233_1.htm" target="_blank">Android</a></dd>
+                        </dl>
+                </div>
+                <div class="ndealList clear_fix">
+                        <div class="navTitle left">
+                                <h4><a rel="nofollow" href="/list/index_1.htm" target="_blank">网络编程</a></h4>
+                        </div>
+                        <dl class="right">
+                                <dd>
+                                        <a rel="nofollow" href="/list/list_15_1.htm" target="_blank">PHP</a>
+                                        <a rel="nofollow" href="/list/list_21_1.htm" target="_blank">ASP.NET</a>
+                                        <a rel="nofollow" href="/list/list_2_1.htm" target="_blank">ASP</a>
+                                        <a rel="nofollow" href="/list/list_3_1.htm" target="_blank">JavaScript</a></dd>
+                        </dl>
+                </div>
+                <div class="ndealList clear_fix">
+                        <div class="navTitle left">
+                                <h4><a rel="nofollow" href="http://tools.jb51.net/" target="_blank">在线工具</a></h4>
+                        </div>
+                        <dl class="right">
+                                <dd>
+                                        <a rel="nofollow" href="/tools/cssyasuo.shtml" target="_blank">CSS格式化</a>
+                                        <a rel="nofollow" href="http://tools.jb51.net/tools/js_geshihua.asp" target="_blank">JS格式化</a>
+                                        <a rel="nofollow" href="/tools/html-js.htm" target="_blank" rel="nofollow">Html转化为Js</a></dd>
+                        </dl>
+                </div>
+                <div class="ndealList clear_fix">
+                        <div class="navTitle left">
+                                <h4><a rel="nofollow" href="/list/index_104.htm" target="_blank">数据库</a></h4>
+                        </div>
+                        <dl class="right">
+                                <dd>
+                                        <a rel="nofollow" href="/list/list_112_1.htm" target="_blank">MYSQL</a>
+                                        <a rel="nofollow" href="/list/list_113_1.htm" target="_blank">MSSQL</a>
+                                        <a rel="nofollow" href="/list/list_154_1.htm" target="_blank">oracle</a>
+                                        <a rel="nofollow" href="/list/list_155_1.htm" target="_blank">DB2</a>
+                                        <a rel="nofollow" href="/list/list_252_1.htm" target="_blank">MARIADB</a></dd>
+                        </dl>
+                </div>
+                <div class="ndealList clear_fix">
+                        <div class="navTitle left">
+                                <h4><a rel="nofollow" href="/cms/" target="_blank">CMS</a></h4>
+                        </div>
+                        <dl class="right">
+                                <dd>
+                                        <a rel="nofollow" href="/cms/list411_1.html" target="_blank">PHPCMS</a>
+                                        <a rel="nofollow" href="/cms/list408_1.html" target="_blank">DEDECMS</a>
+                                        <a rel="nofollow" href="/cms/list578_1.html" target="_blank">帝国CMS</a>
+                                        <a rel="nofollow" href="/cms/list419_1.html" target="_blank">WordPress</a>
+                                </dd>
+                        </dl>
+                </div>
+                <div class="ndealList clear_fix">
+                        <div class="navTitle left">
+                                <h4><a rel="nofollow" href="javascript:0;" target="_blank">常用工具</a></h4>
+                        </div>
+                        <dl class="right">
+                                <dd>
+                                        <a rel="nofollow" href="/zt/phphuanjing.html" target="_blank">PHP开发工具</a>
+                                        <a rel="nofollow" href="/zt/python.html" target="_blank">python</a>
+                                        <a rel="nofollow" href="/zt/photoshopxz.html" target="_blank">Photoshop</a>
+                                        <a rel="nofollow" href="/bibei/win/index.html" target="_blank">必备软件</a></dd>
+                        </dl>
+                </div>
+        </div>
+</div>
+			<!--快捷导航 结束 -->
+		</div>
+    </div>
+</div>
+<!--topTools end -->
+
+<div class="header">
+	<!-- Logo start -->
+	<div class="wrap">
+		<div class="mtb10 clearfix">
+		  <div class="logo"><a href="//www.jb51.net/"><img src="//www.jb51.net/images/logo.gif" title="脚本之家" alt="脚本之家" /></a></div>
+		  <div class="logom fl"><span id="logo_m" class="jbTestPos"></span></div>
+		  <div class="logor fr"><span id="logo_r" class="jbTestPos"></span></div>
+		</div>
+	</div>
+	<!--Logo end -->
+	
+	<!-- 导航开始 -->
+	<div class="nav_top clearfix">
+		<ul>
+			<li><a href="/">网站首页</a></li>
+			<li><a href="/web/">网页制作</a></li>
+			<li><a href="/list/index_1.htm">网络编程</a></li>
+			<li><a href="/list/index_96.htm">脚本专栏</a></li>
+			<li><a href="/jiaoben/">脚本下载</a></li>
+			<li><a href="/list/index_104.htm">数据库</a></li>
+			<li><a href="/list/list_82_1.htm">服务器</a></li>
+			<li><a href="/books/">电子书籍</a></li>
+			<li><a href="/os/">操作系统</a></li>
+			<li><a href="/yunying/">网站运营</a></li>
+			<li><p><i>其它</i><span>
+				<a href="/pingmian/">平面设计</a>
+				<a href="/media/">媒体动画</a>
+				<a href="/diannaojichu/">电脑基础</a>
+				<a href="/hardware/">硬件教程</a>
+				<a href="/hack/">网络安全</a>	
+			</span></p></li>
+		</ul>
+	</div>
+	<!--导航结束-->
+</div>
+
+<!-- 二级菜单开始 -->
+<div class="wrap">
+	<div class="subnav clearfix">
+<ul><li><a href='/list/list_114_1.htm' title="vbs">vbs</a></li>
+<li><a href='/list/list_106_1.htm' title="DOS/BAT">DOS/BAT</a></li>
+<li><a href='/list/list_110_1.htm' title="hta">hta</a></li>
+<li><a href='/list/list_111_1.htm' title="htc">htc</a></li>
+<li><a href='/list/list_97_1.htm' title="python">python</a></li>
+<li><a href='/list/list_125_1.htm' title="perl">perl</a></li>
+<li><a href='/list/list_138_1.htm' title="游戏相关">游戏相关</a></li>
+<li><a href='/list/list_161_1.htm' title="VBA">VBA</a></li>
+<li><a href='/list/list_163_1.htm' title="远程脚本">远程脚本</a></li>
+<li><a href='/list/list_178_1.htm' title="ColdFusion">ColdFusion</a></li>
+<li><a href='/list/list_201_1.htm' title="ruby专题">ruby专题</a></li>
+<li><a href='/list/list_213_1.htm' title="autoit">autoit</a></li>
+<li><a href='/list/list_214_1.htm' title="seraphzone">seraphzone</a></li>
+<li><a href='/list/list_234_1.htm' title="PowerShell">PowerShell</a></li>
+<li><a href='/list/list_235_1.htm' title="linux shell">linux shell</a></li>
+<li><a href='/list/list_245_1.htm' title="Lua">Lua</a></li>
+<li><a href='/list/list_246_1.htm' title="Golang">Golang</a></li>
+<li><a href='/list/list_249_1.htm' title="Erlang">Erlang</a></li>
+<li><a href='/list/list_130_1.htm' title="其它">其它</a></li>
+</ul>
+	</div>
+</div>
+<!-- 二级菜单结束 -->	
+
+<div class="main mb10 clearfix">
+	<div class="clearfix"><span id="tonglan1" class="jbTestPos"></span></div>
+</div>
+<div class="main clearfix">
+	<div class="NavBar clearfix ptb10">
+		<div class="fl w690">
+			<div class="box mb15 mt10"><i class="icon"></i>您的位置：<a href='/'>首页</a> → <a href="/list/index_96.htm" title="脚本专栏">脚本专栏</a> → <a href="/list/list_97_1.htm" title="python">python</a> → 正文内容 python中map用法</div>
+		</div>
+		<div class="fr w300"><div class="search">
+		<form action="/do/search.php" target="_blank">
+			<input type="hidden" name="s" value="10520733385329581432">
+			<input type="hidden" name="ie" value="gbk">
+			<input type="text" name="q" class="key_input" placeholder="请输入关键词">
+			<input type="submit" value=" " class="c_btn">
+		</form></div>
+		</div>
+	</div>
+</div>
+<!--content Star -->
+<div id="contents">
+ <!--share start-->
+ <div id="right-share">
+	<div class="right-share jb-share" id="jb-share">
+		<a class="rshare-weixin" title="">微信</a>
+        <a rel="nofollow" class="rshare-qzone" target="_blank" href="//tougao.jb51.net/" title="投稿">投稿</a>
+		<a rel="nofollow" class="rshare-sqq" target="_blank" href="http://shequ.jb51.net/" title="交流社区">交流社区</a>
+		<a rel="nofollow" class="rshare-tsina" target="_blank" href="http://tools.jb51.net/" title="在线工具">在线工具</a>
+	</div>
+	<a class="rshare-top" onClick="javascript:;"></a>
+			
+	<div id="weixin-code" class="hide">
+	<div class="popup_weixin_head"><p>关注微信公众号</p> 
+	<div id="code"><img src="//files.jb51.net/skin/2018/images/erwm.jpg" alt="扫一扫" width="100" hight="100"></div>
+	</div>
+	</div>	
+ </div>
+<!--share end-->
+
+ <div class="main clearfix bgf">
+      <div class="w750 fl">
+      <div class="article-content border">
+      <div class="title">
+            <h1 class="YaHei">python中map的基本用法示例</h1>
+            <p> &nbsp;更新时间：2018年09月10日 11:06:38 &nbsp; 作者：lincappu  &nbsp; <a href="#comments"> <img src="/skin/2018/images/text-message.png" width="15" height="15" /> 我要评论</a> </p>
+        </div>
+        <div class="lbd clearfix"><span id="tit_down" class="jbTestPos"></span></div>
+        <div class="art_desc mt10"><div id="art_demo">map函数的原型是map(function, iterable, …)，它的返回结果是一个列表。下面这篇文章主要给大家介绍了关于python中map的基本用法，文中通过示例代码介绍的非常详细，需要的朋友可以参考下</div></div>
+        <div class="lbd clearfix"><span id="art_up" class="jbTestPos"></span></div>
+        <div id="content">
+            <p><span style="color: #ff0000"><strong>map()函数</strong></span><br />
+</p>
+<p>map() 会根据提供的函数对指定序列做映射，是内置函数</p>
+<p>第一个参数 function 以参数序列中的每一个元素调用 function 函数，返回包含每次 function 函数返回值的新列表。</p>
+<p><strong>语法</strong><br />
+</p>
+<div class="jb51code">
+<pre class="brush:py;">
+map(function, iterable, ...)</pre>
+</div>
+<p>map()是 Python 内置的高阶函数，它接收一个函数 f 和一个 list，并通过把函数 f 依次作用在 list 的每个元素上，得到一个新的 list 并返回。</p>
+<p>1、当seq只有一个时，将函数func作用于这个seq的每个元素上，并得到一个新的seq。</p>
+<p style="text-align: center"><img alt="" src="https://files.jb51.net/file_images/article/201809/2018910110352828.png&#63;201881011359" /></p>
+<p>例如，对于list [1, 2, 3, 4, 5, 6, 7, 8, 9]<br />
+</p>
+<p>如果希望把list的每个元素都作平方，就可以用map()函数：<br />
+</p>
+<p>因此，我们只需要传入函数f(x)=x*x，就可以利用map()函数完成这个计算：<br />
+</p>
+<div class="jb51code">
+<pre class="brush:py;">
+def f(x):
+ return x*x
+print map(f, [1, 2, 3, 4, 5, 6, 7, 8, 9])</pre>
+</div>
+<p>输出结果：<br />
+</p>
+<blockquote>
+<p>[1, 4, 9, 10, 25, 36, 49, 64, 81]<br />
+</p>
+</blockquote>
+<p><span style="color: #800000"><strong>注意：</strong></span>map()函数不改变原有的 list，而是返回一个新的 list。<br />
+</p>
+<p>利用map()函数，可以把一个 list 转换为另一个 list，只需要传入转换函数。<br />
+</p>
+<p>由于list包含的元素可以是任何类型，因此，map() 不仅仅可以处理只包含数值的 list，事实上它可以处理包含任意类型的 list，只要传入的函数f可以处理这种数据类型。<br />
+</p>
+<p>假设用户输入的英文名字不规范，没有按照首字母大写，后续字母小写的规则，请利用map()函数，把一个list（包含若干不规范的英文名字）变成一个包含规范英文名字的list：<br />
+</p>
+<p>输入：['adam', 'LISA', 'barT']<br />
+</p>
+<p>输出：['Adam', 'Lisa', 'Bart']<br />
+</p>
+<div class="jb51code">
+<pre class="brush:py;">
+def format_name(s):
+ s1=s[0:1].upper()+s[1:].lower();
+ return s1;
+print map(format_name, ['adam', 'LISA', 'barT'])</pre>
+</div>
+<p>2、当seq多于一个时，map可以并行（注意是并行）地对每个seq执行如下图所示的过程：</p>
+<p style="text-align: center"><img alt="" src="https://files.jb51.net/file_images/article/201809/2018910110452763.png&#63;201881011459" /></p>
+<div class="jb51code">
+<pre class="brush:py;">
+l2=map(lambda x,y:x**y,[1,2,3],[1,2,3])
+for i in l2:
+ print(i)
+
+l3=map(lambda x,y:(x**y,x+y),[1,2,3],[1,2,3])
+for i in l3:
+ print(i)
+
+python3中可以处理类表长度不一致的情况，但无法处理类型不一致的情况，
+l4=map(lambda x,y:(x**y,x+y),[1,2,3],[1,2])
+for i in l4:
+ print(i)
+
+l4=map(lambda x,y:(x**y,x+y),[1,2,3],[1,2,'a'])
+for i in l4:
+ print(i)</pre>
+</div>
+<p>特殊用法，做类型转换：&nbsp;<br />
+</p>
+<div class="jb51code">
+<pre class="brush:py;">
+l=map(int,'1234')
+for i in l:
+ print(type(i))
+ print(i)</pre>
+</div>
+<p>如果函数是 None，自动假定一个‘identity'函数,这时候就是模仿 zip()函数，<br />
+</p>
+<div class="jb51code">
+<pre class="brush:py;">
+l=[1,2,3]
+x=map(None,l)
+print(x)</pre>
+</div>
+<p>这时候 None 类型不是一个可以调用的对象。所以他没法返回值。<br />
+</p>
+<p>目的是将多个列表相同位置的元素归并到一个元组。如：</p>
+<div class="jb51code">
+<pre class="brush:py;">
+&gt;&gt;&gt; print map(None, [2,4,6],[3,2,1])
+[(2, 3), (4, 2), (6, 1)]</pre>
+</div>
+<p>但是在 python3中，返回是一个迭代器，所以它其实是不可调用的</p>
+<p><span style="color: #ff0000"><strong>总结</strong></span></p>
+<p>以上就是这篇文章的全部内容了，希望本文的内容对大家的学习或者工作具有一定的参考学习价值，如果有疑问大家可以留言交流，谢谢大家对脚本之家的支持。<br />
+</p>
+            
+            <div class="art_xg">
+<h4>您可能感兴趣的文章:</h4><ul><li><a href="/article/64997.htm" title="Python中的map()函数和reduce()函数的用法" target="_blank">Python中的map()函数和reduce()函数的用法</a></li><li><a href="/article/63368.htm" title="用map函数来完成Python并行任务的简单示例" target="_blank">用map函数来完成Python并行任务的简单示例</a></li><li><a href="/article/15708.htm" title="Python 过滤字符串的技巧,map与itertools.imap" target="_blank">Python 过滤字符串的技巧,map与itertools.imap</a></li><li><a href="/article/80156.htm" title="python中map()与zip()操作方法" target="_blank">python中map()与zip()操作方法</a></li><li><a href="/article/64516.htm" title="python中map、any、all函数用法分析" target="_blank">python中map、any、all函数用法分析</a></li><li><a href="/article/49396.htm" title="Python中的map、reduce和filter浅析" target="_blank">Python中的map、reduce和filter浅析</a></li><li><a href="/article/100494.htm" title="python用reduce和map把字符串转为数字的方法" target="_blank">python用reduce和map把字符串转为数字的方法</a></li><li><a href="/article/63967.htm" title="Python中的高级函数map/reduce使用实例" target="_blank">Python中的高级函数map/reduce使用实例</a></li><li><a href="/article/103261.htm" title="python 基础教程之Map使用方法" target="_blank">python 基础教程之Map使用方法</a></li><li><a href="/article/68003.htm" title="Python中map和列表推导效率比较实例分析" target="_blank">Python中map和列表推导效率比较实例分析</a></li></ul>
+</div>
+<div class="clearfix">
+<span id="art_bot" class="jbTestPos"></span>
+</div>
+        </div><!--endmain-->
+<div class="tags clearfix">
+	<i class="icon-tag"></i>
+	<ul class="meta-tags items">
+	  <li class="tag item"><a href="http://common.jb51.net/tag/python/1.htm" target="_blank" title="搜索关于python的文章" rel="nofollow">python</a></li>
+<li class="tag item"><a href="http://common.jb51.net/tag/map/1.htm" target="_blank" title="搜索关于map的文章" rel="nofollow">map</a></li>
+<li class="tag item"><a href="http://common.jb51.net/tag/%E5%87%BD%E6%95%B0/1.htm" target="_blank" title="搜索关于函数的文章" rel="nofollow">函数</a></li>
+
+	</ul>
+</div>        
+
+<div class="lbd clearfix">
+<span id="art_down" class="jbTestPos"></span>
+</div>
+<div id="shoucang"></div>
+
+<div class="xgcomm clearfix">
+	<h2>相关文章</h2>
+	<ul><li class="lbd clearfix"><span id="art_xg" class="jbTestPos"></span></li><li><div class="item-inner"><a href="/article/129737.htm" title="python reduce 函数使用详解" class="img-wrap" target="_blank"> <img alt="python reduce 函数使用详解" src="//files.jb51.net/images/xgimg/bcimg0.png"> </a><div class="rbox"><div class="rbox-inner"><p><a class="link title" target="_blank" href="/article/129737.htm" title="python reduce 函数使用详解">python reduce 函数使用详解</a></p><div class="item-info"><div class="js">reduce()函数也是Python内置的一个高阶函数。reduce()函数接收的参数和 map()类似，一个函数 f，一个list，但行为和 map()不同,今天我们就来详细探讨下</div><span class="lbtn" style="float:right"> 2017-12-12 </span></div></div></div></div></li>
+<li><div class="item-inner"><a href="/article/141539.htm" title="Python3实现的爬虫爬取数据并存入mysql数据库操作示例" class="img-wrap" target="_blank"> <img alt="Python3实现的爬虫爬取数据并存入mysql数据库操作示例" src="//files.jb51.net/images/xgimg/bcimg1.png"> </a><div class="rbox"><div class="rbox-inner"><p><a class="link title" target="_blank" href="/article/141539.htm" title="Python3实现的爬虫爬取数据并存入mysql数据库操作示例">Python3实现的爬虫爬取数据并存入mysql数据库操作示例</a></p><div class="item-info"><div class="js">这篇文章主要介绍了Python3实现的爬虫爬取数据并存入mysql数据库操作,涉及Python正则爬取数据及针对mysql数据库的存储操作相关实现技巧,需要的朋友可以参考下</div><span class="lbtn" style="float:right"> 2018-06-06 </span></div></div></div></div></li>
+<li><div class="item-inner"><a href="/article/150366.htm" title="Django 路由控制的实现代码" class="img-wrap" target="_blank"> <img alt="Django 路由控制的实现代码" src="//files.jb51.net/images/xgimg/bcimg2.png"> </a><div class="rbox"><div class="rbox-inner"><p><a class="link title" target="_blank" href="/article/150366.htm" title="Django 路由控制的实现代码">Django 路由控制的实现代码</a></p><div class="item-info"><div class="js">这篇文章主要介绍了Django 路由控制的实现代码，小编觉得挺不错的，现在分享给大家，也给大家做个参考。一起跟随小编过来看看吧</div><span class="lbtn" style="float:right"> 2018-11-11 </span></div></div></div></div></li>
+<li><div class="item-inner"><a href="/article/57553.htm" title="kNN算法python实现和简单数字识别的方法" class="img-wrap" target="_blank"> <img alt="kNN算法python实现和简单数字识别的方法" src="//files.jb51.net/images/xgimg/bcimg3.png"> </a><div class="rbox"><div class="rbox-inner"><p><a class="link title" target="_blank" href="/article/57553.htm" title="kNN算法python实现和简单数字识别的方法">kNN算法python实现和简单数字识别的方法</a></p><div class="item-info"><div class="js">这篇文章主要介绍了kNN算法python实现和简单数字识别的方法,详细讲述了kNN算法的优缺点及原理,并给出了应用实例,需要的朋友可以参考下</div><span class="lbtn" style="float:right"> 2014-11-11 </span></div></div></div></div></li>
+<li><div class="item-inner"><a href="/article/152272.htm" title="浅谈python下含中文字符串正则表达式的编码问题" class="img-wrap" target="_blank"> <img alt="浅谈python下含中文字符串正则表达式的编码问题" src="//files.jb51.net/images/xgimg/bcimg4.png"> </a><div class="rbox"><div class="rbox-inner"><p><a class="link title" target="_blank" href="/article/152272.htm" title="浅谈python下含中文字符串正则表达式的编码问题">浅谈python下含中文字符串正则表达式的编码问题</a></p><div class="item-info"><div class="js">今天小编就为大家分享一篇浅谈python下含中文字符串正则表达式的编码问题，具有很好的参考价值，希望对大家有所帮助。一起跟随小编过来看看吧</div><span class="lbtn" style="float:right"> 2018-12-12 </span></div></div></div></div></li>
+<li><div class="item-inner"><a href="/article/138362.htm" title="Python中数组,列表:冒号的灵活用法介绍(np数组,列表倒序)" class="img-wrap" target="_blank"> <img alt="Python中数组,列表:冒号的灵活用法介绍(np数组,列表倒序)" src="//files.jb51.net/images/xgimg/bcimg5.png"> </a><div class="rbox"><div class="rbox-inner"><p><a class="link title" target="_blank" href="/article/138362.htm" title="Python中数组,列表:冒号的灵活用法介绍(np数组,列表倒序)">Python中数组,列表:冒号的灵活用法介绍(np数组,列表倒序)</a></p><div class="item-info"><div class="js">下面小编就为大家分享一篇Python中数组,列表:冒号的灵活用法介绍(np数组,列表倒序)，具有很好的参考价值，希望对大家有所帮助。一起跟随小编过来看看吧</div><span class="lbtn" style="float:right"> 2018-04-04 </span></div></div></div></div></li>
+<li><div class="item-inner"><a href="/article/65690.htm" title="python实现在sqlite动态创建表的方法" class="img-wrap" target="_blank"> <img alt="python实现在sqlite动态创建表的方法" src="//files.jb51.net/images/xgimg/bcimg6.png"> </a><div class="rbox"><div class="rbox-inner"><p><a class="link title" target="_blank" href="/article/65690.htm" title="python实现在sqlite动态创建表的方法">python实现在sqlite动态创建表的方法</a></p><div class="item-info"><div class="js">这篇文章主要介绍了python实现在sqlite动态创建表的方法,涉及Python操作SQLite数据库创建数据表的技巧,具有一定参考借鉴价值,需要的朋友可以参考下</div><span class="lbtn" style="float:right"> 2015-05-05 </span></div></div></div></div></li>
+<li><div class="item-inner"><a href="/article/62872.htm" title="python正则表达式match和search用法实例" class="img-wrap" target="_blank"> <img alt="python正则表达式match和search用法实例" src="//files.jb51.net/images/xgimg/bcimg7.png"> </a><div class="rbox"><div class="rbox-inner"><p><a class="link title" target="_blank" href="/article/62872.htm" title="python正则表达式match和search用法实例">python正则表达式match和search用法实例</a></p><div class="item-info"><div class="js">这篇文章主要介绍了python正则表达式match和search用法,实例分析了正则表达式中match和search的功能、定义及相关使用技巧,具有一定参考借鉴价值,需要的朋友可以参考下</div><span class="lbtn" style="float:right"> 2015-03-03 </span></div></div></div></div></li>
+<li><div class="item-inner"><a href="/article/116755.htm" title="Python获取SQLite查询结果表列名的方法" class="img-wrap" target="_blank"> <img alt="Python获取SQLite查询结果表列名的方法" src="//files.jb51.net/images/xgimg/bcimg8.png"> </a><div class="rbox"><div class="rbox-inner"><p><a class="link title" target="_blank" href="/article/116755.htm" title="Python获取SQLite查询结果表列名的方法">Python获取SQLite查询结果表列名的方法</a></p><div class="item-info"><div class="js">这篇文章主要介绍了Python获取SQLite查询结果表列名的方法,涉及Python连接及查询SQLite数据库的相关操作技巧,需要的朋友可以参考下</div><span class="lbtn" style="float:right"> 2017-06-06 </span></div></div></div></div></li>
+<li><div class="item-inner"><a href="/article/156435.htm" title="对python中的try、except、finally 执行顺序详解" class="img-wrap" target="_blank"> <img alt="对python中的try、except、finally 执行顺序详解" src="//files.jb51.net/images/xgimg/bcimg9.png"> </a><div class="rbox"><div class="rbox-inner"><p><a class="link title" target="_blank" href="/article/156435.htm" title="对python中的try、except、finally 执行顺序详解">对python中的try、except、finally 执行顺序详解</a></p><div class="item-info"><div class="js">今天小编就为大家分享一篇对python中的try、except、finally 执行顺序详解，具有很好的参考价值，希望对大家有所帮助。一起跟随小编过来看看吧</div><span class="lbtn" style="float:right"> 2019-02-02 </span></div></div></div></div></li>
+</ul>
+</div>
+<div class="lbd clearfix mt5">
+<span id="art_down2" class="jbTestPos"></span>
+</div>
+<a href="#comments"></a>
+<div id="comments">
+<H2>最新评论</H2>
+<div class="pd5"><div id="SOHUCS" sid="art_147143"></div></div>
+</div>
+      </div><!--endborder-->
+      </div><!--end fl-->
+      
+<div class="w350 fr">
+<div class="article-right">
+<div class="r300 clearfix"><span id="side_up" class="jbTestPos"></span></div>
+<DIV class="tabTitleBar mt10 bgf borderTblue">
+<DIV class="borderTnone pb10 YaHei">
+<H4 class="blue">大家感兴趣的内容</H4>
+<UL class="newsList newList-in">
+<li><EM class="no1">1</EM><a href="/article/926.htm" title="Python入门教程 超详细1小时学会Python" target="_blank">Python入门教程 超详细1小时学会</a></li><li><EM class="no2">2</EM><a href="/article/47978.htm" title="Python 列表(List)操作方法详解" target="_blank">Python 列表(List)操作方法详解</a></li><li><EM class="no3">3</EM><a href="/article/47990.htm" title="Python 字典(Dictionary)操作详解" target="_blank">Python 字典(Dictionary)操作详解</a></li><li><EM class="no4">4</EM><a href="/article/50689.htm" title="pycharm 使用心得（一）安装和首次使用" target="_blank">pycharm 使用心得（一）安装和首</a></li><li><EM class="no5">5</EM><a href="/article/37287.htm" title="python strip()函数 介绍" target="_blank">python strip()函数 介绍</a></li><li><EM class="no6">6</EM><a href="/article/47986.htm" title="Python 元组(Tuple)操作详解" target="_blank">Python 元组(Tuple)操作详解</a></li><li><EM class="no7">7</EM><a href="/article/26543.htm" title="python 中文乱码问题深入分析" target="_blank">python 中文乱码问题深入分析</a></li><li><EM class="no8">8</EM><a href="/article/51651.htm" title="Python科学计算环境推荐——Anaconda" target="_blank">Python科学计算环境推荐——Anac</a></li><li><EM class="no9">9</EM><a href="/article/45956.htm" title="python逐行读取文件内容的三种方法" target="_blank">python逐行读取文件内容的三种方</a></li><li><EM class="no10">10</EM><a href="/article/60510.htm" title="python中使用xlrd、xlwt操作excel表格详解" target="_blank">python中使用xlrd、xlwt操作exce</a></li>
+</UL>
+</DIV>
+</DIV>
+<div class="r300 clearfix mt10"><span id="idctu" class="jbTestPos"></span></div>
+<DIV class="tabTitleBar mt10 bgf borderTblue">
+<DIV class="borderTnone pb10 YaHei">
+<H4 class="blue">最近更新的内容</H4>
+<UL class="newsListA">
+<li><a href="/article/144690.htm" title="对TensorFlow中的variables_to_restore函数详解" target="_blank">对TensorFlow中的variables_to_restore函</a></li><li><a href="/article/144776.htm" title="win7下python3.6安装配置方法图文教程" target="_blank">win7下python3.6安装配置方法图文教程</a></li><li><a href="/article/113815.htm" title="浅谈pyhton学习中出现的各种问题(新手必看)" target="_blank">浅谈pyhton学习中出现的各种问题(新手必看</a></li><li><a href="/article/56460.htm" title="python3生成随机数实例" target="_blank">python3生成随机数实例</a></li><li><a href="/article/57154.htm" title="零基础写python爬虫之抓取糗事百科代码分享" target="_blank">零基础写python爬虫之抓取糗事百科代码分</a></li><li><a href="/article/136834.htm" title="python如何通过实例方法名字调用方法" target="_blank">python如何通过实例方法名字调用方法</a></li><li><a href="/article/155792.htm" title="python 用for循环实现1~n求和的实例" target="_blank">python 用for循环实现1~n求和的实例</a></li><li><a href="/article/158622.htm" title="python实现AES加密解密" target="_blank">python实现AES加密解密</a></li><li><a href="/article/141076.htm" title="Python计算一个给定时间点前一个月和后一个月第一天的方法" target="_blank">Python计算一个给定时间点前一个月和后一</a></li><li><a href="/article/131067.htm" title="python机器学习实战之K均值聚类" target="_blank">python机器学习实战之K均值聚类</a></li>
+</UL>
+</DIV>
+</DIV>   
+<div class="r300 clearfix mt10"><span id="idctu1" class="jbTestPos"></span></div>
+<DIV class="tabTitleBar mt10 bgf borderTblue">
+<DIV class="borderTnone pb10 YaHei">
+<H4 class="blue">常用在线小工具</H4>
+<ul class="newsListA"><span id="bctools" class="jbTestPos"></span></ul>
+</DIV>
+</DIV>
+<div class="r300 clearfix mt10 mb10"><span id="idctu2" class="jbTestPos"></span></div> 
+<div class="rFixedBox">
+<script type="text/javascript">jb51_a_d("jb51xf");</script>
+</div>
+  </div>   
+      
+      </div><!--end fr-->
+      </div>
+</div><!--end content-->
+<div id="footer">
+<div class="main clearfix">
+<p>
+<a rel="nofollow" href="/about.htm" target="_blank">关于我们</a> - 
+<a rel="nofollow" href="/support.htm" target="_blank">广告合作</a> - 
+<a rel="nofollow" href="/linkus.htm" target="_blank">联系我们</a> -  
+<a rel="nofollow" href="/sm.htm" target="_blank">免责声明</a> -  
+<a rel="nofollow" href="/sitemap.htm" target="_blank">网站地图</a> - 
+<a rel="nofollow" href="tencent://message/?uin=461478385&Site=http://www.jb51.net" target="_blank">投诉建议</a> - 
+<a rel="nofollow" href="/up.htm" target="_blank">在线投稿</a>
+</p>
+<p><a rel="nofollow" class="ba" target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=32031102000137"><img src="//icws.jb51.net/images/ghs.png"/> 苏公网安备 32031102000137号</a>&nbsp;&nbsp;<a href="http://www.miibeian.gov.cn" class="ba" rel="nofollow" target="_blank">苏ICP备14036222号</a></p>
+<p>&copy;CopyRight 2006-2019 JB51.Net Inc All Rights Reserved. 脚本之家 版权所有</p>
+</div>
+</div><!--end footer-->
+<link type="text/css" rel="stylesheet" href="/jslib/syntaxhighlighter/styles/shCore.css" />
+<link type="text/css" rel="Stylesheet" href="/jslib/syntaxhighlighter/styles/shThemeDefault.css" />
+<script type="text/javascript" src="/jslib/syntaxhighlighter/scripts/shCore.js"></script>
+<script type="text/javascript" src="/jslib/syntaxhighlighter/scripts/shAutoloader.js"></script>
+<script type="text/javascript">
+(function(){
+	var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+/*更多导航*/
+$(".nav_top p").hover(function(){$(this).addClass("hover")},function(){$(this).removeClass("hover")});
+
+if (top.location != self.location)top.location=self.location;
+
+var varwindow=$(window);
+$(function(){
+	$('#content').find('img').each(function(){
+        var img = this;
+        if (img.width >= 650 && !$(this).hasClass("nohref")){
+            img.style.width = "650px";
+            img.style.height = "auto";
+            //$(img).removeAttr('height');
+            var aTag = document.createElement('a');
+            aTag.href = img.src;
+			aTag.target="_blank";
+            $(aTag).addClass('bPic')
+            .insertAfter(img).append(img)
+          }
+    });
+	varwindow.scroll(function()
+    {	
+    	//rFixedBox跟随滚动
+    	var h = varwindow.height();
+        var top = varwindow.scrollTop();
+    	var rFixedBox = $('.rFixedBox').prev().offset();
+        var fixedTop = rFixedBox.top;
+		
+        if(top>=fixedTop+344)
+        {
+			var h1 = parseInt($('#content').children('.main').height());
+			if(parseInt(top) + 340 < h1){
+				$('.rFixedBox').css({'position':'fixed','top': 0});
+			}else{
+				$('.rFixedBox').css({'position':'absolute','top': h1-510});
+			}
+        }
+        else
+        {
+            $('.rFixedBox').css({'position':'static', 'top':0});   
+        }	
+       /* return true;*/
+	   
+	   /*右侧快捷菜单*/
+	   sideFixed();
+    });
+	var ww = varwindow.width();
+	
+	function sideFixed(){
+	var scrolltop = document.body.scrollTop || document.documentElement.scrollTop;
+	var a1 = 550;
+	if(ww>440){
+		if(a1<=scrolltop){
+			$('#right-share').slideDown();
+			}
+		else{
+			$('#right-share').slideUp();
+			}
+		}
+	}
+	$('.rshare-weixin').hover(function(){
+			$('#weixin-code').removeClass('hide');
+		},function(){
+			$('#weixin-code').addClass('hide');
+		});
+	/*二维码*/
+	$('#right-share .rshare-top').on('click',function(){
+        $('html,body').animate({'scrollTop':0},500);
+    });
+/*$(document).ready(function() {
+  $("#content img").unveil();
+});	*/
+
+if(suoyin=="ok"){
+	GenerateContentList();
+}
+
+SyntaxHighlighter.autoloader(
+	'applescript			/jslib/syntaxhighlighter/scripts/shBrushAppleScript.js',
+	'actionscript3 as3		/jslib/syntaxhighlighter/scripts/shBrushAS3.js',
+	'bash shell				/jslib/syntaxhighlighter/scripts/shBrushBash.js',
+	'coldfusion cf			/jslib/syntaxhighlighter/scripts/shBrushColdFusion.js',
+	'cpp c					/jslib/syntaxhighlighter/scripts/shBrushCpp.js',
+	'obj-c objc				/jslib/syntaxhighlighter/scripts/shBrushObjC.js',
+	'c# c-sharp csharp		/jslib/syntaxhighlighter/scripts/shBrushCSharp.js',
+	'css					/jslib/syntaxhighlighter/scripts/shBrushCss.js',
+	'delphi pascal			/jslib/syntaxhighlighter/scripts/shBrushDelphi.js',
+	'diff patch pas			/jslib/syntaxhighlighter/scripts/shBrushDiff.js',
+	'erl erlang				/jslib/syntaxhighlighter/scripts/shBrushErlang.js',
+	'groovy					/jslib/syntaxhighlighter/scripts/shBrushGroovy.js',
+	'haxe hx				/jslib/syntaxhighlighter/scripts/shBrushHaxe.js',
+	'java					/jslib/syntaxhighlighter/scripts/shBrushJava.js',
+	'jfx javafx				/jslib/syntaxhighlighter/scripts/shBrushJavaFX.js',
+	'js jscript javascript	/jslib/syntaxhighlighter/scripts/shBrushJScript.js',
+	'perl pl				/jslib/syntaxhighlighter/scripts/shBrushPerl.js',
+	'php					/jslib/syntaxhighlighter/scripts/shBrushPhp.js',
+	'text plain				/jslib/syntaxhighlighter/scripts/shBrushPlain.js',
+	'py python				/jslib/syntaxhighlighter/scripts/shBrushPython.js',
+	'ruby rails ror rb		/jslib/syntaxhighlighter/scripts/shBrushRuby.js',
+	'scala					/jslib/syntaxhighlighter/scripts/shBrushScala.js',
+	'sql					/jslib/syntaxhighlighter/scripts/shBrushSql.js',
+	'vb vbnet				/jslib/syntaxhighlighter/scripts/shBrushVb.js',
+	'ps powershell			/jslib/syntaxhighlighter/scripts/shBrushPowerShell.js',
+	'xml xhtml xslt html	/jslib/syntaxhighlighter/scripts/shBrushXml.js'
+);
+SyntaxHighlighter.all();
+});
+var ourl="https://www.cnblogs.com/lincappu/p/8179475.html";
+</script>
+<script type="text/javascript" src='//icws.jb51.net/good/arcts.js'></script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<script>jbLoader();</script><script class="closetag">jbLoader(true);</script>
+<div id="tongji">
+<script type="text/javascript" src="//icws.jb51.net/tongji/tongji.js"></script>
+</div>
+<script type="text/javascript">
+//tu+
+var cpro_id = "u1893014";
+document.write('<scri'+'pt src="//cpro.baidustatic.com/cpro/ui/i.js" type="text/javascript"></s'+'cript>');
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?2f793ca9dd6f4c32488903eed5c7fbcb":"https://jspassport.ssl.qhimg.com/11.0.1.js?2f793ca9dd6f4c32488903eed5c7fbcb";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script> 
+<script type="text/javascript" src="//www.jb51.net/pl.asp?id=147143"></script>
+<script type="application/ld+json">
+        {
+            "@context": "https://ziyuan.baidu.com/contexts/cambrian.jsonld",
+            "@id": "https://www.jb51.net/article/147143.htm",
+            "appid": "1549322409310619",
+            "title": "python中map的基本用法示例",
+            "description": "map函数的原型是map(function, iterable, …)，它的返回结果是一个列表。下面这篇文章主要给大家介绍了关于python中map的基本用法，文中通过示例代码介绍的非常详细，需要的朋友可以参考下",
+            "pubDate": "2018-09-10T11:06:37",
+			"upDate": "2018-09-10T11:06:38"
+        }
+</script>
+</body>
+</html>
+<!-- published at 2019/4/5 12:30:51By dxycms qq:461478385  -->

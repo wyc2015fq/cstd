@@ -3213,3 +3213,303 @@ void ScreenSnap(HBITMAP hBitmap, char *bmpPath, HDC dc)
 ```
 
 
+
+## GetClipboardData打开剪贴板并获取剪贴板内容
+
+```cpp
+HANDLE GetClipboardData( _In_ UINT uFormat);
+
+// uFormat
+CF_TEXT//以NULL结尾的ANSI字符集字符串。它在每行末尾包含一个carriage return和linefeed字符，这是最简单的剪切板数据格式。传送到剪切板的数据存放在整体内存块中，并且是利用内存块句柄进行传送的（我将简短地讨论此项概念）。这个内存块专供剪切板使用，建立它的程序不应该继续使用它。
+CF_OEMTEXT//含有文字数据（与CF_TEXT类似）的内存块。但是它使用的是OEM字符集。通常Windows程序不必关心这一点；它只有与在窗口中执行MS-DOS程序一起使用剪切板时才会使用。
+CF_UNICODETEXT//含有Unicode文字的内存块。与CF_TEXT类似，它在每一行的末尾包含一个carriage return和linefeed字符，以及一个NULL字符（两个0字节）以表示数据结束。CF_UNICODETEXT只支援Windows NT。
+CF_LOCALE//一个国家地区标识符的句柄。表示剪切板文字使用的国别地区设定。
+
+//下面是两种附加的剪切板格式，它们在概念上与CF_TEXT格式相似（也就是说，它们都是文字数据），但是它们不需要以NULL结尾，因为格式已经定义了数据的结尾。现在已经很少使用这些格式了：
+
+CF_SYLK//包含Microsoft 「符号连结」数据格式的整体内存块。这种格式用在Microsoft的Multiplan、Chart和Excel程序之间交换数据，它是一种ASCII码格式，每一行都用carriage return和linefeed结尾。
+CF_DIF//包含数据交换格式(DIF)之数据的整体内存块。这种格式是由Software Arts公司提出的，用于把数据送到VisiCalc电子表格程序中。这也是一种ASCII码格式，每一行都使用carriage return和linefeed结尾。
+
+//下面三种剪切板格式与位图有关。所谓位图就是数据位的矩形数组，其中的数据位与输出设备的图素相对应。后面将详细讨论位图以及这些位图剪切板的格式：
+CF_BITMAP//与设备相关的位图格式。位图是通过位图句柄传送给剪切板的。同样，在把这个位图传送给剪切板之后，程序不应该再继续使用这个位图。
+CF_DIB//定义一个设备无关位图的内存块。这种内存块是以位图信息结构开始的，后面跟着可用的颜色表和位图数据位。
+CF_PALETTE//调色盘句柄。它通常与CF_DIB配合使用，以定义与设备相关的位图所使用的颜色调色盘。
+//在剪切板中，还有可能以工业标准的TIFF格式储存的位图数据：
+CF_TIFF//含有标号图像文件格式(TIFF)数据的整体内存块。这种格式由Microsoft、Aldus公司和Hewlett-Packard公司以及一些硬件厂商推荐使用。这一格式可从Hewlett-Packard的网站上获得。
+
+//下面是两个metafile格式。一个metafile就是一个以二进制格式储存的画图命令集：
+CF_METAFILEPICT//以旧的metafile格式存放的「图片」。
+CF_ENHMETAFILE//增强型metafile（32位Windows支持的）句柄。
+//最后介绍几个混合型的剪切板格式：
+CF_PENDATA//与Windows的笔式输入扩充功能联合使用。
+CF_WAVE//声音（波形）文件。
+CF_RIFF//使用资源交换文件格式（Resource Interchange File Format）的多媒体数据。
+CF_HDROP//与拖放服务相关的文件列表。
+```
+
+```cpp
+// Funciton：    
+// 拷贝数据到剪切板   
+// 从剪切板粘贴数据    
+// Data：2011/4/8    
+#include <windows.h>   
+#include <stdio.h>   
+void SetDataToClip(void)    
+{   
+    // 打开剪贴板   
+    if (!OpenClipboard(NULL)|| !EmptyClipboard())    
+    {   
+        printf("打开或清空剪切板出错！/n");   
+        return;   
+    }   
+       
+    HGLOBAL hMen;   
+    TCHAR strText[256] = "我被拷贝到剪切板！/n";   
+       
+    // 分配全局内存    
+    hMen = GlobalAlloc(GMEM_MOVEABLE, ((strlen(strText)+1)*sizeof(TCHAR)));    
+       
+    if (!hMen)   
+    {   
+        printf("分配全局内存出错！/n");    
+        // 关闭剪切板    
+        CloseClipboard();   
+        return;         
+    }   
+       
+    // 把数据拷贝考全局内存中   
+    // 锁住内存区    
+    LPSTR lpStr = (LPSTR)GlobalLock(hMen);    
+       
+    // 内存复制   
+    memcpy(lpStr, strText, ((strlen(strText))*sizeof(TCHAR)));    
+    // 字符结束符    
+    lpStr[strlen(strText)] = (TCHAR)0;   
+    // 释放锁    
+    GlobalUnlock(hMen);   
+       
+    // 把内存中的数据放到剪切板上   
+    SetClipboardData(CF_TEXT, hMen);   
+    CloseClipboard();   
+       
+    return;   
+}   
+void GetDataFromClip()   
+{   
+    // 判断数据格式    
+    if (!IsClipboardFormatAvailable(CF_TEXT) )   
+    {   
+        printf("剪切板数据格式不是CF_TEXT/n");   
+        return;   
+    }   
+       
+    if (!OpenClipboard(NULL))    
+    {   
+        printf("打开剪切板出错！/n");   
+        return;   
+    }   
+    // 从剪切板获取数据    
+    HGLOBAL hMem = GetClipboardData(CF_TEXT);   
+    if (hMem)   
+    {    
+        //  获取字符串    
+        LPSTR lpStr = (LPSTR)GlobalLock(hMem);     
+        if (lpStr)   
+        {   
+            printf(lpStr);   
+            // 释放内存锁    
+            GlobalUnlock(hMem);    
+        }   
+    }    
+    // 关闭剪切板    
+    CloseClipboard();    
+}   
+int main(void)   
+{   
+    //SetDataToClip();   
+    GetDataFromClip();    
+    return 0;   
+}
+```
+
+
+
+## ChangeClipboardChain 将剪贴的连接从一个句柄转到下一个句柄
+
+```cpp
+BOOL ChangeClipboardChain( 
+HWND hWndRemove, // handle to window to remove 表示第一个窗口的句柄(断开)
+HWND hWndNewNext // handle to next window 表示第二个窗口的句柄(连接)
+); 
+```
+
+**注意**，在使用之前应该使用SetClipboardViewer事先进行窗口句柄的连接。 
+
+## CloseClipboard 关闭剪贴板
+
+```cpp
+BOOL CloseClipboard(VOID)//VOID意思是空白。 
+```
+
+本函数没有参数，事先应该用OpenClipboard函数打开过剪贴板。 
+
+## CountClipboardFormats 不管剪贴板是什么格式，全部转化为数据格式
+
+```
+int CountClipboardFormats(VOID) 
+```
+
+本函数没有参数。 
+
+## EmptyClipboard 清空剪贴板
+
+```
+BOOL EmptyClipboard(VOID)
+```
+
+ 
+
+## EnumClipboardFormats 使剪贴板内的格式转变成指定格式
+
+```cpp
+UINT EnumClipboardFormats( 
+UINT format // specifies a known available clipboard format 
+); 
+```
+
+其中format表示的是将要转化成的格式。该参数的意义可参照后面。 
+
+## GetClipboardData获取剪贴板内的数据
+
+HANDLE GetClipboardData( 
+UINT uFormat // clipboard format 
+); 
+其中format表示的是剪贴板内数据的格式。该参数的意义可参照后面。 
+
+## GetClipboardFormatName 获取剪贴板内数据格式的名称
+
+```cpp
+int GetClipboardFormatName( 
+UINT format, // clipboard format to retrieve 
+LPTSTR lpszFormatName, // address of buffer for name 
+int cchMaxCount // length of name string in characters 
+); 
+```
+
+(1)format表示的意义同前，应该是不事先规定格式； 
+(2)lpszFormatName表示的是格式名称地址； 
+(3)cchMaxCount剪贴板内数据的长度。 
+
+## GetClipboardOwner 获取当前剪贴板是属于哪一个窗口的句柄
+
+HWND GetClipboardOwner(VOID) 
+返回那个窗口的句柄。 
+
+## GetClipboardSequenceNumber 返回剪贴板序号 
+
+DWORD GetClipboardSequenceNumber(VOID) 
+
+## GetClipboardViewer 返回剪贴板属于窗口的句柄
+
+HWND GetClipboardViewer(VOID) 
+
+## GetOpenClipboardWindow 返回打开剪贴板的那个窗口句柄
+
+HWND GetOpenClipboardWindow(VOID) 
+
+## GetPriorityClipboardFormat 
+
+```cpp
+int GetPriorityClipboardFormat( 
+UINT *paFormatPriorityList, // address of priority list 指向一组剪贴板格式的无符号整数
+int cFormats // number of entries in list 
+); 
+//返回值：
+//paFormatPriorityList 数组中第一个数据格式是可用的则成功（返回序号），NULL表示剪贴板中没有数据，-1表示剪贴板包含数据，但不是数组中的任何一个数据格式。
+```
+
+
+
+## IsClipboardFormatAvailable 判断剪贴板的格式
+
+```cpp
+BOOL IsClipboardFormatAvailable( 
+UINT format // clipboard format 
+); 
+```
+
+其中format表示的是剪贴板内数据的格式。该参数的意义可参照后面。 
+
+ 例如：IsClipboardFormatAvailable(CF_TEXT); 判断剪贴板上的数据,如果当前剪切板包含的是以NULL结尾的ASCII字符的文本格式,则该函数返回值为true,否则为false.
+
+注：若应用程序要识别多个剪贴板格式，应使用函数GetPriorityClipboardFormat 达到目的。
+
+## OpenClipboard 打开剪贴板
+
+```cpp
+BOOL OpenClipboard( 
+HWND hWndNewOwner // handle to window opening clipboard 
+); 
+```
+
+返回剪贴板的句柄。 
+
+## RegisterClipboardFormat 注册新的剪贴板格式
+
+```cpp
+UINT RegisterClipboardFormat( 
+LPCTSTR lpszFormat // address of name string 
+); 
+```
+
+lpszFormat新的剪贴板格式名称。 
+
+## SetClipboardData 设置剪贴板内的数据
+
+```cpp
+HANDLE SetClipboardData(
+UINT uFormat, // clipboard format
+HANDLE hMem // data handle
+);
+```
+
+uFormat表示的是要放进剪贴板数据的格式； 
+hMem表示数据的地址指针。 
+
+## SetClipboardViewer 将剪贴板内容连接到窗口
+
+```cpp
+HWND SetClipboardViewer( 
+HWND hWndNewViewer // handle to clipboard viewer window 
+); 
+hWndNewViewer//表示要连接到的那个窗口句柄。 
+//上文中剪贴板格式Format的可选参数如下： 
+CF_BITMAP位图格式； 
+CF_DIB 
+CF_DIBV5 
+CF_DIF 
+CF_DSPBITMAP 
+CF_DSPENHMETAFILE 
+CF_DSPMETAFILEPICT 
+CF_DSPTEXT 
+CF_ENHMETAFILE 
+CF_GDIOBJFIRST 
+CF_GDIOBJLAST 
+CF_HDROP 
+CF_LOCALE 
+CF_METAFILEPICT 
+CF_OEMTEXT 
+CF_OWNERDISPLAY 
+CF_PALETTE 
+CF_PENDATA 
+CF_PRIVATEFIRST 
+CF_PRIVATELAST 
+CF_RIFF 
+CF_SYLK 
+CF_TEXT文本格式； 
+CF_WAVE音乐格式； 
+CF_TIFF 
+CF_UNICODETEXT
+```
+
+
