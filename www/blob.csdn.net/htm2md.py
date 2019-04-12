@@ -13,28 +13,20 @@ MARKDOWN = {
     'blockquote': ('\n> ', '\n'),
     'em': ('*', '*'),
     'strong': ('**', '**'),
-    'block_code': ('\n```\n', '\n```\n'),
-    'a': ('', ''),
-    'p': ('', ''),
-    'div': ('', ''),
-    'inline_p': ('', ''),
-    'inline_p_with_out_class': ('', ''),
     'b': ('**', '**'),
     'i': ('*', '*'),
     'del': ('~~', '~~'),
     'hr': ('\n---', '\n\n'),
-    'thead': ('\n', '|------\n'),
-    'tbody': ('\n', '\n'),
     'td': ('|', ''),
     'th': ('|', ''),
-    'table': ('', ''),
-    'annotation': ('', ''),
     'span-katex-inline': ('$', '$'),
     'span-katex-display': ('\n$$\n', '\n$$\n'),
     'code-inline': ('`', '`'),
     'code-unkown': ('\n```\n', '\n```\n'),
     'code-python': ('\n```python\n', '\n```\n'),
     'code-php': ('\n```php\n', '\n```\n'),
+    'code-java': ('\n```java\n', '\n```\n'),
+    'code-cpp': ('\n```cpp\n', '\n```\n'),
     'e_p': ('', '\n')
 }
 # coding = utf-8
@@ -152,10 +144,9 @@ class MyHTMLParser(HTMLParser):
             attr['attr'] = 'code-unkown'
             attr['attr'] = 'code-inline'
             if 'class' in attrs_dict:
-                if attrs_dict['class'] in ['python', 'language-python']:
-                    attr['attr'] = 'code-python'
-                if attrs_dict['class']=='php':
-                    attr['attr'] = 'code-php'
+                for l in ['java', 'python', 'php', 'cpp']:
+                    if attrs_dict['class'].find(l)>=0:
+                        attr['attr'] = 'code-'+l
 
         if len(self.skip_stack)==1:
             if tag=='br' and self.is_end==0:

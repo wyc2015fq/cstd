@@ -6,9 +6,7 @@
 
 
 一般情况下，把`java.util.Date`存储到[ Elasticsearch ](http://www.sojson.com/tag_elasticsearch.html)，然后从[ Elasticsearch  ](http://www.sojson.com/tag_elasticsearch.html)中再取出来的时候，要想保证它是个`Date`,需要做额外任何转换。本文介绍如何在ElasticSearch中进行时间范围查询操作。
-
-```java
-public class EsMulConditionQuery {
+`public class EsMulConditionQuery {
 	private static String index = "test_index5";
 	private static String type = "test_type5";
 	public static void main(String[] args) throws IOException, ParseException {
@@ -103,8 +101,7 @@ public class EsMulConditionQuery {
 		for (SearchHit searchHit : hits2) {
 			System.out.println(searchHit.getSourceAsString());
 		}
-    }
-```
+    }`
 ES索引库中的原始数据：
 ![](https://img-blog.csdn.net/20170815204454076?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMzUxNDkyOA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 查询结果：

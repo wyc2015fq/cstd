@@ -51,8 +51,8 @@ if 1:
     data = getdata(url)
     save_txt('test1.html', data)
     t, d = htm2md.htm2md(data)
-
-    cc = t.split('-')
+    t = t.replace(' - ', '/')
+    cc = t.split('/')
     ttt=cc[-1].strip()
     name=cc[-2].strip()
     t = '-'.join(cc[0:-2]).strip()
