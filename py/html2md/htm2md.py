@@ -51,7 +51,6 @@ def clearBlankLine():
         file2.close()
 
 
-
 # katex--inline
 # katex--display
 from html.parser import HTMLParser
@@ -61,6 +60,7 @@ class MyHTMLParser(HTMLParser):
         self.all_tag_stack = [('',{'attr':''})]
         self.skip_stack=[0]
         self.markdown=''
+        self.is_end = 0
 
     def handle_starttag(self, tag, attrs):
         #print "Encountered the beginning of a %s tag" % tag
@@ -68,7 +68,11 @@ class MyHTMLParser(HTMLParser):
         for attr in attrs:
             attrs_dict[attr[0]]=attr[1]
 
+
         attr = {'attr':''}
+
+        if 'title' ==tag:
+            attr['attr'] = 'h1'
 
         if 'href' in attrs_dict:
             attr['href'] = attrs_dict['href']
@@ -80,9 +84,6 @@ class MyHTMLParser(HTMLParser):
 
         if tag in ['script', 'mrow']:
             is_skip = 1
-
-        if tag=='br':
-            self.markdown+='\n'
 
         tt = len(self.all_tag_stack)
 
@@ -99,6 +100,9 @@ class MyHTMLParser(HTMLParser):
                 attr['attr'] = ('span-katex-display')
                 is_skip = 0
 
+        if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='hide-article-box hide-article-pos text-center':
+            self.is_end = 1
+
         if tag=='span' and 'class' in attrs_dict and 'id' in attrs_dict:
             if attrs_dict['id'].find("MathJax-Span")>=0 or (attrs_dict['class'] in ['mo', 'mi']):
                 is_skip = 1
@@ -110,14 +114,6 @@ class MyHTMLParser(HTMLParser):
             if attrs_dict['class'] in ['katex--inline', 'katex-inline']:
                 attr['attr'] = ('span-katex-inline')
 
-        if tag=='img' and 'src' in attrs_dict:
-            attr['alt'] = ''
-            if 'alt' in attrs_dict:
-                attr['alt']=attrs_dict['alt']
-            attr['href']=attrs_dict['src']
-            data1 = '!['+attr['alt']+']('+attr['href']+')'
-            self.markdown+=data1
-
         if tag=='pre' and 'class' in attrs_dict:
             if attrs_dict['class']=='brush:py;':
                 attr['attr'] = 'code-python'
@@ -125,6 +121,18 @@ class MyHTMLParser(HTMLParser):
         if tag=='code' and 'class' in attrs_dict:
             if attrs_dict['class']=='language-python':
                 attr['attr'] = 'code-python'
+
+        if tag=='br' and self.is_end==0:
+            self.markdown+='\n'
+
+        if tag=='img' and 'src' in attrs_dict and len(attrs_dict['src'].strip())>0 and self.is_end==0:
+            attr['alt'] = ''
+            if 'alt' in attrs_dict:
+                attr['alt']=attrs_dict['alt']
+            attr['href']=attrs_dict['src']
+            data1 = '!['+attr['alt']+']('+attr['href']+')'
+            self.markdown+=data1
+
 
 
         if is_skip==1:
@@ -136,12 +144,19 @@ class MyHTMLParser(HTMLParser):
         self.all_tag_stack.pop()
         if self.skip_stack[-1]==len(self.all_tag_stack):
             self.skip_stack.pop()
+        if self.is_end==1:
+            return
         if tag in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             self.markdown+='\n'
 
 
     def handle_data(self,data):
+        if self.is_end==1:
+            return
         tag, attrs = self.all_tag_stack[-1]
+
+        if tag in ['meta', 'link', 'style']:
+            return
 
         attr = attrs['attr']
         if 'span-katex-display'==attr:
