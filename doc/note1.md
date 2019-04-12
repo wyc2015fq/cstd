@@ -1,3 +1,15 @@
+[谷歌开发](https://developers.google.cn/) 
+
+[Web Fundamentals               ](https://developers.google.cn/web/fundamentals/)
+
+
+
+
+
+[farsight1](https://blog.csdn.net/farsight1)
+
+[杨浪](https://www.cnblogs.com/yanglang/)  一个要成为架构师的男人
+
 [求知若渴 虚心若愚](https://www.cnblogs.com/cxxjohnson/)
 
 [追梦人0325](https://me.csdn.net/zwz1984)
