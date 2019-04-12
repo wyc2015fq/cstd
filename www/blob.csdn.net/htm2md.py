@@ -25,13 +25,13 @@ MARKDOWN = {
     'hr': ('\n---', '\n\n'),
     'thead': ('\n', '|------\n'),
     'tbody': ('\n', '\n'),
-    'td': ('', ''),
-    'th': ('', ''),
-    'tr': ('', '\n'),
-    'table': ('', '\n'),
+    'td': ('|', ''),
+    'th': ('|', ''),
+    'table': ('', ''),
     'annotation': ('', ''),
     'span-katex-inline': ('$', '$'),
     'span-katex-display': ('\n$$\n', '\n$$\n'),
+    'code-inline': ('`', '`'),
     'code-unkown': ('\n```\n', '\n```\n'),
     'code-python': ('\n```python\n', '\n```\n'),
     'code-php': ('\n```php\n', '\n```\n'),
@@ -62,6 +62,7 @@ class MyHTMLParser(HTMLParser):
         self.markdown=''
         self.is_end = 0
         self.title = ''
+        self.cols=0
 
     def handle_starttag(self, tag, attrs):
         #print "Encountered the beginning of a %s tag" % tag
@@ -69,8 +70,11 @@ class MyHTMLParser(HTMLParser):
         for attr in attrs:
             attrs_dict[attr[0]]=attr[1]
 
-
         attr = {'attr':''}
+        if 'tr'==tag:
+            self.cols=0
+        if 'th'==tag:
+            self.cols+=1
 
         if 'title' ==tag:
             attr['attr'] = 'h1'
@@ -107,6 +111,9 @@ class MyHTMLParser(HTMLParser):
         if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='postDesc':
             self.is_end = 1
 
+        if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='show-foot':
+            self.is_end = 1
+
         if tag=='span' and 'class' in attrs_dict and 'id' in attrs_dict:
             if attrs_dict['id'].find("MathJax-Span")>=0 or (attrs_dict['class'] in ['mo', 'mi']):
                 is_skip = 1
@@ -115,8 +122,17 @@ class MyHTMLParser(HTMLParser):
             if attrs_dict['id'] in ['mylinks', 'blogStats', 'header']:
                 is_skip = 1
 
+        if tag=='h1' and 'class' in attrs_dict:
+            if attrs_dict['class'] in ['title']:
+                is_skip = 1
+
         if tag=='div' and 'class' in attrs_dict:
-            if attrs_dict['class'] in ['mylinks', 'blogStats', 'header', 'postTitle']:
+            if attrs_dict['class'] in ['article-copyright', 'mylinks', 'blogStats', 'header', 'postTitle', 'author', 'article-title-box']:
+                is_skip = 1
+
+
+        if tag=='nav' and 'class' in attrs_dict:
+            if attrs_dict['class'] in ['navbar navbar-default navbar-fixed-top']:
                 is_skip = 1
 
 
@@ -134,8 +150,9 @@ class MyHTMLParser(HTMLParser):
 
         if tag=='code':
             attr['attr'] = 'code-unkown'
+            attr['attr'] = 'code-inline'
             if 'class' in attrs_dict:
-                if attrs_dict['class']=='language-python':
+                if attrs_dict['class'] in ['python', 'language-python']:
                     attr['attr'] = 'code-python'
                 if attrs_dict['class']=='php':
                     attr['attr'] = 'code-php'
@@ -143,6 +160,8 @@ class MyHTMLParser(HTMLParser):
         if len(self.skip_stack)==1:
             if tag=='br' and self.is_end==0:
                 self.markdown+='\n'
+            if 'data-original-src' in attrs_dict:
+                attrs_dict['src'] = attrs_dict['data-original-src']
 
             if tag=='img' and 'src' in attrs_dict and len(attrs_dict['src'].strip())>0 and self.is_end==0:
                 attr['alt'] = ''
@@ -165,8 +184,14 @@ class MyHTMLParser(HTMLParser):
             self.skip_stack.pop()
         if self.is_end==1:
             return
-        if tag in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+        if tag in ['p', 'li','div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             self.markdown+='\n'
+        
+        if tag in ['tr']:
+            self.markdown+='|\n'
+
+        if tag in ['thead']:
+            self.markdown+='|---'*self.cols + '|\n'
 
 
     def handle_data(self,data):
@@ -195,8 +220,9 @@ class MyHTMLParser(HTMLParser):
             self.title = data
             
         data1 = data1.replace("\r", "")
-        data1 = data1.replace("$", "\\$")
-        data1 = data1.replace("#", "\\#")
+        if len(attrs['attr'])<4 or attrs['attr'][0:4]!='code':
+            data1 = data1.replace("$", "\\$")
+            data1 = data1.replace("#", "\\#")
         if tag in MARKDOWN:
             data1 = data1.replace("\n", "")
         #data1 = data1.replace("\(", "$").replace("\)", "$")
