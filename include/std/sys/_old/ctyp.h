@@ -1667,15 +1667,3 @@ CC_INLINE const char* _strtime3() {
 
 //! Various border types, image boundaries are denoted with `|`
 //! @see borderInterpolate, copyMakeBorder
-enum CBorderTypes {
-    CC_BORDER_CONSTANT    = 0, //!< `iiiiii|abcdefgh|iiiiiii`  with some specified `i`
-    CC_BORDER_REPLICATE   = 1, //!< `aaaaaa|abcdefgh|hhhhhhh`
-    CC_BORDER_REFLECT     = 2, //!< `fedcba|abcdefgh|hgfedcb`
-    CC_BORDER_WRAP        = 3, //!< `cdefgh|abcdefgh|abcdefg`
-    CC_BORDER_REFLECT_101 = 4, //!< `gfedcb|abcdefgh|gfedcba`
-    CC_BORDER_TRANSPARENT = 5, //!< `uvwxyz|absdefgh|ijklmno`
-
-    CC_BORDER_REFLECT101  = CC_BORDER_REFLECT_101, //!< same as BORDER_REFLECT_101
-    CC_BORDER_DEFAULT     = CC_BORDER_REFLECT_101, //!< same as BORDER_REFLECT_101
-    CC_BORDER_ISOLATED    = 16 //!< do not look outside of ROI
-};

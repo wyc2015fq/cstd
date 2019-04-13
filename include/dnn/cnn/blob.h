@@ -189,10 +189,12 @@ static int image2float(Dtype* data, DataSize outSize, const int* perm, const uch
 // y = x * a + b
 static pBox* image2Matrix(const img_t* im, pBox* outpBox, int ch, float a DEFAULT(1./127.5), float b DEFAULT(-1), int* perm DEFAULT(NULL), int batch DEFAULT(0))
 {
+#if 0
   if ((im->data == NULL) || (CC_MAT_DEPTH(im) != CC_8U)) {
     printf("image's type is wrong!!Please set CC_8U. 0x%08p %d\n", im->data, CC_MAT_DEPTH(im));
     return 0;
   }
+#endif
   pBoxsetsize(outpBox, im->rows, im->cols, ch, perm ? batch : im->f);
   if (NULL==outpBox->data) {
     ASSERT(0);

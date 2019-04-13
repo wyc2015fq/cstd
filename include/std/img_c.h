@@ -556,6 +556,46 @@ struct img_t {
   //template <typename T> T at(int row, int col) const { return *img_at(T, this, row, col); }
 #endif
 };
+static img_t* getSubRect(const img_t* mat, img_t* submat, IRect rect)
+{
+	img_t* res = 0;
+
+	if (!submat) {
+		//CC_ERROR(CC_StsNullPtr, "");
+	}
+	if ((rect.x | rect.y | rect.width | rect.height) < 0) {
+		//CC_ERROR(CC_StsBadSize, "");
+	}
+	if (rect.x + rect.width > mat->cols) {
+		rect.x = BOUND(rect.x, 0, mat->cols);
+		int r = MIN(rect.x+rect.width, mat->cols);
+		rect.width = r - rect.x;
+	}
+	if (rect.y + rect.height > mat->rows) {
+		rect.y = BOUND(rect.y, 0, mat->rows);
+		int r = MIN(rect.y + rect.height, mat->rows);
+		rect.height = r - rect.y;
+	}
+	if (rect.x + rect.width > mat->cols ||
+		rect.y + rect.height > mat->rows) {
+		//CC_ERROR(CC_StsBadSize, "");
+	}
+	*submat = *mat;
+	submat->tt.data = mat->tt.data + (size_t)rect.y * mat->step + rect.x * mat->c;
+	submat->step = mat->step & (rect.height > 1 ? -1 : 0);
+	submat->tid = mat->tid;
+	submat->rows = rect.height;
+	submat->cols = rect.width;
+	res = submat;
+	return res;
+}
+static img_t* cvGetSubRect1(const img_t* mat, img_t* submat, int x, int y, int width, int height)
+{
+	IRect r = { x, y, width, height };
+	return getSubRect(mat, submat, r);
+}
+
+
 
 CC_INLINE int imfree(img_t* im)
 {

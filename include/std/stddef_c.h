@@ -83,6 +83,7 @@
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
 #define SIZEOFARR(_T, _N)           (sizeof(_T)*(_N))
 
 #ifdef _DEBUG
@@ -106,6 +107,163 @@ CC_INLINE void ptr2ptr(void* pp, void* p)
 #define BUFFREE(_T, _N)             (__BUFBEG__-=SIZEOFARR(_T, _N))
 #define BUFBOUNDCHECK()             ASSERT(__BUFBEG__<=__BUFEND__)
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+// do not include SSE/AVX/NEON headers for NVCC compiler
+#ifndef __CUDACC__
+
+#if defined __SSE2__ || defined _M_X64 || (defined _M_IX86_FP && _M_IX86_FP >= 2) || (defined _MSC_VER && _MSC_VER >= 1200)
+#  include <emmintrin.h>
+#  define CC_MMX 1
+#  define CC_SSE 1
+#  define CC_SSE2 1
+#  define USE_SSE2 0
+// a += b*c
+#define _mm_muladd_ps(a, b, c)  a = _mm_add_ps(a, _mm_mul_ps(b, c))
+#  if defined __SSE3__ || (defined _MSC_VER && _MSC_VER >= 1500)
+#    include <pmmintrin.h>
+#    define CC_SSE3 1
+#  endif
+#  if defined __SSSE3__  || (defined _MSC_VER && _MSC_VER >= 1500)
+#    include <tmmintrin.h>
+#    define CC_SSSE3 1
+#  endif
+#  if defined __SSE4_1__ || (defined _MSC_VER && _MSC_VER >= 1500)
+#    include <smmintrin.h>
+#    define CC_SSE4_1 0
+#  endif
+#  if defined __SSE4_2__ || (defined _MSC_VER && _MSC_VER >= 1500)
+#    include <nmmintrin.h>
+#    define CC_SSE4_2 1
+#  endif
+#  if defined __POPCNT__ || (defined _MSC_VER && _MSC_VER >= 1500)
+#    ifdef _MSC_VER
+#      include <nmmintrin.h>
+#    else
+#      include <popcntintrin.h>
+#    endif
+#    define CC_POPCNT 1
+#  endif
+#  if defined __AVX__ || (defined _MSC_VER && _MSC_VER >= 1600 && 0)
+// MS Visual Studio 2010 (2012?) has no macro pre-defined to identify the use of /arch:AVX
+// See: http://connect.microsoft.com/VisualStudio/feedback/details/605858/arch-avx-should-define-a-predefined-macro-in-x64-and-set-a-unique-value-for-m-ix86-fp-in-win32
+#    include <immintrin.h>
+#    define CC_AVX 1
+#    if defined(_XCR_XFEATURE_ENABLED_MASK)
+#      define __xgetbv() _xgetbv(_XCR_XFEATURE_ENABLED_MASK)
+#    else
+#      define __xgetbv() 0
+#    endif
+#  endif
+#  if defined __AVX2__ || (defined _MSC_VER && _MSC_VER >= 1800 && 0)
+#    include <immintrin.h>
+#    define CC_AVX2 1
+#    if defined __FMA__
+#      define CC_FMA3 1
+#    endif
+#  endif
+#endif
+
+#if (defined WIN32 || defined _WIN32) && defined(_M_ARM)
+# include <Intrin.h>
+# include <arm_neon.h>
+# define CC_NEON 1
+# define CPU_HAS_NEON_FEATURE (true)
+#elif defined(__ARM_NEON__) || (defined (__ARM_NEON) && defined(__aarch64__))
+#  include <arm_neon.h>
+#  define CC_NEON 1
+#endif
+
+#if defined __GNUC__ && defined __arm__ && (defined __ARM_PCS_VFP || defined __ARM_VFPV3__ || defined __ARM_NEON__) && !defined __SOFTFP__
+#  define CC_VFP 1
+#endif
+
+#if (defined _MSC_VER && _MSC_VER >= 1300) || defined(_M_ARM) || defined(__linux__)
+#define _OPENMP
+#endif
+
+#ifndef _WIN32
+#define _OPENMP
+#endif
+
+#if defined _OPENMP || (defined _MSC_VER && _MSC_VER >= 1300) || defined(_M_ARM) || defined(__linux__)
+#define CC_OPENMP 1
+#include <omp.h>
+#endif
+
+#endif // __CUDACC__
+
+#ifndef CC_OPENMP
+#define CC_OPENMP 0
+#endif
+#ifndef CC_POPCNT
+#define CC_POPCNT 0
+#endif
+#ifndef CC_MMX
+#  define CC_MMX 0
+#endif
+#ifndef CC_SSE
+#  define CC_SSE 0
+#endif
+#ifndef CC_SSE2
+#  define CC_SSE2 0
+#endif
+#ifndef CC_SSE3
+#  define CC_SSE3 0
+#endif
+#ifndef CC_SSSE3
+#  define CC_SSSE3 0
+#endif
+#ifndef CC_SSE4_1
+#  define CC_SSE4_1 0
+#endif
+#ifndef CC_SSE4_2
+#  define CC_SSE4_2 0
+#endif
+#ifndef CC_AVX
+#  define CC_AVX 0
+#endif
+#ifndef CC_AVX2
+#  define CC_AVX2 0
+#endif
+#ifndef CC_FMA3
+#  define CC_FMA3 0
+#endif
+#ifndef CC_AVX_512F
+#  define CC_AVX_512F 0
+#endif
+#ifndef CC_AVX_512BW
+#  define CC_AVX_512BW 0
+#endif
+#ifndef CC_AVX_512CD
+#  define CC_AVX_512CD 0
+#endif
+#ifndef CC_AVX_512DQ
+#  define CC_AVX_512DQ 0
+#endif
+#ifndef CC_AVX_512ER
+#  define CC_AVX_512ER 0
+#endif
+#ifndef CC_AVX_512IFMA512
+#  define CC_AVX_512IFMA512 0
+#endif
+#ifndef CC_AVX_512PF
+#  define CC_AVX_512PF 0
+#endif
+#ifndef CC_AVX_512VBMI
+#  define CC_AVX_512VBMI 0
+#endif
+#ifndef CC_AVX_512VL
+#  define CC_AVX_512VL 0
+#endif
+
+#ifndef CC_NEON
+#  define CC_NEON 0
+#endif
+
+#ifndef CC_VFP
+#  define CC_VFP 0
+#endif
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef _MSC_VER

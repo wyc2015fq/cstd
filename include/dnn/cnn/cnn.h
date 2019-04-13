@@ -1174,6 +1174,74 @@ static int layer_init(struct Layer* layer, const char* type)
   return 0;
 }
 
+
+static int cstr_cpy(char* s0, int len, const char* s2, int l2)
+{
+	CSTRINITLEN(s2, l2);
+	//ASSERT(l2 < len);
+	l2 = MIN(l2, len - 1);
+	memcpy(s0, s2, l2);
+	s0[l2] = 0;
+	return l2;
+}
+CC_INLINE int get_delimsmap(uchar* delimsmap, const char* delims) {
+	for (; *delims;) {
+		delimsmap[(uchar)(*delims++)] = 1;
+	}
+	return 0;
+}
+//#define isalnum_(c)   (isalnum(c) || '_'==(c) || '-'==(c))
+//#define isspace_(c)   (' '==(c) || '\t'==(c))
+static int cstr_getstr(str_t s, int* pi, str_t* ps, char* str, int len, const char* delims) {
+	int i = *pi, ret = 0;
+	str_t s2;
+	uchar delimsmap[256] = { 0 };
+	delims = delims ? delims : " \t";
+	get_delimsmap(delimsmap, delims);
+	ps = ps ? ps : &s2;
+	for (; i<s.l && delimsmap[(uchar)s.s[i]]; ++i) {}
+	ps->s = s.s + i;
+	for (; i<s.l && !delimsmap[(uchar)s.s[i]]; ++i);
+	ps->l = s.s + i - ps->s;
+	if (str) {
+		cstr_cpy(str, len, ps->s, ps->l);
+	}
+	ret = i>*pi;
+	*pi = i;
+	return ret;
+}
+static int cstr_getkv(str_t s, int* pi, str_t* pk, str_t* pv) {
+	int ret = 0;
+	if (cstr_getstr(s, pi, pk, NULL, 0, " \t=") && s.s[*pi] == '=') {
+		*pi += 1;
+		ret = cstr_getstr(s, pi, pv, NULL, 0, " \t=");
+	}
+	return ret;
+}
+static int cstr_getline(str_t s, int* pi, str_t* ps) {
+	int i = *pi, ret = 0;
+	ps->s = s.s + i;
+	for (; i<s.l && s.s[i] != '\r' && s.s[i] != '\n'; ++i);
+	ps->l = s.s + i - ps->s;
+	for (; i<s.l && (s.s[i] == '\r' || s.s[i] == '\n'); ++i);
+	ret = i>*pi;
+	*pi = i;
+	return ret;
+}
+
+static int cstr_getint(str_t s, int* pi, int* pint, int def) {
+	int i = *pi, ret = 0;
+	for (; i<s.l && !isdigit(s.s[i]); ++i) {}
+	if (isdigit(s.s[i])) {
+		char* s1 = (char*)s.s + i;
+		def = strtol(s1, &s1, 10);
+		i += s1 - (s.s + i);
+	}
+	ret = i>*pi;
+	*pi = i;
+	*pint = def;
+	return ret;
+}
 #define SKIPSLASH   for(; '/'==line.s[p] || '\\'==line.s[p]; ++p)
 static int net_load_from_string(struct Net* net, const char* str, int len)
 {
@@ -1290,7 +1358,7 @@ static int net_load_from_string(struct Net* net, const char* str, int len)
   }
   return 1;
 }
-#include "cfile.h"
+#include "std/fileio_c.h"
 static int net_save(const struct Net* net, const char* model_file, const char* param_file, int epochIdx) {
   FILE* pf;
   if (model_file) {
@@ -1487,11 +1555,13 @@ static struct test_result_t net_test(const struct net_train_test_t* t, struct Ne
           ret.err_var += err*err;
           ret.cnt_1 += abs(labelId-outputId)>=1;
           ret.cnt_2 += abs(labelId-outputId)>=2;
+#if 0
           if (0 && abs(labelId-outputId)>=2) {
             showmat_1("adf", BLOB(input)->data, BLOB(input)->size, j, 0);
             printf("%3d: labelId=%d outputId=%d\n", j, labelId, outputId);
             WaitKey(-1);
           }
+#endif
           if (labelId == outputId) {
             correctCount++;
           }
@@ -1515,11 +1585,15 @@ static struct test_result_t net_test(const struct net_train_test_t* t, struct Ne
         ret.err_var += err*err;
         ret.cnt_1 += abs(labelId-outputId)>=1;
         ret.cnt_2 += abs(labelId-outputId)>=2;
+#define showmat_1(a, b, c, d, e)
+#define WaitKey(a)
+#if 0
         if (0 && abs(labelId-outputId)>=2) {
           showmat_1("adf", BLOB(input)->data, BLOB(input)->size, j, 0);
           printf("%3d: labelId=%d outputId=%d\n", j, labelId, outputId);
           WaitKey(-1);
         }
+#endif
         if (labelId == outputId) {
           correctCount++;
         }

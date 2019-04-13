@@ -1,5 +1,5 @@
 
-#include "cstd.h"
+#include "std/stddef_c.h"
 #include <math.h>
 #include <string.h>
 #include <assert.h>
@@ -813,6 +813,20 @@ static int from_float16(float* data32, const unsigned short* data16, int size)
 
   return 0;
 }
+
+enum CBorderTypes {
+	CC_BORDER_CONSTANT = 0, //!< `iiiiii|abcdefgh|iiiiiii`  with some specified `i`
+	CC_BORDER_REPLICATE = 1, //!< `aaaaaa|abcdefgh|hhhhhhh`
+	CC_BORDER_REFLECT = 2, //!< `fedcba|abcdefgh|hgfedcb`
+	CC_BORDER_WRAP = 3, //!< `cdefgh|abcdefgh|abcdefg`
+	CC_BORDER_REFLECT_101 = 4, //!< `gfedcb|abcdefgh|gfedcba`
+	CC_BORDER_TRANSPARENT = 5, //!< `uvwxyz|absdefgh|ijklmno`
+
+	CC_BORDER_REFLECT101 = CC_BORDER_REFLECT_101, //!< same as BORDER_REFLECT_101
+	CC_BORDER_DEFAULT = CC_BORDER_REFLECT_101, //!< same as BORDER_REFLECT_101
+	CC_BORDER_ISOLATED = 16 //!< do not look outside of ROI
+};
+
 
 // mat process
 static void copy_make_border_image(const float* src, float* dst, int src_w, int src_h, int dst_w, int dst_h, int top, int left, enum CBorderTypes type, float v)

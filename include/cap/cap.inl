@@ -13,8 +13,8 @@
 #undef CC_CDECL
 #undef CC_STDCALL
 #include "capdshow.inl"
-#include "capvfw.inl"
-#include "capvfwavi.inl"
+//#include "capvfw.inl"
+//#include "capvfwavi.inl"
 #ifdef __cplusplus
 //#include "EroadVideo.inl"
 #else

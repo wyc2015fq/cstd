@@ -2,6 +2,10 @@
 #ifdef TEST
 //#include "cv/imgproc/drawing.inl"
 #endif
+
+#define tic
+#define toc
+
 #include "facedetect.h"
 #include "dnn/cnn/mtcnn.h"
 #include "dnn/cnn/agegender.h"

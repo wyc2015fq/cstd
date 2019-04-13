@@ -1996,9 +1996,7 @@ ISIZE iSIZE(img_t* im) {
     line(img, p, pt2, color, thickness, line_type, shift);
   }
 
-  void rectangle(img_t* img, IPOINT pt1, IPOINT pt2,
-    color_t color, int thickness,
-    int lineType, int shift = 0)
+  void rectangle(img_t* img, IPOINT pt1, IPOINT pt2, color_t color, int thickness, int lineType, int shift = 0)
   {
     CC_INSTRUMENT_REGION()
 
@@ -2027,15 +2025,13 @@ ISIZE iSIZE(img_t* im) {
   }
 
 
-  void rectangle(img_t* img, IRect rec,
-    color_t color, int thickness,
-    int lineType, int shift = 0)
+  void rectangle(img_t* img, IRect rec, color_t color, int thickness, int lineType, int shift = 0)
   {
-    CC_INSTRUMENT_REGION()
+	  CC_INSTRUMENT_REGION()
 
-      if (rec.area() > 0)
-        rectangle(img, rec.tl(), rec.br() - iPoint(1 << shift, 1 << shift),
-          color, thickness, lineType, shift);
+		  if (rec.area() > 0)
+			  rectangle(img, rec.tl(), rec.br() - iPoint(1 << shift, 1 << shift),
+				  color, thickness, lineType, shift);
   }
 
 

@@ -453,9 +453,8 @@ static void EstimateHeadPose(const float* current_shape, float* eav)
 }
 
 #include "img/imgopt.inl"
-
-CC_IMPL img_t*
-resize1(const img_t* src, img_t* dst, CSize dsize, double fx CC_DEFAULT(0),
+#define CC_DEFAULT(x)  =x
+img_t* resize1(const img_t* src, img_t* dst, CSize dsize, double fx CC_DEFAULT(0),
        double fy CC_DEFAULT(0), int method CC_DEFAULT(CC_INTER_LINEAR))
 {
   imresize(src, dsize.h, dsize.w, dst);
@@ -535,7 +534,7 @@ static int mtcnn_findFace(const img_t* image, Bbox* out, int maxout, int minsize
     int changedW = (int)ceil(image->cols * scales_[i]);
     int j;
     tic;
-    resize1(image, reImage, cSize(changedW, changedH), 0, 0, CC_INTER_LINEAR);
+    resize1(image, reImage, iSIZE(changedW, changedH), 0, 0, CC_INTER_LINEAR);
     toc;
     tic;
     boundingBox_size = Pnet_run(&bf1, s->simpleFace_, reImage, scales_[i], box + box_pos, box_size - box_pos);
@@ -559,7 +558,7 @@ static int mtcnn_findFace(const img_t* image, Bbox* out, int maxout, int minsize
     img_t *reImage = im;
     int changedH = (int)ceil(image->rows * scales_[i]);
     int changedW = (int)ceil(image->cols * scales_[i]);
-    resize1(image, reImage, cSize(changedW, changedH), 0, 0, CC_INTER_LINEAR);
+    resize1(image, reImage, iSIZE(changedW, changedH), 0, 0, CC_INTER_LINEAR);
     tic;
     boundingBox_size = Pnet_run(reImage, scales_[i], box + box_pos, box_size - box_pos);
     toc;
@@ -610,9 +609,10 @@ static int mtcnn_findFace(const img_t* image, Bbox* out, int maxout, int minsize
       img_t* secImage = im;
       img_t temp[1] = {0};
       ASSERT(it->exist);
+//#define cvGetSubRect1(a, b, c, d, e, f, g, h)
       cvGetSubRect1(image, temp, it->y1, it->x1, it->y2 - it->y1, it->x2 - it->x1);
 
-      resize1(temp, secImage, cSize(24, 24), 0, 0, CC_INTER_LINEAR);
+      resize1(temp, secImage, iSIZE(24, 24), 0, 0, CC_INTER_LINEAR);
       tic;
       Rnet_run(secImage, it);
       toc;
@@ -634,7 +634,7 @@ static int mtcnn_findFace(const img_t* image, Bbox* out, int maxout, int minsize
       img_t temp[1] = {0};
       cvGetSubRect1(image, temp, it->y1, it->x1, it->y2 - it->y1, it->x2 - it->x1);
       cvGetFrame(secImage, frame, it - box);
-      resize1(temp, frame, cSize(24, 24), 0, 0, CC_INTER_LINEAR);
+      resize1(temp, frame, iSIZE(24, 24), 0, 0, CC_INTER_LINEAR);
     }
 
     tic;
@@ -663,7 +663,7 @@ static int mtcnn_findFace(const img_t* image, Bbox* out, int maxout, int minsize
         img_t temp[1] = {0};
         cvGetSubRect1(image, temp, it->y1, it->x1, it->y2 - it->y1, it->x2 - it->x1);
 
-        resize1(temp, thirdImage, cSize(48, 48), 0, 0, CC_INTER_LINEAR);
+        resize1(temp, thirdImage, iSIZE(48, 48), 0, 0, CC_INTER_LINEAR);
         ASSERT(it->exist);
         tic;
         Onet_run(thirdImage, it);
@@ -685,7 +685,7 @@ static int mtcnn_findFace(const img_t* image, Bbox* out, int maxout, int minsize
         img_t frame[1] = {0};
         cvGetSubRect1(image, temp, it->y1, it->x1, it->y2 - it->y1, it->x2 - it->x1);
         cvGetFrame(thirdImage, frame, it - box);
-        resize1(temp, frame, cSize(48, 48), 0, 0, CC_INTER_LINEAR);
+        resize1(temp, frame, iSIZE(48, 48), 0, 0, CC_INTER_LINEAR);
       }
 
       tic;

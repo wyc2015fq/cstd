@@ -120,7 +120,7 @@ static int bernoulli(double p)
   return ((u_0_1) <= p) ? 1 : 0;
 }
 
-#include "math/rand.inl"
+#include "std/rand_c.h"
 #ifndef _RAND_INL_
 #define rng_int32(seed)          rand()
 #define rng_uniform(seed, a, b)  (uniform() * ((b)-(a)) + (a))
@@ -128,7 +128,7 @@ static int bernoulli(double p)
 #define rng_bernoulli(seed, p)   bernoulli(p)
 #endif // _RAND_INL_
 
-#ifndef _CSTD_H_
+#if 0
 #define SWAP_T(a, b, T)  {T t=a;a=b,b=t;}
 #define CC_INLINE static
 #define ASSERT assert
@@ -218,6 +218,7 @@ enum FillMethod {
   FillMethod_FAN_IN,
   FillMethod_FAN_OUT,
 };
+#define DEFAULT(x)   =x
 
 static void fill_Xavier(float* data, DataSize size, enum FillMethod variance_norm DEFAULT(FillMethod_FAN_IN)) {
   int count = Data_total(size);
@@ -310,6 +311,8 @@ static void xavier_init(float* data, int count, int fan_in, int fan_out)
   uniform_distribution_init(data, count, -weight_base, weight_base);
 }
 
+#if 0
+
 static int showmat_1(const char* name, const float* data, DataSize size, int pn, int pc) {
   const float* imageData = data + Data_4DIndex(size, pn, pc, 0, 0);
   img_t image[1] = {0};
@@ -330,5 +333,5 @@ static int showmat(const char* name, const float* data, DataSize size) {
   }
   return 0;
 }
-
+#endif
 

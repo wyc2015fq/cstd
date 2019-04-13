@@ -1,9 +1,11 @@
 #ifndef _TEST_CAM_INL_
 #define _TEST_CAM_INL_
 
-#include "cstd.h"
-
+#include "cap/cap.inl"
 #include "img/imgio.inl"
+#include "utime.h"
+#include "std/gui_c.h"
+//#include "cap/capdshow.inl"
 
 #ifdef _WIN32
 #define cap_open capdshow_open
@@ -44,11 +46,11 @@ int test_cam() {
     {utime_start(_start_time);
     //imsetsize(im, 100, 100, 3, 1);
     //imwrite("/storage/emulated/pic/pic_aa.jpg", im);
-    for (; 'q' != ch && 'Q' != ch && frame<1000; ++frame) {
+    for (; 'q' != ch && 'Q' != ch && frame<100000; ++frame) {
       cap_getframe(cap, im, CAP_RGB);
-      if (0) {
-        //imshow(im);
-        //ch = cvWaitKey(10);
+      if (1) {
+        imshow_(im);
+        ch = waitkey(10);
         char buf[256];
         _snprintf(buf, 256, "/storage/emulated/pic/pic_%d.jpg", frame);
         //imwrite(buf, im);
