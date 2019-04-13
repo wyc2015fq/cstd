@@ -1,0 +1,324 @@
+
+# C++实践参考：小玩文件 - 迂者-贺利坚的专栏 - CSDN博客
+
+2016年06月09日 15:13:40[迂者-贺利坚](https://me.csdn.net/sxhelijian)阅读数：2123
+
+
+【项目 - 小玩文件】
+(下面是填好空的程序）
+（1）下面程序的功能是统计文本文件abc.txt中的字符个数，请填空将程序补充完整。
+```python
+#include <iostream>
+```
+```python
+#include <cstdlib>
+```
+```python
+#include <fstream>
+```
+```python
+// (1)
+```
+```python
+using
+```
+```python
+namespace
+```
+```python
+std
+```
+```python
+;
+```
+```python
+int
+```
+```python
+main()
+{
+    fstream file;
+    file.open(
+```
+```python
+"abc.txt"
+```
+```python
+, ios::in);
+```
+```python
+// (2)
+```
+```python
+if
+```
+```python
+(!file)
+{
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"abc.txt can’t open."
+```
+```python
+<<endl;
+```
+```python
+exit
+```
+```python
+(
+```
+```python
+1
+```
+```python
+);
+    }
+```
+```python
+char
+```
+```python
+ch;
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+while
+```
+```python
+(file.get(ch))
+```
+```python
+// (3)
+```
+```python
+{
+        ++i;
+```
+```python
+// (4)
+```
+```python
+}
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"Character: "
+```
+```python
+<<i<<endl;
+    file.close();
+```
+```python
+// (5)
+```
+```python
+return
+```
+```python
+0
+```
+```python
+;
+}
+```
+（2）下面程序的功能是将文本文件abc.txt中的所有行加上行号后写到newabc.txt文件中，请填空将程序补充完整。
+```python
+#include <iostream>
+```
+```python
+#include <cstdlib>
+```
+```python
+#include <fstream>
+```
+```python
+using
+```
+```python
+namespace
+```
+```python
+std
+```
+```python
+;
+```
+```python
+int
+```
+```python
+main()
+{
+    fstream outfile,infile;
+    infile.open(
+```
+```python
+"abc.txt"
+```
+```python
+,ios::in);
+```
+```python
+// (1)
+```
+```python
+if
+```
+```python
+(!infile)
+    {
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"Can’t open the file."
+```
+```python
+<<endl;
+```
+```python
+abort
+```
+```python
+();
+    }
+    outfile.open(
+```
+```python
+"newabc.txt"
+```
+```python
+,ios::out);
+```
+```python
+//(2)
+```
+```python
+if
+```
+```python
+(!outfile)
+    {
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"Can’t open the file."
+```
+```python
+<<endl;
+```
+```python
+abort
+```
+```python
+();
+    }
+```
+```python
+char
+```
+```python
+buf[
+```
+```python
+80
+```
+```python
+];
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+1
+```
+```python
+;
+```
+```python
+while
+```
+```python
+(!infile.eof())
+```
+```python
+// (3)
+```
+```python
+{
+        infile.getline(buf,
+```
+```python
+80
+```
+```python
+);
+```
+```python
+// (4)
+```
+```python
+outfile<<i++<<
+```
+```python
+": "
+```
+```python
+<<buf<<endl;
+```
+```python
+//(5)
+```
+```python
+}
+    infile.close();
+    outfile.close();
+```
+```python
+return
+```
+```python
+0
+```
+```python
+;
+}
+```
+PS：当abc.txt文件中存在长于80个字符的行时，程序会陷入死循环。通过跟踪发现，从当遇到这个“超长”的行时，infile.getline(buf, 80)先读出79个字符，以\0结束，之后再读，buf[0]总是\0，同时!infile.eof()为假，所以进入死循环。怀疑这其中该是这种“截断”式读取超长行带来的副作用。参看《[getline的获取ifstream的数据](http://www.cnblogs.com/klzwj1988/archive/2010/07/31/1789268.html)》，其中给出了解释与对策。
+显然，当初的这个程序并未考虑超长行，而是默认每一行都不会达80个字符而设计的。注意：如果某一行就这样被“截断”了，并不意味着这就是一行，直到找到换行符，才能说明这是一行的结束，行数i++才能执行，这个程序的改进又可以进行了。
+

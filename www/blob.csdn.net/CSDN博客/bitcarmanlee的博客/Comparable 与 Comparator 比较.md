@@ -1,0 +1,1080 @@
+
+# Comparable 与 Comparator 比较 - bitcarmanlee的博客 - CSDN博客
+
+
+2017年06月17日 17:01:46[bitcarmanlee](https://me.csdn.net/bitcarmanlee)阅读数：4270
+
+
+
+## 1.两个接口的原型
+Java中，Comparable与Comparator接口都是用来做比较的。那么这两个接口在实际使用中到底有什么不同呢？下面我们来结合实例分析一下。
+先看看两个接口在JDK中的原型。
+```python
+package java.lang;
+import java.util.*;
+```
+```python
+public
+```
+```python
+interface
+```
+```python
+Comparable<T> {
+```
+```python
+public
+```
+```python
+int
+```
+```python
+compareTo
+```
+```python
+(T o);
+}
+```
+```python
+package java
+```
+```python
+.util
+```
+```python
+;
+```
+```python
+import java
+```
+```python
+.io
+```
+```python
+.Serializable
+```
+```python
+;
+```
+```python
+import java
+```
+```python
+.util
+```
+```python
+.function
+```
+```python
+.Function
+```
+```python
+;
+```
+```python
+import java
+```
+```python
+.util
+```
+```python
+.function
+```
+```python
+.ToIntFunction
+```
+```python
+;
+```
+```python
+import java
+```
+```python
+.util
+```
+```python
+.function
+```
+```python
+.ToLongFunction
+```
+```python
+;
+```
+```python
+import java
+```
+```python
+.util
+```
+```python
+.function
+```
+```python
+.ToDoubleFunction
+```
+```python
+;
+```
+```python
+import java
+```
+```python
+.util
+```
+```python
+.Comparators
+```
+```python
+;
+```
+```python
+@FunctionalInterface
+public interface Comparator<T> {
+    int compare(T o1, T o2)
+```
+```python
+;
+```
+```python
+boolean equals(Object obj)
+```
+```python
+;
+```
+```python
+}
+```
+## 2.Comparable的用法
+一般来说，Comparable是为了对某个类的集合进行排序，所以此时一般都是这个需要排序的类本身去实现Comparable接口。换句话说，如果某个类实现了Comparable接口，那么这个类的数组或者说List就可以进行排序了。
+举个简单的例子：
+```python
+public
+```
+```python
+class
+```
+```python
+Employee implements Comparable<Employee> {
+```
+```python
+private
+```
+```python
+String name;
+```
+```python
+private
+```
+```python
+int
+```
+```python
+salary;
+```
+```python
+public
+```
+```python
+Employee
+```
+```python
+(String name,
+```
+```python
+int
+```
+```python
+salary) {
+```
+```python
+this
+```
+```python
+.name = name;
+```
+```python
+this
+```
+```python
+.salary = salary;
+    }
+    @Override
+```
+```python
+public
+```
+```python
+int
+```
+```python
+compareTo
+```
+```python
+(Employee other) {
+```
+```python
+return
+```
+```python
+this
+```
+```python
+.salary - other.salary;
+    }
+    @Override
+```
+```python
+public
+```
+```python
+String
+```
+```python
+toString
+```
+```python
+() {
+```
+```python
+return
+```
+```python
+"name is: "
+```
+```python
++ name +
+```
+```python
+", salary is: "
+```
+```python
++ salary;
+    }
+```
+```python
+public
+```
+```python
+String
+```
+```python
+getName
+```
+```python
+() {
+```
+```python
+return
+```
+```python
+name;
+    }
+```
+```python
+public
+```
+```python
+void
+```
+```python
+setName
+```
+```python
+(String name) {
+```
+```python
+this
+```
+```python
+.name = name;
+    }
+```
+```python
+public
+```
+```python
+int
+```
+```python
+getSalary
+```
+```python
+() {
+```
+```python
+return
+```
+```python
+salary;
+    }
+```
+```python
+public
+```
+```python
+void
+```
+```python
+setSalary
+```
+```python
+(
+```
+```python
+int
+```
+```python
+salary) {
+```
+```python
+this
+```
+```python
+.salary = salary;
+    }
+}
+```
+在客户端中实现Employee集合排序：
+```python
+public
+```
+```python
+class
+```
+```python
+CompareTest {
+```
+```python
+public
+```
+```python
+static
+```
+```python
+List<Employee>
+```
+```python
+genList
+```
+```python
+() {
+        Employee e1 =
+```
+```python
+new
+```
+```python
+Employee(
+```
+```python
+"aaa"
+```
+```python
+,
+```
+```python
+100
+```
+```python
+);
+        Employee e2 =
+```
+```python
+new
+```
+```python
+Employee(
+```
+```python
+"bbb"
+```
+```python
+,
+```
+```python
+150
+```
+```python
+);
+        Employee e3 =
+```
+```python
+new
+```
+```python
+Employee(
+```
+```python
+"ccc"
+```
+```python
+,
+```
+```python
+80
+```
+```python
+);
+        List<Employee> list =
+```
+```python
+new
+```
+```python
+ArrayList();
+        list.add(e1);
+        list.add(e2);
+        list.add(e3);
+```
+```python
+return
+```
+```python
+list;
+    }
+```
+```python
+public
+```
+```python
+static
+```
+```python
+void
+```
+```python
+t1
+```
+```python
+() {
+        List<Employee> list = genList();
+```
+```python
+//Collections.sort(list); 两种方式都可以，此种方式源码中就是调用的list.sort(null)
+```
+```python
+list.sort(
+```
+```python
+null
+```
+```python
+);
+        System.
+```
+```python
+out
+```
+```python
+.println(list);
+    }
+```
+```python
+public
+```
+```python
+static
+```
+```python
+void
+```
+```python
+main
+```
+```python
+(String[] args) {
+        t1();
+    }
+}
+```
+将客户端的代码run起来，最后输出的结果为：
+```python
+[
+```
+```python
+name
+```
+```python
+is
+```
+```python
+: ccc, salary
+```
+```python
+is
+```
+```python
+:
+```
+```python
+80
+```
+```python
+,
+```
+```python
+name
+```
+```python
+is
+```
+```python
+: aaa, salary
+```
+```python
+is
+```
+```python
+:
+```
+```python
+100
+```
+```python
+,
+```
+```python
+name
+```
+```python
+is
+```
+```python
+: bbb, salary
+```
+```python
+is
+```
+```python
+:
+```
+```python
+150
+```
+```python
+]
+```
+因为Employee实现了Comparable接口，所以能直接对Employee数组进行排序。
+## 3.Comparator接口用法
+很多时候我们无法对类进行修改，或者说此类修改的成本太高，但是又希望对其进行排序。那怎么办？这个时候Comparator接口就排上了用场。
+比如我们将前面的Employee类稍作修改，不实现Comparable接口，加上final关键字：
+```python
+public
+```
+```python
+final
+```
+```python
+class
+```
+```python
+Employee  {
+```
+```python
+private
+```
+```python
+String name;
+```
+```python
+private
+```
+```python
+int
+```
+```python
+salary;
+```
+```python
+public
+```
+```python
+Employee
+```
+```python
+(String name,
+```
+```python
+int
+```
+```python
+salary) {
+```
+```python
+this
+```
+```python
+.name = name;
+```
+```python
+this
+```
+```python
+.salary = salary;
+    }
+    @Override
+```
+```python
+public
+```
+```python
+String
+```
+```python
+toString
+```
+```python
+() {
+```
+```python
+return
+```
+```python
+"name is: "
+```
+```python
++ name +
+```
+```python
+", salary is: "
+```
+```python
++ salary;
+    }
+    ...此处省略
+```
+```python
+get
+```
+```python
+/
+```
+```python
+set
+```
+```python
+}
+```
+这个时候我们显然无法修改Employee类了。但是还是需要对其排序，怎么办？
+如果在jdk8之前，使用匿名内部类的方式：
+```python
+public
+```
+```python
+static
+```
+```python
+void
+```
+```python
+test
+```
+```python
+() {
+        List<Employee> list = genList();
+        Collections.sort(list,
+```
+```python
+new
+```
+```python
+Comparator<Employee>() {
+            @Override
+```
+```python
+public
+```
+```python
+int
+```
+```python
+compare
+```
+```python
+(Employee o1, Employee o2) {
+```
+```python
+return
+```
+```python
+o1.getSalary() - o2.getSalary();
+            }
+        });
+        System.
+```
+```python
+out
+```
+```python
+.println(list);
+    }
+```
+在jdk8之后，可以使用lambda表达式：
+```python
+public
+```
+```python
+static
+```
+```python
+void
+```
+```python
+test() {
+```
+```python
+List
+```
+```python
+<
+```
+```python
+Employee
+```
+```python
+>
+```
+```python
+list
+```
+```python
+=
+```
+```python
+genList();
+        Comparator
+```
+```python
+<
+```
+```python
+Employee
+```
+```python
+>
+```
+```python
+comparator
+```
+```python
+=
+```
+```python
+(Employee e1, Employee e2)
+```
+```python
+->
+```
+```python
+e1
+```
+```python
+.
+```
+```python
+getSalary()
+```
+```python
+-
+```
+```python
+e2
+```
+```python
+.
+```
+```python
+getSalary();
+```
+```python
+list
+```
+```python
+.
+```
+```python
+sort(comparator);
+        System
+```
+```python
+.
+```
+```python
+out
+```
+```python
+.
+```
+```python
+println(
+```
+```python
+list
+```
+```python
+);
+    }
+```
+如果将此方法run起来，输出如下：
+```python
+[
+```
+```python
+name
+```
+```python
+is
+```
+```python
+: ccc, salary
+```
+```python
+is
+```
+```python
+:
+```
+```python
+80
+```
+```python
+,
+```
+```python
+name
+```
+```python
+is
+```
+```python
+: aaa, salary
+```
+```python
+is
+```
+```python
+:
+```
+```python
+100
+```
+```python
+,
+```
+```python
+name
+```
+```python
+is
+```
+```python
+: bbb, salary
+```
+```python
+is
+```
+```python
+:
+```
+```python
+150
+```
+```python
+]
+```
+同学们可能会注意到，Comparable接口中只有一个compareTo方法要实现，而Comparator有两个方法，但是我们只实现了一个方法，那么另外一个方法呢？
+其实很简单，因为另外一个方法是equals方法。所有的类都继承了Object类，而Object类中实现了equals方法，所以我们这里不实现equals方法也无所谓！
+## 4.Comparator中的各种实现方式比较
+Comparator中的compare方法实现方式还是比较多的。下面我们来一一说明。
+### 4.1 传统的匿名内部类
+JDK8之前，一般是采用匿名内部类的方式实现：
+```python
+Collections.sort(list,
+```
+```python
+new
+```
+```python
+Comparator<Employee>() {
+```
+```python
+@Override
+```
+```python
+public
+```
+```python
+int
+```
+```python
+compare
+```
+```python
+(Employee o1, Employee o2) {
+```
+```python
+return
+```
+```python
+o1.getSalary() - o2.getSalary();
+            }
+        });
+```
+### 4.2 lambda表达式
+JDK8之后，可以使用lambda表达式：
+```python
+list.sort
+```
+```python
+((Employee e1, Employee e2) -> e1.getSalary() - e2.getSalary())
+```
+```python
+;
+```
+### 4.3 精简版的lambda表达式
+我们通过不指定类型定义来进一步简化表达式，因为编译器自己可以进行类型判断
+```python
+list.sort
+```
+```python
+((e1, e2) -> e1.getSalary() - e2.getSalary())
+```
+```python
+;
+```
+### 4.4 使用Comparator.comparing的方式
+我们使用上述lambda表达式的时候，IDE会提示我们：can be replaced with comparator.comparing Int
+```python
+list
+```
+```python
+.sort
+```
+```python
+(Comparator
+```
+```python
+.comparing
+```
+```python
+(employee -> employee
+```
+```python
+.getSalary
+```
+```python
+()))
+```
+```python
+;
+```
+### 4.5 使用静态方法的引用
+java中的双冒号就是方法引用。::是JDK8里引入lambda后的一种用法，表示引用，比如静态方法的引用String::valueOf，比如构造器的引用，ArrayList::new。
+```python
+list
+```
+```python
+.sort
+```
+```python
+(Comparator
+```
+```python
+.comparing
+```
+```python
+(Employee::getSalary))
+```
+```python
+;
+```
+### 4.6 排序反转
+很多时候，想对排序进行反转，或者说逆序：
+```python
+list
+```
+```python
+.sort
+```
+```python
+(Comparator
+```
+```python
+.comparing
+```
+```python
+(Employee::getSalary)
+```
+```python
+.reversed
+```
+```python
+())
+```
+```python
+;
+```
+### 4.7 许多条件组合排序
+```python
+list.sort
+```
+```python
+((e1, e2) -> {
+```
+```python
+if
+```
+```python
+(e1.getSalary() != e2.getSalary()) {
+```
+```python
+return
+```
+```python
+e1.getSalary() - e2.getSalary();
+            }
+```
+```python
+else
+```
+```python
+{
+```
+```python
+return
+```
+```python
+e1.getName().compareTo(e2.getName());
+            }
+        })
+```
+```python
+;
+```
+### 4.8 从JDK 8开始，我们现在可以把多个Comparator链在一起（chain together）去建造更复杂的比较逻辑
+```python
+list
+```
+```python
+.sort
+```
+```python
+(Comparator
+```
+```python
+.comparing
+```
+```python
+(Employee::getSalary)
+```
+```python
+.thenComparing
+```
+```python
+(Employee::getName))
+```
+```python
+;
+```
+

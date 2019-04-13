@@ -1,0 +1,246 @@
+
+# 数组与List的相互转换 - bitcarmanlee的博客 - CSDN博客
+
+
+2017年05月02日 11:28:49[bitcarmanlee](https://me.csdn.net/bitcarmanlee)阅读数：2097
+
+
+
+## 1.List转换为数组
+直接调用ArrayList中的toArray方法就可以实现。
+List接口中，toArray有两个重载的方法：
+```python
+Object
+```
+```python
+[]
+```
+```python
+toArray()
+```
+```python
+;
+<T> T
+```
+```python
+[]
+```
+```python
+toArray(T[] a)
+```
+```python
+;
+```
+可见toArray可以用无入参的方式调用，返回一个Object数组；也可以用指定返回类型的方式调用，返回一个指定类型的数组。
+```python
+@Test
+```
+```python
+public
+```
+```python
+void test() {
+        List<Object> rawList =
+```
+```python
+new
+```
+```python
+ArrayList();
+        rawList.add(
+```
+```python
+"0"
+```
+```python
+);
+        rawList.add(
+```
+```python
+"1"
+```
+```python
+);
+```
+```python
+String
+```
+```python
+[] arr = rawList.toArray(
+```
+```python
+new
+```
+```python
+String
+```
+```python
+[rawList.size()]);
+```
+```python
+for
+```
+```python
+(
+```
+```python
+String
+```
+```python
+each
+```
+```python
+:arr) {
+            System.out.println(
+```
+```python
+each
+```
+```python
+);
+        }
+    }
+```
+## 2.数组转换为List
+如果需要将数组转为List，只需要使用Arrays.asList方法即可。
+```python
+@Test
+```
+```python
+public
+```
+```python
+void
+```
+```python
+t5
+```
+```python
+() {
+        String[] arr = {
+```
+```python
+"a"
+```
+```python
+,
+```
+```python
+"b"
+```
+```python
+,
+```
+```python
+"c"
+```
+```python
+};
+        List<String> list = Arrays.asList(arr);
+        list.forEach(x -> System.
+```
+```python
+out
+```
+```python
+.println(x));
+    }
+```
+需要注意的是，asList方法是利用传入参数的类型去创建一个数组，本质上还是一个只是实现了集合的如下方法（size()、toArray()、toArray(T[])、get(int)、set(int,E)、indexOf(Object)、contains(Object)）的数组,所以用asList()装换成的集合，只能使用如上方法，如果使用其他方法如： add(E),系统将会抛Java.lang.UnsupportedOperationException（不支持请求的操作）的异常。
+```python
+public
+```
+```python
+static
+```
+```python
+<T>
+```
+```python
+List
+```
+```python
+<T> asList(T... a) {
+```
+```python
+return
+```
+```python
+new
+```
+```python
+ArrayList<>(a);
+    }
+```
+```python
+/**
+     *
+```
+```python
+@serial
+```
+```python
+include
+     */
+```
+```python
+private
+```
+```python
+static
+```
+```python
+class
+```
+```python
+ArrayList
+```
+```python
+<
+```
+```python
+E
+```
+```python
+>
+```
+```python
+extends
+```
+```python
+AbstractList
+```
+```python
+<
+```
+```python
+E
+```
+```python
+>
+```
+```python
+implements
+```
+```python
+RandomAccess
+```
+```python
+,
+```
+```python
+java
+```
+```python
+.
+```
+```python
+io
+```
+```python
+.
+```
+```python
+Serializable
+```
+

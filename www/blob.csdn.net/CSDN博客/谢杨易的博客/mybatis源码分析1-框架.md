@@ -1,0 +1,51 @@
+
+# mybatis源码分析1 - 框架 - 谢杨易的博客 - CSDN博客
+
+2018年01月14日 12:08:56[谢杨易](https://me.csdn.net/u013510838)阅读数：858
+
+
+
+## 1 源码结构
+我们分析的mybatis源码version为3.4.5，mybaits-spring源码version为2.0.0-SNAPSHOT。先看mybatis的源码目录结构，如下图所示。
+![mybatis目录结构](https://img.alicdn.com/tfs/TB1njDYmLDH8KJjy1XcXXcpdXXa-450-600.png)
+我们只用看src/main/java下的目录即可。
+annotations：注解定义，我们知道mybatis配置可以采用XML文件形式，也可以采用注解形式
+binding：主要是mapper动态代理绑定相关的类，比较重要的是MapperProxy,它是mapper动态代理的InvocationHandler，mapper的方法调用都是通过它的invoke方法代理的。
+builder：各种builder模式构造对象所使用的类，比较重要的是XMLConfigBuilder，它解析了XML文件，并利用XML文件中的键值对，设置了Configuration对象的相关变量。它是mybatis初始化阶段很重要的类。
+cache：实现缓存的类，包括cache实体和cache策略。mybatis中很多地方都是用到了cache，比如sqlSession内的一级缓存，mapper内的二级缓存等。
+cursor：游标，在mybatis 3.4.0中，新增了返回值为游标cursor的方法，如sqlSession的selectCursor。游标的优点在于，当查询大量数据时，不需要一次性将所有数据得到，可以利用游标来逐个或分批处理，从而大大减少内存占用。mybatis的默认cursor实现类为DefaultCursor。
+dataSource：数据源，描述了数据库信息，如username password等。创建数据库环境environment时配置数据源dataSource。dataSource又分为JNDI，pooled和unPooled。pooled利用对象池来管理对象的创建和销毁，可以大大减少对象的创建和销毁次数，从而减少对系统资源的占用，典型的享元模式
+exceptions：异常类
+executor：mybatis执行阶段最重要的类，它是运行调度器，由他来调度StatementHandler ParameterHandler ResultSetHandler的执行。SqlSession的select update等读写数据库的方法都是通过代理模式，由Executor来完成的。它有SimpleExecutor BatchExecutor ReuseExecutor三个实现，他们共同的基类是BaseExecutor。后面讲解mybatis读写数据库的流程时会重点讲解。
+io：输入输出类，如资源管理类Resource，管理资源的输入输出流。
+jdbc：对JDBC的一些简单封装，适配mybatis。如sqlRunner，利用jdbc的读写数据库的方法来操作数据库。
+lang：java语言相关的类，目前只有@UsesJava7 @UsesJava8两个注解，不用去管他们
+logging：log日志类，有Log4jImpl，Slf4jImpl等对log4j和slf4j的简单封装后的日志实现类等。
+mapping：比较复杂，解析数据库映射mapper。有mapper.xml和注解两种方式。这里面的类比较多，也比较复杂，我们后面 讲解mybatis初始化和运行的几个章节，都会详细讲解其中关键的类。
+parsing：文件解析用到的类，比较底层，一般不用特别去care。如解析XML用到的XPathParser.
+plugin: 插件，mybatis一个比较强大的功能在于，可以利用动态代理来拦截mybatis的一些默认流程，从而实现用户自定义。比如mybatis运行阶段四大组件Executor StatementHandler ParameterHandler ResultSetHandler等都可以由用户自定义插件来实现。
+reflection：反射用到的类，mybatis很多地方都是用了反射，毕竟Java反射使得代码灵活度大大提高。mapper接口，plugin，sqlSessionTemplete都是使用动态代理生成代理对象，来执行相关方法的。
+scripting：脚本语言解析相关的类，不用care
+session：mybatis初始化和运行阶段最重要的类都在这儿，它们是mybatis的门面，和用户打交道最多。比较关键的为SqlSession，SqlSessionFactory，Configuration。后面mybatis初始化和运行阶段都会一一讲解。
+transaction：事务，有JDBC和MANAGED两种，后面会详细讲解。
+type：mybatis内置的typeHandler，用来做数据库和Java类的转换，比如varchar到String
+这其中比较重要的包为executor mapping和session，我们后面详细分析mybatis运行流程时，会详细讲解。
+mybatis-spring是mybatis团队开发的，让mybatis在Spring容器中运行的框架。主要解决了SqlSessionFactory和sqlSession在Spring容器中注入的问题。后面我们会分两个章节详细讲解。它的源码目录结构为
+![mybatis-spring目录结构](https://img.alicdn.com/tfs/TB1Ex0ukyqAXuNjy1XdXXaYcVXa-342-370.png)
+我们分析几个比较重要的包和类。
+annotation：注解定义
+config：配置信息处理，主要是mapper配置信息的处理
+mapper：mybatis数据库操作映射文件相关的处理
+transaction：事务
+SqlSessionFactoryBean：工厂bean，其getObject()方法创建SqlSessionFactory对象，并注入容器中。
+SqlSessionTemplate：SqlSession实现类，解决了sqlSession线程不安全问题，可以由容器注入bean。
+## 2 重要模块
+mybatis源码十分复杂，满满的都是精巧的构思和优良的设计模式。我们会按照mybatis的各个模块，分6篇章节来详细讲解。
+mybatis初始化和sqlSessionFactory的创建：mybatis的初始化阶段，其实也就是sqlSessionFactory创建的阶段。读取并解析XML配置文件，将其中的键值对设置到configuration的相关变量中，并利用初始化好的configuration对象来创建DefaultSqlSessionFactory。详见[mybatis源码分析2 - SqlSessionFactory的创建](http://blog.csdn.net/u013510838/article/details/78995542)
+sqlSession的创建: mybatis读写数据库，都是通过sqlSession对象来完成的。sqlSession的创建，由其工厂类sqlSessionFactory通过openSession()来完成。详见[mybatis源码分析3 - sqlSession的创建](http://blog.csdn.net/u013510838/article/details/79011489)
+sqlSession读写数据库：sqlSession读写数据库有两种方式，一是通过select update等方法，直接进行CRUD操作。二是先getMapper获取mapper接口动态代理，再调用用户定义在mapper接口中的方法来读写数据库。相比较而言，mapper方式更灵活且更健壮，丰富了用户操作的同时，还降低了出错的概率。mybatis也是推荐我们使用mapper方式。但mapper方式其实只是对select update等方法的一层封装，最终还是通过select update等方法来完成的。故我们需要先了解select的运行原理。详见[mybatis源码分析4 - sqlSession读写数据库完全解析](http://blog.csdn.net/u013510838/article/details/79016238)
+mapper方式读写数据库：mybatis推荐使用mapper方式来读写数据库。mapper方式下，我们先通过getMapper()方法获取mapper接口动态代理，然后由代理执行定义在mapper接口中的相关方法。这两个过程是如何实现的呢，详见[mybatis源码分析5 - mapper读写数据库完全解析](http://blog.csdn.net/u013510838/article/details/79023822)
+mybatis-spring容器初始化：mybatis不是一个单独的框架，我们经常要结合Spring，在Spring容器中运行mybatis，这样才能利用Spring强大的IOC和AOP功能。mybatis团队创作了mybatis-spring框架，来让mybatis在Spring容器中运行。mybatis-spring的初始化，其实就是Spring容器注入sqlSessionFactory单例的过程，那么容器是如何注入的呢，详见[mybatis源码分析6 - mybatis-spring容器初始化](http://blog.csdn.net/u013510838/article/details/79053519)
+mybatis-spring读写数据库：sqlSessionFactory由Spring容器注入后，就可以创建sqlSession并操作数据库了。sqlSession是线程不安全的，没法直接由容器注入。那么能不能解决这一问题呢。mybatis-spring框架给出了优秀的解决方案：sqlSessionTemplete。它是一个线程安全的sqlSession实现类，可以由Spring容器来注入。那么它是如何创建的呢，又是如何解决线程不安全问题的呢，详见[mybatis源码分析7 - mybatis-spring读写数据库全过程](http://blog.csdn.net/u013510838/article/details/79054007)
+分析mybatis源码，一方面能让我们详细了解mybatis底层运行机制，加深对mybatis各项特性的理解，在平时使用中做到游刃有余。另一方面，我觉得更重要的是，学习mybatis的精巧的框架构思和优良的设计模式，在我们自己设计架构时，这些都是很值得学习和借鉴的。
+

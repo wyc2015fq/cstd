@@ -1,0 +1,8515 @@
+
+# [Java][机器学习]决策树算法 - Multiangle's Notepad - CSDN博客
+
+
+2015年03月30日 12:13:11[multiangle](https://me.csdn.net/u014595019)阅读数：1436
+
+
+
+## 大概介绍
+在之前为了处理Iris花的分类算法，写了一个决策树算法，但这个算法局限性比较大，只能用于那一种情况，所以为了增强代码的复用性，在之前的基础上修改了算法，增强了复用性。略有遗憾的是，由于很多模块，比如快速排序，是为了处理Iris花专门写的，所以现在要进行一些转换才行，一定程度上增加了代码的复杂度和冗余度。**这个是以后值得注意的地方，即在设计之初就应该注意到代码的复用问题，尽可能早的定义好通用接口，这样就能增强模块的复用度。**修改以后的程序使用起来方便了好多，在使用之前要定义一套变量ProjectInfo，里面包括决策树的深度等参量，用于调节决策树的生成。
+举个例子吧，我想用我的程序来分离正态分布随机变量和均匀随机变量。这是我实现用matlab生成的变量，存在excel里面。![这里写图片描述](https://img-blog.csdn.net/20150330104630352)[ ](https://img-blog.csdn.net/20150330104630352)
+其中黄点和绿点是均匀分布的随机变量，黄点是训练集，绿点是检验集。而蓝点红点是正太分布随机变量，其中红点是训练集，而蓝点是检验集。可以看到这些正态分布的点分成3坨，有3个中心，分别是(5,15),(15,5)以及(10,10)。其中中间那坨的方差要大一些。我想用我的算法来将这两类分开来，那么首先就要定义一个ProjectInfo对象，用来控制决策树的一些相关变量，比如深度等。ProjectInfo的参数有如下几个：
+[
+](https://img-blog.csdn.net/20150330104630352)**int AttrNum ;**//属性值的数目，如有2种属性，则AttrNum=2 ，在这个例子中，原始属性为2种，分别为x,y但是看图可以明显得知用斜线可以更好地分类，我这里又加了两个额外属性，分别为x+y,x-y。此时AttrNum就是4.看官要是高兴，也可以加x+2y,x+3y这些额外属性。当然了，要记得更改这个值
+**int[] AttrType**;  //Attributes[i]表示该值的属性，double为0,boolean为1。这个例子中x,y,x+y,x-y均为double，所以为{0,0,0,0}
+**String[] SqlColName**;  //SQL数据库中列名. 这个是为了方便sql读取的，存放sql数据库中的列名
+**String[] AttrDescription**; //对Arrtibute的描述，SqlColNmae中的名字要与数据库严格对应，而这里则不需要，自己能看懂就行了，属于注释类的
+**int dataNodeNum**;   //数据集的数目。指的是训练集的数目。我这个例子中的训练集总共2000个点，其中1200个均匀分布，800个高斯分布。所以dataNodeNum=2000
+**String[] classNum**; //数据分属的各个类的名字，如果要从数据库导入，则必须跟数据库中的类名一样，如果不是，则随意
+**int RuleDeep**; //决策树的深度。如果节点的深度大于该值，则不再分裂
+**int NodeLimitNum**;  //若节点内数据量小于等于该值，则不再分裂
+**double NodeLimitEntropy**; //若节点内数据熵小于等于该值，则不再分裂
+**double NodeDeltaEntropy**; //若节点分裂前后数据熵变化小于等于该值，则不再分裂
+定义之后，需要训练集以及检验集。考虑到通用性，不再写通用的函数，**只需要保证最后格式就行**。具体格式为：
+1.送入RuleNode函数的必须要是double[][] example格式
+2.example.length=dataNodeNum
+3.example[i].length=AttrNum+3 其中example[i][0]存放数据序号，从0-(dataNodeNum-1) ; example[i][1]=ClassType，其值从0-(classNum.length-1)。 在这个例子中，由于只有两类点，所以其值为0,1.如果是之前的Iris，其值范围就是0-2 ； example[i][2]=tempClassType. 值**只能**是0或者1. ；example[i][3-(2+AttrNum)]存放各个属性值。
+当然为了方便，还是准备了从sql以及excel中读取数组的接口。当然读取过来的不一定能直接用，需要自己修改。你也可以自己写接口把数组准备好。总之只要格式对就行了。
+准备好数组和ProjectInfo以后，生成一个RuleNode的节点root。RuleNode构造函数的接口为
+public RuleNode(double[][] input,int deep,String tag,ProjectInfo pInfo)
+其中input为训练集，deep为深度，初始深度为0，tag记录节点位置，初始值为“0”。所以例子中的调用方法为
+RuleNode root=new RuleNode(trainset,0,”0”,pInfo) ;
+之后可以用root.PrintRule(String filename,RuleNode root, ProjectInfo pInfo) 来打印决策树的规则，输出在桌面上。
+rule.getNodeNum(root)则可以观察该决策树总共有多少个节点
+为了检验决策树的错误率，可以使用Estimate类。
+Estimate es=new Estimate(rule,trainset,pInfo) ;
+System.out.println(“训练集的错误率为:”+es.ErrRatio);
+在这个例子中，我设的参数值为:
+int AttrNum=4 ;
+int[] AttrType={0,0,0,0} ;
+String[] SqlColName={“x”,”y”,”x+y”,”x-y”} ;
+String[] AttrDescription={“x”,”y”,”x+y”,”x-y”} ;
+int dataNodeNum=2000 ;
+String[] classNum={“Average”,”Normal”} ;
+int RuleDeep=8 ;
+int NodeLimitNum=10 ;
+double NodeLimitEntropy=0 ;
+double NodeDeltaEntropy=0 ;
+最后得到的结果是规则数共有131个节点，训练集的错误率为15.65%，检验集的错误率为19.2%。生成的规则数如下：
+```python
+x+y<=
+```
+```python
+14.244
+```
+```python
+| x+y<=12.206
+```
+```python
+| | y<=4.7925: Class0
+```
+```python
+| | y>4.7925
+```
+```python
+| | | y<=4.8215: Class1
+```
+```python
+| | | y>4.8215: Class0
+```
+```python
+| x+y>12.206
+```
+```python
+| | x<=5.204: Class0
+```
+```python
+| | x>5.204
+```
+```python
+| | | x<=7.156499999999999
+```
+```python
+| | | | x<=5.2625: Class1
+```
+```python
+| | | | x>5.2625
+```
+```python
+| | | | | x<=5.9145: Class0
+```
+```python
+| | | | | x>5.9145: Class0
+```
+```python
+| | | x>7.156499999999999
+```
+```python
+| | | | x+y<=13.5105: Class0
+```
+```python
+| | | | x+y>13.5105
+```
+```python
+| | | | | x+y<=13.524999999999999: Class1
+```
+```python
+| | | | | x+y>13.524999999999999
+```
+```python
+| | | | | | x+y<=13.92: Class0
+```
+```python
+| | | | | | x+y>13.92: Class0
+```
+```python
+x+y>
+```
+```python
+14.244
+```
+```python
+| x+y<=23.326500000000003
+```
+```python
+| | x<=3.101
+```
+```python
+| | | y<=16.8975
+```
+```python
+| | | | x<=0.8965000000000001: Class0
+```
+```python
+| | | | x>0.8965000000000001
+```
+```python
+| | | | | y<=12.908000000000001: Class0
+```
+```python
+| | | | | y>12.908000000000001
+```
+```python
+| | | | | | x<=0.9964999999999999: Class1
+```
+```python
+| | | | | | x>0.9964999999999999
+```
+```python
+| | | | | | | x-y<=-10.7015
+```
+```python
+| | | | | | | | x+y<=16.7165: Class0
+```
+```python
+| | | | | | | | x+y>16.7165: Class0
+```
+```python
+| | | | | | | x-y>-10.7015: Class1
+```
+```python
+| | | y>16.8975: Class0
+```
+```python
+| | x>3.101
+```
+```python
+| | | y<=2.8085
+```
+```python
+| | | | x-y<=14.558
+```
+```python
+| | | | | x<=16.951
+```
+```python
+| | | | | | y<=1.1775: Class0
+```
+```python
+| | | | | | y>1.1775
+```
+```python
+| | | | | | | x-y<=13.814499999999999
+```
+```python
+| | | | | | | | x+y<=14.5165: Class1
+```
+```python
+| | | | | | | | x+y>14.5165: Class0
+```
+```python
+| | | | | | | x-y>13.814499999999999: Class1
+```
+```python
+| | | | | x>16.951: Class1
+```
+```python
+| | | | x-y>14.558
+```
+```python
+| | | | | y<=2.1395: Class0
+```
+```python
+| | | | | y>2.1395: Class0
+```
+```python
+| | | y>2.8085
+```
+```python
+| | | | x+y<=16.6265
+```
+```python
+| | | | | y<=12.838000000000001
+```
+```python
+| | | | | | x<=6.4335
+```
+```python
+| | | | | | | x-y<=-7.651499999999999: Class0
+```
+```python
+| | | | | | | x-y>-7.651499999999999: Class0
+```
+```python
+| | | | | | x>6.4335
+```
+```python
+| | | | | | | x<=9.96
+```
+```python
+| | | | | | | | x-y<=3.2985: Class1
+```
+```python
+| | | | | | | | x-y>3.2985: Class1
+```
+```python
+| | | | | | | x>9.96
+```
+```python
+| | | | | | | | x-y<=9.027999999999999: Class0
+```
+```python
+| | | | | | | | x-y>9.027999999999999: Class1
+```
+```python
+| | | | | y>12.838000000000001: Class1
+```
+```python
+| | | | x+y>16.6265
+```
+```python
+| | | | | x-y<=13.459
+```
+```python
+| | | | | | x+y<=22.872999999999998
+```
+```python
+| | | | | | | x-y<=-8.513
+```
+```python
+| | | | | | | | x-y<=-10.426: Class1
+```
+```python
+| | | | | | | | x-y>-10.426: Class1
+```
+```python
+| | | | | | | x-y>-8.513
+```
+```python
+| | | | | | | | x<=7.8805: Class1
+```
+```python
+| | | | | | | | x>7.8805: Class1
+```
+```python
+| | | | | | x+y>22.872999999999998
+```
+```python
+| | | | | | | x+y<=23.162499999999998
+```
+```python
+| | | | | | | | x<=17.2825: Class0
+```
+```python
+| | | | | | | | x>17.2825: Class1
+```
+```python
+| | | | | | | x+y>23.162499999999998
+```
+```python
+| | | | | | | | x<=5.6205: Class0
+```
+```python
+| | | | | | | | x>5.6205: Class1
+```
+```python
+| | | | | x-y>13.459
+```
+```python
+| | | | | | x+y<=21.8705
+```
+```python
+| | | | | | | x+y<=21.7155: Class0
+```
+```python
+| | | | | | | x+y>21.7155: Class1
+```
+```python
+| | | | | | x+y>21.8705: Class0
+```
+```python
+| x+y>23.326500000000003
+```
+```python
+| | x+y<=27.7235
+```
+```python
+| | | y<=17.5545
+```
+```python
+| | | | y<=10.692499999999999
+```
+```python
+| | | | | x+y<=24.683999999999997
+```
+```python
+| | | | | | x+y<=23.731499999999997: Class0
+```
+```python
+| | | | | | x+y>23.731499999999997
+```
+```python
+| | | | | | | x+y<=23.7855: Class1
+```
+```python
+| | | | | | | x+y>23.7855
+```
+```python
+| | | | | | | | x+y<=24.435000000000002: Class0
+```
+```python
+| | | | | | | | x+y>24.435000000000002: Class0
+```
+```python
+| | | | | x+y>24.683999999999997
+```
+```python
+| | | | | | x+y<=26.735500000000002: Class0
+```
+```python
+| | | | | | x+y>26.735500000000002
+```
+```python
+| | | | | | | x+y<=26.7965: Class1
+```
+```python
+| | | | | | | x+y>26.7965: Class0
+```
+```python
+| | | | y>10.692499999999999
+```
+```python
+| | | | | x+y<=25.2045
+```
+```python
+| | | | | | x-y<=-2.4989999999999997
+```
+```python
+| | | | | | | y<=14.745000000000001
+```
+```python
+| | | | | | | | x<=11.157499999999999: Class0
+```
+```python
+| | | | | | | | x>11.157499999999999: Class1
+```
+```python
+| | | | | | | y>14.745000000000001
+```
+```python
+| | | | | | | | y<=15.202: Class1
+```
+```python
+| | | | | | | | y>15.202: Class0
+```
+```python
+| | | | | | x-y>-2.4989999999999997
+```
+```python
+| | | | | | | x<=12.005500000000001
+```
+```python
+| | | | | | | | x<=10.674: Class0
+```
+```python
+| | | | | | | | x>10.674: Class1
+```
+```python
+| | | | | | | x>12.005500000000001
+```
+```python
+| | | | | | | | x<=12.3055: Class0
+```
+```python
+| | | | | | | | x>12.3055: Class1
+```
+```python
+| | | | | x+y>25.2045
+```
+```python
+| | | | | | x<=10.908000000000001: Class0
+```
+```python
+| | | | | | x>10.908000000000001
+```
+```python
+| | | | | | | x+y<=25.803: Class0
+```
+```python
+| | | | | | | x+y>25.803
+```
+```python
+| | | | | | | | x<=11.1095: Class1
+```
+```python
+| | | | | | | | x>11.1095: Class0
+```
+```python
+| | | y>17.5545: Class0
+```
+```python
+| | x+y>27.7235
+```
+```python
+| | | y<=12.2935
+```
+```python
+| | | | x<=17.162: Class1
+```
+```python
+| | | | x>17.162: Class0
+```
+```python
+| | | y>12.2935: Class0
+```
+
+## 附录：代码
+
+### ProjectInfo
+
+```python
+package Classification;
+```
+```python
+public
+```
+```python
+class
+```
+```python
+ProjectInfo {
+```
+```python
+public
+```
+```python
+int
+```
+```python
+AttrNum ;
+```
+```python
+//属性值的数目，如有2种属性，则AttrNum=2
+```
+```python
+public
+```
+```python
+int
+```
+```python
+[] AttrType ;
+```
+```python
+//Attributes[i]表示该值的属性，double为0,boolean为1
+```
+```python
+public
+```
+```python
+String[] SqlColName;
+```
+```python
+//SQL数据库中列名
+```
+```python
+public
+```
+```python
+String[] AttrDescription ;
+```
+```python
+//对Arrtibute的描述
+```
+```python
+public
+```
+```python
+int
+```
+```python
+dataNodeNum ;
+```
+```python
+//数据集的数目
+```
+```python
+public
+```
+```python
+String[] classNum ;
+```
+```python
+//数据分属的各个类的名字
+```
+```python
+//正常情况下，double[i][0]存储SetNum,double[i][1]存储Type,double[i][1]存储tempType
+```
+```python
+//double[i][2-(2+AttrNum-1)]存储属性值
+```
+```python
+//public int addAttrNum ;   //自定义属性数目 ，默认为0 若为>0则启动自定义属性函数
+```
+```python
+public
+```
+```python
+int
+```
+```python
+RuleDeep ;
+```
+```python
+public
+```
+```python
+int
+```
+```python
+NodeLimitNum ;
+```
+```python
+//若节点内数据数小于等于该值，则不再分裂
+```
+```python
+public
+```
+```python
+double
+```
+```python
+NodeLimitEntropy ;
+```
+```python
+//若节点内数据熵小于等于该值，则不再分裂
+```
+```python
+public
+```
+```python
+double
+```
+```python
+NodeDeltaEntropy ;
+```
+```python
+//若节点内数据熵小于等于该值，则不再分裂
+```
+```python
+public
+```
+```python
+ProjectInfo
+```
+```python
+(){
+```
+```python
+//空对象
+```
+```python
+this
+```
+```python
+.AttrNum=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+this
+```
+```python
+.AttrType=
+```
+```python
+null
+```
+```python
+;
+```
+```python
+this
+```
+```python
+.SqlColName=
+```
+```python
+null
+```
+```python
+;
+```
+```python
+this
+```
+```python
+.AttrDescription=
+```
+```python
+null
+```
+```python
+;
+```
+```python
+this
+```
+```python
+.dataNodeNum=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+this
+```
+```python
+.classNum=
+```
+```python
+null
+```
+```python
+;
+```
+```python
+//this.addAttrNum=0 ;
+```
+```python
+this
+```
+```python
+.RuleDeep=
+```
+```python
+100
+```
+```python
+;
+```
+```python
+this
+```
+```python
+.NodeLimitNum=
+```
+```python
+1
+```
+```python
+;
+```
+```python
+this
+```
+```python
+.NodeLimitEntropy=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+this
+```
+```python
+.NodeDeltaEntropy=
+```
+```python
+1
+```
+```python
+;
+    }
+```
+```python
+public
+```
+```python
+ProjectInfo
+```
+```python
+(
+```
+```python
+int
+```
+```python
+AttrNum,
+```
+```python
+int
+```
+```python
+[] AttrType,String[] SqlColName,
+            String[] AttrDescription,
+```
+```python
+int
+```
+```python
+dataNodeNum,String[] classNum,
+```
+```python
+int
+```
+```python
+RuleDeep,
+```
+```python
+int
+```
+```python
+NodeLimitNum,
+```
+```python
+double
+```
+```python
+NodeLimitEntropy,
+```
+```python
+double
+```
+```python
+NodeDeltaEntropy){
+```
+```python
+this
+```
+```python
+.AttrNum=AttrNum ;
+```
+```python
+if
+```
+```python
+(AttrType.length!=
+```
+```python
+this
+```
+```python
+.AttrNum) System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:ProjectInfo_AttrType输入值数目错误"
+```
+```python
+);
+```
+```python
+this
+```
+```python
+.AttrType=AttrType ;
+```
+```python
+if
+```
+```python
+(SqlColName.length!=
+```
+```python
+this
+```
+```python
+.AttrNum) System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:ProjectInfo_SqlColName输入值数目错误"
+```
+```python
+);
+```
+```python
+this
+```
+```python
+.SqlColName=SqlColName ;
+```
+```python
+if
+```
+```python
+(AttrDescription.length!=
+```
+```python
+this
+```
+```python
+.AttrNum) System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:ProjectInfo_AttrDescription输入值数目错误"
+```
+```python
+);
+```
+```python
+this
+```
+```python
+.AttrDescription=AttrDescription ;
+```
+```python
+this
+```
+```python
+.dataNodeNum=dataNodeNum ;
+```
+```python
+this
+```
+```python
+.classNum=classNum ;
+```
+```python
+//this.addAttrNum=addAttrNum ;
+```
+```python
+this
+```
+```python
+.RuleDeep=RuleDeep ;
+```
+```python
+this
+```
+```python
+.NodeLimitNum=NodeLimitNum ;
+```
+```python
+this
+```
+```python
+.NodeLimitEntropy=NodeLimitEntropy ;
+```
+```python
+this
+```
+```python
+.NodeDeltaEntropy=NodeDeltaEntropy ;
+    }
+```
+```python
+public
+```
+```python
+static
+```
+```python
+void
+```
+```python
+main
+```
+```python
+(String[] args){
+```
+```python
+int
+```
+```python
+AttrNum=
+```
+```python
+4
+```
+```python
+;
+```
+```python
+int
+```
+```python
+[] AttrType={
+```
+```python
+0
+```
+```python
+,
+```
+```python
+0
+```
+```python
+,
+```
+```python
+0
+```
+```python
+,
+```
+```python
+0
+```
+```python
+} ;
+        String[] SqlColName={
+```
+```python
+"x"
+```
+```python
+,
+```
+```python
+"y"
+```
+```python
+,
+```
+```python
+"x+y"
+```
+```python
+,
+```
+```python
+"x-y"
+```
+```python
+} ;
+        String[] AttrDescription={
+```
+```python
+"x"
+```
+```python
+,
+```
+```python
+"y"
+```
+```python
+,
+```
+```python
+"x+y"
+```
+```python
+,
+```
+```python
+"x-y"
+```
+```python
+} ;
+```
+```python
+int
+```
+```python
+dataNodeNum=
+```
+```python
+2000
+```
+```python
+;
+        String[] classNum={
+```
+```python
+"Average"
+```
+```python
+,
+```
+```python
+"Normal"
+```
+```python
+} ;
+```
+```python
+//int addAttrNum=0 ;
+```
+```python
+int
+```
+```python
+RuleDeep=
+```
+```python
+8
+```
+```python
+;
+```
+```python
+int
+```
+```python
+NodeLimitNum=
+```
+```python
+10
+```
+```python
+;
+```
+```python
+double
+```
+```python
+NodeLimitEntropy=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+double
+```
+```python
+NodeDeltaEntropy=
+```
+```python
+0
+```
+```python
+;
+        ProjectInfo pInfo=
+```
+```python
+new
+```
+```python
+ProjectInfo(AttrNum,AttrType,SqlColName,
+                AttrDescription,dataNodeNum,classNum,RuleDeep,
+                NodeLimitNum,NodeLimitEntropy,NodeDeltaEntropy) ;
+        FileIO ep=
+```
+```python
+new
+```
+```python
+FileIO() ;
+```
+```python
+int
+```
+```python
+len=
+```
+```python
+2000
+```
+```python
+;
+```
+```python
+int
+```
+```python
+width=
+```
+```python
+3
+```
+```python
+;
+```
+```python
+//excel中的列数
+```
+```python
+int
+```
+```python
+[] nodea={
+```
+```python
+0
+```
+```python
+,
+```
+```python
+0
+```
+```python
+} ;
+```
+```python
+int
+```
+```python
+[] nodeb={width-
+```
+```python
+1
+```
+```python
+,len-
+```
+```python
+1
+```
+```python
+} ;
+```
+```python
+double
+```
+```python
+[][] get1=ep.getArray(
+```
+```python
+"origin"
+```
+```python
+,
+```
+```python
+0
+```
+```python
+,nodea, nodeb) ;
+```
+```python
+double
+```
+```python
+[][] trainset=
+```
+```python
+new
+```
+```python
+double
+```
+```python
+[len][pInfo.AttrNum+
+```
+```python
+3
+```
+```python
+] ;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len;i++){
+            trainset[i][
+```
+```python
+0
+```
+```python
+]=i+
+```
+```python
+1
+```
+```python
+;
+            trainset[i][
+```
+```python
+1
+```
+```python
+]=get1[i][
+```
+```python
+2
+```
+```python
+] ;
+            trainset[i][
+```
+```python
+2
+```
+```python
+]=get1[i][
+```
+```python
+2
+```
+```python
+] ;
+            trainset[i][
+```
+```python
+3
+```
+```python
+]=get1[i][
+```
+```python
+0
+```
+```python
+] ;
+            trainset[i][
+```
+```python
+4
+```
+```python
+]=get1[i][
+```
+```python
+1
+```
+```python
+] ;
+            trainset[i][
+```
+```python
+5
+```
+```python
+]=get1[i][
+```
+```python
+0
+```
+```python
+]+get1[i][
+```
+```python
+1
+```
+```python
+] ;
+            trainset[i][
+```
+```python
+6
+```
+```python
+]=get1[i][
+```
+```python
+0
+```
+```python
+]-get1[i][
+```
+```python
+1
+```
+```python
+] ;
+        }
+        len=
+```
+```python
+1000
+```
+```python
+;
+        width=
+```
+```python
+3
+```
+```python
+;
+        nodeb[
+```
+```python
+0
+```
+```python
+]=width-
+```
+```python
+1
+```
+```python
+;
+        nodeb[
+```
+```python
+1
+```
+```python
+]=len-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+double
+```
+```python
+[][] get2=ep.getArray(
+```
+```python
+"origin"
+```
+```python
+,
+```
+```python
+1
+```
+```python
+,nodea, nodeb) ;
+```
+```python
+double
+```
+```python
+[][] examset=
+```
+```python
+new
+```
+```python
+double
+```
+```python
+[len][pInfo.AttrNum+
+```
+```python
+3
+```
+```python
+] ;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len;i++){
+            examset[i][
+```
+```python
+0
+```
+```python
+]=i+
+```
+```python
+1
+```
+```python
+;
+            examset[i][
+```
+```python
+1
+```
+```python
+]=get2[i][
+```
+```python
+2
+```
+```python
+] ;
+            examset[i][
+```
+```python
+2
+```
+```python
+]=get2[i][
+```
+```python
+2
+```
+```python
+] ;
+            examset[i][
+```
+```python
+3
+```
+```python
+]=get2[i][
+```
+```python
+0
+```
+```python
+] ;
+            examset[i][
+```
+```python
+4
+```
+```python
+]=get2[i][
+```
+```python
+1
+```
+```python
+] ;
+            examset[i][
+```
+```python
+5
+```
+```python
+]=get2[i][
+```
+```python
+0
+```
+```python
+]+get2[i][
+```
+```python
+1
+```
+```python
+] ;
+            examset[i][
+```
+```python
+6
+```
+```python
+]=get2[i][
+```
+```python
+0
+```
+```python
+]-get2[i][
+```
+```python
+1
+```
+```python
+] ;
+        }   
+        RuleNode root=
+```
+```python
+new
+```
+```python
+RuleNode(trainset,
+```
+```python
+0
+```
+```python
+,
+```
+```python
+"0"
+```
+```python
+,pInfo) ;
+        root.PrintRule(
+```
+```python
+"rule"
+```
+```python
+, root, pInfo);
+        RuleNode rule=root ;
+        System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"规则数的节点数为 "
+```
+```python
++rule.getNodeNum(root));
+        Estimate es=
+```
+```python
+new
+```
+```python
+Estimate(rule,trainset,pInfo) ;
+        System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"训练集的错误率为:"
+```
+```python
++es.ErrRatio);
+        es=
+```
+```python
+new
+```
+```python
+Estimate(rule,examset,pInfo) ;
+        System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"检验集的错误率为:"
+```
+```python
++es.ErrRatio);
+```
+```python
+//es=new Estimate(rule,trainset,pInfo) ;
+```
+```python
+//System.out.println("训练集的错误率为:"+es.ErrRatio);
+```
+```python
+}
+
+}
+```
+
+### RuleNode
+
+```python
+package Classification;
+```
+```python
+public
+```
+```python
+class
+```
+```python
+RuleNode {
+```
+```python
+public
+```
+```python
+int
+```
+```python
+deep ;
+```
+```python
+public
+```
+```python
+double
+```
+```python
+formerEntropy ;
+```
+```python
+public
+```
+```python
+double
+```
+```python
+[][] datalist ;
+```
+```python
+public
+```
+```python
+String tag ;
+```
+```python
+public
+```
+```python
+int
+```
+```python
+nodeType=-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+//public int minSetNum=1 ;   //一个有效枝节点的最少数据数 若少于这个，则不再分裂
+```
+```python
+public
+```
+```python
+int
+```
+```python
+divideType=-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+public
+```
+```python
+double
+```
+```python
+valveValue=-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+public
+```
+```python
+double
+```
+```python
+deltaEntropy=
+```
+```python
+1
+```
+```python
+;
+```
+```python
+public
+```
+```python
+RuleNode leftChild=
+```
+```python
+null
+```
+```python
+;
+```
+```python
+public
+```
+```python
+RuleNode rightChild=
+```
+```python
+null
+```
+```python
+;
+```
+```python
+public
+```
+```python
+double
+```
+```python
+laterEntropy=
+```
+```python
+2
+```
+```python
+;
+```
+```python
+public
+```
+```python
+RuleNode
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] input,
+```
+```python
+int
+```
+```python
+deep,String tag,ProjectInfo pInfo){
+```
+```python
+//System.out.println("正在建立第 "+tag+" 号节点");                                  //used for debug
+```
+```python
+//System.out.println("第 "+tag+" 号节点数组数目："+input.length);
+```
+```python
+this
+```
+```python
+.deep=deep ;
+```
+```python
+this
+```
+```python
+.tag=tag ;
+```
+```python
+this
+```
+```python
+.datalist=input ;
+```
+```python
+this
+```
+```python
+.formerEntropy=getDataListEntropy(input) ;
+```
+```python
+//undefined
+```
+```python
+this
+```
+```python
+.nodeType=-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+if
+```
+```python
+((
+```
+```python
+this
+```
+```python
+.deep>pInfo.RuleDeep)||(
+```
+```python
+this
+```
+```python
+.datalist.length<=pInfo.NodeLimitNum)||(
+```
+```python
+this
+```
+```python
+.formerEntropy<=pInfo.NodeLimitEntropy)){
+```
+```python
+//深度过大或者点数过小，或者分来的数组足够纯净，则不再分类
+```
+```python
+this
+```
+```python
+.leftChild=
+```
+```python
+this
+```
+```python
+.rightChild=
+```
+```python
+null
+```
+```python
+;
+```
+```python
+int
+```
+```python
+temp=decideType(
+```
+```python
+this
+```
+```python
+.datalist) ;
+```
+```python
+//undefined
+```
+```python
+if
+```
+```python
+((temp==
+```
+```python
+0
+```
+```python
+)||(temp==
+```
+```python
+1
+```
+```python
+))
+```
+```python
+this
+```
+```python
+.nodeType=temp ;
+```
+```python
+else
+```
+```python
+System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:函数decideType输出值不合法"
+```
+```python
+) ;
+        }
+```
+```python
+else
+```
+```python
+{
+            Hunt hunt=
+```
+```python
+new
+```
+```python
+Hunt(input,pInfo) ;
+```
+```python
+//undefined
+```
+```python
+this
+```
+```python
+.divideType=hunt.type ;
+```
+```python
+this
+```
+```python
+.valveValue=hunt.value_value ;
+```
+```python
+this
+```
+```python
+.laterEntropy=hunt.min_entropy ;
+```
+```python
+this
+```
+```python
+.deltaEntropy=
+```
+```python
+this
+```
+```python
+.formerEntropy-
+```
+```python
+this
+```
+```python
+.laterEntropy ;
+```
+```python
+if
+```
+```python
+(
+```
+```python
+this
+```
+```python
+.deltaEntropy<pInfo.NodeDeltaEntropy){
+```
+```python
+this
+```
+```python
+.leftChild=
+```
+```python
+this
+```
+```python
+.rightChild=
+```
+```python
+null
+```
+```python
+;
+```
+```python
+//if deltaEntropy<0.05 or deep>5 no longer continue
+```
+```python
+int
+```
+```python
+temp=decideType(
+```
+```python
+this
+```
+```python
+.datalist) ;
+```
+```python
+if
+```
+```python
+((temp==
+```
+```python
+0
+```
+```python
+)||(temp==
+```
+```python
+1
+```
+```python
+))
+```
+```python
+this
+```
+```python
+.nodeType=temp ;
+```
+```python
+else
+```
+```python
+System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:函数decideType输出值不合法"
+```
+```python
+) ;
+            }
+```
+```python
+else
+```
+```python
+{
+```
+```python
+//System.out.println("tag1") ;              //used for debug
+```
+```python
+double
+```
+```python
+[][] leftList=Divide(input,
+```
+```python
+this
+```
+```python
+.divideType,
+```
+```python
+this
+```
+```python
+.valveValue,
+```
+```python
+0
+```
+```python
+,pInfo) ;
+```
+```python
+double
+```
+```python
+[][] rightList=Divide(input,
+```
+```python
+this
+```
+```python
+.divideType,
+```
+```python
+this
+```
+```python
+.valveValue,
+```
+```python
+1
+```
+```python
+,pInfo) ;
+```
+```python
+//if (tag=="001") System.out.println(leftChild==null) ;//used for debug
+```
+```python
+//if (leftList==null) System.out.println(tag+"节点的左子树为空") ; else System.out.println(tag+"节点的左子树长"+leftList.length) ;     //used for debug
+```
+```python
+//if (rightList==null) System.out.println(tag+"节点的右子树为空") ; else System.out.println(tag+"节点的右子树长"+rightList.length) ;   //used for debug
+```
+```python
+//if ((leftList==null)||(rightList==null)) this.leftChild=this.rightChild=null ;
+```
+```python
+if
+```
+```python
+((leftList.length==
+```
+```python
+0
+```
+```python
+)||(rightList.length==
+```
+```python
+0
+```
+```python
+)) {
+```
+```python
+this
+```
+```python
+.leftChild=
+```
+```python
+this
+```
+```python
+.rightChild=
+```
+```python
+null
+```
+```python
+;
+```
+```python
+int
+```
+```python
+temp=decideType(
+```
+```python
+this
+```
+```python
+.datalist) ;
+```
+```python
+if
+```
+```python
+((temp==
+```
+```python
+0
+```
+```python
+)||(temp==
+```
+```python
+1
+```
+```python
+))
+```
+```python
+this
+```
+```python
+.nodeType=temp ;
+```
+```python
+else
+```
+```python
+System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:函数decideType输出值不合法"
+```
+```python
+) ;
+                }
+```
+```python
+else
+```
+```python
+{
+```
+```python
+this
+```
+```python
+.leftChild=
+```
+```python
+new
+```
+```python
+RuleNode(leftList,deep+
+```
+```python
+1
+```
+```python
+,tag+
+```
+```python
+'0'
+```
+```python
+,pInfo) ;
+```
+```python
+this
+```
+```python
+.rightChild=
+```
+```python
+new
+```
+```python
+RuleNode(rightList,deep+
+```
+```python
+1
+```
+```python
+,tag+
+```
+```python
+'1'
+```
+```python
+,pInfo) ;
+                }
+            }
+        }
+    }
+```
+```python
+public
+```
+```python
+static
+```
+```python
+double
+```
+```python
+[][]
+```
+```python
+Divide
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] input,
+```
+```python
+int
+```
+```python
+attribute,
+```
+```python
+double
+```
+```python
+valve,
+```
+```python
+int
+```
+```python
+methodtype,ProjectInfo pInfo){
+```
+```python
+double
+```
+```python
+[][] rs=
+```
+```python
+null
+```
+```python
+;
+```
+```python
+//通过attribute value type来将input分成两部分
+```
+```python
+if
+```
+```python
+(methodtype==
+```
+```python
+0
+```
+```python
+){
+```
+```python
+//此处为methodtype=1时的情况，也就是attr value<valve的情况
+```
+```python
+int
+```
+```python
+num=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<input.length;i++){
+```
+```python
+if
+```
+```python
+((attribute>=
+```
+```python
+0
+```
+```python
+)&&(attribute<pInfo.AttrNum)){
+```
+```python
+if
+```
+```python
+(input[i][attribute+
+```
+```python
+3
+```
+```python
+]<=valve) num++ ;
+                }
+```
+```python
+else
+```
+```python
+System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:The value of attribute value illegal"
+```
+```python
+);
+            }
+            rs=
+```
+```python
+new
+```
+```python
+double
+```
+```python
+[num][pInfo.AttrNum+
+```
+```python
+3
+```
+```python
+] ;
+```
+```python
+int
+```
+```python
+index=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<input.length;i++){
+```
+```python
+if
+```
+```python
+((attribute>=
+```
+```python
+0
+```
+```python
+)&&(attribute<pInfo.AttrNum)){
+```
+```python
+if
+```
+```python
+(input[i][attribute+
+```
+```python
+3
+```
+```python
+]<=valve) rs[index++]=input[i] ;
+                }
+```
+```python
+else
+```
+```python
+System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:The value of attribute value illegal"
+```
+```python
+);
+            }
+```
+```python
+return
+```
+```python
+rs ;
+        }
+```
+```python
+else
+```
+```python
+if
+```
+```python
+(methodtype==
+```
+```python
+1
+```
+```python
+){
+```
+```python
+int
+```
+```python
+num=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<input.length;i++){
+```
+```python
+if
+```
+```python
+((attribute>=
+```
+```python
+0
+```
+```python
+)&&(attribute<pInfo.AttrNum)){
+```
+```python
+if
+```
+```python
+(input[i][attribute+
+```
+```python
+3
+```
+```python
+]>valve) num++ ;
+                }
+```
+```python
+else
+```
+```python
+System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:The value of attribute value illegal"
+```
+```python
+);
+            }
+            rs=
+```
+```python
+new
+```
+```python
+double
+```
+```python
+[num][pInfo.AttrNum+
+```
+```python
+3
+```
+```python
+] ;
+```
+```python
+int
+```
+```python
+index=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<input.length;i++){
+```
+```python
+if
+```
+```python
+((attribute>=
+```
+```python
+0
+```
+```python
+)&&(attribute<pInfo.AttrNum)){
+```
+```python
+if
+```
+```python
+(input[i][attribute+
+```
+```python
+3
+```
+```python
+]>valve) rs[index++]=input[i] ;
+                }
+```
+```python
+else
+```
+```python
+System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:The value of attribute value illegal"
+```
+```python
+);
+            }
+```
+```python
+return
+```
+```python
+rs ;
+        }
+```
+```python
+else
+```
+```python
+System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:RuleNode_Divide_methodtype value illegal"
+```
+```python
+);
+```
+```python
+return
+```
+```python
+rs ;
+    }
+```
+```python
+public
+```
+```python
+int
+```
+```python
+getNodeNum
+```
+```python
+(RuleNode node){
+```
+```python
+if
+```
+```python
+(node.nodeType==-
+```
+```python
+1
+```
+```python
+){
+```
+```python
+int
+```
+```python
+num1=getNodeNum(node.leftChild) ;
+```
+```python
+int
+```
+```python
+num2=getNodeNum(node.rightChild) ;
+```
+```python
+return
+```
+```python
+num1+num2+
+```
+```python
+1
+```
+```python
+;
+        }
+```
+```python
+else
+```
+```python
+{
+```
+```python
+return
+```
+```python
+1
+```
+```python
+;
+        }
+    }
+```
+```python
+public
+```
+```python
+void
+```
+```python
+PrintRule
+```
+```python
+(String filename,RuleNode node,ProjectInfo pInfo){
+        String
+```
+```python
+out
+```
+```python
+=
+```
+```python
+""
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<node.deep;i++)
+```
+```python
+out
+```
+```python
++=
+```
+```python
+"| "
+```
+```python
+;
+```
+```python
+if
+```
+```python
+(node.leftChild.nodeType==-
+```
+```python
+1
+```
+```python
+) {
+            FileIO.PrintTxtln(filename,
+```
+```python
+out
+```
+```python
++pInfo.AttrDescription[node.divideType]+
+```
+```python
+"<="
+```
+```python
++node.valveValue);
+            PrintRule(filename,node.leftChild,pInfo) ;
+        }
+```
+```python
+else
+```
+```python
+{
+            FileIO.PrintTxtln(filename,
+```
+```python
+out
+```
+```python
++pInfo.AttrDescription[node.divideType]+
+```
+```python
+"<="
+```
+```python
++node.valveValue+
+```
+```python
+": Class"
+```
+```python
++node.leftChild.nodeType);
+        }
+```
+```python
+if
+```
+```python
+(node.rightChild.nodeType==-
+```
+```python
+1
+```
+```python
+) {
+            FileIO.PrintTxtln(filename,
+```
+```python
+out
+```
+```python
++pInfo.AttrDescription[node.divideType]+
+```
+```python
+">"
+```
+```python
++node.valveValue);
+            PrintRule(filename,node.rightChild,pInfo) ;
+        }
+```
+```python
+else
+```
+```python
+{
+            FileIO.PrintTxtln(filename,
+```
+```python
+out
+```
+```python
++pInfo.AttrDescription[node.divideType]+
+```
+```python
+">"
+```
+```python
++node.valveValue+
+```
+```python
+": Class"
+```
+```python
++node.rightChild.nodeType);
+        }
+    }
+```
+```python
+private
+```
+```python
+static
+```
+```python
+double
+```
+```python
+getDataListEntropy
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] input){
+```
+```python
+//根据输入的二维数组确定datalist的熵
+```
+```python
+DataProperty dp=
+```
+```python
+new
+```
+```python
+DataProperty() ;
+```
+```python
+double
+```
+```python
+rs_entropy=-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+//通过tempType的值来计算irisdata数组的熵
+```
+```python
+//tempType只有3个值，0表示类1，1表示类2，-1表示其他类 一般用于表示异常
+```
+```python
+int
+```
+```python
+num1=
+```
+```python
+0
+```
+```python
+,num2=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<input.length;i++){
+```
+```python
+if
+```
+```python
+(input[i][
+```
+```python
+2
+```
+```python
+]==
+```
+```python
+0
+```
+```python
+) num1++ ;
+```
+```python
+if
+```
+```python
+(input[i][
+```
+```python
+2
+```
+```python
+]==
+```
+```python
+1
+```
+```python
+) num2++ ;
+        }
+        rs_entropy=dp.getEntropy(num1, num2) ;
+```
+```python
+return
+```
+```python
+rs_entropy ;
+    }
+```
+```python
+private
+```
+```python
+static
+```
+```python
+int
+```
+```python
+decideType
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] input){
+```
+```python
+int
+```
+```python
+rs=-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+int
+```
+```python
+num0=
+```
+```python
+0
+```
+```python
+,num1=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<input.length;i++){
+```
+```python
+if
+```
+```python
+(input[i][
+```
+```python
+2
+```
+```python
+]==
+```
+```python
+0
+```
+```python
+) num0++ ;
+```
+```python
+if
+```
+```python
+(input[i][
+```
+```python
+2
+```
+```python
+]==
+```
+```python
+1
+```
+```python
+) num1++ ;
+        }
+```
+```python
+if
+```
+```python
+(num0<num1) rs=
+```
+```python
+1
+```
+```python
+;
+```
+```python
+//有条件的话可以吧num0=num1时node的归属用随机数来实现
+```
+```python
+else
+```
+```python
+rs=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+return
+```
+```python
+rs ;
+    }
+}
+```
+
+### Hunt
+
+```python
+package Classification;
+```
+```python
+public
+```
+```python
+class
+```
+```python
+Hunt {
+```
+```python
+public
+```
+```python
+double
+```
+```python
+min_entropy ;
+```
+```python
+public
+```
+```python
+double
+```
+```python
+value_value ;
+```
+```python
+public
+```
+```python
+int
+```
+```python
+type ;
+```
+```python
+public
+```
+```python
+Hunt
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] dataset,ProjectInfo pInfo){
+```
+```python
+//1. calculate the entropy of initial dataset
+```
+```python
+//2. find best attritube from 4
+```
+```python
+double
+```
+```python
+[][] rs=
+```
+```python
+new
+```
+```python
+double
+```
+```python
+[pInfo.AttrNum][
+```
+```python
+2
+```
+```python
+] ;
+```
+```python
+int
+```
+```python
+mintype=-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+double
+```
+```python
+minentropy=
+```
+```python
+1
+```
+```python
+;
+```
+```python
+double
+```
+```python
+valve_value=-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<pInfo.AttrNum;i++){
+```
+```python
+if
+```
+```python
+(pInfo.AttrType[i]==
+```
+```python
+0
+```
+```python
+) rs[i]=FindBestValve(preDeal(dataset,i,pInfo),pInfo) ;
+```
+```python
+else
+```
+```python
+if
+```
+```python
+(pInfo.AttrType[i]==
+```
+```python
+1
+```
+```python
+) {rs[i]=BoolAttr(dataset,i) ;}
+```
+```python
+///
+```
+```python
+///
+```
+```python
+///
+```
+```python
+undefined
+```
+```python
+else
+```
+```python
+System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR：Hunt_Hunt_pInfo.AttrType["
+```
+```python
++i+
+```
+```python
+"]设定有问题"
+```
+```python
+);
+```
+```python
+//rs[i][0]=entropy rs[i][1]=valve
+```
+```python
+if
+```
+```python
+(rs[i][
+```
+```python
+0
+```
+```python
+]<minentropy){
+                minentropy=rs[i][
+```
+```python
+0
+```
+```python
+] ;
+                valve_value=rs[i][
+```
+```python
+1
+```
+```python
+] ;
+                mintype=i ;
+            }
+        }
+```
+```python
+//3. find the best one and output
+```
+```python
+this
+```
+```python
+.min_entropy=minentropy ;
+```
+```python
+this
+```
+```python
+.value_value=valve_value ;
+```
+```python
+this
+```
+```python
+.type=mintype ;
+    }
+```
+```python
+private
+```
+```python
+static
+```
+```python
+double
+```
+```python
+[]
+```
+```python
+BoolAttr
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] input,
+```
+```python
+int
+```
+```python
+Attr){
+```
+```python
+int
+```
+```python
+total_len=input.length ;
+```
+```python
+int
+```
+```python
+len1=
+```
+```python
+0
+```
+```python
+,len2=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<total_len;i++){
+```
+```python
+if
+```
+```python
+(input[i][
+```
+```python
+3
+```
+```python
++Attr]==
+```
+```python
+0
+```
+```python
+) len1++ ;
+```
+```python
+if
+```
+```python
+(input[i][
+```
+```python
+3
+```
+```python
++Attr]==
+```
+```python
+1
+```
+```python
+) len2++ ;
+        }
+```
+```python
+if
+```
+```python
+((len1+len2)!=total_len) System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:Hunt_BoolAttr_bool变量中有异值"
+```
+```python
+) ;
+        DataProperty dp=
+```
+```python
+new
+```
+```python
+DataProperty() ;
+```
+```python
+double
+```
+```python
+[] rs=
+```
+```python
+new
+```
+```python
+double
+```
+```python
+[
+```
+```python
+2
+```
+```python
+] ;
+        rs[
+```
+```python
+0
+```
+```python
+]=dp.getEntropy(len1, len2) ;
+        rs[
+```
+```python
+1
+```
+```python
+]=
+```
+```python
+0.5
+```
+```python
+;
+```
+```python
+return
+```
+```python
+rs ;
+    }
+```
+```python
+private
+```
+```python
+static
+```
+```python
+double
+```
+```python
+[][]
+```
+```python
+preDeal
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] dataset,
+```
+```python
+int
+```
+```python
+attr,ProjectInfo pInfo){
+```
+```python
+//transfer IrisData[] to int[][] to fit the followign processing
+```
+```python
+if
+```
+```python
+((attr<pInfo.AttrNum)&&(attr>=
+```
+```python
+0
+```
+```python
+)){
+```
+```python
+double
+```
+```python
+[][] rs=
+```
+```python
+new
+```
+```python
+double
+```
+```python
+[dataset.length][
+```
+```python
+3
+```
+```python
+] ;
+```
+```python
+//3 attributes:Attribute Value,Number,,tempType
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<dataset.length;i++){
+                rs[i][
+```
+```python
+0
+```
+```python
+]=dataset[i][attr+
+```
+```python
+3
+```
+```python
+] ;
+                rs[i][
+```
+```python
+1
+```
+```python
+]=dataset[i][
+```
+```python
+0
+```
+```python
+] ;
+                rs[i][
+```
+```python
+2
+```
+```python
+]=dataset[i][
+```
+```python
+2
+```
+```python
+] ;
+```
+```python
+//ATTENTION the taken value is tempTyoe!
+```
+```python
+}
+```
+```python
+return
+```
+```python
+rs ;
+        }
+```
+```python
+else
+```
+```python
+{System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:Hunt_preDeal_type输入值不正确"
+```
+```python
+);
+```
+```python
+return
+```
+```python
+null
+```
+```python
+;}
+    }
+```
+```python
+private
+```
+```python
+static
+```
+```python
+double
+```
+```python
+[]
+```
+```python
+FindBestValve
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] input,ProjectInfo pInfo){
+```
+```python
+//要考虑Type的多值性，最好只有两个值
+```
+```python
+//print(input) ;                            // used for debug
+```
+```python
+double
+```
+```python
+[][] sorted=QuickSort(input,
+```
+```python
+0
+```
+```python
+,input.length-
+```
+```python
+1
+```
+```python
+) ;
+```
+```python
+//1st step:sort the input array
+```
+```python
+//接下来应该要在不同值区间内循环，挑一个熵值最小的。
+```
+```python
+double
+```
+```python
+min_entropy=
+```
+```python
+2
+```
+```python
+;
+```
+```python
+double
+```
+```python
+valve_value=-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+//System.out.println(sorted==null);         // used for debug
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<sorted.length-
+```
+```python
+1
+```
+```python
+;i++){
+```
+```python
+// calculate the entropy of the division whose valve is between i and i+1
+```
+```python
+if
+```
+```python
+(sorted[i][
+```
+```python
+0
+```
+```python
+]!=sorted[i+
+```
+```python
+1
+```
+```python
+][
+```
+```python
+0
+```
+```python
+]){
+```
+```python
+//避免在两个相同值之间分析的情况
+```
+```python
+double
+```
+```python
+temp_entropy=CalculateEntropy(sorted,i) ;
+```
+```python
+if
+```
+```python
+(temp_entropy<min_entropy){
+                    min_entropy=temp_entropy ;
+                    valve_value=(sorted[i][
+```
+```python
+0
+```
+```python
+]+sorted[i+
+```
+```python
+1
+```
+```python
+][
+```
+```python
+0
+```
+```python
+])/
+```
+```python
+2
+```
+```python
+;
+                }
+            }
+        }
+```
+```python
+double
+```
+```python
+[] rs=
+```
+```python
+new
+```
+```python
+double
+```
+```python
+[
+```
+```python
+2
+```
+```python
+] ;
+        rs[
+```
+```python
+0
+```
+```python
+]=min_entropy ;
+        rs[
+```
+```python
+1
+```
+```python
+]=valve_value ;
+```
+```python
+return
+```
+```python
+rs ;
+    }
+```
+```python
+private
+```
+```python
+static
+```
+```python
+double
+```
+```python
+CalculateEntropy
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] sorted,
+```
+```python
+int
+```
+```python
+i) {
+```
+```python
+//can only deal with the data which have only two classes
+```
+```python
+DataProperty dp=
+```
+```python
+new
+```
+```python
+DataProperty() ;
+```
+```python
+//initialization of dataproperty
+```
+```python
+double
+```
+```python
+rs_entropy=-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+//double tagclass=sorted[0][2] ;
+```
+```python
+int
+```
+```python
+num1=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+int
+```
+```python
+num2=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+x=
+```
+```python
+0
+```
+```python
+;x<i+
+```
+```python
+1
+```
+```python
+;x++){
+```
+```python
+if
+```
+```python
+(sorted[x][
+```
+```python
+2
+```
+```python
+]==
+```
+```python
+0
+```
+```python
+) num1++ ;
+```
+```python
+else
+```
+```python
+if
+```
+```python
+(sorted[x][
+```
+```python
+2
+```
+```python
+]==
+```
+```python
+1
+```
+```python
+) num2++ ;
+```
+```python
+else
+```
+```python
+System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR from CalculateEntropy: the value of tempType of a item is -1"
+```
+```python
+);
+        }
+```
+```python
+double
+```
+```python
+entropy1=dp.getEntropy(num1,num2) ;
+```
+```python
+int
+```
+```python
+tnum1=num1+num2 ;
+```
+```python
+//total number of the former sequence
+```
+```python
+num1=
+```
+```python
+0
+```
+```python
+;
+        num2=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+x=i+
+```
+```python
+1
+```
+```python
+;x<sorted.length;x++){
+```
+```python
+if
+```
+```python
+(sorted[x][
+```
+```python
+2
+```
+```python
+]==
+```
+```python
+0
+```
+```python
+) num1++ ;
+```
+```python
+else
+```
+```python
+if
+```
+```python
+(sorted[x][
+```
+```python
+2
+```
+```python
+]==
+```
+```python
+1
+```
+```python
+) num2++ ;
+```
+```python
+else
+```
+```python
+System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR from CalculateEntropy: the value of tempType of a item is -1"
+```
+```python
+);  
+        }
+```
+```python
+double
+```
+```python
+entropy2=dp.getEntropy(num1,num2) ;
+```
+```python
+int
+```
+```python
+tnum2=num1+num2 ;
+        rs_entropy=(entropy1*tnum1+entropy2*tnum2)/(tnum1+tnum2) ;
+```
+```python
+return
+```
+```python
+rs_entropy ;
+    }
+```
+```python
+private
+```
+```python
+static
+```
+```python
+double
+```
+```python
+[][]
+```
+```python
+QuickSort
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] input,
+```
+```python
+int
+```
+```python
+low,
+```
+```python
+int
+```
+```python
+high){
+```
+```python
+if
+```
+```python
+(low>=high)
+```
+```python
+return
+```
+```python
+null
+```
+```python
+;
+```
+```python
+int
+```
+```python
+first=low ;
+```
+```python
+int
+```
+```python
+last=high ;
+```
+```python
+double
+```
+```python
+[] key=input[low] ;
+```
+```python
+while
+```
+```python
+(first<last){
+```
+```python
+while
+```
+```python
+((first<last)&&(input[last][
+```
+```python
+0
+```
+```python
+]>=key[
+```
+```python
+0
+```
+```python
+])) --last ;
+            input[first]=input[last] ;
+```
+```python
+while
+```
+```python
+((first<last)&&(input[first][
+```
+```python
+0
+```
+```python
+]<=key[
+```
+```python
+0
+```
+```python
+])) ++first ;
+            input[last]=input[first] ;
+        }
+        input[first]=key ;
+```
+```python
+double
+```
+```python
+[][] res1,res2 ;
+```
+```python
+if
+```
+```python
+(first-
+```
+```python
+1
+```
+```python
+>low) {res1=QuickSort(input,low,first-
+```
+```python
+1
+```
+```python
+) ;}
+```
+```python
+else
+```
+```python
+if
+```
+```python
+(first-
+```
+```python
+1
+```
+```python
+==low) {
+```
+```python
+double
+```
+```python
+[][] temp={input[low]} ;res1=temp ;}
+```
+```python
+else
+```
+```python
+{res1=
+```
+```python
+null
+```
+```python
+;}
+```
+```python
+if
+```
+```python
+(high>first+
+```
+```python
+1
+```
+```python
+){res2=QuickSort(input,first+
+```
+```python
+1
+```
+```python
+,high) ;}
+```
+```python
+else
+```
+```python
+if
+```
+```python
+(high==first+
+```
+```python
+1
+```
+```python
+){
+```
+```python
+double
+```
+```python
+[][] temp={input[high]} ;res2=temp ;}
+```
+```python
+else
+```
+```python
+{res2=
+```
+```python
+null
+```
+```python
+;}
+```
+```python
+double
+```
+```python
+[][] finalres ;
+        finalres=Combine(res1,res2,key) ;
+```
+```python
+return
+```
+```python
+finalres ;
+    }
+```
+```python
+private
+```
+```python
+static
+```
+```python
+double
+```
+```python
+[][]
+```
+```python
+Combine
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] res1,
+```
+```python
+double
+```
+```python
+[][] res2,
+```
+```python
+double
+```
+```python
+[] key){
+```
+```python
+int
+```
+```python
+len1,len2 ;
+```
+```python
+if
+```
+```python
+(res1==
+```
+```python
+null
+```
+```python
+) len1=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+else
+```
+```python
+len1=res1.length ;
+```
+```python
+if
+```
+```python
+(res2==
+```
+```python
+null
+```
+```python
+) len2=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+else
+```
+```python
+len2=res2.length ;
+```
+```python
+double
+```
+```python
+[][] res=
+```
+```python
+new
+```
+```python
+double
+```
+```python
+[len1+len2+
+```
+```python
+1
+```
+```python
+][
+```
+```python
+3
+```
+```python
+] ;
+```
+```python
+int
+```
+```python
+index=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len1;i++) res[index++]=res1[i] ;
+        res[index++]=key ;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len2;i++) res[index++]=res2[i] ;
+```
+```python
+return
+```
+```python
+res ;
+    }
+}
+```
+
+### Estimate
+
+```python
+package Classification;
+import java.util.*; ;
+```
+```python
+public
+```
+```python
+class
+```
+```python
+Estimate {
+    List<
+```
+```python
+double
+```
+```python
+[]> list0 ;
+    List<
+```
+```python
+double
+```
+```python
+[]> list1 ;
+```
+```python
+double
+```
+```python
+[][] array0 ;
+```
+```python
+double
+```
+```python
+[][] array1 ;
+    RuleNode examtree ;
+```
+```python
+double
+```
+```python
+ErrRatio ;
+```
+```python
+public
+```
+```python
+Estimate
+```
+```python
+(RuleNode rule,
+```
+```python
+double
+```
+```python
+[][] examset,ProjectInfo pInfo){
+```
+```python
+this
+```
+```python
+.list0=
+```
+```python
+new
+```
+```python
+ArrayList<
+```
+```python
+double
+```
+```python
+[]>() ;
+```
+```python
+this
+```
+```python
+.list1=
+```
+```python
+new
+```
+```python
+ArrayList<
+```
+```python
+double
+```
+```python
+[]>() ;
+```
+```python
+this
+```
+```python
+.examtree=examTree(rule,examset,pInfo) ;
+```
+```python
+this
+```
+```python
+.ErrRatio=getErrRatio(
+```
+```python
+this
+```
+```python
+.list0,
+```
+```python
+this
+```
+```python
+.list1) ;
+```
+```python
+this
+```
+```python
+.array0=convert(list0,pInfo) ;
+```
+```python
+this
+```
+```python
+.array1=convert(list1,pInfo) ;
+    }
+```
+```python
+private
+```
+```python
+double
+```
+```python
+getErrRatio
+```
+```python
+(List list0,List list1){
+```
+```python
+double
+```
+```python
+len1=list0.size() ;
+```
+```python
+double
+```
+```python
+len2=list1.size() ;
+```
+```python
+double
+```
+```python
+errnum1=
+```
+```python
+0
+```
+```python
+,errnum2=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len1;i++){
+```
+```python
+double
+```
+```python
+[] temp=(
+```
+```python
+double
+```
+```python
+[])list0.
+```
+```python
+get
+```
+```python
+(i) ;
+```
+```python
+if
+```
+```python
+(temp[
+```
+```python
+2
+```
+```python
+]==
+```
+```python
+1
+```
+```python
+) errnum1++ ;
+        }
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len2;i++){
+```
+```python
+double
+```
+```python
+[] temp=(
+```
+```python
+double
+```
+```python
+[])list1.
+```
+```python
+get
+```
+```python
+(i) ;
+```
+```python
+if
+```
+```python
+(temp[
+```
+```python
+2
+```
+```python
+]==
+```
+```python
+0
+```
+```python
+) errnum2++ ;
+        }
+```
+```python
+double
+```
+```python
+erratio=(errnum1+errnum2)/(len1+len2) ;
+```
+```python
+return
+```
+```python
+erratio  ;       
+    }
+```
+```python
+private
+```
+```python
+double
+```
+```python
+[][]
+```
+```python
+convert
+```
+```python
+(List list,ProjectInfo pInfo){
+```
+```python
+int
+```
+```python
+len=list.size() ;
+```
+```python
+double
+```
+```python
+[][] rs=
+```
+```python
+new
+```
+```python
+double
+```
+```python
+[len][
+```
+```python
+3
+```
+```python
++pInfo.AttrNum] ;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len;i++){
+            rs[i]=(
+```
+```python
+double
+```
+```python
+[])list.
+```
+```python
+get
+```
+```python
+(i) ;
+        }
+```
+```python
+return
+```
+```python
+rs ;
+    }
+```
+```python
+private
+```
+```python
+RuleNode
+```
+```python
+examTree
+```
+```python
+(RuleNode node,
+```
+```python
+double
+```
+```python
+[][] data,ProjectInfo pInfo){
+        node.datalist=data ;
+        node.formerEntropy=getDataListEntropy(data) ;
+```
+```python
+if
+```
+```python
+(node.nodeType==-
+```
+```python
+1
+```
+```python
+) {
+```
+```python
+//this node is not a leaf node
+```
+```python
+double
+```
+```python
+[][] left=RuleNode.Divide(data, node.divideType, node.valveValue,
+```
+```python
+0
+```
+```python
+,pInfo) ;
+```
+```python
+double
+```
+```python
+[][] right=RuleNode.Divide(data, node.divideType, node.valveValue,
+```
+```python
+1
+```
+```python
+,pInfo) ;
+```
+```python
+if
+```
+```python
+(left.length==
+```
+```python
+0
+```
+```python
+) node.leftChild=
+```
+```python
+null
+```
+```python
+;
+```
+```python
+else
+```
+```python
+node.leftChild=examTree(node.leftChild,left,pInfo) ;
+```
+```python
+if
+```
+```python
+(right.length==
+```
+```python
+0
+```
+```python
+) node.rightChild=
+```
+```python
+null
+```
+```python
+;
+```
+```python
+else
+```
+```python
+node.rightChild=examTree(node.rightChild,right,pInfo) ;
+```
+```python
+return
+```
+```python
+node ;
+        }
+```
+```python
+else
+```
+```python
+{
+```
+```python
+// this node is a leaf node
+```
+```python
+node.leftChild=
+```
+```python
+null
+```
+```python
+;
+            node.rightChild=
+```
+```python
+null
+```
+```python
+;
+```
+```python
+int
+```
+```python
+len=node.datalist.length ;
+```
+```python
+//将判定为0或者1的类调入到list0,list1中
+```
+```python
+int
+```
+```python
+num=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+if
+```
+```python
+(node.nodeType==
+```
+```python
+0
+```
+```python
+) {
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len;i++) list0.add(node.datalist[i]) ;
+            }
+```
+```python
+if
+```
+```python
+(node.nodeType==
+```
+```python
+1
+```
+```python
+) {
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len;i++) list1.add(node.datalist[i]) ;
+            }
+```
+```python
+return
+```
+```python
+node ;
+        }
+    }
+```
+```python
+private
+```
+```python
+static
+```
+```python
+double
+```
+```python
+getDataListEntropy
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] input){
+```
+```python
+//根据输入的二维数组确定datalist的熵
+```
+```python
+DataProperty dp=
+```
+```python
+new
+```
+```python
+DataProperty() ;
+```
+```python
+double
+```
+```python
+rs_entropy=-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+//通过tempType的值来计算irisdata数组的熵
+```
+```python
+//tempType只有3个值，0表示类1，1表示类2，-1表示其他类 一般用于表示异常
+```
+```python
+int
+```
+```python
+num1=
+```
+```python
+0
+```
+```python
+,num2=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<input.length;i++){
+```
+```python
+if
+```
+```python
+(input[i][
+```
+```python
+2
+```
+```python
+]==
+```
+```python
+0
+```
+```python
+) num1++ ;
+```
+```python
+if
+```
+```python
+(input[i][
+```
+```python
+2
+```
+```python
+]==
+```
+```python
+1
+```
+```python
+) num2++ ;
+        }
+        rs_entropy=dp.getEntropy(num1, num2) ;
+```
+```python
+return
+```
+```python
+rs_entropy ;
+    }
+}
+```
+
+### FileOP
+
+```python
+package Classification;
+```
+```python
+//import java.io.File;
+```
+```python
+import java.io.* ;
+import jxl.Workbook;
+import jxl.write.Label;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+import jxl.Cell ;
+import jxl.Sheet ;
+```
+```python
+public
+```
+```python
+class
+```
+```python
+FileIO {
+```
+```python
+public
+```
+```python
+FileIO
+```
+```python
+(){
+    }
+```
+```python
+public
+```
+```python
+void
+```
+```python
+PrintDoubleArray
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] input,String filename,ProjectInfo pInfo){
+```
+```python
+try
+```
+```python
+{
+            String rootname=
+```
+```python
+"C:\\Users\\multiangle\\Desktop\\"
+```
+```python
+;  
+            String path=rootname+filename+
+```
+```python
+".xls"
+```
+```python
+;
+            File file=
+```
+```python
+new
+```
+```python
+File(path) ;
+            WritableSheet sheet ;
+            WritableWorkbook book ;
+```
+```python
+if
+```
+```python
+(file.exists()) {
+                Workbook wb=Workbook.getWorkbook(file) ;
+                book=Workbook.createWorkbook(file, wb) ;
+```
+```python
+int
+```
+```python
+sheetnum=book.getNumberOfSheets() ;
+                sheet=book.createSheet(
+```
+```python
+"第"
+```
+```python
++sheetnum+
+```
+```python
+"页"
+```
+```python
+, sheetnum) ;
+                System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"正在第"
+```
+```python
++sheetnum+
+```
+```python
+"页打印double数组"
+```
+```python
+);
+            }
+```
+```python
+else
+```
+```python
+{
+                book=Workbook.createWorkbook(
+```
+```python
+new
+```
+```python
+File(path)) ;
+                sheet=book.createSheet(
+```
+```python
+"第0页"
+```
+```python
+,
+```
+```python
+0
+```
+```python
+) ;
+                System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"正在第0页打印double数组"
+```
+```python
+);
+            }
+```
+```python
+//System.out.println("已获取到需要的表单");
+```
+```python
+String[] name=
+```
+```python
+new
+```
+```python
+String[
+```
+```python
+3
+```
+```python
++pInfo.AttrNum] ;
+            name[
+```
+```python
+0
+```
+```python
+]=
+```
+```python
+"SetNum"
+```
+```python
+;
+            name[
+```
+```python
+1
+```
+```python
+]=
+```
+```python
+"Type"
+```
+```python
+;
+            name[
+```
+```python
+2
+```
+```python
+]=
+```
+```python
+"tempType"
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<pInfo.AttrNum;i++){
+                name[
+```
+```python
+3
+```
+```python
++i]=pInfo.AttrDescription[i] ;
+            }
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<
+```
+```python
+3
+```
+```python
++pInfo.AttrNum;i++){
+                Label temp=
+```
+```python
+new
+```
+```python
+Label(i,
+```
+```python
+0
+```
+```python
+,name[i]) ;
+                sheet.addCell(temp);
+            }
+```
+```python
+int
+```
+```python
+len=input.length ;
+```
+```python
+int
+```
+```python
+row=
+```
+```python
+1
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len;i++){
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+j=
+```
+```python
+0
+```
+```python
+;j<
+```
+```python
+3
+```
+```python
++pInfo.AttrNum;j++){
+                    Label temp=
+```
+```python
+new
+```
+```python
+Label(j,row+i,String.valueOf(input[i][j])) ;
+                    sheet.addCell(temp);
+                }
+            }
+            book.write() ;
+            book.close(); 
+        }
+```
+```python
+catch
+```
+```python
+(Exception e){
+            System.
+```
+```python
+out
+```
+```python
+.println(e) ;
+            System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:ExcelPrint"
+```
+```python
+) ;
+        }
+    }
+```
+```python
+public
+```
+```python
+void
+```
+```python
+PrintDoubleArray
+```
+```python
+(
+```
+```python
+double
+```
+```python
+[][] input,String filename,String description,ProjectInfo pInfo){
+```
+```python
+try
+```
+```python
+{
+            String rootname=
+```
+```python
+"C:\\Users\\multiangle\\Desktop\\"
+```
+```python
+;  
+            String path=rootname+filename+
+```
+```python
+".xls"
+```
+```python
+;
+            File file=
+```
+```python
+new
+```
+```python
+File(path) ;
+            WritableSheet sheet ;
+            WritableWorkbook book ;
+```
+```python
+if
+```
+```python
+(file.exists()) {
+                Workbook wb=Workbook.getWorkbook(file) ;
+                book=Workbook.createWorkbook(file, wb) ;
+```
+```python
+int
+```
+```python
+sheetnum=book.getNumberOfSheets() ;
+                sheet=book.createSheet(
+```
+```python
+"第"
+```
+```python
++sheetnum+
+```
+```python
+"页"
+```
+```python
+, sheetnum) ;
+                System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"正在第"
+```
+```python
++sheetnum+
+```
+```python
+"页打印double数组"
+```
+```python
+);
+            }
+```
+```python
+else
+```
+```python
+{
+                book=Workbook.createWorkbook(
+```
+```python
+new
+```
+```python
+File(path)) ;
+                sheet=book.createSheet(
+```
+```python
+"第0页"
+```
+```python
+,
+```
+```python
+0
+```
+```python
+) ;
+                System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"正在第0页打印double数组"
+```
+```python
+);
+            }
+```
+```python
+//System.out.println("已获取到需要的表单");
+```
+```python
+Label descrip=
+```
+```python
+new
+```
+```python
+Label(
+```
+```python
+0
+```
+```python
+,
+```
+```python
+0
+```
+```python
+,description) ;
+            sheet.addCell(descrip);
+            String[] name=
+```
+```python
+new
+```
+```python
+String[
+```
+```python
+3
+```
+```python
++pInfo.AttrNum] ;
+            name[
+```
+```python
+0
+```
+```python
+]=
+```
+```python
+"SetNum"
+```
+```python
+;
+            name[
+```
+```python
+1
+```
+```python
+]=
+```
+```python
+"Type"
+```
+```python
+;
+            name[
+```
+```python
+2
+```
+```python
+]=
+```
+```python
+"tempType"
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<pInfo.AttrNum;i++){
+                name[
+```
+```python
+3
+```
+```python
++i]=pInfo.AttrDescription[i] ;
+            }
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<
+```
+```python
+3
+```
+```python
++pInfo.AttrNum;i++){
+                Label temp=
+```
+```python
+new
+```
+```python
+Label(i,
+```
+```python
+1
+```
+```python
+,name[i]) ;
+                sheet.addCell(temp);
+            }
+```
+```python
+int
+```
+```python
+len=input.length ;
+```
+```python
+int
+```
+```python
+row=
+```
+```python
+2
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len;i++){
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+j=
+```
+```python
+0
+```
+```python
+;j<
+```
+```python
+3
+```
+```python
++pInfo.AttrNum;j++){
+                    Label temp=
+```
+```python
+new
+```
+```python
+Label(j,row+i,String.valueOf(input[i][j])) ;
+                    sheet.addCell(temp);
+                }
+            }
+            book.write() ;
+            book.close(); 
+        }
+```
+```python
+catch
+```
+```python
+(Exception e){
+            System.
+```
+```python
+out
+```
+```python
+.println(e) ;
+            System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:ExcelPrint"
+```
+```python
+) ;
+        }
+    }
+```
+```python
+public
+```
+```python
+double
+```
+```python
+[][]
+```
+```python
+getArray
+```
+```python
+(String filename,
+```
+```python
+int
+```
+```python
+sheetnum,
+```
+```python
+int
+```
+```python
+[] nodea,
+```
+```python
+int
+```
+```python
+[] nodeb){
+```
+```python
+int
+```
+```python
+left=nodea[
+```
+```python
+0
+```
+```python
+] ;
+```
+```python
+int
+```
+```python
+top=nodea[
+```
+```python
+1
+```
+```python
+] ;
+```
+```python
+int
+```
+```python
+right=nodeb[
+```
+```python
+0
+```
+```python
+] ;
+```
+```python
+int
+```
+```python
+bottom=nodeb[
+```
+```python
+1
+```
+```python
+] ;
+```
+```python
+int
+```
+```python
+len=bottom-top+
+```
+```python
+1
+```
+```python
+;
+```
+```python
+int
+```
+```python
+width=right-left+
+```
+```python
+1
+```
+```python
+;
+```
+```python
+double
+```
+```python
+[][] rs=
+```
+```python
+new
+```
+```python
+double
+```
+```python
+[len][width] ;
+        String root=
+```
+```python
+"C:\\Users\\multiangle\\Desktop\\"
+```
+```python
+;
+```
+```python
+//基本目录为桌面
+```
+```python
+String path=root+filename+
+```
+```python
+".xls"
+```
+```python
+;
+        File file=
+```
+```python
+new
+```
+```python
+File(path) ;
+```
+```python
+if
+```
+```python
+(!file.exists()) {System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:ExcelIO_getArray_File not exists"
+```
+```python
+);
+```
+```python
+return
+```
+```python
+null
+```
+```python
+;}
+```
+```python
+else
+```
+```python
+{
+```
+```python
+try
+```
+```python
+{
+                Workbook book=Workbook.getWorkbook(file) ;
+                Sheet sheet=book.getSheet(sheetnum) ;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len;i++){
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+j=
+```
+```python
+0
+```
+```python
+;j<width;j++){
+                        Cell cell=sheet.getCell(j,i) ;
+```
+```python
+double
+```
+```python
+temp=Double.parseDouble(cell.getContents()) ;
+                        rs[i][j]=temp ;
+                    }
+                }
+```
+```python
+return
+```
+```python
+rs ;
+            }
+```
+```python
+catch
+```
+```python
+(Exception e){
+                System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ERROR:ExcelIO_getArray"
+```
+```python
+);
+                System.
+```
+```python
+out
+```
+```python
+.println(e);
+```
+```python
+return
+```
+```python
+null
+```
+```python
+;
+            }
+        }
+    }
+```
+```python
+public
+```
+```python
+static
+```
+```python
+void
+```
+```python
+PrintTxtln
+```
+```python
+(String filename,String line){
+```
+```python
+try
+```
+```python
+{
+            String root=
+```
+```python
+"C:\\Users\\multiangle\\Desktop\\"
+```
+```python
+;
+```
+```python
+//基本目录为桌面
+```
+```python
+String path=root+filename+
+```
+```python
+".txt"
+```
+```python
+;
+            FileWriter
+```
+```python
+out
+```
+```python
+=
+```
+```python
+new
+```
+```python
+FileWriter(path,
+```
+```python
+true
+```
+```python
+) ;
+```
+```python
+out
+```
+```python
+.write(line+
+```
+```python
+"\r\n"
+```
+```python
+);
+```
+```python
+out
+```
+```python
+.close(); 
+        }
+```
+```python
+catch
+```
+```python
+(Exception e){
+            System.
+```
+```python
+out
+```
+```python
+.println(e);
+        }
+    }
+
+}
+```
+
+### dataSqlGet
+
+```python
+package Classification;
+import java.sql.* ;
+import Classification.ProjectInfo ;
+```
+```python
+public
+```
+```python
+class
+```
+```python
+dataSqlGet {
+```
+```python
+public
+```
+```python
+double
+```
+```python
+[][] dataset ;
+```
+```python
+public
+```
+```python
+dataSqlGet
+```
+```python
+(String DatabaseName,ProjectInfo pInfo){
+        ResultSet rs=getResultSet(DatabaseName) ;
+```
+```python
+this
+```
+```python
+.dataset=ResultDeal(rs,pInfo) ;
+    }
+```
+```python
+private
+```
+```python
+static
+```
+```python
+ResultSet
+```
+```python
+getResultSet
+```
+```python
+(String DatabaseName){
+        String JDriver=
+```
+```python
+"com.microsoft.sqlserver.jdbc.SQLServerDriver"
+```
+```python
+;
+```
+```python
+//SQL数据库引擎
+```
+```python
+String connectDB=
+```
+```python
+"jdbc:sqlserver://127.0.0.1:1433;DatabaseName=multiangle"
+```
+```python
+;
+```
+```python
+//数据源
+```
+```python
+try
+```
+```python
+{
+            Class.forName(JDriver);
+```
+```python
+//加载数据库引擎，返回给定字符串名的类
+```
+```python
+System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"数据库驱动成功"
+```
+```python
+);
+        }
+```
+```python
+catch
+```
+```python
+(ClassNotFoundException e){
+```
+```python
+//e.printStackTrace();
+```
+```python
+System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"加载数据库引擎失败"
+```
+```python
+);
+            System.
+```
+```python
+out
+```
+```python
+.println(e);
+        }     
+        ResultSet rs ;
+```
+```python
+try
+```
+```python
+{
+            String user=
+```
+```python
+"sa"
+```
+```python
+;
+            String password=
+```
+```python
+"admin"
+```
+```python
+;
+            Connection con=DriverManager.getConnection(connectDB,user,password);
+            System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"数据库连接成功"
+```
+```python
+);
+            Statement stmt=con.createStatement() ;
+```
+```python
+//String query="select ROW_NUMBER()over(order by class)as row,* from dbo.[bezdekIris.data]" ;
+```
+```python
+String query=
+```
+```python
+"select ROW_NUMBER()over(order by class)as row,* from "
+```
+```python
++DatabaseName ;
+            rs=stmt.executeQuery(query) ;
+```
+```python
+return
+```
+```python
+rs ;
+        }
+```
+```python
+catch
+```
+```python
+(SQLException e){
+            System.
+```
+```python
+out
+```
+```python
+.println(e) ;
+            System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"数据库内容读取失败"
+```
+```python
+);
+```
+```python
+return
+```
+```python
+null
+```
+```python
+;
+        }
+    }
+```
+```python
+public
+```
+```python
+static
+```
+```python
+double
+```
+```python
+[][]
+```
+```python
+ResultDeal
+```
+```python
+(ResultSet rs,ProjectInfo pInfo){
+        System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"SqlColName.length"
+```
+```python
++pInfo.dataNodeNum) ;
+```
+```python
+try
+```
+```python
+{
+```
+```python
+int
+```
+```python
+len=pInfo.dataNodeNum ;
+            System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"len: "
+```
+```python
++len);
+```
+```python
+double
+```
+```python
+[][] dataset=
+```
+```python
+new
+```
+```python
+double
+```
+```python
+[pInfo.dataNodeNum][pInfo.AttrNum+
+```
+```python
+3
+```
+```python
+] ;
+```
+```python
+int
+```
+```python
+num=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+while
+```
+```python
+((num<len)&&(rs.next())){
+                dataset[num][
+```
+```python
+0
+```
+```python
+]=Integer.parseInt(rs.getString(
+```
+```python
+"row"
+```
+```python
+)) ; 
+                String name=rs.getString(
+```
+```python
+"Class"
+```
+```python
+) ;
+```
+```python
+//这个在录入数据的时候要特别注意
+```
+```python
+int
+```
+```python
+type=-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+int
+```
+```python
+namelen=pInfo.classNum.length ;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<namelen;i++){
+```
+```python
+if
+```
+```python
+(name.equals(pInfo.classNum[i])) type=i ;
+                }
+                dataset[num][
+```
+```python
+1
+```
+```python
+]=type ;
+```
+```python
+//Type
+```
+```python
+dataset[num][
+```
+```python
+2
+```
+```python
+]=-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+//tempType
+```
+```python
+//0-> SetNum ;1->Type;2->tempType;3-(3+attr)->attrvalue
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<pInfo.SqlColName.length;i++){
+                    dataset[num][i+
+```
+```python
+3
+```
+```python
+]=Double.parseDouble(rs.getString(pInfo.SqlColName[i])) ;
+                }
+                num++ ;
+```
+```python
+//System.out.println(setnum+"       "+SL+"      "+SW+"      "+PL+"      "+PW+"      "+type) ;
+```
+```python
+}
+            System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ResultSet 解析完毕"
+```
+```python
+);
+```
+```python
+return
+```
+```python
+dataset ;
+        }
+```
+```python
+catch
+```
+```python
+(SQLException e) {
+            System.
+```
+```python
+out
+```
+```python
+.println(
+```
+```python
+"ResultSet 解析出错"
+```
+```python
+);
+            System.
+```
+```python
+out
+```
+```python
+.println(e);
+```
+```python
+return
+```
+```python
+null
+```
+```python
+;
+        }
+    }
+}
+```
+
+### DataProperty
+
+```python
+package Classification;
+```
+```python
+public
+```
+```python
+class
+```
+```python
+DataProperty {
+```
+```python
+public
+```
+```python
+double
+```
+```python
+getGini
+```
+```python
+(
+```
+```python
+int
+```
+```python
+[] data){
+```
+```python
+int
+```
+```python
+len=data.length ;
+```
+```python
+double
+```
+```python
+sum=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len;i++)  sum+=data[i] ;
+```
+```python
+double
+```
+```python
+pre_gini=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len;i++)  pre_gini+= (data[i]/sum)*(data[i]/sum) ;
+```
+```python
+double
+```
+```python
+gini=
+```
+```python
+1
+```
+```python
+-pre_gini ;
+```
+```python
+return
+```
+```python
+gini ;
+    }
+```
+```python
+public
+```
+```python
+double
+```
+```python
+getGini
+```
+```python
+(
+```
+```python
+int
+```
+```python
+a,
+```
+```python
+int
+```
+```python
+b){
+```
+```python
+double
+```
+```python
+c=a+b ;
+```
+```python
+double
+```
+```python
+gini=
+```
+```python
+1
+```
+```python
+-(a/c)*(a/c)-(b/c)*(b/c) ;
+```
+```python
+return
+```
+```python
+gini ;
+    }
+```
+```python
+public
+```
+```python
+double
+```
+```python
+getEntropy
+```
+```python
+(
+```
+```python
+int
+```
+```python
+[] data){
+```
+```python
+int
+```
+```python
+len=data.length ;
+```
+```python
+double
+```
+```python
+sum=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len;i++)  sum+=data[i] ;
+```
+```python
+//get the summary of all data
+```
+```python
+double
+```
+```python
+pre_entro=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<len;i++) {
+```
+```python
+if
+```
+```python
+(data[i]!=
+```
+```python
+0
+```
+```python
+){
+                pre_entro+=(data[i]/sum)*Math.log(data[i]/sum)/Math.log(
+```
+```python
+2
+```
+```python
+) ;
+            }
+        }
+```
+```python
+double
+```
+```python
+entro=-pre_entro ;
+```
+```python
+return
+```
+```python
+entro ;
+    }
+```
+```python
+public
+```
+```python
+double
+```
+```python
+getEntropy
+```
+```python
+(
+```
+```python
+int
+```
+```python
+ina,
+```
+```python
+int
+```
+```python
+inb){
+```
+```python
+double
+```
+```python
+a=(
+```
+```python
+double
+```
+```python
+)ina ;
+```
+```python
+double
+```
+```python
+b=(
+```
+```python
+double
+```
+```python
+)inb ;
+```
+```python
+double
+```
+```python
+entro ;
+```
+```python
+if
+```
+```python
+((a*b)!=
+```
+```python
+0
+```
+```python
+){
+```
+```python
+double
+```
+```python
+c=a+b ;
+```
+```python
+double
+```
+```python
+a1=(a/c)*mathLog2(a/c) ;
+```
+```python
+double
+```
+```python
+b1=(b/c)*mathLog2(b/c) ;
+            entro=-a1-b1 ;
+```
+```python
+return
+```
+```python
+entro ;
+        }
+```
+```python
+else
+```
+```python
+{  
+            entro=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+return
+```
+```python
+entro ;
+        }
+    }
+```
+```python
+//inner methods----------------------------------------------------
+```
+```python
+private
+```
+```python
+static
+```
+```python
+double
+```
+```python
+mathLog
+```
+```python
+(
+```
+```python
+double
+```
+```python
+data,
+```
+```python
+double
+```
+```python
+bottom){
+```
+```python
+return
+```
+```python
+Math.log(data)/Math.log(bottom) ;
+    }
+```
+```python
+private
+```
+```python
+static
+```
+```python
+double
+```
+```python
+mathLog2
+```
+```python
+(
+```
+```python
+double
+```
+```python
+data){
+```
+```python
+return
+```
+```python
+Math.log(data)/Math.log(
+```
+```python
+2
+```
+```python
+) ;
+    }
+}
+```
+
+### 生成数据集的matlab程序
+
+```python
+clear
+```
+```python
+clc
+```
+```python
+a
+```
+```python
+(
+```
+```python
+1:3
+```
+```python
+,
+```
+```python
+1:2000
+```
+```python
+)=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+a
+```
+```python
+(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+1:1200
+```
+```python
+)=
+```
+```python
+20*rand(1200,1)
+```
+```python
+;
+```
+```python
+a
+```
+```python
+(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+1:1200
+```
+```python
+)=
+```
+```python
+20*rand(1200,1)
+```
+```python
+;
+```
+```python
+a
+```
+```python
+(
+```
+```python
+3
+```
+```python
+,
+```
+```python
+1:1200
+```
+```python
+)=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+a
+```
+```python
+(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+1201:1400
+```
+```python
+)=
+```
+```python
+5+1.5.*randn(200,1)
+```
+```python
+;
+```
+```python
+a
+```
+```python
+(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+1201:1400
+```
+```python
+)=
+```
+```python
+15+1.5.*randn(200,1)
+```
+```python
+;
+```
+```python
+a
+```
+```python
+(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+1401:1600
+```
+```python
+)=
+```
+```python
+15+1.5.*randn(200,1)
+```
+```python
+;
+```
+```python
+a
+```
+```python
+(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+1401:1600
+```
+```python
+)=
+```
+```python
+5+1.5.*randn(200,1)
+```
+```python
+;
+```
+```python
+a
+```
+```python
+(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+1601:2000
+```
+```python
+)=
+```
+```python
+10+2.*randn(400,1)
+```
+```python
+;
+```
+```python
+a
+```
+```python
+(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+1601:2000
+```
+```python
+)=
+```
+```python
+10+2.*randn(400,1)
+```
+```python
+;
+```
+```python
+a
+```
+```python
+(
+```
+```python
+3
+```
+```python
+,
+```
+```python
+1201:2000
+```
+```python
+)=
+```
+```python
+1
+```
+```python
+;
+```
+```python
+plot
+```
+```python
+(
+```
+```python
+a
+```
+```python
+(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+1:1200
+```
+```python
+),
+```
+```python
+a
+```
+```python
+(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+1:1200
+```
+```python
+),'
+```
+```python
+y.
+```
+```python
+')
+```
+```python
+hold
+```
+```python
+on
+```
+```python
+plot
+```
+```python
+(
+```
+```python
+a
+```
+```python
+(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+1201:2000
+```
+```python
+),
+```
+```python
+a
+```
+```python
+(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+1201:2000
+```
+```python
+),'
+```
+```python
+r.
+```
+```python
+')
+```
+```python
+c
+```
+```python
+=
+```
+```python
+a'
+```
+```python
+;
+```
+```python
+xlswrite
+```
+```python
+('
+```
+```python
+C:
+```
+```python
+\
+```
+```python
+Users
+```
+```python
+\
+```
+```python
+multiangle
+```
+```python
+\
+```
+```python
+Desktop
+```
+```python
+\
+```
+```python
+origin.xlsx
+```
+```python
+',
+```
+```python
+c
+```
+```python
+,
+```
+```python
+1
+```
+```python
+)
+```
+```python
+b
+```
+```python
+(
+```
+```python
+1:3
+```
+```python
+,
+```
+```python
+1:1000
+```
+```python
+)=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+b
+```
+```python
+(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+1:600
+```
+```python
+)=
+```
+```python
+20*rand(600,1)
+```
+```python
+;
+```
+```python
+b
+```
+```python
+(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+1:600
+```
+```python
+)=
+```
+```python
+20*rand(600,1)
+```
+```python
+;
+```
+```python
+b
+```
+```python
+(
+```
+```python
+3
+```
+```python
+,
+```
+```python
+1:600
+```
+```python
+)=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+b
+```
+```python
+(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+601:700
+```
+```python
+)=
+```
+```python
+5+1.5.*randn(100,1)
+```
+```python
+;
+```
+```python
+b
+```
+```python
+(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+601:700
+```
+```python
+)=
+```
+```python
+15+1.5.*randn(100,1)
+```
+```python
+;
+```
+```python
+b
+```
+```python
+(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+701:800
+```
+```python
+)=
+```
+```python
+15+1.5.*randn(100,1)
+```
+```python
+;
+```
+```python
+b
+```
+```python
+(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+701:800
+```
+```python
+)=
+```
+```python
+5+1.5.*randn(100,1)
+```
+```python
+;
+```
+```python
+b
+```
+```python
+(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+801:1000
+```
+```python
+)=
+```
+```python
+10+2.*randn(200,1)
+```
+```python
+;
+```
+```python
+b
+```
+```python
+(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+801:1000
+```
+```python
+)=
+```
+```python
+10+2.*randn(200,1)
+```
+```python
+;
+```
+```python
+b
+```
+```python
+(
+```
+```python
+3
+```
+```python
+,
+```
+```python
+601:1000
+```
+```python
+)=
+```
+```python
+1
+```
+```python
+;
+```
+```python
+hold
+```
+```python
+on
+```
+```python
+plot
+```
+```python
+(
+```
+```python
+b
+```
+```python
+(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+1:600
+```
+```python
+),
+```
+```python
+b
+```
+```python
+(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+1:600
+```
+```python
+),'
+```
+```python
+g.
+```
+```python
+')
+```
+```python
+hold
+```
+```python
+on
+```
+```python
+plot
+```
+```python
+(
+```
+```python
+b
+```
+```python
+(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+601:1000
+```
+```python
+),
+```
+```python
+b
+```
+```python
+(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+601:1000
+```
+```python
+),'
+```
+```python
+b.
+```
+```python
+')
+```
+```python
+d
+```
+```python
+=
+```
+```python
+b'
+```
+```python
+xlswrite
+```
+```python
+('
+```
+```python
+C:
+```
+```python
+\
+```
+```python
+Users
+```
+```python
+\
+```
+```python
+multiangle
+```
+```python
+\
+```
+```python
+Desktop
+```
+```python
+\
+```
+```python
+origin.xlsx
+```
+```python
+',
+```
+```python
+d
+```
+```python
+,
+```
+```python
+2
+```
+```python
+)
+```
+

@@ -1,0 +1,36 @@
+
+# 常用CSS样式1：文本样式 - 尹成的技术博客 - CSDN博客
+
+2018年11月14日 16:13:34[尹成](https://me.csdn.net/yincheng01)阅读数：47
+
+
+\#css基本语法及页面引用
+\#\#css基本语法
+css的定义方法是：
+选择器 { 属性:值; 属性:值; 属性:值;}
+选择器是将样式和页面元素关联起来的名称，属性是希望设置的样式属性每个属性有一个或多个值。代码示例：
+`div{ width:100px; height:100px; color:red }`\#\#css页面引入方法：
+1、外联式：通过link标签，链接到外部样式表到页面中。
+`<link rel="stylesheet" type="text/css" href="css/main.css">`2、嵌入式：通过style标签，在网页上创建嵌入的样式表。
+`<style type="text/css">
+    div{ width:100px; height:100px; color:red }
+    ......
+</style>`3、内联式：通过标签的style属性，在标签上直接写样式。
+`<div style="width:100px; height:100px; color:red ">......</div>`\#\#css文本设置
+常用的应用文本的css样式：
+color 设置文字的颜色，如：color:red;
+font-size 设置文字的大小，如：font-size:12px;
+font-family 设置文字的字体，如：font-family:'微软雅黑';
+font-style 设置字体是否倾斜，如：font-style:'normal';设置不倾斜，font-style:'italic';设置文字倾斜
+font-weight 设置文字是否加粗，如：font-weight:bold; 设置加粗font-weight:normal设置不加粗
+font 同时设置文字的几个属性，写的顺序有兼容问题，建议按照如下顺序写： font：是否加粗 字号/行高 字体；如：font:normal 12px/36px '微软雅黑';
+line-height 设置文字的行高，如：line-height:24px;
+text-decoration 设置文字的下划线，如：text-decoration:none; 将文字下划线去掉
+text-indent 设置文字首行缩进，如：text-indent:24px; 设置文字首行缩进24px
+text-align 设置文字水平对齐方式，如text-align:center设置文字水平居中
+学院Go语言视频主页
+[https://edu.csdn.net/lecturer/1928](https://edu.csdn.net/lecturer/1928)
+[清华团队带你实战区块链开发](https://ke.qq.com/course/344443?tuin=3d17195d)
+扫码获取海量视频及源码   QQ群：721929980
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20181114143613461.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3lpbmNoZW5nMDE=,size_16,color_FFFFFF,t_70)
+

@@ -1,0 +1,279 @@
+
+# 6. 3Sum Closest - OraYang的博客 - CSDN博客
+
+2017年09月11日 09:31:04[OraYang](https://me.csdn.net/u010665216)阅读数：123个人分类：[Leetcode																](https://blog.csdn.net/u010665216/article/category/7026962)
+所属专栏：[基础算法](https://blog.csdn.net/column/details/16604.html)
+
+
+
+## 题目
+Given an array S of n integers, find three integers in S such that the sum is closest to a given number, target. Return the sum of the three integers. You may assume that each input would have exactly one solution.
+`For example, given array S = {-1 2 1 -4}, and target = 1.
+The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).`
+## 思路
+本题的解题思路可以参考上一篇博文：[3Sum](http://blog.csdn.net/u010665216/article/details/77923123)，具体解题思路和3Sum差不多，代码框架直接讨论，本质上比3Sum还简单，因为不需要去重，不多说了，上代码
+## 代码
+```python
+class Solution {
+public:
+```
+```python
+int
+```
+```python
+threeSumClosest(
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>& nums,
+```
+```python
+int
+```
+```python
+target) {
+```
+```python
+if
+```
+```python
+(nums.
+```
+```python
+size
+```
+```python
+()<
+```
+```python
+3
+```
+```python
+)
+```
+```python
+return
+```
+```python
+9999999999
+```
+```python
+;
+```
+```python
+int
+```
+```python
+min
+```
+```python
+= nums[
+```
+```python
+0
+```
+```python
+]+nums[
+```
+```python
+1
+```
+```python
+]+nums[
+```
+```python
+2
+```
+```python
+],res;
+```
+```python
+sort
+```
+```python
+(nums.begin(),nums.end());
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<nums.
+```
+```python
+size
+```
+```python
+()-
+```
+```python
+2
+```
+```python
+;i++)
+        {
+```
+```python
+int
+```
+```python
+l = i+
+```
+```python
+1
+```
+```python
+,r = nums.
+```
+```python
+size
+```
+```python
+()-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+while
+```
+```python
+(l<r)
+            {
+                res = nums[i]+nums[l]+nums[r];
+```
+```python
+if
+```
+```python
+(nums[i]+nums[l]+nums[r]==target)
+                {
+```
+```python
+return
+```
+```python
+target;
+                }
+```
+```python
+else
+```
+```python
+if
+```
+```python
+(nums[i]+nums[l]+nums[r]<target)
+                {
+```
+```python
+min
+```
+```python
+=
+```
+```python
+abs
+```
+```python
+(
+```
+```python
+min
+```
+```python
+-target)<
+```
+```python
+abs
+```
+```python
+(res-target)?
+```
+```python
+min
+```
+```python
+:res;
+                    l++;
+                }
+```
+```python
+else
+```
+```python
+if
+```
+```python
+(nums[i]+nums[l]+nums[r]>target)
+                {
+```
+```python
+min
+```
+```python
+=
+```
+```python
+abs
+```
+```python
+(
+```
+```python
+min
+```
+```python
+-target)<
+```
+```python
+abs
+```
+```python
+(res-target)?
+```
+```python
+min
+```
+```python
+:res;
+                    r--;
+                }
+
+            }
+        }
+```
+```python
+return
+```
+```python
+min
+```
+```python
+;  
+    }
+};
+```
+

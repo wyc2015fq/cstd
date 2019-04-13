@@ -16,7 +16,6 @@ MARKDOWN = {
     'b': ('**', '**'),
     'i': ('*', '*'),
     'del': ('~~', '~~'),
-    'hr': ('\n---', '\n\n'),
     'td': ('|', ''),
     'th': ('|', ''),
     'span-katex-inline': ('$', '$'),
@@ -27,6 +26,8 @@ MARKDOWN = {
     'code-php': ('\n```php\n', '\n```\n'),
     'code-java': ('\n```java\n', '\n```\n'),
     'code-cpp': ('\n```cpp\n', '\n```\n'),
+    'code-matlab': ('\n```matlab\n', '\n```\n'),
+    'code-bash': ('\n```bash\n', '\n```\n'),
     'e_p': ('', '\n')
 }
 # coding = utf-8
@@ -107,7 +108,7 @@ class MyHTMLParser(HTMLParser):
             self.is_end = 1
 
         if tag=='span' and 'class' in attrs_dict and 'id' in attrs_dict:
-            if attrs_dict['id'].find("MathJax-Span")>=0 or (attrs_dict['class'] in ['mo', 'mi']):
+            if attrs_dict['id'].find("MathJax")>=0 or (attrs_dict['class'] in ['mo', 'mi']):
                 is_skip = 1
 
         if tag=='div' and 'id' in attrs_dict:
@@ -144,13 +145,18 @@ class MyHTMLParser(HTMLParser):
             attr['attr'] = 'code-unkown'
             attr['attr'] = 'code-inline'
             if 'class' in attrs_dict:
-                for l in ['java', 'python', 'php', 'cpp']:
+                for l in ['java', 'python', 'php', 'cpp', 'matlab', 'bash']:
                     if attrs_dict['class'].find(l)>=0:
                         attr['attr'] = 'code-'+l
+                for l in ['language-py']:
+                        attr['attr'] = 'code-python'
 
         if len(self.skip_stack)==1:
             if tag=='br' and self.is_end==0:
                 self.markdown+='\n'
+
+            if tag=='hr' and self.is_end==0:
+                self.markdown+='\n---\n\n'
             if 'data-original-src' in attrs_dict:
                 attrs_dict['src'] = attrs_dict['data-original-src']
 
@@ -167,6 +173,8 @@ class MyHTMLParser(HTMLParser):
         if is_skip==1:
             self.skip_stack.append(tt)
 
+        if self.all_tag_stack[-1][1]["attr"] in MARKDOWN:
+            attr["attr"] = self.all_tag_stack[-1][1]["attr"]
         self.all_tag_stack.append((tag, attr))
 
     def handle_endtag(self,tag):
@@ -177,7 +185,7 @@ class MyHTMLParser(HTMLParser):
             return
         if tag in ['p', 'li','div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             self.markdown+='\n'
-        
+
         if tag in ['tr']:
             self.markdown+='|\n'
 
@@ -209,17 +217,18 @@ class MyHTMLParser(HTMLParser):
         if 'title' ==tag:
             data1 = data1.replace('/', '-').replace('\\', '-').replace('*', '-')
             self.title = data
-            
+
         data1 = data1.replace("\r", "")
         if len(attrs['attr'])<4 or attrs['attr'][0:4]!='code':
-            data1 = data1.replace("$", "\\$")
+            data1 = data1.replace("$$", "\n$$\n")
             data1 = data1.replace("#", "\\#")
+
         if tag in MARKDOWN:
             data1 = data1.replace("\n", "")
         #data1 = data1.replace("\(", "$").replace("\)", "$")
 
         if 'href' in attrs:
-            data1 = '['+data1+']('+attrs['href']+')'
+            data1 = '['+data1.strip()+']('+attrs['href']+')'
 
 
         if tag=='annotation':
@@ -232,8 +241,6 @@ class MyHTMLParser(HTMLParser):
         if len(data1)>0:
             if attr in MARKDOWN:
                 t = MARKDOWN[attr]
-                if 'span-katex-display'==attr:
-                    asdf=0
                 data1 = t[0]+data1+t[1]
 
         self.markdown+=data1

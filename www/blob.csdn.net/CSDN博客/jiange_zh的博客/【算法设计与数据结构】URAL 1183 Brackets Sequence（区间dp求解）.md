@@ -1,0 +1,845 @@
+
+# 【算法设计与数据结构】URAL 1183.Brackets Sequence（区间dp求解） - jiange_zh的博客 - CSDN博客
+
+
+2015年11月23日 13:58:44[jiange_zh](https://me.csdn.net/jiange_zh)阅读数：668
+
+
+
+## 题目链接：
+> [http://acm.timus.ru/problem.aspx?space=1&num=1183](http://acm.timus.ru/problem.aspx?space=1&num=1183)
+
+## 题目大意：
+定义正规的括号序列如下:
+1. 空序列是一个正规的括号序列
+2. 如果S是一个正规的括号序列, 那么(S) 和[S] 也都是正规的括号序列。
+3. 如果A和B是正规的括号序列, 那么AB也是一个正规的括号序列。
+现给定一个括号序列A（只包含小括号和中括号，可能为空序列），求一个正规括号序列B，使得A包含于B，而且B的长度是满足条件的序列中最小的。
+## 思路：
+我们用dp[i][j]来表示包含子序列s[i…j]的最短正规括号序列需要添加的括号数，则由定义的2和3可知：
+如果 s[i]与s[j]匹配，
+`dp[i][j] = min{dp[i][k] + dp[k+1][j], dp[i+1][j-1]}，i <= k < j；`否则，
+`dp[i][j] = min{dp[i][k] + dp[k+1][j]}，i <= k < j；`以上便是状态转移方程，不过题目要求输出结果序列，所以我们需要标记分解的位置，然后递归打印答案。这可以通过一个mark数组来实现：如果序列不可分解为两个子序列，则mark[i][j] = -1，如果在k处分解，则mark[i][j] = k。
+注意，输入可能为空，所以gets来读取一行。
+## 算法步骤：
+### 1） 初始化边界条件：
+`//单个括号，必然需要添加1个括号与其匹配
+dp[i][i] = 1;`
+### 2） 根据状态转移方程动态规划求解：
+状态转移方程中一共有3个变量：i，j，k，由分解的性质可知，长的序列依赖于短的序列，所以我们要保证短的序列先算。我们在最外层循环设置一个变量l，表示序列的长度，2 <= l <= n，则1 <= i <= n-l+1，  j = i+l-1，之后对每个i，用k来遍历划分点，i <= k < j。
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+l =
+```
+```python
+2
+```
+```python
+; l <= n; l++)
+{
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i =
+```
+```python
+1
+```
+```python
+; i <= n-l+
+```
+```python
+1
+```
+```python
+; i++)
+    {
+```
+```python
+int
+```
+```python
+j = i+l-
+```
+```python
+1
+```
+```python
+;
+        dp[i][j] = INF;
+```
+```python
+if
+```
+```python
+(s[i-
+```
+```python
+1
+```
+```python
+]==
+```
+```python
+'('
+```
+```python
+&&s[j-
+```
+```python
+1
+```
+```python
+]==
+```
+```python
+')'
+```
+```python
+|| s[i-
+```
+```python
+1
+```
+```python
+]==
+```
+```python
+'['
+```
+```python
+&&s[j-
+```
+```python
+1
+```
+```python
+]==
+```
+```python
+']'
+```
+```python
+)
+        {
+```
+```python
+if
+```
+```python
+(dp[i+
+```
+```python
+1
+```
+```python
+][j-
+```
+```python
+1
+```
+```python
+] < dp[i][j])    
+                dp[i][j] = dp[i+
+```
+```python
+1
+```
+```python
+][j-
+```
+```python
+1
+```
+```python
+];
+        }
+        mark[i][j] = -
+```
+```python
+1
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+k = i; k < j; k++)
+        {
+```
+```python
+if
+```
+```python
+(dp[i][k]+dp[k+
+```
+```python
+1
+```
+```python
+][j] < dp[i][j])
+            {
+                dp[i][j] = dp[i][k] + dp[k+
+```
+```python
+1
+```
+```python
+][j];
+                mark[i][j] = k;
+            }
+        }
+    }
+}
+```
+### 3） 打印结果：
+根据递推关系，我们可以用printAns（1, n）递归地打印出我们的结果。对于printAns（i, j）关系如下：
+如果 i > j，返回；
+如果i = j，打印一对括号，返回；
+如果i < j，
+如果序列不用划分，则打印s[i]，打印printAns(i+1,j-1)，再打印s[i]对应的匹配括号；
+否则，打印printAns(i,k)和printAns(k+1，j)，其中k为划分点。
+## 算法复杂度：
+O（n^3）
+## 源程序：
+```python
+#include <iostream>
+```
+```python
+#include <cstring>
+```
+```python
+#include <algorithm>
+```
+```python
+#include <cstdio>
+```
+```python
+using
+```
+```python
+namespace
+```
+```python
+std
+```
+```python
+;
+```
+```python
+const
+```
+```python
+int
+```
+```python
+INF =
+```
+```python
+99999999
+```
+```python
+;
+```
+```python
+char
+```
+```python
+s[
+```
+```python
+120
+```
+```python
+];
+```
+```python
+int
+```
+```python
+dp[
+```
+```python
+120
+```
+```python
+][
+```
+```python
+120
+```
+```python
+];
+```
+```python
+int
+```
+```python
+mark[
+```
+```python
+120
+```
+```python
+][
+```
+```python
+120
+```
+```python
+];
+```
+```python
+void
+```
+```python
+printAns(
+```
+```python
+int
+```
+```python
+i,
+```
+```python
+int
+```
+```python
+j)
+{
+```
+```python
+if
+```
+```python
+(i > j)
+```
+```python
+return
+```
+```python
+;
+```
+```python
+if
+```
+```python
+(i == j)
+    {
+```
+```python
+if
+```
+```python
+(s[i-
+```
+```python
+1
+```
+```python
+] ==
+```
+```python
+'('
+```
+```python
+|| s[i-
+```
+```python
+1
+```
+```python
+] ==
+```
+```python
+')'
+```
+```python
+)
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"()"
+```
+```python
+;
+```
+```python
+else
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"[]"
+```
+```python
+;
+```
+```python
+return
+```
+```python
+;
+    }
+```
+```python
+if
+```
+```python
+(mark[i][j] == -
+```
+```python
+1
+```
+```python
+)
+    {
+```
+```python
+if
+```
+```python
+(s[i-
+```
+```python
+1
+```
+```python
+] ==
+```
+```python
+'('
+```
+```python
+)
+        {
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+'('
+```
+```python
+;
+            printAns(i+
+```
+```python
+1
+```
+```python
+, j-
+```
+```python
+1
+```
+```python
+);
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+')'
+```
+```python
+;
+        }
+```
+```python
+else
+```
+```python
+{
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+'['
+```
+```python
+;
+            printAns(i+
+```
+```python
+1
+```
+```python
+, j-
+```
+```python
+1
+```
+```python
+);
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+']'
+```
+```python
+;
+        }
+    }
+```
+```python
+else
+```
+```python
+{
+        printAns(i,mark[i][j]);
+        printAns(mark[i][j]+
+```
+```python
+1
+```
+```python
+,j);
+    }
+}
+```
+```python
+int
+```
+```python
+main()
+{
+    gets(s);
+```
+```python
+int
+```
+```python
+n =
+```
+```python
+strlen
+```
+```python
+(s);
+```
+```python
+if
+```
+```python
+(!n)
+    {
+```
+```python
+cout
+```
+```python
+<<endl;
+    }
+```
+```python
+else
+```
+```python
+{
+```
+```python
+memset
+```
+```python
+(dp,
+```
+```python
+0
+```
+```python
+,
+```
+```python
+sizeof
+```
+```python
+(dp));
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i =
+```
+```python
+1
+```
+```python
+; i <= n; i++)
+            dp[i][i] =
+```
+```python
+1
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+l =
+```
+```python
+2
+```
+```python
+; l <= n; l++)
+        {
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i =
+```
+```python
+1
+```
+```python
+; i <= n-l+
+```
+```python
+1
+```
+```python
+; i++)
+            {
+```
+```python
+int
+```
+```python
+j = i+l-
+```
+```python
+1
+```
+```python
+;
+                dp[i][j] = INF;
+```
+```python
+if
+```
+```python
+(s[i-
+```
+```python
+1
+```
+```python
+]==
+```
+```python
+'('
+```
+```python
+&&s[j-
+```
+```python
+1
+```
+```python
+]==
+```
+```python
+')'
+```
+```python
+|| s[i-
+```
+```python
+1
+```
+```python
+]==
+```
+```python
+'['
+```
+```python
+&&s[j-
+```
+```python
+1
+```
+```python
+]==
+```
+```python
+']'
+```
+```python
+)
+                {
+```
+```python
+if
+```
+```python
+(dp[i+
+```
+```python
+1
+```
+```python
+][j-
+```
+```python
+1
+```
+```python
+] < dp[i][j])    
+                        dp[i][j] = dp[i+
+```
+```python
+1
+```
+```python
+][j-
+```
+```python
+1
+```
+```python
+];
+                }
+                mark[i][j] = -
+```
+```python
+1
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+k = i; k < j; k++)
+                {
+```
+```python
+if
+```
+```python
+(dp[i][k]+dp[k+
+```
+```python
+1
+```
+```python
+][j] < dp[i][j])
+                    {
+                        dp[i][j] = dp[i][k] + dp[k+
+```
+```python
+1
+```
+```python
+][j];
+                        mark[i][j] = k;
+                    }
+                }
+            }
+        }
+        printAns(
+```
+```python
+1
+```
+```python
+, n);
+```
+```python
+cout
+```
+```python
+<<endl; 
+    }
+```
+```python
+return
+```
+```python
+0
+```
+```python
+;
+}
+```
+

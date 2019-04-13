@@ -1,0 +1,488 @@
+
+# 43. Multiply Strings - OraYang的博客 - CSDN博客
+
+2017年09月17日 16:11:15[OraYang](https://me.csdn.net/u010665216)阅读数：121个人分类：[Leetcode																](https://blog.csdn.net/u010665216/article/category/7026962)
+所属专栏：[基础算法](https://blog.csdn.net/column/details/16604.html)
+
+
+
+## 题目
+Given two non-negative integers num1 and num2 represented as strings, return the product of num1 and num2.
+Note:
+The length of both num1 and num2 is < 110.
+Both num1 and num2 contains only digits 0-9.
+Both num1 and num2 does not contain any leading zero.
+You must not use any built-in BigInteger library or convert the inputs to integer directly.
+## 思路
+这道题目比我以前[Add Strings](http://blog.csdn.net/u010665216/article/details/77141887)复杂一些，但是本题的解答利用了Add Strings中的函数，思路如下：
+> step1.求一个数的每一位与另一个数的乘积，存到
+> vector<string>
+> 数组中,再逐步添0，保证每个字符串中的数字，位数对齐，最后调用Add Strings，求数组中string的和，思路很简单清晰，就是代码有点多
+
+## 代码
+```python
+class
+```
+```python
+Solution {
+```
+```python
+public
+```
+```python
+:
+```
+```python
+string
+```
+```python
+multiply(
+```
+```python
+string
+```
+```python
+num1,
+```
+```python
+string
+```
+```python
+num2) {
+```
+```python
+int
+```
+```python
+carry=
+```
+```python
+0
+```
+```python
+,multi=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+if
+```
+```python
+(num1==
+```
+```python
+"0"
+```
+```python
+||num2==
+```
+```python
+"0"
+```
+```python
+)
+```
+```python
+return
+```
+```python
+"0"
+```
+```python
+;
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+string
+```
+```python
+>
+```
+```python
+s;
+```
+```python
+//求num2每个位与num1的乘积，保存在s中
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=num2.size()-
+```
+```python
+1
+```
+```python
+;i>=
+```
+```python
+0
+```
+```python
+;i--)
+        {
+```
+```python
+string
+```
+```python
+res =
+```
+```python
+""
+```
+```python
+;
+            carry =
+```
+```python
+0
+```
+```python
+;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+j=num1.size()-
+```
+```python
+1
+```
+```python
+;j>=
+```
+```python
+0
+```
+```python
+;j--)
+            {
+                multi = (num2[i]-
+```
+```python
+'0'
+```
+```python
+)*(num1[j]-
+```
+```python
+'0'
+```
+```python
+);
+                multi+=carry;
+                carry = multi /
+```
+```python
+10
+```
+```python
+;
+                multi %=
+```
+```python
+10
+```
+```python
+;
+                res +=to_string(multi);
+            }
+```
+```python
+if
+```
+```python
+(carry)
+                res +=to_string(carry);
+            reverse(res.begin(),res.end());
+```
+```python
+//注意反转
+```
+```python
+s.push_back(res);
+        }
+```
+```python
+//各字符串末尾添0，保证各个位对齐
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+z =
+```
+```python
+0
+```
+```python
+;z<s.size();z++)
+        {
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=z;i>
+```
+```python
+0
+```
+```python
+;i--)
+                s[z]+=
+```
+```python
+'0'
+```
+```python
+;
+        }
+```
+```python
+string
+```
+```python
+str =
+```
+```python
+"0"
+```
+```python
+;
+```
+```python
+//求和
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<s.size();i++)
+        {
+            str = addStrings(str,s[i]);
+        }
+```
+```python
+return
+```
+```python
+str;
+    }
+```
+```python
+private
+```
+```python
+:
+```
+```python
+string
+```
+```python
+addStrings(
+```
+```python
+string
+```
+```python
+num1,
+```
+```python
+string
+```
+```python
+num2) {
+```
+```python
+int
+```
+```python
+i =num1.size()-
+```
+```python
+1
+```
+```python
+,j=num2.size()-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+int
+```
+```python
+carry =
+```
+```python
+0
+```
+```python
+;
+```
+```python
+string
+```
+```python
+res =
+```
+```python
+""
+```
+```python
+;
+```
+```python
+while
+```
+```python
+(i>=
+```
+```python
+0
+```
+```python
+||j>=
+```
+```python
+0
+```
+```python
+||carry)  
+        {
+```
+```python
+int
+```
+```python
+sum =
+```
+```python
+0
+```
+```python
+;  
+            sum +=carry;
+```
+```python
+if
+```
+```python
+(i>=
+```
+```python
+0
+```
+```python
+)  
+            {  
+                sum += (num1[i] -
+```
+```python
+'0'
+```
+```python
+);  
+                i--;  
+            }
+```
+```python
+if
+```
+```python
+(j>=
+```
+```python
+0
+```
+```python
+)  
+            {  
+                sum+=(num2[j] -
+```
+```python
+'0'
+```
+```python
+);  
+                j--;  
+            }             
+            carry = sum /
+```
+```python
+10
+```
+```python
+;  
+            sum = sum %
+```
+```python
+10
+```
+```python
+;  
+            res += to_string(sum);                    
+        }  
+        reverse(res.begin(),res.end());
+```
+```python
+return
+```
+```python
+res;  
+    }  
+};
+```
+

@@ -1,0 +1,576 @@
+
+# 721. Accounts Merge - OraYang的博客 - CSDN博客
+
+2018年01月30日 11:42:40[OraYang](https://me.csdn.net/u010665216)阅读数：212所属专栏：[基础算法](https://blog.csdn.net/column/details/16604.html)
+
+
+
+# 题目
+Given a list`accounts`, each element`accounts[i]`is a list of strings, where the first element`accounts[i][0]`is a*name*, and the rest of the elements are*emails*representing emails of the account.
+Now, we would like to merge these accounts.  Two accounts definitely belong to the same person if there is some email that is common to both accounts.  Note that even if two accounts have the same name, they may belong to different people as people could have the same name.  A person can have any number of accounts initially, but all of their accounts definitely have the same name.
+After merging the accounts, return the accounts in the following format: the first element of each account is the name, and the rest of the elements are emails**in sorted order**.  The accounts themselves can be returned in any order.
+**Example 1:**
+**Input:**accounts = [["John", "johnsmith@mail.com", "john00@mail.com"], ["John", "johnnybravo@mail.com"], ["John", "johnsmith@mail.com", "john_newyork@mail.com"], ["Mary", "mary@mail.com"]]**Output:**[["John", 'john00@mail.com', 'john_newyork@mail.com', 'johnsmith@mail.com'],  ["John", "johnnybravo@mail.com"], ["Mary", "mary@mail.com"]]**Explanation:**The first and third John's are the same person as they have the common email "johnsmith@mail.com".
+The second John and Mary are different people as none of their email addresses are used by other accounts.
+We could return these lists in any order, for example the answer [['Mary', 'mary@mail.com'], ['John', 'johnnybravo@mail.com'], 
+['John', 'john00@mail.com', 'john_newyork@mail.com', 'johnsmith@mail.com']] would still be accepted.
+**Note:**
+- The length of- accounts- will be in the range- [1, 1000]- .
+- The length of- accounts[i]- will be in the range- [1, 10]- .
+- The length of- accounts[i][j]- will be in the range- [1, 30]- .
+
+
+# 思路
+本题又是个典型的连通性问题，思路简单容易理解，但是容易出错，主要分以下几步：
+> step1： 先扫描一遍数组，建立邮箱与邮箱所在
+> vector<vector<string>>
+> 数组中的id号
+
+> step2：第二遍确定连通分量并做连接存储
+
+> step3:  接下来遍历id数组，寻找根节点
+
+> step4：接下来遍历hashmap，合并连通项
+Note:这里的有序可以通过set进行默认排序
+# 代码
+```python
+class
+```
+```python
+Solution {
+```
+```python
+public
+```
+```python
+:
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+string
+```
+```python
+>
+```
+```python
+>
+```
+```python
+accountsMerge(
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+string
+```
+```python
+>
+```
+```python
+>
+```
+```python
+& accounts) {
+```
+```python
+//先扫描一遍数组，建立邮箱与邮箱所在vector<vector<string>>数组中的id号
+```
+```python
+unordered_map
+```
+```python
+<
+```
+```python
+string
+```
+```python
+,
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+>
+```
+```python
+mp;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<accounts.size();i++)
+        {
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+j=
+```
+```python
+1
+```
+```python
+;j<accounts[i].size();j++)
+            {
+                mp[accounts[i][j]].push_back(i);
+            }
+        }
+```
+```python
+//第二遍确定连通分量并做连接存储
+```
+```python
+unordered_map
+```
+```python
+<
+```
+```python
+string
+```
+```python
+,
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+>
+```
+```python
+::iterator itr = mp.begin();
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+id;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<accounts.size();i++)
+            id.push_back(i);
+```
+```python
+//cout<<1<<endl;
+```
+```python
+while
+```
+```python
+(itr!=mp.end())
+        {
+```
+```python
+if
+```
+```python
+(itr->second.size()<=
+```
+```python
+1
+```
+```python
+)
+            {
+                itr++;
+```
+```python
+continue
+```
+```python
+;
+            }
+```
+```python
+else
+```
+```python
+{
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<itr->second.size()-
+```
+```python
+1
+```
+```python
+;i++)
+                {
+```
+```python
+int
+```
+```python
+p = itr->second[i];
+```
+```python
+int
+```
+```python
+q = itr->second[i+
+```
+```python
+1
+```
+```python
+];
+```
+```python
+while
+```
+```python
+(p!=id[p])
+                        p = id[p];
+```
+```python
+while
+```
+```python
+(q!=id[q])
+                        q = id[q];
+```
+```python
+if
+```
+```python
+(p!=q)
+                        id[p] = q;
+                }
+            }
+            itr++;
+        }
+```
+```python
+//cout<<2<<endl;
+```
+```python
+//接下来遍历id数组，寻找根节点
+```
+```python
+unordered_map
+```
+```python
+<
+```
+```python
+int
+```
+```python
+,
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+>
+```
+```python
+res;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<accounts.size();i++)
+        {
+```
+```python
+int
+```
+```python
+root = i;
+```
+```python
+while
+```
+```python
+(root!=id[root])
+                root = id[root];
+            res[root].push_back(i); 
+        }
+```
+```python
+//接下来遍历hashmap，合并连通项
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+string
+```
+```python
+>
+```
+```python
+>
+```
+```python
+result;
+```
+```python
+unordered_map
+```
+```python
+<
+```
+```python
+int
+```
+```python
+,
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+>
+```
+```python
+::iterator it = res.begin();
+```
+```python
+while
+```
+```python
+(it!=res.end())
+        {
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+string
+```
+```python
+>
+```
+```python
+mail;
+```
+```python
+string
+```
+```python
+name;
+```
+```python
+// cout<<res->first<<endl;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<it->second.size();i++)
+            {
+                name = accounts[it->second[i]][
+```
+```python
+0
+```
+```python
+];
+                mail.insert(mail.end(),accounts[it->second[i]].begin()+
+```
+```python
+1
+```
+```python
+,accounts[it->second[i]].end());
+            }
+```
+```python
+set
+```
+```python
+<
+```
+```python
+string
+```
+```python
+>
+```
+```python
+s(mail.begin(),mail.end());
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+string
+```
+```python
+>
+```
+```python
+tm(s.begin(),s.end());
+            tm.insert(tm.begin(),name);
+            result.push_back(tm);
+            it++;
+        }
+```
+```python
+return
+```
+```python
+result;
+    }
+};
+```
+

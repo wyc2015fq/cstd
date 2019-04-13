@@ -1,0 +1,222 @@
+
+# 49. Group Anagrams - OraYang的博客 - CSDN博客
+
+2017年09月19日 14:31:31[OraYang](https://me.csdn.net/u010665216)阅读数：263个人分类：[Leetcode																](https://blog.csdn.net/u010665216/article/category/7026962)
+所属专栏：[基础算法](https://blog.csdn.net/column/details/16604.html)
+
+
+
+## 题目
+Given an array of strings, group anagrams together.
+For example, given: [“eat”, “tea”, “tan”, “ate”, “nat”, “bat”],
+Return:
+[
+[“ate”, “eat”,”tea”],
+[“nat”,”tan”],
+[“bat”]
+]
+Note: All inputs will be in lower-case.
+## 思路
+本题是求同构词，蛋疼的是，题目里没说明vector里面的元素要按字典排序。。。代码思路很简单，就是建立个`map<string,vector<string>>`容器,将同构词存入vector数组，这里的代码很巧妙如下：
+```python
+string s = strs[i];
+    sort(s.
+```
+```python
+begin
+```
+```python
+(),s.
+```
+```python
+end
+```
+```python
+());
+```
+```python
+mp[s].push_back(strs[i]);
+```
+## 代码
+```python
+class
+```
+```python
+Solution {
+```
+```python
+public
+```
+```python
+:
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+string
+```
+```python
+>
+```
+```python
+>
+```
+```python
+groupAnagrams(
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+string
+```
+```python
+>
+```
+```python
+& strs) {
+        sort(strs.begin(),strs.end());
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+string
+```
+```python
+>
+```
+```python
+>
+```
+```python
+res;
+```
+```python
+map
+```
+```python
+<
+```
+```python
+string
+```
+```python
+,
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+string
+```
+```python
+>
+```
+```python
+>
+```
+```python
+mp;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+0
+```
+```python
+;i<strs.size();i++)
+        {
+```
+```python
+string
+```
+```python
+s = strs[i];
+            sort(s.begin(),s.end());
+            mp[s].push_back(strs[i]);
+        }
+```
+```python
+map
+```
+```python
+<
+```
+```python
+string
+```
+```python
+,
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+string
+```
+```python
+>
+```
+```python
+>
+```
+```python
+::iterator itr=mp.begin();
+```
+```python
+for
+```
+```python
+(;itr!=mp.end();itr++)
+        {
+            res.push_back(itr->second);
+        }
+```
+```python
+return
+```
+```python
+res;
+    }
+};
+```
+

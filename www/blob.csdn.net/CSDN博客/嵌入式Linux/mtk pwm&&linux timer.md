@@ -1,0 +1,1744 @@
+
+# mtk pwm&&linux timer - 嵌入式Linux - CSDN博客
+
+2015年12月28日 15:00:21[写代码的篮球球痴](https://me.csdn.net/weiqifa0)阅读数：1049
+
+
+*pwm控制还是有很多要注意的地方*
+附上驱动的代码
+```python
+/*
+ * drivers/leds/leds-mt65xx.c
+ *
+ * This file is subject to the terms and conditions of the GNU General Public
+ * License.  See the file COPYING in the main directory of this archive for
+ * more details.
+ *
+ * Hydrodent weiqifa modify add
+ *
+ */
+```
+```python
+#include <linux/module.h>
+```
+```python
+#include <linux/platform_device.h>
+```
+```python
+#include <linux/delay.h>
+```
+```python
+#include <linux/string.h>
+```
+```python
+#include <linux/ctype.h>
+```
+```python
+#include <linux/workqueue.h>
+```
+```python
+#include <linux/wakelock.h>
+```
+```python
+#include <linux/slab.h>
+```
+```python
+#include <linux/spinlock.h>
+```
+```python
+#include <mach/mt_pwm.h>
+```
+```python
+#include <mach/pmic_mt6329_hw_bank1.h>
+```
+```python
+#include <mach/pmic_mt6329_sw_bank1.h>
+```
+```python
+#include <mach/pmic_mt6329_hw.h>
+```
+```python
+#include <mach/pmic_mt6329_sw.h>
+```
+```python
+#include <mach/upmu_common_sw.h>
+```
+```python
+#include <mach/upmu_hw.h>
+```
+```python
+#include <linux/hrtimer.h>
+```
+```python
+/
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*
+ * 现在我们的时钟源是32k 
+ *
+ * 频率 理论上 1
+```
+```python
+<
+```
+```python
+f
+```
+```python
+<
+```
+```python
+32
+```
+```python
+但是
+```
+```python
+10
+```
+```python
+<
+```
+```python
+frequency
+```
+```python
+<
+```
+```python
+8191
+```
+```python
+所以最大的频率是
+```
+```python
+3kHZ
+```
+```python
+*
+```
+```python
+f
+```
+```python
+=
+```
+```python
+32
+```
+```python
+/
+```
+```python
+div
+```
+```python
+/
+```
+```python
+frequency
+```
+```python
+div
+```
+```python
+=
+```
+```python
+1
+```
+```python
+frequency
+```
+```python
+=
+```
+```python
+pwm_setting.duration
+```
+```python
+* 比如我们设置
+```
+```python
+f
+```
+```python
+=
+```
+```python
+1
+```
+```python
+那么我们
+```
+```python
+frequency
+```
+```python
+的值就应该是
+```
+```python
+30
+```
+```python
+*
+ * 占空比
+ *
+```
+```python
+0
+```
+```python
+<
+```
+```python
+duty
+```
+```python
+<=
+```
+```python
+100
+```
+```python
+* 实际测试发现
+```
+```python
+duty
+```
+```python
+值越大 测量值就越接近测试值
+ * 并在
+```
+```python
+adb
+```
+```python
+下面显示出来
+ *
+ * 设备文件目录：/
+```
+```python
+sys
+```
+```python
+/
+```
+```python
+class
+```
+```python
+/
+```
+```python
+hdyrodent
+```
+```python
+*
+```
+```python
+frequency:
+```
+```python
+设置频率
+```
+```python
+echo
+```
+```python
+10
+```
+```python
+>
+```
+```python
+frequency
+ * duty:设置占空比 echo 50 > duty
+ * switch:打开关闭 echo 1 >switch 大于0是打开 小于等于0是关闭
+ *
+ *提示：如果不设置值，直接打开默认有波形
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+/
+static struct class *hdyrodent
+```
+```python
+_pwm_
+```
+```python
+class=NULL;
+static int show_frequency=123;//默认分辨率变量
+static int show_duty=50;//默认占空比变量
+static bool show_switch=false;
+static int show_stopbit=63;//这个变量可以用来控制分辨率，默认最大值是63 最小值是0
+```
+```python
+#define PWM_NO PWM4
+```
+```python
+//声明定时器
+static struct hrtimer timer_ptt;
+static struct pwm
+```
+```python
+_easy_
+```
+```python
+config pwm_setting;//pwm设置的结构体
+/
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*
+ * scnprintf是linux下面一个函数，这个函数把后面 的值格式话转化成字符串
+ * 并在adb 下面显示出来
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+/
+static ssize
+```
+```python
+_t hdyrodent_
+```
+```python
+frequency
+```
+```python
+_show(struct device *dev,struct device_
+```
+```python
+attribute
+```
+```python
+*attr, char *
+```
+```python
+buf)
+{
+```
+```python
+printk("%s\n", __FUNCTION__);
+```
+```python
+return scnprintf(buf, PAGE_SIZE, "%d\n", show_frequency);
+```
+```python
+}
+/
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*
+ * echo　pwm这个节点的时候就会调用下面这个函数，echo "12" > pwm 
+ * 那么value的值就是12 可以通过这样设置pwm的数值
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+/
+static ssize
+```
+```python
+_t hdyrodent_
+```
+```python
+frequency
+```
+```python
+_store(struct class *cls, struct class_
+```
+```python
+attribute
+```
+```python
+*attr, const  char *
+```
+```python
+_buf, size_
+```
+```python
+t _count)
+{
+```
+```python
+int value=0;
+```
+```python
+sscanf(_buf, "%d", &value);
+```
+```python
+sscanf(_buf, "%d", &show_frequency);//把值传给show_frequency这样　cat的值就是echo 进去的值了
+```
+```python
+printk("%s: value: %d _count:%d\n", __FUNCTION__, value,_count);
+```
+```python
+if(value<=0)
+```
+```python
+{
+```
+```python
+printk("Error %s input value wrong!!!!\n",__FUNCTION__);
+```
+```python
+}
+```
+```python
+else
+```
+```python
+{
+```
+```python
+pwm_setting.duration=value;
+```
+```python
+pwm_set_easy_config(&pwm_setting);
+```
+```python
+printk("Success %s \n",__FUNCTION__);
+```
+```python
+}
+```
+```python
+return _count;
+```
+```python
+}
+/
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*
+ * scnprintf是linux下面一个函数，这个函数把后面 的值格式话转化成字符串
+ * 并在adb 下面显示出来
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+/
+static ssize
+```
+```python
+_t hdyrodent_
+```
+```python
+brightness
+```
+```python
+_show(struct device *dev,struct device_
+```
+```python
+attribute
+```
+```python
+*attr, char *
+```
+```python
+buf)
+{
+```
+```python
+printk("%s\n", __FUNCTION__);
+```
+```python
+return scnprintf(buf, PAGE_SIZE, "%d\n", show_duty);
+```
+```python
+}
+/
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*
+ * echo　pwm这个节点的时候就会调用下面这个函数，echo "12" > pwm 
+ * 那么value的值就是12 可以通过这样设置pwm的数值
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+/
+static ssize
+```
+```python
+_t hdyrodent_
+```
+```python
+brightness
+```
+```python
+_store(struct class *cls, struct class_
+```
+```python
+attribute
+```
+```python
+*attr, const  char *
+```
+```python
+_buf, size_
+```
+```python
+t _count)
+{
+```
+```python
+int value=0;
+```
+```python
+sscanf(_buf, "%d", &value);
+```
+```python
+sscanf(_buf, "%d", &show_duty);//把值传给show_duty这样　cat的值就是echo 进去的值了
+```
+```python
+printk("%s: value: %d _count:%d\n", __FUNCTION__, value,_count);
+```
+```python
+if(value<=0)
+```
+```python
+{
+```
+```python
+mt_pwm_disable(PWM_NO, true);//关闭pwm波
+```
+```python
+printk("Error: %s disable the pwm 2\n",__FUNCTION__);
+```
+```python
+}
+```
+```python
+else
+```
+```python
+{
+```
+```python
+pwm_setting.duty = value;
+```
+```python
+pwm_set_easy_config(&pwm_setting);
+```
+```python
+printk("Success: %s disable the pwm 2\n",__FUNCTION__);
+```
+```python
+}
+```
+```python
+return _count;
+```
+```python
+}
+/
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*
+ * scnprintf是linux下面一个函数，这个函数把后面 的值格式话转化成字符串
+ * 并在adb 下面显示出来
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+/
+static ssize
+```
+```python
+_t hdyrodent_
+```
+```python
+on
+```
+```python
+_show(struct device *dev,struct device_
+```
+```python
+attribute
+```
+```python
+*attr, char *
+```
+```python
+buf)
+{
+```
+```python
+printk("%s\n", __FUNCTION__);
+```
+```python
+return scnprintf(buf, PAGE_SIZE, "%d\n", show_switch);
+```
+```python
+}
+/
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*
+ * echo　pwm这个节点的时候就会调用下面这个函数，echo "12" > pwm 
+ * 那么value的值就是12 可以通过这样设置pwm的数值
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+/
+static ssize
+```
+```python
+_t hdyrodent_
+```
+```python
+on
+```
+```python
+_store(struct class *cls, struct class_
+```
+```python
+attribute
+```
+```python
+*attr, const  char *
+```
+```python
+_buf, size_
+```
+```python
+t _count)
+{
+```
+```python
+int value=0;
+```
+```python
+sscanf(_buf, "%d", &value);
+```
+```python
+sscanf(_buf, "%d", &show_switch);//把值传给show_switch这样　cat的值就是echo 进去的值了
+```
+```python
+printk("%s: value: %d _count:%d\n", __FUNCTION__, value,_count);
+```
+```python
+if(value>0)
+```
+```python
+{
+```
+```python
+pwm_set_easy_config(&pwm_setting);
+```
+```python
+printk("Success: %s enable the pwm 2\n",__FUNCTION__);
+```
+```python
+}
+```
+```python
+else
+```
+```python
+{
+```
+```python
+mt_pwm_disable(PWM_NO, true);//关闭pwm波
+```
+```python
+printk("Success: %s disable the pwm 2\n",__FUNCTION__);
+```
+```python
+}
+```
+```python
+return _count;
+```
+```python
+}
+/
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*
+ * __ATTR的第一个参数是在sys文件系统里面显示的名字
+　* ０６６６是这个节点的属性，0666表示是可读可写
+　* hdyrodent
+```
+```python
+_frequency_
+```
+```python
+show 是cat 这个文件的时候调用的函数
+　* hdyrodent
+```
+```python
+_frequency_
+```
+```python
+store 是echo的时候调用的函数
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+/
+static struct class
+```
+```python
+_attribute hdyrodent_
+```
+```python
+attr[] = {
+```
+```python
+__ATTR(frequency,0666, hdyrodent_
+```
+```python
+frequency
+```
+```python
+_show, hdyrodent_
+```
+```python
+frequency_store),
+```
+```python
+__ATTR(brightness,0666, hdyrodent_
+```
+```python
+brightness
+```
+```python
+_show, hdyrodent_
+```
+```python
+brightness_store),
+```
+```python
+__ATTR(on,0666, hdyrodent_
+```
+```python
+on
+```
+```python
+_show, hdyrodent_
+```
+```python
+on_store),
+```
+```python
+__ATTR_
+```
+```python
+NULL,
+};
+/
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*
+ * 定时中断函数
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+*****
+```
+```python
+/
+static enum hrtimer
+```
+```python
+_restart timer_
+```
+```python
+ptt_interrupt(struct hrtimer *timer)
+{
+```
+```python
+static unsigned int c=0;
+```
+```python
+c++;
+```
+```python
+printk("%s,%d,c=%d\n",__func__,__LINE__,c);
+```
+```python
+hrtimer_start(&timer_ptt, ktime_set(1, 0), HRTIMER_MODE_REL);
+```
+```python
+return HRTIMER_NORESTART;
+```
+```python
+}
+static int
+```
+```python
+__init hdyrodent_
+```
+```python
+pwm_init(void)
+{
+```
+```python
+int ret;
+```
+```python
+int i = 0;
+```
+```python
+printk("%s start\n", __FUNCTION__);
+```
+```python
+//用class_create在sys/class/下面生成sys文件系统
+```
+```python
+hdyrodent_pwm_class=class_create(THIS_MODULE,"hdyrodent_charger_led");
+```
+```python
+if(IS_ERR(hdyrodent_pwm_class))
+```
+```python
+{
+```
+```python
+printk("create hdyrodent module fail \n");
+```
+```python
+return PTR_ERR(hdyrodent_pwm_class);;
+```
+```python
+}
+```
+```python
+for (i = 0 ; NULL != attr_name(hdyrodent_attr[i]);i++)
+```
+```python
+{
+```
+```python
+ret = class_create_file(hdyrodent_pwm_class, &hdyrodent_attr[i]);
+```
+```python
+if (0 != ret)
+```
+```python
+{
+```
+```python
+printk("creat %s class file fail\n",attr_name(hdyrodent_attr[i]));
+```
+```python
+break;
+```
+```python
+}
+```
+```python
+}
+```
+```python
+mt_pwm_disable(PWM_NO, true);//把pwm 功能关闭掉
+```
+```python
+mt_set_gpio_mode(90,GPIO_MODE_06);
+```
+```python
+pwm_setting.pwm_no = PWM_NO;//通过函数把这个gpio口设置成pwm1模式，对应pwm_no就是PWM2
+```
+```python
+pwm_setting.pmic_pad = false;
+```
+```python
+pwm_setting.duty=20;
+```
+```python
+pwm_setting.duration=100;
+```
+```python
+pwm_setting.clk_div = CLK_DIV1;
+```
+```python
+pwm_setting.clk_src = PWM_CLK_OLD_MODE_32K;//PWM_CLK_OLD_MODE_BLOCK;//26M
+```
+```python
+//pwm_set_easy_config(&pwm_setting);
+```
+```python
+//定时器
+```
+```python
+hrtimer_init(&timer_ptt, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+```
+```python
+timer_ptt.function = timer_ptt_interrupt;
+```
+```python
+hrtimer_start(&timer_ptt, ktime_set(1, 0), HRTIMER_MODE_REL);
+```
+```python
+printk("%s end\n", __FUNCTION__);
+```
+```python
+return 0;
+```
+```python
+}
+static void
+```
+```python
+__exit hdyrodent_
+```
+```python
+pwm_exit(void)
+{
+```
+```python
+int i = 0;
+```
+```python
+printk("hdyrodent module cleanup start.\n");
+```
+```python
+mt_pwm_disable(PWM_NO, true);//把pwm 功能关闭掉
+```
+```python
+if(hrtimer_cancel(&timer_ptt))
+```
+```python
+{
+```
+```python
+printk("try to cancel hrtimer \n");
+```
+```python
+}
+```
+```python
+for (i = 0 ; NULL != attr_name(hdyrodent_attr[i]);i++)
+```
+```python
+{
+```
+```python
+class_remove_file(hdyrodent_pwm_class, &hdyrodent_attr[i]);
+```
+```python
+}
+```
+```python
+class_destroy(hdyrodent_pwm_class);
+```
+```python
+printk("hdyrodent module cleanup OK!\n");
+```
+```python
+}
+MODULE_AUTHOR("329410527@qq.com");
+MODULE_DESCRIPTION("HDYRODENT PWM MODULE");
+MODULE_LICENSE("GPL");
+MODULE_VERSION("ver0.1");
+module
+```
+```python
+_init(hdyrodent_
+```
+```python
+pwm_init);
+module
+```
+```python
+_exit(hdyrodent_
+```
+```python
+pwm_exit);
+```
+

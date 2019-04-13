@@ -1,0 +1,294 @@
+
+# 40. Combination Sum II - OraYang的博客 - CSDN博客
+
+2017年09月17日 15:05:45[OraYang](https://me.csdn.net/u010665216)阅读数：166个人分类：[Leetcode																](https://blog.csdn.net/u010665216/article/category/7026962)
+所属专栏：[基础算法](https://blog.csdn.net/column/details/16604.html)
+
+
+
+## 题目
+Given a collection of candidate numbers (C) and a target number (T), find all unique combinations in C where the candidate numbers sums to T.
+Each number in C may only be used once in the combination.
+Note:
+All numbers (including target) will be positive integers.
+The solution set must not contain duplicate combinations.
+For example, given candidate set [10, 1, 2, 7, 6, 1, 5] and target 8,
+A solution set is:
+[
+[1, 7],
+[1, 2, 5],
+[2, 6],
+[1, 1, 6]
+]
+## 思路
+本题和上一篇博客[Combination Sum](http://blog.csdn.net/u010665216/article/details/78010135)使用方法类似，唯一不同就是该题的数组数值有重复，每个数值只能使用一次，而上一篇博客数组数值没有重复但是能使用多次，注意对比及去重。
+## 代码
+```python
+class
+```
+```python
+Solution {
+```
+```python
+public
+```
+```python
+:
+```
+```python
+set
+```
+```python
+<
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+>
+```
+```python
+res;
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+>
+```
+```python
+combinationSum2(
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+& candidates,
+```
+```python
+int
+```
+```python
+target) {
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+cur;
+        sort(candidates.begin(),candidates.end());
+        backtrack(candidates,cur,
+```
+```python
+0
+```
+```python
+,target);
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+>
+```
+```python
+m;
+```
+```python
+set
+```
+```python
+<
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+>
+```
+```python
+::iterator itr = res.begin();
+```
+```python
+for
+```
+```python
+(;itr!=res.end();itr++)
+            m.push_back(*itr);
+```
+```python
+return
+```
+```python
+m;
+    }
+```
+```python
+private
+```
+```python
+:
+```
+```python
+void
+```
+```python
+backtrack(
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+candidates,
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+cur,
+```
+```python
+int
+```
+```python
+start ,
+```
+```python
+int
+```
+```python
+target)
+    {
+```
+```python
+if
+```
+```python
+(target==
+```
+```python
+0
+```
+```python
+)
+        {
+            res.insert(cur);
+        }
+```
+```python
+else
+```
+```python
+{
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=start;i<candidates.size()&&candidates[i]<=target;i++)
+            {
+                cur.push_back(candidates[i]);
+                backtrack(candidates,cur,i+
+```
+```python
+1
+```
+```python
+,target-candidates[i]);
+                cur.pop_back();
+            }
+        }
+    }
+};
+```
+

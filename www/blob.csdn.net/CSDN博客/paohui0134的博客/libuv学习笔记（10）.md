@@ -1,0 +1,1952 @@
+
+# libuv学习笔记（10） - paohui0134的博客 - CSDN博客
+
+
+2016年06月14日 15:10:28[paohui0134](https://me.csdn.net/paohui0134)阅读数：1028
+
+
+# libuv学习笔记（10）
+## uv_process_t数据结构与相关函数
+### 数据结构
+```python
+typedef
+```
+```python
+struct
+```
+```python
+uv_process_s uv_process_t;
+```
+```python
+struct
+```
+```python
+uv_process_s {
+  UV_HANDLE_FIELDS
+```
+```python
+//uv_handle_t的成员，此处不再展开
+```
+```python
+uv_exit_cb exit_cb;
+```
+```python
+//回调函数
+```
+```python
+int
+```
+```python
+pid;
+```
+```python
+//进程id
+```
+```python
+//UV_PROCESS_PRIVATE_FIELDS宏展开：
+```
+```python
+struct
+```
+```python
+uv_process_exit_s {                                                 
+    UV_REQ_FIELDS
+```
+```python
+//uv_req_t的成员，此处不再展开，用来发送调用关闭回调的请求
+```
+```python
+} exit_req;                                                                 
+  BYTE* child_stdio_buffer;
+```
+```python
+//要发送给子进程的文件描述符
+```
+```python
+int
+```
+```python
+exit_signal;
+```
+```python
+//退出信号
+```
+```python
+HANDLE wait_handle;
+```
+```python
+//监控子进程是否关闭的句柄，不需要closehandle
+```
+```python
+HANDLE process_handle;
+```
+```python
+//进程句柄
+```
+```python
+volatile
+```
+```python
+char
+```
+```python
+exit_cb_pending;
+```
+```python
+//进程关闭监控回调是否调用的标记
+```
+```python
+};
+```
+进程配置结构体：
+```python
+typedef
+```
+```python
+struct
+```
+```python
+uv_process_options_s {
+  uv_exit_cb exit_cb;
+```
+```python
+//进程退出后的回调
+```
+```python
+const
+```
+```python
+char
+```
+```python
+* file;
+```
+```python
+//进程路径  utf8编码
+```
+```python
+//命令行参数utf8编码。 args[0]应该是进程路径。windows平台下调用CreateProcess函数，并将args参数
+```
+```python
+//转换为字符串，这可能会导致一些奇怪的问题，参考windows_verbatim_arguments
+```
+```python
+char
+```
+```python
+** args;
+```
+```python
+//设置子进程环境变量 utf8编码
+```
+```python
+char
+```
+```python
+** env;
+```
+```python
+//工作目录 utf8编码
+```
+```python
+const
+```
+```python
+char
+```
+```python
+* cwd;
+```
+```python
+//控制uv_spawn函数的标记量
+```
+```python
+unsigned
+```
+```python
+int
+```
+```python
+flags;
+```
+```python
+//`stdio`成员指向一个uv_stdio_container_t数组，uv_stdio_container_t里面存放将会传递给子进
+```
+```python
+//程的文件描述符。一般来说，stdio[0]指向stdin, fd 1是stdout, fd 2 是 stderr.
+```
+```python
+//在windows平台下，只有当子进程使用MSVCRT运行时环境时才能支持超过2个的文件描述符
+```
+```python
+int
+```
+```python
+stdio_count;
+  uv_stdio_container_t* stdio;
+```
+```python
+//windows不支持
+```
+```python
+uv_uid_t uid;
+  uv_gid_t gid;
+} uv_process_options_t;
+```
+### 相关函数
+#### 1.生成子进程。导出函数，在uv.h中声明，process.c中定义
+初始化，内部函数，在uv_spawn中调用
+```python
+static
+```
+```python
+void
+```
+```python
+uv_process_init(uv_loop_t
+```
+```python
+*
+```
+```python
+loop
+```
+```python
+, uv_process_t
+```
+```python
+*
+```
+```python
+handle
+```
+```python
+) {
+  uv__handle_init(
+```
+```python
+loop
+```
+```python
+, (uv_handle_t
+```
+```python
+*
+```
+```python
+)
+```
+```python
+handle
+```
+```python
+, UV_PROCESS);
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+exit_cb
+```
+```python
+=
+```
+```python
+NULL
+```
+```python
+;
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+pid
+```
+```python
+=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+exit_signal
+```
+```python
+=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+wait_handle
+```
+```python
+=
+```
+```python
+INVALID_HANDLE_VALUE;
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+process_handle
+```
+```python
+=
+```
+```python
+INVALID_HANDLE_VALUE;
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+child_stdio_buffer
+```
+```python
+=
+```
+```python
+NULL
+```
+```python
+;
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+exit_cb_pending
+```
+```python
+=
+```
+```python
+0
+```
+```python
+;
+  uv_req_init(
+```
+```python
+loop
+```
+```python
+, (uv_req_t
+```
+```python
+*
+```
+```python
+)
+```
+```python
+&
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+exit_req);
+```
+```python
+//初始化请求，类型为UV_PROCESS_EXIT
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+exit_req
+```
+```python
+.
+```
+```python
+type
+```
+```python
+=
+```
+```python
+UV_PROCESS_EXIT;
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+exit_req
+```
+```python
+.
+```
+```python
+data
+```
+```python
+=
+```
+```python
+handle
+```
+```python
+;
+}
+```
+生成子进程
+```python
+int
+```
+```python
+uv_spawn(uv_loop_t* loop,
+             uv_process_t* process,
+```
+```python
+const
+```
+```python
+uv_process_options_t* options) 
+{
+```
+```python
+int
+```
+```python
+i;
+```
+```python
+int
+```
+```python
+err =
+```
+```python
+0
+```
+```python
+;
+  WCHAR* path =
+```
+```python
+NULL
+```
+```python
+, *alloc_path =
+```
+```python
+NULL
+```
+```python
+;
+```
+```python
+BOOL
+```
+```python
+result;
+  WCHAR* application_path =
+```
+```python
+NULL
+```
+```python
+, *application =
+```
+```python
+NULL
+```
+```python
+, *arguments =
+```
+```python
+NULL
+```
+```python
+,
+         *env =
+```
+```python
+NULL
+```
+```python
+, *cwd =
+```
+```python
+NULL
+```
+```python
+;
+  STARTUPINFOW startup;
+  PROCESS_INFORMATION info;
+  DWORD process_flags;
+  uv_process_init(loop, process);
+```
+```python
+//初始化uv_process_t
+```
+```python
+process->exit_cb = options->exit_cb;
+```
+```python
+//进程关闭时的回调函数
+```
+```python
+if
+```
+```python
+(options->flags & (UV_PROCESS_SETGID | UV_PROCESS_SETUID)) {
+```
+```python
+return
+```
+```python
+UV_ENOTSUP;
+```
+```python
+//windows不支持
+```
+```python
+}
+```
+```python
+if
+```
+```python
+(options->file ==
+```
+```python
+NULL
+```
+```python
+|| options->args ==
+```
+```python
+NULL
+```
+```python
+) {
+```
+```python
+return
+```
+```python
+UV_EINVAL;
+```
+```python
+//可执行文件路径或者命令行参数为空，直接返回错误
+```
+```python
+}
+  assert(options->file !=
+```
+```python
+NULL
+```
+```python
+);
+  assert(!(options->flags & ~(UV_PROCESS_DETACHED |
+                              UV_PROCESS_SETGID |
+                              UV_PROCESS_SETUID |
+                              UV_PROCESS_WINDOWS_HIDE |
+                              UV_PROCESS_WINDOWS_VERBATIM_ARGUMENTS)));
+```
+```python
+//将utf8字符串转换为utf16
+```
+```python
+err = uv_utf8_to_utf16_alloc(options->file, &application);
+```
+```python
+if
+```
+```python
+(err)
+```
+```python
+goto
+```
+```python
+done;
+```
+```python
+//构建命令行参数，UV_PROCESS_WINDOWS_VERBATIM_ARGUMENTS表示命令行参数不要用“”
+```
+```python
+err = make_program_args(
+      options->args,
+      options->flags & UV_PROCESS_WINDOWS_VERBATIM_ARGUMENTS,
+      &arguments);
+```
+```python
+if
+```
+```python
+(err)
+```
+```python
+goto
+```
+```python
+done;
+```
+```python
+//构建环境变量参数
+```
+```python
+if
+```
+```python
+(options->env) {
+     err = make_program_env(options->env, &env);
+```
+```python
+if
+```
+```python
+(err)
+```
+```python
+goto
+```
+```python
+done;
+  }
+```
+```python
+//构建工作目录参数
+```
+```python
+if
+```
+```python
+(options->cwd) {
+```
+```python
+/* Explicit cwd */
+```
+```python
+err = uv_utf8_to_utf16_alloc(options->cwd, &cwd);
+```
+```python
+if
+```
+```python
+(err)
+```
+```python
+goto
+```
+```python
+done;
+  }
+```
+```python
+else
+```
+```python
+{
+```
+```python
+//没有工作目录，就用当前工作目录
+```
+```python
+/* Inherit cwd */
+```
+```python
+DWORD cwd_len, r;
+    cwd_len = GetCurrentDirectoryW(
+```
+```python
+0
+```
+```python
+,
+```
+```python
+NULL
+```
+```python
+);
+```
+```python
+if
+```
+```python
+(!cwd_len) {
+      err = GetLastError();
+```
+```python
+goto
+```
+```python
+done;
+    }
+    cwd = (WCHAR*) uv__malloc(cwd_len *
+```
+```python
+sizeof
+```
+```python
+(WCHAR));
+```
+```python
+if
+```
+```python
+(cwd ==
+```
+```python
+NULL
+```
+```python
+) {
+      err = ERROR_OUTOFMEMORY;
+```
+```python
+goto
+```
+```python
+done;
+    }
+    r = GetCurrentDirectoryW(cwd_len, cwd);
+```
+```python
+if
+```
+```python
+(r ==
+```
+```python
+0
+```
+```python
+|| r >= cwd_len) {
+      err = GetLastError();
+```
+```python
+goto
+```
+```python
+done;
+    }
+  }
+```
+```python
+//获取环境变量中的PATH
+```
+```python
+path = find_path(env);
+```
+```python
+if
+```
+```python
+(path ==
+```
+```python
+NULL
+```
+```python
+) {
+    DWORD path_len, r;
+    path_len = GetEnvironmentVariableW(L
+```
+```python
+"PATH"
+```
+```python
+,
+```
+```python
+NULL
+```
+```python
+,
+```
+```python
+0
+```
+```python
+);
+```
+```python
+if
+```
+```python
+(path_len ==
+```
+```python
+0
+```
+```python
+) {
+      err = GetLastError();
+```
+```python
+goto
+```
+```python
+done;
+    }
+    alloc_path = (WCHAR*) uv__malloc(path_len *
+```
+```python
+sizeof
+```
+```python
+(WCHAR));
+```
+```python
+if
+```
+```python
+(alloc_path ==
+```
+```python
+NULL
+```
+```python
+) {
+      err = ERROR_OUTOFMEMORY;
+```
+```python
+goto
+```
+```python
+done;
+    }
+    path = alloc_path;
+    r = GetEnvironmentVariableW(L
+```
+```python
+"PATH"
+```
+```python
+, path, path_len);
+```
+```python
+if
+```
+```python
+(r ==
+```
+```python
+0
+```
+```python
+|| r >= path_len) {
+      err = GetLastError();
+```
+```python
+goto
+```
+```python
+done;
+    }
+  }
+```
+```python
+//通过options中的stdio数组构建process->child_stdio_buffer
+```
+```python
+//child_stdio_buffer中至少有3个，最多255，如果option中少于3个，那么child_stdio_buffer中对应
+```
+```python
+//的多余的文件描述符标记为UV_IGNORE（忽略）。根据options->stdio的类型，构建对应的传递给子进程的文
+```
+```python
+//件描述符
+```
+```python
+err = uv__stdio_create(loop, options, &process->child_stdio_buffer);
+```
+```python
+if
+```
+```python
+(err)
+```
+```python
+goto
+```
+```python
+done;
+```
+```python
+//获取全路径（用户传入的可能是相对路径）
+```
+```python
+application_path = search_path(application,
+                                 cwd,
+                                 path);
+```
+```python
+if
+```
+```python
+(application_path ==
+```
+```python
+NULL
+```
+```python
+) {
+```
+```python
+/* Not found. */
+```
+```python
+err = ERROR_FILE_NOT_FOUND;
+```
+```python
+goto
+```
+```python
+done;
+  }
+```
+```python
+//构建startup（STARTUPINFOW）结构体
+```
+```python
+startup
+```
+```python
+.cb
+```
+```python
+=
+```
+```python
+sizeof
+```
+```python
+(startup);
+  startup
+```
+```python
+.lpReserved
+```
+```python
+=
+```
+```python
+NULL
+```
+```python
+;
+  startup
+```
+```python
+.lpDesktop
+```
+```python
+=
+```
+```python
+NULL
+```
+```python
+;
+  startup
+```
+```python
+.lpTitle
+```
+```python
+=
+```
+```python
+NULL
+```
+```python
+;
+  startup
+```
+```python
+.dwFlags
+```
+```python
+= STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+  startup
+```
+```python
+.cbReserved2
+```
+```python
+= uv__stdio_size(process->child_stdio_buffer);
+  startup
+```
+```python
+.lpReserved2
+```
+```python
+= (BYTE*) process->child_stdio_buffer;
+```
+```python
+//输入输出从定向（如果有的话）
+```
+```python
+startup
+```
+```python
+.hStdInput
+```
+```python
+= uv__stdio_handle(process->child_stdio_buffer,
+```
+```python
+0
+```
+```python
+);
+  startup
+```
+```python
+.hStdOutput
+```
+```python
+= uv__stdio_handle(process->child_stdio_buffer,
+```
+```python
+1
+```
+```python
+);
+  startup
+```
+```python
+.hStdError
+```
+```python
+= uv__stdio_handle(process->child_stdio_buffer,
+```
+```python
+2
+```
+```python
+);
+```
+```python
+if
+```
+```python
+(options->flags & UV_PROCESS_WINDOWS_HIDE) {
+```
+```python
+/* Use SW_HIDE to avoid any potential process window. */
+```
+```python
+startup
+```
+```python
+.wShowWindow
+```
+```python
+= SW_HIDE;
+  }
+```
+```python
+else
+```
+```python
+{
+    startup
+```
+```python
+.wShowWindow
+```
+```python
+= SW_SHOWDEFAULT;
+  }
+  process_flags = CREATE_UNICODE_ENVIRONMENT;
+```
+```python
+if
+```
+```python
+(options->flags & UV_PROCESS_DETACHED) {
+    process_flags |= DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP;
+  }
+```
+```python
+//创建进程
+```
+```python
+if
+```
+```python
+(!CreateProcessW(application_path,
+                     arguments,
+```
+```python
+NULL
+```
+```python
+,
+```
+```python
+NULL
+```
+```python
+,
+```
+```python
+1
+```
+```python
+,
+                     process_flags,
+                     env,
+                     cwd,
+                     &startup,
+                     &info)) {
+```
+```python
+/* CreateProcessW failed. */
+```
+```python
+err = GetLastError();
+```
+```python
+goto
+```
+```python
+done;
+  }
+```
+```python
+//获取进程句柄与进程id
+```
+```python
+process->process_handle = info
+```
+```python
+.hProcess
+```
+```python
+;
+  process->pid = info
+```
+```python
+.dwProcessId
+```
+```python
+;
+```
+```python
+//如果子进程是非独立模式，将其分配给全局job对象，这样父进程关闭时也会关闭子进程
+```
+```python
+if
+```
+```python
+(!(options->flags & UV_PROCESS_DETACHED)) {
+```
+```python
+//uv__init_global_job_handle函数只会调用一次，创建一个作业uv__init_global_job_handle
+```
+```python
+uv_once(&uv_global_job_handle_init_guard_, uv__init_global_job_handle);
+```
+```python
+//将子进程放入作业中
+```
+```python
+if
+```
+```python
+(!AssignProcessToJobObject(uv_global_job_handle_, info
+```
+```python
+.hProcess
+```
+```python
+)) {
+      DWORD err = GetLastError();
+```
+```python
+if
+```
+```python
+(err != ERROR_ACCESS_DENIED)
+        uv_fatal_error(err,
+```
+```python
+"AssignProcessToJobObject"
+```
+```python
+);
+    }
+  }
+```
+```python
+//设置所有的命名管道进程间通信的进程id
+```
+```python
+for
+```
+```python
+(i =
+```
+```python
+0
+```
+```python
+; i < options->stdio_count; i++) {
+```
+```python
+const
+```
+```python
+uv_stdio_container_t* fdopt = &options->stdio[i];
+```
+```python
+if
+```
+```python
+(fdopt->flags & UV_CREATE_PIPE &&
+        fdopt->data
+```
+```python
+.stream
+```
+```python
+->type == UV_NAMED_PIPE &&
+        ((uv_pipe_t*) fdopt->data
+```
+```python
+.stream
+```
+```python
+)->ipc) {
+      ((uv_pipe_t*) fdopt->data
+```
+```python
+.stream
+```
+```python
+)->pipe
+```
+```python
+.conn
+```
+```python
+.ipc_pid
+```
+```python
+= info
+```
+```python
+.dwProcessId
+```
+```python
+;
+    }
+  }
+```
+```python
+//开始对于进程句柄的监控，进程关闭后，系统会将其进程句柄设为有信号状态
+```
+```python
+result = RegisterWaitForSingleObject(&process->wait_handle,
+      process->process_handle, exit_wait_callback, (
+```
+```python
+void
+```
+```python
+*)process, INFINITE,
+      WT_EXECUTEINWAITTHREAD | WT_EXECUTEONLYONCE);
+```
+```python
+if
+```
+```python
+(!result) {
+    uv_fatal_error(GetLastError(),
+```
+```python
+"RegisterWaitForSingleObject"
+```
+```python
+);
+  }
+```
+```python
+//关闭不再使用的进程句柄
+```
+```python
+CloseHandle(info
+```
+```python
+.hThread
+```
+```python
+);
+  assert(!err);
+```
+```python
+//开始uv_process_t
+```
+```python
+uv__handle_start(process);
+```
+```python
+//清理资源
+```
+```python
+done:
+  uv__free(application);
+  uv__free(application_path);
+  uv__free(arguments);
+  uv__free(cwd);
+  uv__free(env);
+  uv__free(alloc_path);
+```
+```python
+//清理之前生成的传递给子进程的文件描述符
+```
+```python
+if
+```
+```python
+(process->child_stdio_buffer !=
+```
+```python
+NULL
+```
+```python
+) {
+```
+```python
+/* Clean up child stdio handles. */
+```
+```python
+uv__stdio_destroy(process->child_stdio_buffer);
+    process->child_stdio_buffer =
+```
+```python
+NULL
+```
+```python
+;
+  }
+```
+```python
+return
+```
+```python
+uv_translate_sys_error(err);
+}
+```
+监听到子线程关闭之后的回调函数exit_wait_callback，将会在windows的线程池中调用
+```python
+static
+```
+```python
+void
+```
+```python
+CALLBACK exit_wait_callback(
+```
+```python
+void
+```
+```python
+*
+```
+```python
+data
+```
+```python
+, BOOLEAN didTimeout) 
+{
+  uv_process_t
+```
+```python
+*
+```
+```python
+process
+```
+```python
+=
+```
+```python
+(uv_process_t
+```
+```python
+*
+```
+```python
+)
+```
+```python
+data
+```
+```python
+;
+  uv_loop_t
+```
+```python
+*
+```
+```python
+loop
+```
+```python
+=
+```
+```python
+process
+```
+```python
+->
+```
+```python
+loop
+```
+```python
+;
+  assert(didTimeout
+```
+```python
+==
+```
+```python
+FALSE
+```
+```python
+);
+  assert(process);
+  assert(
+```
+```python
+!
+```
+```python
+process
+```
+```python
+->
+```
+```python
+exit_cb_pending);
+  process
+```
+```python
+->
+```
+```python
+exit_cb_pending
+```
+```python
+=
+```
+```python
+1
+```
+```python
+;
+```
+```python
+//向iocp发送信号
+```
+```python
+POST_COMPLETION_FOR_REQ(
+```
+```python
+loop
+```
+```python
+,
+```
+```python
+&
+```
+```python
+process
+```
+```python
+->
+```
+```python
+exit_req);
+}
+```
+uv_run中会在收到线程退出信息后，会调用uv_process_reqs处理请求，最终调用uv_process_proc_exit
+```python
+void
+```
+```python
+uv_process_proc_exit(uv_loop_t
+```
+```python
+*
+```
+```python
+loop
+```
+```python
+, uv_process_t
+```
+```python
+*
+```
+```python
+handle
+```
+```python
+) 
+{
+  int64_t exit_code;
+  DWORD status;
+  assert(
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+exit_cb_pending);
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+exit_cb_pending
+```
+```python
+=
+```
+```python
+0
+```
+```python
+;
+```
+```python
+//如果handle是正在关闭状态，直接关闭handle。比如在监控关闭回调调用未完成时调用了uv_close关闭
+```
+```python
+//handle
+```
+```python
+/* callback now. */
+```
+```python
+if
+```
+```python
+(
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+flags
+```
+```python
+&
+```
+```python
+UV__HANDLE_CLOSING) {
+    uv_want_endgame(
+```
+```python
+loop
+```
+```python
+, (uv_handle_t
+```
+```python
+*
+```
+```python
+)
+```
+```python
+handle
+```
+```python
+);
+```
+```python
+return
+```
+```python
+;
+  }
+```
+```python
+//去掉监视
+```
+```python
+if
+```
+```python
+(
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+wait_handle
+```
+```python
+!=
+```
+```python
+INVALID_HANDLE_VALUE) {
+    UnregisterWait(
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+wait_handle);
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+wait_handle
+```
+```python
+=
+```
+```python
+INVALID_HANDLE_VALUE;
+  }
+```
+```python
+//停止handle
+```
+```python
+uv__handle_stop(
+```
+```python
+handle
+```
+```python
+);
+```
+```python
+if
+```
+```python
+(GetExitCodeProcess(
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+process_handle,
+```
+```python
+&
+```
+```python
+status)) {
+    exit_code
+```
+```python
+=
+```
+```python
+status;
+  }
+```
+```python
+else
+```
+```python
+{
+```
+```python
+/* Unable to to obtain the exit code. This should never happen. */
+```
+```python
+exit_code
+```
+```python
+=
+```
+```python
+uv_translate_sys_error(GetLastError());
+  }
+```
+```python
+//调用回调
+```
+```python
+if
+```
+```python
+(
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+exit_cb) {
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+exit_cb(
+```
+```python
+handle
+```
+```python
+, exit_code,
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+exit_signal);
+  }
+}
+```
+通过uv_close关闭uv_process_t，最终会调用uv_process_close
+```python
+void
+```
+```python
+uv_process_close(uv_loop_t
+```
+```python
+*
+```
+```python
+loop
+```
+```python
+, uv_process_t
+```
+```python
+*
+```
+```python
+handle
+```
+```python
+) 
+{
+  uv__handle_closing(
+```
+```python
+handle
+```
+```python
+);
+```
+```python
+//状态变为UV_HANDLE_CLOSING
+```
+```python
+if
+```
+```python
+(
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+wait_handle
+```
+```python
+!=
+```
+```python
+INVALID_HANDLE_VALUE) {
+```
+```python
+//注销监视
+```
+```python
+BOOL r
+```
+```python
+=
+```
+```python
+UnregisterWaitEx(
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+wait_handle, INVALID_HANDLE_VALUE);
+```
+```python
+if
+```
+```python
+(
+```
+```python
+!
+```
+```python
+r) {
+```
+```python
+/* This should never happen, and if it happens, we can't recover... */
+```
+```python
+uv_fatal_error(GetLastError(),
+```
+```python
+"UnregisterWaitEx"
+```
+```python
+);
+    }
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+wait_handle
+```
+```python
+=
+```
+```python
+INVALID_HANDLE_VALUE;
+  }
+```
+```python
+//监控进程关闭的回调函数exit_wait_callback还未调用，直接关闭handle，否则需要等到loop处理关闭回调
+```
+```python
+//请求的时候再关闭handle
+```
+```python
+if
+```
+```python
+(
+```
+```python
+!
+```
+```python
+handle
+```
+```python
+->
+```
+```python
+exit_cb_pending) {
+    uv_want_endgame(
+```
+```python
+loop
+```
+```python
+, (uv_handle_t
+```
+```python
+*
+```
+```python
+)
+```
+```python
+handle
+```
+```python
+);
+  }
+}
+```
+使用libuv创建子进程，可以设定输出、输入重定向，或使用命名管道来进行进程间通信，这部分内容与之后的uv_pipe_t以及uv_stream_t等内容相关。
+

@@ -1,0 +1,750 @@
+
+# C++实践参考：洗牌（范型程序设计） - 迂者-贺利坚的专栏 - CSDN博客
+
+2016年06月02日 16:58:44[迂者-贺利坚](https://me.csdn.net/sxhelijian)阅读数：2915
+
+
+【项目2：洗牌】
+在扑克牌游戏中，每次游戏开始都要求把54张牌重新排列一下，称为洗牌。试编写程序将一副扑克牌（用54个整数1~54表示）随机洗好后，顺序输出54张牌的情况。
+参考界面：
+![这里写图片描述](https://img-blog.csdn.net/20160602165152529)
+参考解答（共4种，可作为程序阅读，品味用STL解决问题的方法，必要时，请查找相关手册）
+解法1：初始化一个 vector，顺序加入所有牌，即整数1~54。然后从容器中随机抽取一个加到另一个vector中，这个过程一共执行54次。
+```python
+#include <ctime>
+```
+```python
+#include <vector>
+```
+```python
+#include <list>
+```
+```python
+#include <iostream>
+```
+```python
+#include <iterator>
+```
+```python
+#include <cstdlib>
+```
+```python
+using
+```
+```python
+namespace
+```
+```python
+std
+```
+```python
+;
+```
+```python
+using
+```
+```python
+namespace
+```
+```python
+std
+```
+```python
+;
+```
+```python
+typedef
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+IntVector;
+```
+```python
+typedef
+```
+```python
+unsigned
+```
+```python
+int
+```
+```python
+VIndex;
+```
+```python
+void
+```
+```python
+vectorShuffle(IntVector &unshuffled,IntVector &shuffled)
+{
+    VIndex p,size=unshuffled.size();
+```
+```python
+while
+```
+```python
+(size)
+    {
+        p=rand()%size--;
+        shuffled.push_back(unshuffled[p]);
+        unshuffled.erase(unshuffled.begin()+p);
+    }
+}
+```
+```python
+int
+```
+```python
+main()
+{
+    ostream_iterator<
+```
+```python
+int
+```
+```python
+> os(
+```
+```python
+cout
+```
+```python
+,
+```
+```python
+" "
+```
+```python
+);
+    srand(time(NULL));
+    IntVector c,sc;
+```
+```python
+for
+```
+```python
+(VIndex i=
+```
+```python
+1
+```
+```python
+; i<=
+```
+```python
+54
+```
+```python
+; i++)
+    {
+        c.push_back(i);
+    }
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"Before Shuffle"
+```
+```python
+<<endl;
+    copy(c.begin(),c.end(),os);
+```
+```python
+cout
+```
+```python
+<<endl;
+    vectorShuffle(c,sc);
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"\nAfter Shuffled"
+```
+```python
+<<endl;
+    copy(sc.begin(),sc.end(),os);
+```
+```python
+cout
+```
+```python
+<<endl<<endl;
+```
+```python
+return
+```
+```python
+0
+```
+```python
+;
+}
+```
+解法2：相同思路，用list
+```python
+#include <ctime>
+```
+```python
+#include <vector>
+```
+```python
+#include <list>
+```
+```python
+#include <iostream>
+```
+```python
+#include <iterator>
+```
+```python
+#include <cstdlib>
+```
+```python
+using
+```
+```python
+namespace
+```
+```python
+std
+```
+```python
+;
+```
+```python
+typedef
+```
+```python
+list
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+IntList;
+```
+```python
+typedef
+```
+```python
+unsigned
+```
+```python
+int
+```
+```python
+VIndex;
+```
+```python
+void
+```
+```python
+listShuffle(IntList &unshuffled,IntList &shuffled)
+{
+    VIndex  p, size=unshuffled.size();
+    IntList::iterator iter;
+```
+```python
+while
+```
+```python
+(size)
+    {
+        p=rand()%size--;
+        iter=unshuffled.begin();
+```
+```python
+while
+```
+```python
+(p!=
+```
+```python
+0
+```
+```python
+)
+        {
+            iter++;
+            p--;
+        }
+        shuffled.push_back(*iter);
+        unshuffled.erase(iter);
+    }
+}
+```
+```python
+int
+```
+```python
+main()
+{
+    ostream_iterator<
+```
+```python
+int
+```
+```python
+> os(
+```
+```python
+cout
+```
+```python
+,
+```
+```python
+" "
+```
+```python
+);
+    srand(time(NULL));
+    IntList cl,scl;
+```
+```python
+for
+```
+```python
+(VIndex i=
+```
+```python
+1
+```
+```python
+; i<=
+```
+```python
+54
+```
+```python
+; i++)
+    {
+        cl.push_back(i);
+    }
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"Before Shuffle"
+```
+```python
+<<endl;
+    copy(cl.begin(),cl.end(),os);
+```
+```python
+cout
+```
+```python
+<<endl;
+    listShuffle(cl,scl);
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"\nAfter Shuffled"
+```
+```python
+<<endl;
+    copy(scl.begin(),scl.end(),os);
+```
+```python
+cout
+```
+```python
+<<endl<<endl;
+```
+```python
+return
+```
+```python
+0
+```
+```python
+;
+}
+```
+解法3：随机交换两个位置的元素来洗牌。函数中time是要执行交换的次数，如果是54张牌的话，交换次数大于27的话就已经表现出很随机的排列了。
+```python
+#include <ctime>
+```
+```python
+#include <vector>
+```
+```python
+#include <iterator>
+```
+```python
+#include <algorithm>
+```
+```python
+#include <iostream>
+```
+```python
+using
+```
+```python
+namespace
+```
+```python
+std
+```
+```python
+;
+```
+```python
+typedef
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+IntVector;
+```
+```python
+void
+```
+```python
+SwapShuffle(IntVector &datas,
+```
+```python
+int
+```
+```python
+time)
+{
+```
+```python
+unsigned
+```
+```python
+size=datas.size(),p1,p2;
+```
+```python
+while
+```
+```python
+(time--)
+    {
+        p1=rand()%size;
+        p2=rand()%size;
+        swap(datas[p1],datas[p2]);
+    }
+}
+```
+```python
+int
+```
+```python
+main()
+{
+    ostream_iterator <
+```
+```python
+int
+```
+```python
+>  os(
+```
+```python
+cout
+```
+```python
+,
+```
+```python
+" "
+```
+```python
+);
+    srand(time(NULL));
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+poker;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+1
+```
+```python
+; i<=
+```
+```python
+54
+```
+```python
+; i++)
+    {
+        poker.push_back(i);
+    }
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"Before Shuffle"
+```
+```python
+<<endl;
+    copy(poker.begin(),poker.end(),os);
+```
+```python
+cout
+```
+```python
+<<endl;
+    SwapShuffle(poker,
+```
+```python
+100
+```
+```python
+);
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"\nAfter Shuffled"
+```
+```python
+<<endl;
+    copy(poker.begin(),poker.end(),os);
+```
+```python
+cout
+```
+```python
+<<endl<<endl;
+```
+```python
+return
+```
+```python
+0
+```
+```python
+;
+}
+```
+解法4：采用STL的 random_shuffle 算法
+```python
+#include <ctime>
+```
+```python
+#include <vector>
+```
+```python
+#include <iterator>
+```
+```python
+#include <algorithm>
+```
+```python
+#include <iostream>
+```
+```python
+using
+```
+```python
+namespace
+```
+```python
+std
+```
+```python
+;
+```
+```python
+int
+```
+```python
+main()
+{
+    ostream_iterator <
+```
+```python
+int
+```
+```python
+>  os(
+```
+```python
+cout
+```
+```python
+,
+```
+```python
+" "
+```
+```python
+);
+    srand(time(NULL));
+```
+```python
+// 洗牌前要先初始化随机数种子
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+poker;
+```
+```python
+for
+```
+```python
+(
+```
+```python
+int
+```
+```python
+i=
+```
+```python
+1
+```
+```python
+; i<=
+```
+```python
+54
+```
+```python
+; i++)
+    {
+        poker.push_back(i);
+    }
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"Before Shuffle"
+```
+```python
+<<endl;
+    copy(poker.begin(),poker.end(),os);
+```
+```python
+cout
+```
+```python
+<<endl;
+    random_shuffle(poker.begin(),poker.end());
+```
+```python
+cout
+```
+```python
+<<
+```
+```python
+"\nAfter Shuffled"
+```
+```python
+<<endl;
+    copy(poker.begin(),poker.end(),os);
+```
+```python
+cout
+```
+```python
+<<endl<<endl;
+```
+```python
+return
+```
+```python
+0
+```
+```python
+;
+}
+```
+

@@ -1,0 +1,29 @@
+
+# 常用CSS样式3：定位 - 尹成的技术博客 - CSDN博客
+
+2018年11月14日 16:10:30[尹成](https://me.csdn.net/yincheng01)阅读数：49
+
+
+\#定位
+\#\#关于定位
+我们可以使用css的position属性来设置元素的定位类型，postion的设置项如下：
+relative 生成相对定位元素，元素所占据的文档流的位置不变，元素本身相对文档流的位置进行偏移
+absolute生成绝对定位元素，元素脱离文档流，不占据文档流的位置，可以理解为漂浮在文档流的上方，相对于上一个设置了相对或者绝对或者固定定位的父级元素来进行定位，如果找不到，则相对于body元素进行定位。
+fixed 生成固定定位元素，元素脱离文档流，不占据文档流的位置，可以理解为漂浮在文档流的上方，相对于浏览器窗口进行定位。
+static 默认值，没有定位，元素出现在正常的文档流中，相当于取消定位属性或者不设置定位属性
+inherit 从父元素继承position 属性的值
+\#\#定位元素特性
+绝对定位和固定定位的块元素和行内元素会自动转化为行内块元素
+\#\#定位元素层级
+定位元素是浮动的正常的文档流之上的，可以用z-index属性来设置元素的层级
+\#\#典型定位布局
+1、固定在顶部的菜单
+2、水平垂直居中的弹框
+3、固定的侧边的工具栏
+4、固定在底部的按钮
+学院Go语言视频主页
+[https://edu.csdn.net/lecturer/1928](https://edu.csdn.net/lecturer/1928)
+[清华团队带你实战区块链开发](https://ke.qq.com/course/344443?tuin=3d17195d)
+扫码获取海量视频及源码   QQ群：721929980
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20181114143613461.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3lpbmNoZW5nMDE=,size_16,color_FFFFFF,t_70)
+

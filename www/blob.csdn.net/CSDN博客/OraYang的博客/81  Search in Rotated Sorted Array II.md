@@ -1,0 +1,244 @@
+
+# 81. Search in Rotated Sorted Array II - OraYang的博客 - CSDN博客
+
+2017年10月30日 16:08:19[OraYang](https://me.csdn.net/u010665216)阅读数：495所属专栏：[基础算法](https://blog.csdn.net/column/details/16604.html)
+
+
+
+## 题目
+Follow up for “Search in Rotated Sorted Array”:
+What if duplicates are allowed?
+Would this affect the run-time complexity? How and why?
+Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
+(i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
+Write a function to determine if a given target is in the array.
+The array may contain duplicates.
+## 思路
+这道题目，如果仅仅是实现，是很简单的，最坏情况O(n)，我们知道在有序数组的情况下，二分搜索的时间复杂度是O(logn)，那么在存在反转的情况下，能否使用二分搜索呢？答案是肯定的，唯一的区别就是三个索引值确定需要修改：left,right,mid
+## 代码
+```python
+class
+```
+```python
+Solution {
+```
+```python
+public
+```
+```python
+:
+```
+```python
+bool
+```
+```python
+search(
+```
+```python
+vector
+```
+```python
+<
+```
+```python
+int
+```
+```python
+>
+```
+```python
+& nums,
+```
+```python
+int
+```
+```python
+target) {
+```
+```python
+if
+```
+```python
+(nums.empty())
+```
+```python
+return
+```
+```python
+false
+```
+```python
+;
+```
+```python
+int
+```
+```python
+l=
+```
+```python
+0
+```
+```python
+,r=nums.size()-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+int
+```
+```python
+mid =
+```
+```python
+0
+```
+```python
+;
+```
+```python
+while
+```
+```python
+(l<r)
+        {
+            mid = (l+r)/
+```
+```python
+2
+```
+```python
+;
+```
+```python
+if
+```
+```python
+(nums[mid]==target)
+```
+```python
+//如果相等
+```
+```python
+return
+```
+```python
+true
+```
+```python
+;
+```
+```python
+if
+```
+```python
+(nums[mid]>nums[r])
+```
+```python
+//如果大于
+```
+```python
+{
+```
+```python
+if
+```
+```python
+(nums[mid]>target&&nums[l]<=target)
+                    r=mid-
+```
+```python
+1
+```
+```python
+;
+```
+```python
+else
+```
+```python
+l=mid+
+```
+```python
+1
+```
+```python
+;
+            }
+```
+```python
+else
+```
+```python
+if
+```
+```python
+(nums[mid]<nums[r])
+```
+```python
+//如果小于
+```
+```python
+{
+```
+```python
+if
+```
+```python
+(nums[mid]<target&&nums[r]>=target)
+                    l=mid+
+```
+```python
+1
+```
+```python
+;
+```
+```python
+else
+```
+```python
+r=mid-
+```
+```python
+1
+```
+```python
+;
+            }
+```
+```python
+else
+```
+```python
+//如果等于
+```
+```python
+r--;
+        }
+```
+```python
+return
+```
+```python
+nums[l]==target?
+```
+```python
+true
+```
+```python
+:
+```
+```python
+false
+```
+```python
+;
+    }
+};
+```
+

@@ -1,0 +1,2393 @@
+
+# 简单交通灯识别Traffic-Light-Classify - OraYang的博客 - CSDN博客
+
+2018年05月15日 16:18:40[OraYang](https://me.csdn.net/u010665216)阅读数：1633所属专栏：[无人驾驶相关算法实战](https://blog.csdn.net/column/details/21886.html)
+
+
+
+整个项目源码：[GitHub](https://github.com/shawshany/traffic_light_classified)
+# 引言
+前面我们讲完交通标志的识别，现在我们开始尝试来实现交通信号灯的识别
+接下来我们将按照自己的思路来实现并完善整个Project.
+在这个项目中，我们使用HSV色彩空间来识别交通灯，可以改善及提高的地方：
+> 可以采用Faster-RCNN或SSD来实现交通灯的识别
+
+首先我们第一步是导入数据，并在RGB及HSV色彩空间可视化部分数据。这里的数据，我们采用[MIT自动驾驶课程](https://selfdrivingcars.mit.edu/)的图片，
+总共三类：红绿黄，1187张图片，其中，723张红色交通灯图片，429张绿色交通灯图片，35张黄色交通灯图片。
+# 导入库
+```python
+# import some libs
+```
+```python
+import
+```
+```python
+cv2
+```
+```python
+import
+```
+```python
+os
+```
+```python
+import
+```
+```python
+glob
+```
+```python
+import
+```
+```python
+random
+```
+```python
+import
+```
+```python
+numpy
+```
+```python
+as
+```
+```python
+np
+```
+```python
+import
+```
+```python
+matplotlib.pyplot
+```
+```python
+as
+```
+```python
+plt
+```
+```python
+import
+```
+```python
+matplotlib.image
+```
+```python
+as
+```
+```python
+mpimg
+%matplotlib inline
+```
+```python
+# Image data directories
+```
+```python
+IMAGE_DIR_TRAINING =
+```
+```python
+"traffic_light_images/training/"
+```
+```python
+IMAGE_DIR_TEST =
+```
+```python
+"traffic_light_images/test/"
+```
+```python
+#load data
+```
+```python
+def
+```
+```python
+load_dataset
+```
+```python
+(image_dir)
+```
+```python
+:
+```
+```python
+'''
+    This function loads in images and their labels and places them in a list
+    image_dir:directions where images stored
+    '''
+```
+```python
+im_list =[]
+    image_types= [
+```
+```python
+'red'
+```
+```python
+,
+```
+```python
+'yellow'
+```
+```python
+,
+```
+```python
+'green'
+```
+```python
+]
+```
+```python
+#Iterate through each color folder
+```
+```python
+for
+```
+```python
+im_type
+```
+```python
+in
+```
+```python
+image_types:
+        file_lists = glob.glob(os.path.join(image_dir,im_type,
+```
+```python
+'*'
+```
+```python
+))
+        print(len(file_lists))
+```
+```python
+for
+```
+```python
+file
+```
+```python
+in
+```
+```python
+file_lists:
+            im = mpimg.imread(file)
+```
+```python
+if
+```
+```python
+not
+```
+```python
+im
+```
+```python
+is
+```
+```python
+None
+```
+```python
+:
+                im_list.append((im,im_type))
+```
+```python
+return
+```
+```python
+im_list
+IMAGE_LIST = load_dataset(IMAGE_DIR_TRAINING)
+```
+`723
+35
+429`
+# Visualize the data
+这里可视化主要实现：
+> 显示图像
+
+> 打印出图片的大小
+
+> 打印出图片对应的标签
+
+```python
+_,ax = plt.subplots(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+3
+```
+```python
+,figsize=(
+```
+```python
+5
+```
+```python
+,
+```
+```python
+2
+```
+```python
+))
+```
+```python
+#red
+```
+```python
+img_red = IMAGE_LIST[
+```
+```python
+0
+```
+```python
+][
+```
+```python
+0
+```
+```python
+]
+ax[
+```
+```python
+0
+```
+```python
+].imshow(img_red)
+ax[
+```
+```python
+0
+```
+```python
+].annotate(IMAGE_LIST[
+```
+```python
+0
+```
+```python
+][
+```
+```python
+1
+```
+```python
+],xy=(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+5
+```
+```python
+),color=
+```
+```python
+'blue'
+```
+```python
+,fontsize=
+```
+```python
+'10'
+```
+```python
+)
+ax[
+```
+```python
+0
+```
+```python
+].axis(
+```
+```python
+'off'
+```
+```python
+)
+ax[
+```
+```python
+0
+```
+```python
+].set_title(img_red.shape,fontsize=
+```
+```python
+10
+```
+```python
+)
+```
+```python
+#yellow
+```
+```python
+img_yellow = IMAGE_LIST[
+```
+```python
+730
+```
+```python
+][
+```
+```python
+0
+```
+```python
+]
+ax[
+```
+```python
+1
+```
+```python
+].imshow(img_yellow)
+ax[
+```
+```python
+1
+```
+```python
+].annotate(IMAGE_LIST[
+```
+```python
+730
+```
+```python
+][
+```
+```python
+1
+```
+```python
+],xy=(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+5
+```
+```python
+),color=
+```
+```python
+'blue'
+```
+```python
+,fontsize=
+```
+```python
+'10'
+```
+```python
+)
+ax[
+```
+```python
+1
+```
+```python
+].axis(
+```
+```python
+'off'
+```
+```python
+)
+ax[
+```
+```python
+1
+```
+```python
+].set_title(img_yellow.shape,fontsize=
+```
+```python
+10
+```
+```python
+)
+```
+```python
+#green
+```
+```python
+img_green = IMAGE_LIST[
+```
+```python
+800
+```
+```python
+][
+```
+```python
+0
+```
+```python
+]
+ax[
+```
+```python
+2
+```
+```python
+].imshow(img_green)
+ax[
+```
+```python
+2
+```
+```python
+].annotate(IMAGE_LIST[
+```
+```python
+800
+```
+```python
+][
+```
+```python
+1
+```
+```python
+],xy=(
+```
+```python
+2
+```
+```python
+,
+```
+```python
+5
+```
+```python
+),color=
+```
+```python
+'blue'
+```
+```python
+,fontsize=
+```
+```python
+'10'
+```
+```python
+)
+ax[
+```
+```python
+2
+```
+```python
+].axis(
+```
+```python
+'off'
+```
+```python
+)
+ax[
+```
+```python
+2
+```
+```python
+].set_title(img_green.shape,fontsize=
+```
+```python
+10
+```
+```python
+)
+plt.show()
+```
+![png](https://img-blog.csdn.net/20180515161017652?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTA2NjUyMTY=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+# PreProcess Data
+在导入了上述数据后，接下来我们需要标准化输入及输出
+## Input
+从上图，我们可以看出，每张图片的大小并不一样，我们需要标准化输入
+将每张图图片的大小resize成相同的大小，
+因为对于分类任务来说，我们需要
+在每张图片上应用相同的算法，因此标准化图像尤其重要
+## Output
+这里我们的标签数据是类别数据：’red’,’yellow’,’green’，因此我们可以利用[one_hot](https://machinelearningmastery.com/how-to-one-hot-encode-sequence-data-in-python/)方法将类别数据转换成数值数据
+```python
+# 标准化输入图像，这里我们resize图片大小为32x32x3,这里我们也可以对图像进行裁剪、平移、旋转
+```
+```python
+def
+```
+```python
+standardize
+```
+```python
+(image_list)
+```
+```python
+:
+```
+```python
+'''
+    This function takes a rgb image as input and return a standardized version
+    image_list: image and label
+    '''
+```
+```python
+standard_list = []
+```
+```python
+#Iterate through all the image-label pairs
+```
+```python
+for
+```
+```python
+item
+```
+```python
+in
+```
+```python
+image_list:
+        image = item[
+```
+```python
+0
+```
+```python
+]
+        label = item[
+```
+```python
+1
+```
+```python
+]
+```
+```python
+# Standardize the input
+```
+```python
+standardized_im = standardize_input(image)
+```
+```python
+# Standardize the output(one hot)
+```
+```python
+one_hot_label = one_hot_encode(label)
+```
+```python
+# Append the image , and it's one hot encoded label to the full ,processed list of image data
+```
+```python
+standard_list.append((standardized_im,one_hot_label))
+```
+```python
+return
+```
+```python
+standard_list
+```
+```python
+def
+```
+```python
+standardize_input
+```
+```python
+(image)
+```
+```python
+:
+```
+```python
+#Resize all images to be 32x32x3
+```
+```python
+standard_im = cv2.resize(image,(
+```
+```python
+32
+```
+```python
+,
+```
+```python
+32
+```
+```python
+))
+```
+```python
+return
+```
+```python
+standard_im
+```
+```python
+def
+```
+```python
+one_hot_encode
+```
+```python
+(label)
+```
+```python
+:
+```
+```python
+#return the correct encoded label.
+```
+```python
+'''
+    # one_hot_encode("red") should return: [1, 0, 0]
+    # one_hot_encode("yellow") should return: [0, 1, 0]
+    # one_hot_encode("green") should return: [0, 0, 1]
+    '''
+```
+```python
+if
+```
+```python
+label==
+```
+```python
+'red'
+```
+```python
+:
+```
+```python
+return
+```
+```python
+[
+```
+```python
+1
+```
+```python
+,
+```
+```python
+0
+```
+```python
+,
+```
+```python
+0
+```
+```python
+]
+```
+```python
+elif
+```
+```python
+label==
+```
+```python
+'yellow'
+```
+```python
+:
+```
+```python
+return
+```
+```python
+[
+```
+```python
+0
+```
+```python
+,
+```
+```python
+1
+```
+```python
+,
+```
+```python
+0
+```
+```python
+]
+```
+```python
+else
+```
+```python
+:
+```
+```python
+return
+```
+```python
+[
+```
+```python
+0
+```
+```python
+,
+```
+```python
+0
+```
+```python
+,
+```
+```python
+1
+```
+```python
+]
+```
+# Test your code
+实现完了上述标准化代码后，我们需要进一步确定我们的代码是正确的，因此接下来我们可以实现一个函数来实现上述代码功能的检验
+用Python搭建自动化测试框架，我们需要组织用例以及测试执行，这里我们推荐Python的标准库——unittest。
+```python
+import
+```
+```python
+unittest
+```
+```python
+from
+```
+```python
+IPython.display
+```
+```python
+import
+```
+```python
+Markdown,display
+```
+```python
+# Helper function for printing markdown text(text in color/bold/etc)
+```
+```python
+def
+```
+```python
+printmd
+```
+```python
+(string)
+```
+```python
+:
+```
+```python
+display(Markdown(string))
+```
+```python
+# Print a test falied message,given an error
+```
+```python
+def
+```
+```python
+print_fail
+```
+```python
+()
+```
+```python
+:
+```
+```python
+printmd(
+```
+```python
+'**<span style=="color: red;">Test Failed</span>**'
+```
+```python
+)
+```
+```python
+def
+```
+```python
+print_pass
+```
+```python
+()
+```
+```python
+:
+```
+```python
+printmd(
+```
+```python
+'**<span style="color:green;">Test Passed</span>**'
+```
+```python
+)
+```
+```python
+# A class holding all tests
+```
+```python
+class
+```
+```python
+Tests
+```
+```python
+(unittest.TestCase)
+```
+```python
+:
+```
+```python
+#Tests the 'one_hot_encode' function,which is passed in as an argument
+```
+```python
+def
+```
+```python
+test_one_hot
+```
+```python
+(self,one_hot_function)
+```
+```python
+:
+```
+```python
+#test that the generate onr-hot lables match the expected one-hot label
+```
+```python
+#for all three cases(red,yellow,green)
+```
+```python
+try
+```
+```python
+:
+            self.assertEqual([
+```
+```python
+1
+```
+```python
+,
+```
+```python
+0
+```
+```python
+,
+```
+```python
+0
+```
+```python
+],one_hot_function(
+```
+```python
+'red'
+```
+```python
+))
+            self.assertEqual([
+```
+```python
+0
+```
+```python
+,
+```
+```python
+1
+```
+```python
+,
+```
+```python
+0
+```
+```python
+],one_hot_function(
+```
+```python
+'yellow'
+```
+```python
+))
+            self.assertEqual([
+```
+```python
+0
+```
+```python
+,
+```
+```python
+0
+```
+```python
+,
+```
+```python
+1
+```
+```python
+],one_hot_function(
+```
+```python
+'green'
+```
+```python
+))
+```
+```python
+#enter exception
+```
+```python
+except
+```
+```python
+self.failureException
+```
+```python
+as
+```
+```python
+e:
+```
+```python
+#print out an error message
+```
+```python
+print_fail()
+            print(
+```
+```python
+'Your function did not return the excepted one-hot label'
+```
+```python
+)
+            print(
+```
+```python
+'\n'
+```
+```python
++str(e))
+```
+```python
+return
+```
+```python
+print_pass()
+```
+```python
+#Test if ay misclassified images are red but mistakenly classifed as green
+```
+```python
+def
+```
+```python
+test_red_aa_green
+```
+```python
+(self,misclassified_images)
+```
+```python
+:
+```
+```python
+#Loop through each misclassified image and the labels
+```
+```python
+for
+```
+```python
+im,predicted_label,true_label
+```
+```python
+in
+```
+```python
+misclassified_images:
+```
+```python
+#check if the iamge is one of a red light
+```
+```python
+if
+```
+```python
+(true_label==[
+```
+```python
+1
+```
+```python
+,
+```
+```python
+0
+```
+```python
+,
+```
+```python
+0
+```
+```python
+]):
+```
+```python
+try
+```
+```python
+:
+                    self.assertNotEqual(true_label,[
+```
+```python
+0
+```
+```python
+,
+```
+```python
+1
+```
+```python
+,
+```
+```python
+0
+```
+```python
+])
+```
+```python
+except
+```
+```python
+self.failureException
+```
+```python
+as
+```
+```python
+e:
+                    print_fail()
+                    print(
+```
+```python
+'Warning:A red light is classified as green.'
+```
+```python
+)
+                    print(
+```
+```python
+'\n'
+```
+```python
++str(e))
+```
+```python
+return
+```
+```python
+print_pass()
+tests = Tests()
+tests.test_one_hot(one_hot_encode)
+```
+**Test Passed**
+```python
+Standardized_Train_List = standardize(IMAGE_LIST)
+```
+# Feature Extraction
+在这里我们将使用色彩空间、形状分析及特征构造
+## RGB to HSV
+```python
+#Visualize
+```
+```python
+image_num =
+```
+```python
+0
+```
+```python
+test_im = Standardized_Train_List[image_num][
+```
+```python
+0
+```
+```python
+]
+test_label = Standardized_Train_List[image_num][
+```
+```python
+1
+```
+```python
+]
+```
+```python
+#convert to hsv
+```
+```python
+hsv = cv2.cvtColor(test_im, cv2.COLOR_RGB2HSV)
+```
+```python
+# Print image label
+```
+```python
+print(
+```
+```python
+'Label [red, yellow, green]: '
+```
+```python
++ str(test_label))
+h = hsv[:,:,
+```
+```python
+0
+```
+```python
+]
+s = hsv[:,:,
+```
+```python
+1
+```
+```python
+]
+v = hsv[:,:,
+```
+```python
+2
+```
+```python
+]
+```
+```python
+# Plot the original image and the three channels
+```
+```python
+_, ax = plt.subplots(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+4
+```
+```python
+, figsize=(
+```
+```python
+20
+```
+```python
+,
+```
+```python
+10
+```
+```python
+))
+ax[
+```
+```python
+0
+```
+```python
+].set_title(
+```
+```python
+'Standardized image'
+```
+```python
+)
+ax[
+```
+```python
+0
+```
+```python
+].imshow(test_im)
+ax[
+```
+```python
+1
+```
+```python
+].set_title(
+```
+```python
+'H channel'
+```
+```python
+)
+ax[
+```
+```python
+1
+```
+```python
+].imshow(h, cmap=
+```
+```python
+'gray'
+```
+```python
+)
+ax[
+```
+```python
+2
+```
+```python
+].set_title(
+```
+```python
+'S channel'
+```
+```python
+)
+ax[
+```
+```python
+2
+```
+```python
+].imshow(s, cmap=
+```
+```python
+'gray'
+```
+```python
+)
+ax[
+```
+```python
+3
+```
+```python
+].set_title(
+```
+```python
+'V channel'
+```
+```python
+)
+ax[
+```
+```python
+3
+```
+```python
+].imshow(v, cmap=
+```
+```python
+'gray'
+```
+```python
+)
+```
+`Label [red, yellow, green]: [1, 0, 0]
+
+
+<matplotlib.image.AxesImage at 0x7fb49ad71f28>`![png](https://img-blog.csdn.net/20180515161044339?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTA2NjUyMTY=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+```python
+# create feature
+```
+```python
+'''
+HSV即色相、饱和度、明度（英语：Hue, Saturation, Value），又称HSB，其中B即英语：Brightness。
+色相（H）是色彩的基本属性，就是平常所说的颜色名称，如红色、黄色等。
+饱和度（S）是指色彩的纯度，越高色彩越纯，低则逐渐变灰，取0-100%的数值。
+明度（V），亮度（L），取0-100%。
+'''
+```
+```python
+def
+```
+```python
+create_feature
+```
+```python
+(rgb_image)
+```
+```python
+:
+```
+```python
+'''
+    Basic brightness feature
+    rgb_image : a rgb_image
+    '''
+```
+```python
+hsv = cv2.cvtColor(rgb_image,cv2.COLOR_RGB2HSV)
+    sum_brightness = np.sum(hsv[:,:,
+```
+```python
+2
+```
+```python
+])
+    area =
+```
+```python
+32
+```
+```python
+*
+```
+```python
+32
+```
+```python
+avg_brightness = sum_brightness / area
+```
+```python
+#Find the average
+```
+```python
+return
+```
+```python
+avg_brightness
+```
+```python
+def
+```
+```python
+high_saturation_pixels
+```
+```python
+(rgb_image,threshold=
+```
+```python
+80
+```
+```python
+)
+```
+```python
+:
+```
+```python
+'''
+    Returns average red and green content from high saturation pixels
+    Usually, the traffic light contained the highest saturation pixels in the image.
+    The threshold was experimentally determined to be 80
+    '''
+```
+```python
+high_sat_pixels = []
+    hsv = cv2.cvtColor(rgb,cv2.COLOR_RGB2HSV)
+```
+```python
+for
+```
+```python
+i
+```
+```python
+in
+```
+```python
+range(
+```
+```python
+32
+```
+```python
+):
+```
+```python
+for
+```
+```python
+j
+```
+```python
+in
+```
+```python
+range(
+```
+```python
+32
+```
+```python
+):
+```
+```python
+if
+```
+```python
+hsv[i][j][
+```
+```python
+1
+```
+```python
+] > threshold:
+                high_sat_pixels.append(rgb_image[i][j])
+```
+```python
+if
+```
+```python
+not
+```
+```python
+high_sat_pixels:
+```
+```python
+return
+```
+```python
+highest_sat_pixel(rgb_image)
+    sum_red =
+```
+```python
+0
+```
+```python
+sum_green =
+```
+```python
+0
+```
+```python
+for
+```
+```python
+pixel
+```
+```python
+in
+```
+```python
+high_sat_pixels:
+        sum_red+=pixel[
+```
+```python
+0
+```
+```python
+]
+        sum_green+=pixel[
+```
+```python
+1
+```
+```python
+]
+```
+```python
+# use sum() instead of manually adding them up
+```
+```python
+avg_red = sum_red / len(high_sat_pixels)
+    avg_green = sum_green / len(high_sat_pixels)*
+```
+```python
+0.8
+```
+```python
+return
+```
+```python
+avg_red,avg_green
+```
+```python
+def
+```
+```python
+highest_sat_pixel
+```
+```python
+(rgb_image)
+```
+```python
+:
+```
+```python
+'''
+    Finds the highest saturation pixels, and checks if it has a higher green
+    or a higher red content
+    '''
+```
+```python
+hsv = cv2.cvtColor(rgb_image,cv2.COLOR_RGB2HSV)
+    s = hsv[:,:,
+```
+```python
+1
+```
+```python
+]
+    x,y = (np.unravel_index(np.argmax(s),s.shape))
+```
+```python
+if
+```
+```python
+rgb_image[x,y,
+```
+```python
+0
+```
+```python
+] > rgb_image[x,y,
+```
+```python
+1
+```
+```python
+]*
+```
+```python
+0.9
+```
+```python
+:
+```
+```python
+return
+```
+```python
+1
+```
+```python
+,
+```
+```python
+0
+```
+```python
+#red has a higher content
+```
+```python
+return
+```
+```python
+0
+```
+```python
+,
+```
+```python
+1
+```
+# Test dataset
+接下来我们导入测试集来看看，上述方法的测试精度
+上述方法我们实现了：
+1.求平均的brightness
+2.求red及green的色彩饱和度
+有人或许会提出疑问，为啥没有进行yellow的判断，因此我们作出以下的改善
+reference[url](http://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_colorspaces/py_colorspaces.html?highlight=cv2%20inrange)
+这里部分阈值，我们直接参考[WIKI](https://zh.wikipedia.org/wiki/HSL%E5%92%8CHSV%E8%89%B2%E5%BD%A9%E7%A9%BA%E9%97%B4)上的数据：
+![这里写图片描述](https://img-blog.csdn.net/20180515161322159?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTA2NjUyMTY=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+```python
+def
+```
+```python
+estimate_label
+```
+```python
+(rgb_image,display=False)
+```
+```python
+:
+```
+```python
+'''
+    rgb_image:Standardized RGB image
+    '''
+```
+```python
+return
+```
+```python
+red_green_yellow(rgb_image,display)
+```
+```python
+def
+```
+```python
+findNoneZero
+```
+```python
+(rgb_image)
+```
+```python
+:
+```
+```python
+rows,cols,_ = rgb_image.shape
+    counter =
+```
+```python
+0
+```
+```python
+for
+```
+```python
+row
+```
+```python
+in
+```
+```python
+range(rows):
+```
+```python
+for
+```
+```python
+col
+```
+```python
+in
+```
+```python
+range(cols):
+            pixels = rgb_image[row,col]
+```
+```python
+if
+```
+```python
+sum(pixels)!=
+```
+```python
+0
+```
+```python
+:
+                counter = counter+
+```
+```python
+1
+```
+```python
+return
+```
+```python
+counter
+```
+```python
+def
+```
+```python
+red_green_yellow
+```
+```python
+(rgb_image,display)
+```
+```python
+:
+```
+```python
+'''
+    Determines the red , green and yellow content in each image using HSV and experimentally
+    determined thresholds. Returns a Classification based on the values
+    '''
+```
+```python
+hsv = cv2.cvtColor(rgb_image,cv2.COLOR_RGB2HSV)
+    sum_saturation = np.sum(hsv[:,:,
+```
+```python
+1
+```
+```python
+])
+```
+```python
+# Sum the brightness values
+```
+```python
+area =
+```
+```python
+32
+```
+```python
+*
+```
+```python
+32
+```
+```python
+avg_saturation = sum_saturation / area
+```
+```python
+#find average
+```
+```python
+sat_low = int(avg_saturation*
+```
+```python
+1.3
+```
+```python
+)
+```
+```python
+#均值的1.3倍，工程经验
+```
+```python
+val_low =
+```
+```python
+140
+```
+```python
+#Green
+```
+```python
+lower_green = np.array([
+```
+```python
+70
+```
+```python
+,sat_low,val_low])
+    upper_green = np.array([
+```
+```python
+100
+```
+```python
+,
+```
+```python
+255
+```
+```python
+,
+```
+```python
+255
+```
+```python
+])
+    green_mask = cv2.inRange(hsv,lower_green,upper_green)
+    green_result = cv2.bitwise_and(rgb_image,rgb_image,mask = green_mask)
+```
+```python
+#Yellow
+```
+```python
+lower_yellow = np.array([
+```
+```python
+10
+```
+```python
+,sat_low,val_low])
+    upper_yellow = np.array([
+```
+```python
+60
+```
+```python
+,
+```
+```python
+255
+```
+```python
+,
+```
+```python
+255
+```
+```python
+])
+    yellow_mask = cv2.inRange(hsv,lower_yellow,upper_yellow)
+    yellow_result = cv2.bitwise_and(rgb_image,rgb_image,mask=yellow_mask)
+```
+```python
+# Red
+```
+```python
+lower_red = np.array([
+```
+```python
+150
+```
+```python
+,sat_low,val_low])
+    upper_red = np.array([
+```
+```python
+180
+```
+```python
+,
+```
+```python
+255
+```
+```python
+,
+```
+```python
+255
+```
+```python
+])
+    red_mask = cv2.inRange(hsv,lower_red,upper_red)
+    red_result = cv2.bitwise_and(rgb_image,rgb_image,mask = red_mask)
+```
+```python
+if
+```
+```python
+display==
+```
+```python
+True
+```
+```python
+:
+        _,ax = plt.subplots(
+```
+```python
+1
+```
+```python
+,
+```
+```python
+5
+```
+```python
+,figsize=(
+```
+```python
+20
+```
+```python
+,
+```
+```python
+10
+```
+```python
+))
+        ax[
+```
+```python
+0
+```
+```python
+].set_title(
+```
+```python
+'rgb image'
+```
+```python
+)
+        ax[
+```
+```python
+0
+```
+```python
+].imshow(rgb_image)
+        ax[
+```
+```python
+1
+```
+```python
+].set_title(
+```
+```python
+'red result'
+```
+```python
+)
+        ax[
+```
+```python
+1
+```
+```python
+].imshow(red_result)
+        ax[
+```
+```python
+2
+```
+```python
+].set_title(
+```
+```python
+'yellow result'
+```
+```python
+)
+        ax[
+```
+```python
+2
+```
+```python
+].imshow(yellow_result)
+        ax[
+```
+```python
+3
+```
+```python
+].set_title(
+```
+```python
+'green result'
+```
+```python
+)
+        ax[
+```
+```python
+3
+```
+```python
+].imshow(green_result)
+        ax[
+```
+```python
+4
+```
+```python
+].set_title(
+```
+```python
+'hsv image'
+```
+```python
+)
+        ax[
+```
+```python
+4
+```
+```python
+].imshow(hsv)
+        plt.show()
+    sum_green = findNoneZero(green_result)
+    sum_red = findNoneZero(red_result)
+    sum_yellow = findNoneZero(yellow_result)
+```
+```python
+if
+```
+```python
+sum_red >= sum_yellow
+```
+```python
+and
+```
+```python
+sum_red>=sum_green:
+```
+```python
+return
+```
+```python
+[
+```
+```python
+1
+```
+```python
+,
+```
+```python
+0
+```
+```python
+,
+```
+```python
+0
+```
+```python
+]
+```
+```python
+#Red
+```
+```python
+if
+```
+```python
+sum_yellow>=sum_green:
+```
+```python
+return
+```
+```python
+[
+```
+```python
+0
+```
+```python
+,
+```
+```python
+1
+```
+```python
+,
+```
+```python
+0
+```
+```python
+]
+```
+```python
+#yellow
+```
+```python
+return
+```
+```python
+[
+```
+```python
+0
+```
+```python
+,
+```
+```python
+0
+```
+```python
+,
+```
+```python
+1
+```
+```python
+]
+```
+```python
+#green
+```
+# Test
+接下来我们选择三张图片来看看测试效果
+> img_red,img_yellow,img_green
+
+```python
+img_test = [(img_red,
+```
+```python
+'red'
+```
+```python
+),(img_yellow,
+```
+```python
+'yellow'
+```
+```python
+),(img_green,
+```
+```python
+'green'
+```
+```python
+)]
+standardtest = standardize(img_test)
+```
+```python
+for
+```
+```python
+img
+```
+```python
+in
+```
+```python
+standardtest:
+    predicted_label = estimate_label(img[
+```
+```python
+0
+```
+```python
+],display =
+```
+```python
+True
+```
+```python
+)
+    print(
+```
+```python
+'Predict label :'
+```
+```python
+,predicted_label)
+    print(
+```
+```python
+'True label:'
+```
+```python
+,img[
+```
+```python
+1
+```
+```python
+])
+```
+![png](https://img-blog.csdn.net/201805151611003?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTA2NjUyMTY=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+`Predict label : [1, 0, 0]
+True label: [1, 0, 0]`![png](https://img-blog.csdn.net/20180515161108821?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTA2NjUyMTY=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+`Predict label : [0, 1, 0]
+True label: [0, 1, 0]`![png](https://img-blog.csdn.net/2018051516111618?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTA2NjUyMTY=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+`Predict label : [0, 0, 1]
+True label: [0, 0, 1]`
+```python
+# Using the load_dataset function in helpers.py
+```
+```python
+# Load test data
+```
+```python
+TEST_IMAGE_LIST = load_dataset(IMAGE_DIR_TEST)
+```
+```python
+# Standardize the test data
+```
+```python
+STANDARDIZED_TEST_LIST = standardize(TEST_IMAGE_LIST)
+```
+```python
+# Shuffle the standardized test data
+```
+```python
+random.shuffle(STANDARDIZED_TEST_LIST)
+```
+`181
+9
+107`
+# Determine the Accuracy
+接下来我们来看看咱们算法在测试集上的准确率。下面我们实现的代码存储所有的被错分的图片以及它们被预测的结果及真实标签。
+这些数据被存储在MISCLASSIFIED.
+```python
+# COnstructs a list of misclassfied iamges given a list of test images and their labels
+```
+```python
+# This will throw an assertionerror if labels are not standardized(one hot encode)
+```
+```python
+def
+```
+```python
+get_misclassified_images
+```
+```python
+(test_images,display=False)
+```
+```python
+:
+```
+```python
+misclassified_images_labels = []
+```
+```python
+#Iterate through all the test images
+```
+```python
+#Classify each image  and compare to the true label
+```
+```python
+for
+```
+```python
+image
+```
+```python
+in
+```
+```python
+test_images:
+```
+```python
+# Get true data
+```
+```python
+im = image[
+```
+```python
+0
+```
+```python
+]
+        true_label = image[
+```
+```python
+1
+```
+```python
+]
+```
+```python
+assert
+```
+```python
+(len(true_label)==
+```
+```python
+3
+```
+```python
+),
+```
+```python
+'This true_label is not the excepted length (3).'
+```
+```python
+#Get predicted label from your classifier
+```
+```python
+predicted_label = estimate_label(im,display=
+```
+```python
+False
+```
+```python
+)
+```
+```python
+assert
+```
+```python
+(len(predicted_label)==
+```
+```python
+3
+```
+```python
+),
+```
+```python
+'This predicted_label is not the excepted length (3).'
+```
+```python
+#compare true and predicted labels
+```
+```python
+if
+```
+```python
+(predicted_label!=true_label):
+```
+```python
+#if these labels are ot equal, the image  has been misclassified
+```
+```python
+misclassified_images_labels.append((im,predicted_label,true_label))
+```
+```python
+# return the list of misclassified [image,predicted_label,true_label] values
+```
+```python
+return
+```
+```python
+misclassified_images_labels
+```
+```python
+# Find all misclassified images in a given test set
+```
+```python
+MISCLASSIFIED = get_misclassified_images(STANDARDIZED_TEST_LIST,display=
+```
+```python
+False
+```
+```python
+)
+```
+```python
+#Accuracy calcuations
+```
+```python
+total = len(STANDARDIZED_TEST_LIST)
+num_correct = total-len(MISCLASSIFIED)
+accuracy = num_correct / total
+print(
+```
+```python
+'Accuracy:'
+```
+```python
++str(accuracy))
+print(
+```
+```python
+'Number of misclassfied images = '
+```
+```python
++str(len(MISCLASSIFIED))+
+```
+```python
+' out of '
+```
+```python
++str(total))
+```
+`Accuracy:0.9797979797979798
+Number of misclassfied images = 6 out of 297`
+
