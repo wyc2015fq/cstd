@@ -1,0 +1,1925 @@
+
+# Log4j使用教程 - anlcy - 博客园
+
+
+
+
+
+
+# [Log4j使用教程](https://www.cnblogs.com/camilla/p/6844284.html)
+日志是应用软件中不可缺少的部分，Apache的开源项目[log4j](http://www.codeceo.com/article/log4j-usage.html)是一个功能强大的日志组件,提供方便的日志记录。在apache网站：[jakarta.apache.org/log4j](http://jakarta.apache.org/log4j)可以免费下载到Log4j最新版本的软件包。
+## 一、入门实例
+1.新建一个JAva工程，导入包log4j-1.2.17.jar，整个工程最终目录如下
+![](http://static.oschina.net/uploads/img/201603/16202835_2qBB.jpg)
+2、src同级创建并设置log4j.properties
+```python
+### 设置###
+```
+```python
+log4j.rootLogger = debugger,D
+```
+```python
+#如果想过滤框架只打印错误信息可以这样配置(org.apace和org.springframework开头的包只打印错误信息)
+```
+```python
+log4j.logger.org.apache=ERROR
+```
+```python
+log4j.logger.org.springframework=ERROR
+```
+```python
+#控制台输出info信息
+```
+```python
+log4j.appender.D=org.apache.log4j.ConsoleAppender
+```
+```python
+log4j.appender.D.layout=org.apache.log4j.PatternLayout
+```
+```python
+log4j.appender.D.layout.ConversionPattern=[%-5p] %t %d{yyyy-MM-dd HH:mm:ss,SSS} method:%l %m%n
+```
+```python
+### 输出com.xwtec.listener.PushFutureListener类所在的INFO 级别以上的日志到/webapp/logs/push_ios_interface/iosPushLog.log ###
+```
+```python
+log4j.logger.com.xwtec.listener.PushFutureListener=INFO,A
+```
+```python
+log4j.appender.A = org.apache.log4j.DailyRollingFileAppender
+```
+```python
+log4j.appender.A.File = /webapp/logs/push_ios_interface/iosPushLog.log
+```
+```python
+log4j.appender.A.Append =
+```
+```python
+true
+```
+```python
+log4j.appender.AosPushLog.encoding=UTF-8
+```
+```python
+log4j.appender.AosPushLog.Threshold=INFO
+```
+```python
+log4j.appender.A.layout = org.apache.log4j.PatternLayout
+```
+```python
+log4j.appender.A.layout.ConversionPattern = [%-5p] %t %d{yyyy-MM-dd HH:mm:ss,SSS} method:%m%n
+```
+3、设置日志内容
+```python
+package com.mucfc;
+```
+```python
+import org.apache.log4j.Logger;
+```
+```python
+/**
+ *
+```
+```python
+@author
+```
+```python
+linbingwen
+ *@2015年5月18日9:14:21
+ */
+```
+```python
+public
+```
+```python
+class
+```
+```python
+Test
+```
+```python
+{
+```
+```python
+private
+```
+```python
+static Logger logger = Logger.getLogger(Test.class);
+```
+```python
+/** 
+     *
+```
+```python
+@param
+```
+```python
+args 
+     */
+```
+```python
+public
+```
+```python
+static
+```
+```python
+void
+```
+```python
+main
+```
+```python
+(String[] args)
+```
+```python
+{
+```
+```python
+// System.out.println("This is println message.");
+```
+```python
+// 记录debug级别的信息  
+        logger.debug(
+```
+```python
+"This is debug message.");
+```
+```python
+// 记录info级别的信息  
+        logger.info(
+```
+```python
+"This is info message.");
+```
+```python
+// 记录error级别的信息  
+        logger.error(
+```
+```python
+"This is error message.");  
+    }  
+}
+```
+4、输出结果
+（1）首先是控制台的信息
+![](http://static.oschina.net/uploads/img/201603/16202835_5PqQ.jpg)
+（2）再来看输出的文件
+![](http://static.oschina.net/uploads/img/201603/16202835_IElL.jpg)
+内容如下，发现已按照要求输出到对应的文档中去了。
+![](http://static.oschina.net/uploads/img/201603/16202835_wucY.jpg)
+![](http://static.oschina.net/uploads/img/201603/16202835_JoNr.jpg)
+## 二、Log4j基本使用方法
+Log4j由三个重要的组件构成：日志信息的优先级，日志信息的输出目的地，日志信息的输出格式。日志信息的优先级从高到低有ERROR、WARN、 INFO、DEBUG，分别用来指定这条日志信息的重要程度；日志信息的输出目的地指定了日志将打印到控制台还是文件中；而输出格式则控制了日志信息的显 示内容。
+2.1、定义配置文件
+其实您也可以完全不使用配置文件，而是在代码中配置Log4j环境。但是，使用配置文件将使您的应用程序更加灵活。Log4j支持两种配置文件格式，一种是XML格式的文件，一种是Java特性文件（键=值）。下面我们介绍使用Java特性文件做为配置文件的方法：
+1.配置根Logger，其语法为：
+```python
+log4j.rootLogger = [ level ] , appenderName, appenderName, …
+```
+其中，level 是日志记录的优先级，分为OFF、FATAL、ERROR、WARN、INFO、DEBUG、ALL或者您定义的级别。Log4j建议只使用四个级别，优 先级从高到低分别是ERROR、WARN、INFO、DEBUG。通过在这里定义的级别，您可以控制到应用程序中相应级别的日志信息的开关。比如在这里定 义了INFO级别，则应用程序中所有DEBUG级别的日志信息将不被打印出来。 appenderName就是指B日志信息输出到哪个地方。您可以同时指定多个输出目的地。
+2.配置日志信息输出目的地Appender，其语法为：
+```python
+log4j.appender.appenderName = fully.qualified.name.of.appender.class
+```
+```python
+log4j.appender.appenderName.option1 = value1  
+…
+```
+```python
+log4j.appender.appenderName.option = valueN
+```
+其中，Log4j提供的appender有以下几种：
+```python
+org
+```
+```python
+.apache
+```
+```python
+.log4j
+```
+```python
+.ConsoleAppender（控制台），
+```
+```python
+org
+```
+```python
+.apache
+```
+```python
+.log4j
+```
+```python
+.FileAppender（文件），
+```
+```python
+org
+```
+```python
+.apache
+```
+```python
+.log4j
+```
+```python
+.DailyRollingFileAppender（每天产生一个日志文件），
+```
+```python
+org
+```
+```python
+.apache
+```
+```python
+.log4j
+```
+```python
+.RollingFileAppender（文件大小到达指定尺寸的时候产生一个新的文件），
+```
+```python
+org
+```
+```python
+.apache
+```
+```python
+.log4j
+```
+```python
+.WriterAppender（将日志信息以流格式发送到任意指定的地方）
+```
+3.配置日志信息的格式（布局），其语法为：
+```python
+log4j.appender.appenderName.layout = fully.qualified.name.of.layout.class
+```
+```python
+log4j.appender.appenderName.layout.option1 = value1  
+…
+```
+```python
+log4j.appender.appenderName.layout.option = valueN
+```
+其中，Log4j提供的layout有以e几种：
+```python
+org
+```
+```python
+.apache
+```
+```python
+.log4j
+```
+```python
+.HTMLLayout（以
+```
+```python
+HTML表格形式布局），
+```
+```python
+org
+```
+```python
+.apache
+```
+```python
+.log4j
+```
+```python
+.PatternLayout（可以灵活地指定布局模式），
+```
+```python
+org
+```
+```python
+.apache
+```
+```python
+.log4j
+```
+```python
+.SimpleLayout（包含日志信息的级别和信息字符串），
+```
+```python
+org
+```
+```python
+.apache
+```
+```python
+.log4j
+```
+```python
+.TTCCLayout（包含日志产生的时间、线程、类别等等信息）
+```
+Log4J采用类似C语言中的printf函数的打印格式格式化日志信息，打印参数如下： %m 输出代码中指定的消息
+```python
+%
+```
+```python
+p 输出优先级，即DEBUG，INFO，WARN，ERROR，FATAL
+```
+```python
+%
+```
+```python
+r 输出自应用启动到输出该log信息耗费的毫秒数
+```
+```python
+%
+```
+```python
+c 输出所属的类目，通常就是所在类的全名
+```
+```python
+%
+```
+```python
+t 输出产生该日志事件的线程名
+```
+```python
+%
+```
+```python
+n 输出一个回车换行符，Windows平台为“rn”，Unix平台为“n”
+```
+```python
+%
+```
+```python
+d 输出日志时间点的日期或时间，默认格式为ISO8601，也可以在其后指定格式，比如：%d{yyy MMM dd HH:mm:ss,SSS}，输出类似：2002年10月18日 22：10：28，921
+```
+```python
+%
+```
+```python
+l 输出日志事件的发生位置，包括类目名、发生的线程，以及在代码中的行数。举例：Testlog4.main(TestLog4.java:10)
+```
+```python
+%
+```
+```python
+m:：输出代码中指定的具体日志信息。
+```
+2.2、在代码中使用Log4j
+1.得到记录器
+使用Log4j，第一步就是获取日志记录器，这个记录器将负责控制日志信息。其语法为：
+public static Logger getLogger( String name)
+通过指定的名字获得记录器，如果必要的话，则为这个名字创建一个新的记录器。Name一般取本类的名字，比如：
+static Logger logger = Logger.getLogger ( ServerWithLog4j.class.getName () )
+2.读取配置文件
+当获得了日志记录器之后，第二步将配置Log4j环境，其语法为：
+```python
+BasicConfigurator
+```
+```python
+.configure ()： 自动快速地使用缺省
+```
+```python
+Log4j环境。
+```
+```python
+PropertyConfigurator
+```
+```python
+.configure (
+```
+```python
+String
+```
+```python
+configFilename) ：读取使用
+```
+```python
+Java的特性文件编写的配置文件。
+```
+```python
+DOMConfigurator
+```
+```python
+.configure (
+```
+```python
+String
+```
+```python
+filename ) ：读取
+```
+```python
+XML形式的配置文件。
+```
+3.插入记录信息（格式化日志信息）
+当上两个必要步骤执行完毕，您就可以轻松地使用不同优先级别的日志记录语句插入到您想记录日志的任何地方，其语法如下：
+```python
+Logger
+```
+```python
+.debug ( Object message ) ;  
+Logger
+```
+```python
+.info ( Object message ) ;  
+Logger
+```
+```python
+.warn ( Object message ) ;  
+Logger
+```
+```python
+.error ( Object message ) ;
+```
+2.3、日志级别
+每个Logger都被了一个日志级别（log level），用来控制日志信息的输出。日志级别从高到低分为：
+A：off 最高等级，用于关闭所有日志记录。
+B：fatal 指出每个严重的错误事件将会导致应用程序的退出。
+C：error 指出虽然发生错误事件，但仍然不影响系统的继续运行。
+D：warm 表明会出现潜在的错误情形。
+E：info 一般和在粗粒度级别上，强调应用程序的运行全程。
+F：debug 一般用于细粒度级别上，对调试应用程序非常有帮助。
+G：all 最低等级，用于打开所有日志记录。
+上面这些级别是定义在org.apache.log4j.Level类中。Log4j只建议使用4个级别，优先级从高到低分别是error,warn,info和debug。通过使用日志级别，可以控制应用程序中相应级别日志信息的输出。例如，如果使用b了info级别，则应用程序中所有低于info级别的日志信息(如debug)将不会被打印出来。
+## 三、Web项目中使用Log4j实例
+上面代码描述了Log4j的简单应用，其实使用Log4j也就是这样简单方便。当然除了上面的配置方法，还有其它，比如做一个J2EE应用，在J2EE应用使用Log4j，必须先在启动服务时加载Log4j的配置文件进行初始化，可以在web.xml中进行。
+1、web应用的log4j使用基本上都采用：新建一个servlet，这个servlet在init函数中为log4j执行配置。一般就是读入配置文件。所以需要在web.xml中为这个servlet配置，同时设定load-on-startup为1。
+2、这个servlet配置log4j就是读出配置文件，然后调用configure函数。这里有两个问题：一、需要知道文件在哪里；二、需要正确的文件类型
+3、配置文件位置在web.xml中配置一个param即可，路径一般是相对于web的root目录
+4、文件类型一般有两种，一个是Java的property文件，另一种是xml文件
+配置文件的大致内容：log4j可以指定输出的log级别的最低等级，以及log的输出配置格式，每个log可以指定多个输出方式
+（1）创建Web工程，整个工程最后目录如下
+![](http://static.oschina.net/uploads/img/201603/16202836_FKEy.jpg)
+（2）web.xml配置如下：
+```python
+<?
+```
+```python
+xml version=
+```
+```python
+"1.0"
+```
+```python
+encoding=
+```
+```python
+"UTF-8"
+```
+```python
+?>
+```
+```python
+<
+```
+```python
+web-app
+```
+```python
+xmlns:xsi
+```
+```python
+=
+```
+```python
+"http://www.w3.org/2001/XMLSchema-instance"
+```
+```python
+xmlns
+```
+```python
+=
+```
+```python
+"http://java.sun.com/xml/ns/javaee"
+```
+```python
+xsi:schemaLocation
+```
+```python
+=
+```
+```python
+"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+```
+```python
+id
+```
+```python
+=
+```
+```python
+"WebApp_ID"
+```
+```python
+version
+```
+```python
+=
+```
+```python
+"3.0"
+```
+```python
+>
+```
+```python
+<
+```
+```python
+display-name
+```
+```python
+>LogLearning
+```
+```python
+</
+```
+```python
+display-name
+```
+```python
+>
+```
+```python
+<
+```
+```python
+servlet
+```
+```python
+>
+```
+```python
+<
+```
+```python
+servlet-name
+```
+```python
+>Log4JTestServlet
+```
+```python
+</
+```
+```python
+servlet-name
+```
+```python
+>
+```
+```python
+<
+```
+```python
+servlet-class
+```
+```python
+>com.mucfc.Log4JTestServlet
+```
+```python
+</
+```
+```python
+servlet-class
+```
+```python
+>
+```
+```python
+</
+```
+```python
+servlet
+```
+```python
+>
+```
+```python
+<!--用来启动 log4jConfigLocation的servlet -->
+```
+```python
+<
+```
+```python
+servlet
+```
+```python
+>
+```
+```python
+<
+```
+```python
+servlet-name
+```
+```python
+>Log4JInitServlet
+```
+```python
+</
+```
+```python
+servlet-name
+```
+```python
+>
+```
+```python
+<
+```
+```python
+servlet-class
+```
+```python
+>com.mucfc.Log4JInitServlet
+```
+```python
+</
+```
+```python
+servlet-class
+```
+```python
+>
+```
+```python
+<
+```
+```python
+init-param
+```
+```python
+>
+```
+```python
+<
+```
+```python
+param-name
+```
+```python
+>log4j-properties-location
+```
+```python
+</
+```
+```python
+param-name
+```
+```python
+>
+```
+```python
+<
+```
+```python
+param-value
+```
+```python
+>/WEB-INF/classes/log4j.properties
+```
+```python
+</
+```
+```python
+param-value
+```
+```python
+>
+```
+```python
+</
+```
+```python
+init-param
+```
+```python
+>
+```
+```python
+<
+```
+```python
+load-on-startup
+```
+```python
+>1
+```
+```python
+</
+```
+```python
+load-on-startup
+```
+```python
+>
+```
+```python
+</
+```
+```python
+servlet
+```
+```python
+>
+```
+```python
+<servlet-mapping>  
+        <servlet-name>Log4JTestServlet</servlet-name>  
+        <url-pattern>/test</url-pattern>  
+    </servlet-mapping>  
+</web-app>
+```
+（3）配置文件log4j.properties
+```python
+### 设置###
+```
+```python
+log4j.rootLogger = debugger,D
+```
+```python
+#如果想过滤框架只打印错误信息可以这样配置(org.apace和org.springframework开头的包只打印错误信息)
+```
+```python
+log4j.logger.org.apache=ERROR
+```
+```python
+log4j.logger.org.springframework=ERROR
+```
+```python
+#控制台输出info信息
+```
+```python
+log4j.appender.D=org.apache.log4j.ConsoleAppender
+```
+```python
+log4j.appender.D.layout=org.apache.log4j.PatternLayout
+```
+```python
+log4j.appender.D.layout.ConversionPattern=[%-5p] %t %d{yyyy-MM-dd HH:mm:ss,SSS} method:%l %m%n
+```
+```python
+### 输出com.xwtec.listener.PushFutureListener类所在的INFO 级别以上的日志到/webapp/logs/push_ios_interface/iosPushLog.log ###
+```
+```python
+log4j.logger.com.xwtec.listener.PushFutureListener=INFO,A
+```
+```python
+log4j.appender.A = org.apache.log4j.DailyRollingFileAppender
+```
+```python
+log4j.appender.A.File = /webapp/logs/push_ios_interface/iosPushLog.log
+```
+```python
+log4j.appender.A.Append =
+```
+```python
+true
+```
+```python
+log4j.appender.AosPushLog.encoding=UTF-8
+```
+```python
+log4j.appender.AosPushLog.Threshold=INFO
+```
+```python
+log4j.appender.A.layout = org.apache.log4j.PatternLayout
+```
+```python
+log4j.appender.A.layout.ConversionPattern = [%-5p] %t %d{yyyy-MM-dd HH:mm:ss,SSS} method:%m%n
+```
+（4）web容器一来就初始化的servlet
+Log4JInitServlet.java
+```python
+package com
+```
+```python
+.mucfc;  
+import java
+```
+```python
+.io
+```
+```python
+.File;  
+import java
+```
+```python
+.io
+```
+```python
+.IOException;  
+import javax
+```
+```python
+.servlet
+```
+```python
+.ServletConfig;  
+import javax
+```
+```python
+.servlet
+```
+```python
+.ServletContext;  
+import javax
+```
+```python
+.servlet
+```
+```python
+.ServletException;  
+import javax
+```
+```python
+.servlet
+```
+```python
+.annotation
+```
+```python
+.WebServlet;  
+import javax
+```
+```python
+.servlet
+```
+```python
+.http
+```
+```python
+.HttpServlet;  
+import javax
+```
+```python
+.servlet
+```
+```python
+.http
+```
+```python
+.HttpServletRequest;  
+import javax
+```
+```python
+.servlet
+```
+```python
+.http
+```
+```python
+.HttpServletResponse;  
+import org
+```
+```python
+.apache
+```
+```python
+.log4j
+```
+```python
+.BasicConfigurator;  
+import org
+```
+```python
+.apache
+```
+```python
+.log4j
+```
+```python
+.PropertyConfigurator;
+```
+```python
+/** 
+ * Servlet implementation class Log4JInitServlet 
+ */
+```
+```python
+@WebServlet(
+```
+```python
+"/Log4JInitServlet")  
+public class Log4JInitServlet extends HttpServlet {  
+    private static final long serialVersionUID = 1L;
+```
+```python
+/** 
+     * @see HttpServlet#HttpServlet() 
+     */
+```
+```python
+public
+```
+```python
+Log4JInitServlet() {  
+        super();
+```
+```python
+// TODO Auto-generated constructor stub  
+    }
+```
+```python
+/** 
+     * @see Servlet#init(ServletConfig) 
+     */  
+    public void init(ServletConfig config) throws ServletException {  
+        System
+```
+```python
+.out
+```
+```python
+.println(
+```
+```python
+"Log4JInitServlet 正在初始化 log4j日志设置信息");  
+        String log4jLocation = config
+```
+```python
+.getInitParameter(
+```
+```python
+"log4j-properties-location");  
+        ServletContext sc = config
+```
+```python
+.getServletContext();
+```
+```python
+if (log4jLocation == null) {  
+            System
+```
+```python
+.err
+```
+```python
+.println(
+```
+```python
+"*** 没有 log4j-properties-location 初始化的文件, 所以使用 BasicConfigurator初始化");  
+            BasicConfigurator
+```
+```python
+.configure();  
+        } else {  
+            String webAppPath = sc
+```
+```python
+.getRealPath(
+```
+```python
+"/");  
+            String log4jProp = webAppPath + log4jLocation;  
+            File yoMamaYesThisSaysYoMama = new File(log4jProp);
+```
+```python
+if (yoMamaYesThisSaysYoMama.exists()) {  
+                System
+```
+```python
+.out
+```
+```python
+.println(
+```
+```python
+"使用: " + log4jProp+
+```
+```python
+"初始化日志设置信息");  
+                PropertyConfigurator
+```
+```python
+.configure(log4jProp);  
+            } else {  
+                System
+```
+```python
+.err
+```
+```python
+.println(
+```
+```python
+"*** " + log4jProp +
+```
+```python
+" 文件没有找到， 所以使用 BasicConfigurator初始化");  
+                BasicConfigurator
+```
+```python
+.configure();  
+            }  
+        }  
+        super
+```
+```python
+.init(config);  
+    }
+```
+```python
+/** 
+     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response) 
+     */
+```
+```python
+protected
+```
+```python
+void
+```
+```python
+doGet(HttpServletRequest request, HttpServletResponse response)
+```
+```python
+throws
+```
+```python
+ServletException,
+```
+```python
+IOException {
+```
+```python
+// TODO Auto-generated method stub  
+    }
+```
+```python
+/** 
+     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response) 
+     */
+```
+```python
+protected
+```
+```python
+void
+```
+```python
+doPost(HttpServletRequest request, HttpServletResponse response)
+```
+```python
+throws
+```
+```python
+ServletException,
+```
+```python
+IOException {
+```
+```python
+// TODO Auto-generated method stub  
+    }  
+}
+```
+调用日志Log4JTestServlet,java
+```python
+package com.mucfc;
+```
+```python
+import java.io.IOException;
+```
+```python
+import javax.servlet.ServletConfig;
+```
+```python
+import javax.servlet.ServletException;
+```
+```python
+import javax.servlet.annotation.WebServlet;
+```
+```python
+import javax.servlet.http.HttpServlet;
+```
+```python
+import javax.servlet.http.HttpServletRequest;
+```
+```python
+import javax.servlet.http.HttpServletResponse;
+```
+```python
+import org.apache.log4j.Logger;
+```
+```python
+/** 
+ * Servlet implementation class Log4JTestServlet 
+ */
+```
+```python
+@WebServlet(
+```
+```python
+"/Log4JTestServlet")
+```
+```python
+public
+```
+```python
+class
+```
+```python
+Log4JTestServlet
+```
+```python
+extends
+```
+```python
+HttpServlet
+```
+```python
+{
+```
+```python
+private
+```
+```python
+static
+```
+```python
+final
+```
+```python
+long serialVersionUID =
+```
+```python
+1L;
+```
+```python
+private
+```
+```python
+static Logger logger = Logger.getLogger(Log4JTestServlet.class);
+```
+```python
+/** 
+     *
+```
+```python
+@see
+```
+```python
+HttpServlet#HttpServlet() 
+     */
+```
+```python
+public
+```
+```python
+Log4JTestServlet
+```
+```python
+()
+```
+```python
+{
+```
+```python
+super();
+```
+```python
+// TODO Auto-generated constructor stub  
+    }
+```
+```python
+/** 
+     *
+```
+```python
+@see
+```
+```python
+Servlet#init(ServletConfig) 
+     */
+```
+```python
+public
+```
+```python
+void
+```
+```python
+init
+```
+```python
+(ServletConfig config)
+```
+```python
+throws
+```
+```python
+ServletException {
+```
+```python
+// TODO Auto-generated method stub  
+    }
+```
+```python
+/** 
+     *
+```
+```python
+@see
+```
+```python
+HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response) 
+     */
+```
+```python
+protected
+```
+```python
+void
+```
+```python
+doGet
+```
+```python
+(HttpServletRequest request, HttpServletResponse response)
+```
+```python
+throws
+```
+```python
+ServletException, IOException {
+```
+```python
+// 记录debug级别的信息    
+        logger.debug(
+```
+```python
+"This is debug message.");
+```
+```python
+// 记录info级别的信息    
+        logger.info(
+```
+```python
+"This is info message.");
+```
+```python
+// 记录error级别的信息    
+        logger.error(
+```
+```python
+"This is error message.");    
+    }
+```
+```python
+/** 
+     *
+```
+```python
+@see
+```
+```python
+HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response) 
+     */
+```
+```python
+protected
+```
+```python
+void
+```
+```python
+doPost
+```
+```python
+(HttpServletRequest request, HttpServletResponse response)
+```
+```python
+throws
+```
+```python
+ServletException, IOException {  
+        doGet(request,response);  
+    }  
+}
+```
+接下来就是运行了，来看看结果：
+![](http://static.oschina.net/uploads/img/201603/16202836_R6px.jpg)
+输出结果：
+![](http://static.oschina.net/uploads/img/201603/16202836_Y8fF.jpg)
+![](http://static.oschina.net/uploads/img/201603/16202836_AazX.jpg)
+![](http://static.oschina.net/uploads/img/201603/16202836_eDCy.jpg)
+## 四、Spring中使用Log4j
+这里要实现web项目中利用Spring来使用Log4j
+![](http://static.oschina.net/uploads/img/201603/16202836_PRxh.jpg)
+（1）接上面的工程，然后再导入Spring的包
+（2）web.xml增加
+```python
+<!-- 设置根目录 -->
+```
+```python
+<
+```
+```python
+context-param
+```
+```python
+>
+```
+```python
+<
+```
+```python
+param-name
+```
+```python
+>webAppRootKey
+```
+```python
+</
+```
+```python
+param-name
+```
+```python
+>
+```
+```python
+<
+```
+```python
+param-value
+```
+```python
+>webapp.root
+```
+```python
+</
+```
+```python
+param-value
+```
+```python
+>
+```
+```python
+</
+```
+```python
+context-param
+```
+```python
+>
+```
+```python
+<
+```
+```python
+context-param
+```
+```python
+>
+```
+```python
+<
+```
+```python
+param-name
+```
+```python
+>log4jConfigLocation
+```
+```python
+</
+```
+```python
+param-name
+```
+```python
+>
+```
+```python
+<
+```
+```python
+param-value
+```
+```python
+>/WEB-INF/classes/log4j.properties
+```
+```python
+</
+```
+```python
+param-value
+```
+```python
+>
+```
+```python
+</
+```
+```python
+context-param
+```
+```python
+>
+```
+```python
+<!-- 3000表示 开一条watchdog线程每60秒扫描一下配置文件的变化;这样便于日志存放位置的改变 -->
+```
+```python
+<
+```
+```python
+context-param
+```
+```python
+>
+```
+```python
+<
+```
+```python
+param-name
+```
+```python
+>log4jRefreshInterval
+```
+```python
+</
+```
+```python
+param-name
+```
+```python
+>
+```
+```python
+<
+```
+```python
+param-value
+```
+```python
+>3000
+```
+```python
+</
+```
+```python
+param-value
+```
+```python
+>
+```
+```python
+</
+```
+```python
+context-param
+```
+```python
+>
+```
+```python
+<
+```
+```python
+listener
+```
+```python
+>
+```
+```python
+<
+```
+```python
+listener-class
+```
+```python
+>org.springframework.web.util.Log4jConfigListener
+```
+```python
+</
+```
+```python
+listener-class
+```
+```python
+>
+```
+```python
+</
+```
+```python
+listener
+```
+```python
+>
+```
+整个内容如下：
+```python
+<?
+```
+```python
+xml version=
+```
+```python
+"1.0"
+```
+```python
+encoding=
+```
+```python
+"UTF-8"
+```
+```python
+?>
+```
+```python
+<
+```
+```python
+web-app
+```
+```python
+xmlns:xsi
+```
+```python
+=
+```
+```python
+"http://www.w3.org/2001/XMLSchema-instance"
+```
+```python
+xmlns
+```
+```python
+=
+```
+```python
+"http://java.sun.com/xml/ns/javaee"
+```
+```python
+xsi:schemaLocation
+```
+```python
+=
+```
+```python
+"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+```
+```python
+id
+```
+```python
+=
+```
+```python
+"WebApp_ID"
+```
+```python
+version
+```
+```python
+=
+```
+```python
+"3.0"
+```
+```python
+>
+```
+```python
+<
+```
+```python
+display-name
+```
+```python
+>LogLearning
+```
+```python
+</
+```
+```python
+display-name
+```
+```python
+>
+```
+```python
+<
+```
+```python
+servlet
+```
+```python
+>
+```
+```python
+<
+```
+```python
+servlet-name
+```
+```python
+>Log4JTestServlet
+```
+```python
+</
+```
+```python
+servlet-name
+```
+```python
+>
+```
+```python
+<
+```
+```python
+servlet-class
+```
+```python
+>com.mucfc.Log4JTestServlet
+```
+```python
+</
+```
+```python
+servlet-class
+```
+```python
+>
+```
+```python
+</
+```
+```python
+servlet
+```
+```python
+>
+```
+```python
+<!--用来启动 log4jConfigLocation的servlet -->
+```
+```python
+<!--     <servlet>  
+        <servlet-name>Log4JInitServlet</servlet-name>  
+        <servlet-class>com.mucfc.Log4JInitServlet</servlet-class>  
+        <init-param>  
+            <param-name>log4j-properties-location</param-name>  
+            <param-value>/WEB-INF/classes/log4j.properties</param-value>  
+        </init-param>  
+        <load-on-startup>1</load-on-startup>  
+    </servlet>-->
+```
+```python
+<
+```
+```python
+servlet-mapping
+```
+```python
+>
+```
+```python
+<
+```
+```python
+servlet-name
+```
+```python
+>Log4JTestServlet
+```
+```python
+</
+```
+```python
+servlet-name
+```
+```python
+>
+```
+```python
+<
+```
+```python
+url-pattern
+```
+```python
+>/test
+```
+```python
+</
+```
+```python
+url-pattern
+```
+```python
+>
+```
+```python
+</
+```
+```python
+servlet-mapping
+```
+```python
+>
+```
+```python
+<!-- Spring 容器加载 -->
+```
+```python
+<
+```
+```python
+listener
+```
+```python
+>
+```
+```python
+<
+```
+```python
+listener-class
+```
+```python
+>org.springframework.web.context.ContextLoaderListener
+```
+```python
+</
+```
+```python
+listener-class
+```
+```python
+>
+```
+```python
+</
+```
+```python
+listener
+```
+```python
+>
+```
+```python
+<
+```
+```python
+context-param
+```
+```python
+>
+```
+```python
+<
+```
+```python
+param-name
+```
+```python
+>contextConfigLocation
+```
+```python
+</
+```
+```python
+param-name
+```
+```python
+>
+```
+```python
+<param-value>classpath:applicationContext.xml</param-value>  
+    </context-param>   
+    <!-- 设置根目录 -->  
+    <context-param>    
+        <param-name>webAppRootKey</param-name>    
+        <param-value>webapp.root</param-value>    
+    </context-param>    
+    <context-param>  
+        <param-name>log4jConfigLocation</param-name>  
+        <param-value>/WEB-INF/classes/log4j.properties</param-value>  
+    </context-param>  
+    <!-- 3000表示 开一条watchdog线程每60秒扫描一下配置文件的变化;这样便于日志存放位置的改变 -->  
+    <context-param>    
+         <param-name>log4jRefreshInterval</param-name>    
+         <param-value>3000</param-value>    
+    </context-param>   
+    <listener>  
+        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>  
+    </listener>   
+</web-app>
+```
+这里Log4JInitServlet.java就相当于没用到了。
+（2）applicationContext.xml
+没有内容：
+```python
+<?
+```
+```python
+xml version=
+```
+```python
+"1.0"
+```
+```python
+encoding=
+```
+```python
+"UTF-8"
+```
+```python
+?>
+```
+```python
+<
+```
+```python
+beans
+```
+```python
+xmlns
+```
+```python
+=
+```
+```python
+"http://www.springframework.org/schema/beans"
+```
+```python
+xmlns:xsi
+```
+```python
+=
+```
+```python
+"http://www.w3.org/2001/XMLSchema-instance"
+```
+```python
+xmlns:context
+```
+```python
+=
+```
+```python
+"http://www.springframework.org/schema/context"
+```
+```python
+xmlns:aop
+```
+```python
+=
+```
+```python
+"http://www.springframework.org/schema/aop"
+```
+```python
+xsi:schemaLocation
+```
+```python
+=
+```
+```python
+"    
+http://www.springframework.org/schema/beans
+
+http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+
+http://www.springframework.org/schema/aop
+
+http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+
+http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.2.xsd"
+```
+```python
+>
+```
+```python
+</
+```
+```python
+beans
+```
+```python
+>
+```
+（3）这样日志就跟随Spring窗口启动而启动了
+程序一运行，就会自动把日志打印
+![](http://static.oschina.net/uploads/img/201603/16202836_Ba0s.jpg)
+log.log
+![](http://static.oschina.net/uploads/img/201603/16202836_c7Ce.jpg)
+error.log为空，因为它只打印error级别以上的信息
+浏览器输入http://localhost:8080/LogLearning2/test
+![](http://static.oschina.net/uploads/img/201603/16202836_sR9t.jpg)
+然后打开文件
+![](http://static.oschina.net/uploads/img/201603/16202836_T3pW.jpg)
+![](http://static.oschina.net/uploads/img/201603/16202836_mZvs.jpg)
+
+
+
+
+
