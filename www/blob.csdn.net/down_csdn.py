@@ -27,7 +27,7 @@ def getlist(url, aa):
 
 #li=getlist()
 
-import htm2md
+import htmltree
 import win32clipboard as w
 import win32con
 
@@ -41,8 +41,10 @@ def down_csdn_one(url):
     print(url)
     data = getdata(url)
     save_txt('test1.html', data)
-    t, d = htm2md.htm2md(data)
+    t, d = htmltree.htm2md(data)
     if len(t)<2:
+        return
+    if len(d)<2:
         return
     t = t.replace('/', ' ').replace('\\', ' ').replace('*', ' ').replace('?', ' ')
     t = t.replace('.', ' ').replace('|', ' ')
