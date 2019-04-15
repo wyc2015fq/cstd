@@ -28,39 +28,13 @@ def getlist(url, aa):
 #li=getlist()
 
 import htmltree
-import win32clipboard as w
-import win32con
-
-def gettext():
-    w.OpenClipboard()
-    t = w.GetClipboardData(win32con.CF_TEXT)
-    w.CloseClipboard()
-    return t
 
 def down_csdn_one(url):
     print(url)
     data = getdata(url)
     save_txt('test1.html', data)
     t, d = htmltree.htm2md(data)
-    if len(t)<2:
-        return
-    if len(d)<2:
-        return
-    t = t.replace('/', ' ').replace('\\', ' ').replace('*', ' ').replace('?', ' ')
-    t = t.replace('.', ' ').replace('|', ' ')
-    t = t.replace(':', ' ')
-    t = t.replace('~', ' ')
-    t = t.replace(' - ', '/')
-    cc = t.split('/')
-    ttt=cc[-1].strip()
-    name=cc[-2].strip()
-    t = '-'.join(cc[0:-2]).strip()
-    mkdir(ttt)
-    mkdir(ttt+'/'+name)
-    print(t)
-    print(len(d))
-    if len(t)>1:
-        save_txt(ttt+'/'+name + '/'+t+'.md', d)
+    save_txt_td(t, d)
 
 def down_csdn_list_one(url, aa):
     ll=getlist(url, aa)

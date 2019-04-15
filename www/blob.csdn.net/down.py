@@ -18,7 +18,7 @@ def gethtml(url):
 
     html = etree.HTML(data)
     return html
-    
+
 
 import os
 def mkdir(path):
@@ -34,3 +34,34 @@ def save_txt(fn, s):
     except:
         pass
     f.close()
+
+
+def save_txt_td(t, d):
+    if len(t)<2:
+        return
+    if len(d)<2:
+        return
+    t = t.replace('/', ' ').replace('\\', ' ').replace('*', ' ').replace('?', ' ')
+    t = t.replace('.', ' ').replace('|', ' ')
+    t = t.replace(':', ' ')
+    t = t.replace('~', ' ')
+    t = t.replace(' - ', '/')
+    cc = t.split('/')
+    ttt=cc[-1].strip()
+    name=cc[-2].strip()
+    t = '-'.join(cc[0:-2]).strip()
+    mkdir(ttt)
+    mkdir(ttt+'/'+name)
+    print(t)
+    print(len(d))
+    if len(t)>1:
+        save_txt(ttt+'/'+name + '/'+t+'.md', d)
+
+import win32clipboard as w
+import win32con
+
+def gettext():
+    w.OpenClipboard()
+    t = w.GetClipboardData(win32con.CF_TEXT)
+    w.CloseClipboard()
+    return t

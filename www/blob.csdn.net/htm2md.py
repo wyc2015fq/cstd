@@ -298,4 +298,3 @@ if __name__ == '__main__':
     f=open(fn2,'wt',encoding='utf8')
     f.write(d)
     f.close()
-    

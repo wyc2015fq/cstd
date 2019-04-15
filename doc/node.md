@@ -4,6 +4,12 @@
 
 # 技术博客
 
+[朝闻道](https://www.cnblogs.com/findumars/)
+
+[weixin_33796205](https://me.csdn.net/weixin_33796205)
+
+[李先静](https://me.csdn.net/absurd) 嵌入式Linux
+
 [元气少女wuqh](https://blog.csdn.net/tsinghuahui) ML
 
 [机器人之家](https://www.jqr.com/ai/article)
@@ -205,7 +211,6 @@ coding & learning
 
 [术与道的分享](https://www.1024do.com/)
  CC++ Linux Java Script Securety Algorithm Intelligence
-
 
 [看雪知识库](https://www.kanxue.com/chm.htm)
 

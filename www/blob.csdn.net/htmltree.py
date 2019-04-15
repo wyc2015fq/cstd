@@ -18,7 +18,7 @@ class MyHTMLParser(HTMLParser):
             attrs_dict[attr[0]]=attr[1]
         self.jj.append({'ind':self.ind, 'tag':tag, 'attrs':attrs_dict})
         self.ind+=1
-        
+
 
     def handle_endtag(self, tag):
         end=len(self.tag_stack)-3
@@ -143,7 +143,12 @@ def parser_code(parser, jj, i, l, out):
             if cc.find(lang)>=0:
                 return parser_code_block(parser, jj, i, l, out, 'python')
 
-    return parser_code_block(parser, jj, i, l, out, '')
+    text, ii = parser_code_text(parser, jj, i, l, out)
+    if text.count('\n')>0:
+        text = '\n```\n' + (text.strip()) + '\n```\n'
+    else:
+        text = '`' + toline(text) +'`'
+    return text, ii
 
 
 def parser_span(parser, jj, i, l, out):
@@ -154,7 +159,7 @@ def parser_span(parser, jj, i, l, out):
 
         if attrs_dict['class'] in ['katex--display', 'katex-display']:
             return parser_mathjax_display(parser, jj, i, l, out)
-            
+
         if attrs_dict['class'] in ['katex--inline', 'katex-inline']:
             return parser_mathjax_inline(parser, jj, i, l, out)
 
@@ -177,7 +182,8 @@ def parser_script(parser, jj, i, l, out):
     return parser_skip(parser, jj, i, l, out)
 
 def parser_li(parser, jj, i, l, out):
-    return parser_inline(parser, jj, i, l, out, '- ', '\n')
+    #return parser_inline(parser, jj, i, l, out, '- ', '\n')
+    return parser_block(parser, jj, i, l, out, '- ', '\n')
 
 def parser_em(parser, jj, i, l, out):
     return parser_inline(parser, jj, i, l, out, '*', '*')
@@ -197,7 +203,8 @@ def parser_div(parser, jj, i, l, out):
         if attrs_dict['class'] in ['article-copyright', 'mylinks', 'blogStats', 'header', 'postTitle', 'author', 'article-title-box']:
             return parser_skip(parser, jj, i, l, out)
 
-    text, ii = parser_text(parser, jj, i, l, out)
+    text, ii = parser_block(parser, jj, i, l, out, '\n', '\n')
+    #text, ii = parser_text(parser, jj, i, l, out)
     return text, ii
     #return parser_text(parser, jj, i, l, out)
 
@@ -252,7 +259,7 @@ def parser_table(parser, jj, i, l, out):
             for tds in rows:
                 text1,i = parser_tr(parser, jj, tds, l, out, cols)
                 text += text1 + '\n'
-    
+
     return text, i
 
 def parser_img(parser, jj, i, l, out):
@@ -310,13 +317,13 @@ def node_filter(node):
     attrs = node['attrs']
     if tag=='title':
         return 1
-    
+
     if tag=='div' and 'class' in attrs and attrs['class']=='blog-content-box':
         return 0
-    
+
     if tag=='article' and 'class' in attrs and attrs['class']=='baidu_pl':
         return 0
-        
+
     attrs_dict = attrs
     if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='hide-article-box hide-article-pos text-center':
         return 1
@@ -325,6 +332,12 @@ def node_filter(node):
         return 1
 
     if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='show-foot':
+        return 1
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='post':
+        return 1
+
+    if tag=='div' and 'id' in attrs_dict and attrs_dict['id']=='blog_post_info_block':
         return 1
     return 0
 
@@ -364,6 +377,8 @@ def htm2md(t):
 
     return out['title'], d
 
+from down import *
+
 if __name__ == '__main__':
     fn = './test1.html'
     f=open(fn,'rb')
@@ -371,12 +386,12 @@ if __name__ == '__main__':
     t = autotext(t)
     f.close()
 
+    t = gettext().decode('gbk')
     title, d = htm2md(t)
+    save_txt_td(title, d)
     print(title)
     fn2 = './test.md'
     f=open(fn2,'wt',encoding='utf8')
     f.write(d)
     f.close()
     #print(d)
-
-
