@@ -4,6 +4,7 @@
 
 #include "sys_c.h"
 #include "stddef_c.h"
+//#include "inttypes_c.h"
 
 enum ICONV_CODEPAGE {
   ICONV_NULL,
@@ -20,11 +21,11 @@ enum ICONV_CODEPAGE {
 static int isTextUTF8(const void* str0, int length)
 {
 	int i;
-	uint32_t nBytes = 0;
-	const uint8_t* str = (const uint8_t*)str0;
+	size_t nBytes = 0;
+	const unsigned char* str = (const unsigned char*)str0;
 	BOOL bAllAscii = TRUE;
 	for (i = 0; i < length; i++) {
-		uint8_t chr = *(str + i);
+		unsigned char chr = *(str + i);
 		if ((chr & 0x80) != 0) {
 			bAllAscii = FALSE;
 		}

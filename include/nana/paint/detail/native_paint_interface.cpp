@@ -11,6 +11,7 @@
  *	@contributors:	dareg
  */
 
+#include "std/iconv_c.h"
 #include "../../detail/platform_spec_selector.hpp"
 #include <nana/paint/detail/native_paint_interface.hpp>
 #include <nana/paint/pixel_buffer.hpp>
@@ -141,7 +142,7 @@ namespace detail
 
 #if defined(NANA_WINDOWS)
 			::SIZE size;
-			if (::GetTextExtentPoint32(dw->context, text, static_cast<int>(len), &size))
+			if (::GetTextExtentPoint32W(dw->context, text, static_cast<int>(len), &size))
 				return nana::size(size.cx, size.cy);
 #elif defined(NANA_X11)
 			std::string utf8text = to_utf8(std::wstring(text, len));
@@ -169,12 +170,16 @@ namespace detail
 
 #if defined(NANA_WINDOWS)
 #ifdef _nana_std_has_string_view
-			auto wstr = to_wstring(std::string_view(text, len));
+			//auto wstr = to_wstring(std::string_view(text, len));
 #else
-			auto wstr = to_wstring(std::string(text,len));
+			//auto wstr = to_wstring(std::string(text,len));
 #endif
+			wchar_t* wstr = iconv_a2w(text, len);
+			size_t wstr_size = wcslen(wstr);
 			::SIZE size;
-			if (::GetTextExtentPoint32(dw->context, wstr.c_str(), static_cast<int>(wstr.size()), &size))
+			BOOL b = ::GetTextExtentPoint32W(dw->context, wstr, wstr_size, &size);
+			free(wstr);
+			if (b)
 				return nana::size(size.cx, size.cy);
 #elif defined(NANA_X11)
 #if defined(NANA_USE_XFT)
@@ -236,7 +241,7 @@ namespace detail
 	void draw_string(drawable_type dw, const nana::point& pos, const wchar_t * str, std::size_t len)
 	{
 #if defined(NANA_WINDOWS)
-		::TextOut(dw->context, pos.x, pos.y, str, static_cast<int>(len));
+		::TextOutW(dw->context, pos.x, pos.y, str, static_cast<int>(len));
 #elif defined(NANA_X11)
 		auto disp = ::nana::detail::platform_spec::instance().open_display();
 	#if defined(NANA_USE_XFT)
