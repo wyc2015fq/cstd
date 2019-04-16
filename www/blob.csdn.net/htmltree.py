@@ -61,7 +61,7 @@ def parser_text(parser, jj, i, l, out):
         t, ii = parser_x(parser, jj, ii, l, out)
         text1 += t
 
-    if jj[i]['tag']=='a' and 'href' in attrs:
+    if jj[i]['tag']=='a' and 'href' in attrs and text1[0:2]!='![':
         text1 = '['+text1.strip()+']('+attrs['href']+')'
 
     text += text1
@@ -87,7 +87,9 @@ def parser_skip(parser, jj, i, l, out):
 
 def parser_inline(parser, jj, i, l, out, beg, end):
     text, ii =parser_text(parser, jj, i, l, out)
-    text = beg + toline(text) + end
+    text = toline(text)
+    if len(text)>0:
+        text = beg + text + end
     return text, ii
 
 def parser_h1(parser, jj, i, l, out):
@@ -244,6 +246,11 @@ def parser_tr(parser, jj, i, ths, l, out, cols):
         text += ' |'
     return text, i
 
+def get_attr(jji, name):
+    if name in jji['attrs']:
+        return jji['attrs'][name]
+    return None
+
 def parser_table(parser, jj, i, l, out):
     text = ''
     trs = node_find_tag(jj, i, l, 'tr')
@@ -253,6 +260,9 @@ def parser_table(parser, jj, i, l, out):
             ths = node_find_tag(jj, trs[0], l, 'td')
         rows=[]
         cols = len(ths)
+        if len(trs)==1 and len(ths)==2:
+            if get_attr(jj[ths[0]], 'class')=='gutter' and get_attr(jj[ths[1]], 'class')=='code':
+                return parser_code(parser, jj, ths[1], l, out)
 
         for tr in trs[1::]:
             tds = node_find_tag(jj, tr, l, 'td')
@@ -272,13 +282,22 @@ def parser_table(parser, jj, i, l, out):
 
 def parser_img(parser, jj, i, l, out):
     attrs_dict = jj[i]['attrs']
-    if 'src' in attrs_dict and len(attrs_dict['src'].strip())>0:
-        alt = ''
+    alt = ''
+    href = ''
+    for s in ['src', 'data-original-src', 'data-src']:
+        if s in attrs_dict and len(attrs_dict[s].strip())>0:
+            href = attrs_dict[s]
+
+    if  len(href.strip())>0:
         if 'alt' in attrs_dict:
             alt=attrs_dict['alt']
-        href=attrs_dict['src']
-        if href[0:4]!='http':
+
+        if href[0:2]=='//':
+            href = out['site'].split(':')[0]+':'+href
+
+        if href[0]=='/':
             href = out['site']+'/'+href.strip('/')
+
         text = '!['+alt+']('+href+')'
         return text, i+1
     return parser_skip(parser, jj, i, l, out)
@@ -290,6 +309,7 @@ parser={
     'img': parser_img,
     'div': parser_div,
     'li': parser_li,
+    'dt': parser_li,
     'em': parser_em,
     'i': parser_em,
     'b': parser_strong,
@@ -429,6 +449,37 @@ def node_filter_chinaunix(node):
 
     return 0
 
+def node_filter_jianshu(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='article':
+        return 2
+
+    if tag=='div' and 'data-vcomp' in attrs_dict and attrs_dict['data-vcomp']=='free-reward-panel':
+        return 3
+
+    return 0
+
+def node_filter_baike(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='promotion-declaration':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='side-content':
+        return 3
+
+    return 0
 
 
 FILTER = {
@@ -437,6 +488,8 @@ FILTER = {
     'www.datakit.cn': {'filter':node_filter_datakit, 'site':'https://www.datakit.cn', 'root':'www.datakit.cn'},
     'hao.jobbole.com': {'filter':node_filter_jobbole, 'site':'http://hao.jobbole.com', 'root':'伯乐在线'},
     'blog.chinaunix.net': {'filter':node_filter_chinaunix, 'site':'http://blog.chinaunix.net', 'root':'ChinaUnix博客'},
+    'www.jianshu.com': {'filter':node_filter_jianshu, 'site':'https://www.jianshu.com', 'root':'简书'},
+    'baike': {'filter':node_filter_baike, 'site':'', 'root':'百度百科'},
 }
 
 def savetext(fn, d):

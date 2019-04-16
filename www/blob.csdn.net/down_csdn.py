@@ -32,7 +32,7 @@ import htmltree
 def down_csdn_one(url):
     print(url)
     data = getdata(url)
-    save_txt('test1.html', data)
+    #save_txt('test1.html', data)
     root, t, d = htmltree.htm2md(data)
     save_txt_td(root, t, d)
 
@@ -69,6 +69,10 @@ if __name__ == '__main__':
     elif url.find('/category/')>0 and url.find('www.cnblogs.com')>0:
         aa='//div[@class]/a/@href'
         down_csdn_list_one(url, aa)
+    elif url.find('www.jianshu.com/u/')>0:
+        pass
+    elif url.find('baike.baidu.com')>0:
+        down_csdn_one(url)
     else:
         down_csdn_one(url)
         if url.find('csdn.net')>0:

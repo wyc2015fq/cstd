@@ -60,6 +60,8 @@ def save_txt_td(root, t, d):
     name=''
     ttt = root
     delimt=' - '
+    if t.find('百度百科')>0:
+        delimt='_'
     cc = t.count(delimt)
     t = t.replace('/', ' ').replace('\\', ' ').replace('*', ' ').replace('?', ' ')
     t = t.replace('.', ' ').replace('|', ' ')
@@ -73,10 +75,10 @@ def save_txt_td(root, t, d):
         t = '-'.join(cc[0:-2]).strip()
 
     if 1==cc:
-        t = t.replace(' - ', '/')
+        t = t.replace(delimt, '/')
         cc = t.split('/')
-        name=cc[-1].strip()
-        t = '-'.join(cc[0:-2]).strip()
+        ttt=cc[-1].strip()
+        t = '-'.join(cc[0:-1]).strip()
 
     mkdir(ttt)
     mkdir(ttt+'/'+name)

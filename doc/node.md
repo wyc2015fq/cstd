@@ -4,6 +4,10 @@
 
 # 技术博客
 
+[Ricequant](www.ricequant.com)  量化交易
+
+[stata连享会](https://www.jianshu.com/u/69a30474ef33)  统计学 时间序列
+
 [T-Bagwell](http://blog.chinaunix.net/uid/11344913.html)  ffmpeg
 
 [happinesslz](https://blog.csdn.net/ZHE123ZHE123ZHE123) ML 图像
