@@ -1,0 +1,29 @@
+# BREW手机中的事件处理 - 我相信...... - CSDN博客
+
+
+
+
+
+2011年03月17日 13:47:00[半吊子全栈工匠](https://me.csdn.net/wireless_com)阅读数：983
+
+
+
+
+
+
+
+
+BREW是基于事件驱动的，可以通过ISHELL接口中的相关方法发送或接收指定的事件，事件在系统中的分发处理是通过AEE层来实现的。发送事件的方法有ISHELL_SendEvent，ISHELL_PostEvent等，接收特定事件的方法主要是通过ISHELL_RegisterNotify方法来实现，也可以通过MIF文件中的设置完成。如果应用注册了事件，AEE层在事件发生的时候就会发送EVT_NOTIFY 事件给该应用。
+
+            有些事件是不需要注册的，例如通用的系统事件EVT_APP_START，EVT_APP_STOP，EVT_APP_SUSPEND，EVT_APP_RESUME等等。手机键盘事件一般也是不需要注册的，例如EVT_KEY_PRESS，EVT_KEY，EVT_KEY_RELEASE，EVT_CHAR等，在BREW 3.1之前，只有屏幕上顶层可视的应用能够接收键盘事件，从BREW 3.1开始,所有应用都可以接收键盘事件。如果不是手机屏幕上顶层可视的应用，必须要注册 NMASK_SHELL_KEY 通知才能接收到相关的键盘事件。
+
+            控件事件一般以EVT_CTL为前缀命名的，例如EVT_CTL_TAB，EVT_CTL_ADD_ITEM等，对话框事件一般以EVT_DIALOG为前缀命名的。如果应用使用控件或者对话框，一般要对相关的事件进行处理。对告警事件的设定一般有两种方法ISHELL_SetAlarm和IALARMMGR_SetAlarm，当告警时间来临的时候，EVT_ALARM 事件将被发送给该应用，EVT_ALARM事件类型是通过掩码来区分的。
+
+         事件的消息队列并没有优先级，所有的事件都具有相同的优先级，也就是系统对所有的消息都看作是相同优先级的，必须一个消息等待处理完毕即事件处理方法返回后，才能够处理另外的消息。因此编写的应用程序必须及时接收并处理来自系统的事件消息，并且把控制权及时地返回系统，这样才能保证应用程序的正常运行。如果程序中某个事件的处理方法长时间的运行而不能及时返回系统响应其它系统事件，AEE将会认为是系统发生错误，为了避免破坏系统，设备将选择强制性重新启动。
+
+
+
+本文来自CSDN博客，转载请标明出处：[http://blog.csdn.net/wireless_com/archive/2010/09/29/5914140.aspx](http://blog.csdn.net/wireless_com/archive/2010/09/29/5914140.aspx)
+
+
+

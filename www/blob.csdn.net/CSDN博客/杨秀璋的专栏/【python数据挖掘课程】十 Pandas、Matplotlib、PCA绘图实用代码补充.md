@@ -1,17 +1,36 @@
-
 # 【python数据挖掘课程】十.Pandas、Matplotlib、PCA绘图实用代码补充 - 杨秀璋的专栏 - CSDN博客
 
-2017年03月07日 15:24:22[Eastmount](https://me.csdn.net/Eastmount)阅读数：5010所属专栏：[知识图谱、web数据挖掘及NLP](https://blog.csdn.net/column/details/eastmount-kgdmnlp.html)
+
+
+
+
+2017年03月07日 15:24:22[Eastmount](https://me.csdn.net/Eastmount)阅读数：5020
+所属专栏：[知识图谱、web数据挖掘及NLP](https://blog.csdn.net/column/details/eastmount-kgdmnlp.html)
+
+
+
+
+
+
 
 
 
 这篇文章主要是最近整理《数据挖掘与分析》课程中的作品及课件过程中，收集了几段比较好的代码供大家学习。同时，做数据分析到后面，除非是研究算法创新的，否则越来越觉得数据非常重要，才是有价值的东西。后面的课程会慢慢讲解Python应用在Hadoop和Spark中，以及networkx数据科学等知识。
 如果文章中存在错误或不足之处，还请海涵~希望文章对你有所帮助。
 
+
+
+
 ## 一. Pandas获取数据集并显示
+
 采用Pandas对2002年~2014年的商品房价数据集作时间序列分析，从中抽取几个城市与贵阳做对比，并对贵阳商品房作出分析。
+
 ![](https://img-blog.csdn.net/20170307025259744)
+
+
 数据集位32.csv，具体值如下：（读者可直接复制）
+
+
 
 ```python
 year	Beijing	Chongqing	Shenzhen	Guiyang	Kunming	Shanghai	Wuhai	Changsha
@@ -29,19 +48,27 @@ year	Beijing	Chongqing	Shenzhen	Guiyang	Kunming	Shanghai	Wuhai	Changsha
 2013	18553.00 	5569.00 	24402.00 	5025.00 	5795.00 	16420.00 	7717.00 	6292.00 
 2014	18833.00 	5519.00 	24723.00 	5608.00 	6384.00 	16787.00 	7951.00 	6116.00
 ```
+
+
+
 绘制对比各个城市的商品房价数据代码如下所示：
+
+
 
 ```python
 # -*- coding: utf-8 -*-
 """
 Created on Mon Mar 06 10:55:17 2017
+
 @author: eastmount
 """
+
 import pandas as pd
 data = pd.read_csv("32.csv",index_col='year') #index_col用作行索引的列名 
 #显示前6行数据 
 print(data.shape)  
 print(data.head(6))
+
 import matplotlib.pyplot as plt
 plt.rcParams['font.sans-serif'] = ['simHei'] #用来正常显示中文标签
 plt.rcParams['axes.unicode_minus'] = False   #用来正常显示负号
@@ -49,8 +76,11 @@ data.plot()
 plt.savefig(u'时序图.png', dpi=500)
 plt.show()
 ```
+
 输出如下所示：
+
 ![](https://img-blog.csdn.net/20170307030935255)
+
 重点知识：
 1、plt.rcParams显示中文及负号；
 2、plt.savefig保存图片至本地；
@@ -58,26 +88,39 @@ plt.show()
 
 
 
+
+
+
+
+
+
 ## 二. Pandas获取某列数据绘制柱状图
+
 接着上面的实验，我们需要获取贵阳那列数据，再绘制相关图形。
+
+
 
 ```python
 # -*- coding: utf-8 -*-
 """
 Created on Mon Mar 06 10:55:17 2017
+
 @author: eastmount
 """
+
 import pandas as pd
 data = pd.read_csv("32.csv",index_col='year') #index_col用作行索引的列名 
 #显示前6行数据 
 print(data.shape)  
 print(data.head(6))
+
 import matplotlib.pyplot as plt
 plt.rcParams['font.sans-serif'] = ['simHei'] #用来正常显示中文标签
 plt.rcParams['axes.unicode_minus'] = False   #用来正常显示负号
 data.plot()
 plt.savefig(u'时序图.png', dpi=500)
 plt.show()
+
 #获取贵阳数据集并绘图
 gy = data['Guiyang']
 print u'输出贵阳数据'
@@ -86,14 +129,22 @@ gy.plot()
 plt.show()
 ```
 通过data['Guiyang']获取某列数据，然后再进行绘制如下所示：
+
+
+
+
 ![](https://img-blog.csdn.net/20170307033641659)
 通过这个数据集调用bar函数可以绘制对应的柱状图，如下所示，需要注意x轴位年份，获取两列数据进行绘图。
+
+
 ```python
 # -*- coding: utf-8 -*-
 """
 Created on Mon Mar 06 10:55:17 2017
+
 @author: eastmount
 """
+
 import pandas as pd
 data = pd.read_csv("32.csv",index_col='year') #index_col用作行索引的列名 
 #显示前6行数据 
@@ -103,6 +154,7 @@ print(data.head(6))
 gy = data['Guiyang']
 print u'输出贵阳数据'
 print gy
+
 import numpy as np
 x = ['2002','2003','2004','2005','2006','2007','2008',
      '2009','2010','2011','2012','2013','2014']
@@ -119,9 +171,17 @@ plt.savefig('guiyang.png',dpi=400)
 plt.show()
 ```
 输出如下图所示：
+
+
+
+
 ![](https://img-blog.csdn.net/20170307144445627)
 
+
+
+
 补充一段hist绘制柱状图的代码：
+
 ```python
 import numpy as np
 import pylab as pl
@@ -137,39 +197,61 @@ pl.xlabel('data')
 pl.show()
 ```
 输出如下图所示：
+
+
+
+
 ![](https://img-blog.csdn.net/20170307145004756)
 推荐文章：[http://www.cnblogs.com/jasonfreak/p/5441512.html](http://www.cnblogs.com/jasonfreak/p/5441512.html)
 
 
+
+
+
+
+
 ## 三. Python绘制时间序列-自相关图
+
+
 核心代码如下所示：
+
+
 ```python
 # -*- coding: utf-8 -*-
 """
 Created on Mon Mar 06 10:55:17 2017
+
 @author: yxz15
 """
+
 import pandas as pd
 data = pd.read_csv("32.csv",index_col='year')
 #显示前6行数据  
 print(data.shape)  
 print(data.head(6))
+
 import matplotlib.pyplot as plt
 plt.rcParams['font.sans-serif'] = ['simHei']
 plt.rcParams['axes.unicode_minus'] = False
 data.plot()
 plt.savefig(u'时序图.png', dpi=500)
 plt.show()
+
 from statsmodels.graphics.tsaplots import plot_acf
 gy = data['Guiyang']
 print gy
 plot_acf(gy).show()
 plt.savefig(u'贵阳自相关图',dpi=300)
+
 from statsmodels.tsa.stattools import adfuller as ADF
 print 'ADF:',ADF(gy)
 ```
 输出结果如下所示：
+
+
 ![](https://img-blog.csdn.net/20170307150331074)
+
+
 
 时间序列相关文章推荐：
 [python时间序列分析](http://www.cnblogs.com/foley/p/5582358.html)
@@ -177,30 +259,45 @@ print 'ADF:',ADF(gy)
 [Python_Statsmodels包_时间序列分析_ARIMA模型](http://blog.csdn.net/hal_sakai/article/details/51965657)
 
 
+
+
 ## 四. 聚类分析大连交易所数据集
+
+
+
 这部分主要提供一个网址给大家下载数据集，前面文章说过sklearn自带一些数据集以及UCI官网提供大量的数据集。这里讲述一个大连商品交易所的数据集。
-地址：[http://www.dce.com.cn/dalianshangpin/xqsj/lssj/index.html\#](http://www.dce.com.cn/dalianshangpin/xqsj/lssj/index.html#)
+地址：[http://www.dce.com.cn/dalianshangpin/xqsj/lssj/index.html#](http://www.dce.com.cn/dalianshangpin/xqsj/lssj/index.html#)
+
+
 
 ![](https://img-blog.csdn.net/20170307151522658)
+
 比如下载"焦炭"数据集，命名为"35.csv"，在对其进行聚类分析。
+
+
 ![](https://img-blog.csdn.net/20170307151731361)
 代码如下：
+
 ```python
 # -*- coding: utf-8 -*-
 """
 Created on Mon Mar 06 10:19:15 2017
+
 @author: yxz15
 """
+
 #第一部分：导入数据集
 import pandas as pd
 Coke1 =pd.read_csv("35.csv")
 print Coke1 [:4]
+
 
 #第二部分：聚类
 from sklearn.cluster import KMeans
 clf=KMeans(n_clusters=3)
 pre=clf.fit_predict(Coke1)
 print pre[:4]
+
 #第三部分：降维
 from sklearn.decomposition import PCA
 pca=PCA(n_components=2)
@@ -208,6 +305,7 @@ newData=pca.fit_transform(Coke1)
 print newData[:4]
 x1=[n[0] for n in newData]
 x2=[n[1] for n in newData]
+
 
 #第四部分：用matplotlib包画图
 import matplotlib.pyplot as plt
@@ -218,26 +316,37 @@ plt.scatter(x1,x2,c=pre, marker='x')
 plt.savefig("bankloan.png",dpi=400)
 plt.show()
 ```
-输出如下图所示：![](https://img-blog.csdn.net/20170307151918050)
+输出如下图所示：
+![](https://img-blog.csdn.net/20170307151918050)
+
+
+
+
 
 
 ## 五. PCA降维及绘图代码
+
 PCA降维绘图参考这篇博客。
 [http://blog.csdn.net/xiaolewennofollow/article/details/46127485](http://blog.csdn.net/xiaolewennofollow/article/details/46127485)
 代码如下：
+
 
 ```python
 # -*- coding: utf-8 -*-
 """
 Created on Mon Mar 06 21:47:46 2017
+
 @author: yxz
 """
+
 from numpy import *
+
 def loadDataSet(fileName,delim='\t'):
     fr=open(fileName)
     stringArr=[line.strip().split(delim) for line in fr.readlines()]
     datArr=[map(float,line) for line in stringArr]
     return mat(datArr)
+
 def pca(dataMat,topNfeat=9999999):
     meanVals=mean(dataMat,axis=0)
     meanRemoved=dataMat-meanVals
@@ -253,6 +362,7 @@ def pca(dataMat,topNfeat=9999999):
     return lowDDatMat,reconMat
 dataMat=loadDataSet('41.txt')
 lowDMat,reconMat=pca(dataMat,1)
+
 def plotPCA(dataMat,reconMat):
     import matplotlib
     import matplotlib.pyplot as plt
@@ -276,9 +386,12 @@ def plotPCA(dataMat,reconMat):
 plotPCA(dataMat,reconMat)
 ```
 输出结果如下图所示：
+
 ![](https://img-blog.csdn.net/20170307035431549)
 采用PCA方法对数据集进行降维操作，即将红色三角形数据降维至黄色直线上，一个平面降低成一条直线。PCA的本质就是对角化协方差矩阵，对一个n*n的对称矩阵进行分解，然后把矩阵投影到这N个基上。
 数据集为41.txt，值如下：
+
+
 ```python
 61.5	55
 59.8	61
@@ -780,9 +893,21 @@ plotPCA(dataMat,reconMat)
 60.2	60
 60.7	56
 ```
-最后希望这篇文章对你有所帮助，尤其是我的学生和接触数据挖掘、[机器学习](http://lib.csdn.net/base/machinelearning)的博友。这篇文字主要是记录一些代码片段，作为在线笔记，也希望对你有所帮助。
-一醉一轻舞，一梦一轮回。一曲一人生，一世一心愿。
-(By:Eastmount 2017-03-07 下午3点半[http://blog.csdn.net/eastmount/](http://blog.csdn.net/eastmount/))
+
+
+
+
+        最后希望这篇文章对你有所帮助，尤其是我的学生和接触数据挖掘、[机器学习](http://lib.csdn.net/base/machinelearning)的博友。这篇文字主要是记录一些代码片段，作为在线笔记，也希望对你有所帮助。
+        一醉一轻舞，一梦一轮回。一曲一人生，一世一心愿。
+       (By:Eastmount 2017-03-07 下午3点半  [http://blog.csdn.net/eastmount/](http://blog.csdn.net/eastmount/) )
+
+
+
+
+
+
+
+
 
 
 

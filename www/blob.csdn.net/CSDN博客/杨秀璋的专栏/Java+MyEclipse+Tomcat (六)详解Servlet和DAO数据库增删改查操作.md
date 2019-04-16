@@ -1,10 +1,18 @@
-
 # Java+MyEclipse+Tomcat (六)详解Servlet和DAO数据库增删改查操作 - 杨秀璋的专栏 - CSDN博客
 
-置顶2015年05月24日 05:16:55[Eastmount](https://me.csdn.net/Eastmount)阅读数：27176
 
 
-此篇文章主要讲述DAO、Java Bean和Servlet实现操作数据库，把链接数据库、数据库操作、前端界面显示分模块化实现。其中包括数据的CRUD增删改查操作，并通过一个常用的JSP网站前端模板界面进行描述。参考前文：
+
+
+置顶2015年05月24日 05:16:55[Eastmount](https://me.csdn.net/Eastmount)阅读数：27201
+
+
+
+
+
+
+
+        此篇文章主要讲述DAO、Java Bean和Servlet实现操作数据库，把链接数据库、数据库操作、前端界面显示分模块化实现。其中包括数据的CRUD增删改查操作，并通过一个常用的JSP网站前端模板界面进行描述。参考前文：
 [Java+MyEclipse+Tomcat
  (一)配置过程及jsp网站开发入门](http://blog.csdn.net/eastmount/article/details/45492065)
 [Java+MyEclipse+Tomcat
@@ -14,19 +22,29 @@
 [Java+MyEclipse+Tomcat
  (四)Servlet提交表单和数据库操作](http://blog.csdn.net/eastmount/article/details/45725077)
 [Java+MyEclipse+Tomcat (五)DAO和Java Bean实现数据库和界面分开操作](http://blog.csdn.net/eastmount/article/details/45833663)
-免费资源下载地址：
+        免费资源下载地址：
 [http://download.csdn.net/detail/eastmount/8733385](http://download.csdn.net/detail/eastmount/8733385)
+
 PS:这篇文章可以认为是对前面五篇文章的一系列总结和应用，同时我认为理解该篇文章基本就能简单实现一个基于数据库操作的JSP网站，对你的课程项目或毕设有所帮助！但同时没有涉及事务、触发器、存储过程、并发处理等数据库知识，也没有Struts、Hibernate、Spring框架知识，它还是属于基础性文章吧！希望对你有所帮助~
 
+
 ## 一. 项目结构
-该项目的结构如下图所示：
+
+        该项目的结构如下图所示：
+
+
 ![](https://img-blog.csdn.net/20150524050926439)
-这是典型的DAO模式，其中bean文件夹中TrainManage.java类封装了数据库表TrainManage中的属性和get/set操作；DAO文件夹中TrainManageDAO.java是对类TrainManage（或火车表）的数据库增删改查操作；util中JDBCConnect.java主要是连接数据库MySQL的操作；servlet主要是POST方法请求表单。
+        这是典型的DAO模式，其中bean文件夹中TrainManage.java类封装了数据库表TrainManage中的属性和get/set操作；DAO文件夹中TrainManageDAO.java是对类TrainManage（或火车表）的数据库增删改查操作；util中JDBCConnect.java主要是连接数据库MySQL的操作；servlet主要是POST方法请求表单。
+
+
+
 
 ## 二. 数据库初始化操作
-打开MySQL，输入默认超级root用户的密码，然后数据库的操作如下代码：
 
-```python
+        打开MySQL，输入默认超级root用户的密码，然后数据库的操作如下代码：
+
+
+```
 --创建数据库
 create database ManageTrain;
 --使用数据库
@@ -54,19 +72,29 @@ insert TrainManage (trainid,start,end,time,yzprice,rzprice,ywprice,rwprice,root)
 --查询数据
 select * from TrainManage;
 ```
-注意：上面操作在MySQL黑框中输出增删改查的SQL语言就可以，不要把中文注释也执行。同时设置所有编码方式都统一为utf-8防止乱码，数据库表结构如下图所示：
+        注意：上面操作在MySQL黑框中输出增删改查的SQL语言就可以，不要把中文注释也执行。同时设置所有编码方式都统一为utf-8防止乱码，数据库表结构如下图所示：
+
 ![](https://img-blog.csdn.net/20150523190516352)
 
+
+
+
 ## 三. 简单查询操作DAO方法
-新建Web Project，项目名为“TrainDatabase”,对火车车次数据库的增删改查。
-运行效果如下图所示：
+
+        新建Web Project，项目名为“TrainDatabase”,对火车车次数据库的增删改查。
+        运行效果如下图所示：
+
+
 ![](https://img-blog.csdn.net/20150523223016746)
-**1.****在src下新建文件夹util，然后添加类JDBCConnect.java。代码如下：**
-主要是调用getConnection(url, userName, password)方法进行连接数据库操作，数据库的名称为TrainManage，默认的连接对象为root，密码为123456。同时定义两个函数executeUpdate()执行无参数的SQL语句操作和有参数的SQL语句操作。
-```python
+
+**        1.****在src下新建文件夹util，然后添加类JDBCConnect.java。代码如下：**        主要是调用getConnection(url, userName, password)方法进行连接数据库操作，数据库的名称为TrainManage，默认的连接对象为root，密码为123456。同时定义两个函数executeUpdate()执行无参数的SQL语句操作和有参数的SQL语句操作。
+
+```java
 package util;
+
 import java.sql.*;
 import com.mysql.jdbc.Driver;
+
 public class JDBCConnect {
 	
 	//获取默认数据库连接
@@ -83,6 +111,7 @@ public class JDBCConnect {
 		DriverManager.registerDriver(new Driver());
 		return DriverManager.getConnection(url, userName, password);
 	}
+
 	//设置 PreparedStatement 参数 
 	public static void setParams(PreparedStatement preStmt, Object... params)
 			throws SQLException {
@@ -109,10 +138,12 @@ public class JDBCConnect {
 			}
 		}
 	}
+
 	//执行 SQL，返回影响的行数 异常处理
 	public static int executeUpdate(String sql) throws SQLException {
 		return executeUpdate(sql, new Object[] {});
 	}
+
 	//带参数执行SQL，返回影响的行数 异常处理
 	public static int executeUpdate(String sql, Object... params)
 			throws SQLException {
@@ -132,9 +163,12 @@ public class JDBCConnect {
 	}
 }
 ```
+
 **2.****在src下新建文件夹bean，然后添加类TrainManage.java。代码如下：**
-```python
+
+```java
 package bean;
+
 public class TrainManage {
 	
 	private String trainid;       //车次
@@ -169,9 +203,11 @@ public class TrainManage {
 }
 ```
 **3.在src下新建文件夹DAO，然后添加类StudentDAO.java。代码如下：**
-通常DAO（Data Access Object）数据访问对象是负责与数据库连接，主要功能执行对数据表的CUDR操作（创建、更新、删除、查询）。每个数据表都定义一个DAO接口或类实现，实现对此表的读写操作。换句话说，就是在域名.项目.模块.dao文件夹下创建个DAO类即可。
-```python
+        通常DAO（Data Access Object）数据访问对象是负责与数据库连接，主要功能执行对数据表的CUDR操作（创建、更新、删除、查询）。每个数据表都定义一个DAO接口或类实现，实现对此表的读写操作。换句话说，就是在域名.项目.模块.dao文件夹下创建个DAO类即可。
+
+```java
 package DAO;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -180,6 +216,7 @@ import java.util.ArrayList;
 import java.util.List;
 import bean.TrainManage;
 import util.JDBCConnect;
+
 public class TrainManageDAO {
 	
 	//插入车次
@@ -209,6 +246,7 @@ public class TrainManageDAO {
 		String sql = "UPDATE TrainManage SET start = ?, end = ? WHERE trainid = ? ";
 		return JDBCConnect.executeUpdate(sql, train.getStart(), train.getEnd(), train.getTrainid());
 	}
+
 	//删除操作
 	public static int delete(String id) throws Exception {
 		String sql = "DELETE FROM TrainManage WHERE trainid = ? ";
@@ -344,8 +382,10 @@ public class TrainManageDAO {
 	}
 }
 ```
-**4.在WebRoot文件夹下创建trainManage.jsp文件，页面布局代码如下：**
-```python
+
+**        4.在WebRoot文件夹下创建trainManage.jsp文件，页面布局代码如下：**
+
+```
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>  
 <jsp:directive.page import="DAO.TrainManageDAO"/>  
@@ -354,6 +394,7 @@ public class TrainManageDAO {
     List trainList = TrainManageDAO.listStudents();  
     request.setAttribute("trainList", trainList);  
 %>   
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
@@ -490,11 +531,15 @@ public class TrainManageDAO {
   </body>
 </html>
 ```
-5在WebRoot路径下创建image文件夹，并添加jsp中需要使用的图片资源。
-6.在WebRoot/WEB-INF/lib文件夹中添加mysql-connector-java-5.1.15-bin.jar文件，访问MySQL数据库需要用到。
-7.右键项目，Run As在Tomcat 7.x下即可运行，效果如前图所示。
-其中JSP文件与DAO的交互核心代码如下：
-```python
+        5在WebRoot路径下创建image文件夹，并添加jsp中需要使用的图片资源。
+
+        6.在WebRoot/WEB-INF/lib文件夹中添加mysql-connector-java-5.1.15-bin.jar文件，访问MySQL数据库需要用到。
+
+        7.右键项目，Run As在Tomcat 7.x下即可运行，效果如前图所示。
+
+        其中JSP文件与DAO的交互核心代码如下：
+
+```
 <jsp:directive.page import="DAO.TrainManageDAO"/>  
 <jsp:directive.page import="java.util.List"/> 
 <%  
@@ -530,12 +575,21 @@ public class TrainManageDAO {
 ```
 
 
+
+
+
 ## 四. 关键字查询操作
-关键字查询运行截图如下图所示：
+
+        关键字查询运行截图如下图所示：
+
+
 ![](https://img-blog.csdn.net/20150524024315036)
+
 ![](https://img-blog.csdn.net/20150524024217525)
-该步骤只需要在WebRoot文件夹下创建trainManageSelect.jsp即可，代码如下：
-```python
+
+        该步骤只需要在WebRoot文件夹下创建trainManageSelect.jsp即可，代码如下：
+
+```
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>  
 <jsp:directive.page import="DAO.TrainManageDAO"/>  
@@ -550,6 +604,7 @@ public class TrainManageDAO {
     //List trainList = TrainManageDAO.listStudents();  
     request.setAttribute("trainList", trainList);  
 %>   
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
@@ -686,8 +741,9 @@ public class TrainManageDAO {
   </body>
 </html>
 ```
-调用的trainManageDAO.java中的函数findStartEnd(String start,String end)如下，它如果不输入则进行所有查找，也支持单方面出发或到达查找：
-```python
+        调用的trainManageDAO.java中的函数findStartEnd(String start,String end)如下，它如果不输入则进行所有查找，也支持单方面出发或到达查找：
+
+```java
 //查找记录 某车次
 	public static List<TrainManage> findStartEnd(String start,String end) throws Exception {
 		List<TrainManage> list = new ArrayList<TrainManage>();
@@ -729,6 +785,7 @@ public class TrainManageDAO {
 				train.setRoot(rs.getString("root"));
 				list.add(train);
 			}
+
 		} catch (Exception e) {
 			System.out.println("错误："+e.getMessage());  
 		}
@@ -743,27 +800,44 @@ public class TrainManageDAO {
 		return list;
 	}
 ```
-其中核心步骤如下：
-1.在trainManage.jsp提交POST表单出发地(<input id="start")和到达地(<input id="end")，提交给trainManageSelect.jsp；
-2.在trainManageSelect.jsp中通过获取出发地和到达地，并执行DAO中的TrainManageDAO.java中关键字查找函数:
+        其中核心步骤如下：
+
+        1.在trainManage.jsp提交POST表单出发地(<input id="start")和到达地(<input id="end")，提交给trainManageSelect.jsp；
+
+        2.在trainManageSelect.jsp中通过获取出发地和到达地，并执行DAO中的TrainManageDAO.java中关键字查找函数:
 String mstart = request.getParameter("start");
-String mend = request.getParameter("end");
-List<TrainManage> trainList = TrainManageDAO.findStartEnd(mstart,mend);
-request.setAttribute("trainList", trainList);
-3.在JSP中通过EL循环显示结果如下：
-<c:forEach items="${trainList}" var="train">
-<tr align=center>
-<td>${train.trainid}</td>
-<td>${train.start}</td>
-...
-</tr>
-</c:forEach>
-PS：同时在这过程中你会遇到执行关键字中文查询时显示乱码。
-在trainManageSelect.java文件中通过函数findStartEnd(start,end)打桩输出提交表单"北京 长沙"如下所示：
+
+        String mend = request.getParameter("end");
+
+        List<TrainManage> trainList = TrainManageDAO.findStartEnd(mstart,mend); 
+
+        request.setAttribute("trainList", trainList); 
+
+        3.在JSP中通过EL循环显示结果如下：
+<c:forEach items="${trainList}" var="train">  
+
+            <tr align=center>  
+
+                <td>${train.trainid}</td> 
+
+                <td>${train.start}</td>
+
+                 ...
+
+            </tr>
+
+        </c:forEach>
+        PS：同时在这过程中你会遇到执行关键字中文查询时显示乱码。
+
+        在trainManageSelect.java文件中通过函数findStartEnd(start,end)打桩输出提交表单"北京 长沙"如下所示：
+
 ![](https://img-blog.csdn.net/20150524025427856)
-而且我的服务器、MySQL、JSP、URL3306地址中都设置了UTF-8编码方式，最终解决有两个方面：
-第一个方面是在进行SQL查找时，我最初使用的第一种方法核心代码：
-```python
+
+       而且我的服务器、MySQL、JSP、URL3306地址中都设置了UTF-8编码方式，最终解决有两个方面：
+
+       第一个方面是在进行SQL查找时，我最初使用的第一种方法核心代码：
+
+```java
 String sql = "SELECT * FROM TrainManage WHERE start = ? and end = ? ;";
 Connection conn = JDBCConnect.getConnection(); //连接默认数据库
 PreparedStatement preStmt = conn.prepareStatement(sql);
@@ -771,8 +845,9 @@ preStmt.setString(1, start);
 preStmt.setString(2, end);
 ResultSet rs = preStmt.executeQuery();
 ```
-但是在查询英文Beijing => Guizhou 时能正确显示，而中文就没有结果，后改为带引号（"'"+string+"'"）的参数方式，核心代码如下：
-```python
+        但是在查询英文Beijing => Guizhou 时能正确显示，而中文就没有结果，后改为带引号（"'"+string+"'"）的参数方式，核心代码如下：
+
+```java
 String sql = "SELECT * FROM TrainManage WHERE start = '" 
 		+ start + "' and end = '"+ end +"';"; 
 Connection conn = JDBCConnect.getConnection(); //连接默认数据库
@@ -780,19 +855,31 @@ Statement statement = conn.createStatement();
 ResultSet rs = statement.executeQuery(sql);
 while(rs.next()){...}
 ```
-后来使用该方法仍然存在乱码，但是这次我发现了原因，在form提交表单时采用Get方法就会出现中文乱码，虽然URL中显示的是：
-http://localhost:8080/TrainDatabase/trainManageSelect.jsp?start=北京&end=长沙&sumbit=提交
-但是可能URL转String出现乱码的，改为POST即可实现正常查询，显示正常中文。
-注意：前提是我的所有编码字符集都统一为UTF-8。
+        后来使用该方法仍然存在乱码，但是这次我发现了原因，在form提交表单时采用Get方法就会出现中文乱码，虽然URL中显示的是：
+
+        http://localhost:8080/TrainDatabase/trainManageSelect.jsp?start=北京&end=长沙&sumbit=提交
+
+        但是可能URL转String出现乱码的，改为POST即可实现正常查询，显示正常中文。
+
+        注意：前提是我的所有编码字符集都统一为UTF-8。
+
+
+
+
+
 
 
 
 ## 五. 插入操作调用Servlet
-该部分运行截图如下图所示：
+
+        该部分运行截图如下图所示：
+
+
 ![](https://img-blog.csdn.net/20150524040457220)
-在src中创建文件夹servlet，同时创建**Servlet**文件InsertTrainAction.java。
-```python
+        在src中创建文件夹servlet，同时创建**Servlet**文件InsertTrainAction.java。
+```java
 package servlet;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -802,17 +889,22 @@ import javax.servlet.http.HttpServletResponse;
 import bean.TrainManage;
 import util.JDBCConnect;
 import DAO.TrainManageDAO;
+
 public class InsertTrainAction extends HttpServlet {
+
 	public InsertTrainAction() {
 		super();
 	}
+
 	public void destroy() {
 		super.destroy(); // Just puts "destroy" string in log
 		// Put your code here
 	}
+
 	//The doGet method of the servlet	 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+
 		response.setContentType("text/html");
 		PrintWriter out = response.getWriter();
 		out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">");
@@ -827,9 +919,11 @@ public class InsertTrainAction extends HttpServlet {
 		out.flush();
 		out.close();
 	}
+
 	//The doPost method of the servlet
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+
 		response.setCharacterEncoding("UTF-8"); //设置输出编码  
 	    request.setCharacterEncoding("UTF-8");  
 		
@@ -871,19 +965,24 @@ public class InsertTrainAction extends HttpServlet {
 		}
 		
 	}
+
 	public void init() throws ServletException {
 		// Put your code here
 	}
+
 }
 ```
-它会自动配置WebRoot/WEB-INF/web.xml文件中servlet和其映射。同时在WebRoot中添加trainManageInsert.jsp。
-```python
+ 
+       它会自动配置WebRoot/WEB-INF/web.xml文件中servlet和其映射。同时在WebRoot中添加trainManageInsert.jsp。
+
+```
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>  
 <%@ page session = "true" %>
 <jsp:directive.page import="DAO.TrainManageDAO"/>  
 <jsp:directive.page import="bean.TrainManage"/>
 <jsp:directive.page import="java.util.List"/> 
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
@@ -1036,19 +1135,29 @@ public class InsertTrainAction extends HttpServlet {
 </html>
 ```
 该方法不同于前面的，它是通过Servlet实现的。主要是在采用JSP调用DAO中插入操作总是失败，其流程如下：
-1.点击"插入车次"通过超链接到trainManageInsert.jsp，然后通过表单POST提交到Java文件servlet；
-<form action="/TrainDatabase/servlet/InsertTrainAction" method="post">
+        1.点击"插入车次"通过超链接到trainManageInsert.jsp，然后通过表单POST提交到Java文件servlet；
+
+        <form action="/TrainDatabase/servlet/InsertTrainAction" method="post">
 2.在InsertTrainAction.java中通过doPost方法获取提交的表单参数，再调用TrainManageDAO.insert(train)插入数据。最后通过response.sendRedirect重定向到管理页面。
-注意：在插入过程中我也是采用"'"+ name +"'"的方式，而不是?来添加参数，否则总报错，详见代码trainManageDAO.java函数insert(TrainManage train)。
+ 注意：在插入过程中我也是采用"'"+ name +"'"的方式，而不是?来添加参数，否则总报错，详见代码trainManageDAO.java函数insert(TrainManage train)。
+
+
+
 
 
 ## 六. 删除操作
-运行效果如下图所示，点击删除后弹出提示框“确定”后删除：
+
+        运行效果如下图所示，点击删除后弹出提示框“确定”后删除：
+
+
 ![](https://img-blog.csdn.net/20150524042106752)
-同时在删除后，通过JavaScript实现5秒后返回管理界面的效果。(因为在PHP网站中我常用这个功能，觉得有意思在JSP中就加入了该功能)
+
+        同时在删除后，通过JavaScript实现5秒后返回管理界面的效果。(因为在PHP网站中我常用这个功能，觉得有意思在JSP中就加入了该功能)
+
+
 ![](https://img-blog.csdn.net/20150524042116721)
-在WebRoot下创建trainManageDelete.jsp文件实现删除操作，代码如下：
-```python
+        在WebRoot下创建trainManageDelete.jsp文件实现删除操作，代码如下：
+```
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>  
 <%@ page session = "true" %>
@@ -1064,6 +1173,7 @@ public class InsertTrainAction extends HttpServlet {
     	request.setAttribute("isDelete", isDelete);  
 	}
 %>
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
@@ -1195,31 +1305,43 @@ public class InsertTrainAction extends HttpServlet {
   </body>
 </html>
 ```
-删除的核心代码如下：
-1.在trainManage.jsp中定义删除超链接及提示框：
-<a href="trainManageDelete.jsp?action=del&id=${train.trainid}"
-onclick="return confirm('确定删除?')">删除</a>
-2.在DAO中trainManageDAO.java文件中定义SQL删除操作：
-public static int delete(String id) throws Exception {
-String sql = "DELETE FROM TrainManage WHERE trainid = ? ";
-return JDBCConnect.executeUpdate(sql, id);
-}
-3.在trainManageDelete.jsp中获取传递的trainid(火车车次)值并调用该函数实现删除操作：
+         删除的核心代码如下：
+
+        1.在trainManage.jsp中定义删除超链接及提示框：
+<a href="trainManageDelete.jsp?action=del&id=${train.trainid}"   
+
+                onclick="return confirm('确定删除?')">删除</a>  
+
+        2.在DAO中trainManageDAO.java文件中定义SQL删除操作：
+        public static int delete(String id) throws Exception {
+                String sql = "DELETE FROM TrainManage WHERE trainid = ? ";
+                return JDBCConnect.executeUpdate(sql, id);
+        }
+        3.在trainManageDelete.jsp中获取传递的trainid(火车车次)值并调用该函数实现删除操作：
 <%
-String action = request.getParameter("action");
-String id = request.getParameter("id");
-if(id == null || id==""){out.println("没有选中删除的车次");return;}
-if("del".equals(action)){
-int isDelete = TrainManageDAO.delete(id);
-request.setAttribute("isDelete", isDelete);
-}
-%>
+        String action = request.getParameter("action");
+        String id = request.getParameter("id");
+        if(id == null || id==""){out.println("没有选中删除的车次");return;}
+        if("del".equals(action)){
+                int isDelete = TrainManageDAO.delete(id);  
+
+                request.setAttribute("isDelete", isDelete);  
+        }
+
+        %>
+
+
+
 
 ## 七. 更新操作及Servlet
-具体流程是：首先点击修改，通过超链传递trainid（火车车次）到修改界面，然后通过调用trainManageDAO.java中find查找该车次的所有信息并显示。再通过提交POST及Servlet到UpdateTrainAction.java中，在doPost方法中调用DAO中update(TrainMManage)实现更新。其中运行结果如下图所示：
+
+        具体流程是：首先点击修改，通过超链传递trainid（火车车次）到修改界面，然后通过调用trainManageDAO.java中find查找该车次的所有信息并显示。再通过提交POST及Servlet到UpdateTrainAction.java中，在doPost方法中调用DAO中update(TrainMManage)实现更新。其中运行结果如下图所示：
+
+
 ![](https://img-blog.csdn.net/20150524043807805)
-该方法与插入数据的思路类似，都是通过Servlet实现。其中WebRoot文件夹下创建trainManageUpdate.jsp。其中车次是只读的。
-```python
+        该方法与插入数据的思路类似，都是通过Servlet实现。其中WebRoot文件夹下创建trainManageUpdate.jsp。其中车次是只读的。
+
+```
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>  
 <%@ page session = "true" %>
@@ -1232,6 +1354,7 @@ request.setAttribute("isDelete", isDelete);
 	TrainManage train = TrainManageDAO.find(id);  
     request.setAttribute("train", train);   
 %>
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
@@ -1384,28 +1507,37 @@ request.setAttribute("isDelete", isDelete);
   </body>
 </html>
 ```
-然后再src/servlet中创建Servlet类，即UpdateTrainAction.java文件。代码如下：
-```python
+        然后再src/servlet中创建Servlet类，即UpdateTrainAction.java文件。代码如下：
+
+```java
 package servlet;
+
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import DAO.TrainManageDAO;
 import bean.TrainManage;
+
 public class UpdateTrainAction extends HttpServlet {
+
 	public UpdateTrainAction() {
 		super();
 	}
+
 	public void destroy() {
 		super.destroy(); // Just puts "destroy" string in log
 		// Put your code here
 	}
+
 	//The doGet method of the servlet.
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+
 		response.setContentType("text/html");
 		PrintWriter out = response.getWriter();
 		out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">");
@@ -1420,9 +1552,11 @@ public class UpdateTrainAction extends HttpServlet {
 		out.flush();
 		out.close();
 	}
+
 	//The doPost method of the servlet
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+
 		response.setCharacterEncoding("UTF-8"); //设置输出编码  
 	    request.setCharacterEncoding("UTF-8");  
 		
@@ -1463,13 +1597,16 @@ public class UpdateTrainAction extends HttpServlet {
             response.sendRedirect("http://localhost:8080/TrainDatabase/trainManage.jsp");  
 		}
 	}
+
 	public void init() throws ServletException {
 		// Put your code here
 	}
+
 }
 ```
-你可能发现，update函数只修改了start和end，其它你可以自己添加，方法类似。同时如果参数过多建议使用下面的方法替代：
-```python
+        你可能发现，update函数只修改了start和end，其它你可以自己添加，方法类似。同时如果参数过多建议使用下面的方法替代：
+
+```java
 public static int update(TrainManage train) throws Exception {
      /**
        * String sql = "UPDATE TrainManage SET start = ?, end = ? WHERE trainid = ? ";
@@ -1482,13 +1619,26 @@ public static int update(TrainManage train) throws Exception {
 }
 ```
 还有一个查看详情就不介绍了，参看源代码吧~
+
 ![](https://img-blog.csdn.net/20150524051034885)
 
 
+
+
+
 ## 八. 总结
-最后文章就不总结了，因为每步都讲得非常清楚，无论是步骤、思想，还是源代码截图。作者真的很用心的写这篇文章，从晚上8点写到了凌晨5点，中间打了两把dota2。一方面由于我也认为这些都非常重要又基础，另一方面为哪些初学者做Java网站的。
-最后希望文章对你有所帮助！如果文章有错误或不足之处，还请海涵~真的有点累了睡了。有时候想想值不值得这样写文章，心安虽好但对身体不好。
-（By:Eastmount 2015-5-24 凌晨5点[http://blog.csdn.net/eastmount/](http://blog.csdn.net/eastmount/)）
+
+        最后文章就不总结了，因为每步都讲得非常清楚，无论是步骤、思想，还是源代码截图。作者真的很用心的写这篇文章，从晚上8点写到了凌晨5点，中间打了两把dota2。一方面由于我也认为这些都非常重要又基础，另一方面为哪些初学者做Java网站的。
+
+        最后希望文章对你有所帮助！如果文章有错误或不足之处，还请海涵~真的有点累了睡了。有时候想想值不值得这样写文章，心安虽好但对身体不好。
+
+
+
+        （By:Eastmount 2015-5-24 凌晨5点   [http://blog.csdn.net/eastmount/](http://blog.csdn.net/eastmount/)）
+
+
+
+
 
 
 

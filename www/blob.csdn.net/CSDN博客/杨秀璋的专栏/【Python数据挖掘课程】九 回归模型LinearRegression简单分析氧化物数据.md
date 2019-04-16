@@ -1,15 +1,27 @@
-
 # 【Python数据挖掘课程】九.回归模型LinearRegression简单分析氧化物数据 - 杨秀璋的专栏 - CSDN博客
 
-2017年03月05日 18:39:46[Eastmount](https://me.csdn.net/Eastmount)阅读数：8931所属专栏：[知识图谱、web数据挖掘及NLP](https://blog.csdn.net/column/details/eastmount-kgdmnlp.html)
 
 
 
-这篇文章主要介绍三个知识点，也是我《数据挖掘与分析》课程讲课的内容。同时主要参考学生的课程提交作业内容进行讲述，包括：
+
+2017年03月05日 18:39:46[Eastmount](https://me.csdn.net/Eastmount)阅读数：8975
+所属专栏：[知识图谱、web数据挖掘及NLP](https://blog.csdn.net/column/details/eastmount-kgdmnlp.html)
+
+
+
+
+
+
+
+
+        这篇文章主要介绍三个知识点，也是我《数据挖掘与分析》课程讲课的内容。同时主要参考学生的课程提交作业内容进行讲述，包括：
 1.回归模型及基础知识；
-2.UCI数据集；
-3.回归模型简单数据分析。
-前文推荐：
+        2.UCI数据集；
+        3.回归模型简单数据分析。
+
+
+
+        前文推荐：
 [【Python数据挖掘课程】一.安装Python及爬虫入门介绍](http://blog.csdn.net/eastmount/article/details/52577215)
 [【Python数据挖掘课程】二.Kmeans聚类数据分析及Anaconda介绍](http://blog.csdn.net/eastmount/article/details/52777308)
 [【Python数据挖掘课程】三.Kmeans聚类代码实现、作业及优化](http://blog.csdn.net/eastmount/article/details/52793549)
@@ -18,71 +30,135 @@
 [【Python数据挖掘课程】六.Numpy、Pandas和Matplotlib包基础知识](http://blog.csdn.net/eastmount/article/details/53144633)
 [【Python数据挖掘课程】七.PCA降维操作及subplot子图绘制](http://blog.csdn.net/eastmount/article/details/53285192)
 [【Python数据挖掘课程】八.关联规则挖掘及Apriori实现购物推荐](http://blog.csdn.net/eastmount/article/details/53368440)
-希望这篇文章对你有所帮助，尤其是刚刚接触数据挖掘以及[大数据](http://lib.csdn.net/base/hadoop)的同学，这些基础知识真的非常重要。如果文章中存在不足或错误的地方，还请海涵~
-感谢ZJ学生提供的数据集与作品相关报告，学生确实还是学到了些东西。
-授课知识强推第五节课内容：五.线性回归知识及预测糖尿病实例
+
+
+        希望这篇文章对你有所帮助，尤其是刚刚接触数据挖掘以及[大数据](http://lib.csdn.net/base/hadoop)的同学，这些基础知识真的非常重要。如果文章中存在不足或错误的地方，还请海涵~
+        感谢ZJ学生提供的数据集与作品相关报告，学生确实还是学到了些东西。
+        授课知识强推第五节课内容：五.线性回归知识及预测糖尿病实例
+
+
 
 
 ## 一. 算法简介-回归模型
 
-### 1.初识回归
-“子女的身高趋向于高于父母的身高的平均值，但一般不会超过父母的身高。”
--- 《遗传的身高向平均数方向的回归》
-回归(Regression)这一概念最早由英国生物统计学家高尔顿和他的学生皮尔逊在研究父母亲和子女的身高遗传特性时提出。如今，我们做回归分析时所讨论的“回归”和这种趋势中效应已经没有任何瓜葛了，它只是指源于高尔顿工作的那样——用一个或多个自变量来预测因变量的数学方法。
-在一个回归模型中，我们需要关注或预测的变量叫做因变量（响应变量或结果变量），我们选取的用来解释因变量变化的变量叫做自变量（解释变量或预测变量）。
+
+
+### **1.初识回归**
+
+      “子女的身高趋向于高于父母的身高的平均值，但一般不会超过父母的身高。”
+                                                                        -- 《遗传的身高向平均数方向的回归》
+        回归(Regression)这一概念最早由英国生物统计学家高尔顿和他的学生皮尔逊在研究父母亲和子女的身高遗传特性时提出。如今，我们做回归分析时所讨论的“回归”和这种趋势中效应已经没有任何瓜葛了，它只是指源于高尔顿工作的那样——用一个或多个自变量来预测因变量的数学方法。
+
+        在一个回归模型中，我们需要关注或预测的变量叫做因变量（响应变量或结果变量），我们选取的用来解释因变量变化的变量叫做自变量（解释变量或预测变量）。
+
+
 ![](https://img-blog.csdn.net/20170305170841595)
 
-回归是统计学中最有力的工具之一。机器学习监督学习算法分为分类算法和回归算法两种，其实就是根据类别标签分布类型为离散型、连续性而定义的。
-分类算法用于离散型分布预测，如KNN、决策树、朴素贝叶斯、adaboost、SVM、Logistic回归都是分类算法；回归算法用于连续型分布预测，针对的是数值型的样本，使用回归，可以在给定输入的时候预测出一个数值，这是对分类方法的提升，因为这样可以预测连续型数据而不仅仅是离散的类别标签。
+
+
+        回归是统计学中最有力的工具之一。机器学习监督学习算法分为分类算法和回归算法两种，其实就是根据类别标签分布类型为离散型、连续性而定义的。
+        分类算法用于离散型分布预测，如KNN、决策树、朴素贝叶斯、adaboost、SVM、Logistic回归都是分类算法；回归算法用于连续型分布预测，针对的是数值型的样本，使用回归，可以在给定输入的时候预测出一个数值，这是对分类方法的提升，因为这样可以预测连续型数据而不仅仅是离散的类别标签。
+
 回归的目的就是建立一个回归方程用来预测目标值，回归的求解就是求这个回归方程的回归系数。预测的方法即回归系数乘以输入值再全部相加就得到了预测值。
 
-![](https://img-blog.csdn.net/20170305171508583)
-回归最简单的定义：给出一个点集D，用一个函数去拟合这个点集，并且使得点集与拟合函数间的误差最小，如果这个函数曲线是一条直线，那就被称为线性回归，如果曲线是一条二次曲线，就被称为二次回归。
 
-### 2.线性回归
-假定预测值与样本特征间的函数关系是线性的，回归分析的任务，就在于根据样本X和Y的观察值，去估计函数h，寻求变量之间近似的函数关系。定义：
+
+![](https://img-blog.csdn.net/20170305171508583)
+
+        回归最简单的定义：给出一个点集D，用一个函数去拟合这个点集，并且使得点集与拟合函数间的误差最小，如果这个函数曲线是一条直线，那就被称为线性回归，如果曲线是一条二次曲线，就被称为二次回归。
+
+
+
+
+### **2.线性回归**
+
+         假定预测值与样本特征间的函数关系是线性的，回归分析的任务，就在于根据样本X和Y的观察值，去估计函数h，寻求变量之间近似的函数关系。定义：
+
+
 ![](https://img-blog.csdn.net/20170305171801300)
-其中，n = 特征数目；xj = 每个训练样本第j个特征的值，可以认为是特征向量中的第j个值。
+        其中，n = 特征数目；xj = 每个训练样本第j个特征的值，可以认为是特征向量中的第j个值。
 为了方便，记x0= 1，则多变量线性回归可以记为：
+
 ![](https://img-blog.csdn.net/20170305172003038)
-其中，θ、x都表示(n+1，1)维列向量。
-注意：多元和多次是两个不同的概念，“多元”指方程有多个参数，“多次”指的是方程中参数的最高次幂。多元线性方程是假设预测值y与样本所有特征值符合一个多元一次线性方程。
+        其中，θ、x都表示(n+1，1)维列向量。
+
+
+        注意：多元和多次是两个不同的概念，“多元”指方程有多个参数，“多次”指的是方程中参数的最高次幂。多元线性方程是假设预测值y与样本所有特征值符合一个多元一次线性方程。
+
+
 ![](https://img-blog.csdn.net/20170305172334414)
 
+
 ### 3.求解线性回归
-回归常常指线性回归，回归的求解就是多元线性回归方程的求解。假设有连续型值标签(标签值分布为Y)的样本，有X={x1,x2,...,xn}个特征，回归就是求解回归系数θ=θ0, θ1,…,θn。那么，手里有一些X和对应的Y,怎样才能找到θ呢？
-在回归方程里，求得特征对应的最佳回归系数的方法是最小化误差的平方和。这里的误差是指预测y值和真实y值之间的差值，使用该误差的简单累加将使得正差值和负差值相互抵消，所以采用平方误差（**最小二乘法**）。平方误差可以写做：
+
+
+
+        回归常常指线性回归，回归的求解就是多元线性回归方程的求解。假设有连续型值标签(标签值分布为Y)的样本，有X={x1,x2,...,xn}个特征，回归就是求解回归系数θ=θ0, θ1,…,θn。那么，手里有一些X和对应的Y,怎样才能找到θ呢？
+
+         在回归方程里，求得特征对应的最佳回归系数的方法是最小化误差的平方和。这里的误差是指预测y值和真实y值之间的差值，使用该误差的简单累加将使得正差值和负差值相互抵消，所以采用平方误差（**最小二乘法**）。平方误差可以写做：
+
+
+
 ![](https://img-blog.csdn.net/20170305172552983)
-在数学上，求解过程就转化为求一组θ值使求上式取到最小值，那么求解方法有梯度下降法、Normal Equation等等。
-梯度下降有如下特点：需要预先选定步长a、需要多次迭代、特征值需要Scaling（统一到同一个尺度范围）。因此比较复杂，还有一种不需要迭代的求解方式——Normal Equation，简单、方便、不需要Feature Scaling。Normal Equation方法中需要计算X的转置与逆矩阵，计算量很大，因此特征个数多时计算会很慢，只适用于特征个数小于100000时使用；当特征数量大于100000时使用梯度法。
-另外，当X不可逆时就有岭回归算法的用武之地了。
 
-**3.1 梯度下降法（Gradient Descent）**
-根据平方误差，定义该线性回归模型的损耗函数（Cost Function）为：
+        在数学上，求解过程就转化为求一组θ值使求上式取到最小值，那么求解方法有梯度下降法、Normal Equation等等。
+
+
+        梯度下降有如下特点：需要预先选定步长a、需要多次迭代、特征值需要Scaling（统一到同一个尺度范围）。因此比较复杂，还有一种不需要迭代的求解方式——Normal Equation，简单、方便、不需要Feature Scaling。Normal Equation方法中需要计算X的转置与逆矩阵，计算量很大，因此特征个数多时计算会很慢，只适用于特征个数小于100000时使用；当特征数量大于100000时使用梯度法。
+
+        另外，当X不可逆时就有岭回归算法的用武之地了。
+
+
+
+**        3.1 梯度下降法（Gradient Descent）**
+
+        根据平方误差，定义该线性回归模型的损耗函数（Cost Function）为：   
+
+
 ![](https://img-blog.csdn.net/20170305173148413)
-线性回归的损耗函数的值与回归系数θ的关系是碗状的，只有一个最小点。线性回归的求解过程如同Logistic回归，区别在于学习模型函数hθ(x)不同。
+        线性回归的损耗函数的值与回归系数θ的关系是碗状的，只有一个最小点。线性回归的求解过程如同Logistic回归，区别在于学习模型函数hθ(x)不同。
 
-**3.2****普通最小二乘法****（****Normal Equation****）**
-Normal Equation算法也叫做普通最小二乘法（ordinary least squares），其特点是：给定输人矩阵X，如果X T X的逆存在并可以求得的话，就可以直接采用该方法求解。其求解理论也十分简单：既然是是求最小误差平方和，另其导数为0即可得出回归系数。
+
+
+
+**        3.2 普通最小二乘法（Normal Equation）**
+        Normal Equation算法也叫做普通最小二乘法（ordinary least squares），其特点是：给定输人矩阵X，如果X T X的逆存在并可以求得的话，就可以直接采用该方法求解。其求解理论也十分简单：既然是是求最小误差平方和，另其导数为0即可得出回归系数。
+
+
 ![](https://img-blog.csdn.net/20170305175204019)
-矩阵X为（m，n+1）矩阵（m表示样本数、n表示一个样本的特征数），y为（m，1）列向量。 上述公式中包含XTX, 也就是需要对矩阵求逆，因此这个方程只在逆矩阵存在的时候适用。
+        矩阵X为（m，n+1）矩阵（m表示样本数、n表示一个样本的特征数），y为（m，1）列向量。 上述公式中包含XTX, 也就是需要对矩阵求逆，因此这个方程只在逆矩阵存在的时候适用。
+
+
+
 
 ### 4.回归模型性能度量
-数据集上计算出的回归方程并不一定意味着它是最佳的，可以便用预测值yHat和原始值y的相关性来度量回归方程的好坏。相关性取值范围0~1，值越高说明回归模型性能越好。
-线性回归是假设值标签与特征值之间的关系是线性的，但有些时候数据间的关系可能会更加复杂，使用线性的模型就难以拟合，就需要引入多项式曲线回归（多元多次拟合）或者其他回归模型，如回归树。
-注意：
-多元回归存在多重共线性，自相关性和异方差性。线性回归对异常值非常敏感。它会严重影响回归线，最终影响预测值。多重共线性会增加系数估计值的方差，使得在模型轻微变化下，估计非常敏感，结果就是系数估计值不稳定。
+
+         数据集上计算出的回归方程并不一定意味着它是最佳的，可以便用预测值yHat和原始值y的相关性来度量回归方程的好坏。相关性取值范围0~1，值越高说明回归模型性能越好。
+         线性回归是假设值标签与特征值之间的关系是线性的，但有些时候数据间的关系可能会更加复杂，使用线性的模型就难以拟合，就需要引入多项式曲线回归（多元多次拟合）或者其他回归模型，如回归树。
+
+        注意：
+        多元回归存在多重共线性，自相关性和异方差性。线性回归对异常值非常敏感。它会严重影响回归线，最终影响预测值。多重共线性会增加系数估计值的方差，使得在模型轻微变化下，估计非常敏感，结果就是系数估计值不稳定。
+
+
+
+
 
 
 ## 二. 数据集介绍
-在数据分析中数据集是最重要的信息，推荐数据集UCI：
+
+        在数据分析中数据集是最重要的信息，推荐数据集UCI：
 [http://archive.ics.uci.edu/ml/machine-learning-databases/](http://archive.ics.uci.edu/ml/machine-learning-databases/)
-该数据集包括6种类型的玻璃，各个特征是定义它们的氧化物含量（即钠，铁，钾等）。Mg：镁 Ai：铝 Si：硅 K：钾 Ca：钙 Ba：钡  Fe：铁  Type of glass：级属性。
-数据集位glass.csv文件，如下图所示：
+        该数据集包括6种类型的玻璃，各个特征是定义它们的氧化物含量（即钠，铁，钾等）。Mg：镁 Ai：铝 Si：硅 K：钾 Ca：钙 Ba：钡  Fe：铁  Type of glass：级属性。
+        数据集位glass.csv文件，如下图所示：
+
+
 
 ![](https://img-blog.csdn.net/20170305180806920)
 
-详细内容如下：
+
+        详细内容如下：
+
+
 ```python
 id	ri	na	mg	al	si	k	ca	ba	fe	glass_type
 1	1.52101	13.64	4.49	1.1	71.78	0.06	8.75	0	0	1
@@ -300,25 +376,36 @@ id	ri	na	mg	al	si	k	ca	ba	fe	glass_type
 213	1.51651	14.38	0	1.94	73.61	0	8.48	1.57	0	7
 214	1.51711	14.23	0	2.08	73.36	0	8.62	1.67	0	7
 ```
-PS：现在正在步入第四科学范式，第一范式是实验（哥白尼），第二范式是理论（牛顿），第三范式是计算（四色填充地图），第四范式是数据。
+
+       PS：现在正在步入第四科学范式，第一范式是实验（哥白尼），第二范式是理论（牛顿），第三范式是计算（四色填充地图），第四范式是数据。
+
+
+
+
 
 ## 三. 回归模型分析
-回归模型分析代码如下：
-注意：1) pandas、Matplotlib、seaboard三种不同方法绘制图形，基本类似。
-2) 代码对应结果不进行详细分析，只提供方法，为提升学生阅读代码能力。
+
+        回归模型分析代码如下：
+        注意：1) pandas、Matplotlib、seaboard三种不同方法绘制图形，基本类似。
+                   2) 代码对应结果不进行详细分析，只提供方法，为提升学生阅读代码能力。
+
+
 
 ```python
 # -*- coding: utf-8 -*-
 """
 Created on Sun Mar 05 18:10:07 2017
+
 @author: eastmount & zj
 """
+
 #导入玻璃识别数据集
 import pandas as pd
 glass=pd.read_csv("glass.csv")
 #显示前6行数据
 print(glass.shape)
 print(glass.head(6))
+
 import seaborn as sns
 import matplotlib.pyplot as plt
 sns.set(font_scale=1.5)
@@ -326,10 +413,12 @@ sns.lmplot(x='al', y='ri', data=glass, ci=None)
 #利用Pandas画散点图
 glass.plot(kind='scatter', x='al', y='ri')
 plt.show()
+
 #利用matplotlib做等效的散点图
 plt.scatter(glass.al, glass.ri)
 plt.xlabel('al')
 plt.ylabel('ri')
+
 #拟合线性回归模型
 from sklearn.linear_model import LinearRegression
 linreg = LinearRegression()
@@ -338,42 +427,52 @@ X = glass[feature_cols]
 y = glass.ri
 linreg.fit(X, y)
 plt.show()
+
 #对于所有的x值做出预测       
 glass['ri_pred'] = linreg.predict(X)
 print("预测的前六行:")
 print(glass.head(6))
+
 #用直线表示预测结果
 plt.plot(glass.al, glass.ri_pred, color='red')
 plt.xlabel('al')
 plt.ylabel('Predicted ri')
 plt.show()
+
 #将直线结果和散点图同时显示出来
 plt.scatter(glass.al, glass.ri)
 plt.plot(glass.al, glass.ri_pred, color='red')
 plt.xlabel('al')
 plt.ylabel('ri')
 plt.show()
+
 #利用相关方法线性预测
 linreg.intercept_ + linreg.coef_ * 2
 #使用预测方法计算Al = 2的预测
 linreg.predict(2)
+
 #铝检验系数
 ai=zip(feature_cols, linreg.coef_)
 print(ai)
+
 #使用预测方法计算Al = 3的预测
 pre=linreg.predict(3)
 print(pre)
+
 #检查glass_type
 sort=glass.glass_type.value_counts().sort_index()
 print(sort)
+
 #类型1、2、3的窗户玻璃
 #类型5，6，7是家用玻璃
 glass['household'] = glass.glass_type.map({1:0, 2:0, 3:0, 5:1, 6:1, 7:1})
 print(glass.head())
+
 plt.scatter(glass.al, glass.household)
 plt.xlabel('al')
 plt.ylabel('household')
 plt.show()
+
 #拟合线性回归模型并存储预测
 feature_cols = ['al']
 X = glass[feature_cols]
@@ -381,6 +480,7 @@ y = glass.household
 linreg.fit(X, y)
 glass['household_pred'] = linreg.predict(X)
 plt.show()
+
 #包括回归线的散点图
 plt.scatter(glass.al, glass.household)
 plt.plot(glass.al, glass.household_pred, color='red')
@@ -388,7 +488,8 @@ plt.xlabel('al')
 plt.ylabel('household')
 plt.show()
 ```
-输出结果如下：
+        输出结果如下：
+
 ```python
 预测的前六行:
    id       ri     na    mg    al     si     k    ca   ba    fe  glass_type  \
@@ -398,6 +499,7 @@ plt.show()
 3   4  1.51766  13.21  3.69  1.29  72.61  0.57  8.22  0.0  0.00           1   
 4   5  1.51742  13.27  3.62  1.24  73.08  0.55  8.07  0.0  0.00           1   
 5   6  1.51596  12.79  3.61  1.62  72.97  0.64  8.07  0.0  0.26           1   
+
     ri_pred  
 0  1.519220  
 1  1.518576  
@@ -406,26 +508,44 @@ plt.show()
 4  1.518873  
 5  1.517932
 ```
-部分输出如下图所示，绘制图形al和ri基本点状图：
+        部分输出如下图所示，绘制图形al和ri基本点状图：
+
+
+
+
 ![](https://img-blog.csdn.net/20170305182705632)
-将预测的线性回归直线结果和散点图同时显示出来：
+
+
+        将预测的线性回归直线结果和散点图同时显示出来：
+
+
 
 ![](https://img-blog.csdn.net/20170305182720554)
 
+
+
+
 ![](https://img-blog.csdn.net/20170305182730335)
 
-拟合逻辑回归代码：
+
+        拟合逻辑回归代码：
+
+
 ```python
 # -*- coding: utf-8 -*-
 """
 Created on Sun Mar 05 18:28:56 2017
+
 @author: eastmount & zj
 """
+
 #-------------逻辑回归-----------------
+
 #拟合Logistic回归模型，存储类预测
 import numpy as np
 nums = np.array([5, 15, 8])
 np.where(nums > 10, 'big', 'small')  
+
 
 #将household_pred转换为 1或0   
 glass['household_pred_class'] = np.where(glass.household_pred >= 0.5, 1, 0)
@@ -438,31 +558,49 @@ y = glass.household
 logreg.fit(X, y)
 glass['household_pred_class'] = logreg.predict(X)
 
+
 #绘图-显示预测结果
 plt.scatter(glass.al, glass.household)
 plt.plot(glass.al, glass.household_pred_class, color='red')
 plt.xlabel('al')
 plt.ylabel('household')
 plt.show()
+
 glass['household_pred_prob'] = logreg.predict_proba(X)[:, 1]
 #绘图 绘制预测概率
+
 plt.scatter(glass.al, glass.household)
 plt.plot(glass.al, glass.household_pred_prob, color='red')
 plt.xlabel('al')
 plt.ylabel('household')
 plt.show()
+
 #检查一些例子的预测
 print (logreg.predict_proba (1))
 print (logreg.predict_proba(2))
 print (logreg. predict_proba (3))
 ```
 输出如下图所示：
+
+
+
+
 ![](https://img-blog.csdn.net/20170305183339061)
+
 ![](https://img-blog.csdn.net/20170305183423688)
 
-最后希望这篇文章对你有所帮助，尤其是我的学生和接触数据挖掘、[机器学习](http://lib.csdn.net/base/machinelearning)的博友。新学期开始，各种事情，专注教学、科研及项目，加油~
-爱你的一切，伴着尤克里里的琴声写了一下午，谢谢我的女神。
-(By:Eastmount 2017-03-05 下午6点半[http://blog.csdn.net/eastmount/](http://blog.csdn.net/eastmount/))
+
+
+
+        最后希望这篇文章对你有所帮助，尤其是我的学生和接触数据挖掘、[机器学习](http://lib.csdn.net/base/machinelearning)的博友。新学期开始，各种事情，专注教学、科研及项目，加油~
+        爱你的一切，伴着尤克里里的琴声写了一下午，谢谢我的女神。
+       (By:Eastmount 2017-03-05 下午6点半  [http://blog.csdn.net/eastmount/](http://blog.csdn.net/eastmount/) )
+
+
+
+
+
+
 
 
 

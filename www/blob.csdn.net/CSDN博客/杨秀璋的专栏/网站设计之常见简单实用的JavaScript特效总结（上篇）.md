@@ -1,24 +1,38 @@
-
 # 网站设计之常见简单实用的JavaScript特效总结（上篇） - 杨秀璋的专栏 - CSDN博客
 
-2016年12月19日 00:54:55[Eastmount](https://me.csdn.net/Eastmount)阅读数：4289所属专栏：[HTML网站前端设计](https://blog.csdn.net/column/details/13444.html)
 
 
 
-这篇主要是总结JavaScript常见简单实用的特效，主要从代码量短、简单实用几个方面进行叙述。其中特效包括：
-1.鼠标悬停图片切换查看器；
-2.鼠标移动图片放大；
-3.鼠标移动切换内容；
-4.贵财下拉菜单案例；
-5.JS图片放大镜功能-类似淘宝；
-6.下一页翻页跳转功能。
-下载地址：
-希望文章对你有所帮助，尤其是学习前端JavaScript的同学。
+
+2016年12月19日 00:54:55[Eastmount](https://me.csdn.net/Eastmount)阅读数：4295
+所属专栏：[HTML网站前端设计](https://blog.csdn.net/column/details/13444.html)
+
+
+
+
+
+
+
+
+        这篇主要是总结JavaScript常见简单实用的特效，主要从代码量短、简单实用几个方面进行叙述。其中特效包括：
+        1.鼠标悬停图片切换查看器；
+        2.鼠标移动图片放大；
+        3.鼠标移动切换内容；
+        4.贵财下拉菜单案例；
+        5.JS图片放大镜功能-类似淘宝；
+        6.下一页翻页跳转功能。
+
+        下载地址：
+        希望文章对你有所帮助，尤其是学习前端JavaScript的同学。
+
+
 
 ## 一. 鼠标悬停图片切换查看器
-代码如下所示，通过JavaScript函数showDaTu显示大图，重点是在<img>中调用onmouseover鼠标函数，然后通过document.getElementById函数实现换图。
 
-```python
+        代码如下所示，通过JavaScript函数showDaTu显示大图，重点是在<img>中调用onmouseover鼠标函数，然后通过document.getElementById函数实现换图。
+
+
+```
 <html>
 	<head>
 		<title>
@@ -39,20 +53,27 @@
 		<img src='wall_s3.jpg' onmouseover="showDaTu('wall3.jpg')">
 		<img src='wall_s4.jpg' onmouseover="showDaTu('wall4.jpg')">
 		<br>因图片较大，请等待图片加载完成……然后鼠标放小图上就会切换了。
+
 	</body>
 </html>
 ```
-运行结果如下图所示：
+        运行结果如下图所示：
+
 ![](https://img-blog.csdn.net/20161219000404769)
 
 
-## 二. 鼠标移动图片放大
-该部分参考：[http://blog.csdn.net/u014175572/article/details/51535768](http://blog.csdn.net/u014175572/article/details/51535768)
-CSS3的transform:scale()可以实现按比例放大或者缩小功能。
-CSS3的transition允许CSS的属性值在一定的时间区间内平滑地过渡。这种效果可以在鼠标单击、获得焦点、被点击或对元素任何改变中触发，并圆滑地以动画效果改变CSS的属性值。
-代码如下所示：
 
-```python
+
+
+## 二. 鼠标移动图片放大
+
+        该部分参考：[http://blog.csdn.net/u014175572/article/details/51535768](http://blog.csdn.net/u014175572/article/details/51535768)
+        CSS3的transform:scale()可以实现按比例放大或者缩小功能。
+        CSS3的transition允许CSS的属性值在一定的时间区间内平滑地过渡。这种效果可以在鼠标单击、获得焦点、被点击或对元素任何改变中触发，并圆滑地以动画效果改变CSS的属性值。
+        代码如下所示：
+
+
+```
 <html>  
     <head>  
         <meta charset="UTF-8">  
@@ -81,25 +102,37 @@ CSS3的transition允许CSS的属性值在一定的时间区间内平滑地过渡
     </body>  
 </html>
 ```
-效果如下图所示，包括缩放前后的对比。
+        效果如下图所示，包括缩放前后的对比。
+
+
 ![](https://img-blog.csdn.net/20161219002207219)![](https://img-blog.csdn.net/20161219002226058)
 
-transition: all 0.6s;表示所有的属性变化在0.6s的时间段内完成。
-transform: scale(1.4);表示在鼠标放到图片上的时候图片按比例放大1.4倍。
-PS：这部分代码参考博主"简单就是美"，推荐大家可以去学习下，非常不错。
+
+
+
+        transition: all 0.6s;表示所有的属性变化在0.6s的时间段内完成。
+        transform: scale(1.4);表示在鼠标放到图片上的时候图片按比例放大1.4倍。
+        PS：这部分代码参考博主"简单就是美"，推荐大家可以去学习下，非常不错。
+
+
+
 
 
 ## 三. 鼠标移动内容切换
-这段代码参考文章：[http://blog.csdn.net/hill_kinsham/article/details/52448668](http://blog.csdn.net/hill_kinsham/article/details/52448668)
-重点说一下关键功能的几个函数。
-1.onmouseover=" change('zs', this) " 函数的功能是鼠标移动到目标区域时，响应函数。这里的'zs'用id与后面要变更的区域绑定。this的功能不太了解，效果是改变当前的值。
-2.onmouseout="change2(this)";函数的功能是鼠标移开目标区域时，响应函数。
-3.display. display 属性规定元素应该生成的框的类型。
-none 此元素不会被显示。block 此元素将显示为块级元素，此元素前后会带有换行符。inline 默认。此元素会被显示为内联元素，元素前后没有换行符。
-4.用<ul>时，去掉行号，并把它放到最左边。 list-style-type: none;
+
+        这段代码参考文章：[http://blog.csdn.net/hill_kinsham/article/details/52448668](http://blog.csdn.net/hill_kinsham/article/details/52448668)
+        重点说一下关键功能的几个函数。 
+        1.onmouseover=" change('zs', this) " 函数的功能是鼠标移动到目标区域时，响应函数。这里的'zs'用id与后面要变更的区域绑定。this的功能不太了解，效果是改变当前的值。 
+        2.onmouseout="change2(this)";函数的功能是鼠标移开目标区域时，响应函数。 
+        3.display. display 属性规定元素应该生成的框的类型。
+        none 此元素不会被显示。block 此元素将显示为块级元素，此元素前后会带有换行符。inline 默认。此元素会被显示为内联元素，元素前后没有换行符。
+        4.用<ul>时，去掉行号，并把它放到最左边。 list-style-type: none;
 
 
-```python
+
+
+
+```
 <html>
 <head>
     <meta charset="UTF-8">
@@ -180,6 +213,7 @@ none 此元素不会被显示。block 此元素将显示为块级元素，此元
     </script>
 </head>
 <body>
+
 <div class="div1">
 <div class="navi">
     <ul>
@@ -218,20 +252,25 @@ none 此元素不会被显示。block 此元素将显示为块级元素，此元
             <li><a href="#">考研考研考研考研</a></li>
         </ul>
     </div>
+
     <div></div>
     <div></div>
 </div>
 </body>
 </html>
 ```
-运行结果如下图所示：
+        运行结果如下图所示：
+
 ![](https://img-blog.csdn.net/20161219003432032)![](https://img-blog.csdn.net/20161219003437828)
 
-## 四. 贵财下拉菜单案例
-这是模仿贵州财经大学主页下拉菜单的一段代码，非常有用。希望对你有所帮助，感谢我的学生。
-详见下载地址：
 
-```python
+
+## 四. 贵财下拉菜单案例
+        这是模仿贵州财经大学主页下拉菜单的一段代码，非常有用。希望对你有所帮助，感谢我的学生。
+        详见下载地址：
+
+
+```
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -431,6 +470,7 @@ p{
 	}
 </style>
 </head>
+
 <body>
 <div id="layout">
 <div id="top">
@@ -450,6 +490,7 @@ p{
         <li><a href="#">考生/访客</a></li>
     </ul>
 </div>
+
 <div id="menu">
 	<ul id="first">
     	<li id="tit1"><a href="#">贵财概况</a>
@@ -549,21 +590,31 @@ p{
       	
     </form><input id="search_img"type="image" src="search_button.png"/>
 </div>
+
 </div>
 <img id="bg" src="bga2.jpg" >
 <p>By Eastmount CSDN</p>
 </body>
 </html>
 ```
-运行如下图所示，鼠标移动到不同位置可以显示不同下拉菜单，非常实用的例子。
+        运行如下图所示，鼠标移动到不同位置可以显示不同下拉菜单，非常实用的例子。
+
+
 ![](https://img-blog.csdn.net/20161219004454959)
+
 ![](https://img-blog.csdn.net/20161219004523031)
 
 
 
+
+
+
+
+
 ## 五. JS图片放大镜功能-类淘宝
-代码如下所示：
-```python
+        代码如下所示：
+
+```
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -594,6 +645,7 @@ function getByClass(oParent, sClass)
 	
 	return aTmp;
 }
+
 window.onload=function ()
 {
 	var oDiv=document.getElementById('div1');
@@ -646,6 +698,7 @@ window.onload=function ()
 		oImg.style.top=-percentY*(oImg.offsetHeight-oBig.offsetHeight)+'px';
 	};
 };
+
 </script>
 </head>
 <body>
@@ -659,13 +712,22 @@ window.onload=function ()
 </body>
 </html>
 ```
-运行结果如下图所示，代码较难。
+
+        运行结果如下图所示，代码较难。
+
+
 ![](https://img-blog.csdn.net/20161219005118837)
 
-## 六. 实现下一页翻页功能
-代码如下所示，该段代码实现点击"下一页"翻页功能。
 
-```python
+
+
+## 六. 实现下一页翻页功能
+
+        代码如下所示，该段代码实现点击"下一页"翻页功能。
+
+
+
+```
 <!doctype html>
 <html>
 <head>
@@ -747,6 +809,7 @@ a{
 a:link {color: #333}		/* 未访问的链接 */
 a:visited {color:#00C;}	/* 已访问的链接 */
 a:hover {color:#99C;}	
+
 </style>
 <!--实现全选-->
 <script type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
@@ -807,6 +870,7 @@ function deleteAll(obj){
         tempStr += "首页";
         tempStr += "<上一页";    
     }
+
     if(currentPage<totalPage){
         tempStr += "<a href=\"#\" onClick=\"goPage("+(currentPage+1)+","+psize+")\">下一页></a>";
         tempStr += "<a href=\"#\" onClick=\"goPage("+(totalPage)+","+psize+")\">尾页</a>";
@@ -814,6 +878,7 @@ function deleteAll(obj){
         tempStr += "下一页>";
         tempStr += "尾页";    
     }
+
     document.getElementById("barcon").innerHTML = tempStr;
     
 }
@@ -830,6 +895,7 @@ function td1()
   
 </script>
 </head>
+
 <body onload ="goPage(1,5);" >
 <div id="own">
    <div id="top">
@@ -904,12 +970,21 @@ function td1()
 </body>
 </html>
 ```
-运行结果如下所示：
+        运行结果如下所示：
+
 ![](https://img-blog.csdn.net/20161219003913925)
+
 ![](https://img-blog.csdn.net/20161219003945207)
 
-最后希望这篇文章对你有所帮助，尤其是我的学生和JS学习者。
-最近非常开心，感谢娜娜，晚安~
-(By:Eastmount 2016-12-19 凌晨1点[http://blog.csdn.net/eastmount/](http://blog.csdn.net/eastmount/))
+
+
+        最后希望这篇文章对你有所帮助，尤其是我的学生和JS学习者。
+        最近非常开心，感谢娜娜，晚安~
+
+       (By:Eastmount 2016-12-19 凌晨1点[http://blog.csdn.net/eastmount/](http://blog.csdn.net/eastmount/))
+
+
+
+
 
 

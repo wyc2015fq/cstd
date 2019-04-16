@@ -1,0 +1,29 @@
+# BREW应用间通信之事件传递 - 我相信...... - CSDN博客
+
+
+
+
+
+2011年03月17日 13:47:00[半吊子全栈工匠](https://me.csdn.net/wireless_com)阅读数：971
+
+
+
+
+
+
+
+
+用户自定义事件的传递是应用间通信的一种有效方法。用户自定义的事件应当大于等于EVT_USER （0X7000），ISHELL_RegisterEvent()可根据输入字符串注册自定义的 AEEEvent。 该函数允许应用程序动态保留事件备用，而无须担心与其它 EVT_USER 范围事件代码发生冲突。需要注意的是，事件仅在一次开关机循环内有效，在下一次开关机注册的同一事件，很可能返回不同的 AEEEvent。如果提供了指向 pnCount 的指针，则更新事件被注册的次数。
+
+事件通过 ISHELL_SendEvent() 发送给激活的对话框或应用，实现了对目标应用的控制。 此函数直接向目标应用发送事件。通过指定目标应用，可以向特定的应用发送事件。如果应用当前没有运行，则会加载应用，并直接向它发送事件。这时的应用将在后台启动（不向应用发送 EVT_APP_START 和 EVT_APP_STOP 事件）。ISHELL_PostEvent()用于向指定的应用传递异步事件。 该函数的功能与 ISHELL_SendEvent() 函数相似。主要的不同之处在于， ISHELL_SendEvent() 是将事件立即发送给应用。
+
+事件传递是针对特殊情况提供的，例如，调用程序从其它任务传递事件，或者将事件处理延迟到下一个事件循环。ISHELL_PostEventEx()用于向指定的应用传递异步事件。此函数与 ISHELL_PostEvent()函数非常相似。主要的区别在于，此函数允许向同一个应用传递同一类型的多个事件（同一事件代码）并让事件排队等待分发。
+
+在BREW 3.X 以后，应用还可以通过ISHELL_SendURL()和ISHELL_PostURL()向另一个应用同步或异步发送指定的事件EVT_APP_POST_URL，另一个应用在接收到EVT_APP_POST_URL事件后，可以获得事件中的数据，从而完成通信。
+
+
+
+本文来自CSDN博客，转载请标明出处：[http://blog.csdn.net/wireless_com/archive/2010/09/29/5914149.aspx](http://blog.csdn.net/wireless_com/archive/2010/09/29/5914149.aspx)
+
+
+

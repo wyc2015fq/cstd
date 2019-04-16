@@ -1,31 +1,48 @@
-
 # Python趣味代码整合之提升学生编程兴趣 - 杨秀璋的专栏 - CSDN博客
 
-2016年10月24日 18:27:17[Eastmount](https://me.csdn.net/Eastmount)阅读数：10280
 
 
-这篇文章主要是整合一些趣味代码，一方面自己对这些内容比较感兴趣，另一方面希望这些代码能提升学生的编程兴趣，其主旨是代码能在我的电脑上运行并有些趣味。
-参考资料：
+
+
+2016年10月24日 18:27:17[Eastmount](https://me.csdn.net/Eastmount)阅读数：10311
+
+
+
+
+
+
+
+
+        这篇文章主要是整合一些趣味代码，一方面自己对这些内容比较感兴趣，另一方面希望这些代码能提升学生的编程兴趣，其主旨是代码能在我的电脑上运行并有些趣味。
+        参考资料：
 [知乎 - 可以用 Python 编程语言做哪些神奇好玩的事情？](https://www.zhihu.com/question/21395276)
 [知乎 - 学习Python的迷茫，如何高效有趣地学习Python？](https://www.zhihu.com/question/29567630)
 [知乎 - 想知道大家都用python写过哪些有趣的脚本?](https://www.zhihu.com/question/28661987)
 [自学 python 后你用 Python 做过哪些有趣的项目](https://www.v2ex.com/t/153352)
-下载地址：
+
+        下载地址：
 [http://download.csdn.net/detail/eastmount/9662828](http://download.csdn.net/detail/eastmount/9662828)
-内容包括：
-一.Python使用turtle绘制国旗
-二.Python图片转换位字符画
-三.Python实现俄罗斯方块
-四.Python自动生成二维码
-五.Python实现飞机大战
-六.Python 25行代码实现人脸识别
+
+        内容包括：
+                         一.Python使用turtle绘制国旗
+                         二.Python图片转换位字符画
+                         三.Python实现俄罗斯方块
+                         四.Python自动生成二维码
+                         五.Python实现飞机大战
+                         六.Python 25行代码实现人脸识别
+
+
 
 
 ## 一. Python使用turtle绘制国旗
 
-参考文章：[http://blog.csdn.net/nancliu/article/details/37972855](http://blog.csdn.net/nancliu/article/details/37972855)
+
+
+
+        参考文章：[http://blog.csdn.net/nancliu/article/details/37972855](http://blog.csdn.net/nancliu/article/details/37972855)
 [http://www.oschina.net/code/snippet_103482_14802](http://www.oschina.net/code/snippet_103482_14802)
-代码如下：
+        代码如下：
+
 
 ```python
 # -*- coding: utf-8 -*-
@@ -111,26 +128,47 @@ turtle.ht()
 time.sleep(5)  
 #os._exit(1)
 ```
-运行结果如下所示，它是动态绘制过程。
+         运行结果如下所示，它是动态绘制过程。
+
+
+
 
 ![](https://img-blog.csdn.net/20161024021132454)![](https://img-blog.csdn.net/20161024021204611)
-注意安装第三方包的方法如下所示：
+
+        注意安装第三方包的方法如下所示：
+
+
 ![](https://img-blog.csdn.net/20161024020710275)
 
-在Command Window界面下进入Anaconda2\Scripts文件夹，通过pip安装。
+
+        在Command Window界面下进入Anaconda2\Scripts文件夹，通过pip安装。
+
+
 ![](https://img-blog.csdn.net/20161024020841137)
+
+
+
+
 
 
 ## 二. Python图片转换位字符画
 
-参考文字：[实验楼 - Python图片转字符画（50行代码）](https://www.shiyanlou.com/courses/370)
-代码如下：
+
+
+
+
+        参考文字：[实验楼 - Python图片转字符画（50行代码）](https://www.shiyanlou.com/courses/370)
+        代码如下：
+
+
 ```python
 # -*- coding: utf-8 -*-
 """
 Created on Sun Oct 23 12:45:47 2016
+
 @author: yxz15
 """
+
 from PIL import Image
 import os
  
@@ -174,22 +212,42 @@ tmp.write(toText2(image_file))
  
 tmp.close()
 ```
-运行结果如下所示，输入图片转换成txt文字显示。
+        运行结果如下所示，输入图片转换成txt文字显示。
+
+
+
 
 ![](https://img-blog.csdn.net/20161024022534927)
 
+
+
+
 ![](https://img-blog.csdn.net/20161024022559879)
+
+
 ![](https://img-blog.csdn.net/20161024024011117)
-缺点：如何通过一个文本编辑器查看原图呢？txt只能设置宋体8号字体最小，但是不能显示全部内容。
+
+        缺点：如何通过一个文本编辑器查看原图呢？txt只能设置宋体8号字体最小，但是不能显示全部内容。
+
+
+
+
+
 
 
 
 ## 三. Python实现俄罗斯方块
 
-参考文章：[趣味python编程之经典俄罗斯方块 - lykyl](http://www.cnblogs.com/lykyl/p/5946102.html)
-需要注意配置文件 elsfk.cfg，定义了单一方向的原始方块形状组合，具体的格式说明请参见getConf中的注解。同时需要引入"msyh.ttc"中文字体。
-elsfk.cfg文件内容如下：
-```python
+
+
+
+        参考文章：[趣味python编程之经典俄罗斯方块 - lykyl](http://www.cnblogs.com/lykyl/p/5946102.html)
+
+        需要注意配置文件 elsfk.cfg，定义了单一方向的原始方块形状组合，具体的格式说明请参见getConf中的注解。同时需要引入"msyh.ttc"中文字体。
+        elsfk.cfg文件内容如下：
+
+
+```
 ;1,1,1,1;;
 1,1,1,0;1,0,0,0;;
 1,1,1,0;0,0,1,0;;
@@ -198,34 +256,41 @@ elsfk.cfg文件内容如下：
 1,1,0,0;0,1,1,0;;
 0,1,1,0;1,1,0,0;;
 ```
-代码如下：
+        代码如下：
+
 ```python
 # -*- coding:utf-8 -*-
 '''
 经典俄罗斯方块
 游戏基于python2.7、pygame1.9.2b8编写。
+
 游戏注解中出现的术语解释：
 舞台：整个游戏界面，包括堆叠区、成绩等显示区，下个出现方块预告区。
 堆叠区：游戏方块和活动方块形状堆放区域，游戏中主要互动区。
 方块（基础方块）：这里的方块是对基础的小四方形统称，每个方块就是一个正方形。
 方块形状：指一组以特定方式组合在一起的方块，也就是大家常说的下落方块形状，比如长条，方形，L形等。
 固实方块：特指堆叠区中不能再进行移动，可被消除的基础方块集合。
+
 version:1.0
 author:lykyl
 createdate:2016.9.29
 '''
+
 import sys  
 reload(sys)  
 sys.setdefaultencoding('utf8')
+
 import random,copy
 import pygame as pg
 from pygame.locals import *
+
 '''
 常量声明
 '''
 EMPTY_CELL=0        #空区标识，表示没有方块
 FALLING_BLOCK=1     #下落中的方块标识，也就是活动方块。
 STATIC_BLOCK=2      #固实方块标识
+
 '''
 全局变量声明
 变量值以sysInit函数中初始化后的结果为准
@@ -251,6 +316,7 @@ blocks=[]       #方块形状矩阵四维列表。第一维为不同的方块形
 stage=[]        #舞台堆叠区矩阵二维列表，第一维为Y轴方块占用情况，第二维为X轴方块占用情况。矩阵中0表示没有方块，1表示有固实方块，2表示有活动方块。
 gameOver=False      #游戏结束标志
 pause=False     #游戏暂停标志
+
 
 def printTxt(content,x,y,font,screen,color=(255,255,255)):
     '''显示文本
@@ -292,6 +358,7 @@ class point(object):
     
     def __str__(self):
         return "{x:"+"{:.0f}".format(self.__x)+",y:"+"{:.0f}".format(self.__y)+"}"
+
 
 class blockSprite(object):
     '''
@@ -337,6 +404,7 @@ class blockSprite(object):
         
     block = property(_getBlock)
 
+
 def getConf(fileName):
     '''
     从配置文件中读取方块形状数据
@@ -371,6 +439,7 @@ def getConf(fileName):
             for r in range(len(row)-1,3):
                 blocks[blocksNumb][0].append([0,0,0,0])
             blocks[blocksNumb][0]=formatBlock(blocks[blocksNumb][0])
+
 
 def sysInit():
     '''
@@ -415,6 +484,7 @@ def sysInit():
                 t=transform(t,1)
                 blocks[x].append(formatBlock(t))
                 
+
 #transform,removeTopBlank,formatBlock这三个函数只为生成方块形状4个方向矩阵使用，在游戏其他环节无作用,在阅读程序时可以先跳过。
 def transform(block,direction=0):  
     '''
@@ -435,6 +505,7 @@ def transform(block,direction=0):
                 result[y].append(block[3-x][y])
     return result 
 
+
 def removeTopBlank(block):
     '''
     清除方块矩阵顶部空行数据
@@ -451,6 +522,7 @@ def removeTopBlank(block):
         blankNumb+=1
     return result
     
+
 def formatBlock(block):
     '''
     整理方块矩阵数据，使方块在矩阵中处于左上角的位置
@@ -465,6 +537,7 @@ def formatBlock(block):
     result=removeTopBlank(result)
     result=transform(result,0)
     return result
+
 
 def checkDeany(sprite):
     '''
@@ -489,6 +562,7 @@ def checkDeany(sprite):
                     return True                
     return False
 
+
 def checkLine():
     '''
     检测堆叠区是否有可消除的整行固实方块
@@ -512,6 +586,7 @@ def checkLine():
         updateScore(clearCount)
     return clearCount
    
+
 def updateStage(sprite,updateType=1):
     '''
     将下落方块坐标数据更新到堆叠区数据中。下落方块涉及的坐标在堆叠区中用数字1标识，固实方块在堆叠区中用数字2标识。
@@ -534,6 +609,7 @@ def updateStage(sprite,updateType=1):
                         stage[topY+y][topX+x]=FALLING_BLOCK
                 else:
                     stage[topY+y][topX+x]=STATIC_BLOCK
+
 
 def updateScore(clearCount):
     '''
@@ -564,6 +640,7 @@ def updateScore(clearCount):
             fallSpeed=beginFallSpeed
         fallSpeed=beginFallSpeed-level*2
     return score
+
 
 def drawStage(drawScreen):
     '''
@@ -610,6 +687,7 @@ def drawStage(drawScreen):
     if pause:
         printTxt("Game pausing",230,200,defaultFont,backSurface,fontColor)   
         printTxt("<PRESS RETURN TO CONTINUE>",200,260,defaultFont,backSurface,fontColor)   
+
 
 def process():
     '''
@@ -709,6 +787,7 @@ def process():
     screen.blit(backSurface,(0,0))
     pg.display.update()
     clock.tick(40)
+
     
 def main():
     '''
@@ -723,20 +802,38 @@ def main():
 if __name__ == "__main__":
     main()
 ```
-运行结果如下所示：
+        运行结果如下所示：
+
+
+
 
 ![](https://img-blog.csdn.net/20161024024617090)![](https://img-blog.csdn.net/20161024024638221)
 
-注意：需要pip install pygame安装该包，同时横向移动每次感觉总是两步。
+
+
+        注意：需要pip install pygame安装该包，同时横向移动每次感觉总是两步。
+
+
 
 
 ## 四. Python自动生成二维码
 
-参考文章：[https://github.com/sylnsfar/qrcode/](https://github.com/sylnsfar/qrcode/)
-中文地址：[https://github.com/sylnsfar/qrcode/blob/master/README-cn.md](https://github.com/sylnsfar/qrcode/blob/master/README-cn.md)
-从github上下载源代码，代码如下：
+
+
+
+
+        参考文章：[https://github.com/sylnsfar/qrcode/](https://github.com/sylnsfar/qrcode/)
+        中文地址：[https://github.com/sylnsfar/qrcode/blob/master/README-cn.md](https://github.com/sylnsfar/qrcode/blob/master/README-cn.md)
+
+        从github上下载源代码，代码如下：
+
+
+
 ![](https://img-blog.csdn.net/20161024030006222)
-然后需要"pip install myqr"安装包，命令行方式如下：
+
+        然后需要"pip install myqr"安装包，命令行方式如下：
+
+
 ```python
 # 概括
 myqr    Words
@@ -749,73 +846,133 @@ myqr    Words
         [-con contrast]
         [-bri brightness]
 ```
-普通二维码 介绍了 Words, -v, -l, -n, -d
-艺术二维码 介绍了 -p, -c, -con, -bri
-动态GIF二维码 介绍了动态的生成方法和注意点
+        普通二维码 介绍了 Words, -v, -l, -n, -d
+        艺术二维码 介绍了 -p, -c, -con, -bri
+        动态GIF二维码 介绍了动态的生成方法和注意点
 myqr https://github.com -n github_qr.jpg  -d .../paths/
+
 ![](https://img-blog.csdn.net/20161024025800203)
 
-同时，重点是可以在线生成二维码。
-网址：[http://www.amazing-qrcode.com/](http://www.amazing-qrcode.com/)
-添加最近我申请的域名"www.eastmountyxz.com"并上传图片，如下所示：
+
+
+
+        同时，重点是可以在线生成二维码。
+        网址：[http://www.amazing-qrcode.com/](http://www.amazing-qrcode.com/)
+        添加最近我申请的域名"www.eastmountyxz.com"并上传图片，如下所示：
+
+
 ![](https://img-blog.csdn.net/20161024030517381)
+
 得到如下所示的二维码，通过微信扫码是可以访问我的主页的，不错。
+
+
 ![](https://img-blog.csdn.net/20161024030614537)
-问题：如何运行py文件及动态二维码，即调用"myqr https://github.com"。
+        问题：如何运行py文件及动态二维码，即调用"myqr https://github.com"。
+
+
+
 
 
 ## 五. Python实现飞机大战
 
-原文地址：[使用Pygame制作微信打飞机游戏PC版 - Kill Console](http://www.cnblogs.com/dukeleo/p/3339780.html)
-下载地址：[https://github.com/Kill-Console/PythonShootGame](https://github.com/Kill-Console/PythonShootGame)
-第一步，显示背景。
-第二步，显示飞机。
-第三步，让飞机动起来。
+
+
+
+
+        原文地址：[使用Pygame制作微信打飞机游戏PC版 - Kill Console](http://www.cnblogs.com/dukeleo/p/3339780.html)
+        下载地址：[https://github.com/Kill-Console/PythonShootGame](https://github.com/Kill-Console/PythonShootGame)
+        第一步，显示背景。
+        第二步，显示飞机。
+        第三步，让飞机动起来。
+
+
 ![](https://img-blog.csdn.net/20161024032227003)
 
-运行结果如下所示：
+
+
+
+
+        运行结果如下所示：
+
+
 ![](https://img-blog.csdn.net/20161024032450747)![](https://img-blog.csdn.net/20161024032509091)
+
+
+
 
 
 ## 六. Python 25行代码实现人脸识别
 
-原文推荐：[http://python.freelycode.com/contribution/detail/36](http://python.freelycode.com/contribution/detail/36)
-摄像识别：[借助摄像头在Python中实现人脸检测 - Python部落](http://python.freelycode.com/contribution/detail/37)
-详解推荐：[http://www.cnblogs.com/hdu-2010/p/5861142.html](http://www.cnblogs.com/hdu-2010/p/5861142.html)
 
-**1.安装OpenCV**
-下载地址为：[https://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.4.13/opencv-2.4.13.exe/download](https://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.4.13/opencv-2.4.13.exe/download)
-安装后如下图所示，选择build\python\2.7\x86\cv2.pyd，复制到python-2.7.9\Lib\site-packages\中即可。
+
+
+
+        原文推荐：[http://python.freelycode.com/contribution/detail/36](http://python.freelycode.com/contribution/detail/36)
+        摄像识别：[借助摄像头在Python中实现人脸检测 - Python部落](http://python.freelycode.com/contribution/detail/37)
+        详解推荐：[http://www.cnblogs.com/hdu-2010/p/5861142.html](http://www.cnblogs.com/hdu-2010/p/5861142.html)
+
+
+
+**        1.安装OpenCV**
+        下载地址为：[https://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.4.13/opencv-2.4.13.exe/download](https://sourceforge.net/projects/opencvlibrary/files/opencv-win/2.4.13/opencv-2.4.13.exe/download)
+        安装后如下图所示，选择build\python\2.7\x86\cv2.pyd，复制到python-2.7.9\Lib\site-packages\中即可。
+
+
+
 
 ![](https://img-blog.csdn.net/20161024160239249)
-关于C或者JAVA接口的安装，可参考build\doc\opencv_tutorials.pdf, 里面各种平台的详细安装步骤，以及结合IDE编译的说明。
 
-**2.下载源码**
-github网址：[https://github.com/shantnu/FaceDetect/](https://github.com/shantnu/FaceDetect/)
+        关于C或者JAVA接口的安装，可参考build\doc\opencv_tutorials.pdf, 里面各种平台的详细安装步骤，以及结合IDE编译的说明。
+
+
+
+
+
+**        2.下载源码**        github网址：[https://github.com/shantnu/FaceDetect/](https://github.com/shantnu/FaceDetect/)
+
+
 ![](https://img-blog.csdn.net/20161024172709576)
-**3.运行代码及结果**
-运行输入如下代码，去到文件夹下：
-C:\>cd C:\Users\yxz15\Desktop\FaceDetect-master
-python face_detect.py bbbb.jpg haarcascade_frontalface_default.xml
+
+**        3.运行代码及结果**
+
+        运行输入如下代码，去到文件夹下：
+        C:\>cd C:\Users\yxz15\Desktop\FaceDetect-master
+        python face_detect.py bbbb.jpg haarcascade_frontalface_default.xml
+
+
 ![](https://img-blog.csdn.net/20161024174051537)
-运行结果如下所示，可以看到人脸都识别出来了。
+
+        运行结果如下所示，可以看到人脸都识别出来了。
+
+
 ![](https://img-blog.csdn.net/20161024174014893)
+
+
+
 
 ![](https://img-blog.csdn.net/20161024174328634)
 
-**4.源码详解**
-face_detect.py代码如下所示：
+
+
+**        4.源码详解**
+        face_detect.py代码如下所示：
+
+
 ```python
 import cv2
 import sys
+
 # Get user supplied values
 imagePath = sys.argv[1]
 cascPath = sys.argv[2]
+
 # Create the haar cascade
 faceCascade = cv2.CascadeClassifier(cascPath)
+
 # Read the image
 image = cv2.imread(imagePath)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
 # Detect faces in the image
 faces = faceCascade.detectMultiScale(
     gray,
@@ -824,21 +981,33 @@ faces = faceCascade.detectMultiScale(
     minSize=(30, 30)
     #flags = cv2.CV_HAAR_SCALE_IMAGE
 )
+
 print("Found {0} faces!".format(len(faces)))
+
 # Draw a rectangle around the faces
 for (x, y, w, h) in faces:
     cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+
 cv2.imshow("Faces found", image)
 cv2.waitKey(0)
 ```
 
-其他推荐代码：（由于没有运行成功，暂不添加进来）
-[Python趣味编程：定时给Ta讲笑话](http://www.w2bc.com/article/97124)
-[Genetic Programming: Evolution of Mona Lisa](https://rogeralsing.com/2008/12/07/genetic-programming-evolution-of-mona-lisa/)
-[https://github.com/andersbll/neural_artistic_style](https://github.com/andersbll/neural_artistic_style)
 
-最后文章对你有所帮助，上课内容还需要继续探索，但enjoy myself~
+
+
+        其他推荐代码：（由于没有运行成功，暂不添加进来）
+[Python趣味编程：定时给Ta讲笑话](http://www.w2bc.com/article/97124)
+[Genetic Programming: Evolution of Mona Lisa](https://rogeralsing.com/2008/12/07/genetic-programming-evolution-of-mona-lisa/)[https://github.com/andersbll/neural_artistic_style](https://github.com/andersbll/neural_artistic_style)
+
+
+        最后文章对你有所帮助，上课内容还需要继续探索，但enjoy myself~
 (By:Eastmount 2016-10-24 下午6点半[http://blog.csdn.net/eastmount/](http://blog.csdn.net/eastmount/))
+
+
+
+
+
+
 
 
 

@@ -1,31 +1,47 @@
-
 # [python爬虫] selenium爬取局部动态刷新网站（URL始终固定） - 杨秀璋的专栏 - CSDN博客
 
-2018年04月26日 11:18:25[Eastmount](https://me.csdn.net/Eastmount)阅读数：5349标签：[Python																](https://so.csdn.net/so/search/s.do?q=Python&t=blog)[网络爬虫																](https://so.csdn.net/so/search/s.do?q=网络爬虫&t=blog)[Selenium																](https://so.csdn.net/so/search/s.do?q=Selenium&t=blog)[局部刷新																](https://so.csdn.net/so/search/s.do?q=局部刷新&t=blog)[翻页跳转																](https://so.csdn.net/so/search/s.do?q=翻页跳转&t=blog)[
-							](https://so.csdn.net/so/search/s.do?q=局部刷新&t=blog)[
-																					](https://so.csdn.net/so/search/s.do?q=Selenium&t=blog)个人分类：[Python爬虫																](https://blog.csdn.net/Eastmount/article/category/5758691)
-[
-																					](https://so.csdn.net/so/search/s.do?q=Selenium&t=blog)所属专栏：[Python爬虫之Selenium+Phantomjs+CasperJS](https://blog.csdn.net/column/details/eastmount-spider.html)[
-							](https://so.csdn.net/so/search/s.do?q=Selenium&t=blog)
-[
-																	](https://so.csdn.net/so/search/s.do?q=网络爬虫&t=blog)
-[
-				](https://so.csdn.net/so/search/s.do?q=Python&t=blog)
-[
-			](https://so.csdn.net/so/search/s.do?q=Python&t=blog)
+
+
+
+
+2018年04月26日 11:18:25[Eastmount](https://me.csdn.net/Eastmount)阅读数：5453标签：[Python																[网络爬虫																[Selenium																[局部刷新																[翻页跳转](https://so.csdn.net/so/search/s.do?q=翻页跳转&t=blog)
+个人分类：[Python爬虫](https://blog.csdn.net/Eastmount/article/category/5758691)
+
+所属专栏：[Python爬虫之Selenium+Phantomjs+CasperJS](https://blog.csdn.net/column/details/eastmount-spider.html)](https://so.csdn.net/so/search/s.do?q=局部刷新&t=blog)
+
+
+
 
 在爬取网站过程中，通常会遇到局部动态刷新情况，当你点击“下一页”或某一页时，它的数据就进行刷新，但其顶部的URL始终不变。这种局部动态刷新的网站，怎么爬取数据呢？某网站数据显示如下图所示，当点击“第五页”之时，其URL始终不变，传统的网站爬取方法是无法拼接这类链接的，所以本篇文章主要解决这个问题。
-![](//img-blog.csdn.net/20180426093058771)
+
+![](https://img-blog.csdn.net/20180426093058771)
+
+
 本文主要采用Selenium爬取局部动态刷新的网站，获取“下一页”按钮实现自动点击跳转，再依次爬取每一页的内容。希望对您有所帮助，尤其是遇到同样问题的同学，如果文章中出现错误或不足之处，还请海涵~
 
 
 
+
+
+
+
+
+
+
 ## 一. Selenium爬取第一页信息
+
 首先，我们尝试使用Selenium爬取第一页的内容，采用浏览器右键“审查”元素，可以看到对应的HTML源代码，如下图所示，可以看到，每一行工程信息都位于<table class="table table-hover">节点下的<tr>...</tr>中。
+
 ![](https://img-blog.csdn.net/20180426101744729)
+
+
 然后我们再展开其中一个<tr>...</tr>节点，看它的源码详情，如下图所示，包括公告标题、发布时间、项目所在地。如果我们需要抓取公告标题，则定位<div class="div_title text_view">节点，再获取标题内容和超链接。
+
+
 ![](https://img-blog.csdn.net/20180426102049519)
+
 完整代码如下：
+
 
 ```python
 # coding=utf-8    
@@ -33,9 +49,11 @@ from selenium import webdriver
 import re
 import time
 import os
+
 print "start"
 #打开Firefox浏览器 设定等待加载时间
 driver = webdriver.Firefox()
+
 #定位节点
 url = 'http:/www.xxxx.com/'
 print url
@@ -44,26 +62,40 @@ content = driver.find_elements_by_xpath("//div[@class='div_title text_view']")
 for u in content:
     print u.text
 ```
+
 输出内容如下图所示：
+
 ![](https://img-blog.csdn.net/20180426103946480)
+
 
 PS：由于网站安全问题，我不直接给出网址，主要给出爬虫的核心思想。同时，下面的代码我也没有给出网址，但思路一样，请大家替换成自己的局部刷新网址进行测试。
 
 
+
+
+
+
 ## 二. Selenium实现局部动态刷新爬取
+
 接下来我们想爬取第2页的网站内容，其代码步骤如下：
-1.定位驱动：driver = webdriver.Firefox()
-2.访问网址：driver.get(url)
-3.定位节点获取第一页内容并爬取：driver.find_elements_by_xpath()
-4.获取“下一页”按钮，并调用click()函数点击跳转
-5.爬取第2页的网站内容：driver.find_elements_by_xpath()
+    1.定位驱动：driver = webdriver.Firefox()
+    2.访问网址：driver.get(url)
+    3.定位节点获取第一页内容并爬取：driver.find_elements_by_xpath()
+    4.获取“下一页”按钮，并调用click()函数点击跳转
+    5.爬取第2页的网站内容：driver.find_elements_by_xpath()
+
+
 
 其核心步骤是获取“下一页”按钮，并调用Selenium自动点击按钮技术，从而实现跳转，之后再爬取第2页内容。“下一页”按钮的源代码如下图所示：
+
 ![](https://img-blog.csdn.net/20180426105857993)
+
+
 其中，“下一页”按钮始终在第9个<li>...</li>位置，则核心代码如下：
-**nextPage = driver.find_element_by_xpath("//ul[@class='pagination']/li[9]/a")**
-**nextPage.click()**
+**nextPage = driver.find_element_by_xpath("//ul[@class='pagination']/li[9]/a")nextPage.click()**
+
 完整代码如下：
+
 
 ```python
 # coding=utf-8    
@@ -71,8 +103,10 @@ from selenium import webdriver
 import re
 import time
 import os
+
 print "start"
 driver = webdriver.Firefox()
+
 url = 'http://www.XXXX.com/'
 print url
 driver.get(url)
@@ -93,17 +127,20 @@ places = driver.find_elements_by_xpath("//table[@class='table table-hover']/tbod
 for u in places:
     print u.text
 
+
 #点击下一页
 nextPage = driver.find_element_by_xpath("//ul[@class='pagination']/li[9]/a")
 print nextPage.text
 nextPage.click()
 time.sleep(5)
+
 #爬取第2页数据
 content = driver.find_elements_by_xpath("//div[@class='div_title text_view']")
 for u in content:
     print u.text
 ```
 输出内容如下所示，可以看到第二页的内容也爬取成功了，并且作者爬取了公告主题、超链接、发布时间、发布地点。
+
 ```python
 >>> 
 start
@@ -162,11 +199,21 @@ http://www.gzzbw.cn/historydata/view/?id=116031
 >>>
 ```
 Firefox成功跳转到第2页，此时你增加一个循环则可以跳转很多页，并爬取信息，详见第三个步骤。
+
+
 ![](https://img-blog.csdn.net/2018042611044843)
 
 
+
+
+
+
+
 ## 三. Selenium爬取详情页面
+
 上面爬取了每行公告信息的详情页面超链接(URL)，本来我准备采用BeautifulSoup爬虫爬取详情页面信息的，但是被拦截了，详情页面如下图所示：
+
+
 ![](https://img-blog.csdn.net/2018042611095084)
 这里作者继续定义另一个Selenium Firefox驱动进行爬取，完整代码如下：
 ```python
@@ -176,10 +223,12 @@ from selenium.webdriver.common.keys import Keys
 import re
 import time
 import os
+
 print "start"
 #打开Firefox浏览器 
 driver = webdriver.Firefox()
 driver2 = webdriver.Firefox()
+
 url = 'http://www.xxxx.com/'
 print url
 driver.get(url)
@@ -198,6 +247,7 @@ for u in urls:
 times = driver.find_elements_by_xpath("//table[@class='table table-hover']/tbody/tr/td[2]")
 #地点
 places = driver.find_elements_by_xpath("//table[@class='table table-hover']/tbody/tr/td[3]")
+
 #输出所有结果
 print len(num)
 i = 0
@@ -210,6 +260,7 @@ while i<len(num):
     print ""
     i = i + 1
 
+
 #点击下一页
 j = 0
 while j<5:
@@ -217,6 +268,7 @@ while j<5:
     print nextPage.text
     nextPage.click()
     time.sleep(5)
+
     #项目名称
     titles = driver.find_elements_by_xpath("//div[@class='div_title text_view']")
     #超链接
@@ -242,9 +294,12 @@ while j<5:
         print num[i]
         print ""
         i = i + 1
+
     j = j + 1
 ```
+
 注意作者定义了一个while循环，一次性输出一条完整的招标信息，代码如下：
+
 
 ```python
 print len(num)
@@ -258,9 +313,14 @@ while i<len(num):
     print ""
     i = i + 1
 ```
+
 输出结果如下图所示：
+
 ![](https://img-blog.csdn.net/20180426111349208)
+
+
 其中一条完整的结果如下所示：
+
 ```python
 观山湖区依法治国普法教育基地（施工）中标候选人公示
 http://www.gzzbw.cn/historydata/view/?id=116163
@@ -282,7 +342,10 @@ http://www.gzzbw.cn/historydata/view/?id=116163
                                   2017年12月22日
 ```
 最后读者可以结合MySQLdb库，将爬取的内容存储至本地中。同时，如果您爬取的内容需要设置时间，比如2015年的数据，则在爬虫开始之前设置time.sleep(5)暂定函数，手动点击2015年或输入关键字，再进行爬取。也建议读者采用Selenium技术来自动跳转，而详情页面采用BeautifulSoup爬取。
+
+
 ![](https://img-blog.csdn.net/20180426111607594)
+
 ```python
 # coding=utf-8    
 from selenium import webdriver    
@@ -295,6 +358,7 @@ import codecs
 from bs4 import BeautifulSoup
 import urllib
 import MySQLdb
+
 
 #存储数据库  
 #参数:公告名称 发布时间 发布地点 发布内容  
@@ -324,11 +388,13 @@ def DatabaseInfo(title,url,fbtime,fbplace,content):
         cur.close()      
         conn.commit()      
         conn.close()
+
         
 print "start"
 #打开Firefox浏览器 
 driver = webdriver.Firefox()
 driver2 = webdriver.Firefox()
+
 url = 'http://www.gzzbw.cn/historydata/'
 print url
 driver.get(url)
@@ -347,6 +413,7 @@ for u in urls:
 times = driver.find_elements_by_xpath("//table[@class='table table-hover']/tbody/tr/td[2]")
 #地点
 places = driver.find_elements_by_xpath("//table[@class='table table-hover']/tbody/tr/td[3]")
+
 #输出所有结果
 print len(num)
 i = 0
@@ -361,6 +428,7 @@ while i<len(num):
                  places[i].text, num[i])
     i = i + 1
 
+
 #点击下一页
 j = 0
 while j<100:
@@ -368,6 +436,7 @@ while j<100:
     print nextPage.text
     nextPage.click()
     time.sleep(5)
+
     #项目名称
     titles = driver.find_elements_by_xpath("//div[@class='div_title text_view']")
     #超链接
@@ -395,14 +464,19 @@ while j<100:
         DatabaseInfo(titles[i].text, urls[i].get_attribute("href"), times[i].text,
                  places[i].text, num[i])
         i = i + 1
+
     print u"已爬取页码:", (j+2)
     j = j + 1
 ```
 存储至数据库：
+
 ![](https://img-blog.csdn.net/20180426150944921)
+
 最后希望文章对您有所帮助，尤其是要爬取局部刷新的同学，
 如果文章中出现错误或不足之处，还请海涵~
-(By:Eastmount 2018-04-26 早上11点半http://blog.csdn.net/eastmount/)
+
+(By:Eastmount 2018-04-26 早上11点半[http://blog.csdn.net/eastmount/](http://blog.csdn.net/eastmount/))](https://so.csdn.net/so/search/s.do?q=Selenium&t=blog)](https://so.csdn.net/so/search/s.do?q=网络爬虫&t=blog)](https://so.csdn.net/so/search/s.do?q=Python&t=blog)
+
 
 
 

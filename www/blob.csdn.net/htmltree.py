@@ -132,7 +132,6 @@ def parser_code_block(parser, jj, i, l, out, lang):
     text = '\n```'+lang+'\n' + (text.strip()) + '\n```\n'
     return text, ii
 
-
 def parser_code(parser, jj, i, l, out):
     attrs_dict = jj[i]['attrs']
     if 'class' in attrs_dict:
@@ -278,7 +277,7 @@ def parser_table(parser, jj, i, l, out):
                 text1,i = parser_tr(parser, jj, i, tds, l, out, cols)
                 text += text1 + '\n'
 
-    return text, i
+    return text, i+1
 
 def parser_img(parser, jj, i, l, out):
     attrs_dict = jj[i]['attrs']
