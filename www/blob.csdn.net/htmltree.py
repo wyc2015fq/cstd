@@ -1,4 +1,4 @@
-import os
+﻿import os
 from html.parser import HTMLParser
 
 
@@ -154,7 +154,7 @@ def parser_code(parser, jj, i, l, out):
 def parser_span(parser, jj, i, l, out):
     attrs_dict = jj[i]['attrs']
     if 'class' in attrs_dict:
-        if (attrs_dict['class'] in ['mo', 'mi']):
+        if (attrs_dict['class'] in ['mo', 'mi', 'katex-html']):
             return parser_skip(parser, jj, i, l, out)
 
         if attrs_dict['class'] in ['katex--display', 'katex-display']:
@@ -167,7 +167,7 @@ def parser_span(parser, jj, i, l, out):
         if attrs_dict['id'].find("MathJax")>=0:
             return parser_skip(parser, jj, i, l, out)
 
-    return parser_inline(parser, jj, i, l, out, '', '')
+    return parser_text(parser, jj, i, l, out)
 
 
 def parser_script(parser, jj, i, l, out):
@@ -203,6 +203,10 @@ def parser_div(parser, jj, i, l, out):
         if attrs_dict['class'] in ['article-copyright', 'mylinks', 'blogStats', 'header', 'postTitle', 'author', 'article-title-box']:
             return parser_skip(parser, jj, i, l, out)
 
+        if attrs_dict['class']=='cnblogs_code':
+            text, ii = parser_code(parser, jj, i, l, out)
+            return text, ii
+
     text, ii = parser_block(parser, jj, i, l, out, '\n', '\n')
     #text, ii = parser_text(parser, jj, i, l, out)
     return text, ii
@@ -227,7 +231,7 @@ def node_find_tag(jj, i, l, tag):
 
     return out
 
-def parser_tr(parser, jj, ths, l, out, cols):
+def parser_tr(parser, jj, i, ths, l, out, cols):
     text='|'
     for th in ths:
         text1, i = parser_inline(parser, jj, th, l, out, '', '')
@@ -252,12 +256,12 @@ def parser_table(parser, jj, i, l, out):
             cols = max(len(tds), cols)
 
         if cols>0:
-            text1, i = parser_tr(parser, jj, ths, l, out, cols)
+            text1, i = parser_tr(parser, jj, i, ths, l, out, cols)
             text += text1 + '\n'
             text += '|----'*cols
             text += '|\n'
             for tds in rows:
-                text1,i = parser_tr(parser, jj, tds, l, out, cols)
+                text1,i = parser_tr(parser, jj, i, tds, l, out, cols)
                 text += text1 + '\n'
 
     return text, i
@@ -269,6 +273,8 @@ def parser_img(parser, jj, i, l, out):
         if 'alt' in attrs_dict:
             alt=attrs_dict['alt']
         href=attrs_dict['src']
+        if href[0:4]!='http':
+            href = out['site']+'/'+href.strip('/')
         text = '!['+alt+']('+href+')'
         return text, i+1
     return parser_skip(parser, jj, i, l, out)
@@ -298,6 +304,9 @@ parser={
     'code': parser_code,
     'span': parser_span,
     'style': parser_skip,
+    'mi': parser_skip,
+    'mo': parser_skip,
+    'mrow': parser_skip,
     'script': parser_script
 }
 
@@ -312,47 +321,102 @@ def autotext(t):
     return t.decode(codec['encoding'])
 
 
-def node_filter(node):
+def node_filter_csdn(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    attrs_dict = attrs
+    if tag=='title':
+        return 1
+
+    if tag=='div' and 'class' in attrs and attrs['class']=='blog-content-box':
+        return 2
+
+    if tag=='article' and 'class' in attrs and attrs['class']=='baidu_pl':
+        return 0
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='hide-article-box hide-article-pos text-center':
+        return 3
+
+    return 0
+
+def node_filter_cnblogs(node):
     tag = node['tag']
     attrs = node['attrs']
     if tag=='title':
         return 1
 
-    if tag=='div' and 'class' in attrs and attrs['class']=='blog-content-box':
-        return 0
-
-    if tag=='article' and 'class' in attrs and attrs['class']=='baidu_pl':
-        return 0
-
     attrs_dict = attrs
-    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='hide-article-box hide-article-pos text-center':
-        return 1
 
-    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='postDesc':
-        return 1
-
-    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='show-foot':
-        return 1
-
-    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='post':
-        return 1
+    if tag=='div' and 'id' in attrs_dict and attrs_dict['id']=='main':
+        return 2
 
     if tag=='div' and 'id' in attrs_dict and attrs_dict['id']=='blog_post_info_block':
-        return 1
+        return 3
+
     return 0
 
-def node_find(jj, i, l):
+def node_filter_datakit(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='container page-content':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='navbar panel-footer operate':
+        return 3
+
+    return 0
+
+
+def node_filter_jobbole(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='article' and 'class' in attrs_dict and attrs_dict['class']=='rpost-entry':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='post-adds':
+        return 3
+
+    return 0
+
+
+
+def node_find(jj, i, l, node_filter):
     out=[]
 
     ind=jj[i]['ind']
+    prev2 = 0
     for ii in range(i+1, l):
         if jj[ii]['ind']<=ind:
             break
-        if node_filter(jj[ii])==1:
-            out.append(ii)
+        t = node_filter(jj[ii])
+        if t>0:
+            if t==1:
+                prev2 = 0
+                out.append((ii, ii+2))
+            if t==2:
+                prev2 = ii
+            if t==3 and prev2>0:
+                out.append((prev2, ii))
+
 
     return out
 
+FILTER = {
+    'csdn': {'filter':node_filter_csdn, 'site':'https://blog.csdn.net', 'root':'CSDN博客'},
+    'cnblogs': {'filter':node_filter_cnblogs, 'site':'https://www.cnblogs.com', 'root':'博客园'},
+    'www.datakit.cn': {'filter':node_filter_datakit, 'site':'https://www.datakit.cn', 'root':'www.datakit.cn'},
+    'hao.jobbole.com': {'filter':node_filter_jobbole, 'site':'http://hao.jobbole.com', 'root':'伯乐在线'},
+}
 
 def savetext(fn, d):
     f=open(fn,'wt', encoding='utf8')
@@ -366,16 +430,26 @@ def htm2md(t):
     hp.feed(html_code)
     jj=hp.jj
     hp.close()
-    jjs = node_find(jj, 0, len(jj))
+    node_filter = node_filter_csdn
+    cc = 0
+    aaa = 'csdn'
+    for aa in FILTER:
+        tc = t.count(aa)
+        if tc>cc:
+            cc = tc
+            aaa = aa
+            node_filter = FILTER[aa]['filter']
+
+    jjs_pair = node_find(jj, 0, len(jj), node_filter)
     d = ''
-    out={'title':'title'}
-    if len(jjs)>=2:
+    out={'title':'title', 'site':FILTER[aaa]['site']}
+    for jjs in jjs_pair:
         i, l=jjs[0], jjs[1]
         while(i<l):
             text, i = parser_x(parser, jj, i, l, out)
             d += text
 
-    return out['title'], d
+    return FILTER[aaa]['root'], out['title'], d
 
 from down import *
 
@@ -387,8 +461,8 @@ if __name__ == '__main__':
     f.close()
 
     t = gettext().decode('gbk')
-    title, d = htm2md(t)
-    save_txt_td(title, d)
+    root, title, d = htm2md(t)
+    save_txt_td(root, title, d)
     print(title)
     fn2 = './test.md'
     f=open(fn2,'wt',encoding='utf8')

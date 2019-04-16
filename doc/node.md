@@ -4,6 +4,14 @@
 
 # 技术博客
 
+[happinesslz](https://blog.csdn.net/ZHE123ZHE123ZHE123) ML 图像
+
+[NirHeavenX](https://blog.csdn.net/qsczse943062710) ML
+
+[黄小猿](https://me.csdn.net/qq_39422642)
+
+[玩蛇网](https://www.iplaypy.com/jinjie/)  python 教材 进阶
+
 [朝闻道](https://www.cnblogs.com/findumars/)
 
 [weixin_33796205](https://me.csdn.net/weixin_33796205)

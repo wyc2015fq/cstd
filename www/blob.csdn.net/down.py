@@ -36,20 +36,31 @@ def save_txt(fn, s):
     f.close()
 
 
-def save_txt_td(t, d):
+def save_txt_td(root, t, d):
     if len(t)<2:
         return
     if len(d)<2:
         return
+    name=''
+    ttt = root
+    cc = t.count(' - ')
     t = t.replace('/', ' ').replace('\\', ' ').replace('*', ' ').replace('?', ' ')
     t = t.replace('.', ' ').replace('|', ' ')
     t = t.replace(':', ' ')
     t = t.replace('~', ' ')
-    t = t.replace(' - ', '/')
-    cc = t.split('/')
-    ttt=cc[-1].strip()
-    name=cc[-2].strip()
-    t = '-'.join(cc[0:-2]).strip()
+    if 2==cc:
+        t = t.replace(' - ', '/')
+        cc = t.split('/')
+        ttt=cc[-1].strip()
+        name=cc[-2].strip()
+        t = '-'.join(cc[0:-2]).strip()
+
+    if 1==cc:
+        t = t.replace(' - ', '/')
+        cc = t.split('/')
+        name=cc[-1].strip()
+        t = '-'.join(cc[0:-2]).strip()
+
     mkdir(ttt)
     mkdir(ttt+'/'+name)
     print(t)
