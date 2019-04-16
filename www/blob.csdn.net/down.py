@@ -1,10 +1,26 @@
-import urllib.request as request
+﻿import urllib.request as request
 from lxml import etree
+import requests
 
-def getdata(url):
+def getdata1(url):
     try:
         file = request.urlopen(url)
         data = file.read().decode('utf8')
+    except:
+        data = "<html></html>"
+        pass
+    return data
+
+cookies= {
+    'SESSION':'d40451fc-c7f5-4390-a03b-321ef4e73675',
+    'UserToken':'757a1b7c70f8414aa194fb0788859850',
+    'UserName':'u014528142'
+}
+
+def getdata(url):
+    try:
+        r = requests.get(url,cookies=cookies)
+        data = r.text
     except:
         data = "<html></html>"
         pass
@@ -43,13 +59,14 @@ def save_txt_td(root, t, d):
         return
     name=''
     ttt = root
-    cc = t.count(' - ')
+    delimt=' - '
+    cc = t.count(delimt)
     t = t.replace('/', ' ').replace('\\', ' ').replace('*', ' ').replace('?', ' ')
     t = t.replace('.', ' ').replace('|', ' ')
     t = t.replace(':', ' ')
     t = t.replace('~', ' ')
-    if 2==cc:
-        t = t.replace(' - ', '/')
+    if cc>=2:
+        t = t.replace(delimt, '/')
         cc = t.split('/')
         ttt=cc[-1].strip()
         name=cc[-2].strip()
@@ -76,3 +93,17 @@ def gettext():
     t = w.GetClipboardData(win32con.CF_TEXT)
     w.CloseClipboard()
     return t
+
+
+
+if __name__ == '__main__':
+    url = 'https://blog.csdn.net/hpulfc/article/details/80084398'
+    cookies={
+        'SESSION':'d40451fc-c7f5-4390-a03b-321ef4e73675',
+        'UserToken':'757a1b7c70f8414aa194fb0788859850',
+        'UserName':'u014528142'
+        }
+    r = requests.get(url,cookies=cookies)
+    if r.text.find('CSDN登录注册')>0:
+        print('fail')
+    print(r.text)

@@ -33,8 +33,8 @@ def down_csdn_one(url):
     print(url)
     data = getdata(url)
     save_txt('test1.html', data)
-    t, d = htmltree.htm2md(data)
-    save_txt_td(t, d)
+    root, t, d = htmltree.htm2md(data)
+    save_txt_td(root, t, d)
 
 def down_csdn_list_one(url, aa):
     ll=getlist(url, aa)
@@ -55,7 +55,7 @@ def down_csdn_list(url, aa):
         ll = down_csdn_list_one(url, aa)
     return 0
 
-if 1:
+if __name__ == '__main__':
     url='https://yuhui.blog.csdn.net/article/details/80106526'
     url='https://www.cnblogs.com/chaihy/p/10615117.html'
     url='https://blog.csdn.net/sinat_26917383/article/category/6093543'
@@ -72,6 +72,7 @@ if 1:
     else:
         down_csdn_one(url)
         if url.find('csdn.net')>0:
+            aa='//li/a/@href'
             aa='//div[@data-articleid]/h4/a/@href'
             down_csdn_list(url, aa)
 

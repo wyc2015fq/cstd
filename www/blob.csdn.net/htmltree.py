@@ -154,14 +154,18 @@ def parser_code(parser, jj, i, l, out):
 def parser_span(parser, jj, i, l, out):
     attrs_dict = jj[i]['attrs']
     if 'class' in attrs_dict:
-        if (attrs_dict['class'] in ['mo', 'mi', 'katex-html']):
+        cls = attrs_dict['class']
+        if (cls in ['mo', 'mi', 'katex-html']):
             return parser_skip(parser, jj, i, l, out)
 
-        if attrs_dict['class'] in ['katex--display', 'katex-display']:
+        if cls in ['katex--display', 'katex-display']:
             return parser_mathjax_display(parser, jj, i, l, out)
 
-        if attrs_dict['class'] in ['katex--inline', 'katex-inline']:
+        if cls in ['katex--inline', 'katex-inline']:
             return parser_mathjax_inline(parser, jj, i, l, out)
+
+        if cls in ['cnblogs_code']:
+            return parser_code(parser, jj, i, l, out)
 
     if 'id' in attrs_dict:
         if attrs_dict['id'].find("MathJax")>=0:
@@ -320,6 +324,26 @@ def autotext(t):
     codec = chardet.detect(t)
     return t.decode(codec['encoding'])
 
+def node_find(jj, i, l, node_filter):
+    out=[]
+
+    ind=jj[i]['ind']
+    prev2 = 0
+    for ii in range(i+1, l):
+        if jj[ii]['ind']<=ind:
+            break
+        t = node_filter(jj[ii])
+        if t>0:
+            if t==1:
+                prev2 = 0
+                out.append((ii, ii+2))
+            if t==2:
+                prev2 = ii
+            if t==3 and prev2>0:
+                out.append((prev2, ii))
+
+    return out
+
 
 def node_filter_csdn(node):
     tag = node['tag']
@@ -389,33 +413,30 @@ def node_filter_jobbole(node):
     return 0
 
 
+def node_filter_chinaunix(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
 
-def node_find(jj, i, l, node_filter):
-    out=[]
+    attrs_dict = attrs
 
-    ind=jj[i]['ind']
-    prev2 = 0
-    for ii in range(i+1, l):
-        if jj[ii]['ind']<=ind:
-            break
-        t = node_filter(jj[ii])
-        if t>0:
-            if t==1:
-                prev2 = 0
-                out.append((ii, ii+2))
-            if t==2:
-                prev2 = ii
-            if t==3 and prev2>0:
-                out.append((prev2, ii))
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='Blog_right1':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='Blog_con2_1 Blog_con3_2':
+        return 3
+
+    return 0
 
 
-    return out
 
 FILTER = {
     'csdn': {'filter':node_filter_csdn, 'site':'https://blog.csdn.net', 'root':'CSDN博客'},
     'cnblogs': {'filter':node_filter_cnblogs, 'site':'https://www.cnblogs.com', 'root':'博客园'},
     'www.datakit.cn': {'filter':node_filter_datakit, 'site':'https://www.datakit.cn', 'root':'www.datakit.cn'},
     'hao.jobbole.com': {'filter':node_filter_jobbole, 'site':'http://hao.jobbole.com', 'root':'伯乐在线'},
+    'blog.chinaunix.net': {'filter':node_filter_chinaunix, 'site':'http://blog.chinaunix.net', 'root':'ChinaUnix博客'},
 }
 
 def savetext(fn, d):

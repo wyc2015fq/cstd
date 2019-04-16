@@ -4,6 +4,8 @@
 
 # 技术博客
 
+[T-Bagwell](http://blog.chinaunix.net/uid/11344913.html)  ffmpeg
+
 [happinesslz](https://blog.csdn.net/ZHE123ZHE123ZHE123) ML 图像
 
 [NirHeavenX](https://blog.csdn.net/qsczse943062710) ML
@@ -64,7 +66,7 @@
 
 [我爱自然语言处理](http://www.52nlp.cn/)
 
-[白马负金羁](https://blog.csdn.net/baimafujinji)
+[白马负金羁](https://blog.csdn.net/baimafujinji)   数据挖掘 | 统计分析 | 图像处理 | 程序设计
 
 [i_dovelemon的专栏](https://blog.csdn.net/i_dovelemon)
 
