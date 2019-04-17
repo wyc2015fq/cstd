@@ -11,7 +11,7 @@ def getdata1(url):
         pass
     return data
 
-cookies= {
+csdn_cookies= {
     'SESSION':'d40451fc-c7f5-4390-a03b-321ef4e73675',
     'UserToken':'757a1b7c70f8414aa194fb0788859850',
     'UserName':'u014528142'
@@ -19,8 +19,12 @@ cookies= {
 
 def getdata(url):
     try:
-        r = requests.get(url,cookies=cookies)
-        data = r.text
+        if url.find('csdn.net')>0:
+            r = requests.get(url,cookies=csdn_cookies)
+            data = r.text
+        else:
+            file = request.urlopen(url)
+            data = file.read().decode('utf8')
     except:
         data = "<html></html>"
         pass
@@ -57,7 +61,11 @@ def save_txt_td(root, t, d):
         return
     if len(d)<2:
         return
-    if t.find('随笔列表第')>0:
+
+    if t.find('随笔列表第')>=0:
+        return
+
+    if t.find('随笔档案')>=0:
         return
 
     name=''

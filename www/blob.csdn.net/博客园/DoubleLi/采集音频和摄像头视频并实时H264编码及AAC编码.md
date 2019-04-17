@@ -1,0 +1,115 @@
+# 采集音频和摄像头视频并实时H264编码及AAC编码 - DoubleLi - 博客园
+
+
+
+
+
+
+**0. 前言**
+
+　　我在前两篇文章中写了DirectShow捕获音视频然后生成avi，再进行264编码的方法。那种方法有一些局限性，不适合实时性质的应用，如：视频会议、视频聊天、视频监控等。本文所使用的技术，适用于这种实时性的应用，通过处理采集出来的音视频的每一帧，实现实时编码，实时输出。这是我做**直播**系列应用的一部分，目前的情况是输入端采用DirectShow技术捕获音视频，然后对视频进行h.264编码，对音频进行aac编码，输出端则是生成文件，接下来还要进一步扩展输入端和输出端，以支持文件、桌面输入，RTSP、RTMP、HTTP等流式协议输出。
+
+
+
+**1. 简单介绍**
+
+　　首先是捕获，这里采用了DirectShow的方式，对它进行了一定程度的封装，包括音视频。好处是直接使用native api，你可以做想做的任何修改，坏处是，不能跨平台，采集音视频这种应用，linux平台也是需要滴呀。有跨平台的做法，对视频，可以使用OpenCV，对音频，可以使用OpenAL或PortAudio等，这样就行了。
+
+　　编码可以选择的余地比较大，对视频来讲，有H264, MPEG-4, WebM/VP8, Theora等，音频有Speex, AAC, Ogg/Vorbis等，它们都有相应的开源项目方案，我采用的是x264进行H264编码，libfaac进行aac编码，之后是否更改编码方案，等具体项目需求再说了。这里提一下WebM，Google牵头的项目，完全开放和自由，使用VP8和Vorbis编码，webm(mkv)封装，有多家巨头支持，目的是想要取代当前的H264视频编码，号称比后者更加优秀，我没有测试过实际效果。不过有商业公司牵头就是不一样，各项支持都很全面，有时间了关注一下。
+
+
+
+**2. 逻辑和流程**
+
+　　基本的思想是实现dshow ISampleGrabberCB接口，通过回调来保存每一个buffer。除了界面线程和dshow自己的线程之外，我们启动了两个线程，AudioEncoderThread和VideoEncoderThread，分别从SampleGrabber中取出数据，调用编码器进行编码，编码后的文件可以直接输出。看图：
+
+![](https://pic002.cnblogs.com/images/2011/254714/2011111012212148.jpg)
+
+　　程序是用VS2010构建的，看张工程截图：
+
+![](https://pic002.cnblogs.com/images/2011/254714/2011111012334011.jpg)
+
+　　Base下面的是对系统API的一些简单封装，主要是线程和锁。我这里简单也封装的了一下dshow的捕获过程，包括graph builder的创建，filter的连接等。directshow是出了名的难用，没办法，难用也得用。因为是VS2010，调用的Windows SDK 7.1中的dshow，没有qedit.h这个文件，而它正式定义ISampleGrabberCB的。不急，系统中还是有qedit.dll的，我们要做的就是从Windows SDK 6.0中，把它拷过来，然后在stdafx.h中加入这几行代码，就可以了
+
+```
+1 #pragma include_alias( "dxtrans.h", "qedit.h" )
+2 #define __IDxtCompositor_INTERFACE_DEFINED__
+3 #define __IDxtAlphaSetter_INTERFACE_DEFINED__
+4 #define __IDxtJpeg_INTERFACE_DEFINED__
+5 #define __IDxtKey_INTERFACE_DEFINED__
+6 #include "qedit.h"
+```
+
+
+
+**3. 音视频编码**
+
+　　相关文件：
+
+![](https://pic002.cnblogs.com/images/2011/254714/2011111012335148.jpg)
+
+　　Encoder下就是音视频编码相关的代码。X264Encoder封装了调用x264编码器的操作，FAACEncoder封装了调用libfaac编码器的操作，VideoEncoderThread和AudioEncoderThread负责主要的流程。下面我把关键代码贴出来，大家可以参考一下。
+
+**A. 视频编码线程**
+
+　　主要流程是首先初始化x264编码器，然后开始循环调用DSVideoGraph，从SampleGrabber中取出视频帧，调用x264进行编码，流程比较简单，调用的频率就是你想要获取的视频帧率。要注意的一点是，x264进行编码比较耗时，在计算线程Sleep时间时，要把这个过程消耗的时间算上，以免采集的视频帧率错误。
+
+![](https://pic002.cnblogs.com/images/2011/254714/2011111013115093.jpg)
+
+**B. 音频编码线程**
+
+　　主要流程和视频编码线程相同，也是初始化FAAC编码器，然后循环调用DSAudioGraph，从SampleGrabber中取出视频帧，调用faac进行编码。和视频不同的是，音频的sample的频率是非常快的，所以几乎要不断的进行采集，但前提是SampleGrabber中捕获到新数据了才行，不然你的程序cpu就100%了，下面代码中IsBufferAvailaber()就是做这个检测的。
+
+![](https://pic002.cnblogs.com/images/2011/254714/2011111013084911.jpg)
+
+　　调用faac进行编码的时候，有点需要注意，大家特别注意下，不然编码出来的音频会很不正常，搞不好的话会很头疼的。先看下faac.h的相关接口
+
+```
+1 faacEncHandle FAACAPI faacEncOpen(unsigned long sampleRate, unsigned int numChannels,
+2                   unsigned long *inputSamples, unsigned long *maxOutputBytes);
+3 
+4 int FAACAPI faacEncEncode(faacEncHandle hEncoder, int32_t * inputBuffer, unsigned int samplesInput,
+5              unsigned char *outputBuffer, unsigned int bufferSize);
+```
+
+　　faacEncEncode第三个参数指的是传入的sample的个数，这个值要和调用faacEncOpen返回的inputSamples相等。要做到这点，就要在dshow中设置好buffsize，公式是：
+
+```
+BufferSize = aac_frame_len * channels * wBytesPerSample
+// aac_frame_len = 1024
+```
+
+
+
+**4. 程序界面**
+
+　　运行中
+
+![](https://pic002.cnblogs.com/images/2011/254714/2011111014330527.jpg)
+
+　　捕获完成后生成aac 和 264文件
+
+![](https://pic002.cnblogs.com/images/2011/254714/2011111014331418.jpg)
+
+　　生成的aac文件用MediaInfo读出来的编码格式
+
+![](https://pic002.cnblogs.com/images/2011/254714/2011111014332744.jpg)
+
+　　生成的264文件用MediaInfo读出来的编码格式
+
+![](https://pic002.cnblogs.com/images/2011/254714/2011111014333529.jpg)
+
+　　用mp4box封装一下，把264和aac存放到mp4容器文件中，就可以在播放器中播放了
+
+![](https://pic002.cnblogs.com/images/2011/254714/2011111014335425.jpg)
+
+
+
+
+
+
+
+
+
+
+

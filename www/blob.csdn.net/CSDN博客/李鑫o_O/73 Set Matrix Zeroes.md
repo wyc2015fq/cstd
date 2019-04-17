@@ -1,0 +1,62 @@
+# 73. Set Matrix Zeroes - 李鑫o_O - CSDN博客
+
+
+
+
+
+2016年04月09日 18:22:13[hustlx](https://me.csdn.net/HUSTLX)阅读数：665
+
+
+
+
+
+
+
+
+
+
+
+Given a m x n matrix, if an element is 0, set its entire row and column to 0. Do it in place.
+
+[click to show follow up.](https://leetcode.com/problems/set-matrix-zeroes/#)
+
+Follow up:
+Did you use extra space?
+
+A straight forward solution using O(mn) space is probably a bad idea.
+
+A simple improvement uses O(m + n) space, but still not the best solution.
+
+Could you devise a constant space solution?
+
+
+
+
+
+
+
+
+```cpp
+void setZeroes(vector<vector<int>>& matrix) {
+	int m = matrix.size();
+	int n = matrix[0].size();
+	int col0 = 1;
+	int row0 = 1;
+	for (int y = 0;y < n;y++) if (matrix[0][y] == 0) row0 = 0;
+	for (int x = 0;x < m;x++) {
+		if (matrix[x][0] == 0) col0 = 0;
+		for (int y = 0;y < n;y++) 
+			if (matrix[x][y] == 0) matrix[0][y] = matrix[x][0] = 0;
+	}
+	for (int x = 1;x < m;x++) 
+		for (int y = 1;y < n;y++) 
+			if (matrix[0][y] == 0 || matrix[x][0] == 0) matrix[x][y] = 0;
+	if (row0 == 0) for (int y = 0;y < n;y++) matrix[0][y] = 0;
+	if (col0 == 0) for (int x = 0;x < m;x++) matrix[x][0] = 0;
+}
+```
+
+
+
+
+

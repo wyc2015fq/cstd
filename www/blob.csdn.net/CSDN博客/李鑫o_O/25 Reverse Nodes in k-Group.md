@@ -1,0 +1,42 @@
+# 25. Reverse Nodes in k-Group - 李鑫o_O - CSDN博客
+
+
+
+
+
+2016年03月23日 14:27:49[hustlx](https://me.csdn.net/HUSTLX)阅读数：175
+
+
+
+
+
+
+
+
+```cpp
+ListNode* reverseKGroup(ListNode* head, int k) {
+    vector<int> temp;
+    while (head) {
+        temp.push_back(head->val);
+        head = head->next;
+    }
+    for (int i = k - 1; i < temp.size(); i += k) {
+        int j = 0;
+        while (j<k/2) {
+            swap(temp[i-j], temp[i - k + 1+j]);
+            j++;
+        }     
+    }
+    ListNode* res = new ListNode(0);
+    ListNode** res1 = &res->next;
+    for (auto i : temp) {
+        res->next = new ListNode(i);
+        res = res->next;
+    }
+    return *res1;
+}
+```
+
+
+
+

@@ -4,7 +4,7 @@
 
 
 
-2018年12月21日 18:21:48[PeterBishop0](https://me.csdn.net/qq_40061421)阅读数：65
+2018年12月21日 18:21:48[PeterBishop0](https://me.csdn.net/qq_40061421)阅读数：67
 
 
 
@@ -140,7 +140,7 @@ index.jsp:
 
    <form action="/post" method="post">
 
-       i&nbsp;&nbsp;&nbsp;&nbsp;d: <input type="text" name="id" > <br> <br>
+       id: <input type="text" name="id" > <br> <br>
 
        name: <input type="text" name="name" > <br> <br>
 

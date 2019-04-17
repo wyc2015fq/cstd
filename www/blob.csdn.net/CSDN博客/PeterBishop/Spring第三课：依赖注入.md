@@ -4,7 +4,7 @@
 
 
 
-2019年02月07日 18:46:17[PeterBishop0](https://me.csdn.net/qq_40061421)阅读数：45
+2019年02月07日 18:46:17[PeterBishop0](https://me.csdn.net/qq_40061421)阅读数：46
 个人分类：[JavaWeb](https://blog.csdn.net/qq_40061421/article/category/8534452)
 
 
@@ -50,7 +50,7 @@
 
 
 
-<!--&lt;!&ndash;下面演示如果不按构造器声明顺序正确的配置会出现的情况一&ndash;&gt;-->
+<!--<!–下面演示如果不按构造器声明顺序正确的配置会出现的情况一–>-->
 
 <!--<bean id="student_error" class="com.ioc.bean.Student">-->
 
@@ -62,11 +62,11 @@
 
 <!--</bean>-->
 
-<!--&lt;!&ndash;因为无法将String转为int所以会直接报错&ndash;&gt;-->
+<!--<!–因为无法将String转为int所以会直接报错–>-->
 
 
 
-<!--&lt;!&ndash;下面演示如果不按构造器声明顺序正确的配置会出现的情况二&ndash;&gt;-->
+<!--<!–下面演示如果不按构造器声明顺序正确的配置会出现的情况二–>-->
 
 <!--<bean id="student_error" class="com.ioc.bean.Student">-->
 
@@ -78,7 +78,7 @@
 
 <!--</bean>-->
 
-<!--&lt;!&ndash;此种情况虽然可以正常运行，但id为20且age为1001,这显然比上一个更无法接受，因为这玩意不叫error，叫bug&ndash;&gt;-->
+<!--<!–此种情况虽然可以正常运行，但id为20且age为1001,这显然比上一个更无法接受，因为这玩意不叫error，叫bug–>-->
 
 
 setter注入

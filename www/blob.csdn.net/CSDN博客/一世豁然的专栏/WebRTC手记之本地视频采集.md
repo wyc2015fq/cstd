@@ -1,0 +1,67 @@
+# WebRTC手记之本地视频采集 - 一世豁然的专栏 - CSDN博客
+
+
+
+
+
+2017年02月17日 16:15:47[一世豁然](https://me.csdn.net/Explorer_day)阅读数：1351
+
+
+
+
+
+
+
+
+本博客转载于：[http://www.cnblogs.com/fangkm/p/4374610.html](http://www.cnblogs.com/fangkm/p/4374610.html)
+
+
+
+
+
+
+前面两篇文章介绍WebRTC的运行流程和使用框架接口，接下来就开始分析本地音视频的采集流程。由于篇幅较大，视频采集和音频采集分成两篇博文，这里先分析视频采集流程。分析的时候先分析WebRTC原生的视频采集流程，再捎带提一下Chromium对WebRTC视频采集的适配，这样能更好地理解WebRTC的接口设计。
+
+## 1. WebRTC原生视频采集
+
+在介绍视频设备的采集之前，首先要分析一下WebRTC的DeviceManager结构，因为视频采集的抽象接口VideoCapturer的WebRTC原生实现就是通过它来创建的。这个类的功能还包括枚举音视频设备的相关信息等。结构如下：
+
+![](http://images.cnitblog.com/blog2015/57211/201503/281810292554678.png)
+
+限于篇幅，该UML中没有标出DeviceManagerInterface接口的所有功能接口，具体包括：获取音频输入/输出设备列表、获取视频输入设备列表、根据设备信息创建VideoCapturer视频采集对象等。由于获取硬件设备列表，涉及到平台相关的调用，在Windows平台下的实现是Win32DeviceManager类（可以调用DeviceManagerFactory的静态方法Create()返回当前平台相应的DeviceManager对象）。关注一下DeviceWatcher，顾名思义，它的功能在于监控设备的变化。在Windows平台下的实现Win32DeviceWatcher通过API函数RegisterDeviceNotification监控视频类设备和音频类设备的变化。当有监视的类型设备发送变化时，会通过DeviceManagerInterface接口的SignalDevicesChange信号向外投递通知。最后分析一下创建VideoCapturer的流程。DeviceManager创建VideoCapturer对象时通过VideoDeviceCapturerFactory接口来完成的。VideoDeviceCapturerFactory接口的默认实现是WebRtcVideoDeviceCapturerFactory类，该类创建WebRtcVideoCapturer对象做为VideoCapturer接口的实现。可以理解成WebRtcVideoCapturer就是WebRTC原生的视频采集的实现，但这种说法不确切，因为视频采集涉及到跨平台，没这么简单。下面再细扒一下WebRtcVideoCapturer：
+
+![](http://images.cnitblog.com/blog2015/57211/201503/281811353952785.png)
+
+由于平台相关性，WebRtcVideoCapturer仍然不是视频采集的真正实现，它创建一个VideoCaptureModule接口对象来完成真正的视频采集工作。该抽象接口是视频采集的实现接口，最终在Windows平台下由VideoCaptureDS（传统的DirectShow方式）和VideoCaptureMF（Vista之后的Media Foundation API实现方式）来实现采集工作。这里要说明一下VideoCaptureMF在WebRTC中还是个空架子，还未真正实现，如果读者对Media
+ Foundation API实现视频采集感兴趣，可以参考Chromium的media库中VideoCaptureDeviceMFWin类实现。
+
+接下来分析一下VideoSourceInterface和VideoCapturer是如何结合，以及采集由谁驱动开始的。
+
+![](http://images.cnitblog.com/blog2015/57211/201503/281813320526656.png)
+
+VideoSource是WebRTC对VideoSourceInterface接口的实现, 它容纳一个VideoCapturer对象做为视频采集源，VideoRenderer是供外部从VideoSource中获取视频帧数据。此外VideoSource还依赖ChannelManager对象，使用它所包含的CaptureManager来负责视频的采集任务。VideoSource在创建的时候就会调用
+ Initialize方法中调用ChannelManager的StartVideoCapture方法开始采集视频数据。CaptureManager内部为每个VideoCapturer对象维护了一个CaptureRenderAdapter，CaptureRenderAdapter在创建的时候将OnVideoFrame成员方法挂接上VideoCapturer的SignalVideoFrame信号来实时接收采集源传送过来的视频帧数据，OnVideoFrame内部将接收到的视频帧数据分发给向其注册的VideoRenderer对象（VideoRenderer对象的注册的流程是VideoSource到ChannelManager，再到CaptureManager，最后注册到CaptureRenderAdapter与特定的VideoCapturer关联）。
+
+至此，VideoSourceInterface在WebRTC中的实现已经很清晰了，视频采集的流程和时机也很明了，接下来顺便稍等地简单分析一下WebRTC中VideoTrackInterface接口的实现：
+
+![](http://images.cnitblog.com/blog2015/57211/201503/281814144586945.png)
+
+WebRTC创建了一个VideoTrack实现VideoTrackInterface接口，在此之前我一直有个疑问，VideoTrackInterface对外暴露的视频输出接口是VideoRendererInterface，而视频源接口VideoSourceInterface对外暴露的视频输出接口是VideoRenderer，两套接口是如何适配的。看到这里，我发现原来VideoTrack新建了一个VideoTrackRenderers对象来完成VideoRendererInterface接口到VideoRenderer接口的适配工作。VideoTrackRenderers一方面从VideoRenderer接口派生，这样就可以将自己通过VideoSourceInterface的AddSink方法挂接进去来接收视频帧数据，另一方面将接收到的视频帧数据分发给外部挂接给VideoTrackInterface的VideoRendererInterface接口。
+
+## 2. Chromium对WebRTC的视频采集适配
+
+Chromium创建WebRtcVideoCapturerAdapter类来实现VideoCapturer接口，相关结构如下：
+
+![](http://images.cnitblog.com/blog2015/57211/201503/281824503335175.png)
+
+Chromium自己也封装了Track、Source概念，所以当初看这块的时候脑袋不容易转弯费了不少心思。WebRtcVideoCapturerAdapter需要接收Chromium的视频采集模块传输过来的帧数据，通过一层层的挂接，最终挂接到MediaStreamVideoSource类中。MediaStreamVideoSource接收到视频帧数据时，再一层层地通知回来，最终通知到WebRtcVideoCapturerAdapter的OnFrameCaptured方法，该方法内部触发SignalFrameCaptured信号。
+
+MediaStreamVideoSource封装了Chromium视频采集的入口，这块结构就复杂了，牵涉到跨进程的架构，如下：
+
+![](http://images.cnitblog.com/blog2015/57211/201503/281825221617399.png)
+
+这部分不打算细说，如果细说就很可能混淆到目前为止建立的仅有的一点点概念了，本节主要是介绍的是Chromium对WebRTC视频采集接口的定制。
+
+
+
+

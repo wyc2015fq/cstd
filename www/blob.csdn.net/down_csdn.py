@@ -34,6 +34,7 @@ def down_csdn_one(url):
     data = getdata(url)
     #save_txt('test1.html', data)
     root, t, d = htmltree.htm2md(data)
+    # 'data-za-detail-view-element_name'
     save_txt_td(root, t, d)
 
 def down_csdn_list_one(url, aa):
@@ -41,6 +42,43 @@ def down_csdn_list_one(url, aa):
     for li in ll:
         down_csdn_one(li)
     return ll
+
+def getlist_zhihu(url):
+    data = getdata1(url)
+    #save_txt('test1.html', data)
+    tt = data.replace('[', '[\n').replace(']', '\n').split('\n')
+    c = -1
+    t = ''
+    for i in (tt):
+        cc = i.count('null')
+        if cc>c:
+            c = cc
+            t = i
+    # t = t.replace('null', '0')
+    li = t.split(',')
+    ll=[]
+    for i in li:
+        if 'null'!=i:
+            ll.append('https://zhuanlan.zhihu.com/p/'+i)
+    return ll
+
+def down_zhihu_list_one(url):
+    ll=getlist_zhihu(url)
+    for li in ll:
+        down_csdn_one(li)
+    return ll
+
+def down_zhihu_list(urllist):
+    tt = 0
+    for url in urllist:
+        ll = down_zhihu_list_one(url)
+        if len(ll)<5:
+            tt+=1
+        else:
+            tt=0
+        if tt>3:
+            break
+    return 0
 
 import sys
 
@@ -76,8 +114,8 @@ if __name__ == '__main__':
             aa='//div[@data-articleid]/h4/a/@href'
             down_csdn_list(url, aa, temp)
         else:
-            if len(url.split('/'))==4:
-                url += '/article/list'
+            url = '/'.join(url.split('/')[0:4])
+            url += '/article/list'
 
             if url.find('/list')>0:
                 aa='//li/a/@href'
@@ -91,9 +129,8 @@ if __name__ == '__main__':
             aa='//div[@class]/a/@href'
             down_csdn_list(url, aa, temp)
         else:
-            url = url.strip('/')
-            if len(url.split('/'))==4:
-                url += '/default.html?page'
+            url = '/'.join(url.split('/')[0:4])
+            url += '/default.html?page'
 
             if url.find('/default.html?page')>0:
                 aa='//div[@class]/a/@href'
@@ -103,6 +140,14 @@ if __name__ == '__main__':
     elif url.find('www.jianshu.com/u/')>0:
         pass
     elif url.find('baike.baidu.com')>0:
+        down_csdn_one(url)
+    elif url.find('zhihu.com')>0:
+        if url.find('/people/')>0 or url.find('/org/')>0:
+            url = '/'.join(url.split('/')[0:5])
+            url += '/posts?page='
+            urllist = map(lambda i:url+str(i), range(1,1000))
+            urllist = list(urllist)
+            down_zhihu_list(urllist)
         down_csdn_one(url)
     else:
         down_csdn_one(url)

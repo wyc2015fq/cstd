@@ -1,4 +1,5 @@
 ﻿import os
+import html
 from html.parser import HTMLParser
 
 
@@ -33,7 +34,7 @@ class MyHTMLParser(HTMLParser):
         return
 
     def handle_data(self, data):
-        data = self.unescape(data)
+        data = html.unescape(data)
         self.jj.append({'ind':self.ind, 'tag':'text', 'attrs':{'data':data}})
 
 
@@ -222,7 +223,8 @@ def parser_div(parser, jj, i, l, out):
 def parser_title(parser, jj, i, l, out):
     text, ii = parser_text(parser, jj, i, l, out)
     text = toline(text).strip()
-    out['title']=text
+    if len(text)>0 and len(out['title'])==0:
+        out['title']=text
     text = '# ' + text + '\n'
     return text, ii
 
@@ -482,6 +484,22 @@ def node_filter_baike(node):
 
     return 0
 
+def node_filter_zhihu(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='Post-RichTextContainer':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='ContentItem-time':
+        return 3
+
+    return 0
+
 
 FILTER = {
     'csdn': {'filter':node_filter_csdn, 'site':'https://blog.csdn.net', 'root':'CSDN博客'},
@@ -491,6 +509,7 @@ FILTER = {
     'blog.chinaunix.net': {'filter':node_filter_chinaunix, 'site':'http://blog.chinaunix.net', 'root':'ChinaUnix博客'},
     'www.jianshu.com': {'filter':node_filter_jianshu, 'site':'https://www.jianshu.com', 'root':'简书'},
     'baike': {'filter':node_filter_baike, 'site':'', 'root':'百度百科'},
+    'zhihu.com': {'filter':node_filter_zhihu, 'site':'', 'root':'知乎'},
 }
 
 def savetext(fn, d):
@@ -517,12 +536,19 @@ def htm2md(t):
 
     jjs_pair = node_find(jj, 0, len(jj), node_filter)
     d = ''
-    out={'title':'title', 'site':FILTER[aaa]['site']}
+    out={'title':'', 'site':FILTER[aaa]['site']}
     for jjs in jjs_pair:
         i, l=jjs[0], jjs[1]
         while(i<l):
             text, i = parser_x(parser, jj, i, l, out)
             d += text
+
+    if aaa=='zhihu.com':
+        html = etree.HTML(html_code)
+        aa='//a[@data-za-detail-view-element_name]/text()'
+        ll = html.xpath(aa)
+        if len(ll)>0:
+            out['title'] = out['title'].replace('- ', ' - ' + ll[0] +' - ')
 
     return FILTER[aaa]['root'], out['title'], d
 

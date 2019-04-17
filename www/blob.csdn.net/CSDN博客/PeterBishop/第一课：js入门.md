@@ -4,7 +4,7 @@
 
 
 
-2018年12月07日 20:26:05[PeterBishop0](https://me.csdn.net/qq_40061421)阅读数：26
+2018年12月07日 20:26:05[PeterBishop0](https://me.csdn.net/qq_40061421)阅读数：27
 个人分类：[JavaScript](https://blog.csdn.net/qq_40061421/article/category/8510184)
 
 
@@ -88,7 +88,7 @@ document.write("<br>");
 
 //js 里<和>属于特殊字符，要用就需要转义
 
-document.write("&lt;br&gt;是换行标签<br>");
+document.write("<br>是换行标签<br>");
 
 //这样好像不能转义。。
 
