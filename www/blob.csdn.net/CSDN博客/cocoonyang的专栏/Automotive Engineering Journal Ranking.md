@@ -1,13 +1,25 @@
-
 # Automotive Engineering Journal Ranking - cocoonyang的专栏 - CSDN博客
 
 
-2015年12月09日 06:27:28[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：1028
+
+
+
+2015年12月09日 06:27:28[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：1033
+
+
+
+
+
+
+
+
 
 
 http://www.scimagojr.com/journalrank.php?category=2203F
+
+
 |No.|Title|Type|SJR|H index|Total Docs. (2014)|Total Docs. (3years)|Total Refs.|Total Cites (3years)|Citable Docs. (3years)|Cites / Doc. (2years)|Ref. / Doc.|Country|
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
+|----|----|----|----|----|----|----|----|----|----|----|----|----|
 |1|[International Journal of Sustainable Transportation](http://www.scimagojr.com/journalsearch.php?q=19400158456&tip=sid&clean=0)|j|2,261|12|23|62|899|151|60|2,40|39,09|G.B.|
 |2|[Transportation Research Part C: Emerging Technologies](http://www.scimagojr.com/journalsearch.php?q=20893&tip=sid&clean=0)|j|2,040|62|269|439|7.754|1.514|400|3,33|28,83|G.B.|
 |3|[IEEE Transactions on Vehicular Technology](http://www.scimagojr.com/journalsearch.php?q=17393&tip=sid&clean=0)|j|1,981|108|431|1.281|12.390|4.959|1.267|3,34|28,75|U.S|
@@ -58,52 +70,104 @@ http://www.scimagojr.com/journalrank.php?category=2203F
 |48|[IEEE Conference on Intelligent Transportation Systems, Proceedings, ITSC](http://www.scimagojr.com/journalsearch.php?q=77635&tip=sid&clean=0)|p|0,223|32|0|1.072|0|523|1.068|0,38|0,00|US|
 |49|[International Journal of Vehicular Technology](http://www.scimagojr.com/journalsearch.php?q=19900193948&tip=sid&clean=0)|j|0,211|5|12|61|485|38|58|0,45|40,42|EG|
 |50|[Agricultural Engineering International: CIGR Journal](http://www.scimagojr.com/journalsearch.php?q=21100199343&tip=sid&clean=0)|j|0,200|5|134|279|3.410|108|279|0,37|25,45|JP|
-根据SJR 影响因子排序，影响因子最高的前10家期刊中英国有5家，美国有4家，荷兰有1家. 影响因子最高的前5家期刊中，英国有4家，美国有1家。 英国这个培养出牛顿等一批大牛的老牌资本主义国家在科技界的影响力不容小觑。
+
+ 根据SJR 影响因子排序，影响因子最高的前10家期刊中英国有5家，美国有4家，荷兰有1家. 影响因子最高的前5家期刊中，英国有4家，美国有1家。 英国这个培养出牛顿等一批大牛的老牌资本主义国家在科技界的影响力不容小觑。
+
+
+
+
 
 中国汽车行业部分主流学术期刊主要有：
-汽车工程
+
+汽车工程 
+
 吉林大学学报
+
 汽车技术
+
 武汉理工大学学报
+
 汽车工艺与材料
+
 汽车安全与节能学报
+
 汽车科技
+
 武汉汽车工业大学学报
-湖北汽车工业学院学报
+
+湖北汽车工业学院学报 
+
 交通运输工程学报
+
 内燃机工程
+
 内燃机学报
+
+
+
 力学期刊
 |Name|Country|I.F.|SCI/EI|Level(CN)|
-|Archives of Computational Methods in Engineering|5.061(2017)|SCI|
-|Computational Mechanics|2.861(2018)|
-|Computers & Structures|2.887(2018)|
-|Earthquake Engineering & Structural Dynamics|2.807(2018)|
-|Computer Methods in Applied Mechanics and Engineering|3.949(2017)|
-|International Journal for Numerical Methods in Engineering|2.591(2018)|
-|Journal of Computational Physics|2.434(2018)|
-|Structural and Multidisciplinary Optimization|2.8(2018)|SCIE|3|
-|Finite Elements in Analysis and Design|2.253(2017)|SCIE|
+|----|----|----|----|----|
+|Archives of Computational Methods in Engineering||5.061(2017)|SCI||
+|Computational Mechanics||2.861(2018)|||
+|Computers & Structures||2.887(2018)|||
+|Earthquake Engineering & Structural Dynamics||2.807(2018)|||
+|Computer Methods in Applied Mechanics and Engineering||3.949(2017)|||
+|International Journal for Numerical Methods in Engineering||2.591(2018)|||
+|Journal of Computational Physics||2.434(2018)|||
+|Structural and Multidisciplinary Optimization||2.8(2018)|SCIE|3|
+|Finite Elements in Analysis and Design||2.253(2017)|SCIE||
 |Engineering Optimization|G.B.|1.622(2018)|SCIE|3|
 |International journal of automotive technology|KR.|1.264(2017)|SCIE|3|
-|International journal of vehicle design|SW.|0.713(2017)|SCIE|
-Open access journals:
-International Journal of Vehicular Technology    http://www.hindawi.com/journals/ijvt/
-论文生成神器 https://pdos.csail.mit.edu/archive/scigen/
-Automotive components
-http://www.lingshondaparts.com/honda_car_parts_block_selection_C30.php?mod_01=20510
-Dyna conference - automotive
-http://www.dynalook.com/13th-international-ls-dyna-conference/automotive/
-英文写作语料库[http://linggle.com/](http://linggle.com/)
-美式英语写作帮助[https://corpus.byu.edu/coca/](https://corpus.byu.edu/coca/)
-期刊查询[https://www.scimagojr.com/index.php](https://www.scimagojr.com/index.php)
-英文书籍搜索[http://gen.lib.rus.ec](http://gen.lib.rus.ec)
-电子书[https://ebookee.org/](https://ebookee.org/)
-论文生成神器 https://pdos.csail.mit.edu/archive/scigen/
-知乎上搜集的神网站[https://www.zhihu.com/question/35931336](https://www.zhihu.com/question/35931336)
-提高中文文笔(知乎)[https://www.zhihu.com/question/19591218](https://www.zhihu.com/question/19591218)
-提高英文文笔(知乎)[https://www.zhihu.com/question/30647007](https://www.zhihu.com/question/30647007)
+|International journal of vehicle design|SW.|0.713(2017)|SCIE| |
 
-NHTSA[https://www.nhtsa.gov/](https://www.nhtsa.gov/)
+
+
+Open access journals: 
+
+International Journal of Vehicular Technology    http://www.hindawi.com/journals/ijvt/
+
+论文生成神器 https://pdos.csail.mit.edu/archive/scigen/
+
+Automotive components
+
+http://www.lingshondaparts.com/honda_car_parts_block_selection_C30.php?mod_01=20510
+
+
+
+Dyna conference - automotive
+
+http://www.dynalook.com/13th-international-ls-dyna-conference/automotive/
+
+
+
+英文写作语料库  [http://linggle.com/](http://linggle.com/)
+
+美式英语写作帮助   [https://corpus.byu.edu/coca/](https://corpus.byu.edu/coca/)
+
+期刊查询   [https://www.scimagojr.com/index.php](https://www.scimagojr.com/index.php)
+
+英文书籍搜索  [http://gen.lib.rus.ec](http://gen.lib.rus.ec)
+
+电子书  [https://ebookee.org/](https://ebookee.org/)
+
+论文生成神器 https://pdos.csail.mit.edu/archive/scigen/ 
+
+知乎上搜集的神网站  [https://www.zhihu.com/question/35931336](https://www.zhihu.com/question/35931336)
+
+提高中文文笔(知乎)  [https://www.zhihu.com/question/19591218](https://www.zhihu.com/question/19591218)
+
+提高英文文笔(知乎)   [https://www.zhihu.com/question/30647007](https://www.zhihu.com/question/30647007)
+
+
+
+
+
+
+
+NHTSA　　[https://www.nhtsa.gov/](https://www.nhtsa.gov/)
+
 FEDERAL　MOTOR VEHICLE　SAFETY STANDARDS　AND REGULATIONS　　（FMVSS）[https://icsw.nhtsa.gov/cars/rules/import/FMVSS/](https://icsw.nhtsa.gov/cars/rules/import/FMVSS/)
+
+
 

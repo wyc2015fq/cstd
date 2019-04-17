@@ -1,16 +1,29 @@
-
 # 学习BLAS库 -- AXPY - cocoonyang的专栏 - CSDN博客
 
 
-2017年02月12日 16:29:06[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：1036
 
 
-**函数语法:**
-saxpy(int n,float sa, float x[],int incx, float y[], int incy)
+
+2017年02月12日 16:29:06[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：1051
+
+
+
+
+
+
+
+
+**函数语法: **
+
+    saxpy(int n,float sa, float x[],int incx, float y[], int incy)
+
 **功能**：
-AXPY是 BLAS 中 第1级函数。AXPY计算向量的数乘运算和向量的加法运算。
 
-```python
+    AXPY是 BLAS 中 第1级函数。AXPY计算向量的数乘运算和向量的加法运算。
+
+
+
+```
 | Y |      | X |   | Y |
 | Y |      | X |   | Y |
 | Y | = sa | X | + | Y |
@@ -19,9 +32,16 @@ AXPY是 BLAS 中 第1级函数。AXPY计算向量的数乘运算和向量的加�
 ```
 
 
+
+
+
+
+
 ## Fortran语言版SAXPY
+
 **源代码**：
-```python
+
+```
 SUBROUTINE SAXPY(N,SA,SX,INCX,SY,INCY)
 *     .. Scalar Arguments ..
       REAL SA
@@ -87,8 +107,16 @@ SUBROUTINE SAXPY(N,SA,SX,INCX,SY,INCY)
 ```
 
 
+
+
+
+
+
+
+
 saxpy测试算例：
-```python
+
+```cpp
 /*
  * y <- alpha x + y
  void cblas_saxpy(
@@ -100,30 +128,40 @@ saxpy测试算例：
  OPENBLAS_CONST blasint incy);
  */
 void axpy_test() {
+
 	int n = 2;
+
 	float *x = (float*) calloc(n, sizeof(float));
 	float *b = (float*) calloc(n, sizeof(float));
 	float *A = (float*) calloc(n * n, sizeof(float));
 	float *p = (float*) calloc(n, sizeof(float));
 	float *r = (float*) calloc(n, sizeof(float));
+
 	A[0] = 4;
 	A[1] = 1;
 	A[2] = 1;
 	A[3] = 3;
+
 	b[0] = 0;
 	b[1] = 0;
+
 	x[0] = 2;
 	x[1] = 1;
+
 	for (int i = 0; i < n; i++) {
 		printf("x[i] = %f \n", x[i]);
 	}
+
 	for (int i = 0; i < n; i++) {
 		printf("b[i] = %f \n", b[i]);
 	}
+
 	cblas_saxpy(n, 2.0, x, 1, b, 1);
+
 	for (int i = 0; i < n; i++) {
 		printf("b[i] = %f \n", b[i]);
 	}
+
 	free(x);
 	free(b);
 	free(A);
@@ -131,9 +169,14 @@ void axpy_test() {
 	free(r);
 }
 ```
+
+
+
 测试结果：
 
-```python
+
+
+```
 x[i] = 2.000000
 x[i] = 1.000000
 b[i] = 0.000000
@@ -141,6 +184,15 @@ b[i] = 0.000000
 b[i] = 4.000000
 b[i] = 2.000000
 ```
+
+
+
+
+
+
+
+
+
 
 
 

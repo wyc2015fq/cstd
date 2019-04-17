@@ -1,14 +1,25 @@
-
 # Node.js环境中同步分行读取文件 - cocoonyang的专栏 - CSDN博客
 
 
-2016年06月19日 08:54:35[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：3301
+
+
+
+2016年06月19日 08:54:35[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：3315
+
+
+
+
+
+
 
 
 In Node.js environment, readline module supports asynchronously reading a file line by line. However, synchronously reading  is not supported.  Inspired by the codes in http://stackoverflow.com/questions/7545147/nodejs-synchronization-read-large-file-line-by-line.   Readlinesyn, a Node.js module, as shown following, provides synchronously reading functionality.
 
-```python
+
+
+```java
 'use strict';
+
 //  
 //  Reading file line by line synochronicaly libraries  
 //  
@@ -33,6 +44,7 @@ In Node.js environment, readline module supports asynchronously reading a file l
 //       "\n" character.  
 //
 const fs = require('fs');
+
 var LineReader = function( path ) {
     this._leftOver = '';
     this._EOF = false;
@@ -40,6 +52,7 @@ var LineReader = function( path ) {
     this._fd = 0;
     this._bufferSize = 1024;
     this._buffer = new Buffer(this._bufferSize);
+
     if( undefined !== path )
     {
         try{
@@ -54,6 +67,7 @@ var LineReader = function( path ) {
         }
     }
 }
+
 LineReader.prototype.close = function( ) 
 { 
     var self = this;
@@ -68,13 +82,16 @@ LineReader.prototype.close = function( )
     self._fd = 0; 
     return;
 }
+
 LineReader.prototype.next = function( ) 
 { 
         var self = this;
+
         if(0 == self._fd)
         {
              return;
         }
+
 	var _idxStart = 0;
         var idx = 0; 
 	while(( self._leftOver.indexOf('\n', _idxStart)) == -1){
@@ -111,14 +128,17 @@ LineReader.prototype.next = function( )
             return line;
         } 
 }
+
 LineReader.prototype.open =  function( thePath ) 
 { 
         var self = this;
         self._filename = thePath;
+
         if(0 !== self._fd)
         {
              self.close();
         }
+
         try{
             self._fd = fs.openSync( self._filename, 'r'); 
         } 
@@ -131,16 +151,28 @@ LineReader.prototype.open =  function( thePath )
         self._EOF = false;
         return;
 }
+
 module.exports = LineReader;
 ```
+
+
+
+
 
 使用样例
 
 
-```python
+
+
+
+
+
+```java
 const LineByLine = require('./readlinesyn'); 
+
 var filename = './result.txt';
 var liner = new LineByLine();
+
 liner.open( filename ); 
 var theline;
 while( !liner._EOF )
@@ -148,19 +180,32 @@ while( !liner._EOF )
   theline = liner.next();
    console.log( 'READ LINE: ' + theline );
 }
+
 liner.close();
 ```
+
+
+
+
 
 读取某一文件夹中所有txt文件
 
 
-```python
+
+
+
+
+
+```java
 var fs = require('fs');
 const LineByLine = require('./readlinesyn'); 
+
 var dir = "./abc/";
+
 var writeStream = fs.createWriteStream("./foo.txt" , {'flags': 'a'} );
 var liner = new LineByLine();  
 var files = fs.readdirSync( dir );
+
 for( index in files )
 {
    var fileName = files[index];
@@ -168,6 +213,7 @@ for( index in files )
    if( -1 != r )
    {
         console.log( fileName );
+
         liner.open( dir + fileName );   
         var theline;  
         while( !liner._EOF )  
@@ -179,6 +225,17 @@ for( index in files )
    }
 }
 ```
+
+
+
+
+
+
+
+
+
+
+
 
 
 

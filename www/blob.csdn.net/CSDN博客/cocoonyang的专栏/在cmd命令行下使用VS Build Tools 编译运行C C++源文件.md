@@ -1,33 +1,70 @@
+# 在cmd命令行下使用VS Build Tools 编译运行C/C++源文件 - cocoonyang的专栏 - CSDN博客
 
-# 在cmd命令行下使用VS Build Tools 编译运行C-C++源文件 - cocoonyang的专栏 - CSDN博客
 
 
-2015年08月31日 16:37:35[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：8746
+
+
+2015年08月31日 16:37:35[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：8786
+
+
+
+
+
 
 
 
 # Introduction
+
 The following tools can help you to build a C/C++ project on the command line[10] .
+
+
 CL
+
 Use the compiler (cl.exe) to compile and link source code files into apps, libraries, and DLLs.
+
+
 Link
+
 Use the linker (link.exe) to link compiled object files and libraries into apps and DLLs.
+
+
 MSBuild (Visual C++)
+
 Use MSBuild (msbuild.exe) to build Visual C++ projects and Visual Studio solutions. This is equivalent to running the Build project or Build Solution command in the Visual Studio IDE.
+
+
 DEVENV
+
 Use DEVENV (devenv.exe) combined with a command-line switch—for example, /Build or /Clean—to perform certain build commands without displaying the Visual Studio IDE.
+
+
 NMAKE
+
 Use NMAKE (nmake.exe) to automate tasks that build Visual C++ projects by using a traditional makefile.
+
 **安装**：
-安装Visual Studio或Microsoft Visual C++ Build Tools。 我安装的是Visual Studio 2010 Express。
+
+   安装Visual Studio或Microsoft Visual C++ Build Tools。 我安装的是Visual Studio 2010 Express。 
+
+
 
 # CL
+
+
+
 cl.exe is a tool that controls the Microsoft Visual C++ (MSVC) C and C++ compilers and linker. The compilers produce Common Object File Format (COFF) object (.obj) files. The linker produces executable (.exe) files or dynamic-link libraries (DLLs).
+
+
+
 **cl编译器命令选项**
 
-```python
+
+
+```
 C/C++ COMPILER OPTIONS
+
                              -CODE GENERATION-
+
 /GF enable read-only string pooling     /Gm[-] enable minimal rebuild
 /Gy[-] separate functions for linker    /GS[-] enable security checks
 /GR[-] enable C++ RTTI                  /GX[-] enable C++ EH (same as /EHsc)
@@ -61,14 +98,18 @@ C/C++ COMPILER OPTIONS
     AVX - enable use of Intel(R) Advanced Vector Extensions instructions
 /Qimprecise_fwaits generate FWAITs only on "try" boundaries, not inside "try"
 /Qsafe_fp_loads generate safe FP loads  
+
                               -OUTPUT FILES-
+
 /Fa[file] name assembly listing file    /FA[scu] configure assembly listing
 /Fd[file] name .PDB file                /Fe<file> name executable file
 /Fm[file] name map file                 /Fo<file> name object file
 /Fp<file> name precompiled header file  /Fr[file] name source browser file
 /FR[file] name extended .SBR file       /Fi[file] name preprocessed file
 /doc[file] process XML documentation comments and optionally name the .xdc file
+
                               -PREPROCESSOR-
+
 /AI<dir> add to assembly search path    /FU<file> forced using assembly/module 
 /C don't strip comments                 /D<name>{=|#}<text> define macro
 /E preprocess to stdout                 /EP preprocess to stdout, no #line
@@ -76,7 +117,9 @@ C/C++ COMPILER OPTIONS
 /FI<file> name forced include file      /U<name> remove predefined macro
 /u remove all predefined macros         /I<dir> add to include search path
 /X ignore "standard places"             
+
                                 -LANGUAGE-
+
 /Zi enable debugging information        /Z7 enable old-style debug info
 /Zp[n] pack structs on n-byte boundary  /Za disable extensions
 /Ze enable extensions (default)         /Zl omit default library name in .OBJ
@@ -89,7 +132,9 @@ C/C++ COMPILER OPTIONS
     trigraphs[-] - enable trigraphs (off by default)
 /ZI enable Edit and Continue debug info 
 /openmp enable OpenMP 2.0 language extensions
+
                               -MISCELLANEOUS-
+
 @<file> options response file           /?, /help print this help message
 /bigobj generate extended object format /c compile only, no link
 /errorReport:option Report internal compiler errors to Microsoft
@@ -112,15 +157,19 @@ C/C++ COMPILER OPTIONS
 /Yl[sym] inject .PCH ref for debug lib  /Yu[file] use .PCH file
 /Y- disable all PCH options             /Zm<n> max memory alloc (% of default)
 /Wp64 enable 64 bit porting warnings    
+
                                 -LINKING-
+
 /LD Create .DLL                         /LDd Create .DLL debug library
 /LN Create a .netmodule                 /F<num> set stack size
 /link [linker options and libraries]    /MD link with MSVCRT.LIB
 /MT link with LIBCMT.LIB                /MDd link with MSVCRTD.LIB debug lib
 /MTd link with LIBCMTD.LIB debug lib
 ```
+
 **优化选项**
 |Parameter|Function|功能|
+|----|----|----|
 |/O1|maximize speed|速度最大化|
 |/O2|minimize space|空间最小化|
 |/Ob|inline expansion (default n=0)|内联展开(默认 n=0)|
@@ -131,8 +180,10 @@ C/C++ COMPILER OPTIONS
 |/Ot|favor code speed|代码速度优先|
 |/Ox|maximum optimizations|最大优化|
 |/Oy[-]|enable frame pointer omission|可省略框架指针|
-```python
+
+```
 -代码生成- 
+
 /G3 为 80386 进行优化                    /Gh 启用 _penter 函数调用 
 /G4 为 80486 进行优化                    /GH 启用 _pexit 函数调用 
 /G5 为 Pentium 进行优化                  /GR[-] 启用 C++ RTTI 
@@ -155,13 +206,17 @@ C/C++ COMPILER OPTIONS
 /arch:<SSE|SSE2> CPU 结构的最低要求，以下内容之一: 
                         SSE - 启用支持 SSE 的 CPU 可用的指令 
                         SSE2 - 启用支持 SSE2 的 CPU 可用的指令 
+
 -输出文件- 
+
 /Fa[file] 命名程序集列表文件                /Fo<file> 命名对象文件 
 /FA[sc] 配置程序集列表                      /Fp<file> 命名预编译头文件 
 /Fd[file] 命名 .PDB 文件                   /Fr[file] 命名源浏览器文件 
 /Fe<file> 命名可执行文件                    /FR[file] 命名扩展 .SBR 文件 
 /Fm[file] 命名映射文件 
+
 -预处理器- 
+
 /AI<dir> 添加到程序集搜索路径                  /Fx 将插入的代码合并到文件 
 /FU<file> 强制使用程序集/模块                  /FI<file> 命名强制包含文件 
 /C 不抽出注释                                 /U<name> 移除预定义宏 
@@ -169,7 +224,9 @@ C/C++ COMPILER OPTIONS
 /E 预处理到 stdout                            /I<dir> 添加到包含搜索路径 
 /EP 预处理到 stdout，没有 #line                /X 忽略“标准位置” 
 /P 预处理到文件 
+
 -语言- 
+
 /Zi 启用调试信息                             /Ze 启用扩展(默认) 
 /ZI 启用“编辑并继续”调试信息                  /Zl 省略 .OBJ 中的默认库名 
 /Z7 启用旧式调试信息                          /Zg 生成函数原型 
@@ -179,7 +236,9 @@ C/C++ COMPILER OPTIONS
 /Zc:arg1[,arg2] C++ 语言一致性，这里的参数可以是: 
                       forScope - 对范围规则强制使用标准 C++ 
                       wchar_t - wchar_t 是本机类型，不是 typedef 
+
 - 杂项 - 
+
 @<file> 选项响应文件                                  /wo<n> 发出一次警告 n 
 /?, /help 打印此帮助消息                              /w<l><n> 为 n 设置警告等级 1-4 
 /c 只编译，不链接                                     /W<n> 设置警告等级(默认 n=1) 
@@ -195,7 +254,9 @@ C/C++ COMPILER OPTIONS
 /w 禁用所有警告                                       /Y- 禁用所有 PCH 选项 
 /wd<n> 禁用警告 n                                               /Zm<n> 最大内存分配(默认为 %) 
 /we<n> 将警告 n 视为错误 
+
 -链接- 
+
 /MD 与 MSVCRT.LIB 链接                                   /MDd 与 MSVCRTD.LIB 调试库链接 
 /ML 与 LIBC.LIB 链接                                        /MLd 与 LIBCD.LIB 调试库链接 
 /MT 与 LIBCMT.LIB 链接                                     /MTd 与 LIBCMTD.LIB 调试库链接 
@@ -203,30 +264,48 @@ C/C++ COMPILER OPTIONS
 /LDd 创建 .DLL 调试库                                       /link [链接器选项和库]
 ```
 
-## 样例
-### CL使用样例1 -- Hello world
+
+
+## 样例 
+
+### CL使用样例1 -- Hello world 
+
 **操作步骤[1]**：
-1）编辑源代码文件。例如 D:\foo\main.c
-2）启动cmd。  start -> app -> Microsoft Visual Studio 2010 Express -> Visual Studio Command Prompt (2010)
-3）使用 cd 命令改变目录，进入源代码文件所在目录，例如d:\foo。
-4）在cmd中输入命令  cl main.c，回车。
+
+    1）编辑源代码文件。例如 D:\foo\main.c
+
+    2）启动cmd。  start -> app -> Microsoft Visual Studio 2010 Express -> Visual Studio Command Prompt (2010)
+
+    3）使用 cd 命令改变目录，进入源代码文件所在目录，例如d:\foo。  
+
+    4）在cmd中输入命令  cl main.c，回车。
+
 运行结果：
-```python
+
+```
 Setting environment for using Microsoft Visual Studio 2010 x86 tools.
+
 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC>d:
+
 D:\>cd foo
+
 D:\foo>cl main.c
 Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 16.00.40219.01 for 80x86
 Copyright (C) Microsoft Corporation.  All rights reserved.
+
 main.c
 Microsoft (R) Incremental Linker Version 10.00.40219.01
 Copyright (C) Microsoft Corporation.  All rights reserved.
+
 /out:main.exe
 main.obj
+
 D:\foo>dir
  Volume in drive D has no label.
  Volume Serial Number is A8F3-9697
+
  Directory of D:\foo\foo
+
 08/31/2015  03:55 PM    <DIR>          .
 08/31/2015  03:55 PM    <DIR>          ..
 08/16/2015  09:13 AM               446 main.c
@@ -234,38 +313,57 @@ D:\foo>dir
 08/31/2015  03:55 PM             1,452 main.obj
                5 File(s)        118,150 bytes
                2 Dir(s)  111,024,001,024 bytes free
+
 D:\foo>main.exe
 Hello, world.
+
 D:\foo>
 ```
-**编译过程中可能出现的错误**：
-1） 链接错误：fatal error LNK1104: cannot open file 'kernel32.lib'
-错误处理： 向系统环境变量LIB添加kernel32.lib的保存路径。
-链接器link找不过kernel32.lib的原因可能是环境变量LIB中未包含保存kernel32.lib的路径。  在我的机器上，kernel32.lib的保存路径为：C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib。
-在我的电脑->属性->高级->环境变量->系统变量  中找到 系统变量LIB，如果找不到就新建系统变量LIB。将 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib;  添加到系统变量LIB中。
-2)  链接错误：error LINK2005: "..." already defined in xxx.obj
-错误处理：
-Adding static before the declaration of the variable or function
 
-### CL使用样例2
-```python
+
+
+**编译过程中可能出现的错误**：
+
+  1） 链接错误：fatal error LNK1104: cannot open file 'kernel32.lib'
+
+         错误处理： 向系统环境变量LIB添加kernel32.lib的保存路径。
+
+               链接器link找不过kernel32.lib的原因可能是环境变量LIB中未包含保存kernel32.lib的路径。  在我的机器上，kernel32.lib的保存路径为：C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib。
+
+             在我的电脑->属性->高级->环境变量->系统变量  中找到 系统变量LIB，如果找不到就新建系统变量LIB。将 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib;  添加到系统变量LIB中。 
+
+
+
+2)  链接错误：error LINK2005: "..." already defined in xxx.obj 
+
+       错误处理：
+
+        Adding static before the declaration of the variable or function
+
+
+
+### CL使用样例2 
+
+```cpp
 cl /EHsc hello.cpp
+
 To compile a program that has multiple source code files, enter them all on the command line, like this:
 cl /EHsc file1.cpp file2.cpp file3.cpp
+
 When you supply multiple source files like this, the compiler uses the first input file to create the program name. In this case, it outputs a program called file1.exe. To change the name to program1.exe, add an /out linker option:
 cl /EHsc file1.cpp file2.cpp file3.cpp /link /out:program1.exe
+
 To catch more programming mistakes automatically, we recommend you compile by using either the /W3 or /W4 warning level option:
 cl /W4 /EHsc file1.cpp file2.cpp file3.cpp /link /out:program1.exe
 ```
 
 ### CL使用样例3 -- 生成汇编代码文件
-```python
-cl /EHsc /FA foo.c
-```
-
+`cl /EHsc /FA foo.c`
 # LINK
-**Link Options**[3]
+
+**Link Options** [3]
 |Option|Purpose|
+|----|----|
 |/ALIGN|Specifies the alignment of each section.|
 |/ALLOWBIND|Specifies that a DLL cannot be bound.|
 |/ALLOWISOLATION|Specifies behavior for manifest lookup.|
@@ -353,9 +451,12 @@ cl /EHsc /FA foo.c
 |/WINMDKEYCONTAINER|Specifies a key container to sign a Windows Metadata file.|
 |/WINMDDELAYSIGN|Partially signs a Windows Runtime Metadata (.winmd) file by placing the public key in the winmd file.|
 |/WX|Treats linker warnings as errors.|
+
 [5]  如果没有设置/c编译选项，CL编译器自动调用 LINK. CL提供下列命令行编译选项和参数用以调控LINK:
+
 (The CL compiler automatically calls LINK unless you specify the /c option. CL provides some control over the linker through command-line options and arguments. The following table summarizes the features in CL that affect linking. )
-```python
+
+```
 Any file name extension other than .c, .cxx, .cpp, or .def
     Passes a file name as input to LINK
 filename.def
@@ -389,18 +490,31 @@ filename.def
 /Zl
     Omits default library name from .obj file
 ```
-样例:
+
+样例:  
+
 链接汇编代码
-```python
+
+```
 ml -nologo -c "foo.asm"
 link /NOLOGO /SUBSYSTEM:CONSOLE   kernel32.lib user32.lib "foo.obj"
 ```
 
+
+
 # NMAKE
+
+
+
 C/C++ applications can be built on the command line by using nmake.exe (the Microsoft Program Maintenance Utility), which is "a command-line tool that builds projects based on commands that are contained in a description file"[9].The command-line toolset includes a compiler, linker, and other build tools, and a command file that sets the required build environment [10].
+
 NMAKE命令语法
+
 NMAKE [option] [macros] [targets] [@CommandFile]
+
+
 |Option|Purpose|
+|----|----|
 |/A|Forces a build of all evaluated targets, even if the targets are not out-of-date with respect to dependents. Does not force a build of unrelated targets.|
 |/B|Forces a build even if the time stamps are equal. Recommended only for very fast systems with a resolution of two seconds or less.|
 |/C|Suppresses default output, including nonfatal Nmake.exe errors or warnings, time stamps, and the Nmake.exe copyright message. Suppresses warnings issued by /K.|
@@ -421,69 +535,119 @@ NMAKE [option] [macros] [targets] [@CommandFile]
 |/X|Sends Nmake.exe error output to filename instead of to a standard error output. Spaces or tabs can precede filename. To send standard error output, specify a hyphen (-) for filename. Does not affect output from commands to standard error output.|
 |/Y|Disables batch-mode inference rules. When this option is selected, all batch-mode inference rules are treated as regular inference rules.|
 
+
+
+
+
 # Makefile
+
 ### Special characters
-Special characters in NMAKE:
-: ; \# ( ) $ ^ \ { } ! @ -
+
+Special characters in NMAKE: 
+
+: ; # ( ) $ ^ \ { } ! @ -  
+
 ### Description Blocks
+
 A description block or inference rule specifies a block of commands to run if the dependency is out-of-date. NMAKE displays each command before running it, unless /S, .SILENT, !CMDSWITCHES, or @ is used. NMAKE looks for a matching inference rule if a description block is not followed by a commands block.
+
 "A description block is a dependency line optionally followed by a commands blocks:"
-```python
+
+```
 targets ... : dependents ... 
 	commands ...
 ```
+
 A commands block contains one or more commands, each on its own line. No blank line can appear between the dependency or rule and the commands block. However, a line containing only spaces or tabs can appear; this line is interpreted as a null command, and no error occurs. Blank lines are permitted between command lines.
+
 A command line begins with one or more spaces or tabs. A backslash ( \ ) followed by a newline character is interpreted as a space in the command; use a backslash at the end of a line to continue a command onto the next line. NMAKE interprets the backslash literally if any other character, including a space or tab, follows the backslash.
+
+
+
 A command preceded by a semicolon (;) can appear on a dependency line or inference rule, whether or not a commands block follows:
-```python
-project.obj : project.c project.h ; cl /c project.c
-```
+`project.obj : project.c project.h ; cl /c project.c `
 Dependents are NOT case sensitive.
+
 To split the line, using backslash (\) after the target or dependent.
+
 ### Targets
-In a dependency line, specify one or more targets, using any valid filename, directory name,  or pseudotarget.
-Separate multiple targets with one or more spaces or tabs.
+
+In a dependency line, specify one or more targets, using any valid filename, directory name,  or pseudotarget. 
+
+Separate multiple targets with one or more spaces or tabs. 
+
 A target musts be at the start of the line.
+
 The target seperates from dependents by a colon (:), space or tabs are allowed.
+
 Paths are permitted with filenames.
+
 A target cannot exceed 256 characters.
+
 If the target preceding the colon is a single character, use a
+
 separating space; otherwise, NMAKE interprets the letter-colon combination as a drive specifier
 
+
+
 ### 运行NMAKE
+
 操作步骤：
-1) 准备好项目文件和Makefile文件
-2)  在cmd命令行下启动VS Build Tools ( 直接点击开始-> 程序中VS Build Tools选项  )
-3) 使用cd命令进入工作目录
-4) 运行nmake.exe. nmake即在当前目录中寻找Makefile文件，并执行Makefile文件中设定的编译指令。
+
+   1) 准备好项目文件和Makefile文件
+
+   2)  在cmd命令行下启动VS Build Tools ( 直接点击开始-> 程序中VS Build Tools选项  ) 
+
+   3) 使用cd命令进入工作目录
+
+   4) 运行nmake.exe. nmake即在当前目录中寻找Makefile文件，并执行Makefile文件中设定的编译指令。
+
 例如：
+
 ![](https://img-blog.csdn.net/20180225234454964)
 
+
+
 # Benchmarks
-## VS nmake makefile 样例_1 [4]
-目标：将simple.c 和 challeng.c 两个源文件分别编译成可执行文件
-准备好simple.c 和 challeng.c后，Makefile文件内容如下：
-```python
+
+## VS nmake makefile 样例_1 [4] 
+
+  目标：将simple.c 和 challeng.c 两个源文件分别编译成可执行文件
+
+  准备好simple.c 和 challeng.c后，Makefile文件内容如下：
+
+```
 # Sample makefile
+
 !include <win32.mak>
+
 all: simple.exe challeng.exe
+
 .c.obj:
   $(cc) $(cdebug) $(cflags) $(cvars) $*.c
+
 simple.exe: simple.obj
   $(link) $(ldebug) $(conflags) -out:simple.exe simple.obj $(conlibs) lsapi32.lib
+
 challeng.exe: challeng.obj md4c.obj
   $(link) $(ldebug) $(conflags) -out:challeng.exe $** $(conlibs) lsapi32.lib
 ```
 
+
+
 ## VS nmake makefile 样例_2  [6]
-```python
+
+```
 # Example Makefile for ArcEngine C++ Programming on Windows
+
 #
 # The PROGRAM macro defines the name of the program or project.  It
 # allows the program name to be changed by editing in only one
 # location
 #
+
 PROGRAM = basic_sample
+
 #
 # Command line parameters: Edit these parameters so that you can
 # easily run the sample by typing "nmake -f Makefile.Windows run".
@@ -495,6 +659,7 @@ PROGRAM = basic_sample
 # (3) Add the parameters to the run target at the end of this file
 #       ex: ./$(PROGRAM) $(IN_SHAPEFILE)
 #
+
 #
 # The INCLUDEDIRS macro contains a list of include directories
 # to pass to the compiler so it can find necessary header files.
@@ -505,13 +670,17 @@ PROGRAM = basic_sample
 # The LIBS macro contains a list of libraries that the the
 # executable must be linked against.
 #
+
 INCLUDEDIRS = \
 	/I "C:\Program Files\ArcGIS\include\CPPAPI" \
 	/I "C:\Program Files\ArcGIS\Com"
 
+
 LIBDIRS =
 
+
 LIBS =
+
 #
 # The CPPSOURCES macro contains a list of source files.
 #
@@ -527,45 +696,60 @@ LIBS =
 # The LINKFLAGS macro contains all of the library and library
 # directory information to be passed to the linker.
 #
+
 CPPSOURCES = basic_sample.cpp        # list of source files
 CPPOBJECTS = $(CPPSOURCES:.cpp=.obj) # expands to list of object files
 CPPOPT = /EHsc /D_CRT_SECURE_NO_DEPRECATE
 CPPFLAGS = -DESRI_WINDOWS $(INCLUDEDIRS) $(CPPOPT)
 CPP = cl.exe
+
 LINKFLAGS = $(LIBDIRS) $(LIBS)
+
 #
 # Default target: the first target is the default target.
 # Just type "nmake -f Makefile.Windows" to build it.
 #
+
 all: $(PROGRAM)
+
 #
 # Link target: automatically builds its object dependencies before
 # executing its link command.
 #
+
 $(PROGRAM): $(CPPOBJECTS)
 	link.exe /out:$(PROGRAM) $(CPPOBJECTS) $(LINKFLAGS)
+
 #
 # Object targets: rules that define objects, their dependencies, and
 # a list of commands for compilation.
 #
+
 basic_sample.obj: basic_sample.cpp basic_sample.h
 	$(CPP) $(CPPFLAGS) /c basic_sample.cpp
+
 #
 # Clean target: "nmake -f Makefile.Windows clean" to remove unwanted objects and executables.
 #
+
 clean:
 	del $(CPPOBJECTS) $(PROGRAM)
+
 #
 # Run target: "nmake -f Makefile.Windows run" to execute the application
 # You will need to add $(VARIABLE_NAME) for any command line parameters
 # that you defined earlier in this file.
 #
+
 run:
 	$(PROGRAM)
 ```
 
-## VS nmake makefile 样例_3   [7]
-```python
+
+
+## VS nmake makefile 样例_3   [7] 
+
+```
 # Makefile : Illustrates the effective use of precompiled  
 #            headers in a project  
 # Usage:     NMAKE option  
@@ -609,12 +793,17 @@ stable.pch : $(STABLEHDRS)
     $(CPP) $(CLFLAGS) /Yc$(BOUNDRY)    applib.cpp myapp.cpp
 ```
 
+
+
 ## VS nmake makefile 样例_4
 
-```python
+
+
+```
 !if "$(DEBUG)" == ""
 DEBUG = 1
 !endif
+
 !if "$(DEBUG)" == "1"
 ODIR = debug
 CFLAGS = $(CFLAGS) -Od -D_DEBUG -ZI 
@@ -624,66 +813,95 @@ ODIR = release
 CFLAGS = $(CFLAGS) -O1 -DNDEBUG -Zi
 !endif
 
+
 LIBS = \
     $(LIBS) \
     ole32.lib \
     oleaut32.lib
 
+
 CFLAGS = $(CFLAGS) -MD$(D) -I"$(VSINSTALLDIR)\DIA SDK\include"
+
 PCHNAME  = $(ODIR)\stdafx.pch
 PCHHEADER = stdafx.h
 PCHFLAGS = -Yu$(PCHHEADER) -Fp$(PCHNAME)
 CFLAGS   = $(CFLAGS)   -nologo -c -Fd$(ODIR)\ -W3
 LFLAGS   = $(LFLAGS)   -map -debug -PDB:$(ODIR)\dia2dump.pdb "-libpath:$(VSINSTALLDIR)\DIA SDK\lib"
 
+
 !if "$(VERBOSE)" == "1"
 !message DEBUG=$(DEBUG)
 !endif
+
 OBJS = \
     $(ODIR)\dia2dump.obj    \
     $(ODIR)\regs.obj        \
     $(ODIR)\printsymbol.obj \
     $(ODIR)\stdafx.obj      
 
+
 ##### Inference Rules
+
 all : $(ODIR)\dia2dump.exe
+
 $(PCHNAME) $(ODIR)\stdafx.obj : $(PCHHEADER) stdafx.cpp dia2dump.h
     cl $(CFLAGS) $(PCHFLAGS:Yu=Yc) -Fo$(ODIR)\ -FR$(ODIR)\ stdafx.cpp
+
 {}.cpp{$(ODIR)\}.obj::
     cl $(CFLAGS) $(MPBUILDFLAGS) $(PCHFLAGS) -Fo$(ODIR)\ -FR$(ODIR)\ $<
+
 $(ODIR)\dia2dump.exe : $(ODIR) $(PCHNAME) $(OBJS)
     link -out:$(ODIR)\dia2dump.exe $(OBJS) $(LFLAGS) $(LIBS)
+
 $(ODIR):
     -md $(ODIR)
+
 clean :
     del /q $(ODIR)
 ```
 
+
+
+
+
 ## VS nmake makefile 样例_5
+
 使用一行命令编译多个源代码文件
+
 源代码文件夹架构
-`../  
+
+```
+../  
   |_ inc
       |_ foo.h
   |_ src
       |_ Array.cc
       |_ foo.cc
       |_ main.cc
-      |_ makefile`makefile文件内容
-`# Target 
+      |_ makefile
+```
+
+makefile文件内容
+
+```
+# Target 
 PROGRAM = test.exe
+
 # Flags
 CPPOPT = /w /EHsc /D_CRT_SECURE_NO_DEPRECATE 
+
 # Compiler 
 cc = cl 
 CFLAGS = 
  
 # list of source files 
 CPPSOURCES =   main.cc    Array.cc   foo.cc   
+
 # expands to list of object files        
 CPPOBJECTS = $(CPPSOURCES:.cc=.obj) 
   
 all: $(PROGRAM)
+
 $(PROGRAM): $(CPPOBJECTS)
 	link.exe /out:$(PROGRAM)  $(CPPOBJECTS) 
 	
@@ -691,14 +909,24 @@ $(CPPOBJECTS):  $(CPPSOURCES)
 	$(cc) $(CPPOPT) /c $(CPPSOURCES) 
 		
 clean:  
-    del $(CPPOBJECTS) $(PROGRAM)`
+    del $(CPPOBJECTS) $(PROGRAM)
+```
+
+
+
 ## VS nmake makefile 样例_6
-一个项目一般包含多个代码文件，例如 类的头文件和源文件等。 为了便于管理，通常将这些文件分别放入不同文件夹中。在本样例中:
+
+      一个项目一般包含多个代码文件，例如 类的头文件和源文件等。 为了便于管理，通常将这些文件分别放入不同文件夹中。在本样例中:  
+
 1)  C++类头文件存放在 /inc文件夹中;
+
 2)  C++类源文件存放在 /src文件夹中;
+
 3)  项目编译过程中产生的临时文件放在 /tmp文件夹中;
+
 项目文件架构如下所示：
-```python
+
+```
 ../  
   |_ inc
       |_ foo.h
@@ -708,8 +936,10 @@ clean:
   |_ tmp 
       |_ Makefile
 ```
-Makefile文件内容如下:
-```python
+
+Makefile文件内容如下: 
+
+```
 # Target   
 PROGRAM = test.exe  
   
@@ -737,6 +967,7 @@ $(PROGRAM): $(CPPOBJECTS)
       
 main.obj:   
     $(cc) $(CPPOPT) /c ../src/main.cpp       
+
 foo.obj:   
     $(cc) $(CPPOPT) /c ../src/foo.cpp        
           
@@ -744,8 +975,11 @@ clean:
     del $(CPPOBJECTS) $(PROGRAM)
 ```
 
+
+
 ## VS nmake makefile 样例_7  [11]
-```python
+
+```
 1. MYSQL_HOME=D:\downloads\mysql-connector-c++-noinstall-1.0.5-win32
  2. MYSQL_INCS=$(MYSQL_HOME)\include
  3. MYSQL_LIBS=$(MYSQL_HOME)\lib
@@ -772,28 +1006,48 @@ clean:
 24.   del *.exe *.obj
 ```
 
+
+
 ## makefile 样例_8 --  编译资源文件
+
 资源文件一般包含向用户提供信息的用户界面，例如：应用程序所需数据的自定义资源，由安装 API 使用的版本资源，以及菜单和对话框资源等。
+
 资源编译器rc.exe将编写的资源脚本文件(*.rc)编程成资源文件(*.res)，然后由cvtres.exe转换为.obj文件
+
 makefile样例[12]
-`NAME = Test
+
+```
+NAME = Test
 OBJS = $(NAME).obj rsrc.obj
+
 LINK_FLAG = /subsystem:windows
 ML_FLAG = /c /coff
 RC_FLAG = /v
 CVTRES_FLAG = /machine:ix86
+
 $(NAME).exe: $(OBJS)
 	Link $(LINK_FLAG) $(OBJS) 
+
 .asm.obj:
 	ml $(ML_FLAG) {1}lt;
 rsrc.obj:
 	rc $(RC_FLAG) rsrc.rc
 	Cvtres	$(CVTRES_FLAG) rsrc.res
+
 clean:
-	del *.obj`
+	del *.obj
+```
+
+
+
 ## makefile 样例_9 --  C语言代码中调用汇编语言编写的函数
-汇编语言函数代码文件foo.asm
-`.386
+
+
+
+汇编语言函数代码文件foo.asm 
+
+```
+.386
 .model flat, c
 public foo
 .code
@@ -801,92 +1055,158 @@ foo proc
     mov eax, 20 ;返回 20
     ret
 foo endp
-end`C语言主程序源代码文件a.c
-`#include <stdio.h>
+end
+```
+
+C语言主程序源代码文件a.c 
+
+```
+#include <stdio.h>
 int  foo();
+
 int main() {
     int r;
     r = foo();
     printf("result = %d \n", r);
     return 0;
-}`C++语言主程序源头代码a.cc
-`#include <stdio.h>
+}
+```
+
+C++语言主程序源头代码a.cc
+
+```
+#include <stdio.h>
+
 extern "C" {
  int   foo();
 }
+
 int main() {
     int r;
     r = foo();
     printf("result = %d \n", r);
     return 0;
-}`
+}
+```
+
+
+
+
+
 代码编译，链接
-`编译汇编语言代码，生成obj文件
+
+```
+编译汇编语言代码，生成obj文件
 > ml /coff -c foo.asm
+
 编译C语言代码，生成obj文件
 > cl /c /FA a.c 
-链接obj文件，生成可执行文件
-> link /out:a.exe a.obj foo.obj`
 
-## 样例_10 --  编译汇编语言程序
-`.386                        ;使用80386指令集
+链接obj文件，生成可执行文件
+> link /out:a.exe a.obj foo.obj
+```
+
+
+
+##  样例_10 --  编译汇编语言程序
+
+```
+.386                        ;使用80386指令集
 .model flat,stdcall         ;内存模型flat,编译器参数的传递约定stdcall
 option casemap:none         ;大小写敏感
+
 ;Include File and Library
 includelib msvcrt.lib
 includelib kernel32.lib
 printf   PROTO C:ptr sbyte, :VARARG
 ExitProcess   PROTO, dwExitCode:DWORD
+
 ;Data  Segment
 .data
 szMsg   byte "Hello world.", 0ah, 0  
+
 ;Code Segment
 .code
 start:
 	mov eax,10000h		; EAX = 10000h
 	add eax,40000h		; EAX = 50000h
 	sub eax,20000h		; EAX = 30000h
+
 	push 1h
 	call ExitProcess
-end start`
+end start
+```
+
+
+
 编译链接
-`:>ml /coff /c /Cp h.asm
+
+```
+:>ml /coff /c /Cp h.asm
 Microsoft (R) Macro Assembler Version 14.00.23506.0
 Copyright (C) Microsoft Corporation.  All rights reserved.
+
  Assembling: h.asm
+
 :>link /out:h.exe /SUBSYSTEM:CONSOLE  msvcrt.lib kernel32.lib user32.lib  h.obj
 Microsoft (R) Incremental Linker Version 14.00.23506.0
-Copyright (C) Microsoft Corporation.  All rights reserved.`
+Copyright (C) Microsoft Corporation.  All rights reserved.
+```
+
+
+
+
 
 ## makefile 样例_11 --  编译Latex
-```python
+
+```
 BINPATH = D:\CTEX\MiKTeX\miktex\bin\
+
 TeX = $(BINPATH)\pdflatex.exe 
 TeX_FLAGS = -shell-escape -interaction=nonstopmode -file-line-error
 PRE =  $(TeX) -ini -job-name="preamble" "&pdflatex preamble.tex\dump"
 BIB = $(BINPATH)\bibtex.exe
+
 FileName = main
+
 all: $(FileName).pdf
+
 main.pdf: $(FileName).tex 
 	$(TeX) $(TeX_FLAGS) $(FileName).tex
 	$(BIB) $(FileName).tex
 	$(TeX) $(FileName).tex
 	$(TeX) $(FileName).tex
+
 clean: 
 	del $(FileName).pdf
 	del $(FileName).log
 ```
 
-## 参考文献
+
+
+## **参考文献**
+
 [1] Walkthrough: Compiling a C Program on the Command Line. Hadi Braishttps://msdn.microsoft.com/en-us/library/bb384838.aspx
-[2] NMAKE Reference https://msdn.microsoft.com/en-us/library/dd9y37ha.aspx
+
+[2] NMAKE Reference https://msdn.microsoft.com/en-us/library/dd9y37ha.aspx 
+
 [3] Linker Options  https://msdn.microsoft.com/en-us/library/y0zzbyt4.aspx
-[4] makefile example https://msdn.microsoft.com/en-us/library/x6bt6xe7.aspx
-[5]  https://msdn.microsoft.com/en-us/library/92b5ab4h.aspx
-﻿﻿[6] http://resources.esri.com/help/9.3/arcgisengine/com_cpp/Cpp/reference/Makefile.Windows.htm
-[7] https://msdn.microsoft.com/en-us/library/d9b6wk21.aspx
-[9] https://msdn.microsoft.com/en-us/library/dd9y37ha.aspx
-[10] https://msdn.microsoft.com/en-us/library/f35ctcxw.aspx
+
+[4] makefile example https://msdn.microsoft.com/en-us/library/x6bt6xe7.aspx 
+
+[5]  https://msdn.microsoft.com/en-us/library/92b5ab4h.aspx 
+
+﻿﻿[6] http://resources.esri.com/help/9.3/arcgisengine/com_cpp/Cpp/reference/Makefile.Windows.htm 
+
+[7] https://msdn.microsoft.com/en-us/library/d9b6wk21.aspx  
+
+[9] https://msdn.microsoft.com/en-us/library/dd9y37ha.aspx 
+
+[10] https://msdn.microsoft.com/en-us/library/f35ctcxw.aspx 
+
 [11] http://www.tidytutorials.com/2009/08/nmake-makefile-tutorial-and-example.html
-[12] https://blog.csdn.net/erick08/article/details/6871128
+
+[12] https://blog.csdn.net/erick08/article/details/6871128 
+
+
 

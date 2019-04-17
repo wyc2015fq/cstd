@@ -1,619 +1,125 @@
-
 # difference gradient - cocoonyang的专栏 - CSDN博客
 
 
-2017年11月24日 11:46:49[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：128
 
 
 
-```python
-#include <math.h>
-```
-```python
+2017年11月24日 11:46:49[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：130
+
+
+
+
+
+
+
+
+```cpp
+#include <math.h> 
 #include <stdlib.h>
-```
-```python
 #include <stdio.h>
-```
-```python
-void
-```
-```python
-show_vector(
-```
-```python
-float
-```
-```python
-*A,
-```
-```python
-int
-```
-```python
-n) {
-```
-```python
-for
-```
-```python
-(
-```
-```python
-int
-```
-```python
-i =
-```
-```python
-0
-```
-```python
-; i < n; i++) {
-```
-```python
-printf
-```
-```python
-(
-```
-```python
-"%2.5f \t"
-```
-```python
-, A[i]);
+
+void show_vector(float *A, int n) {
+    for (int i = 0; i < n; i++) {
+            printf("%2.5f \t", A[i]);
     }
-```
-```python
-printf
-```
-```python
-(
-```
-```python
-"\n"
-```
-```python
-);
+    printf("\n");
 }
-```
-```python
-float
-```
-```python
-func(
-```
-```python
-float
-```
-```python
-* x )
+
+float func( float* x )
 {
-```
-```python
-float
-```
-```python
-result =
-```
-```python
-0.0
-```
-```python
-;
-    result = x[
-```
-```python
-0
-```
-```python
-] * x[
-```
-```python
-0
-```
-```python
-] * x[
-```
-```python
-0
-```
-```python
-] + x[
-```
-```python
-1
-```
-```python
-] *x[
-```
-```python
-1
-```
-```python
-];
-```
-```python
-return
-```
-```python
-result;
+    float result = 0.0;
+    result = x[0] * x[0] * x[0] + x[1] *x[1];
+    return result;
 }
-```
-```python
+
 /*
   Calculating gradient of a function with different methods
 */
-```
-```python
-void
-```
-```python
-forward()
+void forward()
 {
-```
-```python
-int
-```
-```python
-n =
-```
-```python
-2
-```
-```python
-;
-```
-```python
-float
-```
-```python
-x[] = {
-```
-```python
-0
-```
-```python
-,
-```
-```python
-0
-```
-```python
-};
-```
-```python
-float
-```
-```python
-pf[] = {
-```
-```python
-0
-```
-```python
-,
-```
-```python
-0
-```
-```python
-};
-```
-```python
-float
-```
-```python
-dx =
-```
-```python
-0.001
-```
-```python
-;
-```
-```python
-float
-```
-```python
-f = func( x );
-```
-```python
-for
-```
-```python
-(
-```
-```python
-int
-```
-```python
-i =
-```
-```python
-0
-```
-```python
-; i < n; i++ )
+   int n = 2;
+
+   float x[] = { 0, 0};
+   float pf[] = { 0, 0};
+   float dx = 0.001;
+   float f = func( x );
+
+
+   for( int i = 0; i < n; i++ )
    {
        x[i] += dx;
-```
-```python
-float
-```
-```python
-newF = func( x );
-```
-```python
-float
-```
-```python
-diff = newF - f;
+       float newF = func( x );
+       float diff = newF - f;
        pf[i] = diff/dx;
        x[i] -= dx; 
    }
-```
-```python
-printf
-```
-```python
-(
-```
-```python
-"forward pf =  \n"
-```
-```python
-);
+   printf( "forward pf =  \n" );
    show_vector( pf, n );
+
 }
-```
-```python
-void
-```
-```python
-twoside()
+void twoside()
 {
-```
-```python
-int
-```
-```python
-n =
-```
-```python
-2
-```
-```python
-;
-```
-```python
-float
-```
-```python
-x[] = {
-```
-```python
-0
-```
-```python
-,
-```
-```python
-0
-```
-```python
-};
-```
-```python
-float
-```
-```python
-pf[] = {
-```
-```python
-0
-```
-```python
-,
-```
-```python
-0
-```
-```python
-};
-```
-```python
-float
-```
-```python
-dx =
-```
-```python
-0.01
-```
-```python
-;
-```
-```python
-float
-```
-```python
-f = func( x );
-```
-```python
-for
-```
-```python
-(
-```
-```python
-int
-```
-```python
-i =
-```
-```python
-0
-```
-```python
-; i < n; i++ )
+   int n = 2;
+
+   float x[] = { 0, 0};
+   float pf[] = { 0, 0};
+   float dx = 0.01;
+   float f = func( x );
+
+
+   for( int i = 0; i < n; i++ )
    {
        x[i] += dx;
-```
-```python
-float
-```
-```python
-F_forward = func( x );
-       x[i] -=
-```
-```python
-2
-```
-```python
-*dx;
-```
-```python
-float
-```
-```python
-F_backward = func( x );
+       float F_forward = func( x );
+       x[i] -= 2*dx; 
+       float F_backward = func( x );
        x[i] += dx;
-```
-```python
-float
-```
-```python
-diff = F_forward - F_backward ;
-       pf[i] = diff/(
-```
-```python
-2
-```
-```python
-*dx);
+       float diff = F_forward - F_backward ;
+       pf[i] = diff/(2*dx);
    }
-```
-```python
-printf
-```
-```python
-(
-```
-```python
-"two side pf =  \n"
-```
-```python
-);
+   printf( "two side pf =  \n" );
    show_vector( pf, n );
 }
-```
-```python
-void
-```
-```python
-fourthorder()
+void fourthorder()
 {
-```
-```python
-int
-```
-```python
-n =
-```
-```python
-2
-```
-```python
-;
-```
-```python
-float
-```
-```python
-x[] = {
-```
-```python
-0
-```
-```python
-,
-```
-```python
-0
-```
-```python
-};
-```
-```python
-float
-```
-```python
-pf[] = {
-```
-```python
-0
-```
-```python
-,
-```
-```python
-0
-```
-```python
-};
-```
-```python
-float
-```
-```python
-dx =
-```
-```python
-0.01
-```
-```python
-;
-```
-```python
-float
-```
-```python
-f = func( x );
-```
-```python
-for
-```
-```python
-(
-```
-```python
-int
-```
-```python
-i =
-```
-```python
-0
-```
-```python
-; i < n; i++ )
+   int n = 2;
+
+   float x[] = { 0, 0};
+   float pf[] = { 0, 0};
+   float dx = 0.01;
+   float f = func( x );
+
+
+   for( int i = 0; i < n; i++ )
    {
-```
-```python
-float
-```
-```python
-x0 = x[i];
+       float x0 = x[i];
        x[i] = x0 + dx;
-```
-```python
-float
-```
-```python
-F_forward_1 = func( x );
-       x[i] = x0 +
-```
-```python
-2
-```
-```python
-*dx;
-```
-```python
-float
-```
-```python
-F_forward_2 = func( x );
-       x[i] = x0 - dx;
-```
-```python
-float
-```
-```python
-F_backward_1 = func( x );
-       x[i] = x0 -
-```
-```python
-2
-```
-```python
-*dx;
-```
-```python
-float
-```
-```python
-F_backward_2 = func( x );
+       float F_forward_1 = func( x );
+
+       x[i] = x0 + 2*dx;
+       float F_forward_2 = func( x );
+
+       x[i] = x0 - dx; 
+       float F_backward_1 = func( x );
+
+       x[i] = x0 - 2*dx; 
+       float F_backward_2 = func( x );
        x[i] = x0;
-```
-```python
-float
-```
-```python
-diff =
-```
-```python
-2
-```
-```python
-* F_forward_2 +
-```
-```python
-16
-```
-```python
-*F_forward_1 -
-```
-```python
-16
-```
-```python
-F_backward_1 -
-```
-```python
-2
-```
-```python
-* F_backward_2 ;
-       pf[i] = diff/(
-```
-```python
-4
-```
-```python
-*dx);
+
+       float diff = 2* F_forward_2 + 16*F_forward_1 - 16 F_backward_1 - 2* F_backward_2 ;
+       pf[i] = diff/(4*dx);
    }
-```
-```python
-printf
-```
-```python
-(
-```
-```python
-"fourth order pf =  \n"
-```
-```python
-);
+   printf( "fourth order pf =  \n" );
    show_vector( pf, n );   
 }
-```
-```python
-void
-```
-```python
-main()
+void main()
 {
     forward();
     twoside();
     fourthorder();
-```
-```python
-return
-```
-```python
-;
+    return;
 }
 ```
+
+
 

@@ -1,31 +1,53 @@
-
 # 学习BLAS库 -- ROT - cocoonyang的专栏 - CSDN博客
 
 
-2017年03月17日 22:10:18[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：429个人分类：[C																](https://blog.csdn.net/cocoonyang/article/category/6705806)[BLAS																](https://blog.csdn.net/cocoonyang/article/category/5715477)[
-							](https://blog.csdn.net/cocoonyang/article/category/6705806)
+
+
+
+2017年03月17日 22:10:18[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：432
+个人分类：[C																[BLAS](https://blog.csdn.net/cocoonyang/article/category/5715477)](https://blog.csdn.net/cocoonyang/article/category/6705806)
+
+
+
+
+
 
 
 
 函数语法:
-XROT( N, X, INCX, Y, INCY, C, S)
+
+
+     XROT( N, X, INCX, Y, INCY, C, S)
+
 功能：
-Apply a plane rotation
-BLAS level 1 function
+
+
+     Apply a plane rotation
+
+     BLAS level 1 function
+
 参数：
-X: S(single float), D(double float), C(complex), Z(complex*16)
-N: vector dimension
-X: vector x
+
+
+     X: S(single float), D(double float), C(complex), Z(complex*16) 
+     N: vector dimension
+     X: vector x
 INCX: spacing between elements of x
-Y: vector y
+     Y: vector y
 INCY: spacing between elements of y
-C: multiplier
-S: multiplier
+     C: multiplier
+     S: multiplier 
+
+
+
+
+
 
 
 ## Fortran语言版DROT
 源代码：
-```python
+
+```
 *> \brief \b DROT
 *
 *  =========== DOCUMENTATION ===========
@@ -171,9 +193,13 @@ S: multiplier
 ```
 
 
+
+
+
+
 ## C语言版DROT
 源代码：
-```python
+```cpp
 /*
  *
  * cblas_drot.c
@@ -202,6 +228,7 @@ void cblas_drot(const int N, double *DX, const int INCX, double *DY,
 	{
 		return;
 	}
+
 	double DTEMP;
 	int IX;
 	int IY;
@@ -244,6 +271,13 @@ void cblas_drot(const int N, double *DX, const int INCX, double *DY,
 	return;
 }
 ```
+
+
+
+
+
+
+
 
 
 
