@@ -1,5 +1,20 @@
 # python图形界面PySimpleGUI - kittyzc的博客 - CSDN博客
-2018年12月24日 09:34:57[IE06](https://me.csdn.net/kittyzc)阅读数：969所属专栏：[python小tips](https://blog.csdn.net/column/details/31935.html)
+
+
+
+
+
+2018年12月24日 09:34:57[IE06](https://me.csdn.net/kittyzc)阅读数：1049
+所属专栏：[python小tips](https://blog.csdn.net/column/details/31935.html)
+
+
+
+
+
+
+
+
+
 # 1. 简介
 
 使用pip安装即可。注意如果是python2.7版本，安装的是pySimpleGUI27。
@@ -197,4 +212,7 @@ while True:             # Event Loop
         print(event)
 window.Close()
 ```
+
+
+
 

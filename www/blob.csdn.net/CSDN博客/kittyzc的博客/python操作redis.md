@@ -1,5 +1,21 @@
 # python操作redis - kittyzc的博客 - CSDN博客
-2018年10月12日 10:01:55[IE06](https://me.csdn.net/kittyzc)阅读数：36个人分类：[python																[算法](https://blog.csdn.net/kittyzc/article/category/7940151)](https://blog.csdn.net/kittyzc/article/category/7940149)所属专栏：[python小tips](https://blog.csdn.net/column/details/31935.html)
+
+
+
+
+
+2018年10月12日 10:01:55[IE06](https://me.csdn.net/kittyzc)阅读数：39
+个人分类：[python																[算法](https://blog.csdn.net/kittyzc/article/category/7940151)](https://blog.csdn.net/kittyzc/article/category/7940149)
+
+所属专栏：[python小tips](https://blog.csdn.net/column/details/31935.html)
+
+
+
+
+
+
+
+
 # 1. redis介绍
 
 redis是一个运行在内存中的key-value存储系统，主要优势在于读写性能非常棒。redis中的数据持久化方法有两种：1. 固定时间点转储；2. 修改命令写入文件
@@ -58,4 +74,8 @@ redis的五种数据结构：string, list(of string), set(of string) ,hash(无�
 哈希集（string-string的map，hashmap）：hset，hget，hincrby，hdel，hmset。示例：
 
 HMSET user:1001 name “Mary Jones” password “hidden” email ["mjones@example.com](mailto:%22mjones@example.com)"
+
+
+
+
 

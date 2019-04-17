@@ -1,5 +1,20 @@
 # PySpark学习笔记 - kittyzc的博客 - CSDN博客
-2018年08月16日 16:39:55[IE06](https://me.csdn.net/kittyzc)阅读数：383所属专栏：[python小tips](https://blog.csdn.net/column/details/31935.html)
+
+
+
+
+
+2018年08月16日 16:39:55[IE06](https://me.csdn.net/kittyzc)阅读数：392
+所属专栏：[python小tips](https://blog.csdn.net/column/details/31935.html)
+
+
+
+
+
+
+
+
+
 在spark 2.0中, HiveContext, SQLContext, StreamingContext, SparkContext 都被聚合到了spark模块中。另外要注意的一个事情是，读取文件时只能有一个活动进程，否则会报错。点击[这里](http://spark.apache.org/docs/latest/api/python/)可以查看官方文档。
 
 # 1. dataframe
@@ -502,6 +517,9 @@ def plus_one(a):
     return a + 1
 plus_one_pd_udf = pandas_udf(plus_one, returnType=LongType())
 ```
+
+
+
 
 
 

@@ -1,5 +1,20 @@
 # 运筹系列12：约束规划和python求解 - kittyzc的博客 - CSDN博客
-2018年11月19日 22:50:23[IE06](https://me.csdn.net/kittyzc)阅读数：286所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年11月19日 22:50:23[IE06](https://me.csdn.net/kittyzc)阅读数：294
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
+
 # 1. 从算式谜问题说起
 
 SEND + MORE = MONEY，每一个字母代表一个数字，如何求解？
@@ -119,3 +134,6 @@ class VarArraySolutionPrinterWithLimit(cp_model.CpSolverSolutionCallback):
     def SolutionCount(self):
         return self.__solution_count
 ```
+
+
+

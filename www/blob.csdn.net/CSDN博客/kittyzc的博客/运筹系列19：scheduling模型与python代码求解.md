@@ -1,5 +1,20 @@
 # 运筹系列19：scheduling模型与python代码求解 - kittyzc的博客 - CSDN博客
-2018年11月20日 15:02:24[IE06](https://me.csdn.net/kittyzc)阅读数：308所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年11月20日 15:02:24[IE06](https://me.csdn.net/kittyzc)阅读数：323
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
+
 # 1. 问题模型
 
 scheduling问题比assignment问题又要复杂很多。在调度问题中，除了要考虑任务分配外，还要考虑时间约束。
@@ -156,4 +171,7 @@ Machine 2: [5,6]     [6,8]     [8,11]
 
 如下图，用时11小时。
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20181120150212408.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2tpdHR5emM=,size_16,color_FFFFFF,t_70)
+
+
+
 

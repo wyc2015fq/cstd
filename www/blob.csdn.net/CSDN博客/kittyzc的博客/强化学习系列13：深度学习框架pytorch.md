@@ -1,5 +1,20 @@
 # 强化学习系列13：深度学习框架pytorch - kittyzc的博客 - CSDN博客
-2019年02月12日 14:50:59[IE06](https://me.csdn.net/kittyzc)阅读数：47个人分类：[python																[算法](https://blog.csdn.net/kittyzc/article/category/7940151)](https://blog.csdn.net/kittyzc/article/category/7940149)所属专栏：[强化学习系列](https://blog.csdn.net/column/details/33845.html)
+
+
+
+
+
+2019年02月12日 14:50:59[IE06](https://me.csdn.net/kittyzc)阅读数：49
+所属专栏：[强化学习系列](https://blog.csdn.net/column/details/33845.html)
+
+
+
+
+
+
+
+
+
 # 1. pytorch介绍
 
 深度学习的框架基本都是基于计算图的，其中静态计算图先定义再运行（比如前面介绍的tensorflow），而动态图则是一边定义一边运行（比如本篇介绍的pytorch）。在tensorflow中，计算图一旦定义好了就不能修改，因此需要在最开始就把所有的情况都包含到计算图中；在pytorch中，每一次运行代码（也就是开始进行前向传播）时，都会创建一副新的计算图，相比之下非常灵活。pytorch的框架遵循张量tensor(从0.4起, Variable 正式合并入Tensor)->神经网络nn.Module的层次，比tensorflow简洁很多。
@@ -152,5 +167,8 @@ net2.load_state_dict(t.load('net.pth'))
 ## 2.3 function
 
 nn中还有一个很常用的模块：nn.functional，nn中的大多数layer，在functional中都有一个与之相对应的函数。nn.functional中的函数和nn.Module的主要区别在于，用nn.Module实现的layers是一个特殊的类，都是由class layer(nn.Module)定义，会自动提取可学习的参数。而nn.functional中的函数更像是纯函数，由def function(input)定义。如果模型有可学习的参数，最好用nn.Module，否则既可以使用nn.functional也可以使用nn.Module，二者在性能上没有太大差异。
+
+
+
 
 

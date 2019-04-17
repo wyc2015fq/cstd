@@ -1,0 +1,27 @@
+# OpenCV学习笔记（十五）——摄像机的标定和3D重建calib3D - 迭代的是人，递归的是神 - CSDN博客
+
+
+
+
+
+2011年10月27日 10:24:40[yang_xian521](https://me.csdn.net/yang_xian521)阅读数：47719
+所属专栏：[OpenCV学习笔记](https://blog.csdn.net/column/details/opencv-manual.html)
+
+
+
+
+
+
+
+
+
+先简单回顾一下计算机视觉的知识。这里研究生的摄像机模型都是针孔摄像机，摄像机的标定问题是CV领域的一个入门级的问题，初学摄像机标定时会被各种坐标系弄晕，这里再介绍一下，常提到的坐标系有四个：世界坐标系（Ow，以空间一点为原点）、摄像机坐标系（Oc以小孔即光心为原点）、图像物理坐标系（O1以像平面中心为原点）、图像像素坐标系（O以像平面左下角为原点）。这样再看相关资料的时候就不会混了吧，这里再介绍一篇张正友的摄像机定标办法的相关资料[http://beidou841026.blog.163.com/blog/static/4629535201021731344572/](http://beidou841026.blog.163.com/blog/static/4629535201021731344572/)
+
+其参数分为内参数和外参数：内参数是摄像机坐标系和理想坐标系之间的关系（5个内参数，分别为α、β、u0、v0、θ）；外参数表示摄像机在世界坐标系里的位置和方向（6个外参数，3个表示旋转R的角度，3个表示平移t）。
+
+利用calibrateCamera函数可以得到这些内外参数，而calibrationMatrixValues可以得到摄像机投影透视方程的投影矩阵，composeRT可以合并两个旋转平移变换，computeCorrespondEpilines计算其他图像的相应epilines，convertPointsToHomogeneous把点从欧式空间转换到齐次空间，convertPointsFromHomogeneous把点从齐次空间变换到欧式空间，而函数convertPointsHomogeneous把上述两个函数功能综合到一起了，decomposeProjectionMatrix可以将矩阵分解，drawChessboardCorners获得检测棋盘的角，findChessboardCorners获得棋盘的内角点位置，findCirclesGrid得到圆圈光栅的中心，solvePnP实现物体位置的3维坐标和2维坐标之间的转换，solvePnPRansac利用RANSAC实现上述功能，findFundamentalMat计算两幅图像关联点的基础矩阵，findHomography找出两个平面的透视变换，estimateAffine3D计算两个3维点集的理想仿射变换，filterSpeckles可以过滤不同块的小斑点，getOptimalNewCameraMatrix得到自由比例参数的新摄像机矩阵，initCameraMatrix2D得到3D到2D的初始化的摄像机矩阵，matMulDeriv计算矩阵的偏导数，projectPoints将3D坐标投影到图像平面上，reprojectImageTo3D根据一组差异图像重建3D空间，RQDecomp3x3计算3x3矩阵的RQ分解，Rodrigues实现旋转矩阵和旋转向量之间的转换，steroCalibrate校准立体摄像机，steroRectify是对校准过的摄像机计算修正变换，stereoRectifyUncalibrated是对未校准过的摄像机计算修正变换
+
+还包括了BM块匹配算法类StereoBM、SGBM块匹配算法类StereoSGBM类
+
+
+

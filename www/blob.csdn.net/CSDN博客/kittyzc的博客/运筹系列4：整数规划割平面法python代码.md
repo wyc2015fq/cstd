@@ -1,5 +1,20 @@
 # 运筹系列4：整数规划割平面法python代码 - kittyzc的博客 - CSDN博客
-2018年08月15日 18:06:44[IE06](https://me.csdn.net/kittyzc)阅读数：492所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年08月15日 18:06:44[IE06](https://me.csdn.net/kittyzc)阅读数：508
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
+
 # 1. 从分支定界（branch and cut）到割平面（cutting plane）
 
 **割平面简单来说，就是添加约束条件**。在分支定界算法中，添加的x≤floor[xs]和x≥ceil[xs]便是两个用来割平面的约束条件。 
@@ -47,4 +62,7 @@ def add_new_restriction(matrix):
     matrix = np.insert(matrix, -1, new_column, axis=1)
     return matrix
 ```
+
+
+
 

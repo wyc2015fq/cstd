@@ -1,15 +1,30 @@
 # 运筹系列14：Assignment问题模型与python代码求解 - kittyzc的博客 - CSDN博客
-2018年11月16日 20:49:29[IE06](https://me.csdn.net/kittyzc)阅读数：157所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年11月16日 20:49:29[IE06](https://me.csdn.net/kittyzc)阅读数：168
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
+
 # 1. 问题描述
 
 分配问题可以简单描述为：有数个人和数个任务，人做任务有不同的费用。每个人最多只能做一项任务，每个任务只能由一个人做。如何将任务分配给人可以使总费用最小？
 
 用数学语言表示为：
-$minminmin$$Σi∈I,j∈Jcijxij\Sigma_{i\in I,j\in J}c_{ij}x_{ij}Σi∈I,j∈J​cij​xij​$
+$min$$\Sigma_{i\in I,j\in J}c_{ij}x_{ij}$
 
 s.t.
-$Σi∈Ixij=1,∀j∈J\Sigma_{i\in I} x_{ij} =1, \forall j\in JΣi∈I​xij​=1,∀j∈J$
-$Σj∈Jxij≤1,∀i∈I\Sigma_{j\in J} x_{ij} \leq 1, \forall i\in IΣj∈J​xij​≤1,∀i∈I$
+$\Sigma_{i\in I} x_{ij} =1, \forall j\in J$
+$\Sigma_{j\in J} x_{ij} \leq 1, \forall i\in I$
 
 来看一个例子，有4个人和4个任务，费用矩阵如下表：|人\任务|0|1|2|3|
 |----|----|----|----|----|
@@ -201,5 +216,8 @@ Worker 5  assigned to task 7   Cost =  34
 Worker 6  assigned to task 1   Cost =  51
 Worker 8  assigned to task 3   Cost =  49
 ```
+
+
+
 
 

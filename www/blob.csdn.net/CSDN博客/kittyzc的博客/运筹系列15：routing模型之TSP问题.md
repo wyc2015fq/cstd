@@ -1,5 +1,21 @@
 # 运筹系列15：routing模型之TSP问题 - kittyzc的博客 - CSDN博客
-2018年11月20日 17:42:34[IE06](https://me.csdn.net/kittyzc)阅读数：235个人分类：[运筹学																[python](https://blog.csdn.net/kittyzc/article/category/7940149)](https://blog.csdn.net/kittyzc/article/category/7940150)所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年11月20日 17:42:34[IE06](https://me.csdn.net/kittyzc)阅读数：272
+个人分类：[运筹学																[python](https://blog.csdn.net/kittyzc/article/category/7940149)](https://blog.csdn.net/kittyzc/article/category/7940150)
+
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
 # 1. 问题模型
 
 TSP问题是旅行商问题的简写，问题非常简单：从原点出发经过所有需求点并回到原点，使得途经的距离最短。
@@ -129,3 +145,7 @@ search_parameters.local_search_metaheuristic = (
 |SIMULATED_ANNEALING|Uses simulated annealing to escape local minima (cf. [http://en.wikipedia.org/wiki/Simulated_annealing](http://en.wikipedia.org/wiki/Simulated_annealing)).|
 |TABU_SEARCH|Uses tabu search to escape local minima (cf. [http://en.wikipedia.org/wiki/Tabu_search](http://en.wikipedia.org/wiki/Tabu_search)).|
 |OBJECTIVE_TABU_SEARCH|Uses tabu search on the objective value of solution to escape local minima|
+
+
+
+

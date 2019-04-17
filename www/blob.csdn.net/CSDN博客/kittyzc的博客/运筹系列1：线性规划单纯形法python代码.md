@@ -1,5 +1,20 @@
 # 运筹系列1：线性规划单纯形法python代码 - kittyzc的博客 - CSDN博客
-2018年08月15日 17:06:32[IE06](https://me.csdn.net/kittyzc)阅读数：1588所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年08月15日 17:06:32[IE06](https://me.csdn.net/kittyzc)阅读数：1630
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
+
 # 1. 模型
 
 常见的线性规划模型如下： 
@@ -120,5 +135,8 @@ objective is 32.00
 1. 极点和极方向的理论，这个是单纯型法的理论基础。可以参考[这里](https://wenku.baidu.com/view/1a60ce6125c52cc58bd6be23.html)
 
 2. 对偶理论，这个在以后经常会用到。
+
+
+
 
 

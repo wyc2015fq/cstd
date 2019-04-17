@@ -1,5 +1,21 @@
 # python的web开发flask简介 - kittyzc的博客 - CSDN博客
-2018年11月22日 10:49:01[IE06](https://me.csdn.net/kittyzc)阅读数：39所属专栏：[python小tips](https://blog.csdn.net/column/details/31935.html)
+
+
+
+
+
+2018年11月22日 10:49:01[IE06](https://me.csdn.net/kittyzc)阅读数：40
+所属专栏：[python小tips](https://blog.csdn.net/column/details/31935.html)
+
+
+
+
+
+
+
+
+
+
 
 
 ### 文章目录
@@ -19,6 +35,7 @@
 - [4. 数据库](#4__222)
 - [4.1 ORM模型](#41_ORM_224)
 - [4.2 sqlite操作](#42_sqlite_288)
+
 
 
 flask是一个很简易的web框架，接下来我们将一步步建立一个完整的网站服务。
@@ -434,6 +451,9 @@ db.session.commit()
 .databases 显示数据库
 
 .tables 显示表名
+
+
+
 
 
 

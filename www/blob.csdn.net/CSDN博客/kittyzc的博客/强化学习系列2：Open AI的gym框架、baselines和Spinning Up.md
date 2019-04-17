@@ -1,5 +1,20 @@
 # 强化学习系列2：Open AI的gym框架、baselines和Spinning Up - kittyzc的博客 - CSDN博客
-2018年10月11日 22:57:59[IE06](https://me.csdn.net/kittyzc)阅读数：244所属专栏：[强化学习系列](https://blog.csdn.net/column/details/33845.html)
+
+
+
+
+
+2018年10月11日 22:57:59[IE06](https://me.csdn.net/kittyzc)阅读数：249
+所属专栏：[强化学习系列](https://blog.csdn.net/column/details/33845.html)
+
+
+
+
+
+
+
+
+
 # 1. gym安装
 
 Openai gym 是openAI用于开发和比较强化学习算法的工具包。github地址点击[这里](https://github.com/openai/gym#id6)。gym安装十分简单：
@@ -240,5 +255,8 @@ python -m spinup.run plot data/installtest/installtest_s0
 - Deep Deterministic Policy Gradient (DDPG)
 - Twin Delayed DDPG (TD3)
 - Soft Actor-Critic (SAC)
+
+
+
 
 

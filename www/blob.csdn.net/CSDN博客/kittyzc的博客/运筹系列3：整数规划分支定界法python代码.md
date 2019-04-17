@@ -1,5 +1,16 @@
 # 运筹系列3：整数规划分支定界法python代码 - kittyzc的博客 - CSDN博客
-2018年08月15日 17:51:27[IE06](https://me.csdn.net/kittyzc)阅读数：1680个人分类：[python																[算法																[运筹学](https://blog.csdn.net/kittyzc/article/category/7940150)所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)](https://blog.csdn.net/kittyzc/article/category/7940151)
+
+
+
+
+
+2018年08月15日 17:51:27[IE06](https://me.csdn.net/kittyzc)阅读数：1714
+个人分类：[python																[算法																[运筹学](https://blog.csdn.net/kittyzc/article/category/7940150)
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)](https://blog.csdn.net/kittyzc/article/category/7940151)
+
+
+
+
 # 1. 模型
 
 整数规划的模型与线性规划基本相同，只是额外的添加了部分变量为整数的约束。
@@ -78,3 +89,8 @@ print(integerPro(c, A, b, Aeq, beq))
 ```
 
 其中8是目标函数值，2，0，2是3个整数变量的值。](https://blog.csdn.net/kittyzc/article/category/7940149)
+
+
+
+
+

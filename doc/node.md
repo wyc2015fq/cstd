@@ -4,6 +4,8 @@
 
 # 技术博客
 
+[ibelieve8013](https://blog.csdn.net/ibelieve8013)
+
 [Ricequant](www.ricequant.com)  量化交易
 
 [stata连享会](https://www.jianshu.com/u/69a30474ef33)  统计学 时间序列

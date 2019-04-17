@@ -1,5 +1,20 @@
 # 运筹系列16：routing模型之VRP问题 - kittyzc的博客 - CSDN博客
-2018年11月20日 21:28:33[IE06](https://me.csdn.net/kittyzc)阅读数：621所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年11月20日 21:28:33[IE06](https://me.csdn.net/kittyzc)阅读数：686
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
+
 # 1. 问题模型
 
 VRP问题是车辆路径问题的缩写。问题是：有N辆车，都从原点出发，每辆车访问一些点后回到原点，要求所有的点都要被访问到，求最短的车辆行驶距离或最少需要的车辆数或最小化最长行驶距离。
@@ -144,3 +159,6 @@ if __name__ == '__main__':
 
 结果如下图：
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20181120212636192.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2tpdHR5emM=,size_16,color_FFFFFF,t_70)
+
+
+

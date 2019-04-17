@@ -17,7 +17,8 @@ class MyHTMLParser(HTMLParser):
         for attr in attrs:
             attrs_dict[attr[0]]=attr[1]
         self.jj.append({'ind':self.ind, 'tag':tag, 'attrs':attrs_dict})
-        self.ind+=1
+        if self.ind<100:
+            self.ind+=1
 
 
     def handle_endtag(self, tag):
@@ -32,6 +33,7 @@ class MyHTMLParser(HTMLParser):
         return
 
     def handle_data(self, data):
+        data = self.unescape(data)
         self.jj.append({'ind':self.ind, 'tag':'text', 'attrs':{'data':data}})
 
 

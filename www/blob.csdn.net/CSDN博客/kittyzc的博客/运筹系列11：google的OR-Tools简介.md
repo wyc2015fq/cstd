@@ -1,5 +1,20 @@
 # 运筹系列11：google的OR-Tools简介 - kittyzc的博客 - CSDN博客
-2018年11月16日 18:07:42[IE06](https://me.csdn.net/kittyzc)阅读数：962所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年11月16日 18:07:42[IE06](https://me.csdn.net/kittyzc)阅读数：1012
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
+
 # 1. 介绍
 
 google的开源优化算法包ortools，支持线性规划、整数规划，可以方便的求解Routing、Bin packing、Network flows、Assignment、Scheduling等问题。
@@ -264,5 +279,8 @@ Solution 6
 Status = OPTIMAL
 Number of solutions found: 7
 ```
+
+
+
 
 

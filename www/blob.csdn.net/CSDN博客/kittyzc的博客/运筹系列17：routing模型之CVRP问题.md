@@ -1,5 +1,20 @@
 # 运筹系列17：routing模型之CVRP问题 - kittyzc的博客 - CSDN博客
-2018年11月21日 10:42:59[IE06](https://me.csdn.net/kittyzc)阅读数：313所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年11月21日 10:42:59[IE06](https://me.csdn.net/kittyzc)阅读数：339
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
+
 # 1. CVRP模型
 
 CVRP指的是有容量（capacity）限制的VRP模型，是最常见的VRP模型。
@@ -159,4 +174,7 @@ if __name__ == '__main__':
 
 结果如下图：
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20181121103451400.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2tpdHR5emM=,size_16,color_FFFFFF,t_70)
+
+
+
 

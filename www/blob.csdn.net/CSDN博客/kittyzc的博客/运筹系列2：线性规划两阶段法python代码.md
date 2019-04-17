@@ -1,5 +1,20 @@
 # 运筹系列2：线性规划两阶段法python代码 - kittyzc的博客 - CSDN博客
-2018年08月15日 17:42:34[IE06](https://me.csdn.net/kittyzc)阅读数：586所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年08月15日 17:42:34[IE06](https://me.csdn.net/kittyzc)阅读数：591
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
+
 # 1. 补充问题
 
 上一节中的代码在运行时还有很多细节没有处理，这里补充两个比较重要的情况： 
@@ -129,5 +144,8 @@ fun: -14.571428571428571
  success: True
        x: array([6.42857143, 0.57142857, 0.])
 ```
+
+
+
 
 

@@ -1,5 +1,20 @@
 # python数据绘图pyecharts - kittyzc的博客 - CSDN博客
-2018年10月15日 10:14:22[IE06](https://me.csdn.net/kittyzc)阅读数：240所属专栏：[python小tips](https://blog.csdn.net/column/details/31935.html)
+
+
+
+
+
+2018年10月15日 10:14:22[IE06](https://me.csdn.net/kittyzc)阅读数：242
+所属专栏：[python小tips](https://blog.csdn.net/column/details/31935.html)
+
+
+
+
+
+
+
+
+
 pyecharts的绘图非常漂亮，这里总结一下学习内容。
 
 # 1. 安装相关：
@@ -120,5 +135,8 @@ bar
 
 显示图形为：
 ![在这里插入图片描述](https://img-blog.csdn.net/20181015101332827?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2tpdHR5emM=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+
+
+
 
 

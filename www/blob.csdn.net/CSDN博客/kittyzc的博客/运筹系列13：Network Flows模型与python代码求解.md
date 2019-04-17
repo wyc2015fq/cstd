@@ -1,5 +1,20 @@
 # 运筹系列13：Network Flows模型与python代码求解 - kittyzc的博客 - CSDN博客
-2018年11月20日 09:22:27[IE06](https://me.csdn.net/kittyzc)阅读数：155所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年11月20日 09:22:27[IE06](https://me.csdn.net/kittyzc)阅读数：161
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
+
 # 1. 网络流问题
 
 网络流问题一般首先定义一张由点和边构成的图。
@@ -139,6 +154,9 @@ Minimum cost: 150
 3 -> 4    11  /  20        22
 4 -> 2     0  /   5         0
 ```
+
+
+
 
 
 

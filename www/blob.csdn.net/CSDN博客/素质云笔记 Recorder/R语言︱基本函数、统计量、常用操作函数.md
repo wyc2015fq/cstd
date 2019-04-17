@@ -1,31 +1,63 @@
+# R语言︱基本函数、统计量、常用操作函数 - 素质云笔记/Recorder... - CSDN博客
 
-# R语言︱基本函数、统计量、常用操作函数 - 素质云笔记-Recorder... - CSDN博客
 
-2016年04月18日 20:50:39[悟乙己](https://me.csdn.net/sinat_26917383)阅读数：29228所属专栏：[R的数据操作与清洗](https://blog.csdn.net/column/details/13587.html)
+
+
+
+2016年04月18日 20:50:39[悟乙己](https://me.csdn.net/sinat_26917383)阅读数：29352
+所属专栏：[R的数据操作与清洗](https://blog.csdn.net/column/details/13587.html)
+
+
+
+
+
 
 
 
 
 # 先言：R语言常用界面操作
+
 帮助：help(nnet) = ?nnet =??nnet
+
 清除命令框中所有显示内容：Ctrl+L
+
 清除R空间中内存变量：rm(list=ls())、gc()
+
 获取或者设置当前工作目录：getwd、setwd
+
 保存指定文件或者从磁盘中读取出来：save、load
+
 读入、读出文件：read.table、wirte.table、read.csv、write.csv
 
 # 1、一些简单的基本统计量
-`#基本统计量
+
+
+
+```
+#基本统计量
 sum/mean/sd/min    #一些基本统计量
-which.min()        #找出最小值的序号`以上是单数列，如果是多变量下的呢？
-`#多元数据
+
+which.min()        #找出最小值的序号
+```
+
+以上是单数列，如果是多变量下的呢？
+
+
+
+```
+#多元数据
 colMeans()    #每列,row是行（横向）
 colnames()    #列名
 colSums()     #列求和
 cov()         #协方差阵
 cor()         #相关矩阵
-cor.test()    #相关系数`
+cor.test()    #相关系数
+```
+
+
+
 |abs|绝对值|
+|----|----|
 |sqrt|平方根|
 |exp|e^x次方|
 |log|自然对数|
@@ -35,8 +67,12 @@ cor.test()    #相关系数`
 |poly|正交多项式|
 |polyroot|多项式求根|
 
+
+
 对象操作：
+
 |assign|赋值操作，等同于“<-”|
+|----|----|
 |rm|删除对象|
 |ls|显示内存中的对象|
 |str|显示对象的内在属性或简要说明对象|
@@ -55,18 +91,19 @@ cor.test()    #相关系数`
 |tail|数据的后n行|
 |summary|显示对象的概要|
 |attr|x的属性类型|
-
-|
+|||
 |is.na|检测变量的类型|
-|is.null|
-|is.array|
-|is.data.frame|
-|is.numeric|
-|is.complex|
-|is.character|
+|is.null| |
+|is.array| |
+|is.data.frame| |
+|is.numeric| |
+|is.complex| |
+|is.character| |
+
 
 简单统计：
 |max|最大元素|
+|----|----|
 |min|最小元素|
 |range|最小值和最大值组成的向量|
 |sum|和|
@@ -80,7 +117,10 @@ cor.test()    #相关系数`
 |mean|均值|
 |weighted,mean|加权平均数|
 |median|中位数|
+
+
 |sd|标准差|
+|----|----|
 |norm|正态分布|
 |f|F分布|
 |unif|均匀分布|
@@ -95,89 +135,180 @@ cor.test()    #相关系数`
 |anova|一个或多个模型对象的方差分析|
 
 
+
+
+
 # 2、向量
+
 向量在循环语句中较为广泛
-`#向量
+
+
+
+```
+#向量
 #向量在循环语句中较为广泛
 M=vector(length = 8);M  #生成一个长为8的布尔向量
 M[1]="1";M             #赋值之后就会定义为字符
-M[1]=1;M              #赋值之后，定义为数值`逻辑向量使用
+M[1]=1;M              #赋值之后，定义为数值
+```
 
-`y[y < 0] <- -y[y < 0]      #表示将向量(-y)中 与向量y的负元素对应位置的元素 赋值给 向量y中 与向量y负元素对应的元素。作用相当于： y <- abs(y)`
+逻辑向量使用
+
+
+
+
+
+
+
+```
+y[y < 0] <- -y[y < 0]      #表示将向量(-y)中 与向量y的负元素对应位置的元素 赋值给 向量y中 与向量y负元素对应的元素。作用相当于： y <- abs(y)
+```
+
+
 
 # 3、数据储存形式
-`#数据储存形式
+
+
+
+```
+#数据储存形式
 data.frame(wi=iris,ci=cars)   #数据框形式，可以直接定义变量名
-list(wi=iris,ci=cars)         #list，也可以直接定义变量名`
+list(wi=iris,ci=cars)         #list，也可以直接定义变量名
+```
+
+
+
+
 注意：attach()、detach()
+
 可以将数据框中的变量释放到Rs内存中，然后就可以直接调用。
-`attach(iris)
+
+
+
+```
+attach(iris)
 names(setosa)   
-detach(iris)`在data.frame中，是可以实现数据集重命名的，比如data.frame(x=iris,y=cars)，
+detach(iris)
+```
+
+
+在data.frame中，是可以实现数据集重命名的，比如data.frame(x=iris,y=cars)，
+
+
 也可以实现横向、纵向重命名，data.frame(x=iris,y=cars,row.names=iris)
 
-# 4、数据查看函数——
-# names、str、unique组合、
-# typeof()、mode()、class()
-`##数据查看函数
+
+
+
+# 4、数据查看函数——names、str、unique组合、typeof()、mode()、class()
+
+
+
+```
+##数据查看函数
 names(iris)           #查看所有变量名字
 str(iris)             #变量属性（int整数,num数值）
 unique(iris$setosa)   #查看分类变量的水平
 table(iris$setosa)    #分类水平，不同水平的个数（=unique+sum功能）
 summary(iris)         #所有变量各自的均值、分位数、众数、最大、最小值等统计量，在回归中就是系数表等
-attributes(iris)      #包括names（变量名）、row.names（序号的名称）、class(数据形式)`
+attributes(iris)      #包括names（变量名）、row.names（序号的名称）、class(数据形式)
+```
+
+
+
 一般names、str、unique会组合使用。
 
 
-# 如何查看数据类型——
-# typeof()、mode()、class()的区别？
+
+
+
+
+# 如何查看数据类型——typeof()、mode()、class()的区别？
+
+
+
+
+
+
+
+
 
 **[plain]**[view
  plain](http://blog.csdn.net/sinat_26917383/article/details/51086078#)[copy](http://blog.csdn.net/sinat_26917383/article/details/51086078#)
+
 [print](http://blog.csdn.net/sinat_26917383/article/details/51086078#)[?](http://blog.csdn.net/sinat_26917383/article/details/51086078#)![在CODE上查看代码片](https://code.csdn.net/assets/CODE_ico.png)![派生到我的代码片](https://code.csdn.net/assets/ico_fork.svg)
-我这里用个因子例子来说明，希望能讲清楚
-> gl(2,5)            \#新建一个因子
-[1] 1 1 1 1 1 2 2 2 2 2
-Levels: 1 2
-> class(gl(2,5))   \#查看变量的类，显示为因子；
-[1] "factor"
-> mode(gl(2,5))     \#查看数据大类，显示为数值型；
-[1] "numeric"
-> typeof(gl(2,5))    \#查看数据细类，显示为整数型；
-[1] "integer"
-\#来自：http://f.dataguru.cn/thread-99785-1-1.html
-从精细度上说，typeof>mode>class.
+
+- 我这里用个因子例子来说明，希望能讲清楚  
+- > gl(2,5)            #新建一个因子  
+- [1] 1 1 1 1 1 2 2 2 2 2  
+- Levels: 1 2  
+- > class(gl(2,5))   #查看变量的类，显示为因子；  
+- [1] "factor"  
+- > mode(gl(2,5))     #查看数据大类，显示为数值型；  
+- [1] "numeric"  
+- > typeof(gl(2,5))    #查看数据细类，显示为整数型；  
+- [1] "integer"  
+- #来自：http://f.dataguru.cn/thread-99785-1-1.html  
+
+从精细度上说，typeof>mode>class. 
+
+
+
+
+
 
 
 # 5、矩阵的基本知识与注意
-`#矩阵的基本知识
+
+
+
+```
+#矩阵的基本知识
 t()       #转置
 det()     #行列式，方阵
 x%*%y     #向量内积
 x%o%y#向量外积
 
+
 A=array(1:9,dim=c(3,3))
 A*A    #这个代表矩阵内两两子元素相乘
 A%*%A #才是我们想要的结果
 crossprod(A,A)    #等于t(A)%*%A
-crossprod(t(A),A) #等于A%*%A，所以需要t（A）一下`
+crossprod(t(A),A) #等于A%*%A，所以需要t（A）一下
+```
+
+
+
+
 
 |t|矩阵转置|
+|----|----|
 |rowsum|行求和|
 |colsum|列求和|
 |rowmeans|行平均|
 |colmeans|列平均|
 |solve|对线性方程求解或求矩阵的逆|
 |diag|对角阵|
+
 # 6、因子
-`##因子（≈文本+数字的组合）
+
+
+
+```
+##因子（≈文本+数字的组合）
 #SPSS中值标签定义有异曲同工之妙
 M=factor(iris$setosa,levels=c(1,0),labels=c("M","F"));M  #能够转化因子格式+定义值标签
-M=as.factor(iris$setosa);M #上面的函数更有效，因为as.factor只能转化成因子格式`
+M=as.factor(iris$setosa);M #上面的函数更有效，因为as.factor只能转化成因子格式
+```
 
-# 7、
-# 输入输出
+
+
+
+# 7、输入输出
+
+
 |library|加载包|
+|----|----|
 |data|加载制定数据集|
 |load|加载save或者save.image保存的数据|
 |read.table|读取表格|
@@ -193,14 +324,24 @@ M=as.factor(iris$setosa);M #上面的函数更有效，因为as.factor只能转�
 |print|输出屏幕|
 |format|格式化|
 
+
 # 8、逻辑运算
 
+
+
+
 |!x|逻辑非|
+|----|----|
 |x & y|逻辑与|
 |x && y|逻辑与（仅匹配并返回第一个值）|
 |x | y|逻辑或|
 |x || y|逻辑或（仅返回第一个值）|
 |x or (x,y)|异或|
+
+
+
+
+
 
 
 

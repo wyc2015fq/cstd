@@ -1,5 +1,20 @@
 # 运筹系列5：凸优化、拉格朗日乘子法、KKT条件 - kittyzc的博客 - CSDN博客
-2018年08月15日 18:18:13[IE06](https://me.csdn.net/kittyzc)阅读数：405所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年08月15日 18:18:13[IE06](https://me.csdn.net/kittyzc)阅读数：411
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
+
 # 1. 从线性规划到凸优化
 
 线性规划相对比较简单，比如：
@@ -227,6 +242,9 @@ min L = x^2 + λ*(x+1)
 若$λ = 0$，由(1)得到$x = 0$，不满足(2)； 
 
 若$λ ≠ 0$，由(3)得到$x = -1$，由(1)得到$λ = 2$，满足所有4个条件，此时最优值$y = 1$。
+
+
+
 
 
 

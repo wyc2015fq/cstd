@@ -57,6 +57,9 @@ def save_txt_td(root, t, d):
         return
     if len(d)<2:
         return
+    if t.find('随笔列表第')>0:
+        return
+
     name=''
     ttt = root
     delimt=' - '
@@ -65,8 +68,8 @@ def save_txt_td(root, t, d):
     cc = t.count(delimt)
     t = t.replace('/', ' ').replace('\\', ' ').replace('*', ' ').replace('?', ' ')
     t = t.replace('.', ' ').replace('|', ' ').replace('"', ' ')
-    t = t.replace(':', ' ')
-    t = t.replace('~', ' ')
+    t = t.replace(':', ' ').replace('>', ' ').replace('<', ' ')
+    t = t.replace('~', ' ').replace('"', ' ').replace('\t', ' ')
     t = t.replace('  ', ' ')
     if cc>=2:
         t = t.replace(delimt, '/')

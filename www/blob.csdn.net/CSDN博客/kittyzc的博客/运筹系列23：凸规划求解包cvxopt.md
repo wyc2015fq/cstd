@@ -1,5 +1,19 @@
 # 运筹系列23：凸规划求解包cvxopt - kittyzc的博客 - CSDN博客
-2019年04月09日 14:59:52[IE06](https://me.csdn.net/kittyzc)阅读数：14个人分类：[算法																[运筹学](https://blog.csdn.net/kittyzc/article/category/7940150)](https://blog.csdn.net/kittyzc/article/category/7940151)
+
+
+
+
+
+2019年04月09日 14:59:52[IE06](https://me.csdn.net/kittyzc)阅读数：20
+个人分类：[算法																[运筹学](https://blog.csdn.net/kittyzc/article/category/7940150)](https://blog.csdn.net/kittyzc/article/category/7940151)
+
+
+
+
+
+
+
+
 # 1. 软件介绍
 
 ## 1.1 安装
@@ -168,6 +182,10 @@ print(sol['primal objective'])
 ```
 
 更多例子可以参考 [http://cvxopt.org/examples/index.html](http://cvxopt.org/examples/index.html)
+
+
+
+
 
 
 

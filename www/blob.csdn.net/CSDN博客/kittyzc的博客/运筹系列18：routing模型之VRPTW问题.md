@@ -1,5 +1,20 @@
 # 运筹系列18：routing模型之VRPTW问题 - kittyzc的博客 - CSDN博客
-2018年11月21日 14:18:15[IE06](https://me.csdn.net/kittyzc)阅读数：573所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年11月21日 14:18:15[IE06](https://me.csdn.net/kittyzc)阅读数：595
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
+
 # 1. 问题模型
 
 当VRP问题有到达时间的约束条件时，问题变为VRPTW（VRP with Time Windows）。
@@ -26,7 +41,8 @@ time_var = time_dimension.CumulVar(index)
 
 完整代码如下：
 ```python
-"""Capacitated Vehicle Routing Problem with Time Windows (CVRPTW)."""
+"""Capacitated Vehicle Routing Problem with Time Windows (CVRPTW).
+"""
 from __future__ import print_function
 from ortools.constraint_solver import pywrapcp
 from ortools.constraint_solver import routing_enums_pb2
@@ -255,4 +271,7 @@ if __name__ == '__main__':
 输出为：
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20181121141716175.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2tpdHR5emM=,size_16,color_FFFFFF,t_70)
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20181121105053841.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2tpdHR5emM=,size_16,color_FFFFFF,t_70)
+
+
+
 

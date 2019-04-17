@@ -1,0 +1,134 @@
+# 深度学习菜鸟的信仰地︱Supervessel超能云服务器、深度学习环境全配置 - 素质云笔记/Recorder... - CSDN博客
+
+
+
+
+
+2017年01月05日 15:22:09[悟乙己](https://me.csdn.net/sinat_26917383)阅读数：6366
+
+
+
+
+
+
+
+
+> 
+并非广告~实在是太良心了，所以费时间给他们点赞一下~ 
+
+  SuperVessel云平台是IBM中国研究院和中国系统与技术中心基于POWER架构和OpenStack技术共同构建的， 
+
+  支持开发者远程开发的免费科研云平台。除支持虚拟机和容器服务外还提供：大数据Hadoop，Spark开发环境、Python科学计算开发环境（可替代Matlab）、Java 
+
+  Eclipse/Bluefish运行环境、C/C++运行环境
+只需任意一个邮箱，1分钟就可以申请到服务器，没见过更快的了…使用之后觉得不足之处：
+- 1、由于公益项目，社区也不够壮大，服务器不是那么稳定，会出现登录不上等问题（QQ讨论群344373069）
+- 2、一些功能需要设置VPN才能实现，当然啦，这点代价也还好，就是笔者在测试的时候发现连接了VPN有些功能还实现不了
+- 3、开发文档较少，出现问题很难得到解答；
+
+相关博文内容： 
+
+ - 1、[学习笔记︱Nvidia DIGITS网页版深度学习框架——深度学习版SPSS](http://blog.csdn.net/sinat_26917383/article/details/54022715)
+
+ - 2、[supervessel-免费云镜像︱GPU加速的Caffe深度学习开发环境](http://blog.csdn.net/sinat_26917383/article/details/53940741)
+# 一、GPU配置
+
+SuperVessel的云端GPU共享技术为全球首发，**它基于POWER 8处理器和NVIDIA® Tesla® K40 GPU加速器的异构计算系统。**Tesla K40是Tesla加速计算平台的高端加速器，可以向用户提供超级计算级的性能，满足各种严苛的HPC应用需求。 
+
+NVIDIA所推出的cuDNN（CUDA深度神经网络库）可以被集成到各个主流深度学习框架中以提供GPU加速支持，其中就包括此次SuperVessel超能云GPU加速服务提供的Caffe、Torch、Theano框架，助研究人员实现更加高效的深度学习模型训练。
+
+# 二、已有的深度学习框架
+
+Supervessel超能云服务器，已经配置好了框架，可以直接上手试用。而且现在有了DIGITS，现在有以下五款带GPU深度学习配置：
+- 1、GPU加速的TensorFlow 深度学习环境 
+- 2、GPU加速的Caffe深度学习开发环境 
+- 3、GPU Accelerated Caffe+DIGITS Deep Learning Development Environment
+- 4、GPU Accelerated Theano Machine Learning Development Environment
+- 5、GPU Accelerated Torch7 Machine Learning Development Environment
+
+# 三、关于蓝点
+
+> 
+**公益归公益，也不能一味的全免费。这个云服务器也有消耗积分一类的，就是蓝点啦。**
+
+
+蓝点最开始有500点，建立镜像要消耗，每天开着也是要消耗的，所以没事就把服务器关一下。 
+
+为了更加有效地利用SuperVessel超能云的资源，我们采取了蓝点系统来调节用户的使用行为。每一项服务都将消耗用户的蓝点，当蓝点耗尽后，用户将无法再使用超能云的服务。
+
+但用户可通过以下方法获得蓝点补充： 
+
+•   * * 可将您在SuperVessel上的注册账号发给help@ptopenlab.com，说明申请蓝点，即可获得。 
+
+•   * * 如果您加入了超能云技术支持QQ群（344373069），可联系管理员获得蓝点。
+# 四、官方案例资料
+
+1、CIFAR10分类，CIFAR10相对比较简单，是由60000张32X32像素的彩色图片组成，分为10类，每类含6000张图片。这10类图片分别是飞机、车、鸟、猫、鹿、狗、青蛙、马、船和卡车。 
+
+链接：跟我上手深度学习: 五分钟尝试第一个深度学习(Caffe)训练和图像分类(详细图文步骤) 
+[https://my.oschina.net/u/1431433/blog/687393](https://my.oschina.net/u/1431433/blog/687393)
+2、GPU加速的Caffe+DIGITS可视化深度学习开发环境 
+[https://services.ptopenlab.com/mediawiki/index.php/GPU%E5%8A%A0%E9%80%9F%E7%9A%84Caffe%2BDIGITS%E5%8F%AF%E8%A7%86%E5%8C%96%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83](https://services.ptopenlab.com/mediawiki/index.php/GPU%E5%8A%A0%E9%80%9F%E7%9A%84Caffe%2BDIGITS%E5%8F%AF%E8%A7%86%E5%8C%96%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83)
+
+3、入门配置篇：超能云 (SuperVessel Cloud) – 使用入门篇 （专供开发者的免费虚拟机资源） 
+[https://my.oschina.net/u/1431433/blog/380643](https://my.oschina.net/u/1431433/blog/380643)
+
+4、GPU加速的Torch深度学习开发环境 
+[https://services.ptopenlab.com/mediawiki/index.php/GPU%E5%8A%A0%E9%80%9F%E7%9A%84Torch%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83](https://services.ptopenlab.com/mediawiki/index.php/GPU%E5%8A%A0%E9%80%9F%E7%9A%84Torch%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83)
+
+5、GPU加速的Theano深度学习开发环境 
+[https://services.ptopenlab.com/mediawiki/index.php/GPU%E5%8A%A0%E9%80%9F%E7%9A%84Theano%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83](https://services.ptopenlab.com/mediawiki/index.php/GPU%E5%8A%A0%E9%80%9F%E7%9A%84Theano%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83)
+
+6、GPU加速的TensorFlow深度学习开发环境 
+[https://services.ptopenlab.com/mediawiki/index.php/GPU%E5%8A%A0%E9%80%9F%E7%9A%84TensorFlow%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83](https://services.ptopenlab.com/mediawiki/index.php/GPU%E5%8A%A0%E9%80%9F%E7%9A%84TensorFlow%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83)
+
+用户手册界面：[https://services.ptopenlab.com/mediawiki/index.php/Main_Page](https://services.ptopenlab.com/mediawiki/index.php/Main_Page)
+## 参考资料：
+- 1、重磅发布!GPU加速服务来到SuperVessel超能云平台 
+[http://www.qiuzhi5.com/16/2015/1125/100553.html](http://www.qiuzhi5.com/16/2015/1125/100553.html)
+- 2、VPN设置：[https://services.ptopenlab.com/mediawiki/index.php/VPN%E7%9A%84%E4%BD%BF%E7%94%A8](https://services.ptopenlab.com/mediawiki/index.php/VPN%E7%9A%84%E4%BD%BF%E7%94%A8)
+
+.
+
+# 延伸一：如果用supervessel结合notebook更好地来进行训练
+
+转载于：[穷人怎么玩tensorflow](http://hacker.duanshishi.com/?p=1306&from=groupmessage&isappinstalled=1)
+
+但是在ssh窗口下去用vi来写python代码总觉得有点怪怪的，能不能好好利用下iptyhon notebook这个神器呢？把notebook启动成服务，然后在远程浏览器中来做操作。
+
+安装ipython, ipython-notebook:
+
+sudo apt-get install ipython
+
+sudo apt-get install ipython-notebook
+
+然后，我们创建一个nbserver配置文件： 
+![这里写图片描述](http://blogburness1-wordpress.stor.sinaapp.com/uploads/2015/12/NewImage55.png)
+
+会提示在对应目录下有python_notebook_config.py这个文件，进入更改其中的 
+![这里写图片描述](http://blogburness1-wordpress.stor.sinaapp.com/uploads/2016/02/INewImage-1.png)
+然后启动ipython notebook —profile=nbserver
+
+这样我们在本机浏览器中就可以进入到神奇的notebook画面：
+
+![这里写图片描述](http://blogburness1-wordpress.stor.sinaapp.com/uploads/2015/12/NewImage56.png)
+
+然后，把本机上的代码scp到我们的云主机上: 
+![这里写图片描述](http://blogburness1-wordpress.stor.sinaapp.com/uploads/2015/12/NewImage57.png)
+
+我们直接从notebook上调用，job成功运行，因为有些路径的问题，懒得去改就不在notebook上写上代码了，这个也是很容易做的，可是晚上11点半了 好冷就不搞了
+对比下主机和云主机上搭配GPU的速度对比，速度提升了8倍左右，如果再增加代码中得迭代数量，应该会提升更快，因为在gpu上其实多耗费了一点从内存拷贝到gpu的过程，这里就不测试了，本机器跑个2w次还是很慢的： 
+![这里写图片描述](http://blogburness1-wordpress.stor.sinaapp.com/uploads/2015/12/NewImage46.png)
+![这里写图片描述](http://blogburness1-wordpress.stor.sinaapp.com/uploads/2015/12/NewImage58.png)
+
+
+
+
+
+
+
+
+
+
+
+

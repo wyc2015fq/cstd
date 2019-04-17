@@ -1,5 +1,20 @@
 # 运筹系列10：线性规划开源软件GLPK和PyMathProg - kittyzc的博客 - CSDN博客
-2018年09月21日 19:52:44[IE06](https://me.csdn.net/kittyzc)阅读数：958所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+2018年09月21日 19:52:44[IE06](https://me.csdn.net/kittyzc)阅读数：977
+所属专栏：[运筹学算法python实现](https://blog.csdn.net/column/details/26511.html)
+
+
+
+
+
+
+
+
+
 # 1. GLPK
 
 GLPK全称GNU Linear Programming Kit，是一个开源的求解线性规划问题的工具套件，由c写成，可以求解大规模线性规划问题、混合整数规划问题。GLPK是免费的，在大规模问题上的性能要逊色于商用软件，求解的性能可以参考安装文件doc目录下的miplib2.txt，miplib3.txt和netlib.txt这三个文件，下面是截图：
@@ -151,4 +166,7 @@ for n, ntr in enumerate(nutrit):
 ```
 
 点击[这里](http://pymprog.sourceforge.net/advanced.html)可以参考更多例子。
+
+
+
 

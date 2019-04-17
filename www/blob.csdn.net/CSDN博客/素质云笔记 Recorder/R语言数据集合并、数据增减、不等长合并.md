@@ -1,16 +1,35 @@
+# R语言数据集合并、数据增减、不等长合并 - 素质云笔记/Recorder... - CSDN博客
 
-# R语言数据集合并、数据增减、不等长合并 - 素质云笔记-Recorder... - CSDN博客
 
-2016年02月16日 21:51:40[悟乙己](https://me.csdn.net/sinat_26917383)阅读数：64057所属专栏：[R的数据操作与清洗](https://blog.csdn.net/column/details/13587.html)
+
+
+
+2016年02月16日 21:51:40[悟乙己](https://me.csdn.net/sinat_26917383)阅读数：64509
+所属专栏：[R的数据操作与清洗](https://blog.csdn.net/column/details/13587.html)
+
+
+
+
+
+
+
+
+
 
 
 
 
 **每每以为攀得众山小，可、每每又切实来到起点，大牛们，缓缓脚步来俺笔记葩分享一下吧，please~**![](https://img-blog.csdn.net/20161213101203247)
+
+
 ———————————————————————————
+
+
+
 
 数据选取与简单操作：
 |which|返回一个向量中指定元素的索引|
+|----|----|
 |which.max|返回最大元素的索引|
 |which.min|返回最小元素的索引|
 |sample|随机在向量中抽取元素|
@@ -25,19 +44,32 @@
 |cbind|列合并|
 |merge|按照指定列合并矩阵或者数据框|
 
+
 # 一、数据合并
+
 ## 1、merge()函数
+
 最常用merge()函数，但是这个函数使用时候这两种情况需要注意：
+
 1、merge(a,b)，纯粹地把两个数据集合在一起，没有沟通a、b数据集的by，这样出现的数据很多，相当于a*b条数据；
+
 2、merge函数是匹配到a,b数据集的并，都有的才匹配出来，如果a、b数据集ID不同，要用all=T（下面有all用法的代码）。
-`#横向合并
+
+
+
+```
+#横向合并
 ID<-c(1,2,3,4)
 name<-c("Jim","Tony","Lisa","Tom")
 score<-c(89,22,78,78)
 student1<-data.frame(ID,name)
 student2<-data.frame(ID,score)
 total_student<-merge(student1,student2,by="ID")  #或者rbind()
-total_student``#纵向合并
+total_student
+```
+
+```
+#纵向合并
 ID<-c(1,2,3)
 name<-c("Jame","Kevin","Sunny")
 student1<-data.frame(ID,name)
@@ -45,9 +77,16 @@ ID<-c(4,5,6)
 name<-c("Sun","Frame","Eric")
 student2<-data.frame(ID,name)
 total<-cbind(student1,student2)
-total`
+total
+```
+
+
 merge的all用法
-`> id=c("1","2","3")
+
+
+
+```
+> id=c("1","2","3")
 > M=c("7","2","3")
 > ink2=data.frame(id,M)
 > 
@@ -60,66 +99,155 @@ merge的all用法
 > merge(ink1,ink2,by="id",all=F)  #默认，只取两者的共有的部分
   id R M
 1  1 9 7
-2  2 7 2`其中，all=T代表全连接，all.x=T代表左联结；all.y=T代表右连接
+2  2 7 2
+```
+其中，all=T代表全连接，all.x=T代表左联结；all.y=T代表右连接
+
+
+
+
+
 
 
 ## 2、dplyr包
+
+
+
 dplyr包的数据合并，
+
 一般用left_join(x,y,by="name")  以x为主，y中匹配到的都放进来， 但，y中没有的则不放过来。
+
 需要这个x数据集是全集，比较大。
+
 ![](https://img-blog.csdn.net/20160607113432048)
+
+
+
+
 
 ![](https://img-blog.csdn.net/20160607113442673)
 
 
 
+
+
+
+
+
 ## [3、paste函数](http://blog.csdn.net/sinat_26917383/article/details/51182219)
+
 生成一长串字符向量。
+
+
 `paste(c("X","Y"),1:10,sep="")      #"X”,"Y"是长度为2的字符向量,1:10 长度为10的向量。命令是让这两个向量粘合在一起生成新的字符串向量，粘合后的新字符之间没有间隔。`
-`#—————————paste中seq与collapse区别————————————————————
+
+```
+#—————————paste中seq与collapse区别————————————————————
 a = c(1, 2, 3, 4, 5)
 names(a) = c('m', 'n','o', 'p', 'q')
 # 主要是区分使用sep和collapse
 b = paste(a, names(a), sep = "/")          #不同向量合并在一起，但是还是各自向量
 c = paste(b, collapse = ",")               #不同向量合并在一起，但是变成一个向量
 mode(b) #变量类型
-mode(c)`
+mode(c)
+```
+
+
+
+
 
 ## 4、cbind和rbind函数
 
 
+
+
+
+
+
 cbind()和rbind()，cbind()按照纵向方向，或者说按列的方式将矩阵连接到一起。
+
 rbind()按照横向的方向，或者说按行的方式将矩阵连接到一起
+
+
+
 rbind/cbind对数据合并的要求比较严格：合并的变量名必须一致；数据等长；指标顺序必须一致。相比来说，其他一些方法要好一些，有dplyr，sqldf中的union
+
+
+
 
 ## 5、sqldf包
 
-利用SQL语句来写，进行数据合并，适合数据库熟悉的人，可参考：
-# R语言︱ 数据库SQL-R连接与SQL语句执行（RODBC、sqldf包）
+
+
+
+利用SQL语句来写，进行数据合并，适合数据库熟悉的人，可参考： 
+
+# [R语言︱ 数据库SQL-R连接与SQL语句执行（RODBC、sqldf包）](http://blog.csdn.net/sinat_26917383/article/details/51601539)
+
+
+
+
+
+
 
 
 # 二、数据增减
 
+
+
+
 `x=x[,-1]  #这个就代表，删除了x数据集中第一列数据`
 或用dplyr包中的mutate函数
-`a=mutate(Hdma_dat,dou=2*survived,dou4=4*survived) 
+
+
+
+
+```
+a=mutate(Hdma_dat,dou=2*survived,dou4=4*survived) 
 Hdma_dat$dou=a$dou
-Hdma_dat$dou4=a$dou4   #两个新序列，加入到Hdma数据集汇总`
+Hdma_dat$dou4=a$dou4   #两个新序列，加入到Hdma数据集汇总
+```
+
+
+
+
 筛选变量服从某值的子集
-`subset(airquality, Temp > 80, select = c(Ozone, Temp))
+
+
+
+```
+subset(airquality, Temp > 80, select = c(Ozone, Temp))
 subset(airquality, Day == 1, select = -Temp)
-subset(airquality, select = Ozone:Wind)`
+subset(airquality, select = Ozone:Wind)
+```
+
+
+
 
 # 三、数据纵横加总
+
 R使用rowSums函数对行求和，使用colSums函数对列求和。
+
+
+
+
+
 
 
 
 # 四、不等长合并
 
+
+
+
 1、plyr包
+
 rbind.fill函数可以很好将数据进行合并，并且补齐没有匹配到的缺失值为NA。
-`#————————————————————————————不等长合并
+
+
+
+```
+#————————————————————————————不等长合并
 #如何解决合并时数据不等长问题——两种方法：do.call函数以及rbind.fill函数（plyr包）
 #rbind.fill函数只能合并数据框格式
 #do.call函数在数据框中执行函数（函数，数据列）
@@ -130,18 +258,38 @@ list1[[1]]=data.frame(t(data.frame(Job_Pwordseg.ct[1])))
 list1[[2]]=data.frame(t(data.frame(Job_Pwordseg.ct[2])))
 do.call(rbind.fill,list1)
 #第二种方法
-u=rbind.fill(data.frame(t(data.frame(Job_Pwordseg.ct[1]))),data.frame(t(data.frame(Job_Pwordseg.ct[2]))))`核心函数是plyr包中的rbind.fill函数（合并的数据，必须是data.frame），do.call可以用来批量执行。（[do.call用法](http://bbs.pinggu.org/thread-3802000-1-1.html)）
+u=rbind.fill(data.frame(t(data.frame(Job_Pwordseg.ct[1]))),data.frame(t(data.frame(Job_Pwordseg.ct[2]))))
+```
+核心函数是plyr包中的rbind.fill函数（合并的数据，必须是data.frame），do.call可以用来批量执行。（[do.call用法](http://bbs.pinggu.org/thread-3802000-1-1.html)）
+
+
+
 
 关于do.call其他用法（R语言 函数do.call()使用 ）
+
+
+
 有一个list，想把里面的所有元素相加求和。发现了两个很有意思的函数
+
 list <- list(matrix(1:25, ncol = 5), matrix(4:28, ncol = 5), matrix(21:45, ncol=5))
+
 list.sum<-do.call(sum,list)
-list.sum<-do.call(cbind,list)
+
+list.sum<-do.call(cbind,list)  
+
 do.call()是告诉list一个函数，然后list里的所有元素来执行这个函数。
 
+
+
+
 2、dplyr包
+
 dplyr::bind_rows()
-`mpg   cyl    hp  drat    wt  qsec    vs    am  gear  carb  disp
+
+
+
+```
+mpg   cyl    hp  drat    wt  qsec    vs    am  gear  carb  disp
   (dbl) (dbl) (dbl) (dbl) (dbl) (dbl) (dbl) (dbl) (dbl) (dbl) (dbl)
 1  21.0     6   110  3.90 2.620 16.46     0     1     4     4    NA
 2  21.0     6   110  3.90 2.875 17.02     0     1     4     4    NA
@@ -150,10 +298,21 @@ dplyr::bind_rows()
 5  17.8     6   123  3.92 3.440 18.90     1     0     4     4 167.6
 6  16.4     8   180  3.07 4.070 17.40     0     0     3     3 275.8
 7  17.3     8   180  3.07 3.730 17.60     0     0     3     3 275.8
-8  15.2     8   180  3.07 3.780 18.00     0     0     3     3 275.8`
+8  15.2     8   180  3.07 3.780 18.00     0     0     3     3 275.8
+```
+
 效果是，不匹配到的放在最后，且等于NA  NA  NA  NA
 
+
+
+
+
+
 **每每以为攀得众山小，可、每每又切实来到起点，大牛们，缓缓脚步来俺笔记葩分享一下吧，please~**![](https://img-blog.csdn.net/20161213101203247)
+
+
 ———————————————————————————
+
+
 
 

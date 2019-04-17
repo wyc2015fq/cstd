@@ -1,59 +1,122 @@
-# 从 "org.apache.hadoop.security.AccessControlException:Permission denied: user=..." 看Hadoop 的用户登陆认证 - 我相信...... - CSDN博客
+# 2018年全国多校算法寒假训练营练习比赛（第二场）A	吐泡泡 - westbrook1998的博客 - CSDN博客
 
 
 
 
 
-2016年04月19日 20:36:47[半吊子全栈工匠](https://me.csdn.net/wireless_com)阅读数：18047
+2018年05月04日 20:40:45[westbrook1998](https://me.csdn.net/westbrook1998)阅读数：63标签：[算法																[模拟																[字符串](https://so.csdn.net/so/search/s.do?q=字符串&t=blog)
+个人分类：[ACM练习赛																[牛客网](https://blog.csdn.net/westbrook1998/article/category/7740908)](https://blog.csdn.net/westbrook1998/article/category/7635377)
 
 
 
 
 
+算是字符串的处理，踩了一些坑
+
+> 
+题目描述  
+
+  小鱼儿吐泡泡，嘟嘟嘟冒出来。小鱼儿会吐出两种泡泡：大泡泡”O”，小泡泡”o”。 
+
+  两个相邻的小泡泡会融成一个大泡泡,两个相邻的大泡泡会爆掉。 
+
+  （是的你没看错，小气泡和大气泡不会产生任何变化的，原因我也不知道。） 
+
+  例如:ooOOoooO经过一段时间以后会变成oO。
+> 
+输入描述: 
+
+  数据有多组，处理到文件结束。 
+
+  每组输入包含一行仅有’O’与’o’组成的字符串。
+> 
+输出描述: 
+
+  每组输出仅包含一行，输出一行字符串代表小鱼儿吐出的泡泡经过融合以后所剩余的泡泡。
 
 
+> 
+示例1 
 
-如果远程提交任务给Hadoop 可能会遇到 "org.apache.hadoop.security.AccessControlException:Permission denied: user=..." ， 当然，如果是spark over YARN， 也同样会遇到类似的问题，例如：
+  输入 
 
+  ooOOoooO 
 
+  输出 
 
- An error occurred while calling None.org.apache.spark.api.java.JavaSparkContext.
+  oO
+> 
+说明 
 
-: org.apache.hadoop.security.AccessControlException: Permission denied: user=abel, access=WRITE, inode="/user/abel/.sparkStaging/application_1460633311001_0032":hdfs:hdfs:drwxr-xr-x
-
-
-
-
-hadoop 的用户鉴权是基于JAAS的，其中hadoop.security.authentication属性 有simple 和kerberos 等方式。如果hadoop.security.authentication等于”kerberos”,那么是“hadoop-user-kerberos”或者“hadoop-keytab-kerberos”，否则是“hadoop-simple”。 当用户登陆的时候，若org.apache.hadoop.security.User为空，那么说明尚未登录过，调用静态方法getLoginUser()创建org.apache.hadoop.security.UserGroupInformatio实例，在getLoginUser（）中又会调用HadoopLoginModule的login()和commit()方法。
-
-
-
-
-在使用了kerberos的情况下，从javax.security.auth.kerberos.KerberosPrincipal的实例获取username。在没有使用kerberos时，首先读取hadoop 的系统环境变量，如果没有的话，对于windows 从com.sun.security.auth.NTUserPrincipal 获取用户名，对于类unix 从com.sun.security.auth.UnixPrincipal 中获得用户名，然后再看该用户属于哪个group，从而完成登陆认证。
+  自左到右进行合并
 
 
+> 
+备注: 
 
+  对于100%的数据， 
 
+  字符串的长度不超过100。
+代码：
 
-基本理解了问题的根源，那么这个“org.apache.hadoop.security.AccessControlException:Permission denied: user=...”异常信息是怎么产生的呢？远程提交，如果没有hadoop 的系统环境变量，就会读取当前主机的用户名，结果Hadoop集群中没有该用户，所以杯具了。
+```cpp
+#include <cstdio>
+#include <algorithm>
+#include <string>
+#include <cstring>
+using namespace std;
+char s[101];
+void printS(char* s,int len){
+    for(int i=0;i<len;i++){
+        printf("%c",s[i]);
+    }
+    printf("\n");
+}
+int main(void){
+    while(scanf("%s",s)!=EOF){
+        for(int i=0;i<strlen(s);i++){
+            if(s[i]=='o'){
+                int j=i;
+                while(s[j+1]=='x'){
+                    j++;
+                }
+                if(s[j+1]=='o'){
+                    s[i]='x';
+                    s[j+1]='O';
+                    i=-1;
+                    //printS(s,strlen(s));
+                    continue;
+                }
+            }
+            if(s[i]=='O'){
+                int j=i;
+                while(s[j+1]=='x'){
+                    j++;
+                }
+                if(s[j+1]=='O'){
+                    s[i]='x';
+                    s[j+1]='x';
+                    i=-1;
+                    //printS(s,strlen(s));
+                    continue;
+                }
+            }
+            else{
+                continue;
+            }
+        }
+        for(int i=0;i<strlen(s);i++){
+            if(s[i]!='x'){
+                printf("%c",s[i]);
+            }
+        }
+        printf("\n");
+    }
+    return 0;
+}
+```
 
-
-
-
-至于问题的解决，以mac 为例， 将
-
-export HADOOP_USER_NAME ＝ hdfs 
-
-添加到 ~/.bash_profile 中，
-
- $ source  ~/.bash_profile 
-
-
-
-
-接下来，继续提交任务到 hadoop 集群，everything is OK。 
-
-
+思路其实就是按泡泡的合并和爆炸模拟一遍，因为字符串也不大（100），然后合并或者爆炸之后剩下的坑就用一个x字符代替，不用去移动数组，然后每次出现操作之后把i重置再重新遍历一遍，这里应该可以不用重置到开头，没再细想了，然后最后就是说一下坑，，不是o和0 是o和大O…我怎么一看题就老是觉得它是0呢…](https://so.csdn.net/so/search/s.do?q=模拟&t=blog)](https://so.csdn.net/so/search/s.do?q=算法&t=blog)
 
 
 

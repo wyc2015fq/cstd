@@ -1,5 +1,20 @@
 # python调用soa服务 - kittyzc的博客 - CSDN博客
-2018年10月15日 09:32:21[IE06](https://me.csdn.net/kittyzc)阅读数：215所属专栏：[python小tips](https://blog.csdn.net/column/details/31935.html)
+
+
+
+
+
+2018年10月15日 09:32:21[IE06](https://me.csdn.net/kittyzc)阅读数：218
+所属专栏：[python小tips](https://blog.csdn.net/column/details/31935.html)
+
+
+
+
+
+
+
+
+
 公司项目需要调用基于soa接口的服务，几个技术人员用java配置了一整天都没有搞定，最后一怒之后我自己把要调用的功能重写了一遍。最近用python试了一下，结果一行代码就搞定了，真是感慨万千。
 
 # 1. SOA
@@ -89,3 +104,6 @@ print server.add(1,2)
 ```
 3
 ```
+
+
+

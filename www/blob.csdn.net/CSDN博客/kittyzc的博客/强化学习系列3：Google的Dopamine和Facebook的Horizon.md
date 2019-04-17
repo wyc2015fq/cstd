@@ -1,5 +1,20 @@
 # 强化学习系列3：Google的Dopamine和Facebook的Horizon - kittyzc的博客 - CSDN博客
-2018年11月28日 21:06:01[IE06](https://me.csdn.net/kittyzc)阅读数：374所属专栏：[强化学习系列](https://blog.csdn.net/column/details/33845.html)
+
+
+
+
+
+2018年11月28日 21:06:01[IE06](https://me.csdn.net/kittyzc)阅读数：384
+所属专栏：[强化学习系列](https://blog.csdn.net/column/details/33845.html)
+
+
+
+
+
+
+
+
+
 # 1. 简介
 
 除了OpenAI，还有其他巨头在做强化学习的工作（尤其是深度强化学习），这里介绍Google和Facebook两家开源的工程，分别是Dopamine和Horizon，Github上地址分别为：[https://github.com/google/dopamine](https://github.com/google/dopamine) 和 [https://github.com/facebookresearch/Horizon](https://github.com/facebookresearch/Horizon)
@@ -30,12 +45,8 @@ Implicit Quantile Networks（ICML 2018）：
 [https://arxiv.org/abs/1806.06923](https://arxiv.org/abs/1806.06923)
 
 Google自己有一个[Colabs](https://colab.research.google.com/notebooks/welcome.ipynb)项目，是一个在云端运行的免费的 Jupyter 笔记本环境，不需要进行任何设置就可以使用。Dopamine的colab文件夹下，有很多文件可供参考：
-[```
-utils.py
-```](https://github.com/google/dopamine/blob/master/dopamine/colab/utils.py)包含了进行实验展示的一系列方法。
-[agents.ipyn](https://colab.research.google.com/github/google/dopamine/blob/master/dopamine/colab/agents.ipynb)介绍了如何创建[```
-DQN
-```](https://github.com/google/dopamine/blob/master/dopamine/agents/dqn/dqn_agent.py) agent或者新建一个agent。
+[`utils.py`](https://github.com/google/dopamine/blob/master/dopamine/colab/utils.py)包含了进行实验展示的一系列方法。
+[agents.ipyn](https://colab.research.google.com/github/google/dopamine/blob/master/dopamine/colab/agents.ipynb)介绍了如何创建[`DQN`](https://github.com/google/dopamine/blob/master/dopamine/agents/dqn/dqn_agent.py) agent或者新建一个agent。
 [load_statistics.ipynb](https://colab.research.google.com/github/google/dopamine/blob/master/dopamine/colab/load_statistics.ipynb) 介绍了对统计数据进行加载和分析。
 [tensorboard.ipynb](https://colab.research.google.com/github/google/dopamine/blob/master/dopamine/colab/tensorboard.ipynb)介绍了使用tensorboard进行图形化。
 [cartpole.ipynb](https://colab.research.google.com/github/google/dopamine/blob/master/dopamine/colab/cartpole.ipynb)介绍了使用DQN和C51对Cartpole进行训练的例子。
@@ -86,6 +97,9 @@ Horizon和AlphaGo相比主要的特点是：从工程师指定的动作集合里
 - Soft Actor-Critic (SAC)
 
 前面3个是值函数法，后面2个是策略梯度法。
+
+
+
 
 
 
