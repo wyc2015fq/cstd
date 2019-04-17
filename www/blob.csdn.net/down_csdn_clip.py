@@ -1,6 +1,6 @@
 
 from down import *
-from htmltree import *
+from htm2md import *
 import sys
 
 if __name__ == '__main__':

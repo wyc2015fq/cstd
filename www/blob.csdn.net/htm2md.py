@@ -1,300 +1,600 @@
-import os
-
-MARKDOWN = {
-    'h1': ('\n# ', ''),
-    'h2': ('\n## ', ''),
-    'h3': ('\n### ', ''),
-    'h4': ('\n#### ', ''),
-    'h5': ('\n##### ', ''),
-    'h6': ('\n###### ', ''),
-    'ul': ('', ''),
-    'ol': ('', ''),
-    'li': ('- ', ''),
-    'blockquote': ('\n> ', '\n'),
-    'em': ('*', '*'),
-    'strong': ('**', '**'),
-    'b': ('**', '**'),
-    'i': ('*', '*'),
-    'del': ('~~', '~~'),
-    'td': ('|', ''),
-    'th': ('|', ''),
-    'span-katex-inline': ('$', '$'),
-    'span-katex-display': ('\n$$\n', '\n$$\n'),
-    'code-inline': ('`', '`'),
-    'code-unkown': ('\n```\n', '\n```\n'),
-    'code-python': ('\n```python\n', '\n```\n'),
-    'code-php': ('\n```php\n', '\n```\n'),
-    'code-java': ('\n```java\n', '\n```\n'),
-    'code-cpp': ('\n```cpp\n', '\n```\n'),
-    'code-matlab': ('\n```matlab\n', '\n```\n'),
-    'code-bash': ('\n```bash\n', '\n```\n'),
-    'e_p': ('', '\n')
-}
-# coding = utf-8
-def clearBlankLine():
-    file1 = open('text1.txt', 'r', encoding='utf-8') # ÒªÈ¥µô¿ÕÐÐµÄÎÄ¼þ
-    file2 = open('text2.txt', 'w', encoding='utf-8') # Éú³ÉÃ»ÓÐ¿ÕÐÐµÄÎÄ¼þ
-    try:
-        for line in file1.readlines():
-            if line == '\n':
-                line = line.strip("\n")
-            file2.write(line)
-    finally:
-        file1.close()
-        file2.close()
-
-
-# katex--inline
-# katex--display
+ï»¿import os
+import html
 from html.parser import HTMLParser
+
+
 class MyHTMLParser(HTMLParser):
     def __init__(self):
         HTMLParser.__init__(self)
-        self.all_tag_stack = [('',{'attr':''})]
-        self.skip_stack=[0]
-        self.markdown=''
-        self.is_end = 0
-        self.title = ''
-        self.cols=0
+        self.jj=[]
+        self.ind=0
+        self.jj.append({'ind':self.ind, 'tag':'text', 'attrs':{'data':''}})
+        self.tag_stack=['']
+        self.ind=1
 
     def handle_starttag(self, tag, attrs):
-        #print "Encountered the beginning of a %s tag" % tag
+        self.tag_stack.append((tag, self.ind))
         attrs_dict={}
         for attr in attrs:
             attrs_dict[attr[0]]=attr[1]
-
-        attr = {'attr':''}
-        if 'tr'==tag:
-            self.cols=0
-        if 'th'==tag:
-            self.cols+=1
-
-        if 'title' ==tag:
-            attr['attr'] = 'h1'
-
-        if 'href' in attrs_dict:
-            attr['href'] = attrs_dict['href']
-
-        is_skip = 0
-
-        if tag=='span' and 'class' in attrs_dict and attrs_dict['class']=='katex-html':
-            is_skip = 1
-
-        if tag in ['script', 'mrow']:
-            is_skip = 1
-
-        tt = len(self.all_tag_stack)
-
-        if tag in MARKDOWN:
-            attr['attr'] = (tag)
-
-        if tag=='script' and 'type' in attrs_dict:
-            #if attrs_dict['type'].find('MathJax')>=0:
-            if attrs_dict['type']=='math/tex':
-                attr['attr'] = ('span-katex-inline')
-                is_skip = 0
-
-            if attrs_dict['type']=='math/tex; mode=display':
-                attr['attr'] = ('span-katex-display')
-                is_skip = 0
-
-        if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='hide-article-box hide-article-pos text-center':
-            self.is_end = 1
-
-        if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='postDesc':
-            self.is_end = 1
-
-        if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='show-foot':
-            self.is_end = 1
-
-        if tag=='span' and 'class' in attrs_dict and 'id' in attrs_dict:
-            if attrs_dict['id'].find("MathJax")>=0 or (attrs_dict['class'] in ['mo', 'mi']):
-                is_skip = 1
-
-        if tag=='div' and 'id' in attrs_dict:
-            if attrs_dict['id'] in ['mylinks', 'blogStats', 'header']:
-                is_skip = 1
-
-        if tag=='h1' and 'class' in attrs_dict:
-            if attrs_dict['class'] in ['title']:
-                is_skip = 1
-
-        if tag=='div' and 'class' in attrs_dict:
-            if attrs_dict['class'] in ['article-copyright', 'mylinks', 'blogStats', 'header', 'postTitle', 'author', 'article-title-box']:
-                is_skip = 1
+        self.jj.append({'ind':self.ind, 'tag':tag, 'attrs':attrs_dict})
+        if self.ind<100:
+            self.ind+=1
 
 
-        if tag=='nav' and 'class' in attrs_dict:
-            if attrs_dict['class'] in ['navbar navbar-default navbar-fixed-top']:
-                is_skip = 1
+    def handle_endtag(self, tag):
+        end=len(self.tag_stack)-3
+        end=max(end, 0)
+        for i in range(len(self.tag_stack)-1, end, -1):
+            if self.tag_stack[i][0]==tag:
+                self.ind=self.tag_stack[i][1]
+                self.tag_stack.pop()
+                break
+
+        return
+
+    def handle_data(self, data):
+        data = html.unescape(data)
+        self.jj.append({'ind':self.ind, 'tag':'text', 'attrs':{'data':data}})
 
 
-        if tag=='span' and 'class' in attrs_dict:
-            if attrs_dict['class'] in ['katex--display', 'katex-display']:
-                attr['attr'] = ('span-katex-display')
-            if attrs_dict['class'] in ['katex--inline', 'katex-inline']:
-                attr['attr'] = ('span-katex-inline')
+def parser_x(parser, jj, i, l, out):
+    tag='text'
+    if jj[i]['tag'] in parser:
+        tag = jj[i]['tag']
 
-        if tag=='pre' and 'class' in attrs_dict:
-            if attrs_dict['class']=='brush:py;':
-                attr['attr'] = 'code-python'
-            if attrs_dict['class']=='php hljs':
-                attr['attr'] = 'code-php'
+    return parser[tag](parser, jj, i, l, out)
 
-        if tag=='code':
-            attr['attr'] = 'code-unkown'
-            attr['attr'] = 'code-inline'
-            if 'class' in attrs_dict:
-                for l in ['java', 'python', 'php', 'cpp', 'matlab', 'bash']:
-                    if attrs_dict['class'].find(l)>=0:
-                        attr['attr'] = 'code-'+l
-                for l in ['language-py']:
-                        attr['attr'] = 'code-python'
+def parser_text(parser, jj, i, l, out):
+    text=''
+    attrs = jj[i]['attrs']
+    if 'data' in attrs:
+        if 'in_code' in out and out['in_code']==1:
+            text += attrs['data']
+        else:
+            if len(attrs['data'].strip())>0:
+                text += attrs['data']
 
-        if len(self.skip_stack)==1:
-            if tag=='br' and self.is_end==0:
-                self.markdown+='\n'
+    ind=jj[i]['ind']
+    ii = i+1
+    text1=''
+    while(ii<l):
+        if jj[ii]['ind']<=ind:
+            break
+        t, ii = parser_x(parser, jj, ii, l, out)
+        text1 += t
 
-            if tag=='hr' and self.is_end==0:
-                self.markdown+='\n---\n\n'
-            if 'data-original-src' in attrs_dict:
-                attrs_dict['src'] = attrs_dict['data-original-src']
+    if jj[i]['tag']=='a' and 'href' in attrs and text1[0:2]!='![':
+        text1 = '['+text1.strip()+']('+attrs['href']+')'
 
-            if tag=='img' and 'src' in attrs_dict and len(attrs_dict['src'].strip())>0 and self.is_end==0:
-                attr['alt'] = ''
-                if 'alt' in attrs_dict:
-                    attr['alt']=attrs_dict['alt']
-                attr['href']=attrs_dict['src']
-                data1 = '!['+attr['alt']+']('+attr['href']+')'
-                self.markdown+=data1
+    text += text1
+    return text, ii
+
+def parser_code_text(parser, jj, i, l, out):
+    out['in_code'] = 1
+    text, ii = parser_text(parser, jj, i, l, out)
+    out['in_code'] = 0
+    return text, ii
+
+def toline(text):
+    return text.replace("\r", "").replace("\n", "")
+
+def parser_skip(parser, jj, i, l, out):
+    ind=jj[i]['ind']
+    ii = i+1
+    while(ii<l):
+        if jj[ii]['ind']<=ind:
+            break
+        ii+=1
+    return '', ii
+
+def parser_inline(parser, jj, i, l, out, beg, end):
+    text, ii =parser_text(parser, jj, i, l, out)
+    text = toline(text)
+    if len(text)>0:
+        text = beg + text + end
+    return text, ii
+
+def parser_h1(parser, jj, i, l, out):
+    return parser_inline(parser, jj, i, l, out, '\n# ', '\n')
+
+def parser_h2(parser, jj, i, l, out):
+    return parser_inline(parser, jj, i, l, out, '\n## ', '\n')
+
+def parser_h3(parser, jj, i, l, out):
+    return parser_inline(parser, jj, i, l, out, '\n### ', '\n')
+
+def parser_h4(parser, jj, i, l, out):
+    return parser_inline(parser, jj, i, l, out, '\n#### ', '\n')
+
+def parser_h5(parser, jj, i, l, out):
+    return parser_inline(parser, jj, i, l, out, '\n##### ', '\n')
+
+def parser_h6(parser, jj, i, l, out):
+    return parser_inline(parser, jj, i, l, out, '\n###### ', '\n')
+
+def parser_br(parser, jj, i, l, out):
+    return '\n', i+1
+
+def parser_mathjax_inline(parser, jj, i, l, out):
+    return parser_inline(parser, jj, i, l, out, '$', '$')
+
+def parser_mathjax_display(parser, jj, i, l, out):
+    return parser_inline(parser, jj, i, l, out, '$', '$')
+
+def parser_block(parser, jj, i, l, out, beg, end):
+    text, ii = parser_text(parser, jj, i, l, out)
+    text = beg + (text) + end
+    return text, ii
+
+def parser_p(parser, jj, i, l, out):
+    return parser_block(parser, jj, i, l, out, '\n', '\n')
+
+def parser_code_block(parser, jj, i, l, out, lang):
+    text, ii = parser_code_text(parser, jj, i, l, out)
+    text = '\n```'+lang+'\n' + (text.strip()) + '\n```\n'
+    return text, ii
+
+def parser_code(parser, jj, i, l, out):
+    attrs_dict = jj[i]['attrs']
+    if 'class' in attrs_dict:
+        cc=attrs_dict['class']
+        for lang in ['java', 'python', 'php', 'cpp', 'matlab', 'bash', 'xml']:
+            if cc.find(lang)>=0:
+                return parser_code_block(parser, jj, i, l, out, lang)
+
+        for lang in ['language-py']:
+            if cc.find(lang)>=0:
+                return parser_code_block(parser, jj, i, l, out, 'python')
+
+    text, ii = parser_code_text(parser, jj, i, l, out)
+    if text.count('\n')>0:
+        text = '\n```\n' + (text.strip()) + '\n```\n'
+    else:
+        text = '`' + toline(text) +'`'
+    return text, ii
 
 
+def parser_span(parser, jj, i, l, out):
+    attrs_dict = jj[i]['attrs']
+    if 'class' in attrs_dict:
+        cls = attrs_dict['class']
+        if (cls in ['mo', 'mi', 'katex-html']):
+            return parser_skip(parser, jj, i, l, out)
 
-        if is_skip==1:
-            self.skip_stack.append(tt)
+        if cls in ['katex--display', 'katex-display']:
+            return parser_mathjax_display(parser, jj, i, l, out)
 
-        if self.all_tag_stack[-1][1]["attr"] in MARKDOWN:
-            attr["attr"] = self.all_tag_stack[-1][1]["attr"]
-        self.all_tag_stack.append((tag, attr))
+        if cls in ['katex--inline', 'katex-inline']:
+            return parser_mathjax_inline(parser, jj, i, l, out)
 
-    def handle_endtag(self,tag):
-        self.all_tag_stack.pop()
-        if self.skip_stack[-1]==len(self.all_tag_stack):
-            self.skip_stack.pop()
-        if self.is_end==1:
-            return
-        if tag in ['p', 'li','div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
-            self.markdown+='\n'
+        if cls in ['cnblogs_code']:
+            return parser_code(parser, jj, i, l, out)
 
-        if tag in ['tr']:
-            self.markdown+='|\n'
+    if 'id' in attrs_dict:
+        if attrs_dict['id'].find("MathJax")>=0:
+            return parser_skip(parser, jj, i, l, out)
 
-        if tag in ['thead']:
-            self.markdown+='|---'*self.cols + '|\n'
-
-
-    def handle_data(self,data):
-        if self.is_end==1:
-            return
-        tag, attrs = self.all_tag_stack[-1]
-
-        if tag in ['meta', 'link', 'style']:
-            return
-
-        attr = attrs['attr']
-        if 'span-katex-display'==attr:
-            asdf=0
-
-        #if attr not in MARKDOWN:            return
-        if attrs['attr'] == 'code-python':
-            asdf = 0
-
-        if len(self.skip_stack)>1:
-            return
-
-        data1 = data
-
-        if 'title' ==tag:
-            data1 = data1.replace('/', '-').replace('\\', '-').replace('*', '-')
-            self.title = data
-
-        data1 = data1.replace("\r", "")
-        if len(attrs['attr'])<4 or attrs['attr'][0:4]!='code':
-            data1 = data1.replace("$$", "\n$$\n")
-            data1 = data1.replace("#", "\\#")
-
-        if tag in MARKDOWN:
-            data1 = data1.replace("\n", "")
-        #data1 = data1.replace("\(", "$").replace("\)", "$")
-
-        if 'href' in attrs:
-            data1 = '['+data1.strip()+']('+attrs['href']+')'
+    return parser_text(parser, jj, i, l, out)
 
 
-        if tag=='annotation':
-            attr = 'span-katex-display'
-            attrs = list(map(lambda x:x[1]['attr'], self.all_tag_stack))
-            if 'span-katex-inline' in attrs:
-                attr = 'span-katex-inline'
+def parser_script(parser, jj, i, l, out):
+    attrs_dict = jj[i]['attrs']
+    if 'type' in attrs_dict:
+        if attrs_dict['type']=='math/tex':
+            return parser_mathjax_inline(parser, jj, i, l, out)
 
-        data1 = data1.strip()
-        if len(data1)>0:
-            if attr in MARKDOWN:
-                t = MARKDOWN[attr]
-                data1 = t[0]+data1+t[1]
+        if attrs_dict['type']=='math/tex; mode=display':
+            return parser_mathjax_display(parser, jj, i, l, out)
 
-        self.markdown+=data1
+    return parser_skip(parser, jj, i, l, out)
+
+def parser_li(parser, jj, i, l, out):
+    #return parser_inline(parser, jj, i, l, out, '- ', '\n')
+    return parser_block(parser, jj, i, l, out, '- ', '\n')
+
+def parser_em(parser, jj, i, l, out):
+    return parser_inline(parser, jj, i, l, out, '*', '*')
+
+def parser_strong(parser, jj, i, l, out):
+    return parser_inline(parser, jj, i, l, out, '**', '**')
+
+def parser_del(parser, jj, i, l, out):
+    return parser_inline(parser, jj, i, l, out, '~~', '~~')
+
+def parser_blockquote(parser, jj, i, l, out):
+    return parser_block(parser, jj, i, l, out, '\n> ', '\n')
+
+def parser_div(parser, jj, i, l, out):
+    attrs_dict = jj[i]['attrs']
+    if 'class' in attrs_dict:
+        if attrs_dict['class'] in ['article-copyright', 'mylinks', 'blogStats', 'header', 'postTitle', 'author', 'article-title-box']:
+            return parser_skip(parser, jj, i, l, out)
+
+        if attrs_dict['class']=='cnblogs_code':
+            text, ii = parser_code(parser, jj, i, l, out)
+            return text, ii
+
+    text, ii = parser_block(parser, jj, i, l, out, '\n', '\n')
+    #text, ii = parser_text(parser, jj, i, l, out)
+    return text, ii
+    #return parser_text(parser, jj, i, l, out)
+
+def parser_title(parser, jj, i, l, out):
+    text, ii = parser_text(parser, jj, i, l, out)
+    text = toline(text).strip()
+    if len(text)>0 and len(out['title'])==0:
+        out['title']=text
+    text = '# ' + text + '\n'
+    return text, ii
+
+def node_find_tag(jj, i, l, tag):
+    out=[]
+
+    ind=jj[i]['ind']
+    for ii in range(i+1, l):
+        if jj[ii]['ind']<=ind:
+            break
+        if jj[ii]['tag']==tag:
+            out.append(ii)
+
+    return out
+
+def parser_tr(parser, jj, i, ths, l, out, cols):
+    text='|'
+    for th in ths:
+        text1, i = parser_inline(parser, jj, th, l, out, '', '')
+        text += text1.strip() + '|'
+    for j in range(len(ths), cols):
+        text += ' |'
+    return text, i
+
+def get_attr(jji, name):
+    if name in jji['attrs']:
+        return jji['attrs'][name]
+    return None
+
+def parser_table(parser, jj, i, l, out):
+    text = ''
+    trs = node_find_tag(jj, i, l, 'tr')
+    if len(trs)>0:
+        ths = node_find_tag(jj, trs[0], l, 'th')
+        if len(ths)==0:
+            ths = node_find_tag(jj, trs[0], l, 'td')
+        rows=[]
+        cols = len(ths)
+        if len(trs)==1 and len(ths)==2:
+            if get_attr(jj[ths[0]], 'class')=='gutter' and get_attr(jj[ths[1]], 'class')=='code':
+                return parser_code(parser, jj, ths[1], l, out)
+
+        if len(ths)==1:
+            for tr in trs:
+                text1, i = parser_x(parser, jj, tr, l, out)
+                text += text1 + '\n'
+            return text1, i
+
+        for tr in trs[1::]:
+            tds = node_find_tag(jj, tr, l, 'td')
+            rows.append(tds)
+            cols = max(len(tds), cols)
+
+        if cols>0:
+            text1, i = parser_tr(parser, jj, i, ths, l, out, cols)
+            text += text1 + '\n'
+            text += '|----'*cols
+            text += '|\n'
+            for tds in rows:
+                text1,i = parser_tr(parser, jj, i, tds, l, out, cols)
+                text += text1 + '\n'
+
+    return text, i+1
+
+def parser_img(parser, jj, i, l, out):
+    attrs_dict = jj[i]['attrs']
+    alt = ''
+    href = ''
+    for s in ['src', 'data-original-src', 'data-src']:
+        if s in attrs_dict and len(attrs_dict[s].strip())>0:
+            href = attrs_dict[s]
+
+    if  len(href.strip())>0:
+        if 'alt' in attrs_dict:
+            alt=attrs_dict['alt']
+
+        if href[0:2]=='//':
+            href = out['site'].split(':')[0]+':'+href
+
+        if href[0]=='/':
+            href = out['site']+'/'+href.strip('/')
+
+        text = '!['+alt+']('+href+')'
+        return text, i+1
+    return parser_skip(parser, jj, i, l, out)
+
+
+parser={
+    'title': parser_title,
+    'table': parser_table,
+    'img': parser_img,
+    'div': parser_div,
+    'li': parser_li,
+    'dt': parser_li,
+    'em': parser_em,
+    'i': parser_em,
+    'b': parser_strong,
+    'strong': parser_strong,
+    'del': parser_del,
+    'p': parser_p,
+    'blockquote': parser_blockquote,
+    'br': parser_br,
+    'h1': parser_h1,
+    'h2': parser_h2,
+    'h3': parser_h3,
+    'h4': parser_h4,
+    'h5': parser_h5,
+    'h6': parser_h6,
+    'text': parser_text,
+    'code': parser_code,
+    'span': parser_span,
+    'style': parser_skip,
+    'mi': parser_skip,
+    'mo': parser_skip,
+    'mrow': parser_skip,
+    'script': parser_script
+}
 
 
 import chardet
 import win32clipboard as w
 import win32con
+import json
 
 def autotext(t):
     codec = chardet.detect(t)
     return t.decode(codec['encoding'])
 
-#»ñÈ¡¼ôÇÐ°åÄÚÈÝ
-def gettext():
-    w.OpenClipboard()
-    print(dir(w))
-    t = (w.GetClipboardFormatName(win32con.CF_TEXT))
-    t = w.GetClipboardData(win32con.CF_TEXT)
-    w.CloseClipboard()
-    return t
+def node_find(jj, i, l, node_filter):
+    out=[]
 
-#str1 = gettext()
-#str1 = autotext(str1)
-#print(str1)
+    ind=jj[i]['ind']
+    prev2 = 0
+    for ii in range(i+1, l):
+        if jj[ii]['ind']<=ind:
+            break
+        t = node_filter(jj[ii])
+        if t>0:
+            if t==1:
+                prev2 = 0
+                out.append((ii, ii+2))
+            if t==2:
+                prev2 = ii
+            if t==3 and prev2>0:
+                out.append((prev2, ii))
 
-def htm2md(html_code):
+    return out
+
+
+def node_filter_csdn(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    attrs_dict = attrs
+    if tag=='title':
+        return 1
+
+    if tag=='div' and 'class' in attrs and attrs['class']=='blog-content-box':
+        return 2
+
+    if tag=='article' and 'class' in attrs and attrs['class']=='baidu_pl':
+        return 0
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='hide-article-box hide-article-pos text-center':
+        return 3
+
+    return 0
+
+def node_filter_cnblogs(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'id' in attrs_dict and attrs_dict['id']=='main':
+        return 2
+
+    if tag=='div' and 'id' in attrs_dict and attrs_dict['id']=='blog_post_info_block':
+        return 3
+
+    return 0
+
+def node_filter_datakit(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='container page-content':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='navbar panel-footer operate':
+        return 3
+
+    return 0
+
+
+def node_filter_jobbole(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='article' and 'class' in attrs_dict and attrs_dict['class']=='rpost-entry':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='post-adds':
+        return 3
+
+    return 0
+
+
+def node_filter_chinaunix(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='Blog_right1':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='Blog_con2_1 Blog_con3_2':
+        return 3
+
+    return 0
+
+def node_filter_jianshu(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='article':
+        return 2
+
+    if tag=='div' and 'data-vcomp' in attrs_dict and attrs_dict['data-vcomp']=='free-reward-panel':
+        return 3
+
+    return 0
+
+def node_filter_baike(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='promotion-declaration':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='side-content':
+        return 3
+
+    return 0
+
+def node_filter_zhihu(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='Post-RichTextContainer':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='ContentItem-time':
+        return 3
+
+    return 0
+
+def node_filter_sciencenet(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='bm_c':
+        return 2
+
+    if tag=='div' and 'id' in attrs_dict and attrs_dict['id']=='click_div':
+        return 3
+
+    return 0
+
+
+FILTER = {
+    'csdn': {'filter':node_filter_csdn, 'site':'https://blog.csdn.net', 'root':'CSDNåšå®¢'},
+    'cnblogs': {'filter':node_filter_cnblogs, 'site':'https://www.cnblogs.com', 'root':'åšå®¢å›­'},
+    'www.datakit.cn': {'filter':node_filter_datakit, 'site':'https://www.datakit.cn', 'root':'www.datakit.cn'},
+    'hao.jobbole.com': {'filter':node_filter_jobbole, 'site':'http://hao.jobbole.com', 'root':'ä¼¯ä¹åœ¨çº¿'},
+    'blog.chinaunix.net': {'filter':node_filter_chinaunix, 'site':'http://blog.chinaunix.net', 'root':'ChinaUnixåšå®¢'},
+    'www.jianshu.com': {'filter':node_filter_jianshu, 'site':'https://www.jianshu.com', 'root':'ç®€ä¹¦'},
+    'baike': {'filter':node_filter_baike, 'site':'', 'root':'ç™¾åº¦ç™¾ç§‘'},
+    'zhihu.com': {'filter':node_filter_zhihu, 'site':'', 'root':'çŸ¥ä¹Ž'},
+    'blog.sciencenet.cn': {'filter':node_filter_sciencenet, 'site':'', 'root':'ç§‘å­¦ç½‘'},
+}
+
+def savetext(fn, d):
+    f=open(fn,'wt', encoding='utf8')
+    f.write(d)
+    f.close()
+    #print(d)
+
+def htm2md(t):
+    html_code = t.replace('\r', '')
     hp = MyHTMLParser()
     hp.feed(html_code)
-    d = str(hp.markdown)
-    title = hp.title
-    d = d.replace('\n\n', '\n')
+    jj=hp.jj
     hp.close()
-    return title, d
+    node_filter = node_filter_csdn
+    cc = 0
+    aaa = 'csdn'
+    for aa in FILTER:
+        tc = t.count(aa)
+        if tc>cc:
+            cc = tc
+            aaa = aa
+            node_filter = FILTER[aa]['filter']
 
+    jjs_pair = node_find(jj, 0, len(jj), node_filter)
+    d = ''
+    out={'title':'', 'site':FILTER[aaa]['site']}
+    for jjs in jjs_pair:
+        i, l=jjs[0], jjs[1]
+        while(i<l):
+            text, i = parser_x(parser, jj, i, l, out)
+            d += text
+
+    if aaa=='zhihu.com':
+        html = etree.HTML(html_code)
+        aa='//a[@data-za-detail-view-element_name]/text()'
+        ll = html.xpath(aa)
+        if len(ll)>0:
+            out['title'] = out['title'].replace('- ', ' - ' + ll[0] +' - ')
+
+    if aaa=='blog.sciencenet.cn':
+        print(out['title'])
+        out['title'] = out['title'].replace('ç§‘å­¦ç½‘â€”', '') + ' - ç§‘å­¦ç½‘'
+        #html = etree.HTML(html_code)
+        
+    return FILTER[aaa]['root'], out['title'], d
+
+from down import *
 
 if __name__ == '__main__':
-
     fn = './test1.html'
     f=open(fn,'rb')
     t=f.read()
     t = autotext(t)
     f.close()
 
-    html_code = t
-    hp = MyHTMLParser()
-    hp.feed(html_code)
-    d = str(hp.markdown)
-    d = d.replace('\n\n', '\n')
-    hp.close()
-    # print(d)
-
-    #print(d)
+    t = gettext().decode('gbk')
+    root, title, d = htm2md(t)
+    save_txt_td(root, title, d)
+    print(title)
     fn2 = './test.md'
     f=open(fn2,'wt',encoding='utf8')
     f.write(d)
     f.close()
+    #print(d)

@@ -19,7 +19,7 @@ csdn_cookies= {
 
 def getdata(url):
     try:
-        if url.find('csdn.net')>0:
+        if url.find('csdn.net')>0 or url.find('blog.sciencenet.cn')>0:
             r = requests.get(url,cookies=csdn_cookies)
             data = r.text
         else:
