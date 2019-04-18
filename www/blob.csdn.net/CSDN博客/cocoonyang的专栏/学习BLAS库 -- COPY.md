@@ -1,25 +1,43 @@
-
 # 学习BLAS库 -- COPY - cocoonyang的专栏 - CSDN博客
 
 
-2017年03月17日 22:17:42[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：233
 
 
-函数语法:
-XCOPY(  N,  X, INCX,  Y,  INCY)
+
+2017年03月17日 22:17:42[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：238
+
+
+
+
+
+
+
+
+函数语法: 
+
+
+    XCOPY(  N,  X, INCX,  Y,  INCY)  
+
 功能：
-COPY copies a vector X to a vector Y.
-BLAS level 1 function
-参数：Input, int N, the number of elements in DX and DY.
-Input, double  X[*], the first vector.
-Input, int  incX, the increment between successive entries of  X.
-Output, double Y[*], the second vector.
-Input, int incY, the increment between successive entries of  Y.
 
-```python
+        COPY copies a vector X to a vector Y.
+
+        BLAS level 1 function
+参数：
+      Input, int N, the number of elements in DX and DY.
+      Input, double  X[*], the first vector.
+      Input, int  incX, the increment between successive entries of  X.
+      Output, double Y[*], the second vector.
+      Input, int incY, the increment between successive entries of  Y. 
+
+
+
+
+```cpp
 void cblas_dcopy(const int N, const double *X, const int incX, double *Y,
 		const int incY)
 {
+
 	if (N <= 0)
 	{
 		return;
@@ -49,6 +67,7 @@ void cblas_dcopy(const int N, const double *X, const int incX, double *Y,
 		}
 		return;
 	}
+
 	//
 	//        code for both increments equal to 1
 	//
@@ -79,30 +98,44 @@ void cblas_dcopy(const int N, const double *X, const int incX, double *Y,
 		Y[i + 6] = X[i + 6];
 	}
 	return;
+
 }
 ```
 
+
+
+
+
 使用f2c转换出的dcopy函数代码：
 
-```python
+
+
+
+```cpp
 /*  -- translated by f2c (version 19940927).
    You must link the resulting object file with the libraries:
 	-lf2c -lm   (in that order)
 */
+
 #include "f2c.h"
+
 /* Subroutine */ int dcopy_(integer *n, doublereal *dx, integer *incx, 
 	doublereal *dy, integer *incy)
 {
 
+
     /* System generated locals */
     integer i__1;
+
     /* Local variables */
     static integer i, m, ix, iy, mp1;
+
 
 /*     copies a vector, x, to a vector, y.   
        uses unrolled loops for increments equal to one.   
        jack dongarra, linpack, 3/11/78.   
        modified 12/3/93, array(1) declarations changed to array(*)   
+
 
     
    Parameter adjustments   
@@ -110,14 +143,17 @@ void cblas_dcopy(const int N, const double *X, const int incX, double *Y,
 #define DY(I) dy[(I)-1]
 #define DX(I) dx[(I)-1]
 
+
     if (*n <= 0) {
 	return 0;
     }
     if (*incx == 1 && *incy == 1) {
 	goto L20;
     }
+
 /*        code for unequal increments or equal increments   
             not equal to 1 */
+
     ix = 1;
     iy = 1;
     if (*incx < 0) {
@@ -134,9 +170,12 @@ void cblas_dcopy(const int N, const double *X, const int incX, double *Y,
 /* L10: */
     }
     return 0;
+
 /*        code for both increments equal to 1   
 
+
           clean-up loop */
+
 L20:
     m = *n % 7;
     if (m == 0) {
@@ -166,6 +205,14 @@ L40:
     return 0;
 } /* dcopy_ */
 ```
+
+
+
+
+
+
+
+
 
 
 

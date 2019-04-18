@@ -1,28 +1,45 @@
-
 # 学习BLAS库 -- ASUM - cocoonyang的专栏 - CSDN博客
 
 
-2017年03月17日 21:57:49[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：722个人分类：[BLAS																](https://blog.csdn.net/cocoonyang/article/category/5715477)[C																](https://blog.csdn.net/cocoonyang/article/category/6705806)[
-							](https://blog.csdn.net/cocoonyang/article/category/5715477)
 
 
 
-函数语法:
-XASUM( N,  X, INCX)
+2017年03月17日 21:57:49[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：732
+个人分类：[BLAS																[C](https://blog.csdn.net/cocoonyang/article/category/6705806)](https://blog.csdn.net/cocoonyang/article/category/5715477)
+
+
+
+
+
+
+
+
+函数语法: 
+
+
+   XASUM( N,  X, INCX)
+
 功能：
-ASUM 是 BLAS 中 第1层函数。ASUM函数计算一个向量中所有元素绝对值的累加和( Calculating summary of element absolute value of a vector).
+
+
+   ASUM 是 BLAS 中 第1层函数。ASUM函数计算一个向量中所有元素绝对值的累加和( Calculating summary of element absolute value of a vector).
+
 参数：
-输入值:
-int N,    the number of entries in the vector.
-X[*], the vector to be examined.
-int incX, the increment between successive entries of X.
-incX must not be negative.
-返回值:
-the sum of the absolute values of X.
+    输入值:
+     int N,    the number of entries in the vector.
+         X[*], the vector to be examined.
+     int incX, the increment between successive entries of X.
+                     incX must not be negative.
+
+    返回值:
+       the sum of the absolute values of X.
+
+
 
 ## Fortran语言版DASUM
 源代码：
-```python
+
+```
 DOUBLE PRECISION FUNCTION DASUM(N,DX,INCX)
 *     .. Scalar Arguments ..
       INTEGER INCX,N
@@ -83,9 +100,13 @@ DOUBLE PRECISION FUNCTION DASUM(N,DX,INCX)
 ```
 
 
+
+
+
+
 ## C语言版DASUM
 源代码：
-```python
+```cpp
 #include "math.h"
 float cblas_dasum(const int N, const double *X, const int incX)
 {
@@ -114,6 +135,7 @@ float cblas_dasum(const int N, const double *X, const int incX)
 	//
 	//        clean-up loop
 	//--------------------------------------------
+
 	int m = N % 6;
 	if (0 != m)
 	{
@@ -138,8 +160,12 @@ float cblas_dasum(const int N, const double *X, const int incX)
 }
 ```
 
+
+
+
 DASUM测试算例：
-```python
+
+```cpp
 void test_dasum()
 {
 	char functionName[] = "DASUM";
@@ -147,12 +173,15 @@ void test_dasum()
 	printf("Testing BLAS library function -- %s \n", functionName);
 	printf("  DASUM adds the absolute values of elements of a vector.\n");
 	printf("\n");
+
 	double result;
 	int inc = 1;
 	int n = 3;
+
 	double X[] =
 	{ 12.1, -12.1, 12.1 };
 	result = cblas_dasum(n, X, inc);
+
 	printf("Test array is \n");
 	showDoubleArray(n, X);
 	printf("%s  of the array is %f. \n", functionName, result );
@@ -166,10 +195,12 @@ void test_dasum()
 	}
 	printf("\n");
 
+
 	n = 6;
 	double Y[] =
 	{ 1.1, 1.1, 1.1, 1.1, 1.1, 1.1 };
 	result = cblas_dasum(n, Y, inc);
+
 	printf("Test array is \n");
 	showDoubleArray(n, Y);
 	printf("%s  of the array is %f. \n", functionName, result );
@@ -182,11 +213,13 @@ void test_dasum()
 		printf("[Fail] %s test failed.\n", functionName);
 	}
 	printf("\n");
+
 	// 12 elements
 	n = 12;
 	double longX[] =
 	{ 1.1, 1.1, -1.1, 1.1, 1.1, -1.1, 1.1, 1.1, -1.1, 1.1, 1.1, 1.1 };
 	result = cblas_dasum(n, longX, inc);
+
 
 	printf("Test array is \n");
 	showDoubleArray(n, longX);
@@ -200,20 +233,26 @@ void test_dasum()
 		printf("[Fail] %s test failed.\n", functionName);
 	}
 	printf("\n");
+
 }
 ```
+
 测试结果：
 
-```python
+
+
+```cpp
 ================================================ 
 Testing BLAS library function -- DASUM 
   DASUM adds the absolute values of elements of a vector.
+
 Test array is 
        0       12.100000
        1      -12.100000
        2       12.100000
 DASUM  of the array is 36.300000. 
 DASUM test SUCCESS.
+
 Test array is 
        0        1.100000
        1        1.100000
@@ -223,6 +262,7 @@ Test array is
        5        1.100000
 DASUM  of the array is 6.600000. 
 DASUM test SUCCESS.
+
 Test array is 
        0        1.100000
        1        1.100000
@@ -239,5 +279,10 @@ Test array is
 DASUM  of the array is 13.200000. 
 DASUM test SUCCESS.
 ```
+
+
+
+
+
 
 

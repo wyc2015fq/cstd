@@ -1,18 +1,29 @@
-
 # Node.js中JavaScript与C++的数据类型转换（node_0.12, node_4.3） - cocoonyang的专栏 - CSDN博客
 
 
-2015年04月07日 00:11:58[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：1228
 
 
 
-### args  -> int
+2015年04月07日 00:11:58[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：1230
+
+
+
+
+
+
+
+
+### args  -> int 
+
 node_0.12
+
+
 
 void foo(const FunctionCallbackInfo<value>& args) 
 {
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
+
 	if( args[0]->IsUndefined())
 	{
 		std::cerr << "In foo(): parameters undefined." << std::endl;
@@ -20,17 +31,22 @@ void foo(const FunctionCallbackInfo<value>& args)
 	}
 	v8::Handle<v8::value> theArg = args[0];
 
+
 	if (theArg->IsInt32()) 
 	{
 		int value = theArg->Int32Value();
 	}
-}node_4.3
+}
+node_4.3
 
-```python
+
+
+```cpp
 void MyClass::foo(const FunctionCallbackInfo<value>& args) 
 {
 	Isolate* isolate = args.GetIsolate();
 	MyClass* obj = ObjectWrap::Unwrap<MyClass>(args.Holder());
+
 	// checking arguments number
 	if (args.Length() < 3)
 	{
@@ -46,26 +62,43 @@ void MyClass::foo(const FunctionCallbackInfo<value>& args)
 ```
 
 
+
+
+
 ### 返回 int变量
 
+
+
+
 node_0.12
+
+
 
 void foo(const FunctionCallbackInfo<Value>& args) 
 {
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
+
 
 	//...
+
 	args.GetReturnValue().Set(v8::Int32::New(isolate, 1));
 	return;
+
 }
 ### args  -> double
+
+
+
 node_0.12
+
+
 
 void foo(const FunctionCallbackInfo<Value>& args) 
 {
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
+
 	if( args[0]->IsUndefined())
 	{
 		std::cerr << "In foo(): parameters undefined." << std::endl;
@@ -73,19 +106,26 @@ void foo(const FunctionCallbackInfo<Value>& args)
 	}
 	v8::Handle<v8::Value> theArg = args[0];
 
+
 	if (theArg->IsNumber()) 
 	{
 		double value = theArg->NumberValue();
 	}
 }
 
+
+
+
 node_4.3
 
-```python
+
+
+```cpp
 void MyClass::foo(const FunctionCallbackInfo<value>& args) 
 {
 	Isolate* isolate = args.GetIsolate();
 	MyClass* obj = ObjectWrap::Unwrap<MyClass>(args.Holder());
+
 	// checking arguments number
 	if (args.Length() < 3)
 	{
@@ -99,22 +139,32 @@ void MyClass::foo(const FunctionCallbackInfo<value>& args)
         // ... 
 }
 ```
+
+
 返回 Number变量
+
 void foo(const FunctionCallbackInfo<Value>& args) 
 {
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
 
+
 	//...
+
 	args.GetReturnValue().Set(v8::Number::New(isolate, 0.0));
 	return;
+
 }
+
 ### args -> string
+
 node_0.12
+
 void foo(const FunctionCallbackInfo<Value>& args) 
 {
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
+
 	if( args[0]->IsUndefined())
 	{
 		std::cerr << "In foo(): parameters undefined." << std::endl;
@@ -122,15 +172,19 @@ void foo(const FunctionCallbackInfo<Value>& args)
 	}
 	v8::Handle<v8::Value> theArg = args[0];
 
+
 	if (theArg->IsString()) 
 	{
 		v8::String::Utf8Value utf8_value(theArg);
 		std::string variableName = *utf8_value;
 	}
 }
+
 node_4.3
 
-```python
+
+
+```cpp
 void MyClass::foo(const FunctionCallbackInfo<value>& args)   
 {  
     Isolate* isolate = args.GetIsolate();  
@@ -170,25 +224,33 @@ void MyClass::foo(const FunctionCallbackInfo<value>& args)
         // ...   
 }
 ```
-返回 String变量
+
+ 返回 String变量
 void foo(const FunctionCallbackInfo<Value>& args) 
 {
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
 
+
 	std::string name = "foo";
 	//...
+
 	args.GetReturnValue().Set(v8::String::NewFromUtf8(isolate,
 			name.c_str()));
 	return;
+
 }
+
 ### args -> bool
 
-```python
+
+
+```cpp
 void foo(const FunctionCallbackInfo<Value>& args) 
 {
 	Isolate* isolate = args.GetIsolate();
 	MyClass* obj = ObjectWrap::Unwrap<MyClass>(args.Holder());
+
 	// checking arguments number
 	if (args.Length() < 3)
 	{
@@ -205,6 +267,7 @@ void foo(const FunctionCallbackInfo<Value>& args)
                          String::NewFromUtf8(isolate, "The first argument undefined.")));
 		return;
 	}
+
 	if (args[0]->IsBoolean()) 
 	{
 		bool value = args[0]->BooleanValue();
@@ -213,23 +276,32 @@ void foo(const FunctionCallbackInfo<Value>& args)
 }
 ```
 
+
+
+
 返回Boolean变量
 void foo(const FunctionCallbackInfo<Value>& args) 
 {
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
 
+
 	//...
+
 	args.GetReturnValue().Set(v8::Boolean::New(isolate, true)); 	
 	return;
 }
 
+
+
 ### args -> Array
-```python
+
+```cpp
 void foo(const FunctionCallbackInfo<Value>& args) 
 {
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
+
 	// checking arguments number
 	if (args.Length() < 3)
 	{
@@ -246,35 +318,47 @@ void foo(const FunctionCallbackInfo<Value>& args)
                          String::NewFromUtf8(isolate, "The first argument undefined.")));
 		return;
 	}
+
 	v8::Handle<v8::Value> theArg = args[0];
 	if (theArg->IsArray()) 
 	{
 		v8::Handle<v8::Array> theArray = v8::Handle<v8::Array>::Cast(theArg);
+
 		int length = theArray->Length();
 		v8::Handle<v8::Value> arrayItem = theArray->Get(v8::Int32::New(isolate, 0));
                 // ...
 	}
 }
 ```
+
+
 返回Array变量
 void foo(const FunctionCallbackInfo<Value>& args) 
 {
 	Isolate* isolate = Isolate::GetCurrent();
 	HandleScope scope(isolate);
 
+
 	//...
 
+
 	v8::Handle<v8::Array> resultArray = v8::Array::New(isolate);
+
 	resultArray->Set(v8::Integer::New(isolate, i), v8::Number::New(isolate, 1.1));
 	args.GetReturnValue().Set(resultArray); 	
 	return;
 }
+
+
 ## args->char*
-```python
+
+
+```cpp
 void MyClass::foo(const FunctionCallbackInfo<value>& args) 
 {
 	Isolate* isolate = args.GetIsolate();
 	MyClass* obj = ObjectWrap::Unwrap<MyClass>(args.Holder());
+
 	// checking arguments number
 	if (args.Length() < 3)
 	{
@@ -298,5 +382,8 @@ void MyClass::foo(const FunctionCallbackInfo<value>& args)
         // ... 
 }
 ```
+
+
+
 
 

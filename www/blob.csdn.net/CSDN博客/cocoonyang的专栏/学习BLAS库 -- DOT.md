@@ -1,26 +1,42 @@
-
 # 学习BLAS库 -- DOT - cocoonyang的专栏 - CSDN博客
 
 
-2015年08月06日 21:59:33[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：3577
 
 
-函数语法:
-XDOT( N, X, INCX, Y, INCY)
+
+2015年08月06日 21:59:33[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：3589
+
+
+
+
+
+
+
+
+函数语法: 
+
+    XDOT( N, X, INCX, Y, INCY)
+
 **功能**：
-Computes the dot product of two vectors.
-dot <- X^{T}Y
+
+ Computes the dot product of two vectors. 
+
+ dot <- X^{T}Y
+
 **参数**：
-X: S(single float), D(double float), DS
-N: vector dimension
-X: vector x
+
+     X: S(single float), D(double float), DS
+     N: vector dimension
+     X: vector x
 INCX: spacing between elements of x
-Y: vector y
+     Y: vector y
 INCY: spacing between elements of y
+
+
 
 ## Fortran语言版DDOT
 源代码：
-```python
+```
 DOUBLE PRECISION FUNCTION DDOT(N,DX,INCX,DY,INCY)
 *     .. Scalar Arguments ..
       INTEGER INCX,INCY,N
@@ -86,36 +102,46 @@ DOUBLE PRECISION FUNCTION DDOT(N,DX,INCX,DY,INCY)
       END
 ```
 
+
+
+
 ## C语言版(f2c)DDOT
 源代码：
-```python
+```cpp
 /*  -- translated by f2c (version 19940927).
    You must link the resulting object file with the libraries:
 	-lf2c -lm   (in that order)
 */
+
 #include "f2c.h"
+
 doublereal ddot_(integer *n, doublereal *dx, integer *incx, doublereal *dy, 
 	integer *incy)
 {
 
+
     /* System generated locals */
     integer i__1;
     doublereal ret_val;
+
     /* Local variables */
     static integer i, m;
     static doublereal dtemp;
     static integer ix, iy, mp1;
+
 
 /*     forms the dot product of two vectors.   
        uses unrolled loops for increments equal to one.   
        jack dongarra, linpack, 3/11/78.   
        modified 12/3/93, array(1) declarations changed to array(*)   
 
+
     
    Parameter adjustments   
        Function Body */
 #define DY(I) dy[(I)-1]
 #define DX(I) dx[(I)-1]
+
 
     ret_val = 0.;
     dtemp = 0.;
@@ -125,8 +151,10 @@ doublereal ddot_(integer *n, doublereal *dx, integer *incx, doublereal *dy,
     if (*incx == 1 && *incy == 1) {
 	goto L20;
     }
+
 /*        code for unequal increments or equal increments   
             not equal to 1 */
+
     ix = 1;
     iy = 1;
     if (*incx < 0) {
@@ -144,9 +172,12 @@ doublereal ddot_(integer *n, doublereal *dx, integer *incx, doublereal *dy,
     }
     ret_val = dtemp;
     return ret_val;
+
 /*        code for both increments equal to 1   
 
+
           clean-up loop */
+
 L20:
     m = *n % 5;
     if (m == 0) {
@@ -174,9 +205,12 @@ L60:
 } /* ddot_ */
 ```
 
+
+
+
 ## C语言版DDOT
 源代码：
-```python
+```cpp
 /*
  * cblas_ddot.c
  *
@@ -194,6 +228,7 @@ double cblas_ddot(const int N, const double *X, const int incX,
 	{
 		return result;
 	}
+
 
 	if ((incX != 1) || (incY != 1))
 	{
@@ -215,6 +250,7 @@ double cblas_ddot(const int N, const double *X, const int incX,
 		}
 		return result;
 	}
+
 	m = (N % 5); 
 	if (0 != m)
 	{
@@ -227,20 +263,28 @@ double cblas_ddot(const int N, const double *X, const int incX,
 			return result;
 		}
 	}
+
 	mp1 = m ;
 	for (i = mp1; i < N; i += 5)
 	{
 		result += (Y[i] * X[i] + Y[i + 1] * X[i + 1] + Y[i + 2] * X[i + 2]
 				+ Y[i + 3] * X[i + 3] + Y[i + 4] * X[i + 4]);
+
 	}
 	return result;
+
 }
 ```
 
 
+
+
+
+
 ## 汇编语言版(VC )DDOT
 源代码：
-```python
+
+```
 _TEXT	SEGMENT
 _iy$4493 = -32						; size = 4
 _ix$4492 = -28						; size = 4
@@ -441,15 +485,21 @@ $LN17@cblas_ddot:
 _cblas_ddot ENDP
 _TEXT	ENDS
 ```
+
 编译参数：
-```python
+
+```cpp
 cl main.c
 ```
 
 
+
+
+
+
 ## 汇编语言版(VC, 计算速度优化 )DDOT
 源代码：
-```python
+```
 ;	COMDAT _cblas_ddot
 _TEXT	SEGMENT
 _i$ = -12						; size = 4
@@ -715,15 +765,17 @@ $LN28@cblas_ddot:
 _cblas_ddot ENDP
 _TEXT	ENDS
 ```
+
 启动编译器优化选项：
-```python
-cl main.c /FA /O2 /arch:SSE2
-```
+`cl main.c /FA /O2 /arch:SSE2`
+
+
+
 
 
 ## 汇编语言版(GotoBLAS2库)DDOT
 源代码：
-```python
+```
 /*********************************************************************/
 /*                                                                   */
 /*             Optimized BLAS libraries                              */
@@ -744,8 +796,10 @@ cl main.c /FA /O2 /arch:SSE2
 /* limited to those resulting from defects in Software and/or        */
 /* Documentation, or loss or inaccuracy of data of any kind.         */
 /*********************************************************************/
+
 #define ASSEMBLER
 #include "common.h"
+
 #define STACK	12
 #define ARGS     0
 	
@@ -754,44 +808,56 @@ cl main.c /FA /O2 /arch:SSE2
 #define STACK_INCX	12 + STACK + ARGS(%esp)
 #define STACK_Y		16 + STACK + ARGS(%esp)
 #define STACK_INCY	20 + STACK + ARGS(%esp)
+
 #define N	%ebx
 #define X	%esi
 #define INCX	%ecx
 #define Y	%edi
 #define INCY	%edx
 
+
 	PROLOGUE
+
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
+
 	PROFCODE
+
 #if defined(F_INTERFACE_GFORT) || defined(F_INTERFACE_G95)
 	EMMS
 #endif
+
 	movl	STACK_N,     N
 	movl	STACK_X,     X
 	movl	STACK_INCX,  INCX
 	movl	STACK_Y,     Y
 	movl	STACK_INCY,  INCY
+
 #ifdef F_INTERFACE
 	movl	(N),N
 	movl	(INCX),INCX
 	movl	(INCY),INCY
 #endif
+
 	leal	(, INCX, SIZE), INCX	
 	leal	(, INCY, SIZE), INCY	
+
 	fldz
 	fldz
 	fldz
 	fldz
+
 	cmpl	$SIZE, INCX
 	jne	.L14
 	cmpl	$SIZE, INCY
 	jne	.L14
+
 	movl	N, %eax
 	sarl	$2,   %eax
 	jle	.L15
 	ALIGN_3
+
 .L16:
 	FLD	0 * SIZE(X)
 	FMUL	0 * SIZE(Y)
@@ -810,11 +876,13 @@ cl main.c /FA /O2 /arch:SSE2
 	decl	%eax
 	jg	.L16
 	ALIGN_3
+
 .L15:
 	movl	N, %eax
 	andl	$3,   %eax
 	jle	.L27
 	ALIGN_3
+
 .L22:
 	FLD	(X)
 	addl	$SIZE, X
@@ -823,20 +891,25 @@ cl main.c /FA /O2 /arch:SSE2
 	faddp	%st,%st(1)
 	decl	%eax
 	jg	.L22
+
 	jmp	.L27
 	ALIGN_3
+
 .L14:
 #ifdef F_INTERFACE
 	testl	INCX, INCX
 	jge	.L28
+
 	movl	N, %eax
 	decl	%eax
 	imull	INCX, %eax
 	subl	%eax, X
 	ALIGN_3
+
 .L28:
 	testl	INCY, INCY
 	jge	.L29
+
 	movl	N, %eax
 	decl	%eax
 	imull	INCY, %eax
@@ -848,35 +921,42 @@ cl main.c /FA /O2 /arch:SSE2
 	sarl	$2,   %eax
 	jle	.L30
 	ALIGN_3
+
 .L31:
 	FLD	(X)
 	addl	INCX, X
 	FMUL	(Y)
 	addl	INCY, Y
 	faddp	%st,%st(1)
+
 	FLD	(X)
 	addl	INCX, X
 	FMUL	(Y)
 	addl	INCY, Y
 	faddp	%st,%st(2)
+
 	FLD	(X)
 	addl	INCX, X
 	FMUL	(Y)
 	addl	INCY, Y
 	faddp	%st,%st(3)
+
 	FLD	(X)
 	addl	INCX, X
 	FMUL	(Y)
 	addl	INCY, Y
 	faddp	%st,%st(4)
+
 	decl	%eax
 	jg	.L31
 	ALIGN_3
+
 .L30:
 	movl	N, %eax
 	andl	$3,   %eax
 	jle	.L27
 	ALIGN_3
+
 .L37:
 	FLD	(X)
 	addl	INCX, X
@@ -886,24 +966,34 @@ cl main.c /FA /O2 /arch:SSE2
 	decl	%eax
 	jg	.L37
 	ALIGN_3
+
 .L27:
 	faddp	%st,%st(2)
 	faddp	%st,%st(2)
 	faddp	%st,%st(1)
+
 	popl	%ebx
 	popl	%esi
 	popl	%edi
 	ret
+
 	EPILOGUE
 ```
 
+
+
+
+
 **使用方法**：
+
 测试DDOT函数
-```python
+
+```cpp
 unsigned int longGetCycleCount()   
 {   
     __asm RDTSC   
 } 
+
 void test_ddot()  
 {  
     int i;
@@ -927,6 +1017,7 @@ void test_ddot()
     }
   
     printf("%s  of the arraies is %f \n", functionName, result);  
+
     if (fabs(12.1 - result) < 0.0001)  
     {  
         printf("%s test SUCCESS.\n", functionName);  
@@ -935,44 +1026,68 @@ void test_ddot()
     {  
         printf("[Fail] %s test failed.\n", functionName);  
     } 
+
   
     printf("\n");  
     return;  
 }  
+
 
 int main( void )
 {
    
     unsigned int start,end;
     double cost;
+
     start = longGetCycleCount();
     test_ddot() ; 
     end = longGetCycleCount();
+
     cost =  (double)  (end-start) / 2900000000 ;   
     printf("%f \n",cost); 
+
     return 0;
 }
 ```
 
-未开启速度优化选项编译得到的运算时间 为0.005 秒左右。
+
+未开启速度优化选项编译得到的运算时间 为0.005 秒左右。 
+
 开启速度优化选项编译得到的运算时间 为0.0005 秒左右。
+
+
+
+
 
 开启编译器优化选项可使计算效率提高10倍左右。
 
+
+
+
 **测试环境**：
+
 Visual Studio Express 2010
-Operating System：Windows 7, 64-bit
+Operating System：Windows 7, 64-bit 
 CPU：Intel Core(TM) CPU 2.90GHz
 Memory： 4.00GB
 Hard disk: 500G
 
+
+
+
+
 **参考文献**
+
 [1] http://www.applied-mathematics.net/miniSSEL1BLAS/miniSSEL1BLAS.pdf
 [2]  https://software.intel.com/en-us/articles/use-intriniscs/
 [3]  Hadi Brais.  Compilers - What Every Programmer Should Know About Compiler Optimizations.  https://msdn.microsoft.com/en-us/magazine/dn904673.aspx.    February 2015.
-[4]  Koushik Ghosh. Writing Efficient C and C Code Optimization. http://www.codeproject.com/Articles/6154/Writing-Efficient-C-and-C-Code-Optimization.  26 Feb 2004.
-[5] http://sci.tuomastonteri.fi/programming/sse
+[4]  Koushik Ghosh. Writing Efficient C and C Code Optimization. http://www.codeproject.com/Articles/6154/Writing-Efficient-C-and-C-Code-Optimization.  26 Feb 2004. 
+[5] http://sci.tuomastonteri.fi/programming/sse 
 [6] https://www.kernel.org/pub/linux/kernel/people/geoff/cell/ps3-linux-docs/CellProgrammingTutorial/BasicsOfSIMDProgramming.html
+
+
+
+
 
 
 

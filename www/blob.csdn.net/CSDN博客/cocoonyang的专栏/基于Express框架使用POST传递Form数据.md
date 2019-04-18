@@ -1,16 +1,27 @@
-
 # 基于Express框架使用POST传递Form数据 - cocoonyang的专栏 - CSDN博客
 
 
-2016年08月25日 09:01:15[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：12243个人分类：[nodejs																](https://blog.csdn.net/cocoonyang/article/category/1301193)
 
 
 
-## 客户端
-## 使用Form发送数据
+2016年08月25日 09:01:15[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：12266
+个人分类：[nodejs](https://blog.csdn.net/cocoonyang/article/category/1301193)
+
+
+
+
+
+
+
+
+
+## 客户端使用Form发送数据
+
 在客户端Html文件中Form代码如下：
 
-```python
+
+
+```
 <!-- POST test  -->
 <form action="/test" method="post"  id="foo"  >
     <input type="text" name="username">
@@ -18,33 +29,51 @@
     <input type="submit">
 </form>
 ```
-在服务器端处理'/test' POST请求的代码如下：
 
-```python
+
+
+在服务器端处理'/test' POST请求的代码如下： 
+
+
+
+```java
 var bodyParser = require('body-parser');
+
 // ... 
+
 // create application/json parser
 var jsonParser = bodyParser.json()
+
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
 // ... 
+
 // 
 //  request from form of the html file
 // 
 app.post('/test', urlencodedParser, function(req, res) {  
     if (!req.body) return res.sendStatus(400);
+
     console.log('Username: ' + req.body.username);
     console.log('Password: ' + req.body.password);
+
     res.send('Welcome, ' + req.body.username); 
 });
 ```
 
-## 客户端
-## 使用Node.js发送数据
+
+## 客户端使用Node.js发送数据
+
+
+
 在客户端使用Node.js发送Form数据的代码
 
-```python
+
+
+```java
 const http = require('http');
+
 var data = {  
         username: 'foo',  
         password: "test"  
@@ -52,6 +81,7 @@ var data = {
  
 var postData = require('querystring').stringify(data);  
 console.log( postData );  
+
 function form()
 {
     var options = {  
@@ -86,16 +116,18 @@ function form()
     request.write( postData );
     request.end();  
 }
+
 form();
 ```
 
-## 客户端
-## 使用
-## jQuery
-## 发送数据
+
+## 客户端使用jQuery发送数据
+
 客户端使用jQuery的 $.ajax post数据，
 
-```python
+
+
+```
 <!DOCTYPE html>
 <html>
 <head>
@@ -105,6 +137,7 @@ form();
     <script src="client.js" type="text/javascript"></script>
 </head>
 <body>
+
 <!-- POST test  -->
 <form action='/update' method='post' id='foo' > Parameters
 <table border="0">
@@ -115,12 +148,16 @@ form();
 </table> 
 </form>
 <button name="button1" id='startButton' > Update</button>
+
 </body>
 </html>
 ```
-client.js
-```python
+ client.js 
+
+
+```
 $(document).ready(function(){ 
+
      //try joining the server when the user clicks the connect button
      $("#startButton").click(function () {
       var filename = $("#input[name=filename]").val();
@@ -142,18 +179,24 @@ $(document).ready(function(){
     });
 });
 ```
+
 server端使用node.js解析数据
-```python
+
+
+```java
 //
 // Modules 
 var express = require('express'); 
 var bodyParser = require('body-parser'); 
+
 //
 //  Global variables 
 var app = express();  
+
 // body parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
 
 /* POST /update listing. */
 app.post('/update', function(req, res, next) {
@@ -161,11 +204,18 @@ app.post('/update', function(req, res, next) {
     if (!req.body) return res.sendStatus(400);	
 	
     console.log('filename: ' + req.body.filename);  
+
     res.redirect('./');
 });
 ```
+
+
 参考文献：
-https://github.com/expressjs/body-parser
+ https://github.com/expressjs/body-parser
+
+
+
+
 
 
 

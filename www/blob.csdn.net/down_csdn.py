@@ -27,13 +27,13 @@ def getlist(url, aa):
 
 #li=getlist()
 
-import htmltree
+import htm2md
 
 def down_csdn_one(url):
     print(url)
     data = getdata(url)
     #save_txt('test1.html', data)
-    root, t, d = htmltree.htm2md(data)
+    root, t, d = htm2md.htm2md(data)
     # 'data-za-detail-view-element_name'
     save_txt_td(root, t, d)
 
@@ -62,16 +62,25 @@ def getlist_zhihu(url):
             ll.append('https://zhuanlan.zhihu.com/p/'+i)
     return ll
 
-def down_zhihu_list_one(url):
-    ll=getlist_zhihu(url)
+def getlist_sciencenet(url):
+    data = getdata(url)
+    tt = data.replace('"', '\n').split('\n')
+    ll=[]
+    for i in tt:
+        if len(i)>15 and 'blog-'==i[0:5] and '.html'==i[-5:]:
+            ll.append('http://blog.sciencenet.cn/'+i)
+    return ll
+
+def down_list_one(url, getlist):
+    ll=getlist(url)
     for li in ll:
         down_csdn_one(li)
     return ll
 
-def down_zhihu_list(urllist):
+def down_list(urllist, getlist):
     tt = 0
     for url in urllist:
-        ll = down_zhihu_list_one(url)
+        ll = down_list_one(url, getlist)
         if len(ll)<5:
             tt+=1
         else:
@@ -141,13 +150,21 @@ if __name__ == '__main__':
         pass
     elif url.find('baike.baidu.com')>0:
         down_csdn_one(url)
+    elif url.find('blog.sciencenet.cn')>0:
+        if url.find('&do=blog&')>0:
+            url = '&'.join(url.split('&')[0:5])
+            url += '&page='
+            urllist = map(lambda i:url+str(i), range(1,1000))
+            urllist = list(urllist)
+            down_list(urllist, getlist_sciencenet)
+        down_csdn_one(url)
     elif url.find('zhihu.com')>0:
         if url.find('/people/')>0 or url.find('/org/')>0:
             url = '/'.join(url.split('/')[0:5])
             url += '/posts?page='
             urllist = map(lambda i:url+str(i), range(1,1000))
             urllist = list(urllist)
-            down_zhihu_list(urllist)
+            down_list(urllist, getlist_zhihu)
         down_csdn_one(url)
     else:
         down_csdn_one(url)

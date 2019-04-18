@@ -1,16 +1,27 @@
-
 # Node.js 中 fs 模块使用样例 -- 文件读写 - cocoonyang的专栏 - CSDN博客
 
 
-2016年09月12日 10:47:51[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：2685
+
+
+
+2016年09月12日 10:47:51[cocoonyang](https://me.csdn.net/cocoonyang)阅读数：2693
+
+
+
+
+
+
 
 
 Node.js文件 I/O 是由简单封装的标准 POSIX 函数提供的[1]。 fs(File System)是Node.js的内置模块，可直接通过
-```python
+
+```java
 const fs = require('fs');
 ```
+
 使用该模块。  fs 模块所有的API都有异步和同步的形式。异步形式始终以完成回调作为它最后一个参数。 传给完成回调的参数取决于具体方法，但第一个参数总是留给异常。 如果操作成功完成，则第一个参数会是 null 或 undefined。当使用同步形式时，任何异常都会被立即抛出。 可以使用 try/catch 来处理异常，或让它们往上冒泡。使用异步API无法保证函数调用顺序. 下列代码中使用fs.rename更改一文件名称，然后使用fs.stat检验改名操作结果。如果使用异步API，fs.stat可能会在调用fs.rename前执行[1].
-```python
+
+```java
 fs.rename('/tmp/hello', '/tmp/world', function(err){
   if (err) throw err;
   console.log('renamed complete');
@@ -21,7 +32,8 @@ fs.stat('/tmp/world', function(err, stats){
 });
 ```
 正确的做法是使用一系列回调函数来保证API调用顺序
-```python
+
+```java
 fs.rename('/tmp/hello', '/tmp/world', function(err){
   if (err) throw err;
   fs.stat('/tmp/world', function(err, stats){
@@ -31,12 +43,19 @@ fs.rename('/tmp/hello', '/tmp/world', function(err){
 });
 ```
 
+
+
+
 ## 文件读写
+
 使用readFile读文件样例[2]
-```python
+
+```java
 var fs = require('fs'); 
+
 var readFileName = './foo.txt';  
 var writeFileName = './target.txt';  
+
 /** Using the readFile API - Asynchronous */
 fs.readFile( readFileName, "utf8", function(err, data){
   if ( err ){ throw err;}
@@ -45,20 +64,26 @@ fs.readFile( readFileName, "utf8", function(err, data){
 });
 ```
 使用readFileSync读文件样例[2]
-```python
+```java
 var fs = require('fs'); 
+
 var readFileName = './foo.txt';  
 var writeFileName = './target.txt';  
+
 /** Using the readFile API - Asynchronous */
 console.log("Reading file synchronously");
 var fileData = fs.readFileSync(  readFileName, "utf8");
 console.log(fileData);
 ```
+
 使用ReadStream读文件样例[2]
-```python
+
+```java
 var fs = require('fs'); 
+
 var readFileName = './foo.txt';  
 var writeFileName = './target.txt';  
+
 /** Reading file using ReadStream API */
 //Creating a stream out of the file
 var readStreamObject = fs.createReadStream( readFileName, { flags: 'r',
@@ -67,24 +92,32 @@ var readStreamObject = fs.createReadStream( readFileName, { flags: 'r',
   mode: 0666,
   autoClose: true
 });
+
 //Setting up event handlers on the stream object
 //readable - this event is fired when data can be read from stream
 readStreamObject.on('readable', function(){
   console.log("*** Reading from file using ReadStream");
 });
 
+
 //data - this event is fired when data is available to be read from stream
 readStreamObject.on('data', function(data){
   console.log(data);
 });
 ```
+
 使用writeFileSync写文件样例[2]
-```python
+
+```java
 var fs = require('fs'); 
+
 var readFileName = './foo.txt';  
 var writeFileName = './target.txt';  
+
 fs.writeFileSync( writeFileName, "Writing to a file synchronously from node.js", {"encoding":'utf8'});
+
 console.log("*** File written successfully");
+
 //Now reading the same file to confirm data written
 fs.readFile(  writeFileName, "utf8", function(err, data){
   if ( err ){ throw err;}
@@ -93,10 +126,12 @@ fs.readFile(  writeFileName, "utf8", function(err, data){
 });
 ```
 使用writeFile写文件样例[2]
-```python
+```java
 var fs = require('fs'); 
+
 var readFileName = './foo.txt';  
 var writeFileName = './target.txt';  
+
 fs.writeFile(  writeFileName, "Writing to a file from node.js", {"encoding":'utf8'}, function(err){
   if ( err ) { throw err; }
   console.log("*** File written successfully");
@@ -106,19 +141,24 @@ fs.writeFile(  writeFileName, "Writing to a file from node.js", {"encoding":'utf
     console.log("*** Reading just written file");
     console.log(data);
   });
+
 });
 ```
 多次对同一文件使用 fs.write 且不等待回调，是不安全的.推荐使用 fs.createWriteStream[1] 。
 使用createWriteStream写文件样例[2]
-```python
+```java
 var fs = require('fs'); 
+
 var readFileName = './foo.txt';  
 var writeFileName = './target.txt';  
 
+
 //Create a stream with the required path
 var writeStreamObject = fs.createWriteStream( writeFileName );
+
 //write to the stream using the API
 writeStreamObject.write("Writing to a file using WriteStream", "utf8");
+
 //Now read the same file to verify that the contents have been successfully written
 fs.readFile( writeFileName, "utf8", function(err, data){
   if ( err ){ throw err;}
@@ -127,16 +167,23 @@ fs.readFile( writeFileName, "utf8", function(err, data){
 });
 ```
 
+
+
+
 ## 文件复制
+
 文件复制样例[3]
-```python
+
+```java
 var fs = require('fs'),
     path = require('path'),
     out = process.stdout;
 var stat
 var filePath = './foo.mkv';
+
 var readStream = fs.createReadStream(filePath);
 var writeStream = fs.createWriteStream('file.mkv');
+
 try {
   stat = fs.statSync(filePath);
   console.log("File exists.");
@@ -149,22 +196,29 @@ catch (e) {
   console.log("Exception fs.statSync (" + filePath + "): " + e);
   // console.log(filePath + " does not exist.");
 }
+
 var totalSize = stat.size;
 var passedLength = 0;
 var lastSize = 0;
 var startTime = Date.now();
+
 readStream.on('data', function(chunk) {
+
     passedLength += chunk.length;
+
     if (writeStream.write(chunk) === false) {
         readStream.pause();
     }
 });
+
 readStream.on('end', function() {
     writeStream.end();
 });
+
 writeStream.on('drain', function() {
     readStream.resume();
 });
+
 setTimeout(function show() {
     var percent = Math.ceil((passedLength / totalSize) * 100);
     var size = Math.ceil(passedLength / 1000000);
@@ -183,9 +237,12 @@ setTimeout(function show() {
 }, 500);
 ```
 
+
 ### Synchronous Copy
+
 代码样例[7]
-```python
+
+```java
 copyFileSync = (srcFile, destFile) 
 function copyFileSync(srcFile, destFile) {
   var BUF_LENGTH = 64*1024  
@@ -194,6 +251,7 @@ function copyFileSync(srcFile, destFile) {
   var fdw = fs.openSync(destFile, 'w') 
   var bytesRead = 1  
   var pos = 0  
+
   while( bytesRead > 0 )
   { 
     bytesRead = fs.readSync(fdr, buff, 0, BUF_LENGTH, pos)  
@@ -204,17 +262,23 @@ function copyFileSync(srcFile, destFile) {
   fs.closeSync(fdw);  
 }
 ```
-Results of testing influences of the buffer size for time consumption shows that there is a lower limitation of the parameter. For one file about 300 MB, the coping processes with various buffer sizes, which over 2 KB, take roughly similar time. If the buffer is lower than 2 KB, however, time computation would increase significantly.
+Results of testing influences of the buffer size for time consumption shows that there is a lower limitation of the parameter. For one file about 300 MB, the coping processes with various buffer sizes, which over 2 KB, take roughly similar time. If the buffer is lower than 2 KB, however, time computation would increase significantly. 
+
+
 
 ### Asynchronous Copy
+
 stream version in one line [8]
-```python
+
+```java
 var fs = require('fs');  
   
 fs.createReadStream('test.log').pipe(fs.createWriteStream('newLog.log'));
 ```
+
 stream version with errors handling provided by Mike Schilling [8]
-```python
+
+```java
 function copyFile(source, target, cb) {  
   var cbCalled = false;  
   
@@ -239,8 +303,10 @@ function copyFile(source, target, cb) {
   }  
 }
 ```
+
 stream version with errors handling presented by Jens Hauke [8]
-```python
+
+```java
 function copyFile(source, target, cb) {  
   var cbCalled = false;  
   
@@ -263,15 +329,22 @@ function copyFile(source, target, cb) {
 }
 ```
 
+
+
+
 ## 大文件读写
+
 大多数情况下读文件的速度总比写文件的速度快，这样便导致大量的数据被积压在内存中，当要读取的文件很大时，甚至会导致因占用内存太多而导致整个 Node.js 进程崩溃。
 当读取速度超出我们期望的值时，可以执行pause()先暂停，待时机符合时再执行resume()重新开始[5]。
-```python
+
+```java
 var util = require('util');
 var events = require('events');
 var fs = require('fs');
+
 // 一个几百 M 的文本文件
 var inputFile = '/Volumes/foo.txt';
+
 
 function ReadStreamThrottle (stream, speed) {
   this._stream = stream;
@@ -282,12 +355,14 @@ function ReadStreamThrottle (stream, speed) {
   this._lastTimestamp = Date.now();
   this._paused = false;
   var self = this;
+
   // 检查速度是否太快
   function isTooFast () {
     var t = (Date.now() - self._lastTimestamp) / 1000;
     var bps = self._readBytesSecond / t;
     return bps > speed;
   }
+
   // 每隔一段时间检查速度
   function checkSpeed () {
     if (isTooFast()) {
@@ -303,26 +378,32 @@ function ReadStreamThrottle (stream, speed) {
       self.resume();
     }
   }
+
   stream.on('data', function (chunk) {
     self._readBytes += chunk.length;
     self._readBytesSecond += chunk.length;
     self.emit('data', chunk);
     checkSpeed();
   });
+
   stream.on('end', function () {
     self._ended = true;
     self.emit('end');
   });
 }
+
 util.inherits(ReadStreamThrottle, events.EventEmitter);
+
 ReadStreamThrottle.prototype.pause = function () {
   this._paused = true;
   this._stream.pause();
 };
+
 ReadStreamThrottle.prototype.resume = function () {
   this._paused = false;
   this._stream.resume();
 };
+
 
 // 读取文件，限制速度不大于 10MB/S
 var MB = 1024 * 1024;
@@ -339,10 +420,17 @@ s.on('end', function () {
 });
 ```
 
+
+
+
 ## 文件上传
+
 根据"RFC 1867 - Form-based File Upload in HTML"协议，使用Node.js实现文件上传[9]
+
+
 在浏览器上通过form 表单来上传文件时使用的数据包格式如下：
-```python
+
+```java
 POSThttp://www.foo.com/ HTTP/1.1
 Host: www.foo.com
 Content-Length: 199
@@ -353,16 +441,21 @@ Content-Type: text/plain
 hello world
 ------WebKitFormBoundarywr3X7sXBYQQ4ZF5G--
 ```
+
 样例代码[9]
-```python
+
+```java
 const http = require('http');
 const fs = require('fs');
 
+
 //生成分隔数据
 var boundaryKey = '----WebKitFormBoundaryjLVkbqXtIi0YGpaB'; 
+
 var currentDir = __dirname + '/';
 var sourceFileName = 'BMW5_torsion.bdf'
 var filePath = currentDir + sourceFileName;
+
 // checking file
 try {  
   stat = fs.statSync(filePath);  
@@ -377,6 +470,7 @@ catch (e) {
   // console.log(filePath + " does not exist.");  
 }
 
+
 // 
 var options = {
     hostname: 'localhost',
@@ -385,7 +479,9 @@ var options = {
     method: 'POST'
 }
 
+
 //读取需要上传的文件内容
+
 fs.readFile( filePath, function (err, data) {
     //拼装分隔数据段
     var payload = '--' + boundaryKey + '\r\n' ;
@@ -411,11 +507,14 @@ fs.readFile( filePath, function (err, data) {
 });
 ```
 
+
+
 文件上传样例[4]
-```python
+```java
 var urlparse = require('url').parse
   , http = require('http')
   , fs = require('fs');
+
 function upload(url, uploadfile, callback) {
     var urlinfo = urlparse(url);
     var options = {
@@ -455,17 +554,23 @@ function upload(url, uploadfile, callback) {
         req.end();
     });
 };
+
 upload('http://weibo.com/', '/tmp/bigfile.pdf', function(err, res) {
     console.log(res.statusCode, res.headers);
 });
 ```
 
+
+
 ## 文件下载
+
 大文件下载样例[4]
-```python
+
+```java
 var urlparse = require('url').parse
 var http = require('http')
 var fs = require('fs'); 
+
 function download(url, savefile, callback) {
     console.log('download', url, 'to', savefile)
     var urlinfo = urlparse(url);
@@ -489,14 +594,20 @@ function download(url, savefile, callback) {
     });
     req.end();
 };
+
 download('http://web.mit.edu/cocosci/Papers/sci_reprint.pdf', '/temp/isomap.pdf', function(err, res) {
     console.log(res.statusCode, res.headers);
 });
 ```
 
+
+
+
 ## 大文件的下载以及断点续传
+
 大文件的下载以及断点续传基本原理是，在文件的下载断开以后。客户端继续向服务器端请求的时候，http请求的头文件中会多了一个参数“Range”，来标示当前下载的文件所断开的位置[6]。
-```python
+
+```java
 function Transfer(req, resp) {
 	this.req = req;
 	this.resp = resp;
@@ -543,6 +654,7 @@ Transfer.prototype._init = function(filePath, down) {
 	fs.stat(filePath, function(error, state) {
 		if(error)
 			throw error;
+
 		config.fileSize = state.size;
 		var range = self.req.headers.range;
 		config.startPos = self._calStartPosition(range);
@@ -582,6 +694,7 @@ Transfer.prototype.Download = function(filePath) {
 	});
 }
 
+
 var fs = require('fs')
 http = require('http')
 path = require('path');
@@ -593,13 +706,21 @@ var server = http.createServer(function(req, resp) {
 server.listen('8000');
 ```
 
-## isFile()
-Node.js 中 fs 模块的 isFile() 函数使用样例
-```python
+
+
+
+##  isFile()
+
+Node.js 中 fs 模块的 isFile() 函数使用样例  
+
+```java
 var fs = require('fs');
+
 var path = '.\foo.txt';
+
 // 同步版
 fs.statSync( path ).isFile() ;
+
 
 // 异步版
 fs.stat( path, function(s){
@@ -607,9 +728,14 @@ fs.stat( path, function(s){
 });
 ```
 
+
+
+
 参考文献
-[1] http://nodejs.cn/api/fs
-[2] http://javabeat.net/nodejs-read-write-file/
+
+
+[1] http://nodejs.cn/api/fs  
+[2] http://javabeat.net/nodejs-read-write-file/ 
 [3] https://segmentfault.com/a/1190000000519006
 [4] http://www.cnblogs.com/fengmk2/archive/2011/08/16/2140460.html
 [5] http://morning.work/page/2015-07/read_and_write_big_file_in_nodejs.html
@@ -617,5 +743,7 @@ fs.stat( path, function(s){
 [7] http://procbits.com/2011/11/15/synchronous-file-copy-in-node-js
 [8] http://stackoverflow.com/questions/11293857/fastest-way-to-copy-file-in-node-js
 [9] http://www.aichengxu.com/javascript/24609788.htm
+
+
 
 
