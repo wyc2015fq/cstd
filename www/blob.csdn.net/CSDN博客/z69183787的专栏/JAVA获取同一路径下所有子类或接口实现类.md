@@ -1,0 +1,118 @@
+# JAVA获取同一路径下所有子类或接口实现类 - z69183787的专栏 - CSDN博客
+2016年05月04日 10:06:20[OkidoGreen](https://me.csdn.net/z69183787)阅读数：2682
+整个测试代码如下：
+Java代码  ![收藏代码](http://kinkding.iteye.com/images/icon_star.png)
+- package find;  
+- 
+- import java.io.File;  
+- import java.io.IOException;  
+- import java.net.URL;  
+- import java.util.ArrayList;  
+- import java.util.List;  
+- 
+- import find.test.Intf;  
+- import find.test.Man;  
+- 
+- publicclass ClassUtil {  
+- publicstaticvoid main(String[] args) {  
+- try {  
+-             System.out.println("接口实现类：");  
+- for (Class<?> c : getAllAssignedClass(Intf.class)) {  
+-                 System.out.println(c.getName());  
+-             }  
+-             System.out.println("子类：");  
+- for (Class<?> c : getAllAssignedClass(Man.class)) {  
+-                 System.out.println(c.getName());  
+-             }  
+-         } catch (ClassNotFoundException e) {  
+- // TODO Auto-generated catch block
+-             e.printStackTrace();  
+-         } catch (IOException e) {  
+- // TODO Auto-generated catch block
+-             e.printStackTrace();  
+-         }  
+-     }  
+- 
+- /**
+-      * 获取同一路径下所有子类或接口实现类
+-      * 
+-      * @param intf
+-      * @return
+-      * @throws IOException
+-      * @throws ClassNotFoundException
+-      */
+- publicstatic List<Class<?>> getAllAssignedClass(Class<?> cls) throws IOException,  
+-             ClassNotFoundException {  
+-         List<Class<?>> classes = new ArrayList<Class<?>>();  
+- for (Class<?> c : getClasses(cls)) {  
+- if (cls.isAssignableFrom(c) && !cls.equals(c)) {  
+-                 classes.add(c);  
+-             }  
+-         }  
+- return classes;  
+-     }  
+- 
+- /**
+-      * 取得当前类路径下的所有类
+-      * 
+-      * @param cls
+-      * @return
+-      * @throws IOException
+-      * @throws ClassNotFoundException
+-      */
+- publicstatic List<Class<?>> getClasses(Class<?> cls) throws IOException,  
+-             ClassNotFoundException {  
+-         String pk = cls.getPackage().getName();  
+-         String path = pk.replace('.', '/');  
+-         ClassLoader classloader = Thread.currentThread().getContextClassLoader();  
+-         URL url = classloader.getResource(path);  
+- return getClasses(new File(url.getFile()), pk);  
+-     }  
+- 
+- /**
+-      * 迭代查找类
+-      * 
+-      * @param dir
+-      * @param pk
+-      * @return
+-      * @throws ClassNotFoundException
+-      */
+- privatestatic List<Class<?>> getClasses(File dir, String pk) throws ClassNotFoundException {  
+-         List<Class<?>> classes = new ArrayList<Class<?>>();  
+- if (!dir.exists()) {  
+- return classes;  
+-         }  
+- for (File f : dir.listFiles()) {  
+- if (f.isDirectory()) {  
+-                 classes.addAll(getClasses(f, pk + "." + f.getName()));  
+-             }  
+-             String name = f.getName();  
+- if (name.endsWith(".class")) {  
+-                 classes.add(Class.forName(pk + "." + name.substring(0, name.length() - 6)));  
+-             }  
+-         }  
+- return classes;  
+-     }  
+- 
+- }  
+运行结果如下：
+Java代码  ![收藏代码](http://kinkding.iteye.com/images/icon_star.png)
+- 接口实现类：  
+- find.test.impl.IntfImpl2  
+- find.test.IntfImpl  
+- 子类：  
+- find.test.BadMan  
+- find.test.impl.GoodMan  
+ 目录接口如下：
+Java代码  ![收藏代码](http://kinkding.iteye.com/images/icon_star.png)
+- src  
+- |----find  
+-      |----ClassUtil.java  
+-      |----test  
+-           |----BadMan.java  
+-           |----impl  
+-           |    |----GoodMan.java  
+-           |    |----IntfImpl2.java  
+-           |----Intf.java  
+-           |----IntfImpl.java  
+-           |----Man.java  

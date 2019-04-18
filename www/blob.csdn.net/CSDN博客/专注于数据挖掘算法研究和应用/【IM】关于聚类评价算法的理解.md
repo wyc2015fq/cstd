@@ -1,22 +1,7 @@
 # 【IM】关于聚类评价算法的理解 - 专注于数据挖掘算法研究和应用 - CSDN博客
-
-
-
-
-
-2018年10月26日 16:25:25[fjssharpsword](https://me.csdn.net/fjssharpsword)阅读数：169
+2018年10月26日 16:25:25[fjssharpsword](https://me.csdn.net/fjssharpsword)阅读数：170
 个人分类：[Algorithm](https://blog.csdn.net/fjssharpsword/article/category/6309933)
-
-
-
-
-
-
-
-
-
 谱聚类是基于拉普拉斯特征映射的k近邻聚类，matlab代码如下：
-
 ```
 >> n=500;c=2;k=10;t=randperm(n);a=linspace(0,2*pi,n/2)';
 >> x=[a.*cos(a) a.*sin(a);(a+pi).*cos(a) (a+pi).*sin(a)];
@@ -38,17 +23,11 @@
 >> plot(x(y==1,1),x(y==1,2),'bo')
 >> plot(x(y==2,1),x(y==2,2),'rx')
 ```
-
 结果如：
-
 ![](https://img-blog.csdnimg.cn/20181026162247764.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2Zqc3NoYXJwc3dvcmQ=,size_27,color_FFFFFF,t_70)
-
 聚类依赖超参的选择，如k值，如何确定最佳k值，下面理解通过互信息来评价聚类的算法：
-
 ![](https://img-blog.csdnimg.cn/2018102616235379.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2Zqc3NoYXJwc3dvcmQ=,size_27,color_FFFFFF,t_70)
-
 参考matlab代码如：
-
 ```
 >> n=500;a=linspace(0,2*pi,n/2)';
 >> x=[a.*cos(a) a.*sin(a);(a+pi).*cos(a) (a+pi).*sin(a)];
@@ -80,10 +59,5 @@ end
 >> disp(sprintf('Information=%g',s));
 Information=0.498697
 ```
-
 理解互信息法评价聚类，要理解KL散度，以及近似密度估计函数的思路。
-
 而谱聚类本身则要理解拉普拉斯特征映射（降维方法）。
-
-
-

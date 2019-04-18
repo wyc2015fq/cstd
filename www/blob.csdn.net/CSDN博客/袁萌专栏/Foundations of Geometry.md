@@ -1,9 +1,5 @@
-
 # Foundations of Geometry - 袁萌专栏 - CSDN博客
-
-2019年03月17日 00:15:15[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：86
-
-
+2019年03月17日 00:15:15[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：88
 Foundations of Geometry
 BY DAVID HILBERT, PH. D.
 PROFESSOR OF MATHEMATICS, UNIVERSITY OF GÖTTINGEN
@@ -52,7 +48,7 @@ CHAPTER V. DESARGUES’S THEOREM.
 §22. Desargues’s theorem and its demonstration for plane geometry by aid of the axioms of congruence ...48
 §23. The impossibility of demonstrating Desargues’s theorem for the plane without the help of the axioms of congruence 50
 §24. Introduction of an al
-gebra of segments based upon Desargues’s theorem and independent of the axioms of congruence 53
+gebra of segments based upon Desargues’s theorem and independent of the axioms of congruence 53   
 §25. The commutative and the associative law of addition for our new algebra of segments ...............55
 §26. The associative law of multiplication and the two distributive laws for the new algebra of segments ................. 56
 §27. Equation of the straight line, based upon the new algebra of segments ... 61 §28. The totality of segments, regarded as a complex number system ... 64
@@ -196,17 +192,12 @@ itself. By suitable conventions, we can make this “non-euclideangeometry” ob
 We shall show the independence of the axioms of congruence by demonstrating that axiom IV, 6, or what amounts to the same thing, that the ﬁrst theorem of congruence for triangles (theorem 10) cannot be deduced from the remaining axioms I, II, III, IV 1–5, V by any logical process of reasoning. Select, as the points, straight lines, and planes of our new geometry of space, the points, straight lines, and planes of ordinary geometry, and deﬁne the laying off of an angle as in ordinary geometry, for example, as explained in § 9. We will, however, deﬁne the laying off of segments in another manner. Let A1, A2 be two points which, in ordinary geometry, have the co-ordinates x1, y1, z1 and x2, y2, z2, respectively. We will now deﬁne the length of the segment A1A2 as the positive value of the expression q(x1−x2 +y1−y2)2 +(y1−y2)2 +(z1−z2)2 and call the two segments A1A2 and A0 1A0 2 congruent when they have equal lengths in the sense just deﬁned. It is at once evident that, in the geometry of space thus deﬁned, the axioms I, II, III, IV 1–2, 4–5, V are all fulﬁlled. In order to show that axiom IV, 3 also holds, we select an arbitrary straight line a and upon it three points A1, A2, A3 so that A2 shall lie between A1 and A3. Let the points x, y, z of the straight line a be given by means of the equations
 x = λt+λ0, y = µt+µ0, z = νt+ν0,
 where λ, λ0, µ, µ0, ν, ν0 represent certain constants and T is a parameter. If t1, t2 (< t1), t3 (< t2) arethevaluesoftheparametercorrespondingtothepoints A1, A2, A3 wehave as the lengths of the three segments A1A2 A2A3 and A1A3 respectively, the following values: (t1−t2)
-
 q(λ+µ)2 +µ2 +ν2
-
 ( t2−t3)
-
 q(λ+µ)2 +µ2 +ν2
 21
 (t1−t3)
-
 q(λ+µ)2 +µ2 +ν2
-
 Consequently, the length of A1A3 is equal to the sum of the lengths of the segments A1A2 and A2A3. But this result is equivalent to the existence of axiom IV, 3. Axiom IV, 6, or rather the ﬁrst theorem of congruence for triangles, is not always fulﬁlled in this geometry. Consider, for example, in the plane z = 0, the four points
 O, having the co-ordinates x = 0, y = 0 A, “ “ “ x = 1, y = 0 B, “ “ “ x = 0, y = 1 C, “ “ “ x = 1 2, y = 1 2
 Fig. 15.
@@ -682,5 +673,3 @@ Project Gutenberg-tm eBooks are often created from several printed editions, all
 Most people start at our Web site which has the main PG search facility:
 http://www.gutenberg.net
 This Web site includes information about Project Gutenberg-tm, including how to make donations to the Project Gutenberg Literary Archive Foundation, how to help produce our new eBooks, and how to subscribe to our emailewsletterto hearabout new eBooks.
-
-

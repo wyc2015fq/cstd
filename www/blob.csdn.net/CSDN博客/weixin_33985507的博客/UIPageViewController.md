@@ -1,0 +1,16 @@
+# UIPageViewController - weixin_33985507的博客 - CSDN博客
+2018年05月14日 14:00:00[weixin_33985507](https://me.csdn.net/weixin_33985507)阅读数：2
+初始化
+- (instancetype)initWithTransitionStyle:(UIPageViewControllerTransitionStyle)style navigationOrientation:(UIPageViewControllerNavigationOrientation)navigationOrientation options:(nullable NSDictionary<NSString *, id> *)options
+初始化方法提供三个参数:
+1，style: 这个参数是UIPageViewController翻页的过渡样式,系统提供了两种过度样式,分别是
+UIPageViewControllerTransitionStylePageCurl : 卷曲样式类似翻书效果
+UIPageViewControllerTransitionStyleScroll : UIScrollView滚动效果
+2，navigationOrientation: 这个参数是UIPageViewController导航方向,系统提供了两种方式,分别是
+UIPageViewControllerNavigationOrientationHorizontal : 水平导航方式
+UIPageViewControllerNavigationOrientationVertical : 垂直导航方式
+3，options: 这个参数是可选的,传入的是对UIPageViewController的一些配置组成的字典,不过这个参数只能以UIPageViewControllerOptionSpineLocationKey和UIPageViewControllerOptionInterPageSpacingKey这两个key组成的字典.
+UIPageViewControllerOptionSpineLocationKey 这个key只有在style是翻书效果UIPageViewControllerTransitionStylePageCurl的时候才有作用, 它定义的是书脊的位置,值对应着UIPageViewControllerSpineLocation这个枚举项,不要定义错了哦.
+UIPageViewControllerOptionInterPageSpacingKey这个key只有在style是UIScrollView滚动效果UIPageViewControllerTransitionStyleScroll的时候才有作用, 它定义的是两个页面之间的间距(默认间距是0).
+@property (nullable, nonatomic, weak) id <UIPageViewControllerDelegate> delegate;
+@property (nullable, nonatomic, weak) id <UIPageViewControllerDataSource> dataSource;

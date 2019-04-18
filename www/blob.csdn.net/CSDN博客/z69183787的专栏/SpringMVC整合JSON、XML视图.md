@@ -1,0 +1,1268 @@
+# SpringMVC整合JSON、XML视图 - z69183787的专栏 - CSDN博客
+2014年12月04日 15:38:00[OkidoGreen](https://me.csdn.net/z69183787)阅读数：1358
+原创不易，转载请注明出处：[SpringMVC整合JSON、XML视图](http://www.zuidaima.com/share/1751862737554432.htm)
+代码下载地址：[http://www.zuidaima.com/share/1751862737554432.htm](http://www.zuidaima.com/share/1751862737554432.htm)
+SpringMVC中整合了JSON、XML的视图，可以通过这些视图完成Java对象 到XML、JSON的转换。转换XML提供了MarshallingView，开发者只需用注入相应的marshaller、和属性配置，即可自动完成 Java的Model对象中的数据到XML的编组。
+Email：hoojo_@126.com
+Blog：[http://blog.csdn.net/IBM_hoojo](http://blog.csdn.net/IBM_hoojo)
+[http://hoojo.cnblogs.com/](http://hoojo.cnblogs.com/)
+**一、 准备工作**
+1、 本次程序会涉及到Jackson、xStream、Jibx、Jaxb2、castor等技术，如果你对这些技术还不是很了解。建议阅读：[http://www.cnblogs.com/hoojo/archive/2011/04/27/2030264.html](http://www.cnblogs.com/hoojo/archive/2011/04/27/2030264.html)
+这篇文章中涉及到的内容应该对你有不少帮助。
+2、 jar包下载
+spring各版本jar下载地址：[http://ebr.springsource.com/repository/app/library/detail?name=org.springframework.spring](http://ebr.springsource.com/repository/app/library/detail?name=org.springframework.spring)
+相关的依赖包也可以在这里找到：[http://ebr.springsource.com/repository/app/library](http://ebr.springsource.com/repository/app/library)
+3、 至少需要以下jar包
+![clip_image002](http://images.cnblogs.com/cnblogs_com/hoojo/201104/201104291132532893.jpg)
+4、 当前工程的web.xml配置
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- <?xml version="1.0" encoding="UTF-8"?>  
+- <web-app version="2.4"
+-     xmlns="http://java.sun.com/xml/ns/j2ee"
+-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee 
+-     http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+- 
+- 
+-     <-- 配置Spring核心控制器 -->  
+-     <servlet>  
+-         <servlet-name>dispatcher</servlet-name>  
+-         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>  
+-         <init-param>  
+-             <param-name>contextConfigLocation</param-name>  
+-             <param-value>/WEB-INF/dispatcher.xml</param-value>  
+-         </init-param>  
+-         <load-on-startup>1</load-on-startup>  
+-     </servlet>   
+- 
+-     <servlet-mapping>  
+-         <servlet-name>dispatcher</servlet-name>  
+-         <url-pattern>*.do</url-pattern>  
+-     </servlet-mapping>  
+- <-- 解决工程编码过滤器 -->  
+-     <filter>  
+-         <filter-name>characterEncodingFilter</filter-name>  
+-         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>  
+-         <init-param>  
+-             <param-name>encoding</param-name>  
+-             <param-value>UTF-8</param-value>  
+-         </init-param>  
+-     </filter>  
+- 
+- 
+-     <filter-mapping>  
+-         <filter-name>characterEncodingFilter</filter-name>  
+-         <url-pattern>/*</url-pattern>  
+-     </filter-mapping>      
+- 
+-     <welcome-file-list>  
+-       <welcome-file>index.jsp</welcome-file>  
+-     </welcome-file-list>  
+- </web-app>  
+5、 WEB-INF中的dispatcher.xml配置
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- <?xml version="1.0" encoding="UTF-8"?>  
+- 
+- <beans xmlns="http://www.springframework.org/schema/beans"
+- 
+-     xmlns:mvc="http://www.springframework.org/schema/mvc"
+- 
+-     xmlns:context="http://www.springframework.org/schema/context"
+- 
+-     xmlns:util="http://www.springframework.org/schema/util"
+- 
+-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+- 
+-     xsi:schemaLocation="http://www.springframework.org/schema/beans 
+- 
+-     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+- 
+-     http://www.springframework.org/schema/mvc
+- 
+-     http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+- 
+-     http://www.springframework.org/schema/context 
+- 
+-     http://www.springframework.org/schema/context/spring-context-3.0.xsd
+- 
+-     http://www.springframework.org/schema/util
+- 
+-     http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+- 
+- 
+- 
+-     <-- 注解探测器 -->  
+- 
+-     <context:component-scan base-package="com.hoo.controller"/>  
+- 
+- 
+- 
+-     <-- 视图解析器，根据视图的名称new ModelAndView(name)，在配置文件查找对应的bean配置 -->  
+- 
+-     <bean class="org.springframework.web.servlet.view.BeanNameViewResolver">  
+- 
+-         <property name="order" value="1"/>  
+- 
+-     </bean>  
+- 
+- 
+- 
+-     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
+- 
+-         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>  
+- 
+-     </bean>  
+- 
+- </beans>  
+启动后，可以看到index.jsp 没有出现异常或错误。那么当前SpringMVC的配置就成功了。
+**二、 利用Jaxb2编组XML**
+1、 Jaxb2可以完成XML和Java的相互转换，在WebService中用得较多。前面也介绍过Jaxb2 的用法。
+在线博文：
+For cnblogs：[http://www.cnblogs.com/hoojo/archive/2011/04/26/2029011.html](http://www.cnblogs.com/hoojo/archive/2011/04/26/2029011.html)
+For csdn：[http://blog.csdn.net/IBM_hoojo/archive/2011/04/26/6363491.aspx](http://blog.csdn.net/IBM_hoojo/archive/2011/04/26/6363491.aspx)
+2、 首先在dispatcher.xml中配置Jaxb2的marshaller的视图，配置如下：
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- <bean name="jaxb2MarshallingView"class="org.springframework.web.servlet.view.xml.MarshallingView">  
+- 
+-   <constructor-arg>  
+- 
+-       <bean class="org.springframework.oxm.jaxb.Jaxb2Marshaller">  
+- 
+-           <property name="classesToBeBound">  
+- 
+-               <array>  
+- 
+-                   <value>com.hoo.entity.User</value>  
+- 
+-                   <value>com.hoo.entity.AccountBean</value>  
+- 
+-                   <value>com.hoo.entity.MapBean</value>  
+- 
+-                   <value>com.hoo.entity.ListBean</value>  
+- 
+-               </array>  
+- 
+-           </property>  
+- 
+-       </bean>  
+- 
+-   </constructor-arg>  
+- 
+- t;/bean>  
+Jaxb2的jar在jdk中已经包含，所以不需要添加额外的jar包。详细信息你可以参考1中的博文。上面的 jaxb2MarshallingView视图的class是MarshallingView，它有一个构造器需要传递一个Marshaller。 Marshaller主要完成编组，即将Java对象转换成XML的这么一个东东。我们在这个构造器中注入了Jaxb2Marshaller这个类，这个 bean有一个classesToBeBound属性，这个属性是一个数组。需要将即将转换成XML的Java对象配置在这里。而且这些对象需要进行
+ Annotation注解。
+3、 创建Jaxb2MarshallingViewController，完成Java对象到XML的转换
+单个JavaBean的转换，代码如下：
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- package com.hoo.controller;  
+- 
+- 
+- 
+- import java.util.ArrayList;  
+- 
+- import java.util.Date;  
+- 
+- import java.util.List;  
+- 
+- import org.springframework.stereotype.Controller;  
+- 
+- import org.springframework.web.bind.annotation.RequestMapping;  
+- 
+- import org.springframework.web.servlet.ModelAndView;  
+- 
+- import com.hoo.entity.AccountBean;  
+- 
+- import com.hoo.entity.Brithday;  
+- 
+- import com.hoo.entity.DifferBean;  
+- 
+- import com.hoo.entity.ListBean;  
+- 
+- import com.hoo.entity.MoreBean;  
+- 
+- import com.hoo.entity.User;  
+- 
+- 
+- 
+- /**
+- 
+-  * <b>function:</b>Jaxb2MarshallingView 视图，利用Jaxb2进行Java对象到XML的转换技术
+- 
+-  * @author hoojo
+- 
+-  * @createDate 2011-4-27 下午03:20:23
+- 
+-  * @file Jaxb2MarshallingViewController.java
+- 
+-  * @package com.hoo.controller
+- 
+-  * @project SpringMVC4View
+- 
+-  * @blog http://blog.csdn.net/IBM_hoojo
+- 
+-  * @email hoojo_@126.com
+- 
+-  * @version 1.0
+- 
+-  */
+- 
+- @Controller
+- 
+- @RequestMapping("/jaxb2/view")  
+- 
+- publicclass Jaxb2MarshallingViewController {  
+- 
+- 
+- 
+- /*
+- 
+-      * MarshallingView Jaxb2Marshaller 需要配置转换成xml的java对象的Annotation
+- 
+-      */
+- 
+- @RequestMapping("/doXMLJaxb2")  
+- 
+- public ModelAndView doXMLJaxb2View() {  
+- 
+-         System.out.println("#################ViewController doXMLJaxb2View##################");  
+- 
+-         ModelAndView mav = new ModelAndView("jaxb2MarshallingView");  
+- 
+- 
+- 
+-         AccountBean bean = new AccountBean();  
+- 
+-         bean.setAddress("address");  
+- 
+-         bean.setEmail("email");  
+- 
+-         bean.setId(1);  
+- 
+-         bean.setName("haha");  
+- 
+-         Brithday day = new Brithday();  
+- 
+-         day.setBrithday("2010-11-22");  
+- 
+-         bean.setBrithday(day);  
+- 
+- 
+- 
+-         mav.addObject(bean);  
+- 
+- 
+- 
+- return mav;  
+- 
+-     }  
+- 
+- }  
+上面的代码的ModelAndView配置了jaxb2MarshallingView这个视图，就表示结果集会通过这个视图进行编组后显示。上面需要转换的AccountBean和Birthday对象，这些对象需要配置annotation，[前面已经讲到annotation对JavaBean转换XML的作用](http://www.cnblogs.com/hoojo/archive/2011/04/26/2029011.html)。我们来看看AccountBean对象代码：
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- package com.hoo.entity;  
+- 
+- 
+- 
+- import javax.xml.bind.annotation.XmlElement;  
+- 
+- import javax.xml.bind.annotation.XmlRootElement;  
+- 
+- 
+- 
+- @XmlRootElement(name = "account")  
+- 
+- publicclass AccountBean {  
+- 
+- privateint id;  
+- 
+- private String name;  
+- 
+- private String email;  
+- 
+- private String address;  
+- 
+- private Brithday brithday;  
+- 
+- 
+- 
+- @XmlElement
+- 
+- public Brithday getBrithday() {  
+- 
+- return brithday;  
+- 
+-     }  
+- 
+- publicvoid setBrithday(Brithday brithday) {  
+- 
+- this.brithday = brithday;  
+- 
+-     }  
+- 
+- 
+- 
+- @XmlElement
+- 
+- publicint getId() {  
+- 
+- return id;  
+- 
+-     }  
+- 
+- publicvoid setId(int id) {  
+- 
+- this.id = id;  
+- 
+-     }  
+- 
+- 
+- 
+- @XmlElement
+- 
+- public String getName() {  
+- 
+- return name;  
+- 
+-     }  
+- 
+- publicvoid setName(String name) {  
+- 
+- this.name = name;  
+- 
+-     }  
+- 
+- 
+- 
+- @XmlElement
+- 
+- public String getEmail() {  
+- 
+- return email;  
+- 
+-     }  
+- 
+- publicvoid setEmail(String email) {  
+- 
+- this.email = email;  
+- 
+-     }  
+- 
+- 
+- 
+- @XmlElement
+- 
+- public String getAddress() {  
+- 
+- return address;  
+- 
+-     }  
+- 
+- publicvoid setAddress(String address) {  
+- 
+- this.address = address;  
+- 
+-     }  
+- 
+- 
+- 
+- @Override
+- 
+- public String toString() {  
+- 
+- returnthis.name + "#" + this.id + "#" + this.address + "#" + this.brithday + "#" + this.email;  
+- 
+-     }  
+- 
+- }  
+在getter方法都有部分注解，如果你想了解更多的jaxb2的相关技术，参考：[http://www.cnblogs.com/hoojo/archive/2011/04/26/2029011.html](http://www.cnblogs.com/hoojo/archive/2011/04/26/2029011.html)
+Brithday
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- package com.hoo.entity;  
+- 
+- 
+- 
+- publicclass Brithday {  
+- 
+- private String brithday;  
+- 
+- 
+- 
+- public Brithday() {}  
+- 
+- 
+- 
+- public Brithday(String brithday) {  
+- 
+- this.brithday = brithday;  
+- 
+-     }  
+- 
+- 
+- 
+- public String getBrithday() {  
+- 
+- return brithday;  
+- 
+-     }  
+- 
+- 
+- 
+- publicvoid setBrithday(String brithday) {  
+- 
+- this.brithday = brithday;  
+- 
+-     }  
+- 
+- }  
+Brithday是AccountBean中的一个属性，在AccountBean中已经注解过。这里就不需要进行注解配置。
+通过浏览器请求：[http://localhost:8080/SpringMVC4View/jaxb2/view/doXMLJaxb2.do](http://localhost:8080/SpringMVC4View/jaxb2/view/doXMLJaxb2.do)
+结果如下：
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- <?xml version="1.0" encoding="UTF-8" standalone="yes"?>  
+- 
+- <account><address>address</address><brithday><brithday>2010-11-22</brithday></brithday>  
+- 
+- <email>email</email><id>1</id><name>haha</name></account>  
+4、 转换带List属性的JavaEntity
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- /**
+- 
+-  * <b>function:</b>转换带有List属性的JavaBean
+- 
+-  * @author hoojo
+- 
+-  * @createDate 2011-4-27 下午05:32:22
+- 
+-  * @return
+- 
+-  */
+- 
+- @RequestMapping("/doListXMLJaxb2")  
+- 
+- public ModelAndView doListXMLJaxb2View() {  
+- 
+-     System.out.println("#################ViewController doListXMLJaxb2View##################");  
+- 
+-     ModelAndView mav = new ModelAndView("jaxb2MarshallingView");  
+- 
+-     List<Object> beans = new ArrayList<Object>();   
+- 
+- for (int i = 0; i < 3; i++) {  
+- 
+-         AccountBean bean = new AccountBean();  
+- 
+-         bean.setAddress("address#" + i);  
+- 
+-         bean.setEmail("email" + i + "@12" + i + ".com");  
+- 
+-         bean.setId(1 + i);  
+- 
+-         bean.setName("haha#" + i);  
+- 
+-         Brithday day = new Brithday();  
+- 
+-         day.setBrithday("2010-11-2" + i);  
+- 
+-         bean.setBrithday(day);  
+- 
+-         beans.add(bean);  
+- 
+- 
+- 
+-         User user = new User();  
+- 
+-         user.setAddress("china GuangZhou# " + i);  
+- 
+-         user.setAge(23 + i);  
+- 
+-         user.setBrithday(new Date());  
+- 
+-         user.setName("jack#" + i);  
+- 
+-         user.setSex(Boolean.parseBoolean(i + ""));  
+- 
+-         beans.add(user);  
+- 
+-     }  
+- 
+- 
+- 
+-     ListBean list = new ListBean();  
+- 
+-     list.setList(beans);  
+- 
+-     mav.addObject(list);  
+- 
+- 
+- 
+- return mav;  
+- 
+- }  
+ListBean注解过的代码
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- package com.hoo.entity;  
+- 
+- 
+- 
+- import java.util.List;  
+- 
+- import javax.xml.bind.annotation.XmlElement;  
+- 
+- import javax.xml.bind.annotation.XmlElements;  
+- 
+- import javax.xml.bind.annotation.XmlRootElement;  
+- 
+- 
+- 
+- @SuppressWarnings("unchecked")  
+- 
+- @XmlRootElement
+- 
+- publicclass ListBean {  
+- 
+- private String name;  
+- 
+- private List list;  
+- 
+- 
+- 
+- @XmlElements({  
+- 
+- @XmlElement(name = "user", type = User.class),  
+- 
+- @XmlElement(name = "account", type = AccountBean.class),  
+- 
+-     })  
+- 
+- public List getList() {  
+- 
+- return list;  
+- 
+-     }  
+- 
+- 
+- 
+- publicvoid setList(List list) {  
+- 
+- this.list = list;  
+- 
+-     }  
+- 
+- 
+- 
+- public String getName() {  
+- 
+- return name;  
+- 
+-     }  
+- 
+- 
+- 
+- publicvoid setName(String name) {  
+- 
+- this.name = name;  
+- 
+-     }  
+- 
+- }  
+通过上面的注解可以看出List中只能存储User、AccountBean对象，关于User对象的代码和AccountBean对象的是一样的，只是类名不同而已。读者可以自己添加。在WebBrowser中请求：[http://localhost:8080/SpringMVC4View/jaxb2/view/doListXMLJaxb2.do](http://localhost:8080/SpringMVC4View/jaxb2/view/doListXMLJaxb2.do)
+结果如下：
+**[xml]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- <?xmlversion="1.0"encoding="UTF-8"standalone="yes"?>
+- 
+- <listBean>
+- 
+- <account><address>address#0</address><brithday><brithday>2010-11-20</brithday></brithday>
+- 
+- <email>email0@120.com</email><id>1</id><name>haha#0</name></account>
+- 
+- <user><address>china GuangZhou# 0</address><age>23</age>
+- 
+- <brithday>2011-04-27T17:02:38.028+08:00</brithday><name>jack#0</name><sex>false</sex></user>
+- 
+- <account><address>address#1</address><brithday><brithday>2010-11-21</brithday></brithday>
+- 
+- <email>email1@121.com</email><id>2</id><name>haha#1</name></account>
+- 
+- <user><address>china GuangZhou# 1</address><age>24</age>
+- 
+- <brithday>2011-04-27T17:02:38.028+08:00</brithday><name>jack#1</name><sex>false</sex></user>
+- 
+- <account><address>address#2</address><brithday><brithday>2010-11-22</brithday></brithday>
+- 
+- <email>email2@122.com</email><id>3</id><name>haha#2</name></account>
+- 
+- <user><address>china GuangZhou# 2</address><age>25</age>
+- 
+- <brithday>2011-04-27T17:02:38.028+08:00</brithday><name>jack#2</name><sex>false</sex></user>
+- 
+- </listBean>
+5、 转换带有Map属性的JavaBean，Jaxb2转换Map有点复杂，先看看代码：
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- /**
+- 
+-  * <b>function:</b>转换带有Map属性的JavaBean
+- 
+-  * @author hoojo
+- 
+-  * @createDate 2011-4-27 下午05:32:42
+- 
+-  * @return
+- 
+-  */
+- 
+- @RequestMapping("/doMapXMLJaxb2")  
+- 
+- public ModelAndView doMapXMLJaxb2View() {  
+- 
+-     System.out.println("#################ViewController doMapXMLJaxb2View##################");  
+- 
+-     ModelAndView mav = new ModelAndView("jaxb2MarshallingView");  
+- 
+- 
+- 
+-     MapBean mapBean = new MapBean();  
+- 
+- 
+- 
+-     HashMap<String, AccountBean> map = new HashMap<String, AccountBean>();  
+- 
+-     AccountBean bean = new AccountBean();  
+- 
+-     bean.setAddress("北京");  
+- 
+-     bean.setEmail("email");  
+- 
+-     bean.setId(1);  
+- 
+-     bean.setName("jack");  
+- 
+-     Brithday day = new Brithday();  
+- 
+-     day.setBrithday("2010-11-22");  
+- 
+-     bean.setBrithday(day);  
+- 
+-     map.put("NO1", bean);  
+- 
+- 
+- 
+-     bean = new AccountBean();  
+- 
+-     bean.setAddress("china");  
+- 
+-     bean.setEmail("tom@125.com");  
+- 
+-     bean.setId(2);  
+- 
+-     bean.setName("tom");  
+- 
+-     day = new Brithday("2011-11-22");  
+- 
+-     bean.setBrithday(day);  
+- 
+-     map.put("NO2", bean);  
+- 
+- 
+- 
+-     mapBean.setMap(map);  
+- 
+- 
+- 
+-     mav.addObject(mapBean);  
+- 
+- 
+- 
+- return mav;  
+- 
+- }  
+首先看看MapBean的代码，代码很简单就一个Map的属性。
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- package com.hoo.entity;  
+- 
+- 
+- 
+- import java.util.HashMap;  
+- 
+- import javax.xml.bind.annotation.XmlRootElement;  
+- 
+- import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;  
+- 
+- import com.hoo.util.MapAdapter;  
+- 
+- 
+- 
+- @XmlRootElement
+- 
+- publicclass MapBean {  
+- 
+- private HashMap<String, AccountBean> map;  
+- 
+- 
+- 
+- @XmlJavaTypeAdapter(MapAdapter.class)  
+- 
+- public HashMap<String, AccountBean> getMap() {  
+- 
+- return map;  
+- 
+-     }  
+- 
+- publicvoid setMap(HashMap<String, AccountBean> map) {  
+- 
+- this.map = map;  
+- 
+-     }  
+- 
+- }  
+上面的代码的getMap方法设置了XmlJavaTypeAdapter这个注解，注解里面的MapAdapter是我们自己实现的，而且还要构建一个MapElements数组元素。主要是继承XmlAdapter重写里面的几个方法完成的。
+MapAdapter代码
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- package com.hoo.util;  
+- 
+- 
+- 
+- import java.util.HashMap;  
+- 
+- import java.util.Map;  
+- 
+- import javax.xml.bind.annotation.adapters.XmlAdapter;  
+- 
+- import com.hoo.entity.AccountBean;  
+- 
+- 
+- 
+- /**
+- 
+-  * <b>function:</b>AccountBean 编组、解组的XmlAdapter
+- 
+-  * @author hoojo
+- 
+-  * @createDate 2011-4-25 下午05:03:18
+- 
+-  * @file MyAdetper.java
+- 
+-  * @package com.hoo.util
+- 
+-  * @project WebHttpUtils
+- 
+-  * @blog http://blog.csdn.net/IBM_hoojo
+- 
+-  * @email hoojo_@126.com
+- 
+-  * @version 1.0
+- 
+-  */
+- 
+- publicclass MapAdapter extends XmlAdapter<MapElements[], Map<String, AccountBean>> {  
+- 
+- public MapElements[] marshal(Map<String, AccountBean> arg0) throws Exception {  
+- 
+-         MapElements[] mapElements = new MapElements[arg0.size()];  
+- 
+- 
+- 
+- int i = 0;  
+- 
+- for (Map.Entry<String, AccountBean> entry : arg0.entrySet())  
+- 
+-             mapElements[i++] = new MapElements(entry.getKey(), entry.getValue());  
+- 
+- 
+- 
+- return mapElements;  
+- 
+-     }  
+- 
+- 
+- 
+- public Map<String, AccountBean> unmarshal(MapElements[] arg0) throws Exception {  
+- 
+-         Map<String, AccountBean> r = new HashMap<String, AccountBean>();  
+- 
+- for (MapElements mapelement : arg0)  
+- 
+-             r.put(mapelement.key, mapelement.value);  
+- 
+- return r;  
+- 
+-     }  
+- 
+- }  
+MapElements代码
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- package com.hoo.util;  
+- 
+- 
+- 
+- import javax.xml.bind.annotation.XmlElement;  
+- 
+- import com.hoo.entity.AccountBean;  
+- 
+- 
+- 
+- /**
+- 
+-  * <b>function:</b> MapElements
+- 
+-  * @author hoojo
+- 
+-  * @createDate 2011-4-25 下午05:04:04
+- 
+-  * @file MyElements.java
+- 
+-  * @package com.hoo.util
+- 
+-  * @project WebHttpUtils
+- 
+-  * @blog http://blog.csdn.net/IBM_hoojo
+- 
+-  * @email hoojo_@126.com
+- 
+-  * @version 1.0
+- 
+-  */
+- 
+- publicclass MapElements {  
+- 
+- @XmlElement
+- 
+- public String key;  
+- 
+- 
+- 
+- @XmlElement
+- 
+- public AccountBean value;  
+- 
+- 
+- 
+- @SuppressWarnings("unused")  
+- 
+- private MapElements() {  
+- 
+-     } // Required by JAXB
+- 
+- 
+- 
+- public MapElements(String key, AccountBean value) {  
+- 
+- this.key = key;  
+- 
+- this.value = value;  
+- 
+-     }  
+- 
+- }  
+在浏览器中请求：[http://localhost:8080/SpringMVC4View/jaxb2/view/doMapXMLJaxb2.do](http://localhost:8080/SpringMVC4View/jaxb2/view/doMapXMLJaxb2.do)
+结果如下：
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- <?xml version="1.0" encoding="UTF-8" standalone="yes"?>  
+- 
+- <mapBean><map><item><key>NO2</key><value><address>china</address>  
+- 
+- <brithday><brithday>2011-11-22</brithday></brithday>  
+- 
+- <email>tom@125.com</email><id>2</id><name>tom</name></value></item>  
+- 
+- <item><key>NO1</key><value><address>北京</address><brithday><brithday>2010-11-22</brithday></brithday>  
+- 
+- <email>email</email><id>1</id><name>jack</name></value></item></map>  
+- 
+- </mapBean>  
+总结，如果你想将一些Java的基本类型转换成XML。那么你得创建一个带getter、setter方法的JavaBean。然后在Bean的getter方法进行相应的Annotation注解即可完成转换。
+**三、 利用xStream转换XML**
+1、 xStream可以轻易的将Java对象转换成XML、JSON，Spring整合利用xStream转换xml。需要添加xStream相关的xstream-1.3.1.jar包。 如果你对xStream不上很了解，你可以先阅读这篇文章：
+For csblogs：[http://www.cnblogs.com/hoojo/archive/2011/04/22/2025197.html](http://www.cnblogs.com/hoojo/archive/2011/04/22/2025197.html)
+For csdn：[http://blog.csdn.net/IBM_hoojo/archive/2011/04/22/6342386.aspx](http://blog.csdn.net/IBM_hoojo/archive/2011/04/22/6342386.aspx)
+2、 然后在dispatcher.xml中添加如下配置
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- <-- xml视图，XStreamMarshaller，可以转换任何形式的java对象，需要添加xStream jar包 -->  
+- 
+- <bean name="xStreamMarshallingView"class="org.springframework.web.servlet.view.xml.MarshallingView">  
+- 
+-     <property name="marshaller">  
+- 
+-         <bean class="org.springframework.oxm.xstream.XStreamMarshaller">    
+- 
+-                <--  启用annotation -->  
+- 
+-                <property name="autodetectAnnotations" value="true"/>    
+- 
+-                <-- 类名别名 -->  
+- 
+-             <property name="aliases">  
+- 
+-                 <map>  
+- 
+-                     <-- Account这个类的别名就变成了myBeans，那么转换后的xml中就是myBeans -->  
+- 
+-                     <entry key="myBeans" value="com.hoo.entity.Account"/>  
+- 
+-                 </map>  
+- 
+-             </property>  
+- 
+-             <-- 基本属性别名 -->  
+- 
+-             <property name="fieldAliases">  
+- 
+-                 <map>  
+- 
+-                     <-- Account中的brithday这个属性 -->  
+- 
+-                     <entry key="com.hoo.entity.Account.brithday" value="生日"/>  
+- 
+-                 </map>  
+- 
+-             </property>  
+- 
+-            </bean>    
+- 
+-     </property>  
+- 
+- </bean>  
+上次配置的参数有注释描述，还要没有配置的参数。如：annotatedClass、annotatedClasses是当没有配置启用 annotation的时候，可以用这2个属性进行配置你指定的class启用annotation注解。streamDriver是配置驱动用的，默认 可以不要驱动，你可以配置DomDriver、JSON相关的驱动。encoding是设置编码，关于XStreamMarshaller还要更多的参数 配置和上面xStream 的博文中讲解的一样使用，只是通过配置，而博文中是直接在代码中写的。当然也可以通过annotation进行注解哦；如果你想了解更多xStream的
+ 用法，请你仔细阅读：[http://www.cnblogs.com/hoojo/archive/2011/04/22/2025197.html](http://www.cnblogs.com/hoojo/archive/2011/04/22/2025197.html)
+3、 普通JavaBean转换XML
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- package com.hoo.controller;  
+- 
+- 
+- 
+- import java.util.ArrayList;  
+- 
+- import java.util.Date;  
+- 
+- import java.util.HashMap;  
+- 
+- import java.util.List;  
+- 
+- import java.util.Map;  
+- 
+- import org.springframework.stereotype.Controller;  
+- 
+- import org.springframework.web.bind.annotation.RequestMapping;  
+- 
+- import org.springframework.web.servlet.ModelAndView;  
+- 
+- import com.hoo.entity.Account;  
+- 
+- import com.hoo.entity.AccountArray;  
+- 
+- import com.hoo.entity.AccountBean;  
+- 
+- import com.hoo.entity.Brithday;  
+- 
+- import com.hoo.entity.DifferBean;  
+- 
+- import com.hoo.entity.ListBean;  
+- 
+- import com.hoo.entity.MapBean;  
+- 
+- import com.hoo.entity.MoreBean;  
+- 
+- import com.hoo.entity.User;  
+- 
+- 
+- 
+- /**
+- 
+-  * <b>function:</b>Jaxb2MarshallingView 视图，利用Jaxb2进行Java对象到XML的转换技术
+- 
+-  * @author hoojo
+- 
+-  * @createDate 2011-4-27 下午03:20:23
+- 
+-  * @file Jaxb2MarshallingViewController.java
+- 
+-  * @package com.hoo.controller
+- 
+-  * @project SpringMVC4View
+- 
+-  * @blog http://blog.csdn.net/IBM_hoojo
+- 
+-  * @email hoojo_@126.com
+- 
+-  * @version 1.0
+- 
+-  */
+- 
+- @Controller
+- 
+- @RequestMapping("/jaxb2/view")  
+- 
+- publicclass Jaxb2MarshallingViewController {  
+- 
+- 
+- 
+- /*
+- 
+-      * MarshallingView Jaxb2Marshaller 需要配置转换成xml的java对象的Annotation
+- 
+-      */
+- 
+- @RequestMapping("/doXMLJaxb2")  
+- 
+- public ModelAndView doXMLJaxb2View() {  
+- 
+-         System.out.println("#################ViewController doXMLJaxb2View##################");  
+- 
+-         ModelAndView mav = new ModelAndView("jaxb2MarshallingView");  
+- 
+- 
+- 
+-         AccountBean bean = new AccountBean();  
+- 
+-         bean.setAddress("address");  
+- 
+-         bean.setEmail("email");  
+- 
+-         bean.setId(1);  
+- 
+-         bean.setName("haha");  
+- 
+-         Brithday day = new Brithday();  
+- 
+-         day.setBrithday("2010-11-22");  
+- 
+-         bean.setBrithday(day);  
+- 
+- 
+- 
+-         mav.addObject(bean);  
+- 
+- 
+- 
+- return mav;  
+- 
+-     }  
+- 
+- }  
+AccountBean上面的代码已经给出，这里就不重复了。值得说明的是xStream在ModelAndView中，直接用addObject 方法添加时，有时候出现一些不是我们转换的对象的信息，一般是BindingResult的xml信息。解决办法就是设置addObject的key。 Key设置为BindingResult.*MODEL_KEY_PREFIX*这样就可以了，代码上面已经给出。
+在浏览器中请求：[http://localhost:8080/SpringMVC4View/xStream/view/doXMLXStream.do](http://localhost:8080/SpringMVC4View/xStream/view/doXMLXStream.do)
+结果如下：
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- <com.hoo.entity.AccountBean><id>1</id><name>haha</name><email>email</email><address>北京</address>  
+- <brithday><brithday>2010-11-22</brithday></brithday></com.hoo.entity.AccountBean>  
+4、 转换对象数组
+代码如下：
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- /**
+- 
+-  * <b>function:</b>转换对象数组
+- 
+-  * @author hoojo
+- 
+-  * @createDate 2011-4-27 下午06:19:40
+- 
+-  * @return
+- 
+-  */
+- 
+- @RequestMapping("/doMoreXMLXStream")  
+- 
+- public ModelAndView doMoreXMLXStreamView() {  
+- 
+-     System.out.println("#################ViewController doMoreXMLXStreamView##################");  
+- 
+-     ModelAndView mav = new ModelAndView("xStreamMarshallingView");      
+- 
+-     Account[] accs = new Account[2];  
+- 
+-     Account bean = new Account();  
+- 
+-     bean.setAddress("北京");  
+- 
+-     bean.setEmail("email");  
+- 
+-     bean.setId(1);  
+- 
+-     bean.setName("haha");  
+- 
+-     Brithday day = new Brithday();  
+- 
+-     day.setBrithday("2010-11-22");  
+- 
+-     bean.setBrithday(day);  
+- 
+-     accs[0] = bean;  
+- 
+- 
+- 
+-     bean = new Account();  
+- 
+-     bean.setAddress("上海");  
+- 
+-     bean.setEmail("email");  
+- 
+-     bean.setId(1);  
+- 
+-     bean.setName("haha");  
+- 
+-     day = new Brithday();  
+- 
+-     day.setBrithday("2010-11-22");  
+- 
+-     bean.setBrithday(day);  
+- 
+-     accs[1] = bean;  
+- 
+-     mav.addObject(accs);  
+- 
+- return mav;  
+- 
+- }  
+在WebBrowser中请求[http://localhost:8080/SpringMVC4View/xStream/view/doMoreXMLXStream.do](http://localhost:8080/SpringMVC4View/xStream/view/doMoreXMLXStream.do)
+结果如下：
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- <myBeans-array><myBeans><id>1</id><name>haha</name><email>email</email> <address>北京</address><生日><brithday>2010-11-22</brithday></生日></myBeans> <myBeans><id>1</id><name>haha</name><email>email</email><address>上海</address> <生日><brithday>2010-11-22</brithday></生日></myBeans></myBeans-array>  
+结果中的myBeans、生日就是在dispatcher配置文件中重命名的对象属性名称。
+5、 转换Map集合
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- /**
+- 
+-  * <b>function:</b>转换Map对象
+- 
+-  * @author hoojo
+- 
+-  * @createDate 2011-4-27 下午06:19:48
+- 
+-  * @return
+- 
+-  */
+- 
+- @RequestMapping("/doDifferXMLXStream")  
+- 
+- public ModelAndView doDifferXMLXStreamView() {  
+- 
+-     System.out.println("#################ViewController doDifferXMLXStreamView##################");  
+- 
+-     ModelAndView mav = new ModelAndView("xStreamMarshallingView");  
+- 
+- 
+- 
+-     Account bean = new Account();  
+- 
+-     bean.setAddress("广东");  
+- 
+-     bean.setEmail("email");  
+- 
+-     bean.setId(1);  
+- 
+-     bean.setName("haha");  
+- 
+-     Brithday day = new Brithday();  
+- 
+-     day.setBrithday("2010-11-22");  
+- 
+-     bean.setBrithday(day);  
+- 
+- 
+- 
+-     User user = new User();  
+- 
+-     user.setAddress("china GuangZhou");  
+- 
+-     user.setAge(23);  
+- 
+-     user.setBrithday(new Date());  
+- 
+-     user.setName("jack");  
+- 
+-     user.setSex(true);  
+- 
+- 
+- 
+-     Map<String, Object> map = new HashMap<String, Object>();  
+- 
+-     map.put("bean", bean);  
+- 
+-     map.put("user", user);  
+- 
+-     mav.addObject(map);  
+- 
+- return mav;  
+- 
+- }  
+在WebBrowser中请求[http://localhost:8080/SpringMVC4View/xStream/view/doDifferXMLXStream.do](http://localhost:8080/SpringMVC4View/xStream/view/doDifferXMLXStream.do)
+结果如下：
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- <map><entry>  
+- <string>bean</string><myBeans><id>1</id><name>haha</name><email>email</email><address>广东</address><生日><brithday>2010-11-22</brithday></生日></myBeans></entry><entry><string>user</string><com.hoo.entity.User><name>jack</name><age>23</age><sex>true</sex><address>china GuangZhou</address><brithday>2011-04-2719:02:13.747 CST</brithday></com.hoo.entity.User></entry></map>  
+6、 转换List集合
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- /**
+- 
+-  * <b>function:</b>转换List对象
+- 
+-  * @author hoojo
+- 
+-  * @createDate 2011-4-27 下午06:20:02
+- 
+-  * @return
+- 
+-  */
+- 
+- @RequestMapping("/doListXMLXStream")  
+- 
+- public ModelAndView doListXMLXStreamView() {  
+- 
+-     System.out.println("#################ViewController doListXMLXStreamView##################");  
+- 
+-     ModelAndView mav = new ModelAndView("xStreamMarshallingView");  
+- 
+-     List<Object> beans = new ArrayList<Object>();   
+- 
+- for (int i = 0; i < 3; i++) {  
+- 
+-         Account bean = new Account();  
+- 
+-         bean.setAddress("北京#" + i);  
+- 
+-         bean.setEmail("email" + i + "@12" + i + ".com");  
+- 
+-         bean.setId(1 + i);  
+- 
+-         bean.setName("haha#" + i);  
+- 
+-         Brithday day = new Brithday();  
+- 
+-         day.setBrithday("2010-11-2" + i);  
+- 
+-         bean.setBrithday(day);  
+- 
+-         beans.add(bean);  
+- 
+- 
+- 
+-         User user = new User();  
+- 
+-         user.setAddress("china GuangZhou 广州# " + i);  
+- 
+-         user.setAge(23 + i);  
+- 
+-         user.setBrithday(new Date());  
+- 
+-         user.setName("jack#" + i);  
+- 
+-         user.setSex(Boolean.parseBoolean(i + ""));  
+- 
+-         beans.add(user);  
+- 
+-     }  
+- 
+- 
+- 
+-     mav.addObject(beans);  
+- 
+- return mav;  
+- 
+- }  
+在WebBrowser中请求[http://localhost:8080/SpringMVC4View/xStream/view/doListXMLXStream.do](http://localhost:8080/SpringMVC4View/xStream/view/doListXMLXStream.do)
+结果如下：
+**[java]**[view plain](http://blog.csdn.net/yaerfeng/article/details/23827635#)[copy](http://blog.csdn.net/yaerfeng/article/details/23827635#)
+- <list>  
+- <myBeans><id>1</id><name>haha#0</name><email>email0@120.com</email><address>北京#0</address><生日><brithday>2010-11-20</brithday></生日></myBeans><com.hoo.entity.User><name>jack#0</name><age>23</age><sex>false</sex><address>china GuangZhou 广州# 0</address><brithday>2011-04-2719:08:40.106 CST</brithday></com.hoo.entity.User><myBeans><id>2</id><name>haha#1</name><email>email1@121.com</email><address>北京#1</address><生日><brithday>2010-11-21</brithday></生日></myBeans><com.hoo.entity.User><name>jack#1</name><age>24</age><sex>false</sex><address>china GuangZhou 广州# 1</address><brithday>2011-04-2719:08:40.106 CST</brithday></com.hoo.entity.User><myBeans><id>3</id><name>haha#2</name><email>email2@122.com</email><address>北京#2</address><生日><brithday>2010-11-22</brithday></生日></myBeans><com.hoo.entity.User><name>jack#2</name><age>25</age><sex>false</sex><address>china GuangZhou 广州# 2</address><brithday>2011-04-2719:08:40.106 CST</brithday></com.hoo.entity.User></list>  
+总结，xStream相对jaxb2要简单些。而且相对比较灵活，可以轻易的转换Java普通类型。
+下次会介绍castor转换XML、jibx转换XML、Jackson转换JSON 以及自定义Jsonlib视图转换Json。

@@ -1,0 +1,46 @@
+# vbb格式的annotations转化成txt格式 - YZXnuaa的博客 - CSDN博客
+2018年06月01日 14:06:12[YZXnuaa](https://me.csdn.net/YZXnuaa)阅读数：294
+- - function read_vbb()  
+- % this function is to convert vbb file to txt  
+- %by dachao at 2015.11.27  
+- a = [0 1 2 3 4 5];  
+- vPath = 'C:\Users\hp\Desktop\annotations\';  
+- outpath = 'C:\Users\hp\Desktop\annotations\caltechAnnotations';   
+- if ~isdir(outpath)  
+-     mkdir(outpath);  
+- end  
+- disp('Begin to extract annotations from vbb....')  
+- for ii = 1:length(a)  
+-     vName = ['set0',num2str(a(ii))];    
+-     vbbpath = [vPath vName];  
+-     str = dir(vbbpath);  
+- for k = 3:numel(str)  
+-         finalpath = [vbbpath,'\',str(k).name];   
+-         disp(finalpath);  
+-         A = vbb( 'vbbLoad', finalpath);    
+-         Path = [outpath,'\',vName];  
+- if ~isdir(Path)  
+-             mkdir(Path);  
+-         end  
+-         st = str(k).name;  
+-         p = findstr(st,'.');  
+-         st = st(1,1:p(1)-1);  
+-         fnm = [st,'.txt'];       
+-         c=fopen([Path,'\',fnm],'w');    
+- for i = 1:A.nFrame    
+-             iframe = A.objLists(1,i);    
+-             iframe_data = iframe{1,1};    
+-             n1length = length(iframe_data);    
+- for  j = 1:n1length    
+-                 iframe_dataj = iframe_data(j);    
+- if iframe_dataj.pos(1) ~= 0  %pos  posv    
+-                     fprintf(c,'%d %f %f %f %f\n', i, iframe_dataj.pos(1),...  
+-                      iframe_dataj.pos(2),iframe_dataj.pos(3),iframe_dataj.pos(4));    
+-                 end    
+-             end    
+-         end    
+-     end  
+- fclose(c);   
+- end  
+- disp('Done................')  
+- end

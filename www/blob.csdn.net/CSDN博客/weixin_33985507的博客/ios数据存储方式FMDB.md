@@ -1,0 +1,163 @@
+# ios数据存储方式FMDB - weixin_33985507的博客 - CSDN博客
+2015年01月16日 12:14:00[weixin_33985507](https://me.csdn.net/weixin_33985507)阅读数：4
+本文转载至 http://blog.csdn.net/chen505358119/article/details/9289489 
+分类： [ios](http://blog.csdn.net/chen505358119/article/category/1441493)2013-07-10 14:05 2471人阅读 [评论](http://blog.csdn.net/chen505358119/article/details/9289489#comments)(0) 收藏[举报](http://blog.csdn.net/chen505358119/article/details/9289489#report)
+       从网上下载FMDB的原码,将其拖入到项目中，然后在Link Binary With Libraries中添加libsqlite3.dylib,就可以用了
+![](https://img-blog.csdn.net/20130710140409734?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvY2hlbjUwNTM1ODExOQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+  实现如下：
+**[plain]**[view plain](http://blog.csdn.net/chen505358119/article/details/9289489)[copy](http://blog.csdn.net/chen505358119/article/details/9289489)[print](http://blog.csdn.net/chen505358119/article/details/9289489)[?](http://blog.csdn.net/chen505358119/article/details/9289489)
+- #import "ViewController.h"  
+- #import "FMDatabase.h"  
+- #import "FMDatabaseAdditions.h"  
+- #import "FMDatabaseQueue.h"  
+- @interface ViewController ()  
+- 
+- @end  
+- 
+- @implementation ViewController  
+- 
+- - (void)viewDidLoad  
+- {  
+-     [super viewDidLoad];  
+-     // Do any additional setup after loading the view, typically from a nib.  
+- }  
+- 
+- - (void)didReceiveMemoryWarning  
+- {  
+-     [super didReceiveMemoryWarning];  
+-     // Dispose of any resources that can be recreated.  
+- }  
+- 
+- - (void)dealloc {  
+-     [_nameText release];  
+-     [_ageText release];  
+-     [_sexText release];  
+-     [_showLabel release];  
+-     [super dealloc];  
+- }  
+- - (void)viewDidUnload {  
+-     [self setNameText:nil];  
+-     [self setAgeText:nil];  
+-     [self setSexText:nil];  
+-     [self setShowLabel:nil];  
+-     [super viewDidUnload];  
+- }  
+- //保存  
+- - (IBAction)saveBtn:(id)sender {  
+-     FMDatabase* database=[FMDatabase databaseWithPath:[self databasePath]];  
+-     if (![database open]) {  
+-         NSLog(@"Open database failed");  
+-         return;  
+-     }  
+-     if (![database tableExists:@"user"]) {  
+-         [database executeUpdate:@"create table user (id integer primary key autoincrement not null,name text,age integer,sex text)"];  
+-     }  
+-     BOOL insert=[database executeUpdate:@"insert into user (name,age,sex) values (?,?,?)",_nameText.text,[NSNumber numberWithInteger:[_ageText.text integerValue]],_sexText.text];  
+-     //下面注释的也能实现数据的插入,只不过它是传入了字典  
+- //    NSMutableDictionary* argsDict=[NSMutableDictionary dictionary];  
+- //    [argsDict setObject:_nameText.text forKey:@"name"];  
+- //    [argsDict setObject:_ageText.text forKey:@"age"];  
+- //    [argsDict setObject:_sexText.text forKey:@"sex"];  
+- //    BOOL insert=[database executeUpdate:@"insert into user (name,age,sex) values (:name,:age,:sex)" withParameterDictionary:argsDict];  
+-     if (insert) {  
+-         UIAlertView* alert=[[UIAlertView alloc] initWithTitle:@"提示" message:@"保存成功" delegate:nil cancelButtonTitle:nil otherButtonTitles:@"确定",nil];  
+-         [alert show];  
+-         [alert release];  
+-     }else{  
+-         NSLog(@"insert failed");  
+-     }  
+-     [database close];  
+-     //下面注释的这一段也是创建表只不过它是多线程安全的，而上面的在多线程中是不安全的  
+- //    FMDatabaseQueue* queue=[FMDatabaseQueue databaseQueueWithPath:[self databasePath]];  
+- //    [queue inDatabase:^(FMDatabase* database){  
+- //        if (![database tableExists:@"user"]) {  
+- //            [database executeUpdate:@"create table user (id integer primary key autoincrement not null,name text,age integer,sex text)"];  
+- //        }  
+- //        BOOL insert=[database executeUpdate:@"insert into user (name,age,sex) values (?,?,?)",_nameText.text,[NSNumber numberWithInteger:[_ageText.text integerValue]],_sexText.text];  
+- //        if (insert) {  
+- //            UIAlertView* alert=[[UIAlertView alloc] initWithTitle:@"提示" message:@"保存成功" delegate:nil cancelButtonTitle:nil otherButtonTitles:@"确定",nil];  
+- //            [alert show];  
+- //            [alert release];  
+- //        }else{  
+- //            NSLog(@"insert failed");  
+- //        }  
+- //  
+- //    }];  
+- //    [queue close];  
+- 
+- 
+- 
+- }  
+- //显示所有数据库中的数据  
+- - (IBAction)showBtn:(id)sender {  
+-     FMDatabase* database=[FMDatabase databaseWithPath:[self databasePath]];  
+-     if (![database open]) {  
+-         return;  
+-     }  
+-     //注意 此处的FMResultSet可以不用关闭，因为数据库关闭的时候FMResultSet自动关闭  
+-     FMResultSet* resultSet=[database executeQuery:@"select* from user"];  
+-     NSString* str=@"";  
+-     while ([resultSet next]) {  
+-         NSString* name=[resultSet stringForColumn:@"name"];  
+-         NSInteger age=[resultSet intForColumn:@"age"];  
+-         NSString* sex=[resultSet stringForColumn:@"sex"];  
+-         str=[str stringByAppendingFormat:@"Name:%@,Age:%d,Sex:%@\n",name,age,sex];  
+-         NSLog(@"Name:%@,Age:%d,Sex:%@\n",name,age,sex);  
+-     }  
+-     _showLabel.text=str;  
+-     [database close];  
+- }  
+- //查询  
+- - (IBAction)checkBtn:(id)sender {  
+-     FMDatabase* database=[FMDatabase databaseWithPath:[self databasePath]];  
+-     if (![database open]) {  
+-         return;  
+-     }  
+-     FMResultSet* resultSet=[database executeQuery:@"select* from user where name = ?",@"chen"];  
+-     NSString* str=@"";  
+-     while ([resultSet next]) {  
+-         NSString* name=[resultSet stringForColumn:@"name"];  
+-         NSInteger age=[resultSet intForColumn:@"age"];  
+-         NSString* sex=[resultSet stringForColumn:@"sex"];  
+-         str=[str stringByAppendingFormat:@"Name:%@,Age:%d,Sex:%@\n",name,age,sex];  
+-     }  
+-     _showLabel.text=str;  
+-     [database close];  
+- }  
+- //删除  
+- - (IBAction)deleteBtn:(id)sender {  
+-     FMDatabase* database=[FMDatabase databaseWithPath:[self databasePath]];  
+-     if (![database open]) {  
+-         return;  
+-     }  
+-     BOOL delete=[database executeUpdate:@"delete from user where name = ?",@"chen"];  
+-     if (delete) {  
+-         UIAlertView* alert=[[UIAlertView alloc] initWithTitle:@"提示" message:@"删除成功" delegate:nil cancelButtonTitle:nil otherButtonTitles:@"确定",nil];  
+-         [alert show];  
+-         [alert release];  
+-     }  
+-     [database close];  
+- }  
+- //更新  
+- - (IBAction)updateBtn:(id)sender {  
+-     FMDatabase* database=[FMDatabase databaseWithPath:[self databasePath]];  
+-     if (![database open]) {  
+-         return;  
+-     }  
+-     BOOL update=[database executeUpdate:@"update user set age = ? where name= ?",[NSNumber numberWithInt:20],@"chen"];  
+-     if (update) {  
+-         UIAlertView* alert=[[UIAlertView alloc] initWithTitle:@"提示" message:@"更新成功" delegate:nil cancelButtonTitle:nil otherButtonTitles:@"确定",nil];  
+-         [alert show];  
+-         [alert release];  
+-     }  
+-     [database close];  
+- }  
+- 
+- -(NSString* )databasePath  
+- {  
+-     NSString* path=[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];  
+-     NSString* dbPath=[path stringByAppendingPathComponent:@"user.db"];  
+-     return dbPath;  
+- 
+- }  
+- @end  

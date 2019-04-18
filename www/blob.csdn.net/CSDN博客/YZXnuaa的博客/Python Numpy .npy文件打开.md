@@ -1,0 +1,29 @@
+# Python Numpy .npy文件打开 - YZXnuaa的博客 - CSDN博客
+2018年01月31日 19:07:58[YZXnuaa](https://me.csdn.net/YZXnuaa)阅读数：4968
+- 
+首先找到你的npy文件的路径（我的npy文件在D盘下，名字叫test.npy）
+![npy文件怎么打开](https://imgsa.baidu.com/exp/w=500/sign=d9878e9db81bb0518f24b328067bda77/a1ec08fa513d2697291e8ae25efbb2fb4216d844.jpg)
+- 
+2
+打开编写python的软件（我的软件是pycharm）
+![npy文件怎么打开](https://imgsa.baidu.com/exp/w=500/sign=c24f40968d18367aad897fdd1e728b68/279759ee3d6d55fbc0e5fb9966224f4a20a4dd6a.jpg)
+- 
+3
+新建一个python文件，用于后面的编程使用。（我先建的python文件名叫test）
+![npy文件怎么打开](https://imgsa.baidu.com/exp/w=500/sign=8ae888c12e1f95caa6f592b6f9167fc5/d1160924ab18972bc9e58d75edcd7b899f510ab5.jpg)
+- 
+4
+首先导入编程需要用到的包。
+![npy文件怎么打开](https://imgsa.baidu.com/exp/w=500/sign=960e759e798b4710ce2ffdccf3cfc3b2/ac4bd11373f0820276001c8040fbfbedaa641bfa.jpg)
+- 
+5
+然后就是使用工具包读取npy文件。
+![npy文件怎么打开](https://imgsa.baidu.com/exp/w=500/sign=7c865f4270899e51788e3a1472a6d990/b151f8198618367a93c8f36225738bd4b21ce5c8.jpg)
+- 
+6
+接着就是输出已经读取到的数据。
+![npy文件怎么打开](https://imgsa.baidu.com/exp/w=500/sign=1a1ad9a869d0f703e6b295dc38fb5148/d52a2834349b033bcbbc73651ece36d3d539bd5d.jpg)
+- 
+7
+python程序就这样全部写完了，接下来就是执行写好的程序。执行后你就会看到你npy文件里面的内容了。
+![npy文件怎么打开](https://imgsa.baidu.com/exp/w=500/sign=ce39087448166d223877159476220945/3b87e950352ac65c8bfae9ccf0f2b21192138a96.jpg)[](http://jingyan.baidu.com/album/7f41ecec26081d593d095c18.html?picindex=7)

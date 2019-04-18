@@ -1,0 +1,555 @@
+# FreeMarker几种不同方式的展现数据 - z69183787的专栏 - CSDN博客
+2015年07月16日 14:37:21[OkidoGreen](https://me.csdn.net/z69183787)阅读数：2119
+个人分类：[模板引擎-Freemarker](https://blog.csdn.net/z69183787/article/category/5652267)
+FreeMarker是一个模板引擎，一个基于模板生成文本输出的通用工具。
+本文主要写了3种方法通过freemarker与java对象数据结合，将数据展现于前台页面。
+注：项目jar包
+**[plain]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- commons-beanutils-1.7.0.jar  
+- commons-collections-3.1.jar  
+- commons-fileupload-1.2.1.jar  
+- commons-io-1.3.2.jar  
+- commons-lang-2.5.jar  
+- commons-logging-1.0.4.jar  
+- ezmorph-1.0.6.jar  
+- freemarker-2.3.13.jar  
+- freemarker.jar  
+- json-lib-2.4-jdk15.jar  
+- ognl-2.6.11.jar  
+- spring-core-2.0.8.jar  
+- struts2-core-2.1.6.jar  
+- xwork-2.1.2.jar  
+公共类：
+User.java代码如下
+**[java]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- package com.hsinghsu.test.model;  
+- 
+- publicclass User  
+- {  
+- privateint id;  
+- 
+- private String name;  
+- 
+- privateint age;  
+- 
+- public String getName()  
+-     {  
+- return name;  
+-     }  
+- 
+- publicvoid setName(String name)  
+-     {  
+- this.name = name;  
+-     }  
+- 
+- publicint getId()  
+-     {  
+- return id;  
+-     }  
+- 
+- publicvoid setId(int id)  
+-     {  
+- this.id = id;  
+-     }  
+- 
+- publicint getAge()  
+-     {  
+- return age;  
+-     }  
+- 
+- publicvoid setAge(int age)  
+-     {  
+- this.age = age;  
+-     }  
+- 
+- }  
+UserDao.java 代码如下，用于生成模拟数据：
+**[java]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- package com.hsinghsu.test.dao;  
+- 
+- import java.util.ArrayList;  
+- import java.util.List;  
+- 
+- import com.hsinghsu.test.model.User;  
+- 
+- publicclass UserDao  
+- {  
+- public List<User> getUserList()  
+-     {  
+-         List<User> list = new ArrayList<User>();  
+-         User user = null;  
+- for (int i = 0; i < 10; i++)  
+-         {  
+-             user = new User();  
+-             user.setId(i);  
+-             user.setName("name" + i);  
+-             user.setAge(i + i);  
+-             list.add(user);  
+-         }  
+- 
+- return list;  
+-     }  
+- 
+- }  
+# 1.使用struts配置文件直接将数据渲染到ftl中
+UserActionFTL.java Action代码如下：
+**[java]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- package com.hsinghsu.test.action;  
+- 
+- import java.util.List;  
+- 
+- import com.hsinghsu.test.dao.UserDao;  
+- import com.hsinghsu.test.model.User;  
+- import com.opensymphony.xwork2.ActionSupport;  
+- 
+- /**
+-  * 通过struts配置文件直接渲染ftl
+-  * @author HsingHsu
+-  *
+-  */
+- publicclass UserActionFTL extends ActionSupport  
+- {  
+- /**
+-      * 
+-      */
+- privatestaticfinallong serialVersionUID = 1L;  
+- 
+- private List<User> uList;  
+- 
+- public String execute()  
+-     {  
+-         System.out.println("===begin");  
+- 
+-         UserDao userDao = new UserDao();  
+- 
+-         uList = userDao.getUserList();  
+- 
+- return SUCCESS;  
+-     }  
+- 
+- public List<User> getuList()  
+-     {  
+- return uList;  
+-     }  
+- 
+- publicvoid setuList(List<User> uList)  
+-     {  
+- this.uList = uList;  
+-     }  
+- 
+- }  
+struts.xml配置文件如下：
+**[html]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- <?xmlversion="1.0"encoding="UTF-8"?>
+-   <!DOCTYPE struts PUBLIC  
+-       "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"  
+-       "http://struts.apache.org/dtds/struts-2.0.dtd">
+- <struts>
+- <packagename="hsinghsu"extends="struts-default">
+- 
+- <!-- 直接使用struts freemaker 将对象渲染到ftl中 -->
+- <actionname="userListFTL"class="com.hsinghsu.test.action.UserActionFTL">
+- <resultname="success"type="freemarker">/templates/userStrutsTemplate.ftl</result>
+- </action>
+- 
+- </package>
+- </struts>
+userStrutsTemplate.ftl文件配置如下：
+**[html]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- <tablestyle="text-align:center;FONT-SIZE: 11pt; WIDTH: 600px; FONT-FAMILY: 宋体; BORDER-COLLAPSE: collapse"borderColor=#3399ff cellSpacing=0cellPadding=0align=centerborder=1>
+- <tr>
+- <td><b>id</b></td>
+- <td><b>name</b></td>
+- <td><b>age</b></td>
+- </tr>
+- <#list uList as user>
+- <tr>
+- <td>${user.id}</td>
+- <td>${user.name}</td>
+- <td>${user.age}</td>
+- </tr>
+- </#list>
+- </table>
+# 2.通过生成html文件，返回该html的url
+FTL2HtmlFlie.java 通过ftl生成html文件类代码如下：
+**[java]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- package com.hsinghsu.test.util;  
+- 
+- import java.io.BufferedWriter;  
+- import java.io.File;  
+- import java.io.FileNotFoundException;  
+- import java.io.FileOutputStream;  
+- import java.io.IOException;  
+- import java.io.OutputStreamWriter;  
+- import java.io.UnsupportedEncodingException;  
+- import java.io.Writer;  
+- import java.util.Locale;  
+- import java.util.Map;  
+- 
+- import org.apache.struts2.ServletActionContext;  
+- 
+- import freemarker.template.Configuration;  
+- import freemarker.template.Template;  
+- import freemarker.template.TemplateException;  
+- 
+- publicclass FTL2HtmlFlie  
+- {  
+- /**
+-      * 
+-      * @param ftlPath ftl的路径
+-      * @param ftlName ftl的名称
+-      * @param htmlPath 要生成的html路径
+-      * @param htmlName 要生成的html名称
+-      * @param dataMap 需要渲染到ftl中的map数据
+-      * @return
+-      */
+- publicstaticboolean createHtmlFile(String ftlPath, String ftlName,  
+-             String htmlPath, String htmlName, Map dataMap)  
+-     {  
+- boolean result = false;  
+- 
+- // 创建Configuration对象
+-         Configuration cfg = new Configuration();  
+- // 设置FreeMarker的模版文件位置
+-         cfg.setServletContextForTemplateLoading(  
+-                 ServletActionContext.getServletContext(), ftlPath);  
+-         cfg.setEncoding(Locale.getDefault(), "utf-8");  
+- 
+- // 创建Template对象
+-         Template template = null;  
+- try
+-         {  
+-             template = cfg.getTemplate(ftlName);  
+-         }  
+- catch (IOException e1)  
+-         {  
+-             e1.printStackTrace();  
+-         }  
+-         template.setEncoding("utf-8");  
+- 
+-         String path = ServletActionContext.getServletContext().getRealPath("/");  
+- 
+-         File dir = new File(path + htmlPath);  
+- if (!dir.exists())  
+-         {  
+-             dir.mkdirs();  
+-         }  
+- 
+-         File fileName = new java.io.File(path + htmlPath + htmlName);  
+-         System.out.println("html file:" + fileName.getPath());  
+- 
+-         Writer writer = null;  
+- 
+- try
+-         {  
+-             writer = new BufferedWriter(new OutputStreamWriter(  
+- new FileOutputStream(fileName), "utf-8"));  
+-         }  
+- catch (UnsupportedEncodingException e)  
+-         {  
+-             e.printStackTrace();  
+-         }  
+- catch (FileNotFoundException e)  
+-         {  
+-             e.printStackTrace();  
+-         }  
+- try
+-         {  
+- // 生成静态页面
+-             template.process(dataMap, writer);  
+-             result = true;  
+-         }  
+- catch (TemplateException e)  
+-         {  
+-             e.printStackTrace();  
+-         }  
+- catch (IOException e)  
+-         {  
+-             e.printStackTrace();  
+-         }  
+- try
+-         {  
+-             writer.flush();  
+-             writer.close();  
+-         }  
+- catch (IOException e)  
+-         {  
+-             e.printStackTrace();  
+-         }  
+- 
+- return result;  
+-     }  
+- }  
+UserActionHtmlFile.java Action代码如下：
+**[java]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- package com.hsinghsu.test.action;  
+- 
+- import java.util.HashMap;  
+- import java.util.List;  
+- import java.util.Map;  
+- 
+- import com.hsinghsu.test.dao.UserDao;  
+- import com.hsinghsu.test.model.User;  
+- import com.hsinghsu.test.util.FTL2HtmlFlie;  
+- import com.opensymphony.xwork2.ActionSupport;  
+- 
+- /**
+-  * 生成html文件，返回html文件给前台
+-  * @author HsingHsu
+-  *
+-  */
+- publicclass UserActionHtmlFile extends ActionSupport  
+- {  
+- /**
+-      * 
+-      */
+- privatestaticfinallong serialVersionUID = -16215231106028452L;  
+- 
+- private String returnURL;  
+- 
+- public String execute() throws Exception  
+-     {  
+-         UserDao userDao = new UserDao();  
+-         List<User> uList = userDao.getUserList();  
+- 
+-         Map<String, List<User>> dataMap = new HashMap<String, List<User>>();  
+-         dataMap.put("userList", uList);  
+- 
+-         String ftlPath = "/templates/";  
+-         String ftlName = "htmlFileTemplate.ftl";  
+-         String htmlPath = "/html/user/";  
+-         String htmlName = "user.html";  
+- 
+- boolean result = FTL2HtmlFlie.createHtmlFile(ftlPath, ftlName,  
+-                 htmlPath, htmlName, dataMap);  
+- this.returnURL = htmlPath + htmlName;  
+- 
+- if (result)  
+-         {  
+- return SUCCESS;  
+-         }  
+- else
+-         {  
+- return ERROR;  
+-         }  
+- 
+-     }  
+- 
+- public String getReturnURL()  
+-     {  
+- return returnURL;  
+-     }  
+- 
+- publicvoid setReturnURL(String returnURL)  
+-     {  
+- this.returnURL = returnURL;  
+-     }  
+- 
+- }  
+struts.xml配置文件如下：
+**[html]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- <?xmlversion="1.0"encoding="UTF-8"?>
+-   <!DOCTYPE struts PUBLIC  
+-       "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"  
+-       "http://struts.apache.org/dtds/struts-2.0.dtd">
+- <struts>
+- <packagename="hsinghsu"extends="struts-default">
+- 
+- <!-- 通过ftl生成html文件返回给用户 -->
+- <actionname="userListHtmlFile"class="com.hsinghsu.test.action.UserActionHtmlFile">
+- <resulttype="redirect">${returnURL}</result>
+- </action>
+- 
+- </package>
+- </struts>
+htmlFileTemplate.ftl文件配置如下：
+**[html]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- <tablestyle="text-align:center;FONT-SIZE: 11pt; WIDTH: 600px; FONT-FAMILY: 宋体; BORDER-COLLAPSE: collapse"borderColor=#3399ff cellSpacing=0cellPadding=0align=centerborder=1>
+- <tr>
+- <td><b>id</b></td>
+- <td><b>name</b></td>
+- <td><b>age</b></td>
+- </tr>
+- <#list userList as user>
+- <tr>
+- <td>${user.id}</td>
+- <td>${user.name}</td>
+- <td>${user.age}</td>
+- </tr>
+- </#list>
+- </table>
+# 3.通过ftl生成html字符串流，将生成的html字符串返回给前台。
+FTL2String.java 通过ftl生成html字符串类代码如下：
+**[java]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- package com.hsinghsu.test.util;  
+- 
+- import java.io.IOException;  
+- import java.io.StringWriter;  
+- import java.util.HashMap;  
+- import java.util.Locale;  
+- import java.util.Map;  
+- 
+- import org.apache.struts2.ServletActionContext;  
+- 
+- import freemarker.template.Configuration;  
+- import freemarker.template.Template;  
+- import freemarker.template.TemplateException;  
+- 
+- /**
+-  * 
+-  * @author HsingHsu
+-  * 
+-  */
+- publicclass FTL2String  
+- {  
+- 
+- /**
+-      * 
+-      * @param ftlPath ftl的路径
+-      * @param ftlName ftl的名称
+-      * @param jsonDataString 需要渲染的json字符串
+-      * @return
+-      * @throws IOException
+-      * @throws TemplateException
+-      */
+- publicstatic String createHtmlString(String ftlPath, String ftlName,  
+-             String jsonDataString) throws IOException, TemplateException  
+-     {  
+-         String resultString;  
+- 
+- // 创建Configuration对象
+-         Configuration cfg = new Configuration();  
+- // 设置FreeMarker的模版文件位置
+-         cfg.setServletContextForTemplateLoading(  
+-                 ServletActionContext.getServletContext(), ftlPath);  
+-         cfg.setEncoding(Locale.getDefault(), "utf-8");  
+- 
+- // 创建Template对象
+-         Template template = null;  
+-         template = cfg.getTemplate(ftlName);  
+-         template.setEncoding("utf-8");  
+- 
+-         Map<String, Object> context = new HashMap<String, Object>();  
+- // 将json字符串加入数据模型
+-         context.put("getData", jsonDataString);  
+- 
+- // 输出流
+-         StringWriter writer = new StringWriter();  
+- // 将数据和模型结合生成html
+-         template.process(context, writer);  
+- // 获得html
+-         resultString = writer.toString();  
+- 
+-         writer.close();  
+- return resultString;  
+-     }  
+- 
+- }  
+UserActionHtmlString.java Action代码如下：
+**[java]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- package com.hsinghsu.test.action;  
+- 
+- import java.util.List;  
+- 
+- import net.sf.json.JSONArray;  
+- 
+- import com.hsinghsu.test.dao.UserDao;  
+- import com.hsinghsu.test.model.User;  
+- import com.hsinghsu.test.util.FTL2String;  
+- import com.opensymphony.xwork2.ActionSupport;  
+- 
+- /**
+-  * 返回html流给前台
+-  * @author HsingHsu
+-  *
+-  */
+- publicclass UserActionHtmlString extends ActionSupport  
+- {  
+- 
+- /**
+-      * 
+-      */
+- privatestaticfinallong serialVersionUID = 1006905813011288043L;  
+- 
+- public String execute() throws Exception  
+-     {  
+-         UserDao userDao = new UserDao();  
+-         List<User> uList = userDao.getUserList();  
+- 
+- // String jsonString =
+- // "{'userList': [{'id': 0,'name': 'name0','age': 0},{'id': 1,'name': 'name1','age': 2},{'id': 2,'name': 'name2','age': 2},{'id': 3,'name': 'name3','age': 2},{'id': 4,'name': 'name4','age': 2},{'id': 5,'name': 'name5','age': 2},{'id': 6,'name': 'name6','age': 2},{'id': 7,'name': 'name7','age': 2},{'id': 8,'name': 'name8','age': 2},{'id': 9,'name': 'name1','age': 2}]}";
+- 
+-         String jsonString = JSONArray.fromObject(uList).toString();  
+- // jsonString = JSONObject.fromObject(uList).toString();
+- 
+-         System.out.println("json:" + jsonString);  
+- // print:[{"age":0,"id":0,"name":"name0"},{"age":2,"id":1,"name":"name1"},{"age":4,"id":2,"name":"name2"},{"age":6,"id":3,"name":"name3"},{"age":8,"id":4,"name":"name4"},{"age":10,"id":5,"name":"name5"},{"age":12,"id":6,"name":"name6"},{"age":14,"id":7,"name":"name7"},{"age":16,"id":8,"name":"name8"},{"age":18,"id":9,"name":"name9"}]
+- 
+-         String ftlPath = "/templates/";  
+-         String ftlName = "htmlStringTemplate.ftl";  
+- 
+-         String html = FTL2String.createHtmlString(ftlPath, ftlName, jsonString);  
+-         System.out.println("html:" + html);  
+- 
+- return SUCCESS;  
+-     }  
+- }  
+struts.xml配置文件如下，注：用户可根据不同的业务请求，来将html流展现给用户
+**[html]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- <?xmlversion="1.0"encoding="UTF-8"?>
+-   <!DOCTYPE struts PUBLIC  
+-       "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"  
+-       "http://struts.apache.org/dtds/struts-2.0.dtd">
+- <struts>
+- <packagename="hsinghsu"extends="struts-default">
+- 
+- <!-- 通过ftl生成html流返回给用户 -->
+- <actionname="userListHtmlString"class="com.hsinghsu.test.action.UserActionHtmlString">
+- </action>
+- 
+- </package>
+- </struts>
+htmlStringTemplate.ftl文件配置如下：
+**[html]**[view
+ plain](http://blog.csdn.net/xumengxing/article/details/14476007#)[copy](http://blog.csdn.net/xumengxing/article/details/14476007#)
+- <#assign data = getData?eval>
+- <tablestyle="text-align:center;FONT-SIZE: 11pt; WIDTH: 600px; FONT-FAMILY: 宋体; BORDER-COLLAPSE: collapse"borderColor=#3399ff cellSpacing=0cellPadding=0align=centerborder=1>
+- <tr>
+- <td><b>id</b></td>
+- <td><b>name</b></td>
+- <td><b>age</b></td>
+- </tr>
+- 
+- <#list data as user>
+- <tr>
+- <td>${user.id}</td>
+- <td>${user.name}</td>
+- <td>${user.age}</td>
+- </tr>
+- </#list>
+- 
+- <#-- 注：jsonString = "{'userList': [{'id':******  
+- <#list data.userList as user>
+- <tr>
+- <td>${user.id}</td>
+- <td>${user.name}</td>
+- <td>${user.age}</td>
+- </tr>
+- </#list>
+-     -->
+- 
+- </table>
+- 

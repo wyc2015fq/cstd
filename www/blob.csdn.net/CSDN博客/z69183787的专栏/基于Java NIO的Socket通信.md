@@ -1,0 +1,212 @@
+# 基于Java NIO的Socket通信 - z69183787的专栏 - CSDN博客
+2016年10月27日 14:39:39[OkidoGreen](https://me.csdn.net/z69183787)阅读数：427
+个人分类：[IO-NIO																[Socket & Tcp/Ip](https://blog.csdn.net/z69183787/article/category/2178111)](https://blog.csdn.net/z69183787/article/category/2191483)
+[Java](http://lib.csdn.net/base/java)NIO模式的Socket通信，是一种同步非阻塞IO设计模式，它为Reactor模式实现提供了基础。
+下面看看，[Java](http://lib.csdn.net/base/javaee)实现的一个服务端和客户端通信的例子。
+NIO模式的基本原理描述如下：
+服务端打开一个通道（ServerSocketChannel），并向通道中注册一个选择器（Selector），这个选择器是与一些感兴趣的操作的标识（SelectionKey，即通过这个标识可以定位到具体的操作，从而进行响应的处理）相关联的，然后基于选择器（Selector）轮询通道（ServerSocketChannel）上注册的事件，并进行相应的处理。
+客户端在请求与服务端通信时，也可以向服务器端一样注册（比服务端少了一个SelectionKey.OP_ACCEPT操作集合），并通过轮询来处理指定的事件，而不必阻塞。
+下面的例子，主要以服务端为例，而客户端只是简单地发送请求数据和读响应数据。
+服务端实现，代码如下所示：
+**[java]**[view plain](http://blog.csdn.net/shirdrn/article/details/6263692#)[copy](http://blog.csdn.net/shirdrn/article/details/6263692#)
+- **package** org.shirdrn.java.communications.nio;  
+- 
+- **import** java.io.IOException;  
+- **import** java<a href="http://lib.csdn.net/base/dotnet"**class**='replace_word' title=".NET知识库" target='_blank' style='color:#df3434; font-weight:bold;'>.NET</a>.InetSocketAddress;  
+- **import** java.nio.ByteBuffer;  
+- **import** java.nio.channels.SelectionKey;  
+- **import** java.nio.channels.Selector;  
+- **import** java.nio.channels.ServerSocketChannel;  
+- **import** java.nio.channels.SocketChannel;  
+- **import** java.util.Iterator;  
+- **import** java.util.Set;  
+- **import** java.util.logging.Logger;  
+- 
+- /**
+-  * NIO服务端
+-  * 
+-  * @author shirdrn
+-  */
+- **public****class** NioTcpServer **extends** Thread {  
+- 
+- **private****static****final** Logger log = Logger.getLogger(NioTcpServer.**class**.getName());  
+- **private** InetSocketAddress inetSocketAddress;  
+- **private** Handler handler = **new** ServerHandler();  
+- 
+- **public** NioTcpServer(String hostname, **int** port) {  
+-         inetSocketAddress = **new** InetSocketAddress(hostname, port);  
+-     }  
+- 
+- @Override
+- **public****void** run() {  
+- **try** {  
+-             Selector selector = Selector.open(); // 打开选择器
+-             ServerSocketChannel serverSocketChannel = ServerSocketChannel.open(); // 打开通道
+-             serverSocketChannel.configureBlocking(**false**); // 非阻塞
+-             serverSocketChannel.socket().bind(inetSocketAddress);  
+-             serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT); // 向通道注册选择器和对应事件标识
+-             log.info("Server: socket server started.");  
+- **while**(**true**) { // 轮询
+- **int** nKeys = selector.select();  
+- **if**(nKeys>0) {  
+-                     Set<SelectionKey> selectedKeys = selector.selectedKeys();  
+-                     Iterator<SelectionKey> it = selectedKeys.iterator();  
+- **while**(it.hasNext()) {  
+-                         SelectionKey key = it.next();  
+- **if**(key.isAcceptable()) {  
+-                             log.info("Server: SelectionKey is acceptable.");  
+-                             handler.handleAccept(key);  
+-                         } **else****if**(key.isReadable()) {  
+-                             log.info("Server: SelectionKey is readable.");  
+-                             handler.handleRead(key);  
+-                         } **else****if**(key.isWritable()) {  
+-                             log.info("Server: SelectionKey is writable.");  
+-                             handler.handleWrite(key);  
+-                         }  
+-                         it.remove();  
+-                     }  
+-                 }  
+-             }  
+-         } **catch** (IOException e) {  
+-             e.printStackTrace();  
+-         }  
+-     }  
+- 
+- /**
+-      * 简单处理器接口
+-      * 
+-      * @author shirdrn
+-      */
+- **interface** Handler {  
+- /**
+-          * 处理{@link SelectionKey#OP_ACCEPT}事件
+-          * @param key 
+-          * @throws IOException
+-          */
+- **void** handleAccept(SelectionKey key) **throws** IOException;  
+- /**
+-          * 处理{@link SelectionKey#OP_READ}事件
+-          * @param key 
+-          * @throws IOException
+-          */
+- **void** handleRead(SelectionKey key) **throws** IOException;  
+- /**
+-          * 处理{@link SelectionKey#OP_WRITE}事件
+-          * @param key 
+-          * @throws IOException
+-          */
+- **void** handleWrite(SelectionKey key) **throws** IOException;  
+-     }  
+- 
+- /**
+-      * 服务端事件处理实现类
+-      * 
+-      * @author shirdrn
+-      */
+- **class** ServerHandler **implements** Handler {  
+- 
+- @Override
+- **public****void** handleAccept(SelectionKey key) **throws** IOException {  
+-             ServerSocketChannel serverSocketChannel = (ServerSocketChannel)key.channel();  
+-             SocketChannel socketChannel = serverSocketChannel.accept();  
+-             log.info("Server: accept client socket " + socketChannel);  
+-             socketChannel.configureBlocking(**false**);  
+-             socketChannel.register(key.selector(), SelectionKey.OP_READ);  
+-         }  
+- 
+- @Override
+- **public****void** handleRead(SelectionKey key) **throws** IOException {  
+-             ByteBuffer byteBuffer = ByteBuffer.allocate(512);  
+-             SocketChannel socketChannel = (SocketChannel)key.channel();  
+- **while**(**true**) {  
+- **int** readBytes = socketChannel.read(byteBuffer);  
+- **if**(readBytes>0) {  
+-                     log.info("Server: readBytes = " + readBytes);  
+-                     log.info("Server: data = " + **new** String(byteBuffer.array(), 0, readBytes));  
+-                     byteBuffer.flip();  
+-                     socketChannel.write(byteBuffer);  
+- **break**;  
+-                 }  
+-             }  
+-             socketChannel.close();  
+-         }  
+- 
+- @Override
+- **public****void** handleWrite(SelectionKey key) **throws** IOException {  
+-             ByteBuffer byteBuffer = (ByteBuffer) key.attachment();  
+-             byteBuffer.flip();  
+-             SocketChannel socketChannel = (SocketChannel)key.channel();  
+-             socketChannel.write(byteBuffer);  
+- **if**(byteBuffer.hasRemaining()) {  
+-                 key.interestOps(SelectionKey.OP_READ);  
+-             }  
+-             byteBuffer.compact();  
+-         }  
+-     }  
+- 
+- **public****static****void** main(String[] args) {  
+-         NioTcpServer server = **new** NioTcpServer("localhost", 1000);  
+-         server.start();  
+-     }  
+- }  
+客户端实现，代码如下所示：
+**[java]**[view plain](http://blog.csdn.net/shirdrn/article/details/6263692#)[copy](http://blog.csdn.net/shirdrn/article/details/6263692#)
+- **package** org.shirdrn.java.communications.nio;  
+- 
+- **import** java.io.IOException;  
+- **import** java<a href="http://lib.csdn.net/base/dotnet"**class**='replace_word' title=".NET知识库" target='_blank' style='color:#df3434; font-weight:bold;'>.Net</a>.InetSocketAddress;  
+- **import** java.nio.ByteBuffer;  
+- **import** java.nio.channels.SocketChannel;  
+- **import** java.util.logging.Logger;  
+- 
+- /**
+-  * NIO客户端
+-  * 
+-  * @author shirdrn
+-  */
+- **public****class** NioTcpClient {  
+- 
+- **private****static****final** Logger log = Logger.getLogger(NioTcpClient.**class**.getName());  
+- **private** InetSocketAddress inetSocketAddress;  
+- 
+- **public** NioTcpClient(String hostname, **int** port) {  
+-         inetSocketAddress = **new** InetSocketAddress(hostname, port);  
+-     }  
+- 
+- /**
+-      * 发送请求数据
+-      * @param requestData
+-      */
+- **public****void** send(String requestData) {  
+- **try** {  
+-             SocketChannel socketChannel = SocketChannel.open(inetSocketAddress);  
+-             socketChannel.configureBlocking(**false**);  
+-             ByteBuffer byteBuffer = ByteBuffer.allocate(512);  
+-             socketChannel.write(ByteBuffer.wrap(requestData.getBytes()));  
+- **while** (**true**) {  
+-                 byteBuffer.clear();  
+- **int** readBytes = socketChannel.read(byteBuffer);  
+- **if** (readBytes > 0) {  
+-                     byteBuffer.flip();  
+-                     log.info("Client: readBytes = " + readBytes);  
+-                     log.info("Client: data = " + **new** String(byteBuffer.array(), 0, readBytes));  
+-                     socketChannel.close();  
+- **break**;  
+-                 }  
+-             }  
+- 
+-         } **catch** (IOException e) {  
+-             e.printStackTrace();  
+-         }  
+-     }  
+- 
+- **public****static****void** main(String[] args) {  
+-         String hostname = "localhost";  
+-         String requestData = "Actions speak louder than words!";  
+- **int** port = 1000;  
+- **new** NioTcpClient(hostname, port).send(requestData);  
+-     }  
+- }  
+上述实现，NioTcpServer服务线程启动后，监听指定端口，等待客户端请求的到来，然后NioTcpClient客户端进程启动并发送请求数据，服务端接收到请求数据后，响应客户端（将请求的数据作为响应数据写回到客户端通道SocketChannel，并等待客户端处理）。
+实际上，客户端和服务端可以采用同样轮询的非阻塞模式来实现，为简单实现在这个例子中我们把客户端角色简化了，而实际上它可能在另一个系统通信中充当服务端角色。
+另外，上面对于不同事件是采用非线程的方式来处理，只是简单地调用处理的方法。在实际中，如果存在大量连接、读写请求，可以考虑使用线程池来更大程度地并发处理，提高服务端处理的速度和吞吐量，提升系统性能。

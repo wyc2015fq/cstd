@@ -1,0 +1,136 @@
+# Spring AOP 之 HelloWorld（简单例子） - z69183787的专栏 - CSDN博客
+2012年10月25日 14:23:53[OkidoGreen](https://me.csdn.net/z69183787)阅读数：3935
+java代码
+Java代码  ![收藏代码](http://benx.iteye.com/images/icon_star.png)
+- import org.aspectj.lang.JoinPoint;  
+- import org.aspectj.lang.ProceedingJoinPoint;  
+- import org.springframework.context.ApplicationContext;  
+- import org.springframework.context.support.ClassPathXmlApplicationContext;  
+- 
+- publicclass AopTest {  
+- 
+- /**
+-      * @param args
+-      */
+- publicstaticvoid main(String[] args) {  
+-         ApplicationContext ctx = new ClassPathXmlApplicationContext("benx.xml");  
+-         HelloWorld helloWorld = (HelloWorld) ctx.getBean("helloWorld");  
+-         helloWorld.sayHelloWorld();  
+-     }  
+- 
+- }  
+- 
+- interface HelloWorld {  
+- void sayHelloWorld();  
+- }  
+- 
+- interface HelloChina {  
+- void sayHelloChina();  
+- }  
+- 
+- class HelloWorldImpl implements HelloWorld {  
+- 
+- publicvoid sayHelloWorld() {  
+-         System.out.println("Hello World!");  
+- //制造异常
+-         String str = null;  
+-         str.substring(1);  
+- 
+-     }  
+- }  
+- 
+- /**
+-  * 日志拦截器
+-  * 
+-  * @author jin.xiong
+-  * 
+-  */
+- class LogAdvice {  
+- 
+- /**
+-      * 执行方法前拦截器
+-      * 
+-      * @param joinPoint
+-      */
+- publicvoid methodBefore(JoinPoint joinPoint) {  
+-         System.out.println(joinPoint.getTarget().getClass().getName() + "."
+-                 + joinPoint.getSignature().getName() + " Start");  
+-     }  
+- 
+- /**
+-      * 方法执行后拦截器
+-      * 
+-      * @param joinPoint
+-      */
+- publicvoid methodAfter(JoinPoint joinPoint) {  
+-         System.out.println(joinPoint.getTarget().getClass().getName() + "."
+-                 + joinPoint.getSignature().getName() + " end");  
+-     }  
+- 
+- /**
+-      * 方法出现异常拦截器
+-      * 
+-      * @param joinPoint
+-      */
+- publicvoid methodException(JoinPoint joinPoint) {  
+-         System.out.println(joinPoint.getTarget().getClass().getName() + "."
+-                 + joinPoint.getSignature().getName() + " mett Error");  
+-     }  
+- 
+- /**
+-      * 方法环绕拦截器，如果使用了这个，可以忽视上面的方法
+-      * 注意该方法参数为ProceedingJoinPoint ，这是可以执行的，只有round可以使用
+-      * @param joinPoint
+-      * @return
+-      */
+- public Object methodRound(ProceedingJoinPoint joinPoint) {  
+- 
+-         methodBefore(joinPoint);  
+-         Object ob = null;  
+- try {  
+-             ob = joinPoint.proceed();  
+-         } catch (Throwable error) {  
+-             methodException(joinPoint);  
+-         }  
+-         methodAfter(joinPoint);  
+- return ob;  
+-     }  
+- 
+- }  
+benx.xml
+Java代码  ![收藏代码](http://benx.iteye.com/images/icon_star.png)
+- <?xml version="1.0" encoding="UTF-8"?>  
+- <beans xmlns="http://www.springframework.org/schema/beans"
+-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+-     xsi:schemaLocation="http://www.springframework.org/schema/beans
+-             http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+-           http://www.springframework.org/schema/aop
+-             http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+- 
+- 
+-     <bean id="helloWorld"class="HelloWorldImpl"/>  
+- 
+-     <bean id="logAdvice"class="LogAdvice"/>  
+- 
+-     <aop:config>  
+-         <aop:aspect ref="logAdvice">  
+-             <aop:pointcut id="logPointcut" expression="execution(* *.*(..))" />  
+-             <aop:before method="methodBefore" pointcut-ref="logPointcut" />  
+-             <aop:after method="methodAfter" pointcut-ref="logPointcut" />  
+-             <aop:after-throwing method="methodException" pointcut-ref="logPointcut" />  
+- 
+-             <!-- aroun最好不要和他们同时使用 -->  
+-             <aop:around method="methodRound" pointcut-ref="logPointcut" />  
+-         </aop:aspect>  
+-     </aop:config>  
+- </beans>  
+
+打印结果，之所以会重复，使用为使用了round，可以把benx.xml中的methodRound去掉
+Java代码  ![收藏代码](http://benx.iteye.com/images/icon_star.png)
+- HelloWorldImpl.sayHelloWorld Start  
+- HelloWorldImpl.sayHelloWorld Start  
+- Hello World!  
+- HelloWorldImpl.sayHelloWorld end  
+- HelloWorldImpl.sayHelloWorld mett Error  
+- HelloWorldImpl.sayHelloWorld mett Error  
+- HelloWorldImpl.sayHelloWorld end  

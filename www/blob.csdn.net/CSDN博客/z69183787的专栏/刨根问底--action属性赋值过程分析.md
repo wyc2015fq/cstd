@@ -1,0 +1,266 @@
+# 刨根问底--action属性赋值过程分析 - z69183787的专栏 - CSDN博客
+2015年08月12日 21:46:12[OkidoGreen](https://me.csdn.net/z69183787)阅读数：2012
+首先看一个简单的action类：
+[?](http://my.oschina.net/winHerson/blog/109536#)
+```
+```java
+package
+```
+```java
+com.xing.action;
+```
+```java
+import
+```
+```java
+com.opensymphony.xwork2.ActionSupport;
+```
+```java
+public
+```
+```java
+class
+```
+```java
+Login
+```
+```java
+extends
+```
+```java
+ActionSupport{
+```
+```java
+```
+```java
+private
+```
+```java
+String userName;
+```
+```java
+```
+```java
+private
+```
+```java
+String password;
+```
+```java
+```
+```java
+```
+```java
+public
+```
+```java
+String getUserName() {
+```
+```java
+```
+```java
+return
+```
+```java
+userName;
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+public
+```
+```java
+void
+```
+```java
+setUserName(String userName) {
+```
+```java
+```
+```java
+this
+```
+```java
+.userName
+ = userName;
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+public
+```
+```java
+String getPassword() {
+```
+```java
+```
+```java
+return
+```
+```java
+password;
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+public
+```
+```java
+void
+```
+```java
+setPassword(String password) {
+```
+```java
+```
+```java
+this
+```
+```java
+.password
+ = password;
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+```
+```java
+public
+```
+```java
+String execute() {
+```
+```java
+```
+```java
+System.out.println(userName);
+```
+```java
+```
+```java
+System.out.println(password);
+```
+```java
+```
+```java
+```
+```java
+if
+```
+```java
+(
+```
+```java
+"123456"
+```
+```java
+.equals(
+```
+```java
+this
+```
+```java
+.userName)
+ &&
+```
+```java
+"123456"
+```
+```java
+.equals(
+```
+```java
+this
+```
+```java
+.password))
+```
+```java
+```
+```java
+return
+```
+```java
+"success"
+```
+```java
+;
+```
+```java
+```
+```java
+else
+```
+```java
+```
+```java
+return
+```
+```java
+"fail"
+```
+```java
+;
+```
+```java
+```
+```java
+}
+```
+```java
+}
+```
+```
+这个类很简单，就是继承了ActionSupport，并且重写了execute()方法。当执行execute()方法的时候，调用成员变量userName和password，并且判断是否是123456。
+现在有一个疑问，这里的userName和password值，是怎么传递过来的呢？以前学习struts2的时候只知道jsp页面上的属性名称要和action类中的set方法名称其余字符相同，和属性名称是否相同没有关系。具体为什么这样呢?带着这些疑问，继续探索struts2的源码。
+    这里分享是怎么把这里相关的源码找到，并且分析完成：
+  （1）action类中属性设置值，是在执行action方法之前完成的，那就详细的看看在执行action方法之前，是否有代码进行action属性的设置。请参照《[刨根问底-struts-serviceAction（）创建并执行action](http://my.oschina.net/winHerson/blog/106573)》
+（2）创建action对象的过程中没有发现
+（3）执行action方法的过程也没有发现
+到这里不可思议那到底是在那执行的呢？突然想到，在执行action方法之前，会循环执行所有的拦截器，不会是某个拦截器，做了这份工作吧。实践证明确实是ParametersInterceptor拦截器做了这份工作。
+        如果package使用了ParameterIntercepter这个拦截器，OgnlValueStack会自动为Action中有set方法的属性赋值（如果用了modeldriven，同样也会为实体中有set方法的属性赋值），赋值时，OGNL会将此时值栈中的action当做当前节点（默认情况下在请求进入action之前，该action也会被放入值栈），然后访问它的成员属性的set方法，如果ognl的context中的参数在action中找不到对应的set方法，就会抛出OgnlException。
+struts有三大核心包：xwork，ognl，struts-core。xwork,struts-core这个2个jar包在前面都有亲密的接触，而ognl则没有太多的接触，现在来熟悉一下他。
+ 1、OGNL概念：
+OGNL是Object-Graph Navigation Language的缩写，它是一种功能强大的表达式语言（Expression Language，简称为EL），通过它简单一致的表达式语法，可以存取对象的任意属性，调用对象的方法，遍历整个对象的结构图，实现字段类型转化等功能。它使用相同的表达式去存取对象的属性。
+    2、OGNL三要素：
+    (1).expression 求值表达式——首先会被解析成对象树
+    (2).rootobject  根对象——默认的操作对象
+    (3).context OGNL执行环境——OGNL执行的上下文环境
+OGNL context是一个Map结构，ognl.OgnlContext类implements
+ Map接口，root对象也在context里面，并且做这一个特殊的对象处理，具体表现为对root  对象的操作不需要加#指示符号（并且加上了#一定取不到root对象里面的值）。
+    3、Struts 2默认的表达式语言是OGNL，原因是它相对其它表达式语言具有下面几大优势：
+（1）支持对象方法调用，如xxx.doSomeSpecial()；
+（2）支持类[静态](http://baike.baidu.com/view/612026.htm)的方法调用和值访问，表达式的格式为@[类全名（包括包路径）]@[方法名
+ | 值名]，例如：@java.lang.String@format('foo %s', 'bar')或@tutorial.MyConstant@APP_NAME；
+（3）支持赋值操作和[表达式](http://baike.baidu.com/view/420676.htm)串联，如price=100,
+ discount=0.8, calculatePrice()，这个表达式会返回80；
+（4）访问OGNL上下文（OGNL context）和ActionContext；
+（5）操作集合对象。
+由于ognl前面没有详细分析过，首先对ognl读取数据的过程和设置数据的过程分析完成，然后在联系struts2分析。
+《[刨根问底--ognl--get获取数据](http://my.oschina.net/winHerson/admin/edit-blog?draft=7796)》
+《[刨根问底--ognl-set设置数据](http://my.oschina.net/winHerson/admin/edit-blog?draft=7809)》
+《[刨根问底-struts和ognl密切分析](http://my.oschina.net/winHerson/admin/edit-blog?draft=7837)》
+更详细的ognl信息请参照：
+《[忘记李刚，一步一步跟我学Struts2
+ —— OGNL，数据运转的催化剂](http://downpour.iteye.com/blog/308896)》
+《[Struts2学习笔记（十） OGNL](http://blog.csdn.net/jdluojing/article/details/7585820)》

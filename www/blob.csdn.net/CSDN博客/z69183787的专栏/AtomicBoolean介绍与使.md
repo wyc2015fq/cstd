@@ -1,0 +1,145 @@
+# AtomicBoolean介绍与使 - z69183787的专栏 - CSDN博客
+2015年06月09日 21:30:41[OkidoGreen](https://me.csdn.net/z69183787)阅读数：2548
+[java.lang.Object](http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html)
+![extended by](http://docs.oracle.com/javase/6/docs/api/resources/inherit.gif)
+java.util.concurrent.atomic.AtomicBoolean继承自Object。- 介绍：
+       在这个Boolean值的变化的时候不允许在之间插入，保持操作的原子性
+- 方法和举例
+- 
+- compareAndSet(boolean expect, boolean update)
+>         这个方法主要两个作用         1. 比较AtomicBoolean和expect的值，如果一致，执行方法内的语句。其实就是一个if语句         2. 把AtomicBoolean的值设成update         比较最要的是这两件事是一气呵成的，这连个动作之间不会被打断，任何内部或者外部的语句都不可能在两个动作之间运行。为多线程的控制提供了解决的方案。
+## 使用：
+- privatestaticclass BarWorker implements Runnable {  
+- 
+- privatestaticboolean exists = false;  
+- 
+- private String name;  
+- 
+- public BarWorker(String name) {   this.name = name;  }  
+- 
+- publicvoid run() {   if (!exists) {    exists = true;    System.out.println(name + " enter");    System.out.println(name + " working");    System.out.println(name + " leave");    exists = false;   } else {    System.out.println(name + " give up");   }  }  
+- 
+- }  
+static变量exists用来实现同一时间只有一个worker在工作. 但是假设exists的判断和exists = true;之间有了 其他指令呢 Java代码
+- privatestaticclass BarWorker implements Runnable {     
+- 
+- privatestaticboolean exists = false;     
+- 
+- private String name;     
+- 
+- public BarWorker(String name) {     
+- this.name = name;     
+-  }     
+- 
+- publicvoid run() {     
+- if (!exists) {     
+- try {     
+-     TimeUnit.SECONDS.sleep(1);     
+-    } catch (InterruptedException e1) {     
+- // do nothing   
+-    }     
+-    exists = true;     
+-    System.out.println(name + " enter");     
+- try {     
+-     System.out.println(name + " working");     
+-     TimeUnit.SECONDS.sleep(2);     
+-    } catch (InterruptedException e) {     
+- // do nothing   
+-    }     
+-    System.out.println(name + " leave");     
+-    exists = false;     
+-   } else {     
+-    System.out.println(name + " give up");     
+-   }     
+-  }     
+- 
+- }    
+- privatestaticclass BarWorker implements Runnable {  
+- 
+- privatestaticboolean exists = false;  
+- 
+- private String name;  
+- 
+- public BarWorker(String name) {  
+- this.name = name;  
+-   }  
+- 
+- publicvoid run() {  
+- if (!exists) {  
+- try {  
+-      TimeUnit.SECONDS.sleep(1);  
+-     } catch (InterruptedException e1) {  
+- // do nothing
+-     }  
+-     exists = true;  
+-     System.out.println(name + " enter");  
+- try {  
+-      System.out.println(name + " working");  
+-      TimeUnit.SECONDS.sleep(2);  
+-     } catch (InterruptedException e) {  
+- // do nothing
+-     }  
+-     System.out.println(name + " leave");  
+-     exists = false;  
+-    } else {  
+-     System.out.println(name + " give up");  
+-    }  
+-   }  
+- 
+-  }  
+## 这时输出是 bar2 enter bar2 working bar1 enter bar1 working bar1 leave bar2 leave 看到两个线程同时工作了. 这时可以用AtomicBoolean Java代码
+- privatestaticclass BarWorker implements Runnable {     
+- 
+- privatestatic AtomicBoolean exists = new AtomicBoolean(false);     
+- 
+- private String name;     
+- 
+- public BarWorker(String name) {     
+- this.name = name;     
+-   }     
+- 
+- publicvoid run() {     
+- if (exists.compareAndSet(false, true)) {     
+-     System.out.println(name + " enter");     
+- try {     
+-      System.out.println(name + " working");     
+-      TimeUnit.SECONDS.sleep(2);     
+-     } catch (InterruptedException e) {     
+- // do nothing   
+-     }     
+-     System.out.println(name + " leave");     
+-     exists.set(false);     
+-    }else{     
+-     System.out.println(name + " give up");     
+-    }     
+-   }     
+- 
+-  }  
+- privatestaticclass BarWorker implements Runnable {  
+- 
+- privatestatic AtomicBoolean exists = new AtomicBoolean(false);  
+- 
+- private String name;  
+- 
+- public BarWorker(String name) {  
+- this.name = name;  
+-   }  
+- 
+- publicvoid run() {  
+- if (exists.compareAndSet(false, true)) {  
+-     System.out.println(name + " enter");  
+- try {  
+-      System.out.println(name + " working");  
+-      TimeUnit.SECONDS.sleep(2);  
+-     } catch (InterruptedException e) {  
+- // do nothing
+-     }  
+-     System.out.println(name + " leave");  
+-     exists.set(false);  
+-    }else{  
+-     System.out.println(name + " give up");  
+-    }  
+-   }  
+- 
+-  }  
+## 因为它提供了原子性操作,其中exists.compareAndSet(false, true)这个操作把比较和赋值操作组成了一个原子操作, 中间不会提供可乘之机.输出为 bar1 enter bar1 working bar2 give up

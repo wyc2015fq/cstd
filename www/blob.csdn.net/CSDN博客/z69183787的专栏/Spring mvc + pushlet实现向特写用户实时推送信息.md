@@ -1,0 +1,921 @@
+# Spring mvc + pushlet实现向特写用户实时推送信息 - z69183787的专栏 - CSDN博客
+2014年03月24日 14:50:49[OkidoGreen](https://me.csdn.net/z69183787)阅读数：14913
+环境:pushlet-2.0.4 
+所遇问题： 
+1.如何向特定用户推送 
+参考网上资料：[http://tonl.iteye.com/blog/1398995](http://tonl.iteye.com/blog/1398995)
+**首先**：修改ajax-pushlet-client.js，在PL对象后加入userId:
+复制代码
+```
+`var`
+```
+PL
+ = {
+```
+`    ``NV_P_FORMAT: ``'p_format=xml-strict'``,`
+`    ``NV_P_MODE: ``'p_mode=pull'``,`
+`    ``pushletURL: ``null``,`
+`    ``webRoot: ``null``,`
+`    ``sessionId: ``null``,`
+`    `
+```
+STATE_ERROR:
+ -2,
+```
+`    `
+```
+STATE_ABORT:
+ -1,
+```
+`    `
+```
+STATE_NULL:
+ 1,
+```
+`    `
+```
+STATE_READY:
+ 2,
+```
+`    `
+```
+STATE_JOINED:
+ 3,
+```
+`    `
+```
+STATE_LISTENING:
+ 3,
+```
+`    `
+```
+state:
+ 1,
+```
+`    ``userId: ``''``,``//添加的userId变量`
+```
+**其次**：修改pushlet源码，nl.justobjects.pushlet.core.SessionManager，将createSession方法修改如下：
+复制代码
+```
+```java
+/**
+```
+```java
+```
+```java
+*
+ Create new Session (but add later).
+```
+```java
+```
+```java
+*/
+```
+```java
+```
+```java
+public
+```
+```java
+Session
+ createSession(Event anEvent)
+```
+```java
+throws
+```
+```java
+PushletException
+ {
+```
+```java
+```
+```java
+//
+ Trivial
+```
+```java
+```
+```java
+//return
+ Session.create(createSessionId()); //原写法
+```
+```java
+```
+```java
+return
+```
+```java
+Session.create(anEvent.getField(
+```
+```java
+"userId"
+```
+```java
+,
+```
+```java
+"visitor"
+```
+```java
+));
+```
+```java
+//修改后的写法
+```
+```java
+```
+```java
+}
+```
+```
+这是我们就获得的session的id就是我们传送过来的登陆用户userId,getField的第二个参数是当得不到请求参数userId的值的时候设定的默认值。 
+**最后**：对修改过的源码进行编译打包
+编择：直接到下载的pushlet包下build 
+打包：通过jar命令 
+![](http://attachment.apiusage.com/attachment/thumb/1312/thread/13_27_f640fd7956ac9a2.jpg)
+2.如何在配置的推送源中获取service对象 
+参考：[http://blog.csdn.net/zollty/article/details/8710911](http://blog.csdn.net/zollty/article/details/8710911)
+因为pushlet是在服务端做的轮询，并不经web容器，所以不能自动注入，要手动获取，方法如下：
+复制代码
+```
+```java
+applicationContext
+ = sessions.length >
+```
+```java
+0
+```
+```java
+&&
+ applicationContext ==
+```
+```java
+null
+```
+```java
+?
+```
+```java
+```
+```java
+ContextLoaderListener.getCurrentWebApplicationContext()
+```
+```java
+```
+```java
+:
+ applicationContext;
+```
+```java
+renwuService
+ = sessions.length >
+```
+```java
+0
+```
+```java
+&&
+ renwuService ==
+```
+```java
+null
+```
+```java
+?
+```
+```java
+```
+```java
+(IRenwuService)
+ applicationContext.getBean(
+```
+```java
+"renwuServiceImpl"
+```
+```java
+)
+```
+```java
+```
+```java
+:
+ renwuService;
+```
+```
+注：IRenwuService
+ 为消息接口，RenwuServiceImpl为接口实现类
+3.Spring 初始化的bean名称是什么 
+看到2中getBean("renwuServiceImpl"),
+ Spring容器初始化bean时，所有bean名称都以小写字母开头（这里从控制台也可以看出所有初始化bean的名称），所以bean名为renwuServiceImpl
+4.如果推信息为中文如何处理 
+如查推送的信息为中文，前端JS不会返回信息，但从控制台可以看出，推送源已执行，但会自动将sessionId移除，如下图：
+![](http://attachment.apiusage.com/attachment/thumb/1312/thread/13_27_b58e5e62bcbf41a.jpg)
+解决方法： 
+new String("中文问题".getBytes("UTF-8"),"ISO-8859-1"); 
+5.用Jquery实现无刷新框架要注的JS代码位置 
+这里我是用 Jquery post方法在页面初始化时进行动态加载main页面，所以 
+复制代码
+```
+```
+<script
+ type=
+```
+`"text/javascript"``>`
+`<!--`
+`  ``//pushlet`
+`  ``if`
+```
+(PL.sessionId
+ ==
+```
+`null``){`
+`      `
+```
+PL.userId
+ =
+```
+`'${userId}'``;`
+`      ``PL._init();`
+`      ``PL.joinListen(``'/pms/bxService'``);`
+```
+//事件标识
+ 在数据源中引用
+```
+`      ``function``onData(event){`
+`            ``console.log(``"sessionID=="`
+```
++
+ PL.sessionId +
+```
+`"===="`
+```
++
+ event.get(
+```
+`'msg_'``+ ``'${userId}'``));`
+`      ``}`
+`  ``}`
+`//-->`
+`</script>`
+```
+要放入最后回载的main页，不能放入在他之前加载的页面 
+6.关于key的取值问题
+复制代码
+```
+```java
+event.setField(key,
+ value)
+```
+```
+这里的key不能是数字（包括数字字符串），否则同样会出现4的问题 
+=============================华丽的分隔线=========================
+完整配置代码： 
+**步骤一**：创建一个类（事件推送源类）
+复制代码
+```
+```java
+package
+```
+```java
+com.tony.demo.pushlet;
+```
+```java
+```
+```java
+import
+```
+```java
+java.io.Serializable;
+```
+```java
+```
+```java
+import
+```
+```java
+org.springframework.context.ApplicationContext;
+```
+```java
+import
+```
+```java
+org.springframework.stereotype.Controller;
+```
+```java
+import
+```
+```java
+org.springframework.web.context.ContextLoaderListener;
+```
+```java
+import
+```
+```java
+com.tony.jrpms.service.IRenwuService;
+```
+```java
+import
+```
+```java
+nl.justobjects.pushlet.core.Event;
+```
+```java
+import
+```
+```java
+nl.justobjects.pushlet.core.EventPullSource;
+```
+```java
+import
+```
+```java
+nl.justobjects.pushlet.core.Session;
+```
+```java
+import
+```
+```java
+nl.justobjects.pushlet.core.SessionManager;
+```
+```java
+```
+```java
+/**
+```
+```java
+```
+```java
+*
+ @author Tony
+```
+```java
+```
+```java
+*
+ @createDatime 2013-11-28 下午1:42:21
+```
+```java
+```
+```java
+*/
+```
+```java
+@Controller
+```
+```java
+public
+```
+```java
+class
+```
+```java
+PmsEventPullSources
+```
+```java
+implements
+```
+```java
+Serializable
+ {
+```
+```java
+```
+```java
+```
+```java
+/**
+```
+```java
+```
+```java
+*
+```
+```java
+```
+```java
+*/
+```
+```java
+```
+```java
+private
+```
+```java
+static
+```
+```java
+final
+```
+```java
+long
+```
+```java
+serialVersionUID
+ = 8397335113632699297L;
+```
+```java
+```
+```java
+```
+```java
+private
+```
+```java
+static
+```
+```java
+ApplicationContext
+ applicationContext;
+```
+```java
+```
+```java
+private
+```
+```java
+static
+```
+```java
+IRenwuService
+ renwuService;
+```
+```java
+```
+```java
+```
+```java
+public
+```
+```java
+static
+```
+```java
+class
+```
+```java
+BaoxiuEvent
+```
+```java
+extends
+```
+```java
+EventPullSource{
+```
+```java
+```
+```java
+```
+```java
+@Override
+```
+```java
+```
+```java
+protected
+```
+```java
+long
+```
+```java
+getSleepTime()
+ {
+```
+```java
+```
+```java
+```
+```java
+return
+```
+```java
+1000
+```
+```java
+;
+```
+```java
+//刷新时间
+```
+```java
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+```
+```java
+@Override
+```
+```java
+```
+```java
+protected
+```
+```java
+Event
+ pullEvent() {
+```
+```java
+```
+```java
+```
+```java
+Event
+ event = Event.createDataEvent(
+```
+```java
+"/pms/bxService"
+```
+```java
+);
+```
+```java
+//
+ 事件标识 // 注意：此处”/pms/bxService”将对应页面js代码中的PjoinListen中的参数
+```
+```java
+```
+```java
+```
+```java
+//
+ 获取当前登陆用户Id(加入事件订阅的用户)
+```
+```java
+```
+```java
+Session[]
+ sessions = SessionManager.getInstance().getSessions();
+```
+```java
+```
+```java
+```
+```java
+applicationContext
+ = sessions.length >
+```
+```java
+0
+```
+```java
+&&
+ applicationContext ==
+```
+```java
+null
+```
+```java
+?
+```
+```java
+```
+```java
+ContextLoaderListener.getCurrentWebApplicationContext()
+```
+```java
+```
+```java
+:
+ applicationContext;
+```
+```java
+```
+```java
+renwuService
+ = sessions.length >
+```
+```java
+0
+```
+```java
+&&
+ renwuService ==
+```
+```java
+null
+```
+```java
+?
+```
+```java
+```
+```java
+(IRenwuService)
+ applicationContext.getBean(
+```
+```java
+"renwuServiceImpl"
+```
+```java
+)
+```
+```java
+```
+```java
+:
+ renwuService;
+```
+```java
+```
+```java
+```
+```java
+//查询当前用户的任务
+```
+```java
+```
+```java
+for
+```
+```java
+(
+```
+```java
+int
+```
+```java
+i=
+```
+```java
+0
+```
+```java
+;
+ i<sessions.length; i++){
+```
+```java
+```
+```java
+```
+```java
+//查询当前登录用户的报修任务
+```
+```java
+```
+```java
+int
+```
+```java
+bxCount
+ = renwuService.totalRenwu(Integer.parseInt(sessions<i>.getId()));
+```
+```java
+```
+```java
+event.setField(
+```
+```java
+"msg_"
+```
+```java
++
+ sessions<i>.getId(), bxCount);
+```
+```java
+//
+ 封装参数
+```
+```java
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+return
+```
+```java
+event;
+```
+```java
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+```
+```java
+}
+```
+```java
+}</i></i>
+```
+```
+****步骤二**：配置文件（ sources.properties ）**
+*复制代码*
+```
+```java
+source1=com.tony.demo.pushlet.PmsEventPullSources$BaoxiuEvent
+```
+```
+将原有的source*全部注释或删除掉
+***步骤三**：配置文件（ web.xml ）复制代码*
+```
+```xml
+<!--
+ pushlet servlet 配置-->
+```
+```xml
+```
+```xml
+<
+```
+```xml
+servlet
+```
+```xml
+>
+```
+```xml
+```
+```xml
+<
+```
+```xml
+servlet-name
+```
+```xml
+>pushlet</
+```
+```xml
+servlet-name
+```
+```xml
+>
+```
+```xml
+```
+```xml
+<
+```
+```xml
+servlet-class
+```
+```xml
+>nl.justobjects.pushlet.servlet.Pushlet</
+```
+```xml
+servlet-class
+```
+```xml
+>
+```
+```xml
+```
+```xml
+<
+```
+```xml
+load-on-startup
+```
+```xml
+>1</
+```
+```xml
+load-on-startup
+```
+```xml
+>
+```
+```xml
+```
+```xml
+</
+```
+```xml
+servlet
+```
+```xml
+>
+```
+```xml
+```
+```xml
+```
+```xml
+<!--
+ Define the Servlet Mappings. -->
+```
+```xml
+```
+```xml
+```
+```xml
+<!--
+ The pushlet -->
+```
+```xml
+```
+```xml
+<
+```
+```xml
+servlet-mapping
+```
+```xml
+>
+```
+```xml
+```
+```xml
+<
+```
+```xml
+servlet-name
+```
+```xml
+>pushlet</
+```
+```xml
+servlet-name
+```
+```xml
+>
+```
+```xml
+```
+```xml
+<
+```
+```xml
+url-pattern
+```
+```xml
+>/pushlet.srv</
+```
+```xml
+url-pattern
+```
+```xml
+>
+```
+```xml
+```
+```xml
+</
+```
+```xml
+servlet-mapping
+```
+```xml
+>
+```
+```
+**步骤四**：jsp文件中js写法
+复制代码
+```
+```
+<script
+ type=
+```
+`"text/javascript"``>`
+`<!--`
+`  ``//pushlet`
+`  ``if`
+```
+(PL.sessionId
+ ==
+```
+`null``){`
+`      `
+```
+PL.userId
+ =
+```
+`'${userId}'``;`
+`      ``PL._init();`
+`      ``PL.joinListen(``'/pms/bxService'``);`
+```
+//事件标识
+ 在数据源中引用
+```
+`      ``function``onData(event){`
+`            ``console.log(``"sessionID=="`
+```
++
+ PL.sessionId +
+```
+`"===="`
+```
++
+ event.get(
+```
+`'msg_'``+ ``'${userId}'``));`
+`      ``}`
+`  ``}`
+`//-->`
+`</script>`
+```
+注：${userId}为当前登录用户的ID

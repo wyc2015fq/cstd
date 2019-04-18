@@ -1,26 +1,9 @@
 # 概率编程库Pymc3案例之神经网络 - 专注于数据挖掘算法研究和应用 - CSDN博客
-
-
-
-
-
-2019年04月04日 12:21:35[fjssharpsword](https://me.csdn.net/fjssharpsword)阅读数：23
+2019年04月04日 12:21:35[fjssharpsword](https://me.csdn.net/fjssharpsword)阅读数：25
 个人分类：[Algorithm](https://blog.csdn.net/fjssharpsword/article/category/6309933)
-
-
-
-
-
-
-
-
-
 参考：[https://docs.pymc.io/getting_started.html](https://docs.pymc.io/getting_started.html)
-
 [https://twiecki.io/blog/2016/06/01/bayesian-deep-learning/](https://twiecki.io/blog/2016/06/01/bayesian-deep-learning/)
-
 1、生成非线性可分的二分类数据
-
 ```python
 %matplotlib inline
 import theano
@@ -37,7 +20,6 @@ from sklearn.preprocessing import scale
 from sklearn.cross_validation import train_test_split
 from sklearn.datasets import make_moons
 ```
-
 ```python
 X, Y = make_moons(noise=0.2, random_state=0, n_samples=1000)
 X = scale(X)
@@ -50,13 +32,9 @@ ax.scatter(X[Y==1, 0], X[Y==1, 1], color='r', label='Class 1')
 sns.despine(); ax.legend()
 ax.set(xlabel='X', ylabel='Y', title='Toy binary classification data set');
 ```
-
 ![](https://img-blog.csdnimg.cn/20190404084809927.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2Zqc3NoYXJwc3dvcmQ=,size_16,color_FFFFFF,t_70)
-
 2、定义贝叶斯神经网络模型
-
 构建2 hidden layers with 5 neurons，权值用正态先验分布约束。这里表示的不确定性用先验约束，而预测的不确定性用Bernoulli分布。
-
 ```python
 def construct_nn(ann_input, ann_output):
     n_hidden = 5
@@ -94,7 +72,6 @@ def construct_nn(ann_input, ann_output):
                            total_size=Y_train.shape[0] # IMPORTANT for minibatches
                           )
     return neural_network
-
 # Trick: Turn inputs and outputs into shared variables. 
 # It's still the same thing, but we can later change the values of the shared variable 
 # (to switch in the test-data later) and pymc3 will just use the new data. 
@@ -104,51 +81,38 @@ ann_input = theano.shared(X_train)
 ann_output = theano.shared(Y_train)
 neural_network = construct_nn(ann_input, ann_output)
 ```
-
 3、变分推断最优化
-
 模型求解可以用MCMC采样法，如NUTS，但面对深度网络时，变分推断更快。
-
 we will use [ADVI](https://arxiv.org/abs/1603.00788) variational inference algorithm which was recently added to `PyMC3`, and updated to use the operator variational inference (OPVI) framework. This is much faster and will scale better. Note, that this is a mean-field approximation so we ignore correlations in the posterior.
-
 we can very quickly draw samples from the variational approximation using the `sample` method (this is just sampling from Normal distributions, so not at all the same like MCMC)
-
 lets predict on the hold-out set using a posterior predictive check (PPC).
-
 ```python
 from pymc3.theanof import set_tt_rng, MRG_RandomStreams
 set_tt_rng(MRG_RandomStreams(42))
 %time
-
 with neural_network:
     inference = pm.ADVI()
     approx = pm.fit(n=50000, method=inference)
 ```
-
 ```python
 CPU times: user 4 µs, sys: 1e+03 ns, total: 5 µs
 Wall time: 13.4 µs
 Average Loss = 128.96: 100%|██████████| 50000/50000 [00:43<00:00, 1138.57it/s]
 Finished [100%]: Average Loss = 129
 ```
-
 ```python
 trace = approx.sample(draws=5000)
 plt.plot(-inference.hist)
 plt.ylabel('ELBO')
 plt.xlabel('iteration');
 ```
-
 ![](https://img-blog.csdnimg.cn/20190404122053184.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2Zqc3NoYXJwc3dvcmQ=,size_16,color_FFFFFF,t_70)
-
 ```python
 # Replace arrays our NN references with the test data
 ann_input.set_value(X_test)
 ann_output.set_value(Y_test)
-
 with neural_network:
     ppc = pm.sample_ppc(trace, samples=500, progressbar=False)
-
 # Use probability of > 0.5 to assume prediction of class 1
 pred = ppc['out'].mean(axis=0) > 0.5
 fig, ax = plt.subplots()
@@ -158,8 +122,4 @@ sns.despine()
 ax.set(title='Predicted labels in testing set', xlabel='X', ylabel='Y');
 print('Accuracy = {}%'.format((Y_test == pred).mean() * 100))
 ```
-
 ![](https://img-blog.csdnimg.cn/20190404122129139.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2Zqc3NoYXJwc3dvcmQ=,size_16,color_FFFFFF,t_70)
-
-
-

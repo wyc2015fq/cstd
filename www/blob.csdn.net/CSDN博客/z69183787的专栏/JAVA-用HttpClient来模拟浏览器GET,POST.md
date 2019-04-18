@@ -1,0 +1,249 @@
+# JAVA-用HttpClient来模拟浏览器GET,POST - z69183787的专栏 - CSDN博客
+2014年02月13日 10:30:20[OkidoGreen](https://me.csdn.net/z69183787)阅读数：2053
+　　一般的情况下我们都是使用IE或者Navigator浏览器来访问一个WEB服务器，用来浏览页面查看信息或者提交一些数据等等。所访问的这些页面有的仅 仅是一些普通的页面，有的需要用户登录后方可使用，或者需要认证以及是一些通过加密方式传输，例如HTTPS。目前我们使用的浏览器处理这些情况都不会构
+ 成问题。不过你可能在某些时候需要通过程序来访问这样的一些页面，比如从别人的网页中“偷”一些数据；利用某些站点提供的页面来完成某种功能，例如说我们 想知道某个手机号码的归属地而我们自己又没有这样的数据，因此只好借助其他公司已有的网站来完成这个功能，这个时候我们需要向网页提交手机号码并从返回的 页面中解析出我们想要的数据来。如果对方仅仅是一个很简单的页面，那我们的程序会很简单，本文也就没有必要大张旗鼓的在这里浪费口舌。但是考虑到一些服务 授权的问题，很多公司提供的页面往往并不是可以通过一个简单的URL就可以访问的，而必须经过注册然后登录后方可使用提供服务的页面，这个时候就涉及到
+ COOKIE问题的处理。我们知道目前流行的动态网页技术例如ASP、JSP无不是通过COOKIE来处理会话信息的。为了使我们的程序能使用别人所提供 的服务页面，就要求程序首先登录后再访问服务页面，这过程就需要自行处理cookie，想想当你用java.net.HttpURLConnection 来完成这些功能时是多么恐怖的事情啊！况且这仅仅是我们所说的顽固的WEB服务器中的一个很常见的“顽固”！再有如通过HTTP来上传文件呢？不需要头 疼，这些问题有了“它”就很容易解决了！  
+我们不可能列举所有可能的顽固，我们会针对几种最常见的问题进行处理。当然了，正如前面说到 的，如果我们自己使用java.net.HttpURLConnection来搞定这些问题是很恐怖的事情，因此在开始之前我们先要介绍一下一个开放源码 的项目，这个项目就是Apache开源组织中的httpclient，它隶属于Jakarta的commons项目，目前的版本是2.0RC2。
+ commons下本来已经有一个net的子项目，但是又把httpclient单独提出来，可见http服务器的访问绝非易事。
+Commons -httpclient项目就是专门设计来简化HTTP客户端与服务器进行各种通讯编程。通过它可以让原来很头疼的事情现在轻松的解决，例如你不再管是 HTTP或者HTTPS的通讯方式，告诉它你想使用HTTPS方式，剩下的事情交给httpclient替你完成。本文会针对我们在编写HTTP客户端程
+ 序时经常碰到的几个问题进行分别介绍如何使用httpclient来解决它们，为了让读者更快的熟悉这个项目我们最开始先给出一个简单的例子来读取一个网 页的内容，然后循序渐进解决掉前进中的所有问题。
+1．  读取网页(HTTP/HTTPS)内容
+下面是我们给出的一个简单的例子用来访问某个页面
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockStart.gif)/*
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif) * Created on 2003-12-14 by Liudong
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockEnd.gif)*/
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)package http.demo;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import java.io.IOException;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import org.apache.commons.httpclient.*;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import org.apache.commons.httpclient.methods.*;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockStart.gif)/**
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif) * 最简单的HTTP客户端,用来演示通过GET或者POST方式访问某个页面
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif) * @author Liudong
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockEnd.gif)*/
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockStart.gif)publicclass SimpleClient {
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)publicstaticvoid main(String[] args) throws IOException
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif){
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        HttpClient client =new HttpClient();   
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//设置代理服务器地址和端口     
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//client.getHostConfiguration().setProxy("proxy_host_addr",proxy_port);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//使用GET方法，如果服务器需要通过HTTPS连接，那只需要将下面URL中的http换成https
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        HttpMethod method =new GetMethod("http://java.sun.com";); 
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//使用POST方法
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//HttpMethod method = new PostMethod("http://java.sun.com";); 
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        client.executeMethod(method);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//打印服务器返回的状态
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)     System.out.println(method.getStatusLine());
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//打印返回的信息
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)     System.out.println(method.getResponseBodyAsString());
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//释放连接
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)     method.releaseConnection();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockEnd.gif)    }
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockEnd.gif)}
+在 这个例子中首先创建一个HTTP客户端(HttpClient)的实例，然后选择提交的方法是GET或者POST，最后在HttpClient实例上执行 提交的方法，最后从所选择的提交方法中读取服务器反馈回来的结果。这就是使用HttpClient的基本流程。其实用一行代码也就可以搞定整个请求的过
+ 程，非常的简单！
+2．  以GET或者POST方式向网页提交参数
+其实前面一个最简单的示例中我们已经介绍了如何使用GET或者 POST方式来请求一个页面，本小节与之不同的是多了提交时设定页面所需的参数，我们知道如果是GET的请求方式，那么所有参数都直接放到页面的URL后 面用问号与页面地址隔开，每个参数用&隔开，例如：[http://java.sun.com?name=liudong&mobile=123456](http://java.sun.com/?name=liudong&mobile=123456)，但是当使用POST方法时就会稍微有一点点麻烦。本小节的例子演示向如何查询手机号码所在的城市，代码如下：
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockStart.gif)/*
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif) * Created on 2003-12-7 by Liudong
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockEnd.gif)*/
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)package http.demo;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import java.io.IOException;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import org.apache.commons.httpclient.*;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import org.apache.commons.httpclient.methods.*;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockStart.gif)/**
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif) * 提交参数演示
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif) * 该程序连接到一个用于查询手机号码所属地的页面
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif) * 以便查询号码段1330227所在的省份以及城市
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif) * @author Liudong
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockEnd.gif)*/
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockStart.gif)publicclass SimpleHttpClient {
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)publicstaticvoid main(String[] args) throws IOException
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif){
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        HttpClient client =new HttpClient();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        client.getHostConfiguration().setHost("www.imobile.com.cn", 80, "http");
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        HttpMethod method = getPostMethod();//使用POST方式提交数据
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)     client.executeMethod(method);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//打印服务器返回的状态
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)     System.out.println(method.getStatusLine());
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//打印结果页面
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)    String response =new String(method.getResponseBodyAsString().getBytes("8859_1"));
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//打印返回的信息
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)     System.out.println(response);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        method.releaseConnection();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockEnd.gif)    }
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)/**
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)     * 使用GET方式提交数据
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)   * @return
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockEnd.gif)*/
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)privatestatic HttpMethod getGetMethod(){
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)returnnew GetMethod("/simcard.php?simcard=1330227");
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockEnd.gif)    }
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)/**
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)     * 使用POST方式提交数据
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)   * @return
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockEnd.gif)*/
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)privatestatic HttpMethod getPostMethod(){
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        PostMethod post =new PostMethod("/simcard.php");
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        NameValuePair simcard =new NameValuePair("simcard","1330227");
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)        post.setRequestBody(new NameValuePair[] { simcard});
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)return post;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockEnd.gif)    }
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockEnd.gif)}
+在上面的例子中页面[http://www.imobile.com.cn/simcard.php](http://www.imobile.com.cn/simcard.php)需要一个参数是simcard，这个参数值为手机号码段，即手机号码的前七位，服务器会返回提交的手机号码对应的省份、城市以及其他详细信息。GET的提交方法只需要在URL后加入参数信息，而POST则需要通过NameValuePair类来设置参数名称和它所对应的值
+3．  处理页面重定向
+在JSP/Servlet 编程中response.sendRedirect方法就是使用HTTP协议中的重定向机制。它与JSP中的<jsp:forward  …>的区别在于后者是在服务器中实现页面的跳转，也就是说应用容器加载了所要跳转的页面的内容并返回给客户端；而前者是返回一个状态码，这些状态
+ 码的可能值见下表，然后客户端读取需要跳转到的页面的URL并重新加载新的页面。就是这样一个过程，所以我们编程的时候就要通过 HttpMethod.getStatusCode()方法判断返回值是否为下表中的某个值来判断是否需要跳转。如果已经确认需要进行页面跳转了，那么可 以通过读取HTTP头中的location属性来获取新的地址。
+状态码
+ 对应HttpServletResponse的常量
+ 详细描述
+301
+ SC_MOVED_PERMANENTLY
+ 页面已经永久移到另外一个新地址
+302
+ SC_MOVED_TEMPORARILY
+ 页面暂时移动到另外一个新的地址
+303
+ SC_SEE_OTHER
+ 客户端请求的地址必须通过另外的URL来访问
+307
+ SC_TEMPORARY_REDIRECT
+ 同SC_MOVED_TEMPORARILY
+下面的代码片段演示如何处理页面的重定向
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)client.executeMethod(post);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)        System.out.println(post.getStatusLine().toString()); 
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)        post.releaseConnection();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)//检查是否重定向
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)int statuscode = post.getStatusCode();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)if ((statuscode == HttpStatus.SC_MOVED_TEMPORARILY) ||
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)            (statuscode == HttpStatus.SC_MOVED_PERMANENTLY) ||
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)            (statuscode == HttpStatus.SC_SEE_OTHER) ||
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)            (statuscode == HttpStatus.SC_TEMPORARY_REDIRECT)) 
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockStart.gif){//读取新的URL地址
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)         Header header = post.getResponseHeader("location");
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)if (header !=null) {
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)                 String newuri = header.getValue();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)if ((newuri ==null) || (newuri.equals("")))
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)                      newuri ="/"; 
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)               GetMethod redirect =new GetMethod(newuri);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)               client.executeMethod(redirect);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)                System.out.println("Redirect:"+ redirect.getStatusLine().toString()); 
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)                redirect.releaseConnection();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)            }else{
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)               System.out.println("Invalid redirect");
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockEnd.gif)        }我们可以自行编写两个JSP页面，其中一个页面用response.sendRedirect方法重定向到另外一个页面用来测试上面的例子。
+4．  模拟输入用户名和口令进行登录
+本 小节应该说是HTTP客户端编程中最常碰见的问题，很多网站的内容都只是对注册用户可见的，这种情况下就必须要求使用正确的用户名和口令登录成功后，方可 浏览到想要的页面。因为HTTP协议是无状态的，也就是连接的有效期只限于当前请求，请求内容结束后连接就关闭了。在这种情况下为了保存用户的登录信息必 须使用到Cookie机制。以JSP/Servlet为例，当浏览器请求一个JSP或者是Servlet的页面时，应用服务器会返回一个参数，名为 jsessionid（因不同应用服务器而异），值是一个较长的唯一字符串的Cookie，这个字符串值也就是当前访问该站点的会话标识。浏览器在每访问
+ 该站点的其他页面时候都要带上jsessionid这样的Cookie信息，应用服务器根据读取这个会话标识来获取对应的会话信息。
+对于 需要用户登录的网站，一般在用户登录成功后会将用户资料保存在服务器的会话中，这样当访问到其他的页面时候，应用服务器根据浏览器送上的Cookie中读 取当前请求对应的会话标识以获得对应的会话信息，然后就可以判断用户资料是否存在于会话信息中，如果存在则允许访问页面，否则跳转到登录页面中要求用户输 入帐号和口令进行登录。这就是一般使用JSP开发网站在处理用户登录的比较通用的方法。
+这样一来，对于HTTP的客户端来讲，如果要访问 一个受保护的页面时就必须模拟浏览器所做的工作，首先就是请求登录页面，然后读取Cookie值；再次请求登录页面并加入登录页所需的每个参数；最后就是 请求最终所需的页面。当然在除第一次请求外其他的请求都需要附带上Cookie信息以便服务器能判断当前请求是否已经通过验证。说了这么多，可是如果你使 用httpclient的话，你甚至连一行代码都无需增加，你只需要先传递登录信息执行登录过程，然后直接访问想要的页面，跟访问一个普通的页面没有任何 区别，因为类HttpClient已经帮你做了所有该做的事情了，太棒了！下面的例子实现了这样一个访问的过程。
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockStart.gif)/*
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif) * Created on 2003-12-7 by Liudong
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockEnd.gif)*/
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)package http.demo;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import org.apache.commons.httpclient.*;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import org.apache.commons.httpclient.cookie.*;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import org.apache.commons.httpclient.methods.*;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockStart.gif)/**
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif) * 用来演示登录表单的示例
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif) * @author Liudong
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockEnd.gif)*/
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockStart.gif)publicclass FormLoginDemo {
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)staticfinal String LOGON_SITE ="localhost";
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)staticfinalint    LOGON_PORT =8080;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)publicstaticvoid main(String[] args) throws Exception{
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        HttpClient client =new HttpClient();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        client.getHostConfiguration().setHost(LOGON_SITE, LOGON_PORT);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//模拟登录页面login.jsp->main.jsp
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        PostMethod post =new PostMethod("/main.jsp");
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        NameValuePair name =new NameValuePair("name", "ld");     
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        NameValuePair pass =new NameValuePair("password", "ld");     
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)        post.setRequestBody(new NameValuePair[]{name,pass});
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)int status = client.executeMethod(post);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)       System.out.println(post.getResponseBodyAsString());
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)       post.releaseConnection();  
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//查看cookie信息
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)    CookieSpec cookiespec = CookiePolicy.getDefaultSpec();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)      Cookie[] cookies = cookiespec.match(LOGON_SITE, LOGON_PORT, "/", false, client.getState().getCookies());
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)if (cookies.length ==0) {
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)           System.out.println("None");    
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)       }else{
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)for (int i =0; i < cookies.length; i++) {
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)              System.out.println(cookies[i].toString());    
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockEnd.gif)           }
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockEnd.gif)      }
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)//访问所需的页面main2.jsp
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        GetMethod get =new GetMethod("/main2.jsp");
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        client.executeMethod(get);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        System.out.println(get.getResponseBodyAsString());
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        get.releaseConnection();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockEnd.gif)    }
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockEnd.gif)}
+5．  提交XML格式参数
+提交XML格式的参数很简单，仅仅是一个提交时候的ContentType问题，下面的例子演示从文件文件中读取XML信息并提交给服务器的过程，该过程可以用来测试Web服务。
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import java.io.File;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import java.io.FileInputStream;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import org.apache.commons.httpclient.HttpClient;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import org.apache.commons.httpclient.methods.PostMethod;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockStart.gif)/**
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif) * 用来演示提交XML格式数据的例子
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockEnd.gif)*/
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockStart.gif)publicclass PostXMLClient {
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)publicstaticvoid main(String[] args) throws Exception {
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        File input =new File(“test.xml”);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        PostMethod post =new PostMethod(“http://localhost:8080/httpclient/xml.jsp”);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)// 设置请求的内容直接从文件中读取
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)     post.setRequestBody(new FileInputStream(input));
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)if (input.length() < Integer.MAX_VALUE) 
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)           post.setRequestContentLength(input.length());
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)else
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)           post.setRequestContentLength(EntityEnclosingMethod.CONTENT_LENGTH_CHUNKED);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)// 指定请求内容的类型
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)     post.setRequestHeader("Content-type", "text/xml; charset=GBK");
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        HttpClient httpclient =new HttpClient(); 
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)int result = httpclient.executeMethod(post); 
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        System.out.println("Response status code: "+ result);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        System.out.println("Response body: ");
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        System.out.println(post.getResponseBodyAsString());
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        post.releaseConnection();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockEnd.gif)    }
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockEnd.gif)}
+6．  通过HTTP上传文件
+httpclient使用了单独的一个HttpMethod子类来处理文件的上传，这个类就是MultipartPostMethod，该类已经封装了文件上传的细节，我们要做的仅仅是告诉它我们要上传文件的全路径即可，下面的代码片段演示如何使用这个类。
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)MultipartPostMethod filePost =new MultipartPostMethod(targetURL);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)filePost.addParameter("fileName", targetFilePath);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)HttpClient client =new HttpClient();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)//由于要上传的文件可能比较大,因此在此设置最大的连接超时时间
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)client.getHttpConnectionManager().getParams().setConnectionTimeout(5000);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)int status = client.executeMethod(filePost); 
+上面代码中，targetFilePath即为要上传的文件所在的路径。
+7．  访问启用认证的页面
+我 们经常会碰到这样的页面，当访问它的时候会弹出一个浏览器的对话框要求输入用户名和密码后方可，这种用户认证的方式不同于我们在前面介绍的基于表单的用户 身份验证。这是HTTP的认证策略，httpclient支持三种认证方式包括：基本、摘要以及NTLM认证。其中基本认证最简单、通用但也最不安全；摘 要认证是在HTTP  1.1中加入的认证方式，而NTLM则是微软公司定义的而不是通用的规范，最新版本的NTLM是比摘要认证还要安全的一种方式。
+下面例子是从httpclient的CVS服务器中下载的，它简单演示如何访问一个认证保护的页面：
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import org.apache.commons.httpclient.HttpClient;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import org.apache.commons.httpclient.UsernamePasswordCredentials;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)import org.apache.commons.httpclient.methods.GetMethod;
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockStart.gif)publicclass BasicAuthenticationExample {
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)public BasicAuthenticationExample() {
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockEnd.gif)    }
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockStart.gif)publicstaticvoid main(String[] args) throws Exception {
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)       HttpClient client =new HttpClient();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        client.getState().setCredentials(
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)"www.verisign.com",
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)"realm",
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)new UsernamePasswordCredentials("username", "password")
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        );
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        GetMethod get =new GetMethod("https://www.verisign.com/products/index.html";);
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        get.setDoAuthentication( true );
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)int status = client.executeMethod( get );
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        System.out.println(status+""+ get.getResponseBodyAsString());
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/InBlock.gif)        get.releaseConnection();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedSubBlockEnd.gif)    }
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/ExpandedBlockEnd.gif)}
+8．  多线程模式下使用httpclient
+多 线程同时访问httpclient，例如同时从一个站点上下载多个文件。对于同一个HttpConnection同一个时间只能有一个线程访问，为了保证 多线程工作环境下不产生冲突，httpclient使用了一个多线程连接管理器的类： MultiThreadedHttpConnectionManager，要使用这个类很简单，只需要在构造HttpClient实例的时候传入即可，代 码如下：
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)MultiThreadedHttpConnectionManager connectionManager =
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)new MultiThreadedHttpConnectionManager();
+![](http://images.csdn.net/syntaxhighlighting/OutliningIndicators/None.gif)HttpClient client =new HttpClient(connectionManager); 

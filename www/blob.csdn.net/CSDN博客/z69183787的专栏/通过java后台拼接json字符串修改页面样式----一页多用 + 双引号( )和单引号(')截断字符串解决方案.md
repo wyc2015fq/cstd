@@ -1,0 +1,86 @@
+# 通过java后台拼接json字符串修改页面样式----一页多用 + 双引号(")和单引号(')截断字符串解决方案 - z69183787的专栏 - CSDN博客
+2013年11月15日 22:11:04[OkidoGreen](https://me.csdn.net/z69183787)阅读数：9433
+**注：Java返回的Json格式为 {“a":"b"}  即 key 与 value 在java中拼接时均需要包含引号 即 {\"a\":\"b\"} 转义;**
+**[java]**[view
+ plain](http://blog.csdn.net/hu_shengyang/article/details/7433832#)[copy](http://blog.csdn.net/hu_shengyang/article/details/7433832#)
+- 1.组装json格式字符串
+- * 通过读取流程对应工单的字段权限 将字段权限拼接为json格式字符串
+-      * 拼接json字符串格式：
+-      * [{"fieldNane":"name1","fieldRight":"right1"},{"fieldNane":"name2","fieldRight":"right2"},...{"fieldNane":"name3","fieldRight":"right3"}]
+-      * @param list
+-      * @return
+-      */
+- public String append2Json(List list){
+  
+-         StringBuffer sb = new StringBuffer("[");  
+- for(int i=0;i<list.size();i++){  
+-             FwtActionRight farObj = (FwtActionRight)list.get(i);  
+-             String fieldName = farObj.getFieldName().toLowerCase();  
+-             String fieldRight = farObj.getFieldRight().toLowerCase();  
+-             sb.append("{\"fieldName\":\"");  
+-             sb.append(fieldName);  
+-             sb.append("\",\"fieldRight\":\"");  
+-             sb.append(fieldRight);  
+-             sb.append("\"");  
+-             sb.append("},");  
+- //最后一个元素的右边大括号'}'后不添加','
+- if(i==list.size()-1){  
+-                 sb.append("{\"fieldName\":\"");  
+-                 sb.append(fieldName);  
+-                 sb.append("\",\"fieldRight\":\"");  
+-                 sb.append(fieldRight);  
+-                 sb.append("\"");  
+-                 sb.append("}");  
+-             }  
+-         }  
+-         sb.append("]");  
+-         String str = sb.toString().replaceAll("\"", "%22");//避免js获取此字符串时被双引号(")截断
+- //String str = sb.toString().replaceAll("\"", "%27");////避免js获取此字符串时被单引号(')截断
+- return str;  
+-     }
+- 
+- 2.获取表单字段对应的权限，将其拼接为json格式的字符串，并且将其值传到页面<br>  
+- <pre name="code"class="java"> /**
+-      * 显示‘现场检查’步骤--填单页面
+-      * @param mapping
+-      * @param form
+-      * @param request
+-      * @param response
+-      * @return
+-      * @throws Exception
+-      */
+- public ActionForward showAddNPatrolOrder_localeCheck(ActionMapping mapping,ActionForm form,  
+-             HttpServletRequest request,HttpServletResponse response)throws Exception{  
+-         String actionName="现场检查";  
+-         String flowName="设备巡维工作联系单";  
+-         String tableName="MAP_HISTORY_NPATROL";  
+-         List list = swfBiz.getFwtActionRights(actionName,tableName,flowName);  
+- //拼接json格式的字符串
+-         String jsonStr = this.append2Json(list);  
+-         request.setAttribute("elementJson", jsonStr);  
+- return mapping.findForward("success");  
+-     }  
+- 
+- 3.jsp页面上的json格式字符串值</p>  
+- <input name="elements" id="elements" type="text" style="DISPLAY: none; WIDTH: 77px; HEIGHT: 22px" size="10" value="${elementJson }"/>
+- 
+- 4.js jQuery取页面上的json字符串格式值，并将其解析，转为json数据类型，然后根据不同字段的权限，写入其相应的格式。
+  
+- /**
+-      * 显示‘现场检查’页面
+-      */
+-     var elementList = $('#elements').val();  
+-     elementList = unescape(elementList);//解析双引号、单引号
+-     var json = eval('('+elementList+')');//json格式字符串转为json数据类型
+- for(var i=0;i<json.length;i++){  
+-         var fieldName = json[i].fieldName;  
+-         var fieldRight = json[i].fieldRight;  
+- if(fieldRight=='r'){//r--只读
+-             $('#'+fieldName).attr("readonly","");  
+-             $('#'+fieldName).attr("readonly","readonly");  
+-             $('#'+fieldName).css("border-style","none");//.css("background-color","red");
+-         }elseif(fieldRight=='w'){//w--可写
+-             $('#'+fieldName).attr("readonly","");  
+-             $('#'+fieldName).css("border-style","");//.css("background-color","green");
+-         }  
+-     }

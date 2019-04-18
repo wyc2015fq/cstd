@@ -1,0 +1,71 @@
+# C++ 专题：陈皓：Why C++? 王者归来 - wishchinYang的专栏 - CSDN博客
+2014年01月23日 14:23:06[wishchin](https://me.csdn.net/wishchin)阅读数：723
+一样工具，你不必刻意去掌握它；到了非用它不可的时候，你已经必然会用了；
+原文链接：[http://developer.51cto.com/art/200709/56340.htm](http://developer.51cto.com/art/200709/56340.htm)
+因为又有人叫我去Quora的C2C站去回答问题了，这回是 关于 @laiyonghao 的这篇有点争议的博文《2012 不宜进入的三个技术点》ActionScript，Thread 和 C++，
+[C++争议的争议最大](http://blog.csdn.net/lanphaday/article/details/7223385)。(要我说，.NET比C++更需要慎重进入，呵)。我就在这里回复一下这个问题吧。
+正好我前段时间看到一个视频，这个演讲视频还比较著名，这个演讲者是Exceptional C++ 和 C++ Coding Standards 的作者，还是ISO C++ 委员会的Chair，C++/CLI首席架构师，还是Microsoft的软件架构师，他叫Herb Sutter，他的这个演讲视频是 C++ and Beyond 2011上的一次公开演讲，题目是——Why C++? (如果你觉得那里的视频比较慢，你可以看[优酷上的视频](http://v.youku.com/v_show/id_XMzA5OTIwODIw.html))(英文听力好的同学可以看一样，因为都没有中文字幕)
+我觉得这篇文章就足够可以说明很多问题了，所以，我把Herb的演讲幻灯片截了几页放到这里，并做上一些注释，算是一个演讲内容摘要吧。
+**1) 为什么C++?因为 Performance per $，也就是说performance 就是钱，这个分成三个方面，**
+◆ 电源，芯片的耗电量，移动设备的耗电量，家用电脑的耗电量都和钱有关系。
+◆ 资源，家用电脑和移动设备上的处理器资源有限，因为要让一般消费者买的起。
+◆ 体验，在更小的设备上会有更好的体验，有更好的体验就可以挣更多的钱。
+![](http://images.51cto.com/files/uploadimg/20120202/1055150.jpg)
+**2)C++的进化分成三个时代：**
+1979 – 1989：研究C的对象能力。主要是为C++做准备
+1989 – 1999：C++成了主流。
+1999 – 2009：Coffee-based语言(Java, .NET)出现了，极大的提高了开发生产力。
+对于第三个时代，Herb说了很多，他说这个并没有什么错，因为这个时候我们非常关注开发的生产力，这个非常重要，这就是为什么C++一下就失去优势的地方。但是是否这些Coffee-Based的语言可以做任重要的事呢?不行，很多时候，这是一个Trade-Off的事，也就是生产力不是免费的是需要你用别的东西去交换的。
+![](http://images.51cto.com/files/uploadimg/20120202/1055151.jpg)
+**3)第四个时期。**
+Herb认为，2009-2019是第四个时期，因为我们又喜欢Native Code了，C++从被驱逐后又被请回来了。因为网站的性能越来越是个问题，移动端的设备非常流行。但主要是因为Performance就是钱，因为前面的三个因素，性能影响的是dollar，不尊重性能的公司都会发现花钱的速度太快了。(比如去年大家热炒的京东促销和12306.cn的问题，12306给整个社会造成了巨大的金钱浪费)
+Herb把这个时期比做 The Return of the King。(指环王的第三部：王者归来)
+这就好像我在“软件开发的三重门”里说的，开垦时代需要的是快和生产力，而开垦完后就得保证其稳定性。
+![](http://images.51cto.com/files/uploadimg/20120202/1055152.jpg)
+**4)Herb还给了一张幻灯片问，“The World is built on ….”，后面例出了多个语言。然后Herb说，世界是由C和C++构成的。**
+![](http://images.51cto.com/files/uploadimg/20120202/1055153.jpg)
+**5)Herb给了一张表格，这张表可相当形像。如果把我们的对编程语言的需求总结为四个：效率，灵活，抽象，生产率。那么，C语言玩的是前两个，而C++玩的是前三个，Java和C#玩的是后两个(抽象和生产率)**
+任保一种设计都不可能让你什么都要的，这就是Trade-Off——什么事都需要交换的。
+![](http://images.51cto.com/files/uploadimg/20120202/1055154.jpg)
+**6)Herb举了一个微软内的例子，用C++ 和 ATL 来开发IE工具条的报告，因为用.NET或是脚本有重大的limitation，也就是性能问题。**
+![](http://images.51cto.com/files/uploadimg/20120202/1055155.jpg)
+**7)接下来，我们来看看移动设备。**
+下图中，第一个是iOS，第二个是Android，第三个是WinPhone。Herd说了几个事：
+a)比Web APP，人们更喜欢Native的APP
+b)iOS也好，Android也好，WinPhone也好，他们不是在搞操作系统，而是在搞应用，为的是让智能手机更好。
+c)这三个手机在第一片出来时都不支持C++，而第二版出来时都支持C++了。因为他们要兼顾性能和一定程度上的开发效率。WinPhone还没有到第二版，让我们拭目以待。(我以前写过一篇调侃Android支持C++开发的文章，这也只是一年前的事，说明C++全面回归了)
+![](http://images.51cto.com/files/uploadimg/20120202/1055156.jpg)
+**8)如果你还是不相信的话，我们可以看看为什么Apple和Google都在搞C++的编译器，因为他们觉得G++性能不行。所以，基于LLVM的编译器正在领导潮流，因为我们关注Natvie Code的性能优化。**
+![](http://images.51cto.com/files/uploadimg/20120202/1055157.jpg)
+![](http://images.51cto.com/files/uploadimg/20120202/1055158.jpg)
+**9)接下来，Herb说了一下数据中心，你知道数据中心最花钱的是什么吗?三个事：**
+57%花在了硬件上。
+18% 花在了配电和降温上。
+13%花在了耗电上。
+88%的钱花在了硬件和电力上。这可是很大一笔费用啊。(还有人说硬件比软件便宜吗?)我记得我上一个公司的数据中心每年要花的电费就在百万美元以上。
+![](http://images.51cto.com/files/uploadimg/20120202/1055159.jpg)
+10)昨天在微博上有个笑话，说是某咨询师要求程序员把代码打印出来走查，程序员问是不是要用彩打?哈哈。我说，这至少不环保嘛。消耗太大了。是的，C++是可以省电的，以及于C++之父都在YouTube 说C++是可以减轻全球变暖的问题。哇，C++开始真正造福人类了。
+![](http://images.51cto.com/files/uploadimg/20120202/10551510.jpg)
+11)我还需要重温一下老大的这句话——
+My contribution to the fight against global warming is C++’s efficiency: Just think if Google had to have twice as many server farms! Each uses as much energy as a small town. And it’s not just a factor of two… Efficiency is not just running fast or running
+ bigger programs, it’s also running using less resources.
+Bjarne Stroustrup, June 2011
+最后一句说的非常好!效率不仅仅只是跑得，跑得多，更是可以使用更少的资源。
+12)下面让我们再来看一张表，一张把钱投到哪里的表格。
+70年代80年代，资源不够，主要是把钱投在性能上。
+80年代到90代，主要是90年代开始有一半的投次到了抽象和生产率上。
+00年代，完全都在抽象和生产率上。
+10年代，80%的钱都要回头来解决性能问题。这就是C/C++的王者归来。
+![](http://images.51cto.com/files/uploadimg/20120202/10551511.jpg)
+13)当然，不是C++不注重 开发效率，看看C++0X的标准引入了多少东西我们就知道了。但是本质上，C++还是致力于性能和抽象的完全平衡。
+![](http://images.51cto.com/files/uploadimg/20120202/10551512.jpg)
+那么，我们还会觉得C++要被淘汰了，不适合进入了吗?
+后面讲了C++的文艺复兴，你可以在Google 搜索 “C++ Renaissance”看看。另外，该视频的讲议可以在这里[下载](http://ecn.channel9.msdn.com/content/WhyCPPCB2011.pdf)。
+原文：http://www.oschina.net/news/25266/why-c-back
+作者：陈皓
+【编辑推荐】
+- [C++数据结构之单链表](http://developer.51cto.com/art/201202/314641.htm)
+- [2011年12月编程语言排行榜：C++11它就像一个新语言](http://developer.51cto.com/art/201112/305880.htm)
+- [Dart之于JavaScript正如C#之于C++](http://developer.51cto.com/art/201110/296439.htm)
+- [详解C++11中值得关注的几大变化](http://developer.51cto.com/art/201108/284929.htm)
+- [C++程序员必读：让你的代码更强大](http://developer.51cto.com/art/201107/277101.htm)

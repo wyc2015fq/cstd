@@ -1,0 +1,63 @@
+# weblogic下面增加虚拟目录 - z69183787的专栏 - CSDN博客
+2013年12月21日 16:07:45[OkidoGreen](https://me.csdn.net/z69183787)阅读数：3859
+**weblogic如何配置虚拟目录**
+1、不加项目名称，直接访问虚拟目录下的文件：配置如下。详细你懂的
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>   
+<weblogic-web-app   
+  xmlns="[http://www.bea.com/ns/weblogic/90](http://www.bea.com/ns/weblogic/90)"   
+  xmlns:j2ee="[http://java.sun.com/xml/ns/j2ee](http://java.sun.com/xml/ns/j2ee)"   
+  xmlns:xsi="[http://www.w3.org/2001/XMLSchema-instance](http://www.w3.org/2001/XMLSchema-instance)"   
+  xsi:schemaLocation="[http://www.bea.com/ns/weblogic/90](http://www.bea.com/ns/weblogic/90)[http://www.bea.com/ns/weblogic/90/weblogic-web-app.xsd](http://www.bea.com/ns/weblogic/90/weblogic-web-app.xsd)">     
+ <context-root>/</context-root>   
+  <session-descriptor>   
+    <cookie-http-only>false</cookie-http-only>   
+  </session-descriptor>
+  <virtual-directory-mapping>
+ <local-path>D:/doc</local-path>
+ <url-pattern>/docfile/*</url-pattern>
+ </virtual-directory-mapping>
+ <virtual-directory-mapping>
+ <local-path>D:/doc</local-path>
+ <url-pattern>/uploadFile/*</url-pattern>
+ </virtual-directory-mapping>
+</weblogic-web-app>
+这样配置后就可以，直接访问了，地址如下：[http://localhost/docfile/20120606100800.txt](http://localhost/docfile/20120606100800.txt)
+2、访问路径带项目名称，访问时需要加上项目的名称，才能访问到，配置如下：
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>   
+<weblogic-web-app   
+  xmlns="[http://www.bea.com/ns/weblogic/90](http://www.bea.com/ns/weblogic/90)"   
+  xmlns:j2ee="[http://java.sun.com/xml/ns/j2ee](http://java.sun.com/xml/ns/j2ee)"   
+  xmlns:xsi="[http://www.w3.org/2001/XMLSchema-instance](http://www.w3.org/2001/XMLSchema-instance)"   
+  xsi:schemaLocation="[http://www.bea.com/ns/weblogic/90](http://www.bea.com/ns/weblogic/90)[http://www.bea.com/ns/weblogic/90/weblogic-web-app.xsd](http://www.bea.com/ns/weblogic/90/weblogic-web-app.xsd)">     
+ <context-root>/</context-root>   
+  <session-descriptor>   
+    <cookie-http-only>false</cookie-http-only>   
+  </session-descriptor>
+  <virtual-directory-mapping>
+ <local-path>D:/</local-path>
+ <url-pattern>/docfile/*</url-pattern>
+ </virtual-directory-mapping>
+ <virtual-directory-mapping>
+ <local-path>D:/</local-path>
+ <url-pattern>/uploadFile/*</url-pattern>
+ </virtual-directory-mapping>
+</weblogic-web-app>
+这样配置后就可以，直接访问了，地址如下：[http://localhost/这里写你的工程名/docfile/20120606100800(1).txt](http://localhost/)。
+3、这种和第一种是一样的
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>   
+<weblogic-web-app   
+  xmlns="[http://www.bea.com/ns/weblogic/90](http://www.bea.com/ns/weblogic/90)"   
+  xmlns:j2ee="[http://java.sun.com/xml/ns/j2ee](http://java.sun.com/xml/ns/j2ee)"   
+  xmlns:xsi="[http://www.w3.org/2001/XMLSchema-instance](http://www.w3.org/2001/XMLSchema-instance)"   
+  xsi:schemaLocation="[http://www.bea.com/ns/weblogic/90](http://www.bea.com/ns/weblogic/90)[http://www.bea.com/ns/weblogic/90/weblogic-web-app.xsd](http://www.bea.com/ns/weblogic/90/weblogic-web-app.xsd)">     
+ <context-root>/</context-root>   
+  <session-descriptor>   
+    <cookie-http-only>false</cookie-http-only>   
+  </session-descriptor>
+<wls:context-root>webtest</wls:context-root>   
+    <wls:virtual-directory-mapping>   
+       <wls:local-path>d:/cq</wls:local-path>   
+       <wls:url-pattern>/images/*</wls:url-pattern>  
+        <wls:url-pattern>*.jpg</wls:url-pattern>   
+    </wls:virtual-directory-mapping> 
+</weblogic-web-app>

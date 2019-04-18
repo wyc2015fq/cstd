@@ -1,0 +1,8 @@
+# 巴西联邦政府鼎力支持LibreOffice - 袁萌专栏 - CSDN博客
+2011年07月10日 07:40:59[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：1146标签：[mozilla																[ubuntu																[office																[微软																[join																[互联网](https://so.csdn.net/so/search/s.do?q=互联网&t=blog)](https://so.csdn.net/so/search/s.do?q=join&t=blog)](https://so.csdn.net/so/search/s.do?q=微软&t=blog)](https://so.csdn.net/so/search/s.do?q=office&t=blog)](https://so.csdn.net/so/search/s.do?q=ubuntu&t=blog)](https://so.csdn.net/so/search/s.do?q=mozilla&t=blog)
+    这个世界真奇妙，今年6月底，在中国北京召开所谓的”开源盛会“（会期：6月29日至6月30），而在地球的另一边，在巴西的PortoAlegre市，举行“第12届国际自由软件论坛”（InternationalFree Software Forum，会期：6月29日至7月2日），两者相隔万里，想法各异，真是妙哉，妙哉！
+我仔细浏览了“巴西自由软件国际论坛”的大会发言稿（会议期间，每天都有快讯与世界各地互动），感到十分惊奇的是，竟然有两位女士在大会上发表演说，备受关注，比如：Mozilla基金会的StormyPeters女士，她的讲演题目是："Youand me, keeping the web opentogether"，强调了使用自由软件与开放互联网的重要性。Ubuntu发言人在会上表示：“It grows 45% in number of users in Brazil everyyear”(在巴西，Ubuntu用户每年增长45%）。这是一件很了不起的事情。
+7月1日（大会闭幕前一天），巴西联邦政府“自由软件执行委员会”（“FreeSoftware ImplementationCommittee“）给国际LibreOffice社区组织发出一封“意图函”（“Letterof Intent“），表示了真诚合作的意向。同时，该“意图函”还表示：”weinvite Brazilian Universities and other Governments to join us inthis initiative“。在自由软件发展史上，这是从未有过的事情，一个国家的联邦政府与自由软件国际社区“合作”，真是闻所未闻也。
+回到我们国内，自由软件用户（比如，LibreOffice用户）可谓“凤毛麟角”，而且还倍受某些人的耻笑。曹参带领永中“小毛头”苦干数年写出一套新款办公套件（与微软Office相对），结果，被弄得“面目全非”，可怜兮兮。国内的自由软件（GNUFreeSoftware)运动，多年来的实际效果几乎等于零。而在南美的巴西，自由软件运动搞得“热火朝天”，跟我们当年的的“大跃进”一样。我们的友好邻邦俄罗斯把Linux视为“国宝”，大规模应用起来。在我们国内，微软在软件正版化旗帜下“偷着笑”。......这个世界真奇妙，东西南北，春夏秋冬，各有所好。请见：www.softwarelivre.org(巴西自由软件网站，有英文版）。
+说明：有人建议，“软件辽望师”应该称为“软件暸望师”。这个意见很好。
+

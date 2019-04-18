@@ -1,0 +1,24 @@
+# What learning strategies do "quick learners" follow? - weixin_33985507的博客 - CSDN博客
+2016年11月28日 09:23:00[weixin_33985507](https://me.csdn.net/weixin_33985507)阅读数：1
+原文地址：https://www.quora.com/What-learning-strategies-do-quick-learners-follow/answer/Lukas-Schwekendiek
+**Quick learners do not learn faster because they know some secret way of learning.**In today’s world we are all looking for the quick fix, for the easy solution and the fast way to get to what we want.
+We get everything we desire instantly. Movies are on demand, TV shows can be watched for hours on end, and even products are delivered right to your front door.
+Expecting the same thing for acquiring knowledge does*not*work. What “quick” learners do instead is they continue to work above and beyond what the rest of us do. Below I have listed some differences for quick learners vs. normal learners.
+**When they study**
+**Normal learners:**Normal learners study whenever they feel good or they need to study. When they feel like crap they will resort to distracting themselves and will try to run away from the work. They will only do it when it is absolutely necessary but will not start studying months in advance.
+**Quick learners:**Quick learners, on the other hand, study regardless of their own emotions. Their goal is much greater than their negative emotions can stop. When they do not feel like studying and learning they will do it anyway because of what this means to them in the end.
+**How they study**
+**Normal learners:**Normal learners will study what is necessary and only that. They will not go above and beyond because they are neither interested nor committed into this. If you complained that your teacher or professor put something on a test that he didn’t say would be on the test then you studied like a normal learner.
+**Quick learners:**Quick learners study everything on the topic. They will look at all the connections, and learn them thoroughly even if they do not need them. This enables them to make more connections on the topics, draw from more information and take up new information much easier.
+**Their focus while studying**
+**Normal learners:**Normal learners love to look at the clock. They set themselves a time-limit for how much they will study before a break and are more focused on what they will do in the break rather than what they will get done in the study time.
+**Quick learners:**Quick learners might not be more interested in what they are studying than their break, but they do focus on what they want to get done rather than how long it will take. They decide on something they must do and will do it no matter how long it takes.
+**Their attitude while studying**
+**Normal learners:**Normal learners breath deeply, sit back and shake their head every time they look at the time. They do not want to be here, regret their decisions and try to justify why they can leave, even going as far as to wishing themselves becoming incapacitated so they have a great excuse.
+**Quick learners:**Quick learners breath deeply, sit back and also shake their head every time they look at the time. They do not have enough time to get everything done they set out to do. When they look at the time they almost instantly start again because they do not have the time to waste. They always have more to do and usually get sick right after the event they have been studying for.
+**How consistently they learn**
+**Normal learners:**They set out with the right mindset, saying they will study an hour a day, but as soon as something comes in the way during that hour, a party, an event or even a good movie, they will drop their learning. They are not aware of their priorities or have learning at a very low priority.
+**Quick learners:**Quick learners start with the same mindset but they value learning more than most anything else that is going on. Sure, if their partner became hospitalized or they had an opportunity of a lifetime they might give up on learning for the day, but even then they would rather loose on sleep than to skip learning.
+The important thing to note is the time-frame we set for learning something quickly. We look at people who learn a lot and fast and believe that they learn in terms of minutes, hours or days when it is rather days, weeks or months.
+In this fast-paced world everything happens instantly, so we believe learning submits to those same rules. But to be considered a quick learner you must not find ways to effectively learn throughout an hour of a day but rather throughout the week of the month.
+**When you learn multiple hours a week it won’t mattere how much you get done in that hour, as you will learn faster than anyone else. The big picture is important here. Learn continuously, no matter the emotion and do not skip a day and you will be standing in the spotlight of others, being asked how you know so much and what your “tricks” are.**

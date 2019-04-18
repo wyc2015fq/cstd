@@ -1,0 +1,215 @@
+# struts2 使用注解 导出excel - z69183787的专栏 - CSDN博客
+2013年11月15日 16:42:03[OkidoGreen](https://me.csdn.net/z69183787)阅读数：2544
+做项目中需要用到导出excel的功能，记录一下。
+1、使用jxl导出。
+这个是从网上找的。这个不需要params inputName参数。
+**[java]**[view
+ plain](http://blog.csdn.net/robinpipi/article/details/7767514#)[copy](http://blog.csdn.net/robinpipi/article/details/7767514#)
+- @Action(value = "vsealFileDepts.export1", results = { @Result(name = "success", type = "stream") })  
+- // , params = {
+- // "contentType", "text/html;charset=UTF-8" }
+- // ,params={
+- // "contentType","application/octet-stream",
+- // "inputName","fileInputStream",
+- // "contentDisposition","attachment;filename=${fileName}.xls",
+- // "bufferSize","1024"
+- // }
+- public String export1() throws Exception {  
+- 
+-         HttpServletResponse response = ServletActionContext.getResponse();  
+- // 定义request ,response.
+- // 查询下载附件.
+- // 设置下载头信息.begin
+-         response.setCharacterEncoding("UTF-8");  
+-         response.setContentType("application/vnd.ms-excel");  
+-         response.setHeader("Content-Disposition", "attachment; filename="
+-                 + new String("用户通讯录.xls".getBytes("GB2312"), "iso8859-1"));  
+-         response.setHeader("Pragma", "No-cache");  
+-         response.setHeader("Cache-Control", "No-cache");  
+-         response.setDateHeader("Expires", 0);  
+- // 这个地方一定要进行编码的转换要不然中文字符会出现乱码.
+- // 设置下载头信息.end,
+-         OutputStream output = null;  
+-         InputStream fis = null;  
+- try {  
+-             output = response.getOutputStream();  
+-             jxl.write.WritableWorkbook wwb = Workbook.createWorkbook(output);  
+-             jxl.write.WritableSheet ws = wwb.createSheet("用户通讯录", 0);  
+- // 设置标题.ws.addCell(new jxl.write.Label(列, 行, 内容.));
+-             ws.addCell(new Label(0, 0, "编号"));  
+-             ws.addCell(new Label(1, 0, "登录名称"));  
+-             ws.addCell(new Label(2, 0, "联系人"));  
+-             ws.addCell(new Label(3, 0, "电话"));  
+-             ws.addCell(new Label(4, 0, "email"));  
+-             ws.addCell(new Label(5, 0, "单位名称"));  
+-             ws.addCell(new Label(6, 0, "单位邮编"));  
+-             ws.addCell(new Label(7, 0, "单位地址"));  
+- // 设置显示长度.
+-             ws.setColumnView(1, 15);  
+- // 登录名长度
+-             ws.setColumnView(2, 15);  
+-             ws.setColumnView(3, 15);  
+-             ws.setColumnView(4, 20);  
+-             ws.setColumnView(5, 20);  
+-             ws.setColumnView(6, 20);  
+-             ws.setColumnView(7, 20);  
+-             ws.setColumnView(8, 40);  
+- int i = 1;  
+-             List list1 = new ArrayList();  
+- for (int j = 0; j < list1.size(); j++) {  
+-                 User user = (User) list1.get(j);  
+-                 ws.addCell(new jxl.write.Number(0, i + 1, i));  
+- // 这里设置是自增的序号而不是ID号.也可以改成ID号.
+- // ws.addCell(new jxl.write.Label(1, i + 1, ""
+- // + user.getUserId()));
+-                 ws.addCell(new Label(1, i + 1, "" + user.getAddress()));  
+- // 登录名
+-                 ws.addCell(new Label(2, i + 1, "" + user.getAddress()));  
+- // 联系人
+-                 ws.addCell(new Label(3, i + 1, "" + user.getPhone()));  
+- // 联系电话.
+-                 ws.addCell(new Label(4, i + 1, "" + user.getEmail()));  
+- // email.
+- if (null != user.getAddress()) {  
+-                     ws.addCell(new Label(5, i + 1, "" + user.getAddress()));  
+- if (user.getAddress() != null) {  
+-                         ws.addCell(new Label(6, i + 1, "" + user.getAddress()));  
+-                     } else {  
+-                         ws.addCell(new Label(6, i + 1, ""));  
+- // 增加邮编为""的判断.因为这个是Integer的类型.
+-                     }  
+-                     ws.addCell(new Label(7, i + 1, "" + user.getAddress()));  
+-                 } else {  
+-                     ws.addCell(new Label(5, i + 1, ""));  
+-                     ws.addCell(new Label(6, i + 1, ""));  
+-                     ws.addCell(new Label(7, i + 1, ""));  
+-                 }  
+-                 i++;  
+-             }  
+-             wwb.write();  
+-             wwb.close();  
+-         } catch (Exception e) {  
+-             System.out.println("Error!");  
+-             e.printStackTrace();  
+-         } finally {// 正常关闭输入输出流.
+- try {  
+- if (fis != null) {  
+-                     fis.close();  
+-                     fis = null;  
+-                 }  
+-             } catch (Exception e) {  
+-                 e.printStackTrace();  
+-             }  
+- try {  
+- if (output != null) {  
+-                     output.close();  
+-                     output = null;  
+-                 }  
+-             } catch (Exception e) {  
+-                 e.printStackTrace();  
+-             }  
+-         }  
+- returnnull;  
+-     }  
+前端jsp页面能调用这个action即可。
+2、使用poi导出。
+这种方法必须要使用struts2的注解中的params  inputName 参数。
+首先在action中声明变量，并写明get/set方法
+**[java]**[view
+ plain](http://blog.csdn.net/robinpipi/article/details/7767514#)[copy](http://blog.csdn.net/robinpipi/article/details/7767514#)
+- private InputStream excelFile;  
+- private String downloadFileName;  
+- public String getDownloadFileName() {  
+-         SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd ");  
+- 
+-         String downloadFileName = (sf.format(new Date()).toString())  
+-                 + "用印文件统计.xls";  
+- try {  
+-             downloadFileName = new String(downloadFileName.getBytes(),  
+- "ISO8859-1");  
+-         } catch (UnsupportedEncodingException e) {  
+-             e.printStackTrace();  
+-         }  
+- return downloadFileName;  
+-     }  
+- 
+- publicvoid setDownloadFileName(String downloadFileName) {  
+- this.downloadFileName = downloadFileName;  
+-     }  
+- 
+- public InputStream getExcelFile() {  
+- return excelFile;  
+-     }  
+- 
+- publicvoid setExcelFile(InputStream excelFile) {  
+- this.excelFile = excelFile;  
+-     }  
+前端可执行调用的方法，注意：inputName对应的必须为前面声明过的变量。
+**[java]**[view
+ plain](http://blog.csdn.net/robinpipi/article/details/7767514#)[copy](http://blog.csdn.net/robinpipi/article/details/7767514#)
+- @Action(value = "vsealFileDepts.exportExcel", results = { @Result(name = "success", type = "stream", params = {  
+- "contentType", "application/vnd.ms-excel", "inputName",  
+- "excelFile", "contentDisposition",  
+- "attachment;filename=${downloadFileName}.xls", "bufferSize", "1024" }) })  
+- public String export2() throws Exception {  
+-         ExcelUtil eu = new ExcelUtil();  
+-         HSSFWorkbook workbook = eu.exportExcel(titleSBSub.toString(), dataList,  
+-                 titleSB.toString());  
+-         ByteArrayOutputStream output = new ByteArrayOutputStream();  
+-         workbook.write(output);  
+- 
+- byte[] ba = output.toByteArray();  
+-         excelFile = new ByteArrayInputStream(ba);  
+-         output.flush();  
+-         output.close();  
+- return"success";  
+-     }  
+ExcelUtil.java  生成excel的类
+**[java]**[view
+ plain](http://blog.csdn.net/robinpipi/article/details/7767514#)[copy](http://blog.csdn.net/robinpipi/article/details/7767514#)
+- publicclass ExcelUtil {  
+- public HSSFWorkbook exportExcel(String tmpContentCn,List dataList) throws Exception {  
+-         HSSFWorkbook workbook = null;  
+-         String[] titles_CN = tmpContentCn.split(",");  
+- try {  
+- // 这里的数据即时你要从后台取得的数据
+- 
+- // 创建工作簿实例
+-             workbook = new HSSFWorkbook();  
+- // 创建工作表实例
+-             HSSFSheet sheet = workbook.createSheet("TscExcel");  
+- //设置列宽 
+- this.setSheetColumnWidth(titles_CN,sheet);  
+- //获取样式 
+-             HSSFCellStyle style = this.createTitleStyle(workbook);   
+- if (dataList != null && dataList.size() > 0) {  
+- // 创建第一行标题
+-                 HSSFRow row = sheet.createRow((short) 0);// 建立新行
+- 
+- for(int i=0;i<titles_CN.length;i++){  
+- this.createCell(row, i, null, HSSFCell.CELL_TYPE_STRING,   
+-                            titles_CN[i]);  
+-                     }  
+- // 给excel填充数据
+- for (int i = 0; i < dataList.size(); i++) {  
+- // 将dataList里面的数据取出来
+-                     String[] model= (String[]) dataList.get(i);  
+-                     HSSFRow row1 = sheet.createRow((short) (i + 1));// 建立新行
+- //                  this.createCell(row1, 0, style, HSSFCell.CELL_TYPE_STRING,
+- //                          i + 1);
+- for(int j=0;j<model.length;j++)  
+- this.createCell(row1, j, style,  
+-                                 HSSFCell.CELL_TYPE_STRING, model[j]);  
+- 
+-                 }  
+-             } else {  
+- this.createCell(sheet.createRow(0), 0, style,  
+-                         HSSFCell.CELL_TYPE_STRING, "查无资料");  
+-             }  
+-         } catch (Exception e) {  
+-             e.printStackTrace();  
+-         }  
+- return workbook;  
+- 
+-     }  
+在研究研究以前同事写的可以利用反射来实现可以统一调用的方法。

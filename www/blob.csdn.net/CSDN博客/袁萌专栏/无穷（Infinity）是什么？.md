@@ -1,9 +1,5 @@
-
 # 无穷（Infinity）是什么？ - 袁萌专栏 - CSDN博客
-
-2019年01月03日 05:44:28[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：777
-
-
+2019年01月03日 05:44:28[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：789
 众所周知，数学是关于无穷的学问。这是基本知识。
 请读者仔细研读无穷的维基内容：（了解大概即可！）
 Contents
@@ -82,7 +78,7 @@ In this work, two basic types of infinite numbers are distinguished. On both phy
 17th century[edit]
 European mathematicians started using infinite numbers and expressions in a systematic fashion in the 17th century. In 1655 John Wallis first used the notation
 ∞ {\displaystyle \infty }
-for such a number in his De sectionibus conicis and exploited it in area calculations by dividing the region into infinitesimal strips of width on the order of
+ for such a number in his De sectionibus conicis and exploited it in area calculations by dividing the region into infinitesimal strips of width on the order of
 1 ∞ . {\displaystyle {\tfrac {1}{\infty }}.}
 [11] But in Arithmetica infinitorum (1655 also) he indicates infinite series, infinite products and infinite continued fractions by writing down a few terms or factors and then appending "&c." For example, "1, 6, 12, 18, 24, &c."[12]
 In 1699 Isaac Newton wrote about equations with an infinite number of terms in his work De analysi per aequationes numero terminorum infinitas.[13]
@@ -93,7 +89,7 @@ Infinity symbol[edit]
 Main article: Infinity symbol
 The infinity symbol
 ∞ {\displaystyle \infty }
-(sometimes called the lemniscate) is a mathematical symbol representing the concept of infinity. The symbol is encoded in Unicode at U+221E ∞ INFINITY (HTML &\#8734; • &infin;) and in LaTeX as \infty.
+ (sometimes called the lemniscate) is a mathematical symbol representing the concept of infinity. The symbol is encoded in Unicode at U+221E ∞ INFINITY (HTML ∞ • ∞) and in LaTeX as \infty.
 It was introduced in 1655 by John Wallis,[15][16] and, since its introduction, has also been used outside mathematics in modern mysticism[17] and literary symbology.[18]
 Calculus[edit]
 Leibniz, one of the co-inventors of infinitesimal calculus, speculated widely about infinite numbers and their use in mathematics. To Leibniz, both infinitesimals and infinite quantities were ideal entities, not of the same nature as appreciable quantities, but enjoying the same properties in accordance with the Law of Continuity.[19][20]
@@ -102,49 +98,49 @@ In real analysis, the symbol
 ∞ {\displaystyle \infty }
 , called "infinity", is used to denote an unbounded limit.[21] The notation
 x → ∞ {\displaystyle x\rightarrow \infty }
-means that x grows without bound, and
+ means that x grows without bound, and
 x → − ∞ {\displaystyle x\to -\infty }
-means that  x decreases without bound. If f(t) ≥ 0 for every t, then[22]
+ means that  x decreases without bound. If f(t) ≥ 0 for every t, then[22]
 ∫ a b f ( t ) d t = ∞ {\displaystyle \int _{a}^{b}f(t)\,dt=\infty }
-means that f(t) does not bound a finite area from
+ means that f(t) does not bound a finite area from
 a {\displaystyle a}
-to
+ to
 b . {\displaystyle b.}
 ∫ − ∞ ∞ f ( t ) d t = ∞ {\displaystyle \int _{-\infty }^{\infty }f(t)\,dt=\infty }
-means that the area under f(t) is infinite.
+ means that the area under f(t) is infinite.
 ∫ − ∞ ∞ f ( t ) d t = a {\displaystyle \int _{-\infty }^{\infty }f(t)\,dt=a}
-means that the total area under f(t) is finite, and equals
+ means that the total area under f(t) is finite, and equals
 a . {\displaystyle a.}
 Infinity is also used to describe infinite series:
 ∑ i = 0 ∞ f ( i ) = a {\displaystyle \sum _{i=0}^{\infty }f(i)=a}
-means that the sum of the infinite series converges to some real value
+ means that the sum of the infinite series converges to some real value
 a . {\displaystyle a.}
 ∑ i = 0 ∞ f ( i ) = ∞ {\displaystyle \sum _{i=0}^{\infty }f(i)=\infty }
-means that the sum of the infinite series diverges in the specific sense that the partial sums grow without bound.[citation needed]
+ means that the sum of the infinite series diverges in the specific sense that the partial sums grow without bound.[citation needed]
 Infinity can be used not only to define a limit but as a value in the extended real number system. Points labeled
 + ∞ {\displaystyle +\infty }
-and
+ and
 − ∞ {\displaystyle -\infty }
-can be added to the topological space of the real numbers, producing the two-point compactification of the real numbers. Adding algebraic properties to this gives us the extended real numbers.[23] We can also treat
+ can be added to the topological space of the real numbers, producing the two-point compactification of the real numbers. Adding algebraic properties to this gives us the extended real numbers.[23] We can also treat
 + ∞ {\displaystyle +\infty }
-and
+ and
 − ∞ {\displaystyle -\infty }
-as the same, leading to the one-point compactification of the real numbers, which is the real projective line.[24] Projective geometry also refers to a line at infinity in plane geometry, a plane at infinity in three-dimensional space, and a hyperplane at infinity for general dimensions, each consisting of points at infinity.[25]
+ as the same, leading to the one-point compactification of the real numbers, which is the real projective line.[24] Projective geometry also refers to a line at infinity in plane geometry, a plane at infinity in three-dimensional space, and a hyperplane at infinity for general dimensions, each consisting of points at infinity.[25]
 Complex analysis[edit]
 By stereographic projection, the complex plane can be "wrapped" onto a sphere, with the top point of the sphere corresponding to infinity. This is called the Riemann sphere.
 In complex analysis the symbol
 ∞ {\displaystyle \infty }
 , called "infinity", denotes an unsigned infinite limit.
 x → ∞ {\displaystyle x\rightarrow \infty }
-means that the magnitude
+ means that the magnitude
 | x | {\displaystyle |x|}
-of x grows beyond any assigned value. A point labeled
+ of x grows beyond any assigned value. A point labeled
 ∞ {\displaystyle \infty }
-can be added to the complex plane as a topological space giving the one-point compactification of the complex plane. When this is done, the resulting space is a one-dimensional complex manifold, or Riemann surface, called the extended complex plane or the Riemann sphere. Arithmetic operations similar to those given above for the extended real numbers can also be defined, though there is no distinction in the signs (therefore one exception is that infinity cannot be added to itself). On the other hand, this kind of infinity enables division by zero, namely
+ can be added to the complex plane as a topological space giving the one-point compactification of the complex plane. When this is done, the resulting space is a one-dimensional complex manifold, or Riemann surface, called the extended complex plane or the Riemann sphere. Arithmetic operations similar to those given above for the extended real numbers can also be defined, though there is no distinction in the signs (therefore one exception is that infinity cannot be added to itself). On the other hand, this kind of infinity enables division by zero, namely
 z / 0 = ∞ {\displaystyle z/0=\infty }
-for any nonzero complex number z. In this context it is often useful to consider meromorphic functions as maps into the Riemann sphere taking the value of
+ for any nonzero complex number z. In this context it is often useful to consider meromorphic functions as maps into the Riemann sphere taking the value of
 ∞ {\displaystyle \infty }
-at the poles. The domain of a complex-valued function may be extended to include the point at infinity as well. One important example of such functions is the group of Möbius transformations.[citation needed]
+ at the poles. The domain of a complex-valued function may be extended to include the point at infinity as well. One important example of such functions is the group of Möbius transformations.[citation needed]
 Nonstandard analysis[edit]
 Infinitesimals (ε) and infinites (ω) on the hyperreal number line (1/ε = ω/1)
 The original formulation of infinitesimal calculus by Isaac Newton and Gottfried Leibniz used infinitesimal quantities. In the twentieth century, it was shown that this treatment could be put on a rigorous footing through various logical systems, including smooth infinitesimal analysis and nonstandard analysis. In the latter, infinitesimals are invertible, and their inverses are infinite numbers. The infinities in this sense are part of a hyperreal field; there is no equivalence between them as with the Cantorian transfinites. For example, if H is an infinite number, then H + H = 2H and H + 1 are distinct infinite numbers. This approach to non-standard calculus is fully developed in Keisler (1986).
@@ -158,14 +154,14 @@ Cardinality of the continuum[edit]
 Main article: Cardinality of the continuum
 One of Cantor's most important results was that the cardinality of the continuum
 c {\displaystyle \mathbf {c} }
-is greater than that of the natural numbers
+ is greater than that of the natural numbers
 ℵ 0 {\displaystyle {\aleph _{0}}}
 ; that is, there are more real numbers R than natural numbers N. Namely, Cantor showed that
 c = 2 ℵ 0 > ℵ 0 {\displaystyle \mathbf {c} =2^{\aleph _{0}}>{\aleph _{0}}}
-(see Cantor's diagonal argument or Cantor's first uncountability proof).[27]
+ (see Cantor's diagonal argument or Cantor's first uncountability proof).[27]
 The continuum hypothesis states that there is no cardinal number between the cardinality of the reals and the cardinality of the natural numbers, that is,
 c = ℵ 1 = ℶ 1 {\displaystyle \mathbf {c} =\aleph _{1}=\beth _{1}}
-(see Beth one). This hypothesis can neither be proved nor disproved within the widely accepted Zermelo–Fraenkel set theory, even assuming the Axiom of Choice.[28]
+ (see Beth one). This hypothesis can neither be proved nor disproved within the widely accepted Zermelo–Fraenkel set theory, even assuming the Axiom of Choice.[28]
 Cardinal arithmetic can be used to show not only that the number of points in a real number line is equal to the number of points in any segment of that line, but that this is equal to the number of points on a plane and, indeed, in any finite-dimensional space.[citation needed]
 The first three steps of a fractal construction whose limit is a space-filling curve, showing that there are as many points in a one-dimensional line as in a two-dimensional square.
 The first of these results is apparent by considering, for instance, the tangent function, which provides a one-to-one correspondence between the interval (−π/2, π/2) and R (see also Hilbert's paradox of the Grand Hotel). The second result was proved by Cantor in 1878, but only became intuitively apparent in 1890, when Giuseppe Peano introduced the space-filling curves, curved lines that twist and turn enough to fill the whole of any square, or cube, or hypercube, or finite-dimensional space. These curves can be used to define a one-to-one correspondence between the points on one side of a square and the points in the square.[29]
@@ -374,6 +370,3 @@ Contact Wikipedia
 Developers
 Cookie statement
 Mobile view
-
-
-

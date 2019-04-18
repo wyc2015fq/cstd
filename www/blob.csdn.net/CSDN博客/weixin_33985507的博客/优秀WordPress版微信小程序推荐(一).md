@@ -1,0 +1,32 @@
+# 优秀WordPress版微信小程序推荐(一) - weixin_33985507的博客 - CSDN博客
+2017年08月17日 13:29:00[weixin_33985507](https://me.csdn.net/weixin_33985507)阅读数：7
+自从我开源了[WordPress版微信小程序](https://link.jianshu.com?t=https://www.watch-life.net/wordpress/wordpress-weixin-2-1-8.html)后，很多的wordpress站长利用这套程序搭建了自己的微信小程序。程序本身很简单，没有很高的技术含量，代码也写比较丑，但好在配置简单，略懂程序的wordpress站长，可以快速搭建微信小程序。
+WordPress版微信小程序开放源码地址：[https://github.com/iamxjb/winxin-app-watch-life.net](https://link.jianshu.com?t=https://github.com/iamxjb/winxin-app-watch-life.net)
+如果因为某些原因github无法访问，可以选择以下镜像地址：
+[1.https://git.oschina.net/iamxjb/winxin-app-watch-life.net](https://link.jianshu.com?t=https://git.oschina.net/iamxjb/winxin-app-watch-life.net)
+[2.https://code.aliyun.com/iamxjb/winxin-app-watch-life.net](https://link.jianshu.com?t=https://code.aliyun.com/iamxjb/winxin-app-watch-life.net)
+[3.https://coding.net/u/xjb/p/winxin-app-watch-life.net](https://link.jianshu.com?t=https://coding.net/u/xjb/p/winxin-app-watch-life.net)
+[4.https://gitlab.com/xiajianbo/winxin-app-watch-life.net](https://link.jianshu.com?t=https://gitlab.com/xiajianbo/winxin-app-watch-life.net)
+看到不少的wordpress站长在我的程序基础上，开发出令人惊艳的微信小程序，让我很开心，自己付出的劳动没有白费。
+![7022899-44ff876cf0fd220f.png](https://upload-images.jianshu.io/upload_images/7022899-44ff876cf0fd220f.png)
+我收集了一些在我开源的程序基础上创建的微信小程序精品，有兴趣的朋友可以在微信里扫码看看。本篇文章先推荐6个，后续文章会陆续介绍更多，敬请关注。
+**1、笔记啦**
+作者是设计方面的专家，对于前端的设计追求极致完美，看到他的小程序，你都不敢相信小程序原来也可以这么设计，他的小程序感觉非常惊艳，每个细节都让你感觉设计无处不在。
+![7022899-ddf290261a5af6f0.jpg](https://upload-images.jianshu.io/upload_images/7022899-ddf290261a5af6f0.jpg)
+**2.楠哥说**
+一个让人敬佩的连续创业者，朝气蓬勃的年轻人，目前在做有关视频方面的互联网项目，正在找合伙人，如果你有兴趣，可以联系他。
+[](https://link.jianshu.com?t=https://www.watch-life.net/images/2017/08/lgs.bmp)
+**3、趣闽网**
+作者的开发能力很强，利用wordpress和微信小程序做出了几个风格和功能各异的小程序，个个都是精品。**趣闽网**小程序算是他的作品中精品中精品了。
+![7022899-4c3e4a3d239d31ea.jpg](https://upload-images.jianshu.io/upload_images/7022899-4c3e4a3d239d31ea.jpg)
+下面这个小程序是他的另一个精品：**沙蜂汽车改装**
+![7022899-da0bb6253e8a92a9.jpg](https://upload-images.jianshu.io/upload_images/7022899-da0bb6253e8a92a9.jpg)
+**4、超有味儿**
+作为女孩子动手能力这么强的，我认识的真不多，“超有味儿”小程序的作者算一个，不但会写写程序，还会做设计，还这么高的颜值，会不会让人羡慕嫉妒恨。
+![7022899-74fa69b25743d2ea.jpg](https://upload-images.jianshu.io/upload_images/7022899-74fa69b25743d2ea.jpg)
+**5、中国边牧俱乐部**
+作者超喜欢狗狗，也是超级勤奋的人，经常为了写小程序熬通宵，让我这个干了17年的码农都自叹不如。
+![7022899-cca3ddeda3dba032.jpg](https://upload-images.jianshu.io/upload_images/7022899-cca3ddeda3dba032.jpg)
+**6、找找阿姨**
+作者是资深的互联网电商探索者和创业者，对这个行业有着深刻的理解，无论网站还是微信公众号的运营都做的很出色。看看他的小程序，你就知道我的话不虚。
+![7022899-a2e92dad8f85f7dc.jpg](https://upload-images.jianshu.io/upload_images/7022899-a2e92dad8f85f7dc.jpg)

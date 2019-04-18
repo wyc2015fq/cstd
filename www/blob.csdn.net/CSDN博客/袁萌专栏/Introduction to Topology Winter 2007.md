@@ -1,9 +1,5 @@
-
 # Introduction to Topology Winter 2007 - 袁萌专栏 - CSDN博客
-
-2019年03月30日 15:54:52[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：64
-
-
+2019年03月30日 15:54:52[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：66
 Introduction to Topology Winter 2007
 2
 Contents
@@ -43,11 +39,11 @@ Mathematics 490 – Introduction to Topology Winter 2007
 3.2.2 The Notion of Compactness . . . . . . . . . . . . . . . . . . . . . . . . . . 40
 3.3 Some Theorems on Compactness . . . . . . . . . . . . . . . . . . . . . . . . . . . 43
 3.4 Hausdor? Spaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 47
-3.5 T1 Spaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 49
-3.6 Compacti?cation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 50
-3.6.1 Motivation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 50
-3.6.2 One-Point Compacti?cation . . . . . . . . . . . . . . . . . . . . . . . . . . 50
-3.6.3 Theorems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
+ 3.5 T1 Spaces . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 49
+ 3.6 Compacti?cation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 50
+ 3.6.1 Motivation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 50
+ 3.6.2 One-Point Compacti?cation . . . . . . . . . . . . . . . . . . . . . . . . . . 50
+ 3.6.3 Theorems . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 51
 3.6.4 Examples . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 55
 3.7 Connectedness . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 57
 3.7.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 57
@@ -77,7 +73,7 @@ Mathematics 490 – Introduction to Topology Winter 2007
 4.6.1 De?nition . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 85
 4.6.2 Well-de?nedness . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 85
 4.6.3 Examples . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 87
-4.6.4 RP2\#T= RP2\#RP2\#RP2 . . . . . . . . . . . . . . . . . . . . . . . . . . . 88
+4.6.4 RP2#T= RP2#RP2#RP2 . . . . . . . . . . . . . . . . . . . . . . . . . . . 88
 4.6.5 Associativity . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 90
 4.6.6 E?ect on Euler Characteristic . . . . . . . . . . . . . . . . . . . . . . . . . 90
 4.7 Classi?cation Theorem . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 92
@@ -105,26 +101,26 @@ Mathematics 490 – Introduction to Topology Winter 2007
 6
 Mathematics 490 – Introduction to Topology Winter 2007
 What is this?
-This is a collection of topology notes compiled by Math 490 topology students at the University ofMichiganintheWinter2007semester. Introductorytopicsofpoint-setandalgebraictopology are covered in a series of ?ve chapters.
+    This is a collection of topology notes compiled by Math 490 topology students at the University ofMichiganintheWinter2007semester. Introductorytopicsofpoint-setandalgebraictopology are covered in a series of ?ve chapters.
 Foreword (for the random person stumbling upon this document)
-What you are looking at, my random reader, is not a topology textbook. It is not the lecture notes of my topology class either, but rather my student’s free interpretation of it. Well, I should use the word free with a little bit of caution, since they *had to* do this as their ?nal project. These notes are organized and re?ect tastes and choices of my students. I have done only a minimal amount of editing, to give a certain unity to the manuscript and to scrap out some mistakes - and so I don’t claim merits for this work but to have lead my already great students through this semester long adventure discovering a little bit of topology.
+    What you are looking at, my random reader, is not a topology textbook. It is not the lecture notes of my topology class either, but rather my student’s free interpretation of it. Well, I should use the word free with a little bit of caution, since they *had to* do this as their ?nal project. These notes are organized and re?ect tastes and choices of my students. I have done only a minimal amount of editing, to give a certain unity to the manuscript and to scrap out some mistakes - and so I don’t claim merits for this work but to have lead my already great students through this semester long adventure discovering a little bit of topology.
 Foreword (for my students)
-Well, guys, here it is! You’ve done it all, and here is a semester worth of labor, studying, but hopefully fun as well. I hope every once in a while you might enjoy ?ipping through the pages of this book and reminiscing topology...and that in half a century or so you might be telling exaggerated stories to your grandchildren about this class. A great thank to you all for a very good semester!
+    Well, guys, here it is! You’ve done it all, and here is a semester worth of labor, studying, but hopefully fun as well. I hope every once in a while you might enjoy ?ipping through the pages of this book and reminiscing topology...and that in half a century or so you might be telling exaggerated stories to your grandchildren about this class. A great thank to you all for a very good semester!
 7
 Mathematics 490 – Introduction to Topology Winter 2007
 8
 Chapter 1
 Topology
-To understand what a topological space is, there are a number of de?nitions and issues that we need to address ?rst. Namely, we will discuss metric spaces, open sets, and closed sets. Once we have an idea of these terms, we will have the vocabulary to de?ne a topology. The de?nition of topology will also give us a more generalized notion of the meaning of open and closed sets.
+    To understand what a topological space is, there are a number of de?nitions and issues that we need to address ?rst. Namely, we will discuss metric spaces, open sets, and closed sets. Once we have an idea of these terms, we will have the vocabulary to de?ne a topology. The de?nition of topology will also give us a more generalized notion of the meaning of open and closed sets.
 1.1 Metric Spaces
-De?nition 1.1.1. A metric space is a set X where we have a notion of distance. That is, if x,y ∈ X, then d(x,y) is the “distance” between x and y. The particular distance function must satisfy the following conditions:
+    De?nition 1.1.1. A metric space is a set X where we have a notion of distance. That is, if x,y ∈ X, then d(x,y) is the “distance” between x and y. The particular distance function must satisfy the following conditions:
 1. d(x,y)≥0 for all x,y ∈ X 2. d(x,y) = 0 if and only if x = y
 3. d(x,y)=d(y,x) 4. d(x,z)≤ d(x,y)+ d(y,z) To understand this concept, it is helpful to consider a few examples of what does and does not constitute a distance function for a metric space.
-Example 1.1.2. For any space X, let d(x,y) = 0 if x = y and d(x,y) = 1 otherwise.
+    Example 1.1.2. For any space X, let d(x,y) = 0 if x = y and d(x,y) = 1 otherwise.
 This metric, called the discrete metric, satis?es the conditions one through four.
 Example 1.1.3. The Pythagorean Theorem gives the most familiar notion of distance for points in Rn. In particular, when given x = (x1,x2,...,xn) and y = (y1,y2,...,yn), the distance f as d(x,y) =v u u t n X i=1 (xi ?yi)2 9
 Mathematics 490 – Introduction to Topology Winter 2007
-Example 1.1.4. Suppose f and g are functions in a space X = {f : [0,1] → R}. Does d(f,g) =max|f ?g| de?ne a metric?
+    Example 1.1.4. Suppose f and g are functions in a space X = {f : [0,1] → R}. Does d(f,g) =max|f ?g| de?ne a metric?
 Again, in order to check that d(f,g) is a metric, we must check that this function satis?es the above criteria. But in this case property number 2 does not hold, as can be shown by considering two arbitrary functions at any point within the interval [0,1]. If |f(x)?g(x)| = 0, this does not imply that f = g because f and g could intersect at one, and only one, point. Therefore, d(f,g) is not a metric in the given space.
 1.2 Open Sets (in a metric space)
 N   ow that we have a notion of distance, we can de?ne what it means to be an open set in a metric space. De?nition 1.2.1. Let X be a metric space. A ball B of radius r around a point x ∈ X is B ={y ∈ X|d(x,y) < r}.
@@ -281,8 +277,8 @@ Y =? ?[ a6=0,1
 {(a,b)}? ? [ 0≤b≤1h[{(0,b),(1,b)}i.
 Example 2.4.2. M¨obius band.
 Example 2.4.3. Torus. Y =? ? ? ?[ a6=0,1 b6=0,1 {(a,b)}? ? ? ?["[ 0<b<1
-{(0,b),(1,b)}\#["[ 0<a<1
-{(a,0),(a,1)}\#[[{(0,0),(0,1),(1,0),(1,1)}].
+{(0,b),(1,b)}#["[ 0<a<1
+{(a,0),(a,1)}#[[{(0,0),(0,1),(1,0),(1,1)}].
 30
 Mathematics 490 – Introduction to Topology Winter 2007
 Fact: Suppose you have an identi?cation map
@@ -713,7 +709,7 @@ Figure 4.38: Identifying vertices
 We now have the number of edges, vertices, and faces of the graph, and can compute the Euler Characteristic. In the case of the projective plane, we have 2?2+1 = 1.
 4.6 Connected Sums
 4.6.1 De?nition
-If you are given two surfaces you can take the connected sum of the two surfaces to give one single surface. To take the connected sum you remove a disc from each surface and connect up the two resulting boundary circles by a cylinder. Connected sums are denoted by the \# sign such that A\#B would be the connected sum of surfaces A and B (assuming that the operation \# is well-de?ned).
+If you are given two surfaces you can take the connected sum of the two surfaces to give one single surface. To take the connected sum you remove a disc from each surface and connect up the two resulting boundary circles by a cylinder. Connected sums are denoted by the # sign such that A#B would be the connected sum of surfaces A and B (assuming that the operation # is well-de?ned).
 Figure 4.39: A connected sum operation on two tori
 4.6.2 Well-de?nedness
 To show that the operation of connected sums is well de?ned we must show that given two sets that are path connected it does not matter where you take the discs out of in each set; you will
@@ -734,13 +730,13 @@ We can show this because since all we have to do is take these in homeomorphic t
 Figure 4.45: Stretching disk around x1 to a disk around x2
 If we observe in line 1 and 2 we stretch it to point x2 such that x1 are the same and in x3 we loosen it. So then we can determine that gluing a disc around each point, or any disc on the surface X to the disc removed in surface Y produces the same resulting surface because they are homeomorphic. So then if we take any disc in X and any disc in Y and glue them we can show that they produce thesameresultingspacebecausetheyarehomeomorphicaslongas X and Y arepath-connected. Thus we conclude that the connected sum operation is well de?ned for path-connected spaces.
 4.6.3 Examples
-Let’s look at a few examples of connected sums. First a sphere \# a sphere is yet another sphere (Figure 4.46). A torus \# another torus forms a surface with two holes. We call this a genus 2 surface (Figure 4.47). Finally, two projective planes produce a Klein bottle (Figure 4.48).
+Let’s look at a few examples of connected sums. First a sphere # a sphere is yet another sphere (Figure 4.46). A torus # another torus forms a surface with two holes. We call this a genus 2 surface (Figure 4.47). Finally, two projective planes produce a Klein bottle (Figure 4.48).
 87
 Mathematics 490 – Introduction to Topology Winter 2007
-Figure 4.46: Sphere \# Sphere
-Figure 4.47: Torus \# Torus = Double Torus
+Figure 4.46: Sphere # Sphere
+Figure 4.47: Torus # Torus = Double Torus
 Figure 4.48: Two projective planes form a Klein bottle
-4.6.4 RP2\#T= RP2\#RP2\#RP2
+4.6.4 RP2#T= RP2#RP2#RP2
 First we start of with the connected sum of a projective plane and a torus, and we make a cut, removing two sides (Figure 4.49).
 Figure 4.49: First Cut
 Thenweareleftwithtwosurfaces, whichwegluetogether, andmakeanothercutintheresulting polygon (Figure 4.50). We glue again and observe that we are left with a projective plane minus a disc and a Klein
@@ -752,7 +748,7 @@ Figure 4.51: The ?nal glue and resulting surface
 89
 Mathematics 490 – Introduction to Topology Winter 2007
 4.6.5 Associativity
-An important property of the connected sum operation is that it is associative. We can see this by considering three surfaces S1,S2,S3 and the connected sum (S1\#S2)\#S3. Consider what would happen if we performed the operation in the other order: S1\#(S2\#S3). We know that where the disc is removed does not impact the result of the connected sum. So we can require that, in the ?rst order, we connect S3 to a disc taken from part of the surface which “used to be” S2, and in the second case, we connect S1 to a part which “used to be” S2. Then in both cases, S1 and S3 were connected to part of S2, and the order in which they were added doesn’t matter.
+An important property of the connected sum operation is that it is associative. We can see this by considering three surfaces S1,S2,S3 and the connected sum (S1#S2)#S3. Consider what would happen if we performed the operation in the other order: S1#(S2#S3). We know that where the disc is removed does not impact the result of the connected sum. So we can require that, in the ?rst order, we connect S3 to a disc taken from part of the surface which “used to be” S2, and in the second case, we connect S1 to a part which “used to be” S2. Then in both cases, S1 and S3 were connected to part of S2, and the order in which they were added doesn’t matter.
 4.6.6 E?ect on Euler Characteristic
 We have studied the Euler Characteristic of surfaces, and seen that it will be a very useful property for classifying surfaces. However, to compute the Euler Characteristic of a complicated surface by drawing a good graph and counting the vertices, edges, and faces would be tedious. The connected sum gives us a simple way to construct new surfaces, so we will examine what e?ect the operation has on the Euler Characteristic. Consider surfaces S1 and S2 with good graphs drawn on them as shown in Figure 4.52.
 Figure 4.52: Two surfaces with good graphs
@@ -761,27 +757,27 @@ To determine the Euler Characteristic of their connected sum, we carefully choos
 Mathematics 490 – Introduction to Topology Winter 2007
 Figure 4.53: Carefully attaching a cylinder
 Figure 4.54: A good graph on the connected sum
-and n = χ(S2). Since we haven’t removed any vertices, edges, or faces, χ(S3 = S1\#S2) will be m+n+thenewvertices, edges, andfaces. Wedidnotaddanyvertices, However, weaddedthree edges and a face on the cylinder, so our ?nal Euler Characteristic is m+n?3+1 = m+n?2. The Euler Characteristic of the connected sum of two surfaces is two less than the sum of the Euler Characteristics of the two surfaces. Using this result, we can conclude with the general form of the Euler Characteristic of some useful connected sums.
-? Connected sum of tori χ(T) = 0. χ(T\#T) = 0+0?2. χ(T\#???\#T | {z } g tori ) = 2?2g.
+and n = χ(S2). Since we haven’t removed any vertices, edges, or faces, χ(S3 = S1#S2) will be m+n+thenewvertices, edges, andfaces. Wedidnotaddanyvertices, However, weaddedthree edges and a face on the cylinder, so our ?nal Euler Characteristic is m+n?3+1 = m+n?2. The Euler Characteristic of the connected sum of two surfaces is two less than the sum of the Euler Characteristics of the two surfaces. Using this result, we can conclude with the general form of the Euler Characteristic of some useful connected sums.
+? Connected sum of tori χ(T) = 0. χ(T#T) = 0+0?2. χ(T#???#T | {z } g tori ) = 2?2g.
 91
 Mathematics 490 – Introduction to Topology Winter 2007
-? Connected sum of RP2 χ(RP2) = 1. χ(RP2\#RP2) = 1+1?2 = 0. χ(RP2\#???\#RP2 | {z } m RP2 ) = 2?m. 4.7 Classi?cation Theorem
+? Connected sum of RP2 χ(RP2) = 1. χ(RP2#RP2) = 1+1?2 = 0. χ(RP2#???#RP2 | {z } m RP2 ) = 2?m. 4.7 Classi?cation Theorem
 Theorem: Any closed surface is homeomorphic either to (No two of the following are homeomorphic):
 1. The Sphere 2. The sphere with a ?nite number of handles added 3. The sphere with a ?nite number of discs removed and replaced by M¨obius strips.
 4.7.1 Equivalent de?nitions
 This is the classi?cation theorem and all surfaces are homeomorphic to one of these. However, there are other ways to express the classi?cation theorem.
 (a) Any closed surface is homeomorphic either to (No two of the following are homeomorphic): 1. The sphere 2. A connected sum of tori 3. A connected sum of projective planes (b) Any closed surface is homeomorphic either to (No two of the following are homeomorphic) 1. The sphere 2. A connected sum of tori 3. A connected sum of a tori and one projective plane 4. A connected sum of a tori and two projective planes
-Before showing that these are the same as the original classi?cation theorem it is easier to show that these two are equivalent and then show that both (a) is equivalent to the classi?cation theorem and thus (b) is also equivalent to the classi?cation theorem. To show that (a) and (b) are equivalent use what we found in the section about connected sums that: RP2 \# RP2 \# RP2 ～ = RP2 \# T (Connected sum of 3 projective planes is homeomorphic to the connected sum of a projective plane and a torus.) If we look at this relation we can observe that we can essentially trade o? a torus for two projective planes and trade two projective planes for a torus. Now in the process of going from (a) to (b) if you have at least 3 projective planes in your surface you can go about trading two
+Before showing that these are the same as the original classi?cation theorem it is easier to show that these two are equivalent and then show that both (a) is equivalent to the classi?cation theorem and thus (b) is also equivalent to the classi?cation theorem. To show that (a) and (b) are equivalent use what we found in the section about connected sums that: RP2 # RP2 # RP2 ～ = RP2 # T (Connected sum of 3 projective planes is homeomorphic to the connected sum of a projective plane and a torus.) If we look at this relation we can observe that we can essentially trade o? a torus for two projective planes and trade two projective planes for a torus. Now in the process of going from (a) to (b) if you have at least 3 projective planes in your surface you can go about trading two
 92
 Mathematics 490 – Introduction to Topology Winter 2007
-of those projective planes until you no longer have 3 projective planes in your surface. If you do so you end up with the list in (b). Going from (b) to (a) is essentially the same where you trade o? a torus one at a time for two projective planes until you have list (a). For the equivalence between (a) and the original theorem if you note that a connected sum S\#T is equivalent to attaching a cylinder to S with two discs removed. Whereas making a connected sum S\#RP2 means we are gluing the projective plane minus a M¨obius strip, which is a M¨obius strip, to S with a disc removed. Thus we ?nd that (a) and the classi?cation theorem are equivalent and thus (b) is also equivalent to the theorem.
+of those projective planes until you no longer have 3 projective planes in your surface. If you do so you end up with the list in (b). Going from (b) to (a) is essentially the same where you trade o? a torus one at a time for two projective planes until you have list (a). For the equivalence between (a) and the original theorem if you note that a connected sum S#T is equivalent to attaching a cylinder to S with two discs removed. Whereas making a connected sum S#RP2 means we are gluing the projective plane minus a M¨obius strip, which is a M¨obius strip, to S with a disc removed. Thus we ?nd that (a) and the classi?cation theorem are equivalent and thus (b) is also equivalent to the theorem.
 4.7.2 Proof
 OK, so where is all of this leading? We have a lot of content (more surfaces than your heart can desire) but still very little form (nothing to bring it all together). Thus far, we are capable of manipulating/identifying surfaces from polygons and able to create new surfaces by connect summing them. But we still don’t have a complete understanding of compact surfaces. It would be nice to have some way of classifying all the possible compact surfaces. So far we have dealt with the sphere, the torus and the projective plane. I am going to claim that you can make any surface from the connected sum of these three surfaces. In order to see if this is true, we need to show that A) there are no compact surfaces that are left out B) All these surfaces are distinct.
 A) Big Assumption Let us assume that every compact closed surface can be triangulated. If we accept this fact, then by identifying all the sides of all the triangles, we can construct an identi?cation polygon from any surface. Now all we need to establish is that all polygons can be represented as the connected sum of the sphere, tori and RP2’s. We will prove this by induction. We have already established that all identi?cation bigons and quadrilaterals are well classi?ed as connected sum of sphere, tori and RP2. If we take a generic polygon P, with N sides, that is well classi?ed, we need to show P0 with N+2 sides will be a combination of well classi?ed polygons. Induction Proof: Assume that a generic polygon P with N sides can be created as the connected sum of a sphere, tori and RP2, show that the polygon P0 with N+2 sides is still the connected sum of P, sphere, tori and RP2. (DIAGRAM BELOW!!!) A Two adjacent sides in opposite direction collapses into an N-Gon B Two adjacent sides in same direction can be cut to make the connected sum of an N-Gon and RP2. C Two non-adjacent sides in opposite directions can be cut to result in the same as B D Orientable polygon with all sides identi?ed in same direction can be sliced into a connected sum of tori missing 2 discs and a cylander
 93
 Mathematics 490 – Introduction to Topology Winter 2007
 Figure 4.55: Bulky diagram Interrupting the Beauty of the Classi?cation Theorem!
-B) All surfaces are distinct We showed that the tori, RP2 and the Sphere are distinct in the previous section on Euler characteristic. Ok, so we have established that any surface can be constructed from the connected sum of a sphere, tori and RP2, but is that the best we can do? First of all, what doe it mean to connect sum a surface P with a sphere? Since a sphere minus a disc is homeomorphic to a disc, P\#S = P. So connect summing the sphere with any surface is trivial. We know that T\#RP2 = RP2\#RP2\#RP2. So if a surface contains a projective plane, each projectiveplanecan”cancel”atorustocreatethreeprojectiveplanes. Consequently, anysurface containing a projective plane, can be represented purely as the connected sum of projective planes. This simpli?es classi?cation theorem to a sphere, the connected sum of RP2 and the
+B) All surfaces are distinct We showed that the tori, RP2 and the Sphere are distinct in the previous section on Euler characteristic. Ok, so we have established that any surface can be constructed from the connected sum of a sphere, tori and RP2, but is that the best we can do? First of all, what doe it mean to connect sum a surface P with a sphere? Since a sphere minus a disc is homeomorphic to a disc, P#S = P. So connect summing the sphere with any surface is trivial. We know that T#RP2 = RP2#RP2#RP2. So if a surface contains a projective plane, each projectiveplanecan”cancel”atorustocreatethreeprojectiveplanes. Consequently, anysurface containing a projective plane, can be represented purely as the connected sum of projective planes. This simpli?es classi?cation theorem to a sphere, the connected sum of RP2 and the
 94
 Mathematics 490 – Introduction to Topology Winter 2007
 connected sum of tori.
@@ -836,7 +832,7 @@ We present a group as: G =hgenerators | relationsiWhere the generators are a set
 F5 =< a,b,c,d,e >
 Here the group is just represented by the generators because, of course, the free group has no relations. And if we look at the presentation of the additive group Z/5: Z/5 =
 a | a5
-Which we know from group theory that, as 5 is a prime number, we can ?nd a primitive root in the group that would generate the entire set (for example, a = 3.) The main goal of all this is to ?nd a useful means of determining fundamental groups. So, let h be an onto homomorphism from Fn to G. De?ne then the kernel of a group homomorphism to be K = {r | h(r) = 1} The kernel is a normal subgroup of G, i.e. Ka = aK ?a ∈ G If we quotient out the kernel from Fn we ?nd that:
+ Which we know from group theory that, as 5 is a prime number, we can ?nd a primitive root in the group that would generate the entire set (for example, a = 3.) The main goal of all this is to ?nd a useful means of determining fundamental groups. So, let h be an onto homomorphism from Fn to G. De?ne then the kernel of a group homomorphism to be K = {r | h(r) = 1} The kernel is a normal subgroup of G, i.e. Ka = aK ?a ∈ G If we quotient out the kernel from Fn we ?nd that:
 G ～ = Fn/K =ha1,a2,...,an | r1,r2,...,rmi Returning to the example.
 a | a5
 = Z/5 ～ = F5/K =ha1,a2,a3,a4,a5 | r1,r2,...,rmi Let the generator of the additive group Z/5 be 3, and for h as de?ned above, let h(ai) = i The relations are then (with some algebra) R =a5,a3a2,a4a1,a2 3ˉ a4,a3 3ˉ a1,a4 3ˉ a2,a5 3,...    . The list goes on, but it is easy to see that the end result could be expressed as a single element generating the whole set.
@@ -957,5 +953,3 @@ It is also important to note that a loop in the base does not necessarily lift t
 Mathematics 490 – Introduction to Topology Winter 2007
 Homotopy-lifting lemma. If F : I ×I → Y is a map such that F(0,t) = F(1,t) = p for 0 ≤ t ≤ 1, there is a unique map ? F : I ×I → X which satis?es π? ? F = F and ? F(0,t) = q for 0≤ t ≤1. The homotopy-lifting lemma is an important tool for algebraic topology. One result is that the fundamental group of the cover is a subgroup of the fundamental group of the base, namely, the subgroup of loops in the base that when lifted are still loops. There is actually a bijection between the covering spaces of X and the normal subgroups of π1(X). An in-depth treatment of algebraic topology is not within the scope of this document, but it is important to realize that these results are just the beginning for an entire branch of mathematics.
 118
-
-

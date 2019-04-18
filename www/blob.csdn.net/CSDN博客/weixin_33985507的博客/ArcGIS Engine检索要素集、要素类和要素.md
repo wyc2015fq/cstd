@@ -1,0 +1,62 @@
+# ArcGIS Engine检索要素集、要素类和要素 - weixin_33985507的博客 - CSDN博客
+2017年01月19日 09:12:00[weixin_33985507](https://me.csdn.net/weixin_33985507)阅读数：5
+转自原文 [ArcGIS Engine检索要素集、要素类和要素](http://blog.csdn.net/u011170962/article/details/38561625)
+**[csharp]**[view plain](http://blog.csdn.net/u011170962/article/details/38561625#)[copy](http://blog.csdn.net/u011170962/article/details/38561625#)[print](http://blog.csdn.net/u011170962/article/details/38561625#)[?](http://blog.csdn.net/u011170962/article/details/38561625#)
+- /// <summary>  
+- /// 获取所有要素集  
+- /// </summary>  
+- /// <param name="workspace">工作空间对象</param>  
+- /// <returns>要素集列表</returns>  
+- public static List<IFeatureDataset> GetAllFeatureClass(IWorkspace workspace)  
+-         {  
+-             IEnumDataset dataset = workspace.get_Datasets(esriDatasetType.esriDTFeatureDataset);  
+-             IFeatureDataset featureDataset = dataset.Next() as IFeatureDataset;  
+- 
+- 
+-             List<IFeatureDataset> featureDatasetList = new List<IFeatureDataset>();  
+- while (featureDataset != null)  
+-             {  
+-                 featureDatasetList.Add(featureDataset);  
+-                 featureDataset = dataset.Next() as IFeatureDataset;  
+-             }  
+- return featureDatasetList;  
+-         }  
+**[csharp]**[view plain](http://blog.csdn.net/u011170962/article/details/38561625#)[copy](http://blog.csdn.net/u011170962/article/details/38561625#)[print](http://blog.csdn.net/u011170962/article/details/38561625#)[?](http://blog.csdn.net/u011170962/article/details/38561625#)
+- /// <summary>  
+- /// 获取所有要素类  
+- /// </summary>  
+- /// <param name="featureDataset">要素集</param>  
+- /// <returns>要素类列表</returns>  
+- public static List<IFeatureClass> GetAllFeatureClass(IFeatureDataset featureDataset)  
+- {  
+-     IFeatureClassContainer featureClassContainer = (IFeatureClassContainer)featureDataset;  
+-     IEnumFeatureClass enumFeatureClass = featureClassContainer.Classes;  
+-     IFeatureClass featureClass = enumFeatureClass.Next();  
+- 
+-     List<IFeatureClass> featureClassList = new List<IFeatureClass>();  
+- while (featureClass != null)  
+-     {  
+-         featureClassList.Add(featureClass);  
+-         featureClass = enumFeatureClass.Next();  
+-     }  
+- return featureClassList;  
+- }  
+**[csharp]**[view plain](http://blog.csdn.net/u011170962/article/details/38561625#)[copy](http://blog.csdn.net/u011170962/article/details/38561625#)[print](http://blog.csdn.net/u011170962/article/details/38561625#)[?](http://blog.csdn.net/u011170962/article/details/38561625#)
+- /// <summary>  
+- /// 获取所有要素  
+- /// </summary>  
+- /// <param name="featureClass">要素类</param>  
+- /// <returns>要素列表</returns>  
+- public static List<IFeature> GetAllFeatureClass(IFeatureClass featureClass)  
+- {  
+-     List<IFeature> featureList = new List<IFeature>();  
+-     IFeatureCursor featureCursor = featureClass.Search(null, false);  
+-     IFeature feature = featureCursor.NextFeature();  
+- 
+- while (feature != null)  
+-     {  
+-         featureList.Add(feature);  
+-         feature = featureCursor.NextFeature();  
+-     }  
+- return featureList;  
+- } 

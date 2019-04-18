@@ -1,0 +1,475 @@
+# memcached client -- spymemcached使用 - z69183787的专栏 - CSDN博客
+2016年10月25日 18:24:32[OkidoGreen](https://me.csdn.net/z69183787)阅读数：1720
+spymemcached是一个memcached的客户端
+[http://code.google.com/p/spymemcached/](http://code.google.com/p/spymemcached/)
+测试代码如下：
+1.SpyMemcachedConstants
+**[java]**[view
+ plain](http://blog.csdn.net/gtuu0123/article/details/4849905#)[copy](http://blog.csdn.net/gtuu0123/article/details/4849905#)
+- import java.util.concurrent.TimeUnit;  
+- 
+- publicinterface SpyMemcachedConstants {  
+- 
+- publicstaticint DEFAULT_TIMEOUT = 5;  
+- 
+- publicstatic TimeUnit DEFAULT_TIMEUNIT = TimeUnit.SECONDS;  
+- 
+- }  
+2.SpyMemcachedServer
+**[java]**[view
+ plain](http://blog.csdn.net/gtuu0123/article/details/4849905#)[copy](http://blog.csdn.net/gtuu0123/article/details/4849905#)
+- publicclass SpyMemcachedServer {  
+- 
+- private String ip;  
+- privateint port;  
+- 
+- publicvoid setIp(String ip) {  
+- this.ip = ip;  
+-     }  
+- 
+- public String getIp() {  
+- return ip;  
+-     }  
+- 
+- publicvoid setPort(int port) {  
+- if (port < 0 || port > 65535) {  
+- thrownew IllegalArgumentException("Port number must be between 0 to 65535");  
+-         }  
+- this.port = port;  
+-     }  
+- 
+- publicint getPort() {  
+- return port;  
+-     }  
+- 
+- public String toString() {  
+- return getIp() + ":" + getPort();  
+-     }  
+- }  
+3.SpyMemcachedManager
+**[java]**[view
+ plain](http://blog.csdn.net/gtuu0123/article/details/4849905#)[copy](http://blog.csdn.net/gtuu0123/article/details/4849905#)
+- import java.io.IOException;  
+- import java.io.OutputStream;  
+- import java<a href="http://lib.csdn.net/base/dotnet"class='replace_word' title=".NET知识库" target='_blank' style='color:#df3434; font-weight:bold;'>.NET</a>.SocketAddress;  
+- import java.util.Collection;  
+- import java.util.Iterator;  
+- import java.util.List;  
+- import java.util.Map;  
+- import java.util.Set;  
+- import java.util.concurrent.ExecutionException;  
+- import java.util.concurrent.Future;  
+- import java.util.concurrent.TimeUnit;  
+- import java.util.concurrent.TimeoutException;  
+- 
+- import net.spy.memcached.AddrUtil;  
+- import net.spy.memcached.BinaryConnectionFactory;  
+- import net.spy.memcached.CASMutation;  
+- import net.spy.memcached.CASMutator;  
+- import net.spy.memcached.CASValue;  
+- import net.spy.memcached.ConnectionObserver;  
+- import net.spy.memcached.MemcachedClient;  
+- import net.spy.memcached.transcoders.LongTranscoder;  
+- import net.spy.memcached.transcoders.SerializingTranscoder;  
+- import net.spy.memcached.transcoders.Transcoder;  
+- 
+- publicclass SpyMemcachedManager {  
+- 
+- private List<SpyMemcachedServer> servers;  
+- 
+- private MemcachedClient memClient;  
+- 
+- public SpyMemcachedManager(List<SpyMemcachedServer> servers) {  
+- this.servers = servers;  
+-     }  
+- 
+- publicvoid connect() throws IOException {  
+- if (memClient != null) {  
+- return;  
+-         }  
+-         StringBuffer buf = new StringBuffer();  
+- for (int i = 0; i < servers.size(); i++) {  
+-             SpyMemcachedServer server = servers.get(i);  
+-             buf.append(server.toString()).append(" ");  
+-         }  
+-         memClient = new MemcachedClient(  
+-                 AddrUtil.getAddresses(buf.toString()));  
+-     }  
+- 
+- publicvoid disConnect() {  
+- if (memClient == null) {  
+- return;  
+-         }  
+-         memClient.shutdown();  
+-     }  
+- 
+- publicvoid addObserver(ConnectionObserver obs) {  
+-         memClient.addObserver(obs);  
+-     }  
+- 
+- publicvoid removeObserver(ConnectionObserver obs) {  
+-         memClient.removeObserver(obs);  
+-     }  
+- 
+- //---- Basic Operation Start ----//
+- publicboolean set(String key, Object value, int expire) {  
+-         Future<Boolean> f = memClient.set(key, expire, value);  
+- return getBooleanValue(f);  
+-     }  
+- 
+- public Object get(String key) {  
+- return memClient.get(key);  
+-     }  
+- 
+- public Object asyncGet(String key) {  
+-         Object obj = null;  
+-         Future<Object> f = memClient.asyncGet(key);  
+- try {  
+-             obj = f.get(SpyMemcachedConstants.DEFAULT_TIMEOUT,  
+-                     SpyMemcachedConstants.DEFAULT_TIMEUNIT);  
+-         } catch (Exception e) {  
+-             f.cancel(false);  
+-         }  
+- return obj;  
+-     }  
+- 
+- publicboolean add(String key, Object value, int expire) {  
+-         Future<Boolean> f = memClient.add(key, expire, value);  
+- return getBooleanValue(f);  
+-     }  
+- 
+- publicboolean replace(String key, Object value, int expire) {  
+-         Future<Boolean> f = memClient.replace(key, expire, value);  
+- return getBooleanValue(f);  
+-     }  
+- 
+- publicboolean delete(String key) {  
+-         Future<Boolean> f = memClient.delete(key);  
+- return getBooleanValue(f);  
+-     }  
+- 
+- publicboolean flush() {  
+-         Future<Boolean> f = memClient.flush();  
+- return getBooleanValue(f);  
+-     }  
+- 
+- public Map<String, Object> getMulti(Collection<String> keys) {  
+- return memClient.getBulk(keys);  
+-     }  
+- 
+- public Map<String, Object> getMulti(String[] keys) {  
+- return memClient.getBulk(keys);  
+-     }  
+- 
+- public Map<String, Object> asyncGetMulti(Collection<String> keys) {  
+-         Map map = null;  
+-         Future<Map<String, Object>> f = memClient.asyncGetBulk(keys);  
+- try {  
+-             map = f.get(SpyMemcachedConstants.DEFAULT_TIMEOUT,  
+-                     SpyMemcachedConstants.DEFAULT_TIMEUNIT);  
+-         } catch (Exception e) {  
+-             f.cancel(false);  
+-         }  
+- return map;  
+-     }  
+- 
+- public Map<String, Object> asyncGetMulti(String keys[]) {  
+-         Map map = null;  
+-         Future<Map<String, Object>> f = memClient.asyncGetBulk(keys);  
+- try {  
+-             map = f.get(SpyMemcachedConstants.DEFAULT_TIMEOUT,  
+-                     SpyMemcachedConstants.DEFAULT_TIMEUNIT);  
+-         } catch (Exception e) {  
+-             f.cancel(false);  
+-         }  
+- return map;  
+-     }  
+- //---- Basic Operation End ----//
+- 
+- 
+- //---- increment & decrement Start ----//
+- publiclong increment(String key, int by, long defaultValue, int expire) {  
+- return memClient.incr(key, by, defaultValue, expire);  
+-     }  
+- 
+- publiclong increment(String key, int by) {  
+- return memClient.incr(key, by);  
+-     }  
+- 
+- publiclong decrement(String key, int by, long defaultValue, int expire) {  
+- return memClient.decr(key, by, defaultValue, expire);  
+-     }  
+- 
+- publiclong decrement(String key, int by) {  
+- return memClient.decr(key, by);  
+-     }  
+- 
+- publiclong asyncIncrement(String key, int by) {  
+-         Future<Long> f = memClient.asyncIncr(key, by);  
+- return getLongValue(f);  
+-     }  
+- 
+- publiclong asyncDecrement(String key, int by) {  
+-         Future<Long> f = memClient.asyncDecr(key, by);  
+- return getLongValue(f);  
+-     }  
+- //  ---- increment & decrement End ----//
+- 
+- publicvoid printStats() throws IOException {  
+-         printStats(null);  
+-     }  
+- 
+- publicvoid printStats(OutputStream stream) throws IOException {  
+-         Map<SocketAddress, Map<String, String>> statMap =   
+-             memClient.getStats();  
+- if (stream == null) {  
+-             stream = System.out;  
+-         }  
+-         StringBuffer buf = new StringBuffer();  
+-         Set<SocketAddress> addrSet = statMap.keySet();  
+-         Iterator<SocketAddress> iter = addrSet.iterator();  
+- while (iter.hasNext()) {  
+-             SocketAddress addr = iter.next();  
+-             buf.append(addr.toString() + "/n");  
+-             Map<String, String> stat = statMap.get(addr);  
+-             Set<String> keys = stat.keySet();  
+-             Iterator<String> keyIter = keys.iterator();  
+- while (keyIter.hasNext()) {  
+-                 String key = keyIter.next();  
+-                 String value = stat.get(key);  
+-                 buf.append("  key=" + key + ";value=" + value + "/n");  
+-             }  
+-             buf.append("/n");  
+-         }  
+-         stream.write(buf.toString().getBytes());  
+-         stream.flush();  
+-     }  
+- 
+- public Transcoder getTranscoder() {  
+- return memClient.getTranscoder();  
+-     }  
+- 
+- privatelong getLongValue(Future<Long> f) {  
+- try {  
+-             Long l = f.get(SpyMemcachedConstants.DEFAULT_TIMEOUT,  
+-                     SpyMemcachedConstants.DEFAULT_TIMEUNIT);  
+- return l.longValue();  
+-         } catch (Exception e) {  
+-             f.cancel(false);  
+-         }  
+- return -1;  
+-     }  
+- 
+- privateboolean getBooleanValue(Future<Boolean> f) {  
+- try {  
+-             Boolean bool = f.get(SpyMemcachedConstants.DEFAULT_TIMEOUT,  
+-                     SpyMemcachedConstants.DEFAULT_TIMEUNIT);  
+- return bool.booleanValue();  
+-         } catch (Exception e) {  
+-             f.cancel(false);  
+- returnfalse;  
+-         }  
+-     }  
+- 
+- }  
+4.SpyMemcachedTest
+**[java]**[view
+ plain](http://blog.csdn.net/gtuu0123/article/details/4849905#)[copy](http://blog.csdn.net/gtuu0123/article/details/4849905#)
+- import java.io.IOException;  
+- import java.net.SocketAddress;  
+- import java.util.ArrayList;  
+- import java.util.Iterator;  
+- import java.util.List;  
+- import java.util.Map;  
+- import java.util.Set;  
+- 
+- import net.spy.memcached.CASValue;  
+- import net.spy.memcached.ConnectionObserver;  
+- import net.spy.memcached.transcoders.Transcoder;  
+- 
+- import edu.tju.mslab.baseframe.util.DebugPrinter;  
+- 
+- import junit.framework.TestCase;  
+- 
+- publicclass SpyMemcachedTest extends TestCase {  
+- 
+- private SpyMemcachedManager manager;  
+- 
+- protectedvoid setUp() throws Exception {  
+- super.setUp();  
+-         String[][] servs = new String[][] {  
+-                 {"localhost", "11211"},  
+- //{"localhost", "11212"}
+-         };  
+-         List<SpyMemcachedServer> servers = new ArrayList<SpyMemcachedServer>();  
+- for (int i = 0; i < servs.length; i++) {  
+-             SpyMemcachedServer server = new SpyMemcachedServer();  
+-             server.setIp(servs[i][0]);  
+-             server.setPort(Integer.parseInt(servs[i][1]));  
+-             servers.add(server);  
+-         }  
+-         manager = new SpyMemcachedManager(servers);  
+-         manager.connect();  
+-         addObserver();  
+-     }  
+- 
+- protectedvoid tearDown() throws Exception {  
+- super.tearDown();  
+-         manager.disConnect();  
+-     }  
+- 
+- publicvoid testSet() {  
+-         System.out.println("====TestSet====");  
+- for (int i = 0; i < 10; i++) {  
+-             String key = "key" + i;  
+-             String value = "value" + i;  
+-             manager.set(key, value, 20);  
+-         }  
+-     }  
+- 
+- publicvoid testGet() {  
+-         System.out.println("====TestGet====");  
+- for (int i = 0; i < 10; i++) {  
+-             String key = "key" + i;  
+-             Object value = manager.get(key);  
+- if (value != null) {  
+-                 System.out.println("From memcached");  
+-                 System.out.println("key=" + key + ";value=" + value);  
+-             } else {  
+-                 System.out.println("Not found");  
+-                 System.out.println("key=" + key + ";value=" + value);  
+-             }  
+-         }  
+-     }  
+- 
+- publicvoid testAdd() {  
+-         System.out.println("====TestAdd====");  
+- boolean flag = manager.add("key1", "value1-added", 20); //exist
+-         assertEquals(false, flag);  
+-         flag = manager.add("key100", "value100", 20); // don't exist
+-         assertEquals(true, flag);  
+-         testGet();  
+-     }  
+- 
+- publicvoid testReplace() {  
+-         System.out.println("====TestReplace====");  
+- boolean flag = manager.replace("key2", "value2-replaced", 20);  
+-         assertEquals(true, flag);  
+-         flag = manager.replace("key1000", "value1000", 20);  
+-         assertEquals(false, flag);  
+-         testGet();  
+-     }  
+- 
+- publicvoid testDelete() {  
+-         System.out.println("====TestDelete====");  
+- boolean flag = manager.delete("key3");  
+-         assertEquals(true, flag);  
+-         flag = manager.delete("key1000");  
+-         assertEquals(false, flag);  
+-         testGet();  
+-     }  
+- 
+- publicvoid testAsyncGet() {  
+-         System.out.println("====TestAsyncGet====");  
+-         Object value = manager.asyncGet("key4");  
+- if (value != null) {  
+-             assertEquals("value4", (String)value);  
+-         }  
+-         System.out.println("value=" + value);  
+-     }  
+- 
+- publicvoid testGetMulti() {  
+-         System.out.println("====TestGetMulti====");  
+-         List<String> keys = new ArrayList<String>();  
+-         String[] strKeys = new String[5];  
+- for (int i = 0; i < 5; i++) {  
+-             keys.add("key" + i);  
+-             strKeys[i] = "key" + i;  
+-         }  
+-         Map<String, Object> cache = manager.getMulti(keys);  
+-         printMap(cache);  
+- 
+-         cache = manager.getMulti(keys);  
+-         printMap(cache);  
+-     }  
+- 
+- publicvoid testAsyncGetMulti() {  
+-         System.out.println("====TestAsyncGetMulti====");  
+-         List<String> keys = new ArrayList<String>();  
+-         String[] strKeys = new String[5];  
+- for (int i = 0; i < 5; i++) {  
+-             keys.add("key" + i);  
+-             strKeys[i] = "key" + i;  
+-         }  
+-         Map<String, Object> cache = manager.asyncGetMulti(keys);  
+-         printMap(cache);  
+- 
+-         cache = manager.asyncGetMulti(keys);  
+-         printMap(cache);  
+-     }  
+- 
+- 
+- publicvoid testIncrAndDecr() {  
+-         System.out.println("====TestIncrAndDecr====");  
+- long l = -1;  
+-         l = manager.increment("incr", 2, 100, 60);  
+-         assertEquals(100, l);  
+-         l = manager.increment("incr", 4);  
+-         assertEquals(104, l);  
+-         l = manager.decrement("decr", 4, 100, 60);  
+-         assertEquals(100, l);  
+-         l = manager.decrement("decr", 3);  
+-         assertEquals(97, l);  
+-         System.out.println("incr=" + manager.get("incr").toString());  
+-         System.out.println("decr=" + manager.get("decr").toString());  
+-     }  
+- 
+- publicvoid testAsyncIncrAndDecr() {  
+-         System.out.println("====TestAsyncIncrAndDecr====");  
+- long l = -1;  
+-         l = manager.asyncIncrement("incr", 2);  
+-         assertEquals(106, l);  
+-         l = manager.asyncDecrement("decr", 4);  
+-         assertEquals(93, l);  
+-         System.out.println("aincr=" + manager.get("incr").toString());  
+-         System.out.println("adecr=" + manager.get("decr").toString());  
+-     }  
+- 
+- publicvoid testPrintStat() throws IOException {  
+-         System.out.println("====TestPrintStat====");  
+-         manager.printStats();  
+-     }  
+- 
+- privatevoid addObserver() {  
+- //System.out.println("====AddObserver====");
+-         ConnectionObserver obs = new ConnectionObserver() {  
+- publicvoid connectionEstablished(SocketAddress sa, int reconnectCount) {  
+-                 System.out.println("Established " + sa.toString());  
+-             }  
+- 
+- publicvoid connectionLost(SocketAddress sa) {  
+-                 System.out.println("Lost " + sa.toString());  
+-             }  
+-         };  
+-         manager.addObserver(obs);  
+-     }  
+- 
+- publicvoid testGetTranscoder() {  
+-         System.out.println("====TestGetTranscoder====");  
+-         Transcoder tran = manager.getTranscoder();  
+-         System.out.println(tran.getClass().toString());  
+-     }  
+- 
+- privatevoid printMap(Map map) {  
+-         StringBuffer temp = new StringBuffer();  
+-         Set set = map.keySet();  
+-         Iterator iter = set.iterator();  
+- while(iter.hasNext()) {  
+-             String key = (String)iter.next();  
+-             Object value = map.get(key);  
+-             temp.append("key=" + key + ";value=" + value + "/n");  
+-         }  
+-         System.out.println(temp.toString());  
+-     }  
+- }  
+[](http://blog.csdn.net/gtuu0123/article/details/4849905#)[](http://blog.csdn.net/gtuu0123/article/details/4849905#)[](http://blog.csdn.net/gtuu0123/article/details/4849905#)[](http://blog.csdn.net/gtuu0123/article/details/4849905#)[](http://blog.csdn.net/gtuu0123/article/details/4849905#)[](http://blog.csdn.net/gtuu0123/article/details/4849905#)

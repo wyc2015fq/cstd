@@ -1,0 +1,29 @@
+# WIN7下,联想A30T通过USB连接上网 - weixin_33985507的博客 - CSDN博客
+2013年04月13日 09:52:00[weixin_33985507](https://me.csdn.net/weixin_33985507)阅读数：7
+1.手机连接3G信号 
+2.手机上在设置里    
+"设置"    
+    |"应用程序"    
+        |"USB模式"    
+            |勾选"网卡模式"
+![20130413093359787](https://images0.cnblogs.com/blog/374803/201304/13095132-f16e58105fd04445809dd95e719d81af.jpg)
+3.连接上Win7,会出现驱动安装程序,手动安装这里的驱动.(驱动在百度网盘:)
+![image](https://images0.cnblogs.com/blog/374803/201304/13095133-244a14bb4c284ac2907fe7e4db451be5.png)
+![image](https://images0.cnblogs.com/blog/374803/201304/13095134-493d8eb2db914c80891a82fe839d2782.png)![image](https://images0.cnblogs.com/blog/374803/201304/13095135-9f6e7875b17f45b2a947b9c367db30bf.png)
+4.在设备管理,网络适配器里查看驱动是否安装成功.
+![image](https://images0.cnblogs.com/blog/374803/201304/13095138-e98d2c4b5dab47469a4c62742c3be61e.png)
+[注意]下一步操作前,确认电脑的DCHP服务开启了.
+![image](https://images0.cnblogs.com/blog/374803/201304/13095142-40bef8c6a9a1400191d95c651ab21e53.png)
+5.查看网卡状态:
+![image](https://images0.cnblogs.com/blog/374803/201304/13095144-ccdfe580f64f44568bf016bafe9093ed.png)
+手机上在设置里   
+"无线和网络"    
+    |"绑定与便携式热点"    
+        |勾选"USB绑定"
+![20130413094029604](https://images0.cnblogs.com/blog/374803/201304/13095146-2280063ba02b46f1a85bf7ded122ba8c.jpg)
+绑定后,查看网卡状态(已经连接上):
+![image](https://images0.cnblogs.com/blog/374803/201304/13095148-e5e828560aa44645923747a5e4fa0ef3.png)
+6.可能还需要共享网络....
+![](https://images0.cnblogs.com/blog/374803/201304/13100109-6172eb338cd7420db295ab075e9d32a6.jpg)
+7.上网试试?
+![image](https://images0.cnblogs.com/blog/374803/201304/13095151-e59cf5d3e6cf4a74ae0afe4553c6589c.png)

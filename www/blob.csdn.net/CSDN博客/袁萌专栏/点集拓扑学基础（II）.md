@@ -1,10 +1,5 @@
-
 # 点集拓扑学基础（II） - 袁萌专栏 - CSDN博客
-
-2019年03月23日 13:06:28[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：209
-
-
-点集拓扑学基础（II）
+2019年03月23日 13:06:28[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：214
 我们的目的是学懂、学透微积分。但是，只懂得欧几里得平面基本知识还不够，中间缺少欧几里得平面点集拓扑的概念。
 本文附件（英文）阐述了欧几里得平面点集拓扑的基本概念（II），值得一读。
 袁萌  陈启清  3月23日
@@ -96,5 +91,3 @@ Problem 14. Show that the discrete topology Tdiscrete on a set X is compact if a
 Problem 15. Consider the lower-limit topology T` on the real line R. (a) Show that the interval A = [1,3] (with the subspace topology from T`) is not compact by showing that {3}∪{[1,3 − 1/n) | n ∈ Z+} is an open cover of A with no ﬁnite subcover. (b) Show that the set B = {0}∪{1/n | n ∈ Z+} (with the subspace topology from T`) is compact.
 Problem 16. Let X be a set. State and prove conditions on X under which each of the following topological spaces is connected: (a) the discrete topology on X. (b) the trivial topology on X. (c) the coﬁnite topology on X. (d) the lower limit topology on X = R.
 30
-
-

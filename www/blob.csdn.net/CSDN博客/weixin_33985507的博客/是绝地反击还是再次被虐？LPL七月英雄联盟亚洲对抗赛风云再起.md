@@ -1,0 +1,34 @@
+# 是绝地反击还是再次被虐？LPL七月英雄联盟亚洲对抗赛风云再起 - weixin_33985507的博客 - CSDN博客
+2017年05月23日 14:50:00[weixin_33985507](https://me.csdn.net/weixin_33985507)阅读数：12
+春季赛已经结束，我们不用再讨论。
+![2573655-15880d87bbf752c5](https://upload-images.jianshu.io/upload_images/2573655-15880d87bbf752c5)
+MSI也已经尘埃落定。
+或许在很多水友的心中，WE没有取得让他们满意的成绩。
+但是在我的心里，WE已经取得了一个让我比较满意的成绩。
+四强！
+在比赛开始的时候，我就说过，四强是我的底线。
+WE完成了。
+666！
+![2573655-14e60c447bb591c2](https://upload-images.jianshu.io/upload_images/2573655-14e60c447bb591c2)
+昨日已去不可留，明日还有新战场。
+不知道大家知道吗？
+在七月台湾高雄将举办LOL即英雄联盟亚洲对抗赛。
+我们赛区，LCK赛区，LMS赛区参战。
+每个赛区春季赛的前四强都将参加战斗。
+我们LPL的名额是，RNG，OMG，WE，EDG。
+哇！
+基本上所有粉丝喜欢的战队都将参加战斗。
+LCK方面。
+SKT，KT，三星，MVP参加战斗。
+心里有点慌，哈哈哈！
+这次在七月的英雄联盟亚洲对抗赛将是我们LPL的绝地反击吗？
+还是再被虐一次？
+无情！
+LMS赛区方面，闪电狼，AHQ，M17，JTEAM参战。
+特别指出JTEAM就是周杰伦的战队。
+到时候我们是选择支持周杰伦的战队的呢？
+还是支持我们LPL啊？
+看不懂。
+![2573655-9216f42f335235c1](https://upload-images.jianshu.io/upload_images/2573655-9216f42f335235c1)
+![2573655-feb068d71fb3bdd7](https://upload-images.jianshu.io/upload_images/2573655-feb068d71fb3bdd7)
+求打赏。

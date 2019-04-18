@@ -1,0 +1,360 @@
+# 分布式任务调度平台，spring+quartz 借鉴 - z69183787的专栏 - CSDN博客
+2018年04月28日 18:07:08[OkidoGreen](https://me.csdn.net/z69183787)阅读数：209
+可参考：[https://github.com/xuxueli/xxl-job](https://github.com/xuxueli/xxl-job)
+[http://www.xuxueli.com/xxl-job/#/](http://www.xuxueli.com/xxl-job/#/)
+在实际项目应用中经常会用到定时任务，可以通过quartz和spring的简单配置即可完成，但如果要改变任务的执行时间、频率，废弃任务等就需要改变配置甚至代码需要重启服务器，这里介绍一下如何通过quartz与spring的组合实现动态的改变定时任务的状态的一个实现。
+参考文章：[http://www.meiriyouke.net/?p=82](http://www.meiriyouke.net/?p=82)
+本文章适合对quartz和spring有一定了解的读者。
+spring版本为3.2  quartz版本为2.2.1  如果使用了quartz2.2.1 则spring版本需3.1以上
+1.
+spring中引入注册bean
+Xml代码  ![收藏代码](http://snailxr.iteye.com/images/icon_star.png)
+- <beanid="schedulerFactoryBean"
+- class="org.springframework.scheduling.quartz.SchedulerFactoryBean"/>
+为什么要与spring结合？
+与spring结合可以使用spring统一管理quartz中任务的生命周期，使得web容器关闭时所有的任务一同关闭。如果不用spring管理可能会出现web容器关闭而任务仍在继续运行的情况，不与spring结合的话要自己控制任务在容器关闭时一起关闭。
+2.创建保存计划任务信息的实体类
+Java代码  ![收藏代码](http://snailxr.iteye.com/images/icon_star.png)
+- /**
+-  * 
+- * @Description: 计划任务信息
+- * @author snailxr
+- * @date 2014年4月24日 下午10:49:43
+-  */
+- publicclass ScheduleJob {  
+- 
+- publicstaticfinal String STATUS_RUNNING = "1";  
+- publicstaticfinal String STATUS_NOT_RUNNING = "0";  
+- publicstaticfinal String CONCURRENT_IS = "1";  
+- publicstaticfinal String CONCURRENT_NOT = "0";  
+- private Long jobId;  
+- 
+- private Date createTime;  
+- 
+- private Date updateTime;  
+- /**
+-      * 任务名称
+-      */
+- private String jobName;  
+- /**
+-      * 任务分组
+-      */
+- private String jobGroup;  
+- /**
+-      * 任务状态 是否启动任务
+-      */
+- private String jobStatus;  
+- /**
+-      * cron表达式
+-      */
+- private String cronExpression;  
+- /**
+-      * 描述
+-      */
+- private String description;  
+- /**
+-      * 任务执行时调用哪个类的方法 包名+类名
+-      */
+- private String beanClass;  
+- /**
+-      * 任务是否有状态
+-      */
+- private String isConcurrent;  
+- /**
+-      * spring bean
+-      */
+- private String springId;  
+- /**
+-      * 任务调用的方法名
+-      */
+- private String methodName;  
+- 
+- //get  set.......
+- }  
+ 该实体类与数据库中的表对应，在数据库中存储多个计划任务。
+  注意：jobName 跟 groupName的组合应该是唯一的,beanClass springId至少有一个
+在项目启动时运行以下代码：
+Java代码  ![收藏代码](http://snailxr.iteye.com/images/icon_star.png)
+- publicvoid init() throws Exception {  
+- 
+-         Scheduler scheduler = schedulerFactoryBean.getScheduler();  
+- 
+- // 这里从数据库中获取任务信息数据
+-         List<ScheduleJob> jobList = scheduleJobMapper.getAll();  
+- 
+- for (ScheduleJob job : jobList) {  
+-             addJob(job);  
+-         }  
+-     }  
+Java代码  ![收藏代码](http://snailxr.iteye.com/images/icon_star.png)
+- /**
+-      * 添加任务
+-      * 
+-      * @param scheduleJob
+-      * @throws SchedulerException
+-      */
+- publicvoid addJob(ScheduleJob job) throws SchedulerException {  
+- if (job == null || !ScheduleJob.STATUS_RUNNING.equals(job.getJobStatus())) {  
+- return;  
+-         }  
+- 
+-         Scheduler scheduler = schedulerFactoryBean.getScheduler();  
+-         log.debug(scheduler + ".......................................................................................add");  
+-         TriggerKey triggerKey = TriggerKey.triggerKey(job.getJobName(), job.getJobGroup());  
+- 
+-         CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);  
+- 
+- // 不存在，创建一个
+- if (null == trigger) {  
+-             Class clazz = ScheduleJob.CONCURRENT_IS.equals(job.getIsConcurrent()) ? QuartzJobFactory.class : QuartzJobFactoryDisallowConcurrentExecution.class;  
+- 
+-             JobDetail jobDetail = JobBuilder.newJob(clazz).withIdentity(job.getJobName(), job.getJobGroup()).build();  
+- 
+-             jobDetail.getJobDataMap().put("scheduleJob", job);  
+- 
+-             CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(job.getCronExpression());  
+- 
+-             trigger = TriggerBuilder.newTrigger().withIdentity(job.getJobName(), job.getJobGroup()).withSchedule(scheduleBuilder).build();  
+- 
+-             scheduler.scheduleJob(jobDetail, trigger);  
+-         } else {  
+- // Trigger已存在，那么更新相应的定时设置
+-             CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(job.getCronExpression());  
+- 
+- // 按新的cronExpression表达式重新构建trigger
+-             trigger = trigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();  
+- 
+- // 按新的trigger重新设置job执行
+-             scheduler.rescheduleJob(triggerKey, trigger);  
+-         }  
+-     }  
+ 看到代码第20行根据scheduleJob类中CONCURRENT_IS来判断任务是否有状态。来给出不同的Job实现类
+Java代码  ![收藏代码](http://snailxr.iteye.com/images/icon_star.png)
+- /**
+-  * 
+-  * @Description: 若一个方法一次执行不完下次轮转时则等待改方法执行完后才执行下一次操作
+-  * @author snailxr
+-  * @date 2014年4月24日 下午5:05:47
+-  */
+- @DisallowConcurrentExecution
+- publicclass QuartzJobFactoryDisallowConcurrentExecution implements Job {  
+- publicfinal Logger log = Logger.getLogger(this.getClass());  
+- 
+- @Override
+- publicvoid execute(JobExecutionContext context) throws JobExecutionException {  
+-         ScheduleJob scheduleJob = (ScheduleJob) context.getMergedJobDataMap().get("scheduleJob");  
+-         TaskUtils.invokMethod(scheduleJob);  
+- 
+-     }  
+- }  
+Java代码  ![收藏代码](http://snailxr.iteye.com/images/icon_star.png)
+- /**
+-  * 
+-  * @Description: 计划任务执行处 无状态
+-  * @author snailxr
+-  * @date 2014年4月24日 下午5:05:47
+-  */
+- publicclass QuartzJobFactory implements Job {  
+- publicfinal Logger log = Logger.getLogger(this.getClass());  
+- 
+- @Override
+- publicvoid execute(JobExecutionContext context) throws JobExecutionException {  
+-         ScheduleJob scheduleJob = (ScheduleJob) context.getMergedJobDataMap().get("scheduleJob");  
+-         TaskUtils.invokMethod(scheduleJob);  
+-     }  
+- }  
+真正执行计划任务的代码就在TaskUtils.invokMethod(scheduleJob)里面
+通过scheduleJob的beanClass或springId通过反射或spring来获得需要执行的类,通过methodName来确定执行哪个方法
+Java代码  ![收藏代码](http://snailxr.iteye.com/images/icon_star.png)
+- publicclass TaskUtils {  
+- publicfinalstatic Logger log = Logger.getLogger(TaskUtils.class);  
+- 
+- /**
+-      * 通过反射调用scheduleJob中定义的方法
+-      * 
+-      * @param scheduleJob
+-      */
+- publicstaticvoid invokMethod(ScheduleJob scheduleJob) {  
+-         Object object = null;  
+-         Class clazz = null;  
+- //springId不为空先按springId查找bean
+- if (StringUtils.isNotBlank(scheduleJob.getSpringId())) {  
+-             object = SpringUtils.getBean(scheduleJob.getSpringId());  
+-         } elseif (StringUtils.isNotBlank(scheduleJob.getBeanClass())) {  
+- try {  
+-                 clazz = Class.forName(scheduleJob.getBeanClass());  
+-                 object = clazz.newInstance();  
+-             } catch (Exception e) {  
+- // TODO Auto-generated catch block
+-                 e.printStackTrace();  
+-             }  
+- 
+-         }  
+- if (object == null) {  
+-             log.error("任务名称 = [" + scheduleJob.getJobName() + "]---------------未启动成功，请检查是否配置正确！！！");  
+- return;  
+-         }  
+-         clazz = object.getClass();  
+-         Method method = null;  
+- try {  
+-             method = clazz.getDeclaredMethod(scheduleJob.getMethodName());  
+-         } catch (NoSuchMethodException e) {  
+-             log.error("任务名称 = [" + scheduleJob.getJobName() + "]---------------未启动成功，方法名设置错误！！！");  
+-         } catch (SecurityException e) {  
+- // TODO Auto-generated catch block
+-             e.printStackTrace();  
+-         }  
+- if (method != null) {  
+- try {  
+-                 method.invoke(object);  
+-             } catch (IllegalAccessException e) {  
+- // TODO Auto-generated catch block
+-                 e.printStackTrace();  
+-             } catch (IllegalArgumentException e) {  
+- // TODO Auto-generated catch block
+-                 e.printStackTrace();  
+-             } catch (InvocationTargetException e) {  
+- // TODO Auto-generated catch block
+-                 e.printStackTrace();  
+-             }  
+-         }  
+- 
+-     }  
+- }  
+ 对任务的暂停，删除，修改等操作
+Java代码  ![收藏代码](http://snailxr.iteye.com/images/icon_star.png)
+- **  
+-      * 获取所有计划中的任务列表  
+-      *   
+-      * @return
+-      * @throws SchedulerException  
+-      */  
+- public List<ScheduleJob> getAllJob() throws SchedulerException {  
+-         Scheduler scheduler = schedulerFactoryBean.getScheduler();  
+-         GroupMatcher<JobKey> matcher = GroupMatcher.anyJobGroup();  
+-         Set<JobKey> jobKeys = scheduler.getJobKeys(matcher);  
+-         List<ScheduleJob> jobList = new ArrayList<ScheduleJob>();  
+- for (JobKey jobKey : jobKeys) {  
+-             List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);  
+- for (Trigger trigger : triggers) {  
+-                 ScheduleJob job = new ScheduleJob();  
+-                 job.setJobName(jobKey.getName());  
+-                 job.setJobGroup(jobKey.getGroup());  
+-                 job.setDescription("触发器:" + trigger.getKey());  
+-                 Trigger.TriggerState triggerState = scheduler.getTriggerState(trigger.getKey());  
+-                 job.setJobStatus(triggerState.name());  
+- if (trigger instanceof CronTrigger) {  
+-                     CronTrigger cronTrigger = (CronTrigger) trigger;  
+-                     String cronExpression = cronTrigger.getCronExpression();  
+-                     job.setCronExpression(cronExpression);  
+-                 }  
+-                 jobList.add(job);  
+-             }  
+-         }  
+- return jobList;  
+-     }  
+- 
+- /**
+-      * 所有正在运行的job
+-      * 
+-      * @return
+-      * @throws SchedulerException
+-      */
+- public List<ScheduleJob> getRunningJob() throws SchedulerException {  
+-         Scheduler scheduler = schedulerFactoryBean.getScheduler();  
+-         List<JobExecutionContext> executingJobs = scheduler.getCurrentlyExecutingJobs();  
+-         List<ScheduleJob> jobList = new ArrayList<ScheduleJob>(executingJobs.size());  
+- for (JobExecutionContext executingJob : executingJobs) {  
+-             ScheduleJob job = new ScheduleJob();  
+-             JobDetail jobDetail = executingJob.getJobDetail();  
+-             JobKey jobKey = jobDetail.getKey();  
+-             Trigger trigger = executingJob.getTrigger();  
+-             job.setJobName(jobKey.getName());  
+-             job.setJobGroup(jobKey.getGroup());  
+-             job.setDescription("触发器:" + trigger.getKey());  
+-             Trigger.TriggerState triggerState = scheduler.getTriggerState(trigger.getKey());  
+-             job.setJobStatus(triggerState.name());  
+- if (trigger instanceof CronTrigger) {  
+-                 CronTrigger cronTrigger = (CronTrigger) trigger;  
+-                 String cronExpression = cronTrigger.getCronExpression();  
+-                 job.setCronExpression(cronExpression);  
+-             }  
+-             jobList.add(job);  
+-         }  
+- return jobList;  
+-     }  
+- 
+- /**
+-      * 暂停一个job
+-      * 
+-      * @param scheduleJob
+-      * @throws SchedulerException
+-      */
+- publicvoid pauseJob(ScheduleJob scheduleJob) throws SchedulerException {  
+-         Scheduler scheduler = schedulerFactoryBean.getScheduler();  
+-         JobKey jobKey = JobKey.jobKey(scheduleJob.getJobName(), scheduleJob.getJobGroup());  
+-         scheduler.pauseJob(jobKey);  
+-     }  
+- 
+- /**
+-      * 恢复一个job
+-      * 
+-      * @param scheduleJob
+-      * @throws SchedulerException
+-      */
+- publicvoid resumeJob(ScheduleJob scheduleJob) throws SchedulerException {  
+-         Scheduler scheduler = schedulerFactoryBean.getScheduler();  
+-         JobKey jobKey = JobKey.jobKey(scheduleJob.getJobName(), scheduleJob.getJobGroup());  
+-         scheduler.resumeJob(jobKey);  
+-     }  
+- 
+- /**
+-      * 删除一个job
+-      * 
+-      * @param scheduleJob
+-      * @throws SchedulerException
+-      */
+- publicvoid deleteJob(ScheduleJob scheduleJob) throws SchedulerException {  
+-         Scheduler scheduler = schedulerFactoryBean.getScheduler();  
+-         JobKey jobKey = JobKey.jobKey(scheduleJob.getJobName(), scheduleJob.getJobGroup());  
+-         scheduler.deleteJob(jobKey);  
+- 
+-     }  
+- 
+- /**
+-      * 立即执行job
+-      * 
+-      * @param scheduleJob
+-      * @throws SchedulerException
+-      */
+- publicvoid runAJobNow(ScheduleJob scheduleJob) throws SchedulerException {  
+-         Scheduler scheduler = schedulerFactoryBean.getScheduler();  
+-         JobKey jobKey = JobKey.jobKey(scheduleJob.getJobName(), scheduleJob.getJobGroup());  
+-         scheduler.triggerJob(jobKey);  
+-     }  
+- 
+- /**
+-      * 更新job时间表达式
+-      * 
+-      * @param scheduleJob
+-      * @throws SchedulerException
+-      */
+- publicvoid updateJobCron(ScheduleJob scheduleJob) throws SchedulerException {  
+-         Scheduler scheduler = schedulerFactoryBean.getScheduler();  
+- 
+-         TriggerKey triggerKey = TriggerKey.triggerKey(scheduleJob.getJobName(), scheduleJob.getJobGroup());  
+- 
+-         CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);  
+- 
+-         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(scheduleJob.getCronExpression());  
+- 
+-         trigger = trigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();  
+- 
+-         scheduler.rescheduleJob(triggerKey, trigger);  
+-     }  
+小提示
+更新表达式，判断表达式是否正确可用一下代码
+CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule("xxxxx");
+**判定cron表达式是否正确可以直接用CronExpression.isValidExpression("");  返回类型是boolean型**
+抛出异常则表达式不正确
+

@@ -1,25 +1,7 @@
 # 【LDA学习系列】神奇的Gama函数Python代码 - 专注于数据挖掘算法研究和应用 - CSDN博客
-
-
-
-
-
-2018年05月17日 09:40:49[fjssharpsword](https://me.csdn.net/fjssharpsword)阅读数：213
-
-
-
-
-
-
-
-
+2018年05月17日 09:40:49[fjssharpsword](https://me.csdn.net/fjssharpsword)阅读数：214
 ![](https://img-blog.csdn.net/20180517094003771)
-
-
-
-
 代码：
-
 ```python
 # -*- coding: utf-8 -*-
 '''
@@ -30,7 +12,6 @@ Created on 2018年5月15日
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import gamma, factorial 
-
 def test_gamma_funciton():
     #整数集阶乘拓展到实数集、复数集
     #整数
@@ -61,9 +42,7 @@ if __name__ == '__main__':
     
     test_gamma_funciton()#gama函数
 ```
-
 结果：
-
 ```
 [       inf 1.0000e+00 2.4000e+01 3.6288e+05]
 [1.77245385e+00 9.31383771e-01 1.01270191e+02 5.70499028e+05]
@@ -73,6 +52,3 @@ if __name__ == '__main__':
 3.1415926535897927
 ```
 ![](https://img-blog.csdn.net/20180517094039246)
-
-
-

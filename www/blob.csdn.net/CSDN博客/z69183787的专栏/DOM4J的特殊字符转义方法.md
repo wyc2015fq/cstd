@@ -1,0 +1,174 @@
+# DOM4J的特殊字符转义方法 - z69183787的专栏 - CSDN博客
+2014年06月10日 17:06:40[OkidoGreen](https://me.csdn.net/z69183787)阅读数：2275
+
+**[java]**[view
+ plain](http://blog.csdn.net/arsenic/article/details/8490098#)[copy](http://blog.csdn.net/arsenic/article/details/8490098#)
+- Dom4j格式化转义字符问题  
+- 
+- 1、不得不说的XML CDATA部件  
+- 
+- 在XML文档中的所有文本都会被解析器解析。  
+- 
+- 只有在CDATA部件之内的文本会被解析器忽略。  
+- 
+- 不合法的XML字符必须被替换为相应的实体。  
+- 
+- 如果在XML文档中使用类似"<" 的字符, 那么解析器将会出现错误，因为解析器会认为这是一个新元素的开始。  
+- 
+- < < 小于号   
+- > > 大于号   
+- & & 和   
+- ' ' 单引号   
+- " " 双引号   
+- 
+- 
+- 实体必须以符号"&"开头，以符号";"结尾。   
+- 注意: 只有"<" 字符和"&"字符对于XML来说是严格禁止使用的。剩下的都是合法的，为了减少出错，使用实体是一个好习惯。  
+- 
+- CDATA部件  
+- 在CDATA内部的所有内容都会被解析器忽略。  
+- 如果文本包含了很多的"<"字符和"&"字符——就象程序代码一样，那么最好把他们都放到CDATA部件中。  
+- 一个 CDATA 部件以"<![CDATA[" 标记开始，以"]]>"标记结束:  
+- 
+- CDATA注意事项:  
+- CDATA部件之间不能再包含CDATA部件（不能嵌套）。如果CDATA部件包含了字符"]]>" 或者"<![CDATA[" ，将很有可能出错哦。  
+- 同样要注意在字符串"]]>"之间没有空格或者换行符。  
+- 
+- 2、Dom4j格式化转义字符问题  
+- 
+- person.xml  
+- <?xml version="1.0" encoding="UTF-8"?>   
+- <person>   
+-         <name>张三</name>   
+-         <addr><![CDATA[经三路<鑫苑>19F]]></addr>   
+- </person>   
+- 上面的XML在被Dom4j格式化的时候，自动会被转义，转义后的内容如下：  
+- <?xml version="1.0" encoding="GBK"?>  
+- <person>  
+-   <toname><![CDATA[经三路<鑫苑>19F]]></toname>  
+- </person>  
+- 
+- 
+- 这样，显然不是想要的结果，因为CDATA不需要再转义了。如何处理该问题，看下面的程序的处理：  
+- import org.dom4j.Document;   
+- import org.dom4j.DocumentHelper;   
+- import org.dom4j.Element;   
+- import org.dom4j.io.OutputFormat;   
+- import org.dom4j.io.XMLWriter;   
+- 
+- import java.io.IOException;   
+- import java.io.StringWriter;   
+- import java.util.Date;   
+- 
+- /** 
+- * Created by IntelliJ IDEA. 
+- * 
+- * @author leizhimin 2010-7-10 16:03:39 
+- */
+- publicclass Person {   
+- private String name;   
+- private String addr;   
+- 
+- public Person(String name, String addr) {   
+- this.name = name;   
+- this.addr = addr;   
+-         }   
+- 
+- publicstaticvoid main(String[] args) {   
+-                 Person p = new Person("张三", "经三路<鑫苑>19F");   
+-                 p.showXml();   
+-         }   
+- 
+- publicvoid showXml() {   
+-                 String xml1, xml2, xml3;   
+-                 Document doc = DocumentHelper.createDocument();   
+-                 doc.setXMLEncoding("GBK");   
+-                 Element root = doc.addElement("person");   
+- if (addr != null)   
+-                         addElement(root, "toname", "<![CDATA[" + this.addr + "]]>");   
+- else
+-                         addElement(root, "toname", this.addr);   
+- 
+-                 xml1 = doc.asXML();                                        //默认转义 
+-                 xml2 = formatXml(doc, "GBK", true);        //转义 
+-                 xml3 = formatXml(doc, "GBK", false);     //不转义 
+-                 System.out.println(xml1);   
+-                 System.out.println("-------------------------");   
+-                 System.out.println(xml2);   
+-                 System.out.println("-------------------------");   
+-                 System.out.println(xml3);   
+-         }   
+- 
+- /** 
+-          * 在指定的元素下添加一个新的子元素 
+-          * 
+-          * @param e         父元素 
+-          * @param name    子元素名 
+-          * @param value 子元素值 
+-          * @return 新加子元素 
+-          */
+- publicstatic Element addElement(Element e, String name, Object value) {   
+-                 Element x = e.addElement(name);   
+- if (value == null || "".equals(value.toString().trim())) {   
+-                         x.setText("");   
+-                 } elseif (value instanceof Date) {   
+-                         x.setText(DateToolkit.toISOFormat((Date) value));   
+-                 } else {   
+-                         x.setText(value.toString());   
+-                 }   
+- return x;   
+-         }   
+- 
+- /** 
+-          * 格式化XML文档 
+-          * 
+-          * @param document xml文档 
+-          * @param charset    字符串的编码 
+-          * @param istrans    是否对属性和元素值进行转移 
+-          * @return 格式化后XML字符串 
+-          */
+- publicstatic String formatXml(Document document, String charset, boolean istrans) {   
+-                 OutputFormat format = OutputFormat.createPrettyPrint();   
+-                 format.setEncoding(charset);   
+-         format.setIndentSize(2);    
+-         format.setNewlines(true);   
+-         format.setTrimText(false);   
+-         format.setPadText(true);    
+- //以上4行用于处理base64图片编码以后放入xml时的回车变空格问题    
+-                   StringWriter sw = new StringWriter();   
+-                 XMLWriter xw = new XMLWriter(sw, format);   
+-                 xw.setEscapeText(istrans);   
+- try {   
+-                         xw.write(document);   
+-                         xw.flush();   
+-                         xw.close();   
+-                 } catch (IOException e) {   
+-                         System.out.println("格式化XML文档发生异常，请检查！");   
+-                         e.printStackTrace();   
+-                 }   
+- return sw.toString();   
+-         }   
+- }   
+- 输出结果：  
+- <?xml version="1.0" encoding="GBK"?>  
+- <person><toname><![CDATA[经三路<鑫苑>19F]]></toname></person>  
+- -------------------------  
+- <?xml version="1.0" encoding="GBK"?>  
+- <person>  
+-   <toname><![CDATA[经三路<鑫苑>19F]]></toname>  
+- </person>  
+- -------------------------  
+- <?xml version="1.0" encoding="GBK"?>  
+- <person>  
+-   <toname><![CDATA[经三路<鑫苑>19F]]></toname>  
+- </person>  
+- 
+- Process finished with exit code 0
+- 
+- 可以看出，最后一种输出是真正想要的结果。  
+- 
+- 因此，要控制转义的问题，必须对XML重新格式化，格式化的时候，需要设置：  
+-         xw.setEscapeText(false);  
+- 
+- 本文出自 “熔 岩” 博客，请务必保留此出处http://lavasoft.blog.51cto.com/62575/347348
+- 

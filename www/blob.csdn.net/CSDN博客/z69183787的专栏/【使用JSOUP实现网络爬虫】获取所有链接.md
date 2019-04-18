@@ -1,0 +1,112 @@
+# 【使用JSOUP实现网络爬虫】获取所有链接 - z69183787的专栏 - CSDN博客
+2015年08月26日 17:41:59[OkidoGreen](https://me.csdn.net/z69183787)阅读数：4133
+这个示例程序将展示如何从一个URL获得一个页面。然后提取页面中的所有链接、图片和其它辅助内容。并检查URLs和文本信息。
+运行下面程序需要指定一个URLs作为参数
+``
+**[java]**[view plain](http://blog.csdn.net/withiter/article/details/15339579#)[copy](http://blog.csdn.net/withiter/article/details/15339579#)[print](http://blog.csdn.net/withiter/article/details/15339579#)[?](http://blog.csdn.net/withiter/article/details/15339579#)
+- import org.jsoup.Jsoup;  
+- import org.jsoup.helper.Validate;  
+- import org.jsoup.nodes.Document;  
+- import org.jsoup.nodes.Element;  
+- import org.jsoup.select.Elements;  
+- 
+- import java.io.IOException;  
+- 
+- /**
+-  * Example program to list links from a URL.
+-  */
+- publicclass ListLinks {  
+- publicstaticvoid main(String[] args) throws IOException {  
+-         Validate.isTrue(args.length == 1, "usage: supply url to fetch");  
+-         String url = args[0];  
+-         print("Fetching %s...", url);  
+- 
+-         Document doc = Jsoup.connect(url).get();  
+-         Elements links = doc.select("a[href]");  
+-         Elements media = doc.select("[src]");  
+-         Elements imports = doc.select("link[href]");  
+- 
+-         print("\nMedia: (%d)", media.size());  
+- for (Element src : media) {  
+- if (src.tagName().equals("img"))  
+-                 print(" * %s: <%s> %sx%s (%s)",  
+-                         src.tagName(), src.attr("abs:src"), src.attr("width"), src.attr("height"),  
+-                         trim(src.attr("alt"), 20));  
+- else
+-                 print(" * %s: <%s>", src.tagName(), src.attr("abs:src"));  
+-         }  
+- 
+-         print("\nImports: (%d)", imports.size());  
+- for (Element link : imports) {  
+-             print(" * %s <%s> (%s)", link.tagName(),link.attr("abs:href"), link.attr("rel"));  
+-         }  
+- 
+-         print("\nLinks: (%d)", links.size());  
+- for (Element link : links) {  
+-             print(" * a: <%s>  (%s)", link.attr("abs:href"), trim(link.text(), 35));  
+-         }  
+-     }  
+- 
+- privatestaticvoid print(String msg, Object... args) {  
+-         System.out.println(String.format(msg, args));  
+-     }  
+- 
+- privatestatic String trim(String s, int width) {  
+- if (s.length() > width)  
+- return s.substring(0, width-1) + ".";  
+- else
+- return s;  
+-     }  
+- }  
+## 示例输入结果
+``
+**[java]**[view plain](http://blog.csdn.net/withiter/article/details/15339579#)[copy](http://blog.csdn.net/withiter/article/details/15339579#)[print](http://blog.csdn.net/withiter/article/details/15339579#)[?](http://blog.csdn.net/withiter/article/details/15339579#)
+- Fetching http://news.ycombinator.com/...
+- 
+- Media: (38)  
+-  * img: <http://ycombinator.com/images/y18.gif> 18x18 ()
+-  * img: <http://ycombinator.com/images/s.gif> 10x1 ()
+-  * img: <http://ycombinator.com/images/grayarrow.gif> x ()
+-  * img: <http://ycombinator.com/images/s.gif> 0x10 ()
+-  * script: <http://www.co2stats.com/propres.php?s=1138>
+-  * img: <http://ycombinator.com/images/s.gif> 15x1 ()
+-  * img: <http://ycombinator.com/images/hnsearch.png> x ()
+-  * img: <http://ycombinator.com/images/s.gif> 25x1 ()
+-  * img: <http://mixpanel.com/site_media/images/mixpanel_partner_logo_borderless.gif> x (Analytics by Mixpan.)
+- 
+- Imports: (2)  
+-  * link <http://ycombinator.com/news.css> (stylesheet)
+-  * link <http://ycombinator.com/favicon.ico> (shortcut icon)
+- 
+- Links: (141)  
+-  * a: <http://ycombinator.com>  ()
+-  * a: <http://news.ycombinator.com/news>  (Hacker News)
+-  * a: <http://news.ycombinator.com/newest>  (new)
+-  * a: <http://news.ycombinator.com/newcomments>  (comments)
+-  * a: <http://news.ycombinator.com/leaders>  (leaders)
+-  * a: <http://news.ycombinator.com/jobs>  (jobs)
+-  * a: <http://news.ycombinator.com/submit>  (submit)
+-  * a: <http://news.ycombinator.com/x?fnid=JKhQjfU7gW>  (login)
+-  * a: <http://news.ycombinator.com/vote?for=1094578&dir=up&whence=%6e%65%77%73>  ()
+-  * a: <http://www.readwriteweb.com/archives/facebook_gets_faster_debuts_homegrown_php_compiler.php?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+readwriteweb+%28ReadWriteWeb%29&utm_content=Twitter>  (Facebook speeds up PHP)
+-  * a: <http://news.ycombinator.com/user?id=mcxx>  (mcxx)
+-  * a: <http://news.ycombinator.com/item?id=1094578>  (9 comments)
+-  * a: <http://news.ycombinator.com/vote?for=1094649&dir=up&whence=%6e%65%77%73>  ()
+-  * a: <http://groups.google.com/group/django-developers/msg/a65fbbc8effcd914>  ("Tough. Django produces XHTML.")
+-  * a: <http://news.ycombinator.com/user?id=andybak>  (andybak)
+-  * a: <http://news.ycombinator.com/item?id=1094649>  (3 comments)
+-  * a: <http://news.ycombinator.com/vote?for=1093927&dir=up&whence=%6e%65%77%73>  ()
+-  * a: <http://news.ycombinator.com/x?fnid=p2sdPLE7Ce>  (More)
+-  * a: <http://news.ycombinator.com/lists>  (Lists)
+-  * a: <http://news.ycombinator.com/rss>  (RSS)
+-  * a: <http://ycombinator.com/bookmarklet.html>  (Bookmarklet)
+-  * a: <http://ycombinator.com/newsguidelines.html>  (Guidelines)
+-  * a: <http://ycombinator.com/newsfaq.html>  (FAQ)
+-  * a: <http://ycombinator.com/newsnews.html>  (News News)
+-  * a: <http://news.ycombinator.com/item?id=363>  (Feature Requests)
+-  * a: <http://ycombinator.com>  (Y Combinator)
+-  * a: <http://ycombinator.com/w2010.html>  (Apply)
+-  * a: <http://ycombinator.com/lib.html>  (Library)
+-  * a: <http://www.webmynd.com/html/hackernews.html>  ()
+-  * a: <http://mixpanel.com/?from=yc>  ()
+阅读更多JSOUP相关文章，请看专栏：[《使用JSOUP实现网络爬虫》](http://blog.csdn.net/column/details/jsoup.html)

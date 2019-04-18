@@ -1,25 +1,7 @@
 # 【LDA学习系列】M-H采样python代码 - 专注于数据挖掘算法研究和应用 - CSDN博客
-
-
-
-
-
-2018年05月19日 09:18:22[fjssharpsword](https://me.csdn.net/fjssharpsword)阅读数：480
-
-
-
-
-
-
-
-
+2018年05月19日 09:18:22[fjssharpsword](https://me.csdn.net/fjssharpsword)阅读数：481
 LDA说的比较利索参考：https://segmentfault.com/a/1190000012215533
-
 ![](https://img-blog.csdn.net/2018051909145981)
-
-
-
-
 ```python
 # -*- coding: utf-8 -*-
 '''
@@ -30,12 +12,10 @@ N:认为迭代N次马尔可夫链收敛
 Nlmax:马尔可夫链收敛后又取的服从p分布的样本数
 isMH:是否采用MH算法，默认为True
 '''
-
 from __future__ import division
 import matplotlib.pyplot as plt
 import numpy as np
 from array import array
-
 def mcmc(p,N=10000,Nlmax=10000,isMH=True):
     
     A = np.array([p for y in range(len(p))], dtype=np.float64) #第一步：构造转移概率矩阵
@@ -67,7 +47,6 @@ def mcmc(p,N=10000,Nlmax=10000,isMH=True):
     La = np.frombuffer(L)
     la = np.frombuffer(l)
     return La,la
-
 def count(q,n):
     L = array("d")
     l1 = array("d")
@@ -79,7 +58,6 @@ def count(q,n):
     for e in l1:
         l2.append(e/sum(l1))
     return l1,l2
-
 if __name__ == '__main__':    
     p = np.array([0.6,0.3,0.1]) 
     a = mcmc(p)[1]
@@ -88,7 +66,3 @@ if __name__ == '__main__':
     plt.title("sampling")
     plt.show()
 ```
-
-
-
-

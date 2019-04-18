@@ -1,9 +1,5 @@
-
 # 希尔伯特及其《几何学基础》电子版（英文PDF）， - 袁萌专栏 - CSDN博客
-
-2019年03月07日 10:08:59[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：164
-
-
+2019年03月07日 10:08:59[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：172
 希尔伯特的巨著《几何学基础》是现代公理化数学的源头与楷模。
 在此书发表一百周年之际，国外有人将其翻译成英文版发布在互联网上，任其传播，很有意义。在数学发展史上，希尔伯特《几何学基础》发表具有里程碑的意义。从此。数学进入公理化时代。
 本文附件是希尔伯特《几何学基础》电子版（英文PDF），值得阅读。值得注意的是，在希尔伯特公理系统中，点、线、面是不加定义的基本概念，只要满足该公理系统即可。
@@ -180,7 +176,7 @@ The axioms, which we have discussed in the previous chapter and have divided int
 Fig. 13.
 Furthermore, if, in the accompanying  gure, we represent the point (0,0) by O and the point (1,0) by E, then, corresponding to a rotation of the angle COE about O as a center, any point (x,y) is transformed into another point (x0,y0) so related that
 x0 =
-a √a2 +b2x
+a √a2 +b2x 
 b √a2 +b2y,
 y0 =
 b √a2 +b2x+
@@ -365,7 +361,7 @@ we easily deduce the equation
 F(P) = F(Q); that is to say, polygons of equal content have also equal measure of area. From this last statement, we obtain immediately the proof of theorem 28. If we denote the equal bases of the two triangles by g and the corresponding altitudes by h and h0, respectively, then we may conclude from the assumed equality of content of the two triangles that they must also have equal measures of area; that is to say, it follows that 1 2 gh = 1 2 gh0 and, consequently, dividing by 1 2g, we get h = h0,
 which is the statement made in theorem 28.
 §21. EQUALITY OF CONTENT AND THE MEASURE OF AREA.
-In § 20 we have found that polygons having equal content have also equal measures of area. The converse of this is also true. In order to prove the converse, let us consider two triangles ABC and AB0C0 having a common right angle at A. The measures of area of these two triangles are expressed by the formul
+In § 20 we have found that polygons having equal content have also equal measures of area. The converse of this is also true. In order to prove the converse, let us consider two triangles ABC and AB0C0 having a common right angle at A. The measures of area of these two triangles are expressed by the formul 
 F(ABC) =
 1 2
 AB AC,
@@ -680,4 +676,3 @@ Most people start at our Web site which has the main PG search facility:
 http://www.gutenberg.net
 This Web site includes information about Project Gutenberg-tm, including how to make donations to the Project Gutenberg Literary Archive Foundation, how to help produce our new eBooks, and how to subscribe to our email newsletter to hear about new eBooks.
 *** END: FULL LICENSE
-

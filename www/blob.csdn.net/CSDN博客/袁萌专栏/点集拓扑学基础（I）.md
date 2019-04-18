@@ -1,15 +1,9 @@
-
 # 点集拓扑学基础（I） - 袁萌专栏 - CSDN博客
-
-2019年03月23日 13:00:38[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：79
-
-
-点集拓扑学基础（I）
+2019年03月23日 13:00:38[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：82
 我们的目的是学懂、学透微积分。但是，只懂得欧几里得平面基本知识还不够，中间缺少欧几里得平面点集拓扑的概念。
 本文附件（英文）阐述了欧几里得平面点集拓扑的基本概念（I），值得一读。
 袁萌  陈启清  3月23日
-附件：
-Basic Concepts of Point Set Topology
+附件：**Basic Concepts of Point Set Topology**
 Notes for U course Math 4853 Spring 2011
 A. Miller
 1. Introduction.
@@ -94,5 +88,3 @@ Theorem 7.4. Let f : R→R be a function. Then f : (R,Teuclid) → (R,Teuclid) i
 Let (X,T) be a topological space, and let A be a subset of X. We deﬁne a collection TA of subsets of A by: TA = {V ⊂ A | V = U ∩A for some U ∈T} = {U ∩A | U ∈T} . Theorem 7.5. Let (X,T) be a topological space, and let A be a subset of X. Then TA forms a topology on A. This is called the subspace topology on A.
 Proof. I leave it to you to verify the four axioms (T1)–(T4) for a topology. Theorem 7.6. Let (X,T) be a topological space and let (A,TA) be a subspace. Then the inclusion map i : A → X is continuous. Proof. If U is an open set in X then i−1(U) = U ∩A and U ∩A ∈TA. Example 7.7. Consider the Euclidean line (R,Teuclid), and the subsets A1 = [0,4], A2 = [0,1]∪[3,4] and A3 = Z . We describe some aspects of the subspace topology on A1, A2 and A3. Subspace topology on A1: Notice that the interval [0,1) ⊂ A1 is open in the subspace topology on A1 since [0,1) = (−1,1)∩A1 and (−1,1) (being an open interval) is an open set in the Euclidean topology. On the other hand [0,1) is not an open set in the Euclidean topology on R. Subspace topology on A2: Since [0,1] = (−1,2)∩A2 and [3,4] = (2,5)∩A2, the sets [1,2] and [3,4] are open sets in the subspace topology on A2. Moreover, observe that A2 −[1,2] = [3,4] and it follows that [0,1] is a closed set in the subspace topology on A2. Subspace topology on A3: Let n an element of A3 = Z. Then the open interval (n− 1/2,n + 1/2) is an open set in the Euclidean line. Thus (n−1/2,n + 1/2)∩Z = {n} is an open set in the subspace topology on Z. This shows that every singleton subset {n} of Z is open in the subspace topology. If V is any subset of Z then V = ∪n∈V{n} so V is an open set by axiom (T3). This shows that the subspace topology on Z is the discrete topology.
 When A is a subset of Euclidean n-space Rn then we refer to the subspace topology as the Euclidean topology on A. Theorem 7.8. Let X and Y be topological spaces and let f : X → Y be a continuous function. Let A be a subset of X. Then the function g : A → f(A) deﬁned by g(a) = f(a) for each a ∈ A is continuous when A ⊆ X and f(A) ⊆ Y have the subspace topologies. Proof. Let f : X → Y be a continuous, let A ⊆ X and let g : A → f(A) be as deﬁned. Suppose U is an open subset of f(A) with the subspace topology. Then there is an open set U0 in Y so that U = U0∩f(A). Then g−1(U) = {a ∈ A | g(a) ∈ U} = {a ∈ A | g(a) ∈ U0} = {x ∈ X | f(x) ∈ U0}∩A = f−1(U0)∩A . Since f−1(U0) is open in X by the continuity of f, it follows that g−1(U) is open in the subspace topology on A. Therefore g : A → f(A) is continuous.
-
-

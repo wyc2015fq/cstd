@@ -1,22 +1,7 @@
 # 【LDA学习系列】Beta分布Python代码 - 专注于数据挖掘算法研究和应用 - CSDN博客
-
-
-
-
-
-2018年05月17日 10:32:37[fjssharpsword](https://me.csdn.net/fjssharpsword)阅读数：1237
-
-
-
-
-
-
-
-
+2018年05月17日 10:32:37[fjssharpsword](https://me.csdn.net/fjssharpsword)阅读数：1243
 ![](https://img-blog.csdn.net/20180517103130658)
-
 代码：
-
 ```python
 # -*- coding: utf-8 -*-
 '''
@@ -27,7 +12,6 @@ Created on 2018年5月15日
 from scipy.stats import beta
 import matplotlib.pyplot as plt
 import numpy as np
-
 def test_beta_distribution():
     
     fig, ax = plt.subplots(1, 1)
@@ -55,9 +39,7 @@ if __name__ == '__main__':
     
     test_beta_distribution()#beta分布
 ```
-
 结果：
-
 ```
 0.7865168539325842
 0.04264874077027537
@@ -66,9 +48,3 @@ if __name__ == '__main__':
 0.30981296354477267
 ```
 ![](https://img-blog.csdn.net/2018051710322996)
-
-
-
-
-
-

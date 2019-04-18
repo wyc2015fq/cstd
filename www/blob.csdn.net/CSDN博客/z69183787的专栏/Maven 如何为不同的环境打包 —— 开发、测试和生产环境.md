@@ -1,0 +1,64 @@
+# Maven 如何为不同的环境打包 —— 开发、测试和生产环境 - z69183787的专栏 - CSDN博客
+2016年11月29日 20:41:00[OkidoGreen](https://me.csdn.net/z69183787)阅读数：2072
+在开发过程中，我们的软件会面对不同的运行环境，比如开发环境、测试环境、生产环境，而我们的软件在不同的环境中，有的配置可能会不一样，比如数据源配置、日志文件配置、以及一些软件运行过程中的基本配置，那每次我们将软件部署到不同的环境时，都需要修改相应的配置文件，这样来回修改，是个很麻烦的事情。有没有一种方法能够让我们不用修改配置就能发布到不同的环境中呢？当然有，这就是接下来要做的事。
+当然，这里的前提是使用maven做为构建工具。
+使用maven来实现多环境的构建可移植性，需要借助maven提供的profile功能，通过不同的环境激活不同的profile来达到构建的可移植性。
+一、配置profile
+首先是profile配置，在pom.xml中添加如下profile的配置：　
+<profiles>
+    <profile>
+        <!-- 本地开发环境 -->
+        <id>dev</id>
+        <properties>
+            <profiles.active>dev</profiles.active>
+        </properties>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+    </profile>
+    <profile>
+        <!-- 测试环境 -->
+        <id>test</id>
+        <properties>
+            <profiles.active>test</profiles.active>
+        </properties>
+    </profile>
+    <profile>
+        <!-- 生产环境 -->
+        <id>product</id>
+        <properties>
+            <profiles.active>product</profiles.active>
+        </properties>
+    </profile>
+</profiles>
+二、配置文件
+针对不同的环境，我们定义不同的配置文件，而这些配置文件都做为资源文件放到maven工程的resources目录下，即src/main/resources目录下，
+且各个环境的配置分别放到相应的目录下，而所有环境都公用的配置，直接放到src/main/resources目录下或WEB-INF/目录下。如下图所示：
+![](http://images2015.cnblogs.com/blog/911439/201604/911439-20160414143240082-1833006754.png)
+三、maven资源插件配置
+　在配置文件在resource目录下时，可以直接如下配置：
+<build/>
+　　<filters>
+<filter>${project.basedir}/src/main/resources/environment/env-${profiles.active}.properties</filter>
+　　</filters>
+　　<resources>
+    　　<resource>
+        　　<directory>src/main/resources</directory>
+<filtering>true</filtering>
+    　　</resource>
+　　</resources>
+</build>
+但是当配置文件在WEB-INF目录下时，需要增加如下配置：
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-war-plugin</artifactId>
+    <configuration>
+        <warName>acfun-online</warName>
+        <webResources>
+            <resource>
+                <directory>src/main/webapp</directory>
+<filtering>true</filtering>
+            </resource>
+        </webResources>
+    </configuration>
+</plugin>

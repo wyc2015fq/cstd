@@ -1,0 +1,328 @@
+# C++线程锁封装 - gauss的专栏 - CSDN博客
+2015年04月16日 14:31:09[gauss](https://me.csdn.net/mathlmx)阅读数：411
+C++线程锁的封装，主要提供lock,unlock,require等操作，需要注意的是线程重复获取锁的问题，设置了一个count的计数器，该计算器之所以不考虑++，--的原子操作的问题，是因为该计数器本身就在lock与unlock中，所以本身是线程安全的。
+另外mutable count是将count的变化操作防止在const方法中，保证方法语义。
+- class TC_ThreadCond;  
+- 
+- /**
+-  * 线程互斥对象
+-  */
+- struct TC_ThreadMutex_Exception : public TC_Lock_Exception  
+- {  
+-     TC_ThreadMutex_Exception(const string &buffer) : TC_Lock_Exception(buffer){};  
+-     TC_ThreadMutex_Exception(const string &buffer, int err) : TC_Lock_Exception(buffer, err){};  
+-     ~TC_ThreadMutex_Exception() throw() {};  
+- };  
+- 
+- /**
+- * 线程锁
+- */
+- class TC_ThreadMutex  
+- {  
+- public:  
+- 
+-     TC_ThreadMutex();  
+- virtual ~TC_ThreadMutex();  
+- 
+- /**
+-      * 加锁
+-      */
+- void lock() const;  
+- 
+- /**
+-      * 尝试锁
+-      * 
+-      * @return bool
+-      */
+- bool tryLock() const;  
+- 
+- /**
+-      * 解锁
+-      */
+- void unlock() const;  
+- 
+- /**
+-      * 加锁后调用unlock是否会解锁, 给TC_Monitor使用的
+-      * 永远返回true
+-      * 
+-      * @return bool
+-      */
+- bool willUnlock() const { returntrue;}  
+- 
+- protected:  
+- 
+- // noncopyable
+-     TC_ThreadMutex(const TC_ThreadMutex&);  
+- void operator=(const TC_ThreadMutex&);  
+- 
+- /**
+-      * 计数
+-      */
+- int count() const;  
+- 
+- /**
+-      * 计数
+-      */
+- void count(int c) const;  
+- 
+- friendclass TC_ThreadCond;  
+- 
+- protected:  
+- mutable pthread_mutex_t _mutex;  
+- 
+- };  
+- 
+- /**
+- * 线程锁类
+- * 采用线程库实现
+- **/
+- class TC_ThreadRecMutex  
+- {  
+- public:  
+- 
+- /**
+-     * 构造函数
+-     */
+-     TC_ThreadRecMutex();  
+- 
+- /**
+-     * 析够函数
+-     */
+- virtual ~TC_ThreadRecMutex();  
+- 
+- /**
+-     * 锁, 调用pthread_mutex_lock
+-     * return : 返回pthread_mutex_lock的返回值
+-     */
+- int lock() const;  
+- 
+- /**
+-     * 解锁, pthread_mutex_unlock
+-     * return : 返回pthread_mutex_lock的返回值
+-     */
+- int unlock() const;  
+- 
+- /**
+-     * 尝试锁, 失败抛出异常
+-     * return : true, 成功锁; false 其他线程已经锁了
+-     */
+- bool tryLock() const;  
+- 
+- /**
+-      * 加锁后调用unlock是否会解锁, 给TC_Monitor使用的
+-      * 
+-      * @return bool
+-      */
+- bool willUnlock() const;  
+- protected:  
+- 
+- /**
+-      * 友元类
+-      */
+- friendclass TC_ThreadCond;  
+- 
+- /**
+-      * 计数
+-      */
+- int count() const;  
+- 
+- /**
+-      * 计数
+-      */
+- void count(int c) const;  
+- 
+- private:  
+- /**
+-     锁对象
+-     */
+- mutable pthread_mutex_t _mutex;  
+- mutableint _count;  
+- };  
+- TC_ThreadMutex::TC_ThreadMutex()  
+- {  
+- int rc;  
+-     pthread_mutexattr_t attr;  
+-     rc = pthread_mutexattr_init(&attr);  
+-     assert(rc == 0);  
+- 
+-     rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);  
+-     assert(rc == 0);  
+- 
+-     rc = pthread_mutex_init(&_mutex, &attr);  
+-     assert(rc == 0);  
+- 
+-     rc = pthread_mutexattr_destroy(&attr);  
+-     assert(rc == 0);  
+- 
+- if(rc != 0)  
+-     {xxx  
+- throw TC_ThreadMutex_Exception("[TC_ThreadMutex::TC_ThreadMutex] pthread_mutexattr_init error", rc);  
+-     }  
+- }  
+- 
+- TC_ThreadMutex::~TC_ThreadMutex()  
+- {  
+- int rc = 0;  
+-     rc = pthread_mutex_destroy(&_mutex);  
+-     assert(rc == 0);  
+- }  
+- 
+- void TC_ThreadMutex::lock() const
+- {  
+- int rc = pthread_mutex_lock(&_mutex);  
+- if(rc != 0)  
+-     {  
+- if(rc == EDEADLK)  
+-         {  
+- throw TC_ThreadMutex_Exception("[TC_ThreadMutex::lock] pthread_mutex_lock dead lock error", rc);  
+-         }  
+- else
+-         {  
+- throw TC_ThreadMutex_Exception("[TC_ThreadMutex::lock] pthread_mutex_lock error", rc);  
+-         }  
+-     }  
+- }  
+- 
+- bool TC_ThreadMutex::tryLock() const
+- {  
+- int rc = pthread_mutex_trylock(&_mutex);  
+- if(rc != 0 && rc != EBUSY)  
+-     {  
+- if(rc == EDEADLK)  
+-         {  
+- throw TC_ThreadMutex_Exception("[TC_ThreadMutex::tryLock] pthread_mutex_trylock dead lock error", rc);  
+-         }  
+- else
+-         {  
+- throw TC_ThreadMutex_Exception("[TC_ThreadMutex::tryLock] pthread_mutex_trylock error", rc);  
+-         }  
+-     }  
+- return (rc == 0);  
+- }  
+- 
+- void TC_ThreadMutex::unlock() const
+- {  
+- int rc = pthread_mutex_unlock(&_mutex);  
+- if(rc != 0)  
+-     {  
+- throw TC_ThreadMutex_Exception("[TC_ThreadMutex::unlock] pthread_mutex_unlock error", rc);  
+-     }  
+- }  
+- 
+- int TC_ThreadMutex::count() const
+- {  
+- return 0;  
+- }  
+- 
+- void TC_ThreadMutex::count(int c) const
+- {  
+- }  
+- 
+- ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+- TC_ThreadRecMutex::TC_ThreadRecMutex()  
+- : _count(0)  
+- {  
+- int rc;  
+- 
+-     pthread_mutexattr_t attr;  
+-     rc = pthread_mutexattr_init(&attr);  
+- if(rc != 0)  
+-     {  
+- throw TC_ThreadMutex_Exception("[TC_ThreadRecMutex::TC_ThreadRecMutex] pthread_mutexattr_init error", rc);  
+-     }  
+-     rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);  
+- if(rc != 0)  
+-     {  
+- throw TC_ThreadMutex_Exception("[TC_ThreadRecMutex::TC_ThreadRecMutex] pthread_mutexattr_settype error", rc);  
+-     }  
+- 
+-     rc = pthread_mutex_init(&_mutex, &attr);  
+- if(rc != 0)  
+-     {  
+- throw TC_ThreadMutex_Exception("[TC_ThreadRecMutex::TC_ThreadRecMutex] pthread_mutex_init error", rc);  
+-     }  
+- 
+-     rc = pthread_mutexattr_destroy(&attr);  
+- if(rc != 0)  
+-     {  
+- throw TC_ThreadMutex_Exception("[TC_ThreadRecMutex::TC_ThreadRecMutex] pthread_mutexattr_destroy error", rc);  
+-     }  
+- }  
+- 
+- TC_ThreadRecMutex::~TC_ThreadRecMutex()  
+- {  
+- while (_count)  
+-     {  
+-         unlock();  
+-     }  
+- 
+- int rc = 0;  
+-     rc = pthread_mutex_destroy(&_mutex);  
+-     assert(rc == 0);  
+- }  
+- 
+- int TC_ThreadRecMutex::lock() const
+- {  
+- int rc = pthread_mutex_lock(&_mutex);  
+- if(rc != 0)  
+-     {  
+- throw TC_ThreadMutex_Exception("[TC_ThreadRecMutex::lock] pthread_mutex_lock error", rc);  
+-     }  
+- 
+- if(++_count > 1)  
+-     {  
+-         rc = pthread_mutex_unlock(&_mutex);  
+-         assert(rc == 0);  
+-     }  
+- 
+- return rc;  
+- }  
+- 
+- int TC_ThreadRecMutex::unlock() const
+- {  
+- if(--_count == 0)  
+-     {  
+- int rc = 0;  
+-         rc = pthread_mutex_unlock(&_mutex);  
+- return rc;  
+-     }  
+- return 0;  
+- }  
+- 
+- bool TC_ThreadRecMutex::tryLock() const
+- {  
+- int rc = pthread_mutex_trylock(&_mutex);  
+- if(rc != 0 )  
+-     {  
+- if(rc != EBUSY)  
+-         {  
+- throw TC_ThreadMutex_Exception("[TC_ThreadRecMutex::tryLock] pthread_mutex_trylock error", rc);  
+-         }  
+-     }  
+- elseif(++_count > 1)  
+-     {  
+-         rc = pthread_mutex_unlock(&_mutex);  
+- if(rc != 0)  
+-         {  
+- throw TC_ThreadMutex_Exception("[TC_ThreadRecMutex::tryLock] pthread_mutex_unlock error", rc);  
+-         }  
+-     }  
+- return (rc == 0);  
+- }  
+- 
+- bool TC_ThreadRecMutex::willUnlock() const
+- {  
+- return _count == 1;  
+- }  
+- 
+- int TC_ThreadRecMutex::count() const
+- {  
+- int c   = _count;  
+-     _count  = 0;  
+- return c;  
+- }  
+- 
+- void TC_ThreadRecMutex::count(int c) const
+- {  
+-     _count = c;  
+- }  

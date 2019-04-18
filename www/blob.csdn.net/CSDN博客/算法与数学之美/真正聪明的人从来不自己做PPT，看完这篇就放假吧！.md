@@ -1,0 +1,120 @@
+# 真正聪明的人从来不自己做PPT，看完这篇就放假吧！ - 算法与数学之美 - CSDN博客
+2017年10月17日 00:00:00[算法与数学之美](https://me.csdn.net/FnqTyr45)阅读数：312
+你做PPT的时候是什么样的？
+ 从完全空白的页面开始新建…… 
+ 从垃圾箱里翻不小心删除的素材…… 
+ 用已经用了三四遍的模板修修改改…… 
+搞定初稿就已经是凌晨三点
+优化内容？
+呵呵
+人家的PPT高效还美
+而你的又丑又慢还全是错
+因为你的PPT打开方式
+根本就是错的！
+真正聪明的人
+从来不自己做PPT
+![0?wx_fmt=gif&wxfrom=5&wx_lazy=1&retryload=1](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_gif/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzojdKEJhic5PBicFw12cmicHep16Ah8V8nbpZV4y5XRMOX2U1A1hibuH0SA/0?wx_fmt=gif&wxfrom=5&wx_lazy=1&retryload=1)
+姜小白是我的同事，传说中的PPT废手。每次他做出来的PPT都得重改好几次，被老板骂得狗血喷头，隔着好几个办工作都能听到。
+“你能不能用心点？！一个PPT都能做成这样！框架给我优化！内容再丰富一点行不行？还有整体风格，你能不能把它们弄统一了？！你去跟人家懒哥学学！”
+顶着两个黑眼圈的小白委屈巴巴地站在办公室听训。说实在的，真不是不用心，天天加班搞PPT，他也很心累啊……
+“国庆节回来给我！”
+老大怒气冲冲地转身离开，而姜小白的国庆节似乎已经结束了。
+懒哥的PPT做得好？
+我在心里冷笑一声。
+他的PPT全公司最棒这没错，但是别人不知道，我可一清二楚。他那么懒的人，可是从来都不自己做PPT的好么！
+
+「
+懒人法则一.
+能用模板就别自己造
+」
+“懒哥，你的PPT是怎么出来的呀~~"
+“就用模板啊……”
+小白看了看懒哥Q4的计划，虽然套用了模板，但是结构框架非常清晰。
+“你想破头的东西，其实别人早就做过了，其实不如看看他们思路再开工，别自己瞎整，事半功倍嘛！”
+懒哥瘫在椅子里一边打王者荣耀一边说。
+先看优秀模板的思路，再自己模仿。好的框架原来是这样出来的。
+姜小白一脸的原来如此。同样抄模板，懒哥已然是抄出了心得……
+（根据模板学习思路，事半功倍）
+![0?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYz6EQ5wuukXZIcyOgtxRcmltSTV31WdNqt1dgCUxKPfayVscNPNic08bw/0?wx_fmt=jpeg)
+![0?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYz7ZdrBCSwEBlRbobBuNZW8YXdVQ5HhISWn4M1wkqicKWynJWOnvich9vw/0?wx_fmt=jpeg)
+![0?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzL4CtOPGibtWSHWZgTksd50CiabvkpMsp1ZibmkXHjMX3YHhj26ldRnxjw/0?wx_fmt=jpeg)
+
+「
+懒人法则二.
+模板别生搬硬套
+」
+“可是我用模板，每次都怪怪的，光找好看的模板就头疼。”小白忍不住抱怨。
+“其实模板，不是光看哪个好看，得看整体框架能不能用。科技型的模板再酷炫，你也不能用到党政的单位里吧？不能全搬照抄，单纯的拿来主义是不行滴。”
+一边说着，懒哥一遍打开正在用的素材给姜小白看。
+果然，虽然不是最酷炫的效果，但却很适合。
+（效果简单，但是成品惊艳）
+![0?wx_fmt=png](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_png/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzrYMQ51tBriaZks4uiaNtjc4quuPCGl6fQVTJ7ZicL07gwZWkKKvE9TIDA/0?wx_fmt=png)
+![0?wx_fmt=png](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_png/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzAn1m50bHQwdmXZyqSzibKxIQwy6QhQjY7QSacicCIQZAC8eYEl2dJr6A/0?wx_fmt=png)
+
+「
+懒人法则三.
+数据素材随机应变
+」
+小白发现，懒哥虽然套了模板，但是并没有照抄不误。换了封面，改了图片，还增加了一些更加合适的素材。
+“的确是很不错啊……”他暗暗心想。
+依着大神的葫芦画瓢，框架清晰了，整体的风格也统一很多。
+“懒哥，还有个问题。模板里的好多图表都用不上咋办呢？”
+“你比我还懒，什么数据就用什么样的素材呗。模板不能照抄，你得灵活运用哈。”说着，懒哥打开一个全是图表数据的文件夹，看的姜小白目瞪口呆。
+（不同图表，灵活运用）
+![0?wx_fmt=png](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_png/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzOiafKoJOC9MJdWMruS6VsiaCLmic112Ynub4remxsZ0Ixe0SJ9sAHvDgQ/0?wx_fmt=png)
+
+「
+懒人法则四.
+省下时间提升内容
+」
+“懒哥，那你这些内容是怎么整出来的呢”小白决定一问到底。
+“你把做PPT的时间省下来，当然要好好花功夫做内容啊。”懒哥抬起头震惊地看着小白，一脸“你这都要问我”。
+在内容上，懒哥不仅不偷懒，反而花更多功夫。难怪老板每次都赞赏有加。
+“自己不做PPT，而是用省下的时间去做好内容，懒哥还真有你的！”
+（省下做图的2小时，可以做出更好的数据和内容）
+![0?wx_fmt=gif](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_gif/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzbow0Fib7xdic8a6epfC1iboh8SXSnvQ4noq4MbLsE7zpCC8uWjkBdIkxw/0?wx_fmt=gif)
+等等！
+懒哥的这些好东西都是从哪儿来的？
+为什么我百度搜到的都是城乡结合部风格，淘宝买到的都是又土又low还各种问题？
+莫非……
+是我爱PPT和夏影老师联合推出的一整年的包年PPT模板服务！！！
+一共12期
+每期至少更新17套模板4套原创图表
+从此再也不用自己做PPT！
+▼
+![0?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzlS50NP19ckuLLAzu7zGKFIQpyyTFyRoTAW4d3Ct4ibYCe6oibrDibIgoQ/0?wx_fmt=jpeg)
+《职场必备——夏影原创模板PPT模板包》
+专为职场懒人开发
+方便上手，能够操作的模板
+不间断更新
+每次更新原创模板不少于10套
+原价199，现价99元
+后期持续更新中
+![0?wx_fmt=png](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_png/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzgbOkFPj2HKylewGZianQT5w5OT8f7WJicTs2vJic0PetnmU2RZ5659hAg/0?wx_fmt=png)
+长按二维码，立即开启学习！
+（课程内容有多棒，继续下拉就知道）
+课 程 内 容
+主讲人
+@夏影 
+(Xia Ying)
+演界网第一卖家
+资深开发PPT PPT定制美化 PPT培训
+AE视频制作 AE电子相册制
+为国内300多家企业提供过PPT设计服务
+长期从事PPT方案解决
+重应用，善启发
+这是一套专为职场懒人打造的PPT模板。他帮你把痛苦制作PPT框架、堆砌素材的过程，变成依大神的葫芦画瓢的过程。
+省去创造一套PPT的辛苦，从此远离又费力又丑又不被老板认可的结果！
+![0?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYztD7kfPFm4UicWQ88sicO63ws8I5WrLD8g2xsy6xqSEW1S4CeTmIYGbyg/0?wx_fmt=jpeg)![0?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzDL8drvJc17mDNDUDcI6jfKhwOz46yZRodftPruK5FMr7tHJbmr6Vtg/0?wx_fmt=jpeg)![0?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYznBLkqLD9ORtXH8JlG75zJmQNtd84TQI6EcKlsXTr9ksctOBVJWvwPw/0?wx_fmt=jpeg)![0?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzwFAt8VuW3rtWEyQzetznrqyoAib3Ss7Dibc9e4YwYA6KIXwXQxUibq7qg/0?wx_fmt=jpeg)![0?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzibY8ibCicUUWQxMHCtn3s6IibwvgkLUFxAoSiaDwFlFicWer8wM6Q2yq1U0A/0?wx_fmt=jpeg)![0?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzGuDf4Ms8MauLNQXdMYCW6ABHiaHj4sRzicZhmT60qWcg8us0dy347uSQ/0?wx_fmt=jpeg)![0?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzq1XLDFdTlAAee1AsnGbNgAica1ibR0OJdibalMubvZel0LDC87oLkuIUw/0?wx_fmt=jpeg)![0?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzRu2AYD1hAJ07CSX4Jv32ZqwHSL2IrFA5t7BqtagUiagibGpAsKFibe3zQ/0?wx_fmt=jpeg)![0?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzAtcfINHCaswA3DfCPppEcJFiadn0nmvosq6Nq9cISmp96ich7ZoZYBRg/0?wx_fmt=jpeg)
+ 300页国内精品原创 
+ +6套国外精品模板 
+ +多种配色方案 
+ +250页微立体图表 
+ x12个月 
+全部仅需
+99元！
+少看两场电影，全年不做PPT！
+《职场必备——夏影原创模板PPT模板包》
+最高效的职场应用
+长按下方二维码立即拥有！
+![0?wx_fmt=png](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_png/951TjTgiabkxtyp8lZwkxfziaJ5qn32DYzgbOkFPj2HKylewGZianQT5w5OT8f7WJicTs2vJic0PetnmU2RZ5659hAg/0?wx_fmt=png)

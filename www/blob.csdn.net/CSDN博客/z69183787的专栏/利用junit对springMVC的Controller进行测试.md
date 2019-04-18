@@ -1,0 +1,135 @@
+# 利用junit对springMVC的Controller进行测试 - z69183787的专栏 - CSDN博客
+2018年04月08日 16:22:59[OkidoGreen](https://me.csdn.net/z69183787)阅读数：123
+个人分类：[测试-Junit																[SpringMvc-单元测试](https://blog.csdn.net/z69183787/article/category/7572316)](https://blog.csdn.net/z69183787/article/category/2758411)
+[http://zhangzhaoaaa.iteye.com/blog/2200096?utm_source=tuicool](http://zhangzhaoaaa.iteye.com/blog/2200096?utm_source=tuicool)
+ 平时对junit测试service/DAO层已经很熟悉不过了，如果不了解，可以[猛戳这里](http://zhangzhaoaaa.iteye.com/admin/blogs/2033355)，但是我们要测试controller层，不能总重启服务器吧，（重启tomcat好慢的飘过，别。。。别走啊），那么我们就用junit4模拟请求，测试controller层的方法。
+         代码1：直接Controller调用方法
+Java代码  ![收藏代码](http://zhangzhaoaaa.iteye.com/images/icon_star.png)
+- importstatic org.junit.Assert.*;  
+- 
+- import java.sql.SQLException;  
+- 
+- import org.junit.Before;  
+- import org.junit.Test;  
+- import org.junit.runner.RunWith;  
+- import org.springframework.beans.factory.annotation.Autowired;  
+- import org.springframework.mock.web.MockHttpServletRequest;  
+- import org.springframework.mock.web.MockHttpServletResponse;  
+- import org.springframework.test.context.ContextConfiguration;  
+- import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;  
+- 
+- import com.zz.login.web.LoginController;  
+- 
+- /**
+-  * @author zhzh
+-  * 2015-4-7
+-  */
+- @RunWith(SpringJUnit4ClassRunner.class)    
+- @ContextConfiguration({"classpath*:/beans.xml","classpath*:/spring-mvc.xml"})    
+- publicclass TestController {  
+- 
+- // 模拟request,response  
+- private MockHttpServletRequest request;    
+- private MockHttpServletResponse response;     
+- 
+- // 注入loginController  
+- @Autowired
+- private LoginController loginController ;    
+- 
+- // 执行测试方法之前初始化模拟request,response  
+- @Before
+- publicvoid setUp(){      
+-         request = new MockHttpServletRequest();        
+-         request.setCharacterEncoding("UTF-8");        
+-         response = new MockHttpServletResponse();        
+-     }           
+- /** 
+-      *  
+-      * @Title：testLogin 
+-      * @Description: 测试用户登录   
+-      */
+- @Test
+- publicvoid testLogin() {     
+- try {    
+-             request.setParameter("userName", "admin");  
+-             request.setParameter("password", "2");  
+-             assertEquals("login",loginController.loginIn(request,response)) ;    
+-         } catch (Exception e) {    
+-             e.printStackTrace();    
+-         }    
+-     }    
+- }  
+    代码2：调用请求路径
+Java代码  ![收藏代码](http://zhangzhaoaaa.iteye.com/images/icon_star.png)
+- importstatic org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;  
+- importstatic org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;  
+- importstatic org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;  
+- importstatic org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;  
+- 
+- import org.junit.Before;  
+- import org.junit.Test;  
+- import org.junit.runner.RunWith;  
+- import org.springframework.beans.factory.annotation.Autowired;  
+- import org.springframework.test.context.ContextConfiguration;  
+- import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;  
+- import org.springframework.test.context.transaction.TransactionConfiguration;  
+- import org.springframework.test.context.web.WebAppConfiguration;  
+- import org.springframework.test.web.servlet.MockMvc;  
+- import org.springframework.transaction.annotation.Transactional;  
+- import org.springframework.web.context.WebApplicationContext;  
+- 
+- /**
+-  * @author zhzh
+-  * 2015-4-7
+-  */
+- @RunWith(SpringJUnit4ClassRunner.class)    
+- @WebAppConfiguration
+- @ContextConfiguration({"classpath*:/beans.xml","classpath*:/spring-mvc.xml"})   
+- //当然 你可以声明一个事务管理 每个单元测试都进行事务回滚 无论成功与否  
+- @TransactionConfiguration(defaultRollback = true)    
+- @Transactional
+- publicclass TestController2 {  
+- @Autowired
+- private WebApplicationContext wac;    
+- 
+- private MockMvc mockMvc;   
+- 
+- @Before
+- publicvoid setup() {     
+- this.mockMvc = webAppContextSetup(this.wac).build();    
+-     }   
+- 
+- @Test
+- publicvoid testLogin() throws Exception {    
+-         mockMvc.perform((post("/loginTest").param("userName", "admin").param("password", "1"))).andExpect(status().isOk())    
+-                 .andDo(print());    
+-     }   
+- 
+- /*@Test  
+-     //有些单元测试你不希望回滚  
+-     @Rollback(false)  
+-     public void testInsert() throws Exception {  
+-         mockMvc.perform((post("/insertTest"))).andExpect(status().isOk())  
+-                 .andDo(print());  
+-     } */
+- }  
+**注意：import static 的spring类**
+代码3：
+    LoginController代码片段
+Java代码  ![收藏代码](http://zhangzhaoaaa.iteye.com/images/icon_star.png)
+- /**
+-      * 登录入口
+-      * @param request
+-      * @param response
+-      * @return
+-      */
+- @RequestMapping(value = "/loginTest", method = RequestMethod.POST)  
+- public String loginTest(HttpServletRequest request,HttpServletResponse response){  
+-         String account = request.getParameter("userName");  
+-         String password = request.getParameter("password");  
+- if (account.equals("admin")&&password.equals("1")){  
+- return"index";  
+-         }else{  
+- return"login";  
+-         }  
+-     }  

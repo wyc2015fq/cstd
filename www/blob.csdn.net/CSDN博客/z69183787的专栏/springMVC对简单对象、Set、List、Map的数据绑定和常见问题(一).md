@@ -1,0 +1,150 @@
+# springMVC对简单对象、Set、List、Map的数据绑定和常见问题(一) - z69183787的专栏 - CSDN博客
+2016年08月20日 14:03:10[OkidoGreen](https://me.csdn.net/z69183787)阅读数：1954
+**1、相关的类：**
+查看spring源码可以看出spring支持转换的数据类型：
+**org.springframework.beans.PropertyEditorRegistrySupport**:
+- 
+- **private****void** createDefaultEditors() {  
+- **this**.defaultEditors = **new** HashMap(64);  
+- 
+- // Simple editors, without parameterization capabilities.
+- // The JDK does not contain a default editor for any of these target types.
+- **this**.defaultEditors.put(Charset.**class**, **new** CharsetEditor());  
+- **this**.defaultEditors.put(Class.**class**, **new** ClassEditor());  
+- **this**.defaultEditors.put(Class[].**class**, **new** ClassArrayEditor());  
+- **this**.defaultEditors.put(Currency.**class**, **new** CurrencyEditor());  
+- **this**.defaultEditors.put(File.**class**, **new** FileEditor());  
+- **this**.defaultEditors.put(InputStream.**class**, **new** InputStreamEditor());  
+- **this**.defaultEditors.put(InputSource.**class**, **new** InputSourceEditor());  
+- **this**.defaultEditors.put(Locale.**class**, **new** LocaleEditor());  
+- **this**.defaultEditors.put(Pattern.**class**, **new** PatternEditor());  
+- **this**.defaultEditors.put(Properties.**class**, **new** PropertiesEditor());  
+- **this**.defaultEditors.put(Resource[].**class**, **new** ResourceArrayPropertyEditor());  
+- **this**.defaultEditors.put(TimeZone.**class**, **new** TimeZoneEditor());  
+- **this**.defaultEditors.put(URI.**class**, **new** URIEditor());  
+- **this**.defaultEditors.put(URL.**class**, **new** URLEditor());  
+- **this**.defaultEditors.put(UUID.**class**, **new** UUIDEditor());  
+- 
+- // Default instances of collection editors.
+- // Can be overridden by registering custom instances of those as custom editors.
+- **this**.defaultEditors.put(Collection.**class**, **new** CustomCollectionEditor(Collection.**class**));  
+- **this**.defaultEditors.put(Set.**class**, **new** CustomCollectionEditor(Set.**class**));  
+- **this**.defaultEditors.put(SortedSet.**class**, **new** CustomCollectionEditor(SortedSet.**class**));  
+- **this**.defaultEditors.put(List.**class**, **new** CustomCollectionEditor(List.**class**));  
+- **this**.defaultEditors.put(SortedMap.**class**, **new** CustomMapEditor(SortedMap.**class**));  
+- 
+- // Default editors for primitive arrays.
+- **this**.defaultEditors.put(**byte**[].**class**, **new** ByteArrayPropertyEditor());  
+- **this**.defaultEditors.put(**char**[].**class**, **new** CharArrayPropertyEditor());  
+- 
+- // The JDK does not contain a default editor for char!
+- **this**.defaultEditors.put(**char**.**class**, **new** CharacterEditor(**false**));  
+- **this**.defaultEditors.put(Character.**class**, **new** CharacterEditor(**true**));  
+- 
+- // Spring's CustomBooleanEditor accepts more flag values than the JDK's default editor.
+- **this**.defaultEditors.put(**boolean**.**class**, **new** CustomBooleanEditor(**false**));  
+- **this**.defaultEditors.put(Boolean.**class**, **new** CustomBooleanEditor(**true**));  
+- 
+- // The JDK does not contain default editors for number wrapper types!
+- // Override JDK primitive number editors with our own CustomNumberEditor.
+- **this**.defaultEditors.put(**byte**.**class**, **new** CustomNumberEditor(Byte.**class**, **false**));  
+- **this**.defaultEditors.put(Byte.**class**, **new** CustomNumberEditor(Byte.**class**, **true**));  
+- **this**.defaultEditors.put(**short**.**class**, **new** CustomNumberEditor(Short.**class**, **false**));  
+- **this**.defaultEditors.put(Short.**class**, **new** CustomNumberEditor(Short.**class**, **true**));  
+- **this**.defaultEditors.put(**int**.**class**, **new** CustomNumberEditor(Integer.**class**, **false**));  
+- **this**.defaultEditors.put(Integer.**class**, **new** CustomNumberEditor(Integer.**class**, **true**));  
+- **this**.defaultEditors.put(**long**.**class**, **new** CustomNumberEditor(Long.**class**, **false**));  
+- **this**.defaultEditors.put(Long.**class**, **new** CustomNumberEditor(Long.**class**, **true**));  
+- **this**.defaultEditors.put(**float**.**class**, **new** CustomNumberEditor(Float.**class**, **false**));  
+- **this**.defaultEditors.put(Float.**class**, **new** CustomNumberEditor(Float.**class**, **true**));  
+- **this**.defaultEditors.put(**double**.**class**, **new** CustomNumberEditor(Double.**class**, **false**));  
+- **this**.defaultEditors.put(Double.**class**, **new** CustomNumberEditor(Double.**class**, **true**));  
+- **this**.defaultEditors.put(BigDecimal.**class**, **new** CustomNumberEditor(BigDecimal.**class**, **true**));  
+- **this**.defaultEditors.put(BigInteger.**class**, **new** CustomNumberEditor(BigInteger.**class**, **true**));  
+- 
+- // Only register config value editors if explicitly requested.
+- **if** (**this**.configValueEditorsActive) {  
+-         StringArrayPropertyEditor sae = **new** StringArrayPropertyEditor();  
+- **this**.defaultEditors.put(String[].**class**, sae);  
+- **this**.defaultEditors.put(**short**[].**class**, sae);  
+- **this**.defaultEditors.put(**int**[].**class**, sae);  
+- **this**.defaultEditors.put(**long**[].**class**, sae);  
+-     }  
+- }  
+**2、基本数据类型绑定：**
+- @RequestMapping("test.do")    
+- **public****void** test(**int** num) {    
+- 
+- }   
+- "test.do" method="post">  
+- "num" value="10" type="text"/>  
+-    ......  
+- 
+注意：表单中input的name值和Controller的参数变量名保持一致，就能完成基本数据类型的数据绑定，如果不一致可以使用@RequestParam标注实现。值得一提的是，如果Controller方法参数中定义的是基本数据类型，但是从jsp提交过来的数据为null或者""的话，会出现数据转换的异常。也就是说，必须保证表单传递过来的数据不能为null或""，所以，在开发过程中，对可能为空的数据，最好将参数数据类型定义成包装类型。
+**3、包装类型**
+- @RequestMapping("test.do")  
+- **public****void** test(Integer num) {  
+- 
+- }  
+- "test.do" method="post">  
+- "num" value="10" type="text"/>  
+-    ......  
+- 
+和基本数据类型基本一样，不同之处在于，JSP表单传递过来的数据可以为null或""，以上面代码为例，如果jsp中num为""或者表单中无num这个input，那么，Controller方法参数中的num值则为null。
+**4、自定义对象类型**
+- **public****class** User {  
+- 
+- **private** String firstName;  
+- 
+- **private** String lastName;  
+- 
+-     ...  
+- 
+- }  
+- @RequestMapping("test.do")  
+- **public****void** test(User user) {  
+- 
+- }  
+- "test.do" method="post">  
+- "firstName" value="张" type="text"/>  
+- "lastName" value="三" type="text"/>  
+-    ......  
+- 
+只需将对象的属性名和input的name值一一对应即可。
+**5、自定义复合对象类型**
+- **public****class** ContactInfo {  
+- 
+- **private** String tel;  
+- 
+- **private** String address;  
+- 
+-     。。。  
+- 
+- }  
+- 
+- **public****class** User {  
+- 
+- **private** String firstName;  
+- 
+- **private** String lastName;  
+- 
+- **private** ContactInfo contactInfo;  
+- 
+-     。。。  
+- 
+- }  
+- @RequestMapping("test.do")  
+- **public****void** test(User user) {  
+-     System.out.println(user.getFirstName());  
+-     System.out.println(user.getLastName());  
+-     System.out.println(user.getContactInfo().getTel());  
+-     System.out.println(user.getContactInfo().getAddress());  
+- }  
+- **<</span>formaction="test.do"method="post">**
+- **<</span>inputname="firstName"value="张"/><</span>br>**
+- **<</span>inputname="lastName"value="三"/><</span>br>**
+- **<</span>inputname="contactInfo.tel"value="13809908909"/><</span>br>**
+- **<</span>inputname="contactInfo.address"value="北京海淀"/><</span>br>**
+- **<</span>inputtype="submit"value="Save"/>**
+- **</</span>form>**
+User对象中有ContactInfo属性，Controller中的代码和第3点说的一致，但是，在jsp代码中，需要使用“属性名(对象类型的属性).属性名”来命名input的name。

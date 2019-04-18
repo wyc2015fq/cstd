@@ -1,0 +1,144 @@
+# JAVA实现实用的ZIP压缩与解压 - z69183787的专栏 - CSDN博客
+2014年08月14日 11:10:47[OkidoGreen](https://me.csdn.net/z69183787)阅读数：3495
+程序实现了ZIP压缩。共分为2部分 ： 压缩（compression）与解压（decompression）
+大致功能包括用了多态，递归等JAVA核心技术，可以对单个文件和任意级联文件夹进行压缩和解压。 需在代码中自定义源输入路径和目标输出路径。 
+**[java]**[view
+ plain](http://blog.csdn.net/gaowen_han/article/details/7163737/#)[copy](http://blog.csdn.net/gaowen_han/article/details/7163737/#)
+- package com.han;  
+- 
+- import java.io.*;  
+- import java.util.zip.*;  
+- 
+- /**
+-  * 程序实现了ZIP压缩。共分为2部分 ： 压缩（compression）与解压（decompression）
+-  * <p>
+-  * 大致功能包括用了多态，递归等JAVA核心技术，可以对单个文件和任意级联文件夹进行压缩和解压。 需在代码中自定义源输入路径和目标输出路径。
+-  * <p>
+-  * 在本段代码中，实现的是压缩部分；解压部分见本包中Decompression部分。
+-  * 
+-  * @author HAN
+-  * 
+-  */
+- 
+- publicclass MyZipCompressing {  
+- privateint k = 1; // 定义递归次数变量
+- 
+- public MyZipCompressing() {  
+- // TODO Auto-generated constructor stub
+-     }  
+- 
+- /**
+-      * @param args
+-      */
+- publicstaticvoid main(String[] args) {  
+- // TODO Auto-generated method stub
+-         MyZipCompressing book = new MyZipCompressing();  
+- try {  
+-             book.zip("C:\\Users\\Gaowen\\Desktop\\ZipTestCompressing.zip",  
+- new File("C:\\Users\\Gaowen\\Documents\\Tencent Files"));  
+-         } catch (Exception e) {  
+- // TODO Auto-generated catch block
+-             e.printStackTrace();  
+-         }  
+- 
+-     }  
+- 
+- privatevoid zip(String zipFileName, File inputFile) throws Exception {  
+-         System.out.println("压缩中...");  
+-         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(  
+-                 zipFileName));  
+-         BufferedOutputStream bo = new BufferedOutputStream(out);  
+-         zip(out, inputFile, inputFile.getName(), bo);  
+-         bo.close();  
+-         out.close(); // 输出流关闭
+-         System.out.println("压缩完成");  
+-     }  
+- 
+- privatevoid zip(ZipOutputStream out, File f, String base,  
+-             BufferedOutputStream bo) throws Exception { // 方法重载
+- if (f.isDirectory()) {  
+-             File[] fl = f.listFiles();  
+- if (fl.length == 0) {  
+-                 out.putNextEntry(new ZipEntry(base + "/")); // 创建zip压缩进入点base
+-                 System.out.println(base + "/");  
+-             }  
+- for (int i = 0; i < fl.length; i++) {  
+-                 zip(out, fl[i], base + "/" + fl[i].getName(), bo); // 递归遍历子文件夹
+-             }  
+-             System.out.println("第" + k + "次递归");  
+-             k++;  
+-         } else {  
+-             out.putNextEntry(new ZipEntry(base)); // 创建zip压缩进入点base
+-             System.out.println(base);  
+-             FileInputStream in = new FileInputStream(f);  
+-             BufferedInputStream bi = new BufferedInputStream(in);  
+- int b;  
+- while ((b = bi.read()) != -1) {  
+-                 bo.write(b); // 将字节流写入当前zip目录
+-             }  
+-             bi.close();  
+-             in.close(); // 输入流关闭
+-         }  
+-     }  
+- }  
+**[java]**[view
+ plain](http://blog.csdn.net/gaowen_han/article/details/7163737/#)[copy](http://blog.csdn.net/gaowen_han/article/details/7163737/#)
+- package com.han;  
+- 
+- import java.io.*;  
+- import java.util.zip.*;  
+- /**
+-  * 程序实现了ZIP压缩。共分为2部分 ：
+-  * 压缩（compression）与解压（decompression）
+-  * <p>
+-  * 大致功能包括用了多态，递归等JAVA核心技术，可以对单个文件和任意级联文件夹进行压缩和解压。
+-  * 需在代码中自定义源输入路径和目标输出路径。
+-  * <p>
+-  * 在本段代码中，实现的是解压部分；压缩部分见本包中compression部分。
+-  * @author HAN
+-  *
+-  */
+- publicclass CopyOfMyzipDecompressing {  
+- 
+- publicstaticvoid main(String[] args) {  
+- // TODO Auto-generated method stub
+- long startTime=System.currentTimeMillis();  
+- try {  
+-             ZipInputStream Zin=new ZipInputStream(new FileInputStream(  
+- "C:\\Users\\HAN\\Desktop\\stock\\SpectreCompressed.zip"));//输入源zip路径
+-             BufferedInputStream Bin=new BufferedInputStream(Zin);  
+-             String Parent="C:\\Users\\HAN\\Desktop"; //输出路径（文件夹目录）
+-             File Fout=null;  
+-             ZipEntry entry;  
+- try {  
+- while((entry = Zin.getNextEntry())!=null && !entry.isDirectory()){  
+-                     Fout=new File(Parent,entry.getName());  
+- if(!Fout.exists()){  
+-                         (new File(Fout.getParent())).mkdirs();  
+-                     }  
+-                     FileOutputStream out=new FileOutputStream(Fout);  
+-                     BufferedOutputStream Bout=new BufferedOutputStream(out);  
+- int b;  
+- while((b=Bin.read())!=-1){  
+-                         Bout.write(b);  
+-                     }  
+-                     Bout.close();  
+-                     out.close();  
+-                     System.out.println(Fout+"解压成功");      
+-                 }  
+-                 Bin.close();  
+-                 Zin.close();  
+-             } catch (IOException e) {  
+- // TODO Auto-generated catch block
+-                 e.printStackTrace();  
+-             }  
+-         } catch (FileNotFoundException e) {  
+- // TODO Auto-generated catch block
+-             e.printStackTrace();  
+-         }  
+- long endTime=System.currentTimeMillis();  
+-         System.out.println("耗费时间： "+(endTime-startTime)+" ms");  
+-     }  
+- 
+- }  
+- 

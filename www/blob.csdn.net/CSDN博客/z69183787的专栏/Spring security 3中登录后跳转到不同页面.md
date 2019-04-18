@@ -1,0 +1,106 @@
+# Spring security 3中登录后跳转到不同页面 - z69183787的专栏 - CSDN博客
+2014年03月13日 21:17:05[OkidoGreen](https://me.csdn.net/z69183787)阅读数：8932
+在spring security 3中，在登录 后，如何根据不同的需要跳转到不同的页面呢 ？ 
+其中要 自定义的过滤器是 AuthenticationSuccessHandler， 
+Java代码  ![收藏代码](http://jackyrong.iteye.com/images/icon_star.png)
+- <?xml version="1.0" encoding="UTF-8"?>  
+- <beans:beans  
+-     xmlns="http://www.springframework.org/schema/security"
+-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-     xmlns:beans="http://www.springframework.org/schema/beans"
+-     xsi:schemaLocation="  
+-         http://www.springframework.org/schema/security 
+-         http://www.springframework.org/schema/security/spring-security-3.1.xsd
+-         http://www.springframework.org/schema/beans 
+-         http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+- 
+-     <http use-expressions="true" >  
+-         <intercept-url pattern="/login*" access="permitAll" />  
+-         <intercept-url pattern="/**" access="isAuthenticated()" />  
+- 
+-         <form-login login-page='/login.html'
+-             authentication-failure-url="/login.html?error=true"
+-             authentication-success-handler-ref="myAuthenticationSuccessHandler"/>  
+- 
+-         <logout/>  
+-     </http>  
+- 
+-     <beans:bean id="myAuthenticationSuccessHandler"
+- class="org.company.MySimpleUrlAuthenticationSuccessHandler" />  
+- 
+-     <authentication-manager>  
+-         <authentication-provider>  
+-             <user-service>  
+-                 <user name="user1" password="user1Pass" authorities="ROLE_USER" />  
+-                 <user name="admin1" password="admin1Pass" authorities="ROLE_ADMIN" />  
+-             </user-service>  
+-         </authentication-provider>  
+-     </authentication-manager>  
+- 
+- </beans:beans>  
+  然后自定义的类要实现 AuthenticationSuccessHandler接口 ，代码如下 ： 
+Java代码  ![收藏代码](http://jackyrong.iteye.com/images/icon_star.png)
+- publicclass MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSuccessHandler {  
+- protected Log logger = LogFactory.getLog(this.getClass());  
+- 
+- private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();  
+- 
+- @Override
+- publicvoid onAuthenticationSuccess(HttpServletRequest request,   
+-       HttpServletResponse response, Authentication authentication) throws IOException {  
+-         handle(request, response, authentication);  
+-         clearAuthenticationAttributes(request);  
+-     }  
+- 
+- protectedvoid handle(HttpServletRequest request,   
+-       HttpServletResponse response, Authentication authentication) throws IOException {  
+-         String targetUrl = determineTargetUrl(authentication);  
+- 
+- if (response.isCommitted()) {  
+-             logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);  
+- return;  
+-         }  
+- 
+-         redirectStrategy.sendRedirect(request, response, targetUrl);  
+-     }  
+- 
+- 
+- protected String determineTargetUrl(Authentication authentication) {  
+- boolean isUser = false;  
+- boolean isAdmin = false;  
+-         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();  
+- for (GrantedAuthority grantedAuthority : authorities) {  
+- if (grantedAuthority.getAuthority().equals("ROLE_USER")) {  
+-                 isUser = true;  
+- break;  
+-             } elseif (grantedAuthority.getAuthority().equals("ROLE_ADMIN")) {  
+-                 isAdmin = true;  
+- break;  
+-             }  
+-         }  
+- 
+- if (isUser) {  
+- return"/homepage.html";  
+-         } elseif (isAdmin) {  
+- return"/console.html";  
+-         } else {  
+- thrownew IllegalStateException();  
+-         }  
+-     }  
+- 
+- protectedvoid clearAuthenticationAttributes(HttpServletRequest request) {  
+-         HttpSession session = request.getSession(false);  
+- if (session == null) {  
+- return;  
+-         }  
+-         session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);  
+-     }  
+- 
+- publicvoid setRedirectStrategy(RedirectStrategy redirectStrategy) {  
+- this.redirectStrategy = redirectStrategy;  
+-     }  
+- protected RedirectStrategy getRedirectStrategy() {  
+- return redirectStrategy;  
+-     }  
+- }  
+  其中要关注的是determineTargetUrl方法，传入 的参数是 Authentication类型的，然后进行权限的 判断 

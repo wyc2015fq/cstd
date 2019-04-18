@@ -1,0 +1,309 @@
+# Apache POI组件操作Excel，制作报表（一） - z69183787的专栏 - CSDN博客
+2014年12月04日 20:06:06[OkidoGreen](https://me.csdn.net/z69183787)阅读数：1102
+个人分类：[Excel处理-Jxl & Poi](https://blog.csdn.net/z69183787/article/category/2175693)
+                
+  Apache的POI组件是Java操作Microsoft Office办公套件的强大API，其中对Word，Excel和PowperPoint都有支持，当然使用较多的还是Excel，因为Word和PowerPoint用程序动态操作的应用较少。那么本文就结合POI来介绍一下操作Excel的方法。
+    Office 2007的文件结构完全不同于2003，所以对于两个版本的Office组件，POI有不同的处理API，分开使用即可。首先来说几个Excel的基本概念。对于一个Excel文件，这称为一个工作簿（Workbook），打开Excel之后，在下方会有sheet1/2/3这样的选项卡，点击可以切换到不同的sheet中，这个sheet称作工作表。每个工作表就是我们编辑的区域，这是一张二维表，阿拉伯数字控制行数，从1开始，而程序中还是0，类似数组和集合。字母控制列数，从A开始，Z以后是两个字母控制。对于每一行，我们称为Row，列就是Column，行列可以确定唯一的一个元素，那么就是单元格，称为Cell。
+    POI组件可以方便的操纵这些元素，但初次接触POI可能会有畏惧心理，因为要对每个单元格进行设置，那么不管是用数组还是集合，从工作簿，工作表，行下来的代码量都不会小，这是不能避免的，但是按照这个处理顺序走，就一定可以得到结果。
+    有了这些基础的概念之后，我们就可以操作Excel了。先来看一下所需的依赖，因为涉及到2007，就要额外加一些依赖。
+![](http://dl.iteye.com/upload/attachment/369259/2bc51d54-9a6f-39f6-9067-a5a7619ce37b.jpg)
+    下面从读取Excel开始，首先建立一个Excel 2003以下版本的xls文件。设定几列来看。来存储学生信息的Excel表如下：
+![](http://dl.iteye.com/upload/attachment/369261/2247bc3c-6a8a-32f0-966c-3e53f9f33d97.jpg)
+    这里的姓名，性别和班级是文本值，而年龄和成绩是数字值，这在设计对象和处理时要注意区分。那么可以如下设计这个对象：
+Java代码  ![收藏代码](http://sarin.iteye.com/images/icon_star.png)
+- package org.ourpioneer.excel.bean;  
+- /**
+-  * 学生信息
+-  * 
+-  * @author Nanlei
+-  * 
+-  */
+- publicclass Student {  
+- private String name;  
+- private String gender;  
+- privateint age;  
+- private String sclass;  
+- privateint score;  
+- public Student() {  
+- super();  
+-     }  
+- public Student(String name, String gender, int age, String sclass, int score) {  
+- super();  
+- this.name = name;  
+- this.gender = gender;  
+- this.age = age;  
+- this.sclass = sclass;  
+- this.score = score;  
+-     }  
+- //省略了getter和setter方法
+- @Override
+- public String toString() {  
+- return"Student [age=" + age + ", gender=" + gender + ", name=" + name  
+-                 + ", sclass=" + sclass + ", score=" + score + "]";  
+-     }  
+- }  
+    提供一个有参数的构造方法，用于生成对象写入Excel文档。这个对象就能刻画Excel文件中的数据了，下面就是写程序将Excel文件加载并处理，然后将内容读出，读取顺序是工作簿->工作表->行->单元格。这样一分析就很简单了。我们定义两个Excel文件，内容相同，只是版本不同，分2003和2007来处理。
+    创建工作簿时可以接收一个输入流对象，那么输入流对象可以从文件对象来生成，这样就可以继续进行了。取出工作表，取出行，遍历单元格，数据就拿到了。代码如下：
+Java代码  ![收藏代码](http://sarin.iteye.com/images/icon_star.png)
+- package org.ourpioneer.excel;  
+- import java.io.File;  
+- import java.io.FileInputStream;  
+- import java.io.IOException;  
+- import java.io.InputStream;  
+- import java.util.ArrayList;  
+- import java.util.List;  
+- import org.apache.poi.hssf.usermodel.HSSFCell;  
+- import org.apache.poi.hssf.usermodel.HSSFRow;  
+- import org.apache.poi.hssf.usermodel.HSSFSheet;  
+- import org.apache.poi.hssf.usermodel.HSSFWorkbook;  
+- import org.ourpioneer.excel.bean.Student;  
+- /**
+-  * POI读取Excel示例，分2003和2007
+-  * 
+-  * @author Nanlei
+-  * 
+-  */
+- publicclass ReadExcel {  
+- privatestatic String xls2003 = "C:\\student.xls";  
+- privatestatic String xlsx2007 = "C:\\student.xlsx";  
+- /**
+-      * 读取Excel2003的示例方法
+-      * 
+-      * @param filePath
+-      * @return
+-      */
+- privatestatic List<Student> readFromXLS2003(String filePath) {  
+-         File excelFile = null;// Excel文件对象
+-         InputStream is = null;// 输入流对象
+-         String cellStr = null;// 单元格，最终按字符串处理
+-         List<Student> studentList = new ArrayList<Student>();// 返回封装数据的List
+-         Student student = null;// 每一个学生信息对象
+- try {  
+-             excelFile = new File(filePath);  
+-             is = new FileInputStream(excelFile);// 获取文件输入流
+-             HSSFWorkbook workbook2003 = new HSSFWorkbook(is);// 创建Excel2003文件对象
+-             HSSFSheet sheet = workbook2003.getSheetAt(0);// 取出第一个工作表，索引是0
+- // 开始循环遍历行，表头不处理，从1开始
+- for (int i = 1; i <= sheet.getLastRowNum(); i++) {  
+-                 student = new Student();// 实例化Student对象
+-                 HSSFRow row = sheet.getRow(i);// 获取行对象
+- if (row == null) {// 如果为空，不处理
+- continue;  
+-                 }  
+- // 循环遍历单元格
+- for (int j = 0; j < row.getLastCellNum(); j++) {  
+-                     HSSFCell cell = row.getCell(j);// 获取单元格对象
+- if (cell == null) {// 单元格为空设置cellStr为空串
+-                         cellStr = "";  
+-                     } elseif (cell.getCellType() == HSSFCell.CELL_TYPE_BOOLEAN) {// 对布尔值的处理
+-                         cellStr = String.valueOf(cell.getBooleanCellValue());  
+-                     } elseif (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {// 对数字值的处理
+-                         cellStr = cell.getNumericCellValue() + "";  
+-                     } else {// 其余按照字符串处理
+-                         cellStr = cell.getStringCellValue();  
+-                     }  
+- // 下面按照数据出现位置封装到bean中
+- if (j == 0) {  
+-                         student.setName(cellStr);  
+-                     } elseif (j == 1) {  
+-                         student.setGender(cellStr);  
+-                     } elseif (j == 2) {  
+-                         student.setAge(new Double(cellStr).intValue());  
+-                     } elseif (j == 3) {  
+-                         student.setSclass(cellStr);  
+-                     } else {  
+-                         student.setScore(new Double(cellStr).intValue());  
+-                     }  
+-                 }  
+-                 studentList.add(student);// 数据装入List
+-             }  
+- } catch (IOException e) {  
+-             e.printStackTrace();  
+-         } finally {// 关闭文件流
+- if (is != null) {  
+- try {  
+-                     is.close();  
+-                 } catch (IOException e) {  
+-                     e.printStackTrace();  
+-                 }  
+-             }  
+-         }  
+- return studentList;  
+-     }  
+- /**
+-      * 主函数
+-      * 
+-      * @param args
+-      */
+- publicstaticvoid main(String[] args) {  
+- long start = System.currentTimeMillis();  
+-         List<Student> list = readFromXLS2003(xls2003);  
+- for (Student student : list) {  
+-             System.out.println(student);  
+-         }  
+- long end = System.currentTimeMillis();  
+-         System.out.println((end - start) + " ms done!");  
+-     }  
+- }  
+    做几点说明，如果不处理表头，那么就从准备处理的行开始，而整个sheet对行的索引是从0开始的，而Excel中是1，这点和数组/集合类似。对于单元格中的数字，默认按double类型处理，所以只能字符串转double，再取出int值。最后执行主函数，得到如下内容：
+![](http://dl.iteye.com/upload/attachment/369263/31f7bb6c-3426-3578-9852-70128d32ba0e.jpg)
+    这样就拿到对象的List了，之后要持久到数据库或者直接做业务逻辑就随心所欲了。下面来看2007的处理，处理流程和2003是类似的，区别就是使用的对象，2003中对象是HSSF*格式的，而2007是XSSF*格式的。方法如下：
+Java代码  ![收藏代码](http://sarin.iteye.com/images/icon_star.png)
+- publicstatic List<Student> readFromXLSX2007(String filePath) {  
+-         File excelFile = null;// Excel文件对象
+-         InputStream is = null;// 输入流对象
+-         String cellStr = null;// 单元格，最终按字符串处理
+-         List<Student> studentList = new ArrayList<Student>();// 返回封装数据的List
+-         Student student = null;// 每一个学生信息对象
+- try {  
+-             excelFile = new File(filePath);  
+-             is = new FileInputStream(excelFile);// 获取文件输入流
+-             XSSFWorkbook workbook2007 = new XSSFWorkbook(is);// 创建Excel2003文件对象
+-             XSSFSheet sheet = workbook2007.getSheetAt(0);// 取出第一个工作表，索引是0
+- // 开始循环遍历行，表头不处理，从1开始
+- for (int i = 1; i <= sheet.getLastRowNum(); i++) {  
+-                 student = new Student();// 实例化Student对象
+-                 XSSFRow row = sheet.getRow(i);// 获取行对象
+- if (row == null) {// 如果为空，不处理
+- continue;  
+-                 }  
+- // 循环遍历单元格
+- for (int j = 0; j < row.getLastCellNum(); j++) {  
+-                     XSSFCell cell = row.getCell(j);// 获取单元格对象
+- if (cell == null) {// 单元格为空设置cellStr为空串
+-                         cellStr = "";  
+-                     } elseif (cell.getCellType() == HSSFCell.CELL_TYPE_BOOLEAN) {// 对布尔值的处理
+-                         cellStr = String.valueOf(cell.getBooleanCellValue());  
+-                     } elseif (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {// 对数字值的处理
+-                         cellStr = cell.getNumericCellValue() + "";  
+-                     } else {// 其余按照字符串处理
+-                         cellStr = cell.getStringCellValue();  
+-                     }  
+- // 下面按照数据出现位置封装到bean中
+- if (j == 0) {  
+-                         student.setName(cellStr);  
+-                     } elseif (j == 1) {  
+-                         student.setGender(cellStr);  
+-                     } elseif (j == 2) {  
+-                         student.setAge(new Double(cellStr).intValue());  
+-                     } elseif (j == 3) {  
+-                         student.setSclass(cellStr);  
+-                     } else {  
+-                         student.setScore(new Double(cellStr).intValue());  
+-                     }  
+-                 }  
+-                 studentList.add(student);// 数据装入List
+-             }  
+-         } catch (IOException e) {  
+-             e.printStackTrace();  
+-         } finally {// 关闭文件流
+- if (is != null) {  
+- try {  
+-                     is.close();  
+-                 } catch (IOException e) {  
+-                     e.printStackTrace();  
+-                 }  
+-             }  
+-         }  
+- return studentList;  
+-     }  
+    再次运行主函数，我们得到如下输出：
+![](http://dl.iteye.com/upload/attachment/369265/d8d50efb-386d-3167-9b17-7ef7c52a6e22.jpg)
+    可以看出，对2007的处理时间明显增长，还是2003版本效率更好，不过在使用Office组件时2007更便捷，而处理2003的程序效率更好。如何使用二者？根据程序业务来综合决定，看看牺牲掉哪部分。
+    下面来做简单的文件写入，也就是准备输入写入Excel文件，为了演示，直接创建对象，而实际应用中数据可以是来自数据库的。写入文件就是文件解析的逆过程。但POI的组件不是从单元格开始创建文件的，还是从工作簿开始创建，进而创建工作表，行和单元格，最终将整个工作簿写入文件，完成操作。我们来看具体写法。
+Java代码  ![收藏代码](http://sarin.iteye.com/images/icon_star.png)
+- package org.ourpioneer.excel;  
+- import java.io.File;  
+- import java.io.FileOutputStream;  
+- import java.util.ArrayList;  
+- import java.util.Arrays;  
+- import java.util.List;  
+- import org.apache.poi.hssf.usermodel.HSSFCell;  
+- import org.apache.poi.hssf.usermodel.HSSFRow;  
+- import org.apache.poi.hssf.usermodel.HSSFSheet;  
+- import org.apache.poi.hssf.usermodel.HSSFWorkbook;  
+- import org.ourpioneer.excel.bean.Student;  
+- /**
+-  * 生成Excel示例，2003和2007
+-  * 
+-  * @author Nanlei
+-  * 
+-  */
+- publicclass GenerateExcel {  
+- privatestatic String xls2003 = "C:\\student.xls";  
+- privatestatic String xlsx2007 = "C:\\student.xlsx";  
+- privatestatic List<Student> studentList = null;  
+- privatestatic Student[] students = new Student[4];  
+- /**
+-      * 静态块初始化数据
+-      */
+- static {  
+-         studentList = new ArrayList<Student>();  
+-         students[0] = new Student("张三", "男", 23, "一班", 94);  
+-         students[1] = new Student("李四", "女", 20, "一班", 92);  
+-         students[2] = new Student("王五", "男", 21, "一班", 87);  
+-         students[3] = new Student("赵六", "女", 22, "一班", 83);  
+-         studentList.addAll(Arrays.asList(students));  
+-     }  
+- /**
+-      * 创建2003文件的方法
+-      * 
+-      * @param filePath
+-      */
+- publicstaticvoid generateExcel2003(String filePath) {  
+- // 先创建工作簿对象
+-         HSSFWorkbook workbook2003 = new HSSFWorkbook();  
+- // 创建工作表对象并命名
+-         HSSFSheet sheet = workbook2003.createSheet("学生信息统计表");  
+- // 遍历集合对象创建行和单元格
+- for (int i = 0; i < studentList.size(); i++) {  
+- // 取出Student对象
+-             Student student = studentList.get(i);  
+- // 创建行
+-             HSSFRow row = sheet.createRow(i);  
+- // 开始创建单元格并赋值
+-             HSSFCell nameCell = row.createCell(0);  
+-             nameCell.setCellValue(student.getName());  
+-             HSSFCell genderCell = row.createCell(1);  
+-             genderCell.setCellValue(student.getGender());  
+-             HSSFCell ageCell = row.createCell(2);  
+-             ageCell.setCellValue(student.getAge());  
+-             HSSFCell sclassCell = row.createCell(3);  
+-             sclassCell.setCellValue(student.getSclass());  
+-             HSSFCell scoreCell = row.createCell(4);  
+-             scoreCell.setCellValue(student.getScore());  
+-         }  
+- // 生成文件
+-         File file = new File(filePath);  
+-         FileOutputStream fos = null;  
+- try {  
+-             fos = new FileOutputStream(file);  
+-             workbook2003.write(fos);  
+-         } catch (Exception e) {  
+-             e.printStackTrace();  
+-         } finally {  
+- if (fos != null) {  
+- try {  
+-                     fos.close();  
+-                 } catch (Exception e) {  
+-                     e.printStackTrace();  
+-                 }  
+-             }  
+-         }  
+-     }  
+- /**
+-      * 主函数
+-      * 
+-      * @param args
+-      */
+- publicstaticvoid main(String[] args) {  
+- long start = System.currentTimeMillis();  
+-         generateExcel2003(xls2003);  
+- long end = System.currentTimeMillis();  
+-         System.out.println((end - start) + " ms done!");  
+-     }  
+- }  
+    这样就生成了2003版Excel文件，只是最简单的操作，并没有涉及到单元格格式等操作，而2007的方法就是改改对象的名称，很简单，这里不再贴出了。
+[下一篇](http://sarin.iteye.com/blog/846679)将结合单元格格式来介绍复杂报表的设计。
+    本文系作者的实践探索，欢迎交流。
+            

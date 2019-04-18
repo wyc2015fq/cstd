@@ -1,0 +1,327 @@
+# SpringMVC4零配置--Web上下文配置【MvcConfig】 - z69183787的专栏 - CSDN博客
+2016年11月09日 18:41:38[OkidoGreen](https://me.csdn.net/z69183787)阅读数：1569
+与SpringSecurity的配置类似，spring同样为我们提供了一个实现类WebMvcConfigurationSupport和一个注解@EnableWebMvc以帮助我们减少bean的声明。
+**applicationContext-MvcConfig.xml**
+Xml代码  ![收藏代码](http://hanqunfeng.iteye.com/images/icon_star.png)
+- <!-- 启用注解，并定义组件查找规则 ，mvc层只负责扫描@Controller -->
+- <context:component-scanbase-package="web.function"
+- use-default-filters="false">
+- <context:include-filtertype="annotation"
+- expression="org.springframework.stereotype.Controller"/>
+- </context:component-scan>
+- 
+- 
+- 
+- 
+- <!-- 视图处理器 -->
+- <beanid="viewResolver"
+- class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+- <propertyname="prefix"value="/WEB-INF/views/jsp/function/"/>
+- <propertyname="suffix"value=".jsp"/>
+- </bean>
+- 
+- <!-- 定义国际化资源文件查找规则 ，各种messages.properties -->
+- <beanid="messageSource"
+- class="org.springframework.context.support.ResourceBundleMessageSource"
+- p:basename="config.messages.messages">
+- </bean>
+- 
+- <!-- servlet适配器，这里必须明确声明，因为spring默认没有初始化该适配器 -->
+- <beanid="servletHandlerAdapter"
+- class="org.springframework.web.servlet.handler.SimpleServletHandlerAdapter"/>
+- 
+- <!-- 定义文件上传处理器 -->
+- <beanid="multipartResolver"
+- class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+- p:defaultEncoding="UTF-8"/>
+- 
+- <!-- 异常处理器 -->
+- <beanid="exceptionResolver"class="web.core.CP_SimpleMappingExceptionResolver">
+- <propertyname="defaultErrorView"value="common_error"/>
+- <propertyname="exceptionAttribute"value="exception"/>
+- <propertyname="exceptionMappings">
+- <props>
+- <propkey="java.lang.RuntimeException">common_error</prop>
+- </props>
+- </property>
+- </bean>
+- 
+- 
+- <!-- 定义公共参数初始化拦截器 -->
+- <beanid="initInterceptor"class="web.core.CP_InitializingInterceptor"/>
+- 
+- 
+- 
+- 
+- <!-- 本地化资源处理器 -->
+- <beanid="localeResolver"
+- class="org.springframework.web.servlet.i18n.CookieLocaleResolver"/>
+- 
+- <!-- 定义本地化变更拦截器 -->
+- <beanid="localeChangeInterceptor"
+- class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
+- 
+- 
+- <!-- 请求拦截器，每一个用户请求都会被拦截 -->
+- <mvc:interceptors>
+- <refbean="localeChangeInterceptor"/>
+- <refbean="initInterceptor"/>
+- </mvc:interceptors>
+- 
+- 
+- 
+- 
+- <!-- 定义注解驱动Controller方法处理适配器 ,注：该适配器必须声明在<mvc:annotation-driven />之前，否则不能正常处理参数类型的转换 -->
+- <bean
+- class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+- <propertyname="webBindingInitializer">
+- <beanclass="web.core.CP_PropertyEditorRegistrar">
+- <propertyname="format"value="yyyy-MM-dd"></property>
+- </bean>
+- </property>
+- <propertyname="messageConverters">
+- <list>
+- <bean
+- class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter"/>
+- <bean
+- class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+- </list>
+- </property>
+- </bean>
+- 
+- 
+-     <!-- 会自动注册RequestMappingHandlerMapping与RequestMappingHandlerAdapter   
+-         两个bean,是spring MVC为@Controllers分发请求所必须的。 并提供了：数据绑定支持，@NumberFormatannotation支持，@DateTimeFormat支持，@Valid支持，读写XML的支持（JAXB），读写JSON的支持（Jackson） -->
+- <mvc:annotation-driven/>
+- 
+- 
+- <!-- 资源访问处理器 -->
+- <mvc:resourcesmapping="/static/**"location="/WEB-INF/static/"/>
+** MvcConfig.java**
+Java代码  ![收藏代码](http://hanqunfeng.iteye.com/images/icon_star.png)
+- @Configuration
+- @EnableWebMvc
+- @ComponentScan(basePackages = "web.function", useDefaultFilters = false, includeFilters = {  
+- @ComponentScan.Filter(type = FilterType.ANNOTATION, value = {Controller.class})  
+- })  
+- publicclass MvcConfig extends WebMvcConfigurationSupport {  
+- 
+- privatestaticfinal Logger logger = Logger  
+-             .getLogger(MvcConfig.class);  
+- 
+- /**                                                          
+-     * 描述 : <注册试图处理器>. <br> 
+-     *<p> 
+-         <使用方法说明>  
+-      </p>                                                                                                                                                                                                                                                
+-     * @return                                                                                                      
+-     */
+- @Bean
+- public ViewResolver viewResolver() {  
+-         logger.info("ViewResolver");  
+-         InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();  
+-         viewResolver.setPrefix("/WEB-INF/views/jsp/function/");  
+-         viewResolver.setSuffix(".jsp");  
+- return viewResolver;  
+-     }  
+- 
+- /**                                                          
+-     * 描述 : <注册消息资源处理器>. <br> 
+-     *<p> 
+-         <使用方法说明>  
+-      </p>                                                                                                                                                                                                                                                
+-     * @return                                                                                                      
+-     */
+- @Bean
+- public MessageSource messageSource() {  
+-         logger.info("MessageSource");  
+-         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();  
+-         messageSource.setBasename("config.messages.messages");  
+- 
+- return messageSource;  
+-     }  
+- 
+- /**                                                          
+-     * 描述 : <注册servlet适配器>. <br> 
+-     *<p> 
+-         <只需要在自定义的servlet上用@Controller("映射路径")标注即可>  
+-      </p>                                                                                                                                                                                                                                                
+-     * @return                                                                                                      
+-     */
+- @Bean
+- public HandlerAdapter servletHandlerAdapter(){  
+-         logger.info("HandlerAdapter");  
+- returnnew SimpleServletHandlerAdapter();  
+-     }  
+- 
+- /**                                                          
+-     * 描述 : <本地化拦截器>. <br> 
+-     *<p> 
+-         <使用方法说明>  
+-      </p>                                                                                                                                                                                                                                                
+-     * @return                                                                                                      
+-     */
+- @Bean
+- public LocaleChangeInterceptor localeChangeInterceptor(){  
+-         logger.info("LocaleChangeInterceptor");  
+- returnnew LocaleChangeInterceptor();  
+-     }  
+- 
+- /**                                                          
+-     * 描述 : <基于cookie的本地化资源处理器>. <br> 
+-     *<p> 
+-         <使用方法说明>  
+-      </p>                                                                                                                                                                                                                                                
+-     * @return                                                                                                      
+-     */
+- @Bean(name="localeResolver")  
+- public CookieLocaleResolver cookieLocaleResolver(){  
+-         logger.info("CookieLocaleResolver");  
+- returnnew CookieLocaleResolver();  
+-     }  
+- 
+- /**                                                          
+-     * 描述 : <注册自定义拦截器>. <br> 
+-     *<p> 
+-         <使用方法说明>  
+-      </p>                                                                                                                                                                                                                                                
+-     * @return                                                                                                      
+-     */
+- @Bean
+- public CP_InitializingInterceptor initializingInterceptor(){  
+-         logger.info("CP_InitializingInterceptor");  
+- returnnew CP_InitializingInterceptor();  
+-     }  
+- 
+- 
+- /**                                                          
+-      * 描述 : <RequestMappingHandlerMapping需要显示声明，否则不能注册自定义的拦截器>. <br> 
+-      *<p> 
+-         <这个比较奇怪,理论上应该是不需要的>  
+-       </p>                                                                                                                                                                                                                                                
+-      * @return                                                                                                      
+-      */
+- @Bean
+- public RequestMappingHandlerMapping requestMappingHandlerMapping() {  
+-         logger.info("RequestMappingHandlerMapping");  
+- 
+- returnsuper.requestMappingHandlerMapping();  
+-     }  
+- 
+- 
+- 
+- 
+- 
+- 
+- /**                                                          
+-     * 描述 : <添加拦截器>. <br> 
+-     *<p> 
+-         <使用方法说明>  
+-      </p>                                                                                                                                                                                                                                                
+-     * @param registry                                                                                                      
+-     */
+- @Override
+- protectedvoid addInterceptors(InterceptorRegistry registry) {  
+- // TODO Auto-generated method stub
+-         logger.info("addInterceptors start");  
+-         registry.addInterceptor(localeChangeInterceptor());  
+-         registry.addInterceptor(initializingInterceptor());  
+-         logger.info("addInterceptors end");  
+-     }  
+- 
+- /**                                                          
+-      * 描述 : <HandlerMapping需要显示声明，否则不能注册资源访问处理器>. <br> 
+-      *<p> 
+-         <这个比较奇怪,理论上应该是不需要的>  
+-       </p>                                                                                                                                                                                                                                                
+-      * @return                                                                                                      
+-      */
+- @Bean
+- public HandlerMapping resourceHandlerMapping() {  
+-         logger.info("HandlerMapping");  
+- returnsuper.resourceHandlerMapping();  
+-     }  
+- 
+- /**                                                          
+-      * 描述 : <资源访问处理器>. <br> 
+-      *<p> 
+-         <可以在jsp中使用/static/**的方式访问/WEB-INF/static/下的内容>  
+-       </p>                                                                                                                                                                                                                                                
+-      * @param registry                                                                                                      
+-      */
+- @Override
+- protectedvoid addResourceHandlers(ResourceHandlerRegistry registry) {  
+-         logger.info("addResourceHandlers");  
+-         registry.addResourceHandler("/static/**").addResourceLocations("/WEB-INF/static/");  
+-     }  
+- 
+-     /**                                                            
+-     * 描述 : <文件上传处理器>. <br>   
+-     *<p>   
+-         <使用方法说明>    
+-      </p>                                                                                                                                                                                                                                                  
+-     * @return
+-     */    
+- @Bean(name="multipartResolver")  
+- public CommonsMultipartResolver commonsMultipartResolver(){  
+-         logger.info("CommonsMultipartResolver");  
+- returnnew CommonsMultipartResolver();  
+-     }  
+- 
+- /**                                                          
+-     * 描述 : <异常处理器>. <br> 
+-     *<p> 
+-         <系统运行时遇到指定的异常将会跳转到指定的页面>  
+-      </p>                                                                                                                                                                                                                                                
+-     * @return                                                                                                      
+-     */
+- @Bean(name="exceptionResolver")  
+- public CP_SimpleMappingExceptionResolver simpleMappingExceptionResolver(){  
+-         logger.info("CP_SimpleMappingExceptionResolver");  
+-         CP_SimpleMappingExceptionResolver simpleMappingExceptionResolver= new CP_SimpleMappingExceptionResolver();  
+-         simpleMappingExceptionResolver.setDefaultErrorView("common_error");  
+-         simpleMappingExceptionResolver.setExceptionAttribute("exception");  
+-         Properties properties = new Properties();  
+-         properties.setProperty("java.lang.RuntimeException", "common_error");  
+-         simpleMappingExceptionResolver.setExceptionMappings(properties);  
+- return simpleMappingExceptionResolver;  
+-     }  
+- 
+- /**                                                          
+-      * 描述 : <RequestMappingHandlerAdapter需要显示声明，否则不能注册通用属性编辑器>. <br> 
+-      *<p> 
+-         <这个比较奇怪,理论上应该是不需要的>  
+-       </p>                                                                                                                                                                                                                                                
+-      * @return                                                                                                      
+-      */
+- @Bean
+- public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {  
+-         logger.info("RequestMappingHandlerAdapter");  
+- returnsuper.requestMappingHandlerAdapter();  
+-     }  
+- 
+- /**                                                          
+-     * 描述 : <注册通用属性编辑器>. <br> 
+-     *<p> 
+-         <这里只增加了字符串转日期和字符串两边去空格的处理>  
+-      </p>                                                                                                                                                                                                                                                
+-     * @return                                                                                                      
+-     */
+- @Override
+- protected ConfigurableWebBindingInitializer getConfigurableWebBindingInitializer() {  
+-         logger.info("ConfigurableWebBindingInitializer");  
+-         ConfigurableWebBindingInitializer initializer = super.getConfigurableWebBindingInitializer();  
+-         CP_PropertyEditorRegistrar register = new CP_PropertyEditorRegistrar();  
+-         register.setFormat("yyyy-MM-dd");  
+-         initializer.setPropertyEditorRegistrar(register);  
+- return initializer;  
+-     }  
+- 
+- 
+- }  
+### [SpringMVC4零配置](http://hanqunfeng.iteye.com/blog/2113820) ：代码下载
+### [SpringMVC4零配置--web.xml](http://hanqunfeng.iteye.com/blog/2114967)
+### [SpringMVC4零配置--应用上下文配置【AppConfig】](http://hanqunfeng.iteye.com/blog/2114975)
+### [SpringMVC4零配置--SpringSecurity相关配置【SpringSecurityConfig】](http://hanqunfeng.iteye.com/blog/2114980)
+### [SpringMVC4零配置--Web上下文配置【MvcConfig】](http://hanqunfeng.iteye.com/blog/2114987)
+### [SpringMVC4零配置--Web上下文配置【MvcConfig】](http://hanqunfeng.iteye.com/blog/2114987)

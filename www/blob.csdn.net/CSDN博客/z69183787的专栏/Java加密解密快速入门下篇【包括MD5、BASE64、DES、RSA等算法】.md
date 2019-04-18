@@ -1,0 +1,269 @@
+# Java加密解密快速入门下篇【包括MD5、BASE64、DES、RSA等算法】 - z69183787的专栏 - CSDN博客
+2017年05月22日 18:12:24[OkidoGreen](https://me.csdn.net/z69183787)阅读数：499
+在上一篇博客中已经简要的介绍了MD5、BASE64、DES、RSA等算法在Java中的具体应用。现在可以考虑对这些代码封装成一个工具类EncryptUtil![吻](http://www.iteye.com/javascripts/tinymce/plugins/emotions/img/smiley-kiss.gif)，然后再补充一下Commons Codec对BASE64的扩展支持！![微笑](http://www.iteye.com/javascripts/tinymce/plugins/emotions/img/smiley-smile.gif)
+<一>. EncryptUtil工具类：
+ 1. 使用commons-logging记录异常日志。
+ 2. 提取常量字段、公共字段。
+ 3. 提取公共方法： 
+Java代码 
+- //创建密钥
+- createSecretKey(String key):Key   
+- //加密解密
+- processCipher(byte[] processData, Key key, int opsMode, String algorithm):byte[]  
+  4. EncryptUtil类的完整代码：![大笑](http://www.iteye.com/javascripts/tinymce/plugins/emotions/img/smiley-laughing.gif)
+Java代码 
+- /*
+-  * Copyright (c) 2014, Nick Xu, All rights reserved.
+-  */
+- package com.excelsoft.common.crypto;  
+- 
+- import java.io.IOException;  
+- import java.security.Key;  
+- import java.security.KeyPair;  
+- import java.security.KeyPairGenerator;  
+- import java.security.MessageDigest;  
+- import java.security.NoSuchAlgorithmException;  
+- import java.security.PrivateKey;  
+- import java.security.PublicKey;  
+- import java.security.SecureRandom;  
+- import java.security.Signature;  
+- 
+- import javax.crypto.Cipher;  
+- import javax.crypto.SecretKey;  
+- import javax.crypto.SecretKeyFactory;  
+- import javax.crypto.spec.DESKeySpec;  
+- 
+- import org.apache.commons.logging.Log;  
+- import org.apache.commons.logging.LogFactory;  
+- 
+- import sun.misc.BASE64Decoder;  
+- import sun.misc.BASE64Encoder;  
+- 
+- /**
+-  * 功能简述: 加密解密工具类，对MD5/BASE64/DES/RSA等算法提供了包装.
+-  * @author Nick Xu
+-  * @version 1.0
+-  */
+- publicclass EncryptUtil {  
+- privatestatic Log logger = LogFactory.getLog(EncryptUtil.class);  
+- 
+- privatestaticfinalint KEY_SIZE = 1024;  
+- privatestaticfinal String  MD5_ALGORITHM= "md5";  
+- privatestaticfinal String  DES_ALGORITHM= "des";  
+- privatestaticfinal String  RSA_ALGORITHM= "rsa";  
+- privatestaticfinal String  SIGNATURE_ALGORITHM= "MD5withRSA";  
+- 
+- privatestatic MessageDigest md5;  
+- privatestatic BASE64Encoder encoder;  
+- privatestatic BASE64Decoder decoder;  
+- privatestatic SecureRandom random;  
+- privatestatic KeyPair keyPair;  
+- 
+- private EncryptUtil() {  
+-     }  
+- 
+- static {  
+- try {  
+-             md5 = MessageDigest.getInstance(MD5_ALGORITHM);  
+- 
+-             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(RSA_ALGORITHM);  
+-             keyPairGenerator.initialize(KEY_SIZE);  
+-             keyPair = keyPairGenerator.generateKeyPair();  
+-         }  
+- catch (NoSuchAlgorithmException e) {  
+- // Exception handler
+-             logger.error(e);  
+-         }  
+-         encoder = new BASE64Encoder();  
+-         decoder = new BASE64Decoder();  
+-         random = new SecureRandom();  
+-     }  
+- 
+- /**
+-      * 功能简述: 使用md5进行单向加密.
+-      */
+- publicstatic String encryptMD5(String plainText) {  
+- byte[] cipherData = md5.digest(plainText.getBytes());  
+-         StringBuilder builder = new StringBuilder();  
+- for(byte cipher : cipherData) {  
+-             String toHexStr = Integer.toHexString(cipher & 0xff);  
+-             builder.append(toHexStr.length() == 1 ? "0" + toHexStr : toHexStr);  
+-         }  
+- return builder.toString();  
+-     }  
+- 
+- /**
+-      * 功能简述: 使用BASE64进行加密.
+-      * @param plainData 明文数据
+-      * @return 加密之后的文本内容
+-      */
+- publicstatic String encryptBASE64(byte[] plainData) {  
+- return encoder.encode(plainData);  
+-     }  
+- 
+- /**
+-      * 功能简述: 使用BASE64进行解密.
+-      * @param cipherText 密文文本
+-      * @return 解密之后的数据
+-      */
+- publicstaticbyte[] decryptBASE64(String cipherText) {  
+- byte[] plainData = null;  
+- try {  
+-             plainData =  decoder.decodeBuffer(cipherText);  
+-         }  
+- catch (IOException e) {  
+- // Exception handler
+-             logger.error(e);  
+-         }  
+- return plainData;  
+-     }  
+- 
+- /**
+-      * 功能简述: 使用DES算法进行加密.
+-      * @param plainData 明文数据
+-      * @param key   加密密钥
+-      * @return  
+-      */
+- publicstaticbyte[] encryptDES(byte[] plainData, String key) {  
+- return processCipher(plainData, createSecretKey(key), Cipher.ENCRYPT_MODE, DES_ALGORITHM);  
+-     }  
+- 
+- /**
+-      * 功能简述: 使用DES算法进行解密.
+-      * @param cipherData    密文数据
+-      * @param key   解密密钥
+-      * @return
+-      */
+- publicstaticbyte[] decryptDES(byte[] cipherData, String key) {  
+- return processCipher(cipherData, createSecretKey(key), Cipher.DECRYPT_MODE, DES_ALGORITHM);  
+-     }  
+- 
+- /**
+-      * 功能简述: 根据key创建密钥SecretKey.
+-      * @param key 
+-      * @return
+-      */
+- privatestatic SecretKey createSecretKey(String key) {  
+-         SecretKey secretKey = null;  
+- try {  
+-             DESKeySpec keySpec = new DESKeySpec(key.getBytes());  
+-             SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(DES_ALGORITHM);  
+-             secretKey = keyFactory.generateSecret(keySpec);  
+-         }  
+- catch (Exception e) {  
+- // Exception handler
+-             logger.error(e);  
+-         }  
+- return secretKey;  
+-     }  
+- 
+- /**
+-      * 功能简述: 加密/解密处理流程.
+-      * @param processData   待处理的数据
+-      * @param key   提供的密钥
+-      * @param opsMode   工作模式
+-      * @param algorithm   使用的算法
+-      * @return  
+-      */
+- privatestaticbyte[] processCipher(byte[] processData, Key key, int opsMode, String algorithm) {  
+- try{   
+-             Cipher cipher = Cipher.getInstance(algorithm);  
+-             cipher.init(opsMode, key, random);  
+- return cipher.doFinal(processData);  
+-         }  
+- catch (Exception e) {  
+- // Exception handler
+-             logger.error(e);  
+-         }  
+- returnnull;  
+-     }  
+- 
+- /**
+-      * 功能简述: 创建私钥，用于RSA非对称加密.
+-      * @return
+-      */
+- publicstatic PrivateKey createPrivateKey() {  
+- return keyPair.getPrivate();  
+-     }  
+- 
+- /**
+-      * 功能简述: 创建公钥，用于RSA非对称加密.
+-      * @return
+-      */
+- publicstatic PublicKey createPublicKey() {  
+- return keyPair.getPublic();  
+-     }  
+- 
+- /**
+-      * 功能简述: 使用RSA算法加密.
+-      * @param plainData 明文数据
+-      * @param key   密钥
+-      * @return
+-      */
+- publicstaticbyte[] encryptRSA(byte[] plainData, Key key) {  
+- return processCipher(plainData, key, Cipher.ENCRYPT_MODE, RSA_ALGORITHM);  
+-     }  
+- 
+- /**
+-      * 功能简述: 使用RSA算法解密.
+-      * @param cipherData    密文数据
+-      * @param key   密钥
+-      * @return
+-      */
+- publicstaticbyte[] decryptRSA(byte[] cipherData, Key key) {  
+- return processCipher(cipherData, key, Cipher.DECRYPT_MODE, RSA_ALGORITHM);  
+-     }  
+- 
+- /**
+-      * 功能简述: 使用私钥对加密数据创建数字签名.
+-      * @param cipherData     已经加密过的数据
+-      * @param privateKey    私钥
+-      * @return
+-      */
+- publicstaticbyte[] createSignature(byte[] cipherData, PrivateKey privateKey) {  
+- try {  
+-             Signature signature  = Signature.getInstance(SIGNATURE_ALGORITHM);  
+-             signature.initSign(privateKey);  
+-             signature.update(cipherData);  
+- return signature.sign();  
+-         }  
+- catch (Exception e) {  
+- // Exception handler
+-             logger.error(e);   
+-         }  
+- returnnull;  
+-     }  
+- 
+- /**
+-      * 功能简述: 使用公钥对数字签名进行验证.
+-      * @param signData  数字签名
+-      * @param publicKey 公钥
+-      * @return
+-      */
+- publicstaticboolean verifySignature(byte[] cipherData, byte[] signData, PublicKey publicKey) {  
+- try {  
+-             Signature signature  = Signature.getInstance(SIGNATURE_ALGORITHM);  
+-             signature.initVerify(publicKey);  
+-             signature.update(cipherData);  
+- return signature.verify(signData);  
+-         }  
+- catch (Exception e) {  
+- // Exception handler
+-             logger.error(e);  
+-         }  
+- returnfalse;  
+-     }  
+- }  
+<二>. Commons Codec对BASE64的扩展支持：
+      JDK提供了对BASE64的标准支持，每隔76个字符进行换行\r\n，并且包含+、=、/等特殊字符不适合作为url参数传递。因此通常都会使用Commons Codec来进行BASE64的加密和解密。下载commons-codec-1.8.jar并添加到lib下面，注意选择高版本，低版本有些方法不支持。![天真](http://www.iteye.com/javascripts/tinymce/plugins/emotions/img/smiley-innocent.gif)
+ 1. 是否换行：
+Java代码 
+- byte[] cipherData = Base64.encodeBase64(plainText.getBytes()); //默认不换行  
+- byte[] cipherData = Base64.encodeBase64(plainText.getBytes(), false); //取消换行
+- byte[] cipherData = Base64.encodeBase64Chunked(plainText.getBytes()); //进行换行
+- String cipherText = Base64.encodeBase64String(plainText.getBytes()); //转为字符串
+  2. 安全的url：转换+为-、/为_、将多余的=去掉
+Java代码 
+- byte[] cipherData = Base64.encodeBase64(plainText.getBytes(), false, true);  
+- byte[] cipherData = Base64.encodeBase64URLSafe(plainText.getBytes());  
+- String cipherText = Base64.encodeBase64URLSafeString(plainText.getBytes());  

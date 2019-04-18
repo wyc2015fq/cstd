@@ -1,0 +1,17 @@
+# Imagenet FoW类数据集 SIFT特征 - YZXnuaa的博客 - CSDN博客
+2018年05月15日 19:02:58[YZXnuaa](https://me.csdn.net/YZXnuaa)阅读数：264
+原文地址http://www.image-net.org/download-features
+We currently provide densely sampled **SIFT**[1] features. We provide raw SIFT descriptors as well as quantized codewords. Spatial coordiates of each descriptor/codeword are also included. The quantized codewords are suitable for **Bag of Words** representations[2][3]. The features are packaged as Matlab files and can be freely downloaded ( no signing-in is required ). Details are as follows:
+Each image is resized to have a max side length of no more than 300 pixel. SIFT descriptors are computed on 20x20 overlapping patches with a spacing of 10 pixels. Images are further downsized (to 1/2 the side length and then 1/4 of the side length) and more descriptors are computed. We use the [VLFeat](http://www.vlfeat.org/)[4] implemenation of dense SIFT (version 0.9.4.1).![](http://www.image-net.org/feature_fig/dog_intdet.png)We perform k-means clustering of a random subset of 10 million SIFT descriptors to form a visual vocabulary of 1000 visual words. Each SIFT descriptor is quantized into a visual word using the nearest cluster center.![](http://www.image-net.org/feature_fig/dog_quantized.png)References:- David G. Lowe, **Distinctive Image Features from Scale-Invariant Keypoints. ***International Journal of Computer Vision, 2004. *[pdf](http://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf)
+- L. Fei-Fei and P. Perona, **A Bayesian Hierarchical Model for Learning Natural Scene Categories. ***IEEE Comp. Vis. Patt. Recog. 2005. *[pdf](http://vision.stanford.edu/documents/Fei-FeiPerona2005.pdf)
+- Svetlana Lazebnik, Cordelia Schmid and Jean Ponce, **Beyond Bags of Features: Spatial Pyramid Matching for Recognizing Natural Scene Categories. ***IEEE Comp. Vis. Patt. Recog. 2006. *[pdf](http://www-cvr.ai.uiuc.edu/ponce_grp/publication/paper/cvpr06b.pdf)
+- A. Vedaldi and B. Fulkerson. **VLFeat: An Open and Portable Library of Computer Vision Algorithms. ***2008.*[http://www.vlfeat.org](http://www.vlfeat.org/)
+###### How to download?
+- We have not yet released SIFT features for all synsets. To check the list of synsets with SIFT features released, please use the API:- http://www.image-net.org/api/text/imagenet.sbow.obtain_synset_list
+You can [click here](http://www.image-net.org/api/text/imagenet.sbow.obtain_synset_wordlist) to obtain the synset names.
+- When you browse ImageNet from the Explore page, you can download the bag of visual words (sbow) feature of a synset if there is an icon "Download BoW Feature" below the image view panel.
+You can download the bag of visual words ( sbow ) feature for a given synset using the API:- http://www.image-net.org/api/download/imagenet.sbow.synset?wnid=[wnid]
+The API will return a Matlab ( .mat ) file. In the Matlab file, each descriptor has 5 fields: *x, y, norm, scale, word*. The *word* field is the index of the cluster center, i.e. an integer between 0 and 999.
+###### Code for computing the features
+- The code used to computing the features has been released in the [development kit](http://www.image-net.org/challenges/LSVRC/2010/download/ILSVRC2010_devkit-1.0.tar.gz) of the [ImageNet Large Scale Visual Recognition Challenge (ILSVRC2010)](http://www.image-net.org/challenges/LSVRC/2010/index). Please consult the readme file in the kit for details.
+To learn more about downloading using the HTTP protocol, please refer to *[API documentation](http://www.image-net.org/download-API)*.

@@ -80,6 +80,17 @@ def getlist_sina(url):
             ll.append(i)
     return ll
 
+def getlist_skywind(url):
+    data = getdata(url)
+    aa='//a[@rel="bookmark"]/@href'
+    html = etree.HTML(data)
+    tt = html.xpath(aa)
+    ll=[]
+    for i in tt:
+        if i.find('www.skywind.me/blog/archives/')>0:
+            ll.append(i)
+    return ll
+
 def getlist_jobbole(url):
     data = getdata(url)
     aa='//div[@class="post-thumb"]/a/@href'
@@ -213,6 +224,15 @@ if __name__ == '__main__':
             urllist = map(lambda i:url+str(i)+'/', range(1,1000))
             urllist = list(urllist)
             down_list(urllist, getlist_jobbole)
+        else:
+            down_csdn_one(url)
+    elif url.find('www.skywind.me')>0:
+        if url.find('/blog/page/')>0:
+            url = '/'.join(url.split('/')[0:4])
+            url += '/page/'
+            urllist = map(lambda i:url+str(i), range(1,1000))
+            urllist = list(urllist)
+            down_list(urllist, getlist_skywind)
         else:
             down_csdn_one(url)
     elif url.find('zhihu.com')>0:

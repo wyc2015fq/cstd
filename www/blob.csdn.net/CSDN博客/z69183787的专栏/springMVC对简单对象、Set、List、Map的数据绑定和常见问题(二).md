@@ -1,0 +1,109 @@
+# springMVC对简单对象、Set、List、Map的数据绑定和常见问题(二) - z69183787的专栏 - CSDN博客
+2016年08月20日 14:07:06[OkidoGreen](https://me.csdn.net/z69183787)阅读数：711
+**6、List绑定**
+List需要绑定在对象上，而不能直接写在Controller方法的参数中。
+- **public****class** User {  
+- 
+- **private** String firstName;  
+- 
+- **private** String lastName;  
+- 
+-     。。。  
+- 
+- }  
+- 
+- **public****class** UserListForm {  
+- 
+- **private** List users;  
+- 
+-     。。。  
+- 
+- }  
+- @RequestMapping("test.do")  
+- **public****void** test(UserListForm userForm) {  
+- **for** (User user : userForm.getUsers()) {  
+-         System.out.println(user.getFirstName() + " - " + user.getLastName());  
+-     }  
+- }  
+- **<</span>formaction="test.do"method="post">**
+- **<</span>table>**
+- **<</span>thead>**
+- **<</span>tr>**
+- **<</span>th>First Name</</span>th>**
+- **<</span>th>Last Name</</span>th>**
+- **</</span>tr>**
+- **</</span>thead>**
+- **<</span>tfoot>**
+- **<</span>tr>**
+- <</span>tdcolspan="2"><</span>inputtype="submit"value="Save"/></</span>td>
+- **</</span>tr>**
+- **</</span>tfoot>**
+- **<</span>tbody>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[0].firstName"value="aaa"/></</span>td>
+- <</span>td><</span>inputname="users[0].lastName"value="bbb"/></</span>td>
+- **</</span>tr>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[1].firstName"value="ccc"/></</span>td>
+- <</span>td><</span>inputname="users[1].lastName"value="ddd"/></</span>td>
+- **</</span>tr>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[2].firstName"value="eee"/></</span>td>
+- <</span>td><</span>inputname="users[2].lastName"value="fff"/></</span>td>
+- **</</span>tr>**
+- **</</span>tbody>**
+- **</</span>table>**
+- **</</span>form>**
+其实，这和第4点User对象中的contantInfo数据的绑定有点类似，但是这里的UserListForm对象里面的属性被定义成List，而不是普通自定义对象。所以，在JSP中需要指定List的下标。值得一提的是，Spring会创建一个以最大下标值为size的List对象，所以，如果JSP表单中有动态添加行、删除行的情况，就需要特别注意，譬如一个表格，用户在使用过程中经过多次删除行、增加行的操作之后，下标值就会与实际大小不一致，这时候，List中的对象，只有在jsp表单中对应有下标的那些才会有值，否则会为null，看个例子：
+- **<</span>formaction="test.do"method="post">**
+- **<</span>table>**
+- **<</span>thead>**
+- **<</span>tr>**
+- **<</span>th>First Name</</span>th>**
+- **<</span>th>Last Name</</span>th>**
+- **</</span>tr>**
+- **</</span>thead>**
+- **<</span>tfoot>**
+- **<</span>tr>**
+- <</span>tdcolspan="2"><</span>inputtype="submit"value="Save"/></</span>td>
+- **</</span>tr>**
+- **</</span>tfoot>**
+- **<</span>tbody>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[0].firstName"value="aaa"/></</span>td>
+- <</span>td><</span>inputname="users[0].lastName"value="bbb"/></</span>td>
+- **</</span>tr>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[1].firstName"value="ccc"/></</span>td>
+- <</span>td><</span>inputname="users[1].lastName"value="ddd"/></</span>td>
+- **</</span>tr>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[20].firstName"value="eee"/></</span>td>
+- <</span>td><</span>inputname="users[20].lastName"value="fff"/></</span>td>
+- **</</span>tr>**
+- **</</span>tbody>**
+- **</</span>table>**
+- **</</span>form>**
+这个时候，Controller中的userForm.getUsers()获取到List的size为21，而且这21个User对象都不会为null，但是，第2到第19的User对象中的firstName和lastName都为null。打印结果：
+- aaa - bbb  
+- ccc - ddd  
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- **null** - **null**
+- eee - fff  
+- 

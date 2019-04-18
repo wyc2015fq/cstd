@@ -1,27 +1,7 @@
 # Python多线程之：threading模块 - alw2009的博客 - CSDN博客
-
-
-
-
-
-2017年12月09日 15:33:51[traveler_zero](https://me.csdn.net/alw2009)阅读数：92
-
-
-
-
-
-
-
-
+2017年12月09日 15:33:51[traveler_zero](https://me.csdn.net/alw2009)阅读数：93
 废话少说，干货送上：
-
-
-
-
 例子1：如何用threading模块创建一个简单的线程
-
-
-
 ```python
 import threading
  import time
@@ -38,12 +18,7 @@ import threading
  while(1):
      pass
 ```
-
-
 例子2：如何传参到线程？
-
-
-
 ```python
 import threading
  import time
@@ -72,12 +47,6 @@ import threading
  
  cook.join()
 ```
-
 ```python
 drive.join()
 ```
-
-
-
-
-

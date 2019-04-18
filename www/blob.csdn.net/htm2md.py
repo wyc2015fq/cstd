@@ -180,6 +180,17 @@ def parser_span(parser, jj, i, l, out):
     return parser_text(parser, jj, i, l, out)
 
 
+def parser_pre(parser, jj, i, l, out):
+    attrs_dict = jj[i]['attrs']
+    if 'class' in attrs_dict:
+        cls = attrs_dict['class']
+        if cls[0:6]=='brush:':
+            lang = cls.split(':')[1]
+            return parser_code_block(parser, jj, i, l, out, lang)
+
+    return parser_text(parser, jj, i, l, out)
+
+
 def parser_script(parser, jj, i, l, out):
     attrs_dict = jj[i]['attrs']
     if 'type' in attrs_dict:
@@ -305,7 +316,7 @@ def parser_img(parser, jj, i, l, out):
         if s in attrs_dict and len(attrs_dict[s].strip())>0:
             href = attrs_dict[s]
 
-    if  len(href.strip())>0 and href.find('svg')<0:
+    if  len(href.strip())>0 and href.find('svg')<0 and href.find('ExpandedBlockStart.gif')<0 and href.find('ContractedBlock.gif')<0:
         if 'alt' in attrs_dict:
             alt=attrs_dict['alt']
 
@@ -325,6 +336,7 @@ parser={
     'table': parser_table,
     'img': parser_img,
     'div': parser_div,
+    'pre': parser_pre,
     'li': parser_li,
     'dt': parser_li,
     'em': parser_em,
@@ -565,6 +577,23 @@ def node_filter_jobbole(node):
     return 0
 
 
+def node_filter_skywind(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='post':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='under':
+        return 3
+
+    return 0
+
+
 FILTER = {
     'csdn': {'filter':node_filter_csdn, 'site':'https://blog.csdn.net', 'root':'CSDN博客'},
     'cnblogs': {'filter':node_filter_cnblogs, 'site':'https://www.cnblogs.com', 'root':'博客园'},
@@ -577,6 +606,7 @@ FILTER = {
     'blog.sciencenet.cn': {'filter':node_filter_sciencenet, 'site':'', 'root':'科学网'},
     'blog.sina.com.cn': {'filter':node_filter_sina, 'site':'', 'root':'新浪博客'},
     'blog.jobbole.com': {'filter':node_filter_jobbole, 'site':'', 'root':'伯乐在线'},
+    'www.skywind.me': {'filter':node_filter_skywind, 'site':'', 'root':'Skywind'},
 }
 
 def savetext(fn, d):
@@ -642,6 +672,15 @@ def htm2md(t):
         ll = html.xpath(aa)[0]
         ll = ll.replace('/', '-').strip()
         out['title'] = out['title'].replace('文章 - 伯乐在线', ll + ' - 伯乐在线')
+        #html = etree.HTML(html_code)
+
+    if aaa=='www.skywind.me':
+        print(out['title'])
+        html = etree.HTML(html_code)
+        aa='//div[@id]/a[@rel="category tag"]/text()'
+        ll = html.xpath(aa)[0]
+        ll = ll.replace('/', '-').strip()
+        out['title'] = out['title'].replace('Skywind Inside » ', '').strip() + ' - ' + ll +' - Skywind'
         #html = etree.HTML(html_code)
 
     d = d.replace('\n\n\n', '\n').replace('\n\n\n', '\n').replace('\n\n', '\n')

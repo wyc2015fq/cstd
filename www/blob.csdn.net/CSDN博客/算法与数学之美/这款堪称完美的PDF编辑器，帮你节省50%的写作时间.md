@@ -1,0 +1,34 @@
+# 这款堪称完美的PDF编辑器，帮你节省50%的写作时间 - 算法与数学之美 - CSDN博客
+2017年12月21日 00:00:00[算法与数学之美](https://me.csdn.net/FnqTyr45)阅读数：418
+PDF是当下非常流行的文档处理软件，在日常使用中，如果我们想要编辑或者修改PDF文件的内容，通常都是先转换成word，在word里修改完再转换成PDF，既麻烦又浪费时间。
+这个时候就需要一个专业的PDF编辑工具来帮我们节省时间了，本着为大家服务的宗旨，答答给大家带来了一个堪称完美的PDF编辑器。
+>>>> 
+**软件使用教程**
+友情提示：安装软件的时候，会提示绑定其他软件如2345浏览器，记得要取消绑定。
+首先下载软件，安装后运行，打开一个PDF文件，主界面如下：
+![640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/ByQraaXy5aAhZxHsCibhLbNPBDw4sz2ibpfXKMYGMGvVrlW7NtqsWTokHwoehdCrsiaQ3gznq1Zs1u5f8E0LRzbZA/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1)
+由于本款软件功能着实强大，这里答答只演示几个常用的功能。
+01
+**插入删除文本**
+比如下图，我们这里要把论文标题改成“答魔社区”。
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/ByQraaXy5aAhZxHsCibhLbNPBDw4sz2ibpolHgIJhicACjIE8ICBehZ5cEBiadNT0NribIpVYWJtjFKFwlvMVnhvOqw/640?wx_fmt=jpeg)
+首先点击软件界面工具栏的T，这是文本工具，点击即可修改文本，直接把论文标题删除，输入“答魔社区”即可。效果如下：
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/ByQraaXy5aAhZxHsCibhLbNPBDw4sz2ibph705iaxlluDuwkrQibCttZvpN7H2BfRFdb8cYLyPhFRQa0qnC2c1ykmw/640?wx_fmt=jpeg)
+02
+**文本替换**
+这次我们要进行文本替换，把"答魔社区"替换成“答魔科研社区”，可以直接使用快捷键Ctrl+F，点击替换，然后在查找处属于被替换文本，在替换处输入替换后的文本，再点击全部替换即可。
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/ByQraaXy5aAhZxHsCibhLbNPBDw4sz2ibpGdeH9I4L4VPUmGdhU5l97BSLrRI4FJSTTgA1GqSiaHxibUEyJheTCzgA/640?wx_fmt=jpeg)
+03
+**移动布局**
+有时为了调整版面布局，需要调整某一块内容的位置，在软件上方工具栏处，选择蓝色箭头，比如这里，我们把第一行放在中间。
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/ByQraaXy5aAhZxHsCibhLbNPBDw4sz2ibpesXCZwfkFxReJDwMKML9BQia9LAoibWLZd1ibRbicbln1vDSqXJ6MiaGNHA/640?wx_fmt=jpeg)
+04
+**增加水印**
+给PDF增加水印，要求水印必须是PDF格式，点击文档—水印—添加，这里有内置水印也可添加自己的水印，选择水印所在位置，调整水印比例，然后点击应用即可。要删除水印的话，不能撤销上一步，需要点击文档—水印—删除。
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_jpg/ByQraaXy5aAhZxHsCibhLbNPBDw4sz2ibppVkdt69snck4L6BSDbQuJlWFckmsGbnjwsf6PXc8hdXmvBN1n0FEuw/640?wx_fmt=jpeg)
+以上只是我们编辑PDF的初步操作，也是用的最多的，这款软件还有很多强大的处理功能，比如分组隐藏；利用CAT进行翻译；以及填写表单等等，需要你们陆续去发现喽！
+关注公众号：答魔社区
+回复：PDF编辑器 
+自行获取本文资源
+更多惊喜等着你哦
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/ByQraaXy5aCZFKYwILkKz1X5hvh7cpTdveJt6gmDHN8qIPvlMNp7YQnZ9noXUWiaUwY0iacmjibPQoiavkDQfVfzrg/640?wx_fmt=jpeg)

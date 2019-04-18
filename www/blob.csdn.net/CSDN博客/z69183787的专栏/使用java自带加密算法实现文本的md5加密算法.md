@@ -1,0 +1,90 @@
+# 使用java自带加密算法实现文本的md5加密算法 - z69183787的专栏 - CSDN博客
+2017年05月22日 18:05:25[OkidoGreen](https://me.csdn.net/z69183787)阅读数：1755
+转载请注明出处：[http://blog.csdn.net/xiaojimanman/article/details/21456943](http://blog.csdn.net/xiaojimanman/article/details/21456943)
+       本篇使用[Java](http://lib.csdn.net/base/javase)自带的MessageDigest实现对文本的md5加密[算法](http://lib.csdn.net/base/datastructure)，具体代码如下：
+**[java]**[view
+ plain](http://blog.csdn.net/xiaojimanman/article/details/21456943#)[copy](http://blog.csdn.net/xiaojimanman/article/details/21456943#)
+[print](http://blog.csdn.net/xiaojimanman/article/details/21456943#)[?](http://blog.csdn.net/xiaojimanman/article/details/21456943#)
+- /**  
+-  *@Description: 将字符串转化为MD5
+-  */
+- package cn.yicha.novel.util;    
+- 
+- import java.security.MessageDigest;  
+- import java.security.NoSuchAlgorithmException;  
+- 
+- publicclass ParseMD5 {  
+- 
+- /**
+-      * @param str
+-      * @return
+-      * @Date: 2013-9-6  
+-      * @Author: lulei  
+-      * @Description:  32位小写MD5
+-      */
+- publicstatic String parseStrToMd5L32(String str){  
+-         String reStr = null;  
+- try {  
+-             MessageDigest md5 = MessageDigest.getInstance("MD5");  
+- byte[] bytes = md5.digest(str.getBytes());  
+-             StringBuffer stringBuffer = new StringBuffer();  
+- for (byte b : bytes){  
+- int bt = b&0xff;  
+- if (bt < 16){  
+-                     stringBuffer.append(0);  
+-                 }   
+-                 stringBuffer.append(Integer.toHexString(bt));  
+-             }  
+-             reStr = stringBuffer.toString();  
+-         } catch (NoSuchAlgorithmException e) {  
+-             e.printStackTrace();  
+-         }  
+- return reStr;  
+-     }  
+- 
+- /**
+-      * @param str
+-      * @return
+-      * @Date: 2013-9-6  
+-      * @Author: lulei  
+-      * @Description: 32位大写MD5
+-      */
+- publicstatic String parseStrToMd5U32(String str){  
+-         String reStr = parseStrToMd5L32(str);  
+- if (reStr != null){  
+-             reStr = reStr.toUpperCase();  
+-         }  
+- return reStr;  
+-     }  
+- 
+- /**
+-      * @param str
+-      * @return
+-      * @Date: 2013-9-6  
+-      * @Author: lulei  
+-      * @Description: 16位小写MD5
+-      */
+- publicstatic String parseStrToMd5U16(String str){  
+-         String reStr = parseStrToMd5L32(str);  
+- if (reStr != null){  
+-             reStr = reStr.toUpperCase().substring(8, 24);  
+-         }  
+- return reStr;  
+-     }  
+- 
+- /**
+-      * @param str
+-      * @return
+-      * @Date: 2013-9-6  
+-      * @Author: lulei  
+-      * @Description: 16位大写MD5
+-      */
+- publicstatic String parseStrToMd5L16(String str){  
+-         String reStr = parseStrToMd5L32(str);  
+- if (reStr != null){  
+-             reStr = reStr.substring(8, 24);  
+-         }  
+- return reStr;  
+-     }  
+- }  
+- 

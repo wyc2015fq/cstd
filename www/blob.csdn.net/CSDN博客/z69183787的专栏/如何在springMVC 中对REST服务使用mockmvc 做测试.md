@@ -1,0 +1,245 @@
+# 如何在springMVC 中对REST服务使用mockmvc 做测试 - z69183787的专栏 - CSDN博客
+2016年11月09日 18:52:29[OkidoGreen](https://me.csdn.net/z69183787)阅读数：3491
+spring 集成测试中 对mock 的集成实在是太棒了！但是使用请注意一下3个条件。
+- junit 必须使用4.9以上
+- 同时您的框架必须是用spring mvc 
+- spring 3.2以上才完美支持
+目前使用spring MVC 取代struts2 的很多，spring MVC 的各种灵活让人无比销魂！所以使用spring MVC吧！
+以前在对接口（主要是java服务端提供的接口（一般是：webService,restful））进行测试的中 一般用以下俩种方法。测试流程如图：
+![](http://dl2.iteye.com/upload/attachment/0085/4328/20a91f1e-cd09-35dc-918f-e1336dce6043.jpg)
+1 直接使用httpClient 
+    这方法各种麻烦
+2 使用Spring 提供的RestTemplate
+    错误不好跟踪，必须开着服务器
+使用mockMVC都不是问题了看使用实例：
+使用事例如下：父类
+Java代码  ![收藏代码](http://jiuyuehe.iteye.com/images/icon_star.png)
+- import org.junit.runner.RunWith;  
+- import org.springframework.beans.factory.annotation.Autowired;  
+- import org.springframework.test.context.ContextConfiguration;  
+- import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;  
+- import org.springframework.test.context.web.WebAppConfiguration;  
+- import org.springframework.web.context.WebApplicationContext;  
+- 
+- @WebAppConfiguration
+- @ContextConfiguration(locations = { "classpath:applicationContext.xml",    
+- "classpath:xxxx-servlet.xml" })  
+- publicclass AbstractContextControllerTests {  
+- 
+- @Autowired
+- protected WebApplicationContext wac;  
+- 
+- }  
+- 
+- 子类：  
+- 
+- import org.junit.Before;  
+- import org.junit.Test;  
+- import org.junit.runner.RunWith;  
+- import org.springframework.beans.factory.annotation.Autowired;  
+- import org.springframework.http.MediaType;  
+- import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;  
+- import org.springframework.test.web.servlet.MockMvc;  
+- import org.springframework.test.web.servlet.setup.MockMvcBuilders;  
+- 
+- import com.conlect.oatos.dto.status.RESTurl;  
+- import com.qycloud.oatos.server.service.PersonalDiskService;  
+- 
+- //这个必须使用junit4.9以上才有。
+- @RunWith(SpringJUnit4ClassRunner.class)  
+- publicclass PersonalDiskMockTests extends AbstractContextControllerTests {  
+- 
+- 
+- privatestatic String URI = RESTurl.searchPersonalFile;  
+- 
+- private MockMvc mockMvc;  
+- 
+- private String json ="{\"entId\":1234,\"userId\":1235,\"key\":\"new\"}";  
+- 
+- @Autowired
+- private PersonalDiskService personalDiskService;  
+- 
+- @Before
+- publicvoid setup() {  
+- //this.mockMvc = webAppContextSetup(this.wac).alwaysExpect(status().isOk()).build();
+- this.mockMvc = MockMvcBuilders.standaloneSetup(personalDiskService).build();  
+-     }  
+- 
+- @Test
+- publicvoid readJson() throws Exception {  
+- this.mockMvc.perform(  
+-                 post(URI, "json").characterEncoding("UTF-8")  
+-                     .contentType(MediaType.APPLICATION_JSON)  
+-                     .content(json.getBytes()))  
+-                 .andExpect(content().string("Read from JSON: JavaBean {foo=[bar], fruit=[apple]}")  
+-                     );  
+-     }  
+上面是简单的例子，实际使用起来可以稍做修改。记得导入spring -test jar 包。无需额外配置（是不是很方便！）
+当然和junit 的assert 一起用的话效果更好。下面贴点例子。copy就能跑。
+Java代码  ![收藏代码](http://jiuyuehe.iteye.com/images/icon_star.png)
+- package com.qycloud.oatos.server.test.mockmvcTest;  
+- 
+- importstatic org.junit.Assert.fail;  
+- importstatic org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;  
+- 
+- import java.io.UnsupportedEncodingException;  
+- import java.lang.reflect.Field;  
+- 
+- import org.springframework.http.MediaType;  
+- import org.springframework.test.web.servlet.MockMvc;  
+- 
+- import com.conlect.oatos.dto.status.CommConstants;  
+- import com.conlect.oatos.dto.status.ErrorType;  
+- import com.conlect.oatos.http.PojoMapper;  
+- 
+- publicclass MockUtil {  
+- 
+- /**
+-      * mock
+-      * 
+-      * @param uri
+-      * @param json
+-      * @return
+-      * @throws UnsupportedEncodingException
+-      * @throws Exception
+-      */
+- publicstatic String mock(MockMvc mvc, String uri, String json)  
+- throws UnsupportedEncodingException, Exception {  
+- return mvc  
+-                 .perform(  
+-                         post(uri, "json").characterEncoding("UTF-8")  
+-                                 .contentType(MediaType.APPLICATION_JSON)  
+-                                 .content(json.getBytes())).andReturn()  
+-                 .getResponse().getContentAsString();  
+-     }  
+- 
+- 
+- /**
+-      * 
+-      * @param re 返回值
+-      * @param object 要转换的对象
+-      * @param testName 当前测试的对象
+-      */
+- publicstatic <T> void check(String re, Class<T> object,String testName) {  
+-         System.out.println(re);  
+- if (ErrorType.error500.toString().equals(re)) {  
+-             System.out.println("-----该接口测试失败：-----"
+-                     + testName);  
+-             fail(re);  
+-         } elseif (CommConstants.OK_MARK.toString().equals(re)) {  
+-             System.out.println("-----该接口测试成功：-----"
+-                     + testName);  
+-         }else{  
+-             System.out.println("-----re----- :"+re);  
+-         }  
+- if (object != null) {  
+- if (re.contains(":")) {  
+- try {  
+-                     T t = PojoMapper.fromJsonAsObject(re, object);  
+-                     System.out.println("-----该接口测试成功：-----"
+-                             + testName);  
+-                 } catch (Exception e) {  
+-                     System.out.println("-----该接口测试失败：-----"
+-                             + testName);  
+-                     fail(e.getMessage());  
+-                 }  
+-             }  
+-         }  
+- 
+-     }  
+- 
+- 
+- /**
+-      * 初始化版本信息。每次调用测试用力之前首先更新版本信息
+-      * @param mockMvc
+-      * @param url
+-      * @param fileId
+-      * @param class1
+-      * @return
+-      * @throws UnsupportedEncodingException
+-      * @throws Exception
+-      */
+- publicstatic <T> Long updateVersion(MockMvc mockMvc, String url,  
+-             Long fileId, Class<T> class1) throws UnsupportedEncodingException, Exception {  
+- 
+-         String re = mock(mockMvc, url, fileId+"");  
+- 
+-         T dto = PojoMapper.fromJsonAsObject(re, class1);  
+- 
+- Long version = Long.parseLong(dto.getClass().getMethod("getVersion").invoke(dto).toString());     
+-         System.out.println("version = "+version);  
+- 
+- return version;  
+- 
+-     }  
+- 
+- }  
+ 使用如下：
+Java代码  ![收藏代码](http://jiuyuehe.iteye.com/images/icon_star.png)
+- @RunWith(SpringJUnit4ClassRunner.class)  
+- publicclass PersonalDiskMockTests extends AbstractContextControllerTests {  
+- 
+- private MockMvc mockMvc;  
+- 
+- privatestatic Long entId = 1234L;  
+- privatestatic Long adminId = 1235L;  
+- 
+- 
+- 
+- 
+- @Autowired
+- private PersonalDiskService personalDiskService;  
+- 
+- @Before
+- publicvoid setup() {  
+- this.mockMvc = MockMvcBuilders.standaloneSetup(personalDiskService)  
+-                 .build();  
+-     }  
+- 
+- /***
+-      * pass
+-      * 全局搜索企业文件
+-      * 
+-      * @throws Exception
+-      */
+- @Test
+- publicvoid searchPersonalFile() throws Exception {  
+- 
+-         SearchFileParamDTO sf = new SearchFileParamDTO();  
+-         sf.setEntId(entId);  
+-         sf.setKey("li");  
+-         sf.setUserId(adminId);  
+- 
+-         String json = PojoMapper.toJson(sf);  
+- 
+-         String re = MockUtil.mock(this.mockMvc, RESTurl.searchPersonalFile,  
+-                 json);  
+-         MockUtil.check(re, SearchPersonalFilesDTO.class, "searchPersonalFile");  
+- 
+-     }  
+- ｝  
+ 当然@setup里面是每个@test执行时都会执行一次的，所以有些需要每次都实例化的参数可以放进来
+如下：
+Java代码  ![收藏代码](http://jiuyuehe.iteye.com/images/icon_star.png)
+- @Autowired
+- private ShareDiskService shareDiskService;  
+- 
+- @Before
+- publicvoid setup() {  
+- this.mockMvc = MockMvcBuilders.standaloneSetup(shareDiskService)  
+-                 .build();  
+- try {  
+-             initDatas();  
+-         } catch (Exception e) {  
+-             e.printStackTrace();  
+-         }  
+-     }  
+- 
+- 
+- 
+- privatevoid initDatas() throws UnsupportedEncodingException, Exception {  
+-         FileIdVersion = MockUtil.updateVersion(mockMvc,RESTurl.getShareFileById,FileId,ShareFileDTO.class);  
+-         File2IdVersion = MockUtil.updateVersion(mockMvc,RESTurl.getShareFileById,File2Id,ShareFileDTO.class);  
+-         oldPicFolderVersion = MockUtil.updateVersion(mockMvc,RESTurl.getShareFolderById,oldPicFolderId,ShareFolderDTO.class);  
+-     }  
+ ok！基本使用大致如此，代码没有些注释，但是很简单，看懂是没问题的。权当抛砖引玉。希望大家加以指正！

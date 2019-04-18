@@ -1,0 +1,145 @@
+# Statement和PreparedStatement批量更新 - z69183787的专栏 - CSDN博客
+2013年03月01日 15:38:48[OkidoGreen](https://me.csdn.net/z69183787)阅读数：1051
+**优势：1.节省传递时间。 2.并发处理。**
+**PreparedStatement：**
+**1） ****addBatch()将一组参数添加到PreparedStatement对象内部。**
+**2） ****executeBatch()将一批参数提交给数据库来执行，如果全部命令执行成功，则返回更新计数组成的数组。**
+**Statement：**
+**1） ****addBatch(String sql)方法会在批处理缓存中加入一条sql语句。**
+**2） ****executeBatch()执行批处理缓存中的所有sql语句。**
+**注意：PreparedStatement中使用批量更新时，要先设置好参数后再使用addBatch()方法加入缓存。批量更新中只能使用更改、删除或插入语句。**
+Java代码  ![收藏代码](http://wangqinqin.iteye.com/images/icon_star.png)
+- Statement批量处理和事务代码如下：  
+- package com.ambow.day20.jdbc.JDBCTestCommitAndRollback;  
+- import java.sql.Connection;  
+- import java.sql.SQLException;  
+- import java.sql.Statement;  
+- import com.ambow.day19.jdbc.util.JDBCConAndClo;  
+- /*
+-  *1,首先把Auto commit设置为false,不让它自动提交
+-  *2,进行手动提交（commit）
+-  *3,提交完成后回复现场将Auto commit,还原为true,
+-  *4,当异常发生执行catch中SQLException时，记得要rollback(回滚)；
+-  * */
+- publicclass StatementCommitAndRollbackTest {  
+- publicstaticvoid main(String args[]) {  
+-         Connection con = null;  
+-         Statement stm = null;  
+- try {  
+-             con = JDBCConAndClo.getConnectionBao();  
+-             stm = con.createStatement();  
+-             con.setAutoCommit(false);  
+- // 若不出现异常，则继续执行到try语句完，否则跳转到catch语句中
+-             stm.addBatch("insert into student values(23,'tangbao','高数',100)");  
+-             stm.addBatch("insert into student values(24,'王定','c#',98)");  
+-             stm.addBatch("insert into student values(25,'王国云','java',90)");  
+-             stm.addBatch("insert into student values(26,'溜出','英语',89)");  
+-             stm.addBatch("insert into student values(27,'wqde','java',63)");  
+- /*
+-              * int[] executeBatch() throws
+-              * SQLException将一批命令提交给数据库来执行，如果全部命令执行成功，则返回更新计数组成的数组。
+-              */
+-             stm.executeBatch();  
+-             System.out.println("插入成功!");  
+- // commit:若成功执行完所有的插入操作，则正常结束
+-             con.commit();  
+-             System.out.println("提交成功!");  
+-             con.setAutoCommit(true);  
+- 
+-         } catch (SQLException e) {  
+-             e.printStackTrace();  
+- try {  
+- //rollback: 若出现异常，对数据库中所有已完成的操作全部撤销，则回滚到事务开始状态
+- if (!con.isClosed()) {  
+-                     con.rollback();  
+-                     System.out.println("提交失败，回滚！");  
+-                     con.setAutoCommit(true);  
+-                 }  
+-             } catch (SQLException e1) {  
+-                 e1.printStackTrace();  
+-             } finally {  
+-                 JDBCConAndClo.closeStatement(stm);  
+-                 JDBCConAndClo.closeConnection(con);  
+-             }  
+-         }  
+-     }  
+- }  
+- PreparedStatement批量处理和事务代码如下：  
+- package com.ambow.day20.jdbc.JDBCTestCommitAndRollback;  
+- import java.sql.Connection;  
+- import java.sql.PreparedStatement;  
+- import java.sql.SQLException;  
+- import com.ambow.day19.jdbc.util.JDBCConAndClo;  
+- 
+- /*
+-  * PreparedStatement:
+-  1.addBatch() 将一组参数添加到 PreparedStatement对象内部
+-  2.executeBatch() 将一批参数提交给数据库来执行，如果全部命令执行成功，则返回更新计数组成的数组。
+-  * 
+-  */
+- publicclass PreparedStatementCommitAndRollbackTest {  
+- publicstaticvoid main(String args[]) {  
+-         Connection con = null;  
+-         PreparedStatement pstm = null;  
+- 
+- try {  
+- // 1. 建立与数据库的连接
+-             con = JDBCConAndClo.getConnectionBao();  
+- // 2. 执行sql语句
+- // 1).先创建PreparedStatement语句(发送slq请求）：
+-             pstm = con.prepareStatement("insert into student values(?,?,?,?)");  
+-             con.setAutoCommit(false);//1,首先把Auto commit设置为false,不让它自动提交
+- // 2) 设置sql语句1
+-             pstm.setInt(1, 33);  
+-             pstm.setString(2,"wangqin");  
+-             pstm.setString(3, "c++");  
+-             pstm.setDouble(4, 78.5);  
+- // 3) 将一组参数添加到此 PreparedStatement 对象的批处理命令中。
+-             pstm.addBatch();  
+- // 2) 设置sql语句2
+-             pstm.setInt(1, 34);  
+-             pstm.setString(2,"wuytun");  
+-             pstm.setString(3, "c");  
+-             pstm.setDouble(4, 77);  
+- // 3) 将一组参数添加到此 PreparedStatement 对象的批处理命令中。
+-             pstm.addBatch();  
+- // 2) 设置sql语句3
+-             pstm.setInt(1, 31);  
+-             pstm.setString(2,"tetet");  
+-             pstm.setString(3, "c++");  
+-             pstm.setDouble(4, 90);  
+- // 3) 将一组参数添加到此 PreparedStatement 对象的批处理命令中。
+-             pstm.addBatch();  
+- // 2) 设置sql语句4
+-             pstm.setInt(1, 32);  
+-             pstm.setString(2,"liug");  
+-             pstm.setString(3, "c");  
+-             pstm.setDouble(4, 50);  
+- // 3) 将一组参数添加到此 PreparedStatement 对象的批处理命令中。
+-             pstm.addBatch();  
+- // 4) 将一批参数提交给数据库来执行，如果全部命令执行成功，则返回更新计数组成的数组。
+-             pstm.executeBatch();  
+-             System.out.println("插入成功！");  
+- // 若成功执行完所有的插入操作，则正常结束
+-             con.commit();//2,进行手动提交（commit）
+-             System.out.println("提交成功!");  
+-             con.setAutoCommit(true);//3,提交完成后回复现场将Auto commit,还原为true,
+- 
+-         } catch (SQLException e) {  
+-             e.printStackTrace();  
+- try {  
+- // 若出现异常，对数据库中所有已完成的操作全部撤销，则回滚到事务开始状态
+- if(!con.isClosed()){  
+-                     con.rollback();//4,当异常发生执行catch中SQLException时，记得要rollback(回滚)；
+-                     System.out.println("插入失败，回滚！");  
+-                     con.setAutoCommit(true);  
+-                 }  
+-             } catch (SQLException e1) {  
+-                 e1.printStackTrace();  
+-             }  
+-         }finally{  
+-             JDBCConAndClo.closePreparedStatement(pstm);  
+-             JDBCConAndClo.closeConnection(con);  
+-         }  
+-     }  
+- }  

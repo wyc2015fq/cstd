@@ -1,0 +1,148 @@
+# JQuery 获取验证上传文件大小代码 - z69183787的专栏 - CSDN博客
+2013年11月15日 09:32:29[OkidoGreen](https://me.csdn.net/z69183787)阅读数：38488
+本文章来能大家介绍JQuery 获取验证上传文件大小代码，以前我们都是直接使用js来验证上传文件大小但有时会不兼容，后来我找到一个不错的JQuery获取上传文件大小与实现文件大小验证函数，大家可参考。
+[jquery](http://www.111cn.net/list-139/)
+- 
+/*
+- 
+*
+- 
+* Function to validate File size
+- 
+*
+- 
+**/
+- 
+function findSize(field_id)
+- 
+{
+- 
+           var fileInput = $("#"+field_id)[0];
+- 
+           byteSize  = fileInput.files[0].fileSize;
+- 
+        return ( Math.ceil(byteSize / 1024) ); // Size returned in KB.
+- 
+}
+复制代码
+再把我以前用的js验证上传文件大小的代码也放上吧，有需要的选择参考。
+- 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+- 
+<html xmlns="http://www.w3.org/1999/xhtml">
+- 
+<head>
+- 
+<meta name="DEscription" contect="my code demo" />
+- 
+<meta name="Author" contect="Michael@www.micmiu.com" />
+- 
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+- 
+</head>
+- 
+<body>
+- 
+  <img id="tempimg" dynsrc="" src="" style="display:none" />
+- 
+  <input type="file" name="file" id="fileuploade" size="40" />
+- 
+  <input type="button" name ="check" value="checkfilesize" onclick="checkfile()"/>
+- 
+</body>
+- 
+<script type="text/javascript">
+- 
+  var maxsize = 2*1024*1024;//2M
+- 
+  var errMsg = "上传的附件文件不能超过2M！！！";
+- 
+  var tipMsg = "您的浏览器暂不支持计算上传文件的大小，确保上传文件不要超过2M，建议使用IE、FireFox、Chrome浏览器。";
+- 
+  var  browserCfg = {};
+- 
+  var ua = window.navigator.userAgent;
+- 
+  if (ua.indexOf("MSIE")>=1){
+- 
+   browserCfg.ie = true;
+- 
+  }else if(ua.indexOf("Firefox")>=1){
+- 
+   browserCfg.firefox = true;
+- 
+  }else if(ua.indexOf("Chrome")>=1){
+- 
+   browserCfg.chrome = true;
+- 
+  }
+- 
+  function checkfile(){
+- 
+   try{
+- 
+     var obj_file = document.getElementById("fileuploade");
+- 
+     if(obj_file.value==""){
+- 
+      alert("请先选择上传文件");
+- 
+      return;
+- 
+     }
+- 
+     var filesize = 0;
+- 
+     if(browserCfg.firefox || browserCfg.chrome ){
+- 
+      filesize = obj_file.files[0].size;
+- 
+     }else if(browserCfg.ie){
+- 
+      var obj_img = document.getElementById('tempimg');
+- 
+      obj_img.dynsrc=obj_file.value;
+- 
+      filesize = obj_img.fileSize;
+- 
+     }else{
+- 
+      alert(tipMsg);
+- 
+       return;
+- 
+     }
+- 
+     if(filesize==-1){
+- 
+      alert(tipMsg);
+- 
+      return;
+- 
+     }else if(filesize>maxsize){
+- 
+      alert(errMsg);
+- 
+      return;
+- 
+    }else{
+- 
+     alert("文件大小符合要求");
+- 
+      return;
+- 
+    }
+- 
+   }catch(e){
+- 
+    alert(e);
+- 
+   }
+- 
+  }
+- 
+</script>
+- 
+</html>
+复制代码
+原文链接：[http://www.111cn.net/wy/jquery/47294.htm](http://www.111cn.net/wy/jquery/47294.htm)

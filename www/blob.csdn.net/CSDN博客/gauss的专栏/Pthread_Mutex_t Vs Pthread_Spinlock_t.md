@@ -1,0 +1,2810 @@
+# Pthread_Mutex_t Vs Pthread_Spinlock_t - gauss的专栏 - CSDN博客
+2015年04月16日 17:09:25[gauss](https://me.csdn.net/mathlmx)阅读数：318
+个人分类：[服务器架构与网络编程](https://blog.csdn.net/mathlmx/article/category/944322)
+
+锁机制(lock) 是多线程编程中最常用的同步机制,用来对多线程间共享的临界区(Critical Section) 进行保护。
+Pthreads提供了多种锁机制,常见的有：
+1) Mutex（互斥量）：pthread_mutex_***
+2) Spin lock（自旋锁）：pthread_spin_***
+3) Condition Variable（条件变量）：pthread_con_***
+4) Read/Write lock（读写锁）：pthread_rwlock_***
+在多线程编中,根据应用场合的不同,选择合适的锁来进行同步,对多线程程序的性能影响非常大. 本文主要对 pthread_mutex 和 pthread_spinlock 两种锁制机进行比较,并讨论其适用的场合.
+# 1 Pthread mutex
+Mutex属于sleep-waiting类型的锁. 从 2.6.x 系列稳定版内核开始, Linux 的 mutex 都是 futex (Fast-Usermode-muTEX)锁.
+futex（快速用户区互斥的简称）是一个在Linux上实现锁定和构建高级抽象锁如信号量和POSIX互斥的基本工具。它们第一次出现在内核开发的2.5.7版；其语义在2.5.40固定下来，然后在2.6.x系列稳定版内核中出现。
+Futex 是由Hubertus Franke（IBM Thomas J. Watson 研究中心）, Matthew Kirkwood，Ingo Molnar（Red Hat）和 Rusty Russell（IBM Linux 技术中心）等人创建的。
+Futex 是由用户空间的一个对齐的整型变量和附在其上的内核空间等待队列构成. 多进程或多线程绝大多数情况下对位于用户空间的futex 的整型变量进行操作(汇编语言调用CPU提供的原子操作指令来增加或减少),而其它情况下,则需要通过代价较大的系统调用来对位于内核空间的等待队列进行操作(如唤醒等待的进程/线程,或 将当前进程/线程放入等待队列). 除了多个线程同时竞争锁的少数情况外,基于 futex 的 lock 操作是不需要进行代价昂贵的系统调用操作的.
+.
+这种机制的核心思想是通过将大多数情况下非同时竞争 lock 的操作放到在用户空间来执行,而不是代价昂贵的内核系统调用方式来执行,从而提高了效率.
+Pthreads提供的Mutex锁操作相关的API主要有：
+1、 pthread_mutex_lock (pthread_mutex_t *mutex);
+2、 pthread_mutex_trylock (pthread_mutex_t *mutex);
+3、 pthread_mutex_unlock (pthread_mutex_t *mutex);
+因为源代码比较长,这里不做摘录,大家可以参考:
+glibc-2.12.2/nptl/pthread_mutex_lock.c
+# 2 Pthread spinlock
+spinlock，也称自旋锁,是属于busy-waiting类型的锁.在多处理器环境中, 自旋锁最多只能被一个可执行线程持有。如果一个可执行线程试图获得一个被争用(已经被持有的)自旋锁，那么该线程就会一直进行忙等待，自旋，也就是空转，等待锁重新可用。如果锁未被争用，请求锁的执行线程便立刻得到它，继续执行。
+一个被争用的自旋锁使得请求它的线程在等待锁重新可用时自旋，特别的浪费CPU时间，所以自旋锁不应该被长时间的持有。实际上，这就是自旋锁的设计初衷，在短时间内进行轻量级加锁。
+Kernel中的自旋锁不能够在能够导致睡眠的环境中使用。举个例子，一个线程A获得了自旋锁L；这个时候，发生了中断，在对应的中断处理函数B中，也尝试获得自旋锁L，就会中断处理程序进行自旋。但是原先锁的持有者只有在中断处理程序结束后，采用机会释放自旋锁，从而导致死锁。
+由于涉及到多个处理器环境下，spin lock的效率非常重要。因为在等待spin lock的过程，处理器只是不停的循环检查，并不执行其他指令。但即使这样， 一般来说，spinlock的开销还是比进程调度(context switch）少得多。这就是spin lock 被广泛应用在多处理器环境的原因
+Pthreads提供的与Spin Lock锁操作相关的API主要有：
+pthread_spin_lock (pthread_spinlock_t *lock);
+pthread_spin_trylock (pthread_spinlock_t *lock);
+pthread_spin_unlock (pthread_spinlock_t *lock);
+下面,来看一下spinlock在pthread中的实现:
+1) spin lock的数据结构
+glibc-2.12.2\nptl\sysdeps\unix\sysv\linux\i386\bits\pthreadtypes.h
+```
+```cpp
+typedef
+```
+```cpp
+volatile
+```
+```cpp
+int
+```
+```cpp
+pthread_spinlock_t;
+```
+```
+2) pthread_spin_lock
+glibc-2.12.2\nptl\sysdeps\i386\pthread_spin_lock.c
+```
+```cpp
+#ifndef
+ LOCK_PREFIX
+```
+```cpp
+#
+ ifdef UP
+```
+```cpp
+# 
+ define LOCK_PREFIX    /* nothing */
+```
+```cpp
+#
+ else
+```
+```cpp
+# 
+ define LOCK_PREFIX    "lock;"
+```
+```cpp
+#
+ endif
+```
+```cpp
+#endif
+```
+```cpp
+int
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>lock
+ (lock)
+```
+```cpp
+```
+```cpp
+pthread_spinlock_t
+ *lock;
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+asm
+ (
+```
+```cpp
+"\n"
+```
+```cpp
+```
+```cpp
+"1:\t"
+```
+```cpp
+LOCK_PREFIX
+```
+```cpp
+"decl
+ %0\n\t"
+```
+```cpp
+```
+```cpp
+"jne
+ 2f\n\t"
+```
+```cpp
+```
+```cpp
+".subsection
+ 1\n\t"
+```
+```cpp
+```
+```cpp
+".align
+ 16\n"
+```
+```cpp
+```
+```cpp
+"2:\trep;
+ nop\n\t"
+```
+```cpp
+```
+```cpp
+"cmpl
+ $0, %0\n\t"
+```
+```cpp
+```
+```cpp
+"jg
+ 1b\n\t"
+```
+```cpp
+```
+```cpp
+"jmp
+ 2b\n\t"
+```
+```cpp
+```
+```cpp
+".previous"
+```
+```cpp
+```
+```cpp
+:
+```
+```cpp
+"=m"
+```
+```cpp
+(*lock)
+```
+```cpp
+```
+```cpp
+:
+```
+```cpp
+"m"
+```
+```cpp
+(*lock));
+```
+```cpp
+```
+```cpp
+return
+```
+```cpp
+0;
+```
+```cpp
+}
+```
+```
+a、 LOCK_PREFIX: 是为了在SMP下锁总线，保证接下来一条指令的原子性。
+b、 %0: 这里是*lock的值，先将lock的值减一，如果ZF=0（lock值不为0），跳到下面的2标签处继续执行；否则执行结束（lock值为0）。
+c、 jne: Jump near if not equal (ZF=0). Not supported in 64-bit mode.
+下面继续看2标签处的代码：
+d、 rep; nop: 为实际上为多个nop指令，实际上这条指令可以降低CPU的运行频率，减低电的消耗量，但最重要的是，提高了整体的效率。因为这段指令执行太快的话，会生成很多读取内存变量的指令，另外的一个CPU可能也要写这个内存变量，现在的CPU经常需要重新排序指令来提高效率，如果读指令太多的话，为了保证指令之间的依赖性，CPU会以牺牲流水线执行（pipeline）所带来的好处。从pentium 4以后，intel引进了一条pause指令，专门用于spin lock这种情况，据intel的文档说，加上pause可以提高25倍的效率！。
+e、 cmpl $0, %0 :比较lock与0的大小，当发现Lock大于0的时候，跳回到1标签，尝试重新获得锁；否则，跳回到标签2继续进行循环。
+f、 标签1处的代码，在尝试获得锁的时候，直接将lock值减1，如果获得锁操作失败的时候，实际上lock值已经被减了1。这样会不会有问题呢？实际上，这个问题不用担心，因为在释放锁的时候，lock的值还会被重新设置为1。
+.subsection和.previous之间的这段代码用来检测spin lock何时被释放. 这段代码与其它的常用指令代码并不是放在同一个代码段中的,因为大部分情况下，lock都会成功返回，将这段lock失败后的操作代码与其它的代码分开，会提高高速缓存的效率（有限的高速缓存可以放置更多的数据）。
+3) pthread_spin_unlock
+glibc-2.12.2\nptl\sysdeps\i386\pthread_spin_unlock.S
+```
+```cpp
+.globl   
+ <strong style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock
+```
+```cpp
+```
+```cpp
+.type   
+ <strong style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock,@function
+```
+```cpp
+```
+```cpp
+.align   
+ 16
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock:
+```
+```cpp
+```
+```cpp
+movl   
+ 4(%esp), %eax
+```
+```cpp
+```
+```cpp
+movl   
+ $1, (%eax)
+```
+```cpp
+```
+```cpp
+xorl   
+ %eax, %eax
+```
+```cpp
+```
+```cpp
+ret
+```
+```cpp
+```
+```cpp
+.size   
+ <strong style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock,.-<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock
+```
+```cpp
+```
+```cpp
+/*
+ The implementation of <strong style="color: white; background-color: #00aa00">pthread_spin_</strong>init is identical.  */
+```
+```cpp
+```
+```cpp
+.globl   
+ <strong style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>init
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>init
+ = <strong style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock
+```
+```
+pthread_spin_unlock()就简单很多了，只是简单的将lock值设置为1，并返回0
+# 3 性能测试对比
+测试环境
+Memory: 16G
+Cpu: 8 core
+```
+```
+processor      
+ : 7
+```
+```
+vendor_id      
+ : GenuineIntel
+```
+```
+cpu
+ family      : 6
+```
+```
+model          
+ : 23
+```
+```
+model
+ name      : Intel(R) Xeon(R) CPU           E5410  @ 2.33GHz
+```
+```
+stepping       
+ : 6
+```
+```
+cpu
+ MHz         : 2327.529
+```
+```
+cache
+ size      : 6144 KB
+```
+```
+physical
+ id     : 1
+```
+```
+siblings       
+ : 4
+```
+```
+core
+ id         : 7
+```
+```
+cpu
+ cores       : 4
+```
+```
+fpu            
+ : yes
+```
+```
+fpu_exception  
+ : yes
+```
+```
+cpuid
+ level     : 10
+```
+```
+wp             
+ : yes
+```
+```
+flags          
+ : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm syscall nx lm pni monitor ds_cpl est tm2 cx16 xtpr lahf_lm
+```
+```
+bogomips       
+ : 4655.07
+```
+```
+clflush
+ size    : 64
+```
+```
+cache_alignment
+ : 64
+```
+```
+address
+ sizes   : 38 bits physical, 48 bits virtual
+```
+```
+power
+ management:
+```
+```
+?? OS: Rhel 5U4 , Linux Kernel : 2.6.18-164.el5
+?? 测试方法:
+在 case1~case3 中,通过逐渐增加临界区(Critical Section)的长度来比较在此情况下 pthread spinlock 与 pthread mutex 的性能.
+Case4: 是在 case1 的基础上,给各个线程增加非临界区的工作,以减少冲突. 在此情况下 pthread spinlock 与 pthread mutex 的性能.
+在每个 case 中,从线程数依次从 1个线程增加到 15个线程,
+并重复执行 10 次以保证测试结果不受意外情况的影响.
+3.1 Case 1:
+```
+```cpp
+#include
+ <stdio.h>
+```
+```cpp
+#include
+ <pthread.h>
+```
+```cpp
+#include
+ <stdint.h>
+```
+```cpp
+#include
+ <unistd.h>
+```
+```cpp
+#include
+ <sys/syscall.h>
+```
+```cpp
+#include
+ <errno.h>
+```
+```cpp
+#include
+ <sys/time.h>
+```
+```cpp
+#include
+ <sched.h>
+```
+```cpp
+#include
+ <linux/unistd.h>
+```
+```cpp
+#include
+ <list>
+```
+```cpp
+#include
+ "TimeHelper.h"
+```
+```cpp
+#define
+ MAX_ARRAY_NUM 10000000
+```
+```cpp
+using
+```
+```cpp
+namespace
+```
+```cpp
+std;
+```
+```cpp
+union
+```
+```cpp
+AlignInt32
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+uint32_t
+ _member;
+```
+```cpp
+```
+```cpp
+char
+```
+```cpp
+_align[64];
+```
+```cpp
+//
+ for false sharing for multi-core
+```
+```cpp
+};
+```
+```cpp
+struct
+```
+```cpp
+StatItem
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+uint32_t   
+ _times;
+```
+```cpp
+```
+```cpp
+uint32_t   
+ _id;
+```
+```cpp
+};
+```
+```cpp
+union
+```
+```cpp
+AlignStat
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+StatItem
+ _item;
+```
+```cpp
+```
+```cpp
+char
+```
+```cpp
+_align[64];
+```
+```cpp
+//
+ for false sharing for multi-core
+```
+```cpp
+};
+```
+```cpp
+AlignInt32
+ g_Array[10000000];
+```
+```cpp
+volatile
+```
+```cpp
+uint32_t
+ g_Index=0;
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+pthread_spinlock_t
+ spinlock;
+```
+```cpp
+#else
+```
+```cpp
+pthread_mutex_t
+ mutex;
+```
+```cpp
+#endif
+```
+```cpp
+pid_t
+ gettid() {
+```
+```cpp
+return
+```
+```cpp
+syscall(
+ __NR_gettid ); }
+```
+```cpp
+void
+```
+```cpp
+*consumer(
+```
+```cpp
+void
+```
+```cpp
+*arg)
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+AlignStat*
+ pItem=(AlignStat*)arg;
+```
+```cpp
+```
+```cpp
+while
+```
+```cpp
+(1)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>lock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ black; background-color: #ffff66"
+```
+```cpp
+>pthread_mutex_lock</strong>(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+if
+```
+```cpp
+(g_Index>=MAX_ARRAY_NUM)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_unlock(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+break
+```
+```cpp
+;
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+++(pItem->_item._times);
+```
+```cpp
+```
+```cpp
+g_Array[g_Index]._member=g_Index;
+```
+```cpp
+```
+```cpp
+++g_Index;
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_unlock(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+return
+```
+```cpp
+NULL;
+```
+```cpp
+}
+```
+```cpp
+int
+```
+```cpp
+main(
+```
+```cpp
+int
+```
+```cpp
+argc,
+```
+```cpp
+char
+```
+```cpp
+*argv[])
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+uint64_t
+ t1,t2;
+```
+```cpp
+```
+```cpp
+uint64_t
+ nTimeSum=0;
+```
+```cpp
+```
+```cpp
+uint32_t
+ nThreadNum=0;
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>init(&spinlock,
+ 0);
+```
+```cpp
+```
+```cpp
+fprintf
+```
+```cpp
+(stderr,
+```
+```cpp
+"case
+ for spinlock: "
+```
+```cpp
+);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_init(&mutex,
+ NULL);
+```
+```cpp
+```
+```cpp
+fprintf
+```
+```cpp
+(stderr,
+```
+```cpp
+"case
+ for mutex: "
+```
+```cpp
+);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+int32_t
+ nCpuNum = (
+```
+```cpp
+int
+```
+```cpp
+)sysconf(
+ _SC_NPROCESSORS_ONLN )*2;
+```
+```cpp
+```
+```cpp
+fprintf
+```
+```cpp
+(stderr,
+```
+```cpp
+"cpu_num=%d\n"
+```
+```cpp
+,nCpuNum/2);
+```
+```cpp
+```
+```cpp
+for
+```
+```cpp
+(int32_t
+ j=1; j< nCpuNum; j++)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+nTimeSum=0;
+```
+```cpp
+```
+```cpp
+nThreadNum=j;
+```
+```cpp
+```
+```cpp
+AlignStat
+ *pStatArray=
+```
+```cpp
+new
+```
+```cpp
+AlignStat[nThreadNum];
+```
+```cpp
+```
+```cpp
+memset
+```
+```cpp
+(pStatArray,0x0,nThreadNum*
+```
+```cpp
+sizeof
+```
+```cpp
+(AlignStat));
+```
+```cpp
+```
+```cpp
+for
+```
+```cpp
+(uint32_t
+ nLoop=10; nLoop> 0 ; nLoop--)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+g_Index=0;
+```
+```cpp
+```
+```cpp
+pthread_t
+ * pThreadArray=
+```
+```cpp
+new
+```
+```cpp
+pthread_t[nThreadNum];
+```
+```cpp
+```
+```cpp
+//
+ Measuring time before starting the threads...
+```
+```cpp
+```
+```cpp
+t1=TimeHelper::nowTime();
+```
+```cpp
+```
+```cpp
+for
+```
+```cpp
+(uint32_t
+ i=0; i <nThreadNum; i++)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+pStatArray[i]._item._id=i;
+```
+```cpp
+```
+```cpp
+if
+```
+```cpp
+(
+ pthread_create(&pThreadArray[i], NULL, consumer, (
+```
+```cpp
+void
+```
+```cpp
+*)(&pStatArray[i])
+ ))
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+perror
+```
+```cpp
+(
+```
+```cpp
+"error:
+ pthread_create"
+```
+```cpp
+);
+```
+```cpp
+```
+```cpp
+nThreadNum
+ = i;
+```
+```cpp
+```
+```cpp
+break
+```
+```cpp
+;
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+for
+```
+```cpp
+(uint32_t
+ i=0; i <nThreadNum; i++)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+pthread_join(pThreadArray[i],
+ NULL);
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+//
+ Measuring time after threads finished...
+```
+```cpp
+```
+```cpp
+t2=TimeHelper::nowTime();
+```
+```cpp
+```
+```cpp
+nTimeSum+=t2-t1;
+```
+```cpp
+```
+```cpp
+delete
+```
+```cpp
+[]
+ pThreadArray;
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+fprintf
+```
+```cpp
+(stderr,
+```
+```cpp
+"RepeatTimes=%d,
+ ThreadNum=%d, UsedTime=%.6lf s\n"
+```
+```cpp
+,10,
+ nThreadNum,(
+```
+```cpp
+double
+```
+```cpp
+(nTimeSum))/1000000);
+```
+```cpp
+```
+```cpp
+for
+```
+```cpp
+(uint32_t
+ i=0; i <nThreadNum; i++)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+fprintf
+```
+```cpp
+(stderr,
+```
+```cpp
+"thread_id=%u\t
+ times=%u\n"
+```
+```cpp
+,pStatArray[i]._item._id,pStatArray[i]._item._times);
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+delete
+```
+```cpp
+[]
+ pStatArray;
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>destroy(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_destroy(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+return
+```
+```cpp
+0;
+```
+```cpp
+}
+```
+```
+![](http://www.searchtb.com/wp-content/uploads/2011/01/test_10.jpg)
+![](http://www.searchtb.com/wp-content/uploads/2011/01/image0011.png)
+3.2 Case2
+```
+```cpp
+void
+```
+```cpp
+*consumer(
+```
+```cpp
+void
+```
+```cpp
+*arg)
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+AlignStat*
+ pItem=(AlignStat*)arg;
+```
+```cpp
+```
+```cpp
+while
+```
+```cpp
+(1)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>lock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ black; background-color: #ffff66"
+```
+```cpp
+>pthread_mutex_lock</strong>(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+if
+```
+```cpp
+(g_Index>=MAX_ARRAY_NUM)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_unlock(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+break
+```
+```cpp
+;
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+++(pItem->_item._times);
+```
+```cpp
+```
+```cpp
+g_Array[g_Index]._member=g_Index;
+```
+```cpp
+```
+```cpp
+++g_Index;
+```
+```cpp
+```
+```cpp
+//
+ add critical section's length
+```
+```cpp
+```
+```cpp
+list<uint32_t>
+ tmpList;
+```
+```cpp
+```
+```cpp
+for
+```
+```cpp
+(uint32_t
+ i=0; i< 3; i++)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+tmpList.push_back(i);
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_unlock(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+return
+```
+```cpp
+NULL;
+```
+```cpp
+}
+```
+```
+![](http://www.searchtb.com/wp-content/uploads/2011/01/test_20.jpg)
+![](http://www.searchtb.com/wp-content/uploads/2011/01/image0022.png)
+3.3 Case3
+```
+```cpp
+void
+```
+```cpp
+*consumer(
+```
+```cpp
+void
+```
+```cpp
+*arg)
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+AlignStat*
+ pItem=(AlignStat*)arg;
+```
+```cpp
+```
+```cpp
+while
+```
+```cpp
+(1)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>lock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ black; background-color: #ffff66"
+```
+```cpp
+>pthread_mutex_lock</strong>(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+if
+```
+```cpp
+(g_Index>=MAX_ARRAY_NUM)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_unlock(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+break
+```
+```cpp
+;
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+++(pItem->_item._times);
+```
+```cpp
+```
+```cpp
+g_Array[g_Index]._member=g_Index;
+```
+```cpp
+```
+```cpp
+++g_Index;
+```
+```cpp
+```
+```cpp
+//
+ add critical section's length
+```
+```cpp
+```
+```cpp
+list<uint32_t>
+ tmpList;
+```
+```cpp
+```
+```cpp
+for
+```
+```cpp
+(uint32_t
+ i=0; i< 6; i++)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+tmpList.push_back(i);
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_unlock(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+return
+```
+```cpp
+NULL;
+```
+```cpp
+}
+```
+```
+![](http://www.searchtb.com/wp-content/uploads/2011/01/test_30.jpg)
+![](http://www.searchtb.com/wp-content/uploads/2011/01/image0031.png)
+3.4 Case4
+```
+```cpp
+void
+```
+```cpp
+*consumer(
+```
+```cpp
+void
+```
+```cpp
+*arg)
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+AlignStat*
+ pItem=(AlignStat*)arg;
+```
+```cpp
+```
+```cpp
+while
+```
+```cpp
+(1)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>lock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ black; background-color: #ffff66"
+```
+```cpp
+>pthread_mutex_lock</strong>(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+if
+```
+```cpp
+(g_Index>=MAX_ARRAY_NUM)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_unlock(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+break
+```
+```cpp
+;
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+++(pItem->_item._times);
+```
+```cpp
+```
+```cpp
+g_Array[g_Index]._member=g_Index;
+```
+```cpp
+```
+```cpp
+++g_Index;
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_unlock(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+//do
+ same work
+```
+```cpp
+```
+```cpp
+//AlignInt32
+ tmpArray[10000000];
+```
+```cpp
+```
+```cpp
+//uint32_t
+ tmpArray[10000000];
+```
+```cpp
+```
+```cpp
+list<uint32_t>
+ tmpList;
+```
+```cpp
+```
+```cpp
+for
+```
+```cpp
+(uint32_t
+ i=0; i< 20; i++)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+tmpList.push_back(i);
+```
+```cpp
+```
+```cpp
+//tmpArray[i]._member=i;
+```
+```cpp
+```
+```cpp
+//tmpArray[i]=i;
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+return
+```
+```cpp
+NULL;
+```
+```cpp
+}
+```
+```
+![](http://www.searchtb.com/wp-content/uploads/2011/01/test_40.jpg)
+![](http://www.searchtb.com/wp-content/uploads/2011/01/image0041.png)
+# 4 不同线程数下 spinlock分析
+以下数据是用 intel vtune 采集得到
+4.1 源代码
+```
+```cpp
+#include
+ <stdio.h>
+```
+```cpp
+#include
+ <pthread.h>
+```
+```cpp
+#include
+ <stdint.h>
+```
+```cpp
+#include
+ <unistd.h>
+```
+```cpp
+#include
+ <sys/syscall.h>
+```
+```cpp
+#include
+ <errno.h>
+```
+```cpp
+#include
+ <sys/time.h>
+```
+```cpp
+#include
+ <sched.h>
+```
+```cpp
+#include
+ <linux/unistd.h>
+```
+```cpp
+#include
+ <list>
+```
+```cpp
+#include
+ "TimeHelper.h"
+```
+```cpp
+#define
+ MAX_ARRAY_NUM 10000000
+```
+```cpp
+using
+```
+```cpp
+namespace
+```
+```cpp
+std;
+```
+```cpp
+struct
+```
+```cpp
+StatItem
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+uint32_t   
+ _times;
+```
+```cpp
+```
+```cpp
+uint32_t   
+ _id;
+```
+```cpp
+};
+```
+```cpp
+union
+```
+```cpp
+AlignStat
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+StatItem
+ _item;
+```
+```cpp
+```
+```cpp
+char
+```
+```cpp
+_align[64];
+```
+```cpp
+//
+ for false sharing for multi-core
+```
+```cpp
+};
+```
+```cpp
+volatile
+```
+```cpp
+uint32_t
+ g_Index=0;
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+pthread_spinlock_t
+ spinlock;
+```
+```cpp
+#else
+```
+```cpp
+pthread_mutex_t
+ mutex;
+```
+```cpp
+#endif
+```
+```cpp
+pid_t
+ gettid() {
+```
+```cpp
+return
+```
+```cpp
+syscall(
+ __NR_gettid ); }
+```
+```cpp
+void
+```
+```cpp
+*consumer(
+```
+```cpp
+void
+```
+```cpp
+*arg)
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+AlignStat*
+ pItem=(AlignStat*)arg;
+```
+```cpp
+```
+```cpp
+while
+```
+```cpp
+(1)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>lock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ black; background-color: #ffff66"
+```
+```cpp
+>pthread_mutex_lock</strong>(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+if
+```
+```cpp
+(g_Index>=MAX_ARRAY_NUM)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_unlock(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+break
+```
+```cpp
+;
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+++(pItem->_item._times);
+```
+```cpp
+```
+```cpp
+++g_Index;
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>unlock(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_unlock(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+return
+```
+```cpp
+NULL;
+```
+```cpp
+}
+```
+```cpp
+int
+```
+```cpp
+main(
+```
+```cpp
+int
+```
+```cpp
+argc,
+```
+```cpp
+char
+```
+```cpp
+*argv[])
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+if
+```
+```cpp
+(argc
+ < 2)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+fprintf
+```
+```cpp
+(stderr,
+```
+```cpp
+"%s
+ thread_num\n"
+```
+```cpp
+,argv[0]);
+```
+```cpp
+```
+```cpp
+exit
+```
+```cpp
+(-1);
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+uint64_t
+ t1,t2;
+```
+```cpp
+```
+```cpp
+uint64_t
+ nTimeSum=0;
+```
+```cpp
+```
+```cpp
+uint32_t
+ nThreadNum=(uint32_t)
+```
+```cpp
+atoi
+```
+```cpp
+(argv[1]);
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>init(&spinlock,
+ 0);
+```
+```cpp
+```
+```cpp
+fprintf
+```
+```cpp
+(stderr,
+```
+```cpp
+"case
+ for spinlock: \n"
+```
+```cpp
+);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_init(&mutex,
+ NULL);
+```
+```cpp
+```
+```cpp
+fprintf
+```
+```cpp
+(stderr,
+```
+```cpp
+"case
+ for mutex: \n"
+```
+```cpp
+);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+nTimeSum=0;
+```
+```cpp
+```
+```cpp
+AlignStat
+ *pStatArray=
+```
+```cpp
+new
+```
+```cpp
+AlignStat[nThreadNum];
+```
+```cpp
+```
+```cpp
+memset
+```
+```cpp
+(pStatArray,0x0,nThreadNum*
+```
+```cpp
+sizeof
+```
+```cpp
+(AlignStat));
+```
+```cpp
+```
+```cpp
+for
+```
+```cpp
+(uint32_t
+ nLoop=10; nLoop> 0 ; nLoop--)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+g_Index=0;
+```
+```cpp
+```
+```cpp
+pthread_t
+ * pThreadArray=
+```
+```cpp
+new
+```
+```cpp
+pthread_t[nThreadNum];
+```
+```cpp
+```
+```cpp
+//
+ Measuring time before starting the threads...
+```
+```cpp
+```
+```cpp
+t1=TimeHelper::nowTime();
+```
+```cpp
+```
+```cpp
+for
+```
+```cpp
+(uint32_t
+ i=0; i <nThreadNum; i++)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+pStatArray[i]._item._id=i;
+```
+```cpp
+```
+```cpp
+if
+```
+```cpp
+(
+ pthread_create(&pThreadArray[i], NULL, consumer, (
+```
+```cpp
+void
+```
+```cpp
+*)(&pStatArray[i])
+ ))
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+perror
+```
+```cpp
+(
+```
+```cpp
+"error:
+ pthread_create"
+```
+```cpp
+);
+```
+```cpp
+```
+```cpp
+nThreadNum
+ = i;
+```
+```cpp
+```
+```cpp
+break
+```
+```cpp
+;
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+for
+```
+```cpp
+(uint32_t
+ i=0; i <nThreadNum; i++)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+pthread_join(pThreadArray[i],
+ NULL);
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+//
+ Measuring time after threads finished...
+```
+```cpp
+```
+```cpp
+t2=TimeHelper::nowTime();
+```
+```cpp
+```
+```cpp
+nTimeSum+=t2-t1;
+```
+```cpp
+```
+```cpp
+delete
+```
+```cpp
+[]
+ pThreadArray;
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+fprintf
+```
+```cpp
+(stderr,
+```
+```cpp
+"RepeatTimes=%d,
+ ThreadNum=%d, UsedTime=%.6lf s\n"
+```
+```cpp
+,10,
+ nThreadNum,(
+```
+```cpp
+double
+```
+```cpp
+(nTimeSum))/1000000);
+```
+```cpp
+```
+```cpp
+for
+```
+```cpp
+(uint32_t
+ i=0; i <nThreadNum; i++)
+```
+```cpp
+```
+```cpp
+{
+```
+```cpp
+```
+```cpp
+fprintf
+```
+```cpp
+(stderr,
+```
+```cpp
+"thread_id=%u\t
+ times=%u\n"
+```
+```cpp
+,pStatArray[i]._item._id,pStatArray[i]._item._times);
+```
+```cpp
+```
+```cpp
+}
+```
+```cpp
+```
+```cpp
+delete
+```
+```cpp
+[]
+ pStatArray;
+```
+```cpp
+#ifdef
+ USE_SPINLOCK
+```
+```cpp
+```
+```cpp
+<strong
+ style=
+```
+```cpp
+"color:
+ white; background-color: #00aa00"
+```
+```cpp
+>pthread_spin_</strong>destroy(&spinlock);
+```
+```cpp
+#else
+```
+```cpp
+```
+```cpp
+pthread_mutex_destroy(&mutex);
+```
+```cpp
+#endif
+```
+```cpp
+```
+```cpp
+return
+```
+```cpp
+0;
+```
+```cpp
+}
+```
+```
+编译:
+```
+```cpp
+g++
+ -g -O2 -Wall -I./ -DUSE_SPINLOCK -lpthread t_spinlock_thread.cpp -o t_spin_thread
+```
+```cpp
+g++
+ -g -O2 -Wall -I./ -lpthread t_spinlock_thread.cpp -o t_mutex_thread
+```
+```
+4.2 Spinlock 在不同线程数下锁总线统计
+4.2.1 t_spin_thread_1
+![](http://www.searchtb.com/wp-content/uploads/2011/01/image0051.png)
+4.2.2 t_spin_thread_2
+![](http://www.searchtb.com/wp-content/uploads/2011/01/image0061.png)
+4.2.3 t_spin_thread_3
+![](http://www.searchtb.com/wp-content/uploads/2011/01/image0071.png)
+4.2.4 t_spin_thread_4
+![](http://www.searchtb.com/wp-content/uploads/2011/01/image0081.png)
+4.2.5 t_spin_thread_5
+![](http://www.searchtb.com/wp-content/uploads/2011/01/image0091.png)
+4.2.6 t_spin_thread_6
+![](http://www.searchtb.com/wp-content/uploads/2011/01/image0101.png)
+4.2.7 t_spin_thread_7
+![](http://www.searchtb.com/wp-content/uploads/2011/01/image0110.png)
+4.2.8 t_spin_thread_8
+![](http://www.searchtb.com/wp-content/uploads/2011/01/image0120.png)
+# 5 测试结果分析
+1) 现象1: 在性能对比测试 case1,case2,case3 中, spinlock 版本程序的运行时间基本上是随线程数的增加而递增的?
+在对锁竞争激烈case1,case2,case3 情况下,因为除了临界区,线程不用执行其他任务, 任务实际是串行执行的.
+spinlock 的循环偿试时是需要锁总线( lock bus)的,随着线程的增多,每个线程取得锁的概率就越小,循环偿试等待的概率就越大, 锁总线的操作也越频繁(见4.2Spinlock 在不同线程数下锁总线统计),从而导致临界区任务所需的执行时间就越长. 而且当线程大于cpu core 的个数后,可能会有线程切换.
+2) 现象2: 在性能对比测试 case1,case2,case3 中, mutex 版本程序的运行时间先随线程数从 1增加到 3 而增加,然后随着线程数的进一步增加而减少,直到达到8个线程数后稳定下来.
+这个现象的前半部 随着线程数从 1 个线程增加到 3个线程,执行时间增加还好理解,因为在case1,case2,case3 情况下,因为除了临界区,线程不用执行其他任务,此时任务实际是串行执行的,所以1个线程时执行时间最少,因为没有其他线程来竞争锁, futex 在用户态就可以取得锁. 当线程从1个逐步增加到3个时, 因为锁竞争越来越激列,所以其在用户态就取得锁的概率也越低,从而需要进入相比用户态下取得锁的代价大很多的内核系统调用,所以执行所需时间相应增加.
+这个现象的后半部随着线程数从 4 个线程增加到 15个线程时,执行时间又开始逐步减少,并到 8 个线程时逐步稳定. 这个从比较难以理解.
+我猜测是因为临界区短,线程取得锁后很快就会释放,所以在 3-4个线程时,线程因取不到锁而进行系统调用进入等待的这段代码
+我是这样理解的,将Consumer 线程的可以划分成3部分:
+?? pthread_mutex_lock为Task1,执行时间T1, 并可细分成两种:
+?? 在用户态直接获得锁的时间 T11
+?? 通过系统调用等待锁后被唤醒得到锁 T12
+?? 临界区为Task2, 执行时间 T2,
+?? pthread_mutex_unlock为Task3, 执行时间T3.
+?? 在用户态直接释放锁的时间 T31
+?? 通过系统调用释放锁 T32
+其中临界区的代码是被串行执行的,但 pthread_mutex_lock和pthread_mutex_unlock
+ 是各线程并发执行的,由于临界区很比较短,所以 T12和 T32远大于 T2. 因此,在并发度不够高时,Task1 和 Task3 重叠执行的部分就相对就小,所以 T12和 T32占总执行时长的比例就大,而随着线程数的增多, Task1 和 Task3 重叠执行的部分就相对递增,则其占总执行时长的比例就开始下降. 当线程数达到 cpu core 数后,就基本稳定下来了.
+同时 T12和T32 与 T2相比越大,则下降越明显,这个可以解释从临界区长度从case1 到 case3 递增后,总执行时间的下降程序也相应变缓.
+3) 现象3: 在性能对比测试 case1,case2,case3 中,线程数相对少的情况下(case1是5个线程, case3是 8个线程),spinlock版本的执行时间比 mutex 版本的执行时间要少,但之后,则相反.
+这个现象我是这样理解的,在对锁竞争激烈case1,case2,case3 情况下,因为除了临界区,线程不用执行其他任务, 任务实际是串行执行的.此时,在线程数少的情况下, spinlock 比 mutex 的性能要好,随着线程数的增多, spinlock 的性能比 mutex 就变差. 原因是随着线程数的增加, spinlock 循环等待的代价逐渐比mutex 的睡眠等待而产生的上下文切换的系统调用的代价更大.
+4) 现象 4: 在性能对比测试 case1,case2,case3 中, 从 case1 到 case3 ,临界区逐渐变长, spinlock 的性能比 mutex 的性能好的情况从 case1 的5个线程逐渐增加到 case3 的8个线程.
+![](http://www.searchtb.com/wp-content/uploads/2011/01/image0130.png)
+在采用 spinlock 机制的的情况下, 随着临界区的变长, spinlock 循环等待过程中 锁总线的次数随临界区代码的长度而相应的增加,所以case1~case3 的情况下,其执行时间基本是按相应比例增加的.
+而正如现象 2 所解释的,而采用 mutex 机制的情况下其执行时间是选增后减的,所以会有交叉. 又因为随着临界区的变长, mutex 的执行时间在下降部分会变缓,所以与 spinlock 的交叉相与对靠后.
+5) 现象 5: 在性能测试中,线程除了临界区的代码外,还有另外的代码要执行,在线程数 从 1 个到 11 个之间, spinlock 版本的执行时间比 mutex 版本的执行时间要好,特别是 6个线程时, spinlock 版本的执行时间只有mutex 版本的执行时间的 26% 左右.
+此情况主要模拟锁竞争不激烈,同时临界区又比较短的情况; 这种情况下, 线程数从 1个增加到 6个左右时,spinlock 基本需要循环等待的概率很小,而每个线程又分摊了临界区的任务,所以6个线程左右时, spinlock 版本的执行时间最短.
+6) 现象6: 在测试过程中,使用 spinlock 的 cpu 时间会比 mutex 高很多,因为 spinlock 是循环空等待.

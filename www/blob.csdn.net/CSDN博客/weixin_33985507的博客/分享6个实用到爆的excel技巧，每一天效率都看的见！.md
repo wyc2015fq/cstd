@@ -1,0 +1,35 @@
+# 分享6个实用到爆的excel技巧，每一天效率都看的见！ - weixin_33985507的博客 - CSDN博客
+2018年08月27日 11:16:00[weixin_33985507](https://me.csdn.net/weixin_33985507)阅读数：5
+关于Excel技巧，几乎每天都要有相关的操作，那你真的会熟练操作吗？今天就教一下大家如何更加简单快捷的使用相关技巧吧！
+![13032700-31247d7d86b94fed](https://upload-images.jianshu.io/upload_images/13032700-31247d7d86b94fed)
+高效率数据技巧，效率每一天都会看的见。
+一、一秒去除小数点，只需一个快捷键
+Excel表格有存在小数点，怎么去除呢？只需要选中数据，按住Ctrl+shirt+1，轻松搞定。
+![13032700-4b69c22739cb510a](https://upload-images.jianshu.io/upload_images/13032700-4b69c22739cb510a)
+二、智能提取数据
+1.输入想要提取的数据
+2.空格回车
+3.Ctrl+E
+如下图：
+![13032700-c015f285a0347612](https://upload-images.jianshu.io/upload_images/13032700-c015f285a0347612)
+三、快速整理表格数据
+表格数据太烦杂，怎么快速整理清楚呢？
+1.Ctrl+A全选
+2.Ctrl+T一键创建表格
+![13032700-662fc9a376df4875](https://upload-images.jianshu.io/upload_images/13032700-662fc9a376df4875)
+四、姓名数据对齐
+在做员工表格的时候，两字、三字总是不能对齐，看着很别扭，怎么操作呢？
+1.Ctrl+1设置单元格格式
+2.选择分散对齐、缩进改为1
+3.最后将单元格的宽度进行调整即可
+![13032700-44ccec06e4d5f6ec](https://upload-images.jianshu.io/upload_images/13032700-44ccec06e4d5f6ec)
+五、CAD插入Excel表格只需两步
+打开专业版迅捷CAD编辑器，找到界面的插入-对象-由文件创建-浏览，完成成插入。
+![13032700-93909e9dd4893c93](https://upload-images.jianshu.io/upload_images/13032700-93909e9dd4893c93)
+六、Excel拆分文本数字数据
+文本数据合并和在一起，想要区分开来怎么设置呢？
+1，在需要提取的文本信息中输入文本
+2，在下一个单元格Ctrl+E,进行下拉即可。
+3，数据提取同样的道理
+![13032700-2a5c6c7f8c2ead63](https://upload-images.jianshu.io/upload_images/13032700-2a5c6c7f8c2ead63)
+喜欢加关注，更多的办公小技巧持续更新。

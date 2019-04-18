@@ -1,0 +1,70 @@
+# Spring的jdbcTemplate使用 - z69183787的专栏 - CSDN博客
+2014年12月26日 08:02:11[OkidoGreen](https://me.csdn.net/z69183787)阅读数：1225
+
+**[sql]**[view
+ plain](http://blog.csdn.net/zhang6622056/article/details/7383217#)[copy](http://blog.csdn.net/zhang6622056/article/details/7383217#)
+- 使用jdbcTemplate查询数据的时候可以使用queryForXXX等方法。下面我们就一一解析一下：  
+- 1、jdbcTemplate.queryForInt()和jdbcTemplate.queryForLong()  
+- --使用queryForInt返回user表中的记录数量，queryForInt搭配这样的sql可以在分页的时候计算总记录数
+- jdbcTemplate.queryForInt("select count(*) from user");  
+- 
+- 2、jdbcTemplate.queryForObject()  
+- --本质上和queryForInt相同，只是可以返回不同的对象,例如返回一个String对象
+- String name = (String) jdbcTemplate.queryForObject(  --3个参数，1、sql 2、要传递的参数数组 3、返回来的对象class
+- "SELECT name FROM USER WHERE id = ?",    
+- new Object[] {id},    
+- java.lang.String.class);  
+- 
+- 3、jdbcTemplate.queryForList(???)  
+- --返回一个装有map的list,每一个map是一条记录,map里面的key是字段名
+- List rows = jdbcTemplate.queryForList("SELECT * FROM user");  --得到装有map的list
+- for(int i=0;i<rows.size();i++){                   --遍历
+- Map userMap=rows.get(i);  
+- System.out.println(userMap.get("id"));    
+- System.out.println(userMap.get("name"));    
+- System.out.println(userMap.get("age"));  
+- }  
+- 
+- 
+- 4、jdbcTemplate.queryForMap(SQL)  
+- --这个查询只能是查询一条记录的查询,返回一个map,key的值是column的值
+- Map map = jdbcTemplate.queryForMap("select count(*) as keyval from user");  
+- map.get("keyval")  
+- 
+- 
+- 5、jdbcTemplate.queryForRowSet(???)  
+- --返回一个RowSet   然后调用.getString或者getInt等去取值
+- 
+- 
+- 
+- 
+- 6、jdbc1.query(sql, new RowCallbackHandler()  
+- --返回一个ResultSet对象， processRow有自动循环的机制，它会自动执行processRow中的语句直到
+- --rs的size执行完了为止。我们可以在这其中用list完成对象的转移，只不过list要用final来修饰
+- jdbc1.query(sql, new RowCallbackHandler() { //editing  
+- public void processRow(ResultSet rs) throws SQLException {  
+-         VideoSearch vs = new VideoSearch();  
+-         vs.setRECORDINGFILENAME(rs.getString("RECORDINGFILENAME"));  
+-         vs.setCALLID(rs.getString("CALLID"));  
+-         list.add(vs);  
+- 
+-     }  
+-     }  
+- 
+- 说明：  
+- JDBCTemplate的使用方法:  
+- 在ApplicationContext.xml中定义一个jdbcTemplate的节点，使用POJO注入,获得注入后可以执行操作  
+- 不需要继承什么基类  
+- 
+- <bean id="jdbcTemplate"
+- class="org.springframework.jdbc.core.JdbcTemplate">              
+-       <property name="dataSource" ref="dataSource"/>           
+- </bean>  
+- 
+- SqlRowSet rs = jdbcTemplate.queryForRowSet(sql, params);  
+- jdbcTemplate有很多的ORM化回调操作将返回结果转为对象列表，  
+- 但很多时候还是需要返回ResultSet，Spring有提供一个类似ResultSet的，实现JDBC3.0 RowSet接口的Spring SqlRowSet  
+- 注意  
+- jdbcTemplate尽量只执行查询操作，莫要进行更新，否则会破坏Hibernate的二级缓存体系  
+- 
+- 

@@ -1,0 +1,211 @@
+# java中泛型创建数组的总结 - z69183787的专栏 - CSDN博客
+2014年11月24日 20:10:46[OkidoGreen](https://me.csdn.net/z69183787)阅读数：8210
+在java中,不能通过直接通过T[] tarr=new T[10]的方式来创建数组,最简单的方式便是通过Array.newInstance(Class<t>type,int size)的方式来创建数组例如下面的程序
+**[java]**[view plain](http://blog.csdn.net/eric_sunah/article/details/7262486#)[copy](http://blog.csdn.net/eric_sunah/article/details/7262486#)[print](http://blog.csdn.net/eric_sunah/article/details/7262486#)[?](http://blog.csdn.net/eric_sunah/article/details/7262486#)
+- publicclass ArrayMaker<T> {  
+- private Class<T> type;  
+- 
+- public ArrayMaker(Class<T> type) {  
+- this.type = type;  
+-     }  
+- 
+- @SuppressWarnings("unchecked")  
+-     T[] createArray(int size) {  
+- return (T[]) Array.newInstance(type, size);  
+-     }  
+- 
+-     List<T> createList() {  
+- returnnew ArrayList<T>();  
+-     }  
+- 
+- /**
+-      * @param args
+-      */
+- publicstaticvoid main(String[] args) {  
+- /*
+-          * Even though kind is stored as Class<T> , erasure means that it is actually just being stored as a Class, with
+-          * no parameter. So, when you do some thing with it, as in creating an array, Array.newInstance( ) doesn’t
+-          * actually have the type information that’s implied in kind; so it cannot produce the specific result, wh ich
+-          * must therefore be cast, which produces a warning that you cannot satisfy.
+-          */
+-         ArrayMaker<Type> am2 = new ArrayMaker<Type>(Type.class);  
+-         System.out.println(Arrays.asList(am2.createArray(10)));  
+-         System.out.println(Arrays.asList(am2.createList()));  
+-     }  
+- 
+- }  
+- 
+- class Type {  
+- @Override
+- public String toString() {  
+- return"type";  
+-     }  
+- }  
+上面的这个例子比较简单,但是如果你有接触过泛型数组,你便对他的复杂度有一定的了解,由于创建泛型数组比较复杂,所以在实际的应用过程中一般会选择List的对泛型进行存储,如果实在需要使用泛型数组,则需要注意数组的在运行时的类型,think in java这本书中,对泛型数组的处理通过四个小程序对其进行了比较完整的描述
+程序一:这个程序主要说明了,在使用泛型数组中容易出现的问题,由于书中对于程序的说明比较详细,所以只对程序做引用
+**[java]**[view plain](http://blog.csdn.net/eric_sunah/article/details/7262486#)[copy](http://blog.csdn.net/eric_sunah/article/details/7262486#)[print](http://blog.csdn.net/eric_sunah/article/details/7262486#)[?](http://blog.csdn.net/eric_sunah/article/details/7262486#)
+- class Generic<T> {  
+- }  
+- 
+- publicclass ArrayofGeneric {  
+- publicstaticvoid main(String[] args) {  
+-         Generic<Integer>[] genArr;  
+- /*
+-          * will throw ClassCastException :The problem is that arrays keep track of their actual type, and that type is
+-          * established at the point of creation of the array. So even though genArr has been cast to a Generic < Integer
+-          * >[] , that information only exists at compile time (and without the @SuppressWarnings annotation, you’d get a
+-          * warning for that cast). At run time, it’s still an array of Object, and that causes problems.
+-          */
+- // genArr = (Generic<Integer>[]) new Object[] {};
+- /* can not create a generic of array */
+- // genArr=new Generic<Integer>[2];
+-         genArr = (Generic<Integer>[]) new Generic[2];  
+-         System.out.println(genArr);  
+-     }  
+- }  
+程序二:这个程序主要是说明在程序的执行过程中,泛型数组的类型信息会被擦除,且在运行的过程中数组的类型有且仅有Object[],如果我们强制转换成T[]类型的话,虽然在编译的时候不会有异常产生,但是运行时会有ClassCastException抛出
+**[java]**[view plain](http://blog.csdn.net/eric_sunah/article/details/7262486#)[copy](http://blog.csdn.net/eric_sunah/article/details/7262486#)[print](http://blog.csdn.net/eric_sunah/article/details/7262486#)[?](http://blog.csdn.net/eric_sunah/article/details/7262486#)
+- /**
+-  * 
+-  * Because of erasure, the runtime type of the array can only be Object[]. If we immediately cast it to T[], then at
+-  * compile time the actual type of the array is lost, and the compiler may miss out on some potential error checks.
+-  * 
+-  * 
+-  * 
+-  * archive $ProjectName: $
+-  * 
+-  * @author Admin
+-  * 
+-  * @version $Revision: $ $Name: $
+-  */
+- publicclass ArrayOfGeneric2<T> {  
+- public T[] ts;  
+- 
+- public ArrayOfGeneric2(int size) {  
+-         ts = (T[]) new Object[size];  
+-     }  
+- 
+- public T get(int index) {  
+- return ts[index];  
+-     }  
+- 
+- public T[] rep() {  
+- return ts;  
+-     }  
+- 
+- publicvoid set(int index, T t) {  
+-         ts[index] = t;  
+-     }  
+- 
+- publicstaticvoid main(String[] args) {  
+-         ArrayOfGeneric2<String> aog2 = new ArrayOfGeneric2<String>(10);  
+-         Object[] objs = aog2.rep();  
+-         System.out.println(objs);  
+- /* will throw ClassCastException */
+- // String[] strs = aog2.rep();
+- // System.out.println(strs);
+-     }  
+- 
+- }  
+程序三:主要说明在对象中通过用Object[]来保存数据,则生成对象是,可以对其持有的对象在T和object之间进行转换,但是当设计到数组的转换时,还是会报ClassCastException
+**[java]**[view plain](http://blog.csdn.net/eric_sunah/article/details/7262486#)[copy](http://blog.csdn.net/eric_sunah/article/details/7262486#)[print](http://blog.csdn.net/eric_sunah/article/details/7262486#)[?](http://blog.csdn.net/eric_sunah/article/details/7262486#)
+- /**
+-  * 
+-  * Initially, this doesn’t look very different compare with ArrayOfGeneric2.java , just that the cast has been moved.
+-  * Without the ©SuppressWarnings annotations, you will still get "unchecked" warnings. However, the internal
+-  * representation is now Object[] rather than T[]. When get( ) is called, it casts the object to T, which is in fact the
+-  * correct type, so that is safe. However, if you call rep( ) , it again attempts to cast the Object[] to a T[], which
+-  * is still incorrect, and produces a warning at compile time and an exception at run time. Thus there’s no way to
+-  * subvert the type of the underlying array, which can only be Object[]. The advantage of treating array internally as
+-  * Object[] instead of T[] is that it’s less likely that you’ll forget the runtime type of the array and accidentally
+-  * introduce a bug (although the majority, and perhaps all, of such bugs would be rapidly detected at run time)
+-  * 
+-  * 
+-  * 
+-  * archive $ProjectName: $
+-  * 
+-  * @author Admin
+-  * 
+-  * @version $Revision: $ $Name: $
+-  */
+- publicclass ArrayOfGeneric3<T> {  
+-     Object[] ts;  
+- 
+- public ArrayOfGeneric3(int size) {  
+-         ts = new Object[size];  
+-     }  
+- 
+- public T get(int index) {  
+- return (T) ts[index];  
+-     }  
+- 
+- public T[] rep() {  
+- return (T[]) ts;  
+-     }  
+- 
+- publicvoid set(int index, T t) {  
+-         ts[index] = t;  
+-     }  
+- 
+- publicstaticvoid main(String[] args) {  
+-         ArrayOfGeneric3<Integer> aog2 = new ArrayOfGeneric3<Integer>(10);  
+-         Object[] objs = aog2.rep();  
+- for (int i = 0; i < 10; i++) {  
+-             aog2.set(i, i);  
+-             System.out.println(aog2.get(i));  
+-         }  
+-             Integer[] strs = aog2.rep();  
+-             System.out.println(strs);  
+-     }  
+- }  
+程序四:是对泛型数组相对而言比较完美的解决方案
+**[java]**[view plain](http://blog.csdn.net/eric_sunah/article/details/7262486#)[copy](http://blog.csdn.net/eric_sunah/article/details/7262486#)[print](http://blog.csdn.net/eric_sunah/article/details/7262486#)[?](http://blog.csdn.net/eric_sunah/article/details/7262486#)
+- /**
+-  * 
+-  * The type token Class<T> is passed into the constructor in order to recover from the erasure, so that we can create
+-  * the actual type of array that we need, although the warning from the cast must be suppressed with @SuppressWarnings.
+-  * Once we do get the actual type, we can return it and get the desired results, as you see in main( ). The runtime type
+-  * of the array is the exact type T[].
+-  * 
+-  * @author Admin
+-  * 
+-  * @version $Revision: $ $Name: $
+-  */
+- publicclass ArrayOfGeneric4<T> {  
+- 
+-     T[] ts;  
+- 
+- public ArrayOfGeneric4(Class<T> type, int size) {  
+- /* to solution array of generic key code! */
+-         ts = (T[]) Array.newInstance(type, size);  
+-     }  
+- 
+- public T get(int index) {  
+- return ts[index];  
+-     }  
+- 
+- public T[] rep() {  
+- return ts;  
+-     }  
+- 
+- publicvoid set(int index, T t) {  
+-         ts[index] = t;  
+-     }  
+- 
+- publicstaticvoid main(String[] args) {  
+-         ArrayOfGeneric4<Integer> aog2 = new ArrayOfGeneric4<Integer>(Integer.class, 10);  
+-         Object[] objs = aog2.rep();  
+- for (int i = 0; i < 10; i++) {  
+-             aog2.set(i, i);  
+-             System.out.println(aog2.get(i));  
+-         }  
+- try {  
+-             Integer[] strs = aog2.rep();  
+-             System.out.println("user Array.newInstance to create generci of array was successful!!!!! ");  
+-         } catch (Exception ex) {  
+-             ex.printStackTrace();  
+-         }  
+-     }  
+- }  
+泛型这一章节的内容从擦除开始,觉得都是非常的难懂,如果哪位同志有比较好的建议,希望能不惜指教!
+            

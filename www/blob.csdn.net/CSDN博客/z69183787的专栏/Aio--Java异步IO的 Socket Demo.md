@@ -1,0 +1,189 @@
+# Aio--Java异步IO的 Socket Demo - z69183787的专栏 - CSDN博客
+2016年10月27日 17:11:54[OkidoGreen](https://me.csdn.net/z69183787)阅读数：595
+我理解的　同步\异步操作 |  阻塞IO\非阻塞IO
+## 同步阻塞
+![](https://img-blog.csdn.net/20150105170625112?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveHhiMjAwOA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+## 同步非阻塞
+![](https://img-blog.csdn.net/20150105170747403?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveHhiMjAwOA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+[http://blog.csdn.net/xxb2008](http://blog.csdn.net/xxb2008)
+## 异步非阻塞
+![](https://img-blog.csdn.net/20150105170744296?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveHhiMjAwOA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+**[java]**[view plain](http://blog.csdn.net/xxb2008/article/details/42424105#)[copy](http://blog.csdn.net/xxb2008/article/details/42424105#)![在CODE上查看代码片](https://code.csdn.net/assets/CODE_ico.png)[](https://code.csdn.net/snippets/572502/fork)
+- **package** com.vdebug.aio.socket;  
+- 
+- **import** java.io.IOException;  
+- **import** java.net.InetSocketAddress;  
+- **import** java.net.StandardSocketOptions;  
+- **import** java.nio.ByteBuffer;  
+- **import** java.nio.CharBuffer;  
+- **import** java.nio.channels.AsynchronousServerSocketChannel;  
+- **import** java.nio.channels.AsynchronousSocketChannel;  
+- **import** java.nio.channels.CompletionHandler;  
+- **import** java.nio.charset.Charset;  
+- **import** java.nio.charset.CharsetDecoder;  
+- 
+- /**
+-  * Created by pc on 2015/1/5.
+-  */
+- **public****class** Server {  
+- **static****int** PORT = 8080;  
+- **static****int** BUFFER_SIZE = 1024;  
+- **static** String CHARSET = "utf-8"; //默认编码
+- **static** CharsetDecoder decoder = Charset.forName(CHARSET).newDecoder(); //解码
+- 
+- **int** port;  
+- //ByteBuffer buffer;
+-     AsynchronousServerSocketChannel serverChannel;  
+- 
+- **public** Server(**int** port) **throws** IOException {  
+- **this**.port = port;  
+- //this.buffer = ByteBuffer.allocate(BUFFER_SIZE);
+- **this**.decoder = Charset.forName(CHARSET).newDecoder();  
+-     }  
+- 
+- **private****void** listen() **throws** Exception {  
+- 
+- //打开一个服务通道
+- //绑定服务端口
+- **this**.serverChannel = AsynchronousServerSocketChannel.open().bind(**new** InetSocketAddress(port), 100);  
+- **this**.serverChannel.accept(**this**, **new** AcceptHandler());  
+- 
+-         Thread t = **new** Thread(**new** Runnable() {  
+- @Override
+- **public****void** run() {  
+- **while** (**true**) {  
+-                     System.out.println("运行中...");  
+- **try** {  
+-                         Thread.sleep(2000);  
+-                     } **catch** (InterruptedException e) {  
+-                         e.printStackTrace();  
+-                     }  
+-                 }  
+-             }  
+-         });  
+-         t.start();  
+- 
+-     }  
+- 
+- 
+- /**
+-      * accept到一个请求时的回调
+-      */
+- **private****class** AcceptHandler **implements** CompletionHandler<AsynchronousSocketChannel, Server> {  
+- @Override
+- **public****void** completed(**final** AsynchronousSocketChannel client, Server attachment) {  
+- **try** {  
+-                 System.out.println("远程地址：" + client.getRemoteAddress());  
+- //tcp各项参数
+-                 client.setOption(StandardSocketOptions.TCP_NODELAY, **true**);  
+-                 client.setOption(StandardSocketOptions.SO_SNDBUF, 1024);  
+-                 client.setOption(StandardSocketOptions.SO_RCVBUF, 1024);  
+- 
+- **if** (client.isOpen()) {  
+-                     System.out.println("client.isOpen：" + client.getRemoteAddress());  
+- **final** ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);  
+-                     buffer.clear();  
+-                     client.read(buffer, client, **new** ReadHandler(buffer));  
+-                 }  
+- 
+-             } **catch** (Exception e) {  
+-                 e.printStackTrace();  
+-             } **finally** {  
+-                 attachment.serverChannel.accept(attachment, **this**);// 监听新的请求，递归调用。
+-             }  
+-         }  
+- 
+- @Override
+- **public****void** failed(Throwable exc, Server attachment) {  
+- **try** {  
+-                 exc.printStackTrace();  
+-             } **finally** {  
+-                 attachment.serverChannel.accept(attachment, **this**);// 监听新的请求，递归调用。
+-             }  
+-         }  
+-     }  
+- 
+- /**
+-      * Read到请求数据的回调
+-      */
+- **private****class** ReadHandler **implements** CompletionHandler<Integer, AsynchronousSocketChannel> {  
+- 
+- **private** ByteBuffer buffer;  
+- 
+- **public** ReadHandler(ByteBuffer buffer) {  
+- **this**.buffer = buffer;  
+-         }  
+- 
+- @Override
+- **public****void** completed(Integer result, AsynchronousSocketChannel attachment) {  
+- **try** {  
+- **if** (result < 0) {// 客户端关闭了连接
+-                     Server.close(attachment);  
+-                 } **else****if** (result == 0) {  
+-                     System.out.println("空数据"); // 处理空数据
+-                 } **else** {  
+- // 读取请求，处理客户端发送的数据
+-                     buffer.flip();  
+-                     CharBuffer charBuffer = Server.decoder.decode(buffer);  
+-                     System.out.println(charBuffer.toString()); //接收请求
+- 
+- //响应操作，服务器响应结果
+-                     buffer.clear();  
+-                     String res = "HTTP/1.1 200 OK" + "\r\n\r\n" + "hellworld";  
+-                     buffer = ByteBuffer.wrap(res.getBytes());  
+-                     attachment.write(buffer, attachment, **new** WriteHandler(buffer));//Response：响应。
+-                 }  
+-             } **catch** (Exception e) {  
+-                 e.printStackTrace();  
+-             }  
+-         }  
+- 
+- @Override
+- **public****void** failed(Throwable exc, AsynchronousSocketChannel attachment) {  
+-             exc.printStackTrace();  
+-             Server.close(attachment);  
+-         }  
+-     }  
+- 
+- /**
+-      * Write响应完请求的回调
+-      */
+- **private****class** WriteHandler **implements** CompletionHandler<Integer, AsynchronousSocketChannel> {  
+- **private** ByteBuffer buffer;  
+- 
+- **public** WriteHandler(ByteBuffer buffer) {  
+- **this**.buffer = buffer;  
+-         }  
+- 
+- @Override
+- **public****void** completed(Integer result, AsynchronousSocketChannel attachment) {  
+-             buffer.clear();  
+-             Server.close(attachment);  
+-         }  
+- 
+- @Override
+- **public****void** failed(Throwable exc, AsynchronousSocketChannel attachment) {  
+-             exc.printStackTrace();  
+-             Server.close(attachment);  
+-         }  
+-     }  
+- 
+- **public****static****void** main(String[] args) {  
+- **try** {  
+-             System.out.println("正在启动服务...");  
+-             Server server = **new** Server(PORT);  
+-             server.listen();  
+-         } **catch** (Exception e) {  
+-             e.printStackTrace();  
+-         }  
+-     }  
+- 
+- **private****static****void** close(AsynchronousSocketChannel client) {  
+- **try** {  
+-             client.close();  
+-         } **catch** (Exception e) {  
+-             e.printStackTrace();  
+-         }  
+-     }  
+- }  
+![](https://img-blog.csdn.net/20150105170856359?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQveHhiMjAwOA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)

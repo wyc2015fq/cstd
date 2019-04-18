@@ -1,33 +1,11 @@
 # Python学习笔记：Python的名字空间 - alw2009的博客 - CSDN博客
-
-
-
-
-
-2016年09月25日 16:25:05[traveler_zero](https://me.csdn.net/alw2009)阅读数：147
-
-
-
-
-
-
-
-
+2016年09月25日 16:25:05[traveler_zero](https://me.csdn.net/alw2009)阅读数：148
 **基本概念：**
-
 1. Python的世界是名字和对象的世界。
-
 2.名字空间是名字到对象的映射。
-
 3.赋值是名字与对象的绑定， 不拷贝数据。
-
 ![](https://img-blog.csdn.net/20160925170853343?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
-
-
 **例子说明：**
-
-
-
 ```python
 <pre style="background-color:#2b2b2b;color:#a9b7c6;font-family:'宋体';font-size:9.0pt;"><span style="color:#cc7832;"><strong>def </strong></span><span style="font-weight:bold;">scope_test</span>():
     <span style="color:#cc7832;"><strong>def </strong></span><span style="font-weight:bold;">do_local</span>():
@@ -59,21 +37,9 @@
 </span><span style="color:#808080;">    </span>do_global()
     <span style="color:#808080;"># 打印scope_test()的local namespace的spam
 </span><span style="color:#808080;">    </span><span style="color:#8888c6;">print</span>(<span style="color:#008080;">"After global assignment:"</span><span style="color:#cc7832;">, </span>spam)
-
 scope_test()
 <span style="color:#808080;"># 打印模块global namespace的spam
 </span><span style="color:#8888c6;">print</span>(<span style="color:#008080;">"In global scope:"</span><span style="color:#cc7832;">, </span>spam)
 ```
-
-
 输出结果：
-
-
-
 **After local assignment: test spamAfter nonlocal assignment: nonlocal spamAfter global assignment: nonlocal spamIn global scope: global spam**
-
-
-
-
-
-

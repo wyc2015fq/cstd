@@ -1,0 +1,642 @@
+# 浅议 Dynamic_cast 和 RTTI - gauss的专栏 - CSDN博客
+2013年01月04日 00:14:07[gauss](https://me.csdn.net/mathlmx)阅读数：1042
+- 写这篇博文的目的是，记录学习过程。  
+- 
+- 对于问题要较真，在解决这个问题中会学到很多，远远超过自己期望，锻炼思维，享受这个过程。  
+- 
+- 问题： Static_cast 与 Dynamic_cast的区别  
+- 来自书本上的解释：  
+- 
+-   用 static_cast<type-id > ( expression )    
+- 
+- 1. static_cast(expression) The static_cast<>() is used to cast between the integer types. 'e.g.'char->long, int->short etc.  
+- 
+-    用来数值之间的转化。  
+- 
+- 2.  可以在相关指针之间转换，指针在void * 之间转换，还可以在基类和派生类之间转换。 这些转换是在编译的时候就确定下来转换（无非就是根据继承关系，偏移指针而已），但是这需要自己保证安全。  
+- 
+-    比如  
+- 
+- #include <iostream>
+- usingnamespace std;  
+- 
+- class Base   
+- {  
+- public:  
+- virtualvoid f() {cout<<"Base::f()"<<endl;}  
+- 
+- };  
+- 
+- class Derive: public Base  
+- {  
+- public:  
+- virtualvoid f() {cout<<"Derive::f()"<<endl;}  
+- virtualvoid f2() {cout<<"Derive::f1()"<<endl;}  
+- 
+- };  
+- 
+- 
+- int main()  
+- {  
+- 
+-     Base *pbase1  = new Derive();  
+-     Derive* pderive1 = static_cast<Derive *>(pbase1);  
+-     pderive1->f(); // Derive::f()
+- 
+-     Base* pbase2 = new Base();  
+-     Derive * pderive2 = static_cast<Derive *>(pbase2);  
+-     pderive2->f();  // Base::f()
+-     pderive2->f2(); // throw exception "Access violation reading"
+- 
+- delete pbase1;  
+- delete pbase2;  
+- 
+- }  
+- 
+- 
+- 虽然 由 pbase2 转化到 pderive2 ，编译器编译正确。 但是当调用 pderive2->f(); 应该不是希望的； 调用pderive2->f2() 因为基类本身就没有这个函数，说以运行时出错，抛出异常。  
+- 
+- 所以说static_cast 是编译时确定下来，需要自己确保转换类型安全，否则运行时会抛出异常.  
+- 
+-  注意static_cast 不能直接在没有继承关系的对象指针之间进行转换。在Com 里面实现不同接口的同个对象，其也不能再接口之间转换（更何况是动态的），所以COM提供一个query 借口。  
+- 
+- 
+- 用法：dynamic_cast < type-id > ( expression)  
+- 
+- 是专门用于具有继承关系的类之间转换的，尤其是向下类型转换，是安全的。  
+- 
+- #include <iostream>
+- usingnamespace std;  
+- 
+- class Base  
+- {  
+- public:  
+- virtualvoid f() {cout<<"Base::f()"<<endl;}  
+- 
+- };  
+- 
+- class Derive: public Base  
+- {  
+- public:  
+- virtualvoid f() {cout<<"Derive::f()"<<endl;}  
+- virtualvoid f2() {cout<<"Derive::f1()"<<endl;}  
+- 
+- };  
+- 
+- int main()  
+- {  
+- 
+- Base *pbase1 = new Derive();  
+- Derive* pderive1 = dynamic_cast<Derive *>(pbase1); //down-cast
+- pderive1->f(); // Derive::f()
+- 
+- Base* pbase2 = new Base();  
+- Derive * pderive2 = dynamic_cast<Derive *>(pbase2); //up-cast
+- 
+- if ( pderive2) // NULL
+- {  
+- pderive2->f();  
+- pderive2->f2();  
+- }  
+- 
+- delete pbase1;  
+- delete pbase2;  
+- 
+- }  
+- dynamic_cast 如何保证转换是安全的？ 如何知道具体该类的具体类型 以及 继承关系呢？   
+- 
+- 引入RTTI，其存储着类运行的相关信息， 比如类的名字，以及类的基类。下面就介绍RTTI。  
+- 
+- 
+- 
+- 2. RTTI （Run Time Type info)  
+-   这个神奇的东西用于存储类的相关信息，用于在运行时识别类对象的信息。C++ 里面只记录的类的名字和类的继承关系链。使得编译成二进制的代码，对象可以知道自己的名字（ASCII），以及在继承链中的位置。  
+- 
+-   C++ 里面提供 一个关键字 typeid ， 一个数据类型 typeinfo，以及对应的头文件 typeinfo.h  
+- 
+-  1 #include <iostream>  
+-  2 #include <typeinfo>  
+-  3  usingnamespace std;  
+-  4   
+-  5  class Base   
+-  6 {  
+-  7  public:  
+-  8     virtualvoid f() {}  // it must need the virtual table
+-  9 };  
+- 10   
+- 11   
+- 12  class Derive: public Base  
+- 13 {  
+- 14   
+- 15 };  
+- 16   
+- 17   
+- 18  class Derive2: public Base  
+- 19 {  
+- 20    
+- 21 };  
+- 22   
+- 23  void f(Base* pbase)  
+- 24 {  
+- 25   const type_info& typeinfo = typeid(pbase);  
+- 26   cout << typeinfo.name()<<endl;  
+- 27   
+- 28   
+- 29   if(NULL != dynamic_cast<Derive*>(pbase))  
+- 30   {  
+- 31       cout<<"type: Derive"<<endl;  
+- 32   }  
+- 33   elseif(NULL != dynamic_cast<Derive2*>(pbase))  
+- 34   {  
+- 35       cout<<"type: Derive2"<<endl;  
+- 36   }  
+- 37   else
+- 38   {  
+- 39        //ASSERT(0)
+- 40    }  
+- 41 }  
+- 42   
+- 43   
+- 44  int main()  
+- 45 {  
+- 46     Base *pbase1  = new Derive();  
+- 47     f(pbase1);  
+- 48   
+- 49     Base* pbase = new Derive2();  
+- 50     f(pbase);  
+- 51 }  
+- out put:  
+- 
+- 1 class Base *  
+- 2 type: Derive  
+- 3  class Base *  
+- 4 type: Derive2  
+- 可见 Dynamic 是运行时确定的，是安全的。 那么  
+- 
+- 1. RTTI 的信息如何和对象绑定在一起？什么时候绑定的？  
+- 
+- 2. 为什么dynam_cast 必须要求转换的类型之间要有虚函数？否则编译通不过。  
+- 
+- 下面来回答这个问题。  
+- 
+- 3.RTTI 如何与对象绑定   
+- google，找资料。 下面的图来自于 “Inside C++ Model”， RTTI 的info 是如何和对象之间的关系：  
+- 
+- class Point   
+- {   
+- 
+- public:   
+- 
+-    Point( float xval );   
+- 
+- virtual ~Point();   
+- 
+- float x() const;   
+- 
+- staticint PointCount();   
+- 
+- protected:   
+- 
+- virtual ostream& print( ostream &os ) const;   
+- 
+- float _x;   
+- 
+- staticint _point_count;   
+- 
+- };   
+- 其内存中模型：  
+- 
+- 
+- 
+- 明显RTTI info 存在于虚表的第一项。第二个问题就可以回答，因为RTTI 依赖于虚表，所以用dynamic_cast 对应的类一定要有虚函数。  
+- 
+- 下面在VC中验证一下，  
+- 
+- 在VC中，我们知道虚指针指向虚表，对应的虚表第一项就是第一个虚函数。如果我们认为虚函数构成虚表，那么就可以认为RTTI info 就走虚表的紧邻上面。   
+- 
+- 下面验证：  
+- 
+- 1. 在VC 中查看RTTI中类名字  
+- 
+- 
+- 
+- 从上面图表可见，RTTI 对应的内容是空的。那么VC的实现和 书中的模型不一致吗？难道RTTI不在虚表的上面吗 ？接着有了下面的验证：  
+- 
+- 2. 把虚表上面指向RTTI info 的地址，给设置为0, 那么typeid 还可以工作吗？ Dynamic_cast 还可以工作吗？如果还可以工作，则说明这个地址指向的数据无关。  
+- 
+- 
+- 
+-   如果将虚表上的RTTI的指针置空，dynamic_cast 就不能运行,抛出异常“std:: __non_rtti_object” . 那说明这个地址，还是与RTTI有关。 那问题出在哪里？  
+- 
+- 尝试在google 里面搜索，但是未果。 那么Dynamic_cast 的依赖于 RTTI的信息，那么Dynamic_cast的实现着手看看. 查看一下 他的汇编代码。 于是有了下面的实验。  
+- 
+- 3. RTTI 在VC里面如何实现的。  
+- 
+-   将上面的代码以汇编形式输出，查看。   
+- 
+- 24   :     Derive * pderive = dynamic_cast<Derive*>(pbase);  
+- 
+-     push    0  
+-     push    OFFSET ??_R0?AVDerive@@@8  
+-     push    OFFSET ??_R0?AVBase@@@8  
+-     push    0  
+-     mov    eax, DWORD PTR _pbase$[ebp]  
+-     push    eax  
+-     call    ___RTDynamicCast  
+-     add    esp, 20                    ; 00000014H  
+-     mov    DWORD PTR _pderive$[ebp], eax  
+- 发现 dynamic_cast的实现依赖于 对象本身，以及 ??_R0?AVDerive@@@8 和 ??_R0?AVBase@@@8 .  于是继续查看代码  
+- 
+- View Code   1 ; Listing generated by Microsoft (R) Optimizing Compiler Version 14.00.50727.762   
+-   2    
+-   3     TITLE    c:\Documents and Settings\zhangroc\Desktop\TW\Test\static_cast\static_cast.cpp  
+-   4     .686P  
+-   5     .XMM  
+-   6     include listing.inc  
+-   7     .model    flat  
+-   8   
+-   9 INCLUDELIB MSVCRTD  
+-  10 INCLUDELIB OLDNAMES  
+-  11   
+-  12 PUBLIC    ??_C@_0P@GHFPNOJB@bad?5allocation?$AA@        ; `string'  
+-  13  _DATA    SEGMENT  
+-  14 __bad_alloc_Message DD FLAT:??_C@_0P@GHFPNOJB@bad?5allocation?$AA@  
+-  15 _DATA    ENDS  
+-  16  ;    COMDAT ??_C@_0P@GHFPNOJB@bad?5allocation?$AA@  
+-  17  CONST    SEGMENT  
+-  18 ??_C@_0P@GHFPNOJB@bad?5allocation?$AA@ DB 'bad allocation', 00H ; `string'  
+-  19  CONST    ENDS  
+-  20 PUBLIC    ??_R0?AVBase@@@8                ; Base `RTTI Type Descriptor'  
+-  21  PUBLIC    ??_R0?AVDerive@@@8                ; Derive `RTTI Type Descriptor'  
+-  22  PUBLIC    ??0Derive@@QAE@XZ                ; Derive::Derive  
+-  23  PUBLIC    _main  
+-  24 EXTRN    ___RTDynamicCast:PROC  
+-  25 EXTRN    ??2@YAPAXI@Z:PROC                ; operator new
+-  26  EXTRN    __RTC_CheckEsp:PROC  
+-  27 EXTRN    __RTC_Shutdown:PROC  
+-  28 EXTRN    __RTC_InitBase:PROC  
+-  29 EXTRN    ??_7type_info@@6B@:QWORD            ; type_info::`vftable'  
+-  30 ;    COMDAT ??_R0?AVBase@@@8  
+-  31 ; File c:\documents and settings\zhangroc\desktop\tw\test\static_cast\static_cast.cpp  
+-  32  _DATA    SEGMENT  
+-  33 ??_R0?AVBase@@@8 DD FLAT:??_7type_info@@6B@        ; Base `RTTI Type Descriptor'  
+-  34      DD    00H  
+-  35     DB    '.?AVBase@@', 00H  
+-  36 _DATA    ENDS  
+-  37  ;    COMDAT ??_R0?AVDerive@@@8  
+-  38 _DATA    SEGMENT  
+-  39 ??_R0?AVDerive@@@8 DD FLAT:??_7type_info@@6B@        ; Derive `RTTI Type Descriptor'  
+-  40     DD    00H  
+-  41     DB    '.?AVDerive@@', 00H  
+-  42 _DATA    ENDS  
+-  43 ;    COMDAT rtc$TMZ  
+-  44 rtc$TMZ    SEGMENT  
+-  45 __RTC_Shutdown.rtc$TMZ DD FLAT:__RTC_Shutdown  
+-  46 rtc$TMZ    ENDS  
+-  47 ;    COMDAT rtc$IMZ  
+-  48 rtc$IMZ    SEGMENT  
+-  49 __RTC_InitBase.rtc$IMZ DD FLAT:__RTC_InitBase  
+-  50 ; Function compile flags: /Odtp /RTCsu /ZI  
+-  51 rtc$IMZ    ENDS  
+-  52 ;    COMDAT _main  
+-  53 _TEXT    SEGMENT  
+-  54 tv69 = -256                        ; size = 4  
+-  55 $T3121 = -248                        ; size = 4  
+-  56 _pderive$ = -44                        ; size = 4  
+-  57 _rtti$ = -32                        ; size = 4  
+-  58 _ptable$ = -20                        ; size = 4  
+-  59 _pbase$ = -8                        ; size = 4  
+-  60 _main    PROC                        ; COMDAT  
+-  61   
+-  62 ; 19   : {  
+-  63   
+-  64     push    ebp  
+-  65     mov    ebp, esp  
+-  66     sub    esp, 256                ; 00000100H  
+-  67     push    ebx  
+-  68     push    esi  
+-  69     push    edi  
+-  70     lea    edi, DWORD PTR [ebp-256]  
+-  71     mov    ecx, 64                    ; 00000040H  
+-  72     mov    eax, -858993460                ; ccccccccH  
+-  73     rep stosd  
+-  74   
+-  75 ; 20   :     Base *pbase  = new Derive();  
+-  76   
+-  77     push    4  
+-  78     call    ??2@YAPAXI@Z                ; operator new
+-  79     add    esp, 4  
+-  80     mov    DWORD PTR $T3121[ebp], eax  
+-  81     cmp    DWORD PTR $T3121[ebp], 0  
+-  82     je    SHORT $LN3@main  
+-  83     mov    ecx, DWORD PTR $T3121[ebp]  
+-  84     call    ??0Derive@@QAE@XZ  
+-  85     mov    DWORD PTR tv69[ebp], eax  
+-  86     jmp    SHORT $LN4@main  
+-  87 $LN3@main:  
+-  88     mov    DWORD PTR tv69[ebp], 0  
+-  89 $LN4@main:  
+-  90     mov    eax, DWORD PTR tv69[ebp]  
+-  91     mov    DWORD PTR _pbase$[ebp], eax  
+-  92   
+-  93 ; 21   :     int *ptable = (int*)(*(int*)pbase);  
+-  94   
+-  95     mov    eax, DWORD PTR _pbase$[ebp]  
+-  96     mov    ecx, DWORD PTR [eax]  
+-  97     mov    DWORD PTR _ptable$[ebp], ecx  
+-  98   
+-  99 ; 22   :     int *rtti = ptable -1;  
+- 100   
+- 101     mov    eax, DWORD PTR _ptable$[ebp]  
+- 102     sub    eax, 4  
+- 103     mov    DWORD PTR _rtti$[ebp], eax  
+- 104   
+- 105 ; 23   :       
+- 106 ; 24   :     Derive * pderive = dynamic_cast<Derive*>(pbase);  
+- 107   
+- 108     push    0  
+- 109     push    OFFSET ??_R0?AVDerive@@@8  
+- 110     push    OFFSET ??_R0?AVBase@@@8  
+- 111     push    0  
+- 112     mov    eax, DWORD PTR _pbase$[ebp]  
+- 113     push    eax  
+- 114     call    ___RTDynamicCast  
+- 115     add    esp, 20                    ; 00000014H  
+- 116     mov    DWORD PTR _pderive$[ebp], eax  
+- 117   
+- 118 ; 25   :      
+- 119 ; 26   : }  
+- 120   
+- 121     xor    eax, eax  
+- 122     pop    edi  
+- 123     pop    esi  
+- 124     pop    ebx  
+- 125     add    esp, 256                ; 00000100H  
+- 126     cmp    ebp, esp  
+- 127     call    __RTC_CheckEsp  
+- 128     mov    esp, ebp  
+- 129     pop    ebp  
+- 130     ret    0  
+- 131 _main    ENDP  
+- 132 _TEXT    ENDS  
+- 133 PUBLIC    ??_7Derive@@6B@                    ; Derive::`vftable'  
+- 134 PUBLIC    ??0Base@@QAE@XZ                    ; Base::Base  
+- 135 PUBLIC    ??_R4Derive@@6B@                ; Derive::`RTTI Complete Object Locator'  
+- 136 PUBLIC    ??_R3Derive@@8                    ; Derive::`RTTI Class Hierarchy Descriptor'  
+- 137 PUBLIC    ??_R2Derive@@8                    ; Derive::`RTTI Base Class Array'  
+- 138 PUBLIC    ??_R1A@?0A@EA@Derive@@8                ; Derive::`RTTI Base Class Descriptor at (0,-1,0,64)'  
+- 139 PUBLIC    ??_R1A@?0A@EA@Base@@8                ; Base::`RTTI Base Class Descriptor at (0,-1,0,64)'  
+- 140 PUBLIC    ??_R3Base@@8                    ; Base::`RTTI Class Hierarchy Descriptor'  
+- 141 PUBLIC    ??_R2Base@@8                    ; Base::`RTTI Base Class Array'  
+- 142 PUBLIC    ?f@Base@@UAEXXZ                    ; Base::f  
+- 143 ;    COMDAT ??_R2Base@@8  
+- 144 rdata$r    SEGMENT  
+- 145 ??_R2Base@@8 DD    FLAT:??_R1A@?0A@EA@Base@@8        ; Base::`RTTI Base Class Array'  
+- 146 rdata$r    ENDS  
+- 147 ;    COMDAT ??_R3Base@@8  
+- 148 rdata$r    SEGMENT  
+- 149 ??_R3Base@@8 DD    00H                    ; Base::`RTTI Class Hierarchy Descriptor'  
+- 150     DD    00H  
+- 151     DD    01H  
+- 152     DD    FLAT:??_R2Base@@8  
+- 153 rdata$r    ENDS  
+- 154 ;    COMDAT ??_R1A@?0A@EA@Base@@8  
+- 155 rdata$r    SEGMENT  
+- 156 ??_R1A@?0A@EA@Base@@8 DD FLAT:??_R0?AVBase@@@8        ; Base::`RTTI Base Class Descriptor at (0,-1,0,64)'  
+- 157     DD    00H  
+- 158     DD    00H  
+- 159     DD    0ffffffffH  
+- 160     DD    00H  
+- 161     DD    040H  
+- 162     DD    FLAT:??_R3Base@@8  
+- 163 rdata$r    ENDS  
+- 164 ;    COMDAT ??_R1A@?0A@EA@Derive@@8  
+- 165 rdata$r    SEGMENT  
+- 166 ??_R1A@?0A@EA@Derive@@8 DD FLAT:??_R0?AVDerive@@@8    ; Derive::`RTTI Base Class Descriptor at (0,-1,0,64)'  
+- 167     DD    01H  
+- 168     DD    00H  
+- 169     DD    0ffffffffH  
+- 170     DD    00H  
+- 171     DD    040H  
+- 172     DD    FLAT:??_R3Derive@@8  
+- 173 rdata$r    ENDS  
+- 174 ;    COMDAT ??_R2Derive@@8  
+- 175 rdata$r    SEGMENT  
+- 176 ??_R2Derive@@8 DD FLAT:??_R1A@?0A@EA@Derive@@8        ; Derive::`RTTI Base Class Array'  
+- 177     DD    FLAT:??_R1A@?0A@EA@Base@@8  
+- 178 rdata$r    ENDS  
+- 179 ;    COMDAT ??_R3Derive@@8  
+- 180 rdata$r    SEGMENT  
+- 181 ??_R3Derive@@8 DD 00H                    ; Derive::`RTTI Class Hierarchy Descriptor'  
+- 182     DD    00H  
+- 183     DD    02H  
+- 184     DD    FLAT:??_R2Derive@@8  
+- 185 rdata$r    ENDS  
+- 186 ;    COMDAT ??_R4Derive@@6B@  
+- 187 rdata$r    SEGMENT  
+- 188 ??_R4Derive@@6B@ DD 00H                    ; Derive::`RTTI Complete Object Locator'  
+- 189     DD    00H  
+- 190     DD    00H  
+- 191     DD    FLAT:??_R0?AVDerive@@@8  
+- 192     DD    FLAT:??_R3Derive@@8  
+- 193 rdata$r    ENDS  
+- 194 ;    COMDAT ??_7Derive@@6B@  
+- 195 CONST    SEGMENT  
+- 196 ??_7Derive@@6B@ DD FLAT:??_R4Derive@@6B@        ; Derive::`vftable'  
+- 197     DD    FLAT:?f@Base@@UAEXXZ  
+- 198 ; Function compile flags: /Odtp /RTCsu /ZI  
+- 199 CONST    ENDS  
+- 200 ;    COMDAT ??0Derive@@QAE@XZ  
+- 201 _TEXT    SEGMENT  
+- 202 _this$ = -8                        ; size = 4  
+- 203 ??0Derive@@QAE@XZ PROC                    ; Derive::Derive, COMDAT  
+- 204 ; _this$ = ecx  
+- 205     push    ebp  
+- 206     mov    ebp, esp  
+- 207     sub    esp, 204                ; 000000ccH  
+- 208     push    ebx  
+- 209     push    esi  
+- 210     push    edi  
+- 211     push    ecx  
+- 212     lea    edi, DWORD PTR [ebp-204]  
+- 213     mov    ecx, 51                    ; 00000033H  
+- 214     mov    eax, -858993460                ; ccccccccH  
+- 215     rep stosd  
+- 216     pop    ecx  
+- 217     mov    DWORD PTR _this$[ebp], ecx  
+- 218     mov    ecx, DWORD PTR _this$[ebp]  
+- 219     call    ??0Base@@QAE@XZ  
+- 220     mov    eax, DWORD PTR _this$[ebp]  
+- 221     mov    DWORD PTR [eax], OFFSET ??_7Derive@@6B@  
+- 222     mov    eax, DWORD PTR _this$[ebp]  
+- 223     pop    edi  
+- 224     pop    esi  
+- 225     pop    ebx  
+- 226     add    esp, 204                ; 000000ccH  
+- 227     cmp    ebp, esp  
+- 228     call    __RTC_CheckEsp  
+- 229     mov    esp, ebp  
+- 230     pop    ebp  
+- 231     ret    0  
+- 232 ??0Derive@@QAE@XZ ENDP                    ; Derive::Derive  
+- 233 ; Function compile flags: /Odtp /RTCsu /ZI  
+- 234 _TEXT    ENDS  
+- 235 ;    COMDAT ?f@Base@@UAEXXZ  
+- 236 _TEXT    SEGMENT  
+- 237 _this$ = -8                        ; size = 4  
+- 238 ?f@Base@@UAEXXZ PROC                    ; Base::f, COMDAT  
+- 239 ; _this$ = ecx  
+- 240   
+- 241 ; 8    :     virtualvoid f() {}  
+- 242   
+- 243     push    ebp  
+- 244     mov    ebp, esp  
+- 245     sub    esp, 204                ; 000000ccH  
+- 246     push    ebx  
+- 247     push    esi  
+- 248     push    edi  
+- 249     push    ecx  
+- 250     lea    edi, DWORD PTR [ebp-204]  
+- 251     mov    ecx, 51                    ; 00000033H  
+- 252     mov    eax, -858993460                ; ccccccccH  
+- 253     rep stosd  
+- 254     pop    ecx  
+- 255     mov    DWORD PTR _this$[ebp], ecx  
+- 256     pop    edi  
+- 257     pop    esi  
+- 258     pop    ebx  
+- 259     mov    esp, ebp  
+- 260     pop    ebp  
+- 261     ret    0  
+- 262 ?f@Base@@UAEXXZ ENDP                    ; Base::f  
+- 263 _TEXT    ENDS  
+- 264 PUBLIC    ??_7Base@@6B@                    ; Base::`vftable'  
+- 265 PUBLIC    ??_R4Base@@6B@                    ; Base::`RTTI Complete Object Locator'  
+- 266 ;    COMDAT ??_R4Base@@6B@  
+- 267 rdata$r    SEGMENT  
+- 268 ??_R4Base@@6B@ DD 00H                    ; Base::`RTTI Complete Object Locator'  
+- 269     DD    00H  
+- 270     DD    00H  
+- 271     DD    FLAT:??_R0?AVBase@@@8  
+- 272     DD    FLAT:??_R3Base@@8  
+- 273 rdata$r    ENDS  
+- 274 ;    COMDAT ??_7Base@@6B@  
+- 275 CONST    SEGMENT  
+- 276 ??_7Base@@6B@ DD FLAT:??_R4Base@@6B@            ; Base::`vftable'  
+- 277     DD    FLAT:?f@Base@@UAEXXZ  
+- 278 ; Function compile flags: /Odtp /RTCsu /ZI  
+- 279 CONST    ENDS  
+- 280 ;    COMDAT ??0Base@@QAE@XZ  
+- 281 _TEXT    SEGMENT  
+- 282 _this$ = -8                        ; size = 4  
+- 283 ??0Base@@QAE@XZ PROC                    ; Base::Base, COMDAT  
+- 284 ; _this$ = ecx  
+- 285     push    ebp  
+- 286     mov    ebp, esp  
+- 287     sub    esp, 204                ; 000000ccH  
+- 288     push    ebx  
+- 289     push    esi  
+- 290     push    edi  
+- 291     push    ecx  
+- 292     lea    edi, DWORD PTR [ebp-204]  
+- 293     mov    ecx, 51                    ; 00000033H  
+- 294     mov    eax, -858993460                ; ccccccccH  
+- 295     rep stosd  
+- 296     pop    ecx  
+- 297     mov    DWORD PTR _this$[ebp], ecx  
+- 298     mov    eax, DWORD PTR _this$[ebp]  
+- 299     mov    DWORD PTR [eax], OFFSET ??_7Base@@6B@  
+- 300     mov    eax, DWORD PTR _this$[ebp]  
+- 301     pop    edi  
+- 302     pop    esi  
+- 303     pop    ebx  
+- 304     mov    esp, ebp  
+- 305     pop    ebp  
+- 306     ret    0  
+- 307 ??0Base@@QAE@XZ ENDP                    ; Base::Base  
+- 308 _TEXT    ENDS  
+- 309 END原来虚表上面指向是一个 Derive::`RTTI Complete Object Locator 。 用google 搜索下面的该关键字，有了下面的文章http://www.openrce.org/articles/full_view/23和该图：
+- 谜底揭晓： 原来虚表上面的地址是指向一个结构 Derive::`RTTI Complete Object Locator ， 这个结构指向该类的名字，和其对象继承链。  
+- 
+- 这就回答了第一个问题，RTTI info 如何和对象绑定的？ 在对象创建的时候，调用构造函时候，创建虚表以及RTTI info，这样dynamic cast 就可以去访问RTTI，从而保证安全。  
+- 
+- 同样有个一问题，那就是RTTI 效率底下，试下如果一个类其继承多层，而且有多继承，那么查找链就相当遍历一个链表。  
+- 
+- 4. 实现一个代码用来从RTTI中读取类名字  
+-  1   #include "iostream"
+-  2   #include "string"
+-  3 #include <typeinfo>  
+-  4   usingnamespace std;  
+-  5   
+-  6   
+-  7   class Base  
+-  8   {  
+-  9   public:  
+- 10       virtualvoid f() { }  
+- 11   };  
+- 12   
+- 13   class Derive : public Base  
+- 14   {  
+- 15   };  
+- 16   
+- 17   typedef unsigned longDWORD;  
+- 18   
+- 19   struct TypeDescriptor  
+- 20   {  
+- 21       DWORD ptrToVTable;  
+- 22       DWORD spare;  
+- 23       char name[ ];  
+- 24   };  
+- 25    struct RTTICompleteObjectLocator  
+- 26     
+- 27   {  
+- 28     
+- 29       DWORD signature; //always zero ?
+- 30     
+- 31       DWORD offset;    //offset of this vtable in the complete class
+- 32     
+- 33       DWORD cdOffset;  //constructor displacement offset
+- 34     
+- 35       struct TypeDescriptor* pTypeDescriptor; //TypeDescriptor of the complete class
+- 36     
+- 37       int * ptr;  
+- 38       //struct RTTIClassHierarchyDescriptor* pClassDescriptor; //describes inheritance hierarchy
+- 39    
+- 40   };  
+- 41     
+- 42   
+- 43 int main()  
+- 44 {  
+- 45       
+- 46     Base *pderive = new Derive();  
+- 47       
+- 48     int **ptr = (int **)(&pderive);  
+- 49   
+- 50     int *ptable = (int *)(*(int *)(*ptr));   
+- 51   
+- 52     int * rtti = ptable -1;  
+- 53     
+- 54     RTTICompleteObjectLocator * RIIT_locator =   (RTTICompleteObjectLocator *)( *(int*)rtti);  
+- 55   
+- 56     cout<<RIIT_locator->pTypeDescriptor->name<<endl;  
+- 57   
+- 58 }  
+- Out put:  
+- 
+- .?AVDerive@@  
+- 
+- 当然可以根据RTTI的信息，可以遍历其继承关系图。留作一个练习，可以尝试一下。  
+- 
+- 总结：  
+- 
+- static_cast 用于数值类型之间的转换，也可以用于指针之间的转换，编译的已经确定好，效率高，但须要自己保证其安全性。  
+- 
+- dynamic_cast 用于有继承关系的类之间转换，是基于RTTI数据信息的，运行时检测，安全，但是效率低。  
+- 
+- Refernce：  
+- 
+- RTTI intoduction：  
+- 
+- 1. http://www.rcs.hu/Articles/RTTI_Part1.htm [介绍RTTI 的应用，需要的借口，以及一个实现]
+- 
+- 2. http://www.codeproject.com/KB/cpp/dynamic_cpp.aspx 

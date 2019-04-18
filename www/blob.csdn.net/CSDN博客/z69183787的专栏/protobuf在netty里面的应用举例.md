@@ -1,0 +1,470 @@
+# protobuf在netty里面的应用举例 - z69183787的专栏 - CSDN博客
+2016年09月22日 11:44:48[OkidoGreen](https://me.csdn.net/z69183787)阅读数：587
+netty为protobuf提供了两个编码器（ProtobufEncoder，ProtobufVarint32LengthFieldPrepender），两个解码器（ProtobufVarint32FrameDecoder，ProtobufDecoder）
+[注]所谓的编码就是把应用程序使用的数据类型编码成在网络上传输的二进制字节流，反之同理。
+看一个netty官网上提供的一个使用protobuf的例子：
+LocalTimeProtocol.proto文件：
+[java][view
+ plain](http://blog.csdn.net/goldenfish1919/article/details/6719276#)[copy](http://blog.csdn.net/goldenfish1919/article/details/6719276#)
+- package org.jboss.netty.example.localtime;  
+- option optimize_for = SPEED;  
+- enum Continent {  
+-   AFRICA = 0;  
+-   AMERICA = 1;  
+-   ANTARCTICA = 2;  
+-   ARCTIC = 3;  
+-   ASIA = 4;  
+-   ATLANTIC = 5;  
+-   AUSTRALIA = 6;  
+-   EUROPE = 7;  
+-   INDIAN = 8;  
+-   MIDEAST = 9;  
+-   PACIFIC = 10;  
+- }  
+- message Location {  
+-   required Continent continent = 1;  
+-   required string city = 2;  
+- }  
+- message Locations {  
+-   repeated Location location = 1;  
+- }  
+- enum DayOfWeek {  
+-   SUNDAY = 1;  
+-   MONDAY = 2;  
+-   TUESDAY = 3;  
+-   WEDNESDAY = 4;  
+-   THURSDAY = 5;  
+-   FRIDAY = 6;  
+-   SATURDAY = 7;  
+- }  
+- message LocalTime {  
+-   required uint32 year = 1;  
+-   required uint32 month = 2;  
+-   required uint32 dayOfMonth = 4;  
+-   required DayOfWeek dayOfWeek = 5;  
+-   required uint32 hour = 6;  
+-   required uint32 minute = 7;  
+-   required uint32 second = 8;  
+- }  
+- message LocalTimes {  
+-   repeated LocalTime localTime = 1;  
+- }  
+客户端：
+[java][view
+ plain](http://blog.csdn.net/goldenfish1919/article/details/6719276#)[copy](http://blog.csdn.net/goldenfish1919/article/details/6719276#)
+- publicclass LocalTimeClient {  
+- 
+- publicstaticvoid main(String[] args) throws Exception {  
+- // Parse options.
+-         String host = "localhost";  
+- int port = 8080;  
+-         Collection<String> cities = new ArrayList<String>(){  
+- privatestaticfinallong serialVersionUID = 1L;  
+-   {  
+-           add("America/New_York");  
+-           add("Asia/Seoul");  
+-          }  
+-         };  
+- // Set up.
+-         ClientBootstrap bootstrap = new ClientBootstrap(  
+- new NioClientSocketChannelFactory(  
+-                         Executors.newCachedThreadPool(),  
+-                         Executors.newCachedThreadPool()));  
+- 
+- // Configure the event pipeline factory.
+-         bootstrap.setPipelineFactory(new LocalTimeClientPipelineFactory());  
+- 
+- // Make a new connection.
+-         ChannelFuture connectFuture =  
+-             bootstrap.connect(new InetSocketAddress(host, port));  
+- 
+- // Wait until the connection is made successfully.
+-         Channel channel = connectFuture.awaitUninterruptibly().getChannel();  
+- 
+- // Get the handler instance to initiate the request.
+-         LocalTimeClientHandler handler =  
+-             channel.getPipeline().get(LocalTimeClientHandler.class);  
+- 
+- // Request and get the response.
+-         List<String> response = handler.getLocalTimes(cities);  
+- // Close the connection.
+-         channel.close().awaitUninterruptibly();  
+- 
+- // Shut down all thread pools to exit.
+-         bootstrap.releaseExternalResources();  
+- 
+- // Print the response at last but not least.
+-         Iterator<String> i1 = cities.iterator();  
+-         Iterator<String> i2 = response.iterator();  
+- while (i1.hasNext()) {  
+-             System.out.format("%28s: %s%n", i1.next(), i2.next());  
+-         }  
+-     }  
+- }  
+[java][view
+ plain](http://blog.csdn.net/goldenfish1919/article/details/6719276#)[copy](http://blog.csdn.net/goldenfish1919/article/details/6719276#)
+- publicclass LocalTimeClientPipelineFactory implements ChannelPipelineFactory {  
+- 
+- public ChannelPipeline getPipeline() throws Exception {  
+-         ChannelPipeline p = pipeline();  
+- //解码用
+-         p.addLast("frameDecoder", new ProtobufVarint32FrameDecoder());  
+- //构造函数传递要解码成的类型
+-         p.addLast("protobufDecoder", new ProtobufDecoder(LocalTimeProtocol.LocalTimes.getDefaultInstance()));  
+- //编码用
+-         p.addLast("frameEncoder", new ProtobufVarint32LengthFieldPrepender());  
+-         p.addLast("protobufEncoder", new ProtobufEncoder());  
+- //业务逻辑用
+-         p.addLast("handler", new LocalTimeClientHandler());  
+- return p;  
+-     }  
+- }  
+[java][view
+ plain](http://blog.csdn.net/goldenfish1919/article/details/6719276#)[copy](http://blog.csdn.net/goldenfish1919/article/details/6719276#)
+- publicclass LocalTimeClientHandler extends SimpleChannelUpstreamHandler {  
+- 
+- privatestaticfinal Logger logger = Logger.getLogger(  
+-             LocalTimeClientHandler.class.getName());  
+- 
+- // Stateful properties
+- privatevolatile Channel channel;  
+- //用来存储服务端返回的结果
+- privatefinal BlockingQueue<LocalTimes> answer = new LinkedBlockingQueue<LocalTimes>();  
+- 
+- public List<String> getLocalTimes(Collection<String> cities) {  
+-         Locations.Builder builder = Locations.newBuilder();  
+- //构造传输给服务端的Locations对象
+- for (String c: cities) {  
+-             String[] components = c.split("/");  
+-             builder.addLocation(Location.newBuilder().  
+-                 setContinent(Continent.valueOf(components[0].toUpperCase())).  
+-                 setCity(components[1]).build());  
+-         }  
+- 
+-         channel.write(builder.build());  
+- 
+-         LocalTimes localTimes;  
+- boolean interrupted = false;  
+- for (;;) {  
+- try {  
+- //从queue里面得到的，也就是服务端传过来的LocalTimes。
+-                 localTimes = answer.take();  
+- break;  
+-             } catch (InterruptedException e) {  
+-                 interrupted = true;  
+-             }  
+-         }  
+- 
+- if (interrupted) {  
+-             Thread.currentThread().interrupt();  
+-         }  
+- 
+-         List<String> result = new ArrayList<String>();  
+- for (LocalTime lt: localTimes.getLocalTimeList()) {  
+-             result.add(  
+- new Formatter().format(  
+- "%4d-%02d-%02d %02d:%02d:%02d %s",  
+-                             lt.getYear(),  
+-                             lt.getMonth(),  
+-                             lt.getDayOfMonth(),  
+-                             lt.getHour(),  
+-                             lt.getMinute(),  
+-                             lt.getSecond(),  
+-                             lt.getDayOfWeek().name()).toString());  
+-         }  
+- 
+- return result;  
+-     }  
+- 
+- @Override
+- publicvoid handleUpstream(  
+-             ChannelHandlerContext ctx, ChannelEvent e) throws Exception {  
+- if (e instanceof ChannelStateEvent) {  
+-             logger.info(e.toString());  
+-         }  
+- super.handleUpstream(ctx, e);  
+-     }  
+- 
+- @Override
+- publicvoid channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e)  
+- throws Exception {  
+-         channel = e.getChannel();  
+- super.channelOpen(ctx, e);  
+-     }  
+- 
+- @Override
+- publicvoid messageReceived(  
+-             ChannelHandlerContext ctx, final MessageEvent e) {  
+- //收到服务端返回的消息，已经解码成了LocalTimes类型
+- boolean offered = answer.offer((LocalTimes) e.getMessage());  
+- assert offered;  
+-     }  
+- 
+- @Override
+- publicvoid exceptionCaught(  
+-             ChannelHandlerContext ctx, ExceptionEvent e) {  
+-         logger.log(  
+-                 Level.WARNING,  
+- "Unexpected exception from downstream.",  
+-                 e.getCause());  
+-         e.getChannel().close();  
+-     }  
+- }  
+服务端的处理：
+[java][view
+ plain](http://blog.csdn.net/goldenfish1919/article/details/6719276#)[copy](http://blog.csdn.net/goldenfish1919/article/details/6719276#)
+- publicclass LocalTimeServer {  
+- 
+- publicstaticvoid main(String[] args) throws Exception {  
+- // Configure the server.
+-         ServerBootstrap bootstrap = new ServerBootstrap(  
+- new NioServerSocketChannelFactory(  
+-                         Executors.newCachedThreadPool(),  
+-                         Executors.newCachedThreadPool()));  
+- 
+- // Set up the event pipeline factory.
+-         bootstrap.setPipelineFactory(new LocalTimeServerPipelineFactory());  
+- 
+- // Bind and start to accept incoming connections.
+-         bootstrap.bind(new InetSocketAddress(8080));  
+-     }  
+- }  
+- publicclass LocalTimeServerPipelineFactory implements ChannelPipelineFactory {  
+- 
+- public ChannelPipeline getPipeline() throws Exception {  
+-         ChannelPipeline p = pipeline();  
+- //解码
+-         p.addLast("frameDecoder", new ProtobufVarint32FrameDecoder());  
+- //构造函数传递要解码成的类型
+-         p.addLast("protobufDecoder", new ProtobufDecoder(LocalTimeProtocol.Locations.getDefaultInstance()));  
+- //编码
+-         p.addLast("frameEncoder", new ProtobufVarint32LengthFieldPrepender());  
+-         p.addLast("protobufEncoder", new ProtobufEncoder());  
+- //业务逻辑处理
+-         p.addLast("handler", new LocalTimeServerHandler());  
+- return p;  
+-     }  
+- }  
+[java][view
+ plain](http://blog.csdn.net/goldenfish1919/article/details/6719276#)[copy](http://blog.csdn.net/goldenfish1919/article/details/6719276#)
+- publicclass LocalTimeServerHandler extends SimpleChannelUpstreamHandler {  
+- 
+- privatestaticfinal Logger logger = Logger.getLogger(  
+-             LocalTimeServerHandler.class.getName());  
+- 
+- @Override
+- publicvoid handleUpstream(  
+-             ChannelHandlerContext ctx, ChannelEvent e) throws Exception {  
+- if (e instanceof ChannelStateEvent) {  
+-             logger.info(e.toString());  
+-         }  
+- super.handleUpstream(ctx, e);  
+-     }  
+- 
+- @Override
+- publicvoid messageReceived(  
+-             ChannelHandlerContext ctx, MessageEvent e) {  
+- //收到的消息是Locations
+-         Locations locations = (Locations) e.getMessage();  
+- long currentTime = System.currentTimeMillis();  
+- 
+-         LocalTimes.Builder builder = LocalTimes.newBuilder();  
+- for (Location l: locations.getLocationList()) {  
+-             TimeZone tz = TimeZone.getTimeZone(  
+-                     toString(l.getContinent()) + '/' + l.getCity());  
+-             Calendar calendar = Calendar.getInstance(tz);  
+-             calendar.setTimeInMillis(currentTime);  
+- 
+-             builder.addLocalTime(LocalTime.newBuilder().  
+-                     setYear(calendar.get(YEAR)).  
+-                     setMonth(calendar.get(MONTH) + 1).  
+-                     setDayOfMonth(calendar.get(DAY_OF_MONTH)).  
+-                     setDayOfWeek(DayOfWeek.valueOf(calendar.get(DAY_OF_WEEK))).  
+-                     setHour(calendar.get(HOUR_OF_DAY)).  
+-                     setMinute(calendar.get(MINUTE)).  
+-                     setSecond(calendar.get(SECOND)).build());  
+-         }  
+- //返回LocalTimes
+-         e.getChannel().write(builder.build());  
+-     }  
+- 
+- @Override
+- publicvoid exceptionCaught(  
+-             ChannelHandlerContext ctx, ExceptionEvent e) {  
+-         logger.log(  
+-                 Level.WARNING,  
+- "Unexpected exception from downstream.",  
+-                 e.getCause());  
+-         e.getChannel().close();  
+-     }  
+- 
+- privatestatic String toString(Continent c) {  
+- return"" + c.name().charAt(0) + c.name().toLowerCase().substring(1);  
+-     }  
+- }  
+从这个例子中也可以看出来，netty已经把所有的protobuf的细节给封装过了，我们现在就看一下netty是如何发送和接受protobuf数据的。
+先看一下ProtobufEncoder，
+[java][view
+ plain](http://blog.csdn.net/goldenfish1919/article/details/6719276#)[copy](http://blog.csdn.net/goldenfish1919/article/details/6719276#)
+- @Override
+- protected Object encode(  
+-             ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {  
+- if (!(msg instanceof MessageLite)) {  
+- return msg;  
+-         }  
+- return wrappedBuffer(((MessageLite) msg).toByteArray());  
+- }  
+encode方法很简单，实际上它会调用protobuf的api，把消息编码成protobuf格式的字节数组。
+然后看一下ProtobufVarint32LengthFieldPrepender：
+它会在原来的数据的前面，追加一个使用Base 128 Varints编码过的length：
+ BEFORE DECODE (300 bytes)       AFTER DECODE (302 bytes)
+ +---------------+               +--------+---------------+
+ | Protobuf Data |-------------->| Length | Protobuf Data |
+ |  (300 bytes)  |               | 0xAC02 |  (300 bytes)  |
+ +---------------+               +--------+---------------+
+因此，netty实际上只做了这么一点工作，其余的全部都是protobuf自己完成的。
+[java][view
+ plain](http://blog.csdn.net/goldenfish1919/article/details/6719276#)[copy](http://blog.csdn.net/goldenfish1919/article/details/6719276#)
+- @Override
+- protected Object encode(ChannelHandlerContext ctx, Channel channel,  
+-             Object msg) throws Exception {  
+- if (!(msg instanceof ChannelBuffer)) {  
+- return msg;  
+-         }  
+-         ChannelBuffer body = (ChannelBuffer) msg;  
+- int length = body.readableBytes();  
+- //header使用跟body同样的字节序，容量是length这个整数所占的字节数
+-         ChannelBuffer header =  
+-             channel.getConfig().getBufferFactory().getBuffer(  
+-                     body.order(),  
+-                     CodedOutputStream.computeRawVarint32Size(length));  
+-         CodedOutputStream codedOutputStream = CodedOutputStream  
+-                 .newInstance(new ChannelBufferOutputStream(header));  
+- //把length按照Base 128 Varints的方式写入header里面
+-         codedOutputStream.writeRawVarint32(length);  
+-         codedOutputStream.flush();  
+- //把header和body组合到一块
+- return wrappedBuffer(header, body);  
+- }  
+唯一值得一看的是：
+[java][view
+ plain](http://blog.csdn.net/goldenfish1919/article/details/6719276#)[copy](http://blog.csdn.net/goldenfish1919/article/details/6719276#)
+- //计算一个整数在varint编码下所占的字节数，
+- publicstaticint computeRawVarint32Size(finalint value) {  
+- if ((value & (0xffffffff <<  7)) == 0) return1;  
+- if ((value & (0xffffffff << 14)) == 0) return2;  
+- if ((value & (0xffffffff << 21)) == 0) return3;  
+- if ((value & (0xffffffff << 28)) == 0) return4;  
+- return5;  
+- }  
+- publicvoid writeRawVarint32(int value) throws IOException {  
+- while (true) {  
+- if ((value & ~0x7F) == 0) {//如果最高位是0
+-         writeRawByte(value);//直接写
+- return;  
+-       } else {  
+-         writeRawByte((value & 0x7F) | 0x80);//先写入低7位，最高位置1
+-         value >>>= 7;//再写高7位
+-       }  
+-     }  
+- }  
+解码的过程无非就是先读出length来，根据length读取出所有的数据来，交给protobuf就能还原消息出来。
+看一下具体的解码过程：
+ProtobufVarint32FrameDecoder：
+[java][view
+ plain](http://blog.csdn.net/goldenfish1919/article/details/6719276#)[copy](http://blog.csdn.net/goldenfish1919/article/details/6719276#)
+- protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer) throws Exception {  
+-         buffer.markReaderIndex();  
+- finalbyte[] buf = newbyte[5];//存放长度，最多也就5个字节
+- for (int i = 0; i < buf.length; i ++) {  
+- if (!buffer.readable()) {  
+-                 buffer.resetReaderIndex();  
+- returnnull;  
+-             }  
+- 
+-             buf[i] = buffer.readByte();  
+- if (buf[i] >= 0) {  
+- //读取长度
+- int length = CodedInputStream.newInstance(buf, 0, i + 1).readRawVarint32();  
+- if (length < 0) {  
+- thrownew CorruptedFrameException("negative length: " + length);  
+-                 }  
+- 
+- if (buffer.readableBytes() < length) {  
+-                     buffer.resetReaderIndex();  
+- returnnull;  
+-                 } else {  
+- //读取数据
+- return buffer.readBytes(length);  
+-                 }  
+-             }  
+-         }  
+- 
+- // Couldn't find the byte whose MSB is off.
+- thrownew CorruptedFrameException("length wider than 32-bit");  
+- }  
+看一下readRawVarint32：
+[java][view
+ plain](http://blog.csdn.net/goldenfish1919/article/details/6719276#)[copy](http://blog.csdn.net/goldenfish1919/article/details/6719276#)
+- publicint readRawVarint32() throws IOException {  
+- byte tmp = readRawByte();//先读一个字节
+- if (tmp >= 0) {  
+- return tmp;  
+-     }  
+- int result = tmp & 0x7f;//长度大于一个字节
+- if ((tmp = readRawByte()) >= 0) {  
+-       result |= tmp << 7;  
+-     } else {  
+-       result |= (tmp & 0x7f) << 7;  
+- if ((tmp = readRawByte()) >= 0) {  
+-         result |= tmp << 14;  
+-       } else {  
+-         result |= (tmp & 0x7f) << 14;  
+- if ((tmp = readRawByte()) >= 0) {  
+-           result |= tmp << 21;  
+-         } else {  
+-           result |= (tmp & 0x7f) << 21;  
+-           result |= (tmp = readRawByte()) << 28;  
+- if (tmp < 0) {  
+- // Discard upper 32 bits.
+- for (int i = 0; i < 5; i++) {  
+- if (readRawByte() >= 0) {  
+- return result;  
+-               }  
+-             }  
+- throw InvalidProtocolBufferException.malformedVarint();  
+-           }  
+-         }  
+-       }  
+-     }  
+- return result;  
+-   }  
+- ProtobufDecoder：  
+- @Override
+- protected Object decode(  
+-             ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {  
+- if (!(msg instanceof ChannelBuffer)) {  
+- return msg;  
+-         }  
+- 
+-         ChannelBuffer buf = (ChannelBuffer) msg;  
+- if (buf.hasArray()) {  
+- finalint offset = buf.readerIndex();  
+- if(extensionRegistry == null) {  
+- //从字节数组里面还原出消息，上层收到的就是构造函数里面传递进来的类型
+- return prototype.newBuilderForType().mergeFrom(  
+-                         buf.array(), buf.arrayOffset() + offset, buf.readableBytes()).build();  
+-             } else {  
+- return prototype.newBuilderForType().mergeFrom(  
+-                         buf.array(), buf.arrayOffset() + offset, buf.readableBytes(), extensionRegistry).build();  
+-             }  
+-         } else {  
+- if (extensionRegistry == null) {  
+- return prototype.newBuilderForType().mergeFrom(  
+- new ChannelBufferInputStream((ChannelBuffer) msg)).build();  
+-             } else {  
+- return prototype.newBuilderForType().mergeFrom(  
+- new ChannelBufferInputStream((ChannelBuffer) msg), extensionRegistry).build();  
+-             }  
+-         }  
+-     }  

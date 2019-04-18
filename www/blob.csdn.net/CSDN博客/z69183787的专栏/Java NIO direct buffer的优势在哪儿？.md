@@ -1,0 +1,12 @@
+# Java NIO direct buffer的优势在哪儿？ - z69183787的专栏 - CSDN博客
+2018年02月09日 13:49:20[OkidoGreen](https://me.csdn.net/z69183787)阅读数：218
+DirectByteBuffer的区别在于HeapByteBuffer是在Java+Heap上分配的，但是Java+NIO在读写到相应的Channel的时候，会先将Java+Heap的buffer内容拷贝至直接内存——Direct+Memory。这样的话，无疑DirectByteBuffer的IO性能肯定强于使用HeapByteBuffer，它省去了临时buffer的拷贝开销，这也是为什么各个NIO框架大多使用DirectByteBuffer的原因。
+1.Direct+buffer是相当于固定的内核buffer还是JVM进程内的堆外内存？
+答：JVM进程的Java堆外申请的内存，是用户空间的，这是毫无疑问的，因为前边有答主已经贴过代码了，DirectByteBuffer的创建就是使用了+malloc+申请的内存。
+2.为什么在执行网络IO或者文件IO时，一定要通过堆外内存呢？
+@ETIN 的答案也说了，如果是使用DirectBuffer就会少一次内存拷贝。如果是非DirectBuffer，JDK会先创建一个DirectBuffer，再去执行真正的写操作。这是因为，当我们把一个地址通过JNI传递给底层的C库的时候，有一个基本的要求，就是这个地址上的内容不能失效。然而，在GC管理下的对象是会在Java堆中移动的。也就是说，有可能我把一个地址传给底层的write，但是这段内存却因为GC整理内存而失效了。所以我必须要把待发送的数据放到一个GC管不着的地方。这就是调用native方法之前，数据一定要在堆外内存的原因。
+可见，DirectBuffer并没有节省什么内存拷贝，只是因为HeapBuffer必须多做一次拷贝，才显得DirectBuffer更快一点而已。
+3.Direct Buffer还有其他好处吗？
+GC压力更小。
+虽然GC仍然管理着DirectBuffer的回收，但它是使用PhantomReference来达到的，在平常的Young+GC或者mark+and+compact的时候却不会在内存里搬动。如果IO的数量比较大，比如在网络发送很大的文件，那么GC的压力下降就会很明显。
+以上。

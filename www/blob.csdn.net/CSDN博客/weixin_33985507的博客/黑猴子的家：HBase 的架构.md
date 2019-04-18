@@ -1,0 +1,8 @@
+# 黑猴子的家：HBase 的架构 - weixin_33985507的博客 - CSDN博客
+2018年09月30日 15:51:00[weixin_33985507](https://me.csdn.net/weixin_33985507)阅读数：9
+HBase一种是作为存储的分布式文件系统，另一种是作为数据处理模型的MR框架。因为日常开发人员比较熟练的是结构化的数据进行处理，但是在HDFS直接存储的文件往往不具有结构化，所以催生出了HBase在HDFS上的操作。如果需要查询数据，只需要通过键值便可以成功访问。
+架构图如下图所示
+![9193428-6054121dfaa9cb69.png](https://upload-images.jianshu.io/upload_images/9193428-6054121dfaa9cb69.png)
+HBase内置有Zookeeper，但一般我们会有其他的Zookeeper集群来监管master和regionserver，Zookeeper通过选举，保证任何时候，集群中只有一个活跃的HMaster，HMaster与HRegionServer 启动时会向ZooKeeper注册，存储所有HRegion的寻址入口，实时监控HRegionserver的上线和下线信息。并实时通知给HMaster，存储HBase的schema和table元数据，默认情况下，HBase 管理ZooKeeper 实例，Zookeeper的引入使得HMaster不再是单点故障。一般情况下会启动两个HMaster，非Active的HMaster会定期的和Active HMaster通信以获取其最新状态，从而保证它是实时更新的，因而如果启动了多个HMaster反而增加了Active HMaster的负担。
+一个RegionServer可以包含多个HRegion，每个RegionServer维护一个HLog，和多个HFiles以及其对应的MemStore。RegionServer运行于DataNode上，数量可以与DatNode数量一致，请参考如下架构图
+![9193428-4381d04a4d4d7b17.png](https://upload-images.jianshu.io/upload_images/9193428-4381d04a4d4d7b17.png)

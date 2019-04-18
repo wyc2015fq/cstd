@@ -1,0 +1,158 @@
+# Maven根据不同环境打包不同配置文件 - z69183787的专栏 - CSDN博客
+2016年11月29日 20:26:27[OkidoGreen](https://me.csdn.net/z69183787)阅读数：3529
+ 开发项目时会遇到这个问题：开发环境，[测试](http://lib.csdn.net/base/softwaretest)环境，生产环境的配置文件不同，打包时经常要手动更改配置文件，更改的少还可以接受，但是如果需要更多个配置文件，手动的方法就显得非常笨重了。
+    下面介绍一种方法，利用Maven插件来打包不同环境的配置文件。我们用到的是[**maven-war-plugin**](http://maven.apache.org/plugins/maven-war-plugin/)这个插件。
+    首先贴出整个pom文件：
+<project xmlns**="http://maven.apache.org/POM/4.0.0" **xmlns:xsi**="http://www.w3.org/2001/XMLSchema-instance"**xsi:schemaLocation**="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"**>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>CMS</groupId>
+    <artifactId>CMS</artifactId>
+    <packaging>war</packaging>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>Cms</name>
+    <url>http://maven.apache.org</url>    <properties>
+        <spring.version>4.1.6.RELEASE</spring.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>      <!-- 依赖省略-->    </dependencies>
+<profiles>
+        <profile>
+<!-- 本地开发环境 -->
+<id>dev</id>
+            <properties>
+                <package.environment>dev</package.environment>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+<!-- 测试环境 -->
+<id>test</id>
+            <properties>
+                <package.environment>test</package.environment>
+            </properties>
+        </profile>
+        <profile>
+<!-- 生产环境 -->
+<id>prod</id>
+            <properties>
+                <package.environment>prod</package.environment>
+            </properties>
+        </profile>
+    </profiles>
+    <build>
+        <finalName>Cms</finalName>
+        <sourceDirectory>src</sourceDirectory>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.1.1</version>
+                <configuration>
+                    <webXml>WebRoot\WEB-INF\web.xml</webXml>
+                    <warSourceDirectory>WebRoot</warSourceDirectory>
+                    <archive>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
+                    <warName>Cms</warName>
+                    <webResources>
+                        <resource>
+                            <directory>src/main/resoreces/${package.environment}</directory>
+                            <targetPath>WEB-INF/classes</targetPath>
+                            <filtering>true</filtering>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>
+简单说明几个地方：
+<profiles>
+    <profile>
+<!-- 本地开发环境 -->
+<id>dev</id>
+        <properties>
+            <package.environment>dev</package.environment>
+        </properties>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
+    </profile>
+    <profile>
+<!-- 测试环境 -->
+<id>test</id>
+        <properties>
+            <package.environment>test</package.environment>
+        </properties>
+    </profile>
+    <profile>
+<!-- 生产环境 -->
+<id>prod</id>
+        <properties>
+            <package.environment>prod</package.environment>
+        </properties>
+    </profile>
+</profiles>
+此处借助profiles定义几个不同的环境文件夹，相同的需要在项目里面创建同id的文件夹，用来存放特定环境的配置文件。
+我之前的resource目录：
+![](https://img-blog.csdn.net/20160727141748734?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+我的目录结构是相对复杂的一种有2层目录，只有一层目录的也一样更简单。外层xml文件，还有一个properties文件夹。这里我针对不同环境需要更改的配置文件有4个，标红的。
+再看一下改造后resource的目录结构：
+![](https://img-blog.csdn.net/20160727140749495?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+随便展开一个dev文件夹是这样：
+![](https://img-blog.csdn.net/20160727140940816?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+可见需要更改的配置文件，需要copy到各个环境的文件夹当中去，而不需要更改的文件，则不需要复制一份。
+此处需要说明的是，如果我指定的是dev，则maven会将dev下的所有文件拿出来，db.xml覆盖掉外面的db.xml，dev.properties文件夹中的配置文件会拿出来放到外面的properties文件夹中。所以说这里是非常灵活的，你需要哪些文件定制，完全由自己来控制。
+再来看pom文件
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-war-plugin</artifactId>
+    <version>2.1.1</version>
+    <configuration>
+        <webXml>WebRoot\WEB-INF\web.xml</webXml>
+        <warSourceDirectory>WebRoot</warSourceDirectory>
+        <archive>
+            <addMavenDescriptor>false</addMavenDescriptor>
+        </archive>
+        <warName>test</warName>
+        <webResources>
+            <resource>
+                <directory>src/main/resources/${package.environment}</directory>
+                <targetPath>WEB-INF/classes</targetPath>
+                <filtering>true</filtering>
+            </resource>
+        </webResources>
+    </configuration>
+</plugin>这里使用的是maven-war-plugin这个插件，此插件的功能是很强大的，想深入了解，可以到官网去看。
+${package.environment}
+动态指定目录，接收参数。
+targetPath目标路径。
+另外说2点，这两个标签
+<webXml>WebRoot\WEB-INF\web.xml</webXml>
+<warSourceDirectory>WebRoot</warSourceDirectory>1.如果maven打包错误说找不到web.xml，说明你得项目结构不是标准的，用webxml标签指定一下就可以了
+2.如果jsp打包没有的话，同样的问题，指定一下目录，我的项目结构就不是maven标准结构，所以需要指定一下。
+`改造完毕，接下来就是利用maven打包了。`
+```
+mvn clean ; mvn compile;
+```
+`mvn -P test package; 传相应环境参数就ok了`

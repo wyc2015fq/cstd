@@ -1,0 +1,75 @@
+# inline、block、inline-block的区别 - z69183787的专栏 - CSDN博客
+2014年04月17日 14:47:11[OkidoGreen](https://me.csdn.net/z69183787)阅读数：1140
+我们用firbug浏览别人网站时会发现设计者会在很多地方使用inline-block。我们都知道inline是声明div是内联对象，block是声明块对象，那么inline-block是什么意思，即内联又成块？接下来做个测试，让我们了解一下三者的区别和作用吧：
+```
+`<``html`
+```
+xmlns
+```
+`=``"[http://www.w3.org/1999/xhtml](http://www.w3.org/1999/xhtml)"``>`
+`<``head``>`
+`<``meta`
+```
+http-equiv
+```
+`=``"Content-Type"`
+```
+content
+```
+`=`
+```
+"text/html;
+ charset=utf-8"
+```
+```
+/>
+```
+`<``title``>inline、block、inline-block的区别</``title``>`
+`<``style``>`
+```
+.a{display:inline;
+ width:100px; height:100px; padding:5px; background-color:#F00;}
+```
+```
+.b{display:block;
+ width:100px; height:100px; padding:5px;background-color:#0f0;}
+```
+```
+.c{display:inline-block;
+ width:100px;height:100px; padding:5px;background-color:#00f;}
+```
+`</``style``>`
+`</``head``>`
+`<``body``>`
+`<``span`
+```
+class
+```
+`=``"a"``>`
+`inline`
+`</``span``>inline`
+`<``span`
+```
+class
+```
+`=``"b"``>`
+`block`
+`</``span``>block`
+`<``span`
+```
+class
+```
+`=``"c"``>`
+`inline-block`
+`</``span``>inline-block`
+`</``body``>`
+`</``html``>`
+```
+![](http://m2.img.srcdd.com/farm4/d/2012/0811/08/4BC7C3A87617D0D72025926C786E8D7D_B500_900_281_322.JPEG)
+我们发现内联对象inline给它设置height和width是没有用的，致使它变宽变大的原因是内部元素的宽高+padding。观察inline对象的前后元素我们会发现Inline不单独占一行，其它元素会紧跟其后。
+块对象block是可以设置宽高的，但是它的实际宽高是本身宽高+padding。观察block的前后元素我们会发现block要单独占一行。
+当看到这里的时候我们就会想，如果我们即需要div有宽高，又不希望它独占一行怎么办？
+这个时候我们就需要使用inline-block了，再观察一下上图，我们会发现inline-block即具有block的宽高特性又具有inline的同行元素特性。
+最后提醒一下，IE6/7下padding对inline的宽高是对其没影响的。看下图：
+![](http://m1.img.srcdd.com/farm5/d/2012/0811/08/05F99BD89D48EF037E1322B6851D9F28_B500_900_500_254.JPEG)
+2年前 

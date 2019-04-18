@@ -1,0 +1,274 @@
+# java图形验证码生成工具类 - z69183787的专栏 - CSDN博客
+2014年06月25日 15:49:06[OkidoGreen](https://me.csdn.net/z69183787)阅读数：5697
+
+生成验证码效果
+![](http://dl.iteye.com/upload/attachment/194992/75f92c9c-daae-31c5-8b67-051b642b4f44.png)
+![](http://dl.iteye.com/upload/attachment/194994/0b1259fd-e19f-335c-8ae0-5c8390006016.png)
+![](http://dl.iteye.com/upload/attachment/194996/21b74d34-7504-3d51-bedc-39012ba86d80.png)
+![](http://dl.iteye.com/upload/attachment/194998/50925bad-2eeb-3978-995f-412e26a65ab6.png)
+ValidateCode.java 验证码生成类
+Java代码  ![收藏代码](http://www.iteye.com/images/icon_star.png)
+- package cn.dsna.util.images;  
+- 
+- import java.awt.Color;  
+- import java.awt.Font;  
+- import java.awt.Graphics2D;  
+- import java.awt.image.BufferedImage;  
+- import java.io.FileOutputStream;  
+- import java.io.IOException;  
+- import java.io.OutputStream;  
+- import java.util.Random;  
+- 
+- import javax.imageio.ImageIO;  
+- /**
+-  * 验证码生成器
+-  * @author dsna
+-  *
+-  */
+- publicclass ValidateCode {  
+- // 图片的宽度。
+- privateint width = 160;  
+- // 图片的高度。
+- privateint height = 40;  
+- // 验证码字符个数
+- privateint codeCount = 5;  
+- // 验证码干扰线数
+- privateint lineCount = 150;  
+- // 验证码
+- private String code = null;  
+- // 验证码图片Buffer
+- private BufferedImage buffImg=null;  
+- 
+- privatechar[] codeSequence = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',  
+- 'K', 'L', 'M', 'N',  'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',  
+- 'X', 'Y', 'Z',  '1', '2', '3', '4', '5', '6', '7', '8', '9' };  
+- 
+- public  ValidateCode() {  
+- this.createCode();  
+-     }  
+- 
+- /**
+-      * 
+-      * @param width 图片宽
+-      * @param height 图片高
+-      */
+- public  ValidateCode(int width,int height) {  
+- this.width=width;  
+- this.height=height;  
+- this.createCode();  
+-     }  
+- /**
+-      * 
+-      * @param width 图片宽
+-      * @param height 图片高
+-      * @param codeCount 字符个数
+-      * @param lineCount 干扰线条数
+-      */
+- public  ValidateCode(int width,int height,int codeCount,int lineCount) {  
+- this.width=width;  
+- this.height=height;  
+- this.codeCount=codeCount;  
+- this.lineCount=lineCount;  
+- this.createCode();  
+-     }  
+- 
+- publicvoid createCode() {  
+- int x = 0,fontHeight=0,codeY=0;  
+- int red = 0, green = 0, blue = 0;  
+- 
+-         x = width / (codeCount +2);//每个字符的宽度
+-         fontHeight = height - 2;//字体的高度
+-         codeY = height - 4;  
+- 
+- // 图像buffer
+-         buffImg = new BufferedImage(width, height,BufferedImage.TYPE_INT_RGB);  
+-         Graphics2D g = buffImg.createGraphics();  
+- // 生成随机数
+-         Random random = new Random();  
+- // 将图像填充为白色
+-         g.setColor(Color.WHITE);  
+-         g.fillRect(0, 0, width, height);  
+- // 创建字体
+-         ImgFontByte imgFont=new ImgFontByte();  
+-         Font font =imgFont.getFont(fontHeight);  
+-         g.setFont(font);  
+- 
+- for (int i = 0; i < lineCount; i++) {  
+- int xs = random.nextInt(width);  
+- int ys = random.nextInt(height);  
+- int xe = xs+random.nextInt(width/8);  
+- int ye = ys+random.nextInt(height/8);  
+-             red = random.nextInt(255);  
+-             green = random.nextInt(255);  
+-             blue = random.nextInt(255);  
+-             g.setColor(new Color(red, green, blue));  
+-             g.drawLine(xs, ys, xe, ye);  
+-         }  
+- 
+- // randomCode记录随机产生的验证码
+-         StringBuffer randomCode = new StringBuffer();  
+- // 随机产生codeCount个字符的验证码。
+- for (int i = 0; i < codeCount; i++) {  
+-             String strRand = String.valueOf(codeSequence[random.nextInt(codeSequence.length)]);  
+- // 产生随机的颜色值，让输出的每个字符的颜色值都将不同。
+-             red = random.nextInt(255);  
+-             green = random.nextInt(255);  
+-             blue = random.nextInt(255);  
+-             g.setColor(new Color(red, green, blue));  
+-             g.drawString(strRand, (i + 1) * x, codeY);  
+- // 将产生的四个随机数组合在一起。
+-             randomCode.append(strRand);  
+-         }  
+- // 将四位数字的验证码保存到Session中。
+-         code=randomCode.toString();       
+-     }  
+- 
+- publicvoid write(String path) throws IOException {  
+-         OutputStream sos = new FileOutputStream(path);  
+- this.write(sos);  
+-     }  
+- 
+- publicvoid write(OutputStream sos) throws IOException {  
+-             ImageIO.write(buffImg, "png", sos);  
+-             sos.close();  
+-     }  
+- public BufferedImage getBuffImg() {  
+- return buffImg;  
+-     }  
+- 
+- public String getCode() {  
+- return code;  
+-     }  
+- }  
+ImgFontByte.java
+Java代码  ![收藏代码](http://www.iteye.com/images/icon_star.png)
+- package cn.dsna.util.images;  
+- import java.io.ByteArrayInputStream;  
+- import java.awt.*;  
+- /**
+-  * ttf字体文件
+-  * @author dsna
+-  *
+-  */
+- publicclass ImgFontByte {  
+- public Font getFont(int fontHeight){  
+- try {  
+-             Font baseFont = Font.createFont(Font.TRUETYPE_FONT, new ByteArrayInputStream(hex2byte(getFontByteStr())));  
+- return baseFont.deriveFont(Font.PLAIN, fontHeight);  
+-         } catch (Exception e) {  
+- returnnew Font("Arial",Font.PLAIN, fontHeight);  
+-         }  
+-     }  
+- 
+- privatebyte[] hex2byte(String str) {   
+- if (str == null)  
+- returnnull;  
+-         str = str.trim();  
+- int len = str.length();  
+- if (len == 0 || len % 2 == 1)  
+- returnnull;  
+- 
+- byte[] b = newbyte[len / 2];  
+- try {  
+- for (int i = 0; i < str.length(); i += 2) {  
+-                 b[i / 2] = (byte) Integer  
+-                         .decode("0x" + str.substring(i, i + 2)).intValue();  
+-             }  
+- return b;  
+-         } catch (Exception e) {  
+- returnnull;  
+-         }  
+-     } /**
+-   * ttf字体文件的十六进制字符串
+-   * @return
+-   */
+- private String getFontByteStr(){ returnnull;  
+- return str;//字符串太长 在附件中找
+- }  
+- }  
+ ValidateCodeServlet.java Servlet调用方法 
+Java代码  ![收藏代码](http://www.iteye.com/images/icon_star.png)
+- package cn.dsna.util.images;  
+- 
+- import java.io.IOException;  
+- import javax.servlet.ServletException;  
+- import javax.servlet.http.HttpServlet;  
+- import javax.servlet.http.HttpServletRequest;  
+- import javax.servlet.http.HttpServletResponse;  
+- import javax.servlet.http.HttpSession;  
+- 
+- publicclass ValidateCodeServlet extends HttpServlet {  
+- privatestaticfinallong serialVersionUID = 1L;  
+- 
+- @Override
+- protectedvoid doGet(HttpServletRequest reqeust,  
+-             HttpServletResponse response) throws ServletException, IOException {  
+- // 设置响应的类型格式为图片格式
+-         response.setContentType("image/jpeg");  
+- //禁止图像缓存。
+-         response.setHeader("Pragma", "no-cache");  
+-         response.setHeader("Cache-Control", "no-cache");  
+-         response.setDateHeader("Expires", 0);  
+- 
+-         HttpSession session = reqeust.getSession();  
+- 
+-         ValidateCode vCode = new ValidateCode(120,40,5,100);  
+-         session.setAttribute("code", vCode.getCode());  
+-         vCode.write(response.getOutputStream());  
+-     }  
+- /**
+-  * web.xml 添加servlet
+-     <servlet>
+-         <servlet-name>validateCodeServlet</servlet-name>
+-         <servlet-class>cn.dsna.util.images.ValidateCodeServlet</servlet-class>
+-     </servlet>    
+-     <servlet-mapping>
+-         <servlet-name>validateCodeServlet</servlet-name>
+-         <url-pattern>*.images</url-pattern>
+-     </servlet-mapping>
+- 
+- 在地址栏输入XXX/dsna.images 测试
+-  */
+- 
+- }  
+ 测试类
+ValidateCodeTest.java
+Java代码  ![收藏代码](http://www.iteye.com/images/icon_star.png)
+- package cn.dsna.util.images;  
+- 
+- import java.io.IOException;  
+- import java.util.Date;  
+- 
+- publicclass ValidateCodeTest {  
+- 
+- /**
+-      * @param args
+-      */
+- publicstaticvoid main(String[] args) {  
+-         ValidateCode vCode = new ValidateCode(120,40,5,100);  
+- try {  
+-             String path="D:/t/"+new Date().getTime()+".png";  
+-             System.out.println(vCode.getCode()+" >"+path);  
+-             vCode.write(path);  
+-         } catch (IOException e) {  
+-             e.printStackTrace();  
+-         }  
+-     }  
+- 
+- }  
+web.xml 配置
+Xml代码  ![收藏代码](http://www.iteye.com/images/icon_star.png)
+- <servlet>
+- <servlet-name>validateCodeServlet</servlet-name>
+- <servlet-class>cn.dsna.util.images.ValidateCodeServlet</servlet-class>
+- </servlet>
+- <servlet-mapping>
+- <servlet-name>validateCodeServlet</servlet-name>
+- <url-pattern>*.images</url-pattern>
+- </servlet-mapping>
+- [dsnaValidateCode.jar](http://dl.iteye.com/topics/download/0cb6f587-0130-3015-9223-3ca77bd7ac52) (30.4 KB)
+- 下载次数: 908
+- [dsnaValidateCode_src.rar](http://dl.iteye.com/topics/download/10c9a0f5-e45f-3561-a6e1-6aeb77cadccc) (27.5 KB)
+- 下载次数: 1252
+- [查看图片附件](http://www.iteye.com/topic/573456#)
+声明：ITeye文章版权属于作者，受法律保护。没有作者书面许可不得转载。
