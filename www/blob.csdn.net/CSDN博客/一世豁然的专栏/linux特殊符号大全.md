@@ -4,7 +4,7 @@
 
 
 
-2015年03月29日 18:46:11[一世豁然](https://me.csdn.net/Explorer_day)阅读数：434标签：[嵌入式操作系统](https://so.csdn.net/so/search/s.do?q=嵌入式操作系统&t=blog)
+2015年03月29日 18:46:11[一世豁然](https://me.csdn.net/Explorer_day)阅读数：435标签：[嵌入式操作系统](https://so.csdn.net/so/search/s.do?q=嵌入式操作系统&t=blog)
 个人分类：[linux操作系统](https://blog.csdn.net/Explorer_day/article/category/2569249)
 
 

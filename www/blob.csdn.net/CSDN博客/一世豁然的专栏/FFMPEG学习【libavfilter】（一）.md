@@ -4,7 +4,7 @@
 
 
 
-2017年06月10日 14:14:23[一世豁然](https://me.csdn.net/Explorer_day)阅读数：2607
+2017年06月10日 14:14:23[一世豁然](https://me.csdn.net/Explorer_day)阅读数：2612
 
 
 
@@ -325,10 +325,8 @@
 
 
 
-|| |
-|----|----|
-|#define|[AVFILTER_THREAD_SLICE](http://ffmpeg.org/doxygen/trunk/group__lavfi.html#ga872969bce62dd528ffb91a1096d9f99a)   (1 << 0)|
 
+#define [AVFILTER_THREAD_SLICE](http://ffmpeg.org/doxygen/trunk/group__lavfi.html#ga872969bce62dd528ffb91a1096d9f99a)   (1 << 0)
 同时处理帧的多个部分。
 
 

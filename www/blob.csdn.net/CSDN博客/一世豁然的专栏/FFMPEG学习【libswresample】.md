@@ -4,7 +4,7 @@
 
 
 
-2017年07月29日 16:42:59[一世豁然](https://me.csdn.net/Explorer_day)阅读数：3172
+2017年07月29日 16:42:59[一世豁然](https://me.csdn.net/Explorer_day)阅读数：3177
 
 
 
@@ -214,10 +214,10 @@ while (get_input(&input, &in_samples)) {
 
 
 
-|| |
-|----|----|
-|struct [SwrContext](http://ffmpeg.org/doxygen/trunk/structSwrContext.html) *|[swr_alloc_set_opts](http://ffmpeg.org/doxygen/trunk/group__lswr.html#gad7f29022726c871aadf935281a9813bc) (struct [SwrContext](http://ffmpeg.org/doxygen/trunk/structSwrContext.html) *[s](http://ffmpeg.org/doxygen/trunk/avxsynth__c_8h.html#ab87f55bd0280d90925050a4188c14ab5), int64_t out_ch_layout, enum [AVSampleFormat](http://ffmpeg.org/doxygen/trunk/group__lavu__sampfmts.html#gaf9a51ca15301871723577c730b5865c5) out_sample_fmt, [int](http://ffmpeg.org/doxygen/trunk/ffmpeg__filter_8c.html#a61569f2965b7a369eb10b6d75d410d11) out_sample_rate, int64_t in_ch_layout, enum [AVSampleFormat](http://ffmpeg.org/doxygen/trunk/group__lavu__sampfmts.html#gaf9a51ca15301871723577c730b5865c5) in_sample_fmt, [int](http://ffmpeg.org/doxygen/trunk/ffmpeg__filter_8c.html#a61569f2965b7a369eb10b6d75d410d11) in_sample_rate, [int](http://ffmpeg.org/doxygen/trunk/ffmpeg__filter_8c.html#a61569f2965b7a369eb10b6d75d410d11) log_offset, [void](http://ffmpeg.org/doxygen/trunk/opengl__enc_8c.html#ac5958db46ec541224d0b0c2f10a941ac) *log_ctx)|
 
+struct [SwrContext](http://ffmpeg.org/doxygen/trunk/structSwrContext.html) * [swr_alloc_set_opts](http://ffmpeg.org/doxygen/trunk/group__lswr.html#gad7f29022726c871aadf935281a9813bc) (struct [SwrContext](http://ffmpeg.org/doxygen/trunk/structSwrContext.html) *[s](http://ffmpeg.org/doxygen/trunk/avxsynth__c_8h.html#ab87f55bd0280d90925050a4188c14ab5),
+ int64_t out_ch_layout, enum [AVSampleFormat](http://ffmpeg.org/doxygen/trunk/group__lavu__sampfmts.html#gaf9a51ca15301871723577c730b5865c5) out_sample_fmt, [int](http://ffmpeg.org/doxygen/trunk/ffmpeg__filter_8c.html#a61569f2965b7a369eb10b6d75d410d11) out_sample_rate,
+ int64_t in_ch_layout, enum [AVSampleFormat](http://ffmpeg.org/doxygen/trunk/group__lavu__sampfmts.html#gaf9a51ca15301871723577c730b5865c5) in_sample_fmt, [int](http://ffmpeg.org/doxygen/trunk/ffmpeg__filter_8c.html#a61569f2965b7a369eb10b6d75d410d11) in_sample_rate, [int](http://ffmpeg.org/doxygen/trunk/ffmpeg__filter_8c.html#a61569f2965b7a369eb10b6d75d410d11) log_offset, [void](http://ffmpeg.org/doxygen/trunk/opengl__enc_8c.html#ac5958db46ec541224d0b0c2f10a941ac) *log_ctx)
 如果需要，分配SwrContext并设置/重置常见参数。
 
 

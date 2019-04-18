@@ -4,7 +4,7 @@
 
 
 
-2016年07月17日 12:27:39[阿拉丁吃米粉](https://me.csdn.net/jinping_shi)阅读数：1065
+2016年07月17日 12:27:39[阿拉丁吃米粉](https://me.csdn.net/jinping_shi)阅读数：1068
 
 
 
@@ -75,7 +75,7 @@ $$(7)\Rightarrow \theta_j :=\theta_j + \alpha \frac{1}{m} \sum_{i=1}^{m} (h_\the
 上面给出了代价函数的定义与参数估计的过程。代价函数的定义如(4)式，直觉上很好理解，但为何代价函数要定义成这个样子？下面给出一个概率上的解释。
 
 文章最开始给出了线性回归模型的表现形式，如(1)式。更准确的写法应该是：
-$$(1’)h_\theta(x)=y=\theta_0 + \theta_1x_1 + \theta_2x_2+...+\theta_nx_n+\varepsilon \tag{1&#x27;}$$
+$$(1’)h_\theta(x)=y=\theta_0 + \theta_1x_1 + \theta_2x_2+...+\theta_nx_n+\varepsilon \tag{1'}$$
 
 多出来的$\varepsilon$是误差项，表示线性回归的假设方程包含未知的误差和随机噪声。通常假设误差项是独立同分布（iid, Independent Identically Distribution），且服从均值为0，方差为$\sigma^2$的正态分布。假设误差项服从正态分布的原因是：- 数学上处理的便利
 - 根据中心极限定理，独立的随机变量的和，即多种随机误差的累积，其总的影响是接近正态分布的。实际应用中，诸多独立随机变量的分布是服从正态分布的。
@@ -132,7 +132,7 @@ $$(13)\Rightarrow \theta_j :=\theta_j (1- \alpha \frac{\lambda}{m}) - \alpha \fr
 $$(14)\theta = (X^TX + \lambda A)^{-1}X^Ty \tag{14}$$
 
 其中A是对角线上除了第一个元素为0的对角方阵：
-$$A = \left[\begin{matrix} 0      &amp;       &amp;    &amp;       \\         &amp; 1    &amp;    &amp;       \\         &amp;       &amp;1  &amp;       \\         &amp;       &amp;    &amp; \ddots  \\         &amp;       &amp;     &amp;  &amp;1      \\\end{matrix}\right]$$
+$$A = \left[\begin{matrix} 0      &       &    &       \\         & 1    &    &       \\         &       &1  &       \\         &       &    & \ddots  \\         &       &     &  &1      \\\end{matrix}\right]$$
 # Reference
 
 以上例子、公式、圖片來源於[Coursera Machine Learning在線課程](https://www.coursera.org/learn/machine-learning/)。

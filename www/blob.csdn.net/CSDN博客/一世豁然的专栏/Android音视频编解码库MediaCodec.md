@@ -4,7 +4,7 @@
 
 
 
-2018年04月16日 09:00:51[一世豁然](https://me.csdn.net/Explorer_day)阅读数：731
+2018年04月16日 09:00:51[一世豁然](https://me.csdn.net/Explorer_day)阅读数：736
 
 
 
@@ -605,88 +605,29 @@ SDK VersionStateMethod1617181920212223`[createByCodecName](https://developer.and
 九、概要
 
 
-|### 嵌套类| |
-|----|----|
-|`class`|`[MediaCodec.BufferInfo](https://developer.android.google.cn/reference/android/media/MediaCodec.BufferInfo.html)`每个缓冲区元数据包括指定相关编解码器（输出）缓冲区中有效数据范围的偏移量和大小。|
-|`class`|`[MediaCodec.Callback](https://developer.android.google.cn/reference/android/media/MediaCodec.Callback.html)`MediaCodec回调接口。|
-|`class`|`[MediaCodec.CodecException](https://developer.android.google.cn/reference/android/media/MediaCodec.CodecException.html)`内部编解码器错误发生时抛出。|
-|`class`|`[MediaCodec.CryptoException](https://developer.android.google.cn/reference/android/media/MediaCodec.CryptoException.html)`排队安全输入缓冲区时发生加密错误时抛出。|
-|`class`|`[MediaCodec.CryptoInfo](https://developer.android.google.cn/reference/android/media/MediaCodec.CryptoInfo.html)`描述（至少部分）加密的输入样本结构的元数据。|
-|`class`|`[MediaCodec.MetricsConstants](https://developer.android.google.cn/reference/android/media/MediaCodec.MetricsConstants.html)`|
-|`interface`|`[MediaCodec.OnFrameRenderedListener](https://developer.android.google.cn/reference/android/media/MediaCodec.OnFrameRenderedListener.html)`在输出表面上渲染输出帧时调用侦听器|
+`interface``[MediaCodec.OnFrameRenderedListener](https://developer.android.google.cn/reference/android/media/MediaCodec.OnFrameRenderedListener.html)`
+在输出表面上渲染输出帧时调用侦听器
 
 
-|### 常量| |
-|----|----|
-|`int`|`[BUFFER_FLAG_CODEC_CONFIG](https://developer.android.google.cn/reference/android/media/MediaCodec.html#BUFFER_FLAG_CODEC_CONFIG)`这表明标记为这样的缓冲区包含编解码器初始化/编解码器特定数据而不是媒体数据。|
-|`int`|`[BUFFER_FLAG_END_OF_STREAM](https://developer.android.google.cn/reference/android/media/MediaCodec.html#BUFFER_FLAG_END_OF_STREAM)`这表示流的结束，即|
-|`int`|`[BUFFER_FLAG_KEY_FRAME](https://developer.android.google.cn/reference/android/media/MediaCodec.html#BUFFER_FLAG_KEY_FRAME)`这表示标记为（编码）的缓冲区包含关键帧的数据。|
-|`int`|`[BUFFER_FLAG_PARTIAL_FRAME](https://developer.android.google.cn/reference/android/media/MediaCodec.html#BUFFER_FLAG_PARTIAL_FRAME)`这表明缓冲区只包含帧的一部分，并且解码器应该对数据进行批处理，直到没有该标志的缓冲区在解码帧之前出现。|
-|`int`|`[BUFFER_FLAG_SYNC_FRAME](https://developer.android.google.cn/reference/android/media/MediaCodec.html#BUFFER_FLAG_SYNC_FRAME)`此常数在API级别21中已弃用。请改用BUFFER_FLAG_KEY_FRAME。|
-|`int`|`[CONFIGURE_FLAG_ENCODE](https://developer.android.google.cn/reference/android/media/MediaCodec.html#CONFIGURE_FLAG_ENCODE)`如果此编解码器要用作编码器，请传递此标志。|
-|`int`|`[CRYPTO_MODE_AES_CBC](https://developer.android.google.cn/reference/android/media/MediaCodec.html#CRYPTO_MODE_AES_CBC)`|
-|`int`|`[CRYPTO_MODE_AES_CTR](https://developer.android.google.cn/reference/android/media/MediaCodec.html#CRYPTO_MODE_AES_CTR)`|
-|`int`|`[CRYPTO_MODE_UNENCRYPTED](https://developer.android.google.cn/reference/android/media/MediaCodec.html#CRYPTO_MODE_UNENCRYPTED)`|
-|`int`|`[INFO_OUTPUT_BUFFERS_CHANGED](https://developer.android.google.cn/reference/android/media/MediaCodec.html#INFO_OUTPUT_BUFFERS_CHANGED)`此常量在API级别21中已弃用。由于getOutputBuffers（）已被弃用，因此可以忽略此返回值。 每次出队时，客户端都应该使用get-buffer或get-image方法的on命令来请求当前缓冲区。|
-|`int`|`[INFO_OUTPUT_FORMAT_CHANGED](https://developer.android.google.cn/reference/android/media/MediaCodec.html#INFO_OUTPUT_FORMAT_CHANGED)`输出格式已更改，后续数据将采用新格式。|
-|`int`|`[INFO_TRY_AGAIN_LATER](https://developer.android.google.cn/reference/android/media/MediaCodec.html#INFO_TRY_AGAIN_LATER)`如果在对dequeueOutputBuffer（MediaCodec.BufferInfo，long）的调用中指定了非负超时，则表示该呼叫超时。|
-|`[String](https://developer.android.google.cn/reference/java/lang/String.html)`|`[PARAMETER_KEY_REQUEST_SYNC_FRAME](https://developer.android.google.cn/reference/android/media/MediaCodec.html#PARAMETER_KEY_REQUEST_SYNC_FRAME)`请求编码器“很快”产生一个同步帧。|
-|`[String](https://developer.android.google.cn/reference/java/lang/String.html)`|`[PARAMETER_KEY_SUSPEND](https://developer.android.google.cn/reference/android/media/MediaCodec.html#PARAMETER_KEY_SUSPEND)`临时挂起/恢复输入数据的编码。|
-|`[String](https://developer.android.google.cn/reference/java/lang/String.html)`|`[PARAMETER_KEY_VIDEO_BITRATE](https://developer.android.google.cn/reference/android/media/MediaCodec.html#PARAMETER_KEY_VIDEO_BITRATE)`即时更改视频编码器的目标比特率。|
-|`int`|`[VIDEO_SCALING_MODE_SCALE_TO_FIT](https://developer.android.google.cn/reference/android/media/MediaCodec.html#VIDEO_SCALING_MODE_SCALE_TO_FIT)`内容缩放到表面尺寸|
-|`int`|`[VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING](https://developer.android.google.cn/reference/android/media/MediaCodec.html#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING)`内容被缩放，保持其宽高比，整个表面区域被使用，内容可能被裁剪。|
+
+`int``[VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING](https://developer.android.google.cn/reference/android/media/MediaCodec.html#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING)`
+内容被缩放，保持其宽高比，整个表面区域被使用，内容可能被裁剪。
 
 
-|### 公共方法| |
-|----|----|
-|`void`|`[configure](https://developer.android.google.cn/reference/android/media/MediaCodec.html#configure(android.media.MediaFormat,%20android.view.Surface,%20android.media.MediaCrypto,%20int))([MediaFormat](https://developer.android.google.cn/reference/android/media/MediaFormat.html) format, [Surface](https://developer.android.google.cn/reference/android/view/Surface.html) surface, [MediaCrypto](https://developer.android.google.cn/reference/android/media/MediaCrypto.html) crypto, int flags)`配置组件。|
-|`void`|`[configure](https://developer.android.google.cn/reference/android/media/MediaCodec.html#configure(android.media.MediaFormat,%20android.view.Surface,%20int,%20android.media.MediaDescrambler))([MediaFormat](https://developer.android.google.cn/reference/android/media/MediaFormat.html) format, [Surface](https://developer.android.google.cn/reference/android/view/Surface.html) surface, int flags, [MediaDescrambler](https://developer.android.google.cn/reference/android/media/MediaDescrambler.html) descrambler)`配置要与解扰器一起使用的组件。|
-|`static [MediaCodec](https://developer.android.google.cn/reference/android/media/MediaCodec.html)`|`[createByCodecName](https://developer.android.google.cn/reference/android/media/MediaCodec.html#createByCodecName(java.lang.String))([String](https://developer.android.google.cn/reference/java/lang/String.html) name)`如果您知道要实例化的组件的确切名称，请使用此方法将其实例化。|
-|`static [MediaCodec](https://developer.android.google.cn/reference/android/media/MediaCodec.html)`|`[createDecoderByType](https://developer.android.google.cn/reference/android/media/MediaCodec.html#createDecoderByType(java.lang.String))([String](https://developer.android.google.cn/reference/java/lang/String.html) type)`实例化支持给定MIME类型的输入数据的首选解码器。|
-|`static [MediaCodec](https://developer.android.google.cn/reference/android/media/MediaCodec.html)`|`[createEncoderByType](https://developer.android.google.cn/reference/android/media/MediaCodec.html#createEncoderByType(java.lang.String))([String](https://developer.android.google.cn/reference/java/lang/String.html) type)`实例化支持给定MIME类型的输出数据的首选编码器。|
-|`[Surface](https://developer.android.google.cn/reference/android/view/Surface.html)`|`[createInputSurface](https://developer.android.google.cn/reference/android/media/MediaCodec.html#createInputSurface())()`请求Surface用作编码器的输入，以代替输入缓冲区。|
-|`static [Surface](https://developer.android.google.cn/reference/android/view/Surface.html)`|`[createPersistentInputSurface](https://developer.android.google.cn/reference/android/media/MediaCodec.html#createPersistentInputSurface())()`创建可与通常具有输入表面的编解码器一起使用的持久输入表面，例如视频编码器。|
-|`int`|`[dequeueInputBuffer](https://developer.android.google.cn/reference/android/media/MediaCodec.html#dequeueInputBuffer(long))(long timeoutUs)`返回要用有效数据填充的输入缓冲区的索引，如果当前没有可用的缓冲区，则返回-1。|
-|`int`|`[dequeueOutputBuffer](https://developer.android.google.cn/reference/android/media/MediaCodec.html#dequeueOutputBuffer(android.media.MediaCodec.BufferInfo,%20long))([MediaCodec.BufferInfo](https://developer.android.google.cn/reference/android/media/MediaCodec.BufferInfo.html) info, long timeoutUs)`出队输出缓冲区，最多阻止“timeoutUs”微秒。|
-|`void`|`[flush](https://developer.android.google.cn/reference/android/media/MediaCodec.html#flush())()`冲洗组件的输入和输出端口。|
-|`[MediaCodecInfo](https://developer.android.google.cn/reference/android/media/MediaCodecInfo.html)`|`[getCodecInfo](https://developer.android.google.cn/reference/android/media/MediaCodec.html#getCodecInfo())()`获取编解码器信息。|
-|`[ByteBuffer](https://developer.android.google.cn/reference/java/nio/ByteBuffer.html)`|`[getInputBuffer](https://developer.android.google.cn/reference/android/media/MediaCodec.html#getInputBuffer(int))(int index)`返回已清除的可写ByteBuffer对象，用于包含输入数据的出列输入缓冲区索引。|
-|`[ByteBuffer[]](https://developer.android.google.cn/reference/java/nio/ByteBuffer.html)`|`[getInputBuffers](https://developer.android.google.cn/reference/android/media/MediaCodec.html#getInputBuffers())()`此方法在API级别21中已弃用。每次输入缓冲区出列时，请使用新的getInputBuffer（int）方法。 注意：自API 21起，自动清除出队输入缓冲区。 如果使用输入表面，请勿使用此方法。|
-|`[MediaFormat](https://developer.android.google.cn/reference/android/media/MediaFormat.html)`|`[getInputFormat](https://developer.android.google.cn/reference/android/media/MediaCodec.html#getInputFormat())()`在configure（MediaFormat，Surface，MediaCrypto，int）成功返回以获取编解码器接受的输入格式后调用此函数。|
-|`[Image](https://developer.android.google.cn/reference/android/media/Image.html)`|`[getInputImage](https://developer.android.google.cn/reference/android/media/MediaCodec.html#getInputImage(int))(int index)`返回出队输入缓冲区索引的可写Image对象，以包含原始输入视频帧。|
-|`[PersistableBundle](https://developer.android.google.cn/reference/android/os/PersistableBundle.html)`|`[getMetrics](https://developer.android.google.cn/reference/android/media/MediaCodec.html#getMetrics())()`返回有关当前编解码器实例的度量标准数据。|
-|`[String](https://developer.android.google.cn/reference/java/lang/String.html)`|`[getName](https://developer.android.google.cn/reference/android/media/MediaCodec.html#getName())()`获取组件名称。|
-|`[ByteBuffer](https://developer.android.google.cn/reference/java/nio/ByteBuffer.html)`|`[getOutputBuffer](https://developer.android.google.cn/reference/android/media/MediaCodec.html#getOutputBuffer(int))(int index)`返回出队输出缓冲区索引的只读ByteBuffer。|
-|`[ByteBuffer[]](https://developer.android.google.cn/reference/java/nio/ByteBuffer.html)`|`[getOutputBuffers](https://developer.android.google.cn/reference/android/media/MediaCodec.html#getOutputBuffers())()`此方法在API级别21中已弃用。每次输出缓冲区出列时，请使用新的getOutputBuffer（int）方法。 如果编解码器配置为异步模式，则不支持此方法。 注意：从API 21开始，出队的输出缓冲区的位置和限制将被设置为有效的数据范围。 如果使用输出表面，请勿使用此方法。|
-|`[MediaFormat](https://developer.android.google.cn/reference/android/media/MediaFormat.html)`|`[getOutputFormat](https://developer.android.google.cn/reference/android/media/MediaCodec.html#getOutputFormat(int))(int index)`返回特定输出缓冲区的输出格式。|
-|`[MediaFormat](https://developer.android.google.cn/reference/android/media/MediaFormat.html)`|`[getOutputFormat](https://developer.android.google.cn/reference/android/media/MediaCodec.html#getOutputFormat())()`通过返回INFO_OUTPUT_FORMAT_CHANGED，dequeueOutputBuffer发出格式更改后调用此函数。|
-|`[Image](https://developer.android.google.cn/reference/android/media/Image.html)`|`[getOutputImage](https://developer.android.google.cn/reference/android/media/MediaCodec.html#getOutputImage(int))(int index)`返回包含原始视频帧的出列输出缓冲区索引的只读Image对象。|
-|`void`|`[queueInputBuffer](https://developer.android.google.cn/reference/android/media/MediaCodec.html#queueInputBuffer(int,%20int,%20int,%20long,%20int))(int index, int offset, int size, long presentationTimeUs, int flags)`在指定索引处填充输入缓冲区的范围后，将其提交给组件。|
-|`void`|`[queueSecureInputBuffer](https://developer.android.google.cn/reference/android/media/MediaCodec.html#queueSecureInputBuffer(int,%20int,%20android.media.MediaCodec.CryptoInfo,%20long,%20int))(int index, int offset, [MediaCodec.CryptoInfo](https://developer.android.google.cn/reference/android/media/MediaCodec.CryptoInfo.html) info, long presentationTimeUs, int flags)`与queueInputBuffer类似，但提交可能加密的缓冲区。|
-|`void`|`[release](https://developer.android.google.cn/reference/android/media/MediaCodec.html#release())()`释放编解码器实例使用的资源。|
-|`void`|`[releaseOutputBuffer](https://developer.android.google.cn/reference/android/media/MediaCodec.html#releaseOutputBuffer(int,%20boolean))(int index, boolean render)`如果完成了缓冲区，则使用此调用将缓冲区返回给编解码器或将其呈现在输出表面上。|
-|`void`|`[releaseOutputBuffer](https://developer.android.google.cn/reference/android/media/MediaCodec.html#releaseOutputBuffer(int,%20long))(int index, long renderTimestampNs)`如果已完成缓冲区，则使用此调用更新其表面时间戳并将其返回给编解码器以在输出表面上呈现它。|
-|`void`|`[reset](https://developer.android.google.cn/reference/android/media/MediaCodec.html#reset())()`将编解码器返回到其初始（未初始化）状态。|
-|`void`|`[setCallback](https://developer.android.google.cn/reference/android/media/MediaCodec.html#setCallback(android.media.MediaCodec.Callback,%20android.os.Handler))([MediaCodec.Callback](https://developer.android.google.cn/reference/android/media/MediaCodec.Callback.html) cb, [Handler](https://developer.android.google.cn/reference/android/os/Handler.html) handler)`为可操作的MediaCodec事件设置异步回调。|
-|`void`|`[setCallback](https://developer.android.google.cn/reference/android/media/MediaCodec.html#setCallback(android.media.MediaCodec.Callback))([MediaCodec.Callback](https://developer.android.google.cn/reference/android/media/MediaCodec.Callback.html) cb)`为默认循环中的可操作MediaCodec事件设置异步回调。|
-|`void`|`[setInputSurface](https://developer.android.google.cn/reference/android/media/MediaCodec.html#setInputSurface(android.view.Surface))([Surface](https://developer.android.google.cn/reference/android/view/Surface.html) surface)`配置编解码器（例如|
-|`void`|`[setOnFrameRenderedListener](https://developer.android.google.cn/reference/android/media/MediaCodec.html#setOnFrameRenderedListener(android.media.MediaCodec.OnFrameRenderedListener,%20android.os.Handler))([MediaCodec.OnFrameRenderedListener](https://developer.android.google.cn/reference/android/media/MediaCodec.OnFrameRenderedListener.html) listener, [Handler](https://developer.android.google.cn/reference/android/os/Handler.html) handler)`注册在输出表面上呈现输出帧时要调用的回调。|
-|`void`|`[setOutputSurface](https://developer.android.google.cn/reference/android/media/MediaCodec.html#setOutputSurface(android.view.Surface))([Surface](https://developer.android.google.cn/reference/android/view/Surface.html) surface)`动态设置编解码器的输出表面。|
-|`void`|`[setParameters](https://developer.android.google.cn/reference/android/media/MediaCodec.html#setParameters(android.os.Bundle))([Bundle](https://developer.android.google.cn/reference/android/os/Bundle.html) params)`将其他参数更改传递给组件实例。|
-|`void`|`[setVideoScalingMode](https://developer.android.google.cn/reference/android/media/MediaCodec.html#setVideoScalingMode(int))(int mode)`如果在之前的配置调用中指定了曲面（MediaFormat，Surface，MediaCrypto，int），则指定要使用的缩放模式。|
-|`void`|`[signalEndOfInputStream](https://developer.android.google.cn/reference/android/media/MediaCodec.html#signalEndOfInputStream())()`输入信号结束码。|
-|`void`|`[start](https://developer.android.google.cn/reference/android/media/MediaCodec.html#start())()`成功配置组件后，调用start。|
-|`void`|`[stop](https://developer.android.google.cn/reference/android/media/MediaCodec.html#stop())()`完成解码/编码会话，请注意编解码器实例保持活动状态并准备好再次开始（）。|
+
+`void``[stop](https://developer.android.google.cn/reference/android/media/MediaCodec.html#stop())()`
+完成解码/编码会话，请注意编解码器实例保持活动状态并准备好再次开始（）。
 
 
-|### 保护方法| |
-|----|----|
-|`void`|`[finalize](https://developer.android.google.cn/reference/android/media/MediaCodec.html#finalize())()`当垃圾收集确定没有更多对该对象的引用时，由对象上的垃圾回收器调用。|
+
+`void``[finalize](https://developer.android.google.cn/reference/android/media/MediaCodec.html#finalize())()`
+当垃圾收集确定没有更多对该对象的引用时，由对象上的垃圾回收器调用。
 
 
-|### 继承方法|
-|----|
-|From class `[java.lang.Object](https://developer.android.google.cn/reference/java/lang/Object.html)`|
+
+
+From class `[java.lang.Object](https://developer.android.google.cn/reference/java/lang/Object.html)`
+
 
 
 

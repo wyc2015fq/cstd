@@ -4,7 +4,7 @@
 
 
 
-2015年06月24日 22:57:40[一世豁然](https://me.csdn.net/Explorer_day)阅读数：541标签：[bootloader																[u-boot](https://so.csdn.net/so/search/s.do?q=u-boot&t=blog)](https://so.csdn.net/so/search/s.do?q=bootloader&t=blog)
+2015年06月24日 22:57:40[一世豁然](https://me.csdn.net/Explorer_day)阅读数：542标签：[bootloader																[u-boot](https://so.csdn.net/so/search/s.do?q=u-boot&t=blog)](https://so.csdn.net/so/search/s.do?q=bootloader&t=blog)
 个人分类：[linux驱动](https://blog.csdn.net/Explorer_day/article/category/2652125)
 
 

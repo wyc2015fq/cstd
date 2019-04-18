@@ -4,7 +4,7 @@
 
 
 
-2014年11月15日 10:53:55[一世豁然](https://me.csdn.net/Explorer_day)阅读数：626标签：[linux内核																[kernel](https://so.csdn.net/so/search/s.do?q=kernel&t=blog)](https://so.csdn.net/so/search/s.do?q=linux内核&t=blog)
+2014年11月15日 10:53:55[一世豁然](https://me.csdn.net/Explorer_day)阅读数：627标签：[linux内核																[kernel](https://so.csdn.net/so/search/s.do?q=kernel&t=blog)](https://so.csdn.net/so/search/s.do?q=linux内核&t=blog)
 个人分类：[linux内核](https://blog.csdn.net/Explorer_day/article/category/2569251)
 
 

@@ -71,6 +71,23 @@ def getlist_sciencenet(url):
             ll.append('http://blog.sciencenet.cn/'+i)
     return ll
 
+def getlist_cnblogs(url):
+    data = getdata(url)
+    if 0:
+        tt = data.replace('"', '\n').split('\n')
+    else:
+        aa='//div[@class]/a/@href'
+        html = etree.HTML(data)
+        tt = html.xpath(aa)
+
+    ll=[]
+    for i in tt:
+        if i.find('/articles/')>0 or i.find('/p/')>0 or i.find('/archive/')>0:
+            ll.append(i)
+    return ll
+
+
+
 def down_list_one(url, getlist):
     ll=getlist(url)
     for li in ll:
@@ -80,6 +97,7 @@ def down_list_one(url, getlist):
 def down_list(urllist, getlist):
     tt = 0
     for url in urllist:
+        print('------', url)
         ll = down_list_one(url, getlist)
         if len(ll)<5:
             tt+=1
@@ -134,18 +152,15 @@ if __name__ == '__main__':
                 down_csdn_one(url)
     elif url.find('www.cnblogs.com')>0:
         temp='%s=%d'
-        if url.find('/category/')>0:
-            aa='//div[@class]/a/@href'
-            down_csdn_list(url, aa, temp)
+        if url.find('/articles/')>0 or url.find('/p/')>0 or url.find('/archive/')>0:
+            down_csdn_one(url)
         else:
             url = '/'.join(url.split('/')[0:4])
-            url += '/default.html?page'
+            url += '/default.html?page='
+            urllist = map(lambda i:url+str(i), range(1,1000))
+            urllist = list(urllist)
+            down_list(urllist, getlist_cnblogs)
 
-            if url.find('/default.html?page')>0:
-                aa='//div[@class]/a/@href'
-                down_csdn_list(url, aa, temp)
-            else:
-                down_csdn_one(url)
     elif url.find('www.jianshu.com/u/')>0:
         pass
     elif url.find('baike.baidu.com')>0:
@@ -157,7 +172,8 @@ if __name__ == '__main__':
             urllist = map(lambda i:url+str(i), range(1,1000))
             urllist = list(urllist)
             down_list(urllist, getlist_sciencenet)
-        down_csdn_one(url)
+        else:
+            down_csdn_one(url)
     elif url.find('zhihu.com')>0:
         if url.find('/people/')>0 or url.find('/org/')>0:
             url = '/'.join(url.split('/')[0:5])

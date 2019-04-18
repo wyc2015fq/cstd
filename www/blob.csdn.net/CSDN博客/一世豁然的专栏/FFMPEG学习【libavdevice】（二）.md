@@ -4,7 +4,7 @@
 
 
 
-2017年06月23日 11:17:32[一世豁然](https://me.csdn.net/Explorer_day)阅读数：772
+2017年06月23日 11:17:32[一世豁然](https://me.csdn.net/Explorer_day)阅读数：773
 
 
 
@@ -85,10 +85,7 @@
 
 
 
-|| |
-|----|----|
-|[AVOutputFormat](http://ffmpeg.org/doxygen/trunk/structAVOutputFormat.html) *|[av_output_video_device_next](http://ffmpeg.org/doxygen/trunk/group__lavd.html#ga52f3b793ab7b9511521069cf6213ebd2) ([AVOutputFormat](http://ffmpeg.org/doxygen/trunk/structAVOutputFormat.html) *d)|
-
+[AVOutputFormat](http://ffmpeg.org/doxygen/trunk/structAVOutputFormat.html) * [av_output_video_device_next](http://ffmpeg.org/doxygen/trunk/group__lavd.html#ga52f3b793ab7b9511521069cf6213ebd2) ([AVOutputFormat](http://ffmpeg.org/doxygen/trunk/structAVOutputFormat.html) *d)
 视频输出设备迭代器。
 
 如果d为NULL，则返回第一个注册的输出音频/视频设备，如果d为非NULL，则在d之后返回下一个已注册的输出音频/视频设备，如果d为最后一个则返回NULL。

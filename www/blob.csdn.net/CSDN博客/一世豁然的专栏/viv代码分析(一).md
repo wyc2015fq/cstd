@@ -4,7 +4,7 @@
 
 
 
-2015年06月14日 08:40:59[一世豁然](https://me.csdn.net/Explorer_day)阅读数：1087标签：[vivi																[bootloader](https://so.csdn.net/so/search/s.do?q=bootloader&t=blog)](https://so.csdn.net/so/search/s.do?q=vivi&t=blog)
+2015年06月14日 08:40:59[一世豁然](https://me.csdn.net/Explorer_day)阅读数：1088标签：[vivi																[bootloader](https://so.csdn.net/so/search/s.do?q=bootloader&t=blog)](https://so.csdn.net/so/search/s.do?q=vivi&t=blog)
 个人分类：[linux驱动](https://blog.csdn.net/Explorer_day/article/category/2652125)
 
 
@@ -53,8 +53,8 @@
 
 
 
-|`AFLAGS:=-D__ASSEMBLY__ $(CPPFLAGS)`|
-|----|
+
+`AFLAGS:=-D__ASSEMBLY__ $(CPPFLAGS)`
 
 
 
@@ -67,8 +67,16 @@
 
 
 
-|```#include"config.h"#include "linkage.h"#include "machine.h"```|
-|----|
+
+
+```
+#include"config.h"
+#include 
+"linkage.h"
+#include 
+"machine.h"
+```
+
 
 
 
@@ -77,8 +85,19 @@
 
 
 
-|```#ifndef _CONFIG_H_#define _CONFIG_H_#include "autoconf.h"#endif /* _CONFIG_H_ */```|
-|----|
+
+
+```
+#ifndef _CONFIG_H_
+#define _CONFIG_H_
+
+#include 
+"autoconf.h"
+
+#endif 
+/* _CONFIG_H_ */
+```
+
 
 
 
@@ -91,8 +110,41 @@
 
 
 
-|```[armlinux@lqminclude]$ cat linkage.h#ifndef _VIVI_LINKAGE_H#define _VIVI_LINKAGE_H#define SYMBOL_NAME(X) X#ifdef __STDC__        #define SYMBOL_NAME_LABEL(X) X##:#else        #define SYMBOL_NAME_LABEL(X) X/**/:#endif#ifdef __ASSEMBLY__#define ALIGN.align 0#define ENTRY(name) /        .globl SYMBOL_NAME(name); /        ALIGN; /        SYMBOL_NAME_LABEL(name)#endif#endif```|
-|----|
+
+
+```
+[armlinux@lqminclude]$
+ cat linkage.h
+#ifndef _VIVI_LINKAGE_H
+#define _VIVI_LINKAGE_H
+
+#define SYMBOL_NAME(X) X
+#ifdef 
+__STDC__
+
+        #define SYMBOL_NAME_LABEL(X) X##:
+#else
+
+        #define SYMBOL_NAME_LABEL(X) X/**/:
+#endif
+
+#ifdef __ASSEMBLY__
+
+#define ALIGN.align 0
+
+#define ENTRY(name) /
+
+        .globl SYMBOL_NAME(name); /
+
+        ALIGN; /
+
+        SYMBOL_NAME_LABEL(name)
+
+#endif
+
+#endif
+```
+
 
 
 
@@ -109,8 +161,13 @@
 
 
 
-|```[root@lqm vivi_myboard]# gcc-E-D__ASSEMBLY__-I./include arch/s3c2410/head.S >aaa```|
-|----|
+
+
+```
+[root@lqm vivi_myboard]# gcc-E-D__ASSEMBLY__-I./include
+ arch/s3c2410/head.S >aaa
+```
+
 
 
 
@@ -119,8 +176,870 @@
 
 
 
-|```# 1"arch/s3c2410/head.S"# 1 "<built-in>"# 1 "<command line>"# 1 "arch/s3c2410/head.S"# 35 "arch/s3c2410/head.S"# 1 "include/config.h" 1# 14 "include/config.h"# 1 "include/autoconf.h" 1# 15 "include/config.h" 2# 36 "arch/s3c2410/head.S" 2# 1 "include/linkage.h" 1# 37 "arch/s3c2410/head.S" 2# 1 "include/machine.h" 1# 19 "include/machine.h"# 1 "include/platform/smdk2410.h" 1# 1 "include/s3c2410.h" 1# 22 "include/s3c2410.h"# 1 "include/hardware.h" 1# 23 "include/s3c2410.h" 2# 1 "include/bitfield.h" 1# 24 "include/s3c2410.h" 2# 3 "include/platform/smdk2410.h" 2# 1 "include/sizes.h" 1# 8 "include/platform/smdk2410.h" 2# 74 "include/platform/smdk2410.h"# 1 "include/architecture.h" 1# 75 "include/platform/smdk2410.h" 2# 20 "include/machine.h" 2# 38 "arch/s3c2410/head.S" 2@ Start of executable code宏定义展开.globl _start;.align 0; _start:.globl ResetEntryPoint;.align 0; ResetEntryPoint:下面是装载中断向量表，ARM规定，在起始必须有8条跳转指令，你可以用b 标号也可以用ldr pc 标号。这样的8条规则的标志被arm定义为bootloader的识别标志，检测到这样的标志后，就可以从该位置启动。这样的做法是因为开始的时候不一定有bootloader，必须有一种识别机制，如果识别到bootloader，那么就从bootloader启动。@@ Exception vector table(physical address= 0x00000000)@@ 0x00: Reset        b Reset@ 0x04: Undefined instruction exceptionUndefEntryPoint:        b HandleUndef@ 0x08: Software interrupt exceptionSWIEntryPoint:        b HandleSWI@ 0x0c: Prefetch Abort(Instruction Fetch MemoryAbort)PrefetchAbortEnteryPoint:        b HandlePrefetchAbort@ 0x10: Data Access Memory AbortDataAbortEntryPoint:        b HandleDataAbort@ 0x14: Not usedNotUsedEntryPoint:        b HandleNotUsed@ 0x18: IRQ(Interrupt Request)exceptionIRQEntryPoint:        b HandleIRQ@ 0x1c: FIQ(Fast Interrupt Request)exceptionFIQEntryPoint:        b HandleFIQ下面是固定位置存放环境变量@@ VIVI magics@@ 0x20: magic number so we can verify that we only put        .long 0@ 0x24:        .long 0@ 0x28: where this vivi was linked, so we can put it in memory in theright place        .long _start   //_start用来指定链接后的起始装载地址装载到内存中的地址@ 0x2C: this contains the platform, cpuand machine id        .long((1<< 24)|(6<< 16)| 193)@ 0x30: vivi capabilities        .long 0@ 0x34:        b SleepRamProc@@ Start VIVI head@Reset: //上电后cpu会从0x0地址读取指令执行，也就是b Reset        @ disable watch dog timer        mov r1, #0x53000000        mov r2, #0x0        str r2, [r1]# 121 "arch/s3c2410/head.S"        @ disable all interrupts        mov r1, #0x4A000000        mov r2, #0xffffffff        str r2, [r1,#0x08]  //0x4A000008为中断屏蔽寄存器，将里面赋全1，表示屏蔽这32个中断源        ldr r2, =0x7ff        str r2, [r1,#0x1C]  //0x4A00001C为中断子屏蔽寄存器，里面低11位也用来表示屏蔽掉这11个中断源        @ initialise system clocks        mov r1, #0x4C000000        mvn r2, #0xff000000//MVN指令可完成从另一个寄存器、被移位的寄存器、或将一个立即数加载到目的寄存器。与MOV指令不同之处是在传送之前按位被取反了，即把一个被取反的值传送到目的寄存器中。也就是r2=0x00ffffff        str r2, [r1, #0x00] //我们可以在程序开头启动MPLL，在设置MPLL的几个寄存器后，需要等待一段 时间(Lock Time)，  MPLL的输出才稳定。在这段时间(Lock Time)内，FCLK停振，CPU停止工作。Lock Time的长短由寄存器LOCKTIME设定，Lock Time之后，MPLL输出正常，CPU工作在新的FCLK下，**前面说过，MPLL启动后需要等待一段时间(Lock Time)，使得其输出稳定。位[23:12]用于UPLL，位[11:0]用于MPLL。本实验使用确省值0x00ffffff。 **        @ldr r2, mpll_50mhz        @str r2, [r1,#0x04]        @ 1:2:4        mov r1, #0x4C000000        mov r2, #0x3        str r2, [r1,#0x14] //0x4C000014为分频寄存器，用于设置FCLK、HCLK、PCLK三者的比例``````bit[2] — — HDIVN1，若为1，则 bit[1:0] 必 须 设 为 0b00 ， 此 时FCLK:HCLK:PCLK=1:1/4:1/4；若为0，三者比例由bit[1:0]确定 bit[1]——HDIVN，0：HCLK=FCLK；1：HCLK=FCLK/2 bit[0]——PDIVN，0：PCLK=HCLK；1：PCLK=HCLK/2  本实验设为0x03，则FCLK:HCLK:PCLK=1:1/2:1/4         mrc p15, 0, r1, c1, c0, 0 @read ctrlregister        orr r1, r1,#0xc0000000 @ Asynchronous        mcr p15, 0, r1, c1, c0, 0 @write ctrlregister````````上面这三句代码的意思是切换模式：If HDIVN = 1, the CPU bus mode has to be changed from thefast busmode to the asynchronous bus mode using following instructions：````````MMU_SetAsyncBusMode mrc  p15, 0, r0, c1, c0, 0 orr  r0, r0, #R1_nF:OR:R1_iA mcr  p15,0, r0, c1, c0, 0  其中的“R1_nF:OR:R1_iA”等于0xc0000000。意思就是说，当HDIVN = 1时，CPU bus mode需要从原来的“fast bus mode”改为“asynchronous bus mode”。 ```````````@ now, CPU clock is 200 Mhz        mov r1, #0x4C000000        ldr r2, mpll_200mhz        str r2, [r1,#0x04] //0x4C000004为MPLLCON寄存器， 对于MPLLCON寄存器，[19:12]为MDIV，[9:4]为PDIV，[1:0]为SDIV。有如下计算公式：  MPLL(FCLK) = (m * Fin)/(p * 2^s) 其中: m = MDIV + 8, p = PDIV + 2 对于本开发板，Fin =  12MHz,MPLLCON设为0x5c0040，可以计算出FCLK=200MHz，再由CLKDIVN的设置可知：HCLK=100MHz，PCLK=50MHz。# 164 "arch/s3c2410/head.S"       ** bl memsetup**        @ Check if this is a wake-up from sleep        ldr r1, PMST_ADDR  //0x560000B4为GSTATUS2寄存器，里面[0:2]三位有效        ldr r0, [r1] //将该寄存器中的值取出来保存到r0中        tst r0, #((1<< 1)) //测试r0的第一位。这位是Power_OFF reset. The reset after the wakeup from Power_OFF mode.The setting is cleared by writing "1" to this bit.TST指令用于把一个寄存器的内容和另一个寄存器的内容或立即数进行按位的与运算，并根据运算结果更新CPSR中条件标志位的值。        **bne WakeupStart**        @ All LED on 这里就需要对GPIO口进行控制        mov r1, #0x56000000         add r1, r1,#0x50 //0x56000050是GPFCON用来配置port F端口        ldr r2,=0x55aa        str r2, [r1,#0x0] //设置为0101010110101010因为每两位用来控制一个引脚，也就是将GPF4-GPF7设置为输出，将GPF0-GPF3设置为中断        mov r2, #0xff        str r2, [r1,#0x8]  //0x56000058为GPFUP为port F的上拉寄存器，全设置为1表示禁止上拉功能        mov r2, #0x00        str r2, [r1,#0x4]  //0x56000054是GPFDAT，总共8位有效，每位控制一个引脚，主要是将GPF4-GPF7数据位全设置为0而这四个引脚是用来控制板子上4个LED，置0则表示亮。# 230 "arch/s3c2410/head.S"        @ set GPIO for UART        mov r1, #0x56000000        add r1, r1,#0x70//0x56000070为GPHCON 用来配置port H 而port H主要就是来控制UART的各个引脚如：UART中接收和发送端口RXDn和TXDn，当然还有自动流控制模式的nRTS0和nCTS0端口。        ldr r2, gpio_con_uart  //我们可以看到 gpio_con_uart: .long vGPHCON  gpio_up_uart: .long vGPHUP 而在platform中的smdk2410.h中定义了这两个值#define vGPHCON   0x0016faaa 表示GPHCON控制11个引脚，如GPH2若设置为10则表示TXD0.类似，具体的查看数据手册#define vGPHUP   0x000007ff //同样将这11位的引脚上拉禁止        str r2, [r1,#0x0]        ldr r2, gpio_up_uart        str r2, [r1,#0x8] //上面也是来配置串口所用到的GPIO口，因为串口的输入输出口都是利用到GPIO       ** bl InitUART**# 259 "arch/s3c2410/head.S"        **bl copy_myself**        @ jump to ram        ldr r1, =on_the_ram        add pc, r1,#0        nop        nop1: b 1b @ infinite loopon_the_ram:# 279 "arch/s3c2410/head.S"        @ get read to call C functions开始调用C函数之前就需要将一些参数准备好，如堆栈要准备好函数调用时需要进出栈        ldr sp, DW_STACK_START @ setup stack pointer        mov fp, #0 @ no previous frame, so fp=0        mov a2, #0 @set argv toNULL        bl main @ call main        mov pc, #0x00000000 @ otherwise, reboot@@ End VIVI head@下面是子例程@@ Wake-up codes@WakeupStart:        @ Clear sleep reset bit        ldr r0, PMST_ADDR        mov r1, #(1<< 1)        str r1, [r0]        @ Release the SDRAM signal protections        ldr r0, PMCTL1_ADDR        ldr r1, [r0]        bic r1, r1,#((1<< 19)| (1 << 18)|(1<< 17))        str r1, [r0]        @ Go...        ldr r0, PMSR0_ADDR @ read a return address        ldr r1, [r0]        mov pc, r1        nop        nop1: b 1b @ infinite loopSleepRamProc:        @ SDRAM is in the self-refresh mode */        ldr r0, REFR_ADDR        ldr r1, [r0]        orr r1, r1,#(1<< 22)        str r1, [r0]        @ wait until SDRAM into self-refresh        mov r1, #161: subs r1, r1,#1        bne 1b        @ Set the SDRAM singal protections        ldr r0, PMCTL1_ADDR        ldr r1, [r0]        orr r1, r1,#((1<< 19)| (1 << 18)|(1<< 17))        str r1, [r0]        ldr r0, PMCTL0_ADDR        ldr r1, [r0]        orr r1, r1,#(1<< 3)        str r1, [r0]1: b 1b# 379 "arch/s3c2410/head.S"**.globl memsetup; .align 0; memsetup:  //对ENTRY(memsetup)宏的展开**        @ initialise the static memory        //同样在这里是对内存控制中用到的13个寄存器进行初始化        @ set memory control registers        mov r1, #0x48000000        adrl r2, mem_cfg_val        add r3, r1,#521: ldr r4, [r2],#4        str r4, [r1],#4        cmp r1, r3        bne 1b        mov pc, lr@@ copy_myself: copy vivi to ram@**下面的将vivi从flash中搬移到sdram中来执行，很重要**copy_myself:        mov r10, lr  //将返回地址保存到r10，为了执行完后返回到主程序        @ reset NAND        mov r1, #0x4E000000        ldr r2, =0xf830 @ initial value 初始化NFCONF寄存器，至于为什么设置为0xf830前面在NAND里面讲过        str r2, [r1,#0x00]        ldr r2, [r1,#0x00]        bic r2, r2,#0x800 @ enable chip也就是相当于NFCONF &= ~0x800 将第15为置为1使能NAND FLASH        str r2, [r1, #0x00]        mov r2, #0xff @RESET command        strb r2, [r1,#0x04] //向NFCMD寄存器中置0xff也就是reset命令        mov r3, #0 @ wait//下面几句是一个延时程序用来等待几秒，等到NAND 准备好1: add r3, r3,#0x1        cmp r3, #0xa        blt 1b2: ldr r2, [r1, #0x10] @ wait ready        tst r2, #0x1//检查NFSTAT寄存器的第0位是否为1也就是是否准备好        beq 2b //没有准备好则继续等待        ldr r2, [r1,#0x00]        orr r2, r2,#0x800 @ disable chip相当于NFCONF |= 0x800 禁止掉NAND FLASH等到要使用FLASH时再使能        str r2, [r1, #0x00]        @ get read to call C functions (for nand_read())        ldr sp, DW_STACK_START @ setup stack pointer //每次需要从汇编调到C函数时 都需要设置好堆栈        mov fp, #0 @ no previous frame, so fp=0        @ copy vivi to RAM 之前都是一些初始化，下面才开始利用C函数来真正开始拷贝        ldr r0, =(0x30000000+ 0x04000000- 0x00100000)//DRAM_BASE + DRAM_SIZE - VIVI_RAM_SIZE,为什么这里不是将vivi拷贝到sdram的起始地址而是拷贝到64MB的sdram的最后1M的区域，可能是这里的sdram采用高端模式，将映象从高地址向低地址存放        mov r1, #0x0//r1则是vivi的起始地址，也就是flash上的0x0地址        mov r2, #0x20000//上面三句都是用来为调用nand_read_ll函数准备好参数，r2表示拷贝大小        bl nand_read_ll //这个c函数在arch/s3c2410/nand_read.c中 nand_read_ll就不具体分析了在nand里面有讲过        tst r0, #0x0  //为什么要比较r0与上0，等于0的话 则去执行ok_nand_read,在这里r0是nand_read_ll函数的返回值，拷贝成功则返回0,所以这就是为什么将r0和0比较        beq ok_nand_read //ok_nand_read子程序用来比较拷贝到sdram最后1MB的vivi和原始的存放在flash上的vivi是否相同，检查拷贝是否成功，vivi在sdram中的位置也就是离0x34000000地址前1MB的位置也就是0x33f00000# 441 "arch/s3c2410/head.S"ok_nand_read:        @ verify        mov r0, #0  //r0这里为flash上vivi的起始地址        ldr r1, =0x33f00000//r1这里为拷贝到sdram上vivi的起始地址        mov r2, #0x400 @ 4 bytes* 1024= 4K-bytes//要比较多少个字节数go_next:        ldr r3, [r0],#4//将r0对应地址的值取出来保存到r3中，然后r0自加4个字节        ldr r4, [r1],#4        teq r3, r4  //测试r3和r4是否相等        bne notmatch //若不相等，则跳到notmarch处        subs r2, r2,#4//将比较总字节数减去4个字节，已经比较了4个字节        beq done_nand_read //若r2为0,则表示已经比较完毕，跳转到done_nand_read处        bne go_next //r2若还不等于0则继续取值比较notmatch:# 469 "arch/s3c2410/head.S"1: b 1bdone_nand_read:        mov pc, r10 //比较完了 就退出子程序，返回主程序执行@ clear memory@ r0: start address@ r1: lengthmem_clear:        mov r2, #0        mov r3, r2        mov r4, r2        mov r5, r2        mov r6, r2        mov r7, r2        mov r8, r2        mov r9, r2clear_loop:        stmia r0!,{r2-r9} //将r2-r9也就是0赋值给从r0为内存起始地址的连续的8*4个字节中        subs r1, r1,#(8* 4) //每次清除32个字节        bne clear_loop`````````````mov pc, lr# 613 "arch/s3c2410/head.S"@ Initialize UART@@ r0 = number of UART portInitUART: //这里也不细讲了，在UART章节中已经详细的讲解了每个寄存器的设置        ldr r1, SerBase        mov r2, #0x0        str r2, [r1,#0x08]        str r2, [r1,#0x0C]        mov r2, #0x3        str r2, [r1,#0x00]        ldr r2, =0x245        str r2, [r1,#0x04]        mov r2, #((50000000/(115200* 16))- 1)        str r2, [r1,#0x28]        mov r3, #100        mov r2, #0x01: sub r3, r3,#0x1        tst r2, r3        bne 1b# 653 "arch/s3c2410/head.S"        mov pc, lr@@ Exception handling functions@HandleUndef:1: b 1b @ infinite loopHandleSWI:1: b 1b @ infinite loopHandlePrefetchAbort:1: b 1b @ infinite loopHandleDataAbort:1: b 1b @ infinite loopHandleIRQ:1: b 1b @ infinite loopHandleFIQ:1: b 1b @ infinite loopHandleNotUsed:1: b 1b @ infinite loop@@ Low Level Debug@# 838 "arch/s3c2410/head.S"@@ Data Area@@ Memory configuration values.align 4mem_cfg_val: //这些变量都是内存控制寄存器的初始值，因为寄存器比较多，所以将初始值制作成表的形式，然后分别读表来初始化各个寄存器        .long 0x22111110        .long 0x00000700        .long 0x00000700        .long 0x00000700        .long 0x00000700        .long 0x00000700        .long 0x00000700        .long 0x00018005        .long 0x00018005        .long 0x008e0459        .long 0xb2        .long 0x30        .long 0x30@ Processor clock values.align 4clock_locktime:        .long 0x00ffffffmpll_50mhz:        .long((0x5c<< 12)|(0x4<< 4)|(0x2))mpll_200mhz:        .long((0x5c<< 12)|(0x4<< 4)|(0x0))clock_clkcon:        .long 0x0000fff8clock_clkdivn:        .long 0x3@ initial values for serialuart_ulcon:        .long 0x3uart_ucon:        .long 0x245uart_ufcon:        .long 0x0uart_umcon:        .long 0x0@ inital values for GPIOgpio_con_uart:        .long 0x0016faaagpio_up_uart:        .long 0x000007ff        .align 2DW_STACK_START:        .word (((((0x30000000+ 0x04000000 - 0x00100000)- 0x00100000)- 0x00004000)-(0x00004000+ 0x00004000+0x00004000))- 0x00008000)+0x00008000-4# 922 "arch/s3c2410/head.S".align 4SerBase:        .long 0x50000000# 935 "arch/s3c2410/head.S".align 4PMCTL0_ADDR:        .long 0x4c00000cPMCTL1_ADDR:        .long 0x56000080PMST_ADDR:        .long 0x560000B4PMSR0_ADDR:        .long 0x560000B8REFR_ADDR:        .long 0x48000024[root@lqm vivi_myboard]#```|
-|----|
+
+
+```
+# 1"arch/s3c2410/head.S"
+# 1 "<built-in>"
+# 1 "<command line>"
+# 1 "arch/s3c2410/head.S"
+# 35 "arch/s3c2410/head.S"
+# 1 "include/config.h" 1
+# 14 "include/config.h"
+# 1 "include/autoconf.h" 1
+# 15 "include/config.h" 2
+# 36 "arch/s3c2410/head.S" 2
+# 1 "include/linkage.h" 1
+# 37 "arch/s3c2410/head.S" 2
+# 1 "include/machine.h" 1
+# 19 "include/machine.h"
+# 1 "include/platform/smdk2410.h" 1
+
+# 1 "include/s3c2410.h" 1
+# 22 "include/s3c2410.h"
+# 1 "include/hardware.h" 1
+# 23 "include/s3c2410.h" 2
+# 1 "include/bitfield.h" 1
+# 24 "include/s3c2410.h" 2
+# 3 "include/platform/smdk2410.h" 2
+
+# 1 "include/sizes.h" 1
+# 8 "include/platform/smdk2410.h" 2
+# 74 "include/platform/smdk2410.h"
+# 1 "include/architecture.h" 1
+# 75 "include/platform/smdk2410.h" 2
+# 20 "include/machine.h" 2
+# 38 "arch/s3c2410/head.S" 2
+
+
+@ Start of executable code
+
+
+宏定义展开
+.globl _start;.align 0; _start:
+.globl ResetEntryPoint;.align 0; ResetEntryPoint:
+
+
+下面是装载中断向量表，ARM规定，在起始必须有8条跳转指令，你可以用b 标号也可以用ldr pc 标号。这样的8条规则的标志被arm定义为bootloader的识别标志，检测到这样的标志后，就可以从该位置启动。这样的做法是因为开始的时候不一定有bootloader，必须有一种识别机制，如果识别到bootloader，那么就从bootloader启动。
+
+@
+
+@ Exception vector table(physical address= 0x00000000)
+
+@
+
+
+@ 0x00: Reset
+
+        b Reset
+
+
+@ 0x04: Undefined instruction 
+exception
+
+UndefEntryPoint:
+
+        b HandleUndef
+
+
+@ 0x08: Software interrupt 
+exception
+
+SWIEntryPoint:
+
+        b HandleSWI
+
+
+@ 0x0c: Prefetch Abort(Instruction Fetch MemoryAbort)
+
+PrefetchAbortEnteryPoint:
+
+        b HandlePrefetchAbort
+
+
+@ 0x10: Data Access Memory 
+Abort
+
+DataAbortEntryPoint:
+
+        b HandleDataAbort
+
+
+@ 0x14: Not used
+
+NotUsedEntryPoint:
+
+        b HandleNotUsed
+
+
+@ 0x18: IRQ(Interrupt Request)exception
+
+IRQEntryPoint:
+
+        b HandleIRQ
+
+
+@ 0x1c: FIQ(Fast Interrupt Request)exception
+
+FIQEntryPoint:
+
+        b HandleFIQ
+
+
+下面是固定位置存放环境变量
+
+@
+
+@ VIVI magics
+
+@
+
+
+@ 0x20: magic number so we can verify that we only put
+
+        .long 0
+
+@ 0x24:
+
+        .long 0
+
+@ 0x28: where this vivi was linked, so we can put it in memory in theright place
+
+        .long _start   //_start用来指定链接后的起始装载地址装载到内存中的地址
+
+@ 0x2C: this contains the platform, cpuand machine id
+
+        .long((1<< 24)|(6<<
+ 16)| 193)
+
+@ 0x30: vivi capabilities
+
+        .long 0
+
+
+@ 0x34:
+
+        b SleepRamProc
+
+
+@
+
+@ Start VIVI head
+
+@
+Reset: //上电后cpu会从0x0地址读取指令执行，也就是b Reset
+
+
+        @ disable watch dog timer
+
+        mov r1, #0x53000000
+
+        mov r2, #0x0
+
+        str r2, [r1]
+# 121 "arch/s3c2410/head.S"
+
+        @ disable all interrupts
+
+        mov r1, #0x4A000000
+
+        mov r2, #0xffffffff
+
+        str r2, [r1,#0x08]  //0x4A000008为中断屏蔽寄存器，将里面赋全1，表示屏蔽这32个中断源
+
+        ldr r2, =0x7ff
+
+        str r2, [r1,#0x1C]  //0x4A00001C为中断子屏蔽寄存器，里面低11位也用来表示屏蔽掉这11个中断源
+
+
+        @ initialise system clocks
+
+        mov r1, #0x4C000000
+
+        mvn r2, #0xff000000//MVN指令可完成从另一个寄存器、被移位的寄存器、或将一个立即数加载到目的寄存器。与MOV指令不同之处是在传送之前按位被取反了，即把一个被取反的值传送到目的寄存器中。也就是r2=0x00ffffff
+        str r2, 
+[r1, #0x00] //我们可以在程序开头启动MPLL，在设置MPLL的几个寄存器后，需要等待一段 时间(Lock Time)，  MPLL的输出才稳定。在这段时间(Lock Time)内，FCLK停振，CPU停止工作。Lock Time的长短由寄存器LOCKTIME设定，Lock Time之后，MPLL输出正常，CPU工作在新的FCLK下，**前面说过，MPLL启动后需要等待一段时间(Lock Time)，使得其输出稳定。位[23:12]用于UPLL，位[11:0]用于MPLL。本实验使用确省值0x00ffffff。 **
+
+
+        @ldr r2, mpll_50mhz
+
+        @str r2, [r1,#0x04]
+
+
+        @ 1:2:4
+
+        mov r1, #0x4C000000
+
+        mov r2, #0x3
+
+        str r2, [r1,#0x14] //0x4C000014为分频寄存器，用于设置FCLK、HCLK、PCLK三者的比例
+```
+
+
+
+```
+bit[2] — — HDIVN1，若为1，则 bit[1:0] 必 须 设 为 0b00 ， 此 时FCLK:HCLK:PCLK=1:1/4:1/4；若为0，三者比例由bit[1:0]确定 bit[1]——HDIVN，0：HCLK=FCLK；1：HCLK=FCLK/2
+ bit[0]——PDIVN，0：PCLK=HCLK；1：PCLK=HCLK/2 
+
+ 本实验设为0x03，则FCLK:HCLK:PCLK=1:1/2:1/4 
+
+
+        mrc p15, 0, r1, c1, c0, 0 @read ctrlregister
+
+        orr r1, r1,#0xc0000000 @ Asynchronous
+
+        mcr p15, 0, r1, c1, c0, 0 @write ctrlregister
+```
+
+
+``
+
+
+```
+上面这三句代码的意思是切换模式：If HDIVN = 1, the CPU bus mode has to be changed from thefast bus
+
+mode to the asynchronous bus mode using following instructions：
+```
+
+
+``
+
+
+```
+MMU_SetAsyncBusMode 
+
+mrc  p15, 0, r0, c1, c0, 0 
+
+orr  r0, r0, #R1_nF:OR:R1_iA 
+
+mcr  p15,0, r0, c1, c0, 0 
+
+ 其中的“R1_nF:OR:R1_iA”等于0xc0000000。意思就是说，当HDIVN = 1时，CPU bus mode需要从原来的“fast bus mode”改为“asynchronous bus mode”。 ``
+```
+
+
+
+```
+```
+@ now, CPU 
+clock is 200 Mhz
+
+        mov r1, #0x4C000000
+
+        ldr r2, mpll_200mhz
+
+        str r2, [r1,#0x04] //0x4C000004为MPLLCON寄存器， 对于MPLLCON寄存器，[19:12]为MDIV，[9:4]为PDIV，[1:0]为SDIV。有如下计算公式：
+
+  MPLL(FCLK) = (m * Fin)/(p * 2^s) 其中: m = MDIV + 8, p = PDIV + 2 对于本开发板，Fin =  12MHz,MPLLCON设为0x5c0040，可以计算出FCLK=200MHz，再由CLKDIVN的设置可知：HCLK=100MHz，PCLK=50MHz。
+# 164 "arch/s3c2410/head.S"
+
+       ** bl memsetup**
+
+        @ Check if 
+this is a wake-up from 
+sleep
+
+        ldr r1, PMST_ADDR  //0x560000B4为GSTATUS2寄存器，里面[0:2]三位有效
+
+        ldr r0, [r1] //将该寄存器中的值取出来保存到r0中
+
+        tst r0, #((1<< 1)) //测试r0的第一位。这位是Power_OFF
+ reset. The reset after the wakeup from Power_OFF mode.The setting is cleared by writing "1" to this bit.TST指令用于把一个寄存器的内容和另一个寄存器的内容或立即数进行按位的与运算，并根据运算结果更新CPSR中条件标志位的值。
+
+        **bne WakeupStart**
+
+
+        @ All LED on 这里就需要对GPIO口进行控制
+
+        mov r1, #0x56000000 
+
+        add r1, r1,#0x50 //0x56000050是GPFCON用来配置port F端口
+
+        ldr r2,=0x55aa
+
+        str r2, [r1,#0x0] //设置为0101010110101010因为每两位用来控制一个引脚，也就是将GPF4-GPF7设置为输出，将GPF0-GPF3设置为中断
+
+        mov r2, #0xff
+
+        str r2, [r1,#0x8]  //0x56000058为GPFUP为port F的上拉寄存器，全设置为1表示禁止上拉功能
+
+        mov r2, #0x00
+
+        str r2, [r1,#0x4]  //0x56000054是GPFDAT，总共8位有效，每位控制一个引脚，主要是将GPF4-GPF7数据位全设置为0而这四个引脚是用来控制板子上4个LED，置0则表示亮。
+# 230 "arch/s3c2410/head.S"
+
+        @ set GPIO 
+for UART
+
+        mov r1, #0x56000000
+
+        add r1, r1,#0x70//0x56000070为GPHCON 用来配置port H 而port H主要就是来控制UART的各个引脚如：UART中接收和发送端口RXDn和TXDn，当然还有自动流控制模式的nRTS0和nCTS0端口。
+
+        ldr r2, gpio_con_uart  //我们可以看到 
+gpio_con_uart: .long vGPHCON  gpio_up_uart: .long vGPHUP 而在platform中的smdk2410.h中定义了这两个值#define vGPHCON   0x0016faaa 表示GPHCON控制11个引脚，如GPH2若设置为10则表示TXD0.类似，具体的查看数据手册
+
+#define vGPHUP   0x000007ff //同样将这11位的引脚上拉禁止
+
+        str r2, [r1,#0x0]
+
+        ldr r2, gpio_up_uart
+
+        str r2, [r1,#0x8] //上面也是来配置串口所用到的GPIO口，因为串口的输入输出口都是利用到GPIO
+
+       ** bl InitUART**# 259 
+"arch/s3c2410/head.S"
+
+        **bl copy_myself**
+
+        @ jump to ram
+
+        ldr r1, =on_the_ram
+
+        add pc, r1,#0
+
+        nop
+
+        nop
+
+1: b 1b @ infinite loop
+
+
+on_the_ram:
+# 279 "arch/s3c2410/head.S"
+
+        @ get read to call C functions开始调用C函数之前就需要将一些参数准备好，如堆栈要准备好函数调用时需要进出栈
+
+        ldr sp, DW_STACK_START @ setup 
+stack pointer
+
+        mov fp, #0 @ no previous frame, so fp=0
+
+        mov a2, #0 @set argv toNULL
+
+
+        bl main @ call main
+
+
+        mov pc, #0x00000000 @ otherwise, reboot
+
+
+@
+
+@ End VIVI head
+
+@
+
+
+下面是子例程
+
+@
+
+@ Wake-up codes
+
+@
+
+
+WakeupStart:
+
+        @ Clear sleep 
+reset bit
+
+        ldr r0, PMST_ADDR
+
+        mov r1, #(1<< 1)
+
+        str r1, [r0]
+
+
+        @ Release the SDRAM signal protections
+
+        ldr r0, PMCTL1_ADDR
+
+        ldr r1, [r0]
+
+        bic r1, r1,#((1<<
+ 19)| 
+(1 << 18)|(1<<
+ 17))
+
+        str r1, [r0]
+
+
+        @ Go...
+
+        ldr r0, PMSR0_ADDR @ 
+read a return address
+
+        ldr r1, [r0]
+
+        mov pc, r1
+
+        nop
+
+        nop
+
+1: b 1b @ infinite loop
+
+
+SleepRamProc:
+
+        @ SDRAM is in the self-refresh mode 
+*/
+
+        ldr r0, REFR_ADDR
+
+        ldr r1, [r0]
+
+        orr r1, r1,#(1<< 22)
+
+        str r1, [r0]
+
+
+        @ wait until SDRAM into self-refresh
+
+        mov r1, #16
+
+1: subs r1, r1,#1
+
+        bne 1b
+
+
+        @ Set the SDRAM singal protections
+
+        ldr r0, PMCTL1_ADDR
+
+        ldr r1, [r0]
+
+        orr r1, r1,#((1<<
+ 19)| 
+(1 << 18)|(1<<
+ 17))
+
+        str r1, [r0]
+
+
+
+        ldr r0, PMCTL0_ADDR
+
+        ldr r1, [r0]
+
+        orr r1, r1,#(1<< 3)
+
+        str r1, [r0]
+
+1: b 1b
+# 379 "arch/s3c2410/head.S"
+**.globl memsetup; .align 0; memsetup:  //对ENTRY(memsetup)宏的展开**        @ initialise the static memory
+
+        //同样在这里是对内存控制中用到的13个寄存器进行初始化
+
+        @ set memory control registers
+
+        mov r1, #0x48000000
+
+        adrl r2, mem_cfg_val
+
+        add r3, r1,#52
+
+1: ldr r4, 
+[r2],#4
+
+        str r4, [r1],#4
+
+        cmp r1, r3
+
+        bne 1b
+
+
+        mov pc, lr
+
+
+
+
+@
+
+@ copy_myself: copy vivi to ram
+
+@**下面的将vivi从flash中搬移到sdram中来执行，很重要**copy_myself:
+
+        mov r10, lr  
+//将返回地址保存到r10，为了执行完后返回到主程序
+
+
+        @ reset NAND
+
+        mov r1, #0x4E000000
+
+        ldr r2, =0xf830 @ initial value 初始化NFCONF寄存器，至于为什么设置为0xf830前面在NAND里面讲过
+
+        str r2, [r1,#0x00]
+
+        ldr r2, [r1,#0x00]
+
+        bic r2, r2,#0x800 @ enable chip也就是相当于NFCONF &= ~0x800 将第15为置为1使能NAND FLASH
+        str r2, 
+[r1, #0x00]
+
+        mov r2, #0xff @RESET command
+
+        strb r2, [r1,#0x04] //向NFCMD寄存器中置0xff也就是reset命令
+
+        mov r3, #0 @ wait//下面几句是一个延时程序用来等待几秒，等到NAND 准备好
+
+1: add r3, r3,#0x1
+
+        cmp r3, #0xa
+
+        blt 1b
+
+2: ldr r2, 
+[r1, #0x10] @ wait ready
+
+        tst r2, #0x1//检查NFSTAT寄存器的第0位是否为1也就是是否准备好
+        beq 2b //没有准备好则继续等待
+
+        ldr r2, [r1,#0x00]
+
+        orr r2, r2,#0x800 @ disable chip相当于NFCONF |= 0x800 禁止掉NAND FLASH等到要使用FLASH时再使能
+        str r2, 
+[r1, #0x00]
+
+
+        @ get read to call C functions 
+(for nand_read())
+
+        ldr sp, DW_STACK_START @ setup 
+stack pointer //每次需要从汇编调到C函数时 都需要设置好堆栈
+
+        mov fp, #0 @ no previous frame, so fp=0
+
+
+        @ copy vivi to RAM 之前都是一些初始化，下面才开始利用C函数来真正开始拷贝
+
+        ldr r0, =(0x30000000+ 0x04000000- 0x00100000)//DRAM_BASE
+ + DRAM_SIZE - VIVI_RAM_SIZE,为什么这里不是将vivi拷贝到sdram的起始地址而是拷贝到64MB的sdram的最后1M的区域，可能是这里的sdram采用高端模式，将映象从高地址向低地址存放
+
+        mov r1, #0x0//r1则是vivi的起始地址，也就是flash上的0x0地址
+
+        mov r2, #0x20000//上面三句都是用来为调用nand_read_ll函数准备好参数，r2表示拷贝大小
+
+        bl nand_read_ll //这个c函数在arch/s3c2410/nand_read.c中 nand_read_ll就不具体分析了在nand里面有讲过
+
+
+        tst r0, #0x0  //为什么要比较r0与上0，等于0的话 则去执行ok_nand_read,在这里r0是nand_read_ll函数的返回值，拷贝成功则返回0,所以这就是为什么将r0和0比较
+
+        beq ok_nand_read //ok_nand_read子程序用来比较拷贝到sdram最后1MB的vivi和原始的存放在flash上的vivi是否相同，检查拷贝是否成功，vivi在sdram中的位置也就是离0x34000000地址前1MB的位置也就是0x33f00000
+# 441 "arch/s3c2410/head.S"
+
+ok_nand_read:
+
+
+        @ verify
+
+        mov r0, #0  //r0这里为flash上vivi的起始地址
+
+        ldr r1, =0x33f00000//r1这里为拷贝到sdram上vivi的起始地址
+
+        mov r2, #0x400 @ 4 bytes* 1024= 4K-bytes//要比较多少个字节数
+
+go_next:
+
+        ldr r3, [r0],#4//将r0对应地址的值取出来保存到r3中，然后r0自加4个字节
+
+        ldr r4, [r1],#4
+
+        teq r3, r4  
+//测试r3和r4是否相等
+
+        bne notmatch //若不相等，则跳到notmarch处
+
+        subs r2, r2,#4//将比较总字节数减去4个字节，已经比较了4个字节
+        beq done_nand_read //若r2为0,则表示已经比较完毕，跳转到done_nand_read处
+        bne go_next //r2若还不等于0则继续取值比较
+notmatch:
+# 469 "arch/s3c2410/head.S"
+
+1: b 1b
+
+done_nand_read:
+
+
+        mov pc, r10 
+//比较完了 就退出子程序，返回主程序执行
+
+
+@ clear memory
+
+@ r0: start address
+
+@ r1: length
+
+mem_clear:
+
+        mov r2, #0
+
+        mov r3, r2
+
+        mov r4, r2
+
+        mov r5, r2
+
+        mov r6, r2
+
+        mov r7, r2
+
+        mov r8, r2
+
+        mov r9, r2
+
+
+clear_loop:
+
+        stmia r0!,{r2-r9} //将r2-r9也就是0赋值给从r0为内存起始地址的连续的8*4个字节中
+
+        subs r1, r1,#(8* 4) //每次清除32个字节
+
+        bne clear_loop
+```
+```
+
+````
+
+
+
+```
+mov pc, lr
+# 613 "arch/s3c2410/head.S"
+
+@ Initialize UART
+
+@
+
+@ r0 = number of UART port
+
+InitUART: //这里也不细讲了，在UART章节中已经详细的讲解了每个寄存器的设置
+
+        ldr r1, SerBase
+
+        mov r2, #0x0
+
+        str r2, [r1,#0x08]
+
+        str r2, [r1,#0x0C]
+
+        mov r2, #0x3
+
+        str r2, [r1,#0x00]
+
+        ldr r2, =0x245
+
+        str r2, [r1,#0x04]
+
+
+        mov r2, #((50000000/(115200*
+ 16))- 1)
+
+        str r2, [r1,#0x28]
+
+
+        mov r3, #100
+
+        mov r2, #0x0
+
+1: sub r3, r3,#0x1
+
+        tst r2, r3
+
+        bne 1b
+# 653 "arch/s3c2410/head.S"
+
+        mov pc, lr
+
+
+
+@
+
+@ Exception handling functions
+
+@
+
+HandleUndef:
+
+1: b 1b @ infinite loop
+
+
+HandleSWI:
+
+1: b 1b @ infinite loop
+
+
+HandlePrefetchAbort:
+
+1: b 1b @ infinite loop
+
+
+HandleDataAbort:
+
+1: b 1b @ infinite loop
+
+
+HandleIRQ:
+
+1: b 1b @ infinite loop
+
+
+HandleFIQ:
+
+1: b 1b @ infinite loop
+
+
+HandleNotUsed:
+
+1: b 1b @ infinite loop
+
+
+@
+
+@ Low Level Debug
+
+@
+# 838 "arch/s3c2410/head.S"
+
+@
+
+@ Data Area
+
+@
+
+@ Memory configuration values
+.align 4
+
+mem_cfg_val: //这些变量都是内存控制寄存器的初始值，因为寄存器比较多，所以将初始值制作成表的形式，然后分别读表来初始化各个寄存器
+
+        .long 0x22111110
+
+        .long 0x00000700
+
+        .long 0x00000700
+
+        .long 0x00000700
+
+        .long 0x00000700
+
+        .long 0x00000700
+
+        .long 0x00000700
+
+        .long 0x00018005
+
+        .long 0x00018005
+
+        .long 0x008e0459
+
+        .long 0xb2
+
+        .long 0x30
+
+        .long 0x30
+
+
+@ Processor clock values
+.align 4
+
+clock_locktime:
+
+        .long 0x00ffffff
+
+mpll_50mhz:
+
+        .long((0x5c<< 12)|(0x4<<
+ 4)|(0x2))
+
+
+mpll_200mhz:
+
+        .long((0x5c<< 12)|(0x4<<
+ 4)|(0x0))
+
+clock_clkcon:
+
+        .long 0x0000fff8
+
+clock_clkdivn:
+
+        .long 0x3
+
+@ initial values for serial
+
+uart_ulcon:
+
+        .long 0x3
+
+uart_ucon:
+
+        .long 0x245
+
+uart_ufcon:
+
+        .long 0x0
+
+uart_umcon:
+
+        .long 0x0
+
+@ inital values for GPIO
+
+gpio_con_uart:
+
+        .long 0x0016faaa
+
+gpio_up_uart:
+
+        .long 0x000007ff
+
+
+        .align 2
+
+DW_STACK_START:
+
+        .word (((((0x30000000+
+ 0x04000000 - 0x00100000)- 0x00100000)- 0x00004000)-(0x00004000+
+ 0x00004000+
+
+
+0x00004000))- 0x00008000)+0x00008000-4
+# 922 "arch/s3c2410/head.S"
+.align 4
+
+SerBase:
+
+
+        .long 0x50000000
+# 935 "arch/s3c2410/head.S"
+.align 4
+
+PMCTL0_ADDR:
+
+        .long 0x4c00000c
+
+PMCTL1_ADDR:
+
+        .long 0x56000080
+
+PMST_ADDR:
+
+        .long 0x560000B4
+
+PMSR0_ADDR:
+
+        .long 0x560000B8
+
+REFR_ADDR:
+
+        .long 0x48000024
+[root@lqm vivi_myboard]#
+```
+
 
 
 
@@ -146,8 +1065,56 @@
 
 
 
-|```@ 0x00        b Reset@ 0x04HandleUndef:        b HandleUndef@ 0x08HandleSWI:        b HandleSWI@ 0x0cHandlePrefetchAbort:        b HandlePrefetchAbort@ 0x10HandleDataAbort:        b HandleDataAbort@ 0x14HandleNotUsed:        b HandleNotUsed@ 0x18HandleIRQ:        b HandleIRQ@ 0x1cHandleFIQ:        b HandleFIQ```|
-|----|
+
+
+```
+@ 0x00
+
+        b Reset
+
+@ 0x04
+
+HandleUndef:
+
+        b HandleUndef
+
+@ 0x08
+
+HandleSWI:
+
+        b HandleSWI
+
+@ 0x0c
+
+HandlePrefetchAbort:
+
+        b HandlePrefetchAbort
+
+@ 0x10
+
+HandleDataAbort:
+
+        b HandleDataAbort
+
+@ 0x14
+
+HandleNotUsed:
+
+        b HandleNotUsed
+
+@ 0x18
+
+HandleIRQ:
+
+        b HandleIRQ
+
+@ 0x1c
+
+HandleFIQ:
+
+        b HandleFIQ
+```
+
 
 
 
@@ -156,8 +1123,56 @@
 
 
 
-|```@ 0x00        b Reset@ 0x04HandleUndef:        b .@ 0x08HandleSWI:        b .@ 0x0cHandlePrefetchAbort:        b .@ 0x10HandleDataAbort:        b .@ 0x14HandleNotUsed:        b .@ 0x18HandleIRQ:        b .@ 0x1cHandleFIQ:        b .```|
-|----|
+
+
+```
+@ 0x00
+
+        b Reset
+
+@ 0x04
+
+HandleUndef:
+
+        b .
+
+@ 0x08
+
+HandleSWI:
+
+        b .
+
+@ 0x0c
+
+HandlePrefetchAbort:
+
+        b .
+
+@ 0x10
+
+HandleDataAbort:
+
+        b .
+
+@ 0x14
+
+HandleNotUsed:
+
+        b .
+
+@ 0x18
+
+HandleIRQ:
+
+        b .
+
+@ 0x1c
+
+HandleFIQ:
+
+        b .
+```
+
 
 
 
@@ -170,8 +1185,69 @@
 
 
 
-|```.globl _start_start: b reset        ldr pc, _undefined_instruction        ldr pc, _software_interrupt        ldr pc, _prefetch_abort        ldr pc, _data_abort        ldr pc, _not_used        ldr pc, _irq        ldr pc, _fiq_undefined_instruction: .word undefined_instruction_software_interrupt: .word software_interrupt_prefetch_abort: .word prefetch_abort_data_abort: .word data_abort_not_used: .word not_used_irq: .word irq_fiq: .word fiq````...````/* * exception handlers */        .align  5undefined_instruction:        get_bad_stack        bad_save_user_regs        bl      do_undefined_instruction````...`|
-|----|
+
+
+```
+.globl _start
+
+_start: b reset
+
+        ldr pc, _undefined_instruction
+
+        ldr pc, _software_interrupt
+
+        ldr pc, _prefetch_abort
+
+        ldr pc, _data_abort
+
+        ldr pc, _not_used
+
+        ldr pc, _irq
+
+        ldr pc, _fiq
+
+
+_undefined_instruction: 
+.word undefined_instruction
+
+_software_interrupt: 
+.word software_interrupt
+
+_prefetch_abort: .word prefetch_abort
+
+_data_abort: .word data_abort
+
+_not_used: .word not_used
+
+_irq: .word irq
+
+_fiq: .word fiq
+```
+
+
+`...`
+
+
+```
+/*
+
+ * exception handlers
+
+ */
+
+        .align  5
+
+undefined_instruction:
+
+        get_bad_stack
+
+        bad_save_user_regs
+
+        bl      do_undefined_instruction
+```
+
+
+`...`
 
 
 
@@ -195,8 +1271,30 @@
 
 
 
-|```@ 0x20: magic number so we can verify that we only put        .long 0@ 0x24:        .long 0@ 0x28: where this vivi was linked, so we can put itin memoryin the right place        .long _start@ 0x2C: this contains the platform, cpuand machine id        .long ARCHITECTURE_MAGIC@ 0x30: vivi capabilities         .long 0```|
-|----|
+
+
+```
+@ 0x20: magic number so we can verify that we only put
+
+        .long 0
+
+@ 0x24:
+
+        .long 0
+
+@ 0x28: where this vivi was linked, so we can put itin memoryin the right place
+
+        .long _start
+
+@ 0x2C: this contains the platform, cpuand machine id
+
+        .long ARCHITECTURE_MAGIC
+
+@ 0x30: vivi capabilities 
+
+        .long 0
+```
+
 
 
 
@@ -205,8 +1303,24 @@
 
 
 
-|```/* * Architecture magic and machine type */#include "architecture.h"#define MACH_TYPE        193    #define ARCHITECTURE_MAGIC    ((ARM_PLATFORM<< 24)| (ARM_S3C2410_CPU<< 16)| /                 MACH_TYPE)```|
-|----|
+
+
+```
+/*
+
+ * Architecture magic and machine type
+
+ */
+#include 
+"architecture.h"
+#define MACH_TYPE        193    
+#define ARCHITECTURE_MAGIC    ((ARM_PLATFORM<<
+ 24)| 
+(ARM_S3C2410_CPU<< 16)| /
+
+                 MACH_TYPE)
+```
+
 
 
 
@@ -240,8 +1354,44 @@
 
 
 
-|```@ jump to ram        @ a technology about trampoline        ldr r1, =on_the_ram        add pc, r1, #0        nop        nop1:        b 1bon_the_ram:        @ setup by APCS        ldr sp, DW_STACK_START @ setup stack pointer        mov fp, #0 @ no previous frame, so fp=0        mov a2, #0 @ set argv to NULL        bl main @ call main        mov pc, #FLASH_BASE @ otherwise, reboot```|
-|----|
+
+
+```
+@ jump to ram
+
+        @ a technology about trampoline
+
+        ldr r1, =on_the_ram
+
+        add pc, r1, #0
+
+        nop
+
+        nop
+
+1:
+
+        b 1b
+
+
+on_the_ram:
+
+        @ setup by APCS
+
+        ldr sp, DW_STACK_START @ setup stack pointer
+
+        mov fp, #0 @ no previous frame, so fp=0
+
+        mov a2, #0 @ set argv to NULL
+
+
+        bl main @ 
+call main
+
+
+        mov pc, #FLASH_BASE @ otherwise, reboot
+```
+
 
 
 

@@ -4,7 +4,7 @@
 
 
 
-2014年10月27日 14:04:41[一世豁然](https://me.csdn.net/Explorer_day)阅读数：671标签：[linux内核																[Linux驱动](https://so.csdn.net/so/search/s.do?q=Linux驱动&t=blog)](https://so.csdn.net/so/search/s.do?q=linux内核&t=blog)
+2014年10月27日 14:04:41[一世豁然](https://me.csdn.net/Explorer_day)阅读数：672标签：[linux内核																[Linux驱动](https://so.csdn.net/so/search/s.do?q=Linux驱动&t=blog)](https://so.csdn.net/so/search/s.do?q=linux内核&t=blog)
 个人分类：[linux驱动](https://blog.csdn.net/Explorer_day/article/category/2652125)
 
 

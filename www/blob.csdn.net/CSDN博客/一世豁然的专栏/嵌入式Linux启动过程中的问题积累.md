@@ -4,7 +4,7 @@
 
 
 
-2015年07月01日 14:21:02[一世豁然](https://me.csdn.net/Explorer_day)阅读数：522标签：[方法论																[Linux启动](https://so.csdn.net/so/search/s.do?q=Linux启动&t=blog)](https://so.csdn.net/so/search/s.do?q=方法论&t=blog)
+2015年07月01日 14:21:02[一世豁然](https://me.csdn.net/Explorer_day)阅读数：524标签：[方法论																[Linux启动](https://so.csdn.net/so/search/s.do?q=Linux启动&t=blog)](https://so.csdn.net/so/search/s.do?q=方法论&t=blog)
 个人分类：[方法论](https://blog.csdn.net/Explorer_day/article/category/3135631)
 
 

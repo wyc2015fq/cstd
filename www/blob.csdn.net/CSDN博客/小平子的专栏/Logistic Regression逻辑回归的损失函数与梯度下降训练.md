@@ -4,7 +4,7 @@
 
 
 
-2019年02月24日 23:14:30[阿拉丁吃米粉](https://me.csdn.net/jinping_shi)阅读数：176
+2019年02月24日 23:14:30[阿拉丁吃米粉](https://me.csdn.net/jinping_shi)阅读数：180
 
 
 
@@ -39,7 +39,7 @@ $$L(Y, P(Y|X)) = -\log(P(Y|X))$$
 
 逻辑回归本身用于处理二分类问题。对数损失函数中的$h(Y|X)$就是sigmoid函数$h_\theta(x)$。为了综合$Y=1$和$Y=0$两个类别的损失，基于对数损失函数，逻辑回归的损失函数可以写成如下形式：
 
-$$L(h_{\theta}(x), y)= \left\{\begin{aligned}&amp; -\log(h_\theta(x))   &amp; {y = 1}\\&amp; -\log(1-h_\theta(x)) &amp; {y = 0}\\\end{aligned}\right.$$
+$$L(h_{\theta}(x), y)= \left\{\begin{aligned}& -\log(h_\theta(x))   & {y = 1}\\& -\log(1-h_\theta(x)) & {y = 0}\\\end{aligned}\right.$$
 
 为了方便，上式可以改写成一个式子：
 
@@ -61,7 +61,7 @@ $$L(\boldsymbol\theta) = \prod_{i=1}^m P(y=1|x_i)^{y_i} \left(1-P(y=1|x_i)\right
 
 两边取以e为底的对数，得到对数似然函数：
 
-$$(3)\begin{aligned}\ln L(\boldsymbol{\theta}) &amp;= \sum_{i=1}^m y_i \ln P(y=1|x_i) + (1-y_i) \ln \left(1-P(y=1|x_i)\right) \\&amp;= \sum_{i=1}^m y_i \ln h_{\boldsymbol{\theta}}(x_i) + (1-y_i) \ln \left(1-h_{\boldsymbol{\theta}}(x_i)\right)\end{aligned} \tag{3}$$
+$$(3)\begin{aligned}\ln L(\boldsymbol{\theta}) &= \sum_{i=1}^m y_i \ln P(y=1|x_i) + (1-y_i) \ln \left(1-P(y=1|x_i)\right) \\&= \sum_{i=1}^m y_i \ln h_{\boldsymbol{\theta}}(x_i) + (1-y_i) \ln \left(1-h_{\boldsymbol{\theta}}(x_i)\right)\end{aligned} \tag{3}$$
 
 （3)式的形式和(2)式是等价的，只不过对数上一个取log一个取ln。因此才会有逻辑回归的损失函数是从极大似然估计推导而来的说法。
 
@@ -75,11 +75,11 @@ $$(3)\begin{aligned}\ln L(\boldsymbol{\theta}) &amp;= \sum_{i=1}^m y_i \ln P(y=1
 
 令$g(z) = \frac{1}{1+e^{-z}}$，
 
-$$(4)\begin{aligned}g&#x27;(z) &amp;= \frac{\partial}{\partial z} \frac{1}{1+e^{-z}} \\&amp;= -\frac{1}{(1+e^{-z})^2} \frac{\partial}{\partial z} e^{-z} \\&amp;= \frac{e^{-z}}{(1+e^{-z})^2} \\&amp;= \left(1-\frac{1}{1+e^{-z}}\right) \frac{1}{1+e^{-z}} \\&amp; = g(z)(1-g(z))\end{aligned} \tag{4}$$
+$$(4)\begin{aligned}g'(z) &= \frac{\partial}{\partial z} \frac{1}{1+e^{-z}} \\&= -\frac{1}{(1+e^{-z})^2} \frac{\partial}{\partial z} e^{-z} \\&= \frac{e^{-z}}{(1+e^{-z})^2} \\&= \left(1-\frac{1}{1+e^{-z}}\right) \frac{1}{1+e^{-z}} \\& = g(z)(1-g(z))\end{aligned} \tag{4}$$
 
 (2)式的逻辑回归损失函数对参数$\theta$求导。求导时，我们先对单个样本的第$j$个参数$\theta_j$求导（即第j维特征），并且将(2)式中的对数取以e为底的对数。
 
-$$(5)\begin{aligned}\frac{\partial}{\partial \theta_j} L(\boldsymbol{\theta}) &amp;= -y \frac{1}{g(\boldsymbol{\theta^T x})} \frac{\partial}{\partial \theta_j} g(\boldsymbol{\theta^T x}) + (1-y) \frac{1}{1-g(\boldsymbol{\theta^T x})} \frac{\partial}{\partial \theta_j} g(\boldsymbol{\theta^T x}) \\&amp;= \left[(1-y) \frac{1}{1-g(\boldsymbol{\theta^T x})} - y \frac{1}{g(\boldsymbol{\theta^T x})} \right] \frac{\partial}{\partial \theta_j} g(\boldsymbol{\theta^T x}) \\&amp;= \left[(1-y) \frac{1}{1-g(\boldsymbol{\theta^T x})} - y \frac{1}{g(\boldsymbol{\theta^T x})} \right] g(\boldsymbol{\theta^T x}) (1-g(\boldsymbol{\theta^T x})) \frac{\partial}{\partial \theta_j} \boldsymbol{\theta^T x} \\&amp;= \left[(1-y) \frac{1}{1-g(\boldsymbol{\theta^T x})} - y \frac{1}{g(\boldsymbol{\theta^T x})} \right] g(\boldsymbol{\theta^T x}) (1-g(\boldsymbol{\theta^T x})) x_j \\&amp;= (g(\boldsymbol{\theta^T x}) - y) x_j\end{aligned} \tag{5}$$
+$$(5)\begin{aligned}\frac{\partial}{\partial \theta_j} L(\boldsymbol{\theta}) &= -y \frac{1}{g(\boldsymbol{\theta^T x})} \frac{\partial}{\partial \theta_j} g(\boldsymbol{\theta^T x}) + (1-y) \frac{1}{1-g(\boldsymbol{\theta^T x})} \frac{\partial}{\partial \theta_j} g(\boldsymbol{\theta^T x}) \\&= \left[(1-y) \frac{1}{1-g(\boldsymbol{\theta^T x})} - y \frac{1}{g(\boldsymbol{\theta^T x})} \right] \frac{\partial}{\partial \theta_j} g(\boldsymbol{\theta^T x}) \\&= \left[(1-y) \frac{1}{1-g(\boldsymbol{\theta^T x})} - y \frac{1}{g(\boldsymbol{\theta^T x})} \right] g(\boldsymbol{\theta^T x}) (1-g(\boldsymbol{\theta^T x})) \frac{\partial}{\partial \theta_j} \boldsymbol{\theta^T x} \\&= \left[(1-y) \frac{1}{1-g(\boldsymbol{\theta^T x})} - y \frac{1}{g(\boldsymbol{\theta^T x})} \right] g(\boldsymbol{\theta^T x}) (1-g(\boldsymbol{\theta^T x})) x_j \\&= (g(\boldsymbol{\theta^T x}) - y) x_j\end{aligned} \tag{5}$$
 
 上式即为第j个参数的偏导数。求出所有n个参数的偏导写成向量形式便得到了梯度的表达式。
 
@@ -97,7 +97,7 @@ $$(7)\theta_j := \theta_j - \alpha \sum_{i=1}^m (g(\boldsymbol{\theta^T x}^{(i)}
 
 先对样本空间矩阵化，假设有$m$个样本，$n+1$维特征，用大写的粗体$\boldsymbol{X}$来表示样本。上标表示第几个样本，下标表示第几维特征。
 
-$$(8)\boldsymbol{X} =  \left[ \begin{matrix}   \boldsymbol{x}^{(1)}  \\   \boldsymbol{x}^{(2)}  \\   \vdots \\   \boldsymbol{x}^{(m)}  \end{matrix}  \right] =   \left[ \begin{matrix}   x_0^{(1)} &amp; x_1^{(1)} &amp; \cdots &amp;  x_n^{(1)}  \\   x_0^{(2)} &amp; x_1^{(2)} &amp; \cdots &amp;  x_n^{(2)}  \\   \vdots \\   x_0^{(m)} &amp; x_1^{(m)} &amp; \cdots &amp;  x_n^{(m)}  \end{matrix}  \right]  \tag{8}$$
+$$(8)\boldsymbol{X} =  \left[ \begin{matrix}   \boldsymbol{x}^{(1)}  \\   \boldsymbol{x}^{(2)}  \\   \vdots \\   \boldsymbol{x}^{(m)}  \end{matrix}  \right] =   \left[ \begin{matrix}   x_0^{(1)} & x_1^{(1)} & \cdots &  x_n^{(1)}  \\   x_0^{(2)} & x_1^{(2)} & \cdots &  x_n^{(2)}  \\   \vdots \\   x_0^{(m)} & x_1^{(m)} & \cdots &  x_n^{(m)}  \end{matrix}  \right]  \tag{8}$$
 
 $$(9)\boldsymbol{y} = \left[\begin{matrix}y^{(1)} \\\vdots \\y^{(m)}\end{matrix}\right] \tag{9}$$
 
@@ -107,7 +107,7 @@ $$(10)\boldsymbol{\theta}^T = \left[\begin{matrix}\theta_0 \\\vdots \\\theta_n\e
 
 令$\boldsymbol{A} = \boldsymbol{\theta}^T \boldsymbol{X}$：
 
-$$(11)\begin{aligned}\boldsymbol{A} &amp;= \boldsymbol{\theta}^T \boldsymbol{X} \\&amp;= \left[\begin{matrix}\theta_0 \\\vdots \\\theta_n\end{matrix}\right] \cdot \left[ \begin{matrix}   x_0^{(1)} &amp; x_1^{(1)} &amp; \cdots &amp;  x_n^{(1)}  \\   x_0^{(2)} &amp; x_1^{(2)} &amp; \cdots &amp;  x_n^{(2)}  \\   \vdots \\   x_0^{(m)} &amp; x_1^{(m)} &amp; \cdots &amp;  x_n^{(m)}  \end{matrix}  \right] \\  &amp;= \left[ \begin{matrix}   \theta_0 x_0^{(1)} &amp; \theta_1 x_1^{(1)} &amp; \cdots &amp;  \theta_n x_n^{(1)}  \\   \theta_0 x_0^{(2)} &amp; \theta_1 x_1^{(2)} &amp; \cdots &amp; \theta_n x_n^{(2)}  \\   \vdots \\   \theta_0 x_0^{(m)} &amp; \theta_1 x_1^{(m)} &amp; \cdots &amp;  \theta_n x_n^{(m)}  \end{matrix}  \right]  \end{aligned} \tag{11}$$
+$$(11)\begin{aligned}\boldsymbol{A} &= \boldsymbol{\theta}^T \boldsymbol{X} \\&= \left[\begin{matrix}\theta_0 \\\vdots \\\theta_n\end{matrix}\right] \cdot \left[ \begin{matrix}   x_0^{(1)} & x_1^{(1)} & \cdots &  x_n^{(1)}  \\   x_0^{(2)} & x_1^{(2)} & \cdots &  x_n^{(2)}  \\   \vdots \\   x_0^{(m)} & x_1^{(m)} & \cdots &  x_n^{(m)}  \end{matrix}  \right] \\  &= \left[ \begin{matrix}   \theta_0 x_0^{(1)} & \theta_1 x_1^{(1)} & \cdots &  \theta_n x_n^{(1)}  \\   \theta_0 x_0^{(2)} & \theta_1 x_1^{(2)} & \cdots & \theta_n x_n^{(2)}  \\   \vdots \\   \theta_0 x_0^{(m)} & \theta_1 x_1^{(m)} & \cdots &  \theta_n x_n^{(m)}  \end{matrix}  \right]  \end{aligned} \tag{11}$$
 
 令$\boldsymbol{E} = g(\boldsymbol{\theta^T \boldsymbol{X}}) - \boldsymbol{y}$：
 
@@ -115,7 +115,7 @@ $$(12)\boldsymbol{E} = g(\boldsymbol{\theta^T \boldsymbol{X}}) - \boldsymbol{y}=
 
 将(11)~(12)式带入(7)式：
 
-$$\begin{aligned}\theta_j &amp;:= \theta_j - \alpha \sum_{i=1}^m (g(\boldsymbol{\theta^T x}^{(i)}) - y^{(i)}) x_j^{(i)} \\&amp;:= \theta_j - \alpha \sum_{i=1}^m e^{(i)} x_j^{(i)} \\&amp;:= \theta_j - \alpha \left(x_j^{(0)}, x_j^{(1)}, \cdots, x_j^{(m)}\right) \cdot \left(e^{(0)}, e^{(1)}, \cdots, e^{(m)}\right)^T \\&amp;:= \theta_j - \alpha \left(x_j^{(0)}, x_j^{(1)}, \cdots, x_j^{(m)}\right) \boldsymbol{E}\end{aligned}$$
+$$\begin{aligned}\theta_j &:= \theta_j - \alpha \sum_{i=1}^m (g(\boldsymbol{\theta^T x}^{(i)}) - y^{(i)}) x_j^{(i)} \\&:= \theta_j - \alpha \sum_{i=1}^m e^{(i)} x_j^{(i)} \\&:= \theta_j - \alpha \left(x_j^{(0)}, x_j^{(1)}, \cdots, x_j^{(m)}\right) \cdot \left(e^{(0)}, e^{(1)}, \cdots, e^{(m)}\right)^T \\&:= \theta_j - \alpha \left(x_j^{(0)}, x_j^{(1)}, \cdots, x_j^{(m)}\right) \boldsymbol{E}\end{aligned}$$
 
 对所有参数$\boldsymbol{\theta}$，按照上式的形式，结合(8)~(12)式，可以写成矩阵的形式：
 

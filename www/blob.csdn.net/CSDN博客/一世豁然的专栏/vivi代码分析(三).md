@@ -4,7 +4,7 @@
 
 
 
-2015年06月14日 08:45:21[一世豁然](https://me.csdn.net/Explorer_day)阅读数：546
+2015年06月14日 08:45:21[一世豁然](https://me.csdn.net/Explorer_day)阅读数：547
 
 
 
@@ -48,8 +48,8 @@ step 5：
 
 
 
-|`ret= mtd_dev_init();`|
-|----|
+
+`ret= mtd_dev_init();`
 
 
 
@@ -58,8 +58,24 @@ step 5：
 
 
 
-|```/* * VIVI Interfaces */#ifdef CONFIG_MTDint write_to_flash(loff_t ofs,size_t len,const u_char *buf,int flag);int mtd_dev_init(void);#else#define write_to_flash(a, b, c, d)(int)(1)#define mtd_dev_init()(int)(1)#endif```|
-|----|
+
+
+```
+/*
+
+ * VIVI Interfaces
+
+ */
+#ifdef CONFIG_MTD
+int write_to_flash(loff_t ofs,size_t len,const
+ u_char *buf,int flag);
+int mtd_dev_init(void);
+#else
+#define write_to_flash(a, b, c, d)(int)(1)
+#define mtd_dev_init()(int)(1)
+#endif
+```
+
 
 
 
@@ -72,8 +88,28 @@ step 5：
 
 
 
-|```int mtd_init(void){    int ret;#ifdef CONFIG_MTD_CFI    ret = cfi_init();#endif#ifdef CONFIG_MTD_SMC    ret = smc_init();#endif#ifdef CONFIG_S3C2410_AMD_BOOT    ret = amd_init();#endif```|
-|----|
+
+
+```
+int mtd_init(void)
+{
+
+    int ret;
+
+#ifdef CONFIG_MTD_CFI
+
+    ret = cfi_init();
+#endif
+#ifdef CONFIG_MTD_SMC
+
+    ret = smc_init();
+#endif
+#ifdef CONFIG_S3C2410_AMD_BOOT
+
+    ret = amd_init();
+#endif
+```
+
 
 
 
@@ -266,8 +302,17 @@ struct nand_chip {
 
 
 
-|```mymtd= mmalloc(sizeof(struct mtd_info)+sizeof(struct nand_chip));this = (struct nand_chip *)(&mymtd[1]);```|
-|----|
+
+
+```
+mymtd= mmalloc(sizeof(struct
+ mtd_info)+
+sizeof(struct nand_chip));
+this = 
+(struct nand_chip 
+*)(&mymtd[1]);
+```
+
 
 
 
@@ -280,14 +325,27 @@ struct nand_chip {
 
 
 
-|```memset((char*)mymtd, 0,sizeof(struct mtd_info));    memset((char*)this, 0,sizeof(struct nand_chip));```|
-|----|
+
+
+```
+memset((char*)mymtd,
+ 0,sizeof(struct mtd_info));
+
+    memset((char*)this,
+ 0,sizeof(struct nand_chip));
+```
 
 
 
 
-|```mymtd->priv=this;```|
-|----|
+
+
+
+```
+mymtd->priv=
+this;
+```
+
 
 
 
@@ -300,8 +358,30 @@ struct nand_chip {
 
 
 
-|```/* set NAND Flash controller */    nfconf = NFCONF;    /* NAND Flash controller enable */    nfconf |= NFCONF_FCTRL_EN;    /* Set flash memory timing */    nfconf &=~NFCONF_TWRPH1;    /* 0x0 */    nfconf |= NFCONF_TWRPH0_3;    /* 0x3 */    nfconf &=~NFCONF_TACLS;     /* 0x0 */    NFCONF = nfconf;```|
-|----|
+
+
+```
+/* set NAND Flash controller */
+
+    nfconf = NFCONF;
+
+    /* NAND Flash controller enable */
+
+    nfconf |= NFCONF_FCTRL_EN;
+
+
+    /* Set flash memory timing */
+
+    nfconf &=~NFCONF_TWRPH1;    /* 0x0 */
+
+    nfconf |= NFCONF_TWRPH0_3;    /* 0x3 */
+
+    nfconf &=~NFCONF_TACLS;     /* 0x0 */
+
+
+    NFCONF = nfconf;
+```
+
 
 
 
@@ -310,8 +390,38 @@ struct nand_chip {
 
 
 
-|```/* Set address of NAND IO lines */    this->hwcontrol= smc_hwcontrol;    this->write_cmd= write_cmd;    this->write_addr= write_addr;    this->read_data= read_data;    this->write_data= write_data;    this->wait_for_ready= wait_for_ready;    /* Chip Enable -> RESET -> Wait for Ready -> Chip Disable */    this->hwcontrol(NAND_CTL_SETNCE);    this->write_cmd(NAND_CMD_RESET);    this->wait_for_ready();    this->hwcontrol(NAND_CTL_CLRNCE);    smc_insert(this);```|
-|----|
+
+
+```
+/* Set address of NAND IO lines */
+
+    this->hwcontrol= smc_hwcontrol;
+
+    this->write_cmd= write_cmd;
+
+    this->write_addr= write_addr;
+
+    this->read_data= read_data;
+
+    this->write_data= write_data;
+
+    this->wait_for_ready= wait_for_ready;
+
+
+    /* Chip Enable -> RESET -> Wait for Ready -> Chip Disable */
+
+    this->hwcontrol(NAND_CTL_SETNCE);
+
+    this->write_cmd(NAND_CMD_RESET);
+
+    this->wait_for_ready();
+
+    this->hwcontrol(NAND_CTL_CLRNCE);
+
+
+    smc_insert(this);
+```
+
 
 
 
@@ -320,8 +430,45 @@ struct nand_chip {
 
 
 
-|```inline intsmc_insert(struct nand_chip*this){    /* Scan to find existance of the device */    if (smc_scan(mymtd)){        return -ENXIO;    }    /* Allocate memory for internal data buffer */    this->data_buf= mmalloc(sizeof(u_char)*             (mymtd->oobblock+ mymtd->oobsize));    if (!this->data_buf){        printk("Unable to allocate NAND data buffer for S3C2410./n");        this->data_buf=NULL;        return -ENOMEM;    }    return 0;}```|
-|----|
+
+
+```
+inline 
+int
+
+smc_insert(struct nand_chip*this){
+
+    /* Scan to find existance of the device */
+
+    if (smc_scan(mymtd)){
+
+        return -ENXIO;
+
+    }
+
+    /* Allocate memory for internal data buffer */
+
+    this->data_buf= mmalloc(sizeof(u_char)*
+
+             (mymtd->oobblock+ mymtd->oobsize));
+
+
+    if (!this->data_buf){
+
+        printk("Unable to allocate NAND data buffer for S3C2410./n");
+
+        this->data_buf=
+NULL;
+
+        return -ENOMEM;
+
+    }
+
+
+    return 0;
+}
+```
+
 
 
 
@@ -490,8 +637,27 @@ mtd->flags = MTD_CAP_NANDFLASH | MTD_ECC; //填充mtd_info结构体中的函数
 
 
 
-|```struct nand_flash_dev{    char * name; //设备名    int manufacture_id; //flash的厂家ID    int model_id; //flash的设备ID    int chipshift; //片选移位数，用来构建flash的大小    char page256; //    char pageadrlen;    unsigned long erasesize;};```|
-|----|
+
+
+```
+struct nand_flash_dev{
+
+    char * name; //设备名
+
+    int manufacture_id; //flash的厂家ID
+
+    int model_id; //flash的设备ID
+
+    int chipshift; //片选移位数，用来构建flash的大小
+
+    char page256; //
+
+    char pageadrlen;
+
+    unsigned long erasesize;
+};
+```
+
 
 
 
@@ -500,8 +666,30 @@ mtd->flags = MTD_CAP_NANDFLASH | MTD_ECC; //填充mtd_info结构体中的函数
 
 
 
-|```staticstruct nand_flash_dev nand_flash_ids[]={    {"Toshiba TC5816BDC", NAND_MFR_TOSHIBA, 0x64, 21, 1, 2, 0x1000},    // 2Mb 5V````    ... ....````{"Samsung K9D1G08V0M", NAND_MFR_SAMSUNG, 0x79, 27, 0, 3, 0x4000},    // 128Mb    {NULL,}};```|
-|----|
+
+
+```
+staticstruct nand_flash_dev nand_flash_ids[]=
+{
+
+    {"Toshiba TC5816BDC", NAND_MFR_TOSHIBA, 0x64, 21,
+ 1, 2, 0x1000},    // 2Mb 5V
+```
+
+
+`    ... ....`
+
+
+```
+{"Samsung K9D1G08V0M", NAND_MFR_SAMSUNG,
+ 0x79, 27, 0, 3, 0x4000},    //
+ 128Mb
+
+
+    {NULL,}
+};
+```
+
 
 
 
@@ -526,8 +714,8 @@ step 6：
 
 
 
-|`init_priv_data();`|
-|----|
+
+`init_priv_data();`
 
 
 
@@ -536,8 +724,64 @@ step 6：
 
 
 
-|```intinit_priv_data(void){    int ret_def;#ifdef CONFIG_PARSE_PRIV_DATA    int ret_saved;#endif    ret_def = get_default_priv_data();#ifdef CONFIG_PARSE_PRIV_DATA    ret_saved = load_saved_priv_data();    if (ret_def&& ret_saved){        printk("Could not found vivi parameters./n");        return -1;    } else if (ret_saved && !ret_def){        printk("Could not found stored vivi parameters.");        printk(" Use default vivi parameters./n");    } else {        printk("Found saved vivi parameters./n");    } #else    if (ret_def){        printk("Could not found vivi parameters/n");        return -1;    } else {        printk("Found default vivi parameters/n");    }#endif    return 0;```|
-|----|
+
+
+```
+int
+
+init_priv_data(void)
+{
+
+    int ret_def;
+#ifdef CONFIG_PARSE_PRIV_DATA
+
+    int ret_saved;
+#endif
+
+    ret_def = get_default_priv_data();
+#ifdef CONFIG_PARSE_PRIV_DATA
+
+    ret_saved = load_saved_priv_data();
+
+    if (ret_def&& ret_saved){
+
+        printk("Could not found vivi parameters./n");
+
+        return -1;
+
+    } else 
+if (ret_saved 
+&& !ret_def){
+
+        printk("Could not found stored vivi parameters.");
+
+        printk(" Use default vivi parameters./n");
+
+    } else 
+{
+
+        printk("Found saved vivi parameters./n");
+
+    } 
+#else
+
+    if (ret_def){
+
+        printk("Could not found vivi parameters/n");
+
+        return -1;
+
+    } else 
+{
+
+        printk("Found default vivi parameters/n");
+
+    }
+#endif
+
+    return 0;
+```
+
 
 
 
@@ -556,8 +800,102 @@ step 6：
 
 
 
-|```static inline int get_default_priv_data(void){ if (get_default_param_tlb()) //获取默认的参数表  return NO_DEFAULT_PARAM; if (get_default_linux_cmd()) //获取到在vivi设置的linux启动命令  return NO_DEFAULT_LINUXCMD; if (get_default_mtd_partition()) //这步很重要，主要用来获取到nand flash分区表  return NO_DEFAULT_MTDPART;``````return 0;}``````int get_default_param_tlb(void){    char *src=(char*)&default_vivi_parameters;//这个默认的参数表也就是在程序中自定义的vivi_parameter_t数组，每个参数都用这样一个vivi_parameter_t来表示，default_vivi_parameters则为默认参数数组名，可以参考下面    char *dst=(char*)(VIVI_PRIV_RAM_BASE+ PARAMETER_TLB_OFFSET); //48KB的参数区域从下到上依次是16KB的mtd参数信息，16KB的参数表，16KB的linux启动命令，所以这里PARAMETER_TLB_OFFSET=16KB    int num = default_nb_params;    if (src==NULL) return-1;    /*printk("number of vivi parameters = %d/n", num); */    *(nb_params)= num;    //参数表的长度不可以超过预设内存的大小，可以看到这里每个参数都是由vivi_parameter_t结构体来定义的，这里总共有num个参数，也就对应有num个结构体``````if((sizeof(vivi_parameter_t)*num)> PARAMETER_TLB_SIZE){        printk("Error: too large partition table/n");        return -1;    }``````//首先复制magic number    memcpy(dst, vivi_param_magic, 8);``````//预留下8个字节作为扩展    dst += 16;``````//复制真正的parameter    memcpy(dst, src,(sizeof(vivi_parameter_t)*num));    return 0;}```|
-|----|
+
+
+```
+static inline int get_default_priv_data(void)
+
+{
+
+ if (get_default_param_tlb()) //获取默认的参数表
+
+  return NO_DEFAULT_PARAM;
+
+ if (get_default_linux_cmd()) //获取到在vivi设置的linux启动命令
+
+  return NO_DEFAULT_LINUXCMD;
+
+ if (get_default_mtd_partition()) //这步很重要，主要用来获取到nand flash分区表
+
+  return NO_DEFAULT_MTDPART;
+```
+
+
+
+```
+return 0;
+
+}
+```
+
+
+
+```
+int get_default_param_tlb(void)
+{
+
+    char *src=
+(char*)&default_vivi_parameters;//这个默认的参数表也就是在程序中自定义的vivi_parameter_t数组，每个参数都用这样一个vivi_parameter_t来表示，default_vivi_parameters则为默认参数数组名，可以参考下面
+
+    char *dst=
+(char*)(VIVI_PRIV_RAM_BASE+ PARAMETER_TLB_OFFSET);
+ //48KB的参数区域从下到上依次是16KB的mtd参数信息，16KB的参数表，16KB的linux启动命令，所以这里PARAMETER_TLB_OFFSET=16KB
+
+    int num = default_nb_params;
+
+
+    if (src==
+NULL) 
+return-1;
+
+
+    /*printk("number of vivi parameters = %d/n", num); */
+
+    *(nb_params)= num;
+
+
+    //参数表的长度不可以超过预设内存的大小，可以看到这里每个参数都是由vivi_parameter_t结构体来定义的，这里总共有num个参数，也就对应有num个结构体
+```
+
+
+
+```
+if((sizeof(vivi_parameter_t)*num)>
+ PARAMETER_TLB_SIZE){
+
+        printk("Error: too large partition table/n");
+
+        return -1;
+
+    }
+```
+
+
+
+```
+//首先复制magic number
+    memcpy(dst, vivi_param_magic, 8);
+```
+
+
+
+```
+//预留下8个字节作为扩展
+
+    dst += 16;
+```
+
+
+
+```
+//复制真正的parameter
+
+    memcpy(dst, src,(sizeof(vivi_parameter_t)*num));
+
+    return 0;
+}
+```
+
 
 
 
@@ -566,8 +904,20 @@ step 6：
 
 
 
-|```typedefstruct parameter{    char name[MAX_PARAM_NAME];    param_value_t value;    void (*update_func)(param_value_t value);} vivi_parameter_t;```|
-|----|
+
+
+```
+typedefstruct parameter
+{
+
+    char name[MAX_PARAM_NAME];
+
+    param_value_t value;
+
+    void (*update_func)(param_value_t value);
+} vivi_parameter_t;
+```
+
 
 
 
@@ -576,8 +926,32 @@ step 6：
 
 
 
-|```vivi_parameter_t**default_vivi_parameters**[]={    { "mach_type",            MACH_TYPE,    NULL},    { "media_type",            MT_S3C2410,    NULL},    { "boot_mem_base",        0x30000000,    NULL},    { "baudrate",            UART_BAUD_RATE,    NULL},    { "xmodem_one_nak",        0,        NULL},    { "xmodem_initial_timeout",    300000,        NULL},    { "xmodem_timeout",        1000000,    NULL},    { "ymodem_initial_timeout",    1500000,    NULL},    { "boot_delay",            0x1000000,    NULL}};```|
-|----|
+
+
+```
+vivi_parameter_t**default_vivi_parameters**[]=
+{
+
+    { "mach_type",            MACH_TYPE,    NULL},
+
+    { "media_type",            MT_S3C2410,    NULL},
+
+    { "boot_mem_base",        0x30000000,    NULL},
+
+    { "baudrate",            UART_BAUD_RATE,    NULL},
+
+    { "xmodem_one_nak",        0,        NULL},
+
+    { "xmodem_initial_timeout",    300000,        NULL},
+
+    { "xmodem_timeout",        1000000,    NULL},
+
+    { "ymodem_initial_timeout",    1500000,    NULL},
+
+    { "boot_delay",            0x1000000,    NULL}
+};
+```
+
 
 
 
@@ -590,8 +964,8 @@ step 6：
 
 
 
-|`int default_nb_params= ARRAY_SIZE(default_vivi_parameters);`|
-|----|
+
+`int default_nb_params= ARRAY_SIZE(default_vivi_parameters);`
 
 
 
@@ -600,8 +974,13 @@ step 6：
 
 
 
-|```#define ARRAY_SIZE(x)(sizeof(x)/sizeof((x)[0]))```|
-|----|
+
+
+```
+#define ARRAY_SIZE(x)(sizeof(x)/
+sizeof((x)[0]))
+```
+
 
 
 
@@ -791,8 +1170,22 @@ step 7：
 
 
 
-|```typedefstruct user_command{    const char*name;    void (*cmdfunc)(int argc, const char **);    struct user_command *next_cmd;    const char*helpstr;} user_command_t;```|
-|----|
+
+
+```
+typedefstruct user_command
+{
+
+    const char*name;
+
+    void (*cmdfunc)(int argc, const char **);
+    struct user_command 
+*next_cmd;
+
+    const char*helpstr;
+} user_command_t;
+```
+
 
 
 
@@ -801,8 +1194,22 @@ step 7：
 
 
 
-|```user_command_t help_cmd={    "help",    command_help,    NULL,    "help [{cmds}] /t/t/t-- Help about help?"};```|
-|----|
+
+
+```
+user_command_t help_cmd=
+{
+
+    "help",
+
+    command_help,
+
+    NULL,
+
+    "help [{cmds}] /t/t/t-- Help about help?"
+};
+```
+
 
 
 
@@ -811,8 +1218,58 @@ step 7：
 
 
 
-|```void command_help(int argc,constchar **argv){    user_command_t *curr;    /* help <command>. invoke <command> with 'help' as an argument */    if (argc== 2){        if (strncmp(argv[1],"help",strlen(argv[1]))== 0){            printk("Are you kidding?/n");            return;        }        argv[0]= argv[1];        argv[1]="help";        execcmd(argc, argv);        return;    }    printk("Usage:/n");    curr = head_cmd;    while(curr!=NULL) {        printk(" %s/n", curr->helpstr);        curr = curr->next_cmd;    }}```|
-|----|
+
+
+```
+void command_help(int argc,const
+char **argv)
+{
+
+    user_command_t *curr;
+
+
+    /* help <command>. invoke <command> with 'help' as an argument */
+
+    if (argc== 2){
+
+        if (strncmp(argv[1],"help",
+strlen(argv[1]))==
+ 0){
+
+            printk("Are you kidding?/n");
+
+            return;
+
+        }
+
+        argv[0]= argv[1];
+
+        argv[1]=
+"help";
+
+        execcmd(argc, argv);
+
+        return;
+
+    }
+
+
+    printk("Usage:/n");
+
+    curr = head_cmd;
+
+    while(curr!=
+NULL) 
+{
+
+        printk(" %s/n", curr->helpstr);
+
+        curr = curr->next_cmd;
+
+    }
+}
+```
+
 
 
 
@@ -821,8 +1278,32 @@ step 7：
 
 
 
-|```void add_command(user_command_t*cmd){    if (head_cmd==NULL) { //对链表的操作，表示如果当前vivi中还没有任何命令，则将新加进来的user_command_t作为链表头指针        head_cmd = tail_cmd = cmd;    } else { //如果之前就存在，则将新加进来的user_command_t结构加载链表尾端就行        tail_cmd->next_cmd= cmd;        tail_cmd = cmd;    }    /*printk("Registered '%s' command/n", cmd->name);*/}```|
-|----|
+
+
+```
+void add_command(user_command_t*cmd)
+{
+
+    if (head_cmd==
+NULL) 
+{ //对链表的操作，表示如果当前vivi中还没有任何命令，则将新加进来的user_command_t作为链表头指针
+
+        head_cmd = tail_cmd 
+= cmd;
+
+    } else 
+{ //如果之前就存在，则将新加进来的user_command_t结构加载链表尾端就行
+
+        tail_cmd->next_cmd= cmd;
+
+        tail_cmd = cmd;
+
+    }
+
+    /*printk("Registered '%s' command/n", cmd->name);*/
+}
+```
+
 
 
 

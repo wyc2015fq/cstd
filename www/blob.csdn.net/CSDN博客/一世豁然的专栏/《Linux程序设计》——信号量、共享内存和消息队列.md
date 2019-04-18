@@ -4,7 +4,7 @@
 
 
 
-2014年10月19日 00:28:03[一世豁然](https://me.csdn.net/Explorer_day)阅读数：703标签：[信号量																[共享内存																[消息队列																[linux](https://so.csdn.net/so/search/s.do?q=linux&t=blog)
+2014年10月19日 00:28:03[一世豁然](https://me.csdn.net/Explorer_day)阅读数：704标签：[信号量																[共享内存																[消息队列																[linux](https://so.csdn.net/so/search/s.do?q=linux&t=blog)
 个人分类：[liunx应用编程](https://blog.csdn.net/Explorer_day/article/category/2276817)
 
 

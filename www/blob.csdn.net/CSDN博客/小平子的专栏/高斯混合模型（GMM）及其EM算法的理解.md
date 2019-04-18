@@ -4,7 +4,7 @@
 
 
 
-2017年03月02日 18:43:36[阿拉丁吃米粉](https://me.csdn.net/jinping_shi)阅读数：106005
+2017年03月02日 18:43:36[阿拉丁吃米粉](https://me.csdn.net/jinping_shi)阅读数：106199
 
 
 
@@ -72,14 +72,14 @@ $$p(\boldsymbol{x}|z_k = 1) = \mathcal{N}(\boldsymbol{x}|\boldsymbol{\mu}_k, \bo
 $$(3)p(\boldsymbol{x}| \boldsymbol{z}) = \prod_{k=1}^K \mathcal{N}(\boldsymbol{x}|\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)^{z_k} \tag{3}$$
 上面分别给出了$p(\boldsymbol{z})$和$p(\boldsymbol{x}| \boldsymbol{z})$的形式，根据条件概率公式，可以求出$p(\boldsymbol{x})$的形式：
 
-$$(4)\begin{aligned}p(\boldsymbol{x}) &amp;= \sum_{\boldsymbol{z}} p(\boldsymbol{z}) p(\boldsymbol{x}| \boldsymbol{z}) \\&amp;= \sum_{\boldsymbol{z}} \left(\prod_{k=1}^K \pi_k^{z_k} \mathcal{N}(\boldsymbol{x}|\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)^{z_k} \right ) \\&amp;= \sum_{k=1}^K \pi_k \mathcal{N}(\boldsymbol{x}|\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k) \end{aligned} \tag{4}$$
+$$(4)\begin{aligned}p(\boldsymbol{x}) &= \sum_{\boldsymbol{z}} p(\boldsymbol{z}) p(\boldsymbol{x}| \boldsymbol{z}) \\&= \sum_{\boldsymbol{z}} \left(\prod_{k=1}^K \pi_k^{z_k} \mathcal{N}(\boldsymbol{x}|\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)^{z_k} \right ) \\&= \sum_{k=1}^K \pi_k \mathcal{N}(\boldsymbol{x}|\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k) \end{aligned} \tag{4}$$
 
 （注：上式第二个等号，对$\boldsymbol{z}$求和，实际上就是$\sum_{k=1}^K$。又因为对某个$k$，只要$i \ne k$，则有$z_i = 0$，所以$z_k=0$的项为1，可省略，最终得到第三个等号）
 
 可以看到GMM模型的(1)式与(4)式有一样的形式，且(4)式中引入了一个新的变量$\boldsymbol{z}$，通常称为**隐含变量（latent variable）**。对于图2中的数据，『隐含』的意义是：我们知道数据可以分成两类，但是随机抽取一个数据点，我们不知道这个数据点属于第一类还是第二类，它的归属我们观察不到，因此引入一个隐含变量$\boldsymbol{z}$来描述这个现象。
 
 注意到在贝叶斯的思想下，$p(\boldsymbol{z})$是先验概率， $p(\boldsymbol{x}| \boldsymbol{z})$是似然概率，很自然我们会想到求出后验概率$p(\boldsymbol{z}| \boldsymbol{x})$：
-$$(5)\begin{aligned}\gamma(z_k) &amp;= p(z_k = 1| \boldsymbol{x}) \\&amp;= \frac{p(z_k = 1) p(\boldsymbol{x}|z_k = 1)}{p(\boldsymbol{x}, z_k = 1)} \\&amp;= \frac{p(z_k = 1) p(\boldsymbol{x}|z_k = 1)}{\sum_{j=1}^K p(z_j = 1) p(\boldsymbol{x}|z_j = 1)} \\&amp;= \frac{\pi_k \mathcal{N}(\boldsymbol{x|\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k})}{\sum_{j=1}^K \pi_j \mathcal{N}(\boldsymbol{x|\boldsymbol{\mu}_j, \boldsymbol{\Sigma}_j})} \end{aligned} \tag{5}$$
+$$(5)\begin{aligned}\gamma(z_k) &= p(z_k = 1| \boldsymbol{x}) \\&= \frac{p(z_k = 1) p(\boldsymbol{x}|z_k = 1)}{p(\boldsymbol{x}, z_k = 1)} \\&= \frac{p(z_k = 1) p(\boldsymbol{x}|z_k = 1)}{\sum_{j=1}^K p(z_j = 1) p(\boldsymbol{x}|z_j = 1)} \\&= \frac{\pi_k \mathcal{N}(\boldsymbol{x|\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k})}{\sum_{j=1}^K \pi_j \mathcal{N}(\boldsymbol{x|\boldsymbol{\mu}_j, \boldsymbol{\Sigma}_j})} \end{aligned} \tag{5}$$
 
 （第2行，贝叶斯定理。关于这一行的分母，很多人有疑问，应该是$p(\boldsymbol{x}, z_k = 1)$还是$p(\boldsymbol{x})$，按照正常写法，应该是$p(\boldsymbol{x})$。但是为了强调$z_k$的取值，有的书会写成$p(\boldsymbol{x}, z_k = 1)$，比如李航的《统计学习方法》，这里就约定$p(\boldsymbol{x})$与$p(\boldsymbol{x}, z_k = 1)$是等同的）
 
@@ -144,7 +144,7 @@ EM算法估计GMM参数即最大化(8)，(10)和(12)。需要用到(5)，(8)，(
 $$\gamma(z_{nk}) = \frac{\pi_k\mathcal{N}(\boldsymbol{x}_n| \boldsymbol{\mu}_n, \boldsymbol{\Sigma}_n)}{\sum_{j=1}^K \pi_j \mathcal{N}(\boldsymbol{x}_n| \boldsymbol{\mu}_j, \boldsymbol{\Sigma}_j)}$$- **M step**
 
 根据E step中计算的$\gamma(z_{nk})$再计算新的$\pi_k$、$\boldsymbol{\mu}_k$、$\boldsymbol{\Sigma}_k$
-$$\begin{aligned}\boldsymbol{\mu}_k^{new} &amp;= \frac{1}{N_k} \sum_{n=1}^N \gamma(z_{nk}) \boldsymbol{x}_n \\\boldsymbol{\Sigma}_k^{new} &amp;= \frac{1}{N_k} \sum_{n=1}^N \gamma(z_{nk}) (\boldsymbol{x}_n - \boldsymbol{\mu}_k^{new}) (\boldsymbol{x}_n - \boldsymbol{\mu}_k^{new})^T \\\pi_k^{new} &amp;= \frac{N_k}{N}\end{aligned}$$
+$$\begin{aligned}\boldsymbol{\mu}_k^{new} &= \frac{1}{N_k} \sum_{n=1}^N \gamma(z_{nk}) \boldsymbol{x}_n \\\boldsymbol{\Sigma}_k^{new} &= \frac{1}{N_k} \sum_{n=1}^N \gamma(z_{nk}) (\boldsymbol{x}_n - \boldsymbol{\mu}_k^{new}) (\boldsymbol{x}_n - \boldsymbol{\mu}_k^{new})^T \\\pi_k^{new} &= \frac{N_k}{N}\end{aligned}$$
 
 其中：
 $$N_k = \sum_{n=1}^N \gamma(z_{nk})$$- 计算(6)式的对数似然函数

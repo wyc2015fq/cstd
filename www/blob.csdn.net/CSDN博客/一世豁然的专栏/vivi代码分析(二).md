@@ -4,7 +4,7 @@
 
 
 
-2015年06月14日 08:42:22[一世豁然](https://me.csdn.net/Explorer_day)阅读数：552
+2015年06月14日 08:42:22[一世豁然](https://me.csdn.net/Explorer_day)阅读数：553
 
 
 
@@ -35,8 +35,22 @@ stage 2：【init/main.c】
 
 
 
-|```@ get read tocall C functions        ldr sp, DW_STACK_START @ setup stack pointer        mov fp, #0 @ no previous frame, so fp=0        mov a2, #0 @ set argv to NULL        bl main @ call main```|
-|----|
+
+
+```
+@ get read tocall C functions
+
+        ldr sp, DW_STACK_START @ setup stack pointer
+
+        mov fp, #0 @ no previous frame, so fp=0
+
+        mov a2, #0 @ set argv to NULL
+
+
+        bl main @ 
+call main
+```
+
 
 
 
@@ -46,8 +60,25 @@ stage 2：【init/main.c】
 
 
 
-|```@ jump to ram        @ a technology about trampoline        ldr pc, =on_the_ramon_the_ram:        bl main        @ if main ever returns, reboot        mov pc, #FLASH_BASE```|
-|----|
+
+
+```
+@ jump to ram
+
+        @ a technology about trampoline
+
+        ldr pc, =on_the_ram
+
+
+on_the_ram:
+
+        bl main
+
+        @ if main ever returns, reboot
+
+        mov pc, #FLASH_BASE
+```
+
 
 
 
@@ -58,8 +89,134 @@ stage 2：【init/main.c】
 
 
 
-|```int main(void){        int ret;        /*         * Step 1:         * Print Vivi version information         */        putstr("/r/n");        putstr(vivi_banner);        reset_handler();        /*         * Step 2:         * initialize board environment         */        ret = board_init();        if (ret){                putstr("Failed a board_init() procedure/r/n");                error();        }        /*         * Step 3:         * MMU management         * When it's done, vivi is running on the ram and MMU is enabled.         */        mem_map_init();        mmu_init();        putstr("Succeed memory mapping./r/n");        /*          * Step 4:         * initialize the heap area         */        ret = heap_init();        if (ret){                putstr("Failed initailizing heap region/r/n");                error();        }        /*         * Step 5:         * initialize the MTD device         */        ret = mtd_dev_init();        /*         * Step 6:         * initialize the private data         */        init_priv_data();        /*         * Step 7:         * initialize the humanmachine environment         */        misc();        init_builtin_cmds();        /*         * Step 8:         * boot kernel or step into vivi         */        boot_or_vivi();        return 0;}```|
-|----|
+
+
+```
+int main(void)
+{
+
+        int ret;
+
+
+        /*
+
+         * Step 1:
+
+         * Print Vivi version information
+
+         */
+
+        putstr("/r/n");
+
+        putstr(vivi_banner);
+
+        reset_handler();
+
+        /*
+
+         * Step 2:
+
+         * initialize board environment
+
+         */
+
+        ret = board_init();
+
+        if (ret){
+
+                putstr("Failed a board_init() procedure/r/n");
+
+                error();
+
+        }
+
+
+        /*
+
+         * Step 3:
+
+         * MMU management
+
+         * When it's done, vivi is running on the ram and MMU is enabled.
+
+         */
+
+        mem_map_init();
+
+        mmu_init();
+
+        putstr("Succeed memory mapping./r/n");
+
+
+        /* 
+
+         * Step 4:
+
+         * initialize the heap area
+
+         */
+
+        ret = heap_init();
+
+        if (ret){
+
+                putstr("Failed initailizing heap region/r/n");
+
+                error();
+
+        }
+
+
+        /*
+
+         * Step 5:
+
+         * initialize the MTD device
+
+         */
+
+        ret = mtd_dev_init();
+
+
+        /*
+
+         * Step 6:
+
+         * initialize the private data
+
+         */
+
+        init_priv_data();
+
+
+        /*
+
+         * Step 7:
+
+         * initialize the humanmachine environment
+
+         */
+
+        misc();
+
+        init_builtin_cmds();
+
+
+        /*
+
+         * Step 8:
+
+         * boot kernel or step into vivi
+
+         */
+
+        boot_or_vivi();
+
+
+        return 0;
+}
+```
+
 
 
 
@@ -74,8 +231,17 @@ stage 2：【init/main.c】
 
     源代码step 1部分如下：
 
-|```putstr("/r/n");putstr(vivi_banner);reset_handler();```|
-|----|
+
+
+```
+putstr("/r/n");
+
+putstr(vivi_banner);
+
+
+reset_handler();
+```
+
 
 
 
@@ -84,8 +250,21 @@ stage 2：【init/main.c】
 
 
 
-|```#include"version.h"#include "compile.h"const char *vivi_banner =                       "VIVI version " VIVI_RELEASE" (" VIVI_COMPILE_BY"@"                       VIVI_COMPILE_HOST ") (" VIVI_COMPILER") " UTS_VERSION"/r/n";```|
-|----|
+
+
+```
+#include"version.h"
+#include 
+"compile.h"
+
+const char 
+*vivi_banner =
+
+                       "VIVI version " VIVI_RELEASE" (" VIVI_COMPILE_BY"@"
+
+                       VIVI_COMPILE_HOST ") (" VIVI_COMPILER") " UTS_VERSION"/r/n";
+```
+
 
 
 
@@ -105,8 +284,21 @@ include/version.h:
 
 
 
-|```#include"compile.h"const char *vivi_banner =                        "/r/n/t^_^ Well done, boy! Go on -->/r/n"                        "VIVI version " VIVI_RELEASE" (" VIVI_COMPILE_BY"@"                        VIVI_COMPILE_HOST ") (" VIVI_COMPILER") " UTS_VERSION"/r/n";```|
-|----|
+
+
+```
+#include"compile.h"
+
+const char 
+*vivi_banner =
+
+                        "/r/n/t^_^ Well done, boy! Go on -->/r/n"
+
+                        "VIVI version " VIVI_RELEASE" (" VIVI_COMPILE_BY"@"
+
+                        VIVI_COMPILE_HOST ") (" VIVI_COMPILER") " UTS_VERSION"/r/n";
+```
+
 
 
 
@@ -115,8 +307,38 @@ include/version.h:
 
 
 
-|```【lib/reset_handle.c】voidreset_handler(void){    int pressed;    pressed = is_pressed_pw_btn();    if (pressed== PWBT_PRESS_LEVEL){        DPRINTK("HARD RESET/r/n");        hard_reset_handle();    } else {        DPRINTK("SOFT RESET/r/n");        soft_reset_handle();    }}```|
-|----|
+
+
+```
+【lib/reset_handle.c】
+void
+
+reset_handler(void)
+{
+
+    int pressed;
+
+
+    pressed = is_pressed_pw_btn();
+
+
+    if (pressed== PWBT_PRESS_LEVEL){
+
+        DPRINTK("HARD RESET/r/n");
+
+        hard_reset_handle();
+
+    } else 
+{
+
+        DPRINTK("SOFT RESET/r/n");
+
+        soft_reset_handle();
+
+    }
+}
+```
+
 
 
 
@@ -124,8 +346,43 @@ include/version.h:
     首先看一下is_pressed_pw_btn，按照函数字面意思，应该是判断电源复位键是否按下，**如果按下，则证明是硬复位**；如果没有检测到键按下，那么就是软复位。具体代码如下：
 
 
-|```staticintis_pressed_pw_btn(void){    return read_bt_status();}--> read_bt_statusstatic intread_bt_status(void){    ulong status;    //status = ((GPLR & (1 << GPIO_PWBT)) >> GPIO_PWBT);    **status = ((PWBT_REG & (1 << PWBT_GPIO_NUM)) >> PWBT_GPIO_NUM);**        if (status)        return HIGH;    else        return LOW;}```|
-|----|
+
+
+```
+staticint
+
+is_pressed_pw_btn(void)
+{
+
+    return read_bt_status();
+}
+
+--> read_bt_status
+
+static int
+
+read_bt_status(void)
+{
+
+    ulong status;
+
+
+    //status = ((GPLR & (1 << GPIO_PWBT)) >> GPIO_PWBT);
+
+
+    **status = ((PWBT_REG & (1 << PWBT_GPIO_NUM)) >> PWBT_GPIO_NUM);**
+    
+
+    if (status)
+
+        return HIGH;
+
+    else
+
+        return LOW;
+}
+```
+
 
 
 
@@ -134,8 +391,16 @@ include/version.h:
 
 
 
-|```#ifdef CONFIG_RESET_HANDLINGvoid reset_handler(void);#else#define reset_handler()    (void)(0)#endif```|
-|----|
+
+
+```
+#ifdef CONFIG_RESET_HANDLING
+void reset_handler(void);
+#else
+#define reset_handler()    (void)(0)
+#endif
+```
+
 
 
 
@@ -143,8 +408,43 @@ include/version.h:
     很显然，在配置的时候，CONFIG_RESET_HANDLING是没有定义的，那么reset_handler()为空，也就是说这部分根本就是空代码，并没有实际执行功能。如果还不放心，那就做测试，如果把CONFIG_RESET_HANDLING选中（具体是把General setup部分的support reset handler选中），那么就会出现错误：
 
 
-|```reset_handle.c: In function `read_bt_status':reset_handle.c:31: `PWBT_REG' undeclared (first use inthis function)reset_handle.c:31:(Each undeclared identifier is reported only oncereset_handle.c:31:for each function it appears in.)reset_handle.c:31: `PWBT_GPIO_NUM' undeclared (first use in this function)reset_handle.c:28: warning: `status' might be used uninitialized in this functionreset_handle.c: In function `hard_reset_handle':reset_handle.c:52: `USER_RAM_BASE' undeclared (first use in this function)reset_handle.c:52: `USER_RAM_SIZE' undeclared (first use in this function)reset_handle.c: In function `reset_handler':reset_handle.c:68: `PWBT_PRESS_LEVEL' undeclared (first use in this function)make[2]: *** [reset_handle.o] Error 1make[2]: Leaving directory `/home/armlinux/embedded_Linux/s3c2410/bootloader/m-boot-1.0.0/lib'make[1]:***[first_rule]Error 2make[1]: Leaving directory `/home/armlinux/embedded_Linux/s3c2410/bootloader/m-boot-1.0.0/lib```|
-|----|
+
+
+```
+reset_handle.c: In function `read_bt_status':
+
+reset_handle.c:31: `PWBT_REG' undeclared (first use inthis function)
+
+reset_handle.c:31:(Each undeclared identifier is reported only once
+
+reset_handle.c:31:for each function it appears in.)
+
+reset_handle.c:31: `PWBT_GPIO_NUM' undeclared (first use in this function)
+
+reset_handle.c:28: warning: `status' might be used uninitialized in 
+this function
+
+reset_handle.c: In function `hard_reset_handle':
+
+reset_handle.c:52: `USER_RAM_BASE' undeclared 
+(first use in this function)
+
+reset_handle.c:52: `USER_RAM_SIZE' undeclared (first use in this function)
+
+reset_handle.c: In function `reset_handler':
+
+reset_handle.c:68: `PWBT_PRESS_LEVEL' undeclared (first use in this function)
+
+make[2]: *** [reset_handle.o] Error 1
+
+make[2]: Leaving directory `/home/armlinux/embedded_Linux/s3c2410/bootloader/m-boot-1.0.0/lib'
+
+make[1]:***[first_rule]Error
+ 2
+
+make[1]: Leaving directory `/home/armlinux/embedded_Linux/s3c2410/bootloader/m-boot-1.0.0/lib
+```
+
 
 
 
@@ -464,8 +764,16 @@ static inline int mmalloc_init(unsigned char *heap, unsigned long size)
     实现了printk，往往需要封装一个调试宏。在【lib/heap.c】中和其他一些文件中，调试宏都是这样的形式：
 
 
-|```#ifdef DEBUG_HEAP#define DPRINTK(args...)    printk(##args)#else#define DPRINTK(args...)#endif```|
-|----|
+
+
+```
+#ifdef DEBUG_HEAP
+#define DPRINTK(args...)    printk(##args)
+#else
+#define DPRINTK(args...)
+#endif
+```
+
 
 
 
@@ -476,8 +784,24 @@ static inline int mmalloc_init(unsigned char *heap, unsigned long size)
 
 
 
-|```[armlinux@lqm printk_test]$ makegcc -Wall -g-O2-c-o printk.o printk.cgcc -Wall -g-O2-c-otest.otest.cgcc -Wall -g-O2 printk.otest.o-otest[armlinux@lqm printk_test]$ lsMakefile printk.c printk.h printk.otesttest.ctest.o[armlinux@lqm printk_test]$./testtest: i = 5, j = 10```|
-|----|
+
+
+```
+[armlinux@lqm printk_test]$ make
+
+gcc -Wall -g-O2-c-o printk.o printk.c
+
+gcc -Wall -g-O2-c-otest.otest.c
+
+gcc -Wall -g-O2 printk.otest.o-otest
+[armlinux@lqm printk_test]$ ls
+
+Makefile printk.c printk.h printk.otesttest.ctest.o
+[armlinux@lqm printk_test]$./test
+test: i 
+= 5, j = 10
+```
+
 
 
 
@@ -486,8 +810,27 @@ static inline int mmalloc_init(unsigned char *heap, unsigned long size)
 
 
 
-|```[armlinux@lqm printk_test]$ makegcc -Wall -g-O2-c-o printk.o printk.cgcc -Wall -g-O2-c-otest.otest.ctest.c:23:47: warning: pasting"("and""test: i=%d, j=%d/n"" doesnot give a valid preprocessing tokengcc -Wall -g-O2 printk.otest.o-otest[armlinux@lqm printk_test]$ lsMakefile printk.c printk.h printk.otesttest.ctest.o[armlinux@lqm printk_test]$./testtest: i = 5, j = 10```|
-|----|
+
+
+```
+[armlinux@lqm printk_test]$ make
+
+gcc -Wall -g-O2-c-o printk.o printk.c
+
+gcc -Wall -g-O2-c-otest.otest.c
+test.c:23:47: warning: pasting"("and""test:
+ i=%d, j=%d/n"" doesnot
+ give a valid preprocessing token
+
+gcc -Wall -g-O2 printk.otest.o-otest
+[armlinux@lqm printk_test]$ ls
+
+Makefile printk.c printk.h printk.otesttest.ctest.o
+[armlinux@lqm printk_test]$./test
+test: i 
+= 5, j = 10
+```
+
 
 
 
@@ -495,8 +838,17 @@ static inline int mmalloc_init(unsigned char *heap, unsigned long size)
     可见第二种方式是不合适的。于是修改如下：
 
 
-|```#ifdef DEBUG_HEAP#define DPRINTK(fmt, args...) printk(fmt,##args)#else#define DPRINTK(fmt, args...)#endif```|
-|----|
+
+
+```
+#ifdef DEBUG_HEAP
+#define DPRINTK(fmt, args...)
+ printk(fmt,##args)
+#else
+#define DPRINTK(fmt, args...)
+#endif
+```
+
 
 
 

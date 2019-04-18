@@ -4,7 +4,7 @@
 
 
 
-2017年02月16日 09:05:27[一世豁然](https://me.csdn.net/Explorer_day)阅读数：275标签：[ffmpeg																[视频](https://so.csdn.net/so/search/s.do?q=视频&t=blog)](https://so.csdn.net/so/search/s.do?q=ffmpeg&t=blog)
+2017年02月16日 09:05:27[一世豁然](https://me.csdn.net/Explorer_day)阅读数：276标签：[ffmpeg																[视频](https://so.csdn.net/so/search/s.do?q=视频&t=blog)](https://so.csdn.net/so/search/s.do?q=ffmpeg&t=blog)
 个人分类：[ffmpeg](https://blog.csdn.net/Explorer_day/article/category/6289310)
 
 

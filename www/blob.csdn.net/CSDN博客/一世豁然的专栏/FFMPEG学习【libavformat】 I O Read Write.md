@@ -4,7 +4,7 @@
 
 
 
-2017年06月14日 14:42:58[一世豁然](https://me.csdn.net/Explorer_day)阅读数：348
+2017年06月14日 14:42:58[一世豁然](https://me.csdn.net/Explorer_day)阅读数：349
 
 
 
@@ -16,9 +16,7 @@
 一、头文件
 
 
-|[avio.h](http://ffmpeg.org/doxygen/trunk/avio_8h.html)|
-|----|
-
+[avio.h](http://ffmpeg.org/doxygen/trunk/avio_8h.html)
 
 
 二、目录列表

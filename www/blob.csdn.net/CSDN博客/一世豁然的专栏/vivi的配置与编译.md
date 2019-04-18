@@ -4,7 +4,7 @@
 
 
 
-2015年06月15日 20:31:08[一世豁然](https://me.csdn.net/Explorer_day)阅读数：763
+2015年06月15日 20:31:08[一世豁然](https://me.csdn.net/Explorer_day)阅读数：764
 
 
 
@@ -272,16 +272,126 @@ Add   Built   –   in   Command     //内部命令  
 
 
 
-|```LINUX_INCLUDE_DIR    = /usr/local/arm/2.95.3/include/CROSS_COMPILE = /usr/local/arm/2.95.3/bin/arm-linux-ARM_GCC_LIBS    = /usr/local/arm/2.95.3/lib/gcc-lib/arm-linux/2.95.3```|
-|----|
+
+
+```
+LINUX_INCLUDE_DIR    = /usr/local/arm/2.95.3/include/
+
+CROSS_COMPILE = /usr/local/arm/2.95.3/bin/arm-linux-
+
+ARM_GCC_LIBS    = /usr/local/arm/2.95.3/lib/gcc-lib/arm-linux/2.95.3
+```
+
 
 
 需要注意的是，vivi-20030629.tar.bz2这般的vivi只支持编译器为2.95.3,这是在嵌入式开发当中经常遇到的问题，如果 Makefile没有问题，而编译又不能正常进行，首先需要想到的就是编译器的版本问题，这个版本的vivi使用3.4.1的编译器是不能正常编译的，应 为我们要把vivi放到arm平台上运行，所以需要把arm相关的库文件，这就需要在Makefile中制定这些库文件存储的地方。做完这些，基本上就可 以了。
 
 
    我们在看看vivi中关于flash的分区，在vivi中受用part show，可以看到有一下几个分区： vivi  param kernel  root  usr ,这些分区信息定义在下边的结构体当中：
-|```vivi/arch/s3c2410/smdk.c``````#ifdef CONFIG_S3C2410_NAND_BOOTmtd_partition_t default_mtd_partitions[] = {    {        name:        "vivi",        offset:        0,        size:        0x00020000,        flag:        0    }, {        name:        "param",        offset:        0x00020000,        size:        0x00010000,        flag:        0    }, {        name:        "kernel",        offset:        0x00030000,        size:        0x000C0000,        flag:        0    }, {        name:        "root",        offset:        0x00100000,        size:        0x00140000,        flag:        MF_BONFS    }};#endif#ifdef CONFIG_S3C2410_AMD_BOOTmtd_partition_t default_mtd_partitions[] = {    {        name:        "vivi",        offset:        0,        size:        0x00020000,        flag:        0    }, {        name:        "param",        offset:        0x00020000,        size:        0x00010000,        flag:        0    }, {        name:        "kernel",        offset:        0x00030000,        size:        0x000C0000,        flag:        0    }, {        name:        "root",        offset:        0x00100000,        size:        0x00140000,        flag:        MF_BONFS    }};```|
-|----|
+
+
+```
+vivi/arch/s3c2410/smdk.c
+```
+
+
+
+```
+#ifdef CONFIG_S3C2410_NAND_BOOT
+
+mtd_partition_t default_mtd_partitions[] = {
+
+    {
+
+        name:        "vivi",
+
+        offset:        0,
+
+        size:        0x00020000,
+
+        flag:        0
+
+    }, {
+
+        name:        "param",
+
+        offset:        0x00020000,
+
+        size:        0x00010000,
+
+        flag:        0
+
+    }, {
+
+        name:        "kernel",
+
+        offset:        0x00030000,
+
+        size:        0x000C0000,
+
+        flag:        0
+
+    }, {
+
+        name:        "root",
+
+        offset:        0x00100000,
+
+        size:        0x00140000,
+
+        flag:        MF_BONFS
+
+    }
+};
+#endif
+#ifdef CONFIG_S3C2410_AMD_BOOT
+
+mtd_partition_t default_mtd_partitions[] = {
+
+    {
+
+        name:        "vivi",
+
+        offset:        0,
+
+        size:        0x00020000,
+
+        flag:        0
+
+    }, {
+
+        name:        "param",
+
+        offset:        0x00020000,
+
+        size:        0x00010000,
+
+        flag:        0
+
+    }, {
+
+        name:        "kernel",
+
+        offset:        0x00030000,
+
+        size:        0x000C0000,
+
+        flag:        0
+
+    }, {
+
+        name:        "root",
+
+        offset:        0x00100000,
+
+        size:        0x00140000,
+
+        flag:        MF_BONFS
+
+    }
+};
+```
+
 
 
 在上边的分区表可以看出，这些分区在flash中成线性排列的。这样，这里的这些数据是mizi公司推荐使用smdk开发板的用户的数据，当然可以 根据自己的需要来修改各个分区的大小了。这里的offset是相对于flash起始地址0而言，自己的相对地址，其实就是实际地址，而size就是这个分 区实际占据的大小了。 

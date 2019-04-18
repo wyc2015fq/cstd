@@ -4,7 +4,7 @@
 
 
 
-2016年09月04日 18:27:21[阿拉丁吃米粉](https://me.csdn.net/jinping_shi)阅读数：32725标签：[python																[并行																[多进程](https://so.csdn.net/so/search/s.do?q=多进程&t=blog)
+2016年09月04日 18:27:21[阿拉丁吃米粉](https://me.csdn.net/jinping_shi)阅读数：32783标签：[python																[并行																[多进程](https://so.csdn.net/so/search/s.do?q=多进程&t=blog)
 
 
 
