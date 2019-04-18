@@ -1,15 +1,6 @@
 # 华为软件精英挑战赛及最短路径dijkstra源代码 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月23日 09:06:15[hustlx](https://me.csdn.net/HUSTLX)阅读数：1049
-
-
-
-
-
+2016年03月23日 09:06:15[hustlx](https://me.csdn.net/HUSTLX)阅读数：1052
 
 
 前言
@@ -44,8 +35,6 @@
 
 以两个.csv 文件(csv 是以逗号为分隔符的文本文件)给出输入数据，一个为图的数据(G)，一个为需要计算的路径信息(s,t,V')。文件每行以换行符(ASCII'\n'即0x0a)为结尾。
 
-
-
 1）图的数据中，每一行包含如下的信息：
 
 LinkID,SourceID,DestinationID,Cost
@@ -68,12 +57,7 @@ SourceID,DestinationID,IncludingSet
 
 3）只允许输出最多一条有向路径。
 
-
-
-
 这个题有点类似TSP问题即著名的旅行商问题，这是一个NP难问题，下面给出基于本题的单源最短路径dijkstra算法，作为抛砖引玉，但完整解决此题需要更深一步考虑必须经过给定节点和所有节点最多一次，完全的TSP问题有多种解法，常见的有动态规划、遗传算法等
-
-
 
 ```cpp
 #include <vector>
@@ -145,8 +129,4 @@ int main() {
     int mindist = dijkstra(graph, 0, 18);
 }
 ```
-
-
-
-
 

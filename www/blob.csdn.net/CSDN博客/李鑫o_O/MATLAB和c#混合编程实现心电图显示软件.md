@@ -1,19 +1,6 @@
 # MATLAB和c#混合编程实现心电图显示软件 - 李鑫o_O - CSDN博客
 
-
-
-
-
-置顶2016年03月10日 20:32:54[hustlx](https://me.csdn.net/HUSTLX)阅读数：2285
-
-
-
-
-
-
-
-
-
+置顶2016年03月10日 20:32:54[hustlx](https://me.csdn.net/HUSTLX)阅读数：2288
 
 
 
@@ -66,15 +53,7 @@ end
 
 ![clip_image004](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311104757679-1443352393.jpg)
 
-
-
 ![clip_image005](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311104759757-1264789899.gif)![clip_image007](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311104807085-414597941.jpg)
-
-
-
-
-
-
 
 
 （3）新建了一个叫matPrj的工程（它相当于c#中的命名空间namespace）；然后给它增加class或类（它就是c#中的类），点[add
@@ -102,12 +81,6 @@ end
 ![clip_image021](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311104844554-1919208948.gif)![clip_image022](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311104845116-304053970.gif)![clip_image024](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311104846038-1405659270.jpg)
 
 ![clip_image026](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311104847241-724437017.jpg)
-
-
-
-
-
-
 
 
 
@@ -280,11 +253,7 @@ C#有很方便的界面设计平台。下图是我最后完成的效果：
 
 ![clip_image031](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311104851913-236109740.jpg)
 
-
-
 我实现了心电曲线的实时绘制，正常QT间期范围设置、QT间期、QR间期的实时显示、可以显示一分钟之内的平均QT间期、QT间期状态一栏可实现间期预警，如果QT间期大于正常QT间期范围则状态颜色由绿色变成红色。用了一个100ms的定时器，每次100ms之后触发一次画图，让曲线往右移一格，由于100ms很短，所以在视觉上形成了连续移动的效果。核心代码如下：
-
-
 
 ```
 using System;
@@ -447,42 +416,20 @@ namespace MsPaint
 ```
 
 
-
-
-
-
 ## 2.2软件的使用
-
-
 
 在\MsPaint\bin\Debug目录下，双击：实时绘制曲线.exe运行如下图：
 
-
-
 ![clip_image033](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311104906132-1018625572.jpg)
-
-
 
 单击：文件-打开
 
 ![clip_image035](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311104906897-1275203812.jpg)
 
-
-
 由于我们只做了最后一个的处理，故只能选择最后一个打开，打开之后则可看到程序运行效果：
-
-
 
 ![clip_image037](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311104907804-849570403.jpg)
 
 
-
-
-
-
-
 项目github：[https://github.com/HUSTLX/electrocardiogram](https://github.com/HUSTLX/electrocardiogram)
-
-
-
 

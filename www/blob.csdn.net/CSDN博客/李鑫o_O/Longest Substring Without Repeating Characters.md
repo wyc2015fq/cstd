@@ -1,16 +1,6 @@
 # Longest Substring Without Repeating Characters - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月14日 22:10:56[hustlx](https://me.csdn.net/HUSTLX)阅读数：205
-
-
-
-
-
-
+2016年03月14日 22:10:56[hustlx](https://me.csdn.net/HUSTLX)阅读数：206
 
 
 ```python
@@ -37,7 +27,4 @@ int main() {
     int res=lengthOfLongestSubstring(b);
 }</span>
 ```
-
-
-
 

@@ -59,7 +59,7 @@ def save_txt(fn, s):
 def save_txt_td(root, t, d):
     if len(t)<2:
         return
-    if len(d)<2:
+    if len(d)<100:
         return
 
     if t.find('随笔列表第')>=0:
@@ -75,7 +75,7 @@ def save_txt_td(root, t, d):
         delimt='_'
     cc = t.count(delimt)
     t = t.replace('/', ' ').replace('\\', ' ').replace('*', ' ').replace('?', ' ')
-    t = t.replace('.', ' ').replace('|', ' ').replace('"', ' ')
+    t = t.replace('|', ' ').replace('"', ' ')
     t = t.replace(':', ' ').replace('>', ' ').replace('<', ' ')
     t = t.replace('~', ' ').replace('"', ' ').replace('\t', ' ')
     t = t.replace('  ', ' ')

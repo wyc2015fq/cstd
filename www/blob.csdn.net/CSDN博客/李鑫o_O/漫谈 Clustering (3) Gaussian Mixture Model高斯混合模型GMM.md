@@ -1,15 +1,6 @@
 # 漫谈 Clustering (3): Gaussian Mixture Model高斯混合模型GMM - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年05月13日 13:02:36[hustlx](https://me.csdn.net/HUSTLX)阅读数：1436
-
-
-
-
-
+2016年05月13日 13:02:36[hustlx](https://me.csdn.net/HUSTLX)阅读数：1437
 
 
 [漫谈 Clustering (3): Gaussian Mixture Model](http://blog.pluskid.org/?p=39)
@@ -47,8 +38,6 @@
 当然，上面给出的只是比较“直观”的解释，想看严格的推到过程的话，可以参考 *Pattern Recognition and Machine Learning* 这本书的第九章。有了实际的步骤，再实现起来就很简单了。Matlab 代码如下：
 
 （Update 2012.07.03：如果你直接把下面的代码拿去运行了，碰到 covariance 矩阵 singular 的情况，可以参见[这篇文章](http://freemind.pluskid.org/machine-learning/regularized-gaussian-covariance-estimation/)。）
-
-
 
 ```cpp
 function varargout = gmm(X, K_or_centroids)
@@ -155,8 +144,6 @@ function varargout = gmm(X, K_or_centroids)
 end
 ```
 
-
-
 函数返回的 `Px` 是一个 ![N\times K](http://blog.pluskid.org/latexrender/pictures/3b4896f081441931f409246050d9cd97.png) 的矩阵，对于每一个 ![x_i](http://blog.pluskid.org/latexrender/pictures/1ba8aaab47179b3d3e24b0ccea9f4e30.png) ，我们只要取该矩阵第 ![i](http://blog.pluskid.org/latexrender/pictures/865c0c0b4ab0e063e5caa3387c1a8741.png) 行中最大的那个概率值所对应的那个
  Component 为 ![x_i](http://blog.pluskid.org/latexrender/pictures/1ba8aaab47179b3d3e24b0ccea9f4e30.png) 所属的 cluster 就可以实现一个完整的聚类方法了。对于最开始的那个例子，GMM 给出的结果如下：
 
@@ -170,6 +157,4 @@ end
  GMM 进行细致迭代。
 
 如我们最开始所讨论的，GMM 所得的结果（`Px`）不仅仅是数据点的 label ，而包含了数据点标记为每个 label 的概率，很多时候这实际上是非常有用的信息。最后，需要指出的是，GMM 本身只是一个模型，我们这里给出的迭代的办法并不是唯一的求解方法。感兴趣的同学可以自行查找相关资料。
-
-
 

@@ -1,16 +1,6 @@
 # two sum - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月08日 09:34:56[hustlx](https://me.csdn.net/HUSTLX)阅读数：265
-
-
-
-
-
-
+2016年03月08日 09:34:56[hustlx](https://me.csdn.net/HUSTLX)阅读数：266
 
 
 ```cpp
@@ -40,8 +30,4 @@ int main() {
     vector<int> re = twoSum(nums, target);
 }</span>
 ```
-
-
-
-
 

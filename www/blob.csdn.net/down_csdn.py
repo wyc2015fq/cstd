@@ -46,11 +46,11 @@ def down_csdn_list_one(url, aa):
 def getlist_zhihu(url):
     data = getdata1(url)
     #save_txt('test1.html', data)
-    tt = data.replace('[', '[\n').replace(']', '\n').split('\n')
-    c = -1
+    tt = data.replace('[', '\n').replace(']', '\n').split('\n')
+    c = 0
     t = ''
     for i in (tt):
-        cc = i.count('null')
+        cc = i.count('null,null')+i.count('false,false')
         if cc>c:
             c = cc
             t = i
@@ -71,6 +71,26 @@ def getlist_sciencenet(url):
             ll.append('http://blog.sciencenet.cn/'+i)
     return ll
 
+def getlist_sina(url):
+    data = getdata(url)
+    tt = data.replace('"', '\n').split('\n')
+    ll=[]
+    for i in tt:
+        if i.find('/s/blog_')>0:
+            ll.append(i)
+    return ll
+
+def getlist_jobbole(url):
+    data = getdata(url)
+    aa='//div[@class="post-thumb"]/a/@href'
+    html = etree.HTML(data)
+    tt = html.xpath(aa)
+    ll=[]
+    for i in tt:
+        if i.find('//blog.jobbole.com')>0:
+            ll.append(i)
+    return ll
+
 def getlist_cnblogs(url):
     data = getdata(url)
     if 0:
@@ -88,17 +108,20 @@ def getlist_cnblogs(url):
 
 
 
-def down_list_one(url, getlist):
-    ll=getlist(url)
+def down_list_one(url, getlist, ll1):
+    ll0=getlist(url)
+    ll0=set(ll0+ll1)
+    ll = list(ll0-set(ll1))
     for li in ll:
         down_csdn_one(li)
-    return ll
+    return ll, list(ll0)
 
 def down_list(urllist, getlist):
     tt = 0
+    ll1=[]
     for url in urllist:
         print('------', url)
-        ll = down_list_one(url, getlist)
+        ll, ll1 = down_list_one(url, getlist, ll1)
         if len(ll)<5:
             tt+=1
         else:
@@ -152,7 +175,7 @@ if __name__ == '__main__':
                 down_csdn_one(url)
     elif url.find('www.cnblogs.com')>0:
         temp='%s=%d'
-        if url.find('/articles/')>0 or url.find('/p/')>0 or url.find('/archive/')>0:
+        if url.find('/articles/')>0 or url.find('/archive/')>0:
             down_csdn_one(url)
         else:
             url = '/'.join(url.split('/')[0:4])
@@ -174,12 +197,29 @@ if __name__ == '__main__':
             down_list(urllist, getlist_sciencenet)
         else:
             down_csdn_one(url)
+    elif url.find('blog.sina.com.cn')>0:
+        if url.find('/s/articlelist_')>0:
+            url = '_'.join(url.split('_')[0:3])
+            url += '_'
+            urllist = map(lambda i:url+str(i)+'.html', range(1,1000))
+            urllist = list(urllist)
+            down_list(urllist, getlist_sina)
+        else:
+            down_csdn_one(url)
+    elif url.find('blog.jobbole.com')>0:
+        if url.find('/category')>0:
+            url = '/'.join(url.split('/')[0:5])
+            url += '/page/'
+            urllist = map(lambda i:url+str(i)+'/', range(1,1000))
+            urllist = list(urllist)
+            down_list(urllist, getlist_jobbole)
+        else:
+            down_csdn_one(url)
     elif url.find('zhihu.com')>0:
         if url.find('/people/')>0 or url.find('/org/')>0:
             url = '/'.join(url.split('/')[0:5])
             url += '/posts?page='
-            urllist = map(lambda i:url+str(i), range(1,1000))
-            urllist = list(urllist)
+            urllist = list(map(lambda i:url+str(i), range(1,1000)))
             down_list(urllist, getlist_zhihu)
         down_csdn_one(url)
     else:

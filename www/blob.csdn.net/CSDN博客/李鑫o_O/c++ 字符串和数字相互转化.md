@@ -1,16 +1,6 @@
 # c++ 字符串和数字相互转化 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月07日 16:24:53[hustlx](https://me.csdn.net/HUSTLX)阅读数：829
-
-
-
-
-
-
+2016年03月07日 16:24:53[hustlx](https://me.csdn.net/HUSTLX)阅读数：832
 
 
        在C++11中string 类中有stoi、stod、stof、stol和stoll等函数分别是把字符串转化为int、double、float、long和long、long型。
@@ -18,8 +8,6 @@
        而数字转字符串则用to_string
 
        用法举例如下：
-
-
 
 ```cpp
 #include <iostream>   // std::cout
@@ -34,10 +22,7 @@ int main ()
 }
 ```
 
-
 另外，stoi还可以指定向2、8、10、16进制转化：
-
-
 
 ```cpp
 // stoi example
@@ -66,12 +51,6 @@ int main ()
   return 0;
 }
 ```
-
-
-
-
-
-
 
 
 

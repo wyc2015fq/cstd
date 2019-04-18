@@ -1,16 +1,6 @@
 # webrtc交互清单 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2016年12月12日 09:23:04[露蛇](https://me.csdn.net/tifentan)阅读数：520
-
-
-
-
-
-
+2016年12月12日 09:23:04[露蛇](https://me.csdn.net/tifentan)阅读数：521
 
 
 根据http://www.blogjava.net/linli/archive/2014/10/21/418910.html的例子调试。
@@ -485,7 +475,4 @@ received (first socket):  { event: '_ice_candidate',
         sdpMid: 'video',
 
         sdpMLineIndex: 1 } } }
-
-
-
 

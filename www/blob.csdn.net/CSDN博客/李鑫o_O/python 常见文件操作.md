@@ -1,16 +1,6 @@
 # python 常见文件操作 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2017年09月29日 16:51:45[hustlx](https://me.csdn.net/HUSTLX)阅读数：277
-
-
-
-
-
-
+2017年09月29日 16:51:45[hustlx](https://me.csdn.net/HUSTLX)阅读数：278
 
 
                 
@@ -32,7 +22,6 @@ Python常见文件操作示例 
 
     splitext() 返回 (filename, extension) 元组 
 
-
     信息 
 
     getatime() 返回最近访问时间 
@@ -42,7 +31,6 @@ Python常见文件操作示例 
     getmtime() 返回最近文件修改时间 
 
     getsize() 返回文件大小(以字节为单位) 
-
 
     查询 
 
@@ -59,7 +47,6 @@ Python常见文件操作示例 
     ismount() 指定路径是否存在且为一个挂载点 
 
     samefile() 两个路径名是否指向同个文件 
-
 
     os.path.isdir(name):判断name是不是一个目录，name不是目录就返回false 
 
@@ -83,8 +70,6 @@ Python常见文件操作示例 
 
     os.path.dirname(path):返回文件路径 
 
-
-
     os模块中的文件操作： 
 
     os 模块属性 
@@ -99,122 +84,84 @@ Python常见文件操作示例 
 
     pardir (当前工作目录的)父目录字符串名称 
 
-
     1.重命名：os.rename(old, new) 
-
 
     2.删除：os.remove(file) 
 
-
     3.列出目录下的文件：os.listdir(path) 
-
 
     4.获取当前工作目录：os.getcwd() 
 
-
     5.改变工作目录：os.chdir(newdir) 
-
 
     6.创建多级目录：os.makedirs(r"c:\python\test") 
 
-
     7.创建单个目录：os.mkdir("test") 
-
 
     8.删除多个目录：os.removedirs(r"c:\python") #删除所给路径最后一个目录下所有空目录。 
 
-
     9.删除单个目录：os.rmdir("test") 
-
 
     10.获取文件属性：os.stat(file) 
 
-
     11.修改文件权限与时间戳：os.chmod(file) 
-
 
     12.执行操作系统命令：os.system("dir") 
 
-
     13.启动新进程：os.exec(), os.execvp() 
-
 
     14.在后台执行程序：osspawnv() 
 
-
     15.终止当前进程：os.exit(), os._exit() 
-
 
     16.分离文件名：os.path.split(r"c:\python\hello.py") --> ("c:\\python", "hello.py") 
 
-
     17.分离扩展名：os.path.splitext(r"c:\python\hello.py") --> ("c:\\python\\hello", ".py") 
-
 
     18.获取路径名：os.path.dirname(r"c:\python\hello.py") --> "c:\\python" 
 
-
     19.获取文件名：os.path.basename(r"r:\python\hello.py") --> "hello.py" 
-
 
     20.判断文件是否存在：os.path.exists(r"c:\python\hello.py") --> True 
 
-
     21.判断是否是绝对路径：os.path.isabs(r".\python\") --> False 
-
 
     22.判断是否是目录：os.path.isdir(r"c:\python") --> True 
 
-
     23.判断是否是文件：os.path.isfile(r"c:\python\hello.py") --> True 
-
 
     24.判断是否是链接文件：os.path.islink(r"c:\python\hello.py") --> False 
 
-
     25.获取文件大小：os.path.getsize(filename) 
-
 
     26.*******：os.ismount("c:\\") --> True 
 
-
     27.搜索目录下的所有文件：os.path.walk() 
-
 
     shutil模块对文件的操作： 
 
     1.复制单个文件：shultil.copy(oldfile, newfle) 
 
-
     2.复制整个目录树：shultil.copytree(r".\setup", r".\backup") 
 
-
     3.删除整个目录树：shultil.rmtree(r".\backup") 
-
 
     临时文件的操作： 
 
     1.创建一个唯一的临时文件：tempfile.mktemp() --> filename 
 
-
     2.打开临时文件：tempfile.TemporaryFile() 
-
 
     内存文件（StringIO和cStringIO）操作 
 
     [4.StringIO] #cStringIO是StringIO模块的快速实现模块 
 
-
     1.创建内存文件并写入初始数据：f = StringIO.StringIO("Hello world!") 
-
 
     2.读入内存文件数据：print f.read() #或print f.getvalue() --> Hello world! 
 
-
     3.想内存文件写入数据：f.write("Good day!") 
-
 
     4.关闭内存文件：f.close() 
             
-
 

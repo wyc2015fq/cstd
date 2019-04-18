@@ -1,16 +1,6 @@
 # Webrtc服务器搭建 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2016年12月05日 10:04:40[露蛇](https://me.csdn.net/tifentan)阅读数：4569
-
-
-
-
-
-
+2016年12月05日 10:04:40[露蛇](https://me.csdn.net/tifentan)阅读数：4573
 
 
 
@@ -20,17 +10,13 @@
 - 
 **通话的房间服务器(Room Server)**
 
-
 房间服务器是用来创建和管理通话会话的状态维护,是双方通话还是多方通话,加入与离开房间等等,我们暂时沿用Google部署在GAE平台上的AppRTC这个房间服务器实现,该GAE App的源码可以在github.com上获取.该实现是一个基于[Python](http://lib.csdn.net/base/python)的GAE应用,我们需要下载Google
  GAE的离线开发包到我们自己的[Linux](http://lib.csdn.net/base/linux)服务器上来运行该项目,搭建大陆互联网环境下的房间服务器.
 
 - 
 **通话的信令服务器(Signaling Server)**
 
-
 信令服务器是用来管理和协助通话终端建立去中心的点对点通话的一个角色.这个角色要负责一下任务:
-
-
 
 ```
 1. 用来控制通信发起或者结束的连接控制消息
@@ -46,9 +32,7 @@
 - 
 **防火墙打洞服务器(STUN/TURN/ICE Server)**
 
-
 我们目前大部分人连接互联网时都处于防火墙后面或者配置私有子网的家庭(NAT)路由器后面,这就导致我们的计算机的IP地址不是广域网IP地址,故而不能相互之间直接通讯. 正因为这样的一个场景,我们得想办法去穿越这些防火墙或者家庭(NAT)路由器,让两个同处于私有网络里的计算机能够通讯起来.
-
 
 ![网络模型](http://io.diveinedu.com/images/nat-network.png)
 
@@ -60,7 +44,6 @@ STUN(Simple Traversal of UDP over NATs,NAT 的UDP简单穿越); STUN协议服务
 - 
 
 确定内网客户端所暴露在外的广域网的IP和端口以及NAT类型等信息;STUN服务器利用这些信息协助不同内网的计算机之间建立点对点的UDP通讯.
-
 
 STUN协议可以很好的解决一般家用(NAT)路由器环境的打洞问题,但是对于大部分的企业的网络环境就不是很好了.
 
@@ -89,7 +72,6 @@ ICE协议就是综合前面2种协议的综合性NAT穿越解决方案.
 ### 先搭建房间服务器AppRTC
 - 首先我们安装Grunt:
 
-
 ```bash
 cheetah@localhost:~/$ sudo apt-get install npm
 cheetah@localhost:~/$ sudo apt-get install nodejs-legacy
@@ -98,14 +80,12 @@ cheetah@localhost:~/$ sudo npm -g install grunt-cli
 
 - 下载该项目的源码到某个目录:
 
-
 ```bash
 cheetah@localhost:~/$ cd ~;
 cheetah@localhost:~/$ git clone https://github.com/GoogleChrome/webrtc.git;
 ```
 
 - 终端Shell切换当前工作目录到上一步的下载的项目目录webrtc下,然后安装Grunt以及Grunt的依赖:
-
 
 ```bash
 cheetah@localhost:~/$ cd webrtc;
@@ -114,14 +94,11 @@ cheetah@localhost:~/webrtc$ npm install;
 
 - 运行AppRTC房间服务器之前我们需要Grunt编译一下该项目的js文件之类:
 
-
 ```bash
 cheetah@localhost:~/webrtc$ grunt;
 ```
 
-
 上面的编译过程会自动下载安装Google App Engine SDK至当前目录.
-
 
 ```bash
 cheetah@localhost:~/webrtc$ ls
@@ -130,23 +107,18 @@ build        google_appengine_1.9.17.zip  images        node_modules  run_python
 CONTRIBUTING.md  grunt-chrome-build       index.html    package.json  run_python_tests.sh  webtest-master.tar.gz
 ```
 
-
 下一步,我们需要把Google App Engine SDK的目录加入系统环境变量`$PATH`,并使之生效.
-
 
 ```bash
 cheetah@localhost:~/webrtc$ echo "export PATH=$PATH:$PWD/google_appengine" > ~/.bash_profile
 cheetah@localhost:~/webrtc$ source ~/.bash_profile
 ```
 
-
 这个时候我们就可以直接运行我们的房间服务器AppRTC了.用下面的命令来开启(主机名:vpn.wuqiong.tk可以用自己的给我钱IP地址代替):
-
 
 ```bash
 cheetah@localhost:~/webrtc$ dev_appserver.py --host vpn.wuqiong.tk  samples/web/content/apprtc/
 ```
-
 
 ### 再搭建信令服务器
 
@@ -154,23 +126,18 @@ cheetah@localhost:~/webrtc$ dev_appserver.py --host vpn.wuqiong.tk  samples/web/
 
 我们需要先安装Go语言运行环境支持:
 
-
 ```bash
 cheetah@localhost:~/webrtc$ sudo apt-get install golang-go
 ```
 
-
 然后在我们的用户目录新建一个目录(collider_root)来存放这个Collider的go代码程序.
-
 
 ```bash
 cheetah@localhost:~/webrtc$ mkdir -p ~/collider_root;
 cheetah@localhost:~/webrtc$ export COLLIDER_ROOT=$HOME/collider_root; //也可以加入~/.bash_profile
 ```
 
-
 下一步就是链接wenrtc项目目录下面的collider代码目录到$COLLIDER_ROOT/src下去,准备后续的编译工作;
-
 
 ```bash
 cheetah@localhost:~/webrtc$ ln -sf $PWD/samples/web/content/apprtc/collider/collider $COLLIDER_ROOT/src/
@@ -178,23 +145,18 @@ cheetah@localhost:~/webrtc$ ln -sf $PWD/samples/web/content/apprtc/collider/coll
 cheetah@localhost:~/webrtc$ ln -sf $PWD/samples/web/content/apprtc/collider/collidertest $COLLIDER_ROOT/src/
 ```
 
-
 一切准备之后,我们就主要编译安装Collider了:
-
 
 ```bash
 cheetah@localhost:~/webrtc$ go get collidermain
 cheetah@localhost:~/webrtc$ go install collidermain
 ```
 
-
 这个时候,信令服务器的二进制程序就安装到了$COLLIDER_ROOT/bin下去了. 如下命令就可以开启运行信令服务器:
-
 
 ```bash
 cheetah@localhost:~/webrtc$ $COLLIDER_ROOT/bin/collidermain -port=8089 -tls=false
 ```
-
 
 信令服务器暂时用非tls方式运行.因为我们自签名的证书Websocket通讯不了.
 
@@ -202,23 +164,18 @@ cheetah@localhost:~/webrtc$ $COLLIDER_ROOT/bin/collidermain -port=8089 -tls=fals
 
 我们选择有更丰富功能的coTurn作为我们的NAT穿越打洞服务器,该项目是一个C/C++语言的开源项目,项目地址: [https://code.google.com/p/coturn/](https://code.google.com/p/coturn/) 或者我们直接下载已经编译好的软件包,在下面站点可以下载我们对应平台的软件包: [http://turnserver.open-sys.org/downloads/v4.4.1.2/](http://turnserver.open-sys.org/downloads/v4.4.1.2/) 打开这个网址,根据我们的服务器类型选择下载,我现在选择Debian和Ubuntu系统的包:
 
-
 ```bash
 cd ~;
 wget http://turnserver.open-sys.org/downloads/v4.4.1.2/turnserver-4.4.1.2-debian-wheezy-ubuntu-mint-x86-64bits.tar.gz
 ```
 
-
 接着解压软件包:
-
 
 ```
 tar xvfz turnserver-4.4.1.2-debian-wheezy-ubuntu-mint-x86-64bits.tar.gz
 ```
 
-
 详细阅读安装手册 `INSTALL` 文件,根据指导进行安装:
-
 
 ```bash
 $ sudo apt-get update
@@ -226,19 +183,15 @@ $ sudo apt-get install gdebi-core
 $ sudo gdebi coturn*.deb
 ```
 
-
 然后编辑配置文件,打开系统默认启动配置:
-
 
 ```bash
 $ vim /etc/default/coturn
 ```
 
-
 把上面打开编辑的文件中的这一行`TURNSERVER_ENABLED=1`去掉注释,保存退出.
 
 再根据实际情况编辑coturn的配置文件 `/etc/turnserver.conf`,比如我打开的配置项如下:
-
 
 ```bash
 listening-device=eth0
@@ -262,27 +215,21 @@ mobility
 no-cli
 ```
 
-
 上面cert和pkey配置的自签名证书用Openssl命令生成:
-
 
 ```bash
 sudo openssl req -x509 -newkey rsa:2048 -keyout   /etc/turn_server_pkey.pem -out /etc/turn_server_cert.pem -days 99999 -nodes
 ```
 
-
 穿墙服务器的一切配置完成之后, 万事俱备,之前启动命令了:
-
 
 ```bash
 service coturn start;
 ```
 
-
 ### 房间服务器和信令服务器的设置
 
 三个服务器都搭建完成之后,我们需要多一定的整合配置,使他们能一起工作: apprtc目录下的constants.py是一些常量配置信息的配置文件,比如我的做了如下设置:
-
 
 ```python
 #TURN_BASE_URL = 'https://computeengineondemand.appspot.com'
@@ -296,9 +243,7 @@ CEOD_KEY = 'diveinedu'
 WSS_HOST_PORT_PAIR = 'apprtc.diveinedu.com:8089'
 ```
 
-
 由于我们的信令服务器没有开启安全Socket模式,所以我们要对应的改一下apprtc的代码, 做apprtc.py中如下修改:
-
 
 ```python
 def get_wss_parameters(request):
@@ -317,17 +262,14 @@ def get_wss_parameters(request):
   return (wss_url, wss_post_url)
 ```
 
-
 把原来的wss和https的scheme都改为ws和http,不要让客户端或者浏览器去使用SSL链接.当然,如果有第三方根证书的签名机构颁发的证书,那就不需要这样了
 
 而对应的信令服务器也需要稍微做设置: 编辑collider/collidermain/main.go,修改设置自己的房间服务器URL:
-
 
 ```
 //var roomSrv = flag.String("room-server", "https://apprtc.appspot.com", "The origin of the room server")
 var roomSrv = flag.String("room-server", "http://apprtc.diveinedu.com:8080/", "The origin of the room server")
 ```
-
 
 经过这一些简单的房间服务器和信令服务器的定制设置之后,我们就搭建了一套基于Google项目的属于自己的WebRTC的简单服务了.
 
@@ -337,11 +279,5 @@ var roomSrv = flag.String("room-server", "http://apprtc.diveinedu.com:8080/", "T
 
 本文档由[长沙戴维营教育](http://www.diveinedu.cn/)整理。
 
-
-
 [](http://blog.csdn.net/diveinedu/article/details/44100063#)[](http://blog.csdn.net/diveinedu/article/details/44100063#)[](http://blog.csdn.net/diveinedu/article/details/44100063#)[](http://blog.csdn.net/diveinedu/article/details/44100063#)[](http://blog.csdn.net/diveinedu/article/details/44100063#)[](http://blog.csdn.net/diveinedu/article/details/44100063#)
-
-
-
-
 

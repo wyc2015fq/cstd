@@ -1,28 +1,13 @@
 # select, iocp, epoll,kqueue及各种I/O复用机制 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2015年06月26日 09:47:14[露蛇](https://me.csdn.net/tifentan)阅读数：545
+2015年06月26日 09:47:14[露蛇](https://me.csdn.net/tifentan)阅读数：546
 个人分类：[网络](https://blog.csdn.net/tifentan/article/category/2739913)
-
-
-
-
-
-
 
 
 
 # [select, iocp, epoll,kqueue及各种I/O复用机制](http://www.cnblogs.com/xuxm2007/archive/2011/08/15/2139808.html)
 
-
 [http://blog.csdn.net/heyan1853/article/details/6457362](http://blog.csdn.net/heyan1853/article/details/6457362)
-
-
-
-
 
 **首先，介绍几种常见的I/O模型及其区别**，如下：
 - 
@@ -39,7 +24,6 @@ signal driven I/O (SIGIO)
 
 - 
 asynchronous I/O (the POSIX aio_functions)
-
 
 **blocking I/O**
 
@@ -115,7 +99,4 @@ select和iocp分别对应第3种与第5种模型，那么epoll与kqueue呢？其
 - select低效是因为每次它都需要轮询。但低效也是相对的，视情况而定，也可通过良好的设计改善
 - epoll, kqueue是Reacor模式，IOCP是Proactor模式。
 - java nio包是select模型。。
-
-
-
 

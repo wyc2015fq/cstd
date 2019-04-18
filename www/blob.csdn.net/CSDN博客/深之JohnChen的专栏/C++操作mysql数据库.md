@@ -1,0 +1,286 @@
+# C++操作mysql数据库 - 深之JohnChen的专栏 - CSDN博客
+
+2017年07月14日 18:12:41[byxdaz](https://me.csdn.net/byxdaz)阅读数：2006
+
+
+C++操作mysql数据库包括以下方式：
+1、通过ADO操作mysql数据库。
+2、通过ODBC操作mysql数据库。
+3、利用mysql自己的api函数操作mysql数据库。
+4、通过第三方开源库Mysql++操作mysql数据库。
+
+一、通过ADO操作mysql数据库。
+参考这篇文章，http://blog.csdn.net/lbcab/article/details/51329207
+
+二、通过ODBC操作mysql数据库。
+参考这篇文章，http://doocr.com/articles/58b825a35779c571647da29c
+
+三、利用mysql自己的api函数操作mysql数据库。
+1、使用API的方式连接，需要加载mysql的头文件和lib文件。
+在VS2008的附加包含目录中添加\MySQL\MySQL Server 5.1\include。在安装MySql的目录下找。 把libmysql.dll和libmysql.lib文件拷贝到所建的工程目录下。然后在头文件里包含以下内容：
+//mysql所需的头文件和库文件
+#include "winsock.h"
+#include "mysql.h"
+#pragma comment(lib,"libmySQL.lib")
+2、编写代码
+
+```cpp
+#include "winsock.h"
+#include "mysql.h"
+#pragma comment(lib,"libmySQL.lib")
+
+int main(int argc, char* argv[])
+{
+	MYSQL m_sqlCon;
+	try
+	{
+		mysql_init(&m_sqlCon);
+		//localhost:服务器 root为账号密码 test为数据库名 3306为端口
+		if(!mysql_real_connect(&m_sqlCon,"localhost","root","root","test",3306,NULL,0))
+		{
+			//数据库连接失败
+			return 1;
+		}
+		
+		//创建表
+		char* pQuery = "create table if not exists User2(ID INT,Name VARCHAR(255),Age INT,PRIMARY KEY (ID))";
+		if(mysql_real_query(&m_sqlCon,pQuery,(UINT)strlen(pQuery)) != 0)
+		{
+			const char* pCh = mysql_error(&m_sqlCon);
+			return 1;
+		}
+
+		//关闭数据库连接
+		mysql_close(&m_sqlCon);
+		return 0;
+	}
+	catch(...)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+```
+
+```cpp
+//导出数据
+int ExportMonitorDot(char *pDBName,char *pUserPassword,char *pFilePathName)
+{
+	MYSQL sqlCon;
+	try
+	{
+		mysql_init(&sqlCon);
+		//localhost:服务器 root为账号密码 test为数据库名 3306为端口
+		if(!mysql_real_connect(&sqlCon,"localhost",pDBName,pUserPassword,"yezk",3306,NULL,0))
+		{
+			//数据库连接失败
+			return 1;
+		}
+
+		mysql_query(&sqlCon,"set names gbk"); 
+		//查询
+		char* pQuery = "select * from monitor;";
+		if(mysql_real_query(&sqlCon,pQuery,(UINT)strlen(pQuery)) != 0)
+		{
+			const char* pCh = mysql_error(&sqlCon);
+			return 1;
+		}
+		MYSQL_RES *res = mysql_store_result(&sqlCon);
+		if(res != NULL)
+		{
+			unsigned int nCol = mysql_num_fields(res);
+			MYSQL_ROW column;
+			while(column=mysql_fetch_row(res))
+			{
+				for(int c=0;c<nCol;c++)
+				{
+					TRACE("%10s\t",column[c]);
+				}
+			}
+			mysql_free_result(res);
+		}
+
+		//关闭数据库连接
+		mysql_close(&sqlCon);
+		return 0;
+	}
+	catch(...)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+```
+
+常用MySQL的API接口：
+mysql_affected_rows() 返回被最新的UPDATE, DELETE或INSERT查询影响的行数。
+mysql_close() 关闭一个服务器连接。
+mysql_connect() 连接一个MySQL服务器。该函数不推荐；使用mysql_real_connect()代替。
+mysql_change_user() 改变在一个打开的连接上的用户和数据库。
+mysql_create_db() 创建一个数据库。该函数不推荐；而使用SQL命令CREATE DATABASE。
+mysql_data_seek() 在一个查询结果集合中搜寻一任意行。
+mysql_debug() 用给定字符串做一个DBUG_PUSH。
+mysql_drop_db() 抛弃一个数据库。该函数不推荐；而使用SQL命令DROP DATABASE。
+mysql_dump_debug_info() 让服务器将调试信息写入日志文件。 
+mysql_eof() 确定是否已经读到一个结果集合的最后一行。这功能被反对; mysql_errno()或mysql_error()可以相反被使用。
+mysql_errno() 返回最近被调用的MySQL函数的出错编号。  
+mysql_error() 返回最近被调用的MySQL函数的出错消息。  
+mysql_escape_string() 用在SQL语句中的字符串的转义特殊字符。  
+mysql_fetch_field() 返回下一个表字段的类型。  
+mysql_fetch_field_direct () 返回一个表字段的类型，给出一个字段编号。  
+mysql_fetch_fields() 返回一个所有字段结构的数组。  
+mysql_fetch_lengths() 返回当前行中所有列的长度。  
+mysql_fetch_row() 从结果集合中取得下一行。  
+mysql_field_seek() 把列光标放在一个指定的列上。  
+mysql_field_count() 返回最近查询的结果列的数量。  
+mysql_field_tell() 返回用于最后一个mysql_fetch_field()的字段光标的位置。  
+mysql_free_result() 释放一个结果集合使用的内存。  
+mysql_get_client_info() 返回客户版本信息。  
+mysql_get_host_info() 返回一个描述连接的字符串。  
+mysql_get_proto_info() 返回连接使用的协议版本。  
+mysql_get_server_info() 返回服务器版本号。  
+mysql_info() 返回关于最近执行得查询的信息。  
+mysql_init() 获得或初始化一个MYSQL结构。  
+mysql_insert_id() 返回有前一个查询为一个AUTO_INCREMENT列生成的ID。  
+mysql_kill() 杀死一个给定的线程。  
+mysql_list_dbs() 返回匹配一个简单的正则表达式的数据库名。  
+mysql_list_fields() 返回匹配一个简单的正则表达式的列名。  
+mysql_list_processes() 返回当前服务器线程的一张表。  
+mysql_list_tables() 返回匹配一个简单的正则表达式的表名。  
+mysql_num_fields() 返回一个结果集合重的列的数量。  
+mysql_num_rows() 返回一个结果集合中的行的数量。  
+mysql_options() 设置对mysql_connect()的连接选项。  
+mysql_ping() 检查对服务器的连接是否正在工作，必要时重新连接。  
+mysql_query() 执行指定为一个空结尾的字符串的SQL查询。  
+mysql_real_connect() 连接一个MySQL服务器。  
+mysql_real_query() 执行指定为带计数的字符串的SQL查询。  
+mysql_reload() 告诉服务器重装授权表。  
+mysql_row_seek() 搜索在结果集合中的行，使用从mysql_row_tell()返回的值。  
+mysql_row_tell() 返回行光标位置。  
+mysql_select_db() 连接一个数据库。  
+mysql_shutdown() 关掉数据库服务器。  
+mysql_stat() 返回作为字符串的服务器状态。  
+mysql_store_result() 检索一个完整的结果集合给客户。  
+mysql_thread_id() 返回当前线程的ID。  
+mysql_use_result() 初始化一个一行一行地结果集合的检索。
+
+MySQL大批量数据插入
+MySQL官方网站查了查资料，发现MySQL支持在一条INSERT语句中插入多条记录，格式如下：
+INSERT table_name (column1, column2, ..., columnN)
+VALUES (rec1_val1, rec1_val2, ..., rec1_valN),
+(rec2_val1, rec2_val2, ..., rec2_valN),
+... ...
+(recM_val1, recM_val2, ..., recM_valN);
+
+按MySQL官方网站，用这种方法一次插入多条数据，速度比一条一条插入要快很多。
+
+32位libmysql.dll和32位libmysql.lib 
+http://download.csdn.net/download/second_riven/7704817#comment
+
+
+四、通过第三方开源库Mysql++操作mysql数据库。
+MySQL++是官方发布的、一个为mysql设计的C++语言的API。Mysql++为Mysql的C-Api的再次封装，它用STL(Standard Template Language)开发并编写，并为C++开发者提供像操作STL容器一样方便的操作数据库的一套机制。其官方API介绍：MySQL++ Reference Manual
+与JDBC一样，先建立连接Connection，创建Query，执行操作获得结果。
+SimpleResult Query::store()进行更新、删除、创建等操作，SimpleResult代表执行状态，查询是否成功、影响了多少行。
+StoreQueryResult Query::store():最常用。StoreQueryResult继承vector<mysqlpp::Row>，Row类似于vector<string>，表示一行中各列的数据。使用可以result[1][4]或result[2]["price"]。
+UseQueryResult Query::use()，大结果查询，UserQueryResult是iterator，一次只能获得一个行结果，不停地next直到结束为止。
+1、Mysql++编译。
+1）、打开mysql++-3.2.1下的vc2008中mysql++.sln
+2）、将mysql数据库安装目录下include目录添加到mysqlpp项目的包含目录中。
+   例如我电脑的mysql数据库安装目录为：C:\Program Files\MySQL\MySQL Server 5.6\include
+3）、将mysql数据库安装目录下lib目录添加到mysqlpp项目的包含目录中。
+4）、确保libmysql.lib已经添加到mysqlpp项目的附加依赖项中。
+5）、如果使用的mysql是64位的，还需要将项目的解决方案平台由win32改成x64。
+
+利用mysql++-3.2.1中的install.hta将所有include的文件一个地方，便于管理。  
+Mysql++下载地址 https://tangentsoft.com/mysqlpp/home
+编译过程问题
+1）、打开mysql++-3.2.1下的vc2008是默认对应x64的版本，vc2005是默认对应x86的版本。
+2）、VC使用MYSQL数据库出现my_socket fd未定义错误处理。
+这个错误是在VC中使用MYSQL数据库时出现在mysql_com.h文件中的  my_socket fd; 说明未my_socket未定义.
+解决方法：
+方法1：在工程属性中C/C++预处理器中预处理器定义增加__LCC__
+mysql.h头文件中有下面语句
+#ifdef __LCC__
+#include <winsock2.h>    /* For windows */
+#endif
+方法2：在引用mysql.h头文件之前引用#include <winsock2.h>
+
+3）、mysql++ vc2008工程默认是x64，如果测试程序是32位的，导致连接失败，需要将编译mysql++ lib库修改为32位或测试程序修改成64位。
+
+4）、调用set_option设置字符集，在Debug版本中报错。
+
+std::string strCharsetNameOption = "gbk";
+mysqlpp::SetCharsetNameOption * optCharsetNameOption = new  mysqlpp::SetCharsetNameOption(strCharsetNameOption);
+pMyConn->set_option(optCharsetNameOption);
+
+调试版本报错，解决方法：
+修改调用mysqlpp工程的配置属性。
+C/C++ --> 代码生成  运行库选择与mysql++库的运行库一致。如：多线程调试 DLL (/MDd)
+
+2、编写测试代码
+1）、将mysql++2.3.1和mysql数据库的include目录添加到项目的包含目录中。
+2）、将对应的lib文件目录添加到项目的库目录中。
+3）、添加mysqlpp.lib至附加依赖项中。
+代码：
+
+```cpp
+#include <mysql++.h>
+#include <iostream>
+using namespace std;
+
+int main(int argc, char *argv[])
+{
+	mysqlpp::Connection conn(false);
+	mysqlpp::SetCharsetNameOption *opt =new  mysqlpp::SetCharsetNameOption("gbk");
+
+	conn.set_option(opt);
+	if (conn.connect("test","localhost","root","root"))	//连接数据库
+	{
+		conn.query("set names 'gbk' ");
+		mysqlpp::Query query = conn.query("select * from user");
+		mysqlpp::UseQueryResult res = query.use();
+		if (res)
+		{
+			while (mysqlpp::Row row = res.fetch_row())
+			{
+				cout <<"name:"<< row["name"] << ",";
+				cout <<setw(9)<<"age:" << row["age"] << endl;
+			}
+		}
+		else 
+		{
+			cerr << "Failed to get item list: " << query.error() << endl;
+			return 1;
+		}
+		conn.disconnect();//断开连接数据库
+	}
+	else
+	{
+		cerr << "DB connection failed: " << conn.error() << endl;
+		return 1;
+	}
+
+	return 0;
+}
+```
+
+//字段为空判断
+
+```cpp
+mysqlpp::Row row;
+//...
+int bGpsEffect = 0;
+if (row["GpsEffect"] == mysqlpp::null)
+{
+		bGpsEffect = 0;
+}
+else
+{
+	bGpsEffect = row["GpsEffect"];
+}
+```
+
+

@@ -1,16 +1,6 @@
 # KNN及其改进算法的python实现 - 李鑫o_O - CSDN博客
 
-
-
-
-
-置顶2016年03月10日 21:07:27[hustlx](https://me.csdn.net/HUSTLX)阅读数：3507
-
-
-
-
-
-
+置顶2016年03月10日 21:07:27[hustlx](https://me.csdn.net/HUSTLX)阅读数：3513
 
 
 # 一、马氏距离
@@ -59,8 +49,6 @@ S = 
 4）在实际应用中“总体样本数大于样本的维数”这个条件是很容易满足的，而所有样本点出现3）中所描述的情况是很少出现的，所以在绝大多数情况下，马氏距离是可以顺利计算的，但是马氏距离的计算是不稳定的，不稳定的来源是协方差矩阵，这也是马氏距离与欧式距离的最大差异之处。
 综上，我们用python编写了马氏距离，如下：
 
-
-
 ```python
 <span style="font-size:14px;">distances=[]
 for i in range(dataSetSize):
@@ -71,7 +59,6 @@ for i in range(dataSetSize):
     tp=inX-dataSet[i]
     distances.append(numpy.sqrt(dot(dot(tp,invD),tp.T)))</span>
 ```
-
 
 最后得到的distances就是测试样本和每个训练样本的马氏距离。
 
@@ -84,8 +71,6 @@ wk-NNC算法是对经典knn算法的改进，这种方法是对k个近邻的样�
 ![clip_image004](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311105741460-948541145.gif)是第i个近邻的权值，其中1<i<k,![clip_image006](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311105742179-2026326064.gif)是待测样本距离第i个近邻的距离。
 
 用python实现这个算法比较简单：
-
-
 
 ```python
 <span style="font-size:14px;">def wk_knn(inX, dataSet, labels, k):
@@ -107,10 +92,6 @@ wk-NNC算法是对经典knn算法的改进，这种方法是对k个近邻的样�
 ```
 
 
-
-
-
-
 # 三、knnm算法
 
 knnm算法运用了训练样本中的每一个模式，对训练样本的每个类![clip_image008](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311105742835-718445040.gif)，
@@ -122,8 +103,6 @@ knnm算法运用了训练样本中的每一个模式，对训练样本的每个�
 ![clip_image025](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311105758475-1519400430.jpg)
 
 用python实现如下：
-
-
 
 ```python
 <span style="font-size:14px;">def knnm(inX, dataSet, labels, k):
@@ -151,7 +130,6 @@ knnm算法运用了训练样本中的每一个模式，对训练样本的每个�
     return sortedClassCount[0][0]</span>
 ```
 
-
 # 四、实验过程
 
 我在手写字符和约会数集分别作了实验，结果如下（k=7）：
@@ -168,6 +146,4 @@ knnm算法运用了训练样本中的每一个模式，对训练样本的每个�
 # 五、实验小结
 
 欧式距离比马氏距离计算量小得多，速度快，而且可以看出分类的效果甚至比马氏距离要好，,可以看到，在约会数集中，knn的表现要优于其他两种算法，欧式距离的knn错误率最低，而wk_knn在手写字符识别中有较为出色的表现，相对于其他两种算法，knnm并没有想象中的效果。
-
-
 

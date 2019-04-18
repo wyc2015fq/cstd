@@ -1,35 +1,17 @@
 # stun服务器 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2016年12月05日 09:52:18[露蛇](https://me.csdn.net/tifentan)阅读数：443
-
-
-
-
-
+2016年12月05日 09:52:18[露蛇](https://me.csdn.net/tifentan)阅读数：444
 
 
 在做一个网页端实现视频聊天的功能，使用了webrtc技术，局域网ok，但广域网寻址现在没有稳定，现在想找一个稳定的STUN服务器地址。
 
 除了：stunserver.org
 
-
-
-
 找到一些不错的，速度很快，分享下：
 s1.taraba.net          203.183.172.196:3478
 s2.taraba.net          203.183.172.196:3478 
 s1.voipstation.jp          113.32.111.126:3478
 s2.voipstation.jp          113.32.111.127:3478
-
-
-
-
-
-
 
 
 stunserver.org [测试](http://lib.csdn.net/base/softwaretest)是OK的
@@ -64,7 +46,4 @@ stunserver.org
 - j6 P1 A8 S0 A# n$ Z, y: z
 stun.sipgate.net:10000
 stun.softjoys.com:3478
-
-
-
 

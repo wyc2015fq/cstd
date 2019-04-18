@@ -1,21 +1,6 @@
 # ListNode示例 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年05月17日 22:03:57[hustlx](https://me.csdn.net/HUSTLX)阅读数：928
-
-
-
-
-
-
-
-
-
-
-
+2016年05月17日 22:03:57[hustlx](https://me.csdn.net/HUSTLX)阅读数：929
 
 
 
@@ -44,8 +29,4 @@ ListNode* partition(ListNode* head, int x) {
     return res.next;
 }
 ```
-
-
-
-
 

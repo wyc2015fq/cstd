@@ -1,16 +1,6 @@
 # MemoryBarrier - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2018年03月09日 17:37:14[露蛇](https://me.csdn.net/tifentan)阅读数：83标签：[MemoryBarrier](https://so.csdn.net/so/search/s.do?q=MemoryBarrier&t=blog)
-
-
-
-
-
-
+2018年03月09日 17:37:14[露蛇](https://me.csdn.net/tifentan)阅读数：86标签：[MemoryBarrier](https://so.csdn.net/so/search/s.do?q=MemoryBarrier&t=blog)
 
 
 查了下MSDN的解释：
@@ -99,8 +89,6 @@ if(mo.filed==0)
 编译器可能判断，保留这个值是否给寄存器带来压力并导致栈空间的低效使用，并且之个分支是否很少被使用（因此f值就不需要多次） 
 
 这样带来多线程问题，将f值使用volatitle修饰，可禁止这种优化
+
 **我看：多线程才会出现吧！！**
-
-
-
 

@@ -1,19 +1,6 @@
 # mapreduce简单实现 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月10日 20:56:57[hustlx](https://me.csdn.net/HUSTLX)阅读数：859
-
-
-
-
-
-
-
-
-
+2016年03月10日 20:56:57[hustlx](https://me.csdn.net/HUSTLX)阅读数：862
 
 
 
@@ -42,8 +29,6 @@ Last login: Sun Dec 14 21:01:46 2014 from cluster0
 
 其中mapper.py如下：
 
-
-
 ```python
 #!/usr/bin/env python
 import sys
@@ -57,12 +42,7 @@ for line in sys.stdin:
                 print "%s\t%s" % (mi.group(), 1)
 ```
 
-
-
-
 其中reducer.py如下：
-
-
 
 ```python
 #!/usr/bin/env python
@@ -83,9 +63,6 @@ for line in sys.stdin:
 for word in word2count.keys():
     print '%s\t%s'%(word,word2count[word])
 ```
-
-
-
 
 第三步，测试mapper.py：
 
@@ -908,21 +885,6 @@ part-00071
 2014210***55733
 
 2014210***@cluster-3-1:~/output$
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

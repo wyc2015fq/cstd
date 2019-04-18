@@ -1,22 +1,13 @@
 # webrtc 网络原理 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2017年09月11日 18:23:32[露蛇](https://me.csdn.net/tifentan)阅读数：776
-
-
-
-
-
-
+2017年09月11日 18:23:32[露蛇](https://me.csdn.net/tifentan)阅读数：778
 
 
 本文章来自 
 [https://www.html5rocks.com/en/tutorials/webrtc/infrastructure/](https://www.html5rocks.com/en/tutorials/webrtc/infrastructure/)
 
 不一一翻译，捡我认为重要的记录下来。
+
 1.会话的发起机制，webrtc没定义，需自行定义。可参考网上的很多在线例子，房间号的形式实现。
 
 2.信令的交换机制，webrtc没定义，也是自行定义。主要完成网络ip地址等网络信息交换，媒体信息sdp交换。整个流程遵循这个JSEP, [the JavaScript Session Establishment Protocol](https://tools.ietf.org/html/draft-ietf-rtcweb-jsep-03#section-1.1)。
@@ -59,6 +50,7 @@
 
 所有turn支持stun 
 [ice测试页面](https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/)
+
 11.stun原理 
 
 主要是用户发送包到服务器，服务器返回你的公网地址，然后你通过信令机制发送给你要连接的对方。
@@ -76,6 +68,7 @@ Multipoint Control Unit (MCU)
 licode  
 
 mantis
+
 14.跟Voip，电话系统，视频会议系统结合
 - SIP  VoIP和视频会议使用的信令协议，需要代理服务器来处理信令转换，但一旦建立后能直接通过p2p传输音视频SRTP
 - PSTN 公共电话交换网络， 代理服务器一样要
@@ -90,9 +83,4 @@ mantis
 - Uberconference：会议库
 - webrtc2sip ： 一个网关
 - OpenBTS：是一个基于软件的GSM接入点，允许标准的GSM兼容手机作为SIP端点在IP电话（VoIP）网络中使用
-
-
-
-
-
 

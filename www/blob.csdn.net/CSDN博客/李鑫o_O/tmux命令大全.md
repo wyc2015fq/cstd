@@ -1,16 +1,6 @@
 # tmux命令大全 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2017年08月17日 10:17:51[hustlx](https://me.csdn.net/HUSTLX)阅读数：1234
-
-
-
-
-
-
+2017年08月17日 10:17:51[hustlx](https://me.csdn.net/HUSTLX)阅读数：1235
 
 
                 
@@ -196,5 +186,4 @@ Ctrl+b :list-commands
 
 安装　可以使用Ports安装tmux，位置在/usr/ports/sysutils/tmux/；tmux仅有一个依赖包libevent，位于/usr/ports/devel/libevent/。
             
-
 

@@ -1,16 +1,6 @@
 # 机器学习总结二：逻辑回归Logistic Regression - 李鑫o_O - CSDN博客
 
-
-
-
-
-置顶2016年04月14日 17:01:31[hustlx](https://me.csdn.net/HUSTLX)阅读数：3770
-
-
-
-
-
-
+置顶2016年04月14日 17:01:31[hustlx](https://me.csdn.net/HUSTLX)阅读数：3772
 
 
 # 机器学习总结之逻辑回归Logistic Regression
@@ -49,11 +39,7 @@
 
 ![clip_image010[4]](http://images2015.cnblogs.com/blog/904258/201604/904258-20160414165658441-2085018387.png)
 
-
-
   这就解释了logistic回归时为了要用这个函数。
-
-
 
 **二、代价函数**
 
@@ -81,15 +67,11 @@
 
 ![clip_image026[4]](http://images2015.cnblogs.com/blog/904258/201604/904258-20160414165706926-1828605259.png)
 
-
-
 如果我们将![clip_image002[12]](http://images2015.cnblogs.com/blog/904258/201604/904258-20160414165707910-837690137.png)视为样本![clip_image012[11]](http://images2015.cnblogs.com/blog/904258/201604/904258-20160414165708660-1479395355.png)作为正例的可能性，![clip_image030[4]](http://images2015.cnblogs.com/blog/904258/201604/904258-20160414165709488-49709792.png)则为反例的可能性，
 
 两者的比值对数称为对数几率：
 
 ![clip_image032[4]](http://images2015.cnblogs.com/blog/904258/201604/904258-20160414165710379-1522583719.png)
-
-
 
 这也就是逻辑回归为什么也称作对数几率回归的原因，我们可以将![clip_image002[13]](http://images2015.cnblogs.com/blog/904258/201604/904258-20160414165711129-619788714.png)视为类后验概率：![clip_image034[4]](http://images2015.cnblogs.com/blog/904258/201604/904258-20160414165712145-102335981.png)，则由：
 
@@ -98,12 +80,6 @@
 可得：
 
 ![clip_image038[4]](http://images2015.cnblogs.com/blog/904258/201604/904258-20160414165713926-1143763181.png)
-
-
-
-
-
-
 
 
 
@@ -117,8 +93,6 @@
 
 ![clip_image046[4]](http://images2015.cnblogs.com/blog/904258/201604/904258-20160414165718098-1022134760.png)
 
-
-
 即令每个样本属于其真实标记的概率越大越好，![clip_image048[4]](http://images2015.cnblogs.com/blog/904258/201604/904258-20160414165720004-84538729.png)是高阶连续可导的凸函数，由凸优化理论可以根据梯度下降法、牛顿法等求最优解![clip_image050[4]](http://images2015.cnblogs.com/blog/904258/201604/904258-20160414165721004-4260874.png)。
 
 实际上，上式即为逻辑回归的代价函数：
@@ -131,16 +105,9 @@
 
 ![](https://img-blog.csdn.net/20160414220134085?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-
-
-
-
 下图是《机器学习实战》中给出的部分实现代码。
 
 ![](https://img-blog.csdn.net/20131113202512453?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvZG9uZ3Rpbmd6aGl6aQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
-
-
-
 
 **三、过拟合问题**
 
@@ -150,9 +117,6 @@
 
 ![](https://img-my.csdn.net/uploads/201407/17/1405590306_6011.png)
 
-
-
-
 **问题的主因**
 
 过拟合问题往往源自过多的特征。
@@ -161,18 +125,12 @@
 
 1）减少特征数量（减少特征会失去一些信息，即使特征选的很好）
 
-
 - 可用人工选择要保留的特征；
 - 模型选择算法；
 
-
-
 2）正则化（特征较多时比较有效）
 
-
 - 保留所有特征，但减少θ的大小
-
-
 
 **正则化方法**
 
@@ -182,13 +140,9 @@
 
 ![](https://img-my.csdn.net/uploads/201407/17/1405590306_2443.png)
 
-
-
-
 直观来看，如果我们想解决这个例子中的过拟合问题，最好能将![](https://img-my.csdn.net/uploads/201407/17/1405590307_8774.png)的影响消除，也就是让![](https://img-my.csdn.net/uploads/201407/17/1405590308_6412.png)。假设我们对![](https://img-my.csdn.net/uploads/201407/17/1405590338_4363.png)进行惩罚，并且令其很小，一个简单的办法就是给原有的Cost函数加上两个略大惩罚项，例如：
 
 ![](https://img-my.csdn.net/uploads/201407/17/1405590338_9255.png)
-
 
 这样在最小化Cost函数的时候，![](https://img-my.csdn.net/uploads/201407/17/1405590308_6412.png)。
 
@@ -196,56 +150,32 @@
 
 ![](https://img-my.csdn.net/uploads/201407/17/1405590339_4006.png)
 
-
-
-
 lambda是正则项系数：
-
 
 - 如果它的值很大，说明对模型的复杂度惩罚大，对拟合数据的损失惩罚小，这样它就不会过分拟合数据，在训练数据上的偏差较大，在未知数据上的方差较小，但是可能出现欠拟合的现象；
 - 如果它的值很小，说明比较注重对训练数据的拟合，在训练数据上的偏差会小，但是可能会导致过拟合。
-
-
 
 正则化后的梯度下降算法θ的更新变为：
 
 ![](https://img-my.csdn.net/uploads/201407/17/1405590339_8017.png)
 
-
-
-
 正则化后的线性回归的Normal Equation的公式为：
 
 ![](https://img-my.csdn.net/uploads/201407/17/1405590340_5897.png)
 
-
-
-
-
 **其他优化算法**
-
 
 - Conjugate gradient method(共轭梯度法)
 - Quasi-Newton method(拟牛顿法)
 - BFGS method
 - L-BFGS(Limited-memory BFGS)
 
-
-
 后二者由拟牛顿法引申出来，与梯度下降算法相比，这些算法的优点是：
-
 
 - 第一，不需要手动的选择步长；
 - 第二，通常比梯度下降算法快；
 
-
-
 但是缺点是更复杂。
-
-
-
-
-
 
 
 **四、逻辑回归的优点**
@@ -255,8 +185,6 @@ lambda是正则项系数：
 2、它不仅预测类别，而且可以得到近似概率预测，这对许多概率辅助决策的任务很有用。
 
 3、对率函数是任意阶可导凸函数，有很好的数学性质，现有许多的数值优化算法都可以直接用于求解。
-
-
 
 **五、多分类问题**
 
@@ -275,6 +203,4 @@ lambda是正则项系数：
 周志华《机器学习》
 
 Andrew NG 机器学习公开课
-
-
 

@@ -1,16 +1,6 @@
 # 关于windows中一些系统dll的卸载套路 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2017年04月05日 19:43:21[露蛇](https://me.csdn.net/tifentan)阅读数：606
-
-
-
-
-
-
+2017年04月05日 19:43:21[露蛇](https://me.csdn.net/tifentan)阅读数：607
 
 
 今天又遇到坑。
@@ -31,20 +21,12 @@
 
 “xxxx.exe”(Win32): 已卸载“C:\Windows\SysWOW64\MFWMAAEC.DLL”
 
-
 导致在退出程序时主线程去ptr->release出错。因为这些dll已经被卸载了，ptr指向的对象内存是不错在的。
-
-
-
 
 解决方法如下：
 
 1.统一在一个线程使用这些com对象（例如在主线程）。
 
 2.在调用CoCreateInstance的线程退出前，其他线程主动release（其实不release也行，反正整个dll都卸载了，对象也不存在。但保证别在此线程退出后release就好），做好同步。
-
-
-
-
 
 

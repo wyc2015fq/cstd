@@ -13,18 +13,20 @@ class MyHTMLParser(HTMLParser):
         self.ind=1
 
     def handle_starttag(self, tag, attrs):
-        self.tag_stack.append((tag, self.ind))
         attrs_dict={}
         for attr in attrs:
             attrs_dict[attr[0]]=attr[1]
         self.jj.append({'ind':self.ind, 'tag':tag, 'attrs':attrs_dict})
         if self.ind<100:
-            self.ind+=1
+            if tag not in ['br', 'wbr']:
+                self.tag_stack.append((tag, self.ind))
+                self.ind+=1
 
 
     def handle_endtag(self, tag):
-        end=len(self.tag_stack)-3
+        end=len(self.tag_stack)-30
         end=max(end, 0)
+        ind = self.jj[-1]['ind']
         for i in range(len(self.tag_stack)-1, end, -1):
             if self.tag_stack[i][0]==tag:
                 self.ind=self.tag_stack[i][1]
@@ -211,7 +213,7 @@ def parser_div(parser, jj, i, l, out):
         if attrs_dict['class'] in ['article-copyright', 'mylinks', 'blogStats', 'header', 'postTitle', 'author', 'article-title-box']:
             return parser_skip(parser, jj, i, l, out)
 
-        if attrs_dict['class']=='cnblogs_code':
+        if attrs_dict['class'] in ['cnblogs_code', 'crayon-plain-wrap']:
             text, ii = parser_code(parser, jj, i, l, out)
             return text, ii
 
@@ -225,6 +227,7 @@ def parser_title(parser, jj, i, l, out):
     text = toline(text).strip()
     if len(text)>0 and len(out['title'])==0:
         out['title']=text
+    text.replace('_', ' - ')
     text = '# ' + text + '\n'
     return text, ii
 
@@ -255,7 +258,11 @@ def get_attr(jji, name):
     return None
 
 def parser_table(parser, jj, i, l, out):
+    attrs_dict = jj[i]['attrs']
     text = ''
+    if 'class' in attrs_dict and attrs_dict['class']=='crayon-table':
+        return parser_skip(parser, jj, i, l, out)
+
     trs = node_find_tag(jj, i, l, 'tr')
     if len(trs)>0:
         ths = node_find_tag(jj, trs[0], l, 'th')
@@ -281,11 +288,12 @@ def parser_table(parser, jj, i, l, out):
         if cols>0:
             text1, i = parser_tr(parser, jj, i, ths, l, out, cols)
             text += text1 + '\n'
-            text += '|----'*cols
-            text += '|\n'
-            for tds in rows:
-                text1,i = parser_tr(parser, jj, i, tds, l, out, cols)
-                text += text1 + '\n'
+            if len(trs)>1:
+                text += '|----'*cols
+                text += '|\n'
+                for tds in rows:
+                    text1,i = parser_tr(parser, jj, i, tds, l, out, cols)
+                    text += text1 + '\n'
 
     return text, i+1
 
@@ -293,11 +301,11 @@ def parser_img(parser, jj, i, l, out):
     attrs_dict = jj[i]['attrs']
     alt = ''
     href = ''
-    for s in ['src', 'data-original-src', 'data-src']:
+    for s in ['src', 'data-original-src', 'data-src', 'real_src']:
         if s in attrs_dict and len(attrs_dict[s].strip())>0:
             href = attrs_dict[s]
 
-    if  len(href.strip())>0:
+    if  len(href.strip())>0 and href.find('svg')<0:
         if 'alt' in attrs_dict:
             alt=attrs_dict['alt']
 
@@ -327,6 +335,7 @@ parser={
     'p': parser_p,
     'blockquote': parser_blockquote,
     'br': parser_br,
+    'wbr': parser_skip,
     'h1': parser_h1,
     'h2': parser_h2,
     'h3': parser_h3,
@@ -522,6 +531,39 @@ def node_filter_sciencenet(node):
 
     return 0
 
+def node_filter_sina(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='articalTag':
+        return 2
+
+    if tag=='div' and 'id' in attrs_dict and attrs_dict['id']=='share':
+        return 3
+
+    return 0
+
+
+def node_filter_jobbole(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='entry':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='post-adds':
+        return 3
+
+    return 0
+
 
 FILTER = {
     'csdn': {'filter':node_filter_csdn, 'site':'https://blog.csdn.net', 'root':'CSDN博客'},
@@ -533,6 +575,8 @@ FILTER = {
     'baike': {'filter':node_filter_baike, 'site':'', 'root':'百度百科'},
     'zhihu.com': {'filter':node_filter_zhihu, 'site':'', 'root':'知乎'},
     'blog.sciencenet.cn': {'filter':node_filter_sciencenet, 'site':'', 'root':'科学网'},
+    'blog.sina.com.cn': {'filter':node_filter_sina, 'site':'', 'root':'新浪博客'},
+    'blog.jobbole.com': {'filter':node_filter_jobbole, 'site':'', 'root':'伯乐在线'},
 }
 
 def savetext(fn, d):
@@ -585,7 +629,22 @@ def htm2md(t):
         print(out['title'])
         out['title'] = out['title'].replace('科学网—', '') + ' - 科学网'
         #html = etree.HTML(html_code)
-        
+
+    if aaa=='blog.sina.com.cn':
+        print(out['title'])
+        out['title'] = out['title'].replace('_', ' - ')
+        #html = etree.HTML(html_code)
+
+    if aaa=='blog.jobbole.com':
+        print(out['title'])
+        html = etree.HTML(html_code)
+        aa='//div[@class]/p/a[@rel="category tag"]/text()'
+        ll = html.xpath(aa)[0]
+        ll = ll.replace('/', '-').strip()
+        out['title'] = out['title'].replace('文章 - 伯乐在线', ll + ' - 伯乐在线')
+        #html = etree.HTML(html_code)
+
+    d = d.replace('\n\n\n', '\n').replace('\n\n\n', '\n').replace('\n\n', '\n')
     return FILTER[aaa]['root'], out['title'], d
 
 from down import *

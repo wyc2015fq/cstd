@@ -1,16 +1,6 @@
 # vs2015+ffmpeg开发环境配置 - 李鑫o_O - CSDN博客
 
-
-
-
-
-置顶2016年03月30日 14:37:59[hustlx](https://me.csdn.net/HUSTLX)阅读数：11614
-
-
-
-
-
-
+置顶2016年03月30日 14:37:59[hustlx](https://me.csdn.net/HUSTLX)阅读数：11628
 
 
 # 1.在[http://ffmpeg.zeranoe.com/builds/](http://ffmpeg.zeranoe.com/builds/) 下载最新的ffmpeg的dev版和share版，注意下载的时候严格区分x64和x86，取决于你vs2015调试的解决方案平台用什么，如果安装了错误的版本将会出现一堆无法解析的错误。
@@ -19,13 +9,11 @@
 
 ![](https://img-blog.csdn.net/20160330144756638?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-
 # 2.在工程属性》C/C++》常规》附加包含目录：$(ProjectDir)include
 
 比如在我的项目中：C:\Users\yckj\Documents\Visual Studio2015\Projects\watermarkUI\include
 
 ![](https://img-blog.csdn.net/20160330145114166?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
-
 
 # 点击应用，
 
@@ -33,16 +21,13 @@
 
 C:\Users\yckj\Documents\Visual Studio2015\Projects\watermarkUI\lib
 
-
 点击应用，
 
 ![](https://img-blog.csdn.net/20160330145335231?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
-
 #    最后点击确定
 
 #  3，在要用到ffmpeg库的头文件中加入：
-
 
 ```cpp
 extern "C"
@@ -68,8 +53,5 @@ extern "C"
 #pragma comment(lib, "swscale.lib")
 ```
 
-
 这样你的ffmpeg库就应该配置成功了。
-
-
 

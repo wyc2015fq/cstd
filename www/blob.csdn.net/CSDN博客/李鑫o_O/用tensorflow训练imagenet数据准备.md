@@ -1,16 +1,6 @@
 # 用tensorflow训练imagenet数据准备 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2017年08月02日 17:07:59[hustlx](https://me.csdn.net/HUSTLX)阅读数：8770
-
-
-
-
-
-
+2017年08月02日 17:07:59[hustlx](https://me.csdn.net/HUSTLX)阅读数：8788
 
 
                 
@@ -39,6 +29,4 @@ python process_bounding_boxes.py ILSVRC2012/raw-data/imagenet-data/bounding_boxe
 python build_imagenet_data.py --train_directory=ILSVRC2012/raw-data/imagenet-data/train/ --validation_directory=ILSVRC2012/raw-data/imagenet-data/validation/ --output_directory=ILSVRC2012/ --imagenet_metadata_file=imagenet_metadata.txt --labels_file=imagenet_lsvrc_2015_synsets.txt --bounding_box_file=ILSVRC2012/raw-data/imagenet_2012_bounding_boxes.csv
 ```
 `#最后一步需要将build_imagenet_data.py里面的JPEG换成jpeg`
-
-
 

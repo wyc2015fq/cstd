@@ -1,16 +1,6 @@
 # tensorflow笔记 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2017年08月08日 11:58:41[hustlx](https://me.csdn.net/HUSTLX)阅读数：380
-
-
-
-
-
-
+2017年08月08日 11:58:41[hustlx](https://me.csdn.net/HUSTLX)阅读数：382
 
 
                 
@@ -32,5 +22,4 @@
 
 在一定程度上也起到了扩充特征的作用
             
-
 

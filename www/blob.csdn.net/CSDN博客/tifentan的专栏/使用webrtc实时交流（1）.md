@@ -1,22 +1,13 @@
 # 使用webrtc实时交流（1） - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2017年09月06日 10:59:18[露蛇](https://me.csdn.net/tifentan)阅读数：265
-
-
-
-
-
-
+2017年09月06日 10:59:18[露蛇](https://me.csdn.net/tifentan)阅读数：266
 
 
 本系列文章翻译自webrtc官网链接codelab。 
 [https://codelabs.developers.google.com/codelabs/webrtc-web/#0](https://codelabs.developers.google.com/codelabs/webrtc-web/#0)
 
 本人翻译水平有限，本着翻译过程就是学习过程的目的进行翻译。若有不当之处，欢迎指出。
+
 # 介绍
 
 ```
@@ -48,7 +39,4 @@ webrtc基于p2p实现，用户间尽量选择最直接的路由连接（例如�
 ## webrtc安全吗
 
 webrtc的组件都是加密的（估计指的是web api），只能通过https或者localhost调用。信令传输是你自己定义的，安不安全关我鸟事，你可以选择安全性高的协议。
-
-
-
 

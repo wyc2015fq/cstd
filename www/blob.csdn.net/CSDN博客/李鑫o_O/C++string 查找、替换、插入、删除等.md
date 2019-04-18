@@ -1,15 +1,6 @@
 # C++string:查找、替换、插入、删除等 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年05月04日 20:36:08[hustlx](https://me.csdn.net/HUSTLX)阅读数：2324
-
-
-
-
-
+2016年05月04日 20:36:08[hustlx](https://me.csdn.net/HUSTLX)阅读数：2332
 
 
 要想使用标准C++中string类，必须要包含
@@ -54,8 +45,6 @@ const char *c_str()const;//返回一个以null终止的c字符串
 
 int copy(char *s, int n, int pos = 0) const;//把当前串中以pos开始的n个字符拷贝到以s为起始位置的字符数组中，返回实际拷贝的数目
 
-
-
 string的特性描述:
 
 int capacity()const;    //返回当前容量（即string中不必增加内存即可存放的元素个数）
@@ -76,8 +65,6 @@ string类重载运算符operator>>用于输入，同样重载运算符operator<<
 
 函数getline(istream &in,string &s);用于从输入流in中读取字符串到s中，以换行符'\n'分开。
 
-
-
 string的赋值：
 
 string &operator=(const string &s);//把字符串s赋给当前字符串
@@ -94,8 +81,6 @@ string &assign(const string &s,int start,int n);//把字符串s中从start开始
 
 string &assign(const_iterator first,const_itertor last);//把first和last迭代器之间的部分赋给字符串
 
-
-
 string的连接：
 
 string &operator+=(const string &s);//把字符串s连接到当前字符串的结尾 
@@ -111,7 +96,6 @@ string &append(const string &s,int pos,int n);//把字符串s中从pos开始的n
 string &append(int n,char c);        //在当前字符串结尾添加n个字符c
 
 string &append(const_iterator first,const_iterator last);//把迭代器first和last之间的部分连接到当前字符串的结尾
-
 
 string的比较：
 
@@ -135,16 +119,13 @@ int compare(int pos, int n,const char *s, int pos2) const;
 
 compare函数在>时返回1，<时返回-1，==时返回0  
 
-
 string的子串：
 
 string substr(int pos = 0,int n = npos) const;//返回pos开始的n个字符组成的字符串
 
-
 string的交换：
 
 void swap(string &s2);    //交换当前字符串与s2的值
-
 
 string类的查找函数： 
 
@@ -206,7 +187,6 @@ int find_last_not_of(const string &s,int pos = npos) const;
 
 //find_last_of和find_last_not_of与find_first_of和find_first_not_of相似，只不过是从后向前查找
 
-
 string类的替换函数： 
 
 string &replace(int p0, int n0,const char *s);//删除从p0开始的n0个字符，然后在p0处插入串s
@@ -229,7 +209,6 @@ string &replace(iterator first0, iterator last0,int n, char c);//把[first0，la
 
 string &replace(iterator first0, iterator last0,const_iterator first, const_iterator last);//把[first0，last0）之间的部分替换成[first，last）之间的字符串
 
-
 string类的插入函数： 
 
 string &insert(int p0, const char *s);
@@ -250,7 +229,6 @@ void insert(iterator it, const_iterator first, const_iterator last);//在it处�
 
 void insert(iterator it, int n, char c);//在it处插入n个字符c
 
-
 string类的删除函数 
 
 iterator erase(iterator first, iterator last);//删除[first，last）之间的所有字符，返回删除后迭代器的位置
@@ -258,7 +236,6 @@ iterator erase(iterator first, iterator last);//删除[first，last）之间的�
 iterator erase(iterator it);//删除it指向的字符，返回删除后迭代器的位置
 
 string &erase(int pos = 0, int n = npos);//删除pos开始的n个字符，返回修改后的字符串
-
 
 string类的迭代器处理： 
 
@@ -284,7 +261,6 @@ iterator rend();                    //返回string第一个字符位�
 
 rbegin和rend用于从后向前的迭代访问，通过设置迭代器string::reverse_iterator,string::const_reverse_iterator实现
 
-
 字符串流处理： 
 
 通过定义ostringstream和istringstream变量实现，#include <sstream>头文件中
@@ -304,5 +280,4 @@ rbegin和rend用于从后向前的迭代访问，通过设置迭代器string::re
     os<<s1<<s2<<s3<<s4;
 
     cout<<os.str();
-
 

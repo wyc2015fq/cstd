@@ -1,16 +1,6 @@
 # 深度优先DFS和广度优先BFS的非递归实现 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年08月09日 16:32:58[hustlx](https://me.csdn.net/HUSTLX)阅读数：3369
-
-
-
-
-
-
+2016年08月09日 16:32:58[hustlx](https://me.csdn.net/HUSTLX)阅读数：3377
 
 
 ```cpp
@@ -59,7 +49,4 @@ void BFS(Node root) {
     }
 }
 ```
-
-
-
 

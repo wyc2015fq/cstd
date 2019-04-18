@@ -1,23 +1,11 @@
 # kmp算法及其c++实现 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月16日 15:12:12[hustlx](https://me.csdn.net/HUSTLX)阅读数：511
-
-
-
-
-
-
+2016年03月16日 15:12:12[hustlx](https://me.csdn.net/HUSTLX)阅读数：512
 
 
 算法详解请看http://www.cnblogs.com/c-cloud/p/3224788.html
 
 下面是我用c++实现的版本：
-
-
 
 ```cpp
 #include <string>
@@ -75,10 +63,5 @@ int main()
     return 0;
 }
 ```
-
-
-
-
-
 
 

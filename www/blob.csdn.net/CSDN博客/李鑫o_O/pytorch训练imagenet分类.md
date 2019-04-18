@@ -1,16 +1,6 @@
 # pytorch训练imagenet分类 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2017年07月10日 18:11:23[hustlx](https://me.csdn.net/HUSTLX)阅读数：2609
-
-
-
-
-
-
+2017年07月10日 18:11:23[hustlx](https://me.csdn.net/HUSTLX)阅读数：2619
 
 
 1、imagenet数据准备：
@@ -18,9 +8,6 @@
 a、下载数据集
 
 b、提取training data:
-
-
-
 
 ```
 mkdir train && mv ILSVRC2012_img_train.tar train/ && cd train
@@ -41,7 +28,4 @@ rm pre_val.sh
 注意：如果最后一步无法成功，打开网页复制内容生成一个pre_val.sh文件后处理
 
 windows编辑的sh文件用下面去问题cat -v old.sh |tr -d "^M" > new.sh 
-
-
-
 

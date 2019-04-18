@@ -1,21 +1,9 @@
 # ffmpeg常见命令 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月14日 11:16:44[hustlx](https://me.csdn.net/HUSTLX)阅读数：868
-
-
-
-
-
-
+2016年03月14日 11:16:44[hustlx](https://me.csdn.net/HUSTLX)阅读数：869
 
 
 # 一、安装
-
-
 
        下载ffmpeg，解压之后配置环境变量即为安装
 
@@ -70,7 +58,6 @@
     ffmpeg -i input_file -vcodec copy -an output_file_video　　//分离视频流
 
     ffmpeg -i input_file -acodec copy -vn output_file_audio　　//分离音频流
-
 
     ffmpeg -i input_file -vcodec copy -an output_file_video　　//分离视频流
 
@@ -129,8 +116,4 @@
 五、音频
 
      ffmpeg -f s16le -ar 44.1k -ac 2 -i file.pcm file.wav
-
-
-
-
 

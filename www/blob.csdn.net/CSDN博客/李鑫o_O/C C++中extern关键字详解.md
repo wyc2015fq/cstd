@@ -1,18 +1,7 @@
 # C/C++中extern关键字详解 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年04月29日 22:26:16[hustlx](https://me.csdn.net/HUSTLX)阅读数：312
+2016年04月29日 22:26:16[hustlx](https://me.csdn.net/HUSTLX)阅读数：313
 个人分类：[c/c++](https://blog.csdn.net/HUSTLX/article/category/6122695)
-
-
-
-
-
-
-
 
 
 
@@ -216,7 +205,4 @@ extern int f(); 和int f();
 
     所以当const单独使用时它就与static相同，而当与extern一起合作的时候，它的特性就跟extern的一样了！所以对const我没有什么可以过多的描述，我只是想提醒你，const char* g_str = "123456" 与 const char g_str[] ="123465"是不同的， 前面那个const 修饰的是char *而不是g_str,它的g_str并不是常量，它被看做是一个定义了的全局变量（可以被其他编译单元使用），
  所以如果你像让char*g_str遵守const的全局常量的规则，最好这么定义const char* const g_str="123456".
-
-
-
 

@@ -1,33 +1,16 @@
 # google的只能指针scoped_refptr - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2017年01月06日 19:04:37[露蛇](https://me.csdn.net/tifentan)阅读数：1566
-
-
-
-
-
-
+2017年01月06日 19:04:37[露蛇](https://me.csdn.net/tifentan)阅读数：1570
 
 
 
 转自： [http://www.cnblogs.com/marco/archive/2010/09/09/1820724.html](http://www.cnblogs.com/marco/archive/2010/09/09/1820724.html)
 
-
-
-
-
 　　很多人喜欢Chrome，喜欢它的简洁，喜欢它的“快”。 简洁大家一目了然，无需多言，这里重点要说的是它的“快”。什么是“快”呢？大概不少人第一反应就是cnBeta上的日经[JavaScript](http://lib.csdn.net/base/javascript)跑分贴，Chrome那叫一个快啊。（其实每次点开这类文章时，我都是想去同情一下我们可怜的IE同学的，不过最近IE9着实又让人充满了期待。）但Javascript跑分真的这么重要吗，我们真的能体会到很大的差距吗？反正我是感觉不太出来。那凭啥还说Chrome快呢？Chrome快就快在UI
  Responsive（UI响应性）上。说白了就是你双击一下桌面图标，它能很快启动起来（Firefox用户应该深有感触吧）；点击某个超链接，它能瞬间给你弹出个新页面来（用IE的朋友也没少遇过假死的现象吧）。因此，Chrome并不只是个跑分的工具。那Chrome良好的UI Responsive是如何做到的呢？这就要得益于它的线程模型了。
 
-
 　　为了避免重复制造轮子，这里我并不打算阐述Chrome线程模型的总体框架，而是将更多的精力放在具体实现上。对Chrome线程模型框架不熟悉的朋友可以阅读一下duguguiyu的[这篇文章](http://www.cnblogs.com/duguguiyu/archive/2008/10/02/1303095.html)。有条件的朋友可以到[这里](http://chromium-browser-source.commondatastorage.googleapis.com/chromium_tarball.html)去下载一份Chromium的源码，或者到[这里](http://src.chromium.org/svn/trunk/src/)在线查看。闲话少说,
  Let's [Go](http://lib.csdn.net/base/go)!
-
-
 
 NO.1 Smart Pointers
 
@@ -39,8 +22,6 @@ Chromium中一个比较有意思的常用指针是scoped_refptr(可参见base/re
 
 ```
 ![](http://images.cnblogs.com/OutliningIndicators/ExpandedBlockStart.gif)代码
-
-
 
 template <class T>
 class scoped_refptr {
@@ -76,8 +57,6 @@ RefCounted比较简单，但值得注意的一点，它并不保证线程安全�
 
 ```
 ![](http://images.cnblogs.com/OutliningIndicators/ExpandedBlockStart.gif)代码
-
-
 
 template <class T, typename Traits = DefaultRefCountedThreadSafeTraits<T> >
 class RefCountedThreadSafe : public subtle::RefCountedThreadSafeBase {
@@ -116,8 +95,6 @@ void RefCountedThreadSafeBase::AddRef() {
 
 另外还有一个指针是WeakPtr（base/weak_ptr.h），这里就不多做描述了，需要了解的朋友可以自行阅读它的代码。 
 
-
-
 No.2 Tasks 
 
 有了智能指针的知识做基础，我们接下来就来看看Chrome中Task的实现了。
@@ -144,8 +121,6 @@ class Task : public tracked_objects::Tracked {
 ```
 ![](http://images.cnblogs.com/OutliningIndicators/ExpandedBlockStart.gif)代码
 
-
-
 template <class T, class Method, class A>
 
 inline CancelableTask* NewRunnableMethod(T* object, Method method, const A& a) {
@@ -153,7 +128,6 @@ inline CancelableTask* NewRunnableMethod(T* object, Method method, const 
   return new RunnableMethod<T, Method, Tuple1<A> >(object, method, MakeTuple(a));
 
 }
-
 
 template <class T, class Method, class Params>
 class RunnableMethod : public CancelableTask {
@@ -191,11 +165,7 @@ class RunnableMethod : public CancelableTask {
 有了这些，我们的Task实现是不是就完备了呢？答案显然是否定的。我们很可能会用NewRunnableMethod(new T, &T::SomeMethod)来构建了一个Task并把它分发到指定线程。但问题是，如果在该Task执行之前，new T所创建出来的对象已经被销毁了呢？那Task所持有的不就成了一个Pending Pointer，这不就会引发Access Violation这样严重的问题了？所以Chromium给我们提供了另一套解决方案：Scoped
  factories。本着不重复制造轮子的原则，愿意做详细了解的朋友请阅读Optman的[这篇文章](http://optman.javaeye.com/blog/545036)。
 
-
-
 No.3 Cross-Thread Request
-
-
 
 Chrome中所有线程都有着明确的分工，比如UI线程专门负责响应用户请求，File线程专门负责访问文件系统。
 
@@ -203,8 +173,6 @@ Chrome中所有线程都有着明确的分工，比如UI线程专门负责响应
 
 但是，如果我们只是知道如何去实现，而不去关心为什么要这样做的话，也就成了圣人所说的学而不思者，后果必然就是“罔”了。不觉得相对于在UI线程中直接去读取文件，Chrome折腾这么一大堆东西之后，反而要多出很多线程调度和Task排队等待的时间来吗？那它是不是在瞎折腾呢？细细品味，这完全是有道理的。正是因为这个设计，才使得Chrome拥有了优秀的UI
  Responsive。我们知道，UI无响应的罪魁祸首就是在于在UI线程中执行耗时的操作。在UI线程中读取文件，带来的最直接后果就是用户容易觉得卡。也许你会质疑，如果我读的只是一个很小的文件呢，这样的话用户应该完全感觉不到啊？但是，如果这个时候你的卡巴斯基在“喀喀喀”地扫描你的硬盘呢，你的程序在这种极端的硬盘IO下面还能保持良好的响应性吗？再看Chrome，无论你硬盘怎么“喀”，UI线程只要在往File线程添加一个Task后就返回去响应用户操作了，而File线程读好之后，也能很快地进行更新。或许从用户操作到真正显示出文件内容来的时间上，Chrome还是要长些，但在这段时间中，用户还是能够流畅地切换标签页、打开新页面等。但如果使用UI线程直接访问文件，这就不可能做到了。
-
-
 
 No.4 Sample
 
@@ -215,8 +183,6 @@ history.h中有一个重要的类HistoryService，它是运行在UI线程中并�
 
 ```
 ![](http://images.cnblogs.com/OutliningIndicators/ExpandedBlockStart.gif)代码
-
-
 
 class HistoryService : public CancelableRequestProvider,
 
@@ -233,7 +199,6 @@ class HistoryService : public CancelableRequestProvider,
   base::Thread* thread_;
 
 };
-
 
 HistoryService::HistoryService()
 
@@ -268,16 +233,13 @@ void HistoryService::LoadBackendIfNecessary() {
 
     return;  // Failed to init, or already started loading.
 
-
   scoped_refptr<HistoryBackend> backend(new HistoryBackend(...));
 
   history_backend_.swap(backend);
 
-
   ScheduleAndForget(PRIORITY_UI, &HistoryBackend::Init, no_db_);
 
 }
-
 
 HistoryService::~HistoryService() {
 
@@ -319,15 +281,8 @@ void HistoryService::UnloadBackend() {
 }
 ```
 
-
  　　需要说明的是，history_backend_构造时只是简单地把所有指针成员置NULL而没有具体的初始化动作（HistoryBackend::Init方法），这既保证了UI线程在构造HistoryService时也可以快速完成而不需要等待，同时也是因为它需要在thread_所代表的线程中来完成初始化。当HistoryService需要调用HistoryBackend的方法时，也是通过往thread_的消息循环上分发Task来异步完成的。关于HistoryService是如何往thread_上分发任务和发起Cross-Thread
  Request的请自行参阅代码，基本都是使用了上面提到的方法，比较好懂。
 
-
-
-
-
       扯了这么多，该小结一下了。好像也没什么特别的感慨要发，只是觉得这些代码确实质量很高而且很精妙，稍加整理也可以用于我们自己的工程中。当然，请记得一定要遵循开源的游戏规则。想进一步了解的朋友可以自己去研读代码。本人水平有限，上面描述中有不妥当的地方，也请不吝指出。
-
-
 

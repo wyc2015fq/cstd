@@ -1,16 +1,6 @@
 # Verify Preorder Serialization of a Binary Tree - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月07日 11:26:44[hustlx](https://me.csdn.net/HUSTLX)阅读数：361
-
-
-
-
-
-
+2016年03月07日 11:26:44[hustlx](https://me.csdn.net/HUSTLX)阅读数：362
 
 
 ```cpp
@@ -41,8 +31,4 @@ bool isValidSerialization(string preorder) {
     return temp.size()==1&&temp[0]=='#';
 }
 ```
-
-
-
-
 

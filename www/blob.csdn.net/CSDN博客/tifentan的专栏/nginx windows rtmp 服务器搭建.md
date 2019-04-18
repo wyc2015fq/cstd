@@ -1,15 +1,6 @@
 # nginx windows rtmp 服务器搭建 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2017年11月01日 15:02:26[露蛇](https://me.csdn.net/tifentan)阅读数：305
-
-
-
-
-
+2017年11月01日 15:02:26[露蛇](https://me.csdn.net/tifentan)阅读数：306
 
 
 Windows机器配置:
@@ -106,7 +97,6 @@ http {
     server {
         listen       80;
         server_name  localhost;
-
 
         location /stat {
             rtmp_stat all;
@@ -228,5 +218,4 @@ http {
 进入windows的cmd; 
 > cd nginx-1.7.11.3-Gryphon
 > nginx.exe -c conf\nginx-win-rtmp.conf
-
 

@@ -1,29 +1,13 @@
 # c++ 多态 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月09日 18:46:06[hustlx](https://me.csdn.net/HUSTLX)阅读数：385
+2016年03月09日 18:46:06[hustlx](https://me.csdn.net/HUSTLX)阅读数：386
 个人分类：[c/c++](https://blog.csdn.net/HUSTLX/article/category/6122695)
-
-
-
-
-
-
-
-
-
 
 
 
 多态：同一操作作用于不同的对象，可以有不同的解释，产生不同的执行结果。在运行时，可以通过指向基类的指针，来调用实现派生类中的方法。
 
-
 C++中，实现多态有以下方法：[虚函数](http://baike.baidu.com/view/161302.htm)，[抽象类](http://baike.baidu.com/view/262290.htm)，覆盖，模板（重载和多态无关）。
-
-
 
 C++编程语言是一款应用广泛，支持多种程序设计的计算机编程语言。我们今天就会为大家详细介绍其中C++多态性的一些基本知识，以方便大家在学习过程中对此能够有一个充分的掌握。
 　　多态性可以简单地概括为“一个接口，多种方法”，程序在运行时才决定调用的函数，它是面向对象编程领域的核心概念。多态(polymorphism)，字面意思多种形状。
@@ -37,14 +21,10 @@ C++编程语言是一款应用广泛，支持多种程序设计的计算机编�
 
 笔试题目：
 
-
-
-
-
 **[cpp]**[view
  plain](http://blog.csdn.net/hackbuteer1/article/details/7475622#)[copy](http://blog.csdn.net/hackbuteer1/article/details/7475622#)
 
-![在CODE上查看代码片](https://code.csdn.net/assets/CODE_ico.png)![派生到我的代码片](https://code.csdn.net/assets/ico_fork.svg)
+![在CODE上查看代码片](https://code.csdn.net/assets/CODE_ico.png)[](https://code.csdn.net/snippets/574532/fork)
 
 - #include<iostream>
 - usingnamespace std;  
@@ -99,12 +79,10 @@ C++编程语言是一款应用广泛，支持多种程序设计的计算机编�
 
 　　而ptr->fun()的调用，可能还是因为C++多态性的原因，由于指向的是一个基类对象，通过虚函数列表的引用，找到了基类中fun()函数的地址，因此调用了基类的函数。由此可见多态性的强大，可以适应各种变化，不论指针是基类的还是子类的，都能找到正确的实现方法。
 
-
-
 **[cpp]**[view
  plain](http://blog.csdn.net/hackbuteer1/article/details/7475622#)[copy](http://blog.csdn.net/hackbuteer1/article/details/7475622#)
 
-![在CODE上查看代码片](https://code.csdn.net/assets/CODE_ico.png)![派生到我的代码片](https://code.csdn.net/assets/ico_fork.svg)
+![在CODE上查看代码片](https://code.csdn.net/assets/CODE_ico.png)[](https://code.csdn.net/snippets/574532/fork)
 
 - //小结：1、有virtual才可能发生多态现象
 - // 2、不发生多态（无virtual）调用就按原类型调用
@@ -213,6 +191,4 @@ C++纯虚函数
   3、抽象类 
 
   包含纯虚函数的类称为抽象类。由于抽象类包含了没有定义的纯虚函数，所以不能定义抽象类的对象。
-
-
 

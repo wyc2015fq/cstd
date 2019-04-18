@@ -1,23 +1,10 @@
 # MySQL事务处理和锁机制 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年05月16日 16:33:12[hustlx](https://me.csdn.net/HUSTLX)阅读数：1679
-
-
-
-
-
-
-
+2016年05月16日 16:33:12[hustlx](https://me.csdn.net/HUSTLX)阅读数：1680
 
 
 
 # MySQL事务处理和锁机制
-
-
 
 1.隔离级别
 
@@ -26,8 +13,6 @@
 这种隔离级别下，事务间完全不隔离，会产生脏读，可以读取未提交的记录，实际情况下不会使用。
 
 (2)读提交(Readcommited，RC)
-
-
 
 仅能读取到已提交的记录，这种隔离级别下，会存在幻读现象，所谓幻读是指在同一个事务中，多次执行同一个查询，返回的记录不完全相同的现象。幻读产生的根本原因是，在RC隔离级别下，每条语句都会读取已提交事务的更新，若两次查询之间有其他事务提交，则会导致两次查询结果不一致。虽然如此，读提交隔离级别在生产环境中使用很广泛。
 
@@ -64,7 +49,6 @@
 3.  当表有多个索引时，不同事务可以用不同的索引锁住不同的行，另外innodb会同时用行锁对数据记录(聚簇索引)加锁。
 
 4.  MVCC并发控制机制下，任何操作都不会阻塞读操作，读操作也不会阻塞任何操作，只因为读不上锁。
-
 
 |[6. 锁互斥与兼容关系矩阵](http://shop111432812.taobao.com/)|[](http://shop111432812.taobao.com/)|[X (排他锁)](http://shop111432812.taobao.com/)|[S (共享锁)](http://shop111432812.taobao.com/)|[IX (意向排他锁)](http://shop111432812.taobao.com/)|[IS(意向共享锁)](http://shop111432812.taobao.com/)||----|----|----|----|----||[X](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)||[S](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)||[IX](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)||[IS](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)|[(y表示兼容，n表示不兼容):](http://shop111432812.taobao.com/)|[](http://shop111432812.taobao.com/)|[X (排他锁)](http://shop111432812.taobao.com/)|[S (共享锁)](http://shop111432812.taobao.com/)|[IX (意向排他锁)](http://shop111432812.taobao.com/)|[IS(意向共享锁)](http://shop111432812.taobao.com/)|[X](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[S](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)|[IX](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)|[IS](http://shop111432812.taobao.com/)|[n](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)|[y](http://shop111432812.taobao.com/)|
 |----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
@@ -159,10 +143,6 @@ mysql>kill id #杀死sql进程；
 常用目录：/var/log/mysqld.log；（该目录还有其它相关日志文件就都看看）
 
 怎么解决还是要看具体什么问题.
-
-
-
-
 
 1.      事务处理和并发性
 
@@ -279,9 +259,5 @@ serializable模式中，事务被强制为依次执行。这是 SQL 标准建议
 10 ）执行 SELECT 时使用 SQL_BUFFER_RESULT 有助于减短锁表的持续时间。
 
 11 ）可以修改源代码 `mysys/thr_lock.c' ，只用一个所队列。这种情况下，写锁和读锁的优先级就一样了，这对一些应用可能有帮助。
-
-
-
-
 
 

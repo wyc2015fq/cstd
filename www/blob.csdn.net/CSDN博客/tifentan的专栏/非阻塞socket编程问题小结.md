@@ -1,17 +1,7 @@
 # 非阻塞socket编程问题小结 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2014年11月26日 10:17:48[露蛇](https://me.csdn.net/tifentan)阅读数：526
+2014年11月26日 10:17:48[露蛇](https://me.csdn.net/tifentan)阅读数：527
 个人分类：[网络](https://blog.csdn.net/tifentan/article/category/2739913)
-
-
-
-
-
-
 
 
 
@@ -76,8 +66,6 @@ if((flags =fcntl(tcp_client_sock,F_GETFL, 0 )) < 0)
          return -1;
 
        }
-
-
 
  if(connect(tcp_client_sock,(structsockaddr*)&server, server_length) <0) //向服务器发起连接
 
@@ -197,15 +185,11 @@ else
 
        }
 
-
-
 关于send函数在阻塞模式和非阻塞模式下的区别：
 
       在阻塞模式下,send函数的过程是将应用程序请求发送的数据拷贝到发送缓存中发送并得到确认后再返回.但由于发送缓存的存在,表现为:如果发送缓存大小比请求发送的大小要大,那么send函数立即返回,同时向网络中发送数据;否则,send向网络发送缓存中不能容纳的那部分数据,并等待对端确认后再返回(接收端只要将数据收到接收缓存中,就会确认,并不一定要等待应用程序调用recv);
 
       在非阻塞模式下,send函数的过程仅仅是将数据拷贝到协议栈的缓存区而已,如果缓存区可用空间不够,则尽能力的拷贝,返回成功拷贝的大小;如缓存区可用空间为0,则返回-1,同时设置errno为EAGAIN.
-
-
 
 当客户通过Socket提供的send函数发送大的数据包时，就可能返回一个EGGAIN的错误。该错误产生的原因是由于send函数中的size变量大小超过了tcp_sendspace的值。tcp_sendspace定义了应用在调用send之前能够在kernel中缓存的数据量。当应用程序在socket中设置了O_NDELAY或者O_NONBLOCK属性后，如果发送缓存被占满，send就会返回EAGAIN的错误。
 
@@ -264,7 +248,4 @@ else
           }
 
           else
-
-
-
 

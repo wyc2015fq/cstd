@@ -1,22 +1,13 @@
 # dll中使用到容器的全局变量在mfc中报内存泄漏 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2017年11月27日 10:28:50[露蛇](https://me.csdn.net/tifentan)阅读数：155
-
-
-
-
-
-
+2017年11月27日 10:28:50[露蛇](https://me.csdn.net/tifentan)阅读数：157
 
 
 这几天发现一个蛋疼的问题，在vs2015上，dll中使用到容器的全局变量在mfc中报内存泄漏。 
 ![这里写图片描述](https://img-blog.csdn.net/20171127095131629?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlmZW50YW4=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
   这是怎么出现的呢，我加入了opengl的依赖后就出现了。是不是很神奇？而且只针对那些使用到容器的全局变量。
+
 例如 
 
 ```
@@ -35,7 +26,4 @@ char tmp[111]; //不会报泄漏。
   不是我的问题就好。 
 
   对了在vs2015上检测内存泄漏有自带的工具，很方便，下次专门写个文章介绍。
-
-
-
 

@@ -1,17 +1,6 @@
 # 3Sum - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月08日 09:33:56[hustlx](https://me.csdn.net/HUSTLX)阅读数：214
-
-
-
-
-
-
-
+2016年03月08日 09:33:56[hustlx](https://me.csdn.net/HUSTLX)阅读数：215
 
 
 
@@ -50,8 +39,4 @@ int main() {
     vector<vector<int>> re=threeSum(nums);
 }</span>
 ```
-
-
-
-
 

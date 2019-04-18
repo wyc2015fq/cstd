@@ -1,16 +1,6 @@
 # windows+as+ndk建立jni工程例子 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2018年03月26日 18:02:40[露蛇](https://me.csdn.net/tifentan)阅读数：232
-
-
-
-
-
-
+2018年03月26日 18:02:40[露蛇](https://me.csdn.net/tifentan)阅读数：234
 
 
 由于编写demo的需要，了解了一下jni接口的实现。本文适合像我熟悉c++却对安卓比较小白速度上手jni。
@@ -22,6 +12,7 @@
 test.java -> test.class -> test.h –> test.c 
 
 最后在test.c里面调用我们的c++代码。
+
 ## 准备
 
 如果不够详细，百度可以了，下面那些都很常见的操作。 
@@ -33,6 +24,7 @@ test.java -> test.class -> test.h –> test.c
 我们可以直接使用android studio自带的jre。在安装目录下就有（例如我的D:\Android\Android Studio\jre） 
 
 在windows上配置以下3个环境变量
+
 ```
 JAVA_HOME   D:\Android\Android Studio\jre
 CLASSPATH   %JAVA_HOME%\lib
@@ -46,12 +38,14 @@ path一般已经有的，在后面添加就好了。
 
 4.建两个目录来分别存放as项目和so生成项目 
 ![这里写图片描述](https://img-blog.csdn.net/20180326165957368?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RpZmVudGFu/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+
 ## java层接口
 
 我们先用as建立一个工程放在jni-as下。 
 ![这里写图片描述](https://img-blog.csdn.net/20180326170155221?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RpZmVudGFu/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
 
 然后建立一个java类，这个就是java层的接口了。
+
 ```java
 package com.test.jnitest;
 
@@ -187,6 +181,7 @@ APP_ABI := armeabi armeabi-v7a
 
 看一下目录下的东西： 
 ![这里写图片描述](https://img-blog.csdn.net/20180326174537903?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RpZmVudGFu/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+
 然后在jni-ndk目录下执行
 `ndk-build`
 完成后可在jni-ndk\libs下看到生成的so了。 
@@ -204,11 +199,4 @@ APP_ABI := armeabi armeabi-v7a
 
 Run app，搞定！！！ 
 ![这里写图片描述](https://img-blog.csdn.net/20180326180110257?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RpZmVudGFu/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
-
-
-
-
-
-
-
 

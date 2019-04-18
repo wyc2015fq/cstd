@@ -1,16 +1,6 @@
 # vim命令大全 - 李鑫o_O - CSDN博客
 
-
-
-
-
-置顶2017年08月17日 15:13:46[hustlx](https://me.csdn.net/HUSTLX)阅读数：317
-
-
-
-
-
-
+置顶2017年08月17日 15:13:46[hustlx](https://me.csdn.net/HUSTLX)阅读数：318
 
 
 # 命令历史
@@ -353,7 +343,6 @@ $ vimtutor
 
 :help tutor
 
-
 :syntax 列出已经定义的语法项
 
 :syntax clear 清除已定义的语法规则
@@ -361,7 +350,4 @@ $ vimtutor
 :syntax case match 大小写敏感，int和Int将视为不同的语法元素
 
 :syntax case ignore 大小写无关，int和Int将视为相同的语法元素，并使用同样的配色方案
-
-
-
 

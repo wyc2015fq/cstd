@@ -1,16 +1,6 @@
 # Linux多版本gcc共存 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2017年05月18日 17:09:32[hustlx](https://me.csdn.net/HUSTLX)阅读数：1638
-
-
-
-
-
-
+2017年05月18日 17:09:32[hustlx](https://me.csdn.net/HUSTLX)阅读数：1641
 
 
                 
@@ -62,5 +52,4 @@ sudo update-alternatives --remove gcc /usr/bin/gcc-4.5
 
 再用gcc -v 来看一下版本是否改变了。
             
-
 

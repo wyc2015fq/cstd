@@ -1,16 +1,6 @@
 # 决策树及其python实现 - 李鑫o_O - CSDN博客
 
-
-
-
-
-置顶2016年03月10日 21:39:34[hustlx](https://me.csdn.net/HUSTLX)阅读数：1978
-
-
-
-
-
-
+置顶2016年03月10日 21:39:34[hustlx](https://me.csdn.net/HUSTLX)阅读数：1979
 
 
 ## 1、剪枝
@@ -20,8 +10,6 @@
  ( Reduced Error Pruning)方法进行剪枝。它的基本思路是:对于决策树 T 的每棵非叶子树s, 用叶子替代这棵子树.如果s 被叶子替代后形成的新树关于D 的误差等于或小于s关于D 所产生的误差, 则用叶子替代子树s。降低错误剪枝 REP优点是计算复杂性低、对未知示例预测偏差较小、自底向上处理。
 
 剪枝的具体代码如下：
-
-
 
 ```python
 myDat2=loadDataSet('ex2.txt')
@@ -54,9 +42,6 @@ def prune(tree, testData):
 else: return tree
 ```
 
-
-
-
 剪枝后可以看到相关系数为99.17%。
 
 ![clip_image002](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311092216835-1948376929.jpg)
@@ -64,8 +49,6 @@ else: return tree
 ## 2、回归树、模型树和普通回归树比较
 
 以下分别是回归树模型树和普通回归树调用实现：
-
-
 
 ```python
 trainMat=mat(loadDataSet('bikeSpeedVsIq_train.txt'))
@@ -81,9 +64,6 @@ for i in range(shape(testMat)[0]):
     yModelHat[i]=testMat[i,0]*ws[1,0]+ws[0,0]
 print "stardand",corrcoef(yModelHat, testMat[:,1],rowvar=0)[0,1]
 ```
-
-
-
 
 三者比较结果如下：
 
@@ -109,8 +89,6 @@ RSS就是最小的J值（有且仅当![clip_image012](http://images2015.cnblogs.
 
 Python实现如下：
 
-
-
 ```python
 def linearSolve(dataSet):   #helper function used in two places
     m,n = shape(dataSet)
@@ -131,9 +109,6 @@ def modelErr(dataSet):
 return sum(power(Y - yHat,2))
 ```
 
-
-
-
 ### 3.2、增量模型树算法
 
 作者在考虑一个有可能的分裂节点分成两个线性模型是否比用一个线性模型对函数![clip_image014](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311092222600-41338584.png)的估计更好可以当成一个检验假设。假设H0
@@ -151,8 +126,6 @@ return sum(power(Y - yHat,2))
 pvalue=stats.f.sf(F,N-2*d,d)，其中d,N-2d是自由度。其余代码如下。
 
 ### 3.3、Python实现具体如下：
-
-
 
 ```python
 def train(dataSet,tolN,delta0,split):#assume dataSet is NumPy Mat so we can array filtering
@@ -204,9 +177,6 @@ def createTrain(dataSet,tolN,delta0,split):#assume dataSet is NumPy Mat so we ca
 return retTree
 ```
 
-
-
-
 ### 3.4、实验过程
 
 我用类sin训练集做测试，为了方便做了以下界面：
@@ -220,7 +190,4 @@ return retTree
 相反，当asplit过大或者δ0过小时都容易发生过拟合：
 
 ![clip_image032](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311092230804-196265314.jpg)![clip_image034](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311092231554-1111783774.jpg)
-
-
-
 

@@ -1,16 +1,6 @@
 # webrtc详细介绍 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2017年09月12日 09:29:00[露蛇](https://me.csdn.net/tifentan)阅读数：2873
-
-
-
-
-
-
+2017年09月12日 09:29:00[露蛇](https://me.csdn.net/tifentan)阅读数：2900
 
 
 自作笔记，来自[https://hpbn.co/webrtc/](https://hpbn.co/webrtc/)，出自一本好书《High Performance 
@@ -26,6 +16,7 @@ MediaStream: 采集音视频
 RTCPeerConnection: 传输音视频 
 
 RTCDataChannel: 传输自定义数据
+
 前言一大段废话，强调了一下webrtc使用的udp，但不是普通的udp，在udp上做了很多优化云云。。
 
 ## webrtc标准和开发
@@ -41,15 +32,12 @@ webrtc具有很强的扩展性，容易跟其他现有的音视频通讯系统�
 2.在接收端，流程是相反的，客户端必须实时解码流，并能够适应网络抖动和延迟延迟。 
 
 总之，捕获和处理音频和视频是一个复杂的问题。 
-![这里写图片描述](https://hpbn.co/assets/diagrams/b8cf759a74914c66cec01d50b18de6e0.svg)
 
-获得音频流后，进行噪声减少和回声消除，然后自动选择[窄带或宽带](http://www.differencebetween.com/difference-between-narrowband-and-vs-wideband/)进行编码。最后，一个特殊的错误隐藏算法被用来隐藏网络抖动和丢包的负面影响，这只是亮点！视频引擎通过优化图像质量、选择最佳的压缩和编解码器设置、应用抖动和包丢失隐藏等来执行类似的处理。 
-
-所有的处理都是由浏览器直接完成的，更重要的是，浏览器动态地调整其处理管道，以计算音频和视频流和网络状态的不断变化的参数。一旦完成所有这些工作，Web应用程序将接收优化的媒体流，然后它可以输出到本地屏幕和扬声器，转发到其他对等端，或使用HTML5媒体API的后期处理！
 **音视频获取及处理（getUserMedia）**
 
 媒体捕获和流W3C规范定义了一组新的JavaScript API，使应用程序能够从平台请求音频和视频流，以及一组API来处理和处理所获取的媒体流。（图18-2）mediastream对象是主要的接口。 
-![这里写图片描述](https://hpbn.co/assets/diagrams/1a86ca9ae4a3c0e208ddf2f7fdc38b95.svg)- mediastream对象包含一个或多个单独的轨道（mediastreamtrack）。
+
+- mediastream对象包含一个或多个单独的轨道（mediastreamtrack）。
 - 同属于一个mediastream的track间彼此同步。
 - 输入源可以是物理设备，如麦克风、网络摄像机或来自用户硬盘或远程网络对等点的本地或远程文件
 - mediastream的输出可以被发送到一个或多个目的地：本地video或audio元素，用JavaScript进行后期处理，或发送到远程节点。
@@ -64,7 +52,6 @@ CSS3和WebGL API可以对输出流添加各种2D和3D效果。
 
 [Media Capture and Streams APIs](https://www.w3.org/TR/mediacapture-streams/)
 
-
 目前webrtc默认音频编码格式为opus，视频vp8. 
 
 opus码率：6-510kbit/s 
@@ -78,6 +65,7 @@ vp8码率：100-2000kbit/s
 180p at 30 FPS: 0.1~0.5 Mbps 
 
 一般一个peer端需要2.5mbps的带宽可进行高清视频聊天。
+
 ## 实时网络传输
 
 实时通信是对时间非常敏感的。因此，音视频流应该可以容忍间歇性的分组丢失：音频和视频编解码器可以填充小的虚假数据，通常对输出质量影响极小。另外，应用程序可以传送额外的数据来恢复丢失或延迟的数据包，但是及时性和低延迟比可靠性更重要。 
@@ -88,7 +76,7 @@ vp8码率：100-2000kbit/s
 [Building Blocks of UDP](https://hpbn.co/building-blocks-of-udp/)
 
 webrtc协议栈： 
-![这里写图片描述](https://hpbn.co/assets/diagrams/f91164cbbb944d8986c90a1e93afcd82.svg)
+
 ICE: Interactive Connectivity Establishment (RFC 5245) 
 
 STUN: Session Traversal Utilities for NAT (RFC 5389) 
@@ -102,9 +90,8 @@ DTLS: Datagram Transport Layer Security (RFC 6347)
 SCTP: Stream Control Transport Protocol (RFC 4960) 
 
 SRTP: Secure Real-Time Transport Protocol (RFC 3711)
-## RTCPeerConnection
 
-![这里写图片描述](https://hpbn.co/assets/diagrams/f38aae954de1cde63e2dffddc23a13f3.svg)
+## RTCPeerConnection
 
 RTCPeerConnection 功能：
 - 负责整个ICE流程
@@ -122,7 +109,6 @@ DataChannel可配置成可靠的，不可靠的，有序的，无序的。
 
 不展开，可看我其他文章 
 [浏览器网络连接](https://hpbn.co/primer-on-browser-networking/#application-apis-and-protocols)
-![这里写图片描述](https://hpbn.co/assets/diagrams/69aa329ffbfae6fd0446de77623c93fb.svg)
 
 ICE的工作模式有3种：
 - 
@@ -131,6 +117,7 @@ ICE的工作模式有3种：
 ICE agent： 
 
 每个RTCPeerConnection都包含一个ICE agent，负责收集本地ip，port对；负责进行peer间的连接检查；负责发送keepalives。
+
 一旦sdp（本地或者远端）设置好，ICE agent开始自动发现本地可能的ip：port对： 
 
 1.获取本地ip 
@@ -138,6 +125,7 @@ ICE agent：
 2.如果有配置，从STUN获取公网ip:port 
 
 3.如果有配置，TURN作为最后的手段，对数据包进行转发。
+
 当一个新的candidate被发现，agent自动添加到RTCPeerConnection，并通过onicecandidate回调。当ICE收集完成，也通过这个回调告诉你。
 
 ```
@@ -182,7 +170,8 @@ pc.onicecandidate = function(evt) {
 连接成功后，会周期性的发送 binding request，作为心跳包。
 
 一个turn binging例子： 
-![这里写图片描述](https://hpbn.co/assets/diagrams/a2813f1c382a12a4b0b0b229ca22ee9f.png)- **渐进式ICE**
+![这里写图片描述](https://hpbn.co/assets/diagrams/a2813f1c382a12a4b0b0b229ca22ee9f.png)
+- **渐进式ICE**
 
 跟上面的很不一样，交换sdp不需要带上candidates，candidates发现一个就发送一个，存在一个新的ip：port对就可以立刻尝试连接。
 
@@ -254,8 +243,6 @@ iceConnectionState 有7个状态：
 - failed 所有candidate都尝试过都失败，可能试试turn？
 - disconnected 心跳包失败？可能自己内部解决。
 - closed      表示    ICE agent关闭
-
-![这里写图片描述](https://hpbn.co/assets/diagrams/4b4766fd02af08ca2894b4cce8b44d85.svg)
 
 由于p2p的不可靠天性，连接过程中重连可能经常出现。即使已经连上了，ICE  agent也有可能周期性的检查网络，寻找跟好的网络连接替代品。
 
@@ -383,9 +370,8 @@ iceConnectionState 有7个状态：
 [TLS](https://hpbn.co/transport-layer-security-tls/#tls-handshake)只适用tcp，DTLS可以用于udp。 
 
 有点复杂，有空看一下
-**SRTP and SRTCP**
 
-![这里写图片描述](https://hpbn.co/assets/diagrams/b7877f7c09eee79e8dfd7847e0a5930f.svg)
+**SRTP and SRTCP**
 
 从低的码率（＜500 Kbps）开始调整流的质量匹配可用的带宽。 
 
@@ -400,7 +386,7 @@ rtp/rtcp安全版 RFC 3550
 RFC 3711 
 
 就其本身而言，SRTP不提供任何机制或保证及时性，可靠性，或传送的数据错误恢复。相反，它只是用附加的metadata来帮助接收方处理每个流。 
-![这里写图片描述](https://hpbn.co/assets/diagrams/e80b19c3f2eb66734051854f9df395bf.svg)
+
 SRTCP协议跟踪SRTP发送的字节和数据包的丢失，最后收到的序列号，每个数据包到达间隔抖动，和其他统计。然后，周期性地，两个节点交换这些数据，并使用它来调整每个流的发送速率、编码质量和其他参数。
 
 为了适配webrtc，SRTP,SRTCP也做出一些调整。 
@@ -410,11 +396,13 @@ SRTP,SRTCP有加密的机制，但没交换钥匙的功能，这就是为什么�
 SRTP,SRTCP各有端口，但是webrtc里面利用一个附加的复用拓展将多个流和控制通道整合在一个端口里。 
 
 IETF的工作组也正在开发新的拥塞控制算法，利用SRTCP的反馈优化webrtc的音频和视频流。
+
 **使用SCTP传输应用数据**
 
 RTCDataChannel 使用SCTP来传送，基于DTLS协议上。 
 
  Stream Control Transmission Protocol (SCTP)
+
 应用数据协议要求： 
 
 传输必须支持多个独立信道的多路复用。 
@@ -430,6 +418,7 @@ RTCDataChannel 使用SCTP来传送，基于DTLS协议上。
 传输必须实现拥塞控制机制。 
 
 传输必须保证数据的机密性和完整性。
+
 最后两项由DTLS支持，其他的SRTCP能满足。
 |协议|TCP|UDP|SCTP|
 |----|----|----|----|
@@ -460,7 +449,6 @@ Chunk
 SCTP包，传送的最小单位.
 
 单一的SCTP通道可以携带多个独立的数据流（Stream），Message可以分为多个Chunk，通过 SCTP packets传输，在接收方重组。 
-![这里写图片描述](https://hpbn.co/assets/diagrams/e86b7a4f06d7dad1ce67ee4646c3941b.svg)
 
 一个SCTP包由一个共同的头和一个或多个控制或数据块组成。头有12字节，包括源和目的端口，一个随机生成的验证码，一个整个数据包的校验和。头后面是一个或多个控制或数据块；前面的图是一个只有一个数据块的SCTP包： 
 
@@ -481,7 +469,7 @@ Stream sequence number ： 流的序列号，被分包的message同一个流序�
 Payload protocol identifier (PPID)： payload的自定义协议号，例如0×51 for UTF-8 and 0×52 for binary application payloads.
 
 SCTP怎么开始协商通讯？每一个SCTP连接需要一个类似TCP的handshake sequence！同样，SCTP也实现了TCP类似的拥塞控制机制和窗口管理机制，两个协议使用同一个初始窗口大小？ 
-[](https://hpbn.co/building-blocks-of-tcp/)Building Blocks of TCP
+[Building Blocks of TCP](https://hpbn.co/building-blocks-of-tcp/)
 
 为了适配webrtc,SCTP需要进行拓展：
 
@@ -489,9 +477,14 @@ SCTP怎么开始协商通讯？每一个SCTP连接需要一个类似TCP的handsh
 
 2.SCTP不支持优先级管理。可在上层自己实现。
 
-3.SCTP本可以裸上，不需要叠加到udp跟dtls上，但是现有的交换机多数支持不好。DataChannel
+3.SCTP本可以裸上，不需要叠加到udp跟dtls上，但是现有的交换机多数支持不好。
 
-一旦rtcpeerconnection建立，连接节点可以打开一个或多个DataChannel交换文本或二进制数据``function handleChannel(chan) { 
+## DataChannel
+
+一旦rtcpeerconnection建立，连接节点可以打开一个或多个DataChannel交换文本或二进制数据
+
+```
+function handleChannel(chan) { 
   chan.onerror = function(error) { ... }
   chan.onclose = function() { ... }
 
@@ -516,25 +509,43 @@ var dc = pc.createDataChannel("namedChannel", {reliable: false});
 ... 
 
 handleChannel(dc); 
-pc.ondatachannel = handleChannel; 
+pc.ondatachannel = handleChannel;
+```
 
-可以看出跟[](https://hpbn.co/websocket/#websocket-api)websocket很像的，包括回调api，但是也能看出一些不同：- 
-不同于websocket构造需要一个url，DataChannel 需要一个RTCPeerConnection对象.- 
-peer两端都可以发起通讯通道- 
-DataChannel 可配置可靠性和有序性。协议WebSocketDataChannel可靠性是可配置顺序到达是可配置传输消息流消息流加密可配置一定有可复用否（可拓展）是二进制数据是是UTF-8是是压缩否（可拓展）否
+可以看出跟[websocket](https://hpbn.co/websocket/#websocket-api)很像的，包括回调api，但是也能看出一些不同：
+- 不同于websocket构造需要一个url，DataChannel 需要一个RTCPeerConnection对象.
+- peer两端都可以发起通讯通道
+- DataChannel 可配置可靠性和有序性。
+|协议|WebSocket|DataChannel|
+|----|----|----|
+|可靠性|是|可配置|
+|顺序到达|是|可配置|
+|传输|消息流|消息流|
+|加密|可配置|一定有|
+|可复用|否（可拓展）|是|
+|二进制数据|是|是|
+|UTF-8|是|是|
+|压缩|否（可拓展）|否|
 
-设置和协商
+**设置和协商**
 
-在sdp里面描述与传输有关的信息：``(... snip ...)
+在sdp里面描述与传输有关的信息：
+
+```
+(... snip ...)
 m=application 1 DTLS/SCTP 5000 
 c=IN IP4 0.0.0.0 
 a=mid:data
 a=fmtp:5000 protocol=webrtc-datachannel; streams=10 
 (... snip ...)
+```
 
 0.0.0.0表示使用ICE。
 
-也可以创建一个单纯传输数据的RTCPeerConnection ``var signalingChannel = new SignalingChannel();
+也可以创建一个单纯传输数据的RTCPeerConnection 
+
+```
+var signalingChannel = new SignalingChannel();
 var pc = new RTCPeerConnection(iceConfig);
 
 var dc = pc.createDataChannel("namedChannel", {reliable: false}); 
@@ -549,20 +560,19 @@ var mediaConstraints = {
 pc.createOffer(function(offer) { ... }, null, mediaConstraints); 
 
 ...
+```
 
 但可以看出sdp中并没有每个DataChannel的参数设定（数据类型、可靠性、使用的应用协议和其他参数），这些设定是通过一个DATA_CHANNEL_OPEN 信息发送的： 
-![这里写图片描述](https://hpbn.co/assets/diagrams/7695893485cffda5a58d1500a1dd2d7f.svg)
 
-DATA_CHANNEL_OPEN 有点像[](https://hpbn.co/http2/#initiating-a-new-stream)HTTP / 2的消息头，DataChannel协议可参考[](http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol)http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol
+DATA_CHANNEL_OPEN 有点像[HTTP / 2的消息头](https://hpbn.co/http2/#initiating-a-new-stream)，DataChannel协议可参考[http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol](http://tools.ietf.org/html/draft-jesup-rtcweb-data-protocol)
 
 （通过什么途径传送这个DATA_CHANNEL_OPEN ，信令机制还是DataChannel本身？看下面有个通过信令机制交换channel参数的例子，这说明DATA_CHANNEL_OPEN 应该是DataChannel内部交换的）
 
 Out-of-Band Channel 协商： 
 
 你可以在createDataChannel 时指定negotiated参数为true,他就会跳过DATA_CHANNEL_OPEN消息，两个端点也必须指定相同的id，否则该参数将自动由浏览器生成：
-```java
 
-```
+```java
 signalingChannel.send({ 
   newchannel: true,
   label: "negotiated channel",
@@ -575,22 +585,35 @@ signalingChannel.send({
   }
 });
 
-signalingChannel.onmessage = function(msg) {if (msg.newchannel) { 
+signalingChannel.onmessage = function(msg) {
+  if (msg.newchannel) { 
     dc = pc.createDataChannel(msg.label, msg.options);
   }
 }
+```
 
 以上通过信令机制发送channel参数，可以看到id是10，收到对方的channel信息后才使用这些信息createDataChannel。 
 
 peers少的情况下不建议这样启动channel，但是peers很多的情况下，通过信令服务器发送给所有的peers会比较好。
 
-设置message的可靠性和顺序到达
+**设置message的可靠性和顺序到达**
 
 可靠性可要求严格的可靠性或者是部分可靠性。 
 
-在要求部分可靠的情况下，这还能有两种不同的配置：- 
-指定可重发的最大次数- 
-指定可重发的超时时间配置顺序可靠部分可靠性策略有序+可靠是是n/a无序+可靠否是n/a有序+部分可靠（计数）是部分最大次数无序+部分可靠（计数）否部分最大次数有序+部分可靠（计时）是部分超时无序+部分可靠（计时）否部分超时``conf = {}; 
+在要求部分可靠的情况下，这还能有两种不同的配置：
+- 指定可重发的最大次数
+- 指定可重发的超时时间
+|配置|顺序|可靠|部分可靠性策略|
+|----|----|----|----|
+|有序+可靠|是|是|n/a|
+|无序+可靠|否|是|n/a|
+|有序+部分可靠（计数）|是|部分|最大次数|
+|无序+部分可靠（计数）|否|部分|最大次数|
+|有序+部分可靠（计时）|是|部分|超时|
+|无序+部分可靠（计时）|否|部分|超时|
+
+```
+conf = {}; 
 conf = { ordered: false };  
 conf = { ordered: true,  maxRetransmits: customNum };  
 conf = { ordered: false, maxRetransmits: customNum };  
@@ -611,57 +634,40 @@ if (dc.reliable) {
 } else {
   ...
 }
+```
 
-Partially Reliable Delivery and Message 大小
+**Partially Reliable Delivery and Message 大小**
 
-注意不要在部分可靠传输比较大的message，一丢包就丢很多数据。webrtc使用场景
+注意不要在部分可靠传输比较大的message，一丢包就丢很多数据。
 
-![这里写图片描述](https://hpbn.co/assets/diagrams/c1a1361326d5c0842b287223f6ab4351.svg)
+## webrtc使用场景
 
-提高性能的做法
+**提高性能的做法**
 
-信令服务：- 
-低延迟协议最好- 
-提供足够的容量- 
-在连接后建议使用DataChannel 代替
+信令服务：
+- 低延迟协议最好
+- 提供足够的容量
+- 在连接后建议使用DataChannel 代替
 
-防火墙及NAT- 
-在初始化RTCPeerConnection时提供一个STUN服务器- 
-尽可能使用 trickle ICE（渐进式），即使通信量会多，但建立连接的速度更快- 
-提供一个TURN作为p2p连接失败的后备- 
-注意TURN的资源配备
+防火墙及NAT
+- 在初始化RTCPeerConnection时提供一个STUN服务器
+- 尽可能使用 trickle ICE（渐进式），即使通信量会多，但建立连接的速度更快
+- 提供一个TURN作为p2p连接失败的后备
+- 注意TURN的资源配备
 
-数据布局- 
-考虑使用一个supernode或者一个专用的中转服务器。- 
-在中转服务器上做一些数据处理。
+数据布局
+- 考虑使用一个supernode或者一个专用的中转服务器。
+- 在中转服务器上做一些数据处理。
 
-数据约束- 
-对音视频进行格式，分辨率等等约束- 
-DataChannel的二进制数据可进行优化压缩后再传输- 
-使用UTF-8发送DataChannel数据- 
-可以根据DataChannel的缓冲来调整发送量。
+数据约束
+- 对音视频进行格式，分辨率等等约束
+- DataChannel的二进制数据可进行优化压缩后再传输
+- 使用UTF-8发送DataChannel数据
+- 可以根据DataChannel的缓冲来调整发送量。
 
-可靠性和有序- 
-使用无序传输避免线头阻塞- 
-如果使用有序，请减小message，这样尽量避免线头阻塞- 
-发送小的message，这样不容易丢包太多。- 
-根据数据优先级，延迟，message大小来设置部分可靠传输的最大重传测试和最大重传时间。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+可靠性和有序
+- 使用无序传输避免线头阻塞
+- 如果使用有序，请减小message，这样尽量避免线头阻塞
+- 发送小的message，这样不容易丢包太多。
+- 根据数据优先级，延迟，message大小来设置部分可靠传输的最大重传测试和最大重传时间。
 

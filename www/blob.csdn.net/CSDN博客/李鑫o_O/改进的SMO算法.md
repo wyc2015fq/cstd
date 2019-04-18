@@ -1,16 +1,6 @@
 # 改进的SMO算法 - 李鑫o_O - CSDN博客
 
-
-
-
-
-置顶2016年03月10日 21:15:14[hustlx](https://me.csdn.net/HUSTLX)阅读数：1140
-
-
-
-
-
-
+置顶2016年03月10日 21:15:14[hustlx](https://me.csdn.net/HUSTLX)阅读数：1142
 
 
 S. S. Keerthi等人在Improvements to Platt’s SMO Algorithm for SVM Classifier Design一文中提出了对SMO算法的改进，纵观SMO算法，其核心是怎么选择每轮优化的两个拉格朗日乘子，标准的SMO算法是通过判断乘子是否违反原问题的KKT条件来选择待优化乘子的，由KKT条件：
@@ -71,7 +61,4 @@ S. S. Keerthi等人在Improvements to Platt’s SMO Algorithm for SVM Classifier
 ![clip_image041[4]](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311101624616-687514086.jpg)
 
 ![clip_image043[4]](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311101626272-474609534.gif)是一个正的容忍因子。
-
-
-
 

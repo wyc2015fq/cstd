@@ -1,16 +1,6 @@
 # c++ Lambda函数学习 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2018年02月24日 15:47:41[露蛇](https://me.csdn.net/tifentan)阅读数：78
-
-
-
-
-
-
+2018年02月24日 15:47:41[露蛇](https://me.csdn.net/tifentan)阅读数：79
 
 
 或许，Lambda 表达式算得上是 C++ 11 新增特性中最激动人心的一个。这个全新的特性听起来很深奥，但却是很多其他语言早已提供（比如 C#）或者即将提供（比如 Java）的。简而言之，Lambda 表达式就是用于创建匿名函数的。GCC 4.5.x 和 Microsoft Visual Studio 早已提供了对 lambda 表达式的支持。在 GCC 4.7 中，默认是不开启 C++ 11 特性的，需要添加 -std=c++11 编译参数。而 VS2010 则默认开启。
@@ -116,6 +106,4 @@ std::cout << '\n' << f0 << '\n';
 另外有一点需要注意。对于[=]或[&]的形式，lambda 表达式可以直接使用 this 指针。但是，对于[]的形式，如果要使用 this 指针，必须显式传入：
 `[this]() { this->someFunc(); }();`
 至此，我们已经大致了解了 C++ 11 提供的 lambda 表达式的概念。建议通过结合 lambda 表达式与std::sort()或std::for_each()这样的标准函数来尝试使用一下吧！
-
-
 

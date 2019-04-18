@@ -1,16 +1,6 @@
 # ffmpeg 和 x264的参数对照 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2018年04月13日 17:24:15[露蛇](https://me.csdn.net/tifentan)阅读数：80
-
-
-
-
-
-
+2018年04月13日 17:24:15[露蛇](https://me.csdn.net/tifentan)阅读数：81
 
 
 [http://www.cnblogs.com/soief/p/3471465.html](http://www.cnblogs.com/soief/p/3471465.html)拓展一下
@@ -64,6 +54,4 @@
 ||f_complexity_blur||complexityblur||
 |chroma_me|||||
 |trellis|||trellis|trellis：0、1、2。执行Trellis quantization来提高效率。0、停用；1、只在一个宏区块的最终编码上启用；2、在所有模式决策上启用。|
-
-
 

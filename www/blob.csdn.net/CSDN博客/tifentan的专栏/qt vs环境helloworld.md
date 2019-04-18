@@ -1,14 +1,7 @@
 # qt vs环境helloworld - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2018年02月24日 10:07:26[露蛇](https://me.csdn.net/tifentan)阅读数：110标签：[qt																[vs																[2015																[helloworld](https://so.csdn.net/so/search/s.do?q=helloworld&t=blog)
+2018年02月24日 10:07:26[露蛇](https://me.csdn.net/tifentan)阅读数：111标签：[qt																[vs																[2015																[helloworld](https://so.csdn.net/so/search/s.do?q=helloworld&t=blog)](https://so.csdn.net/so/search/s.do?q=2015&t=blog)](https://so.csdn.net/so/search/s.do?q=vs&t=blog)](https://so.csdn.net/so/search/s.do?q=qt&t=blog)
 个人分类：[qt](https://blog.csdn.net/tifentan/article/category/7464054)
-
-
-
 
 
 ## 原理
@@ -19,12 +12,16 @@
 - 创建一个新解决方案，在解决方案下创建一个新的空项目 
 ![这里写图片描述](https://img-blog.csdn.net/20180224095817730?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlmZW50YW4=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
 
-注意一下别使用预编译头- 头文件目录 
+注意一下别使用预编译头
+- 头文件目录 
 
 将你安装好的qt头文件目录添加到项目的头文件目录中 
-![这里写图片描述](https://img-blog.csdn.net/20180224100151108?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlmZW50YW4=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)- 库文件目录 
-![这里写图片描述](https://img-blog.csdn.net/20180224100241712?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlmZW50YW4=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)- 添加用到的库文件 
-![这里写图片描述](https://img-blog.csdn.net/20180224100329250?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlmZW50YW4=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)- mian文件内容
+![这里写图片描述](https://img-blog.csdn.net/20180224100151108?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlmZW50YW4=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+- 库文件目录 
+![这里写图片描述](https://img-blog.csdn.net/20180224100241712?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlmZW50YW4=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+- 添加用到的库文件 
+![这里写图片描述](https://img-blog.csdn.net/20180224100329250?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlmZW50YW4=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+- mian文件内容
 
 ```
 #include "QApplication.h"
@@ -39,12 +36,9 @@ int main(int argc, char *argv[])
 
     return app.exec();
 
-
 }
 ```
 
-运行就可以 了，简单吧！](https://so.csdn.net/so/search/s.do?q=2015&t=blog)](https://so.csdn.net/so/search/s.do?q=vs&t=blog)](https://so.csdn.net/so/search/s.do?q=qt&t=blog)
-
-
+运行就可以 了，简单吧！
 
 

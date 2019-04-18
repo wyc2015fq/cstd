@@ -1,16 +1,6 @@
 # c++多行输入（带空格） - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月18日 21:35:24[hustlx](https://me.csdn.net/HUSTLX)阅读数：727
-
-
-
-
-
-
+2016年03月18日 21:35:24[hustlx](https://me.csdn.net/HUSTLX)阅读数：733
 
 
 ```cpp
@@ -52,7 +42,4 @@ int main()
     
 }
 ```
-
-
-
 

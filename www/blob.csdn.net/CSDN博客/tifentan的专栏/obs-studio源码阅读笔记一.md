@@ -1,16 +1,6 @@
 # obs-studio源码阅读笔记一 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2018年12月14日 11:35:16[露蛇](https://me.csdn.net/tifentan)阅读数：126
-
-
-
-
-
-
+2018年12月14日 11:35:16[露蛇](https://me.csdn.net/tifentan)阅读数：127
 
 
 # 安装源码
@@ -158,6 +148,4 @@ int main(int argc, char *argv[])
 	return ret;
 }
 ```
-
-
 

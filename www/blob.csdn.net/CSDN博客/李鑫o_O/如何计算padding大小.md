@@ -1,17 +1,7 @@
 # 如何计算padding大小 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2017年07月10日 16:53:14[hustlx](https://me.csdn.net/HUSTLX)阅读数：2461
+2017年07月10日 16:53:14[hustlx](https://me.csdn.net/HUSTLX)阅读数：2465
 个人分类：[深度学习](https://blog.csdn.net/HUSTLX/article/category/7018158)
-
-
-
-
-
-
 
 
 
@@ -63,7 +53,4 @@ pad_right = pad_needed_width – pad_left
 至此，关于tensorflow的卷积padding操作介绍完毕，下面是关于此操作的源码（Get2dOutputSizeVerbose函数的部分节选），我也不会用MarkDown，索性直接截图了，以供参考
 
 ![](http://upload-images.jianshu.io/upload_images/2228224-9fb296be5beee6be.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
-
-
-
 

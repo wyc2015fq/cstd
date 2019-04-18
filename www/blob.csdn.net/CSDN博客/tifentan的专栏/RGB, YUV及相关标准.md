@@ -1,16 +1,6 @@
 # RGB, YUV及相关标准 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2018年05月21日 20:02:57[露蛇](https://me.csdn.net/tifentan)阅读数：72
-
-
-
-
-
-
+2018年05月21日 20:02:57[露蛇](https://me.csdn.net/tifentan)阅读数：73
 
 
 [https://www.cnblogs.com/huxiaopeng/p/5653257.html](https://www.cnblogs.com/huxiaopeng/p/5653257.html)
@@ -139,6 +129,4 @@ Cr = ( ( 112 * R - 94 * G - 18 * B + 128) >> 8) + 128
 [http://www.itu.int/rec/R-REC-BT.709/en](http://www.itu.int/rec/R-REC-BT.709/en)
 
 [https://msdn.microsoft.com/en-us/library/ms893078.aspx](https://msdn.microsoft.com/en-us/library/ms893078.aspx)
-
-
 

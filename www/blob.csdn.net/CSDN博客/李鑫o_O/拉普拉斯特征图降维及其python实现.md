@@ -1,16 +1,6 @@
 # 拉普拉斯特征图降维及其python实现 - 李鑫o_O - CSDN博客
 
-
-
-
-
-置顶2016年03月10日 21:35:29[hustlx](https://me.csdn.net/HUSTLX)阅读数：4076
-
-
-
-
-
-
+置顶2016年03月10日 21:35:29[hustlx](https://me.csdn.net/HUSTLX)阅读数：4086
 
 
 这种方法假设样本点在光滑的流形上，这一方法的计算数据的低维表达，局部近邻信息被最优的保存。以这种方式，可以得到一个能反映流形的几何结构的解。
@@ -28,8 +18,6 @@
 使![clip_image008[4]](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311101251538-927699087.gif)是最小的m+1个本征值。忽略与![clip_image010[4]](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311101252179-992056390.gif)=0相关的本征向量，选取另外m个本征向量即为降维后的向量。
 
 ## 1、python实现拉普拉斯降维
-
-
 
 ```python
 def laplaEigen(dataMat,k,t):
@@ -82,14 +70,9 @@ ax2.scatter(f[:,first], f[:,second], c=color, cmap=plt.cm.Spectral)
 plt.show()
 ```
 
-
-
-
 ## 2、拉普拉斯降维实验
 
 用如下参数生成实验数据存在swissdata.dat里面：
-
-
 
 ```python
 def make_swiss_roll(n_samples=100, noise=0.0, random_state=None):
@@ -104,9 +87,6 @@ def make_swiss_roll(n_samples=100, noise=0.0, random_state=None):
     t = np.squeeze(t)
 return X, t
 ```
-
-
-
 
 实验结果如下：
 
@@ -128,8 +108,6 @@ N=23，t=15：             N=25，t=15：            N=
 
 N=29，t=15：             N=31，t=15：            N=33，t=15：
 
-
-
 ![clip_image036[4]](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311101302460-1816677347.jpg)![clip_image038[4]](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311101303007-170717664.jpg)![clip_image040[4]](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311101303647-122572297.jpg)
 
 N=25，t=5：              N=25，t=8：           N=25，t=10：
@@ -143,7 +121,4 @@ N=25，t=12：            N=25，t=14：              
 N=25，t=Inf：
 
 ![clip_image054[4]](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311101313225-1230650393.jpg)
-
-
-
 

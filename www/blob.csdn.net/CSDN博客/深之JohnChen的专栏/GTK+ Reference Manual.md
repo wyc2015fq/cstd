@@ -1,0 +1,252 @@
+# GTK+ Reference Manual - 深之JohnChen的专栏 - CSDN博客
+
+2007年09月02日 04:55:00[byxdaz](https://me.csdn.net/byxdaz)阅读数：2288
+
+
+GTK+ Reference Manual
+
+[http://man.chinaunix.net/develop/GTK+/2.6/gtk/](http://man.chinaunix.net/develop/GTK+/2.6/gtk/)
+
+[<< Back to man.ChinaUnix.net](http://man.chinaunix.net/)
+
+
+GTK+ Reference Manual
+
+for GTK+ 2.6.2 
+
+**Table of Contents**
+- [I. GTK+ Overview](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk.html)
+- [Compiling the GTK+ libraries](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-building.html) - How to compile GTK+ itself 
+- [Compiling GTK+ Applications](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-compiling.html) - How to compile your GTK+ application 
+- [Running GTK+ Applications](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-running.html) - How to run and debug your GTK+ application 
+- [Using GTK+ on Windows](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-windows.html) - Windows-specific aspects of using GTK+ 
+- [Using GTK+ on the Framebuffer](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-framebuffer.html) - Linux framebuffer aspects of using GTK+ 
+- [Using GTK+ on the X Window System](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-x11.html) - X11 aspects of using GTK+ 
+- [Mailing lists and bug reports](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-resources.html) - Getting help with GTK+ 
+- [Common Questions](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-question-index.html) - Find answers to common questions in the GTK+ manual 
+- [II. GTK+ Core Reference](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtkbase.html)
+- [Main loop and Events](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-General.html) - Library initialization, main event loop, and events 
+- [Accelerator Groups](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Keyboard-Accelerators.html) - Groups of global keyboard accelerators for an entire GtkWindow 
+- [Accelerator Maps](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Accelerator-Maps.html) - Loadable keyboard accelerator specifications 
+- [Clipboards](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Clipboards.html) - Storing data on clipboards 
+- [Drag and Drop](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Drag-and-Drop.html) - Functions for controlling drag and drop handling 
+- [GtkIconTheme](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkIconTheme.html) - Looking up icons by name 
+- [Stock Items](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Stock-Items.html) - Prebuilt common menu/toolbar items and corresponding icons 
+- [Themeable Stock Images](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Themeable-Stock-Images.html) - Manipulating stock icons 
+- [Resource Files](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Resource-Files.html) - Routines for handling resource files 
+- [Settings](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkSettings.html) - Sharing settings between applications 
+- [Bindings](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Bindings.html) - Key bindings for individual widgets 
+- [Standard Enumerations](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Standard-Enumerations.html) - Public enumerated types used throughout GTK+ 
+- [Graphics Contexts](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Graphics-Contexts.html) - A shared pool of GdkGC objects 
+- [Styles](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkStyle.html) - Functions for drawing widget parts 
+- [Selections](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Selections.html) - Functions for handling inter-process communication via selections 
+- [Version Information](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Feature-Test-Macros.html) - Variables and functions to check the GTK+ version 
+- [Signals](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Signals.html) - Object methods and callbacks 
+- [Types](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-Types.html) - Handle run-time type creation
+- [III. GTK+ Widgets and Objects](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtkobjects.html)
+- [Object Hierarchy](http://man.chinaunix.net/develop/GTK+/2.6/gtk/ch01.html)
+- [Widget Gallery](http://man.chinaunix.net/develop/GTK+/2.6/gtk/ch02.html)
+- [Windows](http://man.chinaunix.net/develop/GTK+/2.6/gtk/WindowWidgets.html)
+- [GtkDialog](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkDialog.html) - Create popup windows 
+- [GtkInvisible](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkInvisible.html) - A widget which is not displayed 
+- [GtkMessageDialog](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkMessageDialog.html) - A convenient message window 
+- [GtkWindow](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkWindow.html) - Toplevel which can contain other widgets 
+- [GtkWindowGroup](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkWindowGroup.html) - Limit the effect of grabs 
+- [GtkAboutDialog](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkAboutDialog.html) - Display information about an application
+- [Display Widgets](http://man.chinaunix.net/develop/GTK+/2.6/gtk/DisplayWidgets.html)
+- [GtkAccelLabel](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkAccelLabel.html) - A label which displays an accelerator key on the right of the text 
+- [GtkImage](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkImage.html) - A widget displaying an image 
+- [GtkLabel](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkLabel.html) - A widget that displays a small to medium amount of text 
+- [GtkProgressBar](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkProgressBar.html) - A widget which indicates progress visually 
+- [GtkStatusbar](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkStatusbar.html) - Report messages of minor importance to the user
+- [Buttons and Toggles](http://man.chinaunix.net/develop/GTK+/2.6/gtk/ButtonWidgets.html)
+- [GtkButton](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkButton.html) - A widget that creates a signal when clicked on 
+- [GtkCheckButton](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCheckButton.html) - Create widgets with a discrete toggle button 
+- [GtkRadioButton](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkRadioButton.html) - A choice from multiple check buttons 
+- [GtkToggleButton](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkToggleButton.html) - Create buttons which retain their state
+- [Numeric/Text Data Entry](http://man.chinaunix.net/develop/GTK+/2.6/gtk/NumericEntry.html)
+- [GtkEntry](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkEntry.html) - A single line text entry field 
+- [GtkEntryCompletion](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkEntryCompletion.html) - Completion functionality for GtkEntry 
+- [GtkHScale](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkHScale.html) - A horizontal slider widget for selecting a value from a range 
+- [GtkVScale](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkVScale.html) - A vertical slider widget for selecting a value from a range 
+- [GtkSpinButton](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkSpinButton.html) - Retrieve an integer or floating-point number from the user 
+- [GtkEditable](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkEditable.html) - Interface for text-editing widgets
+- [Multiline Text Editor](http://man.chinaunix.net/develop/GTK+/2.6/gtk/TextWidgetObjects.html)
+- [Text Widget Overview](http://man.chinaunix.net/develop/GTK+/2.6/gtk/TextWidget.html) - Overview of GtkTextBuffer, GtkTextView, and friends 
+- [GtkTextIter](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-GtkTextIter.html) - Text buffer iterator 
+- [GtkTextMark](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTextMark.html) - A position in the buffer preserved across buffer modifications 
+- [GtkTextBuffer](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTextBuffer.html) - Stores attributed text for display in a GtkTextView 
+- [GtkTextTag](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTextTag.html) - A tag that can be applied to text in a GtkTextBuffer 
+- [GtkTextTagTable](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTextTagTable.html) - Collection of tags that can be used together 
+- [GtkTextView](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTextView.html) - Widget that displays a GtkTextBuffer
+- [Tree, List and Icon Grid Widgets](http://man.chinaunix.net/develop/GTK+/2.6/gtk/TreeWidgetObjects.html)
+- [Tree and List Widget Overview](http://man.chinaunix.net/develop/GTK+/2.6/gtk/TreeWidget.html) - Overview of GtkTreeModel, GtkTreeView, and other associated widgets 
+- [GtkTreeModel](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTreeModel.html) - The tree interface used by GtkTreeView 
+- [GtkTreeSelection](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTreeSelection.html) - The selection object for GtkTreeView 
+- [GtkTreeViewColumn](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTreeViewColumn.html) - A visible column in a GtkTreeView widget 
+- [GtkTreeView](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTreeView.html) - A widget for displaying both trees and lists 
+- [GtkTreeView drag-and-drop](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-GtkTreeView-drag-and-drop.html) - Interfaces for drag-and-drop support in GtkTreeView 
+- [GtkCellView](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCellView.html) - A widget displaying a single row of a GtkTreeModel 
+- [GtkIconView](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkIconView.html) - A widget which displays a list of icons in a grid 
+- [GtkTreeSortable](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTreeSortable.html) - The interface for sortable models used by GtkTreeView 
+- [GtkTreeModelSort](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTreeModelSort.html) - A GtkTreeModel which makes an underlying tree model sortable 
+- [GtkTreeModelFilter](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTreeModelFilter.html) - A GtkTreeModel which hides parts of an underlying tree model 
+- [GtkCellLayout](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCellLayout.html) - An interface for packing cells 
+- [GtkCellRenderer](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCellRenderer.html) - An object for rendering a single cell on a GdkDrawable 
+- [GtkCellEditable](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCellEditable.html) - Interface for widgets which can are used for editing cells 
+- [GtkCellRendererCombo](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCellRendererCombo.html) - Renders a combobox in a cell 
+- [GtkCellRendererPixbuf](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCellRendererPixbuf.html) - Renders a pixbuf in a cell 
+- [GtkCellRendererProgress](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCellRendererProgress.html) - Renders numbers as progress bars 
+- [GtkCellRendererText](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCellRendererText.html) - Renders text in a cell 
+- [GtkCellRendererToggle](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCellRendererToggle.html) - Renders a toggle button in a cell 
+- [GtkListStore](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkListStore.html) - A list-like data structure that can be used with the GtkTreeView 
+- [GtkTreeStore](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTreeStore.html) - A tree-like data structure that can be used with the GtkTreeView
+- [Menus, Combo Box, Toolbar](http://man.chinaunix.net/develop/GTK+/2.6/gtk/MenusAndCombos.html)
+- [GtkComboBox](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkComboBox.html) - A widget used to choose from a list of items 
+- [GtkComboBoxEntry](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkComboBoxEntry.html) - A text entry field with a dropdown list 
+- [GtkMenu](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkMenu.html) - A menu widget 
+- [GtkMenuBar](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkMenuBar.html) - A subclass widget for GtkMenuShell which holds GtkMenuItem widgets 
+- [GtkMenuItem](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkMenuItem.html) - The widget used for item in menus 
+- [GtkMenuShell](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkMenuShell.html) - A base class for menu objects 
+- [GtkImageMenuItem](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkImageMenuItem.html) - A menu item with an icon 
+- [GtkRadioMenuItem](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkRadioMenuItem.html) - A choice from multiple check menu items 
+- [GtkCheckMenuItem](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCheckMenuItem.html) - A menu item with a check box 
+- [GtkSeparatorMenuItem](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkSeparatorMenuItem.html) - A separator used in menus 
+- [GtkTearoffMenuItem](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTearoffMenuItem.html) - A menu item used to tear off and reattach its menu 
+- [GtkToolbar](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkToolbar.html) - Create bars of buttons and other widgets 
+- [GtkToolItem](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkToolItem.html) - The base class of widgets that can be added to GtkToolbar 
+- [GtkSeparatorToolItem](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkSeparatorToolItem.html) - A toolbar item that separates groups of other toolbar items 
+- [GtkToolButton](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkToolButton.html) - A GtkToolItem subclass that displays buttons 
+- [GtkMenuToolButton](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkMenuToolButton.html) - A GtkToolItem containing a button with an additional dropdown menu 
+- [GtkToggleToolButton](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkToggleToolButton.html) - A GtkToolItem containing a toggle button 
+- [GtkRadioToolButton](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkRadioToolButton.html) - A toolbar item that contains a radio button
+- [Action-based menus and toolbars](http://man.chinaunix.net/develop/GTK+/2.6/gtk/Actions.html)
+- [GtkUIManager](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkUIManager.html) - Constructing menus and toolbars from an XML description 
+- [GtkActionGroup](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkActionGroup.html) - A group of actions 
+- [GtkAction](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkAction.html) - An action which can be triggered by a menu or toolbar item 
+- [GtkToggleAction](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkToggleAction.html) - An action which can be toggled between two states 
+- [GtkRadioAction](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkRadioAction.html) - An action of which only one in a group can be active
+- [Selectors (File/Font/Color/Input Devices)](http://man.chinaunix.net/develop/GTK+/2.6/gtk/SelectorWidgets.html)
+- [GtkColorButton](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkColorButton.html) - A button to launch a color selection dialog 
+- [GtkColorSelection](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkColorSelection.html) - A widget used to select a color 
+- [GtkColorSelectionDialog](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkColorSelectionDialog.html) - A standard dialog box for selecting a color 
+- [GtkFileSelection](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkFileSelection.html) - Prompt the user for a file or directory name 
+- [GtkFileChooser](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkFileChooser.html) - File chooser interface used by GtkFileChooserWidget and GtkFileChooserDialog 
+- [GtkFileChooserButton](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkFileChooserButton.html) - A button to launch a file selection dialog 
+- [GtkFileChooserDialog](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkFileChooserDialog.html) - A file chooser dialog, suitable for "File/Open" or "File/Save" commands 
+- [GtkFileChooserWidget](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkFileChooserWidget.html) - File chooser widget that can be embedded in other widgets 
+- [GtkFileFilter](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-gtkfilefilter.html) - A filter for selecting a file subset 
+- [GtkFontButton](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkFontButton.html) - A button to launch a font selection dialog 
+- [GtkFontSelection](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkFontSelection.html) - A widget for selecting fonts 
+- [GtkFontSelectionDialog](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkFontSelectionDialog.html) - A dialog box for selecting fonts 
+- [GtkInputDialog](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkInputDialog.html) - Configure devices for the XInput extension
+- [Layout Containers](http://man.chinaunix.net/develop/GTK+/2.6/gtk/LayoutContainers.html)
+- [GtkAlignment](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkAlignment.html) - A widget which controls the alignment and size of its child 
+- [GtkAspectFrame](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkAspectFrame.html) - A frame that constrains its child to a particular aspect ratio 
+- [GtkHBox](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkHBox.html) - A horizontal container box 
+- [GtkVBox](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkVBox.html) - A vertical container box 
+- [GtkHButtonBox](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkHButtonBox.html) - A container for arranging buttons horizontally 
+- [GtkVButtonBox](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkVButtonBox.html) - A container for arranging buttons vertically 
+- [GtkFixed](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkFixed.html) - A container which allows you to position widgets at fixed coordinates 
+- [GtkHPaned](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkHPaned.html) - A container with two panes arranged horizontally 
+- [GtkVPaned](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkVPaned.html) - A container with two panes arranged vertically 
+- [GtkLayout](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkLayout.html) - Infinite scrollable area containing child widgets and/or custom drawing 
+- [GtkNotebook](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkNotebook.html) - A tabbed notebook container 
+- [GtkTable](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTable.html) - Pack widgets in regular patterns 
+- [GtkExpander](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkExpander.html) - A container which can hide its child
+- [Ornaments](http://man.chinaunix.net/develop/GTK+/2.6/gtk/Ornaments.html)
+- [GtkFrame](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkFrame.html) - A bin with a decorative frame and optional label 
+- [GtkHSeparator](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkHSeparator.html) - A horizontal separator 
+- [GtkVSeparator](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkVSeparator.html) - A vertical separator
+- [Scrolling](http://man.chinaunix.net/develop/GTK+/2.6/gtk/ScrollingWidgets.html)
+- [GtkHScrollbar](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkHScrollbar.html) - A horizontal scrollbar 
+- [GtkVScrollbar](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkVScrollbar.html) - A vertical scrollbar 
+- [GtkScrolledWindow](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkScrolledWindow.html) - Adds scrollbars to its child widget
+- [Miscellaneous](http://man.chinaunix.net/develop/GTK+/2.6/gtk/MiscObjects.html)
+- [GtkAdjustment](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkAdjustment.html) - A GtkObject representing an adjustable bounded value 
+- [GtkArrow](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkArrow.html) - Displays an arrow 
+- [GtkCalendar](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCalendar.html) - Displays a calendar and allows the user to select a date 
+- [GtkDrawingArea](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkDrawingArea.html) - A widget for custom user interface elements 
+- [GtkEventBox](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkEventBox.html) - A widget used to catch events for widgets which do not have their own window 
+- [GtkHandleBox](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkHandleBox.html) - a widget for detachable window portions 
+- [GtkIMContextSimple](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkIMContextSimple.html) - An input method context supporting table-based input methods 
+- [GtkIMMulticontext](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkIMMulticontext.html) - An input method context supporting multiple, loadable input methods 
+- [GtkSizeGroup](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkSizeGroup.html) - Grouping widgets so they request the same size 
+- [GtkTooltips](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTooltips.html) - Add tips to your widgets 
+- [GtkViewport](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkViewport.html) - An adapter which makes widgets scrollable 
+- [GtkAccessible](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkAccessible.html) - Accessibility support for widgets
+- [Abstract Base Classes](http://man.chinaunix.net/develop/GTK+/2.6/gtk/AbstractObjects.html)
+- [GtkBin](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkBin.html) - A container with just one child 
+- [GtkBox](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkBox.html) - Base class for box containers 
+- [GtkButtonBox](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkButtonBox.html) - Base class for GtkHButtonBox and GtkVButtonBox 
+- [GtkContainer](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkContainer.html) - Base class for widgets which contain other widgets 
+- [GtkItem](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkItem.html) - Abstract base class for GtkMenuItem, GtkListItem and GtkTreeItem 
+- [GtkMisc](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkMisc.html) - Base class for widgets with alignments and padding 
+- [GtkObject](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkObject.html) - The base class of the GTK+ type hierarchy 
+- [GtkPaned](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkPaned.html) - Base class for widgets with two adjustable panes 
+- [GtkRange](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkRange.html) - Base class for widgets which visualize an adjustment 
+- [GtkScale](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkScale.html) - Base class for GtkHScale and GtkVScale 
+- [GtkScrollbar](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkScrollbar.html) - Base class for GtkHScrollbar and GtkVScrollbar 
+- [GtkSeparator](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkSeparator.html) - Base class for GtkHSeparator and GtkVSeparator 
+- [GtkWidget](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkWidget.html) - Base class for all widgets 
+- [GtkIMContext](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkIMContext.html) - Base class for input method contexts
+- [Cross-process Embedding](http://man.chinaunix.net/develop/GTK+/2.6/gtk/PlugSocket.html)
+- [GtkPlug](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkPlug.html) - Toplevel for embedding into other processes 
+- [GtkSocket](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkSocket.html) - Container for widgets from other processes
+- [Special-purpose features](http://man.chinaunix.net/develop/GTK+/2.6/gtk/SpecialObjects.html)
+- [GtkCurve](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCurve.html) - Allows direct editing of a curve 
+- [GtkGammaCurve](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkGammaCurve.html) - a subclass of GtkCurve for editing gamma curves. 
+- [GtkRuler](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkRuler.html) - Base class for horizontal or vertical rulers 
+- [GtkHRuler](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkHRuler.html) - A horizontal ruler. 
+- [GtkVRuler](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkVRuler.html) - A vertical ruler.
+- [Deprecated](http://man.chinaunix.net/develop/GTK+/2.6/gtk/DeprecatedObjects.html)
+- [GtkCList](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCList.html) - A multi-columned scrolling list widget 
+- [GtkCTree](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCTree.html) - A widget displaying a hierarchical tree 
+- [GtkCombo](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkCombo.html) - A text entry field with a dropdown list 
+- [GtkItemFactory](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkItemFactory.html) - A factory for menus 
+- [GtkList](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkList.html) - Widget for packing a list of selectable items 
+- [GtkListItem](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkListItem.html) - An item in a GtkList 
+- [GtkOldEditable](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkOldEditable.html) - Base class for text-editing widgets 
+- [GtkOptionMenu](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkOptionMenu.html) - A widget used to choose from a list of valid choices 
+- [GtkPixmap](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkPixmap.html) - A widget displaying a graphical image or icon 
+- [GtkPreview](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkPreview.html) - A widget to display RGB or grayscale data 
+- [GtkProgress](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkProgress.html) - Base class for GtkProgressBar 
+- [GtkText](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkText.html) - A text widget 
+- [GtkTipsQuery](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTipsQuery.html) - Displays help about widgets in the user interface 
+- [GtkTree](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTree.html) - A tree widget 
+- [GtkTreeItem](http://man.chinaunix.net/develop/GTK+/2.6/gtk/GtkTreeItem.html) - The widget used for items in a GtkTree
+- [IV. Migrating from Previous Versions of GTK+](http://man.chinaunix.net/develop/GTK+/2.6/gtk/migrating.html)
+- [Migration Checklist](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-migrating-checklist.html)
+- [Implement GtkWidget::popup_menu](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-migrating-checklist.html#checklist-popup-menu)
+- [Use GdkEventExpose.region](http://man.chinaunix.net/develop/GTK+/2.6/gtk/checklist-gdkeventexpose-region.html)
+- [Test for modifier keys correctly](http://man.chinaunix.net/develop/GTK+/2.6/gtk/checklist-modifiers.html)
+- [Changes from 1.0 to 1.2](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-changes-1-2.html) - Incompatible changes made between version 1.0 and version 1.2 
+- [Changes from 1.2 to 2.0](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-changes-2-0.html) - Incompatible changes made between version 1.2 and version 2.0 
+- [Migrating from GtkFileSelection to GtkFileChooser](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-migrating-GtkFileChooser.html)
+- [Creating a GtkFileChooserDialog](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-migrating-GtkFileChooser.html#gtkfilechooser-creating)
+- [Selection Modes](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtkfilechooser-selection-modes.html)
+- [Installing a Preview widget](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtkfilechooser-installing-preview.html)
+- [Installing Extra Widgets](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtkfilechooser-installing-extra-widgets.html)
+- [New features](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtkfilechooser-new-features.html)
+- [Migrating from old menu and toolbar systems to GtkAction](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-migrating-GtkAction.html)
+- [Actions and Action Groups](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-migrating-GtkAction.html#actions-and-action-groups)
+- [User Interface Manager Object](http://man.chinaunix.net/develop/GTK+/2.6/gtk/ui-manager.html)
+- [Migrating from GnomeUIInfo](http://man.chinaunix.net/develop/GTK+/2.6/gtk/migrating-gnomeuiinfo.html)
+- [Migrating from GtkOptionMenu and GtkCombo to GtkComboBox and GtkComboBoxEntry](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-migrating-GtkComboBox.html)
+- [Migrating from GtkOptionMenu to GtkComboBox](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-migrating-GtkComboBox.html#migrating-GtkOptionMenu)
+- [Migrating from GtkCombo to GtkComboBoxEntry](http://man.chinaunix.net/develop/GTK+/2.6/gtk/migrating-GtkCombo.html)
+- [New features](http://man.chinaunix.net/develop/GTK+/2.6/gtk/new-features-GtkComboBox.html)
+- [Migrating from GnomeIconList to GtkIconView](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-migrating-GtkIconView.html)
+- [Migrating from GnomeAbout to GtkAboutDialog](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-migrating-GtkAboutDialog.html)
+- [Migrating from GnomeColorPicker to GtkColorButton](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-migrating-GtkColorButton.html)
+- [V. GTK+ Tools](http://man.chinaunix.net/develop/GTK+/2.6/gtk/pt05.html)
+- [gtk-query-immodules-2.0](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-query-immodules-2.0.html) - Input method module registration utility 
+- [gtk-update-icon-cache](http://man.chinaunix.net/develop/GTK+/2.6/gtk/gtk-update-icon-cache.html) - Icon theme caching utility
+- [Glossary](http://man.chinaunix.net/develop/GTK+/2.6/gtk/glossary.html)
+- [Index](http://man.chinaunix.net/develop/GTK+/2.6/gtk/ix01.html)
+- [Index of deprecated symbols](http://man.chinaunix.net/develop/GTK+/2.6/gtk/ix02.html)
+- [Index of new symbols in 2.2](http://man.chinaunix.net/develop/GTK+/2.6/gtk/ix03.html)
+- [Index of new symbols in 2.4](http://man.chinaunix.net/develop/GTK+/2.6/gtk/ix04.html)
+- [Index of new symbols in 2.6](http://man.chinaunix.net/develop/GTK+/2.6/gtk/ix05.html)
+
+

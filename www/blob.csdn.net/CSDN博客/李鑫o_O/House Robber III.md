@@ -1,15 +1,6 @@
 # House Robber III - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月15日 23:00:14[hustlx](https://me.csdn.net/HUSTLX)阅读数：319
-
-
-
-
-
+2016年03月15日 23:00:14[hustlx](https://me.csdn.net/HUSTLX)阅读数：320
 
 
 问题：
@@ -19,8 +10,6 @@ The thief has found himself a new place for his thievery again. There is only on
 Determine the maximum amount of money the thief can rob tonight without alerting the police.
 
 这个问题可以分解为子问题，因为对于二叉树其左右子树也是二叉树，我们定义一个函数rob(root)让它返回根节点开始小偷能偷到的最大金钱数额，我们可以由rob(root.left)和rob(root.right)来计算rob(root).所以原问题可以递归求解：
-
-
 
 ```java
 <span style="font-size:14px;">public int rob(TreeNode root) {
@@ -45,10 +34,6 @@ Determine the maximum amount of money the thief can rob tonight without alerting
 然而这样做很慢。因为深度越深的节点多次做重复计算，因此考虑用一个hash表存储每个节点能偷到的最大金额，从而问题变为一个DP问题。
 
 
-
-
-
-
 ```java
 <span style="font-size:14px;">public int rob(TreeNode root) {
     Map<TreeNode, Integer> map = new HashMap<>();
@@ -70,7 +55,6 @@ private int robSub(TreeNode root, Map<TreeNode, Integer> map) {
 }</span>
 ```
 然而这是一个O(n)空间复杂度，然而这个复杂度还可以降低，对于每个节点有偷或者不偷两种情况，我们可以给每个节点两个数表示偷和不偷分别获得的最大金额，而父节点的两个数又可以根据子节点的两个数得到，所以我们把空间复杂度可以降低为O（1）：
-
 
 ```java
 <span style="font-size:14px;">public int rob(TreeNode root) {
@@ -109,11 +93,5 @@ vector<int> robSub(TreeNode* root) {
     return res;
 }</span>
 ```
-
-
-
-
-
-
 
 

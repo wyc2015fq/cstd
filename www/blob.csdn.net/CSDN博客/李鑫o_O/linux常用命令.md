@@ -1,16 +1,6 @@
 # linux常用命令 - 李鑫o_O - CSDN博客
 
-
-
-
-
-置顶2017年08月04日 22:22:36[hustlx](https://me.csdn.net/HUSTLX)阅读数：395
-
-
-
-
-
-
+置顶2017年08月04日 22:22:36[hustlx](https://me.csdn.net/HUSTLX)阅读数：396
 
 
                 
@@ -21,7 +11,6 @@ ls | wc -w
 统计文件夹下面包括子文件夹下的所有文件个数
 
 ls -lR|grep "^-"|wc -l
-
 
 查看目录下有多少个文件需在终端输入
 
@@ -51,7 +40,6 @@ du -sh *
 
 ps -ef|grep java|grep -v grep
 
-
 压缩
 
 tar -czvf ***.tar.gz
@@ -64,11 +52,9 @@ tar -xzvf ***.tar.gz
 
 tar -xjvf ***.tar.bz2
 
-
 保存log
 
 sh train.sh > log_train 2>&1 
-
 
 退出ssh：
 
@@ -78,21 +64,14 @@ exit
 
 activate python3
 
-
-
 export PATH=/opt/compiler/gcc-4.8.2/bin/:$PATH
 
 按名字杀进程
 
 ps aux|grep python|grep -v grep|awk '{print $2}'|xargs kill -9
 
-
 pytorch FloatTensor 维度：
 
 a.size()
-
-
-
-
 
 

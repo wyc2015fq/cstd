@@ -1,16 +1,6 @@
 # 一个简单明了的c++ trace log 实现 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2017年10月31日 15:26:48[露蛇](https://me.csdn.net/tifentan)阅读数：1017
-
-
-
-
-
-
+2017年10月31日 15:26:48[露蛇](https://me.csdn.net/tifentan)阅读数：1018
 
 
 近段时间被旧的trace log 类折磨，实在太多bug，着手在windows下实现了个，延续一向我的风格，简单明了能不写多一行废代码绝对不写，然后要容易读懂。
@@ -26,6 +16,7 @@
 4.跨平台 
 
 5.支持回调处理
+
 代码是考虑过跨平台的，主要是锁跟几个函数，有需要改动的地方应该很少，但目前还没做，因为要浪费时间测试呢，往后有需要再改改就是了。
 
 废话不多说上代码
@@ -42,7 +33,6 @@
 *   有疑问我qq 522935050
 *
 */
-
 
 #ifndef  TTF_TRACE_H_
 #define TTF_TRACE_H_
@@ -80,7 +70,6 @@ enum TtfTraceMode {
     ttfTraceModeEnd = 0x0ffff,
 };
 
-
 // External Trace API
 class TtfTraceCallback {
 public:
@@ -90,7 +79,6 @@ protected:
     virtual ~TtfTraceCallback() {}
     TtfTraceCallback() {}
 };
-
 
 #define TTF_TRACE_MAX_MESSAGE_SIZE 1024
 #define TTF_TRACE_MAX_FILE_SIZE 100000000 //100m
@@ -158,8 +146,6 @@ void g_create_ttf_trace_file(char* str);
 void g_release_ttf_trace_file();
 #define RELEASE_GLOBAL_TTF_TRACE_FILE g_release_ttf_trace_file
 
-
-
 //void g_do_ttf_trace(const TtfTraceLevel level,
 //  const TtfTraceMode module,
 //  const int32_t id,
@@ -184,7 +170,6 @@ EnterCriticalSection(&crit_);
 LeaveCriticalSection(&crit_);
 
 */
-
 
 TtfTrace::TtfTrace()
     :cb_(nullptr)
@@ -567,9 +552,6 @@ CREATE_GLOBAL_TTF_TRACE_FILE("test.log");
 
 再上个notepad++上看到的log文件效果： 
 ![这里写图片描述](https://img-blog.csdn.net/20171031153304486?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlmZW50YW4=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+
 妈蛋，再也不用原来那个垃圾代码了。
-
-
-
-
 

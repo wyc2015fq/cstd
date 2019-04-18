@@ -1,16 +1,6 @@
 # Wildcard Matching - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月28日 14:47:39[hustlx](https://me.csdn.net/HUSTLX)阅读数：195
-
-
-
-
-
-
+2016年03月28日 14:47:39[hustlx](https://me.csdn.net/HUSTLX)阅读数：196
 
 
 ```cpp
@@ -30,7 +20,4 @@ bool isMatch(string s, string p) {
     return temp[m][n];
 }
 ```
-
-
-
 

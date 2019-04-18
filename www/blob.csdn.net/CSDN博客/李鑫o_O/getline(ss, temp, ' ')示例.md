@@ -1,28 +1,14 @@
 # getline(ss, temp, '/')示例 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年04月02日 16:17:47[hustlx](https://me.csdn.net/HUSTLX)阅读数：955
-
-
-
-
-
-
-
-
+2016年04月02日 16:17:47[hustlx](https://me.csdn.net/HUSTLX)阅读数：958
 
 
 
 Given an absolute path for a file (Unix-style), simplify it.
 
-
 For example,
 path = `"/home/"`, => `"/home"`
 path = `"/a/./b/../../c/"`, => `"/c"`
-
 
 [click to show corner cases.](https://leetcode.com/problems/simplify-path/#)
 
@@ -35,12 +21,6 @@ In this case, you should return `"/"`.
  such as `"/home//foo/"`.
 
 In this case, you should ignore redundant slashes and return `"/home/foo"`.
-
-
-
-
-
-
 
 
 ```cpp
@@ -57,10 +37,5 @@ string simplifyPath(string path) {
     return res.empty() ? "/" : res;
 }
 ```
-
-
-
-
-
 
 

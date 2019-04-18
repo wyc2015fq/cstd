@@ -1,23 +1,11 @@
 # 基于kmeans聚类算法的图像分割 - 李鑫o_O - CSDN博客
 
-
-
-
-
-置顶2016年03月10日 19:54:19[hustlx](https://me.csdn.net/HUSTLX)阅读数：6175
-
-
-
-
-
-
+置顶2016年03月10日 19:54:19[hustlx](https://me.csdn.net/HUSTLX)阅读数：6181
 
 
 # Kmeans之前已经讲过了，其图像分割只不过是把之前的高斯数对换成图像二维像素点，彩色图像每个像素点有rgb三个分量，灰度图像只有一个分量。
 
 ## 1编程实现
-
-
 
 ```cpp
 <span style="font-size:14px;">clear;clc;close all;
@@ -97,17 +85,9 @@ num=num+mi-1;  </span>
 ```
 
 
-
-
-
-
 ## 2结果展示
 
-
-
 ## ![lip_image013](http://images2015.cnblogs.com/blog/904258/201603/904258-20160310200601725-1790834414.png)![lip_image014](http://images2015.cnblogs.com/blog/904258/201603/904258-20160310200606694-1624895718.png)
-
-
 
 a)原图b)N=2
 
@@ -150,7 +130,4 @@ a)原图b)N=2
 ![lip_image019](http://images2015.cnblogs.com/blog/904258/201603/904258-20160310200624491-1615422611.png)![lip_image020](http://images2015.cnblogs.com/blog/904258/201603/904258-20160310200628600-794693542.png)
 
 c)N=3d)N=4
-
-
-
 

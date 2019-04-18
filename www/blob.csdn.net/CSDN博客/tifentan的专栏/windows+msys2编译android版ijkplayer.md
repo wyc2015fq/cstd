@@ -1,22 +1,13 @@
 # windows+msys2编译android版ijkplayer - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2018年06月19日 09:52:04[露蛇](https://me.csdn.net/tifentan)阅读数：231
-
-
-
-
-
-
+2018年06月19日 09:52:04[露蛇](https://me.csdn.net/tifentan)阅读数：235
 
 
 近来想研究一下ijkplayer，发现在windows上编译有很多的坑。搞了一天终于能运行example，过程就像排雷一般，但也对整个项目结构了解了一番。记录下来！ 
 
 可能有些坑没记得写下来，欢迎留言。 
 [下载](https://download.csdn.net/download/tifentan/10485420)我改过的文件。
+
 ## 准备材料
 - [msys2安装包](https://www.msys2.org)
 - ndk（我用的14b）
@@ -28,7 +19,8 @@
 
 可参考这个[https://segmentfault.com/n/1330000004236998](https://segmentfault.com/n/1330000004236998)进行基本环境配置， 
 
-然后使用pacman安装git，make，yasm，python,例如：`pacman -S git`
+然后使用pacman安装git，make，yasm，python,例如：
+`pacman -S git`
 然后安装上ndk。
 
 ## 下载项目
@@ -59,7 +51,8 @@ export ANDROID_SDK=你自己的sdk目录(C:/Users/Administrator/AppData/Local/An
 往下都只编译armv7a架构，我这么做是为了方便排雷，其它的参考修改应该可行。 
 **1.修改android/contrib/tools/do-compile-ffmpeg.sh**
 
-我选择level16，其它估计也可行`FF_ANDROID_PLATFORM=android-16`
+我选择level16，其它估计也可行
+`FF_ANDROID_PLATFORM=android-16`
 修改armv7a分支下的（其它架构的可以同样修改）
 `FF_CROSS_PREFIX=$FF_BUILD_ROOT/build/$FF_BUILD_NAME/toolchain/bin/arm-linux-androideabi`
 还有以下
@@ -337,13 +330,8 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/include/
 ![这里写图片描述](https://img-blog.csdn.net/20180619091307451?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3RpZmVudGFu/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
 
 然后可以开始看代码了哈。
+
 ## 后记
 
 如果嫌麻烦，在linux下按github的流程走其实是个很好的选择，我选择这么干一个是：一开始在网上搜win下编译ijk无果后心有不甘，另一个是想着在排雷过程中能对整个项目结构进行了解。
-
-
-
-
-
-
 

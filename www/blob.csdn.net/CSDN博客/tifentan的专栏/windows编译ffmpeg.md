@@ -1,16 +1,6 @@
 # windows编译ffmpeg - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2017年10月11日 11:00:25[露蛇](https://me.csdn.net/tifentan)阅读数：160
-
-
-
-
-
-
+2017年10月11日 11:00:25[露蛇](https://me.csdn.net/tifentan)阅读数：161
 
 
 这方法很烂，建议使用mingw完整的环境： 
@@ -29,7 +19,6 @@
 　　一、VS2015 
 
 　　安装VS2015时，选择Git。 
-
 
 　　二、msys2 
 
@@ -73,7 +62,6 @@
 
 　　5、修改msys2窗口代码页为GBK，避免编译时显示乱码： 
 
-
 　　4、编译ffmpeg 
 
 　　在msys2窗口: 
@@ -85,15 +73,12 @@
 　　cd /ffmgeg 
 
 　　进入下载ffmpeg目录中 
-`./configure  --toolchain=msvc  --arch=x86  --enable-yasm  --enable-asm --enable-shared  --disable-static`
 
+`./configure  --toolchain=msvc  --arch=x86  --enable-yasm  --enable-asm --enable-shared  --disable-static`
 
 　　make 
 
 　　make install 
 
 　　这样以后，编译生产的执行文件ffmpeg.exe和DLL文件在目录C:\msys64\usr\local\bin中，开发头文件在C:\msys64\usr\local\include中。
-
-
-
 

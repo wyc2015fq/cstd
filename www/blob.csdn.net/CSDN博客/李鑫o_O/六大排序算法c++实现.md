@@ -1,24 +1,13 @@
 # 六大排序算法c++实现 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月19日 11:04:42[hustlx](https://me.csdn.net/HUSTLX)阅读数：584
+2016年03月19日 11:04:42[hustlx](https://me.csdn.net/HUSTLX)阅读数：585
 个人分类：[c/c++																[算法](https://blog.csdn.net/HUSTLX/article/category/6145896)](https://blog.csdn.net/HUSTLX/article/category/6122695)
-
-
-
-
-
-
 
 
 
 # ![](https://img-blog.csdn.net/20160502151018258?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
 
 # 插入排序：
-
 
 ```cpp
 void insertionSort(vector<int> &A) {
@@ -35,7 +24,6 @@ void insertionSort(vector<int> &A) {
 ```
 选择排序
 
-
 ```cpp
 void selectionSort(vector<int> &A) {
 	for (int j = 0;j < A.size();j++) {
@@ -49,7 +37,6 @@ void selectionSort(vector<int> &A) {
 }
 ```
 归并排序
-
 
 ```java
 //
@@ -112,11 +99,7 @@ void merge_sort(vector<int> &list)
 }
 ```
 
-
-
 冒泡排序
-
-
 
 ```cpp
 void bubbleSort(vector<int> &A) {
@@ -126,13 +109,9 @@ void bubbleSort(vector<int> &A) {
 }
 ```
 
-
-
 堆排序
 
-
 非递归：
-
 
 ```cpp
 void maxHeapify(vector<int>& A, int heap_size, int i) {
@@ -151,10 +130,7 @@ void maxHeapify(vector<int>& A, int heap_size, int i) {
 }
 ```
 
-
-
 递归：
-
 
 ```cpp
 void maxHeapify(vector<int>& A, int heap_size, int i) {
@@ -169,8 +145,6 @@ void maxHeapify(vector<int>& A, int heap_size, int i) {
     }
 }
 ```
-
-
 
 ```cpp
 void buildMaxHeap(vector<int>& A) {
@@ -191,10 +165,7 @@ void HeapSort(vector<int>& A) {
 }
 ```
 
-
-
 快排
-
 
 ```cpp
 int partition(vector<int>& A, int p, int r) {
@@ -220,15 +191,11 @@ void QuickSort(vector<int>& A, int p, int r)
 }
 ```
 
-
-
 快排非递归实现：
 
 数据规模很大时，递归的算法很容易导致栈溢出，改为非递归，模拟栈操作，
 
 最大长度为n，每次压栈时先压长度较大的，此时栈深度为logn。
-
-
 
 ```cpp
 /**使用栈的非递归快速排序**/
@@ -264,11 +231,5 @@ void quicksort2(vector<Comparable> &vec,int low,int high){
     }
 }
 ```
-
-
-
-
-
-
 
 

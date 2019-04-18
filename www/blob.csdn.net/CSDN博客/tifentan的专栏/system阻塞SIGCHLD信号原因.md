@@ -1,17 +1,6 @@
 # system阻塞SIGCHLD信号原因 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2014年11月08日 11:58:53[露蛇](https://me.csdn.net/tifentan)阅读数：665
-
-
-
-
-
-
-
+2014年11月08日 11:58:53[露蛇](https://me.csdn.net/tifentan)阅读数：666
 
 
 
@@ -52,7 +41,6 @@ int system(const char *cmdstring) /* with appropriate signal handling */
 
 定义了一个函数，函数中fork了一个子进程，并且定义的函数要得到关于子进程的一些信息，例如子进程ID、子进程终止状态等，而该函数的调用者所注册的SIGCHLD信号处理函数会影响定义的这个函数获取这些信息，因此为了避免该函数在获取这些信息之前，由于子进程终止触发SIGCHLD信号处理函数先执行，在fork之前都将SIGCHLD信号阻塞了，在函数获取了相关信息后，才对SIGCHLD信号接触阻塞。
 
-
 **接下来我们以代码1为例完整的解释一下阻塞SIGCHLD信号的原因：**
 
 在一个进程终止或停止时，SIGCHLD信号被送给其父进程。按**系统默认，将忽略此信号**。如果父进程希望了解其子进程的这种状态改变，则应捕捉此信号。信号捕捉函数中通常要调用wait函数以取得子进程ID和其终止状态。
@@ -61,14 +49,11 @@ int system(const char *cmdstring) /* with appropriate signal handling */
 
 SIGCHLD信号就是为第一种情况准备的，它让父进程去做别的事情，而只要父进程注册了处理该信号的函数，在子进程退出时就会调用该函数，在函数中wait子进程得到终止状态之后再继续做父进程的事情。
 
-
 我们先来写一个function_model函数模型，如下所示：
 int function_model(…) {    pid_t               pid;    int                 status;    ……    if ((pid = fork())         status = -1;        } else if (pid == 0)
  {          /* child */       ……    } else {                        /* parent */       while (waitpid(pid, &status, 0)            if (errno != EINTR) {               status = -1;                break;           }    }        ……    return(status);}
 
-
 当我们定义了一个具有function_model函数模型结构的函数时，应该在fork之前将SIGCHLD信号阻塞，fork之后，父子进程的SIGCHLD信号都是被阻塞的。子进程在进行任何的操作之前，应该将SIGCHLD恢复至原来的设置。父进程则应该在waitpid函数之后，将SIGCHLD恢复至原来的设置。
-
 
 即这种类型的函数的正确的格式为：
 
@@ -126,10 +111,5 @@ POSIX.1 states that if wait or waitpid returns the status of a child process whi
  10.26](http://bbs.chinaunix.net/mk:@MSITStore:C:/Documents%20and%20Settings/hackbutter/%E6%A1%8C%E9%9D%A2/LINUX/linux/linux%E5%BA%94%E7%94%A8/linux%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B/%E8%8B%B1%E6%96%87%E7%AC%AC%E4%BA%8C%E7%89%88-Advanced%20Programming%20in%20the%20UNIX%20Environment%20-%202nd%20Edition.chm::/0201433079/ch10lev1sec18.html#ch10fig26%23ch10fig26)
 , it would return 1 with errno set to ECHILD, since the system function already retrieved the termination status of the child.
 
-
 [http://blog.chinaunix.net/u1/59740/showart_486730.html](http://blog.chinaunix.net/u1/59740/showart_486730.html)
-
-
-
-
 

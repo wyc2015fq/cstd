@@ -1,20 +1,9 @@
 # Fast-RCNN - 李鑫o_O - CSDN博客
 
-
-
-
-
-2017年06月05日 18:40:20[hustlx](https://me.csdn.net/HUSTLX)阅读数：357
-
-
-
-
-
-
+2017年06月05日 18:40:20[hustlx](https://me.csdn.net/HUSTLX)阅读数：358
 
 
 ![](https://img-blog.csdn.net/20170605182743039?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvSFVTVExY/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
-
 
 相比于SPP，实际上就是用了一层确定输出大小的pooling层，然后后面识别与定位一起training。
 
@@ -28,7 +17,6 @@ SPP-Net在实现上无法同时tuning在SPP layer两边的卷积层和全连接�
 
 SPP-Net后面的需要将第二层FC的特征放到硬盘上训练SVM，之后再额外训练bbox regressor。
 
-
 优点：
 
 1、更高的mAP较RCNN和SPP
@@ -38,6 +26,4 @@ SPP-Net后面的需要将第二层FC的特征放到硬盘上训练SVM，之后�
 3、训练的时候更新整个网络
 
 4、不需要磁盘存储特征
-
-
 

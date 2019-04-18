@@ -1,23 +1,9 @@
 # Morris Traversal方法遍历二叉树 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年08月11日 18:27:45[hustlx](https://me.csdn.net/HUSTLX)阅读数：672
-
-
-
-
-
-
+2016年08月11日 18:27:45[hustlx](https://me.csdn.net/HUSTLX)阅读数：674
 
 
 # [Morris Traversal方法遍历二叉树（非递归，不用栈，O(1)空间）](http://www.cnblogs.com/AnnieKim/archive/2013/06/15/MorrisTraversal.html)
-
-
-
-
 
 本文主要解决一个问题，如何实现二叉树的前中后序遍历，有两个要求：
 
@@ -35,8 +21,6 @@ Morris Traversal方法可以做到这两点，与前两种方法的不同在于�
 Morris只提供了中序遍历的方法，在中序遍历的基础上稍加修改可以实现前序，而后续就要再费点心思了。所以先从中序开始介绍。
 
 首先定义在这篇文章中使用的二叉树节点结构，即由val，left和right组成：
-
-
 
 ```cpp
 struct TreeNode {
@@ -68,8 +52,6 @@ struct TreeNode {
 ![](http://images.cnitblog.com/blog/300640/201306/14214057-7cc645706e7741e3b5ed62b320000354.jpg)
 
 代码：
-
-
 
 ```cpp
 void inorderMorrisTraversal(TreeNode *root) {
@@ -140,8 +122,6 @@ while (prev->right != NULL && prev->right != cur)
 
 代码：
 
-
-
 ```cpp
 void preorderMorrisTraversal(TreeNode *root) {
     TreeNode *cur = root, *prev = NULL;
@@ -201,8 +181,6 @@ void preorderMorrisTraversal(TreeNode *root) {
 ![](http://images.cnitblog.com/blog/300640/201306/15165951-7991525829134fb3beefed9fbf7e0536.jpg)
 
 代码：
-
-
 
 ```cpp
 void reverse(TreeNode *from, TreeNode *to) // reverse the tree nodes 'from' -> 'to'.
@@ -272,8 +250,4 @@ void postorderMorrisTraversal(TreeNode *root) {
 复杂度分析：
 
 空间复杂度同样是O(1)；时间复杂度也是O(n)，倒序输出过程只不过是加大了常数系数。
-
-
-
-
 

@@ -1,16 +1,6 @@
 # obs-studio源码阅读笔记二 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2018年12月18日 14:26:44[露蛇](https://me.csdn.net/tifentan)阅读数：72
-
-
-
-
-
-
+2018年12月18日 14:26:44[露蛇](https://me.csdn.net/tifentan)阅读数：73
 
 
 **跟着上篇提到的https://obsproject.com/docs/文档看一遍第一章OBS Studio Backend Design能对整个项目的总体框架有个印象了。**
@@ -139,6 +129,4 @@ run:
 	return ret;
 }
 ```
-
-
 

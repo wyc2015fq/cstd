@@ -1,16 +1,6 @@
 # ZigZag Conversion - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月16日 10:44:40[hustlx](https://me.csdn.net/HUSTLX)阅读数：190
-
-
-
-
-
-
+2016年03月16日 10:44:40[hustlx](https://me.csdn.net/HUSTLX)阅读数：191
 
 
 ```cpp
@@ -32,7 +22,4 @@ string convert(string s, int numRows) {
     return res;
 }
 ```
-
-
-
 

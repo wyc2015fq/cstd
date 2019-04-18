@@ -1,19 +1,7 @@
 # PCA降维及其实现 - 李鑫o_O - CSDN博客
 
-
-
-
-
-置顶2016年03月10日 21:24:07[hustlx](https://me.csdn.net/HUSTLX)阅读数：868
+置顶2016年03月10日 21:24:07[hustlx](https://me.csdn.net/HUSTLX)阅读数：878
 个人分类：[机器学习](https://blog.csdn.net/HUSTLX/article/category/6122182)
-
-
-
-
-
-
-
-
 
 
 
@@ -40,8 +28,6 @@ meanRemoved = dataMat - meanVals #remove mean
 
 ![image](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311093000210-2054484909.png)
 
-
-
 covMat = cov(meanRemoved, rowvar=0)
 
 5.求取特征值和特征向量：
@@ -64,13 +50,9 @@ eigValInd = eigValInd[:-(topNfeat+1):-1]  #cut off unwanted dimensions
 
 ![image](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311093001413-1141237738.png)
 
-
-
 这样对于一个n维向量x，就可以降维到k维向量z了：
 
 ![image](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311093002038-349651223.png)
-
-
 
 ## 1.2、PCA降维实验
 
@@ -78,11 +60,7 @@ eigValInd = eigValInd[:-(topNfeat+1):-1]  #cut off unwanted dimensions
 
 ![image](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311093003585-1994741362.png)![image](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311093004366-1164149766.png)
 
-
-
 自己生成数据：
-
-
 
 ```python
 <span style="font-size:14px;"><span style="font-size:14px;">def make_swiss_roll(n_samples=100, noise=0.0, random_state=None):
@@ -99,33 +77,19 @@ eigValInd = eigValInd[:-(topNfeat+1):-1]  #cut off unwanted dimensions
 ```
 
 
-
-
-
-
 1、Y=100*random.rand(1,2000)
 
 ![image](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311093005585-406911344.png)![image](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311093006460-1057435786.png)
-
-
 
 2、y=21*random.rand(1,2000)
 
 ![image](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311093007507-365162676.png)![image](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311093008413-1056849989.png)
 
-
-
 2、y=1*random.rand(1,2000)
 
 ![image](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311093009725-2061008276.png)![image](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311093010554-1269264113.png)
 
-
-
 ## 1.3、PCA降维实验小结
 
 可以看到，当y的变化幅度较小时，最后降维之后的数据更类似于x，z轴数据，当y变化较大时，更类似于变化较大的y和x。
-
-
-
-
 

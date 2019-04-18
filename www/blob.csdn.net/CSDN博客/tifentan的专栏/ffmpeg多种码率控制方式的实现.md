@@ -1,16 +1,6 @@
 # ffmpeg多种码率控制方式的实现 - tifentan的专栏 - CSDN博客
 
-
-
-
-
-2018年04月13日 14:53:03[露蛇](https://me.csdn.net/tifentan)阅读数：235
-
-
-
-
-
-
+2018年04月13日 14:53:03[露蛇](https://me.csdn.net/tifentan)阅读数：237
 
 
 ffmpeg是我们进行视频编解码常用的工具，而对于ffmpeg中编码时对码率的控制方式一直没找合适的教程，无意中在stackoverflow上发现了答案，在此进行总结备忘。
@@ -34,6 +24,7 @@ int bpsMode;                        //码流控制方式，0表示平均码率(a
 AVCodecContext* pCodecCtx; 
 
 …….  
+
 //码率控制方式 
 
 string modeValue = int2String(bpsValue); 
@@ -65,6 +56,7 @@ default:
     break; 
 
 }  
+
 同时ffmpeg中采用H264,H265标准编码时，可能需要设置preset、tune和profile，ffmpeg中需要采用额外参数AVDictionary传入avcodec_open2()函数中实现。下面给出参考代码：
 
 [cpp] view plain copy 
@@ -84,6 +76,7 @@ default:
      av_dict_set(&dictParam,”profile”,”main”,0); 
 
  }  
+
 if(pCodecCtx->codec_id == AV_CODEC_ID_H265) 
 
  { 
@@ -95,6 +88,7 @@ if(pCodecCtx->codec_id == AV_CODEC_ID_H265)
      av_dict_set(&dictParam,”profile”,”main”,0); 
 
  }  
+
 //输出格式信息 
 
  av_dump_format(pFormatCtx, 0, outputFileName.c_str(), 1);  
@@ -120,10 +114,4 @@ pCodec = avcodec_find_encoder(pCodecCtx->codec_id);
      return false; 
 
  }  
-
-
-
-
-
-
 

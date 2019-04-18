@@ -1,18 +1,7 @@
 # Python安装、配置 - 李鑫o_O - CSDN博客
 
-
-
-
-
-2016年03月10日 21:03:27[hustlx](https://me.csdn.net/HUSTLX)阅读数：644
+2016年03月10日 21:03:27[hustlx](https://me.csdn.net/HUSTLX)阅读数：646
 个人分类：[python](https://blog.csdn.net/HUSTLX/article/category/6128600)
-
-
-
-
-
-
-
 
 
 
@@ -28,11 +17,9 @@ Windows之所以使用的这么普遍，是因为在windows下所有的操作都
 
 ![clip_image002](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311102140569-892497835.gif)
 
-
 2）编辑path值，添加你安装的python路径，
 
 ![clip_image004](http://images2015.cnblogs.com/blog/904258/201603/904258-20160311102141288-697358579.gif)
-
 
 3）检验python是否安装配置成功，打开cmd，输入python，如果出现以下界面，则说 明你的python安装成功了。
 
@@ -42,13 +29,8 @@ Windows之所以使用的这么普遍，是因为在windows下所有的操作都
 
 [numpy、matplotlib、scipy](http://www.scipy.org/install.html) 的安装比较简单，下载相应版本的exe文件，直接点击运行就行。它会自动检索到Python的安装路径。但是安装完成之后
 
-
 import  matplotlib.pyplot as plt  之后提示有错误，提示说缺少 dateutil，安装dateutil，dateutil安装完成之后会提示说缺少[pyparsing](http://www.lfd.uci.edu/~gohlke/pythonlibs/#python-dateutil) ，然后下载安装。但是还会出现错误提示说no
  module named six，解决方法： 把路径如：C:\ Python27\Lib\site-packages\scipy\lib中的six.py six.pyc six.pyo三个文件拷贝到C:\ Python27\Lib\site-packages目录下。
 
-
 至此windows下python已经成功配置numpy、matplotlib、scipy。
-
-
-
 
