@@ -550,6 +550,13 @@ def htm2md(t):
         if len(ll)>0:
             out['title'] = out['title'].replace('- ', ' - ' + ll[0] +' - ')
 
+    if aaa=='www.jianshu.com':
+        html = etree.HTML(html_code)
+        aa='//div[@class="info"]/span[@class="name"]/a/text()'
+        ll = html.xpath(aa)
+        if len(ll)>0:
+            out['title'] = out['title'].replace('- ', ' - ' + ll[0] +' - ')
+
     return FILTER[aaa]['root'], out['title'], d
 
 from down import *
