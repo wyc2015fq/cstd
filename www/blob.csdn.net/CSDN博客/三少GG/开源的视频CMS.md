@@ -1,0 +1,39 @@
+# 开源的视频CMS - 三少GG - CSDN博客
+2012年06月06日 20:51:01[三少GG](https://me.csdn.net/scut1135)阅读数：4222
+MediaCore是一个开源的CMS和视频播客平台，主要的功用包括视频、音频、YouTube集成、播客和 iTunes RSS 生成，用户可以提交各种多媒体形式，内嵌一个媒体播放器、WYSIWYG 可视化编辑器和搜寻功能。MediaCore使得任何网站上公布冗杂，由于它可以拉动视频或音频媒体从任何根源。一个网站一切者可以从管理界面发布媒体或让用户创立内容经过上传界面。它同时支持HTML5的或Flash播放。
+![MediaCore开源视频顺序](http://www.zzgm.net/up/201107/07_125708_b1b2418e2b796bf18d619c9ed002175a.jpg)
+（MediaCore后台管理面板）
+![MediaCore](http://www.zzgm.net/up/201107/07_125708_2a570521aaa77caa8f846f8594e2f557.jpg)
+（MediaCore展现页面）
+官方网站： [http://mediacore.com/](http://mediacore.com/)    但是没有免费版本啦！！！只能适用30天~~~ 哎，不考虑了...
+           但是有Community Edition! [http://mediacorecommunity.org/#get-started](http://mediacorecommunity.org/#get-started)
+**2. Kaltura**
+Kaltura 是一款基于 Flash 技术的在线视频编辑工具。除了具有同类工具的运用特性之外，最主要的，还是能支持多人协作编辑，这一点特性能够今后将会被更多的在线视频编辑工具所使用。 此外，Kaltura 上处置的视频媒体可以通过网页内嵌代码输入到 Blog 或许团体网页上。
+![在线视频编辑工具](http://www.zzgm.net/up/201107/07_125708_bdca17745c2a594bb9b57e08654ad3fb.jpg)
+官方网站：[http://corp.kaltura.com/](http://corp.kaltura.com/)
+3. PHPmotion
+[http://phpmotion.com/](http://phpmotion.com/)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+> 
+安装好了基础的[Ubuntu](http://www.linuxidc.com/topicnews.aspx?tid=2) server 11.04 具备了 LAMP 现在我们来安装 MediaCore 这个帅气的开源视频服务平台。
+MediaCore 目前版本是 0.9.0 在官方网站可以下载 opensource.mediacore.com 基于python flowplayer 等技术。界面优雅大方 mediacore.tv 这个服务也可以叫视频博客或者私人电视台。。。
+官方有安装文档，下面的操作基本按照官方文档操作。仅做个人记录和分享。
+1. GCC [Ubuntu](http://www.linuxidc.com/topicnews.aspx?tid=2) 已经默认安装了，我们只需要安装mysql和python环境及其相关的库文件
+直接
+# install the mysql client and python-dev
+sudo apt-get install mysql-server mysql-client libmysqlclient-dev python-dev python-doc
+# install the necessary libraries for creating thumbnails
+sudo apt-get install libjpeg-dev libjpeg62 libjpeg62-dev zlib1g-dev libfreetype6 libfreetype6-dev安装 python setup 工具
+sudo apt-get install python-setuptools安装python env
+sudo apt-get install python-virtualenv接下来创建python 虚拟环境（貌似说的不对。。）
+# Create a new virtual environment:
+virtualenv --no-site-packages mediacore_env
+# Now, activate that virtual environment:
+source mediacore_env/bin/activate没有出错的话 MediaCore 的安装前提就可以了。
+下面就可以解压缩 MediaCore tar -zxvf 嗯嗯 进入到 MediaCore 目录
+# Unpack the downloaded distribution
+tar xzvf MediaCore-0.9.0.tar.gz
+cd MediaCore-0.9.0
+# Install!
+python setup.py develop至于 apache + fcgi 什么的去官网看文档吧，目前官方主要精力在做mediacore.tv 已经好几个月没有更新。另外 vimp 和 kaltura 功能强大 建议尝试。
+![](http://www.zzgm.net/js.php?mod=dpcms&name=addview&eid=10403)

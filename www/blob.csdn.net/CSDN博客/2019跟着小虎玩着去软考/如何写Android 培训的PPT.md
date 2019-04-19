@@ -1,9 +1,5 @@
-
 # 如何写Android 培训的PPT - 2019跟着小虎玩着去软考 - CSDN博客
-
-2011年08月25日 11:09:24[littletigerat](https://me.csdn.net/littletigerat)阅读数：2777
-
-
+2011年08月25日 11:09:24[littletigerat](https://me.csdn.net/littletigerat)阅读数：2782
 **如何写Android 培训的PPT**
 1.每次培训一个明确的主题；
 2.每次培训的时间不要超过3个小时，因为每个人都疲劳期；
@@ -21,4 +17,3 @@
 14.要讲大家关心的Android内容；
 15.要将跟工作紧密相关的Android知识点；
 16.要留一定的时间，让大家提问，回答大家的问题。
-

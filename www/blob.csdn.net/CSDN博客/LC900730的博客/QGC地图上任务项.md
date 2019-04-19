@@ -1,0 +1,65 @@
+# QGC地图上任务项 - LC900730的博客 - CSDN博客
+2017年09月18日 12:01:11[lc900730](https://me.csdn.net/LC900730)阅读数：530
+![这里写图片描述](https://img-blog.csdn.net/20170918154203265?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvTEM5MDA3MzA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+## Mission/Fence/Rally
+```
+Item{
+    anchors.fill:rightPanel
+    Row{
+        id:planElementSelectorRow
+        anchors.topMArgin:Math.round(ScreenTools.defaultFontPixelHeight/3);
+visible:QGroundControl.corePlugin.options.enablePlanViewSelector;
+    ExclusiveGroup{
+        id:planElementSelectorGroup
+        onCurrentChanged:{
+            switch(current){
+            }
+        }
+    }
+    QGCRadioButton{
+        id:planElementMission
+        exclusiveGroup:planElementSelectorGroup
+        text:qsTr("Mission")
+    }
+    QGCRadioButton{
+        id:planElementGeoFence
+        exclusiveGroup:planElementSelectorGroup
+        text:qsTr("Fence")
+    }
+    QGCRadioButton{
+        id:planElementMission
+        exclusiveGroup:planElementSelectorGroup
+        text:qsTr("Rally")
+    }
+    }
+//显示那个item取决于当前的编辑层与XX是否相等
+    Item{
+        id:missionItemEditor
+        visible:_editingLayer==_layerMission;
+        QGCListView{
+            id:missionItemEditorListView
+            model:_missionController.visualItems
+            clip:true;
+            delegate:MissionItemEditor{
+                map:editorMap
+                masterController:_planMasterController
+                missionItem:object
+            }
+        }
+    }
+}
+```
+这3个Controller的都是由PlanMasterController.cc
+```
+PlanMasterController::PlanMasterController(QObject *parent):QObject(parent){
+,_multiVehicleMgr(
+qgcApp()->toolbox()->multiVehicleManager())
+,_controllerVehicle(new Vehicle((MAV_AUTOPILOT)qgcApp()->xxx))
+,_editMode(false)
+,_offline(true)
+,_missionController(this),
+,_geoFenceController(this),
+,_rallyPointController(this),
+,_loadRallyPointsr(false),
+}
+```

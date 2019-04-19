@@ -1,0 +1,49 @@
+# WPF工具开发: 第三库选择 - 逍遥剑客 - CSDN博客
+2010年10月18日 09:34:00[xoyojank](https://me.csdn.net/xoyojank)阅读数：19775
+- PropertyGrid - Winforms's [PropertyGrid](http://msdn.microsoft.com/zh-cn/library/system.windows.forms.propertygrid(VS.80).aspx#CommunityContent)- 非WPF原生支持, 需要借助WinFormHost
+- 风格不可定制
+- ![](http://hi.csdn.net/attachment/201010/18/0_1287387130Gkzt.gif)
+- [PropertyInspectorView](http://www.codeproject.com/KB/grid/WpfPropertyGrid.aspx)- 算是"官方"库, 风格不可定制
+- 
+![](http://hi.csdn.net/attachment/201010/18/0_1287387119Y9z2.gif)
+- [WPF Property Grid](http://wpg.codeplex.com/)- 开源
+- 功能还不够完善
+- 可以定制风格
+- ![](http://hi.csdn.net/attachment/201010/18/0_1287387135xc17.gif)
+- [PropertyEditor for WPF](http://propertyeditor.codeplex.com/)- 开源
+- 功能比较实用, 有自己的特色
+- ![](http://hi.csdn.net/attachment/201010/18/0_12873871097dsl.gif)
+- [Actipro PropertyGrid](http://www.actiprosoftware.com/products/dotnet/wpf/propertygrid/default.aspx)- 商业控件
+- ![](http://hi.csdn.net/attachment/201010/18/0_1287387114eIl9.gif)
+- [Mindscape WPF Property Grid](http://www.wpfpropertygrid.com/)- 商业控件
+- ![](http://hi.csdn.net/attachment/201010/18/0_128738712225MQ.gif)
+- DockWindow - [AvalonDock](http://avalondock.codeplex.com/)- 开源, 几乎是商用之外的最好选择
+- ![](http://hi.csdn.net/attachment/201010/18/0_12873871051Gq2.gif)
+- [DotNetBar for WPF](http://www.devcomponents.com/dotnetbar-wpf/)- 商业控件库
+- [Actipro Docking & MDI](http://www.actiprosoftware.com/products/dotnet/wpf/docking/default.aspx)- 商业控件库
+- RibbonBar - [Microsoft Ribbon for WPF](http://www.microsoft.com/downloads/en/details.aspx?FamilyID=2bfc3187-74aa-4154-a670-76ef8bc2a0b4&displaylang=en)- 官方扩展
+- 功能单一
+- ![](http://hi.csdn.net/attachment/201010/18/0_12873871533KKw.gif)
+- [Fluent Ribbon Control Suite](http://fluent.codeplex.com/)- 开源
+- 支持Office2010风格
+- ![](http://hi.csdn.net/attachment/201010/18/0_1287387146C23X.gif)
+- [DotNetBar for WPF](http://www.devcomponents.com/dotnetbar-wpf/)- 商业控件库
+- 很方便的VS内嵌设计器
+- 最新版支持Office2010风格
+- 除了RibbonBar, 还有其它很实用的功能
+- ![](http://hi.csdn.net/attachment/201010/18/0_1287387139kfFL.gif)
+- Chart - [WPF Dynamic Data Display](http://dynamicdatadisplay.codeplex.com/)- 开源
+- 功能强大
+- ![](http://hi.csdn.net/attachment/201010/18/0_1287387090uZXV.gif)
+- [Swordfist WPF Charts](http://www.codeproject.com/KB/vista/swordfishcharts.aspx)- 开源
+- ![](http://hi.csdn.net/attachment/201010/18/0_1287387098kwHL.gif)
+- [WPF Toolkit](http://wpf.codeplex.com/releases/view/29117)- 官方开源
+- 功能单一
+- ![](http://hi.csdn.net/attachment/201010/18/0_12873871021Pup.gif)
+- TextEditor- [AvalonEdit](http://www.codeproject.com/KB/edit/AvalonEdit.aspx)- SharpDevelop就是用这东西开发的, 还用说啥?
+- ![](http://hi.csdn.net/attachment/201010/26/0_1288107260aOr2.gif)
+- [Simple WPF Syntax Highlight Textbox](http://wpfsyntax.codeplex.com/)- ![](http://hi.csdn.net/attachment/201010/26/0_1288107221RXuP.gif)
+- [ScintillaNET](http://scintillanet.codeplex.com/)- 这是Scintilla的.Net封装, 很有名的一个控件
+- ![](http://hi.csdn.net/attachment/201010/26/0_12881073050NNt.gif)
+- [Actipro SyntaxEditor](http://www.actiprosoftware.com/products/dotnet/WPF/SyntaxEditor/Default.aspx)- 这个是收费的
+- ![](http://hi.csdn.net/attachment/201010/26/0_1288107286IIbh.gif)

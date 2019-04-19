@@ -144,8 +144,7 @@ protected:
   //
   
   
-  CNode*
-    NewNode(CList::CNode* pPrev, CList::CNode* pNext)
+  CNode* NewNode(CNode* pPrev, CNode* pNext)
   {
     if (m_pNodeFree == NULL)
     {
@@ -177,7 +176,7 @@ protected:
   }
   
   
-  void FreeNode(CList::CNode* pNode)
+  void FreeNode(CNode* pNode)
   {
     DestructElements<TYPE>(&pNode->data, 1);
     pNode->pNext = m_pNodeFree;
@@ -189,7 +188,6 @@ protected:
     if (m_nCount == 0)
       RemoveAll();
   }
-  
   
   POSITION AddHead(ARG_TYPE newElement)
   {

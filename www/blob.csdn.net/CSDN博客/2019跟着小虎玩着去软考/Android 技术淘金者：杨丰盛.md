@@ -1,9 +1,5 @@
-
 # Android 技术淘金者：杨丰盛 - 2019跟着小虎玩着去软考 - CSDN博客
-
-2011年08月10日 17:24:42[littletigerat](https://me.csdn.net/littletigerat)阅读数：4322
-
-
+2011年08月10日 17:24:42[littletigerat](https://me.csdn.net/littletigerat)阅读数：4323
 **Android 技术淘金者：杨丰盛**
 # 杨丰盛，何许人也
 ![](http://hi.csdn.net/attachment/201108/10/0_1312967921tSj9.gif)
@@ -14,16 +10,15 @@
 5.曾经领导和参与《三国群英传说》、《大航海传奇》、《美少女养成计划》等经典游戏的开发。
 # 牛刀初试，锋芒毕露
 ![](http://hi.csdn.net/attachment/201108/10/0_1312968284d7Th.gif)
-1.**Android应用开发揭秘(畅销3万册,内容已更新至Android 2.2,版权输出至台湾)**
-2.**这本书自上市以来已经重印9次，而且销量一直排在当当网、卓越网和互动网这3大网店的计算机类图书的排行榜前列。**
+1. **Android应用开发揭秘(畅销3万册,内容已更新至Android 2.2,版权输出至台湾) **
+2.**这本书自上市以来已经重印9次，而且销量一直排在当当网、卓越网和互动网这3大网店的计算机类图书的排行榜前列。 **
 大家可以算算，一本专业书籍卖了3万册，重印了9次，有多火，应该赚了不少的银子。
 看来搞技术，只要选对题材，出书写作，也可以作为程序员、软件工程师挣钱的一个选择。
 既提高了中国软件行业的开发水平，自己又获得了不菲的的稿酬。一举多得。
 # 再次重磅出击
 以前都是买老外，老美写的《技术内幕》。今日看到有来自中国IT界的写的Android技术内幕，倍感欣慰。
 ![](http://hi.csdn.net/attachment/201108/10/0_1312968204J83r.gif)
-在当当网:[www.dangdang.com](http://www.dangdang.com/)
-以及中国互动出版网[www.china-pub.com](http://www.china-pub.com/)
+在当当网: [www.dangdang.com](http://www.dangdang.com/)
+以及中国互动出版网 [www.china-pub.com](http://www.china-pub.com/)
 在Android的技术类书籍中，销量也相当的靠前。
 你，是否也准备为大家奉献一本技术大作呢？
-

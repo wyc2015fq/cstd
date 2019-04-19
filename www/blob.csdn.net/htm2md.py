@@ -632,6 +632,39 @@ def node_filter_51cto(node):
     return 0
 
 
+def node_filter_51cto(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='artical-content-bak main-content':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='artical-copyright mt26':
+        return 3
+
+    return 0
+
+def node_filter_gameinstitute(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='detail-data':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='art-foot':
+        return 3
+
+    return 0
+
+
 FILTER = {
     'csdn': {'filter':node_filter_csdn, 'site':'https://blog.csdn.net', 'root':'CSDN博客'},
     'cnblogs': {'filter':node_filter_cnblogs, 'site':'https://www.cnblogs.com', 'root':'博客园'},
@@ -647,6 +680,7 @@ FILTER = {
     'www.skywind.me': {'filter':node_filter_skywind, 'site':'', 'root':'Skywind'},
     'www.sohu.com': {'filter':node_filter_sohu, 'site':'', 'root':'搜狐'},
     'blog.51cto.com': {'filter':node_filter_51cto, 'site':'', 'root':'51CTO博客'},
+    'gameinstitute.qq.com': {'filter':node_filter_gameinstitute, 'site':'', 'root':'腾讯游戏学院'},
 }
 
 def savetext(fn, d):
@@ -733,6 +767,13 @@ def htm2md(t):
     if aaa=='blog.51cto.com':
         print(out['title'])
         out['title'] = out['title'].replace('-', ' - ')
+
+    if aaa=='gameinstitute.qq.com':
+        print(out['title'])
+        html = etree.HTML(html_code)
+        aa='//span[@class="name"]/text()'
+        ll = html.xpath(aa)[0].strip()
+        out['title'] = out['title'].replace('-腾讯游戏学院', ' - ' + ll + ' - 腾讯游戏学院')
 
     d = d.replace('\n\n\n', '\n').replace('\n\n\n', '\n').replace('\n\n', '\n')
     return FILTER[aaa]['root'], out['title'], d

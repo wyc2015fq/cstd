@@ -2,7 +2,7 @@
 #ifndef __TIME_HPP__
 #define __TIME_HPP__
 
-#include "DumpContext.hpp"
+
 #include "TimeSpan.hpp"
 
 struct CTime
@@ -210,17 +210,6 @@ struct CTime
 };
 
 
-CDumpContext& operator <<(CDumpContext& dc, CTime time)
-{
-  char* psz = ctime(&time.m_time);
-  if ((psz == NULL) || (time.m_time == 0))
-    return dc << "CTime(invalid #" << time.m_time << ")";
-
-  // format it
-  psz[24] = '\0';         // nuke newline
-  return dc << "CTime(\"" << psz << "\")";
-}
-
 LONG AfxTimeToFileTime(const CTime& time, LPFILETIME pFileTime)
 {
   SYSTEMTIME sysTime;
@@ -242,6 +231,18 @@ LONG AfxTimeToFileTime(const CTime& time, LPFILETIME pFileTime)
     return ((LONG)::GetLastError());
   return 0;
 }
+
+StringBuilder& operator <<(StringBuilder& dc, const CTime& time)
+{
+	char* psz = ctime(&time.m_time);
+	if ((psz == NULL) || (time.m_time == 0))
+		return dc << "CTime(invalid #" << time.m_time << ")";
+
+	// format it
+	psz[24] = '\0';         // nuke newline
+	return dc << "CTime(\"" << psz << "\")";
+}
+
 
 
 #endif // __TIME_HPP__

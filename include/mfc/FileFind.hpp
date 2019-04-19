@@ -5,7 +5,7 @@
 #include "DumpContext.hpp"
 #include "String.hpp"
 #include "Time.hpp"
-#include "dir_c.h"
+#include "std/dir_c.h"
 #define UNUSED_ALWAYS(x) x
 
 ////////////////////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@
 struct CFileFind
 {
   fileinfo_t m_pFoundInfo[1];
-  findfile_t m_hContext[1];
+  dir_t m_hContext[1];
   BOOL m_bGotLast;
   CString m_strRoot;
   TCHAR m_chDirSeparator;     // not '\\' for Internet classes

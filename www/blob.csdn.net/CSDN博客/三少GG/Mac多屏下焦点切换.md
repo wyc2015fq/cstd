@@ -1,0 +1,14 @@
+# Mac多屏下焦点切换 - 三少GG - CSDN博客
+2017年04月03日 15:43:25[三少GG](https://me.csdn.net/scut1135)阅读数：8438
+个人分类：[Ubuntu/OS X系统](https://blog.csdn.net/scut1135/article/category/680808)
+
+# Mac多显示器之间的焦点切换
+[http://xuquan.me/blog/switch-multi-display.html](http://xuquan.me/blog/switch-multi-display.html)
+多显示器之间的焦点切换非常麻烦，每次码代码时需要切换到浏览器查资料都需要用鼠标点外接的显示器，需要切换回来写代码时又要用鼠标点回来，作为一名高效（搞笑）的键盘党，这能忍？？？
+于是速度网上查找攻略，果然找到完美解决办法，如下:
+- 首先需要到网上搜索并下载Mac上的鼠标点击程序Cliclick
+- 接着便是使用神器Automator的时刻了，点击打开程序Automator，选择`服务`,
+ 接下来的步骤如下图:![](http://ww1.sinaimg.cn/large/6120fe13jw1eyj531uatkj21ja11eh0d.jpg)写好脚本执行后，需要把脚本保存下来，可以自己命名，我的为`选择屏幕1`
+- 接下来就是设置快捷键了，打开`系统偏好设置`-`键盘`-`快捷键`-`服务`-`通用`，可以看到自己之前保存的脚本，设置快捷键即可:![](http://ww3.sinaimg.cn/large/6120fe13jw1eyj5bpe5umj20ig0ea0vm.jpg)
+- 按照同样的方法再设置`选择屏幕2`即可
+原理： 每次按对应的快捷键，就是在你设置的坐标位置上程序执行点击鼠标的操作，这样就实现了切换屏幕焦点的作用，awesome！！！
