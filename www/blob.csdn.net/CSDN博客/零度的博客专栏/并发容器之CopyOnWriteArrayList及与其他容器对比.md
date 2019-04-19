@@ -1,0 +1,683 @@
+# 并发容器之CopyOnWriteArrayList及与其他容器对比 - 零度的博客专栏 - CSDN博客
+2017年09月04日 11:40:35[零度anngle](https://me.csdn.net/zmx729618)阅读数：497
+###   一、  CopyOnWriteArrayList原理  
+ Copy-On-Write简称COW，是一种用于程序设计中的优化策略。其基本思路是，从一开始大家都在共享同一个内容，当某个人想要修改这个内容的时候，才会真正把内容Copy出去形成一个新的内容然后再改，这是一种延时懒惰策略。从JDK1.5开始Java并发包里提供了两个使用CopyOnWrite机制实现的并发容器,它们是CopyOnWriteArrayList和CopyOnWriteArraySet。CopyOnWrite容器非常有用，可以在非常多的并发场景中使用到。
+## 什么是CopyOnWrite容器
+　　CopyOnWrite容器即写时复制的容器。通俗的理解是当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWrite容器进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWrite容器也是一种读写分离的思想，读和写不同的容器。
+## CopyOnWriteArrayList的实现原理
+　　在使用CopyOnWriteArrayList之前，我们先阅读其源码了解下它是如何实现的。以下代码是向CopyOnWriteArrayList中add方法的实现（向CopyOnWriteArrayList里添加元素），可以发现在添加的时候是需要加锁的，否则多线程写的时候会Copy出N个副本出来。
+```
+```java
+/**
+```
+```java
+```
+```java
+*
+ Appends the specified element to the end of this list.
+```
+```java
+```
+```java
+*
+```
+```java
+```
+```java
+*
+ @param e element to be appended to this list
+```
+```java
+```
+```java
+*
+ @return <tt>true</tt> (as specified by {@link Collection#add})
+```
+```java
+```
+```java
+*/
+```
+```java
+```
+```java
+public
+```
+```java
+boolean
+```
+```java
+add(E
+ e) {
+```
+```java
+```
+```java
+final
+```
+```java
+ReentrantLock
+ lock =
+```
+```java
+this
+```
+```java
+.lock;
+```
+```java
+```
+```java
+lock.lock();
+```
+```java
+```
+```java
+try
+```
+```java
+{
+```
+```java
+```
+```java
+Object[]
+ elements = getArray();
+```
+```java
+```
+```java
+int
+```
+```java
+len
+ = elements.length;
+```
+```java
+```
+```java
+Object[]
+ newElements = Arrays.copyOf(elements, len +
+```
+```java
+1
+```
+```java
+);
+```
+```java
+```
+```java
+newElements[len]
+ = e;
+```
+```java
+```
+```java
+setArray(newElements);
+```
+```java
+```
+```java
+return
+```
+```java
+true
+```
+```java
+;
+```
+```java
+```
+```java
+}
+```
+```java
+finally
+```
+```java
+{
+```
+```java
+```
+```java
+lock.unlock();
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+}
+```
+```
+ 　　读的时候不需要加锁，如果读的时候有多个线程正在向CopyOnWriteArrayList添加数据，读还是会读到旧的数据，因为写的时候不会锁住旧的CopyOnWriteArrayList。
+```
+```java
+public
+```
+```java
+E
+ get(
+```
+```java
+int
+```
+```java
+index)
+ {
+```
+```java
+```
+```java
+return
+```
+```java
+get(getArray(),
+ index);
+```
+```java
+}
+```
+```
+ 　　JDK中并没有提供CopyOnWriteMap，我们可以参考CopyOnWriteArrayList来实现一个，基本代码如下：
+```
+```java
+import
+```
+```java
+java.util.Collection;
+```
+```java
+import
+```
+```java
+java.util.Map;
+```
+```java
+import
+```
+```java
+java.util.Set;
+```
+```java
+public
+```
+```java
+class
+```
+```java
+CopyOnWriteMap<K,
+ V>
+```
+```java
+implements
+```
+```java
+Map<K,
+ V>, Cloneable {
+```
+```java
+```
+```java
+private
+```
+```java
+volatile
+```
+```java
+Map<K,
+ V> internalMap;
+```
+```java
+```
+```java
+public
+```
+```java
+CopyOnWriteMap()
+ {
+```
+```java
+```
+```java
+internalMap
+ =
+```
+```java
+new
+```
+```java
+HashMap<K,
+ V>();
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+public
+```
+```java
+V
+ put(K key, V value) {
+```
+```java
+```
+```java
+synchronized
+```
+```java
+(
+```
+```java
+this
+```
+```java
+)
+ {
+```
+```java
+```
+```java
+Map<K,
+ V> newMap =
+```
+```java
+new
+```
+```java
+HashMap<K,
+ V>(internalMap);
+```
+```java
+```
+```java
+V
+ val = newMap.put(key, value);
+```
+```java
+```
+```java
+internalMap
+ = newMap;
+```
+```java
+```
+```java
+return
+```
+```java
+val;
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+public
+```
+```java
+V
+ get(Object key) {
+```
+```java
+```
+```java
+return
+```
+```java
+internalMap.get(key);
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+public
+```
+```java
+void
+```
+```java
+putAll(Map<?
+```
+```java
+extends
+```
+```java
+K,
+ ?
+```
+```java
+extends
+```
+```java
+V>
+ newData) {
+```
+```java
+```
+```java
+synchronized
+```
+```java
+(
+```
+```java
+this
+```
+```java
+)
+ {
+```
+```java
+```
+```java
+Map<K,
+ V> newMap =
+```
+```java
+new
+```
+```java
+HashMap<K,
+ V>(internalMap);
+```
+```java
+```
+```java
+newMap.putAll(newData);
+```
+```java
+```
+```java
+internalMap
+ = newMap;
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+}
+```
+```java
+}
+```
+```
+ 　　实现很简单，只要了解了CopyOnWrite机制，我们可以实现各种CopyOnWrite容器，并且在不同的应用场景中使用。
+## CopyOnWrite的应用场景
+　　CopyOnWrite并发容器用于读多写少的并发场景。比如白名单，黑名单，商品类目的访问和更新场景，假如我们有一个搜索网站，用户在这个网站的搜索框中，输入关键字搜索内容，但是某些关键字不允许被搜索。这些不能被搜索的关键字会被放在一个黑名单当中，黑名单每天晚上更新一次。当用户搜索时，会检查当前关键字在不在黑名单当中，如果在，则提示不能搜索。实现代码如下：
+```
+```java
+package
+```
+```java
+com.ifeve.book;
+```
+```java
+import
+```
+```java
+java.util.Map;
+```
+```java
+import
+```
+```java
+com.ifeve.book.forkjoin.CopyOnWriteMap;
+```
+```java
+/**
+```
+```java
+```
+```java
+*
+ 黑名单服务
+```
+```java
+```
+```java
+*
+```
+```java
+```
+```java
+*
+ @author fangtengfei
+```
+```java
+```
+```java
+*
+```
+```java
+```
+```java
+*/
+```
+```java
+public
+```
+```java
+class
+```
+```java
+BlackListServiceImpl
+ {
+```
+```java
+```
+```java
+private
+```
+```java
+static
+```
+```java
+CopyOnWriteMap<String,
+ Boolean> blackListMap =
+```
+```java
+new
+```
+```java
+CopyOnWriteMap<String,
+ Boolean>(
+```
+```java
+```
+```java
+1000
+```
+```java
+);
+```
+```java
+```
+```java
+public
+```
+```java
+static
+```
+```java
+boolean
+```
+```java
+isBlackList(String
+ id) {
+```
+```java
+```
+```java
+return
+```
+```java
+blackListMap.get(id)
+ ==
+```
+```java
+null
+```
+```java
+?
+```
+```java
+false
+```
+```java
+:
+```
+```java
+true
+```
+```java
+;
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+public
+```
+```java
+static
+```
+```java
+void
+```
+```java
+addBlackList(String
+ id) {
+```
+```java
+```
+```java
+blackListMap.put(id,
+ Boolean.TRUE);
+```
+```java
+```
+```java
+}
+```
+```java
+```
+```java
+/**
+```
+```java
+```
+```java
+*
+ 批量添加黑名单
+```
+```java
+```
+```java
+*
+```
+```java
+```
+```java
+*
+ @param ids
+```
+```java
+```
+```java
+*/
+```
+```java
+```
+```java
+public
+```
+```java
+static
+```
+```java
+void
+```
+```java
+addBlackList(Map<String,Boolean>
+ ids) {
+```
+```java
+```
+```java
+blackListMap.putAll(ids);
+```
+```java
+```
+```java
+}
+```
+```java
+}
+```
+```
+ 　　代码很简单，但是使用CopyOnWriteMap需要注意两件事情：
+　　1. 减少扩容开销。根据实际需要，初始化CopyOnWriteMap的大小，避免写时CopyOnWriteMap扩容的开销。
+　　2. 使用批量添加。因为每次添加，容器每次都会进行复制，所以减少添加次数，可以减少容器的复制次数。如使用上面代码里的addBlackList方法。
+## CopyOnWrite的缺点
+　　CopyOnWrite容器有很多优点，但是同时也存在两个问题，即内存占用问题和数据一致性问题。所以在开发的时候需要注意一下。
+　　内存占用问题。因为CopyOnWrite的写时复制机制，所以在进行写操作的时候，内存里会同时驻扎两个对象的内存，旧的对象和新写入的对象（注意:在复制的时候只是复制容器里的引用，只是在写的时候会创建新对象添加到新容器里，而旧容器的对象还在使用，所以有两份对象内存）。如果这些对象占用的内存比较大，比如说200M左右，那么再写入100M数据进去，内存就会占用300M，那么这个时候很有可能造成频繁的Yong
+ GC和Full GC。之前我们系统中使用了一个服务由于每晚使用CopyOnWrite机制更新大对象，造成了每晚15秒的Full GC，应用响应时间也随之变长。
+　　针对内存占用问题，可以通过压缩容器中的元素的方法来减少大对象的内存消耗，比如，如果元素全是10进制的数字，可以考虑把它压缩成36进制或64进制。或者不使用CopyOnWrite容器，而使用其他的并发容器，如[ConcurrentHashMap](http://ifeve.com/concurrenthashmap/)。
+　　数据一致性问题。CopyOnWrite容器只能保证数据的最终一致性，不能保证数据的实时一致性。所以如果你希望写入的的数据，马上能读到，请不要使用CopyOnWrite容器。
+### 二、并发[数据结构](http://lib.csdn.net/base/datastructure)对比实现
+       在对List、Set、Map并发应用场合，我们可以使用Collections的下面方法将非线程安全List、set、Map转化为线程安全的。但是效率并不是最好的，JDK提供了专门的线程安全List与Set实现类，后面我们将讨论下他们的具体实现。
+![](https://img-blog.csdn.net/20141201114953528?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlhbnlpamF2YW9yYWNsZQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+![](https://img-blog.csdn.net/20141201115022031?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlhbnlpamF2YW9yYWNsZQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+![](https://img-blog.csdn.net/20141201115004104?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlhbnlpamF2YW9yYWNsZQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+**1、CopyOnWriteArrayList与Vector实现讨论**
+ CopyOnWriteArrayList与Vector是两个线程安全的List，ArrayList不是线程安全的。下面我们对比下这两个线程安全List的实现方式有什么不同，各有什么优点与缺点。
+1. CopyOnWriteArrayList get()方法实现如下图
+![](https://img-blog.csdn.net/20141201115114906?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlhbnlpamF2YW9yYWNsZQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+![](https://img-blog.csdn.net/20141201115150606?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlhbnlpamF2YW9yYWNsZQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+CopyOnWriteArrayList get方法没有进行任何锁。所以效率要高。
+2. Vector的get方法实现如下：
+![](https://img-blog.csdn.net/20141201115229703?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlhbnlpamF2YW9yYWNsZQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+        Vector的get方法增加了锁，所以对比两者get方法的，可以说明CopeOnWriteArrayList读取更高效。
+ 3. 下面我们对比Vector与CopyOnWriteArrayList 在添加数据方面的实现方法对比。
+        Vector 的add（）方法实现如下图：
+![](https://img-blog.csdn.net/20141201115233178?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlhbnlpamF2YW9yYWNsZQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+4. CopyOnWriteArrayList 的add（）方法实现如下图：
+![](https://img-blog.csdn.net/20141201115306453?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGlhbnlpamF2YW9yYWNsZQ==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+       CopyOnWriteArrayList add方法实现是先进行锁定，再拷贝数组，添加新元素后，再写入，相比Vector单纯的锁定比，CopyOnWriteArrayList 添加方法效率应该低些。所以并发写多情况下建议用Vector，并发读多的情况下建议用CopyOnWriteArrayList 。
+三、并发Set
+CopyOnWriteArraySet是实现了Set接口线程安全的。内部依赖于CopyOnWriteArrayList，因此适合读多写少的并发。
+**四、并发Map**
+JDK提供了高并发的Map实现ConcurrentHashMap.它的get是无锁的，但是put是有锁的。
+**五、并发Queue**
+ConcurrentLinkedQueue是一个适用于高并发场景下 队列。它通过无锁的方式，实现了高并发状态下的高性能，通常它的性能好于BlockingQueue的典型实现ArrayBlockingQueue、LinkedBlockingQueue。 
+**六、并发Deque**
+Deque是一个种双端队列，可以在头部或尾部进行出队入队。实现类有 ArrayDeque、LinkedBlockingDeque。其中LinkedBlockingDeque是线程安全的，但是读写都加锁，所以效率不是特别高。

@@ -1,0 +1,40 @@
+# 开源搜索引擎评估:lucene sphinx elasticsearch - =朝晖= - 博客园
+# [开源搜索引擎评估:lucene sphinx elasticsearch](https://www.cnblogs.com/dhcn/p/7120711.html)
+http://lutaf.com/158.htm
+### 开源搜索引擎程序有3大类
+- **lucene**系,java开发,包括[solr](http://lutaf.com/j?u=http://lucene.apache.org/solr/)和[elasticsearch](http://lutaf.com/www.elasticsearch.org)
+- **sphinx**,c++开发,简单高性能
+- **Xapian**,c++开发
+[搜索引擎](http://lib.csdn.net/base/searchengine)程序这个名称不妥当,严格说来应该叫做**索引程序**(indexing program),早期主要用来做中文全文搜索,但是随着互联网的深入普及,各家网站规模越来越大,索引程序在 优化网站[架构](http://lib.csdn.net/base/architecture)上发挥了更大的作用:**替代[MySQL](http://lib.csdn.net/base/mysql)[数据库](http://lib.csdn.net/base/mysql)内置的索引**
+- 让mysql no sql化,只承担数据持久化存储的功能
+- 消除join查询/子查询,提高数据库的并发处理能力
+### 使用状况
+Lucene出自名门,子孙兴旺,而且它的兄弟[Hadoop](http://lib.csdn.net/base/hadoop)风头正盛,所以名气最大,而sphinx因为简单可靠,代码结构优良,性能非常好,在国内大型网站中使用最广.xapian用户太少,不建议使用
+> 
+技术选型要选人最多的方向,不可标新立异
+### 搜索性能
+- elasticsearch[有数据说是200ms](http://lutaf.com/j?u=http://blog.csdn.net/laigood12345/article/details/7354779)
+- solr 我目前手上没有数据，应该比sphinx慢
+- 
+sphinx 平均搜索时间:20ms，如此之快，是因为sphinx的基本上可以算作**静态索引**。
+client API只能update已经存入的document属性，不能添加新文档。
+加入新文档只有通过 build/merge的方式，磁盘IO开销很大，从这个角度，sphinx不适合内容更新频繁的网站，不适合做实时索引。但现实情况是国内强UGC的网站基本上都采用sphinx，比如新浪微博，搜狐微博，赶集网，discuz等
+这对程序员来说是巨大的挑战：只能通过建立多级索引，或者采用sphinx+solr的混合方案
+### Lucene系
+- 
+**Lucene** 就是一个纯粹的索引程序代码包,使用的时候,你得写一个简单的server程序(接受关键词-通过lucence查询-返回结果),然后配置在应用服务器中(tomcat/Resin),一般来说,这个server程序会采用http协议,或者xml-rpc,直接用tcp那也太无聊了
+- 
+**Solr** 有大侠急公好义,帮你把上文提到的web 程序写好了,你只需要配置部署就可用,这就是solr,solr对外的接口是http协议,也支持分布式索引
+- 
+**Elasticsearch**,新项目,最近很红,其实也是Lucene的马甲,有如下特点
+- restful接口
+- 分布式导向,包括分布式搜索，分布式索引，零配置，自动分片，索引自动负载
+- 针对实时搜索专门优化:先把索引放在内存中,定期同步到硬盘
+- 附带web 图形化管理工具
+elasticsearch 从设计思路上是针对 [Amazon CloudSearch](http://lutaf.com/j?u=http://aws.amazon.com/cn/cloudsearch/),它的关键词是
+- **分布式**
+- **实时**
+- **高可用**
+这几点一看就是高富巨,日uv几百万的网站,索引也只有几十G,普通玩家是用不着的
+但是从紧跟前沿技术的角度,如果你的索引服务器超过3台,可以尝试部署elasticsearch,性能现在是差点,但硬件和时间会帮你搞定一切
+

@@ -1,0 +1,33 @@
+# 使用FFMPEG进行音视频编解码(C++) 0.简介 - dutong0321 -- 追寻计算机中的神灵 - CSDN博客
+2018年08月30日 18:51:13[dutong0321](https://me.csdn.net/dutong0321)阅读数：1083
+# FFMPEG介绍
+      FFMPEG是一个开源的编解码软件，读作“ef ef em peg”。官方网址是：[http://ffmpeg.org/](http://ffmpeg.org/)。FFMPEG几乎支持所有的格式，当然了像一些特殊的格式FFMPEG是无法支持的，例如爱奇艺的QLV等等，如果自己做一个格式，加入一些视频信息或者专门用于加密的，并且不公开格式，FFMPEG当然是无法支持的。国内的好多音视频转码、播放工具都是基于FFMPEG的，例如：格式工厂、完美解码。其实，这两款软件还是不错的，使用起来相当便利，而且功能也是比较完善的，强烈推荐。 
+     FFMPEG是开源的，所以理论上支持所有的系统，官方直接编译好的有Windows/Linux/Mac，安装方法都很简单。简单介绍一下windows和Debian/Ubuntu的安装方式，其他的可以去FFMPEG的下载页面查看[http://ffmpeg.org/download.html](http://ffmpeg.org/download.html)。 
+**Linux安装方法(Debian/Ubuntu/Deepin等)**
+     很简单，只需要通用APT软件包的安装方法就可以。
+```bash
+sudo apt install ffmpeg
+```
+**Windows安装方法**
+     可以通过上面的下载页面，点击Windows的下载图标，然后点击build来跳转，也可以直接点击[https://ffmpeg.zeranoe.com/builds/](https://ffmpeg.zeranoe.com/builds/)来打开页面，打开后的页面如下： 
+![FFMpeg在Windows中安装](https://img-blog.csdn.net/20180828110540965?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2R1dG9uZzAzMjE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70)
+     在version列中有两栏：第一栏是每夜版，是正在开发中最新的版本，缺点就是可能包含大量的BUG，不建议用在实际使用中，也不建议下载；第二栏是最新的稳定版，可以看到现在的最新版本是4.0.2，就采用这个版本。在Architecture中有3栏，第3栏MacOS栏不必多说，主要来讨论下Windows 64bit和32bit。64bit的系统可以采用64bit的软件，也可以采用32bit的软件，但是32bit的系统只能采用32bit的软件。在实际开发中，建议无论系统是32bit还是64bit都采用32bit的来进行开发，当然如果包含的其他库中部分库没有32bit的，导致所有的库都采用64bit的话，那么FFmpeg也建议采用64bit的。 
+     在Linking列中有三栏，如果是日常使用，仅仅使用命令行的方式的话，那么可以使用static版本和share版本，static版本中有3个目录：bin、doc、preset，bin目录中包含3个文件：ffmpeg.exe、ffplay.exe、ffprobe.exe，ffmpeg主要用于转码，也是日常用的比较频繁的，ffplay主要用于播放，也很实用，不过目前我使用VLC比较多，这个软件也是很强大，ffprobe就用的比较少了，主要是用来查看元数据，doc文件夹中主要是ffmpeg的文档内容，preset中有一些预配置文件。 
+     share版本与static版本不同的是，share版本是动态编译，static版本是静态编译的。所以，share版本中的bin文件夹，除了3个可执行程序，还有一些DLL文件，不过可执行程序的体积与static相比，小了很多。 
+     对于开发来讲，最重要的是share版本和dev版本，简单介绍dev版本：include、lib、example三个目录，分别是C/C++头文件、链接文件以及例子源代码，都挺重要的。开发完成后，动态编译，所以还需要有share版本中的dll动态编译库。 
+     其实对于开发来讲，最好是把static和源代码全部下载下来。可以用static做一些测试，毕竟static中拥有ffmpeg中所有的标准功能，有时候遇到些问题，可以查看一下是不是不是代码的问题，而是某些格式的特定要求，ffmpeg帮忙转换而自己却不知道，源代码也很重要，源代码目录中的doc下同样有个example文件夹，里面也有大量的例子程序参考，而且有时候当某个函数不太明白，看看源代码或许就有感觉了。 
+     另外需要用一款MediaInfo的软件来查看生成的文件，很强大，使用起来很方便。网址：[https://mediaarea.net/en/MediaInfo/Download/Windows](https://mediaarea.net/en/MediaInfo/Download/Windows)。当然了，ffmpeg的官方文档也是非常重要的：[http://ffmpeg.org/doxygen/4.0/index.html](http://ffmpeg.org/doxygen/4.0/index.html)（最新的4.0的，拿好不谢，可惜是英文的）。另外比较重要的就是雷神的博客，我开始的入门其实都是看的雷神的博客，可惜的是雷神走的早，导致他大量的程序都是基于2点多的版本，当年雷神的文章中，h265还仅仅是一个新的标准，但是现在h265早就被各大厂商玩坏了。雷神的博客：[https://blog.csdn.net/leixiaohua1020/](https://blog.csdn.net/leixiaohua1020/)，尤其是可以先看看这篇入门的文章：[https://blog.csdn.net/leixiaohua1020/article/details/15811977/](https://blog.csdn.net/leixiaohua1020/article/details/15811977/)。虽然，雷神的博客都是基于2点多的版本，但是依然拥有极高的参考价值，曾听说过国内搞音视频的基本上没有没听说过雷神的。其实网上大部分都是2点多的，我猜测一方面是音视频不再像之前那么火爆了，另外一方面2点多也基本上够用了也就懒得去整新版本了。而且，其实网上很多的原程序都是盗用雷神的，最可恶的是没有提到雷神的名字，而且什么都没改，就把关于雷神的作者注释去掉了。。。 
+     我写这篇博客的原因其实也很简单，无非是网络上的代码基于ffmpeg版本的代码太老，与现有版本有很大不同，其二就是要么只介绍一下思路，没有什么实质性的代码，想要源代码就需要付钱，当然了，没有白吃的午餐，这样无可厚非。 
+     我的代码讲解部分会在这个系列的文章中慢慢介绍，最终的源代码将会托管到github或者gitee当中，喜欢我的代码可以给我star，转载我的文章或者使用我的代码请署名。如果有关于音视频相关的项目，可以联系我，当然不是无偿的，不过如果是技术性的问题或者探讨，欢迎大家在文章下评论或留言，我会经常回复的，虽然我也是菜鸟，但是如果我知道的，必然是知无不言。 
+# 项目介绍
+接下来的FFmpeg项目主要有以下的功能：
+- 3个rtsp流输入，1个话筒输入，进行转码后进行rtmp流输出（多线程）
+- 可以调节4个输入流的延迟（音视频同步）
+- 增加台标或水印，图片的或者是文字的
+- 精彩片段的慢速回放（例如：进球后或者得分后，慢速回放10s进球时的视频）
+- 台标（水印）的实时变化，例如：显示秒数或者是增加字幕（都是动态的）
+- 这个项目最主要的用处肯定是用来直播的，所以还会增加一些直播的服务器配置和网页（PC端、移动端）HTML5直播代码
+目前想到的就只有这些，后续有什么补充的，还会增加的。 
+# 目录
+[使用FFMPEG进行音视频编解码(C++) 0.简介](https://blog.csdn.net/dutong0321/article/details/82024284)
+使用FFMPEG进行音视频编解码(C++) 1.FFmpeg的命令行使用及代码开发的环境配置 

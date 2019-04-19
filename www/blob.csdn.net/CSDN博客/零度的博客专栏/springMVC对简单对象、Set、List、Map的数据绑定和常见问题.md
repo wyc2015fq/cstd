@@ -1,0 +1,377 @@
+# springMVC对简单对象、Set、List、Map的数据绑定和常见问题 - 零度的博客专栏 - CSDN博客
+2017年01月06日 14:24:49[零度anngle](https://me.csdn.net/zmx729618)阅读数：1051
+**1、相关的类：**
+查看spring源码可以看出spring支持转换的数据类型：
+**org.springframework.beans.PropertyEditorRegistrySupport**:
+- 
+- **private****void**createDefaultEditors() { 
+- **this**.defaultEditors = **new**HashMap(64); 
+- // Simple editors, without parameterization capabilities.
+- // The JDK does not contain a default editor for any of these target types.
+- **this**.defaultEditors.put(Charset.**class**, **new**CharsetEditor()); 
+- **this**.defaultEditors.put(Class.**class**, **new**ClassEditor()); 
+- **this**.defaultEditors.put(Class[].**class**, **new**ClassArrayEditor()); 
+- **this**.defaultEditors.put(Currency.**class**, **new**CurrencyEditor()); 
+- **this**.defaultEditors.put(File.**class**, **new**FileEditor()); 
+- **this**.defaultEditors.put(InputStream.**class**, **new**InputStreamEditor()); 
+- **this**.defaultEditors.put(InputSource.**class**, **new**InputSourceEditor()); 
+- **this**.defaultEditors.put(Locale.**class**, **new**LocaleEditor()); 
+- **this**.defaultEditors.put(Pattern.**class**, **new**PatternEditor()); 
+- **this**.defaultEditors.put(Properties.**class**, **new**PropertiesEditor()); 
+- **this**.defaultEditors.put(Resource[].**class**, **new**ResourceArrayPropertyEditor()); 
+- **this**.defaultEditors.put(TimeZone.**class**, **new**TimeZoneEditor()); 
+- **this**.defaultEditors.put(URI.**class**, **new**URIEditor()); 
+- **this**.defaultEditors.put(URL.**class**, **new**URLEditor()); 
+- **this**.defaultEditors.put(UUID.**class**, **new**UUIDEditor()); 
+- 
+- // Default instances of collection editors.
+- // Can be overridden by registering custom instances of those as custom editors.
+- **this**.defaultEditors.put(Collection.**class**, **new**CustomCollectionEditor(Collection.**class**)); 
+- **this**.defaultEditors.put(Set.**class**, **new**CustomCollectionEditor(Set.**class**)); 
+- **this**.defaultEditors.put(SortedSet.**class**, **new**CustomCollectionEditor(SortedSet.**class**)); 
+- **this**.defaultEditors.put(List.**class**, **new**CustomCollectionEditor(List.**class**)); 
+- **this**.defaultEditors.put(SortedMap.**class**, **new**CustomMapEditor(SortedMap.**class**)); 
+- 
+- // Default editors for primitive arrays.
+- **this**.defaultEditors.put(**byte**[].**class**, **new**ByteArrayPropertyEditor()); 
+- **this**.defaultEditors.put(**char**[].**class**, **new**CharArrayPropertyEditor()); 
+- 
+- // The JDK does not contain a default editor for char!
+- **this**.defaultEditors.put(**char**.**class**, **new**CharacterEditor(**false**)); 
+- **this**.defaultEditors.put(Character.**class**, **new**CharacterEditor(**true**)); 
+- 
+- // Spring's CustomBooleanEditor accepts more flag values than the JDK's default editor.
+- **this**.defaultEditors.put(**boolean**.**class**, **new**CustomBooleanEditor(**false**)); 
+- **this**.defaultEditors.put(Boolean.**class**, **new**CustomBooleanEditor(**true**)); 
+- 
+- // The JDK does not contain default editors for number wrapper types!
+- // Override JDK primitive number editors with our own CustomNumberEditor.
+- **this**.defaultEditors.put(**byte**.**class**, **new**CustomNumberEditor(Byte.**class**, **false**)); 
+- **this**.defaultEditors.put(Byte.**class**, **new**CustomNumberEditor(Byte.**class**, **true**)); 
+- **this**.defaultEditors.put(**short**.**class**, **new**CustomNumberEditor(Short.**class**, **false**)); 
+- **this**.defaultEditors.put(Short.**class**, **new**CustomNumberEditor(Short.**class**, **true**)); 
+- **this**.defaultEditors.put(**int**.**class**, **new**CustomNumberEditor(Integer.**class**, **false**)); 
+- **this**.defaultEditors.put(Integer.**class**, **new**CustomNumberEditor(Integer.**class**, **true**)); 
+- **this**.defaultEditors.put(**long**.**class**, **new**CustomNumberEditor(Long.**class**, **false**)); 
+- **this**.defaultEditors.put(Long.**class**, **new**CustomNumberEditor(Long.**class**, **true**)); 
+- **this**.defaultEditors.put(**float**.**class**, **new**CustomNumberEditor(Float.**class**, **false**)); 
+- **this**.defaultEditors.put(Float.**class**, **new**CustomNumberEditor(Float.**class**, **true**)); 
+- **this**.defaultEditors.put(**double**.**class**, **new**CustomNumberEditor(Double.**class**, **false**)); 
+- **this**.defaultEditors.put(Double.**class**, **new**CustomNumberEditor(Double.**class**, **true**)); 
+- **this**.defaultEditors.put(BigDecimal.**class**, **new**CustomNumberEditor(BigDecimal.**class**, **true**)); 
+- **this**.defaultEditors.put(BigInteger.**class**, **new**CustomNumberEditor(BigInteger.**class**, **true**)); 
+- 
+- // Only register config value editors if explicitly requested.
+- **if**(**this**.configValueEditorsActive) { 
+- StringArrayPropertyEditor sae = **new**StringArrayPropertyEditor(); 
+- **this**.defaultEditors.put(String[].**class**, sae); 
+- **this**.defaultEditors.put(**short**[].**class**, sae); 
+- **this**.defaultEditors.put(**int**[].**class**, sae); 
+- **this**.defaultEditors.put(**long**[].**class**, sae); 
+- } 
+- } 
+**2、基本数据类型绑定：**
+- @RequestMapping("test.do") 
+- **public****void**test(**int**num) { 
+- 
+- } 
+- "test.do"method="post"> 
+- "num"value="10"type="text"/> 
+- ...... 
+- 
+注意：表单中input的name值和Controller的参数变量名保持一致，就能完成基本数据类型的数据绑定，如果不一致可以使用@RequestParam标注实现。值得一提的是，如果Controller方法参数中定义的是基本数据类型，但是从jsp提交过来的数据为null或者""的话，会出现数据转换的异常。也就是说，必须保证表单传递过来的数据不能为null或""，所以，在开发过程中，对可能为空的数据，最好将参数数据类型定义成包装类型。
+**3、包装类型**
+- @RequestMapping("test.do") 
+- **public****void**test(Integer num) { 
+- 
+- } 
+- "test.do"method="post"> 
+- "num"value="10"type="text"/> 
+- ...... 
+- 
+和基本数据类型基本一样，不同之处在于，JSP表单传递过来的数据可以为null或""，以上面代码为例，如果jsp中num为""或者表单中无num这个input，那么，Controller方法参数中的num值则为null。
+**4、自定义对象类型**
+- **public****class**User { 
+- 
+- **private**String firstName; 
+- 
+- **private**String lastName; 
+- 
+- ... 
+- 
+- } 
+- @RequestMapping("test.do") 
+- **public****void**test(User user) { 
+- 
+- } 
+- "test.do"method="post"> 
+- "firstName"value="张"type="text"/> 
+- "lastName"value="三"type="text"/> 
+- ...... 
+- 
+只需将对象的属性名和input的name值一一对应即可。
+**5、自定义复合对象类型**
+- **public****class**ContactInfo { 
+- 
+- **private**String tel; 
+- 
+- **private**String address; 
+- 
+- 。。。 
+- 
+- } 
+- 
+- **public****class**User { 
+- 
+- **private**String firstName; 
+- 
+- **private**String lastName; 
+- 
+- **private**ContactInfo contactInfo; 
+- 
+- 。。。 
+- 
+- } 
+- @RequestMapping("test.do") 
+- **public****void**test(User user) { 
+- System.out.println(user.getFirstName()); 
+- System.out.println(user.getLastName()); 
+- System.out.println(user.getContactInfo().getTel()); 
+- System.out.println(user.getContactInfo().getAddress()); 
+- } 
+- **<</span>formaction="test.do"method="post">**
+- **<</span>inputname="firstName"value="张"/><</span>br>**
+- **<</span>inputname="lastName"value="三"/><</span>br>**
+- **<</span>inputname="contactInfo.tel"value="13809908909"/><</span>br>**
+- **<</span>inputname="contactInfo.address"value="北京海淀"/><</span>br>**
+- **<</span>inputtype="submit"value="Save"/>**
+- **</</span>form>**
+User对象中有ContactInfo属性，Controller中的代码和第3点说的一致，但是，在jsp代码中，需要使用“属性名(对象类型的属性).属性名”来命名input的name。
+**6、List绑定**
+List需要绑定在对象上，而不能直接写在Controller方法的参数中。
+- **public****class**User { 
+- 
+- **private**String firstName; 
+- 
+- **private**String lastName; 
+- 
+- 。。。 
+- 
+- } 
+- 
+- **public****class**UserListForm { 
+- 
+- **private**List users; 
+- 
+- 。。。 
+- 
+- }  
+- @RequestMapping("test.do") 
+- **public****void**test(UserListForm userForm) { 
+- **for**(User user : userForm.getUsers()) { 
+- System.out.println(user.getFirstName() + " - "+ user.getLastName()); 
+- } 
+- }  
+- **<</span>formaction="test.do"method="post">**
+- **<</span>table>**
+- **<</span>thead>**
+- **<</span>tr>**
+- **<</span>th>First Name</</span>th>**
+- **<</span>th>Last Name</</span>th>**
+- **</</span>tr>**
+- **</</span>thead>**
+- **<</span>tfoot>**
+- **<</span>tr>**
+- <</span>tdcolspan="2"><</span>inputtype="submit"value="Save"/></</span>td>
+- **</</span>tr>**
+- **</</span>tfoot>**
+- **<</span>tbody>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[0].firstName"value="aaa"/></</span>td>
+- <</span>td><</span>inputname="users[0].lastName"value="bbb"/></</span>td>
+- **</</span>tr>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[1].firstName"value="ccc"/></</span>td>
+- <</span>td><</span>inputname="users[1].lastName"value="ddd"/></</span>td>
+- **</</span>tr>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[2].firstName"value="eee"/></</span>td>
+- <</span>td><</span>inputname="users[2].lastName"value="fff"/></</span>td>
+- **</</span>tr>**
+- **</</span>tbody>**
+- **</</span>table>**
+- **</</span>form>**
+      其实，这和第4点User对象中的contantInfo数据的绑定有点类似，但是这里的UserListForm对象里面的属性被定义成List，而不是普通自定义对象。所以，在JSP中需要指定List的下标。值得一提的是，Spring会创建一个以最大下标值为size的List对象，所以，如果JSP表单中有动态添加行、删除行的情况，就需要特别注意，譬如一个表格，用户在使用过程中经过多次删除行、增加行的操作之后，下标值就会与实际大小不一致，这时候，List中的对象，只有在jsp表单中对应有下标的那些才会有值，否则会为null，看个例子：
+- **<</span>formaction="test.do"method="post">**
+- **<</span>table>**
+- **<</span>thead>**
+- **<</span>tr>**
+- **<</span>th>First Name</</span>th>**
+- **<</span>th>Last Name</</span>th>**
+- **</</span>tr>**
+- **</</span>thead>**
+- **<</span>tfoot>**
+- **<</span>tr>**
+- <</span>tdcolspan="2"><</span>inputtype="submit"value="Save"/></</span>td>
+- **</</span>tr>**
+- **</</span>tfoot>**
+- **<</span>tbody>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[0].firstName"value="aaa"/></</span>td>
+- <</span>td><</span>inputname="users[0].lastName"value="bbb"/></</span>td>
+- **</</span>tr>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[1].firstName"value="ccc"/></</span>td>
+- <</span>td><</span>inputname="users[1].lastName"value="ddd"/></</span>td>
+- **</</span>tr>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[20].firstName"value="eee"/></</span>td>
+- <</span>td><</span>inputname="users[20].lastName"value="fff"/></</span>td>
+- **</</span>tr>**
+- **</</span>tbody>**
+- **</</span>table>**
+- **</</span>form>**
+      这个时候，Controller中的userForm.getUsers()获取到List的size为21，而且这21个User对象都不会为null，但是，第2到第19的User对象中的firstName和lastName都为null。打印结果：
+- aaa - bbb 
+- ccc - ddd 
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- **null**- **null**
+- eee - fff 
+- 
+[](http://blog.csdn.net/z69183787/article/details/52261188#)[](http://blog.csdn.net/z69183787/article/details/52261188#)[](http://blog.csdn.net/z69183787/article/details/52261188#)[](http://blog.csdn.net/z69183787/article/details/52261188#)[](http://blog.csdn.net/z69183787/article/details/52261188#)[](http://blog.csdn.net/z69183787/article/details/52261188#)
+**7、Set绑定：**
+Set和List类似，也需要绑定在对象上，而不能直接写在Controller方法的参数中。但是，绑定Set数据时，必须先在Set对象中add相应的数量的模型对象。
+- **public****class**User { 
+- 
+- **private**String firstName; 
+- 
+- **private**String lastName; 
+- 
+- 。。。 
+- 
+- } 
+- 
+- **public****class**UserSetForm { 
+- 
+- **private**Set users = **new**HashSet(); 
+- 
+- **public**UserSetForm(){ 
+- users.add(**new**User()); 
+- users.add(**new**User()); 
+- users.add(**new**User()); 
+- } 
+- 
+- 。。。 
+- 
+- }  
+- @RequestMapping("test.do") 
+- **public****void**test(UserSetForm userForm) { 
+- **for**(User user : userForm.getUsers()) { 
+- System.out.println(user.getFirstName() + " - "+ user.getLastName()); 
+- } 
+- }  
+- **<</span>formaction="test.do"method="post">**
+- **<</span>table>**
+- **<</span>thead>**
+- **<</span>tr>**
+- **<</span>th>First Name</</span>th>**
+- **<</span>th>Last Name</</span>th>**
+- **</</span>tr>**
+- **</</span>thead>**
+- **<</span>tfoot>**
+- **<</span>tr>**
+- <</span>tdcolspan="2"><</span>inputtype="submit"value="Save"/></</span>td>
+- **</</span>tr>**
+- **</</span>tfoot>**
+- **<</span>tbody>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[0].firstName"value="aaa"/></</span>td>
+- <</span>td><</span>inputname="users[0].lastName"value="bbb"/></</span>td>
+- **</</span>tr>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[1].firstName"value="ccc"/></</span>td>
+- <</span>td><</span>inputname="users[1].lastName"value="ddd"/></</span>td>
+- **</</span>tr>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users[2].firstName"value="eee"/></</span>td>
+- <</span>td><</span>inputname="users[2].lastName"value="fff"/></</span>td>
+- **</</span>tr>**
+- **</</span>tbody>**
+- **</</span>table>**
+- **</</span>form>**
+     基本和List绑定类似。需要特别提醒的是，如果最大下标值大于Set的size，则会抛出org.springframework.beans.InvalidPropertyException异常
+**8、Map绑定：**
+- **public****class**User { 
+- 
+- **private**String firstName; 
+- 
+- **private**String lastName; 
+- 
+- 。。。 
+- 
+- } 
+- 
+- **public****class**UserMapForm { 
+- 
+- **private**Map users; 
+- 
+- 。。。 
+- 
+- } 
+- @RequestMapping("test.do") 
+- **public****void**test(UserMapForm userForm) { 
+- **for**(Map.Entry entry : userForm.getUsers().entrySet()) { 
+- System.out.println(entry.getKey() + ": "+ entry.getValue().getFirstName() + " - "+ 
+- entry.getValue().getLastName()); 
+- } 
+- }  
+- **<</span>formaction="test.do"method="post">**
+- **<</span>table>**
+- **<</span>thead>**
+- **<</span>tr>**
+- **<</span>th>First Name</</span>th>**
+- **<</span>th>Last Name</</span>th>**
+- **</</span>tr>**
+- **</</span>thead>**
+- **<</span>tfoot>**
+- **<</span>tr>**
+- <</span>tdcolspan="2"><</span>inputtype="submit"value="Save"/></</span>td>
+- **</</span>tr>**
+- **</</span>tfoot>**
+- **<</span>tbody>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users['x'].firstName"value="aaa"/></</span>td>
+- <</span>td><</span>inputname="users['x'].lastName"value="bbb"/></</span>td>
+- **</</span>tr>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users['y'].firstName"value="ccc"/></</span>td>
+- <</span>td><</span>inputname="users['y'].lastName"value="ddd"/></</span>td>
+- **</</span>tr>**
+- **<</span>tr>**
+- <</span>td><</span>inputname="users['z'].firstName"value="eee"/></</span>td>
+- <</span>td><</span>inputname="users['z'].lastName"value="fff"/></</span>td>
+- **</</span>tr>**
+- **</</span>tbody>**
+- **</</span>table>**
+- **</</span>form>**
+最后：
+       像test(int num)这种把表单字段直接映射到方法参数名的方式是不太靠谱的，这是Spring MVC最大的问题，并且是无法解决的问题，因为它是基于字节码来取方法参数名的，如果在编译源码时不生成debug信息，比如javac -g:none 或者 在eclipse中在Preference那个窗口中选"Java->Compiler"把"Add varible..."那个复选框取消，这样生成的字节码中是不会保存方法参数名的。最靠谱的办法就是基于java源代码来做，或者Spring MVC目前已提供的比较啰嗦的注解方式: 
+ 在参数名前加@RequestParam把test(int num)改成下面这样才是万无一失的:
+- test(@RequestParam("num") **int**num) 
+所以最后在控制器方法上带上这个注解。

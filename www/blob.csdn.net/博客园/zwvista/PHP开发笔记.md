@@ -1,16 +1,10 @@
 # PHP开发笔记 - zwvista - 博客园
-
 ## [PHP开发笔记](https://www.cnblogs.com/zwvista/p/10326326.html)
-
 ### 安装XAMPP（PHP开发环境）
-
 XAMPP Apache + MariaDB + PHP + Perl
 [XAMPP Download](https://www.apachefriends.org/download.html)
-
 ### 安装 Composer
-
 [Composer Download](https://getcomposer.org/download/)
-
 ```
 $ php -v
 PHP 7.1.19 (cli) (built: Aug 17 2018 20:10:18) ( NTS )
@@ -22,19 +16,14 @@ $ mv composer.phar /usr/local/bin/composer
 $ composer -V
 Composer version 1.8.0 2018-12-03 10:31:16
 ```
-
 ### 安装 PHP 和 Intl 插件（Mac OS）
-
 [Php-intl installation on XAMPP](https://stackoverflow.com/questions/27886117/php-intl-installation-on-xampp)
 [PHP 5.3 to 7.3 for OS X / macOS 10.6 to 10.13 as binary package](https://php-osx.liip.ch/)
-
 ```
 $ curl -s https://php-osx.liip.ch/install.sh | bash -s 7.3
 $ export PATH=/usr/local/php5/bin:$PATH
 ```
-
 ### 安装使用 CakePHP
-
 ```
 # 创建新的应用程序
 $ composer self-update && composer create-project --prefer-dist cakephp/app my_app_name
@@ -43,9 +32,7 @@ $ cd my_app_name
 $ bin/cake server
 # http://localhost:8765/
 ```
-
 ### 安装使用 Laravel
-
 ```
 $ composer global require laravel/installer
 $ export PATH=$PATH:~/.composer/vendor/bin
@@ -57,5 +44,3 @@ $ cd blog
 $ php artisan serve
 # http://localhost:8000
 ```
-
-

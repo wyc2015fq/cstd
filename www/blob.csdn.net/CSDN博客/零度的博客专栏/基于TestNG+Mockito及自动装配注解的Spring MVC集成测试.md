@@ -1,0 +1,496 @@
+# 基于TestNG+Mockito及自动装配注解的Spring MVC集成测试 - 零度的博客专栏 - CSDN博客
+2016年11月07日 13:31:33[零度anngle](https://me.csdn.net/zmx729618)阅读数：1772
+本文主要总结自己近期在项目中对MVC集成测试的实践及理解，因为先前对这块未实践过。主要参考了官方文档《[11.3.6
+ Spring MVC Test Framework](http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/testing.html#spring-mvc-test-framework)》这一章节内容，涉及到 [Spring TestContext Framework](http://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/testing.html#testcontext-framework)、[TestNG](http://testng.org/doc/index.html)和[Mockito](http://docs.mockito.googlecode.com/hg/latest/org/mockito/Mockito.html) 这3个测试框架，完全基于Spring自动装配注解(@Autowired)实现，不需要定义额外的setter或构造器来注入bean，也不需要通过Mockito的@Mock和MockitoAnnotations.initMocks(this)代码方式实现实例化，而是通过静态工厂方法Mockito.mock(...)在XML中实现bean实例初始化。
+废话不多说了，看一下需要几步就能搞定MVC Controller与Service层的集成测试。（如果你现在也正好使用Spring Test框架，可以看看下面对TestNG基类封装的代码，我觉得自己写得还可以。小小赞美一下啦~）
+1. 定义底层Service接口及实现
+Java代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- /**
+-  * User service.
+-  */
+- publicinterface UserService {  
+- 
+- /**
+-      * Gets user info for specified user ID.
+-      * 
+-      * @param id user ID
+-      * @return
+-      */
+-     User getUserInfo(long id);  
+- 
+- /**
+-      * Updates user info.
+-      * 
+-      * @param user user info
+-      * @return -1 means fail, 0 means success.
+-      */
+- int updateUserInfo(User user);  
+- 
+- }  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+Java代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- /**
+-  * User query service.
+-  */
+- publicinterface UserQueryService {  
+- 
+- /**
+-      * Gets user name for specified user ID.
+-      * 
+-      * @param userId user ID
+-      * @return
+-      */
+-     String getUserName(long userId);  
+- 
+- /**
+-      * Updates user name for specified user ID.
+-      * 
+-      * @param userId
+-      * @param userName
+-      * @return -1 means fail, 0 means success.
+-      */
+- int updateUserName(long userId, String userName);  
+- 
+- }  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+Java代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- /**
+-  * User query service implementation.
+-  */
+- @Service
+- publicclass UserQueryServiceImpl implements UserQueryService {  
+- 
+- @Autowired
+- private UserService userService;  
+- 
+- @Override
+- public String getUserName(long userId) {  
+-         User user = this.userService.getUserInfo(userId);  
+- return user != null ? user.getName() : "";  
+-     }  
+- 
+- @Override
+- publicint updateUserName(long userId, String userName) {  
+-         User user = new User(userId, userName);  
+- int udpateResult = this.userService.updateUserInfo(user);  
+- return udpateResult;  
+-     }  
+- 
+- }  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+2. 为 Controller 层的每一接口定义一对 Request与Response（可重用的，就别多定义啦！~\(≧▽≦)/~）
+Java代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- /**
+-  * Base request info.
+-  *
+-  * @author  Bert Lee
+-  * @version 2014-8-19
+-  */
+- @JsonIgnoreProperties(ignoreUnknown = true) // 忽略多传的参数
+- publicclass BaseRequest {  
+- 
+- }  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+Java代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- /**
+-  * User ID request info.
+-  *
+-  * @author  Bert Lee
+-  * @version 2014-8-19
+-  */
+- publicclass UserIDRequest extends BaseRequest {  
+- 
+- @JsonProperty("id")  
+- @NotNull(message = "id param is null")  
+- @Min(value = 1, message = "id param must be great or equal than \\{{value}\\}") // 4.3. Message interpolation -《JSR 303: Bean Validation》
+- protectedlong id;  
+- 
+- publiclong getId() {  
+- return id;  
+-     }  
+- 
+- publicvoid setId(long id) {  
+- this.id = id;  
+-     }  
+- 
+- @Override
+- public String toString() {  
+- return"UserIDRequest [id=" + id + "]";  
+-     }  
+- 
+- }  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+Java代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- /**
+-  * User name response info.
+-  */
+- publicclass UserNameResponse {  
+- 
+- @JsonProperty("name")  
+- protected String name = "";  
+- 
+- public String getName() {  
+- return name;  
+-     }  
+- 
+- publicvoid setName(String name) {  
+- this.name = name;  
+-     }  
+- 
+- @Override
+- public String toString() {  
+- return"UserNameResponse [name=" + name + "]";  
+-     }  
+- 
+- }  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+Java代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- /**
+-  * User info request info.
+-  */
+- publicclass UserInfoRequest extends UserIDRequest {  
+- 
+- @JsonProperty("name")  
+- @NotNull(message = "name param is null")  
+- @Size(min = 1, message = "name param is empty")  
+- protected String userName; // 变量名与请求参数名不一样，在@RequestBody中用到
+- 
+- public String getUserName() {  
+- return userName;  
+-     }  
+- 
+- publicvoid setUserName(String userName) {  
+- this.userName = userName;  
+-     }  
+- 
+- @Override
+- public String toString() {  
+- return"UserInfoRequest [userName=" + userName + ", id=" + id + "]";  
+-     }  
+- 
+- }  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+Java代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- /**
+-  * User modify result response info.
+-  */
+- publicclass UserResultResponse {  
+- 
+- @JsonProperty("ret")  
+- protectedint result;  
+- 
+- @JsonProperty("ret_msg")  
+- protected String resultMessage;  
+- 
+- public UserResultResponse() {  
+- this.result = 0;  
+- this.resultMessage = "ok";  
+-     }  
+- 
+- publicint getResult() {  
+- return result;  
+-     }  
+- 
+- publicvoid setResult(int result) {  
+- this.result = result;  
+-     }  
+- 
+- public String getResultMessage() {  
+- return resultMessage;  
+-     }  
+- 
+- publicvoid setResultMessage(String resultMessage) {  
+- this.resultMessage = resultMessage;  
+-     }  
+- 
+- @Override
+- public String toString() {  
+- return"UserResultResponse [result=" + result + ", resultMessage="
+-                 + resultMessage + "]";  
+-     }  
+- 
+- }  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+3. 实现 Controller 层逻辑
+Java代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- /**
+-  * User Controller.
+-  *
+-  * @author  Bert Lee
+-  * @version 2014-8-19
+-  */
+- @Controller
+- @RequestMapping(value = "/user")  
+- publicclass UserController {  
+- 
+- @Autowired
+- private UserQueryService userQueryService;  
+- 
+- 
+- @RequestMapping(value = "/get_user_name", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)  
+- @ResponseBody
+- public UserNameResponse getUserName(@Valid UserIDRequest userIDRequest) {  
+- long userId = userIDRequest.getId();  
+-         String userName = this.userQueryService.getUserName(userId);  
+- 
+-         UserNameResponse response = new UserNameResponse();  
+- if (!StringUtils.isEmpty(userName)) {  
+-             response.setName(userName);  
+-         }  
+- 
+- return response;  
+-     }  
+- 
+- @RequestMapping(value = "/update_user_name", method = RequestMethod.POST,  
+-             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)  
+- @ResponseBody
+- public UserResultResponse updateUserName(@Valid@RequestBody UserInfoRequest userInfoRequest) { // JSON request body map
+-         UserResultResponse response = new UserResultResponse();  
+- 
+- long userId = userInfoRequest.getId();  
+-         String userName = userInfoRequest.getUserName();  
+- int result = this.userQueryService.updateUserName(userId, userName);  
+- if (result < 0) {  
+-             response.setResult(result);  
+-             response.setResultMessage("update operation is fail");  
+-         }  
+- 
+- return response;  
+-     }  
+- 
+- }  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+4. 实现一个Service与Controller层的抽象测试基类（用于集成TestNG与MVC Test框架，且自动加载配置文件）
+Java代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- /**
+-  * Abstract base test class for TestNG.
+-  *
+-  * @author  Bert Lee
+-  * @version 2014-8-19
+-  */
+- @ContextConfiguration("classpath:META-INF/spring/test-context.xml") // 集成应用上下文并加载默认的beans XML配置
+- publicabstractclass AbstractTestNGTest extends AbstractTestNGSpringContextTests { // 集成TestNG
+- 
+- /**
+-      * Initializes the test context.
+-      */
+- @BeforeSuite(alwaysRun = true)  
+- publicvoid init() {  
+- //      MockitoAnnotations.initMocks(this); // 基于Spring自动装配注解，这里不再需要初始化
+-     }  
+- 
+- }  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+Java代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- /**
+-  * Abstract controller tier base test class for TestNG.
+-  *
+-  * @author  Bert Lee
+-  * @version 2014-8-19
+-  */
+- @WebAppConfiguration("src/test/java") // 集成Web应用上下文
+- publicabstractclass AbstractControllerTestNGTest extends AbstractTestNGTest {  
+- 
+- /**
+-      * MVC mock
+-      */
+- protected MockMvc mockMvc;  
+- 
+- /**
+-      * Gets the tested controller.
+-      * 
+-      * @return the controller that is tested
+-      */
+- protectedabstract Object getController();  
+- 
+- /**
+-      * Setups the tested controller in MVC Mock environment.
+-      */
+- @BeforeClass(alwaysRun = true)  
+- publicvoid setup() {  
+- this.mockMvc = MockMvcBuilders.standaloneSetup(this.getController()).build();  
+-     }  
+- 
+- /**
+-      * Mocks the GET request.
+-      * 
+-      * @param url
+-      * @param params
+-      * @param expectedContent
+-      * @throws Exception
+-      */
+- protectedvoid getMock(String url, Object[] params, String expectedContent) throws Exception {  
+- // 2. 构造GET请求
+-         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders  
+-                 .get(url, params);  
+- 
+- this.jsonRequestMock(requestBuilder, expectedContent);  
+-     }  
+- 
+- /**
+-      * Mocks the POST request.
+-      * 
+-      * @param url
+-      * @param paramsJson
+-      * @param expectedContent
+-      * @throws Exception
+-      */
+- protectedvoid postMock(String url, String paramsJson, String expectedContent) throws Exception {  
+- // 2. 构造POST请求
+-         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders  
+-                 .post(url)  
+-                 .content(paramsJson) // 设置request body请求体，服务于"@RequestBody"
+-                 ;  
+- 
+- this.jsonRequestMock(requestBuilder, expectedContent);  
+-     }  
+- 
+- /**
+-      * Mocks the request for "application/json;charset=UTF-8" media type (Content-Type).
+-      * 
+-      * @param requestBuilder
+-      * @param expectedContent
+-      * @throws Exception
+-      */
+- privatevoid jsonRequestMock(MockHttpServletRequestBuilder requestBuilder, String expectedContent) throws Exception {  
+- // 2. 设置HTTP请求属性
+-         requestBuilder.contentType(MediaType.APPLICATION_JSON)  
+-                 .accept(MediaType.APPLICATION_JSON)  
+-                 .characterEncoding(CharEncoding.UTF_8)  
+-                 ;  
+- 
+- // 3. 定义期望响应行为
+- this.mockMvc.perform(requestBuilder)  
+-                 .andDo(print()) // 打印整个请求与响应细节
+-                 .andExpect(status().isOk())  
+-                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))  
+-                 .andExpect(content().string(expectedContent)) // 校验是否是期望的结果
+-                 ;  
+-     }  
+- 
+- }  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+5. 实现Controller与Service层的测试逻辑
+Java代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- /**
+-  * Test for {@link UserController}.
+-  *
+-  * @author  Bert Lee
+-  * @version 2014-8-19
+-  */
+- publicclass UserControllerTest extends AbstractControllerTestNGTest {  
+- 
+- // tested controller
+- @Autowired
+- private UserController userControllerTest;  
+- 
+- // mocked service (被依赖的服务)
+- @Autowired
+- private UserQueryService userQueryService;  
+- 
+- 
+- @Test(dataProvider = "getUserName")  
+- publicvoid getUserName(Object[] params, String userName, String expectedContent) throws Exception {  
+- // 1. 定义"被依赖的服务"的方法行为
+-         when(this.userQueryService.getUserName(anyLong())).thenReturn(userName);  
+- 
+- this.getMock("/user/get_user_name?id={id}", params, expectedContent);  
+-     }  
+- @DataProvider(name = "getUserName")  
+- protectedstaticfinal Object[][] getUserNameTestData() {  
+-         Object[][] testData = new Object[][] {  
+-                 { new Object[] { "23" }, "Bert Lee", "{\"name\":\"Bert Lee\"}" },  
+-         };  
+- return testData;  
+-     }  
+- 
+- @Test(dataProvider = "updateUserName")  
+- publicvoid updateUserName(String paramsJson, Integer result, String expectedContent) throws Exception {  
+- // 1. 定义"被依赖的服务"的方法行为
+-         when(this.userQueryService.updateUserName(anyLong(), anyString())).thenReturn(result);  
+- 
+- this.postMock("/user/update_user_name", paramsJson, expectedContent);  
+-     }  
+- @DataProvider(name = "updateUserName")  
+- protectedstaticfinal Object[][] updateUserNameTestData() {  
+-         Object[][] testData = new Object[][] {  
+-                 { "{\"id\":23,\"name\":\"Bert Lee\"}", 0, "{\"ret\":0,\"ret_msg\":\"ok\"}" },  
+-         };  
+- return testData;  
+-     }  
+- 
+- @Override
+- public Object getController() {  
+- returnthis.userControllerTest;  
+-     }  
+- 
+- }  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+Java代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- /**
+-  * Test for {@link UserQueryService}.
+-  *
+-  * @author  Bert Lee
+-  * @version 2014-7-25
+-  */
+- publicclass UserQueryServiceTest extends AbstractTestNGTest {  
+- 
+- // tested service
+- @Autowired
+- private UserQueryService userQueryServiceTest;  
+- 
+- // mocked service (被依赖的服务)
+- @Autowired
+- private UserService userService;  
+- 
+- 
+- @Test(dataProvider = "getUserName")  
+- publicvoid getUserName(User user, String expected) {  
+- // 1. 定义"被依赖的服务"的方法行为
+-         when(userService.getUserInfo(anyLong())).thenReturn(user);  
+- 
+-         String userName = this.userQueryServiceTest.getUserName(3L);  
+-         assertEquals(userName, expected);  
+-     }  
+- @DataProvider(name = "getUserName")  
+- protectedstaticfinal Object[][] getUserNameTestData() {  
+-         Object[][] testData = new Object[][] {  
+-                 { null, "" },  
+-                 { new User(3L, ""), "" },  
+-                 { new User(10L, "Edward Lee"), "Edward Lee" },  
+-                 { new User(23L, "李华刚@!~#$%^&"), "李华刚@!~#$%^&" },  
+-         };  
+- return testData;  
+-     }  
+- 
+- }  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+6. 定义XML bean配置文件，实现测试对象及被依赖的服务的自动注入
+Xml代码  ![收藏代码](http://bert82503.iteye.com/images/icon_star.png)
+- <?xmlversion="1.0"encoding="UTF-8"?>
+- <beansxmlns="http://www.springframework.org/schema/beans"
+- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+- xsi:schemaLocation="  
+-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd ">
+- 
+- <beanid="userControllerTest"class="com.weibo.web.UserController"/>
+- <!-- 被依赖的服务 -->
+- <beanid="userQueryService"class="org.mockito.Mockito"factory-method="mock">
+- <constructor-argvalue="com.weibo.service.UserQueryService"/>
+- </bean>
+- 
+- <beanid="userQueryServiceTest"class="com.weibo.service.impl.UserQueryServiceImpl"/>
+- <!-- 被依赖的服务 -->
+- <beanid="userService"class="org.mockito.Mockito"factory-method="mock">
+- <constructor-argvalue="com.weibo.service.UserService"/>
+- </bean>
+- 
+- </beans>
+![](http://static.blog.csdn.net/images/save_snippets.png)
+7. 运行测试用例，OK！
+7步搞定，挺简单的吧，O(∩_∩)O哈哈~
+玩得开心！^_^
+- [Testing.zip](http://dl.iteye.com/topics/download/1d366143-c4a5-3ecd-8c42-57904e247802) (244.5 KB)
+- 下载次数: 44
+[](http://blog.csdn.net/z69183787/article/details/52818073#)[](http://blog.csdn.net/z69183787/article/details/52818073#)[](http://blog.csdn.net/z69183787/article/details/52818073#)[](http://blog.csdn.net/z69183787/article/details/52818073#)[](http://blog.csdn.net/z69183787/article/details/52818073#)[](http://blog.csdn.net/z69183787/article/details/52818073#)
+

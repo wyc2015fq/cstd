@@ -122,8 +122,7 @@ public:
   }
   
   
-  CAssoc*
-    NewAssoc()
+  CAssoc* NewAssoc()
   {
     if (m_pFreeList == NULL)
     {
@@ -151,7 +150,7 @@ public:
   }
   
   
-  void FreeAssoc(CMap::CAssoc* pAssoc)
+  void FreeAssoc(CAssoc* pAssoc)
   {
     DestructElements<VALUE>(&pAssoc->value, 1);
     DestructElements<KEY>(&pAssoc->key, 1);

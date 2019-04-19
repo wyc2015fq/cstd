@@ -1,0 +1,38 @@
+# SourceEngine中的粒子系统 - 逍遥剑客 - CSDN博客
+2012年04月15日 17:06:36[xoyojank](https://me.csdn.net/xoyojank)阅读数：2852
+[](https://developer.valvesoftware.com/wiki/Particle_System_Overview)[](https://developer.valvesoftware.com/wiki/Particle_System_Overview)[https://developer.valvesoftware.com/wiki/Particle_System_Overview](https://developer.valvesoftware.com/wiki/Particle_System_Overview)
+- 文件格式[PCF](https://developer.valvesoftware.com/wiki/PCF_File_Format)
+- 编辑器[Particle Editor](https://developer.valvesoftware.com/wiki/Particle_Editor)
+- Memory Fields- 这里其实也是组件模式的一种应用, 否则内存和CPU的开销会很大
+- Control Points- 每个粒子系统最大有64个控制点, 0号默认为粒子的原点
+- 每个控制点可以设置位置, 朝向, 实体
+- TF中医生的治疗光线用控制点进行武器与目标玩家之间的连接
+- Components- 粒子系统由组件组成, 每一项都可以有多个元素
+- Renderers- spirit, 最常见的
+- rope, 一条连续的"绳子", 如闪电
+- trail, 拖尾
+- blob, 水滴
+- model, 使用模型代替粒子, 如爆炸碎片
+- project, 贴花?
+- Emitters- 可以有多个不同类型的发射器
+- 主要属性: 时间(start/end/fadein/fadeout), 发射数量(min/max), 速度, 随机
+- Initializers- 初始化位置, 颜色, 大小, 透明度, 速度等, 可以随机
+- 随机位置形状
+- 沿两个控制点之间移动
+- Operators- 每帧都影响各个粒子的属性
+- 可以影响控制点的位置
+- Forces- 力场模拟
+- Contraints- 物理碰撞
+- 与控制点之间的约束关系
+- 空间约束
+- Children- 发身子粒子系统, 实现更为复杂的效果 
+- 性能- 限制每个粒子系统的最大粒子数, 内存预分配这么多空间
+- 多线程- 多个粒子系统会分配到多个线程中计算
+- 子系统与父系统处于同一线程
+- SIMD
+- Overdraw- 尽量使用少的, 小的, 不透明的粒子
+- 材质中定义最小屏幕空间大小, 太小的剔除(或淡出)
+- 尽量关闭软粒子
+- 共享数据- 灵活使用控制点
+- 碰撞
+- 针对低端机多做一个粒子文件, 如xxxx_dx80.pcf

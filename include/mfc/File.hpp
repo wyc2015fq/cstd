@@ -2,8 +2,10 @@
 #ifndef __FILE_HPP__
 #define __FILE_HPP__
 
-#include "DumpContext.hpp"
+
 #include "Time.hpp"
+#include <fcntl.h>
+
 
 inline BOOL IsDirSep(TCHAR ch)
 {
@@ -223,18 +225,15 @@ struct CFileStatus
 	BYTE _m_padding;        // pad the structure to a WORD
 	TCHAR m_szFullName[_MAX_PATH]; // absolute path name
 
-  void Dump(CDumpContext& dc) const
+  void Dump(DumpContext* dc) const
   {
-    dc << "a CFileStatus at " << (void*)this;
-
-    dc << "\nm_ctime = " << m_ctime;
-    dc << "\nm_mtime = " << m_mtime;
-    dc << "\nm_atime = " << m_atime;
-    dc << "\nm_size = " << m_size;
-    dc << "\nm_attribute = " << m_attribute;
-    dc << "\nm_szFullName = " << m_szFullName;
-
-    dc << "\n";
+    dc->def("CFileStatus", (void*)this);
+    dc->def("m_ctime", m_ctime);
+    dc->def("m_mtime", m_mtime);
+    dc->def("m_atime", m_atime);
+    dc->def("m_size", m_size);
+    dc->def("m_attribute", m_attribute);
+    dc->def("m_szFullName", m_szFullName);
 }
 
 };
@@ -279,13 +278,12 @@ public:
 	enum { hFileNull = -1 };
 	enum BufferCommand { bufferRead, bufferWrite, bufferCommit, bufferCheck };
 
-protected:
+public:
 	UINT m_hFile;
 	BOOL m_bCloseOnDelete;
   CString m_strFileName;
   // CFile
-  _AFX_INLINE CFile::operator HFILE() const
-  { return m_hFile; }
+  //_AFX_INLINE CFile::operator HFILE() const  { return m_hFile; }
   _AFX_INLINE DWORD CFile::ReadHuge(void* lpBuffer, DWORD dwCount)
   { return (DWORD)Read(lpBuffer, (UINT)dwCount); }
   _AFX_INLINE void CFile::WriteHuge(const void* lpBuffer, DWORD dwCount)
@@ -311,15 +309,6 @@ CFile::CFile(int hFile)
 {
 	m_hFile = hFile;
 	m_bCloseOnDelete = FALSE;
-}
-
-CFile::CFile(LPCTSTR lpszFileName, UINT nOpenFlags)
-{
-	ASSERT(AfxIsValidString(lpszFileName));
-
-  if (!Open(lpszFileName, nOpenFlags)) {
-		//AfxThrowFileException(e.m_cause, e.m_lOsError, e.m_strFileName);
-  }
 }
 
 CFile::~CFile()
@@ -351,7 +340,7 @@ CFile* CFile::Duplicate() const
 #endif
 }
 
-BOOL CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags)
+mfcError_t CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags)
 {
 	ASSERT_VALID(this);
 	ASSERT(AfxIsValidString(lpszFileName));
@@ -440,12 +429,12 @@ BOOL CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags)
 			int m_lOsError = ::GetLastError();
 //			pException->m_strFileName = lpszFileName;
 		}
-		return FALSE;
+		return if_fail_return(mfcErrorFileNotFound, "mfcErrorFileNotFound");
 	}
 	m_hFile = (HFILE)hFile;
 	m_bCloseOnDelete = TRUE;
 
-	return TRUE;
+	return mfcSuccess;
 }
 
 UINT CFile::Read(void* lpBuf, UINT nCount)
@@ -489,13 +478,16 @@ void CFile::Write(const void* lpBuf, UINT nCount)
   }
 }
 
+
+#define FileError(x)  {printf("FileError: %d\n", x);}
+
 LONG CFile::Seek(LONG lOff, UINT nFrom)
 {
 	ASSERT_VALID(this);
 	ASSERT(m_hFile != (UINT)hFileNull);
 	ASSERT(nFrom == begin || nFrom == end || nFrom == current);
 	ASSERT(begin == FILE_BEGIN && end == FILE_END && current == FILE_CURRENT);
-#define FileError(x) return (x)
+
 	DWORD dwNew = ::SetFilePointer((HANDLE)m_hFile, lOff, NULL, (DWORD)nFrom);
   if (dwNew  == (DWORD)-1) {
 		FileError((LONG)::GetLastError());
@@ -521,7 +513,7 @@ int CFile::Flush()
 	ASSERT_VALID(this);
 
 	if (m_hFile == (UINT)hFileNull)
-		return ;
+		return 0;
 
 	if (!::FlushFileBuffers((HANDLE)m_hFile))
 		FileError((LONG)::GetLastError());
@@ -625,17 +617,15 @@ void PASCAL CFile::Remove(LPCTSTR lpszFileName)
 
 void CFile::AssertValid() const
 {
-  CObject::AssertValid();
+  //CObject::AssertValid();
   // we permit the descriptor m_hFile to be any value for derived classes
 }
 
-void CFile::Dump(CDumpContext& dc) const
+DumpContext* CFile::Dump(DumpContext* dc) const
 {
-  CObject::Dump(dc);
-  
-  dc << "with handle " << (UINT)m_hFile;
-  dc << " and name \"" << m_strFileName << "\"";
-  dc << "\n";
+  dc->def("handle", (UINT)m_hFile);
+  dc->def("name", m_strFileName);
+  return dc;
 }
 
 
@@ -677,14 +667,14 @@ CString CFile::GetFilePath() const
 /////////////////////////////////////////////////////////////////////////////
 // CFile Status implementation
 
-static BOOL CFile::GetStatus(CFileStatus& rStatus) 
+BOOL CFile::GetStatus(CFileStatus& rStatus) const
 {
 	ASSERT_VALID(this);
 
 	memset(&rStatus, 0, sizeof(CFileStatus));
 
 	// copy file name from cached m_strFileName
-	lstrcpyn(rStatus.m_szFullName, m_strFileName,
+	lstrcpyn(rStatus.m_szFullName, m_strFileName.c_str(),
 		_countof(rStatus.m_szFullName));
 
 	if (m_hFile != hFileNull)
@@ -701,7 +691,7 @@ static BOOL CFile::GetStatus(CFileStatus& rStatus)
 			rStatus.m_attribute = 0;
 		else
 		{
-			DWORD dwAttribute = ::GetFileAttributes(m_strFileName);
+			DWORD dwAttribute = ::GetFileAttributes(m_strFileName.c_str());
 
 			// don't return an error for this because previous versions of MFC didn't
 			if (dwAttribute == 0xFFFFFFFF)
@@ -844,40 +834,10 @@ class CStdioFile : public CFile
 	DECLARE_DYNAMIC(CStdioFile)
 
 public:
-// Constructors
-	CStdioFile();
-	CStdioFile(FILE* pOpenStream);
-	CStdioFile(LPCTSTR lpszFileName, UINT nOpenFlags);
 
 // Attributes
 	FILE* m_pStream;    // stdio FILE
 						// m_hFile from base class is _fileno(m_pStream)
-
-// Operations
-	// reading and writing strings
-	virtual void WriteString(LPCTSTR lpsz);
-	virtual LPTSTR ReadString(LPTSTR lpsz, UINT nMax);
-	virtual BOOL ReadString(CString& rString);
-
-// Implementation
-public:
-	virtual ~CStdioFile();
-#ifdef _DEBUG
-	void Dump(CDumpContext& dc) const;
-#endif
-	virtual DWORD GetPosition() const;
-	virtual BOOL Open(LPCTSTR lpszFileName, UINT nOpenFlags);
-	virtual UINT Read(void* lpBuf, UINT nCount);
-	virtual void Write(const void* lpBuf, UINT nCount);
-	virtual LONG Seek(LONG lOff, UINT nFrom);
-	virtual void Abort();
-	virtual void Flush();
-	virtual void Close();
-
-	// Unsupported APIs
-	virtual CFile* Duplicate() const;
-	virtual void LockRange(DWORD dwPos, DWORD dwCount);
-	virtual void UnlockRange(DWORD dwPos, DWORD dwCount);
 
   
 CStdioFile::CStdioFile()
@@ -892,16 +852,6 @@ CStdioFile::CStdioFile(FILE* pOpenStream) : CFile(hFileNull)
 	ASSERT(!m_bCloseOnDelete);
 }
 
-CStdioFile::CStdioFile(LPCTSTR lpszFileName, UINT nOpenFlags)
-{
-	ASSERT(lpszFileName != NULL);
-	ASSERT(AfxIsValidString(lpszFileName));
-
-	CFileException e;
-	if (!Open(lpszFileName, nOpenFlags, &e))
-		AfxThrowFileException(e.m_cause, e.m_lOsError, e.m_strFileName);
-}
-
 CStdioFile::~CStdioFile()
 {
 	ASSERT_VALID(this);
@@ -910,16 +860,15 @@ CStdioFile::~CStdioFile()
 		Close();
 }
 
-BOOL CStdioFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags,
-	CFileException* pException)
+mfcError_t CStdioFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags)
 {
-	ASSERT(pException == NULL || AfxIsValidAddress(pException, sizeof(CFileException)));
 	ASSERT(lpszFileName != NULL);
 	ASSERT(AfxIsValidString(lpszFileName));
 
 	m_pStream = NULL;
-	if (!CFile::Open(lpszFileName, (nOpenFlags & ~typeText), pException))
-		return FALSE;
+	mfcError_t err = CFile::Open(lpszFileName, (nOpenFlags & ~typeText));
+	if (err!=mfcSuccess)
+		return err;
 
 	ASSERT(m_hFile != hFileNull);
 	ASSERT(m_bCloseOnDelete);
@@ -968,18 +917,11 @@ BOOL CStdioFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags,
 
 	if (m_pStream == NULL)
 	{
-		// an error somewhere along the way...
-		if (pException != NULL)
-		{
-			pException->m_lOsError = _doserrno;
-			pException->m_cause = CFileException::OsErrorToException(_doserrno);
-		}
-
 		CFile::Abort(); // close m_hFile
-		return FALSE;
+		return if_fail_return(mfcErrorFileNotFound, "mfcErrorFileNotFound");
 	}
 
-	return TRUE;
+	return mfcSuccess;
 }
 
 UINT CStdioFile::Read(void* lpBuf, UINT nCount)
@@ -994,33 +936,40 @@ UINT CStdioFile::Read(void* lpBuf, UINT nCount)
 
 	UINT nRead = 0;
 
-	if ((nRead = fread(lpBuf, sizeof(BYTE), nCount, m_pStream)) == 0 && !feof(m_pStream))
-		AfxThrowFileException(CFileException::generic, _doserrno, m_strFileName);
+	if ((nRead = fread(lpBuf, sizeof(BYTE), nCount, m_pStream)) == 0 && !feof(m_pStream)) {
+		nRead;
+	}
 	if (ferror(m_pStream))
 	{
 		clearerr(m_pStream);
-		AfxThrowFileException(CFileException::generic, _doserrno, m_strFileName);
+		//AfxThrowFileException(CFileException::generic, _doserrno, m_strFileName);
 	}
 	return nRead;
 }
 
-void CStdioFile::Write(const void* lpBuf, UINT nCount)
+UINT CStdioFile::Write(const void* lpBuf, UINT nCount)
 {
 	ASSERT_VALID(this);
 	ASSERT(m_pStream != NULL);
 	ASSERT(AfxIsValidAddress(lpBuf, nCount, FALSE));
 
-	if (fwrite(lpBuf, sizeof(BYTE), nCount, m_pStream) != nCount)
-		AfxThrowFileException(CFileException::generic, _doserrno, m_strFileName);
+	UINT ret = fwrite(lpBuf, sizeof(BYTE), nCount, m_pStream);
+	if (ret != nCount) {
+		//AfxThrowFileException(CFileException::generic, _doserrno, m_strFileName);
+	}
+	return ret;
 }
 
-void CStdioFile::WriteString(LPCTSTR lpsz)
+UINT CStdioFile::WriteString(LPCTSTR lpsz)
 {
 	ASSERT(lpsz != NULL);
 	ASSERT(m_pStream != NULL);
 
-	if (_fputts(lpsz, m_pStream) == _TEOF)
-		AfxThrowFileException(CFileException::diskFull, _doserrno, m_strFileName);
+	UINT ret = _fputts(lpsz, m_pStream);
+	if (ret == _TEOF) {
+		//AfxThrowFileException(CFileException::diskFull, _doserrno, m_strFileName);
+	}
+	return ret;
 }
 
 LPTSTR CStdioFile::ReadString(LPTSTR lpsz, UINT nMax)
@@ -1033,12 +982,12 @@ LPTSTR CStdioFile::ReadString(LPTSTR lpsz, UINT nMax)
 	if (lpszResult == NULL && !feof(m_pStream))
 	{
 		clearerr(m_pStream);
-		AfxThrowFileException(CFileException::generic, _doserrno, m_strFileName);
+		//AfxThrowFileException(CFileException::generic, _doserrno, m_strFileName);
 	}
 	return lpszResult;
 }
 
-BOOL CStdioFile::ReadString(CString& rString)
+mfcError_t CStdioFile::ReadString(CString& rString)
 {
 	ASSERT_VALID(this);
 
@@ -1056,8 +1005,7 @@ BOOL CStdioFile::ReadString(CString& rString)
 		if (lpszResult == NULL && !feof(m_pStream))
 		{
 			clearerr(m_pStream);
-			AfxThrowFileException(CFileException::generic, _doserrno,
-				m_strFileName);
+			//AfxThrowFileException(CFileException::generic, _doserrno, m_strFileName);
 		}
 
 		// if string is read completely or EOF
@@ -1076,7 +1024,7 @@ BOOL CStdioFile::ReadString(CString& rString)
 	if (nLen != 0 && lpsz[nLen-1] == '\n')
 		rString.GetBufferSetLength(nLen-1);
 
-	return lpszResult != NULL;
+	return lpszResult != NULL ? mfcSuccess : mfcErrorAccessDenied;
 }
 
 LONG CStdioFile::Seek(LONG lOff, UINT nFrom)
@@ -1085,9 +1033,9 @@ LONG CStdioFile::Seek(LONG lOff, UINT nFrom)
 	ASSERT(nFrom == begin || nFrom == end || nFrom == current);
 	ASSERT(m_pStream != NULL);
 
-	if (fseek(m_pStream, lOff, nFrom) != 0)
-		AfxThrowFileException(CFileException::badSeek, _doserrno,
-			m_strFileName);
+	if (fseek(m_pStream, lOff, nFrom) != 0) {
+		//AfxThrowFileException(CFileException::badSeek, _doserrno, m_strFileName);
+	}
 
 	long pos = ftell(m_pStream);
 	return pos;
@@ -1099,22 +1047,25 @@ DWORD CStdioFile::GetPosition() const
 	ASSERT(m_pStream != NULL);
 
 	long pos = ftell(m_pStream);
-	if (pos == -1)
-		AfxThrowFileException(CFileException::invalidFile, _doserrno,
-			m_strFileName);
+	if (pos == -1) {
+		//AfxThrowFileException(CFileException::invalidFile, _doserrno, m_strFileName);
+	}
 	return pos;
 }
 
-void CStdioFile::Flush()
+mfcError_t CStdioFile::Flush()
 {
 	ASSERT_VALID(this);
 
-	if (m_pStream != NULL && fflush(m_pStream) != 0)
-		AfxThrowFileException(CFileException::diskFull, _doserrno,
-			m_strFileName);
+	if (m_pStream != NULL && fflush(m_pStream) != 0) {
+		//AfxThrowFileException(CFileException::diskFull, _doserrno, m_strFileName);
+		return mfcErrorDiskFull;
+	}
+	return mfcSuccess;
+	
 }
 
-void CStdioFile::Close()
+mfcError_t CStdioFile::Close()
 {
 	ASSERT_VALID(this);
 	ASSERT(m_pStream != NULL);
@@ -1128,12 +1079,14 @@ void CStdioFile::Close()
 	m_bCloseOnDelete = FALSE;
 	m_pStream = NULL;
 
-	if (nErr != 0)
-		AfxThrowFileException(CFileException::diskFull, _doserrno,
-			m_strFileName);
+	if (nErr != 0) {
+		//AfxThrowFileException(CFileException::diskFull, _doserrno, m_strFileName);
+		return mfcErrorDiskFull;
+	}
+	return mfcSuccess;
 }
 
-void CStdioFile::Abort()
+mfcError_t CStdioFile::Abort()
 {
 	ASSERT_VALID(this);
 
@@ -1142,7 +1095,10 @@ void CStdioFile::Abort()
 	m_hFile = (UINT) hFileNull;
 	m_pStream = NULL;
 	m_bCloseOnDelete = FALSE;
+	return mfcSuccess;
 }
+
+#define AfxThrowNotSupportedException()
 
 CFile* CStdioFile::Duplicate() const
 {
@@ -1169,17 +1125,12 @@ void CStdioFile::UnlockRange(DWORD /* dwPos */, DWORD /* dwCount */)
 	AfxThrowNotSupportedException();
 }
 
-#ifdef _DEBUG
-void CStdioFile::Dump(CDumpContext& dc) const
+void CStdioFile::Dump(DumpContext* dc) const
 {
 	CFile::Dump(dc);
 
-	dc << "m_pStream = " << (void*)m_pStream;
-	dc << "\n";
+	dc->def("m_pStream", (void*)m_pStream);
 }
-#endif
-
-
 
 };
 
@@ -1191,24 +1142,7 @@ class CMemFile : public CFile
 	DECLARE_DYNAMIC(CMemFile)
 
 public:
-// Constructors
-	CMemFile(UINT nGrowBytes = 1024);
-	CMemFile(BYTE* lpBuffer, UINT nBufferSize, UINT nGrowBytes = 0);
-
-// Operations
-	void Attach(BYTE* lpBuffer, UINT nBufferSize, UINT nGrowBytes = 0);
-	BYTE* Detach();
-
-// Advanced Overridables
-protected:
-	virtual BYTE* Alloc(DWORD nBytes);
-	virtual BYTE* Realloc(BYTE* lpMem, DWORD nBytes);
-	virtual BYTE* Memcpy(BYTE* lpMemTarget, const BYTE* lpMemSource, UINT nBytes);
-	virtual void Free(BYTE* lpMem);
-	virtual void GrowFile(DWORD dwNewLen);
-
 // Implementation
-protected:
 	UINT m_nGrowBytes;
 	DWORD m_nPosition;
 	DWORD m_nBufferSize;
@@ -1217,30 +1151,8 @@ protected:
 	BOOL m_bAutoDelete;
 
 public:
-	virtual ~CMemFile();
-#ifdef _DEBUG
-	virtual void Dump(CDumpContext& dc) const;
-	virtual void AssertValid() const;
-#endif
-	virtual DWORD GetPosition() const;
-	BOOL GetStatus(CFileStatus& rStatus) const;
-	virtual LONG Seek(LONG lOff, UINT nFrom);
-	virtual void SetLength(DWORD dwNewLen);
-	virtual UINT Read(void* lpBuf, UINT nCount);
-	virtual void Write(const void* lpBuf, UINT nCount);
-	virtual void Abort();
-	virtual void Flush();
-	virtual void Close();
-	virtual UINT GetBufferPtr(UINT nCommand, UINT nCount = 0,
-		void** ppBufStart = NULL, void** ppBufMax = NULL);
 
-	// Unsupported APIs
-	virtual CFile* Duplicate() const;
-	virtual void LockRange(DWORD dwPos, DWORD dwCount);
-	virtual void UnlockRange(DWORD dwPos, DWORD dwCount);
-
-  
-CMemFile::CMemFile(UINT nGrowBytes)
+CMemFile::CMemFile(UINT nGrowBytes = 1024)
 {
 	ASSERT(nGrowBytes <= UINT_MAX);
 
@@ -1252,7 +1164,7 @@ CMemFile::CMemFile(UINT nGrowBytes)
 	m_bAutoDelete = TRUE;
 }
 
-CMemFile::CMemFile(BYTE* lpBuffer, UINT nBufferSize, UINT nGrowBytes)
+CMemFile::CMemFile(BYTE* lpBuffer, UINT nBufferSize, UINT nGrowBytes = 0)
 {
 	ASSERT(nGrowBytes <= UINT_MAX);
 
@@ -1264,7 +1176,7 @@ CMemFile::CMemFile(BYTE* lpBuffer, UINT nBufferSize, UINT nGrowBytes)
 	m_bAutoDelete = FALSE;
 }
 
-void CMemFile::Attach(BYTE* lpBuffer, UINT nBufferSize, UINT nGrowBytes)
+void CMemFile::Attach(BYTE* lpBuffer, UINT nBufferSize, UINT nGrowBytes = 0)
 {
 	ASSERT(m_lpBuffer == NULL);
 
@@ -1337,7 +1249,7 @@ DWORD CMemFile::GetPosition() const
 	return m_nPosition;
 }
 
-void CMemFile::GrowFile(DWORD dwNewLen)
+mfcError_t CMemFile::GrowFile(DWORD dwNewLen)
 {
 	ASSERT_VALID(this);
 
@@ -1349,7 +1261,7 @@ void CMemFile::GrowFile(DWORD dwNewLen)
 		// watch out for buffers which cannot be grown!
 		ASSERT(m_nGrowBytes != 0);
 		if (m_nGrowBytes == 0)
-			AfxThrowMemoryException();
+			return mfcErrorBadParam;
 
 		// determine new buffer size
 		while (dwNewBufferSize < dwNewLen)
@@ -1363,12 +1275,13 @@ void CMemFile::GrowFile(DWORD dwNewLen)
 			lpNew = Realloc(m_lpBuffer, dwNewBufferSize);
 
 		if (lpNew == NULL)
-			AfxThrowMemoryException();
+			return mfcErrorMemoryAllocation;
 
 		m_lpBuffer = lpNew;
 		m_nBufferSize = dwNewBufferSize;
 	}
 	ASSERT_VALID(this);
+	return mfcSuccess;
 }
 
 void CMemFile::SetLength(DWORD dwNewLen)
@@ -1453,8 +1366,7 @@ LONG CMemFile::Seek(LONG lOff, UINT nFrom)
 	else
 		return -1;
 
-	if (lNewPos < 0)
-		AfxThrowFileException(CFileException::badSeek);
+	// if (lNewPos < 0)		return mfcErrorBadSeek;
 
 	m_nPosition = lNewPos;
 
@@ -1559,17 +1471,14 @@ UINT CMemFile::GetBufferPtr(UINT nCommand, UINT nCount = 0,
 /////////////////////////////////////////////////////////////////////////////
 // CMemFile diagonstics
 
-#ifdef _DEBUG
-void CMemFile::Dump(CDumpContext& dc) const
+DumpContext* CMemFile::Dump(DumpContext* dc) const
 {
 	CFile::Dump(dc);
 
-	dc << "m_nFileSize = " << m_nFileSize;
-	dc << "\nm_nBufferSize = " << m_nBufferSize;
-	dc << "\nm_nPosition = " << m_nPosition;
-	dc << "\nm_nGrowBytes = " << m_nGrowBytes;
-
-	dc << "\n";
+	dc->def("m_nFileSize", m_nFileSize);
+	dc->def("m_nBufferSize", m_nBufferSize);
+	dc->def("m_nPosition", m_nPosition);
+	dc->def("m_nGrowBytes", m_nGrowBytes);
 }
 
 void CMemFile::AssertValid() const
@@ -1582,10 +1491,9 @@ void CMemFile::AssertValid() const
 	// m_nPosition might be after the end of file, so we cannot ASSERT
 	// its validity
 }
-#endif // _DEBUG
 
 
-BOOL CMemFile::GetStatus(CFileStatus& rStatus) const
+mfcError_t CMemFile::GetStatus(CFileStatus& rStatus) const
 {
   ASSERT_VALID(this);
   
@@ -1595,7 +1503,7 @@ BOOL CMemFile::GetStatus(CFileStatus& rStatus) const
   rStatus.m_size = m_nFileSize;
   rStatus.m_attribute = normal;
   rStatus.m_szFullName[0] = '\0';
-  return TRUE;
+  return mfcSuccess;
 }
 
 };

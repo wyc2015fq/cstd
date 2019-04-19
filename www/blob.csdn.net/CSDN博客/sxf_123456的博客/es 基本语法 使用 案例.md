@@ -1,0 +1,201 @@
+# es 基本语法 使用 案例 - sxf_123456的博客 - CSDN博客
+2017年07月31日 11:46:49[sxf_0123](https://me.csdn.net/sxf_123456)阅读数：565
+
+**[javascript]**[view
+ plain](http://blog.csdn.net/u014017121/article/details/62420766#)[copy](http://blog.csdn.net/u014017121/article/details/62420766#)
+- elasticsearch 语法汇总  
+- 
+- 使用 es 已有段时间 今天 有时间 就把最近使用用到的知识点 记录下来，以备后续使用  
+- 
+- es  安装 和插件配置 等知识 这里就不在 累述  
+- 
+- 1 基本命令 使用  
+- 
+-   基于 curl 使用 命令   
+- 
+-     修改 副本信息  因为 index 一旦建成 分片个数就不能修改 只能修改 副本个数  
+-     curl -XPUT 'http://localhost:9200/test/_settings' -d '{  
+- "index":{"number_of_replicas" : 0}  
+-     }'  
+-     同样（注意 mapping 一旦创建 只能新增 不能修改）  
+- 
+- 
+- 
+-   基于 DSL 语句  
+- 
+- 
+-     查询 指定 数据   
+-     term 完全匹配  
+-     {  
+- "query":{  
+- "term":{  
+- "id":1  
+-             }  
+-         }  
+-     }  
+-     match 使用  
+-     {  
+- "query":{  
+- "match":{  
+- "title":"bmw"
+-             }  
+-         }  
+-     }  
+-      must 使用 必须   
+- 
+-     {  
+- "query":{  
+- "bool":{  
+- "must":{  
+- "title":"baidu"
+-                 }  
+-             }  
+-         }  
+-     }  
+-     must should must_not 综合使用 基本  
+-     {  
+- "query":{  
+- "bool":{  
+- "must":{  
+- "title":"baidu"
+-                 },  
+- "should":{  
+- "name":"cdd"
+-                 },  
+- "must_not":{  
+- "age":23  
+-                 }  
+-             }  
+-         }  
+-     }  
+-     must should must_not 综合使用 复杂  
+-     {  
+- "query":{  
+- "bool":{  
+- "must":[  
+-                     {  
+- "age":2  
+-                     },  
+-                     {  
+- "name":"cdd"
+-                     }  
+-                 ],  
+- "should":[],//一样用法 不在举例
+- "must_not":[] //一样用法 不在举例
+-             }  
+-         }  
+-     }  
+- 
+-     聚合 使用 aggs   
+-     max min 简单使用  
+-     {  
+- "aggs":{  
+- "max_id":{  
+- "max":{  
+- "field":"id"
+-                }  
+-             },  
+- "min_id":{  
+- "min":{  
+- "field":"id"
+-                }  
+-             }  
+-         }  
+-     }  
+-     terms 使用 基本  
+-     {  
+- "aggs":{  
+- "title":{  
+- "terms":{  
+- "field":"name",  
+- "size":10,  // 显示 个数 默认10个 ，0 代表所有 最好根据情况定
+-                 }  
+-             }  
+-         }  
+-     }  
+-     terms 使用 复杂   
+-     {  
+- "aggs":{  
+- "title":{  
+- "terms":{  
+- "field":"name",  
+- "size":10,  // 显示 个数 默认10个 ，0 代表所有 最好根据情况定
+- "order":{  
+- "score":"desc"//asc
+-                     }  
+-                 },  
+- "aggs":{  
+- "score":{  
+- "max":{  
+- "field":"score"
+-                         }  
+-                     }  
+-                 }  
+-             }  
+-         }  
+-     }  
+- 
+-     cardinality 去重 使用 统计 title 不同的总个数  
+-     {  
+- "aggs":{  
+- "title":{  
+- "cardinality":{  
+- "field":"title"
+-                 }  
+-             }  
+-         }  
+-     }  
+- 
+-    DSL 满足各种情况 更加复杂 的aggs 统计 如何（案例）  
+-    {    
+- "size": 0,    
+- "aggs": {    
+- "daterange": {    
+- "filter": {    
+- "range": {    
+- "date": {    
+- "from": "now-2M"
+-               }    
+-             }    
+-           },    
+- "aggs": {    
+- "publisher": {    
+- "terms": {    
+- "field": "publisher_na",    
+- "size": 30,    
+- "order": {    
+- "ads": "desc"
+-                 }    
+-               },    
+- "aggs": {    
+- "ads": {    
+- "cardinality": {    
+- "field": "md5"
+-                   }    
+-                 },    
+- "date_num": {    
+- "terms": {    
+- "field": "date_day",    
+- "size": 0,    
+- "order": {    
+- "date_day": "asc"
+-                     }    
+-                   },    
+- "aggs": {    
+- "date_day": {    
+- "max": {    
+- "field": "date_day"
+-                       }    
+-                     }    
+-                   }    
+-                 }    
+-               }    
+-             }    
+-           }    
+-         }    
+-       }    
+-     }    
+- 
+-     更为复杂 和 个别语法  请参考官网  
+- 
+-     未完 待续  

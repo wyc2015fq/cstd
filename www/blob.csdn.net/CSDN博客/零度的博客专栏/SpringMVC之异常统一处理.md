@@ -1,0 +1,668 @@
+# SpringMVC之异常统一处理 - 零度的博客专栏 - CSDN博客
+2016年05月30日 16:35:55[零度anngle](https://me.csdn.net/zmx729618)阅读数：3201
+       SpringMVC 提供的异常处理主要有两种方式，一种是直接实现自己的HandlerExceptionResolver，另一种是使用注解的方式实现一个专门用于处理异常的Controller——ExceptionHandler。前者当发生异常时，页面会跳到指定的错误页面，后者同样，只是后者会在每个controller中都需要加入重复的代码。如何进行简单地统一配置异常，使得发生普通错误指定到固定的页面，ajax发生错直接通过js获取，展现给用户，变得非常重要。下面先介绍下2种异常处理方式，同时，结合现有的代码，让其支持ajax方式，实现spring
+ MVC web系统的异常统一处理。
+####        1、实现自己的HandlerExceptionResolver
+HandlerExceptionResolver是一个接口，springMVC本身已经对其有了一个自身的实现——DefaultExceptionResolver,该解析器只是对其中的一些比较典型的异常进行了拦截处理 。
+Java代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- import javax.servlet.http.HttpServletRequest;  
+- import javax.servlet.http.HttpServletResponse;  
+- 
+- import org.springframework.web.servlet.HandlerExceptionResolver;  
+- import org.springframework.web.servlet.ModelAndView;  
+- 
+- publicclass ExceptionHandler implements HandlerExceptionResolver {  
+- 
+- @Override
+- public ModelAndView resolveException(HttpServletRequest request,  
+-             HttpServletResponse response, Object handler, Exception ex) {  
+- // TODO Auto-generated method stub
+- returnnew ModelAndView("exception");  
+-     }  
+- 
+- }  
+       上述的resolveException的第4个参数表示对哪种类型的异常进行处理，如果想同时对多种异常进行处理，可以把它换成一个异常数组。
+定义了这样一个异常处理器之后就要在applicationContext中定义这样一个bean对象，如：
+Xml代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- <beanid="exceptionResolver"class="com.tiantian.xxx.web.handler.ExceptionHandler"/>
+####         2、使用@ExceptionHandler进行处理
+使用@ExceptionHandler进行处理有一个不好的地方是进行异常处理的方法必须与出错的方法在同一个Controller里面，如：
+Java代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- import org.springframework.stereotype.Controller;  
+- import org.springframework.web.bind.annotation.ExceptionHandler;  
+- import org.springframework.web.bind.annotation.RequestMapping;  
+- 
+- import com.tiantian.blog.web.servlet.MyException;  
+- 
+- @Controller
+- publicclass GlobalController {  
+- 
+- 
+- /**
+-      * 用于处理异常的
+-      * @return
+-      */
+- @ExceptionHandler({MyException.class})  
+- public String exception(MyException e) {  
+-         System.out.println(e.getMessage());  
+-         e.printStackTrace();  
+- return"exception";  
+-     }  
+- 
+- @RequestMapping("test")  
+- publicvoid test() {  
+- thrownew MyException("出错了！");  
+-     }  
+- 
+- 
+- }  
+       这里在页面上访问test方法的时候就会报错，而拥有该test方法的Controller又拥有一个处理该异常的方法，这个时候处理异常的方法就会被调用。当发生异常的时候，上述两种方式都使用了的时候，第一种方式会将第二种方式覆盖。
+####         3. 针对SpringMVC框架，修改代码实现普通异常及ajax异常的全部统一处理解决方案
+        关于spring异常框架体系讲的非常清楚，Dao层，以及sevcie层异常我们建立如下异常。
+Java代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- package com.jason.exception;  
+- 
+- publicclass BusinessException extends Exception {  
+- 
+- privatestaticfinallong serialVersionUID = 1L;  
+- 
+- public BusinessException() {  
+- // TODO Auto-generated constructor stub
+-     }  
+- 
+- public BusinessException(String message) {  
+- super(message);  
+- // TODO Auto-generated constructor stub
+-     }  
+- 
+- public BusinessException(Throwable cause) {  
+- super(cause);  
+- // TODO Auto-generated constructor stub
+-     }  
+- 
+- public BusinessException(String message, Throwable cause) {  
+- super(message, cause);  
+- // TODO Auto-generated constructor stub
+-     }  
+- 
+- }  
+Java代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- package com.jason.exception;  
+- 
+- publicclass SystemException extends RuntimeException {  
+- 
+- privatestaticfinallong serialVersionUID = 1L;  
+- 
+- public SystemException() {  
+- // TODO Auto-generated constructor stub
+-     }  
+- 
+- /**
+-      * @param message
+-      */
+- public SystemException(String message) {  
+- super(message);  
+- // TODO Auto-generated constructor stub
+-     }  
+- 
+- /**
+-      * @param cause
+-      */
+- public SystemException(Throwable cause) {  
+- super(cause);  
+- // TODO Auto-generated constructor stub
+-     }  
+- 
+- /**
+-      * @param message
+-      * @param cause
+-      */
+- public SystemException(String message, Throwable cause) {  
+- super(message, cause);  
+- // TODO Auto-generated constructor stub
+-     }  
+- 
+- }  
+       在sevice层我们需要将建立的异常抛出，在controller层，我们需要捕捉异常，将其转换直接抛出，抛出的异常，希望能通过我们自己统一的配置，支持普通页面和ajax方式的页面处理，下面就详细讲一下步骤。
+      （1） 配置web.xml 文件，将常用的异常进行配置，配置文件如下403,404,405,500页面都配置好了：
+Xml代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- <?xmlversion="1.0"encoding="UTF-8"?>
+- <web-appxmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"xmlns="http://java.sun.com/xml/ns/javaee"xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"id="WebApp_ID"version="2.5">
+- <display-name>SpringJSON</display-name>
+- <context-param>
+- <param-name>webAppRootKey</param-name>
+- <param-value>SpringJSON.webapp.root</param-value>
+- </context-param>
+- <!--******************************** -->
+-     <!--*******log4j日志信息的配置,设置在classpath根目录下 ，spring中很多代码使用了不同的日志接口，  
+-     既有log4j也有commons-logging，这里只是强制转换为log4j！并且，log4j的配置文件只能放在classpath根路径。  
+-     同时，需要通过commons-logging配置将日志控制权转交给log4j。同时commons-logging.properties必须放置  
+-     在classpath根路径****** -->
+- <!--******************************* -->
+- <context-param>
+- <param-name>log4jConfigLocation</param-name>
+- <param-value>classpath:log4j.xml</param-value>
+- </context-param>
+- 
+- <!--Spring默认刷新Log4j配置文件的间隔,单位为millisecond，可以不设置 -->
+- <context-param>
+- <param-name>log4jRefreshInterval</param-name>
+- <param-value>60000</param-value>
+- </context-param>
+- 
+- <!--******************************** -->
+- <!--*******spring bean的配置******** -->
+-     <!--applicationContext.xml用于对应用层面做整体控制。按照分层思想，  
+-     统领service层,dao层,datasource层，及国际化层-->
+- <!--******************************* -->
+- <context-param>
+- <param-name>contextConfigLocation</param-name>
+- <param-value>classpath:applicationContext.xml</param-value>
+- </context-param>
+- 
+- <listener>
+- <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+- </listener>
+- <listener>
+- <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+- </listener>
+- <listener>
+- <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+- </listener>
+- <!--******************************** -->
+- <!--*******字符集 过滤器************ -->
+- <!--******************************* -->
+- <filter>
+- <filter-name>CharacterEncodingFilter</filter-name>
+- <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+- <init-param>
+- <param-name>encoding</param-name>
+- <param-value>UTF-8</param-value>
+- </init-param>
+- <init-param>
+- <param-name>forceEncoding</param-name>
+- <param-value>true</param-value>
+- </init-param>
+- </filter>
+- <filter-mapping>
+- <filter-name>CharacterEncodingFilter</filter-name>
+- <url-pattern>/*</url-pattern>
+- </filter-mapping>
+- 
+- <!-- Spring 分发器,设置MVC配置信息 -->
+- <servlet>
+- <servlet-name>SpringJSON</servlet-name>
+- <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+- <init-param>
+- <param-name>contextConfigLocation</param-name>
+- <param-value>classpath:spring/applicationContext-servlet.xml</param-value>
+- </init-param>
+- <load-on-startup>1</load-on-startup>
+- </servlet>
+- <!--******************************** -->
+-     <!--***使用.html后缀，一方面用户不能通过URL知道我们采用何种服务端技术，  
+-     同时，可骗过搜索引擎，增加被收录的概率 。真正的静态网页可以用.htm,以避免被框架拦截-->
+- <!--******************************* -->
+- <servlet-mapping>
+- <servlet-name>SpringJSON</servlet-name>
+- <url-pattern>*.html</url-pattern>
+- </servlet-mapping>
+- <welcome-file-list>
+- <welcome-file>index.html</welcome-file>
+- </welcome-file-list>
+- <error-page>
+- <error-code>403</error-code>
+- <location>/WEB-INF/pages/error/403.jsp</location>
+- </error-page>
+- <error-page>
+- <error-code>404</error-code>
+- <location>/WEB-INF/pages/error/404.jsp</location>
+- </error-page>
+- <error-page>
+- <error-code>405</error-code>
+- <location>/WEB-INF/pages/error/405.jsp</location>
+- </error-page>
+- <error-page>
+- <error-code>500</error-code>
+- <location>/WEB-INF/pages/error/500.jsp</location>
+- </error-page>
+- </web-app>
+         （2）建立相应的error页面，其中errorpage.jsp 是业务异常界面。
+Html代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- <%@ page language="java"import="java.util.*"pageEncoding="UTF-8"isErrorPage="true"%>
+- <%@ include file="/common/taglibs.jsp"%>
+- <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+- <htmlxmlns="http://www.w3.org/1999/xhtml">
+- <head>
+- <title>error page</title>
+- <scripttype="text/javascript">
+-         $(function(){  
+-             $("#center-div").center(true);  
+-         })  
+- </script>
+- </head>
+- <bodystyle="margin: 0;padding: 0;background-color: #f5f5f5;">
+- <divid="center-div">
+- <tablestyle="height: 100%; width: 600px; text-align: center;">
+- <tr>
+- <td>
+- <imgwidth="220"height="393"src="${basePath}/images/common/error.png"style="float: left; padding-right: 20px;"alt=""/>
+- <%= exception.getMessage()%>
+- <pstyle="line-height: 12px; color: #666666; font-family: Tahoma, '宋体'; font-size: 12px; text-align: left;">
+- <ahref="javascript:history.go(-1);">返回</a>!!!  
+- </p>
+- </td>
+- </tr>
+- </table>
+- </div>
+- </body>
+- </html>
+![](http://dl.iteye.com/upload/attachment/0078/3880/968a68cf-1fd9-3d65-9374-c6637af4a3e6.jpg)
+ errorpage.jsp代码内容如下：
+Html代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- 
+        （3）自定义SimpleMappingExceptionResolver覆盖spring的SimpleMappingExceptionResolver。关于SimpleMappingExceptionResolver的用法，大家都知道，只需在application-servlet.xml中做如下的配置
+Java代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- <bean id="exceptionResolver"class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">  
+-       <property name="exceptionMappings">   
+-         <props>   
+-           <prop key="com.jason.exception.SystemException">error/500</prop>   
+-           <prop key="com.jason.exception.BusinessException">error/errorpage</prop>  
+-           <prop key="java.lang.exception">error/500</prop>  
+- 
+-        </props>   
+-      </property>   
+-     </bean>  
+           观察SimpleMappingExceptionResolver，我们可以复写其doResolveException(HttpServletRequest request,HttpServletResponse response, Object handler, Exception ex)方法，通过修改该方法实现普通异常和ajax异常的处理，代码如下：
+Java代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- package com.jason.exception;  
+- 
+- import java.io.IOException;  
+- import java.io.PrintWriter;  
+- 
+- import javax.servlet.http.HttpServletRequest;  
+- import javax.servlet.http.HttpServletResponse;  
+- 
+- import org.springframework.web.servlet.ModelAndView;  
+- import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;  
+- 
+- publicclass CustomSimpleMappingExceptionResolver extends
+-         SimpleMappingExceptionResolver {  
+- 
+- @Override
+- protected ModelAndView doResolveException(HttpServletRequest request,  
+-             HttpServletResponse response, Object handler, Exception ex) {  
+- // Expose ModelAndView for chosen error view.
+-         String viewName = determineViewName(ex, request);  
+- if (viewName != null) {// JSP格式返回
+- if (!(request.getHeader("accept").indexOf("application/json") > -1 || (request  
+-                     .getHeader("X-Requested-With")!= null && request  
+-                     .getHeader("X-Requested-With").indexOf("XMLHttpRequest") > -1))) {  
+- // 如果不是异步请求
+- // Apply HTTP status code for error views, if specified.
+- // Only apply it if we're processing a top-level request.
+-                 Integer statusCode = determineStatusCode(request, viewName);  
+- if (statusCode != null) {  
+-                     applyStatusCodeIfPossible(request, response, statusCode);  
+-                 }  
+- return getModelAndView(viewName, ex, request);  
+-             } else {// JSON格式返回
+- try {  
+-                     PrintWriter writer = response.getWriter();  
+-                     writer.write(ex.getMessage());  
+-                     writer.flush();  
+-                 } catch (IOException e) {  
+-                     e.printStackTrace();  
+-                 }  
+- returnnull;  
+- 
+-             }  
+-         } else {  
+- returnnull;  
+-         }  
+-     }  
+- }  
+          配置application-servelt.xml如下：（代码是在大的工程中提炼出来的，具体有些东西这里不做处理）
+Java代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- <?xml version="1.0" encoding="UTF-8"?>  
+- <beans xmlns="http://www.springframework.org/schema/beans"
+-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-        xmlns:mvc="http://www.springframework.org/schema/mvc"
+-        xmlns:p="http://www.springframework.org/schema/p"
+-        xmlns:context="http://www.springframework.org/schema/context"
+-        xmlns:aop="http://www.springframework.org/schema/aop"
+-        xmlns:tx="http://www.springframework.org/schema/tx"
+-        xsi:schemaLocation="http://www.springframework.org/schema/beans
+-             http://www.springframework.org/schema/beans/spring-beans.xsd
+-             http://www.springframework.org/schema/context 
+-             http://www.springframework.org/schema/context/spring-context.xsd
+-             http://www.springframework.org/schema/aop 
+-             http://www.springframework.org/schema/aop/spring-aop.xsd
+-             http://www.springframework.org/schema/tx 
+-             http://www.springframework.org/schema/tx/spring-tx.xsd
+-             http://www.springframework.org/schema/mvc 
+-             http://www.springframework.org/schema/mvc/spring-mvc.xsd
+-             http://www.springframework.org/schema/context 
+-             http://www.springframework.org/schema/context/spring-context.xsd">
+- 
+-     <!-- 配置静态资源，直接映射到对应的文件夹，不被DispatcherServlet处理 -->  
+-     <mvc:resources mapping="/images/**" location="/images/"/>  
+-     <mvc:resources mapping="/css/**" location="/css/"/>  
+-     <mvc:resources mapping="/js/**" location="/js/"/>  
+-     <mvc:resources mapping="/html/**" location="/html/"/>  
+-     <mvc:resources mapping="/common/**" location="/common/"/>  
+- 
+-     <!-- Configures the @Controller programming model -->  
+-     <mvc:annotation-driven />  
+- 
+-     <!--扫描web包，应用Spring的注解-->  
+-     <context:component-scan base-package="com.jason.web"/>  
+- 
+-     <bean id="captchaProducer" name= "captchaProducer"class="com.google.code.kaptcha.impl.DefaultKaptcha">    
+-         <property name="config">    
+-             <bean class="com.google.code.kaptcha.util.Config">    
+-                 <constructor-arg>    
+-                     <props>    
+-                         <prop key="kaptcha.image.width">300</prop>  
+-                         <prop key="kaptcha.image.height">60</prop>  
+-                         <prop key="kaptcha.textproducer.char.string">0123456789</prop>  
+-                         <prop key="kaptcha.textproducer.char.length">4</prop>   
+-                     </props>    
+-                 </constructor-arg>    
+-             </bean>    
+-         </property>    
+-     </bean>   
+-     <!--   
+-     <bean id="captchaProducer"class="com.google.code.kaptcha.impl.DefaultKaptcha">    
+-         <property name="config">    
+-             <bean class="com.google.code.kaptcha.util.Config">    
+-                 <constructor-arg>    
+-                     <props>    
+-                         <prop key="kaptcha.border">no</prop>    
+-                         <prop key="kaptcha.border.color">105,179,90</prop>    
+-                         <prop key="kaptcha.textproducer.font.color">red</prop>    
+-                         <prop key="kaptcha.image.width">250</prop>    
+-                         <prop key="kaptcha.textproducer.font.size">90</prop>    
+-                         <prop key="kaptcha.image.height">90</prop>    
+-                         <prop key="kaptcha.session.key">code</prop>    
+-                         <prop key="kaptcha.textproducer.char.length">4</prop>    
+-                         <prop key="kaptcha.textproducer.font.names">宋体,楷体,微软雅黑</prop>    
+-                     </props>    
+-                 </constructor-arg>    
+-             </bean>    
+-         </property>    
+-     </bean>  
+-     -->   
+-     <!--  
+-     <bean id="exceptionResolver"class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">  
+-      -->  
+-      <bean id="exceptionResolver"class="com.jason.exception.CustomSimpleMappingExceptionResolver">  
+-       <property name="exceptionMappings">   
+-         <props>   
+-           <prop key="com.jason.exception.SystemException">error/500</prop>   
+-           <prop key="com.jason.exception.BusinessException">error/errorpage</prop>  
+-           <prop key="java.lang.exception">error/500</prop>  
+- 
+-        </props>   
+-      </property>   
+-     </bean>  
+- 
+-     <!--启动Spring MVC的注解功能,设置编码方式，防止乱码-->  
+-     <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">  
+-       <property name="messageConverters">     
+-          <list>     
+-              <bean class = "org.springframework.http.converter.StringHttpMessageConverter">     
+-                 <property name = "supportedMediaTypes">  
+-                       <list>  
+-                           <value>text/html;charset=UTF-8</value>     
+-                      </list>     
+-                 </property>     
+-              </bean>     
+-          </list>     
+-       </property>   
+-     </bean>  
+-     <!--对模型视图名称的解析，即在模型视图名称添加前后缀InternalResourceViewResolver-->  
+-     <!--默认的就是JstlView所以这里就不用配置viewClass -->  
+-     <bean id="viewResolver"class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+-         p:prefix="/WEB-INF/pages/"
+-         p:suffix=".jsp" />  
+- </beans>  
+        至此，整个异常体系架构配置成功，当整个工程出现异常时，页面会根据web.xml跳转到指定的页面。当在系统应用中出现普通异常时，根据是系统异常还是应用异常，跳到相应的界面，当ajax异常时，在ajax的error中可直接获得异常。普通的异常我们都配置好了界面，系统会自动跳转，主要看一下ajax的方式。
+        具体演示如下：在登录界面建立如下的controller
+Java代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- package com.jason.web;  
+- 
+- import java.io.IOException;  
+- import java.util.Date;  
+- import java.util.HashMap;  
+- import java.util.Map;  
+- 
+- import javax.servlet.http.HttpServletRequest;  
+- import javax.servlet.http.HttpServletResponse;  
+- import javax.servlet.http.HttpSession;  
+- 
+- import org.apache.commons.lang.StringUtils;  
+- import org.springframework.beans.factory.annotation.Autowired;  
+- import org.springframework.stereotype.Controller;  
+- import org.springframework.web.bind.annotation.RequestMapping;  
+- import org.springframework.web.bind.annotation.ResponseBody;  
+- import org.springframework.web.servlet.ModelAndView;  
+- 
+- import com.jason.domain.User;  
+- import com.jason.exception.BusinessException;  
+- import com.jason.service.UserService;  
+- import com.jason.util.Constants;  
+- import com.jason.web.dto.LoginCommand;  
+- 
+- @Controller
+- publicclass LoginController {  
+- 
+- @Autowired
+- private UserService userService;  
+- 
+- /**
+-      * jump into the login page
+-      * 
+-      * @return
+-      * @throws BusinessException
+-      * @throws
+-      * @throws BusinessException
+-      */
+- @RequestMapping(value = "/index.html")  
+- public String loginPage() throws BusinessException {  
+- return Constants.LOGIN_PAGE;  
+-     }  
+- 
+- /**
+-      * get the json object
+-      * 
+-      * @return
+-      * @throws Exception
+-      */
+- @RequestMapping(value = "/josontest.html")  
+- public@ResponseBody
+-     Map<String, Object> getjson() throws BusinessException {  
+-         Map<String, Object> map = new HashMap<String, Object>();  
+- try {  
+-             map.put("content", "123");  
+-             map.put("result", true);  
+-             map.put("account", 1);  
+- thrownew Exception();  
+-         } catch (Exception e) {  
+- thrownew BusinessException("detail of ajax exception information");  
+-         }  
+-     }  
+- 
+- /**
+-      * login in operation
+-      * 
+-      * @param request
+-      * @param loginCommand
+-      * @return
+-      * @throws IOException
+-      */
+- @RequestMapping(value = "/login.html")  
+- public ModelAndView loginIn(HttpServletRequest request,  
+-             HttpServletResponse respone, LoginCommand loginCommand)  
+- throws IOException {  
+- 
+- boolean isValidUser = userService.hasMatchUser(  
+-                 loginCommand.getUserName(), loginCommand.getPassword());  
+- boolean isValidateCaptcha = validateCaptcha(request, loginCommand);  
+- 
+-         ModelAndView modeview = new ModelAndView(Constants.LOGIN_PAGE);  
+- 
+- if (!isValidUser) {  
+- // if have more information,you can put a map to modelView,this use
+- // internalization
+-             modeview.addObject("loginError", "login.user.error");  
+- return modeview;  
+-         } elseif (!isValidateCaptcha) {  
+- // if have more information,you can put a map to modelView,this use
+- // internalization
+-             modeview.addObject("loginError", "login.user.kaptchaError");  
+- return modeview;  
+-         } else {  
+-             User user = userService.findUserByUserName(loginCommand  
+-                     .getUserName());  
+-             user.setLastIp(request.getLocalAddr());  
+-             user.setLastVisit(new Date());  
+- 
+-             userService.loginSuccess(user);  
+- 
+- // we can also use
+-             request.getSession().setAttribute(Constants.LOGINED, user);  
+-             String uri = (String) request.getSession().getAttribute(  
+-                     Constants.CURRENTPAGE);  
+- if (uri != null
+-                     && !StringUtils.equalsIgnoreCase(uri,  
+-                             Constants.CAPTCHA_IMAGE)) {  
+-                 respone.sendRedirect(request.getContextPath() + uri);  
+-             }  
+- returnnew ModelAndView(Constants.FRONT_MAIN_PAGE);  
+-         }  
+-     }  
+- 
+- /**
+-      * logout operation
+-      * 
+-      * @param request
+-      * @param response
+-      * @return
+-      */
+- @RequestMapping(value = "/logout.html")  
+- public ModelAndView logout(HttpServletRequest request,  
+-             HttpServletResponse response) {  
+- 
+- /*
+-          * HttpServletRequest.getSession(ture) equals to
+-          * HttpServletRequest.getSession() means a new session created if no
+-          * session exists request.getSession(false) means if session exists get
+-          * the session,or value null
+-          */
+-         HttpSession session = request.getSession(false);  
+- 
+- if (session != null) {  
+-             session.invalidate();  
+-         }  
+- 
+- returnnew ModelAndView("redirect:/index.jsp");  
+-     }  
+- 
+- /**
+-      * check the Captcha code
+-      * 
+-      * @param request
+-      * @param command
+-      * @return
+-      */
+- protected Boolean validateCaptcha(HttpServletRequest request, Object command) {  
+-         String captchaId = (String) request.getSession().getAttribute(  
+-                 com.google.code.kaptcha.Constants.KAPTCHA_SESSION_KEY);  
+-         String response = ((LoginCommand) command).getKaptchaCode();  
+- if (!StringUtils.equalsIgnoreCase(captchaId, response)) {  
+- returnfalse;  
+-         }  
+- returntrue;  
+-     }  
+- }  
+         首先，看一下ajax的方式，在controller中我们认为让ajax抛出一样，在页面中我们采用js这样调用
+Js代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- function ajaxTest()  
+-     {  
+-         $.ajax( {  
+-             type : 'GET',  
+- //contentType : 'application/json',   
+-             url : '${basePath}/josontest.html',     
+-             async: false,//禁止ajax的异步操作，使之顺序执行。
+-             dataType : 'json',  
+-             success : function(data,textStatus){  
+-                 alert(JSON.stringify(data));  
+-             },  
+-             error : function(data,textstatus){  
+-                 alert(data.responseText);  
+-             }  
+-         });  
+-     }  
+         当抛出异常是，我们在js的error中采用 alert(data.responseText);将错误信息弹出，展现给用户，具体页面代码如下：
+Html代码  ![收藏代码](http://gaojiewyh.iteye.com/images/icon_star.png)
+- <%@ page language="java"contentType="text/html; charset=UTF-8"
+- pageEncoding="UTF-8"%>
+- <%@ include file="/common/taglibs.jsp"%>
+- <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+- <html>
+- <head>
+- <metahttp-equiv="Content-Type"content="text/html; charset=UTF-8">
+- <title>spring login information</title>
+- <scripttype="text/javascript">
+-     function ajaxTest()  
+-     {  
+-         $.ajax( {  
+-             type : 'GET',  
+-             //contentType : 'application/json',     
+-             url : '${basePath}/josontest.html',     
+-             async: false,//禁止ajax的异步操作，使之顺序执行。  
+-             dataType : 'json',  
+-             success : function(data,textStatus){  
+-                 alert(JSON.stringify(data));  
+-             },  
+-             error : function(data,textstatus){  
+-                 alert(data.responseText);  
+-             }  
+-         });  
+-     }  
+- </script>
+- </head>
+- <body>
+- <tablecellpadding="0"cellspacing="0"style="width:100%;">
+- <tr>
+- <tdrowspan="2"style="width:30px;">
+- </td>
+- <tdstyle="height:72px;">
+- <div>
+-                   spring login front information  
+- </div>
+- <div>
+-                    ${loginedUser.userName},欢迎您进入Spring login information，您当前积分为${loginedUser.credits};  
+- </div>
+- <div>
+- <ahref="${basePath}/backendmain.html">后台管理</a>
+- </div>
+- </td>
+- <tdstyle="height:72px;">
+- <div>
+- <inputtype=buttonvalue="Ajax Exception Test"onclick="ajaxTest();"></input>
+- </div>
+- </td>
+- <td>
+- <div>
+- <ahref="${basePath}/logout.html">退出</a>
+- </div>
+- </td>
+- </tr>
+- </table>
+- </body>
+- </html>
+ 验证效果：
+![](http://dl.iteye.com/upload/attachment/0078/3886/b4c410fd-f2e1-3e37-8939-25e4cb95182d.jpg)
+        至此，ajax方式起了作用，整个系统的异常统一处理方式做到了统一处理。我们在开发过程中无需关心，异常处理配置了。

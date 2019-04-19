@@ -1,0 +1,1014 @@
+# 基于Spring + Spring MVC + Mybatis 高性能web构建 - 建建的博客 - CSDN博客
+2018年01月03日 14:21:46[纪建](https://me.csdn.net/u013898698)阅读数：91
+个人分类：[java学习路线](https://blog.csdn.net/u013898698/article/category/7152763)
+一直想写这篇文章，前段时间 痴迷于JavaScript、NodeJs、AngularJs，做了大量的研究，对前后端交互有了更深层次的认识。
+今天抽个时间写这篇文章，我有预感，这将是一篇很详细的文章，详细的配置，详细的注释，看起来应该很容易懂。
+用最合适的技术去实现，并不断追求最佳实践。这就是架构之道。
+希望这篇文章能给你们带来一些帮助，同时希望你们可以为这个项目贡献你的想法。
+源码地址：[https://github.com/Eliteams/quick4j
+ 点击打开](https://github.com/Eliteams/quick4j)
+源码地址：[https://github.com/Eliteams/quick4j 点击打开](https://github.com/Eliteams/quick4j)
+源码地址：[https://github.com/Eliteams/quick4j 点击打开](https://github.com/Eliteams/quick4j)
+看我们的项目结构：
+![](https://img-blog.csdn.net/20141122114004218?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvem91dG9uZ3l1YW4=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+是一个典型的Maven 项目 ：
+src/main/java：存放java源文件
+src/main/resources：存放程序资源、配置文件
+src/test/java：存放测试代码文件
+src/main/webapp：web根目录
+pom.xml ： maven项目配置文件，管理依赖，编译，打包
+主要的后端架构：Spring + Spring MVC + Mybatis + Apache Shiro
+前端界面主要使用MetroNic 模板,
+先看我们搭建完成，跑起来的效果，这样你才有兴趣看下去：
+![](https://img-blog.csdn.net/20141122114555292?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvem91dG9uZ3l1YW4=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+![](https://img-blog.csdn.net/20141122114611781?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvem91dG9uZ3l1YW4=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+你可以 在github 上 checkout quick4j项目 查看 ，并跟下面步骤 来搭建：
+强烈建议你，checkout  https://github.com/Eliteams/quick4j ，在本地跑起来，再试着自己搭建框架
+1、首先创建 maven 项目 ，用 idea 、eclipse 或 mvn 命令行都行 
+2、配置 pom.xml ，添加框架依赖
+[html][view
+ plain](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)[copy](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)
+- <projectxmlns="http://maven.apache.org/POM/4.0.0"xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+- xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+- <modelVersion>4.0.0</modelVersion>
+- <groupId>com.eliteams</groupId>
+- <artifactId>quick4j</artifactId>
+- <packaging>war</packaging>
+- <version>1.0.0</version>
+- <name>quick4j App</name>
+- <url>https://github.com/starzou/quick4j</url>
+- 
+- <build>
+- <finalName>quick4j</finalName>
+- <plugins>
+- <!-- Mybatis generator代码生成插件 配置 -->
+- <plugin>
+- <groupId>org.mybatis.generator</groupId>
+- <artifactId>mybatis-generator-maven-plugin</artifactId>
+- <version>${plugin.mybatis.generator}</version>
+- <configuration>
+- <configurationFile>${mybatis.generator.generatorConfig.xml}</configurationFile>
+- <overwrite>true</overwrite>
+- <verbose>true</verbose>
+- </configuration>
+- </plugin>
+- 
+- <!--Maven编译插件 配置-->
+- <plugin>
+- <groupId>org.apache.maven.plugins</groupId>
+- <artifactId>maven-compiler-plugin</artifactId>
+- <version>${plugin.maven-compiler}</version>
+- <configuration>
+- <source>${project.build.jdk}</source>
+- <target>${project.build.jdk}</target>
+- <encoding>${project.build.sourceEncoding}</encoding>
+- </configuration>
+- </plugin>
+- </plugins>
+- 
+- <!--配置Maven 对resource文件 过滤 -->
+- <resources>
+- <resource>
+- <directory>src/main/resources</directory>
+- <includes>
+- <include>**/*.properties</include>
+- <include>**/*.xml</include>
+- </includes>
+- <filtering>true</filtering>
+- </resource>
+- <resource>
+- <directory>src/main/java</directory>
+- <includes>
+- <include>**/*.properties</include>
+- <include>**/*.xml</include>
+- </includes>
+- <filtering>true</filtering>
+- </resource>
+- </resources>
+- </build>
+- 
+- <properties>
+- <!-- base setting -->
+- <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+- <project.build.locales>zh_CN</project.build.locales>
+- <project.build.jdk>1.7</project.build.jdk>
+- 
+- <!-- plugin setting -->
+- <mybatis.generator.generatorConfig.xml>${basedir}/src/test/resources/generatorConfig.xml</mybatis.generator.generatorConfig.xml>
+- <mybatis.generator.generatorConfig.properties>file:///${basedir}/src/test/resources/generatorConfig.properties</mybatis.generator.generatorConfig.properties>
+- 
+- <!-- plugin versions -->
+- <plugin.mybatis.generator>1.3.1</plugin.mybatis.generator>
+- <plugin.maven-compiler>3.1</plugin.maven-compiler>
+- 
+- <!-- lib versions -->
+- <junit.version>4.11</junit.version>
+- <spring.version>4.0.2.RELEASE</spring.version>
+- <mybatis.version>3.2.2</mybatis.version>
+- <mybatis.spring.version>1.2.2</mybatis.spring.version>
+- <mysql.connector.version>5.1.30</mysql.connector.version>
+- <postgresql.version>9.1-901.jdbc4</postgresql.version>
+- <slf4j.version>1.6.6</slf4j.version>
+- <log4j.version>1.2.12</log4j.version>
+- <httpclient.version>4.1.2</httpclient.version>
+- <jackson.version>1.9.13</jackson.version>
+- <c3p0.version>0.9.1.2</c3p0.version>
+- <druid.version>1.0.5</druid.version>
+- <tomcat.jdbc.version>7.0.53</tomcat.jdbc.version>
+- <jstl.version>1.2</jstl.version>
+- <google.collections.version>1.0</google.collections.version>
+- <cglib.version>3.1</cglib.version>
+- <shiro.version>1.2.3</shiro.version>
+- <commons.fileupload.version>1.3.1</commons.fileupload.version>
+- <commons.codec.version>1.9</commons.codec.version>
+- <commons.net.version>3.3</commons.net.version>
+- <aspectj.version>1.6.12</aspectj.version>
+- <netty.version>4.0.18.Final</netty.version>
+- <hibernate.validator.version>5.1.1.Final</hibernate.validator.version>
+- </properties>
+- 
+- <dependencies>
+- <!-- junit -->
+- <dependency>
+- <groupId>junit</groupId>
+- <artifactId>junit</artifactId>
+- <version>${junit.version}</version>
+- </dependency>
+- 
+- <!-- springframe start -->
+- <dependency>
+- <groupId>org.springframework</groupId>
+- <artifactId>spring-core</artifactId>
+- <version>${spring.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>org.springframework</groupId>
+- <artifactId>spring-web</artifactId>
+- <version>${spring.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>org.springframework</groupId>
+- <artifactId>spring-oxm</artifactId>
+- <version>${spring.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>org.springframework</groupId>
+- <artifactId>spring-tx</artifactId>
+- <version>${spring.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>org.springframework</groupId>
+- <artifactId>spring-jdbc</artifactId>
+- <version>${spring.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>org.springframework</groupId>
+- <artifactId>spring-webmvc</artifactId>
+- <version>${spring.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>org.springframework</groupId>
+- <artifactId>spring-aop</artifactId>
+- <version>${spring.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>org.springframework</groupId>
+- <artifactId>spring-context-support</artifactId>
+- <version>${spring.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>org.springframework</groupId>
+- <artifactId>spring-test</artifactId>
+- <version>${spring.version}</version>
+- </dependency>
+- <!-- springframe end -->
+- 
+- <!-- mybatis start-->
+- <dependency>
+- <groupId>org.mybatis</groupId>
+- <artifactId>mybatis</artifactId>
+- <version>${mybatis.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>org.mybatis</groupId>
+- <artifactId>mybatis-spring</artifactId>
+- <version>${mybatis.spring.version}</version>
+- </dependency>
+- <!--mybatis end-->
+- 
+- <!-- mysql-connector -->
+- <dependency>
+- <groupId>mysql</groupId>
+- <artifactId>mysql-connector-java</artifactId>
+- <version>${mysql.connector.version}</version>
+- </dependency>
+- 
+- <!-- DruidDataSource -->
+- <dependency>
+- <groupId>com.alibaba</groupId>
+- <artifactId>druid</artifactId>
+- <version>${druid.version}</version>
+- </dependency>
+- 
+- <!-- jackson -->
+- <dependency>
+- <groupId>org.codehaus.jackson</groupId>
+- <artifactId>jackson-mapper-asl</artifactId>
+- <version>${jackson.version}</version>
+- </dependency>
+- 
+- <!-- log start -->
+- <dependency>
+- <groupId>log4j</groupId>
+- <artifactId>log4j</artifactId>
+- <version>${log4j.version}</version>
+- </dependency>
+- <dependency>
+- <groupId>org.slf4j</groupId>
+- <artifactId>slf4j-api</artifactId>
+- <version>${slf4j.version}</version>
+- </dependency>
+- <dependency>
+- <groupId>org.slf4j</groupId>
+- <artifactId>slf4j-log4j12</artifactId>
+- <version>${slf4j.version}</version>
+- </dependency>
+- <!-- log end -->
+- 
+- <!-- servlet api -->
+- <dependency>
+- <groupId>javax.servlet</groupId>
+- <artifactId>javax.servlet-api</artifactId>
+- <version>3.0.1</version>
+- <scope>provided</scope>
+- </dependency>
+- 
+- <!-- jstl -->
+- <dependency>
+- <groupId>javax.servlet</groupId>
+- <artifactId>jstl</artifactId>
+- <version>${jstl.version}</version>
+- </dependency>
+- 
+- <!-- start apache -->
+- <dependency>
+- <groupId>commons-fileupload</groupId>
+- <artifactId>commons-fileupload</artifactId>
+- <version>${commons.fileupload.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>org.apache.httpcomponents</groupId>
+- <artifactId>httpclient</artifactId>
+- <version>${httpclient.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>commons-codec</groupId>
+- <artifactId>commons-codec</artifactId>
+- <version>${commons.codec.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>commons-net</groupId>
+- <artifactId>commons-net</artifactId>
+- <version>${commons.net.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>commons-logging</groupId>
+- <artifactId>commons-logging</artifactId>
+- <version>1.1.3</version>
+- </dependency>
+- <dependency>
+- <groupId>commons-collections</groupId>
+- <artifactId>commons-collections</artifactId>
+- <version>3.2.1</version>
+- </dependency>
+- 
+- <!-- end apache -->
+- 
+- <!-- google -->
+- <dependency>
+- <groupId>com.google.collections</groupId>
+- <artifactId>google-collections</artifactId>
+- <version>${google.collections.version}</version>
+- </dependency>
+- 
+- <!-- cglib -->
+- <dependency>
+- <groupId>cglib</groupId>
+- <artifactId>cglib-nodep</artifactId>
+- <version>${cglib.version}</version>
+- </dependency>
+- 
+- 
+- <!-- shiro -->
+- <dependency>
+- <groupId>org.apache.shiro</groupId>
+- <artifactId>shiro-spring</artifactId>
+- <version>${shiro.version}</version>
+- </dependency>
+- <dependency>
+- <groupId>org.apache.shiro</groupId>
+- <artifactId>shiro-ehcache</artifactId>
+- <version>${shiro.version}</version>
+- </dependency>
+- <dependency>
+- <groupId>org.apache.shiro</groupId>
+- <artifactId>shiro-core</artifactId>
+- <version>${shiro.version}</version>
+- </dependency>
+- <dependency>
+- <groupId>org.apache.shiro</groupId>
+- <artifactId>shiro-web</artifactId>
+- <version>${shiro.version}</version>
+- </dependency>
+- <dependency>
+- <groupId>org.apache.shiro</groupId>
+- <artifactId>shiro-quartz</artifactId>
+- <version>${shiro.version}</version>
+- </dependency>
+- 
+- <!-- aspectjweaver -->
+- <dependency>
+- <groupId>org.aspectj</groupId>
+- <artifactId>aspectjweaver</artifactId>
+- <version>${aspectj.version}</version>
+- </dependency>
+- <dependency>
+- <groupId>org.aspectj</groupId>
+- <artifactId>aspectjrt</artifactId>
+- <version>${aspectj.version}</version>
+- </dependency>
+- 
+- <!-- hibernate-validator -->
+- <dependency>
+- <groupId>org.hibernate</groupId>
+- <artifactId>hibernate-validator</artifactId>
+- <version>${hibernate.validator.version}</version>
+- </dependency>
+- 
+- <!-- netty -->
+- <dependency>
+- <groupId>io.netty</groupId>
+- <artifactId>netty-all</artifactId>
+- <version>${netty.version}</version>
+- </dependency>
+- 
+- <dependency>
+- <groupId>org.mybatis.generator</groupId>
+- <artifactId>mybatis-generator-core</artifactId>
+- <version>1.3.2</version>
+- <type>jar</type>
+- <scope>test</scope>
+- </dependency>
+- 
+- </dependencies>
+- </project>
+3、配置web.xml
+web.xml是一个项目的核心，看看它的一些配置：
+配置 ContextLoaderListener 监听器
+配置Spring字符编码过滤器
+配置shiro 安全过滤器
+配置Spring MVC 核心控制器 DispatcherServlet
+配置一些页面
+spring 和 apache shiro 是由一个 ContextLoaderListener 监听器 加载的配置文件，并初始化
+[html][view
+ plain](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)[copy](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)
+- <?xmlversion="1.0"encoding="utf-8"?>
+- <web-appxmlns="http://java.sun.com/xml/ns/j2ee"version="2.4"xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+- xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+- <!-- Spring -->
+- <!-- 配置Spring配置文件路径 -->
+- <context-param>
+- <param-name>contextConfigLocation</param-name>
+- <param-value>
+-             classpath*:applicationContext.xml  
+-             classpath*:applicationContext-shiro.xml  
+- </param-value>
+- </context-param>
+- <!-- 配置Spring上下文监听器 -->
+- <listener>
+- <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+- </listener>
+- <!-- Spring -->
+- 
+- <!-- 配置Spring字符编码过滤器 -->
+- <filter>
+- <filter-name>encodingFilter</filter-name>
+- <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+- <init-param>
+- <param-name>encoding</param-name>
+- <param-value>UTF-8</param-value>
+- </init-param>
+- <init-param>
+- <param-name>forceEncoding</param-name>
+- <param-value>true</param-value>
+- </init-param>
+- </filter>
+- <filter-mapping>
+- <filter-name>encodingFilter</filter-name>
+- <url-pattern>/*</url-pattern>
+- </filter-mapping>
+- 
+- <!-- shiro 安全过滤器 -->
+- <filter>
+- <filter-name>shiroFilter</filter-name>
+- <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+- <async-supported>true</async-supported>
+- <init-param>
+- <param-name>targetFilterLifecycle</param-name>
+- <param-value>true</param-value>
+- </init-param>
+- </filter>
+- <filter-mapping>
+- <filter-name>shiroFilter</filter-name>
+- <url-pattern>/*</url-pattern>
+- </filter-mapping>
+- 
+- <!-- 配置log4j配置文件路径 -->
+- <context-param>
+- <param-name>log4jConfigLocation</param-name>
+- <param-value>classpath:log4j.properties</param-value>
+- </context-param>
+- <!-- 60s 检测日志配置 文件变化 -->
+- <context-param>
+- <param-name>log4jRefreshInterval</param-name>
+- <param-value>60000</param-value>
+- </context-param>
+- 
+- <!-- 配置Log4j监听器 -->
+- <listener>
+- <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+- </listener>
+- 
+- <!-- Spring MVC 核心控制器 DispatcherServlet 配置 -->
+- <servlet>
+- <servlet-name>dispatcher</servlet-name>
+- <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+- <init-param>
+- <param-name>contextConfigLocation</param-name>
+- <param-value>classpath*:spring-mvc.xml</param-value>
+- </init-param>
+- <load-on-startup>1</load-on-startup>
+- </servlet>
+- <servlet-mapping>
+- <servlet-name>dispatcher</servlet-name>
+- <!-- 拦截所有/rest/* 的请求,交给DispatcherServlet处理,性能最好 -->
+- <url-pattern>/rest/*</url-pattern>
+- </servlet-mapping>
+- 
+- <!-- 首页 -->
+- <welcome-file-list>
+- <welcome-file>rest/index</welcome-file>
+- </welcome-file-list>
+- 
+- <!-- 错误页 -->
+- <error-page>
+- <error-code>404</error-code>
+- <location>/rest/page/404</location>
+- </error-page>
+- <error-page>
+- <error-code>500</error-code>
+- <location>/rest/page/500</location>
+- </error-page>
+- <error-page>
+- <exception-type>org.apache.shiro.authz.AuthorizationException</exception-type>
+- <location>/rest/page/401</location>
+- </error-page>
+- 
+- </web-app>
+4、spring配置：
+applicationContext.xml
+[html][view
+ plain](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)[copy](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)
+- <?xmlversion="1.0"encoding="UTF-8"?>
+- <beansxmlns="http://www.springframework.org/schema/beans"xmlns:context="http://www.springframework.org/schema/context"
+- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"xmlns:aop="http://www.springframework.org/schema/aop"
+- xmlns:tx="http://www.springframework.org/schema/tx"xmlns:p="http://www.springframework.org/schema/p"
+- xmlns:util="http://www.springframework.org/schema/util"xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+- xmlns:cache="http://www.springframework.org/schema/cache"
+- xsi:schemaLocation="  
+-     http://www.springframework.org/schema/context  
+-     http://www.springframework.org/schema/context/spring-context.xsd  
+-     http://www.springframework.org/schema/beans  
+-     http://www.springframework.org/schema/beans/spring-beans.xsd  
+-     http://www.springframework.org/schema/tx  
+-     http://www.springframework.org/schema/tx/spring-tx.xsd  
+-     http://www.springframework.org/schema/jdbc  
+-     http://www.springframework.org/schema/jdbc/spring-jdbc.xsd  
+-     http://www.springframework.org/schema/cache  
+-     http://www.springframework.org/schema/cache/spring-cache.xsd  
+-     http://www.springframework.org/schema/aop  
+-     http://www.springframework.org/schema/aop/spring-aop.xsd  
+-     http://www.springframework.org/schema/util  
+-     http://www.springframework.org/schema/util/spring-util.xsd">
+- 
+- <!-- 自动扫描quick4j包 ,将带有注解的类 纳入spring容器管理 -->
+- <context:component-scanbase-package="com.eliteams.quick4j"></context:component-scan>
+- 
+- <!-- 引入配置文件 -->
+- <beanid="propertyConfigurer"class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+- <propertyname="locations">
+- <list>
+- <value>classpath*:application.properties</value>
+- </list>
+- </property>
+- </bean>
+- 
+- <!-- dataSource 配置 -->
+- <beanid="dataSource"class="com.alibaba.druid.pool.DruidDataSource"init-method="init"destroy-method="close">
+- <!-- 基本属性 url、user、password -->
+- <propertyname="url"value="${jdbc.url}"/>
+- <propertyname="username"value="${jdbc.username}"/>
+- <propertyname="password"value="${jdbc.password}"/>
+- 
+- <!-- 配置初始化大小、最小、最大 -->
+- <propertyname="initialSize"value="${ds.initialSize}"/>
+- <propertyname="minIdle"value="${ds.minIdle}"/>
+- <propertyname="maxActive"value="${ds.maxActive}"/>
+- 
+- <!-- 配置获取连接等待超时的时间 -->
+- <propertyname="maxWait"value="${ds.maxWait}"/>
+- 
+- <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+- <propertyname="timeBetweenEvictionRunsMillis"value="${ds.timeBetweenEvictionRunsMillis}"/>
+- 
+- <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+- <propertyname="minEvictableIdleTimeMillis"value="${ds.minEvictableIdleTimeMillis}"/>
+- 
+- <propertyname="validationQuery"value="SELECT 'x'"/>
+- <propertyname="testWhileIdle"value="true"/>
+- <propertyname="testOnBorrow"value="false"/>
+- <propertyname="testOnReturn"value="false"/>
+- 
+- <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+- <propertyname="poolPreparedStatements"value="false"/>
+- <propertyname="maxPoolPreparedStatementPerConnectionSize"value="20"/>
+- 
+- <!-- 配置监控统计拦截的filters -->
+- <propertyname="filters"value="stat"/>
+- </bean>
+- 
+- <!-- mybatis文件配置，扫描所有mapper文件 -->
+- <beanid="sqlSessionFactory"class="org.mybatis.spring.SqlSessionFactoryBean"p:dataSource-ref="dataSource"
+- p:configLocation="classpath:mybatis-config.xml"
+- p:mapperLocations="classpath:com/eliteams/quick4j/web/dao/*.xml"/>
+- 
+- <!-- spring与mybatis整合配置，扫描所有dao -->
+- <beanclass="org.mybatis.spring.mapper.MapperScannerConfigurer"p:basePackage="com.eliteams.quick4j.web.dao"
+- p:sqlSessionFactoryBeanName="sqlSessionFactory"/>
+- 
+- <!-- 对dataSource 数据源进行事务管理 -->
+- <beanid="transactionManager"class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+- p:dataSource-ref="dataSource"/>
+- 
+- <!-- 事务管理 通知 -->
+- <tx:adviceid="txAdvice"transaction-manager="transactionManager">
+- <tx:attributes>
+- <!-- 对insert,update,delete 开头的方法进行事务管理,只要有异常就回滚 -->
+- <tx:methodname="insert*"propagation="REQUIRED"rollback-for="java.lang.Throwable"/>
+- <tx:methodname="update*"propagation="REQUIRED"rollback-for="java.lang.Throwable"/>
+- <tx:methodname="delete*"propagation="REQUIRED"rollback-for="java.lang.Throwable"/>
+- <!-- select,count开头的方法,开启只读,提高数据库访问性能 -->
+- <tx:methodname="select*"read-only="true"/>
+- <tx:methodname="count*"read-only="true"/>
+- <!-- 对其他方法 使用默认的事务管理 -->
+- <tx:methodname="*"/>
+- </tx:attributes>
+- </tx:advice>
+- 
+- <!-- 事务 aop 配置 -->
+- <aop:config>
+- <aop:pointcutid="serviceMethods"expression="execution(* com.eliteams.quick4j.web.service..*(..))"/>
+- <aop:advisoradvice-ref="txAdvice"pointcut-ref="serviceMethods"/>
+- </aop:config>
+- 
+- <!-- 配置使Spring采用CGLIB代理 -->
+- <aop:aspectj-autoproxyproxy-target-class="true"/>
+- 
+- <!-- 启用对事务注解的支持 -->
+- <tx:annotation-driventransaction-manager="transactionManager"/>
+- 
+- <!-- Cache配置 -->
+- <cache:annotation-drivencache-manager="cacheManager"/>
+- <beanid="ehCacheManagerFactory"class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+- p:configLocation="classpath:ehcache.xml"/>
+- <beanid="cacheManager"class="org.springframework.cache.ehcache.EhCacheCacheManager"
+- p:cacheManager-ref="ehCacheManagerFactory"/>
+- </beans>
+application.properties
+[plain][view
+ plain](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)[copy](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)
+- ##JDBC Global Setting  
+- jdbc.driver=com.mysql.jdbc.Driver  
+- jdbc.url=jdbc:mysql://localhost:3306/quick4j?useUnicode=true&characterEncoding=utf-8  
+- jdbc.username=root  
+- jdbc.password=admin123  
+- 
+- ##DataSource Global Setting  
+- 
+- #配置初始化大小、最小、最大  
+- ds.initialSize=1  
+- ds.minIdle=1  
+- ds.maxActive=20  
+- 
+- #配置获取连接等待超时的时间   
+- ds.maxWait=60000  
+- 
+- #配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒  
+- ds.timeBetweenEvictionRunsMillis=60000  
+- 
+- #配置一个连接在池中最小生存的时间，单位是毫秒  
+- ds.minEvictableIdleTimeMillis=300000  
+ehcache.xml
+[html][view
+ plain](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)[copy](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)
+- <?xmlversion="1.0"encoding="UTF-8"?>
+- <ehcacheupdateCheck="false"name="txswx-ehcache">
+- <diskStorepath="java.io.tmpdir"/>
+- <!-- DefaultCache setting. -->
+- <defaultCachemaxEntriesLocalHeap="10000"eternal="true"timeToIdleSeconds="300"timeToLiveSeconds="600"
+- overflowToDisk="true"maxEntriesLocalDisk="100000"/>
+- </ehcache>
+5、Apache
+ Shiro 配置 ： 要配置realms bean
+[html][view
+ plain](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)[copy](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)
+- <?xmlversion="1.0"encoding="UTF-8"?>
+- <beansxmlns="http://www.springframework.org/schema/beans"xmlns:util="http://www.springframework.org/schema/util"
+- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+- xsi:schemaLocation="  
+-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
+-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+- 
+- <description>apache shiro配置</description>
+- 
+- <beanid="shiroFilter"class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+- <propertyname="securityManager"ref="securityManager"/>
+- <propertyname="loginUrl"value="/rest/page/login"/>
+- <propertyname="successUrl"value="/rest/index"/>
+- <propertyname="unauthorizedUrl"value="/rest/page/401"/>
+- <propertyname="filterChainDefinitions">
+- <value>
+- <!-- 静态资源允许访问 -->
+-                 /app/** = anon  
+-                 /assets/** = anon  
+- <!-- 登录页允许访问 -->
+-                 /rest/user/login = anon
+- <!-- 其他资源需要认证 -->
+-                 /** = authc  
+- </value>
+- </property>
+- </bean>
+- 
+- <!-- 缓存管理器 使用Ehcache实现 -->
+- <beanid="shiroEhcacheManager"class="org.apache.shiro.cache.ehcache.EhCacheManager">
+- <propertyname="cacheManagerConfigFile"value="classpath:ehcache-shiro.xml"/>
+- </bean>
+- 
+- <!-- 会话DAO -->
+- <beanid="sessionDAO"class="org.apache.shiro.session.mgt.eis.MemorySessionDAO"/>
+- 
+- <!-- 会话管理器 -->
+- <beanid="sessionManager"class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+- <propertyname="sessionDAO"ref="sessionDAO"/>
+- </bean>
+- 
+- <!-- 安全管理器 -->
+- <beanid="securityManager"class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+- <propertyname="realms">
+- <list>
+- <refbean="securityRealm"/>
+- </list>
+- </property>
+- <!-- cacheManager,集合spring缓存工厂 -->
+- <!-- <property name="cacheManager" ref="shiroEhcacheManager" /> -->
+- <!-- <property name="sessionManager" ref="sessionManager" /> -->
+- </bean>
+- 
+- <!-- Shiro生命周期处理器 -->
+- <beanid="lifecycleBeanPostProcessor"class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+- 
+- </beans>
+ehcache-shiro.xml
+[html][view
+ plain](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)[copy](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)
+- <ehcacheupdateCheck="false"name="shiroCache">
+- 
+- <defaultCache
+- maxElementsInMemory="10000"
+- eternal="false"
+- timeToIdleSeconds="120"
+- timeToLiveSeconds="120"
+- overflowToDisk="false"
+- diskPersistent="false"
+- diskExpiryThreadIntervalSeconds="120"
+- />
+- </ehcache>
+6、MyBatis 配置
+[html][view
+ plain](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)[copy](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)
+- <?xmlversion="1.0"encoding="UTF-8"?>
+- <!DOCTYPE configuration  
+-         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  
+-         "http://mybatis.org/dtd/mybatis-3-config.dtd">
+- <configuration>
+- <properties>
+- <propertyname="dialectClass"value="com.eliteams.quick4j.core.feature.orm.dialect.MySql5Dialect"/>
+- </properties>
+- 
+- <!-- 配置mybatis的缓存，延迟加载等等一系列属性 -->
+- <settings>
+- 
+- <!-- 全局映射器启用缓存 -->
+- <settingname="cacheEnabled"value="true"/>
+- 
+- <!-- 查询时，关闭关联对象即时加载以提高性能 -->
+- <settingname="lazyLoadingEnabled"value="true"/>
+- 
+- <!-- 对于未知的SQL查询，允许返回不同的结果集以达到通用的效果 -->
+- <settingname="multipleResultSetsEnabled"value="true"/>
+- 
+- <!-- 允许使用列标签代替列名 -->
+- <settingname="useColumnLabel"value="true"/>
+- 
+- <!-- 不允许使用自定义的主键值(比如由程序生成的UUID 32位编码作为键值)，数据表的PK生成策略将被覆盖 -->
+- <settingname="useGeneratedKeys"value="false"/>
+- 
+- <!-- 给予被嵌套的resultMap以字段-属性的映射支持 FULL,PARTIAL -->
+- <settingname="autoMappingBehavior"value="PARTIAL"/>
+- 
+- <!-- 对于批量更新操作缓存SQL以提高性能 BATCH,SIMPLE -->
+- <!-- <setting name="defaultExecutorType" value="BATCH" /> -->
+- 
+- <!-- 数据库超过25000秒仍未响应则超时 -->
+- <!-- <setting name="defaultStatementTimeout" value="25000" /> -->
+- 
+- <!-- Allows using RowBounds on nested statements -->
+- <settingname="safeRowBoundsEnabled"value="false"/>
+- 
+- <!-- Enables automatic mapping from classic database column names A_COLUMN to camel case classic Java property names aColumn. -->
+- <settingname="mapUnderscoreToCamelCase"value="true"/>
+- 
+-         <!-- MyBatis uses local cache to prevent circular references and speed up repeated nested queries. By default (SESSION) all queries executed during a session are cached. If localCacheScope=STATEMENT
+-             local session will be used just for statement execution, no data will be shared between two different calls to the same SqlSession. -->
+- <settingname="localCacheScope"value="SESSION"/>
+- 
+-         <!-- Specifies the JDBC type for null values when no specific JDBC type was provided for the parameter. Some drivers require specifying the column JDBC type but others work with generic values   
+-             like NULL, VARCHAR or OTHER. -->
+- <settingname="jdbcTypeForNull"value="OTHER"/>
+- 
+- <!-- Specifies which Object's methods trigger a lazy load -->
+- <settingname="lazyLoadTriggerMethods"value="equals,clone,hashCode,toString"/>
+- 
+- <!-- 设置关联对象加载的形态，此处为按需加载字段(加载字段由SQL指 定)，不会加载关联表的所有字段，以提高性能 -->
+- <settingname="aggressiveLazyLoading"value="false"/>
+- 
+- </settings>
+- 
+- <typeAliases>
+- <packagename="com.eliteams.quick4j.web.model"/>
+- <packagename="com.eliteams.quick4j.web.enums"/>
+- </typeAliases>
+- 
+- <plugins>
+- <plugininterceptor="com.eliteams.quick4j.core.feature.orm.mybatis.PaginationResultSetHandlerInterceptor"/>
+- <plugininterceptor="com.eliteams.quick4j.core.feature.orm.mybatis.PaginationStatementHandlerInterceptor"/>
+- </plugins>
+- 
+- </configuration>
+7、Spring
+ MVC 配置
+[html][view
+ plain](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)[copy](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)
+- <?xmlversion="1.0"encoding="UTF-8"?>
+- <beansxmlns="http://www.springframework.org/schema/beans"
+- xmlns:aop="http://www.springframework.org/schema/aop"
+- xmlns:context="http://www.springframework.org/schema/context"
+- xmlns:mvc="http://www.springframework.org/schema/mvc"
+- xmlns:tx="http://www.springframework.org/schema/tx"
+- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+- xmlns:p="http://www.springframework.org/schema/p"
+- xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd  
+-         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd   
+-         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd   
+-         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd   
+-         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+- 
+- <!-- 扫描controller（controller层注入） -->
+- <context:component-scanbase-package="com.eliteams.quick4j.web.controller"/>
+- 
+- <!-- 会自动注册DefaultAnnotationHandlerMapping与AnnotationMethodHandlerAdapter 两个bean,是spring MVC为@Controllers分发请求所必须的 -->
+- <!-- 指定自己定义的validator -->
+- <mvc:annotation-drivenvalidator="validator"/>
+- 
+- <!-- 以下 validator ConversionService 在使用 mvc:annotation-driven 会 自动注册 -->
+- <beanid="validator"class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+- <propertyname="providerClass"value="org.hibernate.validator.HibernateValidator"/>
+- <!-- 如果不加默认到 使用classpath下的 ValidationMessages.properties -->
+- <propertyname="validationMessageSource"ref="messageSource"/>
+- </bean>
+- 
+- <!-- 国际化的消息资源文件（本系统中主要用于显示/错误消息定制） -->
+- <beanid="messageSource"class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+- <propertyname="basenames">
+- <list>
+- <!-- 在web环境中一定要定位到classpath 否则默认到当前web应用下找 -->
+- <value>classpath:messages</value>
+- <value>classpath:org/hibernate/validator/ValidationMessages</value>
+- </list>
+- </property>
+- <propertyname="useCodeAsDefaultMessage"value="false"/>
+- <propertyname="defaultEncoding"value="UTF-8"/>
+- <propertyname="cacheSeconds"value="60"/>
+- </bean>
+- 
+- <mvc:interceptors>
+- <beanclass="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
+- </mvc:interceptors>
+- 
+- <beanid="localeResolver"class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+- <propertyname="defaultLocale"value="zh_CN"/>
+- </bean>
+- 
+- <!-- 支持返回json(避免IE在ajax请求时，返回json出现下载 ) -->
+- <beanclass="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+- <propertyname="messageConverters">
+- <list>
+- <refbean="mappingJacksonHttpMessageConverter"/>
+- </list>
+- </property>
+- </bean>
+- <beanid="mappingJacksonHttpMessageConverter"
+- class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+- <propertyname="supportedMediaTypes">
+- <list>
+- <value>text/plain;charset=UTF-8</value>
+- <value>application/json;charset=UTF-8</value>
+- </list>
+- </property>
+- </bean>
+- <!-- 支持返回json -->
+- 
+- <!-- 对模型视图添加前后缀 -->
+- <beanid="viewResolver"class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+- p:prefix="/WEB-INF/views/"p:suffix=".jsp"/>
+- 
+- <!-- 配置springMVC处理上传文件的信息 -->
+- <beanid="multipartResolver"class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+- <propertyname="defaultEncoding"value="utf-8"/>
+- <propertyname="maxUploadSize"value="10485760000"/>
+- <propertyname="maxInMemorySize"value="40960"/>
+- </bean>
+- 
+- <!-- 启用shrio授权注解拦截方式 -->
+- <aop:configproxy-target-class="true"></aop:config>
+- <beanclass="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+- <propertyname="securityManager"ref="securityManager"/>
+- </bean>
+- 
+- </beans>
+messages.properties ： hibernate-validator 配置文件，国际化资源文件
+[plain][view
+ plain](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)[copy](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)
+- #user  
+- user.username.null=用户名不能为空  
+- user.password.null=密码不能为空  
+log4j.properties : 
+[plain][view
+ plain](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)[copy](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)
+- # DEBUG,INFO,WARN,ERROR,FATAL  
+- LOG_LEVEL=INFO  
+- 
+- log4j.rootLogger=${LOG_LEVEL},CONSOLE,FILE  
+- 
+- log4j.appender.CONSOLE=org.apache.log4j.ConsoleAppender  
+- log4j.appender.CONSOLE.Encoding=utf-8  
+- log4j.appender.CONSOLE.layout=org.apache.log4j.PatternLayout  
+- #log4j.appender.CONSOLE.layout.ConversionPattern=[%-5p] %d{yyyy-MM-dd HH:mm:ss} %C{8}@(%F:%L):%m%n   
+- log4j.appender.CONSOLE.layout.ConversionPattern=[%-5p] %d{yyyy-MM-dd HH:mm:ss} %C{1}@(%F:%L):%m%n  
+- 
+- log4j.appender.FILE=org.apache.log4j.DailyRollingFileAppender  
+- log4j.appender.FILE.File=${catalina.base}/logs/quick4j.log  
+- log4j.appender.FILE.Encoding=utf-8  
+- log4j.appender.FILE.DatePattern='.'yyyy-MM-dd  
+- log4j.appender.FILE.layout=org.apache.log4j.PatternLayout  
+- #log4j.appender.FILE.layout=org.apache.log4j.HTMLLayout  
+- log4j.appender.FILE.layout.ConversionPattern=[%-5p] %d{yyyy-MM-dd HH\:mm\:ss} %C{8}@(%F\:%L)\:%m%n   
+quick4j.sql
+[sql][view
+ plain](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)[copy](http://blog.csdn.net/zoutongyuan/article/details/41379851/#)
+- /*  
+- SQLyog 企业版 - MySQL GUI v8.14   
+- MySQL - 5.5.27 : Database - quick4j  
+- *********************************************************************  
+- */  
+- 
+- 
+- /*!40101 SET NAMES utf8 */;  
+- 
+- /*!40101 SET SQL_MODE=''*/;  
+- 
+- /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;  
+- /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;  
+- /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;  
+- /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;  
+- CREATEDATABASE /*!32312 IF NOT EXISTS*/`quick4j` /*!40100 DEFAULTCHARACTERSET utf8 */;  
+- 
+- USE `quick4j`;  
+- 
+- /*Table structure fortable `permission` */  
+- 
+- DROPTABLE IF EXISTS `permission`;  
+- 
+- CREATETABLE `permission` (  
+-   `id` bigint(20) unsigned NOTNULL AUTO_INCREMENT COMMENT '权限id',  
+-   `permission_name` varchar(32) DEFAULTNULL COMMENT '权限名',  
+-   `permission_sign` varchar(128) DEFAULTNULL COMMENT '权限标识,程序中判断使用,如"user:create"',  
+-   `description` varchar(256) DEFAULTNULL COMMENT '权限描述,UI界面显示使用',  
+- PRIMARYKEY (`id`)  
+- ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC COMMENT='权限表';  
+- 
+- /*Data for the table `permission` */  
+- 
+- insertinto `permission`(`id`,`permission_name`,`permission_sign`,`description`) values (1,'用户新增','user:create',NULL);  
+- 
+- /*Table structure fortable `role` */  
+- 
+- DROPTABLE IF EXISTS `role`;  
+- 
+- CREATETABLE `role` (  
+-   `id` bigint(20) unsigned NOTNULL AUTO_INCREMENT COMMENT '角色id',  
+-   `role_name` varchar(32) DEFAULTNULL COMMENT '角色名',  
+-   `role_sign` varchar(128) DEFAULTNULL COMMENT '角色标识,程序中判断使用,如"admin"',  
+-   `description` varchar(256) DEFAULTNULL COMMENT '角色描述,UI界面显示使用',  
+- PRIMARYKEY (`id`)  
+- ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC COMMENT='角色表';  
+- 
+- /*Data for the table `role` */  
+- 
+- insertinto `role`(`id`,`role_name`,`role_sign`,`description`) values (1,'admin','admin','管理员');  
+- 
+- /*Table structure fortable `role_permission` */  
+- 
+- DROPTABLE IF EXISTS `role_permission`;  
+- 
+- CREATETABLE `role_permission` (  
+-   `id` bigint(20) unsigned NOTNULL AUTO_INCREMENT COMMENT '表id',  
+-   `role_id` bigint(20) unsigned DEFAULTNULL COMMENT '角色id',  
+-   `permission_id` bigint(20) unsigned DEFAULTNULL COMMENT '权限id',  
+- PRIMARYKEY (`id`)  
+- ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC COMMENT='角色与权限关联表';  
+- 
+- /*Data for the table `role_permission` */  
+- 
+- insertinto `role_permission`(`id`,`role_id`,`permission_id`) values (1,2,1);  
+- 
+- /*Table structure fortable `user` */  
+- 
+- DROPTABLE IF EXISTS `user`;  
+- 
+- CREATETABLE `user` (  
+-   `id` bigint(20) unsigned NOTNULL AUTO_INCREMENT COMMENT '用户id',  
+-   `username` varchar(50) DEFAULTNULL COMMENT '用户名',  
+-   `password` char(64) DEFAULTNULL COMMENT '密码',  
+-   `state` varchar(32) DEFAULTNULL COMMENT '状态',  
+-   `create_time` datetime DEFAULTNULL COMMENT '创建时间',  
+- PRIMARYKEY (`id`)  
+- ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC COMMENT='用户表';  
+- 
+- /*Data for the table `user` */  
+- 
+- insertinto `user`(`id`,`username`,`password`,`state`,`create_time`) values (1,'starzou','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92',NULL,'2014-07-17 12:59:08');  
+- 
+- /*Table structure fortable `user_role` */  
+- 
+- DROPTABLE IF EXISTS `user_role`;  
+- 
+- CREATETABLE `user_role` (  
+-   `id` bigint(20) unsigned NOTNULL AUTO_INCREMENT COMMENT '表id',  
+-   `user_id` bigint(20) unsigned DEFAULTNULL COMMENT '用户id',  
+-   `role_id` bigint(20) unsigned DEFAULTNULL COMMENT '角色id',  
+- PRIMARYKEY (`id`)  
+- ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 CHECKSUM=1 DELAY_KEY_WRITE=1 ROW_FORMAT=DYNAMIC COMMENT='用户与角色关联表';  
+- 
+- /*Data for the table `user_role` */  
+- 
+- insertinto `user_role`(`id`,`user_id`,`role_id`) values (1,1,1);  
+- 
+- /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;  
+- /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;  
+- /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;  
+- /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;  
+- 

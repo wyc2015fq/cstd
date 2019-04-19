@@ -1,24 +1,17 @@
 # JSON数据的解析和生成（C++） - zwvista - 博客园
-
 ## [JSON数据的解析和生成（C++）](https://www.cnblogs.com/zwvista/p/9591853.html)
-
 ### 安装 "JSON for Modern C++"
-
 ```
 $ brew tap nlohmann/json
 $ brew install nlohmann_json
 ```
-
 安装之后将`/usr/local/Cellar/nlohmann_json/3.1.2/include`加入 include
-
 ### 示例
-
 ```
 #include <iostream>
 #include <nlohmann/json.hpp>
 using nlohmann::json;
 using namespace std;
-
 struct Person {
     string name;
     int age;
@@ -39,7 +32,6 @@ void to_json(json& j, const Persons& ps) {
 void from_json(const json& j, Persons& ps) {
     ps.persons = j.at("persons").get<vector<Person>>();
 }
-
 string jsonString = R"({
   "persons" : [
     {
@@ -48,7 +40,6 @@ string jsonString = R"({
     }
   ]
 })";
-
 int main(int argc, char *args[])
 {
     json j = json::parse(jsonString);
@@ -59,10 +50,8 @@ int main(int argc, char *args[])
     j = ps;
     cout << j << endl;
     cout << j.dump(2) << endl;
-
     return 0;
 }
-
 /*
 name: Joe
 age: 12
@@ -77,5 +66,3 @@ age: 12
 }
 */
 ```
-
-

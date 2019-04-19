@@ -1,0 +1,74 @@
+# Socket.io文字直播聊天室的简单代码 - =朝晖= - 博客园
+# [Socket.io文字直播聊天室的简单代码](https://www.cnblogs.com/dhcn/p/7124738.html)
+直接上代码吧,被注释掉的主要是调试代码，和技术选型的测试代码
+- var app = require('express')();  
+- var server = require('http').Server(app);  
+- 
+- server.listen(8080);  
+- 
+- app.get('/', function (req, res) {  
+-   res.sendFile(__dirname + '/index.html');  
+- });  
+- 
+- 
+- var io = require('socket.io')(3000);  
+- var beijing = io  
+-   .of('/beijing')  
+-   .on('connection', function (socket) {  
+-     console.log("beijing connected")  
+- //console.log(socket)  
+-     socket.on('disconnect', function () { console.log("disconnect") });  
+- //socket.emit('item', { news: 'item' });  
+-   });  
+- //var redis = require('socket.io-redis');  
+- //io.adapter(redis({ host: '192.168.20.16', port: 6379 }));  
+- 
+- //var io_emitter = require('socket.io-emitter')({ host: '192.168.20.16', port: 6379 });  
+- /*setInterval(function(){ 
+-   //io_emitter.emit('time', new Date); 
+- }, 2000);*/  
+- 
+- var redis = require('redis')  
+- subcriber = redis.createClient("redis://:redispassword@192.168.1.1:6379/0")  
+- subcriber.on("message",function(channel,message){  
+-   console.log(message);  
+-   beijing.emit("message",message);  
+- })  
+- 
+- subcriber.subscribe("pub_comments")  
+- /* 
+- var SSE = require('sse-nodejs'); 
+- 
+- var express = require('express'); 
+- 
+- var app = express(); 
+- 
+- app.get('/', function (req,res) { 
+-    res.sendFile(__dirname+ '/index.html') 
+- }); 
+- 
+- app.get('/time', function (req,res) { 
+-     var serverSent = SSE(res); 
+- 
+-     serverSent.sendEvent('time', function () { 
+-         return new Date 
+-     },1000); 
+-     serverSent.disconnect(function () { 
+-         console.log("disconnected"); 
+-     }) 
+- 
+-     //serverSent.removeEvent('time',2000); 
+- 
+- }); 
+- 
+- app.listen(3333); 
+- */  
+前端核心代码：
+- var socket = io.connect('http://servername:3000/beijing');  
+- socket.on('message', function (data) {  
+-   $scope.messages.push(data)//此处使用了angularjs  
+-   $scope.$apply()  
+-   console.log(data)  
+- //socket.disconnect()  
+- //socket.emit('my other event', { my: 'data' });  
+- });  

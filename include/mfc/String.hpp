@@ -2,11 +2,12 @@
 #ifndef __CSTRING_H__
 #define __CSTRING_H__
 
-#include "stddef_c.h"
-#include "log_c.h"
-#include "iconv_c.h"
-#include "atomic_c.h"
-#include "DumpContext.hpp"
+
+#include "mfc.h"
+#include "std/stddef_c.h"
+#include "std/log_c.h"
+#include "std/iconv_c.h"
+#include "std/atomic_c.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -135,7 +136,7 @@ struct CString {
       GetData()->nDataLength = nSrcLen;
     } else {
       AllocBeforeWrite(nSrcLen*2*nCount);
-      nSrcLen = iconv_c(CSTR_CHARSET, charset, lpsz, (nSrcLen*2)+1, m_pchData, nSrcLen*2);
+      nSrcLen = iconv_cs(CSTR_CHARSET, charset, lpsz, (nSrcLen*2)+1, m_pchData, nSrcLen*2);
       ReleaseBuffer();
     }
     if (nCount>1) {
@@ -1428,11 +1429,121 @@ static void CopyElements(CString* pDest, CString* pSrc, int nCount)
   }
 }
 
-CDumpContext& operator<<(CDumpContext& dc, const CString& string)
-{
-  dc << string.m_pchData;
-  return dc;
-}
+
+
+struct StringBuilder {
+	CString& out;
+	StringBuilder(CString& s) : out(s) {}
+	StringBuilder& OutputString(const char* szBuffer) {
+		out += szBuffer;
+		return *this;
+	}
+	StringBuilder& operator<<(BYTE by)
+	{
+		char szBuffer[32];
+
+		snprintf(szBuffer, 32, ("%d"), (int)by);
+		OutputString(szBuffer);
+		return *this;
+	}
+
+	StringBuilder& operator<<(WORD w)
+	{
+		char szBuffer[32];
+
+		snprintf(szBuffer, 32, ("%u"), (UINT)w);
+		OutputString(szBuffer);
+
+		return *this;
+	}
+	StringBuilder& operator<<(UINT u)
+	{
+		char szBuffer[32];
+
+		snprintf(szBuffer, 32, ("0x%X"), u);
+		OutputString(szBuffer);
+
+		return *this;
+	}
+
+	StringBuilder& operator<<(LONG l)
+	{
+		char szBuffer[32];
+
+		snprintf(szBuffer, 32, ("%ld"), l);
+		OutputString(szBuffer);
+
+		return *this;
+	}
+
+	StringBuilder& operator<<(DWORD dw)
+	{
+		char szBuffer[32];
+
+		snprintf(szBuffer, 32, ("%lu"), dw);
+		OutputString(szBuffer);
+
+		return *this;
+	}
+
+	StringBuilder& operator<<(int64_t dw)
+	{
+		char szBuffer[32];
+
+		snprintf(szBuffer, 32, ("%lld"), dw);
+		OutputString(szBuffer);
+
+		return *this;
+	}
+
+	StringBuilder& operator<<(uint64_t dw)
+	{
+		char szBuffer[32];
+
+		snprintf(szBuffer, 32, ("%llu"), dw);
+		OutputString(szBuffer);
+
+		return *this;
+	}
+
+	StringBuilder& operator<<(int n)
+	{
+		char szBuffer[32];
+
+		snprintf(szBuffer, 32, ("%d"), n);
+		OutputString(szBuffer);
+
+		return *this;
+	}
+
+	StringBuilder& operator<<(float f)
+	{
+		char szBuffer[32];
+		snprintf(szBuffer, 32, ("%f"), f);
+		OutputString(szBuffer);
+		return *this;
+	}
+
+	StringBuilder& operator<<(double d)
+	{
+		char szBuffer[32];
+		snprintf(szBuffer, 32, ("%lf"), d);
+		OutputString(szBuffer);
+		return *this;
+	}
+
+	StringBuilder& operator<<(const void* lp)
+	{
+		char szBuffer[32];
+
+		// prefix a pointer with "$" and print in hex
+		snprintf(szBuffer, 32, ("$%lX"), (LONG)lp);
+		OutputString(szBuffer);
+
+		return *this;
+	}
+
+};
 
 
 #endif // __CSTRING_H__

@@ -1,31 +1,20 @@
 # ReactiveX 学习笔记（21）使用 Rx.NET + ReactiveUI 进行 GUI 编程 - zwvista - 博客园
-
 ## [ReactiveX 学习笔记（21）使用 Rx.NET + ReactiveUI 进行 GUI 编程](https://www.cnblogs.com/zwvista/p/9560373.html)
-
 ### 课题
 - 程序界面由3个文本编辑框和1个文本标签组成。
 - 要求文本标签实时显示3个文本编辑框所输入的数字之和。
 - 文本编辑框输入的不是合法数字时，将其值视为0。
 - 3个文本编辑框的初值分别为1，2，3。
-
 ### 创建工程
-
 打开 Visual Studio，File / New / Project...
-
 新建一个名为 RxExample 的 WPF 应用程序。
-
 ### ReactiveUI
-
 打开 NuGet 包管理器，搜索并安装 ReactiveUI 这个包。
-
 ### AppViewModel
-
 在工程中添加 AppViewModel 类，内容如下
-
 ```
 using ReactiveUI;
 using System;
-
 namespace RxExample
 {
     public class AppViewModel : ReactiveObject
@@ -36,45 +25,34 @@ namespace RxExample
             get { return _number1; }
             set { this.RaiseAndSetIfChanged(ref _number1, value); }
         }
-
         private string _number2;
         public string Number2
         {
             get { return _number2; }
             set { this.RaiseAndSetIfChanged(ref _number2, value); }
         }
-
         private string _number3;
         public string Number3
         {
             get { return _number3; }
             set { this.RaiseAndSetIfChanged(ref _number3, value); }
         }
-
         private readonly ObservableAsPropertyHelper<string> _result;
         public string Result => _result.Value;
-
         public AppViewModel()
         {
             _number1 = "1"; _number2 = "2"; _number3 = "3";
-
             int f(string s) =>
                 int.TryParse(s, out var o) ? o : 0;
-
             _result = this.WhenAnyValue(x => x.Number1, x => x.Number2, x => x.Number3,
                 (s1, s2, s3) => (f(s1) + f(s2) + f(s3)).ToString())
                 .ToProperty(this, x => x.Result, "");
         }
-
     }
-
 }
 ```
-
 ### MainWindow
-
 将程序界面 MainWindow.xaml 的内容改为
-
 ```
 <Window x:Class="RxExample.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -103,8 +81,5 @@ namespace RxExample
     </Grid>
 </Window>
 ```
-
 打开 MainWindow.xaml.cs 文件，在 MainWindow的构造方法中添加以下代码
 `DataContext = new AppViewModel();`
-
-

@@ -2,14 +2,22 @@
 #ifndef __TIMESPAN_HPP__
 #define __TIMESPAN_HPP__
 
-#include "DumpContext.hpp"
+#include "mfc.h"
 #include "String.hpp"
+#include <tchar.h>
 
 class CTimeSpan
 {
 public:
   time_t m_timeSpan;
 
+  DumpContext* def(const char* name, DumpContext* dc)
+  {
+	  CTimeSpan& timeSpan = *this;
+	  dc->beginStruct(name);
+	  dc->endStruct();
+	  return dc;
+  }
 
   _AFX_INLINE CTimeSpan()
   { }
@@ -119,14 +127,13 @@ public:
 
 };
 
-
-CDumpContext& operator <<(CDumpContext& dc, CTimeSpan timeSpan)
-{
-  return dc << "CTimeSpan(" << timeSpan.GetDays() << " days, " <<
-    timeSpan.GetHours() << " hours, " <<
-    timeSpan.GetMinutes() << " minutes and " <<
-    timeSpan.GetSeconds() << " seconds)";
+StringBuilder& operator <<(StringBuilder& dc, const CTimeSpan& timeSpan) {
+	return dc << "CTimeSpan(" << timeSpan.GetDays() << " days, " <<
+		timeSpan.GetHours() << " hours, " <<
+		timeSpan.GetMinutes() << " minutes and " <<
+		timeSpan.GetSeconds() << " seconds)";
 }
+
 
 
 

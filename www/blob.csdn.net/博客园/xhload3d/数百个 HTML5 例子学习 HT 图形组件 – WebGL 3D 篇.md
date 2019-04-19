@@ -1,0 +1,57 @@
+# 数百个 HTML5 例子学习 HT 图形组件 – WebGL 3D 篇 - xhload3d - 博客园
+《[数百个 HTML5 例子学习 HT 图形组件 – 拓扑图篇](http://www.hightopo.com/blog/461.html)》一文让读者了解了 [HT](http://www.hightopo.com/)的 2D 拓扑图组件使用，本文将对 [HT](http://www.hightopo.com/) 的 3D 功能做个综合性的介绍，以便初学者可快速上手使用 [HT](http://www.hightopo.com/) 构建例如电信网管 3D 机房应用、水务燃气 SCADA 监控应用及智能楼宇等应用场景。
+[HT for Web](http://www.hightopo.com/) 的 3D 是完全基于 WebGL 技术实现的渲染引擎，但开发者几乎不需要了解 3D 图形数学或 Shader 渲染的底层技术，只需要掌握基本的 3D 坐标系和相机  Camera 的概念，剩下需要掌握的也就是基本 JavaScript 的面对对象编程知识，即可快速开发各种丰富的 3D 场景应用。
+对于坐标系、相机和投影概念，以及 HT 的 2D 模型和 3D 模型之间的关系在 《[HT for Web 3D 手册](http://www.hightopo.com/guide/guide/core/3d/ht-3d-guide.html)》中有详细描述：[http://www.hightopo.com/guide/guide/core/3d/ht-3d-guide.html](http://www.hightopo.com/guide/guide/core/3d/ht-3d-guide.html)。HT 封装得很人性化，所以大部分情况下你都不需要调整或深入了解这些晦涩的 3D 参数，例如对于灯光，很多 HT 用户开发完 3D 的应用场景，都完全不需要学习任何灯光相关的技术知识。
+![3DrNQNgFNYYAAAAASUVORK5CYII=](http://www.hightopo.com/blog/wp-content/uploads/2016/08/3DrNQNgFNYYAAAAASUVORK5CYII.png)
+初学者即使只使用 [HT for Web](http://www.hightopo.com/) 开发 3D 应用的，我们一般也会建议先阅读一遍《[数百个 HTML5 例子学习 HT 图形组件 – 拓扑图篇](http://www.hightopo.com/blog/461.html)》文章，因为 [HT](http://www.hightopo.com/) 的所有组件采用的都是统一的 [DataModel](http://www.hightopo.com/guide/guide/core/datamodel/ht-datamodel-guide.html) 数据模型，采用相同的 MVP 设计模型，类 [Flux](http://facebook.github.io/flux/docs/overview.html) 的单向流设计理念，所以只要掌握了拓扑图篇的介绍的几个技术点后，你基本就掌握了所有 [HT](http://www.hightopo.com/) 组件的使用方式。
+除了拓扑图篇的内容外，你也可以通过《[HT for Web 入门手册](www.hightopo.com/guide/guide/core/beginners/ht-beginners-guide.html)》掌握 [HT](http://www.hightopo.com/) 使用的基本思路，然后你就可以阅读《[HT for Web 3D 手册](www.hightopo.com/guide/guide/core/3d/ht-3d-guide.html)》了，先入为主的就是下图这个电信网管 3D 机房监控的综合性例子：[http://www.hightopo.com/guide/guide/core/3d/examples/example_3droom.html](http://www.hightopo.com/guide/guide/core/3d/examples/example_3droom.html)
+![Screen Shot 2016-08-26 at 1.07.27 AM](http://www.hightopo.com/blog/wp-content/uploads/2016/08/Screen-Shot-2016-08-26-at-1.07.27-AM.png)
+该 3D 机房例子完全用 API 构建，展示了门、窗、服务器、告警、灯光等基本场景内容，并支持移动、编辑、双击开门等交互动作，对于机房的很多内容都可以通过六面体、球体、圆柱体等基础模型，像构建乐高积木那样组合而成。可能有人会好奇全用 API 的方式能整出多少花样呢？
+好吧，我就列举些采用 [HT](http://www.hightopo.com/)的纯 API 方式构建的 3D 例子供参考：
+A星寻路算法 3D 模拟：[http://www.hightopo.com/demo/astar/astar.html](http://www.hightopo.com/demo/astar/astar.html)
+![Screen Shot 2014-11-24 at 5.09.13 PM](http://www.hightopo.com/blog/wp-content/uploads/2014/11/Screen-Shot-2014-11-24-at-5.09.13-PM.png)
+3D 汉诺塔算法演示：[http://www.hightopo.com/demo/hanoi_20151106/index.html](http://www.hightopo.com/demo/hanoi_20151106/index.html)
+![Screen Shot 2016-08-26 at 1.53.51 AM](http://www.hightopo.com/blog/wp-content/uploads/2016/08/Screen-Shot-2016-08-26-at-1.53.51-AM.png)
+3D 热力图：[http://www.hightopo.com/guide/guide/plugin/forcelayout/examples/example_heatmap3d.html](http://www.hightopo.com/guide/guide/plugin/forcelayout/examples/example_heatmap3d.html)
+![IMG_1036](http://www.hightopo.com/blog/wp-content/uploads/2014/09/IMG_10361.jpg)
+Box2D 物理碰撞 3D 例子：[http://www.hightopo.com/demo/box2djs/ht-box2d-demo.html](http://www.hightopo.com/demo/box2djs/ht-box2d-demo.html)
+![Screen Shot 2014-11-25 at 8.06.57 PM](http://www.hightopo.com/blog/wp-content/uploads/2014/11/Screen-Shot-2014-11-25-at-8.06.57-PM.png)
+设备管理 EMS 系统：[http://www.hightopo.com/guide/guide/core/databinding/examples/example_ems.html](http://www.hightopo.com/guide/guide/core/databinding/examples/example_ems.html)
+![Screen Shot 2015-01-07 at 11.50.54 PM](http://www.hightopo.com/blog/wp-content/uploads/2015/01/Screen-Shot-2015-01-07-at-11.50.54-PM.png)
+Easing 动画类型：[http://www.hightopo.com/guide/guide/plugin/form/examples/example_easing.html](http://www.hightopo.com/guide/guide/plugin/form/examples/example_easing.html)
+![Screen Shot 2014-05-29 at 3.07.23 PM](http://www.hightopo.com/blog/wp-content/uploads/2014/05/Screen-Shot-2014-05-29-at-3.07.23-PM.png)
+3D 网络拓扑图：[http://www.hightopo.com/guide/guide/plugin/forcelayout/examples/example_forcelayout3.html](http://www.hightopo.com/guide/guide/plugin/forcelayout/examples/example_forcelayout3.html)
+![Screen Shot 2016-08-26 at 1.41.50 AM](http://www.hightopo.com/blog/wp-content/uploads/2016/08/Screen-Shot-2016-08-26-at-1.41.50-AM.png)
+书架场景，亮点自寻：[http://www.hightopo.com/guide/guide/plugin/modeling/examples/example_bookshelf.html](http://www.hightopo.com/guide/guide/plugin/modeling/examples/example_bookshelf.html)
+![Screen Shot 2014-12-25 at 12.19.17 AM](http://www.hightopo.com/blog/wp-content/uploads/2014/12/Screen-Shot-2014-12-25-at-12.19.17-AM.png)
+灯光舞台流动场景：[http://www.hightopo.com/guide/guide/core/lighting/examples/example_flowing.html](http://www.hightopo.com/guide/guide/core/lighting/examples/example_flowing.html)
+![Screen Shot 2016-08-26 at 1.33.11 AM](http://www.hightopo.com/blog/wp-content/uploads/2016/08/Screen-Shot-2016-08-26-at-1.33.11-AM.png)
+2D 和 3D 模型联动的可编辑房间场景：[http://www.hightopo.com/guide/guide/plugin/modeling/examples/example_csgshape.html](http://www.hightopo.com/guide/guide/plugin/modeling/examples/example_csgshape.html)
+![Screen Shot 2016-08-26 at 1.28.21 AM](http://www.hightopo.com/blog/wp-content/uploads/2016/08/Screen-Shot-2016-08-26-at-1.28.21-AM.png)
+各种样式的茶杯座椅场景：[http://www.hightopo.com/guide/guide/plugin/modeling/examples/example_custommodel.html](http://www.hightopo.com/guide/guide/plugin/modeling/examples/example_custommodel.html)
+![Screen Shot 2015-01-07 at 11.46.14 PM](http://www.hightopo.com/blog/wp-content/uploads/2015/01/Screen-Shot-2015-01-07-at-11.46.14-PM.png)
+一百行代码实现的 3D 贪吃蛇游戏：[http://www.hightopo.com/demo/snake_20151106/GreedySnake.html](http://www.hightopo.com/demo/snake_20151106/GreedySnake.html)
+![060128389406803](http://www.hightopo.com/blog/wp-content/uploads/2014/03/060128389406803.png)
+带可控制端口的 3D 服务器演示：[http://www.hightopo.com/demo/hp5406/hp5406-rotation.html](http://www.hightopo.com/demo/hp5406/hp5406-rotation.html)
+![Screen Shot 2016-08-26 at 1.47.43 AM](http://www.hightopo.com/blog/wp-content/uploads/2016/08/Screen-Shot-2016-08-26-at-1.47.43-AM.png)
+脑洞打开了吧，其实纯 3D API 还是能做很多效果的，更多例子参考：[http://www.hightopo.com/demos/index.html](http://www.hightopo.com/demos/index.html)。另外你也可以采用 HT 辅助的 3D 编辑器所见即所得的快速搭建出三维场景：
+![Screen Shot 2016-08-26 at 1.17.13 AM](http://www.hightopo.com/blog/wp-content/uploads/2016/08/Screen-Shot-2016-08-26-at-1.17.13-AM.png)
+当然不同的行业客户也会根据自己需要打造更适合自己项目的 3D 编辑器：
+![63E8D17A-24C7-433B-BAB6-5773F51876D4](http://www.hightopo.com/blog/wp-content/uploads/2016/08/63E8D17A-24C7-433B-BAB6-5773F51876D4.png)
+但纯 API 的方式对于复杂的模型就很难实现了，所以对于复杂的模型我们就可以利用主流的 3D 设计工具如 3DMaxs，Maya 或 Blender 等进行设计，然后导出 OBJ 格式供 HT 读入使用，可参考《[HT for Web 的 OBJ 手册](http://www.hightopo.com/guide/guide/plugin/obj/ht-obj-guide.html)》[http://www.hightopo.com/guide/guide/plugin/obj/ht-obj-guide.html](http://www.hightopo.com/guide/guide/plugin/obj/ht-obj-guide.html) ，HT 手册中也有众多采用 OBJ 的应用例子：
+可控指针的燃气表记：[http://www.hightopo.com/guide/guide/plugin/obj/examples/example_meter.html](http://www.hightopo.com/guide/guide/plugin/obj/examples/example_meter.html)
+![Screen Shot 2016-08-26 at 2.22.14 AM](http://www.hightopo.com/blog/wp-content/uploads/2016/08/Screen-Shot-2016-08-26-at-2.22.14-AM.png)
+飞机飞行轨道例子：[http://www.hightopo.com/guide/guide/plugin/obj/examples/example_path.html](http://www.hightopo.com/guide/guide/plugin/obj/examples/example_path.html)
+![Screen Shot 2014-10-08 at 7.45.25 PM](http://www.hightopo.com/blog/wp-content/uploads/2014/10/Screen-Shot-2014-10-08-at-7.45.25-PM.png)
+摩托车模型结合灯光例子：[http://www.hightopo.com/guide/guide/core/lighting/examples/example_pointlight.html](http://www.hightopo.com/guide/guide/core/lighting/examples/example_pointlight.html)
+![Screen Shot 2016-08-26 at 2.25.50 AM](http://www.hightopo.com/blog/wp-content/uploads/2016/08/Screen-Shot-2016-08-26-at-2.25.50-AM.png)
+可开关复杂 3D 门窗：[http://www.hightopo.com/guide/guide/plugin/obj/examples/example_room.html](http://www.hightopo.com/guide/guide/plugin/obj/examples/example_room.html)
+![Screen Shot 2016-08-26 at 2.28.02 AM](http://www.hightopo.com/blog/wp-content/uploads/2016/08/Screen-Shot-2016-08-26-at-2.28.02-AM.png)
+跑道飞驰汽车：[http://www.hightopo.com/demo/media/index.html](http://www.hightopo.com/demo/media/index.html)
+![Screen Shot 2016-08-26 at 2.28.42 AM](http://www.hightopo.com/blog/wp-content/uploads/2016/08/Screen-Shot-2016-08-26-at-2.28.42-AM.png)
+笔记本模型例子：[http://www.hightopo.com/guide/guide/core/schedule/examples/example_network.html](http://www.hightopo.com/guide/guide/core/schedule/examples/example_network.html)
+![Screen Shot 2016-08-09 at 10.37.04 PM](http://www.hightopo.com/blog/wp-content/uploads/2016/08/Screen-Shot-2016-08-09-at-10.37.04-PM.png)
+可控燃气监控系统 [http://www.hightopo.com/guide/guide/core/serialization/examples/example_exportimport.html](http://www.hightopo.com/guide/guide/core/serialization/examples/example_exportimport.html)
+![IMG_0282](http://www.hightopo.com/blog/wp-content/uploads/2014/04/IMG_0282.jpg)
+并且 OBJ 导入的模型依然可以进行数据绑定和动态实时驱动，这个话题后续我再以服务器扇叶旋转为例子展开详细介绍，本篇先到此为止，大家可玩下电信网管 3D 机房监控系统场景中，常见的服务器机柜和带风扇旋转功能的例子：[http://www.hightopo.com/demo/fan3d/demo-enhanced.html](http://www.hightopo.com/demo/fan3d/demo-enhanced.html)
+![Screen Shot 2016-08-26 at 2.41.04 AM](http://www.hightopo.com/blog/wp-content/uploads/2016/08/Screen-Shot-2016-08-26-at-2.41.04-AM.png)

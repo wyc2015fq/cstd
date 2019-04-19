@@ -1,0 +1,86 @@
+# QGC的Mission表盘 - LC900730的博客 - CSDN博客
+2017年09月18日 21:22:44[lc900730](https://me.csdn.net/LC900730)阅读数：387
+### MissionSettingsEditor.qml
+```
+Rectangle{
+    id:valuesRect;
+    width:availableWidth;
+    visible:missionItem.isCurrentItem;
+    radius:_radius;
+CameraSection.qml组件
+}
+```
+点击Camera后 
+在CameraSection.qml中
+```
+Column{
+    anchors.left:parent.left
+    anchors.right:parent.right
+    spacing:_margin
+...
+...
+//SectionHeader组件在
+    SectionHeader{
+        id:cameraSectionHeader
+        text:qsTr("Camera")
+        checked:false;
+    }
+}
+```
+SectionHead.qml中定义了SectionHeader组件
+```
+FocusScope{
+    id:_root;
+    anchors.left:paret.left
+    anchors.right:paret.right
+    onExclusiveGroupChanged:{
+        if(exclusiveGroup)
+            exclusiveGroup.bindCheckable(_root);
+    }
+    QGCMouseArea{
+        anchors.fill:parent;
+        onClicked:{
+            _root.focus=true
+            checked=!checked
+        }
+        ColumnLayout{
+            id:column;
+            Item{
+                height:_sectionSpacer
+                width:1
+                visible:showSpacer
+            }
+        }
+    }
+}
+```
+![这里写图片描述](https://img-blog.csdn.net/20170918214914199?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvTEM5MDA3MzA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+QGC中基本上是这个结构 
+如
+```
+//图中1的勾选框
+QGCCheckBox{
+    id:gimbalCheckBox
+    text:qsTr("Gimbal")
+    checked:_camera.specifyGimbal
+    onClicked:_camera.specifyGimbal=checked;
+    Layout.fillWidth:true
+}
+//图中2的输入框
+FactTextField{
+    fact:_camera.gimbalPitch
+    implicitWidth:ScreenTools.defaultFontPixelWidth*9
+    enabled:gimbalCheckBox.checked
+}
+FactTextField{
+    fact:_camera.gimbalYaw
+    implicitWidth:ScreenTools.defaultFontPixelWidth*9
+    enabled:gimbalCheckBox.checked
+}
+```
+MapQuickItem可以向地图中指定位置添加任意大小的Qt Quick object
+MapItemView
+Qt中Map组件： 
+可能在： 
+QtLocation 5.6 
+QtPositioning 5.6中

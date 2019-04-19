@@ -1,0 +1,690 @@
+# ffplay注解 - 建建的博客 - CSDN博客
+2018年05月11日 18:23:39[纪建](https://me.csdn.net/u013898698)阅读数：160
+- /*
+- get_clock(&is->vidclk):
+-     获取到的实际上是:最后一帧的pts 加上 从处理最后一帧开始到现在的时间,具体参考set_clock_at 和get_clock的代码
+- c->pts_drift=最后一帧的pts-从处理最后一帧时间
+- clock=c->pts_drift+现在的时候
+- get_clock(&is->vidclk) ==is->vidclk.pts, av_gettime_relative() / 1000000.0 -is->vidclk.last_updated  +is->vidclk.pts
+- */
+- staticdouble get_clock(Clock *c)  
+- {  
+- if (*c->queue_serial != c->serial)  
+- return NAN;  
+- if (c->paused) {  
+- return c->pts;  
+-     } else {  
+- double time = av_gettime_relative() / 1000000.0;  
+- return c->pts_drift + time - (time - c->last_updated) * (1.0 - c->speed);  
+-     }  
+- }  
+- 
+- staticvoid set_clock_at(Clock *c, double pts, int serial, double time)  
+- {  
+-     c->pts = pts;  
+-     c->last_updated = time;  
+-     c->pts_drift = c->pts - time;  
+-     c->serial = serial;  
+- }  
+- 
+- staticvoid set_clock(Clock *c, double pts, int serial)  
+- {  
+- double time = av_gettime_relative() / 1000000.0;  
+-     set_clock_at(c, pts, serial, time);  
+- }  
+- 
+- staticvoid set_clock_speed(Clock *c, double speed)  
+- {  
+-     set_clock(c, get_clock(c), c->serial);  
+-     c->speed = speed;  
+- }  
+- 
+- staticvoid init_clock(Clock *c, int *queue_serial)  
+- {  
+-     c->speed = 1.0;  
+-     c->paused = 0;  
+-     c->queue_serial = queue_serial;  
+-     set_clock(c, NAN, -1);  
+- }  
+- 
+- staticvoid sync_clock_to_slave(Clock *c, Clock *slave)  
+- {  
+- double clock = get_clock(c);  
+- double slave_clock = get_clock(slave);  
+- 
+- if (!isnan(slave_clock) && (isnan(clock) || fabs(clock - slave_clock) > AV_NOSYNC_THRESHOLD))  
+-         set_clock(c, slave_clock, slave->serial);  
+- }  
+- 
+- /* get the current master clock value */
+- staticdouble get_master_clock(VideoState *is)  
+- {  
+- double val;  
+- 
+- switch (get_master_sync_type(is)) {  
+- case AV_SYNC_VIDEO_MASTER:  
+-         val = get_clock(&is->vidclk);  
+- break;  
+- case AV_SYNC_AUDIO_MASTER:  
+-         val = get_clock(&is->audclk);  
+- break;  
+- default:  
+-         val = get_clock(&is->extclk);  
+- break;  
+-     }  
+- return val;  
+- }  
+- 
+- staticvoid check_external_clock_speed(VideoState *is)  
+- {  
+- if (is->video_stream >= 0 && is->videoq.nb_packets <= MIN_FRAMES / 2 ||  
+-         is->audio_stream >= 0 && is->audioq.nb_packets <= MIN_FRAMES / 2) {  
+-         set_clock_speed(&is->extclk, FFMAX(EXTERNAL_CLOCK_SPEED_MIN, is->extclk.speed - EXTERNAL_CLOCK_SPEED_STEP));  
+-     } elseif ((is->video_stream < 0 || is->videoq.nb_packets > MIN_FRAMES * 2) &&  
+-                (is->audio_stream < 0 || is->audioq.nb_packets > MIN_FRAMES * 2)) {  
+-         set_clock_speed(&is->extclk, FFMIN(EXTERNAL_CLOCK_SPEED_MAX, is->extclk.speed + EXTERNAL_CLOCK_SPEED_STEP));  
+-     } else {  
+- double speed = is->extclk.speed;  
+- if (speed != 1.0)  
+-             set_clock_speed(&is->extclk, speed + EXTERNAL_CLOCK_SPEED_STEP * (1.0 - speed) / fabs(1.0 - speed));  
+-     }  
+- }  
+- 
+- staticdouble compute_target_delay(double delay, VideoState *is)  
+- {  
+- double sync_threshold, diff = 0;  
+- 
+- /* update delay to follow master synchronisation source */
+- if (get_master_sync_type(is) != AV_SYNC_VIDEO_MASTER) {  
+- /* if video is slave, we try to correct big delays by
+-            duplicating or deleting a frame */
+-         diff = get_clock(&is->vidclk) - get_master_clock(is);  
+- 
+- /* skip or repeat frame. We take into account the
+-            delay to compute the threshold. I still don't know
+-            if it is the best guess */
+-         sync_threshold = FFMAX(AV_SYNC_THRESHOLD_MIN, FFMIN(AV_SYNC_THRESHOLD_MAX, delay));  
+- if (!isnan(diff) && fabs(diff) < is->max_frame_duration) {  
+- if (diff <= -sync_threshold)  )/*当前视频帧落后于主时钟源,减小delay*/
+-                 delay = FFMAX(0, delay + diff);  
+- elseif (diff >= sync_threshold && delay > AV_SYNC_FRAMEDUP_THRESHOLD)  
+-                 delay = delay + diff; /*大概意思是:本来当视频帧超前的时候,
+-                                         我们应该要选择重复该帧或者下面的2倍延时(即加重延时的策略),
+-                                         但因为该帧的显示时间大于显示更新门槛,
+-                                         所以这个时候不应该以该帧做同步*/
+- elseif (diff >= sync_threshold)  
+-                 delay = 2 * delay;    /*采取加倍延时*/
+-         }  
+-     }  
+- 
+-     av_log(NULL, AV_LOG_TRACE, "video: delay=%0.3f A-V=%f\n",  
+-            delay, -diff);  
+- 
+- return delay;  
+- }  
+- 
+- staticdouble vp_duration(VideoState *is, Frame *vp, Frame *nextvp)  
+- {  
+- if (vp->serial == nextvp->serial) {  
+- double duration = nextvp->pts - vp->pts;  
+- if (isnan(duration) || duration <= 0 || duration > is->max_frame_duration)  
+- return vp->duration;  
+- else
+- return duration;  
+-     } else {  
+- return 0.0;  
+-     }  
+- }  
+- 
+- staticvoid update_video_pts(VideoState *is, double pts, int64_t pos, int serial)  
+- {  
+- /* update current video pts */
+-     set_clock(&is->vidclk, pts, serial);  
+-     sync_clock_to_slave(&is->extclk, &is->vidclk);  
+- }  
+- 
+- /* called to display each frame */
+- staticvoid video_refresh(void *opaque, double *remaining_time)  
+- {  
+-     VideoState *is = opaque;  
+- double time;  
+- 
+- if (!is->paused && get_master_sync_type(is) == AV_SYNC_EXTERNAL_CLOCK && is->realtime)  
+-         check_external_clock_speed(is);  
+- 
+- if (is->video_st) {  
+- int redisplay = 0;  
+- if (is->force_refresh)  
+-             redisplay = frame_queue_prev(&is->pictq);  
+- retry:  
+- if (frame_queue_nb_remaining(&is->pictq) == 0) {  
+- // nothing to do, no picture to display in the queue
+-         } else {  
+- double last_duration, duration, delay;  
+-             Frame *vp, *lastvp;  
+- 
+- /* dequeue the picture */
+-             lastvp = frame_queue_peek_last(&is->pictq);  
+-             vp = frame_queue_peek(&is->pictq);  
+- 
+- if (vp->serial != is->videoq.serial) {  
+-                 frame_queue_next(&is->pictq);  
+-                 redisplay = 0;  
+- goto retry;  
+-             }  
+- 
+- if (lastvp->serial != vp->serial && !redisplay)  //lastvp->serial != vp->serial 说明SEEK过,重新调整frame_timer
+-                 is->frame_timer = av_gettime_relative() / 1000000.0;  
+- 
+- if (is->paused)  
+- goto display;  
+- 
+- /*通过pts计算duration，duration是上一帧videoframe的持续时间，当前帧的pts减去上一帧的pts*/
+- /* compute nominal last_duration */
+-             last_duration = vp_duration(is, lastvp, vp);  
+- if (redisplay)  
+-                 delay = 0.0;  
+- else
+-                 delay = compute_target_delay(last_duration, is);  
+- 
+-             time= av_gettime_relative()/1000000.0;  
+- /*frame_timer实际上就是上一帧的播放时间，而 frame_timer + delay 实际上就是当前这一帧的播放时间*/
+- if (time < is->frame_timer + delay && !redisplay) {  
+- /*remaining 就是在refresh_loop_wait_event 中还需要睡眠的时间，其实就是现在还没到这一帧的播放时间，我们需要睡眠等待*/
+-                 *remaining_time = FFMIN(is->frame_timer + delay - time, *remaining_time);  
+- return;  
+-             }  
+- 
+-             is->frame_timer += delay;  
+- /*如果当前这一帧播放时间已经过了，并且其和当前系统时间的差值超过AV_SYNC_THRESHOLD_MAX，
+-                 则将当前这一帧的播放时间改为当前系统时间，并在后续判断是否需要丢帧，
+-                 其目的是  为后面帧的播放时间重新调整frame_timer */
+- if (delay > 0 && time - is->frame_timer > AV_SYNC_THRESHOLD_MAX)  
+-                 is->frame_timer = time;  
+- 
+-             SDL_LockMutex(is->pictq.mutex);  
+- if (!redisplay && !isnan(vp->pts))  
+- /*更新视频的clock，将当前帧的pts和当前系统的时间保存起来，这2个数据将和audio  clock的pts 和系统时间一起计算delay*/
+-                 update_video_pts(is, vp->pts, vp->pos, vp->serial);  
+-             SDL_UnlockMutex(is->pictq.mutex);  
+- /*frame_timer+duration 当前帧的播放时间+当前帧的持续时间=下一帧的播放时间
+-             time > is->frame_timer + duration  当前时间>下一帧的播放时间,来不及播放本帧,下一帧的播放时间已经到了,说明当前帧可以丢弃了*/
+- if (frame_queue_nb_remaining(&is->pictq) > 1) {  
+-                 Frame *nextvp = frame_queue_peek_next(&is->pictq);  
+-                 duration = vp_duration(is, vp, nextvp); //当前帧videoframe的持续时间
+- /*如果延迟时间超过一帧，并且允许丢帧，则进行丢帧处理*/
+- if(!is->step && (redisplay || framedrop>0 || (framedrop && get_master_sync_type(is) != AV_SYNC_VIDEO_MASTER)) && time > is->frame_timer + duration) {  
+- if (!redisplay)  
+-                         is->frame_drops_late++;  
+- /*丢掉延迟的帧，取下一帧*/
+-                     frame_queue_next(&is->pictq);  
+-                     redisplay = 0;  
+- goto retry;  
+-                 }  
+-             }  
+- display:  
+- /* display picture */
+-             video_display(is);  
+- 
+-             frame_queue_next(&is->pictq);  
+- 
+- if (is->step && !is->paused)  
+-                 stream_toggle_pause(is);  
+-         }  
+-     }  
+-     is->force_refresh = 0;  
+- }  
+- 
+- staticint audio_thread(void *arg)  
+- {  
+-     VideoState *is = arg;  
+-     AVFrame *frame = av_frame_alloc();  
+-     Frame *af;  
+- 
+- int got_frame = 0;  
+-     AVRational tb;  
+- int ret = 0;  
+- 
+- do {  
+- if ((got_frame = decoder_decode_frame(&is->auddec, frame, NULL)) < 0)  
+- goto the_end;  
+- 
+- if (got_frame) {  
+-             tb = (AVRational) {  
+-                 1, frame->sample_rate  
+-             };  
+- 
+-             af = frame_queue_peek_writable(&is->sampq);  
+- 
+-             af->pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);  
+-             af->pos = av_frame_get_pkt_pos(frame);  
+-             af->serial = is->auddec.pkt_serial;  
+-             af->duration = av_q2d((AVRational) {  
+-                 frame->nb_samples, frame->sample_rate  
+-             });  
+- 
+-             av_frame_move_ref(af->frame, frame);  
+-             frame_queue_push(&is->sampq);  
+- 
+-         }  
+-     } while (ret >= 0 || ret == AVERROR(EAGAIN) || ret == AVERROR_EOF);  
+- 
+- the_end:  
+- return ret;  
+- }  
+- 
+- staticint video_thread(void *arg)  
+- {  
+-     VideoState *is = arg;  
+-     AVFrame *frame = av_frame_alloc();  
+- double pts;  
+- double duration;  
+- int ret;  
+-     AVRational tb = is->video_st->time_base;  
+-     AVRational frame_rate = av_guess_frame_rate(is->ic, is->video_st, NULL);  
+- 
+- for (;;) {  
+-         ret = get_video_frame(is, frame);  
+- 
+- if (ret < 0)  
+- goto the_end;  
+- 
+- if (!ret)  
+- continue;  
+- 
+-         duration = (frame_rate.num && frame_rate.den ? av_q2d((AVRational) {  
+-             frame_rate.den, frame_rate.num  
+-         }) : 0);  
+- 
+-         pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);  
+- 
+-         queue_picture(is, frame, pts, duration, av_frame_get_pkt_pos(frame), is->viddec.pkt_serial);  
+-     }  
+- 
+- the_end:  
+- return 0;  
+- }  
+- 
+- /* return the wanted number of samples to get better sync if sync_type is video
+-  * or external master clock */
+- staticint synchronize_audio(VideoState *is, int nb_samples)  
+- {  
+- int wanted_nb_samples = nb_samples;  
+- 
+- /* if not master, then we try to remove or add samples to correct the clock */
+- if (get_master_sync_type(is) != AV_SYNC_AUDIO_MASTER) {  
+- double diff, avg_diff;  
+- int min_nb_samples, max_nb_samples;  
+- 
+-         diff = get_clock(&is->audclk) - get_master_clock(is);  
+- 
+- if (!isnan(diff) && fabs(diff) < AV_NOSYNC_THRESHOLD) {  
+-             is->audio_diff_cum = diff + is->audio_diff_avg_coef * is->audio_diff_cum;  
+- if (is->audio_diff_avg_count < AUDIO_DIFF_AVG_NB) {  
+- /* not enough measures to have a correct estimate */
+-                 is->audio_diff_avg_count++;  
+-             } else {  
+- /* estimate the A-V difference */
+-                 avg_diff = is->audio_diff_cum * (1.0 - is->audio_diff_avg_coef);  
+- 
+- if (fabs(avg_diff) >= is->audio_diff_threshold) {  
+-                     wanted_nb_samples = nb_samples + (int)(diff * is->audio_src.freq);  
+-                     min_nb_samples = ((nb_samples * (100 - SAMPLE_CORRECTION_PERCENT_MAX) / 100));  
+-                     max_nb_samples = ((nb_samples * (100 + SAMPLE_CORRECTION_PERCENT_MAX) / 100));  
+-                     wanted_nb_samples = av_clip(wanted_nb_samples, min_nb_samples, max_nb_samples);  
+-                 }  
+-                 av_log(NULL, AV_LOG_TRACE, "diff=%f adiff=%f sample_diff=%d apts=%0.3f %f\n",  
+-                 diff, avg_diff, wanted_nb_samples - nb_samples,  
+-                 is->audio_clock, is->audio_diff_threshold);  
+-             }  
+-         } else {  
+- /* too big difference : may be initial PTS errors, so
+-                reset A-V filter */
+-             is->audio_diff_avg_count = 0;  
+-             is->audio_diff_cum       = 0;  
+-         }  
+-     }  
+- 
+- return wanted_nb_samples;  
+- }  
+- /**
+-  * Decode one audio frame and return its uncompressed size.
+-  *
+-  * The processed audio frame is decoded, converted if required, and
+-  * stored in is->audio_buf, with size in bytes given by the return
+-  * value.
+-  */
+- staticint audio_decode_frame(VideoState *is)  
+- {  
+- int data_size, resampled_data_size;  
+-     int64_t dec_channel_layout;  
+-     av_unused double audio_clock0;  
+- int wanted_nb_samples;  
+-     Frame *af;  
+- 
+- if (is->paused)  
+- return -1;  
+- 
+- do {  
+-         af = frame_queue_peek_readable(&is->sampq);  
+-         frame_queue_next(&is->sampq);  
+-     } while (af->serial != is->audioq.serial);  
+- 
+-     data_size = av_samples_get_buffer_size(NULL, av_frame_get_channels(af->frame), af->frame->nb_samples, af->frame->format, 1);  
+- 
+-     dec_channel_layout =  
+-     (af->frame->channel_layout && av_frame_get_channels(af->frame) == av_get_channel_layout_nb_channels(af->frame->channel_layout)) ?  
+-     af->frame->channel_layout : av_get_default_channel_layout(av_frame_get_channels(af->frame));  
+- 
+-     wanted_nb_samples = synchronize_audio(is, af->frame->nb_samples);  
+- 
+- if (af->frame->format    != is->audio_src.fmt                   ||  
+-             dec_channel_layout       != is->audio_src.channel_layout ||  
+-             af->frame->sample_rate   != is->audio_src.freq           ||  
+-             (wanted_nb_samples       != af->frame->nb_samples && !is->swr_ctx)) {  
+- 
+-         swr_free(&is->swr_ctx);  
+-         is->swr_ctx = swr_alloc_set_opts(NULL, is->audio_tgt.channel_layout, is->audio_tgt.fmt, is->audio_tgt.freq,  
+-         dec_channel_layout,  af->frame->format, af->frame->sample_rate, 0, NULL);  
+- 
+-         swr_init(is->swr_ctx);  
+- 
+-         is->audio_src.channel_layout = dec_channel_layout;  
+-         is->audio_src.channels       = av_frame_get_channels(af->frame);  
+-         is->audio_src.freq = af->frame->sample_rate;  
+-         is->audio_src.fmt = af->frame->format;  
+-     }  
+- 
+- if (is->swr_ctx) {  
+- const uint8_t **in = (const uint8_t **)af->frame->extended_data;  
+-         uint8_t **out = &is->audio_buf1;  
+- int out_count = (int64_t)wanted_nb_samples * is->audio_tgt.freq / af->frame->sample_rate + 256;  
+- int out_size  = av_samples_get_buffer_size(NULL, is->audio_tgt.channels, out_count, is->audio_tgt.fmt, 0);  
+- int len2;  
+- 
+- if (wanted_nb_samples != af->frame->nb_samples) {  
+- if (swr_set_compensation(is->swr_ctx, (wanted_nb_samples - af->frame->nb_samples) * is->audio_tgt.freq / af->frame->sample_rate,  
+-             wanted_nb_samples * is->audio_tgt.freq / af->frame->sample_rate) < 0) {  
+-                 av_log(NULL, AV_LOG_ERROR, "swr_set_compensation() failed\n");  
+- return -1;  
+-             }  
+-         }  
+-         av_fast_malloc(&is->audio_buf1, &is->audio_buf1_size, out_size);  
+- 
+-         len2 = swr_convert(is->swr_ctx, out, out_count, in, af->frame->nb_samples);  
+- 
+-         is->audio_buf = is->audio_buf1;  
+- //每声道采样数 x 声道数 x 每个采样字节数  
+-         resampled_data_size = len2 * is->audio_tgt.channels * av_get_bytes_per_sample(is->audio_tgt.fmt);  
+-     } else {  
+-         is->audio_buf = af->frame->data[0];  
+-         resampled_data_size = data_size;  
+-     }  
+- 
+-     audio_clock0 = is->audio_clock;  
+- /* update the audio clock with the pts */
+- //  1/af->frame->sample_rate=采样一个样本点所需要的时候
+- if (!isnan(af->pts))  
+-         is->audio_clock = af->pts + (double) af->frame->nb_samples / af->frame->sample_rate;  
+- else
+-         is->audio_clock = NAN;  
+-     is->audio_clock_serial = af->serial;  
+- 
+- #ifdef DEBUG
+-     {  
+- staticdouble last_clock;  
+-         printf("audio: delay=%0.3f clock=%0.3f clock0=%0.3f\n",  
+-         is->audio_clock - last_clock,  
+-         is->audio_clock, audio_clock0);  
+-         last_clock = is->audio_clock;  
+-     }  
+- #endif
+- return resampled_data_size;  
+- }  
+- 
+- /* prepare a new audio buffer */
+- staticvoid sdl_audio_callback(void *opaque, Uint8 *stream, int len)  
+- {  
+-     VideoState *is = opaque;  
+- int audio_size, len1;  
+- 
+-     audio_callback_time = av_gettime_relative();  
+- 
+- while (len > 0) {  
+- if (is->audio_buf_index >= is->audio_buf_size) {  
+-             audio_size = audio_decode_frame(is);  
+- if (audio_size < 0) {  
+- /* if error, just output silence */
+-                 is->audio_buf      = is->silence_buf;  
+-                 is->audio_buf_size = sizeof(is->silence_buf) / is->audio_tgt.frame_size * is->audio_tgt.frame_size;  
+-             } else {  
+-                 is->audio_buf_size = audio_size;  
+-             }  
+-             is->audio_buf_index = 0;  
+-         }  
+-         len1 = is->audio_buf_size - is->audio_buf_index;  
+- if (len1 > len)  
+-             len1 = len;  
+-         memcpy(stream, (uint8_t *)is->audio_buf + is->audio_buf_index, len1);  
+-         len -= len1;  
+-         stream += len1;  
+-         is->audio_buf_index += len1;  
+-     }  
+-     is->audio_write_buf_size = is->audio_buf_size - is->audio_buf_index;  
+- /* Let's assume the audio driver that is used by SDL has two periods. */
+- if (!isnan(is->audio_clock)) {  
+- /*set_clock_at第二个参数是计算音频已经播放的时间，相当于video中的上一帧的播放时间，如果不同过SDL，例如直接使用linux下的dsp设备进行播放，那么我们可以通过ioctl接口获取到驱动的audiobuffer中还有多少数据没播放，这样，我们通过音频的采样率和位深，可以很精确的算出音频播放到哪个点了，但是此处的计算方法有点让人看不懂*/
+-         set_clock_at(&is->audclk, is->audio_clock - (double)(2 * is->audio_hw_buf_size + is->audio_write_buf_size) / is->audio_tgt.bytes_per_sec, is->audio_clock_serial, audio_callback_time / 1000000.0);  
+-         sync_clock_to_slave(&is->extclk, &is->audclk);  
+-     }  
+- }  
+- 
+- /* this thread gets the stream from the disk or the network */
+- staticint read_thread(void *arg)  
+- {  
+-     VideoState *is = arg;  
+-     AVFormatContext *ic = NULL;  
+- int err, i, ret;  
+-     AVPacket pkt1, *pkt = &pkt1;  
+-     int64_t stream_start_time;  
+- int pkt_in_play_range = 0;  
+-     AVDictionaryEntry *t;  
+-     AVDictionary **opts;  
+- int orig_nb_streams;  
+-     SDL_mutex *wait_mutex = SDL_CreateMutex();  
+- int scan_all_pmts_set = 0;  
+-     int64_t pkt_ts;  
+- int video_index = -1;  
+- int audio_index = -1;  
+- 
+-     is->last_video_stream = is->video_stream = -1;  
+-     is->last_audio_stream = is->audio_stream = -1;  
+-     is->eof = 0;  
+- 
+-     ic = avformat_alloc_context();  
+- 
+-     avformat_open_input(&ic, is->filename, is->iformat, &format_opts);  
+-     is->ic = ic;  
+- 
+-     is->max_frame_duration = (ic->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;  
+- 
+-     is->realtime = is_realtime(ic);  
+- 
+- for(i=0; i<ic->nb_streams; i++) {  
+- if(ic->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO &&  
+-             video_index < 0) {  
+-             video_index=i;  
+-         }  
+- if(ic->streams[i]->codec->codec_type==AVMEDIA_TYPE_AUDIO &&  
+-             audio_index < 0) {  
+-             audio_index=i;  
+-         }  
+-     }  
+- 
+-     stream_component_open(is, audio_index);  
+- 
+-     stream_component_open(is, video_index);  
+- 
+- for (;;) {  
+- 
+- if (is->abort_request)  
+- break;  
+- 
+- if (is->paused != is->last_paused) {  
+-             is->last_paused = is->paused;  
+- if (is->paused)  
+-                 is->read_pause_return = av_read_pause(ic);  
+- else
+-                 av_read_play(ic);  
+-         }  
+- 
+- if (is->seek_req) {  
+-             int64_t seek_target = is->seek_pos;  
+-             int64_t seek_min    = is->seek_rel > 0 ? seek_target - is->seek_rel + 2: INT64_MIN;  
+-             int64_t seek_max    = is->seek_rel < 0 ? seek_target - is->seek_rel - 2: INT64_MAX;  
+- // FIXME the +-2 is due to rounding being not done in the correct direction in generation
+- //      of the seek_pos/seek_rel variables
+- 
+-             ret = avformat_seek_file(is->ic, -1, seek_min, seek_target, seek_max, is->seek_flags);  
+- if (ret < 0) {  
+-                 av_log(NULL, AV_LOG_ERROR,  
+- "%s: error while seeking\n", is->ic->filename);  
+-             } else {  
+- if (is->audio_stream >= 0) {  
+-                     packet_queue_flush(&is->audioq);  
+-                     packet_queue_put(&is->audioq, &flush_pkt);  
+-                 }  
+- if (is->video_stream >= 0) {  
+-                     packet_queue_flush(&is->videoq);  
+-                     packet_queue_put(&is->videoq, &flush_pkt);  
+-                 }  
+- if (is->seek_flags & AVSEEK_FLAG_BYTE) {  
+-                     set_clock(&is->extclk, NAN, 0);  
+-                 } else {  
+-                     set_clock(&is->extclk, seek_target / (double)AV_TIME_BASE, 0);  
+-                 }  
+-             }  
+-             is->seek_req = 0;  
+-             is->queue_attachments_req = 1;  
+-             is->eof = 0;  
+- if (is->paused)  
+-                 step_to_next_frame(is);  
+-         }  
+- if (is->queue_attachments_req) {  
+- if (is->video_st && is->video_st->disposition & AV_DISPOSITION_ATTACHED_PIC) {  
+-                 AVPacket copy;  
+- if ((ret = av_copy_packet(©, &is->video_st->attached_pic)) < 0)  
+- goto fail;  
+-                 packet_queue_put(&is->videoq, ©);  
+-                 packet_queue_put_nullpacket(&is->videoq, is->video_stream);  
+-             }  
+-             is->queue_attachments_req = 0;  
+-         }  
+- 
+- if (!is->paused &&  
+-         (!is->audio_st || (is->auddec.finished == is->audioq.serial && frame_queue_nb_remaining(&is->sampq) == 0)) &&  
+-         (!is->video_st || (is->viddec.finished == is->videoq.serial && frame_queue_nb_remaining(&is->pictq) == 0))) {  
+- if (loop != 1 && (!loop || --loop)) {  
+-                 stream_seek(is, start_time != AV_NOPTS_VALUE ? start_time : 0, 0, 0);  
+-             } elseif (autoexit) {  
+-                 ret = AVERROR_EOF;  
+- goto fail;  
+-             }  
+-         }  
+-         ret = av_read_frame(ic, pkt);  
+- if (ret < 0) {  
+- if ((ret == AVERROR_EOF || avio_feof(ic->pb)) && !is->eof) {  
+- if (is->video_stream >= 0)  
+-                     packet_queue_put_nullpacket(&is->videoq, is->video_stream);  
+- if (is->audio_stream >= 0)  
+-                     packet_queue_put_nullpacket(&is->audioq, is->audio_stream);  
+-                 is->eof = 1;  
+-             }  
+- if (ic->pb && ic->pb->error)  
+- break;  
+-             SDL_LockMutex(wait_mutex);  
+-             SDL_CondWaitTimeout(is->continue_read_thread, wait_mutex, 10);  
+-             SDL_UnlockMutex(wait_mutex);  
+- continue;  
+-         } else {  
+-             is->eof = 0;  
+-         }  
+- /* check if packet is in play range specified by user, then queue, otherwise discard */
+-         stream_start_time = ic->streams[pkt->stream_index]->start_time;  
+-         pkt_ts = pkt->pts == AV_NOPTS_VALUE ? pkt->dts : pkt->pts;  
+- 
+-         pkt_in_play_range = duration == AV_NOPTS_VALUE ||  
+-         (pkt_ts - (stream_start_time != AV_NOPTS_VALUE ? stream_start_time : 0)) *  
+-         av_q2d(ic->streams[pkt->stream_index]->time_base) -  
+-         (double)(start_time != AV_NOPTS_VALUE ? start_time : 0) / 1000000 <= ((double)duration / 1000000);  
+- 
+- if (pkt->stream_index == is->audio_stream && pkt_in_play_range) {  
+-             packet_queue_put(&is->audioq, pkt);  
+-         } elseif (pkt->stream_index == is->video_stream && pkt_in_play_range  
+-         && !(is->video_st->disposition & AV_DISPOSITION_ATTACHED_PIC)) {  
+-             packet_queue_put(&is->videoq, pkt);  
+-         } else {  
+-             av_free_packet(pkt);  
+-         }  
+-     }  
+- 
+- fail:  
+- return 0;  
+- }  
+- 
+- /* seek in the stream */
+- staticvoid stream_seek(VideoState *is, int64_t pos, int64_t rel, int seek_by_bytes)  
+- {  
+- if (!is->seek_req) {  
+-         is->seek_pos = pos;  
+-         is->seek_rel = rel;  
+-         is->seek_flags &= ~AVSEEK_FLAG_BYTE;  
+- if (seek_by_bytes)  
+-             is->seek_flags |= AVSEEK_FLAG_BYTE;  
+-         is->seek_req = 1;  
+-         SDL_CondSignal(is->continue_read_thread);  
+-     }  
+- }  
+- 
+- /* pause or resume the video */
+- staticvoid stream_toggle_pause(VideoState *is)  
+- {  
+- if (is->paused) {  
+- // last_updated 记录了上一帧视频图像显示时的系统时钟， av_gettime() - last_updated得到的结果刚好是pause这段时间间隔，
+- //通过这种方式保证了frame_timer永远记录的是ffplay启动后到当前时间点的时间间隔        
+-         is->frame_timer += av_gettime_relative() / 1000000.0 - is->vidclk.last_updated;  
+- if (is->read_pause_return != AVERROR(ENOSYS)) {  
+-             is->vidclk.paused = 0;  
+-         }  
+-         set_clock(&is->vidclk, get_clock(&is->vidclk), is->vidclk.serial);  
+-     }  
+-     set_clock(&is->extclk, get_clock(&is->extclk), is->extclk.serial);  
+-     is->paused = is->audclk.paused = is->vidclk.paused = is->extclk.paused = !is->paused;  
+- }  
+- 
+- staticvoid toggle_pause(VideoState *is)  
+- {  
+-     stream_toggle_pause(is);  
+-     is->step = 0;  
+- }  
+/*
+44100是每秒采样次数
+一般pcm如果是双通道16位的话(32bit)，每个样本是4Byte
+所以 一秒的数据量是4410*4bytes  实践中ACC是1024（4096字节）个样本一个avframe---MP3是1152
+也就是一秒内有44100/1024个avframe被打上了PTS,一秒内约 43或44个avframe来包含44100*4/4096的数据
+用32位表示其实是用32位空间来存储
+就是4字节才能把2个声道的信息全部存下来进行编码
+*/
+/*
+serial这个变量主要是维护数据的一致性
+PacketQueue队列自己有一个serail变量
+他管理的链表每个包有一个serail变量
+当插入flush_pkt包的时候,队列的serail变量会++,说明又是一个新开始
+FrameQueue队列的每一帧图像都有一个serail变量(解码之前的包serail的值),
+显示之前,他先和PacketQueue队列的serail变量比较,,,,
+Clock 结结中也有这个变量
+目前主要是seek的时候,插入flush_pkt包 ,这个时候PacketQueue被分成两部分
+flush_pkt之前的部分,和flush_pkt之后的部分,之前的serial=1,测试之后的为serial=2;
+而FrameQueue队列只能依据serail变量来区分seek之前的包,和之后的包,之前的肯定就不会再显示了
+Clock结构中的这个变量,也是这个作用
+*/

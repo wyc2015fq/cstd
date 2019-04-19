@@ -1,0 +1,242 @@
+# EasyDarwin开源流媒体云平台之云台ptz控制设计与实现 - xcyl的口袋 - CSDN博客
+2016年07月14日 20:41:07[xcyl](https://me.csdn.net/cai6811376)阅读数：1431
+近日，EasyDarwin云平台加入云台控制功能，完善了云平台的功能，提升了用户体验。具体设计以及实现如下。
+- 
+**流程设计**
+- 
+客户端通过RESTful接口向云平台发送控制命令；
+- 
+云平台组织控制报文向设备发送；
+- 
+设备执行后向云平台返回控制响应报文；
+- 
+云平台接收响应报文后将控制结果返回给客户端。
+![ptz](https://img-blog.csdn.net/20160714200851396)
+- **接口设计**
+首先我们设计云台控制的接口，接口为RESTful方式接口。
+```
+http://[ip]:[port]/api/ptzcontrol?device=001001000058&channel=0&actiontype=single&c
+ommand=down&speed=5&protocol=onvif
+```
+> 
+device： 设备序列号； 
+  channel： 通道； 
+  protocol： 控制模式， 包括 Onvif、 SDK； 
+  actiontype： ptz 控制模式， 分为连续（ Continuous）、 单步（ Single）； 
+  command： ptz 控制命令包括转动、 变焦等， 
+  stop/up/down/left/right/zoomin/zoomout/focusin/focusout/aperturein/apertureout； 
+  speed： ptz 控制速度。
+- **通讯报文设计**
+```
+//云平台响应客户端控制
+{
+   "EasyDarwin" : {
+      "Body" : {
+         "Channel" : "0",
+         "Protocol" : "ONVIF",
+         "Reserve" : "1",
+         "Serial" : "001001000058"
+      },
+      "Header" : {
+         "CSeq" : "2",
+         "ErrorNum" : "200",
+         "ErrorString" : "Success OK",
+         "MessageType" : "MSG_SC_PTZ_CONTROL_ACK",
+         "Version" : "1.0"
+      }
+   }
+}
+```
+```
+//云平台向设备发送控制报文
+{
+   "EasyDarwin" : {
+      "Body" : {
+         "ActionType" : "SINGLE",
+         "Channel" : "0",
+         "Command" : "DOWN",
+         "From" : "f6a221eec46b47dea8ae1a2bd11f8d02",
+         "Protocol" : "ONVIF",
+         "Reserve" : "1",
+         "Serial" : "001001000058",
+         "Speed" : "5",
+         "To" : "245d6ec33cd247b7b7524219552db4d8",
+         "Via" : "27823d2e8b6b4032b453d435a16b7be8"
+      },
+      "Header" : {
+         "CSeq" : "1",
+         "MessageType" : "MSG_SD_CONTROL_PTZ_REQ",
+         "Version" : "1.0"
+      }
+   }
+}
+```
+```
+//设备响应云平台控制
+{
+   "EasyDarwin" : {
+      "Body" : {
+         "Channel" : "0",
+         "From" : "245d6ec33cd247b7b7524219552db4d8",
+         "Protocol" : "ONVIF",
+         "Reserve" : "1",
+         "Serial" : "001001000058",
+         "To" : "f6a221eec46b47dea8ae1a2bd11f8d02",
+         "Via" : "27823d2e8b6b4032b453d435a16b7be8"
+      },
+      "Header" : {
+         "CSeq" : "1",
+         "ErrorNum" : "200",
+         "ErrorString" : "Success OK",
+         "MessageType" : "MSG_DS_CONTROL_PTZ_ACK",
+         "Version" : "1.0"
+      }
+   }
+}
+```
+> 
+格式说明： 
+  Serial：设备序列号； 
+  Channel： 摄像机通道号； 
+  Protocol： 指定 ptz 控制方式， ONVIF 协议或者设备 SDK； 
+  ActionType： ptz 控制类型， 包括连续或者单步； 
+  Command： ptz 控制命令， 包括停止， 上下左右旋转， 变焦等等； 
+  Speed： ptz 控制速度； 
+  From: EasyCMS 接收 Client 访问的 SessionID； 
+  To: EasyCMS 向 Device 发送报文的 SessionID； 
+  Via: EasyCMS 的 ServiceID；
+- **实现**
+```cpp
+//EasyCMS HTTPSession.cpp
+//在session map中查找device session，组织控制报文，通过device session发送给设备
+OSRefTableEx* deviceMap = QTSServerInterface::GetServer()->GetDeviceSessionMap();
+    OSRefTableEx::OSRefEx* theDevRef = deviceMap->Resolve(chSerial);
+    if (theDevRef == NULL)
+        return EASY_ERROR_DEVICE_NOT_FOUND;
+    OSRefReleaserEx releaser(deviceMap, chSerial);
+    HTTPSession* pDevSession = static_cast<HTTPSession *>(theDevRef->GetObjectPtr());
+    EasyProtocolACK reqreq(MSG_SD_CONTROL_PTZ_REQ);
+    EasyJsonValue headerheader, bodybody;
+    char chTemp[16] = { 0 };
+    UInt32 uDevCseq = pDevSession->GetCSeq();
+    sprintf(chTemp, "%d", uDevCseq);
+    headerheader[EASY_TAG_CSEQ] = string(chTemp);
+    headerheader[EASY_TAG_VERSION] = EASY_PROTOCOL_VERSION;
+    string strProtocol(chProtocol);
+    string strActionType(chActionType);
+    string strCmd(chCmd);
+    boost::to_upper(strProtocol);
+    boost::to_upper(strActionType);
+    boost::to_upper(strCmd);
+    bodybody[EASY_TAG_SERIAL] = chSerial;
+    bodybody[EASY_TAG_CHANNEL] = chChannel;
+    bodybody[EASY_TAG_PROTOCOL] = strProtocol;
+    bodybody[EASY_TAG_RESERVE] = chReserve;
+    bodybody[EASY_TAG_ACTION_TYPE] = strActionType;
+    bodybody[EASY_TAG_CMD] = strCmd;
+    bodybody[EASY_TAG_SPEED] = chSpeed;
+    bodybody[EASY_TAG_FROM] = fSessionID;
+    bodybody[EASY_TAG_TO] = pDevSession->GetValue(EasyHTTPSessionID)->GetAsCString();
+    bodybody[EASY_TAG_VIA] = QTSServerInterface::GetServer()->GetCloudServiceNodeID();
+    reqreq.SetHead(headerheader);
+    reqreq.SetBody(bodybody);
+    string buffer = reqreq.GetMsg();
+    StrPtrLen theValue(const_cast<char*>(buffer.c_str()), buffer.size());
+    pDevSession->SendHTTPPacket(&theValue, false, false);
+```
+```cpp
+//EasyCamera EasyCMSSession.cpp processControlPTZReq
+//EasyCamera接收控制报文，调用EasyCameraSource的控制接口
+QTSS_Error EasyCMSSession::processControlPTZReq() const
+{
+    EasyMsgSDControlPTZREQ ctrlPTZReq(fContentBuffer);
+    string serial = ctrlPTZReq.GetBodyValue(EASY_TAG_SERIAL);
+    string protocol = ctrlPTZReq.GetBodyValue(EASY_TAG_PROTOCOL);
+    string channel = ctrlPTZReq.GetBodyValue(EASY_TAG_CHANNEL);
+    string reserve = ctrlPTZReq.GetBodyValue(EASY_TAG_RESERVE);
+    string actionType = ctrlPTZReq.GetBodyValue(EASY_TAG_ACTION_TYPE);
+    string command = ctrlPTZReq.GetBodyValue(EASY_TAG_CMD);
+    string speed = ctrlPTZReq.GetBodyValue(EASY_TAG_SPEED);
+    string from = ctrlPTZReq.GetBodyValue(EASY_TAG_FROM);
+    string to = ctrlPTZReq.GetBodyValue(EASY_TAG_TO);
+    string via = ctrlPTZReq.GetBodyValue(EASY_TAG_VIA);
+    if (serial.empty() || channel.empty() || command.empty())
+    {
+        return QTSS_ValueNotFound;
+    }
+    QTSS_RoleParams params;
+    params.cameraPTZParams.inActionType = EasyProtocol::GetPTZActionType(actionType);
+    params.cameraPTZParams.inCommand = EasyProtocol::GetPTZCMDType(command);
+    params.cameraPTZParams.inSpeed = EasyUtil::String2Int(speed);
+    QTSS_Error errCode = QTSS_NoErr;
+    UInt32 fCurrentModule = 0;
+    UInt32 numModules = QTSServerInterface::GetNumModulesInRole(QTSSModule::kControlPTZRole);
+    for (; fCurrentModule < numModules; ++fCurrentModule)
+    {
+        QTSSModule* theModule = QTSServerInterface::GetModule(QTSSModule::kControlPTZRole, fCurrentModule);
+        errCode = theModule->CallDispatch(Easy_ControlPTZ_Role, ¶ms);
+    }
+    EasyJsonValue body;
+    body[EASY_TAG_SERIAL] = serial;
+    body[EASY_TAG_CHANNEL] = channel;
+    body[EASY_TAG_RESERVE] = reserve;
+    body[EASY_TAG_PROTOCOL] = protocol;
+    body[EASY_TAG_FROM] = to;
+    body[EASY_TAG_TO] = from;
+    body[EASY_TAG_VIA] = via;
+    EasyMsgDSControlPTZACK rsp(body, ctrlPTZReq.GetMsgCSeq(), getStatusNo(errCode));
+    string msg = rsp.GetMsg();
+    StrPtrLen jsonContent(const_cast<char*>(msg.data()));
+    HTTPRequest httpAck(&QTSServerInterface::GetServerHeader(), httpResponseType);
+    if (httpAck.CreateResponseHeader())
+    {
+        if (jsonContent.Len)
+            httpAck.AppendContentLengthHeader(jsonContent.Len);
+        //Push msg to OutputBuffer
+        char respHeader[2048] = { 0 };
+        StrPtrLen* ackPtr = httpAck.GetCompleteHTTPHeader();
+        strncpy(respHeader, ackPtr->Ptr, ackPtr->Len);
+        fOutputStream->Put(respHeader);
+        if (jsonContent.Len > 0)
+            fOutputStream->Put(jsonContent.Ptr, jsonContent.Len);
+    }
+    return errCode;
+}
+```
+```
+//EasyCamera EasyCameraSource.cpp ControlPTZ
+QTSS_Error EasyCameraSource::ControlPTZ(Easy_CameraPTZ_Params* params)
+{
+    QTSS_Error result = QTSS_RequestFailed;
+    if (cameraLogin())
+    {
+        HI_S32 error;
+        if (params->inActionType == EASY_PTZ_ACTION_TYPE_CONTINUOUS)
+        {
+            error = HI_NET_DEV_PTZ_Ctrl_Standard(m_u32Handle, getPTZCMDFromCMDType(params->inCommand), params->inSpeed);
+        }
+        else if (params->inActionType == EASY_PTZ_ACTION_TYPE_SINGLE)
+        {
+            error = HI_NET_DEV_PTZ_Ctrl_StandardEx(m_u32Handle, getPTZCMDFromCMDType(params->inCommand));
+        }
+        else
+        {
+            return QTSS_BadArgument;
+        }
+        if (error == HI_SUCCESS)
+        {
+            result = QTSS_NoErr;
+        }
+        else
+        {
+            result = QTSS_RequestFailed;
+        }
+    }
+    return result;
+}
+```
+## 获取更多信息
+邮件：[support@easydarwin.org](mailto:support@easydarwin.org)
+WEB：[www.EasyDarwin.org](http://www.easydarwin.org)
+Copyright © EasyDarwin.org 2012-2016
+![EasyDarwin](http://www.easydarwin.org/skin/easydarwin/images/wx_qrcode.jpg)

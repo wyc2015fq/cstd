@@ -1,0 +1,59 @@
+# 如何使用 jstack 分析线程状态 - 文章 - 伯乐在线
+本文作者： [伯乐在线](http://blog.jobbole.com) - [占小狼](http://www.jobbole.com/members/wx4097456919) 。未经作者许可，禁止转载！
+欢迎加入伯乐在线 [专栏作者](http://blog.jobbole.com/99322)。
+### 背景
+记得前段时间，同事说他们测试环境的服务器cpu使用率一直处于100%，本地又没有什么接口调用，为什么会这样？cpu使用率居高不下，自然是有某些线程一直占用着cpu资源，那又如何查看占用cpu较高的线程？
+![](http://jbcdn2.b0.upaiyun.com/2016/12/410d4ed857fa7626a995b35582f26270.png)
+当然一个正常的程序员不会写出上述代码，这里只是为了让一个线程占用较高的cpu资源。
+### top命令
+在linux环境下，可以通过`top`命令查看各个进程的cpu使用情况，默认按cpu使用率排序
+![](http://jbcdn2.b0.upaiyun.com/2016/12/7563c35f849b1130b82910e62134e82e.png)
+1、上图中可以看出pid为23344的java进程占用了较多的cpu资源；
+2、通过`top -Hp 23344`可以查看该进程下各个线程的cpu使用情况；
+![](http://jbcdn2.b0.upaiyun.com/2016/12/77bf7fb970c5706c220eae667958b374.png)
+上图中可以看出pid为25077的线程占了较多的cpu资源，利用jstack命令可以继续查看该线程当前的堆栈状态。
+### jstack命令
+通过top命令定位到cpu占用率较高的线程之后，继续使用`jstack pid`命令查看当前java进程的堆栈状态
+![](http://jbcdn2.b0.upaiyun.com/2016/12/042509d023a411172c01b734345ea9f4.png)
+jstack命令生成的thread dump信息包含了JVM中所有存活的线程，为了分析指定线程，必须找出对应线程的调用栈，**应该如何找？**
+在top命令中，已经获取到了占用cpu资源较高的线程pid，将该pid转成16进制的值，在thread dump中每个线程都有一个nid，找到对应的nid即可；隔段时间再执行一次stack命令获取thread dump，区分两份dump是否有差别，在nid=0x246c的线程调用栈中，发现该线程一直在执行JstackCase类第33行的calculate方法，得到这个信息，就可以检查对应的代码是否有问题。
+### 通过thread dump分析线程状态
+除了上述的分析，大多数情况下会基于thead dump分析当前各个线程的运行情况，如是否存在死锁、是否存在一个线程长时间持有锁不放等等。
+在dump中，线程一般存在如下几种状态：
+1、RUNNABLE，线程处于执行中
+2、BLOCKED，线程被阻塞
+3、WAITING，线程正在等待
+###### 实例1：多线程竞争synchronized锁
+![](http://jbcdn2.b0.upaiyun.com/2016/12/bf293968512e8c09cc5480ea48e1e31b.png)
+很明显：线程1获取到锁，处于RUNNABLE状态，线程2处于BLOCK状态
+1、`locked `说明线程1对地址为0x000000076bf62208对象进行了加锁；
+2、`waiting to lock ` 说明线程2在等待地址为0x000000076bf62208对象上的锁；
+3、`waiting for monitor entry [0x000000001e21f000]`说明线程1是通过synchronized关键字进入了监视器的临界区，并处于”Entry Set”队列，等待monitor；
+###### 实例2：通过wait挂起线程
+
+
+```
+static class Task implements Runnable {
+    @Override
+    public void run() {
+        synchronized (lock) {
+            try {
+                lock.wait();
+                //TimeUnit.SECONDS.sleep(100000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+###### dump结果
+![](http://jbcdn2.b0.upaiyun.com/2016/12/40f3763c741038f21e99a22b97fbce0d.png)
+ 线程1和2都处于WAITING状态
+1、线程1和2都是先`locked `，再`waiting on `，之所以先锁再等同一个对象，是因为wait方法需要先通过synchronized获得该地址对象的monitor；
+2、`waiting on `说明线程执行了wait方法之后，释放了monitor，进入到”Wait Set”队列，等待其它线程执行地址为0x000000076bf62500对象的notify方法，并唤醒自己；
+> 
+**打赏支持我写出更多好文章，谢谢！**
+[打赏作者](#rewardbox)
+#### 打赏支持我写出更多好文章，谢谢！
+![](http://jbcdn2.b0.upaiyun.com/2016/08/c3fbbefbe3e302d0f6944c94db3cb1c4.jpg)

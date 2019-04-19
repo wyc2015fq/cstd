@@ -1,76 +1,34 @@
 # JDK7及早期版本Java HotSpot 虚拟机配置选项 - 纸上得来终觉浅，绝知此事要躬行 - CSDN博客
-
-
-
-
-
-2019年04月02日 16:04:14[boonya](https://me.csdn.net/boonya)阅读数：22
-
-
-
-
-
-
-
-
+2019年04月02日 16:04:14[boonya](https://me.csdn.net/boonya)阅读数：24
 官方原文地址：[https://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html#Options](https://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html#Options)
-
 **目录**
-
 [重要说明](#%E9%87%8D%E8%A6%81%E8%AF%B4%E6%98%8E)
-
 [Java HotSpot VM选项的类别](#Java%20HotSpot%20VM%E9%80%89%E9%A1%B9%E7%9A%84%E7%B1%BB%E5%88%AB)
-
 [一些有用的-XX选项](#%E4%B8%80%E4%BA%9B%E6%9C%89%E7%94%A8%E7%9A%84-XX%E9%80%89%E9%A1%B9)
-
 [行为选项](#%E8%A1%8C%E4%B8%BA%E9%80%89%E9%A1%B9)
-
 [垃圾优先（G1）垃圾收集选项](#%E5%9E%83%E5%9C%BE%E4%BC%98%E5%85%88%EF%BC%88G1%EF%BC%89%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E9%80%89%E9%A1%B9)
-
 [性能调整选项](#%E6%80%A7%E8%83%BD%E8%B0%83%E6%95%B4%E9%80%89%E9%A1%B9)
-
 [调试选项](#%E8%B0%83%E8%AF%95%E9%80%89%E9%A1%B9)
-
 ## 重要说明
-
 **请注意，此页面仅适用于JDK 7及更早版本。对于JDK 8，请参阅[Windows](http://docs.oracle.com/javase/8/docs/technotes/tools/windows/java.html)，[Solaris](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html)，[Linux](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html)和[Mac OS X](http://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html)参考页面。**
-
-
 本文档提供有关可能影响Java HotSpot虚拟机性能特征的典型命令行选项和环境变量的信息。除非另有说明，否则本文档中的所有信息均适用于Java HotSpot Client VM和Java HotSpot Server VM。
-
 ### Java HotSpot VM选项的类别
-
-
-
 Java HotSpot VM识别的标准选项在[Windows](http://docs.oracle.com/javase/7/docs/technotes/tools/windows/java.html)和[Solaris&Linux](http://docs.oracle.com/javase/7/docs/technotes/tools/solaris/java.html)的Java Application Launcher参考页面中进行了描述。本文档专门处理Java HotSpot VM识别的非标准选项：
 -     以-X开头的选项是非标准的（不保证在所有VM实现上都受支持），并且在JDK的后续版本中可能会更改，恕不另行通知。
 -     使用-XX指定的选项不稳定，如有更改，恕不另行通知。
-
 希望移植到Java HotSpot VM的JDK早于1.3.0的用户应该看到[Java HotSpot Equivalents of Exact VM标志](https://www.oracle.com/technetwork/java/javase/tech/exactoptions-jsp-141536.html)。
-
 ### 一些有用的-XX选项
-
-
-
  对于带有-server的Solaris Sparc，Java SE 6列出了缺省值。 某些选项可能因架构/ OS / JVM版本而异。 描述中列出了具有不同默认值的平台。
 -      布尔选项使用-XX：+ <option>打开，并使用-XX关闭： - <option> .Disa
 -      数字选项使用-XX：<option> = <number>设置。 数字可以包括兆字节的“m”或“M”，千字节的“k”或“K”以及千兆字节的“g”或“G”（例如，32k与32768相同）。
 -      字符串选项使用-XX：<option> = <string>设置，通常用于指定文件，路径或命令列表
-
-
-
 标记为可管理的标志可通过JDK管理界面（com.sun.management.HotSpotDiagnosticMXBean API）以及JConsole动态写入。 在[监视和管理Java SE 6平台应用程序](https://www.oracle.com/technetwork/articles/javase/monitoring-141801.html#Heap_Dump)中，图3显示了一个示例。 可管理标志也可以通过[jinfo -flag](http://docs.oracle.com/javase/6/docs/technotes/tools/share/jinfo.html)设置。
-
 以下选项分为不同类别。
-
 [行为选项](https://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html#BehavioralOptions)会更改VM的基本行为。
 [垃圾优先（G1）垃圾收集选项](https://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html#G1Options)
 [性能调整选项](https://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html#PerformanceTuning)是旋钮，可用于调整VM性能。
 [调试选项](https://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html#DebuggingOptions)通常可以跟踪，打印或输出VM信息。
-
 ## 行为选项
-
-
 |Option and Default Value|Description|
 |----|----|
 |-XX:-AllowUserSignalHandlers|Do not complain if the application installs signal handlers. (Relevant to Solaris and Linux only.)|
@@ -95,10 +53,7 @@ Java HotSpot VM识别的标准选项在[Windows](http://docs.oracle.com/javase/7
 |-XX:+UseSplitVerifier|Use the new type checker with StackMapTable attributes. (Introduced in 5.0.)[5.0: false]|
 |-XX:+UseThreadPriorities|Use native thread priorities.|
 |-XX:+UseVMInterruptibleIO|Thread interrupt before or with EINTR for I/O operations results in OS_INTRPT. (Introduced in 6. Relevant to Solaris only.)|
-
 ## 垃圾优先（G1）垃圾收集选项
-
-
 |Option and Default Value|Description|
 |----|----|
 |-XX:+UseG1GC|Use the Garbage First (G1) Collector|
@@ -111,10 +66,7 @@ Java HotSpot VM识别的标准选项在[Windows](http://docs.oracle.com/javase/7
 |-XX:ConcGCThreads=n|Number of threads concurrent garbage collectors will use. The default value varies with the platform on which the JVM is running.|
 |-XX:G1ReservePercent=n|Sets the amount of heap that is reserved as a false ceiling to reduce the possibility of promotion failure. The default value is 10.|
 |-XX:G1HeapRegionSize=n|With G1 the Java heap is subdivided into uniformly sized regions. This sets the size of the individual sub-divisions. The default value of this parameter is determined ergonomically based upon heap size. The minimum value is 1Mb and the maximum value is 32Mb.|
-
 ## 性能调整选项
-
-
 |Option and Default Value|Description|
 |----|----|
 |-XX:+AggressiveOpts|Turn on point performance compiler optimizations that are expected to be default in upcoming releases. (Introduced in 5.0 update 6.)|
@@ -140,10 +92,7 @@ Java HotSpot VM识别的标准选项在[Windows](http://docs.oracle.com/javase/7
 |-XX:AllocatePrefetchStyle=1|Generated code style for prefetch instructions.			0 - no prefetch instructions are generate*d*,			1 - execute prefetch instructions after each allocation,			2 - use TLAB allocation watermark pointer to gate when prefetch instructions are executed.|
 |-XX:+UseCompressedStrings|Use a byte[] for Strings which can be represented as pure ASCII. (Introduced in Java 6 Update 21 Performance Release)|
 |-XX:+OptimizeStringConcat|Optimize String concatenation operations where possible. (Introduced in Java 6 Update 20)|
-
 ## 调试选项
-
-
 |Option and Default Value|Description|
 |----|----|
 |-XX:-CITime|Prints time spent in JIT Compiler. (Introduced in 1.4.0.)|
@@ -182,6 +131,3 @@ Java HotSpot VM识别的标准选项在[Windows](http://docs.oracle.com/javase/7
 |-XX:-UseGCLogFileRotation|Enabled GC log rotation, requires -Xloggc.|
 |-XX:NumberOfGClogFiles=1|Set the number of files to use when rotating logs, must be >= 1. The rotated log files will use the following naming scheme, <filename>.0, <filename>.1, ..., <filename>.n-1.|
 |-XX:GCLogFileSize=8K|The size of the log file at which point the log will be rotated, must be >= 8K.|
-
-
-

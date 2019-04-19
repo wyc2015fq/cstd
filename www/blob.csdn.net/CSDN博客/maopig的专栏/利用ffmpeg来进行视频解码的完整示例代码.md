@@ -1,0 +1,120 @@
+# 利用ffmpeg来进行视频解码的完整示例代码 - maopig的专栏 - CSDN博客
+2011年06月18日 16:30:00[maopig](https://me.csdn.net/maopig)阅读数：2752
+- Decode() 
+- { 
+- FILE * inpf; 
+- 
+- int nWrite; 
+- int i,p; 
+- int nalLen; 
+- unsigned char* Buf; 
+- int got_picture, consumed_bytes; 
+- unsigned char *DisplayBuf; 
+- DisplayBuf=(unsigned char *)malloc(60000); 
+- 
+- char outfile[] = "test.pgm"; 
+- 
+- //1.打开输入文件
+- inpf = fopen("test.264", "rb"); 
+- 
+- //outf = fopen("out.yuv", "wb");
+- 
+- if(!inpf) 
+- { 
+- goto Decodereturn; 
+- } 
+- 
+- nalLen = 0; 
+- Buf = (unsigned char*)calloc ( 1000000, sizeof(char)); //准备解码文件缓冲
+- 
+- //2.注册解码器，并且找到H264解码器
+- avcodec_init(); 
+- avcodec_register_all(); 
+- codec = avcodec_find_decoder(CODEC_ID_H264); 
+- 
+- if (!codec) { 
+- return 0; 
+- } 
+- //allocate codec context
+- //分配解码器内存
+- c = avcodec_alloc_context(); 
+- 
+- if(!c){ 
+- return 0; 
+- } 
+- //open codec
+- //3.打开解码器
+- if (avcodec_open(c, codec) < 0) { 
+- return 0; 
+- } 
+- 
+- //allocate frame buffer
+- //分配解码器用的帧缓冲
+- picture = avcodec_alloc_frame(); 
+- if(!picture){ 
+- return 0; 
+- } 
+- 
+- rgbdatanew = (unsigned char *)malloc(sizeof(unsigned char)*(3 * width * height)); 
+- 
+- while(!feof(inpf)) 
+- { 
+- 
+- //4.获取下一个NAL的长度,并且将NAL放入Buf
+- nalLen = getNextNal(inpf, Buf); 
+- 
+- //5.对改NAL解码，解码的YUV数据存在picture中
+- consumed_bytes= avcodec_decode_video(c, picture, &got_picture, Buf, nalLen); 
+- 
+- if(consumed_bytes > 0) 
+- { 
+- 
+- //6.将picture中的YUV数据显示或者保存到文件
+- p=0; 
+- for(i=0; i<c->height; i++) 
+- { 
+- memcpy(DisplayBuf+p,picture->data[0] + i * picture->linesize[0], c->width); 
+- p+=c->width; 
+- } 
+- for(i=0; i<c->height/2; i++) 
+- { 
+- memcpy(DisplayBuf+p,picture->data[1] + i * picture->linesize[1], c->width/2); 
+- p+=c->width/2; 
+- } 
+- for(i=0; i<c->height/2; i++) 
+- { 
+- memcpy(DisplayBuf+p,picture->data[2] + i * picture->linesize[2], c->width/2); 
+- p+=c->width/2; 
+- } 
+- //显示画面
+- DisplayVideo(DisplayBuf); 
+- } 
+- } 
+- 
+- //7.关闭输入文件
+- if(inpf) 
+- fclose(inpf); 
+- 
+- Decodereturn: 
+- 
+- //8.关闭解码器,释放解码器内存
+- if(c) { 
+- avcodec_close(c); 
+- av_free(c); 
+- c = NULL; 
+- } 
+- //9.释放解码画面内存
+- if(picture) { 
+- av_free(picture); 
+- picture = NULL; 
+- } 
+- 
+- //10.释放解码文件缓冲
+- if(Buf) 
+- { 
+- free(Buf); 
+- Buf = NULL; 
+- } 
+- 
+- free(DisplayBuf); 
+- } 

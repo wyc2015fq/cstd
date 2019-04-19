@@ -1,0 +1,118 @@
+# Java内部抽象类的匿名类初始化 - =朝晖= - 博客园
+# [Java内部抽象类的匿名类初始化](https://www.cnblogs.com/dhcn/p/7124905.html)
+      说在前面的话，以前写过一次这个变态代码，后来重构，把那个new的语法简化了，最近又要整，差点都想不起来了，留个文档把
+1、下面这个案例更变态，抽象类还有一个个泛型类：首先内部抽象类的定义：
+- /* 
+-  * 
+-  * Created by stone 
+-  * 
+-  * 
+-  */  
+- package net.stoneapp.quanshi.qsand.application;  
+- 
+- import android.app.Application;  
+- import android.util.Log;  
+- import android.widget.Toast;  
+- 
+- import com.alibaba.fastjson.JSON;  
+- import com.alibaba.fastjson.JSONObject;  
+- 
+- import net.stoneapp.quanshi.qsand.utils.AndUtils;  
+- 
+- import cn.jpush.android.api.JPushInterface;  
+- import retrofit2.Call;  
+- import retrofit2.Response;  
+- import rx.Subscriber;  
+- 
+- /** 
+-  * Created by dengel on 15/12/28. 
+-  */  
+- public class QsandApplication extends Application {  
+-     AndUtils mAndUtils;  
+- 
+- @Override  
+- public void onCreate() {  
+- super.onCreate();  
+-         mAndUtils = new AndUtils(this);  
+-         JPushInterface.setDebugMode(true);  
+-         JPushInterface.init(this);  
+-     }  
+- 
+- public AndUtils getAndUtils(){  
+- return mAndUtils;  
+-     }  
+- public abstract class JSONSubscriber extends Subscriber<JSONObject> {  
+- @Override  
+- public void onCompleted() {  
+- 
+-         }  
+- 
+- @Override  
+- public void onError(Throwable e) {  
+- if(e.getMessage()!=null) {  
+-                 Log.i("Subscriber Error", e.getMessage());  
+-                 Toast.makeText(QsandApplication.this, e.getMessage(), Toast.LENGTH_LONG).show();  
+-             }  
+-             e.printStackTrace();  
+- 
+-         }  
+- 
+-     }  
+- public abstract class Callback<T> implements retrofit2.Callback<T>{  
+- @Override  
+- public void onResponse(Call<T> call, Response<T> response) {  
+- int status = response.code();  
+- if(status>=400 && status<500){  
+-                 JSONObject jsonObj =  (JSONObject)JSON.parse(response.errorBody().toString());  
+-                 Toast.makeText(QsandApplication.this,jsonObj.getString("detail"),Toast.LENGTH_SHORT).show();  
+-             }  
+-         }  
+- 
+- @Override  
+- public void onFailure(Call<T> call,Throwable t) {  
+- 
+- if(t.getMessage()!=null) {  
+-                 Log.e("Callback Error:", t.getMessage());  
+-                 Toast.makeText(QsandApplication.this, t.getMessage(), Toast.LENGTH_LONG).show();  
+-             }  
+-             t.printStackTrace();  
+- 
+-         }  
+- 
+-     }  
+- }  
+2、匿名类初始化方法：
+- public void postVerifyCode(View view){  
+-         mMobilelView.setError(null);  
+-         String mobile = mMobilelView.getText().toString();  
+- boolean cancel = false;  
+-         View focusView = null;  
+- if (TextUtils.isEmpty(mobile) || !StringUtils.isMobileNumber(mobile)) {  
+-             mMobilelView.setError(getString(R.string.error_invalid_mobile));  
+-             focusView = mMobilelView;  
+-             cancel = true;  
+-         }  
+- if (cancel){  
+-             focusView.requestFocus();  
+- 
+- 
+-         }else {  
+-             showProgress(true);  
+-             Services.AuthService service = Services.getRetrofit().create(Services.AuthService.class);  
+-             User user = new User();  
+-             user.setMobile(mobile);  
+- final QsandApplication qsandApplication = (QsandApplication)getApplication();  
+-             service.postVerifyCode(user).enqueue(qsandApplication.new Callback<User>(){//重点就在这句new的语法  
+- @Override  
+- public void onResponse(Call<User> call, Response<User> response) {  
+- 
+-                 }  
+- 
+- 
+- 
+- 
+-             });  
+-         }  
+- 
+- 
+-     }  

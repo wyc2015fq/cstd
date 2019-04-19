@@ -248,21 +248,25 @@ public:
 		: _CTypedPtrList<CPtrList, CPtrList*>(nBlockSize) { }
 
 	// add before head or after tail
+	template<typename TYPE>
 	POSITION AddHead(TYPE newElement)
 		{ return _CTypedPtrList<CPtrList, CPtrList*>::AddHead((void*)newElement); }
+	template<typename TYPE>
 	POSITION AddTail(TYPE newElement)
 		{ return _CTypedPtrList<CPtrList, CPtrList*>::AddTail((void*)newElement); }
 
 	// add another list of elements before head or after tail
+	template<typename BASE_CLASS, typename TYPE>
 	void AddHead(CTypedPtrList<BASE_CLASS, TYPE>* pNewList)
 		{ _CTypedPtrList<CPtrList, CPtrList*>::AddHead(pNewList); }
+	template<typename BASE_CLASS, typename TYPE>
 	void AddTail(CTypedPtrList<BASE_CLASS, TYPE>* pNewList)
 		{ _CTypedPtrList<CPtrList, CPtrList*>::AddTail(pNewList); }
 };
 
 /////////////////////////////////////////////////////////////////////////////
 // CTypedPtrMap<BASE_CLASS, KEY, VALUE>
-
+#if 0
 template<class BASE_CLASS, class KEY, class VALUE>
 class CTypedPtrMap : public BASE_CLASS
 {
@@ -270,7 +274,7 @@ public:
 
 // Construction
 	CTypedPtrMap(int nBlockSize = 10)
-		: BASE_CLASS(nBlockSize) { }
+		: BASE_CLASS(nBlockSize) {}
 
 	// Lookup
 	BOOL Lookup(BASE_CLASS::BASE_ARG_KEY key, VALUE& rValue) const
@@ -293,6 +297,7 @@ public:
 		{ BASE_CLASS::GetNextAssoc(rPosition, (BASE_CLASS::BASE_KEY&)rKey,
 			(BASE_CLASS::BASE_VALUE&)rValue); }
 };
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 
