@@ -94,7 +94,8 @@ def parser_inline(parser, jj, i, l, out, beg, end):
     text, ii =parser_text(parser, jj, i, l, out)
     text = toline(text)
     if len(text)>0:
-        text = beg + text + end
+        if len(text)<(len(beg)+len(end)) or text[0:len(beg)]!=beg or text[-len(end):]!=end:
+            text = beg + text + end
     return text, ii
 
 def parser_h1(parser, jj, i, l, out):
@@ -421,7 +422,7 @@ def node_filter_cnblogs(node):
 
     attrs_dict = attrs
 
-    if tag=='div' and 'id' in attrs_dict and attrs_dict['id']=='main':
+    if tag=='div' and 'id' in attrs_dict and attrs_dict['id'] in ['main', 'post']:
         return 2
 
     if tag=='div' and 'id' in attrs_dict and attrs_dict['id']=='blog_post_info_block':

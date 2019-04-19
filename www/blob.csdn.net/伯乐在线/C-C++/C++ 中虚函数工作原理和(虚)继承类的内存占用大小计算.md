@@ -188,6 +188,7 @@ int main(void)
 求sizeof(E)的时候，首先是类B的虚函数地址，然后类B中的数据成员，再然后是类C的虚函数地址，然后类C中的数据成员，最后是类E中的数据成员e，同样注意内存对齐，这样4+4+4+4+4=20。
 示例二：含有虚继承
 
+
 ```
 class CommonBase  
 {  
@@ -223,6 +224,7 @@ private:
 ```
 sizeof(Derived)=32，其在内存中分布的情况如下：
 
+
 ```
 class Derived size(32):  
      +---  
@@ -243,6 +245,7 @@ class Derived size(32):
     +---
 ```
 示例3：
+
 
 ```
 class A  

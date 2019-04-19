@@ -1,15 +1,10 @@
 # ReactiveX 学习笔记（23）RxCpp - zwvista - 博客园
-
 ## [ReactiveX 学习笔记（23）RxCpp](https://www.cnblogs.com/zwvista/p/9589298.html)
-
 ### RxCpp
-
 RxCpp 是 ReactiveX 的 C++ 语言实现。
-
 下载 RxCpp
 `$ git clone --recursive https://github.com/ReactiveX/RxCpp.git`
 之后，再将 RxCpp/Rx/v2/src 加入 include 文件夹中。
-
 ```
 #include "rxcpp/rx.hpp"
 namespace Rx {
@@ -20,9 +15,7 @@ namespace Rx {
 }
 using namespace Rx;
 ```
-
 ### Creating
-
 ```
 auto ints = observable<>::create<int>(
     [](subscriber<int> s){
@@ -39,9 +32,7 @@ OnNext: 2
 OnCompleted
 */
 ```
-
 ### Converting
-
 ```
 std::array< int, 3 > a={{1, 2, 3}};
 auto values1 = observable<>::iterate(a);
@@ -55,9 +46,7 @@ OnNext: 3
 OnCompleted
 */
 ```
-
 ### Combining
-
 ```
 auto values = observable<>::range(1); // infinite (until overflow) stream of integers
 auto s1 = values.
@@ -81,7 +70,6 @@ subscribe(apply_to(
 2: 3
 */
 ```
-
 ```
 auto values = observable<>::range(1); // infinite (until overflow) stream of integers
 auto s1 = values.
@@ -105,5 +93,3 @@ subscribe(apply_to(
 2: 3
 */
 ```
-
-
