@@ -1,0 +1,62 @@
+# Java学习（十五） 集合类综述 - HJ - CSDN博客
+2018年10月03日 15:47:53[FZH_SYU](https://me.csdn.net/feizaoSYUACM)阅读数：50
+所属专栏：[Java学习](https://blog.csdn.net/column/details/19570.html)
+```
+-----Iterator （迭代器）                      
+-----Collection
+   ----List
+       -----ArrayList
+       -----LinkedList
+       -----Vector
+           ----Stack
+   ----Set      
+       ----HashSet
+          ----LinkedHashSet
+       ----TreeSet 
+       ----EnumSet
+   ----Queue
+      ----Deque
+-----Map
+   ----HashMap
+      ----LinkedHashMap
+   ----TreeMap
+   ----Hashtable
+   ----WeakHashMap
+```
+**Collection**：集合类的根接口，Java中没有提供这个接口的直接的实现类，但是却让其被继承产生了List和Set两个接口；
+```
+List：是一个有序的集合，可以包含重复的元素，提供了按索引访问的方式；
+Set：是一个无序的集合，不能包含重复的元素；
+```
+**Map**：与Collection接口相互独立，但是属于集合类的一部分，Map中不能包含重复的key，但可以包含相同的value。
+**Iterator**：所有的集合类都实现了Iterator接口，用于遍历集合中的元素的接口，主要包含三种方法，即：①hashNext()：判断是否还有下一个元素；②next()：返回下一个元素，可以自增；③remove()：删除当前元素；
+**List类**
+**ArrayList**：基于数组实现的List类，它封装了一个动态的增长的，允许再分配的Object[]数组；
+**LinkedList**：基于链表实现的List类，它封装了一个双向链表；
+**Vector**：与ArrayList相同，基于数组实现，但是线程安全，是线程同步的，效率略比ArrayList差，目前几乎被ArrayList代替；
+**Set类**
+**HashSet**：当向HashSet集合中存入一个元素时，HashSet会调用该对象的hashCode()方法来得到该对象的hashCode值，然后根据该hashCode值决定该对象在HashSet中的存储位置。另外，HashSet集合判断两个元素相等的标准是两个对象通过equals()方法比较相等，且两个对象的hashCode()方法的返回值相等；
+**LinkedHashSet**：根据元素的hashCode值来决定元素的存储位置，但它同时使用链表维护元素的次序，即遍历时，将会按元素的添加顺序来访问集合里的元素。因此，它的插入性能略低于HashSet；
+**TreeSet**：是SortedSet接口的实现类，可以确保集合元素处于排序状态；
+**EnumSet**：是一个专门为枚举类设计的集合类，所有元素都必须是指定枚举类型的枚举值（集合元素也是有序的）；
+**Map类**
+**HashMap**：它根据键的HashCode存储数据，根据键可以直接获取它的值，具有很快的访问速度。遍历时，取得数据的顺序是完全随机的。因为键对象不可重复，所以HashMap最多只允许一条记录为null的键，允许多条记录为null的值。且非同步；判断两个key是否相等的标准是：①两个key通过equals()方法比较返回true；②同时两个key的hashCode值也必须相等；
+**Hashtable**：是HashMap的线程安全版。它支持线程的同步，即任意时刻只能有一个线程写Hashtable，因此也导致了Hashtable在写入时会比较慢。它继承自Dictionary类，不同的是它不允许记录的键或者值为null，同时效率较低；
+**ConcurrentHashMap**：线程安全，并且锁分离。内部使用段来表示这些不同的部分，每个段其实就是一个小的Hashtable，它们有自己的锁。只要多个修改操作发生在不同的段上，它们就可以并发运行；
+**LinkedHashMap**：使用双向链表来维护，保存了记录的插入顺序，在遍历的时候，会比HashMap慢，有HashMap的全部特性；
+**TreeMap**：实现SortedMap接口，是一个红黑树数据结构，能够把它保存的记录根据键排序，默认是升序（自然排序），不允许key值为空，非同步的；
+**WeakHashMap**：它的key只保留了对实际对象的弱引用，即key所引用的对象没有被其他强引用变量引用，则这些key所引用的对象可能被垃圾回收，进而也可能自动删除这些key所对应的键值对；
+比较总结：
+1、**Vector和ArrayList的异同点**
+同：查找数据（指定位置）时间均为O(1)；
+异：数组扩容的时候，Vector扩大100%，ArrayList扩大50%；Vector线程同步，也就是线程安全的，因此性能上要比ArrayList差；
+2、**ArrayList和LinkedList比较**
+ArrayList是实现了基于动态数组的数据结构，而LinkedList是基于链表的数据结构；随机访问选ArrayList，新增和删除任意结点选LinkedList；
+3、**HashMap和TreeMap比较**
+（1）HashMap通过hashCode对其内容进行快速查找，而TreeMap中所有的元素都保持着某种固定的顺序；
+（2）在Map中插入、删除和定位元素用HashMap，按自然顺序或自定义顺序遍历键用TreeMap；
+（3）使用HashMap要求添加的键类明确定义了hashCode()和equals()的实现；
+（4）同样的值的Map，顺序不同，equals时，HashMap返回false，而TreeMap返回true；
+4、**HashMap和Hashtable比较**
+（1）HashMap是线程不安全的，非同步的，而Hashtable是线程安全的，同步的；
+（2）HashMap允许存在一个null的key，多个为null的value，而Hashtable的key和value都不允许为null；

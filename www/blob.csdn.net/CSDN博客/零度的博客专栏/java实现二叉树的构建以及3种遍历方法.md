@@ -1,0 +1,148 @@
+# java实现二叉树的构建以及3种遍历方法 - 零度的博客专栏 - CSDN博客
+2016年06月08日 14:51:59[零度anngle](https://me.csdn.net/zmx729618)阅读数：912
+
+#### 1.将一个数组构建成一颗二叉树的构建方法 ![](http://dl.iteye.com/upload/picture/pic/90395/70fbf233-89b4-35b6-8582-61431b6fe025.jpg)
+#### 2.代码实现 
+Java代码  ![收藏代码](http://ocaicai.iteye.com/images/icon_star.png)
+- package tree;  
+- 
+- import java.util.LinkedList;  
+- import java.util.List;  
+- 
+- /**
+-  * 功能：把一个数组的值存入二叉树中，然后进行3种方式的遍历
+-  * 
+-  * 参考资料0:数据结构(C语言版)严蔚敏
+-  * 
+-  * 参考资料1：http://zhidao.baidu.com/question/81938912.html
+-  * 
+-  * 参考资料2：http://cslibrary.stanford.edu/110/BinaryTrees.html#java
+-  * 
+-  * @author ocaicai@yeah.net @date: 2011-5-17
+-  * 
+-  */
+- publicclass BinTreeTraverse2 {  
+- 
+- privateint[] array = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };  
+- privatestatic List<Node> nodeList = null;  
+- 
+- /**
+-      * 内部类：节点
+-      * 
+-      * @author ocaicai@yeah.net @date: 2011-5-17
+-      * 
+-      */
+- privatestaticclass Node {  
+-         Node leftChild;  
+-         Node rightChild;  
+- int data;  
+- 
+-         Node(int newData) {  
+-             leftChild = null;  
+-             rightChild = null;  
+-             data = newData;  
+-         }  
+-     }  
+- 
+- publicvoid createBinTree() {  
+-         nodeList = new LinkedList<Node>();  
+- // 将一个数组的值依次转换为Node节点
+- for (int nodeIndex = 0; nodeIndex < array.length; nodeIndex++) {  
+-             nodeList.add(new Node(array[nodeIndex]));  
+-         }  
+- // 对前lastParentIndex-1个父节点按照父节点与孩子节点的数字关系建立二叉树
+- for (int parentIndex = 0; parentIndex < array.length / 2 - 1; parentIndex++) {  
+- // 左孩子
+-             nodeList.get(parentIndex).leftChild = nodeList  
+-                     .get(parentIndex * 2 + 1);  
+- // 右孩子
+-             nodeList.get(parentIndex).rightChild = nodeList  
+-                     .get(parentIndex * 2 + 2);  
+-         }  
+- // 最后一个父节点:因为最后一个父节点可能没有右孩子，所以单独拿出来处理
+- int lastParentIndex = array.length / 2 - 1;  
+- // 左孩子
+-         nodeList.get(lastParentIndex).leftChild = nodeList  
+-                 .get(lastParentIndex * 2 + 1);  
+- // 右孩子,如果数组的长度为奇数才建立右孩子
+- if (array.length % 2 == 1) {  
+-             nodeList.get(lastParentIndex).rightChild = nodeList  
+-                     .get(lastParentIndex * 2 + 2);  
+-         }  
+-     }  
+- 
+- /**
+-      * 先序遍历
+-      * 
+-      * 这三种不同的遍历结构都是一样的，只是先后顺序不一样而已
+-      * 
+-      * @param node
+-      *            遍历的节点
+-      */
+- publicstaticvoid preOrderTraverse(Node node) {  
+- if (node == null)  
+- return;  
+-         System.out.print(node.data + " ");  
+-         preOrderTraverse(node.leftChild);  
+-         preOrderTraverse(node.rightChild);  
+-     }  
+- 
+- /**
+-      * 中序遍历
+-      * 
+-      * 这三种不同的遍历结构都是一样的，只是先后顺序不一样而已
+-      * 
+-      * @param node
+-      *            遍历的节点
+-      */
+- publicstaticvoid inOrderTraverse(Node node) {  
+- if (node == null)  
+- return;  
+-         inOrderTraverse(node.leftChild);  
+-         System.out.print(node.data + " ");  
+-         inOrderTraverse(node.rightChild);  
+-     }  
+- 
+- /**
+-      * 后序遍历
+-      * 
+-      * 这三种不同的遍历结构都是一样的，只是先后顺序不一样而已
+-      * 
+-      * @param node
+-      *            遍历的节点
+-      */
+- publicstaticvoid postOrderTraverse(Node node) {  
+- if (node == null)  
+- return;  
+-         postOrderTraverse(node.leftChild);  
+-         postOrderTraverse(node.rightChild);  
+-         System.out.print(node.data + " ");  
+-     }  
+- 
+- publicstaticvoid main(String[] args) {  
+-         BinTreeTraverse2 binTree = new BinTreeTraverse2();  
+-         binTree.createBinTree();  
+- // nodeList中第0个索引处的值即为根节点
+-         Node root = nodeList.get(0);  
+- 
+-         System.out.println("先序遍历：");  
+-         preOrderTraverse(root);  
+-         System.out.println();  
+- 
+-         System.out.println("中序遍历：");  
+-         inOrderTraverse(root);  
+-         System.out.println();  
+- 
+-         System.out.println("后序遍历：");  
+-         postOrderTraverse(root);  
+-     }  
+- 
+- }  
+    输出结果：
+Java代码  ![收藏代码](http://ocaicai.iteye.com/images/icon_star.png)
+- 先序遍历：  
+- 124895367
+- 中序遍历：  
+- 849251637
+- 后序遍历：  
+- 894526731

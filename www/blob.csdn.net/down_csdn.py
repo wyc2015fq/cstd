@@ -91,6 +91,17 @@ def getlist_skywind(url):
             ll.append(i)
     return ll
 
+def getlist_51cto(url):
+    data = getdata(url)
+    aa='//a[@class="tit"]/@href'
+    html = etree.HTML(data)
+    tt = html.xpath(aa)
+    ll=[]
+    for i in tt:
+        if i.find('//blog.51cto.com')>0:
+            ll.append(i)
+    return ll
+
 def getlist_jobbole(url):
     data = getdata(url)
     aa='//div[@class="post-thumb"]/a/@href'
@@ -239,6 +250,16 @@ if __name__ == '__main__':
             urllist = map(lambda i:url+str(i), range(1,1000))
             urllist = list(urllist)
             down_list(urllist, getlist_skywind)
+        else:
+            down_csdn_one(url)
+    elif url.find('blog.51cto.com')>0:
+        tt = url.split('/')
+        if len(tt)<5:
+            url = '/'.join(tt[0:4])
+            url += '/p'
+            urllist = map(lambda i:url+str(i), range(1,1000))
+            urllist = list(urllist)
+            down_list(urllist, getlist_51cto)
         else:
             down_csdn_one(url)
     elif url.find('zhihu.com')>0:

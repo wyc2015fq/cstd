@@ -1,0 +1,38 @@
+# Hadoop Metrics体系分析之二：Hadoop Metrics实现 - aisoo的专栏 - CSDN博客
+2012年12月12日 15:18:13[aisoo](https://me.csdn.net/aisoo)阅读数：2541
+我们如何才能获知一个软件系统的运行状况？如何才能将软件的运行数据暴露给用户查看？通过hadoop的metrics框架就能做到这一点。它可以帮助我们计算数据，收集数据，发送数据，这一切仅需要我们建立几个数据类和调用几个接口。
+Hadoop metrics的总体框架
+从上面这张其他同学绘制的类图可以看出几个重要的组成部分：
+![](http://qa.taobao.com/wp-content/uploads/2011/12/metrics4.jpg)
+MetricsContext
+通过ContextFactory我们可以获得一个MetricsContext对象，它保存这一组metrics的上下文信息，每个context都可以启动一个monitor线程来按一定周期来收集和发送这些数据。前面我们也提到了hadoop可以提供写文件，发送ganglia等方式来发送metrics，就是通过继承AbstractMetricsContext产生不同的Context的类来实现的。具体要采用那种方式来发送数据可以通过配置文件来确定，后面会加以介绍。
+Updater
+Updater是数据收集的主体，这个接口最重要的是doUpdates方法。将应用实现的updater类注册到MetricsContext中，context的monitor线程就会定期调用updater的doUpdates方法来抓取数据。通常在doUpdates里我们会对系统的各种metrics做初步计算处理并push到MetricsRecord中。
+MetricsRecord
+顾名思义它是一个时间周期下的一条数据，每个context下可以包含多个MetricsRecord。Context调用doUpdates收集到MetricsRecord后，再将它发送给文件或者ganglia。对于ganglia来说每一个监控点名称格式就是：context名称.
+ Record名称.metrics名称。
+MetricsBase
+所有具体的metrics数据类都会继承MetricsBase，常用的有以下几种：
+MetricsIntValue：整型数值
+MetricsLongValue：长整型数值
+MetricsTimeVaryingInt：一个时间周期内整型累积值，push到MetricsRecord后从0开始累积。
+MetricsTimeVaryingLong：一个时间周期内长整型累积值
+MetricsTimeVaryingRate：保存了操作所花费的时间和该时间内的操作次数。最终发送出去会是两个数值：一个时间周期内的总操作次数和每个操作所花费的平均时间（操作总时间/操作次数）。该metrics内部还保存了单次操作时间的min和max。
+Hbase也扩展了几种metrics类型：
+MetricsAvgValue：记录用户设置的值及设置的次数，最终输出的是平均值，收集完清零。
+MetricsIntervalInt：一个时间周期内整型数值，收集完清零。
+MetricsRate：一个时间周期内的数据/时间周期的长度，收集完清零。
+MetricsString：一个字符串，主要用于JMX，ganglia不支持。
+JMX支持
+MetricsRegistry：注册了所有需要export到JMX的metrics
+MetricsDynamicMBeanBase：将MetricsRegistry中的metrics生成JMX需要的MBeanInfo。
+Hadoop metrics的配置
+配置文件的名称通常为hadoop-metrics.properties，下面是一个hbase metrics的常用配置：
+> 
+# Configuration of the "hbase" context for ganglia
+# Pick one: Ganglia 3.0 (former) or Ganglia 3.1 (latter)
+hbase.class=org.apache.hadoop.metrics.ganglia.GangliaContext31
+hbase.period=15
+hbase.servers= hostname:8649
+其中hbase.class定义了名叫hbase的MetricsContext 实现类是GangliaContext31（在cloudera的hadoop版本中提供），每次收集数据的周期是15秒，发送数据到servers中定义的gmond地址。需要注意的是ganglia默认的收集数据周期为15秒一次，我们程序的采样周期需要与它保持一致。
+通过上面的介绍，大家应该大致了解了hadoop metrics框架原理，其实并不复杂，但是很好的解决了数据收集和发送的问题。除了这个框架以外，数据的处理分析就需要我们来完成了，这个才是metrics系统的重点，下一篇文章会介绍我们的一些应用

@@ -1,0 +1,180 @@
+# 关于ndk开发使用jni回掉java方法更新UI的问题 - 建建的博客 - CSDN博客
+2017年06月21日 15:55:56[纪建](https://me.csdn.net/u013898698)阅读数：183
+重新整理,
+原理：
+应用程序启动时，Android首先会开启一个主线程 (也就是UI线程) ， 主线程为管理界面中的UI控件， 进行事件分发。
+耗时的操作，放在一个子线程中，如果子线程涉及到UI更新，那就要用到handler,Android主线程是线程不安全的， 也就是说，更新UI只能在主线程中更新，子线程中操作是危险的。
+Handler运行在主线程中(UI线程中)，  它与子线程可以通过Message对象来传递数据， 这个时候，Handler就承担着接受子线程传过来的(子线程用sedMessage()方法传弟)Message对象，(里面包含数据)  ， 把这些消息放入主线程队列中，配合主线程进行更新UI。
+重点关注这里
+MyHandler myHandler; 
+static MyHandler mHandler;
+要用这个mHandler才能保证回调的方法还在当前环境下，否则调不到，会报错。
+代码如下：
+[java][view
+ plain](http://blog.csdn.net/hxl5955/article/details/51833384#)[copy](http://blog.csdn.net/hxl5955/article/details/51833384#)
+- Java代码：  
+- package com.example.hellojni;  
+- publicclass callbyc extends Activity{  
+-     TextView  textpin;   
+- static Context context;  
+-     MyHandler myHandler;   
+- static MyHandler mHandler;  
+- 
+- @Override
+- publicvoid onCreate(Bundle savedInstanceState)  
+-     {  
+- super.onCreate(savedInstanceState);  
+-         setContentView(R.layout.callbyc);    
+- 
+-         JniInterface.nativeInit();  
+-         textpin = (TextView)findViewById(R.id.textinfo);         
+- 
+-         myHandler = new MyHandler();   
+-         mHandler = myHandler;//重要,保存全局静态handler句柄,以便回掉的时候能找到该上下文
+-         MyThread m = new MyThread();   
+- new Thread(m).start();   
+- 
+-     }  
+- class MyHandler extends Handler {   
+- public MyHandler() {   
+-         }   
+- 
+- public MyHandler(Looper L) {   
+- super(L);   
+-         }   
+- 
+- // 子类必须重写此方法，接受数据 
+- @Override
+- publicvoid handleMessage(Message msg) {   
+- // TODO Auto-generated method stub 
+-             System.out.println("handleMessage。。。。。。");   
+- super.handleMessage(msg);   
+- 
+- // 此处可以更新UI 
+-             Bundle b = msg.getData();   
+-             String color = b.getString("color");   
+-             System.out.println("color:"+color);   
+-             textpin.setText(color);  
+- 
+-         }   
+-     }   
+- class MyThread implements Runnable {   
+- publicvoid run() {   
+- 
+- try {   
+-                 Thread.sleep(1000);   
+-             } catch (InterruptedException e) {   
+- // TODO Auto-generated catch block 
+-                 e.printStackTrace();   
+-             }   
+- 
+-             System.out.println("mThread。。。。。。。。");   
+-             JniInterface.pinTest();//jni里面方法回调inputPin 
+-         }   
+-     }       
+- publicvoid myCallbackFunc(String nMsg)  
+-     {  
+-         System.out.println("myCallbackFunc。。。。。。。。");   
+-         Message msg = new Message();   
+-         Bundle b = new Bundle();// 存放数据 
+-         b.putString("color","我的");   
+-         msg.setData(b);   
+-         System.out.println("。。。。。。。。");   
+- 
+- // callbyc.this.myHandler.sendMessage(msg); // 向Handler发送消息，更新UI 
+-     }  
+- 
+- privatestaticvoid DispInfo(int value)  
+-     {  
+-         System.out.println("this is called by c value:"+value);  
+- //Toast.makeText(mainContext, "this is from c:"+value,Toast.LENGTH_LONG).show();
+-     }   
+- 
+- private  String inputPin()  
+-     {  
+-         System.out.println("pls input pin");  
+- 
+- 
+-         Message msg = new Message();   
+-         Bundle b = new Bundle();// 存放数据 
+-         b.putString("color","123456");   
+-         msg.setData(b);   
+-         mHandler.sendMessage(msg);//这里用静态mHandler才能在回掉该方法的时候正确执行
+- //callbyc.this.myHandler.sendMessage(msg); // 向Handler发送消息，更新UI         
+- return"123456";  
+- //textpin.setText("bbb");
+-     }   
+- }  
+- 
+- jni代码：  
+- #include <jni.h>  
+- 
+- jmethodID gOnNativeID;  
+- JNIEnv* genv;  
+- jobject mObject;  
+- jclass mClass;  
+- JavaVM* gs_jvm;  
+- //native初始化函数
+- void Java_com_example_hellojni_JniInterface_nativeInit(JNIEnv* env,jobject thiz)  
+- {  
+- 
+- 
+-     printf("CalledForJni_nativeInit................");  
+- 
+- //获取类
+-     jclass clazz = (*env)->FindClass(env,"com/example/hellojni/callbyc");  
+- if(clazz==NULL)  
+-     {  
+-         printf("clazz IS NULL................");  
+- return;  
+-     }  
+- 
+-     mObject = (jobject)(*env)->NewGlobalRef(env,thiz);//永久保存mClass
+- //获取方法ID
+-     gOnNativeID = (*env)->GetMethodID(env,clazz,"inputPin","()Ljava/lang/String;");    
+- 
+- if(gOnNativeID==NULL)  
+-     {  
+-         printf("gOnNativeID IS NULL................");  
+- return;  
+-     }  
+- //得到JAVA VM，为了在其他没有传env参数的函数获取emv调用java方法
+-     (*env)->GetJavaVM(env,&gs_jvm);   
+-     printf("CalledForJni_nativeInit end................");  
+- 
+- 
+- }  
+- void Java_com_example_hellojni_JniInterface_pinTest(JNIEnv* env,jobject thiz)  
+- {  
+-     UTIL_OnlinePIN();  
+- }  
+- uchar UTIL_OnlinePIN()  
+- {  
+- char message[]="PLS INPUT PIN";  
+- int nStatus;      
+-     JNIEnv *env;  
+-     jstring recv;  
+- char *precvbuf;  
+- int i=0;  
+- //JNI_VERSION_1_2
+- //nStatus = gs_jvm->GetEnv((void**)&env,JNI_VERSION_1_2);
+- //得到当前线程的env,为了在没有传env参数的函数获取env调用java方法
+-     nStatus = (*gs_jvm)->AttachCurrentThread(gs_jvm, (void**)&env, NULL);  
+- if(nStatus<0)  
+-     {  
+-         printf("getenv faild");  
+-     }  
+-     printf("PLS INPUT PIN %s-%d",__FUNCTION__,__LINE__);  
+- //(*env)->CallStaticVoidMethod(env,mObject,gOnNativeID,99);
+-     recv = (*env)->CallObjectMethod(env,mObject,gOnNativeID);  
+-     precvbuf = (*env)->GetStringUTFChars(env,recv,0);  
+- 
+-     dumpData("recvpin",precvbuf,6);  
+- 
+-     (*env)->ReleaseStringUTFChars(env,recv,precvbuf);  
+-     printf("%s-%d",__FUNCTION__,__LINE__);  
+- 
+- //退出当前线程要调用DetachCurrentThread()释放对应的资源
+- 
+- 
+- }  

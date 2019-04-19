@@ -1,0 +1,127 @@
+# Java注解之@Inherited的使用 - 零度的博客专栏 - CSDN博客
+2017年09月22日 10:39:48[零度anngle](https://me.csdn.net/zmx729618)阅读数：6885标签：[java																[annotation](https://so.csdn.net/so/search/s.do?q=annotation&t=blog)](https://so.csdn.net/so/search/s.do?q=java&t=blog)
+个人分类：[Java注解](https://blog.csdn.net/zmx729618/article/category/6354188)
+**一、@Inherited**
+     @Inherited：允许子类继承父类的注解。
+**二、代码**
+Java代码  
+- @Target(ElementType.TYPE)  
+- @Retention(RetentionPolicy.RUNTIME)  
+- @Inherited
+- public@interface DBTable {   
+- public String name() default"";      
+- }  
+- 
+- 
+- @Target(ElementType.TYPE)  
+- @Retention(RetentionPolicy.RUNTIME)  
+- public@interface DBTable2 {  
+- public String name() default"";      
+- }  
+- 
+- 
+- package com.jyz.study.jdk.reflect;  
+- 
+- import java.util.Arrays;  
+- 
+- import com.jyz.study.jdk.annotation.DBTable;  
+- import com.jyz.study.jdk.annotation.DBTable2;  
+- 
+- /**
+-  * 1.演示从Class对象上获得反射元素Field Method Constructor
+-  * 2.演示AnnotatedElement接口的四个方法
+-  * @author JoyoungZhang@gmail.com
+-  *
+-  */
+- publicclass DeclaredOrNot {  
+- 
+- publicstaticvoid main(String[] args) {  
+-         Class<Sub> clazz = Sub.class;  
+-         System.out.println("============================Field===========================");  
+- //public + 继承
+-         System.out.println(Arrays.toString(clazz.getFields()));  
+- //all + 自身
+-         System.out.println(Arrays.toString(clazz.getDeclaredFields()));  
+- 
+-         System.out.println("============================Method===========================");  
+- //public + 继承
+-         System.out.println(Arrays.toString(clazz.getMethods()));  
+- //all + 自身
+-         System.out.println(Arrays.toString(clazz.getDeclaredMethods()));  
+- 
+-         System.out.println("============================Constructor===========================");  
+- //public + 自身
+-         System.out.println(Arrays.toString(clazz.getConstructors()));  
+- //all + 自身
+-         System.out.println(Arrays.toString(clazz.getDeclaredConstructors()));  
+- 
+- 
+-         System.out.println("============================AnnotatedElement===========================");  
+- //注解DBTable2是否存在于元素上
+-         System.out.println(clazz.isAnnotationPresent(DBTable2.class));  
+- //如果存在该元素的指定类型的注释DBTable2，则返回这些注释，否则返回 null。
+-         System.out.println(clazz.getAnnotation(DBTable2.class));  
+- //继承
+-         System.out.println(Arrays.toString(clazz.getAnnotations()));  
+- //自身
+-         System.out.println(Arrays.toString(clazz.getDeclaredAnnotations()));  
+-     }  
+- }  
+- 
+- @DBTable
+- class Super{  
+- privateint superPrivateF;  
+- publicint superPublicF;  
+- 
+- public Super(){  
+-     }  
+- 
+- privateint superPrivateM(){  
+- return0;  
+-     }  
+- publicint superPubliceM(){  
+- return0;  
+-     }  
+- }  
+- 
+- @DBTable2
+- class Sub extends Super{  
+- privateint subPrivateF;  
+- publicint subPublicF;  
+- 
+- private Sub(){  
+-     }  
+- public Sub(int i){  
+-     }  
+- 
+- privateint subPrivateM(){  
+- return0;  
+-     }  
+- publicint subPubliceM(){  
+- return0;  
+-     }  
+- }  
+- 
+- 
+- 
+- console output:  
+- ============================Field===========================  
+- [publicint com.jyz.study.jdk.reflect.Sub.subPublicF, publicint com.jyz.study.jdk.reflect.Super.superPublicF]  
+- [privateint com.jyz.study.jdk.reflect.Sub.subPrivateF, publicint com.jyz.study.jdk.reflect.Sub.subPublicF]  
+- ============================Method===========================  
+- [publicint com.jyz.study.jdk.reflect.Sub.subPubliceM(), publicint com.jyz.study.jdk.reflect.Super.superPubliceM(), publicfinalnativevoid java.lang.Object.wait(long) throws java.lang.InterruptedException, publicfinalvoid java.lang.Object.wait() throws java.lang.InterruptedException, publicfinalvoid java.lang.Object.wait(long,int) throws java.lang.InterruptedException, publicboolean java.lang.Object.equals(java.lang.Object), public java.lang.String java.lang.Object.toString(), publicnativeint java.lang.Object.hashCode(), publicfinalnative java.lang.Class java.lang.Object.getClass(), publicfinalnativevoid java.lang.Object.notify(), publicfinalnativevoid java.lang.Object.notifyAll()]  
+- [privateint com.jyz.study.jdk.reflect.Sub.subPrivateM(), publicint com.jyz.study.jdk.reflect.Sub.subPubliceM()]  
+- ============================Constructor===========================  
+- [public com.jyz.study.jdk.reflect.Sub(int)]  
+- [private com.jyz.study.jdk.reflect.Sub(), public com.jyz.study.jdk.reflect.Sub(int)]  
+- ============================AnnotatedElement===========================  
+- true
+- @com.jyz.study.jdk.annotation.DBTable2(name=)  
+- [@com.jyz.study.jdk.annotation.DBTable(name=), @com.jyz.study.jdk.annotation.DBTable2(name=)]  
+- [@com.jyz.study.jdk.annotation.DBTable2(name=)]  
+![](http://static.blog.csdn.net/images/save_snippets.png)
+**三、代码说明**
+- 代码演示了从Class对象上获得反射元素Field Method Constructor时get*和getDeclared*的区别。
+- 代码演示了AnnotatedElement接口的四个方法。
+- java.lang.reflect.AnnotatedElement表示可以被注解的元素。它只有四个方法，参考代码DeclaredOrNot.java。![](http://dl.iteye.com/upload/picture/pic/128537/c888146b-a0a6-357f-b175-79968c4bf5a7.png)
+- 当我使用clazz.getAnnotations()时，我期望得到控制台打印出来的内容，但实际上却只得到了[@com.jyz.study.jdk.annotation.DBTable2(name=)]，后来发现是DBTable里没有声明@Inherited。

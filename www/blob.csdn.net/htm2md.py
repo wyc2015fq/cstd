@@ -222,7 +222,7 @@ def parser_blockquote(parser, jj, i, l, out):
 def parser_div(parser, jj, i, l, out):
     attrs_dict = jj[i]['attrs']
     if 'class' in attrs_dict:
-        if attrs_dict['class'] in ['article-copyright', 'mylinks', 'blogStats', 'header', 'postTitle', 'author', 'article-title-box']:
+        if attrs_dict['class'] in ['cnblogs_code_collapse', 'article-copyright', 'mylinks', 'blogStats', 'header', 'postTitle', 'author', 'article-title-box']:
             return parser_skip(parser, jj, i, l, out)
 
         if attrs_dict['class'] in ['cnblogs_code', 'crayon-plain-wrap']:
@@ -317,7 +317,12 @@ def parser_img(parser, jj, i, l, out):
         if s in attrs_dict and len(attrs_dict[s].strip())>0:
             href = attrs_dict[s]
 
-    if  len(href.strip())>0 and href.find('svg')<0 and href.find('ExpandedBlockStart.gif')<0 and href.find('ContractedBlock.gif')<0:
+    is_skip=0
+    for skipimg in ['svg','ExpandedBlockStart.gif', 'ContractedBlock.gif', 'copycode.gif']:
+        if href.find(skipimg)>0:
+            is_skip = 1
+
+    if  len(href.strip())>0 and is_skip==0:
         if 'alt' in attrs_dict:
             alt=attrs_dict['alt']
 
@@ -594,6 +599,38 @@ def node_filter_skywind(node):
 
     return 0
 
+def node_filter_sohu(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='article' and 'class' in attrs_dict and attrs_dict['class']=='article':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='statement':
+        return 3
+
+    return 0
+
+def node_filter_51cto(node):
+    tag = node['tag']
+    attrs = node['attrs']
+    if tag=='title':
+        return 1
+
+    attrs_dict = attrs
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='artical-content-bak main-content':
+        return 2
+
+    if tag=='div' and 'class' in attrs_dict and attrs_dict['class']=='artical-copyright mt26':
+        return 3
+
+    return 0
+
 
 FILTER = {
     'csdn': {'filter':node_filter_csdn, 'site':'https://blog.csdn.net', 'root':'CSDN博客'},
@@ -608,6 +645,8 @@ FILTER = {
     'blog.sina.com.cn': {'filter':node_filter_sina, 'site':'', 'root':'新浪博客'},
     'blog.jobbole.com': {'filter':node_filter_jobbole, 'site':'', 'root':'伯乐在线'},
     'www.skywind.me': {'filter':node_filter_skywind, 'site':'', 'root':'Skywind'},
+    'www.sohu.com': {'filter':node_filter_sohu, 'site':'', 'root':'搜狐'},
+    'blog.51cto.com': {'filter':node_filter_51cto, 'site':'', 'root':'51CTO博客'},
 }
 
 def savetext(fn, d):
@@ -683,6 +722,17 @@ def htm2md(t):
         ll = ll.replace('/', '-').strip()
         out['title'] = out['title'].replace('Skywind Inside » ', '').strip() + ' - ' + ll +' - Skywind'
         #html = etree.HTML(html_code)
+
+    if aaa=='www.sohu.com':
+        print(out['title'])
+        html = etree.HTML(html_code)
+        aa='//meta[@name="mediaid"]/@content'
+        ll = html.xpath(aa)[0].strip()
+        out['title'] = out['title'].strip() + ' - ' + ll +' - 搜狐'
+
+    if aaa=='blog.51cto.com':
+        print(out['title'])
+        out['title'] = out['title'].replace('-', ' - ')
 
     d = d.replace('\n\n\n', '\n').replace('\n\n\n', '\n').replace('\n\n', '\n')
     return FILTER[aaa]['root'], out['title'], d

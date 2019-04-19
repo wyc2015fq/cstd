@@ -1,0 +1,162 @@
+# Live555学习之SDP信息的生成 - 建建的博客 - CSDN博客
+2017年02月25日 22:39:37[纪建](https://me.csdn.net/u013898698)阅读数：1041
+当RTSPServer收到对某个媒体的DESCRIBE请求时，它会找到对应的ServerMediaSession,调用ServerMediaSession::generateSDPDescription()。generateSDPDescription()中会遍历调用ServerMediaSession中所有的调用ServerMediaSubsession，通过subsession->sdpLines()取得每个Subsession的sdp，合并成一个完整的SDP返回之。
+我们几乎可以断定，文件的打开和分析应该是在每个Subsession的sdpLines()函数中完成的，看看这个函数：
+- charconst* OnDemandServerMediaSubsession::sdpLines()  
+- {  
+- if (fSDPLines == NULL) {  
+- // We need to construct a set of SDP lines that describe this
+- // subsession (as a unicast stream).  To do so, we first create
+- // dummy (unused) source and "RTPSink" objects,
+- // whose parameters we use for the SDP lines:
+-         unsigned estBitrate;  
+-         FramedSource* inputSource = createNewStreamSource(0, estBitrate);  
+- if (inputSource == NULL)  
+- return NULL; // file not found
+- 
+- struct in_addr dummyAddr;  
+-         dummyAddr.s_addr = 0;  
+-         Groupsock dummyGroupsock(envir(), dummyAddr, 0, 0);  
+-         unsigned char rtpPayloadType = 96 + trackNumber() - 1; // if dynamic
+-         RTPSink* dummyRTPSink = createNewRTPSink(&dummyGroupsock,  
+-                 rtpPayloadType, inputSource);  
+- 
+-         setSDPLinesFromRTPSink(dummyRTPSink, inputSource, estBitrate);  
+-         Medium::close(dummyRTPSink);  
+-         closeStreamSource(inputSource);  
+-     }  
+- 
+- return fSDPLines;  
+- }  
+其所为如是：Subsession中直接保存了对应媒体文件的SDP，但是在第一次获取时fSDPLines为NULL，所以需先获取fSDPLines。其做法比较费事，竟然是建了临时的Source和RTPSink，把它们连接成一个StreamToken，Playing一段时间之后才取得了fSDPLines。createNewStreamSource()和createNewRTPSink()都是虚函数，所以此处创建的source和sink都是继承类指定的，我们分析的是H264，也就是H264VideoFileServerMediaSubsession所指定的，来看一下这两个函数：
+- FramedSource* H264VideoFileServerMediaSubsession::createNewStreamSource(  
+-         unsigned /*clientSessionId*/,  
+-         unsigned& estBitrate)  
+- {  
+-     estBitrate = 500; // kbps, estimate
+- 
+- // Create the video source:
+-     ByteStreamFileSource* fileSource = ByteStreamFileSource::createNew(envir(),  
+-             fFileName);  
+- if (fileSource == NULL)  
+- return NULL;  
+-     fFileSize = fileSource->fileSize();  
+- 
+- // Create a framer for the Video Elementary Stream:
+- return H264VideoStreamFramer::createNew(envir(), fileSource);  
+- }  
+- 
+- RTPSink* H264VideoFileServerMediaSubsession::createNewRTPSink(  
+-         Groupsock* rtpGroupsock,  
+-         unsigned char rtpPayloadTypeIfDynamic,  
+-         FramedSource* /*inputSource*/)  
+- {  
+- return H264VideoRTPSink::createNew(envir(), rtpGroupsock,  
+-             rtpPayloadTypeIfDynamic);  
+- }  
+可以看到，分别创建了H264VideoStreamFramer和H264VideoRTPSink。可以肯定H264VideoStreamFramer也是一个Source，但它内部又利用了另一个source--ByteStreamFileSource。后面会分析为什么要这样做，这里先不要管它。还没有看到真正打开文件的代码，继续探索：
+- void OnDemandServerMediaSubsession::setSDPLinesFromRTPSink(  
+-         RTPSink* rtpSink,  
+-         FramedSource* inputSource,  
+-         unsigned estBitrate)  
+- {  
+- if (rtpSink == NULL)  
+- return;  
+- 
+- charconst* mediaType = rtpSink->sdpMediaType();  
+-     unsigned char rtpPayloadType = rtpSink->rtpPayloadType();  
+- struct in_addr serverAddrForSDP;  
+-     serverAddrForSDP.s_addr = fServerAddressForSDP;  
+- char* const ipAddressStr = strDup(our_inet_ntoa(serverAddrForSDP));  
+- char* rtpmapLine = rtpSink->rtpmapLine();  
+- charconst* rangeLine = rangeSDPLine();  
+- charconst* auxSDPLine = getAuxSDPLine(rtpSink, inputSource);  
+- if (auxSDPLine == NULL)  
+-         auxSDPLine = "";  
+- 
+- charconst* const sdpFmt = "m=%s %u RTP/AVP %d\r\n"
+- "c=IN IP4 %s\r\n"
+- "b=AS:%u\r\n"
+- "%s"
+- "%s"
+- "%s"
+- "a=control:%s\r\n";  
+-     unsigned sdpFmtSize = strlen(sdpFmt) + strlen(mediaType) + 5 /* max short len */
+-     + 3 /* max char len */
+-     + strlen(ipAddressStr) + 20 /* max int len */
+-     + strlen(rtpmapLine) + strlen(rangeLine) + strlen(auxSDPLine)  
+-             + strlen(trackId());  
+- char* sdpLines = newchar[sdpFmtSize];  
+-     sprintf(sdpLines, sdpFmt, mediaType, // m= <media>
+-             fPortNumForSDP, // m= <port>
+-             rtpPayloadType, // m= <fmt list>
+-             ipAddressStr, // c= address
+-             estBitrate, // b=AS:<bandwidth>
+-             rtpmapLine, // a=rtpmap:... (if present)
+-             rangeLine, // a=range:... (if present)
+-             auxSDPLine, // optional extra SDP line
+-             trackId()); // a=control:<track-id>
+- delete[] (char*) rangeLine;  
+- delete[] rtpmapLine;  
+- delete[] ipAddressStr;  
+- 
+-     fSDPLines = strDup(sdpLines);  
+- delete[] sdpLines;  
+- }  
+此函数中取得Subsession的sdp并保存到fSDPLines。打开文件应在rtpSink->rtpmapLine()甚至是Source创建时已经做了。我们不防先把它放一放，而是先把SDP的获取过程搞个通透。所以把焦点集中到getAuxSDPLine()上。
+- charconst* OnDemandServerMediaSubsession::getAuxSDPLine(  
+-         RTPSink* rtpSink,  
+-         FramedSource* /*inputSource*/)  
+- {  
+- // Default implementation:
+- return rtpSink == NULL ? NULL : rtpSink->auxSDPLine();  
+- }  
+很简单，调用了rtpSink->auxSDPLine()那么我们要看H264VideoRTPSink::auxSDPLine()：不用看了，很简单，取得source 中保存的PPS,SPS等形成a=fmpt行。但事实上并没有这么简单，H264VideoFileServerMediaSubsession重写了getAuxSDPLine()！如果不重写，则说明auxSDPLine已经在前面分析文件时获得了，那么既然重写，就说明前面没有获取到，只能在这个函数中重写。look　H264VideoFileServerMediaSubsession中这个函数:
+- charconst* H264VideoFileServerMediaSubsession::getAuxSDPLine(  
+-         RTPSink* rtpSink,  
+-         FramedSource* inputSource)  
+- {  
+- if (fAuxSDPLine != NULL)  
+- return fAuxSDPLine; // it's already been set up (for a previous client)
+- 
+- if (fDummyRTPSink == NULL) { // we're not already setting it up for another, concurrent stream
+- // Note: For H264 video files, the 'config' information ("profile-level-id" and "sprop-parameter-sets") isn't known
+- // until we start reading the file.  This means that "rtpSink"s "auxSDPLine()" will be NULL initially,
+- // and we need to start reading data from our file until this changes.
+-         fDummyRTPSink = rtpSink;  
+- 
+- // Start reading the file:
+-         fDummyRTPSink->startPlaying(*inputSource, afterPlayingDummy, this);  
+- 
+- // Check whether the sink's 'auxSDPLine()' is ready:
+-         checkForAuxSDPLine(this);  
+-     }  
+- 
+-     envir().taskScheduler().doEventLoop(&fDoneFlag);  
+- 
+- return fAuxSDPLine;  
+- }  
+注释里面解释得很清楚，H264不能在文件头中取得PPS/SPS，必须在播放一下后（当然，它是一个原始流文件，没有文件头）才行。也就是说不能从rtpSink中取得了。为了保证在函数退出前能取得AuxSDP，把大循环搬到这里来了。afterPlayingDummy()是在播放结束也就是取得aux sdp之后执行。在大循环之前的checkForAuxSDPLine()做了什么呢？
+- void H264VideoFileServerMediaSubsession::checkForAuxSDPLine1()  
+- {  
+- charconst* dasl;  
+- 
+- if (fAuxSDPLine != NULL) {  
+- // Signal the event loop that we're done:
+-         setDoneFlag();  
+-     } elseif (fDummyRTPSink != NULL  
+-             && (dasl = fDummyRTPSink->auxSDPLine()) != NULL) {  
+-         fAuxSDPLine = strDup(dasl);  
+-         fDummyRTPSink = NULL;  
+- 
+- // Signal the event loop that we're done:
+-         setDoneFlag();  
+-     } else {  
+- // try again after a brief delay:
+- int uSecsToDelay = 100000; // 100 ms
+-         nextTask() = envir().taskScheduler().scheduleDelayedTask(uSecsToDelay,  
+-                 (TaskFunc*) checkForAuxSDPLine, this);  
+-     }  
+- }  
+它检查是否已取得Aux sdp，如果取得了，设置结束标志，直接返回。如果没有，就检查是否sink中已取得了aux sdp，如果是，也设置结束标志，返回。如果还没有取得，则把这个检查函数做为delay task加入计划任务中。每100毫秒检查一次，每检查一次主要就是调用一次fDummyRTPSink->auxSDPLine()。大循环在检测到fDoneFlag改变时停止，此时已取得了aux
+ sdp。但是如果直到文件结束也没有得到aux sdp，则afterPlayingDummy（）被执行，在其中停止掉这个大循环。然后在父Subsession类中关掉这些临时的source和sink。在直正播放时重新创建。

@@ -1,0 +1,6 @@
+# 降维算法中的线性判别方法LDA-朝闻道-51CTO博客
+线性判别分析(Linear Discriminant Analysis, LDA)，有时也称Fisher线性判别(Fisher Linear Discriminant ,FLD)， 这种算法是Ronald Fisher 于 1936年发明的，是模式识别的经典算法。在1996年由Belhumeur引入模式识别和人工智能领域的。
+基本思想是将高维的模式样本投影到最佳鉴别矢量空间，以达到抽取分类信息和压缩特征空间维数的效果，投影后保证模式样本在新的子空间有最大的类间距离和最小的类内距离，即模式在该空间中有最佳的可分离性。因此，它是一种有效的特征抽取方法。使用这种方法能够使投影后模式样本的类间散布矩阵最大，并且同时类内散布矩阵最小。就是说，它能够保证投影后模式样本在新的空间中有最小的类内距离和最大的类间距离，即模式在该空间中有最佳的可分离性。
+![降维算法中的线性判别方法LDA](https://s1.51cto.com/images/blog/201804/13/bc5bdaf1ef81c2257ee02098e610a940.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)
+![降维算法中的线性判别方法LDA](https://s1.51cto.com/images/blog/201804/13/803775b4140997b57c79c5c33b0d7b47.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)![降维算法中的线性判别方法LDA](https://s1.51cto.com/images/blog/201804/13/646043c96a204d55443f60d290bc8be8.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)
+![降维算法中的线性判别方法LDA](https://s1.51cto.com/images/blog/201804/13/600393f5fa0d01be599c25dfd0a79f3e.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)
