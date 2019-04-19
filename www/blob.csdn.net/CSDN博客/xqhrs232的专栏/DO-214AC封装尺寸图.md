@@ -1,0 +1,38 @@
+# DO-214AC封装尺寸图 - xqhrs232的专栏 - CSDN博客
+2014年08月04日 11:43:50[xqhrs232](https://me.csdn.net/xqhrs232)阅读数：10223
+个人分类：[各种电子元器件/硬件技术](https://blog.csdn.net/xqhrs232/article/category/6300755)
+原文地址::[http://www.838dz.com/diode/1131.htm](http://www.838dz.com/diode/1131.htm)
+相关文章
+1、D​O​-​2​1​4​A​C​ ​S​O​D​1​0​6​封​装​尺​寸​图----[http://wenku.baidu.com/link?url=ZaiEKNHt7JH2eozDy8gRFhgkGWdJEcVDVh_Z3Kruczc8OvS6asmnnUEIIqcC-8lvkB6wDFZ9xCTdhDAHWZBLm564iBtVGorG-Sf_fGHuy_W](http://wenku.baidu.com/link?url=ZaiEKNHt7JH2eozDy8gRFhgkGWdJEcVDVh_Z3Kruczc8OvS6asmnnUEIIqcC-8lvkB6wDFZ9xCTdhDAHWZBLm564iBtVGorG-Sf_fGHuy_W)
+表面贴装元件英制封装图尺寸：DO214AC （SMC）
+![](http://www.838dz.com/d/file/2009-04-04/ed672f47c6d9596232638535c3498f86.jpg)
+DO-214AC贴片元件封装形式图片
+贴片元器件封装示意图索引
+|[TO-268AA](http://www.838dz.com/diode/1141.htm)|[DO-215AB](http://www.838dz.com/diode/1133.htm)|[SOT883](http://www.838dz.com/diode/1124.htm)|
+|----|----|----|
+|[TO-263 D2PAK](http://www.838dz.com/diode/1140.htm)|[DO-215AA](http://www.838dz.com/diode/1132.htm)|[SOT753](http://www.838dz.com/diode/1123.htm)|
+|[TO-263-7](http://www.838dz.com/diode/1139.htm)|[DO-214AC](http://www.838dz.com/diode/1131.htm)|[SOT666](http://www.838dz.com/diode/1122.htm)|
+|[TO-263-5](http://www.838dz.com/diode/1138.htm)|[DO-214AB](http://www.838dz.com/diode/1130.htm)|[SOT663](http://www.838dz.com/diode/1121.htm)|
+|[TO-263-3](http://www.838dz.com/diode/1137.htm)|[DO-214AA](http://www.838dz.com/diode/1129.htm)|[SOT552-1](http://www.838dz.com/diode/1120.htm)|
+|[TO-252 DPAK](http://www.838dz.com/diode/1136.htm)|[DO-214](http://www.838dz.com/diode/1128.htm)|[SOT523](http://www.838dz.com/diode/1119.htm)|
+|[TO-252-5](http://www.838dz.com/diode/1135.htm)|[DO-213AB](http://www.838dz.com/diode/1127.htm)|[SOT505-1](http://www.838dz.com/diode/1118.htm)|
+|[TO252-3](http://www.838dz.com/diode/1134.htm)|[DO-213AA](http://www.838dz.com/diode/1126.htm)|[SOT490-SC89](http://www.838dz.com/diode/1117.htm)|
+||[DO213AB](http://www.838dz.com/diode/1125.htm)|[SOT457 SC74](http://www.838dz.com/diode/1116.htm)|
+|[2512](http://www.838dz.com/diode/1086.htm)||[SOT428](http://www.838dz.com/diode/1115.htm)|
+|[0402](http://www.838dz.com/diode/1067.htm)|[SOD123H](http://www.838dz.com/diode/1098.htm)|[SOT416/SC75](http://www.838dz.com/diode/1114.htm)|
+|[2308](http://www.838dz.com/diode/1085.htm)|[SOD723](http://www.838dz.com/diode/1097.htm)|[SOT663 SMD](http://www.838dz.com/diode/1113.htm)|
+|[0201](http://www.838dz.com/diode/1066.htm)|[SOD523](http://www.838dz.com/diode/1096.htm)|[SOT363 SC706L](http://www.838dz.com/diode/1112.htm)|
+|[2225](http://www.838dz.com/diode/1084.htm)|[SOD323](http://www.838dz.com/diode/1095.htm)|[SOT353/sc70 5L](http://www.838dz.com/diode/1111.htm)|
+|[2010](http://www.838dz.com/diode/1083.htm)|[SOD-123F](http://www.838dz.com/diode/1094.htm)|[SOT346/SC59](http://www.838dz.com/diode/1110.htm)|
+|[1825](http://www.838dz.com/diode/1082.htm)|[SOD123](http://www.838dz.com/diode/1093.htm)|[SOT343 SMD](http://www.838dz.com/diode/1109.htm)|
+|[1812](http://www.838dz.com/diode/1081.htm)|[SOD110](http://www.838dz.com/diode/1092.htm)|[SOT339-1 SMD](http://www.838dz.com/diode/1108.htm)|
+|[1808](http://www.838dz.com/diode/1080.htm)|[DO-214AC SOD106](http://www.838dz.com/diode/1091.htm)|[SOT323/SC70-3](http://www.838dz.com/diode/1107.htm)|
+|[1406](http://www.838dz.com/diode/1079.htm)|[D-7343](http://www.838dz.com/diode/1090.htm)|[SOT233 SMD](http://www.838dz.com/diode/1106.htm)|
+|[1210](http://www.838dz.com/diode/1078.htm)|[C-6032](http://www.838dz.com/diode/1089.htm)|[SOT-223/TO-261AA](http://www.838dz.com/diode/1105.htm)|
+|[1206](http://www.838dz.com/diode/1077.htm)|[B-3528](http://www.838dz.com/diode/1088.htm)|[SOT143/TO253 SMD](http://www.838dz.com/diode/1104.htm)|
+|[1008](http://www.838dz.com/diode/1076.htm)|[A-3216](http://www.838dz.com/diode/1087.htm)|[SOT89/TO243AA SC62](http://www.838dz.com/diode/1103.htm)|
+|[01005](http://www.838dz.com/diode/1075.htm)|-|[SOT23-8](http://www.838dz.com/diode/1102.htm)|
+|[0805](http://www.838dz.com/diode/1074.htm)|-|[SOT23-6](http://www.838dz.com/diode/1101.htm)|
+|[0604](http://www.838dz.com/diode/1073.htm)|-|[SOT23-5](http://www.838dz.com/diode/1100.htm)|
+|[0603](http://www.838dz.com/diode/1070.htm)|-|[SOT23](http://www.838dz.com/diode/1099.htm)|
+本站所有文章不得转载！可以链接网址使用

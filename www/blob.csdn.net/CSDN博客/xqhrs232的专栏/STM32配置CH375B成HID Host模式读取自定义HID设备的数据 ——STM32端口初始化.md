@@ -1,0 +1,217 @@
+# STM32配置CH375B成HID Host模式读取自定义HID设备的数据 ——STM32端口初始化 - xqhrs232的专栏 - CSDN博客
+2018年02月13日 14:52:36[xqhrs232](https://me.csdn.net/xqhrs232)阅读数：231
+原文地址::[http://blog.csdn.net/zhushengbing11090/article/details/69502280?locationNum=1&fps=1](http://blog.csdn.net/zhushengbing11090/article/details/69502280?locationNum=1&fps=1)
+  最近产品需要一个USB主机测试治具，所以需要做一个USB HOST去读取HID设备的数据，由于以前也没做过USB方面的项目，对这一块也不是很熟悉，因此遇到了很多困难，所幸的是经过两天半的努力，最终完成了CH375B的调试。![得意](http://static.blog.csdn.net/xheditor/xheditor_emot/default/proud.gif)不多废话，先上一张我调试的MCU管脚分配图
+![](https://img-blog.csdn.net/20170407132455313?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvemh1c2hlbmdiaW5nMTEwOTA=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+头文件
+**[cpp]**[view plain](http://blog.csdn.net/zhushengbing11090/article/details/69502280?locationNum=1&fps=1#)[copy](http://blog.csdn.net/zhushengbing11090/article/details/69502280?locationNum=1&fps=1#)
+- #ifndef __BSP_INIT_H__
+- #define __BSP_INIT_H__
+- 
+- #include "stm32f0xx_hal.h"
+- #include "config.h"
+- 
+- typedefstruct
+- {  
+- struct
+-     {  
+-         uint16_t USB_BaseTime;  
+-         uint8_t  USB_Flag;  
+-     }USB_Heart;  
+- }Sys_Heart_Def;  
+- 
+- typedefstruct
+- {  
+-     Sys_Heart_Def   Sys_Heart_Info;  
+-     uint8_t         USB_Connect_Status;  
+- }Sys_Param_Def;  
+- 
+- extern Sys_Param_Def      SysParam_Info;  
+- extern UART_HandleTypeDef HAL_CH375_USART;  
+- 
+- void Error_Handler(void);  
+- void Bsp_Peripherals_Init(void);  
+- 
+- #endif
+详细的代码如下:
+**[cpp]**[view plain](http://blog.csdn.net/zhushengbing11090/article/details/69502280?locationNum=1&fps=1#)[copy](http://blog.csdn.net/zhushengbing11090/article/details/69502280?locationNum=1&fps=1#)
+- #include "bsp_init.h"
+- 
+- Sys_Param_Def      SysParam_Info;  
+- /* Private variables ---------------------------------------------------------*/
+- UART_HandleTypeDef HAL_CH375_USART;  
+- 
+- void Bsp_SystemClock_Init(void)  
+- {  
+-   RCC_OscInitTypeDef RCC_OscInitStruct;  
+-   RCC_ClkInitTypeDef RCC_ClkInitStruct;  
+-   RCC_PeriphCLKInitTypeDef PeriphClkInit;  
+- 
+- /* Initializes the CPU, AHB and APB busses clocks */
+-   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;  
+-   RCC_OscInitStruct.HSIState = RCC_HSI_ON;  
+-   RCC_OscInitStruct.HSICalibrationValue = 16;  
+-   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;  
+-   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;  
+-   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL12;  
+-   RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;  
+- if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)  
+-   {  
+-     Error_Handler();  
+-   }  
+- 
+- /* Initializes the CPU, AHB and APB busses clocks */
+-   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK  
+-                                 |RCC_CLOCKTYPE_PCLK1;  
+-   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;  
+-   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;  
+-   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;  
+- 
+- if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)  
+-   {  
+-     Error_Handler();  
+-   }  
+- 
+-   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1;  
+-   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK1;  
+- if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)  
+-   {  
+-     Error_Handler();  
+-   }  
+- 
+- /* Configure the Systick interrupt time */
+-   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);  
+- 
+- /* Configure the Systick */
+-   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);  
+- 
+- /* SysTick_IRQn interrupt configuration */
+-   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);  
+- }  
+- 
+- void Bsp_GPIO_Init(void)  
+- {  
+-   GPIO_InitTypeDef GPIO_InitStruct;  
+- 
+- /* GPIO Ports Clock Enable */
+-   __HAL_RCC_GPIOC_CLK_ENABLE();  
+-   __HAL_RCC_GPIOA_CLK_ENABLE();  
+-   __HAL_RCC_GPIOB_CLK_ENABLE();  
+- 
+- /*Configure GPIO pin Output Level */
+-   HAL_GPIO_WritePin(CH375_D0_GPIO_Port, CH375_D0_Pin, GPIO_PIN_SET);  
+-   HAL_GPIO_WritePin(CH375_D1_GPIO_Port, CH375_D1_Pin, GPIO_PIN_SET);  
+-   HAL_GPIO_WritePin(CH375_D2_GPIO_Port, CH375_D2_Pin, GPIO_PIN_SET);  
+-   HAL_GPIO_WritePin(CH375_D3_GPIO_Port, CH375_D3_Pin, GPIO_PIN_SET);  
+-   HAL_GPIO_WritePin(CH375_D4_GPIO_Port, CH375_D4_Pin, GPIO_PIN_SET);  
+-   HAL_GPIO_WritePin(CH375_D5_GPIO_Port, CH375_D5_Pin, GPIO_PIN_SET);  
+-   HAL_GPIO_WritePin(CH375_D6_GPIO_Port, CH375_D6_Pin, GPIO_PIN_SET);  
+-   HAL_GPIO_WritePin(CH375_D7_GPIO_Port, CH375_D7_Pin, GPIO_PIN_SET);  
+- /*Configure GPIO pin Output Level */
+-   HAL_GPIO_WritePin(CH375_WR_GPIO_Port, CH375_WR_Pin, GPIO_PIN_SET);  
+-   HAL_GPIO_WritePin(CH375_RD_GPIO_Port, CH375_RD_Pin, GPIO_PIN_SET);  
+-   HAL_GPIO_WritePin(CH375_CS_GPIO_Port, CH375_CS_Pin, GPIO_PIN_SET);  
+-   HAL_GPIO_WritePin(CH375_A0_GPIO_Port, CH375_A0_Pin, GPIO_PIN_SET);      
+- 
+- /*Configure GPIO pin : CH375_INT_Pin */
+-   GPIO_InitStruct.Pin = CH375_INT_Pin;  
+-   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;  
+-   GPIO_InitStruct.Pull = GPIO_PULLUP;  
+-   HAL_GPIO_Init(CH375_INT_GPIO_Port, &GPIO_InitStruct);  
+- 
+- /*Configure GPIO pins : CH375_D0_Pin CH375_D1_Pin CH375_D2_Pin CH375_D3_Pin 
+-                            CH375_D4_Pin CH375_D5_Pin CH375_D6_Pin CH375_D7_Pin */
+-   GPIO_InitStruct.Pin = CH375_D0_Pin;  
+-   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;  
+-   GPIO_InitStruct.Pull = GPIO_NOPULL;  
+-   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;  
+-   HAL_GPIO_Init(CH375_D0_GPIO_Port, &GPIO_InitStruct);    
+- 
+-   GPIO_InitStruct.Pin = CH375_D1_Pin;  
+-   HAL_GPIO_Init(CH375_D1_GPIO_Port, &GPIO_InitStruct);  
+- 
+-   GPIO_InitStruct.Pin = CH375_D2_Pin;  
+-   HAL_GPIO_Init(CH375_D2_GPIO_Port, &GPIO_InitStruct);  
+- 
+-   GPIO_InitStruct.Pin = CH375_D3_Pin;  
+-   HAL_GPIO_Init(CH375_D3_GPIO_Port, &GPIO_InitStruct);  
+- 
+-   GPIO_InitStruct.Pin = CH375_D4_Pin;  
+-   HAL_GPIO_Init(CH375_D4_GPIO_Port, &GPIO_InitStruct);  
+- 
+-   GPIO_InitStruct.Pin = CH375_D5_Pin;  
+-   HAL_GPIO_Init(CH375_D5_GPIO_Port, &GPIO_InitStruct);  
+- 
+-   GPIO_InitStruct.Pin = CH375_D6_Pin;  
+-   HAL_GPIO_Init(CH375_D6_GPIO_Port, &GPIO_InitStruct);  
+- 
+-   GPIO_InitStruct.Pin = CH375_D7_Pin;  
+-   HAL_GPIO_Init(CH375_D7_GPIO_Port, &GPIO_InitStruct);  
+- 
+- /*Configure GPIO pins : CH375_WR_Pin CH375_RD_Pin CH375_CS_Pin CH375_A0_Pin */
+-   GPIO_InitStruct.Pin = CH375_WR_Pin;  
+-   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;  
+-   GPIO_InitStruct.Pull = GPIO_NOPULL;  
+-   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;  
+-   HAL_GPIO_Init(CH375_WR_GPIO_Port, &GPIO_InitStruct);  
+- 
+-   GPIO_InitStruct.Pin = CH375_RD_Pin;  
+-   HAL_GPIO_Init(CH375_RD_GPIO_Port, &GPIO_InitStruct);  
+- 
+-   GPIO_InitStruct.Pin = CH375_CS_Pin;  
+-   HAL_GPIO_Init(CH375_CS_GPIO_Port, &GPIO_InitStruct);  
+- 
+-   GPIO_InitStruct.Pin = CH375_A0_Pin;  
+-   HAL_GPIO_Init(CH375_A0_GPIO_Port, &GPIO_InitStruct);  
+- 
+-   HAL_NVIC_SetPriority(EXTI4_15_IRQn,0,0);  
+-   HAL_NVIC_DisableIRQ(EXTI4_15_IRQn);  
+- }  
+- 
+- void Bsp_CH375_USART_Init(void)  
+- {  
+- 
+-   HAL_CH375_USART.Instance = USART1;  
+-   HAL_CH375_USART.Init.BaudRate = 115200;  
+-   HAL_CH375_USART.Init.WordLength = UART_WORDLENGTH_8B;  
+-   HAL_CH375_USART.Init.StopBits = UART_STOPBITS_1;  
+-   HAL_CH375_USART.Init.Parity = UART_PARITY_NONE;  
+-   HAL_CH375_USART.Init.Mode = UART_MODE_TX_RX;  
+-   HAL_CH375_USART.Init.HwFlowCtl = UART_HWCONTROL_NONE;  
+-   HAL_CH375_USART.Init.OverSampling = UART_OVERSAMPLING_16;  
+-   HAL_CH375_USART.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;  
+-   HAL_CH375_USART.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;  
+- if (HAL_UART_Init(&HAL_CH375_USART) != HAL_OK)  
+-   {  
+-     Error_Handler();  
+-   }  
+-   __HAL_UART_ENABLE(&HAL_CH375_USART);  
+- }  
+- 
+- void Bsp_Peripherals_Init(void)  
+- {  
+- /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+-   HAL_Init();  
+- /* Configure the system clock */
+-   Bsp_SystemClock_Init();  
+-   Bsp_GPIO_Init();  
+-   Bsp_CH375_USART_Init();  
+- }  
+- 
+- /**
+-   * @brief  This function is executed in case of error occurrence.
+-   * @param  None
+-   * @retval None
+-   */
+- void Error_Handler(void)  
+- {  
+- /* USER CODE BEGIN Error_Handler */
+- /* User can add his own implementation to report the HAL error return state */
+- while(1)   
+-   {  
+-   }  
+- /* USER CODE END Error_Handler */
+- }  
+- 
+- /***/
+- 

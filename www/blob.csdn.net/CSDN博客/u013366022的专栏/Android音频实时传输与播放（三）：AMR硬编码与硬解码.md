@@ -1,0 +1,699 @@
+# Android音频实时传输与播放（三）：AMR硬编码与硬解码 - u013366022的专栏 - CSDN博客
+2014年08月13日 14:56:39[slitaz](https://me.csdn.net/u013366022)阅读数：594
+在Android中我所知道的音频编解码有两种方式：
+（一）使用AudioRecord采集音频，用这种方式采集的是未经压缩的音频流；用AudioTrack播放实时音频流。用这两个类的话，如果需要对音频进行编解码，就需要自己移植编解码库了，比如可以移植ilbc，speex等开源编解码库。
+ ilbc的编解码实现可以查看这个专栏：[http://blog.csdn.net/column/details/media.html](http://blog.csdn.net/column/details/media.html)
+（二）使用MediaRecorder获取编码后的AMR音频，但由于MediaRecorder的特点，只能将流保存到文件中，但通过其他方式是可以获取到实时音频流的，这篇文章将介绍用LocalSocket的方法来实现；使用MediaPlayer来播放AMR音频流，但同样MediaPlayer也只能播放文件流，因此我用缓存的方式来播放音频。
+以上两种方式各有利弊，使用方法（一）需移植编解码库，但可以播放实时音频流；使用方法（二）直接硬编硬解码效率高，但是需要对文件进行操作。
+PS：这篇文章只是给大家一个参考，仅供学习之用，如果真正用到项目中还有很多地方需要优化。
+我强烈推荐播放音频时候用方法（一），方法（二）虽然能够实现功能，但是实现方式不太好。
+接下来看代码：
+**编码器：**
+**[java]**[view
+ plain](http://blog.csdn.net/zgyulongfei/article/details/7753163#)[copy](http://blog.csdn.net/zgyulongfei/article/details/7753163#)
+- package cn.edu.xmu.zgy.audio.encoder;  
+- 
+- import java.io.DataInputStream;  
+- import java.io.IOException;  
+- import java.net.DatagramPacket;  
+- import java.net.DatagramSocket;  
+- import java.net.InetAddress;  
+- 
+- import cn.edu.xmu.zgy.config.CommonConfig;  
+- 
+- import android.app.Activity;  
+- import android.media.MediaRecorder;  
+- import android.net.LocalServerSocket;  
+- import android.net.LocalSocket;  
+- import android.net.LocalSocketAddress;  
+- import android.util.Log;  
+- import android.widget.Toast;  
+- 
+- //blog.csdn.net/zgyulongfei
+- //Email: zgyulongfei@gmail.com
+- 
+- publicclass AmrAudioEncoder {  
+- privatestaticfinal String TAG = "ArmAudioEncoder";  
+- 
+- privatestatic AmrAudioEncoder amrAudioEncoder = null;  
+- 
+- private Activity activity;  
+- 
+- private MediaRecorder audioRecorder;  
+- 
+- privateboolean isAudioRecording;  
+- 
+- private LocalServerSocket lss;  
+- private LocalSocket sender, receiver;  
+- 
+- private AmrAudioEncoder() {  
+-     }  
+- 
+- publicstatic AmrAudioEncoder getArmAudioEncoderInstance() {  
+- if (amrAudioEncoder == null) {  
+- synchronized (AmrAudioEncoder.class) {  
+- if (amrAudioEncoder == null) {  
+-                     amrAudioEncoder = new AmrAudioEncoder();  
+-                 }  
+-             }  
+-         }  
+- return amrAudioEncoder;  
+-     }  
+- 
+- publicvoid initArmAudioEncoder(Activity activity) {  
+- this.activity = activity;  
+-         isAudioRecording = false;  
+-     }  
+- 
+- publicvoid start() {  
+- if (activity == null) {  
+-             showToastText("音频编码器未初始化，请先执行init方法");  
+- return;  
+-         }  
+- 
+- if (isAudioRecording) {  
+-             showToastText("音频已经开始编码，无需再次编码");  
+- return;  
+-         }  
+- 
+- if (!initLocalSocket()) {  
+-             showToastText("本地服务开启失败");  
+-             releaseAll();  
+- return;  
+-         }  
+- 
+- if (!initAudioRecorder()) {  
+-             showToastText("音频编码器初始化失败");  
+-             releaseAll();  
+- return;  
+-         }  
+- 
+- this.isAudioRecording = true;  
+-         startAudioRecording();  
+-     }  
+- 
+- privateboolean initLocalSocket() {  
+- boolean ret = true;  
+- try {  
+-             releaseLocalSocket();  
+- 
+-             String serverName = "armAudioServer";  
+- finalint bufSize = 1024;  
+- 
+-             lss = new LocalServerSocket(serverName);  
+- 
+-             receiver = new LocalSocket();  
+-             receiver.connect(new LocalSocketAddress(serverName));  
+-             receiver.setReceiveBufferSize(bufSize);  
+-             receiver.setSendBufferSize(bufSize);  
+- 
+-             sender = lss.accept();  
+-             sender.setReceiveBufferSize(bufSize);  
+-             sender.setSendBufferSize(bufSize);  
+-         } catch (IOException e) {  
+-             ret = false;  
+-         }  
+- return ret;  
+-     }  
+- 
+- privateboolean initAudioRecorder() {  
+- if (audioRecorder != null) {  
+-             audioRecorder.reset();  
+-             audioRecorder.release();  
+-         }  
+-         audioRecorder = new MediaRecorder();  
+-         audioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);  
+-         audioRecorder.setOutputFormat(MediaRecorder.OutputFormat.RAW_AMR);  
+- finalint mono = 1;  
+-         audioRecorder.setAudioChannels(mono);  
+-         audioRecorder.setAudioSamplingRate(8000);  
+-         audioRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);  
+-         audioRecorder.setOutputFile(sender.getFileDescriptor());  
+- 
+- boolean ret = true;  
+- try {  
+-             audioRecorder.prepare();  
+-             audioRecorder.start();  
+-         } catch (Exception e) {  
+-             releaseMediaRecorder();  
+-             showToastText("手机不支持录音此功能");  
+-             ret = false;  
+-         }  
+- return ret;  
+-     }  
+- 
+- privatevoid startAudioRecording() {  
+- new Thread(new AudioCaptureAndSendThread()).start();  
+-     }  
+- 
+- publicvoid stop() {  
+- if (isAudioRecording) {  
+-             isAudioRecording = false;  
+-         }  
+-         releaseAll();  
+-     }  
+- 
+- privatevoid releaseAll() {  
+-         releaseMediaRecorder();  
+-         releaseLocalSocket();  
+-         amrAudioEncoder = null;  
+-     }  
+- 
+- privatevoid releaseMediaRecorder() {  
+- try {  
+- if (audioRecorder == null) {  
+- return;  
+-             }  
+- if (isAudioRecording) {  
+-                 audioRecorder.stop();  
+-                 isAudioRecording = false;  
+-             }  
+-             audioRecorder.reset();  
+-             audioRecorder.release();  
+-             audioRecorder = null;  
+-         } catch (Exception err) {  
+-             Log.d(TAG, err.toString());  
+-         }  
+-     }  
+- 
+- privatevoid releaseLocalSocket() {  
+- try {  
+- if (sender != null) {  
+-                 sender.close();  
+-             }  
+- if (receiver != null) {  
+-                 receiver.close();  
+-             }  
+- if (lss != null) {  
+-                 lss.close();  
+-             }  
+-         } catch (IOException e) {  
+-             e.printStackTrace();  
+-         }  
+-         sender = null;  
+-         receiver = null;  
+-         lss = null;  
+-     }  
+- 
+- privateboolean isAudioRecording() {  
+- return isAudioRecording;  
+-     }  
+- 
+- privatevoid showToastText(String msg) {  
+-         Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();  
+-     }  
+- 
+- privateclass AudioCaptureAndSendThread implements Runnable {  
+- publicvoid run() {  
+- try {  
+-                 sendAmrAudio();  
+-             } catch (Exception e) {  
+-                 Log.e(TAG, "sendAmrAudio() 出错");  
+-             }  
+-         }  
+- 
+- privatevoid sendAmrAudio() throws Exception {  
+-             DatagramSocket udpSocket = new DatagramSocket();  
+-             DataInputStream dataInput = new DataInputStream(receiver.getInputStream());  
+- 
+-             skipAmrHead(dataInput);  
+- 
+- finalint SEND_FRAME_COUNT_ONE_TIME = 10;// 每次发送10帧的数据，1帧大约32B
+- // AMR格式见博客：http://blog.csdn.net/dinggo/article/details/1966444
+- finalint BLOCK_SIZE[] = { 12, 13, 15, 17, 19, 20, 26, 31, 5, 0, 0, 0, 0, 0, 0, 0 };  
+- 
+- byte[] sendBuffer = newbyte[1024];  
+- while (isAudioRecording()) {  
+- int offset = 0;  
+- for (int index = 0; index < SEND_FRAME_COUNT_ONE_TIME; ++index) {  
+- if (!isAudioRecording()) {  
+- break;  
+-                     }  
+-                     dataInput.read(sendBuffer, offset, 1);  
+- int blockIndex = (int) (sendBuffer[offset] >> 3) & 0x0F;  
+- int frameLength = BLOCK_SIZE[blockIndex];  
+-                     readSomeData(sendBuffer, offset + 1, frameLength, dataInput);  
+-                     offset += frameLength + 1;  
+-                 }  
+-                 udpSend(udpSocket, sendBuffer, offset);  
+-             }  
+-             udpSocket.close();  
+-             dataInput.close();  
+-             releaseAll();  
+-         }  
+- 
+- privatevoid skipAmrHead(DataInputStream dataInput) {  
+- finalbyte[] AMR_HEAD = newbyte[] { 0x23, 0x21, 0x41, 0x4D, 0x52, 0x0A };  
+- int result = -1;  
+- int state = 0;  
+- try {  
+- while (-1 != (result = dataInput.readByte())) {  
+- if (AMR_HEAD[0] == result) {  
+-                         state = (0 == state) ? 1 : 0;  
+-                     } elseif (AMR_HEAD[1] == result) {  
+-                         state = (1 == state) ? 2 : 0;  
+-                     } elseif (AMR_HEAD[2] == result) {  
+-                         state = (2 == state) ? 3 : 0;  
+-                     } elseif (AMR_HEAD[3] == result) {  
+-                         state = (3 == state) ? 4 : 0;  
+-                     } elseif (AMR_HEAD[4] == result) {  
+-                         state = (4 == state) ? 5 : 0;  
+-                     } elseif (AMR_HEAD[5] == result) {  
+-                         state = (5 == state) ? 6 : 0;  
+-                     }  
+- 
+- if (6 == state) {  
+- break;  
+-                     }  
+-                 }  
+-             } catch (Exception e) {  
+-                 Log.e(TAG, "read mdat error...");  
+-             }  
+-         }  
+- 
+- privatevoid readSomeData(byte[] buffer, int offset, int length, DataInputStream dataInput) {  
+- int numOfRead = -1;  
+- while (true) {  
+- try {  
+-                     numOfRead = dataInput.read(buffer, offset, length);  
+- if (numOfRead == -1) {  
+-                         Log.d(TAG, "amr...no data get wait for data coming.....");  
+-                         Thread.sleep(100);  
+-                     } else {  
+-                         offset += numOfRead;  
+-                         length -= numOfRead;  
+- if (length <= 0) {  
+- break;  
+-                         }  
+-                     }  
+-                 } catch (Exception e) {  
+-                     Log.e(TAG, "amr..error readSomeData");  
+- break;  
+-                 }  
+-             }  
+-         }  
+- 
+- privatevoid udpSend(DatagramSocket udpSocket, byte[] buffer, int sendLength) {  
+- try {  
+-                 InetAddress ip = InetAddress.getByName(CommonConfig.SERVER_IP_ADDRESS.trim());  
+- int port = CommonConfig.AUDIO_SERVER_UP_PORT;  
+- 
+- byte[] sendBuffer = newbyte[sendLength];  
+-                 System.arraycopy(buffer, 0, sendBuffer, 0, sendLength);  
+- 
+-                 DatagramPacket packet = new DatagramPacket(sendBuffer, sendLength);  
+-                 packet.setAddress(ip);  
+-                 packet.setPort(port);  
+-                 udpSocket.send(packet);  
+-             } catch (IOException e) {  
+-                 e.printStackTrace();  
+-             }  
+-         }  
+-     }  
+- }  
+**关于编码器：**前面提到了，MediaRecorder的硬编码的方式只能将码流保存到文件中，这里用了LocalSocket的方式将流保存到内存中，然后从缓冲中读取码流。由于保存的格式RAW_AMR格式的，因此需要对读取到的数据进行解析，从而获得真正的音频流。想了解AMR音频码流格式的，可以查看代码中附上的网页链接。由于压缩过的码流很小，因此我在实现的时候，组合了int SEND_FRAME_COUNT_ONE_TIME =
+ 10帧的码流后才往外发送，这样的方式造成的延迟会加重，大家可以根据自己的需要进行修改。造成延迟的另一因素是LocalSocket缓冲的大小，在这里我设置的大小是final int bufSize = 1024;代码写的很清楚详细，有疑问的可以提出。
+**播放器：**
+**[java]**[view
+ plain](http://blog.csdn.net/zgyulongfei/article/details/7753163#)[copy](http://blog.csdn.net/zgyulongfei/article/details/7753163#)
+- package cn.edu.xmu.zgy.audio.player;  
+- 
+- import java.io.BufferedInputStream;  
+- import java.io.BufferedOutputStream;  
+- import java.io.File;  
+- import java.io.FileInputStream;  
+- import java.io.FileOutputStream;  
+- import java.io.IOException;  
+- import java.io.InputStream;  
+- import java.net.InetAddress;  
+- import java.net.Socket;  
+- 
+- import cn.edu.xmu.zgy.config.CommonConfig;  
+- 
+- import android.app.Activity;  
+- import android.media.MediaPlayer;  
+- import android.os.Handler;  
+- import android.util.Log;  
+- 
+- //blog.csdn.net/zgyulongfei
+- //Email: zgyulongfei@gmail.com
+- 
+- publicclass AmrAudioPlayer {  
+- privatestaticfinal String TAG = "AmrAudioPlayer";  
+- 
+- privatestatic AmrAudioPlayer playerInstance = null;  
+- 
+- privatelong alreadyReadByteCount = 0;  
+- 
+- private MediaPlayer audioPlayer;  
+- private Handler handler = new Handler();  
+- 
+- privatefinal String cacheFileName = "audioCacheFile";  
+- private File cacheFile;  
+- privateint cacheFileCount = 0;  
+- 
+- // 用来记录是否已经从cacheFile中复制数据到另一个cache中
+- privateboolean hasMovedTheCacheFlag;  
+- 
+- privateboolean isPlaying;  
+- private Activity activity;  
+- 
+- privateboolean isChaingCacheToAnother;  
+- 
+- private AmrAudioPlayer() {  
+-     }  
+- 
+- publicstatic AmrAudioPlayer getAmrAudioPlayerInstance() {  
+- if (playerInstance == null) {  
+- synchronized (AmrAudioPlayer.class) {  
+- if (playerInstance == null) {  
+-                     playerInstance = new AmrAudioPlayer();  
+-                 }  
+-             }  
+-         }  
+- return playerInstance;  
+-     }  
+- 
+- publicvoid initAmrAudioPlayer(Activity activity) {  
+- this.activity = activity;  
+-         deleteExistCacheFile();  
+-         initCacheFile();  
+-     }  
+- 
+- privatevoid deleteExistCacheFile() {  
+-         File cacheDir = activity.getCacheDir();  
+-         File[] needDeleteCacheFiles = cacheDir.listFiles();  
+- for (int index = 0; index < needDeleteCacheFiles.length; ++index) {  
+-             File cache = needDeleteCacheFiles[index];  
+- if (cache.isFile()) {  
+- if (cache.getName().contains(cacheFileName.trim())) {  
+-                     Log.e(TAG, "delete cache file: " + cache.getName());  
+-                     cache.delete();  
+-                 }  
+-             }  
+-         }  
+-         needDeleteCacheFiles = null;  
+-     }  
+- 
+- privatevoid initCacheFile() {  
+-         cacheFile = null;  
+-         cacheFile = new File(activity.getCacheDir(), cacheFileName);  
+-     }  
+- 
+- publicvoid start() {  
+-         isPlaying = true;  
+-         isChaingCacheToAnother = false;  
+-         setHasMovedTheCacheToAnotherCache(false);  
+- new Thread(new NetAudioPlayerThread()).start();  
+-     }  
+- 
+- publicvoid stop() {  
+-         isPlaying = false;  
+-         isChaingCacheToAnother = false;  
+-         setHasMovedTheCacheToAnotherCache(false);  
+-         releaseAudioPlayer();  
+-         deleteExistCacheFile();  
+-         cacheFile = null;  
+-         handler = null;  
+-     }  
+- 
+- privatevoid releaseAudioPlayer() {  
+-         playerInstance = null;  
+- if (audioPlayer != null) {  
+- try {  
+- if (audioPlayer.isPlaying()) {  
+-                     audioPlayer.pause();  
+-                 }  
+-                 audioPlayer.release();  
+-                 audioPlayer = null;  
+-             } catch (Exception e) {  
+-             }  
+-         }  
+-     }  
+- 
+- privateboolean hasMovedTheCacheToAnotherCache() {  
+- return hasMovedTheCacheFlag;  
+-     }  
+- 
+- privatevoid setHasMovedTheCacheToAnotherCache(boolean result) {  
+-         hasMovedTheCacheFlag = result;  
+-     }  
+- 
+- privateclass NetAudioPlayerThread implements Runnable {  
+- // 从接受数据开始计算，当缓存大于INIT_BUFFER_SIZE时候开始播放
+- privatefinalint INIT_AUDIO_BUFFER = 2 * 1024;  
+- // 剩1秒的时候播放新的缓存的音乐
+- privatefinalint CHANGE_CACHE_TIME = 1000;  
+- 
+- publicvoid run() {  
+- try {  
+-                 Socket socket = createSocketConnectToServer();  
+-                 receiveNetAudioThenPlay(socket);  
+-             } catch (Exception e) {  
+-                 Log.e(TAG, e.getMessage() + "从服务端接受音频失败。。。");  
+-             }  
+-         }  
+- 
+- private Socket createSocketConnectToServer() throws Exception {  
+-             String hostName = CommonConfig.SERVER_IP_ADDRESS;  
+-             InetAddress ipAddress = InetAddress.getByName(hostName);  
+- int port = CommonConfig.AUDIO_SERVER_DOWN_PORT;  
+-             Socket socket = new Socket(ipAddress, port);  
+- return socket;  
+-         }  
+- 
+- privatevoid receiveNetAudioThenPlay(Socket socket) throws Exception {  
+-             InputStream inputStream = socket.getInputStream();  
+-             FileOutputStream outputStream = new FileOutputStream(cacheFile);  
+- 
+- finalint BUFFER_SIZE = 100 * 1024;// 100kb buffer size
+- byte[] buffer = newbyte[BUFFER_SIZE];  
+- 
+- // 收集了10*350b了之后才开始更换缓存
+- int testTime = 10;  
+- try {  
+-                 alreadyReadByteCount = 0;  
+- while (isPlaying) {  
+- int numOfRead = inputStream.read(buffer);  
+- if (numOfRead <= 0) {  
+- break;  
+-                     }  
+-                     alreadyReadByteCount += numOfRead;  
+-                     outputStream.write(buffer, 0, numOfRead);  
+-                     outputStream.flush();  
+- try {  
+- if (testTime++ >= 10) {  
+-                             Log.e(TAG, "cacheFile=" + cacheFile.length());  
+-                             testWhetherToChangeCache();  
+-                             testTime = 0;  
+-                         }  
+-                     } catch (Exception e) {  
+- // TODO: handle exception
+-                     }  
+- 
+- // 如果复制了接收网络流的cache，则执行此操作
+- if (hasMovedTheCacheToAnotherCache() && !isChaingCacheToAnother) {  
+- if (outputStream != null) {  
+-                             outputStream.close();  
+-                             outputStream = null;  
+-                         }  
+- // 将接收网络流的cache删除，然后重0开始存储
+- // initCacheFile();
+-                         outputStream = new FileOutputStream(cacheFile);  
+-                         setHasMovedTheCacheToAnotherCache(false);  
+-                         alreadyReadByteCount = 0;  
+-                     }  
+- 
+-                 }  
+-             } catch (Exception e) {  
+-                 errorOperator();  
+-                 e.printStackTrace();  
+-                 Log.e(TAG, "socket disconnect...:" + e.getMessage());  
+- thrownew Exception("socket disconnect....");  
+-             } finally {  
+-                 buffer = null;  
+- if (socket != null) {  
+-                     socket.close();  
+-                 }  
+- if (inputStream != null) {  
+-                     inputStream.close();  
+-                     inputStream = null;  
+-                 }  
+- if (outputStream != null) {  
+-                     outputStream.close();  
+-                     outputStream = null;  
+-                 }  
+-                 stop();  
+-             }  
+-         }  
+- 
+- privatevoid testWhetherToChangeCache() throws Exception {  
+- if (audioPlayer == null) {  
+-                 firstTimeStartPlayer();  
+-             } else {  
+-                 changeAnotherCacheWhenEndOfCurrentCache();  
+-             }  
+-         }  
+- 
+- privatevoid firstTimeStartPlayer() throws Exception {  
+- // 当缓存已经大于INIT_AUDIO_BUFFER则开始播放
+- if (alreadyReadByteCount >= INIT_AUDIO_BUFFER) {  
+-                 Runnable r = new Runnable() {  
+- publicvoid run() {  
+- try {  
+-                             File firstCacheFile = createFirstCacheFile();  
+- // 设置已经从cache中复制数据，然后会删除这个cache
+-                             setHasMovedTheCacheToAnotherCache(true);  
+-                             audioPlayer = createAudioPlayer(firstCacheFile);  
+-                             audioPlayer.start();  
+-                         } catch (Exception e) {  
+-                             Log.e(TAG, e.getMessage() + " :in firstTimeStartPlayer() fun");  
+-                         } finally {  
+-                         }  
+-                     }  
+-                 };  
+-                 handler.post(r);  
+-             }  
+-         }  
+- 
+- private File createFirstCacheFile() throws Exception {  
+-             String firstCacheFileName = cacheFileName + (cacheFileCount++);  
+-             File firstCacheFile = new File(activity.getCacheDir(), firstCacheFileName);  
+- // 为什么不直接播放cacheFile，而要复制cacheFile到一个新的cache，然后播放此新的cache？
+- // 是为了防止潜在的读/写错误，可能在写入cacheFile的时候，
+- // MediaPlayer正试图读数据， 这样可以防止死锁的发生。
+-             moveFile(cacheFile, firstCacheFile);  
+- return firstCacheFile;  
+- 
+-         }  
+- 
+- privatevoid moveFile(File oldFile, File newFile) throws IOException {  
+- if (!oldFile.exists()) {  
+- thrownew IOException("oldFile is not exists. in moveFile() fun");  
+-             }  
+- if (oldFile.length() <= 0) {  
+- thrownew IOException("oldFile size = 0. in moveFile() fun");  
+-             }  
+-             BufferedInputStream reader = new BufferedInputStream(new FileInputStream(oldFile));  
+-             BufferedOutputStream writer = new BufferedOutputStream(new FileOutputStream(newFile,  
+- false));  
+- 
+- finalbyte[] AMR_HEAD = newbyte[] { 0x23, 0x21, 0x41, 0x4D, 0x52, 0x0A };  
+-             writer.write(AMR_HEAD, 0, AMR_HEAD.length);  
+-             writer.flush();  
+- 
+- try {  
+- byte[] buffer = newbyte[1024];  
+- int numOfRead = 0;  
+-                 Log.d(TAG, "POS...newFile.length=" + newFile.length() + "  old=" + oldFile.length());  
+- while ((numOfRead = reader.read(buffer, 0, buffer.length)) != -1) {  
+-                     writer.write(buffer, 0, numOfRead);  
+-                     writer.flush();  
+-                 }  
+-                 Log.d(TAG, "POS..AFTER...newFile.length=" + newFile.length());  
+-             } catch (IOException e) {  
+-                 Log.e(TAG, "moveFile error.. in moveFile() fun." + e.getMessage());  
+- thrownew IOException("moveFile error.. in moveFile() fun.");  
+-             } finally {  
+- if (reader != null) {  
+-                     reader.close();  
+-                     reader = null;  
+-                 }  
+- if (writer != null) {  
+-                     writer.close();  
+-                     writer = null;  
+-                 }  
+-             }  
+-         }  
+- 
+- private MediaPlayer createAudioPlayer(File audioFile) throws IOException {  
+-             MediaPlayer mPlayer = new MediaPlayer();  
+- 
+- // It appears that for security/permission reasons, it is better to
+- // pass
+- // a FileDescriptor rather than a direct path to the File.
+- // Also I have seen errors such as "PVMFErrNotSupported" and
+- // "Prepare failed.: status=0x1" if a file path String is passed to
+- // setDataSource(). So unless otherwise noted, we use a
+- // FileDescriptor here.
+-             FileInputStream fis = new FileInputStream(audioFile);  
+-             mPlayer.reset();  
+-             mPlayer.setDataSource(fis.getFD());  
+-             mPlayer.prepare();  
+- return mPlayer;  
+-         }  
+- 
+- privatevoid changeAnotherCacheWhenEndOfCurrentCache() throws IOException {  
+- // 检查当前cache剩余时间
+- long theRestTime = audioPlayer.getDuration() - audioPlayer.getCurrentPosition();  
+-             Log.e(TAG, "theRestTime=" + theRestTime + "  isChaingCacheToAnother="
+-                     + isChaingCacheToAnother);  
+- if (!isChaingCacheToAnother && theRestTime <= CHANGE_CACHE_TIME) {  
+-                 isChaingCacheToAnother = true;  
+- 
+-                 Runnable r = new Runnable() {  
+- publicvoid run() {  
+- try {  
+-                             File newCacheFile = createNewCache();  
+- // 设置已经从cache中复制数据，然后会删除这个cache
+-                             setHasMovedTheCacheToAnotherCache(true);  
+-                             transferNewCacheToAudioPlayer(newCacheFile);  
+-                         } catch (Exception e) {  
+-                             Log.e(TAG, e.getMessage()  
+-                                     + ":changeAnotherCacheWhenEndOfCurrentCache() fun");  
+-                         } finally {  
+-                             deleteOldCache();  
+-                             isChaingCacheToAnother = false;  
+-                         }  
+-                     }  
+-                 };  
+-                 handler.post(r);  
+-             }  
+-         }  
+- 
+- private File createNewCache() throws Exception {  
+- // 将保存网络数据的cache复制到newCache中进行播放
+-             String newCacheFileName = cacheFileName + (cacheFileCount++);  
+-             File newCacheFile = new File(activity.getCacheDir(), newCacheFileName);  
+-             Log.e(TAG, "before moveFile............the size=" + cacheFile.length());  
+-             moveFile(cacheFile, newCacheFile);  
+- return newCacheFile;  
+-         }  
+- 
+- privatevoid transferNewCacheToAudioPlayer(File newCacheFile) throws Exception {  
+-             MediaPlayer oldPlayer = audioPlayer;  
+- 
+- try {  
+-                 audioPlayer = createAudioPlayer(newCacheFile);  
+-                 audioPlayer.start();  
+-             } catch (Exception e) {  
+-                 Log.e(TAG, "filename=" + newCacheFile.getName() + " size=" + newCacheFile.length());  
+-                 Log.e(TAG, e.getMessage() + " " + e.getCause() + " error start..in transfanNer..");  
+-             }  
+- try {  
+-                 oldPlayer.pause();  
+-                 oldPlayer.reset();  
+-                 oldPlayer.release();  
+-             } catch (Exception e) {  
+-                 Log.e(TAG, "ERROR release oldPlayer.");  
+-             } finally {  
+-                 oldPlayer = null;  
+-             }  
+-         }  
+- 
+- privatevoid deleteOldCache() {  
+- int oldCacheFileCount = cacheFileCount - 1;  
+-             String oldCacheFileName = cacheFileName + oldCacheFileCount;  
+-             File oldCacheFile = new File(activity.getCacheDir(), oldCacheFileName);  
+- if (oldCacheFile.exists()) {  
+-                 oldCacheFile.delete();  
+-             }  
+-         }  
+- 
+- privatevoid errorOperator() {  
+-         }  
+-     }  
+- 
+- }  
+**关于播放器：**由于MediaPlayer的限制，我用了cache的方式来实现音频的实时播放。即把获取到的音频流首先保存到文件中，然后当保存到一定大小的时候就播放之，类似于QQ播放器那样有缓存的，只不过我这里的处理得挺粗糙。代码写的也挺详细了，如果有疑问也可以提出来。
+注：编码器和播放器的编写，我都是站在巨人的肩膀上完成的，参考了一些其他资料

@@ -1,0 +1,313 @@
+# Qt事件处理机制整个流程--以鼠标在一个窗口中点击为例 - xqhrs232的专栏 - CSDN博客
+2016年11月30日 15:03:06[xqhrs232](https://me.csdn.net/xqhrs232)阅读数：1806
+原文地址::[http://blog.csdn.net/zgrjkflmkyc/article/details/44240729](http://blog.csdn.net/zgrjkflmkyc/article/details/44240729)
+相关文章
+1、QT显示机制（转）_一滴水里的海_百度空间----[http://www.360doc.com/content/11/1216/09/6828497_172621488.shtml](http://www.360doc.com/content/11/1216/09/6828497_172621488.shtml)
+转载自：http://mobile.51cto.com/symbian-272812.htm，在此谢谢原作者的分享！
+------------------------第一部分----------------------
+本篇来介绍Qt 事件处理机制 。深入了解事件处理系统对于每个学习Qt人来说非常重要，可以说，Qt是以事件驱动的UI工具集。
+ 大家熟知Signals/Slots在多线程的实现也依赖于Qt的事件处理机制。
+在Qt中，事件被封装成一个个对象，所有的事件均继承自抽象类QEvent.  接下来依次谈谈Qt中有谁来产生、分发、接受和处理事件：
+1、谁来产生事件： 最容易想到的是我们的输入设备，比如键盘、鼠标产生的
+keyPressEvent，keyReleaseEvent，mousePressEvent，mouseReleaseEvent事件（他们被封装成QMouseEvent和QKeyEvent），这些事件来自于底层的[操作系统](http://lib.csdn.net/base/operatingsystem)，它们以异步的形式通知Qt事件处理系统，后文会仔细道来。当然Qt自己也会产生很多事件，比如QObject::startTimer()会触发QTimerEvent.
+ 用户的程序可还以自己定制事件。
+2、谁来接受和处理事件：答案是QObject。在Qt的内省机制剖析一文已经介绍QObject 类是整个Qt对象模型的心脏，事件处理机制是QObject三大职责（内存管理、内省(intropection)与事件处理制）之一。任何一个想要接受并处理事件的对象均须继承自QObject，可以选择重载QObject::event()函数或事件的处理权转给父类。
+3、谁来负责分发事件：对于non-GUI的Qt程序，是由QCoreApplication负责将QEvent分发给QObject的子类-Receiver. 对于Qt GUI程序，由QApplication来负责。
+接下来，将通过对代码的解析来看看QT是利用event loop从事件队列中获取用户输入事件，又是如何将事件转义成QEvents，并分发给相应的QObject处理。
+- #include <QApplication>
+- #include "widget.h"     
+- //Section 1     
+- int main(int argc, char *argv[])     
+- {     
+-     QApplication app(argc, argv);     
+-     Widget window;  // Widget 继承自QWidget     
+-     window.show();     
+-     return app.exec(); // 进入Qpplication事件循环，见section 2     
+- }     
+- // Section 2:      
+- int QApplication::exec()     
+- {     
+-    //skip codes     
+-    //简单的交给QCoreApplication来处理事件循环=〉section 3     
+-    return QCoreApplication::exec();     
+- }     
+- // Section 3     
+- int QCoreApplication::exec()     
+- {     
+-     //得到当前Thread数据     
+-     QThreadData *threadData = self->d_func()->threadData;     
+-     if (threadData != QThreadData::current()) {     
+-         qWarning("%s::exec: Must be called from the main thread", self->metaObject()->className());     
+-         return -1;     
+-     }     
+-     //检查event loop是否已经创建     
+-     if (!threadData->eventLoops.isEmpty()) {     
+-         qWarning("QCoreApplication::exec: The event loop is already running");     
+-         return -1;     
+-     }     
+-     ...     
+-     QEventLoop eventLoop;     
+-     self->d_func()->in_exec = true;     
+-     self->d_func()->aboutToQuitEmitted = false;     
+-     //委任QEventLoop 处理事件队列循环 ==> Section 4     
+-     int returnCode = eventLoop.exec();     
+-     ....     
+-     }     
+-     return returnCode;     
+- }     
+- // Section 4     
+- int QEventLoop::exec(ProcessEventsFlags flags)     
+- {     
+-    //这里的实现代码不少，最为重要的是以下几行     
+-    Q_D(QEventLoop); // 访问QEventloop私有类实例d     
+-         try {     
+-         //只要没有遇见exit，循环派发事件     
+-         while (!d->exit)     
+-             processEvents(flags | WaitForMoreEvents | EventLoopExec);     
+-     } catch (...) {}     
+- }     
+- // Section 5     
+- bool QEventLoop::processEvents(ProcessEventsFlags flags)     
+- {     
+-     Q_D(QEventLoop);     
+-     if (!d->threadData->eventDispatcher)     
+-         return false;     
+-     if (flags & DeferredDeletion)     
+-         QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);     
+-     //将事件派发给与平台相关的QAbstractEventDispatcher子类 =>Section 6     
+-     return d->threadData->eventDispatcher->processEvents(flags);     
+- }    
+- 
+- // Section 6，QTDIR\src\corelib\kernel\qeventdispatcher_win.cpp     
+- // 这段代码是完成与windows平台相关的windows c++。 以跨平台著称的Qt同时也提供了对Symiban,Unix等平台的消息派发支持     
+- // 其事现分别封装在QEventDispatcherSymbian和QEventDispatcherUNIX     
+- // QEventDispatcherWin32派生自QAbstractEventDispatcher.     
+- bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)     
+- {     
+-     Q_D(QEventDispatcherWin32);     
+-     if (!d->internalHwnd)     
+-         createInternalHwnd();     
+-     d->interrupt = false;     
+-     emit awake();     
+-     bool canWait;     
+-     bool retVal = false;     
+-     bool seenWM_QT_SENDPOSTEDEVENTS = false;     
+-     bool needWM_QT_SENDPOSTEDEVENTS = false;     
+-     do {     
+-         DWORD waitRet = 0;     
+-         HANDLE pHandles[MAXIMUM_WAIT_OBJECTS - 1];     
+-         QVarLengthArray<MSG> processedTimers;     
+-         while (!d->interrupt) {     
+-             DWORD nCount = d->winEventNotifierList.count();     
+-             Q_ASSERT(nCount <MAXIMUM_WAIT_OBJECTS - 1);     
+-             MSG msg;     
+-             bool haveMessage;     
+-             if (!(flags & QEventLoop::ExcludeUserInputEvents) && !d->queuedUserInputEvents.isEmpty()) {     
+-                 // process queued user input events     
+- haveMessage = true;     
+-                 //从处理用户输入队列中取出一条事件     
+- msg = d->queuedUserInputEvents.takeFirst();     
+-             } else if(!(flags & QEventLoop::ExcludeSocketNotifiers) && !d->queuedSocketEvents.isEmpty()) {     
+-                 // 从处理socket队列中取出一条事件     
+- haveMessage = true;     
+- msg = d->queuedSocketEvents.takeFirst();     
+-             } else {     
+- haveMessage = PeekMessage(&msg, 0, 0, 0, PM_REMOVE);     
+-                 if (haveMessage && (flags & QEventLoop::ExcludeUserInputEvents)     
+-                     && ((msg.message >= WM_KEYFIRST     
+-                          && msg.message <= WM_KEYLAST)     
+-                         || (msg.message >= WM_MOUSEFIRST     
+-                             && msg.message <= WM_MOUSELAST)     
+-                         || msg.message == WM_MOUSEWHEEL     
+-                         || msg.message == WM_MOUSEHWHEEL     
+-                         || msg.message == WM_TOUCH     
+- #ifndef QT_NO_GESTURES     
+-                         || msg.message == WM_GESTURE     
+-                         || msg.message == WM_GESTURENOTIFY     
+- #endif     
+-                         || msg.message == WM_CLOSE)) {     
+-                     // 用户输入事件入队列，待以后处理     
+- haveMessage = false;     
+-                     d->queuedUserInputEvents.append(msg);     
+-                 }     
+-                 if (haveMessage && (flags & QEventLoop::ExcludeSocketNotifiers)     
+-                     && (msg.message == WM_QT_SOCKETNOTIFIER && msg.hwnd == d->internalHwnd)) {     
+-                     // socket 事件入队列，待以后处理     
+- haveMessage = false;     
+-                     d->queuedSocketEvents.append(msg);     
+-                 }     
+-             }     
+-             ....     
+-                 if (!filterEvent(&msg)) {     
+-                     TranslateMessage(&msg);     
+-                     //将事件打包成message调用Windows API派发出去     
+-                        //分发一个消息给窗口程序。消息被分发到回调函数，将消息传递给windows系统，windows处理完毕，会调用回调函数 => section 7                         
+-                   DispatchMessage(&msg);     
+-                 }     
+-             }                  
+-         }     
+-     } while (canWait);     
+-       ...     
+-     return retVal;     
+- }    
+- 
+- // Section 7 windows窗口回调函数 定义在QTDIR\src\gui\kernel\qapplication_win.cpp     
+- extern "C" LRESULT QT_WIN_CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)     
+- {     
+-    ...     
+-    //将消息重新封装成QEvent的子类QMouseEvent ==> Section 8     
+- result = widget->translateMouseEvent(msg);         
+-    ...     
+- }     
+- 
+从Section 1~Section7， Qt进入QApplication的event loop，经过层层委任，最终QEventloop的processEvent将通过与平台相关的QAbstractEventDispatcher的子类QEventDispatcherWin32获得用户的用户输入事件，并将其打包成message后，通过标准Windows API
+ ，把消息传递给了Windows OS，Windows OS得到通知后回调QtWndProc,  至此事件的分发与处理完成了一半的路程。
+小结：Qt
+ 事件处理机制 （上篇）的内容介绍完了，在下文中，我们将进一步讨论当我们收到来在Windows的回调后，事件又是怎么一步步打包成QEvent并通过QApplication分发给最终事件的接受和处理者QObject::event.请继续看[Qt
+ 事件处理机制 （下篇）](http://mobile.51cto.com/symbian-272816.htm)。最后希望本文能帮你解决问题！
+---------------------------第二部分----------------------------
+继续我们上一篇文章继续介绍，[Qt 事件处理机制 （上篇）](http://www.51cto.com/php/viewart.php?artID=272812) 介绍了Qt框架的事件处理机制：事件的产生、分发、接受和处理，并以视窗系统鼠标点击QWidget为例，对代码进行了剖析，向大家分析了Qt框架如何通过Event
+ Loop处理进入处理消息队列循环，如何一步一步委派给平台相关的函数获取、打包用户输入事件交给视窗系统处理，函数调用栈如下：
+- main(int, char **)   
+- QApplication::exec()   
+- QCoreApplication::exec()   
+- QEventLoop::exec(ProcessEventsFlags )   
+- QEventLoop::processEvents(ProcessEventsFlags )   
+- QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags)  
+本文将介绍Qt app在视窗系统回调后，事件又是怎么一步步通过QApplication分发给最终事件的接受和处理者QWidget::event, （QWidget继承Object,重载其虚函数event)，以下所有的讨论都将嵌入在源码之中。
+- QT_WIN_CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) bool QETWidget::translateMouseEvent(const MSG &msg)   
+- bool QApplicationPrivate::sendMouseEvent(...)   
+- inline bool QCoreApplication::sendSpontaneousEvent(QObject *receiver, QEvent *event)   
+- bool QCoreApplication::notifyInternal(QObject *receiver, QEvent *event)   
+- bool QApplication::notify(QObject *receiver, QEvent *e)   
+- bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)   
+- bool QWidget::event(QEvent *event)   
+- 
+- // (续上文Section 7) Section 2-1：     
+- QT_WIN_CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)      
+- {     
+-    ...     
+-    //检查message是否属于Qt可转义的鼠标事件     
+-    if (qt_is_translatable_mouse_event(message)) {     
+-         if (QApplication::activePopupWidget() != 0) {                 
+-             POINT curPos = msg.pt;     
+-             //取得鼠标点击坐标所在的QWidget指针，它指向我们在main创建的widget实例     
+-             QWidget* w = QApplication::widgetAt(curPos.x, curPos.y);     
+-             if (w)     
+- widget = (QETWidget*)w;     
+-         }     
+-         if (!qt_tabletChokeMouse) {     
+-             //对，就在这里。Windows的回调函数将鼠标事件分发回给了Qt Widget      
+-             // => Section 2-2     
+- result = widget->translateMouseEvent(msg);            
+-      ...     
+- }     
+- // Section 2-2  $QTDIR\src\gui\kernel\qapplication_win.cpp     
+- //该函数所在与Windows平台相关，主要职责就是把已windows格式打包的鼠标事件解包、翻译成QApplication可识别的QMouseEvent,QWidget.     
+- bool QETWidget::translateMouseEvent(const MSG &msg)     
+- {     
+-      //.. 这里很长的代码给以忽略       
+-       // 让我们看一下sendMouseEvent的声明     
+-      // widget是事件的接受者； e是封装好的QMouseEvent     
+-      // ==> Section 2-3     
+- res = QApplicationPrivate::sendMouseEvent(widget, &e, alienWidget, this, &qt_button_down, qt_last_mouse_receiver);     
+- }     
+- // Section 2-3 $QTDIR\src\gui\kernel\qapplication.cpp     
+- bool QApplicationPrivate::sendMouseEvent(QWidget *receiver, QMouseEvent *event,     
+-                                          QWidget *alienWidget, QWidget *nativeWidget,     
+-                                          QWidget **buttonDown, QPointer<QWidget> &lastMouseReceiver,     
+-                                          bool spontaneous)     
+- {     
+-      //至此与平台相关代码处理完毕     
+-      //MouseEvent默认的发送方式是spontaneous, 所以将执行sendSpontaneousEvent。 sendSpontaneousEvent() 与 sendEvent的代码实现几乎相同，
+-                    除了将QEvent的属性spontaneous标记不同。 这里是解释什么spontaneous事件：如果事件由应用程序之外产生的，比如一个系统事件。 
+-                显然MousePress事件是由视窗系统产生的一个的事件（详见上文Section 1~ Section 7),因此它是   spontaneous事件     
+- 
+-     if (spontaneous)     
+- result = QApplication::sendSpontaneousEvent(receiver, event);  ==〉Section 2-4     
+-     else    
+- result = QApplication::sendEvent(receiver, event);     
+- }    
+- // Section 2-4 C:\Qt\4.7.1-Vs\src\corelib\kernel\qcoreapplication.h     
+- inline bool QCoreApplication::sendSpontaneousEvent(QObject *receiver, QEvent *event)     
+- {      
+-     //将event标记为自发事件     
+-      //进一步调用 2-5 QCoreApplication::notifyInternal     
+-     if (event) event->spont = true; return self ? self->notifyInternal(receiver, event) : false;      
+- }     
+- // Section 2-5:  $QTDIR\gui\kernel\qapplication.cpp     
+- bool QCoreApplication::notifyInternal(QObject *receiver, QEvent *event)     
+- {     
+- 
+-     // 几行代码对于Qt Jambi (QT Java绑定版本） 和QSA (QT Script for Application)的支持     
+-      ...     
+-      // 以下代码主要意图为Qt强制事件只能够发送给当前线程里的对象，也就是说receiver->d_func()->threadData应该等于QThreadData::current()。
+-                                           注意，跨线程的事件需要借助Event Loop来派发     
+-      QObjectPrivate *d = receiver->d_func();     
+-     QThreadData *threadData = d->threadData;     
+-     ++threadData->loopLevel;     
+-     bool returnValue;     
+-     QT_TRY {     
+-         //哇，终于来到大名鼎鼎的函数QCoreApplication::nofity()了 ==> Section 2-6     
+- returnValue = notify(receiver, event);     
+-     } QT_CATCH (...) {     
+-         --threadData->loopLevel;     
+-         QT_RETHROW;     
+-     }     
+- }     
+- // Section 2-6:  $QTDIR\gui\kernel\qapplication.cpp     
+- // QCoreApplication::notify和它的重载函数QApplication::notify在Qt的派发过程中起到核心的作用，Qt的官方文档时这样说的：
+-                                                        任何线程的任何对象的所有事件在发送时都会调用notify函数。     
+- bool QApplication::notify(QObject *receiver, QEvent *e)     
+- {     
+-    //代码很长，最主要的是一个大大的Switch,Case     
+-    ..     
+-    switch ( e->type())     
+-    {     
+-     ...     
+-     case QEvent::MouseButtonPress:     
+-     case QEvent::MouseButtonRelease:     
+-     case QEvent::MouseButtonDblClick:     
+-     case QEvent::MouseMove:     
+-      ...     
+-         //让自己私有类(d是私有类的句柄）来进一步处理 ==> Section 2-7     
+- res = d->notify_helper(w, w == receiver ? mouse : &me);     
+-         e->spont = false;     
+-         break;     
+-     }     
+-     ...     
+- }     
+- // Section 2-7:  $QTDIR\gui\kernel\qapplication.cpp     
+- bool QApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)     
+- {     
+-     ...     
+-     // 向事件过滤器发送该事件，这里介绍一下Event Filters. 事件过滤器是一个接受即将发送给目标对象所有事件的对象。     
+-    //如代码所示它开始处理事件在目标对象行动之前。过滤器的QObject::eventFilter（）实现被调用，能接受或者丢弃过滤，
+-                          允许或者拒绝事件的更进一步的处理。如果所有的事件过滤器允许更进一步的事件处理，事件将被发送到目标对象本身。
+-                          如果他们中的一个停止处理，目标和任何后来的事件过滤器不能看到任何事件。     
+-     if (sendThroughObjectEventFilters(receiver, e))     
+-         return true;     
+-      // 递交事件给receiver  => Section 2-8     
+-     bool consumed = receiver->event(e);     
+-     e->spont = false;     
+- }     
+- // Section 2-8  $QTDIR\gui\kernel\qwidget.cpp     
+- // QApplication通过notify及其私有类notify_helper,将事件最终派发给了QObject的子类- QWidget.     
+- bool QWidget::event(QEvent *event)     
+- {     
+-     ...     
+-     switch(event->type()) {     
+-     case QEvent::MouseButtonPress:     
+-         // Don't reset input context here. Whether reset or not is     
+-         // a responsibility of input method. reset() will be     
+-         // called by mouseHandler() of input method if necessary     
+-         // via mousePressEvent() of text widgets.     
+- #if 0     
+-         resetInputContext();     
+- #endif     
+-         //mousePressEvent是虚函数，QWidget的子类可以通过重载重新定义mousePress事件的行为     
+-         mousePressEvent((QMouseEvent*)event);     
+-         break;        
+- }   
+小结：Qt 事件处理机制 （下篇）的内容介绍完了，希望本文对你 有所帮助！更多相关资料请参考编辑推荐！
+注：转载时删除了原文中一些重复的地方。

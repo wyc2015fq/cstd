@@ -1,0 +1,80 @@
+# Tomcat服务器的安装配置图文教程(推荐) - xqhrs232的专栏 - CSDN博客
+2018年09月29日 14:54:51[xqhrs232](https://me.csdn.net/xqhrs232)阅读数：85
+原文地址::[https://www.cnblogs.com/mannixiang/p/6349164.html?utm_source=itdadao&utm_medium=referral](https://www.cnblogs.com/mannixiang/p/6349164.html?utm_source=itdadao&utm_medium=referral)
+相关文章
+1、tomcat7的下载和安装配置----[https://jingyan.baidu.com/article/2c8c281daa77aa0008252aff.html](https://jingyan.baidu.com/article/2c8c281daa77aa0008252aff.html)
+现在将使用Tomcat的一些经验和心得写到这里，作为记录和备忘。如果有朋友看到，也请不吝赐教。
+**　　1、首先是Tomcat的获取和安装。**
+　　　　获取当然得上Apache的官方网站下载，开源免费，而且带宽也足够。下载会很快。
+![](http://files.jb51.net/file_images/article/201511/2015110516423810.png)
+　　　　这是两种不同的下载，一个是普通安装版本，一个是解压安装版本。使用起来是一样的，只是在普通安装版本中有一些界面可提供对Tomcat的快捷设置，而且普通安装会将Tomcat作为系统服务进行注册。
+**2、Tomcat的运行环境搭建。**
+　　　　（解压版）安装（就是解压）完成后如下：
+![](http://files.jb51.net/file_images/article/201511/2015110516423811.png)
+　　　　Tomcat的启动是一个bat文件（Windows下），在bin目录下。双击即可。
+　　　　如果启动不成功，一般的情况是控制台出来一下立即消失，说明Tomcat没有找到Java的运行时环境。
+　　　　简单理解，就是Tomcat找不到JDK，没办法运行。
+　　　　我们“告诉”它JDK的安装路径。即在环境变量里新建JAVA_HOME（不区分大小写），指向JDK安装目录。如下：
+![](http://files.jb51.net/file_images/article/201511/2015110516423812.png)
+　　　　这样，Tomcat就配置好了，启动就OK。
+　　　　启动Tomcat，在浏览器地址栏输入http://localhost:8080/如果看到乱七八糟的关于Tomcat的介绍神马，说明配置成功。
+**3、Tomcat的目录结构介绍。**
+　　　　　　bin目录存放一些启动运行Tomcat的可执行程序和相关内容。
+　　　　　　conf存放关于Tomcat服务器的全局配置。
+　　　　　　lib目录存放Tomcat运行或者站点运行所需的jar包，所有在此Tomcat上的站点共享这些jar包。
+　　　　　　wabapps目录是默认的站点根目录，可以更改。
+　　　　　　work目录用于在服务器运行时过度资源，简单来说，就是存储jsp、servlet翻译、编译后的结果。
+　　　　　　其他目录和文件暂时不做介绍。
+**　4、Tomcat的默认行为。**
+　　　　　　我们的浏览器请求如果到达了Tomcat，并且请求无误，一般Tomcat会以静态页面（即html文件）的形式给与响应，这是http服务器的默认行为。
+　　　　　　一个完整的资源请求包括：
+　　　　　　协议（如http）
+　　　　　　主机名（域名，如localhost、www.baidu.com）
+　　　　　　端口号（http协议默认为80，所以我们一般向某个网站发起请求没有输入）
+　　　　　　站点
+　　　　　　资源位置
+　　　　　　　　如http://localhost:8080/ROOT/index.jsp
+　　　　　　那么在第二步时我们只输入了域名（或者主机名）就访问到了某个具体的页面，这是怎么回事呢？。
+　　　　　　首先，请求会通过一些途径到达请求的主机地址并被该服务器（指硬件，如我们的本机电脑）上的http服务器程序获得。这一步解释起来比较麻烦，我们不做赘述，我会在其他篇幅里介绍。
+　　　　　　比如我们输入http://localhost:8080到浏览器里。被Tomcat发现了。
+　　　　　　现在它拿到请求，先分析我们所请求的是什么资源。由于我们没有指定，它会到默认的站点去拿默认的页面给我们。
+　　　　　　现在我们把过程走一遍：
+　　　　　　　　服务器端：Tomcat监听着8080端口，时时注意是否有请求过来。
+　　　　　　　　客户端浏览器发出请求，到达了服务器端，由于端口的分配，请求最终被Tomcat得到。
+　　　　　　　　Tomcat解析请求的资源，发现没有指定需要的是哪个站点下的哪个资源。
+　　　　　　　　Tomcat在默认的站点下把默认的页面返回给客户端浏览器作为响应。
+**　　5、更改Tomcat默认配置。**
+　　　　　①、修改Tomcat监听端口。
+　　　　　　　　我们都有过访问网站的经历。我们一般只输入了域名对吧，那么假设我们现在作为网络服务提供者，将要对外发布网站，我们怎么让用户只输入我们的域名就能看到我们为他/她准备的网页呢？
+　　　　　　　　首先我们需要将监听端口设置为80，道理很简单，用户不会在浏览器输入:8080来访问网站，浏览器也不会自动将请求发送到服务器的8080端口。
+　　　　　　　   在%TOMCAT_HOME%（以下代指Tomcat的安装路径）下的conf目录下的server.xml文件中修改。
+![](http://files.jb51.net/file_images/article/201511/2015110516423813.png)
+　　　　　　这个文件里东西不少，其实大家不必在意。为什么呢？你把注释删除后再把整个xml看作一个对象，是吧，每个节点是一个属性，这个属性又可能是一个对象，它里面有属性……要这样去理解，或者直接认为是Tomcat的配置信息到也没错。
+　　　　　　这样，就不用输入:8080了。
+　　　　②、修改默认站点。
+　　　　　　首先说，站点是具有特定结构的文件夹。这一点在Tomcat里表现得极为清晰。
+　　　　　　站点，在服务器上肯定是用文件夹（即目录结构）来存储和管理的。但是它和普通的文件夹又不同，在Tomcat里，可用于作为站点的文件夹必须有如下特点：拥有一个名为WEB-INF的子文件夹，该子文件夹下必须有一个名为web.xml的文件，而且该xml文件必须受约束与特定的DTD。
+　　　　　　我们先配置或者说叫创建一个站点，再将其设置为默认站点。
+　　　　　　　　配置站点：创建文件夹，创建WEB-INF子文件夹，创建web.xml，完成。web.xml内容可以参考webapps/ROOT/WEB-INF/web.xml。
+　　　　　　　　设置为默认站点：
+　　　　　　　　　　这里需要分为两步执行。
+　　　　　　　　　　　　告诉Tomcat当请求哪个站点时（或者说在域名后面跟的是什么名字），你来找我。
+　　　　　　　　　　　　告诉Tomcat我在哪里。
+![](http://files.jb51.net/file_images/article/201511/2015110516423814.png)
+　　　　　　　　　　　　上图已经将两步配置好了（实际上Tomcat默认加上了将空站点指向ROOT的代码），我们的d:/myweb：
+　　　　　　　　　　　　如果你的站点存放在webapps目录下，可以使用相对路径，比如，我们将d:/myweb整个拷到%TOMCAT_HOME%/webapps下，上图的docBase很明显就不需要加上d:/了。
+![](http://files.jb51.net/file_images/article/201511/2015110516423815.png)
+　　　　　　　　　　　　我在index.html里写了几句话，然后结果出来了：
+![](http://files.jb51.net/file_images/article/201511/2015110516423816.png)
+　　　　③、修改默认页面。
+　　　　　　在上面，我们还算是中规中矩，按照常理出牌，谢了index.html。那么如果没有写呢？Tomcat会怎么做呢？
+　　　　　　请大家找到conf/web.xml。这个文件是对所有站点的共同属性做出了设置。比如大家看文件结尾处：
+![](http://files.jb51.net/file_images/article/201511/2015110516423817.png)
+　　　　　　这个叫做欢迎页面，当没有输入资源地址时，会由上至下地查找，获取页面，进行响应。
+　　　　　　很清楚了吧，改动它就可以，但是不建议在这里改，会是所有站点设置变化，你应该将其复制到你需要改动的站点下的web.xml，进行设置。
+**6、虚拟主机的配置。**
+　　　　　　所谓虚拟主机，就是将一个或多个主机名（域名）和Tomcat所在的服务器进行绑定。由于一个IP可以和多个域名进行帮定，我们大可以将不同的域名指向服务器（指硬件）上的不同文件夹，造成一个服务器（或者一个IP）多个主机的“虚拟主机”效果。
+　　　　　　这个实现起来相当的简单。只需要在server.xml文件中新建Host节点，将其属性进行不同设置即可。
+|12345678910111213|`#你的主机名（域名）1``<``Host``name``=``"localhost"``appBase``=``"webapps"``      ``unpackWARs``=``"true"``autoDeploy``=``"true"``      ``xmlValidation``=``"false"``xmlNamespaceAware``=``"false"``> ``</``Host``> ``#你的域名2``<``Host``name``=``"www.coderecord.org"``appBase``=``"主机空间地址"``    ``unpackWARs``=``"true"``autoDeploy``=``"true"``    ``xmlValidation``=``"false"``xmlNamespaceAware``=``"false"``> ``    ``#域名3可以和域名2共用一个主机空间``    ``<``Alias``>coderecord.org</``Alias``>``    ``<``Context``path``=``""``docBase``=``"站点地址"``debug``=``"1"``reloadable``=``"true"``allowLinking``=``"true"``/>``</``Host``>`|
+　　　　　　以上配置信息根据Tomcat的版本不同而不同。
+本篇随笔对Tomcat的安装、环境搭建、虚拟目录、虚拟主机配置都有浅陋的见解，忘大家指正。

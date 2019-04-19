@@ -1,0 +1,197 @@
+# QT的显示机制 - xqhrs232的专栏 - CSDN博客
+2016年10月13日 22:42:29[xqhrs232](https://me.csdn.net/xqhrs232)阅读数：194
+个人分类：[X11/Qt/Qt quick/Qxml界面技术](https://blog.csdn.net/xqhrs232/article/category/6455019)
+原文地址::[http://blog.csdn.net/yangshuangtao/article/details/52261482](http://blog.csdn.net/yangshuangtao/article/details/52261482)
+相关文章
+1、[Qt图形框架资料01](http://blog.csdn.net/yangshuangtao/article/details/52262705)----[http://blog.csdn.net/yangshuangtao/article/details/52262705](http://blog.csdn.net/yangshuangtao/article/details/52262705)
+2、
+# [QT View及Model源码解析](http://blog.csdn.net/yangshuangtao/article/details/52399365)----[http://blog.csdn.net/yangshuangtao/article/details/52399365](http://blog.csdn.net/yangshuangtao/article/details/52399365)
+- 了解QT显示机制，最重要的就是要了解QT是如何管理窗体的显示区域的，这里有个重要的类：QRegion, 在QT中可以通过QRegion定义一个窗体的显示区域，也可以通过QRegion定义窗体的可修改区域,比如在QPainter()中通过QPainter::setClipRect设定一个区域，我们绘图则只能在这个区域，此区域外绘图都是无效的。通过QRegion可以作一系列的逻辑运算，如两个区域相加，相减等。QRegion定义的区域不一定是连续的，但一定是由封闭的区域组成的，我们常会碰到一个窗体的显示区域被其他窗体分割为几块的情况。QT对这些显示区域的管理，类似于对窗体的管理，也是通过服务器与客户端的方式。参照以前的说法Server表示为全局的Global ，客户端为本地得Local。那么WindowsServer管理一个全局的显示区域即所有的Top-Level widget显示区域。而其他的child windget 的管理则在每一个QT应用程序中由QWSRegionManager管理，Top_Level widget 显示区域也会加载在其中，这个不难理解，因为Server只是负责将窗体事件发送到客户端，具体处理还是由客户端来操作。具体的流程还是来看代码吧。  
+- 
+- 显示区域管理者QWSRegionManager的初始化  
+- 服务器：  
+- 通过调用openDisplay（）。  
+- 客户端：     
+- 在QWSDisplayData类的构造函数中通过调用QWSDisplayData::init()完成。  
+- 
+- 考虑一个比较简单的情况，我们要显示的widget 是一个Top_Leverl widget。在调用Show（）函数中，这个widget将通过showWindows()向服务器请求做三件事：（以下窗体是指在global windows statck 中的TOP_Level widget）  
+- 1：调用QWSDisplay::requestRegion向服务器请求窗体显示区域。  
+- 2：调用QWSDdisplay::setAltitude向服务器请求设置窗体的优先级。此优先级是指在windows statck中的位置，而不是指QWSWidow 中的窗体优先级属性。Windows statck 中的第一个窗体就是显示在LCD上最前面的窗体。  
+- 3：调用QWSDisplay::requestFocus 向服务器请求设置窗体为焦点窗体。焦点窗体能接收Key, Mouse 事件，但不是所有的焦点窗体都能接收Key，Mouse 事件，如果有窗体设置为GrabKey 或则GrabMouse 则Key， Mouse 事件将分别传递至此窗体。  
+- 下面将通过代码分析winddows Server对这三个请求的处理过程：  
+- 一： QWSDisplay::requestRegion的处理  
+- void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )  
+- {  
+-     ................  
+-     QRegion region;  
+-     region.setRects(cmd->rectangles, cmd->simpleData.nrectangles);  
+- if ( !region.isEmpty() )  
+- changingw->setNeedAck( TRUE );  
+- bool isShow = !changingw->isVisible() && !region.isEmpty();  
+-     setWindowRegion( changingw, region ); //***设置窗体显示区域 
+-     syncRegions( changingw );                //***通知客户端 刷新显示区域
+- if ( isShow )  
+- emit windowEvent( changingw, Show );  
+- if ( !region.isEmpty() )  
+- emit windowEvent( changingw, Geometry );  
+- else
+- emit windowEvent( changingw, Hide );  
+- if ( focusw == changingw && region.isEmpty() )  
+- setFocus(changingw,FALSE);  
+-     .................  
+- }  
+- invokeRegion调用setWindowRegion设置窗体显示区域，调用syncRegions通知客户端 刷新显示区域，并产生一些窗体事件如：Show， Geometry，Hide 。  
+- setWindowRegion函数的实现如下：  
+- QRegion QWSServer::setWindowRegion( QWSWindow* changingw, QRegion r )  
+- {  
+- QRegion exposed;  
+- if (changingw) {  
+- changingw->requested_region = r;  
+- r = r - serverRegion;                      //exposed不为空则有显示区域被释放
+- exposed = changingw->allocation() - r; //低等级窗体增加可见区域 
+-     } else {                                        
+- exposed = serverRegion-r;  
+- serverRegion = r;  
+-     }  
+-     QRegion extra_allocation;  
+- int windex = -1;  
+- 
+- bool deeper = changingw == 0;  
+- for (uint i=0; i<windows.count(); i++) {   
+- QWSWindow* w = windows.at(i);  
+- if ( w == changingw ) {  
+-      windex = i;  
+-      extra_allocation = r - w->allocation(); //如果extra_allocation不为空
+-      deeper = TRUE;                               //需要增加新的新的显示区域
+- } elseif ( deeper ) {  
+-      w->removeAllocation(rgnMan, r);//低优先级窗体去掉被覆盖的区域
+-      r -= w->allocation();//如果r为空 则更低优先级的窗体被完全覆盖
+- } else {                     //如果窗体是第一次调用Show 直接走这
+- //higher windows
+-      r -= w->allocation();//如果r为空 则窗体被高优先级窗体完全覆盖
+- }  
+- if ( r.isEmpty() ) {     //窗体被完全覆盖
+- break; // Nothing left for deeper windows
+-      }  
+- }  
+- ...................  
+- if ( changingw && !changingw->requested_region.isEmpty() )  
+- changingw->addAllocation( rgnMan, extra_allocation & screenRegion );  
+- //为changingw窗体增加新的可见区域 置modifed标志为TRUE
+- elseif ( !disablePainting )  
+- paintServerRegion();  
+- 
+-     exposeRegion( exposed, windex+1 );//增加低级窗体可见区域。
+- return exposed;  
+- }  
+- 注：增加新的显示区域不一定是整个显示区域的面积增大了，而是显示区域的块变多了。 一个显示区域可能由多个不连续和连续的Region组成。  
+- 
+- void QWSServer::exposeRegion( QRegion r, int start )  
+- {  
+-     r &= screenRegion;  
+- for (uint i=start; i<windows.count(); i++) {  
+- if ( r.isEmpty() )                              //可见区域为空
+- break; // Nothing left for deeper windows
+- QWSWindow* w = windows.at(i);  
+- w->addAllocation( rgnMan, r ); //增加新的可见区域 置modifed标志为TRUE
+- r -= w->allocation();                           //r 更低级窗体可见区域
+-     }  
+-     dirtyBackground |= r; //得到需要刷新的背景区域 如果r为空 则新增区域为0
+- }  
+- exposeRegion为低等级窗体增加可见区域。  
+- 
+- syncRegions：此函数主要是向客户端发送RegionModified事件，真正的绘图也是由客户端来完成。 还是通过代码来分析：  
+- void QWSServer::syncRegions( QWSWindow *active )  
+- {  
+-     rgnMan->commit();   //拷贝数据到一段共享内存，服务器为读写权限，客户端为只读
+-     notifyModified( active );//通过客户端显示区域已更改，客户端绘制相关区域
+-     paintBackground( dirtyBackground );//绘制背景区域修改部分。
+-     dirtyBackground = QRegion();  
+- }  
+- 
+- void QWSServer::notifyModified( QWSWindow *active )  
+- {  
+- // notify active window first
+- if ( active )  
+- active->updateAllocation();    //首先通知active 窗体 
+- // now the rest //通知所有modified标志为ＴＲＵＥ的窗体
+- for (uint i=0; i<windows.count(); i++) {   
+- QWSWindow* w = windows.at(i);  
+- w->updateAllocation();        
+-     }  
+- }  
+- void QWSWindow::updateAllocation()  
+- {  
+- if ( modified || needAck) {  
+- c->sendRegionModifyEvent( id, exposed, needAck ); // 发送消息
+- exposed = QRegion();                                  //复位低级窗体新增显示区域
+- modified = FALSE; //modified为真表示窗体的显示区域被修改。
+- needAck = FALSE;  
+-     }  
+- }  
+- 
+- 
+- 
+- 客户端对RegionModifyEvent的处理。  
+- 客户端接收到消息后会调用translateRegionModifiedEvent函数来进行处理  
+- bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *event )  
+- {  
+-     QWSRegionManager *rgnMan = qt_fbdpy->regionManager();  
+- if ( alloc_region_index < 0 ) {  
+- alloc_region_index = rgnMan->find( winId() ); //从共享内存中得到region索引
+- if ( alloc_region_index < 0 ) {  
+- return FALSE;  
+- }  
+-     }  
+-     QWSDisplay::grab();  
+- int revision = *rgnMan->revision( alloc_region_index );  
+- if ( revision != alloc_region_revision ) {  
+- alloc_region_revision = revision;  
+- QRegion newRegion = rgnMan->region( alloc_region_index );//得到显示区域
+- QWSDisplay::ungrab();                                             
+- alloc_region = newRegion;  
+- 
+- // set children's allocated region dirty
+- ................  
+-     } else {  
+- QWSDisplay::ungrab();  
+-     }  
+- if ( event->simpleData.nrectangles )  
+-     {                                               // alloc_region >= exposed
+- QRegion exposed;                            //需要刷新区域的大小
+- exposed.setRects( event->rectangles, event->simpleData.nrectangles );  
+- QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );  
+- exposed = qt_screen->mapFromDevice( exposed, s );  
+- qwsUpdateActivePainters();  
+- repaintDecoration( exposed, FALSE );//绘制窗体的一些修饰如边框，caption等
+- repaintHierarchy( exposed, FALSE );      //绘制窗体显示区域及子窗体通过发送
+-     }                                               //PaintEvent事件到各窗体
+-     qws_regionRequest = FALSE;  
+- return TRUE;  
+- }  
+- repaintHierarchy函数中所有需要刷新的子窗体都会收到Paint事件。在Paint事件中，开始绘图。显示中只刷新exposed这个区域而不是将分配的区域alloc_region 全部刷新一次，这样做可以提高效率。  
+- 
+- 二：QWSDdisplay::setAltitude 的处理  
+- invokeSetAltitude（const QWSChangeAltitudeCommand *cmd,  
+-        QWSClient *client）  
+- {  
+- int winId = cmd->simpleData.windowid;  
+- int alt = cmd->simpleData.altitude;  
+- bool fixed = cmd->simpleData.fixed;  
+-     ...................  
+-      QWSWindow* changingw = findWindow(winId, 0);  
+-     ...................  
+-     changingw->setNeedAck( TRUE );  
+- if ( fixed && alt >= 1) {  
+- changingw->onTop = TRUE;  
+-     }  
+- if ( alt < 0 )  
+- lowerWindow( changingw, alt ); //窗体优先级下降
+- else
+- raiseWindow( changingw, alt ); // 提升窗体优先级
+- if ( !changingw->forClient(client) ) {  
+- refresh();  
+-     }  
+- }  
+- invokeSetAltitude通过调用lowerWindow，raiseWindow来调整窗体的优先级，如果一个Widget被显示，即调用Show此时alt == 0; 如果alt == 1则此窗体应该为最上层，如果alt == 2则窗体位FULL-SCREEN即全屏显示的窗体，可以通过setWFlags(WStyle_StaysOnTop) 来设定这个属性。 优先级较高的窗体将被优先显示， 在没有显式通过SetRegionPriority命令来改变窗体优先级的话，在Windows Stack中窗体将按照后进的优先级较高为原则。 可以参考 insertPrioritizedWindow函数，在qt-embedded-free-3.3.6 可能没有这个函数，因为在这个版本中不存在窗体优先级，除了WStyle_StaysOnTop属性的窗体为第一级优先级外，其他窗体都按照后进的优先为原则。   
+- 三：QWSDisplay::requestFocus 的处理请参考invokeSetFocus函数。 

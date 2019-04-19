@@ -1,0 +1,1151 @@
+# C/C++通过WMI和系统API函数获取获取系统硬件(cpu，内存，显卡，网卡)配置信息 - xqhrs232的专栏 - CSDN博客
+2017年08月17日 15:52:52[xqhrs232](https://me.csdn.net/xqhrs232)阅读数：477
+个人分类：[C/C++/VC++/VS](https://blog.csdn.net/xqhrs232/article/category/906934)
+原文地址::[http://blog.csdn.net/ly402609921/article/details/7446943](http://blog.csdn.net/ly402609921/article/details/7446943)
+相关文章
+1、[VC下获得显卡信息](http://blog.csdn.net/yuzhongzhu/article/details/3923158)----[http://blog.csdn.net/yuzhongzhu/article/details/3923158](http://blog.csdn.net/yuzhongzhu/article/details/3923158)
+2、用vc怎么获取硬件信息----[https://zhidao.baidu.com/question/15758196.html](https://zhidao.baidu.com/question/15758196.html)
+3、[Windows客户端开发--使用WMI获取显卡详细信息(win32控制台程序)](http://blog.csdn.net/wangshubo1989/article/details/51855895)----[http://blog.csdn.net/wangshubo1989/article/details/51855895](http://blog.csdn.net/wangshubo1989/article/details/51855895)
+4、[WMI技术介绍和应用——VC开发WMI应用的基本步骤](http://blog.csdn.net/gaiazhang/article/details/19339395)----[http://blog.csdn.net/gaiazhang/article/details/19339395](http://blog.csdn.net/gaiazhang/article/details/19339395)
+ 前段时间由于项目需要，要求做一个服务器的实时性能监控（CPU、内存、网络利用率等）和读取服务器的硬件配置参数的接口供项目组使用，就是一个类似于鲁大师之类的东东吧...
+     当然第一想法肯定是利用Windows提供的系统标准API函数来完成所需的功能，当然这也应该是当前最理想最有效率的选择了。但是如果你对API编程不是很熟练的话...那就相当蛋疼了！你知道用API可以做到但是不知道用哪个API，好啊，可以查MSDN。问题是你连API名字都不知道...当然，如果你们公司允许你们上国内局域网的话那就好办多了，因为有无数强大的网友会帮你找到答案。使用API编程的另一个问题是如果你仍旧对API不熟悉的话调用起来相当困难、很不顺手。
+    还有一种方案就是--->“强大”的WMI，.net平台的程序员可能对这个比较熟悉，WMI即windows管理规范。通过它可以访问、配置、管理和监视几乎所有的Windows资源。当然对于程序员而言在WMI体系结构中我们最需要关心的就是WMI提供的程序和接口。
+    WMI提供程序在WMI和托管资源之间扮演着中间方的角色。提供程序代表使用者应用程序和脚本从WMI托管资源请求信息，并发送指令到WMI托管资源。
+下面是我们利用WMI编程经常要用到的WMI内置提供程序清单，以供编程参考。
+1.Active Directory提供程序  
+链接库文件：dsprov.dll  
+命名空间：root\directory\ldap  
+作用：将Active Directory 对象映射到 WMI。 
+2.事件日志提供程序  
+链接库文件：ntevt.dll  
+命名空间：root\cimv2  
+作用：管理 Windows 事件日志，例如，读取、备份、清除、复制、删除、监视、重命名、压缩、解压缩和更改事件日志设置。 
+3.注册表提供程序  
+链接库文件：stdprov.dll  
+命名空间：root\default  
+作用：读取、写入、枚举、监视、创建、删除注册表项和值。 
+4.Win32 提供程序  
+链接库文件：cimwin32.dll  
+命名空间：root\cimv2  
+作用：提供关于计算机、磁盘、外围设备、文件、文件夹、文件系统、网络组件、[操作系统](http://lib.csdn.net/base/operatingsystem)、打印机、进程、安全性、服务、共享、SAM 用户及组，以及更多资源的信息。 
+5.Windows 安装程序提供程序  
+链接库文件：msiprov.dll  
+命名空间：root\cimv2  
+作用：提供对已安装软件信息的访问。
+  以上可以看出WMI中的类被分组到不同的命名空间中，所以我们在调用相应的程序库时要注意引入对应的命名空间~~~我们今天用到的库就是cimwin32.dll库（第4个）。
+好，废话到此为止,还有不懂的自己下去慢慢研究：现在看代码...
+一、基于API方式的实现代码，简单的对部分API函数的封装：
+     1、GetSysInfo.h文件
+**[cpp]**[view
+ plain](http://blog.csdn.net/wenliabc2007/article/details/6718084#)[copy](http://blog.csdn.net/wenliabc2007/article/details/6718084#)
+- pragma once  
+- 
+-      #include <afxtempl.h>
+- 
+- class GetSysInfo  
+-      {  
+- public:  
+-     GetSysInfo(void);  
+-     ~GetSysInfo(void);  
+- 
+- public:  
+- /********获取操作系统版本，Service pack版本、系统类型************/
+- void GetOSVersion(CString &strOSVersion,CString &strServiceVersion);  
+- BOOL IsWow64();//判断是否为64位操作系统
+- 
+- /***********获取网卡数目和名字***********/
+- int  GetInterFaceCount();  
+- void GetInterFaceName(CString &InterfaceName,int pNum);  
+- 
+- /***获取物理内存和虚拟内存大小***/
+- void GetMemoryInfo(CString &dwTotalPhys,CString &dwTotalVirtual);  
+- 
+- /****获取CPU名称、内核数目、主频*******/
+- void GetCpuInfo(CString &chProcessorName,CString &chProcessorType,DWORD &dwNum,DWORD &dwMaxClockSpeed);  
+- 
+- /****获取硬盘信息****/
+- void GetDiskInfo(DWORD &dwNum,CString chDriveInfo[]);  
+- 
+- /****获取显卡信息*****/
+- void GetDisplayCardInfo(DWORD &dwNum,CString chCardName[]);  
+- private:  
+-     CStringList Interfaces;                       //保存所有网卡的名字
+-     CList < DWORD, DWORD &>       Bandwidths;   //各网卡的带宽
+-     CList < DWORD, DWORD &>       TotalTraffics;    //各网卡的总流量
+-      };  
+2.GetSysInfo.cpp文件
+**[cpp]**[view
+ plain](http://blog.csdn.net/wenliabc2007/article/details/6718084#)[copy](http://blog.csdn.net/wenliabc2007/article/details/6718084#)
+- #include "StdAfx.h"
+- #include "GetSysInfo.h"
+- #include "float.h"
+- #include "winperf.h"
+- 
+- GetSysInfo::GetSysInfo(void)  
+- {  
+- }  
+- 
+- GetSysInfo::~GetSysInfo(void)  
+- {  
+- }  
+- 
+- void GetSysInfo::GetOSVersion(CString &strOSVersion,CString &strServiceVersion)  
+- {  
+-     CString str;  
+-     OSVERSIONINFOEX osvi;  
+-     SYSTEM_INFO si;  
+- BOOL bOsVersionInfoEx;  
+- 
+-     ZeroMemory(&si, sizeof(SYSTEM_INFO));  
+-     ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));  
+- 
+-     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);  
+- if( !(bOsVersionInfoEx = GetVersionEx ((OSVERSIONINFO *) &osvi)) )  
+-     {  
+-         osvi.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);  
+-         GetVersionEx ( (OSVERSIONINFO *) &osvi);  
+-     }  
+- 
+- 
+-     GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")),   
+- "GetNativeSystemInfo");  
+- 
+-     GetSystemInfo(&si);  
+- switch (osvi.dwPlatformId)  
+-     {  
+- case VER_PLATFORM_WIN32_NT:  
+- if ( osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0 )  
+-         {  
+- if( osvi.wProductType == VER_NT_WORKSTATION )  
+-             {  
+-                 str.Format(_T("Windows Vista "));  
+-             }  
+- else
+-             {  
+-                 str.Format(_T("Windows Server \"Longhorn\" "));  
+-             }  
+-         }  
+- if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2 )  
+-         {  
+- if( GetSystemMetrics(SM_SERVERR2) )  
+-             {  
+-                 str.Format(_T("Microsoft Windows Server 2003 \"R2\" "));  
+-             }  
+- elseif( osvi.wProductType == VER_NT_WORKSTATION &&  
+-                 si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64)  
+-             {  
+-                 str.Format(_T("Microsoft Windows XP Professional x64 Edition "));  
+-             }  
+- else
+-             {  
+-                 str.Format(_T("Microsoft Windows Server 2003, "));  
+-             }  
+-         }  
+- 
+- if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1 )  
+-         {  
+-             str.Format(_T("Microsoft Windows XP "));  
+-         }  
+- 
+- if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0 )  
+-             str.Format(_T("Microsoft Windows 2000 "));  
+- 
+- if ( osvi.dwMajorVersion <= 4 )  
+-         {  
+-             str.Format(_T("Microsoft Windows NT "));  
+-         }  
+- 
+- // Test for specific product on Windows NT 4.0 SP6 and later.
+- if( bOsVersionInfoEx )  
+-         {  
+- 
+- //将Service Pack 版本保存
+-             strServiceVersion.Format(_T("Service Pack %d"),osvi.wServicePackMajor);  
+- 
+- // Test for the workstation type.
+- if ( osvi.wProductType == VER_NT_WORKSTATION &&  
+-                 si.wProcessorArchitecture!=PROCESSOR_ARCHITECTURE_AMD64)  
+-             {  
+- if( osvi.dwMajorVersion == 4 )  
+-                     str = str + _T("Workstation 4.0");  
+- elseif( osvi.wSuiteMask & VER_SUITE_PERSONAL )  
+-                     str = str + _T("Home Edition");  
+- else str = str + _T( "Professional");  
+-             }  
+- 
+- // Test for the server type.
+- elseif ( osvi.wProductType == VER_NT_SERVER ||   
+-                 osvi.wProductType == VER_NT_DOMAIN_CONTROLLER )  
+-             {  
+- if(osvi.dwMajorVersion==5 && osvi.dwMinorVersion==2)  
+-                 {  
+- if ( si.wProcessorArchitecture ==  
+-                         PROCESSOR_ARCHITECTURE_IA64 )  
+-                     {  
+- if( osvi.wSuiteMask & VER_SUITE_DATACENTER )  
+-                             str = str + _T("Datacenter Edition for Itanium-based Systems");  
+- elseif( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )  
+-                             str = str + _T("Enterprise Edition for Itanium-based Systems");  
+-                     }  
+- 
+- elseif ( si.wProcessorArchitecture ==  
+-                         PROCESSOR_ARCHITECTURE_AMD64 )  
+-                     {  
+- if( osvi.wSuiteMask & VER_SUITE_DATACENTER )  
+-                             str = str + _T( "Datacenter x64 Edition ");  
+- elseif( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )  
+-                             str = str + _T( "Enterprise x64 Edition ");  
+- else str = str + _T( "Standard x64 Edition ");  
+-                     }  
+- 
+- else
+-                     {  
+- if( osvi.wSuiteMask & VER_SUITE_DATACENTER )  
+-                             str = str + _T( "Datacenter Edition ");  
+- elseif( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )  
+-                             str = str + _T( "Enterprise Edition ");  
+- elseif ( osvi.wSuiteMask & VER_SUITE_BLADE )  
+-                             str = str + _T( "Web Edition ");  
+- else str = str + _T( "Standard Edition ");  
+-                     }  
+-                 }  
+- elseif(osvi.dwMajorVersion==5 && osvi.dwMinorVersion==0)  
+-                 {  
+- if( osvi.wSuiteMask & VER_SUITE_DATACENTER )  
+-                         str = str + _T("Datacenter Server ");  
+- elseif( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )  
+-                         str = str + _T( "Advanced Server ");  
+- else str = str + _T( "Server ");  
+-                 }  
+- else// Windows NT 4.0 
+-                 {  
+- if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )  
+-                         str = str + _T ("Server 4.0, Enterprise Edition ");  
+- else str = str + _T ( "Server 4.0 " );  
+-                 }  
+-             }  
+-         }  
+- // Test for specific product on Windows NT 4.0 SP5 and earlier
+- else
+-         {  
+- HKEY hKey;  
+- TCHAR szProductType[256];  
+- DWORD dwBufLen=256*sizeof(TCHAR);  
+- LONG lRet;  
+- 
+-             lRet = RegOpenKeyEx( HKEY_LOCAL_MACHINE,  
+-                 _T("SYSTEM\\CurrentControlSet\\Control\\ProductOptions"), 0, KEY_QUERY_VALUE, &hKey );  
+- if( lRet != ERROR_SUCCESS )  
+-                 strOSVersion = str;  
+- return;  
+- 
+-             lRet = RegQueryValueEx( hKey, TEXT("ProductType"),  
+-                 NULL, NULL, (LPBYTE) szProductType, &dwBufLen);  
+-             RegCloseKey( hKey );  
+- 
+- if( (lRet != ERROR_SUCCESS) ||  
+-                 (dwBufLen > 256*sizeof(TCHAR)) )  
+-                 strOSVersion = str;  
+- return;  
+- 
+- if ( lstrcmpi( TEXT("WINNT"), szProductType) == 0 )  
+-                 str = str + _T( "Workstation ");  
+- if ( lstrcmpi( TEXT("LANMANNT"), szProductType) == 0 )  
+-                 str = str + _T( "Server " );  
+- if ( lstrcmpi( TEXT("SERVERNT"), szProductType) == 0 )  
+-                 str = str + _T( "Advanced Server ");  
+-             str.Format(_T( "%d.%d "), osvi.dwMajorVersion, osvi.dwMinorVersion );  
+-         }  
+- 
+- // Display service pack (if any) and build number.
+- 
+- if( osvi.dwMajorVersion == 4 &&   
+-             lstrcmpi( osvi.szCSDVersion, TEXT("Service Pack 6") ) == 0 )  
+-         {   
+- HKEY hKey;  
+- LONG lRet;  
+- 
+- // Test for SP6 versus SP6a.
+-             lRet = RegOpenKeyEx( HKEY_LOCAL_MACHINE,  
+-                 _T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009"), 0, KEY_QUERY_VALUE, &hKey );  
+- if( lRet == ERROR_SUCCESS )  
+-                 str.Format(_T( "Service Pack 6a (Build %d)\n"),   
+-                 osvi.dwBuildNumber & 0xFFFF );           
+- else// Windows NT 4.0 prior to SP6a
+-             {  
+-                 _tprintf( TEXT("%s (Build %d)\n"),  
+-                     osvi.szCSDVersion,  
+-                     osvi.dwBuildNumber & 0xFFFF);  
+-             }  
+- 
+-             RegCloseKey( hKey );  
+-         }  
+- else// not Windows NT 4.0 
+-         {  
+-             _tprintf( TEXT("%s (Build %d)\n"),  
+-                 osvi.szCSDVersion,  
+-                 osvi.dwBuildNumber & 0xFFFF);  
+-         }  
+- 
+- break;  
+- 
+- // Test for the Windows Me/98/95.
+- case VER_PLATFORM_WIN32_WINDOWS:  
+- 
+- if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0)  
+-         {  
+-             str.Format(_T("Microsoft Windows 95 "));  
+- if (osvi.szCSDVersion[1]=='C' || osvi.szCSDVersion[1]=='B')  
+-                 str = str + _T("OSR2 ");  
+-         }   
+- 
+- if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10)  
+-         {  
+-             str.Format(_T("Microsoft Windows 98 "));  
+- if ( osvi.szCSDVersion[1]=='A' || osvi.szCSDVersion[1]=='B')  
+-                 str = str + _T("SE ");  
+-         }   
+- if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 90)  
+-         {  
+-             str.Format(_T("Microsoft Windows Millennium Edition\n"));  
+-         }   
+- break;  
+- 
+- case VER_PLATFORM_WIN32s:  
+-         str.Format(_T("Microsoft Win32s\n"));  
+- break;  
+- default:  
+- break;  
+-     }  
+- 
+-     strOSVersion = str;  
+- }  
+- 
+- BOOL GetSysInfo::IsWow64()   
+- {   
+- typedefBOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);   
+-     LPFN_ISWOW64PROCESS fnIsWow64Process;   
+- BOOL bIsWow64 = FALSE;   
+-     fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress( GetModuleHandle(_T("kernel32")),"IsWow64Process");   
+- if (NULL != fnIsWow64Process)   
+-     {   
+-         fnIsWow64Process(GetCurrentProcess(),&bIsWow64);  
+-     }   
+- return bIsWow64;   
+- }   
+- 
+- void GetSysInfo::GetCpuInfo(CString &chProcessorName,CString &chProcessorType,DWORD &dwNum,DWORD &dwMaxClockSpeed)  
+- {  
+- 
+-     CString strPath=_T("HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0");//注册表子键路径
+-     CRegKey regkey;//定义注册表类对象
+- LONG lResult;//LONG型变量－反应结果
+-     lResult=regkey.Open(HKEY_LOCAL_MACHINE,LPCTSTR(strPath),KEY_ALL_ACCESS); //打开注册表键
+- if (lResult!=ERROR_SUCCESS)  
+-     {  
+- return;  
+-     }  
+- WCHAR chCPUName[50] = {0};  
+- DWORD dwSize=50;   
+- 
+- //获取ProcessorNameString字段值
+- if (ERROR_SUCCESS == regkey.QueryStringValue(_T("ProcessorNameString"),chCPUName,&dwSize))  
+-     {  
+-         chProcessorName = chCPUName;  
+-     }  
+- 
+- //查询CPU主频
+- DWORD dwValue;  
+- if (ERROR_SUCCESS == regkey.QueryDWORDValue(_T("~MHz"),dwValue))  
+-     {  
+-         dwMaxClockSpeed = dwValue;  
+-     }  
+-     regkey.Close();//关闭注册表
+- //UpdateData(FALSE);
+- 
+- //获取CPU核心数目
+-     SYSTEM_INFO si;  
+-     memset(&si,0,sizeof(SYSTEM_INFO));  
+-     GetSystemInfo(&si);  
+-     dwNum = si.dwNumberOfProcessors;  
+- 
+- switch (si.dwProcessorType)  
+-     {  
+- case PROCESSOR_INTEL_386:  
+-         {  
+-             chProcessorType.Format(_T("Intel 386 processor"));  
+-         }  
+- break;  
+- case PROCESSOR_INTEL_486:  
+-         {  
+-             chProcessorType.Format(_T("Intel 486 Processor"));  
+-         }  
+- break;  
+- case PROCESSOR_INTEL_PENTIUM:  
+-         {  
+-             chProcessorType.Format(_T("Intel Pentium Processor"));  
+-         }  
+- break;  
+- case PROCESSOR_INTEL_IA64:  
+-         {  
+-             chProcessorType.Format(_T("Intel IA64 Processor"));  
+-         }  
+- break;  
+- case PROCESSOR_AMD_X8664:  
+-         {  
+-             chProcessorType.Format(_T("AMD X8664 Processor"));  
+-         }  
+- break;  
+- default:  
+-         chProcessorType.Format(_T("未知"));  
+- break;  
+-     }  
+- 
+- //GetDisplayName()
+- }  
+- 
+- void  GetSysInfo::GetMemoryInfo(CString &dwTotalPhys,CString &dwTotalVirtual)   
+- {   
+- //   TODO:     Add   extra   initialization   here 
+-     MEMORYSTATUS   Mem;   
+- //   get   the   memory   status 
+-     GlobalMemoryStatus(&Mem);   
+- 
+- DWORD dwSize = (DWORD)Mem.dwTotalPhys/(1024*1024);   
+- DWORD dwVirtSize = (DWORD)Mem.dwTotalVirtual/(1024*1024);  
+- 
+-     dwTotalPhys.Format(_T("物理内存:%ld MB"),dwSize);   
+-     dwTotalVirtual.Format(_T("虚拟内存:%ld MB"),dwVirtSize);  
+- }  
+- 
+- int GetSysInfo::GetInterFaceCount()  
+- {  
+- /*CGetNetData pNet;
+-     DWORD pCount = pNet.GetNetworkInterfacesCount();
+-     return pCount;*/
+- 
+- 
+- try
+-     {  
+- #define DEFAULT_BUFFER_SIZE 40960L
+- 
+-         unsigned char *data = (unsigned char*)malloc(DEFAULT_BUFFER_SIZE);  
+- DWORD type;  
+- DWORD size = DEFAULT_BUFFER_SIZE;  
+- DWORD ret;  
+- 
+- char s_key[4096];  
+-         sprintf_s(s_key , 4096 , "510");  
+- //RegQueryValueEx的固定调用格式        
+-         CString str(s_key);  
+- 
+- //如果RegQueryValueEx函数执行失败则进入循环
+- while((ret = RegQueryValueEx(HKEY_PERFORMANCE_DATA, str, 0, &type, data, &size)) != ERROR_SUCCESS)  
+-         {  
+-             Sleep(10);  
+- //如果RegQueryValueEx的返回值为ERROR_MORE_DATA(申请的内存区data太小，不能容纳RegQueryValueEx返回的数据)
+- if(ret == ERROR_MORE_DATA)   
+-             {  
+-                 Sleep(10);  
+-                 size += DEFAULT_BUFFER_SIZE;  
+-                 data = (unsigned char*) realloc(data, size);//重新分配足够大的内存
+- 
+-                 ret = RegQueryValueEx(HKEY_PERFORMANCE_DATA, str, 0, &type, data, &size);//重新执行RegQueryValueEx函数
+-             }   
+- //如果RegQueryValueEx返回值仍旧未成功则函数返回.....(注意内存泄露“free函数”~~~)。
+- //这个if保证了这个while只能进入一次~~~避免死循环
+- if(ret != ERROR_SUCCESS)  
+-             {  
+- if (NULL != data)  
+-                 {  
+-                     free(data);  
+-                     data = NULL;  
+-                 }  
+- return 0;//0个接口
+-             }  
+-         }  
+- 
+- //函数执行成功之后就是对返回的data内存中数据的解析了，这个建议去查看MSDN有关RegQueryValueEx函数参数数据结构的说明
+- //得到数据块     
+-         PERF_DATA_BLOCK  *dataBlockPtr = (PERF_DATA_BLOCK *)data;  
+- //得到第一个对象
+-         PERF_OBJECT_TYPE *objectPtr = (PERF_OBJECT_TYPE *) ((BYTE *)dataBlockPtr + dataBlockPtr->HeaderLength);  
+- 
+- for(int a=0 ; a<(int)dataBlockPtr->NumObjectTypes ; a++)   
+-         {  
+- char nameBuffer[255] = {0};  
+- if(objectPtr->ObjectNameTitleIndex == 510)   
+-             {  
+- DWORD processIdOffset = ULONG_MAX;  
+-                 PERF_COUNTER_DEFINITION *counterPtr =(PERF_COUNTER_DEFINITION *) ((BYTE *)objectPtr + objectPtr->HeaderLength);  
+- 
+- for(int b=0 ; b<(int)objectPtr->NumCounters ; b++)   
+-                 {  
+- if(counterPtr->CounterNameTitleIndex == 520)  
+-                         processIdOffset = counterPtr->CounterOffset;  
+- 
+-                     counterPtr =(PERF_COUNTER_DEFINITION *) ((BYTE *) counterPtr + counterPtr->ByteLength);  
+-                 }  
+- 
+- if(processIdOffset == ULONG_MAX) {  
+- if(data != NULL)  
+-                     {  
+-                         free(data);  
+-                         data = NULL;  
+-                     }  
+- return 0;  
+-                 }  
+- 
+-                 PERF_INSTANCE_DEFINITION *instancePtr =(PERF_INSTANCE_DEFINITION *)  ((BYTE *) objectPtr + objectPtr->DefinitionLength);  
+- 
+- for(int b=0 ; b<objectPtr->NumInstances ; b++)   
+-                 {  
+- wchar_t *namePtr = (wchar_t *) ((BYTE *)instancePtr + instancePtr->NameOffset);  
+-                     PERF_COUNTER_BLOCK *counterBlockPtr = (PERF_COUNTER_BLOCK *) ((BYTE *)instancePtr + instancePtr->ByteLength);  
+- 
+- char pName[256] = {0};  
+-                     WideCharToMultiByte(CP_ACP, 0, namePtr, -1, pName, sizeof(nameBuffer), 0, 0);  
+- 
+- DWORD bandwith = *((DWORD *) ((BYTE *)counterBlockPtr + processIdOffset));                
+- DWORD tottraff = 0;  
+- 
+-                     Interfaces.AddTail(CString(pName)); //各网卡的名称
+-                     Bandwidths.AddTail(bandwith);       //带宽
+-                     TotalTraffics.AddTail(tottraff);    // 流量初始化为0
+- 
+-                     PERF_COUNTER_BLOCK  *pCtrBlk = (PERF_COUNTER_BLOCK *) ((BYTE *)instancePtr + instancePtr->ByteLength);  
+- 
+- 
+-                     instancePtr = (PERF_INSTANCE_DEFINITION *) ((BYTE *)instancePtr + instancePtr->ByteLength + pCtrBlk->ByteLength);  
+-                 }  
+-             }  
+-             objectPtr = (PERF_OBJECT_TYPE *) ((BYTE *)objectPtr + objectPtr->TotalByteLength);  
+-         }  
+- if(data != NULL)  
+-         {  
+-             free(data);  
+-             data = NULL;  
+-         }  
+-     }  
+- catch(...)  
+-     {  
+- return 0;  
+-     }  
+- return Interfaces.GetCount();  
+- }  
+- 
+- void GetSysInfo::GetInterFaceName(CString &InterfaceName,int pNum)  
+- {  
+- /*CGetNetData pNet;
+-     pNet.GetNetworkInterfaceName(&InterfaceName,pNum);*/
+- 
+-     POSITION pos = Interfaces.FindIndex(pNum);  
+- if(pos==NULL)  
+- return ;  
+- 
+-     InterfaceName = Interfaces.GetAt(pos);  
+-     pos = Bandwidths.FindIndex(pNum);  
+- if (pos == NULL)  
+- return;  
+- DWORD dwBandwidth = Bandwidths.GetAt(pos);  
+- 
+-     CString str;  
+-     str.Format(_T("%d"),dwBandwidth);  
+- 
+-     InterfaceName = InterfaceName + str;  
+- }  
+- 
+- void GetSysInfo::GetDiskInfo(DWORD &dwNum,CString chDriveInfo[])  
+- {  
+- DWORD DiskCount = 0;  
+- 
+- //利用GetLogicalDrives()函数可以获取系统中逻辑驱动器的数量，函数返回的是一个32位无符号整型数据。
+- DWORD DiskInfo = GetLogicalDrives();  
+- 
+- //通过循环操作查看每一位数据是否为1，如果为1则磁盘为真,如果为0则磁盘不存在。
+- while(DiskInfo)  
+-     {  
+- //通过位运算的逻辑与操作，判断是否为1
+-         Sleep(10);  
+- if(DiskInfo&1)  
+-         {  
+-             DiskCount++;  
+-         }  
+-         DiskInfo = DiskInfo >> 1;//通过位运算的右移操作保证每循环一次所检查的位置向右移动一位。*/
+-     }  
+- 
+- if (dwNum < DiskCount)  
+-     {  
+- return;//实际的磁盘数目大于dwNum
+-     }  
+-     dwNum = DiskCount;//将磁盘分区数量保存
+- 
+- 
+- //-------------------------------------------------------------------//
+- //通过GetLogicalDriveStrings()函数获取所有驱动器字符串信息长度
+- int DSLength = GetLogicalDriveStrings(0,NULL);  
+- 
+- WCHAR* DStr = newWCHAR[DSLength];  
+-       memset(DStr,0,DSLength);  
+- 
+- //通过GetLogicalDriveStrings将字符串信息复制到堆区数组中,其中保存了所有驱动器的信息。
+-       GetLogicalDriveStrings(DSLength,DStr);  
+- 
+- int DType;  
+- int si=0;  
+- BOOL fResult;  
+-       unsigned _int64 i64FreeBytesToCaller;  
+-       unsigned _int64 i64TotalBytes;  
+-       unsigned _int64 i64FreeBytes;  
+- 
+- //读取各驱动器信息，由于DStr内部数据格式是A:\NULLB:\NULLC:\NULL，所以DSLength/4可以获得具体大循环范围
+- for(int i=0;i<DSLength/4;++i)  
+-       {  
+-           Sleep(10);  
+-           CString strdriver = DStr+i*4;  
+-           CString strTmp,strTotalBytes,strFreeBytes;  
+-           DType = GetDriveType(strdriver);//GetDriveType函数，可以获取驱动器类型，参数为驱动器的根目录
+- switch (DType)  
+-           {  
+- case DRIVE_FIXED:  
+-               {  
+-                   strTmp.Format(_T("本地磁盘"));  
+-               }  
+- break;  
+- case DRIVE_CDROM:  
+-               {  
+-                   strTmp.Format(_T("DVD驱动器"));  
+-               }  
+- break;  
+- case DRIVE_REMOVABLE:  
+-               {  
+-                   strTmp.Format(_T("可移动磁盘"));  
+-               }  
+- break;  
+- case DRIVE_REMOTE:  
+-               {  
+-                   strTmp.Format(_T("网络磁盘"));  
+-               }  
+- break;  
+- case DRIVE_RAMDISK:  
+-               {  
+-                   strTmp.Format(_T("虚拟RAM磁盘"));  
+-               }  
+- break;  
+- case DRIVE_UNKNOWN:  
+-               {  
+-                   strTmp.Format(_T("虚拟RAM未知设备"));  
+-               }  
+- break;  
+- default:  
+-               strTmp.Format(_T("未知设备"));  
+- break;  
+-           }  
+- 
+- //GetDiskFreeSpaceEx函数，可以获取驱动器磁盘的空间状态,函数返回的是个BOOL类型数据
+-           fResult = GetDiskFreeSpaceEx (strdriver,  
+-               (PULARGE_INTEGER)&i64FreeBytesToCaller,  
+-               (PULARGE_INTEGER)&i64TotalBytes,  
+-               (PULARGE_INTEGER)&i64FreeBytes);  
+- 
+- if(fResult)  
+-           {  
+-               strTotalBytes.Format(_T("磁盘总容量%fMB"),(float)i64TotalBytes/1024/1024);  
+-               strFreeBytes.Format(_T("磁盘剩余空间%fMB"),(float)i64FreeBytesToCaller/1024/1024);  
+-           }  
+- else
+-           {  
+-               strTotalBytes.Format(_T(""));  
+-               strFreeBytes.Format(_T(""));  
+-           }  
+-           chDriveInfo[i] = strTmp + _T("(") + strdriver + _T("):") + strTotalBytes + strFreeBytes;  
+-           si+=4;  
+-       }  
+- }  
+- 
+- void GetSysInfo::GetDisplayCardInfo(DWORD &dwNum,CString chCardName[])  
+- {  
+- HKEY keyServ;  
+- HKEY keyEnum;  
+- HKEY key;  
+- HKEY key2;  
+- LONG lResult;//LONG型变量－保存函数返回值
+- 
+- //查询"SYSTEM\\CurrentControlSet\\Services"下的所有子键保存到keyServ
+-     lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE,TEXT("SYSTEM\\CurrentControlSet\\Services"),0,KEY_READ,&keyServ);  
+- if (ERROR_SUCCESS != lResult)  
+- return;  
+- 
+- 
+- //查询"SYSTEM\\CurrentControlSet\\Enum"下的所有子键保存到keyEnum
+-     lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE,TEXT("SYSTEM\\CurrentControlSet\\Enum"),0,KEY_READ,&keyEnum);  
+- if (ERROR_SUCCESS != lResult)  
+- return;  
+- 
+- int i = 0,count = 0;  
+- DWORD size = 0,type = 0;  
+- for (;;++i)  
+-     {  
+-         Sleep(5);  
+-         size = 512;  
+- TCHAR name[512] = {0};//保存keyServ下各子项的字段名称
+- 
+- //逐个枚举keyServ下的各子项字段保存到name中
+-         lResult = RegEnumKeyEx(keyServ,i,name,&size,NULL,NULL,NULL,NULL);  
+- 
+- //要读取的子项不存在，即keyServ的子项全部遍历完时跳出循环
+- if(lResult == ERROR_NO_MORE_ITEMS)  
+- break;  
+- 
+- //打开keyServ的子项字段为name所标识的字段的值保存到key
+-         lResult = RegOpenKeyEx(keyServ,name,0,KEY_READ,&key);  
+- if (lResult != ERROR_SUCCESS)  
+-         {  
+-             RegCloseKey(keyServ);  
+- return;  
+-         }  
+- 
+- 
+-         size = 512;  
+- //查询key下的字段为Group的子键字段名保存到name
+-         lResult = RegQueryValueEx(key,TEXT("Group"),0,&type,(LPBYTE)name,&size);  
+- if(lResult == ERROR_FILE_NOT_FOUND)  
+-         {  
+- //?键不存在
+-             RegCloseKey(key);  
+- continue;  
+-         };  
+- 
+- 
+- 
+- //如果查询到的name不是Video则说明该键不是显卡驱动项
+- if(_tcscmp(TEXT("Video"),name)!=0)  
+-         {  
+-             RegCloseKey(key);  
+- continue;     //返回for循环
+-         };  
+- 
+- //如果程序继续往下执行的话说明已经查到了有关显卡的信息，所以在下面的代码执行完之后要break第一个for循环，函数返回
+-         lResult = RegOpenKeyEx(key,TEXT("Enum"),0,KEY_READ,&key2);  
+-         RegCloseKey(key);  
+-         key = key2;  
+-         size = sizeof(count);  
+-         lResult = RegQueryValueEx(key,TEXT("Count"),0,&type,(LPBYTE)&count,&size);//查询Count字段（显卡数目）
+- 
+-         dwNum = count;//保存显卡数目
+- for(int j=0;j <count;++j)  
+-         {  
+- TCHAR sz[512] = {0};  
+- TCHAR name[64] = {0};  
+-             wsprintf(name,TEXT("%d"),j);  
+-             size = sizeof(sz);  
+-             lResult  = RegQueryValueEx(key,name,0,&type,(LPBYTE)sz,&size);  
+- 
+- 
+-             lResult = RegOpenKeyEx(keyEnum,sz,0,KEY_READ,&key2);  
+- if (ERROR_SUCCESS)  
+-             {  
+-                 RegCloseKey(keyEnum);  
+- return;  
+-             }  
+- 
+- 
+-             size = sizeof(sz);  
+-             lResult = RegQueryValueEx(key2,TEXT("FriendlyName"),0,&type,(LPBYTE)sz,&size);  
+- if(lResult == ERROR_FILE_NOT_FOUND)  
+-             {  
+-                 size = sizeof(sz);  
+-                 lResult = RegQueryValueEx(key2,TEXT("DeviceDesc"),0,&type,(LPBYTE)sz,&size);  
+-                 chCardName[j] = sz;//保存显卡名称
+-             };  
+-             RegCloseKey(key2);  
+-             key2 = NULL;  
+-         };  
+-         RegCloseKey(key);  
+-         key = NULL;  
+- break;  
+-     }  
+- }  
+    以上就是对系统API的简单封装，可以看出用的最多的就是RegOpenKeyEx、RegQueryValueEx之类的查询注册表的函数，基本上所有系统信息都可以通过注册表查到，所以...感兴趣的童鞋有空可以去研究研究注册表~~~~~~这里只是提供一个思路也许有更好的方法来实现~~~求交流~~
+二、通过WMI（windows管理规范）接口编程来实现系统硬件信息的获取~~这个相较于上面API方式就方便多了~~~使用起来是相当的方面~~~但是....但是.....这个他妈的实在是太慢了~~~~~比上面的API方式要慢很多倍~~~我没有试过WMI在.net平台下的效果，但至少在MFC工程里面是相当的慢，看代码~~
+1、WMIInfo.h文件
+**[cpp]**[view
+ plain](http://blog.csdn.net/wenliabc2007/article/details/6718084#)[copy](http://blog.csdn.net/wenliabc2007/article/details/6718084#)
+- #pragma once
+- #include <atlbase.h>
+- #include <afxpriv.h>
+- #include <WbemIdl.h>
+- #pragma comment(lib,"WbemUuid.lib")
+- 
+- class CWmiInfo  
+- {  
+- public:  
+-     CWmiInfo(void);  
+-     ~CWmiInfo(void);  
+- 
+- public:  
+- HRESULT InitWmi();    //初始化WMI
+- HRESULT ReleaseWmi(); //释放
+- 
+- 
+- BOOL GetSingleItemInfo(CString,CString,CString&);<pre class="cpp" name="code" style="margin-top: 4px; margin-right: 0px; margin-bottom: 4px; margin-left: 0px; background-color: rgb(240, 240, 240); ">        BOOL GetGroupItemInfo(CString,CString[],int,CString&);  
+- 
+- private:  
+- void VariantToString(const LPVARIANT,CString &) const;//将Variant类型的变量转换为CString
+- private:  
+-     IEnumWbemClassObject* m_pEnumClsObj;  
+-     IWbemClassObject* m_pWbemClsObj;  
+-     IWbemServices* m_pWbemSvc;  
+-     IWbemLocator* m_pWbemLoc;  
+- };  
+2.WMIInfo.CPP文件
+**[cpp]**[view
+ plain](http://blog.csdn.net/wenliabc2007/article/details/6718084#)[copy](http://blog.csdn.net/wenliabc2007/article/details/6718084#)
+- #include "StdAfx.h"
+- #include "WmiInfo.h"
+- 
+- CWmiInfo::CWmiInfo(void)  
+- {  
+-     m_pWbemSvc=NULL;  
+-     m_pWbemLoc=NULL;  
+-     m_pEnumClsObj = NULL;  
+- }  
+- 
+- CWmiInfo::~CWmiInfo(void)  
+- {  
+-     m_pWbemSvc=NULL;  
+-     m_pWbemLoc=NULL;  
+-     m_pEnumClsObj = NULL;  
+- }  
+- 
+- HRESULT CWmiInfo::InitWmi()  
+- {  
+- HRESULT hr;  
+- 
+- //一、初始化COM组件
+- //初始化COM
+-     hr=::CoInitializeEx(0,COINIT_MULTITHREADED);  
+- if (SUCCEEDED(hr) || RPC_E_CHANGED_MODE == hr)  
+-     {  
+- //设置进程的安全级别，（调用COM组件时在初始化COM之后要调用CoInitializeSecurity设置进程安全级别，否则会被系统识别为病毒）
+-         hr=CoInitializeSecurity(NULL,  
+-             -1,  
+-             NULL,                     
+-             NULL,  
+-             RPC_C_AUTHN_LEVEL_PKT,  
+-             RPC_C_IMP_LEVEL_IMPERSONATE,  
+-             NULL,  
+-             EOAC_NONE,  
+-             NULL);  
+- //VERIFY(SUCCEEDED(hr));
+- 
+- //二、创建一个WMI命名空间连接
+- //创建一个CLSID_WbemLocator对象
+-         hr=CoCreateInstance(CLSID_WbemLocator,  
+-             0,  
+-             CLSCTX_INPROC_SERVER,  
+-             IID_IWbemLocator,  
+-             (LPVOID*)&m_pWbemLoc);  
+-         VERIFY(SUCCEEDED(hr));  
+- 
+- //使用m_pWbemLoc连接到"root\cimv2"并设置m_pWbemSvc的指针
+-         hr=m_pWbemLoc->ConnectServer(CComBSTR(L"ROOT\\CIMV2"),  
+-             NULL,  
+-             NULL,  
+-             0,  
+-             NULL,  
+-             0,  
+-             0,  
+-             &m_pWbemSvc);  
+-         VERIFY(SUCCEEDED(hr));  
+- 
+- //三、设置WMI连接的安全性
+-         hr=CoSetProxyBlanket(m_pWbemSvc,  
+-             RPC_C_AUTHN_WINNT,  
+-             RPC_C_AUTHZ_NONE,  
+-             NULL,  
+-             RPC_C_AUTHN_LEVEL_CALL,  
+-             RPC_C_IMP_LEVEL_IMPERSONATE,  
+-             NULL,  
+-             EOAC_NONE);  
+-         VERIFY(SUCCEEDED(hr));  
+- 
+-     }  
+- return(hr);  
+- }  
+- 
+- HRESULT CWmiInfo::ReleaseWmi()  
+- {  
+- HRESULT hr;  
+- 
+- if (NULL != m_pWbemSvc)  
+-     {  
+-         hr=m_pWbemSvc->Release();  
+-     }  
+- if (NULL != m_pWbemLoc)  
+-     {  
+-         hr=m_pWbemLoc->Release();  
+-     }  
+- if (NULL != m_pEnumClsObj)  
+-     {  
+-         hr=m_pEnumClsObj->Release();  
+-     }  
+- 
+-     ::CoUninitialize();  
+- 
+- return(hr);  
+- }  
+- 
+- BOOL CWmiInfo::GetSingleItemInfo(CString ClassName,CString ClassMember,CString &chRetValue)  
+- {  
+-     USES_CONVERSION;  
+- 
+-     CComBSTR query("SELECT * FROM ");  
+-     VARIANT vtProp;  
+- ULONG uReturn;  
+- HRESULT hr;  
+- BOOL bRet = FALSE;  
+- 
+- if (NULL != m_pWbemSvc)  
+-     {  
+- //查询类ClassName中的所有字段,保存到m_pEnumClsObj中
+-         query+=CComBSTR(ClassName);  
+-         hr=m_pWbemSvc->ExecQuery(CComBSTR("WQL"),query,WBEM_FLAG_FORWARD_ONLY|WBEM_FLAG_RETURN_IMMEDIATELY,  
+-             0,&m_pEnumClsObj);  
+- if (SUCCEEDED(hr))  
+-         {  
+- //初始化vtProp值
+-             VariantInit(&vtProp);  
+-             uReturn=0;  
+- 
+- //返回从当前位置起的第一个对象到m_pWbemClsObj中
+-             hr=m_pEnumClsObj->Next(WBEM_INFINITE,1,&m_pWbemClsObj,&uReturn);  
+- if(SUCCEEDED(hr)&&uReturn>0)   
+-             {  
+- //从m_pWbemClsObj中找出ClassMember标识的成员属性值,并保存到vtProp变量中
+-                 hr=m_pWbemClsObj->Get(CComBSTR(ClassMember),0,&vtProp,0,0);  
+- if (SUCCEEDED(hr))  
+-                 {  
+-                     VariantToString(&vtProp,chRetValue);  
+-                     VariantClear(&vtProp);//清空vtProp
+-                     bRet = TRUE;  
+-                 }  
+-             }  
+-         }  
+-     }  
+- if(NULL != m_pEnumClsObj)   
+-     {  
+-         hr=m_pEnumClsObj->Release();  
+-         m_pEnumClsObj = NULL;  
+-     }  
+- if(NULL != m_pWbemClsObj)   
+-     {  
+-         hr=m_pWbemClsObj->Release();  
+-         m_pWbemClsObj = NULL;  
+-     }  
+- return bRet;  
+- }  
+- 
+- BOOL CWmiInfo::GetGroupItemInfo(CString ClassName,CString ClassMember[],int n,CString &chRetValue)  
+- {  
+-     USES_CONVERSION;  
+- 
+-     CComBSTR query("SELECT * FROM ");  
+-     CString result,info;  
+-     VARIANT vtProp;  
+- ULONG uReturn;  
+- HRESULT hr;  
+- int i;  
+- BOOL bRet = FALSE;  
+- if (NULL  != m_pWbemSvc)  
+-     {  
+-         query+=CComBSTR(ClassName);  
+-         hr=m_pWbemSvc->ExecQuery(CComBSTR("WQL"),query,WBEM_FLAG_FORWARD_ONLY|WBEM_FLAG_RETURN_IMMEDIATELY,0,&m_pEnumClsObj);  
+- if (SUCCEEDED(hr))  
+-         {  
+-             VariantInit(&vtProp); //初始化vtProp变量
+- if(m_pEnumClsObj)    
+-             {  
+-                 Sleep(10);  
+-                 uReturn=0;  
+-                 hr=m_pEnumClsObj->Next(WBEM_INFINITE,1,&m_pWbemClsObj,&uReturn);  
+- if (SUCCEEDED(hr) &&uReturn>0)  
+-                 {  
+- for(i=0;i<n;++i)  
+-                     {  
+-                         hr=m_pWbemClsObj->Get(CComBSTR(ClassMember[i]),0,&vtProp,0,0);  
+- if (SUCCEEDED(hr))  
+-                         {  
+-                             VariantToString(&vtProp,info);  
+-                             chRetValue+=info+_T("\t");  
+-                             VariantClear(&vtProp);  
+-                             bRet = TRUE;  
+-                         }  
+-                     }  
+-                     chRetValue+=_T("\r\n");  
+-                 }  
+-             }  
+-         }  
+-     }  
+- 
+- if(NULL != m_pEnumClsObj)  
+-     {  
+-         hr=m_pEnumClsObj->Release();  
+-         m_pEnumClsObj=NULL;  
+-     }  
+- if(NULL != m_pWbemClsObj)  
+-     {  
+-         hr=m_pWbemClsObj->Release();  
+-         m_pWbemClsObj=NULL;  
+-     }  
+- return bRet;  
+- }  
+- 
+- void CWmiInfo::VariantToString(const LPVARIANT pVar,CString &chRetValue) const
+- {  
+-     USES_CONVERSION;  
+- 
+-     CComBSTR HUGEP* pBstr;  
+- BYTE HUGEP* pBuf;  
+- LONG low,high,i;  
+- HRESULT hr;  
+- 
+- switch(pVar->vt)  
+-     {  
+- case VT_BSTR:  
+-         {  
+-             chRetValue=W2T(pVar->bstrVal);  
+-         }  
+- break;  
+- case VT_BOOL:  
+-         {  
+- if(VARIANT_TRUE==pVar->boolVal)   
+-                 chRetValue="是";  
+- else
+-                 chRetValue="否";  
+-         }  
+- break;  
+- case VT_I4:  
+-         {  
+-             chRetValue.Format(_T("%d"),pVar->lVal);  
+-         }  
+- break;  
+- case VT_UI1:  
+-         {  
+-             chRetValue.Format(_T("%d"),pVar->bVal);  
+-         }  
+- break;  
+- case VT_UI4:  
+-         {  
+-             chRetValue.Format(_T("%d"),pVar->ulVal);  
+-         }  
+- break;  
+- 
+- case VT_BSTR|VT_ARRAY:  
+-         {  
+-             hr=SafeArrayAccessData(pVar->parray,(void HUGEP**)&pBstr);  
+-             hr=SafeArrayUnaccessData(pVar->parray);  
+-             chRetValue=W2T(pBstr->m_str);  
+-         }  
+- break;  
+- 
+- case VT_I4|VT_ARRAY:  
+-         {  
+-             SafeArrayGetLBound(pVar->parray,1,&low);   
+-             SafeArrayGetUBound(pVar->parray,1,&high);  
+- 
+-             hr=SafeArrayAccessData(pVar->parray,(void HUGEP**)&pBuf);  
+-             hr=SafeArrayUnaccessData(pVar->parray);  
+-             CString strTmp;  
+-             high=min(high,MAX_PATH*2-1);  
+- for(i=low;i<=high;++i)  
+-             {  
+-                 strTmp.Format(_T("%02X"),pBuf[i]);  
+-                 chRetValue+=strTmp;  
+-             }  
+-         }  
+- break;  
+- default:  
+- break;  
+-     }  
+- }  
+   上面就是一个WMI的封装，返回参数均以CString类型返回调用顺序：
+1.实例化一个CWmiInfo类对象
+2.调用InitWmi()函数初始化COM组件等。。。函数中有说明必须调用InitWmi初始化WMI组件，否则所有调用都无意义。
+3.调用GetXXX方法获取你要获取的字段值。
+4.最后使用完CWmiInfo类对象之后一定要记得调用ReleaseWmi()函数来释放资源
+调用说明：
+**[cpp]**[view
+ plain](http://blog.csdn.net/wenliabc2007/article/details/6718084#)[copy](http://blog.csdn.net/wenliabc2007/article/details/6718084#)
+- /*GetSingleItemInfo()
+-     第一个参数为要查询的类名如"Win32_Processor"表示CPU类,
+-     第二个参数表示要查的类的成员,如"Caption"表示查询CPU的名称
+-     第三个参数表示返回值.故可以这样调用
+-     CString strRetValue;
+-     GetSingleItemInfo(_T("Win32_Processor"),_T("Caption"),strRetValue);
+-     一样调用成功后即可从strRetValue参数中读取出CPU的名称*/
+**[cpp]**[view
+ plain](http://blog.csdn.net/wenliabc2007/article/details/6718084#)[copy](http://blog.csdn.net/wenliabc2007/article/details/6718084#)
+- /*GetGroupItemInfo 函数与GetSingleItemInfo类似,不同的是GetSingleItemInfo一次只能查一个类成员而GetGroupItemInfo一次可以查询一个类的多个成员.GetGroupItemInfo的第三个参数表示要查询的类成员的个数,即:第二个参数CString数组的大小可以这样调用：CString strRetValue;CString [] strClassMem = {_T("Caption"),_T("CurrentClockSpeed"),_T("DeviceID"),_T("Manufacturer"),_T("Manufacturer")};GetGroupItemInfo(_T("Win32_Processor"),strClassMem,5,strRetValue);*/
+    可以看出WMI的调用是相当的简单只需传入你想要查询的字段所在的类名和类对象名即可~~~也许到这里有淫还会问、、、、我他妈怎么知道类名叫神马咧？？？？类中有哪些对象咧？？？？？
+    M。。。S。。。。D。。。N  可以帮到你！！！
+这里教大家一个技巧，WMI的字段类名好像都是以Win32_开头。。。。如：Win32_Processor，Win32_PhysicalMemory等等。。。所以，你只要在MSDN输入Win32_就会看到很多以WMI结尾的类了。。。剩下的就是你的English水平问题了，这里google也可以帮你，如果你需要的话。
+下面给大家列出一些常用的类名：
+**[cpp]**[view
+ plain](http://blog.csdn.net/wenliabc2007/article/details/6718084#)[copy](http://blog.csdn.net/wenliabc2007/article/details/6718084#)
+- // 硬件信息类名
+-   Win32_Processor, // CPU 处理器
+- Win32_PhysicalMemory, // 物理内存条
+- Win32_Keyboard, // 键盘
+- Win32_PointingDevice, // 点输入设备，包括鼠标。
+- Win32_FloppyDrive, // 软盘驱动器
+- Win32_DiskDrive, // 硬盘驱动器
+- Win32_CDROMDrive, // 光盘驱动器
+- Win32_BaseBoard, // 主板
+- Win32_BIOS, // BIOS 芯片
+- Win32_ParallelPort, // 并口
+- Win32_SerialPort, // 串口
+- Win32_SerialPortConfiguration, // 串口配置
+- Win32_SoundDevice, // 多媒体设置，一般指声卡。
+- Win32_SystemSlot, // 主板插槽 (ISA & PCI & AGP)
+- Win32_USBController, // USB 控制器
+- Win32_NetworkAdapter, // 网络适配器
+- Win32_NetworkAdapterConfiguration, // 网络适配器设置
+- Win32_Printer, // 打印机
+- Win32_PrinterConfiguration, // 打印机设置
+- Win32_PrintJob, // 打印机任务
+- Win32_TCPIPPrinterPort, // 打印机端口
+- Win32_POTSModem, // MODEM
+- Win32_POTSModemToSerialPort, // MODEM 端口
+- Win32_DesktopMonitor, // 显示器
+- Win32_DisplayConfiguration, // 显卡
+- Win32_DisplayControllerConfiguration, // 显卡设置
+- Win32_VideoController, // 显卡细节。
+- Win32_VideoSettings, // 显卡支持的显示模式。
+- 
+- // 操作系统
+- Win32_TimeZone, // 时区
+- Win32_SystemDriver, // 驱动程序
+- Win32_DiskPartition, // 磁盘分区
+- Win32_LogicalDisk, // 逻辑磁盘
+- Win32_LogicalDiskToPartition, // 逻辑磁盘所在分区及始末位置。
+- Win32_LogicalMemoryConfiguration, // 逻辑内存配置
+- Win32_PageFile, // 系统页文件信息
+- Win32_PageFileSetting, // 页文件设置
+- Win32_BootConfiguration, // 系统启动配置
+- Win32_ComputerSystem, // 计算机信息简要
+- Win32_OperatingSystem, // 操作系统信息
+- Win32_StartupCommand, // 系统自动启动程序
+- Win32_Service, // 系统安装的服务
+- Win32_Group, // 系统管理组
+- Win32_GroupUser, // 系统组帐号
+- Win32_UserAccount, // 用户帐号
+- Win32_Process, // 系统进程
+- Win32_Thread, // 系统线程
+- Win32_Share, // 共享
+- Win32_NetworkClient, // 已安装的网络客户端
+- Win32_NetworkProtocol, // 已安装的网络协议
+   在、msdn中输入相应的类名即可查看个类中包括的类成员及其含义~~
+       正如前面所说，WMI使用相当方便，但是速度太慢，API比较复杂，但是速度很给力~~~~~可以根据自己的需求来选用实现方式~~~~
+  以上代码均已在vs2008中编译通过~~~~可以直接使用~~~~~~有不当的地方请指教！！
+

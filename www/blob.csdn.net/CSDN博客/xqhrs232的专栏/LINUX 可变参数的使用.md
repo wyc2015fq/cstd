@@ -1,0 +1,203 @@
+# LINUX 可变参数的使用 - xqhrs232的专栏 - CSDN博客
+2016年10月20日 19:19:06[xqhrs232](https://me.csdn.net/xqhrs232)阅读数：195
+个人分类：[Linux/Ubuntu/Fedora](https://blog.csdn.net/xqhrs232/article/category/906931)
+原文地址::[http://blog.csdn.net/kelsel/article/details/52758307](http://blog.csdn.net/kelsel/article/details/52758307)
+
+1)首先在函数里定义一个va_list型的变量,这里是arg_ptr,这个变量是指向参数的指针.
+ 2)然后用va_start宏初始化变量arg_ptr,这个宏的第二个参数是第一个可变参数的前一个参 数,是一个固定的参数.
+ 3)然后用va_arg返回可变的参数,并赋值给整数j. va_arg的第二个参数是你要返回的参数 的类型,这里是int型.
+ 4)最后用va_end宏结束可变参数的获取.然后你就可以在函数里使用第二个参数了.如果函 数有多个可变参数的,依次调用va_arg获取各个参数.
+示例，man page的代码
+- #include<stdio.h>
+- #include<stdlib.h>
+- #include<string.h>
+- #include<stdarg.h>
+- 
+- void
+- foo(char *fmt,...)
+- {
+-    va_list ap;
+- int d;
+-    char c,*s;
+-    va_start(ap, fmt);
+- while(*fmt)
+-        switch (*fmt++) {
+-        case 's': /* string */
+-            s = va_arg(ap, char *);
+-            printf("string %s\n", s);
+-            break;
+-        case 'd': /*int*/
+-            d = va_arg(ap,int);
+-            printf("int %d\n", d);
+-            break;
+-        case 'c': /* char */
+-            /* need a cast here since va_arg only
+-               takes fully promoted types */
+-            c =(char) va_arg(ap,int);
+-            printf("char %c\n", c);
+-            break;
+-        default:
+-            break;
+-        }
+-    va_end(ap);
+- }
+- 
+- int main(int argc, char **argv)
+- {
+-     foo("sss","3","s","23");
+-     foo("dd", 1, 20);
+-     foo("c",'z');
+-     return 0;
+- }
+示例2
+- #include<stdio.h>
+- #include<stdlib.h>
+- #include<string.h>
+- #include<stdarg.h>
+- 
+- /* 需要释放内存 */
+- void asprintf_disp(const char *fmt,...)
+- {
+-     char *buf = NULL;
+- if( asprintf(&buf, fmt)> 0 )
+-     {
+-         puts(buf);
+-         free(buf);
+-     }
+- 
+- }
+- /* 需要释放内存 */
+- void vasprintf_disp(const char *fmt,...)
+- {
+-     char *buf = NULL;
+-     va_list ap;
+-     va_start(ap, fmt);
+-     vasprintf(&buf, fmt, ap);
+-     va_end(ap);
+- 
+-     puts(buf);
+-     free(buf);
+- }
+- 
+- void vsnprintf_disp(const char *fmt,...)
+- {
+-     va_list ap;
+-     char buf[128];
+-     va_start(ap, fmt);
+-     vsnprintf(buf,sizeof(buf)/sizeof(char), fmt, ap);
+-     va_end(ap);
+- 
+-     puts(buf);
+- }
+- 
+- 
+- int main(int argc, char **argv)
+- {
+-     asprintf_disp("%s %d\n","va_list", 22);
+-     vasprintf_disp("%s %d\n","va_list", 22);
+-     vsnprintf_disp("%s %d\n","va_list", 22);
+-     return 0;
+- }
+- #include<stdio.h>
+- #include<stdlib.h>
+- #include<string.h>
+- #include<stdarg.h>
+- 
+- /* 需要释放内存 */
+- void asprintf_disp(const char *fmt,...)
+- {
+-     char *buf = NULL;
+- if( asprintf(&buf, fmt)> 0 )
+-     {
+-         puts(buf);
+-         free(buf);
+-     }
+- 
+- }
+- /* 需要释放内存 */
+- void vasprintf_disp(const char *fmt,...)
+- {
+-     char *buf = NULL;
+-     va_list ap;
+-     va_start(ap, fmt);
+-     vasprintf(&buf, fmt, ap);
+-     va_end(ap);
+- 
+-     puts(buf);
+-     free(buf);
+- }
+- 
+- void vsnprintf_disp(const char *fmt,...)
+- {
+-     va_list ap;
+-     char buf[128];
+-     va_start(ap, fmt);
+-     vsnprintf(buf,sizeof(buf)/sizeof(char), fmt, ap);
+-     va_end(ap);
+- 
+-     puts(buf);
+- }
+- 
+- 
+- int main(int argc, char **argv)
+- {
+-     asprintf_disp("%s %d\n","va_list", 22);
+-     vasprintf_disp("%s %d\n","va_list", 22);
+-     vsnprintf_disp("%s %d\n","va_list", 22);
+-     return 0;
+- }
+- #include<stdio.h>
+- #include<stdlib.h>
+- #include<string.h>
+- #include<stdarg.h>
+- 
+- /* 需要释放内存 */
+- void asprintf_disp(const char *fmt,...)
+- {
+-     char *buf = NULL;
+- if( asprintf(&buf, fmt)> 0 )
+-     {
+-         puts(buf);
+-         free(buf);
+-     }
+- 
+- }
+- /* 需要释放内存 */
+- void vasprintf_disp(const char *fmt,...)
+- {
+-     char *buf = NULL;
+-     va_list ap;
+-     va_start(ap, fmt);
+-     vasprintf(&buf, fmt, ap);
+-     va_end(ap);
+- 
+-     puts(buf);
+-     free(buf);
+- }
+- 
+- void vsnprintf_disp(const char *fmt,...)
+- {
+-     va_list ap;
+-     char buf[128];
+-     va_start(ap, fmt);
+-     vsnprintf(buf,sizeof(buf)/sizeof(char), fmt, ap);
+-     va_end(ap);
+- 
+-     puts(buf);
+- }
+- 
+- 
+- int main(int argc, char **argv)
+- {
+-     asprintf_disp("%s %d\n","va_list", 22);
+-     vasprintf_disp("%s %d\n","va_list", 22);
+-     vsnprintf_disp("%s %d\n","va_list", 22);
+-     return 0;
+- }
+[](http://blog.csdn.net/kelsel/article/details/52758307#)[](http://blog.csdn.net/kelsel/article/details/52758307#)[](http://blog.csdn.net/kelsel/article/details/52758307#)[](http://blog.csdn.net/kelsel/article/details/52758307#)[](http://blog.csdn.net/kelsel/article/details/52758307#)[](http://blog.csdn.net/kelsel/article/details/52758307#)
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new
+ Date()/36e5)];</script>
+阅读(123) | 评论(0) | 转发(1) |
+0
+上一篇：[VDI(Virtual Desktop Infrastructure)](http://blog.csdn.net/uid-24709751-id-3982084.html)
+下一篇：[内存泄露测试](http://blog.csdn.net/uid-24709751-id-3982093.html)

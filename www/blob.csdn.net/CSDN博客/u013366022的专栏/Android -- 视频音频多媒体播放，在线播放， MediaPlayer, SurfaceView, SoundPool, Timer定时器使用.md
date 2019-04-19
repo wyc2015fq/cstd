@@ -1,0 +1,518 @@
+# Android -- 视频音频多媒体播放，在线播放， MediaPlayer, SurfaceView, SoundPool, Timer定时器使用 - u013366022的专栏 - CSDN博客
+2014年08月13日 14:33:31[slitaz](https://me.csdn.net/u013366022)阅读数：740
+1. SoundPool 用于快速重复的播放短音频
+**[java]**[view
+ plain](http://blog.csdn.net/xj626852095/article/details/23191945#)[copy](http://blog.csdn.net/xj626852095/article/details/23191945#)![在CODE上查看代码片](https://code.csdn.net/assets/CODE_ico.png)[](https://code.csdn.net/snippets/281060/fork)
+- publicclass MainActivity extends Activity {  
+- private SoundPool soundPool;  
+- privateint soundId;  
+- 
+- @Override
+- protectedvoid onCreate(Bundle savedInstanceState) {  
+- super.onCreate(savedInstanceState);  
+-         setContentView(R.layout.activity_main);  
+-         soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);  
+- // 把声音资源预先加载到声音池， load为异步方法
+- //声音资源放到 res/raw目录下， raw名字须固定
+-         soundId = soundPool.load(this, R.raw.ring, 1);  
+-     }  
+- 
+- publicvoid click(View view) {  
+-         soundPool.play(soundId, 1.0f, 1.0f, 0, 0, 1.0f);  
+-     }  
+- 
+- }  
+2. 视频播放示例代码 （播放暂停，进度条拖放等功能）
+输入的路径不仅可以是本地的视频路径，也可以是一个网络视频路径，播放器会自动在线播放，不过需要添加**Internet权限**。
+activity_main.xml 布局文件
+**[html]**[view
+ plain](http://blog.csdn.net/xj626852095/article/details/23191945#)[copy](http://blog.csdn.net/xj626852095/article/details/23191945#)![在CODE上查看代码片](https://code.csdn.net/assets/CODE_ico.png)[](https://code.csdn.net/snippets/281060/fork)
+- <LinearLayoutxmlns:android="http://schemas.android.com/apk/res/android"
+- xmlns:tools="http://schemas.android.com/tools"
+- android:layout_width="match_parent"
+- android:layout_height="match_parent"
+- android:orientation="vertical"
+- tools:context=".MainActivity">
+- 
+- <EditText
+- android:text="/sdcard/oppo.mp4"
+- android:id="@+id/et_path"
+- android:layout_width="match_parent"
+- android:layout_height="wrap_content"
+- android:hint="请输入视频文件的路径"/>
+- 
+- <LinearLayout
+- android:layout_width="match_parent"
+- android:layout_height="wrap_content"
+- android:orientation="horizontal">
+- 
+- <Button
+- android:id="@+id/bt_play"
+- android:layout_width="0dip"
+- android:layout_height="wrap_content"
+- android:layout_weight="1"
+- android:text="播放"/>
+- 
+- <Button
+- android:id="@+id/bt_pause"
+- android:layout_width="0dip"
+- android:layout_height="wrap_content"
+- android:layout_weight="1"
+- android:text="暂停"/>
+- 
+- <Button
+- android:id="@+id/bt_replay"
+- android:layout_width="0dip"
+- android:layout_height="wrap_content"
+- android:layout_weight="1"
+- android:text="重播"/>
+- 
+- <Button
+- android:id="@+id/bt_stop"
+- android:layout_width="0dip"
+- android:layout_height="wrap_content"
+- android:layout_weight="1"
+- android:text="停止"/>
+- </LinearLayout>
+- 
+- <SeekBar
+- android:id="@+id/seek_bar"
+- android:layout_width="match_parent"
+- android:layout_height="wrap_content"/>
+- 
+- <SurfaceView
+- android:id="@+id/sv"
+- android:layout_width="fill_parent"
+- android:layout_height="fill_parent"/>
+- 
+- </LinearLayout>
+MainActivity.java
+**[java]**[view
+ plain](http://blog.csdn.net/xj626852095/article/details/23191945#)[copy](http://blog.csdn.net/xj626852095/article/details/23191945#)![在CODE上查看代码片](https://code.csdn.net/assets/CODE_ico.png)[](https://code.csdn.net/snippets/281060/fork)
+- import java.io.File;  
+- import java.io.IOException;  
+- import java.util.Timer;  
+- import java.util.TimerTask;  
+- 
+- import android.media.AudioManager;  
+- import android.media.MediaPlayer;  
+- import android.os.Bundle;  
+- import android.app.Activity;  
+- import android.view.Menu;  
+- import android.view.SurfaceHolder;  
+- import android.view.SurfaceHolder.Callback;  
+- import android.view.SurfaceView;  
+- import android.view.View;  
+- import android.view.View.OnClickListener;  
+- import android.widget.Button;  
+- import android.widget.EditText;  
+- import android.widget.SeekBar;  
+- import android.widget.SeekBar.OnSeekBarChangeListener;  
+- import android.widget.Toast;  
+- 
+- publicclass MainActivity extends Activity implements OnClickListener {  
+- private Button bt_play;  
+- private Button bt_replay;  
+- private Button bt_stop;  
+- private Button bt_pause;  
+- private EditText et_path;  
+- private SurfaceView sv;  
+- 
+- private MediaPlayer mediaPlayer;  
+- 
+- privateint position;  
+- 
+- private SeekBar seek_bar;  
+- 
+- private Timer timer;  
+- private TimerTask task;  
+- 
+- @Override
+- protectedvoid onCreate(Bundle savedInstanceState) {  
+- super.onCreate(savedInstanceState);  
+-         setContentView(R.layout.activity_main);  
+-         bt_play = (Button) findViewById(R.id.bt_play);  
+-         bt_replay = (Button) findViewById(R.id.bt_replay);  
+-         bt_stop = (Button) findViewById(R.id.bt_stop);  
+-         bt_pause = (Button) findViewById(R.id.bt_pause);  
+-         sv = (SurfaceView) findViewById(R.id.sv);  
+-         seek_bar = (SeekBar) findViewById(R.id.seek_bar);  
+- 
+-         seek_bar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {  
+- 
+- @Override
+- publicvoid onStopTrackingTouch(SeekBar seekBar) {  
+- if(mediaPlayer!=null){  
+-                     mediaPlayer.seekTo(seekBar.getProgress());  
+-                 }  
+-             }  
+- 
+- @Override
+- publicvoid onStartTrackingTouch(SeekBar seekBar) {  
+- 
+-             }  
+- 
+- @Override
+- publicvoid onProgressChanged(SeekBar seekBar, int progress,  
+- boolean fromUser) {  
+- 
+- 
+-             }  
+-         });  
+- 
+- /* 下面设置Surface不维护自己的缓冲区，而是等待屏幕的渲染引擎将内容推送到用户面前 */
+-         sv.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);  
+- 
+-         sv.getHolder().addCallback(new Callback() {  
+- 
+- @Override
+- publicvoid surfaceDestroyed(SurfaceHolder holder) {  
+-                 System.out.println("holder 被销毁了.");  
+- if (mediaPlayer != null && mediaPlayer.isPlaying()) {  
+-                     position = mediaPlayer.getCurrentPosition();  
+-                     stop();  
+-                 }  
+-             }  
+- 
+- @Override
+- publicvoid surfaceCreated(SurfaceHolder holder) {  
+-                 System.out.println("holder 被创建了.");  
+- if (position != 0) {  
+-                     play();  
+-                     mediaPlayer.seekTo(position);  
+-                 }  
+- 
+-             }  
+- 
+- // 主要是当holder的大小发生变化的时候 调用
+- @Override
+- publicvoid surfaceChanged(SurfaceHolder holder, int format,  
+- int width, int height) {  
+- 
+-             }  
+-         });  
+- 
+-         bt_play.setOnClickListener(this);  
+-         bt_replay.setOnClickListener(this);  
+-         bt_stop.setOnClickListener(this);  
+-         bt_pause.setOnClickListener(this);  
+- 
+-         et_path = (EditText) findViewById(R.id.et_path);  
+-     }  
+- 
+- @Override
+- publicvoid onClick(View v) {  
+- switch (v.getId()) {  
+- case R.id.bt_play:  
+-             play();  
+- break;  
+- case R.id.bt_replay:  
+-             replay();  
+- break;  
+- case R.id.bt_stop:  
+-             stop();  
+- break;  
+- case R.id.bt_pause:  
+-             pause();  
+- break;  
+-         }  
+- 
+-     }  
+- 
+- /**
+-      * 重新播放
+-      */
+- privatevoid replay() {  
+- if (mediaPlayer != null && mediaPlayer.isPlaying()) {  
+-             mediaPlayer.seekTo(0);  
+-         } else {  
+-             play();  
+-         }  
+- 
+-     }  
+- 
+- /**
+-      * 停止播放
+-      */
+- privatevoid stop() {  
+- if (mediaPlayer != null && mediaPlayer.isPlaying()) {  
+-             mediaPlayer.stop();  
+-             mediaPlayer.release();  
+- 
+-             mediaPlayer = null;  
+-             bt_play.setEnabled(true);  
+- if (timer != null && task != null) {  
+-                 timer.cancel();  
+-                 task.cancel();  
+-                 timer = null;  
+-                 task = null;  
+-             }  
+- 
+-         }  
+- 
+-     }  
+- 
+- /**
+-      * 暂停播放
+-      */
+- privatevoid pause() {  
+- 
+- if (mediaPlayer != null && mediaPlayer.isPlaying()) {  
+- // 暂停播放
+-             mediaPlayer.pause();  
+-             bt_pause.setText("继续");  
+- return;  
+-         }  
+- 
+- if (mediaPlayer != null) {  
+- if ("继续".equals(bt_pause.getText().toString())) {  
+-                 mediaPlayer.start();  
+-                 bt_pause.setText("暂停");  
+- return;  
+-             }  
+-         }  
+- 
+-     }  
+- 
+- /**
+-      * 播放
+-      */
+- privatevoid play() {  
+-         String path = et_path.getText().toString().trim();  
+-         File file = new File(path);  
+- //添加判断条件，如果路径带http 网路视频在线播放
+- if ( (file.exists() && file.length() > 0) || path.contains("http")) {  
+- try {  
+-                 mediaPlayer = new MediaPlayer();  
+-                 mediaPlayer.reset();// 重置为初始状态
+-                 mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);  
+- /* 设置Video影片以SurfaceHolder播放 */
+-                 mediaPlayer.setDisplay(sv.getHolder());  
+-                 mediaPlayer.setDataSource(path);  
+- //prepare同步准备
+- //prepareAsync为异步准备,不会阻塞主线程，需要注册OnPrepareListener， 并在其中执行start()
+-                 mediaPlayer.prepare();  
+-                 mediaPlayer.start();// 播放
+- 
+- int max = mediaPlayer.getDuration();  
+-                 seek_bar.setMax(max);  
+- // 创建一个定时器
+-                 timer = new Timer();  
+- // 创建一个定时器执行的任务
+-                 task = new TimerTask() {  
+- @Override
+- publicvoid run() {  
+- int position = mediaPlayer.getCurrentPosition();  
+-                         seek_bar.setProgress(position);  
+-                     }  
+-                 };  
+-                 timer.schedule(task, 0, 1000);  
+-             } catch (Exception e) {  
+-                 e.printStackTrace();  
+-                 Toast.makeText(this, "播放失败", 1).show();  
+-             }  
+-         }  
+- 
+-     }  
+- 
+- }  
+3. 音频播放示例：类似于视频播放
+MainActivity.java
+**[java]**[view
+ plain](http://blog.csdn.net/xj626852095/article/details/23191945#)[copy](http://blog.csdn.net/xj626852095/article/details/23191945#)![在CODE上查看代码片](https://code.csdn.net/assets/CODE_ico.png)[](https://code.csdn.net/snippets/281060/fork)
+- import java.io.File;  
+- import java.io.IOException;  
+- 
+- import android.app.Activity;  
+- import android.media.AudioManager;  
+- import android.media.MediaPlayer;  
+- import android.media.MediaPlayer.OnCompletionListener;  
+- import android.media.MediaPlayer.OnErrorListener;  
+- import android.media.MediaPlayer.OnPreparedListener;  
+- import android.os.Bundle;  
+- import android.telephony.PhoneStateListener;  
+- import android.telephony.TelephonyManager;  
+- import android.view.View;  
+- import android.view.View.OnClickListener;  
+- import android.widget.Button;  
+- import android.widget.EditText;  
+- import android.widget.Toast;  
+- 
+- publicclass MainActivity extends Activity implements OnClickListener {  
+- private Button bt_play;  
+- private Button bt_replay;  
+- private Button bt_stop;  
+- private Button bt_pause;  
+- private EditText et_path;  
+- 
+- private MediaPlayer mediaPlayer;  
+- 
+- 
+- private TelephonyManager tm;  
+- 
+- @Override
+- protectedvoid onCreate(Bundle savedInstanceState) {  
+- super.onCreate(savedInstanceState);  
+-         setContentView(R.layout.activity_main);  
+-         bt_play = (Button) findViewById(R.id.bt_play);  
+-         bt_replay = (Button) findViewById(R.id.bt_replay);  
+-         bt_stop = (Button) findViewById(R.id.bt_stop);  
+-         bt_pause = (Button) findViewById(R.id.bt_pause);  
+- 
+-         bt_play.setOnClickListener(this);  
+-         bt_replay.setOnClickListener(this);  
+-         bt_stop.setOnClickListener(this);  
+-         bt_pause.setOnClickListener(this);  
+- 
+-         et_path = (EditText) findViewById(R.id.et_path);  
+- 
+-         tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);  
+-         tm.listen(new MyListener(), PhoneStateListener.LISTEN_CALL_STATE);  
+- 
+-     }  
+- 
+- privateclass MyListener extends PhoneStateListener{  
+- 
+- @Override
+- publicvoid onCallStateChanged(int state, String incomingNumber) {  
+- switch (state) {  
+- case TelephonyManager.CALL_STATE_RINGING:  
+-                 pause();  
+- break;  
+- 
+- case TelephonyManager.CALL_STATE_IDLE:  
+-                 pause();  
+- break;  
+-             }  
+- 
+- 
+- 
+- super.onCallStateChanged(state, incomingNumber);  
+-         }  
+- 
+-     }  
+- 
+- 
+- @Override
+- publicvoid onClick(View v) {  
+- 
+- switch (v.getId()) {  
+- case R.id.bt_play:  
+-             play();  
+- break;  
+- case R.id.bt_replay:  
+-             replay();  
+- break;  
+- case R.id.bt_stop:  
+-             stop();  
+- break;  
+- case R.id.bt_pause:  
+-             pause();  
+- break;  
+-         }  
+- 
+-     }  
+- 
+- /**
+-      * 重新播放
+-      */
+- privatevoid replay() {  
+- if (mediaPlayer != null && mediaPlayer.isPlaying()) {  
+-             mediaPlayer.seekTo(0);  
+-         }else{  
+-             play();  
+-         }  
+- 
+-     }  
+- 
+- /**
+-      * 停止播放
+-      */
+- privatevoid stop() {  
+- if (mediaPlayer != null && mediaPlayer.isPlaying()) {  
+-             mediaPlayer.stop();  
+-             mediaPlayer.release();  
+- 
+-             mediaPlayer = null;  
+-             bt_play.setEnabled(true);  
+-         }  
+- 
+-     }  
+- 
+- /**
+-      * 暂停播放
+-      */
+- privatevoid pause() {  
+- 
+- if (mediaPlayer != null && mediaPlayer.isPlaying()) {  
+- // 暂停播放
+-             mediaPlayer.pause();  
+-             bt_pause.setText("继续");  
+- return;  
+-         }  
+- 
+- if (mediaPlayer != null) {  
+- if ("继续".equals(bt_pause.getText().toString())) {  
+-                 mediaPlayer.start();  
+-                 bt_pause.setText("暂停");  
+- return;  
+-             }  
+-         }  
+- 
+-     }  
+- 
+- /**
+-      * 处理播放
+-      */
+- privatevoid play() {  
+-         String path = et_path.getText().toString().trim();  
+-         File file = new File(path);  
+- if (file.exists() && file.length() > 0) {  
+- try {  
+-                 mediaPlayer = new MediaPlayer();  
+-                 mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);  
+-                 mediaPlayer.setDataSource(path);  
+- //mediaPlayer.setLooping(looping);
+- 
+- //播放完毕后的 事件监听器
+-                 mediaPlayer.setOnCompletionListener(new OnCompletionListener() {  
+- @Override
+- publicvoid onCompletion(MediaPlayer mp) {  
+-                         bt_play.setEnabled(true);  
+-                     }  
+-                 });  
+-                 mediaPlayer.setOnErrorListener(new OnErrorListener() {  
+- @Override
+- publicboolean onError(MediaPlayer mp, int what, int extra) {  
+-                         bt_play.setEnabled(true);  
+-                         Toast.makeText(MainActivity.this, "音乐文件错误", 0).show();  
+- returnfalse;  
+-                     }  
+-                 });  
+- //  mediaPlayer.prepare();//同步准备.
+-                 mediaPlayer.prepareAsync();//异步准备 在一个新的子线程里面准备
+- //通知用户缓存中...
+-                 mediaPlayer.setOnPreparedListener(new OnPreparedListener() {  
+- 
+- @Override
+- publicvoid onPrepared(MediaPlayer mp) {  
+- //通知用户开始播放...
+-                         mediaPlayer.start();  
+-                     }  
+-                 });  
+- 
+- 
+- 
+-                 bt_play.setEnabled(false);  
+- 
+-             } catch (Exception e) {  
+-                 e.printStackTrace();  
+-                 Toast.makeText(this, "播放音乐失败", 0).show();  
+-             }  
+-         } else {  
+-             Toast.makeText(this, "音乐文件不存在", 0).show();  
+-         }  
+- 
+-     }  
+- 
+- }  

@@ -1,0 +1,40 @@
+# __attribute__ - Koma Hub - CSDN博客
+2019年03月02日 12:29:20[Koma_Wong](https://me.csdn.net/Rong_Toa)阅读数：18
+
+```
+__attribute__((always_inline))
+__attribute__((noinline))
+__attribute__((__format__ (printf, 2, 3)))
+__attribute__((const))
+__attribute__((constructor))
+__attribute__ ((__constructor__))
+__attribute__((__noreturn__))
+__attribute__((__weak__))
+__attribute__((nocommon, section (".gnu.linkonce.b.__sparc32_atomic_locks\"\n\t#\""),
+		      visibility ("hidden")));
+__attribute__((section ("__libc_freeres_fn")))
+__attribute__ ((__nothrow__))
+__attribute__((__warning__ (msg)))
+__attribute__((__error__ (msg)))
+__attribute__ ((__malloc__))
+__attribute__ ((__pure__))
+__attribute__ ((__used__))
+__attribute__ ((__unused__))
+__attribute__ ((__deprecated__))
+__attribute__ ((__format_arg__ (x)))
+__attribute__ ((__format__ (__strfmon__, a, b)))
+__attribute__ ((__nonnull__ params))
+__attribute__ ((__warn_unused_result__))
+__attribute__ ((__gnu_inline__))
+__attribute__ ((__gnu_inline__, __artificial__))
+__attribute__ ((__destructor__))
+__attribute__ ((destructor))
+__attribute__ ((const))
+__attribute__ ((destructor))
+__attribute__ ((nocommon))
+__attribute__ ((unused, always_inline))
+__attribute__ ((aligned (__alignof (ElfW(Ehdr)))))
+__attribute__ ((unused, const))
+__attribute__ ((regparm (3), stdcall, unused))
+__attribute__ ((always_inline, const))
+```

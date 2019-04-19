@@ -1,0 +1,974 @@
+# Qt浅谈之十六：TCP和UDP（之一） - xqhrs232的专栏 - CSDN博客
+2018年05月24日 11:40:01[xqhrs232](https://me.csdn.net/xqhrs232)阅读数：127
+原文地址::[https://blog.csdn.net/taiyang1987912/article/details/36183065](https://blog.csdn.net/taiyang1987912/article/details/36183065)
+相关文章
+1、QT 线程池 + TCP 小试（一）线程池的简单实现----[https://blog.csdn.net/goldenhawking/article/details/7854413](https://blog.csdn.net/goldenhawking/article/details/7854413)
+2、QRunnable中，如何接收tcp连接信息----[https://jingyan.baidu.com/article/dca1fa6f140f54f1a440520b.html](https://jingyan.baidu.com/article/dca1fa6f140f54f1a440520b.html)
+# 一、简介
+       Qt使用QtNetwork模块来进行网络编程，提供了一层统一的套接字抽象用于编写不同层次的网络程序，避免了应用套接字进行网络编的繁琐（因有时需引用底层操作系统的相关数据结构）。有较底层次的类如QTcpSocket、QTcpServer和QUdpSocket等来表示低层的网络概念；还有高层次的类如QNetworkRequest、QNetworkReply和QNetworkAccessManager使用相同的协议来执行网络操作；也提供了QNetworkConfiguration、QNetworkConfigurationManager和QNetworkSession等类来实现负载管理。
+# 二、分析图
+（1）网络通讯协议
+![](https://img-blog.csdn.net/20140804172447273?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGFpeWFuZzE5ODc5MTI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)![](https://img-blog.csdn.net/20140804172510673?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGFpeWFuZzE5ODc5MTI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+（2）TCP和UDP客户端和服务器的创建流程
+![](https://img-blog.csdn.net/20140804172636255?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGFpeWFuZzE5ODc5MTI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+# 三、TCP
+       TCP是一种可靠的、面向连接、面向数据流的传输协议，多数高层网络协议都使用TCP协议，包括HTTP和FTP，TCP协议非常适合数据的连续传输。QTcpSocket类为TCP提供了一个接口，继承自QAbstractSocket。TCP编程一般分为客户端和服务器端，即C/S（Client/Server）模型。
+## 1、运行图
+![](https://img-blog.csdn.net/20140812144201196?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGFpeWFuZzE5ODc5MTI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+服务器监听8010端口，客户端连接。服务器端接收到连接及其信息的同时将信息发送给所有的客户端，客户端显示获得的信息。
+## 2、代码
+（1）TCP服务器端（完整代码在csdn上）
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include "tcpserver.h"
+- #include <QApplication>
+- 
+- 
+- int main( int argc, char **argv )  
+- {  
+- 
+-     QApplication a( argc, argv );  
+-     QTranslator translator(0);  
+-     translator.load("tcpserver_zh",".");  
+-     a.installTranslator(&translator);      
+- 
+-     TcpServer *tcpserver = new TcpServer();  
+-     tcpserver->show();  
+- return a.exec();  
+- }  
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include "tcpserver.h"
+- 
+- TcpServer::TcpServer( QWidget *parent, Qt::WindowFlags  f )  
+-     : QDialog( parent, f )  
+- {    
+-     QFont font("ZYSong18030",12);  
+-     setFont(font);  
+- 
+-     setWindowTitle(tr("TCP Server"));  
+- 
+-     QVBoxLayout *vbMain = new QVBoxLayout( this );  
+- 
+-     ListWidgetContent = new QListWidget( this);   
+-     vbMain->addWidget( ListWidgetContent );      
+- 
+-     QHBoxLayout *hb = new QHBoxLayout( );  
+- 
+-     LabelPort = new QLabel( this );  
+-     LabelPort->setText(tr("Port:"));  
+-     hb->addWidget( LabelPort );  
+- 
+-     LineEditPort = new QLineEdit(this);  
+-     hb->addWidget( LineEditPort );  
+- 
+-     vbMain->addLayout(hb);  
+- 
+-     PushButtonCreate = new QPushButton( this);  
+-     PushButtonCreate->setText( tr( "Create" ) );    
+-     vbMain->addWidget( PushButtonCreate );  
+- 
+-     connect(PushButtonCreate,SIGNAL(clicked()),this,SLOT(slotCreateServer()));    
+- 
+-     port = 8010;   
+-     LineEditPort->setText(QString::number(port));   
+- 
+- }  
+- 
+- TcpServer::~TcpServer()  
+- {  
+- }  
+- 
+- void TcpServer::slotCreateServer()                       
+- {           
+-     server = new Server(this,port);   
+-     connect(server,SIGNAL(updateServer(QString,int)),this,SLOT(updateServer(QString,int)));  
+- 
+-     PushButtonCreate->setEnabled(false);  
+- }  
+- 
+- void TcpServer::updateServer(QString msg,int length)  
+- {  
+-     ListWidgetContent->addItem (msg.left(length) );  
+- }  
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include <QtNetwork>
+- 
+- 
+- #include "server.h"
+- 
+- Server::Server(QObject *parent,int port)  
+-     : QTcpServer(parent)  
+- {  
+-     listen(QHostAddress::Any,port);  
+- }  
+- 
+- void Server::incomingConnection(int socketDescriptor)  
+- {  
+-     TcpClientSocket *tcpClientSocket = new TcpClientSocket(this);  
+-     connect(tcpClientSocket,SIGNAL(updateClients(QString,int)),this,SLOT(updateClients(QString,int)));  
+-     connect(tcpClientSocket,SIGNAL(disconnected(int)),this,SLOT(slotDisconnected(int)));  
+- 
+-     tcpClientSocket->setSocketDescriptor(socketDescriptor);  
+- 
+-     tcpClientSocketList.append(tcpClientSocket);  
+- 
+- }  
+- 
+- void Server::updateClients(QString msg,int length)  
+- {  
+-     emit updateServer(msg,length);  
+- 
+- for(int i=0;i<tcpClientSocketList.count();i++)  
+-     {  
+-         QTcpSocket *item=tcpClientSocketList.at(i);  
+- if(item->write(msg.toLatin1(), length)!=length)  
+-         {  
+- continue ;  
+-         }     
+-     }  
+- }  
+- 
+- void Server::slotDisconnected(int descriptor)  
+- {  
+- for(int i=0;i<tcpClientSocketList.count();i++)  
+-     {  
+-         QTcpSocket *item=tcpClientSocketList.at(i);  
+- if(item->socketDescriptor ()==descriptor)  
+-         {  
+-             tcpClientSocketList.removeAt(i);  
+- return;  
+-         }     
+-     }     
+- return;  
+- }  
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include "tcpserver.h"
+- 
+- TcpClientSocket::TcpClientSocket( QObject *parent)  
+- {    
+-     connect(this, SIGNAL(readyRead()),this, SLOT(dataReceived()));     
+-     connect(this, SIGNAL(disconnected()),this, SLOT(slotDisconnected()));  
+- }  
+- 
+- TcpClientSocket::~TcpClientSocket()  
+- {  
+- }  
+- 
+- void TcpClientSocket::dataReceived()  
+- {  
+- while (bytesAvailable()>0)   
+-     {  
+- char buf[1024];  
+- int length=bytesAvailable();  
+-         read(buf, length);  
+- 
+-         QString msg=buf;  
+- 
+-         emit updateClients(msg,length);  
+-     }     
+- }  
+- 
+- void TcpClientSocket::slotDisconnected()  
+- {  
+-     emit disconnected(this->socketDescriptor ());  
+- }  
+（2）TCP客户端
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include "tcpclient.h"
+- 
+- TcpClient::TcpClient( QWidget *parent, Qt::WindowFlags  f )  
+-     : QDialog( parent, f )  
+- {    
+-     QFont font("ZYSong18030",12, QFont::Normal);  
+-     setFont(font);  
+- 
+-     setWindowTitle(tr("TCP Client"));  
+- 
+-     QVBoxLayout *vbMain = new QVBoxLayout( this );  
+- 
+-     ListWidgetContent = new QListWidget( this);   
+-     vbMain->addWidget( ListWidgetContent );   
+- 
+-     QHBoxLayout *hb1 = new QHBoxLayout( );  
+- 
+-     LineEditSend = new QLineEdit(this);  
+-     hb1->addWidget( LineEditSend );    
+- 
+-     PushButtonSend = new QPushButton( this);  
+-     PushButtonSend->setText( tr( "Send" ) );    
+-     hb1->addWidget( PushButtonSend );  
+- 
+-     vbMain->addLayout( hb1 );  
+- 
+-     QHBoxLayout *hb2 = new QHBoxLayout( );  
+- 
+-     LabelUser = new QLabel( this );  
+-     LabelUser->setText(tr("User Name:"));  
+-     hb2->addWidget( LabelUser );  
+- 
+-     LineEditUser = new QLineEdit(this);  
+-     hb2->addWidget( LineEditUser );  
+- 
+-     QHBoxLayout *hb3 = new QHBoxLayout( );  
+- 
+-     LabelServerIP = new QLabel( this );  
+-     LabelServerIP->setText(tr("Server:"));  
+-     hb3->addWidget( LabelServerIP );  
+- 
+-     LineEditServerIP = new QLineEdit(this);  
+-     hb3->addWidget( LineEditServerIP );  
+- 
+-     QHBoxLayout *hb4 = new QHBoxLayout( );  
+- 
+-     LabelPort = new QLabel( this );  
+-     LabelPort->setText(tr("Port:"));  
+-     hb4->addWidget( LabelPort );  
+- 
+-     LineEditPort = new QLineEdit(this);  
+-     hb4->addWidget( LineEditPort );  
+- 
+-     vbMain->addLayout(hb2);  
+-     vbMain->addLayout(hb3);  
+-     vbMain->addLayout(hb4);  
+- 
+-     PushButtonEnter = new QPushButton( this);  
+-     PushButtonEnter->setText( tr( "Enter" ) );    
+-     vbMain->addWidget( PushButtonEnter );  
+- 
+-     connect(PushButtonEnter,SIGNAL(clicked()),this,SLOT(slotEnter()));  
+-     connect(PushButtonSend,SIGNAL(clicked()),this,SLOT(slotSend()));      
+- 
+-     serverIP = new QHostAddress();  
+-     port = 8010;   
+-     LineEditPort->setText(QString::number(port));   
+- 
+-     status=false;  
+- 
+-     PushButtonSend->setEnabled( false );   
+- }  
+- 
+- TcpClient::~TcpClient()  
+- {  
+- }  
+- 
+- void TcpClient::slotEnter()                       
+- {           
+- if(!status)  
+-     {  
+-         QString ip=LineEditServerIP->text();  
+- if(!serverIP->setAddress(ip))  
+-         {  
+-             QMessageBox::information(this,tr("error"),tr("server ip address error!"));  
+- return;  
+-         }  
+- if(LineEditUser->text()=="")  
+-         {  
+-             QMessageBox::information(this,tr("error"),tr("User name error!"));  
+- return ;  
+-         }     
+-         userName=LineEditUser->text();  
+-         tcpSocket = new QTcpSocket(this);  
+-         connect(tcpSocket,SIGNAL(connected()),this,SLOT(slotConnected()));  
+-         connect(tcpSocket,SIGNAL(disconnected()),this,SLOT(slotDisconnected()));  
+-         connect(tcpSocket, SIGNAL(readyRead()),this, SLOT(dataReceived()));  
+- 
+-         tcpSocket->connectToHost ( *serverIP, port);  
+- 
+-         status=true;  
+-     }  
+- else
+-     {  
+- int length = 0;   
+- 
+-         QString msg=userName+tr(":Leave Chat Room");  
+- if((length=tcpSocket->write(msg.toLatin1(),msg.length()))!=msg.length())  
+-         {  
+- return ;  
+-         }             
+-         tcpSocket->disconnectFromHost();  
+- 
+-         status=false;  
+-     }  
+- 
+- }  
+- 
+- void TcpClient::slotConnected()                       
+- {  
+- int length = 0;   
+-     PushButtonSend->setEnabled( true );  
+-     PushButtonEnter->setText(tr("Leave"));  
+-     QString msg=userName+tr(":Enter Chat Room");  
+- if((length=tcpSocket->write(msg.toLatin1(),msg.length()))!=msg.length())  
+-     {  
+- return ;  
+-     }     
+- }  
+- 
+- void TcpClient::slotDisconnected()                       
+- {  
+-     PushButtonSend->setEnabled( false );  
+-     PushButtonEnter->setText(tr("Enter"));  
+- }  
+- 
+- void TcpClient::slotSend()                       
+- {           
+- if(LineEditSend->text()=="")  
+-     {  
+- return ;  
+-     }  
+- 
+-     QString msg=userName+":"+LineEditSend->text();  
+- 
+-     tcpSocket->write(msg.toLatin1(),msg.length());  
+-     LineEditSend->clear();  
+- }  
+- 
+- void TcpClient::dataReceived()  
+- {  
+- while (tcpSocket->bytesAvailable()>0)   
+-     {  
+-         QByteArray datagram;  
+-         datagram.resize(tcpSocket->bytesAvailable());  
+-         QHostAddress sender;  
+- 
+- 
+-         tcpSocket->read(datagram.data(), datagram.size());  
+- 
+-         QString msg=datagram.data();  
+- 
+-         ListWidgetContent->addItem (msg.left(datagram.size()));  
+-     }  
+- 
+- }  
+## 3、其他TCP服务器和客户端代码
+（1）TCP服务器——基本模式
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #ifndef SERVER_H
+- #define SERVER_H
+- 
+- #include <QObject>
+- #include <QTcpServer>
+- 
+- class server : public QObject  
+- {  
+-     Q_OBJECT  
+- public:  
+- explicit server(QObject *parent = 0);  
+- 
+- private:  
+-     QTcpServer *tcpServer;  
+-     QTcpSocket *clientConnection;  
+- 
+- signals:  
+- 
+- public slots:  
+- void sendMessage();  
+- void on_Ready_Read();  
+- };  
+- 
+- #endif // SERVER_H
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include <QTcpSocket>
+- #include "server.h"
+- 
+- 
+- server::server(QObject *parent) :  
+-     QObject(parent)  
+- {  
+-     tcpServer = new QTcpServer(this);  
+- // 使用了IPv4的本地主机地址，等价于QHostAddress("127.0.0.1")
+- if (!tcpServer->listen(QHostAddress::Any, 59769)) {  
+-         qDebug() << tcpServer->errorString();  
+-     }  
+-     connect(tcpServer, SIGNAL(newConnection()), this, SLOT(sendMessage()));  
+- }  
+- 
+- void server::sendMessage()  
+- {  
+-     clientConnection = tcpServer->nextPendingConnection();  
+-     clientConnection->write("hello client\r\n");  
+-     clientConnection->flush();     
+-     clientConnection->waitForBytesWritten(3000);  
+-     connect(clientConnection, SIGNAL(readyRead()), this, SLOT(on_Ready_Read()));   
+-     connect(clientConnection, SIGNAL(disconnected()), clientConnection, SLOT(deleteLater()));  
+- }  
+- void server::on_Ready_Read()  
+- {   
+-     QByteArray block = clientConnection->readAll();   
+-     qDebug() << "server = " << block;   
+-     QString commandXml = QString("<event>"" <object>USER</object>"" <action>LOGINSUCCESS</action>"" <data>"" </data>""</event>");   
+-     QByteArray data = commandXml.toUtf8();   
+-     QString str = QString("%1:%2,").arg(data.size()).arg(QString::fromUtf8(data));   
+-     clientConnection->write(str.toUtf8()); clientConnection->disconnectFromHost();  
+- }  
+（2）TCP服务器——线程处理
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #ifndef MYSERVER_H
+- #define MYSERVER_H
+- 
+- #include <QTcpServer>
+- #include <QDebug>
+- #include "mythread.h"
+- 
+- class MyServer : public QTcpServer  
+- {  
+-     Q_OBJECT  
+- public:  
+- explicit MyServer(QObject *parent = 0);  
+- void StartServer();  
+- 
+- protected:  
+- void incomingConnection(int  socketDescriptor);  
+- signals:  
+- 
+- public slots:  
+- 
+- };  
+- 
+- #endif // MYSERVER_H
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #ifndef MYTHREAD_H
+- #define MYTHREAD_H
+- 
+- #include <QThread>
+- #include <QTcpSocket>
+- #include <QDebug>
+- 
+- class MyThread : public QThread  
+- {  
+-     Q_OBJECT  
+- public:  
+- explicit MyThread(int ID, QObject *parent = 0);  
+- void run();  
+- 
+- signals:  
+- void error(QTcpSocket::SocketError socketerror);  
+- 
+- public slots:  
+- void readyRead();  
+- void disconnected();  
+- 
+- private:  
+-     QTcpSocket *socket;  
+- int socketDescriptor;  
+- 
+- };  
+- #endif // MYTHREAD_H
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include <QCoreApplication>
+- #include "myserver.h"
+- 
+- int main(int argc, char *argv[])  
+- {  
+-     QCoreApplication a(argc, argv);  
+-     MyServer server;  
+-     server.StartServer();  
+- 
+- return a.exec();  
+- }  
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include "myserver.h"
+- 
+- MyServer::MyServer(QObject *parent) :  
+-     QTcpServer(parent)  
+- {  
+- }  
+- 
+- void MyServer::StartServer()  
+- {  
+- if (!listen(QHostAddress::Any, 1234)) {  
+-         qDebug() << "Could not start server";  
+-     }  
+- else {  
+-         qDebug() << "Listening...";  
+-     }  
+- }  
+- 
+- void MyServer::incomingConnection(int socketDescriptor)  
+- {  
+-     qDebug() << socketDescriptor << ":connecting...";  
+-     MyThread *thread = new MyThread(socketDescriptor, this);  
+-     connect(thread, SIGNAL(finished()), this, SLOT(deleteLater()));  
+- thread->start();  
+- }  
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include "mythread.h"
+- 
+- MyThread::MyThread(int ID, QObject *parent) :  
+-     QThread(parent)  
+- {  
+-     socketDescriptor = ID;  
+- }  
+- 
+- 
+- void MyThread::run()  
+- {  
+- //thread starts here
+-     qDebug() << socketDescriptor << ":starting thread";  
+-     socket = new QTcpSocket;  
+- if (!socket->setSocketDescriptor(socketDescriptor)) {  
+-         emit error(socket->error());  
+- return;  
+-     }  
+-     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()), Qt::DirectConnection);  
+-     connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()), Qt::DirectConnection);  
+-     qDebug() << socketDescriptor << ":client connected!";  
+-     exec();  
+- }  
+- void MyThread::readyRead()  
+- {  
+-     QByteArray Data = socket->readAll();  
+-     qDebug() << socketDescriptor << ":Data in:" << Data;  
+-     socket->write(Data);  
+- }  
+- void MyThread::disconnected()  
+- {  
+-     qDebug() << socketDescriptor << ":Disconnected!";  
+-     socket->deleteLater();  
+-     exit(0);  
+- }  
+（3）TCP服务器——线程池
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #ifndef MYSERVER_H
+- #define MYSERVER_H
+- 
+- #include <QTcpServer>
+- #include <QThreadPool>
+- #include <QDebug>
+- #include "myrunnable.h"
+- 
+- class MyServer : public QTcpServer  
+- {  
+-     Q_OBJECT  
+- public:  
+- explicit MyServer(QObject *parent = 0);  
+- void StartServer();  
+- 
+- protected:  
+- void incomingConnection(int handle);  
+- 
+- private:  
+-     QThreadPool *pool;  
+- 
+- signals:  
+- 
+- public slots:  
+- 
+- };  
+- 
+- #endif // MYSERVER_H
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #ifndef MYRUNNABLE_H
+- #define MYRUNNABLE_H
+- 
+- #include <QRunnable>
+- #include <QTcpSocket>
+- #include <QDebug>
+- 
+- class MyRunnable : public QRunnable  
+- {  
+- public:  
+-     MyRunnable();  
+- int SocketDescriptor;  
+- 
+- protected:  
+- void run();  
+- };  
+- 
+- #endif // MYRUNNABLE_H
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include "myserver.h"
+- 
+- MyServer::MyServer(QObject *parent) :  
+-     QTcpServer(parent)  
+- {  
+-     pool = new QThreadPool(this);  
+-     pool->setMaxThreadCount(5);  
+- }  
+- void MyServer::StartServer()  
+- {  
+- if (listen(QHostAddress::Any, 1234)) {  
+-         qDebug() << "Server started!";  
+-     }  
+- else {  
+-         qDebug() << "Server did not start!";  
+-     }  
+- }  
+- void MyServer::incomingConnection(int handle)  
+- {  
+-     MyRunnable *task = new MyRunnable();  
+-     task->setAutoDelete(true);  
+-     task->SocketDescriptor = handle;  
+-     pool->start(task);  
+- }  
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include "myrunnable.h"
+- 
+- MyRunnable::MyRunnable()  
+- {  
+- }  
+- 
+- void MyRunnable::run()  
+- {  
+- if (!SocketDescriptor)  return;  
+- 
+-     QTcpSocket socket;  
+-     socket.setSocketDescriptor(SocketDescriptor);  
+- 
+-     socket.write("hello world\r\n");  
+-     socket.flush();  
+-     socket.waitForBytesWritten();  
+-     socket.close();  
+- }  
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include <QCoreApplication>
+- #include "myserver.h"
+- 
+- int main(int argc, char *argv[])  
+- {  
+-     QCoreApplication a(argc, argv);  
+-     MyServer Server;  
+-     Server.StartServer();  
+- return a.exec();  
+- }  
+（4）TCP服务器——高级异步方式并使用线程池
+尽可能理解这种方式，效率相对比较客观。运行结果：
+![](https://img-blog.csdn.net/20140813190657034?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdGFpeWFuZzE5ODc5MTI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #ifndef MYSERVER_H
+- #define MYSERVER_H
+- 
+- #include <QTcpServer>
+- #include <QTcpSocket>
+- #include <QAbstractSocket>
+- #include "myclient.h"
+- 
+- class MyServer : public QTcpServer  
+- {  
+-     Q_OBJECT  
+- public:  
+- explicit MyServer(QObject *parent = 0);  
+- void StartServer();  
+- 
+- protected:  
+- void incomingConnection(int handle);  
+- 
+- signals:  
+- 
+- public slots:  
+- 
+- };  
+- 
+- #endif // MYSERVER_H
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #ifndef MYCLIENT_H
+- #define MYCLIENT_H
+- 
+- #include <QObject>
+- #include <QTcpSocket>
+- #include <QDebug>
+- #include <QThreadPool>
+- #include "mytask.h"
+- 
+- class MyClient : public QObject  
+- {  
+-     Q_OBJECT  
+- public:  
+- explicit MyClient(QObject *parent = 0);  
+- void SetSocket(int Descriptor);  
+- 
+- signals:  
+- 
+- public slots:  
+- void connected();  
+- void disconnected();  
+- void readyRead();  
+- void TaskResult(int Number);  
+- 
+- private:  
+-     QTcpSocket *socket;  
+- };  
+- 
+- #endif // MYCLIENT_H
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #ifndef MYTASK_H
+- #define MYTASK_H
+- 
+- #include <QRunnable>
+- #include <QDebug>
+- 
+- class MyTask : public QObject, public QRunnable  
+- {  
+-     Q_OBJECT  
+- public:  
+-     MyTask();  
+- 
+- signals:  
+- void Result(int Number);  
+- 
+- protected:  
+- void run();  
+- };  
+- 
+- #endif // MYTASK_H
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include "myserver.h"
+- 
+- MyServer::MyServer(QObject *parent) :  
+-     QTcpServer(parent)  
+- {  
+- }  
+- void MyServer::StartServer()  
+- {  
+- if (listen(QHostAddress::Any, 1234)) {  
+-         qDebug() << "Server started!";  
+-     }  
+- else {  
+-         qDebug() << "Server did not start!";  
+-     }  
+- }  
+- 
+- void MyServer::incomingConnection(int handle)  
+- {  
+-     MyClient *client = new MyClient(this);  
+-     client->SetSocket(handle);  
+- }  
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include "myclient.h"
+- 
+- MyClient::MyClient(QObject *parent) :  
+-     QObject(parent)  
+- {  
+-     QThreadPool::globalInstance()->setMaxThreadCount(15);  
+- }  
+- 
+- void MyClient::SetSocket(int Descriptor)  
+- {  
+-     socket = new QTcpSocket(this);  
+- 
+-     connect(socket, SIGNAL(connected()), this, SLOT(connected()));  
+-     connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));  
+-     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));  
+- 
+-     socket->setSocketDescriptor(Descriptor);  
+-     qDebug() << "client connected";  
+- }  
+- 
+- void MyClient::connected()  
+- {  
+-     qDebug() << "client connected event";  
+- }  
+- 
+- void MyClient::disconnected()  
+- {  
+-     qDebug() << "client disconnected";  
+- }  
+- 
+- void MyClient::readyRead()  
+- {  
+-     qDebug() << socket->readAll();  
+- //Time Consumer
+-     MyTask *mytask = new MyTask;  
+-     mytask->setAutoDelete(true);  
+-     connect(mytask, SIGNAL(Result(int)), this, SLOT(TaskResult(int)));  
+-     QThreadPool::globalInstance()->start(mytask);  
+- }  
+- 
+- void MyClient::TaskResult(int Number)  
+- {  
+- //right here
+-     QByteArray Buffer;  
+-     Buffer.append("\r\nTask Result = ");  
+-     Buffer.append(QString::number(Number));  
+- 
+-     socket->write(Buffer);  
+- }  
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include "mytask.h"
+- 
+- MyTask::MyTask()  
+- {  
+- }  
+- 
+- void MyTask::run()  
+- {  
+- //time consumer
+-     qDebug() << "Task Start";  
+- int iNumber = 0;  
+- for (int i = 0; i < 100; i++) {  
+-         iNumber += i;  
+-     }  
+-     qDebug() << "Task Done";  
+- 
+-     emit Result(iNumber);  
+- }  
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include <QCoreApplication>
+- #include "myserver.h"
+- 
+- int main(int argc, char *argv[])  
+- {  
+-     QCoreApplication a(argc, argv);  
+-     MyServer Server;  
+-     Server.StartServer();  
+- 
+- return a.exec();  
+- }  
+（5）TCP客户端——异步等待
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #ifndef SOCKETTEST_H
+- #define SOCKETTEST_H
+- 
+- #include <QObject>
+- #include <QTcpSocket>
+- 
+- class SocketTest : public QObject  
+- {  
+-     Q_OBJECT  
+- public:  
+- explicit SocketTest(QObject *parent = 0);  
+- void Connect();  
+- 
+- private:  
+-     QTcpSocket *socket;  
+- 
+- signals:  
+- 
+- public slots:  
+- 
+- };  
+- 
+- #endif // SOCKETTEST_H
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include "sockettest.h"
+- 
+- SocketTest::SocketTest(QObject *parent) :  
+-     QObject(parent)  
+- {  
+- }  
+- 
+- void SocketTest::Connect()  
+- {  
+-     socket = new QTcpSocket(this);  
+-     socket->connectToHost("203.116.165.138", 80);  
+- 
+- if (socket->waitForConnected(3000)) {  
+-         qDebug() << "connected!";  
+- 
+- //send
+-         socket->write("hello server\r\n\r\n\r\n");  
+-         socket->waitForBytesWritten(1000);  
+-         socket->waitForReadyRead(3000);  
+-         qDebug() << "Reading:" << socket->bytesAvailable();  
+- 
+-         qDebug() << socket->readAll();  
+- 
+-         socket->close();  
+-     }  
+- else {  
+-         qDebug() << "not connected!";  
+-     }  
+- }  
+（6）TCP客户端——信号槽连接
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include <QCoreApplication>
+- #include <QTextCodec>
+- #include "sockettest.h"
+- 
+- int main(int argc, char *argv[])  
+- {  
+-     QCoreApplication a(argc, argv);  
+-     QTextCodec *codec = QTextCodec::codecForName("System");  
+-     QTextCodec::setCodecForLocale(codec);  
+-     QTextCodec::setCodecForCStrings(codec);  
+-     QTextCodec::setCodecForTr(codec);  
+-     SocketTest mTest;  
+-     mTest.Test();  
+- return a.exec();  
+- }  
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #ifndef SOCKETTEST_H
+- #define SOCKETTEST_H
+- 
+- #include <QObject>
+- #include <QDebug>
+- #include <QTcpSocket>
+- #include <QAbstractSocket>
+- 
+- class SocketTest : public QObject  
+- {  
+-     Q_OBJECT  
+- public:  
+- explicit SocketTest(QObject *parent = 0);  
+- void Test();  
+- 
+- private:  
+-     QTcpSocket *socket;  
+- 
+- signals:  
+- 
+- public slots:  
+- void connected();  
+- void disconnected();  
+- void bytesWritten(qint64 bytes);  
+- void readyRead();  
+- void displayError(QAbstractSocket::SocketError);  
+- };  
+- 
+- #endif // SOCKETTEST_H
+[cpp][view plain](https://blog.csdn.net/taiyang1987912/article/details/36183065#)[copy](https://blog.csdn.net/taiyang1987912/article/details/36183065#)
+- #include "sockettest.h"
+- 
+- SocketTest::SocketTest(QObject *parent) :  
+-     QObject(parent)  
+- {  
+- }  
+- 
+- void SocketTest::Test()  
+- {  
+-     socket = new QTcpSocket(this);  
+-     connect(socket, SIGNAL(connected()), this, SLOT(connected()));  
+-     connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));  
+-     connect(socket, SIGNAL(bytesWritten(qint64)), this, SLOT(bytesWritten(qint64)));  
+-     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));  
+-     connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));  
+- 
+-     qDebug() << "connecting...";  
+-     socket->connectToHost("203.116.165.139", 80);  
+- 
+- if (!socket->waitForConnected(1000)) {  
+-         qDebug() << "Error:" << socket->errorString();  
+-     }  
+- }  
+- 
+- void SocketTest::connected()  
+- {  
+-     qDebug() << "connected!";  
+-     socket->write("HEAD / HTTP/1.0\r\n\r\n\r\n");  
+- }  
+- 
+- void SocketTest::disconnected()  
+- {  
+-     qDebug() << "disconnected!";  
+-     socket->disconnectFromHost();  
+- }  
+- 
+- void SocketTest::bytesWritten(qint64 bytes)  
+- {  
+-     qDebug() << "we wrote:" << bytes;  
+- }  
+- 
+- void SocketTest::readyRead()  
+- {  
+-     qDebug() << "reading...";  
+-     qDebug() << socket->readAll();  
+- }  
+- void SocketTest::displayError(QAbstractSocket::SocketError)  
+- {  
+-     qDebug() << socket->errorString();  
+- }  
+
+# 四、TCP总结
+      以上各节代码均可单独采用实现服务器和客户端的运行，可以选择设计自己的模式。 
+      TCP服务器的效率还取决于使用者设计的模式，好的设计能可以容错、快速处理大批量的任务、减小系统的负荷、节约内存等好处，因此不停的总结TCP的代码，并在其基础上提高是很有必要的。
+【待续UDP】
+

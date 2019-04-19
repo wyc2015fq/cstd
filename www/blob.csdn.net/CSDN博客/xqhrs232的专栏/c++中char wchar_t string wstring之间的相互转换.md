@@ -1,0 +1,107 @@
+# c++中char*\wchar_t*\string\wstring之间的相互转换 - xqhrs232的专栏 - CSDN博客
+2012年08月06日 09:59:23[xqhrs232](https://me.csdn.net/xqhrs232)阅读数：1058标签：[string																[c++																[null																[c](https://so.csdn.net/so/search/s.do?q=c&t=blog)](https://so.csdn.net/so/search/s.do?q=null&t=blog)](https://so.csdn.net/so/search/s.do?q=c++&t=blog)](https://so.csdn.net/so/search/s.do?q=string&t=blog)
+个人分类：[C/C++/VC++/VS](https://blog.csdn.net/xqhrs232/article/category/906934)
+原文地址::[http://blog.csdn.net/mfcing/article/details/7529848](http://blog.csdn.net/mfcing/article/details/7529848)
+- #ifndef USE_H_
+- #define USE_H_
+- 
+- #include <iostream>
+- #include <windows.h>
+- #include <string>
+- usingnamespace std;  
+- class CUser  
+- {  
+- public:  
+-     CUser();  
+- virtual~ CUser();  
+- char* WcharToChar(constwchar_t* wp);  
+- char* StringToChar(const string& s);  
+- char* WstringToChar(const wstring& ws);  
+- wchar_t* CharToWchar(constchar* c);  
+- wchar_t* WstringToWchar(const wstring& ws);  
+- wchar_t* StringToWchar(const string& s);  
+-     wstring StringToWstring(const string& s);  
+-     string WstringToString(const wstring& ws);  
+- void Release();  
+- private:  
+- char* m_char;  
+- wchar_t* m_wchar;  
+- };  
+- #endif;
+**[cpp]**[view
+ plain](http://blog.csdn.net/mfcing/article/details/7529848#)[copy](http://blog.csdn.net/mfcing/article/details/7529848#)
+- #include "stdafx.h"
+- #include "use.h"
+- CUser::CUser()  
+- :m_char(NULL)  
+- ,m_wchar(NULL)  
+- {  
+- }  
+- CUser::~CUser()  
+- {  
+-     Release();  
+- }  
+- char* CUser::WcharToChar(constwchar_t* wp)  
+- {  
+-     Release();  
+- int len= WideCharToMultiByte(CP_ACP,0,wp,wcslen(wp),NULL,0,NULL,NULL);  
+-     m_char=newchar[len+1];  
+-     WideCharToMultiByte(CP_ACP,0,wp,wcslen(wp),m_char,len,NULL,NULL);  
+-     m_char[len]='\0';  
+- return m_char;  
+- }  
+- wchar_t* CUser::CharToWchar(constchar* c)  
+- {  
+-     Release();  
+- int len = MultiByteToWideChar(CP_ACP,0,c,strlen(c),NULL,0);  
+-     m_wchar=newwchar_t[len+1];  
+-     MultiByteToWideChar(CP_ACP,0,c,strlen(c),m_wchar,len);  
+-     m_wchar[len]='\0';  
+- return m_wchar;  
+- }  
+- void CUser::Release()  
+- {  
+- if(m_char)  
+-     {  
+- delete m_char;  
+-         m_char=NULL;  
+-     }  
+- if(m_wchar)  
+-     {  
+- delete m_wchar;  
+-         m_wchar=NULL;  
+-     }  
+- }  
+- char* CUser::StringToChar(const string& s)  
+- {  
+- returnconst_cast<char*>(s.c_str());  
+- }  
+- char* CUser::WstringToChar(const std::wstring &ws)  
+- {  
+- constwchar_t* wp=ws.c_str();  
+- return WcharToChar(wp);  
+- }  
+- wchar_t* CUser::WstringToWchar(const std::wstring &ws)  
+- {  
+- returnconst_cast<wchar_t*>(ws.c_str());  
+- }  
+- wchar_t* CUser::StringToWchar(const string& s)  
+- {  
+- constchar* p=s.c_str();  
+- return CharToWchar(p);  
+- }  
+- string CUser::WstringToString(const std::wstring &ws)  
+- {  
+-     string s;  
+- char* p=WstringToChar(ws);  
+-     s.append(p);  
+- return s;  
+- }  
+- wstring CUser::StringToWstring(const std::string &s)  
+- {  
+-     wstring ws;  
+- wchar_t* wp=StringToWchar(s);  
+-     ws.append(wp);  
+- return ws;  
+- }  
+如果涉及到CString，可以利用CString::GetBuffer()函数来进行转换，道理一样.

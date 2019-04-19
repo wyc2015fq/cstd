@@ -1,0 +1,368 @@
+# WinCE虚拟串口驱动(二) - xqhrs232的专栏 - CSDN博客
+2012年06月06日 22:21:41[xqhrs232](https://me.csdn.net/xqhrs232)阅读数：647标签：[wince																[null																[buffer																[windows																[dll](https://so.csdn.net/so/search/s.do?q=dll&t=blog)](https://so.csdn.net/so/search/s.do?q=windows&t=blog)](https://so.csdn.net/so/search/s.do?q=buffer&t=blog)](https://so.csdn.net/so/search/s.do?q=null&t=blog)](https://so.csdn.net/so/search/s.do?q=wince&t=blog)
+个人分类：[串口技术/无线串口技术](https://blog.csdn.net/xqhrs232/article/category/1347902)
+原文地址::[http://blog.csdn.net/norains/article/details/4032332](http://blog.csdn.net/norains/article/details/4032332)
+ //========================================================================
+  //TITLE:
+  //    WinCE虚拟串口驱动(二)
+  //AUTHOR:
+  //    norains
+  //DATE:
+  //    Saturday 28-March-2009
+  //Environment:
+  //    WINDOWS CE 5.0
+  //========================================================================
+  虚拟串口驱动的完整代码如下：
+**[cpp]**[view
+ plain](http://blog.csdn.net/norains/article/details/4032332#)[copy](http://blog.csdn.net/norains/article/details/4032332#)
+- // VirtualSerial.cpp : Defines the entry point for the DLL application.
+- //
+- 
+- #include "windows.h"
+- #include "reg.h"
+- #include <vector>
+- #include <Pegdser.h>
+- #include "algorithm"
+- 
+- //--------------------------------------------------------------------------
+- //Macro
+- #define REG_ROOT_KEY     HKEY_LOCAL_MACHINE
+- #define REG_DEVICE_SUB_KEY  TEXT("Drivers//Builtin//VirtualSerial")
+- #define REG_MAP_PORT_NAME   TEXT("Map_Port")
+- 
+- //The buffer length for storing the read data.
+- #define READ_BUFFER_LENGTH  MAX_PATH
+- //--------------------------------------------------------------------------
+- //Gloabal variable
+- HANDLE g_hCom = INVALID_HANDLE_VALUE;  
+- unsigned int g_uiOpenCount = 0;  
+- CRITICAL_SECTION g_csOpen;  
+- CRITICAL_SECTION g_csRead;  
+- CRITICAL_SECTION g_csWrite;  
+- std::vector<BYTE> g_vtBufRead(READ_BUFFER_LENGTH,0);  
+- DWORD g_dwLenReadBuf = 0;  
+- DWORD g_dwEvtMask = 0;  
+- DWORD g_dwWaitMask = 0;  
+- HANDLE g_hEventComm = NULL;  
+- BOOL g_bMonitorProcRunning = FALSE;  
+- BOOL g_bExitMonitorProc = FALSE;  
+- BOOL g_bReaded = FALSE;  
+- //--------------------------------------------------------------------------
+- 
+- BOOL WINAPI DllEntry(HANDLE hInstDll, DWORD dwReason, LPVOID lpvReserved)  
+- {  
+- switch ( dwReason )   
+-     {  
+- case DLL_PROCESS_ATTACH:  
+- break;  
+-     }  
+- return TRUE;  
+- }  
+- 
+- DWORD MonitorCommEventProc(LPVOID pParam)  
+- {  
+-  InterlockedExchange(reinterpret_cast<LONG *>(&g_bMonitorProcRunning),TRUE);  
+- 
+-  RETAILMSG(TRUE,(TEXT("[VSP]:MonitorCommEventProc Running!/r/n")));  
+- 
+-  std::vector<BYTE> vtBufRead(g_vtBufRead.size(),0);    
+- while(TRUE)  
+-  {   
+- DWORD dwEvtMask = 0;  
+- BOOL bWaitRes = WaitCommEvent(g_hCom,&dwEvtMask,NULL);      
+- 
+- if(g_bExitMonitorProc != FALSE)  
+-   {  
+- break;  
+-   }       
+- 
+- if(bWaitRes == FALSE)  
+-   {  
+- continue;  
+-   }    
+- 
+- DWORD dwRead = 0;     
+- if(dwEvtMask & EV_RXCHAR)  
+-   {  
+-    EnterCriticalSection(&g_csRead);       
+- 
+-    ReadFile(g_hCom,&g_vtBufRead[0],vtBufRead.size(),&dwRead,NULL);    
+- if(dwRead == vtBufRead.size() || g_bReaded != FALSE)  
+-    {  
+-     g_dwLenReadBuf = dwRead;  
+-     g_vtBufRead.swap(vtBufRead);  
+-    }  
+- elseif(dwRead != 0)  
+-    {  
+- if(g_dwLenReadBuf + dwRead <= g_vtBufRead.size())  
+-     {  
+-      g_dwLenReadBuf += dwRead;  
+-      g_vtBufRead.insert(g_vtBufRead.end(),vtBufRead.begin(),vtBufRead.begin() + dwRead);  
+-     }  
+- else
+-     {  
+- DWORD dwCover = g_dwLenReadBuf + dwRead - g_vtBufRead.size();  
+-      std::copy(g_vtBufRead.begin() + dwCover,g_vtBufRead.begin() + g_dwLenReadBuf,g_vtBufRead.begin());  
+-      std::copy(vtBufRead.begin(),vtBufRead.begin() + dwRead,g_vtBufRead.begin() + (g_dwLenReadBuf - dwCover));  
+-      g_dwLenReadBuf = g_vtBufRead.size();  
+-     }  
+-    }  
+- 
+-    g_bReaded = FALSE;  
+- 
+-    DEBUGMSG(TRUE,(TEXT("[VSP]:Read data : %d/r/n"),dwRead));   
+- 
+-    LeaveCriticalSection(&g_csRead);  
+-   }  
+- 
+- if(dwEvtMask == EV_RXCHAR && ((g_dwWaitMask & EV_RXCHAR) == 0 || dwRead == 0))  
+-   {  
+- //The return event mask is only EV_RXCHAR and there is not EV_RXCHAR in the wait mask.
+- continue;  
+-   }  
+- 
+-   InterlockedExchange(reinterpret_cast<LONG *>(&g_dwEvtMask),dwEvtMask);  
+-   PulseEvent(g_hEventComm);    
+- 
+- //Sleep for other thread to respond to the event
+-   Sleep(100);  
+- 
+-   DEBUGMSG(TRUE,(TEXT("[VSP]:PulseEvent! The event-mask is 0x%x/r/n"),dwEvtMask));   
+- 
+-  }  
+- 
+-  RETAILMSG(TRUE,(TEXT("[VSP]:Exit the MonitorCommEventProc/r/n")));   
+-  InterlockedExchange(reinterpret_cast<LONG *>(&g_bMonitorProcRunning),FALSE);  
+- 
+- return 0;  
+- }  
+- 
+- BOOL VSP_Close(DWORD dwHandle)  
+- {  
+-  EnterCriticalSection(&g_csOpen);  
+- 
+-  g_uiOpenCount --;   
+- if(g_uiOpenCount == 0)  
+-  {    
+- //Notify the monitor thread to exit. 
+-   InterlockedExchange(reinterpret_cast<LONG *>(&g_bExitMonitorProc),TRUE);  
+- DWORD dwMask = 0;  
+-   GetCommMask(g_hCom,&dwMask);  
+-   SetCommMask(g_hCom,dwMask);    
+- 
+- while(InterlockedExchange(reinterpret_cast<LONG *>(&g_bMonitorProcRunning),TRUE) == TRUE)  
+-   {  
+-    Sleep(20);  
+-   }  
+-   InterlockedExchange(reinterpret_cast<LONG *>(&g_bMonitorProcRunning),FALSE);  
+- 
+-   CloseHandle(g_hCom);  
+-   g_hCom = NULL;  
+-  }  
+- 
+-  LeaveCriticalSection(&g_csOpen);  
+- 
+- return TRUE;  
+- }  
+- 
+- DWORD VSP_Init(DWORD dwContext)  
+- {  
+-  RETAILMSG(TRUE,(TEXT("[+VSP_Init]/r/n")));   
+- 
+-  InitializeCriticalSection(&g_csOpen);  
+-  InitializeCriticalSection(&g_csRead);  
+-  InitializeCriticalSection(&g_csWrite);  
+- 
+-  g_hEventComm = CreateEvent(NULL,TRUE,FALSE,NULL);  
+- 
+-  RETAILMSG(TRUE,(TEXT("[-VSP_Init]/r/n")));  
+- 
+- return TRUE;  
+- }  
+- 
+- BOOL VSP_Deinit(  
+- DWORD dwContext     // future: pointer to the per disk structure
+-     )  
+- {  
+-  RETAILMSG(TRUE,(TEXT("[+VSP_Deinit]/r/n")));   
+- 
+-  CloseHandle(g_hEventComm);  
+-  g_hEventComm = NULL;  
+- 
+-  DeleteCriticalSection(&g_csOpen);  
+-  DeleteCriticalSection(&g_csRead);  
+-  DeleteCriticalSection(&g_csWrite);  
+- 
+-  RETAILMSG(TRUE,(TEXT("[-VSP_Deinit]/r/n")));   
+- return TRUE;  
+- }  
+- 
+- DWORD VSP_Open(  
+- DWORD dwData,  
+- DWORD dwAccess,  
+- DWORD dwShareMode  
+-     )  
+- {  
+- BOOL bResult = FALSE;  
+- 
+-  EnterCriticalSection(&g_csOpen);  
+- 
+- //The variable
+-  CReg reg;  
+-  std::vector<TCHAR> vtBuf(MAX_PATH,0);  
+-  COMMPROP commProp = {0};  
+- 
+- if(g_uiOpenCount != 0)  
+-  {    
+- goto SET_SUCCEED_FLAG;  
+-  }   
+- 
+- if(reg.Open(REG_ROOT_KEY,REG_DEVICE_SUB_KEY) == FALSE)  
+-  {  
+-   RETAILMSG(TRUE,(TEXT("[VSP]:Failed to open the registry/r/n")));  
+- goto LEAVE_CRITICAL_SECTION;  
+-  }  
+- 
+- //Get the MAP_PORT name 
+-  reg.GetValueSZ(REG_MAP_PORT_NAME,&vtBuf[0],vtBuf.size());  
+- 
+-  g_hCom = CreateFile(&vtBuf[0],GENERIC_READ | GENERIC_WRITE ,0,NULL,OPEN_EXISTING,0,NULL);  
+- if(g_hCom == INVALID_HANDLE_VALUE )  
+-  {  
+-   RETAILMSG(TRUE,(TEXT("[VSP]Failed to map to %s/r/n"),&vtBuf[0]));  
+- goto LEAVE_CRITICAL_SECTION;  
+-  }  
+- else
+-  {  
+-   RETAILMSG(TRUE,(TEXT("[VSP]Succeed to map to %s/r/n"),&vtBuf[0]));  
+-  }   
+- 
+-  InterlockedExchange(reinterpret_cast<LONG *>(&g_bExitMonitorProc),FALSE);  
+-  CloseHandle(CreateThread(NULL,NULL,MonitorCommEventProc,NULL,NULL,NULL));  
+- 
+- SET_SUCCEED_FLAG:  
+- 
+-  g_uiOpenCount ++;  
+-  bResult = TRUE;  
+- 
+- LEAVE_CRITICAL_SECTION:   
+- 
+-  LeaveCriticalSection(&g_csOpen);  
+- 
+- return bResult;  
+- }  
+- 
+- 
+- BOOL VSP_IOControl(  
+- DWORD dwHandle,  
+- DWORD dwIoControlCode,  
+- PBYTE pBufIn,  
+- DWORD dwBufInSize,  
+- PBYTE pBufOut,  
+- DWORD dwBufOutSize,  
+-     PDWORD pBytesReturned  
+-     )  
+- {   
+- switch(dwIoControlCode)  
+-  {  
+- case IOCTL_SERIAL_SET_DCB:  
+-   {     
+- return SetCommState(g_hCom,reinterpret_cast<DCB *>(pBufIn));  
+-   }  
+- case IOCTL_SERIAL_GET_DCB:  
+-   {     
+- return GetCommState(g_hCom,reinterpret_cast<DCB *>(pBufOut));  
+-   }  
+- case IOCTL_SERIAL_WAIT_ON_MASK:  
+-   {      
+- if(dwBufOutSize < sizeof(DWORD) ||  WaitForSingleObject(g_hEventComm,INFINITE) == WAIT_TIMEOUT)  
+-    {  
+-     *pBytesReturned = 0;     
+- return FALSE;  
+-    }  
+- else
+-    {  
+-     InterlockedExchange(reinterpret_cast<LONG *>(pBufOut),g_dwEvtMask);  
+-     *pBytesReturned = sizeof(DWORD);        
+- return TRUE;  
+-    }       
+-   }  
+- case IOCTL_SERIAL_SET_WAIT_MASK:  
+-   {    
+-    g_dwWaitMask = *reinterpret_cast<DWORD *>(pBufIn);  
+- return SetCommMask(g_hCom,g_dwWaitMask | EV_RXCHAR); //The driver need the EV_RXCHAR notify event.
+-   }  
+- case IOCTL_SERIAL_GET_WAIT_MASK:  
+-   {     
+- if(dwBufOutSize < sizeof(DWORD) || GetCommMask(g_hCom,reinterpret_cast<DWORD *>(pBufOut)) == FALSE)  
+-    {  
+-     *pBytesReturned = 0;     
+- return FALSE;  
+-    }  
+- else
+-    {  
+-     *pBytesReturned = sizeof(DWORD);  
+- return TRUE;  
+-    }  
+-   }  
+-  }  
+- 
+- return FALSE;  
+- }  
+- 
+- DWORD VSP_Read(DWORD dwHandle, LPVOID pBuffer, DWORD dwNumBytes)  
+- {  
+-  EnterCriticalSection(&g_csRead);    
+- 
+- //The g_dwLenReadBuf must be less than or equal to g_vtBufRead.size(), so needn't compare with each other.
+- DWORD dwCopy = g_dwLenReadBuf > dwNumBytes ? dwNumBytes : g_dwLenReadBuf;  
+- if(dwCopy != 0)  
+-  {  
+-   memcpy(pBuffer,&g_vtBufRead[0],dwCopy);  
+-  }    
+-  DEBUGMSG(TRUE,(TEXT("[VSP]:Copy cout:%d/r/n"),dwCopy));  
+- 
+-  g_bReaded = TRUE;  
+- 
+-  LeaveCriticalSection(&g_csRead);  
+- 
+- //Sleep for other thread to entry the function.
+-  Sleep(10);   
+- 
+- 
+- return dwCopy;  
+- }  
+- 
+- DWORD VSP_Write(DWORD dwHandle, LPCVOID pBuffer, DWORD dwNumBytes)  
+- {  
+-  EnterCriticalSection(&g_csWrite);  
+- DWORD dwWrite = 0;  
+-  WriteFile(g_hCom,pBuffer,dwNumBytes,&dwWrite,NULL);  
+-  LeaveCriticalSection(&g_csWrite);  
+- return dwWrite;  
+- }  
+- 
+- 
+- DWORD VSP_Seek(DWORD dwHandle, long lDistance, DWORD dwMoveMethod)  
+- {  
+- return FALSE;  
+- }  
+- 
+- void VSP_PowerUp(void)  
+- {  
+- return;  
+- }  
+- 
+- void VSP_PowerDown(void)  
+- {  
+- return;  
+- }  
+  不过该驱动代码是作者量身定做的，像IOControl就简单地实现了几个，其余的因为在实际使用中本人没用到，所以都没实现，只是简单地返回了FALSE。如果有朋友对此有兴趣，并且实际中也使用到，可以自行调用原生函数实现。
+  最后，是能让驱动正常挂载的注册表设置：
+[HKEY_LOCAL_MACHINE/Drivers/Builtin/VirtualSerial]
+    "Prefix"="VSP"
+    "Dll"="VirtualSerial.dll"
+    "Order"=dword:0
+    "Index"=dword:1
+    "Map_Port"="COM1:"
+

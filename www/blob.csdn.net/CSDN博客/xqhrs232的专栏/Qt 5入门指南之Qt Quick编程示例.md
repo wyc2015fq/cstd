@@ -1,0 +1,263 @@
+# Qt 5入门指南之Qt Quick编程示例 - xqhrs232的专栏 - CSDN博客
+2017年07月26日 10:57:11[xqhrs232](https://me.csdn.net/xqhrs232)阅读数：753
+原文地址::[http://blog.csdn.net/chenlong12580/article/details/8567006/](http://blog.csdn.net/chenlong12580/article/details/8567006/)
+相关文章
+1、Qt Quick初体验QML编程----[http://mobile.51cto.com/symbian-270104.htm](http://mobile.51cto.com/symbian-270104.htm)
+2、开始用QML写程序--QQ好友列表 ----[http://blog.163.com/lei_yuming/blog/static/445586562011825938879/](http://blog.163.com/lei_yuming/blog/static/445586562011825938879/)
+3、QML----百度百科----[https://baike.baidu.com/item/QML/153014?fr=aladdin](https://baike.baidu.com/item/QML/153014?fr=aladdin)
+   使用Qt创建应用程序是十分简单的。考虑到你的使用习惯，我们编写了两套教程来实现两个相似的应用程序，但是使用了
+不同的方法。在开始之前，请确保你已经下载了QtSDK的商业版本或者开源版本，并且你也已经熟悉了Qt的[开发工具](http://qt-project.org/doc/qt-5.0/qtdoc/topics-app-development.html)。QtSDK
+提供了[QtCreator](http://blog.csdn.net/chenlong12580/article/details/8567006/#qt-creator)集成开发环境使得开发Qt的应用程序十分简单。
+# 用户界面的选择
+        除了直观上知道Qt是跨平台的，提供了包括[线程](http://blog.csdn.net/chenlong12580/article/details/8567006/#threading)，[网络通信](http://qt-project.org/doc/qt-5.0/qtdoc/topics-network-connectivity.html)以及[视频回放和网络摄像头](http://qt-project.org/doc/qt-5.0/qtmultimedia/multimediaoverview.html)等的跨平台抽象外，Qt提供了两种
+独立的方法创建用户界面。
+[QtQuick](http://qt-project.org/doc/qt-5.0/qtquick/qtquick-index.html)模块为创建流畅的、活生生的用户界面提供了一种标记语言。这种方式适合那些需要动画元素的界面，以及应用程序
+主要运行在小屏幕和多点触控的设备上的场景。
+[QtWidgets](http://qt-project.org/doc/qt-5.0/qtwidgets/qtwidgets-index.html)模块针对传统桌面提供了更多的支持，和目标平台做了更多的集成，无论目标平台是MacOSX，Windows，KDE还会Gnome。它是一个非常高效的基于C++的类库，包含了很多常见的用户界面组件，你可以非常容易的为这些已存在的组件
+扩展新的功能。
+        你选择那个模块来创建用户界面取决于你想创建怎样的应用程序。其它的方法在余下的Qt库中都是一样的，所以你可以尽
+可能的将应用程序中逻辑处理的代码写得更加独立一些。当你熟悉了下面两个示例，你可以再做决定选择哪一个模块来创建用
+户界面。对于更加详细的信息，可以查看[用户界面](http://qt-project.org/doc/qt-5.0/qtdoc/topics-ui.html)信息。
+# 教程
+这里有两个用于创建两个相似应用程序的例子。一个是使用QtQuick创建用户界面，而另一个则是使用QtWidgets来创建用户界面。
+[使用](http://qt-project.org/doc/qt-5.0/qtdoc/gettingstartedqml.html)[QtQuick开始编程](http://qt-project.org/doc/qt-5.0/qtdoc/gettingstartedqml.html)
+        欢迎来到QML的世界。在这个示例中我们将会使用QML创建一个简单的文本编辑器应用程序。在阅读完这个指南之后，
+你应该可以使用QML和QtC++开发自己的应用程序。
+QML构建用户界面
+        本应用程序是一个简单的文本编辑器，可以加载、保存和执行一些文本的操作。这个指南将会包含两个部分。第一部分将会
+涉及到应用程序的布局以及使用QML语言。在第二部分，我们将会使用QtC++实现文本的加载和保存。使用[Qt的元对象系统](http://qt-project.org/doc/qt-5.0/qtcore/metaobjects.html)我们
+可以将C++的功能作为QML元素的属性使用。使用QML和QtC++，我们可以将界面逻辑和应用程序逻辑分离开。
+![](https://img-my.csdn.net/uploads/201302/03/1359877208_7290.png)
+最终的源代码在examples/tutorials/gettingStartedQml目录。你也许需要先编译examples/tutprials/gettingStartedQml/filedialog目录下的
+C++插件。这一步会将C++插件放在QML能够找到的目录下。要启动这个应用程序，仅仅需要使用qmlscene工具，将QML作为
+参数传递给这个工具。C++的部分假设了阅读者已经掌握了基本的Qt编译过程。
+教程章节：
+- 
+定义按钮和菜单
+- 
+实现菜单栏
+- 
+编译文本编辑器
+- 
+装饰文本编辑器
+- 
+使用QtC++扩展QML
+## 定义一个按钮和菜单
+### 基本组件——按钮
+        我们以构建一个按钮开始我们的文本编辑器。在功能上，按钮有一个鼠标敏感区域和一个标签。当用户点击按钮的时候，
+按钮执行一个动作。
+        在QML中，最基本的可视化单元就是矩形(Rectangle)元素。矩形元素具有控制元素外观和位置的属性。
+        首先，导入QtQuick2.0允许qmlscene工具加载QML元素以便稍后使用。这一行代码在所有的QML文件中都存在。需要注意
+的是，我们导入Qt的模块的时候也导入了版本号。
+        这个简单的矩形有一个唯一的标签”simplebutton”，这就是id属性。矩形元素的属性是通过依次罗列属性，中间以分号间隔，
+然后就是属性的值。在示例代码中，”grey”颜色就绑定到了矩形的颜色属性。类似地，我们也绑定了该矩形的高度和宽度。
+        Text元素是一个不可编辑的文本区域。我们给这个文本框命名为”buttonlabel”。我们通过将值绑定到”text”属性来设置该文本
+框的文字。这个文本框在矩形的中间，我们将文本框的”anchors”设置为其父亲，也就是前面提到的simplebutton。Anchors也可以
+绑定到其它元素的anchors，使得布局更加的简单。
+        我们将这些代码保存为SimpleButton.qml。使用这个文件的文件名作为参数调用qmlscene工具，将会出现如下的效果：
+![](https://img-my.csdn.net/uploads/201302/03/1359877255_8311.png)
+         要实现按钮的功能，我们可以使用QML的事件处理机制。QML的事件处理机制和Qt的信号-槽机制十分类似。信号被发射
+然后关联的槽函数被调用。
+![](https://img-my.csdn.net/uploads/201302/03/1359877294_5522.png)
+         在我们的simplebutton矩形中，我们包含了一个MouseArea元素。MouseArea元素描述了可交互的区域，也就是鼠标的移动会
+被检测的区域。在这个例子中，我们将MouseArea的anchor设置为它的父亲，也就是前面提到的simplebutton。Anchors.fill是获取
+指定属性的一种语法表达方式。fill是属性簇anchors中的一个特定属性。QML使用了基于anchor的布局，元素可以anchor其它的元
+素，创建健壮的布局。
+        当鼠标在MouseArea区域中移动时MouseArea有许多事件处理者。其中的一个事件处理者就是onClicked，该事件处理会在允
+许鼠标点击的区域中点击鼠标时候被调用，默认是左键单击。我们可以将一个动作绑定到onClicked处理句柄。在我们的示例中
+，当鼠标点击时，console.log()输出文本。Console.log()函数是一个有用的调试输出函数。
+         如下的代码足够完成显示按钮且在鼠标单击的时候输出文本。
+![](https://img-my.csdn.net/uploads/201302/03/1359877335_1686.png)
+         一个功能齐全的按钮在Button.qml中。示例代码中有部分被省略了，因为这些代码要么在之前介绍过了，要么就是与本章
+介绍的内容不是很相关。
+        我们可以使用属性类型名称的语法来自定义属性。在示例代码中，buttonColor属性就是自定义的并且被赋值为”lightblue”。buttonColor在后面就被使用到了，用来根据不同操作填充不同的颜色。值得注意的是，属性的赋值使用的是”=”，
+而属性的值绑定使用的则是”:”。自定义的属性使得内部元素的可见范围可以超出矩形的范围。QML基本类型有int，string，real和variant。通过绑定onEntered和onExited信号处理到颜色上，当鼠标停留在按钮之上，按钮的边框将会变为黄
+颜色，并且在鼠标离开按钮的时候恢复为原来的颜色。
+         我们通过将signal关键字放在信号名称之前，自定义了一个buttonClick()信号在Button.qml中，所有的信号的处理者都是自动
+被创建的，这是通过简单在信号的名字前面加上”on”这个单词。显然，onButtonClick就是buttonClick的处理者。onButtonClick会
+被赋予一些动作。在我们的按钮示例中，onClicked鼠标处理者将会简单的调用onButtonClick，功能就是现实一个文本。
+onButtonClick使得外部对象可以十分轻易的获取按钮的鼠标区域。例如：将设有许多的元素，这些元素拥有许多的MouseArea，
+那么一个buttonClick信号可以在许多的MouseArea做出区分，使得分别处理几个MouseArea更加简单。
+         我们现在已经具备了基本的知识：在QML中实现基本元素并可以处理鼠标移动事件。我们在一个巨型中创建一个文本框，自定义了属性，针对鼠标移动实现了相应的处理。在元素中创建元素的思想贯穿着整个示例。
+现在该按钮还没有什么用，除非他作为组件可以执行一些动作。在下面一节，我们将会快速的创建一个菜单，包含几个这样的按钮。
+![](https://img-my.csdn.net/uploads/201302/03/1359877381_5821.png)
+### 创建一个菜单页
+         在这一阶段，我们将会介绍如何在一个单独的QML文件中创建元素并指定动作。在这一节，我们将会介绍如何导入QML元素
+以及如何使用已经存在的组件构建新的组件。
+        菜单显示了一个列表内容，每一个元素都用执行一个特殊动作的功能。在QML中，我们可以使用几种方式创建菜单。首先我们会创建一个包含按钮的菜单，每一个按钮执行不同的动作。菜单的代码在文件FileMenu.qml中。
+![](https://img-my.csdn.net/uploads/201302/03/1359877418_6870.png)
+      上面的语法展示了如何导入关键字。这里需要使用[JavaScript](http://lib.csdn.net/base/javascript)文件，或者使用不在同一目录下的QML文件。因为Button.qml文件和FileMenu.qml文件在同一个目录下，因此我们无需导入Button.qml文件就可以使用它。我们可以直接通过声明Button()创建按钮，
+类似Rectangle的声明。
+![](https://img-my.csdn.net/uploads/201302/03/1359877477_6047.png)
+           在FileMenu.qml文件中声明了三个Button元素。它们都声明在一个Row元素内。该元素将其子元素水平放置。Button是在Button.qml文件中声明的，这种用法和上一节的用法一致。在新创建的button中，我们可以将其属性绑定为新值，覆盖它们在Button.qml中绑定的默认值。exitButton按钮在被按下的时候整个应用程序就会退出。值得注意的是：在Button.qml中定义的信号onButtonClick将会在FileMenu.qml中被调用，除了exitButton的onButtonClick事件处理者。
+![](https://img-my.csdn.net/uploads/201302/03/1359877512_1776.png)
+Row是在一个Rectangle中声明的，创建了一个用于防止按钮的矩形容器。这个矩形创建了一个间接的方式用于组织在一个菜单中
+的按钮行。编辑菜单的声明和之前菜单声明十分类似。菜单中的按钮的标签为：Copy，Paste和SelectAll。
+![](https://img-my.csdn.net/uploads/201302/03/1359877546_6180.png)
+## 实现一个菜单栏
+         我们的文本编辑程序需要使用菜单栏来显示菜单。菜单栏将会切换到不同的菜单，并且用户可以选择那些菜单可以显示。
+菜单的切换意味着菜单需要更多的结构而不仅仅是将它们成行的显示出来。QML使用模型和视图来组织数据以及显示结构化的
+数据。
+### 使用数据模型和视图
+        QML有不同的数据视图来显示数据模型。我们的菜单栏会将菜单以列表的方式显示出来，也包含一个用于显示菜单名的头部。菜单列表是在VisualItemModel中声明的。VisualItemModel元素包含那些已经具有视图的元素，例如矩形以及导入的UI元素。其它的
+模型类型，例如ListModel元素需要一个代理来显示它的数据。
+         我们在menuListModel中声明两个可视化元素：FileMenu和EditMenu。我定制了这两个菜单并且使用ListView来显示它们。MenuBar.qml文件包含了QML声明，一个简单的编辑菜单定义在EditMenu.qml文件中：
+         ListView元素将会依照代理来显示模型。代理可能声明模型元素以Row元素显示，也可能以网格的方式显示。我们的menuListModel已经包含了可视化元素，因此，我们不需要声明代理。
+![](https://img-my.csdn.net/uploads/201302/03/1359877583_1592.png)
+         另外，ListView继承自Flickable，使得列表可以响应鼠标的拖拽以及其它的一些手势。上面代码的最后部分设置了Flickable
+属性用于创建我们想要的滑动操作。特别是highlightMoveDuration属性改变滑动转换的周期。一个highlightMoveDuration使得菜单
+间的切换更加缓慢。
+        ListView通过一个索引(index)来维护模型元素，并且模型中的每一个可视化元素都可以通过索引来获取，索引的顺序是根据
+元素被声明的顺序定义的。改变currentIndex的值将会导ListView中高亮的元素改变。我们菜单栏的头部证明了这种效果。这里有
+两个按钮，点击任何一个都会切换当前的菜单。当点击fileButton的时候，菜单切换到FileMenu，并且索引变为0，因为FileMenu在menuListModel中是最先声明的，editButton类似。labelList矩形有一个取值为1的z变量，这意味着它是在菜单栏的上
+面显示(空间坐标系)。z值较大的元素始终在z值较小的元素的上面显示。默认的z值是0。
+![](https://img-my.csdn.net/uploads/201302/03/1359877646_6643.png)
+目前创建的菜单栏仅仅具有菜单切换的效果，通过点击头部的两个按钮来进行切换：
+![](https://img-my.csdn.net/uploads/201302/03/1359877679_2355.png)
+## 构建文本编辑器
+### 声明一个文本区域(TextArea)
+        如果我们的文本编辑器不具有一个可编辑的区域，那么他就不能被称为文本编辑器。QML的TextEdit元素允许声明一个
+多行编辑的文本区域。TextEdit元素和Text元素是有区别的，后者不允许用户对文本进行编辑。
+![](https://img-my.csdn.net/uploads/201302/03/1359877722_9927.png)
+        上面设置了编辑器的前景色属性和环绕文字的模式。TextEdit区域是包含在一个flickable的区域中的，这确保了当文字光标
+了当前的显示区域，那么文本内容会自动滚动。函数ensureVisible()将会检查鼠标是否处在可见区域的外面并且根据检查的结果
+移动滚动文本区域。QML使用[javascript](http://lib.csdn.net/base/javascript)语法作为其脚本，正如前面提到的，JavaScript可以导入并且在QML中使用。
+![](https://img-my.csdn.net/uploads/201302/03/1359877754_1464.png)
+### 为文本编辑器组装组件
+         我们现在已经准备好了使用QML为我们的文本编辑器创建布局。文本编辑器包含两个组件，已经创建的菜单栏和文本区域。QML允许我们重用这些组件，因此我们可以通过导入组件以及在必要的时候做一些定制来简化我们的代码。我们的文本
+编辑器将窗口分为两个部分：屏幕的1/3用来显示菜单栏，另外的2/3用来显示文本区域。菜单栏在其他的元素上面显示(空间坐标系)。
+![](https://img-my.csdn.net/uploads/201302/03/1359877789_1875.png)
+       通过导入可重用的组件，我们的文本编辑器的代码看起来更加简单了。我们可以定制自己的主应用程序而不必担心那些已经
+指定动作的属性。使用这种方法，应用程序的布局和UI组件可以更加简单的被创建。
+![](https://img-my.csdn.net/uploads/201302/03/1359877827_8224.png)
+## 装饰文本编辑器
+### 实现一个绘图的接口
+         我们的文本编辑器看起来十分的简单，因此我们需要装饰一下。使用QML，我们可以为我们的文本编辑器定义转换和动画。
+我们的菜单栏占据1/3的屏幕，因此只在我们需要的时候才显示它这个功能将会十分有用。
+        我添加了一个绘画的接口，在我们单击的时候，该接口将会收起或者展开菜单栏。在我们的实现中，我们使用了一个十分小
+的矩形用于鼠标点击。绘画接口和应用程序都有两种状态：绘画接口是打开的和绘画接口是关闭的。绘画(drawer)元素是一个矩形，但是它的高度很小。这里有一个内嵌在绘画元素中间的Image元素，用于展示一个箭头图标。绘画元素将会通过screen标签赋予整个
+应用程序一个状态，无论用户在什么时候点击鼠标区域
+![](https://img-my.csdn.net/uploads/201302/03/1359877874_5842.png)
+          一个状态仅仅是定义在State元素内部的一系列配置的集合。我们可以列举一系列的状态通过绑定到states属性。在我们的
+应用程序中，两种状态分别被称为DRAWER_CLOSED和DRAWER_OPEN。元素的配置都是在PropertyChanges中声明的。在DRAWER_OPEN状态中，有四个元素将会被改变属性。第一个目标,menubar将会改变自己的y属性为0。类似的textArea在DRAWER_OPEN状态中将会降低到一个新的位置。
+![](https://img-my.csdn.net/uploads/201302/03/1359877904_1272.png)
+        状态的转变是突兀的并且是需要做平滑转换的。在状态之间的转换是通过Transition元素定义的，定义好了之后可以绑定到
+元素的transitions属性。我们的文本编辑器有一个状态转换器。我们的文本编辑器需要在DRAWER_OPEN和DRAWER_CLOSE
+两种状态之间转换。重要的是，转换器需要一个from状态和一个to状态，我们可以使用*号通配符将该转换器应用于所有的状态
+转换。
+         在状态的转换过程中，我们可以为属性的变化指定动画。我们的menuBar位置在y:0到y:-partition之前转换，我们可以使用NumberAnimation元素使得这个转换过程更生动。我们声明了目标属性将会动画一定时间，并且使用特定的曲线。一个曲线
+控制着动画的转换以及状态转换间的动作。我们选择的特定曲线是Easing.OutQuint，该曲线在接近终点的时候运动速度变慢。
+可以看看有关QML动画的内容。
+![](https://img-my.csdn.net/uploads/201302/03/1359877945_5693.png)
+        另一种方式实现属性变化时候的动画效果就是声明一个Behavior元素。一个转换器仅仅在状态改变的时候工作，然而Behavior
+可以在一般属性发生改变的时候工作。在文本编辑器中，当箭头的旋转属性改变时，箭头有一个NumberAnimation的动画。
+![](https://img-my.csdn.net/uploads/201302/03/1359877984_5253.png)
+       回到我们对于组件的状态和动画知识，我们可以提高我们组件的表现力。在Button.qml中，在按钮被单击的时候，我们可以
+添加颜色(color)和比例(scale)属性改变。颜色的动画使用的是ColorAnimation元素数量的动画使用的是NumberAnimation。下面使
+用的”onpropertyName”的语法形式对于目标是单个属性而言是十分有帮助的。
+![](https://img-my.csdn.net/uploads/201302/03/1359878019_3411.png)
+         另外，我们可以通过使用颜色效果，例如：光栅效果等来增强QML组件的表现力。声明一个Gradient元素将会覆盖该元素的color属性。你可以在gradient中使用GradiendStop元素声明一种颜色。梯度(gradient)属性使用的是比例值，介于0.0和1.0之间。
+![](https://img-my.csdn.net/uploads/201302/03/1359878055_7571.png)
+        这个梯度值是被菜单栏使用的。最初的颜色是0.0，最后的则是1.0.
+## 接下来怎么做
+        我们已经完成了一个简易的文本编辑器的界面。接下来我们的UI界面已经完成，那么我们就可以使用Qt和C++来完成程序的逻辑部分。QML最为一个不错的原型工具，将应用程序的逻辑部分和UI设计隔离开。
+![](https://img-my.csdn.net/uploads/201302/03/1359878094_6491.png)
+## 使用Qt Cpp扩展QML
+现在，我们已经有了文本编辑框的布局，我们现在就使用C++实现文本编辑框的功能部分。使用QML和C++允许我们使用Qt创建
+应用程序的逻辑部分。我们可以使用Qt的Quick类在C++应用程序中创建QML上下文，并且使用QQuickView显示QML元素。可选的，我们也可以将C++代码导出为一个qmlscene工具可以读取的插件。在本示例中，我们将会使用C++实现加载和保存文本的功能，并且将C++代码导出为一个插件。在这种方式下，我们仅仅需要直接加载QML文件，而不是运行可执行程序。
+导出C++类到QML
+        我们使用Qt和C++实现加载和保存文本的功能，通过注册C++的类和方法都可以在QML中被调用。C++类需要被编译为Qt插
+件，并且QML文件需要知道这个插件所处目录。
+对于我们的文本编辑器程序来说，我们需要创建如下的内容：
+- 
+Directory类，该类用于处理与目录相关的操作；
+- 
+File类，该类继承自QObject，列出一个目录下的所有文件；
+- 
+插件类，该类将会注册到QML上下文中；
+- 
+Qt工程文件，使得这个Qt工程被编译成插件；
+- 
+一个qmldir文件，用于告诉qmlscene工具插件类所处的目录。
+编译Qt插件
+        要编译一个插件，我们需要将下面的内容放置到Qt工程文件中。首先是必须添加到Qt工程文件中的源文件，头文件以及Qt模块。所有的C++代码和工程文件都在filedialog目录下：
+![](https://img-my.csdn.net/uploads/201302/03/1359878139_4336.png)
+        特别需要注意的是，我们将qml模块也连接到该工程中，并且配置为插件模式，使用lib模板。我们将编译生成的插件放置在
+上一层的plugins目录下。
+注册一个类到QML中
+![](https://img-my.csdn.net/uploads/201302/03/1359878174_9111.png)
+       我们需要使用Q_PLUGIN_METADATA宏来导出插件。注意，在我们的dialogPlugin.h文件中，我们将Q_OBJECT宏放置在我们
+类的最上面。因为我们需要对工程文件运行qmake来产生必要的元对象代码。
+        我们的插件类：DialogPlugin是QQmlExtensionPlugin的一个子类。我们需要实现继承的方法：registerTypes()。dialogPlugin.cpp文
+件内容如下：
+![](https://img-my.csdn.net/uploads/201302/03/1359878208_8021.png)
+        registerTypes()方法将我们的File和Directory类注册到QML中。该方法需要类的名称作为它的模板，一个主版本号，一个次版本
+号以及类名。
+在C++类中创建QML属性
+        我们可以使用C++和[Qt的元对象系统](http://qt-project.org/doc/qt-5.0/qtcore/metaobjects.html)来创建QML元素和属性。我们可以使用信号-槽机制实现属性，使得Qt可以识别这些属性。然后，这些属性就可以在QML中使用了。
+        针对我们的文本编辑器应用，我们需要加载和保存文本。典型地，这些特性需要包含一个文件对话框。幸运地是我们可以使用QDir、QFile和QTextStream来实现目录的读取以及输入输出流。
+![](https://img-my.csdn.net/uploads/201302/03/1359878247_8989.png)
+        Directory类使用了Qt的元对象系统来注册一些属性以便完成文件处理。Directory类将会被作为一个插件导出，并且在QML中作为Directory元素使用。每一个使用Q_PROPERTY宏定义的属性都是一个QML属性。
+       Q_PROPERTY定义一个读和写的属性就好比是元对象系统中读和写函数一样。例如：filename属性，是QString类型，可使用filename()方法读取，使用setFilename()设置。另外，这里有一个信号关联到了filename属性：filenameChanged()，当filename属性
+改变的时候就会发射这个信号。读和写函数在头文件中是以public关键字声明的。
+         类似的，我们也声明了其它一些将会使用到的属性。filesCount属性表面一个目录下的文件数。Filename属性被设置为当前选
+中的文件的文件名，并且加载/保存文件的内容都存放在属性fileContent中。
+![](https://img-my.csdn.net/uploads/201302/03/1359878285_6544.png)
+         Files列表属性是在该目录下过滤后剩下的文件列表。Directory类实现了过滤掉非法的文本文件，仅仅以”.txt”结尾的文件才是
+合法的。Qlists可以通过在C++中声明为QQmlListProperty属性在QML文件中使用。模板对象都需要继承自QObject，因此File类也
+需要从QObject集成。在Directory类中，File对象列表保存在一个名为m_fileList的QList中。
+![](https://img-my.csdn.net/uploads/201302/03/1359878322_6329.png)
+     这些属性可以在QML中作为Directory元素的属性使用。需要注意的是，我们不需要再C++代码中创建一个表示标签的”id”属性。
+![](https://img-my.csdn.net/uploads/201302/03/1359878356_3237.png)
+        因为QML使用了JavaScript的语法和结构，因此我们可以在文件列表中迭代并获取其属性。要获取第一个文件的名字属性，
+我们可以使用”files[0].name”。
+        普通的C++函数也可以在QML中使用。文件加载和保存函数使用C++代码实现，并且使用Q_INVOKABLE宏声明。可选的
+是，我们可以将这些函数作为槽函数声明，然后这些函数也可以在QML中使用。
+![](https://img-my.csdn.net/uploads/201302/03/1359878389_2666.png)
+         Directory类童谣需要在目录内容发生改变的时候通知其它的对象。这个特性可以使用信号实现。在前面已经提到过，QML
+信号有一个以on开头的信号处理器。这里我们将信号命名为directoryChanged，在目录被刷新的时候该信号被发射。目录刷新仅
+仅是再次加载目录内容，并且更新合法的文件列表。QML元素可以通过连接到onDirectoryChanged信号处理上得到目录被改变
+的通知。
+        List属性需要继续被讨论。这是因为list属性使用回调函数访问和修改list的内容。List属性的类型是QQmlListProperty<File>。无
+论在什么时候访问列表，访问器(accessorfunction)都应该返回一个QQmlListProperty<File>。模板类型File，需要继承自QObject。因
+此要构造QQmlListProperty属性，我们需要将列表的访问器和修改器的函数指针作为参数传递给构造器。同样我们需要一个指向
+File列表的QList指针。
+![](https://img-my.csdn.net/uploads/201302/03/1359878426_8933.png)
+       构造器将指针传递给追加列表的函数，计算列表大小的函数，使用索引(index)获取条目的函数以及清空列表的函数。至于追加
+列表的函数是必须的。需要注意的是：函数指针必须和[AppendFunction](http://blog.csdn.net/chenlong12580/article/details/8567006/#AppendFunction-typedef)、[CountFunction](http://blog.csdn.net/chenlong12580/article/details/8567006/#CountFunction-typedef)、[AtFunction](http://blog.csdn.net/chenlong12580/article/details/8567006/#AtFunction-typedef)以及[ClearFunction](http://blog.csdn.net/chenlong12580/article/details/8567006/#ClearFunction-typedef)相匹配。
+![](https://img-my.csdn.net/uploads/201302/03/1359878460_1967.png)
+        为了简化文件对话框，Directory类实现了过滤掉非法的文本文件(不以”.txt”结尾的文件)。如果一个文件不是以”.txt”结尾，那么
+在它在文件对话框中就是不可见的。同样，我们的实现也确保了文件的保存是以”.txt”结尾的。Directory类使用QTextStream类读取
+文件并将数据写到文件中的。
+        使用我们的Directory元素，我们可以将文件组织为列表，我们可以知道目录下有多少文件，可以获取文件的名称和内容，并且
+在目录内容改变的时候得到通知。
+         要编译这个插件，我们需要在filedialog.pro文件上运行qmake命令，然后运行make命令来编译并将插件拷贝到plugins目录。
+在QML中导入插件
+        Qmlscene工具将与应用程序同一目录下的文件直接导入。我们也可以通过创建一个qmldir文件，包含我们需要导入的QML文件
+的位置。Qmldir文件也可以存储插件以及其它资源的位置。
+![](https://img-my.csdn.net/uploads/201302/03/1359878498_3625.png)
+        我们刚刚创建的插件是FileDialog，这是在工程文件的TARGET域指定的。编译后的插件存放在plugins目录下。
+将FileDialog集成到FileMenu
+        我们的FileMenu需要显示一个FileDialog元素，FileDialog元素包含了一个目录下文件的列表，允许用户通过在列表中点击来选
+择文件。我们同样需要指定save,load,new三个按钮来获取这些动作。FileMenu包含了一个可编辑的文本输入框，允许用户通过键盘
+输入文件名。
+        Directory元素在FileMenu.qml文件中被使用到，并且它通知FileDialog元素目录的内容得到了更新。这个通知是在信号处理者onDirectoryChanged中处理的。
+![](https://img-my.csdn.net/uploads/201302/03/1359878533_6999.png)
+        为了继续保持我们的应用程序简单，文件对话框将不会显示任何非法文件。
+![](https://img-my.csdn.net/uploads/201302/03/1359878564_6739.png)
+        FileDialog元素将会通过读取files列表属性来展示目录的内容。这些文件将会作为GridView元素的模型，GridView将通过代理
+将数据元素以网格的形式显示出来。代理主要用于处理模型的显示，我们的文件对话框仅仅是创建文字处于中心的网格。点击一
+个文件名将会导致一个文件名高亮。当notifyRefresh信号被发射，FileDialog对话框就会被通知重新加载目录的内容。
+![](https://img-my.csdn.net/uploads/201302/03/1359878606_1338.png)
+        现在我们的FileMenu可以连接到相应的动作上。saveButton将会把TextEdit上的文本转化为目录的fileContent属性，然后从文本
+输入框中获取文件的名称，该按钮会调用saveFile()函数保存文件。loadButton以类似的过程执行。New按钮将会清空TextEdit的内容。
+        EditMenu下的按钮会将copy,paste和selectall这些函数与TextEdit连接起来。
+![](https://img-my.csdn.net/uploads/201302/03/1359878639_1262.png)
+ 完成文本编辑器
+![](https://img-my.csdn.net/uploads/201302/03/1359878672_2478.png)
+        该应用程序是一个简单的文本编辑器，可以加载和保存文件，并执行简单的操作：剪切、复制以及全选等功能。
+运行文本编辑器
+        在运行文本编辑器之前，我们需要将C++代码编译为插件。要编译C++代码，我们进入filedialog目录，运行qmake命令，然后
+使用make或者nmake编译，这取决于你的平台。接着运行qmlscene打开texteditor.qml文件即可。
+       源代码在examples/tutorials/gettingStartedQml目录下。
+

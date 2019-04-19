@@ -1,0 +1,310 @@
+# Android MediaPlayer本地视频播放器 - u013366022的专栏 - CSDN博客
+2014年08月13日 14:31:31[slitaz](https://me.csdn.net/u013366022)阅读数：4165
+该文章的目的是，让初学者能够快速掌握一个简单的本地视频播放器。该Demo中用到了SurfaceView、MediaPlayer。
+实现效果图：
+![](https://img-blog.csdn.net/20140507142803296?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMjQ0MDIwNw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center)
+**[html]**[view
+ plain](http://blog.csdn.net/u012440207/article/details/25195623#)[copy](http://blog.csdn.net/u012440207/article/details/25195623#)![在CODE上查看代码片](https://code.csdn.net/assets/CODE_ico.png)[](https://code.csdn.net/snippets/331761/fork)
+- <RelativeLayoutxmlns:android="http://schemas.android.com/apk/res/android"
+- xmlns:tools="http://schemas.android.com/tools"
+- android:layout_width="match_parent"
+- android:layout_height="match_parent"
+- android:paddingBottom="@dimen/activity_vertical_margin"
+- android:paddingLeft="@dimen/activity_horizontal_margin"
+- android:paddingRight="@dimen/activity_horizontal_margin"
+- android:paddingTop="@dimen/activity_vertical_margin"
+- tools:context=".MainActivity">
+- 
+- <TextView
+- android:id="@+id/textView"
+- android:layout_width="wrap_content"
+- android:layout_height="wrap_content"
+- android:layout_centerHorizontal="true"
+- android:text="视频播放器SurfaceView实例"/>
+- 
+- <SurfaceView
+- android:id="@+id/sv"
+- android:layout_width="match_parent"
+- android:layout_height="320dp"
+- android:layout_below="@id/textView"/>
+- 
+- <SeekBar
+- android:id="@+id/seekBar"
+- android:layout_width="match_parent"
+- android:layout_height="wrap_content"
+- android:layout_below="@id/sv"/>
+- 
+- <LinearLayout
+- android:id="@+id/linearLayout"
+- android:layout_width="match_parent"
+- android:layout_height="wrap_content"
+- android:layout_below="@id/seekBar"
+- android:orientation="horizontal">
+- 
+- <Button
+- android:id="@+id/button_play"
+- android:layout_width="0dp"
+- android:layout_height="wrap_content"
+- android:layout_weight="1"
+- android:text="播放"/>
+- 
+- <Button
+- android:id="@+id/button_pause"
+- android:layout_width="0dp"
+- android:layout_height="wrap_content"
+- android:layout_weight="1"
+- android:text="暂停"/>
+- 
+- <Button
+- android:id="@+id/button_stop"
+- android:layout_width="0dp"
+- android:layout_height="wrap_content"
+- android:layout_weight="1"
+- android:text="停止"/>
+- 
+- <Button
+- android:id="@+id/button_replay"
+- android:layout_width="0dp"
+- android:layout_height="wrap_content"
+- android:layout_weight="1"
+- android:text="重播"/>
+- </LinearLayout>
+- 
+- </RelativeLayout>
+**[java]**[view
+ plain](http://blog.csdn.net/u012440207/article/details/25195623#)[copy](http://blog.csdn.net/u012440207/article/details/25195623#)![在CODE上查看代码片](https://code.csdn.net/assets/CODE_ico.png)[](https://code.csdn.net/snippets/331761/fork)
+- package com.surfaceviewdemo;  
+- 
+- import android.app.Activity;  
+- import android.media.AudioManager;  
+- import android.media.MediaPlayer;  
+- import android.media.MediaPlayer.OnCompletionListener;  
+- import android.media.MediaPlayer.OnErrorListener;  
+- import android.media.MediaPlayer.OnPreparedListener;  
+- import android.os.Bundle;  
+- import android.view.SurfaceHolder;  
+- import android.view.SurfaceHolder.Callback;  
+- import android.view.SurfaceView;  
+- import android.view.View;  
+- import android.view.View.OnClickListener;  
+- import android.widget.Button;  
+- import android.widget.SeekBar;  
+- import android.widget.SeekBar.OnSeekBarChangeListener;  
+- 
+- /**
+-  * 使用SurfaceView和MediaPlayer的本地视频播放器。
+-  * 
+-  */
+- publicclass MainActivity extends Activity implements OnClickListener {  
+- private SurfaceView surfaceView;  
+- private Button button_play, button_pause, button_stop, button_replay;  
+- private MediaPlayer mediaPlayer;  
+- private SeekBar seekBar;  
+- privateint currentPosition;  
+- privateboolean isPlaying;  
+- @Override
+- protectedvoid onCreate(Bundle savedInstanceState) {  
+- super.onCreate(savedInstanceState);  
+-         setContentView(R.layout.activity_main);  
+- 
+-         init();  
+- 
+-         initData();  
+-     }  
+- 
+- privatevoid init() {  
+-         button_play = (Button) findViewById(R.id.button_play);  
+-         button_pause = (Button) findViewById(R.id.button_pause);  
+-         button_stop = (Button) findViewById(R.id.button_stop);  
+-         button_replay = (Button) findViewById(R.id.button_replay);  
+- 
+-         surfaceView = (SurfaceView) findViewById(R.id.sv);  
+-         seekBar = (SeekBar) findViewById(R.id.seekBar);  
+-         seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {  
+- 
+- @Override
+- publicvoid onStopTrackingTouch(SeekBar seekBar) {  
+- int process = seekBar.getProgress();  
+- if (mediaPlayer!=null && mediaPlayer.isPlaying()) {  
+-                     mediaPlayer.seekTo(process);  
+-                 }  
+-             }  
+- 
+- @Override
+- publicvoid onStartTrackingTouch(SeekBar seekBar) {  
+- 
+-             }  
+- 
+- @Override
+- publicvoid onProgressChanged(SeekBar seekBar, int progress,  
+- boolean fromUser) {  
+- 
+-             }  
+-         });  
+-     }  
+- 
+- privatevoid initData() {  
+-         mediaPlayer = new MediaPlayer();  
+-         surfaceView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);//4.0一下的版本需要加该段代码。
+- 
+-         surfaceView.getHolder().addCallback(new Callback() {  
+- 
+- @Override
+- publicvoid surfaceDestroyed(SurfaceHolder holder) {  
+- /**
+-                  * 当点击手机上home键（或其他使SurfaceView视图消失的键）时，调用该方法，获取到当前视频的播放值，currentPosition。
+-                  * 并停止播放。
+-                  */
+-                 currentPosition = mediaPlayer.getCurrentPosition();  
+-                 stop();  
+-             }  
+- 
+- @Override
+- publicvoid surfaceCreated(SurfaceHolder holder) {  
+- /**
+-                  * 当重新回到该视频应当视图的时候，调用该方法，获取到currentPosition，并从该currentPosition开始继续播放。
+-                  */
+- if (currentPosition > 0) {  
+-                     play(currentPosition);  
+-                 }  
+-             }  
+- 
+- @Override
+- publicvoid surfaceChanged(SurfaceHolder holder, int format,  
+- int width, int height) {  
+- 
+-             }  
+-         });  
+- 
+-         button_play.setOnClickListener(this);  
+-         button_pause.setOnClickListener(this);  
+-         button_stop.setOnClickListener(this);  
+-         button_replay.setOnClickListener(this);  
+-     }  
+- 
+- 
+- 
+- @Override
+- publicvoid onClick(View v) {  
+- switch (v.getId()) {  
+- case R.id.button_play:  
+- /**
+-              * 播放
+-              */
+-             play(0);  
+- 
+- break;  
+- 
+- case R.id.button_pause:  
+- /**
+-              * 暂停
+-              */
+-             pause();  
+- 
+- break;  
+- 
+- case R.id.button_stop:  
+- /**
+-              * 停止
+-              */
+-             stop();  
+- break;  
+- 
+- case R.id.button_replay:  
+- /**
+-              * 重播
+-              */
+-             replay();  
+- break;  
+- 
+- default:  
+- break;  
+-         }  
+-     }  
+- 
+- privatevoid replay() {  
+- if (mediaPlayer.isPlaying()) {  
+-             mediaPlayer.seekTo(0);  
+-         } else {  
+-             play(0);  
+-         }  
+-     }  
+- 
+- privatevoid stop() {  
+- if (mediaPlayer.isPlaying()) {  
+-             mediaPlayer.stop();  
+-             mediaPlayer.seekTo(0);  
+-         }  
+- 
+-     }  
+- 
+- privatevoid pause() {  
+- if (mediaPlayer.isPlaying()) {  
+-             mediaPlayer.pause();  
+-         } else {  
+-             mediaPlayer.start();  
+-         }  
+- 
+-     }  
+- 
+- privatevoid play(finalint currentPosition) {  
+-         String path = "/mnt/sdcard2/1.mp4";//指定视频所在路径。
+- //      String path = "http://daily3gp.com/vids/family_guy_penis_car.3gp";//指定视频所在路径。
+-         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);//设置视频流类型
+- try {  
+- 
+-             mediaPlayer.setDisplay(surfaceView.getHolder());  
+-             mediaPlayer.setDataSource(path);  
+-             mediaPlayer.prepareAsync();  
+- 
+-             mediaPlayer.setOnPreparedListener(new OnPreparedListener() {  
+- 
+- @Override
+- publicvoid onPrepared(MediaPlayer mp) {  
+-                     mediaPlayer.start();  
+- int max = mediaPlayer.getDuration();  
+-                     seekBar.setMax(max);  
+-                     mediaPlayer.seekTo(currentPosition);  
+- 
+- new Thread(){  
+- 
+- publicvoid run() {  
+-                             isPlaying = true;  
+- while (isPlaying) {  
+- int position = mediaPlayer.getCurrentPosition();  
+-                                 seekBar.setProgress(position);  
+- try {  
+-                                     Thread.sleep(500);  
+-                                 } catch (InterruptedException e) {  
+-                                     e.printStackTrace();  
+-                                 }  
+-                             }  
+- 
+-                         };  
+-                     }.start();  
+-                 }  
+-             });  
+- 
+-             mediaPlayer.setOnCompletionListener(new OnCompletionListener() {  
+- 
+- @Override
+- publicvoid onCompletion(MediaPlayer mp) {  
+-                     button_play.setEnabled(true);  
+-                 }  
+-             });  
+- 
+-             mediaPlayer.setOnErrorListener(new OnErrorListener() {  
+- 
+- @Override
+- publicboolean onError(MediaPlayer mp, int what, int extra) {  
+-                     button_play.setEnabled(true);  
+- returnfalse;  
+-                 }  
+-             });  
+-         } catch (Exception e) {  
+-             e.printStackTrace();  
+-         }  
+-     }  
+- 
+- }  
+另外在线播放与本地播放的原理是一样的，在线播放测试的时候，只需在AndroidManifest.xml添加Internet的权限，在线播放的path，在文中已给出。另外，这只是相对简单的播放器，大家可在其基础上进行扩展，以达到大家的要求。

@@ -1,0 +1,579 @@
+# WinCE下存储设备的遍历以及磁盘分区的格式化、扫描和碎片整理类 - xqhrs232的专栏 - CSDN博客
+2013年03月09日 16:43:11[xqhrs232](https://me.csdn.net/xqhrs232)阅读数：1089
+个人分类：[WINCE](https://blog.csdn.net/xqhrs232/article/category/906924)
+原文地址::[http://blog.csdn.net/werocpp/article/details/5466755](http://blog.csdn.net/werocpp/article/details/5466755)
+ 由于需要在WinCE下对某个磁盘分区进行格式化，在网上查找了相关资料整理出了一个类与大家分享，不足之处请指教。
+**[cpp]**[view
+ plain](http://blog.csdn.net/werocpp/article/details/5466755#)[copy](http://blog.csdn.net/werocpp/article/details/5466755#)
+- /********************************************************************
+-     created:    2010/03/17
+-     created:    17:3:2010   14:14
+-     filename:   f:/个人资料_zwf/自己的源代码/CeFormatTools/CeFormatTools/CeStoreManager.h
+-     file path:  f:/个人资料_zwf/自己的源代码/CeFormatTools/CeFormatTools
+-     file base:  CeStoreManager
+-     file ext:   h
+-     author:     zhangwf
+- 
+-     purpose:    WINCE磁盘设备管理（遍历及格式化等操作）
+- *********************************************************************/
+- #ifndef _CE_STORE_MANAGER_H_
+- #define _CE_STORE_MANAGER_H_
+- //////////////////////////////////////////////////////////////////////////
+- #include <Storemgr.h>
+- #include <fatutil.h>
+- #include <vector>
+- usingnamespace std;  
+- typedef vector<STOREINFO> CStoreInfoArray;  
+- typedef vector<PARTINFO> CPartInfoArray;  
+- //////////////////////////////////////////////////////////////////////////
+- class CeStoreManager  
+- {  
+- public:  
+- // 构造析构函数
+-     CeStoreManager(BOOL bLoadAllStorePart=FALSE);  
+-     ~CeStoreManager();  
+- 
+- public:  
+- // 对分区的操作接口
+- // 格式化一个分区
+- BOOL FormatPart(HANDLE hPart, PFN_PROGRESS pfnProgress=NULL);  
+- BOOL FormatPart(LPCTSTR szDeviceName, LPCTSTR szPartName, PFN_PROGRESS pfnProgress=NULL);  
+- 
+- // 扫描一个分区
+- BOOL ScanPart(HANDLE hPart, PFN_PROGRESS pfnProgress=NULL);  
+- BOOL ScanPart(LPCTSTR szDeviceName, LPCTSTR szPartName, PFN_PROGRESS pfnProgress=NULL);  
+- 
+- // 对一个分区进行碎片整理
+- BOOL DefragPart(HANDLE hPart, PFN_PROGRESS pfnProgress=NULL);  
+- BOOL DefragPart(LPCTSTR szDeviceName, LPCTSTR szPartName, PFN_PROGRESS pfnProgress=NULL);  
+- 
+- public:  
+- // 接口函数(遍历所有存储设备的分区)
+- // 加载所有存储设备的所有分区信息，下面所有的接口建立在调用该接口后的基础上（或构造函数中指定了加载）
+- BOOL LoadAllStorePart();  
+- 
+- // 获得存储设备数量
+- long GetStoreCounts();  
+- 
+- // 获得某个存储设备的信息
+- BOOL GetStoreInfo(long storeIndex, STOREINFO &storeInfo);  
+- 
+- // 获得某个存储设备上的分区数量
+- long GetStorePartCounts(long storeIndex);  
+- 
+- // 获得某个存储设备上的某个分区信息
+- BOOL GetStorePartInfo(long storeIndex, long partIndex, PARTINFO &partInfo);  
+- 
+- // 格式化某个存储设备上的某个分区
+- BOOL FormatPart(long storeIndex, long partIndex, PFN_PROGRESS pfnProgress=NULL);  
+- 
+- // 扫描某个存储设备上的某个分区
+- BOOL ScanPart(long storeIndex, long partIndex, PFN_PROGRESS pfnProgress=NULL);  
+- 
+- // 对某个存储设备上的某个分区进行碎片整理
+- BOOL DefragPart(long storeIndex, long partIndex, PFN_PROGRESS pfnProgress=NULL);  
+- 
+- private:  
+- // 私有函数
+- // 加载所有存储设备
+- BOOL LoadAllStore();  
+- 
+- // 加载一个存储设备上所有的分区信息
+- BOOL LoadStorePartition(LPCTSTR storeDeviceName, CPartInfoArray &storePartArray);  
+- 
+- // 获得安全的动态库实例
+- BOOL GetSafeDllInstance();  
+- 
+- // 释放动态库
+- void FreeDllInstance();  
+- 
+- // 获得安全存储设备索引
+- BOOL GetSafeIndex(long storeIndex);  
+- BOOL GetSafeIndex(long storeIndex, long partIndex);  
+- 
+- private:  
+-     CStoreInfoArray m_StoreArray;        // 存放所有存储设备信息
+-     vector<CPartInfoArray> m_PartArray;  // 存放所有存储设备的所有分区信息
+- HINSTANCE m_hUtilDll;      // 加载动态库FATUTIL.DLL的实例句柄
+- 
+- };  
+- //////////////////////////////////////////////////////////////////////////
+- #endif
+下面给出源文件
+**[cpp]**[view
+ plain](http://blog.csdn.net/werocpp/article/details/5466755#)[copy](http://blog.csdn.net/werocpp/article/details/5466755#)
+- /********************************************************************
+-     created:    2010/03/17
+-     created:    17:3:2010   14:15
+-     filename:   f:/个人资料_zwf/自己的源代码/CeFormatTools/CeFormatTools/CeStoreManager.cpp
+-     file path:  f:/个人资料_zwf/自己的源代码/CeFormatTools/CeFormatTools
+-     file base:  CeStoreManager
+-     file ext:   cpp
+-     author:     zhangwf
+- 
+-     purpose:    WINCE磁盘设备管理（遍历及格式化等操作）
+- *********************************************************************/
+- //////////////////////////////////////////////////////////////////////////
+- #include <Windows.h>
+- #include "CeStoreManager.h"
+- //////////////////////////////////////////////////////////////////////////
+- typedefDWORD (*PFN_MY_FORMATVOLUME)(HANDLE hVolume, PDISK_INFO pdi, PFORMAT_OPTIONS pfo, PFN_PROGRESS pfnProgress,PFN_MESSAGE pfnMessage);  
+- typedefBOOL (*PFN_MY_SCANVOLUME)(HANDLE hVolume, PDISK_INFO pdi, PSCAN_OPTIONS pso, PFN_PROGRESS pfnProgress, PFN_MESSAGE pfnMessage);  
+- typedefBOOL (*PFN_MY_DEFRAGVOLUME)(HANDLE hVolume, PDISK_INFO pdi, PDEFRAG_OPTIONS pdo, PFN_PROGRESS pfnProgress, PFN_MESSAGE pfnMessage);  
+- 
+- //////////////////////////////////////////////////////////////////////////
+- // 构造函数
+- CeStoreManager::CeStoreManager(BOOL bLoadAllStorePart)  
+- {  
+- // 初始化变量
+-     m_hUtilDll = NULL;  
+- if (bLoadAllStorePart == TRUE)  
+-     {  
+-         LoadAllStorePart();  
+-     }  
+- }  
+- 
+- // 析构函数
+- CeStoreManager::~CeStoreManager()  
+- {  
+- // 释放动态库
+-     FreeDllInstance();  
+- }  
+- 
+- //////////////////////////////////////////////////////////////////////////
+- // 接口函数
+- // 格式化一个分区(传入分区句柄及回调进度函数)
+- BOOL CeStoreManager::FormatPart(HANDLE hPart, PFN_PROGRESS pfnProgress)  
+- {  
+- // 获得安全的DLL实例
+- if (GetSafeDllInstance() == FALSE)  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 取得函数地址
+-     PFN_MY_FORMATVOLUME pfnFormatVolume = (PFN_MY_FORMATVOLUME)GetProcAddress(m_hUtilDll, TEXT("FormatVolume"));  
+- if(pfnFormatVolume==NULL)  
+-     {  
+-         printf("Get FormatVolumeProc Address Error!/n");  
+- return FALSE;  
+-     }  
+- 
+- //must dismount the partition
+-     DismountPartition(hPart);  
+- 
+- // 格式化
+- if(pfnFormatVolume(hPart, NULL, NULL, pfnProgress, NULL) != ERROR_SUCCESS)  
+-     {  
+-         printf("Format Volume Error!/n");  
+-         MountPartition(hPart);  
+- return FALSE;  
+-     }  
+- 
+- //finished format, mount partition
+-     MountPartition(hPart);  
+- 
+- // 格式化成功
+-     printf("Format Success!/n");  
+- return TRUE;  
+- }  
+- 
+- // 格式化一个分区（传入存储设备名字和分区名字及回调进度函数）
+- BOOL CeStoreManager::FormatPart(LPCTSTR szDeviceName, LPCTSTR szPartName, PFN_PROGRESS pfnProgress)  
+- {  
+- // 打开存储设备
+- HANDLE hStore = OpenStore(szDeviceName);  
+- if (hStore == INVALID_HANDLE_VALUE)  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 打开分区
+- HANDLE hPart = OpenPartition(hStore, szPartName);  
+-     CloseHandle(hStore);  
+- if (hPart == INVALID_HANDLE_VALUE)  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 格式化该分区
+- BOOL bResult = FormatPart(hPart, pfnProgress);  
+- 
+- // 关闭分区句柄
+-     CloseHandle(hPart);  
+- 
+- // 返回结果
+- return bResult;  
+- }  
+- 
+- // 扫描一个分区
+- BOOL CeStoreManager::ScanPart(HANDLE hPart, PFN_PROGRESS pfnProgress)  
+- {  
+- // 获得安全的DLL实例
+- if (GetSafeDllInstance() == FALSE)  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 取得函数地址
+-     PFN_MY_SCANVOLUME pfnScanVolume = (PFN_MY_SCANVOLUME)GetProcAddress(m_hUtilDll, TEXT("ScanVolume"));  
+- if(pfnScanVolume==NULL)  
+-     {  
+-         printf("Get ScanVolumeProc Address Error!/n");  
+- return FALSE;  
+-     }  
+- 
+- //must dismount the partition
+-     DismountPartition(hPart);  
+- 
+- // 扫描分区
+- if(pfnScanVolume(hPart, NULL, NULL, pfnProgress, NULL) == FALSE)  
+-     {  
+-         printf("Scan Volume Error!/n");  
+-         MountPartition(hPart);  
+- return FALSE;  
+-     }  
+- 
+- //finished format, mount partition
+-     MountPartition(hPart);  
+- 
+- // 扫描成功
+-     printf("Scan Success!/n");  
+- return TRUE;  
+- }  
+- 
+- // 扫描一个分区
+- BOOL CeStoreManager::ScanPart(LPCTSTR szDeviceName, LPCTSTR szPartName, PFN_PROGRESS pfnProgress)  
+- {  
+- // 打开存储设备
+- HANDLE hStore = OpenStore(szDeviceName);  
+- if (hStore == INVALID_HANDLE_VALUE)  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 打开分区
+- HANDLE hPart = OpenPartition(hStore, szPartName);  
+-     CloseHandle(hStore);  
+- if (hPart == INVALID_HANDLE_VALUE)  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 扫描该分区
+- BOOL bResult = ScanPart(hPart, pfnProgress);  
+- 
+- // 关闭分区句柄
+-     CloseHandle(hPart);  
+- 
+- // 返回结果
+- return bResult;  
+- }  
+- 
+- // 对一个分区进行碎片整理
+- BOOL CeStoreManager::DefragPart(HANDLE hPart, PFN_PROGRESS pfnProgress)  
+- {  
+- // 获得安全的DLL实例
+- if (GetSafeDllInstance() == FALSE)  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 取得函数地址
+-     PFN_MY_DEFRAGVOLUME pfnDefragVolume = (PFN_MY_DEFRAGVOLUME)GetProcAddress(m_hUtilDll, TEXT("DefragVolume"));  
+- if(pfnDefragVolume==NULL)  
+-     {  
+-         printf("Get DefragVolumeProc Address Error!/n");  
+- return FALSE;  
+-     }  
+- 
+- //must dismount the partition
+-     DismountPartition(hPart);  
+- 
+- // 对分区进行碎片整理
+- if(pfnDefragVolume(hPart, NULL, NULL, pfnProgress, NULL) == FALSE)  
+-     {  
+-         printf("Defrag Volume Error!/n");  
+-         MountPartition(hPart);  
+- return FALSE;  
+-     }  
+- 
+- //finished format, mount partition
+-     MountPartition(hPart);  
+- 
+- // 碎片整理成功
+-     printf("Defrag Success!/n");  
+- return TRUE;  
+- 
+- }  
+- 
+- // 对该分区进行碎片整理
+- BOOL CeStoreManager::DefragPart(LPCTSTR szDeviceName, LPCTSTR szPartName, PFN_PROGRESS pfnProgress)  
+- {  
+- // 打开存储设备
+- HANDLE hStore = OpenStore(szDeviceName);  
+- if (hStore == INVALID_HANDLE_VALUE)  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 打开分区
+- HANDLE hPart = OpenPartition(hStore, szPartName);  
+-     CloseHandle(hStore);  
+- if (hPart == INVALID_HANDLE_VALUE)  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 对该分区进行碎片整理
+- BOOL bResult = DefragPart(hPart, pfnProgress);  
+- 
+- // 关闭分区句柄
+-     CloseHandle(hPart);  
+- 
+- // 返回结果
+- return bResult;  
+- }  
+- 
+- // 加载所有存储设备所有分区
+- BOOL CeStoreManager::LoadAllStorePart()  
+- {  
+- // 加载所有存储设备
+- if (LoadAllStore() == FALSE)  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 清除上次数据
+-     m_PartArray.clear();  
+- 
+- // 遍历每一个设备加载其所有分区
+-     CPartInfoArray curPartArray;  
+- for (size_t storeIndex=0; storeIndex<m_StoreArray.size(); storeIndex++)  
+-     {  
+- if (LoadStorePartition(m_StoreArray[storeIndex].szDeviceName, curPartArray) == TRUE)  
+-         {  
+-             m_PartArray.push_back(curPartArray);  
+-         }  
+-     }  
+- 
+- // 加载成功
+- return TRUE;  
+- }  
+- 
+- // 获得存储设备数量
+- long CeStoreManager::GetStoreCounts()  
+- {  
+- return (long)m_StoreArray.size();  
+- }  
+- 
+- // 获得某个存储设备的信息
+- BOOL CeStoreManager::GetStoreInfo(long storeIndex, STOREINFO &storeInfo)  
+- {  
+- if (storeIndex<0 || storeIndex>=GetStoreCounts())  
+-     {  
+- return FALSE;  
+-     }  
+- 
+-     storeInfo = m_StoreArray[storeIndex];  
+- return TRUE;  
+- }  
+- 
+- // 获得某个存储设备上的分区数量
+- long CeStoreManager::GetStorePartCounts(long deviceIndex)  
+- {  
+- if (deviceIndex<0 || deviceIndex>=(long)m_PartArray.size())  
+-     {  
+- return 0;  
+-     }  
+- 
+- return (long)m_PartArray[deviceIndex].size();  
+- }  
+- 
+- // 获得某个存储设备上的某个分区信息
+- BOOL CeStoreManager::GetStorePartInfo(long storeIndex, long partIndex, PARTINFO &partInfo)  
+- {  
+- // 判断存储设备索引有效性
+- if (storeIndex<0 || storeIndex>=(long)m_PartArray.size())  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 判断分区索引有效性
+- if (partIndex<0 || partIndex>=(long)m_PartArray[storeIndex].size())  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 取得分区信息
+-     partInfo = m_PartArray[storeIndex].at(partIndex);  
+- return TRUE;  
+- }  
+- 
+- // 格式化某个存储设备上的某个分区
+- BOOL CeStoreManager::FormatPart(long storeIndex, long partIndex, PFN_PROGRESS pfnProgress)  
+- {  
+- // 索引不安全
+- if (GetSafeIndex(storeIndex, partIndex) == FALSE)  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 格式化分区
+- return FormatPart(m_StoreArray[storeIndex].szDeviceName, m_PartArray[storeIndex].at(partIndex).szPartitionName, pfnProgress);  
+- }  
+- 
+- // 扫描某个存储设备上的某个分区
+- BOOL CeStoreManager::ScanPart(long storeIndex, long partIndex, PFN_PROGRESS pfnProgress)  
+- {  
+- // 索引不安全
+- if (GetSafeIndex(storeIndex, partIndex) == FALSE)  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 扫描该分区
+- return ScanPart(m_StoreArray[storeIndex].szDeviceName, m_PartArray[storeIndex].at(partIndex).szPartitionName, pfnProgress);  
+- }  
+- 
+- // 对某个存储设备上的某个分区进行碎片整理
+- BOOL CeStoreManager::DefragPart(long storeIndex, long partIndex, PFN_PROGRESS pfnProgress)  
+- {  
+- // 索引不安全
+- if (GetSafeIndex(storeIndex, partIndex) == FALSE)  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- // 对该分区进行碎片整理
+- return DefragPart(m_StoreArray[storeIndex].szDeviceName, m_PartArray[storeIndex].at(partIndex).szPartitionName, pfnProgress);  
+- }  
+- //////////////////////////////////////////////////////////////////////////
+- // 私有函数
+- // 加载所有存储设备
+- BOOL CeStoreManager::LoadAllStore()  
+- {  
+- // 清除上次数据
+-     m_StoreArray.clear();  
+- 
+- // 查找第一个存储设备
+-     STOREINFO StoreInfo={0};   
+-     StoreInfo.cbSize = sizeof(StoreInfo);  
+- HANDLE hFirstStore = FindFirstStore(&StoreInfo);  
+- if(hFirstStore == INVALID_HANDLE_VALUE)  
+-     {  
+-         printf("Not Find First Store!/n");  
+- return FALSE;  
+-     }  
+- 
+- // 添加第一个存储设备
+-     m_StoreArray.push_back(StoreInfo);  
+-     wprintf(L"DeviceName:%s  StoreName:%s/n", StoreInfo.szDeviceName, StoreInfo.szStoreName);  
+- 
+- // 查找下一个存储设备
+- while (FindNextStore(hFirstStore, &StoreInfo) == TRUE)  
+-     {  
+-         m_StoreArray.push_back(StoreInfo);  
+-         wprintf(L"DeviceName:%s  StoreName:%s/n", StoreInfo.szDeviceName, StoreInfo.szStoreName);  
+-     }  
+- 
+- // 关闭查找句柄
+-     FindCloseStore(hFirstStore);  
+- return TRUE;  
+- }  
+- 
+- // 加载一个存储设备上所有的分区信息
+- BOOL CeStoreManager::LoadStorePartition(LPCTSTR storeDeviceName, CPartInfoArray &storePartArray)  
+- {  
+- // 清除上次数据
+-     storePartArray.clear();  
+- 
+- // 打开存储设备
+- HANDLE hStore = OpenStore(storeDeviceName);  
+- if (hStore == INVALID_HANDLE_VALUE)  
+-     {  
+-         wprintf(L"Open Store %s Error!/n", storeDeviceName);  
+- return FALSE;  
+-     }  
+- 
+- // 查找第一个分区
+-     PARTINFO ptInfo = {0};  
+-     ptInfo.cbSize = sizeof(ptInfo);  
+- HANDLE hFirstPart = FindFirstPartition(hStore, &ptInfo);  
+-     CloseHandle(hStore);  
+- if (hFirstPart == INVALID_HANDLE_VALUE)  
+-     {  
+-         printf("Not Find First Partition!/n");  
+- return FALSE;  
+-     }  
+- 
+- // 添加第一个分区
+-     storePartArray.push_back(ptInfo);  
+-     wprintf(L"PartName:%s  FileSys:%s VolumeName:%s/n", ptInfo.szPartitionName, ptInfo.szFileSys, ptInfo.szVolumeName);  
+- 
+- // 查找其他分区
+- while (FindNextPartition(hFirstPart, &ptInfo) == TRUE)  
+-     {  
+-         storePartArray.push_back(ptInfo);  
+-         wprintf(L"PartName:%s  FileSys:%s VolumeName:%s/n", ptInfo.szPartitionName, ptInfo.szFileSys, ptInfo.szVolumeName);  
+-     }  
+- 
+- // 关闭查找句柄
+-     FindClosePartition(hFirstPart);  
+- 
+- // 加载成功
+- return TRUE;  
+- }  
+- 
+- // 获得安全的动态库实例
+- BOOL CeStoreManager::GetSafeDllInstance()  
+- {  
+- if (m_hUtilDll != NULL)  
+-     {  
+- return TRUE;  
+-     }  
+- 
+- // 加载动态库
+-     m_hUtilDll = LoadLibrary(L"fatutil.dll");     
+- if (m_hUtilDll != NULL)  
+-     {  
+- return TRUE;  
+-     }  
+- 
+- return FALSE;  
+- }  
+- 
+- // 释放动态库
+- void CeStoreManager::FreeDllInstance()  
+- {  
+- if (m_hUtilDll != NULL)  
+-     {  
+-         FreeLibrary(m_hUtilDll);  
+-     }  
+- }  
+- 
+- // 获得安全存储设备索引
+- BOOL CeStoreManager::GetSafeIndex(long storeIndex)  
+- {  
+- if (storeIndex<0 || storeIndex>=(long)m_StoreArray.size())  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- return TRUE;  
+- }  
+- 
+- BOOL CeStoreManager::GetSafeIndex(long storeIndex, long partIndex)  
+- {  
+- if (storeIndex<0 || storeIndex>=(long)m_PartArray.size())  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- if (partIndex<0 || partIndex>=(long)m_PartArray[storeIndex].size())  
+-     {  
+- return FALSE;  
+-     }  
+- 
+- return TRUE;  
+- }  
