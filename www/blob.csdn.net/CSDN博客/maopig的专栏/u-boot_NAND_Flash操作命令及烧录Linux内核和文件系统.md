@@ -1,3 +1,0 @@
-# u-boot_NAND_Flash操作命令及烧录Linux内核和文件系统 - maopig的专栏 - CSDN博客
-2012年03月17日 12:58:18[maopig](https://me.csdn.net/maopig)阅读数：2501
-![](http://hi.csdn.net/attachment/201203/17/0_1331960301VYmU.gif)![](http://hi.csdn.net/attachment/201203/17/0_1331960310nPBT.gif)![](http://hi.csdn.net/attachment/201203/17/0_1331960317c1d5.gif)![](http://hi.csdn.net/attachment/201203/17/0_1331960324JzIJ.gif)![](http://hi.csdn.net/attachment/201203/17/0_13319603302F98.gif)![](http://hi.csdn.net/attachment/201203/17/0_1331960338gYYb.gif)![](http://hi.csdn.net/attachment/201203/17/0_13319603465Xt6.gif)![](http://hi.csdn.net/attachment/201203/17/0_133196035206cM.gif)![](http://hi.csdn.net/attachment/201203/17/0_1331960360yLzM.gif)![](http://hi.csdn.net/attachment/201203/17/0_13319603667exF.gif)

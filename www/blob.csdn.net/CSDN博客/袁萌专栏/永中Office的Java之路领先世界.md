@@ -1,8 +1,0 @@
-# 永中Office的Java之路领先世界 - 袁萌专栏 - CSDN博客
-2011年07月28日 05:04:28[yuanmeng001](https://me.csdn.net/yuanmeng001)阅读数：1647标签：[java																[office																[android																[语言																[编程																[sun](https://so.csdn.net/so/search/s.do?q=sun&t=blog)](https://so.csdn.net/so/search/s.do?q=编程&t=blog)](https://so.csdn.net/so/search/s.do?q=语言&t=blog)](https://so.csdn.net/so/search/s.do?q=android&t=blog)](https://so.csdn.net/so/search/s.do?q=office&t=blog)](https://so.csdn.net/so/search/s.do?q=java&t=blog)
-    现在看起来，永中集成Office所走的Java之路确实是世界领先，无人可比。何故也？
-在十几年前，很少有人能够想到今天移动互联网的实际情景，预见到Java成为网络编程的主力语言。但是，有人却反对（或怀疑）使用Java编程语言，因为，世界软件巨头甲骨文控告谷歌基于Java语言的移动操作系统Android“专利侵权“，借此故意抹黑Java。7月25日，世界知名IT评论家StevenJ. Vaughan-Nichols发表重要署名文章揭露了甲骨文的贪心（指控告谷歌以便圈钱），真是大快人心也。文章题目为：“SunCEO explicitly endorsed Java's use in Android: What do you say nowOracle?”，意思是SUN的执行总裁Schwartz同意Java可应用于移动操作系统Android，现在你甲骨文还能说些什么呢？文章主要论点是：”Groklawhas dug up proof（偶尔发现证据）thatwhen Google first introduced Android, Sun, Java’s creator, was allin favor of its use of Java.“（注：WhileSchwartz’s blog post has since been erased byOracle，意思是，甲骨文故意删去了Schwartz的上述博客文章。）此文也解除了摆在完全依赖Java的永中集成Office面前的疑问。
-言归正传。永中科技的编程环境绝对是纯Java的天下，连电子表格都用Java语言来编写。实际上，对永中集成Office而言，定制一款小型、集成、轻便、易用的“移动桌面”，那是举手之劳。可以说，基于Java编程语言的永中集成Office确实走在世界办公软件之前列。但是，小型“移动桌面”究竟应该是个什么样子，没有软件架构师的指点，做出来的东西只能是一个“四不像”，或者根本不能用。
-实际上，当前的情况很令人担忧，因为，有两个“永中”：小永中和大永中，而且，小永中很凶，总想吃掉大永中。对此，大永中很生气、恼火。这样继续闹下去，市场会丢掉的。5月10日，无锡市中级人民法院裁定大永中必须破产清算，非如此不能变现（还债）。但是，破产裁定已经过去两月有余，至今不见下文，不知何故也。
-从海峡两岸经济合作框架协议（ECFA）的立场上来看，永中科技破产一案的是非曲直并不难于判断，小永中本不该出世（即非法超生）。面对如今之难堪现状，该怎么办呢？大永中不死，小永中不活，都很难受。这全是方存好与唐敏两人搞出来的恶果。这个问题一天不解决，这两个人就难免每天要讨骂。我认为，目前，小永中纯粹是在消耗有效资源（每月要发上百万的工资），长期不死不活，市场全弄丢了，谁难受，谁自己心里知道。现在，两边是在打“消耗战”，一边每天要花上好几万（人民币），一边每天只需几包方便面，看谁能够“耗”过谁？
-

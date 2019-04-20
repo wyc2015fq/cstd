@@ -1,4 +1,0 @@
-# Plastic SCM 发布社区版本 - weixin_33985507的博客 - CSDN博客
-2010年11月14日 21:09:00[weixin_33985507](https://me.csdn.net/weixin_33985507)阅读数：21
-[Plastic SCM](http://www.plasticscm.com/) 是Codice Software 公司完全使用Mono/.NET开发的新一代的SCCM（软件变更和配置管理）软件，设计用来满足当今的按需开发环境，这些环境通常采用分布式框架，支持敏捷和并行方法。Plastic SCM的管理以任务为核心，在整个项目生命周期中从需求到设计，分析，代码开发和测试的全过程对软件的变更和配置进行追踪记录，并且在开发项目的进展过程中并行进行版本控制和软件分支和合并的追踪记录。
-11月份Plastic SCM发布了一个社区版本，社区版本是可以免费使用的。社区版本并不是一个阉割过的版本，是一个具有企业版所有功能的完整版，但是只能用于15个用户，也就是15个开发人员以下的的软件开发商，这将包含相当大比例的开发团队了，对于超过15个人以上的开发团队也提供了年费套餐或者是永久许可证的灵活授权。Plastic SCM这个新版本的目的是建立Plastic SCM的社区，在[FAQ](http://www.plasticscm.com/buy/community-edition-FAQ.aspx)页面上说明了社区版的目的：我们要发展我们的用户群，以了解我们的用户，并创建一个在线环境，使他们能够分享使用Plastic使用技巧和窍门。大量使用Plastic开发简单项目的用户将有助于Codice把产品做得更好。想下载和了解更多信息，请访问[社区版产品页面](http://translate.googleusercontent.com/translate_c?hl=zh-CN&sl=en&tl=zh-CN&u=http://www.plasticscm.com/buy.aspx&rurl=translate.google.com.hk&usg=ALkJrhgKLNLlvGaswZ2SW8dUQZmsvWe7eg)。

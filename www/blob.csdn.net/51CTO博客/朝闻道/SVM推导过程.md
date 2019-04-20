@@ -1,2 +1,0 @@
-# SVM推导过程-朝闻道-51CTO博客
-![SVM推导过程](https://s1.51cto.com/images/blog/201804/10/73b43ef6a2165641d62973e73aec0f98.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)![SVM推导过程](https://s1.51cto.com/images/blog/201804/10/34043ae3c9027b9f46cd4f3444331436.png?x-oss-process=image/watermark,size_16,text_QDUxQ1RP5Y2a5a6i,color_FFFFFF,t_100,g_se,x_10,y_10,shadow_90,type_ZmFuZ3poZW5naGVpdGk=)

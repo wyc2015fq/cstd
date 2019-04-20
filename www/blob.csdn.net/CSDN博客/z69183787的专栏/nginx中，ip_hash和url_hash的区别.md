@@ -1,4 +1,0 @@
-# nginx中，ip_hash和url_hash的区别 - z69183787的专栏 - CSDN博客
-2015年08月28日 11:22:47[OkidoGreen](https://me.csdn.net/z69183787)阅读数：5253
-最近看nginx的负载均衡，发现为了解决nginx的session问题，有两种方法，就是ip_hash和url_hash，ip_hash是根据ip来维持session的，而url_hash是根据url地址的，url_hash的优点是能够提高后端缓存服务器的效率，比如提高squid的效率，但是缺点是当后端服务器宕机的时候，url_hash不会自动跳转的其他缓存服务器，而是返回给用户一个503错误，我想问的是，那ip_hash有没有解决这个问题，是不是会跳转到其他机器上，还是一样会返回一个503错误，那ip_hash和url_hash有什么区别啊，还有就是nginx能不能即解决session问题又解决后端服务器的健康检查问题。我记得squid是可以健康检查和session保持的。
-你可以使用memcached来保持session，实现session共享，无需担心session掉线
