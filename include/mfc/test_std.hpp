@@ -22,7 +22,8 @@
 #include "Map.hpp"
 #include "List.hpp"
 #include "Array.hpp"
-//#include "mfcwin.h"
+
+#include "mfc.h"
 
 
 int test_StringList() {

@@ -3,7 +3,7 @@
 #define __CSTRING_H__
 
 
-#include "mfc.h"
+#include "typedef.h"
 #include "std/stddef_c.h"
 #include "std/log_c.h"
 #include "std/iconv_c.h"

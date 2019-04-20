@@ -1,0 +1,43 @@
+# 《Science》评选2017年十大科学突破，看看有哪些吧！ - 人工智能学家 - CSDN博客
+2017年12月23日 00:00:00[人工智能学家](https://me.csdn.net/cf2SudS8x8F0v)阅读数：730
+![640?wx_fmt=png&wxfrom=5&wx_lazy=1](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_png/f84kJBXzrBVnSsvlEd5rhHKiaOCyUlXlbicN2mvF0IbmKuytQap5vQuEuB4MTOTgHhv6dSw7MefcYZibM0MgJiaFIw/640?wx_fmt=png&wxfrom=5&wx_lazy=1)
+*来源：材料科学与工程*
+*概要：美国《科学》杂志21日公布了其评选出的2017年十大科学突破，人类首次观测到双中子星并合事件被选为头号科学突破。*
+美国《科学》杂志21日公布了其评选出的2017年十大科学突破，人类首次观测到双中子星并合事件被选为头号科学突破。这也是引力波天文学研究成果连续第二年获此殊荣，2016年引力波的发现被《科学》评为年度头号科学突破。
+《科学》杂志特约撰稿人阿德里安·曹在解读今年科学突破的文章中写道：“如果说去年引力波的探测吹响了科学发现的号角，那么今年双中子星并合事件的观测则奏响了科学的交响曲” 。他指出，今年8月17日观测到的双中子星并合事件轻易地成为了迄今为止天文学历史上被研究最多的事件：来自全球953个机构的3764名研究人员合作撰写一篇论文，对这一合并事件及其后果进行论述。
+**《科学》杂志评出的10项突破性科学成就包括：**
+**1、双中子星合并**
+2017年8月17日，LIGO和Virgo在1.3亿光年之外首次探测到了双中子星合并，合并产生引力波和电磁辐射，征服了成千上万的天文观察者，并实现了天体物理学的多种预测！
+![?wx_fmt=gif](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_png/NsJRjUicOjcEVE5P0PWXB7tNUZP1H6dVYgb2pXZojLS2qOUcOunHwLV3z3PuY18Tvr9p7tVQia1QboWKErlDibg5Q/?wx_fmt=gif)
+**2.冷冻电镜**
+2017年，诺贝尔化学奖授予三位物理学家，奖励他们在冷冻电镜方面的贡献。冷冻电镜帮助科学家将复杂的大分子冻住，以便于发现分子间相互作用，以及结构分析。在原子尺度上看见生命的源头！
+![?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/NsJRjUicOjcEVE5P0PWXB7tNUZP1H6dVYwuGTd1f2ZRSzqLcTlyftqN0T69848hc5trcEm0uPm5hZus1JicicdtkA/?wx_fmt=jpeg)
+**3.中微子探测器**
+2017年，科学家利用微型探测器，首次观测到中微子散射。这种微型探测器重量和微波炉相差无几。
+![?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/NsJRjUicOjcEVE5P0PWXB7tNUZP1H6dVYfA4Hj0yEqXA05QzHtOAUQ5D0kP57rFwR22iaO5sCiaEhj9JHxLF4hhrQ/?wx_fmt=jpeg)
+**4.现代智人起源**
+利用计算机技术，将一个现代智人的头盖骨进行还原，并认定其所在时间为30万年前，使智人起源研究又往前推进了一大步。
+![?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/NsJRjUicOjcEVE5P0PWXB7tNUZP1H6dVYqHy89IEMUCI3iblia6WGSot4JgQLyQW2mvEQUg3TtpSmE4G1h59YHibNw/?wx_fmt=jpeg)
+**5.针尖基因编辑**
+2017年，科学家发明了一种针尖基因编辑法，可对DNA和RNA上微小的点基因突变进行矫正，以避免基因变异所产生的疾病。
+![?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/NsJRjUicOjcEVE5P0PWXB7tNUZP1H6dVYAnIia3S5KaU5FVCVxYHj0UB5jXTMsNhLaf0bWXib8v6WH0RS7eNRUCZQ/?wx_fmt=jpeg)
+**6.生物学术预印**
+2017年，成千上万的生物学家将他们未发表的论文挂到网上，资助者也对此表示支持。在学术预印方面，生物学走在了前列。
+![0?wx_fmt=png](https://ss.csdn.net/p?http://mmbiz.qpic.cn/mmbiz_png/f84kJBXzrBVnSsvlEd5rhHKiaOCyUlXlbWicaFycdBkjsUTRmWypIjfxuPt0qdOmE00Zt8CLvx43swtTJIOtOaZg/0?wx_fmt=png)
+**7.癌症治疗药物**
+2017年5月，美国FDA首次批准一种由默克等公司生产的癌症治疗药物。这种药物在DNA上杀死癌细胞，而不必干扰其起源的器官。
+![?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/NsJRjUicOjcEVE5P0PWXB7tNUZP1H6dVYfcvuAkyUrA4F6EkbmibBeticgHWicNdX8DZMkln2xdO7Z7wCTqTH7U9Ng/?wx_fmt=jpeg)
+**8.新型类人猿物种**
+2017年11月，科学家在印度尼西亚濒危的森林里发现了类人猿新物种。这是自1929年以来的首次新发现。
+![?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/NsJRjUicOjcEVE5P0PWXB7tNUZP1H6dVYvT4VbSBJvDUU0V7GOZgcKzDXzEjlibGuVBTN8ib0EBlqd5kCvDSYGJVw/?wx_fmt=jpeg)
+**9.地球气压**
+2017年8月，科学家宣布成功复原了地球上最古老的冰：270万年前冻住的南极冰。这一成果为研究地球气候史具有重要意义。
+![?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/NsJRjUicOjcEVE5P0PWXB7tNUZP1H6dVYPzWfISMbwPkX0fvGzLEibzwgibq6RTibicu2Y9roYHc391x8CpoJhB9zpQ/?wx_fmt=jpeg)
+**10.基因治疗**
+研究人员在脊髓神经元中加入缺失基因，将大量婴儿从致命的疾病中解救出来。基因治疗在2017年大放异彩。
+![?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/NsJRjUicOjcEVE5P0PWXB7tNUZP1H6dVY6KHia9KhefOib9C4R8DQaJbiaJMDxq2qLlyJzsOpfQW7KwiakulwmA8wXQ/?wx_fmt=jpeg)
+《科学》杂志新闻主编蒂姆·阿彭策尔则指出，通过对双中子星并合事件的观测，科学家们不仅探测到引力波，还观测到从伽马射线到无线电波几乎所有电磁波段的宇宙事件，相关研究有望改变天体物理学，其被评为2017年度头号突破实至名归。
+未来智能实验室是人工智能学家与科学院相关机构联合成立的人工智能，互联网和脑科学交叉研究机构。由互联网进化论作者，计算机博士刘锋与中国科学院虚拟经济与数据科学研究中心石勇、刘颖教授创建。
+未来智能实验室的主要工作包括：建立AI智能系统智商评测体系，开展世界人工智能智商评测；开展互联网（城市）云脑研究计划，构建互联网（城市）云脑技术和企业图谱，为提升企业，行业与城市的智能水平服务。
+*如果您对实验室的研究感兴趣，欢迎支持和加入我们。扫描以下二维码或点击本文左下角“阅读原文”*
+![640?wx_fmt=png](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_png/f84kJBXzrBXoz49H9w8lfGXmBjcGga9W15bmYAvZDqbbI8p0liaLcxEh1iao7YXIgJvp6MLHpskd7jHq8ibX0QzDQ/640?wx_fmt=png)

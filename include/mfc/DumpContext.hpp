@@ -3,7 +3,7 @@
 #define __CDUMPCONTEXT_HPP__
 
 
-#include "mfc.h"
+#include "typedef.h"
 #include "StringBuilder.hpp"
 
 class CDumpContext : public StringBuilder

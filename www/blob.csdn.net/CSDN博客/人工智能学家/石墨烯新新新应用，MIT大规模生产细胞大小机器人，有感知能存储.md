@@ -1,0 +1,41 @@
+# 石墨烯新新新应用，MIT大规模生产细胞大小机器人，有感知能存储 - 人工智能学家 - CSDN博客
+2018年11月01日 20:33:54[人工智能学家](https://me.csdn.net/cf2SudS8x8F0v)阅读数：113
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/LJiau2qPWAcXrcXCjmcadopEkXxk3QIpxLallGvurRBRJEBHWg9NfcKy6gWFKItgVic2qx9wCo86v6ibGQEymicPyA/640?wx_fmt=jpeg)
+（MIT开发的微型机器人）
+来源：机器人大讲堂
+近期，MIT又玩出了新花样，在前几个月成功开发出细胞大小并且能够感知外部环境、储存数据并执行计算任务的微型机器人后，MIT又带来了新消息：他们为大规模生产不超过细胞大小的微型机器人带来了福音。
+基于这种新方法，该团队设计了一款称为“syncells”（合成细胞的简称）的微观设备。可被用来**监测石油或天然气管道内的状况，或在流动的血液中搜寻疾病。**
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/LJiau2qPWAcXrcXCjmcadopEkXxk3QIpxwTemjwNsxyR1kcN3w2DibPap4VVDRCljbPzSicLmCNmicJe4y4tuzAsfw/640?wx_fmt=jpeg)
+（加州大学圣迭戈分校的科学家们开发的这种多功能机器人，能够清除细菌和毒素）
+这种新方法就是**控制原子级薄脆材料的天然压裂过程，引导断裂线，使它们产生可预测尺寸和形状的微小口袋。**这些口袋内嵌的电子电路和材料可以收集，记录和输出数据。
+在这种方法的发现及实现上，石墨烯自身的特性帮了大忙！
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/LJiau2qPWAcXrcXCjmcadopEkXxk3QIpx3xns0bib2bP8qcFT6ibMMD5D1geoDHA4uruZejGC8n2fdS2vSVlbdZAw/640?wx_fmt=jpeg)
+**石墨烯是已知强度最高的材料之一，同时还具有很好的韧性，且可以弯曲，但其实它也是“脆弱的“。**也正因如此，MIT团队利用了它的”脆弱性“来发挥作用。
+麻省理工学院教授迈克尔斯特拉诺解释说：“我们发现你可以使用这种脆弱性，这是违反直觉的。在这项工作之前，如果你告诉我你可以在纳米尺度上破碎一种材料来控制它的形状，我会不相信。“
+![640?wx_fmt=gif](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_gif/LJiau2qPWAcXrcXCjmcadopEkXxk3QIpxoWXEPJI9D4gz1qCZUYQtHbpQldYcLeUCAOZQjjJyxQT7NswD74Pvxw/640?wx_fmt=gif)
+实际上，syncells系统做到了！**它控制着压裂过程，因此不会产生随机碎片的材料，而是产生均匀形状和大小的碎片。**研究人员还发现可以施加一个应变场来引导破碎过程，来控制指导。
+![640?wx_fmt=gif](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_gif/LJiau2qPWAcXrcXCjmcadopEkXxk3QIpxbc4w36xbn7e2gp8Cia4lLqtrqRbWh78A7rjKb19ibjhelNwGicZ1jU9LQ/640?wx_fmt=gif)
+**Syncells系统采取了石墨烯的二维碳形式，就是用精密的喷墨打印机将一层材料铺设在含有电子装置的微小的聚合物点材料表面上，然后，在聚合物点顶部铺设第二层石墨烯。**
+![640?wx_fmt=gif](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_gif/LJiau2qPWAcXrcXCjmcadopEkXxk3QIpxic1NvQ1f9BmTdxoCVeXibxwKoYjKo1fI0iaZpbQMcEIcP8FGyb6Ahwnkg/640?wx_fmt=gif)
+（应变映射的图像）
+这样当我们将石墨烯的顶层放置在圆柱形状的聚合物点阵列上时，**石墨烯覆盖在柱的圆形边缘上的位置在材料中形成高应变线，裂缝将集中在边界处。**
+![640?wx_fmt=gif](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_gif/LJiau2qPWAcXrcXCjmcadopEkXxk3QIpxaYgEhsFYhfOzHiav9V4cg3EF7ribIBpBlm2ZBbDHdEdeNyO9OrV5n3Lg/640?wx_fmt=gif)
+然后，你将惊奇地发现石墨烯将完全断裂，但是裂缝将被引导围绕在支柱的周围。结果就是**一块整齐的圆形石墨烯，看起来好像被微型打孔器干净地切割干净了。**
+![640?wx_fmt=gif](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_gif/LJiau2qPWAcXrcXCjmcadopEkXxk3QIpxVCybrE3K7xPzCxOHuMrAKPoRxdkyjvLyJCFsmVwkJX0PcElpYB2ib8w/640?wx_fmt=gif)
+但由于在聚合物柱的上方和下方有两层石墨烯，所以两个所得的盘在其边缘处粘附形成类似于小的皮塔饼面包口袋，聚合物就将被密封在内部。
+于是一个能够收集记录储存数据的微型机器人就新鲜出炉啦！当然，除了石墨烯之外的其他二维材料，如二硫化钼和六方氮化硼也是可以起到作用的。
+这种方法的操作比起那些繁杂的工业制作微型机器人是不是要来得简单易行呢？**Syncells是单独组装的，这种简便易行的方法让它大规模生产有了希望。**
+**这样制造出来的微型机器人与人体红细胞大小差不多，大约10微米，最大到10倍左右。**它们的外观和行为就像一个活的生物细胞，在显微镜下，大多数人会认为它就是一个细胞。
+![640?wx_fmt=gif](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_gif/LJiau2qPWAcXrcXCjmcadopEkXxk3QIpxZYCks5TNkdnhhUDNkPPkDd9Mwwn1axhjUoAcyZ7hDWb5ibicSFibyT6Rw/640?wx_fmt=gif)
+它可以作为独立的自由浮动设备。根据内部电子设备的性质，可以为设备提供移动，检测各种化学品或其他参数以及存储器存储的能力。
+![640?wx_fmt=gif](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_gif/LJiau2qPWAcXrcXCjmcadopEkXxk3QIpxBjLJbPhSIUzMq78icSBmS9YicniacXNVehrSIaeFKayibX9AyDIuicNpK1g/640?wx_fmt=gif)
+研究团队还特意做了一个演示实验，来证明它可以用作电子存储器的形式，数据可以随意写入，读取和擦除。它还可以在不需要电源的情况下保留数据，防止信息的丢失。据斯特拉诺说，研究人员已经证明，即使在水中漂浮，这些粒子在几个月内仍然是稳定的。
+![640?wx_fmt=gif](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_gif/LJiau2qPWAcXrcXCjmcadopEkXxk3QIpx9Q5PBbMjutVibqyDHcCxNVONK86KLquVB6ubibDjOcj4Wia6IEHYd6dJA/640?wx_fmt=gif)
+Syncells除了可以像普通的微型机器人一样被应用在工业或者生物医学监测的潜在用途上外，更引人注意的应该是它受控压裂作为生产的方法可以被广泛地应用在其他方面。
+**Albert Liu表示：“它很可能与2-D材料一起使用，原则上允许未来的研究人员将这些原子薄的表面定制成任何所需的形状或形式，用于其他学术的应用。”**
+除此之外，这种微型机器人还可以被应用在哪些方面呢？你觉得它可以被用来干什么呢？可以在下方留言告诉我们哟！
+**下面是完整的介绍视频。**
+未来智能实验室是人工智能学家与科学院相关机构联合成立的人工智能，互联网和脑科学交叉研究机构。
+未来智能实验室的主要工作包括：建立AI智能系统智商评测体系，开展世界人工智能智商评测；开展互联网（城市）云脑研究计划，构建互联网（城市）云脑技术和企业图谱，为提升企业，行业与城市的智能水平服务。
+*如果您对实验室的研究感兴趣，欢迎加入未来智能实验室线上平台。扫描以下二维码或点击本文左下角“阅读原文”*
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/f84kJBXzrBXtjwXLOH13nsYuQKfVHbapnHFO9iacHnzft3Q7mqEeqVf6phSiam3I17pVBMLp18riaEpPOlp4xIxzA/640?wx_fmt=jpeg)

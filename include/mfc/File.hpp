@@ -339,7 +339,7 @@ CFile* CFile::Duplicate() const
 #endif
 }
 
-mfcError_t CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags)
+CError CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags)
 {
 	ASSERT_VALID(this);
 	ASSERT(AfxIsValidString(lpszFileName));
@@ -428,12 +428,12 @@ mfcError_t CFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags)
 			int m_lOsError = ::GetLastError();
 //			pException->m_strFileName = lpszFileName;
 		}
-		return if_fail_return(mfcErrorFileNotFound, "mfcErrorFileNotFound");
+		return if_fail_return(errFileNotFound, "errFileNotFound");
 	}
 	m_hFile = (HFILE)hFile;
 	m_bCloseOnDelete = TRUE;
 
-	return mfcSuccess;
+	return stdSuccess;
 }
 
 UINT CFile::Read(void* lpBuf, UINT nCount)
@@ -859,14 +859,14 @@ CStdioFile::~CStdioFile()
 		Close();
 }
 
-mfcError_t CStdioFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags)
+CError CStdioFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags)
 {
 	ASSERT(lpszFileName != NULL);
 	ASSERT(AfxIsValidString(lpszFileName));
 
 	m_pStream = NULL;
-	mfcError_t err = CFile::Open(lpszFileName, (nOpenFlags & ~typeText));
-	if (err!=mfcSuccess)
+	CError err = CFile::Open(lpszFileName, (nOpenFlags & ~typeText));
+	if (err!=stdSuccess)
 		return err;
 
 	ASSERT(m_hFile != hFileNull);
@@ -917,10 +917,10 @@ mfcError_t CStdioFile::Open(LPCTSTR lpszFileName, UINT nOpenFlags)
 	if (m_pStream == NULL)
 	{
 		CFile::Abort(); // close m_hFile
-		return if_fail_return(mfcErrorFileNotFound, "mfcErrorFileNotFound");
+		return if_fail_return(errFileNotFound, "errFileNotFound");
 	}
 
-	return mfcSuccess;
+	return stdSuccess;
 }
 
 UINT CStdioFile::Read(void* lpBuf, UINT nCount)
@@ -986,7 +986,7 @@ LPTSTR CStdioFile::ReadString(LPTSTR lpsz, UINT nMax)
 	return lpszResult;
 }
 
-mfcError_t CStdioFile::ReadString(CString& rString)
+CError CStdioFile::ReadString(CString& rString)
 {
 	ASSERT_VALID(this);
 
@@ -1023,7 +1023,7 @@ mfcError_t CStdioFile::ReadString(CString& rString)
 	if (nLen != 0 && lpsz[nLen-1] == '\n')
 		rString.GetBufferSetLength(nLen-1);
 
-	return lpszResult != NULL ? mfcSuccess : mfcErrorAccessDenied;
+	return lpszResult != NULL ? stdOk : errAccessDenied;
 }
 
 LONG CStdioFile::Seek(LONG lOff, UINT nFrom)
@@ -1052,19 +1052,19 @@ DWORD CStdioFile::GetPosition() const
 	return pos;
 }
 
-mfcError_t CStdioFile::Flush()
+CError CStdioFile::Flush()
 {
 	ASSERT_VALID(this);
 
 	if (m_pStream != NULL && fflush(m_pStream) != 0) {
 		//AfxThrowFileException(CFileException::diskFull, _doserrno, m_strFileName);
-		return mfcErrorDiskFull;
+		return errDiskFull;
 	}
-	return mfcSuccess;
+	return stdSuccess;
 	
 }
 
-mfcError_t CStdioFile::Close()
+CError CStdioFile::Close()
 {
 	ASSERT_VALID(this);
 	ASSERT(m_pStream != NULL);
@@ -1080,12 +1080,12 @@ mfcError_t CStdioFile::Close()
 
 	if (nErr != 0) {
 		//AfxThrowFileException(CFileException::diskFull, _doserrno, m_strFileName);
-		return mfcErrorDiskFull;
+		return errDiskFull;
 	}
-	return mfcSuccess;
+	return stdSuccess;
 }
 
-mfcError_t CStdioFile::Abort()
+CError CStdioFile::Abort()
 {
 	ASSERT_VALID(this);
 
@@ -1094,7 +1094,7 @@ mfcError_t CStdioFile::Abort()
 	m_hFile = (UINT) hFileNull;
 	m_pStream = NULL;
 	m_bCloseOnDelete = FALSE;
-	return mfcSuccess;
+	return stdSuccess;
 }
 
 #define AfxThrowNotSupportedException()
@@ -1248,7 +1248,7 @@ DWORD CMemFile::GetPosition() const
 	return m_nPosition;
 }
 
-mfcError_t CMemFile::GrowFile(DWORD dwNewLen)
+CError CMemFile::GrowFile(DWORD dwNewLen)
 {
 	ASSERT_VALID(this);
 
@@ -1260,7 +1260,7 @@ mfcError_t CMemFile::GrowFile(DWORD dwNewLen)
 		// watch out for buffers which cannot be grown!
 		ASSERT(m_nGrowBytes != 0);
 		if (m_nGrowBytes == 0)
-			return mfcErrorBadParam;
+			return errBadParam;
 
 		// determine new buffer size
 		while (dwNewBufferSize < dwNewLen)
@@ -1274,13 +1274,13 @@ mfcError_t CMemFile::GrowFile(DWORD dwNewLen)
 			lpNew = Realloc(m_lpBuffer, dwNewBufferSize);
 
 		if (lpNew == NULL)
-			return mfcErrorMemoryAllocation;
+			return errMemoryAllocation;
 
 		m_lpBuffer = lpNew;
 		m_nBufferSize = dwNewBufferSize;
 	}
 	ASSERT_VALID(this);
-	return mfcSuccess;
+	return stdSuccess;
 }
 
 void CMemFile::SetLength(DWORD dwNewLen)
@@ -1365,7 +1365,7 @@ LONG CMemFile::Seek(LONG lOff, UINT nFrom)
 	else
 		return -1;
 
-	// if (lNewPos < 0)		return mfcErrorBadSeek;
+	// if (lNewPos < 0)		return errBadSeek;
 
 	m_nPosition = lNewPos;
 
@@ -1492,7 +1492,7 @@ void CMemFile::AssertValid() const
 }
 
 
-mfcError_t CMemFile::GetStatus(CFileStatus& rStatus) const
+CError CMemFile::GetStatus(CFileStatus& rStatus) const
 {
   ASSERT_VALID(this);
   
@@ -1502,7 +1502,7 @@ mfcError_t CMemFile::GetStatus(CFileStatus& rStatus) const
   rStatus.m_size = m_nFileSize;
   rStatus.m_attribute = normal;
   rStatus.m_szFullName[0] = '\0';
-  return mfcSuccess;
+  return stdSuccess;
 }
 
 };

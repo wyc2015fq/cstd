@@ -1,0 +1,33 @@
+# 一个NB项目的上线过程 - 纯洁的微笑 - CSDN博客
+2018年10月27日 09:09:00[微笑很纯洁](https://me.csdn.net/ityouknow)阅读数：179
+**客户需求：造一条船，能过河就好**
+**![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/owvKmkcJ1XkxGHf6UuO5Jq7zKp69Jwd5BgOXl6ub2GFeNnzKTqiauiblEWSy1MOwrJTuDwGtkmpEngSF1KOCc0FQ/640?wx_fmt=jpeg)**
+**产品经理：我们可以提供这样的方案**
+**![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/owvKmkcJ1XkxGHf6UuO5Jq7zKp69Jwd5ShBvmqc3zWlXIyKfMMpohicJ4icSMdTkziadRwGh23dhKlhJgj2KGJOQg/640?wx_fmt=jpeg)**
+**首席架构师：按照需求规划蓝图**
+**![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/owvKmkcJ1XkxGHf6UuO5Jq7zKp69Jwd5cOVxQiaPsPYVvvkLTlSZF6kfTFiaYiam0w30pKwfg4Bz0UNSYibQbl5d3g/640?wx_fmt=jpeg)**
+**高级研发经理：进行项目分解**
+**![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/owvKmkcJ1XkxGHf6UuO5Jq7zKp69Jwd5RlMvvP8U4ULicQuz3ghJUaI31TnOIxfvNwjOwia23eKmic7ibGib3CNCMLQ/640?wx_fmt=jpeg)**
+**技术评估：这个项目起码需要1.5年**
+**![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/owvKmkcJ1XkxGHf6UuO5Jq7zKp69Jwd5ZzNiaa4hdzcZzxGntqJtJuQF3GU7o1iaiaUBiaZtzyJXI7ZNIWJ99ibKn6Q/640?wx_fmt=jpeg)**
+**老板发话：市场不等人，先上线再迭代，给技术团队1个月时间搞定！！！**
+**![640?wx_fmt=png](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_png/owvKmkcJ1XkxGHf6UuO5Jq7zKp69Jwd5QQaI9Y5jNbAI8Ubqic38tibzPG8q7Kreakfw5x0al6muVQtC1FXrcNpQ/640?wx_fmt=png)**
+**研发团队：重新更改设计，马上开始编码**
+**![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/owvKmkcJ1XkxGHf6UuO5Jq7zKp69Jwd503BK7Ubt6JyrZWic2APu9PsO4Lib7EibwvibicWEaDI6a8Vp9wTFvpic44dw/640?wx_fmt=jpeg)**
+**测试团队：提前进入单元测试阶段**
+**![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/owvKmkcJ1XkxGHf6UuO5Jq7zKp69Jwd5kCJbrjGPH0cZiaPfoHKNiaktfl5PlKMMeI9BHgdTeKU8fhAWCvYI9XCA/640?wx_fmt=jpeg)**
+**测试团队：突击进入集成测试阶段**
+**![640?wx_fmt=png](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_png/owvKmkcJ1XkxGHf6UuO5Jq7zKp69Jwd5Zp0bhLLzXnWUib7Cdaznoss9obpNfRCA1me7aibXdfklR6cVKjl4Xklg/640?wx_fmt=png)**
+**项目终于正式上线了**
+**![640?wx_fmt=png](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_png/owvKmkcJ1XkxGHf6UuO5Jq7zKp69Jwd5KyxLqjL9AdbRXEWIDHf0Hhib1zyEaUxBQjNuTgVqtSwwuGLskcjL7kg/640?wx_fmt=png)**
+**"船"动了，业务实际跑起来了**
+**![640?wx_fmt=png](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_png/owvKmkcJ1XkxGHf6UuO5Jq7zKp69Jwd5uayTbIAbuVBH7V4E67wPB1nC61U6FFhHq6ib4Qov8NXJH6bvU7Ohtlw/640?wx_fmt=png)**
+**可怜了这帮苦逼的人肉运维**
+**![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/owvKmkcJ1XkxGHf6UuO5Jq7zKp69Jwd5rlLcg2liaeKEWYzibCI3zTYIdq46J8icxwFgtAib9cc94QMks4qcbGcfCA/640?wx_fmt=jpeg)**
+**市场部：开始对外宣传成功案例**
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/owvKmkcJ1XkxGHf6UuO5Jq7zKp69Jwd56jicK4CeiabpyXJISA82RvjgzhyksNA3reqLHjpDNBQD1HahZ9ZiaEuaA/640?wx_fmt=jpeg)
+[推荐学习资源](http://mp.weixin.qq.com/s?__biz=MzI4NDY5Mjc1Mg==&mid=2247486081&idx=1&sn=cb5c81b0e3c1322c4507019ec15f94e7&chksm=ebf6d2fedc815be83a728e18f21f96fb59d0fccd5bacf6d3eb315b5a684cb4c8a6a42c0a0d51&scene=21#wechat_redirect)
+-END-
+**纯洁的微笑**
+**一个有故事的程序员**
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/PgqYrEEtEnqjV7GOKB2htgfZjgMjqxftxfmmdrLiaMKpyicTmLLX5fUjb6YxA6Z5Bhcozb3p0uMV7wqdKED89HZA/640?wx_fmt=jpeg)

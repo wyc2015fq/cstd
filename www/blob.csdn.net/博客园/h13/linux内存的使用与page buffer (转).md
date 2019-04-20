@@ -1,0 +1,11 @@
+# linux内存的使用与page buffer (转) - h13 - 博客园
+自：[http://blog.csdn.net/eroswang/article/details/4131034](http://blog.csdn.net/eroswang/article/details/4131034)
+可以将linux看作一个用来管理资源的程序，而其他应用程序跑在其上，linux管理应用程序的内存分配，回收，等等。为了管理，它首先需要给自己分配静态的内存空间：代码段空间，mem_map[]空间等等。然后它把剩余的其他RAM用buddy系统进行动态管理。
+linux内核的pagetable swapper_pg_dir将虚拟地址0xC0000000~0xC0000000+896M映射到物理地址0x0~0x896M。除去内核代码占用的ram外，其余的物理ram都为空闲。当内核需要时，直接分配了就可以使用，而不需要再对swapper_pg_dir进行修改。而当用户空间需要的时候，内核为其分配page，并要修改应用进程的pagetable从而将刚分配的page映射到相应的应用进程地址空间。内核不需要再次映射，因为swapper_pg_dir已经将896M的地址映射到内核去了。除非内核使用HIGH_MEM，这时就要重新映射内核的高128M空间（修改swapper_pg_dir的高128项）。有上可知，只要应用进程分配的page小于896M(在内核地址空间之内)，内核都可以直接访问(参见#define __copy_user(to,from,size)其中to为内核地址，使用用户page_dir的768~896项(3G~3G+896M内核空间)，from使用用户地址：page_dir的0~767项(0～3G－1用户地址空间))。要是应用进程的page大于896M时，内核就不能直接访问了，需要使用swapper_pg_dir的高128项来映射应用进程的地址空间，这也是HIGH_MEM存在的原因。
+RAM的使用
+1. 静态使用：用于linux代码，数据结构等所占用的ram，此类ram不需要管理。
+2. 动态使用：由buddy管理。通过buddy申请的页面不使用的时候并不立即释放给buddy，而是利用3的方式缓存起来(1)由slab管理起来(2)由两个双向链表(active_list和inactive_list)管理的页框(3)由icache和dcache缓存起来inode和dentry。这样当系统回收的时候，也是分别通过这三个方面来回收页面，释放到buddy中去的。之所以这样，是由于通过buddy分配或释放给buddy可能需要分裂大块或者合并小块到大的buddy中去，这样比较费时间。因此尽量将分配来的页面缓存起来。（好像linux特别喜欢搞这些缓冲，这样也就给系统带来了异步性。一般来说，异步性效率更好吧：有缓存就相当于有了流水，这样当然可以提高效率）
+        之所以要这样分，是因为：buddy管理会产生大量的内部碎片，使用slab来减少碎片。一般slab是基于对象的，因此不是以页框为单位，不便于以页为单位进行换入换出。而使用双向链表是将系统中正在使用的页框串联起来，便于scan，以及页框为单位的换入换出(回收)。因此，当系统需要回收页框时，就要从slab和双向链表，inode dentry三方面考虑回收。
+      对于双向链表中的页框，又可以分为两种使用情况：1. 有后备文件的页框(page buffer，mmap等)；2. 无后备文件的页框(应用程序的代码段，数据段，堆栈段etc)。对于2，由于无后备文件，因此需要在磁盘上开辟一个交换文件，用于存放无后备文件的页框，这样以来，1，2都有后备文件了。有了后备文件之后，接下来需要将这些属于不同文件的页框用一个数据结构管理起来：address_space。对于有后备文件的页框，使用特定于每个文件的address_space，对于无后备文件的页框，使用系统中公用的address_space:swapper_space.这样就把1，2统一起来了。
+       系统要于磁盘打交道，必须先分配一个page buffer：当需要读入文件时，首先要查找address_space看是否已经存在page_buffer，没有的话则分配一个page buffer页框，插入address_space。当写出磁盘时，也要检查address_space中是否存在page buffer，没有的话，分配一个page buffer页框，并插入address_space然后，将要写内容写入该page buffer并返回(该page buffer最终会被页面回收守护线程刷新到磁盘上去)。以上的操作过程同样适用无后备文件的情况(只是它们使用的address_space是swapper_space)。
+page buffer是vfs看见(使用的)设施，而cache buffer是块驱动程序使用的设施，一个page buffer包含多个cache buffer(当然块设备也要使用cache buffer)。也就是说，vfs等上层之能“看见”页面，而下层的块设备驱动程序只能看见块。所以当vfs要将一个页写入块设备时候，必须先将页划分成几个buffer，每个buffer用buffer_head描述，一个页中的buffer_head使用单连表相连，只有才能被底层的设备识别。

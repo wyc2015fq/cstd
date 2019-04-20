@@ -23,7 +23,7 @@ struct CvLSHOperations;
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-typedef enum CStatus {
+typedef enum CError {
   CC_BADMEMBLOCK_ERR = -113,
   CC_INPLACE_NOT_SUPPORTED_ERR = -112,
   CC_UNMATCHED_ROI_ERR = -111,
@@ -109,7 +109,177 @@ typedef enum CStatus {
   CC_OpenCLApiCallError = -220,
   CC_OpenCLDoubleNotSupported = -221,
   CC_OpenCLInitError = -222,
-  CC_OpenCLNoAMDBlasFft = -223
-} CStatus;
+  CC_OpenCLNoAMDBlasFft = -223,
+
+
+  stdOk = 0,
+  stdOK = 0,
+  stdSuccess = 0,
+  errMissingConfiguration = 1,
+  errMemoryAllocation = 2,
+  errInitializationError = 3,
+  errLaunchFailure = 4,
+  errPriorLaunchFailure = 5,
+  errLaunchTimeout = 6,
+  errLaunchOutOfResources = 7,
+  errInvalidDeviceFunction = 8,
+  errInvalidConfiguration = 9,
+  errInvalidDevice = 10,
+  errInvalidValue = 11,
+  errInvalidPitchValue = 12,
+  errInvalidSymbol = 13,
+  errMapBufferObjectFailed = 14,
+  errUnmapBufferObjectFailed = 15,
+  errInvalidHostPointer = 16,
+  errInvalidDevicePointer = 17,
+  errInvalidTexture = 18,
+  errInvalidTextureBinding = 19,
+  errInvalidChannelDescriptor = 20,
+  errInvalidMemcpyDirection = 21,
+  errAddressOfConstant = 22,
+  errTextureFetchFailed = 23,
+  errTextureNotBound = 24,
+  errSynchronizationError = 25,
+  errInvalidFilterSetting = 26,
+  errInvalidNormSetting = 27,
+  errMixedDeviceExecution = 28,
+  errmfcrtUnloading = 29,
+  errUnknown = 30,
+  errNotYetImplemented = 31,
+  errMemoryValueTooLarge = 32,
+  errInvalidResourceHandle = 33,
+  errNotReady = 34,
+  errInsufficientDriver = 35,
+  errSetOnActiveProcess = 36,
+  errInvalidSurface = 37,
+  errNoDevice = 38,
+  errECCUncorrectable = 39,
+  errSharedObjectSymbolNotFound = 40,
+  errSharedObjectInitFailed = 41,
+  errUnsupportedLimit = 42,
+  errDuplicateVariableName = 43,
+  errDuplicateTextureName = 44,
+  errDuplicateSurfaceName = 45,
+  errDevicesUnavailable = 46,
+  errInvalidKernelImage = 47,
+  errNoKernelImageForDevice = 48,
+  errIncompatibleDriverContext = 49,
+  errPeerAccessAlreadyEnabled = 50,
+  errPeerAccessNotEnabled = 51,
+  errDeviceAlreadyInUse = 54,
+  errProfilerDisabled = 55,
+  errProfilerNotInitialized = 56,
+  errProfilerAlreadyStarted = 57,
+  errProfilerAlreadyStopped = 58,
+  errAssert = 59,
+  errTooManyPeers = 60,
+  errHostMemoryAlreadyRegistered = 61,
+  errHostMemoryNotRegistered = 62,
+  errOperatingSystem = 63,
+  errPeerAccessUnsupported = 64,
+  errLaunchMaxDepthExceeded = 65,
+  errLaunchFileScopedTex = 66,
+  errLaunchFileScopedSurf = 67,
+  errSyncDepthExceeded = 68,
+  errLaunchPendingCountExceeded = 69,
+  errNotPermitted = 70,
+  errNotSupported = 71,
+  errHardwareStackError = 72,
+  errIllegalInstruction = 73,
+  errMisalignedAddress = 74,
+  errInvalidAddressSpace = 75,
+  errInvalidPc = 76,
+  errIllegalAddress = 77,
+  errInvalidPtx = 78,
+  errInvalidGraphicsContext = 79,
+  errNvlinkUncorrectable = 80,
+  errJitCompilerNotFound = 81,
+  errCooperativeLaunchTooLarge = 82,
+  errStartupFailure = 0x7f,
+  errBadParam,
+
+  errFileNotFound,
+  errBadPath,
+  errTooManyOpenFiles,
+  errAccessDenied,
+  errInvalidFile,
+  errRemoveCurrentDir,
+  errDirectoryFull,
+  errBadSeek,
+  errHardIO,
+  errSharingViolation,
+  errLockViolation,
+  errDiskFull,
+  errEndOfFile,
+
+	  Ok = 0,
+	  GenericError = 1,
+	  InvalidParameter = 2,
+	  OutOfMemory = 3,
+	  ObjectBusy = 4,
+	  InsufficientBuffer = 5,
+	  NotImplemented = 6,
+	  Win32Error = 7,
+	  WrongState = 8,
+	  Aborted = 9,
+	  FileNotFound = 10,
+	  ValueOverflow = 11,
+	  AccessDenied = 12,
+	  UnknownImageFormat = 13,
+	  FontFamilyNotFound = 14,
+	  FontStyleNotFound = 15,
+	  NotTrueTypeFont = 16,
+	  UnsupportedGdiplusVersion = 17,
+	  GdiplusNotInitialized = 18,
+	  PropertyNotFound = 19,
+	  PropertyNotSupported = 20,
+	  ProfileNotFound = 21,
+
+  errApiFailureBase = 10000
+} CError;
+
+
+
+#if 0
+
+enum mfcError_t {
+};
+#endif
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+
+static char* asprintf(const char* fmt, va_list arglist) {
+	int len = strlen(fmt) * 2;
+	char* buf = (char*)malloc(len + 10);
+	int len1 = len;
+	*buf = 0;
+	while (1) {
+		int len1 = vsnprintf(buf, len + 10, fmt, arglist);
+		buf[len1] = 0;
+		if (len1 >= len) {
+			len *= 2;
+			buf = (char*)realloc(buf, len + 10);
+		}
+	};
+	return buf;
+}
+
+static CError if_fail_return(CError err, const char* fmt, ...)
+{
+	//static char _time_buffer[ 16 ];
+	va_list arglist;
+	va_start(arglist, fmt);
+	char* p = asprintf(fmt, arglist);
+	va_end(arglist);
+	puts(p);
+	free(p);
+	return err;
+}
+
+
 
 #endif // _ERROR_C_H_

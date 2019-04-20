@@ -761,8 +761,10 @@ def htm2md(t):
         print(out['title'])
         html = etree.HTML(html_code)
         aa='//meta[@name="mediaid"]/@content'
-        ll = html.xpath(aa)[0].strip()
-        out['title'] = out['title'].strip() + ' - ' + ll +' - 搜狐'
+        ll = html.xpath(aa)
+        if len(ll)>0:
+            ll = ll[0].strip()
+            out['title'] = out['title'].strip() + ' - ' + ll +' - 搜狐'
 
     if aaa=='blog.51cto.com':
         print(out['title'])

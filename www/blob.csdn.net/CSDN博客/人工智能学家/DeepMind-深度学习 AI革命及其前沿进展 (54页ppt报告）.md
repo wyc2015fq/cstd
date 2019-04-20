@@ -1,0 +1,87 @@
+# DeepMind-深度学习: AI革命及其前沿进展 (54页ppt报告） - 人工智能学家 - CSDN博客
+2018年09月23日 23:07:47[人工智能学家](https://me.csdn.net/cf2SudS8x8F0v)阅读数：531
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aQrgN7TJbzfLBy6QGICxDecoAiafTMO0y5Ee29vw3sDoBS2ZLDic2WVOQ/640?wx_fmt=jpeg)
+来源：专知
+摘要：2018年9 月 9 日-14 日，DeepMind主办的Deep Learning Indaba 2018 大会在南非斯泰伦博斯举行。会上，牛津大学教授和其他15位专家做了《深度学习: AI革命及其前沿进展》的报告。
+Nando de Freitas
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aRFGG7x0CmmPYlvfazI6ZW2xA5OI29pH7ZwZJ6ibJMNn9OzbOl1kwOKw/640?wx_fmt=jpeg)
+Nando de Freitas是一名来自牛津大学的拥有高声望和优良业界口碑的机器学习教授。在2000年拿到Trinity College的博士学位后，1999至2001年他在 UC Berkeley担任博后，2001至2014年在 University of British Columbia担任教授，他还是加拿大高级科研学会（CIFAR）的一员，并拿到了许多学术类的奖项。Nando本人在其网站上这样简洁地描述他的兴趣：我想明白智能以及思考的机理。我的工具有计算机科学，统计学，数学和无尽的思考。2015年12月26日，Nando de Freitas加入了由Reddit管理的AMA（Ask Me Anything）平台。
+**报告导读**
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1ajqcbWqOFQYskUsY3ts4XSRibYzrcpOibYS9iaUev1qSvhGm1J1GzuwsBA/640?wx_fmt=jpeg)
+人工智能进展的关键要素：基础科学理论、数据、计算力、算法软件
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1a9OxCshMIlVjKLDCM5E8VPRZOhaDSWZws6G0P1EzuK89cmf3nrENXkQ/640?wx_fmt=jpeg)
+深度学为什么成功的另一视角： 深度神经网络从数据中学习
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aZUa1icO03bueu66IXtP4ibCEMoFuA5FxX52Q3fyQ1KgdZqh7Oz1ymGKg/640?wx_fmt=jpeg)
+神经编程编译器
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aia71mgkmicKANMibLWhuiaRrqxI20o2rdqwicSlUicJPiaKgVwFzjAAicymqaA/640?wx_fmt=jpeg)
+人工智能前沿7大热点：
+- 
+强化学习
+- 
+元学习
+- 
+模仿学习
+- 
+机器人
+- 
+概念与抽象
+- 
+感知与意识
+- 
+因果推理
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aicugLYDXtdq5OwQ9wCMsgew6EUVapAz1pWxHFLo6ibD2OJbPtBQ1wvIA/640?wx_fmt=jpeg)
+强化学习框架
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1atXZibNWhW3ibLjibNX5tXBFQzlnfMkP85xd4AnqP4hbLcxcjSvpV1JwAg/640?wx_fmt=jpeg)
+AlphaZero
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1amtVOtrzPntEwa5PtdtYoJpdCA2768MSzOP6LiaWhftmTKQqAfCCBarg/640?wx_fmt=jpeg)
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aibdicuE6ApyK6uic3bNDG8vrjlVZEBPhOfl3PFibrefExSBjpdl9oJBLlQ/640?wx_fmt=jpeg)
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aLl4LF3RSHiau0hnZGlz3pG9dyhuYNn3YOC6ibiacTvGwJRo7eL8aO0GIg/640?wx_fmt=jpeg)
+模仿：帮助我们在强化学习中解决探索
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aO96aicSdibZYZc5gG3pcibCIpMpib51XTIMXawGBBxlXkyyV5NVVfMHpicQ/640?wx_fmt=jpeg)
+模仿人学习非常重要：翻译、语音模型，通用协同
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1arlmtK2dOZNdfSGjkaXdvnslwWKBpj49h6fcFFn8COAox4JBcL6hVEg/640?wx_fmt=jpeg)
+观看Youtube视频学习，人可以从视频中学习各种技能，机器是否同样来学习？
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aLEXDFPM2p0AOBUNro8G5VrKpPtMFeUaAUfnLazbFrjW0YPyQ2kcBnQ/640?wx_fmt=jpeg)
+挑战：领域鸿沟、没有动作、没有奖赏
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1azn4CT5UYicZC3m4c8dEeL4NicquU5WjicXUSs3HlUCnzbXEJmhl4ArIdA/640?wx_fmt=jpeg)
+跨模态距离分类
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aLBsnJFYtkSurEmQWzWO74A58RSHBOU2wKcLmlibVvpEyJnTD3NNxqtQ/640?wx_fmt=jpeg)
+时序距离分类
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aaaTRiaVWbNSOXS60OUUmdwt18AM61RriaefHibI6CvOUzh9sUricxP0icOQ/640?wx_fmt=jpeg)
+感知意识：思维意识理论
+世界自身的知识能够帮助解构和表示学习
+学习确认的智能代理、行为和意图非常重要
+一个智能机器必须知道它知道什么和它不知道什么
+感知意识提供一个模仿学习的框架
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aQZyH30icAGfxpLFkUenbpfUia3Dh4wiaw5GwTH0aA9dwhWEJt0ictct9XA/640?wx_fmt=jpeg)
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aNb8eOEs6wzSE41bwPrwhtWM7nTVuutbvZmstEGaX5njuszku4Q4Uww/640?wx_fmt=jpeg)
+慢学习以更快学习
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aibWQQOvbt5n4OjBHA8nBOaoTMWqnib1gaYgLz8NUuPTDybxz5J2bJcdQ/640?wx_fmt=jpeg)
+few shot 元学习
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1a7xlrR71Uglqq4YahZDiaHpcV2F9cldjsR3nEeibec58JmzO7d2MtrIibQ/640?wx_fmt=jpeg)
+条件策略的one-shot 模仿学习
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1azMZYeGKRxg1KBRs3m5cc623E42lJ6akU0VwUlarGIKnBqbVBXmE82w/640?wx_fmt=jpeg)
+因果推理
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1aQTdQqiaDEvnA0KibSECpVHJwqwaCmqz6HcJft6MJN0CEiaeRAonb7kJyQ/640?wx_fmt=jpeg)
+其他人工智能的前沿领域包括：
+- 
+抽象，概念、关系，物体，程序，架构
+- 
+自监督自动选取任务
+- 
+持续性知识表示
+- 
+基准性语言理解
+- 
+情感性动机型系统
+- 
+鲁棒性、灵活性与软件框架
+- 
+模块发明
+- 
+道德和治理
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/AefvpgiaIPw0qECeRlicsibB1ibuPkva6u1acmqxb5B3AaGQwU03K25tnuWic81v4XPEgoXWRibWwXb4HAlfbViaEAcUw/640?wx_fmt=jpeg)
+未来智能实验室是人工智能学家与科学院相关机构联合成立的人工智能，互联网和脑科学交叉研究机构。
+未来智能实验室的主要工作包括：建立AI智能系统智商评测体系，开展世界人工智能智商评测；开展互联网（城市）云脑研究计划，构建互联网（城市）云脑技术和企业图谱，为提升企业，行业与城市的智能水平服务。
+*如果您对实验室的研究感兴趣，欢迎加入未来智能实验室线上平台。扫描以下二维码或点击本文左下角“阅读原文”*
+![640?wx_fmt=jpeg](https://ss.csdn.net/p?https://mmbiz.qpic.cn/mmbiz_jpg/f84kJBXzrBXtjwXLOH13nsYuQKfVHbapnHFO9iacHnzft3Q7mqEeqVf6phSiam3I17pVBMLp18riaEpPOlp4xIxzA/640?wx_fmt=jpeg)

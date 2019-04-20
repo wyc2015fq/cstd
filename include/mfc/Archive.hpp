@@ -2,7 +2,7 @@
 #ifndef __ARCHIVE_HPP__
 #define __ARCHIVE_HPP__
 
-#include "mfc.h"
+#include "typedef.h"
 #include "String.hpp"
 #include "File.hpp"
 
