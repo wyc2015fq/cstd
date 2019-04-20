@@ -282,7 +282,6 @@ struct CUIntArray {
   /////////////////////////////////////////////////////////////////////////////
   // Diagnostics
   
-#ifdef _DEBUG
   void CUIntArray::Dump(CDumpContext& dc) const
   {
     
@@ -314,6 +313,5 @@ struct CUIntArray {
       ASSERT(AfxIsValidAddress(m_pData, m_nMaxSize * sizeof(UINT)));
     }
   }
-#endif //_DEBUG
   
 };

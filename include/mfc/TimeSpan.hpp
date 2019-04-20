@@ -3,7 +3,7 @@
 #define __TIMESPAN_HPP__
 
 #include "mfc.h"
-#include "String.hpp"
+#include "StringBuilder.hpp"
 #include <tchar.h>
 
 class CTimeSpan
@@ -11,11 +11,9 @@ class CTimeSpan
 public:
   time_t m_timeSpan;
 
-  DumpContext* def(const char* name, DumpContext* dc)
+  DefStruct* def(DefStruct* dc)
   {
-	  CTimeSpan& timeSpan = *this;
-	  dc->beginStruct(name);
-	  dc->endStruct();
+	  dc->def("timeSpan", &m_timeSpan);
 	  return dc;
   }
 

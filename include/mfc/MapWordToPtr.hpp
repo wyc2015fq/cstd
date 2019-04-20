@@ -299,7 +299,6 @@ struct CMapWordToPtr
   /////////////////////////////////////////////////////////////////////////////
   // Diagnostics
   
-#ifdef _DEBUG
   void CMapWordToPtr::Dump(CDumpContext& dc) const
   {
     
@@ -330,7 +329,6 @@ struct CMapWordToPtr
     ASSERT(m_nCount == 0 || m_pHashTable != NULL);
     // non-empty map should have hash table
   }
-#endif //_DEBUG
   
   
 };

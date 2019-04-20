@@ -2,7 +2,7 @@
 #ifndef __FILEFIND_HPP__
 #define __FILEFIND_HPP__
 
-#include "DumpContext.hpp"
+
 #include "String.hpp"
 #include "Time.hpp"
 #include "std/dir_c.h"
@@ -333,11 +333,6 @@ struct CFileFind
   }
 #endif
   
-  void Dump(CDumpContext& dc) const
-  {
-    dc << "\nm_hContext = " << (UINT) m_hContext;
-  }
-  
   void AssertValid() const
   {
     // if you trip the ASSERT in the else side, you've called
@@ -352,5 +347,12 @@ struct CFileFind
   }
   
 };
+
+StringBuilder& operator << (StringBuilder& dc, const CFileFind& ff)
+{
+	dc << "\nm_hContext = " << (UINT)ff.m_hContext;
+	return dc;
+}
+
 
 #endif // __FILEFIND_HPP__

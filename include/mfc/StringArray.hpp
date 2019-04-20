@@ -353,11 +353,8 @@ struct CStringArray
   /////////////////////////////////////////////////////////////////////////////
   // Diagnostics
   
-#ifdef _DEBUG
   void CStringArray::Dump(CDumpContext& dc) const
   {
-    
-    
     dc << "with " << m_nSize << " elements";
     if (dc.GetDepth() > 0)
     {
@@ -385,7 +382,6 @@ struct CStringArray
       ASSERT(AfxIsValidAddress(m_pData, m_nMaxSize * sizeof(CString)));
     }
   }
-#endif //_DEBUG
   
   
 };

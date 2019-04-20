@@ -300,8 +300,6 @@ void Serialize(CArchive& ar)
 	SerializeElements<TYPE>(ar, m_pData, m_nSize);
 }
 
-#ifdef _DEBUG
-
 void Dump(CDumpContext& dc) const
 {
 	CObject::Dump(dc);
@@ -334,7 +332,6 @@ void AssertValid() const
 		ASSERT(AfxIsValidAddress(m_pData, m_nMaxSize * sizeof(TYPE)));
 	}
 }
-#endif //_DEBUG
 
 };
 

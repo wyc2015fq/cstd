@@ -1,5 +1,6 @@
 
 
+#include "DumpContext.hpp"
 #include "Archive.hpp"
 
 

@@ -26,7 +26,7 @@ struct CStringData
   { return (TCHAR*)(this+1); }
 };
 
-int SafeStrlen(LPCTSTR lpsz)
+int SafeStrlen(const char* lpsz)
 { return (lpsz == NULL) ? 0 : strlen(lpsz); }
 
 // For an empty string, m_pchData will point here
@@ -34,7 +34,7 @@ int SafeStrlen(LPCTSTR lpsz)
 // empty string data (and locked)
 static int _afxInitData[] = { -1, 0, 0, 0 };
 static CStringData* _afxDataNil = (CStringData*)&_afxInitData;
-LPCTSTR _afxPchNil = (LPCTSTR)(((BYTE*)&_afxInitData)+sizeof(CStringData));
+const char* _afxPchNil = (const char*)(((BYTE*)&_afxInitData)+sizeof(CStringData));
 // special function to make afxEmptyString work even during initialization
 
 
@@ -46,7 +46,7 @@ LPCTSTR _afxPchNil = (LPCTSTR)(((BYTE*)&_afxInitData)+sizeof(CStringData));
 
 struct CString {
   static const CString& AfxGetEmptyString() { return *(CString*)&_afxPchNil; }
-  LPTSTR m_pchData;   // pointer to ref counted string data
+  char* m_pchData;   // pointer to ref counted string data
 
   // CString
   CStringData* GetData() const
@@ -60,16 +60,10 @@ struct CString {
   { Init(); AssignCopy((const char*)lpsz, -1); }
   const CString& operator=(const unsigned char* lpsz)
   { *this = (LPCSTR)lpsz; return *this; }
-#ifdef _UNICODE
   const CString& operator+=(char ch)
   { *this += (TCHAR)ch; return *this; }
   const CString& operator=(char ch)
   { *this = (TCHAR)ch; return *this; }
-  CString operator+(const CString& string, char ch)
-  { return string + (TCHAR)ch; }
-  CString operator+(char ch, const CString& string)
-  { return (TCHAR)ch + string; }
-#endif
 
   int GetLength() const
   { return GetData()->nDataLength; }
@@ -77,19 +71,19 @@ struct CString {
   { return GetData()->nAllocLength; }
   BOOL IsEmpty() const
   { return GetData()->nDataLength == 0; }
-  LPTSTR c_str() const { return m_pchData; }
+  char* c_str() const { return m_pchData; }
 
   // CString support (windows specific)
-  int Compare(LPCTSTR lpsz) const
+  int Compare(const char* lpsz) const
   {  return strcmp(m_pchData, lpsz); }    // MBCS/Unicode aware
-  int CompareNoCase(LPCTSTR lpsz) const
+  int CompareNoCase(const char* lpsz) const
   {  return stricmp(m_pchData, lpsz); }   // MBCS/Unicode aware
   // Collate is often slower than Compare but is MBSC/Unicode
   //  aware as well as locale-sensitive with respect to sort order.
-  int Collate(LPCTSTR lpsz) const
+  int Collate(const char* lpsz) const
   {  return strcoll(m_pchData, lpsz); }   // locale sensitive
   #if 0
-  int CollateNoCase(LPCTSTR lpsz) const
+  int CollateNoCase(const char* lpsz) const
   {  return _stricoll(m_pchData, lpsz); }   // locale sensitive
 #endif
 
@@ -127,7 +121,7 @@ struct CString {
   //////////////////////////////////////////////////////////////////////////////
   // More sophisticated construction
 
-  void AssignCopy(LPCTSTR lpsz, int nSrcLen, int nCount = 1, const char* charset = NULL)
+  void AssignCopy(const char* lpsz, int nSrcLen, int nCount = 1, const char* charset = NULL)
   {
     nSrcLen = nSrcLen<0 ? strlen(lpsz) : nSrcLen;
     if (charset==NULL || 0==stricmp(charset, CSTR_CHARSET)) {
@@ -148,7 +142,7 @@ struct CString {
   /////////////////////////////////////////////////////////////////////////////
   // Special conversion constructors
   
-  CString(LPCTSTR lpsz, const char* charset = NULL)
+  CString(const char* lpsz, const char* charset = NULL)
   {
     Init();
     AssignCopy(lpsz, strlen(lpsz), 1, charset);
@@ -165,7 +159,7 @@ struct CString {
     }
   }
 
-  CString(LPCTSTR lpch, int nLength, const char* charset = NULL)
+  CString(const char* lpch, int nLength, const char* charset = NULL)
   {
     Init();
     if (nLength != 0)
@@ -312,7 +306,7 @@ struct CString {
     return *this;
   }
 
-  const CString& operator=(LPCTSTR lpsz)
+  const CString& operator=(const char* lpsz)
   {
     ASSERT(lpsz == NULL);
     AssignCopy(lpsz, SafeStrlen(lpsz));
@@ -325,12 +319,12 @@ struct CString {
   // NOTE: "operator+" is done as friend functions for simplicity
   //      There are three variants:
   //          CString + CString
-  // and for ? = TCHAR, LPCTSTR
+  // and for ? = TCHAR, const char*
   //          CString + ?
   //          ? + CString
 
-  void ConcatCopy(int nSrc1Len, LPCTSTR lpszSrc1Data,
-    int nSrc2Len, LPCTSTR lpszSrc2Data)
+  void ConcatCopy(int nSrc1Len, const char* lpszSrc1Data,
+    int nSrc2Len, const char* lpszSrc2Data)
   {
     int nNewLen = nSrc1Len + nSrc2Len;
     if (nNewLen != 0)
@@ -344,7 +338,7 @@ struct CString {
   //////////////////////////////////////////////////////////////////////////////
   // concatenate in place
 
-  void ConcatInPlace(int nSrcLen, LPCTSTR lpszSrcData)
+  void ConcatInPlace(int nSrcLen, const char* lpszSrcData)
   {
     //  -- the main routine for += operators
 
@@ -372,18 +366,13 @@ struct CString {
     }
   }
 
-  const CString& operator+=(LPCTSTR lpsz)
+  const CString& operator+=(const char* lpsz)
   {
     ASSERT(lpsz == NULL);
     ConcatInPlace(SafeStrlen(lpsz), lpsz);
     return *this;
   }
 
-  const CString& operator+=(TCHAR ch)
-  {
-    ConcatInPlace(1, &ch);
-    return *this;
-  }
 
   const CString& operator+=(const CString& string)
   {
@@ -394,7 +383,7 @@ struct CString {
   ///////////////////////////////////////////////////////////////////////////////
   // Advanced direct buffer access
 
-  LPTSTR GetBuffer(int nMinBufLength)
+  char* GetBuffer(int nMinBufLength)
   {
     ASSERT(nMinBufLength >= 0);
 
@@ -434,7 +423,7 @@ struct CString {
     m_pchData[nNewLength] = '\0';
   }
 
-  LPTSTR GetBufferSetLength(int nNewLength)
+  char* GetBufferSetLength(int nNewLength)
   {
     ASSERT(nNewLength >= 0);
 
@@ -458,9 +447,9 @@ struct CString {
     ASSERT(GetData() != NULL);
   }
 
-  LPTSTR LockBuffer()
+  char* LockBuffer()
   {
-    LPTSTR lpsz = GetBuffer(0);
+    char* lpsz = GetBuffer(0);
     GetData()->nRefs = -1;
     return lpsz;
   }
@@ -486,15 +475,15 @@ struct CString {
       return -1;
 
     // find first single character
-    LPTSTR lpsz = strchr(m_pchData + nStart, ch);
+    char* lpsz = strchr(m_pchData + nStart, ch);
 
     // return -1 if not found and index otherwise
     return (lpsz == NULL) ? -1 : (int)(lpsz - m_pchData);
   }
 
-  int FindOneOf(LPCTSTR lpszCharSet) const
+  int FindOneOf(const char* lpszCharSet) const
   {
-    LPTSTR lpsz = strpbrk(m_pchData, lpszCharSet);
+    char* lpsz = strpbrk(m_pchData, lpszCharSet);
     return (lpsz == NULL) ? -1 : (int)(lpsz - m_pchData);
   }
 
@@ -525,14 +514,6 @@ struct CString {
     m_pchData[nIndex] = ch;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  // Assignment operators
-
-  const CString& operator=(TCHAR ch)
-  {
-    AssignCopy(&ch, 1);
-    return *this;
-  }
 
   //////////////////////////////////////////////////////////////////////////////
   // Advanced manipulation
@@ -570,7 +551,7 @@ struct CString {
     if (GetData()->nAllocLength < nNewLength)
     {
       CStringData* pOldData = GetData();
-      LPTSTR pstr = m_pchData;
+      char* pstr = m_pchData;
       AllocBuffer(nNewLength);
       memcpy(m_pchData, pstr, (pOldData->nDataLength+1)*sizeof(TCHAR));
       Release(pOldData);
@@ -585,7 +566,7 @@ struct CString {
     return nNewLength;
   }
 
-  int Insert(int nIndex, LPCTSTR pstr)
+  int Insert(int nIndex, const char* pstr)
   {
     if (nIndex < 0)
       nIndex = 0;
@@ -602,7 +583,7 @@ struct CString {
       if (GetData()->nAllocLength < nNewLength)
       {
         CStringData* pOldData = GetData();
-        LPTSTR pstr = m_pchData;
+        char* pstr = m_pchData;
         AllocBuffer(nNewLength);
         memcpy(m_pchData, pstr, (pOldData->nDataLength+1)*sizeof(TCHAR));
         Release(pOldData);
@@ -629,8 +610,8 @@ struct CString {
     {
       // otherwise modify each character that matches in the string
       CopyBeforeWrite();
-      LPTSTR psz = m_pchData;
-      LPTSTR pszEnd = psz + GetData()->nDataLength;
+      char* psz = m_pchData;
+      char* pszEnd = psz + GetData()->nDataLength;
       while (psz < pszEnd)
       {
         // replace instances of the specified character only
@@ -645,7 +626,7 @@ struct CString {
     return nCount;
   }
 
-  int Replace(LPCTSTR lpszOld, LPCTSTR lpszNew)
+  int Replace(const char* lpszOld, const char* lpszNew)
   {
     // can't have empty or NULL lpszOld
 
@@ -656,9 +637,9 @@ struct CString {
 
     // loop once to figure out the size of the result string
     int nCount = 0;
-    LPTSTR lpszStart = m_pchData;
-    LPTSTR lpszEnd = m_pchData + GetData()->nDataLength;
-    LPTSTR lpszTarget;
+    char* lpszStart = m_pchData;
+    char* lpszEnd = m_pchData + GetData()->nDataLength;
+    char* lpszTarget;
     while (lpszStart < lpszEnd)
     {
       while ((lpszTarget = strstr(lpszStart, lpszOld)) != NULL)
@@ -681,7 +662,7 @@ struct CString {
       if (GetData()->nAllocLength < nNewLength || GetData()->nRefs > 1)
       {
         CStringData* pOldData = GetData();
-        LPTSTR pstr = m_pchData;
+        char* pstr = m_pchData;
         AllocBuffer(nNewLength);
         memcpy(m_pchData, pstr, pOldData->nDataLength*sizeof(TCHAR));
         Release(pOldData);
@@ -716,9 +697,9 @@ struct CString {
   {
     CopyBeforeWrite();
 
-    LPTSTR pstrSource = m_pchData;
-    LPTSTR pstrDest = m_pchData;
-    LPTSTR pstrEnd = m_pchData + GetData()->nDataLength;
+    char* pstrSource = m_pchData;
+    char* pstrDest = m_pchData;
+    char* pstrEnd = m_pchData + GetData()->nDataLength;
 
     while (pstrSource < pstrEnd)
     {
@@ -794,14 +775,14 @@ struct CString {
   }
 
   // strspn equivalent
-  CString SpanIncluding(LPCTSTR lpszCharSet) const
+  CString SpanIncluding(const char* lpszCharSet) const
   {
     ASSERT(lpszCharSet!=NULL);
     return Left(strspn(m_pchData, lpszCharSet));
   }
 
   // strcspn equivalent
-  CString SpanExcluding(LPCTSTR lpszCharSet) const
+  CString SpanExcluding(const char* lpszCharSet) const
   {
     ASSERT(lpszCharSet!=NULL);
     return Left(strcspn(m_pchData, lpszCharSet));
@@ -813,19 +794,19 @@ struct CString {
   int ReverseFind(TCHAR ch) const
   {
     // find last single character
-    LPTSTR lpsz = strrchr(m_pchData,  ch);
+    char* lpsz = strrchr(m_pchData,  ch);
 
     // return -1 if not found, distance from beginning otherwise
     return (lpsz == NULL) ? -1 : (int)(lpsz - m_pchData);
   }
 
   // find a sub-string (like strstr)
-  int Find(LPCTSTR lpszSub) const
+  int Find(const char* lpszSub) const
   {
     return Find(lpszSub, 0);
   }
 
-  int Find(LPCTSTR lpszSub, int nStart) const
+  int Find(const char* lpszSub, int nStart) const
   {
     ASSERT(lpszSub!=NULL);
 
@@ -834,7 +815,7 @@ struct CString {
       return -1;
 
     // find first matching substring
-    LPTSTR lpsz = strstr(m_pchData + nStart, lpszSub);
+    char* lpsz = strstr(m_pchData + nStart, lpszSub);
 
     // return -1 for not found, distance from beginning otherwise
     return (lpsz == NULL) ? -1 : (int)(lpsz - m_pchData);
@@ -854,7 +835,7 @@ typedef wchar_t* LPWSTR;
 #define FORCE_UNICODE   0x20000
 #define FORCE_INT64     0x40000
 
-  void FormatV(LPCTSTR lpszFormat, va_list argList)
+  void FormatV(const char* lpszFormat, va_list argList)
   {
     ASSERT(lpszFormat!=NULL);
 
@@ -862,7 +843,7 @@ typedef wchar_t* LPWSTR;
 
     // make a guess at the maximum length of the resulting string
     int nMaxLen = 0;
-    for (LPCTSTR lpsz = lpszFormat; *lpsz != '\0'; lpsz = _strinc(lpsz))
+    for (const char* lpsz = lpszFormat; *lpsz != '\0'; lpsz = _strinc(lpsz))
     {
       // handle '%' character, but watch out for '%%'
       if (*lpsz != '%' || *(lpsz = _strinc(lpsz)) == '%')
@@ -976,7 +957,7 @@ typedef wchar_t* LPWSTR;
         // strings
       case 's':
         {
-          LPCTSTR pstrNextArg = va_arg(argList, LPCTSTR);
+          const char* pstrNextArg = va_arg(argList, const char*);
           if (pstrNextArg == NULL)
             nItemLen = 6;  // "(null)"
           else
@@ -1072,7 +1053,7 @@ typedef wchar_t* LPWSTR;
             // 309 zeroes == MAX precision of a double
             // 6 == adjustment in case precision is not specified,
             //   which means that the precision defaults to 6
-            //pszTemp = (LPTSTR)_alloca(MAX(nWidth, 312+nPrecision+6));
+            //pszTemp = (char*)_alloca(MAX(nWidth, 312+nPrecision+6));
 
             f = va_arg(argList, double);
             snprintf( pszTemp, 64, ( "%*.*f" ), nWidth, nPrecision+6, f );
@@ -1108,7 +1089,7 @@ typedef wchar_t* LPWSTR;
 }
 
 // formatting (using wsprintf style formatting)
-void Format(LPCTSTR lpszFormat, ...)
+void Format(const char* lpszFormat, ...)
 {
   ASSERT(lpszFormat!=NULL);
 
@@ -1120,15 +1101,15 @@ void Format(LPCTSTR lpszFormat, ...)
 
 #ifdef _WIN32
 // formatting (using FormatMessage style formatting)
-int FormatMessage(LPCTSTR lpszFormat, ...)
+int FormatMessage(const char* lpszFormat, ...)
 {
   // format message into temporary buffer lpszTemp
   va_list argList;
   va_start(argList, lpszFormat);
-  LPTSTR lpszTemp;
+  char* lpszTemp;
 
   if (::FormatMessage(FORMAT_MESSAGE_FROM_STRING|FORMAT_MESSAGE_ALLOCATE_BUFFER,
-    lpszFormat, 0, 0, (LPTSTR)&lpszTemp, 0, &argList) == 0 ||
+    lpszFormat, 0, 0, (char*)&lpszTemp, 0, &argList) == 0 ||
     lpszTemp == NULL)
   {
     return 0;
@@ -1142,14 +1123,14 @@ int FormatMessage(LPCTSTR lpszFormat, ...)
 }
 #endif
 
-void TrimRight(LPCTSTR lpszTargetList)
+void TrimRight(const char* lpszTargetList)
 {
   // find beginning of trailing matches
   // by starting at beginning (DBCS aware)
 
   CopyBeforeWrite();
-  LPTSTR lpsz = m_pchData;
-  LPTSTR lpszLast = NULL;
+  char* lpsz = m_pchData;
+  char* lpszLast = NULL;
 
   while (*lpsz != '\0')
   {
@@ -1177,8 +1158,8 @@ void TrimRight(TCHAR chTarget)
   // by starting at beginning (DBCS aware)
 
   CopyBeforeWrite();
-  LPTSTR lpsz = m_pchData;
-  LPTSTR lpszLast = NULL;
+  char* lpsz = m_pchData;
+  char* lpszLast = NULL;
 
   while (*lpsz != '\0')
   {
@@ -1205,8 +1186,8 @@ void TrimRight()
   // find beginning of trailing spaces by starting at beginning (DBCS aware)
 
   CopyBeforeWrite();
-  LPTSTR lpsz = m_pchData;
-  LPTSTR lpszLast = NULL;
+  char* lpsz = m_pchData;
+  char* lpszLast = NULL;
 
   while (*lpsz != '\0')
   {
@@ -1228,14 +1209,14 @@ void TrimRight()
   }
 }
 
-void TrimLeft(LPCTSTR lpszTargets)
+void TrimLeft(const char* lpszTargets)
 {
   // if we're not trimming anything, we're not doing any work
   if (SafeStrlen(lpszTargets) == 0)
     return;
 
   CopyBeforeWrite();
-  LPCTSTR lpsz = m_pchData;
+  const char* lpsz = m_pchData;
 
   while (*lpsz != '\0')
   {
@@ -1258,7 +1239,7 @@ void TrimLeft(TCHAR chTarget)
   // find first non-matching character
 
   CopyBeforeWrite();
-  LPCTSTR lpsz = m_pchData;
+  const char* lpsz = m_pchData;
 
   while (chTarget == *lpsz)
     lpsz = _strinc(lpsz);
@@ -1277,7 +1258,7 @@ void TrimLeft()
   // find first non-space character
 
   CopyBeforeWrite();
-  LPCTSTR lpsz = m_pchData;
+  const char* lpsz = m_pchData;
 
   while (isspace(*lpsz))
     lpsz = _strinc(lpsz);
@@ -1321,7 +1302,7 @@ CString operator+(const CString& string1, const CString& string2)
   return s;
 }
 
-CString operator+(const CString& string, LPCTSTR lpsz)
+CString operator+(const CString& string, const char* lpsz)
 {
   ASSERT(lpsz == NULL);
   CString s;
@@ -1330,7 +1311,7 @@ CString operator+(const CString& string, LPCTSTR lpsz)
   return s;
 }
 
-CString operator+(LPCTSTR lpsz, const CString& string)
+CString operator+(const char* lpsz, const CString& string)
 {
   ASSERT(lpsz != NULL);
   CString s;
@@ -1341,39 +1322,39 @@ CString operator+(LPCTSTR lpsz, const CString& string)
 
 bool operator==(const CString& s1, const CString& s2)
 { return s1.Compare(s2.c_str()) == 0; }
-bool operator==(const CString& s1, LPCTSTR s2)
+bool operator==(const CString& s1, const char* s2)
 { return s1.Compare(s2) == 0; }
-bool operator==(LPCTSTR s1, const CString& s2)
+bool operator==(const char* s1, const CString& s2)
 { return s2.Compare(s1) == 0; }
 bool operator!=(const CString& s1, const CString& s2)
 { return s1.Compare(s2.c_str()) != 0; }
-bool operator!=(const CString& s1, LPCTSTR s2)
+bool operator!=(const CString& s1, const char* s2)
 { return s1.Compare(s2) != 0; }
-bool operator!=(LPCTSTR s1, const CString& s2)
+bool operator!=(const char* s1, const CString& s2)
 { return s2.Compare(s1) != 0; }
 bool operator<(const CString& s1, const CString& s2)
 { return s1.Compare(s2.c_str()) < 0; }
-bool operator<(const CString& s1, LPCTSTR s2)
+bool operator<(const CString& s1, const char* s2)
 { return s1.Compare(s2) < 0; }
-bool operator<(LPCTSTR s1, const CString& s2)
+bool operator<(const char* s1, const CString& s2)
 { return s2.Compare(s1) > 0; }
 bool operator>(const CString& s1, const CString& s2)
 { return s1.Compare(s2.c_str()) > 0; }
-bool operator>(const CString& s1, LPCTSTR s2)
+bool operator>(const CString& s1, const char* s2)
 { return s1.Compare(s2) > 0; }
-bool operator>(LPCTSTR s1, const CString& s2)
+bool operator>(const char* s1, const CString& s2)
 { return s2.Compare(s1) < 0; }
 bool operator<=(const CString& s1, const CString& s2)
 { return s1.Compare(s2.c_str()) <= 0; }
-bool operator<=(const CString& s1, LPCTSTR s2)
+bool operator<=(const CString& s1, const char* s2)
 { return s1.Compare(s2) <= 0; }
-bool operator<=(LPCTSTR s1, const CString& s2)
+bool operator<=(const char* s1, const CString& s2)
 { return s2.Compare(s1) >= 0; }
 bool operator>=(const CString& s1, const CString& s2)
 { return s1.Compare(s2.c_str()) >= 0; }
-bool operator>=(const CString& s1, LPCTSTR s2)
+bool operator>=(const CString& s1, const char* s2)
 { return s1.Compare(s2) >= 0; }
-bool operator>=(LPCTSTR s1, const CString& s2)
+bool operator>=(const char* s1, const CString& s2)
 { return s2.Compare(s1) <= 0; }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1429,121 +1410,6 @@ static void CopyElements(CString* pDest, CString* pSrc, int nCount)
   }
 }
 
-
-
-struct StringBuilder {
-	CString& out;
-	StringBuilder(CString& s) : out(s) {}
-	StringBuilder& OutputString(const char* szBuffer) {
-		out += szBuffer;
-		return *this;
-	}
-	StringBuilder& operator<<(BYTE by)
-	{
-		char szBuffer[32];
-
-		snprintf(szBuffer, 32, ("%d"), (int)by);
-		OutputString(szBuffer);
-		return *this;
-	}
-
-	StringBuilder& operator<<(WORD w)
-	{
-		char szBuffer[32];
-
-		snprintf(szBuffer, 32, ("%u"), (UINT)w);
-		OutputString(szBuffer);
-
-		return *this;
-	}
-	StringBuilder& operator<<(UINT u)
-	{
-		char szBuffer[32];
-
-		snprintf(szBuffer, 32, ("0x%X"), u);
-		OutputString(szBuffer);
-
-		return *this;
-	}
-
-	StringBuilder& operator<<(LONG l)
-	{
-		char szBuffer[32];
-
-		snprintf(szBuffer, 32, ("%ld"), l);
-		OutputString(szBuffer);
-
-		return *this;
-	}
-
-	StringBuilder& operator<<(DWORD dw)
-	{
-		char szBuffer[32];
-
-		snprintf(szBuffer, 32, ("%lu"), dw);
-		OutputString(szBuffer);
-
-		return *this;
-	}
-
-	StringBuilder& operator<<(int64_t dw)
-	{
-		char szBuffer[32];
-
-		snprintf(szBuffer, 32, ("%lld"), dw);
-		OutputString(szBuffer);
-
-		return *this;
-	}
-
-	StringBuilder& operator<<(uint64_t dw)
-	{
-		char szBuffer[32];
-
-		snprintf(szBuffer, 32, ("%llu"), dw);
-		OutputString(szBuffer);
-
-		return *this;
-	}
-
-	StringBuilder& operator<<(int n)
-	{
-		char szBuffer[32];
-
-		snprintf(szBuffer, 32, ("%d"), n);
-		OutputString(szBuffer);
-
-		return *this;
-	}
-
-	StringBuilder& operator<<(float f)
-	{
-		char szBuffer[32];
-		snprintf(szBuffer, 32, ("%f"), f);
-		OutputString(szBuffer);
-		return *this;
-	}
-
-	StringBuilder& operator<<(double d)
-	{
-		char szBuffer[32];
-		snprintf(szBuffer, 32, ("%lf"), d);
-		OutputString(szBuffer);
-		return *this;
-	}
-
-	StringBuilder& operator<<(const void* lp)
-	{
-		char szBuffer[32];
-
-		// prefix a pointer with "$" and print in hex
-		snprintf(szBuffer, 32, ("$%lX"), (LONG)lp);
-		OutputString(szBuffer);
-
-		return *this;
-	}
-
-};
 
 
 #endif // __CSTRING_H__

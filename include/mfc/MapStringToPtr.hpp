@@ -318,7 +318,6 @@ struct CMapStringToPtr
   /////////////////////////////////////////////////////////////////////////////
   // Diagnostics
   
-#ifdef _DEBUG
   void CMapStringToPtr::Dump(CDumpContext& dc) const
   {
     
@@ -343,12 +342,9 @@ struct CMapStringToPtr
   
   void CMapStringToPtr::AssertValid() const
   {
-    
-    
     ASSERT(m_nHashTableSize > 0);
     ASSERT(m_nCount == 0 || m_pHashTable != NULL);
     // non-empty map should have hash table
   }
-#endif //_DEBUG
   
 };

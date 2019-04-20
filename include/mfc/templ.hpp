@@ -86,50 +86,46 @@ AFX_INLINE UINT HashKey(ARG_KEY key)
 }
 
 // special versions for CString
-#if _MSC_VER >= 1100
+
 template<> void ConstructElements<CString> (CString* pElements, int nCount);
 template<> void DestructElements<CString> (CString* pElements, int nCount);
 template<> void CopyElements<CString> (CString* pDest, const CString* pSrc, int nCount);
 template<> void SerializeElements<CString> (CArchive& ar, CString* pElements, int nCount);
-#ifndef OLE2ANSI
 template<> UINT HashKey<LPCWSTR> (LPCWSTR key);
-#endif
 template<> UINT HashKey<LPCSTR> (LPCSTR key);
-#else // _MSC_VER >= 1100
+
 void ConstructElements(CString* pElements, int nCount);
 void DestructElements(CString* pElements, int nCount);
 void CopyElements(CString* pDest, const CString* pSrc, int nCount);
 void SerializeElements(CArchive& ar, CString* pElements, int nCount);
-#ifndef OLE2ANSI
 UINT HashKey(LPCWSTR key);
-#endif
 UINT HashKey(LPCSTR key);
-#endif // _MSC_VER >= 1100
+
 
 // forward declarations
 class COleVariant;
 struct tagVARIANT;
 
 // special versions for COleVariant
-#if _MSC_VER >= 1100
+
 template<> void ConstructElements<COleVariant> (COleVariant* pElements, int nCount);
 template<> void DestructElements<COleVariant> (COleVariant* pElements, int nCount);
 template<> void CopyElements<COleVariant> (COleVariant* pDest, const COleVariant* pSrc, int nCount);
 template<> void SerializeElements<COleVariant> (CArchive& ar, COleVariant* pElements, int nCount);
-#ifdef _DEBUG
+
 template<> void DumpElements<COleVariant> (CDumpContext& dc, const COleVariant* pElements, int nCount);
-#endif
+
 template<> UINT HashKey<const struct tagVARIANT&> (const struct tagVARIANT& var);
-#else // _MSC_VER >= 1100
+
 void ConstructElements(COleVariant* pElements, int nCount);
 void DestructElements(COleVariant* pElements, int nCount);
 void CopyElements(COleVariant* pDest, const COleVariant* pSrc, int nCount);
 void SerializeElements(CArchive& ar, COleVariant* pElements, int nCount);
-#ifdef _DEBUG
+
 void DumpElements(CDumpContext& dc, const COleVariant* pElements, int nCount);
-#endif
+
 UINT HashKey(const struct tagVARIANT& var);
-#endif // _MSC_VER >= 1100
+
 
 #define new DEBUG_NEW
 

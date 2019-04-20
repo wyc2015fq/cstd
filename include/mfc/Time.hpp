@@ -13,6 +13,12 @@ struct CTime
     return CTime(::time(NULL));
   }
   time_t m_time;
+  DefStruct* def(DefStruct* dc)
+  {
+	  dc->def("m_time", &m_time);
+	  return dc;
+  }
+
 
   _AFX_INLINE CTime()
   { }

@@ -435,8 +435,6 @@ protected:
     }
   }
   
-#ifdef _DEBUG
-  
   void Dump(CDumpContext& dc) const
   {
     CObject::Dump(dc);
@@ -473,7 +471,6 @@ protected:
       ASSERT(AfxIsValidAddress(m_pNodeTail, sizeof(CNode)));
     }
   }
-#endif //_DEBUG
   
 };
 

@@ -319,7 +319,6 @@ struct CMapPtrToPtr
   /////////////////////////////////////////////////////////////////////////////
   // Diagnostics
   
-#ifdef _DEBUG
   void CMapPtrToPtr::Dump(CDumpContext& dc) const
   {
     
@@ -350,6 +349,5 @@ struct CMapPtrToPtr
     ASSERT(m_nCount == 0 || m_pHashTable != NULL);
     // non-empty map should have hash table
   }
-#endif //_DEBUG
   
 };

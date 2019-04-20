@@ -416,11 +416,8 @@ struct CPtrList
   /////////////////////////////////////////////////////////////////////////////
   // Diagnostics
   
-#ifdef _DEBUG
   void CPtrList::Dump(CDumpContext& dc) const
   {
-    
-    
     dc << "with " << m_nCount << " elements";
     if (dc.GetDepth() > 0)
     {
@@ -449,7 +446,6 @@ struct CPtrList
       ASSERT(AfxIsValidAddress(m_pNodeTail, sizeof(CNode)));
     }
   }
-#endif //_DEBUG
  
 };
 

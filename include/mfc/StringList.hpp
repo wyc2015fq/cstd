@@ -4,9 +4,7 @@
 
 struct CStringList
 {
-  
   DECLARE_SERIAL(CStringList);
-  
   
   struct CNode
   {
@@ -473,7 +471,6 @@ struct CStringList
   /////////////////////////////////////////////////////////////////////////////
   // Diagnostics
   
-#ifdef _DEBUG
   void CStringList::Dump(CDumpContext& dc) const
   {
     
@@ -506,7 +503,6 @@ struct CStringList
       ASSERT(AfxIsValidAddress(m_pNodeTail, sizeof(CNode)));
     }
   }
-#endif //_DEBUG
   
   
   

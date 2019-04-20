@@ -2,7 +2,6 @@
 #include "String.hpp"
 #include "TimeSpan.hpp"
 #include "Time.hpp"
-#if 0
 #include "File.hpp"
 #include "Archive.hpp"
 #include "FileFind.hpp"
@@ -48,12 +47,13 @@ int test_StringList() {
   }
   return 0;
 }
+#if 0
 #endif
 
 
 
 int test_std() {
-  //test_StringList();
+  test_StringList();
   return 0;
 }
 

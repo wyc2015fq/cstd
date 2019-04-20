@@ -2,6 +2,7 @@
 #ifndef __BYTEARRAY_HPP__
 #define __BYTEARRAY_HPP__
 
+#include "DumpContext.hpp"
 #include "Archive.hpp"
 
 class CByteArray
@@ -294,21 +295,19 @@ public:
     }
   }
   
-  
-  void CByteArray::Dump(CDumpContext& dc) const
+
+  void Dump(CDumpContext& dc)
   {
-    
-    
-    dc << "with " << m_nSize << " elements";
-    if (dc.GetDepth() > 0)
-    {
-      for (int i = 0; i < m_nSize; i++)
-        dc << "\n\t[" << i << "] = " << m_pData[i];
-    }
-    
-    dc << "\n";
+	  dc << "with " << m_nSize << " elements";
+	  if (dc.GetDepth() > 0)
+	  {
+		  for (int i = 0; i < m_nSize; i++)
+			  dc << "\n\t[" << i << "] = " << m_pData[i];
+	  }
+
+	  dc << "\n";
   }
-  
+
   void CByteArray::AssertValid() const
   {
     
@@ -327,5 +326,6 @@ public:
     }
   }
 };
+
 
 #endif // __BYTEARRAY_HPP__

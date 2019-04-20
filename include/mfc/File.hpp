@@ -220,19 +220,18 @@ struct CFileStatus
 	CTime m_ctime;          // creation date/time of file
 	CTime m_mtime;          // last modification date/time of file
 	CTime m_atime;          // last access date/time of file
-	LONG m_size;            // logical size of file in bytes
+	uint64_t m_size;            // logical size of file in bytes
 	BYTE m_attribute;       // logical OR of CFile::Attribute enum values
 	BYTE _m_padding;        // pad the structure to a WORD
 	TCHAR m_szFullName[_MAX_PATH]; // absolute path name
 
-  void Dump(DumpContext* dc) const
+    DefStruct* def(DefStruct* dc)
   {
-    dc->def("CFileStatus", (void*)this);
-    dc->def("m_ctime", m_ctime);
-    dc->def("m_mtime", m_mtime);
-    dc->def("m_atime", m_atime);
-    dc->def("m_size", m_size);
-    dc->def("m_attribute", m_attribute);
+		dc->subdef("m_ctime", &m_ctime);
+		dc->subdef("m_mtime", &m_mtime);
+		dc->subdef("m_atime", &m_atime);
+    dc->def("m_size", &m_size);
+    dc->def("m_attribute", &m_attribute);
     dc->def("m_szFullName", m_szFullName);
 }
 
@@ -621,10 +620,10 @@ void CFile::AssertValid() const
   // we permit the descriptor m_hFile to be any value for derived classes
 }
 
-DumpContext* CFile::Dump(DumpContext* dc) const
+DefStruct* CFile::def(DefStruct* dc)
 {
-  dc->def("handle", (UINT)m_hFile);
-  dc->def("name", m_strFileName);
+  //dc->def("handle", &m_hFile);
+  dc->def("name", &m_strFileName);
   return dc;
 }
 
@@ -1125,11 +1124,11 @@ void CStdioFile::UnlockRange(DWORD /* dwPos */, DWORD /* dwCount */)
 	AfxThrowNotSupportedException();
 }
 
-void CStdioFile::Dump(DumpContext* dc) const
+void CStdioFile::def(DefStruct* dc)
 {
-	CFile::Dump(dc);
+	CFile::def(dc);
 
-	dc->def("m_pStream", (void*)m_pStream);
+	// dc->def("m_pStream", (void*)m_pStream);
 }
 
 };
@@ -1471,14 +1470,14 @@ UINT CMemFile::GetBufferPtr(UINT nCommand, UINT nCount = 0,
 /////////////////////////////////////////////////////////////////////////////
 // CMemFile diagonstics
 
-DumpContext* CMemFile::Dump(DumpContext* dc) const
+DefStruct* CMemFile::def(DefStruct* dc)
 {
-	CFile::Dump(dc);
+	CFile::def(dc);
 
-	dc->def("m_nFileSize", m_nFileSize);
-	dc->def("m_nBufferSize", m_nBufferSize);
-	dc->def("m_nPosition", m_nPosition);
-	dc->def("m_nGrowBytes", m_nGrowBytes);
+	dc->def("m_nFileSize", &m_nFileSize);
+	dc->def("m_nBufferSize", &m_nBufferSize);
+	dc->def("m_nPosition", &m_nPosition);
+	dc->def("m_nGrowBytes", &m_nGrowBytes);
 }
 
 void CMemFile::AssertValid() const

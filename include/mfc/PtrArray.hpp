@@ -281,8 +281,6 @@ struct CPtrArray
   
   /////////////////////////////////////////////////////////////////////////////
   // Diagnostics
-  
-#ifdef _DEBUG
   void CPtrArray::Dump(CDumpContext& dc) const
   {
     
@@ -314,6 +312,5 @@ struct CPtrArray
       ASSERT(AfxIsValidAddress(m_pData, m_nMaxSize * sizeof(void*)));
     }
   }
-#endif //_DEBUG
   
 };
